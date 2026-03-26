@@ -1,12 +1,10 @@
-# Required secrets: REGISTRY (registry host), REGISTRY_USER, REGISTRY_PASSWORD.
-# Set default branch in env or use 'main' below. See .forgejo/README.md for setup.
-
 on:
   push:
   workflow_dispatch:
 
 env:
   DEFAULT_BRANCH: "main"
+  REGISTRY_IMAGE_BASE: "codeberg.org/${{ forgejo.repository }}"
 
 jobs:
   set-variables:
@@ -20,17 +18,17 @@ jobs:
           # ref_slug: lowercase, non-alphanumeric -> single dash, max 63 chars
           ref_slug=$(echo "$ref_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g' | sed 's/-\+/-/g' | cut -c1-63)
           if [ "$ref_name" = "${{ env.DEFAULT_BRANCH }}" ]; then
-            tag=""
+            tag="latest"
             echo "Running on default branch '${{ env.DEFAULT_BRANCH }}': tag = 'latest'"
           else
-            tag=":$ref_slug"
+            tag="$ref_slug"
             echo "Running on branch '$ref_name': tag = $tag"
           fi
           version="$(date +%Y-%m-%d)-${short_sha}"
-          echo "tag=$tag" >> $GITHUB_OUTPUT
-          echo "version=$version" >> $GITHUB_OUTPUT
-          echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
-          echo "ref_slug=$ref_slug" >> $GITHUB_OUTPUT
+          echo "tag=$tag" >> $FORGEJO_OUTPUT
+          echo "version=$version" >> $FORGEJO_OUTPUT
+          echo "short_sha=$short_sha" >> $FORGEJO_OUTPUT
+          echo "ref_slug=$ref_slug" >> $FORGEJO_OUTPUT
     outputs:
       tag: ${{ steps.vars.outputs.tag }}
       version: ${{ steps.vars.outputs.version }}
@@ -41,11 +39,13 @@ jobs:
     runs-on: docker
     needs: [set-variables]
     container:
-      image: docker:latest
+      image: node:24-alpine
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Install Docker CLI and git
+        run: apk add --no-cache docker-cli docker-cli-buildx git
       - name: Set image and version
         run: |
           echo "REGISTRY_IMAGE=${{ secrets.REGISTRY }}/${{ forgejo.repository }}" >> $GITHUB_ENV
@@ -55,26 +55,24 @@ jobs:
       - name: Generate changelog and amend commit (merge into default branch only)
         if: forgejo.ref_name == env.DEFAULT_BRANCH
         run: |
-          apk add --no-cache git
           if ! git rev-parse --verify HEAD^2 >/dev/null 2>&1; then
             echo "Not a merge commit, skipping changelog generation."
             exit 0
           fi
           docker run --rm -v "$PWD:/app" -w /app node:20 node scripts/generate-changelog.mjs
           if ! git diff --quiet CHANGELOG.md; then
-            git remote set-url origin "https://${{ forgejo.actor }}:${{ secrets.REGISTRY_PASSWORD }}@${{ secrets.REGISTRY }}/${{ forgejo.repository }}.git"
+            git remote set-url origin "https://${{ forgejo.actor }}:${{ forgejo.token }}@codeberg.org/${{ forgejo.repository }}.git"
             git add CHANGELOG.md
             git commit --amend --no-edit
             git push --force-with-lease origin HEAD
           fi
       - name: Docker login
         run: |
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin "${{ secrets.REGISTRY }}"
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "codeberg.org"
       - name: Create release tag on stable
         if: forgejo.ref_name == 'stable'
         run: |
-          apk add --no-cache git
-          git remote set-url origin "https://${{ forgejo.actor }}:${{ secrets.REGISTRY_PASSWORD }}@${{ secrets.REGISTRY }}/${{ forgejo.repository }}.git"
+          git remote set-url origin "https://${{ forgejo.actor }}:${{ forgejo.token }}@codeberg.org/${{ forgejo.repository }}.git"
           release_tag="${VERSION}-RELEASE"
           if git ls-remote --exit-code --tags origin "refs/tags/${release_tag}" >/dev/null 2>&1; then
             echo "Git tag ${release_tag} already exists. Skipping tag creation."
@@ -84,10 +82,11 @@ jobs:
           fi
       - name: Build and push image
         run: |
-          if docker manifest inspect "${REGISTRY_IMAGE}:${SHORT_SHA}" >/dev/null 2>&1; then
-            echo "Image ${REGISTRY_IMAGE}:${SHORT_SHA} already exists; skipping build."
+          if docker manifest inspect "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}" >/dev/null 2>&1; then
+            echo "Image ${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }} already exists; skipping build."
           else
-            docker buildx build --build-arg "VERSION=${VERSION}" --build-arg "ENVIRONMENT=${TAG}" -t "${REGISTRY_IMAGE}:${SHORT_SHA}" --push .
+            docker buildx build --build-arg "VERSION=${{ needs.set-variables.outputs.version }}" \
+              -t "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}" --push .
           fi
 
   test-integration:
@@ -103,9 +102,9 @@ jobs:
       redis:
         image: redis:alpine
       web:
-        image: ${{ secrets.REGISTRY }}/${{ forgejo.repository }}:${{ needs.set-variables.outputs.short_sha }}
+        image: ${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}
         credentials:
-          username: ${{ secrets.REGISTRY_USER }}
+          username: ${{ vars.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
         env:
           DB_URL: "http://arangodb:8529"
@@ -127,7 +126,7 @@ jobs:
     if: forgejo.ref_name == env.DEFAULT_BRANCH
     needs: [test-integration, set-variables]
     container:
-      image: ${{ secrets.REGISTRY }}/${{ forgejo.repository }}:${{ needs.set-variables.outputs.short_sha }}
+      image: ${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}
       credentials:
         username: ${{ secrets.REGISTRY_USER }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
@@ -138,8 +137,8 @@ jobs:
           echo " " >> .npmrc
           # Forgejo npm registry: /api/packages/{owner}/npm/
           owner="${{ forgejo.repository }}" && owner="${owner%%/*}"
-          echo "@allpeep:registry=https://${{ secrets.REGISTRY }}/api/packages/${owner}/npm/" >> .npmrc
-          echo "//${{ secrets.REGISTRY }}/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
+          echo "@allpeep:registry=https://codeberg.org/api/packages/${owner}/npm/" >> .npmrc
+          echo "//codeberg.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
           cat .npmrc
           pnpm install
           pnpm -r publish --access private --no-git-checks
@@ -150,27 +149,16 @@ jobs:
     container:
       image: docker:latest
     steps:
-      - name: Set image and tag
-        run: |
-          echo "REGISTRY_IMAGE=${{ secrets.REGISTRY }}/${{ forgejo.repository }}" >> $GITHUB_ENV
-          echo "SHORT_SHA=${{ needs.set-variables.outputs.short_sha }}" >> $GITHUB_ENV
-          echo "VERSION=${{ needs.set-variables.outputs.version }}" >> $GITHUB_ENV
-          echo "TAG=${{ needs.set-variables.outputs.tag }}" >> $GITHUB_ENV
       - name: Docker login
         run: |
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin "${{ secrets.REGISTRY }}"
-      - name: Tag and push (staging/stable)
-        if: forgejo.ref_name == 'staging' || forgejo.ref_name == 'stable'
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "codeberg.org"
+      - name: Tag version if on stable
+        if: forgejo.ref_name == 'stable'
         run: |
-          if [ "${{ forgejo.ref_name }}" = "stable" ]; then
-            docker buildx imagetools create \
-              --tag "${REGISTRY_IMAGE}${TAG}" \
-              --tag "${REGISTRY_IMAGE}:${VERSION}" \
-              "${REGISTRY_IMAGE}:${SHORT_SHA}"
-          else
-            docker buildx imagetools create --tag "${REGISTRY_IMAGE}${TAG}" "${REGISTRY_IMAGE}:${SHORT_SHA}"
-          fi
-      - name: Tag and push (other branches)
-        if: forgejo.ref_name != 'staging' && forgejo.ref_name != 'stable'
+          docker buildx imagetools create \
+              --tag "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.version }}" \
+              "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}"
+      - name: Tag tag
         run: |
-          docker buildx imagetools create --tag "${REGISTRY_IMAGE}${TAG}" "${REGISTRY_IMAGE}:${SHORT_SHA}"
+          docker buildx imagetools create --tag "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.tag }}" \
+            "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}"
