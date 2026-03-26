@@ -1,0 +1,25 @@
+services:
+  db:
+    restart: always
+    image: arangodb:3.11
+    environment:
+      - "ARANGO_NO_AUTH=1"
+    ports:
+      - "8529:8529"
+  redis:
+    restart: always
+    image: redis:alpine
+    command:
+      - "redis-server"
+      - "--appendonly"
+      - "yes"
+      # Reduce disk pressure: OS handles fsync (up to ~30s loss on crash)
+      - "--appendfsync"
+      - "no"
+      # Avoid fsync during AOF rewrite so it doesn't block normal writes
+      - "--no-appendfsync-on-rewrite"
+      - "yes"
+      - "--notify-keyspace-events"
+      - "KEA"
+    ports:
+      - "6379:6379"

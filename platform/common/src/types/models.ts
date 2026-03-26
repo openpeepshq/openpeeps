@@ -1,0 +1,659 @@
+import { z, ZodObject, ZodRawShape } from 'zod';
+import validator from 'validator';
+import ISO6391 from 'iso-639-1';
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { groupRelationships } from './capabilities';
+import { capabilitiesSchema } from './config';
+
+extendZodWithOpenApi(z);
+
+export const handleRegexBase = '[a-zA-Z0-9_-]{1,16}';
+
+export const handleRegex = new RegExp(`^${handleRegexBase}$`);
+
+export const forbiddenHandles = [
+  'admin',
+  'allpeep',
+  'api',
+  'app',
+  'auth',
+  'config',
+  'core',
+  'db',
+  'email',
+  'federation',
+  'jam',
+  'media',
+  'network',
+  'plugins',
+  'undefined',
+  'jamStarted',
+  'jamSpeaker',
+  'jamModerator',
+  'new',
+];
+
+export const baseSchemaShape = {
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  deletedAt: z.string().datetime().nullable().optional(),
+};
+
+export const baseSchema = z.object(baseSchemaShape);
+export type Base<T> = z.infer<typeof baseSchema> & T;
+
+export const idSchemaShape = {
+  id: z.string().uuid(),
+};
+
+export const idSchema = z.object(idSchemaShape);
+export type Id = z.infer<typeof idSchema>;
+
+export const modelSchema = (dataSchema: ZodObject<ZodRawShape>) =>
+  dataSchema.extend({
+    ...baseSchemaShape,
+    ...idSchemaShape,
+  });
+
+export type Model<T> = Base<T> & { id: string };
+
+const connectionSchema = (
+  dataSchema: ZodObject<ZodRawShape>,
+  from: ZodObject<ZodRawShape>,
+  to: ZodObject<ZodRawShape>,
+) =>
+  modelSchema(dataSchema).extend({
+    from,
+    to,
+  });
+
+export const applicationDataSchema = z.object({
+  id: z.string(),
+  secret: z.string(),
+  name: z.string(),
+  website: z.string(),
+});
+export type ApplicationData = z.infer<typeof applicationDataSchema>;
+export type Application = Model<ApplicationData>;
+
+export const accountDataSchema = z.object({
+  email: z.string().email(),
+  passwordHash: z.string(),
+  stripeCustomerId: z.string().optional(),
+  emailValidated: z.boolean().default(false).optional(),
+  guest: z.boolean().optional(),
+});
+export type AccountData = z.infer<typeof accountDataSchema>;
+export const accountSchema = modelSchema(accountDataSchema);
+export type Account = Model<AccountData>;
+
+export const roleDataSchema = z.object({
+  key: z.string().regex(/^[a-z-]{1,32}$/),
+  default: z.boolean(),
+  displayName: z.string().max(32),
+  description: z.string().optional(),
+  capabilities: capabilitiesSchema,
+});
+
+export type RoleData = z.infer<typeof roleDataSchema>;
+export const roleSchema = modelSchema(roleDataSchema);
+export type Role = Model<RoleData>;
+
+export const profileSettingsDefaultsSchema = z.object({
+  privacy: z.enum(['public', 'unlisted', 'private']).optional(),
+  sensitive: z.boolean().optional(),
+  language: z.string().refine(validator.isISO6391).optional(),
+});
+export type ProfileSettingsDefaults = z.infer<
+  typeof profileSettingsDefaultsSchema
+>;
+
+export const profileNotificationSettings = z.object({
+  create: z.boolean(),
+  push: z.boolean(),
+  email: z.boolean(),
+});
+export type ProfileNotificationSettings = z.infer<
+  typeof profileNotificationSettings
+>;
+export const jamSettingsSchema = z.object({
+  backgroundObfuscation: z
+    .discriminatedUnion('type', [
+      z.object({
+        type: z.literal('blur'),
+        radius: z.number().int().positive().optional(),
+      }),
+      z.object({
+        type: z.literal('image'),
+        image: z.string().url(),
+      }),
+      z.object({
+        type: z.literal('video'),
+        video: z.string().url(),
+      }),
+      z.object({
+        type: z.literal('none'),
+      }),
+    ])
+    .optional(),
+});
+export const THEME_OPTIONS = ['community', 'light', 'dark', 'system'] as const;
+export const ThemeOptionsSchema = z.enum(THEME_OPTIONS);
+export type ThemeOptions = z.infer<typeof ThemeOptionsSchema>;
+
+export type JamSettings = z.infer<typeof jamSettingsSchema>;
+export const profileSettingsDataSchema = z.object({
+  id: z.string(),
+  theme: ThemeOptionsSchema.optional(),
+  defaults: profileSettingsDefaultsSchema.optional(),
+  notifications: z.record(profileNotificationSettings).optional(),
+  jamSettings: jamSettingsSchema.optional(),
+  stripeSettings: z.object({
+    customerId: z.string().optional(),
+  }).optional(),
+  feedSettings: z
+    .object({
+      communityFeed: z
+        .object({
+          showGroupPosts: z.boolean().optional(),
+        })
+        .optional(),
+    })
+    .default({ communityFeed: { showGroupPosts: true } })
+    .optional(),
+});
+export type ProfileSettingsData = z.infer<typeof profileSettingsDataSchema>;
+
+export const profileSettingsSchema = modelSchema(profileSettingsDataSchema);
+export type ProfileSettings = Model<ProfileSettingsData>;
+
+export const accountNameSchema = z
+  .string()
+  .refine((value) => !forbiddenHandles.includes(value.toLowerCase()), {
+    message: 'Handle is reserved',
+  })
+  .refine((value) => handleRegex.test(value ?? ''), {
+    message:
+      'Handle can only contain alphanumeric characters and underscores and not have more than 16 characters',
+  });
+
+export const resourceSchema = z.object({
+  type: z.enum(['jam', 'profile', 'db', 'render']),
+  id: z.union([z.string().uuid(), z.literal('*')]),
+});
+export type Resource = z.infer<typeof resourceSchema>;
+
+export const latLngSchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+  alt: z.number().optional(),
+});
+export type LatLng = z.infer<typeof latLngSchema>;
+
+export const locationSchema = z.object({
+  text: z.string(),
+  coordinates: latLngSchema.optional(),
+});
+
+export type Location = z.infer<typeof locationSchema>;
+export const profileDataSchema = z.object({
+  handle: accountNameSchema,
+  deletedHandle: accountNameSchema.optional(),
+  avatar: z.string().url().nullable().optional(),
+  header: z.string().url().nullable().optional(),
+  displayName: z.string().max(30).optional(),
+  bio: z.string().optional(),
+  timeZone: z.string().optional(),
+  location: locationSchema.optional(),
+  locked: z.boolean().optional(),
+  bot: z.boolean().optional(),
+  discoverable: z.boolean().optional(),
+  hideSocialGraph: z.boolean().optional(),
+  indexable: z.boolean().optional(),
+  fields: z
+    .array(
+      z.object({
+        name: z.string().max(255).min(1),
+        value: z.string().max(255),
+      }),
+    )
+    .optional(),
+  activityPub: z
+    .object({
+      domain: z.string().min(4), // TODO maybe replace with regex
+    })
+    .optional(),
+  type: z.enum(['local', 'guest', 'federated']),
+  guestData: z
+    .object({
+      email: z.string().email().optional(),
+      resource: resourceSchema.optional(),
+    })
+    .optional(),
+});
+
+export type ProfileData = z.infer<typeof profileDataSchema>;
+export const profileSchema = modelSchema(profileDataSchema);
+export type Profile = Model<Base<ProfileData>>;
+
+export const accountWithMetaSchema = accountSchema.extend({
+  profiles: z.array(profileSchema),
+});
+export interface AccountWithMeta extends Account {
+  profiles: Profile[];
+}
+
+export const jamDataSchema = z
+  .object({
+    moderators: z.string().array(),
+    speakers: z.string().array().optional(),
+    presenters: z.string().array().optional(),
+    audience: z.string().array().optional(),
+    videoEnabled: z.boolean(),
+    type: z.enum(['video-call']),
+    maxSpeakers: z.number().int().positive().optional(),
+    maxPresenters: z.number().int().positive().optional(),
+    maxAudience: z.number().int().positive().optional(),
+    waitingRoom: z.boolean().optional(),
+  })
+  .openapi('Jam');
+
+export const jamSchema = jamDataSchema;
+export type JamData = z.infer<typeof jamDataSchema>;
+export type Jam = JamData;
+
+export const followDataSchema = z.object({
+  reblogs: z.boolean().optional(),
+  notify: z.boolean().optional(),
+  languages: z.array(z.string().refine(validator.isISO6391)).optional(),
+});
+
+export type FollowData = z.infer<typeof followDataSchema>;
+export const followSchema = connectionSchema(
+  followDataSchema,
+  profileSchema,
+  profileSchema,
+);
+
+export type Follow = z.infer<typeof followSchema>;
+
+export const visibilityTypeValues = ['public', 'unlisted', 'private', 'direct', 'local', 'group', 'report'] as const;
+
+export const visibilityTypeSchema = z.enum(visibilityTypeValues);
+
+export type VisibilityType = z.infer<typeof visibilityTypeSchema>;
+
+export const postTypeSchema = z.enum(['note', 'question', 'event', 'article']);
+export type PostType = z.infer<typeof postTypeSchema>;
+
+export const mediaAttachmentDataSchema = z
+  .object({
+    type: z.string(),
+    url: z.string().url(),
+    previewUrl: z.string().url().nullable(),
+    textUrl: z.null(),
+    filename: z.string(),
+    meta: z.object({
+      usage: z.string().optional(),
+      focus: z
+        .object({
+          x: z.number(),
+          y: z.number(),
+        })
+        .optional(),
+      mimetype: z.string().optional(),
+      size: z.number().optional(),
+    }),
+    description: z.string().optional(),
+    blurhash: z.string().optional(),
+  })
+  .openapi('MediaAttachment');
+export const mediaAttachmentSchema = modelSchema(mediaAttachmentDataSchema);
+export type MediaAttachmentData = z.infer<typeof mediaAttachmentDataSchema>;
+export type MediaAttachment = Model<MediaAttachmentData>;
+
+export const customEmojiSchema = z
+  .object({
+    shortcode: z.string(),
+    url: z.string().url(),
+    staticUrl: z.string().url(),
+    visibleInPicker: z.boolean(),
+    category: z.string(),
+  })
+  .openapi('CustomEmoji');
+export type CustomEmoji = z.infer<typeof customEmojiSchema>;
+
+export const noteSchema = z
+  .object({
+    type: z.literal('note'),
+    content: z.string().optional(),
+    sensitive: z.boolean().optional(),
+    spoilerText: z.string().optional(),
+    attachments: z.array(mediaAttachmentDataSchema).optional(),
+    customEmojis: z.array(customEmojiSchema).optional(),
+    language: z.enum(ISO6391.getAllCodes() as [string, ...string[]]).optional(),
+  })
+  .openapi('Note');
+export type Note = z.infer<typeof noteSchema>;
+
+export const questionSchema = noteSchema
+  .extend({
+    type: z.literal('question'),
+    options: z
+      .object({
+        content: z.string().max(30),
+        type: z.literal('note'),
+      })
+      .array(),
+    multiple: z.boolean().optional(),
+    votersVisible: z.boolean().optional(),
+    expiresAt: z.string().datetime().optional(),
+  })
+  .openapi('Question');
+
+export type Question = z.infer<typeof questionSchema>;
+
+export const articleSchema = noteSchema
+  .extend({
+    type: z.literal('article'),
+    image: z.string().url().optional(),
+    title: z.string().optional(),
+  })
+  .openapi('Article');
+
+export type Article = z.infer<typeof articleSchema>;
+
+export const eventSchema = noteSchema
+  .extend({
+    type: z.literal('event'),
+    name: z.string().optional(),
+    timeZone: z.string().optional(),
+    image: z.string().url().optional(),
+    start: z.string().datetime({ offset: true, precision: 3 }),
+    end: z.string().datetime({ offset: true, precision: 3 }).optional(),
+    wholeDay: z.boolean(),
+    maxAttendees: z.number().int().positive().optional(),
+    attendeeListPublic: z.boolean().optional(),
+    moderators: z.string().uuid().array().optional(),
+    jam: jamSchema.optional(),
+    physicalLocation: locationSchema.optional(),
+    url: z.string().url().optional(),
+  })
+  .openapi('Event');
+
+export type Event = z.infer<typeof eventSchema>;
+export type EventWithId = z.infer<typeof eventSchema> & { id: string };
+
+export const postDataUnionSchema = z.discriminatedUnion('type', [
+  noteSchema,
+  questionSchema,
+  eventSchema,
+  articleSchema,
+]);
+
+export type PostDataUnion = z.infer<typeof postDataUnionSchema>;
+
+export const postDataSchema = z.object({
+  type: postTypeSchema,
+  visibility: visibilityTypeSchema,
+  capabilitiesNeeded: z.string().array().optional(),
+  data: postDataUnionSchema.optional(),
+  creatorId: z.string(),
+});
+export type PostData = z.infer<typeof postDataSchema>;
+export const postSchema = modelSchema(postDataSchema);
+export type Post = Model<PostData>;
+
+export const answerSchema = z
+  .object({
+    selection: z.number().array(),
+  })
+  .openapi('Answer');
+
+export type Answer = z.infer<typeof answerSchema>;
+
+export const rsvpResponseSchema = z.enum(['yes', 'no', 'tentative']);
+
+export const rsvpSchema = z.object({
+  response: rsvpResponseSchema,
+});
+export type RSVP = z.infer<typeof rsvpSchema>;
+
+export const entryDataSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('create'),
+    data: postDataUnionSchema,
+  }),
+  z.object({
+    type: z.literal('edit'),
+    data: postDataUnionSchema,
+  }),
+  z.object({
+    type: z.literal('delete'),
+    data: z.any(),
+  }),
+  z.object({
+    type: z.literal('answer'),
+    data: answerSchema,
+  }),
+  z.object({
+    type: z.literal('rsvp'),
+    data: rsvpSchema,
+  }),
+]);
+
+export type EntryData = z.infer<typeof entryDataSchema>;
+
+export type Entry = Model<EntryData & { profile: Profile }>;
+
+export const accountInteractionsSchema = z.object({
+  favorited: z.boolean(),
+  reposted: z.boolean(),
+  muted: z.boolean(),
+  bookmarked: z.boolean(),
+  pinned: z.boolean(),
+});
+
+export type AccountInteractions = z.infer<typeof accountInteractionsSchema>;
+
+export const reportResolutionSchema = z.enum([
+  'ignore',
+  'remove',
+  'warn',
+  'ban',
+  'other',
+]);
+
+export type ReportResolution = z.infer<typeof reportResolutionSchema>;
+
+export const reportDataSchema = z
+  .object({
+    comment: z.string().max(1000),
+    uri: z.string().url().optional(),
+    forward: z.boolean().optional(),
+    category: z.enum(['spam', 'violation', 'other']),
+    ruleIds: z.array(z.number()).optional(),
+    resolution: reportResolutionSchema.optional(),
+  })
+  .openapi('Report');
+
+export type ReportData = z.infer<typeof reportDataSchema>;
+export const reportSchema = modelSchema(reportDataSchema);
+export type Report = Model<ReportData>;
+
+export const notificationDataSchema = z.object({
+  type: z.string(),
+  profileId: z.string().uuid(),
+  pushHandled: z.boolean().optional(),
+  emailHandled: z.boolean().optional(),
+  read: z.boolean().optional(),
+  seen: z.boolean().optional(),
+  postId: z.string().optional(),
+  fromProfileId: z.string().uuid().optional(),
+  groupId: z.string().uuid().optional(),
+  data: z.unknown(),
+});
+export const notificationSchema = modelSchema(notificationDataSchema);
+export type NotificationData = z.infer<typeof notificationDataSchema>;
+
+export type Notification<DataType = unknown> = Model<
+  NotificationData & { data?: DataType }
+>;
+
+export const configDataSchema = z.object({
+  config: z.any(),
+});
+export type ConfigData = z.infer<typeof configDataSchema>;
+export type Config = Model<ConfigData>;
+
+export const configDataWithDefaultsSchema = configDataSchema.extend({
+  defaults: z.any(),
+});
+export type ConfigDataWithDefaults = z.infer<
+  typeof configDataWithDefaultsSchema
+>;
+
+export const alertsSchema = z.object({
+  poll: z.boolean(),
+  followRequest: z.boolean(),
+  status: z.boolean(),
+  favorite: z.boolean(),
+  follow: z.boolean(),
+  repost: z.boolean(),
+  mention: z.boolean(),
+  update: z.boolean(),
+  admin: z.object({
+    signUp: z.boolean(),
+    report: z.boolean(),
+  }),
+});
+
+export const pushSubscriptionDataSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('web'),
+    endpoint: z.string().url(),
+    keys: z.object({
+      auth: z.string(),
+      p256dh: z.string(),
+    }),
+    alerts: alertsSchema.optional(),
+  }),
+  z.object({
+    type: z.literal('apn'),
+    apnToken: z.string(),
+    alerts: alertsSchema.optional(),
+  }),
+  z.object({
+    type: z.literal('fcm'),
+    fcmToken: z.string(),
+    alerts: alertsSchema.optional(),
+  }),
+]);
+export type PushSubscriptionData = z.infer<typeof pushSubscriptionDataSchema>;
+export type PushSubscription = Model<PushSubscriptionData>;
+export const reactionTypeSchema = z.enum(['👍']);
+
+export const reactionDataSchema = z.object({
+  reaction: reactionTypeSchema,
+});
+export type ReactionData = z.infer<typeof reactionDataSchema>;
+export type Reaction = Model<ReactionData>;
+
+export const mentionDataSchema = z.object({
+  text: z.string().optional(),
+});
+export type MentionData = z.infer<typeof mentionDataSchema>;
+export type Mention = Model<MentionData>;
+
+export const timelineValueSchema = z.object({
+  start: z.string().datetime(),
+  end: z.string().datetime(),
+  value: z.number(),
+});
+export type TimelineValue = z.infer<typeof timelineValueSchema>;
+
+export const profileStatsSchema = z.object({
+  followersCount: z.number(),
+  followingCount: z.number(),
+});
+export type ProfileStats = z.infer<typeof profileStatsSchema>;
+
+export const groupDataSchema = z.object({
+  handle: accountNameSchema,
+  avatar: z.string().url().nullable().optional(),
+  header: z.string().url().nullable().optional(),
+  displayName: z.string().max(30).optional(),
+  description: z.string().optional(),
+  rules: z.string().optional(),
+  pinnedPostId: z.string().optional(),
+  capabilities: z.record(capabilitiesSchema),
+});
+
+export type GroupData = z.infer<typeof groupDataSchema>;
+
+export const groupSchema = modelSchema(groupDataSchema);
+export type Group = z.infer<typeof groupSchema>;
+
+export const groupRoleSchema = z.object({
+  roles: z.enum(groupRelationships).array().optional().nullable(),
+});
+
+export type GroupRoleData = z.infer<typeof groupRoleSchema>;
+
+export const guestDataSchema = z.object({
+  displayName: z.string(),
+  email: z.string().email(),
+});
+
+export type GuestData = z.infer<typeof guestDataSchema>;
+
+export const jamEventDataSchema = z.object({
+  id: z.string(),
+  jamId: z.string(),
+  type: z.enum(['message', 'reaction', 'join', 'leave', 'start', 'close', 'recordStart', 'recordStop']),
+  profileId: z.string(),
+  content: z.string().optional(),
+  reaction: reactionTypeSchema.optional(),
+});
+
+export type JamEventData = z.infer<typeof jamEventDataSchema>;
+
+export const jamEventSchema = modelSchema(jamEventDataSchema);
+export type JamEvent = Model<JamEventData>;
+
+export const inviteLinkDataSchema = z.object({
+  slug: z.string(),
+  active: z.boolean(),
+  emailPatterns: z.string().array().optional(),
+  maxUses: z.number(),
+  expiresAt: z.string().datetime(),
+  customInvitationMessage: z.string().optional(),
+});
+export type InviteLinkData = z.infer<typeof inviteLinkDataSchema>;
+
+export const inviteLinkSchema = modelSchema(inviteLinkDataSchema);
+export type InviteLink = Model<InviteLinkData>;
+
+export const hashtagDataSchema = z.object({
+  tag: z.string().optional(),
+});
+export type HashtagData = z.infer<typeof hashtagDataSchema>;
+export const hashtagSchema = modelSchema(hashtagDataSchema);
+export type Hashtag = Model<HashtagData>;
+
+
+export const hashtagRegexBase = '(?<!\\S)#([a-z0-9_]+)(?!\\S)';
+export const hashtagRegex = new RegExp(hashtagRegexBase, 'gi');
+
+
+export const jamRecordingTypeSchema = z.enum(['compositeVideo', 'compositeAudio', 'streams']);
+export type JamRecordingType = z.infer<typeof jamRecordingTypeSchema>;
+
+export const jamRecordingDataSchema = z.object({
+  status: z.enum(['requested', 'active', 'completed', 'failed']),
+  egressId: z.string().optional(),
+  attachment: mediaAttachmentSchema.optional(),
+});
+export type JamRecordingData = z.infer<typeof jamRecordingDataSchema>;
+export const jamRecordingSchema = modelSchema(jamRecordingDataSchema);
+export type JamRecording = Model<JamRecordingData>;

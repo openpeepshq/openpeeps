@@ -1,0 +1,120 @@
+set-variables:
+  stage: .pre
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+        tag=""
+        echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+      else
+        tag=":$CI_COMMIT_REF_SLUG"
+        echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+      fi
+    - echo "tag=$tag" >> build.env
+    - version="$(date +"%Y-%m-%d")-${CI_COMMIT_SHORT_SHA}"
+    - echo "version=$version" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+build:
+  image: docker:latest
+  stage: build
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - |
+      if [[ "$CI_COMMIT_REF_NAME" == "stable" ]]; then
+        release_tag="${version}-RELEASE"
+        apk add --no-cache git
+        git remote set-url origin "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+        if git ls-remote --exit-code --tags origin "refs/tags/${release_tag}" >/dev/null 2>&1; then
+          echo "Git tag ${release_tag} already exists. Skipping tag creation."
+        else
+          git tag "${release_tag}" "${CI_COMMIT_SHA}"
+          git push origin "refs/tags/${release_tag}"
+        fi
+      fi
+    - |
+      if docker manifest inspect "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}" >/dev/null 2>&1; then
+        echo "Image ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA} already exists; skipping build."
+      else
+        docker buildx build --build-arg "VERSION=${version}" --build-arg "ENVIRONMENT=${tag}" -t "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}" .
+        docker push "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+      fi
+  needs:
+    - set-variables
+
+test-integration:
+  variables:
+    FF_NETWORK_PER_BUILD: 1
+  image: mcr.microsoft.com/playwright:v1.56.1-noble
+  services:
+    - name: arangodb:3.11
+      alias: db
+      variables:
+        ARANGO_NO_AUTH: true
+    - name: redis:alpine
+      alias: redis
+    - name: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}
+      alias: web
+      variables:
+        DB_URL: "http://db:8529"
+        REDIS_HOST: "redis"
+        JWT_SECRET: xxx
+  stage: test
+  before_script:
+    - npm i -g pnpm
+    - cd platform/app
+    - pnpm install
+  script:
+    - pnpm run test:integration
+  needs:
+    - build
+    - set-variables
+
+publish-packages:
+  variables:
+    GIT_STRATEGY: none
+  image:
+    name: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}
+    entrypoint: ["/bin/sh", "-c"]
+  stage: deploy
+  script:
+    - cd /apat
+    - echo " " >> .npmrc
+    - echo "@openpeeps:registry=https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/" >> .npmrc
+    - echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> .npmrc
+    - cat .npmrc
+    - pnpm install
+    - pnpm -r publish --access private --no-git-checks
+  only:
+    - main
+  needs:
+    - test-integration
+    - set-variables
+
+deploy-docker:
+  variables:
+    GIT_STRATEGY: none
+  image: docker:latest
+  stage: deploy
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - |
+      if [[ "$CI_COMMIT_REF_NAME" == "stable" ]]; then
+        docker buildx imagetools create \
+          --tag "${CI_REGISTRY_IMAGE}${tag}" \
+          --tag "${CI_REGISTRY_IMAGE}:${version}" \
+          "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+      else
+        docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}${tag}" "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+      fi
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'staging' || $CI_COMMIT_BRANCH == 'stable'
+      when: manual
+    - if: $CI_COMMIT_BRANCH
+      when: on_success
+  needs:
+    - test-integration
+    - set-variables

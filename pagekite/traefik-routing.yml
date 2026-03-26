@@ -1,0 +1,26 @@
+http:
+  routers:
+    vite:
+      rule: 'Host(`{{ env "PAGEKITE_DOMAIN" }}`)'
+      entryPoints:
+        - websecure
+      service: vite
+      tls:
+        certResolver: le
+    vite-http:
+      rule: 'Host(`{{ env "PAGEKITE_DOMAIN" }}`)'
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+      service: vite
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+        permanent: true
+  services:
+    vite:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:5173"

@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
+html,
+body {
+  @apply h-full overflow-hidden;
+}
+
+&::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-md;
+}
+
+.default_transition {
+  transition:
+    visibility 0s linear 0.25s,
+    opacity 0.25s 0s,
+    transform 0.25s;
+}
+
+.participant-area {
+  @apply overflow-hidden flex items-center justify-center flex-wrap content-center align-middle flex-1 rounded-md w-full h-full;
+}
+.participant-area .participant {
+  @apply relative align-middle self-center rounded-md overflow-hidden inline-block shadow-lg h-full bg-secondary-500 transition-all;
+}
+
+.participant-area video {
+  @apply absolute z-10 right-0 object-cover bottom-0 w-full h-full bg-black rounded-md overflow-hidden left-0 top-0 bg-cover;
+}
+.participant-area .participant .info-bar {
+  @apply absolute z-[12] bottom-3 left-4 text-white;
+}
+
+.participant-area .participant .right {
+  @apply absolute z-[10] top-3 right-3 text-white;
+}
+
+.participant-area .participant .right span {
+  @apply bg-white h-7 w-7 rounded-full flex justify-center items-center;
+}
+
+.participant-area .participant .thums {
+  @apply w-full bg-secondary-500 flex justify-center items-center h-full absolute left-0 top-0 z-[9] text-base uppercase;
+}
+
+.participant-area .participant .thums img {
+  @apply h-4/5 sm:h-40 lg:h-44;
+}
+
+@media only screen and (max-width: 820px) {
+  :global(.participant-area) {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    flex: 2;
+  }
+}
+
+.screen-share-area {
+  @apply rounded-md overflow-hidden hidden justify-center items-center w-full h-full;
+  flex: 2;
+}
+
+.screen-share-area .participant {
+  @apply relative align-middle rounded-md overflow-hidden inline-block shadow-md bg-secondary-500 h-full w-full transition-all;
+}
+
+.screen-share-area .participant video {
+  @apply absolute z-10 right-0 object-contain bottom-0 w-full h-full bg-black rounded-md overflow-hidden left-0 top-0 bg-cover;
+}
+
+.screen-share-area .participant .info-bar {
+  @apply absolute z-[12] bottom-3 left-4 text-white;
+}
+
+.screen-share-area .participant .right {
+  @apply absolute z-[10] top-3 right-3 text-white;
+}
+
+&::-webkit-scrollbar {
+  @apply w-1;
+}
+@layer base {
+  @font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(/fonts/poppins/Poppins-Regular.ttf) format('ttf');
+  }
+  @font-face {
+    font-family: 'Poppins';
+    font-style: bold;
+    font-weight: 800;
+    font-display: swap;
+    src: url(/fonts/poppins/Poppins-Bold.ttf) format('ttf');
+  }
+}
+

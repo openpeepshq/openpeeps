@@ -1,0 +1,26 @@
+# Development
+
+Here you should find everything useful to work on the AllPeep Community Server.
+
+## Getting Started
+
+- [General Principles](development/general-principles) - Core development principles and guidelines
+- [Glossary](/docs/glossary) - Terminology and definitions
+
+## Architecture
+
+- [Architecture Overview](development/architecture) - System architecture overview
+- [Frontend Architecture](development/architecture/frontend) - Frontend components and structure
+  - [Primary Web Interface](development/architecture/frontend/primary-web-interface) - Layout and responsive design
+- [Backend Architecture](development/architecture/backend) - Backend components and patterns
+
+## Development Guides
+
+- [Code Style](development/code-style) - Coding standards and conventions
+- [Routes](development/routes) - URL structure and routing patterns
+- [Data Storage](development/data-storage) - ArangoDB and Redis usage
+- [Notifications](development/notifications) - Notification system development guide
+
+## Extensibility
+
+- [Plugins](development/plugins) - Plugin system documentation

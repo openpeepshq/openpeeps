@@ -1,0 +1,33 @@
+volumes:
+  letsencrypt:
+
+services:
+  traefik:
+    image: traefik:latest
+    restart: unless-stopped
+    command:
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.file.filename=/etc/traefik/routing.yml"
+      - "--certificatesresolvers.le.acme.email=${TRAEFIK_ACME_EMAIL}"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+    volumes:
+      - "./traefik-routing.yml:/etc/traefik/routing.yml:ro"
+      - letsencrypt:/letsencrypt
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - PAGEKITE_DOMAIN
+  pagekite:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    command:
+      - "--clean"
+      - "--frontend=${PAGEKITE_FRONTEND}"
+      - "--service_on=http:${PAGEKITE_DOMAIN}:traefik:80:${PAGEKITE_SECRET}"
+      - "--service_on=https:${PAGEKITE_DOMAIN}:traefik:443:${PAGEKITE_SECRET}"

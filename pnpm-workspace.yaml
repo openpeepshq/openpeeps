@@ -1,0 +1,5 @@
+packages:
+  - "libraries/*"
+  - "platform/*"
+
+linkWorkspacePackages: deep

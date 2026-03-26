@@ -1,0 +1,23 @@
+{
+	"extends": "./.svelte-kit/tsconfig.json",
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strict": true,
+		"moduleResolution": "bundler",
+		"outDir": "./dist"
+	},
+	"tsc-alias": {
+		"verbose": false,
+		"resolveFullPaths": true,
+		"fileExtensions": {
+			"inputGlob": "{js,mjs}",
+			"outputCheck": ["js", "json", "mjs"]
+		}
+	}
+}

@@ -1,0 +1,37 @@
+{
+  "name": "openpeeps",
+  "version": "1.0.0",
+  "description": "Monorepo for OpenPeeps",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.allpeep-hq.com:allpeep/open-source/ap-at.git"
+  },
+  "dependencies": {
+    "eslint": "^9.17.0",
+    "eslint-plugin-svelte": "^2.46.1",
+    "prettier": "^3.4.2",
+    "prettier-plugin-svelte": "^3.3.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@sveltejs/kit",
+      "bcrypt",
+      "canvas",
+      "sharp",
+      "web-audio-api"
+    ],
+    "patchedDependencies": {
+      "sveltekit-api": "patches/sveltekit-api.patch"
+    }
+  },
+  "scripts": {
+    "build-deps": "pnpm --filter @openpeeps/app... build",
+    "check-circular-deps": "ds"
+  },
+  "packageManager": "pnpm@10.3.0",
+  "devDependencies": {
+    "circular-dependency-scanner": "^2.3.0",
+    "prettier-plugin-tailwindcss": "^0.6.13"
+  }
+}

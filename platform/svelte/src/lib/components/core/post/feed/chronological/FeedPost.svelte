@@ -1,0 +1,75 @@
+<script lang="ts">
+  import type { PublicPost } from '@openpeeps/common/types';
+  import PostReactionHeader from '$lib/components/core/post/pieces/PostReactionHeader.svelte';
+  import PostInfoHeader from '$lib/components/core/post/pieces/PostInfoHeader.svelte';
+  import FeedPostStats from '$lib/components/core/post/pieces/FullPostStats.svelte';
+  import FeedPostActions from '$lib/components/core/post/pieces/PostActions.svelte';
+  import FeedPostContent from '$lib/components/core/post/pieces/FeedPostContent.svelte';
+  import ThreadPost from '../threaded/ThreadPost.svelte';
+  import type { Snippet } from 'svelte';
+
+  interface Props {
+    post: PublicPost;
+    deleteCallback?: () => void;
+    noReactionHeader?: boolean;
+    inGroup?: boolean;
+    showReplyTo?: boolean;
+    content?: Snippet;
+  }
+
+  let {
+    post,
+    deleteCallback = () => undefined,
+    noReactionHeader = false,
+    inGroup = false,
+    showReplyTo = false,
+    content = undefined,
+  }: Props = $props();
+
+  const hasReactionHeader =
+    !noReactionHeader &&
+    (!!post.repost || !!post.inReplyToId || (!!post.groupId && !inGroup));
+
+  let displayedPost: PublicPost = $derived(post?.repost || post);
+  let hasStats: boolean = $derived(
+    !!(
+      displayedPost?.repostCount ||
+      displayedPost?.reactions.length ||
+      displayedPost?.replyCount
+    ),
+  );
+</script>
+
+<div class="border-b p-4">
+  {#if hasReactionHeader}
+    <PostReactionHeader {post} {deleteCallback} {inGroup} />
+  {/if}
+  {#if displayedPost.replyTo && showReplyTo}
+    <a href="/posts/{displayedPost.replyTo.id}">
+      <ThreadPost
+        post={displayedPost.replyTo as PublicPost}
+        isParent
+        noActions
+        noMenu
+      />
+    </a>
+  {/if}
+  <div>
+    <PostInfoHeader
+      post={displayedPost}
+      showMenu={!hasReactionHeader}
+      {deleteCallback}
+    />
+    <div class="pb-2">
+      {#if content}
+        {@render content()}
+      {:else}
+        <FeedPostContent post={displayedPost} />
+      {/if}
+    </div>
+    {#if hasStats}
+      <FeedPostStats post={displayedPost} />
+    {/if}
+  </div>
+  <FeedPostActions post={displayedPost} />
+</div>

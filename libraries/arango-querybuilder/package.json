@@ -1,0 +1,39 @@
+{
+  "name": "@openpeeps/arango-querybuilder",
+  "version": "0.4.5",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "arangojs": "10.0.0",
+    "debug": "^4.4.0",
+    "uuidv7": "^1.0.2"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*/index.js"
+  },
+  "files": [
+    "/dist"
+  ],
+  "devDependencies": {
+    "@types/debug": "^4.1.12",
+    "@typescript-eslint/eslint-plugin": "^8.19.1",
+    "@typescript-eslint/parser": "^8.19.1",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.2",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5.7.2"
+  },
+  "scripts": {
+    "lint": "prettier --check . && eslint .",
+    "format": "prettier --write .",
+    "clean": "rm -f tsconfig.tsbuildinfo dist",
+    "build": "tsc && tsc-alias",
+    "build:watch": "tsc && tsc-alias && (concurrently \"tsc -w\" \"tsc-alias -w\")",
+    "prepublishOnly": "pnpm build"
+  }
+}

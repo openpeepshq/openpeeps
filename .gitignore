@@ -1,0 +1,15 @@
+node_modules
+.env
+
+yarn-error.log
+.idea
+
+.env.*
+!.env.example
+
+plugins/**
+/.pnpm-store/
+
+.DS_Store
+.home
+platform/react/tsconfig.tsbuildinfo

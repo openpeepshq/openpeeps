@@ -1,0 +1,26 @@
+node_modules
+.env
+
+yarn-error.log
+.idea
+
+.media
+.logs
+
+.DS_Store
+/build
+/.svelte-kit
+/package
+.env.*
+!.env.example
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+test-results
+/.source_hash.asc
+
+# Sentry Config File
+.env.sentry-build-plugin
+.backup
+
+.backup

@@ -1,0 +1,1 @@
+export { emailStyles } from './emailStyles';

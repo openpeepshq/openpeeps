@@ -1,0 +1,55 @@
+import type { OpenpeepsClient } from '@openpeeps/client';
+import { apiHook, payloadMutation, noPayloadMutation, infiniteChronologicalQueryApiHook } from '../helpers';
+import { useCredentialsStore } from '../../credentialsStore';
+import type { ChronologicalInfiniteQueryParams, ProfileWithMeta } from '@openpeeps/common';
+
+export type ProfileHooks = ReturnType<typeof profileHooks>;
+
+export const profileHooks = (
+  client: OpenpeepsClient,
+  setCurrentProfile: (profile: ProfileWithMeta | undefined) => void
+) => ({
+  useProfiles: () => apiHook(client.profiles.list),
+  useProfile: (id: string) =>
+    apiHook(client.profiles.findById, { pathParams: { id } }),
+  useProfileByHandle: (handle: string) =>
+    apiHook(client.profiles.findByHandle, { pathParams: { handle } }),
+  useProfileFollowers: (id: string) =>
+    apiHook(client.profiles.followers, { pathParams: { id } }),
+  useProfileFollowing: (id: string) =>
+    apiHook(client.profiles.following, { pathParams: { id } }),
+  followProfileAction: payloadMutation(client.profiles.follow, [['profiles']]),
+  unfollowProfileAction: noPayloadMutation(client.profiles.unfollow, [
+    ['profiles'],
+  ]),
+  useCurrentProfile: () => {
+    const { credentialsStore } = useCredentialsStore();
+    return apiHook(client.profiles.current.read, {
+      preQueryCheck: async () => {
+        if (!(await credentialsStore?.get())?.token) {
+          throw new Error('No credentials found');
+        }
+      },
+      onSuccess: setCurrentProfile,
+    });
+  },
+  updateCurrentProfileAction: payloadMutation(client.profiles.current.update, [
+    ['profiles', 'current'],
+  ]),
+  useCurrentProfileNotifications: (props: ChronologicalInfiniteQueryParams) =>
+    infiniteChronologicalQueryApiHook(client.profiles.current.notifications, { queryParams: props }),
+  markAllNotificationsAsSeenAction: () =>
+    noPayloadMutation(client.profiles.current.markAllNotificationsAsSeen),
+  useCurrentProfileNotificationStats: () =>
+    apiHook(client.profiles.current.notificationStats),
+  useCurrentProfileNotificationTypes: () =>
+    apiHook(client.profiles.current.notificationTypes),
+  useCurrentProfileReposts: () => apiHook(client.profiles.current.reposts),
+  useCurrentProfileBookmarkedIds: () => apiHook(client.profiles.current.bookmarkedIds),
+  useCommonGroups: (profileId: string) =>
+    apiHook(client.profiles.commonGroups, { pathParams: { profileId } }),
+  useCurrentProfileSettings: () => apiHook(client.profiles.current.readSettings),
+  updateCurrentProfileSettingsAction: payloadMutation(client.profiles.current.updateSettings, [
+    ['profiles', 'current', 'settings'],
+  ]),
+}); 

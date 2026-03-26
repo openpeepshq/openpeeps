@@ -1,0 +1,1657 @@
+{
+    "auth": {
+        "login": {
+            "title": "Login",
+            "submit": "Sign In",
+            "error": "Invalid credentials",
+            "loading": "Signing in…",
+            "success": "Successfully logged in"
+        },
+        "register": {
+            "title": "Register",
+            "submit": "Sign Up",
+            "error": "Registration failed",
+            "loading": "Creating account…",
+            "success": "Account created successfully"
+        },
+        "resetPassword": {
+            "title": "Reset Password",
+            "submit": "Reset",
+            "error": "Password reset failed",
+            "success": "Password reset email sent.  Please check your spam folder if you don't see it in a few minutes.",
+            "loading": "Sending reset email…"
+        },
+        "guestPass": {
+            "title": "Guest Access",
+            "submit": "Continue as Guest",
+            "error": "Failed to get guest access",
+            "loading": "Getting guest access…"
+        },
+        "tagline": "AllPeeP is the community platform for people who want an exclusive, branded experience",
+        "email": {
+            "validation": {
+                "success": "Your email is now verified. You may fully participate in the community."
+            }
+        }
+    },
+    "navigation": {
+        "welcome": "Welcome",
+        "joinCommunity": "Join Community",
+        "haveAccount": "Already have an account?",
+        "logIn": "Log In",
+        "poweredBy": "Powered by AllPeeP",
+        "profile": "Profile",
+        "messages": "Messages",
+        "home": "Home",
+        "myFeed": "My Feed",
+        "newPost": "New Post",
+        "jams": "Jams",
+        "notifications": "Notifications",
+        "back": "Back",
+        "community": "Community",
+        "groups": "Groups",
+        "events": "Events",
+        "members": "Members",
+        "settings": "Settings",
+        "administration": "Administration",
+        "invites": "Invites",
+        "configuration": "Configuration",
+        "moderation": "Moderation",
+        "backups": "Backups",
+        "analytics": "Analytics",
+        "openNotifications": "Open Notifications",
+        "goToWelcomePage": "Go to Welcome Page",
+        "logOut": "Log out",
+        "logs": "Logs",
+        "myJams": "My Jams",
+        "myEvents": "My Events",
+        "explore": "Explore",
+        "articles": "Articles",
+        "bookmarks": "Bookmarks"
+    },
+    "profile": {
+        "noBio": "No bio yet",
+        "posts": "Posts",
+        "edit": {
+            "title": "Edit Profile",
+            "save": "Save Changes",
+            "cancel": "Cancel",
+            "success": "Profile updated",
+            "error": "Failed to update profile"
+        },
+        "follow": {
+            "follow": "Follow",
+            "unfollow": "Unfollow",
+            "error": "Action failed",
+            "unfollowedSuccess": "You're no longer following this profile",
+            "followedSuccess": "Successfully followed this profile",
+            "success": "You are now following this profile"
+        },
+        "notifications": {
+            "title": "Notifications",
+            "empty": "No notifications",
+            "markRead": "Mark all as read"
+        },
+        "form": {
+            "displayName": "Display Name",
+            "handle": "Handle",
+            "handlePlaceholder": "Enter your handle",
+            "bio": "Bio",
+            "bioPlaceholder": "Tell us about yourself",
+            "avatar": "Avatar",
+            "banner": "Banner",
+            "location": "Location",
+            "website": "Website",
+            "fields": {
+                "label": "Label",
+                "value": "Value",
+                "add": "Add Field",
+                "remove": "Remove Field"
+            }
+        },
+        "header": {
+            "followers": "Followers",
+            "following": "Following",
+            "posts": "Posts",
+            "joined": "Joined {{date}}",
+            "avatarAlt": "Profile picture"
+        },
+        "actions": {
+            "edit": "Edit Profile",
+            "follow": "Follow",
+            "unfollow": "Unfollow",
+            "message": "Message",
+            "copyProfileLink": "Copy Profile Link",
+            "copyPostLink": "Copy Post Link",
+            "inviteViaEmail": "Invite via Email",
+            "inviteViaLink": "Invite via Link"
+        },
+        "modals": {
+            "deleteProfile": {
+                "title": "Delete Profile",
+                "description": "Are you sure you want to delete this profile {{username}} with handle: {{handle}}? This action cannot be undone.",
+                "confirm": "Delete Profile",
+                "cancel": "Cancel",
+                "profileDeleted": "Profile has been successfully deleted from your community.",
+                "error": "Failed to delete profile",
+                "delete": "Delete",
+                "accountDeleted": "The account associated with this profile was also deleted"
+            },
+            "editProfile": {
+                "saveChanges": "Save Changes",
+                "description": "Choose one or more roles for this profile",
+                "title": "Edit Roles",
+                "roles": "Roles",
+                "rolesUpdated": "Role updated for {{profileName}}"
+            },
+            "closeReport": {
+                "success": "Report has been successfully closed"
+            }
+        },
+        "table": {
+            "dateJoined": "Date Joined",
+            "invitedBy": "Invited By",
+            "emailVerified": "Email Verified",
+            "actions": "Actions",
+            "editEmail": "Edit Email",
+            "editRoles": "Edit Roles",
+            "deleteMember": "Delete Member",
+            "delete": "Delete"
+        },
+        "followers": {
+            "title": "Followers",
+            "pageTitle": "Followers of",
+            "noFollowing": "No followers yet"
+        },
+        "following": {
+            "title": "Following",
+            "pageTitle": "Followed by",
+            "noFollowers": "Not following anyone yet"
+        },
+        "copyProfileLink": {
+            "success": "Profile link copied to clipboard",
+            "error": "Failed to copy profile link"
+        },
+        "search": {
+            "placeholder": "Search for people",
+            "noResults": "No results found"
+        },
+        "groups": {
+            "tabName": "Groups",
+            "noCommonGroups": "Nothing to see here yet"
+        },
+        "notFound": {
+            "title": "Profile not found",
+            "description": "This profile does not exist.  You may try to find them in the Members list."
+        }
+    },
+    "posts": {
+        "create": {
+            "title": "Create Post",
+            "submit": "Post",
+            "error": "Failed to create post",
+            "loading": "Creating post…",
+            "success": "Post created",
+            "note": {
+                "title": "Creating Post"
+            }
+        },
+        "delete": {
+            "confirm": "Are you sure you want to delete this post?",
+            "success": "Post deleted",
+            "error": "Failed to delete post"
+        },
+        "react": {
+            "error": "Failed to react to post"
+        },
+        "repost": {
+            "success": "Reposted successfully",
+            "error": "Failed to repost"
+        },
+        "vote": {
+            "success": "Vote recorded",
+            "error": "Failed to record vote",
+            "count": "Votes"
+        },
+        "poll": {
+            "ended": "Poll ended",
+            "timeLeft": "left",
+            "undoVote": "Undo Vote"
+        },
+        "form": {
+            "content": "What's on your mind?",
+            "visibility": {
+                "label": "Visibility",
+                "public": "Public",
+                "private": "Private",
+                "followers": "Followers"
+            },
+            "selectGroup": "Select group",
+            "poll": {
+                "addOption": "Add Option",
+                "removeOption": "Remove Option",
+                "option": "Option {{number}}",
+                "duration": "Poll Duration",
+                "multipleChoice": "Allow Multiple Choices",
+                "submit": "Submit",
+                "seeWhoVoted": "See who voted"
+            },
+            "remainingCharacters": "Remaining characters",
+            "addImage": "Add Media",
+            "addDocument": "Add Document",
+            "title": "New Post"
+        },
+        "copyPostLink": {
+            "submit": "Copy Link",
+            "success": "Copy success",
+            "successMessage": "post link copied to clipboard",
+            "errorMessage": "Failed to copy profile link",
+            "error": "Copy error"
+        },
+        "event": {
+            "attendees": "Attendees",
+            "online": "Online"
+        },
+        "actions": {
+            "shareMessage": "Share this post",
+            "seeThread": "See Thread"
+        },
+        "visibility": {
+            "title": "Post visibility",
+            "selectGroup": "Select group"
+        },
+        "replyTo": " Replied to",
+        "reposted": "Reposted",
+        "unpinInGroup": {
+            "title": "Unpin from group",
+            "success": "The post is no longer pinned to this group"
+        },
+        "pinInGroup": {
+            "success": "This post will be pinned at the top of the group",
+            "title": "Pin to group"
+        },
+        "pinGlobally": {
+            "success": "The post is now pinned to the top of the Community feed",
+            "title": "Pin to feed"
+        },
+        "rsvp": {
+            "attendingMessage": "You are attending this event",
+            "cancelRegistration": "Cancel your RSVP",
+            "maybe": "Maybe",
+            "success": "RSVP Successful",
+            "register": "RSVP: Yes",
+            "no": "No",
+            "maybeMessage": "You are tentatively attending this event"
+        },
+        "edit": {
+            "success": "Post updated successfully",
+            "title": "Editing Post",
+            "submit": "Update",
+            "loading": "Loading"
+        },
+        "deleteEvent": {
+            "description": "Deleting this event will remove it from the community.  Any attendees will not be notified.",
+            "cancel": "Cancel",
+            "confirm": "Delete Event",
+            "title": "Delete this event?"
+        },
+        "article": {
+            "readMore": "Read More…"
+        },
+        "bookmark": {
+            "success": "Bookmark Saved",
+            "error": "An error occurred while saving bookmark",
+            "title": "Add Bookmark"
+        },
+        "unbookmark": {
+            "title": "Remove Bookmark",
+            "success": "Bookmark removed",
+            "error": "An error occurred while removing the bookmark"
+        },
+        "switcher": {
+            "note": "Write Note",
+            "event": "Create an Event",
+            "poll": "Add Poll",
+            "article": "Write Article"
+        },
+        "unpinGlobally": {
+            "title": "Unpin from feed",
+            "success": "Post is no longer pinned"
+        }
+    },
+    "groups": {
+        "type": {
+            "public": "Public",
+            "private": "Private",
+            "open": "Open",
+            "closed": "Closed"
+        },
+        "create": {
+            "title": "Create Group",
+            "submit": "Create",
+            "error": "Failed to create group",
+            "success": "Group created"
+        },
+        "join": {
+            "submit": "Join Group",
+            "error": "Failed to join group",
+            "success": "Joined group"
+        },
+        "leave": {
+            "confirm": "Are you sure you want to leave this group?",
+            "error": "Failed to leave group",
+            "success": "Left group"
+        },
+        "delete": {
+            "title": "Delete Group",
+            "description": "Are you sure you want to delete the group {{groupName}}?",
+            "confirm": "Confirm",
+            "cancel": "Cancel",
+            "deleting": "Deleting…",
+            "successMessage": "Group deleted successfully",
+            "errorMessage": "Failed to delete group"
+        },
+        "selection": {
+            "title": "Select Groups",
+            "description": "Select groups to add members to",
+            "noGroups": "No groups available",
+            "public": "Public",
+            "private": "Private"
+        },
+        "makeAdmin": {
+            "title": "Make Admin",
+            "description": "Are you sure you want to make @{{handle}} an admin?",
+            "confirm": "Grant Privileges",
+            "loading": "Granting privileges…",
+            "successMessage": "Admin privileges granted successfully",
+            "errorMessage": "Failed to grant admin privileges"
+        },
+        "removeAdmin": {
+            "title": "Remove Admin Privileges",
+            "description": "Are you sure you want to remove admin privileges from @{{handle}}?",
+            "confirm": "Remove Privileges",
+            "loading": "Removing privileges…",
+            "successMessage": "Admin privileges removed successfully",
+            "errorMessage": "Failed to remove admin privileges"
+        },
+        "removeMember": {
+            "title": "Remove Member",
+            "description": "Are you sure you want to remove @{{handle}} from group?",
+            "confirm": "Remove",
+            "loading": "Removing…",
+            "successMessage": "Member removed successfully",
+            "errorMessage": "Failed to remove member"
+        },
+        "handleExists": "This handle is already in use.  Please try a different one.",
+        "sections": {
+            "posts": "Posts",
+            "events": "Events",
+            "description": "Description"
+        },
+        "visibility": {
+            "title": "Visibility",
+            "description": "Who can see the group",
+            "public": {
+                "title": "General Public",
+                "description": "Visible to the internet"
+            },
+            "local": {
+                "title": "Community",
+                "description": "Everyone who can log in to this community"
+            },
+            "private": {
+                "title": "Private",
+                "description": "Only selected profiles"
+            }
+        },
+        "postsVisibility": {
+            "title": "Content  Visibility",
+            "description": "Who can see group content",
+            "public": {
+                "title": "General Public",
+                "description": "Visible on the internet"
+            },
+            "local": {
+                "title": "Community",
+                "description": "Profiles logged in to this community"
+            },
+            "private": {
+                "title": "Private",
+                "description": "Only selected profiles"
+            }
+        },
+        "whoCanJoin": {
+            "title": "Who can join",
+            "description": "Can profiles join or do they have to be invited?",
+            "open": {
+                "title": "Open",
+                "description": "Everyone can join the group"
+            },
+            "closed": {
+                "title": "Invite-only",
+                "description": "Must be invited or added to the group"
+            }
+        },
+        "whoCanPost": {
+            "title": "Who can post",
+            "description": "Content:  notes, polls, images and video",
+            "members": {
+                "title": "All group members",
+                "description": "All group members can add content"
+            },
+            "moderators": {
+                "title": "Moderators only",
+                "description": "Only moderators can post content"
+            }
+        },
+        "whoCanPostEvents": {
+            "title": "Who can post events",
+            "description": "Who can add events to the group calendar",
+            "members": {
+                "title": "All Members",
+                "description": "All members can add events to the calendar"
+            },
+            "moderators": {
+                "title": "Moderators Only",
+                "description": "Only moderators can add events to the calendar"
+            }
+        },
+        "handle": {
+            "placeholder": "handle",
+            "title": "Handle"
+        },
+        "description": {
+            "title": "Description",
+            "placeholder": "Type your group description here"
+        },
+        "roles": {
+            "member": "Member",
+            "admin": "Admin",
+            "moderator": "Moderator"
+        },
+        "rules": {
+            "title": "Group Rules",
+            "placeholder": "Add your group's rules here."
+        },
+        "changeRoles": {
+            "title": "Change Roles",
+            "description": "Change roles for this group",
+            "confirm": "Update Roles",
+            "successMessage": "Roles Updated"
+        },
+        "new": "New Group"
+    },
+    "jams": {
+        "form": {
+            "name": "Jam Name"
+        },
+        "create": {
+            "title": "Create Jam",
+            "submit": "Create",
+            "error": "Failed to create jam",
+            "success": "Jam created"
+        },
+        "join": {
+            "submit": "Join Jam",
+            "error": "Failed to join jam",
+            "waiting": "Waiting for approval…"
+        },
+        "start": {
+            "submit": "Start Jam",
+            "error": "Failed to start jam"
+        },
+        "close": {
+            "error": "Failed to close jam",
+            "success": "Jam ended",
+            "title": "Close Jam",
+            "description": "Are you sure you want to close this jam?",
+            "confirm": "Close Jam"
+        },
+        "exit": {
+            "error": "Failed to exit jam",
+            "success": "Exited jam successfully",
+            "title": "Exit Jam",
+            "description": "Are you sure you want to exit this jam?",
+            "leave": "Leave Jam",
+            "endForAll": "End for All",
+            "confirm": "Leave Jam",
+            "closeOrExit": {
+                "description": "Do you want to Leave the Jam (everyone else gets to stay) or Close the Jam (everyone gets kicked out)?"
+            }
+        },
+        "closeOrExit": {
+            "description": "Are you sure you want to close or exit this jam?",
+            "confirm": "Leave/End Jam"
+        },
+        "participants": {
+            "title": "Participants",
+            "muteSuccess": "Participant muted successfully",
+            "muteError": "Failed to mute participant",
+            "cameraOffSuccess": "Participant camera turned off successfully",
+            "cameraOffError": "Failed to turn off participant camera",
+            "muteParticipant": "Mute Participant",
+            "muting": "muting…",
+            "turnOffCamera": "Turn off Camera",
+            "turningOffCamera": "Turning off…"
+        },
+        "waitingRoom": {
+            "admitSuccess": "Participant admitted successfully",
+            "admitError": "Failed to admit participant",
+            "rejectSuccess": "Participant rejected successfully",
+            "rejectError": "Failed to reject participant",
+            "admitParticipant": "Admit",
+            "admitting": "Admitting…",
+            "rejectParticipant": "Reject",
+            "rejecting": "Rejecting…"
+        },
+        "liveJams": "Live Jams",
+        "noLiveJams": "No live jams to join",
+        "participant": {
+            "turnOffCamera": "Turn off Video",
+            "muteParticipant": "Mute Participant"
+        }
+    },
+    "admin": {
+        "inviteLink": {
+            "unlimited": "Unlimited",
+            "createSuccess": "Invite link created successfully",
+            "createError": "Failed to create invite link",
+            "copySuccess": "Invite link copied to clipboard",
+            "copyError": "Failed to copy invite link",
+            "title": "Create Invite Link",
+            "description": "Invite Links can be limited to a number of uses or by date",
+            "twoDays": "Two Days",
+            "oneMonth": "One Month",
+            "deactivate": "Deactivate Link",
+            "never": "Never",
+            "generateTitle": "Click to create the invite link",
+            "totalLinkUses": "Total uses:",
+            "expiresAfter": "Expires After",
+            "closeModal": "Save and Close",
+            "numberOfUses": "Number of Uses",
+            "oneDay": "One Day",
+            "oneWeek": "One Week",
+            "copyToClipboard": "Copy to Clipboard",
+            "deactivateTitle": "Deactivate Link: No new signups will be allowed",
+            "generateButton": "Create Link",
+            "done": "Done",
+            "generateSuccess": "Successfully created the invite link"
+        },
+        "signupChart": {
+            "last30Days": "Last 30 Days",
+            "today": "Today",
+            "yesterday": "Yesterday",
+            "last7Days": "Last 7 Days",
+            "numberOfSignups": "Number of Signups",
+            "week": "Signups in the last Week",
+            "fourWeeks": "Signups in the last four weeks",
+            "fourMonths": "Signups in the last four months"
+        },
+        "backups": {
+            "createSuccess": "Backup created successfully",
+            "createError": "Error creating backup: {{error}}",
+            "createTitle": "Create a new backup",
+            "restoreTitle": "Restore a backup",
+            "restore": {
+                "selectFile": "Select File",
+                "success": "Restore Successful.  The community server will now restart.",
+                "error": "There was an error while restoring the backup",
+                "title": "Restore backup",
+                "cancel": "Cancel",
+                "confirm": "Confirm"
+            }
+        },
+        "invites": {
+            "inviteWithLinkTitle": "Invite member with link",
+            "newInvite": "New Invite",
+            "seeInvitedAccounts": "See Invited Accounts",
+            "copyLink": "Copy Link",
+            "deactivate": "Deactivate",
+            "activate": "Activate",
+            "invitedMembers": "Invited members",
+            "noJoinedAccounts": "No accounts have joined through this invite link yet.",
+            "joinedAccounts": "See accounts that joined through this invite link below:",
+            "copiedToClipboard": "Copied to clipboard",
+            "deactivateSuccess": "Invite link deactivated successfully",
+            "deactivateError": "Failed to deactivate invite link",
+            "activateSuccess": "Invite link activated successfully",
+            "activateError": "Failed to activate invite link",
+            "deleteSuccess": "Invite link deleted successfully",
+            "deleteError": "Failed to delete invite link"
+        },
+        "filter": {
+            "title": "Filter",
+            "description": "Filter members by status and date",
+            "status": "Status",
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "dateSent": "Date Sent",
+            "from": "From",
+            "to": "To",
+            "dateAccepted": "Date Accepted",
+            "resetTitle": "Reset",
+            "reset": "Reset",
+            "applyTitle": "Apply",
+            "apply": "Apply"
+        },
+        "sort": {
+            "title": "Sort",
+            "description": "Sort members by name, username, or date",
+            "memberNameAZ": "Member Name (A-Z)",
+            "memberNameZA": "Member Name (Z-A)",
+            "usernameAZ": "Username (A-Z)",
+            "usernameZA": "Username (Z-A)",
+            "dateSentNewest": "Date sent (Newest)",
+            "dateSentOldest": "Date sent (Oldest)",
+            "dateAcceptedNewest": "Date accepted (Newest)",
+            "dateAcceptedOldest": "Date accepted (Oldest)"
+        },
+        "members": {
+            "inviteWithEmailTitle": "Invite member with email",
+            "inviteWithLinkTitle": "Invite member with link"
+        },
+        "community": {
+            "totalProfiles": "Total profiles",
+            "activeProfiles": "Active profiles",
+            "recentInteractions": "Recent Interactions",
+            "totalMembers": "Total members",
+            "activeMembers": "Active members",
+            "recentSignups": "Recent Signups"
+        },
+        "overview": {
+            "totalProfiles": "Total Profiles",
+            "activeProfiles": "Active Profiles",
+            "recentInteractions": "Recent Interactions",
+            "allPosts": "All Posts",
+            "jamSessions": "Jam Sessions",
+            "jamParticipants": "Jam Participants",
+            "lastWeek": "Last Week"
+        },
+        "moderation": {
+            "report": {
+                "title": "{{reportsCount}} unresolved reports relating to this profile",
+                "description": "{{reportsCount}} unresolved  reports for {{profileName}}",
+                "unresolvedBadge": "{{reportsCount}} unresovled reports",
+                "resolvedBadge": "All reports resolved",
+                "closeOptions": {
+                    "title": "Close this report?",
+                    "description": "You are about to close this report, select an action below to close it:",
+                    "deleteProfile": {
+                        "description": "Prevents the profile from showing up in lists and being seen by anyone, removes content also.",
+                        "button": "Delete Profile"
+                    },
+                    "deletePost": {
+                        "description": "Post will no longer be on the feed and community",
+                        "button": "Delete Post"
+                    },
+                    "closeReport": {
+                        "description": "Resolve this report without doing anything",
+                        "button": "Just close it"
+                    }
+                },
+                "close": {
+                    "title": "Just close report?",
+                    "description": "You are about to close this report without performing an action on it which will mark at as resolved. Are you sure about this?",
+                    "cancel": "Back",
+                    "confirm": "Yes, close it"
+                }
+            },
+            "post": {
+                "delete": {
+                    "title": "Delete this post?",
+                    "description": "You are about to delete this post, it will no longer be available in the community. Are you sure about this?",
+                    "cancel": "Back",
+                    "confirm": "Yes, delete it"
+                }
+            },
+            "profile": {
+                "delete": {
+                    "title": "Delete this profile?",
+                    "description": "You are about to delete this profile. Prevents the profile from showing up in lists and being seen by anyone, removes content also.. Are you sure about this?",
+                    "cancel": "Back",
+                    "confirm": "Yes, delete it"
+                }
+            }
+        },
+        "configuration": {
+            "community": {
+                "capabilities": {
+                    "title": "Roles and Capabilities"
+                },
+                "defaultRoles": {
+                    "title": "Default Role",
+                    "roleOnRegistration": "Default role on registration",
+                    "roleOnRegistrationDescription": "This will be the role new community members get after they register.  If you choose \"Pending Member\", they will change to \"Member\" after they verify their email.  An admin can always change roles as needed.",
+                    "success": "Default Role Updated"
+                },
+                "roleConfigurationSimple": {
+                    "title": "Member Capabilities",
+                    "membersCanCreateEvents": {
+                        "title": "Members can create events",
+                        "description": "Turn this off if you want to limit event creation to community owners and moderators"
+                    },
+                    "membersCanCreateGroups": {
+                        "title": "All Members can create groups",
+                        "description": "Turn off to limit group creation to community owners and moderators"
+                    },
+                    "success": "Community configuration updated"
+                }
+            }
+        }
+    },
+    "configuration": {
+        "title": "Configuration",
+        "profileFields": {
+            "title": "Profile Fields Configuration",
+            "add": "Add Field",
+            "remove": "Remove Field",
+            "fields": {
+                "name": "Field Name",
+                "type": "Field Type",
+                "required": "Required",
+                "options": "Options",
+                "placeholder": "Placeholder",
+                "description": "Description"
+            },
+            "types": {
+                "text": "Text",
+                "number": "Number",
+                "select": "Select",
+                "multiselect": "Multi-select",
+                "date": "Date",
+                "boolean": "Yes/No"
+            },
+            "description": "All fields are currently text. Complete URLs (e.b. https://example.com) will be displayed as links."
+        },
+        "community": {
+            "icon": "Community Icon",
+            "logo": "Community Logo",
+            "logoFull": "Community Logo Full",
+            "backgroundAuth": "Background Auth",
+            "background": "Background",
+            "updateSuccess": "Community settings updated",
+            "favicon": "Browser Favicon",
+            "lightModeFavicon": "Light mode favicon",
+            "darkModeFavicon": "Dark mode favicon",
+            "currentIcon": "Current icon",
+            "uploadIcon": "Browse and upload an icon",
+            "iconRequirements": "Submit an image (PNG, JPG, SVG, ICO…), at least 70x70. Your image should be 260x260 or more for optimal results.",
+            "currentLogo": "Current logo",
+            "uploadLogo": "Browse and upload a logo",
+            "logoRequirements": "Submit an image (PNG, JPG, SVG, ICO…) with an aspect ratio of 16:9.",
+            "logoFullRequirements": "Submit an image (PNG, JPG, SVG, ICO…).",
+            "theme": {
+                "title": "Theme",
+                "description": "Customize the look and feel of your community, including logo, dark and light mode, and brand colors"
+            },
+            "mode": "Mode",
+            "light": {
+                "uploadLightThemeBackground": "Upload image for Light Theme",
+                "uploadDarkThemeBackground": "Upload Image for Dark Theme",
+                "uploadLightThemeLogo": "Upload a Light Theme Logo",
+                "uploadDarkThemeLogo": "Upload a Dark Theme Logo"
+            },
+            "lightMode": "Light",
+            "dark": "Dark",
+            "brandColor": "Brand Color",
+            "color": "Color",
+            "colorDescription": "This color will be used for buttons, links, and other highlights",
+            "contactEmail": "Contact Email",
+            "contactEmailDescription": "This email is displayed to community members on the Welcome page, welcome email, and other places for them to contact community owner.",
+            "email": "Email",
+            "name": "Community Name",
+            "nameDescription": "This appears in the browser title bar and in email subjects and represents the name of your community.",
+            "tagline": "Community Tagline",
+            "taglineDescription": "This appears on the sign up page and provides a brief description of your community.",
+            "save": "Save Changes",
+            "themeDescription": "Choose the default theme shown to people when they visit your community.",
+            "authBackground": "Signup Page Image",
+            "authBackgroundDescription": "This shows up on the signup, login, and forgot password pages",
+            "lightThemecolor": "Light Theme Highlight Color",
+            "darkThemeColor": "Dark Theme Highlight Color",
+            "backgroundDescription": "This background image shows up behind the community pages on desktop and tablet screen sizes.",
+            "logoDescription": "This shows up on every page of the community, in emails, and other places where your logo is important.  You can upload different images to use for light mode and dark mode",
+            "themeColor": "Highlight Color",
+            "themeColorDescription": "The highlight color will be used for buttons and links.  You may use a different color for light and dark mode to ensure best contrast for your members.",
+            "customizeHelp": "Customize your community here to fit your look and feel:",
+            "upload": "Select image",
+            "mobileFavicon": "Mobile Favicon",
+            "button": "Button",
+            "linkTest": "Link test",
+            "uploadFormat": "PNG, JPG, and GIF allowed",
+            "pageBackgroundImage": "Page Background Image",
+            "pageBackgroundImageDesc": "This image appears as the background image on wide screens",
+            "serverAuthBackgroundImageDesc": "This image appears as the background image on the Log in and Sign up pages",
+            "category": {
+                "title": {
+                    "favicon": "Favicon",
+                    "communityLogo": "Community Logo",
+                    "communityTheme": "Community Theme",
+                    "brandColor": "Brand Color",
+                    "contactEmail": "Contact Email",
+                    "communityName": "Community Name",
+                    "communityTagline": "Community Tagline",
+                    "welcomePageText": "Welcome Page Text",
+                    "pageText": "Page Text",
+                    "welcomeEmailText": "Welcome Email Text",
+                    "serverAuthBackgroundImage": "Server Auth Background Image",
+                    "backgroundImage": "Background Image",
+                    "accountsToFollow": "Accounts to Follow",
+                    "privacyPolicyLink": "Privacy Policy Link",
+                    "termsAndConditions": "Terms And Conditions"
+                },
+                "description": {
+                    "favicon": "Select an image to server as browser and mobile favicon",
+                    "communityLogo": "Select an image to use as the community logo",
+                    "communityTheme": "Select theme for your community",
+                    "brandColor": "Select brand color for your community",
+                    "contactEmail": "Set email for your community members to contact you",
+                    "communityName": "Provide a name to your community",
+                    "communityTagline": "Provide a brief description of your community",
+                    "welcomePageText": "Description new members see when they join",
+                    "pageText": "Description of your community",
+                    "welcomeEmailText": "Email text sent to community members",
+                    "serverAuthBackgroundImage": "Image on both login and signup pages",
+                    "backgroundImage": "Image on auth page and wide screens background",
+                    "accountsToFollow": "Set recommended accounts to follow",
+                    "privacyPolicyLink": "Set privacy policy link",
+                    "termsAndConditions": "Set terms and conditions link"
+                }
+            },
+            "title": "Community Settings",
+            "description": "Configure your community's user experience. This is where you can give your community a name, set up your onboarding email and pages, upload your logo and colors, and more.",
+            "info": {
+                "title": "Basic Info",
+                "description": "Give your community a name, a tagline, and contact email"
+            },
+            "favicons": {
+                "title": "Icons",
+                "description": "Add your own browser and mobile icons"
+            },
+            "welcomePage": {
+                "title": "Welcome Page",
+                "description": "Tell your peeps about your community as part of their onboarding experience.  <br/> You can use  [Markdown ](https://www.markdownguide.org) to format the contents of this page."
+            },
+            "welcomeEmail": {
+                "title": "Welcome Email",
+                "description": "Add your own information to the first email your members will receive from the community.  <br/>.  You can use Markdown for formatting this email, but please be aware that email clients don't always do well with every kind of formatting."
+            },
+            "aboutPage": {
+                "title": "About Page",
+                "description": "This page shows up for people not logged in to your community.  <br/>  You can format it using Markdown.  Learn more about Markdown syntax at https://www.markdownguide.org/, or use your favorite AI tool to convert your formatted document to markdown that you can paste here."
+            },
+            "links": {
+                "title": "Policy Links",
+                "description": "Add links to your community's privacy policy and terms of service"
+            },
+            "profileFields": {
+                "title": "Profile Fields",
+                "description": "Customize your members' profile pages with additional info fields"
+            },
+            "roles": {
+                "title": "Roles and Capabilities",
+                "description": "Set up the features and capabilities available to each role within the community"
+            },
+            "privacyPolicy": "Privacy Policy URL",
+            "termsAndConditions": "Terms & Conditions URL",
+            "lightTheme": {
+                "color": "Light Theme Highlight Color",
+                "mode": "Light",
+                "uploadAuthBackground": "Click to upload a new signup page image for Light Theme",
+                "uploadBackground": "Click to upload a new community background image for Light Theme",
+                "uploadLogo": "Click to upload a logo to use for Light Theme and Email notifications"
+            },
+            "darkTheme": {
+                "color": "Dark Theme Highlight Color",
+                "mode": "Dark",
+                "uploadAuthBackground": "Click to upload a new signup page image for Dark Theme",
+                "uploadLogo": "Click to upload a new community background image for Dark Theme",
+                "uploadBackground": "Click to upload a new community background image for Dark Theme"
+            },
+            "authBackgroundRequirements": "This image fits vertically on these pages, so use a vertical aspect ratio for best results.  Images less than 2MB are encouraged.",
+            "backgroundRequirements": "This image will appear behind the community content when using a wider screen to view the community.  It is not visible to users on mobile."
+        },
+        "server": {
+            "stripe": {
+                "errors": {
+                    "invalidCredentials": "Invalid stripe credentials",
+                    "noProductId": "No stripe productId found",
+                    "noActivePrice": "No active stripe price found",
+                    "failed": "Payment configuration test failed"
+                },
+                "success": {
+                    "test": "Payment configuration test success!"
+                }
+            }
+        },
+        "serverSettings": {
+            "title": "Server Settings",
+            "description": "Configure your community's server.  This is where you can connect LiveKit, SMTP, Sentry and other critical services, as well as add Apple and Google Play store links and push notification config."
+        },
+        "i18n": {
+            "title": "Custom Text",
+            "description": "Change the text throughout the community"
+        }
+    },
+    "common": {
+        "errors": {
+            "networkError": "Network error. Please check your connection.",
+            "unauthorized": "Please log in to continue",
+            "forbidden": "You don't have permission to perform this action",
+            "notFound": "Not found",
+            "serverError": "Server error. Please try again later.",
+            "error": "Error"
+        },
+        "form": {
+            "required": "Required",
+            "optional": "Optional",
+            "save": "Save",
+            "cancel": "Cancel",
+            "loading": "Loading…",
+            "error": {
+                "required": "This field is required",
+                "invalid": "Invalid value",
+                "maxLength": "Too long",
+                "minLength": "Too short"
+            },
+            "password": {
+                "hide": "Hide Password",
+                "show": "Show Password"
+            },
+            "selectMultiple": "Select multiple",
+            "select": "Select",
+            "date": "Date",
+            "time": "Time",
+            "switchTo": "Switch to"
+        },
+        "actions": {
+            "edit": "Edit",
+            "delete": "Delete",
+            "confirm": "Confirm",
+            "cancel": "Cancel",
+            "reportProfile": "Report @{{handle}}",
+            "blockProfile": "Block @{{handle}}",
+            "reportPost": "Report Post",
+            "shareProfile": "Share Profile",
+            "add": "Add",
+            "success": "Success!",
+            "download": "Download",
+            "duplicate": "Duplicate Event"
+        },
+        "submit": "Submit",
+        "next": "Next",
+        "back": "Back",
+        "done": "Done",
+        "close": "Close",
+        "edit": "Edit",
+        "you": "You",
+        "media": {
+            "audioPlayer": "Audio Player",
+            "image": {
+                "cropTitle": "Crop Image",
+                "recents": "Recents"
+            },
+            "video": {
+                "recents": "Recents"
+            },
+            "send": "Send",
+            "sending": "Sending…",
+            "altTextDescription": "You may add descriptions to your media files here - this can help viewers get more context about your images and documents."
+        },
+        "members": {
+            "addSuccess": "Member added successfully",
+            "addError": "Failed to add member",
+            "adding": "Adding…"
+        },
+        "add": "Add",
+        "cancel": "Cancel",
+        "none": "None",
+        "remove": "Remove"
+    },
+    "conversations": {
+        "newMessage": "New Message",
+        "createNew": {
+            "title": "New Conversation",
+            "searchPlaceholder": "Search for people",
+            "sendMessage": "Send Message",
+            "messagePlaceholder": "Type your message",
+            "send": "Send"
+        },
+        "messageInThread": {
+            "startedBy": "Started by {{name}}",
+            "addedBy": "Added by {{name}}",
+            "left": "{{name}} left",
+            "removedBy": "Removed by {{name}}"
+        },
+        "message": {
+            "viewAttachment": "View Attachment",
+            "attachment": "Attachment",
+            "created": "created",
+            "invited": "invited you to",
+            "happening": "happening",
+            "joinNow": "Join Now",
+            "copy": {
+                "title": "Copy Message"
+            },
+            "delete": {
+                "title": "Delete Message",
+                "deleteForMe": "Delete for me",
+                "deleteForEveryone": "Delete for everyone",
+                "description": "Are you sure you want to delete this message?",
+                "confirm": "Delete",
+                "loading": "Deleting…",
+                "deleteDescription": "Are you sure you want to delete this message?",
+                "deleteSuccess": "Message deleted successfully",
+                "deleteError": "Failed to delete message"
+            }
+        },
+        "leaveConversation": {
+            "title": "Leave Conversation",
+            "description": "Are you sure you want to leave this conversation?",
+            "leave": "Leave"
+        },
+        "blockAccount": {
+            "title": "Block {{handle}}",
+            "description": "Are you sure you want to block {{handle}}?",
+            "block": "Block"
+        },
+        "reportAccount": {
+            "title": "Report {{handle}}",
+            "description": "Are you sure you want to report {{handle}}?",
+            "sendReport": "Send Report"
+        },
+        "settings": {
+            "title": "Conversation Settings",
+            "messageRequests": {
+                "title": "Message Requests",
+                "description": "Allow message requests from people you don't follow",
+                "everyone": "Everyone",
+                "noOne": "No one"
+            }
+        }
+    },
+    "settings": {
+        "description": "Manage all settings relating to your acccount here:",
+        "profile": {
+            "description": "Make changes to your profile details",
+            "updateError": "There was an error updating your profile.",
+            "updateSuccess": "Your profile has been updated",
+            "updateHandleExists": "Handle already taken"
+        },
+        "account": {
+            "description": "Make changes to your account information",
+            "oldPassword": "Current Password",
+            "oldPasswordDescription": "Enter your current password",
+            "oldPasswordPlaceholder": "Enter your current password",
+            "email": "Email",
+            "emailPlaceholder": "Enter your email",
+            "newPassword": "New Password",
+            "newPasswordPlaceholder": "Enter your new password",
+            "confirmPassword": "Confirm Password",
+            "confirmPasswordPlaceholder": "Confirm your new password",
+            "oldPasswordReason": "For security reasons you have to enter your current password to change your password or email address",
+            "oldPasswordRequired": "Current password is required",
+            "updateSuccessMessage": "Your account has been updated",
+            "updateSuccess": "Update successful",
+            "updateError": "Update failed: {{error}}",
+            "samePasswordError": "New password cannot be the same as the current password",
+            "updateFailed": "Password update failed: {{error}}",
+            "title": "Account Settings"
+        },
+        "billing": {
+            "title": "Billing & Subscription",
+            "paymentMethod": "Payment Method",
+            "currentPeriod": "Current Period",
+            "autoRenewal": "Auto Renewal",
+            "autoRenewalCanceled": "Canceled",
+            "autoRenewalActive": "Active",
+            "createPortal": "Customer Portal"
+        },
+        "notifications": {
+            "inApp": "In-App Notifications",
+            "push": "Push Notifications",
+            "email": "Email Notifications",
+            "updateSuccess": "Community settings updated",
+            "description": "Manage your notification preferences",
+            "types": {
+                "reply": {
+                    "label": "Replies",
+                    "description": "Manage notifications for when someone replies to your post"
+                },
+                "repost": {
+                    "label": "Reposts",
+                    "description": "Manage notifications for when your posts gets reposted"
+                },
+                "reaction": {
+                    "label": "Reactions",
+                    "description": "Manage notifications for when your posts gets reactions"
+                },
+                "jamStarted": {
+                    "label": "Jam Started",
+                    "description": "Manage how you receive live jam notifications when a jam is started"
+                },
+                "jamModerator": {
+                    "label": "Jam Moderator",
+                    "description": "Manage how you receive live jam notifications when you are invited to moderate a jam"
+                },
+                "jamSpeaker": {
+                    "label": "Jam Speaker",
+                    "description": "Manage how you receive live jam notifications when you are invited to speak at a jam"
+                },
+                "directMessages": {
+                    "label": "Direct Messages",
+                    "description": "Manage notifications for when you receive a direct message"
+                },
+                "announcement": {
+                    "label": "Announcements",
+                    "description": "Manage notifications for when you receive an announcement"
+                },
+                "directMessage": {
+                    "label": "Direct Messages"
+                },
+                "follow": {
+                    "description": "Manage notifications for when someone follows you",
+                    "label": "New follower"
+                },
+                "newProfile": {
+                    "label": "New Profile",
+                    "description": "Manage notifications for when a new profile is created"
+                },
+                "newGroupPost": {
+                    "label": "New Group Post",
+                    "description": "Manage notifications for when a new post is created in a group"
+                },
+                "groupAdded": {
+                    "label": "Group Added",
+                    "description": "Manage notifications for when you are added to a group"
+                },
+                "groupMemberJoined": {
+                    "label": "Group Member Joined",
+                    "description": "Manage notifications for when a member joins a group"
+                },
+                "groupMemberLeft": {
+                    "label": "Group Member Left",
+                    "description": "Manage notifications for when a member leaves a group"
+                },
+                "pollVote": {
+                    "label": "Poll Vote",
+                    "description": "Manage notifications for when a poll is voted on"
+                },
+                "rsvp": {
+                    "label": "RSVP",
+                    "description": "Manage notifications for when someone rsvps to your event"
+                }
+            },
+            "pushSettings": "Push Notifications",
+            "pushEnabled": "Enabled for this Browser",
+            "testPush": "Send a Push Notification",
+            "create": "In-App Notifications",
+            "title": "Notification Settings"
+        },
+        "form": {
+            "imageEditModal": {
+                "title": "Edit Image",
+                "placeholder": "Describe your image for visually-impaired viewers",
+                "cropping": "Image Crop",
+                "altText": "Alt Text"
+            }
+        },
+        "publicProfile": {
+            "title": "Public Profile",
+            "description": "Change your display name, bio, and other information related to how your profile appears in the community"
+        },
+        "theme": {
+            "title": "Theme Settings",
+            "description": "Switch between Light and Dark Mode themes when viewing the community",
+            "themeDescription": "Change community appearance. You can choose between Light and Dark Mode, or let your community or OS decide.",
+            "community": {
+                "mode": "Use community setting"
+            },
+            "light": {
+                "mode": "Use Light Mode always"
+            },
+            "dark": {
+                "mode": "Use Dark Mode always"
+            },
+            "system": {
+                "mode": "Use my operating system settings"
+            },
+            "updateSuccess": "Theme settings updated. The page will now reload."
+        }
+    },
+    "form": {
+        "imageEditModal": {
+            "title": "Edit Image",
+            "placeholder": "Describe your image for visually-impaired viewers",
+            "cropping": "Image Crop",
+            "altText": "Alt Text",
+            "crop": "Crop"
+        },
+        "headerAvatarInput": {
+            "coverImage": "Cover Image"
+        },
+        "imageInput": {
+            "maxSize": "Max size: {{size}}",
+            "uploadText": "Upload Image",
+            "uploadTitle": "Upload Image"
+        },
+        "preview": "Preview",
+        "edit": "Back to Editing",
+        "uploadEditModal": {
+            "description": {
+                "altText": "Add a description of your document",
+                "title": "Edit document information",
+                "placeholder": "Add your description here"
+            }
+        }
+    },
+    "accounts": {
+        "login": {
+            "title": "Login",
+            "description": "Login to your account",
+            "loginButton": "Log In"
+        },
+        "editEmail": {
+            "title": "Edit Email",
+            "description": "Enter your new email address",
+            "emailLabel": "Email",
+            "emailPlaceholder": "Enter your new email",
+            "saveChanges": "Update Email",
+            "updateSuccess": "Email updated successfully",
+            "updateError": "Failed to update email"
+        },
+        "validateEmail": {
+            "success": "Verification Email Sent"
+        }
+    },
+    "visibility": {
+        "post": {
+            "description": "Who can see and interact with this content.",
+            "group": {
+                "description": "Members of a specific group",
+                "title": "Specific Group"
+            },
+            "local": {
+                "description": "Posting to the entire community",
+                "title": "Community"
+            },
+            "title": "Who can see this",
+            "public": {
+                "description": "Visible to everyone on the internet",
+                "title": "Public"
+            },
+            "direct": {
+                "title": "Specific People",
+                "description": "Only specific people can see this post"
+            }
+        },
+        "event": {
+            "description": "Who can see and join this event.",
+            "group": {
+                "description": "Only people in the selected group can see and join",
+                "title": "Specific Group"
+            },
+            "local": {
+                "description": "Everyone in the community can join",
+                "title": "Community"
+            },
+            "title": "Event Visibility",
+            "public": {
+                "description": "Everyone on the internet can join",
+                "title": "Public"
+            },
+            "direct": {
+                "title": "Specific People",
+                "description": "Only individuals you invite can see this event"
+            }
+        },
+        "accessDenied": "You do not have access to this content"
+    },
+    "events": {
+        "form": {
+            "title": "Basic Details",
+            "name": "Event name",
+            "description": "Give your event a clear, descriptive name",
+            "descriptionPlaceholder": "Describe your event",
+            "dateAndTimeTitle": "Date and Time",
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "addEndDate": "Add end date and time",
+            "timezone": "Timezone",
+            "timezonePlaceholder": "Select your timezone",
+            "location": "Location",
+            "address": "Address",
+            "addressPlaceholder": "Add address",
+            "eventFormat": "Event Format",
+            "jamFormatLabel": "Jam event",
+            "externalFormatLabel": "External event link",
+            "inPersonFormatLabel": "In-person event",
+            "people": "People",
+            "visibility": "Visibility",
+            "visibilityDescription": "Choose who can view and join your event",
+            "attendeeListPublic": "Let an attendee see others attending this event",
+            "jamModerators": "Jam moderators (optional).",
+            "jamWaitingRoom": "Waiting Room",
+            "jamWaitingRoomDescription": "Only approved users can join",
+            "timezoneSearch": "Search for a timezone",
+            "visibilityNotChangeable": "Note:  The event visibility cannot be changed once the event is published.  Make sure you're adding the right people or group.",
+            "jamModeratorsDescription": "Click to select Jam moderators"
+        },
+        "feed": {
+            "past": "Past",
+            "upcoming": "Upcoming",
+            "empty": "No {{type}}s"
+        },
+        "create": {
+            "title": "Create Event"
+        },
+        "tabs": {
+            "rsvps": "RSVPs",
+            "discussion": "Discussion",
+            "attendees": "Attendees",
+            "invited": "Invited",
+            "jamAttendees": "Jam Attendees",
+            "description": "Description"
+        },
+        "profileRelationship": {
+            "owner": "You are hosting",
+            "attending": "Attending",
+            "tentative": "Maybe Attending"
+        },
+        "jam": {
+            "start": "Start Jam"
+        },
+        "hostedBy": "Organizer",
+        "group": "Group Event In:",
+        "startDate": "Start Date",
+        "endDate": "End Date"
+    },
+    "reports": {
+        "categories": {
+            "spamDescription": "Spam or irrelevant content",
+            "otherDescription": "Other issues",
+            "violationDescription": "It's racist, sexist, or hateful"
+        },
+        "create": {
+            "post": {
+                "title": "Report post",
+                "description": "Help us understand the issue, what’s the problem with this post?",
+                "anythingElse": "Anything else?",
+                "continue": "Continue",
+                "confirmMessageHeading": "Are you sure you want to report this post by @{{handle}}?"
+            },
+            "profile": {
+                "title": "Report {{handle}}",
+                "description": "Help us understand the issue, what’s the problem with member?",
+                "anythingElse": "Anything else?",
+                "continue": "Continue",
+                "confirmMessageHeading": "Are you sure you want to report @{{handle}}",
+                "confirmMessageDescription": "Your report will be sent to the community moderator.   @{{handle}} won't be notified of your report."
+            },
+            "sendReport": "Send Report",
+            "reportSuccess": "Thank you for letting us know. Your feedback help us make the {{name}} community better for everyone!",
+            "reportError": "Failed to send report. Please try again later."
+        }
+    },
+    "location": {
+        "lookup": "Looking for matching locations"
+    },
+    "jam": {
+        "join": {
+            "submit": "Join Jam"
+        },
+        "start": {
+            "submit": "Start Jam"
+        },
+        "exit": {
+            "title": "Leave Jam",
+            "description": "Leave the jam.  Moderators may end the jam for all.",
+            "leave": "Leave Jam",
+            "endForAll": "End the Jam"
+        },
+        "close": {
+            "success": "The Jam is now closed."
+        }
+    },
+    "notification": {
+        "announcement": {
+            "text": "{{profileName}} made an announcement"
+        },
+        "jamSpeaker": {
+            "text": "{{profileName}} invited you to be a speaker at an event"
+        },
+        "directMessage": {
+            "text": "{{profileName}} sent you a direct message"
+        },
+        "follow": {
+            "text": "{{profileName}} followed you"
+        },
+        "jamModerator": {
+            "text": "{{profileName}} invited you to moderate an event"
+        },
+        "jamStarted": {
+            "text": "{{profileName}} started a jam at"
+        },
+        "newGroupInvitation": {
+            "text": "You have been added to the group  "
+        },
+        "newGroupMember": {
+            "text": "{{profileName}} joined "
+        },
+        "newProfile": {
+            "text": "{{profileName}} was created"
+        },
+        "pollVote": {
+            "text": "{{profileName}} has voted on your poll"
+        },
+        "rsvp": {
+            "text": "{{profileName}} RSVP'd to your event"
+        },
+        "reaction": {
+            "text": "{{profileName}} reacted"
+        },
+        "reply": {
+            "text": "{{profileName}} replied"
+        },
+        "repost": {
+            "text": "{{profileName}} reposted"
+        },
+        "newGroupPost": {
+            "text": "New post in {{groupName}}"
+        }
+    },
+    "handle": {
+        "validation": {
+            "error": "Handle is a required field"
+        }
+    },
+    "emails": {
+        "common": {
+            "greeting": "Hello {{profileName}},",
+            "reasonForEmail": "You are getting this notification because you are part of ",
+            "contactUs": "To contact us, please reply to this email or contact ",
+            "thankYou": "Thank you,",
+            "team": "{{communityName}} Team",
+            "wantFewerEmails": "Want to get fewer emails? ",
+            "manageNotications": "Manage notification settings"
+        },
+        "announcement": {
+            "subject": "Announcement from {{communityName}}",
+            "body": " posted an announcement",
+            "cta": "View Announcement"
+        },
+        "directMessage": {
+            "title": "{{profileName}} replied to a message",
+            "subject": "You've received a direct message from {{profileName}}",
+            "replySubtitle": "Their reply:",
+            "singleRecipientBody": " sent you a new direct message:",
+            "multipleRecipientsBody": "sent a new direct message to you and {{membersCount}} other people",
+            "cta": "View or Reply"
+        },
+        "follow": {
+            "subject": "{{profileName}} started following you",
+            "body": " started following you.  Your posts will now show up in their feed.  Click on their profile link to follow them back.",
+            "cta": "Visit your new follower"
+        },
+        "groupAdded": {
+            "title": "You've been added to a group {{groupName}} in {{communityName}}",
+            "subject": "You've been added to a group {{groupName}} in {{communityName}}",
+            "body": "{{profileName}} has added you to the group {{groupName}} in the {{communityName}} community.\n\nMore about {{groupName}}:",
+            "cta": "Click here to visit the group and manage your membership"
+        },
+        "groupMemberJoined": {
+            "title": "{{profileName}} joined {{groupName}} in {{communityName}}",
+            "subject": "{{profileName}} joined {{groupName}} in {{communityName}}",
+            "body": "{{profileName}} has joined the group {{groupName}}.",
+            "profileCta": "View Profile",
+            "cta": "Click here to visit the group and manage your membership"
+        },
+        "groupMemberLeft": {
+            "title": "{{profileName}} left {{groupName}} in {{communityName}}",
+            "subject": "{{profileName}} left {{groupName}} in {{communityName}}",
+            "body": "{{profileName}} has left the group {{groupName}}.",
+            "profileCta": "View Profile",
+            "cta": "Click here to visit the group and manage your membership"
+        },
+        "jamModerator": {
+            "subject": "You have been invited to {{jamName}} as a moderator!",
+            "body": "{{profileName}} invited you to moderate a jam!",
+            "cta": "Join Jam"
+        },
+        "jamSpeaker": {
+            "subject": "{{profileName}} invited you to speak at a jam!",
+            "body": "{{profileName}} invited you to speak at a jam!",
+            "cta": "Join Jam"
+        },
+        "jamStarted": {
+            "subject": "{{profileName}} started a jam!",
+            "body": "{{profileName}} started a jam!",
+            "cta": "Join Jam"
+        },
+        "newGroupPost": {
+            "title": "{{profileName}} made a new post in {{groupName}} in {{communityName}}",
+            "subject": "{{profileName}} made a new post in {{groupName}} in {{communityName}}",
+            "body": "{{profileName}} made a new post in the group {{groupName}}.",
+            "profileCta": "View Profile",
+            "postCta": "View post",
+            "cta": "Click here to visit the group and manage your membership"
+        },
+        "newProfile": {
+            "title": "New Profile created on {{communityName}}",
+            "subject": "New Profile created on {{communityName}}",
+            "body": "{{profileName}} has been onboarded to {{communityName}}! \nWelcome them to the community.",
+            "cta": "To view their profile, click here."
+        },
+        "pollVote": {
+            "title": "A new poll vote has been recorded in {{communityName}}",
+            "subject": "A new poll vote has been recorded in {{communityName}}",
+            "body": "{{profileName}} has voted on your poll:",
+            "cta": "to visit the poll and see the results, click here."
+        },
+        "rsvp": {
+            "title": "A new RSVP has been created in {{communityName}}",
+            "subject": "A new RSVP has been created in {{communityName}}",
+            "body": "{{profileName}} has RSVP'd to your event",
+            "cta": "to visit the event and see the results, click here."
+        },
+        "reaction": {
+            "subject": "{{profileName}} reacted to your post",
+            "body": "{{profileName}} reacted to your post",
+            "cta": "Take a look!"
+        },
+        "reply": {
+            "subject": "{{profileName}} replied to your post",
+            "subtitle": "They replied:",
+            "body": "{{profileName}} replied to your post",
+            "cta": "Take a look!"
+        },
+        "repost": {
+            "subject": "{{profileName}} reposted your post",
+            "body": "{{profileName}} reposted your post",
+            "cta": "Take a look!"
+        }
+    },
+    "media": {
+        "image": {
+            "addAltText": "Add alt text to your image",
+            "addAltTextLabel": "Alt Text",
+            "addAltTextDescription": "invalid string do not use",
+            "altTextPlaceholder": "Add your alt text here",
+            "altTextLabel": "Alt Text",
+            "altTextDescription": "A good description of your image can help visually-impaired people understand more about your post. "
+        }
+    },
+    "email": {
+        "welcome": {
+            "content": {
+                "profile": "Update your profile",
+                "friends": "So people know more about you",
+                "notification": "Change your notification preferences",
+                "contact": "To contact us, please reach out to",
+                "mail": "over email"
+            },
+            "cta": "Get Started",
+            "description": "Here are some links to help you get started",
+            "header": "Welcome to"
+        },
+        "jams": {
+            "moderator": "Jam Moderator",
+            "speaker": {
+                "description": "{{profileName}} made you a speaker in a jam"
+            },
+            "started": "Jam Started"
+        },
+        "reset": {
+            "password": {
+                "title": "Reset Your Password",
+                "description": "We received a request to reset your password for your {{communityName}} account. If you didn't make this request, you can safely ignore this email.",
+                "cta": "Reset Password"
+            }
+        },
+        "verify": {
+            "welcome": "Thank you for signing up for",
+            "cta": {
+                "description": "Verify your email"
+            },
+            "title": "Verify Your Email Address",
+            "description": "To complete your registration and start using your account, please verify your email address."
+        }
+    },
+    "evens": {
+        "form": {
+            "jamModeratorsDescription": "Click to add jam moderators"
+        }
+    },
+    "explore": {
+        "enterSearchQuery": "Please enter a search query above",
+        "selectTab": "Choose a tab to see relevant results",
+        "SearchButton": "Search"
+    },
+    "group": {
+        "roles": {
+            "admin": "Admin"
+        }
+    },
+    "articles": {
+        "tabs": {
+            "description": "Article"
+        },
+        "form": {
+            "title": "New Article",
+            "contentPlaceholder": "Write your content here.  User markdown for formatting",
+            "visibility": "Who can see this (Required)",
+            "visibilityNotChangeable": "Once you post your article, you can't change the visibility",
+            "content": "Article Content"
+        },
+        "create": {
+            "title": "New Article"
+        }
+    },
+    "infos": {
+        "emailNotVerified": {
+            "verify": "Send Verification Link",
+            "title": "Your email is not verified",
+            "text": "Click on the link in the email we sent you to verify your email and fully participate in the community."
+        }
+    }
+}

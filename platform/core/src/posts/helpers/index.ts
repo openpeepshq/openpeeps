@@ -1,0 +1,192 @@
+import {
+  PostWithMeta,
+  PostDataUnion,
+  Profile,
+  EntryData,
+  Post,
+  GroupWithMeta,
+  Hashtag,
+  MentionData,
+  ReactionData,
+  ProfileWithMeta,
+  hashtagRegex,
+  EntryWithProfile,
+  ReactionProfile,
+  MentionWithProfile,
+  DbPost,
+  DbEntry,
+  DbMention,
+  DbReaction,
+} from '@openpeeps/common/types';
+import { composeFilters, connectionFinder, connector, disconnector, filterAndTransform } from '../../db/helpers';
+import { allpeepDb, collectionInfos } from '../../db';
+import { QueryResult } from '@openpeeps/arango-querybuilder';
+import { capabilitiesConfig } from '../../config';
+import { canReadPost } from './filters';
+import { ObjectFilter } from '../../db/types';
+import { getProfile } from '../../profiles/cache';
+
+
+export const isDirect = (post: PostWithMeta) => post.visibility === 'direct';
+export const isPrivate = (post: PostWithMeta) => post.visibility === 'private';
+export const isUnlisted = (post: PostWithMeta) => post.visibility === 'unlisted';
+export const isPublic = (post: PostWithMeta) => post.visibility === 'public';
+export const isGroup = (post: PostWithMeta) => post.visibility === 'group';
+export const isLocal = (post: PostWithMeta) => post.visibility === 'local';
+
+export * from './filters';
+
+
+const getTags = (text?: string) => {
+  if (!text) return [];
+  return (text.match(hashtagRegex) || []).map((tag) => tag.substring(1));
+};
+
+export const extractHashtags = (data: PostDataUnion) => {
+  switch (data.type) {
+    default:
+      return getTags(data?.content);
+  }
+};
+
+export const entryConnector = connector<Profile, Post, EntryData>(
+  collectionInfos.profilesCollection,
+  collectionInfos.postsCollection,
+  collectionInfos.entriesCollection,
+)
+
+export const entryDisconnector = disconnector<Profile, Post>(
+  collectionInfos.profilesCollection,
+  collectionInfos.postsCollection,
+  collectionInfos.entriesCollection,
+)
+
+export const replyConnector = connector<Post, Post>(
+  collectionInfos.postsCollection,
+  collectionInfos.postsCollection,
+  collectionInfos.repliesCollection,
+)
+
+export const groupConnector = connector<Post, GroupWithMeta>(
+  collectionInfos.postsCollection,
+  collectionInfos.groupsCollection,
+  collectionInfos.postGroupsCollection,
+)
+
+export const audienceConnector = connector<Post, Profile>(
+  collectionInfos.postsCollection,
+  collectionInfos.profilesCollection,
+  collectionInfos.audienceCollection,
+)
+
+export const audienceConnectionFinder = connectionFinder<Post, Profile>(
+  collectionInfos.postsCollection,
+  collectionInfos.profilesCollection,
+  collectionInfos.audienceCollection,
+)
+
+export const hashtagConnector = connector<Post, Hashtag>(
+  collectionInfos.postsCollection,
+  collectionInfos.hashtagsCollection,
+  collectionInfos.postHashtagsCollection,
+)
+
+export const hashtagDisconnector = disconnector<Post, Hashtag>(
+  collectionInfos.postsCollection,
+  collectionInfos.hashtagsCollection,
+  collectionInfos.postHashtagsCollection,
+)
+
+export const mentionConnector = connector<Post, Profile, MentionData>(
+  collectionInfos.postsCollection,
+  collectionInfos.profilesCollection,
+  collectionInfos.mentionsCollection,
+)
+
+export const mentionsConnectionFinder = connectionFinder<Post, Profile>(
+  collectionInfos.postsCollection,
+  collectionInfos.profilesCollection,
+  collectionInfos.mentionsCollection,
+)
+
+export const repostConnector = connector<Post, Post>(
+  collectionInfos.postsCollection,
+  collectionInfos.postsCollection,
+  collectionInfos.repostCollection,
+)
+
+export const reactionConnector = connector<Profile, Post, ReactionData>(
+  collectionInfos.profilesCollection,
+  collectionInfos.postsCollection,
+  collectionInfos.reactionsCollection,
+)
+
+export const reactionDisconnector = disconnector<Profile, Post>(
+  collectionInfos.profilesCollection,
+  collectionInfos.postsCollection,
+  collectionInfos.reactionsCollection,
+)
+
+export const bookmarkConnector = connector<Profile, Post>(
+  collectionInfos.profilesCollection,
+  collectionInfos.postsCollection,
+  collectionInfos.bookmarksCollection,
+)
+
+export const bookmarkDisconnector = disconnector<Profile, Post>(
+  collectionInfos.profilesCollection,
+  collectionInfos.postsCollection,
+  collectionInfos.bookmarksCollection,
+)
+
+const addProfileForEntry = async (rawEntry: DbEntry): Promise<EntryWithProfile> => ({
+  ...rawEntry,
+  profile: (await getProfile(rawEntry.profile.id))!,
+})
+
+const addProfileForReaction = async (rawReaction: DbReaction): Promise<ReactionProfile> => ({
+  ...rawReaction,
+  profile: (await getProfile(rawReaction.profile.id))!,
+})
+
+const addProfileForMention = async (rawMention: DbMention): Promise<MentionWithProfile> => ({
+  ...rawMention,
+  profile: (await getProfile(rawMention.profile.id))!,
+})
+
+export const transformPost = async (post: DbPost): Promise<PostWithMeta> => {
+  const entries = post.entries ? await Promise.all(post.entries.map(addProfileForEntry)) : [];
+  const reactions = post.reactions ? await Promise.all(post.reactions.map(addProfileForReaction)) : [];
+  const audience = post.audience ? await Promise.all(post.audience.map(p => getProfile(p.id))) as ProfileWithMeta[] : [];
+  const mentions = post.mentions ? await Promise.all(post.mentions.map(addProfileForMention)) : [];
+  return {
+    ...post,
+    replyTo: post.replyTo ? await transformPost(post.replyTo) : undefined,
+    repost: post.repost ? await transformPost(post.repost) : undefined,
+    rsvps: entries.filter((entry) => entry.type === "rsvp").map((entry) => ({
+      profile: entry.profile,
+      response: entry.data.response,
+      createdAt: entry.createdAt
+    })),
+    audience,
+    mentions,
+    profile: entries.find(entry => entry.type === 'create')?.profile!,
+    entries,
+    reactions,
+  };
+}
+
+export const toFilteredPostsList = async (queryResult: QueryResult<DbPost>, options: { profile?: ProfileWithMeta, limit?: number, offset?: number, filters?: ObjectFilter<PostWithMeta>[] }) => {
+  const { profile, limit = 100, offset = 0, filters = [] } = options;
+  const { db } = await allpeepDb();
+  const config = await capabilitiesConfig();
+  return filterAndTransform(
+    queryResult,
+    db,
+    {
+      filter: composeFilters(canReadPost(config, profile), ...filters),
+      transform: transformPost,
+      limit,
+      offset
+    });
+}
