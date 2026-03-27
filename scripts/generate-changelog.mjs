@@ -180,8 +180,8 @@ function renderSection(sectionTitle, groupedCommits) {
 /** Generate changelog content (same as would be written to CHANGELOG.md). */
 export function generateChangelog() {
   const releaseTags = getReleaseTags();
-  let changelog = 'Changelog for AP-AT\n';
-  changelog += '===================\n\n';
+  let changelog = 'Changelog for OpenPeeps\n';
+  changelog += '=======================\n\n';
 
   if (releaseTags.length === 0) {
     const currentCommits = getCommitsForRange(null, 'HEAD');

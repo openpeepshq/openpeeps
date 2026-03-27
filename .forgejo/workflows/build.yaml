@@ -1,6 +1,7 @@
 on:
   push:
   workflow_dispatch:
+  workflow_call:
 
 env:
   DEFAULT_BRANCH: "main"
@@ -65,22 +66,6 @@ jobs:
           echo "SHORT_SHA=${{ needs.set-variables.outputs.short_sha }}" >> $GITHUB_ENV
           echo "VERSION=${{ needs.set-variables.outputs.version }}" >> $GITHUB_ENV
           echo "TAG=${{ needs.set-variables.outputs.tag }}" >> $GITHUB_ENV
-      - name: Generate changelog and amend commit (default branch only)
-        if: forgejo.ref_name == env.DEFAULT_BRANCH
-        run: |
-          node scripts/generate-changelog.mjs
-          if ! git diff --quiet CHANGELOG.md; then
-            git remote set-url origin "https://${{ forgejo.actor }}:${{ forgejo.token }}@codeberg.org/${{ forgejo.repository }}.git"
-            git add CHANGELOG.md
-            export GIT_AUTHOR_NAME="$(git log -1 --format='%an')"
-            export GIT_AUTHOR_EMAIL="$(git log -1 --format='%ae')"
-            export GIT_AUTHOR_DATE="$(git log -1 --format='%aI')"
-            export GIT_COMMITTER_NAME="$(git log -1 --format='%cn')"
-            export GIT_COMMITTER_EMAIL="$(git log -1 --format='%ce')"
-            export GIT_COMMITTER_DATE="$(git log -1 --format='%cI')"
-            git commit --amend --no-edit
-            git push --force-with-lease origin HEAD
-          fi
       - name: Docker login
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "codeberg.org"

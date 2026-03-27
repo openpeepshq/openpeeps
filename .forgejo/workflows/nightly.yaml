@@ -1,0 +1,34 @@
+on:
+  schedule:
+    - cron: "0 0 * * *"
+      timezone: UTC
+
+jobs:
+  regenerate-changelog:
+    runs-on: docker
+    steps:
+      - name: checkout
+        uses: actions/checkout@v6
+      - name: Regenerate changelog
+        run: |
+          node scripts/generate-changelog.mjs
+          git config user.name "Nightly Builder"
+          git config user.email "openpeeps@allpeep.com"
+          git add CHANGELOG.md
+          git commit -m "Regenerate changelog"
+          git push origin HEAD
+  build:
+    uses: ./.forgejo/workflows/build.yaml
+  tag:
+    runs-on: docker
+    steps:
+      - name: checkout
+        uses: actions/checkout@v6
+      - name: Docker login
+        run: |
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "codeberg.org"
+      - name: Tag
+        run: |
+          short_sha=$(echo "${{ forgejo.sha }}" | cut -c1-8)
+          docker buildx imagetools create --tag "${{ env.REGISTRY_IMAGE_BASE }}:nightly" \
+            "${{ env.REGISTRY_IMAGE_BASE }}:${{ short_sha }}"
