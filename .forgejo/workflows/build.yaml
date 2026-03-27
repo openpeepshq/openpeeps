@@ -152,7 +152,7 @@ jobs:
           echo " " >> .npmrc
           # Forgejo npm registry: /api/packages/{owner}/npm/
           owner="${{ forgejo.repository }}" && owner="${owner%%/*}"
-          echo "@opepeeps:registry=https://codeberg.org/api/packages/${owner}/npm/" >> .npmrc
+          echo "@openpeeps:registry=https://codeberg.org/api/packages/${owner}/npm/" >> .npmrc
           echo "//codeberg.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
           cat .npmrc
           pnpm install
