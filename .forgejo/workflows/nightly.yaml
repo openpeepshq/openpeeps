@@ -1,7 +1,6 @@
 on:
   schedule:
     - cron: "0 0 * * *"
-      timezone: UTC
 
 jobs:
   regenerate-changelog:
@@ -31,4 +30,4 @@ jobs:
         run: |
           short_sha=$(echo "${{ forgejo.sha }}" | cut -c1-8)
           docker buildx imagetools create --tag "${{ env.REGISTRY_IMAGE_BASE }}:nightly" \
-            "${{ env.REGISTRY_IMAGE_BASE }}:${{ short_sha }}"
+            "${{ env.REGISTRY_IMAGE_BASE }}:${short_sha}"
