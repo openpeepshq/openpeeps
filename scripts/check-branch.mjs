@@ -30,21 +30,6 @@ function runGit(command) {
   }
 }
 
-function checkChangelogCurrent() {
-  const expected = generateChangelog();
-  if (!fs.existsSync(CHANGELOG_PATH)) {
-    console.error('Check failed: CHANGELOG.md does not exist.');
-    return false;
-  }
-  const actual = fs.readFileSync(CHANGELOG_PATH, 'utf-8');
-  if (actual !== expected) {
-    console.error('Check failed: CHANGELOG.md is not current with generate-changelog output.');
-    console.error('Run: node scripts/generate-changelog.mjs');
-    return false;
-  }
-  return true;
-}
-
 function checkSingleCommitAheadOfMain() {
   const base = DEFAULT_BRANCH;
   const count = runGit(`git rev-list --count ${base}..HEAD`);
@@ -79,7 +64,6 @@ function checkConventionalCommit() {
 
 function main() {
   let ok = true;
-  if (!checkChangelogCurrent()) ok = false;
   if (!checkSingleCommitAheadOfMain()) ok = false;
   if (!checkConventionalCommit()) ok = false;
   if (ok) {

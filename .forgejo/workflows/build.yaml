@@ -6,6 +6,10 @@ env:
   DEFAULT_BRANCH: "main"
   REGISTRY_IMAGE_BASE: "codeberg.org/${{ forgejo.repository }}"
 
+concurrency:
+  group: ${{ forgejo.repository }}-${{ forgejo.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   set-variables:
     runs-on: docker
@@ -25,10 +29,12 @@ jobs:
             echo "Running on branch '$ref_name': tag = $tag"
           fi
           version="$(date +%Y-%m-%d)-${short_sha}"
+          is_release_branch=$(if [ "$ref_name" = "${{ env.DEFAULT_BRANCH }}" ] || [ "$ref_name" = "staging" ] || [ "$ref_name" = "stable" ]; then echo "true"; else echo "false"; fi)
           echo "tag=$tag" >> $FORGEJO_OUTPUT
           echo "version=$version" >> $FORGEJO_OUTPUT
           echo "short_sha=$short_sha" >> $FORGEJO_OUTPUT
           echo "ref_slug=$ref_slug" >> $FORGEJO_OUTPUT
+          echo "is_release_branch=$is_release_branch" >> $FORGEJO_OUTPUT
     outputs:
       tag: ${{ steps.vars.outputs.tag }}
       version: ${{ steps.vars.outputs.version }}
@@ -44,6 +50,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Check commit
+        if: needs.set-variables.outputs.is_release_branch == 'false'
+        run: |
+          node scripts/check-branch.mjs
       - name: Install Docker CLI and git
         run: apk add --no-cache docker-cli docker-cli-buildx git
       - name: Set image and version
@@ -52,14 +62,10 @@ jobs:
           echo "SHORT_SHA=${{ needs.set-variables.outputs.short_sha }}" >> $GITHUB_ENV
           echo "VERSION=${{ needs.set-variables.outputs.version }}" >> $GITHUB_ENV
           echo "TAG=${{ needs.set-variables.outputs.tag }}" >> $GITHUB_ENV
-      - name: Generate changelog and amend commit (merge into default branch only)
+      - name: Generate changelog and amend commit (default branch only)
         if: forgejo.ref_name == env.DEFAULT_BRANCH
         run: |
-          if ! git rev-parse --verify HEAD^2 >/dev/null 2>&1; then
-            echo "Not a merge commit, skipping changelog generation."
-            exit 0
-          fi
-          docker run --rm -v "$PWD:/app" -w /app node:20 node scripts/generate-changelog.mjs
+          node scripts/generate-changelog.mjs
           if ! git diff --quiet CHANGELOG.md; then
             git remote set-url origin "https://${{ forgejo.actor }}:${{ forgejo.token }}@codeberg.org/${{ forgejo.repository }}.git"
             git add CHANGELOG.md
@@ -128,7 +134,7 @@ jobs:
     container:
       image: ${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}
       credentials:
-        username: ${{ secrets.REGISTRY_USER }}
+        username: ${{ vars.REGISTRY_USER }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
     steps:
       - name: Publish npm packages
@@ -137,7 +143,7 @@ jobs:
           echo " " >> .npmrc
           # Forgejo npm registry: /api/packages/{owner}/npm/
           owner="${{ forgejo.repository }}" && owner="${owner%%/*}"
-          echo "@allpeep:registry=https://codeberg.org/api/packages/${owner}/npm/" >> .npmrc
+          echo "@opepeeps:registry=https://codeberg.org/api/packages/${owner}/npm/" >> .npmrc
           echo "//codeberg.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
           cat .npmrc
           pnpm install
