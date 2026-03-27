@@ -14,7 +14,8 @@ jobs:
   set-variables:
     runs-on: docker
     steps:
-      - id: vars
+      - name: Set variables
+        id: vars
         run: |
           ref_name="${{ forgejo.ref_name }}"
           sha="${{ forgejo.sha }}"
@@ -40,6 +41,7 @@ jobs:
       version: ${{ steps.vars.outputs.version }}
       short_sha: ${{ steps.vars.outputs.short_sha }}
       ref_slug: ${{ steps.vars.outputs.ref_slug }}
+      is_release_branch: ${{ steps.vars.outputs.is_release_branch }}
 
   build:
     runs-on: docker
@@ -47,15 +49,16 @@ jobs:
     container:
       image: node:24-alpine
     steps:
-      - uses: actions/checkout@v4
+      - name: Install Docker CLI and git
+        run: apk add --no-cache docker-cli docker-cli-buildx git
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Check commit
         if: needs.set-variables.outputs.is_release_branch == 'false'
         run: |
+          git branch main origin/main
           node scripts/check-branch.mjs
-      - name: Install Docker CLI and git
-        run: apk add --no-cache docker-cli docker-cli-buildx git
       - name: Set image and version
         run: |
           echo "REGISTRY_IMAGE=${{ secrets.REGISTRY }}/${{ forgejo.repository }}" >> $GITHUB_ENV
@@ -69,6 +72,12 @@ jobs:
           if ! git diff --quiet CHANGELOG.md; then
             git remote set-url origin "https://${{ forgejo.actor }}:${{ forgejo.token }}@codeberg.org/${{ forgejo.repository }}.git"
             git add CHANGELOG.md
+            export GIT_AUTHOR_NAME="$(git log -1 --format='%an')"
+            export GIT_AUTHOR_EMAIL="$(git log -1 --format='%ae')"
+            export GIT_AUTHOR_DATE="$(git log -1 --format='%aI')"
+            export GIT_COMMITTER_NAME="$(git log -1 --format='%cn')"
+            export GIT_COMMITTER_EMAIL="$(git log -1 --format='%ce')"
+            export GIT_COMMITTER_DATE="$(git log -1 --format='%cI')"
             git commit --amend --no-edit
             git push --force-with-lease origin HEAD
           fi

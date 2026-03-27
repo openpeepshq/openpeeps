@@ -10,16 +10,10 @@
  * Base branch: main (override with DEFAULT_BRANCH env).
  */
 
-import fs from 'fs';
-import path from 'path';
 import { execSync } from 'child_process';
-import { fileURLToPath } from 'url';
-import { generateChangelog, parseCommitMessage } from './generate-changelog.mjs';
+import { parseCommitMessage } from './generate-changelog.mjs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-const CHANGELOG_PATH = path.join(__dirname, '..', 'CHANGELOG.md');
 const DEFAULT_BRANCH = process.env.DEFAULT_BRANCH || 'main';
 
 function runGit(command) {
