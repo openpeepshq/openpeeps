@@ -237,6 +237,21 @@ const allPeepCollections = {
     name: 'jamRecordings',
     edge: true,
   },
+  webhooksCollection: {
+    name: 'webhooks',
+    indices: [
+      {
+        type: 'persistent',
+        fields: ['serviceIdentityId'],
+        name: 'idx_serviceIdentityId',
+      },
+      {
+        type: 'persistent',
+        fields: ['events[*]'],
+        name: 'idx_events',
+      },
+    ],
+  },
 };
 
 export const collectionInfos: Record<keyof typeof allPeepCollections, CollectionInfo> = allPeepCollections as Record<keyof typeof allPeepCollections, CollectionInfo>;

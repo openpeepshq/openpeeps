@@ -183,6 +183,33 @@ export const resourceSchema = z.object({
 });
 export type Resource = z.infer<typeof resourceSchema>;
 
+export const scopeSchema = z.object({
+  scope: z.enum(['write', 'read', 'admin']).optional(),
+  resource: resourceSchema,
+});
+export type Scope = z.infer<typeof scopeSchema>;
+
+export const webhookEventTypeSchema = z.enum([
+  'postCreated',
+  'jamRecordingCompleted',
+]);
+export type WebhookEventType = z.infer<typeof webhookEventTypeSchema>;
+export const WEBHOOK_EVENT_TYPES: WebhookEventType[] = [
+  ...webhookEventTypeSchema.options,
+];
+
+export const webhookDataSchema = z.object({
+  url: z.string().url(),
+  events: z.array(webhookEventTypeSchema),
+  scopes: z.array(scopeSchema),
+  disabled: z.boolean(),
+  consecutiveFailures: z.number(),
+});
+export type WebhookData = z.infer<typeof webhookDataSchema>;
+
+export const webhookSchema = modelSchema(webhookDataSchema);
+export type Webhook = Model<WebhookData>;
+
 export const latLngSchema = z.object({
   lat: z.number(),
   lng: z.number(),

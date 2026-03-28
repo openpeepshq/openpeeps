@@ -13,3 +13,8 @@ plugins/**
 .DS_Store
 .home
 platform/react/tsconfig.tsbuildinfo
+.logs/
+.claude/
+.mcp.json
+cclsp.json
+CLAUDE.md

@@ -6,17 +6,21 @@ import { onceQueue } from '@openpeeps/core/events';
 import { serverRootUrl } from '@openpeeps/core/server';
 import { initializeNotifications, registerDefaultNotifications } from '@openpeeps/core/notifications';
 import { refreshConfig } from '@openpeeps/core/config';
+import { registerWebhookHandlers, webhookWorker, webhookQueue } from '@openpeeps/core/webhooks';
 
 const startWorkers = () => {
   console.log('Starting email worker ...');
   sendEmailWorker();
   console.log('Starting once worker ...');
   onceWorker();
+  console.log('Starting webhook delivery worker ...');
+  webhookWorker();
 };
 
 const setupQueues = () => {
   sendEmailQueue();
   onceQueue();
+  webhookQueue();
 };
 
 const logJobStats = async () => {
@@ -77,6 +81,8 @@ export const start = async () => {
   initJobLogs();
   console.log('Setting interval to log queue stats ...');
   setInterval(logJobStats, 60000);
+  console.log('Registering webhook handlers...');
+  registerWebhookHandlers();
   console.log('Starting workers ...');
   startWorkers();
   console.log('Started.');

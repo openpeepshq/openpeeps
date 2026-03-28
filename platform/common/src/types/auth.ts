@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { resourceSchema } from './models';
+import { scopeSchema } from './models';
 
 export const identitySchema = z.object({
   type: z.enum([
@@ -12,12 +12,6 @@ export const identitySchema = z.object({
   id: z.string().uuid(),
 });
 export type Identity = z.infer<typeof identitySchema>;
-
-export const scopeSchema = z.object({
-  scope: z.enum(['write', 'read', 'admin']).optional(),
-  resource: resourceSchema,
-});
-export type Scope = z.infer<typeof scopeSchema>;
 
 export const authorizationSchema = z.object({
   identities: z.array(identitySchema),

@@ -70,6 +70,7 @@ const topPosts = (db: Database, start: Date): Promise<PublicPostWithActivityScor
 
 const topProfiles = (db: Database, start: Date): Promise<PublicProfileWithActivityScore[]> =>
     profileWithActivityScoreMapping(start, new Date())
+        .filter('DOC.bot != true')
         .sort([['DOC.activityScore', 'DESC']])
         .limit(5)
         .all(db)
