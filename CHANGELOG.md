@@ -1,5 +1,5 @@
-Changelog for AP-AT
-===================
+Changelog for OpenPeeps
+=======================
 
 ## Current
 

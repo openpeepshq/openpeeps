@@ -1,15 +1,11 @@
-# AP-AT: The AllPeep Community Solution
+# OpenPeeps: The Open Source Community Solution by AllPeeP
 
-## Development
-
-- During development, when a change is made in either the `platform/` or in the `libraries/` directory, you have to go in there 
-and run `pnpm build` to rebuild the packages with your changes.
 
 ### Docker based
 
 TBD
 
-### Local
+### Set up Local Development
 
 1. Install nodejs 20.x
 2. Install ffmpeg - On MacOS `brew update && brew install ffmpeg`
@@ -22,13 +18,17 @@ TBD
 9. In directory `platform/app` run `pnpm run dev`
 10. Install playwright with `pnpm exec playwright install`
 
+## Development
+
+- During development, when a change is made in either the `platform/` or in the `libraries/` directory, you have to go in there and run `pnpm build` to rebuild the packages with your changes.
 
 
 ### Documentation
 
-/docs/development on your localhost or AP-AT install
-[https://gitlab.allpeep-hq.com/allpeep/open-source/ap-at/-/tree/main/app/src/routes/(unprotected)/docs/development]
+Visit /docs/development on your localhost or OpenPeeps install or https://openpeeps.ap.social/docs/ for the latest stable version documentation.
+
 
 ### Database
+The default database server can be accessed at port 8529. 
 
 http://localhost:8529/
