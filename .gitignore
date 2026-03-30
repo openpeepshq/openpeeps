@@ -5,7 +5,7 @@ yarn-error.log
 .idea
 
 .env.*
-!.env.example
+!.env.dev.example
 
 plugins/**
 /.pnpm-store/

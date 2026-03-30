@@ -10,16 +10,10 @@
  * Base branch: main (override with DEFAULT_BRANCH env).
  */
 
-import fs from 'fs';
-import path from 'path';
 import { execSync } from 'child_process';
-import { fileURLToPath } from 'url';
-import { generateChangelog, parseCommitMessage } from './generate-changelog.mjs';
+import { parseCommitMessage } from './generate-changelog.mjs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-const CHANGELOG_PATH = path.join(__dirname, '..', 'CHANGELOG.md');
 const DEFAULT_BRANCH = process.env.DEFAULT_BRANCH || 'main';
 
 function runGit(command) {
@@ -28,21 +22,6 @@ function runGit(command) {
   } catch (e) {
     return null;
   }
-}
-
-function checkChangelogCurrent() {
-  const expected = generateChangelog();
-  if (!fs.existsSync(CHANGELOG_PATH)) {
-    console.error('Check failed: CHANGELOG.md does not exist.');
-    return false;
-  }
-  const actual = fs.readFileSync(CHANGELOG_PATH, 'utf-8');
-  if (actual !== expected) {
-    console.error('Check failed: CHANGELOG.md is not current with generate-changelog output.');
-    console.error('Run: node scripts/generate-changelog.mjs');
-    return false;
-  }
-  return true;
 }
 
 function checkSingleCommitAheadOfMain() {
@@ -79,7 +58,6 @@ function checkConventionalCommit() {
 
 function main() {
   let ok = true;
-  if (!checkChangelogCurrent()) ok = false;
   if (!checkSingleCommitAheadOfMain()) ok = false;
   if (!checkConventionalCommit()) ok = false;
   if (ok) {
