@@ -842,7 +842,10 @@
             "presenting": "(presenting)"
         },
         "reactions": {
-            "sendTitle": "Send a reaction"
+            "sendTitle": "Send a reaction",
+            "allEmojisTitle": "Browse all emojis",
+            "backToQuickReactions": "Back to quick reactions",
+            "skinToneTitle": "Choose skin tone"
         },
         "discover": {
             "checkOtherJams": "Check out other jams"
