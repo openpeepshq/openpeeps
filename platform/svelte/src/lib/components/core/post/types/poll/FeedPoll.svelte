@@ -17,6 +17,7 @@
 			source={post?.data?.content}
 			linkPreviewMode={post?.data?.attachments?.length ? 'none' : 'append'}
 			mentions={post?.mentions}
+			newTab={true}
 		/>
 		<!-- attachments -->
 		<Attachments {post} />

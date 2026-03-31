@@ -35,6 +35,7 @@
     <OpenpeepsMarkdown
       source="{previewContent}{showReadMore ? '...' : ''}"
       linkPreviewMode="none"
+      newTab={true}
     />
   </div>
   {#if showReadMore}

@@ -16,6 +16,7 @@
     <OpenpeepsMarkdown
       source={post?.data?.content}
       linkPreviewMode={post?.data?.attachments?.length ? 'none' : 'append'}
+      newTab={true}
     />
     <!-- attachments -->
     <Attachments {post} />

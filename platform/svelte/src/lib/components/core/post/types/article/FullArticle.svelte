@@ -56,6 +56,7 @@
               <OpenpeepsMarkdown
                 source={article.content}
                 linkPreviewMode="none"
+                newTab={true}
               />
             </div>
           </div>
