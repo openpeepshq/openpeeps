@@ -3,14 +3,14 @@
 	import MicrophoneSelectorAndSwitch from '../../pieces/MicrophoneSelectorAndSwitch.svelte';
 	import CameraSelectorAndSwitch from '../../pieces/CameraSelectorAndSwitch.svelte';
 	import LeaveCloseButton from '$lib/components/core/jams/pieces/LeaveCloseButton.svelte';
-	import { getDrawerContext, getLivekitRoom } from '$lib/components/core/jams/context';
+	import { getLivekitRoom } from '$lib/components/core/jams/context';
 
 	import { addEventMutation } from '$lib/api';
 	import { sendReaction } from '../../actions';
-	import { emojis } from '$lib/components/core/jams/constants';
 	import { page } from '$app/stores';
 	import MobileMenu from '../../pieces/MobileMenu.svelte';
-  import AudioOutputSelector from '../../pieces/AudioOutputSelector.svelte';
+	import AudioOutputSelector from '../../pieces/AudioOutputSelector.svelte';
+	import ReactionMenu from '../../pieces/ReactionMenu.svelte';
 
 	const addEvent = addEventMutation();
 	const room = getLivekitRoom();
@@ -19,7 +19,9 @@
 	let isMobileOptionsMenuOpen = $state(false);
 	let isJamDetailsMenuOpen = $state(false);
 
-	const drawerContext = getDrawerContext();
+	const handleEmojiSelect = async (emoji: string) => {
+		await sendReaction(room, emoji, addEvent);
+	};
 </script>
 
 <div
@@ -27,19 +29,8 @@
 >
 	<!-- emoji menu -->
 	{#if isMobileEmojiMenuOpen}
-		<div class="bg-surface-200 absolute bottom-20 right-[7%] mt-2 w-[90%] rounded-md p-2">
-			<div class="flex flex-wrap gap-x-2">
-				{#each emojis as emoji (emoji)}
-					<button
-						onclick={() => {
-							sendReaction(room, emoji, addEvent);
-						}}
-						class="p-2 text-lg"
-					>
-						{emoji}
-					</button>
-				{/each}
-			</div>
+		<div class="absolute bottom-20 right-[7%] mt-2 w-[90%] rounded-md p-2">
+			<ReactionMenu mobile onSelect={handleEmojiSelect} />
 		</div>
 	{/if}
 

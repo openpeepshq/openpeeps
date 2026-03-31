@@ -838,7 +838,10 @@
             "presenting": "(präsentiert)"
         },
         "reactions": {
-            "sendTitle": "Reaktion senden"
+            "sendTitle": "Reaktion senden",
+            "allEmojisTitle": "Alle Emojis durchsuchen",
+            "backToQuickReactions": "Zurück zu Schnellreaktionen",
+            "skinToneTitle": "Hautton wählen"
         },
         "discover": {
             "checkOtherJams": "Weitere Jams entdecken"

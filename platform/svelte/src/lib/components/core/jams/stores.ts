@@ -53,6 +53,19 @@ export const participantStore =
 				};
 			});
 
+export interface JamReactionPreferences {
+	skinTone: number;
+	recentEmojis: string[];
+}
+
+export const jamReactionPreferencesStore = persisted<JamReactionPreferences>(
+	'jam-reaction-preferences',
+	{
+		skinTone: 5,
+		recentEmojis: []
+	}
+);
+
 export const jamSettingsStore = persisted<LocalJamSettings>('allpeep-jam-settings', {
 	defaults: {
 		audio: true,

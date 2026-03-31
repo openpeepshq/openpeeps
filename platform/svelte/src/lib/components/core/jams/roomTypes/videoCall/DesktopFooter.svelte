@@ -1,6 +1,5 @@
 <script lang="ts">
   import { InfoIcon, Bug, Copy, X, CopyCheck } from 'lucide-svelte';
-  import { emojis, RECORD_OPTIONS } from '$lib/components/core/jams/constants';
   import {
     getDrawerContext,
     getJamContext,
@@ -22,6 +21,7 @@
   import ReactionsButton from '../../pieces/ReactionsButton.svelte';
   import ChatDrawerButton from '../../pieces/ChatDrawerButton.svelte';
   import RecordSwitch from '../../pieces/RecordSwitch.svelte';
+  import ReactionMenu from '../../pieces/ReactionMenu.svelte';
   import { truncateText } from '@openpeeps/common';
   import AudioOutputSelector from '../../pieces/AudioOutputSelector.svelte';
   import { i18nContext } from '$lib/components/i18n';
@@ -44,7 +44,7 @@
   const observerLinkQuery = observerLinkStore(jamPost.id);
   const closeDrawerMenu = () => drawerMenuContext.set(undefined);
 
-  const handleEmojiClick = async (emoji: string) => {
+  const handleEmojiSelect = async (emoji: string) => {
     await sendReaction(room, emoji, addEvent);
   };
 
@@ -61,16 +61,8 @@
   <div class="relative flex items-center gap-x-4">
     <!-- emoji menu -->
     {#if $popupMenuContext === 'emoji'}
-      <div class="bg-surface-200 absolute bottom-12 right-0 rounded-2xl p-2">
-        <div class="flex gap-x-2">
-          {#each emojis as emoji (emoji)}
-            <button
-              title={emoji}
-              onclick={async () => await handleEmojiClick(emoji)}
-              class="p-2 text-lg">{emoji}</button
-            >
-          {/each}
-        </div>
+      <div class="absolute bottom-12 right-0 z-50 md:w-max">
+        <ReactionMenu onSelect={handleEmojiSelect} />
       </div>
     {/if}
 
