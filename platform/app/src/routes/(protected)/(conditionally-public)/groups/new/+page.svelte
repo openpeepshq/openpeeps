@@ -58,7 +58,7 @@
   };
 
   getPageHeaderStore().set({
-    title: 'Create group',
+    title: t('groups.create.title'),
     actions: presetProps(
       CreateGroupButton as Component<Record<string, unknown>>,
       { handleSubmit },
