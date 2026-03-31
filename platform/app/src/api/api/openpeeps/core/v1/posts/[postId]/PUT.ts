@@ -1,11 +1,11 @@
 import { Endpoint, z } from 'sveltekit-api';
 import { forbidden, notFound } from '$lib/server/api/errors';
-import { publicPostSchema, postDataUnionSchema } from '@openpeeps/common/types';
+import { publicPostSchema, postDataUnionSchema, postCreationDataSchema } from '@openpeeps/common/types';
 import { ensureLocalProfile, ensurePostCapabilities } from '$lib/server/auth';
 import type { RequestEvent } from '@sveltejs/kit';
 import { updatePost, findPost } from '@openpeeps/core/posts';
 
-export const Input = postDataUnionSchema;
+export const Input = postCreationDataSchema;
 export const Output = publicPostSchema;
 export const Param = z.object({
   postId: z.string(),
@@ -28,7 +28,7 @@ export default new Endpoint({ Param, Input, Output, Error }).handle(
 
     await ensurePostCapabilities(event, postToUpdate, ['core-posts-update']);
 
-    const postData = postDataUnionSchema.parse(input);
+    const postData = postCreationDataSchema.parse(input);
 
     return await updatePost(postToUpdate, profile, postData);
   },

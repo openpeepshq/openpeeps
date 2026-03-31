@@ -25,9 +25,9 @@
   const updatePost = updatePostMutation({ id: articleId });
 
   const handleSubmit = async () => {
-    await updatePost(article);
+    const result = await updatePost(post);
 
-    await goto(`/posts/${post.id}`);
+    await goto(`/posts/${result.id}`);
   };
 
   let valid = $state(false);
@@ -42,4 +42,4 @@
   });
 </script>
 
-<ArticleForm bind:postData={post as PostCreationData} isEdit bind:valid />
+<ArticleForm bind:postData={post as PostCreationData} isEdit={false} bind:valid />

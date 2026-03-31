@@ -149,7 +149,7 @@ const mutators = (rawClient: FetchClient) => ({
     rawClient,
     '/posts',
   ),
-  update: allpeepPayloadEndpoint<PublicPost, PostDataUnion, { id: string }>(
+  update: allpeepPayloadEndpoint<PublicPost, PostCreationData, { id: string }>(
     rawClient,
     '/posts/:id',
     'put',

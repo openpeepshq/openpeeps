@@ -7,6 +7,9 @@ import {
   ReactionData,
   RSVP,
   MentionWithPublicProfile,
+  PostCreationData,
+  postDataSchema,
+  ProfileWithMeta,
 } from '@openpeeps/common/types';
 
 import { PostDataUnion } from "@openpeeps/common/types";
@@ -16,7 +19,7 @@ import { postsMapping, repostRelation } from "./mapping";
 import { findGroup } from "../groups/finders";
 import { findOrCreateHashtag } from "../hashtags";
 import { hub } from "../events";
-import { passThroughUndefined } from '@openpeeps/common/lib';
+import { canCreatePost, passThroughUndefined } from '@openpeeps/common/lib';
 
 export const createPost = async (
   data: PostDataUnion,
@@ -95,13 +98,41 @@ export const createPost = async (
 export const updatePost = async (
   post: PostWithMeta,
   profile: Profile,
-  data: PostDataUnion,
+  data: PostCreationData,
 ) => {
   const { db } = await allpeepDb();
 
+  const postDataUnion = data.data as PostDataUnion;
+  if (post.visibility != data.visibility) {
+    const object: PostData = postDataSchema.parse(
+      {
+        ...data,
+        creatorId: profile.id,
+        visibility: data.visibility,
+      }
+    );
+
+    if (!canCreatePost(profile as ProfileWithMeta, object.type, object.visibility, (data.groupId && await findGroup(data.groupId)) || undefined)) {
+      throw new Error('forbidden')
+    }
+
+    await deletePost(post, profile)
+
+    const newPost = await createPost(postDataUnion, profile, object, {
+      inReplyToId: data.inReplyToId,
+      mentions: data.mentions,
+      groupId: data.groupId,
+      audience: data.audience
+    })
+
+    hub.emit('postUpdated', newPost);
+
+    return newPost!;
+  }
+
   post.tags.forEach((hashtag) => hashtagDisconnector(db, post, hashtag as Hashtag));
 
-  const hashtags = extractHashtags(data);
+  const hashtags = extractHashtags(postDataUnion);
 
   await Promise.all(hashtags.map(async (tag) => {
     const hashtag = await findOrCreateHashtag(tag);
@@ -110,10 +141,10 @@ export const updatePost = async (
 
   await entryConnector(db, profile, post, {
     type: 'edit',
-    data,
+    data: postDataUnion,
   });
 
-  await postsMapping.update(db, post.id, { data });
+  await postsMapping.update(db, post.id, { data: postDataUnion });
 
   const newPost = await postsMapping.find(db, post.id).then(passThroughUndefined(transformPost));
 
