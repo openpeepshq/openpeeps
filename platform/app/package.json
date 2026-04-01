@@ -46,6 +46,7 @@
   "devDependencies": {
     "@openpeeps/common": "workspace:^",
     "@openpeeps/svelte": "workspace:^",
+    "@openpeeps/svelte-analytics": "workspace:^",
     "@openpeeps/ui": "workspace:^",
     "@playwright/test": "^1.56.1",
     "@skeletonlabs/skeleton": "^2.10.3",

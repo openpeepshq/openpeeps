@@ -118,4 +118,13 @@ export const defaultConfig: CoreConfig = {
       webhookSecret: process.env.PAYMENTS_STRIPE_WEBHOOK_SECRET,
     },
   },
+  analytics: {
+    google: {
+      measurementId: process.env.ANALYTICS_GOOGLE_MEASUREMENT_ID,
+    },
+    matomo: {
+      url: process.env.ANALYTICS_MATOMO_URL,
+      siteId: readEnvInteger('ANALYTICS_MATOMO_SITE_ID', 1),
+    },
+  },
 };

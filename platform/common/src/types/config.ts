@@ -68,6 +68,16 @@ export interface ConfigSchema<T> {
   defaults: T;
 }
 
+export const analyticsConfigSchema = z.object({
+  google: z.object({
+    measurementId: z.string().optional(),
+  }),
+  matomo: z.object({
+    url: z.string().optional(),
+    siteId: z.number().optional(),
+  }),
+});
+
 export const coreConfigSchemaFactory = (sanitize?: boolean) =>
   z.object({
     version: fixed(z.string(), sanitize),
@@ -154,6 +164,7 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
         requestTimeout: z.number(),
       }),
     }),
+    analytics: analyticsConfigSchema,
     sso: z.object({
       generic: z
         .object({

@@ -5,6 +5,7 @@
   import type { ServerDataContext } from './types';
   import type { CapabilitiesConfig, ServerInfo } from '@openpeeps/common/types';
   import { setTheme } from '@openpeeps/ui';
+  import { GoogleAnalytics, Matomo } from '@openpeeps/svelte-analytics';
 
   let {
     capabilities,
@@ -42,4 +43,14 @@
   });
 </script>
 
+
+{#if serverInfo.analytics.google?.measurementId}
+  <GoogleAnalytics measurementId={serverInfo.analytics.google.measurementId} />
+{/if}
+{#if serverInfo.analytics.matomo?.url && serverInfo.analytics.matomo?.siteId}
+  <Matomo
+    url={serverInfo.analytics.matomo.url}
+    siteId={serverInfo.analytics.matomo.siteId}
+  />
+{/if}
 {@render children?.()}

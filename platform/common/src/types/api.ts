@@ -30,7 +30,7 @@ import {
   visibilityTypeSchema,
 } from './models';
 import { groupWithMetaSchema } from './internal';
-import { communityConfigSchema } from './config';
+import { communityConfigSchema, analyticsConfigSchema } from './config';
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 
 extendZodWithOpenApi(z);
@@ -300,6 +300,7 @@ export const serverInfoSchema = z.object({
       }),
     }),
   }),
+  analytics: analyticsConfigSchema,
 });
 
 export type ServerInfo = z.infer<typeof serverInfoSchema>;

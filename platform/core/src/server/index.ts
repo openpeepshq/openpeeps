@@ -48,5 +48,6 @@ export const serverInfo = () =>
           },
         },
       },
+      analytics: coreConfig.analytics,
     }),
   );
