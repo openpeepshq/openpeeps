@@ -35,5 +35,10 @@ export const accounts = (rawClient: FetchClient) => ({
       '/accounts/current/validation-email',
       'post',
     ),
+    deletePushSubcription: allpeepNoPayloadEndpoint<SuccessResponse, { pushSubscriptionId: string }>(
+      rawClient,
+      '/accounts/current/push-subscriptions/:pushSubscriptionId',
+      'delete',
+    ),
   },
 });

@@ -3,6 +3,7 @@
 import { authenticatedCoreApiClient, client, throwError } from '$lib/api';
 import { Base64 } from 'js-base64';
 import type { PushSubscriptionData } from '@openpeeps/common/types';
+import { UAParser } from 'ua-parser-js';
 
 export const subscribePushNotifications = async (applicationServerKey?: string) => {
 	if (!('Notification' in window)) {
@@ -23,8 +24,8 @@ export const subscribePushNotifications = async (applicationServerKey?: string) 
 					userVisibleOnly: true
 				});
 			})
-			.then((ps) => {
-				return client.accounts.current.createPushSubscription({ ...ps.toJSON(), type: 'web' } as PushSubscriptionData, {
+			.then(async (ps) => {
+				return client.accounts.current.createPushSubscription({ ...ps.toJSON(), type: 'web', deviceName: await getDetailedDeviceName()  } as PushSubscriptionData, {
 					fetchClient: authenticatedCoreApiClient()
 				});
 			})
@@ -73,3 +74,29 @@ export const checkPushSubscription = async (serverKey: string) => {
 		currentSubscriptions.filter((s) => s.type === 'web').map((s) => s.endpoint).includes(sub.endpoint)
 	);
 };
+
+export const getDetailedDeviceName = async() => {
+	const parser = new UAParser(navigator.userAgent);
+	const result = parser.getResult();
+	if ('userAgentData' in navigator) {
+		try {
+			// @ts-ignore
+			const hints = await navigator.userAgentData.getHighEntropyValues(['model', 'platform', 'platformVersion']);
+			if (hints.model) {
+				return `${hints.model} (${hints.platform})`;
+			} else {
+				return `${result.browser.name} on ${result.os.name}`;
+			}
+		} catch (e) {
+			if (result.device.model) {
+				return `${result.device.model} (${result.os.name})`;
+			}
+			return `${result.browser.name} on ${result.os.name}`;
+		};
+	} else {
+		if (result.device.model) {
+			return `${result.device.model} (${result.os.name})`;
+		}
+		return `${result.browser.name} on ${result.os.name}`;
+	};
+}

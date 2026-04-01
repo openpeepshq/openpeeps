@@ -3,3 +3,4 @@ export { default as AccountInformationTab } from './tabs/AccountInformationTab.s
 export { default as NotificationTab } from './tabs/NotificationTab.svelte';
 export { default as BillingTab } from './tabs/BillingTab.svelte';
 export { default as LanguageTab } from './tabs/LanguageTab.svelte';
+export { default as DeletePushSubscriptionModal } from './DeletePushSubscriptionModal.svelte';

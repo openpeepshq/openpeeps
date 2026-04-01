@@ -45,12 +45,12 @@
 		"svelte": "^5.20.0"
 	},
 	"devDependencies": {
+		"@eslint/compat": "^1.2.3",
+		"@humanspeak/svelte-markdown": "^0.7.18",
 		"@openpeeps/client": "workspace:^",
 		"@openpeeps/fetch-client": "workspace:^",
 		"@openpeeps/svelte5-email": "workspace:^",
 		"@openpeeps/ui": "workspace:^",
-		"@eslint/compat": "^1.2.3",
-		"@humanspeak/svelte-markdown": "^0.7.18",
 		"@playwright/test": "^1.45.3",
 		"@sentry/sveltekit": "^9",
 		"@skeletonlabs/skeleton": "^2.10.3",
@@ -106,6 +106,7 @@
 		"@tailwindcss/typography": "^0.5.15",
 		"d3-scale": "^4.0.2",
 		"heic2any": "^0.0.4",
-		"i18next": "^24.2.3"
+		"i18next": "^24.2.3",
+		"ua-parser-js": "^2.0.9"
 	}
 }

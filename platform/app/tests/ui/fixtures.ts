@@ -311,17 +311,13 @@ export const assertExploreFindsPost = async (page: Page) => {
 export const assertSettingsPages = async (page: Page) => {
   await page.goto('/settings');
   await expect(
-    page.getByRole('link', { name: /^Public Profile\b/ }),
+    page.locator('a[href="/settings/public-profile"]'),
   ).toBeVisible();
+  await expect(page.locator('a[href="/settings/account"]')).toBeVisible();
   await expect(
-    page.getByRole('link', { name: /^Account Settings\b/ }),
+    page.locator('a[href="/settings/notifications"]'),
   ).toBeVisible();
-  await expect(
-    page.getByRole('link', { name: /^Notification Settings\b/ }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole('link', { name: /^Theme Settings\b/ }),
-  ).toBeVisible();
+  await expect(page.locator('a[href="/settings/theme"]')).toBeVisible();
 
   await page.goto('/settings/public-profile');
   await expect(page.getByLabel('Display Name')).toBeVisible();
@@ -333,6 +329,13 @@ export const assertSettingsPages = async (page: Page) => {
   await expect(page.getByLabel('Email')).toBeVisible();
 
   await page.goto('/settings/notifications');
+  await expect(
+    page.locator('a[href="/settings/notifications/preferences"]'),
+  ).toBeVisible();
+  await expect(
+    page.locator('a[href="/settings/notifications/push-enabled-devices"]'),
+  ).toBeVisible();
+  await page.goto('/settings/notifications/preferences');
   await expect(
     page.getByRole('button', { name: /submit|save/i }),
   ).toBeVisible();
