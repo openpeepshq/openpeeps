@@ -24,3 +24,14 @@ export const testPushSubscription = payloadMutation(
 export const validateEmailAction = noPayloadMutation(
 	client.accounts.current.validationEmail
 );
+
+export const pushSubscriptionsStore = () =>
+	simpleStore(client.accounts.current.listPushSubscriptions);
+
+
+export const deletePushSubscriptionMutation = noPayloadMutation(
+	client.accounts.current.deletePushSubcription,
+	{
+		queryKeys: [["accounts", "current"]],
+	},
+);

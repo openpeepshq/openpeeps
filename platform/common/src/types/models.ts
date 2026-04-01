@@ -530,7 +530,9 @@ export const alertsSchema = z.object({
 
 export const pushSubscriptionDataSchema = z.discriminatedUnion('type', [
   z.object({
+    id: z.string().uuid(),
     type: z.literal('web'),
+    deviceName: z.string().optional(),
     endpoint: z.string().url(),
     keys: z.object({
       auth: z.string(),
@@ -539,12 +541,16 @@ export const pushSubscriptionDataSchema = z.discriminatedUnion('type', [
     alerts: alertsSchema.optional(),
   }),
   z.object({
+    id: z.string().uuid(),
     type: z.literal('apn'),
+    deviceName: z.string().optional(),
     apnToken: z.string(),
     alerts: alertsSchema.optional(),
   }),
   z.object({
+    id: z.string().uuid(),
     type: z.literal('fcm'),
+    deviceName: z.string().optional(),
     fcmToken: z.string(),
     alerts: alertsSchema.optional(),
   }),

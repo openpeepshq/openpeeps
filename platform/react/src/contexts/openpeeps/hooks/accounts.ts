@@ -16,6 +16,9 @@ export const accountHooks = (client: OpenpeepsClient) => ({
   validationEmailAction: noPayloadMutation(
     client.accounts.current.validationEmail,
   ),
+    deletePushSubscriptionAction: noPayloadMutation(client.accounts.current.deletePushSubcription,
+    [['accounts'], ['current']]
+  ),
 });
 
 export type AccountHooks = ReturnType<typeof accountHooks>;
