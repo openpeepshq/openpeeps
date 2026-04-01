@@ -78,10 +78,11 @@
     usage="event-header-image"
     displayType="full"
     maxWidth={480}
-    showSelectAspectRatio={true}
+    showSelectAspectRatio={false}
+    targetDimensions={{ width: 1280, height: 720 }}
     aspectRatio="16:9"
-    text="Upload your cover image"
-    specsText="Minimum width 480 pixels, 16:9 recommended"
+    text={t('events.form.imageDescription')}
+    specsText={t('events.form.imageSpecs')}
     showAltInput={false}
     classes={'h-[250px]'}
     path={['data', 'image']}

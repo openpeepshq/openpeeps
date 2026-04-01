@@ -51,7 +51,7 @@
 <div class="flex w-full flex-col gap-2 p-3">
 	<img
 		src={event.image || '/img/event-default.png'}
-		class="mb-3 h-48 w-full rounded object-cover"
+		class="mb-3 aspect-video w-full rounded object-cover object-center md:aspect-[3/1]"
 		alt="image for {event.name}"
 	/>
 
