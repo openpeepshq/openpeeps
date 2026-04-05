@@ -31,8 +31,8 @@
 			x="name"
 			xScale={scaleBand().padding(0.4)}
 			y="count"
-			yDomain={[0, Math.max(...signupData.map((d) => d.count)) + 0.5 || null]}
-			yNice={4}
+			yDomain={[0, Math.max(...signupData.map((d) => d.count)) + 1 || null]}
+			yNice
 			padding={{ left: 16, bottom: 50, right: 24, top: -18 }}
 			tooltip={{ mode: 'band' }}
 			let:height
@@ -48,7 +48,7 @@
 				>
 					{t('admin.signupChart.numberOfSignups')}
 				</text>
-				<Axis placement="right" grid rule />
+				<Axis placement="right" grid rule format={(d) => (Number.isInteger(d) ? d : '')} />
 				<Axis placement="bottom" format={(d) => JSON.stringify(d)} rule />
 				<Bars radius={4} strokeWidth={1} class="fill-primary" />
 			</Svg>
