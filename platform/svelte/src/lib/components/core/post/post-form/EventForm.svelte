@@ -157,8 +157,6 @@
       <div class="p-0! h-10">
         <VisibilitySelector
           {postData}
-          disabled={isEdit}
-          {isEdit}
           {setAudience}
           showDirect
         />

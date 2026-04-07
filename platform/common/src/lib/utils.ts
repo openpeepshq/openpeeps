@@ -1,4 +1,5 @@
 import {
+  AudienceSetting,
   CommunityConfig,
   GroupData,
   GroupWithMeta,
@@ -270,4 +271,35 @@ export const formatSize = (bytes: number) => {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' kB';
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+};
+
+export const hasVisibilityChanged = (
+  previousAudienceSetting: AudienceSetting,
+  newAudienceSetting: AudienceSetting
+): boolean => {
+  if (previousAudienceSetting.visibility !== newAudienceSetting.visibility) {
+    return true;
+  }
+
+  if (previousAudienceSetting.groupId !== newAudienceSetting.groupId) {
+    return true;
+  }
+
+  const prevAudience = previousAudienceSetting.audience ?? [];
+  const newAudience = newAudienceSetting.audience ?? [];
+
+  if (prevAudience.length !== newAudience.length) {
+    return true;
+  }
+
+  const prevIds = prevAudience.map((p) => p.id).sort();
+  const newIds = newAudience.map((p) => p.id).sort();
+
+  for (let i = 0; i < prevIds.length; i++) {
+    if (prevIds[i] !== newIds[i]) {
+      return true;
+    }
+  }
+
+  return false;
 };

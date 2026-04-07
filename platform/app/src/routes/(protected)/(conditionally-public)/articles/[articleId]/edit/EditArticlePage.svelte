@@ -8,26 +8,64 @@
   } from '@openpeeps/common/types';
   import { TextButton } from '@openpeeps/ui';
   import { presetProps } from '@openpeeps/svelte/utils';
-  import { updatePostMutation } from '@openpeeps/svelte/api';
+  import {
+    createPostMutation,
+    deletePostMutation,
+    getPostStore,
+    updatePostMutation,
+  } from '@openpeeps/svelte/api';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import { truncateText } from '@openpeeps/common/lib';
+  import { hasVisibilityChanged, truncateText } from '@openpeeps/common/lib';
+  import { toaster } from '@openpeeps/svelte/utils';
 
   interface Props {
     post: PostWithMeta;
   }
 
-  let { post }: Props = $props();
+  let { post: initialPost }: Props = $props();
+  let post = $state(structuredClone(initialPost));
 
   let article = $derived(post.data as Article);
 
   const articleId = page.params.articleId;
+  const postQuery = getPostStore(articleId);
   const updatePost = updatePostMutation({ id: articleId });
+  const createPost = createPostMutation();
+  const deletePost = deletePostMutation({
+    id: post.id,
+  });
+  const toast = toaster();
 
   const handleSubmit = async () => {
-    await updatePost(article);
+    const pastAudienceSetting = {
+      visibility: initialPost.visibility,
+      groupId: initialPost.groupId,
+      audience: initialPost.audience,
+    };
+    const newAudienceSetting = {
+      visibility: post.visibility,
+      groupId: post.groupId,
+      audience: post.audience,
+    };
+    if (hasVisibilityChanged(pastAudienceSetting, newAudienceSetting)) {
+      deletePost()
+        .then(() => {
+          createPost({
+            ...post,
+            data: { ...post.data, ...article },
+          })
+            .then((articlePost) => {
+              return goto(`/posts/${articlePost.id}`);
+            })
+            .catch((err) => toast({ message: err.message, type: 'error' }));
+        })
+        .catch((err) => toast({ message: err.message, type: 'error' }));
+    } else {
+      await updatePost(article);
 
-    await goto(`/posts/${post.id}`);
+      await goto(`/posts/${post.id}`);
+    }
   };
 
   let valid = $state(false);

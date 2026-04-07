@@ -8,27 +8,62 @@
   } from '@openpeeps/common/types';
   import { TextButton } from '@openpeeps/ui';
   import { presetProps } from '@openpeeps/svelte/utils';
-  import { updatePostMutation, getPostStore } from '@openpeeps/svelte/api';
+  import {
+    updatePostMutation,
+    getPostStore,
+    createPostMutation,
+    deletePostMutation,
+  } from '@openpeeps/svelte/api';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import { truncateText } from '@openpeeps/common/lib';
+  import { hasVisibilityChanged, truncateText } from '@openpeeps/common/lib';
+  import { toaster } from '@openpeeps/svelte/utils';
 
   interface Props {
     post: PostWithMeta;
   }
 
-  let { post }: Props = $props();
-
+  let { post: initialPost }: Props = $props();
+  let post = $state(structuredClone(initialPost));
   let event = $derived(post.data as Event);
 
   const eventId = page.params.eventId;
   const postQuery = getPostStore(eventId);
   const updatePost = updatePostMutation({ id: eventId });
+  const createPost = createPostMutation();
+  const deletePost = deletePostMutation({
+    id: post.id,
+  });
+  const toast = toaster();
 
   const handleSubmit = async () => {
-    await updatePost(event);
-
-    await goto(`/posts/${post.id}`);
+    const pastAudienceSetting = {
+      visibility: initialPost.visibility,
+      groupId: initialPost.groupId,
+      audience: initialPost.audience,
+    };
+    const newAudienceSetting = {
+      visibility: post.visibility,
+      groupId: post.groupId,
+      audience: post.audience,
+    };
+    if (hasVisibilityChanged(pastAudienceSetting, newAudienceSetting)) {
+      deletePost()
+        .then(() => {
+          createPost({
+            ...post,
+            data: { ...post.data, ...event },
+          })
+            .then((eventPost) => {
+              return goto(`/posts/${eventPost.id}`);
+            })
+            .catch((err) => toast({ message: err.message, type: 'error' }));
+        })
+        .catch((err) => toast({ message: err.message, type: 'error' }));
+    } else {
+      await updatePost(event);
+      await goto(`/posts/${post.id}`);
+    }
   };
 
   let valid = $state(false);
