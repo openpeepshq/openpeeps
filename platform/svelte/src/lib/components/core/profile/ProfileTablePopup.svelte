@@ -19,16 +19,17 @@
 
 	interface Props {
 		profile: PublicProfile;
+		onActionComplete?: () => void; 
 	}
 
-	let { profile }: Props = $props();
+	let { profile , onActionComplete}: Props = $props();
 	const modalManager = getModalManager();
 
-	const handleTriggerEditRoles = () => modalManager.show(EditProfileModal, { profile });
+	const handleTriggerEditRoles = () => modalManager.show(EditProfileModal, { profile, editCallback: onActionComplete });
 
 	const handleTriggerDeleteMember = () => modalManager.show(DeleteProfileModal, { profile });
 
-	const handleTriggerEditEmail = () => modalManager.show(EditEmailModal, { profile });
+	const handleTriggerEditEmail = () => modalManager.show(EditEmailModal, { profile , editCallback: onActionComplete});
 </script>
 
 <PopupMenu menuId="account-table-popup-{profile.id}">

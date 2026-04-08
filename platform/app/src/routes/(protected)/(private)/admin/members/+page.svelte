@@ -59,6 +59,7 @@ import { SearchAndFilterBar, Badges, Table } from '@openpeeps/ui';
         component: ProfileTablePopup,
         props: {
           profile,
+          onActionComplete: () => $profilesQuery.refetch(),
         },
       }),
     },

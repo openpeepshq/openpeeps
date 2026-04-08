@@ -1,4 +1,4 @@
-import { GroupWithMeta, ReportResolution, ReportWithMeta, RoleData } from "@openpeeps/common";
+import { GroupWithMeta, ReportResolution, ReportWithMeta, RoleData, UpdateAccountEmailRequest } from "@openpeeps/common";
 
 import { AdminServerStats } from "@openpeeps/common";
 
@@ -16,7 +16,7 @@ export const admin = (rawClient: FetchClient) => (
     {
         accounts: {
             list: allpeepNoPayloadEndpoint<PublicAccount[]>(rawClient, '/admin/accounts'),
-            update: allpeepPayloadEndpoint<PublicAccount, AccountData, { id: string }>(
+            update: allpeepPayloadEndpoint<SuccessResponse, UpdateAccountEmailRequest, { id: string }>(
                 rawClient,
                 '/admin/accounts/:id',
                 'patch'

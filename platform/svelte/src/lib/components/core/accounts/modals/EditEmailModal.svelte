@@ -12,9 +12,10 @@
 	const toastStore = getToastStore();
 	interface Props {
 		profile: ProfileWithMeta;
+		editCallback?: (() => void) | undefined;
 	}
 
-	let { profile }: Props = $props();
+	let { profile, editCallback }: Props = $props();
 	let oldEmail = profile.controllers[0].email;
 	let newEmail = $state(profile.controllers[0].email);
 
@@ -38,6 +39,7 @@
 						message: t('accounts.editEmail.updateSuccess')
 					})
 				);
+				editCallback?.();
 				modalStore.close();
 			})
 			.catch(() => {

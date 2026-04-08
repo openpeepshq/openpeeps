@@ -23,6 +23,8 @@ import { conflict } from '../errors';
 import { connector } from '../db/helpers';
 import { hub } from '../events';
 import { deletePushSubscription, listPushSubscriptionsByAccount } from '../pushSubscriptions';
+import { profilesCache } from '../profiles/cache';
+import { listProfilesByAccount } from '../profiles';
 
 
 export const createAccount = async (
@@ -144,6 +146,9 @@ export const updateAccount = async (accountData: AccountUpdateData) => {
       emailValidated: accountData.emailValidated,
     },
   );
+
+  const profile = (await listProfilesByAccount(account))[0];
+  await profilesCache.del(profile.id)
 
   if (account && accountData.emailValidated === false) {
     await sendEmailValidationMail(account);

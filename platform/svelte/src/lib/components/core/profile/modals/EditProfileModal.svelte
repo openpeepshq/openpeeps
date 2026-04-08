@@ -13,9 +13,10 @@
 
 	interface Props {
 		profile: ProfileWithMeta;
+		editCallback?: (() => void) | undefined;
 	}
 
-	let { profile }: Props = $props();
+	let { profile, editCallback }: Props = $props();
 
 	const modalManager = getModalManager();
 	const toastStore = getToastStore();
@@ -39,6 +40,7 @@
 							message: t('profile.modals.editProfile.rolesUpdated')
 						})
 					);
+					editCallback?.();
 					modalManager.close();
 				})
 				.catch(() => {
