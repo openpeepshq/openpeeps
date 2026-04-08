@@ -6,12 +6,14 @@
   import JoinGroupButton from '../JoinGroupButton.svelte';
   import { GroupAvatar } from '..';
   import { getCurrentProfile } from '$lib/auth';
+  import { i18nContext } from '$lib/components/i18n';
 
   interface Props {
     group: GroupWithMeta;
   }
 
   let { group }: Props = $props();
+  const { t } = i18nContext();
   let me = getCurrentProfile();
 </script>
 
@@ -50,7 +52,7 @@
       <h1 class="mt-4 text-base font-semibold">
         {truncateText(group.displayName || group?.handle, 50)}
       </h1>
-      <a class="hover:anchor" href={`/groups/@${group?.handle}/members`}>
+      <a class="hover:anchor" title={t('groups.viewMembers')} href={`/groups/@${group?.handle}/members`}>
         {group?.membersCount} member{group?.membersCount === 1 ? '' : 's'}
       </a>
     </div>
