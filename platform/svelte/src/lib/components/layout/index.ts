@@ -5,3 +5,4 @@ export { default as ProfileProvider } from './ProfileProvider.svelte';
 export { default as OpenpeepsContextProvider } from './OpenpeepsContextProvider.svelte';
 export { default as AccessDeniedLoader } from './AccessDeniedLoader.svelte';
 export { default as OpenpeepsThemeProvider } from './OpenpeepsThemeProvider.svelte';
+export { default as AuthContainer } from './AuthContainer.svelte';
