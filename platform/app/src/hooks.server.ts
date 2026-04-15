@@ -25,10 +25,12 @@ const forwardAllpeepToOpenpeeps: Handle = async ({ event, resolve }) => {
     event.request.method !== 'GET' && event.request.method !== 'HEAD'
       ? event.request.body
       : undefined;
+  const duplex = body ? 'half' : undefined;
   const forwardedRequest = new Request(newUrl, {
     method: event.request.method,
     headers: event.request.headers,
     body,
+    duplex,
   });
   return fetch(forwardedRequest);
 };
