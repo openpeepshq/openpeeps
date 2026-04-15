@@ -42,14 +42,19 @@ export const registerConfigSchema = <T>(
     defaults,
   });
 
-registerConfigSchema('allpeep', 'core', coreConfigSchemaFactory, defaultConfig);
+registerConfigSchema('openpeeps', 'core', coreConfigSchemaFactory, defaultConfig);
 registerConfigSchema(
-  'allpeep',
+  'openpeeps',
   'community',
   communityConfigSchemaFactory,
   defaultCommunityConfig,
 );
-registerConfigSchema('allpeep', 'capabilities', capabilitiesConfigSchemaFactory, defaultCapabilitiesConfig);
+registerConfigSchema(
+  'openpeeps',
+  'capabilities',
+  capabilitiesConfigSchemaFactory,
+  defaultCapabilitiesConfig,
+);
 
 const initConfig = async <T = CoreConfig>(
   namespace: string,
@@ -75,13 +80,13 @@ const initConfig = async <T = CoreConfig>(
   return (customConfig ? deepmerge(defaults as T, customConfig) : defaults) as T;
 };
 
-export const refreshConfig = (namespace = 'allpeep', name = 'core') => {
+export const refreshConfig = (namespace = 'openpeeps', name = 'core') => {
   configPromises.set(configKey(namespace, name), initConfig(namespace, name));
 };
 
 export const updateConfig = (
   config: unknown,
-  namespace = 'allpeep',
+  namespace = 'openpeeps',
   name = 'core',
 ) =>
   storeConfig(configKey(namespace, name), { config })
@@ -90,7 +95,7 @@ export const updateConfig = (
 
 export const updateConfigValues = (
   configValues: unknown,
-  namespace = 'allpeep',
+  namespace = 'openpeeps',
   name = 'core',
 ) =>
   loadConfig(configKey(namespace, name))
@@ -99,7 +104,7 @@ export const updateConfigValues = (
     );
 
 export const config = <T = CoreConfig>(
-  namespace = 'allpeep',
+  namespace = 'openpeeps',
   name = 'core',
 ) => {
   const key = configKey(namespace, name);
@@ -111,13 +116,13 @@ export const config = <T = CoreConfig>(
 };
 
 export const communityConfig = () =>
-  config<CommunityConfig>('allpeep', 'community');
+  config<CommunityConfig>('openpeeps', 'community');
 
 export const capabilitiesConfig = () =>
-  config<CapabilitiesConfig>('allpeep', 'capabilities');
+  config<CapabilitiesConfig>('openpeeps', 'capabilities');
 
 export const sanitizedConfigWithDefaults = async <T = CoreConfig>(
-  namespace = 'allpeep',
+  namespace = 'openpeeps',
   name = 'core',
 ) => {
   const key = configKey(namespace, name);

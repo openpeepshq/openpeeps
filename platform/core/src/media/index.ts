@@ -25,7 +25,7 @@ const initStorage = async () => {
     },
   } = await config();
   hub.on('configUpdated', (namespace: string, name: string) => {
-    if (namespace === 'allpeep' && name === 'core') {
+    if (namespace === 'openpeeps' && name === 'core') {
       storagePromise = null;
     }
   });

@@ -11,7 +11,7 @@ export const initStripeWithCredentials = (data: StripePaymentConfig) =>
 
 export const initStripe = async () => {
     hub.on('configUpdated', (namespace: string, name: string) => {
-        if (namespace === 'allpeep' && name === 'core') {
+        if (namespace === 'openpeeps' && name === 'core') {
             _stripe = null;
         }
     });
