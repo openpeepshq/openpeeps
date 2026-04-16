@@ -99,7 +99,7 @@ const tagsRelation: Relation = {
 const basePostFilterRelations: Relation[] = [
     entriesRelation,
     audienceRelation,
-    groupRelation,
+    // groupRelation,
     replyCountRelation,
     repostCountRelation,
     reactionsRelation,
@@ -110,6 +110,7 @@ const basePostFilterRelations: Relation[] = [
 const preFilterMapData = {
     collection: 'posts',
     softDelete: true,
+    relations: [groupRelation],
 }
 
 const basePostMapData = {

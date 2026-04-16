@@ -49,14 +49,37 @@ export const followFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => 
     }))
 });
 
-export const myFeedFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => ({
+const myGroupsFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => ({
     operator: '||',
-    predicates: [
-        ownPostsFilter(profile),
-        myPrivateGroupsFilter(profile),
-        followFilter(profile)
-    ]
+    predicates: profile.memberships.map((m) => ({
+        matches: {
+            visibility: 'group',
+            group: {
+                id: m.group.id as string
+            }
+        }
+    }))
 });
+
+
+export const myFeedFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => {
+    let predicates = [
+        ownPostsFilter(profile),
+    ];
+
+    if (profile.memberships.length > 0) {
+        predicates.push(myGroupsFilter(profile));
+    }
+
+    if (profile.following.length > 0) {
+        predicates.push(followFilter(profile));
+    }
+
+    return {
+        operator: '||',
+        predicates
+    }
+}
 
 export const localFeedFilter = (profile?: ProfileWithMeta): OMFilter<DbBasePost> => profile ? ({
     operator: '||',
