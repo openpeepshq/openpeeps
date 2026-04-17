@@ -13,6 +13,9 @@
 	import { ReplyModal } from '..';
 	import { getModalManager, preventDefault, stopPropagation } from '@openpeeps/ui';
 	import { getReactionCount } from '@openpeeps/common/lib';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 
 	interface Props {
 		displayedPost: PublicPost;
@@ -67,7 +70,7 @@
 			await retractRepost({ id: myRepost.id });
 			toastStore.trigger(
 				toast({
-					message: 'Repost retracted',
+					message: t('posts.repost.retractSuccess'),
 					background: 'variant-filled-success'
 				})
 			);
@@ -77,7 +80,7 @@
 			await repost(displayedPost);
 			toastStore.trigger(
 				toast({
-					message: 'Reposted successfully!',
+					message: t('posts.repost.successToast'),
 					background: 'variant-filled-success'
 				})
 			);
@@ -95,27 +98,27 @@
 	>
 		<!-- reply  -->
 		<button
-			title="Reply"
+			title={t('posts.footer.reply')}
 			class="hover:bg-surface-200 group flex items-center gap-1 rounded-full p-2 transition-all"
 			onclick={stopPropagation(preventDefault(handleTriggerReply))}
 		>
 			<Reply size={16} class="cursor-pointer group-hover:scale-105" />
-			<span class="text-sm md:text-base">Reply</span>
+			<span class="text-sm md:text-base">{t('posts.footer.reply')}</span>
 		</button>
 
 		<!-- repost -->
 		<button
-			title="Repost"
+			title={t('posts.footer.repost')}
 			class={`hover:bg-surface-200 group flex items-center gap-1 rounded-full p-2 transition-all ${isReposted ? 'bg-surface-200' : ''}`}
 			onclick={stopPropagation(preventDefault(handleRepost))}
 		>
 			<Repeat size={16} class="cursor-pointer group-hover:scale-105" />
-			<span class="text-sm md:text-base">Repost</span>
+			<span class="text-sm md:text-base">{t('posts.footer.repost')}</span>
 		</button>
 
 		<!-- like -->
 		<button
-			title="Like"
+			title={t('posts.footer.like')}
 			class="hover:bg-surface-200 group flex items-center gap-1 rounded-full p-2 transition-all"
 			onclick={stopPropagation(preventDefault(handleFavorite))}
 		>
@@ -124,12 +127,12 @@
 				size={16}
 				class="cursor-pointer group-hover:scale-105"
 			/>
-			<span class="text-sm md:text-base">Like</span>
+			<span class="text-sm md:text-base">{t('posts.footer.like')}</span>
 		</button>
 
 		<!-- share -->
 		<button
-			title="Share"
+			title={t('posts.footer.share')}
 			class="hover:bg-surface-200 group flex items-center gap-1 rounded-full p-2 transition-all"
 			onclick={stopPropagation(preventDefault(() => {}))}
 		>
@@ -145,7 +148,7 @@
 	>
 		<!-- reply  -->
 		<div class="flex items-center gap-1 rounded-full p-4">
-			<button title="Reply" onclick={stopPropagation(preventDefault(handleTriggerReply))}>
+			<button title={t('posts.footer.reply')} onclick={stopPropagation(preventDefault(handleTriggerReply))}>
 				<Reply size={16} class="cursor-pointer hover:scale-105" />
 			</button>
 			<p class="text-surface-500 text-xs">{displayedPost?.replyCount}</p>
@@ -154,7 +157,7 @@
 		<!-- repost -->
 		<div class="flex items-center gap-1">
 			<button
-				title="Repost"
+				title={t('posts.footer.repost')}
 				class={isReposted ? 'bg-surface-200 rounded p-1' : 'rounded p-1'}
 				onclick={stopPropagation(preventDefault(handleRepost))}
 			>
@@ -165,7 +168,7 @@
 
 		<!-- like -->
 		<div class="flex items-center gap-1">
-			<button title="Like" onclick={stopPropagation(preventDefault(handleFavorite))}>
+			<button title={t('posts.footer.like')} onclick={stopPropagation(preventDefault(handleFavorite))}>
 				<Heart
 					fill={isFavorited ? 'currentColor' : 'none'}
 					size={16}
@@ -179,7 +182,7 @@
 
 		<!-- share -->
 		<div class="flex items-center gap-1">
-			<button title="Share" onclick={stopPropagation(preventDefault())}>
+			<button title={t('posts.footer.share')} onclick={stopPropagation(preventDefault())}>
 				<Share fill={'none'} size={16} class="cursor-pointer hover:scale-105" />
 			</button>
 		</div>

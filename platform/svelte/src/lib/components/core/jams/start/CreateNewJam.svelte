@@ -108,10 +108,10 @@
 </script>
 
 <ModalWrapper>
-  <ModalHeader title={'Create Jam'} />
+  <ModalHeader title={t('jams.create.title')} />
   <div class="mb-4 overflow-y-scroll px-4 pt-2">
     <Form bind:data={jam} schema={postCreationDataSchema} {onchange}>
-      <FormInput title="Jam Name" path={['data', 'name']} />
+      <FormInput title={t('jams.form.name')} path={['data', 'name']} />
       <FormInput
         title={t('visibility.event.title')}
         description={t('events.form.visibilityNotChangeable')}
@@ -148,19 +148,19 @@
   <ModalFooter extraClassNames={'justify-between'}>
     {#if isAdmin}
       <Button
-        title="Schedule"
+        title={t('jams.createFlow.schedule')}
         action={handleSchedule}
         variant="variant-ringed-primary"
       >
-        Schedule
+        {t('jams.createFlow.schedule')}
       </Button>
     {/if}
     <Button
-      title="Start Jam"
+      title={t('jams.start.submit')}
       action={handleCreateJam}
       variant="variant-filled-primary"
     >
-      Start Jam
+      {t('jams.start.submit')}
     </Button>
   </ModalFooter>
 </ModalWrapper>

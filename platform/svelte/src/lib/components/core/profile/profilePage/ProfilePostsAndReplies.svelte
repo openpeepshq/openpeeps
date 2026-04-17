@@ -36,7 +36,7 @@
 			<AccessDeniedLoader queries={[$commonGroupsQuery]}>
 				{#each $commonGroupsQuery.data || [] as group (group.id)}
 					<button
-						title="Open group"
+						title={t('profile.postsAndReplies.openGroupTitle')}
 						class="w-full"
 						onclick={stopPropagation(preventDefault(() => goto(`/groups/@${group.handle}`)))}
 					>

@@ -137,7 +137,7 @@
     title={t('events.form.externalFormatLabel')}
     type="text"
     path={['data', 'url']}
-    placeholder="https://example.com/event"
+    placeholder={t('events.form.externalEventUrlPlaceholder')}
   >
     {#snippet lead()}
       <Link class="size-4" />
@@ -150,8 +150,8 @@
     </AccessDeniedLoader>
   </Label>
   <FormInput
-    title="Waiting Room"
-    description="Only approved users can join"
+    title={t('events.form.jamWaitingRoom')}
+    description={t('events.form.jamWaitingRoomDescription')}
     type="checkbox"
     path={['data', 'jam', 'waitingRoom']}
   />

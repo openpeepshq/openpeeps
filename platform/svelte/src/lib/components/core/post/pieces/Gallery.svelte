@@ -5,6 +5,9 @@
   import GalleryVideo from './gallery/GalleryVideo.svelte';
   import GalleryAudio from './gallery/GalleryAudio.svelte';
   import GalleryDocument from './gallery/GalleryDocument.svelte';
+  import { i18nContext } from '$lib/components/i18n';
+
+  const { t } = i18nContext();
 
   interface Props {
     attachments: MediaAttachmentData[];
@@ -41,7 +44,7 @@
   <!-- Left arrow -->
   {#if attachments.length > 1}
     <button
-      title="Previous"
+      title={t('posts.gallery.previous')}
       class="{cButton} bg-surface-50/15 active:bg-surface-50 left-0 md:left-4"
       onclick={handlePrevious}>←</button
     >
@@ -61,7 +64,7 @@
   <!-- Right arrow -->
   {#if attachments.length > 1}
     <button
-      title="Next"
+      title={t('posts.gallery.next')}
       class="{cButton} bg-surface-50/15 active:bg-surface-50 right-0 md:right-4"
       onclick={handleNext}>→</button
     >
@@ -69,7 +72,7 @@
 
   <!-- Close button -->
   <button
-    title="Close"
+    title={t('posts.gallery.close')}
     class="btn-icon variant-filled fixed right-4 top-4 z-50 font-bold shadow-xl"
     onclick={modalManager.close}>×</button
   >

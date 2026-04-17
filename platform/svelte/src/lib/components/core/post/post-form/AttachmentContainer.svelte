@@ -61,7 +61,7 @@
       icon={Edit}
     />
     <IconButton
-      title="Delete Attachment"
+      title={t('posts.attachments.deleteTitle')}
       action={handleDeleteAttachment}
       class={overlayButtonClass}
       icon={X}

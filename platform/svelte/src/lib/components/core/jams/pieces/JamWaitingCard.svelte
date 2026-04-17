@@ -5,6 +5,9 @@
 	import { Button } from '@openpeeps/ui';
 	import { admitMutation } from '$lib/api';
 	import { getJamContext } from '$lib/components/core/jams/context';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 
 	interface Props {
 		profile: PublicProfile;
@@ -22,7 +25,7 @@
 		<Avatar {profile} size={3} />
 		{#if profile}<p>{profile.displayName || `@${profile.handle}`}</p>{/if}
 	</div>
-	<Button title="Admit" variant="variant-ringed-surface" action={admit}>
+	<Button title={t('jams.waitingRoom.admitParticipant')} variant="variant-ringed-surface" action={admit}>
 		<UserRoundCheck />
 	</Button>
 </div>

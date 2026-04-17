@@ -2,6 +2,9 @@
 	import type { MediaAttachmentData } from '@openpeeps/common';
 	import { stopPropagation } from '@openpeeps/ui';
 	import { Play } from 'lucide-svelte';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 
 	interface Props {
 		attachment?: MediaAttachmentData;
@@ -26,7 +29,7 @@
 	<div class="relative h-full w-full">
 		<div class="absolute left-0 top-0 flex h-full w-full items-center justify-center p-2">
 			<button
-				title="Play Video"
+				title={t('posts.previewVideo.playTitle')}
 				onclick={stopPropagation(() => (playClicked = true))}
 				class="bg-surface-50 z-30 flex size-24 cursor-pointer items-center justify-center rounded-full"
 			>

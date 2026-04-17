@@ -4,7 +4,9 @@
 	import { Button } from '@openpeeps/ui';
 	import { restoreBackupMutation } from '$lib/api';
 	import { ModalFooter, ModalHeader, ModalWrapper } from '@openpeeps/ui';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const restoreBackup = restoreBackupMutation();
 
 	const toastStore = getToastStore();
@@ -20,7 +22,7 @@
 			.then(() => {
 				toastStore.trigger(
 					toast({
-						message: 'Backup restored successfully',
+						message: t('admin.backups.testRestore.restoreSuccess'),
 						background: 'variant-filled-success'
 					})
 				);
@@ -28,7 +30,7 @@
 			.catch(() => {
 				toastStore.trigger(
 					toast({
-						message: 'Error using test backup',
+						message: t('admin.backups.testRestore.restoreError'),
 						background: 'variant-filled-error'
 					})
 				);
@@ -41,17 +43,17 @@
 
 {#if $modalStore[0]}
 	<ModalWrapper>
-		<ModalHeader title={'Use Test Backup'} />
+		<ModalHeader title={t('admin.backups.testRestore.title')} />
 		<article class="flex flex-col p-4">
-			<div class="mt-4 w-full">Are you sure you want to use Test Backup data?</div>
+			<div class="mt-4 w-full">{t('admin.backups.testRestore.confirm')}</div>
 		</article>
 		<ModalFooter>
 			<div class="flex w-full justify-between">
-				<Button title="Back" variant="variant-ghost-primary" action={modalStore.close}
-					>Cancel</Button
+				<Button title={t('admin.backups.testRestore.cancel')} variant="variant-ghost-primary" action={modalStore.close}
+					>{t('admin.backups.testRestore.cancel')}</Button
 				>
-				<Button title="Done" variant="variant-filled-primary" action={handleRestoreBackup}>
-					Continue
+				<Button title={t('admin.backups.testRestore.continue')} variant="variant-filled-primary" action={handleRestoreBackup}>
+					{t('admin.backups.testRestore.continue')}
 				</Button>
 			</div>
 		</ModalFooter>

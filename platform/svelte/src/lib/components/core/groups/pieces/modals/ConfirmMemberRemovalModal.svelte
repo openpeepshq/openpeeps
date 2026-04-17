@@ -41,14 +41,13 @@
 <ModalWrapper>
 	<ModalHeader title={t('groups.removeMember.title')} />
 	<div class="p-4">
-		{(t('groups.removeMember.description'),
-		{
+		{t('groups.removeMember.description', {
 			handle: profile.handle
 		})}
 	</div>
 	<ModalFooter extraClassNames="flex justify-end w-full">
-		<Button title="Cancel" variant="variant-ringed-primary" action={modalManager.close}
-			>Cancel</Button
+		<Button title={t('common.cancel')} variant="variant-ringed-primary" action={modalManager.close}
+			>{t('common.cancel')}</Button
 		>
 		<Button
 			title={t('groups.removeMember.confirm')}

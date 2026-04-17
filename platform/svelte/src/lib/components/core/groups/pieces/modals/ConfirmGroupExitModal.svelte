@@ -5,6 +5,9 @@
 	import type { GroupWithMeta, PublicProfile } from '@openpeeps/common/types';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 
 	interface Props {
 		group: GroupWithMeta;
@@ -22,7 +25,7 @@
 			.then(async () => {
 				toastStore.trigger(
 					toast({
-						message: 'You have been successfully removed.'
+						message: t('groups.leave.removedToast')
 					})
 				);
 				await goto('/groups');
@@ -31,7 +34,7 @@
 			.catch(() => {
 				toastStore.trigger(
 					toast({
-						message: 'An error occurred while removing.'
+						message: t('groups.leave.removeErrorToast')
 					})
 				);
 			});
@@ -39,14 +42,14 @@
 </script>
 
 <ModalWrapper>
-	<ModalHeader title="Leave Group" />
+	<ModalHeader title={t('groups.modals.confirmExit.title')} />
 	<div class="p-4">
-		Are you sure you want to exit from group: <strong>{group.handle}</strong>?
+		{t('groups.modals.confirmExit.body', { handle: group.handle })}
 	</div>
 	<ModalFooter extraClassNames="flex justify-end w-full">
-		<Button title="Cancel" variant="variant-ringed-primary" action={modalManager.close}
-			>Cancel</Button
+		<Button title={t('common.cancel')} variant="variant-ringed-primary" action={modalManager.close}
+			>{t('common.cancel')}</Button
 		>
-		<Button title="Leave" variant="variant-filled-error" action={doExit}>Leave</Button>
+		<Button title={t('groups.modals.confirmExit.leave')} variant="variant-filled-error" action={doExit}>{t('groups.modals.confirmExit.leave')}</Button>
 	</ModalFooter>
 </ModalWrapper>

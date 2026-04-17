@@ -32,8 +32,8 @@
 	<div class="h-[2px] w-full bg-gray-200"></div>
 	{#if !isProfileReportType}
 		<div class="mt-4 flex items-center justify-between py-2">
-			<h3>Post</h3>
-			<Button action={async () => await goto(`/posts/${postData?.id}`)}>Go to post</Button>
+			<h3>{t('admin.moderation.reportList.postHeading')}</h3>
+			<Button action={async () => await goto(`/posts/${postData?.id}`)}>{t('admin.moderation.reportList.goToPost')}</Button>
 		</div>
 		<div class="mt-4 pb-4">
 			<FeedPostContent post={postData as PublicPost} />
@@ -46,7 +46,7 @@
 				{report?.resolution}
 			</span>
 		{:else}
-			<span class="bg-error-500 rounded-full px-3 py-1 text-white"> Not resolved </span>
+			<span class="bg-error-500 rounded-full px-3 py-1 text-white"> {t('admin.moderation.reportList.unresolvedBadge')} </span>
 		{/if}
 		<div class="flex items-center gap-x-4">
 			<!-- <Button variant="variant-ringed-surface">Add note</Button> -->
@@ -57,7 +57,7 @@
 						modalManager.show(CloseReportOptionsModal, {
 							report: report
 						});
-					}}>close</Button
+					}}>{t('admin.moderation.reportList.closeReport')}</Button
 				>
 			{/if}
 		</div>

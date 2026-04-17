@@ -8,7 +8,9 @@
 	import { ChevronDown } from 'lucide-svelte';
 	import { GroupCardFromId } from '$lib/components';
 	import { buildAudienceChoices } from './constants';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const modalManager = getModalManager();
 	interface Props {
 		postData: PostCreationData;
@@ -21,7 +23,7 @@
 
 <ModalHeader isCustomTitle={true}>
 	<button
-		title="Change audience"
+		title={t('posts.form.changeAudience')}
 		onclick={() => {
 			modalManager.show(
 				PostAudienceSelector,

@@ -8,6 +8,9 @@
 	import { AvatarWithName } from '$lib/components';
 	import { toggleScreenShare } from '../actions';
 	import { profileName } from '@openpeeps/common/lib';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 
 	interface Props {
 		participant: Participant;
@@ -98,21 +101,21 @@
 			<div class="flex gap-x-2">
 				<ScreenShare />
 				{profileName(participantDetails.profile)}
-				(You presenting)
+				{t('jams.screenShare.youPresenting')}
 			</div>
 			<Button
-				title="Stop Screen sharing"
+				title={t('jams.screenShare.stopTitle')}
 				action={() => {
 					toggleScreenShare(room);
 				}}
 				variant="variant-ringed-secondary"
 			>
-				stop sharing
+				{t('jams.screenShare.stopSharing')}
 			</Button>
 		{:else}
 			<div class="flex gap-x-2 py-2">
 				<AvatarWithName profile={participantDetails.profile} />
-				(presenting)
+				{t('jams.screenShare.presenting')}
 			</div>
 		{/if}
 	</div>

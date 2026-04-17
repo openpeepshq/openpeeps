@@ -2,35 +2,37 @@
 	import { SlideToggle, getModalStore } from '@skeletonlabs/skeleton';
 	import { Button } from '@openpeeps/ui';
 	import { ModalFooter, ModalHeader, ModalWrapper } from '@openpeeps/ui';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const modalStore = getModalStore();
 
 	const preferences = $state([
 		{
-			title: 'Recent replies',
-			description: 'Order content by most recent replies',
+			titleKey: 'posts.chronologicalFeed.recentRepliesTitle' as const,
+			descriptionKey: 'posts.chronologicalFeed.recentRepliesDescription' as const,
 			checked: false
 		},
 		{
-			title: 'By activity',
-			description: 'Posts with more activity stay at the top and will be seen more often',
+			titleKey: 'posts.chronologicalFeed.byActivityTitle' as const,
+			descriptionKey: 'posts.chronologicalFeed.byActivityDescription' as const,
 			checked: false
 		},
 		{
-			title: 'Prioritize people I follow',
-			description: 'Show un-viewed posts from people I follow before posts from strangers',
+			titleKey: 'posts.chronologicalFeed.prioritizeFollowingTitle' as const,
+			descriptionKey: 'posts.chronologicalFeed.prioritizeFollowingDescription' as const,
 			checked: false
 		},
 		{
-			title: 'Show reposts',
-			description: 'All reposts will be shown in your feed',
+			titleKey: 'posts.chronologicalFeed.showRepostsTitle' as const,
+			descriptionKey: 'posts.chronologicalFeed.showRepostsDescription' as const,
 			checked: false
 		}
 	]);
 
 	const handlePreferences = () => {
 		preferences.forEach((preference) => {
-			console.log(preference.title, preference.checked);
+			console.log(preference.titleKey, preference.checked);
 		});
 		modalStore.close();
 	};
@@ -38,17 +40,17 @@
 
 {#if $modalStore[0]}
 	<ModalWrapper>
-		<ModalHeader title={'Community feed Preferences'} />
+		<ModalHeader title={t('posts.chronologicalFeed.modalTitle')} />
 		<!-- body -->
 		<article class="flex flex-col px-4">
-			<p class="text-sm font-light">Manage the content you see on your Community feed</p>
+			<p class="text-sm font-light">{t('posts.chronologicalFeed.subtitle')}</p>
 			<div class="mt-7">
 				{#each preferences as preference}
 					<div class="bg-surface-100 mb-3 flex items-center justify-between rounded-md p-3">
 						<div>
-							<p class="text-lg font-medium">{preference.title}</p>
+							<p class="text-lg font-medium">{t(preference.titleKey)}</p>
 							<p class="pr-10 text-base font-light">
-								{preference.description}
+								{t(preference.descriptionKey)}
 							</p>
 						</div>
 						<SlideToggle
@@ -63,8 +65,8 @@
 		</article>
 		<ModalFooter>
 			<div class="flex gap-x-2">
-				<Button title="Cancel" variant="variant-filled-primary" action={handlePreferences}
-					>Done</Button
+				<Button title={t('posts.chronologicalFeed.done')} variant="variant-filled-primary" action={handlePreferences}
+					>{t('posts.chronologicalFeed.done')}</Button
 				>
 			</div>
 		</ModalFooter>

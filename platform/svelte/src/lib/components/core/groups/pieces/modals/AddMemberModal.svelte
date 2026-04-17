@@ -5,6 +5,9 @@
 	import { Button } from '@openpeeps/ui';
 	import { ProfileSelector } from '$lib/components/core/profile';
 	import { addMemberMutation, groupMembersStore } from '$lib/api';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 
 	interface Props {
 		group: GroupWithMeta;
@@ -29,7 +32,7 @@
 </script>
 
 <ModalWrapper>
-	<ModalHeader title="Add Members to {groupName(group)}" />
+	<ModalHeader title={t('groups.modals.addMembers.title', { groupName: groupName(group) })} />
 	<div class="p-2">
 		<ProfileSelector
 			bind:selectedProfiles
@@ -38,16 +41,16 @@
 		/>
 	</div>
 	<ModalFooter extraClassNames="flex justify-end w-full">
-		<Button title="Cancel" variant="variant-ringed-primary" action={modalManager.close}
-			>Cancel</Button
+		<Button title={t('common.cancel')} variant="variant-ringed-primary" action={modalManager.close}
+			>{t('common.cancel')}</Button
 		>
 		<Button
-			title="Add"
+			title={t('groups.modals.addMembers.add')}
 			disabled={!selectedProfiles.length}
 			variant="variant-filled-primary"
 			action={addMembersAndClose}
 		>
-			Add
+			{t('groups.modals.addMembers.add')}
 		</Button>
 	</ModalFooter>
 </ModalWrapper>

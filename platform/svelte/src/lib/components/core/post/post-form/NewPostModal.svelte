@@ -26,7 +26,9 @@
   import PostInputActions from './PostInputActions.svelte';
   import PostTypeSwitcher from './PostTypeSwitcher.svelte';
   import { getNewPostStores } from '$lib/stores';
+  import { i18nContext } from '$lib/components/i18n';
 
+  const { t } = i18nContext();
   const toastStore = getToastStore();
   const newPostStores = getNewPostStores();
   const me = getCurrentProfile();
@@ -87,7 +89,7 @@
         .then(async (response) => {
           toastStore.trigger(
             toast({
-              message: `Post created successfully`,
+              message: t('posts.create.successToast'),
               background: 'variant-filled-success',
               autohide: true,
             }),
@@ -103,7 +105,7 @@
         .catch(() =>
           toastStore.trigger(
             toast({
-              message: `An error occurred while creating the post`,
+              message: t('posts.create.errorGeneric'),
               background: 'variant-filled-error',
               autohide: true,
             }),
@@ -160,7 +162,7 @@
       <div class="flex w-full items-center justify-between px-4 py-3">
         <div class="flex items-center gap-2">
           <Megaphone class="size-5" />
-          <p class="text-lg">Notify everyone</p>
+          <p class="text-lg">{t('posts.form.notifyEveryone')}</p>
         </div>
         <SlideToggle
           name="slide"
@@ -187,12 +189,12 @@
       <div class="border-surface-400 my-2 w-full border-t"></div>
       <div class="flex items-center justify-end gap-x-2">
         <Button
-          title="Post"
+          title={t('posts.create.submit')}
           variant="variant-filled-primary"
           action={handlePublish}
           disabled={!valid}
         >
-          Post
+          {t('posts.create.submit')}
         </Button>
       </div>
     </div>

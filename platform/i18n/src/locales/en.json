@@ -174,7 +174,12 @@
         },
         "search": {
             "placeholder": "Search for people",
-            "noResults": "No results found"
+            "profilesPlaceholder": "Search profiles…",
+            "noResults": "No results found",
+            "noProfilesAvailable": "No profiles available"
+        },
+        "postsAndReplies": {
+            "openGroupTitle": "Open group"
         },
         "groups": {
             "tabName": "Groups",
@@ -190,8 +195,10 @@
             "title": "Create Post",
             "submit": "Post",
             "error": "Failed to create post",
+            "errorGeneric": "An error occurred while creating the post",
             "loading": "Creating post…",
             "success": "Post created",
+            "successToast": "Post created successfully",
             "note": {
                 "title": "Creating Post"
             }
@@ -206,20 +213,37 @@
         },
         "repost": {
             "success": "Reposted successfully",
-            "error": "Failed to repost"
+            "error": "Failed to repost",
+            "retractSuccess": "Repost retracted",
+            "successToast": "Reposted successfully!"
         },
         "vote": {
             "success": "Vote recorded",
             "error": "Failed to record vote",
-            "count": "Votes"
+            "count": "Votes",
+            "lackPermission": "You don't have permission to vote in {{groupName}}.",
+            "lackPermissionNoGroup": "You don't have permission to vote on this poll.",
+            "selectOption": "Please select an option",
+            "cleared": "Vote cleared successfully!",
+            "successToast": "Voted successfully!",
+            "votesCount": "{{count}} votes"
         },
         "poll": {
             "ended": "Poll ended",
             "timeLeft": "left",
-            "undoVote": "Undo Vote"
+            "undoVote": "Undo Vote",
+            "undoVoteTitle": "Undo vote",
+            "vote": "Vote",
+            "undo": "Undo"
+        },
+        "menu": {
+            "reposts": "Reposts",
+            "reactions": "Reactions"
         },
         "form": {
             "content": "What's on your mind?",
+            "changeGroup": "Change group",
+            "notifyEveryone": "Notify everyone",
             "visibility": {
                 "label": "Visibility",
                 "public": "Public",
@@ -234,8 +258,15 @@
                 "duration": "Poll Duration",
                 "multipleChoice": "Allow Multiple Choices",
                 "submit": "Submit",
-                "seeWhoVoted": "See who voted"
+                "seeWhoVoted": "See who voted",
+                "questionPlaceholder": "What's your question?",
+                "pollEnd": "Poll end",
+                "multipleAnswers": "Multiple answers",
+                "seeWhoVotedTitle": "See who voted",
+                "multipleAnswersDescription": "Allow people to choose multiple answers",
+                "votersVisibleDescription": "Allow everyone to see who voted and what option they voted for"
             },
+            "changeAudience": "Change audience",
             "remainingCharacters": "Remaining characters",
             "addImage": "Add Media",
             "addDocument": "Add Document",
@@ -255,6 +286,67 @@
         "actions": {
             "shareMessage": "Share this post",
             "seeThread": "See Thread"
+        },
+        "footer": {
+            "reply": "Reply",
+            "repost": "Repost",
+            "like": "Like",
+            "share": "Share"
+        },
+        "shareMenu": {
+            "shareOnCommunity": "Share on Community",
+            "repostToFeed": "Repost to feed",
+            "reposting": "Reposting…",
+            "directMessage": "Direct message",
+            "sendInMessage": "Send in a message",
+            "otherOptions": "Other options",
+            "copyLink": "Copy link"
+        },
+        "gallery": {
+            "previous": "Previous",
+            "next": "Next",
+            "close": "Close"
+        },
+        "replyBox": {
+            "reply": "Reply",
+            "logInToReply": "Log in to reply",
+            "addReplyPlaceholder": "Add a reply…"
+        },
+        "replyModal": {
+            "title": "Reply",
+            "submit": "Reply",
+            "successToast": "Reply created successfully",
+            "errorToast": "An error occurred while creating the reply"
+        },
+        "chronologicalFeed": {
+            "modalTitle": "Community feed preferences",
+            "subtitle": "Manage the content you see on your Community feed",
+            "recentRepliesTitle": "Recent replies",
+            "recentRepliesDescription": "Order content by most recent replies",
+            "byActivityTitle": "By activity",
+            "byActivityDescription": "Posts with more activity stay at the top and will be seen more often",
+            "prioritizeFollowingTitle": "Prioritize people I follow",
+            "prioritizeFollowingDescription": "Show un-viewed posts from people you follow before posts from strangers",
+            "showRepostsTitle": "Show reposts",
+            "showRepostsDescription": "All reposts will be shown in your feed",
+            "done": "Done"
+        },
+        "previewVideo": {
+            "playTitle": "Play video"
+        },
+        "attachments": {
+            "deleteTitle": "Delete attachment"
+        },
+        "deleteModal": {
+            "deletePostTitle": "Delete post",
+            "delete": "Delete",
+            "cancel": "Cancel"
+        },
+        "stats": {
+            "viewReactions": "View reactions",
+            "viewReposts": "View reposts",
+            "repliesCount": "{{count}} replies",
+            "repostsCount": "{{count}} reposts"
         },
         "visibility": {
             "title": "Post visibility",
@@ -340,16 +432,21 @@
         "leave": {
             "confirm": "Are you sure you want to leave this group?",
             "error": "Failed to leave group",
-            "success": "Left group"
+            "success": "Left group",
+            "lastAdminError": "You are the last admin in this group. Please assign a new admin before leaving.",
+            "removedToast": "You have been successfully removed.",
+            "removeErrorToast": "An error occurred while removing."
         },
         "delete": {
             "title": "Delete Group",
             "description": "Are you sure you want to delete the group {{groupName}}?",
             "confirm": "Confirm",
+            "deleteButton": "Delete",
             "cancel": "Cancel",
             "deleting": "Deleting…",
-            "successMessage": "Group deleted successfully",
-            "errorMessage": "Failed to delete group"
+            "successMessage": "Group deleted successfully!",
+            "errorMessage": "Failed to delete group",
+            "toastError": "Couldn't delete group. Please try again later."
         },
         "selection": {
             "title": "Select Groups",
@@ -479,7 +576,53 @@
             "confirm": "Update Roles",
             "successMessage": "Roles Updated"
         },
-        "new": "New Group"
+        "new": "New Group",
+        "goto": "Go to group",
+        "form": {
+            "groupName": "Group Name"
+        },
+        "actions": {
+            "editGroup": "Edit group",
+            "addMembers": "Add Members",
+            "leaveGroup": "Leave group",
+            "removeFromGroup": "Remove from group",
+            "viewPosts": "View posts",
+            "updateGroup": "Update group",
+            "update": "Update",
+            "create": "Create",
+            "shareOnCommunity": "Share on community",
+            "shareToFeed": "Share to feed",
+            "shareInMessage": "Share in a message",
+            "otherOptions": "Other options"
+        },
+        "modals": {
+            "addMembers": {
+                "title": "Add Members to {{groupName}}",
+                "add": "Add"
+            },
+            "confirmExit": {
+                "title": "Leave Group",
+                "body": "Are you sure you want to exit from group: {{handle}}",
+                "leave": "Leave"
+            },
+            "manageNotifications": {
+                "title": "Manage notifications",
+                "description": "Manage notifications about {{groupName}}.",
+                "options": {
+                    "all": "All",
+                    "mostRelevant": "Most relevant",
+                    "mostRelevantDescription": "Personalized based on your activity",
+                    "off": "Off"
+                }
+            }
+        },
+        "share": {
+            "inviteBlurb": "Join our group for exclusive updates and great conversations! {{url}}",
+            "postToFeed": "Post to feed",
+            "sendInMessage": "Send in a message",
+            "copyLink": "Copy link",
+            "linkCopied": "Group link copied"
+        }
     },
     "jams": {
         "form": {
@@ -494,7 +637,11 @@
         "join": {
             "submit": "Join Jam",
             "error": "Failed to join jam",
-            "waiting": "Waiting for approval…"
+            "waiting": "Waiting for approval…",
+            "requestToJoin": "Request to join",
+            "ctaJoin": "Join",
+            "ctaStart": "Start",
+            "waitingForModerator": "Waiting for a moderator to let you in"
         },
         "start": {
             "submit": "Start Jam",
@@ -535,6 +682,8 @@
             "turningOffCamera": "Turning off…"
         },
         "waitingRoom": {
+            "joinedToastOne": "{{count}} person joined the waiting room!",
+            "joinedToastMany": "{{count}} people joined the waiting room!",
             "admitSuccess": "Participant admitted successfully",
             "admitError": "Failed to admit participant",
             "rejectSuccess": "Participant rejected successfully",
@@ -544,9 +693,153 @@
             "rejectParticipant": "Reject",
             "rejecting": "Rejecting…"
         },
+        "recording": {
+            "stopTitle": "Stop recording",
+            "recordTitle": "Record this jam",
+            "stopped": "Recording stopped: {{id}}",
+            "started": "Recording started: {{id}}",
+            "stopError": "Failed to stop recording",
+            "startError": "Failed to start recording"
+        },
+        "lobby": {
+            "readyTitle": "Ready to start?",
+            "exitLobbyBody": "Are you sure you want to exit the lobby?",
+            "exitLobbyConfirm": "Exit Jam",
+            "guestIntro": "Enter your details below to proceed to waiting room",
+            "guestFullNameLabel": "Full name",
+            "guestFullNamePlaceholder": "Full Name",
+            "guestEmailLabel": "Email",
+            "guestEmailPlaceholder": "Email",
+            "guestTermsAgreePrefix": "By continuing, you agree to the",
+            "guestTermsLink": "Terms of Service",
+            "guestTermsAgreeSuffix": "as regards jam activities",
+            "continue": "Continue",
+            "fallbackTitle": "Jam",
+            "cameraOff": "Camera is off"
+        },
+        "drawer": {
+            "close": "Close Drawer",
+            "debugTitle": "Debug Panel",
+            "toggleDebug": "Toggle Debug Panel",
+            "jamControls": "Jam Controls",
+            "audioLevel": "Audio Level",
+            "activityHistory": "Activity History",
+            "chatTitle": "In-Jam Messages",
+            "peopleTitle": "People",
+            "searchPeoplePlaceholder": "Search for people",
+            "searchButton": "Search"
+        },
+        "chat": {
+            "messagePlaceholder": "Send a message",
+            "sendTitle": "Send Message",
+            "openEveryoneTitle": "Chat with Everyone",
+            "noMessages": "No messages found"
+        },
+        "people": {
+            "inJam": "IN JAM",
+            "inWaitingRoom": "IN WAITING ROOM",
+            "noParticipants": "No participants found"
+        },
+        "debug": {
+            "audioLevelLabel": "Audio Level",
+            "currentAudioLevel": "Current Audio Level:",
+            "noActivity": "No activity"
+        },
+        "device": {
+            "changeTitle": "Change Device",
+            "turnOn": "Turn on",
+            "turnOff": "Turn off",
+            "switchTitle": "Switch Device",
+            "loadingDevices": "Loading available devices …",
+            "microphone": "microphone",
+            "camera": "camera",
+            "defaultSpeaker": "Default Speaker"
+        },
+        "mobileMenu": {
+            "inJamMessage": "In-jam message",
+            "jamDetails": "Jam Details",
+            "people": "People"
+        },
+        "network": {
+            "connectionStatus": "Connection Status",
+            "connectionDetail": "Your internet connection is {{quality}}.",
+            "dismiss": "Dismiss"
+        },
+        "screenShare": {
+            "stopTitle": "Stop Screen sharing",
+            "startScreenshareMobile": "Start Screenshare",
+            "stopScreenshareMobile": "Stop Screenshare",
+            "startStopTitle": "Start/Stop Screenshare",
+            "stopSharing": "Stop sharing",
+            "youPresenting": "(You presenting)",
+            "presenting": "(presenting)"
+        },
+        "reactions": {
+            "sendTitle": "Send a reaction"
+        },
+        "discover": {
+            "checkOtherJams": "Check out other jams"
+        },
+        "details": {
+            "closePanel": "Close Jam Details",
+            "panelHeading": "Jam details",
+            "joiningInfoHeading": "Joining Info",
+            "copyJoiningInfo": "Copy joining info",
+            "copiedJoiningInfo": "Copied joining info",
+            "copyJoiningInfoButtonTitle": "Copy Joining Info",
+            "copiedJoiningInfoButtonTitle": "Copied Joining Info",
+            "observerLinkHeading": "Observer Link",
+            "copyObserverLink": "Copy observer link",
+            "copiedObserverLink": "Copied observer link",
+            "copyObserverLinkButtonTitle": "Copy Observer Link",
+            "copiedObserverLinkButtonTitle": "Copied Observer Link"
+        },
+        "hand": {
+            "raiseTitle": "Raise Hand",
+            "raiseLabel": "Raise Hand"
+        },
+        "participantMenu": {
+            "muteInChat": "Mute In Chat",
+            "turnOffCamera": "Turn Off Camera",
+            "removeFromJam": "Remove from Jam"
+        },
+        "scheduler": {
+            "pickDateTime": "Select a later date and time for your jam:",
+            "scheduleForLater": "Schedule for later",
+            "dateLabel": "Date",
+            "timeLabel": "Time",
+            "selectTime": "Select time",
+            "eventCreatedSuccess": "Event created successfully",
+            "back": "Back",
+            "save": "Save"
+        },
+        "createFlow": {
+            "schedule": "Schedule"
+        },
+        "modals": {
+            "attendance": {
+                "title": "Jam Attendance",
+                "empty": "No one has joined yet",
+                "close": "Close"
+            },
+            "deleteScheduled": {
+                "title": "Delete this Jam?",
+                "body": "This jam details will no longer be available for anyone including you. Would you still like to delete this jam?",
+                "cancel": "Cancel",
+                "delete": "Delete",
+                "deleteEventTitle": "Delete Event",
+                "successToast": "Event deleted successfully!"
+            }
+        },
         "liveJams": "Live Jams",
         "noLiveJams": "No live jams to join",
+        "room": {
+            "pageTitle": "Jam Room - {{name}}",
+            "observerConnecting": "Waiting for connecting to the jam",
+            "jamNotActive": "This Jam is not active"
+        },
         "participant": {
+            "showEveryone": "Show everyone",
             "turnOffCamera": "Turn off Video",
             "muteParticipant": "Mute Participant"
         }
@@ -591,6 +884,14 @@
             "createSuccess": "Backup created successfully",
             "createError": "Error creating backup: {{error}}",
             "createTitle": "Create a new backup",
+            "testRestore": {
+                "title": "Use Test Backup",
+                "confirm": "Are you sure you want to use Test Backup data?",
+                "cancel": "Cancel",
+                "continue": "Continue",
+                "restoreSuccess": "Backup restored successfully",
+                "restoreError": "Error using test backup"
+            },
             "restoreTitle": "Restore a backup",
             "restore": {
                 "selectFile": "Select File",
@@ -711,9 +1012,18 @@
                     "cancel": "Back",
                     "confirm": "Yes, delete it"
                 }
+            },
+            "reportList": {
+                "allResolvedBadge": "All reports resolved",
+                "seeReports": "See reports",
+                "postHeading": "Post",
+                "unresolvedBadge": "Not resolved",
+                "goToPost": "Go to post",
+                "closeReport": "Close"
             }
         },
         "configuration": {
+            "unnamedSection": "Configuration",
             "community": {
                 "capabilities": {
                     "title": "Roles and Capabilities"
@@ -930,7 +1240,9 @@
         },
         "i18n": {
             "title": "Custom Text",
-            "description": "Change the text throughout the community"
+            "description": "Change the text throughout the community",
+            "pageTitle": "Translations",
+            "save": "Save"
         }
     },
     "common": {
@@ -943,6 +1255,9 @@
             "error": "Error"
         },
         "form": {
+            "description": "Description",
+            "fieldKey": "Key",
+            "mention": "Mention",
             "required": "Required",
             "optional": "Optional",
             "save": "Save",
@@ -979,6 +1294,10 @@
             "duplicate": "Duplicate Event"
         },
         "submit": "Submit",
+        "listEditor": {
+            "removeTitle": "Remove",
+            "addTitle": "Add"
+        },
         "next": "Next",
         "back": "Back",
         "done": "Done",
@@ -1186,7 +1505,19 @@
             "pushEnabled": "Enabled for this Browser",
             "testPush": "Send a Push Notification",
             "create": "In-App Notifications",
-            "title": "Notification Settings"
+            "title": "Notification Settings",
+            "feedPreferences": {
+                "modalTitle": "Notification feed preferences",
+                "subtitle": "Manage the content you see on your notifications feed",
+                "markAllRead": "Mark all as read",
+                "unreadSection": "Unread notifications",
+                "newFollowersSection": "New Followers",
+                "newPostSection": "New Post",
+                "mentionsSection": "Mentions",
+                "repostsSection": "Reposts"
+            },
+            "headerPreferencesTitle": "Notification Preferences",
+            "markAllReadSuccess": "Notifications cleared successfully"
         },
         "form": {
             "imageEditModal": {
@@ -1257,6 +1588,7 @@
             "emailLabel": "Email",
             "emailPlaceholder": "Enter your new email",
             "saveChanges": "Update Email",
+            "sameEmail": "Enter a different email address than your current one.",
             "updateSuccess": "Email updated successfully",
             "updateError": "Failed to update email"
         },
@@ -1283,7 +1615,8 @@
             "direct": {
                 "title": "Specific People",
                 "description": "Only specific people can see this post"
-            }
+            },
+            "no-groups": "No groups available"
         },
         "event": {
             "description": "Who can see and join this event.",
@@ -1303,7 +1636,8 @@
             "direct": {
                 "title": "Specific People",
                 "description": "Only individuals you invite can see this event"
-            }
+            },
+            "no-groups": "No groups available"
         },
         "accessDenied": "You do not have access to this content"
     },
@@ -1335,7 +1669,8 @@
             "jamWaitingRoomDescription": "Only approved users can join",
             "timezoneSearch": "Search for a timezone",
             "visibilityNotChangeable": "Note:  The event visibility cannot be changed once the event is published.  Make sure you're adding the right people or group.",
-            "jamModeratorsDescription": "Click to select Jam moderators"
+            "jamModeratorsDescription": "Click to select Jam moderators",
+            "externalEventUrlPlaceholder": "https://example.com/event"
         },
         "feed": {
             "past": "Past",
@@ -1373,6 +1708,7 @@
             "violationDescription": "It's racist, sexist, or hateful"
         },
         "create": {
+            "back": "Back",
             "post": {
                 "title": "Report post",
                 "description": "Help us understand the issue, what’s the problem with this post?",

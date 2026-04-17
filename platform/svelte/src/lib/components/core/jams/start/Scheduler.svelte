@@ -13,6 +13,9 @@
 	import CreateNewJam from './CreateNewJam.svelte';
 	import { Timer } from 'lucide-svelte';
 	import { page } from '$app/state';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 
 	interface Props {
 		audience: PublicProfile[];
@@ -34,7 +37,7 @@
 		await doCreateJam(new Date(`${date}T${time}`).toISOString(), audience, page.url.origin);
 		toastStore.trigger(
 			toast({
-				message: `Event created successfully`,
+				message: t('jams.scheduler.eventCreatedSuccess'),
 				background: 'variant-filled-success',
 				autohide: true
 			})
@@ -67,14 +70,14 @@
 
 <ModalWrapper>
 	<!-- header -->
-	<ModalHeader title={'Schedule for later'} />
+	<ModalHeader title={t('jams.scheduler.scheduleForLater')} />
 	<!-- content -->
 	<div class="mb-4 h-2/3 px-4 pt-2">
-		<h4 class="mb-2">Select a later date and time for your jam:</h4>
+		<h4 class="mb-2">{t('jams.scheduler.pickDateTime')}</h4>
 
 		<!-- date -->
 		<div class="mb-4">
-			<h4>Date</h4>
+			<h4>{t('jams.scheduler.dateLabel')}</h4>
 			<input
 				bind:value={date}
 				type="date"
@@ -85,9 +88,9 @@
 
 		<!-- time -->
 		<div class="mb-4">
-			<h4>Time</h4>
+			<h4>{t('jams.scheduler.timeLabel')}</h4>
 			<PopupMenu
-				text={time ? formatTime(time) : 'Select time'}
+				text={time ? formatTime(time) : t('jams.scheduler.selectTime')}
 				class="bg-surface-200 h-max w-full rounded-md py-2"
 				menuId="jam-scheduler-menu-time-slots"
 				icon={Timer}
@@ -115,9 +118,9 @@
 	<!-- footer -->
 	<ModalFooter extraClassNames={'gap-x-4 shadow-md'}>
 		<div class="flex w-full justify-end gap-4">
-			<Button action={handleCancel} variant="variant-ringed-surface">Back</Button>
+			<Button action={handleCancel} variant="variant-ringed-surface">{t('jams.scheduler.back')}</Button>
 			<Button action={handleSave} disabled={!date || !time} variant="variant-filled-primary">
-				Save
+				{t('jams.scheduler.save')}
 			</Button>
 		</div>
 	</ModalFooter>

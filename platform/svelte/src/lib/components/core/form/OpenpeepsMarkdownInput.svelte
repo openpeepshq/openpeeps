@@ -27,7 +27,7 @@
     value = $bindable(''),
     maxLength = 500,
     mentions = $bindable([]),
-    placeholder = "what's on your mind?",
+    placeholder = '',
     oninput = undefined,
     inline = false,
     heightClass = 'h-36',
@@ -116,7 +116,7 @@
     class:border-none={!inline}
     class:bg-transparent={!inline}
     maxlength={maxLength}
-    {placeholder}
+    placeholder={placeholder || t('posts.form.content')}
   ></textarea>
   <div class="w-full px-2 text-right text-sm">
     <span class:text-error-500={currentLength > maxLength}>
@@ -136,7 +136,7 @@
       >
         {#each listedProfiles() as profile (profile.id)}
           <button
-            title="Mention"
+            title={t('common.form.mention')}
             class="w-full"
             onclick={preventDefault(
               stopPropagation(() => {

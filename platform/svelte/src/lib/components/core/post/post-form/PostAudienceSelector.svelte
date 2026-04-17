@@ -97,7 +97,7 @@
     <article class="flex flex-col p-4">
       {#each groups as group (group.id)}
         <Button
-          title={'Select group'}
+          title={t('posts.form.selectGroup')}
           action={() => selectGroup(group as GroupWithMeta)}
         >
           <GroupCard group={group as GroupWithMeta}>
@@ -120,9 +120,9 @@
     <ModalFooter>
       <div class="flex gap-x-2">
         <Button
-          title="Back"
+          title={t('common.done')}
           variant="variant-ringed-surface"
-          action={() => (showGroupSelector = false)}>Done</Button
+          action={() => (showGroupSelector = false)}>{t('common.done')}</Button
         >
       </div>
     </ModalFooter>
@@ -133,9 +133,9 @@
     <ModalFooter>
       <div class="flex gap-x-2">
         <Button
-          title="Back"
+          title={t('common.done')}
           variant="variant-ringed-surface"
-          action={() => (showAudienceSelector = false)}>Done</Button
+          action={() => (showAudienceSelector = false)}>{t('common.done')}</Button
         >
       </div>
     </ModalFooter>
@@ -175,7 +175,7 @@
             {#if setting.value === 'group' && groupId}
               <div class="pl-12 text-left">
                 <button
-                  title="Change group"
+                  title={t('posts.form.changeGroup')}
                   onclick={() => (showGroupSelector = true)}
                 >
                   <GroupCardFromId
@@ -200,13 +200,13 @@
     </article>
     <ModalFooter>
       <div class="flex gap-x-2">
-        <Button title="Back" variant="variant-ringed-surface" action={close}
-          >Back</Button
+        <Button title={t('navigation.back')} variant="variant-ringed-surface" action={close}
+          >{t('navigation.back')}</Button
         >
         <Button
-          title="Done"
+          title={t('common.done')}
           variant="variant-filled-primary"
-          action={confirmAndClose}>Done</Button
+          action={confirmAndClose}>{t('common.done')}</Button
         >
       </div>
     </ModalFooter>

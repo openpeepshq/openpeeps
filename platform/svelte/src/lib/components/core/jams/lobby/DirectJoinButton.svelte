@@ -2,8 +2,10 @@
 	import { Button } from '@openpeeps/ui';
 	import { joinJamMutation, jamStateStore } from '$lib/api';
 	import { getJamContext, getLivekitRoom } from '$lib/components/core/jams/context';
-  import { AccessDeniedLoader } from '$lib/components/layout';
+	import { AccessDeniedLoader } from '$lib/components/layout';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const joinJam = joinJamMutation();
 
 	const { jamPost } = getJamContext();
@@ -23,7 +25,7 @@
 </script>
 
 <AccessDeniedLoader queries={[$jamStateQuery]}>
-	<Button title="Join Jam" variant="variant-filled-primary" {loading} action={connect}>
-		{$jamStateQuery.data?.active ? 'Join' : 'Start'}
+	<Button title={t('jams.join.submit')} variant="variant-filled-primary" {loading} action={connect}>
+		{$jamStateQuery.data?.active ? t('jams.join.ctaJoin') : t('jams.join.ctaStart')}
 	</Button>
 </AccessDeniedLoader>

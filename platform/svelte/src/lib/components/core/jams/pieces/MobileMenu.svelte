@@ -6,7 +6,9 @@
   import ScreenShareSwitch from './ScreenShareSwitch.svelte';
   import HandSwitch from './HandSwitch.svelte';
   import RecordSwitch from './RecordSwitch.svelte';
+  import { i18nContext } from '$lib/components/i18n';
 
+  const { t } = i18nContext();
   const drawerContext = getDrawerContext();
 
   interface Props {
@@ -22,7 +24,7 @@
 >
   <MobileMenuButton
     icon={MessageSquareText}
-    label="In-jam message"
+    label={t('jams.mobileMenu.inJamMessage')}
     action={() => {
       closeMenu();
       drawerContext.set('chat');
@@ -30,7 +32,7 @@
   />
   <MobileMenuButton
     icon={InfoIcon}
-    label="Jam Details"
+    label={t('jams.mobileMenu.jamDetails')}
     action={() => {
       closeMenu();
       openJamDetailsMenu();
@@ -41,7 +43,7 @@
   <HandSwitch {closeMenu} />
   <MobileMenuButton
     icon={UsersRound}
-    label="People"
+    label={t('jams.mobileMenu.people')}
     action={() => {
       closeMenu();
       drawerContext.set('people');

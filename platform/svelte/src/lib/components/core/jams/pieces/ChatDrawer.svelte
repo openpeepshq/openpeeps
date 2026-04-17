@@ -8,6 +8,9 @@
   import Drawer from './Drawer.svelte';
   import JamChatMessage from './JamChatMessage.svelte';
   import { dateSorter } from '@openpeeps/common';
+  import { i18nContext } from '$lib/components/i18n';
+
+  const { t } = i18nContext();
 
   let endOfThread: HTMLElement | undefined = $state();
 
@@ -42,7 +45,7 @@
   });
 </script>
 
-<Drawer title="In-Jam Messages">
+<Drawer title={t('jams.drawer.chatTitle')}>
   <div class="z-10 box-content flex w-full flex-1 flex-col overflow-y-scroll">
     <div class="mb-0 flex-grow space-y-4 px-2 pb-4 md:mb-6">
       <InfiniteScrollContainer
@@ -52,7 +55,7 @@
         additionalItems={$sessionEvents}
       >
         {#snippet empty()}
-          <p class="mt-4 text-center text-neutral-400">No messages found</p>
+          <p class="mt-4 text-center text-neutral-400">{t('jams.chat.noMessages')}</p>
         {/snippet}
         {#snippet children({ list })}
           {#each list
@@ -81,10 +84,10 @@
           }
         }}
         class="bg-surface-50 w-full border-none outline-none"
-        placeholder="Send a message"
+        placeholder={t('jams.chat.messagePlaceholder')}
       />
       <button
-        title="Send Message"
+        title={t('jams.chat.sendTitle')}
         disabled={isLoading}
         onclick={handleSendMessage}
       >

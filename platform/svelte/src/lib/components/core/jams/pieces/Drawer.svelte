@@ -1,6 +1,9 @@
 <script lang="ts">
   import { X } from 'lucide-svelte';
   import { getDrawerContext } from '$lib/components/core/jams/context';
+  import { i18nContext } from '$lib/components/i18n';
+
+  const { t } = i18nContext();
 
   interface Props {
     title: string;
@@ -24,7 +27,7 @@
   <div class="flex w-full flex-none items-center justify-between border-b p-2">
     <h3 class="text-lg">{title}</h3>
     <button
-      title="Close Drawer"
+      title={t('jams.drawer.close')}
       class="text-neutral-400"
       onclick={() => drawerContext.set(undefined)}
     >

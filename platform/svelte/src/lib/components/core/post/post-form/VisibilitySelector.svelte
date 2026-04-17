@@ -10,7 +10,9 @@
   import { buildAudienceChoices } from './constants';
   import PostAudienceModal from './PostAudienceModal.svelte';
   import { getCurrentProfile } from '$lib/auth';
+  import { i18nContext } from '$lib/components/i18n';
 
+  const { t } = i18nContext();
   const me = getCurrentProfile();
 
   const modalManager = getModalManager();
@@ -44,7 +46,7 @@
 </script>
 
 <button
-  title="Change audience"
+  title={t('posts.form.changeAudience')}
   onclick={() => {
     if (isEdit) {
       modalManager.show(PostAudienceModal, {

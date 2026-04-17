@@ -5,7 +5,9 @@
 	import { participantHandRaisedStore } from '../stores';
 	import { Button } from '@openpeeps/ui';
 	import MobileMenuButton from './MobileMenuButton.svelte';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const room = getLivekitRoom();
 
 	interface Props {
@@ -18,7 +20,7 @@
 </script>
 
 <Button
-	title="Raise Hand"
+	title={t('jams.hand.raiseTitle')}
 	class="hidden size-10 p-2 md:flex"
 	variant={$handStore ? 'variant-soft-primary' : 'variant-soft-surface'}
 	action={() => toggleHand(room)}
@@ -28,7 +30,7 @@
 
 <MobileMenuButton
 	icon={Hand}
-	label="Raise Hand"
+	label={t('jams.hand.raiseLabel')}
 	action={() => {
 		closeMenu?.();
 		toggleHand(room);

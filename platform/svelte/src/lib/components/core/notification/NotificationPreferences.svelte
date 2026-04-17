@@ -6,7 +6,9 @@
 	import { Button } from '@openpeeps/ui';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import { ModalHeader, ModalWrapper } from '@openpeeps/ui';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
 	const queryClient = useQueryClient();
@@ -18,7 +20,7 @@
 
 		toastStore.trigger(
 			toast({
-				message: 'Notifications cleared successfully',
+				message: t('settings.notifications.markAllReadSuccess'),
 				background: 'variant-filled-success',
 				autohide: true
 			})
@@ -31,17 +33,17 @@
 
 {#if $modalStore[0]}
 	<ModalWrapper>
-		<ModalHeader title={'Notification feed preferences'} />
+		<ModalHeader title={t('settings.notifications.feedPreferences.modalTitle')} />
 		<!-- body -->
 		<article class="flex flex-col px-4">
 			<div class="">
-				<p class="text-sm font-light">Manage the content you see on your notifications feed</p>
+				<p class="text-sm font-light">{t('settings.notifications.feedPreferences.subtitle')}</p>
 				<Button
-					title="Mark all as read"
+					title={t('settings.notifications.feedPreferences.markAllRead')}
 					action={handleClearNotification}
 					variant="variant-ringed-surface"
 				>
-					Mark all as read
+					{t('settings.notifications.feedPreferences.markAllRead')}
 				</Button>
 			</div>
 			<!-- <div class="mt-7">

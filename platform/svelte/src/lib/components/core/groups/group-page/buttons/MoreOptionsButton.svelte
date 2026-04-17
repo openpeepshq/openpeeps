@@ -41,8 +41,7 @@
     ) {
       toastStore.trigger(
         toast({
-          message:
-            'You are the last admin in this group. Please assign a new admin before leaving.',
+          message: t('groups.leave.lastAdminError'),
           background: 'variant-filled-danger',
         }),
       );
@@ -55,8 +54,8 @@
 <PopupMenu menuId="groupMoreOptionsFeatures" icon={MoreHorizontal}>
   {#if checkGroupCapabilities(['core-groups-update'], $me, group).success}
     <PopupMenuButton
-      title={t('common.actions.edit') + ' ' + 'group'}
-      text={t('common.actions.edit')}
+      title={t('groups.actions.editGroup')}
+      text={t('groups.actions.editGroup')}
       icon={Pencil}
       action={() => {
         goto(`/groups/@${group.handle}/edit`);
@@ -65,8 +64,8 @@
   {/if}
   {#if checkGroupCapabilities(['core-groups-addMember'], $me, group).success}
     <PopupMenuButton
-      title="Add Members"
-      text="Add Members"
+      title={t('groups.actions.addMembers')}
+      text={t('groups.actions.addMembers')}
       icon={UserPlus}
       action={() => {
         modalManager.show(AddMemberModal, { group });
@@ -74,16 +73,16 @@
     />
   {/if}
   <PopupMenuButton
-    title="Leave group"
-    text="Leave group"
+    title={t('groups.actions.leaveGroup')}
+    text={t('groups.actions.leaveGroup')}
     icon={LogOut}
     action={handleLeaveGroup}
   />
   <!--PopupMenuButton text="Report group" icon={Flag} action={() => {}} /-->
   {#if checkGroupCapabilities(['core-groups-delete'], $me, group).success}
     <PopupMenuButton
-      title={t('common.actions.delete') + ' ' + 'group'}
-      text={t('common.actions.delete')}
+      title={t('groups.delete.title')}
+      text={t('groups.delete.title')}
       icon={Trash}
       action={() => modalManager.show(DeleteGroupModal, { group , callback: () => {window.history.back()}})}
       danger={true}

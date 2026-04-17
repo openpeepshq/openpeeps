@@ -23,8 +23,8 @@
 
 <div class="">
 	{#if $me?.memberships.find((m) => m.group.id === group.id)}
-		<Button title="View posts" variant="variant-ringed-surface" action="/groups/@{group.handle}"
-			>View posts</Button
+		<Button title={t('groups.actions.viewPosts')} variant="variant-ringed-surface" action="/groups/@{group.handle}"
+			>{t('groups.actions.viewPosts')}</Button
 		>
 	{:else if checkGroupCapabilities(['core-groups-join'], $me, group).success}
 		<Button title={t('groups.join.submit')} variant="variant-ringed-surface" action={doJoinGroup}>{t('groups.join.submit')}</Button>

@@ -4,6 +4,9 @@
   import { Minus, Plus } from 'lucide-svelte';
   import { unwrap } from '$lib/components/core/configuration/helpers';
   import equal from 'fast-deep-equal';
+  import { i18nContext } from '$lib/components/i18n';
+
+  const { t } = i18nContext();
 
   type Shape = z.infer<typeof elementSchema>;
 
@@ -40,7 +43,7 @@
 
 <div class="mt-4 pl-4">
   <p class:font-bold={dirty}>
-    {path.slice(-1)[0] || 'Configuration'}
+    {path.slice(-1)[0] || t('admin.configuration.unnamedSection')}
   </p>
   {#each value as _, index (index)}
     {#if unwrappedElementSchema instanceof z.ZodObject}
@@ -62,9 +65,9 @@
         {disabled}
       ></ConfigurationValueEditor>
     {/if}
-    <button title="Remove" onclick={() => removeElement(index)}
+    <button title={t('common.listEditor.removeTitle')} onclick={() => removeElement(index)}
       ><Minus /></button
     >
   {/each}
-  <button title="Add" onclick={addElement}><Plus /></button>
+  <button title={t('common.listEditor.addTitle')} onclick={addElement}><Plus /></button>
 </div>

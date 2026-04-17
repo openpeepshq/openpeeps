@@ -5,24 +5,26 @@
 	import { getPageHeaderStore } from '$lib/stores';
 	import type { Resource } from 'i18next';
 	import { presetProps } from '$lib/utils';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const i18nQuery = getI18nStore();
 	const updateI18n = updateI18nMutation();
 
 	let newOverrides: Resource = $state({});
 
 	getPageHeaderStore().set({
-		title: 'Translations',
+		title: t('admin.i18n.pageTitle') as string,
 		actions: presetProps(TextButton, {
 			variant: 'variant-filled-primary',
-			text: 'Save',
+			text: t('admin.i18n.save') as string,
 			action: () => updateI18n(newOverrides)
 		})
 	});
 </script>
 
 <div class="p-4">
-	<h1 class="h1 mb-4">Translations</h1>
+	<h1 class="h1 mb-4">{t('admin.i18n.pageTitle')}</h1>
 	<Loader queries={[$i18nQuery]}>
 		<I18nEditor {...$i18nQuery.data!} bind:newOverrides />
 	</Loader>

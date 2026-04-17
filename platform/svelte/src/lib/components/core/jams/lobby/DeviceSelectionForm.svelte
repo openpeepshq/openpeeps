@@ -6,7 +6,9 @@
 	import { getJamContext } from '$lib/components/core/jams/context';
 	import { Bug } from 'lucide-svelte';
 	import AudioOutputSelector from '../pieces/AudioOutputSelector.svelte';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const { jamEvent } = getJamContext();
 
 	interface Props {
@@ -28,7 +30,7 @@
 
 <div class="relative inline-block h-auto w-full overflow-hidden p-5">
 	<div class="relative flex flex-col items-center overflow-hidden">
-		<h2 class="my-1 text-center text-lg">{jamEvent.name || 'Jam'}</h2>
+		<h2 class="my-1 text-center text-lg">{jamEvent.name || t('jams.lobby.fallbackTitle')}</h2>
 		<video
 			bind:this={videoRef}
 			class="left-0 size-64 overflow-hidden rounded-xl object-cover"
@@ -40,7 +42,7 @@
 			class:flex={!localVideoTrack}
 			class:hidden={!!localVideoTrack}
 		>
-			<p class="text-lg">Camera is off</p>
+			<p class="text-lg">{t('jams.lobby.cameraOff')}</p>
 		</div>
 		<div class="relative mt-4 flex w-full justify-center gap-2">
 			<MicrophoneSelectorAndSwitch type="lobby" />
@@ -49,7 +51,7 @@
 			<BlurSwitch type="lobby" bind:localVideoTrack />
 			{#if location.hash.includes('#debug')}
 				<button
-					title="Toggle Debug Panel"
+					title={t('jams.drawer.toggleDebug')}
 					class="flex items-center justify-center rounded-full border p-2"
 					onclick={() => (showDebugPanel = !showDebugPanel)}
 				>

@@ -4,7 +4,9 @@
   import { getLivekitRoom } from '../context';
   import { ConnectionQuality } from 'livekit-client';
   import { Button } from '@openpeeps/ui';
+  import { i18nContext } from '$lib/components/i18n';
 
+  const { t } = i18nContext();
   const room = getLivekitRoom();
 
   const connectionQuality = connectionQualityStore(room);
@@ -39,13 +41,13 @@
       {/if}
     </div>
     <div class="flex flex-col">
-      <h3 class="w-full text-center font-medium">Connection Status</h3>
+      <h3 class="w-full text-center font-medium">{t('jams.network.connectionStatus')}</h3>
       <p class="w-full text-center text-sm">
-        Your internet connection is {$connectionQuality}.
+        {t('jams.network.connectionDetail', { quality: $connectionQuality })}
       </p>
     </div>
     <Button variant="variant-ghost-surface" action={dismiss} compact>
-      Dismiss
+      {t('jams.network.dismiss')}
     </Button>
   </div>
 {/if}

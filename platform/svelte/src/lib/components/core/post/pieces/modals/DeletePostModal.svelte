@@ -9,6 +9,9 @@
 	import PreviewNote from '../../types/note/PreviewNote.svelte';
 	import PreviewEvent from '../../types/event/PreviewEvent.svelte';
 	import PreviewPoll from '../../types/poll/PreviewPoll.svelte';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 
 	interface Props {
 		post: PublicPost;
@@ -28,7 +31,7 @@
 		await deletePost();
 		toastStore.trigger(
 			toast({
-				message: 'Post deleted successfully!',
+				message: t('posts.delete.success'),
 				background: 'variant-filled-success'
 			})
 		);
@@ -40,25 +43,25 @@
 </script>
 
 <ModalWrapper extraClassNames="relative">
-	<ModalHeader title={'Delete Post'} />
+	<ModalHeader title={t('posts.deleteModal.deletePostTitle')} />
 	<article class="  m-4 h-full pb-3">
 		<FeedPost {post} />
-		<p class="my-4">Are you sure you want to delete this post?</p>
+		<p class="my-4">{t('posts.delete.confirm')}</p>
 	</article>
 	<ModalFooter>
 		<Button
-			title="Delete Post"
+			title={t('posts.deleteModal.deletePostTitle')}
 			action={handleDeletePost}
 			variant="variant-filled-error"
-			class="w-full">Delete</Button
+			class="w-full">{t('posts.deleteModal.delete')}</Button
 		>
 		<Button
-			title="Cancel"
+			title={t('posts.deleteModal.cancel')}
 			action={() => modalManager.close()}
 			variant="variant-ringed-surface"
 			class="w-full"
 		>
-			Cancel
+			{t('posts.deleteModal.cancel')}
 		</Button>
 	</ModalFooter>
 </ModalWrapper>

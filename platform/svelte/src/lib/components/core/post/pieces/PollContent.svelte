@@ -48,11 +48,13 @@
 		if (!hasCapabilities.success) {
 			toastStore.trigger(
 				toast({
-					message: t('post.vote.lackPermission', {
-						groupName: post?.group ? groupName(post?.group) : ""
-					},
-				),
-					action:post?.group ? {
+					message: post?.group
+						? t('posts.vote.lackPermission', {
+								groupName: groupName(post.group),
+							})
+						: t('posts.vote.lackPermissionNoGroup'),
+					action: post?.group
+						? {
 						label: t('groups.goto'),
 						response() {
 							if(post?.group){
@@ -78,14 +80,14 @@
 			await votePoll({ selection });
 			toastStore.trigger(
 				toast({
-					message: 'Voted successfully!',
+					message: t('posts.vote.successToast'),
 					background: 'variant-filled-success'
 				})
 			);
 		} else {
 			toastStore.trigger(
 				toast({
-					message: 'Please select an option',
+					message: t('posts.vote.selectOption'),
 					background: 'variant-filled-error'
 				})
 			);
@@ -99,7 +101,7 @@
 		await votePoll({ selection });
 		toastStore.trigger(
 			toast({
-				message: 'Vote cleared successfully!',
+				message: t('posts.vote.cleared'),
 				background: 'variant-filled-success'
 			})
 		);
@@ -157,28 +159,28 @@
 		{/each}
 
 		{#if canVote}
-			<Button title="Vote" variant="variant-ringed-surface" class="mt-4" action={handleVote}>
-				Submit
+			<Button title={t('posts.poll.vote')} variant="variant-ringed-surface" class="mt-4" action={handleVote}>
+				{t('posts.form.poll.submit')}
 			</Button>
 		{/if}
 		<div class="mt-4 flex items-center gap-x-3 text-sm">
 			<p>
-				{votes.length || '0'} votes
+				{t('posts.vote.votesCount', { count: votes.length || 0 })}
 			</p>
 			{#if post?.data.expiresAt}
 				<p>
 					{#if hasPollEnded}
-						Poll has ended
+						{t('posts.poll.ended')}
 					{:else}
-						{formatDistanceToNow(post?.data.expiresAt)} left
+						{formatDistanceToNow(post?.data.expiresAt)} {t('posts.poll.timeLeft')}
 					{/if}
 				</p>
 			{/if}
 			{#if hasVoted && !hasPollEnded}
 				<button
-					title="Undo vote"
+					title={t('posts.poll.undoVoteTitle')}
 					class="text-primary-500 mt-[-2px] text-base font-semibold"
-					onclick={stopPropagation(preventDefault(handleClearVote))}>Undo</button
+					onclick={stopPropagation(preventDefault(handleClearVote))}>{t('posts.poll.undo')}</button
 				>
 			{/if}
 		</div>

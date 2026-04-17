@@ -21,7 +21,9 @@
   import Attachments from './Attachments.svelte';
   import PostTypeSwitcher from './PostTypeSwitcher.svelte';
   import PostInputActions from './PostInputActions.svelte';
+  import { i18nContext } from '$lib/components/i18n';
 
+  const { t } = i18nContext();
   const toastStore = getToastStore();
 
   interface Props {
@@ -49,7 +51,7 @@
       .then(() =>
         toastStore.trigger(
           toast({
-            message: `Reply created successfully`,
+            message: t('posts.replyModal.successToast'),
             background: 'variant-filled-success',
             autohide: true,
           }),
@@ -58,7 +60,7 @@
       .catch(() =>
         toastStore.trigger(
           toast({
-            message: `An error occurred while creating the reply`,
+            message: t('posts.replyModal.errorToast'),
             background: 'variant-filled-error',
             autohide: true,
           }),
@@ -87,7 +89,7 @@
 </script>
 
 <ModalWrapper>
-  <ModalHeader title={'Reply'} />
+  <ModalHeader title={t('posts.replyModal.title')} />
   <div class="w-full">
     <ThreadPost post={inReplyTo} noActions />
     <div class="w-full">
@@ -117,12 +119,12 @@
       <div class="my-2 w-full border-t border-neutral-300"></div>
       <div class="flex items-center justify-end gap-x-2">
         <Button
-          title="Reply"
+          title={t('posts.replyModal.submit')}
           variant="variant-filled-primary"
           action={handlePublish}
           disabled={!valid}
         >
-          Reply
+          {t('posts.replyModal.submit')}
         </Button>
       </div>
     </div>

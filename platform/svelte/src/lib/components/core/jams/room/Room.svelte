@@ -23,7 +23,9 @@
   import Lobby from '../lobby/Lobby.svelte';
   import VideoCall from '../roomTypes/videoCall/VideoCall.svelte';
   import { AccessDeniedLoader } from '$lib/components/layout';
+  import { i18nContext } from '$lib/components/i18n';
 
+  const { t } = i18nContext();
   const serverInfo = getServerInfo();
   let profileSettingsQuery = currentProfileSettingsStore();
   let profileSettings = $profileSettingsQuery.data;
@@ -57,7 +59,7 @@
   const jamStateQuery = jamStateStore(jamPost.id);
 
   getPageHeaderStore().set({
-    title: `Jam Room - ${event.name}`,
+    title: t('jams.room.pageTitle', { name: event.name }),
   });
 
   const room = new Room(defaultRoomOptions[jam.type]);
@@ -86,7 +88,7 @@
   {/if}
 {:else if observer}
   <div class="flex h-full w-full items-center justify-center">
-    <span class="text-center text-lg"> Waiting for connecting to the jam </span>
+    <span class="text-center text-lg">{t('jams.room.observerConnecting')}</span>
   </div>
 {:else if canJoin}
   <Lobby />
@@ -95,44 +97,44 @@
     <AccessDeniedLoader queries={[$jamStateQuery]}>
       {#if me}
         <div class="space-y-5">
-          <img src={logoSmall} alt="Community Logo" class="mx-auto h-8" />
+          <img src={logoSmall} alt={t('configuration.community.logo')} class="mx-auto h-8" />
           <h3 class="text-center text-lg">{event.name}</h3>
           <div
             class="bg-surface-100 flex w-full flex-col items-center justify-center space-y-3 rounded border border-b-[0.2px] p-4"
           >
-            <span>This Jam is not active</span>
+            <span>{t('jams.room.jamNotActive')}</span>
 
             <Button
-              title="Check out other jams"
+              title={t('jams.discover.checkOtherJams')}
               class="mt-4"
               variant="variant-filled-primary"
               action="/jams"
             >
-              Check out other jams
+              {t('jams.discover.checkOtherJams')}
             </Button>
           </div>
         </div>
       {:else}
         <div class="space-y-5">
-          <img src={logoSmall} alt="Community Logo" class="mx-auto h-8" />
+          <img src={logoSmall} alt={t('configuration.community.logo')} class="mx-auto h-8" />
           <h3 class="text-center text-lg">{event.name}</h3>
           <div
             class="bg-surface-100 flex w-full flex-col items-center justify-center space-y-3 rounded border border-b-[0.2px] p-4"
           >
-            <span>This Jam is not active</span>
+            <span>{t('jams.room.jamNotActive')}</span>
 
             <Button
-              title="Join community"
+              title={t('navigation.joinCommunity')}
               class="mt-4"
               variant="variant-filled-primary"
               action="/auth/register"
             >
-              Join community
+              {t('navigation.joinCommunity')}
             </Button>
 
             <span>
-              Already have an account?
-              <a class="anchor" href="/auth/login"> Log In </a>
+              {t('navigation.haveAccount')}
+              <a class="anchor" href="/auth/login">{t('navigation.logIn')}</a>
             </span>
           </div>
         </div>

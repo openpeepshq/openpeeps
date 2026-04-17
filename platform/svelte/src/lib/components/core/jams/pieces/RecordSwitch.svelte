@@ -7,6 +7,9 @@
   import { calculateRecordingState } from '../helpers';
   import { getServerInfo } from '$lib/server';
   import MobileMenuButton from './MobileMenuButton.svelte';
+  import { i18nContext } from '$lib/components/i18n';
+
+  const { t } = i18nContext();
 
   interface Props {
     closeMenu?: () => void;
@@ -35,59 +38,59 @@
 {#if iAmModerator && serverInfo.jams.livekit.recordingEnabled}
   {#if isRecording}
     <Button
-      title="Stop recording"
+      title={t('jams.recording.stopTitle')}
       class="bg-error-500 text-on-primary-token hidden items-center justify-center rounded-full p-2 md:flex"
       action={() =>
         stopRecording({ id: jamPost.id })
           .then((recording) =>
-            toast({ message: `Recording stopped: ${recording.id}` }),
+            toast({ message: t('jams.recording.stopped', { id: recording.id }) }),
           )
           .catch(() =>
-            toast({ message: 'Failed to stop recording', type: 'error' }),
+            toast({ message: t('jams.recording.stopError'), type: 'error' }),
           )}
     >
       <SquareStop />
     </Button>
     <MobileMenuButton
       icon={SquareStop}
-      label={'Stop recording'}
+      label={t('jams.recording.stopTitle')}
       action={() =>
         stopRecording({ id: jamPost.id })
           .then((recording) => {
-            toast({ message: `Recording stopped: ${recording.id}` });
+            toast({ message: t('jams.recording.stopped', { id: recording.id }) });
             closeMenu?.();
           })
           .catch(() =>
-            toast({ message: 'Failed to stop recording', type: 'error' }),
+            toast({ message: t('jams.recording.stopError'), type: 'error' }),
           )}
     />
   {:else}
     <Button
-      title="Record this jam"
+      title={t('jams.recording.recordTitle')}
       class="bg-error-500 text-on-primary-token hidden items-center justify-center rounded-full p-2 md:flex"
       action={() =>
         startRecording({ id: jamPost.id })
           .then((recording) => {
-            toast({ message: `Recording started: ${recording.id}` }),
+            toast({ message: t('jams.recording.started', { id: recording.id }) }),
               closeMenu?.();
           })
           .catch(() =>
-            toast({ message: 'Failed to start recording', type: 'error' }),
+            toast({ message: t('jams.recording.startError'), type: 'error' }),
           )}
     >
       <Disc />
     </Button>
     <MobileMenuButton
       icon={Disc}
-      label={'Record this jam'}
+      label={t('jams.recording.recordTitle')}
       action={() =>
         startRecording({ id: jamPost.id })
           .then((recording) => {
-            toast({ message: `Recording started: ${recording.id}` }),
+            toast({ message: t('jams.recording.started', { id: recording.id }) }),
               closeMenu?.();
           })
           .catch(() =>
-            toast({ message: 'Failed to start recording', type: 'error' }),
+            toast({ message: t('jams.recording.startError'), type: 'error' }),
           )}
     />
   {/if}

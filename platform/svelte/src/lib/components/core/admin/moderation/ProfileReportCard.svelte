@@ -27,12 +27,12 @@
 			<ProfileCard profile={$profileQuery?.data} showAction={false} />
 		{/if}
 		<p>
-			{truncateText($profileQuery?.data?.bio || 'No bio', 200)}
+			{truncateText($profileQuery?.data?.bio || t('profile.noBio'), 200)}
 		</p>
 	</div>
 	<div class="flex items-center justify-between border border-b-2 border-t-2 p-1">
 		{#if reportsCount === 0}
-			<div class="bg-surface-500 rounded-full px-3 py-1 text-white">All reports resolved</div>
+			<div class="bg-surface-500 rounded-full px-3 py-1 text-white">{t('admin.moderation.reportList.allResolvedBadge')}</div>
 		{:else}
 			<div class="bg-error-500 rounded-full px-3 py-1 text-white">
 				{t('admin.moderation.report.unresolvedBadge', { reportsCount: reportsCount })}
@@ -42,7 +42,7 @@
 		<Button
 			variant="variant-ringed-surface"
 			action={async () => await goto(`/admin/moderation/reports/@${$profileQuery.data?.handle}`)}
-			>See reports</Button
+			>{t('admin.moderation.reportList.seeReports')}</Button
 		>
 	</div>
 </AccessDeniedLoader>

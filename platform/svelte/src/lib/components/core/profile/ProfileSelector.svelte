@@ -134,7 +134,7 @@
 						bind:value={searchString}
 						type="text"
 						class="w-full rounded-md border border-surface-300 bg-surface-50 pl-10 pr-3 py-2 text-sm"
-						placeholder="Search profiles..."
+						placeholder={t('profile.search.profilesPlaceholder')}
 					/>
 				</div>
 			</div>
@@ -143,7 +143,7 @@
 				<div class="max-h-64 overflow-y-auto">
 					{#if selectableProfiles.length === 0}
 						<div class="p-4 text-center text-surface-500 text-sm">
-							{searchString ? 'No profiles found' : 'No profiles available'}
+							{searchString ? t('profile.search.noResults') : t('profile.search.noProfilesAvailable')}
 						</div>
 					{:else}
 						{#each selectableProfiles as profile (profile.id)}

@@ -81,8 +81,8 @@
 		{/each}
 	</div>
 	<ModalFooter extraClassNames="flex justify-end w-full">
-		<Button title="Cancel" variant="variant-ringed-primary" action={modalManager.close}>
-			Cancel
+		<Button title={t('common.cancel')} variant="variant-ringed-primary" action={modalManager.close}>
+			{t('common.cancel')}
 		</Button>
 		<Button
 			title={t('groups.changeRoles.confirm')}

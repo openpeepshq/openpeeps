@@ -216,17 +216,17 @@
       {/if}
     {/if}
     <PopupMenuButton
-      title="Reposts"
+      title={t('posts.menu.reposts')}
       action={() => modalManager.show(RepostModal, { post })}
       icon={Repeat}
-      text="Reposts"
+      text={t('posts.menu.reposts')}
     />
     <PopupMenuButton
-      title="Reactions"
+      title={t('posts.menu.reactions')}
       action={() =>
         modalManager.show(ReactionsModal, { reactions: post.reactions })}
       icon={ThumbsUp}
-      text="Reactions"
+      text={t('posts.menu.reactions')}
     />
     {#if isBookmarked}
       <PopupMenuButton

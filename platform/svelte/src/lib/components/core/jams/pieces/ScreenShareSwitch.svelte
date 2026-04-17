@@ -5,7 +5,9 @@
 	import { toggleScreenShare } from '$lib/components/core/jams/actions';
 	import { Button, stopPropagation } from '@openpeeps/ui';
 	import MobileMenuButton from './MobileMenuButton.svelte';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const room = getLivekitRoom();
 
 	const screenShareState = screenShareStateStore(room.localParticipant);
@@ -19,7 +21,7 @@
 
 <!-- desktop -->
 <Button
-	title="Start/Stop Screenshare"
+	title={t('jams.screenShare.startStopTitle')}
 	variant={$screenShareState ? 'variant-soft-primary' : 'variant-soft-surface'}
 	class="hidden size-10 p-2 md:flex"
 	action={() => toggleScreenShare(room)}
@@ -34,7 +36,7 @@
 
 <MobileMenuButton
 	icon={$screenShareState ? ScreenShareOff : ScreenShare}
-	label={$screenShareState ? 'Stop Screenshare' : 'Start Screenshare'}
+	label={$screenShareState ? t('jams.screenShare.stopScreenshareMobile') : t('jams.screenShare.startScreenshareMobile')}
 	action={() => {
 		closeMenu?.();
 		toggleScreenShare(room);

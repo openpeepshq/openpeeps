@@ -6,6 +6,9 @@
 	import { jamAttendanceStore } from '$lib/api';
 	import { ProfileFromId } from '../../profile';
 	import { AccessDeniedLoader } from '$lib/components/layout';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 
 	interface Props {
 		event: PublicPost;
@@ -17,7 +20,7 @@
 </script>
 
 <ModalWrapper extraClassNames="md:w-1/3 ">
-	<ModalHeader title="Jam Attendance" />
+	<ModalHeader title={t('jams.modals.attendance.title')} />
 	<article class="max-h-[60vh] overflow-y-scroll">
 		<AccessDeniedLoader queries={[$jamAttendance]}>
 			{#if $jamAttendance?.data}
@@ -31,13 +34,13 @@
 					{/each}
 				</ul>
 			{:else}
-				<p>No one has joined yet</p>
+				<p>{t('jams.modals.attendance.empty')}</p>
 			{/if}
 		</AccessDeniedLoader>
 	</article>
 
 	<ModalFooter>
-		<Button title="Close" variant="variant-filled-primary" action={modalManager.close}>Close</Button
+		<Button title={t('jams.modals.attendance.close')} variant="variant-filled-primary" action={modalManager.close}>{t('jams.modals.attendance.close')}</Button
 		>
 	</ModalFooter>
 </ModalWrapper>

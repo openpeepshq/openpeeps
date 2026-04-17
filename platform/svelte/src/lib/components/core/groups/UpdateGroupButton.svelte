@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { Button } from '@openpeeps/ui';
 	import { me } from '$lib/api';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 
 	interface Props {
 		handleSubmit: () => void | Promise<void | string> | string;
@@ -18,5 +21,5 @@
 </script>
 
 {#if $me}
-	<Button title="Update group" variant="variant-ringed-primary" {loading} {action}>Update</Button>
+	<Button title={t('groups.actions.updateGroup')} variant="variant-ringed-primary" {loading} {action}>{t('groups.actions.update')}</Button>
 {/if}

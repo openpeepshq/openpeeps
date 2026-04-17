@@ -9,7 +9,9 @@
 	import { goto } from '$app/navigation';
 	import { getJamContext } from '$lib/components/core/jams/context';
 	import { getCurrentProfile } from '$lib/auth';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const { jamPost } = getJamContext();
 	const me = getCurrentProfile();
 
@@ -22,20 +24,20 @@
 		<div class="bg-surface-50 w-full rounded-md border p-4">
 			<div class="flex items-center justify-between border border-b-[0.2px] p-2">
 				<div class="flex items-center gap-x-2">
-					<h2 class="text-lg">Ready to start?</h2>
+					<h2 class="text-lg">{t('jams.lobby.readyTitle')}</h2>
 				</div>
 				<button
-					title="Exit Jam"
+					title={t('jams.exit.title')}
 					class="bg-surface-200 flex h-8 w-8 items-center justify-center rounded-full"
 					onclick={() =>
 						modalManager.show(Close, {
-							title: 'Exit Jam',
-							body: 'Are you sure you want to exit the lobby? ',
+							title: t('jams.exit.title'),
+							body: t('jams.lobby.exitLobbyBody'),
 							handleConfirm: () => {
 								goto('/jams');
 								modalManager.close();
 							},
-							confirmText: 'Exit Jam'
+							confirmText: t('jams.lobby.exitLobbyConfirm')
 						})}
 				>
 					<X size={16} />

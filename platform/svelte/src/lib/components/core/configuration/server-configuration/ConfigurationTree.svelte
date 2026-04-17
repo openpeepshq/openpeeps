@@ -79,12 +79,12 @@
 
   <span class="mt-4 flex justify-end">
     <Button
-      title="Submit"
+      title={t('common.submit')}
       disabled={equal(config, value!)}
       action={handleSubmit}
       variant="variant-filled-primary"
     >
-      Submit
+      {t('common.submit')}
     </Button>
   </span>
 </div>

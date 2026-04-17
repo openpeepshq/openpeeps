@@ -3,6 +3,9 @@
   import { MessageSquareText, Dot } from 'lucide-svelte';
   import { getDrawerContext, getChatContext } from '../context';
   import { uuidv7 } from 'uuidv7';
+  import { i18nContext } from '$lib/components/i18n';
+
+  const { t } = i18nContext();
   const song = '/audio/notification.wav';
   const notification = new Audio(song);
   notification.volume = 0.3;
@@ -27,7 +30,7 @@
 </script>
 
 <Button
-  title="Chat with Everyone"
+  title={t('jams.chat.openEveryoneTitle')}
   action={() => {
     if ($drawerContext === 'chat') {
       drawerContext.set(undefined);

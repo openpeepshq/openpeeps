@@ -24,7 +24,9 @@
   import RecordSwitch from '../../pieces/RecordSwitch.svelte';
   import { truncateText } from '@openpeeps/common';
   import AudioOutputSelector from '../../pieces/AudioOutputSelector.svelte';
+  import { i18nContext } from '$lib/components/i18n';
 
+  const { t } = i18nContext();
   const {
     vapid: { publicKey: pushKey },
   } = getServerInfo();
@@ -91,9 +93,9 @@
         <div
           class="flex items-center justify-between border border-b-[0.5px] py-1"
         >
-          <h1 class="text-lg">Jam details</h1>
+          <h1 class="text-lg">{t('jams.details.panelHeading')}</h1>
           <button
-            title="Close Jam Details"
+            title={t('jams.details.closePanel')}
             class=""
             onclick={() => popupMenuContext.set(undefined)}
           >
@@ -101,14 +103,16 @@
           </button>
         </div>
         <div class="mt-2">
-          <h4>Joining Info</h4>
+          <h4>{t('jams.details.joiningInfoHeading')}</h4>
 
           <span class="my-2 text-lg">
             {location.href}
           </span>
 
           <button
-            title="{copied ? 'Copied' : 'Copy'} Joining Info"
+            title={copied
+              ? t('jams.details.copiedJoiningInfoButtonTitle')
+              : t('jams.details.copyJoiningInfoButtonTitle')}
             class="mt-4 flex items-center"
             onclick={() => {
               navigator.clipboard.writeText(location.href);
@@ -121,20 +125,24 @@
               <Copy />
             {/if}
             <span class="ml-2 text-sm"
-              >{copied ? 'Copied' : 'Copy'} joining info</span
+              >{copied
+                ? t('jams.details.copiedJoiningInfo')
+                : t('jams.details.copyJoiningInfo')}</span
             >
           </button>
         </div>
         {#if $observerLinkQuery.isSuccess}
           <div class="mt-4">
-            <h4>Observer Link</h4>
+            <h4>{t('jams.details.observerLinkHeading')}</h4>
 
             <span class="my-2 text-lg">
               {truncateText($observerLinkQuery.data.path as string, 25)}
             </span>
 
             <button
-              title="{observerLinkCopied ? 'Copied' : 'Copy'} Observer Link"
+              title={observerLinkCopied
+                ? t('jams.details.copiedObserverLinkButtonTitle')
+                : t('jams.details.copyObserverLinkButtonTitle')}
               class="mt-4 flex items-center"
               onclick={() => {
                 navigator.clipboard.writeText(
@@ -149,7 +157,9 @@
                 <Copy />
               {/if}
               <span class="ml-2 text-sm"
-                >{observerLinkCopied ? 'Copied' : 'Copy'} observer link</span
+                >{observerLinkCopied
+                  ? t('jams.details.copiedObserverLink')
+                  : t('jams.details.copyObserverLink')}</span
               >
             </button>
           </div>
@@ -157,7 +167,7 @@
       </div>
     {/if}
     <button
-      title="Jam Details"
+      title={t('jams.mobileMenu.jamDetails')}
       onclick={() => {
         if ($popupMenuContext === 'jam-details') {
           popupMenuContext.set(undefined);
@@ -178,7 +188,7 @@
     <!-- for triggering debug panel -->
     {#if location.hash.includes('#debug')}
       <button
-        title="Toggle Debug Panel"
+        title={t('jams.drawer.toggleDebug')}
         onclick={() =>
           $drawerMenuContext
             ? closeDrawerMenu()

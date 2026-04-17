@@ -123,15 +123,15 @@
 		</Form>
 		<ModalFooter>
 			<Button
-				title="Cancel"
+				title={t('common.cancel')}
 				action={() => modalManager.close()}
 				variant="variant-ringed-surface"
 				class="w-full"
 			>
-				Cancel
+				{t('common.cancel')}
 			</Button>
 			<Button
-				title="Continue"
+				title={t(`reports.create.${reportType}.continue`)}
 				action={() => (currentStep = 2)}
 				variant="variant-filled-primary"
 				class="w-full">{t(`reports.create.${reportType}.continue`)}</Button
@@ -154,12 +154,12 @@
 		</article>
 		<ModalFooter>
 			<Button
-				title="back"
+				title={t('reports.create.back')}
 				action={() => (currentStep = 1)}
 				variant="variant-ringed-surface"
 				class="w-full"
 			>
-				Back
+				{t('reports.create.back')}
 			</Button>
 			<Button
 				title={t(`reports.create.sendReport`)}

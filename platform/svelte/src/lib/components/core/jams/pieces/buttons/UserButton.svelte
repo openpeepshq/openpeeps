@@ -9,6 +9,9 @@
 	import { toast } from '@openpeeps/svelte/utils';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { onDestroy } from 'svelte';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 	const song = '/audio/notification.wav';
 	
 	const notification = new Audio(song);
@@ -32,7 +35,10 @@
 		const newJoiners = currentCount - previousWaitingRoomCount;
 		toastStore.trigger(
 			toast({
-				message: `${newJoiners} person${newJoiners > 1 ? 's' : ''} joined the waiting room!`,
+				message:
+					newJoiners > 1
+						? t('jams.waitingRoom.joinedToastMany', { count: newJoiners })
+						: t('jams.waitingRoom.joinedToastOne', { count: newJoiners }),
 				background: 'variant-filled-success'
 			})
 			
@@ -50,7 +56,7 @@ onDestroy(() => {
 </script>
 
 <button
-	title="Show Everyone"
+	title={t('jams.participant.showEveryone')}
 	class="relative"
 	onclick={() =>
 		$drawerMenuContext === 'people'

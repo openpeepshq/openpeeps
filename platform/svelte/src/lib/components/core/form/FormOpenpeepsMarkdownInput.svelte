@@ -2,6 +2,9 @@
   import OpenpeepsMarkdownInput from './OpenpeepsMarkdownInput.svelte';
   import { getFormContext, deepSet, deepGet, Label } from '@openpeeps/ui';
   import type { ComponentProps } from 'svelte';
+  import { i18nContext } from '$lib/components/i18n';
+
+  const { t } = i18nContext();
   const { messagesStore, data, validate } = getFormContext();
 
   type Props = Omit<ComponentProps<typeof OpenpeepsMarkdownInput>, 'oninput'> & {
@@ -21,7 +24,7 @@
 </script>
 
 <Label
-  title="Description"
+  title={t('common.form.description')}
   messages={dirty ? $messagesStore['data.content'] : []}
 >
   <OpenpeepsMarkdownInput oninput={updateAndValidate} {value} {...props} />

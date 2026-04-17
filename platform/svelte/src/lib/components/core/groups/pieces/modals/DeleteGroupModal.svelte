@@ -27,7 +27,7 @@
 			.then(() => {
 				toastStore.trigger(
 					toast({
-						message: 'Group deleted successfully!',
+						message: t('groups.delete.successMessage'),
 						background: 'variant-filled-success'
 					})
 				);
@@ -37,7 +37,7 @@
 			.catch(() => {
 				toastStore.trigger(
 					toast({
-						message: "Couldn't delete group. Please try again later.",
+						message: t('groups.delete.toastError'),
 						background: 'variant-filled-error'
 					})
 				);
@@ -61,12 +61,12 @@
 			variant="variant-filled-error"
 			mutations={[$deleteGroup]}
 		>
-			Delete
+			{t('groups.delete.deleteButton')}
 		</Button>
 		<Button
 			title={t('groups.delete.cancel')}
 			action={() => modalManager.close()}
-			variant="variant-ringed-surface">Cancel</Button
+			variant="variant-ringed-surface">{t('groups.delete.cancel')}</Button
 		>
 	</ModalFooter>
 </ModalWrapper>

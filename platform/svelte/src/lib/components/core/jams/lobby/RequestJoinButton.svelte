@@ -5,7 +5,9 @@
 	import { onDestroy } from 'svelte';
 	import type { JamTokenResponse } from '@openpeeps/common/types';
 	import type { Readable } from 'svelte/store';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const { jamPost } = getJamContext();
 	const room = getLivekitRoom();
 
@@ -31,9 +33,9 @@
 	});
 </script>
 
-<Button title="Request to join" variant="variant-filled-primary" action={requestToJoin}>
+<Button title={t('jams.join.requestToJoin')} variant="variant-filled-primary" action={requestToJoin}>
 	{#snippet loadingContent()}
-		Waiting for a moderator to let you in
+		{t('jams.join.waitingForModerator')}
 	{/snippet}
-	Request to join
+	{t('jams.join.requestToJoin')}
 </Button>

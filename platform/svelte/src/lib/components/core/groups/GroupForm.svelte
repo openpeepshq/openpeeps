@@ -232,7 +232,7 @@
 <Form bind:data={groupData} schema={groupDataSchema} bind:valid>
   <HeaderAvatarInput />
   <div class="flex flex-col gap-4 px-3">
-    <FormInput title="Group Name" path={['displayName']} />
+    <FormInput title={t('groups.form.groupName')} path={['displayName']} />
     <FormInput
       title={t('groups.handle.title')}
       path={['handle']}

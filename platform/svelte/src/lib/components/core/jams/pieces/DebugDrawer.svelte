@@ -8,14 +8,16 @@
 	import Drawer from './Drawer.svelte';
 	import { UpdatingDate } from '@openpeeps/ui';
   import AudioOutputSelector from './AudioOutputSelector.svelte';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const room = getLivekitRoom();
 	let participantAudioLevel = participantAudioLevelStore(room.localParticipant);
 </script>
 
-<Drawer title="Debug Panel">
+<Drawer title={t('jams.drawer.debugTitle')}>
 	<div class="mt-1 w-full p-2">
-		<h3 class="mb-2 text-lg font-bold">Jam Controls</h3>
+		<h3 class="mb-2 text-lg font-bold">{t('jams.drawer.jamControls')}</h3>
 		<div class="flex items-center justify-evenly">
 			<MicrophoneSelectorAndSwitch />
 			<CameraSelectorAndSwitch />
@@ -27,17 +29,17 @@
 	<div class=" w-full border-b border-neutral-300"></div>
 	<div class="my-2 w-full py-2">
 		<div class="my-4">
-			<h3 class="text-lg font-bold">Audio Level</h3>
+			<h3 class="text-lg font-bold">{t('jams.drawer.audioLevel')}</h3>
 			<div class="bg-surface-200 h-4 w-full rounded">
 				<div class="h-4 rounded bg-green-500" style="width: {$participantAudioLevel * 10}%"></div>
 			</div>
 			<div class="text-surface-500 mt-2 text-sm">
-				Current Audio Level: {$participantAudioLevel}
+				{t('jams.debug.currentAudioLevel')} {$participantAudioLevel}
 			</div>
 		</div>
 	</div>
 
-	<h2 class="text-lg font-bold">Activity History</h2>
+	<h2 class="text-lg font-bold">{t('jams.drawer.activityHistory')}</h2>
 	{#if $jamActivityStore.length > 0}
 		{#each $jamActivityStore as jamActivity}
 			<div class="flex gap-2">
@@ -48,6 +50,6 @@
 			</div>
 		{/each}
 	{:else}
-		<div class="text-surface-500 text-sm">No activity</div>
+		<div class="text-surface-500 text-sm">{t('jams.debug.noActivity')}</div>
 	{/if}
 </Drawer>

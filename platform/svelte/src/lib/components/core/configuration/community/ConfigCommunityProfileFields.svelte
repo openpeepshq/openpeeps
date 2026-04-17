@@ -5,7 +5,9 @@
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { toast } from '$lib/utils';
 	import { MinusSquare, PlusSquare } from 'lucide-svelte';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const toastStore = getToastStore();
 
 	const updateConfig = updateConfigMutation({
@@ -27,7 +29,7 @@
 		}).then(() =>
 			toastStore.trigger(
 				toast({
-					message: 'Community settings updated',
+					message: t('configuration.community.updateSuccess'),
 					background: 'variant-filled-success'
 				})
 			)
@@ -38,12 +40,12 @@
 	<Form data={updatedConfig} schema={communityConfigSchema}>
 		{#each updatedConfig.profiles?.additionalFields || [] as field, index (index)}
 			<h4 class="h4">{index + 1}</h4>
-			<FormInput title="Label" path={['profiles', 'additionalFields', index, 'label']} />
-			<FormInput title="Key" path={['profiles', 'additionalFields', index, 'key']} />
+			<FormInput title={t('profile.form.fields.label')} path={['profiles', 'additionalFields', index, 'label']} />
+			<FormInput title={t('common.form.fieldKey')} path={['profiles', 'additionalFields', index, 'key']} />
 		{/each}
 		{#if updatedConfig.profiles?.additionalFields?.length}
 			<Button
-				title="Remove Option"
+				title={t('posts.form.poll.removeOption')}
 				variant="variant-ringed-surface"
 				action={() =>
 					(updatedConfig.profiles!.additionalFields = [
@@ -51,11 +53,11 @@
 					])}
 			>
 				<MinusSquare class="mr-1 size-4" />
-				Remove
+				{t('common.listEditor.removeTitle')}
 			</Button>
 		{/if}
 		<Button
-			title="Add Option"
+			title={t('posts.form.poll.addOption')}
 			variant="variant-ringed-surface"
 			action={() => {
 				if (!updatedConfig.profiles) {
@@ -71,8 +73,8 @@
 			}}
 		>
 			<PlusSquare class="mr-1 size-4" />
-			Add Option
+			{t('posts.form.poll.addOption')}
 		</Button>
 	</Form>
-	<Button variant="variant-ghost-primary" {action}>Save</Button>
+	<Button variant="variant-ghost-primary" {action}>{t('common.form.save')}</Button>
 </div>

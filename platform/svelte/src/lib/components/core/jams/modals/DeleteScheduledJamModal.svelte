@@ -6,6 +6,9 @@
 	import { deletePostMutation } from '$lib/api';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import type { PublicPost } from '@openpeeps/common/types';
+	import { i18nContext } from '$lib/components/i18n';
+
+	const { t } = i18nContext();
 
 	interface Props {
 		event: PublicPost;
@@ -26,7 +29,7 @@
 		await deleteEvent(event);
 		toastStore.trigger(
 			toast({
-				message: 'Event deleted successfully!',
+				message: t('jams.modals.deleteScheduled.successToast'),
 				background: 'variant-filled-success'
 			})
 		);
@@ -37,21 +40,20 @@
 </script>
 
 <ModalWrapper extraClassNames="md:w-1/3">
-	<ModalHeader title={'Delete this Jam?'} />
+	<ModalHeader title={t('jams.modals.deleteScheduled.title')} />
 	<article class=" flex flex-col">
 		<div class="w-full p-2">
-			This jam details will no longer be available for anyone including you. Would you still like to
-			delete this jam?
+			{t('jams.modals.deleteScheduled.body')}
 		</div>
 	</article>
 	<ModalFooter>
 		<div></div>
 		<div class="flex gap-x-2">
-			<Button title="Cancel" variant="variant-ringed-surface" action={modalManager.close}
-				>Cancel</Button
+			<Button title={t('jams.modals.deleteScheduled.cancel')} variant="variant-ringed-surface" action={modalManager.close}
+				>{t('jams.modals.deleteScheduled.cancel')}</Button
 			>
-			<Button title="Delete Event" variant="variant-filled-error" action={handleDeleteEvent}>
-				Delete
+			<Button title={t('jams.modals.deleteScheduled.deleteEventTitle')} variant="variant-filled-error" action={handleDeleteEvent}>
+				{t('jams.modals.deleteScheduled.delete')}
 			</Button>
 		</div>
 	</ModalFooter>

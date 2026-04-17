@@ -86,10 +86,10 @@
             {#if canRemoveMember(me, group)}
               <PopupMenuButton
                 icon={UserMinus}
-                title="Remove from group"
+                title={t('groups.actions.removeFromGroup')}
                 danger={true}
                 action={() => triggerRemoveMember(member.profile)}
-                text="Remove from group"
+                text={t('groups.actions.removeFromGroup')}
               />
             {/if}
           {/if}

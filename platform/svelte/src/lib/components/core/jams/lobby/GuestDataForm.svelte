@@ -6,7 +6,9 @@
 	import { getTheme, profileName } from '@openpeeps/common/lib';
 	import { getJamContext } from '$lib/components/core/jams/context';
 	import { currentProfileSettingsStore, getGuestPass } from '$lib/api';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const serverInfo = getServerInfo();
 	let profileSettingsQuery = currentProfileSettingsStore()
 	let profileSettings = $profileSettingsQuery.data
@@ -43,26 +45,26 @@
 		<div class="text-2xl">
 			{jamEvent.name} - {profileName(jamPost.profile)}
 		</div>
-		<div>Enter your details below to proceed to waiting room</div>
+		<div>{t('jams.lobby.guestIntro')}</div>
 
 		<div class="mt-5 space-y-6">
-			<LabelOld title="Full name">
-				<Input bind:value={guestData.displayName} required placeholder="Full Name" />
+			<LabelOld title={t('jams.lobby.guestFullNameLabel')}>
+				<Input bind:value={guestData.displayName} required placeholder={t('jams.lobby.guestFullNamePlaceholder')} />
 			</LabelOld>
-			<LabelOld title="Email">
-				<Input bind:value={guestData.email} required placeholder="Email" />
+			<LabelOld title={t('jams.lobby.guestEmailLabel')}>
+				<Input bind:value={guestData.email} required placeholder={t('jams.lobby.guestEmailPlaceholder')} />
 			</LabelOld>
 
 			<p class="">
-				By continuing, you agree to the
+				{t('jams.lobby.guestTermsAgreePrefix')}
 				<a target="_blank" href={termsAndConditions || '/docs/terms-and-conditions'} class="anchor">
-					Terms of Service
+					{t('jams.lobby.guestTermsLink')}
 				</a>
-				as regards jam activities
+				{t('jams.lobby.guestTermsAgreeSuffix')}
 			</p>
 
-			<Button title="Continue" action={onSubmit} variant="variant-filled-primary" class="w-full"
-				>Continue</Button
+			<Button title={t('jams.lobby.continue')} action={onSubmit} variant="variant-filled-primary" class="w-full"
+				>{t('jams.lobby.continue')}</Button
 			>
 		</div>
 	</div>

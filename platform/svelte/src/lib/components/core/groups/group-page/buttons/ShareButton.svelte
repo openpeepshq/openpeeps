@@ -13,13 +13,15 @@
 	import { postDataStore, resetNewPostData } from '$lib/components/core/post/post-form/stores';
 	import { page } from '$app/state';
 	import { CreateNewConversation } from '$lib/components/core/conversations';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const toastStore = getToastStore();
 	const modalManager = getModalManager();
 </script>
 
 <PopupMenu menuId="groupShareFeatures" icon={Share}>
-	<PopupSection title="Share on community" />
+	<PopupSection title={t('groups.actions.shareOnCommunity')} />
 	<PopupMenuButton
 		action={() => {
 			postDataStore.set({
@@ -27,34 +29,34 @@
 				visibility: 'public',
 				data: {
 					type: 'note',
-					content: `Join our group for exclusive updates and great conversations! ${page.url}`
+					content: t('groups.share.inviteBlurb', { url: page.url })
 				}
 			});
 			modalManager.show(NewPostModal, {});
 		}}
-		title="Share to feed"
-		text="Post to feed"
+		title={t('groups.actions.shareToFeed')}
+		text={t('groups.share.postToFeed')}
 		icon={Pencil}
 	/>
 	<PopupMenuButton
-		title="Share in a message"
-		text="Send in a message"
+		title={t('groups.actions.shareInMessage')}
+		text={t('groups.share.sendInMessage')}
 		icon={Pencil}
 		action={() => {
 			modalManager.show(CreateNewConversation, {
-				message: `Join our group for exclusive updates and great conversations! ${page.url}`
+				message: t('groups.share.inviteBlurb', { url: page.url })
 			});
 		}}
 	/>
-	<PopupSection title="Other options" />
+	<PopupSection title={t('groups.actions.otherOptions')} />
 	<PopupMenuButton
-		text="Copy link"
+		text={t('groups.share.copyLink')}
 		icon={Link}
 		action={() => {
 			navigator.clipboard.writeText(location.toString());
 			toastStore.trigger(
 				toast({
-					message: 'Group link copied',
+					message: t('groups.share.linkCopied'),
 					background: 'variant-filled-success'
 				})
 			);

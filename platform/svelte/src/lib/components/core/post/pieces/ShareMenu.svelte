@@ -14,7 +14,9 @@
 	} from '@openpeeps/ui';
 	import { CreateNewConversation } from '$lib/components';
 	import type { Snippet } from 'svelte';
+	import { i18nContext } from '$lib/components/i18n';
 
+	const { t } = i18nContext();
 	const modalManager = getModalManager();
 
 	interface Props {
@@ -32,30 +34,30 @@
 
 <PopupMenu menuId="share-menu-{post.id}" {icon} {menuButton} {variant} class={additionalClasses}>
 	{#if $me}
-		<PopupSection title="Share on Community" />
+		<PopupSection title={t('posts.shareMenu.shareOnCommunity')} />
 		<PopupMenuButton
-			title="Repost to feed"
+			title={t('posts.shareMenu.repostToFeed')}
 			action={repost}
-			text="Repost to feed"
-			loadingText="reposting..."
+			text={t('posts.shareMenu.repostToFeed')}
+			loadingText={t('posts.shareMenu.reposting')}
 			icon={Repeat}
 		/>
 		<PopupMenuButton
-			title="Direct message"
+			title={t('posts.shareMenu.directMessage')}
 			action={() =>
 				modalManager.show(CreateNewConversation, {
 					message: `${page.url.origin}/posts/${post.id}`
 				})}
-			text="Send in a message"
+			text={t('posts.shareMenu.sendInMessage')}
 			icon={Send}
 		/>
 		<PopupSeparator />
-		<PopupSection title="Other options" />
+		<PopupSection title={t('posts.shareMenu.otherOptions')} />
 	{/if}
 	<PopupMenuButton
-		title="Copy link"
+		title={t('posts.shareMenu.copyLink')}
 		action={() => navigator.clipboard.writeText(`${page.url.origin}/posts/${post.id}`)}
-		text="Copy link"
+		text={t('posts.shareMenu.copyLink')}
 		icon={Copy}
 	/>
 </PopupMenu>
