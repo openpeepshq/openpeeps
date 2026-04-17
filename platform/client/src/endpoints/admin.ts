@@ -16,7 +16,11 @@ export const admin = (rawClient: FetchClient) => (
     {
         accounts: {
             list: allpeepNoPayloadEndpoint<PublicAccount[]>(rawClient, '/admin/accounts'),
-            update: allpeepPayloadEndpoint<PublicAccount, AccountData, { id: string }>(
+            findById: allpeepNoPayloadEndpoint<PublicAccount, { id: string }>(
+                rawClient,
+                '/admin/accounts/:id',
+            ),
+            update: allpeepPayloadEndpoint<PublicAccount, Partial<AccountData>, { id: string }>(
                 rawClient,
                 '/admin/accounts/:id',
                 'patch'

@@ -79,7 +79,6 @@ export type Application = Model<ApplicationData>;
 export const accountDataSchema = z.object({
   email: z.string().email(),
   passwordHash: z.string(),
-  stripeCustomerId: z.string().optional(),
   emailValidated: z.boolean().default(false).optional(),
   guest: z.boolean().optional(),
 });

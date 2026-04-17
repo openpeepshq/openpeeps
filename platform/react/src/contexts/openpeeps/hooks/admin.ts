@@ -5,6 +5,8 @@ import { payloadMutation } from "../helpers";
 
 export const adminHooks = (client: ReturnType<typeof openpeepsClient>,) => ({
     useAccountsList: () => apiHook(client.admin.accounts.list),
+    useAccountById: (id: string) =>
+        apiHook(client.admin.accounts.findById, { pathParams: { id } }),
     updateAccountAction: payloadMutation(client.admin.accounts.update, [
         ['admin', 'accounts'],
     ]),

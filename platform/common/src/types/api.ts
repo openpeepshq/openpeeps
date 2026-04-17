@@ -41,19 +41,12 @@ export const errorResponseBodySchema = z.object({
 });
 export type ErrorResponseBody = z.infer<typeof errorResponseBodySchema>;
 
-export const publicAccountSchema = accountSchema
-  .pick({
-    id: true,
-    email: true,
-    emailValidated: true,
-  })
-  .openapi('Account');
-
-export interface PublicAccount {
-  id: string;
-  email: string;
-  emailValidated: boolean;
-}
+export const publicAccountSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  emailValidated: z.boolean().default(false).optional(),
+}).openapi('Account');
+export type PublicAccount = z.infer<typeof publicAccountSchema>;
 
 export const publicProfileSchema = z.object({
   id: z.string().uuid(),
