@@ -29,7 +29,7 @@
 	showAppLinks={true}
 	showFooter={true}
 >
-	<Text style={emailStyles.heading}>{t('email.jams.started')}</Text>
+	<Text style={emailStyles.heading}>{t('emails.jams.started')}</Text>
 	<Container style={emailStyles.contentContainer}>
 		<Container style={emailStyles.profileIcons}>
 			<User />

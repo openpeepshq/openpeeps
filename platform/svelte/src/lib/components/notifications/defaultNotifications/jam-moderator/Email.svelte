@@ -29,7 +29,7 @@
 	showAppLinks={true}
 	showFooter={true}
 >
-	<Text style={emailStyles.heading}>{t('email.jams.moderator')}</Text>
+	<Text style={emailStyles.heading}>{t('emails.jams.moderator')}</Text>
 	<Container style={emailStyles.contentContainer}>
 		<Container style={emailStyles.profileIcons}>
 			<User />
@@ -42,7 +42,7 @@
 			/>
 		</Container>
 		<Text style={emailStyles.paragraph}>
-			{t('email.jams.moderator.description', {
+			{t('emails.jams.moderator.description', {
 				profileName: profileName(locals.senderProfile)
 			})}
 		</Text>

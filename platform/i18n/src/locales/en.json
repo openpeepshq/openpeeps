@@ -28,7 +28,7 @@
             "loading": "Getting guest access…"
         },
         "tagline": "AllPeeP is the community platform for people who want an exclusive, branded experience",
-        "email": {
+        "emails": {
             "validation": {
                 "success": "Your email is now verified. You may fully participate in the community."
             }
@@ -1905,19 +1905,7 @@
             "subject": "{{profileName}} reposted your post",
             "body": "{{profileName}} reposted your post",
             "cta": "Take a look!"
-        }
-    },
-    "media": {
-        "image": {
-            "addAltText": "Add alt text to your image",
-            "addAltTextLabel": "Alt Text",
-            "addAltTextDescription": "invalid string do not use",
-            "altTextPlaceholder": "Add your alt text here",
-            "altTextLabel": "Alt Text",
-            "altTextDescription": "A good description of your image can help visually-impaired people understand more about your post. "
-        }
-    },
-    "email": {
+        },
         "welcome": {
             "content": {
                 "profile": "Update your profile",
@@ -1951,11 +1939,19 @@
             },
             "title": "Verify Your Email Address",
             "description": "To complete your registration and start using your account, please verify your email address."
+        },
+        "test": {
+            "description": "If you're receiving this, it means your email configuration is working correctly!"
         }
     },
-    "evens": {
-        "form": {
-            "jamModeratorsDescription": "Click to add jam moderators"
+    "media": {
+        "image": {
+            "addAltText": "Add alt text to your image",
+            "addAltTextLabel": "Alt Text",
+            "addAltTextDescription": "invalid string do not use",
+            "altTextPlaceholder": "Add your alt text here",
+            "altTextLabel": "Alt Text",
+            "altTextDescription": "A good description of your image can help visually-impaired people understand more about your post. "
         }
     },
     "explore": {

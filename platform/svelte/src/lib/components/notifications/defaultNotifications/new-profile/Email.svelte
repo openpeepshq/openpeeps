@@ -39,6 +39,6 @@
 	</Section>
 	<Section style={emailStyles.ctaContainer}>
 		<Button href="{globals.serverData.rootUrl}/@{locals.senderProfile?.handle}" 
-		style={emailStyles.button}>{t('email.welcome.cta')}</Button>
+		style={emailStyles.button}>{t('emails.welcome.cta')}</Button>
 	</Section>
 </BaseEmailLayout>

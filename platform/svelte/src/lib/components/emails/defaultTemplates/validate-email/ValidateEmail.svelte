@@ -17,19 +17,19 @@
 
 <BaseEmailLayout 
 	{globals} 
-	previewText="{t('email.verify.title')} - {globals.communityConfig.info.name}"
+	previewText="{t('emails.verify.title')} - {globals.communityConfig.info.name}"
 	showLogo={true}
 	showGreeting={false}
 	showAppLinks={true}
 	showFooter={true}
 >
-	<Heading style={emailStyles.heading}>{t('email.verify.title')}</Heading>
+	<Heading style={emailStyles.heading}>{t('emails.verify.title')}</Heading>
 	
 	<Text style={emailStyles.paragraph}>
-		{t('email.verify.welcome')} {globals.communityConfig.info.name}! {t('email.verify.description')}
+		{t('emails.verify.welcome')} {globals.communityConfig.info.name}! {t('emails.verify.description')}
 	</Text>
 	
 	<Section style={emailStyles.ctaContainer}>
-		<Button href={locals.emailValidationLink} style={emailStyles.button}>{t('email.verify.cta.description')}</Button>
+		<Button href={locals.emailValidationLink} style={emailStyles.button}>{t('emails.verify.cta.description')}</Button>
 	</Section>
 </BaseEmailLayout>

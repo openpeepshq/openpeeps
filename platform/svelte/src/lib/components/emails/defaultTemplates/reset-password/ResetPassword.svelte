@@ -15,24 +15,24 @@
 
 <BaseEmailLayout 
 	{globals} 
-	previewText={t('email.reset.password.title')}
+	previewText={t('emails.reset.password.title')}
 	showLogo={true}
 	showGreeting={false}
 	showAppLinks={true}
 	showFooter={true}
 >
 	<Heading style={emailStyles.heading}>
-		{t('email.reset.password.title')}
+		{t('emails.reset.password.title')}
 	</Heading>
 	
 	<Text style={emailStyles.paragraph}>
-		{t('email.reset.password.description', {
+		{t('emails.reset.password.description', {
 			communityName: globals.communityConfig.info.name
 		})}
 	</Text>
 	<Section style={emailStyles.ctaContainer}>
 		<Button href={locals.resetPasswordLink} style={emailStyles.button}>
-			{t('email.reset.password.cta')}
+			{t('emails.reset.password.cta')}
 		</Button>
 	</Section>
 	

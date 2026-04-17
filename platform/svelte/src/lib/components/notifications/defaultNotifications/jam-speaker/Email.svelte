@@ -31,7 +31,7 @@
 	showAppLinks={true}
 	showFooter={true}
 >
-	<Text style={emailStyles.heading}>{t('email.jams.speaker')}</Text>
+	<Text style={emailStyles.heading}>{t('emails.jams.speaker')}</Text>
 	<Container style={emailStyles.contentContainer}>
 		<Container style={emailStyles.profileIcons}>
 			<User />
@@ -44,7 +44,7 @@
 			/>
 		</Container>
 		<Text style={emailStyles.paragraph}>
-			{t('email.jams.speaker.description', {
+			{t('emails.jams.speaker.description', {
 				jamName: event?.name
 			})}
 		</Text>
