@@ -14,7 +14,7 @@ import {
   registerStreamingPrewarmHandlers,
 } from '@openpeeps/core/media';
 import { serverRootUrl } from '@openpeeps/core/server';
-import { initializeNotifications, registerDefaultNotifications } from '@openpeeps/core/notifications';
+import { initializeNotifications, registerDefaultNotifications, notificationQueue, notificationWorker } from '@openpeeps/core/notifications';
 import { refreshConfig } from '@openpeeps/core/config';
 
 const startWorkers = () => {
@@ -22,6 +22,8 @@ const startWorkers = () => {
   sendEmailWorker();
   console.log('Starting once worker ...');
   onceWorker();
+  console.log('Starting notification worker ...');
+  notificationWorker();
   console.log('Starting media processing worker ...');
   mediaProcessingWorker();
   console.log('Starting media streaming worker ...');
@@ -33,6 +35,7 @@ const startWorkers = () => {
 const setupQueues = async () => {
   sendEmailQueue();
   onceQueue();
+  notificationQueue();
   mediaProcessingQueue();
   mediaStreamingQueue();
   mediaStreamingCleanupQueue();
