@@ -1,7 +1,8 @@
 import { OMFilter } from "@openpeeps/arango-querybuilder";
-import { PostWithMeta, ProfileWithMeta, CapabilitiesConfig, postWithMetaSchema, GroupWithMeta, DbBasePost } from "@openpeeps/common/types";
+import { PostWithMeta, ProfileWithMeta, CapabilitiesConfig, postWithMetaSchema, DbBasePost } from "@openpeeps/common/types";
 import { yesOrMaybeRsvpExpression } from "./aql";
-import { checkCapabilities, checkPostCapabilities, mergeCapabilities } from "@openpeeps/common/lib";
+import { checkPostCapabilities } from "@openpeeps/common/lib";
+import { ObjectFilter } from "../../db/types";
 
 
 export const ownPostsFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => ({
@@ -10,38 +11,10 @@ export const ownPostsFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> =
     }
 });
 
-const isPrivateGroup = (group: GroupWithMeta) =>
-    !checkCapabilities(
-        ['core-groups-read'],
-        mergeCapabilities(
-            [
-                group.capabilities.none,
-                group.capabilities.local
-            ]
-        )).success;
-
-const myPrivateGroupsFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => (
-
-    {
-        matches: profile.memberships.filter((m) => isPrivateGroup(m.group as GroupWithMeta)).map((m) => ({
-            visibility: 'group',
-            group: {
-                id: m.group.id as string,
-            }
-        }))
-    }
-);
-
-const myPublicGroupsFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => (
-    {
-        matches: profile.memberships.filter((m) => !isPrivateGroup(m.group as GroupWithMeta)).map((m) => ({
-            visibility: 'group',
-            group: {
-                id: m.group.id as string,
-            }
-        }))
-    }
-);
+/** Widen the feed query to any group-tagged post; membership is enforced in `myFeedGroupMembershipFilter`. */
+const groupPostVisibilityQueryFilter: OMFilter<DbBasePost> = ({
+    matches: { visibility: 'group' }
+});
 
 export const followFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => ({
     matches: profile.following.map((f) => ({
@@ -53,18 +26,18 @@ export const myFeedFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => 
     operator: '||',
     predicates: [
         ownPostsFilter(profile),
-        myPrivateGroupsFilter(profile),
+        groupPostVisibilityQueryFilter,
         followFilter(profile)
     ]
 });
 
-export const localFeedFilter = (profile?: ProfileWithMeta): OMFilter<DbBasePost> => profile ? ({
-    operator: '||',
-    predicates: [
-        { matches: [{ visibility: 'local' }, { visibility: 'public' }, { visibility: 'local' }] },
-        profile && myPublicGroupsFilter(profile)
-    ]
-}) : { matches: [{ visibility: 'local' }, { visibility: 'public' }, { visibility: 'local' }] };
+export const myFeedGroupMembershipFilter = (profile: ProfileWithMeta): ObjectFilter<PostWithMeta> => (post) =>
+    post.visibility !== 'group' ||
+    (!!post.group && profile.memberships.some((m) => m.group.id === post.group?.id));
+
+export const localFeedFilter = (_profile?: ProfileWithMeta): OMFilter<DbBasePost> => ({
+    matches: [{ visibility: 'local' }, { visibility: 'public' }]
+});
 
 export const canReadPost = (config: CapabilitiesConfig, profile?: ProfileWithMeta) => (post?: PostWithMeta) =>
     !!post &&

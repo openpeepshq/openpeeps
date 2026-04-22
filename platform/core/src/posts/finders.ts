@@ -2,7 +2,7 @@ import { PostWithMeta, Post, PostType, Profile, DbPost, DbBasePost } from "@open
 import { ProfileWithMeta } from "@openpeeps/common/types";
 import { allpeepDb, collectionInfos } from "../db";
 import { contextRelation, conversationLeavesMapping, postsMapping, repostsOfPostRelation, postIdsMapping } from "./mapping";
-import { audienceConnectionFinder, currentEventsFilter, jamFilter, localFeedFilter, mentionsConnectionFinder, myEventsFilter, myFeedFilter, pastEventsFilter, toFilteredPostsList, transformPost, upcomingEventsFilter } from "./helpers";
+import { audienceConnectionFinder, currentEventsFilter, jamFilter, localFeedFilter, mentionsConnectionFinder, myEventsFilter, myFeedFilter, myFeedGroupMembershipFilter, pastEventsFilter, toFilteredPostsList, transformPost, upcomingEventsFilter } from "./helpers";
 import { Mapping, ObjectSort, OMFilter } from "@openpeeps/arango-querybuilder";
 import { addQuerySort, addStart, sortOldestFirst } from "../db/helpers";
 import { findHashtagByTag, hashtagsMapping } from "../hashtags";
@@ -187,7 +187,7 @@ export const listLocalFeed = async (profile: ProfileWithMeta | undefined, { star
     toFilteredPostsList(baseFeed({ start }).filter(localFeedFilter(profile)), { profile, limit });
 
 export const listMyFeed = async (profile: ProfileWithMeta, { start, limit = 100 }: { start?: string, limit?: number } = { limit: 100 }) =>
-    toFilteredPostsList(baseFeed({ start }).filter(myFeedFilter(profile)), { profile, limit });
+    toFilteredPostsList(baseFeed({ start }).filter(myFeedFilter(profile)), { profile, limit, filters: [myFeedGroupMembershipFilter(profile)] });
 
 export const reposts = async (post: PostWithMeta) =>
     allpeepDb().then(({ db }) => postsMapping.relationsFrom(post, repostsOfPostRelation).all(db));
