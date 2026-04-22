@@ -4,7 +4,7 @@
   import { ConfigCommunityFavIcons } from '@openpeeps/svelte/components';
   import { Loader } from '@openpeeps/ui';
 
-  const configQuery = configStore('allpeep', 'community');
+  const configQuery = configStore('openpeeps', 'community');
 
   const pageHeaderStore = getPageHeaderStore();
 

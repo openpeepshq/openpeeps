@@ -10,7 +10,7 @@
 	import { FileDropzone, getToastStore } from '@skeletonlabs/skeleton';
 
 	const updateConfig = updateConfigMutation({
-		namespace: 'allpeep',
+		namespace: 'openpeeps',
 		name: 'community'
 	});
 	const toastStore = getToastStore();

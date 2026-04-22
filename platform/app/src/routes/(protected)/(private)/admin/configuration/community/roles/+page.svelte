@@ -8,7 +8,7 @@
   import { configStore, getRolesListStore } from '@openpeeps/svelte/api';
   import { getPageHeaderStore } from '@openpeeps/svelte/stores';
 
-  const communityConfig = configStore('allpeep', 'community');
+  const communityConfig = configStore('openpeeps', 'community');
   const rolesList = getRolesListStore();
 
   const { t } = i18nContext();

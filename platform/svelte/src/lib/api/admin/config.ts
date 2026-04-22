@@ -10,5 +10,5 @@ export const configStore = (namespace: string, name: string) =>
 	});
 
 export const pinGlobally = payloadMutation(client.admin.posts.pinGlobally, {
-	queryKeys: [['admin', 'config', 'allpeep', 'community'], ['server']]
+	queryKeys: [['admin', 'config', 'openpeeps', 'community'], ['server']]
 });

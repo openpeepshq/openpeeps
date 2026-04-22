@@ -15,7 +15,7 @@
   const toastStore = getToastStore();
 
   const updateConfig = updateConfigMutation({
-    namespace: 'allpeep',
+    namespace: 'openpeeps',
     name: 'community',
   });
 

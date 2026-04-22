@@ -7,7 +7,7 @@
 
   const { t } = i18nContext();
 
-  const configQuery = configStore('allpeep', 'community');
+  const configQuery = configStore('openpeeps', 'community');
 
   const pageHeaderStore = getPageHeaderStore();
 

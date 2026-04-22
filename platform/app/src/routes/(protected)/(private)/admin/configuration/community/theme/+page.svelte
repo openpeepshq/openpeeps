@@ -3,7 +3,7 @@
   import { configStore } from '@openpeeps/svelte/api';
   import { AccessDeniedLoader, ConfigCommunityTheme } from '@openpeeps/svelte/components';
 
-  const configQuery = configStore('allpeep', 'community');
+  const configQuery = configStore('openpeeps', 'community');
 
   const pageHeaderStore = getPageHeaderStore();
 

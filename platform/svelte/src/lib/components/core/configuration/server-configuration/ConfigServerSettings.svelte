@@ -7,7 +7,7 @@
 
   const queryClient = useQueryClient();
 
-  const coreConfigStore = configStore('allpeep', 'core');
+  const coreConfigStore = configStore('openpeeps', 'core');
 </script>
 
 <Loader queries={[$coreConfigStore]}>
@@ -16,7 +16,7 @@
       schema={coreConfigSanitizedSchema}
       defaults={$coreConfigStore.data.defaults}
       config={$coreConfigStore.data.config}
-      namespace="allpeep"
+      namespace="openpeeps"
       name="core"
       onUpdate={() => {
         queryClient.invalidateQueries({ queryKey: ['server'], exact: true });

@@ -7,7 +7,7 @@
   } from '@openpeeps/svelte/components';
   import { i18nContext } from '@openpeeps/svelte/components';
 
-  const configQuery = configStore('allpeep', 'community');
+  const configQuery = configStore('openpeeps', 'community');
   const { t } = i18nContext();
 
   const pageHeaderStore = getPageHeaderStore();

@@ -14,7 +14,7 @@
   const pageHeaderStore = getPageHeaderStore();
 
   const updateConfig = updateConfigMutation({
-    namespace: 'allpeep',
+    namespace: 'openpeeps',
     name: 'community',
   });
 

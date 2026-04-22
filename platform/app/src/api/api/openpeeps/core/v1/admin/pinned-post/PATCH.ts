@@ -20,7 +20,7 @@ export default new Endpoint({ Input, Output, Error }).handle(
     await ensureRoleCapabilities(event, ['core-customization-update']);
     await updateConfig(
       { content: { pinnedPost: input.postId } },
-      'allpeep',
+      'openpeeps',
       'community',
     );
 
