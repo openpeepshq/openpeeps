@@ -641,7 +641,7 @@ export const hashtagSchema = modelSchema(hashtagDataSchema);
 export type Hashtag = Model<HashtagData>;
 
 
-export const hashtagRegexBase = '(?<!\\S)#([a-z0-9_]+)(?!\\S)';
+export const hashtagRegexBase = '(?<!\\S)#([a-z0-9_]+)(?![a-z0-9_])';
 export const hashtagRegex = new RegExp(hashtagRegexBase, 'gi');
 
 
