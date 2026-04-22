@@ -66,5 +66,7 @@ export const setMemberRoles = async (
     profile: PublicProfile,
     group: GroupWithMeta,
     roles: GroupRelationship[],
-) => allpeepDb().then(({ db }) => updateMember(db, profile, group, { roles }));
+) => allpeepDb().then(({ db }) =>
+    updateMember(db, profile, group, { roles }).then(() => profilesCache.del(profile.id))
+);
 

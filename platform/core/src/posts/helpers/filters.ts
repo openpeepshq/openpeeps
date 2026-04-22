@@ -43,6 +43,12 @@ const myPublicGroupsFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> =>
     }
 );
 
+const myJoinedGroupsFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => ({
+    matches: profile.memberships.map((m) => ({
+        groupId: m.group.id as string,
+    }))
+});
+
 export const followFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => ({
     matches: profile.following.map((f) => ({
         creatorId: f.id
@@ -53,7 +59,7 @@ export const myFeedFilter = (profile: ProfileWithMeta): OMFilter<DbBasePost> => 
     operator: '||',
     predicates: [
         ownPostsFilter(profile),
-        myPrivateGroupsFilter(profile),
+        myJoinedGroupsFilter(profile),
         followFilter(profile)
     ]
 });
@@ -68,7 +74,14 @@ export const localFeedFilter = (profile?: ProfileWithMeta): OMFilter<DbBasePost>
 
 export const canReadPost = (config: CapabilitiesConfig, profile?: ProfileWithMeta) => (post?: PostWithMeta) =>
     !!post &&
-    checkPostCapabilities(['core-posts-read'], profile, post, config).success
+    (
+        checkPostCapabilities(['core-posts-read'], profile, post, config).success ||
+        (
+            !!profile &&
+            !!post.groupId &&
+            profile.memberships.some((membership) => membership.group.id === post.groupId)
+        )
+    )
     && postWithMetaSchema.safeParse(post).success
 
 

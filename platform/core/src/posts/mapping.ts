@@ -114,6 +114,13 @@ const preFilterMapData = {
 
 const basePostMapData = {
     ...preFilterMapData,
+    relations: [groupRelation],
+    derivedProperties: [
+        {
+            alias: "groupId", expression: `
+            DOC.group.id`
+        },
+    ],
     postFilterRelations: basePostFilterRelations,
     postFilterDerivedProperties: [
         {
