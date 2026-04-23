@@ -134,6 +134,10 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
     steps:
       - name: Publish npm packages
+        # The app image sets NODE_ENV=production; pnpm then skips devDependencies unless overridden.
+        # Monorepo package builds (e.g. tsc, react-native-builder-bob) need devDependencies in each workspace.
+        env:
+          NODE_ENV: development
         run: |
           cd /apat
           echo " " >> .npmrc
@@ -142,7 +146,7 @@ jobs:
           echo "@openpeeps:registry=https://codeberg.org/api/packages/${owner}/npm/" >> .npmrc
           echo "//codeberg.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
           cat .npmrc
-          pnpm install
+          pnpm install --prod=false
           pnpm -r build
           pnpm -r publish --access private --no-git-checks
 
