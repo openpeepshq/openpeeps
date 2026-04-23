@@ -46,7 +46,7 @@ jobs:
 
   build:
     runs-on: docker
-    needs: [set-variables]
+    needs: [ set-variables ]
     container:
       image: node:24-alpine
     steps:
@@ -91,7 +91,7 @@ jobs:
 
   test-integration:
     runs-on: docker
-    needs: [build, set-variables]
+    needs: [ build, set-variables ]
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     services:
@@ -102,7 +102,8 @@ jobs:
       redis:
         image: redis:alpine
       web:
-        image: ${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}
+        image: ${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha
+          }}
         credentials:
           username: ${{ vars.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
@@ -124,9 +125,10 @@ jobs:
   publish-packages:
     runs-on: docker
     if: forgejo.ref_name == env.DEFAULT_BRANCH
-    needs: [test-integration, set-variables]
+    needs: [ test-integration, set-variables ]
     container:
-      image: ${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}
+      image: ${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha
+        }}
       credentials:
         username: ${{ vars.REGISTRY_USER }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
@@ -141,11 +143,12 @@ jobs:
           echo "//codeberg.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
           cat .npmrc
           pnpm install
+          pnpm -r build
           pnpm -r publish --access private --no-git-checks
 
   deploy-docker:
     runs-on: docker
-    needs: [test-integration, set-variables]
+    needs: [ test-integration, set-variables ]
     container:
       image: docker:latest
     steps:
