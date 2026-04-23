@@ -43,6 +43,7 @@
     "build-deps": "pnpm --filter @openpeeps/app... build",
     "check-circular-deps": "ds",
     "check-branch": "node scripts/check-branch.mjs",
+    "docker:smoke-monorepo-build": "zsh scripts/docker-smoke-monorepo-build.sh",
     "squash-branch": "scripts/squash-branch.sh"
   },
   "packageManager": "pnpm@10.3.0",

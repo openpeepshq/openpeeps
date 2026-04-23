@@ -33,9 +33,9 @@ ADD . .
 RUN npm i -g pnpm
 RUN node scripts/generate-changelog.mjs
 RUN (cp ./CHANGELOG.md platform/app/src/routes/docs/admin/release-notes/+page.svx )
-RUN pnpm --filter @openpeeps/app... install
+RUN pnpm -r install
 
-RUN pnpm --filter @openpeeps/app... build
+RUN pnpm -r build
 
 RUN (mkdir -p /apat/.media && mkdir -p /apat/.logs)
 
