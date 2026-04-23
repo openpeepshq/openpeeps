@@ -5,9 +5,14 @@ FROM node:24-alpine
 ARG VERSION
 ARG ENVIRONMENT
 
+# g++/make: required when npm packages fall back to node-gyp (bcrypt, sharp, etc.). Without this,
+# linux/amd64 builds on Apple Silicon (QEMU) or any path missing a matching prebuild often fail while
+# native linux/arm64 works.
 RUN apk add --no-cache \
     dumb-init \
     ffmpeg \
+    g++ \
+    make \
     python3 \
     git
 
