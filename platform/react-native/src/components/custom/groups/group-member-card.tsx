@@ -1,16 +1,16 @@
 import React from 'react';
 import {GroupMember} from '@openpeeps/common';
 import {View, Pressable} from 'react-native';
-import {Avatar, AvatarImage} from '../../ui/avatar';
+import {Avatar, AvatarImage} from '~/components/ui/avatar';
 import {
   MessageSquareTextIcon,
   MoreHorizontalIcon,
   UserCogIcon,
   UserMinusIcon,
   UserXIcon,
-} from '../../icons';
-import {ThemedText} from '../../ui/themed-text';
-import { truncateText} from '../../../lib/utils';
+} from '~/components/icons';
+import {ThemedText} from '~/components/ui/themed-text';
+import { truncateText} from '~/lib/utils';
 import {useOpenpeeps} from '@openpeeps/react';
 import {
   DropdownMenu,
@@ -18,7 +18,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../ui/dropdown-menu';
+} from '~/components/ui/dropdown-menu';
 
 interface GroupMemberCardProps {
   member: GroupMember;

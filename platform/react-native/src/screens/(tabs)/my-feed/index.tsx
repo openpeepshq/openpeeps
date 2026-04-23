@@ -3,11 +3,11 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   TabStackParamList,
   MainStackParamList,
-} from '../../../components/navigation/types';
+} from '~/components/navigation/types';
 import { useOpenpeeps } from '@openpeeps/react';
 import { CompositeScreenProps } from '@react-navigation/native';
-import { Feed, TabScreensHeader } from '../../../components/custom';
-import { ThemedText } from '../../../components/ui/themed-text';
+import { Feed, TabScreensHeader } from '~/components/custom';
+import { ThemedText } from '~/components/ui/themed-text';
 
 type HomeScreenProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Feed'>,

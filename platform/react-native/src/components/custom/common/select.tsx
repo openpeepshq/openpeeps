@@ -6,11 +6,11 @@ import {
   PopoverClose,
   PopoverContent,
   PopoverTrigger,
-} from './popover';
-import { CheckIcon } from '../../icons';
-import { ChevronDownIcon } from '../../icons';
-import { cn } from '../../../lib/utils';
-import { Button, buttonTextVariants } from '../../ui/button';
+} from '~/components/custom/common/popover';
+import { CheckIcon } from '~/components/icons';
+import { ChevronDownIcon } from '~/components/icons';
+import { cn } from '~/lib/utils';
+import { Button, buttonTextVariants } from '~/components/ui/button';
 
 const SELECT_ITEM_HEIGHT = 50;
 

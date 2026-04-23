@@ -15,7 +15,7 @@ export const ProfileHeader: React.FC<ProfileProps> = ({ profile }) => {
         source={
           profile?.header
             ? { uri: profile?.header }
-            : require('../../../assets/images/profile-background-placeholder.png')
+            : require('~/assets/images/profile-background-placeholder.png')
         }
         className="w-full h-full rounded-md object-bottom"
         resizeMode="cover"

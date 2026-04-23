@@ -1,7 +1,7 @@
 import i18next from 'i18next';
 import httpBackend from 'i18next-http-backend';
 import { initReactI18next } from 'react-i18next';
-import { BASE_URL } from '../lib/constants';
+import { BASE_URL } from '~/lib/constants';
 
 /**
  * Initialize before a screen mounts so useTranslation() never runs against an

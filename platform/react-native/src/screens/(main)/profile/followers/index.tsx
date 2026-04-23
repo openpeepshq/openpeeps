@@ -1,14 +1,14 @@
 import React from 'react';
 import {useOpenpeeps} from '@openpeeps/react';
-import {MainScreenProps} from '../../../../components/navigation/types';
+import {MainScreenProps} from '~/components/navigation/types';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {
   EmptyStateContainer,
   GenericHeader,
   ProfileCard,
-} from '../../../../components/custom';
+} from '~/components/custom';
 import {ActivityIndicator} from 'react-native';
-import {ThemedSafeAreaView} from '../../../../components/ui/themed-safe-area-view';
+import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
 
 type ProfileFollowersProps = MainScreenProps<'ProfileFollowers'>;
 

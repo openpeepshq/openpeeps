@@ -7,15 +7,15 @@ import {
   useParticipantInfo,
   useEnsureTrackRef,
 } from '@livekit/react-native';
-import { ThemedText } from '../../../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import { Track } from 'livekit-client';
 import { Profile } from '@openpeeps/common';
-import { MetadataType } from '../../../../../types';
+import { MetadataType } from '~/types';
 import { useOpenpeeps } from '@openpeeps/react';
-import { truncateText } from '../../../../../lib/utils';
-import { ScreenShareIcon } from '../../../../icons';
-import { Button } from '../../../../ui/button';
-import { ProfileAvatar } from '../../../profile/profile-avatar';
+import { truncateText } from '~/lib/utils';
+import { ScreenShareIcon } from '~/components/icons';
+import { Button } from '~/components/ui/button';
+import { ProfileAvatar } from '~/components/custom/profile/profile-avatar';
 
 const ITEMS_PER_PAGE = 4;
 

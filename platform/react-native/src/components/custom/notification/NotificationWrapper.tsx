@@ -1,8 +1,8 @@
 import { View } from 'react-native';
 import React from 'react';
 import type { Group, Profile } from '@openpeeps/common/types';
-import { DotIcon, UsersIcon, UserIcon } from '../../icons';
-import { ThemedView } from '../../ui/themed-view';
+import { DotIcon, UsersIcon, UserIcon } from '~/components/icons';
+import { ThemedView } from '~/components/ui/themed-view';
 import { ProfileAvatar } from '../profile/profile-avatar';
 import { GroupAvatar } from '../groups/GroupAvatar';
 

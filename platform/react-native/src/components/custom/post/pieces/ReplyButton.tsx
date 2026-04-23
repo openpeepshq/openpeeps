@@ -1,13 +1,13 @@
 import { View, Pressable } from 'react-native';
 import React from 'react';
 import { PublicPost } from '@openpeeps/common';
-import { MainStackParamList } from '../../../navigation/types';
+import { MainStackParamList } from '~/components/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { useOpenpeeps } from '@openpeeps/react';
 import { ProfileAvatar } from '../../profile/profile-avatar';
-import { ImageIcon } from '../../../icons';
-import { ThemedText } from '../../../ui/themed-text';
+import { ImageIcon } from '~/components/icons';
+import { ThemedText } from '~/components/ui/themed-text';
 interface ReplyButtonProps {
   post: PublicPost;
 }

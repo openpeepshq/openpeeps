@@ -1,9 +1,9 @@
 import { View } from 'react-native';
 import React from 'react';
-import { ThemedText } from '../../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import { NotificationWrapper } from '../NotificationWrapper';
 import { PublicNotification } from '@openpeeps/common';
-import { profileName } from '../../../../lib/utils';
+import { profileName } from '~/lib/utils';
 import { UpdatingDate } from '../../date/updating-date';
 import { JamCard } from '../../jam/jam-card';
 import { useTranslation } from 'react-i18next';

@@ -1,13 +1,13 @@
 import { Pressable, View } from 'react-native';
 import React from 'react';
-import { ThemedText } from '../../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import { NotificationWrapper } from '../NotificationWrapper';
 import { PublicNotification, GroupWithMeta } from '@openpeeps/common';
-import { UsersIcon } from '../../../icons';
-import { profileName } from '../../../../lib/utils';
+import { UsersIcon } from '~/components/icons';
+import { profileName } from '~/lib/utils';
 import { UpdatingDate } from '../../date/updating-date';
 import { ProfileAvatar } from '../../profile/profile-avatar';
-import { MainStackParamList } from '../../../navigation/types';
+import { MainStackParamList } from '~/components/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 

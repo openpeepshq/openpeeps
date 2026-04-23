@@ -1,7 +1,7 @@
 import {useOpenpeeps} from '@openpeeps/react';
 import React from 'react';
 import {Image, View} from 'react-native';
-import {Avatar, AvatarImage} from '../../ui/avatar';
+import {Avatar, AvatarImage} from '~/components/ui/avatar';
 
 interface GroupHeaderProps {
   headerUri?: string;
@@ -21,7 +21,7 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
         source={
           headerUri
             ? {uri: headerUri}
-            : require('../../../assets/images/group-header-placeholder.png')
+            : require('~/assets/images/group-header-placeholder.png')
         }
         className="w-full h-full rounded-md object-bottom"
         resizeMode="cover"

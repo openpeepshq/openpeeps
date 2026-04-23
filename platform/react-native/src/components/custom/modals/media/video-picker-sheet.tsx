@@ -11,13 +11,13 @@ import {
 } from 'react-native';
 import type { Album, PhotoIdentifier } from '@react-native-camera-roll/camera-roll';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Button } from '../../../ui/button';
+import { Button } from '~/components/ui/button';
 import {
   CameraIcon,
   ChevronDownIcon,
   CheckIcon,
   VideoIcon,
-} from '../../../icons';
+} from '~/components/icons';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import { launchCamera } from 'react-native-image-picker';
 import {
@@ -26,14 +26,14 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../../ui/dropdown-menu';
+} from '~/components/ui/dropdown-menu';
 import Video from 'react-native-video';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
 import { MediaAttachment } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
-import { uploadMedia } from '../../../../lib/uploadMedia';
-import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
+import { uploadMedia } from '~/lib/uploadMedia';
+import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

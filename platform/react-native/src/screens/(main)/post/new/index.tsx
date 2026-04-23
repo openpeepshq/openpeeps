@@ -4,7 +4,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '../../../../components/navigation/types';
+} from '~/components/navigation/types';
 import { useOpenpeeps } from '@openpeeps/react';
 import {
   AudioPickerSheet,
@@ -13,7 +13,7 @@ import {
   VideoPickerSheet,
   DocumentPickerSheet,
   ArticleForm,
-} from '../../../../components/custom';
+} from '~/components/custom';
 import {
   MediaAttachment,
   PostCreationData,
@@ -23,14 +23,14 @@ import {
 } from '@openpeeps/common';
 import { CompositeScreenProps } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import { ThemedSafeAreaView } from '../../../../components/ui/themed-safe-area-view';
-import { useLocalPostStore } from '../../../../stores/useLocalPostStore';
-import { PostForm } from '../../../../components/custom/post/post-form/PostForm';
+import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { useLocalPostStore } from '~/stores/useLocalPostStore';
+import { PostForm } from '~/components/custom/post/post-form/PostForm';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import Footer from '../../../../components/custom/post/post-form/Footer';
+import Footer from '~/components/custom/post/post-form/Footer';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { toArticle, toNote, toQuestion } from '../../../../lib/post';
+import { toArticle, toNote, toQuestion } from '~/lib/post';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 

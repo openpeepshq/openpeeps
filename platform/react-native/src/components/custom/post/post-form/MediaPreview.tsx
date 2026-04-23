@@ -6,8 +6,8 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
-import { XIcon } from '../../../icons';
-import { ThemedText } from '../../../ui/themed-text';
+import { XIcon } from '~/components/icons';
+import { ThemedText } from '~/components/ui/themed-text';
 import { AltSheet } from '../../modals/media/alt-text-sheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { MediaAttachmentData } from '@openpeeps/common';

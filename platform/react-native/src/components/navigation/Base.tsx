@@ -1,7 +1,7 @@
 import React from 'react';
 import { StatusBar } from 'react-native';
 import { ThemedView } from '../ui/themed-view';
-import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
+import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
 
 export const Base: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 

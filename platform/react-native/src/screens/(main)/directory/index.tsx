@@ -1,25 +1,25 @@
 import {View, Pressable, ActivityIndicator} from 'react-native';
 import React, {useEffect} from 'react';
-import {ThemedView} from '../../../components/ui/themed-view';
+import {ThemedView} from '~/components/ui/themed-view';
 import {
   EmptyStateContainer,
   FollowUnfollowButton,
   ProfileCard,
   TabScreensHeader,
-} from '../../../components/custom';
-import {ThemedText} from '../../../components/ui/themed-text';
-import {XIcon, SearchIcon, MessageSquareTextIcon} from '../../../components/icons';
-import {Input} from '../../../components/ui/input';
+} from '~/components/custom';
+import {ThemedText} from '~/components/ui/themed-text';
+import {XIcon, SearchIcon, MessageSquareTextIcon} from '~/components/icons';
+import {Input} from '~/components/ui/input';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '../../../components/navigation/types';
+} from '~/components/navigation/types';
 import {useOpenpeeps} from '@openpeeps/react';
-import {profileMatchesQuery} from '../../../lib/utils';
+import {profileMatchesQuery} from '~/lib/utils';
 import {CompositeScreenProps} from '@react-navigation/native';
-import {useNewConversationStore} from '../../../stores/useNewConversationStore';
+import {useNewConversationStore} from '~/stores/useNewConversationStore';
 
 type DirectoryProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Directory'>,

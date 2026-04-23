@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as TabsPrimitive from '@rn-primitives/tabs';
-import { cn } from '../../lib/utils';
+import { cn } from '~/lib/utils';
 import { ThemedText } from './themed-text';
 
 const Tabs = TabsPrimitive.Root;

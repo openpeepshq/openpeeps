@@ -1,16 +1,16 @@
 import React, { forwardRef, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { ThemedText } from '../../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import { useOpenpeeps } from '@openpeeps/react';
-import { useJamLivekitStore, useJamStore } from '../../../../stores/useJamStore';
+import { useJamLivekitStore, useJamStore } from '~/stores/useJamStore';
 import Toast from 'react-native-toast-message';
 import { useRoomContext } from '@livekit/react-native';
-import { MetadataType } from '../../../../types';
+import { MetadataType } from '~/types';
 import { Profile } from '@openpeeps/common';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
-import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
+import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 interface ExitJamOptionsSheetProps {
   handleGoBack: () => void;

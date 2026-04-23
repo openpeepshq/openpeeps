@@ -1,12 +1,12 @@
 import React, { forwardRef } from 'react';
 import { View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { ThemedText } from '../../../ui/themed-text';
-import { CopyIcon, Trash2Icon } from '../../../icons';
+import { ThemedText } from '~/components/ui/themed-text';
+import { CopyIcon, Trash2Icon } from '~/components/icons';
 import { BaseSheet } from '../common';
-import { Button } from '../../../ui/button';
+import { Button } from '~/components/ui/button';
 import { useTranslation } from 'react-i18next';
-import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
+import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 interface MessageOptionsSheetProps {
   onDelete?: () => void;

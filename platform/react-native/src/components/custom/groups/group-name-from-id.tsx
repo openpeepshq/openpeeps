@@ -1,7 +1,7 @@
 import React from 'react';
 import { useOpenpeeps } from '@openpeeps/react';
 import { useTranslation } from 'react-i18next';
-import { ThemedText } from '../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 
 export const GroupNameFromId = ({ groupId }: { groupId: string }) => {
     const { openpeepsApi } = useOpenpeeps();

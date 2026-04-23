@@ -1,18 +1,18 @@
 import React, { forwardRef, useEffect } from 'react';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { ThemedText } from '../../../ui/themed-text';
-import { DoorOpenIcon, CircleSlash2Icon } from '../../../icons';
-import { MetadataType } from '../../../../types';
+import { ThemedText } from '~/components/ui/themed-text';
+import { DoorOpenIcon, CircleSlash2Icon } from '~/components/icons';
+import { MetadataType } from '~/types';
 import { Profile } from '@openpeeps/common';
-import { truncateText } from '../../../../lib/utils';
-import { useJamStore } from '../../../../stores/useJamStore';
+import { truncateText } from '~/lib/utils';
+import { useJamStore } from '~/stores/useJamStore';
 import { Participant } from 'livekit-client';
 import Toast from 'react-native-toast-message';
 import { BaseSheet } from '../common';
 import { useTranslation } from 'react-i18next';
 import { ProfileAvatar } from '../../profile/profile-avatar';
-import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
+import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 
 interface WaitingRoomActionSheetProps {

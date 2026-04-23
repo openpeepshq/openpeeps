@@ -3,8 +3,8 @@ import { useOpenpeeps } from '@openpeeps/react';
 import {
   Feed,
   TabScreensHeader,
-} from '../../../components/custom';
-import { ThemedText } from '../../../components/ui/themed-text';
+} from '~/components/custom';
+import { ThemedText } from '~/components/ui/themed-text';
 
 export const Articles = () => {
   const { openpeepsApi } = useOpenpeeps();

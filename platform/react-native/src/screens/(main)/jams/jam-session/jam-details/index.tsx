@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import {
   GenericHeader,
   JamParticipantActionSheet,
-} from '../../../../../components/custom';
+} from '~/components/custom';
 import {
   HandIcon,
   MicOffIcon,
@@ -11,27 +11,27 @@ import {
   MoreHorizontalIcon,
   CopyIcon,
   ShareIcon,
-} from '../../../../../components/icons';
+} from '~/components/icons';
 import { useOpenpeeps } from '@openpeeps/react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { MainStackParamList } from '../../../../../components/navigation/types';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../../../components/ui/tabs';
-import { ThemedText } from '../../../../../components/ui/themed-text';
+import { MainStackParamList } from '~/components/navigation/types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import { ThemedText } from '~/components/ui/themed-text';
 import { AudienceSetting, Event, Profile } from '@openpeeps/common';
-import { Input } from '../../../../../components/ui/input';
+import { Input } from '~/components/ui/input';
 import { useParticipants, useRoomContext } from '@livekit/react-native';
-import { profileMatchesQuery, truncateText } from '../../../../../lib/utils';
+import { profileMatchesQuery, truncateText } from '~/lib/utils';
 import { LocalParticipant, RemoteParticipant } from 'livekit-client';
-import { Avatar, AvatarImage } from '../../../../../components/ui/avatar';
-import { Button } from '../../../../../components/ui/button';
-import { BASE_URL } from '../../../../../lib/constants';
+import { Avatar, AvatarImage } from '~/components/ui/avatar';
+import { Button } from '~/components/ui/button';
+import { BASE_URL } from '~/lib/constants';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Toast from 'react-native-toast-message';
-import { MetadataType } from '../../../../../types';
-import { useJamStore } from '../../../../../stores/useJamStore';
+import { MetadataType } from '~/types';
+import { useJamStore } from '~/stores/useJamStore';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { ThemedSafeAreaView } from '../../../../../components/ui/themed-safe-area-view';
-import { VisibilityDisplay } from '../../../../../components/custom/post/pieces/VisibilityDisplay';
+import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { VisibilityDisplay } from '~/components/custom/post/pieces/VisibilityDisplay';
 
 export const JamDetails = ({
   route,

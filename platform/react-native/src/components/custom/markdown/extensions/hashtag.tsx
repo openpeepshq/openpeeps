@@ -4,8 +4,8 @@ import {
   type RenderFunction,
 } from 'react-native-markdown-display';
 import { hashtagRegex } from '@openpeeps/common';
-import { ThemedText } from '../../../ui/themed-text';
-import type { MarkdownInlineRulerState } from '../../../../types/markdown-plugin';
+import { ThemedText } from '~/components/ui/themed-text';
+import type { MarkdownInlineRulerState } from '~/types/markdown-plugin';
 
 /**
  * MarkdownIt plugin to create tokens for hashtags

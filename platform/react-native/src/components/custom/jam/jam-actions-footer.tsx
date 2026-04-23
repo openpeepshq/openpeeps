@@ -1,14 +1,14 @@
 import { Share, View } from 'react-native';
 import React, { useRef } from 'react';
-import { Trash2Icon, ShareIcon } from '../../icons';
-import { Button } from '../../ui/button';
-import { ThemedText } from '../../ui/themed-text';
+import { Trash2Icon, ShareIcon } from '~/components/icons';
+import { Button } from '~/components/ui/button';
+import { ThemedText } from '~/components/ui/themed-text';
 import { DeleteJamSheet, DeleteJamSheetRef } from '../modals';
 import { Event, PublicPost } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
 import { useTranslation } from 'react-i18next';
-import { BASE_URL } from '../../../lib/constants';
-import { MainStackParamList } from '../../navigation/types';
+import { BASE_URL } from '~/lib/constants';
+import { MainStackParamList } from '~/components/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 

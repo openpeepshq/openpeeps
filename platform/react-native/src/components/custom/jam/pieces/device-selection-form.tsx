@@ -1,6 +1,6 @@
 import { Platform, View, Image, Dimensions } from 'react-native';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { ThemedText } from '../../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import {
   MediaStreamTrack,
   mediaDevices,
@@ -9,10 +9,10 @@ import {
   RTCView,
 } from '@livekit/react-native-webrtc';
 import { AudioSession } from '@livekit/react-native';
-import { Button } from '../../../ui/button';
+import { Button } from '~/components/ui/button';
 import { useOpenpeeps } from '@openpeeps/react';
-import { MicIcon, MicOffIcon, VideoIcon, VideoOffIcon } from '../../../icons';
-import { useJamSettingsStore } from '../../../../stores/useJamStore';
+import { MicIcon, MicOffIcon, VideoIcon, VideoOffIcon } from '~/components/icons';
+import { useJamSettingsStore } from '~/stores/useJamStore';
 
 export const DeviceSelectionForm: React.FC = () => {
   // State and refs

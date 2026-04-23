@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
-import { ThemedView } from '../../../components/ui/themed-view';
+import { ThemedView } from '~/components/ui/themed-view';
 import { ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import { useOpenpeeps } from '@openpeeps/react';
-import { OpenPeepsMarkdown, TabScreensHeader } from '../../../components/custom';
+import { OpenPeepsMarkdown, TabScreensHeader } from '~/components/custom';
 import {
   UserCheckIcon,
   MailCheckIcon,
@@ -12,12 +12,12 @@ import {
   CheckIcon,
   LucideIcon,
 } from 'lucide-react-native';
-import { ThemedText } from '../../../components/ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '../../../components/navigation/types';
+} from '~/components/navigation/types';
 import { useNavigation, type NavigatorScreenParams } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';

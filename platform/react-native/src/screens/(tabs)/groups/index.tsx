@@ -14,27 +14,27 @@ import {
   MoreVerticalIcon,
   SearchIcon,
   XIcon,
-} from '../../../components/icons';
+} from '~/components/icons';
 import {
   EmptyStateContainer,
   GroupCard,
   TabScreensHeader,
-} from '../../../components/custom';
-import { ThemedView } from '../../../components/ui/themed-view';
-import { ThemedText } from '../../../components/ui/themed-text';
-import { Input } from '../../../components/ui/input';
+} from '~/components/custom';
+import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedText } from '~/components/ui/themed-text';
+import { Input } from '~/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../../components/ui/dropdown-menu';
+} from '~/components/ui/dropdown-menu';
 import { useOpenpeeps } from '@openpeeps/react';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '../../../components/navigation/types';
+} from '~/components/navigation/types';
 
 type GroupsProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Groups'>,

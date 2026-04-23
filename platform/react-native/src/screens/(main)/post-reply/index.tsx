@@ -7,7 +7,7 @@ import {
   ImagePickerSheet,
   ReplySheet,
   VideoPickerSheet,
-} from '../../../components/custom';
+} from '~/components/custom';
 import {
   MediaAttachment,
   PostCreationData,
@@ -15,10 +15,10 @@ import {
   PublicPost,
 } from '@openpeeps/common';
 import Toast from 'react-native-toast-message';
-import {ThemedSafeAreaView} from '../../../components/ui/themed-safe-area-view';
-import {postDataDefaults, useLocalPostStore} from '../../../stores/useLocalPostStore';
-import {PostForm} from '../../../components/custom/post/post-form/PostForm';
-import {ThemedText} from '../../../components/ui/themed-text';
+import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
+import {postDataDefaults, useLocalPostStore} from '~/stores/useLocalPostStore';
+import {PostForm} from '~/components/custom/post/post-form/PostForm';
+import {ThemedText} from '~/components/ui/themed-text';
 import {
   ActivityIndicator,
   Alert,
@@ -28,16 +28,16 @@ import {
   type Permission,
   TouchableWithoutFeedback,
 } from 'react-native';
-import {Button} from '../../../components/ui/button';
-import {MainScreenProps} from '../../../components/navigation/types';
+import {Button} from '~/components/ui/button';
+import {MainScreenProps} from '~/components/navigation/types';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {useTranslation} from 'react-i18next';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import Footer from '../../../components/custom/post/post-form/Footer';
+import Footer from '~/components/custom/post/post-form/Footer';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {toArticle, toNote, toQuestion} from '../../../lib/post';
-import {FeedPost} from '../../../components/custom/post/feed/chronological/FeedPost';
+import {toArticle, toNote, toQuestion} from '~/lib/post';
+import {FeedPost} from '~/components/custom/post/feed/chronological/FeedPost';
 
 type PostProps = MainScreenProps<'ReplyPost'>;
 

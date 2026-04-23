@@ -2,13 +2,13 @@ import React from 'react';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '../../../components/navigation/types';
+} from '~/components/navigation/types';
 import { useOpenpeeps } from '@openpeeps/react';
 import {
   TabScreensHeader,
   Feed,
-} from '../../../components/custom';
-import { ThemedText } from '../../../components/ui/themed-text';
+} from '~/components/custom';
+import { ThemedText } from '~/components/ui/themed-text';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RefreshControl, ScrollView } from 'react-native';

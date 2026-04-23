@@ -7,7 +7,7 @@ import {
   useVisualStableUpdate,
 } from '@livekit/react-native';
 import { Participant, Track } from 'livekit-client';
-import { JamRoomMenu, JamHeader } from '../..';
+import { JamRoomMenu, JamHeader } from '~/components/custom';
 import { Platform, View } from 'react-native';
 import { JamFooter } from './jam-footer';
 import { ScreenSharing } from './modes/screen-sharing';

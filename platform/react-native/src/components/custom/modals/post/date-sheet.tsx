@@ -1,13 +1,13 @@
 import React, { forwardRef, useState } from 'react';
 import { View, Platform } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { ThemedText } from '../../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import { BaseSheet } from '../common';
 import { Calendar } from 'react-native-calendars';
 import DateTimePicker, {
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { Button } from '../../../ui/button';
+import { Button } from '~/components/ui/button';
 import { useTranslation } from 'react-i18next';
 
 interface DateSheetProps {

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { GenericHeader, GroupForm } from '../../../../../components/custom';
+import { GenericHeader, GroupForm } from '~/components/custom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Toast from 'react-native-toast-message';
 import { useForm } from 'react-hook-form';
-import { Form } from '../../../../../components/ui/form';
+import { Form } from '~/components/ui/form';
 import { GroupData, groupDataSchema } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
-import { MainScreenProps } from '../../../../../components/navigation/types';
+import { MainScreenProps } from '~/components/navigation/types';
 import { ActivityIndicator } from 'react-native';
-import { ThemedSafeAreaView } from '../../../../../components/ui/themed-safe-area-view';
+import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 
 type EditGroupDetailsProps = MainScreenProps<'EditGroupDetails'>;
 

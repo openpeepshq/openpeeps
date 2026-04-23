@@ -5,7 +5,7 @@ import { FeedPoll } from '../types/poll/FeedPoll';
 import { FeedEvent } from '../types/event/FeedEvent';
 import { FeedArticle } from '../types/article/FeedArticle';
 import { View } from 'react-native';
-import { ThemedText } from '../../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 
 interface FeedPostContentProps {
   post: PublicPost;

@@ -4,9 +4,9 @@ import { buildThreads, type Article, type PublicPost } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
 import { ThreadedFeed } from '../../feed/threaded/ThreadedFeed';
 import { ActivityIndicator, Image, View } from 'react-native';
-import { ThemedText } from '../../../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import { PostActions, PostHeader } from '../../pieces';
-import { OpenPeepsMarkdown, CachedImage } from '../../..';
+import { OpenPeepsMarkdown, CachedImage } from '~/components/custom';
 
 type FullArticleProps = {
     post: PublicPost;

@@ -9,28 +9,28 @@ import React, { useEffect, useRef } from 'react';
 import {
   TabScreensHeader,
   EmptyStateContainer,
-} from '../../../components/custom';
+} from '~/components/custom';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useOpenpeeps } from '@openpeeps/react';
 import {
   MessageSquarePlusIcon,
   XIcon,
   SearchIcon,
-} from '../../../components/icons';
+} from '~/components/icons';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   TabStackParamList,
   MainStackParamList,
-} from '../../../components/navigation/types';
+} from '~/components/navigation/types';
 import { PublicPost } from '@openpeeps/common';
-import { useNewConversationStore } from '../../../stores/useNewConversationStore';
-import { Input } from '../../../components/ui/input';
-import { ThemedText } from '../../../components/ui/themed-text';
-import { profileMatchesQuery } from '../../../lib/utils';
+import { useNewConversationStore } from '~/stores/useNewConversationStore';
+import { Input } from '~/components/ui/input';
+import { ThemedText } from '~/components/ui/themed-text';
+import { profileMatchesQuery } from '~/lib/utils';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { ConversationSettingsSheet } from '../../../components/custom';
-import { ConversationPreviewCard } from '../../../components/custom/conversations';
+import { ConversationSettingsSheet } from '~/components/custom';
+import { ConversationPreviewCard } from '~/components/custom/conversations';
 import { useTranslation } from 'react-i18next';
 
 type MessagesProps = CompositeScreenProps<

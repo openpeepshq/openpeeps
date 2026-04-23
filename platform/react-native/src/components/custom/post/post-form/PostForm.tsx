@@ -5,9 +5,9 @@ import { ProfileAvatar } from '../../profile/profile-avatar';
 import { VisibilityInput } from './VisibilityInput';
 import { AudienceSetting, PublicProfile } from '@openpeeps/common';
 import { PostCreationData } from '@openpeeps/common';
-import { Form, FormTextarea, FormField } from '../../../ui/form';
+import { Form, FormTextarea, FormField } from '~/components/ui/form';
 import { MediaPreview } from './MediaPreview';
-import { cn, maxContentLength } from '../../../../lib/utils';
+import { cn, maxContentLength } from '~/lib/utils';
 import { PollForm } from './PollForm';
 import { useTranslation } from 'react-i18next';
 

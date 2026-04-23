@@ -1,17 +1,17 @@
 import React from 'react';
 import type { Article, PublicPost } from '@openpeeps/common/types';
 import { Image, View } from 'react-native';
-import { ThemedText } from '../../../../ui/themed-text';
-import { OpenPeepsMarkdown } from '../../../markdown';
+import { ThemedText } from '~/components/ui/themed-text';
+import { OpenPeepsMarkdown } from '~/components/custom/markdown';
 import { useMemo } from 'react';
 import { firstNWords } from '@openpeeps/common';
-import { Button } from '../../../../ui/button';
+import { Button } from '~/components/ui/button';
 import { ArrowRightIcon } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '../../../../navigation/types';
+import { MainStackParamList } from '~/components/navigation/types';
 import { useTranslation } from 'react-i18next';
-import { CachedImage } from '../../../common';
+import { CachedImage } from '~/components/custom/common';
 
 interface Props {
     post: PublicPost;

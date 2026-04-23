@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { PublicProfile } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
-import { Button } from '../../ui/button';
-import { ThemedText } from '../../ui/themed-text';
+import { Button } from '~/components/ui/button';
+import { ThemedText } from '~/components/ui/themed-text';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 

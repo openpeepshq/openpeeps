@@ -1,6 +1,6 @@
 import {View} from 'react-native';
 import React from 'react';
-import {ThemedText} from '../../ui/themed-text';
+import {ThemedText} from '~/components/ui/themed-text';
 import {
   BellOffIcon,
   MessageSquareOffIcon,
@@ -8,8 +8,8 @@ import {
   PhoneOffIcon,
   RssIcon,
   UserRoundXIcon,
-} from '../../icons';
-import { EmptyStateContainerType } from '../../../types';
+} from '~/components/icons';
+import { EmptyStateContainerType } from '~/types';
 interface EmptyStateContainerProps {
   type : EmptyStateContainerType
 }

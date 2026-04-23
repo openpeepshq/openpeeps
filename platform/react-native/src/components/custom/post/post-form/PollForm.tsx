@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { FormField, FormInput, FormCheckbox } from '../../../ui/form';
-import { Button } from '../../../ui/button';
-import { ThemedText } from '../../../ui/themed-text';
+import { FormField, FormInput, FormCheckbox } from '~/components/ui/form';
+import { Button } from '~/components/ui/button';
+import { ThemedText } from '~/components/ui/themed-text';
 import { UseFormReturn } from 'react-hook-form';
-import { PlusIcon, MinusIcon } from '../../../icons';
-import { formatDateTime } from '../../../../lib/utils';
+import { PlusIcon, MinusIcon } from '~/components/icons';
+import { formatDateTime } from '~/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { PostCreationData } from '@openpeeps/common';
 import { DateSheet } from '../../modals/post/date-sheet';

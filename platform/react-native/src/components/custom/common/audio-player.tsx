@@ -13,7 +13,7 @@ import {
   PauseIcon,
   Volume2Icon,
   VolumeOffIcon,
-} from '../../icons';
+} from '~/components/icons';
 
 interface AudioPlayerProps {
   uri: string;
@@ -167,7 +167,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({uri, isActive}) => {
 
   return (
     <ImageBackground
-      source={require('../../../assets/images/audio-container.png')}
+      source={require('~/assets/images/audio-container.png')}
       className="w-full h-full overflow-hidden self-center"
       resizeMode="cover">
       <View className="absolute bottom-0 left-0 right-0 h-[60px] flex-row items-center px-2.5 bg-black/20">

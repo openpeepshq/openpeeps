@@ -4,11 +4,11 @@ import { isJamPath, isPostPath, isGroupPath } from './helpers';
 import { PostPreview } from './local/PostPreview';
 import { JamPreview } from './local/JamPreview';
 import { GroupPreview } from './local/GroupPreview';
-import { handleInternalURLNavigation } from '../../../lib/utils';
+import { handleInternalURLNavigation } from '~/lib/utils';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '../../navigation/types';
-import { buildGoto } from '../../navigation/helpers';
+import { MainStackParamList } from '~/components/navigation/types';
+import { buildGoto } from '~/components/navigation/helpers';
 
 interface LocalPreviewLinkProps {
   url: string;

@@ -1,13 +1,13 @@
 import React, {forwardRef, useEffect} from 'react';
 import {ActivityIndicator, TouchableOpacity, View} from 'react-native';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {ThemedText} from '../../../ui/themed-text';
-import {CameraOffIcon, MicOffIcon} from '../../../icons';
-import {MetadataType} from '../../../../types';
+import {ThemedText} from '~/components/ui/themed-text';
+import {CameraOffIcon, MicOffIcon} from '~/components/icons';
+import {MetadataType} from '~/types';
 import {Profile} from '@openpeeps/common';
-import { truncateText } from '../../../../lib/utils';
+import { truncateText } from '~/lib/utils';
 import {useOpenpeeps} from '@openpeeps/react';
-import {useJamStore} from '../../../../stores/useJamStore';
+import {useJamStore} from '~/stores/useJamStore';
 import {Participant} from 'livekit-client';
 import Toast from 'react-native-toast-message';
 import {BaseSheet} from '../common';

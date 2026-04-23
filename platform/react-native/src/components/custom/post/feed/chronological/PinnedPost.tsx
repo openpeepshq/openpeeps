@@ -1,8 +1,8 @@
 import React from 'react';
 import { useMemo } from 'react';
 import { View } from 'react-native';
-import { PinIcon } from '../../../../icons';
-import { ThemedText } from '../../../../ui/themed-text';
+import { PinIcon } from '~/components/icons';
+import { ThemedText } from '~/components/ui/themed-text';
 import { PostMenu } from '../../pieces';
 import { FeedPost } from './FeedPost';
 import { useOpenpeeps } from '@openpeeps/react';

@@ -6,10 +6,10 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { ReactNode, useMemo } from 'react';
 import { Linking, View } from 'react-native';
 import Markdown, { MarkdownIt, tokensToAST, stringToTokens } from 'react-native-markdown-display';
-import { buildGoto } from '../../navigation/helpers';
-import { MainStackParamList } from '../../navigation/types';
-import { BASE_URL } from '../../../lib/constants';
-import { handleInternalURLNavigation, isLocalLink } from '../../../lib/utils';
+import { buildGoto } from '~/components/navigation/helpers';
+import { MainStackParamList } from '~/components/navigation/types';
+import { BASE_URL } from '~/lib/constants';
+import { handleInternalURLNavigation, isLocalLink } from '~/lib/utils';
 import { hashtagPlugin, hashtagRenderer } from './extensions/hashtag';
 import { mentionPlugin, mentionRenderer } from './extensions/mention';
 import { codeBlockRenderer, fenceRenderer } from './extensions/codeBlock';
@@ -17,7 +17,7 @@ import { codeInlineRenderer } from './extensions/codeInline';
 import { markdownTheme } from './theme';
 import { extractLinks, isEmail } from './utils';
 import { PreviewLink } from '../preview-link';
-import { useOpenPeepsTheme } from '../../../theme/OpenPeepsThemeProvider';
+import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
 
 interface OpenPeepsMarkdownProps {
   source: string;

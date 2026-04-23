@@ -1,5 +1,5 @@
 import RNFS from 'react-native-fs';
-import { toAbsoluteMediaUrl } from '../lib/media-url';
+import { toAbsoluteMediaUrl } from '~/lib/media-url';
 
 interface CacheMetadata {
   path: string;

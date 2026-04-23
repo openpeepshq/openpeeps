@@ -1,11 +1,11 @@
 import { View } from 'react-native';
 import React from 'react';
-import { Button } from '../../../ui/button';
-import { ArrowLeftIcon, CalendarIcon } from '../../../icons';
-import { ThemedText } from '../../../ui/themed-text';
+import { Button } from '~/components/ui/button';
+import { ArrowLeftIcon, CalendarIcon } from '~/components/icons';
+import { ThemedText } from '~/components/ui/themed-text';
 import { AudioOutputList } from './audio-output-list';
-import { useJamStore } from '../../../../stores/useJamStore';
-import { truncateText } from '../../../../lib/utils';
+import { useJamStore } from '~/stores/useJamStore';
+import { truncateText } from '~/lib/utils';
 
 interface JamHeaderProps {
   handleGoBack: () => void;

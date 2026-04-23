@@ -1,16 +1,16 @@
 import React from 'react';
-import { MainScreenProps, MainStackParamList } from '../../../../components/navigation/types';
+import { MainScreenProps, MainStackParamList } from '~/components/navigation/types';
 import { useOpenpeeps } from '@openpeeps/react';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
-import { ThemedText } from '../../../../components/ui/themed-text';
-import { FollowUnfollowButton } from '../../../../components/custom/profile/follow-unfollow-button';
+import { ThemedText } from '~/components/ui/themed-text';
+import { FollowUnfollowButton } from '~/components/custom/profile/follow-unfollow-button';
 
-import { ThemedSafeAreaView } from '../../../../components/ui/themed-safe-area-view';
+import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ProfileAvatar } from '../../../../components/custom/profile/profile-avatar';
-import { ProfileBio, ProfileHandle, ProfileImages, ProfileName } from '../../../../components/custom/common';
-import { GenericHeader } from '../../../../components/custom/headers';
+import { ProfileAvatar } from '~/components/custom/profile/profile-avatar';
+import { ProfileBio, ProfileHandle, ProfileImages, ProfileName } from '~/components/custom/common';
+import { GenericHeader } from '~/components/custom/headers';
 type ConversationInfoProps = MainScreenProps<'ConversationInfo'>;
 
 export const ConversationInfo = ({ route }: ConversationInfoProps) => {

@@ -1,7 +1,7 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList, TabStackParamList } from './types';
 import { NavigatorScreenParams } from '@react-navigation/native';
-import type { GotoHandlerParams } from '../../types/goto';
+import type { GotoHandlerParams } from '~/types/goto';
 
 export const buildGoto = (navigation: NativeStackNavigationProp<MainStackParamList>) => ({
   target,

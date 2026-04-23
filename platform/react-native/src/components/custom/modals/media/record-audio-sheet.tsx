@@ -1,14 +1,14 @@
 import React, { forwardRef, useCallback, useState } from 'react';
 import { View, PermissionsAndroid, Platform } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { ThemedText } from '../../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
-import { Button } from '../../../ui/button';
-import { CircleIcon, PauseIcon, PlayIcon, SquareIcon } from '../../../icons';
-import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
+import { Button } from '~/components/ui/button';
+import { CircleIcon, PauseIcon, PlayIcon, SquareIcon } from '~/components/icons';
+import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 interface RecordAudioSheetProps {
   onComplete: (url: string) => Promise<void> | void;

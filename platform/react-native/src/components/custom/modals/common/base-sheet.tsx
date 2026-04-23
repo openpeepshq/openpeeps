@@ -6,8 +6,8 @@ import {
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import { SheetBackdrop } from './sheet-backdrop';
-import { useWindowSize } from '../../../../hooks';
-import { useOpenPeepsTheme } from '../../../../theme/OpenPeepsThemeProvider';
+import { useWindowSize } from '~/hooks';
+import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
 
 interface BaseSheetProps {
   children: React.ReactNode;

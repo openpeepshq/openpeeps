@@ -1,8 +1,8 @@
 import {View, Pressable, ActivityIndicator} from 'react-native';
 import React from 'react';
-import {Button} from '../../ui/button';
-import {ArrowLeftIcon} from '../../icons';
-import {ThemedText} from '../../ui/themed-text';
+import {Button} from '~/components/ui/button';
+import {ArrowLeftIcon} from '~/components/icons';
+import {ThemedText} from '~/components/ui/themed-text';
 import {useNavigation} from '@react-navigation/native';
 
 interface GenericHeaderProps {

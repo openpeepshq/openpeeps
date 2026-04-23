@@ -5,13 +5,13 @@ import {
   GroupWithMeta,
   PublicProfile,
 } from '@openpeeps/common';
-import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
-import { ThemedText } from '../../ui/themed-text';
-import { truncateText } from '../../../lib/utils';
-import { Button } from '../../ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
+import { ThemedText } from '~/components/ui/themed-text';
+import { truncateText } from '~/lib/utils';
+import { Button } from '~/components/ui/button';
 import { useOpenpeeps } from '@openpeeps/react';
 import Toast from 'react-native-toast-message';
-import {UsersIcon} from '../../icons';
+import {UsersIcon} from '~/components/icons';
 
 interface GroupCardProps {
   group: GroupWithMeta;

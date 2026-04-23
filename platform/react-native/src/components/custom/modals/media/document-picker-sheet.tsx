@@ -10,12 +10,12 @@ import {
 import { viewDocument } from '@react-native-documents/viewer';
 import { formatSize, MediaAttachment } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
-import { Button } from '../../../ui/button';
-import { FileIcon, XIcon, PlusIcon, FileTextIcon } from '../../../icons';
-import { uploadMedia } from '../../../../lib/uploadMedia';
+import { Button } from '~/components/ui/button';
+import { FileIcon, XIcon, PlusIcon, FileTextIcon } from '~/components/icons';
+import { uploadMedia } from '~/lib/uploadMedia';
 import { BaseSheet, SheetFooter } from '../common';
-import { ThemedText } from '../../../ui/themed-text';
-import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
+import { ThemedText } from '~/components/ui/themed-text';
+import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 interface DocumentPickerSheetProps {
   onSelect: (documentAttachments: MediaAttachment[]) => void | Promise<void>;

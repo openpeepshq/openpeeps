@@ -1,7 +1,7 @@
 import React from 'react';
 import { MediaAttachmentData } from '@openpeeps/common';
 import { View } from 'react-native';
-import { AudioPlayer } from '../../../common/audio-player';
+import { AudioPlayer } from '~/components/custom/common/audio-player';
 
 interface GalleryAudioProps {
     attachment: MediaAttachmentData;

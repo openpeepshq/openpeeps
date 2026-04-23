@@ -2,7 +2,7 @@ import * as Slot from '@rn-primitives/slot';
 import type {SlottableViewProps, ViewRef} from '@rn-primitives/types';
 import * as React from 'react';
 import {View as RNView} from 'react-native';
-import {cn} from '../../lib/utils';
+import {cn} from '~/lib/utils';
 
 const ViewClassContext = React.createContext<string | undefined>(undefined);
 

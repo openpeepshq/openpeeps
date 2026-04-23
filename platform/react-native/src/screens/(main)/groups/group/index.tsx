@@ -8,7 +8,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '../../../../components/navigation/types';
+} from '~/components/navigation/types';
 import { useOpenpeeps } from '@openpeeps/react';
 import {
   Feed,
@@ -17,17 +17,17 @@ import {
   GroupPageActions,
   NewEventButton,
   NewPostButton,
-} from '../../../../components/custom';
+} from '~/components/custom';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { truncateText } from '../../../../lib/utils';
-import { ThemedText } from '../../../../components/ui/themed-text';
-import { UsersIcon } from '../../../../components/icons';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../../components/ui/tabs';
+import { truncateText } from '~/lib/utils';
+import { ThemedText } from '~/components/ui/themed-text';
+import { UsersIcon } from '~/components/icons';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { GroupInfoAsComponent } from './info';
-import { ThemedSafeAreaView } from '../../../../components/ui/themed-safe-area-view';
-import { EventsFeed } from '../../../../components/custom/post/feed/events/EventsFeed';
+import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { EventsFeed } from '~/components/custom/post/feed/events/EventsFeed';
 import { useTranslation } from 'react-i18next';
 
 type GroupProps = CompositeScreenProps<

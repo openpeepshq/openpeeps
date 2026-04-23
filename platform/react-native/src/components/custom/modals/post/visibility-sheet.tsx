@@ -12,14 +12,14 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
 } from '@gorhom/bottom-sheet';
-import { ChevronRightIcon } from '../../../icons';
+import { ChevronRightIcon } from '~/components/icons';
 import {
   AudienceSetting,
   PublicProfile,
   VisibilityType,
   type GroupWithMeta,
 } from '@openpeeps/common';
-import { ThemedText } from '../../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import { useOpenpeeps } from '@openpeeps/react';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
@@ -27,7 +27,7 @@ import { useAudienceChoices } from './constants';
 import { GroupNameFromId } from '../../groups/group-name-from-id';
 import { ProfileAvatar } from '../../profile/profile-avatar';
 import { ProfilePickerSheet } from '../profile/profile-picker-sheet';
-import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
+import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 interface VisibilitySheetProps {
   onSubmit: (audienceSetting: AudienceSetting) => void;

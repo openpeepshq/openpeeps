@@ -1,7 +1,7 @@
 import { View, Share as ShareApi } from 'react-native';
 import React, { useCallback, useRef } from 'react';
 import { PublicProfile } from '@openpeeps/common';
-import { Button } from '../../ui/button';
+import { Button } from '~/components/ui/button';
 import {
   ShareIcon,
   MoreHorizontalIcon,
@@ -11,9 +11,9 @@ import {
   BellIcon,
   BanIcon,
   MailIcon,
-} from '../../icons';
-import { ThemedText } from '../../ui/themed-text';
-import { MainScreenProps } from '../../navigation/types';
+} from '~/components/icons';
+import { ThemedText } from '~/components/ui/themed-text';
+import { MainScreenProps } from '~/components/navigation/types';
 import { FollowUnfollowButton } from './follow-unfollow-button';
 import {
   DropdownMenu,
@@ -21,10 +21,10 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../ui/dropdown-menu';
+} from '~/components/ui/dropdown-menu';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { BASE_URL } from '../../../lib/constants';
-import { useNewConversationStore } from '../../../stores/useNewConversationStore';
+import { BASE_URL } from '~/lib/constants';
+import { useNewConversationStore } from '~/stores/useNewConversationStore';
 import { useTranslation } from 'react-i18next';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ReportProfileOrPostSheet } from '../common/report-profile-or-post-sheet';

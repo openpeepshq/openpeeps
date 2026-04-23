@@ -9,8 +9,8 @@ import { GalleryImage } from './gallery/GalleryImage';
 import { GalleryVideo } from './gallery/GalleryVideo';
 import { GalleryAudio } from './gallery/GalleryAudio';
 import { GalleryDocument } from './gallery/GalleryDocument';
-import { ThemedText } from '../../../ui/themed-text';
-import { ThemedView } from '../../../ui/themed-view';
+import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedView } from '~/components/ui/themed-view';
 
 export const Attachments = ({
   post,

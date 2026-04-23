@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AUTH_ROUTES, AuthStackParamList } from '../../../components/navigation/types';
-import { Button } from '../../../components/ui/button';
-import { ThemedText } from '../../../components/ui/themed-text';
-import { Form, FormCheckbox, FormField, FormInput } from '../../../components/ui/form';
+import { AUTH_ROUTES, AuthStackParamList } from '~/components/navigation/types';
+import { Button } from '~/components/ui/button';
+import { ThemedText } from '~/components/ui/themed-text';
+import { Form, FormCheckbox, FormField, FormInput } from '~/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ActivityIndicator, View } from 'react-native';
@@ -14,7 +14,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
 import { registerFormSchema, RegisterRequest } from '@openpeeps/common';
-import { ArrowLeftIcon } from '../../../components/icons';
+import { ArrowLeftIcon } from '~/components/icons';
 import { useOpenpeeps } from '@openpeeps/react';
 import Toast from 'react-native-toast-message';
 import { useTheme } from '@react-navigation/native';

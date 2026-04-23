@@ -5,14 +5,9 @@ FROM node:24-alpine
 ARG VERSION
 ARG ENVIRONMENT
 
-# g++/make: required when npm packages fall back to node-gyp (bcrypt, sharp, etc.). Without this,
-# linux/amd64 builds on Apple Silicon (QEMU) or any path missing a matching prebuild often fail while
-# native linux/arm64 works.
 RUN apk add --no-cache \
     dumb-init \
     ffmpeg \
-    g++ \
-    make \
     python3 \
     git
 
@@ -38,9 +33,9 @@ ADD . .
 RUN npm i -g pnpm
 RUN node scripts/generate-changelog.mjs
 RUN (cp ./CHANGELOG.md platform/app/src/routes/docs/admin/release-notes/+page.svx )
-RUN pnpm -r install
+RUN pnpm --filter @openpeeps/app... install
 
-RUN pnpm -r build
+RUN pnpm --filter @openpeeps/app... build
 
 RUN (mkdir -p /apat/.media && mkdir -p /apat/.logs)
 

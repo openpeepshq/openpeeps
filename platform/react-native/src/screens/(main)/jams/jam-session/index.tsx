@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { JamRoom } from '../../../../components/custom';
-import { MainScreenProps } from '../../../../components/navigation/types';
+import { JamRoom } from '~/components/custom';
+import { MainScreenProps } from '~/components/navigation/types';
 import { useRoomContext, useConnectionState } from '@livekit/react-native';
-import { ThemedSafeAreaView } from '../../../../components/ui/themed-safe-area-view';
-import { JamLobby } from '../../../../components/custom';
+import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { JamLobby } from '~/components/custom';
 import { useOpenpeeps } from '@openpeeps/react';
 import { ActivityIndicator } from 'react-native';
-import { useJamStore } from '../../../../stores/useJamStore';
+import { useJamStore } from '~/stores/useJamStore';
 
 export const JamSession: React.FC<MainScreenProps<'JamSession'>> = ({
   navigation,

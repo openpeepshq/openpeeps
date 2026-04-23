@@ -2,12 +2,12 @@ import {KeyboardAvoidingView, Pressable, View} from 'react-native';
 import React, {forwardRef} from 'react';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {BaseSheet} from '../common';
-import {ThemedText} from '../../../ui/themed-text';
+import {ThemedText} from '~/components/ui/themed-text';
 import {useTranslation} from 'react-i18next';
 import timezones from 'timezones-list';
-import {CheckIcon, SearchIcon} from '../../../icons';
-import {Input} from '../../../ui/input';
-import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
+import {CheckIcon, SearchIcon} from '~/components/icons';
+import {Input} from '~/components/ui/input';
+import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 type ItemProps = {
   tzCode: string;
   utc: string;

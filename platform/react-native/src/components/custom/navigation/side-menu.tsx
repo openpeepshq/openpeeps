@@ -1,8 +1,8 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { Separator } from '../../ui/separator';
+import { Separator } from '~/components/ui/separator';
 import { Image, TouchableOpacity, View } from 'react-native';
-import { Button } from '../../ui/button';
+import { Button } from '~/components/ui/button';
 import {
   BellIcon,
   BookTextIcon,
@@ -19,15 +19,15 @@ import {
   SearchIcon,
   ScrollTextIcon,
   BookmarkIcon
-} from '../../icons';
-import { ThemedText } from '../../ui/themed-text';
-import { useWindowSize } from '../../../hooks/helper';
-import { useAppImagesStore } from '../../../stores/useAppImagesStore';
+} from '~/components/icons';
+import { ThemedText } from '~/components/ui/themed-text';
+import { useWindowSize } from '~/hooks/helper';
+import { useAppImagesStore } from '~/stores/useAppImagesStore';
 import { useOpenpeeps } from '@openpeeps/react';
 import { LucideProps, SquarePenIcon } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { ProfileAvatar } from '../profile/profile-avatar';
-import type { GotoHandlerParams } from '../../../types/goto';
+import type { GotoHandlerParams } from '~/types/goto';
 
 type MenuItem = {
   icon: React.ComponentType<LucideProps>;

@@ -4,22 +4,22 @@ import {
   InfoIcon,
   ShareIcon,
   VideoIcon,
-} from '../../../icons';
+} from '~/components/icons';
 import { ActivityIndicator, Pressable, Share, View } from 'react-native';
-import { Button } from '../../../ui/button';
-import { ThemedSafeAreaView } from '../../../ui/themed-safe-area-view';
-import { AudioOutputList } from './audio-output-list';
+import { Button } from '~/components/ui/button';
+import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { AudioOutputList } from '~/components/custom/jam/pieces/audio-output-list';
 import { Event, PublicPost } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
-import { ThemedText } from '../../../ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import { DeviceSelectionForm } from './device-selection-form';
 import { ProfileAvatar } from '../../profile/profile-avatar';
-import { truncateText } from '../../../../lib/utils';
-import { BASE_URL } from '../../../../lib/constants';
+import { truncateText } from '~/lib/utils';
+import { BASE_URL } from '~/lib/constants';
 import { useEffect, useState } from 'react';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
-import { useJamLivekitStore } from '../../../../stores/useJamStore';
+import { useJamLivekitStore } from '~/stores/useJamStore';
 
 export const JamLobby = ({
   goBack,

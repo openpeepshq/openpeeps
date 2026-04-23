@@ -1,14 +1,14 @@
-import {MainScreenProps} from '../../../../components/navigation/types';
-import {EditNotificationsSheet, GenericHeader} from '../../../../components/custom';
+import {MainScreenProps} from '~/components/navigation/types';
+import {EditNotificationsSheet, GenericHeader} from '~/components/custom';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {Pressable, View} from 'react-native';
 import {useTranslation} from 'react-i18next';
-import {ThemedSafeAreaView} from '../../../../components/ui/themed-safe-area-view';
+import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
 import React, {useCallback, useRef} from 'react';
-import {ThemedText} from '../../../../components/ui/themed-text';
-import {ThemedView} from '../../../../components/ui/themed-view';
+import {ThemedText} from '~/components/ui/themed-text';
+import {ThemedView} from '~/components/ui/themed-view';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {ChevronRightIcon} from '../../../../components/icons';
+import {ChevronRightIcon} from '~/components/icons';
 import {useOpenpeeps} from '@openpeeps/react';
 import {NotificationType} from '@openpeeps/common';
 

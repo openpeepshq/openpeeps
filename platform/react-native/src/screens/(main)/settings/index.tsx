@@ -2,17 +2,17 @@ import React from 'react';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '../../../components/navigation/types';
-import { ThemedView } from '../../../components/ui/themed-view';
-import { ThemedText } from '../../../components/ui/themed-text';
+} from '~/components/navigation/types';
+import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedText } from '~/components/ui/themed-text';
 import { Pressable, View } from 'react-native';
-import { TabScreensHeader } from '../../../components/custom';
+import { TabScreensHeader } from '~/components/custom';
 import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import { useOpenpeeps } from '@openpeeps/react';
-import { ChevronRightIcon } from '../../../components/icons';
+import { ChevronRightIcon } from '~/components/icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 

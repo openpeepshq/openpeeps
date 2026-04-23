@@ -1,5 +1,5 @@
 import React from 'react';
-import { useOwnReactionsStore } from '../../../../stores/useJamStore';
+import { useOwnReactionsStore } from '~/stores/useJamStore';
 import { AnimatedEmoji } from './animated-emoji';
 
 export const OwnReactions = () => {

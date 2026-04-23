@@ -1,9 +1,9 @@
 import React from 'react';
 import { Profile } from '@openpeeps/common';
-import { Avatar, AvatarImage } from '../../ui/avatar';
+import { Avatar, AvatarImage } from '~/components/ui/avatar';
 import { useTranslation } from 'react-i18next';
 import { View, Text } from 'react-native';
-import { cn, getInitials } from '../../../lib/utils';
+import { cn, getInitials } from '~/lib/utils';
 
 export const ProfileAvatar = ({
   profile,

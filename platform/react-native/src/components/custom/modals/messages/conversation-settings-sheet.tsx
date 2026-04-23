@@ -1,9 +1,9 @@
 import React, { forwardRef } from 'react';
 import { View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Text } from '../../../ui/text';
-import { Switch } from '../../../ui/switch';
-import { RadioGroup, RadioGroupItem } from '../../../ui/radio-group';
+import { Text } from '~/components/ui/text';
+import { Switch } from '~/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
 import { BaseSheet } from '../common';
 import { useTranslation } from 'react-i18next';
 

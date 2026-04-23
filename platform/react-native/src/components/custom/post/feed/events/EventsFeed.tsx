@@ -1,11 +1,11 @@
 import { ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import React from 'react';
-import { EmptyStateContainer } from '../../../common/empty-state-container';
-import { handleScroll } from '../../../../../lib/utils';
+import { EmptyStateContainer } from '~/components/custom/common/empty-state-container';
+import { handleScroll } from '~/lib/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import type { PublicPost } from '@openpeeps/common';
 import { CardEvent } from '../../types/event/CardEvent';
-import { InfiniteQueryResult } from '../../../../../types';
+import { InfiniteQueryResult } from '~/types';
 
 interface Props {
   query: InfiniteQueryResult<PublicPost>;

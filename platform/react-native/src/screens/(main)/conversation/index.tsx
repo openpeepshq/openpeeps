@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { MainScreenProps } from '../../../components/navigation/types';
+import { MainScreenProps } from '~/components/navigation/types';
 import { useOpenpeeps } from '@openpeeps/react';
 import {
   GenericHeader,
@@ -7,7 +7,7 @@ import {
   ProfileHandle,
   ProfileImages,
   ProfileName,
-} from '../../../components/custom';
+} from '~/components/custom';
 import {
   KeyboardAvoidingView,
   ScrollView,
@@ -20,12 +20,12 @@ import { TextInput } from 'react-native';
 import {
   InfoIcon,
   SendHorizonalIcon,
-} from '../../../components/icons';
-import { ThemedSafeAreaView } from '../../../components/ui/themed-safe-area-view';
+} from '~/components/icons';
+import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 import { MediaAttachmentData } from '@openpeeps/common';
-import { MediaPreview } from '../../../components/custom/post/post-form/MediaPreview';
-import { DropdownMenu } from '../../../components/ui/dropdown-menu';
-import { ConversationProfileHeader, MessageCard } from '../../../components/custom/conversations';
+import { MediaPreview } from '~/components/custom/post/post-form/MediaPreview';
+import { DropdownMenu } from '~/components/ui/dropdown-menu';
+import { ConversationProfileHeader, MessageCard } from '~/components/custom/conversations';
 
 type ConversationProps = MainScreenProps<'Conversation'>;
 

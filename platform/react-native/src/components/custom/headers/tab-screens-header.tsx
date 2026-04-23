@@ -1,22 +1,22 @@
 import React from 'react';
 import {Image, View, ImageBackground, StatusBar, Platform} from 'react-native';
 
-import {ThemedText} from '../../ui/themed-text';
-import {Avatar, AvatarImage, AvatarFallback} from '../../ui/avatar';
-import {Button} from '../../ui/button';
-import {BellIcon} from '../../icons';
+import {ThemedText} from '~/components/ui/themed-text';
+import {Avatar, AvatarImage, AvatarFallback} from '~/components/ui/avatar';
+import {Button} from '~/components/ui/button';
+import {BellIcon} from '~/components/icons';
 import {User} from 'lucide-react-native';
-import {useDrawer} from '../../../contexts/drawer-context';
+import {useDrawer} from '~/contexts/drawer-context';
 import {useOpenpeeps} from '@openpeeps/react';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useAppImagesStore} from '../../../stores/useAppImagesStore';
+import {useAppImagesStore} from '~/stores/useAppImagesStore';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {BASE_URL, isProduction} from '../../../lib/constants';
-import {useWindowSize} from '../../../hooks';
-import {ThemedSafeAreaView} from '../../ui/themed-safe-area-view';
-import {TabStackParamList} from '../../navigation/types';
-import {setAppBadgeCount} from '../../../lib/notification-helpers';
+import {BASE_URL, isProduction} from '~/lib/constants';
+import {useWindowSize} from '~/hooks';
+import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
+import {TabStackParamList} from '~/components/navigation/types';
+import {setAppBadgeCount} from '~/lib/notification-helpers';
 
 interface TabScreensHeaderProps {
   showIcons?: boolean;

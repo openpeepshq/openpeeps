@@ -1,14 +1,14 @@
 import React from 'react';
 import { Drawer } from 'react-native-drawer-layout';
-import { useDrawer } from '../../contexts/drawer-context';
+import { useDrawer } from '~/contexts/drawer-context';
 import { useOpenpeeps } from '@openpeeps/react';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from './types';
 import { SideMenu } from '../custom/navigation/side-menu';
 import { buildGoto } from './helpers';
-import { registerMessageHandler } from '../../lib/push-notifications';
-import type { GotoHandlerParams } from '../../types/goto';
+import { registerMessageHandler } from '~/lib/push-notifications';
+import type { GotoHandlerParams } from '~/types/goto';
 
 interface SideMenuDrawerProps {
   children: React.ReactNode;

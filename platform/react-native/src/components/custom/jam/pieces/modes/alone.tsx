@@ -1,14 +1,14 @@
 import { View, Text } from 'react-native';
 import React from 'react';
 import { ParticipantView } from '../participant-view';
-import { ThemedText } from '../../../../ui/themed-text';
-import { truncateText } from '../../../../../lib/utils';
-import { CopyIcon } from '../../../../icons';
-import { Button } from '../../../../ui/button';
+import { ThemedText } from '~/components/ui/themed-text';
+import { truncateText } from '~/lib/utils';
+import { CopyIcon } from '~/components/icons';
+import { Button } from '~/components/ui/button';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Toast from 'react-native-toast-message';
-import { BASE_URL } from '../../../../../lib/constants';
-import { useJamStore } from '../../../../../stores/useJamStore';
+import { BASE_URL } from '~/lib/constants';
+import { useJamStore } from '~/stores/useJamStore';
 import { TrackReferenceOrPlaceholder } from '@livekit/react-native';
 
 interface AloneProps {
