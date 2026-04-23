@@ -1,28 +1,45 @@
-# @openpeeps/react-native-components
+# @openpeeps/react-native
 
-React Native Components to interact with the AllPeeP Community Server
+React Native **screens and shared UI** used by OpenPeeps community apps. This package contains code extracted from the Black Ambition community app (`screens/`, `components/`, plus supporting `lib/`, `stores/`, `hooks/`, `theme/`, `contexts/`, `i18n/`, etc.).
 
 ## Installation
 
+Host applications must provide the same **peer dependencies** as a full community client (React Navigation, NativeWind, `@openpeeps/common`, `@openpeeps/react`, LiveKit, cameras, etc.). See `package.json` → `peerDependencies`.
+
 ```sh
-npm install @openpeeps/react-native-components
+pnpm add @openpeeps/react-native
 ```
+
+Wrap your app with **`OpenpeepsProvider`** from `@openpeeps/react` (and a credentials store + `baseUrl`) so `useOpenpeeps()` and theme code work.
+
+Configure **NativeWind** / Tailwind in the app (including this package in Tailwind `content` if needed), load `src/global.css` from your entry, and supply **`react-native-config`** (or compatible env) for `BASE_URL` and related keys used by `~/lib/constants`.
 
 ## Usage
 
-
-```js
-import { ReactNativeComponentsView } from "@openpeeps/react-native-components";
-
-// ...
-
-<ReactNativeComponentsView color="tomato" />
+```tsx
+import {
+  Login,
+  Home,
+  OpenPeepsThemeProvider,
+  useAppImagesStore,
+} from '@openpeeps/react-native';
 ```
 
+Wire navigators and providers in your app root (the previous template’s single native view component has been removed; this is a **JavaScript-only** library).
 
-## Contributing
+## Local development (this monorepo)
 
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+`@openpeeps/common` and `@openpeeps/react` are **workspace** dependencies (`workspace:^` in `devDependencies`). Run `pnpm install` from the `openpeeps` repository root so they resolve; the lockfile is `openpeeps/pnpm-lock.yaml`.
+
+## Building
+
+```sh
+pnpm install
+pnpm run typecheck
+pnpm run build
+```
+
+Built output is written to `lib/` (CommonJS, ESM, and TypeScript declarations).
 
 ## License
 
@@ -30,4 +47,4 @@ MIT
 
 ---
 
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+Based on [create-react-native-library](https://github.com/callstack/react-native-builder-bob) (react-native-builder-bob).

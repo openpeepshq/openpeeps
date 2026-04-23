@@ -44,6 +44,7 @@
     "sharp": "^0.33.5"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.20",
     "@openpeeps/common": "workspace:^",
     "@openpeeps/svelte": "workspace:^",
     "@openpeeps/ui": "workspace:^",

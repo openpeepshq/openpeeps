@@ -1,12 +1,5 @@
 /**
- * @type {import('@react-native-community/cli-types').UserDependencyConfig}
+ * No native view modules — this package is JavaScript/TypeScript only.
+ * @type {import('@react-native-community/cli-types').UserConfig}
  */
-module.exports = {
-  dependency: {
-    platforms: {
-      android: {
-        cmakeListsPath: 'generated/jni/CMakeLists.txt',
-      },
-    },
-  },
-};
+module.exports = {};
