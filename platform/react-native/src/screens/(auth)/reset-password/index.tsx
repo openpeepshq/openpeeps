@@ -1,10 +1,10 @@
 import React from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AUTH_ROUTES, AuthStackParamList } from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+import { AUTH_ROUTES, AuthStackParamList } from '../../../components/navigation/types';
+import { Button } from '../../../components/ui/button';
+import { ThemedText } from '../../../components/ui/themed-text';
 import { View } from 'react-native';
-import { ArrowLeftIcon } from '~/components/icons';
+import { ArrowLeftIcon } from '../../../components/icons';
 
 export const ResetPassword = ({
   navigation: { navigate, goBack },

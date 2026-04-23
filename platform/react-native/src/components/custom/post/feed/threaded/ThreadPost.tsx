@@ -3,12 +3,12 @@ import { PublicPost } from '@openpeeps/common';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Pressable } from 'react-native';
-import { ProfileHandle, ProfileName } from '~/components/custom/common';
-import { UpdatingDate } from '~/components/custom/date';
-import { ProfileAvatar } from '~/components/custom/profile';
-import { MainStackParamList } from '~/components/navigation/types';
+import { ProfileHandle, ProfileName } from '../../../common';
+import { UpdatingDate } from '../../../date';
+import { ProfileAvatar } from '../../../profile';
+import { MainStackParamList } from '../../../../navigation/types';
 import { FeedPostContent, PostActions, PostMenu } from '../../pieces';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedView } from '../../../../ui/themed-view';
 
 interface ThreadPostProps {
     post: PublicPost;

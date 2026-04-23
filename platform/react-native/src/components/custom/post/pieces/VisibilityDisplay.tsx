@@ -1,6 +1,6 @@
 import React from 'react';
 import { AudienceSetting } from '@openpeeps/common';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../ui/themed-text';
 import { View } from 'react-native';
 import { GroupNameFromId } from '../../groups/group-name-from-id';
 import { ProfileAvatar } from '../../profile/profile-avatar';

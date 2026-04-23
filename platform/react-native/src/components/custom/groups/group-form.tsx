@@ -3,17 +3,17 @@ import {Pressable, View, Image} from 'react-native';
 import {UseFormReturn} from 'react-hook-form';
 import {MediaAttachment, Profile, PublicProfile} from '@openpeeps/common';
 import {GroupData} from '@openpeeps/common';
-import {FormField, FormInput, FormTextarea} from '~/components/ui/form';
+import {FormField, FormInput, FormTextarea} from '../../ui/form';
 import {useOpenpeeps} from '@openpeeps/react';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {ImagePickerSheet, ProfilePickerSheet} from '../modals';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {ThemedView} from '~/components/ui/themed-view';
-import {CameraIcon, PlusIcon, XIcon} from '~/components/icons';
-import {Avatar, AvatarImage} from '~/components/ui/avatar';
-import {ThemedText} from '~/components/ui/themed-text';
+import {ThemedView} from '../../ui/themed-view';
+import {CameraIcon, PlusIcon, XIcon} from '../../icons';
+import {Avatar, AvatarImage} from '../../ui/avatar';
+import {ThemedText} from '../../ui/themed-text';
 import {MiniProfileCard} from '../profile/profile-card';
-import {Button} from '~/components/ui/button';
+import {Button} from '../../ui/button';
 
 interface GroupFormProps {
   form: UseFormReturn<GroupData>;
@@ -116,7 +116,7 @@ export const GroupForm = ({
                   ? {uri: headerImage}
                   : form.getValues('header')
                   ? {uri: form.getValues('header')}
-                  : require('~/assets/images/group-header-placeholder.png')
+                  : require('../../../assets/images/group-header-placeholder.png')
               }
               className="w-full h-full rounded-md object-bottom absolute top-0"
               resizeMode="cover"
@@ -133,12 +133,12 @@ export const GroupForm = ({
                         ? {uri: avatarImage}
                         : form.getValues('avatar')
                         ? {uri: form.getValues('avatar')}
-                        : require('~/assets/images/default-group-avatar.png')
+                        : require('../../../assets/images/default-group-avatar.png')
                     }
                   />
                 ) : (
                   <AvatarImage
-                    source={require('~/assets/images/default-group-avatar.png')}
+                    source={require('../../../assets/images/default-group-avatar.png')}
                   />
                 )}
               </Avatar>

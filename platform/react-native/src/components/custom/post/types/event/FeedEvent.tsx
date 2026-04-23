@@ -1,9 +1,9 @@
 import React from 'react';
 import { Event, PublicPost } from '@openpeeps/common';
 import { Image, View } from 'react-native';
-import { ParticipantAvatar } from '~/components/custom/common/participant-avatar';
-import { ThemedText } from '~/components/ui/themed-text';
-import { formatEventDate } from '~/lib/utils';
+import { ParticipantAvatar } from '../../../common/participant-avatar';
+import { ThemedText } from '../../../../ui/themed-text';
+import { formatEventDate } from '../../../../../lib/utils';
 
 export const FeedEvent = ({ post }: { post: PublicPost }) => {
 

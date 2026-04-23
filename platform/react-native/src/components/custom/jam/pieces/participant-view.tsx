@@ -11,22 +11,22 @@ import {
   VideoTrack,
 } from '@livekit/react-native';
 import { View } from 'react-native';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../ui/themed-text';
 import { ProfileData } from '@openpeeps/common';
-import { Avatar, AvatarImage } from '~/components/ui/avatar';
+import { Avatar, AvatarImage } from '../../../ui/avatar';
 import {
   AudioLinesIcon,
   HandIcon,
   MicOffIcon,
   MoreVerticalIcon,
-} from '~/components/icons';
-import { cn } from '~/lib/utils';
-import { ThemedView } from '~/components/ui/themed-view';
-import { useJamStore } from '~/stores/useJamStore';
-import { MetadataType } from '~/types';
+} from '../../../icons';
+import { cn } from '../../../../lib/utils';
+import { ThemedView } from '../../../ui/themed-view';
+import { useJamStore } from '../../../../stores/useJamStore';
+import { MetadataType } from '../../../../types';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { JamParticipantActionSheet } from '../../modals';
-import { Button } from '~/components/ui/button';
+import { Button } from '../../../ui/button';
 import { OwnReactions } from './own-reactions';
 import { RemoteReactions } from './remote-reactions';
 import { useOpenpeeps } from '@openpeeps/react';

@@ -1,12 +1,12 @@
 import React, { useCallback, useRef } from 'react';
-import { Form, FormCheckbox, FormField, FormInput } from '~/components/ui/form';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
+import { Form, FormCheckbox, FormField, FormInput } from '../../../ui/form';
+import { ThemedText } from '../../../ui/themed-text';
+import { ThemedView } from '../../../ui/themed-view';
 import { ProfileInput } from '../../common/profile-input';
 import { XIcon } from 'lucide-react-native';
 import { Image, Pressable } from 'react-native';
 import { View } from 'react-native';
-import { CalendarIcon, ChevronDownIcon } from '~/components/icons';
+import { CalendarIcon, ChevronDownIcon } from '../../../icons';
 import { CameraIcon } from 'lucide-react-native';
 import {
   MediaAttachment,
@@ -18,7 +18,7 @@ import { useEffect, useState } from 'react';
 import { VisibilityInput } from './VisibilityInput';
 import { useOpenpeeps } from '@openpeeps/react';
 import { useTranslation } from 'react-i18next';
-import { truncateText } from '~/lib/utils';
+import { truncateText } from '../../../../lib/utils';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   EventDescriptionSheet,
@@ -26,11 +26,11 @@ import {
   TimeZoneSelectorSheet,
 } from '../../modals';
 import { useWatch } from 'react-hook-form';
-import { Checkbox } from '~/components/ui/checkbox';
+import { Checkbox } from '../../../ui/checkbox';
 import { DateSheet } from '../../modals/post/date-sheet';
-import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
+import { RadioGroup, RadioGroupItem } from '../../../ui/radio-group';
 import timezones from 'timezones-list';
-import { BASE_URL } from '~/lib/constants';
+import { BASE_URL } from '../../../../lib/constants';
 
 export const EventForm = ({
   form,
@@ -196,7 +196,7 @@ export const EventForm = ({
             source={
               isBackgroundChanged
                 ? { uri: headerImage }
-                : require('~/assets/images/event-placeholder.png')
+                : require('../../../../assets/images/event-placeholder.png')
             }
             className="w-full h-full rounded-md object-bottom absolute top-0"
             resizeMode="cover"

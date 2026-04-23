@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Text } from '~/components/ui/text';
+import { Text } from '../../../ui/text';
 import { PublicProfile } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
 import { BaseSheet } from '../common';
@@ -9,7 +9,7 @@ import { FollowUnfollowButton } from '../../profile';
 import { useTranslation } from 'react-i18next';
 
 import { useNavigation } from '@react-navigation/native';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileAvatar } from '../../profile/profile-avatar';
 

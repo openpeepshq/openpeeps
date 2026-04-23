@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { ThemedSafeAreaView } from '../../../../ui/themed-safe-area-view';
 import { useOpenpeeps } from '@openpeeps/react';
 import {
   CancelEventSheet,
@@ -11,7 +11,7 @@ import {
   ReplyButton,
   OpenPeepsMarkdown,
   ThreadedFeed,
-} from '~/components/custom';
+} from '../../..';
 import {
   MoreVerticalIcon,
   ShareIcon,
@@ -24,33 +24,33 @@ import {
   PencilLineIcon,
   Trash2Icon,
   FlagIcon,
-} from '~/components/icons';
+} from '../../../../icons';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../../../../ui/dropdown-menu';
+import { ThemedText } from '../../../../ui/themed-text';
 import { Image, View } from 'react-native';
 import { Event, PublicPost, Profile, PublicRsvp, Group, GroupData, buildThreads } from '@openpeeps/common';
-import { ProfileAvatar } from '~/components/custom/profile/profile-avatar';
-import { profileName, truncateText } from '~/lib/utils';
+import { ProfileAvatar } from '../../../profile/profile-avatar';
+import { profileName, truncateText } from '../../../../../lib/utils';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
-import { hasValue, groupName } from '~/lib/utils';
-import { BASE_URL } from '~/lib/constants';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import { MainStackParamList } from '../../../../navigation/types';
+import { hasValue, groupName } from '../../../../../lib/utils';
+import { BASE_URL } from '../../../../../lib/constants';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../../ui/tabs';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Toast from 'react-native-toast-message';
-import { useLocalPostStore } from '~/stores/useLocalPostStore';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
+import { useLocalPostStore } from '../../../../../stores/useLocalPostStore';
+import { useNewConversationStore } from '../../../../../stores/useNewConversationStore';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
-import { Button } from '~/components/ui/button';
-import { calculateEffectiveRsvps } from '~/lib/utils';
+import { Button } from '../../../../ui/button';
+import { calculateEffectiveRsvps } from '../../../../../lib/utils';
 
 interface FullEventProps {
   post: PublicPost;
@@ -118,7 +118,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
           source={
             event?.image
               ? { uri: event?.image }
-              : require('~/assets/images/event-placeholder.png')
+              : require('../../../../../assets/images/event-placeholder.png')
           }
           className="w-full h-full rounded-md"
         />

@@ -1,11 +1,11 @@
 import {KeyboardAvoidingView, ScrollView, View} from 'react-native';
 import React from 'react';
-import {GenericHeader} from '~/components/custom';
-import {XIcon} from '~/components/icons';
+import {GenericHeader} from '../../../../../components/custom';
+import {XIcon} from '../../../../../components/icons';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {MainStackParamList} from '~/components/navigation/types';
-import {ThemedText} from '~/components/ui/themed-text';
-import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
+import {MainStackParamList} from '../../../../../components/navigation/types';
+import {ThemedText} from '../../../../../components/ui/themed-text';
+import {ThemedSafeAreaView} from '../../../../../components/ui/themed-safe-area-view';
 
 export const JamHostControls = ({
   navigation,

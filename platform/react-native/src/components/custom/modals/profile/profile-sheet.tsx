@@ -10,7 +10,7 @@ import {
   ProfileName,
 } from '../../common/profile-pieces';
 import { useNavigation } from '@react-navigation/native';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FollowUnfollowButton } from '../../profile';
 

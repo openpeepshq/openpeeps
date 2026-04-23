@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {dateFormatter} from './formatter';
-import {ThemedText} from '~/components/ui/themed-text';
+import {ThemedText} from '../../ui/themed-text';
 
 interface UpdatingDateProps {
   date: string | Date | number;

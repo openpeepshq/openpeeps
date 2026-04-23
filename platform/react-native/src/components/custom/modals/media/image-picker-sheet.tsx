@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import type { Album, PhotoIdentifier } from '@react-native-camera-roll/camera-roll';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Button } from '~/components/ui/button';
-import { CameraIcon, ChevronDownIcon, CheckIcon } from '~/components/icons';
+import { Button } from '../../../ui/button';
+import { CameraIcon, ChevronDownIcon, CheckIcon } from '../../../icons';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import ImagePicker from 'react-native-image-crop-picker';
 import { launchCamera } from 'react-native-image-picker';
@@ -27,13 +27,13 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '../../../ui/dropdown-menu';
 import { MediaAttachment } from '@openpeeps/common';
-import { uploadMedia } from '~/lib/uploadMedia';
+import { uploadMedia } from '../../../../lib/uploadMedia';
 import { useOpenpeeps } from '@openpeeps/react';
 import Toast from 'react-native-toast-message';
-import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import { useOpenPeepsTheme } from '../../../../theme/OpenPeepsThemeProvider';
+import { bottomSheetClose } from '../../../../lib/bottom-sheet-ref';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

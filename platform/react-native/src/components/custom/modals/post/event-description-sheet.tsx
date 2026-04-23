@@ -2,10 +2,10 @@ import {TextInput, View} from 'react-native';
 import React, {forwardRef} from 'react';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {BaseSheet, SheetFooter} from '../common';
-import {ThemedText} from '~/components/ui/themed-text';
+import {ThemedText} from '../../../ui/themed-text';
 import {useTranslation} from 'react-i18next';
-import {cn} from '~/lib/utils';
-import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
+import {cn} from '../../../../lib/utils';
+import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
 
 interface EventDescriptionSheetProps {
   initialDescription?: string;

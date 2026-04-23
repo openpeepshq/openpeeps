@@ -4,8 +4,8 @@ import {
   type RenderFunction,
 } from 'react-native-markdown-display';
 import { handleRegexBase, type MentionWithProfile } from '@openpeeps/common';
-import { ThemedText } from '~/components/ui/themed-text';
-import type { MarkdownInlineRulerState } from '~/types/markdown-plugin';
+import { ThemedText } from '../../../ui/themed-text';
+import type { MarkdownInlineRulerState } from '../../../../types/markdown-plugin';
 
 /**
  * Creates a MarkdownIt plugin to create tokens for mentions

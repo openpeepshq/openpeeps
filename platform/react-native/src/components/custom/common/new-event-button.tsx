@@ -1,6 +1,6 @@
 import {Pressable} from 'react-native';
 import React from 'react';
-import {PlusIcon} from '~/components/icons';
+import {PlusIcon} from '../../icons';
 
 interface NewEventButtonProps {
   onPress: () => void;

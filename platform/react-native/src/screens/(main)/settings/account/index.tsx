@@ -1,19 +1,19 @@
-import {MainScreenProps} from '~/components/navigation/types';
+import {MainScreenProps} from '../../../../components/navigation/types';
 import {useOpenpeeps} from '@openpeeps/react';
-import {GenericHeader} from '~/components/custom';
+import {GenericHeader} from '../../../../components/custom';
 import React, {useEffect, useState} from 'react';
-import {ThemedText} from '~/components/ui/themed-text';
-import {ThemedView} from '~/components/ui/themed-view';
+import {ThemedText} from '../../../../components/ui/themed-text';
+import {ThemedView} from '../../../../components/ui/themed-view';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {Form, FormField, FormInput} from '~/components/ui/form';
+import {Form, FormField, FormInput} from '../../../../components/ui/form';
 import Toast from 'react-native-toast-message';
-import {Button} from '~/components/ui/button';
+import {Button} from '../../../../components/ui/button';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {Account, updateAccountPasswordFormSchema} from '@openpeeps/common';
 import {View} from 'react-native';
 import {useTranslation} from 'react-i18next';
-import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
+import {ThemedSafeAreaView} from '../../../../components/ui/themed-safe-area-view';
 
 type AccountSettingsProps = MainScreenProps<'AccountSettings'>;
 

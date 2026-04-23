@@ -17,7 +17,7 @@ import {
   Repost,
   Reaction,
 } from './types';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../ui/themed-text';
 import { NewGroupPost } from './types/NewGroupPost';
 
 interface NotificationComponentProps {

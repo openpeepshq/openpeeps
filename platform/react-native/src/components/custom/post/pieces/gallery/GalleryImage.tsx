@@ -1,6 +1,6 @@
 import React from 'react';
 import { MediaAttachmentData } from '@openpeeps/common';
-import { CachedImage } from '~/components/custom/common/cached-image';
+import { CachedImage } from '../../../common/cached-image';
 
 interface GalleryImageProps {
     attachment: MediaAttachmentData;

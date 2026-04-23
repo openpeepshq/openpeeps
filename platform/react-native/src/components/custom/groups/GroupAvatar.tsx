@@ -1,7 +1,7 @@
 import React from 'react';
 import { Group } from '@openpeeps/common';
-import { Avatar, AvatarImage } from '~/components/ui/avatar';
-import { cn } from '~/lib/utils';
+import { Avatar, AvatarImage } from '../../ui/avatar';
+import { cn } from '../../../lib/utils';
 import { useOpenpeeps } from '@openpeeps/react';
 
 export const GroupAvatar = ({

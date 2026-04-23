@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { MainScreenProps } from '~/components/navigation/types';
+import { MainScreenProps } from '../../../../../components/navigation/types';
 import { useOpenpeeps } from '@openpeeps/react';
 import {
   GenericHeader,
@@ -8,18 +8,18 @@ import {
   ProfilePickerSheet,
   RemoveAdminPrivilegesFromMemberConfirmationSheet,
   RemoveGroupMemberConfirmationSheet,
-} from '~/components/custom';
-import { profileMatchesQuery, truncateText } from '~/lib/utils';
+} from '../../../../../components/custom';
+import { profileMatchesQuery, truncateText } from '../../../../../lib/utils';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { PlusIcon, SearchIcon, XIcon } from '~/components/icons';
-import { Input } from '~/components/ui/input';
+import { PlusIcon, SearchIcon, XIcon } from '../../../../../components/icons';
+import { Input } from '../../../../../components/ui/input';
 import { GroupMember, Profile } from '@openpeeps/common';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../../../components/ui/themed-text';
 import { ActivityIndicator, Pressable } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import Toast from 'react-native-toast-message';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { useNewConversationStore } from '../../../../../stores/useNewConversationStore';
+import { ThemedSafeAreaView } from '../../../../../components/ui/themed-safe-area-view';
 
 type GroupMembersProps = MainScreenProps<'GroupMembers'>;
 

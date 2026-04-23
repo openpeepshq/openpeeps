@@ -2,8 +2,8 @@ import {ActivityIndicator, View} from 'react-native';
 import React, {forwardRef, useEffect} from 'react';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {BaseSheet, SheetFooter} from '../common';
-import {ThemedText} from '~/components/ui/themed-text';
-import {Switch} from '~/components/ui/switch';
+import {ThemedText} from '../../../ui/themed-text';
+import {Switch} from '../../../ui/switch';
 import {
   NotificationType,
   ProfileNotificationSettings,
@@ -13,7 +13,7 @@ import {useOpenpeeps} from '@openpeeps/react';
 import Toast from 'react-native-toast-message';
 import {useTranslation} from 'react-i18next';
 import {notificationDefaults} from '@openpeeps/common';
-import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
 
 interface EditNotificationsSheetProps {
   name: string;

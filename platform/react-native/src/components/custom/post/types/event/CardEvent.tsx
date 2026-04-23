@@ -1,17 +1,17 @@
 import { View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import React, { useMemo } from 'react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../../ui/themed-text';
 import { Event, PublicPost, PublicRsvp } from '@openpeeps/common';
-import { truncateText } from '~/lib/utils';
+import { truncateText } from '../../../../../lib/utils';
 import { useOpenpeeps } from '@openpeeps/react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
-import { calculateEffectiveRsvps } from '~/lib/utils';
-import { Timespan } from '~/components/custom/date';
-import { EventLocation } from '~/components/custom/post/pieces/EventLocation';
-import { ProfileEventRelationship } from '~/components/custom/post/pieces/ProfileEventRelationship';
-import { ParticipantsCard } from '~/components/custom/common';
+import { MainStackParamList } from '../../../../navigation/types';
+import { calculateEffectiveRsvps } from '../../../../../lib/utils';
+import { Timespan } from '../../../date';
+import { EventLocation } from '../../pieces/EventLocation';
+import { ProfileEventRelationship } from '../../pieces/ProfileEventRelationship';
+import { ParticipantsCard } from '../../../common';
 
 interface CardEventProps {
   post: PublicPost;
@@ -42,7 +42,7 @@ export const CardEvent = ({ post }: CardEventProps) => {
           source={
             event.image
               ? { uri: event.image }
-              : require('~/assets/images/event-placeholder.png')
+              : require('../../../../../assets/images/event-placeholder.png')
           }
           className="w-full h-full rounded-t-md"
         />

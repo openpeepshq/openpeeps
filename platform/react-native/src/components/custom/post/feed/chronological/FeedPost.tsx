@@ -1,7 +1,7 @@
 import { type PublicPost } from '@openpeeps/common';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../../../navigation/types';
 import {
     PostHeader,
     PostActions,
@@ -10,7 +10,7 @@ import {
 } from '../../pieces';
 import React from 'react';
 import { ThreadPost } from '../threaded/ThreadPost';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedView } from '../../../../ui/themed-view';
 
 interface FeedPostProps {
     post: PublicPost;

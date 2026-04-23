@@ -1,8 +1,8 @@
 import React from 'react';
-import {CachedVideoPlayer} from '~/components/custom/common/cached-video-player';
-import {ThemedView} from '~/components/ui/themed-view';
+import {CachedVideoPlayer} from '../../../components/custom/common/cached-video-player';
+import {ThemedView} from '../../../components/ui/themed-view';
 
-import {MainScreenProps} from '~/components/navigation/types';
+import {MainScreenProps} from '../../../components/navigation/types';
 
 type PostProps = MainScreenProps<'VideoPlayer'>;
 

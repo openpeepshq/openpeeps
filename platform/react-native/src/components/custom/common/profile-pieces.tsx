@@ -1,12 +1,12 @@
 import React from 'react';
 import { Profile } from '@openpeeps/common';
-import { truncateText } from '~/lib/utils';
+import { truncateText } from '../../../lib/utils';
 import { useOpenpeeps } from '@openpeeps/react';
 import { Pressable, View } from 'react-native';
-import { ThemedText } from '~/components/ui/themed-text';
-import { Avatar, AvatarImage } from '~/components/ui/avatar';
+import { ThemedText } from '../../ui/themed-text';
+import { Avatar, AvatarImage } from '../../ui/avatar';
 import { useNavigation } from '@react-navigation/native';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {ProfileAvatar} from '../profile';
 

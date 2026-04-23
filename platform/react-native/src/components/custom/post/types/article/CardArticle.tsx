@@ -1,11 +1,11 @@
 import { View, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../../ui/themed-text';
 import { Article, PublicPost } from '@openpeeps/common';
-import { truncateText } from '~/lib/utils';
+import { truncateText } from '../../../../../lib/utils';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../../../navigation/types';
 
 interface CardArticleProps {
   post: PublicPost;

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { OpenPeepsTheme } from '~/theme/types';
+import { OpenPeepsTheme } from '../../../theme/types';
 
 export const markdownTheme = (colors: OpenPeepsTheme['colors']): StyleSheet.NamedStyles<unknown> => {
     return ({

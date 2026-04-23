@@ -6,10 +6,10 @@ import {
 import React from 'react';
 import type { PublicNotification } from '@openpeeps/common';
 import { useFocusEffect } from '@react-navigation/native';
-import { handleScroll } from '~/lib/utils';
+import { handleScroll } from '../../../lib/utils';
 import { EmptyStateContainer } from '../common/empty-state-container';
 import { NotificationComponent } from './NotificationComponent';
-import { InfiniteQueryResult } from '~/types';
+import { InfiniteQueryResult } from '../../../types';
 
 interface Props {
   query: InfiniteQueryResult<PublicNotification>;

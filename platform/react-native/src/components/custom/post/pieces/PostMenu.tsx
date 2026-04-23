@@ -11,29 +11,29 @@ import {
   PinIcon,
   BookmarkPlusIcon,
   BookmarkMinusIcon,
-} from '~/components/icons';
+} from '../../../icons';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../../../ui/dropdown-menu';
+import { ThemedText } from '../../../ui/themed-text';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Toast from 'react-native-toast-message';
-import { BASE_URL } from '~/lib/constants';
+import { BASE_URL } from '../../../../lib/constants';
 import { checkGroupCapabilities, checkRoleCapabilities, PublicPost } from '@openpeeps/common';
-import { truncateText } from '~/lib/utils';
+import { truncateText } from '../../../../lib/utils';
 import { useOpenpeeps } from '@openpeeps/react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { DeletePostSheeConfirmationSheet } from '~/components/custom/modals/post';
+import { DeletePostSheeConfirmationSheet } from '../../modals/post';
 import { useNavigation } from '@react-navigation/native';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { ReportProfileOrPostSheet } from '../../common/report-profile-or-post-sheet';
-import { UploadIcon } from '~/components/icons';
+import { UploadIcon } from '../../../icons';
 interface PostMenuProps {
   post: PublicPost;
 }

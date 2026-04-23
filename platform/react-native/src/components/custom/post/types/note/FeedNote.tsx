@@ -1,11 +1,11 @@
 import React from 'react';
 import type { PublicPost } from '@openpeeps/common/types';
 
-import { Attachments } from '~/components/custom/post/pieces/Attachments';
+import { Attachments } from '../../pieces/Attachments';
 
 import { View } from 'react-native';
-import { ThemedText } from '~/components/ui/themed-text';
-import { OpenPeepsMarkdown } from '~/components/custom/markdown';
+import { ThemedText } from '../../../../ui/themed-text';
+import { OpenPeepsMarkdown } from '../../../markdown';
 
 interface Props {
     post: PublicPost;

@@ -1,19 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+import { Button } from '../../../ui/button';
+import { ThemedText } from '../../../ui/themed-text';
 import {
   Repeat2Icon,
   MessageSquareIcon,
   ThumbsUpIcon,
-} from '~/components/icons';
-import { Separator } from '~/components/ui/separator';
+} from '../../../icons';
+import { Separator } from '../../../ui/separator';
 import { type PublicPost } from '@openpeeps/common';
 import { getReactionCount } from '@openpeeps/common';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../../navigation/types';
 import { useOpenpeeps } from '@openpeeps/react';
 
 interface PostActionsProps {

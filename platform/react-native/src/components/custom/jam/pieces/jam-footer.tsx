@@ -1,7 +1,7 @@
 import React from 'react';
 import { RoomControls } from './room-controls';
 import { useLocalParticipant, useRoomContext } from '@livekit/react-native';
-import { toggleCamera, toggleMicrophone } from '~/lib/jam-actions';
+import { toggleCamera, toggleMicrophone } from '../../../../lib/jam-actions';
 import { Platform, findNodeHandle, NativeModules } from 'react-native';
 import { ScreenCapturePickerView } from '@livekit/react-native-webrtc';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';

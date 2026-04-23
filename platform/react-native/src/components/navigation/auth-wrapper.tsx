@@ -4,11 +4,11 @@ import React from 'react';
 import { Image, ImageBackground, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { ThemedText } from '../ui/themed-text';
-import { isProduction } from '~/lib/constants';
-import { BASE_URL } from '~/lib/constants';
-import { useWindowSize } from '~/hooks';
+import { isProduction } from '../../lib/constants';
+import { BASE_URL } from '../../lib/constants';
+import { useWindowSize } from '../../hooks';
 import { getTheme } from '@openpeeps/common';
-import { toAbsoluteMediaUrl } from '~/lib/media-url';
+import { toAbsoluteMediaUrl } from '../../lib/media-url';
 
 const DevBanner = () =>
   !isProduction && (
@@ -22,7 +22,7 @@ const DevBanner = () =>
 const Logo = () => {
   return (
     <Image
-      source={require('~/assets/images/logo.webp')}
+      source={require('../../assets/images/logo.webp')}
       className="absolute z-10  top-16 left-2 max-w-fit w-[206px] h-[26px]"
       resizeMode="contain"
     />
@@ -49,7 +49,7 @@ const AuthImage = ({ children }: { children?: React.ReactNode }) => {
       source={
         resolvedAuthBackgroundUri && !isLoading
           ? { uri: resolvedAuthBackgroundUri }
-          : require('~/assets/images/black-ambition-2025-hero.png')
+          : require('../../assets/images/black-ambition-2025-hero.png')
       }
       className="w-full justify-end flex-1">
       <Logo />

@@ -1,11 +1,11 @@
 import { View, TouchableWithoutFeedback, Pressable } from 'react-native';
 import React from 'react';
 import { Profile } from '@openpeeps/common';
-import { XIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
-import { truncateText } from '~/lib/utils';
+import { XIcon } from '../../icons';
+import { ThemedText } from '../../ui/themed-text';
+import { truncateText } from '../../../lib/utils';
 import { useNavigation } from '@react-navigation/native';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileAvatar } from './profile-avatar';
 

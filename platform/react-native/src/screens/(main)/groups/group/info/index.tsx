@@ -1,18 +1,18 @@
 import React from 'react';
-import { MainScreenProps } from '~/components/navigation/types';
+import { MainScreenProps } from '../../../../../components/navigation/types';
 import { useOpenpeeps } from '@openpeeps/react';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedView } from '../../../../../components/ui/themed-view';
 import {
   GenericHeader,
   OpenPeepsMarkdown,
   UpdatingDate,
-} from '~/components/custom';
-import { truncateText } from '~/lib/utils';
+} from '../../../../../components/custom';
+import { truncateText } from '../../../../../lib/utils';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../../../components/ui/themed-text';
 import { ActivityIndicator, View } from 'react-native';
-import { Avatar, AvatarImage } from '~/components/ui/avatar';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { Avatar, AvatarImage } from '../../../../../components/ui/avatar';
+import { ThemedSafeAreaView } from '../../../../../components/ui/themed-safe-area-view';
 import { useTranslation } from 'react-i18next';
 
 type GroupInfoProps = MainScreenProps<'GroupInfo'>;

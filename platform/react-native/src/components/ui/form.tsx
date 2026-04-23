@@ -16,13 +16,13 @@ import {
   BottomSheetContent,
   BottomSheetOpenTrigger,
   BottomSheetView,
-} from '~/components/ui/bottom-sheet';
-import { Button, buttonTextVariants } from '~/components/ui/button';
-import { Calendar } from '~/components/ui/calendar';
-import { Combobox, ComboboxOption } from '~/components/ui/combobox';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { RadioGroup } from '~/components/ui/radio-group';
+} from './bottom-sheet';
+import { Button, buttonTextVariants } from './button';
+import { Calendar } from './calendar';
+import { Combobox, ComboboxOption } from './combobox';
+import { Input } from './input';
+import { Label } from './label';
+import { RadioGroup } from './radio-group';
 import {
   RenderSelectItem,
   Select,
@@ -31,13 +31,13 @@ import {
   type SelectOption,
   type SelectProps,
   SelectTrigger,
-} from '~/components/custom/common/select';
-import { Switch } from '~/components/ui/switch';
-import { Textarea } from '~/components/ui/textarea';
-import { XIcon, CalendarIcon } from '~/components/icons';
-import { cn } from '~/lib/utils';
+} from '../custom/common/select';
+import { Switch } from './switch';
+import { Textarea } from './textarea';
+import { XIcon, CalendarIcon } from '../icons';
+import { cn } from '../../lib/utils';
 import type { DateData } from 'react-native-calendars';
-import { Checkbox } from '~/components/ui/checkbox';
+import { Checkbox } from './checkbox';
 import { ThemedText } from './themed-text';
 
 const Form = FormProvider;

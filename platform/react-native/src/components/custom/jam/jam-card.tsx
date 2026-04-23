@@ -1,7 +1,7 @@
 import { Image, View } from 'react-native';
 import React from 'react';
 import { Event, PublicPost } from '@openpeeps/common';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../ui/themed-text';
 import { UpdatingDate } from '../date/updating-date';
 import { useOpenpeeps } from '@openpeeps/react';
 import { ParticipantAvatar } from '../common/participant-avatar';
@@ -25,7 +25,7 @@ export const JamCard = ({
         <View className="flex flex-row gap-x-4 mb-4 w-full">
           <View className="size-24">
             <Image
-              source={require('~/assets/images/jam-placeholder.png')}
+              source={require('../../../assets/images/jam-placeholder.png')}
               className="w-full h-full rounded-md"
             />
           </View>

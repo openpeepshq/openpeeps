@@ -1,9 +1,9 @@
 import React from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {PlusIcon} from '~/components/icons';
+import {PlusIcon} from '../../icons';
 import {Pressable} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {MainStackParamList} from '~/components/navigation/types';
+import {MainStackParamList} from '../../navigation/types';
 
 export const NewJamButton = () => {
   const navigation =

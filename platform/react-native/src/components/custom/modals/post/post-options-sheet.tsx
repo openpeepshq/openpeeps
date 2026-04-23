@@ -7,10 +7,10 @@ import {
   ChartColumnIcon,
   UsersIcon,
   CalendarIcon,
-} from '~/components/icons';
+} from '../../../icons';
 import { BaseSheet } from '../common';
 import { useTranslation } from 'react-i18next';
-import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
 
 const options = [
   { id: 'image', title: 'Image', icon: ImageIcon },

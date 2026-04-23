@@ -9,9 +9,9 @@ import React from 'react';
 import { useOpenpeeps } from '@openpeeps/react';
 import { useForm } from 'react-hook-form';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Form, FormField, FormInput } from '~/components/ui/form';
-import { ThemedText } from '~/components/ui/themed-text';
-import { Button } from '~/components/ui/button';
+import { Form, FormField, FormInput } from '../../../ui/form';
+import { ThemedText } from '../../../ui/themed-text';
+import { Button } from '../../../ui/button';
 import { Event, PublicPost } from '@openpeeps/common';
 
 interface GuestDataFormProps {

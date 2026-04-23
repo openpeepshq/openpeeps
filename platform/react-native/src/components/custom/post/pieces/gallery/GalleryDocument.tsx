@@ -1,12 +1,12 @@
 import React from 'react';
-import { DownloadIcon } from '~/components/icons';
+import { DownloadIcon } from '../../../../icons';
 import type { MediaAttachmentData } from '@openpeeps/common';
-import { Button } from '~/components/ui/button';
+import { Button } from '../../../../ui/button';
 import { DocumentAttachment } from '../DocumentAttachment';
 import { useTranslation } from 'react-i18next';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
-import { downloadDocument } from '~/lib/downloadFile';
+import { ThemedText } from '../../../../ui/themed-text';
+import { ThemedView } from '../../../../ui/themed-view';
+import { downloadDocument } from '../../../../../lib/downloadFile';
 
 interface GalleryDocumentProps {
     attachment: MediaAttachmentData;

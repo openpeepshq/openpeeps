@@ -1,30 +1,30 @@
 import React from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../../components/navigation/types';
 import { Pressable, View } from 'react-native';
 import { useOpenpeeps } from '@openpeeps/react';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedText } from '../../../components/ui/themed-text';
+import { ThemedView } from '../../../components/ui/themed-view';
 import {
   XIcon,
   SearchIcon,
   MoreVerticalIcon,
   CheckIcon,
-} from '~/components/icons';
+} from '../../../components/icons';
 import {
   TabScreensHeader,
   NewEventButton,
-} from '~/components/custom';
+} from '../../../components/custom';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { Input } from '~/components/ui/input';
+} from '../../../components/ui/dropdown-menu';
+import { Input } from '../../../components/ui/input';
 import { useTranslation } from 'react-i18next';
-import { EventsFeed } from '~/components/custom/post/feed/events';
+import { EventsFeed } from '../../../components/custom/post/feed/events';
 import { checkRoleCapabilities } from '@openpeeps/common';
 
 export const Events = ({

@@ -1,18 +1,18 @@
-import { MainScreenProps } from '~/components/navigation/types';
+import { MainScreenProps } from '../../../../components/navigation/types';
 import { useOpenpeeps } from '@openpeeps/react';
-import { GenericHeader } from '~/components/custom';
+import { GenericHeader } from '../../../../components/custom';
 import React, { useEffect, useState } from 'react';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedText } from '../../../../components/ui/themed-text';
+import { ThemedView } from '../../../../components/ui/themed-view';
 import Toast from 'react-native-toast-message';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
+import { ThemedSafeAreaView } from '../../../../components/ui/themed-safe-area-view';
+import { RadioGroup, RadioGroupItem } from '../../../../components/ui/radio-group';
 import { getTheme, THEME_OPTIONS, type ThemeOptions } from '@openpeeps/common';
-import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
-import { useAppImagesStore } from '~/stores/useAppImagesStore';
+import { useOpenPeepsTheme } from '../../../../theme/OpenPeepsThemeProvider';
+import { useAppImagesStore } from '../../../../stores/useAppImagesStore';
 
 type ThemeSettingsProps = MainScreenProps<'ThemeSettings'>;
 

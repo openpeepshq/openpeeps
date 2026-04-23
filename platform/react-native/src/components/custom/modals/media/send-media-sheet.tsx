@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import type { Album, PhotoIdentifier } from '@react-native-camera-roll/camera-roll';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Button } from '~/components/ui/button';
-import { CameraIcon, ChevronDownIcon, CheckIcon } from '~/components/icons';
+import { Button } from '../../../ui/button';
+import { CameraIcon, ChevronDownIcon, CheckIcon } from '../../../icons';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import { launchCamera } from 'react-native-image-picker';
 import {
@@ -22,15 +22,15 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
+} from '../../../ui/dropdown-menu';
+import { ThemedText } from '../../../ui/themed-text';
+import { useNewConversationStore } from '../../../../stores/useNewConversationStore';
 import { useOpenpeeps } from '@openpeeps/react';
 import type { MediaAttachment } from '@openpeeps/common';
-import { uploadMedia } from '~/lib/uploadMedia';
+import { uploadMedia } from '../../../../lib/uploadMedia';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
-import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

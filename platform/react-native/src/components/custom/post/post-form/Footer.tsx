@@ -1,7 +1,7 @@
 import {View} from 'react-native';
 import React from 'react';
-import {ThemedText} from '~/components/ui/themed-text';
-import {Button} from '~/components/ui/button';
+import {ThemedText} from '../../../ui/themed-text';
+import {Button} from '../../../ui/button';
 import {
   ImageIcon,
   FilmIcon,
@@ -9,9 +9,9 @@ import {
   NotebookIcon,
   PaperclipIcon,
   NewspaperIcon,
-} from '~/components/icons';
+} from '../../../icons';
 import {PostCreationData, PostType} from '@openpeeps/common';
-import {maxContentLength, maxArticleContentLength} from '~/lib/utils';
+import {maxContentLength, maxArticleContentLength} from '../../../../lib/utils';
 
 interface FooterProps {
   content: PostCreationData;

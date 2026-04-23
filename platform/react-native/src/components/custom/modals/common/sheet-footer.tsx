@@ -1,7 +1,7 @@
 import React from 'react';
 import {ActivityIndicator, View} from 'react-native';
-import {Button} from '~/components/ui/button';
-import {ThemedText} from '~/components/ui/themed-text';
+import {Button} from '../../../ui/button';
+import {ThemedText} from '../../../ui/themed-text';
 import {useTranslation} from 'react-i18next';
 
 type Variants =

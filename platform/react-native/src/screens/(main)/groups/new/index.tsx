@@ -1,14 +1,14 @@
 import React, {useState} from 'react';
-import {GenericHeader, GroupForm} from '~/components/custom';
+import {GenericHeader, GroupForm} from '../../../../components/custom';
 import {zodResolver} from '@hookform/resolvers/zod';
 import Toast from 'react-native-toast-message';
 import {useForm} from 'react-hook-form';
-import {Form} from '~/components/ui/form';
+import {Form} from '../../../../components/ui/form';
 import {GroupData, groupDataSchema, PublicProfile} from '@openpeeps/common';
 import {useOpenpeeps} from '@openpeeps/react';
-import {MainScreenProps} from '~/components/navigation/types';
-import {uploadMedia} from '~/lib/uploadMedia';
-import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
+import {MainScreenProps} from '../../../../components/navigation/types';
+import {uploadMedia} from '../../../../lib/uploadMedia';
+import {ThemedSafeAreaView} from '../../../../components/ui/themed-safe-area-view';
 
 type CreateGroupProps = MainScreenProps<'CreateGroup'>;
 export const CreateGroup: React.FC<CreateGroupProps> = ({navigation}) => {

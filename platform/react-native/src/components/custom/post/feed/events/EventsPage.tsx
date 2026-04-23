@@ -1,9 +1,9 @@
 import React from 'react';
 import type { PublicPost } from '@openpeeps/common';
-import { TabbedView } from '~/components/ui/tabs';
+import { TabbedView } from '../../../../ui/tabs';
 import { EventsFeed } from './EventsFeed';
 import { useTranslation } from 'react-i18next';
-import { InfiniteQueryResult } from '~/types';
+import { InfiniteQueryResult } from '../../../../../types';
 
 
 interface Props {

@@ -6,18 +6,18 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { ThemedView } from '~/components/ui/themed-view';
-import { MainScreenProps } from '~/components/navigation/types';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
+import { ThemedView } from '../../../../../components/ui/themed-view';
+import { MainScreenProps } from '../../../../../components/navigation/types';
+import { useNewConversationStore } from '../../../../../stores/useNewConversationStore';
 import { TouchableOpacity } from 'react-native';
-import { GenericHeader } from '~/components/custom/headers';
+import { GenericHeader } from '../../../../../components/custom/headers';
 import {
   SendHorizonalIcon,
-} from '~/components/icons';
+} from '../../../../../components/icons';
 import { useOpenpeeps } from '@openpeeps/react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../../../components/ui/themed-text';
 import { Profile } from '@openpeeps/common';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { ThemedSafeAreaView } from '../../../../../components/ui/themed-safe-area-view';
 
 type DraftMessageProps = MainScreenProps<'DraftMessage'>;
 

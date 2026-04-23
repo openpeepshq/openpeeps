@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { TabScreensHeader } from '~/components/custom';
-import { ThemedView } from '~/components/ui/themed-view';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { ThemedText } from '~/components/ui/themed-text';
+import { TabScreensHeader } from '../../../components/custom';
+import { ThemedView } from '../../../components/ui/themed-view';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
+import { ThemedText } from '../../../components/ui/themed-text';
 import { View } from 'react-native';
 import { useOpenpeeps } from '@openpeeps/react';
 import { useTranslation } from 'react-i18next';
-import { NotificationFeed } from '~/components/custom/notification/NotificationFeed';
-import { setAppBadgeCount } from '~/lib/notification-helpers';
+import { NotificationFeed } from '../../../components/custom/notification/NotificationFeed';
+import { setAppBadgeCount } from '../../../lib/notification-helpers';
 
 export const Notifications = () => {
   const [tabValue, setTabValue] = useState('all');

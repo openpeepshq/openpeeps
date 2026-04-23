@@ -1,21 +1,21 @@
 import React, { useEffect } from 'react';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedView } from '../../../../components/ui/themed-view';
 import {
   GenericHeader,
-} from '~/components/custom';
+} from '../../../../components/custom';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Toast from 'react-native-toast-message';
 import { useForm } from 'react-hook-form';
-import { ThemedText } from '~/components/ui/themed-text';
-import { Form, FormField, FormCheckbox, FormInput } from '~/components/ui/form';
+import { ThemedText } from '../../../../components/ui/themed-text';
+import { Form, FormField, FormCheckbox, FormInput } from '../../../../components/ui/form';
 import { PostCreationData, postCreationDataSchema, PublicProfile } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
-import { MainScreenProps } from '~/components/navigation/types';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { MainScreenProps } from '../../../../components/navigation/types';
+import { ThemedSafeAreaView } from '../../../../components/ui/themed-safe-area-view';
 import { useTranslation } from 'react-i18next';
-import { VisibilityInput } from '~/components/custom/post/post-form/VisibilityInput';
-import { ProfileInput } from '~/components/custom/common/profile-input';
+import { VisibilityInput } from '../../../../components/custom/post/post-form/VisibilityInput';
+import { ProfileInput } from '../../../../components/custom/common/profile-input';
 type CreateNewJamProps = MainScreenProps<'CreateNewJam'>;
 
 export const CreateNewJam: React.FC<CreateNewJamProps> = ({ navigation }) => {

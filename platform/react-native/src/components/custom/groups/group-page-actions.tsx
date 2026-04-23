@@ -1,6 +1,6 @@
 import { View, Pressable } from 'react-native';
 import React, { useCallback, useRef } from 'react';
-import { MainScreenProps } from '~/components/navigation/types';
+import { MainScreenProps } from '../../navigation/types';
 import { GroupWithMeta, PublicProfile } from '@openpeeps/common';
 import {
   DropdownMenu,
@@ -8,7 +8,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '../../ui/dropdown-menu';
 import {
   FlagIcon,
   LinkIcon,
@@ -19,17 +19,17 @@ import {
   ShareIcon,
   TrashIcon,
   LoaderIcon,
-} from '~/components/icons';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../../icons';
+import { Button } from '../../ui/button';
+import { ThemedText } from '../../ui/themed-text';
 import { useOpenpeeps } from '@openpeeps/react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { DeleteGroupConfirmationSheet } from '../modals';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { BASE_URL } from '~/lib/constants';
+import { BASE_URL } from '../../../lib/constants';
 import Toast from 'react-native-toast-message';
-import { useLocalPostStore } from '~/stores/useLocalPostStore';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
+import { useLocalPostStore } from '../../../stores/useLocalPostStore';
+import { useNewConversationStore } from '../../../stores/useNewConversationStore';
 
 interface GroupPageActionsProps extends MainScreenProps<'Group'> {
   groupData: GroupWithMeta;

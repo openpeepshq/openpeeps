@@ -1,6 +1,6 @@
 import {Pressable} from 'react-native';
 import React from 'react';
-import {PencilLineIcon} from '~/components/icons';
+import {PencilLineIcon} from '../../icons';
 interface NewPostButtonProps {
   onPress: () => void;
 }

@@ -3,22 +3,22 @@ import React, { useCallback, useRef } from 'react';
 import { UpdatingDate } from '../date/updating-date';
 import { OpenPeepsMarkdown } from '../markdown/OpenPeepsMarkdown';
 import { PublicPost } from '@openpeeps/common';
-import { Text } from '~/components/ui/text';
-import { Button } from '~/components/ui/button';
+import { Text } from '../../ui/text';
+import { Button } from '../../ui/button';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-} from '~/components/ui/dropdown-menu';
-import { BellOffIcon, FlagIcon, Trash2Icon } from '~/components/icons';
+} from '../../ui/dropdown-menu';
+import { BellOffIcon, FlagIcon, Trash2Icon } from '../../icons';
 import { useOpenpeeps } from '@openpeeps/react';
 import {
   ProfileSheet,
   ParticipantsSheet,
 } from '../modals';
 import { ProfileImages, ProfileName } from '../common/profile-pieces';
-import { truncateText } from '~/lib/utils';
+import { truncateText } from '../../../lib/utils';
 interface ConversationPreviewCardProps {
   conversation: PublicPost[];
   onPress: () => void;

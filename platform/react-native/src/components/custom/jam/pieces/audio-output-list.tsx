@@ -1,15 +1,15 @@
 import {AudioSession} from '@livekit/react-native';
 import React, {useEffect, useState} from 'react';
-import {Button} from '~/components/ui/button';
+import {Button} from '../../../ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import {ThemedText} from '~/components/ui/themed-text';
-import {Volume2Icon} from '~/components/icons';
+} from '../../../ui/dropdown-menu';
+import {ThemedText} from '../../../ui/themed-text';
+import {Volume2Icon} from '../../../icons';
 
 export const AudioOutputList = () => {
   const [audioOutputs, setAudioOutputs] = useState<string[]>([]);

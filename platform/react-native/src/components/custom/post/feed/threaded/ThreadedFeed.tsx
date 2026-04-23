@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-import { ThemedView } from '~/components/ui/themed-view';
-import { MainStackParamList } from '~/components/navigation/types';
+import { ThemedView } from '../../../../ui/themed-view';
+import { MainStackParamList } from '../../../../navigation/types';
 import { Thread } from '@openpeeps/common';
 import { Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { collectPath, lastLongestPathSelector } from '~/lib/post';
+import { collectPath, lastLongestPathSelector } from '../../../../../lib/post';
 import { ThreadPost } from './ThreadPost';
 
 type ThreadedFeedProps = {

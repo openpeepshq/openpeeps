@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Image, ImageProps, ActivityIndicator, View} from 'react-native';
-import {fetchCachedMedia} from '~/utils/media-cache';
+import {fetchCachedMedia} from '../../../utils/media-cache';
 
 interface CachedImageProps extends Omit<ImageProps, 'source'> {
   url: string;

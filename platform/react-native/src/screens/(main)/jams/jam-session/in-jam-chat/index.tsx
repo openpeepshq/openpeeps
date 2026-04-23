@@ -7,29 +7,29 @@ import {
   View,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedView } from '../../../../../components/ui/themed-view';
 import {
   GenericHeader,
   OpenPeepsMarkdown,
   UpdatingDate,
-} from '~/components/custom';
+} from '../../../../../components/custom';
 import {
   XIcon,
   MoreHorizontalIcon,
   SendHorizonalIcon,
   LoaderIcon,
-} from '~/components/icons';
+} from '../../../../../components/icons';
 import { useOpenpeeps } from '@openpeeps/react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../../../../components/navigation/types';
 import { JamEvent, PublicProfile } from '@openpeeps/common';
-import { ThemedText } from '~/components/ui/themed-text';
-import { truncateText } from '~/lib/utils';
+import { ThemedText } from '../../../../../components/ui/themed-text';
+import { truncateText } from '../../../../../lib/utils';
 import { useChat, useLocalParticipant } from '@livekit/react-native';
-import { MetadataType } from '~/types';
+import { MetadataType } from '../../../../../types';
 import uuid from 'react-native-uuid';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ProfileAvatar } from '~/components/custom/profile/profile-avatar';
+import { ThemedSafeAreaView } from '../../../../../components/ui/themed-safe-area-view';
+import { ProfileAvatar } from '../../../../../components/custom/profile/profile-avatar';
 
 export const InJamChat = ({
   route,

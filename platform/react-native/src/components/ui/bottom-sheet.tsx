@@ -18,9 +18,9 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '~/components/ui/button';
-import { XIcon } from '~/components/icons';
-import { cn } from '~/lib/utils';
+import { Button } from './button';
+import { XIcon } from '../icons';
+import { cn } from '../../lib/utils';
 
 type BottomSheetRef = React.ElementRef<typeof View>;
 type BottomSheetProps = React.ComponentPropsWithoutRef<typeof View>;

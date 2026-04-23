@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedView } from '../../../../../components/ui/themed-view';
 import {
   ProfileCard,
-} from '~/components/custom/profile';
-import { GenericHeader } from '~/components/custom/headers';
-import { EmptyStateContainer } from '~/components/custom/common';
+} from '../../../../../components/custom/profile';
+import { GenericHeader } from '../../../../../components/custom/headers';
+import { EmptyStateContainer } from '../../../../../components/custom/common';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useOpenpeeps } from '@openpeeps/react';
-import { CheckIcon, XIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
+import { CheckIcon, XIcon } from '../../../../../components/icons';
+import { ThemedText } from '../../../../../components/ui/themed-text';
 import { ActivityIndicator, Pressable, View } from 'react-native';
-import { MainScreenProps } from '~/components/navigation/types';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
-import { Input } from '~/components/ui/input';
-import { profileMatchesQuery } from '~/lib/utils';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { MainScreenProps } from '../../../../../components/navigation/types';
+import { useNewConversationStore } from '../../../../../stores/useNewConversationStore';
+import { Input } from '../../../../../components/ui/input';
+import { profileMatchesQuery } from '../../../../../lib/utils';
+import { ThemedSafeAreaView } from '../../../../../components/ui/themed-safe-area-view';
 
 type SelectPrivateMessageMembersProps =
   MainScreenProps<'SelectPrivateMessageMembers'>;

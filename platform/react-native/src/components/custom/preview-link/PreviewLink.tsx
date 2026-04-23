@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { isLocalLink, isValidUrl } from './helpers';
 import { LocalPreviewLink } from './LocalPreviewLink';
 import { RemotePreviewLink } from './RemotePreviewLink';
-import { BASE_URL } from '~/lib/constants';
+import { BASE_URL } from '../../../lib/constants';
 
 interface PreviewLinkProps {
   url?: string;

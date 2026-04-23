@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Button } from '~/components/ui/button';
+import { Button } from '../../../ui/button';
 import {
   MicIcon,
   MicOffIcon,
@@ -25,15 +25,15 @@ import {
   InfoIcon,
   ScreenShareIcon,
   CircleIcon,
-} from '~/components/icons';
+} from '../../../icons';
 import { useLocalParticipant, useRoomContext } from '@livekit/react-native';
-import { toggleHand } from '~/lib/jam-actions';
-import { ThemedText } from '~/components/ui/themed-text';
-import { jamEmojis } from '~/lib/constants';
+import { toggleHand } from '../../../../lib/jam-actions';
+import { ThemedText } from '../../../ui/themed-text';
+import { jamEmojis } from '../../../../lib/constants';
 import { useOpenpeeps } from '@openpeeps/react';
-import { MetadataType } from '~/types';
+import { MetadataType } from '../../../../types';
 import uuid from 'react-native-uuid';
-import { useJamStore, useOwnReactionsStore } from '~/stores/useJamStore';
+import { useJamStore, useOwnReactionsStore } from '../../../../stores/useJamStore';
 import { PublicProfile } from '@openpeeps/common';
 import { Buffer } from 'react-native-buffer';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';

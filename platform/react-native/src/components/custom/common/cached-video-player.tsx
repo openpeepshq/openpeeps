@@ -21,9 +21,9 @@ import {
   PlayIcon,
   PauseIcon,
   Repeat2Icon,
-} from '~/components/icons';
-import { fetchCachedMedia } from '~/utils/media-cache';
-import { Button } from '~/components/ui/button';
+} from '../../icons';
+import { fetchCachedMedia } from '../../../utils/media-cache';
+import { Button } from '../../ui/button';
 interface CachedVideoPlayerProps {
   url: string;
   title?: string;

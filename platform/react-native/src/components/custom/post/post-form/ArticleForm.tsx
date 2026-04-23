@@ -4,16 +4,16 @@ import {UseFormReturn} from 'react-hook-form';
 import {VisibilityInput} from './VisibilityInput';
 import {AudienceSetting, MediaAttachment} from '@openpeeps/common';
 import {PostCreationData} from '@openpeeps/common';
-import {Form, FormTextarea, FormField, FormInput} from '~/components/ui/form';
-import {cn} from '~/lib/utils';
+import {Form, FormTextarea, FormField, FormInput} from '../../../ui/form';
+import {cn} from '../../../../lib/utils';
 import {useTranslation} from 'react-i18next';
 
 import {useOpenpeeps} from '@openpeeps/react';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {ThemedView} from '~/components/ui/themed-view';
-import {CameraIcon, XIcon} from '~/components/icons';
-import {ThemedText} from '~/components/ui/themed-text';
-import {Button} from '~/components/ui/button';
+import {ThemedView} from '../../../ui/themed-view';
+import {CameraIcon, XIcon} from '../../../icons';
+import {ThemedText} from '../../../ui/themed-text';
+import {Button} from '../../../ui/button';
 import {ImagePickerSheet} from '../../modals';
 import ArticlePreviewSheet from './ArticlePreviewSheet';
 
@@ -136,7 +136,7 @@ export const ArticleForm = ({
                   ? {uri: headerImage}
                   : form.getValues('data.image')
                   ? {uri: form.getValues('data.image')}
-                  : require('~/assets/images/group-header-placeholder.png')
+                  : require('../../../../assets/images/group-header-placeholder.png')
               }
               className="w-full h-full rounded-md object-bottom absolute top-0"
               resizeMode="cover"

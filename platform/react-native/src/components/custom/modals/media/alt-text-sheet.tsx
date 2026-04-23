@@ -1,11 +1,11 @@
 import React, { forwardRef, useState } from 'react';
 import { View, TextInput } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../ui/themed-text';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
-import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
-import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
+import { useOpenPeepsTheme } from '../../../../theme/OpenPeepsThemeProvider';
+import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
 
 interface AltSheetProps {
   onUpdate?: (altText: string) => Promise<void> | void;

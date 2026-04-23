@@ -1,17 +1,17 @@
 import React, {forwardRef, useEffect, useState} from 'react';
 import {View, ScrollView, ActivityIndicator} from 'react-native';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {ThemedText} from '~/components/ui/themed-text';
+import {ThemedText} from '../../../ui/themed-text';
 import {PublicProfile} from '@openpeeps/common';
 import {useOpenpeeps} from '@openpeeps/react';
-import {profileMatchesQuery} from '~/lib/utils';
-import {CheckIcon, SearchIcon} from '~/components/icons';
-import {Input} from '~/components/ui/input';
+import {profileMatchesQuery} from '../../../../lib/utils';
+import {CheckIcon, SearchIcon} from '../../../icons';
+import {Input} from '../../../ui/input';
 import {BaseSheet, SheetFooter} from '../common';
 import Toast from 'react-native-toast-message';
 import {MiniProfileCard, ProfileCard} from '../../profile/profile-card';
 import {useTranslation} from 'react-i18next';
-import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose, bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
 
 interface ProfilePickerSheetProps {
   onSelect?: (profile: PublicProfile[]) => void;

@@ -4,9 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PlayIcon } from 'lucide-react-native';
 import { View } from 'react-native';
-import { CachedImage } from '~/components/custom/common';
-import { MainStackParamList } from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
+import { CachedImage } from '../../../common';
+import { MainStackParamList } from '../../../../navigation/types';
+import { Button } from '../../../../ui/button';
 
 interface GalleryVideoProps {
     attachment: MediaAttachmentData;

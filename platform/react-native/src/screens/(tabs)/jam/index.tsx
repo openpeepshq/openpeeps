@@ -1,6 +1,6 @@
 import React from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../../components/navigation/types';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -8,22 +8,22 @@ import {
   View,
 } from 'react-native';
 import { useOpenpeeps } from '@openpeeps/react';
-import { ThemedText } from '~/components/ui/themed-text';
-import { MoreVerticalIcon } from '~/components/icons';
+import { ThemedText } from '../../../components/ui/themed-text';
+import { MoreVerticalIcon } from '../../../components/icons';
 import {
   TabScreensHeader,
   NewJamButton,
   EmptyStateContainer,
   JamCard,
-} from '~/components/custom';
-import { Button } from '~/components/ui/button';
+} from '../../../components/custom';
+import { Button } from '../../../components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '../../../components/ui/dropdown-menu';
 
 export const Jam = ({
   navigation,

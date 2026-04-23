@@ -1,5 +1,5 @@
 import React from 'react';
-import {ThemedText} from '~/components/ui/themed-text';
+import {ThemedText} from '../../ui/themed-text';
 
 interface TimespanProps {
   start: string;

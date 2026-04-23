@@ -2,11 +2,11 @@ import { View, ScrollView, RefreshControl } from 'react-native';
 import React from 'react';
 import type { PublicPost } from '@openpeeps/common';
 import { useFocusEffect } from '@react-navigation/native';
-import { handleScroll } from '~/lib/utils';
+import { handleScroll } from '../../../../../lib/utils';
 import { PinnedPost } from './PinnedPost';
 import { FeedPost } from './FeedPost';
-import { EmptyStateContainerType, InfiniteQueryResult } from '~/types';
-import { CustomLoader, EmptyStateContainer } from '~/components/custom';
+import { EmptyStateContainerType, InfiniteQueryResult } from '../../../../../types';
+import { CustomLoader, EmptyStateContainer } from '../../..';
 
 
 interface Props {

@@ -3,12 +3,12 @@ import { Text, View } from 'react-native';
 
 import { PublicPost } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
-import { FeedPostContent, UpdatingDate } from '~/components/custom';
+import { ThemedText } from '../../ui/themed-text';
+import { ThemedView } from '../../ui/themed-view';
+import { FeedPostContent, UpdatingDate } from '..';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Button } from '~/components/ui/button';
-import { ThumbsUpIcon } from '~/components/icons';
+import { Button } from '../../ui/button';
+import { ThumbsUpIcon } from '../../icons';
 import { MessageOptionsSheet, DeleteMessageConfirmationSheet } from '../modals';
 
 interface MessageCardProps {

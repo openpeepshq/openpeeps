@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedView } from '../../ui/themed-view';
 import { useOpenpeeps } from '@openpeeps/react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../ui/themed-text';
 import { useForm } from 'react-hook-form';
 import {
   MediaAttachment,
@@ -12,13 +12,13 @@ import {
 } from '@openpeeps/common';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ActivityIndicator, Image, Pressable, View } from 'react-native';
-import { Avatar, AvatarImage } from '~/components/ui/avatar';
-import { Form, FormField, FormInput, FormTextarea } from '~/components/ui/form';
+import { Avatar, AvatarImage } from '../../ui/avatar';
+import { Form, FormField, FormInput, FormTextarea } from '../../ui/form';
 import Toast from 'react-native-toast-message';
-import { ImagePickerSheet } from '~/components/custom';
-import { CameraIcon, XIcon } from '~/components/icons';
+import { ImagePickerSheet } from '..';
+import { CameraIcon, XIcon } from '../../icons';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Button } from '~/components/ui/button';
+import { Button } from '../../ui/button';
 import { useTranslation } from 'react-i18next';
 
 type EditProfileFormProps = {
@@ -200,7 +200,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                         ? { uri: newBackground }
                         : form.getValues('header')
                           ? { uri: form.getValues('header') }
-                          : require('~/assets/images/profile-background-placeholder.png')
+                          : require('../../../assets/images/profile-background-placeholder.png')
                     }
                     className="w-full h-full rounded-md object-bottom absolute top-0"
                     resizeMode="cover"
@@ -217,7 +217,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                             ? { uri: newAvatar }
                             : form.getValues('avatar')
                               ? { uri: form.getValues('avatar') }
-                              : require('~/assets/images/black-ambition-2025-hero.png')
+                              : require('../../../assets/images/black-ambition-2025-hero.png')
                         }
                       />
                     </Avatar>

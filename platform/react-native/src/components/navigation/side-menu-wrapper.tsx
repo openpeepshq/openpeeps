@@ -6,8 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import { MainStackParamList } from './types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { buildGoto } from './helpers';
-import { registerMessageHandler } from '~/lib/push-notifications';
-import type { GotoHandlerParams } from '~/types/goto';
+import { registerMessageHandler } from '../../lib/push-notifications';
+import type { GotoHandlerParams } from '../../types/goto';
 
 export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
   const { openpeepsApi, currentProfile } = useOpenpeeps();
@@ -54,7 +54,7 @@ export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
           ? {
             uri: serverInfo?.communityConfig.theme.background,
           }
-          : require('~/assets/images/black-ambition-2025-hero.png')
+          : require('../../assets/images/black-ambition-2025-hero.png')
       }
       className="w-screen h-screen flex justify-center items-center">
       <View className="max-w-[892px] bg-background flex flex-row h-full px-2">

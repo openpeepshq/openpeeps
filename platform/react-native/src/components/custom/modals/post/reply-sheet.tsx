@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../ui/themed-text';
 import { BaseSheet } from '../common';
 import { useTranslation } from 'react-i18next';
 import { useOpenpeeps } from '@openpeeps/react';

@@ -6,9 +6,9 @@ import {
   MAIN_ROUTES,
   ROOT_ROUTES,
   RootStackParamList,
-} from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../../../components/navigation/types';
+import { Button } from '../../../components/ui/button';
+import { ThemedText } from '../../../components/ui/themed-text';
 import { Image } from 'react-native';
 import { View } from 'react-native';
 import { CompositeScreenProps } from '@react-navigation/native';
@@ -33,7 +33,7 @@ export const Success: React.FC<SuccessScreenProps> = ({
             <View className="mb-4 p-5 w-full flex-1 bg-alpha justify-center items-center rounded-md">
               <View className="space-y-4 items-center bg-transparent">
                 <Image
-                  source={require('~/assets/images/success.webp')}
+                  source={require('../../../assets/images/success.webp')}
                   className="rounded-md object-bottom"
                   resizeMode="cover"
                 />
@@ -76,7 +76,7 @@ export const Success: React.FC<SuccessScreenProps> = ({
           <>
             <View className="space-y-4 items-center bg-transparent">
               <Image
-                source={require('~/assets/images/success.webp')}
+                source={require('../../../assets/images/success.webp')}
                 className="rounded-md object-bottom"
                 resizeMode="cover"
               />
