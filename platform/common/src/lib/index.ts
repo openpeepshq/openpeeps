@@ -7,3 +7,4 @@ export * from './groupHelpers';
 export * from './colors';
 export * from './markdownHelpers';
 export * from './attachmentHelpers';
+export * from './eventIcs';

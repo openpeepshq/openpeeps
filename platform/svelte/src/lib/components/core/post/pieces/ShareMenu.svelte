@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { me, repostMutation } from '$lib/api';
-	import type { PublicPost } from '@openpeeps/common/types';
-	import { Repeat, Send, Copy, Share } from 'lucide-svelte';
+	import type { Event, PublicPost } from '@openpeeps/common/types';
+	import { buildEventIcs } from '@openpeeps/common/lib';
+	import { Repeat, Send, Copy, Share, Calendar } from 'lucide-svelte';
 	import {
 		PopupMenu,
 		PopupMenuButton,
@@ -30,6 +31,22 @@
 	let { post, menuButton, variant, class: additionalClasses, icon = Share }: Props = $props();
 
 	const repost = repostMutation({ id: post.id });
+
+	const downloadEventIcs = async () => {
+		const postUrl = `${page.url.origin}/posts/${post.id}`;
+		const ics = buildEventIcs(post, { postUrl });
+		if (!ics) return;
+		const event = post.data as Event;
+		const raw = event.name?.trim() || `event-${post.id}`;
+		const safe = raw.replace(/[/\\?%*:|"<>]/g, '-').slice(0, 100);
+		const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+		const href = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = href;
+		a.download = `${safe}.ics`;
+		a.click();
+		URL.revokeObjectURL(href);
+	}
 </script>
 
 <PopupMenu menuId="share-menu-{post.id}" {icon} {menuButton} {variant} class={additionalClasses}>
@@ -53,6 +70,14 @@
 		/>
 		<PopupSeparator />
 		<PopupSection title={t('posts.shareMenu.otherOptions')} />
+	{/if}
+	{#if post.type === 'event'}
+		<PopupMenuButton
+			title={t('posts.shareMenu.downloadCalendarIcsTitle')}
+			action={downloadEventIcs}
+			text={t('posts.shareMenu.downloadCalendarIcs')}
+			icon={Calendar}
+		/>
 	{/if}
 	<PopupMenuButton
 		title={t('posts.shareMenu.copyLink')}
