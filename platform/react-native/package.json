@@ -67,9 +67,6 @@
     "url": "https://gitlab.allpeep-hq.com/allpeep/open-source/react-native-components/issues"
   },
   "homepage": "https://gitlab.allpeep-hq.com/allpeep/open-source/react-native-components#readme",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  },
   "dependencies": {
     "@openpeeps/common": "workspace:^",
     "@openpeeps/react": "workspace:^",
