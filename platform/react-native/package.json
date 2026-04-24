@@ -48,7 +48,7 @@
     "lint": "eslint \"src/**/*.{js,ts,tsx}\"",
     "clean": "del-cli lib",
     "build": "bob build",
-    "prepublishOnly": "pnpm run build",
+    "prepublishOnly": "pnpm --filter @openpeeps/react-native... build",
     "release": "release-it"
   },
   "packageManager": "pnpm@10.3.0",
