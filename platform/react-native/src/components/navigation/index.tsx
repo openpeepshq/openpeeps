@@ -1,27 +1,28 @@
 import React from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {RootStackParamList, ROOT_ROUTES} from './types';
-import {AuthNavigator} from './auth-navigator';
-import {useOpenpeeps} from '@openpeeps/react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { RootStackParamList, ROOT_ROUTES } from './types';
+import { AuthNavigator } from './auth-navigator';
+import { useOpenpeeps } from '@openpeeps/react';
+import { MainNavigator } from './main-navigator';
+import { useAppImagesStore } from '../../stores/useAppImagesStore';
+import { fetchCachedMedia } from '../../utils/media-cache';
+import { getTheme } from '@openpeeps/common';
+import { ActivityIndicator, Image, View } from 'react-native';
+import { toAbsoluteMediaUrl } from '../../lib/media-url';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
-import {MainNavigator} from './main-navigator';
-import {useAppImagesStore} from '../../stores/useAppImagesStore';
-import {fetchCachedMedia} from '../../utils/media-cache';
-import {getTheme} from '@openpeeps/common';
-import {ActivityIndicator, Image, View} from 'react-native';
-import {toAbsoluteMediaUrl} from '../../lib/media-url';
 
 export const Navigation = () => {
-  const {openpeepsApi, currentProfile} = useOpenpeeps();
-  const {setBackground, setLogoSmall} = useAppImagesStore();
+  const { openpeepsApi, currentProfile } = useOpenpeeps();
+  const { setBackground, setLogoSmall } = useAppImagesStore();
   const [authBrandingReady, setAuthBrandingReady] = React.useState(false);
   const {
     data: serverInfo,
     status: serverInfoStatus,
     isError: serverInfoIsError,
+    isFetched: serverInfoIsFetched,
   } = openpeepsApi.useServerInfo();
-  const {data: profileSettings} = openpeepsApi.useCurrentProfileSettings();
+  const { data: profileSettings } = openpeepsApi.useCurrentProfileSettings();
 
   const setDefaultTheme = React.useCallback(async () => {
     if (!serverInfo) {
@@ -105,10 +106,15 @@ export const Navigation = () => {
     };
   }, [currentProfile, serverInfo, serverInfoStatus]);
 
+  // Wait for server info only on the *initial* load (!isFetched). After any attempt
+  // (success or error), isFetched is true, so a refetch in "pending" must not
+  // re-enable the full-screen gate — that was unmounting auth and retriggering
+  // useServerInfo observers in a loop.
   const shouldWaitForServerInfoBeforeAuth =
     !currentProfile &&
     !serverInfoIsError &&
-    (serverInfoStatus !== 'success' || !authBrandingReady);
+    ((serverInfoStatus === 'success' && !authBrandingReady) ||
+      (!serverInfoIsFetched && serverInfoStatus === 'pending'));
 
   if (shouldWaitForServerInfoBeforeAuth) {
     return (
@@ -120,7 +126,7 @@ export const Navigation = () => {
 
   return (
     <RootStack.Navigator
-      screenOptions={{headerShown: false, animation: 'fade'}}>
+      screenOptions={{ headerShown: false, animation: 'fade' }}>
       {currentProfile ? (
         <RootStack.Screen name={ROOT_ROUTES.MAIN} component={MainNavigator} />
       ) : (

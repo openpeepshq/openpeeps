@@ -1,6 +1,6 @@
 {
   "name": "@openpeeps/react-native",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "React Native community screens and shared UI (extracted from the Black Ambition app) for the OpenPeeps stack.",
   "source": "./src/index.ts",
   "main": "./lib/commonjs/index.js",
@@ -12,6 +12,7 @@
   ],
   "exports": {
     ".": {
+      "react-native": "./src/index.ts",
       "import": {
         "types": "./lib/typescript/module/index.d.ts",
         "default": "./lib/module/index.js"
@@ -22,6 +23,7 @@
       }
     },
     "./i18n": {
+      "react-native": "./src/i18n/index.ts",
       "import": {
         "types": "./lib/typescript/module/i18n/index.d.ts",
         "default": "./lib/module/i18n/index.js"
