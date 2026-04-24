@@ -134,14 +134,20 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
     steps:
       - name: Publish npm packages
+        env:
+          # Pass token via env so `npm config` does not break on $ ` " in the PAT, and to avoid _auth key/registry URL mismatch
+          npm_pat: ${{ secrets.REGISTRY_PASSWORD }}
         run: |
+          set -e
           cd /apat
-          echo " " >> .npmrc
-          # Forgejo npm registry: /api/packages/{owner}/npm/
+          # Forgejo npm: https://docs.gitea.com/usage/packages/npm
+          # Use `npm config set` so the scope registry URL and //host/... auth keys are normalized the same (manual .npmrc often ENEEDAUTHs when trailing / differs).
           owner="${{ forgejo.repository }}" && owner="${owner%%/*}"
-          echo "@openpeeps:registry=https://codeberg.org/api/packages/${owner}/npm/" >> .npmrc
-          echo "//codeberg.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
-          cat .npmrc
+          reg="https://codeberg.org/api/packages/${owner}/npm"
+          k="//codeberg.org/api/packages/${owner}/npm"
+          npm config set "@openpeeps:registry" "${reg}/" --location=project
+          npm config set -- "${k}/:_authToken" "$npm_pat" --location=project
+          npm config set -- "${k}/:always-auth" "true" --location=project
           pnpm install
           pnpm -r publish --access private --no-git-checks
 
