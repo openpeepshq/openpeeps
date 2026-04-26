@@ -124,6 +124,16 @@ export const timelinesStatsSchema = z.object({
   }),
 });
 
+export const serverCountsSchema = z.object({
+  profiles: z.number(),
+  posts: z.number(),
+  events: z.number(),
+  reactions: z.number(),
+  rsvps: z.number(),
+});
+
+export type ServerCounts = z.infer<typeof serverCountsSchema>;
+
 export const adminServerStatsSchema: ZodObject<{ profiles: typeof profilesStatsSchema; posts: typeof postsStatsSchema; interactions: typeof interactionsStatsSchema; jams: typeof jamsStatsSchema; topLists: typeof topListsStatsSchema; timelines: typeof timelinesStatsSchema }> = z.object({
   profiles: profilesStatsSchema,
   posts: postsStatsSchema,

@@ -6,13 +6,14 @@ import { registerDbCommand } from './db';
 import { registerProfilesCommand } from './profiles';
 import { registerBackupsCommand } from './backups';
 import { registerJamsCommand } from './jams';
+import { registerStatsCommand } from './stats';
 
 export const cli = async () => {
   const program = new Command();
 
   program
-    .name('allpeep')
-    .description('Allpeep CLI')
+    .name('openpeeps')
+    .description('OpenPeeps CLI')
     .showHelpAfterError(true)
     .showSuggestionAfterError(true);
 
@@ -23,6 +24,7 @@ export const cli = async () => {
   registerDbCommand(program);
   registerBackupsCommand(program);
   registerJamsCommand(program);
+  registerStatsCommand(program);
 
   await program.parseAsync(process.argv);
 };
