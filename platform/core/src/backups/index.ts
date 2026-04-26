@@ -1,4 +1,12 @@
-import { appendFile, cp, mkdir, mkdtemp, readdir, writeFile, readFile } from 'node:fs/promises';
+import {
+  appendFile,
+  cp,
+  mkdir,
+  mkdtemp,
+  readdir,
+  writeFile,
+  readFile,
+} from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { emptyDir } from 'fs-extra';
 import { createInterface } from 'node:readline';
@@ -15,8 +23,21 @@ import { collectionInfos } from '../db';
 import { runDataMigrations } from '../db/dataMigrations';
 import { CollectionInfo } from '@openpeeps/arango-querybuilder';
 import { setDefaultRoles } from '../roles';
+import { replaceHostname } from '../db/replaceHostname';
 
 const log = logger('core:backups');
+
+type BackupMetadata = {
+  config?: {
+    hostname?: string;
+  };
+};
+
+const hostnameFromServerHost = (host: string) => {
+  const serverUrl = host.includes('://') ? host : `http://${host}`;
+
+  return new URL(serverUrl).hostname;
+};
 
 export const createBackup = async () => {
   try {
@@ -48,7 +69,22 @@ export const createBackup = async () => {
       recursive: true,
     });
 
-    await writeFile(join(metaDir, 'collectionInfos.json'), JSON.stringify(collectionInfos, null, 2));
+    await writeFile(
+      join(metaDir, 'collectionInfos.json'),
+      JSON.stringify(collectionInfos, null, 2),
+    );
+    await writeFile(
+      join(backupDir, 'metadata.json'),
+      JSON.stringify(
+        {
+          config: {
+            hostname: hostnameFromServerHost(coreConfig.server.host),
+          },
+        },
+        null,
+        2,
+      ),
+    );
 
     for (const collection of collections) {
       const collectionName = collection.name;
@@ -120,10 +156,18 @@ export const restoreBackups = async (zipFilePath: string) => {
   await unarchive(join(tmpdir(), zipFilePath), tempDir);
   log.info(`Unpacking backup into ${tempDir} complete`);
   const collectionsDir = join(tempDir, 'collections');
+  const backupMetadata: BackupMetadata | undefined = await readFile(
+    join(tempDir, 'metadata.json'),
+    'utf-8',
+  )
+    .then(JSON.parse)
+    .catch(() => undefined);
 
   log.info(`Emptying media directory ${coreConfig.media.storage.params.path}`);
   await emptyDir(coreConfig.media.storage.params.path);
-  log.info(`Copying media from backup to ${coreConfig.media.storage.params.path}`);
+  log.info(
+    `Copying media from backup to ${coreConfig.media.storage.params.path}`,
+  );
   await cp(join(tempDir, 'media'), coreConfig.media.storage.params.path, {
     recursive: true,
   });
@@ -135,10 +179,12 @@ export const restoreBackups = async (zipFilePath: string) => {
     recursive: true,
   });
 
-  const restoreCollectionInfos: Record<string, CollectionInfo> =
-    await readFile(join(tempDir, 'meta', 'collectionInfos.json'), 'utf-8')
-      .then(JSON.parse)
-      .catch(() => collectionInfos);
+  const restoreCollectionInfos: Record<string, CollectionInfo> = await readFile(
+    join(tempDir, 'meta', 'collectionInfos.json'),
+    'utf-8',
+  )
+    .then(JSON.parse)
+    .catch(() => collectionInfos);
 
   log.info(`Restoring collections`);
   for (const collectionInfo of Object.values(restoreCollectionInfos)) {
@@ -148,9 +194,12 @@ export const restoreBackups = async (zipFilePath: string) => {
     if (await oldCollection.exists()) {
       log.info(`Dropping collection ${collectionName}`);
       await oldCollection.drop();
-    };
+    }
 
-    const collectionObject = await ensureIndexedCollection(database, collectionInfo);
+    const collectionObject = await ensureIndexedCollection(
+      database,
+      collectionInfo,
+    );
     let buffer = '';
 
     try {
@@ -161,7 +210,7 @@ export const restoreBackups = async (zipFilePath: string) => {
         crlfDelay: Infinity,
       });
 
-      lineReader.on('line', async (line) => {
+      for await (const line of lineReader) {
         buffer += line;
         try {
           const json = JSON.parse(buffer);
@@ -170,42 +219,48 @@ export const restoreBackups = async (zipFilePath: string) => {
 
           await collectionObject.save(json, { returnNew: true });
         } catch (err: any) {
-          const isInvalidJSON: boolean = err.message.includes('Unexpected end of JSON input') ||
+          const isInvalidJSON: boolean =
+            err.message.includes('Unexpected end of JSON input') ||
             err.message.includes('Unterminated string') ||
-            err.message.includes('Unexpected token')
-          if (
-            !isInvalidJSON
-          ) {
-            console.error(`JSON parse error in ${collectionName}:`, err.message);
+            err.message.includes('Unexpected token');
+          if (!isInvalidJSON) {
+            console.error(
+              `JSON parse error in ${collectionName}:`,
+              err.message,
+            );
             buffer = '';
           }
         }
-      });
-
-      lineReader.on('close', () => {
-        if (buffer.trim().length > 0) {
-          console.warn(`Unparsed buffer remaining in ${collectionName}:`, buffer.slice(0, 200));
-        }
-        log.info(`Successfully restored collection ${collectionName}`)
       }
-      );
-      lineReader.on('error', (error) => {
-        log.error('Error restoring collection row', collectionName, error);
-      });
+
+      if (buffer.trim().length > 0) {
+        console.warn(
+          `Unparsed buffer remaining in ${collectionName}:`,
+          buffer.slice(0, 200),
+        );
+      }
+      log.info(`Successfully restored collection ${collectionName}`);
     } catch (error) {
       log.error('Error restoring collection', collectionName, error);
     }
   }
 
-
-  const newCollectionNames = Object.values(restoreCollectionInfos).map(ci => ci.name);
+  const newCollectionNames = Object.values(restoreCollectionInfos).map(
+    (ci) => ci.name,
+  );
   for (const oldCollection of await database.listCollections()) {
-    if (!(newCollectionNames.includes(oldCollection.name))) {
+    if (!newCollectionNames.includes(oldCollection.name)) {
       await database.collection(oldCollection.name).drop();
       log.info(`Dropped collection ${oldCollection.name}`);
     }
   }
 
   await runDataMigrations(database);
+  await replaceHostname(
+    database,
+    backupMetadata?.config?.hostname,
+    hostnameFromServerHost(coreConfig.server.host),
+  );
+
   await setDefaultRoles();
 };
