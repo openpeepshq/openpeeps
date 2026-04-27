@@ -22,7 +22,7 @@ export const defaultCommunityConfig: CommunityConfig = {
     },
     dark: {
       primaryHex: '#15678a',
-      logoSmall: '/img/logo-small.png',
+      logoSmall: '/img/logo-small-white.png',
       defaultProfileAvatar: '/img/default-avatar.png',
       defaultGroupAvatar: '/img/default-group-avatar.svg',
       backgroundAuth: '/img/background-auth.png',
