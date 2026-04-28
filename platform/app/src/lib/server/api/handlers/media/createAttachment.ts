@@ -19,31 +19,24 @@ export const createMediaAttachmentHandler = async (
 
   const type = getAttachmentType(file);
 
-  console.log('====================');
-  console.log('type', type);
-  console.log('====================');
-
   const transcodedFile: File = await transcodeIncomingMedia(type, file);
-
-  const fileStorageKey = await transcodedFile.arrayBuffer().then(storage.store);
+  const previewInput = thumbnail || transcodedFile;
+  const previewPromise = createPreview(previewInput);
+  const fileStorageKeyPromise = transcodedFile.arrayBuffer().then(storage.store);
 
   const normalizedFilename = encodeURIComponent(transcodedFile.name);
 
   const thumbnailFilename = `thumbnail-${normalizedFilename}${normalizedFilename.endsWith('.webp') ? '' : '.webp'}`;
 
-  const preview = await createPreview(thumbnail || file);
-
-  const previewStorageKey: string = await preview
-    .arrayBuffer()
-    .then(storage.store);
+  const preview = await previewPromise;
+  const fileStorageKey = await fileStorageKeyPromise;
+  const previewStorageKey =
+    preview === transcodedFile
+      ? fileStorageKey
+      : await preview.arrayBuffer().then(storage.store);
 
   const url = storage.getPath(fileStorageKey, normalizedFilename);
   const previewUrl = storage.getPath(previewStorageKey, thumbnailFilename);
-
-  console.log('====================');
-  console.log(url);
-  console.log(previewUrl);
-  console.log('====================');
 
   return createMediaAttachment({
     url,

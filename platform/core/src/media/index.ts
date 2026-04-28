@@ -49,6 +49,12 @@ const transcodeVideo = async (input: File): Promise<Buffer> => {
   const tempOutputPath = join(tmpdir(), `output-${randomString(16)}.mp4`);
 
   await fs.writeFile(tempInputPath, Buffer.from(arrayBuffer));
+  const cleanup = async () => {
+    await Promise.allSettled([
+      fs.unlink(tempInputPath),
+      fs.unlink(tempOutputPath),
+    ]);
+  };
 
   const baseOutput = [
     '-c:v h264', // Better for iOS hardware acceleration
@@ -73,10 +79,20 @@ const transcodeVideo = async (input: File): Promise<Buffer> => {
       .size(`${previewMaxWidth}x?`)
       .output(tempOutputPath)
       .outputOptions(baseOutput)
-      .on('end', () => {
-        fs.readFile(tempOutputPath).then(resolve).catch(reject);
+      .on('end', async () => {
+        try {
+          const output = await fs.readFile(tempOutputPath);
+          resolve(output);
+        } catch (error) {
+          reject(error);
+        } finally {
+          await cleanup();
+        }
       })
-      .on('error', reject)
+      .on('error', async (error) => {
+        await cleanup();
+        reject(error);
+      })
       .run();
   });
 };

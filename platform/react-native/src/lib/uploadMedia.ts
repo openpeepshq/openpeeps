@@ -1,6 +1,5 @@
 import RNFS from 'react-native-fs';
 import RNConvertPhAsset from 'react-native-convert-ph-asset';
-import { Platform } from 'react-native';
 
 type UploadMediaType = {
   mediaUri: string;
@@ -81,7 +80,7 @@ export const uploadMedia = async ({
     }
   }
 
-  if (mediaUri.startsWith('content://') || (Platform.OS === 'android' && mediaUri.startsWith('file://'))) {
+  if (mediaUri.startsWith('content://')) {
     const destPath = `${RNFS.CachesDirectoryPath}/${tempFileName}`;
 
     try {
