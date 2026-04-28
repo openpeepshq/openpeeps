@@ -98,10 +98,13 @@ export const updateConfigValues = (
   namespace = 'openpeeps',
   name = 'core',
 ) =>
-  loadConfig(configKey(namespace, name))
-    .then((configDocument) =>
-      updateConfig(deepmerge(configDocument?.config ?? {}, configValues)),
-    );
+  loadConfig(configKey(namespace, name)).then((configDocument) =>
+    updateConfig(
+      deepmerge(configDocument?.config ?? {}, configValues),
+      namespace,
+      name,
+    ),
+  );
 
 export const config = <T = CoreConfig>(
   namespace = 'openpeeps',

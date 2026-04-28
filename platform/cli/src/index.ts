@@ -7,6 +7,7 @@ import { registerProfilesCommand } from './profiles';
 import { registerBackupsCommand } from './backups';
 import { registerJamsCommand } from './jams';
 import { registerStatsCommand } from './stats';
+import { registerCommunityConfigCommand } from './community-config';
 
 export const cli = async () => {
   const program = new Command();
@@ -25,6 +26,7 @@ export const cli = async () => {
   registerBackupsCommand(program);
   registerJamsCommand(program);
   registerStatsCommand(program);
+  registerCommunityConfigCommand(program);
 
   await program.parseAsync(process.argv);
 };
