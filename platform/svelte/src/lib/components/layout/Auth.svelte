@@ -14,9 +14,10 @@
   interface Props {
     description?: import('svelte').Snippet;
     children?: import('svelte').Snippet;
+    noRedirect?: boolean;
   }
 
-  let { description, children }: Props = $props();
+  let { description, children, noRedirect = false }: Props = $props();
 
   const currentProfileQuery = currentProfileStore();
   const paymentStatus = checkPaymentStatus();
@@ -56,7 +57,7 @@
 
   onMount(() => {
     if (getCredentials().token) {
-      if (stripeEnabled) {
+      if (stripeEnabled && !noRedirect) {
         paymentStatus.subscribe((result) => {
           if (result.isSuccess && isStripeActive(result.data?.subscription)) {
             if (hasPayment) {
@@ -69,7 +70,9 @@
           }
         });
       } else {
-        redirectUrl();
+        if (!noRedirect) {
+          redirectUrl();
+        }
       }
     }
   });
