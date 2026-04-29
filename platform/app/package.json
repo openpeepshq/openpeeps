@@ -25,7 +25,7 @@
     "db:clear": "./apc db clear",
     "db:clear:test": "DB_NAME=test ./apc db clear",
     "db:migrate": "node runMigrations.js",
-    "test:integration": "DB_NAME=test playwright test",
+    "test:integration": "if [ -z \"$CI\" ]; then DB_NAME=test ./apc db clear; fi && DB_NAME=test playwright test",
     "test:unit": "vitest",
     "redis:memory": "node redis-memory-tree.mjs"
   },

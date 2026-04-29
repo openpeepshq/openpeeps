@@ -111,6 +111,8 @@ jobs:
           DB_URL: "http://arangodb:8529"
           REDIS_HOST: "redis"
           JWT_SECRET: xxx
+          JAMS_LIVEKIT_API_KEY: APIxxxxxxxxxxxx
+          JAMS_LIVEKIT_API_SECRET: xxxxxxxxxxxxx
     steps:
       - uses: actions/checkout@v4
       - name: Install pnpm and dependencies
@@ -118,6 +120,7 @@ jobs:
           npm i -g pnpm
           cd platform/app
           pnpm install
+          pnpm exec playwright install chromium chromium-headless-shell
       - name: Run integration tests
         run: pnpm run test:integration
         working-directory: platform/app
