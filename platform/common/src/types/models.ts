@@ -737,6 +737,8 @@ export const inviteLinkDataSchema = z.object({
   maxUses: z.number(),
   expiresAt: z.string().datetime(),
   customInvitationMessage: z.string().optional(),
+  /** New members who redeem this link are added to these groups (as members). */
+  groupIds: z.array(z.string()).optional(),
 });
 export type InviteLinkData = z.infer<typeof inviteLinkDataSchema>;
 

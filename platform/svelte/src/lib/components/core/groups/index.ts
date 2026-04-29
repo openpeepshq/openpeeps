@@ -16,3 +16,4 @@ export { default as GroupPageHeader } from './group-page/GroupPageHeader.svelte'
 export { default as DeleteGroupModal } from './pieces/modals/DeleteGroupModal.svelte'
 export { default as AdminGroupCard } from './AdminGroupCard.svelte';
 export { default as GroupEvents } from './GroupEvents.svelte';
+export { default as GroupSelector } from './GroupSelector.svelte';

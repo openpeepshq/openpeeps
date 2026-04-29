@@ -939,7 +939,12 @@
             "deactivateTitle": "Deactivate Link: No new signups will be allowed",
             "generateButton": "Create Link",
             "done": "Done",
-            "generateSuccess": "Successfully created the invite link"
+            "generateSuccess": "Successfully created the invite link",
+            "generateError": "Could not create the invite link",
+            "autoJoinGroups": "Auto-join groups",
+            "autoJoinGroupsHint": "People who register with this link are added as members of the groups you select.",
+            "selectGroupsPlaceholder": "Select groups…",
+            "noGroupsToAdd": "You cannot add members to any group yet. Join a group where you have permission to add members (for example as an admin), then try again."
         },
         "signupChart": {
             "last30Days": "Last 30 Days",
@@ -2244,6 +2249,11 @@
     "group": {
         "roles": {
             "admin": "Admin"
+        },
+        "search": {
+            "groupsPlaceholder": "Search groups…",
+            "noResults": "No results found",
+            "noGroupsAvailable": "No groups available"
         }
     },
     "articles": {
