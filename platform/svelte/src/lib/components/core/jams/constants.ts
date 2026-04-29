@@ -6,7 +6,11 @@ export const defaultRoomOptions: Record<string, RoomOptions> = {
 		dynacast: true,
 		publishDefaults: {
 			simulcast: true,
-			videoSimulcastLayers: [VideoPresets.h90, VideoPresets.h216],
+			videoSimulcastLayers: [
+				VideoPresets.h180,
+				VideoPresets.h360,
+				VideoPresets.h720,
+			],
 			videoCodec: 'vp9',
 			backupCodec: {
 				codec: 'vp8'
@@ -14,9 +18,9 @@ export const defaultRoomOptions: Record<string, RoomOptions> = {
 		},
 		videoCaptureDefaults: {
 			resolution: {
-				width: 256,
-				height: 256
-			}
+				width: 1280,
+				height: 720,
+			},
 		},
 		audioCaptureDefaults: {
 			noiseSuppression: true,
