@@ -2,7 +2,13 @@ import { InviteLinkData, InviteLinkWithMeta, PublicProfile } from "@openpeeps/co
 import { createInviteLinkConnector, redeemInviteLinkConnector } from "./helpers";
 import { inviteLinksMapping } from "./mapping";
 import { allpeepDb } from "../db";
+import { hub } from "../events";
+import { addMembersToGroup } from "../groups/mutations";
+import { findGroup } from "../groups/finders";
 import { throwIfUndefined } from "../lib/utils";
+import { logger } from "../log";
+
+const log = logger('core:inviteLinks');
 
 export const createInviteLink = async (inviteLinkData: InviteLinkData, profile: PublicProfile) => {
     const db = await allpeepDb().then(db => db.db);
@@ -22,5 +28,19 @@ export const redeemInviteLink = async (inviteLink: InviteLinkWithMeta, profile: 
         throw new Error('Invite link creator and redeemer cannot be the same');
     }
 
-    return allpeepDb().then(({ db }) => redeemInviteLinkConnector(db, profile, inviteLink));
+    await allpeepDb().then(({ db }) => redeemInviteLinkConnector(db, profile, inviteLink));
+
+    const groupIds = [...new Set(inviteLink.groupIds ?? [])];
+    const adder = inviteLink.profile;
+    for (const groupId of groupIds) {
+        const group = await findGroup(groupId);
+        if (!group) {
+            log.warn(`Invite redeem: group ${groupId} not found, skipping auto-join`);
+            continue;
+        }
+        await addMembersToGroup(group, [profile]);
+        if (adder) {
+            await hub.emit('groupMemberAdded', group, profile, adder);
+        }
+    }
 }
