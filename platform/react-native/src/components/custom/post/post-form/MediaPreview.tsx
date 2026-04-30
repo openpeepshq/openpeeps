@@ -1,18 +1,28 @@
-import React, { useCallback, useRef, useState } from 'react';
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-} from 'react-native';
-import { XIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
-import { AltSheet } from '../../modals/media/alt-text-sheet';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { MediaAttachmentData } from '@openpeeps/common';
-import { CachedVideoPlayer } from '../../common/cached-video-player';
-import { CachedImage } from '../../common/cached-image';
+import React, {useCallback, useRef, useState} from 'react';
+import {View, ScrollView, TouchableOpacity} from 'react-native';
+import {XIcon} from '~/components/icons';
+import {ThemedText} from '~/components/ui/themed-text';
+import {AltSheet} from '../../modals/media/alt-text-sheet';
+import {BottomSheetModal} from '@gorhom/bottom-sheet';
+import {MediaAttachmentData} from '@openpeeps/common';
+import {CachedVideoPlayer} from '../../common/cached-video-player';
+import {CachedImage} from '../../common/cached-image';
+import {DocumentAttachment} from '../pieces/DocumentAttachment';
+import {GalleryAudio} from '../pieces/gallery/GalleryAudio';
+
+function attachmentHasRenderableImage(att: MediaAttachmentData): boolean {
+  const mime = att.meta?.mimetype?.toLowerCase?.() ?? '';
+  if (mime.startsWith('image/')) return true;
+  if (att.previewUrl && att.type === 'document') return true;
+  const fname = att.filename ?? '';
+  if (
+    att.type === 'document' &&
+    /\.(jpe?g|png|gif|webp|heic|heif)$/i.test(fname)
+  ) {
+    return true;
+  }
+  return false;
+}
 interface MediaPreviewProps {
   attachments: MediaAttachmentData[];
   removeAttachment: (index: number) => void;
@@ -33,7 +43,7 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
     altModalRef.current?.present();
   }, []);
 
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const handleScroll = (event: any) => {
     const slideSize = event.nativeEvent.layoutMeasurement.width;
     const offset = event.nativeEvent.contentOffset.x;
     const currentIndex = Math.round(offset / slideSize);
@@ -64,27 +74,34 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
             className="relative items-center justify-center w-screen md:size-96">
             {attachment.type === 'video' ? (
               <View className="overflow-hidden rounded-lg">
-                <CachedVideoPlayer
-                  url={attachment.url}
-                />
+                <CachedVideoPlayer url={attachment.url} />
               </View>
-            ) : (
-              <CachedImage
-                url={attachment.url}
-                style={{ width: '100%', height: '100%' }}
-                resizeMode="cover"
+            ) : attachment.type === 'audio' ? (
+              <GalleryAudio
+                attachment={attachment}
+                isActive={index === currentImageIndex}
               />
+            ) : (
+              attachment.type === 'document' && (
+                <View>
+                  <DocumentAttachment attachment={attachment} />
+                </View>
+              )
             )}
             <TouchableOpacity
               onPress={() => removeAttachment(index)}
               className="absolute top-4 mt-3 right-8 w-8 h-8 rounded-full bg-background/50 items-center justify-center">
               <XIcon size={16} className="text-white" />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleAltModalPress}
-              className="absolute bottom-4 mt-3 right-8 w-16 h-10 rounded-full bg-background/50 items-center justify-center">
-              <ThemedText>ALT</ThemedText>
-            </TouchableOpacity>
+            {(attachment.type === 'image' ||
+              (attachment.type === 'document' &&
+                attachmentHasRenderableImage(attachment))) && (
+              <TouchableOpacity
+                onPress={handleAltModalPress}
+                className="absolute bottom-4 mt-3 right-8 w-16 h-10 rounded-full bg-background/50 items-center justify-center">
+                <ThemedText>ALT</ThemedText>
+              </TouchableOpacity>
+            )}
           </View>
         ))}
       </ScrollView>
@@ -93,8 +110,9 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
           {attachments.map((_, index) => (
             <View
               key={index}
-              className={`w-2 h-2 rounded-full ${index === currentImageIndex ? 'bg-primary' : 'bg-muted'
-                }`}
+              className={`w-2 h-2 rounded-full ${
+                index === currentImageIndex ? 'bg-primary' : 'bg-muted'
+              }`}
             />
           ))}
         </View>

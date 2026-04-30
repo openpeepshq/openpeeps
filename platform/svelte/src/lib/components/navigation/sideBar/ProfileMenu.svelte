@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { Avatar } from '$lib/components/core/profile';
-	import { Bell, ChevronDown, LogOut, BookCheck } from 'lucide-svelte';
+	import { Bell } from 'lucide-svelte';
 	import { currentProfileNotificationsStatsStore, currentProfileStore } from '$lib/api';
 	import { subscribePushNotifications } from '$lib/push';
 	import { goto } from '$app/navigation';
 	import { getServerInfo } from '$lib/server';
 	import DisplayUserNameBlock from '$lib/components/core/profile/DisplayUserNameBlock.svelte';
-	import { PopupMenu, PopupMenuButton } from '@openpeeps/ui';
-	import { handleLogout } from '$lib/utils/handleLogout';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import { i18nContext } from '$lib/components/i18n';
 
@@ -46,22 +44,5 @@
 		<div>
 			<DisplayUserNameBlock profile={$profileQuery.data} size="l" />
 		</div>
-		<PopupMenu icon={ChevronDown} iconSize={24}>
-			<PopupMenuButton
-				title={t('navigation.goToWelcomePage')}
-				icon={BookCheck}
-				text={t('navigation.welcome')}
-				action={() => {
-					goto('/welcome');
-					drawerStore.close();
-				}}
-			/>
-			<PopupMenuButton
-				title={t('navigation.logOut')}
-				icon={LogOut}
-				text={t('navigation.logOut')}
-				action={handleLogout}
-			/>
-		</PopupMenu>
 	</div>
 </div>

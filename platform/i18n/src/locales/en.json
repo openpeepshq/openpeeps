@@ -578,6 +578,7 @@
         },
         "new": "New Group",
         "goto": "Go to group",
+        "viewMembers": "View members",
         "form": {
             "groupName": "Group Name"
         },
@@ -1182,6 +1183,10 @@
                 "title": "Welcome Page",
                 "description": "Tell your peeps about your community as part of their onboarding experience.  <br/> You can use  [Markdown ](https://www.markdownguide.org) to format the contents of this page."
             },
+            "codeOfConduct": {
+                "title": "Code of conduct",
+                "description": "Set the rules and expectations for your community. The page is public at /code-of-conduct for everyone, including visitors who are not logged in. <br/> You can use Markdown to format the contents of this page; see https://www.markdownguide.org/"
+            },
             "welcomeEmail": {
                 "title": "Welcome Email",
                 "description": "Add your own information to the first email your members will receive from the community.  <br/>.  You can use Markdown for formatting this email, but please be aware that email clients don't always do well with every kind of formatting."
@@ -1565,6 +1570,9 @@
             "maxSize": "Max size: {{size}}",
             "uploadText": "Upload Image",
             "uploadTitle": "Upload Image"
+        },
+        "upload": {
+            "slowNotice": "Upload is taking a while, please wait."
         },
         "preview": "Preview",
         "edit": "Back to Editing",

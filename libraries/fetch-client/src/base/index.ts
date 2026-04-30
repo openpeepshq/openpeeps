@@ -28,6 +28,7 @@ export const fetchClient = (
             ...(request.json ? jsonHeaders : {}),
           },
           body: request.json ? JSON.stringify(request.json) : request.body,
+          signal: request.signal,
         });
       };
 

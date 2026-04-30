@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Image, ImageProps, ActivityIndicator, View} from 'react-native';
 import {fetchCachedMedia} from '~/utils/media-cache';
+import {toAbsoluteMediaUrl} from '~/lib/media-url';
 
 interface CachedImageProps extends Omit<ImageProps, 'source'> {
   url: string;
@@ -15,10 +16,12 @@ export const CachedImage: React.FC<CachedImageProps> = ({url, ...props}) => {
       setLoading(true);
       try {
         const cachedPath = await fetchCachedMedia(url, 'image');
-        if (cachedPath) {setImagePath(cachedPath);}
+        const resolved =
+          toAbsoluteMediaUrl(cachedPath ?? url) ?? cachedPath ?? url;
+        setImagePath(resolved || url);
       } catch (err) {
         console.error('Error loading cached image:', err);
-        setImagePath(url);
+        setImagePath(toAbsoluteMediaUrl(url) ?? url);
       } finally {
         setLoading(false);
       }

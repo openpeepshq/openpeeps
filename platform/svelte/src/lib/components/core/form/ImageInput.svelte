@@ -8,12 +8,16 @@
   import { hasValue } from '@openpeeps/common/lib';
   import { i18nContext } from '$lib/components/i18n';
   import { convertToWebpIfHeic } from '$lib/utils';
+  import { onDestroy } from 'svelte';
+  import { toaster, withSlowUploadNotice } from '$lib/utils/toast';
 
   const { t } = i18nContext();
+  const toastNotify = toaster();
   const modalManager = getModalManager();
   const uploadMediaFile = uploadMediaFileMutation();
   let previewUrl = $state('');
   let isLoading = $state(false);
+  let uploadController: AbortController | undefined = $state();
 
   interface Props {
     usage: string;
@@ -140,7 +144,26 @@
 			});
 			reader.readAsDataURL(processedFile);
 		} else if (file && (file.type.includes('video') || file.name.endsWith('.mkv'))) {
-			await uploadMediaFile({ file, description, usage: 'post-video' }).then(onchange);
+      uploadController?.abort();
+      uploadController = new AbortController();
+			try {
+				await uploadMediaFile(
+          { file, description, usage: 'post-video' },
+          undefined,
+          undefined,
+          undefined,
+          uploadController.signal,
+        ).then(onchange);
+      } catch (error) {
+        if (!(error instanceof Error && error.name === 'AbortError')) {
+          throw error;
+        }
+      } finally {
+        uploadController = undefined;
+      }
+			await withSlowUploadNotice(toastNotify, t, () =>
+				uploadMediaFile({ file, description, usage: 'post-video' }).then(onchange)
+			);
 		}
 		isLoading = false;
 	};
@@ -153,6 +176,10 @@
 
   const iconClass =
     'flex size-10 items-center justify-center rounded-full bg-surface-200 opacity-50';
+
+  onDestroy(() => {
+    uploadController?.abort();
+  });
 </script>
 
 <button {title} class="{defaultClasses[displayType]} relative {classes}">

@@ -152,6 +152,7 @@
     <li>
       <a class="anchor" href={termsAndConditionsLink}>Terms and conditions</a>
     </li>
+    <li><a class="anchor" href="/code-of-conduct">Code of conduct</a></li>
   </ul>
 
   <div class="text-center pt-6"></div>

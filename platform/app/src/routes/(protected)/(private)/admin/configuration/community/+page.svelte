@@ -26,6 +26,10 @@
     action="/admin/configuration/community/welcome-page"
   ></ConfigMenuButton>
   <ConfigMenuButton
+    translationPrefix="configuration.community.codeOfConduct"
+    action="/admin/configuration/community/code-of-conduct"
+  ></ConfigMenuButton>
+  <ConfigMenuButton
     translationPrefix="configuration.community.welcomeEmail"
     action="/admin/configuration/community/welcome-email"
   ></ConfigMenuButton>

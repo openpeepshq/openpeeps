@@ -15,10 +15,43 @@ import { FileIcon, XIcon, PlusIcon, FileTextIcon } from '~/components/icons';
 import { uploadMedia } from '~/lib/uploadMedia';
 import { BaseSheet, SheetFooter } from '../common';
 import { ThemedText } from '~/components/ui/themed-text';
-import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 interface DocumentPickerSheetProps {
   onSelect: (documentAttachments: MediaAttachment[]) => void | Promise<void>;
+}
+
+const ATTACHMENT_DOCUMENT_TYPES = [
+  types.pdf,
+  types.images,
+  types.video,
+  types.audio,
+  types.plainText,
+  types.json,
+  types.doc,
+  types.docx,
+  types.ppt,
+  types.pptx,
+  types.xls,
+  types.xlsx,
+  types.csv,
+  types.zip,
+] as const;
+
+function isIgnoredSidecar(doc: DocumentPickerResponse): boolean {
+  const raw = doc.name ?? '';
+  const lower = raw.toLowerCase();
+  if (lower.includes('.metadata')) return true;
+  if (lower.endsWith('.icloud')) return true;
+  if (lower.startsWith('._')) return true;
+  const bytes = doc.size ?? 0;
+  if (
+    bytes > 0 &&
+    bytes < 512 &&
+    /(^image_\d+|metadata)/i.test(raw)
+  ) {
+    return true;
+  }
+  return false;
 }
 
 export const DocumentPickerSheet = forwardRef<
@@ -36,24 +69,21 @@ export const DocumentPickerSheet = forwardRef<
   const handlePickDocument = async () => {
     try {
       const results = await pick({
-        type: [types.allFiles],
+        type: [...ATTACHMENT_DOCUMENT_TYPES],
         allowMultiSelection: true,
         mode: 'import',
       });
 
       setSelectedDocs(prev => {
         const newDocs = results.filter(
-          newDoc => !prev.some(p => p.uri === newDoc.uri),
+          newDoc =>
+            !isIgnoredSidecar(newDoc) &&
+            !prev.some(p => p.uri === newDoc.uri),
         );
         return [...prev, ...newDocs];
       });
-    } catch (err: unknown) {
-      if (
-        typeof err === 'object' &&
-        err !== null &&
-        'code' in err &&
-        (err as { code: string }).code === 'CANCELED'
-      ) {
+    } catch (err: any) {
+      if (err.code === 'CANCELED') {
         console.log('User cancelled document picker');
       } else {
         console.log('DocumentPicker Error: ', err);
@@ -102,7 +132,7 @@ export const DocumentPickerSheet = forwardRef<
       await onSelect(documentAttachments);
 
       resetStates();
-      bottomSheetClose(ref);
+      (ref as any).current?.close();
     } catch (error) {
       console.error('Upload error:', error);
     } finally {
@@ -195,7 +225,7 @@ export const DocumentPickerSheet = forwardRef<
         <SheetFooter
           onCancel={() => {
             resetStates();
-            bottomSheetClose(ref);
+            (ref as any).current?.close();
           }}
           onConfirm={onConfirm}
           disabled={selectedDocs.length === 0 || isConfirmLoading}

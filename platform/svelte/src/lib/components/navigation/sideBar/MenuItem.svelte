@@ -1,43 +1,77 @@
 <script lang="ts">
-	import { getDrawerStore } from '@skeletonlabs/skeleton';
-	import type { IconType } from '@openpeeps/ui';
-	import type { Snippet } from 'svelte';
-	import { page } from '$app/state';
-	const drawerStore = getDrawerStore();
+  import { getDrawerStore } from '@skeletonlabs/skeleton';
+  import {
+    preventDefault,
+    stopPropagation,
+    type IconType,
+  } from '@openpeeps/ui';
+  import type { Snippet } from 'svelte';
 
-	interface Props {
-		name: string;
-		path: string;
-		icon: IconType;
-		open?: boolean | undefined;
-		children?: Snippet;
-	}
+  const drawerStore = getDrawerStore();
 
-	let { name, path, icon: Icon, open = undefined, children }: Props = $props();
+  interface Props {
+    name: string;
+    icon: IconType;
+    open?: boolean | undefined;
+    children?: Snippet;
+    action?: string | (() => unknown | Promise<unknown>);
+    danger?: boolean;
+  }
 
-	let active: boolean = $derived(page.url.pathname.startsWith(path));
+  let {
+    name,
+    icon: Icon,
+    open = undefined,
+    children,
+    action,
+    danger = false,
+  }: Props = $props();
+
+  let active: boolean = $derived(
+    typeof action === 'string' && location.pathname === action,
+  );
+
+  const handleAction =
+    (action?: () => unknown | Promise<unknown>) => async () => {
+      try {
+        await action?.();
+      } finally {
+        drawerStore.close();
+      }
+    };
 </script>
 
 <span class="block pl-4">
-	<a
-		href={path}
-		onclick={(e) => {
-			drawerStore.close();
-			if (path === page.url.pathname) {
-				e.preventDefault();
-			}
-		}}
-		class="flex items-center gap-x-2 py-2 pl-2 hover:bg-surface-100"
-		class:text-base-200={!active}
-		class:text-primary-500={active}
-		class:font-bold={active}
-	>
-		<span class:opacity-60={!active}>
-			<Icon class="mr-1 h-5 w-5" strokeWidth={active ? 3 : 2} />
-		</span>
-		<span class:opacity-60={!active}>{name}</span>
-	</a>
-	{#if open}
-		{@render children?.()}
-	{/if}
+  {#if typeof action === 'string'}
+    <a
+      href={action}
+      class="hover:bg-surface-100 flex items-center gap-x-2 py-2 pl-2"
+      class:text-base-200={!active}
+      class:text-primary-500={active}
+      class:font-bold={active}
+      class:text-error-600={danger}
+    >
+      <span class:opacity-60={!active}>
+        <Icon class="mr-1 h-5 w-5" strokeWidth={active ? 3 : 2} />
+      </span>
+      <span class:opacity-60={!active}>{name}</span>
+    </a>
+  {:else}
+    <button
+      onclick={stopPropagation(preventDefault(handleAction(action)))}
+      class="hover:bg-surface-100 flex items-center gap-x-2 py-2 pl-2"
+      class:text-base-200={!active}
+      class:text-primary-500={active}
+      class:font-bold={active}
+      class:text-error-600={danger}
+    >
+      <span class:opacity-60={!active}>
+        <Icon class="mr-1 h-5 w-5" strokeWidth={active ? 3 : 2} />
+      </span>
+      <span class:opacity-60={!active}>{name}</span>
+    </button>
+  {/if}
+  {#if open}
+    {@render children?.()}
+  {/if}
 </span>

@@ -9,6 +9,17 @@ interface CacheMetadata {
 
 const CACHE_EXPIRATION = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 const MEDIA_CACHE_DIR = `${RNFS.DocumentDirectoryPath}/media-cache`;
+const inFlightDownloads = new Map<string, Promise<RNFS.DownloadResult>>();
+
+const unlinkIfExists = async (path: string) => {
+  try {
+    if (await RNFS.exists(path)) {
+      await RNFS.unlink(path);
+    }
+  } catch {
+    // Another request may have cleaned the same cache entry first.
+  }
+};
 
 export const getCacheMetadata = async (
   path: string,
@@ -111,30 +122,45 @@ export const fetchCachedMedia = async (
     const fileExists = !isExpired && (await RNFS.exists(path));
 
     if (!fileExists) {
-      if (await RNFS.exists(path)) {
-        await RNFS.unlink(path);
-      }
-      if (await RNFS.exists(`${path}.metadata`)) {
-        await RNFS.unlink(`${path}.metadata`);
+      if (!inFlightDownloads.has(path)) {
+        await unlinkIfExists(path);
+        await unlinkIfExists(`${path}.metadata`);
+
+        const { promise } = RNFS.downloadFile({
+          fromUrl: resolvedUrl,
+          toFile: path,
+          headers: {
+            Accept: '*/*',
+            'Content-Type': '*/*',
+          },
+          progress: response => {
+            const progress =
+              (response.bytesWritten / response.contentLength) * 100;
+            if (progressCallback) {
+              progressCallback(progress);
+            }
+          },
+        });
+
+        inFlightDownloads.set(
+          path,
+          promise.finally(() => {
+            inFlightDownloads.delete(path);
+          }),
+        );
       }
 
-      const { promise } = RNFS.downloadFile({
-        fromUrl: resolvedUrl,
-        toFile: path,
-        headers: {
-          Accept: '*/*',
-          'Content-Type': '*/*',
-        },
-        progress: response => {
-          const progress =
-            (response.bytesWritten / response.contentLength) * 100;
-          if (progressCallback) {
-            progressCallback(progress);
-          }
-        },
-      });
-
-      await promise;
+      const downloadResult = await inFlightDownloads.get(path)!;
+      const existsAfterDownload = await RNFS.exists(path);
+      if (
+        downloadResult.statusCode < 200 ||
+        downloadResult.statusCode >= 300 ||
+        !existsAfterDownload
+      ) {
+        await unlinkIfExists(path);
+        await unlinkIfExists(`${path}.metadata`);
+        return resolvedUrl;
+      }
       await saveCacheMetadata(path, mediaType);
     }
 

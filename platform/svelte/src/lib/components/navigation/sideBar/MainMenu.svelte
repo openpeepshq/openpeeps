@@ -19,6 +19,8 @@
     Search,
     ScrollText,
     Bookmark,
+    BookCheck,
+    LogOut,
   } from 'lucide-svelte';
   import { TreeView } from '@skeletonlabs/skeleton';
   import { currentProfileStore } from '$lib/api';
@@ -27,6 +29,7 @@
   import { MenuItem } from '.';
   import { i18nContext } from '$lib/components/i18n';
   import { getServerInfo } from '@openpeeps/svelte/server';
+	import { handleLogout } from '$lib/utils/handleLogout';
 
   const { t } = i18nContext();
   const profileQuery = currentProfileStore();
@@ -39,77 +42,88 @@
 </script>
 
 <TreeView padding="py-4 pr-4" caretClosed="hidden" caretOpen="hidden">
-  <MenuItem name={t('navigation.community')} icon={Home} path="/feeds/local" />
-  <MenuItem name={t('navigation.explore')} icon={Search} path="/explore" />
-  <MenuItem name={t('navigation.myFeed')} icon={Newspaper} path="/feeds/my" />
+  <MenuItem name={t('navigation.community')} icon={Home} action="/feeds/local" />
+  <MenuItem
+    name={t('navigation.goToWelcomePage')}
+    icon={BookCheck}
+    action="/welcome"
+  />
+  <MenuItem name={t('navigation.explore')} icon={Search} action="/explore" />
+  <MenuItem name={t('navigation.myFeed')} icon={Newspaper} action="/feeds/my" />
   {#if serverInfo.jams.livekit.enabled}
-    <MenuItem name={t('navigation.jams')} icon={PhoneCall} path="/jams" />
+    <MenuItem name={t('navigation.jams')} icon={PhoneCall} action="/jams" />
   {/if}
-  <MenuItem name={t('navigation.groups')} icon={Users} path="/groups" />
-  <MenuItem name={t('navigation.events')} icon={CalendarDays} path="/events" />
+  <MenuItem name={t('navigation.groups')} icon={Users} action="/groups" />
+  <MenuItem name={t('navigation.events')} icon={CalendarDays} action="/events" />
   <MenuItem
     name={t('navigation.articles')}
     icon={ScrollText}
-    path="/articles"
+    action="/articles"
   />
   <MenuItem
     name={t('navigation.messages')}
     icon={MessageSquareText}
-    path="/conversations"
+    action="/conversations"
   />
-  <MenuItem name={t('navigation.members')} icon={BookUser} path="/members" />
+  <MenuItem name={t('navigation.members')} icon={BookUser} action="/members" />
   <MenuItem
     name={t('navigation.bookmarks')}
     icon={Bookmark}
-    path="/feeds/bookmarks"
+    action="/feeds/bookmarks"
   />
-  <MenuItem name={t('navigation.settings')} icon={Settings} path="/settings" />
+  <MenuItem name={t('navigation.settings')} icon={Settings} action="/settings" />
 
   {#if isAdmin}
     <MenuItem
       name={t('navigation.administration')}
       icon={Bolt}
-      path="/admin"
+      action="/admin"
       open={isAdministrationOpen}
     >
       {#snippet children()}
         <MenuItem
           name={t('navigation.members')}
           icon={User}
-          path="/admin/members"
+          action="/admin/members"
         />
         <MenuItem
           name={t('navigation.groups')}
           icon={Users}
-          path="/admin/groups"
+          action="/admin/groups"
         />
         <MenuItem
           name={t('navigation.invites')}
           icon={MailOpen}
-          path="/admin/invites"
+          action="/admin/invites"
         />
         <MenuItem
           name={t('navigation.moderation')}
           icon={ShieldAlert}
-          path="/admin/moderation"
+          action="/admin/moderation"
         />
         <MenuItem
           name={t('navigation.backups')}
           icon={DatabaseBackup}
-          path="/admin/backups"
+          action="/admin/backups"
         />
         <MenuItem
           name={t('navigation.analytics')}
           icon={ChartLine}
-          path="/admin/analytics"
+          action="/admin/analytics"
         />
-        <MenuItem name={t('navigation.logs')} icon={Logs} path="/admin/logs" />
+        <MenuItem name={t('navigation.logs')} icon={Logs} action="/admin/logs" />
         <MenuItem
           name={t('navigation.configuration')}
           icon={Wrench}
-          path="/admin/configuration"
+          action="/admin/configuration"
         />
       {/snippet}
     </MenuItem>
   {/if}
+  <MenuItem
+    name={t('navigation.logOut')}
+    icon={LogOut}
+    action={handleLogout}
+    danger
+  />
 </TreeView>
