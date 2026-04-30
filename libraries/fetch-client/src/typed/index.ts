@@ -79,13 +79,14 @@ const createCallableFn =
             headers: options?.headers,
           },
         )
-        .then(async (result) =>
-          result.ok
+        .then(async (result) => {
+          const parsed = await result.json();
+          return result.ok
             ? {
-              data: (await result.json()) as Output,
+              data: parsed as Output,
             }
-            : { error: (await result.json()) as Error },
-        );
+            : { error: parsed as Error };
+        });
     };
 
 export const typedPayloadEndpoint = <
