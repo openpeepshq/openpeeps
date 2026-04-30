@@ -273,6 +273,7 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
     content: z.object({
       aboutPage: z.string().optional(),
       welcomePage: z.string().optional(),
+      codeOfConduct: z.string().optional(),
       welcomeEmail: z.string().optional(),
       pinnedPost: z.string().optional(),
     }),

@@ -13,6 +13,7 @@ import ConfigCommunityInfo from './community/ConfigCommunityInfo.svelte';
 import ConfigCommunityWelcomePage from './community/ConfigCommunityWelcomePage.svelte';
 import ConfigCommunityWelcomeEmail from './community/ConfigCommunityWelcomeEmail.svelte';
 import ConfigCommunityAboutPage from './community/ConfigCommunityAboutPage.svelte';
+import ConfigCommunityCodeOfConductPage from './community/ConfigCommunityCodeOfConductPage.svelte';
 import ConfigCommunityLinks from './community/ConfigCommunityLinks.svelte';
 export {
 	ConfigurationCategory,
@@ -29,6 +30,7 @@ export {
 	ConfigCommunityInfo,
 	ConfigCommunityWelcomePage,
 	ConfigCommunityAboutPage,
+	ConfigCommunityCodeOfConductPage,
 	ConfigCommunityWelcomeEmail,
 	ConfigCommunityLinks,
 };
