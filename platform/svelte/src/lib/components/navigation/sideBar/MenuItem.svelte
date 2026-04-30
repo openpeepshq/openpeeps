@@ -10,12 +10,14 @@
 		path: string;
 		icon: IconType;
 		open?: boolean | undefined;
+		count?: number | undefined;
 		children?: Snippet;
 	}
 
-	let { name, path, icon: Icon, open = undefined, children }: Props = $props();
+	let { name, path, icon: Icon, open = undefined, count = undefined, children }: Props = $props();
 
 	let active: boolean = $derived(page.url.pathname.startsWith(path));
+	let visibleCount = $derived(count && count > 0 ? count : undefined);
 </script>
 
 <span class="block pl-4">
@@ -36,6 +38,11 @@
 			<Icon class="mr-1 h-5 w-5" strokeWidth={active ? 3 : 2} />
 		</span>
 		<span class:opacity-60={!active}>{name}</span>
+		{#if visibleCount}
+			<span class="ml-auto mr-2 rounded-full bg-primary-500 px-2 py-0.5 text-xs font-semibold text-white">
+				{visibleCount}
+			</span>
+		{/if}
 	</a>
 	{#if open}
 		{@render children?.()}

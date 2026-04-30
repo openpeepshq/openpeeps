@@ -7,6 +7,7 @@
   import FeedPostContent from '$lib/components/core/post/pieces/FeedPostContent.svelte';
   import ThreadPost from '../threaded/ThreadPost.svelte';
   import type { Snippet } from 'svelte';
+  import { postViewCounter } from '$lib/utils';
 
   interface Props {
     post: PublicPost;
@@ -31,6 +32,7 @@
     (!!post.repost || !!post.inReplyToId || (!!post.groupId && !inGroup));
 
   let displayedPost: PublicPost = $derived(post?.repost || post);
+  let isUnseen = $derived(post.seen === false);
   let hasStats: boolean = $derived(
     !!(
       displayedPost?.repostCount ||
@@ -40,7 +42,19 @@
   );
 </script>
 
-<div class="border-b p-4">
+<div
+  class="relative border-b p-4 {isUnseen
+    ? 'border-l-primary-500 bg-primary-500/5 border-l-4'
+    : ''}"
+  use:postViewCounter={post.id}
+>
+  {#if isUnseen}
+    <span
+      class="bg-primary-500 absolute right-4 top-4 h-2.5 w-2.5 rounded-full"
+      aria-label="Unseen post"
+      title="Unseen post"
+    ></span>
+  {/if}
   {#if hasReactionHeader}
     <PostReactionHeader {post} {deleteCallback} {inGroup} />
   {/if}

@@ -1,6 +1,7 @@
 import { map } from "@openpeeps/arango-querybuilder";
 import { Relation } from "@openpeeps/arango-querybuilder/types";
 import { GroupData, GroupWithMeta } from "@openpeeps/common/types";
+import { collectionInfos } from "../db/structure";
 
 const groupRelations: Relation[] = [
     {
@@ -20,5 +21,19 @@ const groupRelations: Relation[] = [
 export const groupsMapping = map<GroupData, GroupWithMeta>({
     collection: 'groups',
     relations: groupRelations,
+    derivedProperties: [
+        {
+            alias: 'lastPostAt',
+            expression: `
+                FIRST(
+                    FOR edge IN ${collectionInfos.postGroupsCollection.name}
+                        FILTER edge._to == DOC._id
+                        SORT edge.createdAt DESC
+                        LIMIT 1
+                        RETURN edge.createdAt
+                )
+            `,
+        },
+    ],
     softDelete: true,
 });

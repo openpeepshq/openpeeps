@@ -18,15 +18,14 @@ export const Error = {
 
 export default new Endpoint({ Param, Output, Error }).handle(
   async (param, event) => {
-    const post = await findPost(param.conversationId);
+    const profile = await ensureLocalProfile(event);
+    const post = await findPost(param.conversationId, profile);
 
     if (!post) {
       throw notFound(`Object with id ${param.conversationId}`);
     }
 
     await ensurePostCapabilities(event, post, ['core-posts-read']);
-
-    const profile = await ensureLocalProfile(event);
 
     const conversation = await getConversationByStart(post, profile);
 

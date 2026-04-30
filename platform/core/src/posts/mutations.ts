@@ -11,7 +11,7 @@ import {
 
 import { PostDataUnion } from "@openpeeps/common/types";
 import { allpeepDb } from "../db";
-import { audienceConnector, bookmarkConnector, bookmarkDisconnector, entryConnector, extractHashtags, groupConnector, hashtagConnector, hashtagDisconnector, mentionConnector, reactionConnector, reactionDisconnector, replyConnector, repostConnector, transformPost } from "./helpers";
+import { audienceConnector, bookmarkConnector, bookmarkDisconnector, entryConnector, extractHashtags, groupConnector, hashtagConnector, hashtagDisconnector, mentionConnector, postSeenConnector, reactionConnector, reactionDisconnector, replyConnector, repostConnector, transformPost } from "./helpers";
 import { postsMapping, repostRelation } from "./mapping";
 import { findGroup } from "../groups/finders";
 import { findOrCreateHashtag } from "../hashtags";
@@ -137,6 +137,12 @@ export const bookmarkPost = async (post: PostWithMeta, profile: Profile) =>
 
 export const unbookmarkPost = async (post: PostWithMeta, profile: Profile) =>
   allpeepDb().then(({ db }) => bookmarkDisconnector(db, profile, post));
+
+export const markPostsSeen = async (posts: PostWithMeta[], profile: Profile) => {
+  const { db } = await allpeepDb();
+
+  await Promise.all(posts.map((post) => postSeenConnector(db, profile, post)));
+};
 
 export const deletePost = async (post: PostWithMeta, profile: Profile) => {
   const { db } = await allpeepDb();

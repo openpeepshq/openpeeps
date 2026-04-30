@@ -42,6 +42,7 @@ export const groupWithMetaSchema = groupDataSchema.extend({
   ...baseSchemaShape,
   ...idSchemaShape,
   membersCount: z.number(),
+  lastPostAt: z.string().datetime().nullable().optional(),
 });
 
 export const membershipSchema = groupRoleSchema.extend({
@@ -156,6 +157,7 @@ const basePostSchema = replyPostSchema.extend({
   updatedAt: z.string().datetime(),
   accountInteractions: accountInteractionsSchema.optional(),
   rsvps: rsvpWithMetaSchema.array(),
+  seen: z.boolean().optional(),
 });
 export type BasePost = z.infer<typeof basePostSchema>;
 

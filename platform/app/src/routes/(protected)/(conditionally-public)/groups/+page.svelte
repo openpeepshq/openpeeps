@@ -1,7 +1,7 @@
 <script lang="ts">
   import { matchesQuery } from '@openpeeps/common/lib';
   import type { GroupWithMeta } from '@openpeeps/common/types';
-  import { groupsStore } from '@openpeeps/svelte/api';
+  import { groupsStore, unseenPostCountsStore } from '@openpeeps/svelte/api';
   import {
     AccessDeniedLoader,
     GroupCard,
@@ -24,6 +24,7 @@
   });
 
   const groupsQuery = groupsStore();
+  const unseenPostCountsQuery = unseenPostCountsStore();
   let search = $state('');
 
   let groups = $state<GroupWithMeta[] | []>([]);
@@ -34,6 +35,9 @@
         (group: GroupWithMeta) => !search || matchesQuery(group, search),
       ) || [];
   });
+
+  const unreadCountForGroup = (groupId: string) =>
+    $unseenPostCountsQuery.data?.groups[groupId] ?? 0;
 </script>
 
 <NewGroupButton />
@@ -43,7 +47,7 @@
     bind:search
     placeholder="Search by group name"
   />
-  <AccessDeniedLoader queries={[$groupsQuery]}>
+  <AccessDeniedLoader queries={[$groupsQuery, $unseenPostCountsQuery]}>
     <div class="space-y-2 py-4">
       {#each groups || [] as group (group.id)}
         <button
@@ -53,7 +57,7 @@
             preventDefault(() => goto(`/groups/@${group.handle}`)),
           )}
         >
-          <GroupCard {group} />
+          <GroupCard {group} unreadCount={unreadCountForGroup(group.id)} />
         </button>
       {/each}
     </div>

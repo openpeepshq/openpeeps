@@ -180,6 +180,7 @@ const basePublicPostSchema = publicReplyPostSchema.extend({
   updatedAt: z.string().datetime(),
   accountInteractions: accountInteractionsSchema.optional(),
   rsvps: publicRsvpSchema.array(),
+  seen: z.boolean().optional(),
 });
 
 const withReplyPostSchema = basePublicPostSchema.extend({
@@ -302,6 +303,12 @@ export const notificationStatsSchema = z.object({
   unseen: z.number(),
 });
 export type NotificationStats = z.infer<typeof notificationStatsSchema>;
+
+export const unseenPostCountsSchema = z.object({
+  groups: z.record(z.number()),
+  direct: z.number(),
+});
+export type UnseenPostCounts = z.infer<typeof unseenPostCountsSchema>;
 
 export const publicInviteLinkSchema = inviteLinkSchema.extend({
   profile: publicProfileSchema,

@@ -64,6 +64,7 @@ export const dbBasePostSchema = postSchema.extend({
     profile: profileSchema,
     data: postDataUnionSchema,
     groupId: z.string().nullable().optional(),
+    seen: z.boolean().optional(),
 });
 
 export interface DbBasePost extends Post {
@@ -78,6 +79,7 @@ export interface DbBasePost extends Post {
     profile: Profile,
     data: PostDataUnion,
     groupId: string | null | undefined,
+    seen?: boolean,
 }
 
 export const dbPostWithReplySchema = dbBasePostSchema.extend({

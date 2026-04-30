@@ -27,36 +27,36 @@ const canReadPostFilter = async (profile: ProfileWithMeta) => {
     }
 }
 
-const transformPostWithScore = async (item: { data: WithId<DbPost>, score: number }) => {
-    return { data: await transformPost(item.data), score: item.score };
+const transformPostWithScore = (profile: ProfileWithMeta) => async (item: { data: WithId<DbPost>, score: number }) => {
+    return { data: await transformPost(item.data, profile), score: item.score };
 }
 
 export const searchPosts = async (query: string, profile: ProfileWithMeta, limitOffset: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) =>
     filterAndTransform(
-        postSearchMapping(query),
+        postSearchMapping(profile, query),
         (await allpeepDb()).db,
         {
-            transform: transformPostWithScore,
+            transform: transformPostWithScore(profile),
             filter: await canReadPostFilter(profile),
             ...limitOffset
         });
 
 export const searchEvents = async (query: string, profile: ProfileWithMeta, limitOffset: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) =>
     filterAndTransform(
-        eventSearchMapping(query),
+        eventSearchMapping(profile, query),
         (await allpeepDb()).db,
         {
-            transform: transformPostWithScore,
+            transform: transformPostWithScore(profile),
             filter: await canReadPostFilter(profile),
             ...limitOffset
         });
 
 export const searchJams = async (query: string, profile: ProfileWithMeta, limitOffset: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) =>
     filterAndTransform(
-        jamSearchMapping(query),
+        jamSearchMapping(profile, query),
         (await allpeepDb()).db,
         {
-            transform: transformPostWithScore,
+            transform: transformPostWithScore(profile),
             filter: await canReadPostFilter(profile),
             ...limitOffset
         });

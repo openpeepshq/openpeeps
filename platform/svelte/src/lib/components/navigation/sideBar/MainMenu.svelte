@@ -21,7 +21,7 @@
     Bookmark,
   } from 'lucide-svelte';
   import { TreeView } from '@skeletonlabs/skeleton';
-  import { currentProfileStore } from '$lib/api';
+  import { currentProfileStore, unseenPostCountsStore } from '$lib/api';
   import { checkRoleCapabilities } from '@openpeeps/common/lib';
   import { page } from '$app/state';
   import { MenuItem } from '.';
@@ -30,10 +30,11 @@
 
   const { t } = i18nContext();
   const profileQuery = currentProfileStore();
-  let isAdmin: boolean = $derived(
-    checkRoleCapabilities(['admin'], $profileQuery.data?.roles ?? []).success,
-  );
+  const unseenPostCountsQuery = unseenPostCountsStore();
+  let isAdmin: boolean = $derived(checkRoleCapabilities(['admin'], $profileQuery.data?.roles ?? []).success);
   let isAdministrationOpen = $derived(page.url.pathname.includes('/admin'));
+  let unseenGroupPostsCount = $derived(Object.values($unseenPostCountsQuery.data?.groups ?? {}).reduce((sum, count) => sum + count, 0));
+  let unseenDirectMessagesCount = $derived($unseenPostCountsQuery.data?.direct ?? 0);
 
   const serverInfo = getServerInfo();
 </script>
@@ -45,7 +46,12 @@
   {#if serverInfo.jams.livekit.enabled}
     <MenuItem name={t('navigation.jams')} icon={PhoneCall} path="/jams" />
   {/if}
-  <MenuItem name={t('navigation.groups')} icon={Users} path="/groups" />
+  <MenuItem
+    name={t('navigation.groups')}
+    icon={Users}
+    path="/groups"
+    count={unseenGroupPostsCount}
+  />
   <MenuItem name={t('navigation.events')} icon={CalendarDays} path="/events" />
   <MenuItem
     name={t('navigation.articles')}
@@ -56,6 +62,7 @@
     name={t('navigation.messages')}
     icon={MessageSquareText}
     path="/conversations"
+    count={unseenDirectMessagesCount}
   />
   <MenuItem name={t('navigation.members')} icon={BookUser} path="/members" />
   <MenuItem

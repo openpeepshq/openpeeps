@@ -142,7 +142,7 @@ const topPosts = (
     .sort([['DOC.activityScore', 'DESC']])
     .limit(5)
     .all(db)
-    .then((posts) => Promise.all(posts.map(transformPost)))
+    .then((posts) => Promise.all(posts.map((post) => transformPost(post))))
     .then((posts) =>
       posts
         .map((post) => publicPostWithActivityScoreSchema.safeParse(post))

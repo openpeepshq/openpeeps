@@ -139,6 +139,12 @@ export const bookmarkDisconnector = disconnector<Profile, Post>(
   collectionInfos.bookmarksCollection,
 )
 
+export const postSeenConnector = connector<Profile, Post>(
+  collectionInfos.profilesCollection,
+  collectionInfos.postsCollection,
+  collectionInfos.postSeenCollection,
+)
+
 const addProfileForEntry = async (rawEntry: DbEntry): Promise<EntryWithProfile> => ({
   ...rawEntry,
   profile: (await getProfile(rawEntry.profile.id))!,
@@ -154,15 +160,16 @@ const addProfileForMention = async (rawMention: DbMention): Promise<MentionWithP
   profile: (await getProfile(rawMention.profile.id))!,
 })
 
-export const transformPost = async (post: DbPost): Promise<PostWithMeta> => {
+export const transformPost = async (post: DbPost, currentProfile?: { id: string }): Promise<PostWithMeta> => {
   const entries = post.entries ? await Promise.all(post.entries.map(addProfileForEntry)) : [];
   const reactions = post.reactions ? await Promise.all(post.reactions.map(addProfileForReaction)) : [];
   const audience = post.audience ? await Promise.all(post.audience.map(p => getProfile(p.id))) as ProfileWithMeta[] : [];
   const mentions = post.mentions ? await Promise.all(post.mentions.map(addProfileForMention)) : [];
   return {
     ...post,
-    replyTo: post.replyTo ? await transformPost(post.replyTo) : undefined,
-    repost: post.repost ? await transformPost(post.repost) : undefined,
+    seen: currentProfile ? post.seen : undefined,
+    replyTo: post.replyTo ? await transformPost(post.replyTo, currentProfile) : undefined,
+    repost: post.repost ? await transformPost(post.repost, currentProfile) : undefined,
     rsvps: entries.filter((entry) => entry.type === "rsvp").map((entry) => ({
       profile: entry.profile,
       response: entry.data.response,
@@ -185,7 +192,7 @@ export const toFilteredPostsList = async (queryResult: QueryResult<DbPost>, opti
     db,
     {
       filter: composeFilters(canReadPost(config, profile), ...filters),
-      transform: transformPost,
+      transform: (post) => transformPost(post, profile),
       limit,
       offset
     });

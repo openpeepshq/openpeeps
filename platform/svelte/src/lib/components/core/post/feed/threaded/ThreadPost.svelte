@@ -6,6 +6,7 @@
   import FeedPostContent from '../../pieces/FeedPostContent.svelte';
   import PostActions from '../../pieces/PostActions.svelte';
   import { UpdatingDate } from '@openpeeps/ui';
+  import { postViewCounter } from '$lib/utils';
 
   interface Props {
     post: PublicPost;
@@ -22,9 +23,21 @@
     noActions = false,
     noMenu = false,
   }: Props = $props();
+
+  let isUnseen = $derived(post.seen === false);
 </script>
 
-<div class="flex flex-row gap-2 p-2">
+<div
+  class="relative flex flex-row gap-2 p-2 {isUnseen ? 'border-l-primary-500 bg-primary-500/5 border-l-4' : ''}"
+  use:postViewCounter={post.id}
+>
+  {#if isUnseen}
+    <span
+      class="bg-primary-500 absolute right-2 top-2 h-2.5 w-2.5 rounded-full"
+      aria-label="Unseen post"
+      title="Unseen post"
+    ></span>
+  {/if}
   <div class="relative w-12 justify-items-stretch">
     <Avatar profile={post.profile} borderless size={3} />
     {#if isParent}

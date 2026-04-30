@@ -9,7 +9,11 @@ export const findGroup = (id: string) => allpeepDb().then(db => groupsMapping.fi
 export const findGroupByHandle = (handle: string) => allpeepDb().then(db => groupsMapping.findOneBy(db.db, { matches: { handle } }));
 export const existsGroupByHandle = (handle: string) => allpeepDb().then(db => groupsMapping.ignoreSoftDelete().findOneBy(db.db, { matches: { handle } })).then(Boolean);
 
-export const listGroups = (profile?: ProfileWithMeta) => allpeepDb().then(db => groupsMapping.filter(canSeeGroupFilter(profile)).all(db.db));
+export const listGroups = (profile?: ProfileWithMeta) =>
+    allpeepDb().then(db => groupsMapping
+        .filter(canSeeGroupFilter(profile))
+        .sort([['DOC.lastPostAt', 'DESC']])
+        .all(db.db));
 
 export const listGroupsByProfile = (profile: PublicProfile) =>
     allpeepDb().then(({ db }) => profilesMapping.relationsFrom(profile, membersRelation).all(db));

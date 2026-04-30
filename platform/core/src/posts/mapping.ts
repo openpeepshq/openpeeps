@@ -4,6 +4,19 @@ import { PostData } from "@openpeeps/common/types";
 import { groupsMapping } from "../groups/mapping";
 import { collectionInfos } from "../db/structure";
 
+const seenByCurrentProfileDerivedProperty = (profile?: { id: string }) => ({
+    alias: 'seen',
+    expression: profile ? `
+        LENGTH(
+            FOR edge IN ${collectionInfos.postSeenCollection.name}
+                FILTER edge._from == "${collectionInfos.profilesCollection.name}/${profile.id}"
+                    AND edge._to == DOC._id
+                LIMIT 1
+                RETURN 1
+        ) > 0
+    ` : 'false',
+});
+
 
 export const entriesRelation: Relation<Profile, EntryData> = {
     alias: 'entries',
@@ -128,6 +141,14 @@ const basePostMapData = {
     ]
 }
 
+const basePostMapDataForProfile = (profile?: { id: string }) => ({
+    ...basePostMapData,
+    postFilterDerivedProperties: [
+        ...(basePostMapData.postFilterDerivedProperties || []),
+        seenByCurrentProfileDerivedProperty(profile),
+    ],
+});
+
 const replyPostMapData = {
     ...preFilterMapData,
     postFilterRelations: [entriesRelation],
@@ -154,6 +175,14 @@ export const repostRelation: RelationWithMapping<DbBasePost> = {
     }
 };
 
+export const repostRelationForProfile = (profile?: { id: string }): RelationWithMapping<DbBasePost> => ({
+    ...repostRelation,
+    mapping: {
+        ...basePostMapDataForProfile(profile),
+        postFilterRelations: [...basePostFilterRelations, replyToRelation],
+    },
+});
+
 export const repostsOfPostRelation: RelationWithMapping<DbPost> = {
     alias: 'reposts',
     edgeCollection: 'repost',
@@ -165,6 +194,14 @@ export const repostsOfPostRelation: RelationWithMapping<DbPost> = {
         postFilterRelations: [...basePostFilterRelations, repostRelation, replyToRelation],
     }
 };
+
+export const repostsOfPostRelationForProfile = (profile?: { id: string }): RelationWithMapping<DbPost> => ({
+    ...repostsOfPostRelation,
+    mapping: {
+        ...basePostMapDataForProfile(profile),
+        postFilterRelations: [...basePostFilterRelations, repostRelationForProfile(profile), replyToRelation],
+    },
+});
 
 export const postsWithReplyCountMapping = map<PostData, Post & { replyCount: number }>(
     {
@@ -192,6 +229,12 @@ export const postsMapping = map<PostData, DbPost>(
         postFilterRelations: [...basePostFilterRelations, repostRelation, replyToRelation],
     })
 
+export const postsMappingForProfile = (profile?: { id: string }) => map<PostData, DbPost>(
+    {
+        ...basePostMapDataForProfile(profile),
+        postFilterRelations: [...basePostFilterRelations, repostRelationForProfile(profile), replyToRelation],
+    })
+
 export const contextRelation = (depth: number, direction: 'ancestors' | 'descendents', contextMapping: Mapping<DbPost> = postsMapping): RelationWithMapping<DbPost> => ({
     alias: 'context',
     edgeCollection: collectionInfos.repliesCollection.name,
@@ -205,6 +248,13 @@ export const contextRelation = (depth: number, direction: 'ancestors' | 'descend
 export const conversationLeavesMapping = map<PostData, DbPost>(
     {
         ...basePostMapData,
+        relations: [replyCountRelation],
+        filters: ['DOC.replyCount == 0', 'DOC.visibility == "direct"'],
+    })
+
+export const conversationLeavesMappingForProfile = (profile?: { id: string }) => map<PostData, DbPost>(
+    {
+        ...basePostMapDataForProfile(profile),
         relations: [replyCountRelation],
         filters: ['DOC.replyCount == 0', 'DOC.visibility == "direct"'],
     })

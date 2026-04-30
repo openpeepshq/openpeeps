@@ -10,6 +10,7 @@
 		showAction?: boolean;
 		noPadding?: boolean;
 		oneLine?: boolean;
+		unreadCount?: number | undefined;
 		action?: import('svelte').Snippet;
 	}
 
@@ -19,8 +20,11 @@
 		showAction = true,
 		noPadding = false,
 		action,
-		oneLine = false
+		oneLine = false,
+		unreadCount = undefined
 	}: Props = $props();	
+
+	let visibleUnreadCount = $derived(unreadCount && unreadCount > 0 ? unreadCount : undefined);
 </script>
 
 <div class="flex justify-between {noPadding ? '' : 'p-4'} w-full">
@@ -38,6 +42,11 @@
 				<span class="truncate {avatarSize < 2 ? 'text-xs' : 'text-sm'}">
 					{group?.membersCount} member{group?.membersCount === 1 ? '' : 's'}
 				</span>
+				{#if visibleUnreadCount}
+					<span class="bg-primary-500 rounded-full px-2 py-0.5 text-xs font-semibold text-white">
+						{visibleUnreadCount} unread
+					</span>
+				{/if}
 			</span>
 		</span>
 	</span>

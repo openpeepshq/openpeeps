@@ -35,6 +35,9 @@ export const infiniteGetPostListStore = (type: PostType, props: ChronologicalInf
 export const getPostRepostsStore = (post: PublicPost) =>
 	simpleStore(client.posts.reposts, { pathParams: { id: post.id } });
 
+export const unseenPostCountsStore = () =>
+	simpleStore(client.posts.unseenCounts);
+
 export const getPostsByTypeStore = (type: PostType, props: ChronologicalInfiniteQueryParams) =>
 	infiniteChronologicalStore(client.posts.listByType, { pathParams: { type }, queryParams: props });
 
@@ -52,6 +55,10 @@ export const bookmarkPostMutation = noPayloadMutation(client.posts.bookmark, {
 
 export const unbookmarkPostMutation = noPayloadMutation(client.posts.unbookmark, {
 	queryKeys: [['posts'], ['profiles', 'current', 'bookmarkedIds']]
+});
+
+export const markPostsSeenMutation = payloadMutation(client.posts.seen, {
+	queryKeys: [['posts'], ['conversations']]
 });
 
 export const createPostMutation = payloadMutation(client.posts.create, {
