@@ -15,7 +15,7 @@
   import GroupCardFromId from '$lib/components/core/groups/GroupCardFromId.svelte';
   import { i18nContext } from '$lib/components/i18n';
   import ProfileSelector from '$lib/components/core/profile/ProfileSelector.svelte';
-  import { checkGroupCapabilities } from '@openpeeps/common';
+  import { checkGroupCapabilities } from '@openpeeps/common/lib';
 
   const { t } = i18nContext();
 
@@ -78,8 +78,11 @@
         ?.map((m) => m.group)
         .filter(
           (grp) =>
-            checkGroupCapabilities([`core-posts-create-${type}`], $me, grp)
-              .success,
+            checkGroupCapabilities(
+              [`core-posts-create-${type}`],
+              $me,
+              grp,
+            ).success,
         ) || []
     );
   };

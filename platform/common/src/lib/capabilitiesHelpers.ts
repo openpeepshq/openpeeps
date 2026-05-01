@@ -153,7 +153,7 @@ const getConfigCapabilities = (
 ): Capabilities =>
   mergeCapabilities(relationships.map((r) => config[object][r]));
 
-const getGroupRelationshipCapabilities = (
+export const getGroupCapabilities = (
   profile?: ProfileWithMeta,
   group?: Group | null,
 ) =>
@@ -172,15 +172,6 @@ export const getGroupCapabilitiesByRoles = (
   mergeCapabilities(
     (roles ?? []).map((r) => group?.capabilities[r] ?? { add: [], remove: [] }),
   );
-
-export const getGroupCapabilities = (
-  profile?: ProfileWithMeta,
-  group?: Group | null,
-): Capabilities =>
-  mergeCapabilities([
-    getGroupRelationshipCapabilities(profile, group),
-    getRoleCapabilities(profile),
-  ]);
 
 const getRoleCapabilities = (profile?: ProfileWithMeta): Capabilities =>
   mergeCapabilities(profile?.roles.map((r) => r.capabilities) ?? []);
@@ -219,7 +210,7 @@ const getPostCapabilities = (
     getProfileRelationships(profile, post.profile),
     config,
   ),
-  getGroupRelationshipCapabilities(profile, post.group),
+  getGroupCapabilities(profile, post.group),
 ])
 
 

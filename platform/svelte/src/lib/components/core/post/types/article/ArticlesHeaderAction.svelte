@@ -2,7 +2,7 @@
   import {
     checkGroupCapabilities,
     checkRoleCapabilities,
-  } from '@openpeeps/common';
+  } from '@openpeeps/common/lib';
   import { Button } from '@openpeeps/ui';
   import { me } from '$lib/api';
   import { i18nContext } from '@openpeeps/svelte/components';

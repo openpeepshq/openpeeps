@@ -13,7 +13,11 @@ import {
   VisibilityType,
   visibilityTypeValues,
 } from '../types';
-import { checkGroupCapabilities, checkPostCapabilities, checkRoleCapabilities } from './capabilitiesHelpers';
+import {
+  checkGroupCapabilities,
+  checkPostCapabilities,
+  checkRoleCapabilities,
+} from './capabilitiesHelpers';
 import { countBy, dateSorter, groupBy, transformValues } from './utils';
 
 const buildThread = (rootPost: PublicPost, postList: PublicPost[]): Thread => ({
@@ -123,7 +127,12 @@ export const canCreatePost = (
   group?: GroupWithMeta,
 ) =>
   visibility === 'group' ?
-    group && checkGroupCapabilities([`core-posts-create-${type}`], profile, group).success :
+    group &&
+    checkGroupCapabilities(
+      [`core-posts-create-${type}`],
+      profile,
+      group,
+    ).success :
     checkRoleCapabilities([`core-posts-create-${type}-${visibility}`], profile.roles).success;
 
 export const canCreatePostTypeInAnyGroup = (
@@ -131,7 +140,11 @@ export const canCreatePostTypeInAnyGroup = (
   type: PostType,
 ) =>
   profile?.memberships?.some((m) => {
-    return checkGroupCapabilities([`core-posts-create-${type}`], profile, m.group).success;
+    return checkGroupCapabilities(
+      [`core-posts-create-${type}`],
+      profile,
+      m.group,
+    ).success;
   })
 
 export const canCreatePostTypeWithVisibility = (
