@@ -8,7 +8,7 @@
 		profileName
 	} from '@openpeeps/common/lib';
 	import type { PublicPost, Event, PublicProfile } from '@openpeeps/common/types';
-	import { Button, getModalManager, Loader, PopupMenu, PopupMenuButton } from '@openpeeps/ui';
+	import { Button, getModalManager, Loader, PopupMenu, PopupMenuButton, UpdatingDate } from '@openpeeps/ui';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import { Share } from 'lucide-svelte';
 	import { ThreadedFeed } from '../..';
@@ -219,7 +219,7 @@
 						{#each $jamAttendeesQuery.data as attendee (attendee.id)}
 							<ProfileFromId profileId={attendee.profileId} avatarSize={2} >
 								{#snippet action()}
-									<div class=""></div>
+									<UpdatingDate date={attendee.createdAt} />
 								{/snippet}
 							</ProfileFromId>
 						{:else}
