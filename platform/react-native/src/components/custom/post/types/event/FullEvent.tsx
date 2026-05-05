@@ -51,6 +51,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import { Button } from '~/components/ui/button';
 import { calculateEffectiveRsvps } from '~/lib/utils';
+import { ThemedView } from '~/components/ui/themed-view';
 
 interface FullEventProps {
   post: PublicPost;
@@ -104,15 +105,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
     [postContextQuery.data]);
 
   return (
-    <ThemedSafeAreaView className="flex-1 relative">
-      <GenericHeader
-        title={`Event ${hasValue(post?.group?.id) && hasValue(group)
-          ? 'in ' + groupName(group as GroupData)
-          : ''
-          }`}
-        rightType="icon"
-        rightButtonIcon={<FullEventActions post={post as PublicPost} />}
-      />
+    <ThemedView className="flex-1 relative px-4 pb-4">
       <View className="w-full h-[250px] mx-auto">
         <Image
           source={
@@ -346,7 +339,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
           </TabsContent>
         )}
       </Tabs>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };
 
@@ -492,7 +485,7 @@ const RegistrationButtion: React.FC<{
   );
 };
 
-const FullEventActions: React.FC<{
+export const FullEventActions: React.FC<{
   post: PublicPost;
 }> = ({ post }) => {
   const { openpeepsApi, currentProfile } = useOpenpeeps();

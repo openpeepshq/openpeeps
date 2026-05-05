@@ -32,7 +32,7 @@ export const CardEvent = ({ post }: CardEventProps) => {
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.navigate('EventPage', {
+        navigation.navigate('Post', {
           id: post.id,
         });
       }}
