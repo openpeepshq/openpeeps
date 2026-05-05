@@ -8,6 +8,7 @@
 	import { Message } from '.';
 	import { UpdatingDate } from '@openpeeps/ui';
 	import { i18nContext } from '$lib/components/i18n';
+	import { postViewCounter } from '$lib/utils';
 
 	const { t } = i18nContext();
 
@@ -61,7 +62,7 @@
 	</div>
 {/if}
 
-<div class="flex">
+<div class="flex" use:postViewCounter={message.id}>
 	{#if message.profile.id !== $me?.id && multipleParticipants}
 		<Avatar containerClass="mt-6 mr-2" profile={message.profile} navigate />
 	{/if}

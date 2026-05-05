@@ -20,7 +20,7 @@ export default new Endpoint({ Param, Output, Error }).handle(
 
     const profile = await ensureProfileOrPublicCommunity(event);
 
-    const mergedPost = await findPost(param.postId);
+    const mergedPost = await findPost(param.postId, profile);
 
     if (!mergedPost) {
       throw notFound(`Object with id ${param.postId}`);

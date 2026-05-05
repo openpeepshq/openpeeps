@@ -56,18 +56,18 @@ const postSearchDefinition = (query: string) => ({
     query,
 })
 
-export const postSearchMapping = (query: string) =>
-    baseListPosts({})
+export const postSearchMapping = (profile: ProfileWithMeta, query: string) =>
+    baseListPosts({ profile })
         .filter('DOC.visibility != "direct"')
         .fulltextSearch(postSearchDefinition(query))
 
-export const eventSearchMapping = (query: string) =>
-    baseListPosts({})
+export const eventSearchMapping = (profile: ProfileWithMeta, query: string) =>
+    baseListPosts({ profile })
         .filter({ matches: { type: "event" } })
         .fulltextSearch(postSearchDefinition(query))
 
-export const jamSearchMapping = (query: string) =>
-    baseListPosts({})
+export const jamSearchMapping = (profile: ProfileWithMeta, query: string) =>
+    baseListPosts({ profile })
         .filter({ matches: { type: "event" } })
         .filter('DOC.data.jam != null')
         .fulltextSearch(postSearchDefinition(query))

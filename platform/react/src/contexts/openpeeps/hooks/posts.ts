@@ -68,6 +68,8 @@ const postFinders = (client: OpenpeepsClient) => ({
     apiHook(client.posts.context, { pathParams: { id } }),
   usePostReposts: (id: string) =>
     apiHook(client.posts.reposts, { pathParams: { id } }),
+  useUnseenPostCounts: () =>
+    apiHook(client.posts.unseenCounts),
 });
 
 type PostFinders = ReturnType<typeof postFinders>;
@@ -82,6 +84,7 @@ const postMutators = (client: OpenpeepsClient) => ({
   ]),
   bookmarkPostAction: noPayloadMutation(client.posts.bookmark, [['posts'], ['profiles', 'current', 'bookmarkedIds']]),
   unbookmarkPostAction: noPayloadMutation(client.posts.unbookmark, [['posts'], ['profiles', 'current', 'bookmarkedIds']]),
+  markPostsSeenAction: payloadMutation(client.posts.seen, [['posts']]),
   repostPostAction: noPayloadMutation(client.posts.repost, [['posts']]),
   voteOnPostAction: payloadMutation(client.posts.vote, [['posts']]),
   rsvpToEventAction: payloadMutation(client.posts.rsvp, [['posts'], ['rsvp']]),

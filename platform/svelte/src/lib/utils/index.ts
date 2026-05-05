@@ -5,6 +5,7 @@ export * from './dateHelpers';
 export * from './handleLogout';
 export * from './linkifyText';
 export * from './password-strength';
+export * from './postViewCounter';
 export * from './scrollHelpers';
 export * from './toast';
 export * from './downloadHelpers';

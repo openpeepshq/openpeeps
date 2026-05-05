@@ -17,7 +17,8 @@ export const Error = {
 
 export default new Endpoint({ Param, Output, Error }).handle(
   async (param, event) => {
-    const mergedPost = await findPost(param.postId);
+    const profile = event.locals.currentProfile;
+    const mergedPost = await findPost(param.postId, profile);
 
     if (!mergedPost) {
       throw notFound(`Object with id ${param.postId}`);
@@ -25,6 +26,6 @@ export default new Endpoint({ Param, Output, Error }).handle(
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-read']);
 
-    return replies(mergedPost);
+    return replies(profile, mergedPost);
   },
 );

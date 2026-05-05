@@ -6,6 +6,7 @@
   import FeedPostContent from '../../pieces/FeedPostContent.svelte';
   import PostActions from '../../pieces/PostActions.svelte';
   import { UpdatingDate } from '@openpeeps/ui';
+  import { postViewCounter } from '$lib/utils';
 
   interface Props {
     post: PublicPost;
@@ -24,7 +25,7 @@
   }: Props = $props();
 </script>
 
-<div class="flex flex-row gap-2 p-2">
+<div class="flex flex-row gap-2 p-2" use:postViewCounter={post.id}>
   <div class="relative w-12 justify-items-stretch">
     <Avatar profile={post.profile} borderless size={3} />
     {#if isParent}

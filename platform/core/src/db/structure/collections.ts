@@ -230,6 +230,10 @@ const allPeepCollections = {
     name: 'bookmarks',
     edge: true,
   },
+  postSeenCollection: {
+    name: 'postSeen',
+    edge: true,
+  },
   profileSettingsCollection: {
     name: 'profileSettings',
   },

@@ -7,6 +7,7 @@
   import FeedPostContent from '$lib/components/core/post/pieces/FeedPostContent.svelte';
   import ThreadPost from '../threaded/ThreadPost.svelte';
   import type { Snippet } from 'svelte';
+  import { postViewCounter } from '$lib/utils';
 
   interface Props {
     post: PublicPost;
@@ -40,7 +41,7 @@
   );
 </script>
 
-<div class="border-b p-4">
+<div class="border-b p-4" use:postViewCounter={post.id}>
   {#if hasReactionHeader}
     <PostReactionHeader {post} {deleteCallback} {inGroup} />
   {/if}

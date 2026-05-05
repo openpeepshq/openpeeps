@@ -23,6 +23,7 @@
 	import { i18nContext } from '$lib/components/i18n';
 	import { AccessDeniedLoader } from '$lib/components/layout';
 	import { page } from '$app/state';
+	import { postViewCounter } from '$lib/utils';
 
 	interface Props {
 		post: PublicPost;
@@ -48,7 +49,7 @@
 	);
 </script>
 
-<div class="flex w-full flex-col gap-2 p-3">
+<div class="flex w-full flex-col gap-2 p-3" use:postViewCounter={post.id}>
 	<img
 		src={event.image || '/img/event-default.png'}
 		class="mb-3 h-48 w-full rounded object-cover"

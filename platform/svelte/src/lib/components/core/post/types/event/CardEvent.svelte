@@ -10,6 +10,7 @@
   import { i18nContext } from '$lib/components/i18n';
   import ProfileEventRelationship from './ProfileEventRelationship.svelte';
   import { AccessDeniedLoader } from '$lib/components/layout';
+  import { postViewCounter } from '$lib/utils';
 
   const { t } = i18nContext();
 
@@ -28,7 +29,7 @@
   const jamStateQuery = $derived(jam ? jamStateStore(post.id) : undefined);
 </script>
 
-<div class="hover:bg-surface-100 overflow-hidden rounded-md px-2 pt-2">
+<div class="hover:bg-surface-100 overflow-hidden rounded-md px-2 pt-2" use:postViewCounter={post.id}>
   <a href="{page.url.origin}/posts/{post.id}" class="flex flex-col gap-2">
     <span class="h-32">
       <img

@@ -17,17 +17,16 @@ export const Error = {
 
 export default new Endpoint({ Param, Output, Error }).handle(
   async (param, event) => {
-    const mergedPost = await findPost(param.postId);
-
-    if (!mergedPost) {
-      throw notFound(`Object with id ${param.postId}`);
-    }
-
     const isServiceAuthorized = scopeMatches({
       authorization: event.locals.authorization,
       scope: undefined,
       resource: { type: 'jam', id: param.postId },
     });
+    const mergedPost = await findPost(param.postId, event.locals.currentProfile);
+
+    if (!mergedPost) {
+      throw notFound(`Object with id ${param.postId}`);
+    }
 
     if (!isServiceAuthorized) {
       await ensurePostCapabilities(event, mergedPost, ['core-posts-read']);

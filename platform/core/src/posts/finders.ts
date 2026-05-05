@@ -1,7 +1,7 @@
-import { PostWithMeta, Post, PostType, Profile, DbPost, DbBasePost } from "@openpeeps/common/types";
+import { PostWithMeta, Post, PostType, Profile, DbPost, DbBasePost, UnseenPostCounts } from "@openpeeps/common/types";
 import { ProfileWithMeta } from "@openpeeps/common/types";
 import { allpeepDb, collectionInfos } from "../db";
-import { contextRelation, conversationLeavesMapping, postsMapping, repostsOfPostRelation, postIdsMapping } from "./mapping";
+import { contextRelation, conversationLeavesMappingForProfile, postsMappingForProfile, repostsOfPostRelationForProfile, postIdsMapping } from "./mapping";
 import { audienceConnectionFinder, currentEventsFilter, jamFilter, localFeedFilter, mentionsConnectionFinder, myEventsFilter, myFeedFilter, myFeedGroupMembershipFilter, pastEventsFilter, toFilteredPostsList, transformPost, upcomingEventsFilter } from "./helpers";
 import { Mapping, ObjectSort, OMFilter } from "@openpeeps/arango-querybuilder";
 import { addQuerySort, addStart, sortOldestFirst } from "../db/helpers";
@@ -10,11 +10,11 @@ import { findGroup } from "../groups/finders";
 import { groupsMapping } from "../groups/mapping";
 import { profilesMapping } from "../profiles/mapping";
 
-export const findPost = async (id: string): Promise<PostWithMeta | undefined> =>
-    allpeepDb().then(({ db }) => postsMapping.find(db, id)).then(post => post ? transformPost(post) : undefined);
+export const findPost = async (id: string, profile?: ProfileWithMeta): Promise<PostWithMeta | undefined> =>
+    allpeepDb().then(({ db }) => postsMappingForProfile(profile).find(db, id)).then(post => post ? transformPost(post, profile) : undefined);
 
 export const postContext = async (profile: ProfileWithMeta | undefined, id: string, depth: number, direction: 'ancestors' | 'descendents', contextMapping?: Mapping<DbPost>) =>
-    toFilteredPostsList(postsMapping.relationsFrom({ id }, contextRelation(depth, direction, contextMapping)), { profile });
+    toFilteredPostsList(postsMappingForProfile(profile).relationsFrom({ id }, contextRelation(depth, direction, contextMapping ?? postsMappingForProfile(profile))), { profile });
 
 
 export const descendents = async (profile: ProfileWithMeta | undefined, post: PostWithMeta, depth: number, contextMapping?: Mapping<DbPost>) =>
@@ -26,21 +26,21 @@ export const ancestors = async (profile: ProfileWithMeta | undefined, post: Post
 export const replies = async (profile: ProfileWithMeta | undefined, post: PostWithMeta) =>
     descendents(profile, post, 1);
 
-export const baseListPosts = ({ start }: { start?: string }) =>
-    addStart<DbPost>(postsMapping, start);
+export const baseListPosts = ({ start, profile }: { start?: string, profile?: ProfileWithMeta }) =>
+    addStart<DbPost>(postsMappingForProfile(profile), start);
 
-export const baseFeed = ({ start, sort }: { start?: string, sort?: ObjectSort }) =>
-    addQuerySort(baseListPosts({ start }).filter('DOC.visibility != "direct"'), sort);
+export const baseFeed = ({ start, sort, profile }: { start?: string, sort?: ObjectSort, profile?: ProfileWithMeta }) =>
+    addQuerySort(baseListPosts({ start, profile }).filter('DOC.visibility != "direct"'), sort);
 
-export const baseEventsFeed = () => {
-    const mapping = postsMapping
+export const baseEventsFeed = (profile?: ProfileWithMeta) => {
+    const mapping = postsMappingForProfile(profile)
         .sort([['DOC.data.start', 'ASC']])
         .filter({ matches: { type: "event" } });
     return mapping;
 }
 
 export const listPosts = async (profile: ProfileWithMeta | undefined, { start, limit = 100, filter }: { start?: string, limit?: number, filter?: OMFilter<DbBasePost> } = { limit: 100 }) =>
-    toFilteredPostsList(baseListPosts({ start }).filter(filter), { profile, limit });
+    toFilteredPostsList(baseListPosts({ start, profile }).filter(filter), { profile, limit });
 
 export const listConversationLeaves = async (profile: ProfileWithMeta) =>
     toFilteredPostsList(profilesMapping.relationsFrom(profile, {
@@ -49,7 +49,7 @@ export const listConversationLeaves = async (profile: ProfileWithMeta) =>
         direction: 'INBOUND',
         skipEdge: true,
         cardinality: 'many',
-        mapping: conversationLeavesMapping.data(),
+        mapping: conversationLeavesMappingForProfile(profile).data(),
     }), { profile, limit: 9999 })
 
 
@@ -61,7 +61,7 @@ export const listPostsByProfile = async (profile: ProfileWithMeta | undefined, r
         edgeFilter: 'DOC.type == "create"',
         skipEdge: true,
         cardinality: 'many',
-        mapping: baseFeed({ start }).filter(filter).data(),
+        mapping: baseFeed({ start, profile }).filter(filter).data(),
     }), { profile, limit });
 
 export const listBookmarkedPosts = async (profile: ProfileWithMeta | undefined, requestedProfile: ProfileWithMeta, { start, limit = 100, filter }: { start?: string, limit?: number, filter?: OMFilter<DbBasePost> } = { limit: 100 }) =>
@@ -71,7 +71,7 @@ export const listBookmarkedPosts = async (profile: ProfileWithMeta | undefined, 
         direction: 'OUTBOUND',
         skipEdge: true,
         cardinality: 'many',
-        mapping: baseFeed({ start }).filter(filter).data(),
+        mapping: baseFeed({ start, profile }).filter(filter).data(),
     }), { profile, limit });
 
 export const listBookmarkedPostIds = async (requestedProfile: ProfileWithMeta): Promise<string[]> => {
@@ -86,10 +86,38 @@ export const listBookmarkedPostIds = async (requestedProfile: ProfileWithMeta): 
     }).all(db).then((posts: { id: string }[]) => posts.map(p => p.id));
 }
 
+export const getUnseenPostCounts = async (profile: ProfileWithMeta): Promise<UnseenPostCounts> => {
+    const groupIds = profile.memberships
+        .map((membership) => membership.group.id)
+        .filter((groupId): groupId is string => typeof groupId === 'string');
+    const groups = Object.fromEntries(groupIds.map((groupId) => [groupId, 0]));
+
+    await Promise.all(groupIds.map(async (groupId) => {
+        const posts = await listPostsByGroup(profile, groupId, { limit: 9999 });
+        groups[groupId] = posts.filter((post) => post.seen === false && post.profile.id !== profile.id).length;
+    }));
+
+    const conversations = await Promise.all(
+        (await listConversationLeaves(profile)).map((post) => getConversationByEnd(post, profile))
+    );
+    const uniqueConversations = Array.from(new Map(
+        conversations
+            .filter((conversation) => conversation[0])
+            .map((conversation) => [conversation[0].id, conversation])
+    ).values());
+    const direct = uniqueConversations.reduce(
+        (sum, conversation) =>
+            sum + conversation.filter((post) => post.seen === false && post.profile.id !== profile.id).length,
+        0
+    );
+
+    return { groups, direct };
+}
+
 
 
 export const listPostsByType = async (profile: ProfileWithMeta | undefined, type: PostType, { start, limit = 100, filter }: { start?: string, limit?: number, filter?: OMFilter<DbBasePost> } = { limit: 100 }) =>
-    toFilteredPostsList(baseFeed({ start }).filter(filter).filter({ matches: { type } }), { profile, limit });
+    toFilteredPostsList(baseFeed({ start, profile }).filter(filter).filter({ matches: { type } }), { profile, limit });
 
 
 export const listPostsByTag = async (profile: ProfileWithMeta | undefined, tag: string, { start, limit = 100, filter }: { start?: string, limit?: number, filter?: OMFilter<DbBasePost> } = { limit: 100 }) => {
@@ -103,7 +131,7 @@ export const listPostsByTag = async (profile: ProfileWithMeta | undefined, tag: 
         direction: 'INBOUND',
         cardinality: 'many',
         skipEdge: true,
-        mapping: baseFeed({ start }).filter(filter).data(),
+        mapping: baseFeed({ start, profile }).filter(filter).data(),
     }), { profile, limit });
 
 }
@@ -119,22 +147,22 @@ export const listPostsByGroup = async (profile: ProfileWithMeta | undefined, gro
         direction: 'INBOUND',
         skipEdge: true,
         cardinality: 'many',
-        mapping: baseFeed({ start }).filter(filter).data(),
+        mapping: baseFeed({ start, profile }).filter(filter).data(),
     }), { profile, limit });
 }
 
 export const listUpcomingEventsFeed = async (profile: ProfileWithMeta | undefined, { offset, limit = 100, filter }: { offset?: number, limit?: number, filter?: OMFilter<DbBasePost> } = { limit: 100 }) =>
-    toFilteredPostsList(baseEventsFeed()
+    toFilteredPostsList(baseEventsFeed(profile)
         .filter(upcomingEventsFilter())
         .filter(filter), { profile, limit, offset });
 
 export const listCurrentEventsFeed = async (profile: ProfileWithMeta | undefined, { offset, limit = 100, filter }: { offset?: number, limit?: number, filter?: OMFilter<DbBasePost> } = { limit: 100 }) =>
-    toFilteredPostsList(baseEventsFeed()
+    toFilteredPostsList(baseEventsFeed(profile)
         .filter(currentEventsFilter())
         .filter(filter), { profile, limit, offset });
 
 export const listPastEventsFeed = async (profile: ProfileWithMeta | undefined, { offset, limit = 100, filter }: { offset?: number, limit?: number, filter?: OMFilter<DbBasePost> } = { limit: 100 }) =>
-    toFilteredPostsList(baseEventsFeed()
+    toFilteredPostsList(baseEventsFeed(profile)
         .sort([['DOC.data.start', 'DESC']])
         .filter(pastEventsFilter())
         .filter(filter), { profile, limit, offset });
@@ -161,7 +189,7 @@ export const listMyUpcomingJamsFeed = async (profile: ProfileWithMeta, { offset,
     listUpcomingEventsFeed(profile, { offset, filter: { operator: '&&', predicates: [myEventsFilter(profile), jamFilter] }, limit });
 
 
-const baseGroupEventsFeed = async (groupId: string, { filter, sort }: { filter?: OMFilter<DbBasePost>, sort?: ObjectSort } = {}) => {
+const baseGroupEventsFeed = async (profile: ProfileWithMeta | undefined, groupId: string, { filter, sort }: { filter?: OMFilter<DbBasePost>, sort?: ObjectSort } = {}) => {
     const group = await findGroup(groupId);
     if (!group) {
         throw new Error(`Group ${groupId} not found`);
@@ -172,31 +200,31 @@ const baseGroupEventsFeed = async (groupId: string, { filter, sort }: { filter?:
         direction: 'INBOUND',
         skipEdge: true,
         cardinality: 'many',
-        mapping: baseEventsFeed().filter(filter).sort(sort).data(),
+        mapping: baseEventsFeed(profile).filter(filter).sort(sort).data(),
     });
 }
 
 export const listUpcomingGroupEventsFeed = async (profile: ProfileWithMeta | undefined, groupId: string, { offset, limit = 100 }: { offset?: number, limit?: number } = { limit: 100 }) =>
-    toFilteredPostsList(await baseGroupEventsFeed(groupId, { filter: upcomingEventsFilter() }), { profile, limit, offset });
+    toFilteredPostsList(await baseGroupEventsFeed(profile, groupId, { filter: upcomingEventsFilter() }), { profile, limit, offset });
 
 export const listPastGroupEventsFeed = async (profile: ProfileWithMeta | undefined, groupId: string, { offset, limit = 100 }: { offset?: number, limit?: number } = { limit: 100 }) =>
-    toFilteredPostsList(await baseGroupEventsFeed(groupId, { filter: pastEventsFilter(), sort: [['DOC.data.start', 'DESC']] }), { profile, limit, offset });
+    toFilteredPostsList(await baseGroupEventsFeed(profile, groupId, { filter: pastEventsFilter(), sort: [['DOC.data.start', 'DESC']] }), { profile, limit, offset });
 
 
 export const listLocalFeed = async (profile: ProfileWithMeta | undefined, { start, limit = 100 }: { start?: string, limit?: number } = { limit: 100 }) =>
-    toFilteredPostsList(baseFeed({ start }).filter(localFeedFilter(profile)), { profile, limit });
+    toFilteredPostsList(baseFeed({ start, profile }).filter(localFeedFilter(profile)), { profile, limit });
 
 export const listMyFeed = async (profile: ProfileWithMeta, { start, limit = 100 }: { start?: string, limit?: number } = { limit: 100 }) =>
-    toFilteredPostsList(baseFeed({ start }).filter(myFeedFilter(profile)), { profile, limit, filters: [myFeedGroupMembershipFilter(profile)] });
+    toFilteredPostsList(baseFeed({ start, profile }).filter(myFeedFilter(profile)), { profile, limit, filters: [myFeedGroupMembershipFilter(profile)] });
 
-export const reposts = async (post: PostWithMeta) =>
-    allpeepDb().then(({ db }) => postsMapping.relationsFrom(post, repostsOfPostRelation).all(db));
+export const reposts = async (post: PostWithMeta, profile?: ProfileWithMeta) =>
+    toFilteredPostsList(postsMappingForProfile(profile).relationsFrom(post, repostsOfPostRelationForProfile(profile)), { profile });
 
 export const getConversationByEnd = async (post: PostWithMeta, profile: ProfileWithMeta) =>
-    ancestors(profile, post, 9999, sortOldestFirst<DbPost>(postsMapping))
+    ancestors(profile, post, 9999, sortOldestFirst<DbPost>(postsMappingForProfile(profile)))
         .then((conversation) => [...conversation, post]);
 export const getConversationByStart = async (post: PostWithMeta, profile: ProfileWithMeta) =>
-    descendents(profile, post, 9999, sortOldestFirst<DbPost>(postsMapping))
+    descendents(profile, post, 9999, sortOldestFirst<DbPost>(postsMappingForProfile(profile)))
         .then((conversation) => [post, ...conversation]);
 
 

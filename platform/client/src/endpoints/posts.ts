@@ -10,8 +10,13 @@ import {
   type SuccessResponse,
   type OffsetInfiniteQueryParams,
   type PublicPost,
+  type UnseenPostCounts,
 } from '@openpeeps/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
+
+type PostsSeenRequest = {
+  postIds: string[];
+};
 
 const finders = (rawClient: FetchClient) => ({
   list: allpeepNoPayloadEndpoint<PublicPost[], undefined, ChronologicalInfiniteQueryParams>(
@@ -49,6 +54,10 @@ const finders = (rawClient: FetchClient) => ({
   reposts: allpeepNoPayloadEndpoint<PublicPost[], { id: string }>(
     rawClient,
     '/posts/:id/reposts',
+  ),
+  unseenCounts: allpeepNoPayloadEndpoint<UnseenPostCounts>(
+    rawClient,
+    '/posts/unseen/counts',
   ),
 });
 
@@ -177,6 +186,11 @@ const mutators = (rawClient: FetchClient) => ({
     rawClient,
     '/posts/:id/bookmark',
     'delete',
+  ),
+  seen: allpeepPayloadEndpoint<SuccessResponse, PostsSeenRequest>(
+    rawClient,
+    '/posts/seen',
+    'post',
   ),
   repost: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
     rawClient,
