@@ -7,10 +7,7 @@ import {
   Dimensions,
   StatusBar,
   ScrollView,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
 } from 'react-native';
-import type { Album, PhotoIdentifier } from '@react-native-camera-roll/camera-roll';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Button } from '~/components/ui/button';
 import { CameraIcon, ChevronDownIcon, CheckIcon } from '~/components/icons';
@@ -33,7 +30,6 @@ import { uploadMedia } from '~/lib/uploadMedia';
 import { useOpenpeeps } from '@openpeeps/react';
 import Toast from 'react-native-toast-message';
 import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -45,8 +41,8 @@ export const ImagePickerSheet = forwardRef<
   BottomSheetModal,
   ImagePickerSheetProps
 >(({ onSelect }, ref) => {
-  const [images, setImages] = useState<PhotoIdentifier[]>([]);
-  const [albums, setAlbums] = useState<Album[]>([]);
+  const [images, setImages] = useState<any[]>([]);
+  const [albums, setAlbums] = useState<any[]>([]);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [isMultipleSelect, setIsMultipleSelect] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -95,28 +91,28 @@ export const ImagePickerSheet = forwardRef<
         setTimeout(() => StatusBar.setHidden(true, 'slide'), 20);
       }
 
-      if (Platform.OS === 'android') {
-        await ImagePicker.openCropper({
-          path: uri,
-          width: 1000,
-          height: 1000,
-          mediaType: 'photo',
-        });
-      } else {
-        await ImagePicker.openCropper({
-          path: uri,
-          width: 1000,
-          height: 1000,
-          cropperToolbarTitle: t('form.imageEditModal.title'),
-          cropperToolbarColor: colors.background,
-          mediaType: 'photo',
-          cropperStatusBarLight: !isDark,
-          cropperToolbarWidgetColor: colors.foreground,
-        });
-      }
+      const cropped = await ImagePicker.openCropper(
+        Platform.OS === 'android'
+          ? {
+              path: uri,
+              width: 1000,
+              height: 1000,
+              mediaType: 'photo',
+            }
+          : {
+              path: uri,
+              width: 1000,
+              height: 1000,
+              cropperToolbarTitle: t('form.imageEditModal.title'),
+              cropperToolbarColor: colors.background,
+              mediaType: 'photo',
+              cropperStatusBarLight: !isDark,
+              cropperToolbarWidgetColor: colors.foreground,
+            },
+      );
 
       if (!isMultipleSelect) {
-        setSelectedImages([uri]);
+        setSelectedImages([cropped.path]);
         return;
       }
 
@@ -188,7 +184,7 @@ export const ImagePickerSheet = forwardRef<
     setCurrentImageIndex(0);
   };
 
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const handleScroll = (event: any) => {
     const slideSize = event.nativeEvent.layoutMeasurement.width;
     const offset = event.nativeEvent.contentOffset.x;
     const currentIndex = Math.round(offset / slideSize);
@@ -257,7 +253,7 @@ export const ImagePickerSheet = forwardRef<
     onSelect(attachments);
     setIsConfirmLoading(false);
     resetStates();
-    bottomSheetClose(ref);
+    (ref as any).current?.close();
   };
 
   return (
@@ -342,7 +338,7 @@ export const ImagePickerSheet = forwardRef<
         <SheetFooter
           onCancel={() => {
             resetStates();
-            bottomSheetClose(ref);
+            (ref as any).current?.close();
           }}
           onConfirm={onConfirm}
           disabled={selectedImages.length === 0 || isLoading}

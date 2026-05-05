@@ -45,6 +45,21 @@ export const uploadMedia = async ({
     }
     if (mimeType) {
       finalMimeType = mimeType;
+    } else if (name) {
+      const ext = name.split('.').pop()?.toLowerCase() ?? '';
+      const inferred: Record<string, string> = {
+        jpg: 'image/jpeg',
+        jpeg: 'image/jpeg',
+        png: 'image/png',
+        gif: 'image/gif',
+        webp: 'image/webp',
+        heic: 'image/heic',
+        heif: 'image/heif',
+        pdf: 'application/pdf',
+      };
+      if (inferred[ext]) {
+        finalMimeType = inferred[ext];
+      }
     }
   }
 
@@ -81,7 +96,12 @@ export const uploadMedia = async ({
     }
   }
 
-  if (mediaUri.startsWith('content://') || (Platform.OS === 'android' && mediaUri.startsWith('file://'))) {
+  const shouldCopyPickerFile =
+    mediaUri.startsWith('content://') ||
+    (Platform.OS === 'android' && mediaUri.startsWith('file://')) ||
+    (Platform.OS === 'ios' && mediaUri.startsWith('file://'));
+
+  if (shouldCopyPickerFile) {
     const destPath = `${RNFS.CachesDirectoryPath}/${tempFileName}`;
 
     try {
@@ -120,7 +140,11 @@ export const uploadMedia = async ({
       previewUrl: mediaAttachment.previewUrl,
       textUrl: null,
       filename: mediaAttachment.filename || file.name,
-      meta: { usage: type },
+      meta: {
+        usage: type,
+        mimetype: finalMimeType,
+        size: fileStat.size,
+      },
       description: mediaAttachment.description,
       blurhash: mediaAttachment.blurhash,
     };
