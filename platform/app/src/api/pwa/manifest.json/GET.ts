@@ -10,39 +10,39 @@ export default new Endpoint({ Output }).handle((_, event) =>
     id: '/',
     icons: [
       {
-        src: 'icons/128x128.png',
+        src: 'mobile-icons/128x128.png',
         sizes: '128x128',
         type: 'image/png',
         purpose: 'maskable',
       },
       {
-        src: 'icons/152x152.png',
+        src: 'mobile-icons/152x152.png',
         sizes: '152x152',
         type: 'image/png',
       },
       {
-        src: 'icons/167x167.png',
+        src: 'mobile-icons/167x167.png',
         sizes: '167x167',
         type: 'image/png',
       },
       {
-        src: 'icons/180x180.png',
+        src: 'mobile-icons/180x180.png',
         sizes: '180x180',
         type: 'image/png',
       },
       {
-        src: 'icons/192x192.png',
+        src: 'mobile-icons/192x192.png',
         sizes: '192x192',
         type: 'image/png',
         purpose: 'any',
       },
       {
-        src: 'icons/256x256.png',
+        src: 'mobile-icons/256x256.png',
         sizes: '256x256',
         type: 'image/png',
       },
       {
-        src: 'icons/512x512.png',
+        src: 'mobile-icons/512x512.png',
         sizes: '512x512',
         type: 'image/png',
       },
