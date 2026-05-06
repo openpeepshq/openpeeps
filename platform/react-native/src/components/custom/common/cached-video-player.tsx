@@ -5,7 +5,6 @@ import {
   Text,
   TouchableOpacity,
   useWindowDimensions,
-  StatusBar,
 } from 'react-native';
 import Video, {
   BufferConfig,
@@ -48,12 +47,6 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [hasEnded, setHasEnded] = useState<boolean>(false);
 
-  useEffect(() => {
-    StatusBar.setHidden(true, 'fade');
-    return () => {
-      StatusBar.setHidden(false, 'fade');
-    };
-  }, []);
 
   const _bufferConfig: BufferConfig = {
     minBufferMs: 15000,
@@ -189,12 +182,11 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
           ref={videoRef}
           source={{
             uri: videoPath,
-            type: 'mp4',
-            bufferConfig: _bufferConfig,
+            bufferConfig: _bufferConfig,  
           }}
           style={{ width: '100%', height: '100%' }}
           resizeMode="contain"
-          controls={false}
+          controls={true}
           paused={isPaused}
           muted={isMuted}
           onError={() => {
@@ -219,6 +211,7 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
           left: 0,
           right: 0,
           bottom: 0,
+          backgroundColor: 'transparent',
         }}>
         <View
           style={
@@ -242,7 +235,7 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
             size="icon"
             onPress={() => navigation.goBack()}
             className="mr-4">
-            <ArrowLeftIcon className="text-white" size={24} />
+            <ArrowLeftIcon className="text-foreground" size={24} />
           </Button>
         </View>
 
@@ -297,11 +290,9 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
                   ? progressBarHeight || progressBarWidth
                   : progressBarWidth;
                 if (!axisSize || duration <= 0) { return; }
-                const ne = e.nativeEvent;
-                const hasY = 'locationY' in ne && typeof (ne as { locationY: number }).locationY === 'number';
                 const pointer = isLandscape
-                  ? (hasY ? (ne as { locationY: number; locationX: number }).locationY : ne.locationX)
-                  : ne.locationX;
+                  ? (e.nativeEvent as any).locationY ?? e.nativeEvent.locationX
+                  : e.nativeEvent.locationX;
                 const progress = Math.max(0, Math.min(1, pointer / axisSize));
                 handleSeek(progress);
               }}
