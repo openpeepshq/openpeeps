@@ -6,8 +6,10 @@
 	import { getModalManager } from '@openpeeps/ui';
 	import { me } from '$lib/api';
 	import { hasValue } from '@openpeeps/common';
+	import { i18nContext } from '$lib/components/i18n';
 
 	const modalManager = getModalManager();
+	const { t } = i18nContext();
 
 	interface Props {
 		post: PublicPost;
@@ -23,7 +25,7 @@
 	};
 	let isGroupPost = $derived(hasValue(post.groupId));
 
-	let text: string = $derived(compact ? String(post.replyCount) : 'Reply');
+	let text: string = $derived(compact ? String(post.replyCount) : t('posts.footer.reply'));
 	let membershipExists = $derived(
 		$me.memberships.map((m) => m.group.id).find((groupId) => groupId === post?.group?.id)
 			? true

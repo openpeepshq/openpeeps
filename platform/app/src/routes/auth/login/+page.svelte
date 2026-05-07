@@ -9,7 +9,9 @@
   import { toast } from '@openpeeps/svelte/utils';
   import { Eye, EyeOff } from 'lucide-svelte';
   import { getServerInfo } from '@openpeeps/svelte/server';
+  import { i18nContext } from '@openpeeps/svelte/components/i18n';
 
+  const { t } = i18nContext();
   const toastStore = getToastStore();
 
   let data = $state<LoginRequest>({
@@ -19,7 +21,7 @@
 
   let redirectUrl = '';
   getPageHeaderStore().set({
-    title: 'Login',
+    title: t('auth.login.title'),
   });
 
   const handleSubmit = async () => {
@@ -50,21 +52,21 @@
 </script>
 
 <Form {data} schema={loginRequestSchema}>
-  <h2 class="text-xl">Login</h2>
+  <h2 class="text-xl">{t('auth.login.heading')}</h2>
 
-  <p>Welcome back, enter details below to log into your community</p>
+  <p>{t('auth.login.welcomeBack')}</p>
 
-  <FormInput path={['email']} placeholder="you@email.org" description="Email" />
+  <FormInput path={['email']} placeholder={t('auth.login.emailPlaceholder')} description={t('auth.login.email')} />
 
   <FormInput
     path={['password']}
-    description="Password"
+    description={t('auth.login.password')}
     type={showPassword ? 'text' : 'password'}
   >
     {#snippet tail()}
       <button
         onclick={() => (showPassword = !showPassword)}
-        aria-label={showPassword ? 'Hide password' : 'Show password'}
+        aria-label={showPassword ? t('auth.login.hidePassword') : t('auth.login.showPassword')}
         class="m-0 !p-0"
       >
         {#if showPassword}
@@ -77,22 +79,22 @@
   </FormInput>
   <span class="px-2">
     <Link action="/auth/request-reset-password" class="text-sm">
-      Forgot Password?
+      {t('auth.login.forgotPassword')}
     </Link>
   </span>
-  <SubmitButton action={handleSubmit} title="Log in" disable={false}
-    >Log in</SubmitButton
+  <SubmitButton action={handleSubmit} title={t('auth.login.logIn')} disable={false}
+    >{t('auth.login.logIn')}</SubmitButton
   >
 </Form>
 <div class="flex justify-between px-2">
   {#if serverInfo.communityConfig.settings.openRegistrations}
     <span>
-      <Link action="/about" class="text-sm">Join Community</Link>
+      <Link action="/about" class="text-sm">{t('auth.login.joinCommunity')}</Link>
     </span>
   {/if}
   <span>
     {#if serverInfo.publicContent}
-      <Link action="/feeds/local" class="text-sm">See community feed</Link>
+      <Link action="/feeds/local" class="text-sm">{t('auth.login.seeCommunityFeed')}</Link>
     {/if}
   </span>
 </div>

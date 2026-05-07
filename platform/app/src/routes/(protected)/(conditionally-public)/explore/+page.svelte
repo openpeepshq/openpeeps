@@ -6,9 +6,9 @@
   import { i18nContext } from '@openpeeps/svelte/components';
   import { Search } from 'lucide-svelte';
 
-  getPageHeaderStore().set({ title: 'Explore' });
-
   const { t } = i18nContext();
+
+  getPageHeaderStore().set({ title: t('explore.title') });
 
   let tabSet: number = $state(0);
 

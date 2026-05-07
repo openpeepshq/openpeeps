@@ -8,6 +8,7 @@
     FeedPost,
     GroupCard,
     CardEvent,
+    i18nContext,
   } from '@openpeeps/svelte/components';
   import {
     searchProfilesStore,
@@ -17,6 +18,8 @@
     searchGroupsStore,
     searchCountsStore,
   } from '@openpeeps/svelte/api';
+
+  const { t } = i18nContext();
 
   type Props = {
     search: string;
@@ -86,7 +89,7 @@
     value={0}
   >
     <span class="text-sm">
-      Members
+      {t('explore.tabs.members')}
       {@render count($searchCountsQuery.data?.profiles)}
     </span>
   </Tab>
@@ -101,7 +104,7 @@
     value={1}
   >
     <span class="text-sm">
-      Posts
+      {t('explore.tabs.posts')}
       {@render count($searchCountsQuery.data?.posts)}
     </span>
   </Tab>
@@ -116,7 +119,7 @@
     value={2}
   >
     <span class="text-sm">
-      Jams
+      {t('explore.tabs.jams')}
       {@render count($searchCountsQuery.data?.jams)}
     </span>
   </Tab>
@@ -131,7 +134,7 @@
     value={3}
   >
     <span class="text-sm">
-      Events
+      {t('explore.tabs.events')}
       {@render count($searchCountsQuery.data?.events)}
     </span>
   </Tab>
@@ -146,7 +149,7 @@
     value={5}
   >
     <span class="text-sm">
-      Groups
+      {t('explore.tabs.groups')}
       {@render count($searchCountsQuery.data?.groups)}
     </span>
   </Tab>
@@ -165,7 +168,7 @@
             {/snippet}
             {#snippet empty()}
               <div class="flex w-full items-center justify-center p-4">
-                <h2 class="text-lg">No profiles found</h2>
+                <h2 class="text-lg">{t('explore.noProfilesFound')}</h2>
               </div>
             {/snippet}
           </InfiniteScrollContainer>
@@ -183,7 +186,7 @@
             {/snippet}
             {#snippet empty()}
               <div class="flex w-full items-center justify-center p-4">
-                <h2 class="text-lg">No posts found</h2>
+                <h2 class="text-lg">{t('explore.noPostsFound')}</h2>
               </div>
             {/snippet}
           </InfiniteScrollContainer>
@@ -199,7 +202,7 @@
             {/snippet}
             {#snippet empty()}
               <div class="flex w-full items-center justify-center p-4">
-                <h2 class="text-lg">No jams found</h2>
+                <h2 class="text-lg">{t('explore.noJamsFound')}</h2>
               </div>
             {/snippet}
           </InfiniteScrollContainer>
@@ -215,7 +218,7 @@
             {/snippet}
             {#snippet empty()}
               <div class="flex w-full items-center justify-center p-4">
-                <h2 class="text-lg">No events found</h2>
+                <h2 class="text-lg">{t('explore.noEventsFound')}</h2>
               </div>
             {/snippet}
           </InfiniteScrollContainer>
@@ -231,7 +234,7 @@
             {/snippet}
             {#snippet empty()}
               <div class="flex w-full items-center justify-center p-4">
-                <h2 class="text-lg">No groups found</h2>
+                <h2 class="text-lg">{t('explore.noGroupsFound')}</h2>
               </div>
             {/snippet}
           </InfiniteScrollContainer>

@@ -33,7 +33,7 @@
   <SearchAndFilterBar
     className="sticky top-4 "
     bind:search
-    placeholder="Search by group name"
+    placeholder={t('groups.searchPlaceholder')}
   />
   <AccessDeniedLoader queries={[$groupsQuery]}>
     <div class="space-y-2 py-4">
@@ -47,10 +47,10 @@
       >
         <Users size={60} />
         {#if search === ''}
-          <p>You have no groups yet</p>
+          <p>{t('groups.noGroupsYet')}</p>
         {/if}
         {#if search !== ''}
-          <p>No groups found</p>
+          <p>{t('groups.noGroupsFound')}</p>
         {/if}
       </div>
     {/if}

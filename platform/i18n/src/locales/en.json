@@ -5,21 +5,72 @@
             "submit": "Sign In",
             "error": "Invalid credentials",
             "loading": "Signing in…",
-            "success": "Successfully logged in"
+            "success": "Successfully logged in",
+            "heading": "Login",
+            "welcomeBack": "Welcome back, enter details below to log into your community",
+            "email": "Email",
+            "emailPlaceholder": "you@email.org",
+            "password": "Password",
+            "hidePassword": "Hide password",
+            "showPassword": "Show password",
+            "forgotPassword": "Forgot Password?",
+            "logIn": "Log in",
+            "joinCommunity": "Join Community",
+            "seeCommunityFeed": "See community feed"
         },
         "register": {
-            "title": "Register",
+            "title": "Sign Up",
             "submit": "Sign Up",
             "error": "Registration failed",
             "loading": "Creating account…",
-            "success": "Account created successfully"
+            "success": "Account created successfully",
+            "createAccount": "Create account",
+            "inviteMessage": "You've been invited to join {{communityName}}, enter details below to be a part of the community.",
+            "handle": "Handle",
+            "handlePlaceholder": "Handle",
+            "name": "Name",
+            "namePlaceholder": "Name",
+            "email": "Email",
+            "emailPlaceholder": "you@email.org",
+            "password": "Password",
+            "hidePassword": "Hide password",
+            "showPassword": "Show password",
+            "confirmPassword": "Confirm Password",
+            "passwordsDoNotMatch": "Passwords do not match",
+            "mustAgreePrivacyPolicy": "You must agree to the privacy policy",
+            "privacyPolicyAgreement": "I have read and agree to the",
+            "privacyPolicy": "Privacy Policy",
+            "signUp": "Sign Up",
+            "alreadyHaveAccount": "Already have an account?",
+            "signIn": "Sign In",
+            "seeCommunityFeed": "See community feed"
         },
         "resetPassword": {
             "title": "Reset Password",
             "submit": "Reset",
             "error": "Password reset failed",
             "success": "Password reset email sent.  Please check your spam folder if you don't see it in a few minutes.",
-            "loading": "Sending reset email…"
+            "loading": "Sending reset email…",
+            "heading": "Reset Password",
+            "newPassword": "New Password",
+            "confirmPassword": "Confirm Password",
+            "submitButton": "Submit"
+        },
+        "requestResetPassword": {
+            "title": "Request Password Reset",
+            "heading": "Request Password Reset",
+            "prompt": "Enter your email address and we will send you a link to reset your password.",
+            "successPrompt": "If your email belongs to an account in this community, you'll receive a message with a link where you can change your password.",
+            "successToast": "Reset password link has been sent to {{email}} successfully.",
+            "errorFallback": "Failed to send reset password link, wrong email",
+            "email": "Email",
+            "emailPlaceholder": "you@email.org",
+            "proceed": "Proceed"
+        },
+        "closed": {
+            "heading": "Sign Ups are Currently Closed",
+            "message": "We are not accepting new registrations at this time. Please check back later or contact support if you believe this is an error.",
+            "goToLogin": "Go to Login"
         },
         "guestPass": {
             "title": "Guest Access",
@@ -318,6 +369,9 @@
             "successToast": "Reply created successfully",
             "errorToast": "An error occurred while creating the reply"
         },
+        "feed": {
+            "empty": "No posts yet."
+        },
         "chronologicalFeed": {
             "modalTitle": "Community feed preferences",
             "subtitle": "Manage the content you see on your Community feed",
@@ -579,6 +633,10 @@
         "new": "New Group",
         "goto": "Go to group",
         "viewMembers": "View members",
+        "noGroupsYet": "You have no groups yet",
+        "noGroupsFound": "No groups found",
+        "searchPlaceholder": "Search by group name",
+        "openGroup": "Open group",
         "form": {
             "groupName": "Group Name"
         },
@@ -882,9 +940,16 @@
             "fourMonths": "Signups in the last four months"
         },
         "backups": {
+            "title": "Backups & Restore",
             "createSuccess": "Backup created successfully",
             "createError": "Error creating backup: {{error}}",
             "createTitle": "Create a new backup",
+            "downloadTestData": "Download Test Data Template",
+            "testBackup": "Test Backup",
+            "description": "All backups are stored in the server temporarily. Please download the backups and store them in a safe place. You can restore the backups by uploading them here.",
+            "noBackupsFound": "No Backups found",
+            "errorFetching": "Error fetching",
+            "loading": "Loading...",
             "testRestore": {
                 "title": "Use Test Backup",
                 "confirm": "Are you sure you want to use Test Backup data?",
@@ -919,7 +984,16 @@
             "activateSuccess": "Invite link activated successfully",
             "activateError": "Failed to activate invite link",
             "deleteSuccess": "Invite link deleted successfully",
-            "deleteError": "Failed to delete invite link"
+            "deleteError": "Failed to delete invite link",
+            "noInvitesFound": "No invites found",
+            "searchPlaceholder": "Search by name or email",
+            "title": "Invites",
+            "linkColumn": "Link",
+            "createdByColumn": "Created By",
+            "expirationDateColumn": "Expiration Date",
+            "usesColumn": "Uses",
+            "statusColumn": "Status",
+            "linkHeading": "Link"
         },
         "filter": {
             "title": "Filter",
@@ -950,7 +1024,12 @@
         },
         "members": {
             "inviteWithEmailTitle": "Invite member with email",
-            "inviteWithLinkTitle": "Invite member with link"
+            "inviteWithLinkTitle": "Invite member with link",
+            "title": "Members",
+            "searchPlaceholder": "Search member by name or email",
+            "noUsersFound": "No users found",
+            "profileColumn": "Profile",
+            "rolesColumn": "Roles"
         },
         "community": {
             "totalProfiles": "Total profiles",
@@ -961,15 +1040,28 @@
             "recentSignups": "Recent Signups"
         },
         "overview": {
+            "title": "Analytics",
+            "communityOverview": "Community overview",
+            "newSignups": "New signups",
+            "content": "Content",
+            "postsRepliesReposts": "Posts, replies, reposts",
+            "allPosts": "All Posts",
+            "postsWithoutReplies": "Posts without replies",
+            "postsWithReplies": "Post with replies",
+            "replies": "Replies",
+            "topProfilesOfYear": "Top {{count}} profiles of the year",
+            "topPostsOfYear": "Top {{count}} posts of the year",
             "totalProfiles": "Total Profiles",
             "activeProfiles": "Active Profiles",
             "recentInteractions": "Recent Interactions",
-            "allPosts": "All Posts",
             "jamSessions": "Jam Sessions",
             "jamParticipants": "Jam Participants",
             "lastWeek": "Last Week"
         },
         "moderation": {
+            "title": "Moderation",
+            "summaryTab": "Summary",
+            "resolvedTab": "Resolved",
             "report": {
                 "title": "{{reportsCount}} unresolved reports relating to this profile",
                 "description": "{{reportsCount}} unresolved  reports for {{profileName}}",
@@ -1207,6 +1299,12 @@
                 "title": "Roles and Capabilities",
                 "description": "Set up the features and capabilities available to each role within the community"
             },
+            "language": {
+                "title": "Default Language",
+                "description": "Set the default language for all users of this community",
+                "languageDescription": "Choose the default language for the community. Users who haven't set a personal language preference will see the interface in this language.",
+                "updateSuccess": "Default language updated successfully."
+            },
             "privacyPolicy": "Privacy Policy URL",
             "termsAndConditions": "Terms & Conditions URL",
             "lightTheme": {
@@ -1334,6 +1432,7 @@
     },
     "conversations": {
         "newMessage": "New Message",
+        "noMessages": "No direct messages here",
         "createNew": {
             "title": "New Conversation",
             "searchPlaceholder": "Search for people",
@@ -1553,6 +1652,13 @@
                 "mode": "Use my operating system settings"
             },
             "updateSuccess": "Theme settings updated. The page will now reload."
+        },
+        "language": {
+            "title": "Language Settings",
+            "description": "Choose your preferred language for the interface",
+            "languageDescription": "Select the language you want to use across the platform. This changes all interface text to your chosen language.",
+            "default": "(Default)",
+            "updateSuccess": "Language settings updated. The page will now reload."
         }
     },
     "form": {
@@ -1962,7 +2068,20 @@
     "explore": {
         "enterSearchQuery": "Please enter a search query above",
         "selectTab": "Choose a tab to see relevant results",
-        "SearchButton": "Search"
+        "SearchButton": "Search",
+        "title": "Explore",
+        "tabs": {
+            "members": "Members",
+            "posts": "Posts",
+            "jams": "Jams",
+            "events": "Events",
+            "groups": "Groups"
+        },
+        "noProfilesFound": "No profiles found",
+        "noPostsFound": "No posts found",
+        "noJamsFound": "No jams found",
+        "noEventsFound": "No events found",
+        "noGroupsFound": "No groups found"
     },
     "group": {
         "roles": {

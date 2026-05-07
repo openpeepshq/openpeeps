@@ -5,8 +5,11 @@
   import { Button } from '@openpeeps/ui';
   import { onMount } from 'svelte';
   import { getPageHeaderStore } from '@openpeeps/svelte/stores';
+  import { i18nContext } from '@openpeeps/svelte/components/i18n';
 
-  getPageHeaderStore().set({ title: 'Reset Password' });
+  const { t } = i18nContext();
+
+  getPageHeaderStore().set({ title: t('auth.resetPassword.title') });
 
   let password = $state('');
   let confirmPassword = $state('');
@@ -33,10 +36,10 @@
   className="text-token h-fit space-y-6"
   error={error.type === 'general' ? error.message : ''}
 >
-  <h2 class="text-xl">Reset Password</h2>
+  <h2 class="text-xl">{t('auth.resetPassword.heading')}</h2>
 
   <LabelOld
-    title="New Password"
+    title={t('auth.resetPassword.newPassword')}
     message={error.type === 'password' ? error.message : ''}
   >
     <Input
@@ -48,7 +51,7 @@
   </LabelOld>
 
   <LabelOld
-    title="Confirm Password"
+    title={t('auth.resetPassword.confirmPassword')}
     message={error.type === 'password' ? error.message : ''}
   >
     <Input
@@ -60,12 +63,12 @@
   </LabelOld>
 
   <Button
-    title="Reset Password"
+    title={t('auth.resetPassword.heading')}
     disabled={confirmPassword !== password}
     variant="variant-filled-primary"
     action={handleSubmit}
     class="w-full"
   >
-    Submit
+    {t('auth.resetPassword.submitButton')}
   </Button>
 </FormOld>

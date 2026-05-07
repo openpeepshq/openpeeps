@@ -8,6 +8,7 @@
 	import { repostMutation, retractRepostMutation } from '$lib/api';
 	import { me } from '$lib/api';
 	import { hasValue } from '@openpeeps/common';
+	import { i18nContext } from '$lib/components/i18n';
 
 	interface Props {
 		post: PublicPost;
@@ -16,6 +17,7 @@
 
 	let { post = $bindable(), compact = false }: Props = $props();
 
+	const { t } = i18nContext();
 	const toastStore = getToastStore();
 	const myRepostsStore = currentProfileReposts();
 	const retractRepost = retractRepostMutation();
@@ -28,7 +30,7 @@
 			await retractRepost({ id: myRepost.id });
 			toastStore.trigger(
 				toast({
-					message: 'Repost retracted',
+					message: t('posts.repost.retractSuccess'),
 					background: 'variant-filled-success'
 				})
 			);
@@ -38,14 +40,14 @@
 			await repost(post);
 			toastStore.trigger(
 				toast({
-					message: 'Reposted successfully!',
+					message: t('posts.repost.successToast'),
 					background: 'variant-filled-success'
 				})
 			);
 		}
 	};
 
-	let text: string = $derived(compact ? String(post.repostCount) : 'Repost');
+	let text: string = $derived(compact ? String(post.repostCount) : t('posts.footer.repost'));
 	let myRepost: PublicPost | undefined = $derived(
 		$myRepostsStore.data?.find((p) => p.repost?.id === post.id)
 	);

@@ -49,4 +49,8 @@
     translationPrefix="configuration.community.roles"
     action="/admin/configuration/community/roles"
   ></ConfigMenuButton>
+  <ConfigMenuButton
+    translationPrefix="configuration.community.language"
+    action="/admin/configuration/community/language"
+  ></ConfigMenuButton>
 </div>

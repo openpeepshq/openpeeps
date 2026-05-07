@@ -43,7 +43,7 @@
   });
 
   getPageHeaderStore().set({
-    title: 'Sign Up',
+    title: t('auth.register.title'),
   });
 
   const privacyPolicyLink =
@@ -68,11 +68,11 @@
 
   const registerFormSchema = registerRequestSchema
     .refine((data) => data.password === data.confirmPassword, {
-      message: 'Passwords do not match',
+      message: t('auth.register.passwordsDoNotMatch'),
       path: ['confirmPassword'],
     })
     .refine((data) => data.privacyPolicyAccepted, {
-      message: 'You must agree to the privacy policy',
+      message: t('auth.register.mustAgreePrivacyPolicy'),
       path: ['privacyPolicyAccepted'],
     });
 
@@ -83,39 +83,38 @@
 </script>
 
 <Form {data} schema={registerFormSchema}>
-  <h2 class="text-xl">Create account</h2>
+  <h2 class="text-xl">{t('auth.register.createAccount')}</h2>
 
   {#if invite}
     <p class="my-2">
-      You{'’'}ve been invited to join {serverInfo.communityConfig.info.name},
-      enter details below to be a part of the community.
+      {t('auth.register.inviteMessage', { communityName: serverInfo.communityConfig.info.name })}
     </p>
   {/if}
 
   <FormInput
-    description="Handle"
+    description={t('auth.register.handle')}
     type="text"
-    placeholder="Handle"
+    placeholder={t('auth.register.handlePlaceholder')}
     path={['handle']}
   />
 
   <FormInput
-    description="Name"
+    description={t('auth.register.name')}
     type="text"
-    placeholder="Name"
+    placeholder={t('auth.register.namePlaceholder')}
     path={['displayName']}
   />
 
   <FormInput
-    description="Email"
+    description={t('auth.register.email')}
     type="email"
-    placeholder="you@email.org"
+    placeholder={t('auth.register.emailPlaceholder')}
     path={['email']}
   />
 
   <FormInput
     path={['password']}
-    description="Password"
+    description={t('auth.register.password')}
     type={showPassword ? 'text' : 'password'}
   >
     {#snippet tail()}
@@ -123,7 +122,7 @@
         type="button"
         class="m-0 !p-0"
         onclick={() => (showPassword = !showPassword)}
-        aria-label={showPassword ? 'Hide password' : 'Show password'}
+        aria-label={showPassword ? t('auth.register.hidePassword') : t('auth.register.showPassword')}
       >
         {#if showPassword}
           <EyeOff size={20} />
@@ -135,7 +134,7 @@
   </FormInput>
 
   <FormInput
-    description="Confirm Password"
+    description={t('auth.register.confirmPassword')}
     type="password"
     path={['confirmPassword']}
   />
@@ -155,31 +154,31 @@
       path={['privacyPolicyAccepted']}
     />
     <p class="ml-4">
-      I have read and agree to the<a
+      {t('auth.register.privacyPolicyAgreement')}<a
         href={privacyPolicyLink}
         target="_blank"
         class="anchor w-full px-4 text-sm"
       >
-        Privacy Policy
+        {t('auth.register.privacyPolicy')}
       </a>
     </p>
   </span>
 
-  <SubmitButton action={handleSubmit} title="Sign Up">Sign Up</SubmitButton>
+  <SubmitButton action={handleSubmit} title={t('auth.register.signUp')}>{t('auth.register.signUp')}</SubmitButton>
 </Form>
 {#if serverInfo.publicContent}
   <div class="flex justify-between pt-1">
     <span>
-      Already have an account?
-      <Link action="/auth/login" class="text-sm">Sign In</Link>
+      {t('auth.register.alreadyHaveAccount')}
+      <Link action="/auth/login" class="text-sm">{t('auth.register.signIn')}</Link>
     </span>
-    <Link action="/feeds/local" class="text-sm">See community feed</Link>
+    <Link action="/feeds/local" class="text-sm">{t('auth.register.seeCommunityFeed')}</Link>
   </div>
 {:else}
   <div class="flex justify-center pt-1">
     <span>
-      Already have an account?
-      <Link action="/auth/login" class="text-sm">Sign In</Link>
+      {t('auth.register.alreadyHaveAccount')}
+      <Link action="/auth/login" class="text-sm">{t('auth.register.signIn')}</Link>
     </span>
   </div>
 {/if}

@@ -6,6 +6,7 @@
 	import { reactToPostMutation, retractReactionMutation } from '$lib/api';
 	import { postReactionStats } from '../../helpers';
 	import { hasValue } from '@openpeeps/common';
+	import { i18nContext } from '$lib/components/i18n';
 
 	interface Props {
 		post: PublicPost;
@@ -14,6 +15,7 @@
 
 	let { post = $bindable(), compact = false }: Props = $props();
 
+	const { t } = i18nContext();
 	const reactToPost = reactToPostMutation({ id: post.id });
 	const retractReaction = retractReactionMutation({ id: post.id });
 
@@ -35,7 +37,7 @@
 		}
 	};
 
-	let text: string = $derived(compact ? `· ${postReactionStats(post)}` : 'Like');
+	let text: string = $derived(compact ? `· ${postReactionStats(post)}` : t('posts.footer.like'));
 	let isGroupPost = $derived(hasValue(post.groupId));
 	let membershipExists = $derived(
 		$me.memberships.map((m) => m.group.id).find((groupId) => groupId === post?.group?.id)

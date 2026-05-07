@@ -1,0 +1,2109 @@
+{
+    "auth": {
+        "login": {
+            "title": "Anmelden",
+            "submit": "Anmelden",
+            "error": "Ungültige Anmeldedaten",
+            "loading": "Anmeldung läuft…",
+            "success": "Erfolgreich angemeldet",
+            "heading": "Anmelden",
+            "welcomeBack": "Willkommen zurück, geben Sie Ihre Daten ein, um sich in Ihrer Community anzumelden",
+            "email": "E-Mail",
+            "emailPlaceholder": "du@email.org",
+            "password": "Passwort",
+            "hidePassword": "Passwort verbergen",
+            "showPassword": "Passwort anzeigen",
+            "forgotPassword": "Passwort vergessen?",
+            "logIn": "Anmelden",
+            "joinCommunity": "Community beitreten",
+            "seeCommunityFeed": "Community-Feed ansehen"
+        },
+        "register": {
+            "title": "Registrieren",
+            "submit": "Registrieren",
+            "error": "Registrierung fehlgeschlagen",
+            "loading": "Konto wird erstellt…",
+            "success": "Konto erfolgreich erstellt",
+            "createAccount": "Konto erstellen",
+            "inviteMessage": "Sie wurden eingeladen, {{communityName}} beizutreten. Geben Sie Ihre Daten ein, um Teil der Community zu werden.",
+            "handle": "Benutzername",
+            "handlePlaceholder": "Benutzername",
+            "name": "Name",
+            "namePlaceholder": "Name",
+            "email": "E-Mail",
+            "emailPlaceholder": "du@email.org",
+            "password": "Passwort",
+            "hidePassword": "Passwort verbergen",
+            "showPassword": "Passwort anzeigen",
+            "confirmPassword": "Passwort bestätigen",
+            "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
+            "mustAgreePrivacyPolicy": "Sie müssen der Datenschutzerklärung zustimmen",
+            "privacyPolicyAgreement": "Ich habe die folgende Erklärung gelesen und stimme ihr zu:",
+            "privacyPolicy": "Datenschutzerklärung",
+            "signUp": "Registrieren",
+            "alreadyHaveAccount": "Bereits ein Konto?",
+            "signIn": "Anmelden",
+            "seeCommunityFeed": "Community-Feed ansehen"
+        },
+        "resetPassword": {
+            "title": "Passwort zurücksetzen",
+            "submit": "Zurücksetzen",
+            "error": "Passwort konnte nicht zurückgesetzt werden",
+            "success": "E-Mail zum Zurücksetzen des Passworts wurde gesendet. Bitte prüfen Sie auch Ihren Spam-Ordner, falls Sie die E-Mail nicht innerhalb weniger Minuten erhalten.",
+            "loading": "E-Mail wird gesendet…",
+            "heading": "Passwort zurücksetzen",
+            "newPassword": "Neues Passwort",
+            "confirmPassword": "Passwort bestätigen",
+            "submitButton": "Absenden"
+        },
+        "requestResetPassword": {
+            "title": "Passwort-Zurücksetzung anfordern",
+            "heading": "Passwort-Zurücksetzung anfordern",
+            "prompt": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
+            "successPrompt": "Falls Ihre E-Mail-Adresse zu einem Konto in dieser Community gehört, erhalten Sie eine Nachricht mit einem Link, über den Sie Ihr Passwort ändern können.",
+            "successToast": "Link zum Zurücksetzen des Passworts wurde erfolgreich an {{email}} gesendet.",
+            "errorFallback": "Link zum Zurücksetzen des Passworts konnte nicht gesendet werden, falsche E-Mail",
+            "email": "E-Mail",
+            "emailPlaceholder": "du@email.org",
+            "proceed": "Fortfahren"
+        },
+        "closed": {
+            "heading": "Registrierungen sind derzeit geschlossen",
+            "message": "Wir nehmen derzeit keine neuen Registrierungen an. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support, wenn Sie glauben, dass es sich um einen Fehler handelt.",
+            "goToLogin": "Zur Anmeldung"
+        },
+        "guestPass": {
+            "title": "Gastzugang",
+            "submit": "Als Gast fortfahren",
+            "error": "Gastzugang konnte nicht gewährt werden",
+            "loading": "Gastzugang wird eingerichtet…"
+        },
+        "tagline": "AllPeeP ist die Community-Plattform für Menschen, die ein exklusives, markengerechtes Erlebnis wünschen",
+        "emails": {
+            "validation": {
+                "success": "Ihre E-Mail-Adresse ist nun verifiziert. Sie können jetzt vollständig an der Community teilnehmen."
+            }
+        }
+    },
+    "navigation": {
+        "welcome": "Willkommen",
+        "joinCommunity": "Community beitreten",
+        "haveAccount": "Bereits ein Konto?",
+        "logIn": "Anmelden",
+        "poweredBy": "Bereitgestellt von AllPeeP",
+        "profile": "Profil",
+        "messages": "Nachrichten",
+        "home": "Startseite",
+        "myFeed": "Mein Feed",
+        "newPost": "Neuer Beitrag",
+        "jams": "Jams",
+        "notifications": "Benachrichtigungen",
+        "back": "Zurück",
+        "community": "Community",
+        "groups": "Gruppen",
+        "events": "Veranstaltungen",
+        "members": "Mitglieder",
+        "settings": "Einstellungen",
+        "administration": "Verwaltung",
+        "invites": "Einladungen",
+        "configuration": "Konfiguration",
+        "moderation": "Moderation",
+        "backups": "Sicherungen",
+        "analytics": "Statistiken",
+        "openNotifications": "Benachrichtigungen öffnen",
+        "goToWelcomePage": "Zur Willkommensseite",
+        "logOut": "Abmelden",
+        "logs": "Protokolle",
+        "myJams": "Meine Jams",
+        "myEvents": "Meine Veranstaltungen",
+        "explore": "Entdecken",
+        "articles": "Artikel",
+        "bookmarks": "Lesezeichen"
+    },
+    "profile": {
+        "noBio": "Noch keine Biografie",
+        "posts": "Beiträge",
+        "edit": {
+            "title": "Profil bearbeiten",
+            "save": "Änderungen speichern",
+            "cancel": "Abbrechen",
+            "success": "Profil aktualisiert",
+            "error": "Profil konnte nicht aktualisiert werden"
+        },
+        "follow": {
+            "follow": "Folgen",
+            "unfollow": "Entfolgen",
+            "error": "Aktion fehlgeschlagen",
+            "unfollowedSuccess": "Sie folgen diesem Profil nicht mehr",
+            "followedSuccess": "Sie folgen diesem Profil jetzt",
+            "success": "Sie folgen diesem Profil jetzt"
+        },
+        "notifications": {
+            "title": "Benachrichtigungen",
+            "empty": "Keine Benachrichtigungen",
+            "markRead": "Alle als gelesen markieren"
+        },
+        "form": {
+            "displayName": "Anzeigename",
+            "handle": "Benutzername",
+            "handlePlaceholder": "Geben Sie Ihren Benutzernamen ein",
+            "bio": "Biografie",
+            "bioPlaceholder": "Erzählen Sie etwas über sich",
+            "avatar": "Profilbild",
+            "banner": "Banner",
+            "location": "Standort",
+            "website": "Webseite",
+            "fields": {
+                "label": "Bezeichnung",
+                "value": "Wert",
+                "add": "Feld hinzufügen",
+                "remove": "Feld entfernen"
+            }
+        },
+        "header": {
+            "followers": "Follower",
+            "following": "Folgt",
+            "posts": "Beiträge",
+            "joined": "Beigetreten {{date}}",
+            "avatarAlt": "Profilbild"
+        },
+        "actions": {
+            "edit": "Profil bearbeiten",
+            "follow": "Folgen",
+            "unfollow": "Entfolgen",
+            "message": "Nachricht",
+            "copyProfileLink": "Profillink kopieren",
+            "copyPostLink": "Beitragslink kopieren",
+            "inviteViaEmail": "Per E-Mail einladen",
+            "inviteViaLink": "Per Link einladen"
+        },
+        "modals": {
+            "deleteProfile": {
+                "title": "Profil löschen",
+                "description": "Möchten Sie dieses Profil {{username}} mit dem Benutzernamen {{handle}} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+                "confirm": "Profil löschen",
+                "cancel": "Abbrechen",
+                "profileDeleted": "Das Profil wurde erfolgreich aus Ihrer Community entfernt.",
+                "error": "Profil konnte nicht gelöscht werden",
+                "delete": "Löschen",
+                "accountDeleted": "Das mit diesem Profil verknüpfte Konto wurde ebenfalls gelöscht"
+            },
+            "editProfile": {
+                "saveChanges": "Änderungen speichern",
+                "description": "Wählen Sie eine oder mehrere Rollen für dieses Profil",
+                "title": "Rollen bearbeiten",
+                "roles": "Rollen",
+                "rolesUpdated": "Rolle für {{profileName}} aktualisiert"
+            },
+            "closeReport": {
+                "success": "Die Meldung wurde erfolgreich geschlossen"
+            }
+        },
+        "table": {
+            "dateJoined": "Beitrittsdatum",
+            "invitedBy": "Eingeladen von",
+            "emailVerified": "E-Mail verifiziert",
+            "actions": "Aktionen",
+            "editEmail": "E-Mail bearbeiten",
+            "editRoles": "Rollen bearbeiten",
+            "deleteMember": "Mitglied löschen",
+            "delete": "Löschen"
+        },
+        "followers": {
+            "title": "Follower",
+            "pageTitle": "Follower von",
+            "noFollowing": "Noch keine Follower"
+        },
+        "following": {
+            "title": "Folgt",
+            "pageTitle": "Gefolgt von",
+            "noFollowers": "Folgt noch niemandem"
+        },
+        "copyProfileLink": {
+            "success": "Profillink in die Zwischenablage kopiert",
+            "error": "Profillink konnte nicht kopiert werden"
+        },
+        "search": {
+            "placeholder": "Personen suchen",
+            "profilesPlaceholder": "Profile durchsuchen…",
+            "noResults": "Keine Ergebnisse gefunden",
+            "noProfilesAvailable": "Keine Profile verfügbar"
+        },
+        "postsAndReplies": {
+            "openGroupTitle": "Offene Gruppe"
+        },
+        "groups": {
+            "tabName": "Gruppen",
+            "noCommonGroups": "Hier gibt es noch nichts zu sehen"
+        },
+        "notFound": {
+            "title": "Profil nicht gefunden",
+            "description": "Dieses Profil existiert nicht. Sie können versuchen, die Person in der Mitgliederliste zu finden."
+        }
+    },
+    "posts": {
+        "create": {
+            "title": "Beitrag erstellen",
+            "submit": "Veröffentlichen",
+            "error": "Beitrag konnte nicht erstellt werden",
+            "errorGeneric": "Beim Erstellen des Beitrags ist ein Fehler aufgetreten",
+            "loading": "Beitrag wird erstellt…",
+            "success": "Beitrag erstellt",
+            "successToast": "Beitrag erfolgreich erstellt",
+            "note": {
+                "title": "Beitrag wird erstellt"
+            }
+        },
+        "delete": {
+            "confirm": "Möchten Sie diesen Beitrag wirklich löschen?",
+            "success": "Beitrag gelöscht",
+            "error": "Beitrag konnte nicht gelöscht werden"
+        },
+        "react": {
+            "error": "Reaktion konnte nicht hinzugefügt werden"
+        },
+        "repost": {
+            "success": "Erfolgreich geteilt",
+            "error": "Teilen fehlgeschlagen",
+            "retractSuccess": "Geteilter Beitrag zurückgezogen",
+            "successToast": "Erfolgreich geteilt!"
+        },
+        "vote": {
+            "success": "Stimme abgegeben",
+            "error": "Stimme konnte nicht abgegeben werden",
+            "count": "Stimmen",
+            "lackPermission": "Sie haben keine Berechtigung, in {{groupName}} abzustimmen.",
+            "lackPermissionNoGroup": "Sie haben keine Berechtigung, an dieser Umfrage teilzunehmen.",
+            "selectOption": "Bitte wählen Sie eine Option",
+            "cleared": "Stimme erfolgreich zurückgesetzt!",
+            "successToast": "Erfolgreich abgestimmt!",
+            "votesCount": "{{count}} Stimmen"
+        },
+        "poll": {
+            "ended": "Umfrage beendet",
+            "timeLeft": "verbleibend",
+            "undoVote": "Stimme zurücknehmen",
+            "undoVoteTitle": "Stimme zurücknehmen",
+            "vote": "Abstimmen",
+            "undo": "Rückgängig"
+        },
+        "menu": {
+            "reposts": "Geteilte Beiträge",
+            "reactions": "Reaktionen"
+        },
+        "form": {
+            "content": "Was beschäftigt Sie?",
+            "changeGroup": "Gruppe ändern",
+            "notifyEveryone": "Alle benachrichtigen",
+            "visibility": {
+                "label": "Sichtbarkeit",
+                "public": "Öffentlich",
+                "private": "Privat",
+                "followers": "Follower"
+            },
+            "selectGroup": "Gruppe auswählen",
+            "poll": {
+                "addOption": "Option hinzufügen",
+                "removeOption": "Option entfernen",
+                "option": "Option {{number}}",
+                "duration": "Umfragedauer",
+                "multipleChoice": "Mehrfachauswahl erlauben",
+                "submit": "Absenden",
+                "seeWhoVoted": "Sehen, wer abgestimmt hat",
+                "questionPlaceholder": "Was ist Ihre Frage?",
+                "pollEnd": "Umfrage endet",
+                "multipleAnswers": "Mehrfachantworten",
+                "seeWhoVotedTitle": "Sehen, wer abgestimmt hat",
+                "multipleAnswersDescription": "Erlauben Sie den Teilnehmenden, mehrere Antworten auszuwählen",
+                "votersVisibleDescription": "Erlauben Sie allen zu sehen, wer abgestimmt hat und welche Option gewählt wurde"
+            },
+            "changeAudience": "Zielgruppe ändern",
+            "remainingCharacters": "Verbleibende Zeichen",
+            "addImage": "Medien hinzufügen",
+            "addDocument": "Dokument hinzufügen",
+            "title": "Neuer Beitrag"
+        },
+        "copyPostLink": {
+            "submit": "Link kopieren",
+            "success": "Kopieren erfolgreich",
+            "successMessage": "Beitragslink in die Zwischenablage kopiert",
+            "errorMessage": "Profillink konnte nicht kopiert werden",
+            "error": "Fehler beim Kopieren"
+        },
+        "event": {
+            "attendees": "Teilnehmende",
+            "online": "Online"
+        },
+        "actions": {
+            "shareMessage": "Diesen Beitrag teilen",
+            "seeThread": "Thread anzeigen"
+        },
+        "footer": {
+            "reply": "Antworten",
+            "repost": "Teilen",
+            "like": "Gefällt mir",
+            "share": "Teilen"
+        },
+        "shareMenu": {
+            "shareOnCommunity": "In der Community teilen",
+            "repostToFeed": "Im Feed teilen",
+            "reposting": "Wird geteilt…",
+            "directMessage": "Direktnachricht",
+            "sendInMessage": "In einer Nachricht senden",
+            "otherOptions": "Weitere Optionen",
+            "copyLink": "Link kopieren"
+        },
+        "gallery": {
+            "previous": "Zurück",
+            "next": "Weiter",
+            "close": "Schließen"
+        },
+        "replyBox": {
+            "reply": "Antworten",
+            "logInToReply": "Anmelden zum Antworten",
+            "addReplyPlaceholder": "Antwort hinzufügen…"
+        },
+        "replyModal": {
+            "title": "Antwort",
+            "submit": "Antworten",
+            "successToast": "Antwort erfolgreich erstellt",
+            "errorToast": "Beim Erstellen der Antwort ist ein Fehler aufgetreten"
+        },
+        "feed": {
+            "empty": "Noch keine Beiträge."
+        },
+        "chronologicalFeed": {
+            "modalTitle": "Community-Feed-Einstellungen",
+            "subtitle": "Verwalten Sie die Inhalte, die Sie in Ihrem Community-Feed sehen",
+            "recentRepliesTitle": "Neueste Antworten",
+            "recentRepliesDescription": "Inhalte nach neuesten Antworten sortieren",
+            "byActivityTitle": "Nach Aktivität",
+            "byActivityDescription": "Beiträge mit mehr Aktivität bleiben oben und werden häufiger gesehen",
+            "prioritizeFollowingTitle": "Personen priorisieren, denen ich folge",
+            "prioritizeFollowingDescription": "Ungelesene Beiträge von Personen, denen Sie folgen, vor Beiträgen von Fremden anzeigen",
+            "showRepostsTitle": "Geteilte Beiträge anzeigen",
+            "showRepostsDescription": "Alle geteilten Beiträge werden in Ihrem Feed angezeigt",
+            "done": "Fertig"
+        },
+        "previewVideo": {
+            "playTitle": "Video abspielen"
+        },
+        "attachments": {
+            "deleteTitle": "Anhang löschen"
+        },
+        "deleteModal": {
+            "deletePostTitle": "Beitrag löschen",
+            "delete": "Löschen",
+            "cancel": "Abbrechen"
+        },
+        "stats": {
+            "viewReactions": "Reaktionen anzeigen",
+            "viewReposts": "Geteilte Beiträge anzeigen",
+            "repliesCount": "{{count}} Antworten",
+            "repostsCount": "{{count}} geteilte Beiträge"
+        },
+        "visibility": {
+            "title": "Beitragssichtbarkeit",
+            "selectGroup": "Gruppe auswählen"
+        },
+        "replyTo": " Geantwortet auf",
+        "reposted": "Geteilt",
+        "unpinInGroup": {
+            "title": "Von Gruppe lösen",
+            "success": "Der Beitrag ist nicht mehr in dieser Gruppe angepinnt"
+        },
+        "pinInGroup": {
+            "success": "Dieser Beitrag wird oben in der Gruppe angepinnt",
+            "title": "In Gruppe anpinnen"
+        },
+        "pinGlobally": {
+            "success": "Der Beitrag ist jetzt oben im Community-Feed angepinnt",
+            "title": "Im Feed anpinnen"
+        },
+        "rsvp": {
+            "attendingMessage": "Sie nehmen an dieser Veranstaltung teil",
+            "cancelRegistration": "RSVP zurücknehmen",
+            "maybe": "Vielleicht",
+            "success": "RSVP erfolgreich",
+            "register": "RSVP: Ja",
+            "no": "Nein",
+            "maybeMessage": "Sie nehmen möglicherweise an dieser Veranstaltung teil"
+        },
+        "edit": {
+            "success": "Beitrag erfolgreich aktualisiert",
+            "title": "Beitrag bearbeiten",
+            "submit": "Aktualisieren",
+            "loading": "Wird geladen"
+        },
+        "deleteEvent": {
+            "description": "Durch das Löschen dieser Veranstaltung wird sie aus der Community entfernt. Teilnehmende werden nicht benachrichtigt.",
+            "cancel": "Abbrechen",
+            "confirm": "Veranstaltung löschen",
+            "title": "Diese Veranstaltung löschen?"
+        },
+        "article": {
+            "readMore": "Weiterlesen…"
+        },
+        "bookmark": {
+            "success": "Lesezeichen gespeichert",
+            "error": "Beim Speichern des Lesezeichens ist ein Fehler aufgetreten",
+            "title": "Lesezeichen hinzufügen"
+        },
+        "unbookmark": {
+            "title": "Lesezeichen entfernen",
+            "success": "Lesezeichen entfernt",
+            "error": "Beim Entfernen des Lesezeichens ist ein Fehler aufgetreten"
+        },
+        "switcher": {
+            "note": "Notiz schreiben",
+            "event": "Veranstaltung erstellen",
+            "poll": "Umfrage hinzufügen",
+            "article": "Artikel schreiben"
+        },
+        "unpinGlobally": {
+            "title": "Vom Feed lösen",
+            "success": "Beitrag ist nicht mehr angepinnt"
+        }
+    },
+    "groups": {
+        "type": {
+            "public": "Öffentlich",
+            "private": "Privat",
+            "open": "Offen",
+            "closed": "Geschlossen"
+        },
+        "create": {
+            "title": "Gruppe erstellen",
+            "submit": "Erstellen",
+            "error": "Gruppe konnte nicht erstellt werden",
+            "success": "Gruppe erstellt"
+        },
+        "join": {
+            "submit": "Gruppe beitreten",
+            "error": "Beitritt zur Gruppe fehlgeschlagen",
+            "success": "Gruppe beigetreten"
+        },
+        "leave": {
+            "confirm": "Möchten Sie diese Gruppe wirklich verlassen?",
+            "error": "Gruppe konnte nicht verlassen werden",
+            "success": "Gruppe verlassen",
+            "lastAdminError": "Sie sind der letzte Administrator dieser Gruppe. Bitte weisen Sie einen neuen Administrator zu, bevor Sie die Gruppe verlassen.",
+            "removedToast": "Sie wurden erfolgreich entfernt.",
+            "removeErrorToast": "Beim Entfernen ist ein Fehler aufgetreten."
+        },
+        "delete": {
+            "title": "Gruppe löschen",
+            "description": "Möchten Sie die Gruppe {{groupName}} wirklich löschen?",
+            "confirm": "Bestätigen",
+            "deleteButton": "Löschen",
+            "cancel": "Abbrechen",
+            "deleting": "Wird gelöscht…",
+            "successMessage": "Gruppe erfolgreich gelöscht!",
+            "errorMessage": "Gruppe konnte nicht gelöscht werden",
+            "toastError": "Gruppe konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut."
+        },
+        "selection": {
+            "title": "Gruppen auswählen",
+            "description": "Wählen Sie Gruppen aus, denen Mitglieder hinzugefügt werden sollen",
+            "noGroups": "Keine Gruppen verfügbar",
+            "public": "Öffentlich",
+            "private": "Privat"
+        },
+        "makeAdmin": {
+            "title": "Zum Administrator machen",
+            "description": "Möchten Sie @{{handle}} wirklich zum Administrator machen?",
+            "confirm": "Rechte gewähren",
+            "loading": "Rechte werden gewährt…",
+            "successMessage": "Administratorrechte erfolgreich gewährt",
+            "errorMessage": "Administratorrechte konnten nicht gewährt werden"
+        },
+        "removeAdmin": {
+            "title": "Administratorrechte entziehen",
+            "description": "Möchten Sie @{{handle}} wirklich die Administratorrechte entziehen?",
+            "confirm": "Rechte entziehen",
+            "loading": "Rechte werden entzogen…",
+            "successMessage": "Administratorrechte erfolgreich entzogen",
+            "errorMessage": "Administratorrechte konnten nicht entzogen werden"
+        },
+        "removeMember": {
+            "title": "Mitglied entfernen",
+            "description": "Möchten Sie @{{handle}} wirklich aus der Gruppe entfernen?",
+            "confirm": "Entfernen",
+            "loading": "Wird entfernt…",
+            "successMessage": "Mitglied erfolgreich entfernt",
+            "errorMessage": "Mitglied konnte nicht entfernt werden"
+        },
+        "handleExists": "Dieser Benutzername wird bereits verwendet. Bitte versuchen Sie einen anderen.",
+        "sections": {
+            "posts": "Beiträge",
+            "events": "Veranstaltungen",
+            "description": "Beschreibung"
+        },
+        "visibility": {
+            "title": "Sichtbarkeit",
+            "description": "Wer kann die Gruppe sehen",
+            "public": {
+                "title": "Allgemeine Öffentlichkeit",
+                "description": "Im Internet sichtbar"
+            },
+            "local": {
+                "title": "Community",
+                "description": "Alle, die sich in dieser Community anmelden können"
+            },
+            "private": {
+                "title": "Privat",
+                "description": "Nur ausgewählte Profile"
+            }
+        },
+        "postsVisibility": {
+            "title": "Inhaltssichtbarkeit",
+            "description": "Wer kann Gruppeninhalte sehen",
+            "public": {
+                "title": "Allgemeine Öffentlichkeit",
+                "description": "Im Internet sichtbar"
+            },
+            "local": {
+                "title": "Community",
+                "description": "In dieser Community angemeldete Profile"
+            },
+            "private": {
+                "title": "Privat",
+                "description": "Nur ausgewählte Profile"
+            }
+        },
+        "whoCanJoin": {
+            "title": "Wer kann beitreten",
+            "description": "Können Profile beitreten oder müssen sie eingeladen werden?",
+            "open": {
+                "title": "Offen",
+                "description": "Alle können der Gruppe beitreten"
+            },
+            "closed": {
+                "title": "Nur auf Einladung",
+                "description": "Muss eingeladen oder zur Gruppe hinzugefügt werden"
+            }
+        },
+        "whoCanPost": {
+            "title": "Wer kann posten",
+            "description": "Inhalte: Notizen, Umfragen, Bilder und Videos",
+            "members": {
+                "title": "Alle Gruppenmitglieder",
+                "description": "Alle Gruppenmitglieder können Inhalte hinzufügen"
+            },
+            "moderators": {
+                "title": "Nur Moderatoren",
+                "description": "Nur Moderatoren können Inhalte veröffentlichen"
+            }
+        },
+        "whoCanPostEvents": {
+            "title": "Wer kann Veranstaltungen erstellen",
+            "description": "Wer kann Veranstaltungen zum Gruppenkalender hinzufügen",
+            "members": {
+                "title": "Alle Mitglieder",
+                "description": "Alle Mitglieder können Veranstaltungen zum Kalender hinzufügen"
+            },
+            "moderators": {
+                "title": "Nur Moderatoren",
+                "description": "Nur Moderatoren können Veranstaltungen zum Kalender hinzufügen"
+            }
+        },
+        "handle": {
+            "placeholder": "Benutzername",
+            "title": "Benutzername"
+        },
+        "description": {
+            "title": "Beschreibung",
+            "placeholder": "Geben Sie hier Ihre Gruppenbeschreibung ein"
+        },
+        "roles": {
+            "member": "Mitglied",
+            "admin": "Administrator",
+            "moderator": "Moderator"
+        },
+        "rules": {
+            "title": "Gruppenregeln",
+            "placeholder": "Fügen Sie hier die Regeln Ihrer Gruppe hinzu."
+        },
+        "changeRoles": {
+            "title": "Rollen ändern",
+            "description": "Rollen für diese Gruppe ändern",
+            "confirm": "Rollen aktualisieren",
+            "successMessage": "Rollen aktualisiert"
+        },
+        "new": "Neue Gruppe",
+        "goto": "Zur Gruppe",
+        "viewMembers": "Mitglieder anzeigen",
+        "noGroupsYet": "Sie haben noch keine Gruppen",
+        "noGroupsFound": "Keine Gruppen gefunden",
+        "searchPlaceholder": "Nach Gruppenname suchen",
+        "openGroup": "Gruppe öffnen",
+        "form": {
+            "groupName": "Gruppenname"
+        },
+        "actions": {
+            "editGroup": "Gruppe bearbeiten",
+            "addMembers": "Mitglieder hinzufügen",
+            "leaveGroup": "Gruppe verlassen",
+            "removeFromGroup": "Aus Gruppe entfernen",
+            "viewPosts": "Beiträge anzeigen",
+            "updateGroup": "Gruppe aktualisieren",
+            "update": "Aktualisieren",
+            "create": "Erstellen",
+            "shareOnCommunity": "In der Community teilen",
+            "shareToFeed": "Im Feed teilen",
+            "shareInMessage": "In einer Nachricht teilen",
+            "otherOptions": "Weitere Optionen"
+        },
+        "modals": {
+            "addMembers": {
+                "title": "Mitglieder zu {{groupName}} hinzufügen",
+                "add": "Hinzufügen"
+            },
+            "confirmExit": {
+                "title": "Gruppe verlassen",
+                "body": "Möchten Sie die Gruppe {{handle}} wirklich verlassen?",
+                "leave": "Verlassen"
+            },
+            "manageNotifications": {
+                "title": "Benachrichtigungen verwalten",
+                "description": "Benachrichtigungen über {{groupName}} verwalten.",
+                "options": {
+                    "all": "Alle",
+                    "mostRelevant": "Am relevantesten",
+                    "mostRelevantDescription": "Personalisiert basierend auf Ihrer Aktivität",
+                    "off": "Aus"
+                }
+            }
+        },
+        "share": {
+            "inviteBlurb": "Treten Sie unserer Gruppe bei für exklusive Updates und tolle Gespräche! {{url}}",
+            "postToFeed": "Im Feed posten",
+            "sendInMessage": "In einer Nachricht senden",
+            "copyLink": "Link kopieren",
+            "linkCopied": "Gruppenlink kopiert"
+        }
+    },
+    "jams": {
+        "form": {
+            "name": "Jam-Name"
+        },
+        "create": {
+            "title": "Jam erstellen",
+            "submit": "Erstellen",
+            "error": "Jam konnte nicht erstellt werden",
+            "success": "Jam erstellt"
+        },
+        "join": {
+            "submit": "Jam beitreten",
+            "error": "Beitritt zum Jam fehlgeschlagen",
+            "waiting": "Warten auf Genehmigung…",
+            "requestToJoin": "Beitritt anfragen",
+            "ctaJoin": "Beitreten",
+            "ctaStart": "Starten",
+            "waitingForModerator": "Warten auf einen Moderator, der Sie einlässt"
+        },
+        "start": {
+            "submit": "Jam starten",
+            "error": "Jam konnte nicht gestartet werden"
+        },
+        "close": {
+            "error": "Jam konnte nicht beendet werden",
+            "success": "Jam beendet",
+            "title": "Jam beenden",
+            "description": "Möchten Sie diesen Jam wirklich beenden?",
+            "confirm": "Jam beenden"
+        },
+        "exit": {
+            "error": "Jam konnte nicht verlassen werden",
+            "success": "Jam erfolgreich verlassen",
+            "title": "Jam verlassen",
+            "description": "Möchten Sie diesen Jam wirklich verlassen?",
+            "leave": "Jam verlassen",
+            "endForAll": "Für alle beenden",
+            "confirm": "Jam verlassen",
+            "closeOrExit": {
+                "description": "Möchten Sie den Jam verlassen (alle anderen bleiben) oder den Jam beenden (alle werden entfernt)?"
+            }
+        },
+        "closeOrExit": {
+            "description": "Möchten Sie diesen Jam wirklich beenden oder verlassen?",
+            "confirm": "Verlassen/Beenden"
+        },
+        "participants": {
+            "title": "Teilnehmende",
+            "muteSuccess": "Teilnehmer erfolgreich stummgeschaltet",
+            "muteError": "Teilnehmer konnte nicht stummgeschaltet werden",
+            "cameraOffSuccess": "Kamera des Teilnehmers erfolgreich ausgeschaltet",
+            "cameraOffError": "Kamera des Teilnehmers konnte nicht ausgeschaltet werden",
+            "muteParticipant": "Teilnehmer stummschalten",
+            "muting": "Wird stummgeschaltet…",
+            "turnOffCamera": "Kamera ausschalten",
+            "turningOffCamera": "Wird ausgeschaltet…"
+        },
+        "waitingRoom": {
+            "joinedToastOne": "{{count}} Person ist dem Warteraum beigetreten!",
+            "joinedToastMany": "{{count}} Personen sind dem Warteraum beigetreten!",
+            "admitSuccess": "Teilnehmer erfolgreich zugelassen",
+            "admitError": "Teilnehmer konnte nicht zugelassen werden",
+            "rejectSuccess": "Teilnehmer erfolgreich abgelehnt",
+            "rejectError": "Teilnehmer konnte nicht abgelehnt werden",
+            "admitParticipant": "Zulassen",
+            "admitting": "Wird zugelassen…",
+            "rejectParticipant": "Ablehnen",
+            "rejecting": "Wird abgelehnt…"
+        },
+        "recording": {
+            "stopTitle": "Aufnahme stoppen",
+            "recordTitle": "Diesen Jam aufnehmen",
+            "stopped": "Aufnahme gestoppt: {{id}}",
+            "started": "Aufnahme gestartet: {{id}}",
+            "stopError": "Aufnahme konnte nicht gestoppt werden",
+            "startError": "Aufnahme konnte nicht gestartet werden"
+        },
+        "lobby": {
+            "readyTitle": "Bereit zum Starten?",
+            "exitLobbyBody": "Möchten Sie die Lobby wirklich verlassen?",
+            "exitLobbyConfirm": "Jam verlassen",
+            "guestIntro": "Geben Sie unten Ihre Daten ein, um zum Warteraum zu gelangen",
+            "guestFullNameLabel": "Vollständiger Name",
+            "guestFullNamePlaceholder": "Vollständiger Name",
+            "guestEmailLabel": "E-Mail",
+            "guestEmailPlaceholder": "E-Mail",
+            "guestTermsAgreePrefix": "Durch das Fortfahren stimmen Sie den",
+            "guestTermsLink": "Nutzungsbedingungen",
+            "guestTermsAgreeSuffix": "bezüglich der Jam-Aktivitäten zu",
+            "continue": "Fortfahren",
+            "fallbackTitle": "Jam",
+            "cameraOff": "Kamera ist aus"
+        },
+        "drawer": {
+            "close": "Seitenleiste schließen",
+            "debugTitle": "Debug-Panel",
+            "toggleDebug": "Debug-Panel umschalten",
+            "jamControls": "Jam-Steuerung",
+            "audioLevel": "Audiopegel",
+            "activityHistory": "Aktivitätsverlauf",
+            "chatTitle": "Nachrichten im Jam",
+            "peopleTitle": "Personen",
+            "searchPeoplePlaceholder": "Personen suchen",
+            "searchButton": "Suchen"
+        },
+        "chat": {
+            "messagePlaceholder": "Nachricht senden",
+            "sendTitle": "Nachricht senden",
+            "openEveryoneTitle": "Mit allen chatten",
+            "noMessages": "Keine Nachrichten gefunden"
+        },
+        "people": {
+            "inJam": "IM JAM",
+            "inWaitingRoom": "IM WARTERAUM",
+            "noParticipants": "Keine Teilnehmenden gefunden"
+        },
+        "debug": {
+            "audioLevelLabel": "Audiopegel",
+            "currentAudioLevel": "Aktueller Audiopegel:",
+            "noActivity": "Keine Aktivität"
+        },
+        "device": {
+            "changeTitle": "Gerät wechseln",
+            "turnOn": "Einschalten",
+            "turnOff": "Ausschalten",
+            "switchTitle": "Gerät wechseln",
+            "loadingDevices": "Verfügbare Geräte werden geladen…",
+            "microphone": "Mikrofon",
+            "camera": "Kamera",
+            "defaultSpeaker": "Standardlautsprecher"
+        },
+        "mobileMenu": {
+            "inJamMessage": "Nachricht im Jam",
+            "jamDetails": "Jam-Details",
+            "people": "Personen"
+        },
+        "network": {
+            "connectionStatus": "Verbindungsstatus",
+            "connectionDetail": "Ihre Internetverbindung ist {{quality}}.",
+            "dismiss": "Schließen"
+        },
+        "screenShare": {
+            "stopTitle": "Bildschirmfreigabe beenden",
+            "startScreenshareMobile": "Bildschirmfreigabe starten",
+            "stopScreenshareMobile": "Bildschirmfreigabe beenden",
+            "startStopTitle": "Bildschirmfreigabe starten/beenden",
+            "stopSharing": "Freigabe beenden",
+            "youPresenting": "(Sie präsentieren)",
+            "presenting": "(präsentiert)"
+        },
+        "reactions": {
+            "sendTitle": "Reaktion senden"
+        },
+        "discover": {
+            "checkOtherJams": "Weitere Jams entdecken"
+        },
+        "details": {
+            "closePanel": "Jam-Details schließen",
+            "panelHeading": "Jam-Details",
+            "joiningInfoHeading": "Beitrittsinformationen",
+            "copyJoiningInfo": "Beitrittsinformationen kopieren",
+            "copiedJoiningInfo": "Beitrittsinformationen kopiert",
+            "copyJoiningInfoButtonTitle": "Beitrittsinformationen kopieren",
+            "copiedJoiningInfoButtonTitle": "Beitrittsinformationen kopiert",
+            "observerLinkHeading": "Beobachterlink",
+            "copyObserverLink": "Beobachterlink kopieren",
+            "copiedObserverLink": "Beobachterlink kopiert",
+            "copyObserverLinkButtonTitle": "Beobachterlink kopieren",
+            "copiedObserverLinkButtonTitle": "Beobachterlink kopiert"
+        },
+        "hand": {
+            "raiseTitle": "Hand heben",
+            "raiseLabel": "Hand heben"
+        },
+        "participantMenu": {
+            "muteInChat": "Im Chat stummschalten",
+            "turnOffCamera": "Kamera ausschalten",
+            "removeFromJam": "Aus Jam entfernen"
+        },
+        "scheduler": {
+            "pickDateTime": "Wählen Sie Datum und Uhrzeit für Ihren Jam:",
+            "scheduleForLater": "Für später planen",
+            "dateLabel": "Datum",
+            "timeLabel": "Uhrzeit",
+            "selectTime": "Uhrzeit auswählen",
+            "eventCreatedSuccess": "Veranstaltung erfolgreich erstellt",
+            "back": "Zurück",
+            "save": "Speichern"
+        },
+        "createFlow": {
+            "schedule": "Planen"
+        },
+        "modals": {
+            "attendance": {
+                "title": "Jam-Teilnahme",
+                "empty": "Noch niemand beigetreten",
+                "close": "Schließen"
+            },
+            "deleteScheduled": {
+                "title": "Diesen Jam löschen?",
+                "body": "Die Details dieses Jams werden für niemanden mehr verfügbar sein, auch nicht für Sie. Möchten Sie diesen Jam dennoch löschen?",
+                "cancel": "Abbrechen",
+                "delete": "Löschen",
+                "deleteEventTitle": "Veranstaltung löschen",
+                "successToast": "Veranstaltung erfolgreich gelöscht!"
+            }
+        },
+        "liveJams": "Live-Jams",
+        "noLiveJams": "Keine Live-Jams zum Beitreten",
+        "room": {
+            "pageTitle": "Jam-Raum - {{name}}",
+            "observerConnecting": "Verbindung zum Jam wird hergestellt",
+            "jamNotActive": "Dieser Jam ist nicht aktiv"
+        },
+        "participant": {
+            "showEveryone": "Alle anzeigen",
+            "turnOffCamera": "Video ausschalten",
+            "muteParticipant": "Teilnehmer stummschalten"
+        }
+    },
+    "admin": {
+        "inviteLink": {
+            "unlimited": "Unbegrenzt",
+            "createSuccess": "Einladungslink erfolgreich erstellt",
+            "createError": "Einladungslink konnte nicht erstellt werden",
+            "copySuccess": "Einladungslink in die Zwischenablage kopiert",
+            "copyError": "Einladungslink konnte nicht kopiert werden",
+            "title": "Einladungslink erstellen",
+            "description": "Einladungslinks können auf eine Anzahl von Nutzungen oder nach Datum begrenzt werden",
+            "twoDays": "Zwei Tage",
+            "oneMonth": "Ein Monat",
+            "deactivate": "Link deaktivieren",
+            "never": "Nie",
+            "generateTitle": "Klicken Sie, um den Einladungslink zu erstellen",
+            "totalLinkUses": "Gesamtnutzungen:",
+            "expiresAfter": "Läuft ab nach",
+            "closeModal": "Speichern und schließen",
+            "numberOfUses": "Anzahl der Nutzungen",
+            "oneDay": "Ein Tag",
+            "oneWeek": "Eine Woche",
+            "copyToClipboard": "In die Zwischenablage kopieren",
+            "deactivateTitle": "Link deaktivieren: Keine neuen Registrierungen werden zugelassen",
+            "generateButton": "Link erstellen",
+            "done": "Fertig",
+            "generateSuccess": "Einladungslink erfolgreich erstellt"
+        },
+        "signupChart": {
+            "last30Days": "Letzte 30 Tage",
+            "today": "Heute",
+            "yesterday": "Gestern",
+            "last7Days": "Letzte 7 Tage",
+            "numberOfSignups": "Anzahl der Registrierungen",
+            "week": "Registrierungen in der letzten Woche",
+            "fourWeeks": "Registrierungen in den letzten vier Wochen",
+            "fourMonths": "Registrierungen in den letzten vier Monaten"
+        },
+        "backups": {
+            "title": "Sicherungen & Wiederherstellung",
+            "createSuccess": "Sicherung erfolgreich erstellt",
+            "createError": "Fehler beim Erstellen der Sicherung: {{error}}",
+            "createTitle": "Neue Sicherung erstellen",
+            "downloadTestData": "Testdaten-Vorlage herunterladen",
+            "testBackup": "Testsicherung",
+            "description": "Alle Sicherungen werden vorübergehend auf dem Server gespeichert. Bitte laden Sie die Sicherungen herunter und bewahren Sie sie an einem sicheren Ort auf. Sie können die Sicherungen durch Hochladen hier wiederherstellen.",
+            "noBackupsFound": "Keine Sicherungen gefunden",
+            "errorFetching": "Fehler beim Abrufen",
+            "loading": "Laden...",
+            "testRestore": {
+                "title": "Testsicherung verwenden",
+                "confirm": "Möchten Sie wirklich die Testsicherungsdaten verwenden?",
+                "cancel": "Abbrechen",
+                "continue": "Fortfahren",
+                "restoreSuccess": "Sicherung erfolgreich wiederhergestellt",
+                "restoreError": "Fehler bei der Verwendung der Testsicherung"
+            },
+            "restoreTitle": "Sicherung wiederherstellen",
+            "restore": {
+                "selectFile": "Datei auswählen",
+                "success": "Wiederherstellung erfolgreich. Der Community-Server wird jetzt neu gestartet.",
+                "error": "Beim Wiederherstellen der Sicherung ist ein Fehler aufgetreten",
+                "title": "Sicherung wiederherstellen",
+                "cancel": "Abbrechen",
+                "confirm": "Bestätigen"
+            }
+        },
+        "invites": {
+            "inviteWithLinkTitle": "Mitglied per Link einladen",
+            "newInvite": "Neue Einladung",
+            "seeInvitedAccounts": "Eingeladene Konten anzeigen",
+            "copyLink": "Link kopieren",
+            "deactivate": "Deaktivieren",
+            "activate": "Aktivieren",
+            "invitedMembers": "Eingeladene Mitglieder",
+            "noJoinedAccounts": "Noch keine Konten über diesen Einladungslink beigetreten.",
+            "joinedAccounts": "Konten, die über diesen Einladungslink beigetreten sind:",
+            "copiedToClipboard": "In die Zwischenablage kopiert",
+            "deactivateSuccess": "Einladungslink erfolgreich deaktiviert",
+            "deactivateError": "Einladungslink konnte nicht deaktiviert werden",
+            "activateSuccess": "Einladungslink erfolgreich aktiviert",
+            "activateError": "Einladungslink konnte nicht aktiviert werden",
+            "deleteSuccess": "Einladungslink erfolgreich gelöscht",
+            "deleteError": "Einladungslink konnte nicht gelöscht werden",
+            "noInvitesFound": "Keine Einladungen gefunden",
+            "searchPlaceholder": "Nach Name oder E-Mail suchen",
+            "title": "Einladungen",
+            "linkColumn": "Link",
+            "createdByColumn": "Erstellt von",
+            "expirationDateColumn": "Ablaufdatum",
+            "usesColumn": "Nutzungen",
+            "statusColumn": "Status",
+            "linkHeading": "Link"
+        },
+        "filter": {
+            "title": "Filter",
+            "description": "Mitglieder nach Status und Datum filtern",
+            "status": "Status",
+            "pending": "Ausstehend",
+            "accepted": "Angenommen",
+            "dateSent": "Sendedatum",
+            "from": "Von",
+            "to": "Bis",
+            "dateAccepted": "Annahmedatum",
+            "resetTitle": "Zurücksetzen",
+            "reset": "Zurücksetzen",
+            "applyTitle": "Anwenden",
+            "apply": "Anwenden"
+        },
+        "sort": {
+            "title": "Sortieren",
+            "description": "Mitglieder nach Name, Benutzername oder Datum sortieren",
+            "memberNameAZ": "Mitgliedsname (A-Z)",
+            "memberNameZA": "Mitgliedsname (Z-A)",
+            "usernameAZ": "Benutzername (A-Z)",
+            "usernameZA": "Benutzername (Z-A)",
+            "dateSentNewest": "Sendedatum (Neueste)",
+            "dateSentOldest": "Sendedatum (Älteste)",
+            "dateAcceptedNewest": "Annahmedatum (Neueste)",
+            "dateAcceptedOldest": "Annahmedatum (Älteste)"
+        },
+        "members": {
+            "inviteWithEmailTitle": "Mitglied per E-Mail einladen",
+            "inviteWithLinkTitle": "Mitglied per Link einladen",
+            "title": "Mitglieder",
+            "searchPlaceholder": "Mitglied nach Name oder E-Mail suchen",
+            "noUsersFound": "Keine Benutzer gefunden",
+            "profileColumn": "Profil",
+            "rolesColumn": "Rollen"
+        },
+        "community": {
+            "totalProfiles": "Profile gesamt",
+            "activeProfiles": "Aktive Profile",
+            "recentInteractions": "Letzte Interaktionen",
+            "totalMembers": "Mitglieder gesamt",
+            "activeMembers": "Aktive Mitglieder",
+            "recentSignups": "Letzte Registrierungen"
+        },
+        "overview": {
+            "title": "Statistiken",
+            "communityOverview": "Community-Übersicht",
+            "newSignups": "Neue Registrierungen",
+            "content": "Inhalte",
+            "postsRepliesReposts": "Beiträge, Antworten, Reposts",
+            "allPosts": "Alle Beiträge",
+            "postsWithoutReplies": "Beiträge ohne Antworten",
+            "postsWithReplies": "Beiträge mit Antworten",
+            "replies": "Antworten",
+            "topProfilesOfYear": "Top {{count}} Profile des Jahres",
+            "topPostsOfYear": "Top {{count}} Beiträge des Jahres",
+            "totalProfiles": "Profile gesamt",
+            "activeProfiles": "Aktive Profile",
+            "recentInteractions": "Letzte Interaktionen",
+            "jamSessions": "Jam-Sitzungen",
+            "jamParticipants": "Jam-Teilnehmende",
+            "lastWeek": "Letzte Woche"
+        },
+        "moderation": {
+            "title": "Moderation",
+            "summaryTab": "Zusammenfassung",
+            "resolvedTab": "Gelöst",
+            "report": {
+                "title": "{{reportsCount}} ungelöste Meldungen zu diesem Profil",
+                "description": "{{reportsCount}} ungelöste Meldungen für {{profileName}}",
+                "unresolvedBadge": "{{reportsCount}} ungelöste Meldungen",
+                "resolvedBadge": "Alle Meldungen gelöst",
+                "closeOptions": {
+                    "title": "Diese Meldung schließen?",
+                    "description": "Sie sind dabei, diese Meldung zu schließen. Wählen Sie eine Aktion aus:",
+                    "deleteProfile": {
+                        "description": "Verhindert, dass das Profil in Listen angezeigt und von anderen gesehen wird. Inhalte werden ebenfalls entfernt.",
+                        "button": "Profil löschen"
+                    },
+                    "deletePost": {
+                        "description": "Der Beitrag wird nicht mehr im Feed und in der Community angezeigt",
+                        "button": "Beitrag löschen"
+                    },
+                    "closeReport": {
+                        "description": "Diese Meldung ohne weitere Maßnahmen schließen",
+                        "button": "Einfach schließen"
+                    }
+                },
+                "close": {
+                    "title": "Meldung einfach schließen?",
+                    "description": "Sie sind dabei, diese Meldung zu schließen, ohne eine Maßnahme zu ergreifen. Sie wird als gelöst markiert. Sind Sie sicher?",
+                    "cancel": "Zurück",
+                    "confirm": "Ja, schließen"
+                }
+            },
+            "post": {
+                "delete": {
+                    "title": "Diesen Beitrag löschen?",
+                    "description": "Sie sind dabei, diesen Beitrag zu löschen. Er wird nicht mehr in der Community verfügbar sein. Sind Sie sicher?",
+                    "cancel": "Zurück",
+                    "confirm": "Ja, löschen"
+                }
+            },
+            "profile": {
+                "delete": {
+                    "title": "Dieses Profil löschen?",
+                    "description": "Sie sind dabei, dieses Profil zu löschen. Das Profil wird nicht mehr in Listen angezeigt und von niemandem gesehen. Inhalte werden ebenfalls entfernt. Sind Sie sicher?",
+                    "cancel": "Zurück",
+                    "confirm": "Ja, löschen"
+                }
+            },
+            "reportList": {
+                "allResolvedBadge": "Alle Meldungen gelöst",
+                "seeReports": "Meldungen anzeigen",
+                "postHeading": "Beitrag",
+                "unresolvedBadge": "Nicht gelöst",
+                "goToPost": "Zum Beitrag",
+                "closeReport": "Schließen"
+            }
+        },
+        "configuration": {
+            "unnamedSection": "Konfiguration",
+            "community": {
+                "capabilities": {
+                    "title": "Rollen und Berechtigungen"
+                },
+                "defaultRoles": {
+                    "title": "Standardrolle",
+                    "roleOnRegistration": "Standardrolle bei der Registrierung",
+                    "roleOnRegistrationDescription": "Dies ist die Rolle, die neue Community-Mitglieder nach der Registrierung erhalten. Wenn Sie 'Ausstehendes Mitglied' wählen, wird die Rolle nach der E-Mail-Verifizierung zu 'Mitglied' geändert. Ein Administrator kann Rollen jederzeit ändern.",
+                    "success": "Standardrolle aktualisiert"
+                },
+                "roleConfigurationSimple": {
+                    "title": "Mitgliederberechtigungen",
+                    "membersCanCreateEvents": {
+                        "title": "Mitglieder können Veranstaltungen erstellen",
+                        "description": "Deaktivieren Sie dies, um die Erstellung von Veranstaltungen auf Community-Inhaber und Moderatoren zu beschränken"
+                    },
+                    "membersCanCreateGroups": {
+                        "title": "Alle Mitglieder können Gruppen erstellen",
+                        "description": "Deaktivieren, um die Gruppenerstellung auf Community-Inhaber und Moderatoren zu beschränken"
+                    },
+                    "success": "Community-Konfiguration aktualisiert"
+                }
+            }
+        }
+    },
+    "configuration": {
+        "title": "Konfiguration",
+        "profileFields": {
+            "title": "Profilfelder-Konfiguration",
+            "add": "Feld hinzufügen",
+            "remove": "Feld entfernen",
+            "fields": {
+                "name": "Feldname",
+                "type": "Feldtyp",
+                "required": "Erforderlich",
+                "options": "Optionen",
+                "placeholder": "Platzhalter",
+                "description": "Beschreibung"
+            },
+            "types": {
+                "text": "Text",
+                "number": "Zahl",
+                "select": "Auswahl",
+                "multiselect": "Mehrfachauswahl",
+                "date": "Datum",
+                "boolean": "Ja/Nein"
+            },
+            "description": "Alle Felder sind derzeit Text. Vollständige URLs (z.B. https://example.com) werden als Links angezeigt."
+        },
+        "community": {
+            "icon": "Community-Symbol",
+            "logo": "Community-Logo",
+            "logoFull": "Community-Logo (vollständig)",
+            "backgroundAuth": "Hintergrund Anmeldung",
+            "background": "Hintergrund",
+            "updateSuccess": "Community-Einstellungen aktualisiert",
+            "favicon": "Browser-Favicon",
+            "lightModeFavicon": "Favicon für hellen Modus",
+            "darkModeFavicon": "Favicon für dunklen Modus",
+            "currentIcon": "Aktuelles Symbol",
+            "uploadIcon": "Symbol durchsuchen und hochladen",
+            "iconRequirements": "Laden Sie ein Bild hoch (PNG, JPG, SVG, ICO…), mindestens 70x70. Für optimale Ergebnisse sollte Ihr Bild 260x260 oder größer sein.",
+            "currentLogo": "Aktuelles Logo",
+            "uploadLogo": "Logo durchsuchen und hochladen",
+            "logoRequirements": "Laden Sie ein Bild hoch (PNG, JPG, SVG, ICO…) mit einem Seitenverhältnis von 16:9.",
+            "logoFullRequirements": "Laden Sie ein Bild hoch (PNG, JPG, SVG, ICO…).",
+            "theme": {
+                "title": "Design",
+                "description": "Passen Sie das Erscheinungsbild Ihrer Community an, einschließlich Logo, hellem und dunklem Modus sowie Markenfarben"
+            },
+            "mode": "Modus",
+            "light": {
+                "uploadLightThemeBackground": "Bild für helles Design hochladen",
+                "uploadDarkThemeBackground": "Bild für dunkles Design hochladen",
+                "uploadLightThemeLogo": "Logo für helles Design hochladen",
+                "uploadDarkThemeLogo": "Logo für dunkles Design hochladen"
+            },
+            "lightMode": "Hell",
+            "dark": "Dunkel",
+            "brandColor": "Markenfarbe",
+            "color": "Farbe",
+            "colorDescription": "Diese Farbe wird für Schaltflächen, Links und andere Hervorhebungen verwendet",
+            "contactEmail": "Kontakt-E-Mail",
+            "contactEmailDescription": "Diese E-Mail-Adresse wird Community-Mitgliedern auf der Willkommensseite, in der Begrüßungs-E-Mail und an anderen Stellen angezeigt, um den Community-Inhaber zu kontaktieren.",
+            "email": "E-Mail",
+            "name": "Community-Name",
+            "nameDescription": "Dieser Name erscheint in der Titelleiste des Browsers und in E-Mail-Betreffs und repräsentiert den Namen Ihrer Community.",
+            "tagline": "Community-Slogan",
+            "taglineDescription": "Dieser Text erscheint auf der Registrierungsseite und bietet eine kurze Beschreibung Ihrer Community.",
+            "save": "Änderungen speichern",
+            "themeDescription": "Wählen Sie das Standarddesign, das Besuchern Ihrer Community angezeigt wird.",
+            "authBackground": "Bild der Registrierungsseite",
+            "authBackgroundDescription": "Dieses Bild wird auf den Seiten für Registrierung, Anmeldung und Passwort vergessen angezeigt",
+            "lightThemecolor": "Akzentfarbe für helles Design",
+            "darkThemeColor": "Akzentfarbe für dunkles Design",
+            "backgroundDescription": "Dieses Hintergrundbild wird hinter den Community-Seiten auf Desktop- und Tablet-Bildschirmgrößen angezeigt.",
+            "logoDescription": "Dieses Logo wird auf jeder Seite der Community, in E-Mails und an anderen Stellen angezeigt, wo Ihr Logo wichtig ist. Sie können unterschiedliche Bilder für den hellen und dunklen Modus hochladen.",
+            "themeColor": "Akzentfarbe",
+            "themeColorDescription": "Die Akzentfarbe wird für Schaltflächen und Links verwendet. Sie können eine andere Farbe für den hellen und dunklen Modus verwenden, um den besten Kontrast für Ihre Mitglieder zu gewährleisten.",
+            "customizeHelp": "Passen Sie Ihre Community hier an Ihr Erscheinungsbild an:",
+            "upload": "Bild auswählen",
+            "mobileFavicon": "Mobiles Favicon",
+            "button": "Schaltfläche",
+            "linkTest": "Link-Test",
+            "uploadFormat": "PNG, JPG und GIF erlaubt",
+            "pageBackgroundImage": "Seitenhintergrundbild",
+            "pageBackgroundImageDesc": "Dieses Bild erscheint als Hintergrundbild auf breiten Bildschirmen",
+            "serverAuthBackgroundImageDesc": "Dieses Bild erscheint als Hintergrundbild auf den Anmelde- und Registrierungsseiten",
+            "category": {
+                "title": {
+                    "favicon": "Favicon",
+                    "communityLogo": "Community-Logo",
+                    "communityTheme": "Community-Design",
+                    "brandColor": "Markenfarbe",
+                    "contactEmail": "Kontakt-E-Mail",
+                    "communityName": "Community-Name",
+                    "communityTagline": "Community-Slogan",
+                    "welcomePageText": "Willkommensseiten-Text",
+                    "pageText": "Seitentext",
+                    "welcomeEmailText": "Willkommens-E-Mail-Text",
+                    "serverAuthBackgroundImage": "Hintergrundbild der Anmeldeseite",
+                    "backgroundImage": "Hintergrundbild",
+                    "accountsToFollow": "Empfohlene Konten zum Folgen",
+                    "privacyPolicyLink": "Link zur Datenschutzerklärung",
+                    "termsAndConditions": "Allgemeine Geschäftsbedingungen"
+                },
+                "description": {
+                    "favicon": "Wählen Sie ein Bild als Browser- und Mobil-Favicon",
+                    "communityLogo": "Wählen Sie ein Bild als Community-Logo",
+                    "communityTheme": "Wählen Sie ein Design für Ihre Community",
+                    "brandColor": "Wählen Sie eine Markenfarbe für Ihre Community",
+                    "contactEmail": "Legen Sie eine E-Mail-Adresse fest, über die Ihre Community-Mitglieder Sie kontaktieren können",
+                    "communityName": "Geben Sie Ihrer Community einen Namen",
+                    "communityTagline": "Geben Sie eine kurze Beschreibung Ihrer Community an",
+                    "welcomePageText": "Beschreibung, die neue Mitglieder beim Beitritt sehen",
+                    "pageText": "Beschreibung Ihrer Community",
+                    "welcomeEmailText": "E-Mail-Text, der an Community-Mitglieder gesendet wird",
+                    "serverAuthBackgroundImage": "Bild auf Anmelde- und Registrierungsseiten",
+                    "backgroundImage": "Bild auf der Anmeldeseite und als Hintergrund auf breiten Bildschirmen",
+                    "accountsToFollow": "Empfohlene Konten zum Folgen festlegen",
+                    "privacyPolicyLink": "Link zur Datenschutzerklärung festlegen",
+                    "termsAndConditions": "Link zu den AGB festlegen"
+                }
+            },
+            "title": "Community-Einstellungen",
+            "description": "Konfigurieren Sie das Benutzererlebnis Ihrer Community. Hier können Sie Ihrer Community einen Namen geben, die Onboarding-E-Mail und -Seiten einrichten, Ihr Logo und Ihre Farben hochladen und vieles mehr.",
+            "info": {
+                "title": "Grundinformationen",
+                "description": "Geben Sie Ihrer Community einen Namen, einen Slogan und eine Kontakt-E-Mail"
+            },
+            "favicons": {
+                "title": "Symbole",
+                "description": "Fügen Sie eigene Browser- und Mobilsymbole hinzu"
+            },
+            "welcomePage": {
+                "title": "Willkommensseite",
+                "description": "Erzählen Sie Ihren Mitgliedern als Teil des Onboarding-Erlebnisses von Ihrer Community. <br/> Sie können [Markdown](https://www.markdownguide.org) verwenden, um den Inhalt dieser Seite zu formatieren."
+            },
+            "welcomeEmail": {
+                "title": "Willkommens-E-Mail",
+                "description": "Fügen Sie eigene Informationen zur ersten E-Mail hinzu, die Ihre Mitglieder von der Community erhalten. <br/> Sie können Markdown zur Formatierung dieser E-Mail verwenden, aber bitte beachten Sie, dass E-Mail-Clients nicht immer alle Formatierungen korrekt darstellen."
+            },
+            "aboutPage": {
+                "title": "Über-Seite",
+                "description": "Diese Seite wird Personen angezeigt, die nicht in Ihrer Community angemeldet sind. <br/> Sie können sie mit Markdown formatieren. Erfahren Sie mehr über die Markdown-Syntax unter https://www.markdownguide.org/ oder verwenden Sie Ihr bevorzugtes KI-Tool, um Ihr formatiertes Dokument in Markdown umzuwandeln, das Sie hier einfügen können."
+            },
+            "links": {
+                "title": "Richtlinien-Links",
+                "description": "Fügen Sie Links zur Datenschutzerklärung und den Nutzungsbedingungen Ihrer Community hinzu"
+            },
+            "profileFields": {
+                "title": "Profilfelder",
+                "description": "Passen Sie die Profilseiten Ihrer Mitglieder mit zusätzlichen Informationsfeldern an"
+            },
+            "roles": {
+                "title": "Rollen und Berechtigungen",
+                "description": "Richten Sie die Funktionen und Berechtigungen ein, die jeder Rolle innerhalb der Community zur Verfügung stehen"
+            },
+            "language": {
+                "title": "Standardsprache",
+                "description": "Legen Sie die Standardsprache für alle Benutzer dieser Community fest",
+                "languageDescription": "Wählen Sie die Standardsprache für die Community. Benutzer, die keine persönliche Spracheinstellung festgelegt haben, sehen die Oberfläche in dieser Sprache.",
+                "updateSuccess": "Standardsprache erfolgreich aktualisiert."
+            },
+            "privacyPolicy": "URL der Datenschutzerklärung",
+            "termsAndConditions": "URL der AGB",
+            "lightTheme": {
+                "color": "Akzentfarbe für helles Design",
+                "mode": "Hell",
+                "uploadAuthBackground": "Klicken Sie, um ein neues Registrierungsseitenbild für das helle Design hochzuladen",
+                "uploadBackground": "Klicken Sie, um ein neues Community-Hintergrundbild für das helle Design hochzuladen",
+                "uploadLogo": "Klicken Sie, um ein Logo für das helle Design und E-Mail-Benachrichtigungen hochzuladen"
+            },
+            "darkTheme": {
+                "color": "Akzentfarbe für dunkles Design",
+                "mode": "Dunkel",
+                "uploadAuthBackground": "Klicken Sie, um ein neues Registrierungsseitenbild für das dunkle Design hochzuladen",
+                "uploadLogo": "Klicken Sie, um ein neues Community-Hintergrundbild für das dunkle Design hochzuladen",
+                "uploadBackground": "Klicken Sie, um ein neues Community-Hintergrundbild für das dunkle Design hochzuladen"
+            },
+            "authBackgroundRequirements": "Dieses Bild passt vertikal auf diese Seiten, verwenden Sie daher ein vertikales Seitenverhältnis für beste Ergebnisse. Bilder unter 2 MB werden empfohlen.",
+            "backgroundRequirements": "Dieses Bild erscheint hinter dem Community-Inhalt bei der Verwendung eines breiteren Bildschirms. Es ist für Nutzer auf Mobilgeräten nicht sichtbar."
+        },
+        "server": {
+            "stripe": {
+                "errors": {
+                    "invalidCredentials": "Ungültige Stripe-Anmeldedaten",
+                    "noProductId": "Keine Stripe-Produkt-ID gefunden",
+                    "noActivePrice": "Kein aktiver Stripe-Preis gefunden",
+                    "failed": "Test der Zahlungskonfiguration fehlgeschlagen"
+                },
+                "success": {
+                    "test": "Test der Zahlungskonfiguration erfolgreich!"
+                }
+            }
+        },
+        "serverSettings": {
+            "title": "Servereinstellungen",
+            "description": "Konfigurieren Sie den Server Ihrer Community. Hier können Sie LiveKit, SMTP, Sentry und andere wichtige Dienste verbinden sowie Apple- und Google Play Store-Links und Push-Benachrichtigungskonfigurationen hinzufügen."
+        },
+        "i18n": {
+            "title": "Benutzerdefinierter Text",
+            "description": "Texte in der gesamten Community ändern",
+            "pageTitle": "Übersetzungen",
+            "save": "Speichern"
+        }
+    },
+    "common": {
+        "errors": {
+            "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+            "unauthorized": "Bitte melden Sie sich an, um fortzufahren",
+            "forbidden": "Sie haben keine Berechtigung, diese Aktion auszuführen",
+            "notFound": "Nicht gefunden",
+            "serverError": "Serverfehler. Bitte versuchen Sie es später erneut.",
+            "error": "Fehler"
+        },
+        "form": {
+            "description": "Beschreibung",
+            "fieldKey": "Schlüssel",
+            "mention": "Erwähnung",
+            "required": "Erforderlich",
+            "optional": "Optional",
+            "save": "Speichern",
+            "cancel": "Abbrechen",
+            "loading": "Wird geladen…",
+            "error": {
+                "required": "Dieses Feld ist erforderlich",
+                "invalid": "Ungültiger Wert",
+                "maxLength": "Zu lang",
+                "minLength": "Zu kurz"
+            },
+            "password": {
+                "hide": "Passwort verbergen",
+                "show": "Passwort anzeigen"
+            },
+            "selectMultiple": "Mehrere auswählen",
+            "select": "Auswählen",
+            "date": "Datum",
+            "time": "Uhrzeit",
+            "switchTo": "Wechseln zu"
+        },
+        "actions": {
+            "edit": "Bearbeiten",
+            "delete": "Löschen",
+            "confirm": "Bestätigen",
+            "cancel": "Abbrechen",
+            "reportProfile": "@{{handle}} melden",
+            "blockProfile": "@{{handle}} blockieren",
+            "reportPost": "Beitrag melden",
+            "shareProfile": "Profil teilen",
+            "add": "Hinzufügen",
+            "success": "Erfolgreich!",
+            "download": "Herunterladen",
+            "duplicate": "Veranstaltung duplizieren"
+        },
+        "submit": "Absenden",
+        "listEditor": {
+            "removeTitle": "Entfernen",
+            "addTitle": "Hinzufügen"
+        },
+        "next": "Weiter",
+        "back": "Zurück",
+        "done": "Fertig",
+        "close": "Schließen",
+        "edit": "Bearbeiten",
+        "you": "Sie",
+        "media": {
+            "audioPlayer": "Audio-Player",
+            "image": {
+                "cropTitle": "Bild zuschneiden",
+                "recents": "Zuletzt verwendet"
+            },
+            "video": {
+                "recents": "Zuletzt verwendet"
+            },
+            "send": "Senden",
+            "sending": "Wird gesendet…",
+            "altTextDescription": "Sie können hier Beschreibungen zu Ihren Mediendateien hinzufügen – dies kann Betrachtenden helfen, mehr Kontext zu Ihren Bildern und Dokumenten zu erhalten."
+        },
+        "members": {
+            "addSuccess": "Mitglied erfolgreich hinzugefügt",
+            "addError": "Mitglied konnte nicht hinzugefügt werden",
+            "adding": "Wird hinzugefügt…"
+        },
+        "add": "Hinzufügen",
+        "cancel": "Abbrechen",
+        "none": "Keine",
+        "remove": "Entfernen"
+    },
+    "conversations": {
+        "newMessage": "Neue Nachricht",
+        "noMessages": "Keine Direktnachrichten vorhanden",
+        "createNew": {
+            "title": "Neue Unterhaltung",
+            "searchPlaceholder": "Personen suchen",
+            "sendMessage": "Nachricht senden",
+            "messagePlaceholder": "Nachricht eingeben",
+            "send": "Senden"
+        },
+        "messageInThread": {
+            "startedBy": "Gestartet von {{name}}",
+            "addedBy": "Hinzugefügt von {{name}}",
+            "left": "{{name}} hat die Unterhaltung verlassen",
+            "removedBy": "Entfernt von {{name}}"
+        },
+        "message": {
+            "viewAttachment": "Anhang anzeigen",
+            "attachment": "Anhang",
+            "created": "erstellt",
+            "invited": "hat Sie eingeladen zu",
+            "happening": "findet statt",
+            "joinNow": "Jetzt beitreten",
+            "copy": {
+                "title": "Nachricht kopieren"
+            },
+            "delete": {
+                "title": "Nachricht löschen",
+                "deleteForMe": "Für mich löschen",
+                "deleteForEveryone": "Für alle löschen",
+                "description": "Möchten Sie diese Nachricht wirklich löschen?",
+                "confirm": "Löschen",
+                "loading": "Wird gelöscht…",
+                "deleteDescription": "Möchten Sie diese Nachricht wirklich löschen?",
+                "deleteSuccess": "Nachricht erfolgreich gelöscht",
+                "deleteError": "Nachricht konnte nicht gelöscht werden"
+            }
+        },
+        "leaveConversation": {
+            "title": "Unterhaltung verlassen",
+            "description": "Möchten Sie diese Unterhaltung wirklich verlassen?",
+            "leave": "Verlassen"
+        },
+        "blockAccount": {
+            "title": "{{handle}} blockieren",
+            "description": "Möchten Sie {{handle}} wirklich blockieren?",
+            "block": "Blockieren"
+        },
+        "reportAccount": {
+            "title": "{{handle}} melden",
+            "description": "Möchten Sie {{handle}} wirklich melden?",
+            "sendReport": "Meldung senden"
+        },
+        "settings": {
+            "title": "Unterhaltungseinstellungen",
+            "messageRequests": {
+                "title": "Nachrichtenanfragen",
+                "description": "Nachrichtenanfragen von Personen erlauben, denen Sie nicht folgen",
+                "everyone": "Alle",
+                "noOne": "Niemand"
+            }
+        }
+    },
+    "settings": {
+        "description": "Verwalten Sie hier alle Einstellungen zu Ihrem Konto:",
+        "profile": {
+            "description": "Ändern Sie Ihre Profildetails",
+            "updateError": "Beim Aktualisieren Ihres Profils ist ein Fehler aufgetreten.",
+            "updateSuccess": "Ihr Profil wurde aktualisiert",
+            "updateHandleExists": "Benutzername bereits vergeben"
+        },
+        "account": {
+            "description": "Ändern Sie Ihre Kontoinformationen",
+            "oldPassword": "Aktuelles Passwort",
+            "oldPasswordDescription": "Geben Sie Ihr aktuelles Passwort ein",
+            "oldPasswordPlaceholder": "Geben Sie Ihr aktuelles Passwort ein",
+            "email": "E-Mail",
+            "emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
+            "newPassword": "Neues Passwort",
+            "newPasswordPlaceholder": "Geben Sie Ihr neues Passwort ein",
+            "confirmPassword": "Passwort bestätigen",
+            "confirmPasswordPlaceholder": "Bestätigen Sie Ihr neues Passwort",
+            "oldPasswordReason": "Aus Sicherheitsgründen müssen Sie Ihr aktuelles Passwort eingeben, um Ihr Passwort oder Ihre E-Mail-Adresse zu ändern",
+            "oldPasswordRequired": "Aktuelles Passwort ist erforderlich",
+            "updateSuccessMessage": "Ihr Konto wurde aktualisiert",
+            "updateSuccess": "Aktualisierung erfolgreich",
+            "updateError": "Aktualisierung fehlgeschlagen: {{error}}",
+            "samePasswordError": "Das neue Passwort darf nicht mit dem aktuellen Passwort übereinstimmen",
+            "updateFailed": "Passwortaktualisierung fehlgeschlagen: {{error}}",
+            "title": "Kontoeinstellungen"
+        },
+        "billing": {
+            "title": "Abrechnung & Abonnement",
+            "paymentMethod": "Zahlungsmethode",
+            "currentPeriod": "Aktueller Zeitraum",
+            "autoRenewal": "Automatische Verlängerung",
+            "autoRenewalCanceled": "Gekündigt",
+            "autoRenewalActive": "Aktiv",
+            "createPortal": "Kundenportal"
+        },
+        "notifications": {
+            "inApp": "In-App-Benachrichtigungen",
+            "push": "Push-Benachrichtigungen",
+            "email": "E-Mail-Benachrichtigungen",
+            "updateSuccess": "Community-Einstellungen aktualisiert",
+            "description": "Verwalten Sie Ihre Benachrichtigungseinstellungen",
+            "types": {
+                "reply": {
+                    "label": "Antworten",
+                    "description": "Benachrichtigungen verwalten, wenn jemand auf Ihren Beitrag antwortet"
+                },
+                "repost": {
+                    "label": "Geteilte Beiträge",
+                    "description": "Benachrichtigungen verwalten, wenn Ihr Beitrag geteilt wird"
+                },
+                "reaction": {
+                    "label": "Reaktionen",
+                    "description": "Benachrichtigungen verwalten, wenn Ihr Beitrag Reaktionen erhält"
+                },
+                "jamStarted": {
+                    "label": "Jam gestartet",
+                    "description": "Verwalten Sie, wie Sie Live-Jam-Benachrichtigungen erhalten, wenn ein Jam gestartet wird"
+                },
+                "jamModerator": {
+                    "label": "Jam-Moderator",
+                    "description": "Verwalten Sie, wie Sie Live-Jam-Benachrichtigungen erhalten, wenn Sie zur Moderation eines Jams eingeladen werden"
+                },
+                "jamSpeaker": {
+                    "label": "Jam-Sprecher",
+                    "description": "Verwalten Sie, wie Sie Live-Jam-Benachrichtigungen erhalten, wenn Sie als Sprecher zu einem Jam eingeladen werden"
+                },
+                "directMessages": {
+                    "label": "Direktnachrichten",
+                    "description": "Benachrichtigungen verwalten, wenn Sie eine Direktnachricht erhalten"
+                },
+                "announcement": {
+                    "label": "Ankündigungen",
+                    "description": "Benachrichtigungen verwalten, wenn Sie eine Ankündigung erhalten"
+                },
+                "directMessage": {
+                    "label": "Direktnachrichten"
+                },
+                "follow": {
+                    "description": "Benachrichtigungen verwalten, wenn Ihnen jemand folgt",
+                    "label": "Neuer Follower"
+                },
+                "newProfile": {
+                    "label": "Neues Profil",
+                    "description": "Benachrichtigungen verwalten, wenn ein neues Profil erstellt wird"
+                },
+                "newGroupPost": {
+                    "label": "Neuer Gruppenbeitrag",
+                    "description": "Benachrichtigungen verwalten, wenn ein neuer Beitrag in einer Gruppe erstellt wird"
+                },
+                "groupAdded": {
+                    "label": "Zur Gruppe hinzugefügt",
+                    "description": "Benachrichtigungen verwalten, wenn Sie zu einer Gruppe hinzugefügt werden"
+                },
+                "groupMemberJoined": {
+                    "label": "Gruppenmitglied beigetreten",
+                    "description": "Benachrichtigungen verwalten, wenn ein Mitglied einer Gruppe beitritt"
+                },
+                "groupMemberLeft": {
+                    "label": "Gruppenmitglied ausgetreten",
+                    "description": "Benachrichtigungen verwalten, wenn ein Mitglied eine Gruppe verlässt"
+                },
+                "pollVote": {
+                    "label": "Umfrage-Abstimmung",
+                    "description": "Benachrichtigungen verwalten, wenn über eine Umfrage abgestimmt wird"
+                },
+                "rsvp": {
+                    "label": "RSVP",
+                    "description": "Benachrichtigungen verwalten, wenn jemand an Ihrer Veranstaltung teilnimmt"
+                }
+            },
+            "pushSettings": "Push-Benachrichtigungen",
+            "pushEnabled": "Für diesen Browser aktiviert",
+            "testPush": "Push-Benachrichtigung senden",
+            "create": "In-App-Benachrichtigungen",
+            "title": "Benachrichtigungseinstellungen",
+            "feedPreferences": {
+                "modalTitle": "Benachrichtigungs-Feed-Einstellungen",
+                "subtitle": "Verwalten Sie die Inhalte, die Sie in Ihrem Benachrichtigungs-Feed sehen",
+                "markAllRead": "Alle als gelesen markieren",
+                "unreadSection": "Ungelesene Benachrichtigungen",
+                "newFollowersSection": "Neue Follower",
+                "newPostSection": "Neuer Beitrag",
+                "mentionsSection": "Erwähnungen",
+                "repostsSection": "Geteilte Beiträge"
+            },
+            "headerPreferencesTitle": "Benachrichtigungseinstellungen",
+            "markAllReadSuccess": "Benachrichtigungen erfolgreich gelöscht"
+        },
+        "form": {
+            "imageEditModal": {
+                "title": "Bild bearbeiten",
+                "placeholder": "Beschreiben Sie Ihr Bild für sehbeeinträchtigte Betrachtende",
+                "cropping": "Bildzuschnitt",
+                "altText": "Alternativtext"
+            }
+        },
+        "publicProfile": {
+            "title": "Öffentliches Profil",
+            "description": "Ändern Sie Ihren Anzeigenamen, Ihre Biografie und andere Informationen, die bestimmen, wie Ihr Profil in der Community angezeigt wird"
+        },
+        "theme": {
+            "title": "Design-Einstellungen",
+            "description": "Wechseln Sie zwischen hellem und dunklem Modus bei der Ansicht der Community",
+            "themeDescription": "Ändern Sie das Erscheinungsbild der Community. Sie können zwischen hellem und dunklem Modus wählen oder Ihre Community- oder Betriebssystemeinstellungen verwenden lassen.",
+            "community": {
+                "mode": "Community-Einstellung verwenden"
+            },
+            "light": {
+                "mode": "Immer hellen Modus verwenden"
+            },
+            "dark": {
+                "mode": "Immer dunklen Modus verwenden"
+            },
+            "system": {
+                "mode": "Betriebssystemeinstellungen verwenden"
+            },
+            "updateSuccess": "Design-Einstellungen aktualisiert. Die Seite wird jetzt neu geladen."
+        },
+        "language": {
+            "title": "Spracheinstellungen",
+            "description": "Wählen Sie Ihre bevorzugte Sprache für die Benutzeroberfläche",
+            "languageDescription": "Wählen Sie die Sprache, die Sie auf der gesamten Plattform verwenden möchten. Dies ändert alle Oberflächentexte in die gewählte Sprache.",
+            "default": "(Standard)",
+            "updateSuccess": "Spracheinstellungen aktualisiert. Die Seite wird jetzt neu geladen."
+        }
+    },
+    "form": {
+        "imageEditModal": {
+            "title": "Bild bearbeiten",
+            "placeholder": "Beschreiben Sie Ihr Bild für sehbeeinträchtigte Betrachtende",
+            "cropping": "Bildzuschnitt",
+            "altText": "Alternativtext",
+            "crop": "Zuschneiden"
+        },
+        "headerAvatarInput": {
+            "coverImage": "Titelbild"
+        },
+        "imageInput": {
+            "maxSize": "Maximale Größe: {{size}}",
+            "uploadText": "Bild hochladen",
+            "uploadTitle": "Bild hochladen"
+        },
+        "preview": "Vorschau",
+        "edit": "Zurück zur Bearbeitung",
+        "uploadEditModal": {
+            "description": {
+                "altText": "Fügen Sie eine Beschreibung Ihres Dokuments hinzu",
+                "title": "Dokumentinformationen bearbeiten",
+                "placeholder": "Fügen Sie hier Ihre Beschreibung hinzu"
+            }
+        }
+    },
+    "accounts": {
+        "login": {
+            "title": "Anmelden",
+            "description": "Melden Sie sich bei Ihrem Konto an",
+            "loginButton": "Anmelden"
+        },
+        "editEmail": {
+            "title": "E-Mail bearbeiten",
+            "description": "Geben Sie Ihre neue E-Mail-Adresse ein",
+            "emailLabel": "E-Mail",
+            "emailPlaceholder": "Geben Sie Ihre neue E-Mail-Adresse ein",
+            "saveChanges": "E-Mail aktualisieren",
+            "sameEmail": "Geben Sie eine andere E-Mail-Adresse als Ihre aktuelle ein.",
+            "updateSuccess": "E-Mail erfolgreich aktualisiert",
+            "updateError": "E-Mail konnte nicht aktualisiert werden"
+        },
+        "validateEmail": {
+            "success": "Bestätigungs-E-Mail gesendet"
+        }
+    },
+    "visibility": {
+        "post": {
+            "description": "Wer diesen Inhalt sehen und damit interagieren kann.",
+            "group": {
+                "description": "Mitglieder einer bestimmten Gruppe",
+                "title": "Bestimmte Gruppe"
+            },
+            "local": {
+                "description": "An die gesamte Community posten",
+                "title": "Community"
+            },
+            "title": "Wer kann das sehen",
+            "public": {
+                "description": "Für alle im Internet sichtbar",
+                "title": "Öffentlich"
+            },
+            "direct": {
+                "title": "Bestimmte Personen",
+                "description": "Nur bestimmte Personen können diesen Beitrag sehen"
+            },
+            "no-groups": "Keine Gruppen verfügbar"
+        },
+        "event": {
+            "description": "Wer diese Veranstaltung sehen und daran teilnehmen kann.",
+            "group": {
+                "description": "Nur Personen in der ausgewählten Gruppe können sehen und teilnehmen",
+                "title": "Bestimmte Gruppe"
+            },
+            "local": {
+                "description": "Alle in der Community können teilnehmen",
+                "title": "Community"
+            },
+            "title": "Veranstaltungssichtbarkeit",
+            "public": {
+                "description": "Alle im Internet können teilnehmen",
+                "title": "Öffentlich"
+            },
+            "direct": {
+                "title": "Bestimmte Personen",
+                "description": "Nur von Ihnen eingeladene Personen können diese Veranstaltung sehen"
+            },
+            "no-groups": "Keine Gruppen verfügbar"
+        },
+        "accessDenied": "Sie haben keinen Zugriff auf diesen Inhalt"
+    },
+    "events": {
+        "form": {
+            "title": "Grundlegende Details",
+            "name": "Veranstaltungsname",
+            "description": "Geben Sie Ihrer Veranstaltung einen klaren, beschreibenden Namen",
+            "descriptionPlaceholder": "Beschreiben Sie Ihre Veranstaltung",
+            "dateAndTimeTitle": "Datum und Uhrzeit",
+            "startDate": "Startdatum",
+            "endDate": "Enddatum",
+            "addEndDate": "Enddatum und -uhrzeit hinzufügen",
+            "timezone": "Zeitzone",
+            "timezonePlaceholder": "Wählen Sie Ihre Zeitzone",
+            "location": "Ort",
+            "address": "Adresse",
+            "addressPlaceholder": "Adresse hinzufügen",
+            "eventFormat": "Veranstaltungsformat",
+            "jamFormatLabel": "Jam-Veranstaltung",
+            "externalFormatLabel": "Externer Veranstaltungslink",
+            "inPersonFormatLabel": "Vor-Ort-Veranstaltung",
+            "people": "Personen",
+            "visibility": "Sichtbarkeit",
+            "visibilityDescription": "Wählen Sie, wer Ihre Veranstaltung sehen und daran teilnehmen kann",
+            "attendeeListPublic": "Teilnehmenden erlauben, andere Teilnehmende dieser Veranstaltung zu sehen",
+            "jamModerators": "Jam-Moderatoren (optional).",
+            "jamWaitingRoom": "Warteraum",
+            "jamWaitingRoomDescription": "Nur genehmigte Benutzer können beitreten",
+            "timezoneSearch": "Zeitzone suchen",
+            "visibilityNotChangeable": "Hinweis: Die Sichtbarkeit der Veranstaltung kann nach der Veröffentlichung nicht mehr geändert werden. Stellen Sie sicher, dass Sie die richtigen Personen oder die richtige Gruppe hinzufügen.",
+            "jamModeratorsDescription": "Klicken Sie, um Jam-Moderatoren auszuwählen",
+            "externalEventUrlPlaceholder": "https://example.com/event"
+        },
+        "feed": {
+            "past": "Vergangene",
+            "upcoming": "Kommende",
+            "empty": "Keine Ergebnisse"
+        },
+        "create": {
+            "title": "Veranstaltung erstellen"
+        },
+        "tabs": {
+            "rsvps": "RSVPs",
+            "discussion": "Diskussion",
+            "attendees": "Teilnehmende",
+            "invited": "Eingeladen",
+            "jamAttendees": "Jam-Teilnehmende",
+            "description": "Beschreibung"
+        },
+        "profileRelationship": {
+            "owner": "Sie sind Gastgeber",
+            "attending": "Teilnahme",
+            "tentative": "Vielleicht"
+        },
+        "jam": {
+            "start": "Jam starten"
+        },
+        "hostedBy": "Veranstalter",
+        "group": "Gruppenveranstaltung in:",
+        "startDate": "Startdatum",
+        "endDate": "Enddatum"
+    },
+    "reports": {
+        "categories": {
+            "spamDescription": "Spam oder irrelevante Inhalte",
+            "otherDescription": "Sonstige Probleme",
+            "violationDescription": "Rassistisch, sexistisch oder hasserfüllt"
+        },
+        "create": {
+            "back": "Zurück",
+            "post": {
+                "title": "Beitrag melden",
+                "description": "Helfen Sie uns, das Problem zu verstehen. Was stimmt mit diesem Beitrag nicht?",
+                "anythingElse": "Möchten Sie noch etwas hinzufügen?",
+                "continue": "Weiter",
+                "confirmMessageHeading": "Möchten Sie diesen Beitrag von @{{handle}} wirklich melden?"
+            },
+            "profile": {
+                "title": "{{handle}} melden",
+                "description": "Helfen Sie uns, das Problem zu verstehen. Was stimmt mit diesem Mitglied nicht?",
+                "anythingElse": "Möchten Sie noch etwas hinzufügen?",
+                "continue": "Weiter",
+                "confirmMessageHeading": "Möchten Sie @{{handle}} wirklich melden?",
+                "confirmMessageDescription": "Ihre Meldung wird an den Community-Moderator gesendet. @{{handle}} wird nicht über Ihre Meldung informiert."
+            },
+            "sendReport": "Meldung senden",
+            "reportSuccess": "Vielen Dank für Ihre Mitteilung. Ihr Feedback hilft uns, die {{name}}-Community für alle besser zu machen!",
+            "reportError": "Meldung konnte nicht gesendet werden. Bitte versuchen Sie es später erneut."
+        }
+    },
+    "location": {
+        "lookup": "Passende Standorte werden gesucht"
+    },
+    "jam": {
+        "join": {
+            "submit": "Jam beitreten"
+        },
+        "start": {
+            "submit": "Jam starten"
+        },
+        "exit": {
+            "title": "Jam verlassen",
+            "description": "Verlassen Sie den Jam. Moderatoren können den Jam für alle beenden.",
+            "leave": "Jam verlassen",
+            "endForAll": "Jam beenden"
+        },
+        "close": {
+            "success": "Der Jam ist jetzt geschlossen."
+        }
+    },
+    "notification": {
+        "announcement": {
+            "text": "{{profileName}} hat eine Ankündigung gemacht"
+        },
+        "jamSpeaker": {
+            "text": "{{profileName}} hat Sie als Sprecher zu einer Veranstaltung eingeladen"
+        },
+        "directMessage": {
+            "text": "{{profileName}} hat Ihnen eine Direktnachricht gesendet"
+        },
+        "follow": {
+            "text": "{{profileName}} folgt Ihnen jetzt"
+        },
+        "jamModerator": {
+            "text": "{{profileName}} hat Sie zur Moderation einer Veranstaltung eingeladen"
+        },
+        "jamStarted": {
+            "text": "{{profileName}} hat einen Jam gestartet um"
+        },
+        "newGroupInvitation": {
+            "text": "Sie wurden zur Gruppe hinzugefügt  "
+        },
+        "newGroupMember": {
+            "text": "{{profileName}} ist beigetreten "
+        },
+        "newProfile": {
+            "text": "{{profileName}} wurde erstellt"
+        },
+        "pollVote": {
+            "text": "{{profileName}} hat an Ihrer Umfrage teilgenommen"
+        },
+        "rsvp": {
+            "text": "{{profileName}} hat sich für Ihre Veranstaltung angemeldet"
+        },
+        "reaction": {
+            "text": "{{profileName}} hat reagiert"
+        },
+        "reply": {
+            "text": "{{profileName}} hat geantwortet"
+        },
+        "repost": {
+            "text": "{{profileName}} hat geteilt"
+        },
+        "newGroupPost": {
+            "text": "Neuer Beitrag in {{groupName}}"
+        }
+    },
+    "handle": {
+        "validation": {
+            "error": "Benutzername ist ein Pflichtfeld"
+        }
+    },
+    "emails": {
+        "common": {
+            "greeting": "Hallo {{profileName}},",
+            "reasonForEmail": "Sie erhalten diese Benachrichtigung, weil Sie Teil von ",
+            "contactUs": "Um uns zu kontaktieren, antworten Sie bitte auf diese E-Mail oder wenden Sie sich an ",
+            "thankYou": "Vielen Dank,",
+            "team": "{{communityName}}-Team",
+            "wantFewerEmails": "Möchten Sie weniger E-Mails erhalten? ",
+            "manageNotications": "Benachrichtigungseinstellungen verwalten"
+        },
+        "announcement": {
+            "subject": "Ankündigung von {{communityName}}",
+            "body": " hat eine Ankündigung veröffentlicht",
+            "cta": "Ankündigung anzeigen"
+        },
+        "directMessage": {
+            "title": "{{profileName}} hat auf eine Nachricht geantwortet",
+            "subject": "Sie haben eine Direktnachricht von {{profileName}} erhalten",
+            "replySubtitle": "Die Antwort:",
+            "singleRecipientBody": " hat Ihnen eine neue Direktnachricht gesendet:",
+            "multipleRecipientsBody": "hat eine neue Direktnachricht an Sie und {{membersCount}} weitere Personen gesendet",
+            "cta": "Anzeigen oder antworten"
+        },
+        "follow": {
+            "subject": "{{profileName}} folgt Ihnen jetzt",
+            "body": " folgt Ihnen jetzt. Ihre Beiträge erscheinen nun in deren Feed. Klicken Sie auf den Profillink, um zurückzufolgen.",
+            "cta": "Ihren neuen Follower besuchen"
+        },
+        "groupAdded": {
+            "title": "Sie wurden zur Gruppe {{groupName}} in {{communityName}} hinzugefügt",
+            "subject": "Sie wurden zur Gruppe {{groupName}} in {{communityName}} hinzugefügt",
+            "body": "{{profileName}} hat Sie zur Gruppe {{groupName}} in der {{communityName}}-Community hinzugefügt.\n\nMehr über {{groupName}}:",
+            "cta": "Klicken Sie hier, um die Gruppe zu besuchen und Ihre Mitgliedschaft zu verwalten"
+        },
+        "groupMemberJoined": {
+            "title": "{{profileName}} ist {{groupName}} in {{communityName}} beigetreten",
+            "subject": "{{profileName}} ist {{groupName}} in {{communityName}} beigetreten",
+            "body": "{{profileName}} ist der Gruppe {{groupName}} beigetreten.",
+            "profileCta": "Profil anzeigen",
+            "cta": "Klicken Sie hier, um die Gruppe zu besuchen und Ihre Mitgliedschaft zu verwalten"
+        },
+        "groupMemberLeft": {
+            "title": "{{profileName}} hat {{groupName}} in {{communityName}} verlassen",
+            "subject": "{{profileName}} hat {{groupName}} in {{communityName}} verlassen",
+            "body": "{{profileName}} hat die Gruppe {{groupName}} verlassen.",
+            "profileCta": "Profil anzeigen",
+            "cta": "Klicken Sie hier, um die Gruppe zu besuchen und Ihre Mitgliedschaft zu verwalten"
+        },
+        "jamModerator": {
+            "subject": "Sie wurden als Moderator zu {{jamName}} eingeladen!",
+            "body": "{{profileName}} hat Sie eingeladen, einen Jam zu moderieren!",
+            "cta": "Jam beitreten"
+        },
+        "jamSpeaker": {
+            "subject": "{{profileName}} hat Sie als Sprecher zu einem Jam eingeladen!",
+            "body": "{{profileName}} hat Sie eingeladen, bei einem Jam zu sprechen!",
+            "cta": "Jam beitreten"
+        },
+        "jamStarted": {
+            "subject": "{{profileName}} hat einen Jam gestartet!",
+            "body": "{{profileName}} hat einen Jam gestartet!",
+            "cta": "Jam beitreten"
+        },
+        "newGroupPost": {
+            "title": "{{profileName}} hat einen neuen Beitrag in {{groupName}} in {{communityName}} erstellt",
+            "subject": "{{profileName}} hat einen neuen Beitrag in {{groupName}} in {{communityName}} erstellt",
+            "body": "{{profileName}} hat einen neuen Beitrag in der Gruppe {{groupName}} erstellt.",
+            "profileCta": "Profil anzeigen",
+            "postCta": "Beitrag anzeigen",
+            "cta": "Klicken Sie hier, um die Gruppe zu besuchen und Ihre Mitgliedschaft zu verwalten"
+        },
+        "newProfile": {
+            "title": "Neues Profil auf {{communityName}} erstellt",
+            "subject": "Neues Profil auf {{communityName}} erstellt",
+            "body": "{{profileName}} wurde in {{communityName}} aufgenommen!\nHeißen Sie das neue Mitglied willkommen.",
+            "cta": "Klicken Sie hier, um das Profil anzuzeigen."
+        },
+        "pollVote": {
+            "title": "Eine neue Abstimmung wurde in {{communityName}} aufgezeichnet",
+            "subject": "Eine neue Abstimmung wurde in {{communityName}} aufgezeichnet",
+            "body": "{{profileName}} hat an Ihrer Umfrage teilgenommen:",
+            "cta": "Klicken Sie hier, um die Umfrage zu besuchen und die Ergebnisse zu sehen."
+        },
+        "rsvp": {
+            "title": "Eine neue RSVP-Anmeldung in {{communityName}}",
+            "subject": "Eine neue RSVP-Anmeldung in {{communityName}}",
+            "body": "{{profileName}} hat sich für Ihre Veranstaltung angemeldet",
+            "cta": "Klicken Sie hier, um die Veranstaltung zu besuchen und die Ergebnisse zu sehen."
+        },
+        "reaction": {
+            "subject": "{{profileName}} hat auf Ihren Beitrag reagiert",
+            "body": "{{profileName}} hat auf Ihren Beitrag reagiert",
+            "cta": "Jetzt ansehen!"
+        },
+        "reply": {
+            "subject": "{{profileName}} hat auf Ihren Beitrag geantwortet",
+            "subtitle": "Die Antwort:",
+            "body": "{{profileName}} hat auf Ihren Beitrag geantwortet",
+            "cta": "Jetzt ansehen!"
+        },
+        "repost": {
+            "subject": "{{profileName}} hat Ihren Beitrag geteilt",
+            "body": "{{profileName}} hat Ihren Beitrag geteilt",
+            "cta": "Jetzt ansehen!"
+        },
+        "welcome": {
+            "content": {
+                "profile": "Aktualisieren Sie Ihr Profil",
+                "friends": "Damit andere mehr über Sie erfahren",
+                "notification": "Ändern Sie Ihre Benachrichtigungseinstellungen",
+                "contact": "Um uns zu kontaktieren, wenden Sie sich bitte an",
+                "mail": "per E-Mail"
+            },
+            "cta": "Jetzt starten",
+            "description": "Hier sind einige Links, die Ihnen den Einstieg erleichtern",
+            "header": "Willkommen bei"
+        },
+        "jams": {
+            "moderator": "Jam-Moderator",
+            "speaker": {
+                "description": "{{profileName}} hat Sie zum Sprecher in einem Jam ernannt"
+            },
+            "started": "Jam gestartet"
+        },
+        "reset": {
+            "password": {
+                "title": "Passwort zurücksetzen",
+                "description": "Wir haben eine Anfrage erhalten, Ihr Passwort für Ihr {{communityName}}-Konto zurückzusetzen. Wenn Sie diese Anfrage nicht gestellt haben, können Sie diese E-Mail ignorieren.",
+                "cta": "Passwort zurücksetzen"
+            }
+        },
+        "verify": {
+            "welcome": "Vielen Dank für Ihre Registrierung bei",
+            "cta": {
+                "description": "E-Mail-Adresse verifizieren"
+            },
+            "title": "E-Mail-Adresse verifizieren",
+            "description": "Um Ihre Registrierung abzuschließen und Ihr Konto nutzen zu können, verifizieren Sie bitte Ihre E-Mail-Adresse."
+        },
+        "test": {
+            "description": "Wenn Sie diese E-Mail erhalten, funktioniert Ihre E-Mail-Konfiguration korrekt!"
+        }
+    },
+    "media": {
+        "image": {
+            "addAltText": "Alternativtext zu Ihrem Bild hinzufügen",
+            "addAltTextLabel": "Alternativtext",
+            "addAltTextDescription": "invalid string do not use",
+            "altTextPlaceholder": "Fügen Sie hier Ihren Alternativtext hinzu",
+            "altTextLabel": "Alternativtext",
+            "altTextDescription": "Eine gute Beschreibung Ihres Bildes kann sehbeeinträchtigten Menschen helfen, mehr über Ihren Beitrag zu erfahren."
+        }
+    },
+    "explore": {
+        "enterSearchQuery": "Bitte geben Sie oben einen Suchbegriff ein",
+        "selectTab": "Wählen Sie einen Tab, um relevante Ergebnisse zu sehen",
+        "SearchButton": "Suchen",
+        "title": "Entdecken",
+        "tabs": {
+            "members": "Mitglieder",
+            "posts": "Beiträge",
+            "jams": "Jams",
+            "events": "Veranstaltungen",
+            "groups": "Gruppen"
+        },
+        "noProfilesFound": "Keine Profile gefunden",
+        "noPostsFound": "Keine Beiträge gefunden",
+        "noJamsFound": "Keine Jams gefunden",
+        "noEventsFound": "Keine Veranstaltungen gefunden",
+        "noGroupsFound": "Keine Gruppen gefunden"
+    },
+    "group": {
+        "roles": {
+            "admin": "Administrator"
+        }
+    },
+    "articles": {
+        "tabs": {
+            "description": "Artikel"
+        },
+        "form": {
+            "title": "Neuer Artikel",
+            "contentPlaceholder": "Schreiben Sie hier Ihren Inhalt. Verwenden Sie Markdown zur Formatierung",
+            "visibility": "Wer kann das sehen (Erforderlich)",
+            "visibilityNotChangeable": "Sobald Sie Ihren Artikel veröffentlicht haben, können Sie die Sichtbarkeit nicht mehr ändern",
+            "content": "Artikelinhalt"
+        },
+        "create": {
+            "title": "Neuer Artikel"
+        }
+    },
+    "infos": {
+        "emailNotVerified": {
+            "verify": "Bestätigungslink senden",
+            "title": "Ihre E-Mail ist nicht verifiziert",
+            "text": "Klicken Sie auf den Link in der E-Mail, die wir Ihnen gesendet haben, um Ihre E-Mail-Adresse zu verifizieren und vollständig an der Community teilzunehmen."
+        }
+    }
+}

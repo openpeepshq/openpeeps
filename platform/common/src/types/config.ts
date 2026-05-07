@@ -279,6 +279,7 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
     }),
     settings: z.object({
       openRegistrations: z.boolean(),
+      defaultLanguage: z.string().optional(),
     }),
     roles: z.object({
       onRegistration: z.object({

@@ -12,6 +12,7 @@
   import { InfiniteScrollContainer } from '@openpeeps/ui';
   import { FeedPost } from '../..';
   import PinnedPost from './PinnedPost.svelte';
+  import { i18nContext } from '$lib/components/i18n';
 
   interface Props {
     query: CreateInfiniteQueryResult<
@@ -23,6 +24,8 @@
   }
 
   let { query, inGroup = false, pinnedPostId }: Props = $props();
+
+  const { t } = i18nContext();
 </script>
 
 <div class="relative">
@@ -43,7 +46,7 @@
         class="flex h-96 w-full flex-col items-center justify-center gap-y-4"
       >
         <Rss class="text-surface-300 size-20" />
-        <p class="text-xl">No posts yet.</p>
+        <p class="text-xl">{t('posts.feed.empty')}</p>
       </div>
     {/snippet}
   </InfiniteScrollContainer>

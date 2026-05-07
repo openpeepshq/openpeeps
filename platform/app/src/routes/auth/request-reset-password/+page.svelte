@@ -5,13 +5,13 @@
   import { getToastStore } from '@skeletonlabs/skeleton';
   import { toast } from '@openpeeps/svelte/utils';
   import { getPageHeaderStore } from '@openpeeps/svelte/stores';
+  import { i18nContext } from '@openpeeps/svelte/components/i18n';
 
+  const { t } = i18nContext();
   const toastStore = getToastStore();
   const pageHeaderStore = getPageHeaderStore();
 
-  let prompt = $state(
-    'Enter your email address and we will send you an a link to reset your password.',
-  );
+  let prompt = $state(t('auth.requestResetPassword.prompt'));
   let email = $state('');
 
   const error = $state({
@@ -22,10 +22,10 @@
   const handleSubmit = () =>
     requestResetPassword({ email })
       .then(() => {
-        prompt = `If your email belongs to an account in this community, you'll receive a message with a link where you can change your password.`;
+        prompt = t('auth.requestResetPassword.successPrompt');
         toastStore.trigger(
           toast({
-            message: `Reset password link has been sent to ${email} successfully.`,
+            message: t('auth.requestResetPassword.successToast', { email }),
             autohide: false,
           }),
         );
@@ -35,7 +35,7 @@
           toast({
             message: error.message
               ? error.message
-              : 'Failed to send reset password link, wrong email',
+              : t('auth.requestResetPassword.errorFallback'),
             autohide: false,
           }),
         ),
@@ -43,7 +43,7 @@
 
   $effect(() => {
     pageHeaderStore.set({
-      title: 'Request Password Reset',
+      title: t('auth.requestResetPassword.title'),
     });
   });
 </script>
@@ -53,29 +53,29 @@
   className="text-token h-fit space-y-6"
   error={error.type === 'general' ? error.message : ''}
 >
-  <h2 class="text-xl">Request Password Reset</h2>
+  <h2 class="text-xl">{t('auth.requestResetPassword.heading')}</h2>
   <div class="pt-4 mb-10">
     <p class="">
       {prompt}
     </p>
   </div>
-  <LabelOld title="Email" message={error.type === 'email' ? error.message : ''}>
+  <LabelOld title={t('auth.requestResetPassword.email')} message={error.type === 'email' ? error.message : ''}>
     <Input
       bind:value={email}
       error={error.type === 'email'}
       required
       type="email"
-      placeholder="you@email.org"
+      placeholder={t('auth.requestResetPassword.emailPlaceholder')}
     />
   </LabelOld>
 
   <div class="mt-10"></div>
   <Button
-    title="Request Password Reset"
+    title={t('auth.requestResetPassword.title')}
     variant="variant-filled-primary"
     action={handleSubmit}
     class="w-full"
   >
-    Proceed
+    {t('auth.requestResetPassword.proceed')}
   </Button>
 </FormOld>

@@ -5,6 +5,7 @@ export * from './base';
 export * from './conversations';
 export * from './groups';
 export * from './helpers';
+export * from './i18n';
 export * from './jam';
 export * from './media';
 export * from './posts';

@@ -29,7 +29,7 @@
     <div class="flex h-[80vh] items-center justify-center">
       <MessageCircleOff size={40} />
       <p class="text-gray-500">
-        No direct messages here {$conversationsQuery.data?.length}
+        {t('conversations.noMessages')}
       </p>
     </div>
   {:else}

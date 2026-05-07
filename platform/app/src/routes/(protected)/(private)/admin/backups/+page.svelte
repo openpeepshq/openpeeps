@@ -8,9 +8,12 @@
   } from '@openpeeps/svelte/components';
   import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
   import { Button } from '@openpeeps/ui';
+  import { i18nContext } from '@openpeeps/svelte/components/i18n';
+
+  const { t } = i18nContext();
 
   getPageHeaderStore().set({
-    title: 'Backups & Restore',
+    title: t('admin.backups.title'),
     actions: BackupsHeaderActions,
   });
 
@@ -27,25 +30,22 @@
 <div class="relative">
   <div class="flex justify-end pr-8 mt-2">
     <Button
-      title="Download Test Data Template"
+      title={t('admin.backups.downloadTestData')}
       variant="variant-ghost-primary"
       action={() => modalStore.trigger(testModal)}
     >
       <FlaskConical size={18} />
-      <span class="hidden md:flex">Test Backup</span>
+      <span class="hidden md:flex">{t('admin.backups.testBackup')}</span>
     </Button>
-    <!-- </a> -->
   </div>
-  <div class="w-[90%] mx-auto p-4 align-center border-2 mt-2 rounded-md">
-    All backups are stored in the server temporarily. Please download the
-    backups and store them in a safe place. You can restore the backups by
-    uploading them here.
+  <div class="w-full mx-auto p-4 align-center border-2 mt-2 rounded-md">
+    {t('admin.backups.description')}
   </div>
 
   {#if $backupsListStore.isSuccess}
     {#if $backupsListStore.data.length === 0}
       <div class="w-full flex justify-center items-center p-4">
-        <h2 class="text-lg">No Backups found</h2>
+        <h2 class="text-lg">{t('admin.backups.noBackupsFound')}</h2>
       </div>
     {:else if $backupsListStore.data.length > 0}
       <div class="mt-2">
@@ -57,10 +57,7 @@
               </h2>
 
               <div class="flex gap-x-3 items-center">
-                <!-- <Button variant="default">
-                  <ArchiveRestore />
-                </Button> -->
-                <a title="Download" download href="/backups/{backup}.zip">
+                <a title={t('common.actions.download')} download href="/backups/{backup}.zip">
                   <MonitorDown />
                 </a>
               </div>
@@ -73,13 +70,13 @@
 
   {#if $backupsListStore.isError}
     <div class="w-full flex justify-center items-center p-4">
-      <h2 class="text-lg">Error fetching</h2>
+      <h2 class="text-lg">{t('admin.backups.errorFetching')}</h2>
     </div>
   {/if}
 
   {#if $backupsListStore.isLoading}
     <div class="w-full flex justify-center items-center p-4">
-      <h2 class="text-lg">Loading...</h2>
+      <h2 class="text-lg">{t('admin.backups.loading')}</h2>
     </div>
   {/if}
 </div>

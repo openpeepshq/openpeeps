@@ -15,6 +15,7 @@ import ConfigCommunityWelcomeEmail from './community/ConfigCommunityWelcomeEmail
 import ConfigCommunityAboutPage from './community/ConfigCommunityAboutPage.svelte';
 import ConfigCommunityCodeOfConductPage from './community/ConfigCommunityCodeOfConductPage.svelte';
 import ConfigCommunityLinks from './community/ConfigCommunityLinks.svelte';
+import ConfigCommunityLanguage from './community/ConfigCommunityLanguage.svelte';
 export {
 	ConfigurationCategory,
 	ConfigurationTree,
@@ -33,4 +34,5 @@ export {
 	ConfigCommunityCodeOfConductPage,
 	ConfigCommunityWelcomeEmail,
 	ConfigCommunityLinks,
+	ConfigCommunityLanguage,
 };

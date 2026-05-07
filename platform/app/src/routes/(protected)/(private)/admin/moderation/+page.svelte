@@ -10,9 +10,12 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
+  import { i18nContext } from '@openpeeps/svelte/components/i18n';
+
+  const { t } = i18nContext();
 
   getPageHeaderStore().set({
-    title: 'Moderation',
+    title: t('admin.moderation.title'),
     actions: MembersHeaderActions,
   });
   let tabSet: number = $state(0);
@@ -41,7 +44,7 @@
         })}
       value={0}
     >
-      <span class="text-sm">Summary</span>
+      <span class="text-sm">{t('admin.moderation.summaryTab')}</span>
     </Tab>
     <Tab
       bind:group={tabSet}
@@ -52,7 +55,7 @@
         })}
       value={1}
     >
-      <span class="text-sm">Resolved</span>
+      <span class="text-sm">{t('admin.moderation.resolvedTab')}</span>
     </Tab>
     <!-- Tab Panels --->
     {#snippet panel()}

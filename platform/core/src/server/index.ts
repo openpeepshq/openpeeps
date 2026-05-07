@@ -21,7 +21,10 @@ export const serverInfo = () =>
       publicContent: coreConfig.server.publicContent,
       communityConfig: {
         ...(await communityConfig()),
-        settings: { openRegistrations: !!coreConfig.server.signUpsOpen },
+        settings: {
+          ...(await communityConfig()).settings,
+          openRegistrations: !!coreConfig.server.signUpsOpen,
+        },
       },
       jams: {
         livekit: {

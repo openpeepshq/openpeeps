@@ -28,6 +28,10 @@
     translationPrefix="settings.theme"
     action="/settings/theme"
   />
+  <ConfigMenuButton
+    translationPrefix="settings.language"
+    action="/settings/language"
+  />
   {#if stripeMembershipEnabled}
     <ConfigMenuButton
       translationPrefix="settings.billing"

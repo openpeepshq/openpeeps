@@ -6,16 +6,16 @@
     AccessDeniedLoader,
   } from '@openpeeps/svelte/components';
 import { SearchAndFilterBar, Badges, Table } from '@openpeeps/ui';
-  // import SortModal from '@openpeeps/svelte/components';
-  // import FilterModal from '@openpeeps/svelte/components';
-  // import { type ModalSettings } from '@skeletonlabs/skeleton';
   import { type ColumnDefinition } from '@openpeeps/ui';
   import type { ProfileWithMeta } from '@openpeeps/common/types';
   import { getPageHeaderStore } from '@openpeeps/svelte/stores';
   import { adminProfilesStore } from '@openpeeps/svelte/api';
   import { matchesQuery } from '@openpeeps/common/lib';
+  import { i18nContext } from '@openpeeps/svelte/components/i18n';
 
-  getPageHeaderStore().set({ title: 'Members', actions: MembersHeaderActions });
+  const { t } = i18nContext();
+
+  getPageHeaderStore().set({ title: t('admin.members.title'), actions: MembersHeaderActions });
   let search: string = $state('');
 
   const profilesQuery = adminProfilesStore();
@@ -27,7 +27,7 @@ import { SearchAndFilterBar, Badges, Table } from '@openpeeps/ui';
   const columnDefinitions: ColumnDefinition<ProfileWithMeta>[] = [
     {
       id: 'profile',
-      header: 'Profile',
+      header: t('admin.members.profileColumn'),
       type: 'component',
       render: (profile) => ({
         component: ProfileCard,
@@ -39,7 +39,7 @@ import { SearchAndFilterBar, Badges, Table } from '@openpeeps/ui';
     },
     {
       id: 'roles',
-      header: 'Roles',
+      header: t('admin.members.rolesColumn'),
       type: 'component',
       render: (profile) => ({
         component: Badges,
@@ -69,7 +69,7 @@ import { SearchAndFilterBar, Badges, Table } from '@openpeeps/ui';
   {#if $profilesQuery.data?.length}
     <div class="pt-4">
       <SearchAndFilterBar
-        placeholder="Search member by name or email"
+        placeholder={t('admin.members.searchPlaceholder')}
         bind:search
       />
       <Table
@@ -80,7 +80,7 @@ import { SearchAndFilterBar, Badges, Table } from '@openpeeps/ui';
     </div>
   {:else}
     <div class="w-full flex justify-center items-center p-4">
-      <h2 class="text-lg">No users found</h2>
+      <h2 class="text-lg">{t('admin.members.noUsersFound')}</h2>
     </div>
   {/if}
 </AccessDeniedLoader>

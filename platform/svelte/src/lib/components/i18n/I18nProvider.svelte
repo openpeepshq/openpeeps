@@ -1,12 +1,17 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { getContext, type Snippet } from 'svelte';
 	import i18next, { type InitOptions } from 'i18next';
 	import I18nContext from './I18nContext.svelte';
 	import { client, throwError } from '$lib/api';
+	import { browser } from '$app/environment';
+	import type { ServerDataContext } from '$lib/components/serverData/types';
 
 	let { children }: { children?: Snippet } = $props();
 
-	let lang = $state('en');
+	const serverData = getContext<ServerDataContext>('allpeep-server-data');
+	const communityDefault = serverData?.serverInfo?.communityConfig?.settings?.defaultLanguage;
+	const storedLang = browser ? localStorage.getItem('openpeeps-language') : null;
+	let lang = $state(storedLang || communityDefault || 'en');
 	let instancePromise = $derived(
 		client.i18n
 			.translations({ pathParameters: { lang } })
