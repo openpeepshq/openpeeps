@@ -248,13 +248,15 @@ export const payloadMutation =
 				input: Input,
 				pathParams?: PathParams extends undefined ? never : PathParams,
 				queryParams?: QueryParams extends undefined ? never : QueryParams,
-				headers?: Record<string, string>
+				headers?: Record<string, string>,
+				signal?: AbortSignal
 			): Promise<Output> =>
 				endpoint(input, {
 					pathParameters: { ...(defaultPathParams ?? {}), ...(pathParams ?? {}) } as PathParams,
 					queryParameters: queryParams,
 					headers,
-					fetchClient: authenticatedCoreApiClient()
+					fetchClient: authenticatedCoreApiClient(),
+					signal
 				}).then(handleMutationResult<Output>(queryClient, queryKeys));
 		};
 

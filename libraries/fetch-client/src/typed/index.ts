@@ -77,6 +77,7 @@ const createCallableFn =
           {
             ...bodyObject,
             headers: options?.headers,
+            signal: options?.signal,
           },
         )
         .then(async (result) => {

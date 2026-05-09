@@ -34,6 +34,7 @@ export interface Request {
   headers?: Record<string, string>;
   json?: unknown;
   body?: RequestBodyType;
+  signal?: AbortSignal;
 }
 
 export interface Method {
@@ -55,6 +56,7 @@ export interface TypedEndpointOptions<PathParameters, QueryParameters> {
   queryParameters?: QueryParameters;
   headers?: Record<string, string>;
   fetchClient?: FetchClient;
+  signal?: AbortSignal;
 }
 
 export type ParametersType = Record<string, string | number> | undefined;

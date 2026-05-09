@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Paperclip } from 'lucide-svelte';
+  import { onDestroy } from 'svelte';
   import type { MediaAttachment } from '@openpeeps/common/types';
   import { LoadingIcon } from '@openpeeps/ui';
   import { uploadMediaFileMutation } from '$lib/api';
@@ -30,6 +31,7 @@
   }: Props = $props();
 
   let fileInput: HTMLInputElement | undefined = $state();
+  let uploadController: AbortController | undefined = $state();
 
   const defaultClasses = {
     full: 'h-52 w-full relative border-dashed border',
@@ -40,17 +42,40 @@
   const onFileSelected = async () => {
     const file = fileInput?.files?.[0];
 
+    if (!file) {
+      return;
+    }
+
+    uploadController?.abort();
+    uploadController = new AbortController();
     isLoading = true;
-    if (file) {
+
+    try {
       description = description || file.name;
-      await uploadMediaFile({ file, description, usage }).then(onchange);
+      await uploadMediaFile(
+        { file, description, usage },
+        undefined,
+        undefined,
+        undefined,
+        uploadController.signal,
+      ).then(onchange);
       if (fileInput) {
         fileInput.value = '';
       }
       description = '';
+    } catch (error) {
+      if (!(error instanceof Error && error.name === 'AbortError')) {
+        throw error;
+      }
+    } finally {
+      uploadController = undefined;
+      isLoading = false;
     }
-    isLoading = false;
   };
+
+  onDestroy(() => {
+    uploadController?.abort();
+  });
 </script>
 
 <button {title} class="{defaultClasses[displayType]} relative {classes}">
