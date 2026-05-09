@@ -37,6 +37,7 @@ import deleteDuplicateGroupMemberships from './migrations/202602200230-deleting-
 import addMemberPostCapabilities from './migrations/202602261200-add-member-post-capabilities';
 import removingDeletedAccounts from './migrations/202603180917-permanently-removing-deleted-accounts';
 import renameConfigKeysAllpeepToOpenpeeps from './migrations/202603132015-rename-config-keys-allpeep-to-openpeeps';
+import createSeenRelationsForPosts from './migrations/202605221200-create-seen-relations-for-posts';
 
 export const dataMigrations = [
   addNoteTypeToEntries,
@@ -78,4 +79,5 @@ export const dataMigrations = [
   addMemberPostCapabilities,
   removingDeletedAccounts,
   renameConfigKeysAllpeepToOpenpeeps,
+  createSeenRelationsForPosts,
 ];

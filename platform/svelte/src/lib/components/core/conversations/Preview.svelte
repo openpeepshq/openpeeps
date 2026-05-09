@@ -15,12 +15,24 @@
 
   let { conversation }: Props = $props();
 
-  const lastMessage: PublicPost = conversation.slice(-1)[0];
+  let lastMessage: PublicPost = $derived(conversation.slice(-1)[0]);
 
-  const participants = lastMessage.audience || [];
+  let participants = $derived(lastMessage.audience || []);
+  let unseenCount = $derived(
+    conversation.filter((message) => message.profile.id !== me?.id && message.seen === false).length,
+  );
 </script>
 
-<div class="flex w-full flex-col gap-x-1 border-b p-3 sm:p-4">
+<div class="relative flex w-full flex-col gap-x-1 border-b p-3 sm:p-4 {unseenCount ? 'border-l-primary-500 bg-primary-500/5 border-l-4' : ''}">
+  {#if unseenCount}
+    <span
+      class="bg-primary-500 absolute right-3 top-3 rounded-full px-2 py-0.5 text-xs font-semibold text-white"
+      aria-label="{unseenCount} unseen messages"
+      title="{unseenCount} unseen messages"
+    >
+      {unseenCount}
+    </span>
+  {/if}
   <div class="flex items-center gap-4">
     <ConversationProfilesAvatar profiles={participants} />
     <div class="flex items-center">

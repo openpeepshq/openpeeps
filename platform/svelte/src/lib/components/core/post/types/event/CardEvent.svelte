@@ -23,13 +23,24 @@
   const { post }: Props = $props();
   const event = $derived(post.data as Event);
   const jam = $derived(event?.jam);
+  const isUnseen = $derived(post.seen === false);
 
   const jamLink = getJamUrl(post.id, page.url.origin);
 
   const jamStateQuery = $derived(jam ? jamStateStore(post.id) : undefined);
 </script>
 
-<div class="hover:bg-surface-100 overflow-hidden rounded-md px-2 pt-2" use:postViewCounter={post.id}>
+<div
+  class="hover:bg-surface-100 relative overflow-hidden rounded-md px-2 pt-2 {isUnseen ? 'border-l-primary-500 bg-primary-500/5 border-l-4' : ''}"
+  use:postViewCounter={post.id}
+>
+  {#if isUnseen}
+    <span
+      class="bg-primary-500 absolute right-3 top-3 h-2.5 w-2.5 rounded-full"
+      aria-label="Unseen post"
+      title="Unseen post"
+    ></span>
+  {/if}
   <a href="{page.url.origin}/posts/{post.id}" class="flex flex-col gap-2">
     <span class="h-32">
       <img

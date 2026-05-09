@@ -23,20 +23,21 @@
     LogOut,
   } from 'lucide-svelte';
   import { TreeView } from '@skeletonlabs/skeleton';
-  import { currentProfileStore } from '$lib/api';
+  import { currentProfileStore, unseenPostCountsStore } from '$lib/api';
   import { checkRoleCapabilities } from '@openpeeps/common/lib';
   import { page } from '$app/state';
   import { MenuItem } from '.';
   import { i18nContext } from '$lib/components/i18n';
   import { getServerInfo } from '@openpeeps/svelte/server';
-	import { handleLogout } from '$lib/utils/handleLogout';
+  import { handleLogout } from '$lib/utils/handleLogout';
 
   const { t } = i18nContext();
   const profileQuery = currentProfileStore();
-  let isAdmin: boolean = $derived(
-    checkRoleCapabilities(['admin'], $profileQuery.data?.roles ?? []).success,
-  );
+  const unseenPostCountsQuery = unseenPostCountsStore();
+  let isAdmin: boolean = $derived(checkRoleCapabilities(['admin'], $profileQuery.data?.roles ?? []).success);
   let isAdministrationOpen = $derived(page.url.pathname.includes('/admin'));
+  let unseenGroupPostsCount = $derived(Object.values($unseenPostCountsQuery.data?.groups ?? {}).reduce((sum, count) => sum + count, 0));
+  let unseenDirectMessagesCount = $derived($unseenPostCountsQuery.data?.direct ?? 0);
 
   const serverInfo = getServerInfo();
 </script>
@@ -53,8 +54,19 @@
   {#if serverInfo.jams.livekit.enabled}
     <MenuItem name={t('navigation.jams')} icon={PhoneCall} action="/jams" />
   {/if}
-  <MenuItem name={t('navigation.groups')} icon={Users} action="/groups" />
-  <MenuItem name={t('navigation.events')} icon={CalendarDays} action="/events" />
+  <MenuItem
+    name={t('navigation.groups')}
+    icon={Users}
+    action="/groups"
+    count={unseenGroupPostsCount}
+    prefixMatch
+  />
+  <MenuItem
+    name={t('navigation.events')}
+    icon={CalendarDays}
+    action="/events"
+    prefixMatch
+  />
   <MenuItem
     name={t('navigation.articles')}
     icon={ScrollText}
@@ -64,6 +76,8 @@
     name={t('navigation.messages')}
     icon={MessageSquareText}
     action="/conversations"
+    count={unseenDirectMessagesCount}
+    prefixMatch
   />
   <MenuItem name={t('navigation.members')} icon={BookUser} action="/members" />
   <MenuItem
