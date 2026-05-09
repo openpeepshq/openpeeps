@@ -1,6 +1,17 @@
+name: regenerate-changelog
+
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
+
+env:
+  DEFAULT_BRANCH: main
+
+# Avoid overlapping scheduled runs (or reruns) racing on the same changelog push.
+concurrency:
+  group: ${{ forgejo.repository }}-regenerate-changelog
+  cancel-in-progress: false
 
 jobs:
   regenerate-changelog:
@@ -15,7 +26,8 @@ jobs:
           git config user.email "openpeeps@allpeep.com"
           git add CHANGELOG.md
           git commit -m "Regenerate changelog"
-          git push origin HEAD
+          git pull --rebase origin "${{ env.DEFAULT_BRANCH }}"
+          git push origin "HEAD:${{ env.DEFAULT_BRANCH }}"
   build:
     uses: ./.forgejo/workflows/build.yaml
   tag:
