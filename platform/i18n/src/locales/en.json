@@ -578,6 +578,7 @@
         },
         "new": "New Group",
         "goto": "Go to group",
+        "viewMembers": "View members",
         "form": {
             "groupName": "Group Name"
         },
