@@ -13,6 +13,34 @@
     "prettier": "^3.4.2",
     "prettier-plugin-svelte": "^3.3.2"
   },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.2.14",
+      "@types/react-dom": "19.2.3",
+      "@tanstack/react-query": "5.90.16",
+      "zod": "4.4.3",
+      "@asteasolutions/zod-to-openapi": "8.5.0"
+    },
+    "onlyBuiltDependencies": [
+      "@evilmartians/lefthook",
+      "@firebase/util",
+      "@sentry/cli",
+      "@sveltejs/kit",
+      "bcrypt",
+      "canvas",
+      "core-js",
+      "core-js-pure",
+      "esbuild",
+      "hyochan-welcome",
+      "msgpackr-extract",
+      "protobufjs",
+      "sharp",
+      "web-audio-api"
+    ],
+    "patchedDependencies": {
+      "sveltekit-api": "patches/sveltekit-api.patch"
+    }
+  },
   "scripts": {
     "build-deps": "pnpm --filter @openpeeps/app... build",
     "check-circular-deps": "ds",

@@ -48,7 +48,6 @@ const startServer = async () => {
         () => Promise.resolve(mod),
       ]),
     ),
-    base: '/api',
     cors: true,
     config: {
       openapi: '3.0.0',
@@ -67,8 +66,24 @@ const startServer = async () => {
   // `src/lib/middleware/authorization.ts` for the implementation.
 
   // Register the OpenAPI JSON endpoint first — `app.use(...)` below is a
-  // catch-all so anything registered after it would never fire.
-  app.get('/openapi.json', expressAdapter(openpeepsApi.openapi.handler));
+  // catch-all so anything registered after it would never fire. We call the
+  // raw handler directly because `expressAdapter(...)` returns an
+  // `express.Router()` designed for `app.use(...)` mounts, not a
+  // single-path-bound handler.
+  app.get('/openapi.json', async (req, res, next) => {
+    try {
+      const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+      const response = await openpeepsApi.openapi.handler(
+        new Request(url, { method: req.method }),
+      );
+      res.status(response.status);
+      response.headers.forEach((value, key) => res.setHeader(key, value));
+      res.send(await response.text());
+    } catch (err) {
+      log.error('OpenAPI generation failed:', err);
+      next(err);
+    }
+  });
 
   // Mount Riddl at root so that route patterns like `^/api/openpeeps/...`
   // match the incoming `originalUrl` exactly. Unmatched requests get a 404

@@ -11,7 +11,7 @@
     "jose": "^6.2.2",
     "type-fest": "^5.5.0",
     "validator": "^13.15.35",
-    "zod": "^4.3.6"
+    "zod": "^4.4.3"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

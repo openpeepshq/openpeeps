@@ -7,7 +7,7 @@
     "@openpeeps/common": "workspace:^",
     "@openpeeps/fetch-client": "workspace:^",
     "validator": "^13.11.0",
-    "zod": "^4.3.6"
+    "zod": "^4.4.3"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

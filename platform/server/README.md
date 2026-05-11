@@ -38,8 +38,8 @@ point at this server with no URL changes.
 > packages are rebuilt with correct ESM specifiers, swap `pnpm start` for
 > `pnpm start:node` — no other changes required.
 
-A machine-readable OpenAPI 3.0 document is served at `/openapi.json` (see
-**Known limitations** below for the current state of the doc generation).
+A machine-readable OpenAPI 3.0 document is served at `/openapi.json` — ~4 MB
+covering all 155 endpoints.
 
 ## Layout
 
@@ -123,12 +123,6 @@ curl -s -H "authorization: Bearer $JWT" \
 
 ## Known limitations
 
-- **OpenAPI doc generation is broken.** `@openpeeps/common`'s schemas use
-  `zod@3`, while Riddl's bundled `@asteasolutions/zod-to-openapi` uses
-  `zod@4`. The routing layer doesn't care (zod 3 and 4 are runtime
-  call-compatible) but the doc generator can't introspect zod 3 schemas.
-  Fixing this requires migrating the shared schemas to zod 4 (out of scope
-  for this port).
 - **Sentry integration was dropped.** `platform/app` used the SvelteKit Sentry
   integration. A Node-side equivalent can be re-added in `src/lib/init.ts`
   via `@sentry/node` whenever it's wanted.

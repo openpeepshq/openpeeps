@@ -80,7 +80,9 @@ export const publicProfileSchema = z.object({
     )
     .optional()
     .transform((memberships) =>
-      memberships?.filter((m) => m.group.discoverable),
+      memberships?.filter((m) =>
+        m.group.capabilities?.none?.add?.includes('core-groups-read'),
+      ),
     ),
   fields: z
     .array(
@@ -109,8 +111,8 @@ export type PublicAccessToken = Omit<AccessToken, 'signedToken'> & {
   scopes?: Scope[];
 };
 
-export const jamParticipantProfileSchema = publicProfileSchema.merge(
-  guestDataSchema.partial(),
+export const jamParticipantProfileSchema = publicProfileSchema.extend(
+  guestDataSchema.partial().shape,
 );
 
 export const mentionWithPublicProfileSchema = mentionDataSchema.extend({
@@ -506,10 +508,21 @@ export interface Credentials {
 
 const focusCoordinatesPattern = /^-?\d+,-?\d+$/;
 
+// NOTE: `file` / `thumbnail` accept a `File` (browser) or any
+// multipart body — modelled as `z.any()` for the API contract so the OpenAPI
+// generator can produce a binary content schema. Handlers should runtime-check
+// they actually got a `File` / `Blob` instance.
 export const mediaStorageRequestSchema = z.object({
   description: z.string().optional(),
-  file: z.instanceof(File),
-  thumbnail: z.instanceof(File).optional(),
+  file: z
+    .any()
+    .openapi({ type: 'string', format: 'binary' }) as unknown as z.ZodType<File>,
+  thumbnail: z
+    .any()
+    .optional()
+    .openapi({ type: 'string', format: 'binary' }) as unknown as z.ZodType<
+    File | undefined
+  >,
   usage: z.string(),
   focus: z
     .string()
@@ -668,6 +681,10 @@ export const searchResultCountsSchema = z.object({
 });
 export type SearchResultCounts = z.infer<typeof searchResultCountsSchema>;
 
+// Plain object schema — used as API contract & in OpenAPI generation. Cross-
+// field validation lives on `postCreationDataFormSchema` below to keep this
+// schema introspectable by zod-to-openapi (which can't walk zod-4 `.refine()`
+// wrappers, as they appear as a `ZodCustom` with `def.type === 'custom'`).
 export const postCreationDataSchema = z.object({
   visibility: visibilityTypeSchema,
   type: postTypeSchema,
@@ -678,7 +695,11 @@ export const postCreationDataSchema = z.object({
   groupId: z.uuid().nullable().optional(),
   reportId: z.uuid().nullable().optional(),
   capabilitiesNeeded: z.string().array().nullable().optional(),
-})
+});
+
+export type PostCreationData = z.infer<typeof postCreationDataSchema>;
+
+export const postCreationDataFormSchema = postCreationDataSchema
   .refine((data) => {
     if (data.type !== "event") return true;
     if (data.data.type !== "event") return true;
@@ -701,9 +722,7 @@ export const postCreationDataSchema = z.object({
   }, {
     message: "End date cannot be before start date",
     path: ["data", "end"],
-  })
-
-export type PostCreationData = z.infer<typeof postCreationDataSchema>;
+  });
 
 const answerWithPublicProfileSchema = answerSchema.extend({
   profile: publicProfileSchema,
