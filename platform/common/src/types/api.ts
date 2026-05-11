@@ -530,9 +530,17 @@ export const mediaStorageRequestSchema = z.object({
     .optional(),
 });
 export type MediaStorageRequest = z.infer<typeof mediaStorageRequestSchema>;
-export type MediaStorageRequestInput = z.input<
-  typeof mediaStorageRequestSchema
->;
+// `z.input` widens `z.any()` to `unknown`, which is incompatible with the
+// `FormDataSource` constraint used by `@openpeeps/fetch-client`. We retain the
+// pre-transform `focus` input but pin `file` / `thumbnail` to the binary types
+// that the client actually sends.
+export type MediaStorageRequestInput = Omit<
+  z.input<typeof mediaStorageRequestSchema>,
+  'file' | 'thumbnail'
+> & {
+  file: File;
+  thumbnail?: File;
+};
 
 export const mediaProgressEventSchema = z
   .object({

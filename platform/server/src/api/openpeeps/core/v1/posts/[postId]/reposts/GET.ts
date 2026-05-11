@@ -25,6 +25,8 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-read']);
 
-    return reposts(mergedPost) as Promise<PostWithMeta[]>
+    // `reposts(...)` returns `DbPost[]`; `PublicPost`/`PostWithMeta` share
+    // overlapping shape but TS conservatively forbids a direct cast.
+    return reposts(mergedPost) as unknown as PostWithMeta[];
   },
 );

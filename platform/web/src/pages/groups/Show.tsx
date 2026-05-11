@@ -1,0 +1,124 @@
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useT, useOpenpeeps } from '@openpeeps/react';
+import {
+  Feed,
+  GroupFeed,
+  GroupHeader,
+  PostMarkdown,
+} from '@openpeeps/react/components';
+
+export function GroupShow() {
+  const t = useT();
+  const { handle = '' } = useParams<{ handle: string }>();
+  const { openpeepsApi } = useOpenpeeps();
+
+  const groupQuery = openpeepsApi.useGroupByHandle(handle);
+  const group = groupQuery.data;
+  const [tab, setTab] = useState<'posts' | 'events' | 'description'>('posts');
+
+  const upcomingEvents = openpeepsApi.useGroupUpcomingEventsFeed(group?.id ?? '');
+  const pastEvents = openpeepsApi.useGroupPastEventsFeed(group?.id ?? '');
+  const [eventsTab, setEventsTab] = useState<'upcoming' | 'past'>('upcoming');
+
+  if (groupQuery.isLoading) {
+    return (
+      <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+        {t('common.loading', { defaultValue: 'Loading…' })}
+      </div>
+    );
+  }
+
+  if (!group) {
+    return (
+      <div className="flex h-full items-center justify-center p-8">
+        <p className="text-2xl font-bold">
+          {t('groups.notFound', { defaultValue: 'Group not found' })}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <GroupHeader group={group} />
+
+      <nav className="flex border-b border-border">
+        <TabButton active={tab === 'posts'} onClick={() => setTab('posts')}>
+          {t('groups.sections.posts', { defaultValue: 'Posts' })}
+        </TabButton>
+        <TabButton active={tab === 'events'} onClick={() => setTab('events')}>
+          {t('groups.sections.events', { defaultValue: 'Events' })}
+        </TabButton>
+        <TabButton
+          active={tab === 'description'}
+          onClick={() => setTab('description')}
+        >
+          {t('groups.sections.description', { defaultValue: 'Description' })}
+        </TabButton>
+      </nav>
+
+      {tab === 'posts' && <GroupFeed group={group} />}
+
+      {tab === 'events' && (
+        <div>
+          <nav className="flex border-b border-border">
+            <TabButton
+              active={eventsTab === 'upcoming'}
+              onClick={() => setEventsTab('upcoming')}
+            >
+              {t('events.feed.upcoming', { defaultValue: 'Upcoming' })}
+            </TabButton>
+            <TabButton
+              active={eventsTab === 'past'}
+              onClick={() => setEventsTab('past')}
+            >
+              {t('events.feed.past', { defaultValue: 'Past' })}
+            </TabButton>
+          </nav>
+          <Feed query={eventsTab === 'upcoming' ? upcomingEvents : pastEvents} />
+        </div>
+      )}
+
+      {tab === 'description' && (
+        <div className="space-y-2 p-4">
+          <section className="border-b py-2">
+            <h3 className="text-lg font-semibold">Description</h3>
+            <PostMarkdown source={group.description || 'No description yet'} />
+          </section>
+          <section className="space-y-2 border-b py-2">
+            <h3 className="text-lg font-semibold">Details</h3>
+            <div>
+              <h4 className="font-semibold">Created</h4>
+              <p>{new Date(group.createdAt).toLocaleDateString()}</p>
+            </div>
+          </section>
+          <section className="border-b py-2">
+            <h3 className="text-lg font-semibold">Rules</h3>
+            <PostMarkdown source={group.rules || 'No rules yet'} />
+          </section>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-4 py-2 text-sm ${active ? 'border-b-2 border-primary font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
+    >
+      {children}
+    </button>
+  );
+}

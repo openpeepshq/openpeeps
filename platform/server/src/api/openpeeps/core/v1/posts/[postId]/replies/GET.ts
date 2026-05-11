@@ -25,6 +25,6 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-read']);
 
-    return replies(mergedPost);
+    return replies(event.context.currentProfile, mergedPost);
   },
 );

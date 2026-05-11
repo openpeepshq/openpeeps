@@ -9,12 +9,12 @@
     ".": "./dist/index.js",
     "./pwa": "./dist/pwa/index.js",
     "./pwa/vite": "./dist/pwa/vite.js",
-    "./service-worker": "./src/pwa/service-worker.ts",
+    "./service-worker": "./src/pwa/sw.ts",
     "./*": "./dist/*/index.js"
   },
   "files": [
     "/dist",
-    "/src/pwa/service-worker.ts",
+    "/src/pwa/sw.ts",
     "/src/pwa/sw-types.ts"
   ],
   "scripts": {
@@ -26,6 +26,8 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
+    "@livekit/components-react": "^2.9.21",
+    "@livekit/components-styles": "^1.1.6",
     "@openpeeps/client": "workspace:^",
     "@openpeeps/common": "workspace:^",
     "@openpeeps/react-ui": "workspace:^",
@@ -33,7 +35,9 @@
     "i18next": "^24.2.3",
     "i18next-http-backend": "^3.0.2",
     "js-base64": "^3.7.7",
+    "livekit-client": "^2.1.2",
     "lucide-react": "^0.469.0",
+    "marked": "^15.0.6",
     "react": "^18.3.1 || ^19.0.0",
     "react-dom": "^18.3.1 || ^19.0.0",
     "react-i18next": "^15.4.1",

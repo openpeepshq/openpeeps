@@ -8,8 +8,10 @@ import {
 } from '../helpers';
 import type {
   ChronologicalInfiniteQueryParams,
+  PostContext,
   PostType,
   PublicPost,
+  UnseenPostCounts,
 } from '@openpeeps/common';
 
 type EventFeedHook = ReturnType<
@@ -102,45 +104,93 @@ const postFeeds = (client: OpenpeepsClient) => ({
 
 type PostFeeds = ReturnType<typeof postFeeds>;
 
-const postFinders = (client: OpenpeepsClient) => ({
-  usePosts: (props: ChronologicalInfiniteQueryParams) =>
+type PostsInfiniteHook = ReturnType<
+  typeof infiniteChronologicalQueryApiHook<
+    PublicPost[],
+    Record<string, string> | undefined,
+    Record<string, string> | undefined
+  >
+>;
+
+type PostQueryHook<T> = ReturnType<typeof apiHook<T, { id: string }, undefined>>;
+
+type PostFinders = {
+  usePosts: (props: ChronologicalInfiniteQueryParams) => PostsInfiniteHook;
+  usePostsByType: (
+    type: PostType,
+    props: ChronologicalInfiniteQueryParams,
+  ) => PostsInfiniteHook;
+  usePostsByHashtag: (
+    hashtag: string,
+    props: ChronologicalInfiniteQueryParams,
+  ) => PostsInfiniteHook;
+  usePostsByGroup: (
+    id: string,
+    props: ChronologicalInfiniteQueryParams,
+  ) => PostsInfiniteHook;
+  usePostsByProfile: (
+    id: string,
+    props: ChronologicalInfiniteQueryParams,
+  ) => PostsInfiniteHook;
+  useBookmarkedPosts: (
+    props: ChronologicalInfiniteQueryParams,
+  ) => PostsInfiniteHook;
+  usePost: (id: string) => PostQueryHook<PublicPost>;
+  usePostContext: (id: string) => PostQueryHook<PostContext>;
+  usePostReposts: (id: string) => PostQueryHook<PublicPost[]>;
+  useUnseenPostCounts: () => ReturnType<typeof apiHook<UnseenPostCounts>>;
+};
+
+// Explicit return type annotation keeps `tsc` from trying to serialize the
+// deeply-inferred shape into `.d.ts` (TS7056 otherwise).
+const postFinders = (client: OpenpeepsClient): PostFinders => ({
+  usePosts: (props) =>
     infiniteChronologicalQueryApiHook(client.posts.list, {
       queryParams: props,
-    }),
-  useBookmarkedPosts: (props: ChronologicalInfiniteQueryParams) =>
+    }) as PostsInfiniteHook,
+  usePostsByType: (type, props) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByType, {
+      pathParams: { type },
+      queryParams: props,
+    }) as PostsInfiniteHook,
+  usePostsByHashtag: (hashtag, props) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByHashtag, {
+      pathParams: { hashtag },
+      queryParams: props,
+    }) as PostsInfiniteHook,
+  usePostsByGroup: (id, props) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByGroup, {
+      pathParams: { id },
+      queryParams: props,
+    }) as PostsInfiniteHook,
+  usePostsByProfile: (id, props) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByProfile, {
+      pathParams: { id },
+      queryParams: props,
+    }) as PostsInfiniteHook,
+  useBookmarkedPosts: (props) =>
     infiniteChronologicalQueryApiHook(client.posts.listBookmarks, {
       queryParams: props,
-    }),
-  usePost: (id: string) =>
-    apiHook(client.posts.findById, { pathParams: { id } }),
-  usePostContext: (id: string) =>
-    apiHook(client.posts.context, { pathParams: { id } }),
-  usePostReposts: (id: string) =>
-    apiHook(client.posts.reposts, { pathParams: { id } }),
-  useUnseenPostCounts: () =>
-    apiHook(client.posts.unseenCounts),
+    }) as PostsInfiniteHook,
+  usePost: (id) =>
+    apiHook(client.posts.findById, {
+      pathParams: { id },
+    }) as PostQueryHook<PublicPost>,
+  usePostContext: (id) =>
+    apiHook(client.posts.context, {
+      pathParams: { id },
+    }) as PostQueryHook<PostContext>,
+  usePostReposts: (id) =>
+    apiHook(client.posts.reposts, {
+      pathParams: { id },
+    }) as PostQueryHook<PublicPost[]>,
+  useUnseenPostCounts: () => apiHook(client.posts.unseenCounts),
 });
-
-type PostFinders = ReturnType<typeof postFinders>;
-
-const postFindersBy = (client: OpenpeepsClient) => ({
-  usePostsByType: (type: PostType, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByType, { pathParams: { type }, queryParams: props }),
-  usePostsByHashtag: (hashtag: string, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByHashtag, { pathParams: { hashtag }, queryParams: props }),
-  usePostsByGroup: (id: string, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByGroup, { pathParams: { id }, queryParams: props }),
-  usePostsByProfile: (id: string, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByProfile, { pathParams: { id }, queryParams: props }),
-});
-
-type PostFindersBy = ReturnType<typeof postFindersBy>;
 
 const postMutators = (client: OpenpeepsClient) => ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createPostAction: payloadMutation(client.posts.create as any, [['posts']]),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updatePostAction: payloadMutation(client.posts.update as any, [['posts']]),
+  updatePostAction: payloadMutation(client.posts.update, [['posts']]),
   deletePostAction: noPayloadMutation(client.posts.delete, [['posts']]),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reactToPostAction: payloadMutation(client.posts.react as any, [['posts']]),
@@ -170,7 +220,6 @@ type PostMutators = ReturnType<typeof postMutators>;
 
 export type PostHooks = PostFeeds &
   PostFinders &
-  PostFindersBy &
   PostMutators &
   EventFeeds &
   JamFeeds;
@@ -178,7 +227,6 @@ export type PostHooks = PostFeeds &
 export const postHooks = (client: OpenpeepsClient): PostHooks => ({
   ...postFeeds(client),
   ...postFinders(client),
-  ...postFindersBy(client),
   ...postMutators(client),
   ...eventFeeds(client),
   ...jamFeeds(client),

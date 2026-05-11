@@ -11,8 +11,7 @@ export const groupHooks = (client: OpenpeepsClient) => ({
     apiHook(client.groups.findById, { pathParams: { id } }),
   useGroupByHandle: (handle: string) =>
     apiHook(client.groups.findByHandle, { pathParams: { handle } }),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updateGroupAction: payloadMutation(client.groups.update as any, [['groups']]),
+  updateGroupAction: payloadMutation(client.groups.update, [['groups']]),
   deleteGroupAction: noPayloadMutation(client.groups.delete, [['groups']]),
   useGroupMembers: (id: string) =>
     apiHook(client.groups.members, { pathParams: { id } }),

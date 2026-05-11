@@ -243,10 +243,11 @@ export const serviceScopeMatches = ({
   scope,
   resource,
 }: {
-  authorization: Authorization;
+  authorization?: Authorization | null;
   scope?: string;
   resource: Resource;
 }) => {
+  if (!authorization) return false;
   return (
     isService(authorization) &&
     scopeMatches({

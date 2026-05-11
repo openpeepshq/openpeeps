@@ -9,6 +9,7 @@ import { jamHooks, type JamHooks } from './jams';
 import { postHooks, type PostHooks } from './posts';
 import { profileHooks, type ProfileHooks } from './profiles';
 import { otherHooks, type OtherHooks } from './other';
+import { paymentHooks, type PaymentHooks } from './payments';
 import { searchHooks, type SearchHooks } from './search';
 
 export const buildOpenpeepsApi = (
@@ -23,7 +24,8 @@ export const buildOpenpeepsApi = (
   PostHooks &
   ProfileHooks &
   SearchHooks &
-  OtherHooks => ({
+  OtherHooks &
+  PaymentHooks => ({
   admin: adminHooks(client),
 
   ...authHooks(client, setCurrentProfile, setCurrentAccount),
@@ -43,6 +45,8 @@ export const buildOpenpeepsApi = (
   ...otherHooks(client),
 
   ...searchHooks(client),
+
+  ...paymentHooks(client),
 });
 
 export type OpenpeepsApi = ReturnType<typeof buildOpenpeepsApi>;

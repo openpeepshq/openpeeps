@@ -1,5 +1,8 @@
 /// <reference types="vite/client" />
 import './types';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { api, expressAdapter } from '@riddl/core';
 import { logger } from '@openpeeps/core/log';
@@ -9,6 +12,33 @@ const log = logger('server');
 const requestLog = logger('server:request');
 
 const port = Number(process.env.PORT) || 5173;
+
+/**
+ * Resolve where the React SPA's built assets live. Priority:
+ *   1. `WEB_DIST_PATH` env var (production / Docker)
+ *   2. `<repo>/platform/web/dist` relative to this source file (local dev)
+ * If neither exists, static serving is silently skipped.
+ */
+const resolveWebDist = (): string | null => {
+  const fromEnv = process.env.WEB_DIST_PATH;
+  if (fromEnv) {
+    const abs = path.isAbsolute(fromEnv)
+      ? fromEnv
+      : path.resolve(process.cwd(), fromEnv);
+    return existsSync(abs) ? abs : null;
+  }
+  // platform/server/src/server.ts → ../../web/dist
+  const fromSource = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../web/dist',
+  );
+  return existsSync(fromSource) ? fromSource : null;
+};
+
+const isApiRequest = (originalUrl: string): boolean =>
+  originalUrl === '/openapi.json' ||
+  originalUrl.startsWith('/openapi.json?') ||
+  originalUrl.startsWith('/api/');
 
 const startServer = async () => {
   await initializeServer();
@@ -85,11 +115,47 @@ const startServer = async () => {
     }
   });
 
-  // Mount Riddl at root so that route patterns like `^/api/openpeeps/...`
-  // match the incoming `originalUrl` exactly. Unmatched requests get a 404
-  // response from Riddl. Route-folder layout: `src/api/openpeeps/...` →
-  // `/api/openpeeps/...`, `src/api/pwa/...` → `/api/pwa/...`, etc.
-  app.use(expressAdapter(openpeepsApi.handler));
+  // Mount Riddl at root, but only delegate `/api/*` requests to it so that
+  // non-API URLs fall through to the SPA fallback below. Route-folder layout:
+  // `src/api/openpeeps/...` → `/api/openpeeps/...`, `src/api/pwa/...` →
+  // `/api/pwa/...`, etc.
+  const riddlHandler = expressAdapter(openpeepsApi.handler);
+  app.use((req, res, next) => {
+    if (req.originalUrl.startsWith('/api/')) {
+      return riddlHandler(req, res, next);
+    }
+    next();
+  });
+
+  // Serve the React SPA built by `@openpeeps/web`. The Docker image places it
+  // under `/apat/platform/web/dist`; locally we resolve it from this file.
+  const webDist = resolveWebDist();
+  if (webDist) {
+    log.info(`Serving SPA from ${webDist}`);
+    app.use(
+      express.static(webDist, {
+        index: false,
+        fallthrough: true,
+        maxAge: '1h',
+      }),
+    );
+    const indexHtml = path.join(webDist, 'index.html');
+    app.get(/.*/, (req, res, next) => {
+      if (isApiRequest(req.originalUrl)) return next();
+      if (req.method !== 'GET') return next();
+      res.sendFile(indexHtml);
+    });
+  } else {
+    log.warn(
+      'No SPA build found. Set WEB_DIST_PATH or run `pnpm --filter @openpeeps/web build`.',
+    );
+  }
+
+  // Final fall-through: anything that wasn't an API route, an OpenAPI doc,
+  // or a static asset gets a 404 here so misconfigured requests don't hang.
+  app.use((req, res) => {
+    res.status(404).send(`Not found: ${req.method} ${req.originalUrl}`);
+  });
 
   app.listen(port, () => {
     log.info(`Server listening on http://localhost:${port}`);

@@ -20,6 +20,8 @@ export const apiEndpoint = endpoint({ Input }).handle(async (input, event) => {
     if (!reportedProfile) {
         throw notFound();
     }
-    const posts = await Promise.all(input.postIds.map(postId => findPost(postId)).filter(Boolean)) as PostWithMeta[];
+    const posts = (await Promise.all(
+        (input.postIds as string[]).map((postId: string) => findPost(postId)),
+    )).filter(Boolean) as PostWithMeta[];
     return createReport(input.report, profile, reportedProfile, posts);
 });

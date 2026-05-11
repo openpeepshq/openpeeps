@@ -1,0 +1,14 @@
+@import '@openpeeps/react-ui/styles.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--theme-font-family-base, system-ui), sans-serif;
+}

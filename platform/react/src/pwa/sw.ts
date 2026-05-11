@@ -11,8 +11,8 @@
  *
  *   VitePWA({
  *     strategies: 'injectManifest',
- *     srcDir: 'node_modules/@openpeeps/react/src/pwa',
- *     filename: 'service-worker.ts',
+ *     srcDir: 'node_modules/@openpeeps/react/dist/pwa',
+ *     filename: 'sw.js',
  *     ...
  *   })
  *

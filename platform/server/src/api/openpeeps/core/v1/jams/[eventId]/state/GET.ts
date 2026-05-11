@@ -30,12 +30,13 @@ export const apiEndpoint = endpoint({ Output, Param, Error }).handle(
       resource: { type: 'jam', id: input.eventId },
     });
 
-    const profile = isPublic(jamEvent) || isServiceAuthorized
-      ? event?.locals?.currentProfile
-      : await ensureProfileOrGuest(event, 'read', {
-        type: 'jam',
-        id: input.eventId,
-      });
+    const profile =
+      isPublic(jamEvent) || isServiceAuthorized
+        ? event.context.currentProfile
+        : await ensureProfileOrGuest(event, 'read', {
+            type: 'jam',
+            id: input.eventId,
+          });
 
     if (!isServiceAuthorized) {
       await ensurePostCapabilities(event, jamEvent, ['core-posts-read']);

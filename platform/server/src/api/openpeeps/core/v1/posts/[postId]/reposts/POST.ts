@@ -38,6 +38,7 @@ export const apiEndpoint = endpoint({ Output, Param, Error }).handle(
     const post: PostData = {
       type: 'note',
       visibility: postToRepost.visibility,
+      creatorId: profile.id,
     };
 
     return await createPost({ type: 'note' }, profile, post, {

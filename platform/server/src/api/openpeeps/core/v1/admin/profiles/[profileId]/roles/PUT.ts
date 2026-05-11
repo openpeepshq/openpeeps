@@ -35,8 +35,9 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
     }
 
     const incomingUniqueRoles = input.roles.filter(
-      (role, index, self) =>
-        index === self.findIndex((r) => r.key === role.key),
+      (role: { key: string }, index: number, self: { key: string }[]) =>
+        index ===
+        self.findIndex((r: { key: string }) => r.key === role.key),
     );
 
     for (const role of incomingUniqueRoles) {
