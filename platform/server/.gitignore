@@ -2,6 +2,7 @@ node_modules
 /dist
 /build
 .output
+.logs
 
 # OS
 .DS_Store

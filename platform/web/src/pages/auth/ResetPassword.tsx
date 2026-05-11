@@ -41,7 +41,7 @@ export function ResetPassword() {
         }}
       >
         <h2 className="text-xl">
-          {t('auth.resetPassword', { defaultValue: 'Reset Password' })}
+          {t('auth.resetPassword.title', { defaultValue: 'Reset Password' })}
         </h2>
 
         <Label title={t('auth.newPassword', { defaultValue: 'New Password' })}>
@@ -71,13 +71,13 @@ export function ResetPassword() {
         )}
 
         <Button
-          title="Reset Password"
+          title={t('auth.resetPassword.submit', { defaultValue: 'Reset' })}
           disabled={confirmPassword !== password || password.length === 0}
           variant="variant-filled-primary"
           action={handleSubmit}
           className="w-full"
         >
-          {t('common.submit', { defaultValue: 'Submit' })}
+          {t('auth.resetPassword.submit', { defaultValue: 'Reset' })}
         </Button>
       </form>
     </AuthLayout>

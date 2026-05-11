@@ -51,7 +51,9 @@ export function Login() {
   return (
     <AuthLayout redirectTo={redirectUrl} navigate={navigate}>
       <Form data={data} schema={loginRequestSchema}>
-        <h2 className="text-xl">{t('auth.login', { defaultValue: 'Login' })}</h2>
+        <h2 className="text-xl">
+          {t('auth.login.title', { defaultValue: 'Login' })}
+        </h2>
         <p>
           {t('auth.loginIntro', {
             defaultValue:
@@ -93,8 +95,12 @@ export function Login() {
           </p>
         )}
 
-        <SubmitButton action={handleSubmit} title="Log in" disable={false}>
-          {t('auth.login', { defaultValue: 'Log in' })}
+        <SubmitButton
+          action={handleSubmit}
+          title={t('auth.login.submit', { defaultValue: 'Log in' })}
+          disable={false}
+        >
+          {t('auth.login.submit', { defaultValue: 'Log in' })}
         </SubmitButton>
       </Form>
 
@@ -102,7 +108,7 @@ export function Login() {
         {serverInfo.communityConfig?.settings?.openRegistrations && (
           <span>
             <RouterLink to="/about" className="op-anchor text-sm">
-              {t('auth.joinCommunity', { defaultValue: 'Join Community' })}
+              {t('navigation.joinCommunity', { defaultValue: 'Join Community' })}
             </RouterLink>
           </span>
         )}
