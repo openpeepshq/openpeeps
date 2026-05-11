@@ -6,12 +6,23 @@ import {
   infiniteOffsetQueryApiHook,
   infiniteChronologicalQueryApiHook,
 } from '../helpers';
-import type { ChronologicalInfiniteQueryParams, PostType, PublicPost } from '@openpeeps/common';
+import type {
+  ChronologicalInfiniteQueryParams,
+  PostType,
+  PublicPost,
+} from '@openpeeps/common';
 
+type EventFeedHook = ReturnType<
+  typeof infiniteOffsetQueryApiHook<
+    PublicPost[],
+    undefined,
+    { offset?: number; limit: number }
+  >
+>;
 
-type EventFeedHook = ReturnType<typeof infiniteOffsetQueryApiHook<PublicPost[], undefined, { offset?: number, limit: number }>>;
-
-const eventFeeds = (client: OpenpeepsClient): {
+const eventFeeds = (
+  client: OpenpeepsClient,
+): {
   useUpcomingEventsFeed: () => EventFeedHook;
   useCurrentEventsFeed: () => EventFeedHook;
   usePastEventsFeed: () => EventFeedHook;
@@ -21,39 +32,85 @@ const eventFeeds = (client: OpenpeepsClient): {
   useGroupUpcomingEventsFeed: (groupId: string) => EventFeedHook;
   useGroupPastEventsFeed: (groupId: string) => EventFeedHook;
 } => ({
-  useUpcomingEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.upcoming, { pageSize, queryParams: { limit: pageSize } }),
-  useCurrentEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.current, { pageSize, queryParams: { limit: pageSize } }),
-  usePastEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.past, { pageSize, queryParams: { limit: pageSize } }),
-  useMyUpcomingEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.my.upcoming, { pageSize, queryParams: { limit: pageSize } }),
-  useMyCurrentEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.my.current, { pageSize, queryParams: { limit: pageSize } }),
-  useMyPastEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.my.past, { pageSize, queryParams: { limit: pageSize } }),
-  useGroupUpcomingEventsFeed: (groupId: string) => infiniteOffsetQueryApiHook(client.posts.feeds.events.group.upcoming, { pathParams: { groupId }, pageSize: 15 }),
-  useGroupPastEventsFeed: (groupId: string) => infiniteOffsetQueryApiHook(client.posts.feeds.events.group.past, { pathParams: { groupId }, pageSize: 15 }),
+  useUpcomingEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.upcoming, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  useCurrentEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.current, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  usePastEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.past, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  useMyUpcomingEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.my.upcoming, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  useMyCurrentEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.my.current, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  useMyPastEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.my.past, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  useGroupUpcomingEventsFeed: (groupId: string) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.group.upcoming, {
+      pathParams: { groupId },
+      pageSize: 15,
+    }),
+  useGroupPastEventsFeed: (groupId: string) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.group.past, {
+      pathParams: { groupId },
+      pageSize: 15,
+    }),
 });
 
 type EventFeeds = ReturnType<typeof eventFeeds>;
 
 const jamFeeds = (client: OpenpeepsClient) => ({
-  useUpcomingJamsFeed: () => infiniteOffsetQueryApiHook(client.posts.feeds.jams.upcoming),
-  usePastJamsFeed: () => infiniteOffsetQueryApiHook(client.posts.feeds.jams.past),
-  useMyUpcomingJamsFeed: () => infiniteOffsetQueryApiHook(client.posts.feeds.jams.my.upcoming),
-  useMyPastJamsFeed: () => infiniteOffsetQueryApiHook(client.posts.feeds.jams.my.past),
+  useUpcomingJamsFeed: () =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.jams.upcoming),
+  usePastJamsFeed: () =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.jams.past),
+  useMyUpcomingJamsFeed: () =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.jams.my.upcoming),
+  useMyPastJamsFeed: () =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.jams.my.past),
 });
 
 type JamFeeds = ReturnType<typeof jamFeeds>;
 
-
 const postFeeds = (client: OpenpeepsClient) => ({
-  useLocalFeed: (props: ChronologicalInfiniteQueryParams) => infiniteChronologicalQueryApiHook(client.posts.feeds.local, { queryParams: props }),
-  useMyFeed: (props: ChronologicalInfiniteQueryParams) => infiniteChronologicalQueryApiHook(client.posts.feeds.my, { queryParams: props }),
+  useLocalFeed: (props: ChronologicalInfiniteQueryParams) =>
+    infiniteChronologicalQueryApiHook(client.posts.feeds.local, {
+      queryParams: props,
+    }),
+  useMyFeed: (props: ChronologicalInfiniteQueryParams) =>
+    infiniteChronologicalQueryApiHook(client.posts.feeds.my, {
+      queryParams: props,
+    }),
 });
 
 type PostFeeds = ReturnType<typeof postFeeds>;
 
 const postFinders = (client: OpenpeepsClient) => ({
-  usePosts: (props: ChronologicalInfiniteQueryParams) => infiniteChronologicalQueryApiHook(client.posts.list, { queryParams: props }),
+  usePosts: (props: ChronologicalInfiniteQueryParams) =>
+    infiniteChronologicalQueryApiHook(client.posts.list, {
+      queryParams: props,
+    }),
   useBookmarkedPosts: (props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listBookmarks, { queryParams: props }),
+    infiniteChronologicalQueryApiHook(client.posts.listBookmarks, {
+      queryParams: props,
+    }),
   usePost: (id: string) =>
     apiHook(client.posts.findById, { pathParams: { id } }),
   usePostContext: (id: string) =>
@@ -80,24 +137,43 @@ const postFindersBy = (client: OpenpeepsClient) => ({
 type PostFindersBy = ReturnType<typeof postFindersBy>;
 
 const postMutators = (client: OpenpeepsClient) => ({
-  createPostAction: payloadMutation(client.posts.create, [['posts']]),
-  updatePostAction: payloadMutation(client.posts.update, [['posts']]),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createPostAction: payloadMutation(client.posts.create as any, [['posts']]),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updatePostAction: payloadMutation(client.posts.update as any, [['posts']]),
   deletePostAction: noPayloadMutation(client.posts.delete, [['posts']]),
-  reactToPostAction: payloadMutation(client.posts.react, [['posts']]),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  reactToPostAction: payloadMutation(client.posts.react as any, [['posts']]),
   retractPostReactionAction: noPayloadMutation(client.posts.retractReaction, [
     ['posts'],
   ]),
-  bookmarkPostAction: noPayloadMutation(client.posts.bookmark, [['posts'], ['profiles', 'current', 'bookmarkedIds']]),
-  unbookmarkPostAction: noPayloadMutation(client.posts.unbookmark, [['posts'], ['profiles', 'current', 'bookmarkedIds']]),
+  bookmarkPostAction: noPayloadMutation(client.posts.bookmark, [
+    ['posts'],
+    ['profiles', 'current', 'bookmarkedIds'],
+  ]),
+  unbookmarkPostAction: noPayloadMutation(client.posts.unbookmark, [
+    ['posts'],
+    ['profiles', 'current', 'bookmarkedIds'],
+  ]),
   markPostsSeenAction: payloadMutation(client.posts.seen, [['posts']]),
   repostPostAction: noPayloadMutation(client.posts.repost, [['posts']]),
-  voteOnPostAction: payloadMutation(client.posts.vote, [['posts']]),
-  rsvpToEventAction: payloadMutation(client.posts.rsvp, [['posts'], ['rsvp']]),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  voteOnPostAction: payloadMutation(client.posts.vote as any, [['posts']]),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rsvpToEventAction: payloadMutation(client.posts.rsvp as any, [
+    ['posts'],
+    ['rsvp'],
+  ]),
 });
 
 type PostMutators = ReturnType<typeof postMutators>;
 
-export type PostHooks = PostFeeds & PostFinders & PostFindersBy & PostMutators & EventFeeds & JamFeeds;
+export type PostHooks = PostFeeds &
+  PostFinders &
+  PostFindersBy &
+  PostMutators &
+  EventFeeds &
+  JamFeeds;
 
 export const postHooks = (client: OpenpeepsClient): PostHooks => ({
   ...postFeeds(client),

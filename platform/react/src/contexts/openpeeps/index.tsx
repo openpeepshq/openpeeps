@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { OpenpeepsContextValue } from './types';
-import { openpeepsClient, type OpenpeepsClientOptions } from '@openpeeps/client';
+import {
+  openpeepsClient,
+  type OpenpeepsClientOptions,
+} from '@openpeeps/client';
 import type { CredentialsStore } from '../../auth/credentials/types';
 import { buildOpenpeepsApi } from './hooks';
 import { CredentialsStoreProvider } from '../credentialsStore';
@@ -44,13 +47,23 @@ export const OpenpeepsProvider: React.FC<{
 
   const openpeepsApi = buildOpenpeepsApi(
     client,
-    (profile) => { if (profile?.id !== currentProfile?.id) { setCurrentProfile(profile) } },
-    (account) => { if (account?.id !== currentAccount?.id) { setCurrentAccount(account) } }
+    (profile) => {
+      if (profile?.id !== currentProfile?.id) {
+        setCurrentProfile(profile);
+      }
+    },
+    (account) => {
+      if (account?.id !== currentAccount?.id) {
+        setCurrentAccount(account);
+      }
+    },
   );
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const profile = await client.profiles.current.read().then((res) => 'data' in res ? res.data : undefined);
+      const profile = await client.profiles.current
+        .read()
+        .then((res) => ('data' in res ? res.data : undefined));
       setCurrentProfile(profile);
     };
     fetchProfile();
@@ -90,7 +103,13 @@ export const OpenpeepsProvider: React.FC<{
 
   return (
     <OpenpeepsContext.Provider
-      value={{ openpeepsApi, currentProfile, currentAccount, queryClient }}
+      value={{
+        openpeepsApi,
+        client,
+        currentProfile,
+        currentAccount,
+        queryClient,
+      }}
     >
       <QueryClientProvider client={queryClient}>
         <CredentialsStoreProvider credentialsStore={credentialsStore}>

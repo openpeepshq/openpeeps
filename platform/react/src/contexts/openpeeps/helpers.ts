@@ -33,8 +33,8 @@ const authHeaders = async () => {
   const { token } = (await useCredentialsStore().credentialsStore.get()) ?? {};
   return token
     ? {
-      Authorization: `Bearer ${token}`,
-    }
+        Authorization: `Bearer ${token}`,
+      }
     : undefined;
 };
 
@@ -43,19 +43,19 @@ const throwError =
     onSuccess?: (o: O) => void | Promise<void>;
     onError?: (e: SuccessFailureResponse) => void | Promise<void>;
   }) =>
-    async (result: { data: O } | { error: SuccessFailureResponse }) => {
-      if ('data' in result) {
-        await callbacks?.onSuccess?.(result.data);
-        return result.data;
-      } else {
-        await callbacks?.onError?.(result.error);
-        throw result.error;
-      }
-    };
+  async (result: { data: O } | { error: SuccessFailureResponse }) => {
+    if ('data' in result) {
+      await callbacks?.onSuccess?.(result.data);
+      return result.data;
+    } else {
+      await callbacks?.onError?.(result.error);
+      throw result.error;
+    }
+  };
 
 const handleMutationResult = <O>(
   queryClient: QueryClient,
-  queryKeys?: QueryKey[]
+  queryKeys?: QueryKey[],
 ) =>
   throwError<O>({
     onSuccess: async () => {
@@ -71,47 +71,42 @@ export const retrieveProfile =
   (client: ReturnType<typeof openpeepsClient>) => () =>
     client.profiles.current
       .read()
-      .then(r => ('data' in r ? r.data : undefined));
+      .then((r) => ('data' in r ? r.data : undefined));
 export const retrieveAccount =
   (client: ReturnType<typeof openpeepsClient>) => () =>
     client.accounts.current
       .read()
-      .then(r => ('data' in r ? r.data : undefined));
-
+      .then((r) => ('data' in r ? r.data : undefined));
 
 export const updateCredentialsWrapper =
   <Input>(
     fn: (
-      i: Input
+      i: Input,
     ) => Promise<{ data: TokenResponse } | { error: SuccessFailureResponse }>,
     retrieveProfile: () => Promise<ProfileWithMeta | undefined>,
-    setCurrentProfile: (
-      profile: ProfileWithMeta | undefined
-    ) => void,
+    setCurrentProfile: (profile: ProfileWithMeta | undefined) => void,
     retrieveAccount: () => Promise<PublicAccount | undefined>,
-    setCurrentAccount: (
-      account: PublicAccount | undefined
-    ) => void,
+    setCurrentAccount: (account: PublicAccount | undefined) => void,
   ) =>
-    () => {
-      const { credentialsStore } = useCredentialsStore();
-      const queryClient = useContext(QueryClientContext);
-      return (i: Input) =>
-        fn(i).then(
-          throwError({
-            onSuccess: async (tr: TokenResponse) => {
-              credentialsStore.set({ token: tr.token });
-              queryClient?.invalidateQueries({
-                queryKey: ['profiles', 'current'],
-              });
-              const profile = await retrieveProfile();
-              setCurrentProfile(profile);
-              const account = await retrieveAccount();
-              setCurrentAccount(account);
-            },
-          })
-        );
-    };
+  () => {
+    const { credentialsStore } = useCredentialsStore();
+    const queryClient = useContext(QueryClientContext);
+    return (i: Input) =>
+      fn(i).then(
+        throwError({
+          onSuccess: async (tr: TokenResponse) => {
+            credentialsStore.set({ token: tr.token });
+            queryClient?.invalidateQueries({
+              queryKey: ['profiles', 'current'],
+            });
+            const profile = await retrieveProfile();
+            setCurrentProfile(profile);
+            const account = await retrieveAccount();
+            setCurrentAccount(account);
+          },
+        }),
+      );
+  };
 
 export const apiHook = <
   Output,
@@ -130,28 +125,32 @@ export const apiHook = <
       pathParams?: PathParams;
       queryParams?: QueryParams;
     }) => void | Promise<void>;
-  }
-) => useQuery<Output, SuccessFailureResponse>({
-  queryKey: endpoint.queryKey({
-    pathParameters: options?.pathParams,
-    queryParameters: options?.queryParams,
-  }),
-  queryFn: async () => {
-    await options?.preQueryCheck?.({
-      endpoint,
-      pathParams: options?.pathParams,
-      queryParams: options?.queryParams,
-    });
-    return endpoint({
+  },
+) =>
+  useQuery<Output, SuccessFailureResponse>({
+    queryKey: endpoint.queryKey({
       pathParameters: options?.pathParams,
       queryParameters: options?.queryParams,
-    }).then(
-      throwError({ onSuccess: options?.onSuccess, onError: options?.onError })
-    );
-  },
-  retry: false,
-  refetchInterval: options?.refetchInterval,
-});
+    }),
+    queryFn: async () => {
+      await options?.preQueryCheck?.({
+        endpoint,
+        pathParams: options?.pathParams,
+        queryParams: options?.queryParams,
+      });
+      return endpoint({
+        pathParameters: options?.pathParams,
+        queryParameters: options?.queryParams,
+      }).then(
+        throwError({
+          onSuccess: options?.onSuccess,
+          onError: options?.onError,
+        }),
+      );
+    },
+    retry: false,
+    refetchInterval: options?.refetchInterval,
+  });
 
 export const infiniteChronologicalQueryApiHook = <
   Output,
@@ -171,9 +170,15 @@ export const infiniteChronologicalQueryApiHook = <
       queryParams?: QueryParams & ChronologicalInfiniteQueryParams;
     }) => void | Promise<void>;
     initialPageParam?: unknown;
-  }
+  },
 ) =>
-  useInfiniteQuery<Output, SuccessFailureResponse, InfiniteData<Output>, QueryKey, ChronologicalInfiniteQueryParams>({
+  useInfiniteQuery<
+    Output,
+    SuccessFailureResponse,
+    InfiniteData<Output>,
+    QueryKey,
+    ChronologicalInfiniteQueryParams
+  >({
     queryKey: endpoint.queryKey({
       pathParameters: options?.pathParams,
       queryParameters: options?.queryParams,
@@ -194,7 +199,10 @@ export const infiniteChronologicalQueryApiHook = <
         pathParameters: options?.pathParams,
         queryParameters: currentQueryParams,
       }).then(
-        throwError({ onSuccess: options?.onSuccess, onError: options?.onError })
+        throwError({
+          onSuccess: options?.onSuccess,
+          onError: options?.onError,
+        }),
       );
     },
     initialPageParam: options?.queryParams,
@@ -216,7 +224,10 @@ export const infiniteChronologicalQueryApiHook = <
 export const infiniteOffsetQueryApiHook = <
   Output,
   PathParams extends ParametersType = undefined,
-  QueryParams extends ParametersType & { offset?: number, limit: number } = { offset?: number, limit: number },
+  QueryParams extends ParametersType & { offset?: number; limit: number } = {
+    offset?: number;
+    limit: number;
+  },
 >(
   endpoint: OpenpeepsNoPayloadEndpoint<Output, PathParams, QueryParams>,
   options?: {
@@ -232,15 +243,24 @@ export const infiniteOffsetQueryApiHook = <
       queryParams?: QueryParams;
     }) => void | Promise<void>;
     initialPageParam?: unknown;
-  }
+  },
 ) =>
-  useInfiniteQuery<Output, SuccessFailureResponse, InfiniteData<Output>, QueryKey, number>({
+  useInfiniteQuery<
+    Output,
+    SuccessFailureResponse,
+    InfiniteData<Output>,
+    QueryKey,
+    number
+  >({
     queryKey: endpoint.queryKey({
       pathParameters: options?.pathParams,
       queryParameters: options?.queryParams,
     }),
     queryFn: async ({ pageParam }) => {
-      const baseParams: QueryParams = { ...options?.queryParams, limit: options?.pageSize } as QueryParams;
+      const baseParams: QueryParams = {
+        ...options?.queryParams,
+        limit: options?.pageSize,
+      } as QueryParams;
       const queryParams = pageParam
         ? { ...baseParams, offset: pageParam }
         : baseParams;
@@ -253,12 +273,16 @@ export const infiniteOffsetQueryApiHook = <
         pathParameters: options?.pathParams,
         queryParameters: queryParams,
       }).then(
-        throwError({ onSuccess: options?.onSuccess, onError: options?.onError })
+        throwError({
+          onSuccess: options?.onSuccess,
+          onError: options?.onError,
+        }),
       );
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, _, lastPageParam) => {
-      const lastPageFull = Array.isArray(lastPage) && lastPage.length >= (options?.pageSize ?? 0);
+      const lastPageFull =
+        Array.isArray(lastPage) && lastPage.length >= (options?.pageSize ?? 0);
       if (lastPageFull) {
         const nextPageParam = lastPageParam + (options?.pageSize ?? 0);
         return nextPageParam;
@@ -269,8 +293,6 @@ export const infiniteOffsetQueryApiHook = <
     refetchInterval: options?.refetchInterval,
   });
 
-
-
 export const payloadMutation =
   <
     Input extends BodyType,
@@ -279,30 +301,30 @@ export const payloadMutation =
     QueryParams extends Record<string, string> | undefined = undefined,
   >(
     endpoint: OpenpeepsPayloadEndpoint<Output, Input, PathParams, QueryParams>,
-    queryKeys?: string[][]
+    queryKeys?: string[][],
   ) =>
-    (defaultPathParams?: PathParams extends undefined ? never : PathParams) => {
-      const queryClient = useContext(QueryClientContext);
+  (defaultPathParams?: PathParams extends undefined ? never : PathParams) => {
+    const queryClient = useContext(QueryClientContext);
 
-      if (!queryClient) {
-        throw new Error('QueryClientContext is not set');
-      }
+    if (!queryClient) {
+      throw new Error('QueryClientContext is not set');
+    }
 
-      return async (
-        input: Input,
-        pathParams?: PathParams extends undefined ? never : PathParams,
-        queryParams?: QueryParams extends undefined ? never : QueryParams,
-        headers?: Record<string, string>,
-      ): Promise<Output> =>
-        endpoint(input, {
-          pathParameters: {
-            ...(defaultPathParams ?? {}),
-            ...(pathParams ?? {}),
-          } as PathParams,
-          queryParameters: queryParams,
-          headers,
-        }).then(handleMutationResult<Output>(queryClient, queryKeys));
-    };
+    return async (
+      input: Input,
+      pathParams?: PathParams extends undefined ? never : PathParams,
+      queryParams?: QueryParams extends undefined ? never : QueryParams,
+      headers?: Record<string, string>,
+    ): Promise<Output> =>
+      endpoint(input, {
+        pathParameters: {
+          ...(defaultPathParams ?? {}),
+          ...(pathParams ?? {}),
+        } as PathParams,
+        queryParameters: queryParams,
+        headers,
+      }).then(handleMutationResult<Output>(queryClient, queryKeys));
+  };
 
 /**
  * Like {@link payloadMutation} but for endpoints that route through
@@ -357,29 +379,29 @@ export const noPayloadMutation =
     QueryParams extends Record<string, string> | undefined = undefined,
   >(
     endpoint: OpenpeepsNoPayloadEndpoint<Output, PathParams, QueryParams>,
-    queryKeys?: string[][]
+    queryKeys?: string[][],
   ) =>
-    (defaultPathParams?: PathParams extends undefined ? never : PathParams) => {
-      const queryClient = useContext(QueryClientContext);
+  (defaultPathParams?: PathParams extends undefined ? never : PathParams) => {
+    const queryClient = useContext(QueryClientContext);
 
-      if (!queryClient) {
-        throw new Error('QueryClientContext is not set');
-      }
+    if (!queryClient) {
+      throw new Error('QueryClientContext is not set');
+    }
 
-      return async (
-        pathParams?: PathParams extends undefined ? never : PathParams,
-        queryParams?: QueryParams extends undefined ? never : QueryParams,
-        headers?: Record<string, string>
-      ): Promise<Output> =>
-        endpoint({
-          pathParameters: {
-            ...(defaultPathParams ?? {}),
-            ...(pathParams ?? {}),
-          } as PathParams,
-          queryParameters: queryParams,
-          headers,
-        }).then(handleMutationResult<Output>(queryClient, queryKeys));
-    };
+    return async (
+      pathParams?: PathParams extends undefined ? never : PathParams,
+      queryParams?: QueryParams extends undefined ? never : QueryParams,
+      headers?: Record<string, string>,
+    ): Promise<Output> =>
+      endpoint({
+        pathParameters: {
+          ...(defaultPathParams ?? {}),
+          ...(pathParams ?? {}),
+        } as PathParams,
+        queryParameters: queryParams,
+        headers,
+      }).then(handleMutationResult<Output>(queryClient, queryKeys));
+  };
 
 export const noPayloadStream = <
   EventType,
@@ -390,17 +412,17 @@ export const noPayloadStream = <
     EventType,
     PathParams,
     QueryParams
-  >
+  >,
 ) => ({
   last: (
     options: Omit<
       EventSourceOptions<EventType, PathParams, QueryParams>,
       'handler'
-    >
+    >,
   ) => {
     const [state, setState] = useState<EventType>();
 
-    const sourcePromise = authHeaders().then(authHeaders =>
+    const sourcePromise = authHeaders().then((authHeaders) =>
       typedEventSource({
         ...options,
         headers: {
@@ -408,13 +430,13 @@ export const noPayloadStream = <
           ...authHeaders,
         },
         handler: (e: EventType) => setState(e),
-      })
+      }),
     );
-    sourcePromise.then(source => source.stream());
+    sourcePromise.then((source) => source.stream());
 
     useEffect(() => {
       return () => {
-        sourcePromise.then(source => source.close());
+        sourcePromise.then((source) => source.close());
       };
     }, [state]);
     return state;
@@ -423,23 +445,23 @@ export const noPayloadStream = <
     options: Omit<
       EventSourceOptions<EventType, PathParams, QueryParams>,
       'handler'
-    >
+    >,
   ) => {
     const [state, setState] = useState<EventType[]>([]);
-    const sourcePromise = authHeaders().then(authHeaders =>
+    const sourcePromise = authHeaders().then((authHeaders) =>
       typedEventSource({
         ...options,
         headers: {
           ...(options.headers || {}),
           ...authHeaders,
         },
-        handler: (e: EventType) => setState(prev => [...prev, e]),
-      })
+        handler: (e: EventType) => setState((prev) => [...prev, e]),
+      }),
     );
-    sourcePromise.then(source => source.stream());
+    sourcePromise.then((source) => source.stream());
     useEffect(() => {
       return () => {
-        sourcePromise.then(source => source.close());
+        sourcePromise.then((source) => source.close());
       };
     }, [state]);
     return state;

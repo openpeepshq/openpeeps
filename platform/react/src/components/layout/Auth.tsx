@@ -1,0 +1,135 @@
+import { useEffect, type ReactNode } from 'react';
+import { getTheme, isStripeActive } from '@openpeeps/common';
+import { useT } from '../../i18n';
+import { useServerInfo } from '../server-data';
+import { useCurrentProfileSettings } from './IdentityContext';
+import { useOpenpeeps } from '../../contexts/openpeeps';
+import { useCredentialsStore } from '../../contexts/credentialsStore';
+
+export interface AuthLayoutProps {
+  description?: ReactNode;
+  children?: ReactNode;
+  noRedirect?: boolean;
+  /**
+   * Called when the auth layer wants to redirect the user — defaults to
+   * `window.location.assign(url)`. Pass your router's navigate to avoid full
+   * reloads.
+   */
+  navigate?: (url: string) => void;
+  /** Forwarded as `?redirect=...` after login. */
+  redirectTo?: string | null;
+  /** True when `?payment=` is present in the URL. */
+  hasPayment?: boolean;
+}
+
+/**
+ * Translation of @openpeeps/svelte/components/layout/Auth.svelte. Renders the
+ * standard auth split-pane shell and triggers a redirect once an authenticated
+ * profile is detected.
+ */
+export function AuthLayout({
+  description,
+  children,
+  noRedirect = false,
+  navigate,
+  redirectTo,
+  hasPayment = false,
+}: AuthLayoutProps) {
+  const serverInfo = useServerInfo();
+  const profileSettings = useCurrentProfileSettings();
+  const t = useT();
+  const { openpeepsApi } = useOpenpeeps();
+  const { credentialsStore } = useCredentialsStore();
+
+  const userTheme = getTheme(serverInfo.communityConfig, profileSettings);
+  const stripeEnabled = !!serverInfo.payments?.stripe?.paidMembership?.enabled;
+  const tagLine = serverInfo.communityConfig?.info?.tagLine;
+
+  const profileQuery = openpeepsApi.useCurrentProfile?.();
+  // Payments hook is not yet ported in @openpeeps/react; guarded for future use.
+  const paymentQuery = (
+    openpeepsApi as unknown as {
+      checkPaymentStatus?: () => {
+        isSuccess: boolean;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data?: { subscription?: any };
+      };
+    }
+  ).checkPaymentStatus?.();
+
+  const go = (url: string) => {
+    if (navigate) navigate(url);
+    else if (typeof window !== 'undefined') window.location.assign(url);
+  };
+
+  useEffect(() => {
+    if (noRedirect) return;
+    let cancelled = false;
+    (async () => {
+      const creds = await credentialsStore.get();
+      if (!creds?.token) return;
+
+      if (stripeEnabled && paymentQuery?.isSuccess) {
+        if (isStripeActive(paymentQuery.data?.subscription)) {
+          if (cancelled) return;
+          if (hasPayment) go('/welcome');
+          else if (
+            profileQuery?.isSuccess &&
+            profileQuery.data?.type === 'local'
+          ) {
+            go(redirectTo || '/feeds/local');
+          }
+        }
+      } else if (
+        profileQuery?.isSuccess &&
+        profileQuery.data?.type === 'local'
+      ) {
+        if (cancelled) return;
+        go(redirectTo || '/feeds/local');
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    noRedirect,
+    stripeEnabled,
+    hasPayment,
+    redirectTo,
+    profileQuery?.isSuccess,
+    profileQuery?.data,
+    paymentQuery?.isSuccess,
+    paymentQuery?.data,
+  ]);
+
+  return (
+    <div className="h-screen w-full overflow-hidden md:flex md:h-full">
+      <div className="flex-1">
+        {userTheme.backgroundAuth && (
+          <img
+            src={userTheme.backgroundAuth}
+            alt="Authentication background"
+            className="hidden h-full w-full object-cover md:block"
+          />
+        )}
+      </div>
+
+      <div className="bg-card flex h-full w-full flex-1 justify-center overflow-y-auto md:h-auto">
+        <div className="mx-auto h-fit space-y-4 p-4 md:mx-10 md:w-[60%]">
+          {userTheme.logoSmall && (
+            <img
+              src={userTheme.logoSmall}
+              alt="logo"
+              className="mb-6 h-6 md:h-10"
+            />
+          )}
+          {description ?? (
+            <p className="text-sm md:text-lg">{tagLine || t('auth.tagline')}</p>
+          )}
+          <div>{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+}

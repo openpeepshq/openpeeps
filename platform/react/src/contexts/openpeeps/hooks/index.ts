@@ -14,8 +14,16 @@ import { searchHooks, type SearchHooks } from './search';
 export const buildOpenpeepsApi = (
   client: OpenpeepsClient,
   setCurrentProfile: (profile: ProfileWithMeta | undefined) => void,
-  setCurrentAccount: (account: PublicAccount | undefined) => void
-): { admin: AdminHooks } & AuthHooks & AccountHooks & ConversationHooks & GroupHooks & JamHooks & PostHooks & ProfileHooks & SearchHooks & OtherHooks => ({
+  setCurrentAccount: (account: PublicAccount | undefined) => void,
+): { admin: AdminHooks } & AuthHooks &
+  AccountHooks &
+  ConversationHooks &
+  GroupHooks &
+  JamHooks &
+  PostHooks &
+  ProfileHooks &
+  SearchHooks &
+  OtherHooks => ({
   admin: adminHooks(client),
 
   ...authHooks(client, setCurrentProfile, setCurrentAccount),
@@ -33,9 +41,8 @@ export const buildOpenpeepsApi = (
   ...profileHooks(client, setCurrentProfile),
 
   ...otherHooks(client),
-  
-  ...searchHooks(client),
 
+  ...searchHooks(client),
 });
 
 export type OpenpeepsApi = ReturnType<typeof buildOpenpeepsApi>;

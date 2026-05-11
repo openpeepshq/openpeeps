@@ -9,7 +9,7 @@ export const accountHooks = (client: OpenpeepsClient) => ({
   ]),
   createPushSubscriptionAction: payloadMutation(
     client.accounts.current.createPushSubscription,
-    [['accounts'], ['current']]
+    [['accounts'], ['current']],
   ),
   usePushSubscriptions: () =>
     apiHook(client.accounts.current.listPushSubscriptions),
