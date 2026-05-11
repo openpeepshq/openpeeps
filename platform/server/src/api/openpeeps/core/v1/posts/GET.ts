@@ -1,0 +1,27 @@
+import { endpoint, z } from '#lib/endpoint';
+import type { RequestEvent } from '@riddl/core';
+import { listPosts } from '@openpeeps/core/posts';
+import { ensureProfileOrPublicCommunity } from '#lib/auth';
+
+export const Query = z.object({
+  start: z.string().optional(),
+  limit: z.coerce.number().optional(),
+});
+
+export const Output = z.any().array();
+
+export const apiEndpoint = endpoint({ Query, Output }).handle(
+  async (query, event: RequestEvent) => {
+    const currentProfile = await ensureProfileOrPublicCommunity(event);
+
+    const posts = await listPosts(
+      currentProfile,
+      {
+        start: query.start,
+        limit: query.limit,
+      },
+    );
+
+    return Output.parse(posts);
+  },
+);

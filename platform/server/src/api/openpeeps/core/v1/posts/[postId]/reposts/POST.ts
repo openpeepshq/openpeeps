@@ -1,0 +1,49 @@
+import { endpoint, z } from '#lib/endpoint';
+import { forbidden, notFound } from '#lib/errors';
+import {
+  type PostWithMeta,
+  publicPostSchema,
+  type PostData,
+} from '@openpeeps/common/types';
+import { ensureGroupCapabilities, ensureLocalProfile, ensureRoleCapabilities } from '#lib/auth';
+import type { RequestEvent } from '@riddl/core';
+import { createPost, findPost } from '@openpeeps/core/posts';
+
+export const Output = publicPostSchema;
+export const Param = z.object({
+  postId: z.string(),
+});
+
+export const Error = {
+  403: forbidden(),
+  404: notFound(),
+};
+
+export const apiEndpoint = endpoint({ Output, Param, Error }).handle(
+  async (input, event: RequestEvent) => {
+    const profile = await ensureLocalProfile(event);
+
+    const postToRepost: PostWithMeta | undefined = await findPost(input.postId);
+
+    if (!postToRepost) {
+      throw notFound(`Post with id ${input.postId}`);
+    }
+
+    if (postToRepost.group) {
+      await ensureGroupCapabilities(event, [`core-posts-create-${postToRepost.type}`], postToRepost.group);
+    } else {
+      await ensureRoleCapabilities(event, [`core-posts-create-${postToRepost.type}-${postToRepost.visibility}`]);
+    }
+
+    const post: PostData = {
+      type: 'note',
+      visibility: postToRepost.visibility,
+    };
+
+    return await createPost({ type: 'note' }, profile, post, {
+      repostId: postToRepost?.id,
+      groupId: postToRepost?.groupId || undefined,
+      audience: postToRepost?.audience || undefined,
+    });
+  },
+);
