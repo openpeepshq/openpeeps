@@ -141,7 +141,7 @@ export const PostActions = ({
           onPress={handleSeeThread}
           variant="ghost"
           className="flex-row items-center native:p-0 gap-2">
-          <ThemedText>{t('posts.actions.seeThread')}</ThemedText>
+          <ThemedText>{post.data?.type === 'event' ? t('posts.actions.seeEvent') : t('posts.actions.seeThread')}</ThemedText>
         </Button>
         <Button
           disabled={previewMode}
