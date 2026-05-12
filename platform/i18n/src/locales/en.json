@@ -1811,7 +1811,8 @@
         "group": "Group Event In:",
         "startDate": "Start Date",
         "endDate": "End Date",
-        "community": "Community Event"
+        "community": "Community Event",
+        "noRsvps": "No RSVPs yet"
     },
     "reports": {
         "categories": {
