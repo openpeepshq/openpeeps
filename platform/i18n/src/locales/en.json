@@ -1812,7 +1812,8 @@
         "startDate": "Start Date",
         "endDate": "End Date",
         "community": "Community Event",
-        "noRsvps": "No RSVPs yet"
+        "noRsvps": "No RSVPs yet",
+        "noAttendees": "No attendees yet"
     },
     "reports": {
         "categories": {
