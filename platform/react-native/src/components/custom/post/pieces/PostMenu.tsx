@@ -1,4 +1,4 @@
-import { View, Pressable, Share } from 'react-native';
+import { View, Pressable, Share, ActivityIndicator } from 'react-native';
 import React, { useCallback, useEffect, useRef } from 'react';
 import {
   EllipsisIcon,
@@ -14,6 +14,7 @@ import {
 } from '~/components/icons';
 import {
   DropdownMenu,
+  type DropdownMenuRef,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -47,6 +48,10 @@ export const PostMenu = ({ post }: PostMenuProps) => {
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const reportProfileModalRef = useRef<BottomSheetModal>(null);
   const reportPostModalRef = useRef<BottomSheetModal>(null);
+  const dropdownMenuRef = useRef<DropdownMenuRef>(null);
+  const bookmarkActionInFlight = useRef(false);
+  const [isBookmarkActionPending, setIsBookmarkActionPending] =
+    React.useState(false);
   const [isFollowing, setIsFollowing] = React.useState(false);
   const { data: serverInfo } = openpeepsApi.useServerInfo();
   const canPinToGroup = post.group &&
@@ -177,6 +182,40 @@ export const PostMenu = ({ post }: PostMenuProps) => {
     }
   };
 
+  const handleBookmarkMenuPress = useCallback(async () => {
+    if (bookmarkActionInFlight.current) {
+      return;
+    }
+    bookmarkActionInFlight.current = true;
+    setIsBookmarkActionPending(true);
+    try {
+      if (isBookmarked) {
+        await unbookmarkPost();
+        Toast.show({
+          type: 'success',
+          text1: t('posts.unbookmark.success'),
+        });
+      } else {
+        await bookmarkPost();
+        Toast.show({
+          type: 'success',
+          text1: t('posts.bookmark.success'),
+        });
+      }
+      await refetchBookmarkedIds();
+    } finally {
+      bookmarkActionInFlight.current = false;
+      setIsBookmarkActionPending(false);
+      dropdownMenuRef.current?.close();
+    }
+  }, [
+    isBookmarked,
+    bookmarkPost,
+    unbookmarkPost,
+    refetchBookmarkedIds,
+    t,
+  ]);
+
   useEffect(() => {
     const isCurrentProfileFollowing = currentProfile?.following
       .map((p) => p.id)
@@ -188,7 +227,7 @@ export const PostMenu = ({ post }: PostMenuProps) => {
 
   return (
     <View key={post.id}>
-      <DropdownMenu>
+      <DropdownMenu ref={dropdownMenuRef}>
         <DropdownMenuTrigger asChild>
           <Pressable className="mr-2 p-2">
             <EllipsisIcon className="text-foreground" />
@@ -350,28 +389,28 @@ export const PostMenu = ({ post }: PostMenuProps) => {
             )}
             {isBookmarked ? (
               <DropdownMenuItem
-                onPress={async () => {
-                  await unbookmarkPost().then(()=> refetchBookmarkedIds())
-                  Toast.show({
-                    type: 'success',
-                    text1: t('posts.unbookmark.success'),
-                  });
-                }}
+                closeOnPress={false}
+                disabled={isBookmarkActionPending}
+                onPress={handleBookmarkMenuPress}
                 className=" flex-row gap-x-2 items-center">
-                <BookmarkMinusIcon size={16} className="text-foreground" />
+                {isBookmarkActionPending ? (
+                  <ActivityIndicator size="small" />
+                ) : (
+                  <BookmarkMinusIcon size={16} className="text-foreground" />
+                )}
                 <ThemedText>{t('posts.unbookmark.title')}</ThemedText>
               </DropdownMenuItem>
             ) : (
               <DropdownMenuItem
-                onPress={async () => {
-                  await bookmarkPost().then(()=> refetchBookmarkedIds())
-                  Toast.show({
-                    type: 'success',
-                    text1: t('posts.bookmark.success'),
-                  });
-                }}
+                closeOnPress={false}
+                disabled={isBookmarkActionPending}
+                onPress={handleBookmarkMenuPress}
                 className=" flex-row gap-x-2 items-center">
-                <BookmarkPlusIcon size={16} className="text-foreground" />
+                {isBookmarkActionPending ? (
+                  <ActivityIndicator size="small" />
+                ) : (
+                  <BookmarkPlusIcon size={16} className="text-foreground" />
+                )}
                 <ThemedText>{t('posts.bookmark.title')}</ThemedText>
               </DropdownMenuItem>
             )}

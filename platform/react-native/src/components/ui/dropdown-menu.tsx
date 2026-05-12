@@ -34,13 +34,17 @@ const DropdownContext = React.createContext<DropdownContextType>({
   portalName: '',
 });
 
-const DropdownMenu = ({
-  children,
-  onOpenChange,
-}: {
-  children: React.ReactNode;
-  onOpenChange?: (open: boolean) => void;
-}) => {
+export type DropdownMenuRef = {
+  close: () => void;
+};
+
+const DropdownMenu = React.forwardRef<
+  DropdownMenuRef,
+  {
+    children: React.ReactNode;
+    onOpenChange?: (open: boolean) => void;
+  }
+>(function DropdownMenu({children, onOpenChange}, ref) {
   const [open, setOpen] = React.useState(false);
   const [triggerLayout, setTriggerLayout] = React.useState<{
     x: number;
@@ -60,6 +64,14 @@ const DropdownMenu = ({
     [onOpenChange],
   );
 
+  React.useImperativeHandle(
+    ref,
+    () => ({
+      close: () => handleSetOpen(false),
+    }),
+    [handleSetOpen],
+  );
+
   return (
     <DropdownContext.Provider
       value={{
@@ -72,7 +84,9 @@ const DropdownMenu = ({
       {children}
     </DropdownContext.Provider>
   );
-};
+});
+
+DropdownMenu.displayName = 'DropdownMenu';
 
 const DropdownMenuTrigger = ({
   children,
@@ -181,20 +195,24 @@ const DropdownMenuItem = ({
   onPress,
   className,
   disabled,
+  closeOnPress = true,
 }: {
   children: React.ReactNode;
   onPress?: () => void;
   className?: string;
   disabled?: boolean;
+  /** When false, the menu stays open until you call `ref.current.close()` on DropdownMenu. */
+  closeOnPress?: boolean;
   inset?: boolean;
 }) => {
   const {setOpen} = React.useContext(DropdownContext);
 
   const handlePress = React.useCallback(() => {
-    console.log('closing dropdown');
-    setOpen(false);
+    if (closeOnPress) {
+      setOpen(false);
+    }
     onPress?.();
-  }, [onPress, setOpen]);
+  }, [closeOnPress, onPress, setOpen]);
 
   return (
     <Pressable
