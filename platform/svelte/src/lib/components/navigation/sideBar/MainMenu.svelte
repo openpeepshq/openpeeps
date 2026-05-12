@@ -23,11 +23,11 @@
     LogOut,
     KeyRound,
     Logs,
+    ChevronDown,
   } from 'lucide-svelte';
   import { TreeView } from '@skeletonlabs/skeleton';
   import { currentProfileStore } from '$lib/api';
-  import { checkRoleCapabilities } from '@openpeeps/common/lib';
-  import { page } from '$app/state';
+  import { hasAdminSidebarAccess } from '@openpeeps/common/lib';
   import { MenuItem } from '.';
   import { i18nContext } from '$lib/components/i18n';
   import { getServerInfo } from '@openpeeps/svelte/server';
@@ -36,9 +36,9 @@
   const { t } = i18nContext();
   const profileQuery = currentProfileStore();
   let isAdmin: boolean = $derived(
-    checkRoleCapabilities($profileQuery.data?.roles ?? [], ['admin']).success,
+    hasAdminSidebarAccess($profileQuery.data?.roles ?? []),
   );
-  let isAdministrationOpen = $derived(page.url.pathname.includes('/admin'));
+  let adminMenuExpanded = $state(false);
 
   const serverInfo = getServerInfo();
 </script>
@@ -76,57 +76,72 @@
   <MenuItem name={t('navigation.settings')} icon={Settings} action="/settings" />
 
   {#if isAdmin}
-    <MenuItem
-      name={t('navigation.administration')}
-      icon={Bolt}
-      action="/admin"
-      open={isAdministrationOpen}
-    >
-      {#snippet children()}
-        <MenuItem
-          name={t('navigation.members')}
-          icon={User}
-          action="/admin/members"
+    <span class="block pl-4">
+      <button
+        type="button"
+        class="hover:bg-surface-100 text-base-200 flex w-full items-center gap-x-2 py-2 pl-2 text-left"
+        onclick={() => (adminMenuExpanded = !adminMenuExpanded)}
+        aria-expanded={adminMenuExpanded}
+      >
+        <span class="opacity-60">
+          <Bolt class="mr-1 h-5 w-5" strokeWidth={2} />
+        </span>
+        <span class="min-w-0 flex-1 truncate opacity-60"
+          >{t('navigation.administration')}</span
+        >
+        <ChevronDown
+          class="text-base-200 h-5 w-5 shrink-0 opacity-60 transition-transform {adminMenuExpanded
+            ? 'rotate-180'
+            : ''}"
         />
-        <MenuItem
-          name={t('navigation.groups')}
-          icon={Users}
-          action="/admin/groups"
-        />
-        <MenuItem
-          name={t('navigation.invites')}
-          icon={MailOpen}
-          action="/admin/invites"
-        />
-        <MenuItem
-          name={t('navigation.moderation')}
-          icon={ShieldAlert}
-          action="/admin/moderation"
-        />
-        <MenuItem
-          name={t('navigation.backups')}
-          icon={DatabaseBackup}
-          action="/admin/backups"
-        />
-        <MenuItem
-          name={t('navigation.analytics')}
-          icon={ChartLine}
-          action="/admin/analytics"
-        />
-        <MenuItem name={t('navigation.logs')} icon={Logs} action="/admin/logs" />
-        <MenuItem name="API Keys" icon={KeyRound} action="/admin/api-keys" />
-        <MenuItem
-          name={t('navigation.configuration')}
-          icon={Wrench}
-          action="/admin/configuration"
-        />
-        <MenuItem
-          name={t('navigation.diagnostics')}
-          icon={Stethoscope}
-          action="/admin/diagnostics"
-        />
-      {/snippet}
-    </MenuItem>
+      </button>
+      {#if adminMenuExpanded}
+        <div class="border-surface-300 ml-2 mt-1 flex flex-col gap-0.5 border-l pl-2">
+          <MenuItem
+            name={t('navigation.members')}
+            icon={User}
+            action="/admin/members"
+          />
+          <MenuItem
+            name={t('navigation.groups')}
+            icon={Users}
+            action="/admin/groups"
+          />
+          <MenuItem
+            name={t('navigation.invites')}
+            icon={MailOpen}
+            action="/admin/invites"
+          />
+          <MenuItem
+            name={t('navigation.moderation')}
+            icon={ShieldAlert}
+            action="/admin/moderation"
+          />
+          <MenuItem
+            name={t('navigation.backups')}
+            icon={DatabaseBackup}
+            action="/admin/backups"
+          />
+          <MenuItem
+            name={t('navigation.analytics')}
+            icon={ChartLine}
+            action="/admin/analytics"
+          />
+          <MenuItem name={t('navigation.logs')} icon={Logs} action="/admin/logs" />
+          <MenuItem name="API Keys" icon={KeyRound} action="/admin/api-keys" />
+          <MenuItem
+            name={t('navigation.configuration')}
+            icon={Wrench}
+            action="/admin/configuration"
+          />
+          <MenuItem
+            name={t('navigation.diagnostics')}
+            icon={Stethoscope}
+            action="/admin/diagnostics"
+          />
+        </div>
+      {/if}
+    </span>
   {/if}
   <MenuItem
     name={t('navigation.logOut')}

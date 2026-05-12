@@ -93,7 +93,9 @@ export const registerServiceWorker = async (
         { type: 'INVALIDATE_QUERIES_PORT' },
         [channel.port2],
       );
-      navigator.serviceWorker.controller?.postMessage({ type: 'SKIP_WAITING' });
+      // Do not post SKIP_WAITING to the *active* controller on every load: that
+      // can spuriously drive skipWaiting → controllerchange → page reload loops
+      // when combined with useServiceWorker({ autoReload: true }).
       channel.port1.onmessage = (event) => {
         log.debug('Invalidating queries for keys:', event.data);
         options.onInvalidateQueries?.(event.data as unknown[]);

@@ -5,7 +5,7 @@ import {
   noPayloadMutation,
   infiniteChronologicalQueryApiHook,
 } from '../helpers';
-import { useCredentialsStore } from '../../credentialsStore';
+import { useHasAuthToken } from './useHasAuthToken';
 import type {
   ChronologicalInfiniteQueryParams,
   ProfileWithMeta,
@@ -34,13 +34,9 @@ export const profileHooks = (
     ['profiles'],
   ]),
   useCurrentProfile: () => {
-    const { credentialsStore } = useCredentialsStore();
+    const hasToken = useHasAuthToken();
     return apiHook(client.profiles.current.read, {
-      preQueryCheck: async () => {
-        if (!(await credentialsStore?.get())?.token) {
-          throw new Error('No credentials found');
-        }
-      },
+      enabled: hasToken,
       onSuccess: setCurrentProfile,
     });
   },
@@ -66,8 +62,10 @@ export const profileHooks = (
     apiHook(client.profiles.current.bookmarkedIds),
   useCommonGroups: (profileId: string) =>
     apiHook(client.profiles.commonGroups, { pathParams: { profileId } }),
-  useCurrentProfileSettings: () =>
-    apiHook(client.profiles.current.readSettings),
+  useCurrentProfileSettings: () => {
+    const hasToken = useHasAuthToken();
+    return apiHook(client.profiles.current.readSettings, { enabled: hasToken });
+  },
   updateCurrentProfileSettingsAction: payloadMutation(
     client.profiles.current.updateSettings,
     [['profiles', 'current', 'settings']],

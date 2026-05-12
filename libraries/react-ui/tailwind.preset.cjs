@@ -127,6 +127,10 @@ module.exports = {
         'accordion-up': 'accordion-up 0.2s ease-out',
         spin: 'spin 1s linear infinite',
       },
+      spacing: {
+        70: '17.5rem',
+        128: '32rem',
+      },
     },
   },
   plugins: [],

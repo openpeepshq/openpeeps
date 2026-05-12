@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { MessageSquareText, Menu } from 'lucide-react';
 import {
   Dialog,
@@ -13,13 +13,22 @@ import { useCurrentProfileSettings } from '../layout/IdentityContext';
 import { useRouter } from '../../contexts/router';
 import { useT } from '../../i18n';
 import { SideBar } from './SideBar';
+import { SidebarNavCloseContext } from './SidebarNavContext';
 
 export interface HeaderMobileProps {
   /** Render slot to draw the avatar trigger (defaults to a generic icon). */
-  avatar?: React.ReactNode;
+  avatar?: ReactNode;
+  /** Same slots as desktop `SideBar` (mobile drawer). */
+  sideBar?: {
+    mainMenu?: () => ReactNode;
+    profileMenu?: () => ReactNode;
+  };
 }
 
-export function HeaderMobile({ avatar }: HeaderMobileProps = {}) {
+export function HeaderMobile({
+  avatar,
+  sideBar,
+}: HeaderMobileProps = {}) {
   const serverInfo = useServerInfo();
   const profileSettings = useCurrentProfileSettings();
   const router = useRouter();
@@ -46,7 +55,13 @@ export function HeaderMobile({ avatar }: HeaderMobileProps = {}) {
               showCloseButton={false}
               className="left-0 top-0 h-screen w-[380px] translate-x-0 translate-y-0 rounded-none border-r p-0"
             >
-              <SideBar onClose={() => setOpen(false)} />
+              <SidebarNavCloseContext.Provider value={() => setOpen(false)}>
+                <SideBar
+                  onClose={() => setOpen(false)}
+                  mainMenu={sideBar?.mainMenu?.()}
+                  profileMenu={sideBar?.profileMenu?.()}
+                />
+              </SidebarNavCloseContext.Provider>
             </DialogContent>
           </DialogPortal>
         </Dialog>

@@ -92,6 +92,10 @@ import { ConversationInfo } from './pages/conversations/Info';
 import { SsoCallback } from './pages/auth/SsoCallback';
 
 import { PageStub } from './pages/_PageStub';
+import {
+  AppSideBarMainMenu,
+  AppSideBarProfileMenu,
+} from './navigation/AppSideBarMenus';
 
 const baseUrl =
   import.meta.env.VITE_OPENPEEPS_BASE_URL ??
@@ -341,7 +345,7 @@ function AppShell() {
   return (
     <OpenpeepsContextProvider pathname={location.pathname}>
       <OpenpeepsThemeProvider>
-        <pwa.PwaProvider>
+        <pwa.PwaProvider enabled={import.meta.env.PROD}>
           <Routes>
             {/* Standalone (no shell): auth + standalone admin tools */}
             <Route path="/auth/login" element={<Login />} />
@@ -357,6 +361,11 @@ function AppShell() {
             <Route path="/auth/reset-password" element={<ResetPassword />} />
             <Route path="/auth/closed" element={<AuthClosed />} />
             <Route path="/auth/sso/generic" element={<MiscPages.SsoGeneric />} />
+
+            {/* AuthLayout pages: full-bleed auth shell, not inside RootLayout */}
+            <Route path="/about" element={<About />} />
+            <Route path="/code-of-conduct" element={<CodeOfConduct />} />
+
             <Route path="/admin/logs" element={<Admin.Logs />} />
             <Route path="/admin/db" element={<Admin.Db />} />
 
@@ -364,12 +373,15 @@ function AppShell() {
             <Route
               path="/*"
               element={
-                <RootLayout>
+                <RootLayout
+                  sideBar={{
+                    mainMenu: () => <AppSideBarMainMenu />,
+                    profileMenu: () => <AppSideBarProfileMenu />,
+                  }}
+                >
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/home" element={<Feeds.Local />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/code-of-conduct" element={<CodeOfConduct />} />
                     <Route path="/welcome" element={<Welcome />} />
                     <Route path="/notifications" element={<Notifications />} />
                     <Route path="/payment/success" element={<MiscPages.Payment />} />

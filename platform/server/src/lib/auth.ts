@@ -33,17 +33,25 @@ export const loadCurrentProfile = async (
       identity.type === 'current-profile' || identity.type === 'guest-profile',
   )?.id;
 
-  if (id) {
-    const profile = await findProfile(id);
-    if (profile && !profile.deletedAt) {
-      const parsedProfileResult = profileWithMetaSchema.safeParse(profile);
-      if (parsedProfileResult.success) {
-        return parsedProfileResult.data as ProfileWithMeta;
-      } else {
-        console.error('Invalid profile', parsedProfileResult.error);
-      }
-    }
+  if (!id) {
+    return undefined;
   }
+
+  const profile = await findProfile(id);
+  if (!profile) {
+    return undefined;
+  }
+
+  if (profile.deletedAt) {
+    return undefined;
+  }
+
+  const parsedProfileResult = profileWithMetaSchema.safeParse(profile);
+  if (parsedProfileResult.success) {
+    return parsedProfileResult.data as ProfileWithMeta;
+  }
+
+  console.error('Invalid profile', parsedProfileResult.error);
 
   return undefined;
 };

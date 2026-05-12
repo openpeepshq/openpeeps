@@ -118,6 +118,8 @@ export const apiHook = <
     pathParams?: PathParams;
     queryParams?: QueryParams;
     refetchInterval?: number;
+    /** When false, the query does not run (TanStack Query `enabled`). */
+    enabled?: boolean;
     onSuccess?: (output: Output) => void | Promise<void>;
     onError?: (error: SuccessFailureResponse) => void | Promise<void>;
     preQueryCheck?: (options: {
@@ -132,6 +134,7 @@ export const apiHook = <
       pathParameters: options?.pathParams,
       queryParameters: options?.queryParams,
     }),
+    enabled: options?.enabled ?? true,
     queryFn: async () => {
       await options?.preQueryCheck?.({
         endpoint,

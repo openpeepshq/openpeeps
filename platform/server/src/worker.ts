@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import './loadServerEnv';
 import { logger } from '@openpeeps/core/log';
 import { start } from '@openpeeps/worker';
 

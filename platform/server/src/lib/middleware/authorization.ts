@@ -14,7 +14,8 @@ const pre = async (event: RequestEvent): Promise<RequestEvent> => {
   if (authHeader) {
     const token = authHeader.split(' ')[1];
     const jwt = await jwtUtil();
-    const authorization = (await jwt.verify(token))?.payload as Authorization;
+    const verified = await jwt.verify(token);
+    const authorization = verified?.payload as Authorization | undefined;
     if (authorization) {
       event.context.authorization = authorization;
       event.context.currentProfile = await loadCurrentProfile(authorization);

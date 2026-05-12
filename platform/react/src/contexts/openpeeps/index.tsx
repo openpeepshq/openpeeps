@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { OpenpeepsContextValue } from './types';
 import {
@@ -6,6 +13,10 @@ import {
   type OpenpeepsClientOptions,
 } from '@openpeeps/client';
 import type { CredentialsStore } from '../../auth/credentials/types';
+import {
+  AUTH_CREDENTIALS_STORAGE_KEY,
+  OPENPEEPS_CREDENTIALS_CHANGED_EVENT,
+} from '../../auth/credentials';
 import { buildOpenpeepsApi } from './hooks';
 import { CredentialsStoreProvider } from '../credentialsStore';
 import {
@@ -30,20 +41,26 @@ export const OpenpeepsProvider: React.FC<{
   baseUrl: string;
   debug?: boolean;
 }> = ({ children, credentialsStore, baseUrl }) => {
-  const openpeepsClientOptionsProvider: () => Promise<OpenpeepsClientOptions> =
-    async () => ({
-      token: (await credentialsStore.get())?.token,
-      baseUrl,
-    });
-  const queryClient = new QueryClient();
+  const openpeepsClientOptionsProvider =
+    useCallback(async (): Promise<OpenpeepsClientOptions> => {
+      return {
+        token: (await credentialsStore.get())?.token,
+        baseUrl,
+      };
+    }, [credentialsStore, baseUrl]);
+
+  const client = useMemo(
+    () => openpeepsClient(openpeepsClientOptionsProvider),
+    [openpeepsClientOptionsProvider],
+  );
+
+  const queryClient = useMemo(() => new QueryClient(), []);
   const [currentProfile, setCurrentProfile] = useState<
     ProfileWithMeta | undefined
   >(undefined);
   const [currentAccount, setCurrentAccount] = useState<
     PublicAccount | undefined
   >(undefined);
-
-  const client = openpeepsClient(openpeepsClientOptionsProvider);
 
   const openpeepsApi = buildOpenpeepsApi(
     client,
@@ -61,13 +78,37 @@ export const OpenpeepsProvider: React.FC<{
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const profile = await client.profiles.current
-        .read()
-        .then((res) => ('data' in res ? res.data : undefined));
+      const cred = await credentialsStore.get();
+      if (!cred?.token) {
+        setCurrentProfile(undefined);
+        return;
+      }
+      const res = await client.profiles.current.read();
+      const profile = 'data' in res ? res.data : undefined;
       setCurrentProfile(profile);
     };
-    fetchProfile();
-  }, []);
+
+    void fetchProfile();
+
+    const onCredentialsChanged = () => void fetchProfile();
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === AUTH_CREDENTIALS_STORAGE_KEY) void fetchProfile();
+    };
+
+    window.addEventListener(
+      OPENPEEPS_CREDENTIALS_CHANGED_EVENT,
+      onCredentialsChanged,
+    );
+    window.addEventListener('storage', onStorage);
+
+    return () => {
+      window.removeEventListener(
+        OPENPEEPS_CREDENTIALS_CHANGED_EVENT,
+        onCredentialsChanged,
+      );
+      window.removeEventListener('storage', onStorage);
+    };
+  }, [credentialsStore, client]);
 
   useEffect(() => {
     const refreshIfExpiringSoon = async () => {

@@ -4,6 +4,7 @@ module.exports = {
   content: [
     './index.html',
     './src/**/*.{ts,tsx}',
+    '../react/src/**/*.{ts,tsx}',
     './node_modules/@openpeeps/react/dist/**/*.{js,mjs}',
     './node_modules/@openpeeps/react-ui/dist/**/*.{js,mjs}',
   ],

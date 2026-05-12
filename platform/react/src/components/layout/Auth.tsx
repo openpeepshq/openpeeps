@@ -74,6 +74,7 @@ export function AuthLayout({
           if (cancelled) return;
           if (hasPayment) go('/welcome');
           else if (
+            !profileQuery?.isFetching &&
             profileQuery?.isSuccess &&
             profileQuery.data?.type === 'local'
           ) {
@@ -81,6 +82,7 @@ export function AuthLayout({
           }
         }
       } else if (
+        !profileQuery?.isFetching &&
         profileQuery?.isSuccess &&
         profileQuery.data?.type === 'local'
       ) {
@@ -97,6 +99,7 @@ export function AuthLayout({
     stripeEnabled,
     hasPayment,
     redirectTo,
+    profileQuery?.isFetching,
     profileQuery?.isSuccess,
     profileQuery?.data,
     paymentQuery?.isSuccess,

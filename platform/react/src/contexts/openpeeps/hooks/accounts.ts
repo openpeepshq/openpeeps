@@ -1,8 +1,12 @@
 import type { OpenpeepsClient } from '@openpeeps/client';
 import { apiHook, noPayloadMutation, payloadMutation } from '../helpers';
+import { useHasAuthToken } from './useHasAuthToken';
 
 export const accountHooks = (client: OpenpeepsClient) => ({
-  useCurrentAccount: () => apiHook(client.accounts.current.read),
+  useCurrentAccount: () => {
+    const hasToken = useHasAuthToken();
+    return apiHook(client.accounts.current.read, { enabled: hasToken });
+  },
   updateCurrentAccountAction: payloadMutation(client.accounts.current.update, [
     ['accounts'],
     ['current'],

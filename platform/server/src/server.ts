@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import './loadServerEnv';
 import './types';
 import { existsSync } from 'node:fs';
 import path from 'node:path';

@@ -26,6 +26,12 @@ export const useNavigate = () => useRouter().navigate;
 export const usePathname = () => useRouter().pathname;
 export const useSearchParams = () => useRouter().searchParams;
 
+/** Pathname when inside `RouterProvider`, otherwise `undefined` (no throw). */
+export const useOptionalPathname = (): string | undefined => {
+  const ctx = useContext(RouterContext);
+  return ctx?.pathname;
+};
+
 export interface RouterProviderProps {
   adapter: RouterAdapter;
   children?: ReactNode;

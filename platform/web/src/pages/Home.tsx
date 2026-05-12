@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useT } from '@openpeeps/react';
 import {
@@ -21,13 +21,16 @@ export function Home() {
 
   const toastType = searchParams.get('toast');
 
+  const profileKey = currentProfile?.id ?? '';
+  const hasPublic = !!serverInfo.publicContent;
+  const target = useMemo(
+    () => (profileKey || hasPublic ? '/feeds/local' : '/auth/login'),
+    [profileKey, hasPublic],
+  );
+
   useEffect(() => {
-    if (currentProfile || serverInfo.publicContent) {
-      navigate('/feeds/local', { replace: true });
-    } else {
-      navigate('/auth/login', { replace: true });
-    }
-  }, [currentProfile, serverInfo.publicContent, navigate]);
+    navigate(target, { replace: true });
+  }, [target, navigate]);
 
   if (toastType === 'success') {
     return (

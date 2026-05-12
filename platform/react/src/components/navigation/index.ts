@@ -1,5 +1,9 @@
 export { SideBar } from './SideBar';
 export type { SideBarProps } from './SideBar';
+export {
+  SidebarNavCloseContext,
+  useSidebarNavClose,
+} from './SidebarNavContext';
 export { HeaderMobile } from './HeaderMobile';
 export type { HeaderMobileProps } from './HeaderMobile';
 export { FooterMobile } from './FooterMobile';
