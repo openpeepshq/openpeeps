@@ -48,7 +48,7 @@ export const fetchUrlHandler = async (request: FetchUrlRequest, event: RequestEv
     headers: {
       accept: 'text/html; charset=UTF-8',
       'accept-language': 'en-US, en',
-      'user-agent': 'AllPeeP/1.0',
+      'user-agent': 'OpenPeeps/1.0',
     },
 
   }).catch(() => {
