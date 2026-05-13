@@ -80,10 +80,11 @@
     maxWidth={480}
     showSelectAspectRatio={true}
     aspectRatio="16:9"
-    text="Upload your cover image"
-    specsText="Minimum width 480 pixels, 16:9 recommended"
+    targetDimensions={{ width: 480, height: 270 }}
+    text={t('events.form.imageDescription')}
+    specsText={t('events.form.imageSpecs')}
     showAltInput={false}
-    classes={'h-[250px]'}
+    classes={'aspect-video !h-auto'}
     path={['data', 'image']}
   />
 

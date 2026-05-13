@@ -158,7 +158,7 @@ export const EventForm = ({
 
   return (
     <Form {...form}>
-      <ThemedView className="w-full relative rounded-md h-[400px]">
+      <ThemedView className="w-full relative rounded-md aspect-video overflow-hidden">
         <View className="w-full h-full flex justify-end items-end relative ">
           {isBackgroundChanged ? (
             <View className="flex flex-row gap-x-2 z-30 mb-6 mr-6">

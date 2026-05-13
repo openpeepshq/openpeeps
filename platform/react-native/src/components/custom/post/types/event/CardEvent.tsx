@@ -37,14 +37,15 @@ export const CardEvent = ({ post }: CardEventProps) => {
         });
       }}
       className="flex mb-6 w-full border-[0.5px] border-gray-100/50 rounded-lg">
-      <View className="w-full h-[200px]">
+      <View className="w-full aspect-video overflow-hidden rounded-t-md">
         <Image
           source={
             event.image
               ? { uri: event.image }
               : require('~/assets/images/event-placeholder.png')
           }
-          className="w-full h-full rounded-t-md"
+          className="w-full h-full"
+          resizeMode="cover"
         />
       </View>
       <View className="grid gap-y-5 p-4">

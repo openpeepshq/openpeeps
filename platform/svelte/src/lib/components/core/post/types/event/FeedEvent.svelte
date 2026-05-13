@@ -15,7 +15,9 @@
 {#if post?.data?.type === 'event'}
 	<div class="flex w-full flex-col gap-2">
 		{#if event.image}
-			<img src={event.image} class="h-48 w-full object-cover" alt="image for {event.name}" />
+			<span class="aspect-video w-full overflow-hidden">
+				<img src={event.image} class="h-full w-full object-cover" alt="image for {event.name}" />
+			</span>
 		{/if}
 		<div class="flex w-full items-center justify-between">
 			<span class="text-error-600">

@@ -31,11 +31,11 @@
 
 <div class="hover:bg-surface-100 overflow-hidden rounded-md px-2 pt-2" use:postViewCounter={post.id}>
   <a href="{page.url.origin}/posts/{post.id}" class="flex flex-col gap-2">
-    <span class="h-32">
+    <span class="aspect-video w-full overflow-hidden rounded-md">
       <img
         src={event.image || '/img/event-default.png'}
         alt={event?.name || event?.content}
-        class="h-full w-full rounded-md object-cover"
+        class="h-full w-full object-cover"
       />
     </span>
     <span class="flex flex-col gap-1">

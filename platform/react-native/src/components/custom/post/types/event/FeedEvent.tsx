@@ -11,11 +11,13 @@ export const FeedEvent = ({ post }: { post: PublicPost }) => {
     const eventData = post.data as Event;
     return (<>
         {eventData.image && (
-            <Image
-                source={{ uri: eventData.image }}
-                className="w-full h-56"
-                resizeMode="cover"
-            />
+            <View className="w-full aspect-video overflow-hidden">
+                <Image
+                    source={{ uri: eventData.image }}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                />
+            </View>
         )}
 
         <View className="p-4">
