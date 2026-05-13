@@ -12,8 +12,6 @@ on:
 env:
   DEFAULT_BRANCH: "main"
   REGISTRY_IMAGE_BASE: "codeberg.org/${{ forgejo.repository }}"
-  # Prefer caller override (e.g. post–force-push SHA); avoid `A && forgejo.sha` which can yield boolean false, not the SHA string.
-  CHECKOUT_REF: ${{ inputs.override_sha != '' && inputs.override_sha || forgejo.sha }}
 
 concurrency:
   group: ${{ forgejo.repository }}-${{ forgejo.ref_name }}
@@ -22,14 +20,24 @@ concurrency:
 jobs:
   set-variables:
     runs-on: docker
+    container:
+      image: node:24-alpine
     steps:
+      - name: Install git
+        run: apk add --no-cache git
+      - name: Checkout (resolve SHA for workflow_call when forgejo.sha is empty)
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ forgejo.token }}
+          ref: ${{ inputs.override_sha != '' && inputs.override_sha || forgejo.sha || forgejo.ref }}
       - name: Set variables
         id: vars
         run: |
           ref_name="${{ forgejo.ref_name }}"
-          sha="${{ env.CHECKOUT_REF }}"
-          if [ -z "$sha" ] || [ "$sha" = "null" ]; then
-            echo "Resolved commit SHA is empty (CHECKOUT_REF / forgejo.sha)." >&2
+          sha="$(git rev-parse HEAD)"
+          if [ -z "$sha" ]; then
+            echo "Could not resolve commit SHA after checkout." >&2
             exit 1
           fi
           short_sha=$(echo "$sha" | cut -c1-8)
@@ -68,7 +76,7 @@ jobs:
         run: apk add --no-cache docker-cli docker-cli-buildx git
       - uses: actions/checkout@v6
         with:
-          ref: ${{ env.CHECKOUT_REF }}
+          ref: ${{ needs.set-variables.outputs.full_sha }}
           fetch-depth: 0
       - name: Set image and version
         run: |
@@ -126,7 +134,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.CHECKOUT_REF }}
+          ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install pnpm and dependencies
         run: |
           npm i -g pnpm
@@ -149,7 +157,7 @@ jobs:
       - uses: actions/checkout@v4
         if: needs.set-variables.outputs.is_release_branch == 'false'
         with:
-          ref: ${{ env.CHECKOUT_REF }}
+          ref: ${{ needs.set-variables.outputs.full_sha }}
           fetch-depth: 0
       - name: Check commit
         if: needs.set-variables.outputs.is_release_branch == 'false'
