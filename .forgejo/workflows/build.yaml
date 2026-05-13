@@ -191,22 +191,25 @@ jobs:
     container:
       image: node:24-alpine
     steps:
+      - name: Skip commit check (release branch)
+        if: needs.set-variables.outputs.is_release_branch == 'true'
+        run: echo "Skipping commit check on release branch."
+      - name: Skip commit check (weblate)
+        if: needs.set-variables.outputs.is_release_branch == 'false' && forgejo.ref_name == 'weblate'
+        run: echo "Skipping commit check on weblate branch."
       - name: Install git
-        if: needs.set-variables.outputs.is_release_branch == 'false'
+        if: needs.set-variables.outputs.is_release_branch == 'false' && forgejo.ref_name != 'weblate'
         run: apk add --no-cache git
       - uses: actions/checkout@v4
-        if: needs.set-variables.outputs.is_release_branch == 'false'
+        if: needs.set-variables.outputs.is_release_branch == 'false' && forgejo.ref_name != 'weblate'
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
           fetch-depth: 0
       - name: Check commit
-        if: needs.set-variables.outputs.is_release_branch == 'false'
+        if: needs.set-variables.outputs.is_release_branch == 'false' && forgejo.ref_name != 'weblate'
         run: |
           git branch main origin/main
           node scripts/check-branch.mjs
-      - name: Skip commit check
-        if: needs.set-variables.outputs.is_release_branch == 'true'
-        run: echo "Skipping commit check on release branch."
 
   publish-packages:
     runs-on: docker
