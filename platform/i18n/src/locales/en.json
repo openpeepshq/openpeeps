@@ -111,7 +111,7 @@
         "backups": "Backups",
         "analytics": "Analytics",
         "openNotifications": "Open Notifications",
-        "goToWelcomePage": "Go to Welcome Page",
+        "goToWelcomePage": "Welcome Page",
         "logOut": "Log out",
         "logs": "Logs",
         "myJams": "My Jams",
@@ -1810,7 +1810,10 @@
         "hostedBy": "Organizer",
         "group": "Group Event In:",
         "startDate": "Start Date",
-        "endDate": "End Date"
+        "endDate": "End Date",
+        "community": "Community Event",
+        "noRsvps": "No RSVPs yet",
+        "noAttendees": "No attendees yet"
     },
     "reports": {
         "categories": {
