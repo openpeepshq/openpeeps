@@ -119,3 +119,5 @@ jobs:
     secrets: inherit
     with:
       override_sha: ${{ needs.squash-and-pr.outputs.squash_sha }}
+      # Caller context still has owner/repo; nested build may not.
+      repository: ${{ forgejo.repository }}

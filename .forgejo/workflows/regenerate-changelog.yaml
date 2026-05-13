@@ -30,6 +30,8 @@ jobs:
           git push origin "HEAD:${{ env.DEFAULT_BRANCH }}"
   build:
     uses: ./.forgejo/workflows/build.yaml
+    with:
+      repository: ${{ forgejo.repository }}
   tag:
     runs-on: docker
     steps:
@@ -41,5 +43,7 @@ jobs:
       - name: Tag
         run: |
           short_sha=$(echo "${{ forgejo.sha }}" | cut -c1-8)
-          docker buildx imagetools create --tag "${{ env.REGISTRY_IMAGE_BASE }}:nightly" \
-            "${{ env.REGISTRY_IMAGE_BASE }}:${short_sha}"
+          repo="${GITHUB_REPOSITORY:-${FORGEJO_REPOSITORY:-}}"
+          base="codeberg.org/${repo}"
+          docker buildx imagetools create --tag "${base}:nightly" \
+            "${base}:${short_sha}"

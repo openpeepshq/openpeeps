@@ -8,14 +8,17 @@ on:
         type: string
         required: false
         default: ""
+      repository:
+        description: "owner/repo for registry paths (pass from caller when nested workflow_call loses github.repository)."
+        type: string
+        required: false
+        default: ""
 
 env:
   DEFAULT_BRANCH: "main"
-  # Use github.repository: in nested workflow_call runs forgejo.repository can be empty, producing invalid tags like codeberg.org/:sha.
-  REGISTRY_IMAGE_BASE: "codeberg.org/${{ github.repository }}"
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.ref_name }}
+  group: ${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -53,12 +56,43 @@ jobs:
           fi
           version="$(date +%Y-%m-%d)-${short_sha}"
           is_release_branch=$(if [ "$ref_name" = "${{ env.DEFAULT_BRANCH }}" ] || [ "$ref_name" = "staging" ] || [ "$ref_name" = "stable" ]; then echo "true"; else echo "false"; fi)
+
+          caller_repo="${{ inputs.repository }}"
+          if [ -n "$caller_repo" ] && [ "$caller_repo" != "null" ]; then
+            image_repo="$caller_repo"
+          elif [ -n "${GITHUB_REPOSITORY:-}" ]; then
+            image_repo="$GITHUB_REPOSITORY"
+          elif [ -n "${FORGEJO_REPOSITORY:-}" ]; then
+            image_repo="$FORGEJO_REPOSITORY"
+          else
+            uri=$(git remote get-url origin 2>/dev/null || true)
+            case "$uri" in
+              git@*)
+                image_repo="${uri#*:}"
+                image_repo="${image_repo%.git}"
+                ;;
+              http*)
+                image_repo=$(printf '%s\n' "$uri" | sed -E 's#^https?://[^/]+/##; s#\.git$##')
+                ;;
+              *)
+                image_repo=""
+                ;;
+            esac
+          fi
+          if [ -z "$image_repo" ] || [ "$image_repo" = "/" ]; then
+            echo "Could not derive owner/repo for registry (caller repository input, GITHUB_REPOSITORY, FORGEJO_REPOSITORY, or git remote)." >&2
+            exit 1
+          fi
+          registry_image_base="codeberg.org/${image_repo}"
+
           echo "tag=$tag" >> $FORGEJO_OUTPUT
           echo "version=$version" >> $FORGEJO_OUTPUT
           echo "short_sha=$short_sha" >> $FORGEJO_OUTPUT
           echo "full_sha=$sha" >> $FORGEJO_OUTPUT
           echo "ref_slug=$ref_slug" >> $FORGEJO_OUTPUT
           echo "is_release_branch=$is_release_branch" >> $FORGEJO_OUTPUT
+          echo "registry_image_base=$registry_image_base" >> $FORGEJO_OUTPUT
+          echo "image_repo=$image_repo" >> $FORGEJO_OUTPUT
     outputs:
       tag: ${{ steps.vars.outputs.tag }}
       version: ${{ steps.vars.outputs.version }}
@@ -66,6 +100,8 @@ jobs:
       full_sha: ${{ steps.vars.outputs.full_sha }}
       ref_slug: ${{ steps.vars.outputs.ref_slug }}
       is_release_branch: ${{ steps.vars.outputs.is_release_branch }}
+      registry_image_base: ${{ steps.vars.outputs.registry_image_base }}
+      image_repo: ${{ steps.vars.outputs.image_repo }}
 
   build:
     runs-on: docker
@@ -81,7 +117,8 @@ jobs:
           fetch-depth: 0
       - name: Set image and version
         run: |
-          echo "REGISTRY_IMAGE=${{ secrets.REGISTRY }}/${{ github.repository }}" >> $GITHUB_ENV
+          echo "REGISTRY_IMAGE_BASE=${{ needs.set-variables.outputs.registry_image_base }}" >> $GITHUB_ENV
+          echo "REGISTRY_IMAGE=${{ secrets.REGISTRY }}/${{ needs.set-variables.outputs.image_repo }}" >> $GITHUB_ENV
           echo "SHORT_SHA=${{ needs.set-variables.outputs.short_sha }}" >> $GITHUB_ENV
           echo "VERSION=${{ needs.set-variables.outputs.version }}" >> $GITHUB_ENV
           echo "TAG=${{ needs.set-variables.outputs.tag }}" >> $GITHUB_ENV
@@ -91,7 +128,7 @@ jobs:
       - name: Create release tag on stable
         if: forgejo.ref_name == 'stable'
         run: |
-          git remote set-url origin "https://${{ forgejo.actor }}:${{ forgejo.token }}@codeberg.org/${{ github.repository }}.git"
+          git remote set-url origin "https://${{ forgejo.actor }}:${{ forgejo.token }}@codeberg.org/${{ needs.set-variables.outputs.image_repo }}.git"
           release_tag="${VERSION}-RELEASE"
           if git ls-remote --exit-code --tags origin "refs/tags/${release_tag}" >/dev/null 2>&1; then
             echo "Git tag ${release_tag} already exists. Skipping tag creation."
@@ -101,11 +138,11 @@ jobs:
           fi
       - name: Build and push image
         run: |
-          if docker manifest inspect "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}" >/dev/null 2>&1; then
-            echo "Image ${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }} already exists; skipping build."
+          if docker manifest inspect "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}" >/dev/null 2>&1; then
+            echo "Image ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }} already exists; skipping build."
           else
             docker buildx build --build-arg "VERSION=${{ needs.set-variables.outputs.version }}" \
-              -t "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}" --push .
+              -t "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}" --push .
           fi
 
   test-integration:
@@ -121,7 +158,7 @@ jobs:
       redis:
         image: redis:alpine
       web:
-        image: ${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha
+        image: ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
           }}
         credentials:
           username: ${{ vars.REGISTRY_USER }}
@@ -174,7 +211,7 @@ jobs:
     if: forgejo.ref_name == env.DEFAULT_BRANCH
     needs: [ commit-check, set-variables ]
     container:
-      image: ${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha
+      image: ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
         }}
       credentials:
         username: ${{ vars.REGISTRY_USER }}
@@ -188,7 +225,7 @@ jobs:
           set -e
           cd /apat
           # Forgejo npm: https://docs.gitea.com/usage/packages/npm
-          owner="${{ github.repository }}" && owner="${owner%%/*}"
+          owner="${{ needs.set-variables.outputs.image_repo }}" && owner="${owner%%/*}"
           echo "@openpeeps:registry=https://codeberg.org/api/packages/${owner}/npm/" >> .npmrc
           echo "//codeberg.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
           echo "//codeberg.org/api/packages/${owner}/npm/:always-auth=true" >> .npmrc
@@ -209,9 +246,9 @@ jobs:
         if: forgejo.ref_name == 'stable'
         run: |
           docker buildx imagetools create \
-              --tag "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.version }}" \
-              "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}"
+              --tag "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.version }}" \
+              "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}"
       - name: Tag tag
         run: |
-          docker buildx imagetools create --tag "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.tag }}" \
-            "${{ env.REGISTRY_IMAGE_BASE }}:${{ needs.set-variables.outputs.short_sha }}"
+          docker buildx imagetools create --tag "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.tag }}" \
+            "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}"
