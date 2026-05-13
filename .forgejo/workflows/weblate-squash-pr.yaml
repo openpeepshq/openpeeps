@@ -20,9 +20,10 @@ jobs:
   squash-and-pr:
     runs-on: docker
     container:
-      image: alpine:3.21
+      # actions/checkout runs on Node; plain Alpine has no `node` (runner exec fails).
+      image: node:24-alpine
     steps:
-      - name: Install git and curl
+      - name: Install git, curl, and jq
         run: apk add --no-cache bash git curl jq
 
       - name: Checkout weblate
