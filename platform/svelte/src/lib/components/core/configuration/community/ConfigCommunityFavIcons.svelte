@@ -40,7 +40,6 @@
   };
 
   const setIconUrl = (event: Event) => setIcon(event);
-  const setMobileIconUrl = (event: Event) => setIcon(event, true);
 
   pageHeaderStore.set({
     title: 'Community Customization - Favicons',
@@ -92,36 +91,6 @@
           name="icon"
           title={t('configuration.community.upload')}
           onChange={setIconUrl}
-        />
-        <p class="py-3 text-sm">
-          {t('configuration.community.iconRequirements')}
-        </p>
-      </div>
-      <div class="border p-4">
-        <h4 class="my-4">{t('configuration.community.mobileFavicon')}</h4>
-
-        <div class="mb-2 flex flex-wrap gap-x-6 gap-y-2">
-          <img
-            src="/img/mobile-favicon-view-one.png"
-            alt={t('configuration.community.lightModeFavicon')}
-          />
-          <img
-            src="/img/mobile-favicon-view-two.png"
-            alt={t('configuration.community.darkModeFavicon')}
-          />
-        </div>
-        <div class="mb-2 flex items-center gap-x-6">
-          <span>{t('configuration.community.currentIcon')}:</span>
-          <img
-            class="size-12"
-            alt={t('configuration.community.icon')}
-            src={updatedConfig.theme?.mobileIcon ?? defaults.theme?.mobileIcon}
-          />
-        </div>
-        <ImageInput
-          name="mobile-icon"
-          title={t('configuration.community.upload')}
-          onChange={setMobileIconUrl}
         />
         <p class="py-3 text-sm">
           {t('configuration.community.iconRequirements')}
