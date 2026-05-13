@@ -19,7 +19,7 @@
 
 <div class="relative rounded-b-md border-b">
   <div class="mb-3">
-    <div class=" bg-surface-200 relative h-44 bg-cover bg-center">
+    <div class="bg-surface-200 relative aspect-video w-full bg-cover bg-center">
       <img
         src={group?.header || '/img/default-group-header.png'}
         alt="banner"

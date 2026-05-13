@@ -106,14 +106,15 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
 
   return (
     <ThemedView className="flex-1 relative px-4 pb-4">
-      <View className="w-full h-[250px] mx-auto">
+      <View className="w-full aspect-video mx-auto overflow-hidden rounded-md">
         <Image
           source={
             event?.image
               ? { uri: event?.image }
               : require('~/assets/images/event-placeholder.png')
           }
-          className="w-full h-full rounded-md"
+          className="w-full h-full"
+          resizeMode="cover"
         />
       </View>
 

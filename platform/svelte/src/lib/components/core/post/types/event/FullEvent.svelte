@@ -50,11 +50,13 @@
 </script>
 
 <div class="flex w-full flex-col gap-2 p-3" use:postViewCounter={post.id}>
-	<img
-		src={event.image || '/img/event-default.png'}
-		class="mb-3 h-48 w-full rounded object-cover"
-		alt="image for {event.name}"
-	/>
+	<span class="mb-3 aspect-video w-full overflow-hidden rounded">
+		<img
+			src={event.image || '/img/event-default.png'}
+			class="h-full w-full object-cover"
+			alt="image for {event.name}"
+		/>
+	</span>
 
 	<div class="flex items-center justify-between">
 		<div class="">

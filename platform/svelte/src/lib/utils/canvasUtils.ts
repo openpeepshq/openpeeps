@@ -53,6 +53,43 @@ export const getCroppedImg = async (
 	return canvasToFile(canvas);
 };
 
+export const centerCropToAspectRatio = async (
+	imageSrc: ImageSource,
+	aspectW: number,
+	aspectH: number
+): Promise<File> => {
+	const image = await createImage(imageSrc);
+	const iw = image.width;
+	const ih = image.height;
+	const targetRatio = aspectW / aspectH;
+	const imgRatio = iw / ih;
+
+	let sx: number;
+	let sy: number;
+	let sw: number;
+	let sh: number;
+
+	if (imgRatio > targetRatio) {
+		sh = ih;
+		sw = Math.round(ih * targetRatio);
+		sx = Math.round((iw - sw) / 2);
+		sy = 0;
+	} else {
+		sw = iw;
+		sh = Math.round(iw / targetRatio);
+		sx = 0;
+		sy = Math.round((ih - sh) / 2);
+	}
+
+	const canvas = document.createElement('canvas');
+	canvas.width = sw;
+	canvas.height = sh;
+	const ctx = canvas.getContext('2d');
+	ctx?.drawImage(image, sx, sy, sw, sh, 0, 0, sw, sh);
+
+	return canvasToFile(canvas);
+};
+
 export const getRotatedImage = async (imageSrc: ImageSource, rotation = 0) => {
 	const image = await createImage(imageSrc);
 	const canvas = document.createElement('canvas');
