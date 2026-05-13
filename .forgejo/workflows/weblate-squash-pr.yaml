@@ -62,12 +62,20 @@ jobs:
           bash scripts/squash-branch.sh --ci
 
           after_sha="$(git rev-parse HEAD)"
-          out="${FORGEJO_OUTPUT:-${GITHUB_OUTPUT:-}}"
-          if [ -z "${out}" ]; then
-            echo "FORGEJO_OUTPUT / GITHUB_OUTPUT not set; cannot record squash_sha." >&2
+          squash_sha="$(git rev-parse HEAD)"
+          wrote=0
+          if [ -n "${GITHUB_OUTPUT:-}" ]; then
+            echo "squash_sha=${squash_sha}" >> "${GITHUB_OUTPUT}"
+            wrote=1
+          fi
+          if [ -n "${FORGEJO_OUTPUT:-}" ]; then
+            echo "squash_sha=${squash_sha}" >> "${FORGEJO_OUTPUT}"
+            wrote=1
+          fi
+          if [ "$wrote" -eq 0 ]; then
+            echo "GITHUB_OUTPUT / FORGEJO_OUTPUT not set; cannot record squash_sha." >&2
             exit 1
           fi
-          echo "squash_sha=$(git rev-parse HEAD)" >> "${out}"
 
           if [ "$before_sha" != "$after_sha" ]; then
             echo "Squash rewrote history; force-pushing ${WEBLATE_BRANCH}."
