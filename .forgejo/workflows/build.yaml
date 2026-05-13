@@ -2,10 +2,18 @@ on:
   push:
   workflow_dispatch:
   workflow_call:
+    inputs:
+      override_sha:
+        description: Full commit SHA to build (e.g. after a caller rewrote history); when empty, use the triggering SHA.
+        type: string
+        required: false
+        default: ""
 
 env:
   DEFAULT_BRANCH: "main"
   REGISTRY_IMAGE_BASE: "codeberg.org/${{ forgejo.repository }}"
+  # When this workflow is reused after a force-push, the event SHA can be stale; callers may pass override_sha.
+  SOURCE_SHA: ${{ forgejo.event_name != 'workflow_call' && forgejo.sha || (inputs.override_sha != '' && inputs.override_sha || forgejo.sha) }}
 
 concurrency:
   group: ${{ forgejo.repository }}-${{ forgejo.ref_name }}
@@ -19,7 +27,7 @@ jobs:
         id: vars
         run: |
           ref_name="${{ forgejo.ref_name }}"
-          sha="${{ forgejo.sha }}"
+          sha="${{ env.SOURCE_SHA }}"
           short_sha=$(echo "$sha" | cut -c1-8)
           # ref_slug: lowercase, non-alphanumeric -> single dash, max 63 chars
           ref_slug=$(echo "$ref_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g' | sed 's/-\+/-/g' | cut -c1-63)
@@ -54,6 +62,7 @@ jobs:
         run: apk add --no-cache docker-cli docker-cli-buildx git
       - uses: actions/checkout@v6
         with:
+          ref: ${{ env.SOURCE_SHA }}
           fetch-depth: 0
       - name: Set image and version
         run: |
@@ -72,7 +81,7 @@ jobs:
           if git ls-remote --exit-code --tags origin "refs/tags/${release_tag}" >/dev/null 2>&1; then
             echo "Git tag ${release_tag} already exists. Skipping tag creation."
           else
-            git tag "${release_tag}" "${{ forgejo.sha }}"
+            git tag "${release_tag}" "${{ env.SOURCE_SHA }}"
             git push origin "refs/tags/${release_tag}"
           fi
       - name: Build and push image
@@ -110,6 +119,8 @@ jobs:
           JAMS_LIVEKIT_API_SECRET: xxxxxxxxxxxxx
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_SHA }}
       - name: Install pnpm and dependencies
         run: |
           npm i -g pnpm
@@ -132,6 +143,7 @@ jobs:
       - uses: actions/checkout@v4
         if: needs.set-variables.outputs.is_release_branch == 'false'
         with:
+          ref: ${{ env.SOURCE_SHA }}
           fetch-depth: 0
       - name: Check commit
         if: needs.set-variables.outputs.is_release_branch == 'false'

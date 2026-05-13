@@ -22,6 +22,8 @@ jobs:
     container:
       # actions/checkout runs on Node; plain Alpine has no `node` (runner exec fails).
       image: node:24-alpine
+    outputs:
+      squash_sha: ${{ steps.squash.outputs.squash_sha }}
     steps:
       - name: Install git, curl, and jq
         run: apk add --no-cache bash git curl jq
@@ -34,6 +36,7 @@ jobs:
           token: ${{ forgejo.token }}
 
       - name: Squash, push, open PR if needed
+        id: squash
         env:
           SQUASH_MESSAGE: "chore(i18n): Weblate Translations"
           FORGEJO_TOKEN: ${{ forgejo.token }}
@@ -59,6 +62,13 @@ jobs:
           bash scripts/squash-branch.sh --ci
 
           after_sha="$(git rev-parse HEAD)"
+          out="${FORGEJO_OUTPUT:-${GITHUB_OUTPUT:-}}"
+          if [ -z "${out}" ]; then
+            echo "FORGEJO_OUTPUT / GITHUB_OUTPUT not set; cannot record squash_sha." >&2
+            exit 1
+          fi
+          echo "squash_sha=$(git rev-parse HEAD)" >> "${out}"
+
           if [ "$before_sha" != "$after_sha" ]; then
             echo "Squash rewrote history; force-pushing ${WEBLATE_BRANCH}."
             git push --force-with-lease origin "HEAD:${WEBLATE_BRANCH}"
@@ -94,3 +104,10 @@ jobs:
               -H "Content-Type: application/json" \
               -d @- \
               "${FORGEJO_API_URL}/repos/${FORGEJO_REPOSITORY}/pulls"
+
+  build:
+    needs: [squash-and-pr]
+    uses: ./.forgejo/workflows/build.yaml
+    secrets: inherit
+    with:
+      override_sha: ${{ needs.squash-and-pr.outputs.squash_sha }}
