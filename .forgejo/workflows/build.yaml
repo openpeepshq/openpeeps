@@ -11,10 +11,11 @@ on:
 
 env:
   DEFAULT_BRANCH: "main"
-  REGISTRY_IMAGE_BASE: "codeberg.org/${{ forgejo.repository }}"
+  # Use github.repository: in nested workflow_call runs forgejo.repository can be empty, producing invalid tags like codeberg.org/:sha.
+  REGISTRY_IMAGE_BASE: "codeberg.org/${{ github.repository }}"
 
 concurrency:
-  group: ${{ forgejo.repository }}-${{ forgejo.ref_name }}
+  group: ${{ github.repository }}-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -80,7 +81,7 @@ jobs:
           fetch-depth: 0
       - name: Set image and version
         run: |
-          echo "REGISTRY_IMAGE=${{ secrets.REGISTRY }}/${{ forgejo.repository }}" >> $GITHUB_ENV
+          echo "REGISTRY_IMAGE=${{ secrets.REGISTRY }}/${{ github.repository }}" >> $GITHUB_ENV
           echo "SHORT_SHA=${{ needs.set-variables.outputs.short_sha }}" >> $GITHUB_ENV
           echo "VERSION=${{ needs.set-variables.outputs.version }}" >> $GITHUB_ENV
           echo "TAG=${{ needs.set-variables.outputs.tag }}" >> $GITHUB_ENV
@@ -90,7 +91,7 @@ jobs:
       - name: Create release tag on stable
         if: forgejo.ref_name == 'stable'
         run: |
-          git remote set-url origin "https://${{ forgejo.actor }}:${{ forgejo.token }}@codeberg.org/${{ forgejo.repository }}.git"
+          git remote set-url origin "https://${{ forgejo.actor }}:${{ forgejo.token }}@codeberg.org/${{ github.repository }}.git"
           release_tag="${VERSION}-RELEASE"
           if git ls-remote --exit-code --tags origin "refs/tags/${release_tag}" >/dev/null 2>&1; then
             echo "Git tag ${release_tag} already exists. Skipping tag creation."
@@ -187,7 +188,7 @@ jobs:
           set -e
           cd /apat
           # Forgejo npm: https://docs.gitea.com/usage/packages/npm
-          owner="${{ forgejo.repository }}" && owner="${owner%%/*}"
+          owner="${{ github.repository }}" && owner="${owner%%/*}"
           echo "@openpeeps:registry=https://codeberg.org/api/packages/${owner}/npm/" >> .npmrc
           echo "//codeberg.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
           echo "//codeberg.org/api/packages/${owner}/npm/:always-auth=true" >> .npmrc
