@@ -188,11 +188,13 @@ export const Conversation = ({ route, navigation }: ConversationProps) => {
               {/* TODO remove when mic is implemented */}
               <TouchableOpacity
                 onPress={handleSendMessage}
-                disabled={isSending}>
+                disabled={isSending}
+                className={`p-2 rounded-full ${content.trim() ? 'bg-primary' : 'bg-muted'
+                }`}>
                 {isSending ? (
                   <ActivityIndicator size="small" />
                 ) : (
-                  <SendHorizonalIcon className="text-foreground -rotate-45" />
+                  <SendHorizonalIcon />
                 )}
               </TouchableOpacity>
 
