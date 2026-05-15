@@ -389,6 +389,23 @@ export type CapabilitiesConfigInput = z.input<typeof capabilitiesConfigSchema>;
 
 export interface MediaStorage {
   store: (data: ArrayBuffer | SharedArrayBuffer) => Promise<string>;
+  /**
+   * Stream-based variant of {@link MediaStorage.store}. Consumes the given
+   * web `ReadableStream`, hashes its bytes while writing them straight to disk,
+   * and resolves to the resulting content-addressed key plus the byte count
+   * that was actually written. This avoids buffering the full payload in
+   * memory before persisting it, which matters for large media uploads.
+   *
+   * The chunk type is intentionally untyped here: the DOM lib's
+   * `ReadableStream<Uint8Array>` and `node:stream/web`'s ditto are
+   * structurally identical at runtime but TypeScript treats them as
+   * incompatible, so leaving the chunk type open keeps both call sites
+   * — `File.stream()` in the request handler and `Readable.fromWeb` in the
+   * Node implementation — assignable without explicit casts at the boundary.
+   */
+  storeStream: (
+    stream: ReadableStream,
+  ) => Promise<{ key: string; size: number }>;
   getPath: (id: string, filename: string) => string;
   getStream: (id: string) => Promise<ReadableStream>;
   getData: (id: string) => Promise<ArrayBuffer | SharedArrayBuffer>;

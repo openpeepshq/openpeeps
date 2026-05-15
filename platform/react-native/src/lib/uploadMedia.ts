@@ -1,18 +1,36 @@
 import RNFS from 'react-native-fs';
 import RNConvertPhAsset from 'react-native-convert-ph-asset';
 import { Platform } from 'react-native';
+import Toast from 'react-native-toast-message';
+import type { MediaAttachment } from '@openpeeps/common';
+import i18next from '~/i18n';
+
+type UploadProgressInfo = {
+  loaded: number;
+  total: number;
+  percent: number;
+  estimatedRemainingMs?: number;
+};
+
+export type UploadProgressMap = {
+  [key: string]: { percent: number; estimatedRemainingMs?: number };
+};
 
 type UploadMediaType = {
   mediaUri: string;
-  createAttachments: (data: any) => Promise<any>;
+  createAttachments: (
+    data: any,
+    pathParams?: undefined,
+    queryParams?: undefined,
+    headers?: Record<string, string>,
+    onUploadProgress?: (info: UploadProgressInfo) => void,
+  ) => Promise<any>;
   type: 'image' | 'video' | 'audio' | 'document';
   usage: string;
   alt?: string;
   name?: string | null;
   mimeType?: string | null;
-  setUploadingMedia?: React.Dispatch<
-    React.SetStateAction<{[key: string]: boolean}>
-  >;
+  setUploadProgress?: React.Dispatch<React.SetStateAction<UploadProgressMap>>;
 };
 
 export const uploadMedia = async ({
@@ -23,7 +41,7 @@ export const uploadMedia = async ({
   alt,
   name,
   mimeType,
-  setUploadingMedia,
+  setUploadProgress,
 }: UploadMediaType) => {
   let finalUri = mediaUri;
 
@@ -65,8 +83,11 @@ export const uploadMedia = async ({
 
   const tempFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExtension}`;
 
-  if (setUploadingMedia) {
-    setUploadingMedia(prev => ({ ...prev, [mediaUri]: true }));
+  if (setUploadProgress) {
+    setUploadProgress(prev => ({
+      ...prev,
+      [mediaUri]: { percent: 0, estimatedRemainingMs: undefined },
+    }));
   }
 
   if (mediaUri.startsWith('ph://')) {
@@ -128,13 +149,27 @@ export const uploadMedia = async ({
       size: fileStat.size,
     };
 
-    const mediaAttachment = await createAttachments({
-      file: file as unknown as File,
-      usage: usage,
-      description: alt,
-    });
+    const mediaAttachment: MediaAttachment = await createAttachments(
+      {
+        file: file as unknown as File,
+        usage: usage,
+        description: alt,
+      },
+      undefined,
+      undefined,
+      undefined,
+      ({ percent, estimatedRemainingMs }) => {
+        if (setUploadProgress) {
+          setUploadProgress(prev => ({
+            ...prev,
+            [mediaUri]: { percent, estimatedRemainingMs },
+          }));
+        }
+      },
+    );
 
     return {
+      id: mediaAttachment.id,
       type: type,
       url: mediaAttachment.url,
       previewUrl: mediaAttachment.previewUrl,
@@ -147,16 +182,27 @@ export const uploadMedia = async ({
       },
       description: mediaAttachment.description,
       blurhash: mediaAttachment.blurhash,
+      status: mediaAttachment.status,
     };
   } catch (error) {
     console.error(
       `Failed to upload ${type}: ${mediaUri}`,
       error,
     );
+    const reason = error instanceof Error ? error.message : undefined;
+    Toast.show({
+      type: 'error',
+      text1: i18next.t('form.upload.failed'),
+      text2: reason,
+    });
     return null;
   } finally {
-    if (setUploadingMedia) {
-      setUploadingMedia(prev => ({...prev, [mediaUri]: false}));
+    if (setUploadProgress) {
+      setUploadProgress(prev => {
+        const next = { ...prev };
+        delete next[mediaUri];
+        return next;
+      });
     }
   }
 };

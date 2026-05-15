@@ -62,7 +62,7 @@ export const openpeepsClient = (
     groups: groups(rawClient),
     i18n: i18n(rawClient),
     jams: jams(rawClient, allPeepNoPayloadEventSource),
-    mediaAttachment: media(rawClient),
+    mediaAttachment: media(rawClient, allPeepNoPayloadEventSource),
     posts: posts(rawClient),
     previewLink: previewLink(rawClient),
     profiles: profiles(rawClient),

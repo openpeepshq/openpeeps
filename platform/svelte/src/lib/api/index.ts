@@ -8,6 +8,7 @@ export * from './helpers';
 export * from './i18n';
 export * from './jam';
 export * from './media';
+export * from './mediaUploads';
 export * from './posts';
 export * from './previewLink';
 export * from './profile';

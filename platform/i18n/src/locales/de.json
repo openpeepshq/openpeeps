@@ -389,7 +389,8 @@
             "playTitle": "Video abspielen"
         },
         "attachments": {
-            "deleteTitle": "Anhang löschen"
+            "deleteTitle": "Anhang löschen",
+            "failed": "Upload fehlgeschlagen"
         },
         "deleteModal": {
             "deletePostTitle": "Beitrag löschen",
@@ -1383,6 +1384,7 @@
             "delete": "Löschen",
             "confirm": "Bestätigen",
             "cancel": "Abbrechen",
+            "remove": "Entfernen",
             "reportProfile": "@{{handle}} melden",
             "blockProfile": "@{{handle}} blockieren",
             "reportPost": "Beitrag melden",
@@ -1672,6 +1674,12 @@
             "maxSize": "Maximale Größe: {{size}}",
             "uploadText": "Bild hochladen",
             "uploadTitle": "Bild hochladen"
+        },
+        "upload": {
+            "failed": "Datei-Upload fehlgeschlagen",
+            "failedWithReason": "Datei-Upload fehlgeschlagen: {{reason}}",
+            "uploading": "Hochladen",
+            "processing": "Verarbeiten"
         },
         "preview": "Vorschau",
         "edit": "Zurück zur Bearbeitung",

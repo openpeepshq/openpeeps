@@ -153,6 +153,21 @@ const allPeepCollections = {
   mediaAttachmentsCollection: {
     name: 'mediaAttachments',
   },
+  processingStatsCollection: {
+    name: 'processingStats',
+    indices: [
+      {
+        type: 'persistent',
+        fields: ['filetype'],
+        name: 'processing-stats-by-filetype',
+      },
+      {
+        type: 'persistent',
+        fields: ['filetype', 'filesize'],
+        name: 'processing-stats-by-filetype-filesize',
+      },
+    ],
+  },
   rolesCollection: {
     name: 'roles',
   },

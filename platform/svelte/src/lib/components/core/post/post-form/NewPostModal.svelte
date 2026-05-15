@@ -2,11 +2,11 @@
   import { getToastStore, SlideToggle } from '@skeletonlabs/skeleton';
   import { toast } from '$lib/utils/toast';
   import { Button } from '@openpeeps/ui';
-  import { joinGroupMutation } from '$lib/api';
+  import { abortUploadsForAttachments, joinGroupMutation } from '$lib/api';
   import { getCurrentProfile } from '$lib/auth';
   import { Megaphone } from 'lucide-svelte';
   import { createPostMutation } from '$lib/api';
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { getServerInfo } from '$lib/server';
   import { ModalFooter, ModalWrapper } from '@openpeeps/ui';
   import { checkRoleCapabilities } from '@openpeeps/common/lib';
@@ -27,6 +27,7 @@
   import PostTypeSwitcher from './PostTypeSwitcher.svelte';
   import { getNewPostStores } from '$lib/stores';
   import { i18nContext } from '$lib/components/i18n';
+  import { stripFailedAttachments } from './actions';
 
   const { t } = i18nContext();
   const toastStore = getToastStore();
@@ -62,6 +63,14 @@
     }
   });
 
+  // If the modal is dismissed (backdrop click, escape, or programmatic close)
+  // while one of its attachments is still uploading, abort the in-flight
+  // request rather than letting it linger in the background — the user has
+  // walked away from this composition, the placeholder is going with them.
+  onDestroy(() => {
+    abortUploadsForAttachments(postCreationData.data.attachments);
+  });
+
   const handleStoreReset = (type: PostType) => {
     if (type === 'note') {
       newPostStores.resetNewNoteState();
@@ -85,6 +94,7 @@
         await joinGroup();
       }
       postData.type = postData.data.type;
+      postData = { ...postData, data: stripFailedAttachments(postData.data) };
       await createPost(postData)
         .then(async (response) => {
           toastStore.trigger(

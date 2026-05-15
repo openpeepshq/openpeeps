@@ -1,7 +1,8 @@
 <script lang="ts">
   import { getToastStore } from '@skeletonlabs/skeleton';
   import { Button } from '@openpeeps/ui';
-  import { updatePostMutation } from '$lib/api';
+  import { abortUploadsForAttachments, updatePostMutation } from '$lib/api';
+  import { onDestroy } from 'svelte';
   import { type PublicPost, type PostDataUnion } from '@openpeeps/common/types';
   import { ModalFooter, ModalHeader, ModalWrapper } from '@openpeeps/ui';
   import PollForm from './PollForm.svelte';
@@ -13,6 +14,7 @@
   import Attachments from '$lib/components/core/post/post-form/Attachments.svelte';
   import { i18nContext } from '$lib/components/i18n';
   import { updatePostStore } from './stores';
+  import { stripFailedAttachments } from './actions';
 
   const { t } = i18nContext();
 
@@ -39,9 +41,17 @@
 
   const updatePost = updatePostMutation({ id: $updatePostStore?.id! });
 
+  // Abort any still-streaming attachment upload when the modal goes away —
+  // dismissing the edit dialog should surrender the upload, regardless of
+  // whether the close was triggered by the user, the backdrop, or the
+  // post-publish flow that has already done what it needs with the data.
+  onDestroy(() => {
+    abortUploadsForAttachments(postData?.data?.attachments);
+  });
+
   const handlePublish = () =>
     valid &&
-    updatePost(postData)
+    updatePost({ ...postData, data: stripFailedAttachments(postData.data) })
       .then(() =>
         toastStore.trigger(
           toast({

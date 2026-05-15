@@ -3,6 +3,7 @@ import { hub, onceWorker } from '@openpeeps/core/events';
 import { queues } from '@openpeeps/core/jobs';
 import { sendEmailQueue } from '@openpeeps/core/email';
 import { onceQueue } from '@openpeeps/core/events';
+import { mediaProcessingQueue, mediaProcessingWorker } from '@openpeeps/core/media';
 import { serverRootUrl } from '@openpeeps/core/server';
 import { initializeNotifications, registerDefaultNotifications } from '@openpeeps/core/notifications';
 import { refreshConfig } from '@openpeeps/core/config';
@@ -12,11 +13,14 @@ const startWorkers = () => {
   sendEmailWorker();
   console.log('Starting once worker ...');
   onceWorker();
+  console.log('Starting media processing worker ...');
+  mediaProcessingWorker();
 };
 
 const setupQueues = () => {
   sendEmailQueue();
   onceQueue();
+  mediaProcessingQueue();
 };
 
 const logJobStats = async () => {
