@@ -185,7 +185,7 @@ jobs:
 
   commit-check:
     runs-on: docker
-    needs: [ test-integration, set-variables ]
+    needs: [ deploy-docker, set-variables ]
     container:
       image: node:24-alpine
     steps:
@@ -238,7 +238,7 @@ jobs:
 
   deploy-docker:
     runs-on: docker
-    needs: [ commit-check, set-variables ]
+    needs: [ test-integration, set-variables ]
     container:
       image: docker:latest
     steps:
