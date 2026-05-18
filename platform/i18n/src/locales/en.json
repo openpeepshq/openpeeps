@@ -361,7 +361,9 @@
         "gallery": {
             "previous": "Previous",
             "next": "Next",
-            "close": "Close"
+            "close": "Close",
+            "videoProcessing": "Preparing video…",
+            "videoError": "This video could not be prepared for playback."
         },
         "replyBox": {
             "reply": "Reply",
@@ -394,7 +396,8 @@
             "playTitle": "Play video"
         },
         "attachments": {
-            "deleteTitle": "Delete attachment"
+            "deleteTitle": "Delete attachment",
+            "failed": "Upload failed"
         },
         "deleteModal": {
             "deletePostTitle": "Delete post",
@@ -1490,6 +1493,7 @@
             "delete": "Delete",
             "confirm": "Confirm",
             "cancel": "Cancel",
+            "remove": "Remove",
             "reportProfile": "Report @{{handle}}",
             "blockProfile": "Block @{{handle}}",
             "reportPost": "Report Post",
@@ -1779,6 +1783,12 @@
             "maxSize": "Max size: {{size}}",
             "uploadText": "Upload Image",
             "uploadTitle": "Upload Image"
+        },
+        "upload": {
+            "failed": "File upload failed",
+            "failedWithReason": "File upload failed: {{reason}}",
+            "uploading": "Uploading",
+            "processing": "Processing"
         },
         "preview": "Preview",
         "edit": "Back to Editing",

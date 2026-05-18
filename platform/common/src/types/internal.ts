@@ -196,7 +196,7 @@ export interface ExpandedNotification {
   data?: unknown;
 };
 
-export const expandedNotificationSchema: z.ZodType<ExpandedNotification> = z.object({
+export const expandedNotificationSchema = z.object({
   id: z.string().uuid(),
   profileId: z.string().uuid(),
   pushHandled: z.boolean().optional(),

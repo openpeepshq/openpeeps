@@ -5,13 +5,18 @@ import {
   type MediaStorageRequest,
   getAttachmentType,
 } from '@openpeeps/common';
-import { createPreview, mediaStorage, transcodeIncomingMedia } from '@openpeeps/core/media';
+import {
+  mediaProcessingQueue,
+  mediaStorage,
+  runProcessing,
+  SYNC_PROCESSING_LIMIT,
+} from '@openpeeps/core/media';
 import { createMediaAttachment } from '@openpeeps/core/mediaAttachments';
 
 export const createMediaAttachmentHandler = async (
   mediaStorageRequest: MediaStorageRequest,
   event: RequestEvent,
-): Promise<MediaAttachment> => {
+): Promise<MediaAttachment | Response> => {
   await ensureLocalProfile(event);
   const storage = await mediaStorage();
 
@@ -19,44 +24,55 @@ export const createMediaAttachmentHandler = async (
 
   const type = getAttachmentType(file);
 
-  console.log('====================');
-  console.log('type', type);
-  console.log('====================');
+  // Stream the upload straight to disk via the storage backend instead of
+  // first materialising the whole payload as an ArrayBuffer in memory. The
+  // streamed `size` is authoritative — `file.size` matches in practice but
+  // the byte count we actually wrote is what we want to record.
+  // `Parameters<…>[0]` lets us pin to whichever `ReadableStream` flavour the
+  // storage interface resolved to in this consumer's TS view (DOM-lib vs.
+  // `node:stream/web`); they're structurally identical at runtime.
+  const { key: fileStorageKey, size } = await storage.storeStream(
+    file.stream() as unknown as Parameters<typeof storage.storeStream>[0],
+  );
 
-  const transcodedFile: File = await transcodeIncomingMedia(type, file);
-
-  const fileStorageKey = await transcodedFile.arrayBuffer().then(storage.store);
-
-  const normalizedFilename = encodeURIComponent(transcodedFile.name);
-
-  const thumbnailFilename = `thumbnail-${normalizedFilename}${normalizedFilename.endsWith('.webp') ? '' : '.webp'}`;
-
-  const preview = await createPreview(thumbnail || file);
-
-  const previewStorageKey: string = await preview
-    .arrayBuffer()
-    .then(storage.store);
-
+  const normalizedFilename = encodeURIComponent(file.name);
   const url = storage.getPath(fileStorageKey, normalizedFilename);
-  const previewUrl = storage.getPath(previewStorageKey, thumbnailFilename);
 
-  console.log('====================');
-  console.log(url);
-  console.log(previewUrl);
-  console.log('====================');
-
-  return createMediaAttachment({
+  const attachment = await createMediaAttachment({
     url,
-    previewUrl,
+    previewUrl: null,
     textUrl: null,
     filename: file.name,
     type,
     meta: {
       usage,
       focus,
-      mimetype: transcodedFile.type,
-      size: transcodedFile.size,
+      mimetype: file.type,
+      size,
     },
     description,
+    status: 'processing',
+  });
+
+  if (file.size < SYNC_PROCESSING_LIMIT) {
+    return runProcessing({
+      mediaAttachmentId: attachment.id,
+      file,
+      thumbnail,
+    });
+  }
+
+  await mediaProcessingQueue().add('process', {
+    mediaAttachmentId: attachment.id,
+    fileStorageKey,
+    filename: file.name,
+    mimetype: file.type,
+  });
+
+  return new Response(JSON.stringify(attachment), {
+    status: 202,
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
 };

@@ -4,6 +4,7 @@
   PostWithMeta,
   Notification,
   ReactionData,
+  JamRecordingWithMeta,
 } from '@openpeeps/common/types';
 import { getConnection } from '../redis/connection';
 import type { RedisClientType } from 'redis';
@@ -15,6 +16,7 @@ const log = logger('app:events');
 export type CoreEvents = {
   profileCreated: (profile: Profile) => void;
   postCreated: (post: PostWithMeta) => void;
+  jamRecordingCompleted: (recording: JamRecordingWithMeta) => void;
   followCreated: (follower: Profile, followed: Profile) => void;
   notificationCreated: (notification: Notification) => void;
   reactionCreated: (

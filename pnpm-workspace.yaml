@@ -27,3 +27,8 @@ allowBuilds:
 
 patchedDependencies:
   sveltekit-api: patches/sveltekit-api.patch
+
+packageExtensions:
+  "@sveltejs/package":
+    dependencies:
+      typescript: ^5.0.0

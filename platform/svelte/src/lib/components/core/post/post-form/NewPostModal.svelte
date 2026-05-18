@@ -2,11 +2,15 @@
   import { getToastStore, SlideToggle } from '@skeletonlabs/skeleton';
   import { toast } from '$lib/utils/toast';
   import { Button } from '@openpeeps/ui';
-  import { joinGroupMutation } from '$lib/api';
+  import {
+    abortUploadsForAttachments,
+    activeMediaUploads,
+    joinGroupMutation,
+  } from '$lib/api';
   import { getCurrentProfile } from '$lib/auth';
   import { Megaphone } from 'lucide-svelte';
   import { createPostMutation } from '$lib/api';
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { getServerInfo } from '$lib/server';
   import { ModalFooter, ModalWrapper } from '@openpeeps/ui';
   import { checkRoleCapabilities } from '@openpeeps/common/lib';
@@ -26,6 +30,7 @@
   import PostTypeSwitcher from './PostTypeSwitcher.svelte';
   import { getNewPostStores } from '$lib/stores';
   import { i18nContext } from '$lib/components/i18n';
+  import { isPostFormSubmittable, stripFailedAttachments } from './actions';
 
   const { t } = i18nContext();
   const toastStore = getToastStore();
@@ -41,6 +46,15 @@
   );
   let notify: boolean = $state(false);
   let valid: boolean = $state(false);
+
+  const canSubmit = $derived(
+    isPostFormSubmittable(
+      postCreationData.type,
+      postCreationData.data,
+      valid,
+      $activeMediaUploads,
+    ),
+  );
 
   const createPost = createPostMutation();
   const announcePost = announcePostMutation();
@@ -60,6 +74,14 @@
     }
   });
 
+  // If the modal is dismissed (backdrop click, escape, or programmatic close)
+  // while one of its attachments is still uploading, abort the in-flight
+  // request rather than letting it linger in the background — the user has
+  // walked away from this composition, the placeholder is going with them.
+  onDestroy(() => {
+    abortUploadsForAttachments(postCreationData.data.attachments);
+  });
+
   const handleStoreReset = (type: PostType) => {
     if (type === 'note') {
       newPostStores.resetNewNoteState();
@@ -75,7 +97,7 @@
         ? new Date(postData.data.expiresAt).toISOString()
         : undefined;
     }
-    if (valid) {
+    if (canSubmit) {
       if (
         postData.groupId &&
         !me?.memberships.map((m) => m.group.id).includes(postData.groupId)
@@ -83,6 +105,7 @@
         await joinGroup();
       }
       postData.type = postData.data.type;
+      postData = { ...postData, data: stripFailedAttachments(postData.data) };
       await createPost(postData)
         .then(async (response) => {
           toastStore.trigger(
@@ -190,7 +213,7 @@
           title={t('posts.create.submit')}
           variant="variant-filled-primary"
           action={handlePublish}
-          disabled={!valid}
+          disabled={!canSubmit}
         >
           {t('posts.create.submit')}
         </Button>

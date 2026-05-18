@@ -6,7 +6,6 @@ import {
   Image,
   ScrollView,
   Dimensions,
-  ActivityIndicator,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
@@ -27,9 +26,11 @@ import { ThemedText } from '~/components/ui/themed-text';
 import { useNewConversationStore } from '~/stores/useNewConversationStore';
 import { useOpenpeeps } from '@openpeeps/react';
 import type { MediaAttachment } from '@openpeeps/common';
-import { uploadMedia } from '~/lib/uploadMedia';
+import { uploadMedia, type UploadProgressMap } from '~/lib/uploadMedia';
+import { MediaUploadProgress } from '~/components/custom/common';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
+import Toast from 'react-native-toast-message';
 import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -46,11 +47,9 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
     const [isSending, setIsSending] = useState(false);
     const { data: server } = openpeepsApi.useServerInfo();
-    const createAttachments = openpeepsApi.createMediaAttachmentAction();
+    const createAttachments = openpeepsApi.createMediaAttachmentWithProgressAction();
     const [isMultipleSelect, setIsMultipleSelect] = useState(false);
-    const [uploadingImages, setUploadingImages] = useState<{
-      [key: string]: boolean;
-    }>({});
+    const [uploadProgress, setUploadProgress] = useState<UploadProgressMap>({});
     const {
       conversationId,
       contnt,
@@ -156,9 +155,22 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
                   className="bg-muted rounded-lg"
                   resizeMode="cover"
                 />
-                {uploadingImages[uri] && (
-                  <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/50 flex items-center justify-center">
-                    <ActivityIndicator size="large" color="white" />
+                {uploadProgress[uri] !== undefined && (
+                  <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/50 flex items-center justify-center px-6">
+                    <MediaUploadProgress
+                      uploadPercent={uploadProgress[uri].percent}
+                      uploadEstimatedRemainingMs={
+                        uploadProgress[uri].estimatedRemainingMs
+                      }
+                      isUploading
+                      onFailed={reason =>
+                        Toast.show({
+                          type: 'error',
+                          text1: t('form.upload.failed'),
+                          text2: reason,
+                        })
+                      }
+                    />
                   </View>
                 )}
                 <TouchableOpacity
@@ -197,7 +209,7 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
               type: 'image',
               usage: `${server?.communityConfig.content}:image`,
               alt: 'image',
-              setUploadingMedia: setUploadingImages,
+              setUploadProgress,
             }),
           ),
         );

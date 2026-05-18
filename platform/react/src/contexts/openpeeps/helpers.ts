@@ -15,6 +15,8 @@ import type {
   EventSourceOptions,
   ParametersType,
   TypedNoPayloadEventSource,
+  TypedPayloadProgressObserverEndpoint,
+  UploadProgressEvent,
 } from '@openpeeps/fetch-client';
 import {
   QueryClient,
@@ -290,7 +292,7 @@ export const payloadMutation =
         input: Input,
         pathParams?: PathParams extends undefined ? never : PathParams,
         queryParams?: QueryParams extends undefined ? never : QueryParams,
-        headers?: Record<string, string>
+        headers?: Record<string, string>,
       ): Promise<Output> =>
         endpoint(input, {
           pathParameters: {
@@ -299,6 +301,52 @@ export const payloadMutation =
           } as PathParams,
           queryParameters: queryParams,
           headers,
+        }).then(handleMutationResult<Output>(queryClient, queryKeys));
+    };
+
+/**
+ * Like {@link payloadMutation} but for endpoints that route through
+ * `XMLHttpRequest` and accept an `onUploadProgress` callback (typically
+ * media uploads).
+ */
+export const payloadProgressMutation =
+  <
+    Input extends BodyType,
+    Output,
+    PathParams extends Record<string, string> | undefined = undefined,
+    QueryParams extends Record<string, string> | undefined = undefined,
+  >(
+    endpoint: TypedPayloadProgressObserverEndpoint<
+      Output,
+      Input,
+      SuccessFailureResponse,
+      PathParams,
+      QueryParams
+    >,
+    queryKeys?: string[][]
+  ) =>
+    (defaultPathParams?: PathParams extends undefined ? never : PathParams) => {
+      const queryClient = useContext(QueryClientContext);
+
+      if (!queryClient) {
+        throw new Error('QueryClientContext is not set');
+      }
+
+      return async (
+        input: Input,
+        pathParams?: PathParams extends undefined ? never : PathParams,
+        queryParams?: QueryParams extends undefined ? never : QueryParams,
+        headers?: Record<string, string>,
+        onUploadProgress?: (event: UploadProgressEvent) => void,
+      ): Promise<Output> =>
+        endpoint(input, {
+          pathParameters: {
+            ...(defaultPathParams ?? {}),
+            ...(pathParams ?? {}),
+          } as PathParams,
+          queryParameters: queryParams,
+          headers,
+          onUploadProgress,
         }).then(handleMutationResult<Output>(queryClient, queryKeys));
     };
 

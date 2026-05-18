@@ -286,6 +286,13 @@ export type VisibilityType = z.infer<typeof visibilityTypeSchema>;
 export const postTypeSchema = z.enum(['note', 'question', 'event', 'article']);
 export type PostType = z.infer<typeof postTypeSchema>;
 
+export const mediaAttachmentStatusSchema = z.enum([
+  'processing',
+  'ready',
+  'failed',
+]);
+export type MediaAttachmentStatus = z.infer<typeof mediaAttachmentStatusSchema>;
+
 export const mediaAttachmentDataSchema = z
   .object({
     type: z.string(),
@@ -306,11 +313,25 @@ export const mediaAttachmentDataSchema = z
     }),
     description: z.string().optional(),
     blurhash: z.string().optional(),
+    status: mediaAttachmentStatusSchema.optional(),
+    error: z.string().optional(),
   })
   .openapi('MediaAttachment');
 export const mediaAttachmentSchema = modelSchema(mediaAttachmentDataSchema);
 export type MediaAttachmentData = z.infer<typeof mediaAttachmentDataSchema>;
 export type MediaAttachment = Model<MediaAttachmentData>;
+
+export const processingStatsDataSchema = z
+  .object({
+    mediaAttachmentId: z.string().uuid(),
+    filesize: z.number(),
+    filetype: z.string(),
+    durationMs: z.number(),
+  })
+  .openapi('ProcessingStats');
+export const processingStatsSchema = modelSchema(processingStatsDataSchema);
+export type ProcessingStatsData = z.infer<typeof processingStatsDataSchema>;
+export type ProcessingStats = Model<ProcessingStatsData>;
 
 export const customEmojiSchema = z
   .object({

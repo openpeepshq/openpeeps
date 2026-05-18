@@ -37,5 +37,6 @@ export const fetchClient = (
       httpVerbs.map((verb) => [verb, request(verb.toUpperCase())]),
     ) as DefaultHttpClient),
     request,
+    getConfig: () => Promise.resolve(resolveConfig(configSource)),
   };
 };

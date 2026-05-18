@@ -15,6 +15,8 @@ import {
   inviteLinkSchema,
   latLngSchema,
   locationSchema,
+  type MediaAttachment,
+  mediaAttachmentSchema,
   mentionDataSchema,
   postDataUnionSchema,
   postTypeSchema,
@@ -474,6 +476,42 @@ export type MediaStorageRequest = z.infer<typeof mediaStorageRequestSchema>;
 export type MediaStorageRequestInput = z.input<
   typeof mediaStorageRequestSchema
 >;
+
+export const mediaProgressEventSchema = z
+  .object({
+    mediaAttachment: mediaAttachmentSchema,
+    progressPercent: z.number().min(0).max(100),
+    estimatedRemainingMs: z.number().optional(),
+  })
+  .openapi('MediaProgressEvent');
+// Using a manual type because `modelSchema(...)` widens to `ZodObject<ZodRawShape>`
+// and loses the precise field types when inferred via `z.infer`.
+export type MediaProgressEvent = {
+  mediaAttachment: MediaAttachment;
+  progressPercent: number;
+  estimatedRemainingMs?: number;
+};
+
+export const mediaStreamStatusSchema = z
+  .enum(['processing', 'ready', 'error'])
+  .openapi('MediaStreamStatus');
+export type MediaStreamStatus = z.infer<typeof mediaStreamStatusSchema>;
+
+export const mediaStreamSchema = z
+  .object({
+    storageId: z.string(),
+    status: mediaStreamStatusSchema,
+    error: z.string().optional(),
+  })
+  .openapi('MediaStream');
+export type MediaStream = z.infer<typeof mediaStreamSchema>;
+
+export const mediaStreamRequestSchema = z
+  .object({
+    url: z.string().url(),
+  })
+  .openapi('MediaStreamRequest');
+export type MediaStreamRequest = z.infer<typeof mediaStreamRequestSchema>;
 
 export const updateProfileRequestSchema = profileDataSchema.partial({
   handle: true,

@@ -1,6 +1,10 @@
 import { notFound } from '$lib/server/api/errors';
 import type { Event, JamRecordingWithMeta } from '@openpeeps/common';
-import { findJamRecording, finishRecording, updateJamRecording } from '@openpeeps/core/jams';
+import {
+    completeJamRecording,
+    findJamRecording,
+    finishRecording,
+} from '@openpeeps/core/jams';
 import { mediaStorage } from '@openpeeps/core/media';
 import { createMediaAttachment } from '@openpeeps/core/mediaAttachments';
 import { createPost } from '@openpeeps/core/posts';
@@ -60,10 +64,7 @@ const processCompleteFile = async (
         },
         description: event.name || 'jam-recording',
     });
-    await updateJamRecording(recordingId, {
-        attachment: mediaAttachment,
-        status: 'completed',
-    });
+    await completeJamRecording(recordingId, mediaAttachment);
 
     await createPost(
         {
