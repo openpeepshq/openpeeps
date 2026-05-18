@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { stopPropagation } from '@openpeeps/ui';
+	import { isExternalLink } from '../utils';
 
 	interface Props {
 		class?: string;
@@ -10,6 +12,11 @@
 	}
 
 	let { class: className = 'anchor', href, title = '', newTab = false, children }: Props = $props();
+
+	const openInNewTab = $derived(
+		isExternalLink(href, page.url.origin) ||
+			(typeof newTab === 'function' ? newTab(href) : newTab),
+	);
 </script>
 
 <a
@@ -17,7 +24,8 @@
 	{title}
 	class={className}
 	onclick={stopPropagation()}
-	target={(typeof newTab === 'function' && newTab(href)) || newTab ? '_blank' : '_self'}
+	target={openInNewTab ? '_blank' : '_self'}
+	rel={openInNewTab ? 'noopener noreferrer' : undefined}
 >
 	{@render children?.()}
 </a>
