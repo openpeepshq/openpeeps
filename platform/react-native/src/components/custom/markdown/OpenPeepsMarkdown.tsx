@@ -9,13 +9,13 @@ import Markdown, { MarkdownIt, tokensToAST, stringToTokens } from 'react-native-
 import { buildGoto } from '~/components/navigation/helpers';
 import { MainStackParamList } from '~/components/navigation/types';
 import { BASE_URL } from '~/lib/constants';
-import { handleInternalURLNavigation, isLocalLink } from '~/lib/utils';
+import { handleInternalURLNavigation } from '~/lib/utils';
 import { hashtagPlugin, hashtagRenderer } from './extensions/hashtag';
 import { mentionPlugin, mentionRenderer } from './extensions/mention';
 import { codeBlockRenderer, fenceRenderer } from './extensions/codeBlock';
 import { codeInlineRenderer } from './extensions/codeInline';
 import { markdownTheme } from './theme';
-import { extractLinks, isEmail } from './utils';
+import { extractLinks, isEmail, isInternalLink, toGotoUrl } from './utils';
 import { PreviewLink } from '../preview-link';
 import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
 
@@ -23,9 +23,16 @@ interface OpenPeepsMarkdownProps {
   source: string;
   mentions?: MentionWithProfile[];
   linkPreviewMode?: 'prepend' | 'append' | 'inline' | 'none';
+  /** When true, same-origin links open in the system browser instead of in-app navigation. */
+  newTab?: boolean | ((link: string) => boolean);
 }
 
-export const OpenPeepsMarkdown = ({ source, mentions = [], linkPreviewMode = 'none' }: OpenPeepsMarkdownProps) => {
+export const OpenPeepsMarkdown = ({
+  source,
+  mentions = [],
+  linkPreviewMode = 'none',
+  newTab = false,
+}: OpenPeepsMarkdownProps) => {
   const { colors } = useOpenPeepsTheme();
   const styles = useMemo(() => markdownTheme(colors), [colors]);
 
@@ -41,13 +48,21 @@ export const OpenPeepsMarkdown = ({ source, mentions = [], linkPreviewMode = 'no
 
   const goto = buildGoto(navigation);
 
-  const handleLinkPress = (url: string) => {
-    const isLocal = isLocalLink(url, BASE_URL as string);
-    if (url.includes('goto:/') || isLocal) {
-      handleInternalURLNavigation(url, goto);
-    } else {
-      Linking.openURL(url);
+  const shouldOpenExternally = (url: string) => {
+    const origin = BASE_URL as string;
+    if (!isInternalLink(url, origin)) {
+      return true;
     }
+    return typeof newTab === 'function' ? newTab(url) : newTab;
+  };
+
+  const handleLinkPress = (url: string) => {
+    const origin = BASE_URL as string;
+    if (shouldOpenExternally(url)) {
+      Linking.openURL(url);
+      return;
+    }
+    handleInternalURLNavigation(toGotoUrl(url, origin), goto);
   };
 
   const tokens = useMemo(() => stringToTokens(source, markdownit), [source, markdownit]);
