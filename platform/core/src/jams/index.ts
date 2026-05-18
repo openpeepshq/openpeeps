@@ -23,6 +23,7 @@ export {
 export * from './waitingRoom';
 export * from './mutations';
 export * from './finders';
+export * from './recording';
 
 
 export const listLiveJams = async (profile?: ProfileWithMeta): Promise<PostWithMeta[]> => {

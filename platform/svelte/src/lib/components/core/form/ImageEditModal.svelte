@@ -21,6 +21,7 @@
 	} from '$lib/utils/canvasUtils';
 	import { uploadMediaFileMutation } from '$lib/api';
 	import type { MediaAttachmentData } from '@openpeeps/common/types';
+	import type { ImageEditCropResult } from './ImageEditModal.types';
 
 	const { t } = i18nContext();
 	const uploadMediaFile = uploadMediaFileMutation();
@@ -48,8 +49,16 @@
 		showSelectAspectRatio?: boolean;
 		targetDimensions?: { width: number; height: number } | undefined;
 		availableAspectRatios?: string[];
+		/**
+		 * When `false`, the modal returns the cropped {@link ImageEditCropResult}
+		 * instead of uploading. Lets the caller orchestrate the upload itself
+		 * (e.g. so it can render byte-level progress in a parent list).
+		 */
+		upload?: boolean;
 		close?: () => void | Promise<void>;
-		setResponse?: (attachment: MediaAttachmentData) => void | Promise<void>;
+		setResponse?: (
+			result: MediaAttachmentData | ImageEditCropResult,
+		) => void | Promise<void>;
 	}
 
 	let {
@@ -65,6 +74,7 @@
 		showSelectAspectRatio = false,
 		targetDimensions = undefined,
 		availableAspectRatios = ['1:1', '4:3', '16:9', '3:4', '9:16'],
+		upload = true,
 		close = () => {},
 		setResponse = () => {}
 	}: Props = $props();
@@ -138,13 +148,21 @@
 			.then(scaleDownYIfNeeded)
 			.then(reduceFileSizeIfNeeded);
 		if (file) {
-			setResponse(
-				await uploadMediaFile({
+			if (upload) {
+				setResponse(
+					await uploadMediaFile({
+						file,
+						description: attachment.description,
+						usage: attachment.meta.usage || 'unknown'
+					})
+				);
+			} else {
+				setResponse({
 					file,
 					description: attachment.description,
 					usage: attachment.meta.usage || 'unknown'
-				})
-			);
+				});
+			}
 		}
 
 		modalManager.close();

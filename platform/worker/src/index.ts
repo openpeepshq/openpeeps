@@ -3,6 +3,16 @@ import { hub, onceWorker } from '@openpeeps/core/events';
 import { queues } from '@openpeeps/core/jobs';
 import { sendEmailQueue } from '@openpeeps/core/email';
 import { onceQueue } from '@openpeeps/core/events';
+import {
+  ensureStreamingCleanupSchedule,
+  mediaProcessingQueue,
+  mediaProcessingWorker,
+  mediaStreamingCleanupQueue,
+  mediaStreamingCleanupWorker,
+  mediaStreamingQueue,
+  mediaStreamingWorker,
+  registerStreamingPrewarmHandlers,
+} from '@openpeeps/core/media';
 import { serverRootUrl } from '@openpeeps/core/server';
 import { initializeNotifications, registerDefaultNotifications } from '@openpeeps/core/notifications';
 import { refreshConfig } from '@openpeeps/core/config';
@@ -12,11 +22,23 @@ const startWorkers = () => {
   sendEmailWorker();
   console.log('Starting once worker ...');
   onceWorker();
+  console.log('Starting media processing worker ...');
+  mediaProcessingWorker();
+  console.log('Starting media streaming worker ...');
+  mediaStreamingWorker();
+  console.log('Starting media streaming cleanup worker ...');
+  mediaStreamingCleanupWorker();
 };
 
-const setupQueues = () => {
+const setupQueues = async () => {
   sendEmailQueue();
   onceQueue();
+  mediaProcessingQueue();
+  mediaStreamingQueue();
+  mediaStreamingCleanupQueue();
+  // Register the daily cron schedule. Idempotent under upsertJobScheduler so
+  // it's safe to call on every worker boot.
+  await ensureStreamingCleanupSchedule();
 };
 
 const logJobStats = async () => {
@@ -71,8 +93,10 @@ export const start = async () => {
   await initializeNotifications();
   console.log('Registering default notifications...');
   await registerDefaultNotifications();
+  console.log('Registering streaming prewarm handlers...');
+  registerStreamingPrewarmHandlers();
   console.log('Setting up queues ...');
-  setupQueues();
+  await setupQueues();
   console.log('Setting up errorLogs ...');
   initJobLogs();
   console.log('Setting interval to log queue stats ...');

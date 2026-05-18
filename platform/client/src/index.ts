@@ -24,6 +24,7 @@ import { search } from './endpoints/search';
 import { previewLink } from './endpoints/previewLink';
 import { Endpoints } from './endpoints/types';
 import { payments } from './endpoints/payments';
+import { streaming } from './endpoints/streaming';
 
 export interface OpenpeepsClientOptions {
   baseUrl?: string;
@@ -62,7 +63,7 @@ export const openpeepsClient = (
     groups: groups(rawClient),
     i18n: i18n(rawClient),
     jams: jams(rawClient, allPeepNoPayloadEventSource),
-    mediaAttachment: media(rawClient),
+    mediaAttachment: media(rawClient, allPeepNoPayloadEventSource),
     posts: posts(rawClient),
     previewLink: previewLink(rawClient),
     profiles: profiles(rawClient),
@@ -72,6 +73,7 @@ export const openpeepsClient = (
     reports: reports(rawClient),
     search: search(rawClient),
     payments: payments(rawClient),
+    streaming: streaming(rawClient),
   };
 };
 

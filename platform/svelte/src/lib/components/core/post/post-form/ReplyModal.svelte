@@ -2,7 +2,7 @@
   import { getToastStore } from '@skeletonlabs/skeleton';
   import { toast } from '$lib/utils/toast';
   import { Button } from '@openpeeps/ui';
-  import { me } from '$lib/api';
+  import { abortUploadsForAttachments, me } from '$lib/api';
   import { Avatar } from '$lib/components/core/profile';
   import { createPostMutation } from '$lib/api';
   import {
@@ -10,7 +10,7 @@
     type PostDataUnion,
     type PostCreationData,
   } from '@openpeeps/common/types';
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { ModalFooter, ModalHeader, ModalWrapper } from '@openpeeps/ui';
   import { replyDataStore, resetReplyData } from './stores';
   import ThreadPost from '$lib/components/core/post/feed/threaded/ThreadPost.svelte';
@@ -21,6 +21,7 @@
   import PostTypeSwitcher from './PostTypeSwitcher.svelte';
   import PostInputActions from './PostInputActions.svelte';
   import { i18nContext } from '$lib/components/i18n';
+  import { stripFailedAttachments } from './actions';
 
   const { t } = i18nContext();
   const toastStore = getToastStore();
@@ -43,6 +44,7 @@
     }
     await createPost({
       ...$postDataStore,
+      data: stripFailedAttachments($postDataStore.data),
       audience: inReplyTo.audience,
     })
       .then(() =>
@@ -71,6 +73,14 @@
     $postDataStore.visibility = inReplyTo.visibility;
     $postDataStore.groupId = inReplyTo.groupId ?? undefined;
     $postDataStore.inReplyToId = inReplyTo.id;
+  });
+
+  // Cancel still-pending uploads if the reply modal is dismissed before they
+  // finish. The reply store outlives the modal (drafts are persisted), so the
+  // attachment slots may be revisited later — but the in-flight request to
+  // *this* composition should not keep running in the background.
+  onDestroy(() => {
+    abortUploadsForAttachments($postDataStore.data.attachments);
   });
 
   const onchange = (postData: PostDataUnion) => {

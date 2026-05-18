@@ -13,3 +13,4 @@ export * from './profile-input';
 export * from './profile-pieces';
 export * from './report-profile-or-post-sheet';
 export * from './Loader';
+export * from './media-upload-progress';
