@@ -15,5 +15,12 @@ const defaultEmailService: EmailService = {
 };
 
 export const emailService = async () => defaultEmailService;
+
+export const queueTestEmail = async (to: string) =>
+  (await emailService()).send({ to, template: 'test' });
+
 export { sendEmailWorker, sendEmailQueue } from './jobs';
 export { registerEmailRenderer } from './registry';
+export { sendEmail } from './send';
+export { sendSmtpTestEmail } from './smtpTest';
+export { getSendEmailQueueStats } from './queueStats';

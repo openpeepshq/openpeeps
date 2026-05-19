@@ -14,6 +14,7 @@
     User,
     ChartLine,
     Wrench,
+    Stethoscope,
     MailOpen,
     Logs,
     Search,
@@ -116,6 +117,11 @@
           name={t('navigation.configuration')}
           icon={Wrench}
           action="/admin/configuration"
+        />
+        <MenuItem
+          name={t('navigation.diagnostics')}
+          icon={Stethoscope}
+          action="/admin/diagnostics"
         />
       {/snippet}
     </MenuItem>

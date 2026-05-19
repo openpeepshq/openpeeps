@@ -12,6 +12,10 @@
     action="/admin/configuration/server-settings"
   ></ConfigMenuButton>
   <ConfigMenuButton
+    translationPrefix="configuration.email"
+    action="/admin/configuration/email"
+  ></ConfigMenuButton>
+  <ConfigMenuButton
     translationPrefix="configuration.i18n"
     action="/admin/configuration/i18n"
   ></ConfigMenuButton>
