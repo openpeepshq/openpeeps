@@ -1,5 +1,5 @@
-import { createReadStream, mkdirSync } from "node:fs";
-import { appendFile, open } from "node:fs/promises";
+import { createReadStream, existsSync, mkdirSync } from "node:fs";
+import { appendFile } from "node:fs/promises";
 import { join } from "node:path";
 import * as readline from "node:readline";
 import type { Logger, LoggerFactory } from "@openpeeps/common/types";
@@ -13,9 +13,12 @@ const createLogDirectory = () =>
 const currentFile = (date: Date) =>
 	join(logsConfig.local.path, formatDate(date, "yyyyMMdd") + ".log");
 
-export const listLogs = async () => {
-	const filePath = currentFile(new Date());
-	await open(filePath).then((h) => h.close());
+export const listLogs = async (date: Date = new Date()) => {
+	const filePath = currentFile(date);
+	if (!existsSync(filePath)) {
+		return [];
+	}
+
 	const stream = createReadStream(filePath);
 	const iterator = readline.createInterface({
 		input: stream,
@@ -25,7 +28,11 @@ export const listLogs = async () => {
 	const lines = [];
 
 	for await (const logLine of iterator) {
-		lines.push(JSON.parse(logLine));
+		try {
+			lines.push(JSON.parse(logLine));
+		} catch {
+			// skip malformed lines
+		}
 	}
 	return lines.reverse();
 };

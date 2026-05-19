@@ -104,7 +104,7 @@ Routes that require authentication but don't use the standard layout (e.g., paym
 **Available routes:**
 - `/payment/success` - Payment success page
 - `/admin/db` - Database admin interface (ArangoDB web UI)
-- `/admin/logs` - Server logs viewer
+- `/admin/diagnostics/logs` - Server logs viewer
 
 ## Authentication Routes
 

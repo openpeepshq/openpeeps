@@ -16,7 +16,6 @@
     Wrench,
     Stethoscope,
     MailOpen,
-    Logs,
     Search,
     ScrollText,
     Bookmark,
@@ -112,7 +111,6 @@
           icon={ChartLine}
           action="/admin/analytics"
         />
-        <MenuItem name={t('navigation.logs')} icon={Logs} action="/admin/logs" />
         <MenuItem
           name={t('navigation.configuration')}
           icon={Wrench}

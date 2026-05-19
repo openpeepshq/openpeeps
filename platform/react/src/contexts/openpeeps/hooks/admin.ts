@@ -37,7 +37,10 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>,) => ({
     deactivateInviteAction: noPayloadMutation(client.admin.invites.deactivate, [
         ['admin', 'invites'],
     ]),
-    useLogsList: () => apiHook(client.admin.logs.list),
+    useLogsList: (date?: string) =>
+        apiHook(client.admin.logs.list, {
+            queryParams: date ? { date } : undefined,
+        }),
     pinPostGloballyAction: payloadMutation(client.admin.posts.pinGlobally, [
         ['admin', 'posts'],
         ['posts'],

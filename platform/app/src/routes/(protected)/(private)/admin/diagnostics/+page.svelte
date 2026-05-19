@@ -15,4 +15,8 @@
     translationPrefix="diagnostics.email"
     action="/admin/diagnostics/email"
   ></ConfigMenuButton>
+  <ConfigMenuButton
+    translationPrefix="diagnostics.logs"
+    action="/admin/diagnostics/logs"
+  ></ConfigMenuButton>
 </div>

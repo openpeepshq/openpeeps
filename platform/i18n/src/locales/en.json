@@ -1408,6 +1408,25 @@
             "prioritized": "Prioritized",
             "recentFailures": "Recent send failures",
             "bounceNote": "These counts reflect whether your server could hand off mail to your SMTP provider. They do not include recipient bounces, spam folder delivery, or invalid addresses after the handoff."
+        },
+        "logs": {
+            "title": "Logs",
+            "description": "Browse server log entries by day, filter by level or text, and watch today's log stream live.",
+            "hint": "Logs are stored in daily files on the server. Select a date to view historical entries.",
+            "date": "Date",
+            "level": "Level",
+            "allLevels": "All levels",
+            "filter": "Filter",
+            "filterPlaceholder": "Search message or namespace…",
+            "refresh": "Refresh",
+            "autoRefresh": "Auto-refreshing every 5 seconds",
+            "showing": "Showing {{count}} of {{total}} entries",
+            "loadError": "Could not load logs.",
+            "empty": "No log entries match the current filters.",
+            "timestamp": "Time",
+            "levelColumn": "Level",
+            "namespaceColumn": "Namespace",
+            "messageColumn": "Message"
         }
     },
     "common": {

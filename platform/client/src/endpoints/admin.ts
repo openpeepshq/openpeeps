@@ -110,7 +110,11 @@ export const admin = (rawClient: FetchClient) => (
             ),
         },
         logs: {
-            list: allpeepNoPayloadEndpoint<LogRow[]>(rawClient, '/admin/logs'),
+            list: allpeepNoPayloadEndpoint<
+                LogRow[],
+                undefined,
+                { date?: string }
+            >(rawClient, '/admin/logs'),
         },
         posts: {
             pinGlobally: allpeepPayloadEndpoint<

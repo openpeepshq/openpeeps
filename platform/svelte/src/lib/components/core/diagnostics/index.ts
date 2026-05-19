@@ -1,3 +1,4 @@
 import EmailDiagnostics from './EmailDiagnostics.svelte';
+import LogsDiagnostics from './LogsDiagnostics.svelte';
 
-export { EmailDiagnostics };
+export { EmailDiagnostics, LogsDiagnostics };
