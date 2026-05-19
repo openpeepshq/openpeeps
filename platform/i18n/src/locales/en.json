@@ -338,7 +338,8 @@
         },
         "actions": {
             "shareMessage": "Share this post",
-            "seeThread": "See Thread"
+            "seeThread": "See Thread",
+            "seeEvent": "View Event"
         },
         "footer": {
             "reply": "Reply",
