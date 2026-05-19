@@ -353,7 +353,9 @@
             "directMessage": "Direct message",
             "sendInMessage": "Send in a message",
             "otherOptions": "Other options",
-            "copyLink": "Copy link"
+            "copyLink": "Copy link",
+            "downloadCalendarIcs": "Add to Calendar",
+            "downloadCalendarIcsTitle": "Download .ics file"
         },
         "gallery": {
             "previous": "Previous",
