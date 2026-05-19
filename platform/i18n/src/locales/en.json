@@ -119,7 +119,8 @@
         "myEvents": "My Events",
         "explore": "Explore",
         "articles": "Articles",
-        "bookmarks": "Bookmarks"
+        "bookmarks": "Bookmarks",
+        "conversations": "Messages"
     },
     "profile": {
         "noBio": "No bio yet",
