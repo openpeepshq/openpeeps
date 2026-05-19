@@ -19,15 +19,31 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ forgejo.token }}
       - name: Regenerate changelog
+        env:
+          DEFAULT_BRANCH: ${{ env.DEFAULT_BRANCH }}
+          REGISTRY_USER: ${{ vars.REGISTRY_USER }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
         run: |
+          set -euo pipefail
           node scripts/generate-changelog.mjs
+
+          if git diff --quiet -- CHANGELOG.md; then
+            echo "CHANGELOG.md is up to date; nothing to commit."
+            exit 0
+          fi
+
           git config user.name "Nightly Builder"
           git config user.email "openpeeps@allpeep.com"
           git add CHANGELOG.md
-          git commit -m "Regenerate changelog"
-          git pull --rebase origin "${{ env.DEFAULT_BRANCH }}"
-          git push origin "HEAD:${{ env.DEFAULT_BRANCH }}"
+          git commit -m "chore: regenerate changelog"
+
+          git remote set-url origin "https://${REGISTRY_USER}:${REGISTRY_PASSWORD}@codeberg.org/${{ forgejo.repository }}.git"
+          git pull --rebase origin "${DEFAULT_BRANCH}"
+          git push origin "HEAD:${DEFAULT_BRANCH}"
   build:
     uses: ./.forgejo/workflows/build.yaml
     with:
