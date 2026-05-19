@@ -1144,6 +1144,39 @@
     },
     "configuration": {
         "title": "Konfiguration",
+        "email": {
+            "title": "E-Mail",
+            "description": "SMTP-Transport konfigurieren und Zustellbarkeit mit Ihren Entwurfseinstellungen testen.",
+            "intro": "Bearbeiten Sie SMTP-Transport und Absenderangaben, und senden Sie dann eine Test-E-Mail mit den unten stehenden Werten (gespeichert oder nicht). Wenn das Passwortfeld Platzhalterzeichen anzeigt, wird das gespeicherte Passwort verwendet.",
+            "sections": {
+                "general": "Rendering und Vorlagen",
+                "transport": "SMTP-Transport"
+            },
+            "fields": {
+                "renderHostBaseUrl": "Basis-URL des Render-Hosts",
+                "renderHostBaseUrlDescription": "Optional. Basis-URL für die Darstellung von E-Mail-HTML (Links und Assets).",
+                "service": "E-Mail-Dienst",
+                "defaultTemplatePath": "Standard-Vorlagenpfad",
+                "defaultTemplatePathDescription": "Dateisystempfad zu E-Mail-Vorlagen, relativ zum Server.",
+                "defaultFrom": "Standard-Absenderadresse",
+                "defaultFromDescription": "Optional. Absenderadresse, wenn keine angegeben ist.",
+                "host": "SMTP-Host",
+                "port": "SMTP-Port",
+                "authUser": "SMTP-Benutzername",
+                "authPass": "SMTP-Passwort",
+                "authPassDescription": "Platzhalterzeichen unverändert lassen, um das gespeicherte Passwort beizubehalten."
+            },
+            "updateSuccess": "E-Mail-Konfiguration aktualisiert.",
+            "testTitle": "Test-E-Mail senden",
+            "testHint": "Sendet eine vollständig gerenderte Test-E-Mail über den SMTP-Transport des Entwurfs, ohne die Warteschlange.",
+            "testRecipient": "Test senden an",
+            "testRecipientPlaceholder": "sie@beispiel.de",
+            "sendTest": "Test-E-Mail senden",
+            "recipientRequired": "Geben Sie eine E-Mail-Adresse für den Test ein.",
+            "testSuccess": "Test-E-Mail gesendet. Prüfen Sie den Posteingang (und Spam) der angegebenen Adresse.",
+            "testFailed": "Test-E-Mail fehlgeschlagen. Prüfen Sie SMTP-Host, Port, Anmeldedaten und die Fehlerdetails in Ihren Server-Logs.",
+            "bounceNote": "Der Versand ist erfolgreich, sobald Ihr SMTP-Anbieter die Nachricht annimmt. Bounces, Spamfilterung und ungültige Adressen danach werden hier nicht angezeigt."
+        },
         "profileFields": {
             "title": "Profilfelder-Konfiguration",
             "add": "Feld hinzufügen",

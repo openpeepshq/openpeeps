@@ -6,8 +6,9 @@ import { serverRootUrl } from '../server';
 import { initI18nEmailContext } from '../i18n';
 
 const globals = async () => {
-  const rootUrl = await serverRootUrl();
-  const serverConfig = await config()
+  const serverConfig = await config();
+  const rootUrl =
+    serverConfig.email.renderHostBaseUrl?.trim() || (await serverRootUrl());
   return {
     communityConfig: await communityConfig(),
     serverData: {

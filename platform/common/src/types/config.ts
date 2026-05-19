@@ -22,6 +22,9 @@ export const password = (sanitize?: boolean) =>
 export const fixed = (type: ZodType, sanitize?: boolean) =>
   sanitize ? type.describe('fixed') : type;
 
+export const hidden = <T extends ZodType>(type: T): T =>
+  type.describe('hidden') as T;
+
 export const longText = (type: ZodString) => type.describe('longText');
 
 export const mediaStorageParamsSchema = z.object({
@@ -47,6 +50,27 @@ export const stripePaymentConfigSchema = (sanitize?: boolean) =>
 export type StripePaymentConfig = z.infer<
   ReturnType<typeof stripePaymentConfigSchema>
 >;
+
+export const emailConfigSchemaFactory = (sanitize?: boolean) =>
+  z.object({
+    renderHostBaseUrl: z.string().optional(),
+    service: z.string(),
+    defaultTemplatePath: z.string(),
+    defaultFrom: z.string().optional(),
+    transportConfig: z.object({
+      host: z.string(),
+      port: z.number(),
+      secure: z.literal(true),
+      auth: z.object({
+        user: z.string().optional(),
+        pass: password(sanitize).optional(),
+      }),
+    }),
+  });
+
+export const emailConfigSchema = emailConfigSchemaFactory(false);
+export const emailConfigSanitizedSchema = emailConfigSchemaFactory(true);
+export type EmailConfig = z.infer<typeof emailConfigSchema>;
 
 export type ConfigValue = string | number | boolean | undefined;
 export interface ConfigTree {
@@ -90,21 +114,7 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
       }),
       sanitize,
     ),
-    email: z.object({
-      renderHostBaseUrl: z.string().optional(),
-      service: z.string(),
-      defaultTemplatePath: z.string(),
-      defaultFrom: z.string().optional(),
-      transportConfig: z.object({
-        host: z.string(),
-        port: z.number(),
-        secure: z.literal(true),
-        auth: z.object({
-          user: z.string().optional(),
-          pass: password(sanitize).optional(),
-        }),
-      }),
-    }),
+    email: emailConfigSchemaFactory(sanitize).describe('hidden'),
     logs: fixed(
       z.object({
         local: fixed(

@@ -107,6 +107,7 @@
         "administration": "Administration",
         "invites": "Invites",
         "configuration": "Configuration",
+        "diagnostics": "Diagnostics",
         "moderation": "Moderation",
         "backups": "Backups",
         "analytics": "Analytics",
@@ -1144,6 +1145,39 @@
     },
     "configuration": {
         "title": "Configuration",
+        "email": {
+            "title": "Email",
+            "description": "Configure SMTP transport and test deliverability with your draft settings.",
+            "intro": "Edit the SMTP transport and sender details, then send a test email using the values below (saved or not). When the password field shows placeholder characters, the saved password is used.",
+            "sections": {
+                "general": "Rendering and templates",
+                "transport": "SMTP transport"
+            },
+            "fields": {
+                "renderHostBaseUrl": "Render host base URL",
+                "renderHostBaseUrlDescription": "Optional. Base URL used when rendering email HTML (links and assets).",
+                "service": "Mail service",
+                "defaultTemplatePath": "Default template path",
+                "defaultTemplatePathDescription": "Filesystem path to email templates, relative to the server.",
+                "defaultFrom": "Default From address",
+                "defaultFromDescription": "Optional sender address used when none is specified.",
+                "host": "SMTP host",
+                "port": "SMTP port",
+                "authUser": "SMTP username",
+                "authPass": "SMTP password",
+                "authPassDescription": "Leave placeholder characters unchanged to keep the saved password."
+            },
+            "updateSuccess": "Email configuration updated.",
+            "testTitle": "Send test email",
+            "testHint": "Sends a fully rendered test email through the draft SMTP transport, bypassing the queue.",
+            "testRecipient": "Send test to",
+            "testRecipientPlaceholder": "you@example.com",
+            "sendTest": "Send test email",
+            "recipientRequired": "Enter an email address to receive the test.",
+            "testSuccess": "Test email sent. Check the inbox (and spam) for the recipient you entered.",
+            "testFailed": "Test email failed. Check SMTP host, port, credentials, and the error details from your server logs.",
+            "bounceNote": "Sending succeeds once your SMTP provider accepts the message. Recipient bounces, spam filtering, and invalid addresses happen after that and are not shown here."
+        },
         "profileFields": {
             "title": "Profile Fields Configuration",
             "add": "Add Field",
@@ -1339,13 +1373,41 @@
         },
         "serverSettings": {
             "title": "Server Settings",
-            "description": "Configure your community's server.  This is where you can connect LiveKit, SMTP, Sentry and other critical services, as well as add Apple and Google Play store links and push notification config."
+            "description": "Configure your community's server.  This is where you can connect LiveKit, Sentry and other critical services, as well as add Apple and Google Play store links and push notification config."
         },
         "i18n": {
             "title": "Custom Text",
             "description": "Change the text throughout the community",
             "pageTitle": "Translations",
             "save": "Save"
+        }
+    },
+    "diagnostics": {
+        "title": "Diagnostics",
+        "description": "Inspect runtime services and confirm they work end-to-end.",
+        "email": {
+            "title": "Email",
+            "description": "Inspect the outbound email queue and queue a test email through the regular delivery pipeline.",
+            "testTitle": "Queue test email",
+            "testHint": "Adds a test email to the queue using the saved configuration, just like the CLI command.",
+            "testRecipient": "Send test to",
+            "testRecipientPlaceholder": "you@example.com",
+            "queueTest": "Queue test email",
+            "recipientRequired": "Enter an email address to receive the test.",
+            "queueSuccess": "Test email queued. Watch the queue counters to see it picked up.",
+            "queueFailed": "Failed to queue test email",
+            "queueTitle": "Outbound email queue",
+            "refresh": "Refresh",
+            "countsHint": "Jobs in Redis for the email worker. Completed jobs are removed after about 24 hours; failed jobs are kept longer so you can diagnose issues.",
+            "statsError": "Could not load queue stats. Is Redis running and reachable?",
+            "waiting": "Waiting",
+            "active": "In progress",
+            "completed": "Completed",
+            "failed": "Failed",
+            "delayed": "Delayed",
+            "prioritized": "Prioritized",
+            "recentFailures": "Recent send failures",
+            "bounceNote": "These counts reflect whether your server could hand off mail to your SMTP provider. They do not include recipient bounces, spam folder delivery, or invalid addresses after the handoff."
         }
     },
     "common": {

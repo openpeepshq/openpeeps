@@ -73,7 +73,7 @@
     {/if}
     {#each fields as field}
       {@const fieldSchema = unwrap(field.def)}
-      {#if fieldSchema.description !== 'fixed'}
+      {#if fieldSchema.description !== 'fixed' && fieldSchema.description !== 'hidden'}
         {#if fieldSchema instanceof z.ZodObject}
           <ExpandableBox initialOpen={false}>
             {#snippet title()}

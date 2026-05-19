@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { emailService } from '@openpeeps/core/email';
+import { queueTestEmail } from '@openpeeps/core/email';
 
 export const registerEmailCommand = (program: Command) => {
   const email = program.command('email').description('Email utilities');
@@ -24,10 +24,7 @@ const testEmail = async (email: string) => {
 
   try {
     console.log(`Sending test email to ${email}...`);
-    await (await emailService()).send({
-      to: email,
-      template: 'test',
-    });
+    await queueTestEmail(email);
     console.log('✅ Email queued successfully!');
     console.log('Note: The email has been added to the queue. Check your email service logs to confirm delivery.');
   } catch (error) {

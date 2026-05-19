@@ -4,7 +4,7 @@ import { AdminServerStats } from "@openpeeps/common";
 
 import { Role } from "@openpeeps/common";
 
-import { ConfigData, ConfigDataWithDefaults, InviteLinkData, InviteLinkWithMeta, LogRow, ProfileWithMeta, Resource, SuccessResponse, TokenResponse } from "@openpeeps/common";
+import { AdminEmailQueueStats, AdminEmailQueueTestInput, AdminEmailTestInput, ConfigData, ConfigDataWithDefaults, InviteLinkData, InviteLinkWithMeta, LogRow, ProfileWithMeta, Resource, SuccessResponse, TokenResponse } from "@openpeeps/common";
 
 import { allpeepPayloadEndpoint } from "./helpers";
 
@@ -54,6 +54,28 @@ export const admin = (rawClient: FetchClient) => (
                 Partial<ConfigData>,
                 { namespace: string; name: string }
             >(rawClient, '/admin/config/:namespace/:name', 'patch'),
+        },
+        configuration: {
+            email: {
+                sendTest: allpeepPayloadEndpoint<SuccessResponse, AdminEmailTestInput>(
+                    rawClient,
+                    '/admin/configuration/email/test',
+                    'post',
+                ),
+            },
+        },
+        diagnostics: {
+            email: {
+                queueStats: allpeepNoPayloadEndpoint<AdminEmailQueueStats>(
+                    rawClient,
+                    '/admin/diagnostics/email/queue-stats',
+                ),
+                queueTest: allpeepPayloadEndpoint<SuccessResponse, AdminEmailQueueTestInput>(
+                    rawClient,
+                    '/admin/diagnostics/email/test',
+                    'post',
+                ),
+            },
         },
         db: {
             token: allpeepNoPayloadEndpoint<TokenResponse>(rawClient, '/admin/db/token'),

@@ -2,6 +2,7 @@ export * from './accounts';
 export * from './admin';
 export * from './backups';
 export * from './configuration';
+export * from './diagnostics';
 export * from './conversations';
 export * from './form';
 export * from './groups';

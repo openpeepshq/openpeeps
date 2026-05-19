@@ -2,6 +2,7 @@ import ConfigurationCategory from './server-configuration/ConfigurationCategory.
 import ConfigurationList from './server-configuration/ConfigurationList.svelte';
 import ConfigurationTree from './server-configuration/ConfigurationTree.svelte';
 import ConfigurationValueEditor from './server-configuration/ConfigurationValueEditor.svelte';
+import ConfigEmailSettings from './server-configuration/ConfigEmailSettings.svelte';
 import ConfigServerSettings from './server-configuration/ConfigServerSettings.svelte';
 import ConfigCommunityProfileFields from './community/ConfigCommunityProfileFields.svelte';
 import ConfigCommunityDefaultRoles from './community/ConfigCommunityDefaultRoles.svelte';
@@ -20,6 +21,7 @@ export {
 	ConfigurationCategory,
 	ConfigurationTree,
 	ConfigurationValueEditor,
+	ConfigEmailSettings,
 	ConfigServerSettings,
 	ConfigCommunityProfileFields,
 	ConfigurationList,
