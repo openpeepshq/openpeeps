@@ -2215,5 +2215,8 @@
             "title": "Your email is not verified",
             "text": "Click on the link in the email we sent you to verify your email and fully participate in the community."
         }
+    },
+    "profiles": {
+        "handleExists": "This handle already exists, please pick a different one."
     }
 }
