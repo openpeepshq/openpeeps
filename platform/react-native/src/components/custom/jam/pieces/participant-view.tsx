@@ -124,9 +124,11 @@ const ParticipantInfo: React.FC<{
         <HandIcon className="text-foreground" />
       </View>
     )}
-    <ThemedText className="max-w-20 truncate h-6">
-      {profile?.displayName || `@${profile?.handle}`}
-    </ThemedText>
+    <ThemedView className="max-w-20 truncate h-6">
+      <ThemedText>
+        {profile?.displayName || `@${profile?.handle}`}
+      </ThemedText>
+    </ThemedView>
     {participantRole && (
       <ThemedView className="px-1 rounded-md">
         <ThemedText>{participantRole}</ThemedText>
