@@ -91,7 +91,7 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
             <TouchableOpacity
               onPress={() => removeAttachment(index)}
               className="absolute top-4 mt-3 right-8 w-8 h-8 rounded-full bg-background/50 items-center justify-center">
-              <XIcon size={16} className="text-white" />
+              <XIcon size={16} className="text-foreground" />
             </TouchableOpacity>
             {(attachment.type === 'image' ||
               (attachment.type === 'document' &&
