@@ -7,8 +7,6 @@ import { ThemedText } from '~/components/ui/themed-text';
 import { ThemedView } from '~/components/ui/themed-view';
 import { FeedPostContent, UpdatingDate } from '~/components/custom';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Button } from '~/components/ui/button';
-import { ThumbsUpIcon } from '~/components/icons';
 import { MessageOptionsSheet, DeleteMessageConfirmationSheet } from '../modals';
 
 interface MessageCardProps {
@@ -24,9 +22,9 @@ export const MessageCard = ({ message }: MessageCardProps) => {
   const reactToPost = openpeepsApi.reactToPostAction({
     id: post.id,
   });
-  const retractReaction = openpeepsApi.retractPostReactionAction({
-    id: post.id,
-  });
+  // const retractReaction = openpeepsApi.retractPostReactionAction({
+  //   id: post.id,
+  // });
   const deleteMessage = openpeepsApi.deletePostAction({
     id: post.id,
   });
@@ -35,51 +33,51 @@ export const MessageCard = ({ message }: MessageCardProps) => {
 
   const likeCount = post?.reactions.length;
 
-  const checkOwnReaction = () => {
-    return post.reactions?.some(r => r.profile.id === currentProfile?.id);
-  };
+  // const checkOwnReaction = () => {
+  //   return post.reactions?.some(r => r.profile.id === currentProfile?.id);
+  // };
 
-  const handleReact = () => {
-    if (checkOwnReaction()) {
-      // Optimistically remove current user's reaction
-      setPost(prev => ({
-        ...prev,
-        reactions: prev.reactions.filter(
-          r => r.profile.id !== currentProfile?.id
-        ),
-      }));
+  // const handleReact = () => {
+  //   if (checkOwnReaction()) {
+  //     // Optimistically remove current user's reaction
+  //     setPost(prev => ({
+  //       ...prev,
+  //       reactions: prev.reactions.filter(
+  //         r => r.profile.id !== currentProfile?.id
+  //       ),
+  //     }));
 
-      // Call API to retract reaction, then refetch post to sync
-      retractReaction().then(() => {
-        refetchPost.refetch().then(data => {
-          if (data.data) { setPost(data.data); }
-        });
-      });
-    } else {
-      if (!currentProfile) { return; } // safety check
+  //     // Call API to retract reaction, then refetch post to sync
+  //     retractReaction().then(() => {
+  //       refetchPost.refetch().then(data => {
+  //         if (data.data) { setPost(data.data); }
+  //       });
+  //     });
+  //   } else {
+  //     if (!currentProfile) { return; } // safety check
 
-      // Optimistically add current user's reaction
-      setPost(prev => ({
-        ...prev,
-        reactions: [
-          ...prev.reactions,
-          {
-            id: 'temp-id', // temporary id until server responds
-            profile: currentProfile,
-            reaction: '👍',
-            createdAt: new Date().toISOString(),
-          },
-        ],
-      }));
+  //     // Optimistically add current user's reaction
+  //     setPost(prev => ({
+  //       ...prev,
+  //       reactions: [
+  //         ...prev.reactions,
+  //         {
+  //           id: 'temp-id', // temporary id until server responds
+  //           profile: currentProfile,
+  //           reaction: '👍',
+  //           createdAt: new Date().toISOString(),
+  //         },
+  //       ],
+  //     }));
 
-      // Call API to add reaction, then refetch post to sync
-      reactToPost({ reaction: '👍' }).then(() => {
-        refetchPost.refetch().then(data => {
-          if (data.data) { setPost(data.data); }
-        });
-      });
-    }
-  };
+  //     // Call API to add reaction, then refetch post to sync
+  //     reactToPost({ reaction: '👍' }).then(() => {
+  //       refetchPost.refetch().then(data => {
+  //         if (data.data) { setPost(data.data); }
+  //       });
+  //     });
+  //   }
+  // };
 
 
   const handleDeleteGroupModalPress = useCallback(() => {
@@ -118,7 +116,7 @@ export const MessageCard = ({ message }: MessageCardProps) => {
               <FeedPostContent post={post} />
             </View>
           </ThemedView>
-          <View className="flex-row items-center">
+          {/* <View className="flex-row items-center">
             <Button
               variant={'ghost'}
               onPress={handleReact}
@@ -131,7 +129,7 @@ export const MessageCard = ({ message }: MessageCardProps) => {
               />
               {likeCount > 1 && <Text>{likeCount - 1}</Text>}
             </Button>
-          </View>
+          </View> */}
         </View>
       </View>
 
