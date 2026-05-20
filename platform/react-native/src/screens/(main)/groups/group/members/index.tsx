@@ -294,7 +294,7 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
       <RemoveAdminPrivilegesFromMemberConfirmationSheet
         ref={removeAdminPrvilegesModalRef}
         onRemovePrivileges={onRemoveAdminPrivileges}
-        profile={memberToBeAdmin as Profile}
+        profile={memberToLoseAdminPrivileges as Profile}
       />
 
       <RemoveGroupMemberConfirmationSheet
