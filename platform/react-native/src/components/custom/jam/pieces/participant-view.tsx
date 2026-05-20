@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ViewStyle, Dimensions } from 'react-native';
+import { ViewStyle } from 'react-native';
 import {
   isTrackReference,
   TrackReferenceOrPlaceholder,
@@ -42,19 +42,18 @@ const VideoView: React.FC<{
   trackRef: TrackReferenceOrPlaceholder;
   fullScreen: boolean;
 }> = React.memo(({ trackRef, fullScreen }) => {
-  const { width } = Dimensions.get('window');
-
   return (
     <View
       className={cn(
-        'flex items-center justify-center bg-black rounded-md relative overflow-hidden',
-        fullScreen ? 'w-full flex-1 h-auto mx-auto' : 'w-[175px] h-56 m-1',
+        'relative overflow-hidden rounded-md',
+        fullScreen ? 'h-full w-full' : 'm-1 h-56 w-[175px]',
       )}>
       <VideoTrack
         style={{
-          width: fullScreen ? width : 175,
-          height: fullScreen ? 300 : 200,
+          width: '100%',
+          height: '100%',
         }}
+        objectFit="cover"
         trackRef={isTrackReference(trackRef) ? trackRef : undefined}
         mirror={true}
         key={trackRef.participant.identity}
@@ -72,13 +71,9 @@ const AvatarView: React.FC<{
 
   return (
     <View
-      style={{
-        width: fullScreen ? 'auto' : 175,
-        height: fullScreen ? 300 : 200,
-      }}
       className={cn(
-        'flex items-center justify-center rounded-md m-1 relative',
-        fullScreen ? 'flex-1 h-auto bg-secondary/50' : 'bg-background',
+        'relative flex items-center justify-center rounded-md',
+        fullScreen ? 'h-full w-full bg-secondary/50' : 'm-1 h-56 w-[175px] bg-background',
       )}>
       <Avatar alt="profile" className="h-16 w-16">
         {profile?.avatar ? (
