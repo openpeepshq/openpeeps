@@ -59,7 +59,7 @@
 
   const formatTimestamp = (timestamp: string) => {
     try {
-      return format(parseISO(timestamp), 'HH:mm:ss.SSS');
+      return parseISO(timestamp).toISOString().slice(11, 23);
     } catch {
       return timestamp;
     }

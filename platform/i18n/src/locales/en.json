@@ -1426,7 +1426,7 @@
             "showing": "Showing {{count}} of {{total}} entries",
             "loadError": "Could not load logs.",
             "empty": "No log entries match the current filters.",
-            "timestamp": "Time",
+            "timestamp": "Time (UTC)",
             "levelColumn": "Level",
             "namespaceColumn": "Namespace",
             "messageColumn": "Message"
