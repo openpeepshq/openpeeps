@@ -43,6 +43,7 @@ export const adminEmailQueueStatsSchema = z.object({
   }),
   recentFailures: z.array(
     z.object({
+      queue: z.string(),
       id: z.string().nullable(),
       name: z.string(),
       failedReason: z.string(),

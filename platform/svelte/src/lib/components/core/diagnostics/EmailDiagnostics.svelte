@@ -10,6 +10,11 @@
   import { toast } from '$lib/utils/toast';
   import { i18nContext } from '$lib/components/i18n';
 
+  const formatFailureTime = (finishedOn: number) => {
+    const iso = new Date(finishedOn).toISOString();
+    return `${iso.slice(0, 10)} ${iso.slice(11, 19)} UTC`;
+  };
+
   const { t } = i18nContext();
   const toastStore = getToastStore();
 
@@ -163,8 +168,38 @@
               <li
                 class="rounded border border-error-500/30 bg-error-500/10 p-2"
               >
-                <span class="font-mono text-xs opacity-80">{f.name}</span>
+                <div
+                  class="mb-1 flex flex-wrap items-baseline justify-between gap-2"
+                >
+                  {#if f.id}
+                    <a
+                      class="anchor font-mono text-xs"
+                      href="/admin/diagnostics/jobs/{f.queue}/{f.id}"
+                      title={t('diagnostics.jobs.viewLogs')}
+                    >
+                      {f.name}
+                    </a>
+                  {:else}
+                    <span class="font-mono text-xs opacity-80">{f.name}</span>
+                  {/if}
+                  {#if f.finishedOn != null}
+                    <time
+                      class="text-xs opacity-70"
+                      datetime={new Date(f.finishedOn).toISOString()}
+                    >
+                      {formatFailureTime(f.finishedOn)}
+                    </time>
+                  {/if}
+                </div>
                 <p class="whitespace-pre-wrap break-words">{f.failedReason}</p>
+                {#if f.id}
+                  <a
+                    class="anchor mt-1 inline-block text-xs"
+                    href="/admin/diagnostics/jobs/{f.queue}/{f.id}"
+                  >
+                    {t('diagnostics.jobs.viewLogs')}
+                  </a>
+                {/if}
               </li>
             {/each}
           </ul>
