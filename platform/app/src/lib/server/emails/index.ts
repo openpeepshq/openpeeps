@@ -39,6 +39,7 @@ export const registerDefaultEmailTemplates = async () => {
   await registerNotificationEmailRenderer('newProfile');
   await registerNotificationEmailRenderer('reaction');
   await registerNotificationEmailRenderer('reply');
+  await registerNotificationEmailRenderer('mention');
   await registerNotificationEmailRenderer('repost');
   await registerNotificationEmailRenderer('groupMemberJoined');
   await registerNotificationEmailRenderer('groupMemberLeft');

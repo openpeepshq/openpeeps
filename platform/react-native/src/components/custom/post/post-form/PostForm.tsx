@@ -29,7 +29,7 @@ export const PostForm = ({
   form,
 }: PostFormProps) => {
   const { currentProfile } = useOpenpeeps();
-  const mentionsProfileModalRef = useRef<BottomSheetModal>(null);
+  const profileModalRef = useRef<BottomSheetModal>(null);
 
   const { t } = useTranslation();
 
@@ -63,7 +63,7 @@ export const PostForm = ({
   );
 
   const handleProfileModalPress = useCallback(() => {
-    mentionsProfileModalRef.current?.present();
+    profileModalRef.current?.present();
   }, []);
 
   const handleProfileSelect = useCallback(
@@ -76,13 +76,6 @@ export const PostForm = ({
 
       const newPostData = {
         ...postData,
-        mentions: [
-          ...(postData.mentions ?? []),
-          {
-            text: profile.handle,
-            profile,
-          },
-        ],
         data: {
           ...postData.data,
           content: newContent,
@@ -176,7 +169,7 @@ export const PostForm = ({
 
         <ProfilePickerSheet
           title="Select Mention"
-          ref={mentionsProfileModalRef}
+          ref={profileModalRef}
           onSelect={handleProfileSelect}
           selectType="sync"
           single={true}

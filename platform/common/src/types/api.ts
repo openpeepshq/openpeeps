@@ -591,7 +591,6 @@ export const postCreationDataSchema = z.object({
   type: postTypeSchema,
   data: postDataUnionSchema,
   inReplyToId: z.string().uuid().nullable().optional(),
-  mentions: mentionWithPublicProfileSchema.array().nullable().optional(),
   audience: publicProfileSchema.array().nullable().optional(),
   groupId: z.string().uuid().nullable().optional(),
   reportId: z.string().uuid().nullable().optional(),

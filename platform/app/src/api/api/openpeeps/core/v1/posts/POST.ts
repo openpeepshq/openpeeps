@@ -26,7 +26,7 @@ export default new Endpoint({ Input, Output, Error }).handle(
 
     const postData = postDataUnionSchema.parse(input.data);
     const object = postDataSchema.parse({ ...input, creatorId: profile.id });
-    const { inReplyToId, mentions, groupId, audience } = input;
+    const { inReplyToId, groupId, audience } = input;
 
     if (postData.type !== object.type) {
       object.type = postData.type;
@@ -38,7 +38,6 @@ export default new Endpoint({ Input, Output, Error }).handle(
 
     return await createPost(postData, profile, object, {
       inReplyToId,
-      mentions,
       groupId,
       audience,
     });

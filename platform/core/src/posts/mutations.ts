@@ -6,12 +6,11 @@ import {
   Profile,
   ReactionData,
   RSVP,
-  MentionWithPublicProfile,
 } from '@openpeeps/common/types';
 
 import { PostDataUnion } from "@openpeeps/common/types";
 import { allpeepDb } from "../db";
-import { audienceConnector, bookmarkConnector, bookmarkDisconnector, entryConnector, extractHashtags, groupConnector, hashtagConnector, hashtagDisconnector, mentionConnector, postSeenConnector, reactionConnector, reactionDisconnector, replyConnector, repostConnector, transformPost } from "./helpers";
+import { audienceConnector, bookmarkConnector, bookmarkDisconnector, entryConnector, extractHashtags, groupConnector, hashtagConnector, hashtagDisconnector, mentionConnector, postSeenConnector, reactionConnector, reactionDisconnector, replyConnector, repostConnector, resolveMentionsForPost, transformPost } from "./helpers";
 import { postsMapping, repostRelation } from "./mapping";
 import { findGroup } from "../groups/finders";
 import { findOrCreateHashtag } from "../hashtags";
@@ -25,7 +24,6 @@ export const createPost = async (
   relations: {
     inReplyToId?: string | null;
     repostId?: string;
-    mentions?: MentionWithPublicProfile[] | null;
     audience?: Profile[] | null;
     groupId?: string | null;
   } = {},
@@ -72,8 +70,10 @@ export const createPost = async (
     await hashtagConnector(db, post, hashtag);
   }));
 
-  if (relations.mentions) {
-    await Promise.all(relations.mentions.map(async (mention) =>
+  const mentions = await resolveMentionsForPost(data);
+
+  if (mentions.length) {
+    await Promise.all(mentions.map(async (mention) =>
       mentionConnector(db, post, mention.profile, { text: mention.text })
     ));
   }

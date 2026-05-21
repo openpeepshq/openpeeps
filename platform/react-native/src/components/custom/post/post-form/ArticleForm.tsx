@@ -31,7 +31,6 @@ export const ArticleForm = ({
   form,
 }: ArticleFormProps) => {
   const {currentProfile} = useOpenpeeps();
-  const mentionsProfileModalRef = useRef<BottomSheetModal>(null);
   const [headerImage, setHeaderImage] = useState<string>();
   const [isBackgroundChanged, setIsBackgroundChanged] = useState(false);
   const headerImagePickerModalRef = useRef<BottomSheetModal>(null);
@@ -78,10 +77,6 @@ export const ArticleForm = ({
     },
     [postData, form, setPostData],
   );
-
-  const handleProfileModalPress = useCallback(() => {
-    mentionsProfileModalRef.current?.present();
-  }, []);
 
   const handleHeaderModalPress = useCallback(() => {
     headerImagePickerModalRef.current?.present();
@@ -181,12 +176,6 @@ export const ArticleForm = ({
                 value={value}
                 onChange={text => {
                   onChange(text);
-
-                  // Check if the last character is "@"
-                  const lastChar = text?.slice(-1);
-                  if (lastChar === '@') {
-                    handleProfileModalPress(); // Show modal
-                  }
                 }}
                 {...rest}
               />
