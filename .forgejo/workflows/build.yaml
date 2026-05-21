@@ -175,7 +175,7 @@ jobs:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install pnpm and dependencies
         run: |
-          npm i -g pnpm
+          corepack enable
           cd platform/app
           pnpm install
           pnpm exec playwright install chromium chromium-headless-shell
