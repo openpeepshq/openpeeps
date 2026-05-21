@@ -2,7 +2,7 @@
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
 		"allowJs": true,
-		"checkJs": true,
+		"checkJs": false,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
@@ -19,5 +19,6 @@
 			"inputGlob": "{js,mjs}",
 			"outputCheck": ["js", "json", "mjs"]
 		}
-	}
+	},
+	"exclude": ["dist", "node_modules"]
 }

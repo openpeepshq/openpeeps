@@ -180,7 +180,7 @@ jobs:
           pnpm install
           pnpm exec playwright install chromium chromium-headless-shell
       - name: Run integration tests
-        run: pnpm run test:integration
+        run: pnpm run test:integration:no-clean
         working-directory: platform/app
 
   commit-check:

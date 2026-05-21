@@ -1,8 +1,7 @@
 import { communityConfig, config } from '../config';
 import nodemailer from 'nodemailer';
 import type { Job } from 'bullmq';
-import { jwtUtil } from '../jwt';
-import { createServiceToken } from '../auth/tokens';
+import { createSignedServiceToken } from '../accessTokens/tokens';
 import {
   CoreConfig,
   EmailOptions,
@@ -72,13 +71,14 @@ let renderToken: string | undefined = undefined;
 
 const getRenderToken = async () => {
   if (!renderToken) {
-    const authorization = await createServiceToken([
-      {
+    const accessToken = await createSignedServiceToken({
+      scopes: [{
         resource: { type: 'render', id: '*' },
-      },
-    ]);
-    const jwt = await jwtUtil();
-    renderToken = await jwt.sign(authorization);
+      }],
+      name: 'render-email',
+      expirationTime: '99y',
+    });
+    renderToken = accessToken.signedToken;
   }
   return renderToken;
 };

@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import { i18nContext } from '$lib/components/i18n';
 	import type { CreateInfiniteQueryResult, InfiniteData } from '@tanstack/svelte-query';

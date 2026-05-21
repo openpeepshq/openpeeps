@@ -1,7 +1,7 @@
 import { OMFilter } from "@openpeeps/arango-querybuilder";
-import { PostWithMeta, ProfileWithMeta, CapabilitiesConfig, postWithMetaSchema, DbBasePost } from "@openpeeps/common/types";
+import { AuthorizationData, PostWithMeta, ProfileWithMeta, CapabilitiesConfig, postWithMetaSchema, DbBasePost } from "@openpeeps/common/types";
 import { yesOrMaybeRsvpExpression } from "./aql";
-import { checkPostCapabilities } from "@openpeeps/common/lib";
+import { checkCapabilities, getPostCapabilities } from "@openpeeps/common/lib";
 import { ObjectFilter } from "../../db/types";
 
 
@@ -39,9 +39,9 @@ export const localFeedFilter = (_profile?: ProfileWithMeta): OMFilter<DbBasePost
     matches: [{ visibility: 'local' }, { visibility: 'public' }]
 });
 
-export const canReadPost = (config: CapabilitiesConfig, profile?: ProfileWithMeta) => (post?: PostWithMeta) =>
+export const canReadPost = (config: CapabilitiesConfig, authData: AuthorizationData) => (post?: PostWithMeta) =>
     !!post &&
-    checkPostCapabilities(['core-posts-read'], profile, post, config).success
+    checkCapabilities(['core-posts-read'], getPostCapabilities(authData, post, config)).success
     && postWithMetaSchema.safeParse(post).success
 
 

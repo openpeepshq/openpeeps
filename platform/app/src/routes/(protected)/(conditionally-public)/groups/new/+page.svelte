@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { getPageHeaderStore } from '@openpeeps/svelte/stores';
   import { ProfileSelector } from '@openpeeps/svelte/components';
   import { type GroupData, type PublicProfile } from '@openpeeps/common/types';

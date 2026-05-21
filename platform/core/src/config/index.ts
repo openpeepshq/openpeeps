@@ -11,7 +11,7 @@ import {
   capabilitiesConfigSchemaFactory,
 } from '@openpeeps/common/types';
 
-import { ZodObject } from 'zod';
+import { zodDeepPartialSchema } from '../lib/zodDeepPartial';
 
 import { defaultConfig } from './defaults/core';
 import { defaultCommunityConfig } from './defaults/community';
@@ -73,9 +73,7 @@ const initConfig = async <T = CoreConfig>(
 
   const customConfig =
     customConfigDocument?.config &&
-    (factory() as ZodObject<never>)
-      .deepPartial()
-      .parse(customConfigDocument?.config);
+    zodDeepPartialSchema(factory()).parse(customConfigDocument.config);
 
   return (customConfig ? deepmerge(defaults as T, customConfig) : defaults) as T;
 };
@@ -121,8 +119,17 @@ export const config = <T = CoreConfig>(
 export const communityConfig = () =>
   config<CommunityConfig>('openpeeps', 'community');
 
-export const capabilitiesConfig = () =>
-  config<CapabilitiesConfig>('openpeeps', 'capabilities');
+export const capabilitiesConfig = (): Promise<CapabilitiesConfig> =>
+  config<CapabilitiesConfig>('openpeeps', 'capabilities').then(
+    (loaded) =>
+      ({
+        ...loaded,
+        accessToken: deepmerge(
+          defaultCapabilitiesConfig.accessToken ?? {},
+          loaded.accessToken ?? {},
+        ),
+      }) as CapabilitiesConfig,
+  );
 
 export const sanitizedConfigWithDefaults = async <T = CoreConfig>(
   namespace = 'openpeeps',

@@ -1,8 +1,9 @@
 import type {
+  AccessTokenRelationship,
   AccountWithMeta,
+  AuthorizationData,
   Capabilities,
   CapabilitiesConfig,
-  Group,
   GroupRelationship,
   PostRelationship,
   ProfileRelationship,
@@ -13,7 +14,12 @@ import type {
   PublicReport,
   ReportRelationship,
   Role,
+  AccessTokenWithMeta,
+  GroupWithMeta,
+  Resource,
+  Scope,
 } from '../types';
+import { calculateRequiredScope, scopeMatches } from './scopeHelpers';
 
 export const checkCapabilities = (
   neededCapabilities: string[],
@@ -50,8 +56,8 @@ export const mergeCapabilities = (
 };
 
 export const checkRoleCapabilities = (
-  neededCapabilities: string[],
   roles: Role[] = [],
+  neededCapabilities: string[],
 ) =>
   checkCapabilities(
     neededCapabilities,
@@ -59,33 +65,52 @@ export const checkRoleCapabilities = (
   );
 
 export const isLocal = (profile: ProfileWithMeta) =>
-  checkRoleCapabilities(['core-local'], profile.roles).success;
+  checkRoleCapabilities(profile.roles, ['core-local']).success;
 
+/**
+ * Returns `['local', 'none']` when the caller is "trusted local" — either a local
+ * profile or an authenticated service — and `['none']` otherwise.
+ */
 export const localOrNone = (
-  profile: ProfileWithMeta | undefined,
-): ['local', 'none'] | ['none'] =>
-  profile ? (isLocal(profile) ? ['local', 'none'] : ['none']) : ['none'];
+  authData: AuthorizationData,
+): ['local', 'none'] | ['none'] => {
+  if (authData.service) {
+    return ['local', 'none'];
+  }
+  if (authData.profile && isLocal(authData.profile)) {
+    return ['local', 'none'];
+  }
+  return ['none'];
+};
 
 export const getGroupRelationships = (
-  profile: ProfileWithMeta | undefined,
-  group: Group,
-): [GroupRelationship, ...GroupRelationship[]] => profile ?
-    [
+  authData: AuthorizationData,
+  group: GroupWithMeta,
+): [GroupRelationship, ...GroupRelationship[]] => {
+  const { profile } = authData;
+  if (profile) {
+    return [
       'local',
       'none',
-      ...(profile?.memberships.find((m) => m.group.id === group.id)?.roles ?? [])
-    ] :
-    ['none'];
+      ...(profile.memberships.find((m) => m.group.id === group.id)?.roles ?? []),
+    ];
+  }
+  if (authData.service) {
+    return ['local', 'none'];
+  }
+  return ['none'];
+};
 
 
 export const getProfileRelationships = (
-  profile: ProfileWithMeta | undefined,
+  authData: AuthorizationData,
   otherProfile: PublicProfile,
 ): ProfileRelationship[] => {
-  if (profile && profile?.id === otherProfile?.id) {
-    return ['self', ...localOrNone(profile)];
+  const { profile } = authData;
+  if (profile && profile.id === otherProfile?.id) {
+    return ['self', ...localOrNone(authData)];
   }
-  const relationships: ProfileRelationship[] = localOrNone(profile);
+  const relationships: ProfileRelationship[] = localOrNone(authData);
   if (profile?.followers.map((f) => f.id).includes(otherProfile?.id)) {
     relationships.push('followed-by');
   }
@@ -96,17 +121,18 @@ export const getProfileRelationships = (
 };
 
 export const getPostRelationships = (
-  profile: ProfileWithMeta | undefined,
+  authData: AuthorizationData,
   post: PublicPostInput,
 ): PostRelationship[] => {
+  const { profile } = authData;
   const relationships: PostRelationship[] = [];
 
   if (['public', 'local'].includes(post.visibility)) {
-    relationships.push(...localOrNone(profile));
+    relationships.push(...localOrNone(authData));
   }
 
 
-  if (post.audience?.some((a) => a.id === profile?.id)) {
+  if (profile && post.audience?.some((a) => a.id === profile.id)) {
     relationships.push('audience');
   }
 
@@ -130,36 +156,58 @@ export const getPostRelationships = (
 };
 
 export const getReportRelationships = (
-  profile: ProfileWithMeta | undefined,
+  authData: AuthorizationData,
   report: PublicReport,
 ): ReportRelationship[] => {
-  if (report.reporterProfile.id === profile?.id) {
-    return [...localOrNone(profile), 'reporter'];
+  const { profile } = authData;
+  if (profile && report.reporterProfile.id === profile.id) {
+    return [...localOrNone(authData), 'reporter'];
   }
-  if (report.reportedProfile.id === profile?.id) {
-    return [...localOrNone(profile), 'reported'];
+  if (profile && report.reportedProfile.id === profile.id) {
+    return [...localOrNone(authData), 'reported'];
   }
-  return localOrNone(profile);
+  return localOrNone(authData);
+};
+
+export const getAccessTokenRelationships = (
+  authData: AuthorizationData,
+  accessToken: AccessTokenWithMeta,
+): AccessTokenRelationship[] => {
+  const { profile } = authData;
+  const relationships: AccessTokenRelationship[] = [...localOrNone(authData)];
+  const ownerProfileId = accessToken.ownedBy?.id;
+  if (ownerProfileId && profile?.id === ownerProfileId) {
+    relationships.push('owner');
+  }
+  return relationships;
 };
 
 const getConfigCapabilities = (
-  object: 'post' | 'profile' | 'report',
+  object: 'post' | 'profile' | 'report' | 'accessToken',
   relationships: (
     | PostRelationship
     | ProfileRelationship
     | ReportRelationship
+    | AccessTokenRelationship
   )[],
   config: CapabilitiesConfig,
 ): Capabilities =>
-  mergeCapabilities(relationships.map((r) => config[object][r]));
+  mergeCapabilities(
+    relationships.map((r) => {
+      const group = config[object] as Partial<
+        Record<string, Capabilities | undefined>
+      >;
+      return group[r] ?? { add: [], remove: [] };
+    }),
+  );
 
-export const getGroupCapabilities = (
-  profile?: ProfileWithMeta,
-  group?: Group | null,
-) =>
+const getGroupRelationshipCapabilities = (
+  authData: AuthorizationData,
+  group?: GroupWithMeta | null,
+): Capabilities =>
   mergeCapabilities(
     group
-      ? getGroupRelationships(profile, group).map(
+      ? getGroupRelationships(authData, group).map(
         (r) => group.capabilities[r] ?? { add: [], remove: [] },
       )
       : [],
@@ -167,23 +215,32 @@ export const getGroupCapabilities = (
 
 export const getGroupCapabilitiesByRoles = (
   roles: string[] | undefined | null,
-  group?: Group | null,
+  group?: GroupWithMeta | null,
 ) =>
   mergeCapabilities(
     (roles ?? []).map((r) => group?.capabilities[r] ?? { add: [], remove: [] }),
   );
 
+export const getGroupCapabilities = (
+  authData: AuthorizationData,
+  group?: GroupWithMeta | null,
+): Capabilities =>
+  mergeCapabilities([
+    getGroupRelationshipCapabilities(authData, group),
+    getRoleCapabilities(authData.profile),
+  ]);
+
 const getRoleCapabilities = (profile?: ProfileWithMeta): Capabilities =>
   mergeCapabilities(profile?.roles.map((r) => r.capabilities) ?? []);
 
 export const getProfileCapabilities = (
-  profile: ProfileWithMeta | undefined,
+  authData: AuthorizationData,
   targetProfile: PublicProfile,
   config: CapabilitiesConfig,
 ): Capabilities =>
   getConfigCapabilities(
     'profile',
-    getProfileRelationships(profile, targetProfile),
+    getProfileRelationships(authData, targetProfile),
     config,
   );
 
@@ -198,95 +255,183 @@ const getPostVisibilityCapabilities = (post: PublicPost, profile: ProfileWithMet
   }
 }
 
-const getPostCapabilities = (
-  profile: ProfileWithMeta | undefined,
+const getScopedPostReadCapabilities = (
+  authData: AuthorizationData,
+  neededCapabilities: string[],
+  post: PublicPost,
+): Capabilities => {
+  if (
+    authData.profile ||
+    post.visibility !== 'local' ||
+    neededCapabilities.length !== 1 ||
+    neededCapabilities[0] !== 'core-posts-read' ||
+    !scopeMatches({
+      scopes: authData.scopes,
+      requiredScope: { scopeLevel: 'admin', resource: { type: 'posts', id: post.id } },
+    })
+  ) {
+    return { add: [], remove: [] };
+  }
+  return { add: ['core-posts-read'], remove: [] };
+};
+
+export const getPostCapabilities = (
+  authData: AuthorizationData,
   post: PublicPost,
   config: CapabilitiesConfig,
 ): Capabilities => mergeCapabilities([
-  getPostVisibilityCapabilities(post, profile),
-  getConfigCapabilities('post', getPostRelationships(profile, post), config),
+  getPostVisibilityCapabilities(post, authData.profile),
+  getConfigCapabilities('post', getPostRelationships(authData, post), config),
   getConfigCapabilities(
     'profile',
-    getProfileRelationships(profile, post.profile),
+    getProfileRelationships(authData, post.profile),
     config,
   ),
-  getGroupCapabilities(profile, post.group),
+  getGroupCapabilities(authData, post.group),
 ])
 
 
 const getReportCapabilities = (
-  profile: ProfileWithMeta | undefined,
+  authData: AuthorizationData,
   report: PublicReport,
   config: CapabilitiesConfig,
 ): Capabilities =>
   mergeCapabilities([
     getConfigCapabilities(
       'report',
-      getReportRelationships(profile, report),
+      getReportRelationships(authData, report),
       config,
     ),
-    getRoleCapabilities(profile),
+    getRoleCapabilities(authData.profile),
+  ]);
+
+const getAccessTokenCapabilities = (
+  authData: AuthorizationData,
+  accessToken: AccessTokenWithMeta,
+  config: CapabilitiesConfig,
+): Capabilities =>
+  mergeCapabilities([
+    getConfigCapabilities(
+      'accessToken',
+      getAccessTokenRelationships(authData, accessToken),
+      config,
+    ),
+    getRoleCapabilities(authData.profile),
   ]);
 
 const getAccountCapabilities = (
-  profile: ProfileWithMeta,
-  account: AccountWithMeta,
+  authData: AuthorizationData,
   targetAccount: AccountWithMeta,
 ): Capabilities =>
   mergeCapabilities([
-    account.id === targetAccount.id
+    authData.account?.id === targetAccount.id
       ? { add: ['core-accounts-update'], remove: [] }
       : { add: [], remove: [] },
-    getRoleCapabilities(profile),
+    getRoleCapabilities(authData.profile),
   ]);
 
-export const checkGroupCapabilities = (
+const checkCapabilitiesWithCalculatedScope = (
+  capabilities: Capabilities,
+  authData: AuthorizationData,
   neededCapabilities: string[],
-  profile: ProfileWithMeta | undefined,
-  group: Group,
+  resource: Resource,
+) => {
+  const requiredScope = calculateRequiredScope({ resource, requiredCapabilities: neededCapabilities });
+  return checkCapabilitiesWithExplicitScope(capabilities, authData, neededCapabilities, requiredScope);
+}
+
+const checkCapabilitiesWithExplicitScope = (
+  capabilities: Capabilities,
+  authData: AuthorizationData,
+  neededCapabilities: string[],
+  requiredScope: Scope,
+) => {
+  const capabilitiesResult = checkCapabilities(neededCapabilities, capabilities);
+  const scopeResult = scopeMatches({ scopes: authData.scopes, requiredScope });
+  return {
+    success: capabilitiesResult.success && scopeResult,
+    missingCapabilities: capabilitiesResult.missingCapabilities,
+    missingScope: scopeResult ? undefined : requiredScope,
+  };
+}
+
+
+export const checkGroupCapabilities = (
+  authData: AuthorizationData,
+  neededCapabilities: string[],
+  group: GroupWithMeta,
 ) =>
-  checkCapabilities(neededCapabilities, getGroupCapabilities(profile, group));
+  checkCapabilitiesWithCalculatedScope(
+    getGroupCapabilities(authData, group),
+    authData,
+    neededCapabilities,
+    { type: 'groups', id: group.id },
+  );
+
 
 export const checkPostCapabilities = (
+  authData: AuthorizationData,
   neededCapabilities: string[],
-  profile: ProfileWithMeta | undefined,
   post: PublicPost,
   config: CapabilitiesConfig,
 ) =>
-  checkCapabilities(
+  checkCapabilitiesWithCalculatedScope(
+    mergeCapabilities([
+      getPostCapabilities(authData, post, config),
+      getScopedPostReadCapabilities(authData, neededCapabilities, post),
+    ]),
+    authData,
     neededCapabilities,
-    getPostCapabilities(profile, post, config),
+    { type: 'posts', id: post.id },
   );
 
 export const checkProfileCapabilities = (
+  authData: AuthorizationData,
   neededCapabilities: string[],
-  profile: ProfileWithMeta | undefined,
   targetProfile: PublicProfile,
   config: CapabilitiesConfig,
 ) =>
-  checkCapabilities(
+  checkCapabilitiesWithCalculatedScope(
+    getProfileCapabilities(authData, targetProfile, config),
+    authData,
     neededCapabilities,
-    getProfileCapabilities(profile, targetProfile, config),
+    { type: 'profiles', id: targetProfile.id },
   );
 
 export const checkReportCapabilities = (
+  authData: AuthorizationData,
   neededCapabilities: string[],
-  profile: ProfileWithMeta | undefined,
   report: PublicReport,
   config: CapabilitiesConfig,
 ) =>
-  checkCapabilities(
+  checkCapabilitiesWithCalculatedScope(
+    getReportCapabilities(authData, report, config),
+    authData,
     neededCapabilities,
-    getReportCapabilities(profile, report, config),
+    { type: 'reports', id: report.id },
+  );
+
+export const checkAccessTokenCapabilities = (
+  authData: AuthorizationData,
+  neededCapabilities: string[],
+  accessToken: AccessTokenWithMeta,
+  config: CapabilitiesConfig,
+) =>
+  checkCapabilitiesWithExplicitScope(
+    getAccessTokenCapabilities(authData, accessToken, config),
+    authData,
+    neededCapabilities,
+    { scopeLevel: 'admin', resource: { type: 'self' } },
   );
 
 export const checkAccountCapabilities = (
+  authData: AuthorizationData,
   neededCapabilities: string[],
-  account: AccountWithMeta,
-  profile: ProfileWithMeta,
   targetAccount: AccountWithMeta,
 ) =>
-  checkCapabilities(
+  checkCapabilitiesWithExplicitScope(
+    getAccountCapabilities(authData, targetAccount),
+    authData,
     neededCapabilities,
-    getAccountCapabilities(profile, account, targetAccount),
+    { scopeLevel: 'admin', resource: { type: 'self' } },
   );

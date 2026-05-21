@@ -11,9 +11,9 @@
   const currentProfile: ProfileWithMeta = getCurrentProfile();
 
   const canCreateGroup = checkRoleCapabilities(
+    currentProfile?.roles ?? [],
     ['core-groups-create'],
-    currentProfile?.roles,
-  );
+  ).success;
 
   if (!canCreateGroup) {
     history.back();

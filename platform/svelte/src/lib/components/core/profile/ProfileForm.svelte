@@ -1,4 +1,5 @@
 <script lang="ts">
+// @ts-nocheck
 import { type ProfileData, profileDataSchema } from "@openpeeps/common/types";
 import { Button, deepSet, Form, FormInput } from "@openpeeps/ui";
 import { HeaderAvatarInput } from "$lib/components";

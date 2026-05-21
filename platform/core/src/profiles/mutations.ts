@@ -4,13 +4,16 @@ import { allpeepDb } from "../db";
 import { followConnector, followDisconnector, giveControl, roleAssigner, roleUnassigner } from "./helpers";
 import { hub } from "../events";
 import { randomString } from "@openpeeps/common/lib";
+import { deleteAccessTokensForProfile } from "../accessTokens/helpers";
 import { profilesCache, getProfile } from "./cache";
+import { accountsCache } from "../accounts/cache";
 
 export const createProfile = async (data: ProfileData, controllingAccount?: Account) => {
     const db = await allpeepDb().then(db => db.db);
     const profile = await profilesMapping.create(db, data);
     if (controllingAccount) {
         await giveControl(db, controllingAccount, profile);
+        await accountsCache.del(controllingAccount.id);
     }
     if (data.type !== "guest") {
         await hub.emit("profileCreated", profile);
@@ -43,6 +46,8 @@ export const deleteProfile = async (profileId: string) => {
     const db = await allpeepDb().then(db => db.db);
     const profileToDelete = await getProfile(profileId);
     if (profileToDelete) {
+        await Promise.all(profileToDelete.controllers?.map(account => accountsCache.del(account.id)) ?? []);
+
         if (profileToDelete.following && profileToDelete.following.length > 0) {
             await Promise.all(profileToDelete.following.map(followed =>
                 profilesCache.del(followed.id)
@@ -57,6 +62,7 @@ export const deleteProfile = async (profileId: string) => {
     }
 
     await profilesCache.del(profileId);
+    await deleteAccessTokensForProfile(db, profileId);
     return profilesMapping.delete(db, profileId);
 }
 

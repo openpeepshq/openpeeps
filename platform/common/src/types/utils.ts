@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CommunityConfig } from './config';
-import { i18n, ResourceKey } from 'i18next';
+import type { i18n, ResourceKey } from 'i18next';
 
 const literalSchema = z.union([
   z.string(),
@@ -13,20 +13,20 @@ type Literal = z.infer<typeof literalSchema>;
 export type Json = Literal | { [key: string]: Json } | Json[];
 export const jsonSchema: z.ZodType<Json> = z
   .lazy(() =>
-    z.union([literalSchema, z.array(jsonSchema), z.record(jsonSchema)]),
+    z.union([literalSchema, z.array(jsonSchema), z.record(z.string(), jsonSchema)]),
   )
   .openapi({ type: 'object' });
 
 export const i18nResourceKeySchema: z.ZodType<ResourceKey> = z
-  .lazy(() => z.union([z.string(), z.record(i18nResourceKeySchema)]))
+  .lazy(() => z.union([z.string(), z.record(z.string(), i18nResourceKeySchema)]))
   .openapi({ type: 'object' });
-export const i18nResourceLanguageSchema = z.record(i18nResourceKeySchema);
-export const i18nResourceSchema = z.record(i18nResourceLanguageSchema);
+export const i18nResourceLanguageSchema = z.record(z.string(), i18nResourceKeySchema);
+export const i18nResourceSchema = z.record(z.string(), i18nResourceLanguageSchema);
 
 export const emailOptionsSchema = z.object({
   to: z.string(),
   template: z.string(),
-  locals: z.record(jsonSchema).optional(),
+  locals: z.record(z.string(), jsonSchema).optional(),
 });
 export type EmailOptions = z.infer<typeof emailOptionsSchema>;
 

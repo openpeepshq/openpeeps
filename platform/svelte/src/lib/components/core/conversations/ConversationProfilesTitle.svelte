@@ -15,7 +15,7 @@
   $effect(() => {
     if (!profiles || profiles.length === 0) title = '';
 
-    const others = profiles.filter((p) => p.id !== me.id);
+    const others = profiles.filter((p) => p.id !== me?.id);
 
     const names = others.map((p) => p.displayName || `@${p.handle}`);
 

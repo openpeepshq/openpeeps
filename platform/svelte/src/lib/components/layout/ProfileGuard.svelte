@@ -24,8 +24,8 @@
 
   if (currentProfile?.type === 'local' || isPubliclyAccessible) {
     authCheckResult = checkRoleCapabilities(
-      neededCapabilities,
       currentProfile?.roles || [],
+      neededCapabilities,
     );
   } else {
     const url = window.location.pathname;

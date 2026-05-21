@@ -1,7 +1,7 @@
 import { Endpoint } from 'sveltekit-api';
 import { forbidden, notFound } from '$lib/server/api/errors';
 import { emailOptionsSchema, renderedEmailSchema } from '@openpeeps/common/types';
-import { ensureServiceScope } from '$lib/server/auth';
+import { ensureScope } from '$lib/server/auth';
 import type { RequestEvent } from '@sveltejs/kit';
 import { emailService } from '@openpeeps/core/email';
 
@@ -15,7 +15,7 @@ export const Error = {
 
 export default new Endpoint({ Input, Output, Error }).handle(
   async (input, event: RequestEvent) => {
-    await ensureServiceScope(event, undefined, {
+    await ensureScope(event, undefined, {
       type: 'render',
       id: '*',
     });

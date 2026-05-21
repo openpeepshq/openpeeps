@@ -14,12 +14,13 @@ export const Input = z.object({
 
 export const Output = reportWithMetaSchema;
 
-export default new Endpoint({ Input }).handle(async (input, event) => {
+export default new Endpoint({ Input, Output }).handle(async (input, event) => {
     const profile = await ensureRoleCapabilities(event, ['core-reports-create']);
     const reportedProfile = await findProfile(input.profileId);
     if (!reportedProfile) {
         throw notFound();
     }
-    const posts = await Promise.all(input.postIds.map(postId => findPost(postId)).filter(Boolean)) as PostWithMeta[];
+    const postResults = await Promise.all(input.postIds.map((postId) => findPost(postId)));
+    const posts = postResults.filter((post): post is PostWithMeta => Boolean(post));
     return createReport(input.report, profile, reportedProfile, posts);
 });

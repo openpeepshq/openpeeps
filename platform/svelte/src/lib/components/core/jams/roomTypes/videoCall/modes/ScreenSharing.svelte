@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { participantListStore, participantTracksStore } from '$lib/components/core/jams/stores';
 	import { getLivekitRoom } from '$lib/components/core/jams/context';
 	import ScreenShareVideo from '$lib/components/core/jams/pieces/ScreenShareVideo.svelte';

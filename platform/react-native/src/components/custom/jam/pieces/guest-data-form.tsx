@@ -30,7 +30,7 @@ export const GuestDataForm: React.FC<GuestDataFormProps> = ({ jamPost }) => {
       displayName: '',
       email: '',
       resource: {
-        type: 'jam' as const,
+        type: 'jams' as const,
         id: jamPost.id,
       },
     },

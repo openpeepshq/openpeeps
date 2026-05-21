@@ -12,7 +12,7 @@ export const Output = searchResultCountsSchema;
 
 export default new Endpoint({ Output, Query }).handle(async (query, event) => {
 
-    const profile = await ensureLocalProfile(event);
+    await ensureLocalProfile(event);
 
-    return searchResultCounts(query.q, profile);
+    return searchResultCounts(query.q, event.locals.authData);
 })

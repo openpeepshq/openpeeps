@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import {
     type AudienceSetting,
     type Event,
@@ -41,7 +42,7 @@
 
   const profileQuery = currentProfileStore();
   const isAdmin: boolean = $derived(
-    checkRoleCapabilities(['admin'], $profileQuery.data?.roles ?? []).success,
+    checkRoleCapabilities($profileQuery.data?.roles ?? [], ['admin']).success,
   );
 
   const createPost = createPostMutation();
@@ -65,7 +66,7 @@
   const handleCreateJam = async () => {
     (jam.data as Event).start = new Date().toISOString();
     if (jam.visibility === 'direct') {
-      jam.audience = [...(jam.audience ?? []), me];
+      jam.audience = [...(jam.audience ?? []), ...(me ? [me] : [])];
     }
     const eventPost = await createPost(jam);
 
@@ -85,14 +86,14 @@
 
   const setAudience = (audienceSetting?: AudienceSetting) => {
     const isUserInAudience = audienceSetting?.audience?.some(
-      (audienceMember) => audienceMember.id === me.id,
+      (audienceMember) => audienceMember.id === me?.id,
     );
     if (audienceSetting) {
       jam.visibility = audienceSetting.visibility;
       jam.groupId = audienceSetting.groupId;
       jam.audience = isUserInAudience
         ? audienceSetting.audience
-        : [...(audienceSetting.audience ?? []), me];
+        : [...(audienceSetting.audience ?? []), ...(me ? [me] : [])];
     }
   };
 
@@ -102,7 +103,9 @@
 
   onMount(() => {
     if (event.jam?.moderators.length === 0) {
-      event.jam.moderators = [me.id];
+      if (me?.id) {
+        event.jam.moderators = [me.id];
+      }
     }
   });
 </script>

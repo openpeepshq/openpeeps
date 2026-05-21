@@ -3,10 +3,11 @@ import { allpeepDb } from "../db";
 import { accountsMapping } from "./mapping";
 import { profilesMapping } from "../profiles/mapping";
 import { profileAccountRelation } from "../profiles/mapping";
+import { getAccount } from "./cache";
 import { expandAccount } from "./helpers";
 
 export const findAccount = (id: string) =>
-    allpeepDb().then(({ db }) => accountsMapping.find(db, id)).then(expandAccount);
+    getAccount(id);
 
 export const findAccountByEmail = (email: string) =>
     allpeepDb()

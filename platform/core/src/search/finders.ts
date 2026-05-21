@@ -1,4 +1,4 @@
-import { DbPost, OffsetInfiniteQueryParams, PostWithMeta, ProfileWithMeta } from "@openpeeps/common/types";
+import { AuthorizationData, DbPost, OffsetInfiniteQueryParams, PostWithMeta, ProfileWithMeta } from "@openpeeps/common/types";
 import { allpeepDb } from "../db";
 import { filterAndTransform } from "../db/helpers";
 import { canReadPost, transformPost } from "../posts/helpers";
@@ -7,21 +7,26 @@ import { eventSearchMapping, groupSearchMapping, jamSearchMapping, postSearchMap
 import { queryParamsToLimit } from "./helpers";
 import { WithId } from "@openpeeps/arango-querybuilder";
 
+const requireProfile = (authData: AuthorizationData): ProfileWithMeta => {
+    if (!authData.profile) {
+        throw new Error('AuthorizationData.profile is required for this finder');
+    }
+    return authData.profile;
+};
 
 
-
-export const searchGroups = async (query: string, profile: ProfileWithMeta, limit: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) => {
+export const searchGroups = async (query: string, authData: AuthorizationData, limit: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) => {
     const { db } = await allpeepDb();
-    return groupSearchMapping(profile, query).limit(queryParamsToLimit(limit)).all(db);
+    return groupSearchMapping(requireProfile(authData), query).limit(queryParamsToLimit(limit)).all(db);
 }
 
-export const searchProfiles = async (query: string, profile: ProfileWithMeta, limit: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) => {
+export const searchProfiles = async (query: string, authData: AuthorizationData, limit: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) => {
     const { db } = await allpeepDb();
-    return profileSearchMapping(profile, query).limit(queryParamsToLimit(limit)).all(db);
+    return profileSearchMapping(requireProfile(authData), query).limit(queryParamsToLimit(limit)).all(db);
 }
 
-const canReadPostFilter = async (profile: ProfileWithMeta) => {
-    const postFilter = canReadPost(await capabilitiesConfig(), profile);
+const canReadPostFilter = async (authData: AuthorizationData) => {
+    const postFilter = canReadPost(await capabilitiesConfig(), authData);
     return (item: { data: PostWithMeta }) => {
         return postFilter(item.data);
     }
@@ -31,43 +36,50 @@ const transformPostWithScore = (profile: ProfileWithMeta) => async (item: { data
     return { data: await transformPost(item.data, profile), score: item.score };
 }
 
-export const searchPosts = async (query: string, profile: ProfileWithMeta, limitOffset: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) =>
-    filterAndTransform(
+export const searchPosts = async (query: string, authData: AuthorizationData, limitOffset: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) => {
+    const profile = requireProfile(authData);
+    return filterAndTransform(
         postSearchMapping(profile, query),
         (await allpeepDb()).db,
         {
             transform: transformPostWithScore(profile),
-            filter: await canReadPostFilter(profile),
+            filter: await canReadPostFilter(authData),
             ...limitOffset
         });
+};
 
-export const searchEvents = async (query: string, profile: ProfileWithMeta, limitOffset: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) =>
-    filterAndTransform(
+export const searchEvents = async (query: string, authData: AuthorizationData, limitOffset: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) => {
+    const profile = requireProfile(authData);
+    return filterAndTransform(
         eventSearchMapping(profile, query),
         (await allpeepDb()).db,
         {
             transform: transformPostWithScore(profile),
-            filter: await canReadPostFilter(profile),
+            filter: await canReadPostFilter(authData),
             ...limitOffset
         });
+};
 
-export const searchJams = async (query: string, profile: ProfileWithMeta, limitOffset: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) =>
-    filterAndTransform(
+export const searchJams = async (query: string, authData: AuthorizationData, limitOffset: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) => {
+    const profile = requireProfile(authData);
+    return filterAndTransform(
         jamSearchMapping(profile, query),
         (await allpeepDb()).db,
         {
             transform: transformPostWithScore(profile),
-            filter: await canReadPostFilter(profile),
+            filter: await canReadPostFilter(authData),
             ...limitOffset
         });
+};
 
-export const searchResultCounts = async (query: string, profile: ProfileWithMeta) => {
+export const searchResultCounts = async (query: string, authData: AuthorizationData) => {
+    const profile = requireProfile(authData);
     const { db } = await allpeepDb();
     return {
         groups: await groupSearchMapping(profile, query).count(db),
         profiles: await profileSearchMapping(profile, query).count(db),
-        posts: await searchPosts(query, profile, { limit: 100 }).then(posts => posts.length),
-        events: await searchEvents(query, profile, { limit: 100 }).then(events => events.length),
-        jams: await searchJams(query, profile, { limit: 100 }).then(jams => jams.length),
+        posts: await searchPosts(query, authData, { limit: 100 }).then(posts => posts.length),
+        events: await searchEvents(query, authData, { limit: 100 }).then(events => events.length),
+        jams: await searchJams(query, authData, { limit: 100 }).then(jams => jams.length),
     }
 }

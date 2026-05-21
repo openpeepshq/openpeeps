@@ -171,6 +171,21 @@ const allPeepCollections = {
   rolesCollection: {
     name: 'roles',
   },
+  accessTokensCollection: {
+    name: 'accessTokens',
+  },
+  profileAccessTokensCollection: {
+    name: 'profileAccessTokens',
+    edge: true,
+    indices: [
+      {
+        type: 'persistent',
+        fields: ['_from', '_to'],
+        name: 'unique-profile-access-tokens',
+        unique: true,
+      },
+    ],
+  },
   hasRoleCollection: {
     name: 'hasRole',
     edge: true,

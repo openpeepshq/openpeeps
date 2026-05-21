@@ -12,6 +12,10 @@
     ModalWrapper,
   } from '@openpeeps/ui';
   import type { PushSubscription } from '@openpeeps/common';
+  import {
+    pushSubscriptionDeviceName,
+    pushSubscriptionIsMobile,
+  } from '@openpeeps/common/lib';
   import { Smartphone, Laptop } from 'lucide-svelte';
 
   interface Props {
@@ -25,6 +29,8 @@
     deleteCallback = undefined,
     isCurrentDevice = false,
   }: Props = $props();
+
+  const deviceName = $derived(pushSubscriptionDeviceName(pushSubscription));
 
   const { t } = i18nContext();
   const modalManager = getModalManager();
@@ -54,9 +60,7 @@
   <article class="  m-4 h-full pb-3">
     <div class="flex items-center gap-4">
       <div class="text-surface-500">
-        {#if pushSubscription?.deviceName
-          ?.toLowerCase()
-          .match(/phone|android|mobile|ios/)}
+        {#if pushSubscriptionIsMobile(pushSubscription)}
           <Smartphone size={20} />
         {:else}
           <Laptop size={20} />
@@ -66,7 +70,7 @@
       <div>
         <div class="flex items-center gap-2">
           <p class="text-sm font-medium text-surface-900">
-            {pushSubscription?.deviceName || t('common.unknownDevice')}
+            {deviceName}
           </p>
           {#if isCurrentDevice}
             <span

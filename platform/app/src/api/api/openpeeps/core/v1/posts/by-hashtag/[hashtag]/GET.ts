@@ -2,7 +2,7 @@ import { Endpoint, z } from 'sveltekit-api';
 import { publicPostSchema } from '@openpeeps/common/types';
 import type { RequestEvent } from '@sveltejs/kit';
 import { listPostsByTag } from '@openpeeps/core/posts';
-import { ensureProfileOrPublicCommunity } from '$lib/server/auth';
+import { ensureAccess } from '$lib/server/auth';
 import { forbidden } from '$lib/server/api/errors';
 
 export const Param = z.object({
@@ -19,5 +19,8 @@ export const Error = {
 };
 
 export default new Endpoint({ Param, Output, Error, Query }).handle(
-  async (params, event: RequestEvent) =>
-    listPostsByTag(await ensureProfileOrPublicCommunity(event), params.hashtag, Query.parse(params)));
+  async (params, event: RequestEvent) => {
+    await ensureAccess(event);
+    return listPostsByTag(event.locals.authData, params.hashtag, Query.parse(params));
+  },
+);

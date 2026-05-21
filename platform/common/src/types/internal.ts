@@ -35,6 +35,10 @@ import {
   Group,
   jamRecordingSchema,
   JamRecording,
+  accessTokenSchema,
+  AccessToken,
+  scopeSchema,
+  Scope,
 } from './models';
 import { jsonSchema } from './utils';
 
@@ -72,6 +76,15 @@ export type ProfileWithMeta = Model<ProfileData> & {
   controllers: Account[];
   memberships: Membership[];
   profileStats: ProfileStats;
+};
+
+export const accessTokenWithMetaSchema = accessTokenSchema.extend({
+  profile: profileWithMetaSchema,
+  scopes: z.array(scopeSchema).optional(),
+});
+export type AccessTokenWithMeta = AccessToken & {
+  ownedBy?: ProfileWithMeta;
+  scopes?: Scope[];
 };
 
 export const mentionWithProfileSchema = mentionDataSchema.extend({

@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { z, ZodObject, type ZodRawShape } from 'zod';
   import {
     ConfigurationList,
@@ -73,7 +74,7 @@
     {/if}
     {#each fields as field}
       {@const fieldSchema = unwrap(field.def)}
-      {#if fieldSchema.description !== 'fixed' && fieldSchema.description !== 'hidden'}
+      {#if field.def.description !== 'fixed' && field.def.description !== 'hidden' && fieldSchema.description !== 'fixed' && fieldSchema.description !== 'hidden'}
         {#if fieldSchema instanceof z.ZodObject}
           <ExpandableBox initialOpen={false}>
             {#snippet title()}

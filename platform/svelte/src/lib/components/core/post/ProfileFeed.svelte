@@ -9,7 +9,7 @@
 
 	let { profile }: Props = $props();
 
-	let profileFeedQuery = $derived(infiniteProfileFeedStore(profile.id, { limit: '10' }));
+let profileFeedQuery = $derived(infiniteProfileFeedStore(profile.id, { limit: 10 }));
 </script>
 
 <Feed query={profileFeedQuery} />

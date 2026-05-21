@@ -4,6 +4,7 @@ import { emailService } from "../email";
 import { serverRootUrl } from "../server";
 import { logger } from "../log";
 import { getProfiles } from "../profiles/cache";
+import { uuidv7 } from "uuidv7";
 
 export const log = logger('core:accounts');
 
@@ -11,7 +12,7 @@ export const log = logger('core:accounts');
 export const normalizeEmailAddress = (email?: string) => email?.toLowerCase();
 
 export const createEmailValidationToken = async (account: AccountWithMeta) => {
-    return jwtUtil().then((jwt) => jwt.sign({ email: account.email }, '2d'));
+    return jwtUtil().then((jwt) => jwt.sign({ payload: { email: account.email }, expirationTime: '2d', id: uuidv7() }));
 };
 
 export const sendWelcomeEmail = async (account: AccountWithMeta) => {

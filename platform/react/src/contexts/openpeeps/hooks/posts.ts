@@ -52,14 +52,6 @@ type PostFeeds = ReturnType<typeof postFeeds>;
 
 const postFinders = (client: OpenpeepsClient) => ({
   usePosts: (props: ChronologicalInfiniteQueryParams) => infiniteChronologicalQueryApiHook(client.posts.list, { queryParams: props }),
-  usePostsByType: (type: PostType, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByType, { pathParams: { type }, queryParams: props }),
-  usePostsByHashtag: (hashtag: string, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByHashtag, { pathParams: { hashtag }, queryParams: props }),
-  usePostsByGroup: (id: string, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByGroup, { pathParams: { id }, queryParams: props }),
-  usePostsByProfile: (id: string, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByProfile, { pathParams: { id }, queryParams: props }),
   useBookmarkedPosts: (props: ChronologicalInfiniteQueryParams) =>
     infiniteChronologicalQueryApiHook(client.posts.listBookmarks, { queryParams: props }),
   usePost: (id: string) =>
@@ -73,6 +65,19 @@ const postFinders = (client: OpenpeepsClient) => ({
 });
 
 type PostFinders = ReturnType<typeof postFinders>;
+
+const postFindersBy = (client: OpenpeepsClient) => ({
+  usePostsByType: (type: PostType, props: ChronologicalInfiniteQueryParams) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByType, { pathParams: { type }, queryParams: props }),
+  usePostsByHashtag: (hashtag: string, props: ChronologicalInfiniteQueryParams) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByHashtag, { pathParams: { hashtag }, queryParams: props }),
+  usePostsByGroup: (id: string, props: ChronologicalInfiniteQueryParams) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByGroup, { pathParams: { id }, queryParams: props }),
+  usePostsByProfile: (id: string, props: ChronologicalInfiniteQueryParams) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByProfile, { pathParams: { id }, queryParams: props }),
+});
+
+type PostFindersBy = ReturnType<typeof postFindersBy>;
 
 const postMutators = (client: OpenpeepsClient) => ({
   createPostAction: payloadMutation(client.posts.create, [['posts']]),
@@ -92,11 +97,12 @@ const postMutators = (client: OpenpeepsClient) => ({
 
 type PostMutators = ReturnType<typeof postMutators>;
 
-export type PostHooks = PostFeeds & PostFinders & PostMutators & EventFeeds & JamFeeds;
+export type PostHooks = PostFeeds & PostFinders & PostFindersBy & PostMutators & EventFeeds & JamFeeds;
 
 export const postHooks = (client: OpenpeepsClient): PostHooks => ({
   ...postFeeds(client),
   ...postFinders(client),
+  ...postFindersBy(client),
   ...postMutators(client),
   ...eventFeeds(client),
   ...jamFeeds(client),

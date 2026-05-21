@@ -7,6 +7,20 @@ export const connection = {
 
 export const queues: Record<string, Queue> = {};
 
+export const closeQueues = async () => {
+  const queueEntries = Object.entries(queues);
+
+  await Promise.all(
+    queueEntries.map(async ([queueName, queue]) => {
+      try {
+        await queue.close();
+      } finally {
+        delete queues[queueName];
+      }
+    }),
+  );
+};
+
 export const queueAndWorker = <Input, Output = undefined>(
   queueName: string,
   processor: Processor<Input, Output>,
@@ -14,10 +28,11 @@ export const queueAndWorker = <Input, Output = undefined>(
 ): [() => Queue, () => Worker] => [
     () => {
       if (!queues[queueName]) {
-        queues[queueName] = new Queue<Input, Output>(queueName, {
+        const queue = new Queue<Input, Output>(queueName, {
           connection,
           ...queueOptions,
         });
+        queues[queueName] = queue;
 
         // Clean up existing jobs based on defaultJobOptions retention settings
         const defaultJobOptions = queueOptions?.defaultJobOptions;
@@ -33,7 +48,7 @@ export const queueAndWorker = <Input, Output = undefined>(
               ) {
                 const ageMs =
                   defaultJobOptions.removeOnComplete.age * 1000;
-                await queues[queueName].clean(
+                await queue.clean(
                   ageMs,
                   1000,
                   'completed',
@@ -48,7 +63,7 @@ export const queueAndWorker = <Input, Output = undefined>(
                 typeof defaultJobOptions.removeOnFail.age === 'number'
               ) {
                 const ageMs = defaultJobOptions.removeOnFail.age * 1000;
-                await queues[queueName].clean(ageMs, 1000, 'failed');
+                await queue.clean(ageMs, 1000, 'failed');
               }
             } catch (error) {
               // Silently fail cleanup to not block queue initialization

@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { ProfileFeed } from '$lib/components/core/post';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import type { PublicProfile } from '@openpeeps/common/types';

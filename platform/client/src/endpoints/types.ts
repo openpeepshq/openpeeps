@@ -16,6 +16,7 @@ import type { previewLink } from './previewLink';
 import type { search } from './search';
 import type { payments } from './payments';
 import type { streaming } from './streaming';
+import type { WebhookHandler } from '../webhooks';
 
 export type AdminEndpoints = ReturnType<typeof admin>;
 export type AccountsEndpoints = ReturnType<typeof accounts>;
@@ -55,4 +56,5 @@ export type Endpoints = {
     search: SearchEndpoints;
     payments: PaymentsEndpoints;
     streaming: StreamingEndpoints;
+    webhookHandler: WebhookHandler;
 }; 

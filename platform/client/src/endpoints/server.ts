@@ -2,8 +2,11 @@ import type { FetchClient } from '@openpeeps/fetch-client';
 import type {
     CapabilitiesConfig,
     ServerInfo,
+    WebhookKeyResponse,
+    WebhookVerifyRequest,
+    WebhookVerifyResponse,
 } from '@openpeeps/common';
-import { allpeepNoPayloadEndpoint } from './helpers';
+import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 
 export const server = (rawClient: FetchClient) => ({
     info: allpeepNoPayloadEndpoint<ServerInfo>(
@@ -15,5 +18,21 @@ export const server = (rawClient: FetchClient) => ({
             rawClient,
             '/server/config/capabilities',
         ),
+    },
+    keys: {
+        webhooks: {
+            public: allpeepNoPayloadEndpoint<WebhookKeyResponse>(
+                rawClient,
+                '/server/keys/webhooks',
+            ),
+            verify: allpeepPayloadEndpoint<
+                WebhookVerifyResponse,
+                WebhookVerifyRequest
+            >(
+                rawClient,
+                '/server/keys/webhooks/verify',
+                'post',
+            ),
+        },
     },
 }); 

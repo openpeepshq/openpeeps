@@ -1,5 +1,6 @@
 import type { IdentityContext } from '$lib/types';
-import type { Credentials } from '@openpeeps/common/types';
+import type { AuthorizationData, Credentials, Scope } from '@openpeeps/common/types';
+import { parseScopesFromJwt } from '@openpeeps/common';
 import { getContext, setContext } from 'svelte';
 
 export const credentialsStorageKey = 'credentials';
@@ -9,6 +10,14 @@ const currentIdentityContextKey = 'currentIdentity';
 
 export const getCredentials = () =>
 	JSON.parse(localStorage.getItem(credentialsStorageKey) || '{}') as Credentials;
+
+/** Scopes from the JWT in localStorage credentials (empty if missing or malformed). */
+export const getScopesFromStoredCredentials = (): Scope[] => {
+	if (typeof localStorage === 'undefined') {
+		return [];
+	}
+	return parseScopesFromJwt(getCredentials().token);
+};
 export const setCredentials = (credentials: Credentials) => {
 	localStorage.setItem(credentialsStorageKey, JSON.stringify(credentials));
 };
@@ -32,3 +41,17 @@ export const getCurrentAccount = () =>
 
 export const getCurrentIdentity = () =>
 	getContext<IdentityContext>(currentIdentityContextKey);
+
+export const getCurrentAuthData = (): AuthorizationData => {
+	const identity = getContext<IdentityContext>(currentIdentityContextKey);
+	const scopes = getScopesFromStoredCredentials();
+	return {
+		get profile() {
+			return identity.profile;
+		},
+		get account() {
+			return identity.account;
+		},
+		scopes,
+	} as AuthorizationData;
+};

@@ -3,6 +3,7 @@ import type { VisibilityType, ProfileWithMeta, PostType } from '@openpeeps/commo
 import type { IconType } from '@openpeeps/ui';
 import { i18nContext } from '$lib/components/i18n';
 import { getServerInfo } from '$lib/server';
+import { getCurrentAuthData } from '$lib/auth';
 import { canCreatePostTypeInAnyGroup, canCreatePostTypeWithVisibility } from '@openpeeps/common';
 
 export const buildAudienceChoices: (
@@ -50,6 +51,7 @@ export const buildAudienceChoices: (
   ];
 
   const allowPublicWithoutServerSetting = type === 'event';
+  const authData = getCurrentAuthData();
   return allChoices.filter((choice) => {
     if (choice.value === 'public' && !publicContent && !allowPublicWithoutServerSetting) {
       return false;
@@ -60,9 +62,15 @@ export const buildAudienceChoices: (
     }
 
     if (choice.value === 'group') {
-      return currentProfile && canCreatePostTypeInAnyGroup(currentProfile, type);
+      return (
+        currentProfile &&
+        canCreatePostTypeInAnyGroup(authData, type)
+      );
     }
 
-    return currentProfile && canCreatePostTypeWithVisibility(currentProfile, type, choice.value);
+    return (
+      currentProfile &&
+      canCreatePostTypeWithVisibility(authData, type, choice.value)
+    );
   });
 };

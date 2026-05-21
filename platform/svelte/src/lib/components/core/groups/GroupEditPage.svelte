@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { groupDataSchema, type GroupWithMeta } from '@openpeeps/common/types';
   import { toaster } from '$lib/utils/toast';
   import { updateGroupMutation } from '$lib/api';

@@ -1,4 +1,10 @@
-export type ObjectType = 'post' | 'group' | 'profile' | 'report' | 'community';
+export type ObjectType =
+  | 'post'
+  | 'group'
+  | 'profile'
+  | 'report'
+  | 'community'
+  | 'accessToken';
 
 export const postRelationships = [
   'none',
@@ -36,10 +42,17 @@ export const reportRelationships = [
   'acted-on',
 ] as const;
 
+export const accessTokenRelationships = [
+  'none',
+  'local',
+  'owner',
+] as const;
+
 export type PostRelationship = (typeof postRelationships)[number];
 export type GroupRelationship = (typeof groupRelationships)[number];
 export type ProfileRelationship = (typeof profileRelationships)[number];
 export type ReportRelationship = (typeof reportRelationships)[number];
+export type AccessTokenRelationship = (typeof accessTokenRelationships)[number];
 
 export const postCapabilities = [
   'core-posts-read',
@@ -87,10 +100,17 @@ export const reportCapabilities = [
   'core-reports-read',
 ] as const;
 
+export const accessTokenCapabilities = [
+  'core-serviceTokens-create',
+  'core-serviceTokens-read',
+  'core-serviceTokens-delete',
+] as const;
+
 export type PostCapability = (typeof postCapabilities)[number];
 export type GroupCapability = (typeof groupCapabilities)[number];
 export type ProfileCapability = (typeof profileCapabilities)[number];
 export type ReportCapability = (typeof reportCapabilities)[number];
+export type AccessTokenCapability = (typeof accessTokenCapabilities)[number];
 
 export const roleCapabilities = [
   'core-local',
@@ -129,6 +149,7 @@ export const roleCapabilities = [
   'core-profiles-delete',
   'core-profiles-suspend',
   'core-profiles-update',
+  'core-profiles-impersonate',
   'core-analytics-read',
   'core-config-update',
   'core-config-read',
@@ -149,6 +170,10 @@ export const roleCapabilities = [
   'core-inviteLinks-read',
   'core-inviteLinks-update',
   'core-inviteLinks-delete',
+  'core-serviceTokens-create',
+  'core-serviceTokens-read',
+  'core-serviceTokens-update',
+  'core-serviceTokens-delete',
 ] as const;
 
 export type RoleCapability = (typeof roleCapabilities)[number];

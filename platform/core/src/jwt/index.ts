@@ -38,24 +38,18 @@ const initJwt = async () => {
   const keyPair = nacl.sign.keyPair.fromSeed(new Uint8Array(seed));
 
   const { jwkPublicKey, jwkPrivateKey } = await toJWK(keyPair);
+  const publicKey = Buffer.from(keyPair.publicKey).toString('base64url');
 
   return {
-    sign: (payload: unknown, expirationTime?: string) => {
-      const signer = new SignJWT(payload as JWTPayload)
-        .setProtectedHeader({ alg: 'EdDSA' })
-        .setIssuedAt();
-      if (expirationTime) {
-        signer.setExpirationTime(expirationTime);
-      }
-      return signer.sign(jwkPrivateKey);
-    },
-    verify: async (token: string) => {
-      try {
-        return await jwtVerify(token, jwkPublicKey, { algorithms: ['EdDSA'] });
-      } catch {
-        return undefined;
-      }
-    },
+    publicKey,
+    sign: ({ payload, expirationTime, id }: { payload: unknown, expirationTime: string, id: string }) => new SignJWT(payload as JWTPayload)
+      .setProtectedHeader({ alg: 'EdDSA', kid: publicKey })
+      .setIssuedAt()
+      .setExpirationTime(expirationTime)
+      .setJti(id)
+      .sign(jwkPrivateKey)
+    ,
+    verify: async (token: string) => jwtVerify(token, jwkPublicKey, { algorithms: ['EdDSA'] }).catch(() => undefined),
   };
 };
 

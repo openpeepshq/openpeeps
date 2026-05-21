@@ -2,7 +2,7 @@ import { Endpoint, z } from 'sveltekit-api';
 import { findPost } from '@openpeeps/core/posts';
 import { publicPostSchema } from '@openpeeps/common/types';
 import { notFound, forbidden } from '$lib/server/api/errors';
-import { ensurePostCapabilities, scopeMatches } from '$lib/server/auth';
+import { ensurePostCapabilities, serviceScopeMatches } from '$lib/server/auth';
 
 export const Param = z.object({
   postId: z.string(),
@@ -17,12 +17,12 @@ export const Error = {
 
 export default new Endpoint({ Param, Output, Error }).handle(
   async (param, event) => {
-    const isServiceAuthorized = scopeMatches({
+    const isServiceAuthorized = serviceScopeMatches({
       authorization: event.locals.authorization,
-      scope: undefined,
-      resource: { type: 'jam', id: param.postId },
+      scopeLevel: undefined,
+      resource: { type: 'jams', id: param.postId },
     });
-    const mergedPost = await findPost(param.postId, event.locals.currentProfile);
+    const mergedPost = await findPost(param.postId, event.locals.authData);
 
     if (!mergedPost) {
       throw notFound(`Object with id ${param.postId}`);

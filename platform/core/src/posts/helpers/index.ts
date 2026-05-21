@@ -1,4 +1,5 @@
 import {
+  AuthorizationData,
   PostWithMeta,
   PostDataUnion,
   Profile,
@@ -224,16 +225,16 @@ export const transformPost = async (post: DbPost, currentProfile?: { id: string 
   };
 }
 
-export const toFilteredPostsList = async (queryResult: QueryResult<DbPost>, options: { profile?: ProfileWithMeta, limit?: number, offset?: number, filters?: ObjectFilter<PostWithMeta>[] }) => {
-  const { profile, limit = 100, offset = 0, filters = [] } = options;
+export const toFilteredPostsList = async (queryResult: QueryResult<DbPost>, options: { authData: AuthorizationData, limit?: number, offset?: number, filters?: ObjectFilter<PostWithMeta>[] }) => {
+  const { authData, limit = 100, offset = 0, filters = [] } = options;
   const { db } = await allpeepDb();
   const config = await capabilitiesConfig();
   return filterAndTransform(
     queryResult,
     db,
     {
-      filter: composeFilters(canReadPost(config, profile), ...filters),
-      transform: (post) => transformPost(post, profile),
+      filter: composeFilters(canReadPost(config, authData), ...filters),
+      transform: (post) => transformPost(post, authData.profile),
       limit,
       offset
     });

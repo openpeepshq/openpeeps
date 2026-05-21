@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
+import { Readable } from 'node:stream';
 import { uuidv7 } from 'uuidv7';
 
 export const Input = z.object({
@@ -31,14 +32,24 @@ export default new Endpoint({ Input, Error, Output }).handle(
     const destPath = join(tmpdir(), restoreFileName);
 
     const writeStream = createWriteStream(destPath);
-    await pipeline(event.request.body as any, writeStream);
+    await pipeline(
+      Readable.fromWeb(
+        event.request.body as unknown as import('node:stream/web').ReadableStream,
+      ),
+      writeStream,
+    );
 
-    await restoreBackups(restoreFileName);
-
-    setTimeout(() => {
-      console.log('Restarting server after successful restore...');
-      process.exit(0);
-    }, 5000);
+    void (async () => {
+      try {
+        await restoreBackups(restoreFileName);
+        setTimeout(() => {
+          console.log('Restarting server after successful restore...');
+          process.exit(0);
+        }, 5000);
+      } catch (error) {
+        console.error('Backup restore failed:', error);
+      }
+    })();
 
     return Output.parse({ success: true });
   },

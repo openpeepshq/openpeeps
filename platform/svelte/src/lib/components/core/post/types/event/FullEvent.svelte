@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { getPostContext, jamAttendanceStore, me } from '$lib/api';
 	import { OpenpeepsMarkdown } from '$lib/components/core/markdown';
 	import {

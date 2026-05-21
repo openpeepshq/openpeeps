@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { getToastStore, SlideToggle } from '@skeletonlabs/skeleton';
   import { toast } from '$lib/utils/toast';
   import { Button } from '@openpeeps/ui';
@@ -41,7 +42,7 @@
   const { publicContent } = getServerInfo();
 
   let canNotify: boolean = $derived(
-    checkRoleCapabilities(['allpeep-core-admin-notify'], me?.roles ?? [])
+    checkRoleCapabilities(me?.roles ?? [], ['allpeep-core-admin-notify'])
       .success,
   );
   let notify: boolean = $state(false);

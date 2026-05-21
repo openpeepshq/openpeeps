@@ -228,6 +228,7 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
               followersCount: 0,
               followingCount: 0,
             },
+            memberships: [],
           })),
           data: {
             type: 'note',

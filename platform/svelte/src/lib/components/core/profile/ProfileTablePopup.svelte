@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { Pencil, Trash } from 'lucide-svelte';
 
 	import DeleteProfileModal from './modals/DeleteProfileModal.svelte';

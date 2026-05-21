@@ -1,10 +1,6 @@
 import { Endpoint, z } from 'sveltekit-api';
 import { forbidden, notFound } from '$lib/server/api/errors';
-import {
-  type PostWithMeta,
-  publicPostSchema,
-  type PostData,
-} from '@openpeeps/common/types';
+import { type PostWithMeta, publicPostSchema, type PostData } from '@openpeeps/common/types';
 import { ensureGroupCapabilities, ensureLocalProfile, ensureRoleCapabilities } from '$lib/server/auth';
 import type { RequestEvent } from '@sveltejs/kit';
 import { createPost, findPost } from '@openpeeps/core/posts';
@@ -38,6 +34,7 @@ export default new Endpoint({ Output, Param, Error }).handle(
     const post: PostData = {
       type: 'note',
       visibility: postToRepost.visibility,
+      creatorId: profile.id,
     };
 
     return await createPost({ type: 'note' }, profile, post, {

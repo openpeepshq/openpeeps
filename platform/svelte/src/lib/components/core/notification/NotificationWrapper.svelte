@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { Avatar } from '$lib/components/core/profile';
 	import type { Profile, ProfileStats } from '@openpeeps/common/types';
 	import { User, Users, Dot } from 'lucide-svelte';

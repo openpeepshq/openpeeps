@@ -2,7 +2,7 @@ import { Endpoint, z } from 'sveltekit-api';
 import { findPost, ancestors, descendents } from '@openpeeps/core/posts';
 import { postContextSchema } from '@openpeeps/common/types';
 import { notFound, forbidden } from '$lib/server/api/errors';
-import { ensureProfileOrPublicCommunity } from '$lib/server/auth';
+import { ensureAccess } from '$lib/server/auth';
 
 export const Param = z.object({
   postId: z.string(),
@@ -18,17 +18,17 @@ export const Error = {
 export default new Endpoint({ Param, Output, Error }).handle(
   async (param, event) => {
 
-    const profile = await ensureProfileOrPublicCommunity(event);
+    await ensureAccess(event);
 
-    const mergedPost = await findPost(param.postId, profile);
+    const mergedPost = await findPost(param.postId, event.locals.authData);
 
     if (!mergedPost) {
       throw notFound(`Object with id ${param.postId}`);
     }
 
     return {
-      ancestors: await ancestors(profile, mergedPost, 25),
-      descendants: await descendents(profile, mergedPost, 25)
+      ancestors: await ancestors(event.locals.authData, mergedPost, 25),
+      descendants: await descendents(event.locals.authData, mergedPost, 25)
     };
   },
 );

@@ -2,7 +2,7 @@ import { Endpoint, z } from 'sveltekit-api';
 import { findProfile, listCommonGroups } from '@openpeeps/core/profiles';
 import type { RequestEvent } from '@sveltejs/kit';
 import { groupWithMetaSchema } from '@openpeeps/common/types';
-import { ensureProfileOrPublicCommunity } from '$lib/server/auth';
+import { ensureAccess } from '$lib/server/auth';
 import { notFound } from '$lib/server/api/errors';
 
 export const Output = groupWithMetaSchema.array();
@@ -16,7 +16,7 @@ export const Error = {
 
 export default new Endpoint({ Output, Param }).handle(
   async (param, event: RequestEvent) => {
-    const profile1 = await ensureProfileOrPublicCommunity(event);
+    const profile1 = await ensureAccess(event);
 
     const profile2 = await findProfile(param.profileId);
 

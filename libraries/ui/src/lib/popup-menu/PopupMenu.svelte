@@ -22,7 +22,7 @@
 
 <script lang="ts">
 	import { type IconType, preventDefault, stopPropagation, type Variant } from '$lib';
-	import { MoreHorizontal } from 'lucide-svelte';
+	import { Ellipsis } from 'lucide-svelte';
 	import { uuidv4 } from 'uuidv7';
 	import type { Snippet } from 'svelte';
 
@@ -45,7 +45,7 @@
 		variant,
 		class: additionalClasses = '',
 		menuId = uuidv4(),
-		icon = MoreHorizontal,
+		icon = Ellipsis,
 		iconSize = 16,
 		placement = 'bottom',
 		compact = false,

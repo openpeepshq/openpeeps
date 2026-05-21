@@ -1,26 +1,22 @@
 import { z } from 'zod';
-import { resourceSchema } from './models';
-
-export const identitySchema = z.object({
-  type: z.enum([
-    'current-profile',
-    'local',
-    'activity-pub',
-    'guest-profile',
-    'service',
-  ]),
-  id: z.string().uuid(),
-});
-export type Identity = z.infer<typeof identitySchema>;
-
-export const scopeSchema = z.object({
-  scope: z.enum(['write', 'read', 'admin']).optional(),
-  resource: resourceSchema,
-});
-export type Scope = z.infer<typeof scopeSchema>;
+import { accountWithMetaSchema, scopeSchema } from './models';
+import { profileWithMetaSchema } from './internal';
 
 export const authorizationSchema = z.object({
-  identities: z.array(identitySchema),
+  identities: z.object({
+    profile: z.string().optional(),
+    account: z.string().optional(),
+    service: z.string().optional(),
+  }),
   scopes: z.array(scopeSchema),
 });
 export type Authorization = z.infer<typeof authorizationSchema>;
+
+export const authorizationDataSchema = z.object({
+  profile: profileWithMetaSchema.optional(),
+  account: accountWithMetaSchema.optional(),
+  service: z.string().optional(),
+  scopes: z.array(scopeSchema),
+})
+
+export type AuthorizationData = z.infer<typeof authorizationDataSchema>;

@@ -1,12 +1,11 @@
 import {
   Answer,
   AnswerWithPublicProfile,
+  AuthorizationData,
   CapabilitiesConfig,
   EntryWithPublicProfile,
   GroupWithMeta,
-  Jam,
   PostType,
-  ProfileWithMeta,
   PublicPost,
   Question,
   Thread,
@@ -18,6 +17,7 @@ import {
   checkPostCapabilities,
   checkRoleCapabilities,
 } from './capabilitiesHelpers';
+import { scopeMatches } from './scopeHelpers';
 import { countBy, dateSorter, groupBy, transformValues } from './utils';
 
 const buildThread = (rootPost: PublicPost, postList: PublicPost[]): Thread => ({
@@ -33,20 +33,6 @@ export const buildThreads = (posts: PublicPost[]) =>
     .map((post) => buildThread(post, posts))
     .sort(dateSorter());
 
-export const getJamUrl = (id: string, origin: string | undefined) => {
-  if (!id) {
-    return '';
-  }
-  if (!origin) return `/events/${id}/jam`;
-  return `${origin}/events/${id}/jam`;
-};
-
-export const jamFromEvent = (event: PublicPost): Jam | undefined => {
-  if (event.data?.type === 'event' && event.data?.jam) {
-    return event.data.jam;
-  }
-  return undefined;
-};
 
 export const getReactionCount = (post: PublicPost) => {
   return countBy(post.reactions, (r) => r.reaction);
@@ -113,51 +99,47 @@ export const calculateEffectiveRsvps = (post: PublicPost) => {
 };
 
 export const canDeletePost = (
-  profile: ProfileWithMeta,
+  authData: AuthorizationData,
   post: PublicPost,
   config: CapabilitiesConfig,
 ) =>
-  checkPostCapabilities(['core-posts-delete'], profile, post, config).success;
+  checkPostCapabilities(authData, ['core-posts-delete'], post, config).success;
 
 
 export const canCreatePost = (
-  profile: ProfileWithMeta,
+  authData: AuthorizationData,
   type: PostType,
   visibility: VisibilityType,
   group?: GroupWithMeta,
 ) =>
   visibility === 'group' ?
-    group &&
-    checkGroupCapabilities(
-      [`core-posts-create-${type}`],
-      profile,
-      group,
-    ).success :
-    checkRoleCapabilities([`core-posts-create-${type}-${visibility}`], profile.roles).success;
+    !!group && checkGroupCapabilities(authData, [`core-posts-create-${type}`], group).success :
+    checkRoleCapabilities(authData.profile?.roles, [`core-posts-create-${type}-${visibility}`]).success
+    && scopeMatches({ scopes: authData.scopes, requiredScope: { scopeLevel: 'write', resource: { type: 'posts' } } });
 
 export const canCreatePostTypeInAnyGroup = (
-  profile: ProfileWithMeta,
+  authData: AuthorizationData,
   type: PostType,
 ) =>
-  profile?.memberships?.some((m) => {
-    return checkGroupCapabilities(
-      [`core-posts-create-${type}`],
-      profile,
-      m.group,
-    ).success;
-  })
+  scopeMatches({ scopes: authData.scopes, requiredScope: { scopeLevel: 'write', resource: { type: 'groups' } } }) &&
+  !!authData.profile?.memberships?.some((m) =>
+    checkGroupCapabilities(authData, [`core-posts-create-${type}`], m.group as GroupWithMeta).success,
+  );
 
 export const canCreatePostTypeWithVisibility = (
-  profile: ProfileWithMeta,
+  authData: AuthorizationData,
   type: PostType,
   visibility: VisibilityType,
 ) =>
   visibility === 'group' ?
-    canCreatePostTypeInAnyGroup(profile, type) :
-    checkRoleCapabilities([`core-posts-create-${type}-${visibility}`], profile.roles).success;
+    canCreatePostTypeInAnyGroup(authData, type) :
+    checkRoleCapabilities(authData.profile?.roles, [`core-posts-create-${type}-${visibility}`]).success &&
+    scopeMatches({ scopes: authData.scopes, requiredScope: { scopeLevel: 'write', resource: { type: 'posts' } } });
 
 export const canCreatePostType = (
-  profile: ProfileWithMeta,
+  authData: AuthorizationData,
   type: PostType,
 ) =>
-  visibilityTypeValues.some((visibility) => canCreatePostTypeWithVisibility(profile, type, visibility));
+  visibilityTypeValues.some((visibility) => canCreatePostTypeWithVisibility(authData, type, visibility));
+
+

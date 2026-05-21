@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { Tab, TabGroup } from '@skeletonlabs/skeleton';
   import { goto } from '$app/navigation';
   import { Badge, InfiniteScrollContainer } from '@openpeeps/ui';

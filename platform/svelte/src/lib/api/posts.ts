@@ -97,7 +97,11 @@ export const groupFeedStore = (id: string) =>
 export const infiniteGroupFeedStore = (id: string, props: ChronologicalInfiniteQueryParams) =>
 	infiniteChronologicalStore(client.posts.listByGroup, { pathParams: { id }, queryParams: props });
 
-export const groupEventsFeedStore = (groupId: string, pageSize: number) => infiniteOffsetStore(client.posts.feeds.events.group, { pathParams: { groupId }, pageSize });
+export const groupEventsFeedStore = (groupId: string, pageSize: number) =>
+	infiniteOffsetStore(client.posts.feeds.events.group.upcoming, {
+		pathParams: { groupId },
+		pageSize
+	});
 
 export const upcomingEventsFeedStore = (pageSize: number) => infiniteOffsetStore(client.posts.feeds.events.upcoming, { pageSize });
 export const currentEventsFeedStore = (pageSize: number) => infiniteOffsetStore(client.posts.feeds.events.current, { pageSize });

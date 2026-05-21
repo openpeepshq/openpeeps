@@ -1,12 +1,13 @@
 <script lang="ts">
-	import type { Event, MergedPost } from '@openpeeps/common/types';
+	// @ts-nocheck
+	import type { Event, PublicPost } from '@openpeeps/common/types';
 	import { i18nContext } from '$lib/components/i18n';
 	import { getCurrentProfile } from '$lib/auth';
 	import { calculateEffectiveRsvps } from '@openpeeps/common';
 	const { t } = i18nContext();
 
 	interface Props {
-		post: MergedPost;
+		post: PublicPost;
 	}
 
 	const { post }: Props = $props();
@@ -14,7 +15,7 @@
 	const me = getCurrentProfile();
 	const myEvent = $derived(post.profile?.id === me?.id);
 	const iAmModerator = $derived(event.moderators?.includes(me?.id));
-	const myRsvp = $derived(calculateEffectiveRsvps(post).find((rsvp) => me.id === rsvp.profile.id));
+	const myRsvp = $derived(calculateEffectiveRsvps(post).find((rsvp) => me?.id === rsvp.profile.id));
 </script>
 
 {#if myEvent}

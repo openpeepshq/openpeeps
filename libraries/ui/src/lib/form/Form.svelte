@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts" generics="T">
-  import type { ZodType } from 'zod';
+import type { ZodType } from 'zod/v4';
   import { readonly, writable } from 'svelte/store';
   import { initFormContext, zodErrorToFormMessages } from '$lib';
 

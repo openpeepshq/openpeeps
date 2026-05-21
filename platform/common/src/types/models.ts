@@ -1,4 +1,4 @@
-import { z, ZodObject, ZodRawShape } from 'zod';
+import { z, util, ZodObject, ZodRawShape } from 'zod';
 import validator from 'validator';
 import ISO6391 from 'iso-639-1';
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
@@ -34,33 +34,46 @@ export const forbiddenHandles = [
 ];
 
 export const baseSchemaShape = {
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-  deletedAt: z.string().datetime().nullable().optional(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  deletedAt: z.iso.datetime().nullable().optional(),
 };
 
 export const baseSchema = z.object(baseSchemaShape);
 export type Base<T> = z.infer<typeof baseSchema> & T;
 
 export const idSchemaShape = {
-  id: z.string().uuid(),
+  id: z.uuid(),
 };
 
 export const idSchema = z.object(idSchemaShape);
 export type Id = z.infer<typeof idSchema>;
 
-export const modelSchema = (dataSchema: ZodObject<ZodRawShape>) =>
-  dataSchema.extend({
-    ...baseSchemaShape,
-    ...idSchemaShape,
-  });
+const modelBaseFields = {
+  ...baseSchemaShape,
+  ...idSchemaShape,
+};
+
+/**
+ * Preserves the data-schema shape through declaration emit (see ZodObject extend typing).
+ * A non-generic parameter used to widen `ZodObject<ZodRawShape>` destroys output `.d.ts`
+ * (index signature + unknown), which breaks consumers that need structural JSON types.
+ */
+export const modelSchema = <T extends ZodRawShape>(
+  dataSchema: ZodObject<T>,
+): ZodObject<util.Extend<T, typeof modelBaseFields>> =>
+  dataSchema.extend(modelBaseFields);
 
 export type Model<T> = Base<T> & { id: string };
 
-const connectionSchema = (
-  dataSchema: ZodObject<ZodRawShape>,
-  from: ZodObject<ZodRawShape>,
-  to: ZodObject<ZodRawShape>,
+const connectionSchema = <
+  T extends ZodRawShape,
+  TFrom extends ZodRawShape,
+  TTo extends ZodRawShape,
+>(
+  dataSchema: ZodObject<T>,
+  from: ZodObject<TFrom>,
+  to: ZodObject<TTo>,
 ) =>
   modelSchema(dataSchema).extend({
     from,
@@ -146,7 +159,7 @@ export const profileSettingsDataSchema = z.object({
   language: z.string().optional(),
   theme: ThemeOptionsSchema.optional(),
   defaults: profileSettingsDefaultsSchema.optional(),
-  notifications: z.record(profileNotificationSettings).optional(),
+  notifications: z.record(z.string(), profileNotificationSettings).optional(),
   jamSettings: jamSettingsSchema.optional(),
   stripeSettings: z.object({
     customerId: z.string().optional(),
@@ -169,19 +182,78 @@ export type ProfileSettings = Model<ProfileSettingsData>;
 
 export const accountNameSchema = z
   .string()
-  .refine((value) => !forbiddenHandles.includes(value.toLowerCase()), {
+  .refine((value: string) => !forbiddenHandles.includes(value.toLowerCase()), {
     message: 'Handle is reserved',
   })
-  .refine((value) => handleRegex.test(value ?? ''), {
+  .refine((value: string) => handleRegex.test(value ?? ''), {
     message:
       'Handle can only contain alphanumeric characters and underscores and not have more than 16 characters',
   });
 
+const profileResourceTypes = [
+  'jams',
+  'posts',
+  'self',
+  'profiles',
+  'posts',
+  'groups',
+  'reports',
+  'webhooks',
+  'notifications'
+] as const;
+
+export const profileResourceTypeSchema = z.enum(profileResourceTypes);
+export type ProfileResourceType = z.infer<typeof profileResourceTypeSchema>;
+
+const serviceResourceTypes = [
+  'analytics',
+  'render', // Deprecated
+  'webhooks',
+  'posts',
+  'profiles',
+  'db',
+] as const;
+
+export const serviceResourceTypeSchema = z.enum(serviceResourceTypes);
+export type ServiceResourceType = z.infer<typeof serviceResourceTypeSchema>;
+
+export type ResourceType = ProfileResourceType | ServiceResourceType | '*';
+
+const resourceTypeSchema = z.enum([
+  ...profileResourceTypes,
+  ...serviceResourceTypes,
+  '*',
+]);
+
 export const resourceSchema = z.object({
-  type: z.enum(['jam', 'profile', 'db', 'render']),
-  id: z.union([z.string().uuid(), z.literal('*')]),
+  type: resourceTypeSchema,
+  id: z.union([z.string(), z.literal('*')]).optional(),
 });
-export type Resource = z.infer<typeof resourceSchema>;
+
+export type Resource = {
+  type: ResourceType;
+  id?: string | '*';
+};
+
+export const scopeLevelSchema = z.enum(['write', 'read', 'admin']);
+export type ScopeLevel = z.infer<typeof scopeLevelSchema>;
+
+export const scopeSchema = z.object({
+  scopeLevel: scopeLevelSchema.optional(),
+  resource: resourceSchema,
+});
+export type Scope = z.infer<typeof scopeSchema>;
+
+export const accessTokenDataSchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  signedToken: z.string(),
+  revokedAt: z.iso.datetime().nullable().optional(),
+  expiresAt: z.iso.datetime().nullable().optional(),
+});
+
+export type AccessTokenData = z.infer<typeof accessTokenDataSchema>;
+export const accessTokenSchema = modelSchema(accessTokenDataSchema);
 
 export const latLngSchema = z.object({
   lat: z.number(),
@@ -199,8 +271,8 @@ export type Location = z.infer<typeof locationSchema>;
 export const profileDataSchema = z.object({
   handle: accountNameSchema,
   deletedHandle: accountNameSchema.optional(),
-  avatar: z.string().url().nullable().optional(),
-  header: z.string().url().nullable().optional(),
+  avatar: z.url().nullable().optional(),
+  header: z.url().nullable().optional(),
   displayName: z.string().max(30).optional(),
   bio: z.string().optional(),
   timeZone: z.string().optional(),
@@ -226,7 +298,7 @@ export const profileDataSchema = z.object({
   type: z.enum(['local', 'guest', 'federated']),
   guestData: z
     .object({
-      email: z.string().email().optional(),
+      email: z.email().optional(),
       resource: resourceSchema.optional(),
     })
     .optional(),
@@ -235,6 +307,9 @@ export const profileDataSchema = z.object({
 export type ProfileData = z.infer<typeof profileDataSchema>;
 export const profileSchema = modelSchema(profileDataSchema);
 export type Profile = Model<Base<ProfileData>>;
+
+/** `ownedBy` is present when loaded via mapping; not stored on the token document. */
+export type AccessToken = Model<AccessTokenData> & { ownedBy?: Profile };
 
 export const accountWithMetaSchema = accountSchema.extend({
   profiles: z.array(profileSchema),
@@ -296,8 +371,8 @@ export type MediaAttachmentStatus = z.infer<typeof mediaAttachmentStatusSchema>;
 export const mediaAttachmentDataSchema = z
   .object({
     type: z.string(),
-    url: z.string().url(),
-    previewUrl: z.string().url().nullable(),
+    url: z.url(),
+    previewUrl: z.url().nullable(),
     textUrl: z.null(),
     filename: z.string(),
     meta: z.object({
@@ -336,8 +411,8 @@ export type ProcessingStats = Model<ProcessingStatsData>;
 export const customEmojiSchema = z
   .object({
     shortcode: z.string(),
-    url: z.string().url(),
-    staticUrl: z.string().url(),
+    url: z.url(),
+    staticUrl: z.url(),
     visibleInPicker: z.boolean(),
     category: z.string(),
   })
@@ -368,7 +443,7 @@ export const questionSchema = noteSchema
       .array(),
     multiple: z.boolean().optional(),
     votersVisible: z.boolean().optional(),
-    expiresAt: z.string().datetime().optional(),
+    expiresAt: z.iso.datetime().optional(),
   })
   .openapi('Question');
 
@@ -377,7 +452,7 @@ export type Question = z.infer<typeof questionSchema>;
 export const articleSchema = noteSchema
   .extend({
     type: z.literal('article'),
-    image: z.string().url().optional(),
+    image: z.url().optional(),
     title: z.string().optional(),
   })
   .openapi('Article');
@@ -389,16 +464,16 @@ export const eventSchema = noteSchema
     type: z.literal('event'),
     name: z.string().optional(),
     timeZone: z.string().optional(),
-    image: z.string().url().optional(),
-    start: z.string().datetime({ offset: true, precision: 3 }),
-    end: z.string().datetime({ offset: true, precision: 3 }).optional(),
+    image: z.url().optional(),
+    start: z.iso.datetime({ offset: true, precision: 3 }),
+    end: z.iso.datetime({ offset: true, precision: 3 }).optional(),
     wholeDay: z.boolean(),
     maxAttendees: z.number().int().positive().optional(),
     attendeeListPublic: z.boolean().optional(),
     moderators: z.string().uuid().array().optional(),
     jam: jamSchema.optional(),
     physicalLocation: locationSchema.optional(),
-    url: z.string().url().optional(),
+    url: z.url().optional(),
   })
   .openapi('Event');
 
@@ -512,7 +587,7 @@ export const notificationDataSchema = z.object({
   postId: z.string().optional(),
   fromProfileId: z.string().uuid().optional(),
   groupId: z.string().uuid().optional(),
-  data: z.unknown(),
+  data: z.unknown().optional(),
 });
 export const notificationSchema = modelSchema(notificationDataSchema);
 export type NotificationData = z.infer<typeof notificationDataSchema>;
@@ -575,6 +650,12 @@ export const pushSubscriptionDataSchema = z.discriminatedUnion('type', [
     fcmToken: z.string(),
     alerts: alertsSchema.optional(),
   }),
+  z.object({
+    type: z.literal('webhook'),
+    url: z.url(),
+    publicKey: z.string().min(1),
+    alerts: alertsSchema.optional(),
+  }),
 ]);
 export type PushSubscriptionData = z.infer<typeof pushSubscriptionDataSchema>;
 export type PushSubscription = Model<PushSubscriptionData>;
@@ -613,7 +694,8 @@ export const groupDataSchema = z.object({
   description: z.string().optional(),
   rules: z.string().optional(),
   pinnedPostId: z.string().optional(),
-  capabilities: z.record(capabilitiesSchema),
+  discoverable: z.boolean().optional(),
+  capabilities: z.record(z.string(), capabilitiesSchema),
 });
 
 export type GroupData = z.infer<typeof groupDataSchema>;
@@ -629,7 +711,7 @@ export type GroupRoleData = z.infer<typeof groupRoleSchema>;
 
 export const guestDataSchema = z.object({
   displayName: z.string(),
-  email: z.string().email(),
+  email: z.email(),
 });
 
 export type GuestData = z.infer<typeof guestDataSchema>;

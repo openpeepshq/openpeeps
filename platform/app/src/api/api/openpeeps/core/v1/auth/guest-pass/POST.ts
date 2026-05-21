@@ -2,7 +2,7 @@ import { Endpoint } from 'sveltekit-api';
 import { tokenResponseSchema } from '@openpeeps/common/types';
 import { conflict, forbidden } from '$lib/server/api/errors';
 import { config } from '@openpeeps/core/config';
-import { createGuestPass } from '@openpeeps/core/auth';
+import { createSignedGuestPass } from '@openpeeps/core/accessTokens';
 import { jwtUtil } from '@openpeeps/core/jwt';
 import { guestPassRequestSchema } from '@openpeeps/common/types';
 import { createGuestProfile } from '@openpeeps/core/profiles';
@@ -24,7 +24,7 @@ export default new Endpoint({ Input, Output, Error }).handle(
 
     if (!publicContent) {
       const { resource } = guestPassRequest;
-      if (resource.type !== 'jam' || resource.id === '*') {
+      if (resource.type !== 'jams' || !resource.id || resource.id === '*') {
         throw forbidden();
       }
       const post = await findPost(resource.id);
@@ -35,13 +35,11 @@ export default new Endpoint({ Input, Output, Error }).handle(
 
     const profile = await createGuestProfile(guestPassRequest);
 
-    const authorization = createGuestPass(profile);
-    const jwt = await jwtUtil();
-    const token = await jwt.sign(authorization);
+    const guestPass = await createSignedGuestPass(profile);
 
     return {
       success: true,
-      token,
+      token: guestPass.signedToken,
     };
   },
 );

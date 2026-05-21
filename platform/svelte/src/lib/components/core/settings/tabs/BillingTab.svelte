@@ -41,7 +41,7 @@
 <section class="relative">
 	<AccessDeniedLoader queries={[$paymentStatus]}>
 		{#if $paymentStatus.data}
-			{@const subscription = $paymentStatus.data.subscription}
+			{@const subscription = $paymentStatus.data}
 			{@const hasSubscription = subscription && subscription.status !== 'none'}
 
 			<div class="p-6">

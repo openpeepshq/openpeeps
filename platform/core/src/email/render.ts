@@ -1,11 +1,11 @@
-import { EmailOptions } from '@openpeeps/common/types';
+import type { EmailGlobals, EmailOptions } from '@openpeeps/common/types';
 import { communityConfig, config } from '../config';
 import { convert } from 'html-to-text';
 import { registeredTemplates } from './registry';
 import { serverRootUrl } from '../server';
 import { initI18nEmailContext } from '../i18n';
 
-const globals = async () => {
+const globals = async (): Promise<EmailGlobals> => {
   const serverConfig = await config();
   const rootUrl =
     serverConfig.email.renderHostBaseUrl?.trim() || (await serverRootUrl());
@@ -17,7 +17,7 @@ const globals = async () => {
       androidUrl: serverConfig.apps.android.url,
     },
     i18nContext: await initI18nEmailContext(),
-  };
+  } as EmailGlobals;
 };
 
 export const render = async (emailData: EmailOptions) => {

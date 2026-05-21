@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
-import { start } from '@openpeeps/worker';
 
 dotenv.config();
 
+const { start } = await import('@openpeeps/worker');
+
 console.log('Starting worker...');
 
-start().then();
+await start();

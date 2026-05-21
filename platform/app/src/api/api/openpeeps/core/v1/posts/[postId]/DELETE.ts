@@ -3,7 +3,7 @@ import { forbidden, notFound } from '$lib/server/api/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '$lib/server/auth';
 import type { RequestEvent } from '@sveltejs/kit';
 import { deletePost, findPost } from '@openpeeps/core/posts';
-import { publicPostSchema, successResponseSchema } from '@openpeeps/common/types';
+import { successResponseSchema } from '@openpeeps/common/types';
 
 export const Output = successResponseSchema;
 export const Param = z.object({
@@ -19,8 +19,7 @@ export default new Endpoint({ Output, Param, Error }).handle(
   async (input, event: RequestEvent) => {
     const profile = await ensureLocalProfile(event);
 
-    const postToDelete = publicPostSchema.parse(await findPost(input.postId));
-
+    const postToDelete = await findPost(input.postId);
     if (!postToDelete) {
       throw notFound(`Post with id ${input.postId}`);
     }

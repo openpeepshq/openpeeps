@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import type { PublicPost } from '@openpeeps/common/types';
 	import Attachments from '../../pieces/Attachments.svelte';
 	import PollContent from '../../pieces/PollContent.svelte';

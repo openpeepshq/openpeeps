@@ -1,6 +1,10 @@
 import type {
+	AccessTokenCreationData,
+	AccessTokenWithMeta,
 	ChronologicalInfiniteQueryParams,
 	ProfileWithMeta,
+	PublicAccessToken,
+	SuccessResponse,
 } from "@openpeeps/common/types";
 import { readable, writable } from "svelte/store";
 import { clearCredentials, getCredentials } from "$lib/auth";
@@ -131,5 +135,37 @@ export const updateProfileSettingsMutation = payloadMutation(
 	client.profiles.current.updateSettings,
 	{
 		queryKeys: [["profiles", "current", "settings"]],
+	},
+);
+
+export const currentProfileAccessTokensStore = () =>
+	simpleStore<PublicAccessToken[]>(
+		client.profiles.current.accessTokens,
+		{
+		preQueryCheck: () => {
+			if (!getCredentials().token) {
+				throw { success: false, message: "No credentials found." };
+			}
+		},
+		},
+	);
+
+export const createCurrentProfileAccessTokenMutation = payloadMutation<
+	AccessTokenCreationData,
+	AccessTokenWithMeta
+>(
+	client.profiles.current.createAccessToken,
+	{
+		queryKeys: [["profiles", "current", "accessTokens"]],
+	},
+);
+
+export const revokeCurrentProfileAccessTokenMutation = noPayloadMutation<
+	SuccessResponse,
+	{ accessTokenId: string }
+>(
+	client.profiles.current.revokeAccessToken,
+	{
+		queryKeys: [["profiles", "current", "accessTokens"]],
 	},
 );

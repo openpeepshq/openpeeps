@@ -16,8 +16,10 @@
   import { i18nContext } from '$lib/components/i18n';
   import ProfileSelector from '$lib/components/core/profile/ProfileSelector.svelte';
   import { checkGroupCapabilities } from '@openpeeps/common/lib';
+  import { getCurrentAuthData } from '$lib/auth';
 
   const { t } = i18nContext();
+  const authData = getCurrentAuthData();
 
   interface Props {
     visibility: VisibilityType;
@@ -78,11 +80,8 @@
         ?.map((m) => m.group)
         .filter(
           (grp) =>
-            checkGroupCapabilities(
-              [`core-posts-create-${type}`],
-              $me,
-              grp,
-            ).success,
+            checkGroupCapabilities(authData, [`core-posts-create-${type}`], grp)
+              .success,
         ) || []
     );
   };

@@ -87,5 +87,14 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>,) => ({
     queueTestEmailAction: payloadMutation(client.admin.diagnostics.email.queueTest, [
         ['admin', 'diagnostics', 'email'],
     ]),
+    useServiceAccessTokens: () => apiHook(client.admin.serviceAccessTokens.list),
+    createServiceAccessTokenAction: payloadMutation(
+        client.admin.serviceAccessTokens.create,
+        [['admin', 'serviceAccessTokens']]
+    ),
+    revokeServiceAccessTokenAction: noPayloadMutation(
+        client.admin.serviceAccessTokens.revoke,
+        [['admin', 'serviceAccessTokens']]
+    ),
 });
 export type AdminHooks = ReturnType<typeof adminHooks>;

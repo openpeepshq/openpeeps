@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import type { EmailGlobals } from '@openpeeps/common/types';
 	import { Button, Heading, Section, Text } from '@openpeeps/svelte5-email';
 	import { emailStyles } from '$lib/components/styles';

@@ -7,31 +7,23 @@
   import { page } from '$app/state';
   import { getCurrentProfile } from '@openpeeps/svelte/auth';
 
-  console.log('page', page);
-
   const { publicContent } = getServerInfo();
   const { t } = i18nContext();
 
-  let toastType = $derived(page.url.searchParams.get('toast'));
-
   const toast = toaster();
 
-  let currentProfile = getCurrentProfile();
-
   onMount(() => {
-    if (toastType === 'success') {
+    if (page.url.searchParams.get('toast') === 'success') {
       toast({
         message: t('auth.email.validation.success'),
         type: 'success',
       });
     }
+    const profile = getCurrentProfile();
+    if (profile || publicContent) {
+      goto('/feeds/local', { replaceState: true });
+    } else {
+      goto('/auth/login', { replaceState: true });
+    }
   });
-
-  if (currentProfile || publicContent) {
-    console.log('redirecting to /feeds/local');
-    goto('/feeds/local');
-  } else {
-    console.log('redirecting to /auth/login');
-    goto('/auth/login');
-  }
 </script>

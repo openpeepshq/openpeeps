@@ -1,11 +1,10 @@
-import { createAuthorization } from '@openpeeps/core/auth';
 import type {
   AccountWithMeta,
   LoginRequest,
   TokenResponse,
 } from '@openpeeps/common/types';
+import type { RequestEvent } from '@sveltejs/kit';
 import { forbidden, notFound } from '$lib/server/api/errors';
-import { jwtUtil } from '@openpeeps/core/jwt';
 import { checkPassword, findAccountByEmail } from '@openpeeps/core/accounts';
 import { findProfile, listProfilesByAccount, assignRole } from '@openpeeps/core/profiles';
 import {
@@ -14,6 +13,21 @@ import {
 } from '@openpeeps/core/stripe';
 import { communityConfig } from '@openpeeps/core/config';
 import { findRoleByKey } from '@openpeeps/core/roles';
+import { createSignedProfileAccessToken } from '@openpeeps/core/accessTokens';
+import { UAParser } from 'ua-parser-js';
+
+const guessClientDescription = (event: RequestEvent): string => {
+  const userAgent = event.request.headers.get('user-agent') ?? '';
+  if (!userAgent) {
+    return 'Unknown client';
+  }
+
+  const parsed = new UAParser(userAgent).getResult();
+  const browser = parsed.browser.name ?? 'Unknown browser';
+  const os = parsed.os.name ?? 'Unknown OS';
+
+  return `${browser} on ${os}`;
+};
 
 const retrieveProfile = async (account: AccountWithMeta) => {
   const communityConf = await communityConfig();
@@ -35,6 +49,7 @@ const retrieveProfile = async (account: AccountWithMeta) => {
 
 export const loginHandler = async (
   loginRequest: LoginRequest,
+  event: RequestEvent,
 ): Promise<TokenResponse> => {
   const lowerCaseRequestEmail = loginRequest.email.toLowerCase();
   const account = await findAccountByEmail(lowerCaseRequestEmail);
@@ -60,10 +75,18 @@ export const loginHandler = async (
 
   const checkoutUrl = subscriptionNeeded ? await createStripeCheckoutUrl(profile, account) : undefined;
 
-  const authorization = createAuthorization(account.id, profile.id);
+  const token = await createSignedProfileAccessToken({
+    account,
+    profile,
+    name: 'login',
+    description: guessClientDescription(event),
+    expirationTime: '1w',
+  })
+    .then((accessToken) => accessToken.signedToken);
 
-  const jwt = await jwtUtil();
-  const token = await jwt.sign(authorization);
+  if (!token) {
+    throw forbidden('login.access-token-creation-failed');
+  }
 
   return { success: true, token, checkoutUrl };
 };

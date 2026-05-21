@@ -1,10 +1,10 @@
-import { GroupWithMeta, ReportResolution, ReportWithMeta, RoleData } from "@openpeeps/common";
+import { AccessToken, GroupWithMeta, ReportResolution, ReportWithMeta, RoleData } from "@openpeeps/common";
 
 import { AdminServerStats } from "@openpeeps/common";
 
 import { Role } from "@openpeeps/common";
 
-import { AdminEmailQueueStats, AdminEmailQueueTestInput, AdminEmailTestInput, AdminJobDetail, ConfigData, ConfigDataWithDefaults, InviteLinkData, InviteLinkWithMeta, LogRow, ProfileWithMeta, Resource, SuccessResponse, TokenResponse } from "@openpeeps/common";
+import { AccessTokenCreationData, AdminEmailQueueStats, AdminEmailQueueTestInput, AdminEmailTestInput, AdminJobDetail, ConfigData, ConfigDataWithDefaults, InviteLinkData, InviteLinkWithMeta, LogRow, ProfileWithMeta, PublicAccessToken, Resource, SuccessResponse, TokenResponse } from "@openpeeps/common";
 
 import { allpeepPayloadEndpoint } from "./helpers";
 
@@ -191,6 +191,28 @@ export const admin = (rawClient: FetchClient) => (
             list: allpeepNoPayloadEndpoint<GroupWithMeta[]>(
                 rawClient,
                 '/admin/groups',
+            ),
+        },
+        serviceAccessTokens: {
+            list: allpeepNoPayloadEndpoint<PublicAccessToken[]>(
+                rawClient,
+                '/admin/service-access-tokens',
+            ),
+            create: allpeepPayloadEndpoint<
+                AccessToken,
+                AccessTokenCreationData
+            >(
+                rawClient,
+                '/admin/service-access-tokens',
+                'post',
+            ),
+            revoke: allpeepNoPayloadEndpoint<
+                SuccessResponse,
+                { accessTokenId: string }
+            >(
+                rawClient,
+                '/admin/service-access-tokens/:accessTokenId',
+                'delete',
             ),
         },
     }

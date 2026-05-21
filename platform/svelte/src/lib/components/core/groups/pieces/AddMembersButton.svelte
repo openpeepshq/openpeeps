@@ -6,9 +6,11 @@
   import AddMemberModal from '$lib/components/core/groups/pieces/modals/AddMemberModal.svelte';
   import { checkGroupCapabilities } from '@openpeeps/common/lib';
   import { i18nContext } from '$lib/components/i18n';
+  import { getCurrentAuthData } from '$lib/auth';
 
   const { t } = i18nContext();
   const modalManager = getModalManager();
+  const authData = getCurrentAuthData();
 
   interface Props {
     group: GroupWithMeta | undefined;
@@ -23,7 +25,7 @@
   };
 </script>
 
-{#if group && checkGroupCapabilities(['core-groups-addMember'], $me, group).success}
+{#if group && checkGroupCapabilities(authData, ['core-groups-addMember'], group).success}
   <Button title={t('groups.actions.addMembers')} variant="variant-ringed-primary" {action}>
     {t('groups.actions.addMembers')}
   </Button>

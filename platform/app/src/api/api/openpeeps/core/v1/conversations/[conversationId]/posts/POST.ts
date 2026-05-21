@@ -34,7 +34,7 @@ export default new Endpoint({ Param, Input, Output, Error }).handle(
 
     await ensurePostCapabilities(event, post, ['core-posts-reply']);
 
-    const lastPost = await descendents(profile, post, 9999).then(
+    const lastPost = await descendents(event.locals.authData, post, 9999).then(
       (conversation) => conversation[0] ?? post,
     );
 

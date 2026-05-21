@@ -1,5 +1,8 @@
 import { z } from 'zod';
+import { pushNotificationSchema, type PushNotification } from './notifications';
 import {
+  AccessToken,
+  accessTokenSchema,
   accountInteractionsSchema,
   accountNameSchema,
   accountSchema,
@@ -28,6 +31,8 @@ import {
   reportSchema,
   resourceSchema,
   rsvpSchema,
+  Scope,
+  scopeSchema,
   VisibilityType,
   visibilityTypeSchema,
 } from './models';
@@ -43,11 +48,13 @@ export const errorResponseBodySchema = z.object({
 });
 export type ErrorResponseBody = z.infer<typeof errorResponseBodySchema>;
 
-export const publicAccountSchema = z.object({
-  id: z.string(),
-  email: z.string(),
-  emailValidated: z.boolean().default(false).optional(),
-}).openapi('Account');
+export const publicAccountSchema = z
+  .object({
+    id: z.uuid(),
+    email: z.email(),
+    emailValidated: z.boolean().default(false),
+  })
+  .openapi('Account', { type: 'object' });
 export type PublicAccount = z.infer<typeof publicAccountSchema>;
 
 export const publicProfileSchema = z.object({
@@ -88,6 +95,19 @@ export const publicProfileSchema = z.object({
 });
 
 export type PublicProfile = z.infer<typeof publicProfileSchema>;
+
+export const publicAccessTokenSchema = accessTokenSchema
+  .omit({ signedToken: true })
+  .extend({
+    ownedBy: publicProfileSchema.optional(),
+    scopes: z.array(scopeSchema).optional(),
+  })
+  .openapi('PublicAccessToken');
+
+export type PublicAccessToken = Omit<AccessToken, 'signedToken'> & {
+  ownedBy?: PublicProfile;
+  scopes?: Scope[];
+};
 
 export const jamParticipantProfileSchema = publicProfileSchema.merge(
   guestDataSchema.partial(),
@@ -307,10 +327,36 @@ export const notificationStatsSchema = z.object({
 export type NotificationStats = z.infer<typeof notificationStatsSchema>;
 
 export const unseenPostCountsSchema = z.object({
-  groups: z.record(z.number()),
+  groups: z.record(z.string(), z.number()),
   direct: z.number(),
 });
 export type UnseenPostCounts = z.infer<typeof unseenPostCountsSchema>;
+
+export const pushPayloadSchema = z.object({
+  notification: pushNotificationSchema,
+  notificationStats: notificationStatsSchema,
+});
+export type PushPayload = z.infer<typeof pushPayloadSchema>;
+
+export const webhookDataSchema = z.object({
+  type: z.literal('pushNotification'),
+  payload: pushPayloadSchema,
+});
+export type WebhookData = z.infer<typeof webhookDataSchema>;
+
+export const webhookKeyResponseSchema = z.object({
+  publicKey: z.string(),
+});
+export type WebhookKeyResponse = z.infer<typeof webhookKeyResponseSchema>;
+export const webhookVerifyRequestSchema = z.object({
+  token: z.string(),
+});
+export type WebhookVerifyRequest = z.infer<typeof webhookVerifyRequestSchema>;
+export const webhookVerifyResponseSchema = z.object({
+  success: z.literal(true),
+  payload: z.record(z.string(), z.unknown()),
+});
+export type WebhookVerifyResponse = z.infer<typeof webhookVerifyResponseSchema>;
 
 export const publicInviteLinkSchema = inviteLinkSchema.extend({
   profile: publicProfileSchema,
@@ -370,7 +416,7 @@ export type SuccessFailureResponse = z.infer<
 >;
 
 export const fetchUrlRequestSchema = z.object({
-  url: z.string().url(),
+  url: z.url(),
 });
 
 export const fetchUrlReponseSchema = z.object({
@@ -387,7 +433,7 @@ export const fetchUrlReponseSchema = z.object({
 export type FetchUrlResponse = z.infer<typeof fetchUrlReponseSchema>;
 
 export const loginRequestSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z.string().min(8),
 });
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
@@ -396,7 +442,7 @@ export type FetchUrlRequest = z.infer<typeof fetchUrlRequestSchema>;
 
 export const registerRequestSchema = z.object({
   handle: accountNameSchema,
-  email: z.string().email(),
+  email: z.email(),
   password: z
     .string()
     .min(8, { message: 'Your password should be at least 8 characters long' }),
@@ -458,6 +504,8 @@ export interface Credentials {
   token: string;
 }
 
+const focusCoordinatesPattern = /^-?\d+,-?\d+$/;
+
 export const mediaStorageRequestSchema = z.object({
   description: z.string().optional(),
   file: z.instanceof(File),
@@ -465,11 +513,7 @@ export const mediaStorageRequestSchema = z.object({
   usage: z.string(),
   focus: z
     .string()
-    .optional()
-    .transform((string) => {
-      const [x, y] = String(string).split(',').map(Number);
-      return { x, y };
-    })
+    .regex(focusCoordinatesPattern, 'focus must be "<integer>,<integer>"')
     .optional(),
 });
 export type MediaStorageRequest = z.infer<typeof mediaStorageRequestSchema>;
@@ -546,8 +590,8 @@ export const updateAccountPasswordFormSchema =
     });
 
 export const updateAccountEmailRequestSchema = z.object({
-  newEmail: z.string().email(),
-  oldEmail: z.string().email(),
+  newEmail: z.email(),
+  oldEmail: z.email(),
 });
 
 export type UpdateAccountEmailRequest = z.infer<
@@ -559,7 +603,7 @@ export const geocodingResultSchema = z.object({
   bbox: latLngSchema.array().length(2),
   center: latLngSchema,
   icon: z.string().optional(),
-  properties: z.record(z.any()).optional(),
+  properties: z.record(z.string(), z.any()).optional(),
 });
 export type GeocodingResult = z.infer<typeof geocodingResultSchema>;
 
@@ -572,7 +616,7 @@ export type ReportCreationData = z.infer<typeof reportCreationDataSchema>;
 
 export const jamStateSchema = z.object({
   active: z.boolean(),
-  participants: z.string().uuid().array(),
+  participants: z.uuid().array(),
 });
 export type JamState = z.infer<typeof jamStateSchema>;
 
@@ -628,10 +672,11 @@ export const postCreationDataSchema = z.object({
   visibility: visibilityTypeSchema,
   type: postTypeSchema,
   data: postDataUnionSchema,
-  inReplyToId: z.string().uuid().nullable().optional(),
+  inReplyToId: z.uuid().nullable().optional(),
+  mentions: mentionWithPublicProfileSchema.array().nullable().optional(),
   audience: publicProfileSchema.array().nullable().optional(),
-  groupId: z.string().uuid().nullable().optional(),
-  reportId: z.string().uuid().nullable().optional(),
+  groupId: z.uuid().nullable().optional(),
+  reportId: z.uuid().nullable().optional(),
   capabilitiesNeeded: z.string().array().nullable().optional(),
 })
   .refine((data) => {
@@ -660,15 +705,15 @@ export const postCreationDataSchema = z.object({
 
 export type PostCreationData = z.infer<typeof postCreationDataSchema>;
 
-const _answerWithPublicProfileSchema = answerSchema.extend({
+const answerWithPublicProfileSchema = answerSchema.extend({
   profile: publicProfileSchema,
 });
 export type AnswerWithPublicProfile = z.infer<
-  typeof _answerWithPublicProfileSchema
+  typeof answerWithPublicProfileSchema
 >;
 
 export const paymentCheckoutSchema = successFailureResponseSchema.extend({
-  url: z.string().url().nullable(),
+  url: z.url().nullable(),
 });
 export type PaymentCheckoutResponse = z.infer<typeof paymentCheckoutSchema>;
 
@@ -677,3 +722,11 @@ export const jamObserverResponseSchema = z.object({
 });
 
 export type JamObserverResponseData = z.infer<typeof jamObserverResponseSchema>;
+
+export const accessTokenCreationDataSchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  scopes: z.array(scopeSchema).optional(),
+  expirationTime: z.string(),
+});
+export type AccessTokenCreationData = z.infer<typeof accessTokenCreationDataSchema>;

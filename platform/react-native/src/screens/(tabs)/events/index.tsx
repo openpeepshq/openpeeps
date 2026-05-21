@@ -120,7 +120,7 @@ export const Events = ({
         }
         searchQuery={searchQuery}
       />
-      {checkRoleCapabilities(['core-posts-create-event-local'], currentProfile?.roles).success && (
+      {checkRoleCapabilities(currentProfile?.roles, ['core-posts-create-event-local']).success && (
         <NewEventButton onPress={() => navigation.navigate('NewEvent')} />
       )}
     </ThemedView>

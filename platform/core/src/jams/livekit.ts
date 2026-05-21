@@ -3,12 +3,12 @@ import { config } from '../config';
 import { DataPacket_Kind, EgressClient, EncodedFileOutput, EncodedFileType, EncodingOptionsPreset, RoomServiceClient } from 'livekit-server-sdk';
 import { connectRecording } from './helpers';
 import { allpeepDb } from '../db';
-import { createServiceToken } from '../auth';
 import { jwtUtil } from '../jwt';
 import { serverRootUrl } from '../server';
 import { uuidv7 } from 'uuidv7';
 import { createJamEvent, updateJamRecording } from './mutations';
 import { findActiveRecording } from './finders';
+import { createSignedServiceToken } from '../accessTokens/tokens';
 
 const encoder = new TextEncoder();
 
@@ -30,13 +30,13 @@ export const listParticipantIds = async (jamId: string) => {
 }
 
 const getJamEgressToken = async (jamId: string) =>
-  jwtUtil().then(async (jwt) =>
-    jwt.sign(await createServiceToken([
-      {
-        resource: { type: 'jam', id: jamId },
-      },
-    ]))
-  );
+  createSignedServiceToken({
+    scopes: [{
+      resource: { type: 'jams', id: jamId },
+    }],
+    name: 'jam-egress',
+    expirationTime: '1d',
+  }).then((token) => token.signedToken);
 
 export const getJamRecordingUrl = async (jamId: string) => {
   const jamEgressToken = await getJamEgressToken(jamId);

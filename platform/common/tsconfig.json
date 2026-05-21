@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es2019",
     "module": "esnext",
     "moduleResolution": "Bundler",
     "esModuleInterop": true,
@@ -12,15 +12,30 @@
     "composite": true,
     "skipDefaultLibCheck": true,
     "rootDir": "src",
-    "typeRoots": ["src/@types", "node_modules/@types"]
+    "typeRoots": [
+      "src/@types",
+      "node_modules/@types"
+    ],
+    "types": [
+      "node"
+    ]
   },
-  "exclude": ["vitest.config.ts", "**/*.test.ts", "**/*.spec.ts", "dist/**/*"],
+  "exclude": [
+    "vitest.config.ts",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "dist/**/*"
+  ],
   "tsc-alias": {
     "verbose": false,
     "resolveFullPaths": true,
     "fileExtensions": {
       "inputGlob": "{js,mjs}",
-      "outputCheck": ["js", "json", "mjs"]
+      "outputCheck": [
+        "js",
+        "json",
+        "mjs"
+      ]
     }
   }
 }

@@ -32,6 +32,10 @@
     translationPrefix="settings.language"
     action="/settings/language"
   />
+  <ConfigMenuButton
+    translationPrefix="settings.accessTokens"
+    action="/settings/access-tokens"
+  />
   {#if stripeMembershipEnabled}
     <ConfigMenuButton
       translationPrefix="settings.billing"

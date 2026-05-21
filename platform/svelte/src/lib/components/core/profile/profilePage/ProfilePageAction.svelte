@@ -11,6 +11,7 @@
 	import { toast } from '$lib/utils/toast';
 	import { CreateNewConversation } from '../../conversations';
   import { canCreatePost } from '@openpeeps/common';
+  import { getCurrentAuthData } from '$lib/auth';
 
 	const { t } = i18nContext();
 
@@ -23,6 +24,8 @@
 	const toastStore = getToastStore();
 
 	let { profile, isCurrentProfile = false }: Props = $props();
+
+	const authData = getCurrentAuthData();
 </script>
 
 <div class="mt-2 flex h-6 items-center justify-end gap-x-2 pr-2 pt-3">
@@ -63,7 +66,7 @@
 				danger
 			/>
 		</PopupMenu>
-		{#if canCreatePost($me, 'note', 'direct')}
+		{#if canCreatePost(authData, 'note', 'direct')}
 			<Button
 				title={t('conversations.newMessage')}
 				action={() => modalManager.show(CreateNewConversation, {profiles: [profile], skipProfileSelection: true})}

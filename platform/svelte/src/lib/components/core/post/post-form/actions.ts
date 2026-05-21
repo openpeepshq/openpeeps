@@ -1,4 +1,5 @@
 import {
+	articleSchema,
 	eventSchema,
 	noteSchema,
 	type MediaAttachment,
@@ -13,7 +14,8 @@ import type { ZodType } from 'zod';
 const postDataSchemas: Record<PostType, ZodType<PostDataUnion>> = {
 	note: noteSchema,
 	question: questionSchema,
-	event: eventSchema
+	event: eventSchema,
+	article: articleSchema
 };
 
 export const switchPostType = (previousData: PostDataUnion, type: PostType) =>

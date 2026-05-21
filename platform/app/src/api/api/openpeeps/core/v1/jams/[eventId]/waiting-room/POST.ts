@@ -8,6 +8,7 @@ import { produceStream } from '$lib/server/api/sse';
 import { ensureProfileOrGuest } from '$lib/server/auth';
 import { jamFromEvent } from '@openpeeps/common/lib';
 export const Stream = jamTokenResponseSchema;
+export const Output = z.instanceof(ReadableStream);
 export const Param = z.object({
   eventId: z.string(),
 });
@@ -16,10 +17,10 @@ export const Error = {
   403: forbidden(),
 };
 
-export default new Endpoint({ Param, Stream, Error }).handle(
+export default new Endpoint({ Param, Stream, Output, Error }).handle(
   async (input, event: RequestEvent) => {
     const profile = await ensureProfileOrGuest(event, 'read', {
-      type: 'jam',
+      type: 'jams',
       id: input.eventId,
     });
 

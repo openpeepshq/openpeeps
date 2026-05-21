@@ -34,7 +34,7 @@
   <div class="mt-2 flex flex-row gap-x-2 overflow-hidden items-start">
     <div class="flex flex-row items-center">
       <span> ~ </span>
-      {#if me.id === lastMessage.profile.id}
+      {#if me?.id === lastMessage.profile.id}
         <span>Me</span>
       {:else}
         <span>

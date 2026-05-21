@@ -21,6 +21,8 @@
     Bookmark,
     BookCheck,
     LogOut,
+    KeyRound,
+    Logs,
   } from 'lucide-svelte';
   import { TreeView } from '@skeletonlabs/skeleton';
   import { currentProfileStore } from '$lib/api';
@@ -34,7 +36,7 @@
   const { t } = i18nContext();
   const profileQuery = currentProfileStore();
   let isAdmin: boolean = $derived(
-    checkRoleCapabilities(['admin'], $profileQuery.data?.roles ?? []).success,
+    checkRoleCapabilities($profileQuery.data?.roles ?? [], ['admin']).success,
   );
   let isAdministrationOpen = $derived(page.url.pathname.includes('/admin'));
 
@@ -111,6 +113,8 @@
           icon={ChartLine}
           action="/admin/analytics"
         />
+        <MenuItem name={t('navigation.logs')} icon={Logs} action="/admin/logs" />
+        <MenuItem name="API Keys" icon={KeyRound} action="/admin/api-keys" />
         <MenuItem
           name={t('navigation.configuration')}
           icon={Wrench}

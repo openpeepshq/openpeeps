@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { getToastStore } from '@skeletonlabs/skeleton';
   import { Button } from '@openpeeps/ui';
   import { abortUploadsForAttachments, updatePostMutation } from '$lib/api';

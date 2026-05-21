@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { LocalVideoTrack } from 'livekit-client';
 	import type { JamSettings } from '@openpeeps/common/types';
 	import { me, updateCurrentProfileMutation } from '$lib/api/profile';

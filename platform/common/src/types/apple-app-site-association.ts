@@ -9,7 +9,7 @@ const appDetailsSchema = z.object({
     .array(
       z.object({
         path: z.string(),
-        query: z.record(z.string()).optional(),
+        query: z.record(z.string(), z.string()).optional(),
         fragment: z.string().optional(),
       }),
     )

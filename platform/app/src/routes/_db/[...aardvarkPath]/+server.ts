@@ -3,8 +3,22 @@ import {
   type RequestEvent,
   type RequestHandler,
 } from '@sveltejs/kit';
+import { scopeMatches } from '@openpeeps/common/lib';
 import { defaultConfig } from '@openpeeps/core/config';
-import { verifyDbToken } from '@openpeeps/core/auth';
+import { verifySignedAccessToken } from '@openpeeps/core/accessTokens';
+
+
+const verifyDbToken = (token: string): Promise<boolean> =>
+  verifySignedAccessToken(token).then((authorization) => scopeMatches({
+    scopes: authorization?.scopes,
+    requiredScope: {
+      scopeLevel: 'admin',
+      resource: {
+        type: 'db',
+        id: '*',
+      },
+    }
+  })).catch(() => false);
 
 const checkCookie = async ({ cookies }: RequestEvent): Promise<boolean> => {
   const token = cookies.get('db-token');

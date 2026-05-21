@@ -37,6 +37,8 @@ import deleteDuplicateGroupMemberships from './migrations/202602200230-deleting-
 import addMemberPostCapabilities from './migrations/202602261200-add-member-post-capabilities';
 import removingDeletedAccounts from './migrations/202603180917-permanently-removing-deleted-accounts';
 import renameConfigKeysAllpeepToOpenpeeps from './migrations/202603132015-rename-config-keys-allpeep-to-openpeeps';
+import migrateLegacyResourceTypes from './migrations/202605221200-migrate-legacy-resource-types';
+import deleteDuplicateRoles from './migrations/202605221430-deleting-duplicate-roles';
 
 export const dataMigrations = [
   addNoteTypeToEntries,
@@ -78,4 +80,6 @@ export const dataMigrations = [
   addMemberPostCapabilities,
   removingDeletedAccounts,
   renameConfigKeysAllpeepToOpenpeeps,
+  migrateLegacyResourceTypes,
+  deleteDuplicateRoles,
 ];

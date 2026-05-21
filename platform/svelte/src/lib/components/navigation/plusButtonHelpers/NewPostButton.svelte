@@ -7,6 +7,7 @@
     type ProfileWithMeta,
     type VisibilityType,
   } from '@openpeeps/common';
+  import { getCurrentAuthData } from '$lib/auth';
   import { getNewPostStores } from '$lib/stores';
   import { Plus } from 'lucide-svelte';
   import type { IconType } from '@openpeeps/ui';
@@ -33,9 +34,10 @@
     action,
   }: Props = $props();
 
+  const authData = getCurrentAuthData();
   if (
     currentProfile &&
-    canCreatePost(currentProfile, type, visibility, group)
+    canCreatePost(authData, type, visibility, group)
   ) {
     setPlusButtonActions({
       title,

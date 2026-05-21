@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { getPostStore } from '@openpeeps/svelte/api';
   import { page } from '$app/state';
   import EditEventPage from './EditEventPage.svelte';

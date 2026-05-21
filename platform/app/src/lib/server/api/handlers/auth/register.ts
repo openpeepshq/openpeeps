@@ -1,13 +1,12 @@
-import { createAuthorization } from '@openpeeps/core/auth';
 import type { RegisterRequest, TokenResponse } from '@openpeeps/common/types';
-import { conflict } from '$lib/server/api/errors';
+import { conflict, forbidden } from '$lib/server/api/errors';
 import { createAccount, existsAccountByEmail } from '@openpeeps/core/accounts';
 import { existsProfileByHandle } from '@openpeeps/core/profiles';
 import { existsGroupByHandle } from '@openpeeps/core/groups';
 import type { OpenpeepsError } from '@openpeeps/common/types';
-import { jwtUtil } from '@openpeeps/core/jwt';
 import { config } from '@openpeeps/core/config';
 import { findInviteLinkBySlug } from '@openpeeps/core/inviteLinks';
+import { createSignedProfileAccessToken } from '@openpeeps/core/accessTokens';
 
 export const registerHandler = async (
   registerRequest: RegisterRequest,
@@ -73,12 +72,13 @@ export const registerHandler = async (
     inviteCode,
   });
 
-  const authorization = createAuthorization(account.id, profile?.id);
-  const jwt = await jwtUtil();
-  const token = await jwt.sign(authorization);
 
-  return {
-    success: true,
-    token,
-  };
+  const token = await createSignedProfileAccessToken({ account, profile, name: 'register', expirationTime: '1w' })
+    .then((accessToken) => accessToken.signedToken);
+
+  if (!token) {
+    throw forbidden('register.access-token-creation-failed');
+  }
+
+  return { success: true, token };
 };

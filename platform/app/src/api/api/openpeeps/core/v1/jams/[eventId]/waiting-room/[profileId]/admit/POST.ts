@@ -1,6 +1,6 @@
 import { Endpoint, z } from 'sveltekit-api';
 import { notFound, forbidden } from '$lib/server/api/errors';
-import { canModerateJam } from '@openpeeps/core/auth';
+import { canModerateJam } from '@openpeeps/common/lib';
 import { acceptFromWaitingRoom, findJamEvent } from '@openpeeps/core/jams';
 import { ensureLocalProfile } from '$lib/server/auth';
 import { successResponseSchema } from '@openpeeps/common/types';
@@ -26,7 +26,7 @@ export default new Endpoint({ Param, Output, Error }).handle(
     }
     const currentProfile = await ensureLocalProfile(event);
 
-    if (!(await canModerateJam(currentProfile)(jamEvent))) {
+    if (!canModerateJam(currentProfile, jamEvent)) {
       throw forbidden();
     }
 
