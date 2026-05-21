@@ -54,4 +54,14 @@ export const profileHooks = (
   updateCurrentProfileSettingsAction: payloadMutation(client.profiles.current.updateSettings, [
     ['profiles', 'current', 'settings'],
   ]),
+  useCurrentProfileAccessTokens: () =>
+    apiHook(client.profiles.current.accessTokens),
+  createCurrentProfileAccessTokenAction: payloadMutation(
+    client.profiles.current.createAccessToken,
+    [['profiles', 'current', 'accessTokens']]
+  ),
+  revokeCurrentProfileAccessTokenAction: noPayloadMutation(
+    client.profiles.current.revokeAccessToken,
+    [['profiles', 'current', 'accessTokens']]
+  ),
 }); 

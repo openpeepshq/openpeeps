@@ -1,4 +1,5 @@
 import { Endpoint, z } from 'sveltekit-api';
+import type { PostWithMeta } from '@openpeeps/common/types';
 import { findPost, reposts } from '@openpeeps/core/posts';
 import { publicPostSchema } from '@openpeeps/common/types';
 import { notFound, forbidden } from '$lib/server/api/errors';
@@ -17,8 +18,7 @@ export const Error = {
 
 export default new Endpoint({ Param, Output, Error }).handle(
   async (param, event) => {
-    const profile = event.locals.currentProfile;
-    const mergedPost = await findPost(param.postId, profile);
+    const mergedPost = await findPost(param.postId, event.locals.authData);
 
     if (!mergedPost) {
       throw notFound(`Object with id ${param.postId}`);
@@ -26,6 +26,13 @@ export default new Endpoint({ Param, Output, Error }).handle(
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-read']);
 
-    return reposts(mergedPost, profile)
+    const reposted = await reposts(mergedPost, event.locals.authData);
+    const repostedWithMeta = await Promise.all(
+      reposted.map((post) => findPost(post.id, event.locals.authData)),
+    );
+
+    return repostedWithMeta.filter(
+      (post): post is PostWithMeta => Boolean(post),
+    );
   },
 );

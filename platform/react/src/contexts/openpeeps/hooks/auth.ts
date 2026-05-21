@@ -1,5 +1,10 @@
 import type { OpenpeepsClient } from "@openpeeps/client";
-import { payloadMutation, retrieveAccount, retrieveProfile, updateCredentialsWrapper } from "../helpers";
+import {
+    payloadMutation,
+    retrieveAccount,
+    retrieveProfile,
+    updateCredentialsWrapper,
+} from "../helpers";
 import type { ProfileWithMeta, PublicAccount } from "@openpeeps/common";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCredentialsStore } from "../../credentialsStore";
@@ -42,6 +47,13 @@ export const authHooks = (
         setCurrentProfile,
         retrieveAccount(client),
         setCurrentAccount
+    ),
+    refreshAction: updateCredentialsWrapper<undefined>(
+        () => client.auth.refresh({}),
+        retrieveProfile(client),
+        setCurrentProfile,
+        retrieveAccount(client),
+        setCurrentAccount,
     ),
 });
 

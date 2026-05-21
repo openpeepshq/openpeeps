@@ -1,6 +1,6 @@
 import { Endpoint, z } from 'sveltekit-api';
 import { notFound, forbidden } from '$lib/server/api/errors';
-import { canModerateJam } from '@openpeeps/core/auth';
+import { canModerateJam } from '@openpeeps/common/lib';
 import { currentWaitingRoomWatch, findJamEvent } from '@openpeeps/core/jams';
 import { ensureLocalProfile } from '$lib/server/auth';
 import { produceStream } from '$lib/server/api/sse';
@@ -10,15 +10,17 @@ export const Param = z.object({
 });
 
 export const Stream = z.record(
-  z.object({ displayName: z.string().optional() }),
+  z.string(), z.object({ displayName: z.string().optional() }),
 );
+
+export const Output = z.instanceof(ReadableStream);
 
 export const Error = {
   404: notFound(),
   403: forbidden(),
 };
 
-export default new Endpoint({ Param, Stream, Error }).handle(
+export default new Endpoint({ Param, Stream, Output, Error }).handle(
   async (param, event) => {
     const jamEvent = await findJamEvent(param.eventId);
 
@@ -28,7 +30,7 @@ export default new Endpoint({ Param, Stream, Error }).handle(
 
     const currentProfile = await ensureLocalProfile(event);
 
-    if (!(await canModerateJam(currentProfile)(jamEvent))) {
+    if (!canModerateJam(currentProfile, jamEvent)) {
       throw forbidden();
     }
 

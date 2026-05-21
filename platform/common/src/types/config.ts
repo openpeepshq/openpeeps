@@ -1,6 +1,8 @@
 import type { ReadableStream } from 'node:stream/web';
-import { z, ZodString, ZodType } from 'zod';
+import { z, ZodString, type ZodType } from 'zod';
 import {
+  accessTokenCapabilities,
+  accessTokenRelationships,
   profileCapabilities,
   profileRelationships,
   reportCapabilities,
@@ -19,8 +21,8 @@ export const password = (sanitize?: boolean) =>
       .describe('password')
     : z.string();
 
-export const fixed = (type: ZodType, sanitize?: boolean) =>
-  sanitize ? type.describe('fixed') : type;
+export const fixed = <T extends ZodType>(type: T, sanitize?: boolean): T =>
+  (sanitize ? type.describe('fixed') : type) as T;
 
 export const hidden = <T extends ZodType>(type: T): T =>
   type.describe('hidden') as T;
@@ -382,6 +384,9 @@ export const capabilitiesConfigSchema = z.object({
   report: relationshipsGroupSchema(reportRelationships, [
     ...reportCapabilities,
   ]),
+  accessToken: relationshipsGroupSchema(accessTokenRelationships, [
+    ...accessTokenCapabilities,
+  ]),
 });
 export const capabilitiesConfigSchemaFactory = (_sanitize?: boolean) =>
   z.object({
@@ -392,6 +397,9 @@ export const capabilitiesConfigSchemaFactory = (_sanitize?: boolean) =>
     ]),
     report: relationshipsGroupSchema(reportRelationships, [
       ...reportCapabilities,
+    ]),
+    accessToken: relationshipsGroupSchema(accessTokenRelationships, [
+      ...accessTokenCapabilities,
     ]),
   });
 export type CapabilitiesConfig = z.infer<typeof capabilitiesConfigSchema>;

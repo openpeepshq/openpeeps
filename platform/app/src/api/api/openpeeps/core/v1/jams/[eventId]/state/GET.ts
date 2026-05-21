@@ -1,4 +1,4 @@
-import { ensurePostCapabilities, ensureProfileOrGuest, scopeMatches } from '$lib/server/auth';
+import { ensurePostCapabilities, ensureProfileOrGuest } from '$lib/server/auth';
 import { Endpoint, z } from 'sveltekit-api';
 import { jamStateSchema } from '@openpeeps/common';
 import { findPost } from '@openpeeps/core/posts';
@@ -24,24 +24,9 @@ export default new Endpoint({ Output, Param, Error }).handle(
       throw notFound(`Jam with id ${input.eventId} not found`);
     }
 
-    const isServiceAuthorized = scopeMatches({
-      authorization: event.locals.authorization,
-      scope: undefined,
-      resource: { type: 'jam', id: input.eventId },
-    });
+    await ensurePostCapabilities(event, jamEvent, ['core-posts-read']);
 
-    const profile = isPublic(jamEvent) || isServiceAuthorized
-      ? event?.locals?.currentProfile
-      : await ensureProfileOrGuest(event, 'read', {
-        type: 'jam',
-        id: input.eventId,
-      });
-
-    if (!isServiceAuthorized) {
-      await ensurePostCapabilities(event, jamEvent, ['core-posts-read']);
-    }
-
-    const state = await findJamState(jamEvent, !(profile || isServiceAuthorized));
+    const state = await findJamState(jamEvent, !(event.locals.currentProfile || event.locals.authorization.identities.service));
 
     return state;
   },

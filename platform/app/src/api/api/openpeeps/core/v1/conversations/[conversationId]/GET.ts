@@ -2,7 +2,6 @@ import { Endpoint, z } from 'sveltekit-api';
 import { findPost, getConversationByStart } from '@openpeeps/core/posts';
 import { publicPostSchema } from '@openpeeps/common/types';
 import { notFound, forbidden } from '$lib/server/api/errors';
-import { canReadMessage } from '@openpeeps/core/auth';
 import { ensureLocalProfile, ensurePostCapabilities } from '$lib/server/auth';
 
 export const Param = z.object({
@@ -18,8 +17,8 @@ export const Error = {
 
 export default new Endpoint({ Param, Output, Error }).handle(
   async (param, event) => {
-    const profile = await ensureLocalProfile(event);
-    const post = await findPost(param.conversationId, profile);
+    await ensureLocalProfile(event);
+    const post = await findPost(param.conversationId, event.locals.authData);
 
     if (!post) {
       throw notFound(`Object with id ${param.conversationId}`);
@@ -27,11 +26,8 @@ export default new Endpoint({ Param, Output, Error }).handle(
 
     await ensurePostCapabilities(event, post, ['core-posts-read']);
 
-    const conversation = await getConversationByStart(post, profile);
+    const conversation = await getConversationByStart(post, event.locals.authData);
 
-    if (!canReadMessage(conversation[0], profile)) {
-      throw forbidden();
-    }
     return conversation;
   },
 );

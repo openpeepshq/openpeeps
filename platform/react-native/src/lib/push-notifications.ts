@@ -33,12 +33,11 @@ const handleRemoteMessage = async (remoteMessage: FirebaseMessagingTypes.RemoteM
     }
 
     if (notification) {
+        const defaultAction = notification.options?.actions?.[0]?.action;
         await notifee.displayNotification({
             title: notification.title,
             body: notification.options?.body,
-            data: {
-                defaultAction: notification.options?.actions?.[0]?.action,
-            },
+            data: defaultAction ? { defaultAction } : undefined,
             android: {
                 largeIcon: notification.options?.icon ?? 'ic_launcher',
                 channelId: 'default',

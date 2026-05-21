@@ -25,6 +25,7 @@ import { previewLink } from './endpoints/previewLink';
 import { Endpoints } from './endpoints/types';
 import { payments } from './endpoints/payments';
 import { streaming } from './endpoints/streaming';
+import { webhookHandler } from './webhooks';
 
 export interface OpenpeepsClientOptions {
   baseUrl?: string;
@@ -55,6 +56,7 @@ export const openpeepsClient = (
   const rawClient = fetchClient(config);
   const allPeepNoPayloadEventSource = noPayloadEventSource(config);
 
+  const serverEndpoints = server(rawClient);
   return {
     admin: admin(rawClient),
     accounts: accounts(rawClient),
@@ -67,13 +69,14 @@ export const openpeepsClient = (
     posts: posts(rawClient),
     previewLink: previewLink(rawClient),
     profiles: profiles(rawClient),
-    server: server(rawClient),
+    server: serverEndpoints,
     sso: sso(rawClient),
     location: location(rawClient),
     reports: reports(rawClient),
     search: search(rawClient),
     payments: payments(rawClient),
     streaming: streaming(rawClient),
+    webhookHandler: webhookHandler(serverEndpoints.keys.webhooks.public),
   };
 };
 

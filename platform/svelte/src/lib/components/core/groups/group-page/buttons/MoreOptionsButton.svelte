@@ -3,7 +3,7 @@
   import type { GroupWithMeta } from '@openpeeps/common/types';
   import {
     LogOut,
-    MoreHorizontal,
+    Ellipsis,
     Pencil,
     Trash,
     UserPlus,
@@ -17,8 +17,10 @@
   import AddMemberModal from '../../pieces/modals/AddMemberModal.svelte';
   import { i18nContext } from '$lib/components/i18n';
   import { checkGroupCapabilities } from '@openpeeps/common';
+  import { getCurrentAuthData } from '$lib/auth';
 
   const { t } = i18nContext();
+  const authData = getCurrentAuthData();
 
   const modalManager = getModalManager();
 
@@ -34,10 +36,10 @@
 
   const handleLeaveGroup = () => {
     if (
-      $me.memberships
+      $me?.memberships
         ?.find((m) => m.group.id === group.id)
-        ?.roles.includes('admin') &&
-      members?.filter((m) => m.roles.includes('admin')).length === 1
+        ?.roles?.includes('admin') &&
+      members?.filter((m) => m?.roles?.includes('admin')).length === 1
     ) {
       toastStore.trigger(
         toast({
@@ -51,8 +53,8 @@
   };
 </script>
 
-<PopupMenu menuId="groupMoreOptionsFeatures" icon={MoreHorizontal}>
-  {#if checkGroupCapabilities(['core-groups-update'], $me, group).success}
+<PopupMenu menuId="groupMoreOptionsFeatures" icon={Ellipsis}>
+  {#if checkGroupCapabilities(authData, ['core-groups-update'], group).success}
     <PopupMenuButton
       title={t('groups.actions.editGroup')}
       text={t('groups.actions.editGroup')}
@@ -62,7 +64,7 @@
       }}
     />
   {/if}
-  {#if checkGroupCapabilities(['core-groups-addMember'], $me, group).success}
+  {#if checkGroupCapabilities(authData, ['core-groups-addMember'], group).success}
     <PopupMenuButton
       title={t('groups.actions.addMembers')}
       text={t('groups.actions.addMembers')}
@@ -79,12 +81,18 @@
     action={handleLeaveGroup}
   />
   <!--PopupMenuButton text="Report group" icon={Flag} action={() => {}} /-->
-  {#if checkGroupCapabilities(['core-groups-delete'], $me, group).success}
+  {#if checkGroupCapabilities(authData, ['core-groups-delete'], group).success}
     <PopupMenuButton
       title={t('groups.delete.title')}
       text={t('groups.delete.title')}
       icon={Trash}
-      action={() => modalManager.show(DeleteGroupModal, { group , callback: () => {window.history.back()}})}
+      action={() =>
+        modalManager.show(DeleteGroupModal, {
+          group,
+          callback: () => {
+            window.history.back();
+          },
+        })}
       danger={true}
     />
   {/if}

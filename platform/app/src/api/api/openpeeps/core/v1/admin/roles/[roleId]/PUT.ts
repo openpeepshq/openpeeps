@@ -21,11 +21,18 @@ export default new Endpoint({ Input, Param, Output, Error }).handle(
   async (input, event) => {
     await ensureRoleCapabilities(event, ['core-roles-update']);
 
-    const role = findRole(input.roleId);
+    const role = await findRole(input.roleId);
     if (!role) {
       throw notFound();
     }
 
-    return updateRole(input.roleId, roleDataSchema.parse(input));
+    await updateRole(input.roleId, roleDataSchema.parse(input));
+
+    const updatedRole = await findRole(input.roleId);
+    if (!updatedRole) {
+      throw notFound();
+    }
+
+    return updatedRole;
   },
 );

@@ -33,6 +33,23 @@ export const transformValues = <T, V>(
     [...Object.entries(object)].map((entry) => [entry[0], transform(entry[1])]),
   );
 
+const toPaddedBase64 = (value: string) => {
+  const normalized = value
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .replace(/\s+/g, '');
+  return normalized.padEnd(
+    normalized.length + ((4 - (normalized.length % 4)) % 4),
+    '=',
+  );
+};
+
+export const decodeBase64ToUint8Array = (value: string): Uint8Array =>
+  Uint8Array.from(Buffer.from(toPaddedBase64(value), 'base64'));
+
+export const decodeBase64UrlToUint8Array = (value: string): Uint8Array =>
+  decodeBase64ToUint8Array(value);
+
 export const lowerCaseFirst = (input: string) => {
   return input.charAt(0).toLowerCase() + input.substring(1);
 };

@@ -14,6 +14,6 @@ export default new Endpoint({ Output, Query }).handle(
   async (params, event: RequestEvent) => {
     const profile = await ensureLocalProfile(event);
 
-    return listBookmarkedPosts(profile, profile, Query.parse(params));
+    return listBookmarkedPosts(event.locals.authData, profile, Query.parse(params));
   },
 );

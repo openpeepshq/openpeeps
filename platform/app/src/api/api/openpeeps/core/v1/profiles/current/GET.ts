@@ -2,7 +2,7 @@ import { Endpoint, z } from 'sveltekit-api';
 import { authNeeded, forbidden } from '$lib/server/api/errors';
 import { profileWithMetaSchema } from '@openpeeps/common/types';
 
-export const Output = profileWithMetaSchema || z.object({});
+export const Output = profileWithMetaSchema;
 
 export const Error = {
   403: forbidden(),

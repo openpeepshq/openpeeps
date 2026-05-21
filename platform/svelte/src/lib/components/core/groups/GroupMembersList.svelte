@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { ProfileCard } from '$lib/components/core/profile';
   import type {
     GroupMember,

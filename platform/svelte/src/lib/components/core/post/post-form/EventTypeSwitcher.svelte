@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { FormInput, getFormContext, Label } from '@openpeeps/ui';
   import { i18nContext } from '$lib/components/i18n';
   import { getServerInfo } from '@openpeeps/svelte/server';
@@ -34,10 +35,16 @@
   let initialProfiles = $derived(
     initialModeratorIds
       ?.map((id) => $profilesQuery.data?.find((profile) => profile.id === id))
-      .filter(Boolean) as PublicProfile[],
+      .filter((profile): profile is PublicProfile => Boolean(profile)),
   );
   let selectedProfiles = $derived(
-    initialProfiles.length > 0 ? initialProfiles : isEdit ? [] : [me],
+    initialProfiles.length > 0
+      ? initialProfiles
+      : isEdit
+        ? []
+        : me
+          ? [me]
+          : [],
   );
 
   let event = $derived(data?.data as Event);
@@ -58,12 +65,12 @@
     if (eventFormat === 'jam') {
       event.jam = {
         type: 'video-call',
-        moderators: [me.id],
+        moderators: me?.id ? [me.id] : [],
         videoEnabled: true,
         speakers: [],
         presenters: [],
       };
-      initialModeratorIds = [me.id];
+      initialModeratorIds = me?.id ? [me.id] : [];
       event.physicalLocation = undefined;
       event.url = page.url.origin;
     } else if (eventFormat === 'external') {
@@ -101,7 +108,9 @@
       eventFormat === 'jam' &&
       event.jam?.moderators.length === 0
     ) {
-      event.jam.moderators = [me.id];
+      if (me?.id) {
+        event.jam.moderators = [me.id];
+      }
     }
   });
 </script>

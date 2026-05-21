@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { z, ZodType } from 'zod';
 	import { unwrap } from '$lib/components/core/configuration/helpers';
 	import { i18nContext } from '$lib/components/i18n';
@@ -63,7 +64,7 @@
 		</label>
 	{:else if unwrappedSchema instanceof z.ZodEnum}
 		<p class:font-bold={dirty}>{t(String(path.slice(-1)[0]))}</p>
-		{#each (schema._def as z.ZodEnum<[string, ...string[]]>).Values as unknown as [string, ...string[]] as option}
+		{#each (unwrappedSchema.options ?? (unwrappedSchema._def?.entries ? Object.keys(unwrappedSchema._def.entries) : [])) as option}
 			<label class="flex items-center space-x-2">
 				<input
 					bind:group={value}

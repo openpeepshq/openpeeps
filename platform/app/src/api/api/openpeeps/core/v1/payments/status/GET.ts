@@ -19,17 +19,17 @@ export const Error = {
 export default new Endpoint({ Output, Error }).handle(
   async (_, event: RequestEvent) => {
     if (!(await stripeMembershipActive())) {
-      return { success: false };
+      return { status: 'none' as const };
     }
 
     const profile = await ensureLocalProfile(event);
     if (isOwnerProfile(profile)) {
-      return { success: true };
+      return { status: 'none' as const };
     }
     const profileSettings = await findProfileSettings(profile.id);
     const stripeCustomerId = getStripeCustomerId(profileSettings);
     if (!hasValue(stripeCustomerId)) {
-      return { success: false };
+      return { status: 'none' as const };
     }
 
     return refreshStripeSubscription(stripeCustomerId!);

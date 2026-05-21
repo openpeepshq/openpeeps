@@ -24,3 +24,6 @@ export {
 	ReportContainer,
 	DeleteReportedProfileModal
 } from './moderation';
+
+// API Keys components
+export { default as CreateApiKeyModal } from './api-keys/CreateApiKeyModal.svelte';

@@ -10,7 +10,7 @@ export const updateMember = connectionUpdater<PublicProfile, GroupWithMeta, Grou
 
 export const canSeeGroupFilter = (profile?: ProfileWithMeta): OMFilter<GroupWithMeta> | undefined => {
 
-    if (checkRoleCapabilities(['core-groups-read'], profile?.roles).success) {
+    if (checkRoleCapabilities(profile?.roles ?? [], ['core-groups-read']).success) {
         return undefined;
     }
     if (!profile || !isLocal(profile)) {

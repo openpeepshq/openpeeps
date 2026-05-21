@@ -25,7 +25,7 @@
   "scripts": {
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
-    "clean": "rm -f tsconfig.tsbuildinfo dist",
+    "clean": "rm -rf tsconfig.tsbuildinfo dist",
     "build": "tsc && tsc-alias",
     "build:watch": "rm -f tsconfig.tsbuildinfo && tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")",
     "prepublishOnly": "pnpm build"

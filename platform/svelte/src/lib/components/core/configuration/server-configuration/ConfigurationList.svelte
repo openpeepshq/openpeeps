@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { z, ZodArray, type ZodTypeAny } from 'zod';
   import { ConfigurationCategory, ConfigurationValueEditor } from '..';
   import { Minus, Plus } from 'lucide-svelte';

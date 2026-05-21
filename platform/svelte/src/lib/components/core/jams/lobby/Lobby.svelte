@@ -19,7 +19,7 @@
 	let showDebugPanel = $state(false);
 </script>
 
-{#if me && (me?.type === 'local' || (me?.guestData?.resource?.type === 'jam' && me.guestData.resource.id === jamPost.id))}
+{#if me && (me?.type === 'local' || (me?.guestData?.resource?.type === 'jams' && me.guestData.resource.id === jamPost.id))}
 	<div class="mx-auto flex h-full w-full max-w-lg items-center justify-center">
 		<div class="bg-surface-50 w-full rounded-md border p-4">
 			<div class="flex items-center justify-between border border-b-[0.2px] p-2">

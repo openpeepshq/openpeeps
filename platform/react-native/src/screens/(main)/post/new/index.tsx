@@ -92,6 +92,7 @@ export const NewPost = ({ route, navigation }: PostProps) => {
   const handleGroupJoinIfNeeded = async () => {
     if (
       postData.visibility === 'group' &&
+      postData.groupId &&
       !currentProfile?.memberships
         .map(g => g.group.id)
         .includes(postData.groupId)

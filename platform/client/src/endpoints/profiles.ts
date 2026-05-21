@@ -1,5 +1,7 @@
 import type { FetchClient } from '@openpeeps/fetch-client';
 import type {
+  AccessTokenCreationData,
+  AccessTokenWithMeta,
   FollowData,
   GroupWithMeta,
   ChronologicalInfiniteQueryParams,
@@ -14,6 +16,7 @@ import type {
   PublicNotification,
   ProfileSettings,
   ProfileSettingsData,
+  PublicAccessToken,
 } from '@openpeeps/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 
@@ -62,6 +65,26 @@ export const profiles = (rawClient: FetchClient) => ({
       rawClient,
       '/profiles/current/settings',
       'put',
+    ),
+    accessTokens: allpeepNoPayloadEndpoint<PublicAccessToken[]>(
+      rawClient,
+      '/profiles/current/access-tokens',
+    ),
+    createAccessToken: allpeepPayloadEndpoint<
+      AccessTokenWithMeta,
+      AccessTokenCreationData
+    >(
+      rawClient,
+      '/profiles/current/access-tokens',
+      'post',
+    ),
+    revokeAccessToken: allpeepNoPayloadEndpoint<
+      SuccessResponse,
+      { accessTokenId: string }
+    >(
+      rawClient,
+      '/profiles/current/access-tokens/:accessTokenId',
+      'delete',
     ),
   },
 

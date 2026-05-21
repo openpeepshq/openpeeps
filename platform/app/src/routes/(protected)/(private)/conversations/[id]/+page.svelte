@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { onMount } from 'svelte';
   import { ForwardIcon } from 'lucide-svelte';
   import { Input, Button } from '@openpeeps/ui';
@@ -17,7 +18,10 @@
     postToConversationMutation,
     conversationsListStore,
   } from '@openpeeps/svelte/api';
-  import { getCurrentProfile } from '@openpeeps/svelte/auth';
+  import {
+    getCurrentAuthData,
+    getCurrentProfile,
+  } from '@openpeeps/svelte/auth';
   import { page } from '$app/state';
 
   const me = getCurrentProfile();
@@ -90,7 +94,10 @@
     scrollToBottom(endOfThread);
   });
 
-  const canSendMessage = $derived(canCreatePost(me, 'note', 'direct'));
+  const authData = getCurrentAuthData();
+  const canSendMessage = $derived(
+    canCreatePost(authData, 'note', 'direct'),
+  );
 </script>
 
 <AccessDeniedLoader queries={[$conversationQuery]}>

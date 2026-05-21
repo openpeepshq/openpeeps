@@ -9,7 +9,7 @@
 	import { preventDefault, stopPropagation } from '@openpeeps/ui';
 	import { checkPostCapabilities, collectVotes, groupName, hasValue } from '@openpeeps/common/lib';
 	import { getServerDataContext } from '$lib/components/serverData';
-	import { getCurrentProfile } from '$lib/auth';
+	import { getCurrentAuthData, getCurrentProfile } from '$lib/auth';
 	import { i18nContext } from '$lib/components/i18n';
   import { goto } from '$app/navigation';
 
@@ -19,6 +19,7 @@
 
 	let { post }: Props = $props();
 	const me = getCurrentProfile();
+	const authData = getCurrentAuthData();
 
 	const { capabilities } = getServerDataContext();
 	const { t } = i18nContext();
@@ -43,7 +44,12 @@
 		if (post.data?.type !== 'question') {
 			return;
 		}
-		const hasCapabilities = checkPostCapabilities(['core-posts-vote'], me, post, capabilities)
+		const hasCapabilities = checkPostCapabilities(
+			authData,
+			['core-posts-vote'],
+			post,
+			capabilities,
+		);
 
 		if (!hasCapabilities.success) {
 			toastStore.trigger(

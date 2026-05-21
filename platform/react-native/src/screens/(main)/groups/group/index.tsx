@@ -188,13 +188,13 @@ export const Group = ({ route, navigation }: GroupProps) => {
           </>
         )}
       </KeyboardAwareScrollView>
-      {currentProfile?.memberships
+      {groupData?.id && currentProfile?.memberships
         ?.map(m => m.group.id)
-        .includes(groupData?.id) && tabValue === 'posts' ? (
+        .includes(groupData.id) && tabValue === 'posts' ? (
         <NewPostButton onPress={handleCreatePost} />
-      ) : currentProfile?.memberships
+      ) : groupData?.id && currentProfile?.memberships
         ?.map(m => m.group.id)
-        .includes(groupData?.id) && tabValue === 'events' ? (
+        .includes(groupData.id) && tabValue === 'events' ? (
         <>
           {currentProfile?.roles?.find(role => role.key === 'owner') && (
             <NewEventButton onPress={handleGoToEvent} />

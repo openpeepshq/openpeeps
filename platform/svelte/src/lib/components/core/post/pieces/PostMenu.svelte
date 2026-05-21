@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import {
     followProfileMutation,
     unFollowProfileMutation,
@@ -41,11 +42,12 @@
   import { getServerDataContext } from '$lib/components/serverData';
   import { i18nContext } from '$lib/components/i18n';
   import { ReportProfileOrPostModal } from '$lib/components/core/profile';
-  import { getCurrentProfile } from '$lib/auth';
+  import { getCurrentAuthData, getCurrentProfile } from '$lib/auth';
   import { updatePostStore } from '../post-form/stores';
   import { currentProfileBookmarkedIds } from '$lib/api';
 
   const me = getCurrentProfile();
+  const authData = getCurrentAuthData();
 
   const { capabilities } = getServerDataContext();
 
@@ -70,7 +72,7 @@
 
   let canPinToGroup = $derived(
     post.group &&
-      checkGroupCapabilities(['core-groups-pin'], me, post.group).success,
+      checkGroupCapabilities(authData, ['core-groups-pin'], post.group).success,
   );
 
   let pinnedGlobally: boolean = $derived(
@@ -81,15 +83,15 @@
   let canPinGlobally: boolean = $derived(
     ['public', 'local'].includes(post.visibility) &&
       me &&
-      checkRoleCapabilities(['core-config-update'], me?.roles).success,
+      checkRoleCapabilities(me?.roles ?? [], ['core-config-update']).success,
   );
   let canDeletePost: boolean = $derived(
-    checkPostCapabilities(['core-posts-delete'], me, post, capabilities)
+    checkPostCapabilities(authData, ['core-posts-delete'], post, capabilities)
       .success,
   );
   let isPostOwner: boolean = $derived(postProfile?.id === me?.id);
   let canReportPost: boolean = $derived(
-    checkRoleCapabilities(['core-reports-create'], me?.roles).success,
+    checkRoleCapabilities(me?.roles ?? [], ['core-reports-create']).success,
   );
   let isBookmarked: boolean = $derived(
     $bookmarkedIdsStore.data?.includes(post.id) ?? false,

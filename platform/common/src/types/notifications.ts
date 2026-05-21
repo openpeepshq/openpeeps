@@ -3,14 +3,31 @@ import { NotificationStats } from './api';
 import { roleCapabilities, RoleCapability } from './capabilities';
 import { ExpandedNotification } from './internal';
 
+export const actionSchema = z.object({
+  action: z.string(),
+  title: z.string(),
+});
+export type Action = z.infer<typeof actionSchema>;
 export type ActionType = { actions?: { action: string; title: string }[] };
-export type NotificationOptionsType = NotificationOptions & ActionType;
 
-export interface PushNotification {
-  title?: string;
-  options?: NotificationOptionsType;
-  invalidateQueries?: string[][];
-}
+export const notificationOptionsSchema = z.object({
+  body: z.string().optional(),
+  icon: z.string().optional(),
+  image: z.string().optional(),
+  link: z.string().optional(),
+  tag: z.string().optional(),
+  badge: z.number().optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
+  actions: actionSchema.array().optional(),
+});
+export type NotificationOptions = z.infer<typeof notificationOptionsSchema>;
+
+export const pushNotificationSchema = z.object({
+  title: z.string().optional(),
+  options: notificationOptionsSchema.optional(),
+  invalidateQueries: z.array(z.array(z.string())).optional(),
+});
+export type PushNotification = z.infer<typeof pushNotificationSchema>;
 
 export interface PushMessage {
   notificationStats: NotificationStats;

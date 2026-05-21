@@ -1,7 +1,7 @@
 import { Endpoint, z } from 'sveltekit-api';
 import type { RequestEvent } from '@sveltejs/kit';
 import { publicPostSchema } from '@openpeeps/common/types';
-import { ensureProfileOrPublicCommunity } from '$lib/server/auth';
+import { ensureAccess } from '$lib/server/auth';
 import { notFound } from '$lib/server/api/errors';
 import { findProfile } from '@openpeeps/core/profiles';
 import { listPostsByProfile } from '@openpeeps/core/posts';
@@ -20,7 +20,7 @@ export const Error = {
 
 export default new Endpoint({ Output, Param, Query }).handle(
   async (params, event: RequestEvent) => {
-    const currentProfile = await ensureProfileOrPublicCommunity(event);
+    await ensureAccess(event);
 
     const requestedProfile = await findProfile(params.profileId);
 
@@ -28,6 +28,6 @@ export default new Endpoint({ Output, Param, Query }).handle(
       throw notFound(`Profile with id ${params.profileId}`);
     }
 
-    return listPostsByProfile(currentProfile, requestedProfile, Query.parse(params));
+    return listPostsByProfile(event.locals.authData, requestedProfile, Query.parse(params));
   },
 );

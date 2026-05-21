@@ -2,15 +2,17 @@ import {
   Account,
   AccountCreationData,
   AccountUpdateData,
+  AccountWithMeta,
   ProfileWithMeta,
 } from '@openpeeps/common/types';
-import { createAuthorization } from '../auth/tokens';
+import { createSignedProfileAccessToken } from '../accessTokens/tokens';
 import { jwtUtil } from '../jwt';
 import { serverRootUrl } from '../server';
 import { emailService } from '../email';
 import { allpeepDb, collectionInfos } from '../db';
 import { communityConfig, config } from '../config';
 import { accountsMapping } from './mapping';
+import { accountsCache } from './cache';
 import { assignRole, unassignRole } from '../profiles/mutations';
 import { hash } from 'bcrypt';
 import { profilesMapping } from '../profiles/mapping';
@@ -65,6 +67,8 @@ export const createAccount = async (
     passwordHash: await hash(password, 1024),
     emailValidated,
   });
+  await accountsCache.del(normalizedEmail);
+  await accountsCache.del(account.id);
 
   let profile: ProfileWithMeta | undefined;
   if (accountCreationData.profile) {
@@ -115,6 +119,8 @@ export const createAccount = async (
     }
 
     await giveControl(db, account, profile);
+    await accountsCache.del(account.id);
+    await accountsCache.del(account.email);
   }
 
   await sendWelcomeEmail(account);
@@ -133,17 +139,25 @@ export const updateAccount = async (accountData: AccountUpdateData) => {
     throw new Error('Account ID is missing');
   }
 
+  const previousEmail = accountData.account.email;
+  const updatedEmail = normalizeEmailAddress(accountData.email);
+
   const account = await accountsMapping.update(
     db,
     accountData.account.id as string,
     {
-      email: normalizeEmailAddress(accountData.email),
+      email: updatedEmail,
       passwordHash: accountData.password
         ? await hash(accountData.password, 12)
         : undefined,
       emailValidated: accountData.emailValidated,
     },
   );
+  await accountsCache.del(accountData.account.id);
+  await accountsCache.del(previousEmail);
+  if (updatedEmail) {
+    await accountsCache.del(updatedEmail);
+  }
 
   if (account && accountData.emailValidated === false) {
     await sendEmailValidationMail(account);
@@ -155,17 +169,17 @@ export const updateAccount = async (accountData: AccountUpdateData) => {
 export const deleteAccount = async (account: Account) => {
   const { db } = await allpeepDb();
   await accountsMapping.delete(db, account.id);
+  await accountsCache.del(account.id);
+  await accountsCache.del(account.email);
   const subscriptions = await listPushSubscriptionsByAccount(account);
   await Promise.all(subscriptions.map(async (sub) => await deletePushSubscription(sub.id)))
 };
 
-export const sendResetPasswordEmail = async (account: Account) => {
-  const authorization = createAuthorization(account.id);
+export const sendResetPasswordEmail = async (account: AccountWithMeta) => {
 
-  const jwt = await jwtUtil();
-  const token = await jwt.sign(authorization, '1d');
+  const token = await createSignedProfileAccessToken({ account, name: 'reset-password', scopes: [{ scopeLevel: 'admin', resource: { type: 'profiles', id: account.id } }], expirationTime: '1d' });
 
-  const resetPasswordLink = `${await serverRootUrl()}/auth/reset-password#token=${token}`;
+  const resetPasswordLink = `${await serverRootUrl()}/auth/reset-password#token=${token.signedToken}`;
 
   await emailService().then((mailer) =>
     mailer.send({
@@ -188,6 +202,8 @@ export const validateEmail = async (token: string) => {
     const account = await findAccountByEmail(email ?? '');
     if (account) {
       await accountsMapping.update(db, account.id, { emailValidated: true });
+      await accountsCache.del(account.id);
+      await accountsCache.del(account.email);
 
       for (const roleKey of communityConf.roles.onEmailValidation.add) {
         const role = await findRoleByKey(roleKey);

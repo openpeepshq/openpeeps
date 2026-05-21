@@ -8,6 +8,11 @@
   import { Smartphone, Laptop, Trash2 } from 'lucide-svelte';
   import { getPushSubscription } from '@openpeeps/svelte/push';
   import { getModalManager } from '@openpeeps/ui';
+  import {
+    pushSubscriptionDeviceName,
+    pushSubscriptionEndpoint,
+    pushSubscriptionIsMobile,
+  } from '@openpeeps/common/lib';
 
   const { t } = i18nContext();
   const modalManager = getModalManager();
@@ -51,9 +56,7 @@
           >
             <div class="flex items-center gap-4">
               <div class="text-surface-500">
-                {#if subscription?.deviceName
-                  ?.toLowerCase()
-                  .match(/phone|android|mobile|ios/)}
+                {#if pushSubscriptionIsMobile(subscription)}
                   <Smartphone size={20} />
                 {:else}
                   <Laptop size={20} />
@@ -63,9 +66,9 @@
               <div>
                 <div class="flex items-center gap-2">
                   <p class="text-success-400 text-sm font-medium">
-                    {subscription?.deviceName || t('common.unknownDevice')}
+                    {pushSubscriptionDeviceName(subscription)}
                   </p>
-                  {#if isCurrentDevice(subscription?.endpoint)}
+                  {#if isCurrentDevice(pushSubscriptionEndpoint(subscription) ?? '')}
                     <span
                       class="bg-primary text-primary rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
                     >
@@ -86,7 +89,9 @@
                 modalManager.show(DeletePushSubscriptionModal, {
                   pushSubscription: subscription,
                   isCurrentDevice:
-                    isCurrentDevice(subscription?.endpoint) || false,
+                    isCurrentDevice(
+                      pushSubscriptionEndpoint(subscription) ?? '',
+                    ) || false,
                 })}
             >
               <Trash2 size={18} />

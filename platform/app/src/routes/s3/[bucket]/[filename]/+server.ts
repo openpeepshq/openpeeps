@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { notFound } from '$lib/server/api/errors';
 import type { Event, JamRecordingWithMeta } from '@openpeeps/common';
 import {

@@ -61,7 +61,7 @@ const expander = async (notification: ExpandedNotification) => {
     (
       await getConversationByEnd(
         post,
-        recipientProfile as ProfileWithMeta,
+        { profile: recipientProfile as ProfileWithMeta, scopes: [] },
       )
     )[0];
   return {

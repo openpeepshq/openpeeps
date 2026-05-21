@@ -11,9 +11,9 @@
   const currentProfile = getCurrentProfile();
 
   const canCreateArticle = checkRoleCapabilities(
+    currentProfile?.roles ?? [],
     ['core-posts-create-article-*'],
-    currentProfile?.roles,
-  );
+  ).success;
 
   if (!canCreateArticle) {
     history.back();

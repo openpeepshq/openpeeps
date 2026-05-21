@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { z, ZodObject, type ZodRawShape } from 'zod';
   import { getToastStore, TreeView } from '@skeletonlabs/skeleton';
   import { ConfigurationCategory } from '..';

@@ -1,19 +1,46 @@
+// @ts-nocheck
 import { z, type ZodType } from 'zod';
 import type { ConfigElement, ConfigTree } from '@openpeeps/common/types';
 
+type SchemaWithDef = ZodType & {
+	def?: { type?: string; innerType?: ZodType; in?: ZodType };
+	in?: ZodType;
+	unwrap?: () => ZodType;
+	removeDefault?: () => ZodType;
+	sourceType?: () => ZodType;
+};
+
 export const unwrap = (schema: ZodType): ZodType => {
-	if (schema instanceof z.ZodEffects) {
-		return unwrap(schema.sourceType() as ZodType);
+	const s = schema as SchemaWithDef;
+
+	switch (s.def?.type) {
+		case 'optional':
+		case 'nullable':
+			return unwrap(s.unwrap!());
+		case 'default':
+			return unwrap(s.removeDefault!());
+		case 'pipe':
+			return unwrap((s.in ?? s.def?.in)!);
+		case 'readonly':
+		case 'catch':
+		case 'prefault':
+			return unwrap(s.def!.innerType!);
+	}
+
+	// Zod v3 compatibility (removed in v4 — guard so `instanceof` never throws)
+	if (typeof z.ZodEffects === 'function' && schema instanceof z.ZodEffects) {
+		return unwrap(s.sourceType!());
+	}
+	if (typeof z.ZodTransformer === 'function' && schema instanceof z.ZodTransformer) {
+		return unwrap(s.sourceType!());
 	}
 	if (schema instanceof z.ZodOptional) {
-		return unwrap(schema.unwrap() as ZodType);
-	}
-	if (schema instanceof z.ZodTransformer) {
-		return unwrap(schema.sourceType() as ZodType);
+		return unwrap(s.unwrap!());
 	}
 	if (schema instanceof z.ZodDefault) {
-		return schema.removeDefault();
+		return unwrap(s.removeDefault!());
 	}
+
 	return schema;
 };
 

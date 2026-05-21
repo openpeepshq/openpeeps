@@ -17,6 +17,8 @@ export const Param = z.object({
 
 export const Stream = mediaProgressEventSchema;
 
+export const Output = z.instanceof(ReadableStream);
+
 export const Error = {
   404: notFound(),
 };
@@ -46,7 +48,7 @@ const computeProgress = (
   return { progressPercent, estimatedRemainingMs };
 };
 
-export default new Endpoint({ Param, Stream, Error }).handle(
+export default new Endpoint({ Param, Stream, Output, Error }).handle(
   async ({ mediaAttachmentId }) =>
     produceStream<MediaProgressEvent>({
       start: async ({ emit, stop }) => {

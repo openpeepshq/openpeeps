@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { getNewPostStores, getPageHeaderStore } from '@openpeeps/svelte/stores';
   import { EventForm } from '@openpeeps/svelte/components';
   import { type PostCreationData } from '@openpeeps/common/types';

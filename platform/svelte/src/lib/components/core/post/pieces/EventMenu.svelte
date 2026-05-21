@@ -8,9 +8,11 @@
 	import { goto } from '$app/navigation';
 	import { getNewPostStores } from '$lib/stores';
 	import { DeletePostModal, getServerDataContext } from '$lib/components';
-	import { checkPostCapabilities } from '@openpeeps/common';
+	import { checkPostCapabilities } from '@openpeeps/common/lib';
+	import { getCurrentAuthData } from '$lib/auth';
 
 	const { t } = i18nContext();
+	const authData = getCurrentAuthData();
 	interface Props {
 		post: PublicPost;
 		menuButton?: Snippet;
@@ -25,9 +27,8 @@
 	const { capabilities } = getServerDataContext();
 
 	let canDeletePost: boolean = $derived(
-    checkPostCapabilities(['core-posts-delete'], $me, post, capabilities)
-      .success,
-  );
+		checkPostCapabilities(authData, ['core-posts-delete'], post, capabilities).success,
+	);
 
 	const deleteCallback = () => {
 		history.back();

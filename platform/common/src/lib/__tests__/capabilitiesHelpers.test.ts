@@ -19,6 +19,7 @@ import {
   checkAccountCapabilities,
 } from '../capabilitiesHelpers';
 import type {
+  AuthorizationData,
   CapabilitiesConfig,
   Role,
   ProfileWithMeta,
@@ -29,9 +30,14 @@ import type {
   PublicReport,
   AccountWithMeta,
   GroupWithMeta,
+  Scope,
 } from '../../types';
 
 // Mock data for testing
+
+const mockAccountAdminSelfScopes: Scope[] = [
+  { scopeLevel: 'admin', resource: { type: 'self' } },
+];
 
 const mockRoles: Role[] = [
   {
@@ -148,6 +154,14 @@ const mockAccount: AccountWithMeta = {
   id: 'account1',
 } as AccountWithMeta;
 
+const authData = (
+  overrides: Partial<AuthorizationData> = {},
+): AuthorizationData => ({
+  profile: mockProfile,
+  scopes: [],
+  ...overrides,
+});
+
 const mockCapabilitiesConfig: CapabilitiesConfig = {
   post: {
     local: { add: ['post-local'], remove: [] },
@@ -168,6 +182,11 @@ const mockCapabilitiesConfig: CapabilitiesConfig = {
     none: { add: ['report-none'], remove: [] },
     reporter: { add: ['report-reporter'], remove: [] },
     reported: { add: ['report-reported'], remove: [] },
+  },
+  accessToken: {
+    none: { add: [], remove: [] },
+    local: { add: [], remove: [] },
+    owner: { add: [], remove: [] },
   },
 };
 
@@ -262,17 +281,17 @@ describe('capabilitiesHelpers', () => {
 
   describe('checkRoleCapabilities', () => {
     it('should check capabilities against roles', () => {
-      const result = checkRoleCapabilities(['admin-capability'], mockRoles);
+      const result = checkRoleCapabilities(mockRoles, ['admin-capability']);
       expect(result.success).toBe(true);
     });
 
     it('should return failure for missing capabilities', () => {
-      const result = checkRoleCapabilities(['missing-capability'], mockRoles);
+      const result = checkRoleCapabilities(mockRoles, ['missing-capability']);
       expect(result.success).toBe(false);
     });
 
     it('should handle empty roles array', () => {
-      const result = checkRoleCapabilities(['any-capability'], []);
+      const result = checkRoleCapabilities([], ['any-capability']);
       expect(result.success).toBe(false);
     });
   });
@@ -318,25 +337,35 @@ describe('capabilitiesHelpers', () => {
             description: 'Local role',
           },
         ],
-      };
-      const result = localOrNone(localProfile);
+      } as ProfileWithMeta;
+      const result = localOrNone(authData({ profile: localProfile }));
       expect(result).toEqual(['local', 'none']);
     });
 
     it('should return only none for non-local profile', () => {
-      const result = localOrNone(mockProfile);
+      const result = localOrNone(authData());
       expect(result).toEqual(['none']);
     });
 
-    it('should return only none for undefined profile', () => {
-      const result = localOrNone(undefined);
+    it('should return only none for missing profile and service', () => {
+      const result = localOrNone(authData({ profile: undefined }));
       expect(result).toEqual(['none']);
+    });
+
+    it('should return local and none for service token without profile', () => {
+      const result = localOrNone(authData({ profile: undefined, service: 'service-1' }));
+      expect(result).toEqual(['local', 'none']);
+    });
+
+    it('should return local and none for service token with non-local profile', () => {
+      const result = localOrNone(authData({ service: 'service-1' }));
+      expect(result).toEqual(['local', 'none']);
     });
   });
 
   describe('getGroupRelationships', () => {
     it('should return relationships for profile and group', () => {
-      const result = getGroupRelationships(mockProfile, mockGroup);
+      const result = getGroupRelationships(authData(), mockGroup);
       expect(result).toContain('none');
     });
 
@@ -356,53 +385,83 @@ describe('capabilitiesHelpers', () => {
           },
         ],
       } as ProfileWithMeta;
-      const result = getGroupRelationships(localProfile, mockGroup);
+      const result = getGroupRelationships(authData({ profile: localProfile }), mockGroup);
       expect(result).toContain('local');
       expect(result).toContain('none');
+    });
+
+    it('should include local and none for service token without profile', () => {
+      const result = getGroupRelationships(
+        authData({ profile: undefined, service: 'service-1' }),
+        mockGroup,
+      );
+      expect(result).toEqual(['local', 'none']);
     });
   });
 
   describe('getProfileRelationships', () => {
     it('should return self relationship for same profile', () => {
       const result = getProfileRelationships(
-        mockProfile,
+        authData(),
         mockProfile as PublicProfile,
       );
       expect(result).toContain('self');
     });
 
     it('should return relationships for different profile', () => {
-      const result = getProfileRelationships(mockProfile, mockPublicProfile);
+      const result = getProfileRelationships(authData(), mockPublicProfile);
       expect(result).toContain('none');
     });
 
-    it('should handle undefined profile', () => {
-      const result = getProfileRelationships(undefined, mockPublicProfile);
+    it('should handle missing profile', () => {
+      const result = getProfileRelationships(
+        authData({ profile: undefined }),
+        mockPublicProfile,
+      );
       expect(result).toEqual(['none']);
+    });
+
+    it('should include local and none for service token without profile', () => {
+      const result = getProfileRelationships(
+        authData({ profile: undefined, service: 'service-1' }),
+        mockPublicProfile,
+      );
+      expect(result).toEqual(['local', 'none']);
     });
   });
 
   describe('getPostRelationships', () => {
     it('should return relationships for post without group', () => {
       const postWithoutGroup = { ...mockPostInput, group: null };
-      const result = getPostRelationships(mockProfile, postWithoutGroup);
+      const result = getPostRelationships(authData(), postWithoutGroup);
       expect(result).toContain('none');
     });
 
-    it('should return empty array for post with group', () => {
-      const result = getPostRelationships(mockProfile, mockPostInput);
-      expect(result).toEqual([]);
+    it('should return localOrNone for public post (group does not change relationships)', () => {
+      const result = getPostRelationships(authData(), mockPostInput);
+      expect(result).toEqual([...localOrNone(authData())]);
     });
 
-    it('should handle undefined profile', () => {
-      const result = getPostRelationships(undefined, mockPostInput);
-      expect(result).toEqual([]);
+    it('should handle missing profile for public post', () => {
+      const result = getPostRelationships(
+        authData({ profile: undefined }),
+        mockPostInput,
+      );
+      expect(result).toEqual(['none']);
+    });
+
+    it('should include local and none for service token on public post', () => {
+      const result = getPostRelationships(
+        authData({ profile: undefined, service: 'service-1' }),
+        mockPostInput,
+      );
+      expect(result).toEqual(['local', 'none']);
     });
   });
 
   describe('getReportRelationships', () => {
     it('should return reporter relationship for reporter profile', () => {
-      const result = getReportRelationships(mockProfile, {
+      const result = getReportRelationships(authData(), {
         ...mockReport,
         reporterProfile: mockProfile as PublicProfile,
       });
@@ -410,16 +469,27 @@ describe('capabilitiesHelpers', () => {
     });
 
     it('should return reported relationship for reported profile', () => {
-      const result = getReportRelationships(mockProfile, {
+      const result = getReportRelationships(authData(), {
         ...mockReport,
         reportedProfile: mockProfile as PublicProfile,
       });
       expect(result).toContain('reported');
     });
 
-    it('should handle undefined profile', () => {
-      const result = getReportRelationships(undefined, mockReport);
+    it('should handle missing profile', () => {
+      const result = getReportRelationships(
+        authData({ profile: undefined }),
+        mockReport,
+      );
       expect(result).toEqual(['none']);
+    });
+
+    it('should include local and none for service token without profile', () => {
+      const result = getReportRelationships(
+        authData({ profile: undefined, service: 'service-1' }),
+        mockReport,
+      );
+      expect(result).toEqual(['local', 'none']);
     });
   });
 
@@ -444,12 +514,15 @@ describe('capabilitiesHelpers', () => {
 
   describe('getGroupCapabilities', () => {
     it('should return group capabilities', () => {
-      const result = getGroupCapabilities(mockProfile, mockGroup);
+      const result = getGroupCapabilities(authData(), mockGroup);
       expect(result).toBeDefined();
     });
 
     it('should handle undefined profile', () => {
-      const result = getGroupCapabilities(undefined, mockGroup);
+      const result = getGroupCapabilities(
+        authData({ profile: undefined }),
+        mockGroup,
+      );
       expect(result).toBeDefined();
     });
   });
@@ -457,7 +530,7 @@ describe('capabilitiesHelpers', () => {
   describe('getProfileCapabilities', () => {
     it('should return profile capabilities', () => {
       const result = getProfileCapabilities(
-        mockProfile,
+        authData(),
         mockPublicProfile,
         mockCapabilitiesConfig,
       );
@@ -468,8 +541,8 @@ describe('capabilitiesHelpers', () => {
   describe('checkGroupCapabilities', () => {
     it('should check group capabilities', () => {
       const result = checkGroupCapabilities(
+        authData(),
         ['group-member-capability'],
-        mockProfile,
         mockGroup,
       );
       expect(result).toBeDefined();
@@ -479,20 +552,65 @@ describe('capabilitiesHelpers', () => {
   describe('checkPostCapabilities', () => {
     it('should check post capabilities', () => {
       const result = checkPostCapabilities(
+        authData(),
         ['post-local'],
-        mockProfile,
         mockPost,
         mockCapabilitiesConfig,
       );
       expect(result).toBeDefined();
+    });
+
+    it('should allow admin-scoped token reads for local posts without a profile', () => {
+      const result = checkPostCapabilities(
+        authData({
+          profile: undefined,
+          scopes: [{ scopeLevel: 'admin', resource: { type: 'posts', id: '*' } }],
+        }),
+        ['core-posts-read'],
+        { ...mockPost, visibility: 'local', group: null },
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(true);
+    });
+
+    it('should not allow read-scoped token reads for local posts', () => {
+      const result = checkPostCapabilities(
+        authData({
+          profile: undefined,
+          scopes: [{ scopeLevel: 'read', resource: { type: 'posts', id: '*' } }],
+        }),
+        ['core-posts-read'],
+        { ...mockPost, visibility: 'local', group: null },
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(false);
+    });
+
+    it('should allow scoped token reads for posts in public groups', () => {
+      const publicGroup = {
+        ...mockGroup,
+        capabilities: {
+          none: { add: ['core-posts-read'], remove: [] },
+        },
+      } as GroupWithMeta;
+      const result = checkPostCapabilities(
+        authData({
+          profile: undefined,
+          scopes: [{ scopeLevel: 'read', resource: { type: 'posts', id: '*' } }],
+        }),
+        ['core-posts-read'],
+        { ...mockPost, visibility: 'group', group: publicGroup },
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(true);
     });
   });
 
   describe('checkProfileCapabilities', () => {
     it('should check profile capabilities', () => {
       const result = checkProfileCapabilities(
+        authData(),
         ['profile-local'],
-        mockProfile,
         mockPublicProfile,
         mockCapabilitiesConfig,
       );
@@ -503,8 +621,8 @@ describe('capabilitiesHelpers', () => {
   describe('checkReportCapabilities', () => {
     it('should check report capabilities', () => {
       const result = checkReportCapabilities(
+        authData(),
         ['report-local'],
-        mockProfile,
         mockReport,
         mockCapabilitiesConfig,
       );
@@ -515,9 +633,8 @@ describe('capabilitiesHelpers', () => {
   describe('checkAccountCapabilities', () => {
     it('should check account capabilities for same account', () => {
       const result = checkAccountCapabilities(
+        authData({ account: mockAccount, scopes: mockAccountAdminSelfScopes }),
         ['core-accounts-update'],
-        mockAccount,
-        mockProfile,
         mockAccount,
       );
       expect(result.success).toBe(true);
@@ -526,9 +643,8 @@ describe('capabilitiesHelpers', () => {
     it('should check account capabilities for different account', () => {
       const otherAccount = { id: 'account2' } as AccountWithMeta;
       const result = checkAccountCapabilities(
+        authData({ account: mockAccount, scopes: mockAccountAdminSelfScopes }),
         ['core-accounts-update'],
-        mockAccount,
-        mockProfile,
         otherAccount,
       );
       expect(result.success).toBe(false);

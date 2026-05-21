@@ -30,8 +30,8 @@ export const GroupCard = ({
   const joinGroup = openpeepsApi.addGroupMemberAction({ id: group.id });
 
   const canJoin = checkGroupCapabilities(
+    { profile: currentProfile, scopes: [] },
     ['core-groups-join'],
-    currentProfile,
     group,
   ).success;
 

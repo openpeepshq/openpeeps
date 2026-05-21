@@ -13,4 +13,4 @@ export const listRoles = (): Promise<Role[]> =>
     allpeepDb().then(({ db }) => rolesMapping.all(db));
 
 export const findRolesByCapabilities = (capabilities: string[]): Promise<Role[]> =>
-    allpeepDb().then(({ db }) => rolesMapping.all(db)).then(roles => roles.filter((role) => checkRoleCapabilities(capabilities, [role]).success));
+    allpeepDb().then(({ db }) => rolesMapping.all(db)).then(roles => roles.filter((role) => checkRoleCapabilities([role], capabilities).success));

@@ -47,7 +47,7 @@ export const listCommonGroups = async (
     profile1: ProfileWithMeta,
     profile2: ProfileWithMeta
 ): Promise<GroupWithMeta[]> => {
-    const groups = await listGroups(profile1);
+    const groups = await listGroups({ profile: profile1, scopes: [] });
 
     const profile1GroupIds = new Set(
         profile1.memberships?.map((m) => m.group.id) || []

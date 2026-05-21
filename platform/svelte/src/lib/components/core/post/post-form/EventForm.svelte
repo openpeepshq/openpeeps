@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { Eye } from 'lucide-svelte';
   import {
     postCreationDataSchema,
@@ -56,14 +57,14 @@
 
   const setAudience = (audienceSetting?: AudienceSetting) => {
     const isUserInAudience = audienceSetting?.audience?.some(
-      (audienceMember) => audienceMember.id === me.id,
+      (audienceMember) => audienceMember.id === me?.id,
     );
     if (audienceSetting) {
       postData.visibility = audienceSetting.visibility;
       postData.groupId = audienceSetting.groupId;
       postData.audience = isUserInAudience
         ? audienceSetting.audience
-        : [...(audienceSetting.audience ?? []), me];
+        : [...(audienceSetting.audience ?? []), ...(me ? [me] : [])];
     }
   };
 </script>

@@ -55,11 +55,11 @@ export const PostMenu = ({ post }: PostMenuProps) => {
   const [isFollowing, setIsFollowing] = React.useState(false);
   const { data: serverInfo } = openpeepsApi.useServerInfo();
   const canPinToGroup = post.group &&
-    checkGroupCapabilities(['core-groups-pin'], currentProfile, post.group).success
+    checkGroupCapabilities({ profile: currentProfile, scopes: [] }, ['core-groups-pin'], post.group).success
   const pinnedInGroup: boolean = post.group?.pinnedPostId === post.id
   const canPinGlobally: boolean = ['public', 'local'].includes(post.visibility) &&
       currentProfile &&
-      checkRoleCapabilities(['core-config-update'], currentProfile?.roles).success || false
+      checkRoleCapabilities(currentProfile?.roles, ['core-config-update']).success || false
   const pinnedGlobally: boolean = 
     serverInfo?.communityConfig?.content?.pinnedPost === post.id
   const {data: bookmarkedIdsStore, refetch: refetchBookmarkedIds} = openpeepsApi.useCurrentProfileBookmarkedIds();

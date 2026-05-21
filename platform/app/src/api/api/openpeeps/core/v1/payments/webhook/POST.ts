@@ -1,4 +1,4 @@
-import { Endpoint } from 'sveltekit-api';
+import { Endpoint, z } from 'sveltekit-api';
 import { forbidden, notFound } from '$lib/server/api/errors';
 import type { RequestEvent } from '@sveltejs/kit';
 import {
@@ -12,8 +12,9 @@ export const Error = {
   403: forbidden(),
   404: notFound(),
 };
+export const Output = z.object({ received: z.boolean() });
 
-export default new Endpoint({ Error }).handle(
+export default new Endpoint({ Output, Error }).handle(
   async (_, event: RequestEvent) => {
     if (!(await stripeMembershipActive())) {
       throw forbidden();

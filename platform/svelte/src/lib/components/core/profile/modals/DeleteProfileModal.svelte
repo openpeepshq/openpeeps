@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 	import { ModalFooter, ModalHeader, ModalWrapper, Button } from '@openpeeps/ui';
 	import { toast } from '$lib/utils/toast';

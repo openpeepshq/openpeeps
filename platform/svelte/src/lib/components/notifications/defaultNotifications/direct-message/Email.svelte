@@ -48,7 +48,7 @@
 	{#if isReply}
 		<Text style={emailStyles.paragraph}>
 			{t('emails.directMessage.title', {
-				profileName: profileName(locals.senderProfile as any)
+				profileName: profileName(locals.senderProfile as PublicProfile)
 			})}
 		</Text>
 

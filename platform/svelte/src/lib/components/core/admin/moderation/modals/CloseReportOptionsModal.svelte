@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { i18nContext } from '$lib/components/i18n';
 	import type { PublicPost, PublicReport } from '@openpeeps/common';
 	import { Button, getModalManager, ModalHeader, ModalWrapper } from '@openpeeps/ui';

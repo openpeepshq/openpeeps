@@ -11,4 +11,6 @@ export const Error = {
   404: notFound(),
 };
 
-export default new Endpoint({ Input, Output, Error }).handle(loginHandler);
+export default new Endpoint({ Input, Output, Error }).handle(
+  async (input, event) => loginHandler(input, event),
+);

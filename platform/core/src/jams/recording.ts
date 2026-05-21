@@ -1,6 +1,6 @@
 import type {
   JamRecordingWithMeta,
-  MediaAttachmentData,
+  MediaAttachment,
 } from '@openpeeps/common/types';
 import { hub } from '../events';
 import { findJamRecording } from './finders';
@@ -12,7 +12,7 @@ import { updateJamRecording } from './mutations';
  */
 export const completeJamRecording = async (
   recordingId: string,
-  attachment: MediaAttachmentData,
+  attachment: MediaAttachment,
 ): Promise<JamRecordingWithMeta | undefined> => {
   await updateJamRecording(recordingId, {
     attachment,

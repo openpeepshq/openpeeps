@@ -172,6 +172,11 @@ const mockCapabilitiesConfig: CapabilitiesConfig = {
     reporter: { add: [], remove: [] },
     reported: { add: [], remove: [] },
   },
+  accessToken: {
+    none: { add: [], remove: [] },
+    local: { add: [], remove: [] },
+    owner: { add: [], remove: [] },
+  },
 };
 
 describe('postHelpers', () => {
@@ -392,7 +397,10 @@ describe('postHelpers', () => {
   describe('canDeletePost', () => {
     it('should return true when profile has delete capability', () => {
       const result = canDeletePost(
-        mockProfile,
+        {
+          profile: mockProfile,
+          scopes: [{ scopeLevel: 'write', resource: { type: 'posts', id: '*' } }],
+        },
         mockPost,
         mockCapabilitiesConfig,
       );
@@ -410,7 +418,14 @@ describe('postHelpers', () => {
           attendee: { add: [], remove: [] },
         },
       };
-      const result = canDeletePost(mockProfile, mockPost, configWithoutDelete);
+      const result = canDeletePost(
+        {
+          profile: mockProfile,
+          scopes: [{ scopeLevel: 'write', resource: { type: 'posts', id: '*' } }],
+        },
+        mockPost,
+        configWithoutDelete,
+      );
       expect(result).toBe(false);
     });
   });

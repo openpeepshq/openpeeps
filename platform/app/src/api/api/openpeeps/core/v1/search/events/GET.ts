@@ -12,7 +12,7 @@ export const Output = searchResultSchema(publicPostSchema);
 
 export default new Endpoint({ Output, Query }).handle(async (query, event) => {
 
-    const profile = await ensureLocalProfile(event);
+    await ensureLocalProfile(event);
 
-    return searchEvents(query.q, profile, offsetInfiniteQueryParamsSchema.parse(query));
+    return searchEvents(query.q, event.locals.authData, offsetInfiniteQueryParamsSchema.parse(query));
 })

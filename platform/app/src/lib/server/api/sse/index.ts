@@ -63,7 +63,7 @@ const createEmitter = <EventType, EventName extends string>({
 export const produceStream = <
   EventType,
   EventName extends string &
-    (string extends EventName ? never : unknown) = 'message',
+  (string extends EventName ? never : unknown) = 'message',
 >({
   start,
   onStopped = async () => undefined,
@@ -78,7 +78,7 @@ export const produceStream = <
   }) => Promise<void | (() => Promise<void> | void)>;
   onStopped?: () => Promise<void>;
   ping?: number;
-}) => {
+}): ReadableStream<EventType> => {
   const context = createContext();
   const active = writable(false);
 

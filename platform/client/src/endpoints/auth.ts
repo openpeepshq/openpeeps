@@ -31,4 +31,8 @@ export const auth = (rawClient: FetchClient) => ({
         rawClient,
         '/auth/guest-pass',
     ),
+    refresh: allpeepPayloadEndpoint<TokenResponse, Record<string, never>>(
+        rawClient,
+        '/auth/refresh',
+    ),
 }); 

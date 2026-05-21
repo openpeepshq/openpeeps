@@ -59,7 +59,7 @@
     if (getCredentials().token) {
       if (stripeEnabled && !noRedirect) {
         paymentStatus.subscribe((result) => {
-          if (result.isSuccess && isStripeActive(result.data?.subscription)) {
+          if (result.isSuccess && isStripeActive(result.data)) {
             if (hasPayment) {
               goto('/welcome');
             } else {

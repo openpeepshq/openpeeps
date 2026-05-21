@@ -33,5 +33,8 @@ export const defaultCapabilitiesConfig: CapabilitiesConfigInput = {
     },
     report: {
         reporter: { add: ['core-reports-read'] },
-    }
+    },
+    accessToken: {
+        owner: { add: ['core-serviceTokens-delete'] },
+    },
 };

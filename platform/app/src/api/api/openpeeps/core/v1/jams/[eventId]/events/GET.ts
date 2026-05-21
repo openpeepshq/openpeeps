@@ -26,7 +26,7 @@ export const Error = {
 export default new Endpoint({ Param, Query, Output, Error }).handle(
   async (input, event: RequestEvent) => {
     const profile = await ensureProfileOrGuest(event, 'read', {
-      type: 'jam',
+      type: 'jams',
       id: input.eventId,
     });
 

@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { closeQueues } from '@openpeeps/core/jobs';
 import { registerAccountsCommand } from './accounts';
 import { registerSecretsCommand } from './secrets';
 import { registerEmailCommand } from './email';
@@ -28,5 +29,11 @@ export const cli = async () => {
   registerStatsCommand(program);
   registerCommunityConfigCommand(program);
 
-  await program.parseAsync(process.argv);
+  try {
+    await program.parseAsync(process.argv);
+  } finally {
+    await closeQueues().catch((error: unknown) => {
+      console.error('Failed to close queue connections:', error);
+    });
+  }
 };

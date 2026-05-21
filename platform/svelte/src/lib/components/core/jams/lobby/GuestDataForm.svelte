@@ -34,7 +34,7 @@
 	}: Props = $props();
 
 	const onSubmit = async () => {
-		await getGuestPass({ ...guestData, resource: { type: 'jam', id: jamPost.id } });
+		await getGuestPass({ ...guestData, resource: { type: 'jams', id: jamPost.id } });
 		window.location.reload();
 	};
 </script>

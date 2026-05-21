@@ -1,14 +1,15 @@
 import {
   profileWithMetaSchema,
+  type AccessTokenWithMeta,
   type AccountWithMeta,
   type Authorization,
   type GroupWithMeta,
-  type Identity,
   type PostWithMeta,
   type ProfileWithMeta,
   type PublicProfile,
   type ReportWithMeta,
   type Resource,
+  type ScopeLevel,
 } from '@openpeeps/common/types';
 
 import { findProfile } from '@openpeeps/core/profiles';
@@ -16,11 +17,13 @@ import { findAccount } from '@openpeeps/core/accounts';
 import type { RequestEvent } from '@sveltejs/kit';
 import { authNeeded, forbidden } from '$lib/server/api/errors';
 import {
+  checkAccessTokenCapabilities,
   checkGroupCapabilities,
   checkPostCapabilities,
   checkProfileCapabilities,
   checkReportCapabilities,
   checkRoleCapabilities,
+  scopeMatches,
 } from '@openpeeps/common/lib';
 import { capabilitiesConfig, config } from '@openpeeps/core/config';
 import { checkSubscription } from '@openpeeps/core/stripe';
@@ -28,11 +31,7 @@ import { checkSubscription } from '@openpeeps/core/stripe';
 export const loadCurrentProfile = async (
   authorization: Authorization,
 ): Promise<ProfileWithMeta | undefined> => {
-  const id = authorization.identities.find(
-    (identity: Identity) =>
-      identity.type === 'current-profile' || identity.type === 'guest-profile',
-  )?.id;
-
+  const id = authorization.identities.profile;
   if (id) {
     const profile = await findProfile(id);
     if (profile && !profile.deletedAt) {
@@ -51,10 +50,7 @@ export const loadCurrentProfile = async (
 export const loadCurrentAccount = async (
   authorization: Authorization,
 ): Promise<AccountWithMeta | undefined> => {
-  const id = authorization.identities.find(
-    (identity: Identity) => identity.type === 'local',
-  )?.id;
-
+  const id = authorization.identities.account;
   if (id) {
     const account = await findAccount(id);
     if (account && !account.deletedAt) {
@@ -78,7 +74,7 @@ export const ensureRoleCapabilities = async (
 ) => {
   const profile = await ensureLocalProfile(event);
 
-  const { success } = checkRoleCapabilities(capabilities, profile.roles);
+  const { success } = checkRoleCapabilities(profile.roles, capabilities);
 
   if (!success) {
     throw forbidden();
@@ -92,9 +88,13 @@ export const ensureGroupCapabilities = async (
   capabilities: string[],
   group: GroupWithMeta,
 ) => {
-  const profile = await ensureProfileOrPublicCommunity(event);
+  await ensureAccess(event);
 
-  const { success, missingCapabilities } = checkGroupCapabilities(capabilities, profile, group);
+  const { success, missingCapabilities } = checkGroupCapabilities(
+    event.locals.authData,
+    capabilities,
+    group,
+  );
 
   if (!success) {
     throw forbidden(`Missing capabilities: ${missingCapabilities.join(', ')}`);
@@ -111,10 +111,10 @@ export const ensurePostCapabilities = async (
     return;
   }
 
-  const profile = await ensureProfileOrPublicCommunity(event);
+  await ensureAccess(event);
   const { success, missingCapabilities } = checkPostCapabilities(
+    event.locals.authData,
     capabilities,
-    profile,
     post,
     await capabilitiesConfig(),
   );
@@ -129,10 +129,10 @@ export const ensureProfileCapabilities = async (
   targetProfile: PublicProfile,
   capabilities: string[],
 ) => {
-  const profile = await ensureProfileOrPublicCommunity(event);
+  await ensureAccess(event);
   const { success, missingCapabilities } = checkProfileCapabilities(
+    event.locals.authData,
     capabilities,
-    profile,
     targetProfile,
     await capabilitiesConfig(),
   );
@@ -147,11 +147,29 @@ export const ensureReportCapabilities = async (
   report: ReportWithMeta,
   capabilities: string[],
 ) => {
-  const profile = await ensureProfileOrPublicCommunity(event);
+  await ensureAccess(event);
   const { success, missingCapabilities } = checkReportCapabilities(
+    event.locals.authData,
     capabilities,
-    profile,
     report,
+    await capabilitiesConfig(),
+  );
+
+  if (!success) {
+    throw forbidden(`Missing capabilities: ${missingCapabilities.join(', ')}`);
+  }
+};
+
+export const ensureAccessTokenCapabilities = async (
+  event: RequestEvent,
+  accessToken: AccessTokenWithMeta,
+  capabilities: string[],
+) => {
+  await ensureAccess(event);
+  const { success, missingCapabilities } = checkAccessTokenCapabilities(
+    event.locals.authData,
+    capabilities,
+    accessToken,
     await capabilitiesConfig(),
   );
 
@@ -169,7 +187,7 @@ const ensureProfileMaybe = async (
   const profile = event.locals.currentProfile;
   const account = event.locals.currentAccount;
 
-  if (!(profile?.type === 'local') && !publiclyAccessible) {
+  if (!(profile?.type === 'local') && !isService(event.locals.authorization) && !publiclyAccessible) {
     throw authNeeded('Valid profile needed');
   }
 
@@ -183,65 +201,53 @@ const ensureProfileMaybe = async (
 export const ensureLocalProfile = async (event: RequestEvent, subscriptionRequired: boolean = true): Promise<ProfileWithMeta> =>
   (await ensureProfileMaybe(event, { publiclyAccessible: false, subscriptionRequired }))!;
 
-export const ensureProfileOrPublicCommunity = async (event: RequestEvent, subscriptionRequired: boolean = true) => {
+export const ensureAccess = async (event: RequestEvent, subscriptionRequired: boolean = true) => {
   const coreConfig = await config();
   return ensureProfileMaybe(event, { publiclyAccessible: coreConfig.server.publicContent, subscriptionRequired });
 };
 
-export const isService = (authorization: Authorization) => {
-  return authorization.identities.find((i) => i.type === 'service');
-};
-
-export const scopeMatches = ({
-  authorization,
-  scope,
-  resource,
-}: {
-  authorization?: Authorization | null;
-  scope?: string;
-  resource: Resource;
-}) => {
-  if (!authorization?.scopes) {
-    return false;
-  }
-  return !!authorization.scopes.find(
-    (s) =>
-      (s.scope === scope || !scope) &&
-      (s.resource.id === resource.id || s.resource.id === '*') &&
-      s.resource.type === resource.type,
-  );
-}
+const isService = (authorization: Authorization) =>
+  !!authorization.identities.service;
 
 export const serviceScopeMatches = ({
   authorization,
-  scope,
+  scopeLevel,
   resource,
 }: {
   authorization: Authorization;
-  scope?: string;
+  scopeLevel?: ScopeLevel;
   resource: Resource;
 }) => {
-  return isService(authorization) && scopeMatches({
-    authorization,
-    scope,
-    resource,
-  });
+  return (
+    isService(authorization) &&
+    scopeMatches({
+      scopes: authorization.scopes,
+      requiredScope: {
+        scopeLevel,
+        resource,
+      },
+    })
+  );
 };
 
 export const ensureProfileOrGuest = async (
   event: RequestEvent,
-  scope?: string,
+  scopeLevel?: ScopeLevel,
   resource?: Resource,
 ): Promise<ProfileWithMeta> => {
   if (
     event.locals.currentProfile && (
       event.locals.currentProfile.type === 'local' ||
       (event.locals.currentProfile.type === 'guest' &&
-        !scope || !resource || scopeMatches({
-          authorization: event.locals.authorization,
-          scope,
-          resource,
-        }))
+        (!scopeLevel ||
+          !resource ||
+          scopeMatches({
+            scopes: event.locals.authorization?.scopes,
+            requiredScope: {
+              scopeLevel,
+              resource,
+            },
+          })))
     )
   ) {
     return event.locals.currentProfile;
@@ -250,25 +256,26 @@ export const ensureProfileOrGuest = async (
   }
 };
 
-export const ensureServiceScope = async (
+export const ensureScope = async (
   event: RequestEvent,
-  scope: string | undefined,
+  scopeLevel: ScopeLevel | undefined,
   resource: Resource,
 ) => {
   if (
-    !event.locals.authorization.identities.find((i) => i.type === 'service')
-  ) {
-    throw authNeeded('Service key needed');
-  }
-  if (
     !scopeMatches({
-      authorization: event.locals.authorization,
-      scope,
-      resource,
+      scopes: event.locals.authorization?.scopes,
+      requiredScope: {
+        scopeLevel,
+        resource,
+      },
     })
   ) {
+    console.error(
+      `[auth] Scope denied: ${scopeLevel ?? 'any'} on ${resource.type}:${resource.id}`,
+      JSON.stringify(event.locals.authorization),
+    );
     throw forbidden(
-      `Scope ${scope ?? ''} for ${resource.type} - ${resource.id} not authorized. Authorization: ${JSON.stringify(event.locals.authorization)}`,
+      'auth.scope.not-authorized',
     );
   }
 };

@@ -12,3 +12,4 @@ export * from './roles';
 export * from './stats';
 export * from './reports';
 export * from './groups';
+export * from './serviceAccessTokens';

@@ -15,7 +15,7 @@
   );
   const me = getCurrentProfile();
 
-  const divider = $derived<number>(() => {
+  const divider = $derived.by((): number => {
     const count = profiles?.length ?? 0;
 
     if (count <= 1) return 1;
@@ -34,11 +34,14 @@
 </script>
 
 {#if profiles?.length! <= 2}
-  <Avatar
-    profile={profiles?.find((u) => u.id !== me.id)}
-    borderless
-    size={avatarSize}
-  />
+  {@const profile = profiles?.find((u) => u.id !== me?.id) ?? profiles?.[0]}
+  {#if profile}
+    <Avatar
+      profile={profile}
+      borderless
+      size={avatarSize}
+    />
+  {/if}
 {:else}
   <div
     style={`width: ${avatarSize}rem; height: ${avatarSize}rem; min-width: ${avatarSize}rem !important;`}

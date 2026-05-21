@@ -29,8 +29,10 @@
 		}
 	});
 
-	const handleSubmit = () =>
-		updateSettings({
+	const handleSubmit = () => {
+		if (!currentProfile) return;
+
+		return updateSettings({
 			id: currentProfile.id,
 			language,
 		})
@@ -45,6 +47,7 @@
 			})
 			.then(() => sleep(5))
 			.then(() => window.location.reload());
+	};
 </script>
 
 <div class="flex flex-col gap-4 p-3">

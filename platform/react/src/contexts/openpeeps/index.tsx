@@ -5,7 +5,11 @@ import { openpeepsClient, type OpenpeepsClientOptions } from '@openpeeps/client'
 import type { CredentialsStore } from '../../auth/credentials/types';
 import { buildOpenpeepsApi } from './hooks';
 import { CredentialsStoreProvider } from '../credentialsStore';
-import type { ProfileWithMeta, PublicAccount } from '@openpeeps/common';
+import {
+  jwtHasRemainingValidityAtLeast,
+  type ProfileWithMeta,
+  type PublicAccount,
+} from '@openpeeps/common';
 
 const OpenpeepsContext = createContext<OpenpeepsContextValue | null>(null);
 
@@ -51,6 +55,38 @@ export const OpenpeepsProvider: React.FC<{
     };
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    const refreshIfExpiringSoon = async () => {
+      const token = (await credentialsStore.get())?.token;
+      if (!token?.trim()) return;
+      if (!jwtHasRemainingValidityAtLeast(token, 1)) return;
+      if (jwtHasRemainingValidityAtLeast(token, 60 * 60)) return;
+      const res = await client.auth.refresh({});
+      if (!('data' in res)) return;
+      await credentialsStore.set({ token: res.data.token });
+      queryClient.invalidateQueries({ queryKey: ['profiles', 'current'] });
+      const profile = await client.profiles.current.read().then((r) =>
+        'data' in r ? r.data : undefined,
+      );
+      setCurrentProfile(profile);
+      const account = await client.accounts.current.read().then((r) =>
+        'data' in r ? r.data : undefined,
+      );
+      setCurrentAccount(account);
+    };
+
+    void refreshIfExpiringSoon();
+    const id = window.setInterval(() => void refreshIfExpiringSoon(), 60_000);
+    const onVis = () => {
+      if (document.visibilityState === 'visible') void refreshIfExpiringSoon();
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, [client, credentialsStore, queryClient]);
 
   return (
     <OpenpeepsContext.Provider

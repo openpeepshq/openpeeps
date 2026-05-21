@@ -13,8 +13,8 @@ export const Error = {
 
 export default new Endpoint({ Output, Error }).handle(
   async (_, event: RequestEvent) => {
-    const profile = await ensureLocalProfile(event);
+    await ensureLocalProfile(event);
 
-    return getUnseenPostCounts(profile);
+    return getUnseenPostCounts(event.locals.authData);
   },
 );

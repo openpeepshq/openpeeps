@@ -13,7 +13,7 @@
 	const { t } = i18nContext();
 	let groupHandle = $state('');
 
-	let groupQuery;
+	let groupQuery = groupByHandleStore(groupHandle);
 	$effect(() => {
 		groupQuery = groupByHandleStore(groupHandle);
 	});

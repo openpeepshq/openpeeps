@@ -143,7 +143,10 @@ export const imageAttachmentMetaSmallSchema = z.object({
 export const unknownAttachmentSchema = z.object({
   description: z.string().optional().nullable(),
   id: z.string(),
-  meta: z.record(z.record(z.union([z.number(), z.string()]))),
+  meta: z.record(
+    z.string(),
+    z.record(z.string(), z.union([z.number(), z.string()])),
+  ),
   preview_url: z.string(),
   remote_url: z.string().optional().nullable(),
   text_url: z.string().optional().nullable(),

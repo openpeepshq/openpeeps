@@ -4,10 +4,11 @@
   import { i18nContext } from '$lib/components/i18n';
   import { validateEmailAction } from '$lib/api';
   import { toaster } from '$lib/utils';
-  import { getCurrentIdentity } from '$lib/auth';
+  import { getCurrentAuthData, getCurrentIdentity } from '$lib/auth';
   import { canCreatePostType } from '@openpeeps/common';
 
   const { profile, account } = getCurrentIdentity();
+  const authData = getCurrentAuthData();
 
   const { t } = i18nContext();
 
@@ -32,7 +33,7 @@
 </script>
 
 <div class="flex flex-col gap-4">
-  {#if account && profile && !account?.emailValidated && !canCreatePostType(profile, 'note')}
+  {#if account && profile && !account?.emailValidated && !canCreatePostType(authData, 'note')}
     <Info
       text={t('infos.emailNotVerified.text')}
       title={t('infos.emailNotVerified.title')}

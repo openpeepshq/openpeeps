@@ -7,7 +7,7 @@
     "@openpeeps/common": "workspace:^",
     "@openpeeps/fetch-client": "workspace:^",
     "validator": "^13.11.0",
-    "zod": "^3.23.8"
+    "zod": "^4.3.6"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -33,7 +33,7 @@
   "scripts": {
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
-    "clean": "rm -f tsconfig.tsbuildinfo dist",
+    "clean": "rm -rf tsconfig.tsbuildinfo dist",
     "build": "tsc && tsc-alias",
     "build:watch": "tsc && tsc-alias && (concurrently \"tsc -w\" \"tsc-alias -w\")",
     "prepublishOnly": "pnpm build"

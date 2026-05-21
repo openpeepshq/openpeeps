@@ -1,5 +1,5 @@
 import { allpeepDb } from "../db";
-import { ProfileWithMeta, PublicProfile } from "@openpeeps/common/types";
+import { AuthorizationData, PublicProfile } from "@openpeeps/common/types";
 import { groupsMapping } from "./mapping";
 import { profilesMapping, membersRelation } from "../profiles/mapping";
 import { canSeeGroupFilter } from "./helpers";
@@ -9,9 +9,9 @@ export const findGroup = (id: string) => allpeepDb().then(db => groupsMapping.fi
 export const findGroupByHandle = (handle: string) => allpeepDb().then(db => groupsMapping.findOneBy(db.db, { matches: { handle } }));
 export const existsGroupByHandle = (handle: string) => allpeepDb().then(db => groupsMapping.ignoreSoftDelete().findOneBy(db.db, { matches: { handle } })).then(Boolean);
 
-export const listGroups = (profile?: ProfileWithMeta) =>
+export const listGroups = (authData: AuthorizationData) =>
     allpeepDb().then(db => groupsMapping
-        .filter(canSeeGroupFilter(profile))
+        .filter(canSeeGroupFilter(authData.profile))
         .sort([['DOC.lastPostAt', 'DESC']])
         .all(db.db));
 

@@ -16,7 +16,7 @@ import {
 } from '~/components/icons';
 import { useOpenpeeps } from '@openpeeps/react';
 import { ThemedText } from '~/components/ui/themed-text';
-import { Profile } from '@openpeeps/common';
+import { Profile, PublicProfile } from '@openpeeps/common';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 
 type DraftMessageProps = MainScreenProps<'DraftMessage'>;
@@ -36,9 +36,13 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
     }
     try {
       setIsSending(true);
+      const audience = [...members, currentProfile as Profile].map(profile => ({
+        ...profile,
+        memberships: [],
+      })) as PublicProfile[];
       sendMessage({
         visibility: 'direct',
-        audience: [...members, currentProfile as Profile],
+        audience,
         data: {
           type: 'note',
           content: content,

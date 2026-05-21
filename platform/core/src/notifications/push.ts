@@ -1,5 +1,6 @@
 import {
   Account,
+  PushPayload,
   NotificationStats,
   ProfileWithMeta,
   PushNotification,
@@ -15,6 +16,8 @@ import {
 import { getNotificationStats } from './finders';
 import { ApnsClient, Notification as IOSPushNotification } from 'apns2';
 import firebase from 'firebase-admin';
+import { jwtUtil } from '../jwt';
+import { uuidv7 } from 'uuidv7';
 
 const log = logger('core:notifications:push');
 
@@ -33,12 +36,12 @@ export const getIOSPushClient = async () => {
 
 const sendWebPushNotification = (
   subscription: PushSubscription,
-  payload: string,
+  payload: PushPayload,
 ) =>
   config().then(async (config) =>
     webPush.sendNotification(
       subscription as webPush.PushSubscription,
-      payload,
+      JSON.stringify(payload),
       {
         vapidDetails: {
           privateKey: config.vapid.privateKey || '',
@@ -50,11 +53,41 @@ const sendWebPushNotification = (
     ),
   );
 
+const sendWebhookPushNotification = async (
+  subscription: Extract<PushSubscription, { type: 'webhook' }>,
+  payload: PushPayload,
+) => {
+  const jwt = await jwtUtil();
+  const token = await jwt.sign({
+    payload: {
+      type: 'pushNotification',
+      payload,
+    },
+    expirationTime: '5m',
+    id: uuidv7(),
+  });
+
+  const response = await fetch(subscription.url, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      token,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Webhook push failed with status ${response.status}`);
+  }
+};
+
 const sendAppIOSPushNotifications = async (
   subscriptions: Extract<PushSubscription, { type: 'apn' }>[],
-  payload: string,
+  payload: PushPayload,
   notification: PushNotification | undefined,
 ) => {
+  const serializedPayload = JSON.stringify(payload);
 
   const { iosClient, Notification } = await getIOSPushClient();
 
@@ -63,7 +96,7 @@ const sendAppIOSPushNotifications = async (
       new Notification(apnToken, {
         badge: Number(notification?.options?.badge || '1'),
         alert: notification?.title,
-        data: { payload },
+        data: { payload: serializedPayload },
       }),
   );
 
@@ -72,16 +105,17 @@ const sendAppIOSPushNotifications = async (
 
 const sendAppFCMPushNotifications = async (
   subscriptions: Extract<PushSubscription, { type: 'fcm' }>[],
-  payload: string,
+  payload: PushPayload,
   notification: PushNotification,
 ) => {
+  const serializedPayload = JSON.stringify(payload);
   const tokens = subscriptions.map((sub) => sub.fcmToken);
   if (firebase.apps.length === 0) {
     return;
   }
   const result = await firebase.messaging().sendEachForMulticast({
     tokens,
-    data: { payload },
+    data: { payload: serializedPayload },
     apns: {
       payload: {
         aps: {
@@ -107,17 +141,17 @@ export const doPush = async (
     return;
   }
 
-  const payload = JSON.stringify({
+  const payloadData = {
     notification,
     notificationStats,
-  });
+  };
 
   const subscriptions = await listPushSubscriptionsByAccount(account);
 
   for (const subscription of subscriptions
     .filter((sub) => sub.type === 'web')
     .filter(Boolean)) {
-    await sendWebPushNotification(subscription, payload)
+    await sendWebPushNotification(subscription, payloadData)
       .catch((error) => {
         log.error(error);
         return deletePushSubscription(subscription.id);
@@ -125,11 +159,22 @@ export const doPush = async (
       .catch(() => undefined);
   }
 
+  for (const subscription of subscriptions.filter(
+    (sub): sub is Extract<PushSubscription, { type: 'webhook' }> =>
+      sub.type === 'webhook',
+  )) {
+    await sendWebhookPushNotification(subscription, payloadData)
+      .catch((error) => {
+        log.error(error);
+        return undefined;
+      });
+  }
+
   await sendAppIOSPushNotifications(
     subscriptions.filter(
       (sub) => sub.type === 'apn',
     ),
-    payload,
+    payloadData,
     notification,
   );
 
@@ -137,7 +182,7 @@ export const doPush = async (
     subscriptions.filter(
       (sub) => sub.type === 'fcm',
     ),
-    payload,
+    payloadData,
     notification,
   );
 
@@ -158,10 +203,10 @@ export const sendTestPushNotification = async (
     },
   };
 
-  const payload = JSON.stringify({
+  const payload: PushPayload = {
     notification,
     notificationStats,
-  });
+  };
   const subscriptions = await listPushSubscriptionsByAccount(account);
   const subscription = subscriptions.filter(
     (s) => s.type === 'web'

@@ -1,7 +1,8 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { getPageHeaderStore } from '@openpeeps/svelte/stores';
-  import { groupByHandleStore, me } from '@openpeeps/svelte/api';
+  import { groupByHandleStore } from '@openpeeps/svelte/api';
+  import { getCurrentAuthData } from '@openpeeps/svelte/auth';
   import { checkGroupCapabilities, groupName } from '@openpeeps/common/lib';
   import type { GroupWithMeta } from '@openpeeps/common/types';
   import {
@@ -15,12 +16,14 @@
   const pageHeaderStore = getPageHeaderStore();
 
   let group: GroupWithMeta | undefined = $derived($groupQuery.data);
+  const authData = getCurrentAuthData();
   $effect(() => {
     pageHeaderStore.set({
       title: `${groupName(group)} - Members`,
       actions:
         group &&
-        checkGroupCapabilities(['core-groups-addMember'], $me, group).success
+        checkGroupCapabilities(authData, ['core-groups-addMember'], group)
+          .success
           ? presetProps(AddMembersButton, { group })
           : undefined,
     });

@@ -5,9 +5,9 @@
   import { joinGroupMutation } from '$lib/api';
   import { checkGroupCapabilities } from '@openpeeps/common';
   import { i18nContext } from '@openpeeps/svelte/components';
-  import { getCurrentProfile } from '$lib/auth';
+  import { getCurrentAuthData } from '$lib/auth';
 
-  const me = getCurrentProfile();
+  const authData = getCurrentAuthData();
   interface Props {
     group: GroupWithMeta;
   }
@@ -20,7 +20,8 @@
   let joined = $state(false);
 
   let canJoin = $derived(
-    checkGroupCapabilities(['core-groups-join'], me, group).success && !joined,
+    checkGroupCapabilities(authData, ['core-groups-join'], group).success &&
+      !joined,
   );
 
   const action = () =>

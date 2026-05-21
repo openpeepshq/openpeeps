@@ -9,7 +9,8 @@
   const currentProfile = getCurrentProfile();
 
   if (
-    checkRoleCapabilities(['core-groups-create'], currentProfile?.roles).success
+    checkRoleCapabilities(currentProfile?.roles ?? [], ['core-groups-create'])
+      .success
   ) {
     setPlusButtonActions({
       title: t('groups.new'),

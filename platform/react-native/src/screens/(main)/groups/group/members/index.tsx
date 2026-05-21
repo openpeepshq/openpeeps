@@ -129,6 +129,7 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
             followersCount: 0,
             followingCount: 0,
           },
+          memberships: [],
         }),
       ),
     )

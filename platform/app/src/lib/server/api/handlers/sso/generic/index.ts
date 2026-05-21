@@ -1,6 +1,5 @@
 import jp from 'jsonpath';
 import { interpolate } from '@openpeeps/common/lib';
-import { jwtUtil } from '@openpeeps/core/jwt';
 import { z } from 'sveltekit-api';
 import {
   findNewFreeHandle,
@@ -11,14 +10,13 @@ import { createAccount, findAccountByEmail } from '@openpeeps/core/accounts';
 import {
   type CoreConfig,
   accountCreationDataSchema,
-  type Profile,
 } from '@openpeeps/common/types';
-import { createAuthorization } from '@openpeeps/core/auth';
 import { config } from '@openpeeps/core/config';
-import { authNeeded } from '$lib/server/api/errors';
+import { authNeeded, forbidden } from '$lib/server/api/errors';
 import { uuidv4 } from 'uuidv7';
-import type { ProfileData, TokenResponse } from '@openpeeps/common/types';
+import type { ProfileData, ProfileWithMeta, TokenResponse } from '@openpeeps/common/types';
 import { logger } from '@openpeeps/core/log';
+import { createSignedProfileAccessToken } from '@openpeeps/core/accessTokens';
 
 const log = logger('app:sso');
 
@@ -95,7 +93,7 @@ export const handle = async (
 
       const existingAccount = await findAccountByEmail(email.toLowerCase());
       if (existingAccount) {
-        let profile: Profile = (
+        let profile: ProfileWithMeta = (
           await listProfilesByAccount(existingAccount)
         )[0];
         if (!profile && genericSSOConfig.createProfiles) {
@@ -110,12 +108,13 @@ export const handle = async (
           );
         }
 
-        const authorization = createAuthorization(
-          existingAccount.id,
-          profile?.id,
-        );
-        const jwt = await jwtUtil();
-        const token = await jwt.sign(authorization);
+
+        const token = await createSignedProfileAccessToken({ account: existingAccount, profile, name: 'sso', expirationTime: '1w' })
+          .then((accessToken) => accessToken.signedToken);
+
+        if (!token) {
+          throw forbidden('sso.access-token-creation-failed');
+        }
 
         return {
           success: true,
@@ -142,9 +141,12 @@ export const handle = async (
         }),
       );
 
-      const authorization = createAuthorization(account.id, profile?.id);
-      const jwt = await jwtUtil();
-      const token = await jwt.sign(authorization);
+      const token = await createSignedProfileAccessToken({ account, profile, name: 'sso', expirationTime: '1w' })
+        .then((accessToken) => accessToken.signedToken);
+
+      if (!token) {
+        throw forbidden('sso.access-token-creation-failed');
+      }
 
       return {
         success: true,

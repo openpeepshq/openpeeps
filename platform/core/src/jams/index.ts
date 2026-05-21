@@ -1,8 +1,8 @@
 import {
+  type AuthorizationData,
   type MuteParticipantRequest,
   type PostWithMeta,
   type Profile,
-  ProfileWithMeta,
 } from '@openpeeps/common/types';
 import { roomService, stopRecording } from './livekit';
 import { findPost } from '../posts';
@@ -26,7 +26,7 @@ export * from './finders';
 export * from './recording';
 
 
-export const listLiveJams = async (profile?: ProfileWithMeta): Promise<PostWithMeta[]> => {
+export const listLiveJams = async (authData: AuthorizationData): Promise<PostWithMeta[]> => {
   const rs = await roomService();
 
   if (rs === undefined) {
@@ -38,7 +38,7 @@ export const listLiveJams = async (profile?: ProfileWithMeta): Promise<PostWithM
   const config = await capabilitiesConfig();
 
   return Promise.all(rooms.map(async (room) => findPost(room.name))).then(
-    (posts) => posts.filter(Boolean).filter(canReadPost(config, profile))
+    (posts) => posts.filter(Boolean).filter(canReadPost(config, authData))
   ) as Promise<PostWithMeta[]>
 
 };

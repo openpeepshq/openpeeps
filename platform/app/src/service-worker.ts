@@ -6,7 +6,7 @@ import { precacheAndRoute } from 'workbox-precaching';
 import * as ssw from '$service-worker';
 import { logger } from '@openpeeps/svelte/log';
 import type {
-  NotificationOptionsType,
+  NotificationOptions as PushNotificationOptions,
   PushMessage,
 } from '@openpeeps/common/types';
 
@@ -24,7 +24,7 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'INVALIDATE_QUERIES_PORT') {
     refreshPort = event.ports[0];
   }
- 
+
   if (event.data && event.data.type === 'GET_PENDING_DEEPLINK') {
     if (pendingDeepLink) {
       try {
@@ -52,10 +52,19 @@ self.addEventListener('push', async (event) => {
   if (notificationStats.unseen && self.navigator.setAppBadge) {
     await self.navigator.setAppBadge(notificationStats.unseen);
   }
+  const notificationOptions = notification.options
+    ? {
+      ...notification.options,
+      badge:
+        typeof notification.options.badge === 'number'
+          ? String(notification.options.badge)
+          : notification.options.badge,
+    }
+    : undefined;
   event.waitUntil(
     self.registration.showNotification(
       notification.title || '',
-      notification.options,
+      notificationOptions,
     ),
   );
 });
@@ -63,7 +72,8 @@ self.addEventListener('push', async (event) => {
 self.addEventListener('notificationclick', async (event) => {
   let action =
     event.action ||
-    (event.notification as NotificationOptionsType).actions?.[0]?.action ||
+    ((event.notification.data ?? {}) as PushNotificationOptions).actions?.[0]
+      ?.action ||
     '';
 
   const dataUrl = (event.notification.data as { url?: string } | undefined)
@@ -112,7 +122,7 @@ self.addEventListener('notificationclick', async (event) => {
                     type: 'NAVIGATE_TO',
                     url: target,
                   });
-                } catch {}
+                } catch { }
 
                 if (client.url !== target && 'navigate' in client) {
                   const c = await client
@@ -134,7 +144,7 @@ self.addEventListener('notificationclick', async (event) => {
           const timeoutMs = 3000;
           const intervalMs = 300;
 
-          
+
           async function tryNotifyClient(): Promise<void> {
             const list = await self.clients.matchAll({
               type: 'window',
@@ -147,10 +157,10 @@ self.addEventListener('notificationclick', async (event) => {
                     type: 'NAVIGATE_TO',
                     url: target,
                   });
-                } catch {}
+                } catch { }
                 try {
                   await c.focus();
-                } catch {}
+                } catch { }
                 return;
               }
             }
@@ -162,7 +172,7 @@ self.addEventListener('notificationclick', async (event) => {
 
           return tryNotifyClient();
         })
-        .catch(() => {}),
+        .catch(() => { }),
     );
   }
 });

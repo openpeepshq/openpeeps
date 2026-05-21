@@ -9,12 +9,12 @@ export const Output = publicPostSchema.array().array();
 
 export default new Endpoint({ Output }).handle(
   async (_, event: RequestEvent) => {
-    const profile = await ensureLocalProfile(event);
+    await ensureLocalProfile(event);
 
-    const lastPosts = await listConversationLeaves(profile);
+    const lastPosts = await listConversationLeaves(event.locals.authData);
 
     return Promise.all(
-      lastPosts.map((post) => getConversationByEnd(post, profile)),
+      lastPosts.map((post) => getConversationByEnd(post, event.locals.authData)),
     ).then((conversations) =>
       getUniqueBy(conversations, (conversation) => conversation[0].id),
     );

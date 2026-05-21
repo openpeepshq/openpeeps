@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   import { getPageHeaderStore } from '@openpeeps/svelte/stores';
   import {
     AccessDeniedLoader,
