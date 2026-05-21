@@ -64,10 +64,12 @@ export const PostMenu = ({ post }: PostMenuProps) => {
     serverInfo?.communityConfig?.content?.pinnedPost === post.id
   const {data: bookmarkedIdsStore, refetch: refetchBookmarkedIds} = openpeepsApi.useCurrentProfileBookmarkedIds();
 
-  const isBookmarked = bookmarkedIdsStore?.includes(post.id);
+  const bookmarkPostId = post.repost?.id ?? post.id;
 
-  const bookmarkPost = openpeepsApi.bookmarkPostAction({id: post.id});
-  const unbookmarkPost = openpeepsApi.unbookmarkPostAction({id: post.id});
+  const isBookmarked = bookmarkedIdsStore?.includes(bookmarkPostId);
+
+  const bookmarkPost = openpeepsApi.bookmarkPostAction({id: bookmarkPostId});
+  const unbookmarkPost = openpeepsApi.unbookmarkPostAction({id: bookmarkPostId});
 
   const deletePost = openpeepsApi.deletePostAction({
     id: post.id,
