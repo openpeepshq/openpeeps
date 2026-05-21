@@ -30,7 +30,7 @@ COPY --from=audiowaveform /usr/local/bin/audiowaveform /usr/local/bin/audiowavef
 
 ADD . .
 
-RUN npm i -g pnpm
+RUN corepack enable
 RUN node scripts/generate-changelog.mjs
 RUN (cp ./CHANGELOG.md platform/app/src/routes/docs/admin/release-notes/+page.svx )
 RUN pnpm --filter @openpeeps/app... install

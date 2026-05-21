@@ -3,3 +3,27 @@ packages:
   - "platform/*"
 
 linkWorkspacePackages: deep
+
+overrides:
+  "@types/react": "19.2.14"
+  "@types/react-dom": "19.2.3"
+  "@tanstack/react-query": "5.90.16"
+
+allowBuilds:
+  "@evilmartians/lefthook": true
+  "@firebase/util": true
+  "@sentry/cli": true
+  "@sveltejs/kit": true
+  bcrypt: true
+  canvas: true
+  core-js: true
+  core-js-pure: true
+  esbuild: true
+  hyochan-welcome: true
+  msgpackr-extract: true
+  protobufjs: true
+  sharp: true
+  web-audio-api: true
+
+patchedDependencies:
+  sveltekit-api: patches/sveltekit-api.patch
