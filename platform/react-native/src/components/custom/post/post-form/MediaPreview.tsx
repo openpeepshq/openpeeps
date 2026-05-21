@@ -81,13 +81,21 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
                 attachment={attachment}
                 isActive={index === currentImageIndex}
               />
-            ) : (
-              attachment.type === 'document' && (
-                <View>
-                  <DocumentAttachment attachment={attachment} />
-                </View>
-              )
-            )}
+            ) : attachment.type === 'image' ||
+              (attachment.type === 'document' &&
+                attachmentHasRenderableImage(attachment)) ? (
+              <View className="overflow-hidden rounded-lg w-full aspect-square md:size-96">
+                <CachedImage
+                  url={attachment.previewUrl || attachment.url}
+                  className="w-full h-full"
+                  resizeMode="cover"
+                />
+              </View>
+            ) : attachment.type === 'document' ? (
+              <View>
+                <DocumentAttachment attachment={attachment} />
+              </View>
+            ) : null}
             <TouchableOpacity
               onPress={() => removeAttachment(index)}
               className="absolute top-4 mt-3 right-8 w-8 h-8 rounded-full bg-background/50 items-center justify-center">
