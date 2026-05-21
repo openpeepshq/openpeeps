@@ -77,6 +77,10 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>,) => ({
     // updatei18nAction: payloadMutation(client.admin.i18n.update, [['admin', 'i18n']]),
     useAllGroupsList: () => apiHook(client.admin.groups.list),
     useEmailQueueStats: () => apiHook(client.admin.diagnostics.email.queueStats),
+    useJobDetail: (queue: string, jobId: string) =>
+        apiHook(client.admin.diagnostics.jobs.jobDetail, {
+            pathParams: { queue, jobId },
+        }),
     sendTestEmailAction: payloadMutation(client.admin.configuration.email.sendTest, [
         ['admin', 'diagnostics', 'email'],
     ]),

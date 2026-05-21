@@ -1,5 +1,6 @@
 export * from './accounts';
 export * from './email';
+export * from './jobs';
 export * from './backups';
 export * from './config';
 export * from './db';

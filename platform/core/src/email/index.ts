@@ -24,3 +24,4 @@ export { registerEmailRenderer } from './registry';
 export { sendEmail } from './send';
 export { sendSmtpTestEmail } from './smtpTest';
 export { getSendEmailQueueStats } from './queueStats';
+export { SEND_EMAIL_QUEUE_NAME } from './jobs';

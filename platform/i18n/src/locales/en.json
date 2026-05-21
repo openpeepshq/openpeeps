@@ -1413,6 +1413,24 @@
             "recentFailures": "Recent send failures",
             "bounceNote": "These counts reflect whether your server could hand off mail to your SMTP provider. They do not include recipient bounces, spam folder delivery, or invalid addresses after the handoff."
         },
+        "jobs": {
+            "title": "Queue job",
+            "viewLogs": "View job logs",
+            "notFound": "Job not found. It may have been removed from the queue.",
+            "details": "Job details",
+            "refresh": "Refresh",
+            "queue": "Queue",
+            "id": "Job ID",
+            "name": "Job name",
+            "state": "State",
+            "queuedAt": "Queued at",
+            "finishedAt": "Finished at",
+            "failedReason": "Failure reason",
+            "payload": "Job payload",
+            "logs": "Job logs",
+            "logsHint": "{{count}} log line(s) stored for this job.",
+            "logsEmpty": "No log lines recorded for this job yet."
+        },
         "logs": {
             "title": "Logs",
             "description": "Browse server log entries by day, filter by level or text, and watch today's log stream live.",

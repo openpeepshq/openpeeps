@@ -68,3 +68,5 @@ export const queueAndWorker = <Input, Output = undefined>(
         concurrency: 5,
       }),
   ];
+
+export { getJobDetail } from './jobDetail';

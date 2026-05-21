@@ -3,11 +3,13 @@ import { EmailOptions } from '@openpeeps/common/types';
 import { send } from './send';
 import { SentMessageInfo } from 'nodemailer';
 
+export const SEND_EMAIL_QUEUE_NAME = 'send-email';
+
 const [sendEmailQueue, sendEmailWorker] = queueAndWorker<
   EmailOptions,
   SentMessageInfo
 >(
-  'send-email',
+  SEND_EMAIL_QUEUE_NAME,
   (job) => send(job),
   {
     defaultJobOptions: {

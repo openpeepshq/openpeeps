@@ -4,7 +4,7 @@ import { AdminServerStats } from "@openpeeps/common";
 
 import { Role } from "@openpeeps/common";
 
-import { AdminEmailQueueStats, AdminEmailQueueTestInput, AdminEmailTestInput, ConfigData, ConfigDataWithDefaults, InviteLinkData, InviteLinkWithMeta, LogRow, ProfileWithMeta, Resource, SuccessResponse, TokenResponse } from "@openpeeps/common";
+import { AdminEmailQueueStats, AdminEmailQueueTestInput, AdminEmailTestInput, AdminJobDetail, ConfigData, ConfigDataWithDefaults, InviteLinkData, InviteLinkWithMeta, LogRow, ProfileWithMeta, Resource, SuccessResponse, TokenResponse } from "@openpeeps/common";
 
 import { allpeepPayloadEndpoint } from "./helpers";
 
@@ -75,6 +75,12 @@ export const admin = (rawClient: FetchClient) => (
                     '/admin/diagnostics/email/test',
                     'post',
                 ),
+            },
+            jobs: {
+                jobDetail: allpeepNoPayloadEndpoint<
+                    AdminJobDetail,
+                    { queue: string; jobId: string }
+                >(rawClient, '/admin/diagnostics/jobs/:queue/:jobId'),
             },
         },
         db: {

@@ -1,5 +1,5 @@
 import type { AdminEmailQueueStats } from '@openpeeps/common/types';
-import { sendEmailQueue } from './jobs';
+import { SEND_EMAIL_QUEUE_NAME, sendEmailQueue } from './jobs';
 
 const n = (record: Record<string, number>, key: string) => record[key] ?? 0;
 
@@ -18,6 +18,7 @@ export const getSendEmailQueueStats = async (): Promise<AdminEmailQueueStats> =>
       prioritized: n(raw, 'prioritized'),
     },
     recentFailures: failedJobs.map((j) => ({
+      queue: SEND_EMAIL_QUEUE_NAME,
       id: j.id ?? null,
       name: j.name,
       failedReason: j.failedReason ?? '',
