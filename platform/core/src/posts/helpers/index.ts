@@ -13,11 +13,14 @@ import {
   EntryWithProfile,
   ReactionProfile,
   MentionWithProfile,
+  MentionWithPublicProfile,
   DbPost,
   DbEntry,
   DbMention,
   DbReaction,
+  handleRegex,
 } from '@openpeeps/common/types';
+import { findProfileByHandle } from '../../profiles/finders';
 import { composeFilters, connectionFinder, connector, disconnector, filterAndTransform } from '../../db/helpers';
 import { allpeepDb, collectionInfos } from '../../db';
 import { QueryResult } from '@openpeeps/arango-querybuilder';
@@ -47,6 +50,44 @@ export const extractHashtags = (data: PostDataUnion) => {
     default:
       return getTags(data?.content);
   }
+};
+
+export const extractMentionHandles = (text?: string): string[] => {
+  if (!text) {
+    return [];
+  }
+
+  const handles = new Set<string>();
+
+  for (const word of text.split(/\s+/)) {
+    if (!word.startsWith('@')) {
+      continue;
+    }
+
+    const handle = word.slice(1);
+
+    if (handleRegex.test(handle)) {
+      handles.add(handle);
+    }
+  }
+
+  return [...handles];
+};
+
+export const resolveMentionsForPost = async (
+  data: PostDataUnion,
+): Promise<MentionWithPublicProfile[]> => {
+  const byProfileId = new Map<string, MentionWithPublicProfile>();
+
+  for (const handle of extractMentionHandles(data.content)) {
+    const profile = await findProfileByHandle(handle);
+
+    if (profile) {
+      byProfileId.set(profile.id, { profile, text: `@${handle}` });
+    }
+  }
+
+  return [...byProfileId.values()];
 };
 
 export const entryConnector = connector<Profile, Post, EntryData>(

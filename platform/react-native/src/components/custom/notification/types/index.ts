@@ -10,5 +10,6 @@ export {NewGroupMember} from './new-group-member';
 export {NewProfile} from './new-profile';
 export {PollVote} from './poll-vote';
 export {Reply} from './reply';
+export {Mention} from './mention';
 export {Repost} from './repost';
 export {Reaction} from './reaction';

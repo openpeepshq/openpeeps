@@ -14,6 +14,7 @@ import {
   NewProfile,
   PollVote,
   Reply,
+  Mention,
   Repost,
   Reaction,
 } from './types';
@@ -38,6 +39,7 @@ const notificationComponentMap: Record<PublicNotification['type'], React.Compone
   newProfile: NewProfile,
   pollVote: PollVote,
   reply: Reply,
+  mention: Mention,
   repost: Repost,
   reaction: Reaction,
 };

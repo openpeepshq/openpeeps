@@ -18,7 +18,6 @@
   import PollForm from './PollForm.svelte';
   import type {
     AudienceSetting,
-    MentionWithProfile,
     PostCreationData,
     PostDataUnion,
     PostType,
@@ -51,7 +50,6 @@
 
   interface Props {
     close: () => void;
-    mentions?: MentionWithProfile[];
   }
 
   let { close }: Props = $props();

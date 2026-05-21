@@ -8,6 +8,7 @@ import JamStarted from './JamStarted.svelte';
 import NewProfile from './NewProfile.svelte';
 import Reaction from './Reaction.svelte';
 import Reply from './Reply.svelte';
+import Mention from './Mention.svelte';
 import Repost from './Repost.svelte';
 import NewGroupInvitation from './NewGroupInvitation.svelte';
 import NewGroupMember from './NewGroupMember.svelte';
@@ -20,6 +21,7 @@ export const registerNotificationComponents = () => {
     registerComponent('notification-announcement', Announcement);
     registerComponent('notification-reaction', Reaction);
     registerComponent('notification-reply', Reply);
+    registerComponent('notification-mention', Mention);
     registerComponent('notification-repost', Repost);
     registerComponent('notification-directMessage', DirectMessage);
     registerComponent('notification-follow', Follow);

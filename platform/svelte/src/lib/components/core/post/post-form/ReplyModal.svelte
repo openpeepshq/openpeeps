@@ -6,7 +6,6 @@
   import { Avatar } from '$lib/components/core/profile';
   import { createPostMutation } from '$lib/api';
   import {
-    type MentionWithProfile,
     type PublicPost,
     type PostDataUnion,
     type PostCreationData,
@@ -29,10 +28,9 @@
   interface Props {
     inReplyTo: PublicPost;
     close: () => void;
-    mentions?: MentionWithProfile[];
   }
 
-  let { inReplyTo, close, mentions = $bindable([]) }: Props = $props();
+  let { inReplyTo, close }: Props = $props();
 
   let valid: boolean = $state(false);
 
@@ -46,7 +44,6 @@
     await createPost({
       ...$postDataStore,
       audience: inReplyTo.audience,
-      mentions,
     })
       .then(() =>
         toastStore.trigger(

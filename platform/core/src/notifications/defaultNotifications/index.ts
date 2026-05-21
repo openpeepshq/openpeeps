@@ -9,6 +9,7 @@ import { default as jamStarted } from './jamStarted';
 import { default as newProfile } from './newProfile';
 import { default as reaction } from './reaction';
 import { default as reply } from './reply';
+import { default as mention } from './mention';
 import { default as repost } from './repost';
 import { default as groupAdded } from './groupAdded';
 import { default as groupMemberJoined } from './groupMemberJoined';
@@ -29,6 +30,7 @@ const defaultNotificationsHandlers: NotificationHandler[] = [
   reaction,
   repost,
   reply,
+  mention,
   groupAdded,
   groupMemberJoined,
   groupMemberLeft,

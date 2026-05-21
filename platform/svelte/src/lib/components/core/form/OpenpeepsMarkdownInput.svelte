@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { handleRegex, type MentionWithProfile } from '@openpeeps/common/types';
+  import { handleRegex } from '@openpeeps/common/types';
   import { matchesQuery } from '@openpeeps/common/lib';
   import { profilesStore } from '$lib/api';
   import { Button, Loader, preventDefault, stopPropagation } from '@openpeeps/ui';
   import { ProfileCard } from '$lib/components/core/profile';
-  import { extractMentions } from '$lib/components/core/post/post-form/helpers';
   import { i18nContext } from '$lib/components/i18n';
   import OpenpeepsMarkdown from '../markdown/OpenpeepsMarkdown.svelte';
 
@@ -15,7 +14,6 @@
   interface Props {
     value?: string;
     maxLength?: number;
-    mentions?: MentionWithProfile[];
     placeholder?: string;
     oninput?: (value: string) => void;
     inline?: boolean;
@@ -26,7 +24,6 @@
   let {
     value = $bindable(''),
     maxLength = 500,
-    mentions = $bindable([]),
     placeholder = '',
     oninput = undefined,
     inline = false,
@@ -108,8 +105,6 @@
   {/if}
   <textarea
     oninput={handleInput}
-    onchange={() =>
-      (mentions = extractMentions(value, $profilesQuery.data || []))}
     bind:value
     bind:this={textBox}
     class="textarea {heightClass} w-full resize-y rounded"
@@ -124,7 +119,6 @@
     </span>
     / {maxLength}
   </div>
-  <!-- Mentions -->
   {#if showMentionsPopup}
     <Loader queries={[$profilesQuery]}>
       <div

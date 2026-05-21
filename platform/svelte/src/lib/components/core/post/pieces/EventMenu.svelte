@@ -60,7 +60,6 @@
 						...post.data,
 						content : post.data.content,
 					},
-					mentions: post.mentions,
 					visibility:post.visibility,
 					audience: post.audience,
 					groupId: post.groupId,

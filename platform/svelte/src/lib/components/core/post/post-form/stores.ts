@@ -39,7 +39,7 @@ const postDataDefaults = (inReplyToId?: string): PostCreationData => ({
 	type: "note",
 	visibility: 'public',
 	data: defaultPostData('note'),
-	inReplyToId
+	inReplyToId,
 });
 
 export const postDataStore = persisted<PostCreationData>('new-post-data', postDataDefaults(), {

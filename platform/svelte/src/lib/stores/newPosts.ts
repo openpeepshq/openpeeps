@@ -24,7 +24,6 @@ const defaultNewEvent = (): PostCreationData => ({
             waitingRoom: false
         }
     },
-    mentions: []
 });
 
 const defaultNewNote = (): PostCreationData => ({
@@ -34,7 +33,6 @@ const defaultNewNote = (): PostCreationData => ({
         type: 'note',
         content: ''
     },
-    mentions: []
 });
 
 const defaultNewQuestion = (): PostCreationData => ({
@@ -48,7 +46,6 @@ const defaultNewQuestion = (): PostCreationData => ({
             { type: "note", content: "" },
         ]
     },
-    mentions: []
 });
 
 export const defaultNewArticle = (): PostCreationData => ({
@@ -87,7 +84,6 @@ export const eventSanitizer = () => {
                 attendeeListPublic: event.data.attendeeListPublic,
                 maxAttendees: event.data.maxAttendees,
             },
-            mentions: event.mentions,
             audience: event.audience,
             groupId: event.groupId,
             inReplyToId: event.inReplyToId,

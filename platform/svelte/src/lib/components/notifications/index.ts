@@ -7,6 +7,7 @@ export { email as jamStartedEmail } from './defaultNotifications/jam-started';
 export { email as newProfileEmail } from './defaultNotifications/new-profile';
 export { email as reactionEmail } from './defaultNotifications/reaction';
 export { email as replyEmail } from './defaultNotifications/reply';
+export { email as mentionEmail } from './defaultNotifications/mention';
 export { email as repostEmail } from './defaultNotifications/repost';
 export { email as groupMemberJoinedEmail } from './defaultNotifications/groupMemberJoined';
 export { email as groupMemberLeftEmail } from './defaultNotifications/groupMemberLeft';
