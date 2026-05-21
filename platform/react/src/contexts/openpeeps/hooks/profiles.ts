@@ -39,7 +39,9 @@ export const profileHooks = (
   useCurrentProfileNotifications: (props: ChronologicalInfiniteQueryParams) =>
     infiniteChronologicalQueryApiHook(client.profiles.current.notifications, { queryParams: props }),
   markAllNotificationsAsSeenAction: () =>
-    noPayloadMutation(client.profiles.current.markAllNotificationsAsSeen),
+    noPayloadMutation(client.profiles.current.markAllNotificationsAsSeen, [
+      ['profiles', 'current', 'notifications'],
+    ]),
   useCurrentProfileNotificationStats: () =>
     apiHook(client.profiles.current.notificationStats),
   useCurrentProfileNotificationTypes: () =>

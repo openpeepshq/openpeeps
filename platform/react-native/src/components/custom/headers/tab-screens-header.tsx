@@ -8,14 +8,14 @@ import {BellIcon} from '~/components/icons';
 import {User} from 'lucide-react-native';
 import {useDrawer} from '~/contexts/drawer-context';
 import {useOpenpeeps} from '@openpeeps/react';
-import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import {useNavigation, useFocusEffect, useNavigationState} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useAppImagesStore} from '~/stores/useAppImagesStore';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {BASE_URL, isProduction} from '~/lib/constants';
 import {useWindowSize} from '~/hooks';
 import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
-import {TabStackParamList} from '~/components/navigation/types';
+import {TabStackParamList, TAB_ROUTES} from '~/components/navigation/types';
 import {setAppBadgeCount} from '~/lib/notification-helpers';
 
 interface TabScreensHeaderProps {
@@ -43,6 +43,9 @@ export const TabScreensHeader = ({
     useNavigation<NativeStackNavigationProp<TabStackParamList>>();
   const {background, logoSmall} = useAppImagesStore();
   const lastFetchRef = React.useRef<number>(0);
+  const isOnNotificationsScreen = useNavigationState(
+    state => state.routes[state.index]?.name === TAB_ROUTES.NOTIFICATIONS,
+  );
 
   const onNotificationPress = () => {
     navigation.navigate('Notifications');
@@ -50,6 +53,9 @@ export const TabScreensHeader = ({
 
   useFocusEffect(
     React.useCallback(() => {
+      if (isOnNotificationsScreen) {
+        return undefined;
+      }
       const MIN_REFRESH_INTERVAL_MS = 10_000;
       const now = Date.now();
       if (now - (lastFetchRef.current || 0) > MIN_REFRESH_INTERVAL_MS) {
@@ -57,7 +63,7 @@ export const TabScreensHeader = ({
         refetch();
       }
       return undefined;
-    }, [refetch]),
+    }, [refetch, isOnNotificationsScreen]),
   );
 
   React.useEffect(() => {
@@ -126,7 +132,9 @@ export const TabScreensHeader = ({
                 onPress={onNotificationPress}
                 className="relative">
                 <BellIcon className="text-muted-foreground" size={18} />
-                {isSuccess && notificationsStats.unseen > 0 && (
+                {isSuccess &&
+                  !isOnNotificationsScreen &&
+                  notificationsStats.unseen > 0 && (
                   <View className="absolute -top-3 -right-2 h-6 w-6 items-center rounded-full bg-foreground">
                     <ThemedText className="text-background text-xs">
                       {notificationsStats.unseen}
