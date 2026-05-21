@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TabScreensHeader } from '~/components/custom';
 import { ThemedView } from '~/components/ui/themed-view';
 import { ThemedText } from '~/components/ui/themed-text';
@@ -6,7 +6,7 @@ import { View } from 'react-native';
 import { useOpenpeeps } from '@openpeeps/react';
 import { useTranslation } from 'react-i18next';
 import { NotificationFeed } from '~/components/custom/notification/NotificationFeed';
-import { setAppBadgeCount } from '~/lib/notification-helpers';
+import { useNotificationBadgeReset } from '~/hooks/use-notification-badge-reset';
 
 export const Notifications = () => {
   const { openpeepsApi } = useOpenpeeps();
@@ -15,11 +15,8 @@ export const Notifications = () => {
     limit: 15,
   });
 
-  const markAllNotificationsAsSeen =
-    openpeepsApi.markAllNotificationsAsSeenAction();
-
-  markAllNotificationsAsSeen()().then(() => {
-    setAppBadgeCount(0);
+  useNotificationBadgeReset({
+    refetchFeed: () => query.refetch(),
   });
 
   return (

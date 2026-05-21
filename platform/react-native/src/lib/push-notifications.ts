@@ -11,6 +11,7 @@ import {
 } from '@react-native-firebase/messaging';
 import notifee, { Event, EventType } from '@notifee/react-native';
 import { setAppBadgeCount } from './notification-helpers';
+import { handlePushOnNotificationsScreen } from './notifications-screen-state';
 import { MainStackParamList } from '../components/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { buildGoto } from '../components/navigation/helpers';
@@ -25,7 +26,11 @@ const handleRemoteMessage = async (remoteMessage: FirebaseMessagingTypes.RemoteM
         return;
     }
     const { notification, notificationStats } = pushNotification;
-    setAppBadgeCount(notificationStats.unseen);
+    const handledOnNotificationsScreen =
+      await handlePushOnNotificationsScreen(notificationStats.unseen);
+    if (!handledOnNotificationsScreen) {
+      setAppBadgeCount(notificationStats.unseen);
+    }
 
     if (notification) {
         await notifee.displayNotification({
