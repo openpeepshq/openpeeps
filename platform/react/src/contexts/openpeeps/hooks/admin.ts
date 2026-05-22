@@ -86,6 +86,7 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
   useJobDetail: (queue: string, jobId: string) =>
     apiHook(client.admin.diagnostics.jobs.jobDetail, {
       pathParams: { queue, jobId },
+      enabled: !!queue && !!jobId,
     }),
   sendTestEmailAction: payloadMutation(
     client.admin.configuration.email.sendTest,

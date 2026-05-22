@@ -93,10 +93,15 @@ import { AdminDiagnosticsEmail } from './pages/admin/DiagnosticsEmail';
 import { AdminDiagnosticsLogs } from './pages/admin/DiagnosticsLogs';
 import { AdminConfigurationEmail } from './pages/admin/ConfigurationEmail';
 import { AccessTokensSettings } from './pages/settings/AccessTokens';
+import { LanguageSettings } from './pages/settings/Language';
+import { NotificationPreferences } from './pages/settings/NotificationPreferences';
+import { PushEnabledDevices } from './pages/settings/PushEnabledDevices';
 import { ConversationInfo } from './pages/conversations/Info';
 import { SsoCallback } from './pages/auth/SsoCallback';
 
-import { PageStub } from './pages/_PageStub';
+import { AdminDb } from './pages/admin/Db';
+import { AdminDiagnosticsJob } from './pages/admin/DiagnosticsJob';
+import { AdminConfigurationCommunityLanguage } from './pages/admin/ConfigurationCommunityLanguage';
 import {
   AppSideBarMainMenu,
   AppSideBarProfileMenu,
@@ -165,15 +170,10 @@ function I18nBoot({ children }: { children: ReactNode }) {
   return <I18nProvider>{children}</I18nProvider>;
 }
 
-/* ------------------------------------------------------------------ stubs --
+/* ------------------------------------------------------------------ routes --
  *
- * The Svelte app exposes ~76 routes. Many of them depend on Svelte components
- * (`Feed`, `NewNoteButton`, `NotificationsList`, `PostDetail`, profile cards,
- * admin dashboards, …) that have not yet been ported to React. Until those
- * land, we mount the routes as `PageStub`s so URLs remain navigable and the
- * remaining work is self-documenting.
- *
- * Pages that ARE fully ported live above as proper components.
+ * Most Svelte routes are ported. Specialized post renderers (FullEvent,
+ * FullPoll, FullArticle) still use the generic feed card in PostDetail.
  */
 
 const Feeds = {
@@ -241,6 +241,9 @@ const SettingsPages = {
   Theme: ThemeSettings,
   Account: AccountSettings,
   Notifications: NotificationSettingsPage,
+  NotificationPreferences,
+  PushEnabledDevices,
+  Language: LanguageSettings,
   Billing: BillingSettings,
   AccessTokens: AccessTokensSettings,
 };
@@ -251,14 +254,9 @@ const Admin = {
   Diagnostics: AdminDiagnostics,
   DiagnosticsEmail: AdminDiagnosticsEmail,
   DiagnosticsLogs: AdminDiagnosticsLogs,
+  DiagnosticsJob: AdminDiagnosticsJob,
   ApiKeys: AdminApiKeys,
-  Db: () => (
-    <PageStub
-      title="Admin · DB"
-      svelteSource="platform/app/src/routes/(protected-without-layout)/admin/db/+page.svelte"
-      needs={['<AdminDbBrowser>']}
-    />
-  ),
+  Db: AdminDb,
   Members: AdminMembers,
   Invites: AdminInvites,
   Backups: AdminBackups,
@@ -283,6 +281,7 @@ const Admin = {
     CommunityInfo: () => (
       <AdminConfigEditor title="Community info" namespace="community" name="info" />
     ),
+    CommunityLanguage: AdminConfigurationCommunityLanguage,
     CommunityFavicons: () => (
       <AdminConfigEditor
         title="Favicons"
@@ -388,6 +387,10 @@ function AppShell() {
             <Route
               path="/admin/diagnostics/logs"
               element={<Admin.DiagnosticsLogs />}
+            />
+            <Route
+              path="/admin/diagnostics/jobs/:queue/:jobId"
+              element={<Admin.DiagnosticsJob />}
             />
 
             {/* Everything else under the standard RootLayout shell */}
@@ -502,6 +505,18 @@ function AppShell() {
                       element={<SettingsPages.Notifications />}
                     />
                     <Route
+                      path="/settings/notifications/preferences"
+                      element={<SettingsPages.NotificationPreferences />}
+                    />
+                    <Route
+                      path="/settings/notifications/push-enabled-devices"
+                      element={<SettingsPages.PushEnabledDevices />}
+                    />
+                    <Route
+                      path="/settings/language"
+                      element={<SettingsPages.Language />}
+                    />
+                    <Route
                       path="/settings/billing"
                       element={<SettingsPages.Billing />}
                     />
@@ -550,6 +565,10 @@ function AppShell() {
                     <Route
                       path="/admin/configuration/community/info"
                       element={<Admin.Config.CommunityInfo />}
+                    />
+                    <Route
+                      path="/admin/configuration/community/language"
+                      element={<Admin.Config.CommunityLanguage />}
                     />
                     <Route
                       path="/admin/configuration/community/favicons"

@@ -10,6 +10,7 @@ const links: { to: string; label: string }[] = [
 
 const communityLinks: { to: string; label: string }[] = [
   { to: '/admin/configuration/community/info', label: 'Info' },
+  { to: '/admin/configuration/community/language', label: 'Default language' },
   { to: '/admin/configuration/community/favicons', label: 'Favicons' },
   { to: '/admin/configuration/community/theme', label: 'Theme' },
   { to: '/admin/configuration/community/profile-fields', label: 'Profile fields' },

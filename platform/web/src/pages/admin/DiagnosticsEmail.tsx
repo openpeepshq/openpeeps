@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useT, useOpenpeeps } from '@openpeeps/react';
 import { Button, Input, Label } from '@openpeeps/react-ui';
 
@@ -107,6 +108,14 @@ export function AdminDiagnosticsEmail() {
                     ? new Date(failure.finishedOn).toISOString()
                     : 'unknown time'}
                 </p>
+                {failure.id ? (
+                  <Link
+                    to={`/admin/diagnostics/jobs/${encodeURIComponent(failure.queue)}/${encodeURIComponent(failure.id)}`}
+                    className="text-primary mt-1 inline-block text-xs underline"
+                  >
+                    {t('diagnostics.jobs.viewDetails', { defaultValue: 'View job details' })}
+                  </Link>
+                ) : null}
               </li>
             ))}
           </ul>

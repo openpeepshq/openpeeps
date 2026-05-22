@@ -59,6 +59,10 @@ export function Settings() {
         translationPrefix="settings.theme"
         action="/settings/theme"
       />
+      <ConfigMenuButton
+        translationPrefix="settings.language"
+        action="/settings/language"
+      />
       {stripeMembershipEnabled && (
         <ConfigMenuButton
           translationPrefix="settings.billing"
