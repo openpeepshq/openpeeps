@@ -61,10 +61,16 @@ self.addEventListener('push', async (event) => {
 });
 
 self.addEventListener('notificationclick', async (event) => {
-  const action =
+  let action =
     event.action ||
     (event.notification as NotificationOptionsType).actions?.[0]?.action ||
     '';
+
+  const dataUrl = (event.notification.data as { url?: string } | undefined)
+    ?.url;
+  if (!action && dataUrl) {
+    action = `goto:${dataUrl.startsWith('/') ? dataUrl : `/${dataUrl}`}`;
+  }
 
   event.notification.close();
   event.preventDefault();
@@ -72,7 +78,7 @@ self.addEventListener('notificationclick', async (event) => {
   if (action.startsWith('goto:')) {
     const origin = self.location.origin;
     const basePath = base ?? '/';
-    const relativePath = action.split(':')[1] ?? '/';
+    const relativePath = action.slice('goto:'.length) || '/';
 
     const normalizedBase =
       basePath === '/'

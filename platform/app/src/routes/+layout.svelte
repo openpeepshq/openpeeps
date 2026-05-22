@@ -54,6 +54,16 @@
         (event: MessageEvent) => {
           const data = (event?.data || {}) as { type?: string; url?: string };
           if (data?.type === 'NAVIGATE_TO' && typeof data.url === 'string') {
+            try {
+              const parsed = new URL(data.url, window.location.origin);
+              if (parsed.origin === window.location.origin) {
+                goto(
+                  `${parsed.pathname}${parsed.search}${parsed.hash}`,
+                );
+                return;
+              }
+            } catch {
+            }
             goto(data.url);
           }
         },
