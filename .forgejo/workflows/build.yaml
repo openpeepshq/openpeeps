@@ -224,6 +224,7 @@ jobs:
         env:
           # Pass token via env so `npm config` does not break on $ ` " in the PAT, and to avoid _auth key/registry URL mismatch
           npm_pat: ${{ secrets.REGISTRY_PASSWORD }}
+          NODE_OPTIONS: "--max-old-space-size=12288"
         run: |
           set -e
           cd /apat
