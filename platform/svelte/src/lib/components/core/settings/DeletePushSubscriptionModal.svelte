@@ -50,10 +50,10 @@
 </script>
 
 <ModalWrapper extraClassNames="relative">
-  <ModalHeader title={'Delete Post'} />
+  <ModalHeader title={t('settings.notifications.pushEnabledDevices.delete.header')} />
   <article class="  m-4 h-full pb-3">
     <div class="flex items-center gap-4">
-      <div class="text-gray-400">
+      <div class="text-surface-500">
         {#if pushSubscription?.deviceName
           ?.toLowerCase()
           .match(/phone|android|mobile|ios/)}
@@ -65,18 +65,18 @@
 
       <div>
         <div class="flex items-center gap-2">
-          <p class="text-sm font-medium text-gray-900">
-            {pushSubscription?.deviceName}
+          <p class="text-sm font-medium text-surface-900">
+            {pushSubscription?.deviceName || t('common.unknownDevice')}
           </p>
           {#if isCurrentDevice}
             <span
-              class="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase text-blue-700"
+              class="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase text-surface-500"
             >
               {t('common.thisDevice')}
             </span>
           {/if}
         </div>
-        <p class="text-xs text-gray-400">
+        <p class="text-xs text-surface-400">
           {pushSubscription.type}
         </p>
       </div>
