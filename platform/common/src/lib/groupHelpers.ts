@@ -58,6 +58,13 @@ export const isGroupDiscoverable = (group: GroupWithMeta) =>
     getGroupCapabilitiesByRoles(['none'], group),
   ).success;
 
+/** Posts are only readable by explicit group members (not public/local). */
+export const hasMemberOnlyPostsVisibility = (
+  capabilities: GroupData['capabilities'] | undefined,
+) =>
+  !capabilities?.none?.add?.includes('core-posts-read') &&
+  !capabilities?.local?.add?.includes('core-posts-read');
+
 export const groupCapabilityTemplates = {
   defaultGroup: {
     name: 'defaultGroup',
@@ -72,6 +79,9 @@ export const groupCapabilityTemplates = {
         add: [
           'core-groups-join',
           'core-posts-react',
+          'core-posts-reply',
+          'core-posts-rsvp',
+          'core-posts-vote',
         ],
       },
       member: {
@@ -100,11 +110,17 @@ export const groupCapabilityTemplates = {
           'core-posts-read',
           'core-groups-join',
           'core-posts-react',
+          'core-posts-reply',
+          'core-posts-rsvp',
+          'core-posts-vote',
         ],
       },
       member: {
         add: [
           'core-posts-create-*',
+          'core-posts-reply',
+          'core-posts-rsvp',
+          'core-posts-vote',
         ],
         remove: ['core-posts-create-event'],
       },
@@ -181,6 +197,7 @@ export const groupCapabilityTemplates = {
           'core-posts-react',
           'core-posts-reply',
           'core-posts-rsvp',
+          'core-posts-vote',
         ],
       },
       moderator: {

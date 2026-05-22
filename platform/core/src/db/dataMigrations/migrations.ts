@@ -38,6 +38,7 @@ import addMemberPostCapabilities from './migrations/202602261200-add-member-post
 import removingDeletedAccounts from './migrations/202603180917-permanently-removing-deleted-accounts';
 import renameConfigKeysAllpeepToOpenpeeps from './migrations/202603132015-rename-config-keys-allpeep-to-openpeeps';
 import migrateLegacyResourceTypes from './migrations/202605221200-migrate-legacy-resource-types';
+import fixPrivateGroupMemberPostRead from './migrations/202605221200-fix-private-group-member-post-read';
 import deleteDuplicateRoles from './migrations/202605221430-deleting-duplicate-roles';
 
 export const dataMigrations = [
@@ -81,5 +82,6 @@ export const dataMigrations = [
   removingDeletedAccounts,
   renameConfigKeysAllpeepToOpenpeeps,
   migrateLegacyResourceTypes,
+  fixPrivateGroupMemberPostRead,
   deleteDuplicateRoles,
 ];
