@@ -1,4 +1,9 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "skipLibCheck": true,
+    "types": ["nativewind/types", "node"]
+  },
   "exclude": ["**/__tests__/**", "lib", "node_modules", "example"]
 }
