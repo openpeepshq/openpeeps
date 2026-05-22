@@ -11,6 +11,7 @@ import { profileHooks, type ProfileHooks } from './profiles';
 import { otherHooks, type OtherHooks } from './other';
 import { paymentHooks, type PaymentHooks } from './payments';
 import { searchHooks, type SearchHooks } from './search';
+import { streamingHooks, type StreamingHooks } from './streaming';
 
 export const buildOpenpeepsApi = (
   client: OpenpeepsClient,
@@ -25,7 +26,8 @@ export const buildOpenpeepsApi = (
   ProfileHooks &
   SearchHooks &
   OtherHooks &
-  PaymentHooks => ({
+  PaymentHooks &
+  StreamingHooks => ({
   admin: adminHooks(client),
 
   ...authHooks(client, setCurrentProfile, setCurrentAccount),
@@ -47,6 +49,8 @@ export const buildOpenpeepsApi = (
   ...searchHooks(client),
 
   ...paymentHooks(client),
+
+  ...streamingHooks(client),
 });
 
 export type OpenpeepsApi = ReturnType<typeof buildOpenpeepsApi>;

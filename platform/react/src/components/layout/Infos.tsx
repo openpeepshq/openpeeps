@@ -1,6 +1,6 @@
 import { Button } from '@openpeeps/react-ui';
 import { canCreatePostType } from '@openpeeps/common';
-import { useIdentity } from './IdentityContext';
+import { useAuthData, useIdentity } from './IdentityContext';
 import { useT } from '../../i18n';
 
 export interface InfosProps {
@@ -18,13 +18,14 @@ export interface InfosProps {
  */
 export function Infos({ onValidateEmail }: InfosProps = {}) {
   const { profile, account } = useIdentity();
+  const authData = useAuthData();
   const t = useT();
 
   const showEmailWarning =
     !!account &&
     !!profile &&
     !account.emailValidated &&
-    !canCreatePostType(profile, 'note');
+    !canCreatePostType(authData, 'note');
 
   if (!showEmailWarning) return <div className="flex flex-col gap-4" />;
 

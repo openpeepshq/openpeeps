@@ -12,6 +12,7 @@ import {
   ChevronDown,
   DatabaseBackup,
   Home,
+  KeyRound,
   LogOut,
   Logs,
   MailOpen,
@@ -22,6 +23,7 @@ import {
   Search,
   Settings,
   ShieldAlert,
+  Stethoscope,
   User,
   Users,
   Wrench,
@@ -189,6 +191,12 @@ export function AppSideBarMainMenu() {
               </NavItem>
               <NavItem to="/admin/logs" icon={Logs}>
                 {t('navigation.logs')}
+              </NavItem>
+              <NavItem to="/admin/api-keys" icon={KeyRound}>
+                API Keys
+              </NavItem>
+              <NavItem to="/admin/diagnostics" icon={Stethoscope}>
+                {t('navigation.diagnostics', { defaultValue: 'Diagnostics' })}
               </NavItem>
               <NavItem to="/admin/configuration" icon={Wrench}>
                 {t('navigation.configuration')}

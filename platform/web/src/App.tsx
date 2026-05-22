@@ -75,7 +75,6 @@ import { AdminAnalytics } from './pages/admin/Analytics';
 import { AdminBackups } from './pages/admin/Backups';
 import { AdminGroups } from './pages/admin/Groups';
 import { AdminInvites } from './pages/admin/Invites';
-import { AdminLogs } from './pages/admin/Logs';
 import { AdminMembers } from './pages/admin/Members';
 import { AdminModeration } from './pages/admin/Moderation';
 import { PaymentSuccess } from './pages/payment/Success';
@@ -88,6 +87,12 @@ import { AdminConfiguration } from './pages/admin/Configuration';
 import { AdminConfigEditor } from './pages/admin/ConfigEditor';
 import { AdminGroupMembers } from './pages/admin/GroupMembers';
 import { AdminReports } from './pages/admin/Reports';
+import { AdminApiKeys } from './pages/admin/ApiKeys';
+import { AdminDiagnostics } from './pages/admin/Diagnostics';
+import { AdminDiagnosticsEmail } from './pages/admin/DiagnosticsEmail';
+import { AdminDiagnosticsLogs } from './pages/admin/DiagnosticsLogs';
+import { AdminConfigurationEmail } from './pages/admin/ConfigurationEmail';
+import { AccessTokensSettings } from './pages/settings/AccessTokens';
 import { ConversationInfo } from './pages/conversations/Info';
 import { SsoCallback } from './pages/auth/SsoCallback';
 
@@ -237,11 +242,16 @@ const SettingsPages = {
   Account: AccountSettings,
   Notifications: NotificationSettingsPage,
   Billing: BillingSettings,
+  AccessTokens: AccessTokensSettings,
 };
 
 const Admin = {
   Index: AdminDashboard,
-  Logs: AdminLogs,
+  Logs: AdminDiagnosticsLogs,
+  Diagnostics: AdminDiagnostics,
+  DiagnosticsEmail: AdminDiagnosticsEmail,
+  DiagnosticsLogs: AdminDiagnosticsLogs,
+  ApiKeys: AdminApiKeys,
   Db: () => (
     <PageStub
       title="Admin · DB"
@@ -324,6 +334,7 @@ const Admin = {
         name="codeOfConduct"
       />
     ),
+    Email: AdminConfigurationEmail,
   },
 };
 
@@ -368,6 +379,16 @@ function AppShell() {
 
             <Route path="/admin/logs" element={<Admin.Logs />} />
             <Route path="/admin/db" element={<Admin.Db />} />
+            <Route path="/admin/api-keys" element={<Admin.ApiKeys />} />
+            <Route path="/admin/diagnostics" element={<Admin.Diagnostics />} />
+            <Route
+              path="/admin/diagnostics/email"
+              element={<Admin.DiagnosticsEmail />}
+            />
+            <Route
+              path="/admin/diagnostics/logs"
+              element={<Admin.DiagnosticsLogs />}
+            />
 
             {/* Everything else under the standard RootLayout shell */}
             <Route
@@ -484,6 +505,10 @@ function AppShell() {
                       path="/settings/billing"
                       element={<SettingsPages.Billing />}
                     />
+                    <Route
+                      path="/settings/access-tokens"
+                      element={<SettingsPages.AccessTokens />}
+                    />
 
                     {/* Admin */}
                     <Route path="/admin" element={<Admin.Index />} />
@@ -561,6 +586,10 @@ function AppShell() {
                     <Route
                       path="/admin/configuration/community/code-of-conduct"
                       element={<Admin.Config.CommunityCodeOfConduct />}
+                    />
+                    <Route
+                      path="/admin/configuration/email"
+                      element={<Admin.Config.Email />}
                     />
 
                     <Route path="*" element={<NotFound />} />

@@ -18,6 +18,7 @@ import {
 } from '@openpeeps/react-ui';
 
 import { useT } from '../../i18n';
+import { useAuthData } from '../layout/IdentityContext';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 
 export interface NewNoteButtonProps {
@@ -42,6 +43,7 @@ export function NewNoteButton({
   group,
 }: NewNoteButtonProps) {
   const t = useT();
+  const authData = useAuthData();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
 
@@ -50,9 +52,11 @@ export function NewNoteButton({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const profile = currentProfile ?? authData.profile;
+
   if (
-    !currentProfile ||
-    !canCreatePost(currentProfile, 'note', visibility, group)
+    !profile ||
+    !canCreatePost(authData, 'note', visibility, group)
   ) {
     return null;
   }

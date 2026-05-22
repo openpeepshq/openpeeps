@@ -6,6 +6,26 @@ import {
   usePageHeader,
 } from '../../stores';
 import { useServerInfo } from '../server-data';
+import { PostViewCounterProvider } from '../../lib/postViewCounter';
+import { useOpenpeeps } from '../../contexts/openpeeps';
+import { useHasAuthToken } from '../../contexts/openpeeps/hooks/useHasAuthToken';
+
+function PostViewTracking({ children }: { children: ReactNode }) {
+  const { openpeepsApi } = useOpenpeeps();
+  const hasToken = useHasAuthToken();
+  const markPostsSeenAction = openpeepsApi.markPostsSeenAction();
+
+  return (
+    <PostViewCounterProvider
+      hasAuthToken={hasToken}
+      markPostsSeen={async (postIds) => {
+        await markPostsSeenAction({ postIds });
+      }}
+    >
+      {children}
+    </PostViewCounterProvider>
+  );
+}
 
 export interface OpenpeepsContextProviderProps {
   children?: ReactNode;
@@ -45,5 +65,9 @@ export function OpenpeepsContextProvider({
     document.title = title;
   }, [pageHeader, serverInfo.communityConfig?.info.name]);
 
-  return <>{children}</>;
+  return (
+    <PostViewTracking>
+      {children}
+    </PostViewTracking>
+  );
 }

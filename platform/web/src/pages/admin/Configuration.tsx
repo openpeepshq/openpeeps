@@ -4,6 +4,7 @@ import { useT } from '@openpeeps/react';
 const links: { to: string; label: string }[] = [
   { to: '/admin/configuration/server-settings', label: 'Server settings' },
   { to: '/admin/configuration/i18n', label: 'Translations (i18n)' },
+  { to: '/admin/configuration/email', label: 'Email (SMTP test)' },
   { to: '/admin/configuration/community', label: 'Community' },
 ];
 

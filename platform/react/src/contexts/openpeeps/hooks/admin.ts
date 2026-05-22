@@ -57,14 +57,21 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
     ['admin', 'profiles'],
     ['profiles'],
   ]),
-  useProfileRoles: () => apiHook(client.admin.profiles.listRoles),
+  useProfileRoles: (id: string) =>
+    apiHook(client.admin.profiles.listRoles, { pathParams: { id } }),
   updateProfileRolesAction: payloadMutation(
     client.admin.profiles.updateRoles,
     [['admin', 'profiles'], ['profiles']],
   ),
   useRolesList: () => apiHook(client.admin.roles.list),
+  updateRoleAction: payloadMutation(client.admin.roles.update, [
+    ['admin', 'roles'],
+  ]),
   useGeneralStats: () => apiHook(client.admin.stats.general),
   usei18n: () => apiHook(client.admin.i18n.read),
+  updateI18nAction: payloadMutation(client.admin.i18n.update, [
+    ['admin', 'i18n'],
+  ]),
   useReportsList: () => apiHook(client.admin.reports.list),
   useReport: (reportId: string) =>
     apiHook(client.admin.reports.findById, { pathParams: { reportId } }),
@@ -74,7 +81,6 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
   reopenReportAction: noPayloadMutation(client.admin.reports.reopen, [
     ['admin', 'reports'],
   ]),
-  // updatei18nAction: payloadMutation(client.admin.i18n.update, [['admin', 'i18n']]),
   useAllGroupsList: () => apiHook(client.admin.groups.list),
   useEmailQueueStats: () => apiHook(client.admin.diagnostics.email.queueStats),
   useJobDetail: (queue: string, jobId: string) =>

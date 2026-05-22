@@ -52,6 +52,10 @@ export function Settings() {
         action="/settings/notifications"
       />
       <ConfigMenuButton
+        translationPrefix="settings.accessTokens"
+        action="/settings/access-tokens"
+      />
+      <ConfigMenuButton
         translationPrefix="settings.theme"
         action="/settings/theme"
       />

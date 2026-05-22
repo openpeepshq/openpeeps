@@ -1,6 +1,7 @@
 import type {
   AccountWithMeta,
   Authorization,
+  AuthorizationData,
   ProfileWithMeta,
 } from '@openpeeps/common/types';
 
@@ -16,6 +17,7 @@ declare global {
       authorization?: Authorization;
       currentProfile?: ProfileWithMeta;
       currentAccount?: AccountWithMeta;
+      authData: AuthorizationData;
     }
   }
 }

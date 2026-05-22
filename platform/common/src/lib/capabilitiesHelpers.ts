@@ -80,7 +80,7 @@ export const ADMIN_SIDEBAR_MENU_CAPABILITIES = [
 
 export const hasAdminSidebarAccess = (roles: Role[] = []) =>
   ADMIN_SIDEBAR_MENU_CAPABILITIES.some((cap) =>
-    checkRoleCapabilities([cap], roles).success,
+    checkRoleCapabilities(roles, [cap]).success,
   );
 
 export const isLocal = (profile: ProfileWithMeta) =>

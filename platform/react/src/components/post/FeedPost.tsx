@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import type { PublicPost } from '@openpeeps/common/types';
+import { usePostViewRef } from '../../lib/postViewCounter';
 
 import { FeedPostContent } from './FeedPostContent';
 import { PostInfoHeader } from './pieces/PostInfoHeader';
@@ -30,6 +31,7 @@ export function FeedPost({
   showReplyTo = false,
   content,
 }: FeedPostProps) {
+  const postViewRef = usePostViewRef(post.id) as RefObject<HTMLDivElement>;
   const hasReactionHeader =
     !noReactionHeader &&
     (!!post.repost || !!post.inReplyToId || (!!post.groupId && !inGroup));
@@ -42,7 +44,7 @@ export function FeedPost({
   );
 
   return (
-    <div className="border-b p-4">
+    <div ref={postViewRef} className="border-b p-4">
       {hasReactionHeader && (
         <PostReactionHeader post={post} inGroup={inGroup} />
       )}

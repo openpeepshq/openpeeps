@@ -40,7 +40,7 @@ export function ProfileGuard({
     if (needsRedirect)
       return { success: false, missingCapabilities: neededCapabilities };
     if (profile?.type === 'local' || isPubliclyAccessible) {
-      return checkRoleCapabilities(neededCapabilities, profile?.roles ?? []);
+      return checkRoleCapabilities(profile?.roles ?? [], neededCapabilities);
     }
     return {
       success: !neededCapabilities.length,

@@ -20,5 +20,6 @@ export {
   useCurrentProfile,
   useCurrentAccount,
   useCurrentProfileSettings,
+  useAuthData,
 } from './IdentityContext';
 export type { IdentityContextValue } from './IdentityContext';
