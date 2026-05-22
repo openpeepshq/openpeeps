@@ -1,1 +1,2235 @@
-{}
+{
+    "auth": {
+        "login": {
+            "title": "登录",
+            "submit": "登录",
+            "error": "凭据无效",
+            "loading": "正在登录…",
+            "success": "登录成功",
+            "heading": "登录",
+            "welcomeBack": "欢迎回来，请在下方输入详细信息以登录您的社区",
+            "email": "邮箱",
+            "emailPlaceholder": "you@email.org",
+            "password": "密码",
+            "hidePassword": "隐藏密码",
+            "showPassword": "显示密码",
+            "forgotPassword": "忘记密码？",
+            "logIn": "登录",
+            "joinCommunity": "加入社区",
+            "seeCommunityFeed": "查看社区信息流"
+        },
+        "register": {
+            "title": "注册",
+            "submit": "注册",
+            "error": "注册失败",
+            "loading": "正在创建账号…",
+            "success": "账号创建成功",
+            "createAccount": "创建账号",
+            "inviteMessage": "您已被邀请加入 {{communityName}}，请在下方输入详细信息以成为社区的一员。",
+            "handle": "句柄",
+            "handlePlaceholder": "句柄",
+            "name": "名称",
+            "namePlaceholder": "名称",
+            "email": "邮箱",
+            "emailPlaceholder": "you@email.org",
+            "password": "密码",
+            "hidePassword": "隐藏密码",
+            "showPassword": "显示密码",
+            "confirmPassword": "确认密码",
+            "passwordsDoNotMatch": "密码不匹配",
+            "mustAgreePrivacyPolicy": "您必须同意隐私政策",
+            "privacyPolicyAgreement": "我已阅读并同意",
+            "privacyPolicy": "隐私政策",
+            "signUp": "注册",
+            "alreadyHaveAccount": "已有账号？",
+            "signIn": "登录",
+            "seeCommunityFeed": "查看社区信息流"
+        },
+        "resetPassword": {
+            "title": "重置密码",
+            "submit": "重置",
+            "error": "密码重置失败",
+            "success": "密码重置邮件已发送。如果几分钟后仍未收到，请检查您的垃圾邮件文件夹。",
+            "loading": "正在发送重置邮件…",
+            "heading": "重置密码",
+            "newPassword": "新密码",
+            "confirmPassword": "确认密码",
+            "submitButton": "提交"
+        },
+        "requestResetPassword": {
+            "title": "请求重置密码",
+            "heading": "请求重置密码",
+            "prompt": "输入您的邮箱地址，我们将向您发送重置密码的链接。",
+            "successPrompt": "如果您的邮箱属于此社区中的某个账号，您将收到一条包含密码重置链接的消息。",
+            "successToast": "重置密码链接已成功发送至 {{email}}。",
+            "errorFallback": "发送重置密码链接失败，邮箱错误",
+            "email": "邮箱",
+            "emailPlaceholder": "you@email.org",
+            "proceed": "继续"
+        },
+        "closed": {
+            "heading": "注册目前已关闭",
+            "message": "我们目前不接受新注册。请稍后再试，如果您认为这是错误，请联系支持。",
+            "goToLogin": "前往登录"
+        },
+        "guestPass": {
+            "title": "访客访问",
+            "submit": "以访客身份继续",
+            "error": "获取访客访问权限失败",
+            "loading": "正在获取访客访问权限…"
+        },
+        "tagline": "AllPeeP 是一个社区平台，专为追求专属品牌体验的用户打造",
+        "emails": {
+            "validation": {
+                "success": "您的邮箱现已验证。您可以完全参与社区活动。"
+            }
+        }
+    },
+    "navigation": {
+        "welcome": "欢迎",
+        "joinCommunity": "加入社区",
+        "haveAccount": "已有账号？",
+        "logIn": "登录",
+        "poweredBy": "由 AllPeeP 提供技术支持",
+        "profile": "资料",
+        "messages": "消息",
+        "home": "首页",
+        "myFeed": "我的信息流",
+        "newPost": "新帖子",
+        "jams": "Jams",
+        "notifications": "通知",
+        "back": "返回",
+        "community": "社区",
+        "groups": "群组",
+        "events": "活动",
+        "members": "成员",
+        "settings": "设置",
+        "administration": "管理",
+        "invites": "邀请",
+        "configuration": "配置",
+        "diagnostics": "诊断",
+        "moderation": "审核",
+        "backups": "备份",
+        "analytics": "分析",
+        "openNotifications": "打开通知",
+        "goToWelcomePage": "欢迎页面",
+        "logOut": "退出登录",
+        "logs": "日志",
+        "myJams": "我的 Jams",
+        "myEvents": "我的活动",
+        "explore": "探索",
+        "articles": "文章",
+        "bookmarks": "书签",
+        "conversations": "消息"
+    },
+    "profile": {
+        "noBio": "暂无个人简介",
+        "posts": "帖子",
+        "edit": {
+            "title": "编辑资料",
+            "save": "保存更改",
+            "cancel": "取消",
+            "success": "资料已更新",
+            "error": "更新资料失败"
+        },
+        "follow": {
+            "follow": "关注",
+            "unfollow": "取消关注",
+            "error": "操作失败",
+            "unfollowedSuccess": "您已不再关注此资料",
+            "followedSuccess": "成功关注此资料",
+            "success": "您现在正在关注此个人资料"
+        },
+        "notifications": {
+            "title": "通知",
+            "empty": "无通知",
+            "markRead": "全部标记为已读"
+        },
+        "form": {
+            "displayName": "显示名称",
+            "handle": "句柄",
+            "handlePlaceholder": "输入您的句柄",
+            "bio": "个人简介",
+            "bioPlaceholder": "介绍一下您自己",
+            "avatar": "头像",
+            "banner": "横幅",
+            "location": "地点",
+            "website": "网站",
+            "fields": {
+                "label": "标签",
+                "value": "值",
+                "add": "添加字段",
+                "remove": "移除字段"
+            }
+        },
+        "header": {
+            "followers": "关注者",
+            "following": "正在关注",
+            "posts": "帖子",
+            "joined": "{{date}} 加入",
+            "avatarAlt": "资料图片"
+        },
+        "actions": {
+            "edit": "编辑资料",
+            "follow": "关注",
+            "unfollow": "取消关注",
+            "message": "消息",
+            "copyProfileLink": "复制资料链接",
+            "copyPostLink": "复制帖子链接",
+            "inviteViaEmail": "通过邮箱邀请",
+            "inviteViaLink": "通过链接邀请"
+        },
+        "modals": {
+            "deleteProfile": {
+                "title": "删除资料",
+                "description": "您确定要删除资料 {{username}}（句柄：{{handle}}）吗？此操作无法撤销。",
+                "confirm": "删除资料",
+                "cancel": "取消",
+                "profileDeleted": "资料已成功从您的社区中删除。",
+                "error": "删除资料失败",
+                "delete": "删除",
+                "accountDeleted": "与此资料关联的账号也已被删除"
+            },
+            "editProfile": {
+                "saveChanges": "保存更改",
+                "description": "为此资料选择一个或多个角色",
+                "title": "编辑角色",
+                "roles": "角色",
+                "rolesUpdated": "{{profileName}} 的角色已更新"
+            },
+            "closeReport": {
+                "success": "举报已成功关闭"
+            }
+        },
+        "table": {
+            "dateJoined": "加入日期",
+            "invitedBy": "邀请者",
+            "emailVerified": "邮箱已验证",
+            "actions": "操作",
+            "editEmail": "编辑邮件",
+            "editRoles": "编辑角色",
+            "deleteMember": "删除成员",
+            "delete": "删除"
+        },
+        "followers": {
+            "title": "关注者",
+            "pageTitle": "的关注者",
+            "noFollowing": "暂无关注者"
+        },
+        "following": {
+            "title": "正在关注",
+            "pageTitle": "被…关注",
+            "noFollowers": "尚未关注任何人"
+        },
+        "copyProfileLink": {
+            "success": "资料链接已复制到剪贴板",
+            "error": "复制资料链接失败"
+        },
+        "search": {
+            "placeholder": "搜索人员",
+            "profilesPlaceholder": "搜索资料…",
+            "noResults": "未找到结果",
+            "noProfilesAvailable": "没有可用的资料"
+        },
+        "postsAndReplies": {
+            "openGroupTitle": "开放群组"
+        },
+        "groups": {
+            "tabName": "群组",
+            "noCommonGroups": "这里还没有内容"
+        },
+        "notFound": {
+            "title": "未找到资料",
+            "description": "此个人资料不存在。您可以在成员列表中尝试查找。"
+        }
+    },
+    "posts": {
+        "create": {
+            "title": "创建帖子",
+            "submit": "帖子",
+            "error": "创建帖子失败",
+            "errorGeneric": "创建帖子时出错",
+            "loading": "正在发布帖子…",
+            "success": "帖子已创建",
+            "successToast": "帖子创建成功",
+            "note": {
+                "title": "正在创建帖子"
+            }
+        },
+        "delete": {
+            "confirm": "您确定要删除此帖子吗？",
+            "success": "帖子已删除",
+            "error": "删除帖子失败"
+        },
+        "react": {
+            "error": "对帖子做出反应失败"
+        },
+        "repost": {
+            "success": "转发成功",
+            "error": "转发失败",
+            "retractSuccess": "已撤回转发",
+            "successToast": "转发成功！"
+        },
+        "vote": {
+            "success": "投票已记录",
+            "error": "记录投票失败",
+            "count": "票数",
+            "lackPermission": "您没有在 {{groupName}} 中投票的权限。",
+            "lackPermissionNoGroup": "您没有在此投票中投票的权限。",
+            "selectOption": "请选择一个选项",
+            "cleared": "投票已成功清除！",
+            "successToast": "投票成功！",
+            "votesCount": "{{count}} 票"
+        },
+        "poll": {
+            "ended": "投票已结束",
+            "timeLeft": "已离开",
+            "undoVote": "撤销投票",
+            "undoVoteTitle": "撤销投票",
+            "vote": "投票",
+            "undo": "撤销"
+        },
+        "menu": {
+            "reposts": "转发",
+            "reactions": "反应"
+        },
+        "form": {
+            "content": "您在想什么？",
+            "changeGroup": "更改群组",
+            "notifyEveryone": "通知所有人",
+            "visibility": {
+                "label": "可见性",
+                "public": "公开",
+                "private": "私密",
+                "followers": "关注者"
+            },
+            "selectGroup": "选择群组",
+            "poll": {
+                "addOption": "添加选项",
+                "removeOption": "移除选项",
+                "option": "选项 {{number}}",
+                "duration": "投票持续时间",
+                "multipleChoice": "允许多选",
+                "submit": "提交",
+                "seeWhoVoted": "查看谁投了票",
+                "questionPlaceholder": "您的问题是什么？",
+                "pollEnd": "投票结束",
+                "multipleAnswers": "多个答案",
+                "seeWhoVotedTitle": "查看谁投了票",
+                "multipleAnswersDescription": "允许用户选择多个答案",
+                "votersVisibleDescription": "允许所有人查看谁投了票以及他们投了哪个选项"
+            },
+            "changeAudience": "更改受众",
+            "remainingCharacters": "剩余字符",
+            "addImage": "添加媒体",
+            "addDocument": "添加文档",
+            "title": "新帖子"
+        },
+        "copyPostLink": {
+            "submit": "复制链接",
+            "success": "复制成功",
+            "successMessage": "帖子链接已复制到剪贴板",
+            "errorMessage": "复制资料链接失败",
+            "error": "复制错误"
+        },
+        "event": {
+            "attendees": "参与者",
+            "online": "在线"
+        },
+        "actions": {
+            "shareMessage": "分享此帖子",
+            "seeThread": "查看讨论串",
+            "seeEvent": "查看活动"
+        },
+        "footer": {
+            "reply": "回复",
+            "repost": "转发",
+            "like": "赞",
+            "share": "分享"
+        },
+        "shareMenu": {
+            "shareOnCommunity": "在社区中分享",
+            "repostToFeed": "转发到信息流",
+            "reposting": "正在转发…",
+            "directMessage": "私信",
+            "sendInMessage": "通过消息发送",
+            "otherOptions": "其他选项",
+            "copyLink": "复制链接",
+            "downloadCalendarIcs": "添加到日历",
+            "downloadCalendarIcsTitle": "下载 .ics 文件"
+        },
+        "gallery": {
+            "previous": "上一步",
+            "next": "下一步",
+            "close": "关闭",
+            "videoProcessing": "正在准备视频…",
+            "videoError": "此视频无法准备播放。"
+        },
+        "replyBox": {
+            "reply": "回复",
+            "logInToReply": "登录后回复",
+            "addReplyPlaceholder": "添加回复…"
+        },
+        "replyModal": {
+            "title": "回复",
+            "submit": "回复",
+            "successToast": "回复创建成功",
+            "errorToast": "创建回复时出错"
+        },
+        "feed": {
+            "empty": "暂无帖子。"
+        },
+        "chronologicalFeed": {
+            "modalTitle": "社区信息流偏好",
+            "subtitle": "管理您在社区信息流中看到的内容",
+            "recentRepliesTitle": "最新回复",
+            "recentRepliesDescription": "按最新回复排序内容",
+            "byActivityTitle": "按活动排序",
+            "byActivityDescription": "活动较多的帖子将保持在顶部，并被更频繁地看到",
+            "prioritizeFollowingTitle": "优先显示我关注的人",
+            "prioritizeFollowingDescription": "在陌生人的帖子之前，先显示您关注的人中您未看过的帖子",
+            "showRepostsTitle": "显示转发",
+            "showRepostsDescription": "所有转发将显示在您的信息流中",
+            "done": "完成"
+        },
+        "previewVideo": {
+            "playTitle": "播放视频"
+        },
+        "attachments": {
+            "deleteTitle": "删除附件",
+            "failed": "上传失败"
+        },
+        "deleteModal": {
+            "deletePostTitle": "删除帖子",
+            "delete": "删除",
+            "cancel": "取消"
+        },
+        "stats": {
+            "viewReactions": "查看反应",
+            "viewReposts": "查看转发",
+            "repliesCount": "{{count}} 条回复",
+            "repostsCount": "{{count}} 次转发"
+        },
+        "visibility": {
+            "title": "帖子可见性",
+            "selectGroup": "选择群组"
+        },
+        "replyTo": " 回复了",
+        "reposted": "已转发",
+        "unpinInGroup": {
+            "title": "从群组取消置顶",
+            "success": "帖子已取消在此群组中的置顶"
+        },
+        "pinInGroup": {
+            "success": "此帖子将置顶在群组顶部",
+            "title": "置顶到群组"
+        },
+        "pinGlobally": {
+            "success": "帖子现已置顶到社区信息流顶部",
+            "title": "置顶到信息流"
+        },
+        "rsvp": {
+            "attendingMessage": "您正在参加此活动",
+            "cancelRegistration": "取消您的 RSVP",
+            "maybe": "可能",
+            "success": "RSVP 成功",
+            "register": "RSVP：是",
+            "no": "否",
+            "maybeMessage": "您暂定参加此活动"
+        },
+        "edit": {
+            "success": "帖子更新成功",
+            "title": "正在编辑帖子",
+            "submit": "更新",
+            "loading": "加载中"
+        },
+        "deleteEvent": {
+            "description": "删除此活动将将其从社区中移除。任何参与者都不会收到通知。",
+            "cancel": "取消",
+            "confirm": "删除活动",
+            "title": "删除此活动？"
+        },
+        "article": {
+            "readMore": "阅读更多…"
+        },
+        "bookmark": {
+            "success": "书签已保存",
+            "error": "保存书签时出错",
+            "title": "添加书签"
+        },
+        "unbookmark": {
+            "title": "移除书签",
+            "success": "书签已移除",
+            "error": "移除书签时出错"
+        },
+        "switcher": {
+            "note": "写笔记",
+            "event": "创建活动",
+            "poll": "添加投票",
+            "article": "写文章"
+        },
+        "unpinGlobally": {
+            "title": "从信息流取消置顶",
+            "success": "帖子已取消置顶"
+        }
+    },
+    "groups": {
+        "type": {
+            "public": "公开",
+            "private": "私密",
+            "open": "打开",
+            "closed": "已关闭"
+        },
+        "create": {
+            "title": "创建群组",
+            "submit": "创建",
+            "error": "创建群组失败",
+            "success": "群组已创建"
+        },
+        "join": {
+            "submit": "加入群组",
+            "error": "加入群组失败",
+            "success": "已加入群组"
+        },
+        "leave": {
+            "confirm": "您确定要离开此群组吗？",
+            "error": "离开群组失败",
+            "success": "已离开群组",
+            "lastAdminError": "您是此群组中最后一位管理员。请在离开前指定一位新管理员。",
+            "removedToast": "您已成功被移除。",
+            "removeErrorToast": "移除时出错。"
+        },
+        "delete": {
+            "title": "删除群组",
+            "description": "您确定要删除群组 {{groupName}} 吗？",
+            "confirm": "确认",
+            "deleteButton": "删除",
+            "cancel": "取消",
+            "deleting": "正在删除…",
+            "successMessage": "群组删除成功！",
+            "errorMessage": "删除群组失败",
+            "toastError": "无法删除群组。请稍后重试。"
+        },
+        "selection": {
+            "title": "选择群组",
+            "description": "选择要添加成员的群组",
+            "noGroups": "没有可用的群组",
+            "public": "公开",
+            "private": "私密"
+        },
+        "makeAdmin": {
+            "title": "设为管理员",
+            "description": "您确定要将 @{{handle}} 设为管理员吗？",
+            "confirm": "授予权限",
+            "loading": "正在授予权限…",
+            "successMessage": "管理员权限授予成功",
+            "errorMessage": "授予管理员权限失败"
+        },
+        "removeAdmin": {
+            "title": "移除管理员权限",
+            "description": "您确定要移除 @{{handle}} 的管理员权限吗？",
+            "confirm": "移除权限",
+            "loading": "正在移除权限…",
+            "successMessage": "管理员权限移除成功",
+            "errorMessage": "移除管理员权限失败"
+        },
+        "removeMember": {
+            "title": "移除成员",
+            "description": "您确定要将 @{{handle}} 从群组中移除吗？",
+            "confirm": "移除",
+            "loading": "正在移除…",
+            "successMessage": "成员移除成功",
+            "errorMessage": "移除成员失败"
+        },
+        "handleExists": "此句柄已被使用。请尝试其他句柄。",
+        "sections": {
+            "posts": "帖子",
+            "events": "活动",
+            "description": "描述"
+        },
+        "visibility": {
+            "title": "可见性",
+            "description": "谁可以查看群组",
+            "public": {
+                "title": "普通公众",
+                "description": "对互联网可见"
+            },
+            "local": {
+                "title": "社区",
+                "description": "所有可以登录此社区的人"
+            },
+            "private": {
+                "title": "私密",
+                "description": "仅限选定的资料"
+            }
+        },
+        "postsVisibility": {
+            "title": "内容可见性",
+            "description": "谁可以查看群组内容",
+            "public": {
+                "title": "普通公众",
+                "description": "在互联网上可见"
+            },
+            "local": {
+                "title": "社区",
+                "description": "登录此社区的资料"
+            },
+            "private": {
+                "title": "私密",
+                "description": "仅限选定的资料"
+            }
+        },
+        "whoCanJoin": {
+            "title": "谁可以加入",
+            "description": "资料可以自行加入还是需要被邀请？",
+            "open": {
+                "title": "打开",
+                "description": "所有人都可以加入群组"
+            },
+            "closed": {
+                "title": "仅限邀请",
+                "description": "必须被邀请或添加到群组"
+            }
+        },
+        "whoCanPost": {
+            "title": "谁可以发帖",
+            "description": "内容：笔记、投票、图片和视频",
+            "members": {
+                "title": "所有群组成员",
+                "description": "所有群组成员均可添加内容"
+            },
+            "moderators": {
+                "title": "仅限主持人",
+                "description": "仅限主持人可以发布内容"
+            }
+        },
+        "whoCanPostEvents": {
+            "title": "谁可以发布活动",
+            "description": "谁可以向群组日历添加活动",
+            "members": {
+                "title": "所有成员",
+                "description": "所有成员均可向日历添加事件"
+            },
+            "moderators": {
+                "title": "仅限主持人",
+                "description": "仅限主持人可以向日历添加活动"
+            }
+        },
+        "handle": {
+            "placeholder": "句柄",
+            "title": "句柄"
+        },
+        "description": {
+            "title": "描述",
+            "placeholder": "在此输入群组描述"
+        },
+        "roles": {
+            "member": "成员",
+            "admin": "管理员",
+            "moderator": "主持人"
+        },
+        "rules": {
+            "title": "群组规则",
+            "placeholder": "在此处添加群组规则。"
+        },
+        "changeRoles": {
+            "title": "更改角色",
+            "description": "更改此群组的角色",
+            "confirm": "更新角色",
+            "successMessage": "角色已更新"
+        },
+        "new": "新群组",
+        "goto": "前往群组",
+        "viewMembers": "查看成员",
+        "noGroupsYet": "您还没有群组",
+        "noGroupsFound": "未找到群组",
+        "searchPlaceholder": "按群组名称搜索",
+        "openGroup": "开放群组",
+        "form": {
+            "groupName": "群组名称"
+        },
+        "actions": {
+            "editGroup": "编辑群组",
+            "addMembers": "添加成员",
+            "leaveGroup": "离开群组",
+            "removeFromGroup": "从群组中移除",
+            "viewPosts": "查看帖子",
+            "updateGroup": "更新群组",
+            "update": "更新",
+            "create": "创建",
+            "shareOnCommunity": "在社区中分享",
+            "shareToFeed": "分享到信息流",
+            "shareInMessage": "通过消息分享",
+            "otherOptions": "其他选项"
+        },
+        "modals": {
+            "addMembers": {
+                "title": "将成员添加到 {{groupName}}",
+                "add": "添加"
+            },
+            "confirmExit": {
+                "title": "离开群组",
+                "body": "您确定要退出群组吗：{{handle}}",
+                "leave": "离开"
+            },
+            "manageNotifications": {
+                "title": "管理通知",
+                "description": "管理关于 {{groupName}} 的通知。",
+                "options": {
+                    "all": "全部",
+                    "mostRelevant": "最相关",
+                    "mostRelevantDescription": "根据您的活动个性化推荐",
+                    "off": "关闭"
+                }
+            }
+        },
+        "share": {
+            "inviteBlurb": "加入我们的群组，获取独家更新和精彩对话！{{url}}",
+            "postToFeed": "发布到信息流",
+            "sendInMessage": "通过消息发送",
+            "copyLink": "复制链接",
+            "linkCopied": "群组链接已复制"
+        }
+    },
+    "jams": {
+        "form": {
+            "name": "Jam 名称"
+        },
+        "create": {
+            "title": "创建 Jam",
+            "submit": "创建",
+            "error": "创建 Jam 失败",
+            "success": "Jam 已创建"
+        },
+        "join": {
+            "submit": "加入 Jam",
+            "error": "加入 Jam 失败",
+            "waiting": "等待审批…",
+            "requestToJoin": "申请加入",
+            "ctaJoin": "加入",
+            "ctaStart": "开始",
+            "waitingForModerator": "等待版主让您进入"
+        },
+        "start": {
+            "submit": "开始 Jam",
+            "error": "开始 Jam 失败"
+        },
+        "close": {
+            "error": "关闭 Jam 失败",
+            "success": "Jam 已结束",
+            "title": "关闭 Jam",
+            "description": "您确定要关闭此 Jam 吗？",
+            "confirm": "关闭 Jam"
+        },
+        "exit": {
+            "error": "退出 Jam 失败",
+            "success": "成功退出 Jam",
+            "title": "退出 Jam",
+            "description": "您确定要退出此 Jam 吗？",
+            "leave": "离开 Jam",
+            "endForAll": "为所有人结束",
+            "confirm": "离开 Jam",
+            "closeOrExit": {
+                "description": "您是想离开 Jam（其他人可以留下）还是关闭 Jam（所有人都会被踢出）？"
+            }
+        },
+        "closeOrExit": {
+            "description": "您确定要关闭或退出此 Jam 吗？",
+            "confirm": "离开/结束 Jam"
+        },
+        "participants": {
+            "title": "参与者",
+            "muteSuccess": "参与者已成功静音",
+            "muteError": "静音参与者失败",
+            "cameraOffSuccess": "参与者摄像头已成功关闭",
+            "cameraOffError": "关闭参与者摄像头失败",
+            "muteParticipant": "静音参与者",
+            "muting": "正在静音…",
+            "turnOffCamera": "关闭摄像头",
+            "turningOffCamera": "正在关闭…"
+        },
+        "waitingRoom": {
+            "joinedToastOne": "有 {{count}} 人加入了等候室！",
+            "joinedToastMany": "有 {{count}} 人加入了等候室！",
+            "admitSuccess": "参与者已成功准入",
+            "admitError": "准入参与者失败",
+            "rejectSuccess": "参与者已成功拒绝",
+            "rejectError": "拒绝参与者失败",
+            "admitParticipant": "准入",
+            "admitting": "正在准入…",
+            "rejectParticipant": "拒绝",
+            "rejecting": "正在拒绝…"
+        },
+        "recording": {
+            "stopTitle": "停止录制",
+            "recordTitle": "录制此 Jam",
+            "stopped": "录制已停止：{{id}}",
+            "started": "录制已开始：{{id}}",
+            "stopError": "停止录制失败",
+            "startError": "开始录制失败"
+        },
+        "lobby": {
+            "readyTitle": "准备开始？",
+            "exitLobbyBody": "您确定要退出大厅吗？",
+            "exitLobbyConfirm": "退出 Jam",
+            "guestIntro": "在下方输入您的详细信息以进入等候室",
+            "guestFullNameLabel": "全名",
+            "guestFullNamePlaceholder": "全名",
+            "guestEmailLabel": "邮箱",
+            "guestEmailPlaceholder": "邮箱",
+            "guestTermsAgreePrefix": "继续即表示您同意",
+            "guestTermsLink": "服务条款",
+            "guestTermsAgreeSuffix": "关于 Jam 活动",
+            "continue": "继续",
+            "fallbackTitle": "Jam",
+            "cameraOff": "摄像头已关闭"
+        },
+        "drawer": {
+            "close": "关闭抽屉",
+            "debugTitle": "调试面板",
+            "toggleDebug": "切换调试面板",
+            "jamControls": "Jam 控制",
+            "audioLevel": "音频级别",
+            "activityHistory": "活动历史",
+            "chatTitle": "Jam 内消息",
+            "peopleTitle": "人员",
+            "searchPeoplePlaceholder": "搜索人员",
+            "searchButton": "搜索"
+        },
+        "chat": {
+            "messagePlaceholder": "发送消息",
+            "sendTitle": "发送消息",
+            "openEveryoneTitle": "与所有人聊天",
+            "noMessages": "未找到消息"
+        },
+        "people": {
+            "inJam": "在 Jam 中",
+            "inWaitingRoom": "在等候室中",
+            "noParticipants": "未找到参与者"
+        },
+        "debug": {
+            "audioLevelLabel": "音频级别",
+            "currentAudioLevel": "当前音频级别：",
+            "noActivity": "无活动"
+        },
+        "device": {
+            "changeTitle": "更换设备",
+            "turnOn": "开启",
+            "turnOff": "关闭",
+            "switchTitle": "切换设备",
+            "loadingDevices": "正在加载可用设备…",
+            "microphone": "麦克风",
+            "camera": "摄像头",
+            "defaultSpeaker": "默认发言者"
+        },
+        "mobileMenu": {
+            "inJamMessage": "Jam 内消息",
+            "jamDetails": "Jam 详情",
+            "people": "人员"
+        },
+        "network": {
+            "connectionStatus": "连接状态",
+            "connectionDetail": "您的互联网连接质量为 {{quality}}。",
+            "dismiss": "关闭"
+        },
+        "screenShare": {
+            "stopTitle": "停止屏幕共享",
+            "startScreenshareMobile": "开始屏幕共享",
+            "stopScreenshareMobile": "停止屏幕共享",
+            "startStopTitle": "开始/停止屏幕共享",
+            "stopSharing": "停止共享",
+            "youPresenting": "（您正在演示）",
+            "presenting": "（正在演示）"
+        },
+        "reactions": {
+            "sendTitle": "发送反应",
+            "allEmojisTitle": "浏览所有表情符号",
+            "backToQuickReactions": "返回快速反应",
+            "skinToneTitle": "选择肤色"
+        },
+        "discover": {
+            "checkOtherJams": "查看其他 Jam"
+        },
+        "details": {
+            "closePanel": "关闭 Jam 详情",
+            "panelHeading": "Jam 详情",
+            "joiningInfoHeading": "加入信息",
+            "copyJoiningInfo": "复制加入信息",
+            "copiedJoiningInfo": "已复制加入信息",
+            "copyJoiningInfoButtonTitle": "复制加入信息",
+            "copiedJoiningInfoButtonTitle": "已复制加入信息",
+            "observerLinkHeading": "观察者链接",
+            "copyObserverLink": "复制观察者链接",
+            "copiedObserverLink": "已复制观察者链接",
+            "copyObserverLinkButtonTitle": "复制观察者链接",
+            "copiedObserverLinkButtonTitle": "已复制观察者链接"
+        },
+        "hand": {
+            "raiseTitle": "举手",
+            "raiseLabel": "举手"
+        },
+        "participantMenu": {
+            "muteInChat": "在聊天中静音",
+            "turnOffCamera": "关闭摄像头",
+            "removeFromJam": "从 Jam 中移除"
+        },
+        "scheduler": {
+            "pickDateTime": "为您的 Jam 选择稍后的日期和时间：",
+            "scheduleForLater": "稍后发布",
+            "dateLabel": "日期",
+            "timeLabel": "时间",
+            "selectTime": "选择时间",
+            "eventCreatedSuccess": "活动创建成功",
+            "back": "返回",
+            "save": "保存"
+        },
+        "createFlow": {
+            "schedule": "日程"
+        },
+        "modals": {
+            "attendance": {
+                "title": "Jam 出席情况",
+                "empty": "还没有人加入",
+                "close": "关闭"
+            },
+            "deleteScheduled": {
+                "title": "删除此 Jam？",
+                "body": "此 Jam 详情将不再对任何人（包括您）可用。您仍要删除此 Jam 吗？",
+                "cancel": "取消",
+                "delete": "删除",
+                "deleteEventTitle": "删除活动",
+                "successToast": "活动删除成功！"
+            }
+        },
+        "liveJams": "实时 Jam",
+        "noLiveJams": "没有可加入的实时 Jam",
+        "room": {
+            "pageTitle": "Jam 房间 - {{name}}",
+            "observerConnecting": "等待连接至 jam",
+            "jamNotActive": "此 Jam 未激活"
+        },
+        "participant": {
+            "showEveryone": "向所有人显示",
+            "turnOffCamera": "关闭视频",
+            "muteParticipant": "静音参与者"
+        }
+    },
+    "admin": {
+        "inviteLink": {
+            "unlimited": "无限制",
+            "createSuccess": "邀请链接创建成功",
+            "createError": "创建邀请链接失败",
+            "copySuccess": "邀请链接已复制到剪贴板",
+            "copyError": "复制邀请链接失败",
+            "title": "创建邀请链接",
+            "description": "邀请链接可以限制使用次数或按日期限制",
+            "twoDays": "两天",
+            "oneMonth": "一个月",
+            "deactivate": "停用链接",
+            "never": "从不",
+            "generateTitle": "点击创建邀请链接",
+            "totalLinkUses": "总使用次数：",
+            "expiresAfter": "过期时间",
+            "closeModal": "保存并关闭",
+            "numberOfUses": "使用次数",
+            "oneDay": "一天",
+            "oneWeek": "一周",
+            "copyToClipboard": "复制到剪贴板",
+            "deactivateTitle": "停用链接：将不允许新用户注册",
+            "generateButton": "创建链接",
+            "done": "完成",
+            "generateSuccess": "成功创建邀请链接"
+        },
+        "signupChart": {
+            "last30Days": "最近 30 天",
+            "today": "今天",
+            "yesterday": "昨天",
+            "last7Days": "最近 7 天",
+            "numberOfSignups": "注册人数",
+            "week": "上周注册人数",
+            "fourWeeks": "过去四周注册人数",
+            "fourMonths": "过去四个月注册人数"
+        },
+        "backups": {
+            "title": "备份与恢复",
+            "createSuccess": "备份创建成功",
+            "createError": "创建备份时出错：{{error}}",
+            "createTitle": "创建新备份",
+            "downloadTestData": "下载测试数据模板",
+            "testBackup": "测试备份",
+            "description": "所有备份均临时存储在服务器上。请下载备份并将其存放在安全的地方。您可以通过在此处上传备份来恢复。",
+            "noBackupsFound": "未找到备份",
+            "errorFetching": "获取时出错",
+            "loading": "加载中...",
+            "testRestore": {
+                "title": "使用测试备份",
+                "confirm": "您确定要使用测试备份数据吗？",
+                "cancel": "取消",
+                "continue": "继续",
+                "restoreSuccess": "备份恢复成功",
+                "restoreError": "使用测试备份时出错"
+            },
+            "restoreTitle": "恢复备份",
+            "restore": {
+                "selectFile": "选择文件",
+                "success": "恢复成功。社区服务器将重新启动。",
+                "error": "恢复备份时出错",
+                "title": "恢复备份",
+                "cancel": "取消",
+                "confirm": "确认"
+            }
+        },
+        "invites": {
+            "inviteWithLinkTitle": "通过链接邀请成员",
+            "newInvite": "新邀请",
+            "seeInvitedAccounts": "查看已邀请的账号",
+            "copyLink": "复制链接",
+            "deactivate": "停用",
+            "activate": "激活",
+            "invitedMembers": "已邀请的成员",
+            "noJoinedAccounts": "尚无账号通过此邀请链接加入。",
+            "joinedAccounts": "查看通过此邀请链接加入的账号如下：",
+            "copiedToClipboard": "已复制到剪贴板",
+            "deactivateSuccess": "邀请链接已成功停用",
+            "deactivateError": "停用邀请链接失败",
+            "activateSuccess": "邀请链接已成功激活",
+            "activateError": "激活邀请链接失败",
+            "deleteSuccess": "邀请链接已成功删除",
+            "deleteError": "删除邀请链接失败",
+            "noInvitesFound": "未找到邀请",
+            "searchPlaceholder": "按名称或邮箱搜索",
+            "title": "邀请",
+            "linkColumn": "链接",
+            "createdByColumn": "创建者",
+            "expirationDateColumn": "过期日期",
+            "usesColumn": "使用次数",
+            "statusColumn": "状态",
+            "linkHeading": "链接"
+        },
+        "filter": {
+            "title": "筛选",
+            "description": "按状态和日期筛选成员",
+            "status": "状态",
+            "pending": "待处理",
+            "accepted": "已接受",
+            "dateSent": "发送日期",
+            "from": "发件人",
+            "to": "至",
+            "dateAccepted": "接受日期",
+            "resetTitle": "重置",
+            "reset": "重置",
+            "applyTitle": "应用",
+            "apply": "应用"
+        },
+        "sort": {
+            "title": "排序",
+            "description": "按名称、用户名或日期排序成员",
+            "memberNameAZ": "成员名称（A-Z）",
+            "memberNameZA": "成员名称（Z-A）",
+            "usernameAZ": "用户名（A-Z）",
+            "usernameZA": "用户名（Z-A）",
+            "dateSentNewest": "发送日期（最新）",
+            "dateSentOldest": "发送日期（最早）",
+            "dateAcceptedNewest": "接受日期（最新）",
+            "dateAcceptedOldest": "接受日期（最早）"
+        },
+        "members": {
+            "inviteWithEmailTitle": "通过邮箱邀请成员",
+            "inviteWithLinkTitle": "通过链接邀请成员",
+            "title": "成员",
+            "searchPlaceholder": "按名称或邮箱搜索成员",
+            "noUsersFound": "未找到用户",
+            "profileColumn": "资料",
+            "rolesColumn": "角色"
+        },
+        "community": {
+            "totalProfiles": "资料总数",
+            "activeProfiles": "活跃资料",
+            "recentInteractions": "近期互动",
+            "totalMembers": "成员总数",
+            "activeMembers": "活跃成员",
+            "recentSignups": "近期注册"
+        },
+        "overview": {
+            "title": "分析",
+            "communityOverview": "社区概览",
+            "newSignups": "新注册用户",
+            "content": "内容",
+            "postsRepliesReposts": "帖子、回复、转发",
+            "allPosts": "所有帖子",
+            "postsWithoutReplies": "无回复的帖子",
+            "postsWithReplies": "带回复的帖子",
+            "replies": "回复",
+            "topProfilesOfYear": "年度热门资料前 {{count}} 名",
+            "topPostsOfYear": "年度热门帖子前 {{count}} 名",
+            "totalProfiles": "资料总数",
+            "activeProfiles": "活跃资料",
+            "recentInteractions": "近期互动",
+            "jamSessions": "Jam 会话",
+            "jamParticipants": "Jam 参与者",
+            "lastWeek": "上周"
+        },
+        "moderation": {
+            "title": "审核",
+            "summaryTab": "摘要",
+            "resolvedTab": "已解决",
+            "report": {
+                "title": "与此资料相关的 {{reportsCount}} 条未解决举报",
+                "description": "{{profileName}} 有 {{reportsCount}} 条未解决的举报",
+                "unresolvedBadge": "{{reportsCount}} 条未解决举报",
+                "resolvedBadge": "所有举报已处理",
+                "closeOptions": {
+                    "title": "关闭此举报？",
+                    "description": "您即将关闭此举报，请选择以下操作来关闭它：",
+                    "deleteProfile": {
+                        "description": "阻止资料显示在列表中并被任何人看到，同时也会移除内容。",
+                        "button": "删除资料"
+                    },
+                    "deletePost": {
+                        "description": "帖子将不再显示在信息流和社区中",
+                        "button": "删除帖子"
+                    },
+                    "closeReport": {
+                        "description": "不采取任何操作，直接解决此举报",
+                        "button": "仅关闭"
+                    }
+                },
+                "close": {
+                    "title": "仅关闭举报？",
+                    "description": "您即将关闭此举报而不对其执行操作，这将标记为已解决。您确定要这样做吗？",
+                    "cancel": "返回",
+                    "confirm": "是的，关闭它"
+                }
+            },
+            "post": {
+                "delete": {
+                    "title": "删除此帖子？",
+                    "description": "您即将删除此帖子，它将不再在社区中可用。您确定要这样做吗？",
+                    "cancel": "返回",
+                    "confirm": "是的，删除它"
+                }
+            },
+            "profile": {
+                "delete": {
+                    "title": "删除此资料？",
+                    "description": "您即将删除此个人资料。这将阻止该资料在列表中显示并被任何人看到，同时也会删除内容。您确定要这样做吗？",
+                    "cancel": "返回",
+                    "confirm": "是的，删除它"
+                }
+            },
+            "reportList": {
+                "allResolvedBadge": "所有举报已处理",
+                "seeReports": "查看举报",
+                "postHeading": "帖子",
+                "unresolvedBadge": "未解决",
+                "goToPost": "前往帖子",
+                "closeReport": "关闭"
+            }
+        },
+        "configuration": {
+            "unnamedSection": "配置",
+            "community": {
+                "capabilities": {
+                    "title": "角色与权限"
+                },
+                "defaultRoles": {
+                    "title": "默认角色",
+                    "roleOnRegistration": "注册时的默认角色",
+                    "roleOnRegistrationDescription": "这将是新社区成员注册后获得的角色。如果您选择“待定成员”，他们将在验证电子邮件后变为“成员”。管理员可以随时根据需要更改角色。",
+                    "success": "默认角色已更新"
+                },
+                "roleConfigurationSimple": {
+                    "title": "成员权限",
+                    "membersCanCreateEvents": {
+                        "title": "成员可以创建活动",
+                        "description": "如果您想将活动创建权限限制为社区所有者和版主，请关闭此选项"
+                    },
+                    "membersCanCreateGroups": {
+                        "title": "所有成员均可创建群组",
+                        "description": "关闭以将群组创建权限限制为社区所有者和版主"
+                    },
+                    "success": "社区配置已更新"
+                }
+            }
+        }
+    },
+    "configuration": {
+        "title": "配置",
+        "email": {
+            "title": "邮箱",
+            "description": "配置 SMTP 传输并使用草稿设置测试投递能力。",
+            "intro": "编辑 SMTP 传输和发件人详情，然后使用以下值（无论是否保存）发送测试邮件。当密码字段显示占位符字符时，将使用已保存的密码。",
+            "sections": {
+                "general": "渲染和模板",
+                "transport": "SMTP 传输"
+            },
+            "fields": {
+                "renderHostBaseUrl": "渲染主机基础 URL",
+                "renderHostBaseUrlDescription": "可选。渲染邮件 HTML（链接和资源）时使用的基础 URL。",
+                "service": "邮件服务",
+                "defaultTemplatePath": "默认模板路径",
+                "defaultTemplatePathDescription": "邮件模板的文件系统路径，相对于服务器。",
+                "defaultFrom": "默认发件地址",
+                "defaultFromDescription": "未指定时使用的可选发件人地址。",
+                "host": "SMTP 主机",
+                "port": "SMTP 端口",
+                "authUser": "SMTP 用户名",
+                "authPass": "SMTP 密码",
+                "authPassDescription": "保留占位符字符不变以保持已保存的密码。"
+            },
+            "updateSuccess": "邮件配置已更新。",
+            "testTitle": "发送测试邮件",
+            "testHint": "通过草稿 SMTP 传输发送完全渲染的测试邮件，绕过队列。",
+            "testRecipient": "发送测试至",
+            "testRecipientPlaceholder": "you@example.com",
+            "sendTest": "发送测试邮件",
+            "recipientRequired": "输入一个邮箱地址以接收测试邮件。",
+            "testSuccess": "测试邮件已发送。检查收件箱（和垃圾邮件）中您输入的收件人。",
+            "testFailed": "测试邮件失败。请检查 SMTP 主机、端口、凭据以及服务器日志中的错误详情。",
+            "bounceNote": "一旦您的 SMTP 提供商接受消息，发送即成功。收件人退信、垃圾邮件过滤和无效地址发生在之后，不会在此显示。"
+        },
+        "profileFields": {
+            "title": "资料字段配置",
+            "add": "添加字段",
+            "remove": "移除字段",
+            "fields": {
+                "name": "字段名称",
+                "type": "字段类型",
+                "required": "必填",
+                "options": "选项",
+                "placeholder": "占位符",
+                "description": "描述"
+            },
+            "types": {
+                "text": "文本",
+                "number": "数字",
+                "select": "选择",
+                "multiselect": "多选",
+                "date": "日期",
+                "boolean": "是/否"
+            },
+            "description": "所有字段目前均为文本。完整的 URL（例如 https://example.com）将显示为链接。"
+        },
+        "community": {
+            "icon": "社区图标",
+            "logo": "社区徽标",
+            "logoFull": "社区完整徽标",
+            "backgroundAuth": "后台认证",
+            "background": "背景",
+            "updateSuccess": "社区设置已更新",
+            "favicon": "浏览器网站图标",
+            "lightModeFavicon": "浅色模式网站图标",
+            "darkModeFavicon": "深色模式网站图标",
+            "currentIcon": "当前图标",
+            "uploadIcon": "浏览并上传图标",
+            "iconRequirements": "提交至少 70x70 的图片（PNG、JPG、SVG、ICO…）。为获得最佳效果，图片应为 260x260 或更大。",
+            "currentLogo": "当前徽标",
+            "uploadLogo": "浏览并上传徽标",
+            "logoRequirements": "提交宽高比为 16:9 的图片（PNG、JPG、SVG、ICO…）。",
+            "logoFullRequirements": "提交图片（PNG、JPG、SVG、ICO…）。",
+            "theme": {
+                "title": "主题",
+                "description": "自定义社区的外观和感觉，包括徽标、深色和浅色模式以及品牌颜色"
+            },
+            "mode": "模式",
+            "light": {
+                "uploadLightThemeBackground": "上传浅色主题图片",
+                "uploadDarkThemeBackground": "上传深色主题图片",
+                "uploadLightThemeLogo": "上传浅色主题徽标",
+                "uploadDarkThemeLogo": "上传深色主题徽标"
+            },
+            "lightMode": "浅色",
+            "dark": "深色",
+            "brandColor": "品牌颜色",
+            "color": "颜色",
+            "colorDescription": "此颜色将用于按钮、链接和其他高亮元素",
+            "contactEmail": "联系邮箱",
+            "contactEmailDescription": "此邮箱显示在欢迎页面、欢迎邮件以及其他地方，供社区成员联系社区所有者。",
+            "email": "邮箱",
+            "name": "社区名称",
+            "nameDescription": "此内容显示在浏览器标题栏和邮件主题中，代表您社区的名称。",
+            "tagline": "社区标语",
+            "taglineDescription": "此内容显示在注册页面上，提供社区的简要描述。",
+            "save": "保存更改",
+            "themeDescription": "选择用户访问您的社区时显示的默认主题。",
+            "authBackground": "注册页面图片",
+            "authBackgroundDescription": "这会显示在注册、登录和忘记密码页面上",
+            "lightThemecolor": "浅色主题高亮颜色",
+            "darkThemeColor": "深色主题高亮颜色",
+            "backgroundDescription": "此背景图片显示在桌面和平板电脑屏幕尺寸的社区页面后面。",
+            "logoDescription": "这会显示在社区的每个页面、电子邮件以及您的徽标重要的其他位置。  您可以上传不同的图片用于浅色模式和深色模式",
+            "themeColor": "高亮颜色",
+            "themeColorDescription": "高亮颜色将用于按钮和链接。您可以为浅色和深色模式使用不同的颜色，以确保为您的成员提供最佳对比度。",
+            "customizeHelp": "在此处自定义您的社区以匹配您的外观和感觉：",
+            "upload": "选择图片",
+            "mobileFavicon": "移动端网站图标",
+            "button": "按钮",
+            "linkTest": "链接测试",
+            "uploadFormat": "支持 PNG、JPG 和 GIF 格式",
+            "pageBackgroundImage": "页面背景图片",
+            "pageBackgroundImageDesc": "此图片在宽屏上显示为背景图片",
+            "serverAuthBackgroundImageDesc": "此图片显示为登录和注册页面的背景图片",
+            "category": {
+                "title": {
+                    "favicon": "网站图标",
+                    "communityLogo": "社区徽标",
+                    "communityTheme": "社区主题",
+                    "brandColor": "品牌颜色",
+                    "contactEmail": "联系邮箱",
+                    "communityName": "社区名称",
+                    "communityTagline": "社区标语",
+                    "welcomePageText": "欢迎页面文本",
+                    "pageText": "页面文本",
+                    "welcomeEmailText": "欢迎邮件文本",
+                    "serverAuthBackgroundImage": "服务器认证背景图片",
+                    "backgroundImage": "背景图片",
+                    "accountsToFollow": "推荐关注的账号",
+                    "privacyPolicyLink": "隐私政策链接",
+                    "termsAndConditions": "条款和条件"
+                },
+                "description": {
+                    "favicon": "选择一张图片作为浏览器和移动端网站图标",
+                    "communityLogo": "选择一张图片作为社区徽标",
+                    "communityTheme": "为您的社区选择主题",
+                    "brandColor": "为您的社区选择品牌颜色",
+                    "contactEmail": "设置社区成员联系您的邮箱",
+                    "communityName": "为您的社区命名",
+                    "communityTagline": "提供社区的简要描述",
+                    "welcomePageText": "新成员加入时看到的描述",
+                    "pageText": "社区描述",
+                    "welcomeEmailText": "发送给社区成员的邮件文本",
+                    "serverAuthBackgroundImage": "登录和注册页面上的图片",
+                    "backgroundImage": "认证页面和宽屏背景图片",
+                    "accountsToFollow": "设置推荐关注的账号",
+                    "privacyPolicyLink": "设置隐私政策链接",
+                    "termsAndConditions": "设置条款和条件链接"
+                }
+            },
+            "title": "社区设置",
+            "description": "配置您的社区用户体验。您可以在此为社区命名、设置入站邮件和页面、上传徽标和颜色等。",
+            "info": {
+                "title": "基本信息",
+                "description": "为您的社区命名、添加标语和联系邮箱"
+            },
+            "favicons": {
+                "title": "图标",
+                "description": "添加您自己的浏览器和移动图标"
+            },
+            "welcomePage": {
+                "title": "欢迎页面",
+                "description": "在入站体验中向您的用户介绍您的社区。  <br/> 您可以使用 [Markdown](https://www.markdownguide.org) 格式化此页面的内容。"
+            },
+            "codeOfConduct": {
+                "title": "行为准则",
+                "description": "为您的社区制定规则和期望。该页面在 /code-of-conduct 对所有人公开，包括未登录的访客。<br/> 您可以使用 Markdown 格式化此页面的内容；请参阅 https://www.markdownguide.org/"
+            },
+            "welcomeEmail": {
+                "title": "欢迎邮件",
+                "description": "在成员从社区收到的第一封邮件中添加您自己的信息。<br/>。您可以使用 Markdown 格式化此邮件，但请注意，邮件客户端并非总能很好地支持所有格式。"
+            },
+            "aboutPage": {
+                "title": "关于页面",
+                "description": "此页面显示给未登录您社区的人。  <br/>  您可以使用 Markdown 格式化它。  了解有关 Markdown 语法的更多信息，请访问 https://www.markdownguide.org/，或使用您喜欢的 AI 工具将格式化的文档转换为 Markdown 并粘贴到此处。"
+            },
+            "links": {
+                "title": "政策链接",
+                "description": "添加社区隐私政策和服务条款的链接"
+            },
+            "profileFields": {
+                "title": "资料字段",
+                "description": "使用附加信息字段自定义成员的个人资料页面"
+            },
+            "roles": {
+                "title": "角色与权限",
+                "description": "设置社区中每个角色可用的功能和权限"
+            },
+            "language": {
+                "title": "默认语言",
+                "description": "设置此社区所有用户的默认语言",
+                "languageDescription": "选择社区的默认语言。未设置个人语言偏好的用户将看到此语言的界面。",
+                "updateSuccess": "默认语言更新成功。"
+            },
+            "privacyPolicy": "隐私政策 URL",
+            "termsAndConditions": "条款和条件 URL",
+            "lightTheme": {
+                "color": "浅色主题高亮颜色",
+                "mode": "浅色",
+                "uploadAuthBackground": "点击上传新的浅色主题注册页面图片",
+                "uploadBackground": "点击上传新的浅色主题社区背景图片",
+                "uploadLogo": "点击上传用于浅色主题和邮件通知的徽标"
+            },
+            "darkTheme": {
+                "color": "深色主题高亮颜色",
+                "mode": "深色",
+                "uploadAuthBackground": "点击上传新的深色主题注册页面图片",
+                "uploadLogo": "点击上传新的深色主题社区背景图片",
+                "uploadBackground": "点击上传新的深色主题社区背景图片"
+            },
+            "authBackgroundRequirements": "此图片在这些页面上垂直适配，因此使用垂直宽高比可获得最佳效果。建议图片小于 2MB。",
+            "backgroundRequirements": "使用宽屏查看社区时，此图片将显示在社区内容后面。移动端用户不可见。"
+        },
+        "server": {
+            "stripe": {
+                "errors": {
+                    "invalidCredentials": "Stripe 凭据无效",
+                    "noProductId": "未找到 Stripe 产品 ID",
+                    "noActivePrice": "未找到有效的 Stripe 价格",
+                    "failed": "付款配置测试失败"
+                },
+                "success": {
+                    "test": "付款配置测试成功！"
+                }
+            }
+        },
+        "serverSettings": {
+            "title": "服务器设置",
+            "description": "配置您的社区服务器。您可以在此连接 LiveKit、Sentry 及其他关键服务，以及添加 Apple 和 Google Play 商店链接和推送通知配置。"
+        },
+        "i18n": {
+            "title": "自定义文本",
+            "description": "更改整个社区的文本",
+            "pageTitle": "翻译",
+            "save": "保存"
+        }
+    },
+    "diagnostics": {
+        "title": "诊断",
+        "description": "检查运行时服务并确认它们能端到端工作。",
+        "email": {
+            "title": "邮箱",
+            "description": "检查出站邮件队列并通过常规投递管道将测试邮件加入队列。",
+            "testTitle": "将测试邮件加入队列",
+            "testHint": "使用已保存的配置将测试邮件添加到队列中，就像 CLI 命令一样。",
+            "testRecipient": "发送测试至",
+            "testRecipientPlaceholder": "you@example.com",
+            "queueTest": "将测试邮件加入队列",
+            "recipientRequired": "输入一个邮箱地址以接收测试邮件。",
+            "queueSuccess": "测试邮件已加入队列。观察队列计数器以查看其被处理。",
+            "queueFailed": "将测试邮件加入队列失败",
+            "queueTitle": "出站邮件队列",
+            "refresh": "刷新",
+            "countsHint": "Redis 中邮件工作者的任务。已完成的任务约 24 小时后移除；失败的任务保留更长时间以便诊断问题。",
+            "statsError": "无法加载队列统计信息。Redis 是否正在运行且可访问？",
+            "waiting": "等待中",
+            "active": "进行中",
+            "completed": "已完成",
+            "failed": "失败",
+            "delayed": "已延迟",
+            "prioritized": "已优先",
+            "recentFailures": "近期发送失败",
+            "bounceNote": "这些计数反映您的服务器是否能够将邮件交给您的 SMTP 提供商。它们不包括收件人退信、垃圾邮件文件夹投递或交接后的无效地址。"
+        },
+        "jobs": {
+            "title": "队列任务",
+            "viewLogs": "查看作业日志",
+            "notFound": "未找到任务。可能已从队列中移除。",
+            "details": "任务详情",
+            "refresh": "刷新",
+            "queue": "队列",
+            "id": "任务 ID",
+            "name": "任务名称",
+            "state": "状态",
+            "queuedAt": "加入队列时间",
+            "finishedAt": "结束于",
+            "failedReason": "失败原因",
+            "payload": "任务负载",
+            "logs": "任务日志",
+            "logsHint": "此任务存储了 {{count}} 条日志。",
+            "logsEmpty": "此任务尚无日志记录。"
+        },
+        "logs": {
+            "title": "日志",
+            "description": "按日浏览服务器日志条目，按级别或文本筛选，并实时查看今日日志流。",
+            "hint": "日志以每日文件形式存储在服务器上。选择日期查看历史记录。",
+            "date": "日期",
+            "level": "级别",
+            "allLevels": "所有级别",
+            "filter": "筛选",
+            "filterPlaceholder": "搜索消息或命名空间…",
+            "refresh": "刷新",
+            "autoRefresh": "每 5 秒自动刷新",
+            "showing": "显示 {{count}} 条，共 {{total}} 条",
+            "loadError": "无法加载日志。",
+            "empty": "没有日志条目匹配当前筛选条件。",
+            "timestamp": "时间（UTC）",
+            "levelColumn": "级别",
+            "namespaceColumn": "命名空间",
+            "messageColumn": "消息"
+        }
+    },
+    "common": {
+        "errors": {
+            "networkError": "网络错误。请检查您的连接。",
+            "unauthorized": "请登录后继续",
+            "forbidden": "您没有执行此操作的权限",
+            "notFound": "未找到",
+            "serverError": "服务器错误。请稍后重试。",
+            "error": "错误"
+        },
+        "form": {
+            "description": "描述",
+            "fieldKey": "键",
+            "mention": "提及",
+            "required": "必填",
+            "optional": "可选",
+            "save": "保存",
+            "cancel": "取消",
+            "loading": "加载中…",
+            "error": {
+                "required": "此字段为必填",
+                "invalid": "无效值",
+                "maxLength": "太长",
+                "minLength": "太短"
+            },
+            "password": {
+                "hide": "隐藏密码",
+                "show": "显示密码"
+            },
+            "selectMultiple": "多选",
+            "select": "选择",
+            "date": "日期",
+            "time": "时间",
+            "switchTo": "切换到"
+        },
+        "actions": {
+            "edit": "编辑",
+            "delete": "删除",
+            "confirm": "确认",
+            "cancel": "取消",
+            "remove": "移除",
+            "reportProfile": "举报 @{{handle}}",
+            "blockProfile": "屏蔽 @{{handle}}",
+            "reportPost": "举报帖子",
+            "shareProfile": "分享资料",
+            "add": "添加",
+            "success": "成功！",
+            "download": "下载",
+            "duplicate": "复制活动"
+        },
+        "submit": "提交",
+        "listEditor": {
+            "removeTitle": "移除",
+            "addTitle": "添加"
+        },
+        "next": "下一步",
+        "back": "返回",
+        "done": "完成",
+        "close": "关闭",
+        "edit": "编辑",
+        "you": "您",
+        "media": {
+            "audioPlayer": "音频播放器",
+            "image": {
+                "cropTitle": "裁剪图片",
+                "recents": "最近"
+            },
+            "video": {
+                "recents": "最近"
+            },
+            "send": "发送",
+            "sending": "正在发送…",
+            "altTextDescription": "您可以在此处为媒体文件添加描述——这可以帮助查看者更好地了解您的图片和文档。"
+        },
+        "members": {
+            "addSuccess": "成员添加成功",
+            "addError": "添加成员失败",
+            "adding": "正在添加…"
+        },
+        "add": "添加",
+        "cancel": "取消",
+        "none": "无",
+        "remove": "移除"
+    },
+    "conversations": {
+        "newMessage": "新消息",
+        "noMessages": "这里没有私信",
+        "createNew": {
+            "title": "新对话",
+            "searchPlaceholder": "搜索人员",
+            "sendMessage": "发送消息",
+            "messagePlaceholder": "输入您的消息",
+            "send": "发送"
+        },
+        "messageInThread": {
+            "startedBy": "由 {{name}} 发起",
+            "addedBy": "由 {{name}} 添加",
+            "left": "{{name}} 已离开",
+            "removedBy": "由 {{name}} 移除"
+        },
+        "message": {
+            "viewAttachment": "查看附件",
+            "attachment": "附件",
+            "created": "已创建",
+            "invited": "邀请您",
+            "happening": "进行中",
+            "joinNow": "立即加入",
+            "copy": {
+                "title": "复制消息"
+            },
+            "delete": {
+                "title": "删除消息",
+                "deleteForMe": "为我删除",
+                "deleteForEveryone": "为所有人删除",
+                "description": "您确定要删除此消息吗？",
+                "confirm": "删除",
+                "loading": "正在删除…",
+                "deleteDescription": "您确定要删除此消息吗？",
+                "deleteSuccess": "消息删除成功",
+                "deleteError": "删除消息失败"
+            }
+        },
+        "leaveConversation": {
+            "title": "离开对话",
+            "description": "您确定要离开此对话吗？",
+            "leave": "离开"
+        },
+        "blockAccount": {
+            "title": "屏蔽 {{handle}}",
+            "description": "您确定要屏蔽 {{handle}} 吗？",
+            "block": "屏蔽"
+        },
+        "reportAccount": {
+            "title": "举报 {{handle}}",
+            "description": "您确定要举报 {{handle}} 吗？",
+            "sendReport": "发送举报"
+        },
+        "settings": {
+            "title": "对话设置",
+            "messageRequests": {
+                "title": "消息请求",
+                "description": "允许未关注的人发送消息请求",
+                "everyone": "所有人",
+                "noOne": "无人"
+            }
+        }
+    },
+    "settings": {
+        "description": "在此处管理与您的账号相关的所有设置：",
+        "profile": {
+            "description": "更改您的资料详情",
+            "updateError": "更新您的资料时出错。",
+            "updateSuccess": "您的资料已更新",
+            "updateHandleExists": "句柄已被占用"
+        },
+        "account": {
+            "description": "更改您的账号信息",
+            "oldPassword": "当前密码",
+            "oldPasswordDescription": "输入您当前的密码",
+            "oldPasswordPlaceholder": "输入您当前的密码",
+            "email": "邮箱",
+            "emailPlaceholder": "输入您的邮箱",
+            "newPassword": "新密码",
+            "newPasswordPlaceholder": "输入您的新密码",
+            "confirmPassword": "确认密码",
+            "confirmPasswordPlaceholder": "确认您的新密码",
+            "oldPasswordReason": "出于安全原因，您必须输入当前密码才能更改密码或邮箱地址",
+            "oldPasswordRequired": "需要当前密码",
+            "updateSuccessMessage": "您的账号已更新",
+            "updateSuccess": "更新成功",
+            "updateError": "更新失败：{{error}}",
+            "samePasswordError": "新密码不能与当前密码相同",
+            "updateFailed": "密码更新失败：{{error}}",
+            "title": "账号设置"
+        },
+        "billing": {
+            "title": "账单与订阅",
+            "paymentMethod": "付款方式",
+            "currentPeriod": "当前周期",
+            "autoRenewal": "自动续期",
+            "autoRenewalCanceled": "已取消",
+            "autoRenewalActive": "活跃",
+            "createPortal": "客户门户"
+        },
+        "notifications": {
+            "inApp": "应用内通知",
+            "push": "推送通知",
+            "email": "邮件通知",
+            "updateSuccess": "社区设置已更新",
+            "description": "管理您的通知偏好",
+            "types": {
+                "reply": {
+                    "label": "回复",
+                    "description": "管理有人回复您的帖子时的通知"
+                },
+                "repost": {
+                    "label": "转发",
+                    "description": "管理您的帖子被转发时的通知"
+                },
+                "reaction": {
+                    "label": "反应",
+                    "description": "管理您的帖子获得反应时的通知"
+                },
+                "jamStarted": {
+                    "label": "Jam 已开始",
+                    "description": "管理您在 Jam 开始时接收实时 Jam 通知的方式"
+                },
+                "jamModerator": {
+                    "label": "Jam 主持人",
+                    "description": "管理您在被邀请主持 Jam 时接收实时 Jam 通知的方式"
+                },
+                "jamSpeaker": {
+                    "label": "Jam 发言者",
+                    "description": "管理您在被邀请在 Jam 中发言时接收实时 Jam 通知的方式"
+                },
+                "directMessages": {
+                    "label": "私信",
+                    "description": "管理您收到私信时的通知"
+                },
+                "announcement": {
+                    "label": "公告",
+                    "description": "管理您收到公告时的通知"
+                },
+                "directMessage": {
+                    "label": "私信"
+                },
+                "follow": {
+                    "description": "管理有人关注您时的通知",
+                    "label": "新关注者"
+                },
+                "newProfile": {
+                    "label": "新资料",
+                    "description": "管理创建新资料时的通知"
+                },
+                "newGroupPost": {
+                    "label": "新群组帖子",
+                    "description": "管理群组中创建新帖子时的通知"
+                },
+                "groupAdded": {
+                    "label": "群组已添加",
+                    "description": "管理您被添加到群组时的通知"
+                },
+                "groupMemberJoined": {
+                    "label": "群组成员已加入",
+                    "description": "管理成员加入群组时的通知"
+                },
+                "groupMemberLeft": {
+                    "label": "群组成员已离开",
+                    "description": "管理成员离开群组时的通知"
+                },
+                "pollVote": {
+                    "label": "投票",
+                    "description": "管理投票被投票时的通知"
+                },
+                "rsvp": {
+                    "label": "RSVP",
+                    "description": "管理有人回复活动邀请时的通知"
+                }
+            },
+            "pushSettings": "推送通知",
+            "pushEnabled": "已为此浏览器启用",
+            "testPush": "发送推送通知",
+            "create": "应用内通知",
+            "title": "通知设置",
+            "feedPreferences": {
+                "modalTitle": "通知信息流偏好",
+                "subtitle": "管理您在通知信息流中看到的内容",
+                "markAllRead": "全部标记为已读",
+                "unreadSection": "未读通知",
+                "newFollowersSection": "新关注者",
+                "newPostSection": "新帖子",
+                "mentionsSection": "提及",
+                "repostsSection": "转发"
+            },
+            "headerPreferencesTitle": "通知偏好",
+            "markAllReadSuccess": "通知已成功清除"
+        },
+        "form": {
+            "imageEditModal": {
+                "title": "编辑图片",
+                "placeholder": "为视障用户描述您的图片",
+                "cropping": "图片裁剪",
+                "altText": "替代文本"
+            }
+        },
+        "publicProfile": {
+            "title": "公开资料",
+            "description": "更改您的显示名称、个人简介以及资料在社区中显示的其他相关信息"
+        },
+        "theme": {
+            "title": "主题设置",
+            "description": "查看社区时在浅色和深色模式主题之间切换",
+            "themeDescription": "更改社区外观。您可以选择浅色或深色模式，或让您的社区或操作系统决定。",
+            "community": {
+                "mode": "使用社区设置"
+            },
+            "light": {
+                "mode": "始终使用浅色模式"
+            },
+            "dark": {
+                "mode": "始终使用深色模式"
+            },
+            "system": {
+                "mode": "使用我的操作系统设置"
+            },
+            "updateSuccess": "主题设置已更新。页面将重新加载。"
+        },
+        "language": {
+            "title": "语言设置",
+            "description": "选择您偏好的界面语言",
+            "languageDescription": "选择您希望在平台上使用的语言。这将把所有界面文本更改为您选择的语言。",
+            "default": "（默认）",
+            "updateSuccess": "语言设置已更新。页面将重新加载。"
+        }
+    },
+    "form": {
+        "imageEditModal": {
+            "title": "编辑图片",
+            "placeholder": "为视障用户描述您的图片",
+            "cropping": "图片裁剪",
+            "altText": "替代文本",
+            "crop": "裁剪"
+        },
+        "headerAvatarInput": {
+            "coverImage": "封面图片"
+        },
+        "imageInput": {
+            "maxSize": "最大大小：{{size}}",
+            "uploadText": "上传图片",
+            "uploadTitle": "上传图片"
+        },
+        "upload": {
+            "failed": "文件上传失败",
+            "failedWithReason": "文件上传失败：{{reason}}",
+            "uploading": "正在上传",
+            "processing": "处理中"
+        },
+        "preview": "预览",
+        "edit": "返回编辑",
+        "uploadEditModal": {
+            "description": {
+                "altText": "添加文档描述",
+                "title": "编辑文档信息",
+                "placeholder": "在此处输入描述"
+            }
+        }
+    },
+    "accounts": {
+        "login": {
+            "title": "登录",
+            "description": "登录您的账号",
+            "loginButton": "登录"
+        },
+        "editEmail": {
+            "title": "编辑邮件",
+            "description": "输入您的新邮箱地址",
+            "emailLabel": "邮箱",
+            "emailPlaceholder": "输入您的新邮箱",
+            "saveChanges": "更新电子邮件",
+            "sameEmail": "输入与当前不同的邮箱地址。",
+            "updateSuccess": "邮箱更新成功",
+            "updateError": "更新邮箱失败"
+        },
+        "validateEmail": {
+            "success": "验证邮件已发送"
+        }
+    },
+    "visibility": {
+        "post": {
+            "description": "谁可以查看并与该内容互动。",
+            "group": {
+                "description": "特定群组的成员",
+                "title": "特定群组"
+            },
+            "local": {
+                "description": "发布到整个社区",
+                "title": "社区"
+            },
+            "title": "谁可以查看此内容",
+            "public": {
+                "description": "对互联网上的所有人可见",
+                "title": "公开"
+            },
+            "direct": {
+                "title": "特定人员",
+                "description": "只有特定人员可以看到此帖子"
+            },
+            "no-groups": "没有可用的群组"
+        },
+        "event": {
+            "description": "谁可以查看并加入此活动。",
+            "group": {
+                "description": "只有所选群组中的人可以查看和加入",
+                "title": "特定群组"
+            },
+            "local": {
+                "description": "社区中的所有人都可以加入",
+                "title": "社区"
+            },
+            "title": "活动可见性",
+            "public": {
+                "description": "互联网上的所有人都可以加入",
+                "title": "公开"
+            },
+            "direct": {
+                "title": "特定人员",
+                "description": "只有您邀请的个人才能看到此活动"
+            },
+            "no-groups": "没有可用的群组"
+        },
+        "accessDenied": "您无权访问此内容"
+    },
+    "events": {
+        "form": {
+            "title": "基本信息",
+            "name": "活动名称",
+            "description": "为您的活动起一个清晰、描述性的名称",
+            "descriptionPlaceholder": "描述您的活动",
+            "dateAndTimeTitle": "日期和时间",
+            "startDate": "开始日期",
+            "endDate": "结束日期",
+            "addEndDate": "添加结束日期和时间",
+            "timezone": "时区",
+            "timezonePlaceholder": "选择您的时区",
+            "location": "地点",
+            "address": "地址",
+            "addressPlaceholder": "添加地址",
+            "eventFormat": "活动形式",
+            "jamFormatLabel": "Jam 活动",
+            "externalFormatLabel": "外部活动链接",
+            "inPersonFormatLabel": "线下活动",
+            "people": "人员",
+            "visibility": "可见性",
+            "visibilityDescription": "选择谁可以查看和加入您的活动",
+            "attendeeListPublic": "让参与者可以看到其他参加此活动的人",
+            "jamModerators": "Jam 主持人（可选）。",
+            "jamWaitingRoom": "等候室",
+            "jamWaitingRoomDescription": "仅限已批准的用户加入",
+            "timezoneSearch": "搜索时区",
+            "visibilityNotChangeable": "注意：活动发布后无法更改可见性。请确保您添加了正确的人员或群组。",
+            "jamModeratorsDescription": "点击选择 Jam 主持人",
+            "externalEventUrlPlaceholder": "https://example.com/event"
+        },
+        "feed": {
+            "past": "过去",
+            "upcoming": "即将到来",
+            "empty": "没有 {{type}}"
+        },
+        "create": {
+            "title": "创建活动"
+        },
+        "tabs": {
+            "rsvps": "RSVPs",
+            "discussion": "讨论",
+            "attendees": "参与者",
+            "invited": "已邀请",
+            "jamAttendees": "Jam 参与者",
+            "description": "描述"
+        },
+        "profileRelationship": {
+            "owner": "您是主办方",
+            "attending": "参加",
+            "tentative": "可能参加"
+        },
+        "jam": {
+            "start": "开始 Jam"
+        },
+        "hostedBy": "组织者",
+        "group": "群组活动：",
+        "startDate": "开始日期",
+        "endDate": "结束日期",
+        "community": "社区活动",
+        "noRsvps": "暂无 RSVP",
+        "noAttendees": "暂无参与者"
+    },
+    "reports": {
+        "categories": {
+            "spamDescription": "垃圾或无关内容",
+            "otherDescription": "其他问题",
+            "violationDescription": "涉及种族主义、性别歧视或仇恨内容"
+        },
+        "create": {
+            "back": "返回",
+            "post": {
+                "title": "举报帖子",
+                "description": "帮助我们了解问题，此帖子有什么问题？",
+                "anythingElse": "还有其他问题吗？",
+                "continue": "继续",
+                "confirmMessageHeading": "您确定要举报 @{{handle}} 的此帖子吗？"
+            },
+            "profile": {
+                "title": "举报 {{handle}}",
+                "description": "帮助我们了解问题，该成员有什么问题？",
+                "anythingElse": "还有其他问题吗？",
+                "continue": "继续",
+                "confirmMessageHeading": "您确定要举报 @{{handle}} 吗",
+                "confirmMessageDescription": "您的举报将发送给社区主持人。@{{handle}} 不会收到您的举报通知。"
+            },
+            "sendReport": "发送举报",
+            "reportSuccess": "感谢您告知我们。您的反馈有助于我们让 {{name}} 社区对每个人都更好！",
+            "reportError": "发送举报失败。请稍后重试。"
+        }
+    },
+    "location": {
+        "lookup": "正在查找匹配的地点"
+    },
+    "jam": {
+        "join": {
+            "submit": "加入 Jam"
+        },
+        "start": {
+            "submit": "开始 Jam"
+        },
+        "exit": {
+            "title": "离开 Jam",
+            "description": "离开 Jam。主持人可以为所有人结束 Jam。",
+            "leave": "离开 Jam",
+            "endForAll": "结束 Jam"
+        },
+        "close": {
+            "success": "Jam 现已关闭。"
+        }
+    },
+    "notification": {
+        "announcement": {
+            "text": "{{profileName}} 发布了一条公告"
+        },
+        "jamSpeaker": {
+            "text": "{{profileName}} 邀请您成为活动的发言者"
+        },
+        "directMessage": {
+            "text": "{{profileName}} 给您发送了一条私信"
+        },
+        "follow": {
+            "text": "{{profileName}} 关注了您"
+        },
+        "jamModerator": {
+            "text": "{{profileName}} 邀请您主持一个活动"
+        },
+        "jamStarted": {
+            "text": "{{profileName}} 发起了一个 Jam，时间："
+        },
+        "newGroupInvitation": {
+            "text": "您已被添加到群组  "
+        },
+        "newGroupMember": {
+            "text": "{{profileName}} 加入了 "
+        },
+        "newProfile": {
+            "text": "{{profileName}} 已创建"
+        },
+        "pollVote": {
+            "text": "{{profileName}} 已对您的投票进行了投票"
+        },
+        "rsvp": {
+            "text": "{{profileName}} 回复了您的活动邀请"
+        },
+        "reaction": {
+            "text": "{{profileName}} 做出了反应"
+        },
+        "reply": {
+            "text": "{{profileName}} 回复了"
+        },
+        "repost": {
+            "text": "{{profileName}} 转发了"
+        },
+        "newGroupPost": {
+            "text": "{{groupName}} 中的新帖子"
+        }
+    },
+    "handle": {
+        "validation": {
+            "error": "句柄为必填字段"
+        }
+    },
+    "emails": {
+        "common": {
+            "greeting": "您好，{{profileName}}，",
+            "reasonForEmail": "您收到此通知是因为您是 ",
+            "contactUs": "如需联系我们，请回复此电子邮件或联系 ",
+            "thankYou": "此致，",
+            "team": "{{communityName}} 团队",
+            "wantFewerEmails": "希望减少邮件数量？ ",
+            "manageNotications": "管理通知设置"
+        },
+        "announcement": {
+            "subject": "来自 {{communityName}} 的公告",
+            "body": " 发布了一条公告",
+            "cta": "查看公告"
+        },
+        "directMessage": {
+            "title": "{{profileName}} 回复了一条消息",
+            "subject": "您收到了来自 {{profileName}} 的私信",
+            "replySubtitle": "他们的回复：",
+            "singleRecipientBody": " 给您发送了一条新私信：",
+            "multipleRecipientsBody": "向您和 {{membersCount}} 位其他人发送了一条新私信",
+            "cta": "查看或回复"
+        },
+        "follow": {
+            "subject": "{{profileName}} 开始关注您",
+            "body": " 开始关注您。您的帖子将出现在他们的信息流中。点击他们的个人资料链接以回关。",
+            "cta": "访问您的新关注者"
+        },
+        "groupAdded": {
+            "title": "您已被添加到 {{communityName}} 中的群组 {{groupName}}",
+            "subject": "您已被添加到 {{communityName}} 中的群组 {{groupName}}",
+            "body": "{{profileName}} 已将您添加到 {{communityName}} 社区中的群组 {{groupName}}。\n\n关于 {{groupName}} 的更多信息：",
+            "cta": "点击此处访问群组并管理您的成员身份"
+        },
+        "groupMemberJoined": {
+            "title": "{{profileName}} 加入了 {{communityName}} 中的 {{groupName}}",
+            "subject": "{{profileName}} 加入了 {{communityName}} 中的 {{groupName}}",
+            "body": "{{profileName}} 已加入群组 {{groupName}}。",
+            "profileCta": "查看个人资料",
+            "cta": "点击此处访问群组并管理您的成员身份"
+        },
+        "groupMemberLeft": {
+            "title": "{{profileName}} 离开了 {{communityName}} 中的 {{groupName}}",
+            "subject": "{{profileName}} 离开了 {{communityName}} 中的 {{groupName}}",
+            "body": "{{profileName}} 已离开群组 {{groupName}}。",
+            "profileCta": "查看个人资料",
+            "cta": "点击此处访问群组并管理您的成员身份"
+        },
+        "jamModerator": {
+            "subject": "您已被邀请担任 {{jamName}} 的主持人！",
+            "body": "{{profileName}} 邀请您主持一个 Jam！",
+            "cta": "加入 Jam"
+        },
+        "jamSpeaker": {
+            "subject": "{{profileName}} 邀请您在 Jam 中发言！",
+            "body": "{{profileName}} 邀请您在 Jam 中发言！",
+            "cta": "加入 Jam"
+        },
+        "jamStarted": {
+            "subject": "{{profileName}} 发起了一个 Jam！",
+            "body": "{{profileName}} 发起了一个 Jam！",
+            "cta": "加入 Jam"
+        },
+        "newGroupPost": {
+            "title": "{{profileName}} 在 {{communityName}} 的 {{groupName}} 中发布了一条新帖子",
+            "subject": "{{profileName}} 在 {{communityName}} 的 {{groupName}} 中发布了一条新帖子",
+            "body": "{{profileName}} 在群组 {{groupName}} 中发布了一条新帖子。",
+            "profileCta": "查看个人资料",
+            "postCta": "查看帖子",
+            "cta": "点击此处访问群组并管理您的成员身份"
+        },
+        "newProfile": {
+            "title": "{{communityName}} 上创建了新资料",
+            "subject": "{{communityName}} 上创建了新资料",
+            "body": "{{profileName}} 已加入 {{communityName}}！\n欢迎他们来到社区。",
+            "cta": "要查看其个人资料，请点击此处。"
+        },
+        "pollVote": {
+            "title": "{{communityName}} 中已记录新的投票",
+            "subject": "{{communityName}} 中已记录新的投票",
+            "body": "{{profileName}} 已对您的投票进行了投票：",
+            "cta": "要查看投票并查看结果，请点击此处。"
+        },
+        "rsvp": {
+            "title": "{{communityName}} 中已创建新的 RSVP",
+            "subject": "{{communityName}} 中已创建新的 RSVP",
+            "body": "{{profileName}} 已回复您的活动邀请",
+            "cta": "要查看活动并查看结果，请点击此处。"
+        },
+        "reaction": {
+            "subject": "{{profileName}} 对您的帖子做出了反应",
+            "body": "{{profileName}} 对您的帖子做出了反应",
+            "cta": "来看看！"
+        },
+        "reply": {
+            "subject": "{{profileName}} 回复了您的帖子",
+            "subtitle": "他们回复了：",
+            "body": "{{profileName}} 回复了您的帖子",
+            "cta": "来看看！"
+        },
+        "repost": {
+            "subject": "{{profileName}} 转发了您的帖子",
+            "body": "{{profileName}} 转发了您的帖子",
+            "cta": "来看看！"
+        },
+        "welcome": {
+            "content": {
+                "profile": "更新您的个人资料",
+                "friends": "让大家更了解您",
+                "notification": "更改您的通知偏好",
+                "contact": "如需联系我们，请发送邮件至",
+                "mail": "通过邮件"
+            },
+            "cta": "开始使用",
+            "description": "以下是一些帮助您入门的链接",
+            "header": "欢迎来到"
+        },
+        "jams": {
+            "moderator": "Jam 主持人",
+            "speaker": {
+                "description": "{{profileName}} 让您成为 Jam 中的发言者"
+            },
+            "started": "Jam 已开始"
+        },
+        "reset": {
+            "password": {
+                "title": "重置您的密码",
+                "description": "我们收到重置您 {{communityName}} 账号密码的请求。如果您未提出此请求，请忽略此邮件。",
+                "cta": "重置密码"
+            }
+        },
+        "verify": {
+            "welcome": "感谢您注册",
+            "cta": {
+                "description": "验证您的电子邮件"
+            },
+            "title": "验证您的电子邮件地址",
+            "description": "为完成注册并开始使用您的账号，请验证您的电子邮件地址。"
+        },
+        "test": {
+            "description": "如果您收到此邮件，说明您的邮件配置工作正常！"
+        }
+    },
+    "media": {
+        "image": {
+            "addAltText": "为图片添加替代文本",
+            "addAltTextLabel": "替代文本",
+            "addAltTextDescription": "无效字符串，请勿使用",
+            "altTextPlaceholder": "在此处输入替代文本",
+            "altTextLabel": "替代文本",
+            "altTextDescription": "为图片添加良好的描述可以帮助视障人士更好地理解您的帖子。 "
+        }
+    },
+    "explore": {
+        "enterSearchQuery": "请在上方输入搜索查询",
+        "selectTab": "选择一个标签页以查看相关结果",
+        "SearchButton": "搜索",
+        "title": "探索",
+        "tabs": {
+            "members": "成员",
+            "posts": "帖子",
+            "jams": "Jams",
+            "events": "活动",
+            "groups": "群组"
+        },
+        "noProfilesFound": "未找到资料",
+        "noPostsFound": "未找到帖子",
+        "noJamsFound": "未找到 Jam",
+        "noEventsFound": "未找到活动",
+        "noGroupsFound": "未找到群组"
+    },
+    "group": {
+        "roles": {
+            "admin": "管理员"
+        }
+    },
+    "articles": {
+        "tabs": {
+            "description": "文章"
+        },
+        "form": {
+            "title": "新文章",
+            "contentPlaceholder": "在此处撰写您的内容。  使用 Markdown 进行格式设置",
+            "visibility": "谁可以查看此内容（必填）",
+            "visibilityNotChangeable": "发布文章后，您将无法更改可见性",
+            "content": "文章内容"
+        },
+        "create": {
+            "title": "新文章"
+        }
+    },
+    "infos": {
+        "emailNotVerified": {
+            "verify": "发送验证链接",
+            "title": "您的邮箱尚未验证",
+            "text": "点击我们发送给您的邮件中的链接，验证您的邮箱并充分参与社区活动。"
+        }
+    },
+    "profiles": {
+        "handleExists": "此句柄已存在，请选择其他句柄。"
+    }
+}
