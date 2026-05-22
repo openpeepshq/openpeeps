@@ -43,14 +43,14 @@
       </h2>
     </div>
   {:else}
-    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+    <div class="bg-foreground overflow-hidden">
       <ul class="divide-y">
         {#each subscriptions as subscription}
           <li
-            class="flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
+            class="hover:bg-surface-200 flex items-center justify-between p-4 transition-colors"
           >
             <div class="flex items-center gap-4">
-              <div class="text-gray-400">
+              <div class="text-surface-500">
                 {#if subscription?.deviceName
                   ?.toLowerCase()
                   .match(/phone|android|mobile|ios/)}
@@ -62,25 +62,25 @@
 
               <div>
                 <div class="flex items-center gap-2">
-                  <p class="text-sm font-medium text-gray-900">
-                    {subscription.deviceName}
+                  <p class="text-success-400 text-sm font-medium">
+                    {subscription?.deviceName || t('common.unknownDevice')}
                   </p>
                   {#if isCurrentDevice(subscription?.endpoint)}
                     <span
-                      class="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase text-blue-700"
+                      class="bg-primary text-primary rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
                     >
                       {t('common.thisDevice')}
                     </span>
                   {/if}
                 </div>
-                <p class="text-xs text-gray-400">
+                <p class="text-surface-500 text-xs">
                   {subscription.type}
                 </p>
               </div>
             </div>
 
             <button
-              class="p-2 text-gray-400 transition-colors hover:text-red-600"
+              class="text-surface-500 p-2 transition-colors hover:text-red-600"
               title={t('common.actions.delete')}
               onclick={() =>
                 modalManager.show(DeletePushSubscriptionModal, {
