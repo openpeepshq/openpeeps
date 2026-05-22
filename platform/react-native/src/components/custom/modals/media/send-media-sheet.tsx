@@ -25,7 +25,7 @@ import {
 import { ThemedText } from '~/components/ui/themed-text';
 import { useNewConversationStore } from '~/stores/useNewConversationStore';
 import { useOpenpeeps } from '@openpeeps/react';
-import type { MediaAttachment } from '@openpeeps/common';
+import type { MediaAttachment, PostCreationData } from '@openpeeps/common';
 import { uploadMedia, type UploadProgressMap } from '~/lib/uploadMedia';
 import { MediaUploadProgress } from '~/components/custom/common';
 import { BaseSheet, SheetFooter } from '../common';
@@ -224,12 +224,12 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
           type: 'note',
           audience: conversationAudience?.map(profile => ({
             ...profile,
+            memberships: [],
             profileStats: {
               followersCount: 0,
               followingCount: 0,
             },
-            memberships: [],
-          })),
+          })) as PostCreationData['audience'],
           data: {
             type: 'note',
             content: contnt,

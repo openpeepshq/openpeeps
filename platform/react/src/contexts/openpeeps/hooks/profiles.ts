@@ -26,8 +26,7 @@ export const profileHooks = (
     apiHook(client.profiles.followers, { pathParams: { id } }),
   useProfileFollowing: (id: string) =>
     apiHook(client.profiles.following, { pathParams: { id } }),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  followProfileAction: payloadMutation(client.profiles.follow as any, [
+  followProfileAction: payloadMutation(client.profiles.follow, [
     ['profiles'],
   ]),
   unfollowProfileAction: noPayloadMutation(client.profiles.unfollow, [
@@ -40,9 +39,8 @@ export const profileHooks = (
       onSuccess: setCurrentProfile,
     });
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateCurrentProfileAction: payloadMutation(
-    client.profiles.current.update as any,
+    client.profiles.current.update,
     [['profiles', 'current']],
   ),
   useCurrentProfileNotifications: (props: ChronologicalInfiniteQueryParams) =>

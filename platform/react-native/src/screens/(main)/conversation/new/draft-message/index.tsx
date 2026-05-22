@@ -30,19 +30,20 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
 
   const sendMessage = openpeepsApi.createPostAction();
 
+  const toPublicProfile = (profile: Profile): PublicProfile => ({
+    ...profile,
+    memberships: [],
+  });
+
   const handleSendMessage = async () => {
-    if (!content.trim()) {
+    if (!content.trim() || !currentProfile) {
       return;
     }
     try {
       setIsSending(true);
-      const audience = [...members, currentProfile as Profile].map(profile => ({
-        ...profile,
-        memberships: [],
-      })) as PublicProfile[];
       sendMessage({
         visibility: 'direct',
-        audience,
+        audience: [...members, currentProfile].map(toPublicProfile),
         data: {
           type: 'note',
           content: content,

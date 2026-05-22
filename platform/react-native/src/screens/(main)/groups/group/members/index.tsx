@@ -13,7 +13,7 @@ import { profileMatchesQuery, truncateText } from '~/lib/utils';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { PlusIcon, SearchIcon, XIcon } from '~/components/icons';
 import { Input } from '~/components/ui/input';
-import { GroupMember, Profile } from '@openpeeps/common';
+import { GroupMember, Profile, PublicProfile } from '@openpeeps/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import { ActivityIndicator, Pressable } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -125,12 +125,12 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
       profiles.map(profile =>
         addMembersToGroup({
           ...profile,
+          memberships: [],
           profileStats: {
             followersCount: 0,
             followingCount: 0,
           },
-          memberships: [],
-        }),
+        } satisfies PublicProfile),
       ),
     )
       .then(() => {

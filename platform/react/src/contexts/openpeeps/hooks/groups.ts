@@ -4,8 +4,7 @@ import { apiHook, payloadMutation, noPayloadMutation } from '../helpers';
 export type GroupHooks = ReturnType<typeof groupHooks>;
 
 export const groupHooks = (client: OpenpeepsClient) => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createGroupAction: payloadMutation(client.groups.create as any, [['groups']]),
+  createGroupAction: payloadMutation(client.groups.create, [['groups']]),
   useGroups: () => apiHook(client.groups.list),
   useGroup: (id: string) =>
     apiHook(client.groups.findById, { pathParams: { id } }),
@@ -23,16 +22,13 @@ export const groupHooks = (client: OpenpeepsClient) => ({
     ['groups'],
     ['profiles', 'current'],
   ]),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  addGroupMemberAction: payloadMutation(client.groups.addMember as any, [
+  addGroupMemberAction: payloadMutation(client.groups.addMember, [
     ['groups'],
   ]),
   removeGroupMemberAction: noPayloadMutation(client.groups.removeMember, [
     ['groups'],
   ]),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setGroupMemberRolesAction: payloadMutation(
-    client.groups.setMemberRoles as any,
-    [['groups']],
-  ),
+  setGroupMemberRolesAction: payloadMutation(client.groups.setMemberRoles, [
+    ['groups'],
+  ]),
 });

@@ -188,12 +188,10 @@ const postFinders = (client: OpenpeepsClient): PostFinders => ({
 });
 
 const postMutators = (client: OpenpeepsClient) => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createPostAction: payloadMutation(client.posts.create as any, [['posts']]),
+  createPostAction: payloadMutation(client.posts.create, [['posts']]),
   updatePostAction: payloadMutation(client.posts.update, [['posts']]),
   deletePostAction: noPayloadMutation(client.posts.delete, [['posts']]),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  reactToPostAction: payloadMutation(client.posts.react as any, [['posts']]),
+  reactToPostAction: payloadMutation(client.posts.react, [['posts']]),
   retractPostReactionAction: noPayloadMutation(client.posts.retractReaction, [
     ['posts'],
   ]),
@@ -207,10 +205,8 @@ const postMutators = (client: OpenpeepsClient) => ({
   ]),
   markPostsSeenAction: payloadMutation(client.posts.seen, [['posts']]),
   repostPostAction: noPayloadMutation(client.posts.repost, [['posts']]),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  voteOnPostAction: payloadMutation(client.posts.vote as any, [['posts']]),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  rsvpToEventAction: payloadMutation(client.posts.rsvp as any, [
+  voteOnPostAction: payloadMutation(client.posts.vote, [['posts']]),
+  rsvpToEventAction: payloadMutation(client.posts.rsvp, [
     ['posts'],
     ['rsvp'],
   ]),
