@@ -58,6 +58,7 @@ interface FullEventProps {
 }
 
 export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
+  const { t } = useTranslation();
   const { currentProfile, openpeepsApi } = useOpenpeeps();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -104,6 +105,19 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
     (postContextQuery.data && buildThreads(postContextQuery.data.descendants)) || [],
     [postContextQuery.data]);
 
+  const eventScope = useMemo(() => {
+    if (post?.visibility === 'public') {
+			return t('events.public');
+		}
+    if (post?.groupId) {
+      return t('events.group');
+    }
+		if (post?.visibility === 'direct') {
+      return t('events.private');
+    }
+    return t('events.community');
+  }, [post?.groupId, post?.audience, t]);
+
   return (
     <ThemedView className="flex-1 relative px-4 pb-4">
       <View className="w-full aspect-video mx-auto overflow-hidden rounded-md">
@@ -123,7 +137,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
           <View className="flex flex-row gap-x-4">
             <View className="px-3 py-1 bg-muted rounded-lg mb-3">
               <ThemedText>
-                {post?.groupId ? '✨ Group Event' : '✨ Community Event'}
+                {eventScope}
               </ThemedText>
             </View>
             {/* <View className="px-3 py-1 bg-muted rounded-lg mb-3">

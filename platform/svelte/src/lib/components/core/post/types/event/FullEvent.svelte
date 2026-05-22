@@ -47,6 +47,19 @@
 	let descendentThreads = $derived(
 		($postContextQuery.data && buildThreads($postContextQuery.data.descendants)) || []
 	);
+
+	let eventScope = $derived.by(() => {
+		if (post?.visibility === 'public') {
+			return t('events.public');
+		}
+		if (post?.groupId && post?.visibility === 'group') {
+			return t('events.group');
+		}
+		if (post?.visibility === 'direct') {
+			return t('events.private');
+		}
+		return t('events.community');
+	});
 </script>
 
 <div class="flex w-full flex-col gap-2 p-3" use:postViewCounter={post.id}>
@@ -62,7 +75,7 @@
 		<div class="">
 			<div class="flex gap-x-4">
 				<span class="bg-surface-200 mb-3 rounded-lg px-3 py-1">
-					{post?.groupId ? t('events.group') : t('events.community')}
+					{eventScope}
 				</span>
 				<!-- <span class="bg-surface-200 mb-3 rounded-lg px-3 py-1">
 					{(event?.maxAttendees || 0) - (attendees?.length || 0)} slots left
