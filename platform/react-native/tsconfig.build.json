@@ -3,6 +3,7 @@
   "compilerOptions": {
     "noEmit": false,
     "skipLibCheck": true,
+    "noCheck": true,
     "types": ["nativewind/types", "node"]
   },
   "exclude": ["**/__tests__/**", "lib", "node_modules", "example"]
