@@ -150,7 +150,7 @@
       },
       member: {
         add:
-          value === 'members'
+          value === 'private'
             ? addCapabilities(
                 ['core-posts-read'],
                 groupData.capabilities.member?.add,

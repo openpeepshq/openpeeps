@@ -8,6 +8,7 @@ import {
     canRemoveMember,
     isGroupDiscoverable,
     groupCapabilityTemplates,
+    hasMemberOnlyPostsVisibility,
 } from '../groupHelpers';
 import type {
     GroupData,
@@ -230,6 +231,20 @@ describe('groupHelpers', () => {
         });
     });
 
+    describe('hasMemberOnlyPostsVisibility', () => {
+        it('returns true when only members can read posts', () => {
+            expect(
+                hasMemberOnlyPostsVisibility(groupCapabilityTemplates.privateGroup.capabilities),
+            ).toBe(true);
+        });
+
+        it('returns false when locals can read posts', () => {
+            expect(
+                hasMemberOnlyPostsVisibility(groupCapabilityTemplates.defaultGroup.capabilities),
+            ).toBe(false);
+        });
+    });
+
     describe('groupCapabilityTemplates', () => {
         it('should have all expected templates', () => {
             expect(groupCapabilityTemplates.defaultGroup).toBeDefined();
@@ -265,6 +280,23 @@ describe('groupHelpers', () => {
             expect(template.capabilities.member).toBeDefined();
             expect(template.capabilities.moderator).toBeDefined();
             expect(template.capabilities.admin).toBeDefined();
+        });
+
+        it('should grant vote capability to privateGroup members', () => {
+            const memberAdd = groupCapabilityTemplates.privateGroup.capabilities.member?.add ?? [];
+            expect(memberAdd).toContain('core-posts-vote');
+            expect(memberAdd).toContain('core-posts-read');
+        });
+
+        it('should grant vote capability to defaultGroup local profiles', () => {
+            const localAdd = groupCapabilityTemplates.defaultGroup.capabilities.local?.add ?? [];
+            expect(localAdd).toContain('core-posts-vote');
+        });
+
+        it('should grant vote capability to defaultGroupClosedCommunity local profiles', () => {
+            const localAdd =
+                groupCapabilityTemplates.defaultGroupClosedCommunity.capabilities.local?.add ?? [];
+            expect(localAdd).toContain('core-posts-vote');
         });
 
         it('should have correct structure for privateGroup', () => {
