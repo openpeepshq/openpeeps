@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { ProfileWithMeta } from '@openpeeps/common/types';
 import { useT, useOpenpeeps } from '@openpeeps/react';
-import { useCurrentProfile } from '@openpeeps/react/components';
+import { HeaderAvatarInput, useCurrentProfile } from '@openpeeps/react/components';
 import { Button, Input, Label, Textarea } from '@openpeeps/react-ui';
 
 export function PublicProfileSettings() {
@@ -56,7 +56,14 @@ export function PublicProfileSettings() {
         {t('settings.publicProfile.title', { defaultValue: 'Public profile' })}
       </h1>
 
-      <div className="space-y-2">
+      <HeaderAvatarInput
+        header={draft.header ?? undefined}
+        avatar={draft.avatar ?? undefined}
+        onHeaderChange={(header) => setDraft((d) => ({ ...d, header }))}
+        onAvatarChange={(avatar) => setDraft((d) => ({ ...d, avatar }))}
+      />
+
+      <div className="space-y-2 pt-4">
         <Label htmlFor="displayName">Display name</Label>
         <Input
           id="displayName"
@@ -74,28 +81,6 @@ export function PublicProfileSettings() {
           rows={4}
           value={draft.bio ?? ''}
           onChange={(e) => setDraft((d) => ({ ...d, bio: e.target.value }))}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="avatar">Avatar URL</Label>
-        <Input
-          id="avatar"
-          value={draft.avatar ?? ''}
-          onChange={(e) =>
-            setDraft((d) => ({ ...d, avatar: e.target.value }))
-          }
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="header">Header image URL</Label>
-        <Input
-          id="header"
-          value={draft.header ?? ''}
-          onChange={(e) =>
-            setDraft((d) => ({ ...d, header: e.target.value }))
-          }
         />
       </div>
 

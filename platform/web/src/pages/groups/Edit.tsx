@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { GroupData } from '@openpeeps/common/types';
 import { useT, useOpenpeeps } from '@openpeeps/react';
-import { Button, Input, Label, Textarea } from '@openpeeps/react-ui';
+import { GroupForm } from '@openpeeps/react/components';
+import { Button } from '@openpeeps/react-ui';
 
 export function EditGroup() {
   const t = useT();
@@ -69,40 +70,7 @@ export function EditGroup() {
         {t('groups.edit.title', { defaultValue: 'Edit group' })}
       </h1>
 
-      <div className="space-y-2">
-        <Label htmlFor="displayName">Display name</Label>
-        <Input
-          id="displayName"
-          value={groupData.displayName ?? ''}
-          onChange={(e) =>
-            setGroupData((g) => g && { ...g, displayName: e.target.value })
-          }
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          rows={4}
-          value={groupData.description ?? ''}
-          onChange={(e) =>
-            setGroupData((g) => g && { ...g, description: e.target.value })
-          }
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="rules">Rules</Label>
-        <Textarea
-          id="rules"
-          rows={4}
-          value={groupData.rules ?? ''}
-          onChange={(e) =>
-            setGroupData((g) => g && { ...g, rules: e.target.value })
-          }
-        />
-      </div>
+      <GroupForm groupData={groupData} onChange={setGroupData} isEdit />
 
       {error && (
         <p className="border-error/40 text-error rounded-md border p-2 text-sm">

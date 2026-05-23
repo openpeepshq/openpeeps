@@ -7,6 +7,7 @@ import {
 import '@livekit/components-styles';
 import { defaultRoomOptions } from './constants';
 import { useJamContext } from './JamContext';
+import { JamWaitingRoomPanel } from './JamWaitingRoomPanel';
 
 export interface JamVideoCallProps {
   token: string;
@@ -54,6 +55,7 @@ export function JamVideoCall({
     >
       <VideoConference />
       <RoomAudioRenderer />
+      <JamWaitingRoomPanel />
     </LiveKitRoom>
   );
 }

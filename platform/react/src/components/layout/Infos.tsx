@@ -1,25 +1,23 @@
+import { useState } from 'react';
 import { Button } from '@openpeeps/react-ui';
 import { canCreatePostType } from '@openpeeps/common';
 import { useAuthData, useIdentity } from './IdentityContext';
+import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
-
-export interface InfosProps {
-  /** Optional callback wired to the Validate button. */
-  onValidateEmail?: () => Promise<void> | void;
-}
 
 /**
  * Translation of @openpeeps/svelte/components/layout/Infos.svelte — renders
  * the "verify your email" warning when the current account/profile applies.
- *
- * The Svelte version called `validateEmailAction` and `toaster` from the
- * platform module directly. Here we accept the action as a prop so consumers
- * can wire their own toast/error handling.
  */
-export function Infos({ onValidateEmail }: InfosProps = {}) {
+export function Infos() {
   const { profile, account } = useIdentity();
   const authData = useAuthData();
   const t = useT();
+  const { openpeepsApi } = useOpenpeeps();
+  const validateEmail = openpeepsApi.validationEmailAction();
+  const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>(
+    'idle',
+  );
 
   const showEmailWarning =
     !!account &&
@@ -29,6 +27,16 @@ export function Infos({ onValidateEmail }: InfosProps = {}) {
 
   if (!showEmailWarning) return <div className="flex flex-col gap-4" />;
 
+  const handleValidate = async () => {
+    setStatus('pending');
+    try {
+      await validateEmail();
+      setStatus('success');
+    } catch {
+      setStatus('error');
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="border-error bg-error/10 flex w-full items-start justify-between gap-4 rounded border p-4">
@@ -37,17 +45,30 @@ export function Infos({ onValidateEmail }: InfosProps = {}) {
             {t('infos.emailNotVerified.title')}
           </h4>
           <p>{t('infos.emailNotVerified.text')}</p>
+          {status === 'success' ? (
+            <p className="text-success mt-2 text-sm">
+              {t('accounts.validateEmail.success', {
+                defaultValue: 'Verification email sent.',
+              })}
+            </p>
+          ) : null}
+          {status === 'error' ? (
+            <p className="text-error mt-2 text-sm">
+              {t('accounts.validateEmail.error', {
+                defaultValue: 'Could not send verification email.',
+              })}
+            </p>
+          ) : null}
         </div>
-        {onValidateEmail && (
-          <Button
-            action={() =>
-              Promise.resolve(onValidateEmail()).then(() => undefined)
-            }
-            variant="variant-ghost-primary"
-          >
-            {t('infos.emailNotVerified.verify')}
-          </Button>
-        )}
+        <Button
+          action={handleValidate}
+          variant="variant-ghost-primary"
+          disabled={status === 'pending'}
+        >
+          {status === 'pending'
+            ? t('common.sending', { defaultValue: 'Sending…' })
+            : t('infos.emailNotVerified.verify')}
+        </Button>
       </div>
     </div>
   );

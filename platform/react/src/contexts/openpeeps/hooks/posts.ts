@@ -167,6 +167,7 @@ const postFinders = (client: OpenpeepsClient): PostFinders => ({
     infiniteChronologicalQueryApiHook(client.posts.listByProfile, {
       pathParams: { id },
       queryParams: props,
+      enabled: !!id,
     }) as PostsInfiniteHook,
   useBookmarkedPosts: (props) =>
     infiniteChronologicalQueryApiHook(client.posts.listBookmarks, {

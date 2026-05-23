@@ -3,6 +3,7 @@ import { groupName } from '@openpeeps/common/lib';
 
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { JoinGroupButton } from './JoinGroupButton';
+import { GroupOptionsMenu } from './GroupOptionsMenu';
 
 export interface GroupHeaderProps {
   group: GroupWithMeta;
@@ -41,7 +42,11 @@ export function GroupHeader({ group }: GroupHeaderProps) {
         <div className="flex justify-end space-x-2 p-2">
           <JoinGroupButton group={group} />
         </div>
-      ) : null}
+      ) : (
+        <div className="absolute right-2 top-2 z-10">
+          <GroupOptionsMenu group={group} />
+        </div>
+      )}
       <div className="mb-8 p-2 pt-14">
         <h1 className="text-xl font-semibold">{groupName(group)}</h1>
         <p className="text-surface-500 text-sm">@{group.handle}</p>

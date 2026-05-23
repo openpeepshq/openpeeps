@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CheckIcon,
@@ -9,8 +9,17 @@ import {
   UserCheck,
   type LucideIcon,
 } from 'lucide-react';
-import { useT } from '@openpeeps/react';
-import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
+import {
+  useT,
+  useOpenpeeps,
+  useNewPostModal,
+  useDefaultVisibility,
+} from '@openpeeps/react';
+import {
+  useCurrentProfile,
+  useCurrentAccount,
+  useServerInfo,
+} from '@openpeeps/react/components';
 
 import { Markdown } from '../lib/Markdown';
 
@@ -28,6 +37,24 @@ export function Welcome() {
   const navigate = useNavigate();
   const serverInfo = useServerInfo();
   const me = useCurrentProfile();
+  const account = useCurrentAccount();
+  const { openpeepsApi } = useOpenpeeps();
+  const { openNewPost } = useNewPostModal();
+  const visibility = useDefaultVisibility();
+  const validateEmail = openpeepsApi.validationEmailAction();
+  const postsQuery = openpeepsApi.usePostsByProfile(me?.id ?? '', { limit: 1 });
+  const hasFirstPost =
+    (postsQuery.data?.pages ?? []).flat().length > 0;
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'pending'>('idle');
+
+  const verifyEmail = useCallback(async () => {
+    setEmailStatus('pending');
+    try {
+      await validateEmail();
+    } finally {
+      setEmailStatus('idle');
+    }
+  }, [validateEmail]);
 
   const items = useMemo<ChecklistItem[]>(
     () => [
@@ -37,10 +64,10 @@ export function Welcome() {
           defaultValue: 'Verify your email address',
         }),
         key: 'verify-email',
-        completed: false,
-        // TODO: wire `client.accounts.validateEmail` mutation when ported to
-        // @openpeeps/react. Until then this is a no-op.
-        action: () => undefined,
+        completed: !!account?.emailValidated,
+        action: () => {
+          void verifyEmail();
+        },
       },
       {
         Icon: SquareUserRound,
@@ -55,8 +82,8 @@ export function Welcome() {
         Icon: PencilIcon,
         label: t('welcome.firstPost', { defaultValue: 'Make first post' }),
         key: 'make-post',
-        completed: false, // TODO: derive from `usePostsByProfile(me.id)` when ported
-        action: () => undefined, // TODO: open NewPostModal
+        completed: hasFirstPost,
+        action: () => openNewPost({ visibility }),
       },
       {
         Icon: UserCheck,
@@ -66,7 +93,7 @@ export function Welcome() {
         route: '/members',
       },
     ],
-    [me, t],
+    [me, account, hasFirstPost, t, visibility, openNewPost, verifyEmail],
   );
 
   const communityName =
@@ -108,7 +135,14 @@ export function Welcome() {
           <div className="bg-surface-100 flex items-center justify-center rounded-full p-4">
             <item.Icon />
           </div>
-          <div className="ml-4 flex-1 text-lg">{item.label}</div>
+          <div className="ml-4 flex-1 text-lg">
+            {item.label}
+            {item.key === 'verify-email' && emailStatus === 'pending' ? (
+              <span className="text-muted-foreground ml-2 text-sm">
+                {t('common.sending', { defaultValue: 'Sending…' })}
+              </span>
+            ) : null}
+          </div>
           {item.completed ? (
             <div className="bg-secondary flex items-center justify-center rounded-full p-2">
               <CheckIcon className="text-background" />

@@ -13,7 +13,6 @@ export type { OpenpeepsThemeProviderProps } from './OpenpeepsThemeProvider';
 export { AccessDeniedLoader } from './AccessDeniedLoader';
 export type { AccessDeniedLoaderProps } from './AccessDeniedLoader';
 export { Infos } from './Infos';
-export type { InfosProps } from './Infos';
 export {
   IdentityContext,
   useIdentity,

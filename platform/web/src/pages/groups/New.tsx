@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import type { GroupData } from '@openpeeps/common/types';
 import { groupCapabilityTemplates } from '@openpeeps/common/lib';
 import { useT, useOpenpeeps } from '@openpeeps/react';
-import { useServerInfo } from '@openpeeps/react/components';
-import { Button, Input, Label, Textarea } from '@openpeeps/react-ui';
+import { GroupForm, useServerInfo } from '@openpeeps/react/components';
+import { Button } from '@openpeeps/react-ui';
 
 export function NewGroup() {
   const t = useT();
@@ -64,59 +64,7 @@ export function NewGroup() {
         {t('groups.new.title', { defaultValue: 'Create group' })}
       </h1>
 
-      <div className="space-y-2">
-        <Label htmlFor="displayName">
-          {t('groups.form.displayName', { defaultValue: 'Display name' })}
-        </Label>
-        <Input
-          id="displayName"
-          value={groupData.displayName ?? ''}
-          onChange={(e) =>
-            setGroupData((g) => ({ ...g, displayName: e.target.value }))
-          }
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="handle">
-          {t('groups.form.handle', { defaultValue: 'Handle' })}
-        </Label>
-        <Input
-          id="handle"
-          value={groupData.handle}
-          onChange={(e) =>
-            setGroupData((g) => ({ ...g, handle: e.target.value }))
-          }
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">
-          {t('groups.form.description', { defaultValue: 'Description' })}
-        </Label>
-        <Textarea
-          id="description"
-          rows={4}
-          value={groupData.description ?? ''}
-          onChange={(e) =>
-            setGroupData((g) => ({ ...g, description: e.target.value }))
-          }
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="rules">
-          {t('groups.form.rules', { defaultValue: 'Rules' })}
-        </Label>
-        <Textarea
-          id="rules"
-          rows={4}
-          value={groupData.rules ?? ''}
-          onChange={(e) =>
-            setGroupData((g) => ({ ...g, rules: e.target.value }))
-          }
-        />
-      </div>
+      <GroupForm groupData={groupData} onChange={setGroupData} />
 
       {error && (
         <p className="border-error/40 text-error rounded-md border p-2 text-sm">

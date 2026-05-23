@@ -21,6 +21,8 @@ export interface ImageEditModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: (file: File, description: string) => void;
+  /** When false, skip alt-text input (profile/group avatars). */
+  showAltInput?: boolean;
 }
 
 const ASPECT_RATIOS = [
@@ -36,6 +38,7 @@ export function ImageEditModal({
   open,
   onClose,
   onConfirm,
+  showAltInput = true,
 }: ImageEditModalProps) {
   const t = useT();
   const [description, setDescription] = useState('');
@@ -90,20 +93,22 @@ export function ImageEditModal({
           </select>
         </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="alt-text">
-            {t('common.media.altText', { defaultValue: 'Alt text' })}
-          </Label>
-          <Textarea
-            id="alt-text"
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder={t('common.media.altTextDescription', {
-              defaultValue: 'Describe the image for accessibility',
-            })}
-          />
-        </div>
+        {showAltInput ? (
+          <div className="space-y-1">
+            <Label htmlFor="alt-text">
+              {t('common.media.altText', { defaultValue: 'Alt text' })}
+            </Label>
+            <Textarea
+              id="alt-text"
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={t('common.media.altTextDescription', {
+                defaultValue: 'Describe the image for accessibility',
+              })}
+            />
+          </div>
+        ) : null}
 
         <DialogFooter>
           <Button variant="variant-ghost-primary" action={onClose}>

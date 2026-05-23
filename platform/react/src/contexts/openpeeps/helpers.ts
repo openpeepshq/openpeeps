@@ -165,6 +165,7 @@ export const infiniteChronologicalQueryApiHook = <
     pathParams?: PathParams;
     queryParams?: QueryParams & ChronologicalInfiniteQueryParams;
     refetchInterval?: number;
+    enabled?: boolean;
     onSuccess?: (output: Output) => void | Promise<void>;
     onError?: (error: SuccessFailureResponse) => void | Promise<void>;
     preQueryCheck?: (options: {
@@ -222,6 +223,7 @@ export const infiniteChronologicalQueryApiHook = <
     },
     retry: false,
     refetchInterval: options?.refetchInterval,
+    enabled: options?.enabled ?? true,
   });
 
 export const infiniteOffsetQueryApiHook = <
