@@ -1,6 +1,7 @@
 import type { OpenpeepsClient } from '@openpeeps/client';
 import {
   apiHook,
+  infiniteChronologicalQueryApiHook,
   payloadMutation,
   noPayloadMutation,
   noPayloadStream,
@@ -18,6 +19,11 @@ export const jamHooks = (client: OpenpeepsClient) => ({
   muteJamParticipantAction: payloadMutation(client.jams.muteParticipant),
   useJamEvents: (id: string) =>
     apiHook(client.jams.events.list, { pathParams: { id } }),
+  useInfiniteJamEvents: (id: string, limit = 100) =>
+    infiniteChronologicalQueryApiHook(client.jams.events.list, {
+      pathParams: { id },
+      queryParams: { limit },
+    }),
   createJamEventAction: payloadMutation(client.jams.events.create, [['jams']]),
   useJamAttendance: (id: string) =>
     apiHook(client.jams.events.attendance, { pathParams: { id } }),

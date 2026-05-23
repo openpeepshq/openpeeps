@@ -18,9 +18,9 @@ export interface JamVideoCallProps {
 }
 
 /**
- * Connects to LiveKit and renders {@link JamConference} — a composition of
- * LiveKit prefabs ({@link VideoConference}, {@link GridLayout}) plus OpenPeeps
- * moderator tools and the waiting-room admit panel.
+ * Connects to LiveKit and renders {@link JamConference} — LiveKit layout
+ * primitives plus OpenPeeps persisted chat, reaction overlays, moderator
+ * tools, and the waiting-room admit panel.
  */
 export function JamVideoCall({
   token,

@@ -1,14 +1,16 @@
 import {
   GridLayout,
-  ParticipantTile,
   RoomAudioRenderer,
-  VideoConference,
   useTracks,
 } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import { useJamObserver } from './JamContext';
 import { JamModeratorToolbar } from './JamModeratorToolbar';
+import { JamParticipantConference } from './JamParticipantConference';
+import { JamEventsProvider } from './JamEventsContext';
+import { JamParticipantTile } from './JamParticipantTile';
 import { JamWaitingRoomPanel } from './JamWaitingRoomPanel';
+import { JamObserverShell } from './JamObserverShell';
 
 function JamObserverConference() {
   const tracks = useTracks(
@@ -20,39 +22,47 @@ function JamObserverConference() {
   );
 
   return (
-    <div className="lk-video-conference" data-lk-theme="default" style={{ height: '100vh' }}>
-      <div className="lk-grid-layout-wrapper" style={{ height: '100%' }}>
-        <GridLayout tracks={tracks}>
-          <ParticipantTile />
-        </GridLayout>
+    <JamObserverShell>
+      <div
+        className="lk-video-conference min-h-0 flex-1"
+        data-lk-theme="default"
+      >
+        <div className="lk-grid-layout-wrapper h-full">
+          <GridLayout tracks={tracks}>
+            <JamParticipantTile />
+          </GridLayout>
+        </div>
       </div>
+    </JamObserverShell>
+  );
+}
+
+function JamObserverRoom() {
+  return (
+    <JamEventsProvider>
+      <JamObserverConference />
       <RoomAudioRenderer />
-    </div>
+      <JamModeratorToolbar />
+    </JamEventsProvider>
   );
 }
 
 /**
- * In-call jam UI built from LiveKit prefabs and layout primitives. Participants
- * get the full {@link VideoConference} (grid, screen share, chat, controls);
- * observers get a read-only {@link GridLayout}. OpenPeeps-specific moderator
- * tools and the waiting-room panel layer on top.
+ * In-call jam UI built from LiveKit layout primitives plus OpenPeeps persisted
+ * chat and reaction overlays. Participants get a full conference layout;
+ * observers get a read-only grid. Moderator tools and the waiting-room panel
+ * layer on top for hosts.
  */
 export function JamConference() {
   const observer = useJamObserver();
 
   if (observer) {
-    return (
-      <>
-        <JamObserverConference />
-        <JamModeratorToolbar />
-      </>
-    );
+    return <JamObserverRoom />;
   }
 
   return (
     <>
-      <VideoConference />
-      <RoomAudioRenderer />
+      <JamParticipantConference />
       <JamWaitingRoomPanel />
       <JamModeratorToolbar />
     </>
