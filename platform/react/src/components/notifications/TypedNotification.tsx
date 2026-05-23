@@ -1,6 +1,6 @@
 import { AtSign, Megaphone, MessageSquare, Repeat2, Reply, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { profileName } from '@openpeeps/common';
+import { profileName, groupName } from '@openpeeps/common';
 import type {
   GroupWithMeta,
   PublicNotification,
@@ -335,6 +335,57 @@ function GroupMemberExitNotification({
   );
 }
 
+function NewProfileNotification({
+  notification,
+}: {
+  notification: PublicNotification;
+}) {
+  const t = useT();
+  const profile = notification.senderProfile!;
+  return (
+    <NotificationWrapper profile={profile} seen={notification.seen}>
+      <a href={`/@${profile.handle}`} className="block w-full px-4">
+        <div className="flex items-center gap-1">
+          <p className="text-base">
+            {t('notification.newProfile.text', {
+              defaultValue: '{{profileName}} joined the community',
+              profileName: profileName(profile),
+            })}
+          </p>
+          <span className="text-muted-foreground ml-1 text-sm">
+            <UpdatingDate date={notification.createdAt} />
+          </span>
+        </div>
+      </a>
+    </NotificationWrapper>
+  );
+}
+
+function NewGroupPostNotification({
+  notification,
+}: {
+  notification: PublicNotification;
+}) {
+  const t = useT();
+  const profile = notification.senderProfile!;
+  const post = notification.post!;
+  const group = post.group!;
+  return (
+    <NotificationWrapper profile={profile} seen={notification.seen} showProfile={false}>
+      <a href={`/posts/${post.id}`} className="block w-full px-4 py-2">
+        <p className="mb-2 flex items-center gap-2 text-sm font-semibold">
+          <Users className="size-4" />
+          {t('notification.newGroupPost.text', {
+            defaultValue: 'New post in {{groupName}}',
+            groupName: groupName(group),
+          })}
+        </p>
+        <NotificationPostEmbed post={post} />
+      </a>
+    </NotificationWrapper>
+  );
+}
+
 function JamNotification({ notification }: { notification: PublicNotification }) {
   const t = useT();
   const profile = notification.senderProfile!;
@@ -350,12 +401,15 @@ function JamNotification({ notification }: { notification: PublicNotification })
       seen={notification.seen}
       isGroup={!!notification.group}
     >
-      <a href={`/posts/${notification.post?.id}`} className="block w-full px-4">
-        <p className="text-base">{message}</p>
+      <a href={`/posts/${notification.post?.id}`} className="block w-full px-4 py-2">
+        <p className="mb-2 flex items-center gap-2 text-sm font-semibold">
+          {message}
+          <span className="text-muted-foreground text-xs font-normal">
+            <UpdatingDate date={notification.createdAt} />
+          </span>
+        </p>
         {notification.post ? (
-          <div className="mt-3">
-            <CardEvent post={notification.post} />
-          </div>
+          <CardEvent post={notification.post} />
         ) : null}
       </a>
     </NotificationWrapper>
@@ -414,6 +468,8 @@ const TYPED: Partial<
   newGroupInvitation: NewGroupInvitationNotification,
   newGroupMember: NewGroupMemberNotification,
   groupMemberExit: GroupMemberExitNotification,
+  newProfile: NewProfileNotification,
+  newGroupPost: NewGroupPostNotification,
 };
 
 export function TypedNotification({

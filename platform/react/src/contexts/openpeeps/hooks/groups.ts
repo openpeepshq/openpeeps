@@ -13,7 +13,7 @@ export const groupHooks = (client: OpenpeepsClient) => ({
   updateGroupAction: payloadMutation(client.groups.update, [['groups']]),
   deleteGroupAction: noPayloadMutation(client.groups.delete, [['groups']]),
   useGroupMembers: (id: string) =>
-    apiHook(client.groups.members, { pathParams: { id } }),
+    apiHook(client.groups.members, { pathParams: { id }, enabled: !!id }),
   joinGroupAction: noPayloadMutation(client.groups.join, [
     ['groups'],
     ['profiles', 'current'],
