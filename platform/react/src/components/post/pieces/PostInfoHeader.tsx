@@ -1,22 +1,19 @@
 import type { PublicPost, PublicReplyPost } from '@openpeeps/common/types';
 import { Avatar } from '../../profile';
 import { UpdatingDate } from './UpdatingDate';
+import { PostMenu } from './PostMenu';
 
 export interface PostInfoHeaderProps {
   post: PublicPost | PublicReplyPost;
   showMenu?: boolean;
-  /** Invoked by the menu when the post is deleted. */
   deleteCallback?: () => void;
 }
 
-/**
- * Avatar + display-name + handle + relative date for a single post.
- *
- * NOTE: the SvelteKit version includes a `PostMenu` (3-dot menu) when
- * `showMenu` is true. We omit it here pending a React port of `PostMenu`
- * (delete, mute, report, copy link, …).
- */
-export function PostInfoHeader({ post }: PostInfoHeaderProps) {
+export function PostInfoHeader({
+  post,
+  showMenu = false,
+  deleteCallback,
+}: PostInfoHeaderProps) {
   const { profile } = post;
   return (
     <div className="flex justify-between py-2">
@@ -39,6 +36,9 @@ export function PostInfoHeader({ post }: PostInfoHeaderProps) {
           </span>
         </div>
       </div>
+      {showMenu && 'id' in post ? (
+        <PostMenu post={post as PublicPost} deleteCallback={deleteCallback} />
+      ) : null}
     </div>
   );
 }

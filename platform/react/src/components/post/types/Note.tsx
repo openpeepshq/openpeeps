@@ -1,5 +1,5 @@
 import type { PublicPost } from '@openpeeps/common/types';
-import { PostMarkdown } from '../Markdown';
+import { OpenpeepsMarkdown } from '../../markdown/OpenpeepsMarkdown';
 import { Attachments } from '../pieces/Attachments';
 
 export interface FeedNoteProps {
@@ -20,7 +20,13 @@ export function FeedNote({ post }: FeedNoteProps) {
 
   return (
     <div>
-      <PostMarkdown source={data.content} />
+      <OpenpeepsMarkdown
+        source={data.content}
+        mentions={post.mentions}
+        linkPreviewMode={
+          post.data.attachments?.length ? 'none' : 'append'
+        }
+      />
       <Attachments post={post} />
     </div>
   );

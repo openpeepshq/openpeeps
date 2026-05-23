@@ -22,7 +22,14 @@ export function FeedPoll({ post, interactive = false }: FeedPollProps) {
 
   return (
     <div className="space-y-3">
-      {data.content ? <PostMarkdown source={data.content} /> : null}
+      {data.content ? (
+        <PostMarkdown
+          source={data.content}
+          linkPreviewMode={
+            data.attachments?.length ? 'none' : 'append'
+          }
+        />
+      ) : null}
       <Attachments post={post} />
       {interactive ? (
         <PollContent post={post} />

@@ -8,6 +8,7 @@ import type {
 
 import { useT } from '../../i18n';
 import { Avatar } from '../profile';
+import { CardEvent } from '../post/types/event/CardEvent';
 import { UpdatingDate } from '../post/pieces/UpdatingDate';
 
 export interface NotificationItemProps {
@@ -20,6 +21,12 @@ interface WrapperProps {
   isGroup?: boolean;
   children: ReactNode;
 }
+
+const JAM_NOTIFICATION_TYPES = new Set([
+  'jamStarted',
+  'jamSpeaker',
+  'jamModerator',
+]);
 
 function NotificationWrapper({
   profile,
@@ -51,14 +58,6 @@ function NotificationWrapper({
   );
 }
 
-/**
- * Translation of `@openpeeps/svelte/components/core/notification/Notification.svelte`
- * + every type-specific component (`Follow`, `Reply`, `Reaction`, …).
- *
- * The Svelte tree has 14 separate notification renderers. We collapse them
- * into a single switch here; the message is i18n-keyed by type so localised
- * strings line up with the Svelte version's `notification.<type>.text` keys.
- */
 export function NotificationItem({ notification }: NotificationItemProps) {
   const t = useT();
   const sender = notification.senderProfile;
@@ -76,6 +75,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
   const profile = sender as PublicProfile;
   const isGroup = !!notification.group;
   const name = profileName(profile);
+  const post = notification.post;
 
   const message = t(`notification.${notification.type}.text`, {
     defaultValue: `${name} ${notification.type}`,
@@ -83,8 +83,6 @@ export function NotificationItem({ notification }: NotificationItemProps) {
     groupName: notification.group?.displayName,
   });
 
-  // Posts/replies/reactions: link to the post.
-  const post = notification.post;
   const inner = (
     <div className="w-full px-4">
       <div className="flex items-center gap-1">
@@ -93,6 +91,11 @@ export function NotificationItem({ notification }: NotificationItemProps) {
           <UpdatingDate date={notification.createdAt} />
         </span>
       </div>
+      {post && JAM_NOTIFICATION_TYPES.has(notification.type) ? (
+        <div className="mt-3">
+          <CardEvent post={post} />
+        </div>
+      ) : null}
     </div>
   );
 

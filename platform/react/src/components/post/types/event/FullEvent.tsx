@@ -1,3 +1,4 @@
+import { Share } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { Event, PublicPost, PublicProfile } from '@openpeeps/common/types';
 import {
@@ -6,21 +7,25 @@ import {
   groupName,
   profileName,
 } from '@openpeeps/common/lib';
+import { Button } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
-import { Avatar } from '../../../profile';
-import { PostMarkdown } from '../../Markdown';
+import { Avatar, ProfileCard, ProfileFromId } from '../../../profile';
+import { OpenpeepsMarkdown } from '../../../markdown/OpenpeepsMarkdown';
 import { ThreadedFeed } from '../../feed/threaded/ThreadedFeed';
 import { ReplyBox } from '../../ReplyBox';
 import { EventLocation } from '../../pieces/EventLocation';
 import { EventRsvpButton } from '../../pieces/EventRsvpButton';
-import { Button } from '@openpeeps/react-ui';
+import { ShareMenu } from '../../pieces/ShareMenu';
+import { UpdatingDate } from '../../pieces/UpdatingDate';
 
 export interface FullEventProps {
   post: PublicPost;
 }
+
+type EventTab = 'description' | 'replies' | 'rsvps' | 'attendees';
 
 export function FullEvent({ post }: FullEventProps) {
   const t = useT();
@@ -28,15 +33,16 @@ export function FullEvent({ post }: FullEventProps) {
   const postViewRef = usePostViewRef(post.id);
   const { openpeepsApi } = useOpenpeeps();
   const contextQuery = openpeepsApi.usePostContext(post.id);
-  const [tab, setTab] = useState<'description' | 'replies'>(
-    post.data?.type === 'event' && (post.data as Event).content
-      ? 'description'
-      : 'replies',
-  );
+  const jamAttendeesQuery = openpeepsApi.useJamAttendance(post.id);
 
   const event = post.data as Event;
+  const [tab, setTab] = useState<EventTab>(
+    event.content ? 'description' : 'replies',
+  );
+
   const group = post.group;
   const myEvent = post.profile?.id === profile?.id;
+  const iAmModerator = !!event.moderators?.includes(profile?.id ?? '');
   const rsvps = useMemo(() => calculateEffectiveRsvps(post), [post]);
 
   const descendentThreads = useMemo(
@@ -46,13 +52,17 @@ export function FullEvent({ post }: FullEventProps) {
   );
 
   const eventScope = useMemo(() => {
-    if (post.visibility === 'public') return t('events.public', { defaultValue: 'Public' });
+    if (post.visibility === 'public')
+      return t('events.public', { defaultValue: 'Public' });
     if (post.groupId && post.visibility === 'group')
       return t('events.group', { defaultValue: 'Group' });
     if (post.visibility === 'direct')
       return t('events.private', { defaultValue: 'Private' });
     return t('events.community', { defaultValue: 'Community' });
   }, [post, t]);
+
+  const showJamAttendeesTab =
+    !!event.jam && (myEvent || iAmModerator) && jamAttendeesQuery.isSuccess;
 
   return (
     <div ref={postViewRef} className="flex w-full flex-col gap-2 p-3">
@@ -78,6 +88,14 @@ export function FullEvent({ post }: FullEventProps) {
             </a>
           ) : null}
         </div>
+        <ShareMenu
+          post={post}
+          menuButton={
+            <span className="border-input flex size-10 items-center justify-center rounded-md border">
+              <Share className="size-4" />
+            </span>
+          }
+        />
       </div>
 
       <h1 className="text-2xl font-bold">{event.name}</h1>
@@ -125,67 +143,107 @@ export function FullEvent({ post }: FullEventProps) {
       ) : null}
 
       <EventLocation post={post} preview={false} />
-
       <EventRsvpButton post={post} />
 
       {event.jam ? (
         <Button
           variant="variant-filled-primary"
-          className="mt-2"
+          className="mt-2 w-full"
           action={`/events/${post.id}/jam`}
         >
-          {t('events.joinJam', { defaultValue: 'Join jam' })}
+          {myEvent || iAmModerator
+            ? t('events.jam.start', { defaultValue: 'Start jam' })
+            : t('events.joinJam', { defaultValue: 'Join jam' })}
         </Button>
       ) : null}
 
-      <div className="mt-4 flex gap-2 border-b">
+      <nav className="mt-4 flex flex-wrap gap-2 border-b">
         {event.content ? (
-          <button
-            type="button"
-            className={`px-4 py-2 text-sm ${tab === 'description' ? 'border-b-2 border-primary font-semibold' : ''}`}
-            onClick={() => setTab('description')}
-          >
-            {t('events.description', { defaultValue: 'Description' })}
-          </button>
+          <TabButton active={tab === 'description'} onClick={() => setTab('description')}>
+            {t('events.tabs.description', { defaultValue: 'Description' })}
+          </TabButton>
         ) : null}
-        <button
-          type="button"
-          className={`px-4 py-2 text-sm ${tab === 'replies' ? 'border-b-2 border-primary font-semibold' : ''}`}
-          onClick={() => setTab('replies')}
-        >
-          {t('events.replies', { defaultValue: 'Replies' })}
-        </button>
-      </div>
+        <TabButton active={tab === 'replies'} onClick={() => setTab('replies')}>
+          {t('events.tabs.discussion', { defaultValue: 'Discussion' })}
+        </TabButton>
+        <TabButton active={tab === 'rsvps'} onClick={() => setTab('rsvps')}>
+          {t('events.tabs.rsvps', { defaultValue: 'RSVPs' })}
+        </TabButton>
+        {showJamAttendeesTab ? (
+          <TabButton active={tab === 'attendees'} onClick={() => setTab('attendees')}>
+            {t('events.tabs.jamAttendees', { defaultValue: 'Jam attendees' })}
+          </TabButton>
+        ) : null}
+      </nav>
 
       {tab === 'description' && event.content ? (
-        <PostMarkdown source={event.content} />
+        <OpenpeepsMarkdown source={event.content} mentions={post.mentions} />
       ) : null}
 
       {tab === 'replies' ? (
         <>
           <ReplyBox post={post} />
-          {descendentThreads.map((thread) => (
-            <ThreadedFeed key={thread.id} thread={thread} isDescendants />
-          ))}
+          {contextQuery.isLoading ? (
+            <p className="text-muted-foreground py-4 text-sm">
+              {t('common.loading', { defaultValue: 'Loading…' })}
+            </p>
+          ) : (
+            descendentThreads.map((thread) => (
+              <ThreadedFeed key={thread.id} thread={thread} isDescendants />
+            ))
+          )}
         </>
       ) : null}
 
-      {rsvps.length > 0 ? (
-        <div className="mt-4">
-          <h2 className="mb-2 font-semibold">
-            {t('events.attendees', { defaultValue: 'Attendees' })} ({rsvps.length})
-          </h2>
-          <ul className="space-y-1 text-sm">
-            {rsvps.slice(0, 20).map((rsvp) => (
-              <li key={rsvp.profile.id}>
-                {profileName(rsvp.profile)} — {rsvp.response}
-              </li>
-            ))}
-          </ul>
-        </div>
+      {tab === 'rsvps' ? (
+        rsvps.length ? (
+          rsvps.map((rsvp) => (
+            <ProfileCard key={rsvp.profile.id} profile={rsvp.profile} />
+          ))
+        ) : (
+          <p className="text-muted-foreground py-4 text-sm">
+            {t('events.noRsvps', { defaultValue: 'No RSVPs yet.' })}
+          </p>
+        )
+      ) : null}
+
+      {tab === 'attendees' && showJamAttendeesTab ? (
+        jamAttendeesQuery.data?.length ? (
+          jamAttendeesQuery.data.map((attendee) => (
+            <ProfileFromId
+              key={attendee.id}
+              profileId={attendee.profileId}
+              action={<UpdatingDate date={attendee.createdAt} />}
+            />
+          ))
+        ) : (
+          <p className="text-muted-foreground py-4 text-sm">
+            {t('events.noAttendees', { defaultValue: 'No attendees yet.' })}
+          </p>
+        )
       ) : null}
 
       <div className="h-[40vh]" />
     </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-4 py-2 text-sm ${active ? 'border-b-2 border-primary font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
+    >
+      {children}
+    </button>
   );
 }

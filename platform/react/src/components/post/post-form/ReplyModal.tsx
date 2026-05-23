@@ -7,11 +7,11 @@ import {
   DialogHeader,
   DialogTitle,
   Button,
-  Textarea,
 } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { ThreadPost } from '../feed/threaded/ThreadPost';
+import { MentionTextarea } from './MentionTextarea';
 
 export interface ReplyModalProps {
   post: PublicPost;
@@ -57,10 +57,10 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
           </DialogTitle>
         </DialogHeader>
         <ThreadPost post={post} noActions noMenu />
-        <Textarea
+        <MentionTextarea
           rows={4}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={setContent}
           placeholder={t('posts.replyPlaceholder', {
             defaultValue: 'Write a reply…',
           })}

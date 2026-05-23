@@ -11,6 +11,7 @@ import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useHasAuthToken } from '../../contexts/openpeeps/hooks/useHasAuthToken';
 import { ReplyModalProvider } from '../post/post-form/ReplyModalContext';
 import { NewPostModalProvider } from '../post/post-form/NewPostModalContext';
+import { EditPostModalProvider } from '../post/post-form/EditPostModalContext';
 
 function PostViewTracking({ children }: { children: ReactNode }) {
   const { openpeepsApi } = useOpenpeeps();
@@ -70,7 +71,9 @@ export function OpenpeepsContextProvider({
   return (
     <PostViewTracking>
       <ReplyModalProvider>
-        <NewPostModalProvider>{children}</NewPostModalProvider>
+        <NewPostModalProvider>
+          <EditPostModalProvider>{children}</EditPostModalProvider>
+        </NewPostModalProvider>
       </ReplyModalProvider>
     </PostViewTracking>
   );

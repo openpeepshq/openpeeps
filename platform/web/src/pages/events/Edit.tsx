@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { PostDataUnion } from '@openpeeps/common/types';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { Button, Input, Label, Textarea } from '@openpeeps/react-ui';
+import { useT, useOpenpeeps, OpenpeepsMarkdown, MentionTextarea } from '@openpeeps/react';
+import { Button, Input, Label } from '@openpeeps/react-ui';
 
 function dateToInputValue(value: string | undefined, wholeDay: boolean) {
   if (!value) return '';
@@ -25,7 +25,7 @@ export function EditEvent() {
   const { eventId = '' } = useParams<{ eventId: string }>();
   const { openpeepsApi } = useOpenpeeps();
   const postQuery = openpeepsApi.usePost(eventId);
-  const updatePost = openpeepsApi.updatePostAction();
+  const updatePost = openpeepsApi.updatePostAction({ id: eventId });
 
   const [name, setName] = useState('');
   const [content, setContent] = useState('');
@@ -97,7 +97,7 @@ export function EditEvent() {
         end: toIso(end),
         wholeDay,
       } as PostDataUnion;
-      await updatePost(data, { id: eventId });
+      await updatePost(data);
       navigate(`/posts/${eventId}`);
     } catch (err) {
       setError((err as Error).message);
@@ -172,12 +172,19 @@ export function EditEvent() {
 
       <div className="space-y-2">
         <Label htmlFor="content">Description (markdown)</Label>
-        <Textarea
-          id="content"
+        <MentionTextarea
           rows={10}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={setContent}
         />
+        {content ? (
+          <div className="border-t pt-3">
+            <p className="text-muted-foreground mb-2 text-xs font-medium uppercase">
+              {t('posts.form.preview', { defaultValue: 'Preview' })}
+            </p>
+            <OpenpeepsMarkdown source={content} linkPreviewMode="none" />
+          </div>
+        ) : null}
       </div>
 
       {error && (

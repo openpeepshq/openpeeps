@@ -5,6 +5,8 @@ export * from './registry';
 export * from './form';
 export * from './profile';
 export * from './post';
+export * from './markdown';
 export * from './notifications';
 export * from './groups';
 export * from './jams';
+export * from './preview-link';
