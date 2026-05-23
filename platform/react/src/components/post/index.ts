@@ -18,6 +18,8 @@ export { useEditPostModal } from './post-form/EditPostModalContext';
 export { ComposeAttachments } from './post-form/ComposeAttachments';
 export { MentionTextarea } from './post-form/MentionTextarea';
 export type { MentionTextareaProps } from './post-form/MentionTextarea';
+export { EventForm } from './post-form/EventForm';
+export type { EventFormProps } from './post-form/EventForm';
 export { PreviewLink } from '../preview-link/PreviewLink';
 export { NewNoteButton } from './NewNoteButton';
 export type { NewNoteButtonProps } from './NewNoteButton';
