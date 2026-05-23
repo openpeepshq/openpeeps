@@ -1,31 +1,79 @@
-import { MessageCircle, Repeat2, SmilePlus } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { MessageCircle, Repeat2, ThumbsUp } from 'lucide-react';
 import type { PublicPost } from '@openpeeps/common/types';
+import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
+import { postReactionStats } from '../helpers';
+import { useReplyModal } from '../post-form/ReplyModalContext';
 
 export interface PostActionsProps {
   post: PublicPost;
   compact?: boolean;
 }
 
-/**
- * Reply / repost / react buttons. Translates `PostActions.svelte`.
- *
- * Minimal: the buttons currently navigate to the post detail page for reply
- * and repost, and surface a non-functional react picker. Hook real mutations
- * to `openpeepsApi.reactToPostAction` / `repostPostAction` once the
- * reaction-picker and repost dialogs are ported.
- */
 export function PostActions({ post, compact = false }: PostActionsProps) {
   const t = useT();
   const me = useCurrentProfile();
+  const { openpeepsApi } = useOpenpeeps();
+  const { openReply } = useReplyModal();
+  const repostsQuery = openpeepsApi.useCurrentProfileReposts();
+
+  const reactToPost = openpeepsApi.reactToPostAction({ id: post.id });
+  const retractReaction = openpeepsApi.retractPostReactionAction({ id: post.id });
+  const repostPost = openpeepsApi.repostPostAction({ id: post.id });
+  const deletePost = openpeepsApi.deletePostAction({ id: post.id });
+
+  const [busy, setBusy] = useState(false);
+
+  const myRepost = useMemo(
+    () => repostsQuery.data?.find((p) => p.repost?.id === post.id),
+    [repostsQuery.data, post.id],
+  );
+  const iReacted = useMemo(
+    () => !!post.reactions?.some((r) => r.profile.id === me?.id),
+    [post.reactions, me?.id],
+  );
 
   if (!me) return null;
 
-  const stop = (handler: () => void) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    handler();
+  const stop =
+    (handler: () => void | Promise<void>) =>
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void handler();
+    };
+
+  const handleReply = () => openReply(post);
+
+  const handleRepost = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (myRepost) {
+        await deletePost({ id: myRepost.id });
+      } else {
+        await repostPost(undefined);
+      }
+      await repostsQuery.refetch();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleReaction = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (iReacted) {
+        await retractReaction(undefined);
+      } else {
+        await reactToPost({ reaction: '👍' });
+      }
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -33,38 +81,45 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
       className={`mx-auto grid w-full grid-cols-3 items-center p-2 ${
         compact ? '' : 'border-t'
       }`}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      onKeyDown={(e) => e.stopPropagation()}
+      role="presentation"
     >
-      <a
-        href={`/posts/${post.id}#reply`}
-        className="hover:bg-surface-200 flex justify-self-start gap-2 rounded-md p-2 text-sm"
-        title={t('posts.actions.reply', { defaultValue: 'Reply' })}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <MessageCircle className="h-4 w-4" />
-        {post.replyCount ? post.replyCount : null}
-      </a>
       <button
         type="button"
-        className="hover:bg-surface-200 flex justify-self-center gap-2 rounded-md p-2 text-sm"
-        title={t('posts.actions.repost', { defaultValue: 'Repost' })}
-        onClick={stop(() => {
-          // TODO: open repost dialog when ported. For now navigate to the post.
-          window.location.assign(`/posts/${post.id}`);
-        })}
+        className="hover:bg-surface-200 flex justify-self-start gap-2 rounded-md p-2 text-sm"
+        title={t('posts.actions.reply', { defaultValue: 'Reply' })}
+        onClick={stop(handleReply)}
       >
-        <Repeat2 className="h-4 w-4" />
-        {post.repostCount ? post.repostCount : null}
+        <MessageCircle className="h-4 w-4" />
+        {post.replyCount || null}
       </button>
       <button
         type="button"
-        className="hover:bg-surface-200 flex justify-self-end gap-2 rounded-md p-2 text-sm"
-        title={t('posts.actions.react', { defaultValue: 'React' })}
-        onClick={stop(() => {
-          // TODO: open reaction picker when ported.
-        })}
+        className={`hover:bg-surface-200 flex justify-self-center gap-2 rounded-md p-2 text-sm ${myRepost ? 'text-primary' : ''}`}
+        title={t('posts.actions.repost', { defaultValue: 'Repost' })}
+        onClick={stop(handleRepost)}
+        disabled={busy}
       >
-        <SmilePlus className="h-4 w-4" />
-        {post.reactions?.length ? post.reactions.length : null}
+        <Repeat2 className="h-4 w-4" />
+        {compact ? post.repostCount || null : t('posts.footer.repost', { defaultValue: 'Repost' })}
+      </button>
+      <button
+        type="button"
+        className={`hover:bg-surface-200 flex justify-self-end gap-2 rounded-md p-2 text-sm ${iReacted ? 'text-primary' : ''}`}
+        title={t('posts.actions.react', { defaultValue: 'React' })}
+        onClick={stop(handleReaction)}
+        disabled={busy}
+      >
+        <ThumbsUp className="h-4 w-4" />
+        {compact
+          ? post.reactions?.length
+            ? ` · ${postReactionStats(post)}`
+            : null
+          : t('posts.footer.like', { defaultValue: 'Like' })}
       </button>
     </div>
   );

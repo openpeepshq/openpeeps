@@ -1,54 +1,49 @@
 import type { PublicPost } from '@openpeeps/common/types';
 import { PostMarkdown } from '../Markdown';
 import { Attachments } from '../pieces/Attachments';
+import { PollContent } from '../pieces/PollContent';
 
 export interface FeedPollProps {
   post: PublicPost;
+  /** When true, show interactive voting UI (detail pages). */
+  interactive?: boolean;
 }
 
-interface PollOption {
-  content: string;
-  type: 'note';
-}
-
-interface QuestionData {
-  type: 'question';
-  content?: string;
-  options: PollOption[];
-  multiple?: boolean;
-  expiresAt?: string;
-}
-
-export function FeedPoll({ post }: FeedPollProps) {
+export function FeedPoll({ post, interactive = false }: FeedPollProps) {
   if (post?.data?.type !== 'question') {
     return (
-      <h1>
-        FeedPoll was used but post type is not "question". Please report this
-        to the developers.
-      </h1>
+      <p className="text-error text-sm">
+        FeedPoll was used for a non-question post.
+      </p>
     );
   }
 
-  const data = post.data as QuestionData;
+  const data = post.data;
 
   return (
     <div className="space-y-3">
-      <PostMarkdown source={data.content} />
+      {data.content ? <PostMarkdown source={data.content} /> : null}
       <Attachments post={post} />
-      <ul className="space-y-1.5">
-        {data.options.map((opt, idx) => (
-          <li
-            key={idx}
-            className="cursor-pointer rounded-md border border-border px-3 py-2 text-sm hover:bg-surface-100"
-          >
-            {opt.content}
-          </li>
-        ))}
-      </ul>
-      {data.expiresAt && (
-        <p className="text-xs text-muted-foreground">
-          Closes {new Date(data.expiresAt).toLocaleString()}
-        </p>
+      {interactive ? (
+        <PollContent post={post} />
+      ) : (
+        <>
+          <ul className="space-y-1.5">
+            {data.options.map((opt, idx) => (
+              <li
+                key={idx}
+                className="rounded-md border border-border px-3 py-2 text-sm"
+              >
+                {opt.content}
+              </li>
+            ))}
+          </ul>
+          {data.expiresAt ? (
+            <p className="text-muted-foreground text-xs">
+              Closes {new Date(data.expiresAt).toLocaleString()}
+            </p>
+          ) : null}
+        </>
       )}
     </div>
   );

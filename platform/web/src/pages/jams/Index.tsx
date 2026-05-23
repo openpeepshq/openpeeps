@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useT, useOpenpeeps } from '@openpeeps/react';
-import { Feed } from '@openpeeps/react/components';
+import { EventsFeed } from '@openpeeps/react/components';
 
 interface Props {
   /** When true, scope to the current user's jams (`/jams/my`). */
@@ -39,7 +39,7 @@ export function JamsIndex({ my = false }: Props) {
           {t('jams.feed.past', { defaultValue: 'Past' })}
         </TabButton>
       </nav>
-      <Feed query={activeQuery} />
+      <EventsFeed query={activeQuery} />
     </div>
   );
 }

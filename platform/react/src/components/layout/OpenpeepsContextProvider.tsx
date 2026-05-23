@@ -9,6 +9,8 @@ import { useServerInfo } from '../server-data';
 import { PostViewCounterProvider } from '../../lib/postViewCounter';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useHasAuthToken } from '../../contexts/openpeeps/hooks/useHasAuthToken';
+import { ReplyModalProvider } from '../post/post-form/ReplyModalContext';
+import { NewPostModalProvider } from '../post/post-form/NewPostModalContext';
 
 function PostViewTracking({ children }: { children: ReactNode }) {
   const { openpeepsApi } = useOpenpeeps();
@@ -67,7 +69,9 @@ export function OpenpeepsContextProvider({
 
   return (
     <PostViewTracking>
-      {children}
+      <ReplyModalProvider>
+        <NewPostModalProvider>{children}</NewPostModalProvider>
+      </ReplyModalProvider>
     </PostViewTracking>
   );
 }

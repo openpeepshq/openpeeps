@@ -5,7 +5,7 @@ import type {
   PublicPost,
   PublicProfile,
 } from '@openpeeps/common/types';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, usePostViewRef } from '@openpeeps/react';
 import {
   Avatar,
   PostMarkdown,
@@ -18,8 +18,10 @@ const MAX_LENGTH = 500;
 
 function Message({ message, me }: { message: PublicPost; me?: PublicProfile }) {
   const isMe = me?.id === message.profile.id;
+  const postViewRef = usePostViewRef(message.id);
   return (
     <div
+      ref={postViewRef}
       className={`flex gap-2 p-2 ${isMe ? 'flex-row-reverse text-right' : 'flex-row'}`}
     >
       <Avatar profile={message.profile} size={2.25} />

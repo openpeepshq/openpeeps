@@ -8,6 +8,7 @@ import type {
 
 import { useT } from '../../i18n';
 import { FeedPost } from './FeedPost';
+import { PinnedPost } from './PinnedPost';
 
 export type FeedQuery = UseInfiniteQueryResult<
   InfiniteData<PublicPost[], unknown>,
@@ -74,7 +75,7 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
     );
   }
 
-  if (posts.length === 0) {
+  if (posts.length === 0 && !pinnedPostId) {
     return (
       <div className="flex h-96 w-full flex-col items-center justify-center gap-y-4">
         <Rss className="text-surface-300 size-20" />
@@ -87,6 +88,9 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
 
   return (
     <div className="relative">
+      {pinnedPostId ? (
+        <PinnedPost pinnedPostId={pinnedPostId} inGroup={inGroup} />
+      ) : null}
       {posts.map((post) => (
         <a
           key={post.id}

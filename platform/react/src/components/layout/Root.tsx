@@ -8,6 +8,9 @@ import {
   SideBar,
 } from '../navigation';
 import { Infos } from './Infos';
+import { useNewPostModal } from '../post/post-form/NewPostModalContext';
+import { useDefaultVisibility } from '../post/visibility';
+import { useCurrentProfile } from './IdentityContext';
 
 export interface RootLayoutProps {
   children?: ReactNode;
@@ -16,6 +19,24 @@ export interface RootLayoutProps {
     mainMenu?: () => ReactNode;
     profileMenu?: () => ReactNode;
   };
+}
+
+function MobileFooter() {
+  const { openNewPost } = useNewPostModal();
+  const visibility = useDefaultVisibility();
+  const profile = useCurrentProfile();
+
+  return (
+    <FooterMobile
+      onNewPost={
+        profile
+          ? () => {
+              openNewPost({ visibility });
+            }
+          : undefined
+      }
+    />
+  );
 }
 
 /**
@@ -50,7 +71,7 @@ export function RootLayout({ children, sideBar }: RootLayoutProps) {
         </div>
       </div>
       <div className="bottom-0 w-full flex-grow-0 md:hidden">
-        <FooterMobile />
+        <MobileFooter />
       </div>
     </div>
   );

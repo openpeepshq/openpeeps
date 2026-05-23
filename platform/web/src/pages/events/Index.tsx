@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useT, useOpenpeeps } from '@openpeeps/react';
-import { Feed } from '@openpeeps/react/components';
+import { EventsFeed } from '@openpeeps/react/components';
 
 export function EventsIndex() {
   const t = useT();
@@ -28,7 +28,7 @@ export function EventsIndex() {
           {t('events.feed.past', { defaultValue: 'Past' })}
         </TabButton>
       </nav>
-      <Feed query={activeQuery} />
+      <EventsFeed query={activeQuery} />
     </div>
   );
 }
