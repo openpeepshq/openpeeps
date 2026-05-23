@@ -176,12 +176,11 @@ jobs:
       - name: Install pnpm and dependencies
         run: |
           corepack enable
-          cd platform/app
           pnpm install
+          cd tests
           pnpm exec playwright install chromium chromium-headless-shell
       - name: Run integration tests
-        run: pnpm run test:integration:no-clean
-        working-directory: platform/app
+        run: pnpm --filter @openpeeps/tests run test:integration:no-clean
 
   commit-check:
     runs-on: docker

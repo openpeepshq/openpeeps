@@ -15,21 +15,18 @@ const config: PlaywrightTestConfig = {
   webServer: isCI
     ? undefined
     : {
-        // Start a local app server so integration tests run outside Docker too.
         command:
-          'DB_NAME=test pnpm dev --host 127.0.0.1 --port 8080 --strictPort',
+          'DB_NAME=test pnpm --filter @openpeeps/app dev --host 127.0.0.1 --port 8080 --strictPort',
         url: baseURL,
         reuseExistingServer: false,
         timeout: 120 * 1000,
-        // pnpm/playwright force-enable color, which makes the captured
-        // [WebServer] logs unreadable. Disable colour explicitly.
         env: {
           FORCE_COLOR: '0',
           NO_COLOR: '1',
         },
       },
-  globalSetup: './tests/global-setup.ts',
-  testDir: 'tests',
+  globalSetup: './integration/global-setup.ts',
+  testDir: 'integration',
   testMatch: /(.+\.)?(test|spec)\.[jt]s/,
   workers: 1,
   retries: 1,

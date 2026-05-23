@@ -1,0 +1,16 @@
+{
+  "name": "@openpeeps/tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "pnpm run test:integration",
+    "test:integration": "if [ -z \"$CI\" ]; then pnpm --filter @openpeeps/app db:clear:test; fi && unset FORCE_COLOR && DB_NAME=test playwright test",
+    "test:integration:no-clean": "unset FORCE_COLOR && DB_NAME=test playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.1.0",
+    "typescript": "^5.5.0"
+  }
+}
