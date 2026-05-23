@@ -179,6 +179,18 @@ jobs:
           pnpm install
           cd tests
           pnpm exec playwright install chromium chromium-headless-shell
+      - name: Wait for web service
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://web:8080/api >/dev/null 2>&1; then
+              echo "Web service is ready (attempt $i)"
+              exit 0
+            fi
+            echo "Waiting for web service... ($i/60)"
+            sleep 2
+          done
+          echo "Web service did not become ready in time" >&2
+          exit 1
       - name: Run integration tests
         run: pnpm --filter @openpeeps/tests run test:integration:no-clean
 

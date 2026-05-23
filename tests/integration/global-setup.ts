@@ -1,4 +1,6 @@
 import { request, type FullConfig } from '@playwright/test';
+import { debugLog } from './debug-log';
+import { waitForBaseUrl } from './wait-for-base-url';
 
 // Pre-registers the well-known UI fixture user so it ends up as the FIRST
 // account in the test database. The first account becomes the community
@@ -11,6 +13,15 @@ import { request, type FullConfig } from '@playwright/test';
 export default async function globalSetup(config: FullConfig) {
   const baseURL =
     config.projects[0]?.use?.baseURL ?? 'http://127.0.0.1:8080';
+
+  debugLog(
+    'global-setup.ts:start',
+    'global setup starting',
+    { baseURL, ci: !!process.env.CI },
+    'H1',
+  );
+
+  await waitForBaseUrl(baseURL);
 
   const ctx = await request.newContext({ baseURL });
 
@@ -26,6 +37,13 @@ export default async function globalSetup(config: FullConfig) {
           privacyPolicyAccepted: true,
         },
       },
+    );
+
+    debugLog(
+      'global-setup.ts:register',
+      'seed register completed',
+      { status: response.status(), ok: response.ok() },
+      'H1',
     );
 
     // 409 (or any 4xx with a "handle/email already taken" body) means the
