@@ -1,12 +1,18 @@
-import { MessageCircleOff, Calendar } from 'lucide-react';
+import { useMemo } from 'react';
+import { MessageCircleOff, Calendar, MessageSquarePlus } from 'lucide-react';
 import type { PublicPost } from '@openpeeps/common/types';
 import { truncateText } from '@openpeeps/common';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import {
+  useT,
+  useOpenpeeps,
+  useSetPlusButtonActions,
+} from '@openpeeps/react';
 import {
   Avatar,
   PostMarkdown,
   UpdatingDate,
   useCurrentProfile,
+  useCreateNewConversation,
 } from '@openpeeps/react/components';
 
 function ChatPreview({ conversation }: { conversation: PublicPost[] }) {
@@ -63,7 +69,18 @@ function ChatPreview({ conversation }: { conversation: PublicPost[] }) {
 export function ConversationsIndex() {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
+  const { openCreateConversation } = useCreateNewConversation();
   const query = openpeepsApi.useConversations();
+
+  const plusButton = useMemo(
+    () => ({
+      title: t('conversations.newMessage', { defaultValue: 'New message' }),
+      icon: MessageSquarePlus,
+      action: () => openCreateConversation(),
+    }),
+    [t, openCreateConversation],
+  );
+  useSetPlusButtonActions(plusButton);
 
   const conversations = query.data ?? [];
 

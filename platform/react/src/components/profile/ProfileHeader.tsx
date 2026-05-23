@@ -5,6 +5,8 @@ import { truncateText } from '@openpeeps/common/lib';
 import { useT } from '../../i18n';
 import { Avatar } from './Avatar';
 import { PostMarkdown } from '../post/Markdown';
+import { ProfilePageAction } from './ProfilePageAction';
+import { ProfileStats } from './ProfileStats';
 
 export interface ProfileHeaderProps {
   profile: PublicProfile;
@@ -14,11 +16,11 @@ export interface ProfileHeaderProps {
 /**
  * Translation of `profilePage/ProfileHeader.svelte`. Renders the cover image
  * + avatar + display name + handle + bio + location + custom fields.
- *
- * The Svelte version also wires `<ProfilePageAction>` (Follow/Unfollow/Edit
- * Profile) and `<ProfileStats>` here. Those land as TODOs until ported.
  */
-export function ProfileHeader({ profile }: ProfileHeaderProps) {
+export function ProfileHeader({
+  profile,
+  isCurrentProfile = false,
+}: ProfileHeaderProps) {
   const t = useT();
   return (
     <div className="relative">
@@ -66,6 +68,12 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
               <PostMarkdown source={field.value} className="pt-1 text-sm" />
             </div>
           ))}
+
+          <ProfileStats profile={profile} />
+          <ProfilePageAction
+            profile={profile}
+            isCurrentProfile={isCurrentProfile}
+          />
         </div>
       </div>
     </div>

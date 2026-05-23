@@ -10,6 +10,7 @@ import {
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
+import { useCreateNewConversation } from '../../conversations/CreateNewConversationContext';
 
 export interface ShareMenuProps {
   post: PublicPost;
@@ -19,6 +20,7 @@ export interface ShareMenuProps {
 export function ShareMenu({ post, menuButton }: ShareMenuProps) {
   const t = useT();
   const me = useCurrentProfile();
+  const { openCreateConversation } = useCreateNewConversation();
   const { openpeepsApi } = useOpenpeeps();
   const repostPost = openpeepsApi.repostPostAction({ id: post.id });
 
@@ -69,11 +71,9 @@ export function ShareMenu({ post, menuButton }: ShareMenuProps) {
               defaultValue: 'Send in message',
             })}
             icon={Send}
-            action={() => {
-              window.location.assign(
-                `/conversations/new?message=${encodeURIComponent(postUrl)}`,
-              );
-            }}
+            action={() =>
+              openCreateConversation({ message: postUrl })
+            }
           />
           <PopupSeparator />
           <PopupSection

@@ -51,6 +51,7 @@ import { Profile as ProfilePage } from './pages/Profile';
 import { Explore as ExplorePage } from './pages/Explore';
 import { Members as MembersPage } from './pages/Members';
 import { ConversationsIndex } from './pages/conversations/Index';
+import { NewConversation } from './pages/conversations/New';
 import { ConversationShow } from './pages/conversations/Show';
 import { EventsIndex } from './pages/events/Index';
 import { EventsMy } from './pages/events/My';
@@ -228,6 +229,7 @@ const Members = MembersPage;
 
 const Conversations = {
   Index: ConversationsIndex,
+  New: NewConversation,
   Detail: ConversationShow,
   Info: () => (
     <ConversationInfo />
@@ -477,6 +479,10 @@ function AppShell() {
 
                     {/* Conversations */}
                     <Route path="/conversations" element={<Conversations.Index />} />
+                    <Route
+                      path="/conversations/new"
+                      element={<Conversations.New />}
+                    />
                     <Route
                       path="/conversations/:id"
                       element={<Conversations.Detail />}
