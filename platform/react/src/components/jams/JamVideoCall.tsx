@@ -1,13 +1,11 @@
 import { useMemo } from 'react';
 import {
   LiveKitRoom,
-  VideoConference,
-  RoomAudioRenderer,
 } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { defaultRoomOptions } from './constants';
 import { useJamContext } from './JamContext';
-import { JamWaitingRoomPanel } from './JamWaitingRoomPanel';
+import { JamConference } from './JamConference';
 
 export interface JamVideoCallProps {
   token: string;
@@ -20,14 +18,9 @@ export interface JamVideoCallProps {
 }
 
 /**
- * Wraps LiveKit's prebuilt `<VideoConference>` UI inside a `<LiveKitRoom>` so
- * the React port renders a complete jam session with one component. Mirrors
- * `core/jams/roomTypes/videoCall/VideoCall.svelte` at a high level.
- *
- * The custom Svelte UI (chat drawer, mode-specific grids, screen sharing
- * tile, mobile/desktop footers) is replaced by LiveKit's first-party
- * `VideoConference` to keep this port focused. Custom drawers and controls
- * can layer on later by composing `useTracks`, `ParticipantTile`, etc.
+ * Connects to LiveKit and renders {@link JamConference} — a composition of
+ * LiveKit prefabs ({@link VideoConference}, {@link GridLayout}) plus OpenPeeps
+ * moderator tools and the waiting-room admit panel.
  */
 export function JamVideoCall({
   token,
@@ -53,9 +46,7 @@ export function JamVideoCall({
       style={{ height: '100vh', width: '100vw' }}
       onDisconnected={onDisconnected}
     >
-      <VideoConference />
-      <RoomAudioRenderer />
-      <JamWaitingRoomPanel />
+      <JamConference />
     </LiveKitRoom>
   );
 }

@@ -148,6 +148,7 @@ export function HeaderAvatarInput({
           previewUrl={pendingImage.previewUrl}
           open
           showAltInput={false}
+          cropShape="round"
           onClose={() => setPendingImage(null)}
           onConfirm={(file) => {
             void confirmPending(file);

@@ -45,6 +45,10 @@ export default defineConfig({
         target: apiTarget,
         changeOrigin: true,
       },
+      '/_db': {
+        target: apiTarget,
+        changeOrigin: true,
+      },
     },
   },
   build: {

@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react';
-import { MessageSquarePlus } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronRight, MessageSquarePlus, MoreHorizontal } from 'lucide-react';
 import { useT, useOpenpeeps, useSetPlusButtonActions } from '@openpeeps/react';
 import {
   EventsFeed,
+  LiveJamsSection,
   useCreateNewJam,
   useServerInfo,
 } from '@openpeeps/react/components';
+import { PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
 
 interface Props {
   /** When true, scope to the current user's jams (`/jams/my`). */
@@ -40,11 +43,30 @@ export function JamsIndex({ my = false }: Props) {
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
-        {my
-          ? t('navigation.myJams', { defaultValue: 'My jams' })
-          : t('navigation.jams', { defaultValue: 'Jams' })}
-      </h1>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold">
+          {my
+            ? t('navigation.myJams', { defaultValue: 'My jams' })
+            : t('navigation.jams', { defaultValue: 'Jams' })}
+        </h1>
+        {!my ? (
+          <PopupMenu icon={MoreHorizontal} compact>
+            <PopupMenuButton
+              icon={ChevronRight}
+              title={t('navigation.myJams', { defaultValue: 'My jams' })}
+              text={t('navigation.myJams', { defaultValue: 'My jams' })}
+              action="/jams/my"
+            />
+          </PopupMenu>
+        ) : (
+          <Link to="/jams" className="text-sm text-primary hover:underline">
+            {t('navigation.jams', { defaultValue: 'All jams' })}
+          </Link>
+        )}
+      </div>
+
+      {!my && serverInfo.jams.livekit.enabled ? <LiveJamsSection /> : null}
+
       <nav className="mb-4 flex border-b border-border">
         <TabButton
           active={tab === 'upcoming'}

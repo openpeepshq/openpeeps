@@ -44,7 +44,8 @@ export function Register({ invite = false }: RegisterProps) {
   const t = useT();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { client } = useOpenpeeps();
+  const { client, openpeepsApi } = useOpenpeeps();
+  const createCheckout = openpeepsApi.createCheckoutAction();
   const { credentialsStore } = useCredentialsStore();
   const serverInfo = useServerInfo();
 
@@ -74,11 +75,13 @@ export function Register({ invite = false }: RegisterProps) {
     try {
       await performRegister(client, credentialsStore, data);
       if (stripeMembershipEnabled) {
-        // TODO: wire createCheckoutMutation when payments hooks are ported.
-        navigate('/welcome');
-      } else {
-        navigate('/welcome');
+        const checkout = await createCheckout();
+        if (checkout.url) {
+          window.location.href = checkout.url;
+          return;
+        }
       }
+      navigate('/welcome');
     } catch (err) {
       setError(t((err as Error).message));
     }

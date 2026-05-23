@@ -1,8 +1,13 @@
 import { useState } from 'react';
+import { X } from 'lucide-react';
 import { PreJoin, type LocalUserChoices } from '@livekit/components-react';
+import { Button } from '@openpeeps/react-ui';
+import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
+import { useCurrentProfile } from '../layout/IdentityContext';
 import { useJamContext } from './JamContext';
+import { JamGuestForm } from './JamGuestForm';
 
 export interface JamLobbyProps {
   /** Called once the user has picked devices and the join token has been obtained. */
@@ -13,22 +18,35 @@ export interface JamLobbyProps {
   }) => void;
 }
 
+function canAccessJamLobby(
+  profile: ReturnType<typeof useCurrentProfile>,
+  jamPostId: string,
+) {
+  if (!profile) return false;
+  if (profile.type === 'local') return true;
+  return (
+    profile.guestData?.resource?.type === 'jams' &&
+    profile.guestData.resource.id === jamPostId
+  );
+}
+
 /**
- * Pre-room screen. Wraps LiveKit's `<PreJoin>` so the user can pick devices
- * and preview audio/video, then fetches a join token via the openpeeps API
- * before handing off to `<JamVideoCall>`.
- *
- * This is the React analog of `core/jams/lobby/Lobby.svelte` +
- * `DirectJoinButton.svelte`. The waiting-room flow (moderator approval) is
- * intentionally left as a follow-up.
+ * Pre-room screen. Guests without a jam-scoped pass see {@link JamGuestForm};
+ * authenticated users get LiveKit's {@link PreJoin} device picker before join.
  */
 export function JamLobby({ onJoin }: JamLobbyProps) {
   const t = useT();
+  const navigate = useNavigate();
+  const me = useCurrentProfile();
   const { jamPost } = useJamContext();
   const { client } = useOpenpeeps();
 
   const [error, setError] = useState<string | undefined>();
   const [submitting, setSubmitting] = useState(false);
+
+  if (!canAccessJamLobby(me, jamPost.id)) {
+    return <JamGuestForm />;
+  }
 
   const handleSubmit = async (choices: LocalUserChoices) => {
     setSubmitting(true);
@@ -39,7 +57,12 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
       });
       if ('error' in res) {
         const message = (res as { error?: { message?: string } }).error?.message;
-        setError(message ?? t('jams.lobby.tokenError', { defaultValue: 'Failed to get jam token' }));
+        setError(
+          message ??
+            t('jams.lobby.tokenError', {
+              defaultValue: 'Failed to get jam token',
+            }),
+        );
         return;
       }
       const { token, livekitUrl } = res.data;
@@ -53,6 +76,20 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
 
   return (
     <div className="mx-auto flex h-full w-full max-w-2xl flex-col items-center justify-center p-4">
+      <div className="bg-card mb-4 flex w-full items-center justify-between rounded-md border p-3">
+        <h2 className="text-lg font-semibold">
+          {t('jams.lobby.readyTitle', { defaultValue: 'Ready to join' })}
+        </h2>
+        <Button
+          compact
+          variant="variant-ringed-surface"
+          action={() => navigate('/jams')}
+          title={t('jams.exit.title', { defaultValue: 'Leave' })}
+        >
+          <X className="size-4" />
+        </Button>
+      </div>
+
       <PreJoin
         onSubmit={handleSubmit}
         joinLabel={

@@ -13,7 +13,9 @@ export function JamEvent() {
   const [searchParams] = useSearchParams();
   const { openpeepsApi } = useOpenpeeps();
 
-  const observer = searchParams.get('observer') === '1';
+  const observer =
+    searchParams.get('observer') === '1' ||
+    searchParams.get('observer') === 'true';
 
   const postQuery = openpeepsApi.usePost(eventId ?? '');
 

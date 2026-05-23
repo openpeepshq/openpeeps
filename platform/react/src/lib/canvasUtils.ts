@@ -31,6 +31,32 @@ export const createImage = (imageSrc: ImageSource): Promise<HTMLImageElement> =>
       typeof imageSrc === 'string' ? imageSrc : URL.createObjectURL(imageSrc);
   });
 
+export const getCroppedImg = async (
+  imageSrc: ImageSource,
+  pixelCrop: { x: number; y: number; width: number; height: number },
+) => {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+
+  ctx?.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height,
+  );
+
+  return canvasToFile(canvas);
+};
+
 export const centerCropToAspectRatio = async (
   imageSrc: ImageSource,
   aspectW: number,
@@ -64,6 +90,44 @@ export const centerCropToAspectRatio = async (
   canvas.height = sh;
   const ctx = canvas.getContext('2d');
   ctx?.drawImage(image, sx, sy, sw, sh, 0, 0, sw, sh);
+
+  return canvasToFile(canvas);
+};
+
+export const getRotatedImage = async (imageSrc: ImageSource, rotation = 0) => {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const orientationChanged =
+    rotation === 90 || rotation === -90 || rotation === 270 || rotation === -270;
+  if (orientationChanged) {
+    canvas.width = image.height;
+    canvas.height = image.width;
+  } else {
+    canvas.width = image.width;
+    canvas.height = image.height;
+  }
+
+  ctx?.translate(canvas.width / 2, canvas.height / 2);
+  ctx?.rotate((rotation * Math.PI) / 180);
+  ctx?.drawImage(image, -image.width / 2, -image.height / 2);
+
+  return canvasToFile(canvas);
+};
+
+export const getZoomedImage = async (imageSrc: ImageSource, zoom: number) => {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const scaledWidth = Math.round(image.width * zoom);
+  const scaledHeight = Math.round(image.height * zoom);
+
+  canvas.width = scaledWidth;
+  canvas.height = scaledHeight;
+
+  ctx?.drawImage(image, 0, 0, scaledWidth, scaledHeight);
 
   return canvasToFile(canvas);
 };

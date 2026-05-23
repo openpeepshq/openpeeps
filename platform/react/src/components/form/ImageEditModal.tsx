@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import Cropper, { type Area, type Point } from 'react-easy-crop';
 import {
   Button,
   Dialog,
@@ -11,8 +12,8 @@ import {
 } from '@openpeeps/react-ui';
 import { useT } from '../../i18n';
 import {
-  centerCropToAspectRatio,
   convertToWebpIfHeic,
+  getCroppedImg,
 } from '../../lib/canvasUtils';
 
 export interface ImageEditModalProps {
@@ -23,13 +24,17 @@ export interface ImageEditModalProps {
   onConfirm: (file: File, description: string) => void;
   /** When false, skip alt-text input (profile/group avatars). */
   showAltInput?: boolean;
+  /** Round mask for avatar crops. */
+  cropShape?: 'rect' | 'round';
 }
 
 const ASPECT_RATIOS = [
-  { label: 'Original', value: null },
-  { label: '1:1', value: [1, 1] as const },
-  { label: '4:3', value: [4, 3] as const },
-  { label: '16:9', value: [16, 9] as const },
+  { label: 'Original', value: undefined },
+  { label: '1:1', value: 1 },
+  { label: '4:3', value: 4 / 3 },
+  { label: '16:9', value: 16 / 9 },
+  { label: '3:4', value: 3 / 4 },
+  { label: '9:16', value: 9 / 16 },
 ];
 
 export function ImageEditModal({
@@ -39,19 +44,28 @@ export function ImageEditModal({
   onClose,
   onConfirm,
   showAltInput = true,
+  cropShape = 'rect',
 }: ImageEditModalProps) {
   const t = useT();
   const [description, setDescription] = useState('');
   const [aspectIndex, setAspectIndex] = useState(0);
+  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const aspect = ASPECT_RATIOS[aspectIndex]?.value;
+
+  const onCropComplete = useCallback((_: Area, pixels: Area) => {
+    setCroppedAreaPixels(pixels);
+  }, []);
 
   const confirm = async () => {
     setSubmitting(true);
     try {
       let processed = await convertToWebpIfHeic(file);
-      const aspect = ASPECT_RATIOS[aspectIndex]?.value;
-      if (aspect) {
-        processed = await centerCropToAspectRatio(processed, aspect[0], aspect[1]);
+      if (aspect && croppedAreaPixels) {
+        processed = await getCroppedImg(processed, croppedAreaPixels);
       }
       onConfirm(processed, description.trim());
       onClose();
@@ -69,11 +83,35 @@ export function ImageEditModal({
           </DialogTitle>
         </DialogHeader>
 
-        <img
-          src={previewUrl}
-          alt=""
-          className="max-h-64 w-full rounded-md object-contain"
-        />
+        <div className="relative h-64 w-full overflow-hidden rounded-md bg-black">
+          <Cropper
+            image={previewUrl}
+            crop={crop}
+            zoom={zoom}
+            aspect={aspect}
+            cropShape={cropShape}
+            showGrid={!!aspect}
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            onCropComplete={onCropComplete}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <Label htmlFor="zoom-range">
+            {t('posts.form.zoom', { defaultValue: 'Zoom' })}
+          </Label>
+          <input
+            id="zoom-range"
+            type="range"
+            min={1}
+            max={3}
+            step={0.05}
+            value={zoom}
+            onChange={(e) => setZoom(Number(e.target.value))}
+            className="w-full"
+          />
+        </div>
 
         <div className="space-y-1">
           <Label htmlFor="aspect-ratio">

@@ -13,4 +13,7 @@ export type { JamContextValue, JamProviderProps } from './JamContext';
 export { CreateNewJamProvider, useCreateNewJam } from './CreateNewJamContext';
 export { JamRequestJoin } from './JamRequestJoin';
 export type { JamRequestJoinProps } from './JamRequestJoin';
+export { JamConference } from './JamConference';
+export { JamGuestForm } from './JamGuestForm';
+export { LiveJamsSection } from './LiveJamsSection';
 export { defaultRoomOptions, JAM_EMOJIS } from './constants';

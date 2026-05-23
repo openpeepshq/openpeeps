@@ -8,6 +8,7 @@ import express from 'express';
 import { api, expressAdapter } from '@riddl/core';
 import { logger } from '@openpeeps/core/log';
 import { initializeServer } from '#lib/init';
+import { installDbBrowserProxy } from './lib/dbBrowserProxy';
 
 const log = logger('server');
 const requestLog = logger('server:request');
@@ -40,6 +41,11 @@ const isApiRequest = (originalUrl: string): boolean =>
   originalUrl === '/openapi.json' ||
   originalUrl.startsWith('/openapi.json?') ||
   originalUrl.startsWith('/api/');
+
+const isDbBrowserRequest = (originalUrl: string): boolean =>
+  originalUrl === '/_db' ||
+  originalUrl.startsWith('/_db/') ||
+  originalUrl.startsWith('/_db?');
 
 const startServer = async () => {
   await initializeServer();
@@ -128,6 +134,9 @@ const startServer = async () => {
     next();
   });
 
+  // ArangoDB Aardvark browser proxy (same as SvelteKit `/_db` route).
+  installDbBrowserProxy(app);
+
   // Serve the React SPA built by `@openpeeps/web`. The Docker image places it
   // under `/apat/platform/web/dist`; locally we resolve it from this file.
   const webDist = resolveWebDist();
@@ -143,6 +152,7 @@ const startServer = async () => {
     const indexHtml = path.join(webDist, 'index.html');
     app.get(/.*/, (req, res, next) => {
       if (isApiRequest(req.originalUrl)) return next();
+      if (isDbBrowserRequest(req.originalUrl)) return next();
       if (req.method !== 'GET') return next();
       res.sendFile(indexHtml);
     });
