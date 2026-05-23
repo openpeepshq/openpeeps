@@ -14,6 +14,7 @@ const log = logger('server');
 const requestLog = logger('server:request');
 
 const port = Number(process.env.PORT) || 5173;
+const host = process.env.HOST || '0.0.0.0';
 
 /**
  * Resolve where the React SPA's built assets live. Priority:
@@ -51,6 +52,10 @@ const startServer = async () => {
   await initializeServer();
 
   const app = express();
+
+  app.get('/health', (_req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
 
   // Request-duration logger, mirrors `requestDurationLogger` in
   // `platform/app/src/hooks.server.ts`.
@@ -168,8 +173,8 @@ const startServer = async () => {
     res.status(404).send(`Not found: ${req.method} ${req.originalUrl}`);
   });
 
-  app.listen(port, () => {
-    log.info(`Server listening on http://localhost:${port}`);
+  app.listen(port, host, () => {
+    log.info(`Server listening on http://${host}:${port}`);
   });
 };
 

@@ -19,7 +19,7 @@ export async function waitForBaseUrl(
   baseURL: string,
   options?: { path?: string; maxAttempts?: number; delayMs?: number },
 ) {
-  const path = options?.path ?? '/api';
+  const path = options?.path ?? '/health';
   const maxAttempts = options?.maxAttempts ?? 60;
   const delayMs = options?.delayMs ?? 2000;
   const url = `${baseURL.replace(/\/$/, '')}${path}`;
