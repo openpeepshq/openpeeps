@@ -10,4 +10,7 @@ export {
   useJamObserver,
 } from './JamContext';
 export type { JamContextValue, JamProviderProps } from './JamContext';
+export { CreateNewJamProvider, useCreateNewJam } from './CreateNewJamContext';
+export { JamRequestJoin } from './JamRequestJoin';
+export type { JamRequestJoinProps } from './JamRequestJoin';
 export { defaultRoomOptions, JAM_EMOJIS } from './constants';

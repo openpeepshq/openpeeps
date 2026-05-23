@@ -6,3 +6,4 @@ export {
 } from './CreateNewConversationContext';
 export type { CreateConversationOptions } from './CreateNewConversationContext';
 export { DirectMessagesHeaderActions } from './DirectMessagesHeaderActions';
+export { ConversationMessageBubble } from './ConversationMessageBubble';

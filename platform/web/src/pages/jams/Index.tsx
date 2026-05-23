@@ -1,6 +1,11 @@
-import { useState } from 'react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { EventsFeed } from '@openpeeps/react/components';
+import { useMemo, useState } from 'react';
+import { MessageSquarePlus } from 'lucide-react';
+import { useT, useOpenpeeps, useSetPlusButtonActions } from '@openpeeps/react';
+import {
+  EventsFeed,
+  useCreateNewJam,
+  useServerInfo,
+} from '@openpeeps/react/components';
 
 interface Props {
   /** When true, scope to the current user's jams (`/jams/my`). */
@@ -9,8 +14,20 @@ interface Props {
 
 export function JamsIndex({ my = false }: Props) {
   const t = useT();
+  const serverInfo = useServerInfo();
   const { openpeepsApi } = useOpenpeeps();
+  const { openCreateJam } = useCreateNewJam();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
+
+  const plusButton = useMemo(() => {
+    if (!serverInfo.jams.livekit.enabled) return undefined;
+    return {
+      title: t('jams.create.title', { defaultValue: 'Start a jam' }),
+      icon: MessageSquarePlus,
+      action: () => openCreateJam(),
+    };
+  }, [serverInfo.jams.livekit.enabled, t, openCreateJam]);
+  useSetPlusButtonActions(plusButton);
 
   const upcoming = my
     ? openpeepsApi.useMyUpcomingJamsFeed()

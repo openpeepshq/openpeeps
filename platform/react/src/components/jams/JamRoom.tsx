@@ -8,6 +8,7 @@ import { useCurrentProfile } from '../layout/IdentityContext';
 import { useServerInfo } from '../server-data/context';
 import { JamProvider, useJamContext } from './JamContext';
 import { JamLobby } from './JamLobby';
+import { JamRequestJoin } from './JamRequestJoin';
 import { JamVideoCall } from './JamVideoCall';
 
 export interface JamRoomProps {
@@ -48,10 +49,25 @@ function JamRoomInner() {
   const [observerError, setObserverError] = useState<string | undefined>();
 
   const livekitUrl = serverInfo.jams.livekit.url;
+  const isModerator = !!me && (jam?.moderators.includes(me.id) ?? false);
+  const jamActive = !!jamStateQuery.data?.active;
 
-  const canJoin =
-    !!jamStateQuery.data?.active ||
-    (!!me && (jam?.moderators.includes(me.id) ?? false));
+  const handleJoin = ({
+    token,
+    livekitUrl: url,
+    choices,
+  }: {
+    token: string;
+    livekitUrl: string;
+    choices?: LocalUserChoices;
+  }) => {
+    setConnection({
+      token,
+      livekitUrl: url ?? livekitUrl,
+      audio: choices?.audioEnabled ?? true,
+      video: choices?.videoEnabled ?? true,
+    });
+  };
 
   useEffect(() => {
     if (!observer) return;
@@ -120,19 +136,16 @@ function JamRoomInner() {
     );
   }
 
-  if (canJoin) {
-    return (
-      <JamLobby
-        onJoin={({ token, livekitUrl: url, choices }) => {
-          setConnection({
-            token,
-            livekitUrl: url ?? livekitUrl,
-            audio: choices.audioEnabled,
-            video: choices.videoEnabled,
-          });
-        }}
-      />
-    );
+  const canDirectJoin =
+    isModerator || (jamActive && !jam?.waitingRoom);
+  const canRequestJoin = !isModerator && !!jam?.waitingRoom;
+
+  if (canDirectJoin) {
+    return <JamLobby onJoin={handleJoin} />;
+  }
+
+  if (canRequestJoin) {
+    return <JamRequestJoin onJoin={handleJoin} />;
   }
 
   return (

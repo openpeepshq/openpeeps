@@ -13,6 +13,7 @@ import { ReplyModalProvider } from '../post/post-form/ReplyModalContext';
 import { NewPostModalProvider } from '../post/post-form/NewPostModalContext';
 import { EditPostModalProvider } from '../post/post-form/EditPostModalContext';
 import { CreateNewConversationProvider } from '../conversations/CreateNewConversationContext';
+import { CreateNewJamProvider } from '../jams/CreateNewJamContext';
 
 function PostViewTracking({ children }: { children: ReactNode }) {
   const { openpeepsApi } = useOpenpeeps();
@@ -75,7 +76,7 @@ export function OpenpeepsContextProvider({
         <NewPostModalProvider>
           <EditPostModalProvider>
             <CreateNewConversationProvider>
-              {children}
+              <CreateNewJamProvider>{children}</CreateNewJamProvider>
             </CreateNewConversationProvider>
           </EditPostModalProvider>
         </NewPostModalProvider>

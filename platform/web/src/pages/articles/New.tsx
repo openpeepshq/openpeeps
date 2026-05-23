@@ -1,26 +1,28 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { PostCreationData } from '@openpeeps/common/types';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { useDefaultVisibility } from '@openpeeps/react/components';
-import { Button, Input, Label, Textarea } from '@openpeeps/react-ui';
+import { useT, useOpenpeeps, defaultNewArticle } from '@openpeeps/react';
+import { ArticleForm, useServerInfo } from '@openpeeps/react/components';
+import { Button } from '@openpeeps/react-ui';
 
 export function NewArticle() {
   const t = useT();
   const navigate = useNavigate();
+  const serverInfo = useServerInfo();
   const { openpeepsApi } = useOpenpeeps();
-  const visibility = useDefaultVisibility();
   const createPost = openpeepsApi.createPostAction();
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [image, setImage] = useState('');
+  const [postData, setPostData] = useState<PostCreationData>(() =>
+    defaultNewArticle(serverInfo.publicContent),
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const article = postData.data.type === 'article' ? postData.data : null;
+
   const submit = async () => {
     setError(null);
-    if (!title.trim()) {
+    if (!article?.title?.trim()) {
       setError(
         t('articles.validation.titleRequired', {
           defaultValue: 'Title is required',
@@ -28,20 +30,14 @@ export function NewArticle() {
       );
       return;
     }
+    if (postData.visibility === 'direct' && !postData.audience?.length) {
+      setError('Choose at least one recipient for a direct article.');
+      return;
+    }
     setSubmitting(true);
     try {
-      const data: PostCreationData = {
-        visibility,
-        type: 'article',
-        data: {
-          type: 'article',
-          title,
-          content,
-          image: image || undefined,
-        },
-      };
-      const post = (await createPost(data)) as { id: string };
-      navigate(`/posts/${post.id}`);
+      const created = await createPost({ ...postData, type: 'article' });
+      navigate(`/posts/${created.id}`);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -55,47 +51,13 @@ export function NewArticle() {
         {t('articles.new', { defaultValue: 'New article' })}
       </h1>
 
-      <div className="space-y-2">
-        <Label htmlFor="title">
-          {t('articles.form.title', { defaultValue: 'Title' })}
-        </Label>
-        <Input
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </div>
+      <ArticleForm postData={postData} onChange={setPostData} />
 
-      <div className="space-y-2">
-        <Label htmlFor="image">
-          {t('articles.form.image', { defaultValue: 'Cover image URL' })}
-        </Label>
-        <Input
-          id="image"
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="content">
-          {t('articles.form.content', {
-            defaultValue: 'Article content (markdown)',
-          })}
-        </Label>
-        <Textarea
-          id="content"
-          rows={20}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-      </div>
-
-      {error && (
+      {error ? (
         <p className="border-error/40 text-error rounded-md border p-2 text-sm">
           {error}
         </p>
-      )}
+      ) : null}
 
       <Button
         title="Publish"
