@@ -1,0 +1,92 @@
+# Local reproduction of the Forgejo `test-integration` job.
+#
+# From repo root:
+#   pnpm --filter @openpeeps/tests run integration
+#
+# Or step by step from `tests/`:
+#   docker compose -f docker-compose.integration.yml up --build arangodb redis web
+#   docker compose -f docker-compose.integration.yml run --rm tests
+#
+# Paths in this file are relative to this directory (`tests/`).
+
+services:
+  arangodb:
+    image: arangodb:3.11
+    environment:
+      ARANGO_NO_AUTH: "true"
+
+  redis:
+    image: redis:alpine
+
+  web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        VERSION: local-integration
+        ENVIRONMENT: test
+    environment:
+      DB_URL: http://arangodb:8529
+      DB_NAME: test
+      REDIS_HOST: redis
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      JWT_SECRET: xxx
+      JAMS_LIVEKIT_API_KEY: APIxxxxxxxxxxxx
+      JAMS_LIVEKIT_API_SECRET: xxxxxxxxxxxxx
+    depends_on:
+      arangodb:
+        condition: service_started
+      redis:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:8080/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 36
+      start_period: 60s
+
+  tests:
+    image: mcr.microsoft.com/playwright:v1.56.1-noble
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+    environment:
+      CI: "true"
+      PLAYWRIGHT_BASE_URL: http://web:8080
+      DB_NAME: test
+      FORCE_COLOR: "0"
+      NO_COLOR: "1"
+    depends_on:
+      web:
+        condition: service_healthy
+    command:
+      - bash
+      - -lc
+      - |
+        set -euo pipefail
+        corepack enable
+        pnpm install
+        cd tests
+        pnpm exec playwright install chromium chromium-headless-shell
+        for i in $$(seq 1 60); do
+          if curl -sf http://web:8080/health >/dev/null 2>&1; then
+            echo "Web service is ready (attempt $$i)"
+            break
+          fi
+          if [ "$$i" -eq 60 ]; then
+            echo "Web service did not become ready in time" >&2
+            exit 1
+          fi
+          echo "Waiting for web service... ($$i/60)"
+          sleep 2
+        done
+        pnpm run test:integration:no-clean

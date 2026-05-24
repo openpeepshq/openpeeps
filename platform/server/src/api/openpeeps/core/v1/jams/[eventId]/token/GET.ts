@@ -1,11 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
 import { config } from '@openpeeps/core/config';
 import { notFound, forbidden } from '#lib/errors';
-import { canModerateJam } from '@openpeeps/core/auth';
+import { canModerateJam, jamFromEvent } from '@openpeeps/common/lib';
 import { createJamToken, findJamEvent, createJamEgressToken } from '@openpeeps/core/jams';
 import { ensurePostCapabilities, ensureProfileOrGuest, serviceScopeMatches } from '#lib/auth';
 import { jamTokenResponseSchema } from '@openpeeps/common/types';
-import { jamFromEvent } from '@openpeeps/common/lib';
 
 export const Param = z.object({
   eventId: z.string(),
@@ -49,7 +48,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     });
 
 
-    if (jam.waitingRoom && !(await canModerateJam(currentProfile)(jamEvent))) {
+    if (jam.waitingRoom && !canModerateJam(currentProfile, jamEvent)) {
       throw forbidden();
     }
 

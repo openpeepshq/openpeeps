@@ -2,8 +2,7 @@ import { endpoint } from '#lib/endpoint';
 import { tokenResponseSchema } from '@openpeeps/common/types';
 import { conflict, forbidden } from '#lib/errors';
 import { config } from '@openpeeps/core/config';
-import { createGuestPass } from '@openpeeps/core/auth';
-import { jwtUtil } from '@openpeeps/core/jwt';
+import { createSignedGuestPass } from '@openpeeps/core/accessTokens';
 import { guestPassRequestSchema } from '@openpeeps/common/types';
 import { createGuestProfile } from '@openpeeps/core/profiles';
 import { findPost } from '@openpeeps/core/posts';
@@ -24,7 +23,7 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
 
     if (!publicContent) {
       const { resource } = guestPassRequest;
-      if (resource.type !== 'jam' || resource.id === '*') {
+      if (resource.type !== 'jams' || !resource.id || resource.id === '*') {
         throw forbidden();
       }
       const post = await findPost(resource.id);
@@ -35,13 +34,11 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
 
     const profile = await createGuestProfile(guestPassRequest);
 
-    const authorization = createGuestPass(profile);
-    const jwt = await jwtUtil();
-    const token = await jwt.sign(authorization);
+    const guestPass = await createSignedGuestPass(profile);
 
     return {
       success: true,
-      token,
+      token: guestPass.signedToken,
     };
   },
 );

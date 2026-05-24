@@ -6,7 +6,12 @@
   "scripts": {
     "test": "pnpm run test:integration",
     "test:integration": "if [ -z \"$CI\" ]; then pnpm --filter @openpeeps/app db:clear:test; fi && unset FORCE_COLOR && DB_NAME=test playwright test",
-    "test:integration:no-clean": "unset FORCE_COLOR && DB_NAME=test playwright test"
+    "test:integration:no-clean": "unset FORCE_COLOR && DB_NAME=test playwright test",
+    "integration": "docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit tests",
+    "integration:stack": "docker compose -f docker-compose.integration.yml up --build arangodb redis web",
+    "integration:test": "docker compose -f docker-compose.integration.yml run --rm tests",
+    "integration:down": "docker compose -f docker-compose.integration.yml down -v --remove-orphans",
+    "integration:logs": "docker compose -f docker-compose.integration.yml logs -f web"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",

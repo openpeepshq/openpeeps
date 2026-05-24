@@ -1,11 +1,9 @@
-import { createAuthorization } from '@openpeeps/core/auth';
 import type {
   AccountWithMeta,
   LoginRequest,
   TokenResponse,
 } from '@openpeeps/common/types';
 import { forbidden, notFound } from '#lib/errors';
-import { jwtUtil } from '@openpeeps/core/jwt';
 import { checkPassword, findAccountByEmail } from '@openpeeps/core/accounts';
 import { findProfile, listProfilesByAccount, assignRole } from '@openpeeps/core/profiles';
 import {
@@ -14,6 +12,7 @@ import {
 } from '@openpeeps/core/stripe';
 import { communityConfig } from '@openpeeps/core/config';
 import { findRoleByKey } from '@openpeeps/core/roles';
+import { createSignedProfileAccessToken } from '@openpeeps/core/accessTokens';
 
 const retrieveProfile = async (account: AccountWithMeta) => {
   const communityConf = await communityConfig();
@@ -60,10 +59,16 @@ export const loginHandler = async (
 
   const checkoutUrl = subscriptionNeeded ? await createStripeCheckoutUrl(profile, account) : undefined;
 
-  const authorization = createAuthorization(account.id, profile.id);
+  const token = await createSignedProfileAccessToken({
+    account,
+    profile,
+    name: 'login',
+    expirationTime: '1w',
+  }).then((accessToken) => accessToken.signedToken);
 
-  const jwt = await jwtUtil();
-  const token = await jwt.sign(authorization);
+  if (!token) {
+    throw forbidden('login.access-token-creation-failed');
+  }
 
   return { success: true, token, checkoutUrl };
 };

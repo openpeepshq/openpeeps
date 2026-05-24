@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
 import { notFound, forbidden } from '#lib/errors';
-import { canModerateJam } from '@openpeeps/core/auth';
+import { canModerateJam } from '@openpeeps/common/lib';
 import { acceptFromWaitingRoom, findJamEvent } from '@openpeeps/core/jams';
 import { ensureLocalProfile } from '#lib/auth';
 import { successResponseSchema } from '@openpeeps/common/types';
@@ -26,7 +26,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     }
     const currentProfile = await ensureLocalProfile(event);
 
-    if (!(await canModerateJam(currentProfile)(jamEvent))) {
+    if (!canModerateJam(currentProfile, jamEvent)) {
       throw forbidden();
     }
 
