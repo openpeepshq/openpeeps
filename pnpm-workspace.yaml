@@ -1,7 +1,6 @@
 packages:
   - "libraries/*"
   - "platform/*"
-  - "tests"
 
 linkWorkspacePackages: deep
 

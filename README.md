@@ -16,7 +16,7 @@ TBD
 7. Run `pnpm install`
 8. Run `pnpm --filter @openpeeps/app... build`
 9. In directory `platform/app` run `pnpm run dev`
-10. Install playwright with `pnpm exec playwright install` (from the `tests/` package)
+10. Install playwright with `pnpm exec playwright install` (from the `platform/tests/` package)
 11. Run integration tests with `pnpm --filter @openpeeps/tests run test:integration`
 
 ## Development

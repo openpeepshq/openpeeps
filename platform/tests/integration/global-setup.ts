@@ -7,7 +7,7 @@ import { waitForBaseUrl } from './wait-for-base-url';
 // `owner` (see platform/core/src/accounts/mutations.ts), which is what every
 // auth-required UI test relies on (it needs `core-groups-create` etc.).
 //
-// Without this hook the alphabetically-earlier `tests/api/.../auth/test.ts`
+// Without this hook the alphabetically-earlier `platform/tests/integration/api/.../auth/test.ts`
 // registers a random user that becomes the owner, leaving the UI fixture
 // user as a `pendingmember` and breaking every UI test downstream.
 export default async function globalSetup(config: FullConfig) {

@@ -3,11 +3,11 @@
 # From repo root:
 #   pnpm --filter @openpeeps/tests run integration
 #
-# Or step by step from `tests/`:
+# Or step by step from `platform/tests/`:
 #   docker compose -f docker-compose.integration.yml up --build arangodb redis web
 #   docker compose -f docker-compose.integration.yml run --rm tests
 #
-# Paths in this file are relative to this directory (`tests/`).
+# Paths in this file are relative to this directory (`platform/tests/`).
 
 services:
   arangodb:
@@ -20,7 +20,7 @@ services:
 
   web:
     build:
-      context: ..
+      context: ../..
       dockerfile: Dockerfile
       args:
         VERSION: local-integration
@@ -58,7 +58,7 @@ services:
     image: mcr.microsoft.com/playwright:v1.56.1-noble
     working_dir: /workspace
     volumes:
-      - ..:/workspace
+      - ../..:/workspace
     environment:
       CI: "true"
       PLAYWRIGHT_BASE_URL: http://web:8080
@@ -75,7 +75,7 @@ services:
         set -euo pipefail
         corepack enable
         pnpm install
-        cd tests
+        cd platform/tests
         pnpm exec playwright install chromium chromium-headless-shell
         for i in $$(seq 1 60); do
           if curl -sf http://web:8080/health >/dev/null 2>&1; then
