@@ -178,7 +178,7 @@ jobs:
         run: |
           corepack enable
           pnpm install
-          cd tests
+          cd platform/tests
           pnpm exec playwright install chromium chromium-headless-shell
       - name: Wait for web service
         run: |
