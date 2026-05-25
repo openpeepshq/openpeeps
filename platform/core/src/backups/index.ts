@@ -1,5 +1,6 @@
 import {
   appendFile,
+  access,
   cp,
   mkdir,
   mkdtemp,
@@ -7,7 +8,7 @@ import {
   writeFile,
   readFile,
 } from 'node:fs/promises';
-import { createReadStream, createWriteStream } from 'node:fs';
+import { constants, createReadStream, createWriteStream } from 'node:fs';
 import { emptyDir } from 'fs-extra';
 import { createInterface } from 'node:readline';
 import { join, sep } from 'node:path';
@@ -27,6 +28,9 @@ import { replaceHostname } from '../db/replaceHostname';
 
 const log = logger('core:backups');
 
+/** compressing.zip can hang forever on truncated zips; fail restore instead of exiting 0. */
+const UNARCHIVE_TIMEOUT_MS = 30 * 60 * 1000;
+
 type BackupMetadata = {
   config?: {
     hostname?: string;
@@ -37,6 +41,76 @@ const hostnameFromServerHost = (host: string) => {
   const serverUrl = host.includes('://') ? host : `http://${host}`;
 
   return new URL(serverUrl).hostname;
+};
+
+const zipDirectory = (sourceDir: string, zipPath: string) =>
+  new Promise<void>((resolve, reject) => {
+    const output = createWriteStream(zipPath);
+    const archive = archiver('zip', { zlib: { level: 9 } });
+
+    output.on('close', () => resolve());
+    output.on('error', reject);
+    archive.on('error', reject);
+    archive.on('warning', (err) => {
+      if (err.code === 'ENOENT') {
+        log.warn('Archive warning', err.message);
+        return;
+      }
+      reject(err);
+    });
+
+    archive.pipe(output);
+    archive.directory(sourceDir, false);
+    void archive.finalize();
+  });
+
+const withTimeout = <T>(
+  promise: Promise<T>,
+  ms: number,
+  message: string,
+): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error(message)), ms);
+    }),
+  ]).finally(() => {
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId);
+    }
+  });
+};
+
+const assertBackupExtracted = async (tempDir: string) => {
+  const metadataPath = join(tempDir, 'metadata.json');
+  const collectionsPath = join(tempDir, 'collections');
+
+  try {
+    await access(metadataPath, constants.F_OK);
+  } catch {
+    throw new Error(
+      `Backup invalid: missing metadata.json after extracting to ${tempDir}`,
+    );
+  }
+
+  try {
+    await access(collectionsPath, constants.F_OK);
+  } catch {
+    throw new Error(
+      'Backup invalid: missing collections/ directory after extract',
+    );
+  }
+
+  const files = await readdir(collectionsPath);
+  const jsonlFiles = files.filter((f) => f.endsWith('.jsonl'));
+  if (jsonlFiles.length === 0) {
+    throw new Error(
+      'Backup invalid: collections/ contains no .jsonl files (zip may be truncated)',
+    );
+  }
+
+  log.info(`Found ${jsonlFiles.length} collection backup files in archive`);
 };
 
 export const createBackup = async () => {
@@ -53,7 +127,6 @@ export const createBackup = async () => {
     ).replace(/[^a-zA-Z0-9_-]/g, '_');
 
     const backupDir = await mkdtemp(join(tmpdir(), dirName));
-    console.log('backupDir', backupDir);
     const metaDir = join(backupDir, 'meta');
     const collectionsDir = join(backupDir, 'collections');
     const mediaDir = join(backupDir, 'media');
@@ -109,20 +182,12 @@ export const createBackup = async () => {
     }
 
     const backupZip = `${backupDir}.zip`;
-    const output = createWriteStream(backupZip);
-    const archive = archiver('zip', {
-      zlib: { level: 9 },
-    });
-
-    archive.pipe(output);
-    archive.directory(backupDir, false);
-
-    await archive.finalize();
+    await zipDirectory(backupDir, backupZip);
 
     return backupDir.split(sep).pop();
   } catch (e) {
     log.error('Error creating backup', e);
-    return '';
+    throw e;
   }
 };
 
@@ -152,9 +217,20 @@ export const restoreBackups = async (zipFilePath: string) => {
   log.info(`Database connected`);
   const coreConfig = await config();
   const tempDir = await mkdtemp(join(tmpdir(), 'restore-'));
+  const zipPath = join(tmpdir(), zipFilePath);
   log.info(`Unpacking backup into ${tempDir} ...`);
-  await unarchive(join(tmpdir(), zipFilePath), tempDir);
+  try {
+    await withTimeout(
+      unarchive(zipPath, tempDir),
+      UNARCHIVE_TIMEOUT_MS,
+      `Timed out unpacking backup ${zipFilePath} after ${UNARCHIVE_TIMEOUT_MS}ms (zip may be truncated or corrupt)`,
+    );
+  } catch (error) {
+    log.error(`Failed to unpack backup ${zipFilePath}`, error);
+    throw error;
+  }
   log.info(`Unpacking backup into ${tempDir} complete`);
+  await assertBackupExtracted(tempDir);
   const collectionsDir = join(tempDir, 'collections');
   const backupMetadata: BackupMetadata | undefined = await readFile(
     join(tempDir, 'metadata.json'),
@@ -187,8 +263,18 @@ export const restoreBackups = async (zipFilePath: string) => {
     .catch(() => collectionInfos);
 
   log.info(`Restoring collections`);
+  let totalDocuments = 0;
   for (const collectionInfo of Object.values(restoreCollectionInfos)) {
     const collectionName = collectionInfo.name;
+    const jsonlPath = join(collectionsDir, `${collectionName}.jsonl`);
+
+    try {
+      await access(jsonlPath, constants.F_OK);
+    } catch {
+      log.info(`Skipping collection ${collectionName} (no backup file)`);
+      continue;
+    }
+
     log.info(`Restoring collection ${collectionName}`);
     const oldCollection = database.collection(collectionName);
     if (await oldCollection.exists()) {
@@ -201,48 +287,55 @@ export const restoreBackups = async (zipFilePath: string) => {
       collectionInfo,
     );
     let buffer = '';
+    let documentCount = 0;
 
-    try {
-      const lineReader = createInterface({
-        input: createReadStream(
-          join(collectionsDir, `${collectionName}.jsonl`),
-        ),
-        crlfDelay: Infinity,
-      });
+    const lineReader = createInterface({
+      input: createReadStream(jsonlPath),
+      crlfDelay: Infinity,
+    });
 
-      for await (const line of lineReader) {
-        buffer += line;
-        try {
-          const json = JSON.parse(buffer);
+    for await (const line of lineReader) {
+      buffer += line;
+      try {
+        const json = JSON.parse(buffer);
 
+        buffer = '';
+
+        await collectionObject.save(json, { returnNew: true });
+        documentCount++;
+      } catch (err: any) {
+        const isInvalidJSON: boolean =
+          err.message.includes('Unexpected end of JSON input') ||
+          err.message.includes('Unterminated string') ||
+          err.message.includes('Unexpected token');
+        if (!isInvalidJSON) {
+          log.error(
+            `JSON parse error in ${collectionName}:`,
+            err.message,
+          );
           buffer = '';
-
-          await collectionObject.save(json, { returnNew: true });
-        } catch (err: any) {
-          const isInvalidJSON: boolean =
-            err.message.includes('Unexpected end of JSON input') ||
-            err.message.includes('Unterminated string') ||
-            err.message.includes('Unexpected token');
-          if (!isInvalidJSON) {
-            console.error(
-              `JSON parse error in ${collectionName}:`,
-              err.message,
-            );
-            buffer = '';
-          }
+          throw err;
         }
       }
-
-      if (buffer.trim().length > 0) {
-        console.warn(
-          `Unparsed buffer remaining in ${collectionName}:`,
-          buffer.slice(0, 200),
-        );
-      }
-      log.info(`Successfully restored collection ${collectionName}`);
-    } catch (error) {
-      log.error('Error restoring collection', collectionName, error);
     }
+
+    if (buffer.trim().length > 0) {
+      throw new Error(
+        `Unparsed JSON remaining in ${collectionName}: ${buffer.slice(0, 200)}`,
+      );
+    }
+
+    totalDocuments += documentCount;
+    log.info(
+      `Successfully restored collection ${collectionName} (${documentCount} documents)`,
+    );
+  }
+
+  log.info(`Restored ${totalDocuments} documents across all collections`);
+  if (totalDocuments === 0) {
+    throw new Error(
+      'Backup restore completed with zero documents; archive may be empty or corrupt',
+    );
   }
 
   const newCollectionNames = Object.values(restoreCollectionInfos).map(
