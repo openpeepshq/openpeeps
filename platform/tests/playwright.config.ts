@@ -15,12 +15,14 @@ const config: PlaywrightTestConfig = {
   webServer: isCI
     ? undefined
     : {
-        command:
-          'DB_NAME=test pnpm --filter @openpeeps/app dev --host 127.0.0.1 --port 8080 --strictPort',
-        url: baseURL,
+        command: 'node scripts/start-server.mjs',
+        url: `${baseURL.replace(/\/$/, '')}/health`,
         reuseExistingServer: false,
-        timeout: 120 * 1000,
+        timeout: 180 * 1000,
         env: {
+          DB_NAME: 'test',
+          HOST: '127.0.0.1',
+          PORT: '8080',
           FORCE_COLOR: '0',
           NO_COLOR: '1',
         },

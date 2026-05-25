@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('get OpenAPI json definition', async ({ request }) => {
-  const response = await request.get('/api');
+  const response = await request.get('/openapi.json');
 
   expect(response.ok()).toBeTruthy();
 
