@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { useCurrentAccount } from '@openpeeps/react/components';
 import { Button, Input, Label } from '@openpeeps/react-ui';
 
@@ -8,6 +8,8 @@ export function AccountSettings() {
   const { openpeepsApi } = useOpenpeeps();
   const account = useCurrentAccount();
   const updateAccount = openpeepsApi.updateCurrentAccountAction();
+
+  useSetPageHeader(t('settings.account.title', { defaultValue: 'Account' }));
 
   const [email, setEmail] = useState(account?.email ?? '');
   const [oldPassword, setOldPassword] = useState('');
@@ -63,10 +65,6 @@ export function AccountSettings() {
 
   return (
     <div className="space-y-4 p-4">
-      <h1 className="text-2xl font-semibold">
-        {t('settings.account.title', { defaultValue: 'Account' })}
-      </h1>
-
       <div className="space-y-2">
         <Label htmlFor="oldPassword">
           {t('settings.account.oldPassword', {

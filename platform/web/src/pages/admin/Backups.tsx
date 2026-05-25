@@ -1,5 +1,6 @@
+import { useMemo } from 'react';
 import { Database } from 'lucide-react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Button } from '@openpeeps/react-ui';
 
 export function AdminBackups() {
@@ -10,21 +11,29 @@ export function AdminBackups() {
 
   const backups = backupsQuery.data ?? [];
 
+  const createLabel = t('admin.backups.create', {
+    defaultValue: 'Create backup',
+  });
+  const headerActions = useMemo(
+    () => (
+      <Button
+        title={createLabel}
+        variant="variant-filled-primary"
+        action={() => createBackup()}
+      >
+        {createLabel}
+      </Button>
+    ),
+    [createBackup, createLabel],
+  );
+
+  useSetPageHeader(
+    t('admin.backups.title', { defaultValue: 'Backups' }),
+    headerActions,
+  );
+
   return (
     <div className="p-4">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">
-          {t('admin.backups.title', { defaultValue: 'Backups' })}
-        </h1>
-        <Button
-          title="Create backup"
-          variant="variant-filled-primary"
-          action={() => createBackup()}
-        >
-          {t('admin.backups.create', { defaultValue: 'Create backup' })}
-        </Button>
-      </div>
-
       {backups.length === 0 ? (
         <div className="flex flex-col items-center pt-20 text-muted-foreground">
           <Database size={50} />

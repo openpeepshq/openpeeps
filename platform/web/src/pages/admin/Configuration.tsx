@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useT } from '@openpeeps/react';
+import { useT, useSetPageHeader } from '@openpeeps/react';
 
 const links: { to: string; label: string }[] = [
   { to: '/admin/configuration/server-settings', label: 'Server settings' },
@@ -24,12 +24,15 @@ const communityLinks: { to: string; label: string }[] = [
 
 export function AdminConfiguration() {
   const t = useT();
+
+  useSetPageHeader(
+    t('admin.configuration.title', { defaultValue: 'Configuration' }),
+    undefined,
+    'admin-configuration-heading',
+  );
+
   return (
     <div className="space-y-6 p-4">
-      <h1 className="text-2xl font-semibold" data-testid="admin-configuration-heading">
-        {t('admin.configuration.title', { defaultValue: 'Configuration' })}
-      </h1>
-
       <section>
         <h2 className="mb-2 text-lg font-medium">General</h2>
         <nav className="grid gap-1">

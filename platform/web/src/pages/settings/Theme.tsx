@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { THEME_OPTIONS, type ThemeOptions } from '@openpeeps/common';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { useCurrentProfile } from '@openpeeps/react/components';
 import { Button } from '@openpeeps/react-ui';
 
@@ -13,6 +13,8 @@ export function ThemeSettings() {
 
   const [theme, setTheme] = useState<ThemeOptions | undefined>(undefined);
   const [submitting, setSubmitting] = useState(false);
+
+  useSetPageHeader(t('settings.theme.title', { defaultValue: 'Theme' }));
 
   useEffect(() => {
     if (settingsQuery.data?.theme) setTheme(settingsQuery.data.theme);
@@ -32,10 +34,6 @@ export function ThemeSettings() {
 
   return (
     <div className="flex flex-col gap-4 p-3">
-      <h1 className="text-2xl font-semibold">
-        {t('settings.theme.title', { defaultValue: 'Theme' })}
-      </h1>
-
       <div className="border p-4">
         <h4 className="my-2 text-lg font-semibold">
           {t('settings.theme.title', { defaultValue: 'Theme' })}

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Input, Label } from '@openpeeps/react-ui';
 
 const LEVEL_COLORS: Record<string, string> = {
@@ -20,6 +20,10 @@ export function AdminDiagnosticsLogs() {
   const [filter, setFilter] = useState('');
   const logsQuery = openpeepsApi.admin.useLogsList(date);
 
+  useSetPageHeader(
+    t('diagnostics.logs.title', { defaultValue: 'Server logs' }),
+  );
+
   const logs = logsQuery.data ?? [];
   const filtered = useMemo(
     () =>
@@ -36,30 +40,25 @@ export function AdminDiagnosticsLogs() {
 
   return (
     <div className="space-y-3 p-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-2xl font-semibold">
-          {t('diagnostics.logs.title', { defaultValue: 'Server logs' })}
-        </h1>
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="space-y-1">
-            <Label htmlFor="log-date">Date</Label>
-            <Input
-              id="log-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="log-filter">Filter</Label>
-            <Input
-              id="log-filter"
-              placeholder={t('common.filter', { defaultValue: 'Filter…' })}
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="w-64"
-            />
-          </div>
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="log-date">Date</Label>
+          <Input
+            id="log-date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="log-filter">Filter</Label>
+          <Input
+            id="log-filter"
+            placeholder={t('common.filter', { defaultValue: 'Filter…' })}
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="w-64"
+          />
         </div>
       </div>
 

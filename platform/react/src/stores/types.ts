@@ -8,8 +8,14 @@ export interface Crumb {
 }
 
 export interface PageHeader {
-  title?: string | ReactNode;
+  title?: ReactNode;
   actions?: ReactNode;
+  /**
+   * Optional `data-testid` to render on the title element. Lets pages keep their
+   * existing Playwright selectors after migrating their body `<h1>` into the
+   * shared chevron header bar.
+   */
+  testId?: string;
 }
 
 export interface PlusButtonAction {

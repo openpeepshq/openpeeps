@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { groupName } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Input } from '@openpeeps/react-ui';
 
 export function AdminGroups() {
@@ -8,6 +8,8 @@ export function AdminGroups() {
   const { openpeepsApi } = useOpenpeeps();
   const groupsQuery = openpeepsApi.admin.useAllGroupsList();
   const [search, setSearch] = useState('');
+
+  useSetPageHeader(t('admin.groups.title', { defaultValue: 'Groups' }));
 
   const groups = groupsQuery.data ?? [];
   const filtered = search
@@ -22,10 +24,6 @@ export function AdminGroups() {
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
-        {t('admin.groups.title', { defaultValue: 'Groups' })}
-      </h1>
-
       <div className="mb-4">
         <Input
           placeholder={t('common.search', { defaultValue: 'Search…' })}

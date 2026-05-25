@@ -23,7 +23,7 @@ export function ContentHeader() {
 
   return (
     <div className="bg-card sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b p-4">
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         <button
           type="button"
           title={t('navigation.back')}
@@ -31,7 +31,14 @@ export function ContentHeader() {
         >
           <ChevronLeft />
         </button>
-        {titleNode ?? <h5 className="text-xl font-semibold">{titleString}</h5>}
+        {titleNode ?? (
+          <h1
+            className="truncate text-xl font-semibold"
+            data-testid={pageHeader?.testId}
+          >
+            {titleString}
+          </h1>
+        )}
       </div>
       {pageHeader?.actions && (
         <div className="flex items-center gap-2">{pageHeader.actions}</div>

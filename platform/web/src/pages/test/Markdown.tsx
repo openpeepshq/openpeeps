@@ -1,3 +1,4 @@
+import { useSetPageHeader } from '@openpeeps/react';
 import { PostMarkdown } from '@openpeeps/react/components';
 
 const source = `
@@ -27,9 +28,9 @@ const a = 1;
 `;
 
 export function TestMarkdown() {
+  useSetPageHeader('Markdown sandbox');
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">Markdown sandbox</h1>
       <PostMarkdown source={source} />
     </div>
   );

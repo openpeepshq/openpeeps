@@ -12,6 +12,7 @@ import {
   usePushSubscription,
   useT,
   useOpenpeeps,
+  useSetPageHeader,
 } from '@openpeeps/react';
 import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
 import { Button } from '@openpeeps/react-ui';
@@ -158,6 +159,12 @@ export function NotificationPreferences() {
   const updateSettings = openpeepsApi.updateCurrentProfileSettingsAction();
   const vapidKey = serverInfo.vapid.publicKey;
 
+  useSetPageHeader(
+    t('settings.notifications.preferences.title', {
+      defaultValue: 'Notification preferences',
+    }),
+  );
+
   const [settings, setSettings] = useState<ProfileSettings>(
     () =>
       ({
@@ -201,11 +208,6 @@ export function NotificationPreferences() {
 
   return (
     <section className="mr-4 mt-5 p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
-        {t('settings.notifications.preferences.title', {
-          defaultValue: 'Notification preferences',
-        })}
-      </h1>
       <h2 className="mb-2 text-lg font-medium">
         {t('settings.notifications.pushSettings', { defaultValue: 'Push settings' })}
       </h2>

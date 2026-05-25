@@ -1,6 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useT } from '@openpeeps/react';
+import { useT, useSetPageHeader } from '@openpeeps/react';
 
 const links = [
   { to: '/admin/diagnostics/email', labelKey: 'diagnostics.email.title', fallback: 'Email queue' },
@@ -10,11 +10,10 @@ const links = [
 export function AdminDiagnostics() {
   const t = useT();
 
+  useSetPageHeader(t('diagnostics.title', { defaultValue: 'Diagnostics' }));
+
   return (
     <div className="space-y-4 p-4">
-      <h1 className="text-2xl font-semibold">
-        {t('diagnostics.title', { defaultValue: 'Diagnostics' })}
-      </h1>
       <nav className="grid gap-1">
         {links.map((link) => (
           <Link

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { PostCreationData, PostDataUnion } from '@openpeeps/common/types';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { ArticleForm } from '@openpeeps/react/components';
 import { Button } from '@openpeeps/react-ui';
 
@@ -12,6 +12,8 @@ export function EditArticle() {
   const { openpeepsApi } = useOpenpeeps();
   const postQuery = openpeepsApi.usePost(articleId);
   const updatePost = openpeepsApi.updatePostAction({ id: articleId });
+
+  useSetPageHeader(t('articles.edit', { defaultValue: 'Edit article' }));
 
   const [postData, setPostData] = useState<PostCreationData | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -60,10 +62,6 @@ export function EditArticle() {
 
   return (
     <div className="space-y-4 p-4 pb-12">
-      <h1 className="text-2xl font-semibold">
-        {t('articles.edit', { defaultValue: 'Edit article' })}
-      </h1>
-
       <ArticleForm postData={postData} onChange={setPostData} isEdit />
 
       {error ? (

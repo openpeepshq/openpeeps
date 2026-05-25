@@ -6,7 +6,7 @@ import type {
   PublicAccessToken,
   ScopeLevel,
 } from '@openpeeps/common/types';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Button, Input, Label } from '@openpeeps/react-ui';
 
 const RESOURCE_TYPES = [
@@ -35,6 +35,10 @@ export function AccessTokensSettings() {
   const tokensQuery = openpeepsApi.useCurrentProfileAccessTokens();
   const createToken = openpeepsApi.createCurrentProfileAccessTokenAction();
   const revokeToken = openpeepsApi.revokeCurrentProfileAccessTokenAction();
+
+  useSetPageHeader(
+    t('settings.accessTokens.title', { defaultValue: 'Access tokens' }),
+  );
 
   const [form, setForm] = useState<AccessTokenCreationData>(defaultForm);
   const [creating, setCreating] = useState(false);
@@ -77,10 +81,6 @@ export function AccessTokensSettings() {
 
   return (
     <div className="space-y-6 p-4">
-      <h1 className="text-2xl font-semibold">
-        {t('settings.accessTokens.title', { defaultValue: 'Access tokens' })}
-      </h1>
-
       <section className="space-y-3 rounded-md border p-4">
         <h2 className="text-lg font-medium">
           {t('settings.accessTokens.createTitle', { defaultValue: 'Create token' })}

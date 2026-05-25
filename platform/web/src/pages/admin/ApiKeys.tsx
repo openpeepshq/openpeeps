@@ -8,7 +8,7 @@ import type {
   ScopeLevel,
   ServiceResourceType,
 } from '@openpeeps/common/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Button, Input, Label } from '@openpeeps/react-ui';
 
 const SERVICE_RESOURCE_TYPES: (ServiceResourceType | '*')[] = [
@@ -35,6 +35,8 @@ export function AdminApiKeys() {
   const tokensQuery = openpeepsApi.admin.useServiceAccessTokens();
   const createToken = openpeepsApi.admin.createServiceAccessTokenAction();
   const revokeToken = openpeepsApi.admin.revokeServiceAccessTokenAction();
+
+  useSetPageHeader('Service access tokens');
 
   const [form, setForm] = useState<AccessTokenCreationData>(defaultForm);
   const [creating, setCreating] = useState(false);
@@ -77,8 +79,6 @@ export function AdminApiKeys() {
 
   return (
     <div className="space-y-6 p-4">
-      <h1 className="text-2xl font-semibold">Service access tokens</h1>
-
       <section className="space-y-3 rounded-md border p-4">
         <h2 className="text-lg font-medium">Create service token</h2>
         <div className="space-y-2">

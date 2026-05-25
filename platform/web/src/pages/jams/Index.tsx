@@ -1,7 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, MessageSquarePlus, MoreHorizontal } from 'lucide-react';
-import { useT, useOpenpeeps, useSetPlusButtonActions } from '@openpeeps/react';
+import {
+  useT,
+  useOpenpeeps,
+  useSetPlusButtonActions,
+  useSetPageHeader,
+} from '@openpeeps/react';
 import {
   EventsFeed,
   LiveJamsSection,
@@ -32,6 +37,34 @@ export function JamsIndex({ my = false }: Props) {
   }, [serverInfo.jams.livekit.enabled, t, openCreateJam]);
   useSetPlusButtonActions(plusButton);
 
+  const headerActions = useMemo(() => {
+    if (my) {
+      return (
+        <Link to="/jams" className="text-sm text-primary hover:underline">
+          {t('navigation.jams', { defaultValue: 'All jams' })}
+        </Link>
+      );
+    }
+    return (
+      <PopupMenu icon={MoreHorizontal} compact>
+        <PopupMenuButton
+          icon={ChevronRight}
+          title={t('navigation.myJams', { defaultValue: 'My jams' })}
+          text={t('navigation.myJams', { defaultValue: 'My jams' })}
+          action="/jams/my"
+        />
+      </PopupMenu>
+    );
+  }, [my, t]);
+
+  useSetPageHeader(
+    my
+      ? t('navigation.myJams', { defaultValue: 'My jams' })
+      : t('navigation.jams', { defaultValue: 'Jams' }),
+    headerActions,
+    'jams-page-heading',
+  );
+
   const upcoming = my
     ? openpeepsApi.useMyUpcomingJamsFeed()
     : openpeepsApi.useUpcomingJamsFeed();
@@ -43,28 +76,6 @@ export function JamsIndex({ my = false }: Props) {
 
   return (
     <div className="p-4">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold" data-testid="jams-page-heading">
-          {my
-            ? t('navigation.myJams', { defaultValue: 'My jams' })
-            : t('navigation.jams', { defaultValue: 'Jams' })}
-        </h1>
-        {!my ? (
-          <PopupMenu icon={MoreHorizontal} compact>
-            <PopupMenuButton
-              icon={ChevronRight}
-              title={t('navigation.myJams', { defaultValue: 'My jams' })}
-              text={t('navigation.myJams', { defaultValue: 'My jams' })}
-              action="/jams/my"
-            />
-          </PopupMenu>
-        ) : (
-          <Link to="/jams" className="text-sm text-primary hover:underline">
-            {t('navigation.jams', { defaultValue: 'All jams' })}
-          </Link>
-        )}
-      </div>
-
       {!my && serverInfo.jams.livekit.enabled ? <LiveJamsSection /> : null}
 
       <nav className="mb-4 flex border-b border-border">

@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Feed } from '@openpeeps/react/components';
 
 export function Tags() {
@@ -9,11 +9,10 @@ export function Tags() {
 
   const query = openpeepsApi.usePostsByHashtag(hashtag, { limit: 15 });
 
+  useSetPageHeader(t('tags.title', { defaultValue: `#${hashtag}`, hashtag }));
+
   return (
     <div className="space-y-4 p-4">
-      <h1 className="text-2xl font-semibold">
-        {t('tags.title', { defaultValue: `#${hashtag}`, hashtag })}
-      </h1>
       <Feed query={query} />
     </div>
   );

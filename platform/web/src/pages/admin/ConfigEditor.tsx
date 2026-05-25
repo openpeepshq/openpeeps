@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Button } from '@openpeeps/react-ui';
 
 export interface ConfigEditorProps {
@@ -29,6 +29,8 @@ export function AdminConfigEditor({
     namespace,
     name,
   });
+
+  useSetPageHeader(title);
 
   const [draft, setDraft] = useState<string>('');
   const [status, setStatus] = useState<
@@ -79,12 +81,9 @@ export function AdminConfigEditor({
   const defaults = configQuery.data?.defaults;
   return (
     <div className="space-y-4 p-4">
-      <header>
-        <h1 className="text-2xl font-semibold">{title}</h1>
-        <p className="text-xs text-muted-foreground">
-          {namespace}.{name}
-        </p>
-      </header>
+      <p className="text-xs text-muted-foreground">
+        {namespace}.{name}
+      </p>
 
       <section className="space-y-2">
         <h2 className="text-sm font-medium">Current value (JSON)</h2>

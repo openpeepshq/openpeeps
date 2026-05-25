@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { GroupData } from '@openpeeps/common/types';
 import { groupCapabilityTemplates } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { GroupForm, useServerInfo } from '@openpeeps/react/components';
 import { Button } from '@openpeeps/react-ui';
 
@@ -12,6 +12,12 @@ export function NewGroup() {
   const { openpeepsApi } = useOpenpeeps();
   const createGroup = openpeepsApi.createGroupAction();
   const { publicContent } = useServerInfo();
+
+  useSetPageHeader(
+    t('groups.new.title', { defaultValue: 'Create group' }),
+    undefined,
+    'groups-create-page-title',
+  );
 
   const [groupData, setGroupData] = useState<GroupData>(() => ({
     displayName: '',
@@ -60,10 +66,6 @@ export function NewGroup() {
 
   return (
     <div className="space-y-4 p-4 pb-12">
-      <h1 className="text-2xl font-semibold" data-testid="groups-create-page-title">
-        {t('groups.new.title', { defaultValue: 'Create group' })}
-      </h1>
-
       <GroupForm groupData={groupData} onChange={setGroupData} />
 
       {error && (

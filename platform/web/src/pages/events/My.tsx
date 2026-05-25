@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Feed } from '@openpeeps/react/components';
 
 export function EventsMy() {
@@ -18,11 +18,12 @@ export function EventsMy() {
         ? currentQuery
         : pastQuery;
 
+  useSetPageHeader(
+    t('navigation.myEvents', { defaultValue: 'My events' }),
+  );
+
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
-        {t('navigation.myEvents', { defaultValue: 'My events' })}
-      </h1>
       <nav className="mb-4 flex border-b border-border">
         <TabButton
           active={tab === 'upcoming'}

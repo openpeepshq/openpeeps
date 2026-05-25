@@ -6,6 +6,7 @@ import {
   useOpenpeeps,
   eventSanitizer,
   getNewPostStores,
+  useSetPageHeader,
 } from '@openpeeps/react';
 import {
   EventForm,
@@ -24,6 +25,8 @@ export function NewEvent() {
     () => eventSanitizer(serverInfo.publicContent),
     [serverInfo.publicContent],
   );
+
+  useSetPageHeader(t('events.new', { defaultValue: 'New event' }));
 
   const [postData, setPostData] = useState<PostCreationData>(() =>
     sanitize(stores.event),
@@ -69,10 +72,6 @@ export function NewEvent() {
 
   return (
     <div className="space-y-4 p-4 pb-12">
-      <h1 className="text-2xl font-semibold">
-        {t('events.new', { defaultValue: 'New event' })}
-      </h1>
-
       <EventForm
         postData={postData}
         onChange={(data) => {

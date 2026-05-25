@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Button, Input, Label } from '@openpeeps/react-ui';
 
 export function AdminDiagnosticsEmail() {
@@ -8,6 +8,10 @@ export function AdminDiagnosticsEmail() {
   const { openpeepsApi } = useOpenpeeps();
   const statsQuery = openpeepsApi.admin.useEmailQueueStats();
   const queueTest = openpeepsApi.admin.queueTestEmailAction();
+
+  useSetPageHeader(
+    t('diagnostics.email.title', { defaultValue: 'Email diagnostics' }),
+  );
 
   const [recipient, setRecipient] = useState('');
   const [queuing, setQueuing] = useState(false);
@@ -38,10 +42,6 @@ export function AdminDiagnosticsEmail() {
 
   return (
     <div className="space-y-6 p-4">
-      <h1 className="text-2xl font-semibold">
-        {t('diagnostics.email.title', { defaultValue: 'Email diagnostics' })}
-      </h1>
-
       <section className="space-y-3 rounded-md border p-4">
         <h2 className="text-lg font-medium">
           {t('diagnostics.email.testTitle', { defaultValue: 'Queue test email' })}

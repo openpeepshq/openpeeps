@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { groupName } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Avatar } from '@openpeeps/react/components';
 import { routeHandleParam } from '../../lib/routeHandles';
 
@@ -14,6 +14,12 @@ export function AdminGroupMembers() {
     groupQuery.data?.id ?? '',
   );
 
+  const group = groupQuery.data;
+  const headerTitle = group
+    ? `${groupName(group)} · ${t('admin.members.title', { defaultValue: 'Members' })}`
+    : t('admin.members.title', { defaultValue: 'Members' });
+  useSetPageHeader(headerTitle);
+
   if (groupQuery.isLoading || membersQuery.isLoading) {
     return (
       <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
@@ -22,7 +28,6 @@ export function AdminGroupMembers() {
     );
   }
 
-  const group = groupQuery.data;
   if (!group) {
     return (
       <div className="p-8 text-center text-2xl">
@@ -35,10 +40,6 @@ export function AdminGroupMembers() {
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
-        {groupName(group)} · {t('admin.members.title', { defaultValue: 'Members' })}
-      </h1>
-
       <div className="rounded-md border">
         <table className="w-full text-sm">
           <thead className="bg-surface-100">

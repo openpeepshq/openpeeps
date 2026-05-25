@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Button, Input, Label } from '@openpeeps/react-ui';
 
 export function AdminConfigurationEmail() {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const sendTest = openpeepsApi.admin.sendTestEmailAction();
+
+  useSetPageHeader(
+    t('configuration.email.title', { defaultValue: 'Email configuration' }),
+  );
 
   const [to, setTo] = useState('');
   const [sending, setSending] = useState(false);
@@ -31,9 +35,6 @@ export function AdminConfigurationEmail() {
 
   return (
     <div className="space-y-4 p-4">
-      <h1 className="text-2xl font-semibold">
-        {t('configuration.email.title', { defaultValue: 'Email configuration' })}
-      </h1>
       <p className="text-muted-foreground text-sm">
         Send a direct SMTP test using the server&apos;s configured transport.
       </p>

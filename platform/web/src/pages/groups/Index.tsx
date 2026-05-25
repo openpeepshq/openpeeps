@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Users } from 'lucide-react';
 import { matchesQuery } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { GroupCard } from '@openpeeps/react/components';
 import { Input } from '@openpeeps/react-ui';
 
@@ -13,6 +13,8 @@ export function GroupsIndex() {
   const groupsQuery = openpeepsApi.useGroups();
   const groups = groupsQuery.data ?? [];
 
+  useSetPageHeader(t('navigation.groups', { defaultValue: 'Groups' }));
+
   const filtered = useMemo(
     () =>
       groups.filter((g) => !search || matchesQuery(g, search)),
@@ -21,9 +23,6 @@ export function GroupsIndex() {
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
-        {t('navigation.groups', { defaultValue: 'Groups' })}
-      </h1>
       <Input
         placeholder={t('groups.searchPlaceholder', {
           defaultValue: 'Search by group name',

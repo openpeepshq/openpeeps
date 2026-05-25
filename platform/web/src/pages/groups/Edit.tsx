@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { GroupData } from '@openpeeps/common/types';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { GroupForm } from '@openpeeps/react/components';
 import { Button } from '@openpeeps/react-ui';
 import { routeHandleParam } from '../../lib/routeHandles';
@@ -14,6 +14,8 @@ export function EditGroup() {
   const { openpeepsApi } = useOpenpeeps();
   const groupQuery = openpeepsApi.useGroupByHandle(handle);
   const updateGroup = openpeepsApi.updateGroupAction();
+
+  useSetPageHeader(t('groups.edit.title', { defaultValue: 'Edit group' }));
 
   const [groupData, setGroupData] = useState<GroupData | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -68,10 +70,6 @@ export function EditGroup() {
 
   return (
     <div className="space-y-4 p-4 pb-12">
-      <h1 className="text-2xl font-semibold">
-        {t('groups.edit.title', { defaultValue: 'Edit group' })}
-      </h1>
-
       <GroupForm groupData={groupData} onChange={setGroupData} isEdit />
 
       {error && (

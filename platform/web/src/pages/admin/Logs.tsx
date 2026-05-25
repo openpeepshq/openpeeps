@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Input } from '@openpeeps/react-ui';
 
 const LEVEL_COLORS: Record<string, string> = {
@@ -15,6 +15,8 @@ export function AdminLogs() {
   const logsQuery = openpeepsApi.admin.useLogsList();
   const [filter, setFilter] = useState('');
 
+  useSetPageHeader(t('admin.logs.title', { defaultValue: 'Server logs' }));
+
   const logs = logsQuery.data ?? [];
   const filtered = filter
     ? logs.filter(
@@ -27,17 +29,12 @@ export function AdminLogs() {
 
   return (
     <div className="space-y-3 p-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">
-          {t('admin.logs.title', { defaultValue: 'Server logs' })}
-        </h1>
-        <Input
-          placeholder={t('common.filter', { defaultValue: 'Filter…' })}
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="w-64"
-        />
-      </div>
+      <Input
+        placeholder={t('common.filter', { defaultValue: 'Filter…' })}
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        className="w-64"
+      />
 
       <ul className="space-y-0.5 rounded-md border bg-surface-100 p-2 font-mono text-xs">
         {filtered.map((log, idx) => (

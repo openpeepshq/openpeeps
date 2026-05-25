@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { matchesQuery } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Avatar } from '@openpeeps/react/components';
 import { Input } from '@openpeeps/react-ui';
 
@@ -10,6 +10,8 @@ export function AdminMembers() {
   const profilesQuery = openpeepsApi.admin.useProfilesList();
   const [search, setSearch] = useState('');
 
+  useSetPageHeader(t('admin.members.title', { defaultValue: 'Members' }));
+
   const filtered = useMemo(() => {
     const profiles = profilesQuery.data ?? [];
     if (!search) return profiles;
@@ -18,10 +20,6 @@ export function AdminMembers() {
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
-        {t('admin.members.title', { defaultValue: 'Members' })}
-      </h1>
-
       <div className="mb-4">
         <Input
           placeholder={t('common.search', { defaultValue: 'Search…' })}

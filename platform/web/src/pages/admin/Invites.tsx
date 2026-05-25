@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { inviteLinkMatchesQuery } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { UpdatingDate } from '@openpeeps/react/components';
 import { Button, Input } from '@openpeeps/react-ui';
 
@@ -12,6 +12,28 @@ export function AdminInvites() {
   const deactivate = openpeepsApi.admin.deactivateInviteAction();
   const [search, setSearch] = useState('');
 
+  const newInviteLabel = t('admin.invites.newInvite', {
+    defaultValue: 'New Invite',
+  });
+  const headerActions = useMemo(
+    () => (
+      <Button
+        title={newInviteLabel}
+        variant="variant-filled-primary"
+        action={() => undefined}
+        data-testid="admin-new-invite-button"
+      >
+        {newInviteLabel}
+      </Button>
+    ),
+    [newInviteLabel],
+  );
+
+  useSetPageHeader(
+    t('admin.invites.title', { defaultValue: 'Invites' }),
+    headerActions,
+  );
+
   const invites = invitesQuery.data ?? [];
   const filtered = search
     ? invites.filter((i) => inviteLinkMatchesQuery(i, search))
@@ -19,20 +41,6 @@ export function AdminInvites() {
 
   return (
     <div className="p-4">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">
-          {t('admin.invites.title', { defaultValue: 'Invites' })}
-        </h1>
-        <Button
-          title={t('admin.invites.newInvite', { defaultValue: 'New Invite' })}
-          variant="variant-filled-primary"
-          action={() => undefined}
-          data-testid="admin-new-invite-button"
-        >
-          {t('admin.invites.newInvite', { defaultValue: 'New Invite' })}
-        </Button>
-      </div>
-
       <div className="mb-4">
         <Input
           placeholder={t('common.search', { defaultValue: 'Search…' })}

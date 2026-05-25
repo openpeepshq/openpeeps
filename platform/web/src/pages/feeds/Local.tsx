@@ -1,4 +1,4 @@
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import {
   Feed,
   NewNoteButton,
@@ -17,11 +17,14 @@ export function FeedsLocal() {
   const query = openpeepsApi.useLocalFeed({ limit: 15 });
   const pinnedPostId = serverInfo.communityConfig?.content?.pinnedPost;
 
+  useSetPageHeader(
+    t('navigation.community', { defaultValue: 'Community' }),
+    undefined,
+    'feeds-community-heading',
+  );
+
   return (
     <div className="space-y-4 p-4">
-      <h1 className="text-2xl font-semibold" data-testid="feeds-community-heading">
-        {t('navigation.community', { defaultValue: 'Community' })}
-      </h1>
       <NewNoteButton
         visibility={visibility}
         currentProfile={currentProfile}

@@ -1,4 +1,4 @@
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 
 function StatRow({ label, value }: { label: string; value: number }) {
   return (
@@ -13,6 +13,8 @@ export function AdminAnalytics() {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const statsQuery = openpeepsApi.admin.useGeneralStats();
+
+  useSetPageHeader(t('admin.analytics.title', { defaultValue: 'Analytics' }));
 
   if (statsQuery.isLoading) {
     return (
@@ -29,10 +31,6 @@ export function AdminAnalytics() {
 
   return (
     <div className="space-y-6 p-4">
-      <h1 className="text-2xl font-semibold">
-        {t('admin.analytics.title', { defaultValue: 'Analytics' })}
-      </h1>
-
       <section>
         <h2 className="mb-2 text-lg font-medium">Active profiles</h2>
         <div className="rounded-md border p-4">

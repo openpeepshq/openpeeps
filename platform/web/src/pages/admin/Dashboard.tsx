@@ -1,4 +1,4 @@
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 
 function Card({
   title,
@@ -25,6 +25,10 @@ export function AdminDashboard() {
   const { openpeepsApi } = useOpenpeeps();
   const statsQuery = openpeepsApi.admin.useGeneralStats();
 
+  useSetPageHeader(
+    t('admin.dashboard.title', { defaultValue: 'Admin dashboard' }),
+  );
+
   if (statsQuery.isLoading) {
     return (
       <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
@@ -42,10 +46,6 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6 p-4">
-      <h1 className="text-2xl font-semibold">
-        {t('admin.dashboard.title', { defaultValue: 'Admin dashboard' })}
-      </h1>
-
       <section>
         <h2 className="mb-3 text-lg font-medium">Profiles</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

@@ -11,6 +11,7 @@ import {
   unsubscribePushNotifications,
   useT,
   useOpenpeeps,
+  useSetPageHeader,
 } from '@openpeeps/react';
 import { Button } from '@openpeeps/react-ui';
 
@@ -19,6 +20,12 @@ export function PushEnabledDevices() {
   const { openpeepsApi } = useOpenpeeps();
   const subscriptionsQuery = openpeepsApi.usePushSubscriptions();
   const deleteSubscription = openpeepsApi.deletePushSubscriptionAction();
+
+  useSetPageHeader(
+    t('settings.notifications.pushEnabledDevices.title', {
+      defaultValue: 'Push-enabled devices',
+    }),
+  );
 
   const [currentEndpoint, setCurrentEndpoint] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -60,12 +67,6 @@ export function PushEnabledDevices() {
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
-        {t('settings.notifications.pushEnabledDevices.title', {
-          defaultValue: 'Push-enabled devices',
-        })}
-      </h1>
-
       {subscriptions.length === 0 ? (
         <div className="flex w-full items-center justify-center p-4">
           <h2 className="text-lg">

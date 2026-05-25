@@ -1,4 +1,4 @@
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { UpdatingDate } from '@openpeeps/react/components';
 import { Button } from '@openpeeps/react-ui';
 
@@ -8,15 +8,15 @@ export function AdminModeration() {
   const reportsQuery = openpeepsApi.admin.useReportsList();
   const reopenReport = openpeepsApi.admin.reopenReportAction();
 
+  useSetPageHeader(
+    t('admin.moderation.title', { defaultValue: 'Moderation queue' }),
+  );
+
   const reports = reportsQuery.data ?? [];
   const isResolved = (r: (typeof reports)[number]) => !!r.resolution;
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
-        {t('admin.moderation.title', { defaultValue: 'Moderation queue' })}
-      </h1>
-
       <div className="rounded-md border">
         <table className="w-full text-sm">
           <thead className="bg-surface-100">

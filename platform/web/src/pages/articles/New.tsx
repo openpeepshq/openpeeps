@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { PostCreationData } from '@openpeeps/common/types';
-import { useT, useOpenpeeps, defaultNewArticle } from '@openpeeps/react';
+import {
+  useT,
+  useOpenpeeps,
+  defaultNewArticle,
+  useSetPageHeader,
+} from '@openpeeps/react';
 import { ArticleForm, useServerInfo } from '@openpeeps/react/components';
 import { Button } from '@openpeeps/react-ui';
 
@@ -11,6 +16,8 @@ export function NewArticle() {
   const serverInfo = useServerInfo();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
+
+  useSetPageHeader(t('articles.new', { defaultValue: 'New article' }));
 
   const [postData, setPostData] = useState<PostCreationData>(() =>
     defaultNewArticle(serverInfo.publicContent),
@@ -47,10 +54,6 @@ export function NewArticle() {
 
   return (
     <div className="space-y-4 p-4 pb-12">
-      <h1 className="text-2xl font-semibold">
-        {t('articles.new', { defaultValue: 'New article' })}
-      </h1>
-
       <ArticleForm postData={postData} onChange={setPostData} />
 
       {error ? (

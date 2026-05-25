@@ -1,7 +1,7 @@
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@openpeeps/react-ui';
 import { isOwnerProfile } from '@openpeeps/common';
-import { useT } from '@openpeeps/react';
+import { useT, useSetPageHeader } from '@openpeeps/react';
 import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
 
 interface ConfigMenuButtonProps {
@@ -39,15 +39,14 @@ export function Settings() {
   const profile = useCurrentProfile();
   const serverInfo = useServerInfo();
 
+  useSetPageHeader('Settings', undefined, 'settings-page-heading');
+
   const stripeMembershipEnabled =
     !!serverInfo.payments?.stripe?.paidMembership?.enabled &&
     !(profile && isOwnerProfile(profile));
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold" data-testid="settings-page-heading">
-        Settings
-      </h1>
       <ConfigMenuButton
         translationPrefix="settings.publicProfile"
         action="/settings/public-profile"

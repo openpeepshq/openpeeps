@@ -1,6 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@openpeeps/react-ui';
-import { useT } from '@openpeeps/react';
+import { useT, useSetPageHeader } from '@openpeeps/react';
 
 interface MenuButtonProps {
   translationPrefix: string;
@@ -32,11 +32,14 @@ function MenuButton({ translationPrefix, action, testId }: MenuButtonProps) {
 export function NotificationSettings() {
   const t = useT();
 
+  useSetPageHeader(
+    t('settings.notifications.title', { defaultValue: 'Notifications' }),
+    undefined,
+    'notifications-page-heading',
+  );
+
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
-        {t('settings.notifications.title', { defaultValue: 'Notifications' })}
-      </h1>
       <MenuButton
         translationPrefix="settings.notifications.preferences"
         action="/settings/notifications/preferences"

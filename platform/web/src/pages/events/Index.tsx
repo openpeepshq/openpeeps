@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { EventsFeed, NewEventButton, useCurrentProfile, useDefaultVisibility } from '@openpeeps/react/components';
 
 export function EventsIndex() {
@@ -16,11 +16,14 @@ export function EventsIndex() {
 
   const activeQuery = tab === 'upcoming' ? upcomingQuery : pastQuery;
 
+  useSetPageHeader(
+    t('navigation.events', { defaultValue: 'Events' }),
+    undefined,
+    'events-page-heading',
+  );
+
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold" data-testid="events-page-heading">
-        {t('navigation.events', { defaultValue: 'Events' })}
-      </h1>
       <NewEventButton
         visibility={visibility}
         currentProfile={currentProfile}

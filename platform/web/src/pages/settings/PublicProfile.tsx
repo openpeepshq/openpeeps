@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ProfileWithMeta } from '@openpeeps/common/types';
 import { profileDataSchema } from '@openpeeps/common/types';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { HeaderAvatarInput, useCurrentProfile } from '@openpeeps/react/components';
 import { Button, Input, Label, Textarea } from '@openpeeps/react-ui';
 
@@ -10,6 +10,10 @@ export function PublicProfileSettings() {
   const { openpeepsApi } = useOpenpeeps();
   const me = useCurrentProfile();
   const updateProfile = openpeepsApi.updateCurrentProfileAction();
+
+  useSetPageHeader(
+    t('settings.publicProfile.title', { defaultValue: 'Public profile' }),
+  );
 
   const [draft, setDraft] = useState<Partial<ProfileWithMeta>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -68,10 +72,6 @@ export function PublicProfileSettings() {
 
   return (
     <div className="space-y-4 p-4">
-      <h1 className="text-2xl font-semibold">
-        {t('settings.publicProfile.title', { defaultValue: 'Public profile' })}
-      </h1>
-
       <HeaderAvatarInput
         header={draft.header ?? undefined}
         avatar={draft.avatar ?? undefined}
