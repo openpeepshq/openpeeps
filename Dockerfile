@@ -95,6 +95,13 @@ COPY --from=audiowaveform /usr/local/bin/audiowaveform /usr/local/bin/audiowavef
 # node_modules to the closure of server/worker/web via filtered installs.
 COPY --from=builder /apat /apat
 
+# Expose the @openpeeps/cli `opc` bin on PATH so operators can run admin
+# commands (`opc db clear`, `opc accounts create`, …) from anywhere in the
+# container. The script imports the compiled CLI via a relative path so it
+# does not depend on `@openpeeps/cli` being resolvable from the cwd.
+RUN ln -sf /apat/platform/cli/bin/opc.mjs /usr/local/bin/opc \
+ && chmod +x /apat/platform/cli/bin/opc.mjs
+
 RUN mkdir -p /apat/.media && mkdir -p /apat/.logs
 
 VOLUME /apat/.media
