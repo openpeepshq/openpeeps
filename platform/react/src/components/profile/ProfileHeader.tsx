@@ -41,7 +41,10 @@ export function ProfileHeader({
           />
         </div>
         <div className="p-2">
-          <h1 className="mt-4 text-base font-semibold">
+          <h1
+            className="mt-4 text-base font-semibold"
+            data-testid="profile-header-title"
+          >
             {truncateText(profile.displayName || profile.handle, 50)}
           </h1>
 

@@ -17,7 +17,7 @@ export const Error = {
 
 export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (param, event) => {
-    const mergedPost = await findPost(param.postId);
+    const mergedPost = await findPost(param.postId, event.context.authData);
 
     if (!mergedPost) {
       throw notFound(`Object with id ${param.postId}`);
@@ -25,8 +25,13 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-read']);
 
-    // `reposts(...)` returns `DbPost[]`; `PublicPost`/`PostWithMeta` share
-    // overlapping shape but TS conservatively forbids a direct cast.
-    return reposts(mergedPost) as unknown as PostWithMeta[];
+    const reposted = await reposts(mergedPost, event.context.authData);
+    const repostedWithMeta = await Promise.all(
+      reposted.map((post) => findPost(post.id, event.context.authData)),
+    );
+
+    return repostedWithMeta.filter(
+      (post): post is PostWithMeta => Boolean(post),
+    );
   },
 );

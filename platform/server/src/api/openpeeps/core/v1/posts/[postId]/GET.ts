@@ -17,7 +17,7 @@ export const Error = {
 
 export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (param, event) => {
-    const mergedPost = await findPost(param.postId);
+    const mergedPost = await findPost(param.postId, event.context.authData);
 
     if (!mergedPost) {
       throw notFound(`Object with id ${param.postId}`);

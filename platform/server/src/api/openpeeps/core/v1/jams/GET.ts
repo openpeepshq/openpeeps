@@ -9,6 +9,6 @@ export const Query = z.object({ live: z.enum(['true', 'false']).optional() });
 export const apiEndpoint = endpoint({ Output, Query }).handle(
   async (_, event: RequestEvent) => {
 
-    return listLiveJams(event.context.currentProfile);
+    return listLiveJams(event.context.authData);
   },
 );

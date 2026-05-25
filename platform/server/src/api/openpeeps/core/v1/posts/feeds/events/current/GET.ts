@@ -9,9 +9,7 @@ export const Query = offsetInfiniteQueryParamsSchema;
 
 export const apiEndpoint = endpoint({ Output, Query }).handle(
   async (params, event: RequestEvent) => {
-    return listCurrentEventsFeed(
-      await ensureProfileOrPublicCommunity(event),
-      Query.parse(params),
-    );
+    await ensureProfileOrPublicCommunity(event);
+    return listCurrentEventsFeed(event.context.authData, Query.parse(params));
   },
 );

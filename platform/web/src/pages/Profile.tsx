@@ -31,7 +31,10 @@ export function Profile() {
     return (
       <div className="relative flex flex-col items-center pt-20">
         <Rss size={60} />
-        <p className="mt-2 text-lg font-medium">
+        <p
+          className="mt-2 text-lg font-medium"
+          data-testid="profile-not-found-title"
+        >
           {t('profile.notFound.title', { defaultValue: 'Profile not found' })}
         </p>
         <p className="mt-2 text-sm text-muted-foreground">

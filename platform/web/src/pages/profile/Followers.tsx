@@ -34,7 +34,12 @@ export function Followers({ following = false }: Props) {
 
   return (
     <div className="relative">
-      <h1 className="border-b p-4 text-xl font-semibold">
+      <h1
+        className="border-b p-4 text-xl font-semibold"
+        data-testid={
+          following ? 'profile-following-heading' : 'profile-followers-heading'
+        }
+      >
         {following
           ? t('profile.following.pageTitle', { defaultValue: 'Following' })
           : t('profile.followers.pageTitle', { defaultValue: 'Followers' })}{' '}

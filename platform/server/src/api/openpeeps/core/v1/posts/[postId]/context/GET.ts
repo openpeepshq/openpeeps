@@ -18,17 +18,17 @@ export const Error = {
 export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (param, event) => {
 
-    const profile = await ensureProfileOrPublicCommunity(event);
+    await ensureProfileOrPublicCommunity(event);
 
-    const mergedPost = await findPost(param.postId);
+    const mergedPost = await findPost(param.postId, event.context.authData);
 
     if (!mergedPost) {
       throw notFound(`Object with id ${param.postId}`);
     }
 
     return {
-      ancestors: await ancestors(profile, mergedPost, 25),
-      descendants: await descendents(profile, mergedPost, 25)
+      ancestors: await ancestors(event.context.authData, mergedPost, 25),
+      descendants: await descendents(event.context.authData, mergedPost, 25)
     };
   },
 );

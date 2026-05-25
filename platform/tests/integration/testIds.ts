@@ -84,4 +84,10 @@ export const testIds = {
   notifications: {
     pageHeading: 'notifications-page-heading',
   },
+  profile: {
+    headerTitle: 'profile-header-title',
+    followersHeading: 'profile-followers-heading',
+    followingHeading: 'profile-following-heading',
+    notFoundTitle: 'profile-not-found-title',
+  },
 } as const;

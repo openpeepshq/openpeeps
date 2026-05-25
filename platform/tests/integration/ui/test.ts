@@ -6,6 +6,7 @@ import {
   assertBillingPage,
   assertExploreFindsPost,
   assertExploreNoResults,
+  assertProfileRoutes,
   assertJamsPage,
   assertLoggedIn,
   assertLoginPage,
@@ -49,6 +50,7 @@ type UiCaseKind =
   | 'members'
   | 'messages'
   | 'notifications'
+  | 'profileRoutes'
   | 'profileUpdate'
   | 'regularMemberRestrictions'
   | 'repost'
@@ -194,6 +196,7 @@ const cases: UiCase[] = [
   { name: 'Log in and Create a Group (Simple)', kind: 'createGroupSimple' },
   { name: 'Group Visibility Test', kind: 'groupVisibility' },
   { name: 'Search: A search with some results in posts', kind: 'searchPosts' },
+  { name: 'Profile: view profile, followers, and following', kind: 'profileRoutes' },
   { name: 'Search: A search With No results ', kind: 'searchNoResults' },
   { name: 'New User Subscribes', kind: 'signup', auth: 'none' },
   { name: 'Admin:  Configure Stripe', kind: 'adminConfiguration' },
@@ -361,6 +364,9 @@ const runCase = async (page: Page, uiCase: UiCase) => {
     case 'notifications':
       await page.goto('/notifications');
       await expect(page.getByTestId(testIds.notifications.pageHeading)).toBeVisible();
+      break;
+    case 'profileRoutes':
+      await assertProfileRoutes(page);
       break;
     case 'profileUpdate':
       await updateBioViaUi(page);

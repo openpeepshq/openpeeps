@@ -395,6 +395,50 @@ export const assertAdminConfiguration = async (page: Page) => {
   await expect(page.getByTestId(testIds.admin.configurationHeading)).toBeVisible();
 };
 
+/** Owner profile from global setup (`test@test.com` / `@test`). */
+export const ownerProfileHandle = 'test';
+
+export const assertProfilePage = async (
+  page: Page,
+  handle = ownerProfileHandle,
+) => {
+  await page.goto(`/@${handle}`);
+  await expect(page.getByTestId(testIds.profile.headerTitle)).toHaveText(handle);
+};
+
+export const assertProfileFollowersPage = async (
+  page: Page,
+  handle = ownerProfileHandle,
+) => {
+  await page.goto(`/@${handle}/followers`);
+  await expect(page.getByTestId(testIds.profile.followersHeading)).toContainText(
+    handle,
+  );
+};
+
+export const assertProfileFollowingPage = async (
+  page: Page,
+  handle = ownerProfileHandle,
+) => {
+  await page.goto(`/@${handle}/following`);
+  await expect(page.getByTestId(testIds.profile.followingHeading)).toContainText(
+    handle,
+  );
+};
+
+export const assertProfileRoutes = async (page: Page) => {
+  await assertProfilePage(page);
+  await assertProfileFollowersPage(page);
+  await assertProfileFollowingPage(page);
+
+  await page.goto('/explore');
+  await expect(page.getByTestId(testIds.explore.searchInput)).toBeVisible();
+
+  const missingHandle = `missing${handleSuffix()}`;
+  await page.goto(`/@${missingHandle}`);
+  await expect(page.getByTestId(testIds.profile.notFoundTitle)).toBeVisible();
+};
+
 export const assertAdminInvites = async (page: Page) => {
   await page.goto('/admin/invites');
   await expect(page.getByTestId(testIds.admin.newInviteButton)).toBeVisible();
