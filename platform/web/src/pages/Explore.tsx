@@ -134,6 +134,7 @@ export function Explore() {
           })}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
+          data-testid="explore-search-input"
           onKeyDown={(e) => {
             if (e.key === 'Enter') triggerSearch();
           }}
@@ -234,6 +235,7 @@ export function Explore() {
         ) : profileItems.length === 0 ? (
           <EmptyResults
             message={t('explore.noProfiles', { defaultValue: 'No profiles found' })}
+            testId="explore-no-profiles-found"
           />
         ) : (
           profileItems.map((profile) => (
@@ -265,10 +267,12 @@ function EventSearchResults({ posts }: { posts: PublicPost[] }) {
   );
 }
 
-function EmptyResults({ message }: { message: string }) {
+function EmptyResults({ message, testId }: { message: string; testId?: string }) {
   return (
     <div className="flex w-full items-center justify-center p-8">
-      <h2 className="text-lg">{message}</h2>
+      <h2 className="text-lg" data-testid={testId}>
+        {message}
+      </h2>
     </div>
   );
 }

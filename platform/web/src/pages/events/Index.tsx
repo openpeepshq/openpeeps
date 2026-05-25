@@ -14,7 +14,7 @@ export function EventsIndex() {
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
+      <h1 className="mb-4 text-2xl font-semibold" data-testid="events-page-heading">
         {t('navigation.events', { defaultValue: 'Events' })}
       </h1>
       <nav className="mb-4 flex border-b border-border">

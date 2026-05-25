@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { testIds } from '../testIds';
 import {
   assertAdminConfiguration,
   assertAdminInvites,
@@ -211,7 +212,7 @@ const createMarkdownGroup = async (page: Page) => {
     name: `Markdown ${handleSuffix().slice(-12)}`,
     description: markdown,
   });
-  await page.getByText('Description', { exact: true }).click();
+  await page.getByTestId(testIds.groups.tabDescription).click();
   await expect(
     page.getByRole('heading', { name: 'A', exact: true }),
   ).toBeVisible();
@@ -242,11 +243,10 @@ const runCase = async (page: Page, uiCase: UiCase) => {
       break;
     case 'createGroupAndEvent': {
       const { groupName, groupHandle } = await createGroupViaUi(page);
-      await page.getByTestId('tab-group').getByText('Events').click();
+      await page.getByTestId(testIds.groups.tabEvents).click();
       await expect(page).toHaveURL(
         new RegExp(`/groups/@${groupHandle}#events$`),
       );
-      await page.getByRole('button', { name: 'Basic Details' }).click();
       await createEventViaUi(page, {
         name: `New UI Group Event ${uniqueSuffix()}`,
       });
@@ -291,20 +291,20 @@ const runCase = async (page: Page, uiCase: UiCase) => {
       break;
     case 'createPoll':
       await page.goto('/feeds/local');
-      await page.getByRole('button', { name: 'New Post' }).click();
-      await page.getByTitle(/poll|question/i).click();
-      await expect(page.getByLabel(/Option 1|Question/i).first()).toBeVisible();
+      await page.getByTestId(testIds.posts.newPostButton).click();
+      await page.getByTestId(testIds.posts.composerPollType).click();
+      await expect(page.getByTestId(testIds.posts.pollOption(1))).toBeVisible();
       break;
     case 'duplicateGroupHandle': {
       const groupHandle = `dup${handleSuffix().slice(-12)}`;
       await createGroupViaUi(page, { handle: groupHandle });
       await page.goto('/groups/new');
       await page
-        .getByLabel('Group Name')
+        .getByTestId(testIds.groups.nameInput)
         .fill(`Duplicate UI ${uniqueSuffix()}`);
-      await page.getByLabel('Handle').fill(groupHandle);
-      await page.getByRole('button', { name: 'Create' }).click();
-      await expect(page.getByText(/already in use|handle/i)).toBeVisible();
+      await page.getByTestId(testIds.groups.handleInput).fill(groupHandle);
+      await page.getByTestId(testIds.groups.createSubmit).click();
+      await expect(page.getByTestId(testIds.groups.duplicateHandleError)).toBeVisible();
       break;
     }
     case 'eventInPerson':
@@ -312,9 +312,7 @@ const runCase = async (page: Page, uiCase: UiCase) => {
       break;
     case 'eventList':
       await page.goto('/events');
-      await expect(
-        page.getByRole('heading', { name: 'Events', exact: true }),
-      ).toBeVisible();
+      await expect(page.getByTestId(testIds.events.pageHeading)).toBeVisible();
       break;
     case 'eventMarkdown':
       await createEventViaUi(page, {
@@ -332,7 +330,7 @@ const runCase = async (page: Page, uiCase: UiCase) => {
     case 'groupSearch': {
       const { groupName } = await createGroupViaUi(page);
       await page.goto('/groups');
-      await page.getByPlaceholder('Search by group name').fill(groupName);
+      await page.getByTestId(testIds.groups.searchInput).fill(groupName);
       await expect(page.getByText(groupName)).toBeVisible();
       break;
     }
@@ -340,7 +338,7 @@ const runCase = async (page: Page, uiCase: UiCase) => {
       await createGroupViaUi(page, {
         description: 'Public Group - Visible to all',
       });
-      await page.getByText('Description', { exact: true }).click();
+      await page.getByTestId(testIds.groups.tabDescription).click();
       await expect(page.getByText('Visible to all')).toBeVisible();
       break;
     case 'login':
@@ -349,45 +347,37 @@ const runCase = async (page: Page, uiCase: UiCase) => {
     case 'logout':
       await assertLoggedIn(page);
       await page.addInitScript(() =>
-        window.localStorage.removeItem('credentials'),
+        window.localStorage.removeItem('auth_credentials'),
       );
-      await page.evaluate(() => window.localStorage.removeItem('credentials'));
+      await page.evaluate(() =>
+        window.localStorage.removeItem('auth_credentials'),
+      );
       await page.goto('/auth/login');
-      await expect(
-        page.getByRole('heading', { name: 'Login', exact: true }),
-      ).toBeVisible();
+      await expect(page.getByTestId(testIds.auth.loginTitle)).toBeVisible();
       break;
     case 'members':
       await assertMembersPage(page);
       break;
     case 'messages':
       await page.goto('/conversations');
-      await expect(
-        page.getByRole('heading', { name: /Messages|Conversations/i }),
-      ).toBeVisible();
+      await expect(page.getByTestId(testIds.conversations.pageHeading)).toBeVisible();
       break;
     case 'notifications':
       await page.goto('/notifications');
-      await expect(
-        page.getByRole('heading', { name: 'Notifications', exact: true }),
-      ).toBeVisible();
+      await expect(page.getByTestId(testIds.notifications.pageHeading)).toBeVisible();
       break;
     case 'profileUpdate':
       await updateBioViaUi(page);
       break;
     case 'regularMemberRestrictions':
       await page.goto('/groups');
-      await expect(page.getByPlaceholder('Search by group name')).toBeVisible();
+      await expect(page.getByTestId(testIds.groups.searchInput)).toBeVisible();
       await page.goto('/events');
-      await expect(
-        page.getByRole('heading', { name: 'Events', exact: true }),
-      ).toBeVisible();
+      await expect(page.getByTestId(testIds.events.pageHeading)).toBeVisible();
       break;
     case 'repost':
       await createPostViaUi(page, `Repostable UI post ${uniqueSuffix()}`);
-      await expect(
-        page.getByRole('button', { name: 'Repost' }).first(),
-      ).toBeVisible();
+      await expect(page.getByTestId(testIds.posts.repostButton).first()).toBeVisible();
       break;
     case 'searchNoResults':
       await assertExploreNoResults(page);

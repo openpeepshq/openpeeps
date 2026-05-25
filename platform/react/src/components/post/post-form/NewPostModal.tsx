@@ -196,6 +196,9 @@ export function NewPostModal({
                     : 'variant-ghost-primary'
                 }
                 action={() => setComposerType(type)}
+                data-testid={
+                  type === 'question' ? 'posts-composer-poll-type' : undefined
+                }
               >
                 {type === 'note'
                   ? t('posts.types.note', { defaultValue: 'Note' })
@@ -208,6 +211,7 @@ export function NewPostModal({
             rows={5}
             value={content}
             onChange={setContent}
+            testId="posts-composer-content"
             placeholder={
               composerType === 'question'
                 ? t('posts.form.poll.question', { defaultValue: 'Poll question…' })
@@ -233,6 +237,7 @@ export function NewPostModal({
                   key={index}
                   value={opt}
                   placeholder={`Option ${index + 1}`}
+                  data-testid={`posts-poll-option-${index + 1}`}
                   onChange={(e) =>
                     setPollOptions((prev) => {
                       const next = [...prev];
@@ -274,6 +279,7 @@ export function NewPostModal({
               variant="variant-filled-primary"
               action={publish}
               disabled={submitting}
+              data-testid="posts-composer-publish"
             >
               {submitting
                 ? t('common.posting', { defaultValue: 'Posting…' })

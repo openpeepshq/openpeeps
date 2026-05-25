@@ -1,4 +1,5 @@
 import { expect, type APIRequestContext, type Page } from '@playwright/test';
+import { testIds } from '../testIds';
 
 /** Matches `@openpeeps/react` `AUTH_CREDENTIALS_STORAGE_KEY`. */
 const credentialsStorageKey = 'auth_credentials';
@@ -180,32 +181,26 @@ export const registerViaUi = async (page: Page) => {
   const handle = `signup${handleSuffix().slice(-10)}`;
 
   await page.goto('/auth/register');
-  await page.getByLabel('Handle').fill(handle);
-  await page.getByLabel('Name').fill(`UI Signup ${suffix}`);
-  await page.getByLabel('Email').fill(`ui-signup-${suffix}@example.com`);
-  await page.getByRole('textbox', { name: /^Password\b/ }).fill(password);
-  await page
-    .getByRole('textbox', { name: /^Confirm Password\b/ })
-    .fill(password);
-  await page.locator('input[type="checkbox"]').check();
-  await page.getByRole('button', { name: /sign up/i }).click();
+  await page.getByTestId(testIds.auth.registerHandle).fill(handle);
+  await page.getByTestId(testIds.auth.registerName).fill(`UI Signup ${suffix}`);
+  await page.getByTestId(testIds.auth.registerEmail).fill(`ui-signup-${suffix}@example.com`);
+  await page.getByTestId(testIds.auth.registerPassword).fill(password);
+  await page.getByTestId(testIds.auth.registerConfirmPassword).fill(password);
+  await page.getByTestId(testIds.auth.registerPrivacyCheckbox).check();
+  await page.getByTestId(testIds.auth.registerSubmit).click();
   await expect(page).toHaveURL(/\/welcome|\/feeds\/local|\/payment/);
 };
 
 export const assertLoginPage = async (page: Page) => {
   await page.goto('/auth/login');
-  await expect(page.getByText('Login')).toBeVisible();
-  await expect(page.getByLabel('Email')).toBeVisible();
-  await expect(
-    page.getByRole('textbox', { name: /^Password\b/ }),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.auth.loginTitle)).toBeVisible();
+  await expect(page.getByTestId(testIds.auth.loginEmail)).toBeVisible();
+  await expect(page.getByTestId(testIds.auth.loginPassword)).toBeVisible();
 };
 
 export const assertLoggedIn = async (page: Page) => {
   await page.goto('/feeds/local');
-  await expect(
-    page.getByRole('heading', { name: 'Community', exact: true }),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.feeds.communityHeading)).toBeVisible();
 };
 
 export const createGroupViaUi = async (
@@ -223,33 +218,27 @@ export const createGroupViaUi = async (
   const groupHandle = options.handle ?? `ui${handleSuffix().slice(-14)}`;
 
   await page.goto('/groups/new');
-  await expect(page.getByText('Create group')).toBeVisible();
-  await page.getByLabel('Group Name').fill(groupName);
-  await page.getByLabel('Handle').fill(groupHandle);
+  await expect(page.getByTestId(testIds.groups.createPageTitle)).toBeVisible();
+  await page.getByTestId(testIds.groups.nameInput).fill(groupName);
+  await page.getByTestId(testIds.groups.handleInput).fill(groupHandle);
 
   if (options.description) {
-    await page.getByLabel('Description').fill(options.description);
+    await page.getByTestId(testIds.groups.descriptionInput).fill(options.description);
   }
 
   if (options.rules) {
-    await page.getByLabel('Group Rules').fill(options.rules);
+    await page.getByTestId(testIds.groups.rulesInput).fill(options.rules);
   }
 
   if (options.moderatorsOnlyEvents) {
-    await page
-      .getByRole('radio', { name: /Only moderators can add events/i })
-      .check();
+    await page.getByTestId(testIds.groups.whoCanPostEventsModerators).check();
   } else {
-    await page
-      .getByRole('radio', { name: /All members can add events/i })
-      .check();
+    await page.getByTestId(testIds.groups.whoCanPostEventsMembers).check();
   }
 
-  await page.getByRole('button', { name: 'Create' }).click();
+  await page.getByTestId(testIds.groups.createSubmit).click();
   await expect(page).toHaveURL(new RegExp(`/groups/@${groupHandle}$`));
-  await expect(
-    page.getByRole('heading', { name: groupName, level: 1 }),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.groups.headerTitle)).toHaveText(groupName);
 
   return { groupName, groupHandle };
 };
@@ -261,15 +250,13 @@ export const createEventViaUi = async (
   const eventName = options.name ?? `New UI Event ${uniqueSuffix()}`;
 
   await page.goto('/events/new');
-  await expect(page.getByText('Basic Details')).toBeVisible();
-  await page.getByLabel('Event name').fill(eventName);
+  await expect(page.getByTestId(testIds.events.formBasicDetails)).toBeVisible();
+  await page.getByTestId(testIds.events.nameInput).fill(eventName);
   await page
-    .getByPlaceholder('Describe your event')
+    .getByTestId(testIds.events.descriptionInput)
     .fill(options.description ?? uiDescription);
-  await expect(
-    page.getByRole('button', { name: 'Create event' }),
-  ).toBeEnabled();
-  await page.getByRole('button', { name: 'Create event' }).click();
+  await expect(page.getByTestId(testIds.events.createSubmit)).toBeEnabled();
+  await page.getByTestId(testIds.events.createSubmit).click();
   await expect(page).toHaveURL(/\/posts\/[^/]+$/);
   await expect(page.getByText(eventName)).toBeVisible();
 
@@ -280,9 +267,9 @@ export const createPostViaUi = async (page: Page, content?: string) => {
   const postContent = content ?? `Hello World ${uniqueSuffix()}`;
 
   await page.goto('/feeds/local');
-  await page.getByRole('button', { name: 'New Post' }).click();
-  await page.getByPlaceholder("what's on your mind?").fill(postContent);
-  const submitButton = page.getByRole('button', { name: 'Post', exact: true });
+  await page.getByTestId(testIds.posts.newPostButton).click();
+  await page.getByTestId(testIds.posts.composerContent).fill(postContent);
+  const submitButton = page.getByTestId(testIds.posts.composerPublish);
   await expect(submitButton).toBeEnabled();
   await submitButton.click();
   await expect(page.getByText(postContent)).toBeVisible();
@@ -295,105 +282,83 @@ export const createPostViaUi = async (page: Page, content?: string) => {
 export const assertExploreNoResults = async (page: Page) => {
   const search = `noresults${handleSuffix()}`;
   await page.goto(`/explore?q=${search}`);
-  await expect(
-    page.getByRole('heading', { name: 'No profiles found', exact: true }),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.explore.noProfilesFound)).toBeVisible();
 };
 
 export const assertExploreFindsPost = async (page: Page) => {
   const content = `muffinsalt ${uniqueSuffix()}`;
   await createPostViaUi(page, content);
   await page.goto('/explore#posts');
-  await page.getByPlaceholder(/search/i).fill(content);
+  await page.getByTestId(testIds.explore.searchInput).fill(content);
   await page.keyboard.press('Enter');
   await expect(page.getByText(content)).toBeVisible();
 };
 
 export const assertSettingsPages = async (page: Page) => {
   await page.goto('/settings');
-  await expect(
-    page.locator('a[href="/settings/public-profile"]'),
-  ).toBeVisible();
-  await expect(page.locator('a[href="/settings/account"]')).toBeVisible();
-  await expect(
-    page.locator('a[href="/settings/notifications"]'),
-  ).toBeVisible();
-  await expect(page.locator('a[href="/settings/theme"]')).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.linkPublicProfile)).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.linkAccount)).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.linkNotifications)).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.linkTheme)).toBeVisible();
 
   await page.goto('/settings/public-profile');
-  await expect(page.getByLabel('Display Name')).toBeVisible();
-  await expect(page.getByLabel('Handle')).toBeVisible();
-  await expect(page.getByLabel('Bio')).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.displayNameInput)).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.handleInput)).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.bioInput)).toBeVisible();
 
   await page.goto('/settings/account');
-  await expect(page.getByLabel('Current Password')).toBeVisible();
-  await expect(page.getByLabel('Email')).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.currentPasswordInput)).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.emailInput)).toBeVisible();
 
   await page.goto('/settings/notifications');
   await expect(
-    page.locator('a[href="/settings/notifications/preferences"]'),
+    page.getByTestId(testIds.settings.notificationsPreferencesLink),
   ).toBeVisible();
-  await expect(
-    page.locator('a[href="/settings/notifications/push-enabled-devices"]'),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.pushDevicesLink)).toBeVisible();
   await page.goto('/settings/notifications/preferences');
-  await expect(
-    page.getByRole('button', { name: /submit|save/i }),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.saveButton)).toBeVisible();
 };
 
 export const updateBioViaUi = async (page: Page, bio?: string) => {
   const newBio = bio ?? `New Bio ${uniqueSuffix()}`;
 
   await page.goto('/settings/public-profile');
-  await page.getByLabel('Bio').fill(newBio);
-  await page.getByRole('button', { name: /submit|save/i }).click();
+  await page.getByTestId(testIds.settings.bioInput).fill(newBio);
+  await page.getByTestId(testIds.settings.saveButton).click();
   await page.reload();
-  await expect(page.getByLabel('Bio')).toHaveValue(newBio);
+  await expect(page.getByTestId(testIds.settings.bioInput)).toHaveValue(newBio);
 
   return newBio;
 };
 
 export const assertMembersPage = async (page: Page) => {
   await page.goto('/members');
-  await expect(
-    page.getByPlaceholder('Search member by name or handle'),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.members.searchInput)).toBeVisible();
 };
 
 export const assertAdminConfiguration = async (page: Page) => {
   await page.goto('/admin/configuration');
-  await expect(
-    page.getByRole('heading', { name: 'Configuration', exact: true }),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.admin.configurationHeading)).toBeVisible();
 };
 
 export const assertAdminInvites = async (page: Page) => {
   await page.goto('/admin/invites');
-  await expect(
-    page.getByRole('button', { name: 'New Invite' }),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.admin.newInviteButton)).toBeVisible();
 };
 
 export const assertBillingPage = async (page: Page) => {
   await page.goto('/settings');
-  const billingLink = page.getByRole('link', { name: /^Billing\b/ });
+  const billingLink = page.getByTestId(testIds.settings.linkBilling);
   if (!(await billingLink.isVisible())) {
-    await expect(
-      page.getByRole('heading', { name: 'Settings', exact: true }),
-    ).toBeVisible();
+    await expect(page.getByTestId(testIds.settings.pageHeading)).toBeVisible();
     return;
   }
 
   await billingLink.click();
-  await expect(
-    page.getByRole('heading', { name: 'Billing & Subscription', exact: true }),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.settings.billingHeading)).toBeVisible();
 };
 
 export const assertJamsPage = async (page: Page) => {
   await page.goto('/jams');
-  await expect(
-    page.getByRole('heading', { name: 'Jams', exact: true }),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.jams.pageHeading)).toBeVisible();
 };

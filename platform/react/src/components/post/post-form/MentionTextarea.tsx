@@ -9,6 +9,7 @@ export interface MentionTextareaProps {
   onChange: (value: string) => void;
   rows?: number;
   placeholder?: string;
+  testId?: string;
 }
 
 export function MentionTextarea({
@@ -16,6 +17,7 @@ export function MentionTextarea({
   onChange,
   rows = 5,
   placeholder,
+  testId,
 }: MentionTextareaProps) {
   const { openpeepsApi } = useOpenpeeps();
   const [query, setQuery] = useState('');
@@ -70,6 +72,7 @@ export function MentionTextarea({
         value={value}
         placeholder={placeholder}
         onChange={(e) => handleChange(e.target.value)}
+        data-testid={testId}
       />
       {open && query.length >= 1 && profiles.length > 0 ? (
         <div className="bg-card absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-md border shadow-md">

@@ -19,9 +19,19 @@ export function AdminInvites() {
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-semibold">
-        {t('admin.invites.title', { defaultValue: 'Invites' })}
-      </h1>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold">
+          {t('admin.invites.title', { defaultValue: 'Invites' })}
+        </h1>
+        <Button
+          title={t('admin.invites.newInvite', { defaultValue: 'New Invite' })}
+          variant="variant-filled-primary"
+          action={() => undefined}
+          data-testid="admin-new-invite-button"
+        >
+          {t('admin.invites.newInvite', { defaultValue: 'New Invite' })}
+        </Button>
+      </div>
 
       <div className="mb-4">
         <Input

@@ -71,6 +71,17 @@ export function PublicProfileSettings() {
           onChange={(e) =>
             setDraft((d) => ({ ...d, displayName: e.target.value }))
           }
+          data-testid="settings-display-name-input"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="handle">Handle</Label>
+        <Input
+          id="handle"
+          value={me.handle ?? ''}
+          readOnly
+          data-testid="settings-handle-input"
         />
       </div>
 
@@ -81,6 +92,7 @@ export function PublicProfileSettings() {
           rows={4}
           value={draft.bio ?? ''}
           onChange={(e) => setDraft((d) => ({ ...d, bio: e.target.value }))}
+          data-testid="settings-bio-input"
         />
       </div>
 
@@ -111,6 +123,7 @@ export function PublicProfileSettings() {
         variant="variant-filled-primary"
         action={submit}
         disabled={submitting}
+        data-testid="settings-save-button"
       >
         {submitting
           ? t('common.saving', { defaultValue: 'Saving…' })

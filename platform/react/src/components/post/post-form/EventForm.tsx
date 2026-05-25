@@ -85,7 +85,7 @@ export function EventForm({ postData, onChange, isEdit = false }: EventFormProps
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="events-form-basic-details">
       <div className="space-y-2">
         {event.image ? (
           <img
@@ -151,6 +151,7 @@ export function EventForm({ postData, onChange, isEdit = false }: EventFormProps
           id="event-name"
           value={event.name ?? ''}
           onChange={(e) => patchEvent({ name: e.target.value })}
+          data-testid="events-name-input"
         />
       </div>
 
@@ -162,6 +163,7 @@ export function EventForm({ postData, onChange, isEdit = false }: EventFormProps
           rows={6}
           value={event.content ?? ''}
           onChange={(content) => patchEvent({ content })}
+          testId="events-description-input"
           placeholder={t('events.form.descriptionPlaceholder', {
             defaultValue: 'Tell people what this event is about…',
           })}

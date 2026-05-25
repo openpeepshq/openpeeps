@@ -236,7 +236,7 @@ export function NotificationPreferences() {
       ) : null}
 
       <div className="pt-3">
-        <Button variant="default" action={save} disabled={saving}>
+        <Button variant="default" action={save} disabled={saving} data-testid="settings-save-button">
           {saving
             ? t('common.submitting', { defaultValue: 'Submitting…' })
             : t('common.submit', { defaultValue: 'Submit' })}

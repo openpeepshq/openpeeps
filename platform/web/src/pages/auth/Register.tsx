@@ -107,6 +107,7 @@ export function Register({ invite = false }: RegisterProps) {
           type="text"
           placeholder="Handle"
           path={['handle']}
+          testId="auth-register-handle"
         />
 
         <FormInput
@@ -114,6 +115,7 @@ export function Register({ invite = false }: RegisterProps) {
           type="text"
           placeholder="Name"
           path={['displayName']}
+          testId="auth-register-name"
         />
 
         <FormInput
@@ -121,12 +123,14 @@ export function Register({ invite = false }: RegisterProps) {
           type="email"
           placeholder="you@email.org"
           path={['email']}
+          testId="auth-register-email"
         />
 
         <FormInput
           path={['password']}
           description={t('common.password', { defaultValue: 'Password' })}
           type={showPassword ? 'text' : 'password'}
+          testId="auth-register-password"
           tail={
             <button
               type="button"
@@ -145,6 +149,7 @@ export function Register({ invite = false }: RegisterProps) {
           })}
           type="password"
           path={['confirmPassword']}
+          testId="auth-register-confirm-password"
         />
 
         {(data.password ?? '').length > 0 &&
@@ -159,6 +164,7 @@ export function Register({ invite = false }: RegisterProps) {
             description=""
             type="checkbox"
             path={['privacyPolicyAccepted']}
+            testId="auth-register-privacy-checkbox"
           />
           <p className="ml-4">
             I have read and agree to the
@@ -179,7 +185,7 @@ export function Register({ invite = false }: RegisterProps) {
           </p>
         )}
 
-        <SubmitButton action={handleSubmit} title="Sign Up">
+        <SubmitButton action={handleSubmit} title="Sign Up" testId="auth-register-submit">
           {t('auth.signUp', { defaultValue: 'Sign Up' })}
         </SubmitButton>
       </Form>

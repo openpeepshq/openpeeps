@@ -7,14 +7,20 @@ import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
 interface ConfigMenuButtonProps {
   translationPrefix: string;
   action: string;
+  testId?: string;
 }
 
-function ConfigMenuButton({ translationPrefix, action }: ConfigMenuButtonProps) {
+function ConfigMenuButton({
+  translationPrefix,
+  action,
+  testId,
+}: ConfigMenuButtonProps) {
   const t = useT();
   return (
     <Button
       className="hover:bg-surface-100 flex w-full items-center justify-between px-4 py-3 text-start"
       action={action}
+      data-testid={testId}
     >
       <div>
         <div className="font-medium">{t(`${translationPrefix}.title`)}</div>
@@ -39,17 +45,23 @@ export function Settings() {
 
   return (
     <div className="p-4">
+      <h1 className="mb-4 text-2xl font-semibold" data-testid="settings-page-heading">
+        Settings
+      </h1>
       <ConfigMenuButton
         translationPrefix="settings.publicProfile"
         action="/settings/public-profile"
+        testId="settings-link-public-profile"
       />
       <ConfigMenuButton
         translationPrefix="settings.account"
         action="/settings/account"
+        testId="settings-link-account"
       />
       <ConfigMenuButton
         translationPrefix="settings.notifications"
         action="/settings/notifications"
+        testId="settings-link-notifications"
       />
       <ConfigMenuButton
         translationPrefix="settings.accessTokens"
@@ -58,6 +70,7 @@ export function Settings() {
       <ConfigMenuButton
         translationPrefix="settings.theme"
         action="/settings/theme"
+        testId="settings-link-theme"
       />
       <ConfigMenuButton
         translationPrefix="settings.language"
@@ -67,6 +80,7 @@ export function Settings() {
         <ConfigMenuButton
           translationPrefix="settings.billing"
           action="/settings/billing"
+          testId="settings-link-billing"
         />
       )}
     </div>

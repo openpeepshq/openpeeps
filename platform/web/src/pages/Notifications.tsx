@@ -5,7 +5,7 @@ export function Notifications() {
   const t = useT();
   return (
     <div className="space-y-2 p-4">
-      <h1 className="text-2xl font-semibold">
+      <h1 className="text-2xl font-semibold" data-testid="notifications-page-heading">
         {t('navigation.notifications', { defaultValue: 'Notifications' })}
       </h1>
       <NotificationsList />

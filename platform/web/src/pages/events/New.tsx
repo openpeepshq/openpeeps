@@ -79,6 +79,7 @@ export function NewEvent() {
         variant="variant-filled-primary"
         action={submit}
         disabled={submitting}
+        data-testid="events-create-submit"
       >
         {submitting
           ? t('common.submitting', { defaultValue: 'Creating…' })

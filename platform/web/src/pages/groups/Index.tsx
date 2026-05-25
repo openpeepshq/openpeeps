@@ -30,6 +30,7 @@ export function GroupsIndex() {
         })}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
+        data-testid="groups-search-input"
       />
       <div className="space-y-2 py-4">
         {filtered.map((group) => (

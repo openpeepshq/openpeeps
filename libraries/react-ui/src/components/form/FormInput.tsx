@@ -31,6 +31,7 @@ export interface FormInputProps {
   transformValue?: (value: unknown) => string;
   step?: number;
   onInput?: (e: React.ChangeEvent<Element>) => void;
+  testId?: string;
 }
 
 const defaultElementToValue = (timeZone: string) => (e: Element) => {
@@ -62,6 +63,7 @@ export function FormInput({
   transformValue,
   step = 1,
   onInput,
+  testId,
 }: FormInputProps) {
   const { schema, data, validate } = useFormContext();
   const messages = useFormMessages();
@@ -104,6 +106,7 @@ export function FormInput({
           onChange={update}
           placeholder={placeholder ?? title}
           readOnly={readOnly}
+          data-testid={testId}
         />
       ) : type === 'checkbox' ? (
         <Input
@@ -111,6 +114,7 @@ export function FormInput({
           type="checkbox"
           checked={checked}
           onChange={update}
+          data-testid={testId}
         />
       ) : type === 'select' ? (
         <select
@@ -135,6 +139,7 @@ export function FormInput({
             onChange={update}
             placeholder={placeholder ?? title}
             readOnly={readOnly}
+            data-testid={testId}
           />
         </div>
       ) : type === 'mock' ? (
@@ -154,6 +159,7 @@ export function FormInput({
             placeholder={placeholder ?? title}
             readOnly={readOnly}
             step={step}
+            data-testid={testId}
           />
           {tail && <div className="op-input-group-shim">{tail}</div>}
         </div>

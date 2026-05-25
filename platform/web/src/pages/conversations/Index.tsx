@@ -94,19 +94,27 @@ export function ConversationsIndex() {
 
   if (conversations.length === 0) {
     return (
-      <div className="flex h-[80vh] items-center justify-center gap-2">
-        <MessageCircleOff size={40} />
-        <p className="text-gray-500">
-          {t('conversations.empty', {
-            defaultValue: 'No direct messages here',
-          })}
-        </p>
+      <div>
+        <h1 className="p-4 text-2xl font-semibold" data-testid="conversations-page-heading">
+          {t('navigation.messages', { defaultValue: 'Messages' })}
+        </h1>
+        <div className="flex h-[80vh] items-center justify-center gap-2">
+          <MessageCircleOff size={40} />
+          <p className="text-gray-500">
+            {t('conversations.empty', {
+              defaultValue: 'No direct messages here',
+            })}
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div>
+      <h1 className="p-4 text-2xl font-semibold" data-testid="conversations-page-heading">
+        {t('navigation.messages', { defaultValue: 'Messages' })}
+      </h1>
       {conversations.map((conversation) => {
         const first = conversation[0];
         if (!first) return null;

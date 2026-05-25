@@ -79,6 +79,7 @@ export function AccountSettings() {
           autoComplete="current-password"
           value={oldPassword}
           onChange={(e) => setOldPassword(e.target.value)}
+          data-testid="settings-current-password-input"
         />
         <p className="text-xs text-muted-foreground">
           {t('settings.account.oldPasswordDescription', {
@@ -96,6 +97,7 @@ export function AccountSettings() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          data-testid="settings-email-input"
         />
       </div>
 
@@ -142,6 +144,7 @@ export function AccountSettings() {
         variant="variant-filled-primary"
         action={submit}
         disabled={submitting}
+        data-testid="settings-save-button"
       >
         {submitting
           ? t('common.submitting', { defaultValue: 'Submitting…' })

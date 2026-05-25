@@ -28,6 +28,7 @@ export function Members() {
         })}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
+        data-testid="members-search-input"
       />
 
       <div className="my-4 pb-10">

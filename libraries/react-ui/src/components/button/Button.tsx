@@ -20,6 +20,7 @@ export interface ButtonProps {
   /** Forward extra anchor / button props if needed. */
   id?: string;
   'aria-label'?: string;
+  'data-testid'?: string;
 }
 
 /**

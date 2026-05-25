@@ -60,14 +60,17 @@ export function NewGroup() {
 
   return (
     <div className="space-y-4 p-4 pb-12">
-      <h1 className="text-2xl font-semibold">
+      <h1 className="text-2xl font-semibold" data-testid="groups-create-page-title">
         {t('groups.new.title', { defaultValue: 'Create group' })}
       </h1>
 
       <GroupForm groupData={groupData} onChange={setGroupData} />
 
       {error && (
-        <p className="border-error/40 text-error rounded-md border p-2 text-sm">
+        <p
+          className="border-error/40 text-error rounded-md border p-2 text-sm"
+          data-testid="groups-duplicate-handle-error"
+        >
           {error}
         </p>
       )}
@@ -77,6 +80,7 @@ export function NewGroup() {
         variant="variant-filled-primary"
         action={submit}
         disabled={submitting}
+        data-testid="groups-create-submit"
       >
         {submitting
           ? t('common.submitting', { defaultValue: 'Creating…' })

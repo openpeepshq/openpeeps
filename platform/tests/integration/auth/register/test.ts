@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
+import { testIds } from '../../testIds';
 
 test('get registration form', async ({ page }) => {
   await page.goto('/auth/register');
 
-  await expect(page.getByRole('button', { name: /sign up/i })).toBeVisible();
+  await expect(page.getByTestId(testIds.auth.registerSubmit)).toBeVisible();
 });

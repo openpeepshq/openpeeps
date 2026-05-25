@@ -48,7 +48,9 @@ export function GroupHeader({ group }: GroupHeaderProps) {
         </div>
       )}
       <div className="mb-8 p-2 pt-14">
-        <h1 className="text-xl font-semibold">{groupName(group)}</h1>
+        <h1 className="text-xl font-semibold" data-testid="groups-header-title">
+          {groupName(group)}
+        </h1>
         <p className="text-surface-500 text-sm">@{group.handle}</p>
         <a
           href={`/groups/@${group.handle}/members`}

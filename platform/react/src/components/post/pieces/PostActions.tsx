@@ -103,6 +103,7 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
         title={t('posts.actions.repost', { defaultValue: 'Repost' })}
         onClick={stop(handleRepost)}
         disabled={busy}
+        data-testid="posts-repost-button"
       >
         <Repeat2 className="h-4 w-4" />
         {compact ? post.repostCount || null : t('posts.footer.repost', { defaultValue: 'Repost' })}

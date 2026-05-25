@@ -44,7 +44,7 @@ export function JamsIndex({ my = false }: Props) {
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">
+        <h1 className="text-2xl font-semibold" data-testid="jams-page-heading">
           {my
             ? t('navigation.myJams', { defaultValue: 'My jams' })
             : t('navigation.jams', { defaultValue: 'Jams' })}

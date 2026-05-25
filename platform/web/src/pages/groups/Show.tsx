@@ -43,16 +43,33 @@ export function GroupShow() {
     <div>
       <GroupHeader group={group} />
 
-      <nav className="flex border-b border-border">
-        <TabButton active={tab === 'posts'} onClick={() => setTab('posts')}>
+      <nav className="flex border-b border-border" data-testid="tab-group">
+        <TabButton
+          active={tab === 'posts'}
+          onClick={() => {
+            setTab('posts');
+            window.history.replaceState(null, '', window.location.pathname);
+          }}
+        >
           {t('groups.sections.posts', { defaultValue: 'Posts' })}
         </TabButton>
-        <TabButton active={tab === 'events'} onClick={() => setTab('events')}>
+        <TabButton
+          active={tab === 'events'}
+          onClick={() => {
+            setTab('events');
+            window.history.replaceState(null, '', `${window.location.pathname}#events`);
+          }}
+          testId="groups-tab-events"
+        >
           {t('groups.sections.events', { defaultValue: 'Events' })}
         </TabButton>
         <TabButton
           active={tab === 'description'}
-          onClick={() => setTab('description')}
+          onClick={() => {
+            setTab('description');
+            window.history.replaceState(null, '', `${window.location.pathname}#description`);
+          }}
+          testId="groups-tab-description"
         >
           {t('groups.sections.description', { defaultValue: 'Description' })}
         </TabButton>
@@ -107,15 +124,18 @@ function TabButton({
   active,
   onClick,
   children,
+  testId,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
+  testId?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      data-testid={testId}
       className={`px-4 py-2 text-sm ${active ? 'border-b-2 border-primary font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
     >
       {children}

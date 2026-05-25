@@ -51,7 +51,7 @@ export function Login() {
   return (
     <AuthLayout redirectTo={redirectUrl} navigate={navigate}>
       <Form data={data} schema={loginRequestSchema}>
-        <h2 className="text-xl">
+        <h2 className="text-xl" data-testid="auth-login-title">
           {t('auth.login.title', { defaultValue: 'Login' })}
         </h2>
         <p>
@@ -65,12 +65,14 @@ export function Login() {
           path={['email']}
           placeholder="you@email.org"
           description={t('common.email', { defaultValue: 'Email' })}
+          testId="auth-login-email"
         />
 
         <FormInput
           path={['password']}
           description={t('common.password', { defaultValue: 'Password' })}
           type={showPassword ? 'text' : 'password'}
+          testId="auth-login-password"
           tail={
             <button
               type="button"

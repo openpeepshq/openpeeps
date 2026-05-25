@@ -26,7 +26,7 @@ export function AdminConfiguration() {
   const t = useT();
   return (
     <div className="space-y-6 p-4">
-      <h1 className="text-2xl font-semibold">
+      <h1 className="text-2xl font-semibold" data-testid="admin-configuration-heading">
         {t('admin.configuration.title', { defaultValue: 'Configuration' })}
       </h1>
 

@@ -55,6 +55,7 @@ export function NewNoteButton({
         title={t('posts.form.title', { defaultValue: 'New post' })}
         variant="variant-filled-primary"
         action={() => openNewPost({ visibility, group })}
+        data-testid="posts-new-post-button"
       >
         <Plus className="mr-1 size-4" />
         {t('posts.form.newNote', { defaultValue: 'New post' })}

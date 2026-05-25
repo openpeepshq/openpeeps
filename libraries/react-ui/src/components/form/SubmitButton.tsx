@@ -7,9 +7,16 @@ export interface SubmitButtonProps {
   action: () => unknown | Promise<unknown>;
   children?: React.ReactNode;
   disable?: boolean;
+  testId?: string;
 }
 
-export function SubmitButton({ title, action, children, disable = true }: SubmitButtonProps) {
+export function SubmitButton({
+  title,
+  action,
+  children,
+  disable = true,
+  testId,
+}: SubmitButtonProps) {
   const { validate } = useFormContext();
   const messages = useFormMessages();
 
@@ -27,6 +34,7 @@ export function SubmitButton({ title, action, children, disable = true }: Submit
       variant="variant-filled-primary"
       className="w-full"
       disabled={disable ? !valid : false}
+      data-testid={testId}
     >
       {children}
     </Button>

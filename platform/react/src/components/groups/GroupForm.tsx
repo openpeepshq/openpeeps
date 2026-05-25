@@ -107,6 +107,7 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
           id="displayName"
           value={groupData.displayName ?? ''}
           onChange={(e) => patch({ displayName: e.target.value })}
+          data-testid="groups-name-input"
         />
       </div>
 
@@ -122,6 +123,7 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
               defaultValue: 'my_group',
             })}
             onChange={(e) => patch({ handle: e.target.value })}
+            data-testid="groups-handle-input"
           />
         </div>
       ) : null}
@@ -136,6 +138,7 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
           value={groupData.description ?? ''}
           placeholder={t('groups.description.placeholder', { defaultValue: '' })}
           onChange={(e) => patch({ description: e.target.value })}
+          data-testid="groups-description-input"
         />
       </div>
 
@@ -149,6 +152,7 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
           value={groupData.rules ?? ''}
           placeholder={t('groups.rules.placeholder', { defaultValue: '' })}
           onChange={(e) => patch({ rules: e.target.value })}
+          data-testid="groups-rules-input"
         />
       </div>
 
@@ -208,6 +212,11 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
           })}
           value={whoCanPostEventsValue}
           options={whoCanPostEventsOptions}
+          optionTestId={(value) =>
+            value === 'moderators'
+              ? 'groups-who-can-post-events-moderators'
+              : 'groups-who-can-post-events-members'
+          }
           onChange={(value) =>
             patchCapabilities((draft) => setGroupWhoCanPostEvents(draft, value))
           }

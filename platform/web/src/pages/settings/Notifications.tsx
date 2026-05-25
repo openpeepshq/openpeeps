@@ -5,14 +5,16 @@ import { useT } from '@openpeeps/react';
 interface MenuButtonProps {
   translationPrefix: string;
   action: string;
+  testId?: string;
 }
 
-function MenuButton({ translationPrefix, action }: MenuButtonProps) {
+function MenuButton({ translationPrefix, action, testId }: MenuButtonProps) {
   const t = useT();
   return (
     <Button
       className="hover:bg-surface-100 flex w-full items-center justify-between px-4 py-3 text-start"
       action={action}
+      data-testid={testId}
     >
       <div>
         <div className="font-medium">{t(`${translationPrefix}.title`)}</div>
@@ -38,10 +40,12 @@ export function NotificationSettings() {
       <MenuButton
         translationPrefix="settings.notifications.preferences"
         action="/settings/notifications/preferences"
+        testId="settings-notifications-preferences-link"
       />
       <MenuButton
         translationPrefix="settings.notifications.pushEnabledDevices"
         action="/settings/notifications/push-enabled-devices"
+        testId="settings-notifications-push-devices-link"
       />
     </div>
   );

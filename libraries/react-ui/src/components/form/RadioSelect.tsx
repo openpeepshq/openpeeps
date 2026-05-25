@@ -16,6 +16,7 @@ export interface RadioSelectProps {
   value?: string;
   onChange?: (value: string) => void;
   options: RadioSelectOption[];
+  optionTestId?: (value: string) => string;
 }
 
 export function RadioSelect({
@@ -25,6 +26,7 @@ export function RadioSelect({
   value,
   onChange,
   options,
+  optionTestId,
 }: RadioSelectProps) {
   const idPrefix = React.useMemo(() => `radio-select-${uuidv4()}-`, []);
 
@@ -44,6 +46,7 @@ export function RadioSelect({
               className="mt-1 size-4 text-primary-500"
               value={option.value}
               disabled={disabled}
+              data-testid={optionTestId?.(option.value)}
             />
             <div>
               <label className="font-medium text-surface-700" htmlFor={id}>

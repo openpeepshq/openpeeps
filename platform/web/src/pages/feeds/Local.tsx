@@ -19,7 +19,7 @@ export function FeedsLocal() {
 
   return (
     <div className="space-y-4 p-4">
-      <h1 className="text-2xl font-semibold">
+      <h1 className="text-2xl font-semibold" data-testid="feeds-community-heading">
         {t('navigation.community', { defaultValue: 'Community' })}
       </h1>
       <NewNoteButton

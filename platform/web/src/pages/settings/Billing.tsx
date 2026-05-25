@@ -59,7 +59,7 @@ export function BillingSettings() {
     <section className="relative">
       <div className="p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-xl font-semibold">
+          <h2 className="flex items-center gap-2 text-xl font-semibold" data-testid="settings-billing-heading">
             <CreditCard size={24} />
             {t('settings.billing.title', { defaultValue: 'Billing' })}
           </h2>
