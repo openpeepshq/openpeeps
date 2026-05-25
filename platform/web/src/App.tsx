@@ -430,14 +430,17 @@ function AppShell() {
                       element={<Articles.Edit />}
                     />
 
-                    {/* Profile (`@handle`) */}
-                    <Route path="/@:handle" element={<Profiles.Show />} />
+                    {/* Profile (`@handle`) — React Router v7 cannot do
+                        partial-segment params (`/@:handle`), so the segment
+                        captures the whole `@handle` value and the leading `@`
+                        is stripped via `routeHandleParam()`. */}
+                    <Route path="/:handle" element={<Profiles.Show />} />
                     <Route
-                      path="/@:handle/followers"
+                      path="/:handle/followers"
                       element={<Profiles.Followers />}
                     />
                     <Route
-                      path="/@:handle/following"
+                      path="/:handle/following"
                       element={<Profiles.Following />}
                     />
 

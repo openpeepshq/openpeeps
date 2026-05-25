@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { UserX } from 'lucide-react';
 import { useT, useOpenpeeps } from '@openpeeps/react';
 import { ProfileCard } from '@openpeeps/react/components';
+import { routeHandleParam } from '../../lib/routeHandles';
 
 interface Props {
   /** When true, render the followees list (`/@:handle/following`). */
@@ -10,7 +11,8 @@ interface Props {
 
 export function Followers({ following = false }: Props) {
   const t = useT();
-  const { handle = '' } = useParams<{ handle: string }>();
+  const { handle: handleParam = '' } = useParams<{ handle: string }>();
+  const handle = routeHandleParam(handleParam);
   const { openpeepsApi } = useOpenpeeps();
 
   const profileQuery = openpeepsApi.useProfileByHandle(handle);

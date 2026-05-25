@@ -6,10 +6,12 @@ import {
   ProfilePostsAndReplies,
   useCurrentProfile,
 } from '@openpeeps/react/components';
+import { routeHandleParam } from '../lib/routeHandles';
 
 export function Profile() {
   const t = useT();
-  const { handle = '' } = useParams<{ handle: string }>();
+  const { handle: handleParam = '' } = useParams<{ handle: string }>();
+  const handle = routeHandleParam(handleParam);
   const me = useCurrentProfile();
   const { openpeepsApi } = useOpenpeeps();
 
