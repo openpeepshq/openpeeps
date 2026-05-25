@@ -1,3 +1,10 @@
+// Load .env files from the current working directory so that `apc` and any
+// other launcher importing this package picks up DB_*, REDIS_*, etc. without
+// the launcher having to depend on `dotenv` itself. Existing process.env
+// values always win, so callers that pre-load custom .env paths (e.g. the
+// integration test runner) keep working unchanged.
+import 'dotenv/config';
+
 import { Command } from 'commander';
 import { closeQueues } from '@openpeeps/core/jobs';
 import { registerAccountsCommand } from './accounts';
