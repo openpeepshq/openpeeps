@@ -45,6 +45,7 @@
   {#if typeof action === 'string'}
     <a
       href={action}
+      onclick={() => drawerStore.close()}
       class="hover:bg-surface-100 flex items-center gap-x-2 py-2 pl-2"
       class:text-base-200={!active}
       class:text-primary-500={active}
