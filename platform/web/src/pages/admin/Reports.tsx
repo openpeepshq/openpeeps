@@ -7,10 +7,12 @@ import {
   UpdatingDate,
 } from '@openpeeps/react/components';
 import { Button } from '@openpeeps/react-ui';
+import { routeHandleParam } from '../../lib/routeHandles';
 
 export function AdminReports() {
   const t = useT();
-  const { handle = '' } = useParams<{ handle: string }>();
+  const { handle: handleParam = '' } = useParams<{ handle: string }>();
+  const handle = routeHandleParam(handleParam);
   const { openpeepsApi } = useOpenpeeps();
   const profileQuery = openpeepsApi.useProfileByHandle(handle);
   const reportsQuery = openpeepsApi.admin.useReportsList();

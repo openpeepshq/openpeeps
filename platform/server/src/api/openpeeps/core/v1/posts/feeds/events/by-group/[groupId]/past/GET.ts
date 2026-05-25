@@ -11,6 +11,12 @@ export const Param = z.object({
 });
 
 export const apiEndpoint = endpoint({ Output, Query, Param }).handle(
-  async (params, event: RequestEvent) =>
-    listPastGroupEventsFeed(await ensureProfileOrPublicCommunity(event), params.groupId, Query.parse(params))
+  async (params, event: RequestEvent) => {
+    await ensureProfileOrPublicCommunity(event);
+    return listPastGroupEventsFeed(
+      event.context.authData,
+      params.groupId,
+      Query.parse(params),
+    );
+  },
 );

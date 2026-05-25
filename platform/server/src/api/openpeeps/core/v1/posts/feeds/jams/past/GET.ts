@@ -9,5 +9,6 @@ export const Query = offsetInfiniteQueryParamsSchema;
 
 export const apiEndpoint = endpoint({ Output, Query }).handle(
   async (params, event: RequestEvent) => {
-    return listPastJamsFeed(await ensureProfileOrPublicCommunity(event), Query.parse(params));
+    await ensureProfileOrPublicCommunity(event);
+    return listPastJamsFeed(event.context.authData, Query.parse(params));
   });

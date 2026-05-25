@@ -11,5 +11,8 @@ export const Query = z.object({
 });
 
 export const apiEndpoint = endpoint({ Output, Query }).handle(
-  async (params, event: RequestEvent) => listLocalFeed(await ensureProfileOrPublicCommunity(event), Query.parse(params))
+  async (params, event: RequestEvent) => {
+    await ensureProfileOrPublicCommunity(event);
+    return listLocalFeed(event.context.authData, Query.parse(params));
+  }
 );

@@ -25,6 +25,8 @@ export type { EventFormProps } from './post-form/EventForm';
 export { PreviewLink } from '../preview-link/PreviewLink';
 export { NewNoteButton } from './NewNoteButton';
 export type { NewNoteButtonProps } from './NewNoteButton';
+export { NewEventButton } from './NewEventButton';
+export type { NewEventButtonProps } from './NewEventButton';
 export { PinnedPost } from './PinnedPost';
 export type { PinnedPostProps } from './PinnedPost';
 export { FullPostLayout } from './FullPostLayout';

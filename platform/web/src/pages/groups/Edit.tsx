@@ -4,11 +4,13 @@ import type { GroupData } from '@openpeeps/common/types';
 import { useT, useOpenpeeps } from '@openpeeps/react';
 import { GroupForm } from '@openpeeps/react/components';
 import { Button } from '@openpeeps/react-ui';
+import { routeHandleParam } from '../../lib/routeHandles';
 
 export function EditGroup() {
   const t = useT();
   const navigate = useNavigate();
-  const { handle = '' } = useParams<{ handle: string }>();
+  const { handle: handleParam = '' } = useParams<{ handle: string }>();
+  const handle = routeHandleParam(handleParam);
   const { openpeepsApi } = useOpenpeeps();
   const groupQuery = openpeepsApi.useGroupByHandle(handle);
   const updateGroup = openpeepsApi.updateGroupAction();

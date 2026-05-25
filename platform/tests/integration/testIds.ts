@@ -42,7 +42,9 @@ export const testIds = {
     formBasicDetails: 'events-form-basic-details',
     nameInput: 'events-name-input',
     descriptionInput: 'events-description-input',
+    startInput: 'events-start-input',
     createSubmit: 'events-create-submit',
+    newEventButton: 'events-new-event-button',
     pageHeading: 'events-page-heading',
   },
   explore: {

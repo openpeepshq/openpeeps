@@ -1,10 +1,12 @@
 import { useParams } from 'react-router-dom';
 import { useT, useOpenpeeps } from '@openpeeps/react';
 import { GroupHeader, GroupMembersList } from '@openpeeps/react/components';
+import { routeHandleParam } from '../../lib/routeHandles';
 
 export function GroupMembers() {
   const t = useT();
-  const { handle = '' } = useParams<{ handle: string }>();
+  const { handle: handleParam = '' } = useParams<{ handle: string }>();
+  const handle = routeHandleParam(handleParam);
   const { openpeepsApi } = useOpenpeeps();
 
   const groupQuery = openpeepsApi.useGroupByHandle(handle);

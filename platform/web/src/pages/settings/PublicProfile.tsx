@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ProfileWithMeta } from '@openpeeps/common/types';
+import { profileDataSchema } from '@openpeeps/common/types';
 import { useT, useOpenpeeps } from '@openpeeps/react';
 import { HeaderAvatarInput, useCurrentProfile } from '@openpeeps/react/components';
 import { Button, Input, Label, Textarea } from '@openpeeps/react-ui';
@@ -10,14 +11,19 @@ export function PublicProfileSettings() {
   const me = useCurrentProfile();
   const updateProfile = openpeepsApi.updateCurrentProfileAction();
 
-  const [draft, setDraft] = useState<Partial<ProfileWithMeta>>(() => ({
-    displayName: me?.displayName ?? '',
-    bio: me?.bio ?? '',
-    avatar: me?.avatar ?? '',
-    header: me?.header ?? '',
-    location: me?.location,
-  }));
+  const [draft, setDraft] = useState<Partial<ProfileWithMeta>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!me) return;
+    setDraft({
+      displayName: me.displayName ?? '',
+      bio: me.bio ?? '',
+      avatar: me.avatar ?? undefined,
+      header: me.header ?? undefined,
+      location: me.location,
+    });
+  }, [me?.id]);
   const [status, setStatus] = useState<
     | { type: 'success'; message: string }
     | { type: 'error'; message: string }
@@ -30,7 +36,17 @@ export function PublicProfileSettings() {
     setStatus(null);
     setSubmitting(true);
     try {
-      await updateProfile({ ...me, ...draft });
+      await updateProfile(
+        profileDataSchema.parse({
+          handle: me.handle,
+          type: me.type,
+          displayName: draft.displayName,
+          bio: draft.bio,
+          avatar: draft.avatar || null,
+          header: draft.header || null,
+          location: draft.location?.text ? draft.location : undefined,
+        }),
+      );
       setStatus({
         type: 'success',
         message: t('settings.profile.updateSuccess', {

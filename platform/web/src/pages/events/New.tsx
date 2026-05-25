@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { PostCreationData } from '@openpeeps/common/types';
 import {
   useT,
   useOpenpeeps,
-  defaultNewEvent,
+  eventSanitizer,
+  getNewPostStores,
 } from '@openpeeps/react';
 import {
   EventForm,
@@ -18,9 +19,14 @@ export function NewEvent() {
   const serverInfo = useServerInfo();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
+  const stores = getNewPostStores();
+  const sanitize = useMemo(
+    () => eventSanitizer(serverInfo.publicContent),
+    [serverInfo.publicContent],
+  );
 
   const [postData, setPostData] = useState<PostCreationData>(() =>
-    defaultNewEvent(serverInfo.publicContent),
+    sanitize(stores.event),
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +58,7 @@ export function NewEvent() {
     setSubmitting(true);
     try {
       const created = await createPost({ ...postData, type: 'event' });
+      stores.resetNewEventState();
       navigate(`/posts/${created.id}`);
     } catch (err) {
       setError((err as Error).message);
@@ -66,7 +73,13 @@ export function NewEvent() {
         {t('events.new', { defaultValue: 'New event' })}
       </h1>
 
-      <EventForm postData={postData} onChange={setPostData} />
+      <EventForm
+        postData={postData}
+        onChange={(data) => {
+          setPostData(data);
+          stores.event = data;
+        }}
+      />
 
       {error ? (
         <p className="border-error/40 text-error rounded-md border p-2 text-sm">
@@ -83,7 +96,7 @@ export function NewEvent() {
       >
         {submitting
           ? t('common.submitting', { defaultValue: 'Creating…' })
-          : t('events.create', { defaultValue: 'Create event' })}
+          : t('events.create.title', { defaultValue: 'Create event' })}
       </Button>
     </div>
   );

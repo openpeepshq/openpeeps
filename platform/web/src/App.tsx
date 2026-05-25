@@ -458,17 +458,17 @@ function AppShell() {
                     {/* Groups */}
                     <Route path="/groups" element={<Groups.Index />} />
                     <Route path="/groups/new" element={<Groups.New />} />
-                    <Route path="/groups/@:handle" element={<Groups.Show />} />
+                    <Route path="/groups/:handle" element={<Groups.Show />} />
                     <Route
-                      path="/groups/@:handle/info"
+                      path="/groups/:handle/info"
                       element={<Groups.Info />}
                     />
                     <Route
-                      path="/groups/@:handle/edit"
+                      path="/groups/:handle/edit"
                       element={<Groups.Edit />}
                     />
                     <Route
-                      path="/groups/@:handle/members"
+                      path="/groups/:handle/members"
                       element={<Groups.Members />}
                     />
 
@@ -542,12 +542,12 @@ function AppShell() {
                       element={<Admin.Moderation />}
                     />
                     <Route
-                      path="/admin/moderation/reports/@:handle"
+                      path="/admin/moderation/reports/:handle"
                       element={<Admin.ModerationReports />}
                     />
                     <Route path="/admin/groups" element={<Admin.Groups />} />
                     <Route
-                      path="/admin/groups/@:handle/members"
+                      path="/admin/groups/:handle/members"
                       element={<Admin.GroupMembers />}
                     />
 

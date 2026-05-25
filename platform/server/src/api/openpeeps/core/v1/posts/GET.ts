@@ -12,15 +12,12 @@ export const Output = z.any().array();
 
 export const apiEndpoint = endpoint({ Query, Output }).handle(
   async (query, event: RequestEvent) => {
-    const currentProfile = await ensureProfileOrPublicCommunity(event);
+    await ensureProfileOrPublicCommunity(event);
 
-    const posts = await listPosts(
-      currentProfile,
-      {
-        start: query.start,
-        limit: query.limit,
-      },
-    );
+    const posts = await listPosts(event.context.authData, {
+      start: query.start,
+      limit: query.limit,
+    });
 
     return Output.parse(posts);
   },

@@ -17,7 +17,7 @@ export const Error = {
 export const apiEndpoint = endpoint({ Output, Query }).handle(
     async (query, event) => {
 
-        const profile = await ensureLocalProfile(event);
+        await ensureLocalProfile(event);
 
-        return searchProfiles(query.q, profile, offsetInfiniteQueryParamsSchema.parse(query));
+        return searchProfiles(query.q, event.context.authData, offsetInfiniteQueryParamsSchema.parse(query));
     })

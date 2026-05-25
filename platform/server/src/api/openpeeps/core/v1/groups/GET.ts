@@ -8,8 +8,8 @@ export const Output = groupWithMetaSchema.array();
 
 export const apiEndpoint = endpoint({ Output }).handle(
   async (_, event: RequestEvent) => {
-    const profile = await ensureProfileOrPublicCommunity(event);
+    await ensureProfileOrPublicCommunity(event);
 
-    return listGroups(profile);
+    return listGroups(event.context.authData);
   },
 );

@@ -19,5 +19,12 @@ export const Error = {
 };
 
 export const apiEndpoint = endpoint({ Param, Output, Error, Query }).handle(
-  async (params, event: RequestEvent) =>
-    listPostsByTag(await ensureProfileOrPublicCommunity(event), params.hashtag, Query.parse(params)));
+  async (params, event: RequestEvent) => {
+    await ensureProfileOrPublicCommunity(event);
+    return listPostsByTag(
+      event.context.authData,
+      params.hashtag,
+      Query.parse(params),
+    );
+  },
+);

@@ -11,6 +11,7 @@ export const Output = searchResultSchema(publicPostSchema);
 
 export const apiEndpoint = endpoint({ Output, Query }).handle(
     async (query, event) => {
-        const profile = await ensureLocalProfile(event);
-        return searchPosts(query.q, profile, offsetInfiniteQueryParamsSchema.parse(query));
+        await ensureLocalProfile(event);
+
+        return searchPosts(query.q, event.context.authData, offsetInfiniteQueryParamsSchema.parse(query));
     })

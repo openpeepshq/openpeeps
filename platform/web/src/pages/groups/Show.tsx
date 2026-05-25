@@ -1,20 +1,26 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useT, useOpenpeeps } from '@openpeeps/react';
 import {
   Feed,
   GroupFeed,
   GroupHeader,
+  NewEventButton,
   PostMarkdown,
+  useCurrentProfile,
 } from '@openpeeps/react/components';
+import { routeHandleParam } from '../../lib/routeHandles';
 
 export function GroupShow() {
   const t = useT();
-  const { handle = '' } = useParams<{ handle: string }>();
+  const navigate = useNavigate();
+  const { handle: handleParam = '' } = useParams<{ handle: string }>();
+  const handle = routeHandleParam(handleParam);
   const { openpeepsApi } = useOpenpeeps();
 
   const groupQuery = openpeepsApi.useGroupByHandle(handle);
   const group = groupQuery.data;
+  const currentProfile = useCurrentProfile();
   const [tab, setTab] = useState<'posts' | 'events' | 'description'>('posts');
 
   const upcomingEvents = openpeepsApi.useGroupUpcomingEventsFeed(group?.id ?? '');
@@ -79,6 +85,12 @@ export function GroupShow() {
 
       {tab === 'events' && (
         <div>
+          <NewEventButton
+            visibility="group"
+            currentProfile={currentProfile}
+            group={group}
+            onNavigate={() => navigate('/events/new')}
+          />
           <nav className="flex border-b border-border">
             <TabButton
               active={eventsTab === 'upcoming'}

@@ -12,7 +12,7 @@ export const Output = searchResultSchema(groupWithMetaSchema);
 export const apiEndpoint = endpoint({ Output, Query }).handle(
     async (query, event) => {
 
-        const profile = await ensureLocalProfile(event);
+        await ensureLocalProfile(event);
 
-        return searchGroups(query.q, profile, offsetInfiniteQueryParamsSchema.parse(query));
+        return searchGroups(query.q, event.context.authData, offsetInfiniteQueryParamsSchema.parse(query));
     })

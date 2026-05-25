@@ -2,10 +2,12 @@ import { useParams } from 'react-router-dom';
 import { groupName } from '@openpeeps/common/lib';
 import { useT, useOpenpeeps } from '@openpeeps/react';
 import { Avatar } from '@openpeeps/react/components';
+import { routeHandleParam } from '../../lib/routeHandles';
 
 export function AdminGroupMembers() {
   const t = useT();
-  const { handle = '' } = useParams<{ handle: string }>();
+  const { handle: handleParam = '' } = useParams<{ handle: string }>();
+  const handle = routeHandleParam(handleParam);
   const { openpeepsApi } = useOpenpeeps();
   const groupQuery = openpeepsApi.useGroupByHandle(handle);
   const membersQuery = openpeepsApi.useGroupMembers(

@@ -230,10 +230,15 @@ export const createGroupViaUi = async (
     await page.getByTestId(testIds.groups.rulesInput).fill(options.rules);
   }
 
-  if (options.moderatorsOnlyEvents) {
-    await page.getByTestId(testIds.groups.whoCanPostEventsModerators).check();
-  } else {
-    await page.getByTestId(testIds.groups.whoCanPostEventsMembers).check();
+  const whoCanPostEventsMembers = page.getByTestId(
+    testIds.groups.whoCanPostEventsMembers,
+  );
+  if (await whoCanPostEventsMembers.isVisible()) {
+    if (options.moderatorsOnlyEvents) {
+      await page.getByTestId(testIds.groups.whoCanPostEventsModerators).check();
+    } else {
+      await whoCanPostEventsMembers.check();
+    }
   }
 
   await page.getByTestId(testIds.groups.createSubmit).click();
@@ -249,12 +254,25 @@ export const createEventViaUi = async (
 ) => {
   const eventName = options.name ?? `New UI Event ${uniqueSuffix()}`;
 
-  await page.goto('/events/new');
+  const newEventButton = page.getByTestId(testIds.events.newEventButton);
+  if (await newEventButton.isVisible()) {
+    await newEventButton.click();
+  } else {
+    await page.goto('/events/new');
+  }
   await expect(page.getByTestId(testIds.events.formBasicDetails)).toBeVisible();
   await page.getByTestId(testIds.events.nameInput).fill(eventName);
   await page
     .getByTestId(testIds.events.descriptionInput)
     .fill(options.description ?? uiDescription);
+  const startInput = page.getByTestId(testIds.events.startInput);
+  const startValue = await startInput.inputValue();
+  if (!startValue) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setMinutes(tomorrow.getMinutes() - tomorrow.getTimezoneOffset());
+    await startInput.fill(tomorrow.toISOString().slice(0, 16));
+  }
   await expect(page.getByTestId(testIds.events.createSubmit)).toBeEnabled();
   await page.getByTestId(testIds.events.createSubmit).click();
   await expect(page).toHaveURL(/\/posts\/[^/]+$/);
@@ -271,9 +289,17 @@ export const createPostViaUi = async (page: Page, content?: string) => {
   await page.getByTestId(testIds.posts.composerContent).fill(postContent);
   const submitButton = page.getByTestId(testIds.posts.composerPublish);
   await expect(submitButton).toBeEnabled();
+  const createPost = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      /\/posts(\?|$)/.test(new URL(response.url()).pathname) &&
+      response.ok(),
+  );
   await submitButton.click();
-  await expect(page.getByText(postContent)).toBeVisible();
+  await createPost;
+  await expect(page.getByTestId(testIds.posts.composerContent)).not.toBeVisible();
   await page.reload();
+  await expect(page.getByTestId(testIds.feeds.communityHeading)).toBeVisible();
   await expect(page.getByText(postContent)).toBeVisible();
 
   return postContent;
@@ -286,8 +312,35 @@ export const assertExploreNoResults = async (page: Page) => {
 };
 
 export const assertExploreFindsPost = async (page: Page) => {
-  const content = `muffinsalt ${uniqueSuffix()}`;
+  const content = `muffinsalt${handleSuffix()}`;
   await createPostViaUi(page, content);
+
+  const token = await page.evaluate(
+    ([key]) => {
+      const raw = window.localStorage.getItem(key);
+      return raw ? (JSON.parse(raw) as { token?: string }).token : undefined;
+    },
+    [credentialsStorageKey],
+  );
+  expect(token).toBeTruthy();
+
+  await expect
+    .poll(
+      async () => {
+        const response = await page.request.get(
+          `/api/openpeeps/core/v1/search/posts?q=${encodeURIComponent(content)}&limit=15&offset=0`,
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        if (!response.ok()) return false;
+        const results = (await response.json()) as Array<{
+          data: { data: { content?: string } };
+        }>;
+        return results.some((item) => item.data.data.content?.includes(content));
+      },
+      { timeout: 45_000, intervals: [500, 1000, 2000] },
+    )
+    .toBe(true);
+
   await page.goto('/explore#posts');
   await page.getByTestId(testIds.explore.searchInput).fill(content);
   await page.keyboard.press('Enter');
@@ -325,6 +378,7 @@ export const updateBioViaUi = async (page: Page, bio?: string) => {
   await page.goto('/settings/public-profile');
   await page.getByTestId(testIds.settings.bioInput).fill(newBio);
   await page.getByTestId(testIds.settings.saveButton).click();
+  await expect(page.getByText(/profile has been updated/i)).toBeVisible();
   await page.reload();
   await expect(page.getByTestId(testIds.settings.bioInput)).toHaveValue(newBio);
 

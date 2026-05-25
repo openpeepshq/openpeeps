@@ -32,7 +32,14 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
       object.type = postData.type;
     }
 
-    if (!canCreatePost(profile, object.type, object.visibility, (groupId && await findGroup(groupId)) || undefined)) {
+    if (
+      !canCreatePost(
+        event.context.authData,
+        object.type,
+        object.visibility,
+        (groupId && (await findGroup(groupId))) || undefined,
+      )
+    ) {
       throw forbidden();
     }
 

@@ -14,5 +14,5 @@ export const apiEndpoint = endpoint({ Output, Query }).handle(async (query, even
 
     const profile = await ensureLocalProfile(event);
 
-    return searchResultCounts(query.q, profile);
+    return searchResultCounts(query.q, event.context.authData);
 })

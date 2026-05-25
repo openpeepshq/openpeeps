@@ -9,5 +9,6 @@ export const Query = offsetInfiniteQueryParamsSchema;
 
 export const apiEndpoint = endpoint({ Output, Query }).handle(
   async (params, event: RequestEvent) => {
-    return listMyUpcomingEventsFeed(await ensureLocalProfile(event), Query.parse(params));
+    await ensureLocalProfile(event);
+    return listMyUpcomingEventsFeed(event.context.authData, Query.parse(params));
   });

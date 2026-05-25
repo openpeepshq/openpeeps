@@ -193,10 +193,6 @@ const cases: UiCase[] = [
   },
   { name: 'Log in and Create a Group (Simple)', kind: 'createGroupSimple' },
   { name: 'Group Visibility Test', kind: 'groupVisibility' },
-  {
-    name: 'Search: A search with some results in posts (Copy)',
-    kind: 'searchPosts',
-  },
   { name: 'Search: A search with some results in posts', kind: 'searchPosts' },
   { name: 'Search: A search With No results ', kind: 'searchNoResults' },
   { name: 'New User Subscribes', kind: 'signup', auth: 'none' },

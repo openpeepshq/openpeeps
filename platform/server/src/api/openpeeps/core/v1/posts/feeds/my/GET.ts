@@ -17,5 +17,8 @@ export const Error = {
 };
 
 export const apiEndpoint = endpoint({ Output, Error, Query }).handle(
-  async (params, event: RequestEvent) => listMyFeed(await ensureLocalProfile(event), Query.parse(params))
+  async (params, event: RequestEvent) => {
+    await ensureLocalProfile(event);
+    return listMyFeed(event.context.authData, Query.parse(params));
+  }
 );

@@ -20,7 +20,7 @@ export const Error = {
 
 export const apiEndpoint = endpoint({ Output, Param, Query }).handle(
   async (params, event: RequestEvent) => {
-    const currentProfile = await ensureProfileOrPublicCommunity(event);
+    await ensureProfileOrPublicCommunity(event);
 
     const requestedProfile = await findProfile(params.profileId);
 
@@ -28,6 +28,10 @@ export const apiEndpoint = endpoint({ Output, Param, Query }).handle(
       throw notFound(`Profile with id ${params.profileId}`);
     }
 
-    return listPostsByProfile(currentProfile, requestedProfile, Query.parse(params));
+    return listPostsByProfile(
+      event.context.authData,
+      requestedProfile,
+      Query.parse(params),
+    );
   },
 );

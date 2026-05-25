@@ -187,6 +187,7 @@ export function EventForm({ postData, onChange, isEdit = false }: EventFormProps
               const start = toIso(e.target.value);
               if (start) patchEvent({ start });
             }}
+            data-testid="events-start-input"
           />
         </div>
 
