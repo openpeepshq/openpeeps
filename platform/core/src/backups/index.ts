@@ -36,12 +36,26 @@ const EXTRACT_TIMEOUT_MS = 30 * 60 * 1000;
  * Native `unzip` (Info-ZIP) extractor used on Linux containers. Node-based zip
  * libraries (`unarchive`, `extract-zip`) reliably wedge at ~1 GiB on linux/x64
  * with 0% CPU; the system `unzip` binary handles the same archives without issue.
+ *
+ * `-qq` silences per-file output so the OS pipe buffer (~64 KiB) can't fill
+ * and deadlock the child on `write()` for large archives. We still drain
+ * stderr and capture the tail for diagnostics if `unzip` exits non-zero.
  */
-const extractWithUnzipCli = (zipPath: string, tempDir: string): Promise<void> =>
-  new Promise((resolve, reject) => {
-    const proc = spawn('unzip', ['-o', zipPath, '-d', tempDir], {
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
+const extractWithUnzipCli = (
+  zipPath: string,
+  tempDir: string,
+): { promise: Promise<void>; kill: () => void } => {
+  const proc = spawn('unzip', ['-qq', '-o', zipPath, '-d', tempDir], {
+    stdio: ['ignore', 'ignore', 'pipe'],
+  });
+
+  let stderrTail = '';
+  proc.stderr?.setEncoding('utf8');
+  proc.stderr?.on('data', (chunk: string) => {
+    stderrTail = (stderrTail + chunk).slice(-4096);
+  });
+
+  const promise = new Promise<void>((resolve, reject) => {
     proc.on('error', (err: NodeJS.ErrnoException) => {
       reject(
         err.code === 'ENOENT'
@@ -54,13 +68,34 @@ const extractWithUnzipCli = (zipPath: string, tempDir: string): Promise<void> =>
         resolve();
         return;
       }
-      reject(new Error(`unzip exited with code ${code ?? 'null'}`));
+      const detail = stderrTail.trim();
+      reject(
+        new Error(
+          `unzip exited with code ${code ?? 'null'}${detail ? `: ${detail}` : ''}`,
+        ),
+      );
     });
   });
 
-const extractWithExtractZip = async (zipPath: string, tempDir: string) => {
-  await extract(zipPath, { dir: tempDir });
+  return {
+    promise,
+    kill: () => {
+      if (proc.exitCode === null && proc.signalCode === null) {
+        proc.kill('SIGKILL');
+      }
+    },
+  };
 };
+
+const extractWithExtractZip = (
+  zipPath: string,
+  tempDir: string,
+): { promise: Promise<void>; kill: () => void } => ({
+  promise: extract(zipPath, { dir: tempDir }),
+  kill: () => {
+    /* extract-zip has no cancel handle; rely on outer rejection. */
+  },
+});
 
 const extractZipArchive = (zipPath: string, tempDir: string) =>
   process.platform === 'linux'
@@ -104,12 +139,16 @@ const withTimeout = <T>(
   promise: Promise<T>,
   ms: number,
   message: string,
+  onTimeout?: () => void,
 ): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
   return Promise.race([
     promise,
     new Promise<T>((_, reject) => {
-      timeoutId = setTimeout(() => reject(new Error(message)), ms);
+      timeoutId = setTimeout(() => {
+        onTimeout?.();
+        reject(new Error(message));
+      }, ms);
     }),
   ]).finally(() => {
     if (timeoutId !== undefined) {
@@ -256,11 +295,13 @@ export const restoreBackups = async (zipFilePath: string) => {
   const zipPath = join(tmpdir(), zipFilePath);
   log.info(`Unpacking backup into ${tempDir} ...`);
 
+  const extraction = extractZipArchive(zipPath, tempDir);
   try {
     await withTimeout(
-      extractZipArchive(zipPath, tempDir),
+      extraction.promise,
       EXTRACT_TIMEOUT_MS,
       `Timed out unpacking backup ${zipFilePath} after ${EXTRACT_TIMEOUT_MS}ms (zip may be truncated or corrupt)`,
+      extraction.kill,
     );
   } catch (error) {
     log.error(`Failed to unpack backup ${zipFilePath}`, error);
