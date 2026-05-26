@@ -1538,7 +1538,8 @@
         "add": "Add",
         "cancel": "Cancel",
         "none": "None",
-        "remove": "Remove"
+        "remove": "Remove",
+        "thisDevice": "This device and browser"
     },
     "conversations": {
         "newMessage": "New Message",
@@ -1713,6 +1714,9 @@
                 "rsvp": {
                     "label": "RSVP",
                     "description": "Manage notifications for when someone rsvps to your event"
+                },
+                "mention": {
+                    "label": "Mentions"
                 }
             },
             "pushSettings": "Push Notifications",
@@ -1731,7 +1735,23 @@
                 "repostsSection": "Reposts"
             },
             "headerPreferencesTitle": "Notification Preferences",
-            "markAllReadSuccess": "Notifications cleared successfully"
+            "markAllReadSuccess": "Notifications cleared successfully",
+            "preferences": {
+                "title": "All Notifications Settings",
+                "description": "Configure in-app, push, and email notifications for groups, jams, messaging and other features."
+            },
+            "pushEnabledDevices": {
+                "title": "Push Notifications for Devices",
+                "description": "View the devices on which you've enabled push notifications.",
+                "noDevicesFound": "No devices are receiving push notifications from this profile. Go to notification settings to enable them.",
+                "delete": {
+                    "success": "Device removed",
+                    "description": "You will no longer receive notifications on this device and browser",
+                    "confirm": "OK",
+                    "cancel": "Cancel",
+                    "header": "Remove this device?"
+                }
+            }
         },
         "form": {
             "imageEditModal": {
@@ -1769,6 +1789,10 @@
             "languageDescription": "Select the language you want to use across the platform. This changes all interface text to your chosen language.",
             "default": "(Default)",
             "updateSuccess": "Language settings updated. The page will now reload."
+        },
+        "accessTokens": {
+            "title": "Access tokens",
+            "description": "Manage your API access tokens"
         }
     },
     "form": {
