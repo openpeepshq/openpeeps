@@ -9,13 +9,14 @@ import {
   readFile,
 } from 'node:fs/promises';
 import { constants, createReadStream, createWriteStream } from 'node:fs';
+import { spawn } from 'node:child_process';
 import { emptyDir } from 'fs-extra';
 import { createInterface } from 'node:readline';
 import { join, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { aql } from 'arangojs';
 import archiver from 'archiver';
-import { unarchive } from 'unarchive';
+import extract from 'extract-zip';
 import { allpeepDb, arangoDb } from '../db';
 import { communityConfig, config } from '../config';
 import { logger } from '../log';
@@ -28,8 +29,43 @@ import { replaceHostname } from '../db/replaceHostname';
 
 const log = logger('core:backups');
 
-/** compressing.zip can hang forever on truncated zips; fail restore instead of exiting 0. */
-const UNARCHIVE_TIMEOUT_MS = 30 * 60 * 1000;
+/** Safety net if extraction stalls (normal 1 GiB restore finishes in a few minutes). */
+const EXTRACT_TIMEOUT_MS = 30 * 60 * 1000;
+
+/**
+ * Native `unzip` (Info-ZIP) extractor used on Linux containers. Node-based zip
+ * libraries (`unarchive`, `extract-zip`) reliably wedge at ~1 GiB on linux/x64
+ * with 0% CPU; the system `unzip` binary handles the same archives without issue.
+ */
+const extractWithUnzipCli = (zipPath: string, tempDir: string): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const proc = spawn('unzip', ['-o', zipPath, '-d', tempDir], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    proc.on('error', (err: NodeJS.ErrnoException) => {
+      reject(
+        err.code === 'ENOENT'
+          ? new Error('unzip binary not found (install unzip in the container image)')
+          : err,
+      );
+    });
+    proc.on('close', (code) => {
+      if (code === 0 || code === 1) {
+        resolve();
+        return;
+      }
+      reject(new Error(`unzip exited with code ${code ?? 'null'}`));
+    });
+  });
+
+const extractWithExtractZip = async (zipPath: string, tempDir: string) => {
+  await extract(zipPath, { dir: tempDir });
+};
+
+const extractZipArchive = (zipPath: string, tempDir: string) =>
+  process.platform === 'linux'
+    ? extractWithUnzipCli(zipPath, tempDir)
+    : extractWithExtractZip(zipPath, tempDir);
 
 type BackupMetadata = {
   config?: {
@@ -219,11 +255,12 @@ export const restoreBackups = async (zipFilePath: string) => {
   const tempDir = await mkdtemp(join(tmpdir(), 'restore-'));
   const zipPath = join(tmpdir(), zipFilePath);
   log.info(`Unpacking backup into ${tempDir} ...`);
+
   try {
     await withTimeout(
-      unarchive(zipPath, tempDir),
-      UNARCHIVE_TIMEOUT_MS,
-      `Timed out unpacking backup ${zipFilePath} after ${UNARCHIVE_TIMEOUT_MS}ms (zip may be truncated or corrupt)`,
+      extractZipArchive(zipPath, tempDir),
+      EXTRACT_TIMEOUT_MS,
+      `Timed out unpacking backup ${zipFilePath} after ${EXTRACT_TIMEOUT_MS}ms (zip may be truncated or corrupt)`,
     );
   } catch (error) {
     log.error(`Failed to unpack backup ${zipFilePath}`, error);
