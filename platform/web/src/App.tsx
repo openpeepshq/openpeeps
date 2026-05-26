@@ -353,9 +353,8 @@ const MiscPages = {
 };
 
 function AppShell() {
-  const location = useLocation();
   return (
-    <OpenpeepsContextProvider pathname={location.pathname}>
+    <OpenpeepsContextProvider>
       <OpenpeepsThemeProvider>
         <pwa.PwaProvider enabled={import.meta.env.PROD}>
           <Routes>

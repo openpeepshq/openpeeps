@@ -2,7 +2,6 @@ import { useEffect, type ReactNode } from 'react';
 import {
   initializeNewPostStores,
   initializePageStores,
-  pageHeaderStore,
   usePageHeader,
 } from '../../stores';
 import { useServerInfo } from '../server-data';
@@ -34,8 +33,6 @@ function PostViewTracking({ children }: { children: ReactNode }) {
 
 export interface OpenpeepsContextProviderProps {
   children?: ReactNode;
-  /** Reset the page header on route changes. Pass the current pathname. */
-  pathname?: string;
 }
 
 /**
@@ -45,7 +42,6 @@ export interface OpenpeepsContextProviderProps {
  */
 export function OpenpeepsContextProvider({
   children,
-  pathname,
 }: OpenpeepsContextProviderProps) {
   const serverInfo = useServerInfo();
   const pageHeader = usePageHeader();
@@ -54,11 +50,6 @@ export function OpenpeepsContextProvider({
     initializeNewPostStores(!!serverInfo.publicContent);
     initializePageStores();
   }, [serverInfo.publicContent]);
-
-  // Match Svelte's `onNavigate` clearing of the page header
-  useEffect(() => {
-    pageHeaderStore.set({});
-  }, [pathname]);
 
   useEffect(() => {
     if (typeof document === 'undefined') return;
