@@ -9,7 +9,8 @@ RUN apk add --no-cache \
     dumb-init \
     ffmpeg \
     python3 \
-    git
+    git \
+    unzip
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
