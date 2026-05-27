@@ -1751,6 +1751,10 @@
                     "cancel": "Cancel",
                     "header": "Remove this device?"
                 }
+            },
+            "mention": {
+                "description": "Receive a notification when someone mentions you in a post",
+                "label": "Mentions"
             }
         },
         "form": {
@@ -2048,6 +2052,9 @@
         },
         "newGroupPost": {
             "text": "New post in {{groupName}}"
+        },
+        "mention": {
+            "text": "{{profileName}} mentioned you"
         }
     },
     "handle": {
@@ -2196,6 +2203,11 @@
         },
         "test": {
             "description": "If you're receiving this, it means your email configuration is working correctly!"
+        },
+        "mention": {
+            "subject": "{{profileName}} mentioned you in {{communityName}}",
+            "body": "{{profileName}} has mentioned you in their post on {{communityName}}.  Here's what they said: ",
+            "cta": "View Post"
         }
     },
     "media": {
