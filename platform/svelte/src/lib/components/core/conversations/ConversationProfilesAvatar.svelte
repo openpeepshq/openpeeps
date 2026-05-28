@@ -10,27 +10,21 @@
 
   let { profiles = [], avatarSize = 2.5 }: Props = $props();
 
-  let gridColumn = $state(
-    'grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);',
-  );
   const me = getCurrentProfile();
 
   const divider = $derived.by((): number => {
     const count = profiles?.length ?? 0;
 
     if (count <= 1) return 1;
-    if (count <= 4) {
-      gridColumn =
-        'grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);';
-      return 2;
-    }
-    if (count <= 9) {
-      gridColumn =
-        'grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);';
-      return 3;
-    }
+    if (count <= 4) return 2;
     return 3;
   });
+
+  const gridColumn = $derived(
+    divider === 2
+      ? 'grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);'
+      : 'grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);',
+  );
 </script>
 
 {#if profiles?.length! <= 2}
