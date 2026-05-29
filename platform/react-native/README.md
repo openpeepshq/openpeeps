@@ -10,7 +10,7 @@ Host applications must provide the same **peer dependencies** as a full communit
 pnpm add @openpeeps/react-native
 ```
 
-Wrap your app with **`OpenpeepsProvider`** from `@openpeeps/react` (and a credentials store + `baseUrl`) so `useOpenpeeps()` and theme code work.
+Wrap your app with **`OpenpeepsProvider`** from `@openpeeps/react-native` (and a credentials store + `baseUrl`) so `useOpenpeeps()` and theme code work. This re-exports the web provider from `@openpeeps/react` with React Native `AppState` foreground handling wired in — do not import `OpenpeepsProvider` from `@openpeeps/react` in native apps.
 
 Configure **NativeWind** / Tailwind in the app (including this package in Tailwind `content` if needed), load `src/global.css` from your entry, and supply **`react-native-config`** (or compatible env) for `BASE_URL` and related keys used by `~/lib/constants`.
 
