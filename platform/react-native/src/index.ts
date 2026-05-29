@@ -17,6 +17,7 @@ export * from './stores/useLocalPostStore';
 export * from './stores/useNewConversationStore';
 
 export { DrawerProvider, useDrawer } from './contexts/drawer-context';
+export { OpenpeepsProvider } from './contexts/openpeeps-provider';
 
 export { Navigation } from './components/navigation';
 export { Base } from './components/navigation/Base';

@@ -40,7 +40,17 @@ export const OpenpeepsProvider: React.FC<{
   credentialsStore: CredentialsStore;
   baseUrl: string;
   debug?: boolean;
-}> = ({ children, credentialsStore, baseUrl }) => {
+  /**
+   * Optional subscription to "app returned to foreground" events. Used in
+   * environments that lack `document.visibilitychange` (e.g. React Native).
+   * Must return an unsubscribe function.
+   *
+   * React Native consumers should import `OpenpeepsProvider` from
+   * `@openpeeps/react-native`, which wires this up against `AppState` so
+   * `@openpeeps/react` itself stays free of any `react-native` import.
+   */
+  subscribeToForeground?: (onForeground: () => void) => () => void;
+}> = ({ children, credentialsStore, baseUrl, subscribeToForeground }) => {
   const openpeepsClientOptionsProvider =
     useCallback(async (): Promise<OpenpeepsClientOptions> => {
       return {
@@ -155,28 +165,17 @@ export const OpenpeepsProvider: React.FC<{
       cleanups.push(() =>
         document.removeEventListener('visibilitychange', onVis),
       );
-    } else {
-      try {
-        // React Native — refresh when the app returns to the foreground.
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { AppState } =
-          require('react-native') as typeof import('react-native');
-        const subscription = AppState.addEventListener(
-          'change',
-          (state: string) => {
-            if (state === 'active') void refreshIfExpiringSoon();
-          },
-        );
-        cleanups.push(() => subscription.remove());
-      } catch {
-        /* not React Native */
-      }
+    } else if (subscribeToForeground) {
+      const unsubscribe = subscribeToForeground(() => {
+        void refreshIfExpiringSoon();
+      });
+      cleanups.push(unsubscribe);
     }
 
     return () => {
       for (const cleanup of cleanups) cleanup();
     };
-  }, [client, credentialsStore, queryClient]);
+  }, [client, credentialsStore, queryClient, subscribeToForeground]);
 
   return (
     <OpenpeepsContext.Provider
