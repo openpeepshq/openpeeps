@@ -17,6 +17,7 @@ import {
   Mention,
   Repost,
   Reaction,
+  Rsvp,
 } from './types';
 import { ThemedText } from '~/components/ui/themed-text';
 import { NewGroupPost } from './types/NewGroupPost';
@@ -42,6 +43,7 @@ const notificationComponentMap: Record<PublicNotification['type'], React.Compone
   mention: Mention,
   repost: Repost,
   reaction: Reaction,
+  rsvp: Rsvp,
 };
 
 export const NotificationComponent: React.FC<NotificationComponentProps> = ({
