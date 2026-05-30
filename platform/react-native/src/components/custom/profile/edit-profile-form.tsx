@@ -5,6 +5,7 @@ import { useOpenpeeps } from '@openpeeps/react';
 import { ThemedText } from '~/components/ui/themed-text';
 import { useForm } from 'react-hook-form';
 import {
+  getTheme,
   MediaAttachment,
   Profile,
   ProfileData,
@@ -20,6 +21,7 @@ import { CameraIcon, XIcon } from '~/components/icons';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Button } from '~/components/ui/button';
 import { useTranslation } from 'react-i18next';
+import { toAbsoluteMediaUrl } from '~/lib/media-url';
 
 type EditProfileFormProps = {
   handle: string;
@@ -156,6 +158,18 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
     [],
   );
 
+  const defaultProfileAvatarUri = toAbsoluteMediaUrl(
+    serverInfo ? getTheme(serverInfo.communityConfig).defaultProfileAvatar : undefined,
+  );
+  const headerUri =
+    isBackgroundChanged && newBackground
+      ? newBackground
+      : form.getValues('header');
+  const avatarUri =
+    isAvatarChanged && newAvatar
+      ? newAvatar
+      : form.getValues('avatar') || defaultProfileAvatarUri;
+
   return (
     <ThemedView style={{ flex: 1 }}>
       <KeyboardAwareScrollView
@@ -194,32 +208,24 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                       </Pressable>
                     </View>
                   )}
-                  <Image
-                    source={
-                      isBackgroundChanged && newBackground
-                        ? { uri: newBackground }
-                        : form.getValues('header')
-                          ? { uri: form.getValues('header') }
-                          : require('~/assets/images/profile-background-placeholder.png')
-                    }
-                    className="w-full h-full rounded-md object-bottom absolute top-0"
-                    resizeMode="cover"
-                  />
+                  {headerUri ? (
+                    <Image
+                      source={{ uri: headerUri }}
+                      className="w-full h-full rounded-md object-bottom absolute top-0"
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View className="w-full h-full rounded-md absolute top-0 bg-muted" />
+                  )}
                 </View>
                 <View className="z-10 absolute -bottom-10 mt-4 left-4">
                   <View className="w-full h-full relative">
                     <Avatar
                       alt={t('profile.header.avatarAlt')}
                       className=" size-28">
-                      <AvatarImage
-                        source={
-                          isAvatarChanged && newAvatar
-                            ? { uri: newAvatar }
-                            : form.getValues('avatar')
-                              ? { uri: form.getValues('avatar') }
-                              : require('~/assets/images/black-ambition-2025-hero.png')
-                        }
-                      />
+                      {avatarUri ? (
+                        <AvatarImage source={{ uri: avatarUri }} />
+                      ) : null}
                     </Avatar>
                   </View>
                   {isAvatarChanged ? (
