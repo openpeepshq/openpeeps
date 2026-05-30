@@ -19,11 +19,15 @@ const DevBanner = () =>
     </View>
   ) || null;
 
-const Logo = () => {
+const Logo = ({ uri }: { uri?: string }) => {
+  if (!uri) {
+    return null;
+  }
+
   return (
     <Image
-      source={require('~/assets/images/logo.webp')}
-      className="absolute z-10  top-16 left-2 max-w-fit w-[206px] h-[26px]"
+      source={{ uri }}
+      className="absolute z-10 top-16 left-2 max-w-fit w-[206px] h-[26px]"
       resizeMode="contain"
     />
   );
@@ -36,27 +40,40 @@ const AuthImage = ({ children }: { children?: React.ReactNode }) => {
     data: serverInfo,
     isLoading,
   } = openpeepsApi.useServerInfo();
-  const themedBackgroundUri = serverInfo
-    ? getTheme(serverInfo.communityConfig).backgroundAuth
+  const resolvedTheme = serverInfo
+    ? getTheme(serverInfo.communityConfig)
     : undefined;
   const authBackgroundUri =
-    themedBackgroundUri ||
+    resolvedTheme?.backgroundAuth ||
     serverInfo?.communityConfig?.theme?.backgroundAuth;
   const resolvedAuthBackgroundUri = toAbsoluteMediaUrl(authBackgroundUri);
+  const resolvedLogoUri = toAbsoluteMediaUrl(
+    resolvedTheme?.logoSmall ||
+    serverInfo?.communityConfig?.theme?.logoSmall,
+  );
 
-  return (
-    <ImageBackground
-      source={
-        resolvedAuthBackgroundUri && !isLoading
-          ? { uri: resolvedAuthBackgroundUri }
-          : require('~/assets/images/black-ambition-2025-hero.png')
-      }
-      className="w-full justify-end flex-1">
-      <Logo />
+  const content = (
+    <>
+      <Logo uri={resolvedLogoUri} />
       <DevBanner />
       {children}
-    </ImageBackground>
+    </>
+  );
 
+  if (resolvedAuthBackgroundUri && !isLoading) {
+    return (
+      <ImageBackground
+        source={{ uri: resolvedAuthBackgroundUri }}
+        className="w-full justify-end flex-1">
+        {content}
+      </ImageBackground>
+    );
+  }
+
+  return (
+    <View className="w-full justify-end flex-1 bg-background">
+      {content}
+    </View>
   );
 };
 

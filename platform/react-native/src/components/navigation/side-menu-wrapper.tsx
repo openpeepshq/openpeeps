@@ -8,6 +8,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { buildGoto } from './helpers';
 import { registerMessageHandler } from '~/lib/push-notifications';
 import type { GotoHandlerParams } from '~/types/goto';
+import { getTheme } from '@openpeeps/common';
+import { toAbsoluteMediaUrl } from '~/lib/media-url';
 
 export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
   const { openpeepsApi, currentProfile } = useOpenpeeps();
@@ -47,27 +49,41 @@ export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  return (
-    <ImageBackground
-      source={
-        serverInfo?.communityConfig.theme.background && !isLoading
-          ? {
-            uri: serverInfo?.communityConfig.theme.background,
-          }
-          : require('~/assets/images/black-ambition-2025-hero.png')
-      }
-      className="w-screen h-screen flex justify-center items-center">
-      <View className="max-w-[892px] bg-background flex flex-row h-full px-2">
-        <View>
-          <SideMenu
-            handleNavigation={handleNavigation}
-            onNotificationPress={onNotificationPress}
-            onProfilePress={onProfilePress}
-            handleNewPost={handleNewPost}
-          />
-        </View>
-        <View className="flex-grow flex-1">{children}</View>
+  const resolvedTheme = serverInfo
+    ? getTheme(serverInfo.communityConfig)
+    : undefined;
+  const backgroundUri =
+    resolvedTheme?.background ||
+    serverInfo?.communityConfig?.theme?.background;
+  const resolvedBackgroundUri = toAbsoluteMediaUrl(backgroundUri);
+
+  const content = (
+    <View className="max-w-[892px] bg-background flex flex-row h-full px-2">
+      <View>
+        <SideMenu
+          handleNavigation={handleNavigation}
+          onNotificationPress={onNotificationPress}
+          onProfilePress={onProfilePress}
+          handleNewPost={handleNewPost}
+        />
       </View>
-    </ImageBackground>
+      <View className="flex-grow flex-1">{children}</View>
+    </View>
+  );
+
+  if (resolvedBackgroundUri && !isLoading) {
+    return (
+      <ImageBackground
+        source={{ uri: resolvedBackgroundUri }}
+        className="w-screen h-screen flex justify-center items-center">
+        {content}
+      </ImageBackground>
+    );
+  }
+
+  return (
+    <View className="w-screen h-screen flex justify-center items-center bg-background">
+      {content}
+    </View>
   );
 };
