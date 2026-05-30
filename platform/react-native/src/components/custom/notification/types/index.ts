@@ -13,3 +13,4 @@ export {Reply} from './reply';
 export {Mention} from './mention';
 export {Repost} from './repost';
 export {Reaction} from './reaction';
+export {Rsvp} from './rsvp';
