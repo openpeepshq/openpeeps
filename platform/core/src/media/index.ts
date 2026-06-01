@@ -145,6 +145,30 @@ const getMediaDuration = (filePath: string): Promise<number> =>
     });
   });
 
+interface VideoStreamInfo {
+  width: number;
+  height: number;
+  duration: number;
+}
+
+const getVideoStreamInfo = (filePath: string): Promise<VideoStreamInfo> =>
+  new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(filePath, (err, metadata) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      const stream = metadata.streams.find((s) => s.codec_type === 'video');
+      const duration =
+        metadata.format.duration ?? (stream?.duration ? Number(stream.duration) : undefined);
+      if (!stream?.width || !stream?.height || !duration) {
+        reject(new Error('Could not determine video stream info'));
+        return;
+      }
+      resolve({ width: stream.width, height: stream.height, duration });
+    });
+  });
+
 const createAudioPreview = async (input: File): Promise<Blob> => {
   const arrayBuffer = await input.arrayBuffer();
 
@@ -181,56 +205,86 @@ const createAudioPreview = async (input: File): Promise<Blob> => {
   });
 };
 
+/**
+ * Build a still 3x3 WebP montage of the video. Nine frames are sampled
+ * evenly across the duration and tiled at the source aspect ratio so the
+ * final image's dimensions mirror the video. We emit a single still frame
+ * (not animated WebP) because RN/iOS' built-in image decoder doesn't render
+ * animated WebP without an extra native dep.
+ */
 const createVideoPreview = async (input: File): Promise<Blob> => {
   const arrayBuffer = await input.arrayBuffer();
-  // https://blog.logrocket.com/generating-video-previews-with-node-js-and-ffmpeg/
+
+  const extension = input.type.split('/')[1];
+  const tempInputPath = join(
+    tmpdir(),
+    `input-${randomString(16)}.${extension}`,
+  );
+  const tempOutputPath = join(tmpdir(), `preview-${randomString(16)}.webp`);
+
+  const cleanup = async () => {
+    fs.unlink(tempInputPath).catch(log.error);
+    fs.unlink(tempOutputPath).catch(log.error);
+  };
+
+  await fs.writeFile(tempInputPath, Buffer.from(arrayBuffer));
+
+  let info: VideoStreamInfo;
+  try {
+    info = await getVideoStreamInfo(tempInputPath);
+  } catch (e) {
+    await cleanup();
+    throw e;
+  }
+
+  const gridCols = 3;
+  const gridRows = 3;
+  const frameCount = gridCols * gridRows;
+
+  // Cell size derived from source aspect ratio; cap the total montage at
+  // `previewMaxWidth` so we don't generate huge thumbnails for 4K video.
+  // libwebp wants even dimensions for its yuv420 pipeline.
+  const targetWidth = Math.min(info.width, previewMaxWidth);
+  const cellWidth = Math.max(2, Math.floor(targetWidth / gridCols / 2) * 2);
+  const cellHeight = Math.max(
+    2,
+    Math.floor((cellWidth * info.height) / info.width / 2) * 2,
+  );
+
+  // Sample 9 evenly spaced frames across the full duration via the fps
+  // filter. setpts resets PTS so `tile` collects the frames in order.
+  const sampleRate = frameCount / Math.max(info.duration, 0.001);
 
   return new Promise((resolve, reject) => {
-    const extension = input.type.split('/')[1];
-    const tempInputPath = join(
-      tmpdir(),
-      `input-${randomString(16)}.${extension}`,
-    );
-    const tempOutputPath = join(tmpdir(), `preview-${randomString(16)}.webp`);
-
-    const cleanup = async () => {
-      fs.unlink(tempInputPath).catch(log.error);
-      fs.unlink(tempOutputPath).catch(log.error);
-    };
-    fs.writeFile(tempInputPath, Buffer.from(arrayBuffer)).then(() => {
-      ffmpeg(tempInputPath)
-        .fps(10)
-        .setStartTime('00:00:00')
-        .setDuration(5)
-        .size(`${previewMaxWidth}x?`)
-        .noAudio()
-        .outputOptions([
-          '-lossless 0',
-          '-compression_level 3',
-          '-q:v 80',
-          '-loop 0',
-          '-preset picture',
-          '-metadata:s:v:0 alpha_mode="1"', // Preserve alpha channel if present
-        ])
-        .output(tempOutputPath)
-        .on('end', async () => {
-          try {
-            const buffer = await fs.readFile(tempOutputPath);
-            await cleanup();
-            if (!buffer.length) {
-              throw new Error('Generated video preview is empty');
-            }
-            resolve(new Blob([buffer as Buffer<ArrayBuffer>], { type: input.type }));
-          } catch (error: any) {
-            reject(new Error(`Error handling output file: ${error.message}`));
-          }
-        })
-        .on('error', async (error) => {
+    ffmpeg(tempInputPath)
+      .noAudio()
+      .videoFilters([
+        `fps=${sampleRate}`,
+        `scale=${cellWidth}:${cellHeight}:force_original_aspect_ratio=decrease`,
+        `pad=${cellWidth}:${cellHeight}:(ow-iw)/2:(oh-ih)/2:color=black`,
+        `setpts=N/TB`,
+        `tile=${gridCols}x${gridRows}`,
+      ])
+      .frames(1)
+      .outputOptions(['-c:v libwebp', '-lossless 0', '-q:v 80'])
+      .output(tempOutputPath)
+      .on('end', async () => {
+        try {
+          const buffer = await fs.readFile(tempOutputPath);
           await cleanup();
-          reject(new Error(`FFmpeg error: ${error.message}`));
-        })
-        .run();
-    });
+          if (!buffer.length) {
+            throw new Error('Generated video preview is empty');
+          }
+          resolve(new Blob([buffer as Buffer<ArrayBuffer>], { type: 'image/webp' }));
+        } catch (error: any) {
+          reject(new Error(`Error handling output file: ${error.message}`));
+        }
+      })
+      .on('error', async (error) => {
+        await cleanup();
+        reject(new Error(`FFmpeg error: ${error.message}`));
+      })
+      .run();
   });
 };
 
