@@ -1,11 +1,10 @@
 import React, {useCallback, useRef, useState} from 'react';
 import {View, ScrollView, TouchableOpacity} from 'react-native';
-import {XIcon} from '~/components/icons';
+import {PlayIcon, VideoIcon, XIcon} from '~/components/icons';
 import {ThemedText} from '~/components/ui/themed-text';
 import {AltSheet} from '../../modals/media/alt-text-sheet';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {MediaAttachmentData} from '@openpeeps/common';
-import {CachedVideoPlayer} from '../../common/cached-video-player';
 import {CachedImage} from '../../common/cached-image';
 import {DocumentAttachment} from '../pieces/DocumentAttachment';
 import {GalleryAudio} from '../pieces/gallery/GalleryAudio';
@@ -73,8 +72,25 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
             key={index}
             className="relative items-center justify-center w-screen md:size-96">
             {attachment.type === 'video' ? (
-              <View className="overflow-hidden rounded-lg">
-                <CachedVideoPlayer url={attachment.url} />
+              <View className="overflow-hidden rounded-lg w-full aspect-square md:size-96 bg-muted">
+                {attachment.previewUrl ? (
+                  <CachedImage
+                    url={attachment.previewUrl}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View className="w-full h-full items-center justify-center">
+                    <VideoIcon size={48} className="text-muted-foreground" />
+                  </View>
+                )}
+                <View
+                  pointerEvents="none"
+                  className="absolute inset-0 items-center justify-center">
+                  <View className="w-14 h-14 rounded-full bg-black/60 items-center justify-center">
+                    <PlayIcon size={24} className="text-white" />
+                  </View>
+                </View>
               </View>
             ) : attachment.type === 'audio' ? (
               <GalleryAudio
