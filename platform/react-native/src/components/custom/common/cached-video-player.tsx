@@ -13,6 +13,9 @@ import Video, {
   OnProgressData,
 } from 'react-native-video';
 import { useNavigation } from '@react-navigation/native';
+import { useOpenpeeps, vodMasterPlaylistUrl } from '@openpeeps/react';
+import type { MediaStream } from '@openpeeps/common';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowLeftIcon,
   Volume2Icon,
@@ -20,22 +23,41 @@ import {
   PlayIcon,
   PauseIcon,
   Repeat2Icon,
+  InfoIcon,
 } from '~/components/icons';
 import { fetchCachedMedia } from '~/utils/media-cache';
+import {
+  getServerOrigin,
+  isLocalMediaUrl,
+  toAbsoluteMediaUrl,
+} from '~/lib/media-url';
 import { Button } from '~/components/ui/button';
+
 interface CachedVideoPlayerProps {
   url: string;
   title?: string;
 }
 
+const HLS_POLL_INTERVAL_MS = 5_000;
+
+type LocalStreamState = 'loading' | 'processing' | 'ready' | 'error';
+
 export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
   url,
 }) => {
   const navigation = useNavigation();
+  const { t: tr } = useTranslation();
+  const { openpeepsApi } = useOpenpeeps();
+  const createVodStream = openpeepsApi.createVodStreamAction();
+  const getVodStreamStatus = openpeepsApi.getVodStreamStatusAction();
+
   const videoRef = useRef<VideoRef>(null);
   const [videoPath, setVideoPath] = useState<string | null>(null);
+  const [isHls, setIsHls] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
+  const [localStreamState, setLocalStreamState] =
+    useState<LocalStreamState>('loading');
   const [isPaused, setIsPaused] = useState<boolean>(true);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
@@ -59,33 +81,134 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
   };
 
   useEffect(() => {
-    const loadVideo = async () => {
-      setLoading(true);
-      setIsPaused(true);
-      try {
-        const cachedPath = await fetchCachedMedia(url, 'video', progress => {
-          setDownloadProgress(progress);
-        });
-        if (cachedPath) { setVideoPath(cachedPath); }
-      } catch (err) {
-        console.error('Error loading cached video:', err);
-        setVideoPath(url);
-      } finally {
-        setLoading(false);
-      }
-    };
+    let disposed = false;
+    let pollTimer: ReturnType<typeof setTimeout> | undefined;
 
-    if (url) {
-      loadVideo();
-    }
-
-    return () => {
+    const reset = () => {
       setVideoPath(null);
+      setIsHls(false);
       setLoading(true);
       setDownloadProgress(0);
       setIsPaused(true);
       setHasEnded(false);
+      setLocalStreamState('loading');
     };
+
+    /**
+     * Federated/remote-origin path — keep the legacy "download then play"
+     * behaviour. HLS transcoding only exists for content this server hosts.
+     */
+    const playFederated = async () => {
+      try {
+        const cachedPath = await fetchCachedMedia(url, 'video', progress => {
+          if (!disposed) setDownloadProgress(progress);
+        });
+        if (disposed) return;
+        if (cachedPath) {
+          setVideoPath(cachedPath);
+        } else {
+          setVideoPath(toAbsoluteMediaUrl(url) ?? url);
+        }
+      } catch (err) {
+        console.error('Error loading cached video:', err);
+        if (!disposed) setVideoPath(toAbsoluteMediaUrl(url) ?? url);
+      } finally {
+        if (!disposed) setLoading(false);
+      }
+    };
+
+    /**
+     * Local-origin path — request an HLS VOD stream and stream it directly
+     * via react-native-video. Mirrors svelte's VideoPlayer flow: kick off
+     * the transcode, then poll status until ready (or error).
+     */
+    const playLocalHls = async () => {
+      const origin = getServerOrigin();
+      if (!origin) {
+        // No origin configured — can't build a playlist URL, fall back.
+        await playFederated();
+        return;
+      }
+
+      const applyStream = (stream: MediaStream): boolean => {
+        if (stream.status === 'ready') {
+          setVideoPath(vodMasterPlaylistUrl(stream.storageId, origin));
+          setIsHls(true);
+          setLocalStreamState('ready');
+          setLoading(false);
+          return true;
+        }
+        if (stream.status === 'error') {
+          setLocalStreamState('error');
+          setLoading(false);
+          return true;
+        }
+        setLocalStreamState('processing');
+        return false;
+      };
+
+      const startPolling = (storageId: string) => {
+        const tick = async () => {
+          if (disposed) return;
+          try {
+            const status = await getVodStreamStatus({ storageId });
+            if (disposed) return;
+            if (applyStream(status)) {
+              pollTimer = undefined;
+              return;
+            }
+          } catch {
+            // Transient blip — keep polling.
+          }
+          pollTimer = setTimeout(tick, HLS_POLL_INTERVAL_MS);
+        };
+        pollTimer = setTimeout(tick, HLS_POLL_INTERVAL_MS);
+      };
+
+      try {
+        const absolute = toAbsoluteMediaUrl(url) ?? url;
+        const stream = await createVodStream({ url: absolute });
+        if (disposed) return;
+        if (!applyStream(stream)) {
+          startPolling(stream.storageId);
+        }
+      } catch (e) {
+        console.debug('VOD streaming failed for local content', e);
+        if (disposed) return;
+        // Fall back to direct playback so the user still gets to see the
+        // video — albeit without on-the-fly transcoding.
+        await playFederated();
+      }
+    };
+
+    if (url) {
+      reset();
+      if (isLocalMediaUrl(url)) {
+        playLocalHls();
+      } else {
+        playFederated();
+      }
+    }
+
+    return () => {
+      disposed = true;
+      if (pollTimer) {
+        clearTimeout(pollTimer);
+        pollTimer = undefined;
+      }
+      setVideoPath(null);
+      setIsHls(false);
+      setLoading(true);
+      setDownloadProgress(0);
+      setIsPaused(true);
+      setHasEnded(false);
+      setLocalStreamState('loading');
+    };
+    // `createVodStream` / `getVodStreamStatus` are mutation closures from the
+    // openpeeps api; identity is stable for the life of the provider so we
+    // intentionally depend only on `url` to avoid restarting the flow on
+    // every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
   const togglePlayPause = () => {
@@ -142,15 +265,28 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
 
   const toggleViewRotation = () => {
     setIsViewRotated(prev => !prev);
-    console.log('new new', (windowWidth - windowHeight) / 2);
   };
 
   if (loading) {
+    const isProcessing = localStreamState === 'processing';
     return (
       <View className="flex-1 justify-center items-center bg-black">
         <ActivityIndicator size="small" color="white" />
         <Text className="text-white mt-2">
-          Loading video... {downloadProgress.toFixed(0)}%
+          {isProcessing
+            ? tr('posts.gallery.videoProcessing')
+            : `Loading video... ${downloadProgress.toFixed(0)}%`}
+        </Text>
+      </View>
+    );
+  }
+
+  if (localStreamState === 'error') {
+    return (
+      <View className="flex-1 justify-center items-center bg-black px-6">
+        <InfoIcon className="text-white" size={32} />
+        <Text className="text-white mt-2 text-center">
+          {tr('posts.gallery.videoError')}
         </Text>
       </View>
     );
@@ -182,7 +318,8 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
           ref={videoRef}
           source={{
             uri: videoPath,
-            bufferConfig: _bufferConfig,  
+            ...(isHls ? { type: 'm3u8' } : {}),
+            bufferConfig: _bufferConfig,
           }}
           style={{ width: '100%', height: '100%' }}
           resizeMode="contain"
@@ -190,8 +327,12 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
           paused={isPaused}
           muted={isMuted}
           onError={() => {
-            if (videoPath?.startsWith('file://')) {
-              setVideoPath(url);
+            // For local files that fail (e.g. moved/deleted between cache
+            // writes), retry against the absolute URL. HLS playlists go
+            // directly through react-native-video's network stack so a fall
+            // back to source URL is rarely useful — leave it as-is.
+            if (!isHls && videoPath?.startsWith('file://')) {
+              setVideoPath(toAbsoluteMediaUrl(url) ?? url);
             }
           }}
           onLoad={onLoad}

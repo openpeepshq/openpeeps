@@ -1359,8 +1359,8 @@ importers:
         specifier: ^2.0.3
         version: 2.0.4
       react-native-video:
-        specifier: ^6.19.1
-        version: 6.19.1(react-native@0.85.2(@babel/core@7.26.7)(@react-native-community/cli@20.1.3(typescript@5.8.3))(@react-native/jest-preset@0.85.2(@babel/core@7.26.7)(react@19.2.3))(@react-native/metro-config@0.85.2(@babel/core@7.26.7))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
+        specifier: ^6.19.2
+        version: 6.19.2(react-native@0.85.2(@babel/core@7.26.7)(@react-native-community/cli@20.1.3(typescript@5.8.3))(@react-native/jest-preset@0.85.2(@babel/core@7.26.7)(react@19.2.3))(@react-native/metro-config@0.85.2(@babel/core@7.26.7))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
       react-native-voip-push-notification:
         specifier: ^3.3.2
         version: 3.3.3(react-native@0.85.2(@babel/core@7.26.7)(@react-native-community/cli@20.1.3(typescript@5.8.3))(@react-native/jest-preset@0.85.2(@babel/core@7.26.7)(react@19.2.3))(@react-native/metro-config@0.85.2(@babel/core@7.26.7))(@types/react@19.2.14)(react@19.2.3))
@@ -14190,8 +14190,8 @@ packages:
     resolution: {integrity: sha512-LSJNeh559qC17fgVPBsWuTSW/OygFp2dwTcf94IQBLYft5FzIQS9pCsuT36OPvyvDOMb6yiGr6TafaJDnz9PPQ==}
     engines: {node: '>=18.0.0', npm: '>=9.0.0'}
 
-  react-native-video@6.19.1:
-    resolution: {integrity: sha512-Tbiyt0JMirVHc4XzGIANjs3SaNjFXQO2qe+buvY7xMJjlyCekkDjJqD9YtlaEloJD2PGWhoPytEXB6gVT7T6lw==}
+  react-native-video@6.19.2:
+    resolution: {integrity: sha512-gh5dBMGSHywKr8+p4azRXrFQgT+QTmS1tI4sz6kVRjSENORfsrGGLQzmyo/7S9m+ZOTLWQJ3h8ONaXxR4F2Fcw==}
     peerDependencies:
       react: '*'
       react-native: '*'
@@ -31852,7 +31852,7 @@ snapshots:
 
   react-native-uuid@2.0.4: {}
 
-  react-native-video@6.19.1(react-native@0.85.2(@babel/core@7.26.7)(@react-native-community/cli@20.1.3(typescript@5.8.3))(@react-native/jest-preset@0.85.2(@babel/core@7.26.7)(react@19.2.3))(@react-native/metro-config@0.85.2(@babel/core@7.26.7))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3):
+  react-native-video@6.19.2(react-native@0.85.2(@babel/core@7.26.7)(@react-native-community/cli@20.1.3(typescript@5.8.3))(@react-native/jest-preset@0.85.2(@babel/core@7.26.7)(react@19.2.3))(@react-native/metro-config@0.85.2(@babel/core@7.26.7))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3):
     dependencies:
       react: 19.2.3
       react-native: 0.85.2(@babel/core@7.26.7)(@react-native-community/cli@20.1.3(typescript@5.8.3))(@react-native/jest-preset@0.85.2(@babel/core@7.26.7)(react@19.2.3))(@react-native/metro-config@0.85.2(@babel/core@7.26.7))(@types/react@19.2.14)(react@19.2.3)

@@ -21,6 +21,8 @@ export const NotificationFeed = ({
   isNotificationFeed = true,
 }: Props) => {
   const [refreshing, setRefreshing] = React.useState(false);
+  const refetchRef = React.useRef(query.refetch);
+  refetchRef.current = query.refetch;
 
   const allNotifications = React.useMemo(() => {
     if (!query.data?.pages) { return []; }
@@ -29,16 +31,16 @@ export const NotificationFeed = ({
 
   useFocusEffect(
     React.useCallback(() => {
-      query.refetch();
-    }, [query]),
+      refetchRef.current();
+    }, []),
   );
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    await query.refetch();
+    await refetchRef.current();
 
     setRefreshing(false);
-  }, [query]);
+  }, []);
 
   const content = (
     <>
