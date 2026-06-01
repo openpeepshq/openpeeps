@@ -1,4 +1,13 @@
+import { vars } from 'nativewind';
 import { mapColors } from './defaults';
+import type { OpenPeepsTheme } from './types';
+
+export const getThemeVars = (colors: OpenPeepsTheme['colors']) =>
+  vars(
+    Object.fromEntries(
+      Object.entries(colors).map(([key, value]) => [`--${key}`, value]),
+    ),
+  );
 
 export const buildTheme = (
     isDark: boolean,

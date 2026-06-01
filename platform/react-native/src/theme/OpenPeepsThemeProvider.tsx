@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import { View, useColorScheme as useRNColorScheme } from 'react-native';
-import { vars } from 'nativewind';
+import { colorScheme } from 'nativewind';
 import { useOpenpeeps } from '@openpeeps/react';
 import { OpenPeepsTheme } from './types';
 import { defaultTheme } from './defaults';
-import { buildTheme } from './utils';
+import { buildTheme, getThemeVars } from './utils';
 import { CommunityConfig, getTheme } from '@openpeeps/common';
 
 const OpenPeepsThemeContext = createContext<OpenPeepsTheme>(defaultTheme);
@@ -31,14 +31,16 @@ export const OpenPeepsThemeProvider = ({ children }: { children: React.ReactNode
     return buildTheme(userTheme.dark, userTheme.primaryHex, () => { profileSettingsQuery.refetch() });
   }, [profileSettings?.theme, serverInfo?.communityConfig, systemColorScheme]);
 
-  const themeVars = useMemo(() =>
-    vars(
-      Object.fromEntries(
-        Object.entries(theme.colors).map(
-          ([key, value]) => [`--${key}`, value]
-        ))),
-    [theme]
-  );
+  const themeVars = useMemo(() => getThemeVars(theme.colors), [theme.colors]);
+
+  useEffect(() => {
+    const preference = profileSettings?.theme;
+    if (preference === 'system' || !preference) {
+      colorScheme.set('system');
+    } else {
+      colorScheme.set(theme.isDark ? 'dark' : 'light');
+    }
+  }, [profileSettings?.theme, theme.isDark]);
 
   return (
     <OpenPeepsThemeContext.Provider

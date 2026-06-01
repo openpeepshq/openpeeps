@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
 import {
   BottomSheetModal,
@@ -8,6 +8,7 @@ import {
 import { SheetBackdrop } from './sheet-backdrop';
 import { useWindowSize } from '~/hooks';
 import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
+import { getThemeVars } from '~/theme/utils';
 
 interface BaseSheetProps {
   children: React.ReactNode;
@@ -35,6 +36,7 @@ export const BaseSheet = forwardRef<BottomSheetModal, BaseSheetProps>(
     const [keyboardVisible, setKeyboardVisible] = useState(false);
 
     const { colors } = useOpenPeepsTheme();
+    const themeVars = useMemo(() => getThemeVars(colors), [colors]);
     const ContentComponent = scrollable
       ? BottomSheetScrollView
       : BottomSheetView;
@@ -73,7 +75,7 @@ export const BaseSheet = forwardRef<BottomSheetModal, BaseSheetProps>(
         backgroundStyle={{
           backgroundColor: colors.background,
         }}>
-        <ContentComponent style={{ flex: 1 }}>
+        <ContentComponent style={[{ flex: 1 }, themeVars]}>
           <KeyboardAvoidingView
             className={keyboardVisible ? 'h-[70vh]' : ''}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
