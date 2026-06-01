@@ -3,12 +3,13 @@ import { View, Platform } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ThemedText } from '~/components/ui/themed-text';
 import { BaseSheet } from '../common';
-import { Calendar } from 'react-native-calendars';
+import { Calendar } from '~/components/ui/calendar';
 import DateTimePicker, {
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import { Button } from '~/components/ui/button';
 import { useTranslation } from 'react-i18next';
+import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
 
 interface DateSheetProps {
   value?: string;
@@ -24,6 +25,8 @@ export const DateSheet = forwardRef<BottomSheetModal, DateSheetProps>(
     const [mode, setMode] = useState<'date' | 'time'>('date');
     const [showTimePicker, setShowTimePicker] = useState(false);
     const { t } = useTranslation();
+    const { isDark, colors } = useOpenPeepsTheme();
+    const pickerThemeVariant = isDark ? 'dark' : 'light';
 
     const handleTimeSelect = (event: DateTimePickerEvent, time?: Date) => {
       setShowTimePicker(false);
@@ -70,6 +73,8 @@ export const DateSheet = forwardRef<BottomSheetModal, DateSheetProps>(
             is24Hour={true}
             onChange={handleTimeSelect}
             display="default"
+            themeVariant={pickerThemeVariant}
+            textColor={colors.foreground}
           />
         )}
       </>
@@ -88,6 +93,8 @@ export const DateSheet = forwardRef<BottomSheetModal, DateSheetProps>(
           }}
           display="spinner"
           style={{ height: 250 }}
+          themeVariant={pickerThemeVariant}
+          textColor={colors.foreground}
         />
         <View className="flex-row gap-4 mt-4">
           <Button
