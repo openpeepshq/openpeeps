@@ -78,19 +78,17 @@
   });
 </script>
 
-<div class="h-screen w-full overflow-hidden md:flex md:h-full">
-  <div class="flex-1">
+<div class="flex h-dvh w-full overflow-hidden md:h-full">
+  <div class="hidden min-h-0 flex-1 md:block">
     <img
       src={backgroundAuth}
       alt="Authentication background"
-      class="hidden h-full w-full object-cover md:block"
+      class="h-full w-full object-cover"
     />
   </div>
 
-  <div
-    class="flex-start bg-surface-50 flex h-full w-full flex-1 justify-center overflow-y-auto md:h-auto"
-  >
-    <div class="mx-auto h-fit space-y-4 p-4 md:mx-10 md:w-[60%]">
+  <div class="bg-surface-50 min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
+    <div class="mx-auto w-full space-y-4 p-4 pb-8 md:mx-10 md:w-[60%]">
       <img src={logoSmall} alt="logo" class="mb-6 h-6 md:h-10" />
       {#if description}{@render description()}{:else}
         <p class="text-sm md:text-lg">
