@@ -1,7 +1,24 @@
 import { PollChoiceForm } from '../types';
 import Toast from 'react-native-toast-message';
-import { dateSorter, PublicPost, PostCreationData, Thread } from '@openpeeps/common';
+import {
+  dateSorter,
+  MediaAttachmentData,
+  PostCreationData,
+  PublicPost,
+  Thread,
+} from '@openpeeps/common';
 import { uploadMedia } from './uploadMedia';
+
+/** True if the attachment is still being processed server-side. */
+export const isAttachmentProcessing = (
+  attachment: MediaAttachmentData,
+): boolean => attachment.status === 'processing';
+
+/** True if at least one of `postData.data.attachments` is still processing. */
+export const hasProcessingAttachments = (
+  postData: PostCreationData | undefined,
+): boolean =>
+  (postData?.data?.attachments ?? []).some(isAttachmentProcessing);
 
 export const handleMediaUpload = async (
   selectedMedia: { uri: string; type: 'video' | 'image'; alt?: string }[],

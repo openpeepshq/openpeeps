@@ -36,7 +36,7 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import Footer from '~/components/custom/post/post-form/Footer';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {toArticle, toNote, toQuestion} from '~/lib/post';
+import {hasProcessingAttachments, toArticle, toNote, toQuestion} from '~/lib/post';
 import {FeedPost} from '~/components/custom/post/feed/chronological/FeedPost';
 
 type PostProps = MainScreenProps<'ReplyPost'>;
@@ -58,6 +58,7 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
   }, []);
 
   const postData = useLocalPostStore(state => state.replyData[id]);
+  const attachmentsProcessing = hasProcessingAttachments(postData);
   const setReplyData = useLocalPostStore(state => state.setReplyData);
   const setPostData = useCallback(
     (data: PostCreationData) => setReplyData(id, data),
@@ -284,10 +285,14 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
         <GenericHeader
           rightType="button"
           rightButtonTitle={
-            isPosting ? t('posts.create.loading') : t('posts.create.submit')
+            isPosting
+              ? t('posts.create.loading')
+              : attachmentsProcessing
+                ? t('posts.create.processing', 'Processing…')
+                : t('posts.create.submit')
           }
           onRightButtonPress={handlePostCreation}
-          rightButtonDisabled={isPosting}
+          rightButtonDisabled={isPosting || attachmentsProcessing}
         />
         {isPostLoading ? (
           <ActivityIndicator />

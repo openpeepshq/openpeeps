@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Footer from '~/components/custom/post/post-form/Footer';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { toArticle, toNote, toQuestion } from '~/lib/post';
+import { hasProcessingAttachments, toArticle, toNote, toQuestion } from '~/lib/post';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -51,6 +51,7 @@ export const NewPost = ({ route, navigation }: PostProps) => {
   const [isPosting, setIsPosting] = useState(false);
 
   const postData = useLocalPostStore(state => state.postData);
+  const attachmentsProcessing = hasProcessingAttachments(postData);
   const setPostData = useLocalPostStore(state => state.setPostData);
   const resetPostData = useLocalPostStore(state => state.resetPostData);
 
@@ -304,7 +305,11 @@ export const NewPost = ({ route, navigation }: PostProps) => {
         }
         rightType="button"
         rightButtonTitle={
-          isPosting ? t('posts.create.loading') : t('posts.create.submit')
+          isPosting
+            ? t('posts.create.loading')
+            : attachmentsProcessing
+              ? t('posts.create.processing', 'Processing…')
+              : t('posts.create.submit')
         }
         handleGoBack={() => {
           if (route.params?.triggeredFrom === 'group') {
@@ -316,7 +321,7 @@ export const NewPost = ({ route, navigation }: PostProps) => {
             navigation.goBack();
           }
         }}
-        rightButtonDisabled={isPosting}
+        rightButtonDisabled={isPosting || attachmentsProcessing}
         onRightButtonPress={handlePostCreation}
       />
       <KeyboardAwareScrollView className="flex-1">

@@ -4,6 +4,8 @@
  * Host apps must configure NativeWind, `react-native-config`, i18n, and the same peer native modules.
  */
 
+import './lib/polyfills/customEvent';
+
 export * from './screens';
 
 export * from './components/custom';

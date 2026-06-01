@@ -10,6 +10,7 @@ import {PostCreationData, postCreationDataSchema} from '@openpeeps/common';
 import {ActivityIndicator} from 'react-native';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
+import {hasProcessingAttachments} from '~/lib/post';
 
 type PostProps = MainScreenProps<'EditPost'>;
 
@@ -39,6 +40,7 @@ export const EditPost = ({route, navigation}: PostProps) => {
   const updatePost = openpeepsApi.updatePostAction({id: id});
 
   const [isPosting, setIsPosting] = useState(false);
+  const attachmentsProcessing = hasProcessingAttachments(postData);
 
   const handlePostUpdate = async () => {
     if (!postData || !post?.data) {
@@ -81,10 +83,14 @@ export const EditPost = ({route, navigation}: PostProps) => {
             title={t('posts.edit.title')}
             rightType="button"
             rightButtonTitle={
-              isPosting ? t('posts.edit.loading') : t('posts.edit.submit')
+              isPosting
+                ? t('posts.edit.loading')
+                : attachmentsProcessing
+                  ? t('posts.create.processing', 'Processing…')
+                  : t('posts.edit.submit')
             }
             onRightButtonPress={handlePostUpdate}
-            rightButtonDisabled={isPosting}
+            rightButtonDisabled={isPosting || attachmentsProcessing}
           />
           {postData && (
             <>

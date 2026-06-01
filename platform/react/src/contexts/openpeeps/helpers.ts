@@ -29,15 +29,6 @@ import {
 import { useContext, useEffect, useState } from 'react';
 import { useCredentialsStore } from '../credentialsStore';
 
-const authHeaders = async () => {
-  const { token } = (await useCredentialsStore().credentialsStore.get()) ?? {};
-  return token
-    ? {
-      Authorization: `Bearer ${token}`,
-    }
-    : undefined;
-};
-
 const throwError =
   <O>(callbacks?: {
     onSuccess?: (o: O) => void | Promise<void>;
@@ -390,25 +381,53 @@ export const noPayloadStream = <
       'handler'
     >
   ) => {
+    const { credentialsStore } = useCredentialsStore();
     const [state, setState] = useState<EventType>();
-
-    const sourcePromise = authHeaders().then(authHeaders =>
-      typedEventSource({
-        ...options,
-        headers: {
-          ...(options.headers || {}),
-          ...authHeaders,
-        },
-        handler: (e: EventType) => setState(e),
-      })
-    );
-    sourcePromise.then(source => source.stream());
+    const pathKey = JSON.stringify(options.pathParameters ?? null);
+    const queryKey = JSON.stringify(options.queryParameters ?? null);
+    const headerKey = JSON.stringify(options.headers ?? null);
 
     useEffect(() => {
+      const params = options.pathParameters as
+        | Record<string, string | undefined>
+        | undefined;
+      if (
+        params &&
+        Object.values(params).some(v => v == null || v === '')
+      ) {
+        return;
+      }
+
+      let closed = false;
+      let source: Awaited<ReturnType<typeof typedEventSource>> | undefined;
+
+      void (async () => {
+        const token = (await credentialsStore.get())?.token;
+        if (closed) return;
+        source = await typedEventSource({
+          ...options,
+          headers: {
+            ...(options.headers || {}),
+            ...(token ? {Authorization: `Bearer ${token}`} : {}),
+          },
+          handler: (e: EventType) => {
+            if (!closed) setState(e);
+          },
+        });
+        if (!closed) {
+          void source.stream();
+        }
+      })();
+
       return () => {
-        sourcePromise.then(source => source.close());
+        closed = true;
+        void source?.close();
       };
-    }, [state]);
+      // Reconnect when route params change; do not depend on `state` — that
+      // closed the stream after every SSE event and broke RN progress feeds.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [credentialsStore, pathKey, queryKey, headerKey]);
+
     return state;
   },
   all: (
@@ -417,23 +436,51 @@ export const noPayloadStream = <
       'handler'
     >
   ) => {
+    const { credentialsStore } = useCredentialsStore();
     const [state, setState] = useState<EventType[]>([]);
-    const sourcePromise = authHeaders().then(authHeaders =>
-      typedEventSource({
-        ...options,
-        headers: {
-          ...(options.headers || {}),
-          ...authHeaders,
-        },
-        handler: (e: EventType) => setState(prev => [...prev, e]),
-      })
-    );
-    sourcePromise.then(source => source.stream());
+    const pathKey = JSON.stringify(options.pathParameters ?? null);
+    const queryKey = JSON.stringify(options.queryParameters ?? null);
+    const headerKey = JSON.stringify(options.headers ?? null);
+
     useEffect(() => {
+      const params = options.pathParameters as
+        | Record<string, string | undefined>
+        | undefined;
+      if (
+        params &&
+        Object.values(params).some(v => v == null || v === '')
+      ) {
+        return;
+      }
+
+      let closed = false;
+      let source: Awaited<ReturnType<typeof typedEventSource>> | undefined;
+
+      void (async () => {
+        const token = (await credentialsStore.get())?.token;
+        if (closed) return;
+        source = await typedEventSource({
+          ...options,
+          headers: {
+            ...(options.headers || {}),
+            ...(token ? {Authorization: `Bearer ${token}`} : {}),
+          },
+          handler: (e: EventType) => {
+            if (!closed) setState(prev => [...prev, e]);
+          },
+        });
+        if (!closed) {
+          void source.stream();
+        }
+      })();
+
       return () => {
-        sourcePromise.then(source => source.close());
+        closed = true;
+        void source?.close();
       };
-    }, [state]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [credentialsStore, pathKey, queryKey, headerKey]);
+
     return state;
   },
 });
