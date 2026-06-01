@@ -25,6 +25,8 @@ export const Feed = ({
     type = "posts"
 }: Props) => {
     const [refreshing, setRefreshing] = React.useState(false);
+    const refetchRef = React.useRef(query.refetch);
+    refetchRef.current = query.refetch;
 
     const allPosts: PublicPost[] = React.useMemo(() => {
         if (!query.data?.pages) { return []; }
@@ -33,16 +35,16 @@ export const Feed = ({
 
     useFocusEffect(
         React.useCallback(() => {
-            query.refetch();
-        }, [query]),
+            refetchRef.current();
+        }, []),
     );
 
     const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
-        await query.refetch();
+        await refetchRef.current();
         refetchServerInfo && (refetchServerInfo());
         setRefreshing(false);
-    }, [query, refetchServerInfo]);
+    }, [refetchServerInfo]);
 
     const content = (
         <>

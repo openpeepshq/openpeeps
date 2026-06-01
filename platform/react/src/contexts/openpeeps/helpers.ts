@@ -173,17 +173,16 @@ export const infiniteChronologicalQueryApiHook = <
     initialPageParam?: unknown;
   }
 ) =>
-  useInfiniteQuery<Output, SuccessFailureResponse, InfiniteData<Output>, QueryKey, ChronologicalInfiniteQueryParams>({
+  useInfiniteQuery<Output, SuccessFailureResponse, InfiniteData<Output>, QueryKey, string | undefined>({
     queryKey: endpoint.queryKey({
       pathParameters: options?.pathParams,
       queryParameters: options?.queryParams,
     }),
     queryFn: async ({ pageParam }) => {
-      const currentQueryParams = {
-        ...options?.queryParams,
-        start: (pageParam as ChronologicalInfiniteQueryParams)?.start,
-        limit: (pageParam as ChronologicalInfiniteQueryParams)?.limit,
-      } as any;
+      const baseParams = { ...options?.queryParams } as QueryParams & ChronologicalInfiniteQueryParams;
+      const currentQueryParams = pageParam
+        ? { ...baseParams, start: String(pageParam) }
+        : baseParams;
 
       await options?.preQueryCheck?.({
         endpoint,
@@ -197,17 +196,10 @@ export const infiniteChronologicalQueryApiHook = <
         throwError({ onSuccess: options?.onSuccess, onError: options?.onError })
       );
     },
-    initialPageParam: options?.queryParams,
+    initialPageParam: undefined,
     getNextPageParam: (lastPage: Output) => {
       const last = Array.isArray(lastPage) ? lastPage : [];
-      if (last.length > 0) {
-        const lastPost = last[last.length - 1];
-        return {
-          start: lastPost?.id,
-          limit: options?.queryParams?.limit,
-        };
-      }
-      return undefined;
+      return last.length > 0 ? last[last.length - 1]?.id : undefined;
     },
     retry: false,
     refetchInterval: options?.refetchInterval,

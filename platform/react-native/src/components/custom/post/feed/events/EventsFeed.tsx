@@ -14,6 +14,8 @@ interface Props {
 }
 export const EventsFeed = ({ query, searchQuery, type = 'event' }: Props) => {
   const [refreshing, setRefreshing] = React.useState(false);
+  const refetchRef = React.useRef(query.refetch);
+  refetchRef.current = query.refetch;
 
   const results = React.useMemo(() => {
     if (!query.data?.pages) { return []; }
@@ -22,16 +24,16 @@ export const EventsFeed = ({ query, searchQuery, type = 'event' }: Props) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      query.refetch();
-    }, [query]),
+      refetchRef.current();
+    }, []),
   );
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    await query.refetch();
+    await refetchRef.current();
 
     setRefreshing(false);
-  }, [query]);
+  }, []);
 
   const filteredResults = React.useMemo(() => {
     if (!searchQuery || !results.length) { return results; }

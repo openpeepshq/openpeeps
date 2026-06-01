@@ -7,6 +7,7 @@ import type {
 import { useCallback, useState } from 'react';
 import {
     apiHook,
+    noPayloadMutation,
     noPayloadStream,
     payloadMutation,
     payloadProgressMutation,
@@ -123,4 +124,13 @@ export const otherHooks = (client: OpenpeepsClient) => ({
     useReportsList: () => apiHook(client.reports.list),
     useReport: (reportId: string) => apiHook(client.reports.findById, { pathParams: { reportId } }),
     createReportAction: payloadMutation(client.reports.create, [['reports']]),
+
+    /**
+     * VOD HLS streaming. Idempotent: requesting a stream for a source that
+     * has already been transcoded just refreshes its access timestamp on the
+     * server and returns the existing `MediaStream`.
+     */
+    createVodStreamAction: payloadMutation(client.streaming.vod.create),
+    /** Polls the current status of a previously-created VOD stream. */
+    getVodStreamStatusAction: noPayloadMutation(client.streaming.vod.status),
 });
