@@ -2,11 +2,17 @@
 	import { type Snippet } from 'svelte';
 	import ServerDataContext from './ServerDataContext.svelte';
 	import { client, throwError } from '$lib/api';
+	import { authHeaders } from '$lib/api/base';
 
 	let { children }: { children?: Snippet } = $props();
 
-	let capabilitiesPromise = client.server.config.capabilities().then(throwError());
-	let serverInfoPromise = client.server.info().then(throwError());
+	let capabilitiesPromise = client.server.config.capabilities({
+		headers: authHeaders()
+	}).then((r) => 'data' in r ? r.data : undefined).catch(() => undefined);
+
+	let serverInfoPromise = client.server.info({
+		headers: authHeaders()
+	}).then((r) => 'data' in r ? r.data : undefined).catch(() => undefined);
 </script>
 
 {#await capabilitiesPromise then capabilities}

@@ -17,10 +17,10 @@
 
     const result = await authenticateGeneric(params);
 
-    if (result.success) {
+    if ('data' in result && result.data.success) {
       await goto('/feeds/local');
     } else {
-      error = result.error;
+      error = 'data' in result ? undefined : result.error?.message;
     }
   });
 </script>

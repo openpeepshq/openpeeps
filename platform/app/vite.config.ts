@@ -16,6 +16,10 @@ export default defineConfig({
       allow: ['../..'],
     },
   },
+  ssr: {
+    external: ['jose', '@openpeeps/core', '@openpeeps/common'],
+    noExternal: [],
+  },
   build: {
     minify: false,
   },

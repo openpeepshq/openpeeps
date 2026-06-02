@@ -86,6 +86,20 @@
     >{t('auth.login.logIn')}</SubmitButton
   >
 </Form>
+
+{#if serverInfo.sso?.oidc && serverInfo.sso.oidc.length > 0}
+  <div class="flex flex-col gap-2 mt-4">
+    {#each serverInfo.sso.oidc as provider}
+      <a
+        href={`/api/openpeeps/core/v1/sso/oidc/${provider.id}/authorize`}
+        class="inline-block px-4 py-2 border rounded hover:bg-gray-100"
+      >
+        Login with {provider.name}
+      </a>
+    {/each}
+  </div>
+{/if}
+
 <div class="flex justify-between px-2">
   {#if serverInfo.communityConfig.settings.openRegistrations}
     <span>

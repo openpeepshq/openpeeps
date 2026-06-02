@@ -316,6 +316,14 @@ export const serverInfoSchema = z.object({
       }),
     }),
   }),
+  sso: z.object({
+    oidc: z.array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+      }),
+    ),
+  }).optional(),
 });
 
 export type ServerInfo = z.infer<typeof serverInfoSchema>;

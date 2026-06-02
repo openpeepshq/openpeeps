@@ -80,7 +80,7 @@ export const defaultConfig: CoreConfig = {
       ),
     },
   },
-  sso: { generic: [] },
+  sso: { generic: [], oidc: [] },
   services: {
     sentry: {
       enabled: true,

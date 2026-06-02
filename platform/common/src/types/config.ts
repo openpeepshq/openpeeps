@@ -194,6 +194,44 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
           createProfiles: true,
         })
         .array(),
+      oidc: z
+        .object({
+          id: z.string(),
+          name: z.string(),
+          authorizationUrl: z.string(),
+          tokenUrl: z.string(),
+          userinfoUrl: z.string(),
+          jwksUri: z.string().optional(),
+          clientId: z.string(),
+          clientSecret: password(sanitize).optional(),
+          scope: z.string().optional(),
+          claimMapping: z
+            .object({
+              email: z.string().optional(),
+              handle: z.string().optional(),
+              displayName: z.string().optional(),
+              avatar: z.string().optional(),
+            })
+            .optional(),
+          approvalRequired: z.boolean().optional(),
+        })
+        .default({
+          id: 'example-oidc',
+          name: 'OIDC Provider',
+          authorizationUrl: 'https://example.com/authorize',
+          tokenUrl: 'https://example.com/token',
+          userinfoUrl: 'https://example.com/userinfo',
+          clientId: '',
+          scope: 'openid email profile',
+          claimMapping: {
+            email: 'email',
+            handle: 'preferred_username',
+            displayName: 'name',
+            avatar: 'picture',
+          },
+          approvalRequired: false,
+        })
+        .array(),
     }),
     services: z.object({
       sentry: z.object({

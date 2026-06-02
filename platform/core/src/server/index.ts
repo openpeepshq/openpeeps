@@ -51,5 +51,13 @@ export const serverInfo = () =>
           },
         },
       },
+      sso: coreConfig.sso.oidc.length > 0
+        ? {
+            oidc: coreConfig.sso.oidc.map((p: { id: string; name: string }) => ({
+              id: p.id,
+              name: p.name,
+            })),
+          }
+        : undefined,
     }),
   );

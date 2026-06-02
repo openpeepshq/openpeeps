@@ -27,7 +27,9 @@
     disabled = schema.description === 'fixed',
   }: Props = $props();
 
-  let elementSchema = schema._def.type;
+  // zod v4: the array element is exposed via `.element` (`_def.type` is now the
+  // string type discriminator, not the element schema).
+  let elementSchema = schema.element;
   let unwrappedElementSchema = unwrap(elementSchema);
   let defaults = elementSchema.parse(undefined);
 

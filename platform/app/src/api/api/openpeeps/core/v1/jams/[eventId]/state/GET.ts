@@ -26,7 +26,7 @@ export default new Endpoint({ Output, Param, Error }).handle(
 
     await ensurePostCapabilities(event, jamEvent, ['core-posts-read']);
 
-    const state = await findJamState(jamEvent, !(event.locals.currentProfile || event.locals.authorization.identities.service));
+    const state = await findJamState(jamEvent, !(event.locals.currentProfile || event.locals.authorization?.identities?.service));
 
     return state;
   },

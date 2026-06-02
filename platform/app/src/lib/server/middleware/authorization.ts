@@ -13,14 +13,14 @@ export const handleAuthorization: Handle = async ({ event, resolve }) => {
     const token = authHeader.split(' ')[1];
     const jwt = await jwtUtil();
     const authorization = (await jwt.verify(token))?.payload as Authorization;
-    if (authorization) {
+    if (authorization?.identities) {
       event.locals.authorization = authorization;
       event.locals.currentProfile = await loadCurrentProfile(authorization);
       event.locals.currentAccount = await loadCurrentAccount(authorization);
       event.locals.authData = {
         profile: event.locals.currentProfile,
         account: event.locals.currentAccount,
-        service: authorization.identities.service,
+        service: authorization.identities?.service,
         scopes: authorization.scopes,
       }
     }
