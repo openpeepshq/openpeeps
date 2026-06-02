@@ -31,7 +31,7 @@ import { checkSubscription } from '@openpeeps/core/stripe';
 export const loadCurrentProfile = async (
   authorization: Authorization,
 ): Promise<ProfileWithMeta | undefined> => {
-  const id = authorization.identities.profile;
+  const id = authorization.identities?.profile;
   if (id) {
     const profile = await findProfile(id);
     if (profile && !profile.deletedAt) {
@@ -50,7 +50,7 @@ export const loadCurrentProfile = async (
 export const loadCurrentAccount = async (
   authorization: Authorization,
 ): Promise<AccountWithMeta | undefined> => {
-  const id = authorization.identities.account;
+  const id = authorization.identities?.account;
   if (id) {
     const account = await findAccount(id);
     if (account && !account.deletedAt) {
