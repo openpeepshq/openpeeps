@@ -79,17 +79,19 @@ export const TabScreensHeader = ({
     );
   }
 
+  const Wrapper = background ? ImageBackground : View;
+  const wrapperProps = background
+    ? { resizeMode: 'cover' as const, source: { uri: background } }
+    : {};
+
   return (
     <>
-      <ImageBackground
-        resizeMode="cover"
-        source={{
-          uri: background!,
-        }}
+      <Wrapper
+        {...wrapperProps}
         style={{
           paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
         }}
-        className="pb-3 px-4">
+        className="pb-3 px-4 bg-background">
         <SafeAreaView edges={['top']} className="">
           <View className="flex-row items-center justify-between  ">
             {!isProduction && (
@@ -174,7 +176,7 @@ export const TabScreensHeader = ({
             </>
           )}
         </SafeAreaView>
-      </ImageBackground>
+      </Wrapper>
     </>
   );
 };

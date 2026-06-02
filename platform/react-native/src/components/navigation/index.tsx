@@ -29,8 +29,7 @@ export const Navigation = () => {
       return;
     }
     const resolvedTheme = getTheme(serverInfo.communityConfig, profileSettings);
-    const backgroundSource =
-      resolvedTheme.background || resolvedTheme.backgroundAuth;
+    const backgroundSource = resolvedTheme.background;
     const logoSource = resolvedTheme.logoSmall;
 
     if (backgroundSource) {
@@ -38,9 +37,9 @@ export const Navigation = () => {
         backgroundSource,
         'image',
       );
-      if (background) {
-        setBackground(background);
-      }
+      setBackground(background || null);
+    } else {
+      setBackground(null);
     }
 
     if (logoSource) {
@@ -48,11 +47,11 @@ export const Navigation = () => {
         logoSource,
         'image',
       );
-      if (logo) {
-        setLogoSmall(logo);
-      }
+      setLogoSmall(logo || null);
+    } else {
+      setLogoSmall(null);
     }
-  }, [serverInfo, setBackground, setLogoSmall]);
+  }, [serverInfo, profileSettings, setBackground, setLogoSmall]);
 
   React.useEffect(() => {
     if (!serverInfo?.communityConfig.theme) {
