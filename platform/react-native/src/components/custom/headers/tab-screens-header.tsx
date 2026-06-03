@@ -91,14 +91,14 @@ export const TabScreensHeader = ({
         }}
         className="pb-3 px-4">
         <SafeAreaView edges={['top']} className="">
-          <View className="flex-row items-center justify-between  ">
-            {!isProduction && (
-              <View className="absolute w-full bg-white/50 z-10 top-0 p-2 rounded-lg">
-                <ThemedText className="text-red-500 text-center">
-                  Test Backend ({BASE_URL})
-                </ThemedText>
-              </View>
-            )}
+          {!isProduction && (
+            <View className="mb-2 w-full rounded-lg bg-white/50 p-2">
+              <ThemedText className="text-center text-red-500">
+                Test Backend ({BASE_URL})
+              </ThemedText>
+            </View>
+          )}
+          <View className="flex-row items-center justify-between">
             <Button
               variant={'outline'}
               size={'icon'}
