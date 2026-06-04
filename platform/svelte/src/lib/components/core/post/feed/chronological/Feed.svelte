@@ -26,32 +26,6 @@
   let { query, inGroup = false, pinnedPostId }: Props = $props();
 
   const { t } = i18nContext();
-
-  $effect(() => {
-    if (!$query.isFetched) return;
-    const pages = $query.data?.pages ?? [];
-    const total = pages.reduce((n, p) => n + p.length, 0);
-    // #region agent log
-    fetch('http://127.0.0.1:7499/ingest/27c2d08d-4470-4015-abd2-33d1e0e3ecd8', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'a0a46a' },
-      body: JSON.stringify({
-        sessionId: 'a0a46a',
-        runId: 'pre-fix',
-        hypothesisId: 'C-D',
-        location: 'Feed.svelte',
-        message: 'client local feed query',
-        data: {
-          isError: $query.isError,
-          errorStatus: $query.error?.status ?? null,
-          totalPosts: total,
-          pageCount: pages.length,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
-  });
 </script>
 
 <div class="relative">
