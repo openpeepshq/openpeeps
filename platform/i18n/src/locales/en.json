@@ -1925,7 +1925,9 @@
             "timezoneSearch": "Search for a timezone",
             "visibilityNotChangeable": "Note:  The event visibility cannot be changed once the event is published.  Make sure you're adding the right people or group.",
             "jamModeratorsDescription": "Click to select Jam moderators",
-            "externalEventUrlPlaceholder": "https://example.com/event"
+            "externalEventUrlPlaceholder": "https://example.com/event",
+            "imageDescription": "Upload an image for your event",
+            "imageSpecs": "Your image should be at least 700 pixels wide with a 16x9 aspect ratio."
         },
         "feed": {
             "past": "Past",
