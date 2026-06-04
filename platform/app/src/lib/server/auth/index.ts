@@ -206,8 +206,8 @@ export const ensureAccess = async (event: RequestEvent, subscriptionRequired: bo
   return ensureProfileMaybe(event, { publiclyAccessible: coreConfig.server.publicContent, subscriptionRequired });
 };
 
-const isService = (authorization: Authorization) =>
-  !!authorization.identities.service;
+const isService = (authorization?: Authorization) =>
+  !!authorization?.identities?.service;
 
 export const serviceScopeMatches = ({
   authorization,
