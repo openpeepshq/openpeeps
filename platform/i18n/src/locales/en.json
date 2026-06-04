@@ -960,7 +960,7 @@
             "description": "All backups are stored in the server temporarily. Please download the backups and store them in a safe place. You can restore the backups by uploading them here.",
             "noBackupsFound": "No Backups found",
             "errorFetching": "Error fetching",
-            "loading": "Loading...",
+            "loading": "Loading…",
             "testRestore": {
                 "title": "Use Test Backup",
                 "confirm": "Are you sure you want to use Test Backup data?",
