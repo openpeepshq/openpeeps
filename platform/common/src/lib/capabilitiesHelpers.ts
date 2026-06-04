@@ -208,7 +208,7 @@ const getGroupRelationshipCapabilities = (
   mergeCapabilities(
     group
       ? getGroupRelationships(authData, group).map(
-        (r) => group.capabilities[r] ?? { add: [], remove: [] },
+        (r) => group.capabilities?.[r] ?? { add: [], remove: [] },
       )
       : [],
   );
@@ -218,7 +218,7 @@ export const getGroupCapabilitiesByRoles = (
   group?: GroupWithMeta | null,
 ) =>
   mergeCapabilities(
-    (roles ?? []).map((r) => group?.capabilities[r] ?? { add: [], remove: [] }),
+    (roles ?? []).map((r) => group?.capabilities?.[r] ?? { add: [], remove: [] }),
   );
 
 export const getGroupCapabilities = (

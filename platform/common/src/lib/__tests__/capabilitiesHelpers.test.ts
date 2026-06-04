@@ -14,6 +14,7 @@ import {
   getProfileCapabilities,
   checkGroupCapabilities,
   checkPostCapabilities,
+  getPostCapabilities,
   checkProfileCapabilities,
   checkReportCapabilities,
   checkAccountCapabilities,
@@ -584,6 +585,38 @@ describe('capabilitiesHelpers', () => {
         mockCapabilitiesConfig,
       );
       expect(result.success).toBe(false);
+    });
+
+    it('should not allow anonymous reads of local posts (only public)', () => {
+      const caps = getPostCapabilities(
+        authData({ profile: undefined }),
+        { ...mockPost, visibility: 'local', group: null },
+        mockCapabilitiesConfig,
+      );
+      expect(checkCapabilities(['core-posts-read'], caps).success).toBe(false);
+    });
+
+    it('should allow anonymous reads of public posts', () => {
+      const caps = getPostCapabilities(
+        authData({ profile: undefined }),
+        { ...mockPost, visibility: 'public', group: null },
+        mockCapabilitiesConfig,
+      );
+      expect(checkCapabilities(['core-posts-read'], caps).success).toBe(true);
+    });
+
+    it('should not throw when a group has no capabilities map', () => {
+      const groupWithoutCapabilities = {
+        ...mockGroup,
+        capabilities: undefined,
+      } as unknown as GroupWithMeta;
+      expect(() =>
+        getPostCapabilities(
+          authData({ profile: undefined }),
+          { ...mockPost, visibility: 'local', group: groupWithoutCapabilities },
+          mockCapabilitiesConfig,
+        ),
+      ).not.toThrow();
     });
 
     it('should allow scoped token reads for posts in public groups', () => {
