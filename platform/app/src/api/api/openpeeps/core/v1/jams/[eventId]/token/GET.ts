@@ -2,8 +2,12 @@ import { Endpoint, z } from 'sveltekit-api';
 import { config } from '@openpeeps/core/config';
 import { notFound, forbidden } from '$lib/server/api/errors';
 import { canModerateJam } from '@openpeeps/common/lib';
-import { createJamToken, findJamEvent } from '@openpeeps/core/jams';
-import { ensurePostCapabilities, ensureProfileOrGuest } from '$lib/server/auth';
+import { createJamEgressToken, createJamToken, findJamEvent } from '@openpeeps/core/jams';
+import {
+  ensurePostCapabilities,
+  ensureProfileOrGuest,
+  serviceScopeMatches,
+} from '$lib/server/auth';
 import { jamTokenResponseSchema } from '@openpeeps/common/types';
 import { jamFromEvent } from '@openpeeps/common/lib';
 
@@ -25,6 +29,20 @@ export default new Endpoint({ Param, Output, Error }).handle(
     const jamEvent = await findJamEvent(param.eventId);
     if (!jamEvent) {
       throw notFound(`Post with id ${param.eventId}`);
+    }
+
+    if (
+      serviceScopeMatches({
+        authorization: event.locals.authorization,
+        scopeLevel: undefined,
+        resource: { type: 'jams', id: param.eventId },
+      })
+    ) {
+      return {
+        success: true,
+        token: await createJamEgressToken(jamEvent),
+        livekitUrl: jams.livekit.url,
+      };
     }
 
     await ensurePostCapabilities(event, jamEvent, ['core-posts-read']);
