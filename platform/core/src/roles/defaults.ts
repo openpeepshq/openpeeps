@@ -19,7 +19,7 @@ export const defaultRoles: RoleData[] = [
         'core-posts-*',
         'core-profiles-*',
         'core-customization-*',
-        'core-backup-*',
+        'core-backups-*',
         'core-i18n-*',
         'core-logs-*',
         'core-roles-read',
