@@ -19,7 +19,7 @@
 
 <div class="relative rounded-b-md border-b">
   <div class="mb-3">
-    <div class="bg-surface-200 relative h-52 w-full overflow-hidden">
+    <div class="bg-surface-200 relative h-52 w-full">
       <img
         src={group?.header || '/img/default-group-header.png'}
         alt="banner"
@@ -28,7 +28,7 @@
       <GroupAvatar
         {group}
         size={6}
-        containerClass="absolute -bottom-12 left-4"
+        containerClass="absolute -bottom-12 left-4 z-10"
         borderless={true}
       />
     </div>
