@@ -1965,7 +1965,9 @@
         "endDate": "End Date",
         "community": "Community Event",
         "noRsvps": "No RSVPs yet",
-        "noAttendees": "No attendees yet"
+        "noAttendees": "No attendees yet",
+        "public": "Public Event",
+        "private": "Private Event"
     },
     "reports": {
         "categories": {
