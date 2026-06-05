@@ -16,14 +16,14 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
   const {data: server} = openpeepsApi.useServerInfo();
 
   return (
-    <View className="w-full p-2 relative  rounded-md h-[250px]">
+    <View className="w-full p-2 relative rounded-md aspect-[3/1] bg-muted">
       <Image
         source={
           headerUri
             ? {uri: headerUri}
             : require('~/assets/images/group-header-placeholder.png')
         }
-        className="w-full h-full rounded-md object-bottom"
+        className="w-full h-full rounded-md"
         resizeMode="cover"
       />
       <View className="absolute -bottom-10  left-4">

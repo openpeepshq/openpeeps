@@ -12,6 +12,7 @@
   import { i18nContext } from '$lib/components/i18n';
   import FormOpenpeepsMarkdownInput from '../../form/FormOpenpeepsMarkdownInput.svelte';
   import { getCurrentProfile } from '$lib/auth';
+  import { HEADER_IMAGE_MAX_WIDTH } from '@openpeeps/common/lib';
 
   interface Props {
     postData: PostCreationData;
@@ -54,10 +55,9 @@
   <FormImageInput
     usage="article-header-image"
     displayType="full"
-    maxWidth={480}
+    maxWidth={HEADER_IMAGE_MAX_WIDTH}
     showSelectAspectRatio={true}
     text="Upload your cover image"
-    specsText="Minimum width 480 pixels"
     showAltInput={false}
     path={['data', 'image']}
     classes={'h-96'}

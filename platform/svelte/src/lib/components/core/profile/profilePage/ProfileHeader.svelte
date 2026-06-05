@@ -20,14 +20,16 @@
 
 <div class="relative">
 	<div class="mb-8">
-		<div class="relative h-44 bg-surface-200 bg-cover bg-center">
-			{#if profile?.header}
-				<img
-					src={profile?.header}
-					alt="banner"
-					class="absolute left-0 top-0 h-full w-full object-cover"
-				/>
-			{/if}
+		<div class="relative aspect-[3/1] w-full">
+			<div class="absolute inset-0 overflow-hidden bg-surface-200">
+				{#if profile?.header}
+					<img
+						src={profile?.header}
+						alt="banner"
+						class="h-full w-full object-cover"
+					/>
+				{/if}
+			</div>
 			<Avatar {profile} size={6} containerClass="absolute -bottom-12 left-4" borderless={true} />
 		</div>
 		<ProfileAction {profile} {isCurrentProfile} />

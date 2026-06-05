@@ -4,6 +4,7 @@ import {UseFormReturn} from 'react-hook-form';
 import {VisibilityInput} from './VisibilityInput';
 import {AudienceSetting, MediaAttachment} from '@openpeeps/common';
 import {PostCreationData} from '@openpeeps/common';
+import {HEADER_IMAGE_MAX_WIDTH} from '@openpeeps/common/lib';
 import {Form, FormTextarea, FormField, FormInput} from '~/components/ui/form';
 import {cn} from '~/lib/utils';
 import {useTranslation} from 'react-i18next';
@@ -120,7 +121,7 @@ export const ArticleForm = ({
                   Upload your cover image
                 </ThemedText>
                 <ThemedText className="">
-                  Minimum width 480 pixels
+                  Recommended width {HEADER_IMAGE_MAX_WIDTH} pixels
                 </ThemedText>
               </View>
             )}
