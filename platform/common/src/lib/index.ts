@@ -13,3 +13,4 @@ export * from './tokenHelpers';
 export * from './jamHelpers';
 export * from './scopeHelpers';
 export * from './pushHelpers';
+export * from './mediaDimensions';

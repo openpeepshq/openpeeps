@@ -15,6 +15,10 @@
   import { i18nContext } from '$lib/components/i18n';
   import EventTypeSwitcher from './EventTypeSwitcher.svelte';
   import { getCurrentProfile } from '$lib/auth';
+  import {
+    EVENT_HEADER_ASPECT_RATIO,
+    HEADER_IMAGE_MAX_WIDTH,
+  } from '@openpeeps/common/lib';
 
   const me = getCurrentProfile();
 
@@ -78,10 +82,8 @@
   <FormImageInput
     usage="event-header-image"
     displayType="full"
-    maxWidth={480}
-    showSelectAspectRatio={true}
-    aspectRatio="16:9"
-    targetDimensions={{ width: 480, height: 270 }}
+    aspectRatio={EVENT_HEADER_ASPECT_RATIO}
+    maxWidth={HEADER_IMAGE_MAX_WIDTH}
     text={t('events.form.imageDescription')}
     specsText={t('events.form.imageSpecs')}
     showAltInput={false}

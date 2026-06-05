@@ -1933,7 +1933,7 @@
             "jamModeratorsDescription": "Click to select Jam moderators",
             "externalEventUrlPlaceholder": "https://example.com/event",
             "imageDescription": "Upload an image for your event",
-            "imageSpecs": "Your image should be at least 700 pixels wide with a 16x9 aspect ratio."
+            "imageSpecs": "Your image should be at least 800 pixels wide with a 16x9 aspect ratio."
         },
         "feed": {
             "past": "Past",

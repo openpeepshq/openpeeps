@@ -19,12 +19,14 @@
 
 <div class="relative rounded-b-md border-b">
   <div class="mb-3">
-    <div class="bg-surface-200 relative h-52 w-full overflow-hidden">
-      <img
-        src={group?.header || '/img/default-group-header.png'}
-        alt="banner"
-        class="absolute left-0 top-0 h-full w-full object-cover"
-      />
+    <div class="relative aspect-[3/1] w-full">
+      <div class="absolute inset-0 overflow-hidden bg-surface-200">
+        <img
+          src={group?.header || '/img/default-group-header.png'}
+          alt="banner"
+          class="h-full w-full object-cover"
+        />
+      </div>
       <GroupAvatar
         {group}
         size={6}

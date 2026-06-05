@@ -14,6 +14,7 @@
 		Badge
 	} from '@openpeeps/ui';
 	import {
+		centerCropToAspectRatio,
 		createImage,
 		getCroppedImg,
 		getZoomedImage,
@@ -68,7 +69,7 @@
 		maxWidth = Number.MAX_SAFE_INTEGER,
 		maxHeight = Number.MAX_SAFE_INTEGER,
 		maxSizeKb = 512,
-		aspectRatio = '4:3',
+		aspectRatio = undefined,
 		cropShape = 'rect',
 		showAltInput = false,
 		showSelectAspectRatio = false,
@@ -87,19 +88,32 @@
 		aspectRatio = `${targetDimensions.width}:${targetDimensions.height}`;
 		showSelectAspectRatio = false;
 		forceCropping = true;
+	} else if (aspectRatio && !showSelectAspectRatio) {
+		// Fixed-aspect mode: crop to the given aspect ratio (then scale down to
+		// maxWidth via the pipeline below) without forcing exact dimensions.
+		forceCropping = true;
 	}
 
 	if (forceCropping) {
 		cropping = true;
 	}
 
-	let aspect = $derived(aspectRatioToNumber(aspectRatio));
+	let aspect = $derived(aspectRatio ? aspectRatioToNumber(aspectRatio) : 4 / 3);
 
 	let cropResult: { x: number; y: number; width: number; height: number } | undefined =
 		$state(undefined);
 
-	const cropIfNeeded = async (imageSource: ImageSource) =>
-		cropping && cropResult ? getCroppedImg(imageSource, cropResult) : imageSource;
+	const cropIfNeeded = async (imageSource: ImageSource) => {
+		if (!cropping) return imageSource;
+		if (cropResult) return getCroppedImg(imageSource, cropResult);
+		// Forced aspect ratio but the interactive cropper hasn't reported a crop
+		// yet: fall back to a centered crop so we still honour the aspect ratio.
+		if (aspectRatio) {
+			const [w, h] = aspectRatio.split(':').map(Number);
+			return centerCropToAspectRatio(imageSource, w, h);
+		}
+		return imageSource;
+	};
 
 	const scaleUpXIfNeeded = async (imageSource: ImageSource) => {
 		const image = await createImage(imageSource);

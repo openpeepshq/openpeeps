@@ -10,14 +10,14 @@ interface ProfileProps {
 export const ProfileHeader: React.FC<ProfileProps> = ({ profile }) => {
 
   return (
-    <View className="w-full p-2 relative  rounded-md h-[250px]">
+    <View className="w-full p-2 relative rounded-md aspect-[3/1] bg-muted">
       <Image
         source={
           profile?.header
             ? { uri: profile?.header }
             : require('~/assets/images/profile-background-placeholder.png')
         }
-        className="w-full h-full rounded-md object-bottom"
+        className="w-full h-full rounded-md"
         resizeMode="cover"
       />
       <View className="absolute z-10 -bottom-10  left-4">

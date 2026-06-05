@@ -2,6 +2,10 @@
 	import FormImageInput from './FormImageInput.svelte';
 	import { getFormContext } from '@openpeeps/ui';
 	import { i18nContext } from '$lib/components/i18n';
+	import {
+		HEADER_IMAGE_MAX_WIDTH,
+		PROFILE_GROUP_HEADER_ASPECT_RATIO,
+	} from '@openpeeps/common/lib';
 
 	const { t } = i18nContext();
 
@@ -15,7 +19,8 @@
 	<FormImageInput
 		usage="header-image"
 		displayType="full"
-		targetDimensions={{ width: 569, height: 176 }}
+		aspectRatio={PROFILE_GROUP_HEADER_ASPECT_RATIO}
+		maxWidth={HEADER_IMAGE_MAX_WIDTH}
 		text={t('form.headerAvatarInput.coverImage')}
 		showAltInput={false}
 		path={['header']}
