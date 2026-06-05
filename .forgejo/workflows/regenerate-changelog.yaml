@@ -28,7 +28,14 @@ jobs:
           fetch-depth: 0
           token: ${{ forgejo.token }}
           ref: ${{ env.DEFAULT_BRANCH }}
+          # Don't persist the Actions token as a git auth header; the push below
+          # authenticates with the registry PAT instead (see remote set-url).
+          persist-credentials: false
       - name: Regenerate changelog
+        env:
+          REGISTRY_USER: ${{ vars.REGISTRY_USER }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          REPO: ${{ forgejo.repository }}
         run: |
           set -euo pipefail
 
@@ -43,8 +50,12 @@ jobs:
           git config user.email "openpeeps@allpeep.com"
           git add CHANGELOG.md
           git commit -m "Regenerate changelog"
-          # CHANGELOG.md is exempt from branch protection, so push straight to the
-          # default branch. Rebase first in case main advanced during the run.
+
+          # Push with the container-registry credentials (a PAT that is allowed
+          # to push to the protected default branch); the Actions token is not.
+          # CHANGELOG.md is exempt from branch protection. Rebase first in case
+          # main advanced during the run.
+          git remote set-url origin "https://${REGISTRY_USER}:${REGISTRY_PASSWORD}@codeberg.org/${REPO}.git"
           git pull --rebase origin "${{ env.DEFAULT_BRANCH }}"
           git push origin "HEAD:${{ env.DEFAULT_BRANCH }}"
   build:
