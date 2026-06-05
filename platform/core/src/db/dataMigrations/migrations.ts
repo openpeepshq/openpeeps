@@ -42,6 +42,8 @@ import fixPrivateGroupMemberPostRead from './migrations/202605221200-fix-private
 import deleteDuplicateRoles from './migrations/202605221430-deleting-duplicate-roles';
 import renameBackupCapabilitiesToPlural from './migrations/202606051100-rename-backup-capabilities-to-plural';
 import addReportsReadToModerator from './migrations/202606051130-add-reports-read-to-moderator';
+import fixSearchPostsArrayFields from './migrations/202606060000-fix-search-posts-array-fields';
+import fixSearchProfilesArrayFields from './migrations/202606060100-fix-search-profiles-array-fields';
 
 export const dataMigrations = [
   addNoteTypeToEntries,
@@ -88,4 +90,6 @@ export const dataMigrations = [
   deleteDuplicateRoles,
   renameBackupCapabilitiesToPlural,
   addReportsReadToModerator,
+  fixSearchPostsArrayFields,
+  fixSearchProfilesArrayFields,
 ];
