@@ -5,6 +5,7 @@ export { default as welcomeEmail } from './defaultTemplates/welcome';
 export { default as testEmail } from './defaultTemplates/test';
 export { default as validateEmailEmail } from './defaultTemplates/validate-email';
 export { default as resetPasswordEmail } from './defaultTemplates/reset-password';
+export { default as eventRsvpConfirmationEmail } from './defaultTemplates/event-rsvp-confirmation';
 
 import type { SvelteEmailTemplate } from '$lib/types';
 

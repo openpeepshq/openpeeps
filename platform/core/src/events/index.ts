@@ -5,6 +5,8 @@
   Notification,
   ReactionData,
   JamRecordingWithMeta,
+  RSVP,
+  RsvpResponse,
 } from '@openpeeps/common/types';
 import { getConnection } from '../redis/connection';
 import type { RedisClientType } from 'redis';
@@ -25,6 +27,11 @@ export type CoreEvents = {
     data: ReactionData,
   ) => void;
   entryCreated: (profile: Profile, post: PostWithMeta, data: EntryData) => void;
+  rsvpCreated: (
+    profile: Profile,
+    post: PostWithMeta,
+    data: { type: 'rsvp'; data: RSVP; previousResponse?: RsvpResponse },
+  ) => void;
   postAnnounced: (post: PostWithMeta) => void;
   configUpdated: (namespace: string, name: string) => void;
 };

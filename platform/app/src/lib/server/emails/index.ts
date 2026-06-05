@@ -29,6 +29,7 @@ export const registerDefaultEmailTemplates = async () => {
   await registerDefaultEmailRenderer('test');
   await registerDefaultEmailRenderer('validateEmail');
   await registerDefaultEmailRenderer('resetPassword');
+  await registerDefaultEmailRenderer('eventRsvpConfirmation');
 
   await registerNotificationEmailRenderer('announcement');
   await registerNotificationEmailRenderer('directMessage');

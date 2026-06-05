@@ -192,6 +192,11 @@ export const sendEmail = async (
       from,
       replyTo: communityConf.info.contactEmail,
       ...renderedEmail,
+      // Attachments ride along on the original options (they don't go through
+      // the template renderer) so files like an event .ics reach the recipient.
+      ...(emailData.attachments?.length
+        ? { attachments: emailData.attachments }
+        : {}),
     });
     await logStep(
       log,

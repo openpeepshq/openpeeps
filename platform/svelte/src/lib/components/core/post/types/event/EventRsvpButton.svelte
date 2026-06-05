@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { eventRsvpMutation, me } from '$lib/api';
-	import type { PublicPost, Event } from '@openpeeps/common/types';
+	import type { PublicPost } from '@openpeeps/common/types';
 	import { Button } from '@openpeeps/ui';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { i18nContext } from '@openpeeps/svelte/components/i18n';
-	import { calculateEffectiveRsvps } from '@openpeeps/common';
+	import { calculateEffectiveRsvps, checkPostCapabilities } from '@openpeeps/common';
+	import { getCurrentAuthData } from '$lib/auth';
+	import { getServerDataContext } from '$lib/components/serverData';
 
 	interface Props {
 		post: PublicPost;
@@ -13,8 +15,13 @@
 	let { post }: Props = $props();
 	const toastStore = getToastStore();
 	const { t } = i18nContext();
+	const authData = getCurrentAuthData();
+	const { capabilities } = getServerDataContext();
 	const myEvent = $derived(post.profile?.id === $me?.id);
 	const myRsvp = $derived(calculateEffectiveRsvps(post).find((r) => r.profile.id === $me?.id));
+	const canRsvp = $derived(
+		checkPostCapabilities(authData, ['core-posts-rsvp'], post, capabilities).success
+	);
 
 	const rsvpToEvent = eventRsvpMutation({ id: post.id });
 
@@ -70,7 +77,7 @@
 	};
 </script>
 
-{#if !myEvent}
+{#if !myEvent && (canRsvp || (myRsvp && myRsvp.response !== 'no'))}
 	{#if myRsvp && myRsvp.response !== 'no'}
 		<div class="w-full">
 			<Button variant="variant-ringed-secondary" class="text-error-500 w-full" action={handleNo}>

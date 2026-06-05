@@ -186,10 +186,16 @@ export const rsvpRespond = async (
   }
   const { db } = await allpeepDb();
 
+  // The post snapshot reflects RSVP state before this response is stored, so we
+  // can detect whether the responder is newly switching into "attending".
+  const previousResponse = [...(post.rsvps ?? [])]
+    .filter((rsvp) => rsvp.profile.id === profile.id)
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))[0]?.response;
+
   await entryConnector(db, profile, post, {
     type: 'rsvp',
     data,
   });
 
-  hub.emit('rsvpCreated', profile, post, { type: 'rsvp', data });
+  hub.emit('rsvpCreated', profile, post, { type: 'rsvp', data, previousResponse });
 };

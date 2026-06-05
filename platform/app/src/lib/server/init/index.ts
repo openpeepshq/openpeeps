@@ -3,6 +3,7 @@ import { setDefaultRoles } from '@openpeeps/core/roles';
 import { logger } from '@openpeeps/core/log';
 import { registerDefaultEmailTemplates } from '$lib/server/emails';
 import { registerDefaultNotifications } from '@openpeeps/core/notifications';
+import { registerRsvpConfirmationEmail } from '@openpeeps/core/posts';
 import { config } from '@openpeeps/core/config';
 import * as Sentry from '@sentry/sveltekit';
 // import { startRepl } from '$lib/server/repl';
@@ -26,6 +27,7 @@ export const initializeServer = async () => {
     await initializePlugins();
     await registerDefaultEmailTemplates();
     await registerDefaultNotifications();
+    registerRsvpConfirmationEmail();
 
     // startRepl();
     log.info('Server initialized.');
