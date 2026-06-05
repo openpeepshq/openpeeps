@@ -58,18 +58,3 @@ jobs:
           git remote set-url origin "https://${CHANGELOG_USER}:${CHANGELOG_TOKEN}@codeberg.org/${REPO}.git"
           git pull --rebase origin "${{ env.DEFAULT_BRANCH }}"
           git push origin "HEAD:${{ env.DEFAULT_BRANCH }}"
-  tag:
-    runs-on: docker
-    steps:
-      - name: checkout
-        uses: actions/checkout@v6
-      - name: Docker login
-        run: |
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "codeberg.org"
-      - name: Tag
-        run: |
-          short_sha=$(echo "${{ forgejo.sha }}" | cut -c1-8)
-          repo="${GITHUB_REPOSITORY:-${FORGEJO_REPOSITORY:-}}"
-          base="codeberg.org/${repo}"
-          docker buildx imagetools create --tag "${base}:nightly" \
-            "${base}:${short_sha}"
