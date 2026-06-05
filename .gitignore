@@ -1,6 +1,9 @@
 node_modules
 .env
 
+# Local git worktrees (must not be committed as submodule paths)
+.worktrees/
+
 yarn-error.log
 .idea
 
