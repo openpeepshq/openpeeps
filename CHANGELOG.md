@@ -14,6 +14,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **capabilities**: standardize backup capabilities on plural core-backups-*
+- **repo**: remove accidental .worktrees submodule from git index
 - **core**: fix anonymous community feed when publicContent is enabled
 - **react**: fix refresh logic for react native
 
@@ -24,11 +26,15 @@ Changelog for OpenPeeps
 
 ### CI/CD
 
+- **changelog**: push with dedicated CHANGELOG_USER/CHANGELOG_TOKEN
+- **changelog**: push with Actions token instead of registry PAT
+- **changelog**: push to main with container registry credentials
 - **changelog**: revert to direct push to main
 - **changelog**: regenerate changelog via PR instead of direct push to main
 
 ### Chores
 
+- **changelog**: update CHANGELOG.md with new features, bug fixes, and refactoring details
 - **react, react-native**: refactor MediaPreview and add attachment processing tracking
 - **react-native**: bump version to 0.2.16 and enhance MediaPreview component with video preview handling
 - **react, react-native**: update package versions and enhance OpenpeepsProvider for React Native support
