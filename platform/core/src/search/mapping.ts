@@ -37,6 +37,17 @@ export const profileSearchMapping = (profile: ProfileWithMeta, query: string) =>
     query,
 })
 
+// ArangoDB SEARCH cannot match array wildcards, so attachment fields are
+// enumerated per index. Capped at the first MAX_SEARCHABLE_ATTACHMENTS
+// attachments of a post (the inverted index itself covers all of them via
+// `data.attachments[*]`).
+const MAX_SEARCHABLE_ATTACHMENTS = 10;
+
+const attachmentSearchFields = Array.from(
+    { length: MAX_SEARCHABLE_ATTACHMENTS },
+    (_, i) => [`data.attachments[${i}].description`, `data.attachments[${i}].filename`],
+).flat();
+
 const postSearchDefinition = (query: string) => ({
     view: 'postSearch',
     analyzer: 'text_en',
@@ -52,6 +63,7 @@ const postSearchDefinition = (query: string) => ({
         'data.options[4].content',
         'data.options[5].content',
         'data.options[6].content',
+        ...attachmentSearchFields,
     ],
     query,
 })
