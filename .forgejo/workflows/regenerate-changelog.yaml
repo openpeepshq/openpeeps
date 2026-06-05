@@ -28,7 +28,14 @@ jobs:
           fetch-depth: 0
           token: ${{ forgejo.token }}
           ref: ${{ env.DEFAULT_BRANCH }}
+          # Don't persist the Actions token as a git auth header; the push below
+          # authenticates with the dedicated changelog credentials instead.
+          persist-credentials: false
       - name: Regenerate changelog
+        env:
+          CHANGELOG_USER: ${{ vars.CHANGELOG_USER }}
+          CHANGELOG_TOKEN: ${{ secrets.CHANGELOG_TOKEN }}
+          REPO: ${{ forgejo.repository }}
         run: |
           set -euo pipefail
 
@@ -44,10 +51,11 @@ jobs:
           git add CHANGELOG.md
           git commit -m "Regenerate changelog"
 
-          # CHANGELOG.md is exempt from branch protection, so the Actions token
-          # (persisted by checkout) can push it straight to the default branch
-          # even though it is not on the push allowlist. Rebase first in case
+          # Push with the dedicated changelog credentials (a PAT with repo write).
+          # CHANGELOG.md is exempt from branch protection, so the changelog-only
+          # commit can go straight to the default branch. Rebase first in case
           # main advanced during the run.
+          git remote set-url origin "https://${CHANGELOG_USER}:${CHANGELOG_TOKEN}@codeberg.org/${REPO}.git"
           git pull --rebase origin "${{ env.DEFAULT_BRANCH }}"
           git push origin "HEAD:${{ env.DEFAULT_BRANCH }}"
   build:
