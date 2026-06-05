@@ -66,7 +66,7 @@ const allPeepCollections = {
     indices: [
       {
         type: 'inverted',
-        fields: ['data.content', 'data.options[*].content', 'data.name', 'data.physicalLocation.text', 'data.url'],
+        fields: ['data.content', 'data.options[*].content', 'data.name', 'data.physicalLocation.text', 'data.url', 'data.attachments[*].description', 'data.attachments[*].filename'],
         analyzer: 'text_en',
         name: 'search-posts',
       },
