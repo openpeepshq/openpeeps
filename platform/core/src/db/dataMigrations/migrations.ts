@@ -41,6 +41,7 @@ import migrateLegacyResourceTypes from './migrations/202605221200-migrate-legacy
 import fixPrivateGroupMemberPostRead from './migrations/202605221200-fix-private-group-member-post-read';
 import deleteDuplicateRoles from './migrations/202605221430-deleting-duplicate-roles';
 import renameBackupCapabilitiesToPlural from './migrations/202606051100-rename-backup-capabilities-to-plural';
+import addReportsReadToModerator from './migrations/202606051130-add-reports-read-to-moderator';
 
 export const dataMigrations = [
   addNoteTypeToEntries,
@@ -86,4 +87,5 @@ export const dataMigrations = [
   fixPrivateGroupMemberPostRead,
   deleteDuplicateRoles,
   renameBackupCapabilitiesToPlural,
+  addReportsReadToModerator,
 ];

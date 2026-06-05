@@ -3,6 +3,7 @@ export * from './profileHelpers';
 export * from './text';
 export * from './postHelpers';
 export * from './capabilitiesHelpers';
+export * from './adminSections';
 export * from './groupHelpers';
 export * from './colors';
 export * from './markdownHelpers';

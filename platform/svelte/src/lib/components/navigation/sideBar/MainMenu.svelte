@@ -26,18 +26,50 @@
   } from 'lucide-svelte';
   import { TreeView } from '@skeletonlabs/skeleton';
   import { currentProfileStore } from '$lib/api';
-  import { checkRoleCapabilities } from '@openpeeps/common/lib';
+  import {
+    getVisibleAdminSections,
+    type AdminSectionKey,
+  } from '@openpeeps/common/lib';
+  import type { IconType } from '@openpeeps/ui';
   import { page } from '$app/state';
   import { MenuItem } from '.';
   import { i18nContext } from '$lib/components/i18n';
   import { getServerInfo } from '@openpeeps/svelte/server';
-	import { handleLogout } from '$lib/utils/handleLogout';
+  import { handleLogout } from '$lib/utils/handleLogout';
 
   const { t } = i18nContext();
   const profileQuery = currentProfileStore();
-  let isAdmin: boolean = $derived(
-    checkRoleCapabilities($profileQuery.data?.roles ?? [], ['admin']).success,
+
+  const adminSectionIcons: Record<AdminSectionKey, IconType> = {
+    members: User,
+    groups: Users,
+    invites: MailOpen,
+    moderation: ShieldAlert,
+    backups: DatabaseBackup,
+    analytics: ChartLine,
+    logs: Logs,
+    apiKeys: KeyRound,
+    configuration: Wrench,
+    diagnostics: Stethoscope,
+  };
+
+  const adminSectionLabels: Record<AdminSectionKey, () => string> = {
+    members: () => t('navigation.members'),
+    groups: () => t('navigation.groups'),
+    invites: () => t('navigation.invites'),
+    moderation: () => t('navigation.moderation'),
+    backups: () => t('navigation.backups'),
+    analytics: () => t('navigation.analytics'),
+    logs: () => t('navigation.logs'),
+    apiKeys: () => t('navigation.apiKeys'),
+    configuration: () => t('navigation.configuration'),
+    diagnostics: () => t('navigation.diagnostics'),
+  };
+
+  let visibleAdminSections = $derived(
+    getVisibleAdminSections($profileQuery.data?.roles),
   );
+  let showAdminMenu = $derived(visibleAdminSections.length > 0);
   let isAdministrationOpen = $derived(page.url.pathname.includes('/admin'));
 
   const serverInfo = getServerInfo();
@@ -75,7 +107,7 @@
   />
   <MenuItem name={t('navigation.settings')} icon={Settings} action="/settings" />
 
-  {#if isAdmin}
+  {#if showAdminMenu}
     <MenuItem
       name={t('navigation.administration')}
       icon={Bolt}
@@ -83,48 +115,13 @@
       open={isAdministrationOpen}
     >
       {#snippet children()}
-        <MenuItem
-          name={t('navigation.members')}
-          icon={User}
-          action="/admin/members"
-        />
-        <MenuItem
-          name={t('navigation.groups')}
-          icon={Users}
-          action="/admin/groups"
-        />
-        <MenuItem
-          name={t('navigation.invites')}
-          icon={MailOpen}
-          action="/admin/invites"
-        />
-        <MenuItem
-          name={t('navigation.moderation')}
-          icon={ShieldAlert}
-          action="/admin/moderation"
-        />
-        <MenuItem
-          name={t('navigation.backups')}
-          icon={DatabaseBackup}
-          action="/admin/backups"
-        />
-        <MenuItem
-          name={t('navigation.analytics')}
-          icon={ChartLine}
-          action="/admin/analytics"
-        />
-        <MenuItem name={t('navigation.logs')} icon={Logs} action="/admin/logs" />
-        <MenuItem name="API Keys" icon={KeyRound} action="/admin/api-keys" />
-        <MenuItem
-          name={t('navigation.configuration')}
-          icon={Wrench}
-          action="/admin/configuration"
-        />
-        <MenuItem
-          name={t('navigation.diagnostics')}
-          icon={Stethoscope}
-          action="/admin/diagnostics"
-        />
+        {#each visibleAdminSections as section (section.key)}
+          <MenuItem
+            name={adminSectionLabels[section.key]()}
+            icon={adminSectionIcons[section.key]}
+            action={section.path}
+          />
+        {/each}
       {/snippet}
     </MenuItem>
   {/if}
