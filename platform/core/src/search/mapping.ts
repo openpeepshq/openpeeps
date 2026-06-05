@@ -18,36 +18,14 @@ export const profileSearchMapping = (profile: ProfileWithMeta, query: string) =>
         'handle',
         'displayName',
         'bio',
-        'fields',
         'location.text',
-        'fields[0].value',
-        'fields[1].value',
-        'fields[2].value',
-        'fields[3].value',
-        'fields[4].value',
-        'fields[5].value',
-        'fields[6].value',
-        'fields[7].value',
-        'fields[8].value',
-        'fields[9].value',
-        'fields[10].value',
-        'fields[11].value',
-        'fields[12].value',
+        'fields.value',
     ],
     query,
 })
 
-// ArangoDB SEARCH cannot match array wildcards, so attachment fields are
-// enumerated per index. Capped at the first MAX_SEARCHABLE_ATTACHMENTS
-// attachments of a post (the inverted index itself covers all of them via
-// `data.attachments[*]`).
-const MAX_SEARCHABLE_ATTACHMENTS = 10;
-
-const attachmentSearchFields = Array.from(
-    { length: MAX_SEARCHABLE_ATTACHMENTS },
-    (_, i) => [`data.attachments[${i}].description`, `data.attachments[${i}].filename`],
-).flat();
-
+// Poll/attachment arrays are indexed with searchField on the parent in
+// search-posts. SEARCH uses expanded paths without an array index.
 const postSearchDefinition = (query: string) => ({
     view: 'postSearch',
     analyzer: 'text_en',
@@ -56,14 +34,9 @@ const postSearchDefinition = (query: string) => ({
         'data.name',
         'data.physicalLocation.text',
         'data.url',
-        'data.options[0].content',
-        'data.options[1].content',
-        'data.options[2].content',
-        'data.options[3].content',
-        'data.options[4].content',
-        'data.options[5].content',
-        'data.options[6].content',
-        ...attachmentSearchFields,
+        'data.options.content',
+        'data.attachments.description',
+        'data.attachments.filename',
     ],
     query,
 })

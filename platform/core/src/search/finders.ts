@@ -38,9 +38,12 @@ const transformPostWithScore = (profile: ProfileWithMeta) => async (item: { data
 
 export const searchPosts = async (query: string, authData: AuthorizationData, limitOffset: OffsetInfiniteQueryParams = { offset: 0, limit: 15 }) => {
     const profile = requireProfile(authData);
+    const { db } = await allpeepDb();
+    const mapping = postSearchMapping(profile, query);
+
     return filterAndTransform(
-        postSearchMapping(profile, query),
-        (await allpeepDb()).db,
+        mapping,
+        db,
         {
             transform: transformPostWithScore(profile),
             filter: await canReadPostFilter(authData),

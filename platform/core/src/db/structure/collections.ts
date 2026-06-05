@@ -35,7 +35,16 @@ const allPeepCollections = {
       },
       {
         type: 'inverted',
-        fields: ['handle', 'bio', 'displayName', 'location.text', 'fields[*].value'],
+        // searchField + includeAllFields on the `fields` array indexes nested
+        // values for the search-alias view; SEARCH uses the expanded path
+        // `fields.value` (no array index).
+        fields: [
+          'handle',
+          'bio',
+          'displayName',
+          'location.text',
+          { name: 'fields', searchField: true, includeAllFields: true },
+        ],
         analyzer: 'text_en',
         name: 'search-profiles',
       }
@@ -66,7 +75,17 @@ const allPeepCollections = {
     indices: [
       {
         type: 'inverted',
-        fields: ['data.content', 'data.options[*].content', 'data.name', 'data.physicalLocation.text', 'data.url', 'data.attachments[*].description', 'data.attachments[*].filename'],
+        // searchField + includeAllFields on array parents indexes nested values
+        // for search-alias views; SEARCH uses expanded paths like
+        // `data.options.content` (no array index).
+        fields: [
+          'data.content',
+          'data.name',
+          'data.physicalLocation.text',
+          'data.url',
+          { name: 'data.options', searchField: true, includeAllFields: true },
+          { name: 'data.attachments', searchField: true, includeAllFields: true },
+        ],
         analyzer: 'text_en',
         name: 'search-posts',
       },
