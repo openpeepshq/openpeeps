@@ -58,10 +58,6 @@ jobs:
           git remote set-url origin "https://${CHANGELOG_USER}:${CHANGELOG_TOKEN}@codeberg.org/${REPO}.git"
           git pull --rebase origin "${{ env.DEFAULT_BRANCH }}"
           git push origin "HEAD:${{ env.DEFAULT_BRANCH }}"
-  build:
-    uses: ./.forgejo/workflows/build.yaml
-    with:
-      repository: ${{ forgejo.repository }}
   tag:
     runs-on: docker
     steps:
