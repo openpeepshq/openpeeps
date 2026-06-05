@@ -40,6 +40,7 @@ import renameConfigKeysAllpeepToOpenpeeps from './migrations/202603132015-rename
 import migrateLegacyResourceTypes from './migrations/202605221200-migrate-legacy-resource-types';
 import fixPrivateGroupMemberPostRead from './migrations/202605221200-fix-private-group-member-post-read';
 import deleteDuplicateRoles from './migrations/202605221430-deleting-duplicate-roles';
+import renameBackupCapabilitiesToPlural from './migrations/202606051100-rename-backup-capabilities-to-plural';
 
 export const dataMigrations = [
   addNoteTypeToEntries,
@@ -84,4 +85,5 @@ export const dataMigrations = [
   migrateLegacyResourceTypes,
   fixPrivateGroupMemberPostRead,
   deleteDuplicateRoles,
+  renameBackupCapabilitiesToPlural,
 ];
