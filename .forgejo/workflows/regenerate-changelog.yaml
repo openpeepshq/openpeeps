@@ -7,9 +7,8 @@ on:
 
 env:
   DEFAULT_BRANCH: main
-  CHANGELOG_BRANCH: changelog
 
-# Avoid overlapping scheduled runs (or reruns) racing on the same changelog branch.
+# Avoid overlapping scheduled runs (or reruns) racing on the same changelog push.
 concurrency:
   group: ${{ forgejo.repository }}-regenerate-changelog
   cancel-in-progress: false
@@ -21,7 +20,7 @@ jobs:
       image: node:24-alpine
     steps:
       - name: Install dependencies
-        run: apk add --no-cache git curl jq
+        run: apk add --no-cache git
       - name: Checkout
         uses: actions/checkout@v6
         with:
@@ -29,18 +28,9 @@ jobs:
           fetch-depth: 0
           token: ${{ forgejo.token }}
           ref: ${{ env.DEFAULT_BRANCH }}
-      - name: Regenerate changelog, open PR and merge
-        env:
-          FORGEJO_API_URL: ${{ forgejo.api_url }}
-          FORGEJO_REPOSITORY: ${{ forgejo.repository }}
-          FORGEJO_TOKEN: ${{ forgejo.token }}
-          BASE_REF: ${{ env.DEFAULT_BRANCH }}
-          HEAD_REF: ${{ env.CHANGELOG_BRANCH }}
+      - name: Regenerate changelog
         run: |
           set -euo pipefail
-
-          git config user.name "Nightly Builder"
-          git config user.email "openpeeps@allpeep.com"
 
           node scripts/generate-changelog.mjs
 
@@ -49,70 +39,14 @@ jobs:
             exit 0
           fi
 
-          # Publish the regenerated changelog onto a dedicated branch. The branch
-          # is ephemeral (deleted on merge), so a force push keeps it clean if a
-          # previous run left it behind.
-          git checkout -B "${HEAD_REF}"
+          git config user.name "Nightly Builder"
+          git config user.email "openpeeps@allpeep.com"
           git add CHANGELOG.md
           git commit -m "Regenerate changelog"
-          git push -f origin "HEAD:${HEAD_REF}"
-
-          api="${FORGEJO_API_URL}/repos/${FORGEJO_REPOSITORY}"
-
-          # Reuse an existing open PR for this head -> base if one is lingering,
-          # otherwise create a fresh one.
-          pr_number="$(curl -fsS -H "Authorization: token ${FORGEJO_TOKEN}" \
-            "${api}/pulls?state=open" \
-            | jq -r --arg headref "${HEAD_REF}" --arg baseref "${BASE_REF}" \
-                'first(.[] | select(.head.ref == $headref and .base.ref == $baseref) | .number) // empty')"
-
-          if [ -z "${pr_number}" ]; then
-            echo "Creating pull request ${HEAD_REF} -> ${BASE_REF}."
-            pr_number="$(jq -n \
-              --arg title "Regenerate changelog" \
-              --arg head "${HEAD_REF}" \
-              --arg base "${BASE_REF}" \
-              --arg body "Automated: regenerated CHANGELOG.md from conventional commits." \
-              '{title: $title, head: $head, base: $base, body: $body}' \
-              | curl -fsS -X POST \
-                -H "Authorization: token ${FORGEJO_TOKEN}" \
-                -H "Content-Type: application/json" \
-                -d @- \
-                "${api}/pulls" \
-              | jq -r '.number')"
-          else
-            echo "Reusing existing pull request #${pr_number}."
-          fi
-
-          if [ -z "${pr_number}" ] || [ "${pr_number}" = "null" ]; then
-            echo "Failed to determine pull request number." >&2
-            exit 1
-          fi
-
-          # Forgejo computes mergeability asynchronously; wait for it before merging.
-          mergeable="false"
-          for _ in $(seq 1 30); do
-            mergeable="$(curl -fsS -H "Authorization: token ${FORGEJO_TOKEN}" \
-              "${api}/pulls/${pr_number}" | jq -r '.mergeable')"
-            if [ "${mergeable}" = "true" ]; then
-              break
-            fi
-            echo "PR #${pr_number} not mergeable yet (mergeable=${mergeable}); waiting..."
-            sleep 5
-          done
-
-          if [ "${mergeable}" != "true" ]; then
-            echo "PR #${pr_number} did not become mergeable in time." >&2
-            exit 1
-          fi
-
-          echo "Merging pull request #${pr_number} and deleting ${HEAD_REF}."
-          jq -n '{Do: "merge", delete_branch_after_merge: true}' \
-            | curl -fsS -X POST \
-              -H "Authorization: token ${FORGEJO_TOKEN}" \
-              -H "Content-Type: application/json" \
-              -d @- \
-              "${api}/pulls/${pr_number}/merge"
+          # CHANGELOG.md is exempt from branch protection, so push straight to the
+          # default branch. Rebase first in case main advanced during the run.
+          git pull --rebase origin "${{ env.DEFAULT_BRANCH }}"
+          git push origin "HEAD:${{ env.DEFAULT_BRANCH }}"
   build:
     uses: ./.forgejo/workflows/build.yaml
     with:
