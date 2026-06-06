@@ -238,11 +238,14 @@ export interface GroupMember extends GroupRoleData {
 export const inviteLinkWithMetaSchema = inviteLinkSchema.extend({
   profile: profileWithMetaSchema,
   redemptions: profileWithMetaSchema.array(),
+  /** Resolved from `groupIds` by the mapping so the UI can show group names. */
+  groups: groupWithMetaSchema.array(),
 });
 
 export interface InviteLinkWithMeta extends InviteLink {
   profile: ProfileWithMeta;
   redemptions: ProfileWithMeta[];
+  groups: GroupWithMeta[];
 }
 
 export interface PostContext {

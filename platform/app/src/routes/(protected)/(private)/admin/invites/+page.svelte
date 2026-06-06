@@ -62,6 +62,15 @@
       render: (inviteLink) => '@' + inviteLink.profile.handle,
     },
     {
+      id: 'groups',
+      type: 'text',
+      header: t('admin.invites.groupsColumn'),
+      render: (inviteLink) =>
+        inviteLink.groups
+          .map((group) => group.displayName || '@' + group.handle)
+          .join(', ') || '—',
+    },
+    {
       id: 'dateCreated',
       header: t('admin.invites.expirationDateColumn'),
       type: 'component',

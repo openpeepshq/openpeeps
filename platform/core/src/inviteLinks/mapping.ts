@@ -2,6 +2,7 @@ import { map } from "@openpeeps/arango-querybuilder";
 import { Relation } from "@openpeeps/arango-querybuilder/types";
 import { InviteLinkData, InviteLinkWithMeta } from "@openpeeps/common/types";
 import { profilesMapping } from "../profiles/mapping";
+import { groupsMapping } from "../groups/mapping";
 
 const inviteLinkRelations: Relation[] = [
     {
@@ -26,4 +27,14 @@ const inviteLinkRelations: Relation[] = [
 export const inviteLinksMapping = map<InviteLinkData, InviteLinkWithMeta>({
     collection: 'inviteLinks',
     relations: inviteLinkRelations,
+    // `groupIds` is a scalar array of group ids; resolve it through the groups
+    // mapping so the listing can show which groups an invite targets.
+    foreignKeyRelations: [
+        {
+            alias: 'groups',
+            foreignKeyProperty: 'groupIds',
+            cardinality: 'many',
+            mapping: groupsMapping.data(),
+        },
+    ],
 });

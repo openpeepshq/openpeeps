@@ -25,7 +25,7 @@ export const buildMergeForeignKeyRelationsExpression = (baseName: AqlLiteral, fo
     MERGE(
     ${baseName}, 
     {
-    ${join(foreignKeyRelations.map(r => aql`${literal(r.alias)}: FIRST( ${buildForeignKeyRelation(baseName, r).query()})`), ', ')}
+    ${join(foreignKeyRelations.map(r => aql`${literal(r.alias)}: ${literal(r.cardinality === 'many' ? '' : 'FIRST')}( ${buildForeignKeyRelation(baseName, r).query()})`), ', ')}
     })` :
         baseName;
 
@@ -86,7 +86,10 @@ export const addFilter = <O extends object, F>(mapData: MapData<O, F>, filter?: 
 
 
 export const buildForeignKeyRelation = <O extends object>(baseName: AqlLiteral, foreignKeyRelation: ForeignKeyRelation<O>): QueryBuilder<O> =>
-    buildMapQuery(addFilter(foreignKeyRelation.mapping, `DOC._key == ${baseName.toAQL()}.${foreignKeyRelation.foreignKeyProperty}`));
+    buildMapQuery(addFilter(foreignKeyRelation.mapping,
+        foreignKeyRelation.cardinality === 'many'
+            ? `DOC._key IN (${baseName.toAQL()}.${foreignKeyRelation.foreignKeyProperty} || [])`
+            : `DOC._key == ${baseName.toAQL()}.${foreignKeyRelation.foreignKeyProperty}`));
 
 
 export const buildRelation = <O extends object, E extends object>(baseName: AqlLiteral | Document, relation: Relation<O, E>, softDelete: boolean = false): TraversalBuilder<E> => {

@@ -1,6 +1,6 @@
 {
   "name": "@openpeeps/core",
-  "version": "0.1.29",
+  "version": "0.1.30",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "dependencies": {

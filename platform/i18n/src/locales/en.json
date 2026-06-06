@@ -1007,6 +1007,7 @@
             "title": "Invites",
             "linkColumn": "Link",
             "createdByColumn": "Created By",
+            "groupsColumn": "Groups",
             "expirationDateColumn": "Expiration Date",
             "usesColumn": "Uses",
             "statusColumn": "Status",

@@ -181,6 +181,12 @@ export interface ForeignKeyRelation<O extends object = object> {
     alias: string;
     foreignKeyProperty: string;
     mapping: MapData<O>;
+    /**
+     * 'one' (default): `foreignKeyProperty` holds a single id, resolved to one
+     * object. 'many': `foreignKeyProperty` holds an id array, resolved to an
+     * array of objects.
+     */
+    cardinality?: 'one' | 'many';
 }
 
 export type RelationWithMapping<O extends object = object, E extends object = O> = Relation<O, E> & { mapping: MapData<O> };

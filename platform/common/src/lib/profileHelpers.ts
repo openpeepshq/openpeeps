@@ -33,22 +33,33 @@ export const matchesQuery = (
 export const inviteLinkMatchesQuery = (
   inviteLink: InviteLinkWithMeta,
   query: string,
-  queryOptions = { handle: true, displayName: true, slug: true },
+  queryOptions = { handle: true, displayName: true, slug: true, group: true },
 ) => {
   const profile = inviteLink.profile as PublicProfile;
+  if (query.startsWith('@')) {
+    return !!(
+      profile?.handle && containsIgnoreCase(profile.handle, query.substring(1))
+    );
+  }
+  const groupMatches =
+    queryOptions.group &&
+    inviteLink.groups.some(
+      (group) =>
+        containsIgnoreCase(group.handle, query) ||
+        (group.displayName && containsIgnoreCase(group.displayName, query)),
+    );
   return !!(
-    profile &&
-    (query.startsWith('@')
-      ? profile.handle && containsIgnoreCase(profile.handle, query.substring(1))
-      : (queryOptions.handle &&
+    groupMatches ||
+    (profile &&
+      ((queryOptions.handle &&
         profile.handle &&
         containsIgnoreCase(profile.handle, query)) ||
-      (queryOptions.displayName &&
-        profile.displayName &&
-        containsIgnoreCase(profile.displayName, query)) ||
-      (queryOptions.slug &&
-        inviteLink.slug &&
-        containsIgnoreCase(inviteLink.slug, query)))
+        (queryOptions.displayName &&
+          profile.displayName &&
+          containsIgnoreCase(profile.displayName, query)) ||
+        (queryOptions.slug &&
+          inviteLink.slug &&
+          containsIgnoreCase(inviteLink.slug, query))))
   );
 };
 
