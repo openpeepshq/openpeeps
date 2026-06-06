@@ -221,14 +221,14 @@ export const getGroupCapabilitiesByRoles = (
     (roles ?? []).map((r) => group?.capabilities?.[r] ?? { add: [], remove: [] }),
   );
 
+// Per-group powers (add member, post in group, moderate, …) come from the
+// caller's relationship to the group (edge roles plus none/local), never from
+// their instance role. Instance roles only gate group *creation*
+// (`core-groups-create`), checked separately at the creation entry points.
 export const getGroupCapabilities = (
   authData: AuthorizationData,
   group?: GroupWithMeta | null,
-): Capabilities =>
-  mergeCapabilities([
-    getGroupRelationshipCapabilities(authData, group),
-    getRoleCapabilities(authData.profile),
-  ]);
+): Capabilities => getGroupRelationshipCapabilities(authData, group);
 
 const getRoleCapabilities = (profile?: ProfileWithMeta): Capabilities =>
   mergeCapabilities(profile?.roles.map((r) => r.capabilities) ?? []);
