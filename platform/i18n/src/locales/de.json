@@ -1448,10 +1448,14 @@
             "audioPlayer": "Audio-Player",
             "image": {
                 "cropTitle": "Bild zuschneiden",
-                "recents": "Zuletzt verwendet"
+                "recents": "Zuletzt verwendet",
+                "takePhoto": "Foto aufnehmen",
+                "chooseFromLibrary": "Aus Galerie wählen"
             },
             "video": {
-                "recents": "Zuletzt verwendet"
+                "recents": "Zuletzt verwendet",
+                "recordVideo": "Video aufnehmen",
+                "chooseFromLibrary": "Aus Galerie wählen"
             },
             "send": "Senden",
             "sending": "Wird gesendet…",

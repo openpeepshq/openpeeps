@@ -1,4 +1,4 @@
-import React, { forwardRef, useState, useEffect } from 'react';
+import React, { forwardRef, useState } from 'react';
 import {
   View,
   Text,
@@ -9,19 +9,10 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
-import type { Album, PhotoIdentifier } from '@react-native-camera-roll/camera-roll';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Button } from '~/components/ui/button';
-import { CameraIcon, ChevronDownIcon, CheckIcon } from '~/components/icons';
-import { CameraRoll } from '@react-native-camera-roll/camera-roll';
-import { launchCamera } from 'react-native-image-picker';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+import { CameraIcon, ImageIcon } from '~/components/icons';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { ThemedText } from '~/components/ui/themed-text';
 import { useNewConversationStore } from '~/stores/useNewConversationStore';
 import { useOpenpeeps } from '@openpeeps/react';
@@ -31,7 +22,7 @@ import { MediaUploadProgress } from '~/components/custom/common';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
-import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -39,16 +30,17 @@ interface SendMediaSheetProps {
   onSelect: (images: MediaAttachment[]) => void;
 }
 
+// Media is selected via the system photo picker (launchImageLibrary), which
+// needs no broad media permissions and keeps the app compliant with Google
+// Play's photo & video permission policy.
 export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
   (_, ref) => {
-    const [images, setImages] = useState<PhotoIdentifier[]>([]);
     const { openpeepsApi } = useOpenpeeps();
-    const [albums, setAlbums] = useState<Album[]>([]);
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
     const [isSending, setIsSending] = useState(false);
     const { data: server } = openpeepsApi.useServerInfo();
-    const createAttachments = openpeepsApi.createMediaAttachmentWithProgressAction();
-    const [isMultipleSelect, setIsMultipleSelect] = useState(false);
+    const createAttachments =
+      openpeepsApi.createMediaAttachmentWithProgressAction();
     const [uploadProgress, setUploadProgress] = useState<UploadProgressMap>({});
     const {
       conversationId,
@@ -64,57 +56,33 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const { t } = useTranslation();
 
-    useEffect(() => {
-      loadImages();
-    }, []);
+    const addImages = (uris: string[]) =>
+      setSelectedImages(prev => [
+        ...prev,
+        ...uris.filter(uri => !prev.includes(uri)),
+      ]);
 
-    const loadImages = async () => {
-      try {
-        const photos = await CameraRoll.getPhotos({
-          first: 20,
-          assetType: 'Photos',
-        });
-        setImages(photos.edges);
-        setAlbums(await CameraRoll.getAlbums());
-      } catch (error) {
-        console.error('Load images error:', error);
-      }
-    };
-
-    const loadImagesFromAlbum = async (albumName: string) => {
-      try {
-        const photos = await CameraRoll.getPhotos({
-          first: 20,
-          assetType: 'Photos',
-          groupName: albumName,
-        });
-        setImages(photos.edges);
-      } catch (error) {
-        console.error('Load album images error:', error);
-      }
-    };
-
-    const toggleImageSelection = (uri: string) => {
-      if (!isMultipleSelect) {
-        setSelectedImages([uri]);
+    const handleLibrary = async () => {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        selectionLimit: 0,
+        quality: 1,
+      });
+      if (result.didCancel || !result.assets?.length) {
         return;
       }
-
-      setSelectedImages(prev =>
-        prev.includes(uri)
-          ? prev.filter(imageId => imageId !== uri)
-          : [...prev, uri],
+      addImages(
+        result.assets
+          .map(asset => asset.uri)
+          .filter((uri): uri is string => Boolean(uri)),
       );
     };
 
     const handleCameraPress = async () => {
-      const result = await launchCamera({
-        mediaType: 'photo',
-        quality: 1,
-      });
-
-      if (result.assets && result.assets[0]?.uri) {
-        toggleImageSelection(result.assets[0].uri);
+      const result = await launchCamera({ mediaType: 'photo', quality: 1 });
+      const uri = result.assets?.[0]?.uri;
+      if (uri) {
+        addImages([uri]);
       }
     };
 
@@ -126,7 +94,16 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
     };
 
     const renderSelectedImagesPreview = () => {
-      if (selectedImages.length === 0) { return null; }
+      if (selectedImages.length === 0) {
+        return (
+          <View className="w-full items-center justify-center py-12 px-4">
+            <ImageIcon size={32} className="text-muted-foreground mb-2" />
+            <Text className="text-muted-foreground text-center">
+              {t('common.media.image.chooseFromLibrary')}
+            </Text>
+          </View>
+        );
+      }
 
       const IMAGE_WIDTH = SCREEN_WIDTH;
 
@@ -251,79 +228,25 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
     return (
       <BaseSheet ref={ref}>
         <View className="flex-1">
-          {renderSelectedImagesPreview()}
-
-          <View className="flex-row justify-between items-center px-4 py-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex-row items-center">
-                  <Text className="text-foreground text-base font-semibold mr-1">
-                    {t('common.media.image.recents')}
-                  </Text>
-                  <ChevronDownIcon size={20} className="text-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="mt-1">
-                <DropdownMenuGroup>
-                  {albums.map(album => (
-                    <DropdownMenuItem
-                      key={album.title}
-                      onPress={() => loadImagesFromAlbum(album.title)}>
-                      <Text className="text-base">{album.title}</Text>
-                      <Text className="text-sm text-muted-foreground ml-2">
-                        {album.count}
-                      </Text>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <View className="flex-row items-center gap-4">
-              <Button
-                variant={isMultipleSelect ? 'secondary' : 'ghost'}
-                size={'sm'}
-                onPress={() => setIsMultipleSelect(!isMultipleSelect)}>
-                <Text className="text-foreground text-base font-medium">
-                  {t('common.form.selectMultiple')}
-                </Text>
-              </Button>
-              <Button
-                variant={'outline'}
-                size={'icon'}
-                className="rounded-full"
-                onPress={handleCameraPress}>
-                <CameraIcon size={16} className="text-foreground" />
-              </Button>
-            </View>
+          <View className="flex-row justify-end items-center gap-4 px-4 py-3">
+            <Button
+              variant={'outline'}
+              size={'icon'}
+              className="rounded-full"
+              onPress={handleLibrary}>
+              <ImageIcon size={16} className="text-foreground" />
+            </Button>
+            <Button
+              variant={'outline'}
+              size={'icon'}
+              className="rounded-full"
+              onPress={handleCameraPress}>
+              <CameraIcon size={16} className="text-foreground" />
+            </Button>
           </View>
 
           <ScrollView className="flex-1">
-            <View className="flex-row flex-wrap">
-              {images.map(({ node: image }) => (
-                <TouchableOpacity
-                  key={image.image.uri}
-                  className="w-1/3 aspect-square p-0.5"
-                  onPress={() => toggleImageSelection(image.image.uri)}>
-                  <View className="relative w-full h-full">
-                    <Image
-                      source={{ uri: image.image.uri }}
-                      className="w-full h-full"
-                    />
-                    {selectedImages.includes(image.image.uri) && (
-                      <View className="absolute inset-0">
-                        <View className="absolute inset-0 bg-primary/20" />
-                        {isMultipleSelect && (
-                          <View className="absolute top-1.5 right-1.5 w-7 h-7 rounded-md bg-white items-center justify-center">
-                            <CheckIcon className="text-black" size={18} />
-                          </View>
-                        )}
-                      </View>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
+            {renderSelectedImagesPreview()}
           </ScrollView>
 
           <SheetFooter
