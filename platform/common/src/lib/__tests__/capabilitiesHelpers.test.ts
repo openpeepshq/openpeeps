@@ -526,6 +526,13 @@ describe('capabilitiesHelpers', () => {
       );
       expect(result).toBeDefined();
     });
+
+    it('should not include instance-role capabilities', () => {
+      // mockProfile holds the instance `admin` role (`admin-capability`) but has
+      // no membership edge in mockGroup, so per-group powers must not leak in.
+      const result = getGroupCapabilities(authData(), mockGroup);
+      expect(result.add).not.toContain('admin-capability');
+    });
   });
 
   describe('getProfileCapabilities', () => {
