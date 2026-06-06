@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **invite-links**: implement group membership validation for invite links
+- **admin**: gate administration menu items by role capabilities Replace the bogus check for a non-existent `admin` capability with a shared adminSections map (path + required capabilities per item). Show the Administration parent when any section is visible; render only sections the profile is allowed to access.
 - **search**: include attachment alt text and filenames in post search
 - **debug**: add debug egress logging and capture scripts for LiveKit sessions
 - **theme, modal**: enhance BaseSheet and DateSheet components with theme variables and improve DateTimePicker styling
@@ -14,6 +16,9 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **notifications**: moving push notifications into a worker thread
+- **search**: index array fields for post and profile search-alias views
+- **Auth**: update layout structure
 - **capabilities**: standardize backup capabilities on plural core-backups-*
 - **repo**: remove accidental .worktrees submodule from git index
 - **core**: fix anonymous community feed when publicContent is enabled
@@ -24,8 +29,14 @@ Changelog for OpenPeeps
 - **debug**: remove debug egress logging and capture scripts for LiveKit sessions
 - **tab-screens-header**: improve layout
 
+### Documentation
+
+- add AGENTS.md and Claude Code shim
+
 ### CI/CD
 
+- **changelog**: drop tag job from regenerate-changelog
+- **changelog**: drop build job from regenerate-changelog
 - **changelog**: push with dedicated CHANGELOG_USER/CHANGELOG_TOKEN
 - **changelog**: push with Actions token instead of registry PAT
 - **changelog**: push to main with container registry credentials
