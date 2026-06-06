@@ -28,7 +28,8 @@ const mockInviteLink: InviteLinkWithMeta = {
   id: 'invite1',
   slug: 'test-invite',
   profile: mockProfile,
-} as InviteLinkWithMeta;
+  groups: [],
+} as unknown as InviteLinkWithMeta;
 
 describe('profileHelpers', () => {
   describe('profileName', () => {
@@ -172,6 +173,21 @@ describe('profileHelpers', () => {
     it('should work with partial matches', () => {
       const result = inviteLinkMatchesQuery(mockInviteLink, 'oh');
       expect(result).toBe(true);
+    });
+
+    it('should match by target group name', () => {
+      const inviteLinkWithGroup = {
+        ...mockInviteLink,
+        groups: [
+          { id: mockGroup.id, handle: mockGroup.handle, displayName: mockGroup.displayName },
+        ],
+      } as unknown as InviteLinkWithMeta;
+      expect(inviteLinkMatchesQuery(inviteLinkWithGroup, 'Test Group')).toBe(
+        true,
+      );
+      expect(inviteLinkMatchesQuery(inviteLinkWithGroup, 'testgroup')).toBe(
+        true,
+      );
     });
   });
 

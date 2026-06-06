@@ -1,6 +1,6 @@
 {
   "name": "@openpeeps/app",
-  "version": "0.1.24",
+  "version": "0.1.25",
   "main": "index.js",
   "license": "GPL-3.0-or-later",
   "private": "true",

@@ -997,6 +997,7 @@
             "title": "Einladungen",
             "linkColumn": "Link",
             "createdByColumn": "Erstellt von",
+            "groupsColumn": "Gruppen",
             "expirationDateColumn": "Ablaufdatum",
             "usesColumn": "Nutzungen",
             "statusColumn": "Status",
