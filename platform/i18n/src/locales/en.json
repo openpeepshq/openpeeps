@@ -1527,10 +1527,14 @@
             "audioPlayer": "Audio Player",
             "image": {
                 "cropTitle": "Crop Image",
-                "recents": "Recents"
+                "recents": "Recents",
+                "takePhoto": "Take photo",
+                "chooseFromLibrary": "Choose from library"
             },
             "video": {
-                "recents": "Recents"
+                "recents": "Recents",
+                "recordVideo": "Record video",
+                "chooseFromLibrary": "Choose from library"
             },
             "send": "Send",
             "sending": "Sending…",
