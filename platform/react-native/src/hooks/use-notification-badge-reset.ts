@@ -24,8 +24,12 @@ export const useNotificationBadgeReset = (
 ) => {
   const { openpeepsApi, queryClient } = useOpenpeeps();
   const isFocused = useIsFocused();
+  // The mutation factory calls `useContext` internally, so it must be invoked
+  // during render to bind the QueryClient. Calling it inside the async callback
+  // (the previous `markAllNotificationsAsSeen()()`) ran a hook outside render,
+  // threw, and the PUT was never sent — so the server never marked them seen.
   const markAllNotificationsAsSeen =
-    openpeepsApi.markAllNotificationsAsSeenAction();
+    openpeepsApi.markAllNotificationsAsSeenAction()();
   const { data: stats, refetch: refetchStats } =
     openpeepsApi.useCurrentProfileNotificationStats();
   const markingRef = useRef(false);
@@ -36,7 +40,7 @@ export const useNotificationBadgeReset = (
     }
     markingRef.current = true;
     try {
-      await markAllNotificationsAsSeen()();
+      await markAllNotificationsAsSeen();
       queryClient.setQueryData<NotificationStats>(
         NOTIFICATION_STATS_QUERY_KEY,
         (current) => ({
