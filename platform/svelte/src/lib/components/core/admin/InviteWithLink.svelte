@@ -10,7 +10,7 @@
     activateInviteLinkMutation,
     me,
   } from '$lib/api';
-  import { checkGroupCapabilities, randomString } from '@openpeeps/common/lib';
+  import { randomString } from '@openpeeps/common/lib';
   import { parse, end } from 'iso8601-duration';
   import { truncateText } from '@openpeeps/common/lib';
   import type { GroupWithMeta, InviteLink } from '@openpeeps/common/types';

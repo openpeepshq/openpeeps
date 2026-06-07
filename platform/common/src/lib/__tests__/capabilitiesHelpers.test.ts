@@ -644,6 +644,54 @@ describe('capabilitiesHelpers', () => {
       );
       expect(result.success).toBe(true);
     });
+
+    it('should not grant instance-role capabilities on group posts', () => {
+      // Instance admin (`core-posts-*`) with no membership edge in the group
+      // must not gain per-group post powers; group posts are edge-driven.
+      const instanceAdmin = {
+        ...mockProfile,
+        roles: [{ ...mockRoles[0], capabilities: { add: ['core-posts-*'], remove: [] } }],
+        memberships: [],
+      } as ProfileWithMeta;
+      const memberOnlyGroup = {
+        ...mockGroup,
+        capabilities: { member: { add: ['core-posts-read'], remove: [] } },
+      } as GroupWithMeta;
+      const caps = getPostCapabilities(
+        authData({ profile: instanceAdmin }),
+        {
+          ...mockPost,
+          visibility: 'group',
+          group: memberOnlyGroup,
+          profile: { id: 'someone-else' } as PublicProfile,
+        },
+        mockCapabilitiesConfig,
+      );
+      expect(checkCapabilities(['core-posts-read'], caps).success).toBe(false);
+      expect(checkCapabilities(['core-posts-delete'], caps).success).toBe(false);
+    });
+
+    it('should still grant instance-role capabilities on local posts', () => {
+      // Local moderation stays instance-role driven (regression guard).
+      const instanceModerator = {
+        ...mockProfile,
+        roles: [
+          { ...mockRoles[0], capabilities: { add: ['core-posts-delete'], remove: [] } },
+        ],
+        memberships: [],
+      } as ProfileWithMeta;
+      const caps = getPostCapabilities(
+        authData({ profile: instanceModerator }),
+        {
+          ...mockPost,
+          visibility: 'local',
+          group: null,
+          profile: { id: 'someone-else' } as PublicProfile,
+        },
+        mockCapabilitiesConfig,
+      );
+      expect(checkCapabilities(['core-posts-delete'], caps).success).toBe(true);
+    });
   });
 
   describe('checkProfileCapabilities', () => {
