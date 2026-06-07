@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- add OIDC SSO provider support
+- **media**: Create better video preview
 - **invite-links**: implement group membership validation for invite links
 - **admin**: gate administration menu items by role capabilities Replace the bogus check for a non-existent `admin` capability with a shared adminSections map (path + required capabilities per item). Show the Administration parent when any section is visible; render only sections the profile is allowed to access.
 - **search**: include attachment alt text and filenames in post search
@@ -16,6 +18,9 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **invites**: show target groups on admin invite links
+- **react-native**: use system photo picker instead of camera roll
+- **media**: crop header banners to aspect ratio, cap at 800px, use 3:1 covers
 - **notifications**: moving push notifications into a worker thread
 - **search**: index array fields for post and profile search-alias views
 - **Auth**: update layout structure
@@ -45,6 +50,7 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **notification**: update NotificationWrapper component layout and styles
 - **changelog**: update CHANGELOG.md with new features, bug fixes, and refactoring details
 - **react, react-native**: refactor MediaPreview and add attachment processing tracking
 - **react-native**: bump version to 0.2.16 and enhance MediaPreview component with video preview handling
