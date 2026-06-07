@@ -250,6 +250,13 @@ const getPostVisibilityCapabilities = (post: PublicPost, profile: ProfileWithMet
       return { add: ['core-posts-read'], remove: [] };
     case 'direct':
       return {};
+    // Group posts derive their capabilities from the group relationship
+    // (`getGroupCapabilities`) and the author's `self` relationship only —
+    // never from instance roles. This keeps per-group powers consistent with
+    // every other group check (see getGroupCapabilities); instance roles only
+    // gate group creation.
+    case 'group':
+      return {};
     default:
       return getRoleCapabilities(profile);
   }
