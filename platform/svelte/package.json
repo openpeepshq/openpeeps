@@ -1,6 +1,6 @@
 {
 	"name": "@openpeeps/svelte",
-	"version": "0.1.37",
+	"version": "0.1.38",
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev",
@@ -75,7 +75,7 @@
 		"iso8601-duration": "^2.1.2",
 		"js-base64": "^3.7.7",
 		"layerchart": "^0.60.3",
-		"livekit-client": "^2.1.2",
+		"livekit-client": "^2.19.2",
 		"lucide-svelte": "^0.561.0",
 		"marked": "^15.0.6",
 		"prettier": "^3.3.2",
