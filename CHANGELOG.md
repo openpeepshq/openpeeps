@@ -18,6 +18,9 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **react-native**: send mark-all-seen request when clearing notification badge
+- **groups**: exclude instance roles from group post capabilities
+- **groups**: scope per-group capabilities to group relationship only
 - **invites**: show target groups on admin invite links
 - **react-native**: use system photo picker instead of camera roll
 - **media**: crop header banners to aspect ratio, cap at 800px, use 3:1 covers
