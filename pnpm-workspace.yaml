@@ -33,3 +33,6 @@ packageExtensions:
   "@sveltejs/package":
     dependencies:
       typescript: ^5.0.0
+
+minimumReleaseAgeExclude:
+  - livekit-client@2.19.2
