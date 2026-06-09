@@ -53,6 +53,7 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- upgrade and sync livekit across openpeeps
 - **notification**: update NotificationWrapper component layout and styles
 - **changelog**: update CHANGELOG.md with new features, bug fixes, and refactoring details
 - **react, react-native**: refactor MediaPreview and add attachment processing tracking
