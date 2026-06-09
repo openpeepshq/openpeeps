@@ -34,13 +34,13 @@ export const OpenPeepsThemeProvider = ({ children }: { children: React.ReactNode
   const themeVars = useMemo(() => getThemeVars(theme.colors), [theme.colors]);
 
   useEffect(() => {
-    const preference = profileSettings?.theme;
-    if (preference === 'system' || !preference) {
-      colorScheme.set('system');
-    } else {
-      colorScheme.set(theme.isDark ? 'dark' : 'light');
-    }
-  }, [profileSettings?.theme, theme.isDark]);
+    // nativewind maps colorScheme.set('system') to Appearance.setColorScheme(null),
+    // which crashes on Android RN 0.85 (the native AppearanceModule param is
+    // non-null). theme.isDark already resolves the active scheme for the
+    // 'system' preference (it derives from the live systemColorScheme above),
+    // so always drive nativewind with an explicit value.
+    colorScheme.set(theme.isDark ? 'dark' : 'light');
+  }, [theme.isDark]);
 
   return (
     <OpenPeepsThemeContext.Provider
