@@ -1,6 +1,6 @@
 {
   "name": "@openpeeps/react-native",
-  "version": "0.2.20",
+  "version": "0.2.21",
   "description": "React Native community screens and shared UI (extracted from the Black Ambition app) for the OpenPeeps stack.",
   "source": "./src/index.ts",
   "main": "./lib/commonjs/index.js",
