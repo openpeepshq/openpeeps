@@ -186,10 +186,18 @@ export const rsvpRespond = async (
   }
   const { db } = await allpeepDb();
 
+  const previousResponse = [...(post.rsvps ?? [])]
+    .filter((rsvp) => rsvp.profile.id === profile.id)
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))[0]?.response;
+
   await entryConnector(db, profile, post, {
     type: 'rsvp',
     data,
   });
 
-  hub.emit('rsvpCreated', profile, post, { type: 'rsvp', data });
+  hub.emit('rsvpCreated', profile, post, {
+    type: 'rsvp',
+    data,
+    previousResponse,
+  });
 };

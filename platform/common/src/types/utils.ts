@@ -26,10 +26,20 @@ export const i18nResourceSchema = z.record(
   i18nResourceLanguageSchema,
 );
 
+export const emailAttachmentSchema = z.object({
+  filename: z.string(),
+  /** Raw string content (e.g. an .ics body). Kept as a string so the options
+   *  stay JSON-serializable across the email queue and HTTP render boundary. */
+  content: z.string(),
+  contentType: z.string().optional(),
+});
+export type EmailAttachment = z.infer<typeof emailAttachmentSchema>;
+
 export const emailOptionsSchema = z.object({
   to: z.string(),
   template: z.string(),
   locals: z.record(z.string(), jsonSchema).optional(),
+  attachments: z.array(emailAttachmentSchema).optional(),
 });
 export type EmailOptions = z.infer<typeof emailOptionsSchema>;
 
