@@ -65,6 +65,9 @@ RUN apk add --no-cache \
     tini \
     unzip
 
+# Runtime image is also used by CI `publish-packages` (pnpm publish from /apat).
+RUN npm i -g pnpm
+
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV NODE_OPTIONS="--max-old-space-size=8192"

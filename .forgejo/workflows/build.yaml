@@ -247,6 +247,7 @@ jobs:
           echo "//codeberg.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
           echo "//codeberg.org/api/packages/${owner}/npm/:always-auth=true" >> .npmrc
           cat .npmrc
+          corepack enable
           pnpm install
           pnpm -r publish --access private --no-git-checks
 
