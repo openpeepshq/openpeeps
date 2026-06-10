@@ -53,6 +53,8 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **react-native**: upgrade safe-area-context for RN 0.85
+- bump version to 0.2.21 and update theme handling in OpenPeepsThemeProvider
 - upgrade and sync livekit across openpeeps
 - **notification**: update NotificationWrapper component layout and styles
 - **changelog**: update CHANGELOG.md with new features, bug fixes, and refactoring details
