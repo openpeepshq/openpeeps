@@ -1,0 +1,151 @@
+import { useEffect, useState } from 'react';
+import type { ProfileWithMeta } from '@openpeeps/common/types';
+import { profileDataSchema } from '@openpeeps/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import {
+  HeaderAvatarInput,
+  useCurrentProfile,
+} from '@openpeeps/react/components';
+import { Button, Input, Label, Textarea, Toast } from '@openpeeps/react-ui';
+
+export function PublicProfileSettings() {
+  const t = useT();
+  const { openpeepsApi } = useOpenpeeps();
+  const me = useCurrentProfile();
+  const updateProfile = openpeepsApi.updateCurrentProfileAction();
+
+  useSetPageHeader(
+    t('settings.publicProfile.title', { defaultValue: 'Public profile' }),
+  );
+
+  const [draft, setDraft] = useState<Partial<ProfileWithMeta>>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!me) return;
+    setDraft({
+      displayName: me.displayName ?? '',
+      bio: me.bio ?? '',
+      avatar: me.avatar ?? undefined,
+      header: me.header ?? undefined,
+      location: me.location,
+    });
+  }, [me?.id]);
+  const [status, setStatus] = useState<
+    | { type: 'success'; message: string }
+    | { type: 'error'; message: string }
+    | null
+  >(null);
+
+  if (!me) return null;
+
+  const submit = async () => {
+    setStatus(null);
+    setSubmitting(true);
+    try {
+      await updateProfile(
+        profileDataSchema.parse({
+          handle: me.handle,
+          type: me.type,
+          displayName: draft.displayName,
+          bio: draft.bio,
+          avatar: draft.avatar || null,
+          header: draft.header || null,
+          location: draft.location?.text ? draft.location : undefined,
+        }),
+      );
+      setStatus({
+        type: 'success',
+        message: t('settings.profile.updateSuccess', {
+          defaultValue: 'Profile updated',
+        }),
+      });
+    } catch (err) {
+      setStatus({
+        type: 'error',
+        message: t('settings.profile.updateError', {
+          defaultValue: `Failed: ${(err as Error).message}`,
+          error: (err as Error).message,
+        }),
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4 p-4">
+      <HeaderAvatarInput
+        header={draft.header ?? undefined}
+        avatar={draft.avatar ?? undefined}
+        onHeaderChange={(header) => setDraft((d) => ({ ...d, header }))}
+        onAvatarChange={(avatar) => setDraft((d) => ({ ...d, avatar }))}
+      />
+
+      <div className="space-y-2 pt-4">
+        <Label htmlFor="displayName">Display name</Label>
+        <Input
+          id="displayName"
+          value={draft.displayName ?? ''}
+          onChange={(e) =>
+            setDraft((d) => ({ ...d, displayName: e.target.value }))
+          }
+          data-testid="settings-display-name-input"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="handle">Handle</Label>
+        <Input
+          id="handle"
+          value={me.handle ?? ''}
+          readOnly
+          data-testid="settings-handle-input"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="bio">Bio</Label>
+        <Textarea
+          id="bio"
+          rows={4}
+          value={draft.bio ?? ''}
+          onChange={(e) => setDraft((d) => ({ ...d, bio: e.target.value }))}
+          data-testid="settings-bio-input"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="location">Location</Label>
+        <Input
+          id="location"
+          value={draft.location?.text ?? ''}
+          onChange={(e) =>
+            setDraft((d) => ({
+              ...d,
+              location: { ...d.location, text: e.target.value },
+            }))
+          }
+        />
+      </div>
+
+      {status && (
+        <Toast variant={status.type} onDismiss={() => setStatus(null)}>
+          {status.message}
+        </Toast>
+      )}
+
+      <Button
+        title="Save"
+        variant="variant-filled-primary"
+        action={submit}
+        disabled={submitting}
+        data-testid="settings-save-button"
+      >
+        {submitting
+          ? t('common.saving', { defaultValue: 'Saving…' })
+          : t('common.save', { defaultValue: 'Save' })}
+      </Button>
+    </div>
+  );
+}

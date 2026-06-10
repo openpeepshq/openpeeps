@@ -1,4 +1,4 @@
 import { json } from '@sveltejs/kit';
 
-export const GET = async () =>
-  json({ healthy: true }, { headers: { 'Cache-Control': 'no-cache' } });
+/** Liveness/readiness probe for load balancers and CI integration tests. */
+export const GET = () => json({ status: 'ok' });

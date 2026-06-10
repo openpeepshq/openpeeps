@@ -14,8 +14,11 @@ interface NotificationTypeProps {
   notification: PublicNotification;
 }
 export const NewProfile: React.FC<NotificationTypeProps> = ({ notification }) => {
-  const profile = notification.senderProfile!;
+  const profile = notification.senderProfile;
   const { t } = useTranslation();
+  if (!profile) {
+    return null;
+  }
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 

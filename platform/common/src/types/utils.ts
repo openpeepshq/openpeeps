@@ -2,26 +2,29 @@ import { z } from 'zod';
 import { CommunityConfig } from './config';
 import type { i18n, ResourceKey } from 'i18next';
 
-const literalSchema = z.union([
-  z.string(),
-  z.number(),
-  z.boolean(),
-  z.null(),
-  z.undefined(),
-]);
-type Literal = z.infer<typeof literalSchema>;
+type Literal = string | number | boolean | null | undefined;
 export type Json = Literal | { [key: string]: Json } | Json[];
-export const jsonSchema: z.ZodType<Json> = z
-  .lazy(() =>
-    z.union([literalSchema, z.array(jsonSchema), z.record(z.string(), jsonSchema)]),
-  )
-  .openapi({ type: 'object' });
+// NOTE: we used to model Json/ResourceKey as `z.lazy(() => z.union([...]))` for
+// proper recursive validation. zod 4 + @asteasolutions/zod-to-openapi v8 blow
+// the stack when walking such circular schemas during OpenAPI generation
+// (isNullableSchema → safeParse(null) → ZodError → JSON.stringify on the
+// lazy ref). Since runtime validation of arbitrary JSON is permissive anyway,
+// model them as `z.any()` with a stable OpenAPI id and cast the public type.
+export const jsonSchema = z
+  .any()
+  .openapi('JsonValue', { type: 'object' }) as unknown as z.ZodType<Json>;
 
-export const i18nResourceKeySchema: z.ZodType<ResourceKey> = z
-  .lazy(() => z.union([z.string(), z.record(z.string(), i18nResourceKeySchema)]))
-  .openapi({ type: 'object' });
-export const i18nResourceLanguageSchema = z.record(z.string(), i18nResourceKeySchema);
-export const i18nResourceSchema = z.record(z.string(), i18nResourceLanguageSchema);
+export const i18nResourceKeySchema = z
+  .any()
+  .openapi('I18nResourceKey', { type: 'object' }) as unknown as z.ZodType<ResourceKey>;
+export const i18nResourceLanguageSchema = z.record(
+  z.string(),
+  i18nResourceKeySchema,
+);
+export const i18nResourceSchema = z.record(
+  z.string(),
+  i18nResourceLanguageSchema,
+);
 
 export const emailOptionsSchema = z.object({
   to: z.string(),

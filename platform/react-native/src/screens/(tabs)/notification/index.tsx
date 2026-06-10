@@ -14,6 +14,7 @@ export const Notifications = () => {
   const query = openpeepsApi.useCurrentProfileNotifications({
     limit: 15,
   });
+  const notificationStats = openpeepsApi.useCurrentProfileNotificationStats();
 
   useNotificationBadgeReset({
     refetchFeed: () => query.refetch(),
@@ -30,7 +31,12 @@ export const Notifications = () => {
           </View>
         }
       />
-      <NotificationFeed query={query} />
+      <NotificationFeed
+        query={query}
+        onRefresh={async () => {
+          await Promise.all([query.refetch(), notificationStats.refetch()]);
+        }}
+      />
     </ThemedView>
   );
 };

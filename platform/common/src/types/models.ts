@@ -114,7 +114,11 @@ export type Role = Model<RoleData>;
 export const profileSettingsDefaultsSchema = z.object({
   privacy: z.enum(['public', 'unlisted', 'private']).optional(),
   sensitive: z.boolean().optional(),
-  language: z.string().refine(validator.isISO6391).optional(),
+  language: z
+    .string()
+    .refine(validator.isISO6391)
+    .optional()
+    .openapi({ type: 'string', description: 'ISO-639-1 language code' }),
 });
 export type ProfileSettingsDefaults = z.infer<
   typeof profileSettingsDefaultsSchema
@@ -188,6 +192,12 @@ export const accountNameSchema = z
   .refine((value: string) => handleRegex.test(value ?? ''), {
     message:
       'Handle can only contain alphanumeric characters and underscores and not have more than 16 characters',
+  })
+  .openapi({
+    type: 'string',
+    pattern: `^${handleRegexBase}$`,
+    description:
+      'Account handle: 1-16 alphanumeric / underscore / hyphen characters, excluding a reserved set.',
   });
 
 const profileResourceTypes = [
@@ -340,7 +350,14 @@ export type Jam = JamData;
 export const followDataSchema = z.object({
   reblogs: z.boolean().optional(),
   notify: z.boolean().optional(),
-  languages: z.array(z.string().refine(validator.isISO6391)).optional(),
+  languages: z
+    .array(
+      z
+        .string()
+        .refine(validator.isISO6391)
+        .openapi({ type: 'string', description: 'ISO-639-1 language code' }),
+    )
+    .optional(),
 });
 
 export type FollowData = z.infer<typeof followDataSchema>;

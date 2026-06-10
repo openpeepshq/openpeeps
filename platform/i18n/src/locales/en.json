@@ -869,6 +869,10 @@
             "raiseTitle": "Raise Hand",
             "raiseLabel": "Raise Hand"
         },
+        "blur": {
+            "blurBackground": "Blur background",
+            "turnOff": "Turn off blur"
+        },
         "participantMenu": {
             "muteInChat": "Mute In Chat",
             "turnOffCamera": "Turn Off Camera",

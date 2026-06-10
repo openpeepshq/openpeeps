@@ -6,7 +6,6 @@ import {
 } from '../mediaAttachments';
 import { estimateProcessingDuration } from '../processingStats';
 import { disconnect, getConnection, getSharedConnection } from '../redis/connection';
-import { mediaStorage } from './index';
 import { runProcessing } from './processing';
 
 const log = logger('app:media:jobs');
@@ -84,7 +83,7 @@ const [mediaProcessingQueue, mediaProcessingWorker] = queueAndWorker<
 >(
   'media-processing',
   async (job) => {
-    const { mediaAttachmentId, fileStorageKey, filename, mimetype } = job.data;
+    const { mediaAttachmentId, fileStorageKey } = job.data;
     const attachment = await findMediaAttachment(mediaAttachmentId);
     if (!attachment) {
       throw new Error(
@@ -103,10 +102,10 @@ const [mediaProcessingQueue, mediaProcessingWorker] = queueAndWorker<
     await publishMediaProgress(mediaAttachmentId, 'started');
 
     try {
-      const storage = await mediaStorage();
-      const buffer = await storage.getData(fileStorageKey);
-      const file = new File([buffer], filename, { type: mimetype });
-      await runProcessing({ mediaAttachmentId, file });
+      await runProcessing({
+        mediaAttachmentId,
+        sourceStorageKey: fileStorageKey,
+      });
       await publishMediaProgress(mediaAttachmentId, 'ready');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

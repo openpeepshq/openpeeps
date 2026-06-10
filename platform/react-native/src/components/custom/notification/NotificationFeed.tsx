@@ -14,11 +14,13 @@ import { InfiniteQueryResult } from '~/types';
 interface Props {
   query: InfiniteQueryResult<PublicNotification>;
   isNotificationFeed?: boolean;
+  onRefresh?: () => Promise<unknown>;
 }
 
 export const NotificationFeed = ({
   query,
   isNotificationFeed = true,
+  onRefresh,
 }: Props) => {
   const [refreshing, setRefreshing] = React.useState(false);
   const refetchRef = React.useRef(query.refetch);
@@ -35,12 +37,18 @@ export const NotificationFeed = ({
     }, []),
   );
 
-  const onRefresh = React.useCallback(async () => {
+  const handleRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    await refetchRef.current();
-
-    setRefreshing(false);
-  }, []);
+    try {
+      if (onRefresh) {
+        await onRefresh();
+      } else {
+        await refetchRef.current();
+      }
+    } finally {
+      setRefreshing(false);
+    }
+  }, [onRefresh]);
 
   const content = (
     <>
@@ -76,7 +84,7 @@ export const NotificationFeed = ({
       onScroll={({ nativeEvent }) => handleScroll(nativeEvent, query)}
       scrollEventThrottle={16}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
       }>
       {content}
     </ScrollView>

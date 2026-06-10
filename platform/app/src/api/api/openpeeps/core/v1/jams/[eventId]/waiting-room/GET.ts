@@ -10,7 +10,8 @@ export const Param = z.object({
 });
 
 export const Stream = z.record(
-  z.string(), z.object({ displayName: z.string().optional() }),
+  z.string(),
+  z.object({ displayName: z.string().optional() }),
 );
 
 export const Output = z.instanceof(ReadableStream);

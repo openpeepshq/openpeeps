@@ -1,35 +1,66 @@
-# AllPeeP Platform
+# openpeeps Platform
 
-The packages in this folder comprise the building blocks for 
-the AllPeeP Community Server. They are also starting points 
-for developing plugins or other integrations with AllPeeP
+The packages in this folder comprise the building blocks for
+the openpeeps Community Server. They are also starting points
+for developing plugins or other integrations with openpeeps.
 
-## app
+## Core components
 
-The assembled application
+### server
 
-## cli
+The openpeeps Community Server runtime.
 
-The command line interface to a AllPeeP server
+### web
 
-## client
+`@openpeeps/web` — the assembled web application and the primary
+frontend for the openpeeps server. A Vite + React single-page app
+that consumes the API and serves the SPA.
 
-A typescript client library for the AllPeeP api.
+### react
 
-## common 
+`@openpeeps/react` — shared React components and hooks used by
+`@openpeeps/web` and downstream consumers to build frontends for the
+openpeeps server.
 
-Types and utilities used by multiple parts of the AllPeeP server
+## Supporting packages
 
-## core
+### cli
+
+The command line interface to an openpeeps server.
+
+### client
+
+A typescript client library for the openpeeps api.
+
+### common
+
+Types and utilities used by multiple parts of the openpeeps server.
+
+### core
 
 Basic interactions with the database and other logic running
-on the backend
+on the backend.
 
-## interactions
+### interactions
 
-Default emails and notifications
+Default emails and notifications.
 
-## svelte
+### react-native
 
-Svelte components and utilities to build frontends for the
-AllPeeP server
+React Native components and utilities for native mobile apps.
+
+## Deprecated
+
+The frontend is now React (Vite + React SPA). The following SvelteKit
+packages are legacy, deprecated, and kept only until the remaining stubs
+in `@openpeeps/web` are ported — do not use them for new work.
+
+### app
+
+`@openpeeps/app` — the previous SvelteKit application. Superseded by the
+React `web` app.
+
+### svelte
+
+`@openpeeps/svelte` — legacy Svelte components and utilities. Superseded
+by `react`.

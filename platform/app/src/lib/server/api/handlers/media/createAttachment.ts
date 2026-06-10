@@ -63,7 +63,7 @@ export const createMediaAttachmentHandler = async (
   if (file.size < SYNC_PROCESSING_LIMIT) {
     return runProcessing({
       mediaAttachmentId: attachment.id,
-      file,
+      sourceStorageKey: fileStorageKey,
       thumbnail,
     });
   }

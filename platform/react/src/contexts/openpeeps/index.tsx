@@ -179,7 +179,13 @@ export const OpenpeepsProvider: React.FC<{
 
   return (
     <OpenpeepsContext.Provider
-      value={{ openpeepsApi, currentProfile, currentAccount, queryClient }}
+      value={{
+        openpeepsApi,
+        client,
+        currentProfile,
+        currentAccount,
+        queryClient,
+      }}
     >
       <QueryClientProvider client={queryClient}>
         <CredentialsStoreProvider credentialsStore={credentialsStore}>

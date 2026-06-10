@@ -6,12 +6,25 @@ import {
   infiniteOffsetQueryApiHook,
   infiniteChronologicalQueryApiHook,
 } from '../helpers';
-import type { ChronologicalInfiniteQueryParams, PostType, PublicPost } from '@openpeeps/common';
+import type {
+  ChronologicalInfiniteQueryParams,
+  PostContext,
+  PostType,
+  PublicPost,
+  UnseenPostCounts,
+} from '@openpeeps/common';
 
+type EventFeedHook = ReturnType<
+  typeof infiniteOffsetQueryApiHook<
+    PublicPost[],
+    undefined,
+    { offset?: number; limit: number }
+  >
+>;
 
-type EventFeedHook = ReturnType<typeof infiniteOffsetQueryApiHook<PublicPost[], undefined, { offset?: number, limit: number }>>;
-
-const eventFeeds = (client: OpenpeepsClient): {
+const eventFeeds = (
+  client: OpenpeepsClient,
+): {
   useUpcomingEventsFeed: () => EventFeedHook;
   useCurrentEventsFeed: () => EventFeedHook;
   usePastEventsFeed: () => EventFeedHook;
@@ -21,63 +34,175 @@ const eventFeeds = (client: OpenpeepsClient): {
   useGroupUpcomingEventsFeed: (groupId: string) => EventFeedHook;
   useGroupPastEventsFeed: (groupId: string) => EventFeedHook;
 } => ({
-  useUpcomingEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.upcoming, { pageSize, queryParams: { limit: pageSize } }),
-  useCurrentEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.current, { pageSize, queryParams: { limit: pageSize } }),
-  usePastEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.past, { pageSize, queryParams: { limit: pageSize } }),
-  useMyUpcomingEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.my.upcoming, { pageSize, queryParams: { limit: pageSize } }),
-  useMyCurrentEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.my.current, { pageSize, queryParams: { limit: pageSize } }),
-  useMyPastEventsFeed: (pageSize: number | undefined = 15) => infiniteOffsetQueryApiHook(client.posts.feeds.events.my.past, { pageSize, queryParams: { limit: pageSize } }),
-  useGroupUpcomingEventsFeed: (groupId: string) => infiniteOffsetQueryApiHook(client.posts.feeds.events.group.upcoming, { pathParams: { groupId }, pageSize: 15 }),
-  useGroupPastEventsFeed: (groupId: string) => infiniteOffsetQueryApiHook(client.posts.feeds.events.group.past, { pathParams: { groupId }, pageSize: 15 }),
+  useUpcomingEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.upcoming, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  useCurrentEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.current, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  usePastEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.past, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  useMyUpcomingEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.my.upcoming, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  useMyCurrentEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.my.current, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  useMyPastEventsFeed: (pageSize: number | undefined = 15) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.my.past, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }),
+  useGroupUpcomingEventsFeed: (groupId: string) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.group.upcoming, {
+      pathParams: { groupId },
+      pageSize: 15,
+    }),
+  useGroupPastEventsFeed: (groupId: string) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.events.group.past, {
+      pathParams: { groupId },
+      pageSize: 15,
+    }),
 });
 
 type EventFeeds = ReturnType<typeof eventFeeds>;
 
+/**
+ * Default page size for any feed-style query. Callers can override by passing
+ * an explicit `limit`. Keep in sync with `defaultFeedLimit` in
+ * `@openpeeps/svelte`.
+ */
+const DEFAULT_FEED_LIMIT = 15;
+
 const jamFeeds = (client: OpenpeepsClient) => ({
-  useUpcomingJamsFeed: () => infiniteOffsetQueryApiHook(client.posts.feeds.jams.upcoming),
-  usePastJamsFeed: () => infiniteOffsetQueryApiHook(client.posts.feeds.jams.past),
-  useMyUpcomingJamsFeed: () => infiniteOffsetQueryApiHook(client.posts.feeds.jams.my.upcoming),
-  useMyPastJamsFeed: () => infiniteOffsetQueryApiHook(client.posts.feeds.jams.my.past),
+  useUpcomingJamsFeed: (pageSize: number | undefined = DEFAULT_FEED_LIMIT) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.jams.upcoming, { pageSize }),
+  usePastJamsFeed: (pageSize: number | undefined = DEFAULT_FEED_LIMIT) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.jams.past, { pageSize }),
+  useMyUpcomingJamsFeed: (pageSize: number | undefined = DEFAULT_FEED_LIMIT) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.jams.my.upcoming, {
+      pageSize,
+    }),
+  useMyPastJamsFeed: (pageSize: number | undefined = DEFAULT_FEED_LIMIT) =>
+    infiniteOffsetQueryApiHook(client.posts.feeds.jams.my.past, { pageSize }),
 });
 
 type JamFeeds = ReturnType<typeof jamFeeds>;
 
+const withFeedLimit = (
+  props?: ChronologicalInfiniteQueryParams,
+): ChronologicalInfiniteQueryParams => ({
+  ...props,
+  limit: props?.limit ?? DEFAULT_FEED_LIMIT,
+});
 
 const postFeeds = (client: OpenpeepsClient) => ({
-  useLocalFeed: (props: ChronologicalInfiniteQueryParams) => infiniteChronologicalQueryApiHook(client.posts.feeds.local, { queryParams: props }),
-  useMyFeed: (props: ChronologicalInfiniteQueryParams) => infiniteChronologicalQueryApiHook(client.posts.feeds.my, { queryParams: props }),
+  useLocalFeed: (props?: ChronologicalInfiniteQueryParams) =>
+    infiniteChronologicalQueryApiHook(client.posts.feeds.local, {
+      queryParams: withFeedLimit(props),
+    }),
+  useMyFeed: (props?: ChronologicalInfiniteQueryParams) =>
+    infiniteChronologicalQueryApiHook(client.posts.feeds.my, {
+      queryParams: withFeedLimit(props),
+    }),
 });
 
 type PostFeeds = ReturnType<typeof postFeeds>;
 
-const postFinders = (client: OpenpeepsClient) => ({
-  usePosts: (props: ChronologicalInfiniteQueryParams) => infiniteChronologicalQueryApiHook(client.posts.list, { queryParams: props }),
-  useBookmarkedPosts: (props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listBookmarks, { queryParams: props }),
-  usePost: (id: string) =>
-    apiHook(client.posts.findById, { pathParams: { id } }),
-  usePostContext: (id: string) =>
-    apiHook(client.posts.context, { pathParams: { id } }),
-  usePostReposts: (id: string) =>
-    apiHook(client.posts.reposts, { pathParams: { id } }),
-  useUnseenPostCounts: () =>
-    apiHook(client.posts.unseenCounts),
+type PostsInfiniteHook = ReturnType<
+  typeof infiniteChronologicalQueryApiHook<
+    PublicPost[],
+    Record<string, string> | undefined,
+    Record<string, string> | undefined
+  >
+>;
+
+type PostQueryHook<T> = ReturnType<typeof apiHook<T, { id: string }, undefined>>;
+
+type PostFinders = {
+  usePosts: (props?: ChronologicalInfiniteQueryParams) => PostsInfiniteHook;
+  usePostsByType: (
+    type: PostType,
+    props?: ChronologicalInfiniteQueryParams,
+  ) => PostsInfiniteHook;
+  usePostsByHashtag: (
+    hashtag: string,
+    props?: ChronologicalInfiniteQueryParams,
+  ) => PostsInfiniteHook;
+  usePostsByGroup: (
+    id: string,
+    props?: ChronologicalInfiniteQueryParams,
+  ) => PostsInfiniteHook;
+  usePostsByProfile: (
+    id: string,
+    props?: ChronologicalInfiniteQueryParams,
+  ) => PostsInfiniteHook;
+  useBookmarkedPosts: (
+    props?: ChronologicalInfiniteQueryParams,
+  ) => PostsInfiniteHook;
+  usePost: (id: string) => PostQueryHook<PublicPost>;
+  usePostContext: (id: string) => PostQueryHook<PostContext>;
+  usePostReposts: (id: string) => PostQueryHook<PublicPost[]>;
+  useUnseenPostCounts: () => ReturnType<typeof apiHook<UnseenPostCounts>>;
+};
+
+// Explicit return type annotation keeps `tsc` from trying to serialize the
+// deeply-inferred shape into `.d.ts` (TS7056 otherwise).
+const postFinders = (client: OpenpeepsClient): PostFinders => ({
+  usePosts: (props) =>
+    infiniteChronologicalQueryApiHook(client.posts.list, {
+      queryParams: withFeedLimit(props),
+    }) as PostsInfiniteHook,
+  usePostsByType: (type, props) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByType, {
+      pathParams: { type },
+      queryParams: withFeedLimit(props),
+    }) as PostsInfiniteHook,
+  usePostsByHashtag: (hashtag, props) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByHashtag, {
+      pathParams: { hashtag },
+      queryParams: withFeedLimit(props),
+    }) as PostsInfiniteHook,
+  usePostsByGroup: (id, props) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByGroup, {
+      pathParams: { id },
+      queryParams: withFeedLimit(props),
+    }) as PostsInfiniteHook,
+  usePostsByProfile: (id, props) =>
+    infiniteChronologicalQueryApiHook(client.posts.listByProfile, {
+      pathParams: { id },
+      queryParams: withFeedLimit(props),
+      enabled: !!id,
+    }) as PostsInfiniteHook,
+  useBookmarkedPosts: (props) =>
+    infiniteChronologicalQueryApiHook(client.posts.listBookmarks, {
+      queryParams: withFeedLimit(props),
+    }) as PostsInfiniteHook,
+  usePost: (id) =>
+    apiHook(client.posts.findById, {
+      pathParams: { id },
+    }) as PostQueryHook<PublicPost>,
+  usePostContext: (id) =>
+    apiHook(client.posts.context, {
+      pathParams: { id },
+    }) as PostQueryHook<PostContext>,
+  usePostReposts: (id) =>
+    apiHook(client.posts.reposts, {
+      pathParams: { id },
+    }) as PostQueryHook<PublicPost[]>,
+  useUnseenPostCounts: () => apiHook(client.posts.unseenCounts),
 });
-
-type PostFinders = ReturnType<typeof postFinders>;
-
-const postFindersBy = (client: OpenpeepsClient) => ({
-  usePostsByType: (type: PostType, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByType, { pathParams: { type }, queryParams: props }),
-  usePostsByHashtag: (hashtag: string, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByHashtag, { pathParams: { hashtag }, queryParams: props }),
-  usePostsByGroup: (id: string, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByGroup, { pathParams: { id }, queryParams: props }),
-  usePostsByProfile: (id: string, props: ChronologicalInfiniteQueryParams) =>
-    infiniteChronologicalQueryApiHook(client.posts.listByProfile, { pathParams: { id }, queryParams: props }),
-});
-
-type PostFindersBy = ReturnType<typeof postFindersBy>;
 
 const postMutators = (client: OpenpeepsClient) => ({
   createPostAction: payloadMutation(client.posts.create, [['posts']]),
@@ -87,22 +212,34 @@ const postMutators = (client: OpenpeepsClient) => ({
   retractPostReactionAction: noPayloadMutation(client.posts.retractReaction, [
     ['posts'],
   ]),
-  bookmarkPostAction: noPayloadMutation(client.posts.bookmark, [['posts'], ['profiles', 'current', 'bookmarkedIds']]),
-  unbookmarkPostAction: noPayloadMutation(client.posts.unbookmark, [['posts'], ['profiles', 'current', 'bookmarkedIds']]),
+  bookmarkPostAction: noPayloadMutation(client.posts.bookmark, [
+    ['posts'],
+    ['profiles', 'current', 'bookmarkedIds'],
+  ]),
+  unbookmarkPostAction: noPayloadMutation(client.posts.unbookmark, [
+    ['posts'],
+    ['profiles', 'current', 'bookmarkedIds'],
+  ]),
   markPostsSeenAction: payloadMutation(client.posts.seen, [['posts']]),
   repostPostAction: noPayloadMutation(client.posts.repost, [['posts']]),
   voteOnPostAction: payloadMutation(client.posts.vote, [['posts']]),
-  rsvpToEventAction: payloadMutation(client.posts.rsvp, [['posts'], ['rsvp']]),
+  rsvpToEventAction: payloadMutation(client.posts.rsvp, [
+    ['posts'],
+    ['rsvp'],
+  ]),
 });
 
 type PostMutators = ReturnType<typeof postMutators>;
 
-export type PostHooks = PostFeeds & PostFinders & PostFindersBy & PostMutators & EventFeeds & JamFeeds;
+export type PostHooks = PostFeeds &
+  PostFinders &
+  PostMutators &
+  EventFeeds &
+  JamFeeds;
 
 export const postHooks = (client: OpenpeepsClient): PostHooks => ({
   ...postFeeds(client),
   ...postFinders(client),
-  ...postFindersBy(client),
   ...postMutators(client),
   ...eventFeeds(client),
   ...jamFeeds(client),
