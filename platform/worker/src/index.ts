@@ -14,7 +14,13 @@ import {
   registerStreamingPrewarmHandlers,
 } from '@openpeeps/core/media';
 import { serverRootUrl } from '@openpeeps/core/server';
-import { initializeNotifications, registerDefaultNotifications, notificationQueue, notificationWorker } from '@openpeeps/core/notifications';
+import {
+  initializeNotifications,
+  registerDefaultNotifications,
+  notificationQueue,
+  notificationWorker,
+} from '@openpeeps/core/notifications';
+import { registerRsvpConfirmationEmail } from '@openpeeps/core/posts';
 import { refreshConfig } from '@openpeeps/core/config';
 
 const startWorkers = () => {
@@ -96,6 +102,8 @@ export const start = async () => {
   await initializeNotifications();
   console.log('Registering default notifications...');
   await registerDefaultNotifications();
+  console.log('Registering RSVP confirmation email handler...');
+  registerRsvpConfirmationEmail();
   console.log('Registering streaming prewarm handlers...');
   registerStreamingPrewarmHandlers();
   console.log('Setting up queues ...');

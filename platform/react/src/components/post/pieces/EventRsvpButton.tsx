@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import type { PublicPost } from '@openpeeps/common/types';
-import { calculateEffectiveRsvps } from '@openpeeps/common/lib';
+import { calculateEffectiveRsvps, checkPostCapabilities } from '@openpeeps/common/lib';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
-import { useCurrentProfile } from '../../layout/IdentityContext';
+import { useAuthData, useCurrentProfile } from '../../layout/IdentityContext';
+import { useCapabilities } from '../../server-data';
 import { Button } from '@openpeeps/react-ui';
 
 export interface EventRsvpButtonProps {
@@ -13,6 +14,8 @@ export interface EventRsvpButtonProps {
 export function EventRsvpButton({ post }: EventRsvpButtonProps) {
   const t = useT();
   const profile = useCurrentProfile();
+  const authData = useAuthData();
+  const capabilities = useCapabilities();
   const { openpeepsApi } = useOpenpeeps();
   const rsvpToEvent = openpeepsApi.rsvpToEventAction({ id: post.id });
 
@@ -22,8 +25,15 @@ export function EventRsvpButton({ post }: EventRsvpButtonProps) {
       calculateEffectiveRsvps(post).find((r) => r.profile.id === profile?.id),
     [post, profile?.id],
   );
+  const canRsvp = useMemo(
+    () =>
+      checkPostCapabilities(authData, ['core-posts-rsvp'], post, capabilities)
+        .success,
+    [authData, post, capabilities],
+  );
 
   if (myEvent || !profile) return null;
+  if (!canRsvp && !(myRsvp && myRsvp.response !== 'no')) return null;
 
   const respond = (response: 'yes' | 'tentative' | 'no') =>
     rsvpToEvent({ response });

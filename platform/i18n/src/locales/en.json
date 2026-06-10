@@ -2289,6 +2289,16 @@
             "body": "{{profileName}} has RSVP'd to your event",
             "cta": "to visit the event and see the results, click here."
         },
+        "eventRsvp": {
+            "subjectYes": "You're going: {{eventName}}",
+            "subjectMaybe": "You might attend: {{eventName}}",
+            "headingYes": "You're going to {{eventName}}",
+            "headingMaybe": "You replied maybe to {{eventName}}",
+            "intro": "We've attached a calendar file (.ics) so you can add this event to your calendar.",
+            "when": "When",
+            "where": "Where",
+            "cta": "View event"
+        },
         "reaction": {
             "subject": "{{profileName}} reacted to your post",
             "body": "{{profileName}} reacted to your post",

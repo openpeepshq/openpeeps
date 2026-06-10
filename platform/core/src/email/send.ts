@@ -192,6 +192,9 @@ export const sendEmail = async (
       from,
       replyTo: communityConf.info.contactEmail,
       ...renderedEmail,
+      ...(emailData.attachments?.length
+        ? { attachments: emailData.attachments }
+        : {}),
     });
     await logStep(
       log,
