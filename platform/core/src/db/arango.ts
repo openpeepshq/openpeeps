@@ -48,15 +48,14 @@ const handleArangoError =
 
 const waitForDatabase = async (config: ConfigOptions) => {
     const start = Date.now();
-    const database = new Database(config);
+    // Ping the server via `_system`; the target database may not exist yet.
+    const database = new Database({ ...config, databaseName: '_system' });
 
     let tryCount = 1;
     while (true) {
 
         log.info(`Checking ArangoDB availability at ${config.url} (try ${tryCount})`);
-        const availability = await database.availability(true).catch((e) => {
-            return false;
-        });
+        const availability = await database.availability(true).catch(() => false);
         if (availability) {
             log.info(`ArangoDB is available at ${config.url}`);
             break;

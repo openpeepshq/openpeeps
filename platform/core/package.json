@@ -41,7 +41,7 @@
     "type-fest": "^4.31.0",
     "uuidv7": "^1.0.2",
     "web-push": "^3.6.7",
-    "zod": "^4.3.6"
+    "zod": "^4.4.3"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "module": "esnext",
+    "target": "ES2022",
+    "module": "ESNext",
     "moduleResolution": "Bundler",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -12,42 +12,29 @@
     "composite": true,
     "skipDefaultLibCheck": true,
     "rootDir": "src",
-    "typeRoots": [
-      "src/@types",
-      "node_modules/@types"
-    ],
+    "typeRoots": ["src/@types", "node_modules/@types"],
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "jsx": "react-jsx",
-    "lib": [
-      "ESNext",
-      "dom"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
-    "noImplicitUseStrict": false,
-    "noStrictGenericChecks": false,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "resolvePackageJsonImports": false,
-    "types": [
-      "node",
-      "react"
-    ],
-    "verbatimModuleSyntax": true,
+    "types": ["node", "react"],
+    "verbatimModuleSyntax": true
   },
   "tsc-alias": {
     "verbose": false,
     "resolveFullPaths": true,
     "fileExtensions": {
       "inputGlob": "{js,mjs}",
-      "outputCheck": [
-        "js",
-        "json",
-        "mjs"
-      ]
+      "outputCheck": ["js", "json", "mjs"]
     }
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist", "node_modules"]
 }

@@ -64,6 +64,25 @@ export const checkRoleCapabilities = (
     mergeCapabilities(roles.map((r) => r.capabilities)),
   );
 
+/** Any of these matching `roles` shows the Administration row (submenu is separate UX). */
+export const ADMIN_SIDEBAR_MENU_CAPABILITIES = [
+  'admin',
+  'core-roles-read',
+  'core-logs-read',
+  'core-accounts-list',
+  'core-backups-read',
+  'core-analytics-read',
+  'core-inviteLinks-read',
+  'core-maintenance-restart',
+  'core-config-read',
+  'core-customization-read',
+] as const;
+
+export const hasAdminSidebarAccess = (roles: Role[] = []) =>
+  ADMIN_SIDEBAR_MENU_CAPABILITIES.some((cap) =>
+    checkRoleCapabilities(roles, [cap]).success,
+  );
+
 export const isLocal = (profile: ProfileWithMeta) =>
   checkRoleCapabilities(profile.roles, ['core-local']).success;
 

@@ -1,0 +1,25 @@
+{
+  "name": "@openpeeps/tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "pnpm run test:integration",
+    "pretest:integration": "pnpm --filter @openpeeps/server... build && pnpm --filter @openpeeps/web build",
+    "db:clear:test": "DB_NAME=test node scripts/db-clear-test.mjs",
+    "test:integration": "if [ -z \"$CI\" ]; then pnpm run db:clear:test; fi && unset FORCE_COLOR && DB_NAME=test playwright test",
+    "test:integration:no-clean": "unset FORCE_COLOR && DB_NAME=test playwright test",
+    "integration": "docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit tests",
+    "integration:stack": "docker compose -f docker-compose.integration.yml up --build arangodb redis web",
+    "integration:test": "docker compose -f docker-compose.integration.yml run --rm tests",
+    "integration:down": "docker compose -f docker-compose.integration.yml down -v --remove-orphans",
+    "integration:logs": "docker compose -f docker-compose.integration.yml logs -f web"
+  },
+  "devDependencies": {
+    "@openpeeps/cli": "workspace:^",
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.1.0",
+    "dotenv": "^16.4.5",
+    "typescript": "^5.5.0"
+  }
+}

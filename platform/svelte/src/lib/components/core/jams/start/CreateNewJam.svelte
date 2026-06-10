@@ -29,7 +29,7 @@
   import { getNewPostStores } from '$lib/stores';
   import { VisibilitySelector } from '../../post';
   import { ProfileSelector } from '../../profile';
-  import { checkRoleCapabilities } from '@openpeeps/common';
+  import { hasAdminSidebarAccess } from '@openpeeps/common';
   import { AccessDeniedLoader } from '$lib/components/layout';
   import { eventSanitizer } from '$lib/stores';
   import { getCurrentProfile } from '$lib/auth';
@@ -42,7 +42,7 @@
 
   const profileQuery = currentProfileStore();
   const isAdmin: boolean = $derived(
-    checkRoleCapabilities($profileQuery.data?.roles ?? [], ['admin']).success,
+    hasAdminSidebarAccess($profileQuery.data?.roles ?? []),
   );
 
   const createPost = createPostMutation();

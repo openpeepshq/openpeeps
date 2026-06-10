@@ -1,0 +1,27 @@
+@import '@openpeeps/react-ui/styles.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--theme-font-family-base, system-ui), sans-serif;
+}
+
+@layer components {
+  .allpeep-markdown {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  .allpeep-markdown pre {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+}

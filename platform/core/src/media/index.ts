@@ -7,6 +7,9 @@ import ffmpeg from 'fluent-ffmpeg';
 import path, { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import fs from 'node:fs/promises';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { getTheme, randomString } from '@openpeeps/common/lib';
 import { execSync } from 'node:child_process';
 import { logger } from '../log';
@@ -39,16 +42,68 @@ export const mediaStorage = () => {
   return storagePromise;
 };
 
-const transcodeVideo = async (input: File): Promise<Buffer> => {
-  const arrayBuffer = await input.arrayBuffer();
-  const isLargeFile = arrayBuffer.byteLength > 10 * 1024 * 1024;
-  const tempInputPath = join(
-    tmpdir(),
-    `input-${randomString(16)}-${input.name}`,
-  );
-  const tempOutputPath = join(tmpdir(), `output-${randomString(16)}.mp4`);
+/**
+ * A media source/output that lives on disk rather than in memory. The whole
+ * processing pipeline passes these around so ffmpeg/sharp read and write files
+ * directly — a multi-hundred-megabyte upload is never materialised as a
+ * `Buffer`/`ArrayBuffer`. `mimetype` carries the type that the `File` used to.
+ */
+export interface MediaFile {
+  path: string;
+  mimetype: string;
+}
 
-  await fs.writeFile(tempInputPath, Buffer.from(arrayBuffer));
+const tempPathFor = (name: string): string =>
+  join(tmpdir(), `media-${randomString(16)}${path.extname(name)}`);
+
+/**
+ * Stream a web `ReadableStream` to a temp file, preserving the original
+ * extension so format-sniffing tools (audiowaveform, sharp) behave. Peak
+ * memory is bounded by the write stream's highWaterMark, not the file size.
+ */
+export const writeStreamToTemp = async (
+  stream: ReadableStream,
+  name: string,
+): Promise<string> => {
+  const tempPath = tempPathFor(name);
+  await pipeline(
+    Readable.fromWeb(
+      stream as unknown as import('node:stream/web').ReadableStream<Uint8Array>,
+    ),
+    createWriteStream(tempPath),
+  );
+  return tempPath;
+};
+
+/** Stream a stored object straight to a temp file (never fully buffered). */
+export const writeStorageToTemp = async (
+  storageId: string,
+  name: string,
+): Promise<string> => {
+  const storage = await mediaStorage();
+  const stream = await storage.getStream(storageId);
+  if (!stream) {
+    throw new Error(`Source file not found in storage: ${storageId}`);
+  }
+  return writeStreamToTemp(stream as unknown as ReadableStream, name);
+};
+
+/** Content-address and store a file by streaming it from disk. */
+export const storeFromPath = (
+  filePath: string,
+): Promise<{ key: string; size: number }> =>
+  mediaStorage().then((storage) =>
+    storage.storeStream(
+      Readable.toWeb(
+        createReadStream(filePath),
+      ) as unknown as Parameters<MediaStorage['storeStream']>[0],
+    ),
+  );
+
+const transcodeVideo = async (inputPath: string): Promise<string> => {
+  const { size } = await fs.stat(inputPath);
+  const isLargeFile = size > 10 * 1024 * 1024;
+  const tempOutputPath = join(tmpdir(), `output-${randomString(16)}.mp4`);
 
   const baseOutput = [
     '-c:v h264', // Better for iOS hardware acceleration
@@ -63,69 +118,75 @@ const transcodeVideo = async (input: File): Promise<Buffer> => {
     '-g 24', // Standard GOP size
   ];
   if (isLargeFile) {
-    // baseOutput.push('-vf scale=-1:540'); // Scale video to 540p height
     baseOutput.push('-max_muxing_queue_size 9999'); // Helps with complex MOV files
-  } else {
-    // baseOutput.push('-vf scale=-1:720'); // Scale video to 720p height
   }
   return new Promise((resolve, reject) => {
-    ffmpeg(tempInputPath)
+    ffmpeg(inputPath)
       .size(`${previewMaxWidth}x?`)
       .output(tempOutputPath)
       .outputOptions(baseOutput)
-      .on('end', () => {
-        fs.readFile(tempOutputPath).then(resolve).catch(reject);
-      })
+      .on('end', () => resolve(tempOutputPath))
       .on('error', reject)
       .run();
   });
 };
 
+/**
+ * Returns the on-disk file to store for the attachment plus its final
+ * filename. Videos are transcoded to a temp `.mp4` (a fresh path); everything
+ * else is stored as-is (the returned `path` is the input itself).
+ */
 export const transcodeIncomingMedia = async (
   type: string,
-  input: File,
-): Promise<File> => {
+  inputPath: string,
+  originalName: string,
+  sourceMimetype: string,
+): Promise<MediaFile & { filename: string }> => {
   if (type === 'video') {
-    return new File(
-      [(await transcodeVideo(input)) as Buffer<ArrayBuffer>],
-      path.parse(input.name).name + '.mp4',
-      { type: 'video/mp4' },
-    );
+    return {
+      path: await transcodeVideo(inputPath),
+      filename: path.parse(originalName).name + '.mp4',
+      mimetype: 'video/mp4',
+    };
   }
-  return input;
+  return { path: inputPath, filename: originalName, mimetype: sourceMimetype };
 };
 
-export const createPreview = async (input: File): Promise<Blob> => {
-  switch (input.type.split('/')[0]) {
+export const createPreview = async (
+  inputPath: string,
+  mimetype: string,
+  originalName: string,
+): Promise<MediaFile> => {
+  switch (mimetype.split('/')[0]) {
     case 'image':
-      return createImagePreview(input);
+      return createImagePreview(inputPath, mimetype);
     case 'audio':
-      return createAudioPreview(input);
+      return createAudioPreview(inputPath);
     case 'video':
-      return createVideoPreview(input);
+      return createVideoPreview(inputPath);
     default:
-      if (input.name.endsWith('.mkv')) {
-        return createVideoPreview(input);
+      if (originalName.endsWith('.mkv')) {
+        return createVideoPreview(inputPath);
       }
-      return input;
+      return { path: inputPath, mimetype };
   }
 };
 
-const createImagePreview = async (input: File | Blob) => {
-  const inputImage = await input.arrayBuffer().then(sharp);
+const createImagePreview = async (
+  inputPath: string,
+  mimetype: string,
+): Promise<MediaFile> => {
+  const width = await sharp(inputPath)
+    .metadata()
+    .then((m) => m.width || 0);
 
-  if (
-    (await inputImage.metadata().then((m) => m.width || 0)) <= previewMaxWidth
-  ) {
-    return input;
-  } else {
-    return new Blob(
-      [await inputImage.rotate().resize(previewMaxWidth).webp().toBuffer() as Buffer<ArrayBuffer>],
-      {
-        type: 'image/webp',
-      },
-    );
+  if (width <= previewMaxWidth) {
+    return { path: inputPath, mimetype };
   }
+
+  const outputPath = join(tmpdir(), `preview-${randomString(16)}.webp`);
+  await sharp(inputPath).rotate().resize(previewMaxWidth).webp().toFile(outputPath);
+  return { path: outputPath, mimetype: 'image/webp' };
 };
 
 const getMediaDuration = (filePath: string): Promise<number> =>
@@ -169,40 +230,22 @@ const getVideoStreamInfo = (filePath: string): Promise<VideoStreamInfo> =>
     });
   });
 
-const createAudioPreview = async (input: File): Promise<Blob> => {
-  const arrayBuffer = await input.arrayBuffer();
-
-  return new Promise((resolve, reject) => {
-    const extension = input.name.split('.').slice(-1)[0];
-    const tempInputPath = join(
-      tmpdir(),
-      `input-${randomString(16)}.${extension}`,
-    );
-    const tempOutputPath = join(tmpdir(), `preview-${randomString(16)}.png`);
-
-    const cleanup = async () => {
-      fs.unlink(tempInputPath).catch(log.error);
-      fs.unlink(tempOutputPath).catch(log.error);
-    };
-    fs.writeFile(tempInputPath, Buffer.from(arrayBuffer)).then(async () => {
-      try {
-        const duration = await getMediaDuration(tempInputPath);
-        const pixelsPerSecond = Math.floor(700 / duration);
-        execSync(
-          `audiowaveform -i ${tempInputPath} -o ${tempOutputPath} \
+const createAudioPreview = async (inputPath: string): Promise<MediaFile> => {
+  const outputPath = join(tmpdir(), `preview-${randomString(16)}.png`);
+  try {
+    const duration = await getMediaDuration(inputPath);
+    const pixelsPerSecond = Math.floor(700 / duration);
+    execSync(
+      `audiowaveform -i ${inputPath} -o ${outputPath} \
         --background-color ffffff88 --waveform-color ${getTheme(await communityConfig()).primaryHex.slice(1)} \
         -w ${previewMaxWidth} -h ${previewMaxWidth} --pixels-per-second ${pixelsPerSecond} \
         --no-axis-labels -q`,
-        );
-        const buffer = await fs.readFile(tempOutputPath);
-        resolve(createImagePreview(new Blob([buffer as Buffer<ArrayBuffer>], { type: 'image/png' })));
-      } catch (error) {
-        reject(new Error(`Error generating audio preview: ${error}`));
-      } finally {
-        await cleanup();
-      }
-    });
-  });
+    );
+    return { path: outputPath, mimetype: 'image/png' };
+  } catch (error) {
+    await fs.unlink(outputPath).catch(() => {});
+    throw new Error(`Error generating audio preview: ${error}`);
+  }
 };
 
 /**
@@ -212,26 +255,16 @@ const createAudioPreview = async (input: File): Promise<Blob> => {
  * (not animated WebP) because RN/iOS' built-in image decoder doesn't render
  * animated WebP without an extra native dep.
  */
-const createVideoPreview = async (input: File): Promise<Blob> => {
-  const arrayBuffer = await input.arrayBuffer();
-
-  const extension = input.type.split('/')[1];
-  const tempInputPath = join(
-    tmpdir(),
-    `input-${randomString(16)}.${extension}`,
-  );
+const createVideoPreview = async (inputPath: string): Promise<MediaFile> => {
   const tempOutputPath = join(tmpdir(), `preview-${randomString(16)}.webp`);
 
   const cleanup = async () => {
-    fs.unlink(tempInputPath).catch(log.error);
     fs.unlink(tempOutputPath).catch(log.error);
   };
 
-  await fs.writeFile(tempInputPath, Buffer.from(arrayBuffer));
-
   let info: VideoStreamInfo;
   try {
-    info = await getVideoStreamInfo(tempInputPath);
+    info = await getVideoStreamInfo(inputPath);
   } catch (e) {
     await cleanup();
     throw e;
@@ -256,7 +289,7 @@ const createVideoPreview = async (input: File): Promise<Blob> => {
   const sampleRate = frameCount / Math.max(info.duration, 0.001);
 
   return new Promise((resolve, reject) => {
-    ffmpeg(tempInputPath)
+    ffmpeg(inputPath)
       .noAudio()
       .videoFilters([
         `fps=${sampleRate}`,
@@ -270,13 +303,13 @@ const createVideoPreview = async (input: File): Promise<Blob> => {
       .output(tempOutputPath)
       .on('end', async () => {
         try {
-          const buffer = await fs.readFile(tempOutputPath);
-          await cleanup();
-          if (!buffer.length) {
+          const { size } = await fs.stat(tempOutputPath);
+          if (!size) {
             throw new Error('Generated video preview is empty');
           }
-          resolve(new Blob([buffer as Buffer<ArrayBuffer>], { type: 'image/webp' }));
+          resolve({ path: tempOutputPath, mimetype: 'image/webp' });
         } catch (error: any) {
+          await cleanup();
           reject(new Error(`Error handling output file: ${error.message}`));
         }
       })

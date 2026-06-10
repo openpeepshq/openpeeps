@@ -105,7 +105,7 @@ jobs:
 
   build:
     runs-on: docker
-    needs: [ set-variables ]
+    needs: [set-variables]
     container:
       image: node:24-alpine
     steps:
@@ -147,7 +147,7 @@ jobs:
 
   test-integration:
     runs-on: docker
-    needs: [ build, set-variables ]
+    needs: [build, set-variables]
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     services:
@@ -158,7 +158,8 @@ jobs:
       redis:
         image: redis:alpine
       web:
-        image: ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
+        image:
+          ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
           }}
         credentials:
           username: ${{ vars.REGISTRY_USER }}
@@ -176,16 +177,27 @@ jobs:
       - name: Install pnpm and dependencies
         run: |
           corepack enable
-          cd platform/app
           pnpm install
+          cd platform/tests
           pnpm exec playwright install chromium chromium-headless-shell
+      - name: Wait for web service
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://web:8080/health >/dev/null 2>&1; then
+              echo "Web service is ready (attempt $i)"
+              exit 0
+            fi
+            echo "Waiting for web service... ($i/60)"
+            sleep 2
+          done
+          echo "Web service did not become ready in time" >&2
+          exit 1
       - name: Run integration tests
-        run: pnpm run test:integration:no-clean
-        working-directory: platform/app
+        run: pnpm --filter @openpeeps/tests run test:integration:no-clean
 
   commit-check:
     runs-on: docker
-    needs: [ deploy-docker, set-variables ]
+    needs: [deploy-docker, set-variables]
     container:
       image: node:24-alpine
     steps:
@@ -212,9 +224,10 @@ jobs:
   publish-packages:
     runs-on: docker
     if: forgejo.ref_name == env.DEFAULT_BRANCH
-    needs: [ commit-check, set-variables ]
+    needs: [commit-check, set-variables]
     container:
-      image: ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
+      image:
+        ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
         }}
       credentials:
         username: ${{ vars.REGISTRY_USER }}
@@ -239,7 +252,7 @@ jobs:
 
   deploy-docker:
     runs-on: docker
-    needs: [ test-integration, set-variables ]
+    needs: [test-integration, set-variables]
     container:
       image: docker:latest
     steps:

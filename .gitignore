@@ -16,3 +16,5 @@ plugins/**
 .DS_Store
 .home
 platform/react/tsconfig.tsbuildinfo
+platform/tests/test-results
+platform/tests/.logs
