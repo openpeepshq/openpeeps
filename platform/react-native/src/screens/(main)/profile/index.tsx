@@ -74,10 +74,13 @@ export const Profile: React.FC<ProfileProps> = ({ navigation, route }) => {
         onScroll={({ nativeEvent }) =>
           handleScroll(nativeEvent, query)
         }
-        scrollEventThrottle={16}>
+        scrollEventThrottle={16}
+        enableOnAndroid={true}
+        extraScrollHeight={20}
+        >
         {isLoading && <ActivityIndicator size={'small'} />}
         {!isLoading && !isError && (
-          <View className="w-full">
+          <View className="w-full" collapsable={false}>
             <ProfileHeader profile={profileData} />
             {profileData && (
               <ProfileActions
