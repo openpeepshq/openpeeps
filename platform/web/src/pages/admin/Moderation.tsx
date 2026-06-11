@@ -91,7 +91,7 @@ function SummaryTab({ reports }: { reports: ReportWithMeta[] }) {
                   </p>
                 </div>
               </div>
-              <span className="bg-warning/20 text-warning rounded px-2 py-0.5 text-xs">
+              <span className="bg-error rounded-full px-3 py-1 text-xs text-white">
                 {t('admin.moderation.report.unresolvedBadge', {
                   defaultValue: '{{reportsCount}} unresolved reports',
                   reportsCount: unresolved,

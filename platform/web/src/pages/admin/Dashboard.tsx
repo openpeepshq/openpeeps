@@ -28,7 +28,7 @@ export function AdminDashboard() {
   const statsQuery = openpeepsApi.admin.useGeneralStats();
 
   useSetPageHeader(
-    t('admin.dashboard.title', { defaultValue: 'Admin dashboard' }),
+    t('admin.dashboard.title', { defaultValue: 'Administration' }),
   );
 
   if (statsQuery.isLoading) {

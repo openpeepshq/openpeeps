@@ -13,7 +13,7 @@ export function RequestResetPassword() {
 
   const [email, setEmail] = useState('');
   const [prompt, setPrompt] = useState(
-    t('auth.resetPasswordPrompt', {
+    t('auth.requestResetPassword.prompt', {
       defaultValue:
         'Enter your email address and we will send you a link to reset your password.',
     }),
@@ -27,21 +27,22 @@ export function RequestResetPassword() {
     try {
       await performRequestResetPassword(client, { email });
       setPrompt(
-        t('auth.resetPasswordSent', {
+        t('auth.requestResetPassword.successPrompt', {
           defaultValue:
-            "If your email belongs to an account in this community, you'll receive a message with a link to change your password.",
+            "If your email belongs to an account in this community, you'll receive a message with a link where you can change your password.",
         }),
       );
       setNotice(
-        t('auth.resetPasswordSentToast', {
-          defaultValue: `Reset password link has been sent to ${email}.`,
+        t('auth.requestResetPassword.successToast', {
+          defaultValue:
+            'Reset password link has been sent to {{email}} successfully.',
           email,
         }),
       );
     } catch (err) {
       setError(
         (err as Error).message ||
-          t('auth.resetPasswordFailed', {
+          t('auth.requestResetPassword.errorFallback', {
             defaultValue: 'Failed to send reset password link, wrong email',
           }),
       );
@@ -58,19 +59,25 @@ export function RequestResetPassword() {
         }}
       >
         <h2 className="text-xl">
-          {t('auth.requestPasswordReset', {
+          {t('auth.requestResetPassword.heading', {
             defaultValue: 'Request Password Reset',
           })}
         </h2>
         <p className="pt-4">{prompt}</p>
 
-        <Label title={t('common.email', { defaultValue: 'Email' })}>
+        <Label
+          title={t('auth.requestResetPassword.email', {
+            defaultValue: 'Email',
+          })}
+        >
           <Input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            placeholder="you@email.org"
+            placeholder={t('auth.requestResetPassword.emailPlaceholder', {
+              defaultValue: 'you@email.org',
+            })}
           />
         </Label>
 
@@ -86,12 +93,14 @@ export function RequestResetPassword() {
         )}
 
         <Button
-          title="Request Password Reset"
+          title={t('auth.requestResetPassword.title', {
+            defaultValue: 'Request Password Reset',
+          })}
           action={handleSubmit}
           variant="variant-filled-primary"
           className="w-full"
         >
-          {t('common.proceed', { defaultValue: 'Proceed' })}
+          {t('auth.requestResetPassword.proceed', { defaultValue: 'Proceed' })}
         </Button>
       </form>
     </AuthLayout>

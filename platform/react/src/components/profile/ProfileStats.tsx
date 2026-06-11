@@ -9,7 +9,7 @@ export function ProfileStats({ profile }: ProfileStatsProps) {
   const t = useT();
 
   return (
-    <div className="mt-2 flex items-center gap-x-4 px-2">
+    <div className="mt-2 flex items-center gap-x-4">
       <a
         href={`/@${profile.handle}/followers`}
         className="text-sm hover:underline"

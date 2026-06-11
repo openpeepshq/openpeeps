@@ -103,26 +103,47 @@ export function AccessTokensSettings() {
             defaultValue: 'Create token',
           })}
         </h2>
+        <p className="text-muted-foreground text-sm">
+          {t('settings.accessTokens.createDescription', {
+            defaultValue: 'Create a personal access token to use the API.',
+          })}
+        </p>
         <div className="space-y-2">
-          <Label htmlFor="token-name">Name</Label>
+          <Label htmlFor="token-name">
+            {t('settings.accessTokens.name', { defaultValue: 'Name' })}
+          </Label>
           <Input
             id="token-name"
             value={form.name}
+            placeholder={t('settings.accessTokens.namePlaceholder', {
+              defaultValue: 'My integration',
+            })}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="token-description">Description</Label>
+          <Label htmlFor="token-description">
+            {t('settings.accessTokens.descriptionLabel', {
+              defaultValue: 'Description',
+            })}
+          </Label>
           <Input
             id="token-description"
             value={form.description ?? ''}
+            placeholder={t('settings.accessTokens.descriptionPlaceholder', {
+              defaultValue: 'What is this token for?',
+            })}
             onChange={(e) =>
               setForm((f) => ({ ...f, description: e.target.value }))
             }
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="token-expiration">Expiration</Label>
+          <Label htmlFor="token-expiration">
+            {t('settings.accessTokens.expiration', {
+              defaultValue: 'Expiration',
+            })}
+          </Label>
           <select
             id="token-expiration"
             className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
@@ -131,12 +152,32 @@ export function AccessTokensSettings() {
               setForm((f) => ({ ...f, expirationTime: e.target.value }))
             }
           >
-            <option value="7d">7 days</option>
-            <option value="30d">30 days</option>
-            <option value="90d">90 days</option>
-            <option value="1y">1 year</option>
+            <option value="7d">
+              {t('settings.accessTokens.expirationOptions.sevenDays', {
+                defaultValue: '7 days',
+              })}
+            </option>
+            <option value="30d">
+              {t('settings.accessTokens.expirationOptions.thirtyDays', {
+                defaultValue: '30 days',
+              })}
+            </option>
+            <option value="90d">
+              {t('settings.accessTokens.expirationOptions.ninetyDays', {
+                defaultValue: '90 days',
+              })}
+            </option>
+            <option value="1y">
+              {t('settings.accessTokens.expirationOptions.oneYear', {
+                defaultValue: '1 year',
+              })}
+            </option>
           </select>
         </div>
+
+        <p className="text-sm font-medium">
+          {t('settings.accessTokens.scopes', { defaultValue: 'Scopes' })}
+        </p>
 
         {(form.scopes ?? []).map((scope, index) => (
           <div key={index} className="flex flex-wrap items-end gap-2">
@@ -197,7 +238,7 @@ export function AccessTokensSettings() {
                 }))
               }
             >
-              Remove
+              {t('common.remove', { defaultValue: 'Remove' })}
             </Button>
           </div>
         ))}
@@ -214,7 +255,7 @@ export function AccessTokensSettings() {
             }))
           }
         >
-          Add scope
+          {t('settings.accessTokens.addScope', { defaultValue: 'Add scope' })}
         </Button>
 
         {error ? (
@@ -224,19 +265,30 @@ export function AccessTokensSettings() {
         ) : null}
 
         <Button variant="default" disabled={creating} action={create}>
-          {creating ? 'Creating…' : 'Create token'}
+          {creating
+            ? t('settings.accessTokens.creating', {
+                defaultValue: 'Creating…',
+              })
+            : t('settings.accessTokens.create', {
+                defaultValue: 'Create token',
+              })}
         </Button>
 
         {createdToken ? (
           <div className="rounded-md border p-3">
             <p className="text-sm font-semibold">
-              Copy this token now. It will not be shown again.
+              {t('settings.accessTokens.copyWarning', {
+                defaultValue:
+                  'Copy this token now. It will not be shown again.',
+              })}
             </p>
             <div className="mt-2 flex items-start gap-2">
               <code className="break-all text-sm">{createdToken}</code>
               <button
                 type="button"
-                title="Copy"
+                title={t('settings.accessTokens.copy', {
+                  defaultValue: 'Copy',
+                })}
                 onClick={() => void navigator.clipboard.writeText(createdToken)}
               >
                 <Copy className="size-4" />
@@ -247,9 +299,17 @@ export function AccessTokensSettings() {
       </section>
 
       <section className="space-y-3 rounded-md border p-4">
-        <h2 className="text-lg font-medium">Your tokens</h2>
+        <h2 className="text-lg font-medium">
+          {t('settings.accessTokens.listTitle', {
+            defaultValue: 'Your tokens',
+          })}
+        </h2>
         {tokens.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No access tokens yet.</p>
+          <p className="text-muted-foreground text-sm">
+            {t('settings.accessTokens.empty', {
+              defaultValue: 'No access tokens yet.',
+            })}
+          </p>
         ) : (
           tokens.map((token) => (
             <div key={token.id} className="rounded-md border p-3">
@@ -262,10 +322,15 @@ export function AccessTokensSettings() {
                     </p>
                   ) : null}
                   <p className="text-muted-foreground mt-1 text-xs">
-                    Expires:{' '}
+                    {t('settings.accessTokens.expiresAt', {
+                      defaultValue: 'Expires',
+                    })}
+                    :{' '}
                     {token.expiresAt
                       ? new Date(token.expiresAt).toLocaleString()
-                      : 'Never'}
+                      : t('settings.accessTokens.never', {
+                          defaultValue: 'Never',
+                        })}
                   </p>
                 </div>
                 <Button
@@ -273,7 +338,13 @@ export function AccessTokensSettings() {
                   disabled={!!token.revokedAt}
                   action={() => revokeToken({ accessTokenId: token.id })}
                 >
-                  {token.revokedAt ? 'Revoked' : 'Revoke'}
+                  {token.revokedAt
+                    ? t('settings.accessTokens.revoked', {
+                        defaultValue: 'Revoked',
+                      })
+                    : t('settings.accessTokens.revoke', {
+                        defaultValue: 'Revoke',
+                      })}
                 </Button>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">

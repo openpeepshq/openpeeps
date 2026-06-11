@@ -29,49 +29,73 @@ export function AdminMembers() {
     <div className="p-4">
       <div className="mb-4">
         <Input
-          placeholder={t('common.search', { defaultValue: 'Search…' })}
+          placeholder={t('admin.members.searchPlaceholder', {
+            defaultValue: 'Search member by name or email',
+          })}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      <div className="rounded-md border">
-        <table className="w-full text-sm">
-          <thead className="bg-surface-100">
-            <tr>
-              <th className="p-2 text-left">Profile</th>
-              <th className="p-2 text-left">Handle</th>
-              <th className="p-2 text-left">Roles</th>
-              <th className="p-2 text-left">Created</th>
-              <th className="p-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((p) => (
-              <tr key={p.id} className="border-t">
-                <td className="p-2">
-                  <div className="flex items-center gap-2">
-                    <Avatar profile={p} size={2} />
-                    <span>{p.displayName || `@${p.handle}`}</span>
-                  </div>
-                </td>
-                <td className="text-muted-foreground p-2">@{p.handle}</td>
-                <td className="p-2 text-xs">
-                  {(p.roles ?? [])
-                    .map((r) => r.displayName || r.key)
-                    .join(', ') || '—'}
-                </td>
-                <td className="text-muted-foreground p-2 text-xs">
-                  {new Date(p.createdAt).toLocaleDateString()}
-                </td>
-                <td className="p-2 text-right">
-                  <ProfileRowActions profile={p} />
-                </td>
+      {filtered.length === 0 ? (
+        <div className="flex w-full items-center justify-center p-4">
+          <h2 className="text-lg">
+            {t('admin.members.noUsersFound', {
+              defaultValue: 'No users found',
+            })}
+          </h2>
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <table className="w-full text-sm">
+            <thead className="bg-surface-100">
+              <tr>
+                <th className="p-2 text-left">
+                  {t('admin.members.profileColumn', {
+                    defaultValue: 'Profile',
+                  })}
+                </th>
+                <th className="p-2 text-left">
+                  {t('admin.members.handleColumn', { defaultValue: 'Handle' })}
+                </th>
+                <th className="p-2 text-left">
+                  {t('admin.members.rolesColumn', { defaultValue: 'Roles' })}
+                </th>
+                <th className="p-2 text-left">
+                  {t('admin.members.createdColumn', {
+                    defaultValue: 'Created',
+                  })}
+                </th>
+                <th className="p-2"></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filtered.map((p) => (
+                <tr key={p.id} className="border-t">
+                  <td className="p-2">
+                    <div className="flex items-center gap-2">
+                      <Avatar profile={p} size={2} />
+                      <span>{p.displayName || `@${p.handle}`}</span>
+                    </div>
+                  </td>
+                  <td className="text-muted-foreground p-2">@{p.handle}</td>
+                  <td className="p-2 text-xs">
+                    {(p.roles ?? [])
+                      .map((r) => r.displayName || r.key)
+                      .join(', ') || '—'}
+                  </td>
+                  <td className="text-muted-foreground p-2 text-xs">
+                    {new Date(p.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="p-2 text-right">
+                    <ProfileRowActions profile={p} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

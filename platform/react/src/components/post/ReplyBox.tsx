@@ -29,7 +29,13 @@ export function ReplyBox({ post }: ReplyBoxProps) {
   return (
     <button
       type="button"
-      title={t('posts.replyBox.reply', { defaultValue: 'Reply' })}
+      title={
+        profile
+          ? t('posts.replyBox.reply', { defaultValue: 'Reply' })
+          : t('posts.replyBox.logInToReply', {
+              defaultValue: 'Log in to reply',
+            })
+      }
       onClick={handleClick}
       className="flex w-full items-center gap-x-2 border-b-2 p-5"
     >

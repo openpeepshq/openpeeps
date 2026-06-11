@@ -59,7 +59,9 @@ export function AdminGroups() {
     <div className="p-4">
       <div className="mb-4">
         <Input
-          placeholder={t('common.search', { defaultValue: 'Search…' })}
+          placeholder={t('groups.searchPlaceholder', {
+            defaultValue: 'Search by group name',
+          })}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />

@@ -42,7 +42,7 @@ export function AdminGroupMembers() {
 
   const group = groupQuery.data;
   const headerTitle = group
-    ? `${groupName(group)} · ${t('admin.members.title', { defaultValue: 'Members' })}`
+    ? `${groupName(group)} - ${t('admin.members.title', { defaultValue: 'Members' })}`
     : t('admin.members.title', { defaultValue: 'Members' });
   useSetPageHeader(headerTitle);
 
@@ -70,9 +70,15 @@ export function AdminGroupMembers() {
         <table className="w-full text-sm">
           <thead className="bg-surface-100">
             <tr>
-              <th className="p-2 text-left">Profile</th>
-              <th className="p-2 text-left">Handle</th>
-              <th className="p-2 text-left">Roles</th>
+              <th className="p-2 text-left">
+                {t('admin.members.profileColumn', { defaultValue: 'Profile' })}
+              </th>
+              <th className="p-2 text-left">
+                {t('admin.members.handleColumn', { defaultValue: 'Handle' })}
+              </th>
+              <th className="p-2 text-left">
+                {t('admin.members.rolesColumn', { defaultValue: 'Roles' })}
+              </th>
               <th className="p-2"></th>
             </tr>
           </thead>

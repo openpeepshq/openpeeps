@@ -183,6 +183,7 @@ export function PollContent({ post }: PollContentProps) {
         <Button
           variant="variant-filled-primary"
           className="mt-4"
+          title={t('posts.poll.vote', { defaultValue: 'Vote' })}
           action={handleVote}
           disabled={submitting}
         >
@@ -204,6 +205,9 @@ export function PollContent({ post }: PollContentProps) {
         {hasVoted && !hasPollEnded ? (
           <button
             type="button"
+            title={t('posts.poll.undoVoteTitle', {
+              defaultValue: 'Undo your vote',
+            })}
             className="text-primary font-semibold"
             onClick={() => void handleClearVote()}
           >

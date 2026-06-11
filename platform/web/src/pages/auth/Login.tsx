@@ -83,7 +83,7 @@ export function Login() {
           {t('auth.login.title', { defaultValue: 'Login' })}
         </h2>
         <p>
-          {t('auth.loginIntro', {
+          {t('auth.login.welcomeBack', {
             defaultValue:
               'Welcome back, enter details below to log into your community',
           })}
@@ -91,21 +91,31 @@ export function Login() {
 
         <FormInput
           path={['email']}
-          placeholder="you@email.org"
-          description={t('common.email', { defaultValue: 'Email' })}
+          placeholder={t('auth.login.emailPlaceholder', {
+            defaultValue: 'you@email.org',
+          })}
+          description={t('auth.login.email', { defaultValue: 'Email' })}
           testId="auth-login-email"
         />
 
         <FormInput
           path={['password']}
-          description={t('common.password', { defaultValue: 'Password' })}
+          description={t('auth.login.password', { defaultValue: 'Password' })}
           type={showPassword ? 'text' : 'password'}
           testId="auth-login-password"
           tail={
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={
+                showPassword
+                  ? t('auth.login.hidePassword', {
+                      defaultValue: 'Hide password',
+                    })
+                  : t('auth.login.showPassword', {
+                      defaultValue: 'Show password',
+                    })
+              }
               className="m-0 !p-0"
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -115,7 +125,9 @@ export function Login() {
 
         <span className="px-2">
           <Link action="/auth/request-reset-password" className="text-sm">
-            {t('auth.forgotPassword', { defaultValue: 'Forgot Password?' })}
+            {t('auth.login.forgotPassword', {
+              defaultValue: 'Forgot Password?',
+            })}
           </Link>
         </span>
 
@@ -127,10 +139,10 @@ export function Login() {
 
         <SubmitButton
           action={handleSubmit}
-          title={t('auth.login.submit', { defaultValue: 'Log in' })}
+          title={t('auth.login.logIn', { defaultValue: 'Log in' })}
           disable={false}
         >
-          {t('auth.login.submit', { defaultValue: 'Log in' })}
+          {t('auth.login.logIn', { defaultValue: 'Log in' })}
         </SubmitButton>
       </Form>
 
@@ -157,7 +169,7 @@ export function Login() {
         {serverInfo.communityConfig?.settings?.openRegistrations && (
           <span>
             <RouterLink to="/about" className="op-anchor text-sm">
-              {t('navigation.joinCommunity', {
+              {t('auth.login.joinCommunity', {
                 defaultValue: 'Join Community',
               })}
             </RouterLink>
@@ -166,7 +178,9 @@ export function Login() {
         {serverInfo.publicContent && (
           <span>
             <RouterLink to="/feeds/local" className="op-anchor text-sm">
-              {t('auth.seeFeed', { defaultValue: 'See community feed' })}
+              {t('auth.login.seeCommunityFeed', {
+                defaultValue: 'See community feed',
+              })}
             </RouterLink>
           </span>
         )}

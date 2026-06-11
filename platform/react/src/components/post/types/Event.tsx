@@ -36,11 +36,13 @@ export function FeedEvent({ post }: FeedEventProps) {
   return (
     <div className="flex w-full flex-col gap-2">
       {event.image && (
-        <img
-          src={event.image}
-          className="h-48 w-full object-cover"
-          alt={`image for ${event.name ?? 'event'}`}
-        />
+        <span className="aspect-video w-full overflow-hidden">
+          <img
+            src={event.image}
+            className="h-full w-full object-cover"
+            alt={`image for ${event.name ?? 'event'}`}
+          />
+        </span>
       )}
       <div className="flex w-full items-center justify-between">
         <span className="text-error-600 text-sm">

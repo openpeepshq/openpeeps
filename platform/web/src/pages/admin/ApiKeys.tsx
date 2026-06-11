@@ -43,7 +43,7 @@ export function AdminApiKeys() {
   const createToken = openpeepsApi.admin.createServiceAccessTokenAction();
   const revokeToken = openpeepsApi.admin.revokeServiceAccessTokenAction();
 
-  useSetPageHeader('Service access tokens');
+  useSetPageHeader('Service Access Tokens');
 
   const [form, setForm] = useState<AccessTokenCreationData>(defaultForm);
   const [creating, setCreating] = useState(false);
@@ -87,7 +87,11 @@ export function AdminApiKeys() {
   return (
     <div className="space-y-6 p-4">
       <section className="space-y-3 rounded-md border p-4">
-        <h2 className="text-lg font-medium">Create service token</h2>
+        <h2 className="text-lg font-medium">Create Service Access Token</h2>
+        <p className="text-sm opacity-80">
+          Create a service token for integrations. Copy the token value when it
+          is created.
+        </p>
         <div className="space-y-2">
           <Label htmlFor="svc-name">Name</Label>
           <Input
@@ -123,6 +127,8 @@ export function AdminApiKeys() {
             ))}
           </select>
         </div>
+
+        <p className="text-sm font-medium">Scopes</p>
 
         {(form.scopes ?? []).map((scope, index) => (
           <div key={index} className="flex flex-wrap items-end gap-2">
@@ -199,7 +205,7 @@ export function AdminApiKeys() {
             }))
           }
         >
-          Add scope
+          Add Scope
         </Button>
 
         {error ? (
@@ -209,7 +215,7 @@ export function AdminApiKeys() {
         ) : null}
 
         <Button variant="default" disabled={creating} action={create}>
-          {creating ? 'Creating…' : 'Create service token'}
+          {creating ? 'Creating...' : 'Create Service Token'}
         </Button>
 
         {createdToken ? (
@@ -232,7 +238,7 @@ export function AdminApiKeys() {
       </section>
 
       <section className="space-y-3 rounded-md border p-4">
-        <h2 className="text-lg font-medium">Existing tokens</h2>
+        <h2 className="text-lg font-medium">Service Access Tokens</h2>
         {tokens.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             No service access tokens yet.
@@ -248,6 +254,12 @@ export function AdminApiKeys() {
                       {token.description}
                     </p>
                   ) : null}
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    Expires at:{' '}
+                    {token.expiresAt
+                      ? new Date(token.expiresAt).toLocaleString()
+                      : 'Never'}
+                  </p>
                 </div>
                 <Button
                   variant="outline"
@@ -258,16 +270,18 @@ export function AdminApiKeys() {
                 </Button>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
-                {token.scopes?.length
-                  ? token.scopes.map((scope, i) => (
-                      <span
-                        key={i}
-                        className="rounded-full border px-2 py-1 text-xs"
-                      >
-                        {scopeLabel(scope)}
-                      </span>
-                    ))
-                  : null}
+                {token.scopes?.length ? (
+                  token.scopes.map((scope, i) => (
+                    <span
+                      key={i}
+                      className="rounded-full border px-2 py-1 text-xs"
+                    >
+                      {scopeLabel(scope)}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs opacity-70">No scopes</span>
+                )}
               </div>
             </div>
           ))

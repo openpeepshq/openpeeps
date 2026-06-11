@@ -73,14 +73,14 @@ export function ProfileHeader({
             </div>
           )}
 
+          <ProfileStats profile={profile} />
+
           {(profile.fields ?? []).map((field) => (
             <div key={field.name} className="mt-4 flex items-center gap-2">
               <span className="text-surface-500 text-sm">{field.name}</span>
               <PostMarkdown source={field.value} className="pt-1 text-sm" />
             </div>
           ))}
-
-          <ProfileStats profile={profile} />
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@ export function Tags() {
 
   const query = openpeepsApi.usePostsByHashtag(hashtag);
 
-  useSetPageHeader(t('tags.title', { defaultValue: `#${hashtag}`, hashtag }));
+  useSetPageHeader(t('tags.title', { defaultValue: '#{{hashtag}}', hashtag }));
 
   return (
     <div className="space-y-4 p-4">

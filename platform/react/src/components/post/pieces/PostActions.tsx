@@ -69,6 +69,7 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
     }
   };
 
+  const replyLabel = t('posts.footer.reply', { defaultValue: 'Reply' });
   const repostLabel = t('posts.footer.repost', { defaultValue: 'Repost' });
   const likeLabel = t('posts.footer.like', { defaultValue: 'Like' });
 
@@ -86,12 +87,13 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
     >
       <button
         type="button"
-        className="hover:bg-surface-200 flex gap-2 justify-self-start rounded-md p-2 text-sm"
+        className="hover:bg-surface-200 flex gap-2 justify-self-start rounded-md p-2 text-sm disabled:opacity-60"
         title={t('posts.actions.reply', { defaultValue: 'Reply' })}
         onClick={stop(handleReply)}
+        disabled={disabledForGroup}
       >
         <MessageCircle className="h-4 w-4" />
-        {post.replyCount || null}
+        {compact ? post.replyCount || null : replyLabel}
       </button>
       <Button
         type="button"

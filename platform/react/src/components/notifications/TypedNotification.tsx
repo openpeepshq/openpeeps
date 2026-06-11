@@ -2,7 +2,7 @@ import {
   AtSign,
   Megaphone,
   MessageSquare,
-  Repeat2,
+  Repeat,
   Reply,
   Users,
 } from 'lucide-react';
@@ -132,7 +132,7 @@ function RepostNotification({
         className="block w-full px-4 py-2"
       >
         <p className="mb-2 flex items-center gap-2 text-sm font-semibold">
-          <Repeat2 className="size-4" />
+          <Repeat className="size-4" />
           {t('notification.repost.text', {
             defaultValue: '{{profileName}} reposted your post',
             profileName: profileName(profile),
@@ -321,7 +321,7 @@ function NewGroupInvitationNotification({
     >
       <div className="w-full px-4 py-2">
         <div className="mb-2 flex items-center gap-4">
-          <Users className="text-muted-foreground size-8" />
+          <Users className="text-surface-500 size-8" />
           <GroupAvatarThumb group={group} />
         </div>
         <p className="text-sm">
@@ -356,7 +356,7 @@ function NewGroupMemberNotification({
     >
       <div className="w-full px-4 py-2">
         <div className="mb-2 flex items-center gap-4">
-          <Users className="text-muted-foreground size-8" />
+          <Users className="text-surface-500 size-8" />
           <GroupAvatarThumb group={group} />
         </div>
         <p className="text-sm">
@@ -392,7 +392,7 @@ function GroupMemberExitNotification({
     >
       <div className="w-full px-4 py-2">
         <div className="mb-2 flex items-center gap-4">
-          <Users className="text-muted-foreground size-8" />
+          <Users className="text-surface-500 size-8" />
           <GroupAvatarThumb group={group} />
         </div>
         <p className="text-sm">
