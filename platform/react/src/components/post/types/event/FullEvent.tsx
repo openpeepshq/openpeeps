@@ -7,12 +7,18 @@ import {
   groupName,
   profileName,
 } from '@openpeeps/common/lib';
-import { Button } from '@openpeeps/react-ui';
+import { Button, PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
-import { Avatar, ProfileCard, ProfileFromId } from '../../../profile';
+import { useCreateNewConversation } from '../../../conversations';
+import {
+  Avatar,
+  FollowUnfollowButton,
+  ProfileCard,
+  ProfileFromId,
+} from '../../../profile';
 import { OpenpeepsMarkdown } from '../../../markdown/OpenpeepsMarkdown';
 import { ThreadedFeed } from '../../feed/threaded/ThreadedFeed';
 import { ReplyBox } from '../../ReplyBox';
@@ -31,6 +37,7 @@ type EventTab = 'description' | 'replies' | 'rsvps' | 'attendees';
 export function FullEvent({ post }: FullEventProps) {
   const t = useT();
   const profile = useCurrentProfile();
+  const { openCreateConversation } = useCreateNewConversation();
   const postViewRef = usePostViewRef(post.id);
   const { openpeepsApi } = useOpenpeeps();
   const contextQuery = openpeepsApi.usePostContext(post.id);
@@ -127,7 +134,9 @@ export function FullEvent({ post }: FullEventProps) {
         <div className="mt-4 flex gap-x-4">
           <div className="border-foreground/20 rounded-md border px-4 py-1">
             <p className="text-center text-sm">
-              {new Date(event.start).toLocaleString(undefined, { month: 'short' })}
+              {new Date(event.start).toLocaleString(undefined, {
+                month: 'short',
+              })}
             </p>
             <p className="text-center text-lg font-semibold">
               {new Date(event.start).getDate()}
@@ -155,24 +164,59 @@ export function FullEvent({ post }: FullEventProps) {
         </div>
       ) : null}
 
+      {event.end ? (
+        <div className="mt-4 flex gap-x-4">
+          <div className="border-foreground/20 rounded-md border px-4 py-1">
+            <p className="text-center text-sm">
+              {new Date(event.end).toLocaleString(undefined, {
+                month: 'short',
+              })}
+            </p>
+            <p className="text-center text-lg font-semibold">
+              {new Date(event.end).getDate()}
+            </p>
+          </div>
+          <div>
+            <span className="text-muted-foreground text-sm">
+              {t('events.endDate', { defaultValue: 'Ends' })}
+            </span>
+            <p>
+              {new Date(event.end).toLocaleDateString(undefined, {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </p>
+            <p className="text-muted-foreground mt-2 text-sm">
+              {new Date(event.end).toLocaleTimeString(undefined, {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>
+          </div>
+        </div>
+      ) : null}
+
       <EventLocation post={post} preview={false} />
       <EventRsvpButton post={post} />
 
-      {event.jam ? (
+      {event.jam && (myEvent || iAmModerator) ? (
         <Button
           variant="variant-filled-primary"
           className="mt-2 w-full"
           action={`/events/${post.id}/jam`}
         >
-          {myEvent || iAmModerator
-            ? t('events.jam.start', { defaultValue: 'Start jam' })
-            : t('events.joinJam', { defaultValue: 'Join jam' })}
+          {t('events.jam.start', { defaultValue: 'Start jam' })}
         </Button>
       ) : null}
 
       <nav className="mt-4 flex flex-wrap gap-2 border-b">
         {event.content ? (
-          <TabButton active={tab === 'description'} onClick={() => setTab('description')}>
+          <TabButton
+            active={tab === 'description'}
+            onClick={() => setTab('description')}
+          >
             {t('events.tabs.description', { defaultValue: 'Description' })}
           </TabButton>
         ) : null}
@@ -183,7 +227,10 @@ export function FullEvent({ post }: FullEventProps) {
           {t('events.tabs.rsvps', { defaultValue: 'RSVPs' })}
         </TabButton>
         {showJamAttendeesTab ? (
-          <TabButton active={tab === 'attendees'} onClick={() => setTab('attendees')}>
+          <TabButton
+            active={tab === 'attendees'}
+            onClick={() => setTab('attendees')}
+          >
             {t('events.tabs.jamAttendees', { defaultValue: 'Jam attendees' })}
           </TabButton>
         ) : null}
@@ -211,7 +258,35 @@ export function FullEvent({ post }: FullEventProps) {
       {tab === 'rsvps' ? (
         rsvps.length ? (
           rsvps.map((rsvp) => (
-            <ProfileCard key={rsvp.profile.id} profile={rsvp.profile} />
+            <ProfileCard
+              key={rsvp.profile.id}
+              profile={rsvp.profile}
+              action={
+                profile && profile.id !== rsvp.profile.id ? (
+                  <PopupMenu>
+                    {profile.following?.some(
+                      (f) => f.id === rsvp.profile.id,
+                    ) ? (
+                      <PopupMenuButton
+                        title={t('profile.actions.message', {
+                          defaultValue: 'Message',
+                        })}
+                        text={t('profile.actions.message', {
+                          defaultValue: 'Message',
+                        })}
+                        action={() =>
+                          openCreateConversation({
+                            profiles: [rsvp.profile],
+                            skipProfileSelection: true,
+                          })
+                        }
+                      />
+                    ) : null}
+                    <FollowUnfollowButton profile={rsvp.profile} popup />
+                  </PopupMenu>
+                ) : undefined
+              }
+            />
           ))
         ) : (
           <p className="text-muted-foreground py-4 text-sm">
@@ -254,7 +329,7 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`px-4 py-2 text-sm ${active ? 'border-b-2 border-primary font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
+      className={`px-4 py-2 text-sm ${active ? 'border-primary border-b-2 font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
     >
       {children}
     </button>

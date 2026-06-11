@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Users } from 'lucide-react';
 import { groupName } from '@openpeeps/common/lib';
 import type { GroupWithMeta } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
@@ -13,6 +13,7 @@ import {
   DialogTitle,
   Input,
 } from '@openpeeps/react-ui';
+import { AdminGroupCard } from './components/AdminGroupCard';
 
 export function AdminGroups() {
   const t = useT();
@@ -64,59 +65,22 @@ export function AdminGroups() {
         />
       </div>
 
-      <div className="rounded-md border">
-        <table className="w-full text-sm">
-          <thead className="bg-surface-100">
-            <tr>
-              <th className="p-2 text-left">Name</th>
-              <th className="p-2 text-left">Handle</th>
-              <th className="p-2 text-left">Members</th>
-              <th className="p-2 text-left">Created</th>
-              <th className="p-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((g) => (
-              <tr key={g.id} className="border-t">
-                <td className="p-2">
-                  <a className="hover:underline" href={`/groups/@${g.handle}`}>
-                    {groupName(g)}
-                  </a>
-                </td>
-                <td className="text-muted-foreground p-2">@{g.handle}</td>
-                <td className="p-2">{g.membersCount}</td>
-                <td className="text-muted-foreground p-2 text-xs">
-                  {new Date(g.createdAt).toLocaleDateString()}
-                </td>
-                <td className="p-2 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Link
-                      to={`/admin/groups/@${g.handle}/members`}
-                      className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs"
-                      title={t('admin.members.title', {
-                        defaultValue: 'Members',
-                      })}
-                    >
-                      <Users size={16} />
-                      {t('admin.members.title', { defaultValue: 'Members' })}
-                    </Link>
-                    <button
-                      type="button"
-                      className="text-error hover:bg-error/10 rounded p-1"
-                      title={t('admin.groups.delete', {
-                        defaultValue: 'Delete group',
-                      })}
-                      onClick={() => setToDelete(g)}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {filtered.length === 0 ? (
+        <div className="text-muted-foreground flex flex-col items-center gap-3 py-20">
+          <Users size={48} />
+          <p>
+            {search
+              ? t('groups.noGroupsFound', { defaultValue: 'No groups found' })
+              : t('groups.noGroupsYet', { defaultValue: 'No groups yet' })}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((g) => (
+            <AdminGroupCard key={g.id} group={g} onDelete={setToDelete} />
+          ))}
+        </div>
+      )}
 
       {toDelete ? (
         <DeleteGroupModal group={toDelete} onClose={() => setToDelete(null)} />

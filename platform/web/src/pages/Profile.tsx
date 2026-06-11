@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { Rss } from 'lucide-react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import {
   ProfileHeader,
   ProfilePostsAndReplies,
@@ -18,6 +18,8 @@ export function Profile() {
 
   const profileQuery = openpeepsApi.useProfileByHandle(handle);
   const profile = me?.handle === handle ? me : (profileQuery.data ?? undefined);
+
+  useSetPageHeader(profile?.displayName || `@${handle}`);
 
   const notFound = (
     <div className="relative flex flex-col items-center pt-20">

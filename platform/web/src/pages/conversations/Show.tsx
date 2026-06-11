@@ -6,6 +6,7 @@ import { canCreatePost } from '@openpeeps/common';
 import {
   Avatar,
   MessageInThread,
+  ProfileCard,
   useAuthData,
   useCurrentProfile,
   useToast,
@@ -17,7 +18,7 @@ const MAX_LENGTH = 500;
 export function ConversationShow() {
   const t = useT();
   const { id = '' } = useParams<{ id: string }>();
-  const { openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi, queryClient, client } = useOpenpeeps();
   const me = useCurrentProfile();
   const authData = useAuthData();
   const toast = useToast();
@@ -56,6 +57,10 @@ export function ConversationShow() {
       await createMessage(payload);
       setText('');
       await conversationQuery.refetch();
+      await queryClient.invalidateQueries({
+        queryKey: client.conversations.list.queryKey({}),
+        refetchType: 'all',
+      });
     } catch {
       toast.error(
         t('conversations.sendError', {
@@ -83,15 +88,23 @@ export function ConversationShow() {
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
-      <header className="flex items-center gap-2 border-b p-3">
-        <div className="flex -space-x-2">
-          {participants.slice(0, 4).map((p) => (
-            <Avatar key={p.id} profile={p} size={2.25} borderless />
-          ))}
-        </div>
-        <div className="text-sm font-medium">
-          {participants.map((p) => p.displayName || `@${p.handle}`).join(', ')}
-        </div>
+      <header className="border-b">
+        {participants.length === 1 && participants[0] ? (
+          <ProfileCard profile={participants[0]} showAction={false} />
+        ) : (
+          <div className="flex items-center gap-2 p-3">
+            <div className="flex -space-x-2">
+              {participants.slice(0, 4).map((p) => (
+                <Avatar key={p.id} profile={p} size={2.25} borderless />
+              ))}
+            </div>
+            <div className="text-sm font-medium">
+              {participants
+                .map((p) => p.displayName || `@${p.handle}`)
+                .join(', ')}
+            </div>
+          </div>
+        )}
       </header>
 
       <div className="flex-1 overflow-y-auto px-3">

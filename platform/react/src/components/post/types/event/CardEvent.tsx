@@ -7,6 +7,7 @@ import { useCurrentProfile } from '../../../layout/IdentityContext';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
 import { EventLocation } from '../../pieces/EventLocation';
 import { ParticipantsCard } from '../../pieces/ParticipantsCard';
+import { ProfileEventRelationship } from './ProfileEventRelationship';
 
 export interface CardEventProps {
   post: PublicPost;
@@ -61,12 +62,15 @@ export function CardEvent({ post }: CardEventProps) {
           />
         </div>
         <div className="grid gap-y-4 p-4">
-          <p className="text-muted-foreground text-sm">{formatEventTimespan(event)}</p>
+          <p className="text-muted-foreground text-sm">
+            {formatEventTimespan(event)}
+          </p>
           <h3 className="text-xl font-semibold">
             {truncateText(event.name, 100) || '-'}
           </h3>
           <div className="flex flex-wrap gap-x-2 gap-y-1">
             <EventLocation post={post} truncate />
+            <ProfileEventRelationship post={post} />
           </div>
           {jam && me ? (
             jamState?.active ? (
@@ -80,7 +84,11 @@ export function CardEvent({ post }: CardEventProps) {
                     ? t('events.jam.attendee', { defaultValue: 'attendee' })
                     : t('events.jam.attendees', { defaultValue: 'attendees' })}
                 </span>
-                <Button action={jamLink} variant="variant-filled-primary" compact>
+                <Button
+                  action={jamLink}
+                  variant="variant-filled-primary"
+                  compact
+                >
                   {t('jam.join.submit', { defaultValue: 'Join Jam' })}
                 </Button>
               </div>

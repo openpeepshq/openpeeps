@@ -1,6 +1,7 @@
-import { useSearchParams, useParams } from 'react-router-dom';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { JamRoom } from '@openpeeps/react/components';
+import { useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
+import { useT, useOpenpeeps, useCredentialsStore } from '@openpeeps/react';
+import { JamRoom, useCurrentProfile } from '@openpeeps/react/components';
 
 /**
  * `/events/:eventId/jam` — loads the jam post and hands it off to
@@ -11,15 +12,38 @@ import { JamRoom } from '@openpeeps/react/components';
  */
 export function JamEvent() {
   const t = useT();
+  const navigate = useNavigate();
   const { eventId } = useParams<{ eventId: string }>();
   const [searchParams] = useSearchParams();
   const { openpeepsApi } = useOpenpeeps();
+  const { credentialsStore } = useCredentialsStore();
+  const me = useCurrentProfile();
 
   const observer =
     searchParams.get('observer') === '1' ||
     searchParams.get('observer') === 'true';
 
+  // Guest/auth handoff: a `?token=` param authenticates this device before the
+  // jam post is fetched, mirroring the Svelte jam route.
+  const token = searchParams.get('token');
+  const tokenApplied = useRef(false);
+  if (token && !tokenApplied.current) {
+    tokenApplied.current = true;
+    void credentialsStore.set({ token });
+  }
+
   const postQuery = openpeepsApi.usePost(eventId ?? '');
+
+  // On a capability/access error, send guests to login (preserving the return
+  // path) and authenticated users back to the jams list.
+  useEffect(() => {
+    if (!postQuery.isError || !postQuery.error?.message) return;
+    if (me) {
+      navigate('/jams');
+    } else {
+      navigate(`/auth/login?redirect=${window.location.pathname}`);
+    }
+  }, [postQuery.isError, postQuery.error, me, navigate]);
 
   return (
     <div className="bg-card h-screen w-screen overflow-hidden">

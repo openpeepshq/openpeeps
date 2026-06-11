@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { Blur, Button } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
+import { subscribePushNotifications } from '../../push';
 import { useT } from '../../i18n';
 import { useServerInfo } from '../server-data';
 import { useCurrentProfile } from '../layout/IdentityContext';
@@ -58,10 +59,18 @@ const useFooterControls = () => {
   const me = useCurrentProfile();
   const serverInfo = useServerInfo();
   const { jam, jamPost } = useJamContext();
-  const { openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi, client } = useOpenpeeps();
   const { sendReactionEmoji } = useJamEventsContext();
   const participants = useParticipants();
   const raisedHands = useRaisedHands(room);
+
+  // Entering the jam room is a strong signal the user wants live updates, so
+  // opportunistically register push notifications, mirroring the Svelte
+  // `DesktopFooter` onMount subscription.
+  const vapidKey = serverInfo.vapid.publicKey;
+  useEffect(() => {
+    void subscribePushNotifications({ client, applicationServerKey: vapidKey });
+  }, [client, vapidKey]);
 
   const isModerator = !!me && jam.moderators.includes(me.id);
   const isRecording = useIsRecording();

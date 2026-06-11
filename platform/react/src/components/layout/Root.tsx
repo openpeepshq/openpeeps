@@ -11,6 +11,8 @@ import { Infos } from './Infos';
 import { useNewPostModal } from '../post/post-form/NewPostModalContext';
 import { useDefaultVisibility } from '../post/visibility';
 import { useCurrentProfile } from './IdentityContext';
+import { useRouter } from '../../contexts/router';
+import { useOpenpeeps } from '../../contexts/openpeeps';
 
 export interface RootLayoutProps {
   children?: ReactNode;
@@ -25,13 +27,23 @@ function MobileFooter() {
   const { openNewPost } = useNewPostModal();
   const visibility = useDefaultVisibility();
   const profile = useCurrentProfile();
+  const { pathname } = useRouter();
+  const { openpeepsApi } = useOpenpeeps();
+
+  // Mirror Svelte FooterMobile: composing inside a group page pre-selects the
+  // group so the new post lands in that group's context.
+  const groupHandle = pathname.startsWith('/groups/@')
+    ? (pathname.slice('/groups/@'.length).split('/')[0] ?? '')
+    : '';
+  const groupQuery = openpeepsApi.useGroupByHandle(groupHandle);
+  const group = groupQuery.data;
 
   return (
     <FooterMobile
       onNewPost={
         profile
           ? () => {
-              openNewPost({ visibility });
+              openNewPost(group ? { group } : { visibility });
             }
           : undefined
       }
@@ -52,7 +64,7 @@ export function RootLayout({ children, sideBar }: RootLayoutProps) {
         <div className="flex min-h-full w-full flex-col overflow-y-auto">
           <div className="mx-auto h-1 w-full flex-grow md:max-w-[950px]">
             <div className="flex w-full flex-col md:flex-row">
-              <aside className="bg-card hidden w-70 shrink-0 border-r md:sticky md:top-0 md:flex md:h-screen md:self-start">
+              <aside className="bg-card w-70 hidden shrink-0 border-r md:sticky md:top-0 md:flex md:h-screen md:self-start">
                 <SideBar
                   mainMenu={sideBar?.mainMenu?.()}
                   profileMenu={sideBar?.profileMenu?.()}

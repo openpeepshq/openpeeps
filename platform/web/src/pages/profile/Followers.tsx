@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { UserX } from 'lucide-react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { ProfileCard, AccessDeniedLoader } from '@openpeeps/react/components';
 import { routeHandleParam } from '../../lib/routeHandles';
 
@@ -22,21 +22,23 @@ export function Followers({ following = false }: Props) {
     ? openpeepsApi.useProfileFollowing(profile?.id ?? '')
     : openpeepsApi.useProfileFollowers(profile?.id ?? '');
 
+  const pageTitle = following
+    ? t('profile.following.pageTitle', { defaultValue: 'Following' })
+    : t('profile.followers.pageTitle', { defaultValue: 'Followers' });
+  useSetPageHeader(`${pageTitle} ${profile?.displayName ?? `@${handle}`}`);
+
   return (
     <AccessDeniedLoader queries={[profileQuery]}>
       <div className="relative">
         <h1
           className="border-b p-4 text-xl font-semibold"
           data-testid={
-            following ? 'profile-following-heading' : 'profile-followers-heading'
+            following
+              ? 'profile-following-heading'
+              : 'profile-followers-heading'
           }
         >
-          {following
-            ? t('profile.following.pageTitle', { defaultValue: 'Following' })
-            : t('profile.followers.pageTitle', {
-                defaultValue: 'Followers',
-              })}{' '}
-          {profile?.displayName ?? `@${handle}`}
+          {pageTitle} {profile?.displayName ?? `@${handle}`}
         </h1>
         <AccessDeniedLoader queries={[listQuery]}>
           {(listQuery.data ?? []).length === 0 ? (

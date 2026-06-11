@@ -5,6 +5,7 @@ import { useServerInfo } from '../server-data';
 import { useCurrentProfileSettings } from './IdentityContext';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCredentialsStore } from '../../contexts/credentialsStore';
+import { useHasAuthToken } from '../../contexts/openpeeps/hooks/useHasAuthToken';
 
 export interface AuthLayoutProps {
   description?: ReactNode;
@@ -40,22 +41,18 @@ export function AuthLayout({
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const { credentialsStore } = useCredentialsStore();
+  const hasToken = useHasAuthToken();
 
   const userTheme = getTheme(serverInfo.communityConfig, profileSettings);
   const stripeEnabled = !!serverInfo.payments?.stripe?.paidMembership?.enabled;
   const tagLine = serverInfo.communityConfig?.info?.tagLine;
 
   const profileQuery = openpeepsApi.useCurrentProfile?.();
-  // Payments hook is not yet ported in @openpeeps/react; guarded for future use.
-  const paymentQuery = (
-    openpeepsApi as unknown as {
-      checkPaymentStatus?: () => {
-        isSuccess: boolean;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data?: { subscription?: any };
-      };
-    }
-  ).checkPaymentStatus?.();
+  // Mirror Auth.svelte: only check payment status for a signed-in user on a
+  // Stripe-enabled community, otherwise the request 401s for guests.
+  const paymentQuery = openpeepsApi.usePaymentStatus({
+    enabled: hasToken && stripeEnabled && !noRedirect,
+  });
 
   const go = (url: string) => {
     if (navigate) navigate(url);
@@ -70,7 +67,7 @@ export function AuthLayout({
       if (!creds?.token) return;
 
       if (stripeEnabled && paymentQuery?.isSuccess) {
-        if (isStripeActive(paymentQuery.data?.subscription)) {
+        if (isStripeActive(paymentQuery.data)) {
           if (cancelled) return;
           if (hasPayment) go('/welcome');
           else if (

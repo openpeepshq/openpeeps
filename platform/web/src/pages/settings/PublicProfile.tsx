@@ -4,6 +4,7 @@ import { profileDataSchema } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import {
   HeaderAvatarInput,
+  LocationInput,
   useCurrentProfile,
   useServerInfo,
   useToast,
@@ -148,21 +149,11 @@ export function PublicProfileSettings() {
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="location">
-          {t('profile.form.location', { defaultValue: 'Location' })}
-        </Label>
-        <Input
-          id="location"
-          value={draft.location?.text ?? ''}
-          onChange={(e) =>
-            setDraft((d) => ({
-              ...d,
-              location: { ...d.location, text: e.target.value },
-            }))
-          }
-        />
-      </div>
+      <LocationInput
+        title={t('profile.form.location', { defaultValue: 'Location' })}
+        value={draft.location}
+        onChange={(location) => setDraft((d) => ({ ...d, location }))}
+      />
 
       {additionalFieldDefs.map((field, index) => (
         <div key={field.label} className="space-y-2">

@@ -1,59 +1,52 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapPin } from 'lucide-react';
-import {
-  Button,
-  Input,
-  Label,
-  LoadingIcon,
-  cn,
-  deepGet,
-  deepSet,
-  pathToString,
-  useFormContext,
-  useFormMessages,
-} from '@openpeeps/react-ui';
+import { Button, Input, Label, LoadingIcon, cn } from '@openpeeps/react-ui';
 import type { GeocodingResult, Location } from '@openpeeps/common';
+import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 
 export interface LocationInputProps {
   title?: string;
   description?: string;
-  path: (number | string)[];
+  value?: Location;
+  onChange: (location: Location) => void;
   placeholder?: string;
   disabled?: boolean;
   readOnly?: boolean;
-  /** Forwarded to the geocoder. Pass an async fn that returns suggestions. */
-  geocode: (query: string) => Promise<GeocodingResult[]>;
+  /** Override the geocoder. Defaults to the openpeeps geocode endpoint. */
+  geocode?: (query: string) => Promise<GeocodingResult[]>;
   /** Debounce in ms for the geocode lookup. Defaults to 1500. */
   debounceMs?: number;
 }
 
 /**
- * React port of @openpeeps/svelte/components/form/LocationInput.svelte. Wires
- * a Form-context input to a debounced geocoder + suggestion popover.
+ * Controlled port of @openpeeps/svelte/components/form/LocationInput.svelte. A
+ * text input wired to a debounced geocoder that captures coordinates from the
+ * selected suggestion.
  */
 export function LocationInput({
   title = '',
   description = '',
-  path,
+  value,
+  onChange,
   placeholder,
   disabled = false,
   readOnly = false,
   geocode,
   debounceMs = 1500,
 }: LocationInputProps) {
-  const { data, validate } = useFormContext();
-  const messages = useFormMessages();
   const t = useT();
-  const [dirty, setDirty] = useState(false);
-
-  const initialName = (deepGet(data, path) as Location | undefined)?.text ?? '';
-  const [name, setName] = useState(initialName);
+  const { openpeepsApi } = useOpenpeeps();
+  const [name, setName] = useState(value?.text ?? '');
   const [suggestions, setSuggestions] = useState<GeocodingResult[] | null>(
     null,
   );
   const [pending, setPending] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setName(value?.text ?? '');
+  }, [value?.text]);
 
   useEffect(
     () => () => {
@@ -62,33 +55,34 @@ export function LocationInput({
     [],
   );
 
-  const onSelection = (sel: Partial<GeocodingResult> & { name: string }) => {
-    setDirty(true);
-    deepSet(data as object, path, {
-      text: sel.name,
-      coordinates: sel.center,
-    } as Location);
-    setName(sel.name);
-    setSuggestions(null);
-    void validate();
+  const runGeocode = async (query: string): Promise<GeocodingResult[]> => {
+    if (geocode) return geocode(query);
+    const result = await openpeepsApi.useGeocode(query);
+    return Array.isArray(result)
+      ? result
+      : ((result as { data?: GeocodingResult[] }).data ?? []);
   };
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onSelection = (sel: Partial<GeocodingResult> & { name: string }) => {
+    onChange({ text: sel.name, coordinates: sel.center });
+    setName(sel.name);
+    setSuggestions(null);
+  };
+
+  const onTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.currentTarget.value;
     setName(text);
-    setDirty(true);
-    deepSet(data as object, path, { text });
-    void validate();
+    onChange({ text });
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (text.length < 3) {
+    if (text.trim().length < 3) {
       setSuggestions(null);
       setPending(false);
       return;
     }
     setPending(true);
     debounceRef.current = setTimeout(() => {
-      void geocode(text.trim()).then((r) => {
+      void runGeocode(text.trim()).then((r) => {
         setSuggestions(r);
         setPending(false);
       });
@@ -96,12 +90,7 @@ export function LocationInput({
   };
 
   return (
-    <Label
-      title={title}
-      description={description}
-      messages={dirty ? messages[pathToString(path)] : []}
-      classes="relative"
-    >
+    <Label title={title} description={description} classes="relative">
       <div
         className={cn(
           'op-input-group grid grid-cols-[auto_1fr_auto] rounded-full',
@@ -116,7 +105,7 @@ export function LocationInput({
           placeholder={placeholder ?? title}
           disabled={disabled}
           readOnly={readOnly}
-          onChange={onChange}
+          onChange={onTextChange}
         />
       </div>
       {(pending || suggestions) && (

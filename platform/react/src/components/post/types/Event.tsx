@@ -1,6 +1,7 @@
 import type { PublicPost } from '@openpeeps/common/types';
 import { useT } from '../../../i18n';
 import { resolveStaticUrl, useStaticRender } from '../../markdown/staticRender';
+import { EventLocation } from '../pieces/EventLocation';
 
 export interface FeedEventProps {
   post: PublicPost;
@@ -43,18 +44,21 @@ export function FeedEvent({ post }: FeedEventProps) {
       )}
       <div className="flex w-full items-center justify-between">
         <span className="text-error-600 text-sm">
-          {fmtRange(event.start, event.end)}
-          {' '}
+          {fmtRange(event.start, event.end)}{' '}
           <span className="text-muted-foreground">(your local time)</span>
         </span>
         <a
-          href={resolveStaticUrl(`/posts/${post.id}`, staticRender ? baseUrl : undefined)}
-          className="rounded-md border border-primary px-3 py-1 text-sm text-primary hover:bg-primary/10"
+          href={resolveStaticUrl(
+            `/posts/${post.id}`,
+            staticRender ? baseUrl : undefined,
+          )}
+          className="border-primary text-primary hover:bg-primary/10 rounded-md border px-3 py-1 text-sm"
         >
           {t('posts.event.viewEvent', { defaultValue: 'View Event' })}
         </a>
       </div>
       <div className="text-lg font-medium">{event.name}</div>
+      <EventLocation post={post} />
     </div>
   );
 }

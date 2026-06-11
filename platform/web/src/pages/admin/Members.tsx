@@ -3,6 +3,7 @@ import { matchesQuery } from '@openpeeps/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Avatar } from '@openpeeps/react/components';
 import { Input } from '@openpeeps/react-ui';
+import { AdminInviteActions } from './components/AdminInviteActions';
 import { ProfileRowActions } from './components/ProfileRowActions';
 
 export function AdminMembers() {
@@ -11,7 +12,12 @@ export function AdminMembers() {
   const profilesQuery = openpeepsApi.admin.useProfilesList();
   const [search, setSearch] = useState('');
 
-  useSetPageHeader(t('admin.members.title', { defaultValue: 'Members' }));
+  const headerActions = useMemo(() => <AdminInviteActions />, []);
+
+  useSetPageHeader(
+    t('admin.members.title', { defaultValue: 'Members' }),
+    headerActions,
+  );
 
   const filtered = useMemo(() => {
     const profiles = profilesQuery.data ?? [];

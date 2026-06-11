@@ -21,7 +21,9 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
   const repostsQuery = openpeepsApi.useCurrentProfileReposts();
 
   const reactToPost = openpeepsApi.reactToPostAction({ id: post.id });
-  const retractReaction = openpeepsApi.retractPostReactionAction({ id: post.id });
+  const retractReaction = openpeepsApi.retractPostReactionAction({
+    id: post.id,
+  });
   const repostPost = openpeepsApi.repostPostAction({ id: post.id });
   const deletePost = openpeepsApi.deletePostAction({ id: post.id });
 
@@ -36,12 +38,17 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
 
   if (!me) return null;
 
-  const stop =
-    (handler: () => void) => (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      handler();
-    };
+  const isGroupPost = !!post.groupId;
+  const membershipExists = !!me.memberships?.some(
+    (m) => m.group.id === post.group?.id,
+  );
+  const disabledForGroup = isGroupPost && !membershipExists;
+
+  const stop = (handler: () => void) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handler();
+  };
 
   const handleReply = () => openReply(post);
 
@@ -79,7 +86,7 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
     >
       <button
         type="button"
-        className="hover:bg-surface-200 flex justify-self-start gap-2 rounded-md p-2 text-sm"
+        className="hover:bg-surface-200 flex gap-2 justify-self-start rounded-md p-2 text-sm"
         title={t('posts.actions.reply', { defaultValue: 'Reply' })}
         onClick={stop(handleReply)}
       >
@@ -88,9 +95,10 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
       </button>
       <Button
         type="button"
-        className={`hover:bg-surface-200 flex justify-self-center gap-2 rounded-md p-2 text-sm disabled:opacity-60 ${myRepost ? 'text-primary' : ''}`}
+        className={`hover:bg-surface-200 flex gap-2 justify-self-center rounded-md p-2 text-sm disabled:opacity-60 ${myRepost ? 'text-primary' : ''}`}
         title={t('posts.actions.repost', { defaultValue: 'Repost' })}
         action={handleRepost}
+        disabled={disabledForGroup}
         spinnerOnlyOnLoading
         data-testid="posts-repost-button"
       >
@@ -99,9 +107,10 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
       </Button>
       <Button
         type="button"
-        className={`hover:bg-surface-200 flex justify-self-end gap-2 rounded-md p-2 text-sm disabled:opacity-60 ${iReacted ? 'text-primary' : ''}`}
+        className={`hover:bg-surface-200 flex gap-2 justify-self-end rounded-md p-2 text-sm disabled:opacity-60 ${iReacted ? 'text-primary' : ''}`}
         title={t('posts.actions.react', { defaultValue: 'React' })}
         action={handleReaction}
+        disabled={disabledForGroup}
         spinnerOnlyOnLoading
       >
         <ThumbsUp className="h-4 w-4" />

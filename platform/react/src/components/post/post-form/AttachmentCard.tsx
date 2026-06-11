@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
-import { Play, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Pencil, Play, X } from 'lucide-react';
 import type { MediaAttachment, MediaAttachmentData } from '@openpeeps/common';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
+import { DescriptionEditModal } from './DescriptionEditModal';
 
 export interface ComposeItem {
   key: string;
@@ -24,6 +25,7 @@ export interface AttachmentCardProps {
   onProcessed: (key: string, attachment: MediaAttachmentData) => void;
   onFailed: (key: string, error?: string) => void;
   onRemove: (key: string) => void;
+  onUpdate: (key: string, attachment: MediaAttachmentData) => void;
 }
 
 const PIE = { cx: 18, cy: 18, r: 16 } as const;
@@ -67,16 +69,26 @@ export function AttachmentCard({
   onProcessed,
   onFailed,
   onRemove,
+  onUpdate,
 }: AttachmentCardProps) {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const { state, upload, abort } = openpeepsApi.useMediaUpload();
+  const [editing, setEditing] = useState(false);
 
   const att = item.attachment;
   const uploading = !!item.file && !att && !item.failed;
   const processing = !item.failed && att?.status === 'processing';
   const failed = !!item.failed;
   const showOverlay = uploading || processing;
+  const showEdit = !showOverlay && !failed && !!att;
+
+  // Abort an in-flight byte upload if the card unmounts (e.g. the composer is
+  // dismissed) so the request doesn't linger, mirroring the Svelte
+  // `abortUploadsForAttachments` onDestroy cleanup.
+  const abortRef = useRef(abort);
+  abortRef.current = abort;
+  useEffect(() => () => abortRef.current(), []);
 
   // --- Upload phase: run the byte transfer once, report up. -----------------
   const startedRef = useRef(false);
@@ -139,16 +151,39 @@ export function AttachmentCard({
   return (
     <div className="relative aspect-square w-full overflow-hidden rounded-md border">
       {!failed ? (
-        <button
-          type="button"
-          title={t('posts.attachments.deleteTitle', {
-            defaultValue: 'Delete attachment',
-          })}
-          onClick={remove}
-          className="absolute right-1 top-1 z-20 rounded-full bg-background/80 p-1"
-        >
-          <X className="size-4" />
-        </button>
+        <div className="absolute right-1 top-1 z-20 flex gap-1">
+          {showEdit ? (
+            <button
+              type="button"
+              title={t('posts.attachments.editTitle', {
+                defaultValue: 'Edit description',
+              })}
+              onClick={() => setEditing(true)}
+              className="bg-background/80 rounded-full p-1"
+            >
+              <Pencil className="size-4" />
+            </button>
+          ) : null}
+          <button
+            type="button"
+            title={t('posts.attachments.deleteTitle', {
+              defaultValue: 'Delete attachment',
+            })}
+            onClick={remove}
+            className="bg-background/80 rounded-full p-1"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+      ) : null}
+
+      {showEdit && att ? (
+        <DescriptionEditModal
+          attachment={att}
+          open={editing}
+          onClose={() => setEditing(false)}
+          onSave={(description) => onUpdate(item.key, { ...att, description })}
+        />
       ) : null}
 
       {showOverlay ? (
@@ -189,7 +224,9 @@ export function AttachmentCard({
             {phaseLabel}
           </span>
           {etaMs !== undefined && etaMs > 1000 ? (
-            <span className="text-xs opacity-80">~{formatRemaining(etaMs)}</span>
+            <span className="text-xs opacity-80">
+              ~{formatRemaining(etaMs)}
+            </span>
           ) : null}
         </div>
       ) : null}

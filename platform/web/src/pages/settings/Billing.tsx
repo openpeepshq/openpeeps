@@ -1,6 +1,9 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AlertCircle, Calendar, CheckCircle, CreditCard } from 'lucide-react';
-import { formatTimeStamp } from '@openpeeps/common';
+import { formatTimeStamp, isOwnerProfile } from '@openpeeps/common';
 import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
 import { Button } from '@openpeeps/react-ui';
 
 function statusInfo(status: string) {
@@ -28,9 +31,22 @@ function statusInfo(status: string) {
 
 export function BillingSettings() {
   const t = useT();
+  const navigate = useNavigate();
+  const serverInfo = useServerInfo();
+  const profile = useCurrentProfile();
   const { openpeepsApi } = useOpenpeeps();
   const paymentStatusQuery = openpeepsApi.usePaymentStatus();
   const createPortal = openpeepsApi.createCustomerPortalAction();
+
+  const stripeMembershipEnabled =
+    !!serverInfo.payments?.stripe?.paidMembership?.enabled &&
+    !(profile && isOwnerProfile(profile));
+
+  useEffect(() => {
+    if (!stripeMembershipEnabled) navigate(-1);
+  }, [stripeMembershipEnabled, navigate]);
+
+  if (!stripeMembershipEnabled) return null;
 
   const onCreatePortal = async () => {
     const result = await createPortal();

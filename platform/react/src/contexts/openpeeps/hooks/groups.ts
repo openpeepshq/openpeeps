@@ -12,7 +12,10 @@ export const groupHooks = (client: OpenpeepsClient) => ({
   useGroup: (id: string) =>
     apiHook(client.groups.findById, { pathParams: { id } }),
   useGroupByHandle: (handle: string) =>
-    apiHook(client.groups.findByHandle, { pathParams: { handle } }),
+    apiHook(client.groups.findByHandle, {
+      pathParams: { handle },
+      enabled: !!handle,
+    }),
   updateGroupAction: payloadMutation(client.groups.update, [['groups']]),
   deleteGroupAction: noPayloadMutation(client.groups.delete, [['groups']]),
   useGroupMembers: (id: string) =>
@@ -25,9 +28,7 @@ export const groupHooks = (client: OpenpeepsClient) => ({
     ['groups'],
     ['profiles', 'current'],
   ]),
-  addGroupMemberAction: payloadMutation(client.groups.addMember, [
-    ['groups'],
-  ]),
+  addGroupMemberAction: payloadMutation(client.groups.addMember, [['groups']]),
   removeGroupMemberAction: noPayloadMutation(client.groups.removeMember, [
     ['groups'],
   ]),

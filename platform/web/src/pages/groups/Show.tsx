@@ -29,6 +29,33 @@ export function GroupShow() {
   const pastEvents = openpeepsApi.useGroupPastEventsFeed(group?.id ?? '');
   const [eventsTab, setEventsTab] = useState<'upcoming' | 'past'>('upcoming');
 
+  const capabilities = group?.capabilities;
+  const visibilityValue = capabilities?.none?.add?.includes('core-groups-read')
+    ? 'public'
+    : capabilities?.local?.add?.includes('core-groups-read')
+      ? 'local'
+      : 'private';
+  const postsVisibilityValue = capabilities?.none?.add?.includes(
+    'core-posts-read',
+  )
+    ? 'public'
+    : capabilities?.local?.add?.includes('core-posts-read')
+      ? 'local'
+      : 'private';
+  const whoCanJoinValue = capabilities?.local?.add?.includes('core-groups-join')
+    ? 'open'
+    : 'closed';
+  const whoCanPostValue = capabilities?.member?.add?.includes(
+    'core-posts-create-*',
+  )
+    ? 'members'
+    : 'moderators';
+  const whoCanPostEventsValue = capabilities?.member?.remove?.includes(
+    'core-posts-create-event',
+  )
+    ? 'moderators'
+    : 'members';
+
   if (groupQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
@@ -132,6 +159,33 @@ export function GroupShow() {
             <div>
               <h4 className="font-semibold">Created</h4>
               <p>{new Date(group.createdAt).toLocaleDateString()}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold">{t('groups.visibility.title')}</h4>
+              <p>{t(`groups.visibility.${visibilityValue}.description`)}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold">{t('groups.whoCanJoin.title')}</h4>
+              <p>{t(`groups.whoCanJoin.${whoCanJoinValue}.description`)}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold">{t('groups.whoCanPost.title')}</h4>
+              <p>
+                {t(`groups.whoCanPost.${whoCanPostValue}.description`)}.{' '}
+                {t(
+                  `groups.whoCanPostEvents.${whoCanPostEventsValue}.description`,
+                )}
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold">
+                {t('groups.postsVisibility.title')}
+              </h4>
+              <p>
+                {t(
+                  `groups.postsVisibility.${postsVisibilityValue}.description`,
+                )}
+              </p>
             </div>
           </section>
           <section className="border-b py-2">

@@ -15,22 +15,37 @@ import {
   DialogTitle,
   ModalFooter,
   Button,
-  Label,
-  Input,
 } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useServerInfo } from '../../server-data';
 import { useDefaultVisibility } from '../visibility';
 import { useCurrentProfile } from '../../layout/IdentityContext';
-import { defaultNewNote, defaultNewQuestion } from '../../../stores/newPosts';
+import {
+  defaultNewNote,
+  defaultNewQuestion,
+  useNewPostStores,
+} from '../../../stores/newPosts';
 import { useComposeAttachments } from './ComposeAttachments';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { PollComposerFields } from './PollComposerFields';
 import { PostAudienceSelector } from './PostAudienceSelector';
 import { PostTypeSwitcher } from './PostTypeSwitcher';
 import { audienceSummary } from './audienceChoices';
 import { Avatar } from '../../profile';
+
+const toDatetimeLocal = (iso?: string): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+// Mirrors the Svelte `defaultPostData('question')` expiry: 24h from now.
+const defaultPollExpiry = (): string =>
+  toDatetimeLocal(new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString());
 
 export interface NewPostToast {
   type: 'success' | 'error';
@@ -58,21 +73,49 @@ export function NewPostModal({
   const serverInfo = useServerInfo();
   const defaultVisibility = useDefaultVisibility();
   const me = useCurrentProfile();
+  const stores = useNewPostStores();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
   const announcePost = openpeepsApi.admin.announcePostAction();
   const joinGroup = openpeepsApi.joinGroupAction();
+
+  const noteDraft = stores.note.data;
+  const questionDraft = stores.question.data;
+  const draftContent = (type: ComposerType): string => {
+    const data = type === 'question' ? stores.question.data : stores.note.data;
+    return data.type === type ? (data.content ?? '') : '';
+  };
 
   const [composerType, setComposerType] = useState<ComposerType>('note');
   const [visibility, setVisibility] = useState<VisibilityType>(
     group ? 'group' : (initialVisibility ?? defaultVisibility),
   );
   const [groupId, setGroupId] = useState<string | undefined>(group?.id);
-  const [content, setContent] = useState(initialContent ?? '');
-  const [attachments, setAttachments] = useState<MediaAttachmentData[]>([]);
+  const [content, setContent] = useState(
+    initialContent ?? draftContent('note'),
+  );
+  const [attachments, setAttachments] = useState<MediaAttachmentData[]>(
+    noteDraft.type === 'note' ? (noteDraft.attachments ?? []) : [],
+  );
   const [audience, setAudience] = useState<PublicProfile[]>([]);
-  const [pollOptions, setPollOptions] = useState(['', '']);
-  const [expiresAt, setExpiresAt] = useState('');
+  const [pollOptions, setPollOptions] = useState<string[]>(() => {
+    const opts =
+      questionDraft.type === 'question'
+        ? questionDraft.options.map((o) => o.content)
+        : undefined;
+    return opts && opts.length >= 2 ? opts : ['', ''];
+  });
+  const [expiresAt, setExpiresAt] = useState<string>(() => {
+    const stored =
+      questionDraft.type === 'question' ? questionDraft.expiresAt : undefined;
+    return stored ? toDatetimeLocal(stored) : defaultPollExpiry();
+  });
+  const [multiple, setMultiple] = useState(
+    questionDraft.type === 'question' ? !!questionDraft.multiple : false,
+  );
+  const [votersVisible, setVotersVisible] = useState(
+    questionDraft.type === 'question' ? !!questionDraft.votersVisible : false,
+  );
   const [notify, setNotify] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [audienceOpen, setAudienceOpen] = useState(false);
@@ -81,6 +124,63 @@ export function NewPostModal({
     attachments,
     onChange: setAttachments,
   });
+
+  const selectComposerType = (next: ComposerType) => {
+    if (next === composerType) return;
+    setContent(draftContent(next));
+    setComposerType(next);
+  };
+
+  // Persist the active draft so note/poll content survives a modal close,
+  // mirroring the Svelte `postDataStore` writes in `updateStore`.
+  useEffect(() => {
+    const targetGroupId = group?.id ?? groupId;
+    const shared = {
+      visibility: group ? ('group' as const) : visibility,
+      groupId: targetGroupId,
+      audience: visibility === 'direct' ? audience : undefined,
+      mentions: [],
+    };
+    if (composerType === 'question') {
+      stores.question = {
+        ...defaultNewQuestion(serverInfo.publicContent),
+        ...shared,
+        data: {
+          type: 'question',
+          content,
+          options: pollOptions.map((text) => ({
+            type: 'note' as const,
+            content: text,
+          })),
+          expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
+          multiple,
+          votersVisible,
+        },
+      };
+    } else {
+      stores.note = {
+        ...defaultNewNote(serverInfo.publicContent),
+        ...shared,
+        data: {
+          type: 'note',
+          content,
+          attachments: attachments.length ? attachments : undefined,
+        },
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    composerType,
+    content,
+    attachments,
+    pollOptions,
+    expiresAt,
+    multiple,
+    votersVisible,
+    visibility,
+    groupId,
+    audience,
+  ]);
 
   const canNotify = useMemo(
     () =>
@@ -155,6 +255,8 @@ export function NewPostModal({
             expiresAt: expiresAt
               ? new Date(expiresAt).toISOString()
               : undefined,
+            multiple,
+            votersVisible,
           },
         };
       } else {
@@ -184,6 +286,11 @@ export function NewPostModal({
       if (notify && canNotify && response?.id) {
         await announcePost({ id: response.id });
       }
+      if (composerType === 'question') {
+        stores.resetNewQuestionState();
+      } else {
+        stores.resetNewNoteState();
+      }
       onToast({
         type: 'success',
         message: t('posts.create.successToast', {
@@ -210,7 +317,7 @@ export function NewPostModal({
     <>
       <Dialog open onOpenChange={(open) => !open && onClose()}>
         <DialogContent className="flex max-h-[90vh] max-w-xl flex-col gap-0 overflow-hidden p-0">
-          <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-6 pb-4 pt-6">
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-6 pb-4 pt-6">
             <DialogHeader>
               <DialogTitle>
                 {t('posts.newPost.title', { defaultValue: 'New post' })}
@@ -218,116 +325,92 @@ export function NewPostModal({
             </DialogHeader>
 
             {!group && me ? (
-            <button
-              type="button"
-              title={t('posts.form.changeAudience', {
-                defaultValue: 'Change audience',
-              })}
-              className="hover:bg-surface-100 flex w-full items-center gap-3 rounded-md border p-3 text-left"
-              onClick={() => setAudienceOpen(true)}
-            >
-              <Avatar profile={me} size={3} borderless />
-              <span className="flex min-w-0 flex-1 flex-col">
-                <span className="flex items-center gap-1 font-medium capitalize">
-                  {me.displayName ?? me.handle}
-                  <ChevronDown className="text-muted-foreground size-4" />
-                </span>
-                <span className="text-muted-foreground truncate text-sm">
-                  {audienceSummary(
-                    visibility,
-                    t,
-                    selectedGroupName,
-                    audience.length,
-                  )}
-                </span>
-              </span>
-            </button>
-          ) : null}
-
-          <OpenpeepsMarkdownInput
-            rows={5}
-            value={content}
-            onChange={setContent}
-            testId="posts-composer-content"
-            placeholder={
-              composerType === 'question'
-                ? t('posts.form.poll.question', { defaultValue: 'Poll question…' })
-                : t('posts.form.note.placeholder', {
-                    defaultValue: 'What is on your mind?',
-                  })
-            }
-          />
-
-          <ComposePreviewLinks content={content} />
-
-          {composerType === 'note' ? composeAttachments.previews : null}
-
-          {composerType === 'question' ? (
-            <div className="space-y-2">
-              {pollOptions.map((opt, index) => (
-                <Input
-                  key={index}
-                  value={opt}
-                  placeholder={`Option ${index + 1}`}
-                  data-testid={`posts-poll-option-${index + 1}`}
-                  onChange={(e) =>
-                    setPollOptions((prev) => {
-                      const next = [...prev];
-                      next[index] = e.target.value;
-                      return next;
-                    })
-                  }
-                />
-              ))}
-              {pollOptions.length < 6 ? (
-                <Button
-                  variant="variant-ghost-primary"
-                  action={() => setPollOptions((prev) => [...prev, ''])}
-                >
-                  {t('posts.form.poll.addOption', { defaultValue: 'Add option' })}
-                </Button>
-              ) : null}
-              <div className="space-y-1">
-                <Label htmlFor="poll-expires">
-                  {t('posts.form.poll.expiresAt', { defaultValue: 'Expires at' })}
-                </Label>
-                <Input
-                  id="poll-expires"
-                  type="datetime-local"
-                  value={expiresAt}
-                  onChange={(e) => setExpiresAt(e.target.value)}
-                />
-              </div>
-            </div>
-          ) : null}
-
-          {showNotify ? (
-            <div className="flex w-full items-center justify-between py-1">
-              <div className="flex items-center gap-2">
-                <Megaphone className="size-5" />
-                <p className="text-base">
-                  {t('posts.form.notifyEveryone', {
-                    defaultValue: 'Notify everyone',
-                  })}
-                </p>
-              </div>
               <button
                 type="button"
-                role="switch"
-                aria-checked={notify}
-                onClick={() => setNotify((v) => !v)}
-                className={`relative h-5 w-9 rounded-full transition ${
-                  notify ? 'bg-primary' : 'bg-surface-300'
-                }`}
+                title={t('posts.form.changeAudience', {
+                  defaultValue: 'Change audience',
+                })}
+                className="hover:bg-surface-100 flex w-full items-center gap-3 rounded-md border p-3 text-left"
+                onClick={() => setAudienceOpen(true)}
               >
-                <span
-                  className={`absolute top-0.5 size-4 rounded-full bg-white transition ${
-                    notify ? 'left-4' : 'left-0.5'
-                  }`}
-                />
+                <Avatar profile={me} size={3} borderless />
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="flex items-center gap-1 font-medium capitalize">
+                    {me.displayName ?? me.handle}
+                    <ChevronDown className="text-muted-foreground size-4" />
+                  </span>
+                  <span className="text-muted-foreground truncate text-sm">
+                    {audienceSummary(
+                      visibility,
+                      t,
+                      selectedGroupName,
+                      audience.length,
+                    )}
+                  </span>
+                </span>
               </button>
-            </div>
-          ) : null}
+            ) : null}
+
+            <OpenpeepsMarkdownInput
+              rows={5}
+              value={content}
+              onChange={setContent}
+              testId="posts-composer-content"
+              placeholder={
+                composerType === 'question'
+                  ? t('posts.form.poll.question', {
+                      defaultValue: 'Poll question…',
+                    })
+                  : t('posts.form.note.placeholder', {
+                      defaultValue: 'What is on your mind?',
+                    })
+              }
+            />
+
+            <ComposePreviewLinks content={content} />
+
+            {composerType === 'note' ? composeAttachments.previews : null}
+
+            {composerType === 'question' ? (
+              <PollComposerFields
+                options={pollOptions}
+                onOptionsChange={setPollOptions}
+                expiresAt={expiresAt}
+                onExpiresAtChange={setExpiresAt}
+                multiple={multiple}
+                onMultipleChange={setMultiple}
+                votersVisible={votersVisible}
+                onVotersVisibleChange={setVotersVisible}
+              />
+            ) : null}
+
+            {showNotify ? (
+              <div className="flex w-full items-center justify-between py-1">
+                <div className="flex items-center gap-2">
+                  <Megaphone className="size-5" />
+                  <p className="text-base">
+                    {t('posts.form.notifyEveryone', {
+                      defaultValue: 'Notify everyone',
+                    })}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={notify}
+                  onClick={() => setNotify((v) => !v)}
+                  className={`relative h-5 w-9 rounded-full transition ${
+                    notify ? 'bg-primary' : 'bg-surface-300'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 size-4 rounded-full bg-white transition ${
+                      notify ? 'left-4' : 'left-0.5'
+                    }`}
+                  />
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <ModalFooter className="z-30 flex-col items-stretch border-t-0 px-6 py-4">
@@ -335,7 +418,9 @@ export function NewPostModal({
               <div className="flex items-center gap-x-2">
                 <button
                   type="button"
-                  title={t('posts.form.addImage', { defaultValue: 'Add Media' })}
+                  title={t('posts.form.addImage', {
+                    defaultValue: 'Add Media',
+                  })}
                   onClick={composeAttachments.openImagePicker}
                   className="hover:bg-surface-200 rounded-md p-2"
                 >
@@ -355,7 +440,7 @@ export function NewPostModal({
 
               <PostTypeSwitcher
                 type={composerType}
-                onSelect={setComposerType}
+                onSelect={selectComposerType}
                 onClose={onClose}
               />
             </div>
