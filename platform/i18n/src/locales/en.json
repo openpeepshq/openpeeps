@@ -1828,7 +1828,9 @@
         "imageInput": {
             "maxSize": "Max size: {{size}}",
             "uploadText": "Upload Image",
-            "uploadTitle": "Upload Image"
+            "uploadTitle": "Upload Image",
+            "replace": "Replace image",
+            "remove": "Remove image"
         },
         "upload": {
             "failed": "File upload failed",

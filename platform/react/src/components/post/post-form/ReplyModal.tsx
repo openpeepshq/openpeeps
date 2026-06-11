@@ -11,7 +11,7 @@ import {
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { ThreadPost } from '../feed/threaded/ThreadPost';
-import { MentionTextarea } from './MentionTextarea';
+import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 
 export interface ReplyModalProps {
   post: PublicPost;
@@ -57,7 +57,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
           </DialogTitle>
         </DialogHeader>
         <ThreadPost post={post} noActions noMenu />
-        <MentionTextarea
+        <OpenpeepsMarkdownInput
           rows={4}
           value={content}
           onChange={setContent}
@@ -65,9 +65,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
             defaultValue: 'Write a reply…',
           })}
         />
-        {error ? (
-          <p className="text-error text-sm">{error}</p>
-        ) : null}
+        {error ? <p className="text-error text-sm">{error}</p> : null}
         <DialogFooter>
           <Button variant="variant-ghost-primary" action={onClose}>
             {t('common.cancel', { defaultValue: 'Cancel' })}
