@@ -1,9 +1,15 @@
-import { MoreHorizontal, Share } from 'lucide-react';
+import { Download, MoreHorizontal, Share } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import type { Event, PublicPost, PublicProfile } from '@openpeeps/common/types';
+import type {
+  Event,
+  JamRecording,
+  PublicPost,
+  PublicProfile,
+} from '@openpeeps/common/types';
 import {
   buildThreads,
   calculateEffectiveRsvps,
+  canAccessJamRecordings,
   groupName,
   profileName,
 } from '@openpeeps/common/lib';
@@ -11,6 +17,7 @@ import { Button, PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
+import { useToast } from '../../../layout/ToastProvider';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
 import { useCreateNewConversation } from '../../../conversations';
 import {
@@ -27,12 +34,18 @@ import { EventMenu } from '../../pieces/EventMenu';
 import { EventRsvpButton } from '../../pieces/EventRsvpButton';
 import { ShareMenu } from '../../pieces/ShareMenu';
 import { UpdatingDate } from '../../pieces/UpdatingDate';
+import { VideoPlayer } from '../../pieces/VideoPlayer';
 
 export interface FullEventProps {
   post: PublicPost;
 }
 
-type EventTab = 'description' | 'replies' | 'rsvps' | 'attendees';
+type EventTab =
+  | 'description'
+  | 'replies'
+  | 'rsvps'
+  | 'attendees'
+  | 'recordings';
 
 export function FullEvent({ post }: FullEventProps) {
   const t = useT();
@@ -40,10 +53,14 @@ export function FullEvent({ post }: FullEventProps) {
   const { openCreateConversation } = useCreateNewConversation();
   const postViewRef = usePostViewRef(post.id);
   const { openpeepsApi } = useOpenpeeps();
+  const event = post.data as Event;
   const contextQuery = openpeepsApi.usePostContext(post.id);
   const jamAttendeesQuery = openpeepsApi.useJamAttendance(post.id);
-
-  const event = post.data as Event;
+  const canViewRecordings = canAccessJamRecordings(profile, post);
+  const recordingsQuery = openpeepsApi.usePostRecordings(
+    post.id,
+    !!event.jam && canViewRecordings,
+  );
   const [tab, setTab] = useState<EventTab>(
     event.content ? 'description' : 'replies',
   );
@@ -234,6 +251,14 @@ export function FullEvent({ post }: FullEventProps) {
             {t('events.tabs.jamAttendees', { defaultValue: 'Jam attendees' })}
           </TabButton>
         ) : null}
+        {event.jam && canViewRecordings ? (
+          <TabButton
+            active={tab === 'recordings'}
+            onClick={() => setTab('recordings')}
+          >
+            {t('events.tabs.recordings', { defaultValue: 'Recordings' })}
+          </TabButton>
+        ) : null}
       </nav>
 
       {tab === 'description' && event.content ? (
@@ -311,7 +336,118 @@ export function FullEvent({ post }: FullEventProps) {
         )
       ) : null}
 
+      {tab === 'recordings' && event.jam && canViewRecordings ? (
+        recordingsQuery.isLoading ? (
+          <p className="text-muted-foreground py-4 text-sm">
+            {t('common.loading', { defaultValue: 'Loading…' })}
+          </p>
+        ) : recordingsQuery.data?.length ? (
+          recordingsQuery.data.map((recording) => (
+            <JamRecordingItem
+              key={recording.id}
+              post={post}
+              recording={recording}
+              canPublish={canViewRecordings}
+            />
+          ))
+        ) : (
+          <p className="text-muted-foreground py-4 text-sm">
+            {t('events.noRecordings', { defaultValue: 'No recordings yet.' })}
+          </p>
+        )
+      ) : null}
+
       <div className="h-[40vh]" />
+    </div>
+  );
+}
+
+function JamRecordingItem({
+  post,
+  recording,
+  canPublish,
+}: {
+  post: PublicPost;
+  recording: JamRecording;
+  canPublish: boolean;
+}) {
+  const t = useT();
+  const { success, error: toastError } = useToast();
+  const { openpeepsApi } = useOpenpeeps();
+  const publishReply = openpeepsApi.publishRecordingReplyAction({
+    id: post.id,
+    recordingId: recording.id,
+  });
+
+  return (
+    <div className="flex flex-col gap-2 py-4">
+      <UpdatingDate date={recording.createdAt} />
+      {recording.status === 'completed' && recording.attachment ? (
+        <>
+          <VideoPlayer
+            attachment={recording.attachment}
+            autoPlay={false}
+            muted={false}
+            className="aspect-video w-full rounded-md"
+          />
+          <a
+            href={recording.attachment.url}
+            download={recording.attachment.filename}
+            className="text-primary inline-flex items-center gap-1 self-start text-sm hover:underline"
+          >
+            <Download className="h-4 w-4" />
+            {t('events.downloadRecording', {
+              defaultValue: 'Download recording',
+            })}
+          </a>
+        </>
+      ) : (
+        <p className="text-muted-foreground text-sm">
+          {recording.status === 'active'
+            ? t('events.recordingInProgress', {
+                defaultValue: 'Recording in progress…',
+              })
+            : t('events.recordingProcessing', {
+                defaultValue: 'Processing recording…',
+              })}
+        </p>
+      )}
+      {canPublish &&
+      recording.status === 'completed' &&
+      recording.attachment ? (
+        recording.replyPostId ? (
+          <p className="text-muted-foreground text-sm">
+            {t('events.recordingReplyPosted', {
+              defaultValue: 'Posted to discussion',
+            })}
+          </p>
+        ) : (
+          <Button
+            variant="variant-ringed-primary"
+            className="self-start"
+            action={async () => {
+              try {
+                await publishReply();
+                success(
+                  t('events.postRecordingReplySuccess', {
+                    defaultValue: 'Recording posted to discussion',
+                  }),
+                );
+              } catch {
+                toastError(
+                  t('events.postRecordingReplyError', {
+                    defaultValue: 'Failed to post recording to discussion',
+                  }),
+                );
+              }
+            }}
+          >
+            {t('events.postRecordingReply', {
+              defaultValue: 'Post to discussion',
+            })}
+          </Button>
+        )
+      ) : null}
     </div>
   );
 }

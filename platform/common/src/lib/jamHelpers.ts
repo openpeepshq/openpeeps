@@ -20,4 +20,24 @@ export const canModerateJam = (profile: PublicProfile | undefined, post: PublicP
     !!(
         profile &&
         jamFromEvent(post)?.moderators?.includes(profile.id)
-    )
+    );
+
+export const canAccessJamRecordings = (
+    profile: PublicProfile | undefined,
+    post: PublicPost,
+) => {
+    if (!profile) {
+        return false;
+    }
+    if (post.profile.id === profile.id) {
+        return true;
+    }
+    if (post.data?.type !== 'event') {
+        return false;
+    }
+    const event = post.data;
+    if (event.moderators?.includes(profile.id)) {
+        return true;
+    }
+    return !!event.jam?.moderators?.includes(profile.id);
+};

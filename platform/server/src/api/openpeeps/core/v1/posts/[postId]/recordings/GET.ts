@@ -1,9 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
+import { canAccessJamRecordings } from '@openpeeps/common/lib';
 import { jamRecordingSchema } from '@openpeeps/common/types';
 import { listPostRecordings } from '@openpeeps/core/jams';
 import { findPost } from '@openpeeps/core/posts';
 import { forbidden, notFound } from '#lib/errors';
-import { ensurePostCapabilities } from '#lib/auth';
+import { ensureLocalProfile } from '#lib/auth';
 
 export const Param = z.object({
   postId: z.string(),
@@ -24,7 +25,11 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
       throw notFound(`Object with id ${param.postId}`);
     }
 
-    await ensurePostCapabilities(event, post, ['core-posts-read']);
+    const profile = await ensureLocalProfile(event);
+
+    if (!canAccessJamRecordings(profile, post)) {
+      throw forbidden();
+    }
 
     const recordings = await listPostRecordings(post.id);
 

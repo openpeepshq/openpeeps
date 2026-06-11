@@ -1,0 +1,67 @@
+import { Endpoint, z } from 'sveltekit-api';
+import { canAccessJamRecordings } from '@openpeeps/common/lib';
+import { jamRecordingSchema } from '@openpeeps/common/types';
+import { publishJamRecordingReply } from '@openpeeps/core/jams';
+import { findPost } from '@openpeeps/core/posts';
+import {
+  badRequest,
+  conflict,
+  forbidden,
+  notFound,
+} from '$lib/server/api/errors';
+import { ensureLocalProfile } from '$lib/server/auth';
+
+export const Param = z.object({
+  postId: z.string(),
+  recordingId: z.string(),
+});
+
+export const Output = jamRecordingSchema;
+
+export const Error = {
+  404: notFound(),
+  403: forbidden(),
+  400: badRequest(),
+  409: conflict(),
+};
+
+export default new Endpoint({ Param, Output, Error }).handle(
+  async (param, event) => {
+    const profile = await ensureLocalProfile(event);
+
+    const post = await findPost(param.postId);
+
+    if (!post) {
+      throw notFound(`Object with id ${param.postId}`);
+    }
+
+    if (!canAccessJamRecordings(profile, post)) {
+      throw forbidden();
+    }
+
+    try {
+      return await publishJamRecordingReply(post, param.recordingId);
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      if (error.message === 'Recording not found') {
+        throw notFound(error.message);
+      }
+
+      if (error.message === 'Recording already published') {
+        throw conflict(error.message);
+      }
+
+      if (
+        error.message === 'Recording is not ready' ||
+        error.message === 'Recording does not belong to this event'
+      ) {
+        throw badRequest(error.message);
+      }
+
+      throw error;
+    }
+  },
+);

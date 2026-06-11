@@ -8,7 +8,6 @@ import {
 } from '@openpeeps/core/jams';
 import { mediaStorage } from '@openpeeps/core/media';
 import { createMediaAttachment } from '@openpeeps/core/mediaAttachments';
-import { createPost } from '@openpeeps/core/posts';
 import { serverRootUrl } from '@openpeeps/core/server';
 import { json, type RequestEvent } from '@sveltejs/kit';
 import { createHash, randomUUID } from 'node:crypto';
@@ -66,23 +65,6 @@ const processCompleteFile = async (
         description: event.name || 'jam-recording',
     });
     await completeJamRecording(recordingId, mediaAttachment);
-
-    await createPost(
-        {
-            type: 'note',
-            content: `Jam recording for ${event.name}`,
-            attachments: [mediaAttachment]
-        },
-        recording.post.profile,
-        {
-            type: 'note',
-            visibility: recording.post.visibility,
-        },
-        {
-            inReplyToId: recording.post.id,
-            groupId: recording.post.groupId,
-            audience: recording.post.audience,
-        });
 
     await finishRecording(recording);
 

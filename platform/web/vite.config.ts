@@ -49,18 +49,19 @@ export default defineConfig({
         target: apiTarget,
         changeOrigin: true,
       },
-      // LiveKit egress uploads jam recordings here; the observer page loads
-      // stored media from `/storage`. Forward both to the API server so they
-      // work when the dev server is exposed publicly (e.g. via a tunnel).
-      '/egress': {
-        target: apiTarget,
-        changeOrigin: true,
-      },
+      // LiveKit egress uploads jam recordings to `/s3`; the observer page it
+      // records loads stored media from `/storage`; HLS VOD playback fetches
+      // playlists/segments from `/media/streaming`. Forward these to the API
+      // server so they work in dev (and when exposed publicly via a tunnel).
       '/s3': {
         target: apiTarget,
         changeOrigin: true,
       },
       '/storage': {
+        target: apiTarget,
+        changeOrigin: true,
+      },
+      '/media/streaming': {
         target: apiTarget,
         changeOrigin: true,
       },

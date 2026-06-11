@@ -54,20 +54,17 @@ const assertEgressCanReachRecordingHost = async (recordingUrl: string) => {
   }
 };
 
-/** Relative path for human observers (full jam UI). */
+/**
+ * Relative path for the observer view (full jam UI). Used both for human
+ * moderator observer links and as the page LiveKit web egress records.
+ */
 export const getJamObserverPath = async (jamId: string) => {
   const jamEgressToken = await getJamEgressToken(jamId);
   return `/events/${jamId}/jam?observer=true&token=${jamEgressToken}`;
 };
 
-/** Relative path for LiveKit web egress (minimal HTML page). */
-export const getJamEgressPath = async (jamId: string) => {
-  const jamEgressToken = await getJamEgressToken(jamId);
-  return `/egress/jams/${jamId}?token=${jamEgressToken}`;
-};
-
 export const getJamRecordingUrl = async (jamId: string) =>
-  `${await serverRootUrl()}${await getJamEgressPath(jamId)}`;
+  `${await serverRootUrl()}${await getJamObserverPath(jamId)}`;
 
 
 const getEgressClient = async () => {
@@ -115,8 +112,6 @@ export const startRecording = async (profile: ProfileWithMeta, jamPost: PostWith
     }),
     {
       encodingOptions: EncodingOptionsPreset.H264_1080P_30,
-      // Wait for the egress page to log `START_RECORDING` before capturing.
-      awaitStartSignal: true,
     });
 
   recording = await updateJamRecording(recordingId, {

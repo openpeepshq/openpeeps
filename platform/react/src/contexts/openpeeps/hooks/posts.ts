@@ -8,6 +8,7 @@ import {
 } from '../helpers';
 import type {
   ChronologicalInfiniteQueryParams,
+  JamRecording,
   PostContext,
   PostType,
   PublicPost,
@@ -154,6 +155,10 @@ type PostFinders = {
   usePost: (id: string) => PostQueryHook<PublicPost>;
   usePostContext: (id: string) => PostQueryHook<PostContext>;
   usePostReposts: (id: string) => PostQueryHook<PublicPost[]>;
+  usePostRecordings: (
+    id: string,
+    enabled?: boolean,
+  ) => PostQueryHook<JamRecording[]>;
   useUnseenPostCounts: () => ReturnType<typeof apiHook<UnseenPostCounts>>;
 };
 
@@ -201,6 +206,11 @@ const postFinders = (client: OpenpeepsClient): PostFinders => ({
     apiHook(client.posts.reposts, {
       pathParams: { id },
     }) as PostQueryHook<PublicPost[]>,
+  usePostRecordings: (id, enabled = true) =>
+    apiHook(client.posts.recordings, {
+      pathParams: { id },
+      enabled: enabled && !!id,
+    }) as PostQueryHook<JamRecording[]>,
   useUnseenPostCounts: () => apiHook(client.posts.unseenCounts),
 });
 
@@ -227,6 +237,10 @@ const postMutators = (client: OpenpeepsClient) => ({
     ['posts'],
     ['rsvp'],
   ]),
+  publishRecordingReplyAction: noPayloadMutation(
+    client.posts.publishRecordingReply,
+    [['posts']],
+  ),
 });
 
 type PostMutators = ReturnType<typeof postMutators>;

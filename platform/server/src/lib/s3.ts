@@ -1,5 +1,12 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdir, readdir, readFile, rmdir, unlink, writeFile } from 'node:fs/promises';
+import {
+  mkdir,
+  readdir,
+  readFile,
+  rmdir,
+  unlink,
+  writeFile,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import express, { type Express, type Request, type Response } from 'express';
@@ -12,7 +19,6 @@ import {
 import { logger } from '@openpeeps/core/log';
 import { mediaStorage } from '@openpeeps/core/media';
 import { createMediaAttachment } from '@openpeeps/core/mediaAttachments';
-import { createPost } from '@openpeeps/core/posts';
 import { serverRootUrl } from '@openpeeps/core/server';
 
 const log = logger('server:s3');
@@ -137,25 +143,6 @@ const processCompleteFile = async (
   });
   await completeJamRecording(recordingId, mediaAttachment);
 
-  await createPost(
-    {
-      type: 'note',
-      content: `Jam recording for ${event.name}`,
-      attachments: [mediaAttachment],
-    },
-    recording.post.profile,
-    {
-      type: 'note',
-      visibility: recording.post.visibility,
-      creatorId: recording.post.profile.id,
-    },
-    {
-      inReplyToId: recording.post.id,
-      groupId: recording.post.groupId,
-      audience: recording.post.audience,
-    },
-  );
-
   await finishRecording(recording);
 };
 
@@ -208,7 +195,10 @@ const handlePut = async (req: Request, res: Response) => {
     }
 
     const chunkData = await blob.arrayBuffer();
-    await writeFile(join(state.tempDir, `part-${partNum}`), new Uint8Array(chunkData));
+    await writeFile(
+      join(state.tempDir, `part-${partNum}`),
+      new Uint8Array(chunkData),
+    );
     const etag = generateETag(chunkData);
     state.parts.set(partNum, { etag, size: chunkData.byteLength });
 

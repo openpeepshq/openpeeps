@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import Hls from 'hls.js';
+import { HlsVideo } from '@videojs/react/media/hls-video';
 import { CircleAlert, LoaderCircle } from 'lucide-react';
 import type { MediaAttachmentData, MediaStream } from '@openpeeps/common';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
@@ -27,10 +27,11 @@ const originOf = (url: string): string => {
 };
 
 /**
- * Plays post-attachment videos through the server's HLS VOD endpoints, mirroring
- * the Svelte gallery `VideoPlayer`: same-origin (local) media is transcoded via
- * `createVodStream` + status polling and played as HLS; federated media falls
- * back to the source URL directly.
+ * Plays post-attachment videos through the server's HLS VOD endpoints using the
+ * `@videojs/react` (video.js v10) `HlsVideo` component, mirroring the Svelte
+ * gallery `VideoPlayer`: same-origin (local) media is transcoded via
+ * `createVodStream` + status polling and played through `HlsVideo`; federated
+ * media falls back to the source URL on a plain `<video>`.
  */
 export function VideoPlayer({
   attachment,
@@ -104,31 +105,26 @@ export function VideoPlayer({
       disposed = true;
       if (pollTimer) clearTimeout(pollTimer);
     };
-    // createVodStream/getVodStreamStatus are re-created each render; depend only
-    // on the source URL so the flow runs once per attachment.
+    // create/get actions are re-created each render; depend only on the source
+    // URL so the flow runs once per attachment.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attachment.url]);
 
-  // Attach the HLS stream once the playlist is ready (native HLS on Safari,
-  // hls.js elsewhere).
+  // Best-effort autoplay once the media element can play, retrying muted if the
+  // browser blocks unmuted autoplay.
   useEffect(() => {
-    if (mode !== 'local' || localState !== 'ready' || !hlsUrl) return;
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = hlsUrl;
-      return;
-    }
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(hlsUrl);
-      hls.attachMedia(video);
-      return () => hls.destroy();
-    }
-    video.src = hlsUrl;
-    return;
-  }, [mode, localState, hlsUrl]);
+    if (!autoPlay) return;
+    const el = videoRef.current;
+    if (!el) return;
+    const canPlay =
+      mode === 'federated' ||
+      (mode === 'local' && localState === 'ready' && !!hlsUrl);
+    if (!canPlay || !el.paused) return;
+    void el.play().catch(() => {
+      el.muted = true;
+      void el.play().catch(() => undefined);
+    });
+  }, [autoPlay, mode, localState, hlsUrl]);
 
   if (mode === 'federated') {
     return (
@@ -145,10 +141,11 @@ export function VideoPlayer({
     );
   }
 
-  if (mode === 'local' && localState === 'ready') {
+  if (mode === 'local' && localState === 'ready' && hlsUrl) {
     return (
-      <video
+      <HlsVideo
         ref={videoRef}
+        src={hlsUrl}
         poster={attachment.previewUrl ?? undefined}
         controls
         autoPlay={autoPlay}
