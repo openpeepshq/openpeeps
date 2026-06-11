@@ -6,7 +6,12 @@ import {
   useIsSpeaking,
   useRoomContext,
 } from '@livekit/components-react';
-import { AudioLines, Hand, Mic, MicOff } from 'lucide-react';
+import { AudioLines, Ellipsis, Hand, Mic, MicOff } from 'lucide-react';
+import { PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
+import { useOpenpeeps } from '../../contexts/openpeeps';
+import { useT } from '../../i18n';
+import { useCurrentProfile } from '../layout/IdentityContext';
+import { useToast } from '../layout/ToastProvider';
 import { Avatar } from '../profile';
 import { JamAnimatedEmoji } from './JamAnimatedEmoji';
 import { useJamContext } from './JamContext';
@@ -40,6 +45,67 @@ function JamParticipantReactions({
   );
 }
 
+/** Moderator-only menu to mute a remote participant. Mirrors the Svelte
+ * `CallParticipant` mute control and the React Native action sheet. */
+function JamParticipantModeratorMenu({
+  trackRef,
+}: {
+  trackRef: TrackReferenceOrPlaceholder;
+}) {
+  const t = useT();
+  const { jamPost } = useJamContext();
+  const { openpeepsApi } = useOpenpeeps();
+  const { success, error } = useToast();
+  const muteParticipant = openpeepsApi.muteJamParticipantAction({
+    id: jamPost.id,
+  });
+  const participant = trackRef.participant;
+
+  const handleMute = async () => {
+    const audioPublication = participant
+      .getTrackPublications()
+      .find((pub) => pub.track?.kind === 'audio');
+    if (!audioPublication) return;
+    try {
+      await muteParticipant({
+        identity: participant.identity,
+        trackSid: audioPublication.trackSid,
+      });
+      success(
+        t('jams.participants.muteSuccess', {
+          defaultValue: 'Participant muted successfully',
+        }),
+      );
+    } catch {
+      error(
+        t('jams.participants.muteError', {
+          defaultValue: 'Failed to mute participant',
+        }),
+      );
+    }
+  };
+
+  return (
+    <PopupMenu
+      icon={Ellipsis}
+      className="bg-surface-50/70"
+      iconSize={16}
+      title={t('jams.participants.title', { defaultValue: 'Participants' })}
+    >
+      <PopupMenuButton
+        title={t('jams.participants.muteParticipant', {
+          defaultValue: 'Mute Participant',
+        })}
+        text={t('jams.participants.muteParticipant', {
+          defaultValue: 'Mute Participant',
+        })}
+        icon={MicOff}
+        action={handleMute}
+      />
+    </PopupMenu>
+  );
+}
+
 /** Overlay mirroring the Svelte `ParticipantOverlay`: raised hand + mic state
  * indicators on top, name (with moderator `*` prefix) at the bottom. */
 function JamParticipantOverlay({
@@ -51,6 +117,7 @@ function JamParticipantOverlay({
 }) {
   const participant = trackRef.participant;
   const room = useRoomContext();
+  const me = useCurrentProfile();
   const { jam } = useJamContext();
   const raisedHands = useRaisedHands(room);
   const speaking = useIsSpeaking(participant);
@@ -59,6 +126,7 @@ function JamParticipantOverlay({
   const handUp = raisedHands.has(participant.identity);
   const profile = parseParticipantMetadata(participant.metadata).profile;
   const isModerator = jam.moderators.includes(participant.identity);
+  const viewerIsModerator = !!me && jam.moderators.includes(me.id);
 
   const iconSize = compact ? 'size-3' : 'size-3 md:size-4';
 
@@ -67,11 +135,14 @@ function JamParticipantOverlay({
       className={`absolute right-0 top-0 flex h-full w-full flex-col justify-between ${compact ? '' : 'md:p-3'}`}
     >
       <div className="flex w-full items-start justify-between">
-        <div>
+        <div className="flex items-center gap-1">
           {handUp ? (
             <div className="bg-surface-50/70 rounded-full p-2">
               <Hand className={iconSize} />
             </div>
+          ) : null}
+          {viewerIsModerator && !participant.isLocal ? (
+            <JamParticipantModeratorMenu trackRef={trackRef} />
           ) : null}
         </div>
         <div

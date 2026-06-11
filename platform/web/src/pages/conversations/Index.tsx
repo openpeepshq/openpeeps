@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { MessageCircleOff, Calendar, MessageSquarePlus } from 'lucide-react';
 import type { PublicPost } from '@openpeeps/common/types';
-import { truncateText } from '@openpeeps/common';
+import { canCreatePost, truncateText } from '@openpeeps/common';
 import {
   useT,
   useOpenpeeps,
@@ -12,6 +12,7 @@ import {
   Avatar,
   PostMarkdown,
   UpdatingDate,
+  useAuthData,
   useCurrentProfile,
   useCreateNewConversation,
 } from '@openpeeps/react/components';
@@ -69,15 +70,22 @@ export function ConversationsIndex() {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const { openCreateConversation } = useCreateNewConversation();
+  const authData = useAuthData();
   const query = openpeepsApi.useConversations();
 
+  const canCreate = canCreatePost(authData, 'note', 'direct');
   const plusButton = useMemo(
-    () => ({
-      title: t('conversations.newMessage', { defaultValue: 'New message' }),
-      icon: MessageSquarePlus,
-      action: () => openCreateConversation(),
-    }),
-    [t, openCreateConversation],
+    () =>
+      canCreate
+        ? {
+            title: t('conversations.newMessage', {
+              defaultValue: 'New message',
+            }),
+            icon: MessageSquarePlus,
+            action: () => openCreateConversation(),
+          }
+        : undefined,
+    [canCreate, t, openCreateConversation],
   );
   useSetPlusButtonActions(plusButton);
 

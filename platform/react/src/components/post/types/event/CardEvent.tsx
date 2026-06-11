@@ -1,9 +1,12 @@
-import { useMemo } from 'react';
 import type { Event, PublicPost } from '@openpeeps/common/types';
-import { calculateEffectiveRsvps, truncateText } from '@openpeeps/common/lib';
+import { getJamUrl, truncateText } from '@openpeeps/common/lib';
+import { Button } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
+import { useT } from '../../../../i18n';
+import { useCurrentProfile } from '../../../layout/IdentityContext';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
 import { EventLocation } from '../../pieces/EventLocation';
+import { ParticipantsCard } from '../../pieces/ParticipantsCard';
 
 export interface CardEventProps {
   post: PublicPost;
@@ -29,11 +32,20 @@ function formatEventTimespan(event: Event) {
 }
 
 export function CardEvent({ post }: CardEventProps) {
+  const t = useT();
+  const me = useCurrentProfile();
   const postViewRef = usePostViewRef(post.id);
   const { openpeepsApi } = useOpenpeeps();
   const event = post.data as Event;
+  const jam = event.jam;
   const jamStateQuery = openpeepsApi.useJamState(post.id);
-  const rsvps = useMemo(() => calculateEffectiveRsvps(post) || [], [post]);
+  const jamState = jam ? jamStateQuery.data : undefined;
+  const attendeesLength = jamState?.participants.length ?? 0;
+
+  const jamLink = getJamUrl(
+    post.id,
+    typeof window !== 'undefined' ? window.location.origin : undefined,
+  );
 
   return (
     <a
@@ -56,19 +68,29 @@ export function CardEvent({ post }: CardEventProps) {
           <div className="flex flex-wrap gap-x-2 gap-y-1">
             <EventLocation post={post} truncate />
           </div>
-          {event.jam ? (
-            <div className="text-muted-foreground text-xs">
-              {jamStateQuery.isLoading ? (
-                <span>Loading jam…</span>
-              ) : (
-                <span>
-                  {rsvps.length} {rsvps.length === 1 ? 'RSVP' : 'RSVPs'}
-                  {jamStateQuery.data?.participants?.length
-                    ? ` · ${jamStateQuery.data.participants.length} in jam`
-                    : ''}
+          {jam && me ? (
+            jamState?.active ? (
+              <div className="text-surface-600 flex items-center justify-start gap-2 text-xs">
+                <span className="w-12">
+                  <ParticipantsCard jamState={jamState} />
                 </span>
-              )}
-            </div>
+                <span>
+                  {attendeesLength}{' '}
+                  {attendeesLength === 1
+                    ? t('events.jam.attendee', { defaultValue: 'attendee' })
+                    : t('events.jam.attendees', { defaultValue: 'attendees' })}
+                </span>
+                <Button action={jamLink} variant="variant-filled-primary" compact>
+                  {t('jam.join.submit', { defaultValue: 'Join Jam' })}
+                </Button>
+              </div>
+            ) : jam.moderators.includes(me.id) ? (
+              <div>
+                <Button action={jamLink} variant="variant-filled-primary">
+                  {t('jam.start.submit', { defaultValue: 'Start Jam' })}
+                </Button>
+              </div>
+            ) : null
           ) : null}
         </div>
       </div>

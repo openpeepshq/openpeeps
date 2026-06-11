@@ -25,6 +25,9 @@ export {
   defaultNewNote,
   defaultNewQuestion,
   eventSanitizer,
+  getReplyStore,
+  resetReplyData,
+  useReplyStore,
 } from './newPosts';
 export type {
   Crumb,

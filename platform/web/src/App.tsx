@@ -38,6 +38,7 @@ import { Register } from './pages/auth/Register';
 import { RegisterInvitation } from './pages/auth/RegisterInvitation';
 import { RequestResetPassword } from './pages/auth/RequestResetPassword';
 import { ResetPassword } from './pages/auth/ResetPassword';
+import { ValidateEmail } from './pages/auth/ValidateEmail';
 
 import { Settings } from './pages/settings/Index';
 
@@ -355,6 +356,7 @@ function AppShell() {
               element={<RequestResetPassword />}
             />
             <Route path="/auth/reset-password" element={<ResetPassword />} />
+            <Route path="/auth/validate-email" element={<ValidateEmail />} />
             <Route path="/auth/closed" element={<AuthClosed />} />
             <Route
               path="/auth/sso/generic"

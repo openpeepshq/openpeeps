@@ -185,6 +185,41 @@ export const useNewPostStores = (): NewPostsState => {
   return initialized!;
 };
 
+const defaultReplyData = (inReplyToId: string): PostCreationData => ({
+  type: 'note',
+  visibility: 'public',
+  data: { type: 'note', content: '' },
+  inReplyToId,
+  mentions: [],
+});
+
+const replyStores = new Map<
+  string,
+  ReturnType<typeof persistedStore<PostCreationData>>
+>();
+
+/** Persisted draft store for a reply to a specific post. */
+export const getReplyStore = (inReplyToId: string) => {
+  const existing = replyStores.get(inReplyToId);
+  if (existing) return existing;
+  const store = persistedStore(
+    `reply-data-${inReplyToId}`,
+    defaultReplyData(inReplyToId),
+  );
+  replyStores.set(inReplyToId, store);
+  return store;
+};
+
+export const resetReplyData = (inReplyToId: string) => {
+  getReplyStore(inReplyToId).reset();
+};
+
+export const useReplyStore = (inReplyToId: string) => {
+  const store = getReplyStore(inReplyToId);
+  useSyncExternalStore(store.subscribe, store.get, store.get);
+  return store;
+};
+
 export const resetStore = (type: PostType) => {
   const stores = getNewPostStores();
   switch (type) {

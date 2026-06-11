@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type {
   MediaAttachmentData,
   PostDataUnion,
@@ -15,15 +15,23 @@ import {
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { OpenpeepsMarkdown } from '../../markdown/OpenpeepsMarkdown';
-import { PollContent } from '../pieces/PollContent';
 import { ComposeAttachments } from './ComposeAttachments';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { PollComposerFields } from './PollComposerFields';
 
 export interface EditPostModalProps {
   post: PublicPost;
   onClose: () => void;
 }
+
+const toDatetimeLocal = (iso?: string): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
 
 export function EditPostModal({ post, onClose }: EditPostModalProps) {
   const t = useT();
@@ -64,6 +72,21 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
       ? (data.content ?? '')
       : '';
 
+  const pollOptions =
+    data.type === 'question' ? data.options.map((o) => o.content) : [];
+
+  const validPollOptions = pollOptions.map((o) => o.trim()).filter(Boolean);
+
+  const canSave = useMemo(() => {
+    if (data.type === 'question') {
+      return content.trim().length > 0 && validPollOptions.length >= 2;
+    }
+    if (data.type === 'note') {
+      return content.trim().length > 0 || (data.attachments?.length ?? 0) > 0;
+    }
+    return true;
+  }, [content, data, validPollOptions.length]);
+
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90vh] max-w-xl overflow-y-auto">
@@ -81,7 +104,33 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
               onChange={setContent}
             />
             <ComposePreviewLinks content={content} />
-            <PollContent post={{ ...post, data }} />
+            <PollComposerFields
+              options={pollOptions}
+              onOptionsChange={(options) =>
+                setData({
+                  ...data,
+                  options: options.map((text) => ({
+                    type: 'note' as const,
+                    content: text,
+                  })),
+                })
+              }
+              expiresAt={toDatetimeLocal(data.expiresAt)}
+              onExpiresAtChange={(value) =>
+                setData({
+                  ...data,
+                  expiresAt: value ? new Date(value).toISOString() : undefined,
+                })
+              }
+              multiple={data.multiple}
+              onMultipleChange={(value) =>
+                setData({ ...data, multiple: value })
+              }
+              votersVisible={data.votersVisible}
+              onVotersVisibleChange={(value) =>
+                setData({ ...data, votersVisible: value })
+              }
+            />
           </>
         ) : data.type === 'note' ? (
           <>
@@ -118,7 +167,7 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
           <Button
             variant="variant-filled-primary"
             action={publish}
-            disabled={submitting || data.type === 'question'}
+            disabled={submitting || !canSave}
           >
             {submitting
               ? t('common.saving', { defaultValue: 'Saving…' })

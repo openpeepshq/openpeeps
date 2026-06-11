@@ -1,30 +1,48 @@
-import { useMemo } from 'react';
-import { Database } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Database, Download } from 'lucide-react';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Button } from '@openpeeps/react-ui';
+import { RestoreBackupModal } from './components/RestoreBackupModal';
+
+const downloadBase =
+  import.meta.env.VITE_OPENPEEPS_BASE_URL ??
+  (typeof window !== 'undefined' ? window.location.origin : '');
 
 export function AdminBackups() {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const backupsQuery = openpeepsApi.admin.useBackupsList();
   const createBackup = openpeepsApi.admin.createBackupAction();
+  const [showRestore, setShowRestore] = useState(false);
 
   const backups = backupsQuery.data ?? [];
 
   const createLabel = t('admin.backups.create', {
     defaultValue: 'Create backup',
   });
+  const restoreLabel = t('admin.backups.restoreTitle', {
+    defaultValue: 'Restore a backup',
+  });
   const headerActions = useMemo(
     () => (
-      <Button
-        title={createLabel}
-        variant="variant-filled-primary"
-        action={() => createBackup()}
-      >
-        {createLabel}
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          title={restoreLabel}
+          variant="variant-ringed-primary"
+          action={() => setShowRestore(true)}
+        >
+          {restoreLabel}
+        </Button>
+        <Button
+          title={createLabel}
+          variant="variant-filled-primary"
+          action={() => createBackup()}
+        >
+          {createLabel}
+        </Button>
+      </div>
     ),
-    [createBackup, createLabel],
+    [createBackup, createLabel, restoreLabel],
   );
 
   useSetPageHeader(
@@ -34,6 +52,10 @@ export function AdminBackups() {
 
   return (
     <div className="p-4">
+      {showRestore ? (
+        <RestoreBackupModal onClose={() => setShowRestore(false)} />
+      ) : null}
+
       {backups.length === 0 ? (
         <div className="text-muted-foreground flex flex-col items-center pt-20">
           <Database size={50} />
@@ -43,12 +65,22 @@ export function AdminBackups() {
         </div>
       ) : (
         <ul className="space-y-1 rounded-md border p-2 font-mono text-sm">
-          {backups.map((name) => (
+          {[...backups].reverse().map((name) => (
             <li
               key={name}
               className="flex items-center justify-between border-b px-2 py-1 last:border-b-0"
             >
               <span>{name}</span>
+              <a
+                title={t('common.actions.download', {
+                  defaultValue: 'Download',
+                })}
+                download
+                href={`${downloadBase}/backups/${name}.zip`}
+                className="hover:text-primary"
+              >
+                <Download size={18} />
+              </a>
             </li>
           ))}
         </ul>

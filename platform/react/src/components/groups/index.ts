@@ -12,6 +12,8 @@ export { GroupForm } from './GroupForm';
 export type { GroupFormProps } from './GroupForm';
 export { GroupOptionsMenu } from './GroupOptionsMenu';
 export type { GroupOptionsMenuProps } from './GroupOptionsMenu';
+export { GroupShareMenu } from './GroupShareMenu';
+export type { GroupShareMenuProps } from './GroupShareMenu';
 export { AddGroupMemberModal } from './AddGroupMemberModal';
 export type { AddGroupMemberModalProps } from './AddGroupMemberModal';
 export { ConfirmGroupExitModal } from './ConfirmGroupExitModal';

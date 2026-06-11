@@ -15,6 +15,8 @@ export interface ToastProps {
   duration?: number;
   onDismiss?: () => void;
   testId?: string;
+  /** When true, skip fixed positioning (for stacking inside a toast host). */
+  inline?: boolean;
 }
 
 const variantClasses: Record<ToastVariant, string> = {
@@ -33,6 +35,7 @@ export function Toast({
   duration,
   onDismiss,
   testId,
+  inline = false,
 }: ToastProps) {
   const [visible, setVisible] = useState(true);
   const effectiveDuration = duration ?? (variant === 'error' ? 0 : 5000);
@@ -53,26 +56,32 @@ export function Toast({
     onDismiss?.();
   };
 
+  const body = (
+    <div
+      role="status"
+      data-testid={testId}
+      className={cn(
+        'flex items-start gap-2 rounded-md border p-3 text-sm font-medium shadow-md',
+        variantClasses[variant],
+      )}
+    >
+      <span className="min-w-0 flex-1">{children}</span>
+      <button
+        type="button"
+        aria-label="Dismiss"
+        onClick={dismiss}
+        className="-mr-1 -mt-0.5 shrink-0 opacity-80 hover:opacity-100"
+      >
+        <X className="size-4" />
+      </button>
+    </div>
+  );
+
+  if (inline) return body;
+
   return (
     <div className="fixed right-4 top-4 z-50 flex max-w-sm flex-col gap-2">
-      <div
-        role="status"
-        data-testid={testId}
-        className={cn(
-          'flex items-start gap-2 rounded-md border p-3 text-sm font-medium shadow-md',
-          variantClasses[variant],
-        )}
-      >
-        <span className="min-w-0 flex-1">{children}</span>
-        <button
-          type="button"
-          aria-label="Dismiss"
-          onClick={dismiss}
-          className="-mr-1 -mt-0.5 shrink-0 opacity-80 hover:opacity-100"
-        >
-          <X className="size-4" />
-        </button>
-      </div>
+      {body}
     </div>
   );
 }

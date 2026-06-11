@@ -67,6 +67,15 @@ export function Register({ invite = false }: RegisterProps) {
     if (inviteCode) data.inviteCode = inviteCode;
   }, [searchParams, data]);
 
+  // Invited sign-ups stay open even when public registration is closed.
+  const registrationOpen =
+    serverInfo.communityConfig?.settings?.openRegistrations;
+  useEffect(() => {
+    if (!invite && registrationOpen === false) {
+      navigate('/auth/closed', { replace: true });
+    }
+  }, [invite, registrationOpen, navigate]);
+
   const privacyPolicyLink =
     serverInfo.communityConfig?.info?.privacyPolicy ?? '/docs/privacy';
   const stripeMembershipEnabled =

@@ -1,68 +1,185 @@
+import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import type { ReportWithMeta } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { UpdatingDate } from '@openpeeps/react/components';
+import { Avatar, UpdatingDate } from '@openpeeps/react/components';
 import { Button } from '@openpeeps/react-ui';
+
+type Tab = 'summary' | 'resolved';
 
 export function AdminModeration() {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const reportsQuery = openpeepsApi.admin.useReportsList();
-  const reopenReport = openpeepsApi.admin.reopenReportAction();
+  const [tab, setTab] = useState<Tab>('summary');
 
-  useSetPageHeader(
-    t('admin.moderation.title', { defaultValue: 'Moderation queue' }),
-  );
+  useSetPageHeader(t('admin.moderation.title', { defaultValue: 'Moderation' }));
 
   const reports = reportsQuery.data ?? [];
-  const isResolved = (r: (typeof reports)[number]) => !!r.resolution;
 
   return (
-    <div className="p-4">
-      <div className="rounded-md border">
-        <table className="w-full text-sm">
-          <thead className="bg-surface-100">
-            <tr>
-              <th className="p-2 text-left">Reporter</th>
-              <th className="p-2 text-left">Reported</th>
-              <th className="p-2 text-left">Category</th>
-              <th className="p-2 text-left">Posts</th>
-              <th className="p-2 text-left">Status</th>
-              <th className="p-2 text-left">Date</th>
-              <th className="p-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {reports.map((report) => (
-              <tr key={report.id} className="border-t">
-                <td className="p-2">@{report.reporterProfile.handle}</td>
-                <td className="p-2">@{report.reportedProfile.handle}</td>
-                <td className="p-2 text-xs">{report.category ?? '—'}</td>
-                <td className="p-2 text-xs">{report.reportedPosts.length}</td>
-                <td className="p-2 text-xs">
-                  <span
-                    className={`rounded px-2 py-0.5 ${isResolved(report) ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning'}`}
-                  >
-                    {isResolved(report) ? 'Resolved' : 'Open'}
-                  </span>
-                </td>
-                <td className="p-2 text-xs">
-                  <UpdatingDate date={report.createdAt} />
-                </td>
-                <td className="p-2">
-                  {isResolved(report) && (
-                    <Button
-                      title="Reopen"
-                      variant="variant-ghost-primary"
-                      action={() => reopenReport({ reportId: report.id })}
-                    >
-                      Reopen
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="space-y-4 p-4">
+      <nav className="border-border flex border-b">
+        <TabButton active={tab === 'summary'} onClick={() => setTab('summary')}>
+          {t('admin.moderation.summaryTab', { defaultValue: 'Summary' })}
+        </TabButton>
+        <TabButton
+          active={tab === 'resolved'}
+          onClick={() => setTab('resolved')}
+        >
+          {t('admin.moderation.resolvedTab', { defaultValue: 'Resolved' })}
+        </TabButton>
+      </nav>
+
+      {tab === 'summary' ? (
+        <SummaryTab reports={reports} />
+      ) : (
+        <ResolvedTab reports={reports} />
+      )}
     </div>
+  );
+}
+
+function SummaryTab({ reports }: { reports: ReportWithMeta[] }) {
+  const t = useT();
+
+  const grouped = useMemo(() => {
+    const map = new Map<
+      string,
+      { profile: ReportWithMeta['reportedProfile']; reports: ReportWithMeta[] }
+    >();
+    for (const report of reports) {
+      const key = String(report.reportedProfile.id);
+      if (!map.has(key)) {
+        map.set(key, { profile: report.reportedProfile, reports: [] });
+      }
+      map.get(key)!.reports.push(report);
+    }
+    return Array.from(map.values()).filter((g) =>
+      g.reports.some((r) => !r.resolution),
+    );
+  }, [reports]);
+
+  if (grouped.length === 0) {
+    return (
+      <p className="text-muted-foreground text-sm">
+        {t('admin.moderation.report.resolvedBadge', {
+          defaultValue: 'All reports resolved',
+        })}
+      </p>
+    );
+  }
+
+  return (
+    <ul className="space-y-2">
+      {grouped.map(({ profile, reports: profileReports }) => {
+        const unresolved = profileReports.filter((r) => !r.resolution).length;
+        return (
+          <li key={profile.id}>
+            <Link
+              to={`/admin/moderation/reports/@${profile.handle}`}
+              className="hover:bg-surface-100 flex items-center justify-between rounded-md border p-3"
+            >
+              <div className="flex items-center gap-3">
+                <Avatar profile={profile} size={2} />
+                <div>
+                  <p className="font-medium">
+                    {profile.displayName || `@${profile.handle}`}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    @{profile.handle}
+                  </p>
+                </div>
+              </div>
+              <span className="bg-warning/20 text-warning rounded px-2 py-0.5 text-xs">
+                {t('admin.moderation.report.unresolvedBadge', {
+                  defaultValue: '{{reportsCount}} unresolved reports',
+                  reportsCount: unresolved,
+                })}
+              </span>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function ResolvedTab({ reports }: { reports: ReportWithMeta[] }) {
+  const t = useT();
+  const { openpeepsApi } = useOpenpeeps();
+  const reopenReport = openpeepsApi.admin.reopenReportAction();
+
+  const resolved = reports.filter((r) => !!r.resolution);
+
+  if (resolved.length === 0) {
+    return (
+      <p className="text-muted-foreground text-sm">
+        {t('admin.moderation.reportList.unresolvedBadge', {
+          defaultValue: 'Not resolved',
+        })}
+      </p>
+    );
+  }
+
+  return (
+    <ul className="space-y-2">
+      {resolved.map((report) => (
+        <li
+          key={report.id}
+          className="flex items-center justify-between rounded-md border p-3"
+        >
+          <div className="flex items-center gap-3">
+            <Avatar profile={report.reportedProfile} size={2} />
+            <div>
+              <p className="font-medium">
+                {report.reportedProfile.displayName ||
+                  `@${report.reportedProfile.handle}`}
+              </p>
+              <p className="text-muted-foreground text-xs">
+                <UpdatingDate date={report.createdAt} /> · {report.resolution}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/admin/moderation/reports/@${report.reportedProfile.handle}`}
+              className="text-primary text-xs hover:underline"
+            >
+              {t('admin.moderation.reportList.seeReports', {
+                defaultValue: 'See reports',
+              })}
+            </Link>
+            <Button
+              title={t('admin.moderation.reopen', { defaultValue: 'Reopen' })}
+              variant="variant-ghost-primary"
+              action={() => reopenReport({ reportId: report.id })}
+            >
+              {t('admin.moderation.reopen', { defaultValue: 'Reopen' })}
+            </Button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-4 py-2 text-sm ${active ? 'border-primary border-b-2 font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
+    >
+      {children}
+    </button>
   );
 }

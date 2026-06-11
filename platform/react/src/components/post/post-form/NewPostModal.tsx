@@ -40,6 +40,7 @@ export interface NewPostToast {
 export interface NewPostModalProps {
   visibility?: VisibilityType;
   group?: GroupWithMeta;
+  initialContent?: string;
   onClose: () => void;
   onToast: (toast: NewPostToast) => void;
 }
@@ -49,6 +50,7 @@ type ComposerType = 'note' | 'question';
 export function NewPostModal({
   visibility: initialVisibility,
   group,
+  initialContent,
   onClose,
   onToast,
 }: NewPostModalProps) {
@@ -66,7 +68,7 @@ export function NewPostModal({
     group ? 'group' : (initialVisibility ?? defaultVisibility),
   );
   const [groupId, setGroupId] = useState<string | undefined>(group?.id);
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(initialContent ?? '');
   const [attachments, setAttachments] = useState<MediaAttachmentData[]>([]);
   const [audience, setAudience] = useState<PublicProfile[]>([]);
   const [pollOptions, setPollOptions] = useState(['', '']);

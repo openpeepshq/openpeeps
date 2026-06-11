@@ -13,6 +13,7 @@ import { NewPostModalProvider } from '../post/post-form/NewPostModalContext';
 import { EditPostModalProvider } from '../post/post-form/EditPostModalContext';
 import { CreateNewConversationProvider } from '../conversations/CreateNewConversationContext';
 import { CreateNewJamProvider } from '../jams/CreateNewJamContext';
+import { ToastProvider } from './ToastProvider';
 
 function PostViewTracking({ children }: { children: ReactNode }) {
   const { openpeepsApi } = useOpenpeeps();
@@ -62,16 +63,18 @@ export function OpenpeepsContextProvider({
   }, [pageHeader, serverInfo.communityConfig?.info.name]);
 
   return (
-    <PostViewTracking>
-      <ReplyModalProvider>
-        <NewPostModalProvider>
-          <EditPostModalProvider>
-            <CreateNewConversationProvider>
-              <CreateNewJamProvider>{children}</CreateNewJamProvider>
-            </CreateNewConversationProvider>
-          </EditPostModalProvider>
-        </NewPostModalProvider>
-      </ReplyModalProvider>
-    </PostViewTracking>
+    <ToastProvider>
+      <PostViewTracking>
+        <ReplyModalProvider>
+          <NewPostModalProvider>
+            <EditPostModalProvider>
+              <CreateNewConversationProvider>
+                <CreateNewJamProvider>{children}</CreateNewJamProvider>
+              </CreateNewConversationProvider>
+            </EditPostModalProvider>
+          </NewPostModalProvider>
+        </ReplyModalProvider>
+      </PostViewTracking>
+    </ToastProvider>
   );
 }

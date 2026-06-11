@@ -1,4 +1,5 @@
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import { CommunityStatsCard, SignupChart } from './components/AdminCharts';
 
 function Card({
   title,
@@ -46,6 +47,71 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6 p-4">
+      <section>
+        <h2 className="mb-3 text-lg font-medium">
+          {t('admin.overview.communityOverview', {
+            defaultValue: 'Community overview',
+          })}
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <CommunityStatsCard
+            title={t('admin.overview.totalProfiles', {
+              defaultValue: 'Total Profiles',
+            })}
+            current={stats.profiles.all.all}
+            previous={
+              stats.profiles.all.all - stats.profiles.all.week.currentPeriod
+            }
+            text={t('admin.overview.lastWeek', { defaultValue: 'Last Week' })}
+          />
+          <CommunityStatsCard
+            title={t('admin.overview.activeProfiles', {
+              defaultValue: 'Active Profiles',
+            })}
+            current={stats.profiles.active.week.currentPeriod}
+            previous={stats.profiles.active.week.lastPeriod}
+            text={t('admin.overview.lastWeek', { defaultValue: 'Last Week' })}
+          />
+          <CommunityStatsCard
+            title={t('admin.overview.recentInteractions', {
+              defaultValue: 'Recent Interactions',
+            })}
+            current={stats.interactions.all.week.currentPeriod}
+            previous={stats.interactions.all.week.lastPeriod}
+            text={t('admin.overview.lastWeek', { defaultValue: 'Last Week' })}
+          />
+          <CommunityStatsCard
+            title={t('admin.overview.allPosts', { defaultValue: 'All Posts' })}
+            current={stats.posts.all.all}
+            previous={stats.posts.all.all - stats.posts.all.week.currentPeriod}
+            text={t('admin.overview.lastWeek', { defaultValue: 'Last Week' })}
+          />
+          <CommunityStatsCard
+            title={t('admin.overview.jamSessions', {
+              defaultValue: 'Jam Sessions',
+            })}
+            current={stats.jams.sessions.all}
+            previous={stats.jams.sessions.week.lastPeriod}
+            text={t('admin.overview.lastWeek', { defaultValue: 'Last Week' })}
+          />
+          <CommunityStatsCard
+            title={t('admin.overview.jamParticipants', {
+              defaultValue: 'Jam Participants',
+            })}
+            current={stats.jams.participants.week.currentPeriod}
+            previous={stats.jams.participants.week.lastPeriod}
+            text={t('admin.overview.lastWeek', { defaultValue: 'Last Week' })}
+          />
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-medium">
+          {t('admin.overview.newSignups', { defaultValue: 'New signups' })}
+        </h2>
+        <SignupChart stats={stats} />
+      </section>
+
       <section>
         <h2 className="mb-3 text-lg font-medium">Profiles</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
