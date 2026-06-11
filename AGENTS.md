@@ -107,3 +107,5 @@ accompanied by a written outline of exactly what changed and why.**
 - For non-trivial changes, the body must contain the change outline described
   above.
 - Don't force-push shared branches or amend pushed commits unless asked.
+- Branches need to be rebased on main to be merged
+- PRs into main need to have exactly one commit that is different
