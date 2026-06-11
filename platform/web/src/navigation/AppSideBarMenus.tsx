@@ -35,7 +35,36 @@ import {
   useServerInfo,
   useSidebarNavClose,
 } from '@openpeeps/react/components';
-import { hasAdminSidebarAccess } from '@openpeeps/common/lib';
+import {
+  getVisibleAdminSections,
+  type AdminSectionKey,
+} from '@openpeeps/common/lib';
+
+const adminSectionIcons: Record<AdminSectionKey, LucideIcon> = {
+  members: User,
+  groups: Users,
+  invites: MailOpen,
+  moderation: ShieldAlert,
+  backups: DatabaseBackup,
+  analytics: ChartLine,
+  logs: Logs,
+  apiKeys: KeyRound,
+  configuration: Wrench,
+  diagnostics: Stethoscope,
+};
+
+const adminSectionLabelKeys: Record<AdminSectionKey, string> = {
+  members: 'navigation.members',
+  groups: 'navigation.groups',
+  invites: 'navigation.invites',
+  moderation: 'navigation.moderation',
+  backups: 'navigation.backups',
+  analytics: 'navigation.analytics',
+  logs: 'navigation.logs',
+  apiKeys: 'navigation.apiKeys',
+  configuration: 'navigation.configuration',
+  diagnostics: 'navigation.diagnostics',
+};
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return [
@@ -106,8 +135,9 @@ export function AppSideBarMainMenu() {
   const profile = useCurrentProfile();
   const jamsEnabled = serverInfo.jams.livekit.enabled;
 
-  const showAdminMenu =
-    profile?.type === 'local' && hasAdminSidebarAccess(profile.roles ?? []);
+  const visibleAdminSections =
+    profile?.type === 'local' ? getVisibleAdminSections(profile.roles) : [];
+  const showAdminMenu = visibleAdminSections.length > 0;
 
   const [adminExpanded, setAdminExpanded] = useState(false);
 
@@ -170,36 +200,15 @@ export function AppSideBarMainMenu() {
           </button>
           {adminExpanded ? (
             <div className="border-border ml-2 mt-1 flex flex-col gap-0.5 border-l pl-2">
-              <NavItem to="/admin/members" icon={User}>
-                {t('navigation.members')}
-              </NavItem>
-              <NavItem to="/admin/groups" icon={Users}>
-                {t('navigation.groups')}
-              </NavItem>
-              <NavItem to="/admin/invites" icon={MailOpen}>
-                {t('navigation.invites')}
-              </NavItem>
-              <NavItem to="/admin/moderation" icon={ShieldAlert}>
-                {t('navigation.moderation')}
-              </NavItem>
-              <NavItem to="/admin/backups" icon={DatabaseBackup}>
-                {t('navigation.backups')}
-              </NavItem>
-              <NavItem to="/admin/analytics" icon={ChartLine}>
-                {t('navigation.analytics')}
-              </NavItem>
-              <NavItem to="/admin/logs" icon={Logs}>
-                {t('navigation.logs')}
-              </NavItem>
-              <NavItem to="/admin/api-keys" icon={KeyRound}>
-                API Keys
-              </NavItem>
-              <NavItem to="/admin/diagnostics" icon={Stethoscope}>
-                {t('navigation.diagnostics', { defaultValue: 'Diagnostics' })}
-              </NavItem>
-              <NavItem to="/admin/configuration" icon={Wrench}>
-                {t('navigation.configuration')}
-              </NavItem>
+              {visibleAdminSections.map((section) => (
+                <NavItem
+                  key={section.key}
+                  to={section.path}
+                  icon={adminSectionIcons[section.key]}
+                >
+                  {t(adminSectionLabelKeys[section.key])}
+                </NavItem>
+              ))}
             </div>
           ) : null}
         </div>

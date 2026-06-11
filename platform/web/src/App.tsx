@@ -118,6 +118,10 @@ import {
   AppSideBarMainMenu,
   AppSideBarProfileMenu,
 } from './navigation/AppSideBarMenus';
+import {
+  RequireAdminMenu,
+  RequireAdminSection,
+} from './navigation/RequireAdminSection';
 
 const baseUrl =
   import.meta.env.VITE_OPENPEEPS_BASE_URL ??
@@ -369,9 +373,15 @@ function AppShell() {
             <Route path="/about" element={<About />} />
             <Route path="/code-of-conduct" element={<CodeOfConduct />} />
 
-            <Route path="/admin/logs" element={<Admin.Logs />} />
-            <Route path="/admin/db" element={<Admin.Db />} />
-            <Route path="/admin/api-keys" element={<Admin.ApiKeys />} />
+            <Route element={<RequireAdminSection section="logs" />}>
+              <Route path="/admin/logs" element={<Admin.Logs />} />
+            </Route>
+            <Route element={<RequireAdminSection section="diagnostics" />}>
+              <Route path="/admin/db" element={<Admin.Db />} />
+            </Route>
+            <Route element={<RequireAdminSection section="apiKeys" />}>
+              <Route path="/admin/api-keys" element={<Admin.ApiKeys />} />
+            </Route>
 
             {/* Everything else under the standard RootLayout shell */}
             <Route
@@ -527,112 +537,153 @@ function AppShell() {
                       element={<SettingsPages.AccessTokens />}
                     />
 
-                    {/* Admin */}
-                    <Route path="/admin" element={<Admin.Index />} />
-                    <Route path="/admin/members" element={<Admin.Members />} />
-                    <Route path="/admin/invites" element={<Admin.Invites />} />
-                    <Route path="/admin/backups" element={<Admin.Backups />} />
+                    {/* Admin landing: any visible section grants access */}
+                    <Route element={<RequireAdminMenu />}>
+                      <Route path="/admin" element={<Admin.Index />} />
+                    </Route>
+
+                    <Route element={<RequireAdminSection section="members" />}>
+                      <Route
+                        path="/admin/members"
+                        element={<Admin.Members />}
+                      />
+                    </Route>
+
+                    <Route element={<RequireAdminSection section="invites" />}>
+                      <Route
+                        path="/admin/invites"
+                        element={<Admin.Invites />}
+                      />
+                    </Route>
+
+                    <Route element={<RequireAdminSection section="backups" />}>
+                      <Route
+                        path="/admin/backups"
+                        element={<Admin.Backups />}
+                      />
+                    </Route>
+
                     <Route
-                      path="/admin/analytics"
-                      element={<Admin.Analytics />}
-                    />
+                      element={<RequireAdminSection section="analytics" />}
+                    >
+                      <Route
+                        path="/admin/analytics"
+                        element={<Admin.Analytics />}
+                      />
+                    </Route>
+
                     <Route
-                      path="/admin/moderation"
-                      element={<Admin.Moderation />}
-                    />
-                    <Route
-                      path="/admin/moderation/reports/:handle"
-                      element={<Admin.ModerationReports />}
-                    />
-                    <Route path="/admin/groups" element={<Admin.Groups />} />
-                    <Route
-                      path="/admin/groups/:handle/members"
-                      element={<Admin.GroupMembers />}
-                    />
+                      element={<RequireAdminSection section="moderation" />}
+                    >
+                      <Route
+                        path="/admin/moderation"
+                        element={<Admin.Moderation />}
+                      />
+                      <Route
+                        path="/admin/moderation/reports/:handle"
+                        element={<Admin.ModerationReports />}
+                      />
+                    </Route>
+
+                    <Route element={<RequireAdminSection section="groups" />}>
+                      <Route path="/admin/groups" element={<Admin.Groups />} />
+                      <Route
+                        path="/admin/groups/:handle/members"
+                        element={<Admin.GroupMembers />}
+                      />
+                    </Route>
 
                     {/* Admin · configuration */}
                     <Route
-                      path="/admin/configuration"
-                      element={<Admin.Config.Index />}
-                    />
-                    <Route
-                      path="/admin/configuration/server-settings"
-                      element={<Admin.Config.ServerSettings />}
-                    />
-                    <Route
-                      path="/admin/configuration/i18n"
-                      element={<Admin.Config.I18n />}
-                    />
-                    <Route
-                      path="/admin/configuration/community"
-                      element={<Admin.Config.Community />}
-                    />
-                    <Route
-                      path="/admin/configuration/community/info"
-                      element={<Admin.Config.CommunityInfo />}
-                    />
-                    <Route
-                      path="/admin/configuration/community/language"
-                      element={<Admin.Config.CommunityLanguage />}
-                    />
-                    <Route
-                      path="/admin/configuration/community/favicons"
-                      element={<Admin.Config.CommunityFavicons />}
-                    />
-                    <Route
-                      path="/admin/configuration/community/profile-fields"
-                      element={<Admin.Config.CommunityProfileFields />}
-                    />
-                    <Route
-                      path="/admin/configuration/community/about-page"
-                      element={<Admin.Config.CommunityAboutPage />}
-                    />
-                    <Route
-                      path="/admin/configuration/community/roles"
-                      element={<Admin.Config.CommunityRoles />}
-                    />
-                    <Route
-                      path="/admin/configuration/community/welcome-email"
-                      element={<Admin.Config.CommunityWelcomeEmail />}
-                    />
-                    <Route
-                      path="/admin/configuration/community/theme"
-                      element={<Admin.Config.CommunityTheme />}
-                    />
-                    <Route
-                      path="/admin/configuration/community/links"
-                      element={<Admin.Config.CommunityLinks />}
-                    />
-                    <Route
-                      path="/admin/configuration/community/welcome-page"
-                      element={<Admin.Config.CommunityWelcomePage />}
-                    />
-                    <Route
-                      path="/admin/configuration/community/code-of-conduct"
-                      element={<Admin.Config.CommunityCodeOfConduct />}
-                    />
-                    <Route
-                      path="/admin/configuration/email"
-                      element={<Admin.Config.Email />}
-                    />
+                      element={<RequireAdminSection section="configuration" />}
+                    >
+                      <Route
+                        path="/admin/configuration"
+                        element={<Admin.Config.Index />}
+                      />
+                      <Route
+                        path="/admin/configuration/server-settings"
+                        element={<Admin.Config.ServerSettings />}
+                      />
+                      <Route
+                        path="/admin/configuration/i18n"
+                        element={<Admin.Config.I18n />}
+                      />
+                      <Route
+                        path="/admin/configuration/community"
+                        element={<Admin.Config.Community />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/info"
+                        element={<Admin.Config.CommunityInfo />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/language"
+                        element={<Admin.Config.CommunityLanguage />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/favicons"
+                        element={<Admin.Config.CommunityFavicons />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/profile-fields"
+                        element={<Admin.Config.CommunityProfileFields />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/about-page"
+                        element={<Admin.Config.CommunityAboutPage />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/roles"
+                        element={<Admin.Config.CommunityRoles />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/welcome-email"
+                        element={<Admin.Config.CommunityWelcomeEmail />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/theme"
+                        element={<Admin.Config.CommunityTheme />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/links"
+                        element={<Admin.Config.CommunityLinks />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/welcome-page"
+                        element={<Admin.Config.CommunityWelcomePage />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/code-of-conduct"
+                        element={<Admin.Config.CommunityCodeOfConduct />}
+                      />
+                      <Route
+                        path="/admin/configuration/email"
+                        element={<Admin.Config.Email />}
+                      />
+                    </Route>
 
                     {/* Admin · diagnostics */}
                     <Route
-                      path="/admin/diagnostics"
-                      element={<Admin.Diagnostics />}
-                    />
-                    <Route
-                      path="/admin/diagnostics/email"
-                      element={<Admin.DiagnosticsEmail />}
-                    />
-                    <Route
-                      path="/admin/diagnostics/logs"
-                      element={<Admin.DiagnosticsLogs />}
-                    />
-                    <Route
-                      path="/admin/diagnostics/jobs/:queue/:jobId"
-                      element={<Admin.DiagnosticsJob />}
-                    />
+                      element={<RequireAdminSection section="diagnostics" />}
+                    >
+                      <Route
+                        path="/admin/diagnostics"
+                        element={<Admin.Diagnostics />}
+                      />
+                      <Route
+                        path="/admin/diagnostics/email"
+                        element={<Admin.DiagnosticsEmail />}
+                      />
+                      <Route
+                        path="/admin/diagnostics/logs"
+                        element={<Admin.DiagnosticsLogs />}
+                      />
+                      <Route
+                        path="/admin/diagnostics/jobs/:queue/:jobId"
+                        element={<Admin.DiagnosticsJob />}
+                      />
+                    </Route>
 
                     <Route path="*" element={<NotFound />} />
                   </Routes>

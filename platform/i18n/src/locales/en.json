@@ -920,6 +920,10 @@
         }
     },
     "admin": {
+        "accessDenied": {
+            "title": "Access denied",
+            "description": "You do not have permission to view this part of the administration area."
+        },
         "inviteLink": {
             "unlimited": "Unlimited",
             "createSuccess": "Invite link created successfully",
