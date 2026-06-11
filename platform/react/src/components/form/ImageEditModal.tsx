@@ -12,10 +12,7 @@ import {
   Textarea,
 } from '@openpeeps/react-ui';
 import { useT } from '../../i18n';
-import {
-  convertToWebpIfHeic,
-  getCroppedImg,
-} from '../../lib/canvasUtils';
+import { convertToWebpIfHeic, getCroppedImg } from '../../lib/canvasUtils';
 
 export interface ImageEditModalProps {
   file: File;
@@ -27,7 +24,24 @@ export interface ImageEditModalProps {
   showAltInput?: boolean;
   /** Round mask for avatar crops. */
   cropShape?: 'rect' | 'round';
+  /**
+   * Fixed crop ratio as `"w:h"` (e.g. `"3:1"`, `"16:9"`). Combined with
+   * `showSelectAspectRatio={false}` this forces the crop to that ratio and
+   * hides the ratio picker, mirroring the Svelte fixed-aspect mode.
+   */
+  aspectRatio?: string;
+  /**
+   * When true, show the ratio picker (free crop). Defaults to false, matching
+   * the Svelte modal: a supplied `aspectRatio` is then a forced crop.
+   */
+  showSelectAspectRatio?: boolean;
 }
+
+const parseAspectRatio = (ratio?: string): number | undefined => {
+  if (!ratio) return undefined;
+  const [w, h] = ratio.split(':').map(Number);
+  return w && h ? w / h : undefined;
+};
 
 const ASPECT_RATIOS = [
   { label: 'Original', value: undefined },
@@ -48,8 +62,15 @@ export function ImageEditModal({
   onConfirm,
   showAltInput = true,
   cropShape = 'rect',
+  aspectRatio,
+  showSelectAspectRatio = false,
 }: ImageEditModalProps) {
   const t = useT();
+  const fixedAspect = parseAspectRatio(aspectRatio);
+  // Fixed-aspect mode: a ratio was given and the caller doesn't want a picker.
+  const fixedAspectMode =
+    cropShape === 'round' ||
+    (fixedAspect !== undefined && !showSelectAspectRatio);
   const [description, setDescription] = useState('');
   const [aspectIndex, setAspectIndex] = useState(
     cropShape === 'round' && SQUARE_ASPECT_INDEX >= 0 ? SQUARE_ASPECT_INDEX : 0,
@@ -60,7 +81,11 @@ export function ImageEditModal({
   const [submitting, setSubmitting] = useState(false);
 
   const aspect =
-    cropShape === 'round' ? 1 : ASPECT_RATIOS[aspectIndex]?.value;
+    cropShape === 'round'
+      ? 1
+      : fixedAspectMode
+        ? fixedAspect
+        : ASPECT_RATIOS[aspectIndex]?.value;
 
   const onCropComplete = useCallback((_: Area, pixels: Area) => {
     setCroppedAreaPixels(pixels);
@@ -85,7 +110,7 @@ export function ImageEditModal({
   // "Original" (no fixed aspect, rectangular) shows the untouched image; any
   // ratio or the round mask switches to the interactive cropper.
   const isCropping = !!aspect || cropShape === 'round';
-  const showAspectRatio = cropShape !== 'round';
+  const showAspectRatio = cropShape !== 'round' && !fixedAspectMode;
   // Mirror the Svelte modal: the cropper shares a row with the crop-ratio /
   // alt-text controls so the dialog stays short. With no side controls (e.g.
   // round avatar crops) the cropper spans the full width.
@@ -147,7 +172,9 @@ export function ImageEditModal({
               {showAspectRatio ? (
                 <div className="space-y-1">
                   <div className="text-sm font-medium">
-                    {t('posts.form.aspectRatio', { defaultValue: 'Crop ratio' })}
+                    {t('posts.form.aspectRatio', {
+                      defaultValue: 'Crop ratio',
+                    })}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {ASPECT_RATIOS.map((item, index) => (

@@ -1827,7 +1827,8 @@
             "crop": "Crop"
         },
         "headerAvatarInput": {
-            "coverImage": "Cover Image"
+            "coverImage": "Cover Image",
+            "avatar": "Profile photo"
         },
         "imageInput": {
             "maxSize": "Max size: {{size}}",

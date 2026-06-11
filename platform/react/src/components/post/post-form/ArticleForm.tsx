@@ -68,6 +68,7 @@ export function ArticleForm({
         url={article.image}
         onChange={(image) => patchArticle({ image })}
         className="h-96"
+        showSelectAspectRatio
         showFullImage
         text={t('articles.form.uploadCover', {
           defaultValue: 'Upload your cover image',

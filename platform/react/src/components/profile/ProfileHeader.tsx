@@ -25,14 +25,16 @@ export function ProfileHeader({
   return (
     <div className="relative">
       <div className="mb-8">
-        <div className="bg-surface-200 relative h-44 bg-cover bg-center">
-          {profile.header && (
-            <img
-              src={profile.header}
-              alt="banner"
-              className="absolute left-0 top-0 h-full w-full object-cover"
-            />
-          )}
+        <div className="relative aspect-[3/1] w-full">
+          <div className="bg-surface-200 absolute inset-0 overflow-hidden">
+            {profile.header && (
+              <img
+                src={profile.header}
+                alt="banner"
+                className="h-full w-full object-cover"
+              />
+            )}
+          </div>
           <Avatar
             profile={profile}
             size={6}
