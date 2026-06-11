@@ -3,6 +3,7 @@ import { Avatar } from '../../../profile';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
 import { FeedPostContent } from '../../FeedPostContent';
 import { PostActions } from '../../pieces/PostActions';
+import { PostMenu } from '../../pieces/PostMenu';
 import { UpdatingDate } from '../../pieces/UpdatingDate';
 
 export interface ThreadPostProps {
@@ -18,6 +19,7 @@ export function ThreadPost({
   isParent = false,
   isChild = false,
   noActions = false,
+  noMenu = false,
 }: ThreadPostProps) {
   const postViewRef = usePostViewRef(post.id);
 
@@ -48,9 +50,12 @@ export function ThreadPost({
                 @{post.profile.handle}
               </span>
             </div>
-            <span className="shrink-0 text-sm font-extralight">
-              <UpdatingDate date={post.createdAt} />
-            </span>
+            <div className="flex shrink-0 items-start gap-2">
+              <span className="text-sm font-extralight">
+                <UpdatingDate date={post.createdAt} />
+              </span>
+              {!noMenu ? <PostMenu post={post} /> : null}
+            </div>
           </div>
           <FeedPostContent post={post} />
         </div>

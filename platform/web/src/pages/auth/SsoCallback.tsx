@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCredentialsStore, useOpenpeeps } from '@openpeeps/react';
+import { useCredentialsStore, useOpenpeeps, useT } from '@openpeeps/react';
 
 export function SsoCallback() {
+  const t = useT();
   const navigate = useNavigate();
   const { client } = useOpenpeeps();
   const { credentialsStore } = useCredentialsStore();
@@ -37,14 +38,18 @@ export function SsoCallback() {
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4 text-center">
-        <h1 className="text-error text-2xl font-semibold">Error: {error}</h1>
+        <h1 className="text-error text-2xl font-semibold">
+          {t('common.error', { defaultValue: 'Error' })}: {error}
+        </h1>
       </div>
     );
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 text-center">
-      <h1 className="text-2xl font-semibold">Signing you in…</h1>
+      <h1 className="text-2xl font-semibold">
+        {t('auth.sso.signingIn', { defaultValue: 'Signing you in…' })}
+      </h1>
     </div>
   );
 }

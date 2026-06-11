@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Copy, MoreVertical, Users } from 'lucide-react';
+import { CheckCheck, Copy, MoreVertical, Users, X } from 'lucide-react';
 import { inviteLinkMatchesQuery } from '@openpeeps/common/lib';
 import type { InviteLinkWithMeta } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
@@ -38,82 +38,94 @@ export function AdminInvites() {
     <div className="p-4">
       <div className="mb-4">
         <Input
-          placeholder={t('common.search', { defaultValue: 'Search…' })}
+          placeholder={t('admin.invites.searchPlaceholder', {
+            defaultValue: 'Search by name or email',
+          })}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      <div className="rounded-md border">
-        <table className="w-full text-sm">
-          <thead className="bg-surface-100">
-            <tr>
-              <th className="p-2 text-left">
-                {t('admin.invites.linkColumn', { defaultValue: 'Link' })}
-              </th>
-              <th className="p-2 text-left">
-                {t('admin.invites.createdByColumn', {
-                  defaultValue: 'Created by',
-                })}
-              </th>
-              <th className="p-2 text-left">
-                {t('admin.invites.groupsColumn', { defaultValue: 'Groups' })}
-              </th>
-              <th className="p-2 text-left">
-                {t('admin.invites.expirationDateColumn', {
-                  defaultValue: 'Expires',
-                })}
-              </th>
-              <th className="p-2 text-left">
-                {t('admin.invites.usesColumn', { defaultValue: 'Uses' })}
-              </th>
-              <th className="p-2 text-left">
-                {t('admin.invites.statusColumn', { defaultValue: 'Status' })}
-              </th>
-              <th className="p-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((invite) => {
-              const active =
-                invite.active && new Date(invite.expiresAt) > new Date();
-              return (
-                <tr key={invite.id} className="border-t">
-                  <td className="p-2 font-mono text-xs">{invite.slug}</td>
-                  <td className="p-2">@{invite.profile.handle}</td>
-                  <td className="p-2 text-xs">
-                    {invite.groups
-                      .map((g) => g.displayName || `@${g.handle}`)
-                      .join(', ') || '—'}
-                  </td>
-                  <td className="p-2 text-xs">
-                    <UpdatingDate date={invite.expiresAt} />
-                  </td>
-                  <td className="p-2 text-xs">
-                    {invite.redemptions.length}/{invite.maxUses}
-                  </td>
-                  <td className="p-2 text-xs">
-                    <span
-                      className={`rounded px-2 py-0.5 ${active ? 'bg-success/20 text-success' : 'bg-error/20 text-error'}`}
-                    >
-                      {active
-                        ? t('admin.invites.statusActive', {
-                            defaultValue: 'Active',
-                          })
-                        : t('admin.invites.statusInactive', {
-                            defaultValue: 'Inactive',
-                          })}
-                    </span>
-                  </td>
-                  <td className="p-2 text-right">
-                    <InvitesTablePopup invite={invite} />
-                  </td>
-                </tr>
-              );
+      {filtered.length === 0 ? (
+        <div className="flex w-full items-center justify-center p-4">
+          <h2 className="text-lg">
+            {t('admin.invites.noInvitesFound', {
+              defaultValue: 'No invites found',
             })}
-          </tbody>
-        </table>
-      </div>
+          </h2>
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <table className="w-full text-sm">
+            <thead className="bg-surface-100">
+              <tr>
+                <th className="p-2 text-left">
+                  {t('admin.invites.linkColumn', { defaultValue: 'Link' })}
+                </th>
+                <th className="p-2 text-left">
+                  {t('admin.invites.createdByColumn', {
+                    defaultValue: 'Created by',
+                  })}
+                </th>
+                <th className="p-2 text-left">
+                  {t('admin.invites.groupsColumn', { defaultValue: 'Groups' })}
+                </th>
+                <th className="p-2 text-left">
+                  {t('admin.invites.expirationDateColumn', {
+                    defaultValue: 'Expires',
+                  })}
+                </th>
+                <th className="p-2 text-left">
+                  {t('admin.invites.usesColumn', { defaultValue: 'Uses' })}
+                </th>
+                <th className="p-2 text-left">
+                  {t('admin.invites.statusColumn', { defaultValue: 'Status' })}
+                </th>
+                <th className="p-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((invite) => {
+                const active =
+                  invite.active && new Date(invite.expiresAt) > new Date();
+                return (
+                  <tr key={invite.id} className="border-t">
+                    <td className="p-2 font-mono text-xs">{invite.slug}</td>
+                    <td className="p-2">@{invite.profile.handle}</td>
+                    <td className="p-2 text-xs">
+                      {invite.groups
+                        .map((g) => g.displayName || `@${g.handle}`)
+                        .join(', ') || '—'}
+                    </td>
+                    <td className="p-2 text-xs">
+                      <UpdatingDate date={invite.expiresAt} />
+                    </td>
+                    <td className="p-2 text-xs">
+                      {invite.redemptions.length}/{invite.maxUses}
+                    </td>
+                    <td className="p-2 text-xs">
+                      <span
+                        className={`rounded px-2 py-0.5 ${active ? 'bg-success/20 text-success' : 'bg-error/20 text-error'}`}
+                      >
+                        {active
+                          ? t('admin.invites.statusActive', {
+                              defaultValue: 'Active',
+                            })
+                          : t('admin.invites.statusInactive', {
+                              defaultValue: 'Inactive',
+                            })}
+                      </span>
+                    </td>
+                    <td className="p-2 text-right">
+                      <InvitesTablePopup invite={invite} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
@@ -154,6 +166,7 @@ function InvitesTablePopup({ invite }: { invite: InviteLinkWithMeta }) {
               }
             />
             <PopupMenuButton
+              icon={X}
               title={t('admin.invites.deactivate', {
                 defaultValue: 'Deactivate',
               })}
@@ -165,6 +178,7 @@ function InvitesTablePopup({ invite }: { invite: InviteLinkWithMeta }) {
           </>
         ) : !expired ? (
           <PopupMenuButton
+            icon={CheckCheck}
             title={t('admin.invites.activate', { defaultValue: 'Activate' })}
             text={t('admin.invites.activate', { defaultValue: 'Activate' })}
             action={() => activate({ id: invite.id })}

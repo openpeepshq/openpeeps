@@ -16,7 +16,8 @@
             "forgotPassword": "Forgot Password?",
             "logIn": "Log in",
             "joinCommunity": "Join Community",
-            "seeCommunityFeed": "See community feed"
+            "seeCommunityFeed": "See community feed",
+            "loginWith": "Login with {{provider}}"
         },
         "register": {
             "title": "Sign Up",
@@ -86,6 +87,9 @@
                 "error": "This verification link is invalid or has expired.",
                 "errorHeading": "Verification failed"
             }
+        },
+        "sso": {
+            "signingIn": "Signing you in…"
         }
     },
     "navigation": {
@@ -321,13 +325,17 @@
                 "multipleAnswers": "Multiple answers",
                 "seeWhoVotedTitle": "See who voted",
                 "multipleAnswersDescription": "Allow people to choose multiple answers",
-                "votersVisibleDescription": "Allow everyone to see who voted and what option they voted for"
+                "votersVisibleDescription": "Allow everyone to see who voted and what option they voted for",
+                "question": "Poll question…"
             },
             "changeAudience": "Change audience",
             "remainingCharacters": "Remaining characters",
             "addImage": "Add Media",
             "addDocument": "Add Document",
-            "title": "New Post"
+            "title": "New Post",
+            "note": {
+                "placeholder": "What is on your mind?"
+            }
         },
         "copyPostLink": {
             "submit": "Copy Link",
@@ -338,12 +346,16 @@
         },
         "event": {
             "attendees": "Attendees",
-            "online": "Online"
+            "online": "Online",
+            "viewEvent": "View Event"
         },
         "actions": {
             "shareMessage": "Share this post",
             "seeThread": "See Thread",
-            "seeEvent": "View Event"
+            "seeEvent": "View Event",
+            "react": "React",
+            "reply": "Reply",
+            "repost": "Repost"
         },
         "footer": {
             "reply": "Reply",
@@ -401,7 +413,8 @@
         },
         "attachments": {
             "deleteTitle": "Delete attachment",
-            "failed": "Upload failed"
+            "failed": "Upload failed",
+            "editTitle": "Edit description"
         },
         "deleteModal": {
             "deletePostTitle": "Delete post",
@@ -475,6 +488,9 @@
         "unpinGlobally": {
             "title": "Unpin from feed",
             "success": "Post is no longer pinned"
+        },
+        "newPost": {
+            "title": "New post"
         }
     },
     "groups": {
@@ -693,7 +709,8 @@
             "sendInMessage": "Send in a message",
             "copyLink": "Copy link",
             "linkCopied": "Group link copied"
-        }
+        },
+        "notFound": "Group not found"
     },
     "jams": {
         "form": {
@@ -914,7 +931,9 @@
         "room": {
             "pageTitle": "Jam Room - {{name}}",
             "observerConnecting": "Waiting for connecting to the jam",
-            "jamNotActive": "This Jam is not active"
+            "jamNotActive": "This Jam is not active",
+            "loading": "Loading jam…",
+            "notFound": "Jam not found"
         },
         "participant": {
             "showEveryone": "Show everyone",
@@ -994,7 +1013,8 @@
                 "title": "Restore backup",
                 "cancel": "Cancel",
                 "confirm": "Confirm"
-            }
+            },
+            "create": "Create backup"
         },
         "invites": {
             "inviteWithLinkTitle": "Invite member with link",
@@ -1022,7 +1042,9 @@
             "expirationDateColumn": "Expiration Date",
             "usesColumn": "Uses",
             "statusColumn": "Status",
-            "linkHeading": "Link"
+            "linkHeading": "Link",
+            "statusActive": "Active",
+            "statusInactive": "Inactive"
         },
         "filter": {
             "title": "Filter",
@@ -1058,7 +1080,9 @@
             "searchPlaceholder": "Search member by name or email",
             "noUsersFound": "No users found",
             "profileColumn": "Profile",
-            "rolesColumn": "Roles"
+            "rolesColumn": "Roles",
+            "createdColumn": "Created",
+            "handleColumn": "Handle"
         },
         "groups": {
             "title": "Groups",
@@ -1091,7 +1115,9 @@
             "recentInteractions": "Recent Interactions",
             "jamSessions": "Jam Sessions",
             "jamParticipants": "Jam Participants",
-            "lastWeek": "Last Week"
+            "lastWeek": "Last Week",
+            "communityName": "Community Name",
+            "serverVersion": "Server Version"
         },
         "moderation": {
             "title": "Moderation",
@@ -1124,7 +1150,8 @@
                     "description": "You are about to close this report without performing an action on it which will mark at as resolved. Are you sure about this?",
                     "cancel": "Back",
                     "confirm": "Yes, close it"
-                }
+                },
+                "goToProfile": "Go to profile"
             },
             "post": {
                 "delete": {
@@ -1176,6 +1203,28 @@
                     "success": "Community configuration updated"
                 }
             }
+        },
+        "analytics": {
+            "title": "Analytics"
+        },
+        "dashboard": {
+            "title": "Administration"
+        },
+        "inviteEmail": {
+            "composeMessage": "Compose a message",
+            "defaultMessage": "You have been invited to join our community.",
+            "emailAddress": "Email addresses",
+            "emailPlaceholder": "email1@example.com, email2@example.com",
+            "emailRequired": "Enter at least one email address.",
+            "expires1Day": "One Day",
+            "expires1Month": "One Month",
+            "expires1Week": "One Week",
+            "expires2Days": "Two Days",
+            "expiresAfter": "Expires After",
+            "expiresNever": "Never",
+            "sendInvite": "Send Invite",
+            "success": "Invitations sent.",
+            "title": "Invite by Email"
         }
     },
     "configuration": {
@@ -1557,7 +1606,8 @@
             },
             "send": "Send",
             "sending": "Sending…",
-            "altTextDescription": "You may add descriptions to your media files here - this can help viewers get more context about your images and documents."
+            "altTextDescription": "You may add descriptions to your media files here - this can help viewers get more context about your images and documents.",
+            "altText": "Alt text"
         },
         "members": {
             "addSuccess": "Member added successfully",
@@ -1568,7 +1618,16 @@
         "cancel": "Cancel",
         "none": "None",
         "remove": "Remove",
-        "thisDevice": "This device and browser"
+        "thisDevice": "This device and browser",
+        "error": "Error",
+        "loading": "Loading…",
+        "loadingMore": "Loading more…",
+        "posting": "Posting…",
+        "save": "Save",
+        "saving": "Saving…",
+        "send": "Send",
+        "sending": "Sending…",
+        "submitting": "Submitting…"
     },
     "conversations": {
         "newMessage": "New Message",
@@ -1632,7 +1691,12 @@
                 "everyone": "Everyone",
                 "noOne": "No one"
             }
-        }
+        },
+        "empty": "No direct messages here",
+        "open": "Open conversation",
+        "placeholder": "Write a message…",
+        "title": "Conversation",
+        "titleWithYou": "{{names}} and You"
     },
     "settings": {
         "description": "Manage all settings relating to your acccount here:",
@@ -1669,7 +1733,8 @@
             "autoRenewal": "Auto Renewal",
             "autoRenewalCanceled": "Canceled",
             "autoRenewalActive": "Active",
-            "createPortal": "Customer Portal"
+            "createPortal": "Customer Portal",
+            "noSubscription": "No active subscription. Subscribe to support your community."
         },
         "notifications": {
             "inApp": "In-App Notifications",
@@ -1826,7 +1891,36 @@
         },
         "accessTokens": {
             "title": "Access tokens",
-            "description": "Manage your API access tokens"
+            "description": "Manage your API access tokens",
+            "addScope": "Add scope",
+            "copy": "Copy",
+            "copyWarning": "Copy this token now. It will not be shown again.",
+            "create": "Create token",
+            "createDescription": "Create a personal access token to use the API.",
+            "createError": "Failed to create token",
+            "createTitle": "Create token",
+            "creating": "Creating…",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "What is this token for?",
+            "empty": "No access tokens yet.",
+            "expiration": "Expiration",
+            "expirationOptions": {
+                "ninetyDays": "90 days",
+                "oneYear": "1 year",
+                "sevenDays": "7 days",
+                "thirtyDays": "30 days"
+            },
+            "expiresAt": "Expires",
+            "listTitle": "Your tokens",
+            "name": "Name",
+            "namePlaceholder": "My integration",
+            "nameRequired": "Name is required",
+            "never": "Never",
+            "noScopes": "No scopes",
+            "revoke": "Revoke",
+            "revoked": "Revoked",
+            "scopeRequired": "At least one scope is required",
+            "scopes": "Scopes"
         }
     },
     "form": {
@@ -1981,10 +2075,13 @@
         "profileRelationship": {
             "owner": "You are hosting",
             "attending": "Attending",
-            "tentative": "Maybe Attending"
+            "tentative": "Maybe Attending",
+            "moderator": "Moderator"
         },
         "jam": {
-            "start": "Start Jam"
+            "start": "Start Jam",
+            "attendee": "attendee",
+            "attendees": "attendees"
         },
         "hostedBy": "Organizer",
         "group": "Group Event In:",
@@ -2092,7 +2189,11 @@
         },
         "mention": {
             "text": "{{profileName}} mentioned you"
-        }
+        },
+        "groupMemberExit": {
+            "text": "{{profileName}} left {{groupName}}"
+        },
+        "markAllReadError": "Failed to mark notifications as read"
     },
     "handle": {
         "validation": {
@@ -2273,7 +2374,8 @@
         "noPostsFound": "No posts found",
         "noJamsFound": "No jams found",
         "noEventsFound": "No events found",
-        "noGroupsFound": "No groups found"
+        "noGroupsFound": "No groups found",
+        "startTyping": "Type at least 3 characters to start searching."
     },
     "group": {
         "roles": {
@@ -2308,6 +2410,32 @@
         }
     },
     "profiles": {
-        "handleExists": "This handle already exists, please pick a different one."
+        "handleExists": "This handle already exists, please pick a different one.",
+        "notFound": "Profile not found"
+    },
+    "members": {
+        "empty": "No profiles found",
+        "fetchError": "Failed to fetch accounts. Please try again later.",
+        "searchPlaceholder": "Search member by name or handle"
+    },
+    "payment": {
+        "cancelled": "Checkout was cancelled.",
+        "success": {
+            "message": "Payment received. Redirecting…"
+        }
+    },
+    "tags": {
+        "title": "#{{hashtag}}"
+    },
+    "welcome": {
+        "addProfileDetails": "Add profile details",
+        "completeSetup": "Complete account setup",
+        "connect": "Connect with others",
+        "firstPost": "Make first post",
+        "heading": "Welcome to {{name}}",
+        "usefulLinks": "Useful Links",
+        "validationEmailFailed": "Failed to send validation email",
+        "validationEmailSent": "Validation email sent",
+        "verifyEmail": "Verify your email address"
     }
 }

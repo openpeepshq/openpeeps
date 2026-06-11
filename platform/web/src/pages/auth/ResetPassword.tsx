@@ -41,10 +41,14 @@ export function ResetPassword() {
         }}
       >
         <h2 className="text-xl">
-          {t('auth.resetPassword.title', { defaultValue: 'Reset Password' })}
+          {t('auth.resetPassword.heading', { defaultValue: 'Reset Password' })}
         </h2>
 
-        <Label title={t('auth.newPassword', { defaultValue: 'New Password' })}>
+        <Label
+          title={t('auth.resetPassword.newPassword', {
+            defaultValue: 'New Password',
+          })}
+        >
           <Input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -54,7 +58,7 @@ export function ResetPassword() {
         </Label>
 
         <Label
-          title={t('common.confirmPassword', {
+          title={t('auth.resetPassword.confirmPassword', {
             defaultValue: 'Confirm Password',
           })}
         >
@@ -73,13 +77,15 @@ export function ResetPassword() {
         )}
 
         <Button
-          title={t('auth.resetPassword.submit', { defaultValue: 'Reset' })}
+          title={t('auth.resetPassword.heading', {
+            defaultValue: 'Reset Password',
+          })}
           disabled={confirmPassword !== password || password.length === 0}
           variant="variant-filled-primary"
           action={handleSubmit}
           className="w-full"
         >
-          {t('auth.resetPassword.submit', { defaultValue: 'Reset' })}
+          {t('auth.resetPassword.submitButton', { defaultValue: 'Submit' })}
         </Button>
       </form>
     </AuthLayout>

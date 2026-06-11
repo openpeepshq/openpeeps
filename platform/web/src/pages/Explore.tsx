@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import type {
   GroupWithMeta,
   PublicPost,
@@ -146,6 +146,7 @@ export function Explore() {
   };
 
   const counts = countsQuery.data;
+  const countsLoading = countsQuery.isLoading || countsQuery.isFetching;
 
   return (
     <div className="p-4">
@@ -165,6 +166,7 @@ export function Explore() {
           title={t('explore.SearchButton', { defaultValue: 'Search' })}
           variant="variant-filled-primary"
           action={triggerSearch}
+          className="px-8"
         >
           <Search />
         </Button>
@@ -175,36 +177,41 @@ export function Explore() {
           active={tab === 'members'}
           onClick={() => switchTab('members')}
           count={counts?.profiles}
+          countLoading={countsLoading}
         >
-          {t('explore.members', { defaultValue: 'Members' })}
+          {t('explore.tabs.members', { defaultValue: 'Members' })}
         </TabButton>
         <TabButton
           active={tab === 'posts'}
           onClick={() => switchTab('posts')}
           count={counts?.posts}
+          countLoading={countsLoading}
         >
-          {t('explore.posts', { defaultValue: 'Posts' })}
+          {t('explore.tabs.posts', { defaultValue: 'Posts' })}
         </TabButton>
         <TabButton
           active={tab === 'jams'}
           onClick={() => switchTab('jams')}
           count={counts?.jams}
+          countLoading={countsLoading}
         >
-          {t('explore.jams', { defaultValue: 'Jams' })}
+          {t('explore.tabs.jams', { defaultValue: 'Jams' })}
         </TabButton>
         <TabButton
           active={tab === 'events'}
           onClick={() => switchTab('events')}
           count={counts?.events}
+          countLoading={countsLoading}
         >
-          {t('explore.events', { defaultValue: 'Events' })}
+          {t('explore.tabs.events', { defaultValue: 'Events' })}
         </TabButton>
         <TabButton
           active={tab === 'groups'}
           onClick={() => switchTab('groups')}
           count={counts?.groups}
+          countLoading={countsLoading}
         >
-          {t('explore.groups', { defaultValue: 'Groups' })}
+          {t('explore.tabs.groups', { defaultValue: 'Groups' })}
         </TabButton>
       </nav>
 
@@ -222,14 +229,14 @@ export function Explore() {
         ) : tab === 'jams' ? (
           <EventSearchResults
             posts={jamItems}
-            emptyMessage={t('explore.noJams', {
+            emptyMessage={t('explore.noJamsFound', {
               defaultValue: 'No jams found',
             })}
           />
         ) : tab === 'events' ? (
           <EventSearchResults
             posts={eventItems}
-            emptyMessage={t('explore.noEvents', {
+            emptyMessage={t('explore.noEventsFound', {
               defaultValue: 'No events found',
             })}
           />
@@ -240,7 +247,7 @@ export function Explore() {
             ))}
             {groupItems.length === 0 ? (
               <EmptyResults
-                message={t('explore.noGroups', {
+                message={t('explore.noGroupsFound', {
                   defaultValue: 'No groups found',
                 })}
               />
@@ -255,7 +262,7 @@ export function Explore() {
             ))}
             {postItems.length === 0 ? (
               <EmptyResults
-                message={t('explore.noPosts', {
+                message={t('explore.noPostsFound', {
                   defaultValue: 'No posts found',
                 })}
               />
@@ -263,7 +270,7 @@ export function Explore() {
           </>
         ) : profileItems.length === 0 ? (
           <EmptyResults
-            message={t('explore.noProfiles', {
+            message={t('explore.noProfilesFound', {
               defaultValue: 'No profiles found',
             })}
             testId="explore-no-profiles-found"
@@ -323,11 +330,13 @@ function EmptyResults({
 function TabButton({
   active,
   count,
+  countLoading = false,
   onClick,
   children,
 }: {
   active: boolean;
   count?: number;
+  countLoading?: boolean;
   onClick: () => void;
   children: React.ReactNode;
 }) {
@@ -338,7 +347,9 @@ function TabButton({
       className={`px-4 py-2 text-sm ${active ? 'border-primary border-b-2 font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
     >
       {children}
-      {typeof count === 'number' ? (
+      {countLoading ? (
+        <Loader2 className="ml-1 inline-block h-3 w-3 animate-spin" />
+      ) : typeof count === 'number' ? (
         <span className="bg-surface-200 ml-1 rounded-full px-2 py-0.5 text-xs">
           {count > 99 ? '99+' : count}
         </span>

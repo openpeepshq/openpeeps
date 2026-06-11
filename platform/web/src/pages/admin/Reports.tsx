@@ -88,10 +88,10 @@ export function AdminReports() {
 
       <nav className="border-border flex border-b">
         <TabButton active={tab === 'post'} onClick={() => setTab('post')}>
-          Post reports
+          Post Reports
         </TabButton>
         <TabButton active={tab === 'profile'} onClick={() => setTab('profile')}>
-          Profile reports
+          Profile Reports
         </TabButton>
       </nav>
 
@@ -104,7 +104,11 @@ export function AdminReports() {
             onClick={() => setFilter(value)}
             className={`rounded px-2 py-1 ${filter === value ? 'bg-primary text-primary-foreground' : 'bg-surface-100 hover:bg-surface-200'}`}
           >
-            {value}
+            {value === 'all'
+              ? 'All'
+              : value === 'resolved'
+                ? 'Resolved'
+                : 'Not resolved'}
           </button>
         ))}
       </div>

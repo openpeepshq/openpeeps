@@ -19,10 +19,22 @@ import {
 } from '@openpeeps/react/components';
 
 function ChatPreview({ conversation }: { conversation: PublicPost[] }) {
+  const t = useT();
   const me = useCurrentProfile();
   const lastMessage = conversation[conversation.length - 1];
   if (!lastMessage) return null;
   const participants = lastMessage.audience ?? [];
+
+  const otherNames = participants
+    .filter((p) => p.id !== me?.id)
+    .map((p) => p.displayName || `@${p.handle}`)
+    .join(', ');
+  const title = otherNames
+    ? t('conversations.titleWithYou', {
+        defaultValue: '{{names}} and You',
+        names: otherNames,
+      })
+    : t('common.you', { defaultValue: 'You' });
 
   return (
     <div className="flex w-full flex-col gap-x-1 border-b p-3 text-left sm:p-4">
@@ -32,11 +44,11 @@ function ChatPreview({ conversation }: { conversation: PublicPost[] }) {
             <Avatar key={p.id} profile={p} size={2.5} borderless />
           ))}
         </div>
-        <div className="flex items-center text-sm">
-          {participants.map((p) => p.displayName || `@${p.handle}`).join(', ')}
+        <div className="flex items-center">
+          <span className="truncate font-bold">{truncateText(title, 20)}</span>
         </div>
       </div>
-      <span className="text-surface-500 text-xs">
+      <span className="text-surface-500 text-sm">
         <UpdatingDate date={lastMessage.createdAt} />
       </span>
 

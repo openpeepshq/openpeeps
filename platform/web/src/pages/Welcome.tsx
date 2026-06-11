@@ -123,7 +123,7 @@ export function Welcome() {
     <div className="relative col-span-3 min-h-[90vh] rounded-md bg-left-bottom bg-no-repeat p-6 pt-4">
       <h1 className="mt-8 flex pb-4 text-5xl font-bold">
         {t('welcome.heading', {
-          defaultValue: `Welcome to ${communityName}`,
+          defaultValue: 'Welcome to {{name}}',
           name: communityName,
         })}
       </h1>

@@ -77,6 +77,9 @@ export function AccountSettings() {
           type="password"
           autoComplete="current-password"
           value={oldPassword}
+          placeholder={t('settings.account.oldPasswordPlaceholder', {
+            defaultValue: 'Enter your current password',
+          })}
           onChange={(e) => setOldPassword(e.target.value)}
           data-testid="settings-current-password-input"
         />
@@ -95,6 +98,9 @@ export function AccountSettings() {
           id="email"
           type="email"
           value={email}
+          placeholder={t('settings.account.emailPlaceholder', {
+            defaultValue: 'Enter your email',
+          })}
           onChange={(e) => setEmail(e.target.value)}
           data-testid="settings-email-input"
         />
@@ -111,6 +117,9 @@ export function AccountSettings() {
           type="password"
           autoComplete="new-password"
           value={newPassword}
+          placeholder={t('settings.account.newPasswordPlaceholder', {
+            defaultValue: 'Enter your new password',
+          })}
           onChange={(e) => setNewPassword(e.target.value)}
         />
       </div>
@@ -126,6 +135,9 @@ export function AccountSettings() {
           type="password"
           autoComplete="new-password"
           value={confirmPassword}
+          placeholder={t('settings.account.confirmPasswordPlaceholder', {
+            defaultValue: 'Confirm your new password',
+          })}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
       </div>

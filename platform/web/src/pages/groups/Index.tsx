@@ -22,9 +22,8 @@ export function GroupsIndex() {
 
   const plusButton = useMemo(
     () =>
-      checkRoleCapabilities(currentProfile?.roles ?? [], [
-        'core-groups-create',
-      ]).success
+      checkRoleCapabilities(currentProfile?.roles ?? [], ['core-groups-create'])
+        .success
         ? {
             title: t('groups.new', { defaultValue: 'New Group' }),
             icon: Plus,
@@ -61,13 +60,13 @@ export function GroupsIndex() {
             <Users size={60} />
             {search === '' ? (
               <p>
-                {t('groups.noGroups', {
+                {t('groups.noGroupsYet', {
                   defaultValue: 'You have no groups yet',
                 })}
               </p>
             ) : (
               <p>
-                {t('groups.noResults', { defaultValue: 'No groups found' })}
+                {t('groups.noGroupsFound', { defaultValue: 'No groups found' })}
               </p>
             )}
           </div>

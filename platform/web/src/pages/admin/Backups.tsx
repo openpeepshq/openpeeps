@@ -72,11 +72,20 @@ export function AdminBackups() {
         </Button>
       </div>
 
+      <div className="mb-2 rounded-md border-2 p-4">
+        {t('admin.backups.description', {
+          defaultValue:
+            'All backups are stored in the server temporarily. Please download the backups and store them in a safe place. You can restore the backups by uploading them here.',
+        })}
+      </div>
+
       {backups.length === 0 ? (
         <div className="text-muted-foreground flex flex-col items-center pt-20">
           <Database size={50} />
           <p className="mt-2 text-sm">
-            {t('admin.backups.empty', { defaultValue: 'No backups yet' })}
+            {t('admin.backups.noBackupsFound', {
+              defaultValue: 'No Backups found',
+            })}
           </p>
         </div>
       ) : (

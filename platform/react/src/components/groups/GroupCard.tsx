@@ -24,7 +24,7 @@ export function GroupCard({
     <div className={`flex w-full justify-between ${noPadding ? '' : 'p-4'}`}>
       <a
         href={`/groups/@${group.handle}`}
-        className="flex min-w-0 flex-1 items-center gap-x-2 hover:bg-surface-100"
+        className="hover:bg-surface-100 flex min-w-0 flex-1 items-center gap-x-2"
       >
         <GroupAvatar
           group={group}
@@ -33,10 +33,14 @@ export function GroupCard({
           containerClassName="flex-shrink-0"
         />
         <span className="flex min-w-0 flex-1 flex-col items-start overflow-hidden text-left">
-          <span className="w-32 truncate text-lg font-semibold md:w-full">
+          <span
+            className={`w-32 truncate font-semibold md:w-full ${avatarSize < 2 ? 'text-sm' : 'text-lg'}`}
+          >
             {groupName(group)}
           </span>
-          <span className="truncate text-sm">
+          <span
+            className={`truncate ${avatarSize < 2 ? 'text-xs' : 'text-sm'}`}
+          >
             {group.membersCount} member{group.membersCount === 1 ? '' : 's'}
           </span>
         </span>

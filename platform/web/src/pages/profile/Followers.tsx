@@ -46,8 +46,8 @@ export function Followers({ following = false }: Props) {
               <UserX size={50} />
               <p className="text-muted-foreground mt-2 text-sm">
                 {following
-                  ? t('profile.following.empty', {
-                      defaultValue: 'Not following anyone',
+                  ? t('profile.following.noFollowers', {
+                      defaultValue: 'Not following anyone yet',
                     })
                   : t('profile.followers.noFollowing', {
                       defaultValue: 'No followers yet',
