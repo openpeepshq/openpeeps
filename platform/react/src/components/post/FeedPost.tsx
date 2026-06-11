@@ -47,7 +47,11 @@ export function FeedPost({
   return (
     <div ref={postViewRef} className="border-b p-4">
       {hasReactionHeader && (
-        <PostReactionHeader post={post} inGroup={inGroup} />
+        <PostReactionHeader
+          post={post}
+          inGroup={inGroup}
+          deleteCallback={deleteCallback}
+        />
       )}
 
       {displayedPost.replyTo && showReplyTo && (

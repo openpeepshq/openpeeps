@@ -1,15 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ProfileWithMeta } from '@openpeeps/common/types';
 import { profileDataSchema } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import {
   HeaderAvatarInput,
   useCurrentProfile,
+  useServerInfo,
+  useToast,
 } from '@openpeeps/react/components';
-import { Button, Input, Label, Textarea, Toast } from '@openpeeps/react-ui';
+import { Button, Input, Label, Textarea } from '@openpeeps/react-ui';
 
 export function PublicProfileSettings() {
   const t = useT();
+  const { success, error: toastError } = useToast();
+  const serverInfo = useServerInfo();
   const { openpeepsApi } = useOpenpeeps();
   const me = useCurrentProfile();
   const updateProfile = openpeepsApi.updateCurrentProfileAction();
@@ -18,59 +22,74 @@ export function PublicProfileSettings() {
     t('settings.publicProfile.title', { defaultValue: 'Public profile' }),
   );
 
+  const additionalFieldDefs = useMemo(
+    () => serverInfo.communityConfig?.profiles?.additionalFields ?? [],
+    [serverInfo.communityConfig?.profiles?.additionalFields],
+  );
+
   const [draft, setDraft] = useState<Partial<ProfileWithMeta>>({});
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!me) return;
+    const existingFields = me.fields ?? [];
+    const fields = additionalFieldDefs.map((field) => {
+      const match = existingFields.find((f) => f.name === field.label);
+      return { name: field.label, value: match?.value ?? '' };
+    });
     setDraft({
       displayName: me.displayName ?? '',
+      handle: me.handle ?? '',
       bio: me.bio ?? '',
       avatar: me.avatar ?? undefined,
       header: me.header ?? undefined,
       location: me.location,
+      fields: fields.length ? fields : undefined,
     });
-  }, [me?.id]);
-  const [status, setStatus] = useState<
-    | { type: 'success'; message: string }
-    | { type: 'error'; message: string }
-    | null
-  >(null);
+  }, [me?.id, additionalFieldDefs]);
 
   if (!me) return null;
 
   const submit = async () => {
-    setStatus(null);
     setSubmitting(true);
     try {
       await updateProfile(
         profileDataSchema.parse({
-          handle: me.handle,
+          handle: draft.handle ?? me.handle,
           type: me.type,
           displayName: draft.displayName,
           bio: draft.bio,
           avatar: draft.avatar || null,
           header: draft.header || null,
           location: draft.location?.text ? draft.location : undefined,
+          fields: draft.fields?.filter((f) => f.value.trim()) ?? undefined,
         }),
       );
-      setStatus({
-        type: 'success',
-        message: t('settings.profile.updateSuccess', {
+      success(
+        t('settings.profile.updateSuccess', {
           defaultValue: 'Profile updated',
         }),
-      });
+      );
     } catch (err) {
-      setStatus({
-        type: 'error',
-        message: t('settings.profile.updateError', {
+      toastError(
+        t('settings.profile.updateError', {
           defaultValue: `Failed: ${(err as Error).message}`,
           error: (err as Error).message,
         }),
-      });
+      );
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const patchField = (index: number, value: string) => {
+    setDraft((d) => {
+      const fields = [...(d.fields ?? [])];
+      const def = additionalFieldDefs[index];
+      if (!def) return d;
+      fields[index] = { name: def.label, value };
+      return { ...d, fields };
+    });
   };
 
   return (
@@ -83,7 +102,9 @@ export function PublicProfileSettings() {
       />
 
       <div className="space-y-2 pt-4">
-        <Label htmlFor="displayName">Display name</Label>
+        <Label htmlFor="displayName">
+          {t('profile.form.displayName', { defaultValue: 'Display name' })}
+        </Label>
         <Input
           id="displayName"
           value={draft.displayName ?? ''}
@@ -95,17 +116,29 @@ export function PublicProfileSettings() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="handle">Handle</Label>
+        <Label htmlFor="handle">
+          {t('profile.form.handle', { defaultValue: 'Handle' })}
+        </Label>
         <Input
           id="handle"
-          value={me.handle ?? ''}
-          readOnly
+          value={draft.handle ?? ''}
+          onChange={(e) =>
+            setDraft((d) => ({
+              ...d,
+              handle: e.target.value.replace(/^@/, ''),
+            }))
+          }
+          placeholder={t('profile.form.handlePlaceholder', {
+            defaultValue: 'your-handle',
+          })}
           data-testid="settings-handle-input"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="bio">Bio</Label>
+        <Label htmlFor="bio">
+          {t('profile.form.bio', { defaultValue: 'Bio' })}
+        </Label>
         <Textarea
           id="bio"
           rows={4}
@@ -116,7 +149,9 @@ export function PublicProfileSettings() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="location">Location</Label>
+        <Label htmlFor="location">
+          {t('profile.form.location', { defaultValue: 'Location' })}
+        </Label>
         <Input
           id="location"
           value={draft.location?.text ?? ''}
@@ -129,14 +164,20 @@ export function PublicProfileSettings() {
         />
       </div>
 
-      {status && (
-        <Toast variant={status.type} onDismiss={() => setStatus(null)}>
-          {status.message}
-        </Toast>
-      )}
+      {additionalFieldDefs.map((field, index) => (
+        <div key={field.label} className="space-y-2">
+          <Label htmlFor={`field-${index}`}>{field.label}</Label>
+          <Input
+            id={`field-${index}`}
+            value={draft.fields?.[index]?.value ?? ''}
+            placeholder={field.label}
+            onChange={(e) => patchField(index, e.target.value)}
+          />
+        </div>
+      ))}
 
       <Button
-        title="Save"
+        title={t('common.save', { defaultValue: 'Save' })}
         variant="variant-filled-primary"
         action={submit}
         disabled={submitting}

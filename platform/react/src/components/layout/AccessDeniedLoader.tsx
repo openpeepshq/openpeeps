@@ -1,32 +1,39 @@
 import type { ReactNode } from 'react';
 import { Loader, type LoaderProps } from '@openpeeps/react-ui';
+import { AccessDenied } from './AccessDenied';
 
 export interface AccessDeniedLoaderProps extends Omit<LoaderProps, 'error'> {
-  /** Render when one or more queries fail. Mirrors the AccessDenied snippet. */
+  /** @deprecated Use `fallbackError` — custom UI for non–access-denied errors. */
   accessDenied?: ReactNode;
   accessDeniedMessage?: string;
+  /** Shown for non–access-denied failures (e.g. profile not found). */
+  fallbackError?: ReactNode;
 }
 
 /**
  * Translation of @openpeeps/svelte/components/layout/AccessDeniedLoader.svelte.
  *
- * Like {@link Loader} but renders an `accessDenied` slot in place of the
- * default error UI.
+ * Like {@link Loader} but renders {@link AccessDenied} in place of the default
+ * error UI, distinguishing capability failures from other query errors.
  */
 export function AccessDeniedLoader({
   accessDenied,
-  accessDeniedMessage = 'You do not have access to this resource.',
+  accessDeniedMessage,
+  fallbackError,
+  queries = [],
   ...props
 }: AccessDeniedLoaderProps) {
   return (
     <Loader
       {...props}
+      queries={queries}
       error={
         accessDenied ?? (
-          <div className="flex flex-col items-center gap-3 p-6 text-center">
-            <h3 className="text-error text-xl font-semibold">Access denied</h3>
-            <p>{accessDeniedMessage}</p>
-          </div>
+          <AccessDenied
+            queries={queries}
+            message={accessDeniedMessage}
+            fallbackError={fallbackError}
+          />
         )
       }
     />

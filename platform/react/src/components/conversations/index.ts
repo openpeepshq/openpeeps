@@ -7,3 +7,5 @@ export {
 export type { CreateConversationOptions } from './CreateNewConversationContext';
 export { DirectMessagesHeaderActions } from './DirectMessagesHeaderActions';
 export { ConversationMessageBubble } from './ConversationMessageBubble';
+export { MessageInThread } from './MessageInThread';
+export type { MessageInThreadProps } from './MessageInThread';

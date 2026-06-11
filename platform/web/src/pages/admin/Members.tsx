@@ -3,6 +3,7 @@ import { matchesQuery } from '@openpeeps/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Avatar } from '@openpeeps/react/components';
 import { Input } from '@openpeeps/react-ui';
+import { ProfileRowActions } from './components/ProfileRowActions';
 
 export function AdminMembers() {
   const t = useT();
@@ -36,6 +37,7 @@ export function AdminMembers() {
               <th className="p-2 text-left">Handle</th>
               <th className="p-2 text-left">Roles</th>
               <th className="p-2 text-left">Created</th>
+              <th className="p-2"></th>
             </tr>
           </thead>
           <tbody>
@@ -49,10 +51,15 @@ export function AdminMembers() {
                 </td>
                 <td className="text-muted-foreground p-2">@{p.handle}</td>
                 <td className="p-2 text-xs">
-                  {(p.roles ?? []).join(', ') || '—'}
+                  {(p.roles ?? [])
+                    .map((r) => r.displayName || r.key)
+                    .join(', ') || '—'}
                 </td>
                 <td className="text-muted-foreground p-2 text-xs">
                   {new Date(p.createdAt).toLocaleDateString()}
+                </td>
+                <td className="p-2 text-right">
+                  <ProfileRowActions profile={p} />
                 </td>
               </tr>
             ))}

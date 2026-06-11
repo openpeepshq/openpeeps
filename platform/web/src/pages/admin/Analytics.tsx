@@ -1,4 +1,5 @@
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import { SignupChart } from './components/AdminCharts';
 
 function StatRow({ label, value }: { label: string; value: number }) {
   return (
@@ -29,8 +30,17 @@ export function AdminAnalytics() {
 
   const periods = ['day', 'week', 'month', 'quarter', 'year'] as const;
 
+  const topPostsOfYear = stats.topLists.posts.year;
+
   return (
     <div className="space-y-6 p-4">
+      <section>
+        <h2 className="mb-2 text-lg font-medium">
+          {t('admin.overview.newSignups', { defaultValue: 'New signups' })}
+        </h2>
+        <SignupChart stats={stats} />
+      </section>
+
       <section>
         <h2 className="mb-2 text-lg font-medium">Active profiles</h2>
         <div className="rounded-md border p-4">
@@ -73,6 +83,35 @@ export function AdminAnalytics() {
             </a>
           ))}
           {stats.topLists.profiles.month.length === 0 && (
+            <p className="text-muted-foreground p-3 text-sm">No data</p>
+          )}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-2 text-lg font-medium">
+          {t('admin.overview.topPostsOfYear', {
+            defaultValue: `Top ${topPostsOfYear.length} posts of the year`,
+            count: topPostsOfYear.length,
+          })}
+        </h2>
+        <div className="rounded-md border">
+          {topPostsOfYear.map((post) => (
+            <a
+              key={post.id}
+              href={`/posts/${post.id}`}
+              className="hover:bg-surface-100 flex items-center justify-between gap-3 border-b p-2 last:border-b-0"
+            >
+              <span className="min-w-0 flex-1 truncate text-sm">
+                {(post.data as { content?: string })?.content ||
+                  `@${post.profile.handle}`}
+              </span>
+              <span className="text-muted-foreground shrink-0 text-sm">
+                score {post.activityScore.toFixed(0)}
+              </span>
+            </a>
+          ))}
+          {topPostsOfYear.length === 0 && (
             <p className="text-muted-foreground p-3 text-sm">No data</p>
           )}
         </div>

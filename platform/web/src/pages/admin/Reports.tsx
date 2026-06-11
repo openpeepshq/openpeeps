@@ -1,12 +1,20 @@
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import type { ReportWithMeta } from '@openpeeps/common/types';
 import { useT, useOpenpeeps } from '@openpeeps/react';
 import {
   Avatar,
   PostMarkdown,
   UpdatingDate,
 } from '@openpeeps/react/components';
-import { Button } from '@openpeeps/react-ui';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@openpeeps/react-ui';
 import { routeHandleParam } from '../../lib/routeHandles';
 
 export function AdminReports() {
@@ -22,6 +30,7 @@ export function AdminReports() {
   const [filter, setFilter] = useState<'all' | 'resolved' | 'not-resolved'>(
     'not-resolved',
   );
+  const [resolving, setResolving] = useState<ReportWithMeta | null>(null);
 
   const profile = profileQuery.data;
   const reports = useMemo(() => {
@@ -128,20 +137,268 @@ export function AdminReports() {
                   </ul>
                 </details>
               )}
-              {report.resolution && (
+              {report.resolution ? (
                 <Button
-                  title="Reopen"
+                  title={t('admin.moderation.reopen', {
+                    defaultValue: 'Reopen',
+                  })}
                   variant="variant-ghost-primary"
                   action={() => reopen({ reportId: report.id })}
                 >
-                  Reopen
+                  {t('admin.moderation.reopen', { defaultValue: 'Reopen' })}
+                </Button>
+              ) : (
+                <Button
+                  title={t('admin.moderation.reportList.closeReport', {
+                    defaultValue: 'Close',
+                  })}
+                  variant="variant-ringed-error"
+                  action={() => setResolving(report)}
+                >
+                  {t('admin.moderation.reportList.closeReport', {
+                    defaultValue: 'Close',
+                  })}
                 </Button>
               )}
             </li>
           ))}
         </ul>
       )}
+
+      {resolving ? (
+        <ResolveReportModal
+          report={resolving}
+          onClose={() => setResolving(null)}
+        />
+      ) : null}
     </div>
+  );
+}
+
+type ResolveStep =
+  | 'options'
+  | 'confirmPost'
+  | 'confirmProfile'
+  | 'confirmClose';
+
+function ResolveReportModal({
+  report,
+  onClose,
+}: {
+  report: ReportWithMeta;
+  onClose: () => void;
+}) {
+  const t = useT();
+  const { openpeepsApi } = useOpenpeeps();
+  const resolveReport = openpeepsApi.admin.resolveReportAction({
+    reportId: report.id,
+  });
+  const deletePost = openpeepsApi.deletePostAction();
+  const deleteProfile = openpeepsApi.admin.deleteProfileAction();
+
+  const [step, setStep] = useState<ResolveStep>('options');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const isProfileReport = report.reportedPosts.length === 0;
+  const firstPostId = report.reportedPosts[0]?.id;
+
+  const run = async (fn: () => Promise<unknown>) => {
+    setError(null);
+    setSubmitting(true);
+    try {
+      await fn();
+      onClose();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const closeReport = () => run(() => resolveReport({ resolution: 'ignore' }));
+  const removeAndResolve = (op: () => Promise<unknown>) =>
+    run(async () => {
+      await op();
+      await resolveReport({ resolution: 'remove' });
+    });
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            {step === 'options'
+              ? t('admin.moderation.report.closeOptions.title', {
+                  defaultValue: 'Close this report?',
+                })
+              : step === 'confirmPost'
+                ? t('admin.moderation.post.delete.title', {
+                    defaultValue: 'Delete this post?',
+                  })
+                : step === 'confirmProfile'
+                  ? t('admin.moderation.profile.delete.title', {
+                      defaultValue: 'Delete this profile?',
+                    })
+                  : t('admin.moderation.report.close.title', {
+                      defaultValue: 'Just close report?',
+                    })}
+          </DialogTitle>
+        </DialogHeader>
+
+        {step === 'options' ? (
+          <div className="space-y-4 px-1">
+            <p className="text-muted-foreground text-sm">
+              {t('admin.moderation.report.closeOptions.description', {
+                defaultValue:
+                  'You are about to close this report, select an action below to close it:',
+              })}
+            </p>
+            {!isProfileReport && firstPostId ? (
+              <div className="space-y-1">
+                <Button
+                  title={t(
+                    'admin.moderation.report.closeOptions.deletePost.button',
+                    {
+                      defaultValue: 'Delete Post',
+                    },
+                  )}
+                  variant="variant-filled-error"
+                  action={() => setStep('confirmPost')}
+                >
+                  {t('admin.moderation.report.closeOptions.deletePost.button', {
+                    defaultValue: 'Delete Post',
+                  })}
+                </Button>
+                <p className="text-muted-foreground text-xs">
+                  {t(
+                    'admin.moderation.report.closeOptions.deletePost.description',
+                    {
+                      defaultValue:
+                        'Post will no longer be on the feed and community',
+                    },
+                  )}
+                </p>
+              </div>
+            ) : null}
+            <div className="space-y-1">
+              <Button
+                title={t(
+                  'admin.moderation.report.closeOptions.deleteProfile.button',
+                  {
+                    defaultValue: 'Delete Profile',
+                  },
+                )}
+                variant={
+                  isProfileReport
+                    ? 'variant-filled-error'
+                    : 'variant-ringed-error'
+                }
+                action={() => setStep('confirmProfile')}
+              >
+                {t(
+                  'admin.moderation.report.closeOptions.deleteProfile.button',
+                  {
+                    defaultValue: 'Delete Profile',
+                  },
+                )}
+              </Button>
+              <p className="text-muted-foreground text-xs">
+                {t(
+                  'admin.moderation.report.closeOptions.deleteProfile.description',
+                  {
+                    defaultValue:
+                      'Prevents the profile from showing up in lists and being seen by anyone, removes content also.',
+                  },
+                )}
+              </p>
+            </div>
+            <div className="space-y-1">
+              <Button
+                title={t(
+                  'admin.moderation.report.closeOptions.closeReport.button',
+                  {
+                    defaultValue: 'Just close it',
+                  },
+                )}
+                variant="variant-ringed-primary"
+                action={() => setStep('confirmClose')}
+              >
+                {t('admin.moderation.report.closeOptions.closeReport.button', {
+                  defaultValue: 'Just close it',
+                })}
+              </Button>
+              <p className="text-muted-foreground text-xs">
+                {t(
+                  'admin.moderation.report.closeOptions.closeReport.description',
+                  {
+                    defaultValue: 'Resolve this report without doing anything',
+                  },
+                )}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <p className="px-1 text-sm">
+            {step === 'confirmPost'
+              ? t('admin.moderation.post.delete.description', {
+                  defaultValue:
+                    'You are about to delete this post, it will no longer be available in the community. Are you sure about this?',
+                })
+              : step === 'confirmProfile'
+                ? t('admin.moderation.profile.delete.description', {
+                    defaultValue:
+                      'You are about to delete this profile. Are you sure about this?',
+                  })
+                : t('admin.moderation.report.close.description', {
+                    defaultValue:
+                      'You are about to close this report without performing an action on it which will mark it as resolved. Are you sure about this?',
+                  })}
+          </p>
+        )}
+
+        {error ? (
+          <p className="border-error/40 text-error rounded-md border p-2 text-sm">
+            {error}
+          </p>
+        ) : null}
+
+        {step !== 'options' ? (
+          <DialogFooter>
+            <Button
+              variant="variant-ringed-primary"
+              action={() => setStep('options')}
+              disabled={submitting}
+            >
+              {t('admin.moderation.report.close.cancel', {
+                defaultValue: 'Back',
+              })}
+            </Button>
+            <Button
+              variant="variant-filled-error"
+              action={() => {
+                if (step === 'confirmClose') closeReport();
+                else if (step === 'confirmPost' && firstPostId)
+                  removeAndResolve(() => deletePost({ id: firstPostId }));
+                else if (step === 'confirmProfile')
+                  removeAndResolve(() =>
+                    deleteProfile({ id: report.reportedProfile.id }),
+                  );
+              }}
+              disabled={submitting}
+            >
+              {step === 'confirmClose'
+                ? t('admin.moderation.report.close.confirm', {
+                    defaultValue: 'Yes, close it',
+                  })
+                : t('admin.moderation.post.delete.confirm', {
+                    defaultValue: 'Yes, delete it',
+                  })}
+            </Button>
+          </DialogFooter>
+        ) : null}
+      </DialogContent>
+    </Dialog>
   );
 }
 

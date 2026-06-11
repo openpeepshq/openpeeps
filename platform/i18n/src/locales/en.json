@@ -81,7 +81,10 @@
         "tagline": "AllPeeP is the community platform for people who want an exclusive, branded experience",
         "emails": {
             "validation": {
-                "success": "Your email is now verified. You may fully participate in the community."
+                "success": "Your email is now verified. You may fully participate in the community.",
+                "loading": "Verifying your email…",
+                "error": "This verification link is invalid or has expired.",
+                "errorHeading": "Verification failed"
             }
         }
     },
@@ -1057,6 +1060,12 @@
             "profileColumn": "Profile",
             "rolesColumn": "Roles"
         },
+        "groups": {
+            "title": "Groups",
+            "delete": "Delete group",
+            "deleteTitle": "Delete group",
+            "deleteDescription": "Are you sure you want to delete this group? This action cannot be undone."
+        },
         "community": {
             "totalProfiles": "Total profiles",
             "activeProfiles": "Active profiles",
@@ -1088,6 +1097,7 @@
             "title": "Moderation",
             "summaryTab": "Summary",
             "resolvedTab": "Resolved",
+            "reopen": "Reopen",
             "report": {
                 "title": "{{reportsCount}} unresolved reports relating to this profile",
                 "description": "{{reportsCount}} unresolved  reports for {{profileName}}",
@@ -1563,6 +1573,7 @@
     "conversations": {
         "newMessage": "New Message",
         "noMessages": "No direct messages here",
+        "sendError": "Failed to send message",
         "createNew": {
             "title": "New Conversation",
             "searchPlaceholder": "Search for people",

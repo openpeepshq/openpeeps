@@ -6,12 +6,13 @@ import {
   type ReactNode,
 } from 'react';
 import type { GroupWithMeta, VisibilityType } from '@openpeeps/common';
-import { Toast } from '@openpeeps/react-ui';
-import { NewPostModal, type NewPostToast } from './NewPostModal';
+import { useToast } from '../../layout/ToastProvider';
+import { NewPostModal } from './NewPostModal';
 
 export interface NewPostOptions {
   visibility?: VisibilityType;
   group?: GroupWithMeta;
+  initialContent?: string;
 }
 
 interface NewPostModalContextValue {
@@ -24,10 +25,7 @@ const NewPostModalContext = createContext<NewPostModalContextValue | null>(
 
 export function NewPostModalProvider({ children }: { children: ReactNode }) {
   const [options, setOptions] = useState<NewPostOptions | undefined>();
-  // The modal always closes after publishing (success or error); keep the
-  // toast here so it survives the modal unmounting, mirroring the Svelte app's
-  // global toast store.
-  const [toast, setToast] = useState<NewPostToast | null>(null);
+  const { toast, error } = useToast();
 
   const openNewPost = useCallback((opts?: NewPostOptions) => {
     setOptions(opts ?? {});
@@ -40,14 +38,12 @@ export function NewPostModalProvider({ children }: { children: ReactNode }) {
         <NewPostModal
           visibility={options.visibility}
           group={options.group}
+          initialContent={options.initialContent}
           onClose={() => setOptions(undefined)}
-          onToast={setToast}
+          onToast={({ type, message }) =>
+            type === 'error' ? error(message) : toast(message)
+          }
         />
-      ) : null}
-      {toast ? (
-        <Toast variant={toast.type} onDismiss={() => setToast(null)}>
-          {toast.message}
-        </Toast>
       ) : null}
     </NewPostModalContext.Provider>
   );

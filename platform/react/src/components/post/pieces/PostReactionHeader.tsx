@@ -2,10 +2,12 @@ import type { PublicPost } from '@openpeeps/common/types';
 import { Avatar, AvatarWithName } from '../../profile';
 import { useT } from '../../../i18n';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
+import { PostMenu } from './PostMenu';
 
 export interface PostReactionHeaderProps {
   post: PublicPost;
   inGroup?: boolean;
+  deleteCallback?: () => void;
 }
 
 /**
@@ -16,6 +18,7 @@ export interface PostReactionHeaderProps {
 export function PostReactionHeader({
   post,
   inGroup = false,
+  deleteCallback,
 }: PostReactionHeaderProps) {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
@@ -38,9 +41,11 @@ export function PostReactionHeader({
     return null;
   }
 
+  const menuPost = (post.repost as PublicPost | undefined) ?? post;
+
   return (
-    <div className="flex items-center gap-2 border-b py-2 text-sm">
-      <div className="flex flex-1 items-center gap-2">
+    <div className="flex items-center justify-between gap-2 border-b py-2 text-sm">
+      <div className="flex w-5/6 flex-1 items-center gap-2">
         {showGroup ? (
           <>
             {isRepost ? (
@@ -98,6 +103,7 @@ export function PostReactionHeader({
           </>
         ) : null}
       </div>
+      <PostMenu post={menuPost} deleteCallback={deleteCallback} />
     </div>
   );
 }

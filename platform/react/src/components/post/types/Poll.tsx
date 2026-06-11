@@ -5,11 +5,11 @@ import { PollContent } from '../pieces/PollContent';
 
 export interface FeedPollProps {
   post: PublicPost;
-  /** When true, show interactive voting UI (detail pages). */
+  /** When false, show static options only (e.g. email previews). */
   interactive?: boolean;
 }
 
-export function FeedPoll({ post, interactive = false }: FeedPollProps) {
+export function FeedPoll({ post, interactive = true }: FeedPollProps) {
   if (post?.data?.type !== 'question') {
     return (
       <p className="text-error text-sm">
@@ -25,6 +25,7 @@ export function FeedPoll({ post, interactive = false }: FeedPollProps) {
       {data.content ? (
         <PostMarkdown
           source={data.content}
+          mentions={post.mentions}
           linkPreviewMode={
             data.attachments?.length ? 'none' : 'append'
           }

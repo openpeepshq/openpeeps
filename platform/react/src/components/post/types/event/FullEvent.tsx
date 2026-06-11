@@ -1,4 +1,4 @@
-import { Share } from 'lucide-react';
+import { MoreHorizontal, Share } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { Event, PublicPost, PublicProfile } from '@openpeeps/common/types';
 import {
@@ -17,6 +17,7 @@ import { OpenpeepsMarkdown } from '../../../markdown/OpenpeepsMarkdown';
 import { ThreadedFeed } from '../../feed/threaded/ThreadedFeed';
 import { ReplyBox } from '../../ReplyBox';
 import { EventLocation } from '../../pieces/EventLocation';
+import { EventMenu } from '../../pieces/EventMenu';
 import { EventRsvpButton } from '../../pieces/EventRsvpButton';
 import { ShareMenu } from '../../pieces/ShareMenu';
 import { UpdatingDate } from '../../pieces/UpdatingDate';
@@ -88,14 +89,26 @@ export function FullEvent({ post }: FullEventProps) {
             </a>
           ) : null}
         </div>
-        <ShareMenu
-          post={post}
-          menuButton={
-            <span className="border-input flex size-10 items-center justify-center rounded-md border">
-              <Share className="size-4" />
-            </span>
-          }
-        />
+        <div className="flex items-center gap-2">
+          <ShareMenu
+            post={post}
+            menuButton={
+              <span className="border-input flex size-10 items-center justify-center rounded-md border">
+                <Share className="size-4" />
+              </span>
+            }
+          />
+          {myEvent ? (
+            <EventMenu
+              post={post}
+              menuButton={
+                <span className="border-input flex size-10 items-center justify-center rounded-md border">
+                  <MoreHorizontal className="size-4" />
+                </span>
+              }
+            />
+          ) : null}
+        </div>
       </div>
 
       <h1 className="text-2xl font-bold">{event.name}</h1>

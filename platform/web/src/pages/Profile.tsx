@@ -5,6 +5,7 @@ import {
   ProfileHeader,
   ProfilePostsAndReplies,
   useCurrentProfile,
+  AccessDeniedLoader,
 } from '@openpeeps/react/components';
 import { routeHandleParam } from '../lib/routeHandles';
 
@@ -18,40 +19,36 @@ export function Profile() {
   const profileQuery = openpeepsApi.useProfileByHandle(handle);
   const profile = me?.handle === handle ? me : (profileQuery.data ?? undefined);
 
-  if (profileQuery.isLoading && !profile) {
-    return (
-      <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="relative flex flex-col items-center pt-20">
-        <Rss size={60} />
-        <p
-          className="mt-2 text-lg font-medium"
-          data-testid="profile-not-found-title"
-        >
-          {t('profile.notFound.title', { defaultValue: 'Profile not found' })}
-        </p>
-        <p className="text-muted-foreground mt-2 text-sm">
-          {t('profile.notFound.description', {
-            defaultValue: "We couldn't find a profile with that handle.",
-          })}
-        </p>
-      </div>
-    );
-  }
+  const notFound = (
+    <div className="relative flex flex-col items-center pt-20">
+      <Rss size={60} />
+      <p
+        className="mt-2 text-lg font-medium"
+        data-testid="profile-not-found-title"
+      >
+        {t('profile.notFound.title', { defaultValue: 'Profile not found' })}
+      </p>
+      <p className="text-muted-foreground mt-2 text-sm">
+        {t('profile.notFound.description', {
+          defaultValue: "We couldn't find a profile with that handle.",
+        })}
+      </p>
+    </div>
+  );
 
   return (
-    <div>
-      <ProfileHeader
-        profile={profile}
-        isCurrentProfile={me?.handle === profile.handle}
-      />
-      <ProfilePostsAndReplies profile={profile} />
-    </div>
+    <AccessDeniedLoader queries={[profileQuery]} fallbackError={notFound}>
+      {profile ? (
+        <div>
+          <ProfileHeader
+            profile={profile}
+            isCurrentProfile={me?.handle === profile.handle}
+          />
+          <ProfilePostsAndReplies profile={profile} />
+        </div>
+      ) : (
+        notFound
+      )}
+    </AccessDeniedLoader>
   );
 }
