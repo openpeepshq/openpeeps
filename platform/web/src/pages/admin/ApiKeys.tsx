@@ -20,6 +20,13 @@ const SERVICE_RESOURCE_TYPES: (ServiceResourceType | '*')[] = [
 
 const SCOPE_LEVELS: ScopeLevel[] = ['read', 'write', 'admin'];
 
+const EXPIRATION_OPTIONS = [
+  { value: '7d', label: '7 days' },
+  { value: '30d', label: '30 days' },
+  { value: '90d', label: '90 days' },
+  { value: '1y', label: '1 year' },
+] as const;
+
 const defaultForm: AccessTokenCreationData = {
   name: '',
   description: '',
@@ -98,6 +105,23 @@ export function AdminApiKeys() {
               setForm((f) => ({ ...f, description: e.target.value }))
             }
           />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="svc-expiration">Expiration</Label>
+          <select
+            id="svc-expiration"
+            className="border-input bg-background w-full rounded-md border px-2 py-2 text-sm"
+            value={form.expirationTime ?? '30d'}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, expirationTime: e.target.value }))
+            }
+          >
+            {EXPIRATION_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {(form.scopes ?? []).map((scope, index) => (

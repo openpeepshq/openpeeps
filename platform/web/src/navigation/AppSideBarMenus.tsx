@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Bell,
@@ -28,8 +28,12 @@ import {
   Users,
   Wrench,
 } from 'lucide-react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+  useT,
+  useOpenpeeps,
+  subscribePushNotifications,
+} from '@openpeeps/react';
 import {
   useCurrentProfile,
   useServerInfo,
@@ -139,7 +143,13 @@ export function AppSideBarMainMenu() {
     profile?.type === 'local' ? getVisibleAdminSections(profile.roles) : [];
   const showAdminMenu = visibleAdminSections.length > 0;
 
-  const [adminExpanded, setAdminExpanded] = useState(false);
+  // Mirror Svelte MainMenu: auto-expand the admin section while on /admin.
+  const { pathname } = useLocation();
+  const onAdminRoute = pathname.includes('/admin');
+  const [adminExpanded, setAdminExpanded] = useState(onAdminRoute);
+  useEffect(() => {
+    if (onAdminRoute) setAdminExpanded(true);
+  }, [onAdminRoute]);
 
   return (
     <nav className="flex flex-col gap-0.5 py-2 pr-2">
@@ -239,10 +249,28 @@ function LogoutRow() {
 /** Profile header block for the signed-in sidebar (subset of Svelte `ProfileMenu.svelte`). */
 export function AppSideBarProfileMenu() {
   const profile = useCurrentProfile();
-  const { openpeepsApi } = useOpenpeeps();
+  const { client, openpeepsApi } = useOpenpeeps();
+  const serverInfo = useServerInfo();
+  const navigate = useNavigate();
   const notificationStats = openpeepsApi.useCurrentProfileNotificationStats();
   const t = useT();
   const closeDrawer = useSidebarNavClose();
+
+  // Mirror Svelte ProfileMenu: opening notifications also (re)registers this
+  // device for web push using the server's VAPID public key.
+  const openNotifications = async () => {
+    try {
+      await subscribePushNotifications({
+        client,
+        applicationServerKey: serverInfo.vapid.publicKey,
+      });
+      navigate('/notifications');
+    } catch {
+      // Push registration is best-effort; ignore failures.
+    } finally {
+      closeDrawer?.();
+    }
+  };
 
   if (!profile || profile.type !== 'local') return null;
 
@@ -269,11 +297,11 @@ export function AppSideBarProfileMenu() {
             </span>
           )}
         </NavLink>
-        <NavLink
-          to="/notifications"
+        <button
+          type="button"
           title={t('navigation.openNotifications')}
           className="text-foreground hover:bg-muted relative shrink-0 rounded-md p-2"
-          onClick={() => closeDrawer?.()}
+          onClick={() => void openNotifications()}
         >
           <Bell className="size-6" />
           {(notificationStats.data?.unseen ?? 0) > 0 ? (
@@ -281,7 +309,7 @@ export function AppSideBarProfileMenu() {
               {notificationStats.data?.unseen}
             </span>
           ) : null}
-        </NavLink>
+        </button>
       </div>
       <NavLink
         to={`/@${handle}`}

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { PublicProfile } from '@openpeeps/common/types';
 import { Avatar } from './Avatar';
 import { FollowUnfollowButton } from './FollowUnfollowButton';
@@ -11,6 +12,12 @@ export interface ProfileCardProps {
    */
   onSelect?: (profile: PublicProfile) => void;
   showAction?: boolean;
+  /**
+   * Custom action node rendered on the right of the card. When provided it
+   * replaces the default Follow/Unfollow button (mirrors the Svelte `action`
+   * snippet).
+   */
+  action?: ReactNode;
 }
 
 /**
@@ -18,7 +25,12 @@ export interface ProfileCardProps {
  * Translation of `core/profile/ProfileCard.svelte`, including the
  * Follow/Unfollow action button.
  */
-export function ProfileCard({ profile, onSelect, showAction = true }: ProfileCardProps) {
+export function ProfileCard({
+  profile,
+  onSelect,
+  showAction = true,
+  action,
+}: ProfileCardProps) {
   const details = (
     <>
       <Avatar profile={profile} size={3} />
@@ -26,11 +38,11 @@ export function ProfileCard({ profile, onSelect, showAction = true }: ProfileCar
         <span className="truncate text-sm font-semibold">
           {profile.displayName || `@${profile.handle}`}
         </span>
-        <span className="truncate text-xs text-muted-foreground">
+        <span className="text-muted-foreground truncate text-xs">
           @{profile.handle}
         </span>
         {profile.bio && (
-          <span className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+          <span className="text-muted-foreground mt-1 line-clamp-2 text-sm">
             {profile.bio}
           </span>
         )}
@@ -39,7 +51,7 @@ export function ProfileCard({ profile, onSelect, showAction = true }: ProfileCar
   );
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b p-4 hover:bg-surface-100">
+    <div className="hover:bg-surface-100 flex items-center justify-between gap-3 border-b p-4">
       {onSelect ? (
         <button
           type="button"
@@ -56,11 +68,13 @@ export function ProfileCard({ profile, onSelect, showAction = true }: ProfileCar
           {details}
         </a>
       )}
-      {showAction && (
+      {action ? (
+        <div className="flex-shrink-0">{action}</div>
+      ) : showAction ? (
         <div className="flex-shrink-0">
           <FollowUnfollowButton profile={profile} compact />
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -9,9 +9,13 @@ import {
 } from '@openpeeps/react-ui';
 import { getTheme } from '@openpeeps/common';
 import { useServerInfo } from '../server-data';
-import { useCurrentProfileSettings } from '../layout/IdentityContext';
+import {
+  useCurrentProfile,
+  useCurrentProfileSettings,
+} from '../layout/IdentityContext';
 import { useRouter } from '../../contexts/router';
 import { useT } from '../../i18n';
+import { Avatar } from '../profile';
 import { SideBar } from './SideBar';
 import { SidebarNavCloseContext } from './SidebarNavContext';
 
@@ -25,12 +29,10 @@ export interface HeaderMobileProps {
   };
 }
 
-export function HeaderMobile({
-  avatar,
-  sideBar,
-}: HeaderMobileProps = {}) {
+export function HeaderMobile({ avatar, sideBar }: HeaderMobileProps = {}) {
   const serverInfo = useServerInfo();
   const profileSettings = useCurrentProfileSettings();
+  const profile = useCurrentProfile();
   const router = useRouter();
   const t = useT();
   const [open, setOpen] = useState(false);
@@ -40,13 +42,19 @@ export function HeaderMobile({
     profileSettings,
   ).logoSmall;
 
+  // Mirror Svelte HeaderMobile: the avatar is the drawer trigger for signed-in
+  // users; guests fall back to a generic menu icon.
+  const trigger =
+    avatar ??
+    (profile ? <Avatar profile={profile} size={2.5} borderless /> : <Menu />);
+
   return (
     <div className="bg-background sticky top-0 z-10 flex px-4 py-2 md:hidden">
       <div className="flex w-full items-center justify-between">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <button type="button" title={t('navigation.profile')}>
-              {avatar ?? <Menu />}
+              {trigger}
             </button>
           </DialogTrigger>
           <DialogPortal>

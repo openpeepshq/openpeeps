@@ -1,4 +1,5 @@
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import { Avatar } from '@openpeeps/react/components';
 import { SignupChart } from './components/AdminCharts';
 
 function StatRow({ label, value }: { label: string; value: number }) {
@@ -6,6 +7,21 @@ function StatRow({ label, value }: { label: string; value: number }) {
     <div className="flex items-center justify-between border-b py-2">
       <span className="text-muted-foreground text-sm">{label}</span>
       <span className="text-sm font-medium">{value}</span>
+    </div>
+  );
+}
+
+function BreakdownCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: number | string;
+}) {
+  return (
+    <div className="bg-surface-100 flex h-24 flex-col items-center justify-center rounded-md">
+      <span className="text-sm">{label}</span>
+      <span className="text-4xl font-semibold">{value}</span>
     </div>
   );
 }
@@ -31,6 +47,7 @@ export function AdminAnalytics() {
   const periods = ['day', 'week', 'month', 'quarter', 'year'] as const;
 
   const topPostsOfYear = stats.topLists.posts.year;
+  const topProfilesOfYear = stats.topLists.profiles.year;
 
   return (
     <div className="space-y-6 p-4">
@@ -66,6 +83,62 @@ export function AdminAnalytics() {
           ))}
         </div>
       </section>
+
+      <section>
+        <h2 className="mb-2 text-lg font-medium">
+          {t('admin.overview.content', { defaultValue: 'Content' })}
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <BreakdownCard
+            label={t('admin.overview.allPosts', { defaultValue: 'All Posts' })}
+            value={stats.posts.all.all}
+          />
+          <BreakdownCard
+            label={t('admin.overview.postsWithoutReplies', {
+              defaultValue: 'Posts without replies',
+            })}
+            value={stats.posts.withoutReply.all}
+          />
+          <BreakdownCard
+            label={t('admin.overview.postsWithReplies', {
+              defaultValue: 'Posts with replies',
+            })}
+            value={stats.posts.withReplies.all}
+          />
+          <BreakdownCard
+            label={t('admin.overview.replies', { defaultValue: 'Replies' })}
+            value={stats.posts.replies.all}
+          />
+        </div>
+      </section>
+
+      {topProfilesOfYear.length > 0 ? (
+        <section>
+          <h2 className="mb-2 text-lg font-medium">
+            {t('admin.overview.topProfilesOfYear', {
+              defaultValue: `Top ${topProfilesOfYear.length} profiles of the year`,
+              count: topProfilesOfYear.length,
+            })}
+          </h2>
+          <div className="rounded-md border">
+            {topProfilesOfYear.map((profile) => (
+              <a
+                key={profile.id}
+                href={`/@${profile.handle}`}
+                className="hover:bg-surface-100 flex items-center gap-2 border-b p-2 last:border-b-0"
+              >
+                <Avatar profile={profile} size={2} />
+                <span className="flex-1">
+                  {profile.displayName || `@${profile.handle}`}
+                </span>
+                <span className="text-muted-foreground text-sm">
+                  score {profile.activityScore.toFixed(0)}
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section>
         <h2 className="mb-2 text-lg font-medium">Top profiles (this month)</h2>

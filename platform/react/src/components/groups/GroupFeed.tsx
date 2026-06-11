@@ -18,5 +18,5 @@ export function GroupFeed({ group }: GroupFeedProps) {
 
   const query = openpeepsApi.usePostsByGroup(group.id);
 
-  return <Feed query={query} inGroup />;
+  return <Feed query={query} inGroup pinnedPostId={group.pinnedPostId} />;
 }

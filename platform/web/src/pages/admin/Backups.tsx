@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { Database, Download } from 'lucide-react';
+import { Database, Download, FlaskConical } from 'lucide-react';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Button } from '@openpeeps/react-ui';
 import { RestoreBackupModal } from './components/RestoreBackupModal';
+import { RestoreTestBackupModal } from './components/RestoreTestBackupModal';
 
 const downloadBase =
   import.meta.env.VITE_OPENPEEPS_BASE_URL ??
@@ -14,6 +15,7 @@ export function AdminBackups() {
   const backupsQuery = openpeepsApi.admin.useBackupsList();
   const createBackup = openpeepsApi.admin.createBackupAction();
   const [showRestore, setShowRestore] = useState(false);
+  const [showTestRestore, setShowTestRestore] = useState(false);
 
   const backups = backupsQuery.data ?? [];
 
@@ -55,6 +57,20 @@ export function AdminBackups() {
       {showRestore ? (
         <RestoreBackupModal onClose={() => setShowRestore(false)} />
       ) : null}
+      {showTestRestore ? (
+        <RestoreTestBackupModal onClose={() => setShowTestRestore(false)} />
+      ) : null}
+
+      <div className="mb-2 flex justify-end">
+        <Button
+          title={t('admin.backups.testBackup', { defaultValue: 'Test backup' })}
+          variant="variant-ghost-primary"
+          action={() => setShowTestRestore(true)}
+        >
+          <FlaskConical size={18} />
+          {t('admin.backups.testBackup', { defaultValue: 'Test backup' })}
+        </Button>
+      </div>
 
       {backups.length === 0 ? (
         <div className="text-muted-foreground flex flex-col items-center pt-20">

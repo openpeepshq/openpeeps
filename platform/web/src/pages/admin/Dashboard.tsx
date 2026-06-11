@@ -1,4 +1,6 @@
+import { Hash, UsersRound } from 'lucide-react';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import { useServerInfo } from '@openpeeps/react/components';
 import { CommunityStatsCard, SignupChart } from './components/AdminCharts';
 
 function Card({
@@ -22,6 +24,7 @@ function Card({
 export function AdminDashboard() {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
+  const serverInfo = useServerInfo();
   const statsQuery = openpeepsApi.admin.useGeneralStats();
 
   useSetPageHeader(
@@ -47,6 +50,33 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6 p-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-md border">
+          <header className="flex items-center gap-2 border-b p-4">
+            <UsersRound size={24} />
+            <h3 className="text-lg font-medium">
+              {t('admin.overview.communityName', {
+                defaultValue: 'Community Name',
+              })}
+            </h3>
+          </header>
+          <section className="p-4">
+            {serverInfo?.communityConfig.info.name ?? ''}
+          </section>
+        </div>
+        <div className="rounded-md border">
+          <header className="flex items-center gap-2 border-b p-4">
+            <Hash size={24} />
+            <h3 className="text-lg font-medium">
+              {t('admin.overview.serverVersion', {
+                defaultValue: 'Server Version',
+              })}
+            </h3>
+          </header>
+          <section className="p-4">{serverInfo?.version ?? ''}</section>
+        </div>
+      </div>
+
       <section>
         <h2 className="mb-3 text-lg font-medium">
           {t('admin.overview.communityOverview', {

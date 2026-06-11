@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import {
-  collectVotes,
-  hasValue,
-  type PublicPost,
-} from '@openpeeps/common';
+import { collectVotes, hasValue, type PublicPost } from '@openpeeps/common';
+import { checkPostCapabilities, groupName } from '@openpeeps/common/lib';
 
 const isPast = (date: Date | string) => new Date(date).getTime() < Date.now();
 
@@ -19,7 +16,9 @@ const formatDistanceToNow = (date: Date | string) => {
 };
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
-import { useCurrentProfile } from '../../layout/IdentityContext';
+import { useAuthData, useCurrentProfile } from '../../layout/IdentityContext';
+import { useToast } from '../../layout/ToastProvider';
+import { useCapabilities } from '../../server-data';
 import { Avatar } from '../../profile';
 import { Button } from '@openpeeps/react-ui';
 
@@ -31,6 +30,9 @@ export function PollContent({ post }: PollContentProps) {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const currentProfile = useCurrentProfile();
+  const authData = useAuthData();
+  const capabilities = useCapabilities();
+  const { success, error } = useToast();
   const votePoll = openpeepsApi.voteOnPostAction({ id: post.id });
 
   const [selectedPollOption, setSelectedPollOption] = useState<number>();
@@ -51,16 +53,51 @@ export function PollContent({ post }: PollContentProps) {
   const totalVotes = votes.length || 1;
 
   const handleVote = async () => {
-    const selection = (pollData.multiple
-      ? selectedPollOptions
-      : hasValue(selectedPollOption)
-        ? [selectedPollOption]
-        : undefined) as number[] | undefined;
+    const hasCapabilities = checkPostCapabilities(
+      authData,
+      ['core-posts-vote'],
+      post,
+      capabilities,
+    );
 
-    if (!selection?.length) return;
+    if (!hasCapabilities.success) {
+      error(
+        post.group
+          ? t('posts.vote.lackPermission', {
+              defaultValue: 'You need to be a member of {{groupName}} to vote.',
+              groupName: groupName(post.group),
+            })
+          : t('posts.vote.lackPermissionNoGroup', {
+              defaultValue: 'You do not have permission to vote on this poll.',
+            }),
+      );
+      return;
+    }
+
+    const selection = (
+      pollData.multiple
+        ? selectedPollOptions
+        : hasValue(selectedPollOption)
+          ? [selectedPollOption]
+          : undefined
+    ) as number[] | undefined;
+
+    if (!selection?.length) {
+      error(
+        t('posts.vote.selectOption', {
+          defaultValue: 'Please select an option to vote.',
+        }),
+      );
+      return;
+    }
     setSubmitting(true);
     try {
       await votePoll({ selection });
+      success(
+        t('posts.vote.successToast', {
+          defaultValue: 'Your vote was counted.',
+        }),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -70,6 +107,9 @@ export function PollContent({ post }: PollContentProps) {
     setSubmitting(true);
     try {
       await votePoll({ selection: [] });
+      success(
+        t('posts.vote.cleared', { defaultValue: 'Your vote was cleared.' }),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -79,7 +119,10 @@ export function PollContent({ post }: PollContentProps) {
     <div className="bg-surface-100 rounded-lg px-4 py-4">
       <div className="space-y-4">
         {pollData.options.map((option, index) => (
-          <div key={`${option.content}-${index}`} className="flex items-center gap-2 py-2">
+          <div
+            key={`${option.content}-${index}`}
+            className="flex items-center gap-2 py-2"
+          >
             {canVote ? (
               pollData.multiple ? (
                 <input

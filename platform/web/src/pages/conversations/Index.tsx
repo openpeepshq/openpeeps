@@ -15,6 +15,7 @@ import {
   useAuthData,
   useCurrentProfile,
   useCreateNewConversation,
+  AccessDeniedLoader,
 } from '@openpeeps/react/components';
 
 function ChatPreview({ conversation }: { conversation: PublicPost[] }) {
@@ -97,45 +98,37 @@ export function ConversationsIndex() {
 
   const conversations = query.data ?? [];
 
-  if (query.isLoading) {
-    return (
-      <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
-      </div>
-    );
-  }
-
-  if (conversations.length === 0) {
-    return (
-      <div className="flex h-[80vh] items-center justify-center gap-2">
-        <MessageCircleOff size={40} />
-        <p className="text-gray-500">
-          {t('conversations.empty', {
-            defaultValue: 'No direct messages here',
-          })}
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      {conversations.map((conversation) => {
-        const first = conversation[0];
-        if (!first) return null;
-        return (
-          <a
-            key={first.id}
-            href={`/conversations/${first.id}`}
-            className="hover:bg-surface-300 block text-left transition-all"
-            title={t('conversations.open', {
-              defaultValue: 'Open conversation',
+    <AccessDeniedLoader queries={[query]}>
+      {conversations.length === 0 ? (
+        <div className="flex h-[80vh] items-center justify-center gap-2">
+          <MessageCircleOff size={40} />
+          <p className="text-gray-500">
+            {t('conversations.empty', {
+              defaultValue: 'No direct messages here',
             })}
-          >
-            <ChatPreview conversation={conversation} />
-          </a>
-        );
-      })}
-    </div>
+          </p>
+        </div>
+      ) : (
+        <div>
+          {conversations.map((conversation) => {
+            const first = conversation[0];
+            if (!first) return null;
+            return (
+              <a
+                key={first.id}
+                href={`/conversations/${first.id}`}
+                className="hover:bg-surface-300 block text-left transition-all"
+                title={t('conversations.open', {
+                  defaultValue: 'Open conversation',
+                })}
+              >
+                <ChatPreview conversation={conversation} />
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </AccessDeniedLoader>
   );
 }

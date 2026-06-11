@@ -1,5 +1,6 @@
 export * from './layout';
 export * from './navigation';
+export * from './accounts';
 export * from './server-data';
 export * from './registry';
 export * from './form';

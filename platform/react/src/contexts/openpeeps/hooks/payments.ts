@@ -4,7 +4,8 @@ import { apiHook, noPayloadMutation } from '../helpers';
 export type PaymentHooks = ReturnType<typeof paymentHooks>;
 
 export const paymentHooks = (client: OpenpeepsClient) => ({
-  usePaymentStatus: () => apiHook(client.payments.status),
+  usePaymentStatus: (options?: { enabled?: boolean }) =>
+    apiHook(client.payments.status, options),
   createCustomerPortalAction: noPayloadMutation(client.payments.createPortal, [
     ['payments'],
   ]),

@@ -1,6 +1,7 @@
 import { isGroupPath, isJamPath, isPostPath } from './helpers';
 import { GroupPreview } from './local/GroupPreview';
 import { PostPreview } from './local/PostPreview';
+import { JamPreview } from './local/JamPreview';
 
 export interface LocalPreviewLinkProps {
   url: string;
@@ -20,9 +21,7 @@ export function LocalPreviewLink({ url }: LocalPreviewLinkProps) {
     >
       {isPost ? <PostPreview path={path} /> : null}
       {isGroup ? <GroupPreview path={path} /> : null}
-      {isJam ? (
-        <p className="text-sm font-medium">Jam session</p>
-      ) : null}
+      {isJam ? <JamPreview path={path} /> : null}
     </a>
   );
 }

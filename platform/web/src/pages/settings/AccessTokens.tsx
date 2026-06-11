@@ -4,10 +4,14 @@ import type {
   AccessTokenCreationData,
   AccessTokenWithMeta,
   PublicAccessToken,
+  Scope,
   ScopeLevel,
 } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Button, Input, Label, Toast } from '@openpeeps/react-ui';
+import { Button, Input, Label, ShadcnBadge, Toast } from '@openpeeps/react-ui';
+
+const scopeLabel = (scope: Scope) =>
+  `${scope.scopeLevel ?? 'read'}:${scope.resource.type}:${scope.resource.id ?? '*'}`;
 
 const RESOURCE_TYPES = [
   '*',
@@ -271,6 +275,21 @@ export function AccessTokensSettings() {
                 >
                   {token.revokedAt ? 'Revoked' : 'Revoke'}
                 </Button>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {(token.scopes ?? []).length ? (
+                  (token.scopes ?? []).map((scope, scopeIndex) => (
+                    <ShadcnBadge key={scopeIndex} variant="outline">
+                      {scopeLabel(scope)}
+                    </ShadcnBadge>
+                  ))
+                ) : (
+                  <span className="text-muted-foreground text-xs">
+                    {t('settings.accessTokens.noScopes', {
+                      defaultValue: 'No scopes',
+                    })}
+                  </span>
+                )}
               </div>
             </div>
           ))

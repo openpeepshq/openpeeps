@@ -72,7 +72,8 @@ export function useComposeAttachments({
   useEffect(() => {
     const ready = items
       .filter(
-        (i) => i.attachment && !i.failed && i.attachment.status !== 'processing',
+        (i) =>
+          i.attachment && !i.failed && i.attachment.status !== 'processing',
       )
       .map((i) => i.attachment as MediaAttachmentData);
     onChangeRef.current(ready);
@@ -143,6 +144,11 @@ export function useComposeAttachments({
   const onRemove = (key: string) =>
     setItems((prev) => prev.filter((i) => i.key !== key));
 
+  const onUpdate = (key: string, attachment: MediaAttachmentData) =>
+    setItems((prev) =>
+      prev.map((i) => (i.key === key ? { ...i, attachment } : i)),
+    );
+
   const pending = items.some(
     (i) =>
       (i.file && !i.attachment && !i.failed) ||
@@ -160,6 +166,7 @@ export function useComposeAttachments({
             onProcessed={onProcessed}
             onFailed={onFailed}
             onRemove={onRemove}
+            onUpdate={onUpdate}
           />
         ))}
       </div>
@@ -227,7 +234,9 @@ export function ComposeAttachments(props: ComposeAttachmentsProps) {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          title={t('posts.form.addImage', { defaultValue: 'Add image or video' })}
+          title={t('posts.form.addImage', {
+            defaultValue: 'Add image or video',
+          })}
           onClick={openImagePicker}
           className="hover:bg-surface-200 rounded-md p-2"
         >

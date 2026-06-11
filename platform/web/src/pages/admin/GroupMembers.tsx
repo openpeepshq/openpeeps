@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { MoreVertical, PencilIcon, Trash2 } from 'lucide-react';
-import { groupName } from '@openpeeps/common/lib';
+import {
+  MessageSquareText,
+  MoreVertical,
+  PencilIcon,
+  Trash2,
+} from 'lucide-react';
+import { groupName, truncateText } from '@openpeeps/common/lib';
 import { defaultGroupRoles } from '@openpeeps/common/types';
 import type {
   GroupMember,
@@ -9,7 +14,11 @@ import type {
   GroupWithMeta,
 } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Avatar } from '@openpeeps/react/components';
+import {
+  Avatar,
+  useCreateNewConversation,
+  useCurrentProfile,
+} from '@openpeeps/react/components';
 import {
   Button,
   Dialog,
@@ -110,11 +119,29 @@ function MemberRowActions({
   member: GroupMember;
 }) {
   const t = useT();
+  const me = useCurrentProfile();
+  const { openCreateConversation } = useCreateNewConversation();
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
   return (
     <>
       <PopupMenu placement="bottom-end" width="w-56" icon={MoreVertical}>
+        {me?.id !== member.profile.id ? (
+          <PopupMenuButton
+            icon={MessageSquareText}
+            title={`Message @${member.profile.handle}`}
+            text={t('conversations.newMessage', {
+              defaultValue: `Message @${truncateText(member.profile.handle, 10)}`,
+              handle: truncateText(member.profile.handle, 10),
+            })}
+            action={() =>
+              openCreateConversation({
+                profiles: [member.profile],
+                skipProfileSelection: true,
+              })
+            }
+          />
+        ) : null}
         <PopupMenuButton
           icon={PencilIcon}
           title={t('groups.changeRoles.title', {

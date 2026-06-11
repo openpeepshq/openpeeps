@@ -19,6 +19,8 @@ import {
   useCurrentProfile,
   useCurrentAccount,
   useServerInfo,
+  useToast,
+  AccessDeniedLoader,
 } from '@openpeeps/react/components';
 
 import { Markdown } from '../lib/Markdown';
@@ -40,6 +42,7 @@ export function Welcome() {
   const account = useCurrentAccount();
   const { openpeepsApi } = useOpenpeeps();
   const { openNewPost } = useNewPostModal();
+  const { success, error: toastError } = useToast();
   const visibility = useDefaultVisibility();
   const validateEmail = openpeepsApi.validationEmailAction();
   const postsQuery = openpeepsApi.usePostsByProfile(me?.id ?? '', { limit: 1 });
@@ -50,10 +53,21 @@ export function Welcome() {
     setEmailStatus('pending');
     try {
       await validateEmail();
+      success(
+        t('welcome.validationEmailSent', {
+          defaultValue: 'Validation email sent',
+        }),
+      );
+    } catch {
+      toastError(
+        t('welcome.validationEmailFailed', {
+          defaultValue: 'Failed to send validation email',
+        }),
+      );
     } finally {
       setEmailStatus('idle');
     }
-  }, [validateEmail]);
+  }, [validateEmail, success, toastError, t]);
 
   const items = useMemo<ChecklistItem[]>(
     () => [
@@ -122,37 +136,39 @@ export function Welcome() {
         {t('welcome.completeSetup', { defaultValue: 'Complete account setup' })}
       </div>
 
-      {items.map((item) => (
-        <div
-          key={item.key}
-          className="mb-2 flex w-full cursor-pointer flex-row items-center justify-between rounded-md px-1 py-2"
-          onClick={() => {
-            if (item.action) item.action();
-            else if (item.route) navigate(item.route);
-          }}
-        >
-          <div className="bg-surface-100 flex items-center justify-center rounded-full p-4">
-            <item.Icon />
-          </div>
-          <div className="ml-4 flex-1 text-lg">
-            {item.label}
-            {item.key === 'verify-email' && emailStatus === 'pending' ? (
-              <span className="text-muted-foreground ml-2 text-sm">
-                {t('common.sending', { defaultValue: 'Sending…' })}
-              </span>
-            ) : null}
-          </div>
-          {item.completed ? (
-            <div className="bg-secondary flex items-center justify-center rounded-full p-2">
-              <CheckIcon className="text-background" />
+      <AccessDeniedLoader queries={[postsQuery]}>
+        {items.map((item) => (
+          <div
+            key={item.key}
+            className="mb-2 flex w-full cursor-pointer flex-row items-center justify-between rounded-md px-1 py-2"
+            onClick={() => {
+              if (item.action) item.action();
+              else if (item.route) navigate(item.route);
+            }}
+          >
+            <div className="bg-surface-100 flex items-center justify-center rounded-full p-4">
+              <item.Icon />
             </div>
-          ) : (
-            <div className="flex items-center justify-center p-2">
-              <ChevronRight className="text-foreground" />
+            <div className="ml-4 flex-1 text-lg">
+              {item.label}
+              {item.key === 'verify-email' && emailStatus === 'pending' ? (
+                <span className="text-muted-foreground ml-2 text-sm">
+                  {t('common.sending', { defaultValue: 'Sending…' })}
+                </span>
+              ) : null}
             </div>
-          )}
-        </div>
-      ))}
+            {item.completed ? (
+              <div className="bg-secondary flex items-center justify-center rounded-full p-2">
+                <CheckIcon className="text-background" />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center p-2">
+                <ChevronRight className="text-foreground" />
+              </div>
+            )}
+          </div>
+        ))}
+      </AccessDeniedLoader>
 
       <h2 className="mt-8 flex justify-start pb-4 text-4xl font-bold">
         {t('welcome.usefulLinks', { defaultValue: 'Useful Links' })}

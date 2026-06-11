@@ -4,3 +4,4 @@ export { TypedNotification } from './TypedNotification';
 export { NotificationWrapper } from './NotificationWrapper';
 export { NotificationsList } from './NotificationsList';
 export type { NotificationsListProps } from './NotificationsList';
+export { NotificationHeaderActions } from './NotificationHeaderActions';

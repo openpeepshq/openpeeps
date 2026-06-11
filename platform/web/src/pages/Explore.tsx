@@ -6,9 +6,13 @@ import type {
   PublicPost,
   PublicProfile,
 } from '@openpeeps/common/types';
-import { groupName } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { CardEvent, FeedPost, ProfileCard } from '@openpeeps/react/components';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import {
+  CardEvent,
+  FeedPost,
+  GroupCard,
+  ProfileCard,
+} from '@openpeeps/react/components';
 import { Button, Input } from '@openpeeps/react-ui';
 
 type Tab = 'members' | 'posts' | 'jams' | 'events' | 'groups';
@@ -32,6 +36,8 @@ export function Explore() {
   );
   const { openpeepsApi } = useOpenpeeps();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useSetPageHeader(t('explore.title', { defaultValue: 'Explore' }));
 
   const profilesQuery = openpeepsApi.useSearchProfiles(search);
   const postsQuery = openpeepsApi.useSearchPosts(search);
@@ -112,6 +118,18 @@ export function Explore() {
     obs.observe(el);
     return () => obs.disconnect();
   }, [listQuery]);
+
+  // Mirror Svelte explore: keep the active tab in sync with the URL hash so
+  // browser back/forward navigation selects the matching tab.
+  useEffect(() => {
+    const syncTabFromHash = () => setTab(tabFromHash(window.location.hash));
+    window.addEventListener('popstate', syncTabFromHash);
+    window.addEventListener('hashchange', syncTabFromHash);
+    return () => {
+      window.removeEventListener('popstate', syncTabFromHash);
+      window.removeEventListener('hashchange', syncTabFromHash);
+    };
+  }, []);
 
   const triggerSearch = () => {
     setSearch(searchInput);
@@ -202,20 +220,23 @@ export function Explore() {
             {t('common.loading', { defaultValue: 'Loading…' })}
           </div>
         ) : tab === 'jams' ? (
-          <EventSearchResults posts={jamItems} />
+          <EventSearchResults
+            posts={jamItems}
+            emptyMessage={t('explore.noJams', {
+              defaultValue: 'No jams found',
+            })}
+          />
         ) : tab === 'events' ? (
-          <EventSearchResults posts={eventItems} />
+          <EventSearchResults
+            posts={eventItems}
+            emptyMessage={t('explore.noEvents', {
+              defaultValue: 'No events found',
+            })}
+          />
         ) : tab === 'groups' ? (
           <>
             {groupItems.map((group) => (
-              <a
-                key={group.id}
-                href={`/groups/@${group.handle}`}
-                className="hover:bg-surface-100 mb-2 block rounded-md border p-4"
-              >
-                <p className="font-semibold">{groupName(group)}</p>
-                <p className="text-muted-foreground text-sm">@{group.handle}</p>
-              </a>
+              <GroupCard key={group.id} group={group} />
             ))}
             {groupItems.length === 0 ? (
               <EmptyResults
@@ -263,9 +284,15 @@ export function Explore() {
   );
 }
 
-function EventSearchResults({ posts }: { posts: PublicPost[] }) {
+function EventSearchResults({
+  posts,
+  emptyMessage,
+}: {
+  posts: PublicPost[];
+  emptyMessage: string;
+}) {
   if (posts.length === 0) {
-    return <EmptyResults message="No events found" />;
+    return <EmptyResults message={emptyMessage} />;
   }
 
   return (

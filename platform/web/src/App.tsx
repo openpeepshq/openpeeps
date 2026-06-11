@@ -378,9 +378,9 @@ function AppShell() {
             <Route element={<RequireAdminSection section="logs" />}>
               <Route path="/admin/logs" element={<Admin.Logs />} />
             </Route>
-            <Route element={<RequireAdminSection section="diagnostics" />}>
-              <Route path="/admin/db" element={<Admin.Db />} />
-            </Route>
+            {/* DB browser gates on `core-db-access` via the page's ProfileGuard
+                (mirrors the Svelte admin DB route), not an admin-menu section. */}
+            <Route path="/admin/db" element={<Admin.Db />} />
             <Route element={<RequireAdminSection section="apiKeys" />}>
               <Route path="/admin/api-keys" element={<Admin.ApiKeys />} />
             </Route>

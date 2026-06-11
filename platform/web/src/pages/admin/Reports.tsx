@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { ReportWithMeta } from '@openpeeps/common/types';
 import { useT, useOpenpeeps } from '@openpeeps/react';
+import type { PublicPost } from '@openpeeps/common/types';
 import {
   Avatar,
-  PostMarkdown,
+  FeedPostContent,
   UpdatingDate,
 } from '@openpeeps/react/components';
 import {
@@ -69,12 +70,20 @@ export function AdminReports() {
     <div className="space-y-4 p-4">
       <header className="flex items-center gap-3">
         <Avatar profile={profile} size={3} />
-        <div>
+        <div className="flex-1">
           <h1 className="text-xl font-semibold">
             {profile.displayName || `@${profile.handle}`}
           </h1>
           <p className="text-muted-foreground text-sm">@{profile.handle}</p>
         </div>
+        <a
+          href={`/@${profile.handle}`}
+          className="border-input hover:bg-surface-100 rounded-md border px-3 py-1.5 text-sm"
+        >
+          {t('admin.moderation.report.goToProfile', {
+            defaultValue: 'Go to profile',
+          })}
+        </a>
       </header>
 
       <nav className="border-border flex border-b">
@@ -119,23 +128,28 @@ export function AdminReports() {
               </div>
               <p className="text-sm">{report.comment}</p>
               {report.reportedPosts.length > 0 && (
-                <details className="text-xs">
-                  <summary className="text-muted-foreground cursor-pointer">
-                    {report.reportedPosts.length} reported post
-                    {report.reportedPosts.length === 1 ? '' : 's'}
-                  </summary>
-                  <ul className="space-y-1 pl-3">
-                    {report.reportedPosts.map((post) => (
-                      <li key={post.id} className="bg-surface-100 rounded p-2">
-                        <PostMarkdown
-                          source={
-                            (post.data as { content?: string })?.content ?? ''
-                          }
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </details>
+                <ul className="space-y-2">
+                  {report.reportedPosts.map((post) => (
+                    <li key={post.id} className="bg-surface-100 rounded-md p-2">
+                      <div className="mb-2 flex items-center justify-between">
+                        <h3 className="text-sm font-medium">
+                          {t('admin.moderation.reportList.postHeading', {
+                            defaultValue: 'Reported post',
+                          })}
+                        </h3>
+                        <a
+                          href={`/posts/${post.repost?.id ?? post.id}`}
+                          className="border-input hover:bg-surface-200 rounded-md border px-2 py-1 text-xs"
+                        >
+                          {t('admin.moderation.reportList.goToPost', {
+                            defaultValue: 'Go to post',
+                          })}
+                        </a>
+                      </div>
+                      <FeedPostContent post={post as PublicPost} />
+                    </li>
+                  ))}
+                </ul>
               )}
               {report.resolution ? (
                 <Button

@@ -4,6 +4,7 @@ import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { Avatar } from '../profile';
 import { useReplyModal } from './post-form/ReplyModalContext';
+import { useSignUpLoginModal } from '../accounts/SignUpLoginModalContext';
 
 export interface ReplyBoxProps {
   post: PublicPost;
@@ -13,6 +14,7 @@ export function ReplyBox({ post }: ReplyBoxProps) {
   const t = useT();
   const profile = useCurrentProfile();
   const { openReply } = useReplyModal();
+  const { openSignUpLogin } = useSignUpLoginModal();
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -20,7 +22,7 @@ export function ReplyBox({ post }: ReplyBoxProps) {
     if (profile) {
       openReply(post);
     } else {
-      window.location.assign('/auth/login');
+      openSignUpLogin();
     }
   };
 

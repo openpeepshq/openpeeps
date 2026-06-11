@@ -15,7 +15,11 @@ import {
   Toast,
 } from '@openpeeps/react-ui';
 import { useT, useOpenpeeps, useCredentialsStore } from '@openpeeps/react';
-import { AuthLayout, useServerInfo } from '@openpeeps/react/components';
+import {
+  AuthLayout,
+  useServerInfo,
+  useToast,
+} from '@openpeeps/react/components';
 
 import { performLogin } from '../../lib/auth';
 
@@ -26,16 +30,33 @@ export function Login() {
   const { client } = useOpenpeeps();
   const { credentialsStore } = useCredentialsStore();
   const serverInfo = useServerInfo();
+  const { success, error: toastError } = useToast();
 
   const [data] = useState<LoginRequest>(() => ({ email: '', password: '' }));
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const redirectUrl = searchParams.get('redirect') ?? '/feeds/local';
+  // Stripe redirects back here after checkout (cancel_url is `/auth/login`).
+  const paymentParam = searchParams.get('payment');
 
   useEffect(() => {
     setError(null);
   }, [data.email, data.password]);
+
+  useEffect(() => {
+    if (paymentParam === 'success') {
+      success(
+        t('payment.success.message', {
+          defaultValue: 'Payment received. Redirecting…',
+        }),
+      );
+    } else if (paymentParam === 'cancel') {
+      toastError(
+        t('payment.cancelled', { defaultValue: 'Checkout was cancelled.' }),
+      );
+    }
+  }, [paymentParam, success, toastError, t]);
 
   const handleSubmit = async () => {
     setError(null);
@@ -52,7 +73,11 @@ export function Login() {
   };
 
   return (
-    <AuthLayout redirectTo={redirectUrl} navigate={navigate}>
+    <AuthLayout
+      redirectTo={redirectUrl}
+      navigate={navigate}
+      hasPayment={!!paymentParam}
+    >
       <Form data={data} schema={loginRequestSchema}>
         <h2 className="text-xl" data-testid="auth-login-title">
           {t('auth.login.title', { defaultValue: 'Login' })}
