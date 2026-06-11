@@ -5,6 +5,7 @@ import type {
   Event,
   PostCreationData,
 } from '@openpeeps/common/types';
+import { EVENT_HEADER_ASPECT_RATIO } from '@openpeeps/common/lib';
 import { Input, Label } from '@openpeeps/react-ui';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
@@ -87,6 +88,7 @@ export function EventForm({
         usage="event-header-image"
         url={event.image}
         onChange={(image) => patchEvent({ image })}
+        aspectRatio={EVENT_HEADER_ASPECT_RATIO}
         className="aspect-video !h-auto"
         text={t('events.form.imageDescription', {
           defaultValue: 'Upload an image for your event',

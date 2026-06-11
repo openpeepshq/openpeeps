@@ -16,14 +16,16 @@ export function GroupHeader({ group }: GroupHeaderProps) {
 
   return (
     <div className="relative">
-      <div className="bg-surface-200 relative h-44 bg-cover bg-center">
-        {group.header && (
-          <img
-            src={group.header}
-            alt="banner"
-            className="absolute left-0 top-0 h-full w-full object-cover"
-          />
-        )}
+      <div className="relative aspect-[3/1] w-full">
+        <div className="bg-surface-200 absolute inset-0 overflow-hidden">
+          {group.header && (
+            <img
+              src={group.header}
+              alt="banner"
+              className="h-full w-full object-cover"
+            />
+          )}
+        </div>
         <GroupAvatar
           group={group}
           size={6}
@@ -47,7 +49,7 @@ export function GroupHeader({ group }: GroupHeaderProps) {
         <p className="text-surface-500 text-sm">@{group.handle}</p>
         <a
           href={`/groups/@${group.handle}/members`}
-          className="text-sm text-muted-foreground hover:underline"
+          className="text-muted-foreground text-sm hover:underline"
         >
           {group.membersCount} member{group.membersCount === 1 ? '' : 's'}
         </a>
