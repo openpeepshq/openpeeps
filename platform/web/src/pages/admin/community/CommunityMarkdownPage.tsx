@@ -58,7 +58,7 @@ export function CommunityMarkdownPage({
       <p className="pb-2 pt-4">{t(descriptionKey)}</p>
       <OpenpeepsMarkdownInput
         value={value}
-        maxLength={5000}
+        maxLength={10000}
         rows={18}
         className="min-h-[30rem]"
         onChange={setContent}
