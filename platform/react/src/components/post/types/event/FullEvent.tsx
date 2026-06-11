@@ -100,7 +100,7 @@ export function FullEvent({ post }: FullEventProps) {
           <ShareMenu
             post={post}
             menuButton={
-              <span className="border-input flex size-10 items-center justify-center rounded-md border">
+              <span className="flex size-10 items-center justify-center rounded-md">
                 <Share className="size-4" />
               </span>
             }
