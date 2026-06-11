@@ -10,8 +10,8 @@ import { logger } from '@openpeeps/core/log';
 import { mediaStorage } from '@openpeeps/core/media';
 import { initializeServer } from '#lib/init';
 import { installDbBrowserProxy } from './lib/dbBrowserProxy';
-import { installJamEgressPage } from './lib/jamEgressPage';
 import { installS3Endpoint } from './lib/s3';
+import { installStreamingEndpoint } from './lib/streaming';
 
 const log = logger('server');
 const requestLog = logger('server:request');
@@ -150,9 +150,10 @@ const startServer = async () => {
   // the SPA catch-all so uploads don't fall through to `index.html`.
   installS3Endpoint(app);
 
-  // Minimal HTML page LiveKit web egress loads to record jams. Must be
-  // registered before the SPA catch-all.
-  installJamEgressPage(app);
+  // HLS playlists/segments for VOD playback (`/media/streaming/<id>/<file>`).
+  // Must be registered before the SPA catch-all so playlist requests aren't
+  // served the React `index.html`.
+  installStreamingEndpoint(app);
 
   // Serve locally-stored media at the legacy `/storage/<bucket>/<id>/<filename>`
   // URL (matches `mediaStorage().getPath(id, filename)` in
@@ -183,7 +184,11 @@ const startServer = async () => {
       });
       res.send(buffer);
     } catch (err) {
-      log.warn('storage: missing or unreadable id', { id, filename, err: String(err) });
+      log.warn('storage: missing or unreadable id', {
+        id,
+        filename,
+        err: String(err),
+      });
       res.status(404).send('Not found');
     }
   });

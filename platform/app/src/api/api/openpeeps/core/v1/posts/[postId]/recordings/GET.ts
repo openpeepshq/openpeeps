@@ -1,9 +1,10 @@
 import { Endpoint, z } from 'sveltekit-api';
+import { canAccessJamRecordings } from '@openpeeps/common/lib';
 import { jamRecordingSchema } from '@openpeeps/common/types';
 import { listPostRecordings } from '@openpeeps/core/jams';
 import { findPost } from '@openpeeps/core/posts';
 import { forbidden, notFound } from '$lib/server/api/errors';
-import { ensurePostCapabilities } from '$lib/server/auth';
+import { ensureLocalProfile } from '$lib/server/auth';
 
 export const Param = z.object({
   postId: z.string(),
@@ -24,7 +25,11 @@ export default new Endpoint({ Param, Output, Error }).handle(
       throw notFound(`Object with id ${param.postId}`);
     }
 
-    await ensurePostCapabilities(event, post, ['core-posts-read']);
+    const profile = await ensureLocalProfile(event);
+
+    if (!canAccessJamRecordings(profile, post)) {
+      throw forbidden();
+    }
 
     const recordings = await listPostRecordings(post.id);
 

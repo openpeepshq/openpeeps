@@ -1078,15 +1078,15 @@ importers:
       '@tanstack/react-query':
         specifier: 5.90.16
         version: 5.90.16(react@19.2.6)
+      '@videojs/react':
+        specifier: ^10.0.0-beta.24
+        version: 10.0.0-beta.24(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       emoji-picker-element:
         specifier: ^1.29.1
         version: 1.29.1
       heic2any:
         specifier: ^0.0.4
         version: 0.0.4
-      hls.js:
-        specifier: ^1.6.16
-        version: 1.6.16
       i18next:
         specifier: ^24.2.3
         version: 24.2.3(typescript@5.7.3)
@@ -7702,14 +7702,26 @@ packages:
   '@videojs/core@10.0.0-beta.23':
     resolution: {integrity: sha512-skod5ZtEMwm9nCH/1lNlXPoSbqV+Q1INDB5x+cDxvGNPQ622LnEsS40jSzaS5+nHoNSowjoJdLYc9MjaBaoz0w==}
 
+  '@videojs/core@10.0.0-beta.24':
+    resolution: {integrity: sha512-v18EkiyxNkLvCccZ3yPWO5J2OLWehTueNywhLFcLLltfLqO6OvKG2Gg2RUVYFcOEWS5e9CpUmrXOVAWUzYAuMw==}
+
   '@videojs/element@10.0.0-beta.23':
     resolution: {integrity: sha512-Po4fn+hGa2Kh6ZK+8XEg9gu5UuB7Y21A2K+mb1w/e8QjCCXqIFNRW809nLhOosjpEelKxyA/tvzquNiJxbzB/g==}
 
   '@videojs/html@10.0.0-beta.23':
     resolution: {integrity: sha512-TthyMitUxYXKnumpqtBVAXs+HvQZG+SPKhkuV6tCUQLS4vy0J54buMXOtvjEiT09rqpQAP4r+MJeZLhV/Abh/Q==}
 
+  '@videojs/react@10.0.0-beta.24':
+    resolution: {integrity: sha512-+K2QkZiYfmUz7YREJwLZbCqj5q6xeCGCKU9qBl9v1tqlAhkxbPeCY0ltSv2AHij4v/zxGSjMrRgqpjsphHK2Ow==}
+    peerDependencies:
+      react: 19.2.6
+      react-dom: 19.2.6
+
   '@videojs/spf@10.0.0-beta.23':
     resolution: {integrity: sha512-2D92vBeDwfeCk1Wj8HgVrBHMmiW4uzKu6cKz7kv1SR+aDPT4FFQM9bqNgEyadZUU0QB5L1iuBvPF0fwv3/boNA==}
+
+  '@videojs/spf@10.0.0-beta.24':
+    resolution: {integrity: sha512-ACTOHzhCoTJLndyX5lq+k7A3Q9gaJeEdtjgVfbYvV/F8OwEA1zT5gGJnG/bbHC81yI/w51b+YneB8pGJutUTjw==}
 
   '@videojs/store@10.0.0-beta.23':
     resolution: {integrity: sha512-g9mmqgTuiVzesgL1OZB9UEoJlqltlOzpl/Ckvtj5anpuouGqf4Itfwh0NKLcnspRcS2Xz6KrOAtGEGpjsev97g==}
@@ -7722,8 +7734,22 @@ packages:
       react:
         optional: true
 
+  '@videojs/store@10.0.0-beta.24':
+    resolution: {integrity: sha512-gFAozvxGTviFpKVwsrNAo2cNjTcwRDg/AwLs4Gft/XqxSggD7CxilZ9d6W1nTxAbcSMPvrySmnW8wuGtbbPyEw==}
+    peerDependencies:
+      '@videojs/element': 10.0.0-beta.24
+      react: 19.2.6
+    peerDependenciesMeta:
+      '@videojs/element':
+        optional: true
+      react:
+        optional: true
+
   '@videojs/utils@10.0.0-beta.23':
     resolution: {integrity: sha512-3frIhyOSIT2jGy5sAyLoeg5SMI39ixqguapgQxA9PbDCvRaCZX2YPD2ZyeNppx6KstweX/foiF/YAbEba9xgig==}
+
+  '@videojs/utils@10.0.0-beta.24':
+    resolution: {integrity: sha512-sQvsawB1pQiYJxkGnrdxWrcfmEvjjmGSDcrt47OmI0FQx40GseO+QMzm3XvGuxmy6KOKneCfegHFBt+Ez0MKLw==}
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -17919,7 +17945,7 @@ snapshots:
       '@types/node': 20.5.1
       chalk: 4.1.2
       cosmiconfig: 8.3.6(typescript@5.8.3)
-      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.8.3))(typescript@5.8.3)
+      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@22.19.17)(typescript@5.8.3))(typescript@5.8.3)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -23340,6 +23366,21 @@ snapshots:
       - '@videojs/element'
       - react
 
+  '@videojs/core@10.0.0-beta.24(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react@19.2.6)':
+    dependencies:
+      '@videojs/spf': 10.0.0-beta.24
+      '@videojs/store': 10.0.0-beta.24(react@19.2.6)
+      '@videojs/utils': 10.0.0-beta.24
+      dashjs: 5.1.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
+      hls.js: 1.6.16
+      mux-embed: 5.18.1
+    transitivePeerDependencies:
+      - '@svta/cml-cta'
+      - '@svta/cml-structured-field-values'
+      - '@svta/cml-utils'
+      - '@videojs/element'
+      - react
+
   '@videojs/element@10.0.0-beta.23':
     dependencies:
       '@lit/context': 1.1.6
@@ -23357,9 +23398,28 @@ snapshots:
       - '@svta/cml-utils'
       - react
 
+  '@videojs/react@10.0.0-beta.24(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      '@videojs/core': 10.0.0-beta.24(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react@19.2.6)
+      '@videojs/spf': 10.0.0-beta.24
+      '@videojs/store': 10.0.0-beta.24(react@19.2.6)
+      '@videojs/utils': 10.0.0-beta.24
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
+    transitivePeerDependencies:
+      - '@svta/cml-cta'
+      - '@svta/cml-structured-field-values'
+      - '@svta/cml-utils'
+      - '@videojs/element'
+
   '@videojs/spf@10.0.0-beta.23':
     dependencies:
       '@videojs/utils': 10.0.0-beta.23
+      signal-polyfill: 0.2.2
+
+  '@videojs/spf@10.0.0-beta.24':
+    dependencies:
+      '@videojs/utils': 10.0.0-beta.24
       signal-polyfill: 0.2.2
 
   '@videojs/store@10.0.0-beta.23(@videojs/element@10.0.0-beta.23)(react@19.2.6)':
@@ -23369,7 +23429,15 @@ snapshots:
       '@videojs/element': 10.0.0-beta.23
       react: 19.2.6
 
+  '@videojs/store@10.0.0-beta.24(react@19.2.6)':
+    dependencies:
+      '@videojs/utils': 10.0.0-beta.24
+    optionalDependencies:
+      react: 19.2.6
+
   '@videojs/utils@10.0.0-beta.23': {}
+
+  '@videojs/utils@10.0.0-beta.24': {}
 
   '@vitejs/plugin-react@4.7.0(vite@6.0.7(@types/node@22.19.17)(jiti@1.21.6)(lightningcss@1.32.0)(terser@5.37.0)(yaml@2.8.3))':
     dependencies:
@@ -24766,7 +24834,7 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
-  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.8.3))(typescript@5.8.3):
+  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@22.19.17)(typescript@5.8.3))(typescript@5.8.3):
     dependencies:
       '@types/node': 20.5.1
       cosmiconfig: 8.3.6(typescript@5.8.3)

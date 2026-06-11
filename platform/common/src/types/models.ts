@@ -783,6 +783,7 @@ export const jamRecordingDataSchema = z.object({
   status: z.enum(['requested', 'active', 'completed', 'failed']),
   egressId: z.string().optional(),
   attachment: mediaAttachmentSchema.optional(),
+  replyPostId: z.string().optional(),
 });
 export type JamRecordingData = z.infer<typeof jamRecordingDataSchema>;
 export const jamRecordingSchema = modelSchema(jamRecordingDataSchema);

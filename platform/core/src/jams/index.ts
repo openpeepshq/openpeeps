@@ -20,7 +20,6 @@ export {
   finishRecording,
   getJamRecordingUrl,
   getJamObserverPath,
-  getJamEgressPath,
 } from './livekit';
 export * from './waitingRoom';
 export * from './mutations';

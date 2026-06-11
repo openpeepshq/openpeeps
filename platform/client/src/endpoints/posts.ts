@@ -1,5 +1,6 @@
 import type { FetchClient } from '@openpeeps/fetch-client';
 import {
+  type JamRecording,
   type RSVP,
   type ChronologicalInfiniteQueryParams,
   type PostContext,
@@ -55,6 +56,14 @@ const finders = (rawClient: FetchClient) => ({
     rawClient,
     '/posts/:id/reposts',
   ),
+  recordings: allpeepNoPayloadEndpoint<JamRecording[], { id: string }>(
+    rawClient,
+    '/posts/:id/recordings',
+  ),
+  publishRecordingReply: allpeepNoPayloadEndpoint<
+    JamRecording,
+    { id: string; recordingId: string }
+  >(rawClient, '/posts/:id/recordings/:recordingId/reply', 'post'),
   unseenCounts: allpeepNoPayloadEndpoint<UnseenPostCounts>(
     rawClient,
     '/posts/unseen/counts',
