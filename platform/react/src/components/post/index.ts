@@ -16,8 +16,8 @@ export { DeletePostModal } from './pieces/modals/DeletePostModal';
 export { EditPostModal } from './post-form/EditPostModal';
 export { useEditPostModal } from './post-form/EditPostModalContext';
 export { ComposeAttachments } from './post-form/ComposeAttachments';
-export { MentionTextarea } from './post-form/MentionTextarea';
-export type { MentionTextareaProps } from './post-form/MentionTextarea';
+export { OpenpeepsMarkdownInput } from './post-form/OpenpeepsMarkdownInput';
+export type { OpenpeepsMarkdownInputProps } from './post-form/OpenpeepsMarkdownInput';
 export { ArticleForm } from './post-form/ArticleForm';
 export type { ArticleFormProps } from './post-form/ArticleForm';
 export { EventForm } from './post-form/EventForm';
@@ -34,7 +34,10 @@ export type { FullPostLayoutProps } from './FullPostLayout';
 export { ReplyBox } from './ReplyBox';
 export type { ReplyBoxProps } from './ReplyBox';
 export { EventsFeed } from './feed/events/EventsFeed';
-export type { EventsFeedProps, EventsFeedQuery } from './feed/events/EventsFeed';
+export type {
+  EventsFeedProps,
+  EventsFeedQuery,
+} from './feed/events/EventsFeed';
 export { ThreadedFeed } from './feed/threaded/ThreadedFeed';
 export type { ThreadedFeedProps } from './feed/threaded/ThreadedFeed';
 export { ThreadPost } from './feed/threaded/ThreadPost';

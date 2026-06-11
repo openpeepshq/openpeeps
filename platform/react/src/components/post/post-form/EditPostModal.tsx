@@ -18,7 +18,7 @@ import { OpenpeepsMarkdown } from '../../markdown/OpenpeepsMarkdown';
 import { PollContent } from '../pieces/PollContent';
 import { ComposeAttachments } from './ComposeAttachments';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
-import { MentionTextarea } from './MentionTextarea';
+import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 
 export interface EditPostModalProps {
   post: PublicPost;
@@ -60,7 +60,9 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
   };
 
   const content =
-    data.type === 'note' || data.type === 'question' ? (data.content ?? '') : '';
+    data.type === 'note' || data.type === 'question'
+      ? (data.content ?? '')
+      : '';
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -73,30 +75,26 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
 
         {data.type === 'question' ? (
           <>
-            <MentionTextarea rows={3} value={content} onChange={setContent} />
+            <OpenpeepsMarkdownInput
+              rows={3}
+              value={content}
+              onChange={setContent}
+            />
             <ComposePreviewLinks content={content} />
             <PollContent post={{ ...post, data }} />
           </>
         ) : data.type === 'note' ? (
           <>
-            <MentionTextarea rows={6} value={content} onChange={setContent} />
+            <OpenpeepsMarkdownInput
+              rows={6}
+              value={content}
+              onChange={setContent}
+            />
             <ComposePreviewLinks content={content} />
             <ComposeAttachments
               attachments={data.attachments ?? []}
               onChange={setAttachments}
             />
-            {content ? (
-              <div className="border-t pt-3">
-                <p className="text-muted-foreground mb-2 text-xs font-medium uppercase">
-                  {t('posts.form.preview', { defaultValue: 'Preview' })}
-                </p>
-                <OpenpeepsMarkdown
-                  source={content}
-                  mentions={post.mentions}
-                  linkPreviewMode="none"
-                />
-              </div>
-            ) : null}
           </>
         ) : (
           <OpenpeepsMarkdown

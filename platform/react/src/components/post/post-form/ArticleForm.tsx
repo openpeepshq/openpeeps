@@ -1,17 +1,15 @@
-import { useMemo, useRef, useState } from 'react';
-import { Eye, Image as ImageIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Eye } from 'lucide-react';
 import type {
   Article,
   AudienceSetting,
   PostCreationData,
 } from '@openpeeps/common/types';
-import { Button, Input, Label } from '@openpeeps/react-ui';
+import { Input, Label } from '@openpeeps/react-ui';
 import { useT } from '../../../i18n';
-import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useCurrentProfile } from '../../layout/IdentityContext';
-import { ImageEditModal } from '../../form/ImageEditModal';
-import { convertToWebpIfHeic } from '../../../lib/canvasUtils';
-import { MentionTextarea } from './MentionTextarea';
+import { ImageInput } from '../../form/ImageInput';
+import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { PostAudienceSelector } from './PostAudienceSelector';
 import { audienceSummary } from './audienceChoices';
@@ -29,16 +27,9 @@ export function ArticleForm({
 }: ArticleFormProps) {
   const t = useT();
   const me = useCurrentProfile();
-  const { openpeepsApi } = useOpenpeeps();
-  const { upload } = openpeepsApi.useMediaUpload();
 
   const article = postData.data as Article;
   const [audienceOpen, setAudienceOpen] = useState(false);
-  const [pendingImage, setPendingImage] = useState<{
-    file: File;
-    previewUrl: string;
-  } | null>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const selectedGroupName = useMemo(
     () =>
@@ -70,62 +61,19 @@ export function ArticleForm({
     });
   };
 
-  const handleImageSelected = async (file: File) => {
-    const processed = await convertToWebpIfHeic(file);
-    if (processed.type.startsWith('image/')) {
-      setPendingImage({
-        file: processed,
-        previewUrl: URL.createObjectURL(processed),
-      });
-      return;
-    }
-    const attachment = await upload({
-      file: processed,
-      usage: 'article-header-image',
-    });
-    patchArticle({ image: attachment.url ?? undefined });
-  };
-
   return (
     <div>
-      <div>
-        {article.image ? (
-          <img
-            src={article.image}
-            alt=""
-            className="h-96 w-full object-cover"
-          />
-        ) : (
-          <button
-            type="button"
-            className="bg-surface-100 hover:bg-surface-200 flex h-96 w-full items-center justify-center"
-            onClick={() => imageInputRef.current?.click()}
-          >
-            <ImageIcon className="text-muted-foreground size-10" />
-          </button>
-        )}
-        <div className="px-3 pt-2">
-          <Button
-            variant="variant-ringed-surface"
-            action={() => imageInputRef.current?.click()}
-          >
-            {t('articles.form.uploadCover', {
-              defaultValue: 'Upload your cover image',
-            })}
-          </Button>
-        </div>
-        <input
-          ref={imageInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void handleImageSelected(file);
-            e.target.value = '';
-          }}
-        />
-      </div>
+      <ImageInput
+        usage="article-header-image"
+        url={article.image}
+        onChange={(image) => patchArticle({ image })}
+        className="h-96"
+        showFullImage
+        text={t('articles.form.uploadCover', {
+          defaultValue: 'Upload your cover image',
+        })}
+        showAltInput={false}
+      />
 
       <div className="mt-4 flex flex-col gap-4 px-3">
         <h2 className="text-lg">
@@ -143,8 +91,9 @@ export function ArticleForm({
           />
         </Label>
 
-        <MentionTextarea
+        <OpenpeepsMarkdownInput
           rows={16}
+          maxLength={10000}
           value={article.content ?? ''}
           onChange={(content) => patchArticle({ content })}
           placeholder={t('articles.form.contentPlaceholder', {
@@ -195,27 +144,6 @@ export function ArticleForm({
           audience={postData.audience ?? []}
           showDirect
           onConfirm={setAudience}
-        />
-      ) : null}
-
-      {pendingImage ? (
-        <ImageEditModal
-          file={pendingImage.file}
-          previewUrl={pendingImage.previewUrl}
-          open
-          onClose={() => {
-            URL.revokeObjectURL(pendingImage.previewUrl);
-            setPendingImage(null);
-          }}
-          onConfirm={async (file) => {
-            URL.revokeObjectURL(pendingImage.previewUrl);
-            setPendingImage(null);
-            const attachment = await upload({
-              file,
-              usage: 'article-header-image',
-            });
-            patchArticle({ image: attachment.url ?? undefined });
-          }}
         />
       ) : null}
     </div>

@@ -1,17 +1,15 @@
-import { useMemo, useRef, useState } from 'react';
-import { Eye, Image as ImageIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Eye } from 'lucide-react';
 import type {
   AudienceSetting,
   Event,
   PostCreationData,
 } from '@openpeeps/common/types';
-import { Button, Input, Label } from '@openpeeps/react-ui';
+import { Input, Label } from '@openpeeps/react-ui';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
-import { ImageEditModal } from '../../form/ImageEditModal';
-import { convertToWebpIfHeic } from '../../../lib/canvasUtils';
-import { useOpenpeeps } from '../../../contexts/openpeeps';
-import { MentionTextarea } from './MentionTextarea';
+import { ImageInput } from '../../form/ImageInput';
+import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { EventTypeSwitcher } from './EventTypeSwitcher';
 import { PostAudienceSelector } from './PostAudienceSelector';
@@ -42,20 +40,17 @@ const TIMEZONES =
     ? Intl.supportedValuesOf('timeZone')
     : [Intl.DateTimeFormat().resolvedOptions().timeZone];
 
-export function EventForm({ postData, onChange, isEdit = false }: EventFormProps) {
+export function EventForm({
+  postData,
+  onChange,
+  isEdit = false,
+}: EventFormProps) {
   const t = useT();
   const me = useCurrentProfile();
-  const { openpeepsApi } = useOpenpeeps();
-  const { upload } = openpeepsApi.useMediaUpload();
 
   const event = postData.data as Event;
   const [showEndDate, setShowEndDate] = useState(event.end !== undefined);
   const [audienceOpen, setAudienceOpen] = useState(false);
-  const [pendingImage, setPendingImage] = useState<{
-    file: File;
-    previewUrl: string;
-  } | null>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const selectedGroupName = useMemo(() => {
     if (!postData.groupId) return undefined;
@@ -86,68 +81,22 @@ export function EventForm({ postData, onChange, isEdit = false }: EventFormProps
     });
   };
 
-  const handleImageSelected = async (file: File) => {
-    const processed = await convertToWebpIfHeic(file);
-    if (processed.type.startsWith('image/')) {
-      setPendingImage({
-        file: processed,
-        previewUrl: URL.createObjectURL(processed),
-      });
-      return;
-    }
-    const attachment = await upload({
-      file: processed,
-      usage: 'event-header-image',
-    });
-    patchEvent({ image: attachment.url ?? undefined });
-  };
-
   return (
     <div data-testid="events-form-basic-details">
-      <div>
-        {event.image ? (
-          <img
-            src={event.image}
-            alt=""
-            className="aspect-video h-auto w-full object-cover"
-          />
-        ) : (
-          <button
-            type="button"
-            className="bg-surface-100 hover:bg-surface-200 flex aspect-video h-auto w-full items-center justify-center"
-            onClick={() => imageInputRef.current?.click()}
-          >
-            <ImageIcon className="text-muted-foreground size-10" />
-          </button>
-        )}
-        <div className="px-3 pt-2">
-          <Button
-            variant="variant-ringed-surface"
-            action={() => imageInputRef.current?.click()}
-          >
-            {t('events.form.imageDescription', {
-              defaultValue: 'Upload an image for your event',
-            })}
-          </Button>
-          <p className="text-surface-500 mt-1 text-sm">
-            {t('events.form.imageSpecs', {
-              defaultValue:
-                'Your image should be at least 800 pixels wide with a 16x9 aspect ratio.',
-            })}
-          </p>
-        </div>
-        <input
-          ref={imageInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void handleImageSelected(file);
-            e.target.value = '';
-          }}
-        />
-      </div>
+      <ImageInput
+        usage="event-header-image"
+        url={event.image}
+        onChange={(image) => patchEvent({ image })}
+        className="aspect-video !h-auto"
+        text={t('events.form.imageDescription', {
+          defaultValue: 'Upload an image for your event',
+        })}
+        specsText={t('events.form.imageSpecs', {
+          defaultValue:
+            'Your image should be at least 800 pixels wide with a 16x9 aspect ratio.',
+        })}
+        showAltInput={false}
+      />
 
       <div className="mt-4 flex flex-col gap-4 px-3">
         <h2 className="text-lg">
@@ -172,8 +121,9 @@ export function EventForm({ postData, onChange, isEdit = false }: EventFormProps
           })}
         </p>
 
-        <MentionTextarea
+        <OpenpeepsMarkdownInput
           rows={6}
+          maxLength={5000}
           value={event.content ?? ''}
           onChange={(content) => patchEvent({ content })}
           testId="events-description-input"
@@ -250,7 +200,7 @@ export function EventForm({ postData, onChange, isEdit = false }: EventFormProps
         >
           <select
             id="event-timezone"
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+            className="bg-background w-full rounded-md border px-3 py-2 text-sm"
             value={event.timeZone ?? TIMEZONES[0]}
             onChange={(e) => patchEvent({ timeZone: e.target.value })}
           >
@@ -279,12 +229,14 @@ export function EventForm({ postData, onChange, isEdit = false }: EventFormProps
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Eye className="size-4" />
-            <span>{t('events.form.visibility', { defaultValue: 'Visibility' })}</span>
+            <span>
+              {t('events.form.visibility', { defaultValue: 'Visibility' })}
+            </span>
           </div>
           <p className="text-surface-500 text-sm">
             {t('events.form.visibilityNotChangeable', {
               defaultValue:
-                'Note:  The event visibility cannot be changed once the event is published.  Make sure you\'re adding the right people or group.',
+                "Note:  The event visibility cannot be changed once the event is published.  Make sure you're adding the right people or group.",
             })}
           </p>
           <button
@@ -328,27 +280,6 @@ export function EventForm({ postData, onChange, isEdit = false }: EventFormProps
           audience={postData.audience ?? []}
           showDirect
           onConfirm={setAudience}
-        />
-      ) : null}
-
-      {pendingImage ? (
-        <ImageEditModal
-          file={pendingImage.file}
-          previewUrl={pendingImage.previewUrl}
-          open
-          onClose={() => {
-            URL.revokeObjectURL(pendingImage.previewUrl);
-            setPendingImage(null);
-          }}
-          onConfirm={async (file) => {
-            URL.revokeObjectURL(pendingImage.previewUrl);
-            setPendingImage(null);
-            const attachment = await upload({
-              file,
-              usage: 'event-header-image',
-            });
-            patchEvent({ image: attachment.url ?? undefined });
-          }}
         />
       ) : null}
     </div>

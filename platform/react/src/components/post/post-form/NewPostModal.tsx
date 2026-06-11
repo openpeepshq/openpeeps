@@ -26,7 +26,7 @@ import { useCurrentProfile } from '../../layout/IdentityContext';
 import { defaultNewNote, defaultNewQuestion } from '../../../stores/newPosts';
 import { useComposeAttachments } from './ComposeAttachments';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
-import { MentionTextarea } from './MentionTextarea';
+import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { PostAudienceSelector } from './PostAudienceSelector';
 import { PostTypeSwitcher } from './PostTypeSwitcher';
 import { audienceSummary } from './audienceChoices';
@@ -242,7 +242,7 @@ export function NewPostModal({
             </button>
           ) : null}
 
-          <MentionTextarea
+          <OpenpeepsMarkdownInput
             rows={5}
             value={content}
             onChange={setContent}
