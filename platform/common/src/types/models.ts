@@ -201,6 +201,7 @@ export const accountNameSchema = z
   });
 
 const profileResourceTypes = [
+  'jam',
   'jams',
   'posts',
   'self',

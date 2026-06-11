@@ -23,4 +23,4 @@ http:
     vite:
       loadBalancer:
         servers:
-          - url: "http://host.docker.internal:5173"
+          - url: "http://host.docker.internal:5174"

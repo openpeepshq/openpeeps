@@ -2,7 +2,7 @@ import { endpoint, z } from '#lib/endpoint';
 import { forbidden, authNeeded } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { findJamEvent, getJamRecordingUrl } from '@openpeeps/core/jams';
+import { findJamEvent, getJamObserverPath } from '@openpeeps/core/jams';
 import { jamObserverResponseSchema } from '@openpeeps/common/types';
 import { notFound } from '#lib/helpers';
 
@@ -26,7 +26,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
 
     ensurePostCapabilities(event, jamEvent, ['core-posts-jam-moderate']);
 
-    const path = await getJamRecordingUrl(input.eventId);
+    const path = await getJamObserverPath(input.eventId);
 
     return { path };
 

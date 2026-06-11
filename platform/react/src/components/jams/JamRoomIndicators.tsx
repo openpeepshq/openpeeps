@@ -1,21 +1,20 @@
 import { useState } from 'react';
 import {
   useConnectionQualityIndicator,
-  useIsRecording,
   useLocalParticipant,
 } from '@livekit/components-react';
 import { ConnectionQuality } from 'livekit-client';
 import { Circle, X } from 'lucide-react';
 import { useT } from '../../i18n';
+import { useJamRecordingState } from './jamRecordingState';
 
 /**
  * Red "recording" pill shown to every participant while egress is active,
- * mirroring the Svelte `RecordingIndicator`. Driven by LiveKit `useIsRecording`
- * rather than parsing jam events.
+ * mirroring the Svelte `RecordingIndicator` (jam recordStart/recordStop events).
  */
 export function JamRecordingIndicator() {
   const t = useT();
-  const isRecording = useIsRecording();
+  const { isRecording } = useJamRecordingState();
 
   if (!isRecording) return null;
 

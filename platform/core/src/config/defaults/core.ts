@@ -13,7 +13,7 @@ export const defaultConfig: CoreConfig = {
   version: process.env.VERSION || 'dev',
   environment: process.env.ENVIRONMENT || 'dev',
   server: {
-    host: process.env.SERVER_HOST || 'localhost:5173',
+    host: process.env.SERVER_HOST || 'localhost:5174',
     signUpsOpen: true,
     publicContent: false,
   },

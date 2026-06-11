@@ -9,6 +9,7 @@ import { uuidv7 } from 'uuidv7';
 import { createJamEvent, updateJamRecording } from './mutations';
 import { findActiveRecording } from './finders';
 import { createSignedServiceToken } from '../accessTokens/tokens';
+import { unprocessableRequest } from '../errors';
 
 const encoder = new TextEncoder();
 
@@ -32,16 +33,41 @@ export const listParticipantIds = async (jamId: string) => {
 const getJamEgressToken = async (jamId: string) =>
   createSignedServiceToken({
     scopes: [{
-      resource: { type: 'jams', id: jamId },
+      resource: { type: 'jam', id: jamId },
     }],
     name: 'jam-egress',
     expirationTime: '1d',
   }).then((token) => token.signedToken);
 
-export const getJamRecordingUrl = async (jamId: string) => {
+const isLoopbackHost = (hostname: string) =>
+  hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+
+const assertEgressCanReachRecordingHost = async (recordingUrl: string) => {
+  const { jams } = await config();
+  const recordingHost = new URL(recordingUrl).hostname;
+  const livekitHost = new URL(jams.livekit.url).hostname;
+  if (isLoopbackHost(recordingHost) && !isLoopbackHost(livekitHost)) {
+    throw unprocessableRequest({
+      errorKey: 'jamsRecordingEgressUnreachable',
+      parameters: { recordingHost },
+    });
+  }
+};
+
+/** Relative path for human observers (full jam UI). */
+export const getJamObserverPath = async (jamId: string) => {
   const jamEgressToken = await getJamEgressToken(jamId);
-  return `${await serverRootUrl()}/events/${jamId}/jam?observer=true&token=${jamEgressToken}`;
-}
+  return `/events/${jamId}/jam?observer=true&token=${jamEgressToken}`;
+};
+
+/** Relative path for LiveKit web egress (minimal HTML page). */
+export const getJamEgressPath = async (jamId: string) => {
+  const jamEgressToken = await getJamEgressToken(jamId);
+  return `/egress/jams/${jamId}?token=${jamEgressToken}`;
+};
+
+export const getJamRecordingUrl = async (jamId: string) =>
+  `${await serverRootUrl()}${await getJamEgressPath(jamId)}`;
 
 
 const getEgressClient = async () => {
@@ -52,6 +78,14 @@ const getEgressClient = async () => {
 export const startRecording = async (profile: ProfileWithMeta, jamPost: PostWithMeta): Promise<JamRecording> => {
   const jamId = jamPost.id;
   const recordingId = uuidv7();
+
+  // Clear any recording left `active` by a previous failed egress so the new
+  // one is the sole active recording for this jam.
+  const staleRecording = await findActiveRecording(jamPost);
+  if (staleRecording) {
+    await updateJamRecording(staleRecording.id, { status: 'failed' });
+  }
+
   let recording = await allpeepDb().then(({ db }) => connectRecording(db, profile, jamPost, {
     id: recordingId,
     status: 'requested',
@@ -60,6 +94,7 @@ export const startRecording = async (profile: ProfileWithMeta, jamPost: PostWith
   const egressClient = await getEgressClient();
   const outputFilename = `${recordingId}.mp4`;
   const recordingUrl = await getJamRecordingUrl(jamId);
+  await assertEgressCanReachRecordingHost(recordingUrl);
 
   const egressInfo = await egressClient.startWebEgress(
     recordingUrl,
@@ -80,6 +115,8 @@ export const startRecording = async (profile: ProfileWithMeta, jamPost: PostWith
     }),
     {
       encodingOptions: EncodingOptionsPreset.H264_1080P_30,
+      // Wait for the egress page to log `START_RECORDING` before capturing.
+      awaitStartSignal: true,
     });
 
   recording = await updateJamRecording(recordingId, {
@@ -105,21 +142,49 @@ export const startRecording = async (profile: ProfileWithMeta, jamPost: PostWith
     await stopRecording(jamPost);
   }, 60 * 60 * 1000);
 
-  return recording
+  return recording;
 }
 
 export const stopEgress = async (egressId: string) => {
   const egressClient = await getEgressClient();
-  await egressClient.stopEgress(egressId);
-}
+  try {
+    await egressClient.stopEgress(egressId);
+  } catch {
+    // LiveKit egress can time out or already be stopped/failed; the user-facing
+    // stop action should not fail because of that.
+  }
+};
 
 export const stopRecording = async (jamPost: PostWithMeta) => {
   const jamRecording = await findActiveRecording(jamPost);
-  if (jamRecording?.egressId) {
-    await stopEgress(jamRecording.egressId);
+  if (!jamRecording) {
+    return undefined;
   }
+
+  if (jamRecording.egressId) {
+    // Don't block the API response on egress stop; LiveKit can take 15s+ and
+    // may time out while the upload still completes in the background.
+    void stopEgress(jamRecording.egressId);
+  }
+
+  // Emit `recordStop` immediately so the recording overlay clears, rather than
+  // waiting for the egress upload to finish.
+  const jamEvent = await createJamEvent({
+    id: uuidv7(),
+    jamId: jamPost.id,
+    type: 'recordStop',
+    profileId: jamRecording.profile.id,
+  });
+
+  await roomService().then(async (rs) => rs?.sendData(
+    jamPost.id,
+    encoder.encode(JSON.stringify(jamEvent)),
+    DataPacket_Kind.LOSSY,
+    {}
+  ));
+
   return jamRecording;
-}
+};
 
 export const finishRecording = async (jamRecording: JamRecordingWithMeta) => {
   const jamEvent = await createJamEvent({
