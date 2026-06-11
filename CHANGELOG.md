@@ -3,6 +3,23 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Bug Fixes
+
+- **ci**: install pnpm in runtime image for package publishing
+
+### Refactoring
+
+- Move app from svelte-kit to react and riddl
+
+### Chores
+
+- **react-native**: bump version to 0.2.23 and enhance profile screen scroll behavior
+- **react-native**: upgrade safe-area-context for RN 0.85
+- bump version to 0.2.21 and update theme handling in OpenPeepsThemeProvider
+- upgrade and sync livekit across openpeeps
+
+## 2026-06-10
+
 ### Features
 
 - add OIDC SSO provider support
@@ -53,9 +70,6 @@ Changelog for OpenPeeps
 
 ### Chores
 
-- **react-native**: upgrade safe-area-context for RN 0.85
-- bump version to 0.2.21 and update theme handling in OpenPeepsThemeProvider
-- upgrade and sync livekit across openpeeps
 - **notification**: update NotificationWrapper component layout and styles
 - **changelog**: update CHANGELOG.md with new features, bug fixes, and refactoring details
 - **react, react-native**: refactor MediaPreview and add attachment processing tracking
