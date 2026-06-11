@@ -19,8 +19,11 @@ function JamObserverConference() {
     { onlySubscribed: true },
   );
 
+  // Observers join hidden and must not see their own (camera-less) tile,
+  // mirroring the Svelte `participantListStore` observer branch.
   const cameraTracks = tracks.filter(
-    (track) => track.source === Track.Source.Camera,
+    (track) =>
+      track.source === Track.Source.Camera && !track.participant.isLocal,
   );
   const screenShareTracks = tracks.filter(
     (track) =>

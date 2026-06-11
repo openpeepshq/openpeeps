@@ -26,9 +26,12 @@ export const JamDetailsDrawer = ({ open, onClose }: JamDetailsDrawerProps) => {
   if (!open) return null;
 
   const href = typeof window !== 'undefined' ? window.location.href : '';
+  const observerPath = observerLinkQuery.data?.path;
   const observerUrl =
-    typeof window !== 'undefined' && observerLinkQuery.data?.path
-      ? `${window.location.origin}${observerLinkQuery.data.path}`
+    typeof window !== 'undefined' && observerPath
+      ? observerPath.startsWith('http')
+        ? observerPath
+        : `${window.location.origin}${observerPath}`
       : null;
 
   return (

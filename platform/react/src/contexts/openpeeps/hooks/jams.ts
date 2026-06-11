@@ -36,8 +36,12 @@ export const jamHooks = (client: OpenpeepsClient) => ({
     noPayloadStream(client.jams.waitingRoom.join).last({
       pathParameters: { id },
     }),
-  startRecordingAction: noPayloadMutation(client.jams.recordings.start),
-  stopRecordingAction: noPayloadMutation(client.jams.recordings.stop, [['jams']]),
+  startRecordingAction: noPayloadMutation(client.jams.recordings.start, [
+    ['jams'],
+  ]),
+  stopRecordingAction: noPayloadMutation(client.jams.recordings.stop, [
+    ['jams'],
+  ]),
   useObserverLink: (id: string) =>
     apiHook(client.jams.recordings.observerLink, { pathParams: { id } }),
 });

@@ -28,7 +28,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
 
     if (serviceScopeMatches({
       authorization: event.context.authorization,
-      scope: undefined,
+      scopeLevel: undefined,
       resource: { type: 'jam', id: param.eventId },
     })) {
       return { success: true, token: await createJamEgressToken(jamEvent), livekitUrl: jams.livekit.url };

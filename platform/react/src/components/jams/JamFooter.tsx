@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  useIsRecording,
   useParticipants,
   useRoomContext,
   useTrackToggle,
@@ -25,8 +24,10 @@ import { subscribePushNotifications } from '../../push';
 import { useT } from '../../i18n';
 import { useServerInfo } from '../server-data';
 import { useCurrentProfile } from '../layout/IdentityContext';
+import { useToast } from '../layout/ToastProvider';
 import { useJamContext } from './JamContext';
 import { useJamEventsContext } from './JamEventsContext';
+import { useJamRecordingState } from './jamRecordingState';
 import {
   JamAudioOutputSelector,
   JamCameraSelector,
@@ -72,8 +73,9 @@ const useFooterControls = () => {
     void subscribePushNotifications({ client, applicationServerKey: vapidKey });
   }, [client, vapidKey]);
 
+  const { success: toastSuccess, error: toastError } = useToast();
   const isModerator = !!me && jam.moderators.includes(me.id);
-  const isRecording = useIsRecording();
+  const { isRecording } = useJamRecordingState();
   const handRaised = raisedHands.has(room.localParticipant.identity);
   const recordingEnabled = serverInfo.jams.livekit.recordingEnabled;
 
@@ -91,8 +93,19 @@ const useFooterControls = () => {
   const toggleRecording = async () => {
     setBusy(true);
     try {
-      if (isRecording) await stopRecording();
-      else await startRecording();
+      if (isRecording) {
+        const recording = await stopRecording();
+        toastSuccess(t('jams.recording.stopped', { id: recording.id }));
+      } else {
+        const recording = await startRecording();
+        toastSuccess(t('jams.recording.started', { id: recording.id }));
+      }
+    } catch {
+      toastError(
+        isRecording
+          ? t('jams.recording.stopError')
+          : t('jams.recording.startError'),
+      );
     } finally {
       setBusy(false);
     }

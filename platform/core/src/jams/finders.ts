@@ -46,7 +46,13 @@ export const findJamRecording = async (recordingId: string) =>
 
 export const findActiveRecording = async (jamPost: PostWithMeta) =>
   allpeepDb()
-    .then(({ db }) => jamRecordingsMapping.filter({ matches: { _to: `posts/${jamPost.id}`, status: 'active' } }).first(db))
+    .then(({ db }) =>
+      sortNewestFirst(
+        jamRecordingsMapping.filter({
+          matches: { _to: `posts/${jamPost.id}`, status: 'active' },
+        }),
+      ).first(db),
+    )
     .then(recording => recording ? transformJamRecordingData(recording) : undefined);
 
 export const listPostRecordings = async (postId: string): Promise<JamRecording[]> =>

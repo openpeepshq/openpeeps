@@ -49,6 +49,21 @@ export default defineConfig({
         target: apiTarget,
         changeOrigin: true,
       },
+      // LiveKit egress uploads jam recordings here; the observer page loads
+      // stored media from `/storage`. Forward both to the API server so they
+      // work when the dev server is exposed publicly (e.g. via a tunnel).
+      '/egress': {
+        target: apiTarget,
+        changeOrigin: true,
+      },
+      '/s3': {
+        target: apiTarget,
+        changeOrigin: true,
+      },
+      '/storage': {
+        target: apiTarget,
+        changeOrigin: true,
+      },
     },
   },
   build: {

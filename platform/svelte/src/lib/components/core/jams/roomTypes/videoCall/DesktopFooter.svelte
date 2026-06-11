@@ -42,6 +42,11 @@
 
   const drawerMenuContext = getDrawerContext();
   const observerLinkQuery = observerLinkStore(jamPost.id);
+  const observerLinkUrl = $derived.by(() => {
+    const path = $observerLinkQuery.data?.path;
+    if (!path) return undefined;
+    return path.startsWith('http') ? path : `${window.location.origin}${path}`;
+  });
   const closeDrawerMenu = () => drawerMenuContext.set(undefined);
 
   const handleEmojiSelect = async (emoji: string) => {
@@ -128,7 +133,7 @@
             <h4>{t('jams.details.observerLinkHeading')}</h4>
 
             <span class="my-2 text-lg">
-              {truncateText($observerLinkQuery.data.path as string, 25)}
+              {truncateText(observerLinkUrl ?? '', 25)}
             </span>
 
             <button
@@ -137,9 +142,9 @@
                 : t('jams.details.copyObserverLinkButtonTitle')}
               class="mt-4 flex items-center"
               onclick={() => {
-                navigator.clipboard.writeText(
-                  $observerLinkQuery.data.path as string,
-                );
+                if (observerLinkUrl) {
+                  navigator.clipboard.writeText(observerLinkUrl);
+                }
                 observerLinkCopied = true;
               }}
             >

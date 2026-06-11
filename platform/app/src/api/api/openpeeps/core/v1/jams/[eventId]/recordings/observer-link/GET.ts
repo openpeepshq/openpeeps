@@ -2,7 +2,7 @@ import { Endpoint, z } from 'sveltekit-api';
 import { forbidden, authNeeded } from '$lib/server/api/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '$lib/server/auth';
 import type { RequestEvent } from '@sveltejs/kit';
-import { findJamEvent, getJamRecordingUrl } from '@openpeeps/core/jams';
+import { findJamEvent, getJamObserverPath } from '@openpeeps/core/jams';
 import { jamObserverResponseSchema } from '@openpeeps/common/types';
 import { notFound } from '$lib/server/helpers';
 
@@ -26,7 +26,7 @@ export default new Endpoint({ Param, Output, Error }).handle(
 
     ensurePostCapabilities(event, jamEvent, ['core-posts-jam-moderate']);
 
-    const path = await getJamRecordingUrl(input.eventId);
+    const path = await getJamObserverPath(input.eventId);
 
     return { path };
 
