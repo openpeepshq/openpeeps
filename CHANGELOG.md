@@ -3,13 +3,30 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Features
+
+- **events**: email an .ics file when a member RSVPs yes/maybe
+- **react**: close low-severity Svelte UI parity gaps + i18n reconciliation
+- **react**: close medium-severity Svelte UI parity gaps (M1–M54)
+- **react**: close high-severity Svelte UI parity gaps (H1–H27)
+- **react**: align banner and event image upload with Svelte UI
+- **admin**: gate admin menu and routes by role capabilities (#629)
+- **react**: align image upload and markdown editing with Svelte
+
 ### Bug Fixes
 
+- **react**: use modal for moderator jam leave/close choice
+- **admin**: double community markdown field limit to 10000 (#773)
 - **ci**: install pnpm in runtime image for package publishing
 
 ### Refactoring
 
+- **FullEvent**: removed unnecessary border class
 - Move app from svelte-kit to react and riddl
+
+### Documentation
+
+- **agents**: document rebase and single-commit PR requirements
 
 ### Chores
 
