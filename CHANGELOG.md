@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **posts**: add optional jam recording download and reply
 - **events**: email an .ics file when a member RSVPs yes/maybe
 - **react**: close low-severity Svelte UI parity gaps + i18n reconciliation
 - **react**: close medium-severity Svelte UI parity gaps (M1–M54)
@@ -15,6 +16,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **react**: added Inter font and update styles
+- **jams**: repair recording start button
 - **react**: use modal for moderator jam leave/close choice
 - **admin**: double community markdown field limit to 10000 (#773)
 - **ci**: install pnpm in runtime image for package publishing
