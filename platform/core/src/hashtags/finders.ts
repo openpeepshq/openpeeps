@@ -1,3 +1,5 @@
+import { normalizeHashtagTag } from '@openpeeps/common/types';
+
 import { allpeepDb } from "../db";
 import { hashtagsMapping } from "./mapping";
 
@@ -8,17 +10,18 @@ export const findHashtag = async (id: string) => {
 
 export const findHashtagByTag = async (tag: string) => {
     const { db } = await allpeepDb();
-    return hashtagsMapping.findOneBy(db, { matches: { tag } });
+    return hashtagsMapping.findOneBy(db, { matches: { tag: normalizeHashtagTag(tag) } });
 }
 
 export const findOrCreateHashtag = async (tag: string) => {
     const { db } = await allpeepDb();
+    const normalizedTag = normalizeHashtagTag(tag);
 
-    const hashtag = await findHashtagByTag(tag);
+    const hashtag = await findHashtagByTag(normalizedTag);
 
     if (hashtag) {
         return hashtag;
     }
 
-    return hashtagsMapping.create(db, { tag });
+    return hashtagsMapping.create(db, { tag: normalizedTag });
 }
