@@ -21,6 +21,7 @@ import moveMentionsToAudience from './migrations/202502111625-move-mentions-to-a
 import setCreatedatUpdatedatEntriesMentions from './migrations/202502122144-set-createdat-updatedat-entries-mentions';
 import convertJamsToEvents from './migrations/202504272227-convert-jams-to-events';
 import fixMalformedHashtags from './migrations/202510230000-fix-malformed-hashtags';
+import normalizeHashtagCase from './migrations/202506160000-normalize-hashtag-case';
 import addTypeOnPushSubscriptions from './migrations/202506130804-add-type-on-push-subscriptions';
 import addDataToPost from './migrations/202507130841-add-data-to-post';
 import setDefaultProfileType from './migrations/202508081551-set-default-profile-type';
@@ -69,6 +70,7 @@ export const dataMigrations = [
   setCreatedatUpdatedatEntriesMentions,
   convertJamsToEvents,
   fixMalformedHashtags,
+  normalizeHashtagCase,
   addTypeOnPushSubscriptions,
   addDataToPost,
   setDefaultProfileType,

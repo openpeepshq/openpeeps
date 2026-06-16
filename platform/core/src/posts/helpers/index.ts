@@ -11,6 +11,7 @@ import {
   ReactionData,
   ProfileWithMeta,
   hashtagRegex,
+  normalizeHashtagTag,
   EntryWithProfile,
   ReactionProfile,
   MentionWithProfile,
@@ -43,7 +44,9 @@ export * from './filters';
 
 const getTags = (text?: string) => {
   if (!text) return [];
-  return (text.match(hashtagRegex) || []).map((tag) => tag.substring(1));
+  return (text.match(hashtagRegex) || []).map((tag) =>
+    normalizeHashtagTag(tag.substring(1)),
+  );
 };
 
 export const extractHashtags = (data: PostDataUnion) => {
