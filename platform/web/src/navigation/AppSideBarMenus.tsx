@@ -35,6 +35,7 @@ import {
   subscribePushNotifications,
 } from '@openpeeps/react';
 import {
+  sideBarNavLinkClass,
   useCurrentProfile,
   useServerInfo,
   useSidebarNavClose,
@@ -70,13 +71,6 @@ const adminSectionLabelKeys: Record<AdminSectionKey, string> = {
   diagnostics: 'navigation.diagnostics',
 };
 
-function navLinkClass({ isActive }: { isActive: boolean }) {
-  return [
-    'flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted',
-    isActive ? 'bg-muted font-medium' : '',
-  ].join(' ');
-}
-
 function NavItem({
   to,
   end,
@@ -93,7 +87,7 @@ function NavItem({
     <NavLink
       to={to}
       end={end}
-      className={navLinkClass}
+      className={sideBarNavLinkClass}
       onClick={() => closeDrawer?.()}
     >
       <Icon className="size-4 shrink-0" />
