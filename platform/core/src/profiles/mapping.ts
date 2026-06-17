@@ -4,6 +4,16 @@ import { map } from "@openpeeps/arango-querybuilder";
 import { groupsMapping } from "../groups/mapping";
 import { collectionInfos } from "../db/structure";
 
+const membersExportStatsRelations: Relation[] = [
+    {
+        alias: 'reactionsCount',
+        edgeCollection: collectionInfos.reactionsCollection.name,
+        direction: 'OUTBOUND',
+        count: true,
+        cardinality: 'one',
+    },
+];
+
 
 export const profileAccountRelation: RelationWithMapping<AccountWithMeta> = {
     alias: 'controllers',
@@ -85,6 +95,28 @@ export const profilesMapping = map<ProfileData, ProfileWithMeta>({
         },
     ],
 })
+
+export const membersExportMapping = baseProfilesMapping
+    .addRelations(membersExportStatsRelations)
+    .addDerivedProperty({
+        alias: 'postsCount',
+        expression: `
+            LENGTH(
+                FOR post IN ${collectionInfos.postsCollection.name}
+                    FILTER post.creatorId == DOC._key
+                    FILTER post.deletedAt == null
+                    RETURN 1
+            )`,
+    })
+    .addDerivedProperty({
+        alias: 'lastSeen',
+        expression: `
+            MAX(
+                FOR edge IN ${collectionInfos.entriesCollection.name}
+                    FILTER edge._from == DOC._id
+                    RETURN edge.createdAt
+            )`,
+    });
 
 export const membersRelation: RelationWithMapping<ProfileWithMeta, GroupMember> = {
     alias: 'members',

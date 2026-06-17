@@ -1,18 +1,45 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { DownloadIcon } from 'lucide-react';
 import { matchesQuery } from '@openpeeps/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Avatar } from '@openpeeps/react/components';
-import { Input } from '@openpeeps/react-ui';
+import { Button, Input } from '@openpeeps/react-ui';
 import { AdminInviteActions } from './components/AdminInviteActions';
 import { ProfileRowActions } from './components/ProfileRowActions';
 
+const downloadCsv = (csv: string, filename: string) => {
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
 export function AdminMembers() {
   const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi, client } = useOpenpeeps();
   const profilesQuery = openpeepsApi.admin.useProfilesList();
   const [search, setSearch] = useState('');
 
-  const headerActions = useMemo(() => <AdminInviteActions />, []);
+  const handleDownload = useCallback(async () => {
+    const csv = await client.admin.profiles.exportCsv();
+    downloadCsv(csv, 'members.csv');
+  }, [client]);
+
+  const headerActions = useMemo(
+    () => (
+      <div className="flex items-center gap-2">
+        <Button variant="outline" compact action={handleDownload}>
+          <DownloadIcon size={16} />
+          {t('admin.members.downloadCsv', { defaultValue: 'Download CSV' })}
+        </Button>
+        <AdminInviteActions />
+      </div>
+    ),
+    [handleDownload, t],
+  );
 
   useSetPageHeader(
     t('admin.members.title', { defaultValue: 'Members' }),
