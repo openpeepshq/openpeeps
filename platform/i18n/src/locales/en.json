@@ -1225,6 +1225,10 @@
             "sendInvite": "Send Invite",
             "success": "Invitations sent.",
             "title": "Invite by Email"
+        },
+        "i18n": {
+            "pageTitle": "Text and Translations",
+            "save": "Update Text"
         }
     },
     "configuration": {
@@ -1940,7 +1944,8 @@
             "uploadText": "Upload Image",
             "uploadTitle": "Upload Image",
             "replace": "Replace image",
-            "remove": "Remove image"
+            "remove": "Remove image",
+            "aspectRatio": "Minimum 800px wide."
         },
         "upload": {
             "failed": "File upload failed",
