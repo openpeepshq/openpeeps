@@ -7,6 +7,7 @@ import { findProfileByHandle } from './finders';
 export * from './mapping';
 export * from './mutations';
 export * from './finders';
+export * from './export';
 
 const sanitizeHandle = (name: string) => name.replace(/[^a-zA-Z0-9]/g, '-');
 

@@ -1082,7 +1082,8 @@
             "profileColumn": "Profile",
             "rolesColumn": "Roles",
             "createdColumn": "Created",
-            "handleColumn": "Handle"
+            "handleColumn": "Handle",
+            "downloadCsv": "Download CSV"
         },
         "groups": {
             "title": "Groups",

@@ -78,6 +78,16 @@ export type ProfileWithMeta = Model<ProfileData> & {
   profileStats: ProfileStats;
 };
 
+export const memberExportStatsSchema = z.object({
+  postsCount: z.number(),
+  reactionsCount: z.number(),
+  lastSeen: z.iso.datetime().nullable(),
+});
+
+export type MemberExportStats = z.infer<typeof memberExportStatsSchema>;
+
+export type MemberExportRow = ProfileWithMeta & MemberExportStats;
+
 export const accessTokenWithMetaSchema = accessTokenSchema.extend({
   profile: profileWithMetaSchema,
   scopes: z.array(scopeSchema).optional(),

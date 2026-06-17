@@ -138,6 +138,15 @@ export const admin = (rawClient: FetchClient) => (
                 rawClient,
                 '/admin/profiles',
             ),
+            exportCsv: async () => {
+                const response = await rawClient.get('/admin/profiles/export');
+
+                if (!response.ok) {
+                    throw { ...(await response.json()), status: response.status };
+                }
+
+                return response.text();
+            },
             listByAccount: allpeepNoPayloadEndpoint<
                 ProfileWithMeta[],
                 { id: string }
