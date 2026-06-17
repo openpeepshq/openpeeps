@@ -1,5 +1,6 @@
 export { SideBar } from './SideBar';
 export type { SideBarProps } from './SideBar';
+export { sideBarNavLinkClass } from './sideBarNavLinkClass';
 export {
   SidebarNavCloseContext,
   useSidebarNavClose,
