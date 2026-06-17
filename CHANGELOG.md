@@ -38,6 +38,12 @@ Changelog for OpenPeeps
 - bump version to 0.2.21 and update theme handling in OpenPeepsThemeProvider
 - upgrade and sync livekit across openpeeps
 
+## 2026-06-16
+
+### Features
+
+- **notifications**: comprehensive push delivery logging
+
 ## 2026-06-10
 
 ### Features
