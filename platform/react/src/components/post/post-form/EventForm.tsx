@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import { X } from 'lucide-react';
 import type {
   AudienceSetting,
   Event,
   PostCreationData,
 } from '@openpeeps/common/types';
-import { EVENT_HEADER_ASPECT_RATIO } from '@openpeeps/common/lib';
+import {
+  EVENT_HEADER_ASPECT_RATIO,
+  parseEventMaxAttendeesInput,
+  withoutEventMaxAttendees,
+} from '@openpeeps/common/lib';
 import { Input, Label } from '@openpeeps/react-ui';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
@@ -53,9 +58,13 @@ export function EventForm({
   const [audienceOpen, setAudienceOpen] = useState(false);
 
   const patchEvent = (patch: Partial<Event>) => {
+    let next: Event = { ...event, ...patch };
+    if ('maxAttendees' in patch && patch.maxAttendees === undefined) {
+      next = withoutEventMaxAttendees(next);
+    }
     onChange({
       ...postData,
-      data: { ...event, ...patch },
+      data: next,
     });
   };
 
@@ -249,6 +258,41 @@ export function EventForm({
               patchEvent({ attendeeListPublic: e.target.checked })
             }
           />
+        </Label>
+
+        <Label
+          title={t('events.form.maxAttendees', {
+            defaultValue: 'Maximum attendees',
+          })}
+          description={t('events.form.maxAttendeesDescription', {
+            defaultValue:
+              'Limit how many people can RSVP yes to this event. Leave empty for no limit.',
+          })}
+        >
+          <div className="op-input-group grid grid-cols-[1fr_auto]">
+            <Input
+              type="number"
+              min={1}
+              value={event.maxAttendees ?? ''}
+              onChange={(e) => {
+                patchEvent({
+                  maxAttendees: parseEventMaxAttendeesInput(e.target.value),
+                });
+              }}
+            />
+            {event.maxAttendees != null ? (
+              <button
+                type="button"
+                className="op-input-group-shim hover:bg-muted/80"
+                title={t('events.form.clearMaxAttendees', {
+                  defaultValue: 'Remove capacity limit',
+                })}
+                onClick={() => patchEvent({ maxAttendees: undefined })}
+              >
+                <X className="size-4" />
+              </button>
+            ) : null}
+          </div>
         </Label>
       </div>
 

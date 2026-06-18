@@ -129,7 +129,9 @@ type PostsInfiniteHook = ReturnType<
   >
 >;
 
-type PostQueryHook<T> = ReturnType<typeof apiHook<T, { id: string }, undefined>>;
+type PostQueryHook<T> = ReturnType<
+  typeof apiHook<T, { id: string }, undefined>
+>;
 
 type PostFinders = {
   usePosts: (props?: ChronologicalInfiniteQueryParams) => PostsInfiniteHook;
@@ -233,7 +235,8 @@ const postMutators = (client: OpenpeepsClient) => ({
   markPostsSeenAction: payloadMutation(client.posts.seen, [['posts']]),
   repostPostAction: noPayloadMutation(client.posts.repost, [['posts']]),
   voteOnPostAction: payloadMutation(client.posts.vote, [['posts']]),
-  rsvpToEventAction: payloadMutation(client.posts.rsvp, [
+  rsvpToEventAction: payloadMutation(client.posts.rsvp, [['posts'], ['rsvp']]),
+  rsvpManageAction: payloadMutation(client.posts.rsvpManage, [
     ['posts'],
     ['rsvp'],
   ]),

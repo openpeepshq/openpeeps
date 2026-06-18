@@ -50,7 +50,12 @@ import { useNewConversationStore } from '~/stores/useNewConversationStore';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import { Button } from '~/components/ui/button';
-import { calculateEffectiveRsvps } from '~/lib/utils';
+import {
+  calculateEffectiveRsvps,
+  canManageEventRsvps,
+  countYesRsvps,
+  isCapacityEvent,
+} from '~/lib/utils';
 import { ThemedView } from '~/components/ui/themed-view';
 
 interface FullEventProps {
@@ -72,6 +77,13 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
   const rsvps = useMemo<PublicRsvp[]>(() => {
     return calculateEffectiveRsvps(post) || [];
   }, [post]);
+
+  const canManageRsvps = canManageEventRsvps(currentProfile, post);
+  const slotsLeft =
+    isCapacityEvent(event) && event.maxAttendees !== undefined
+      ? event.maxAttendees - countYesRsvps(post)
+      : null;
+  const rsvpManage = openpeepsApi.rsvpManageAction();
 
   const jamLink = `${BASE_URL}/events/${post?.id}/jam`;
 
@@ -140,12 +152,15 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
                 {eventScope}
               </ThemedText>
             </View>
-            {/* <View className="px-3 py-1 bg-muted rounded-lg mb-3">
+            {slotsLeft !== null ? (
+              <View className="px-3 py-1 bg-muted rounded-lg mb-3">
                 <ThemedText>
-                  {(event?.maxAttendees || 0) - (attendees?.length || 0)} slots
-                  left
+                  {slotsLeft <= 0
+                    ? t('events.noSpotsAvailable')
+                    : t('events.slotsLeft', { count: slotsLeft })}
                 </ThemedText>
-              </View> */}
+              </View>
+            ) : null}
           </View>
           {post?.groupId && (
             <View>
@@ -343,10 +358,40 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
                   key={idx}
                   profile={rsvp.profile}
                   rightComponent={
-                    <View className=" flex  items-center justify-center">
+                    <View className="flex flex-row items-center justify-center gap-x-2">
                       <ThemedText className="text-muted-foreground">
                         {rsvp.response}
                       </ThemedText>
+                      {canManageRsvps &&
+                      rsvp.profile.id !== post.profile.id ? (
+                        rsvp.response === 'removed' ? (
+                          <Button
+                            variant="outline"
+                            onPress={() =>
+                              rsvpManage(
+                                { response: 'yes' },
+                                { id: post.id, profileId: rsvp.profile.id },
+                              )
+                            }>
+                            <ThemedText>
+                              {t('events.rsvp.restoreAttendee')}
+                            </ThemedText>
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            onPress={() =>
+                              rsvpManage(
+                                { response: 'removed' },
+                                { id: post.id, profileId: rsvp.profile.id },
+                              )
+                            }>
+                            <ThemedText className="text-destructive">
+                              {t('events.rsvp.removeAttendee')}
+                            </ThemedText>
+                          </Button>
+                        )
+                      ) : null}
                     </View>
                   }
                 />
@@ -365,6 +410,13 @@ const RegistrationButtion: React.FC<{
 
   const { currentProfile, openpeepsApi } = useOpenpeeps();
   const [isRegistering, setIsRegistering] = React.useState(false);
+  const eventData = post.data?.type === 'event' ? post.data : undefined;
+  const capacityEvent = eventData ? isCapacityEvent(eventData) : false;
+  const atCapacity =
+    capacityEvent &&
+    eventData?.maxAttendees !== undefined &&
+    countYesRsvps(post) >= eventData.maxAttendees;
+
   const myRsvp =
     post &&
     calculateEffectiveRsvps(post).find(
@@ -372,8 +424,19 @@ const RegistrationButtion: React.FC<{
     );
 
   const myEvent = post?.profile?.id === currentProfile?.id;
+  const full = atCapacity && myRsvp?.response !== 'yes';
 
   const rsvpToEvent = openpeepsApi.rsvpToEventAction({ id: post?.id as string });
+
+  const showRsvpError = (error: unknown) => {
+    const errorKey =
+      (error as { errorKey?: string })?.errorKey ??
+      (error as { key?: string })?.key;
+    Toast.show({
+      type: 'error',
+      text1: errorKey ? t(errorKey) : t('posts.rsvp.error'),
+    });
+  };
 
   const handleRegisterForEvent = async () => {
     try {
@@ -391,10 +454,7 @@ const RegistrationButtion: React.FC<{
         });
       }
     } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: t('posts.rsvp.error', { error: error }),
-      });
+      showRsvpError(error);
     } finally {
       setIsRegistering(false);
     }
@@ -415,12 +475,7 @@ const RegistrationButtion: React.FC<{
           });
         }
       })
-      .catch(err => {
-        Toast.show({
-          type: 'error',
-          text1: t('posts.rsvp.error', { error: err.message }),
-        });
-      })
+      .catch(showRsvpError)
       .finally(() => {
         setIsRegistering(false);
       });
@@ -442,12 +497,7 @@ const RegistrationButtion: React.FC<{
           });
         }
       })
-      .catch(err => {
-        Toast.show({
-          type: 'error',
-          text1: t('posts.rsvp.error', { error: err.message }),
-        });
-      })
+      .catch(showRsvpError)
       .finally(() => {
         setIsRegistering(false);
       });
@@ -455,6 +505,16 @@ const RegistrationButtion: React.FC<{
 
   if (myEvent) {
     return null;
+  }
+
+  if (myRsvp?.response === 'removed') {
+    return (
+      <View className="mt-5 w-full">
+        <ThemedText className="text-center text-muted-foreground">
+          {t('events.rsvp.removedMessage')}
+        </ThemedText>
+      </View>
+    );
   }
 
   return (
@@ -474,21 +534,28 @@ const RegistrationButtion: React.FC<{
         <View className="flex-row items-center w-full gap-x-4">
           <Button
             onPress={async () => handleRegisterForEvent().catch(() => { })}
-            className="w-[60%]">
+            className="w-[60%]"
+            disabled={full || isRegistering}>
             <ThemedText>
               {isRegistering
                 ? t('common.form.loading')
-                : t('posts.rsvp.register')}
+                : full
+                  ? t('events.rsvp.full')
+                  : t('posts.rsvp.register')}
             </ThemedText>
           </Button>
-          <Button
-            onPress={handleMaybeForEvent}
-            variant={'ghost'}
-            className="bg-muted-foreground/20">
-            <ThemedText className="text-muted-foreground">
-              {isRegistering ? t('common.form.loading') : t('posts.rsvp.maybe')}
-            </ThemedText>
-          </Button>
+          {!capacityEvent ? (
+            <Button
+              onPress={handleMaybeForEvent}
+              variant={'ghost'}
+              className="bg-muted-foreground/20">
+              <ThemedText className="text-muted-foreground">
+                {isRegistering
+                  ? t('common.form.loading')
+                  : t('posts.rsvp.maybe')}
+              </ThemedText>
+            </Button>
+          ) : null}
           <Button onPress={handleNoForEvent} variant={'outline'}>
             <ThemedText className="text-destructive">
               {isRegistering ? t('common.form.loading') : t('posts.rsvp.no')}

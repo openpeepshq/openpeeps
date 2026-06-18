@@ -5,7 +5,7 @@ import {
   successFailureResponseSchema,
 } from '@openpeeps/common/types';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
-import { notFound, forbidden } from '#lib/errors';
+import { forbidden, notFound, rethrowIfOpenpeepsError, unprocessableRequest } from '#lib/errors';
 import { findPost, rsvpRespond } from '@openpeeps/core/posts';
 
 export const Input = rsvpSchema;
@@ -17,6 +17,7 @@ export const Param = z.object({
 export const Error = {
   403: forbidden(),
   404: notFound(),
+  422: unprocessableRequest(),
 };
 
 export const apiEndpoint = endpoint({ Input, Output, Param }).handle(
@@ -30,7 +31,9 @@ export const apiEndpoint = endpoint({ Input, Output, Param }).handle(
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-rsvp']);
 
-    await rsvpRespond(profile, mergedPost, rsvpSchema.parse(params));
+    await rsvpRespond(profile, mergedPost, rsvpSchema.parse(params)).catch(
+      rethrowIfOpenpeepsError,
+    );
     return { success: true };
   },
 );

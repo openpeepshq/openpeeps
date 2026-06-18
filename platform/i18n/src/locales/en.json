@@ -933,7 +933,10 @@
             "observerConnecting": "Waiting for connecting to the jam",
             "jamNotActive": "This Jam is not active",
             "loading": "Loading jam…",
-            "notFound": "Jam not found"
+            "notFound": "Jam not found",
+            "viewEvent": "View event",
+            "autoRsvpInProgress": "Registering you for this event…",
+            "autoRsvpError": "Failed to register for this event."
         },
         "participant": {
             "showEveryone": "Show everyone",
@@ -2056,6 +2059,9 @@
             "visibility": "Visibility",
             "visibilityDescription": "Choose who can view and join your event",
             "attendeeListPublic": "Let an attendee see others attending this event",
+            "maxAttendees": "Maximum attendees",
+            "maxAttendeesDescription": "Limit how many people can RSVP yes to this event. Leave empty for no limit.",
+            "clearMaxAttendees": "Remove capacity limit",
             "jamModerators": "Jam moderators (optional).",
             "jamWaitingRoom": "Waiting Room",
             "jamWaitingRoomDescription": "Only approved users can join",
@@ -2109,7 +2115,15 @@
         "postRecordingReplySuccess": "Recording posted to discussion",
         "postRecordingReplyError": "Failed to post recording to discussion",
         "public": "Public Event",
-        "private": "Private Event"
+        "private": "Private Event",
+        "slotsLeft": "{{count}} slots left",
+        "noSpotsAvailable": "No spots available",
+        "rsvp": {
+            "removeAttendee": "Remove",
+            "restoreAttendee": "Restore",
+            "removedMessage": "The organizer has removed you from this event.",
+            "full": "Event is full"
+        }
     },
     "reports": {
         "categories": {
@@ -2429,6 +2443,14 @@
         "create": {
             "title": "New Article"
         }
+    },
+    "error": {
+        "eventAtCapacity": "This event is full.",
+        "eventTentativeNotAllowed": "This event only accepts yes or no responses.",
+        "jamRsvpRequired": "You must RSVP yes to join this event.",
+        "rsvpRemoved": "The organizer has removed you from this event.",
+        "rsvpRemovedForbidden": "Only the event organizer can remove attendees.",
+        "unprocessableRequest": "Invalid request"
     },
     "infos": {
         "emailNotVerified": {

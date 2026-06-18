@@ -10,7 +10,11 @@ import {
   buildThreads,
   calculateEffectiveRsvps,
   canAccessJamRecordings,
+  canManageEventRsvps,
+  canModerateJam,
+  countYesRsvps,
   groupName,
+  isCapacityEvent,
   profileName,
 } from '@openpeeps/common/lib';
 import { Button, PopupMenu, PopupMenuButton, UpdatingDate } from '@openpeeps/react-ui';
@@ -66,8 +70,14 @@ export function FullEvent({ post }: FullEventProps) {
 
   const group = post.group;
   const myEvent = post.profile?.id === profile?.id;
-  const iAmModerator = !!event.moderators?.includes(profile?.id ?? '');
+  const iAmModerator = canModerateJam(profile, post);
+  const canManageRsvps = canManageEventRsvps(profile, post);
   const rsvps = useMemo(() => calculateEffectiveRsvps(post), [post]);
+  const slotsLeft =
+    isCapacityEvent(event) && event.maxAttendees !== undefined
+      ? event.maxAttendees - countYesRsvps(post)
+      : null;
+  const rsvpManage = openpeepsApi.rsvpManageAction();
 
   const descendentThreads = useMemo(
     () =>
@@ -100,9 +110,23 @@ export function FullEvent({ post }: FullEventProps) {
 
       <div className="flex items-center justify-between">
         <div>
-          <span className="bg-surface-200 mb-3 inline-block rounded-lg px-3 py-1 text-sm">
-            {eventScope}
-          </span>
+          <div className="flex gap-x-4">
+            <span className="bg-surface-200 mb-3 inline-block rounded-lg px-3 py-1 text-sm">
+              {eventScope}
+            </span>
+            {slotsLeft !== null ? (
+              <span className="bg-surface-200 mb-3 inline-block rounded-lg px-3 py-1 text-sm">
+                {slotsLeft <= 0
+                  ? t('events.noSpotsAvailable', {
+                      defaultValue: 'No spots available',
+                    })
+                  : t('events.slotsLeft', {
+                      defaultValue: '{{count}} slots left',
+                      count: slotsLeft,
+                    })}
+              </span>
+            ) : null}
+          </div>
           {post.groupId && group ? (
             <a
               href={`/groups/@${group.handle}`}
@@ -282,35 +306,69 @@ export function FullEvent({ post }: FullEventProps) {
       {tab === 'rsvps' ? (
         rsvps.length ? (
           rsvps.map((rsvp) => (
-            <ProfileCard
-              key={rsvp.profile.id}
-              profile={rsvp.profile}
-              action={
-                profile && profile.id !== rsvp.profile.id ? (
-                  <PopupMenu>
-                    {profile.following?.some(
-                      (f) => f.id === rsvp.profile.id,
-                    ) ? (
-                      <PopupMenuButton
-                        title={t('profile.actions.message', {
-                          defaultValue: 'Message',
-                        })}
-                        text={t('profile.actions.message', {
-                          defaultValue: 'Message',
-                        })}
-                        action={() =>
-                          openCreateConversation({
-                            profiles: [rsvp.profile],
-                            skipProfileSelection: true,
-                          })
-                        }
-                      />
-                    ) : null}
-                    <FollowUnfollowButton profile={rsvp.profile} popup />
-                  </PopupMenu>
-                ) : undefined
-              }
-            />
+            <div key={rsvp.profile.id} className="flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <ProfileCard
+                  profile={rsvp.profile}
+                  action={
+                    profile && profile.id !== rsvp.profile.id ? (
+                      <PopupMenu>
+                        {profile.following?.some(
+                          (f) => f.id === rsvp.profile.id,
+                        ) ? (
+                          <PopupMenuButton
+                            title={t('profile.actions.message', {
+                              defaultValue: 'Message',
+                            })}
+                            text={t('profile.actions.message', {
+                              defaultValue: 'Message',
+                            })}
+                            action={() =>
+                              openCreateConversation({
+                                profiles: [rsvp.profile],
+                                skipProfileSelection: true,
+                              })
+                            }
+                          />
+                        ) : null}
+                        <FollowUnfollowButton profile={rsvp.profile} popup />
+                      </PopupMenu>
+                    ) : undefined
+                  }
+                />
+              </div>
+              {canManageRsvps && rsvp.profile.id !== post.profile.id ? (
+                rsvp.response === 'removed' ? (
+                  <Button
+                    variant="variant-ringed-primary"
+                    action={() =>
+                      rsvpManage(
+                        { response: 'yes' },
+                        { id: post.id, profileId: rsvp.profile.id },
+                      )
+                    }
+                  >
+                    {t('events.rsvp.restoreAttendee', {
+                      defaultValue: 'Restore',
+                    })}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="variant-ringed-error"
+                    action={() =>
+                      rsvpManage(
+                        { response: 'removed' },
+                        { id: post.id, profileId: rsvp.profile.id },
+                      )
+                    }
+                  >
+                    {t('events.rsvp.removeAttendee', {
+                      defaultValue: 'Remove',
+                    })}
+                  </Button>
+                )
+              ) : null}
+            </div>
           ))
         ) : (
           <p className="text-muted-foreground py-4 text-sm">

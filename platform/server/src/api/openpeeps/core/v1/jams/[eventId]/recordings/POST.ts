@@ -1,10 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden, fromOpenpeepsError } from '#lib/errors';
-import type { OpenpeepsError } from '@openpeeps/common/types';
+import { forbidden, rethrowIfOpenpeepsError } from '#lib/errors';
 import { jamRecordingSchema } from '@openpeeps/common/types';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { isOpenpeepsError } from '@openpeeps/core/errors';
 import { findJamEvent, startRecording } from '@openpeeps/core/jams';
 import { notFound } from '#lib/helpers';
 
@@ -28,13 +26,6 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
 
     await ensurePostCapabilities(event, jamEvent, ['core-posts-jam-moderate']);
 
-    try {
-      return await startRecording(profile, jamEvent);
-    } catch (err) {
-      if (isOpenpeepsError(err)) {
-        throw fromOpenpeepsError(err as OpenpeepsError);
-      }
-      throw err;
-    }
+    return startRecording(profile, jamEvent).catch(rethrowIfOpenpeepsError);
   },
 );

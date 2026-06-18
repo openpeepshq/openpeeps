@@ -3,17 +3,15 @@ import {
   publicProfileSchema,
   type PostWithMeta,
 } from '@openpeeps/common/types';
-import { createJamToken } from './token';
+import { assertJamRsvpAllowed, createJamToken } from './token';
 import {
   disconnect,
   getConnection,
   getSharedConnection,
 } from '../redis/connection';
 
-const waitingRoomKey = (event: PostWithMeta) =>
-  `jams:waiting-room:${event.id}`;
-const admittanceKey = (event: PostWithMeta) =>
-  `jams:admitted:${event.id}`;
+const waitingRoomKey = (event: PostWithMeta) => `jams:waiting-room:${event.id}`;
+const admittanceKey = (event: PostWithMeta) => `jams:admitted:${event.id}`;
 
 const currentWaitingRoom = (event: PostWithMeta) =>
   getSharedConnection()
@@ -90,6 +88,8 @@ export const joinWaitingRoom = async (
   event: PostWithMeta,
   profile: PublicProfile,
 ) => {
+  assertJamRsvpAllowed(event, profile);
+
   const conn = await getSharedConnection();
   const multi = conn.multi();
 

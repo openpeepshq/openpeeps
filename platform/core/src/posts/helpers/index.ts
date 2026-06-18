@@ -28,6 +28,7 @@ import { allpeepDb, collectionInfos } from '../../db';
 import { QueryResult } from '@openpeeps/arango-querybuilder';
 import { capabilitiesConfig } from '../../config';
 import { canReadPost } from './filters';
+import { normalizePostDataFromDb } from '@openpeeps/common/lib';
 import { ObjectFilter } from '../../db/types';
 import { getProfile } from '../../profiles/cache';
 
@@ -212,6 +213,7 @@ export const transformPost = async (post: DbPost, currentProfile?: { id: string 
   const mentions = post.mentions ? await Promise.all(post.mentions.map(addProfileForMention)) : [];
   return {
     ...post,
+    data: post.data ? normalizePostDataFromDb(post.data) : post.data,
     seen: currentProfile ? post.seen : undefined,
     replyTo: post.replyTo ? await transformPost(post.replyTo, currentProfile) : undefined,
     repost: post.repost ? await transformPost(post.repost, currentProfile) : undefined,

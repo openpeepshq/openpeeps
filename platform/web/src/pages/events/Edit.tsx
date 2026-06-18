@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { Event, PostCreationData, PostDataUnion } from '@openpeeps/common/types';
-import { truncateText } from '@openpeeps/common/lib';
+import { normalizeEventDataForSave, truncateText } from '@openpeeps/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { EventForm } from '@openpeeps/react/components';
 import { Button, Toast } from '@openpeeps/react-ui';
@@ -15,11 +15,15 @@ export function EditEvent() {
   const updatePost = openpeepsApi.updatePostAction({ id: eventId });
 
   const [postData, setPostData] = useState<PostCreationData | null>(null);
+  const [loadedEventId, setLoadedEventId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (postQuery.data && postQuery.data.type === 'event') {
+    if (
+      postQuery.data?.type === 'event' &&
+      postQuery.data.id !== loadedEventId
+    ) {
       setPostData({
         visibility: postQuery.data.visibility,
         type: 'event',
@@ -27,8 +31,9 @@ export function EditEvent() {
         audience: postQuery.data.audience ?? undefined,
         data: postQuery.data.data as PostDataUnion & { type: 'event' },
       });
+      setLoadedEventId(postQuery.data.id);
     }
-  }, [postQuery.data]);
+  }, [loadedEventId, postQuery.data]);
 
   const event = postData?.data.type === 'event' ? postData.data : null;
   const eventName = (postQuery.data?.data as Event | undefined)?.name;
@@ -46,7 +51,7 @@ export function EditEvent() {
     }
     setSubmitting(true);
     try {
-      await updatePost(event as PostDataUnion);
+      await updatePost(normalizeEventDataForSave(event) as PostDataUnion);
       navigate(`/posts/${eventId}`);
     } catch (err) {
       setError((err as Error).message);

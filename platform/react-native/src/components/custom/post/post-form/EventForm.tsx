@@ -13,6 +13,7 @@ import {
   PostCreationData,
   PublicProfile,
 } from '@openpeeps/common';
+import { parseEventMaxAttendeesInput } from '@openpeeps/common/lib';
 import { UseFormReturn } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { VisibilityInput } from './VisibilityInput';
@@ -430,6 +431,37 @@ export const EventForm = ({
               onCheckedChange={field.onChange}
               handleOnLabelPress={() => { }}
             />
+          )}
+        />
+      </ThemedView>
+      <ThemedView className="relative w-full mt-4">
+        <FormField
+          control={form.control}
+          name="data.maxAttendees"
+          render={({ field }) => (
+            <View className="flex-row items-end gap-2">
+              <View className="flex-1">
+                <FormInput
+                  label={t('events.form.maxAttendees')}
+                  placeholder={t('events.form.maxAttendeesDescription')}
+                  {...field}
+                  value={field.value?.toString() ?? ''}
+                  keyboardType="numeric"
+                  className="rounded-md w-full"
+                  onChangeText={(value: string) => {
+                    field.onChange(parseEventMaxAttendeesInput(value));
+                  }}
+                />
+              </View>
+              {field.value != null ? (
+                <Pressable
+                  accessibilityLabel={t('events.form.clearMaxAttendees')}
+                  onPress={() => field.onChange(undefined)}
+                  className="border-muted-foreground/40 mb-1 rounded-md border p-3">
+                  <XIcon className="text-foreground" size={18} />
+                </Pressable>
+              ) : null}
+            </View>
           )}
         />
       </ThemedView>

@@ -235,9 +235,9 @@ export const isValidUrl = (url?: string) => {
   }
 };
 
-export const calculateEffectiveRsvps = (post?: PublicPost) => {
-  const rsvps = post?.rsvps || [];
-  const rsvpsByProfile = groupBy(rsvps, r => r.profile.id);
-  const effectiveRsvps = Object.values(rsvpsByProfile).map(r => r[0]);
-  return effectiveRsvps;
-};
+export {
+  calculateEffectiveRsvps,
+  countYesRsvps,
+  canManageEventRsvps,
+  isCapacityEvent,
+} from '@openpeeps/common/lib';

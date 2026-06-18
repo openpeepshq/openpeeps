@@ -1,17 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '@livekit/components-styles';
 import './livekit-light-theme.css';
 import type { LocalUserChoices } from '@livekit/components-react';
 import type { Event, PublicPost } from '@openpeeps/common/types';
-import { jamFromEvent } from '@openpeeps/common/lib';
+import { jamFromEvent, getJamCapacityJoinBlock } from '@openpeeps/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { useServerInfo } from '../server-data/context';
 import { JamProvider, useJamContext } from './JamContext';
 import { JamLobby } from './JamLobby';
+import { JamCapacityGate } from './JamCapacityGate';
 import { JamRequestJoin } from './JamRequestJoin';
 import { JamVideoCall } from './JamVideoCall';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 
 export interface JamRoomProps {
   jamPost: PublicPost;
@@ -43,12 +45,17 @@ function JamRoomInner() {
   const me = useCurrentProfile();
 
   const jamStateQuery = openpeepsApi.useJamState(jamPost.id);
+  const postQuery = openpeepsApi.usePost(jamPost.id);
+  const rsvpToEvent = openpeepsApi.rsvpToEventAction({ id: jamPost.id });
+  const post = postQuery.data ?? jamPost;
 
   const [connection, setConnection] = useState<
     | { token: string; livekitUrl: string; audio: boolean; video: boolean }
     | undefined
   >(undefined);
   const [observerError, setObserverError] = useState<string | undefined>();
+  const [autoRsvpError, setAutoRsvpError] = useState<string | undefined>();
+  const autoRsvpStarted = useRef(false);
 
   const livekitUrl = serverInfo.jams.livekit.url;
   const isModerator = !!me && (jam?.moderators.includes(me.id) ?? false);
@@ -82,10 +89,13 @@ function JamRoomInner() {
         if ('error' in res) {
           if (!cancelled) {
             setObserverError(
-              (res as { error?: { message?: string } }).error?.message ??
+              apiErrorMessage(
+                res.error,
+                t,
                 t('jams.lobby.tokenError', {
                   defaultValue: 'Failed to get jam token',
                 }),
+              ),
             );
           }
           return;
@@ -99,7 +109,15 @@ function JamRoomInner() {
         });
       } catch (err) {
         if (!cancelled) {
-          setObserverError((err as Error).message);
+          setObserverError(
+            apiErrorMessage(
+              err,
+              t,
+              t('jams.lobby.tokenError', {
+                defaultValue: 'Failed to get jam token',
+              }),
+            ),
+          );
         }
       }
     })();
@@ -135,6 +153,75 @@ function JamRoomInner() {
           </span>
         )}
       </div>
+    );
+  }
+
+  const capacityBlock = (() => {
+    if (!me) {
+      const eventData = post.data?.type === 'event' ? post.data : undefined;
+      if (eventData?.maxAttendees) {
+        return { blocked: true as const, reason: 'rsvp-required' as const };
+      }
+      return { blocked: false as const };
+    }
+    return getJamCapacityJoinBlock(post, me);
+  })();
+
+  const shouldAutoRsvp =
+    !!me &&
+    jamActive &&
+    capacityBlock.blocked &&
+    capacityBlock.reason === 'rsvp-required';
+
+  useEffect(() => {
+    if (!shouldAutoRsvp || autoRsvpStarted.current) return;
+    autoRsvpStarted.current = true;
+    let cancelled = false;
+    (async () => {
+      try {
+        await rsvpToEvent({ response: 'yes' });
+        if (!cancelled) {
+          await postQuery.refetch();
+        }
+      } catch (err) {
+        if (!cancelled) {
+          autoRsvpStarted.current = false;
+          setAutoRsvpError(
+            apiErrorMessage(
+              err,
+              t,
+              t('jams.room.autoRsvpError', {
+                defaultValue: 'Failed to register for this event.',
+              }),
+            ),
+          );
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [shouldAutoRsvp, postQuery, rsvpToEvent, t]);
+
+  if (shouldAutoRsvp && !autoRsvpError) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <span className="text-center text-lg">
+          {t('jams.room.autoRsvpInProgress', {
+            defaultValue: 'Registering you for this event…',
+          })}
+        </span>
+      </div>
+    );
+  }
+
+  if (capacityBlock.blocked) {
+    return (
+      <JamCapacityGate
+        jamPost={post}
+        reason={capacityBlock.reason}
+        eventName={jamEvent.name}
+      />
     );
   }
 

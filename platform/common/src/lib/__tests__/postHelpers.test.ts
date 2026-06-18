@@ -1,15 +1,23 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildThreads,
-  getJamUrl,
-  jamFromEvent,
   getReactionCount,
   countVotes,
   collectVotes,
   calculateEffectiveRsvps,
+  countYesRsvps,
+  getEffectiveRsvp,
+  isCapacityEvent,
+  normalizeEventDataForSave,
+  normalizeEventDataFromDb,
+  normalizePostDataFromDb,
+  eventDataForDbUpdate,
+  getJamCapacityJoinBlock,
   canDeletePost,
 } from '../postHelpers';
+import { getJamUrl, jamFromEvent } from '../jamHelpers';
 import type {
+  Event,
   PublicPost,
   PublicProfile,
   Jam,
@@ -368,7 +376,7 @@ describe('postHelpers', () => {
       expect(result).toEqual([]);
     });
 
-    it('should deduplicate RSVPs by profile', () => {
+    it('should deduplicate RSVPs by profile keeping latest response', () => {
       const postWithDuplicateRsvps = {
         ...mockPost,
         rsvps: [
@@ -380,17 +388,183 @@ describe('postHelpers', () => {
           {
             profile: { ...mockPublicProfile, id: 'profile1' },
             response: 'no',
-            createdAt: '2023-01-01T00:00:00Z',
+            createdAt: '2023-01-02T00:00:00Z',
           },
           {
             profile: { ...mockPublicProfile, id: 'profile2' },
-            response: 'maybe',
+            response: 'tentative',
             createdAt: '2023-01-01T00:00:00Z',
           },
         ] as PublicRsvp[],
       };
       const result = calculateEffectiveRsvps(postWithDuplicateRsvps);
       expect(result).toHaveLength(2);
+      expect(result.find((r) => r.profile.id === 'profile1')?.response).toBe(
+        'no',
+      );
+    });
+
+    it('should count yes RSVPs', () => {
+      const postWithRsvps = {
+        ...mockPost,
+        rsvps: [
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'yes',
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+          {
+            profile: { ...mockPublicProfile, id: 'profile2' },
+            response: 'no',
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+        ] as PublicRsvp[],
+      };
+      expect(countYesRsvps(postWithRsvps)).toBe(1);
+    });
+
+    it('should get effective RSVP for a profile', () => {
+      const postWithRsvps = {
+        ...mockPost,
+        rsvps: [
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'yes',
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+        ] as PublicRsvp[],
+      };
+      expect(getEffectiveRsvp(postWithRsvps, 'profile1')?.response).toBe(
+        'yes',
+      );
+    });
+
+    it('should detect capacity events', () => {
+      expect(isCapacityEvent({ maxAttendees: 10 } as Event)).toBe(true);
+      expect(isCapacityEvent({} as Event)).toBe(false);
+    });
+
+    it('should clear maxAttendees when normalizing empty capacity', () => {
+      const base = {
+        type: 'event',
+        start: '2023-01-01T00:00:00.000Z',
+        wholeDay: false,
+      } as Event;
+
+      expect(
+        normalizeEventDataForSave({ ...base, maxAttendees: 10 }),
+      ).toEqual({
+        ...base,
+        maxAttendees: 10,
+      });
+      expect(
+        normalizeEventDataForSave({ ...base, maxAttendees: null }),
+      ).toEqual(base);
+      expect(
+        normalizeEventDataForSave({ ...base, maxAttendees: undefined }),
+      ).toEqual(base);
+    });
+
+    it('should use null maxAttendees for Arango when clearing capacity', () => {
+      const base = {
+        type: 'event',
+        start: '2023-01-01T00:00:00.000Z',
+        wholeDay: false,
+      } as Event;
+      const previous = { ...base, maxAttendees: 5 };
+      const cleared = normalizeEventDataForSave(base);
+
+      expect(eventDataForDbUpdate(previous, cleared)).toEqual({
+        ...base,
+        maxAttendees: null,
+      });
+      expect(eventDataForDbUpdate(cleared, cleared)).toEqual(cleared);
+    });
+
+    it('should strip null maxAttendees when reading event data from db', () => {
+      const base = {
+        type: 'event',
+        start: '2023-01-01T00:00:00.000Z',
+        wholeDay: false,
+      } as Event;
+
+      expect(
+        normalizeEventDataFromDb({ ...base, maxAttendees: null }),
+      ).toEqual(base);
+      expect(
+        normalizePostDataFromDb({ ...base, maxAttendees: null }),
+      ).toEqual(base);
+    });
+
+    it('should block jam join when capacity event is full', () => {
+      const post = {
+        ...mockPost,
+        type: 'event',
+        data: {
+          type: 'event',
+          start: '2023-01-01T00:00:00.000Z',
+          wholeDay: false,
+          maxAttendees: 1,
+          jam: { moderators: ['mod1'], type: 'video-call' },
+        },
+        rsvps: [
+          {
+            response: 'yes',
+            profile: { id: 'other' },
+            createdAt: '2023-01-01T00:00:00.000Z',
+          },
+        ],
+      } as PublicPost;
+
+      expect(getJamCapacityJoinBlock(post, { id: 'user1' })).toEqual({
+        blocked: true,
+        reason: 'full',
+      });
+    });
+
+    it('should require RSVP when capacity event has space', () => {
+      const post = {
+        ...mockPost,
+        type: 'event',
+        data: {
+          type: 'event',
+          start: '2023-01-01T00:00:00.000Z',
+          wholeDay: false,
+          maxAttendees: 2,
+          jam: { moderators: ['mod1'], type: 'video-call' },
+        },
+        rsvps: [],
+      } as PublicPost;
+
+      expect(getJamCapacityJoinBlock(post, { id: 'user1' })).toEqual({
+        blocked: true,
+        reason: 'rsvp-required',
+      });
+    });
+
+    it('should allow jam moderators past capacity gate', () => {
+      const post = {
+        ...mockPost,
+        type: 'event',
+        data: {
+          type: 'event',
+          start: '2023-01-01T00:00:00.000Z',
+          wholeDay: false,
+          maxAttendees: 1,
+          jam: { moderators: ['mod1'], type: 'video-call' },
+        },
+        rsvps: [
+          {
+            response: 'yes',
+            profile: { id: 'other' },
+            createdAt: '2023-01-01T00:00:00.000Z',
+          },
+        ],
+      } as PublicPost;
+
+      expect(getJamCapacityJoinBlock(post, { id: 'mod1' })).toEqual({
+        blocked: false,
+      });
     });
   });
 

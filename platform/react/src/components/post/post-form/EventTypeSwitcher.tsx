@@ -266,6 +266,9 @@ export function EventTypeSwitcher({
             <ProfileSelector
               selectedProfiles={moderatorProfiles}
               onChange={handleModeratorsChange}
+              placeholder={t('events.form.jamModeratorsDescription', {
+                defaultValue: 'Click to select jam moderators',
+              })}
             />
           </div>
           <label className="flex items-center gap-2">
