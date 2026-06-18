@@ -594,9 +594,9 @@
                 "title": "Alle Gruppenmitglieder",
                 "description": "Alle Gruppenmitglieder können Inhalte hinzufügen"
             },
-            "moderators": {
-                "title": "Nur Moderatoren",
-                "description": "Nur Moderatoren können Inhalte veröffentlichen"
+            "admin": {
+                "title": "Nur Admins",
+                "description": "Nur Gruppen-Admins können Inhalte veröffentlichen"
             }
         },
         "whoCanPostEvents": {
@@ -606,9 +606,9 @@
                 "title": "Alle Mitglieder",
                 "description": "Alle Mitglieder können Veranstaltungen zum Kalender hinzufügen"
             },
-            "moderators": {
-                "title": "Nur Moderatoren",
-                "description": "Nur Moderatoren können Veranstaltungen zum Kalender hinzufügen"
+            "admin": {
+                "title": "Nur Admins",
+                "description": "Nur Gruppen-Admins können Veranstaltungen zum Kalender hinzufügen"
             }
         },
         "handle": {

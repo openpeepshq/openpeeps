@@ -74,7 +74,7 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
     }),
   }));
 
-  const whoCanPostOptions = ['members', 'moderators'].map((value) => ({
+  const whoCanPostOptions = ['members', 'admin'].map((value) => ({
     value,
     title: t(`groups.whoCanPost.${value}.title`, { defaultValue: value }),
     description: t(`groups.whoCanPost.${value}.description`, {
@@ -82,7 +82,7 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
     }),
   }));
 
-  const whoCanPostEventsOptions = ['members', 'moderators'].map((value) => ({
+  const whoCanPostEventsOptions = ['members', 'admin'].map((value) => ({
     value,
     title: t(`groups.whoCanPostEvents.${value}.title`, { defaultValue: value }),
     description: t(`groups.whoCanPostEvents.${value}.description`, {
@@ -213,7 +213,7 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
           value={whoCanPostEventsValue}
           options={whoCanPostEventsOptions}
           optionTestId={(value) =>
-            value === 'moderators'
+            value === 'admin'
               ? 'groups-who-can-post-events-moderators'
               : 'groups-who-can-post-events-members'
           }

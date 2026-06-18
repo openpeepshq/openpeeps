@@ -48,11 +48,11 @@ export function RadioSelect({
               disabled={disabled}
               data-testid={optionTestId?.(option.value)}
             />
-            <div>
+            <div className="flex flex-col gap-1">
               <label className="font-medium text-surface-700" htmlFor={id}>
                 {option.title}
               </label>
-              <label className="text-surface-700" htmlFor={id}>
+              <label className="text-surface-500 text-sm" htmlFor={id}>
                 {option.description}
               </label>
             </div>

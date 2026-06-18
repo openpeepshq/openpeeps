@@ -618,21 +618,21 @@
                 "title": "All group members",
                 "description": "All group members can add content"
             },
-            "moderators": {
-                "title": "Moderators only",
-                "description": "Only moderators can post content"
+            "admin": {
+                "title": "Admins only",
+                "description": "Only group admins can post content"
             }
         },
         "whoCanPostEvents": {
             "title": "Who can post events",
             "description": "Who can add events to the group calendar",
             "members": {
-                "title": "All Members",
+                "title": "All members",
                 "description": "All members can add events to the calendar"
             },
-            "moderators": {
-                "title": "Moderators Only",
-                "description": "Only moderators can add events to the calendar"
+            "admin": {
+                "title": "Admins only",
+                "description": "Only group admins can add events to the calendar"
             }
         },
         "handle": {
