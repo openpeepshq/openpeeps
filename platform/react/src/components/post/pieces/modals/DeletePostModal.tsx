@@ -36,7 +36,7 @@ export function DeletePostModal({
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg overflow-x-hidden">
         <DialogHeader>
           <DialogTitle>
             {t('posts.deleteModal.deletePostTitle', {
@@ -44,7 +44,7 @@ export function DeletePostModal({
             })}
           </DialogTitle>
         </DialogHeader>
-        <article>
+        <article className="min-w-0 overflow-x-hidden">
           <FeedPost post={post} noReactionHeader />
           <p className="my-4 text-sm">
             {t('posts.delete.confirm', {

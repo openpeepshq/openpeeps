@@ -45,7 +45,7 @@ export function FeedPost({
   );
 
   return (
-    <div ref={postViewRef} className="border-b p-4">
+    <div ref={postViewRef} className="min-w-0 border-b p-4">
       {hasReactionHeader && (
         <PostReactionHeader
           post={post}

@@ -13,9 +13,13 @@ export function PreviewLink({ url = '' }: PreviewLinkProps) {
     typeof window !== 'undefined' ? window.location.origin : '';
   const local = isLocalLink(url, origin);
 
-  return local ? (
-    <LocalPreviewLink url={url} />
-  ) : (
-    <RemotePreviewLink url={url} />
+  return (
+    <div className="min-w-0 max-w-full overflow-hidden">
+      {local ? (
+        <LocalPreviewLink url={url} />
+      ) : (
+        <RemotePreviewLink url={url} />
+      )}
+    </div>
   );
 }
