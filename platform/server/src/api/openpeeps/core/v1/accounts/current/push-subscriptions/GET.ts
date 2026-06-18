@@ -1,10 +1,10 @@
 import { endpoint } from '#lib/endpoint';
 import { authNeeded, forbidden } from '#lib/errors';
-import { pushSubscriptionDataSchema } from '@openpeeps/common/types';
+import { pushSubscriptionSchema } from '@openpeeps/common/types';
 import { ensureAccount } from '#lib/auth';
 import { listPushSubscriptionsByAccount } from '@openpeeps/core/pushSubscriptions';
 
-export const Output = pushSubscriptionDataSchema.array();
+export const Output = pushSubscriptionSchema.array();
 
 export const Error = {
   403: forbidden(),

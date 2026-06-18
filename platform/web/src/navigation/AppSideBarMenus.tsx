@@ -258,10 +258,10 @@ export function AppSideBarProfileMenu() {
         client,
         applicationServerKey: serverInfo.vapid.publicKey,
       });
-      navigate('/notifications');
     } catch {
       // Push registration is best-effort; ignore failures.
     } finally {
+      navigate('/notifications');
       closeDrawer?.();
     }
   };

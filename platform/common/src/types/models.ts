@@ -643,41 +643,53 @@ export const alertsSchema = z.object({
   }),
 });
 
+const pushSubscriptionWebDataSchema = z.object({
+  type: z.literal('web'),
+  deviceName: z.string().optional(),
+  endpoint: z.string().url(),
+  keys: z.object({
+    auth: z.string(),
+    p256dh: z.string(),
+  }),
+  alerts: alertsSchema.optional(),
+});
+
+const pushSubscriptionApnDataSchema = z.object({
+  type: z.literal('apn'),
+  deviceName: z.string().optional(),
+  apnToken: z.string(),
+  alerts: alertsSchema.optional(),
+});
+
+const pushSubscriptionFcmDataSchema = z.object({
+  type: z.literal('fcm'),
+  deviceName: z.string().optional(),
+  fcmToken: z.string(),
+  alerts: alertsSchema.optional(),
+});
+
+const pushSubscriptionWebhookDataSchema = z.object({
+  type: z.literal('webhook'),
+  url: z.url(),
+  publicKey: z.string().min(1),
+  alerts: alertsSchema.optional(),
+});
+
 export const pushSubscriptionDataSchema = z.discriminatedUnion('type', [
-  z.object({
-    id: z.string().uuid(),
-    type: z.literal('web'),
-    deviceName: z.string().optional(),
-    endpoint: z.string().url(),
-    keys: z.object({
-      auth: z.string(),
-      p256dh: z.string(),
-    }),
-    alerts: alertsSchema.optional(),
-  }),
-  z.object({
-    id: z.string().uuid(),
-    type: z.literal('apn'),
-    deviceName: z.string().optional(),
-    apnToken: z.string(),
-    alerts: alertsSchema.optional(),
-  }),
-  z.object({
-    id: z.string().uuid(),
-    type: z.literal('fcm'),
-    deviceName: z.string().optional(),
-    fcmToken: z.string(),
-    alerts: alertsSchema.optional(),
-  }),
-  z.object({
-    type: z.literal('webhook'),
-    url: z.url(),
-    publicKey: z.string().min(1),
-    alerts: alertsSchema.optional(),
-  }),
+  pushSubscriptionWebDataSchema,
+  pushSubscriptionApnDataSchema,
+  pushSubscriptionFcmDataSchema,
+  pushSubscriptionWebhookDataSchema,
 ]);
 export type PushSubscriptionData = z.infer<typeof pushSubscriptionDataSchema>;
-export type PushSubscription = Model<PushSubscriptionData>;
+
+export const pushSubscriptionSchema = z.discriminatedUnion('type', [
+  modelSchema(pushSubscriptionWebDataSchema),
+  modelSchema(pushSubscriptionApnDataSchema),
+  modelSchema(pushSubscriptionFcmDataSchema),
+  modelSchema(pushSubscriptionWebhookDataSchema),
+]);
+export type PushSubscription = z.infer<typeof pushSubscriptionSchema>;
 export const reactionTypeSchema = z.enum(['👍']);
 
 export const reactionDataSchema = z.object({
