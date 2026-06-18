@@ -109,3 +109,7 @@ accompanied by a written outline of exactly what changed and why.**
 - Don't force-push shared branches or amend pushed commits unless asked.
 - Branches need to be rebased on main to be merged
 - PRs into main need to have exactly one commit that is different
+- Commit messages and PR descriptions may **reference** issues (e.g.
+  `References #827`, or a link in the body) but must **not** claim to fix or
+  close them — avoid `Fixes #…`, `Closes #…`, `Resolves #…`, and similar
+  auto-close phrasing.

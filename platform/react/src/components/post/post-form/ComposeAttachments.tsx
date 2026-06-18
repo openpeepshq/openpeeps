@@ -5,6 +5,7 @@ import { useT } from '../../../i18n';
 import { ImageEditModal } from '../../form/ImageEditModal';
 import { convertToWebpIfHeic } from '../../../lib/canvasUtils';
 import { AttachmentCard, type ComposeItem } from './AttachmentCard';
+import { isBlobUrl, revokeBlobUrl } from '../attachmentPreview';
 
 export interface ComposeAttachmentsProps {
   attachments: MediaAttachmentData[];
@@ -119,21 +120,34 @@ export function useComposeAttachments({
 
   const onUploaded = (key: string, attachment: MediaAttachment) =>
     setItems((prev) =>
-      prev.map((i) =>
-        i.key === key
-          ? {
-              ...i,
-              file: undefined,
-              attachment,
-              previewUrl: attachment.previewUrl ?? i.previewUrl,
-            }
-          : i,
-      ),
+      prev.map((i) => {
+        if (i.key !== key) return i;
+        const previewUrl = attachment.previewUrl ?? i.previewUrl;
+        if (attachment.previewUrl && isBlobUrl(i.previewUrl)) {
+          revokeBlobUrl(i.previewUrl);
+        }
+        return {
+          ...i,
+          file: undefined,
+          attachment,
+          previewUrl,
+        };
+      }),
     );
 
   const onProcessed = (key: string, attachment: MediaAttachmentData) =>
     setItems((prev) =>
-      prev.map((i) => (i.key === key ? { ...i, attachment } : i)),
+      prev.map((i) => {
+        if (i.key !== key) return i;
+        if (attachment.previewUrl && isBlobUrl(i.previewUrl)) {
+          revokeBlobUrl(i.previewUrl);
+        }
+        return {
+          ...i,
+          attachment,
+          previewUrl: attachment.previewUrl ?? undefined,
+        };
+      }),
     );
 
   const onFailed = (key: string, error?: string) =>
