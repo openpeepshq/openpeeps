@@ -52,15 +52,14 @@ export function DeletePostModal({
             })}
           </p>
         </article>
-        <DialogFooter className="flex flex-col gap-2 sm:flex-col">
+        <DialogFooter>
           <Button
             variant="variant-filled-error"
-            className="w-full"
             action={handleDelete}
           >
             {t('posts.deleteModal.delete', { defaultValue: 'Delete' })}
           </Button>
-          <Button variant="variant-ringed-surface" className="w-full" action={onClose}>
+          <Button variant="variant-ringed-surface" action={onClose}>
             {t('posts.deleteModal.cancel', { defaultValue: 'Cancel' })}
           </Button>
         </DialogFooter>

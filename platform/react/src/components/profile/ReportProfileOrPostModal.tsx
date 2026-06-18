@@ -129,13 +129,12 @@ export function ReportProfileOrPostModal({
                 defaultValue: 'Anything else we should know?',
               })}
             />
-            <DialogFooter className="flex flex-col gap-2 sm:flex-col">
-              <Button variant="variant-ringed-surface" className="w-full" action={onClose}>
+            <DialogFooter>
+              <Button variant="variant-ringed-surface" action={onClose}>
                 {t('common.cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
                 variant="variant-filled-primary"
-                className="w-full"
                 action={() => setStep(2)}
               >
                 {t(`reports.create.${reportType}.continue`, {
@@ -162,17 +161,15 @@ export function ReportProfileOrPostModal({
                 })}
               </p>
             ) : null}
-            <DialogFooter className="flex flex-col gap-2 sm:flex-col">
+            <DialogFooter>
               <Button
                 variant="variant-ringed-surface"
-                className="w-full"
                 action={() => setStep(1)}
               >
                 {t('reports.create.back', { defaultValue: 'Back' })}
               </Button>
               <Button
                 variant="variant-filled-error"
-                className="w-full"
                 action={submit}
                 disabled={submitting}
               >
