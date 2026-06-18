@@ -6,7 +6,7 @@ import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useServerInfo } from '../../server-data';
 import { useCurrentProfile } from '../../layout/IdentityContext';
-import { ProfileCard } from '../../profile';
+import { ProfileSelector } from '../../profile';
 
 export type EventFormat = 'jam' | 'external' | 'in-person';
 
@@ -183,15 +183,11 @@ export function EventTypeSwitcher({
       .filter((p): p is PublicProfile => Boolean(p));
   }, [event.jam?.moderators, profilesQuery.data]);
 
-  const toggleModerator = (profile: PublicProfile) => {
+  const handleModeratorsChange = (profiles: PublicProfile[]) => {
     if (!event.jam) return;
-    const ids = event.jam.moderators ?? [];
-    const next = ids.includes(profile.id)
-      ? ids.filter((id) => id !== profile.id)
-      : [...ids, profile.id];
     onChange({
       ...event,
-      jam: { ...event.jam, moderators: next },
+      jam: { ...event.jam, moderators: profiles.map((p) => p.id) },
     });
   };
 
@@ -267,24 +263,10 @@ export function EventTypeSwitcher({
                 defaultValue: 'Jam moderators',
               })}
             </Label>
-            {(profilesQuery.data ?? [])
-              .filter((p) => p.id !== me?.id)
-              .slice(0, 12)
-              .map((profile) => {
-                const selected = moderatorProfiles.some(
-                  (p) => p.id === profile.id,
-                );
-                return (
-                  <button
-                    key={profile.id}
-                    type="button"
-                    className={`w-full rounded-md text-left ${selected ? 'bg-primary/10' : ''}`}
-                    onClick={() => toggleModerator(profile)}
-                  >
-                    <ProfileCard profile={profile} showAction={false} />
-                  </button>
-                );
-              })}
+            <ProfileSelector
+              selectedProfiles={moderatorProfiles}
+              onChange={handleModeratorsChange}
+            />
           </div>
           <label className="flex items-center gap-2">
             <input
