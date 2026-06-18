@@ -49,11 +49,11 @@ export function GroupShow() {
     'core-posts-create-*',
   )
     ? 'members'
-    : 'moderators';
+    : 'admin';
   const whoCanPostEventsValue = capabilities?.member?.remove?.includes(
     'core-posts-create-event',
   )
-    ? 'moderators'
+    ? 'admin'
     : 'members';
 
   if (groupQuery.isLoading) {

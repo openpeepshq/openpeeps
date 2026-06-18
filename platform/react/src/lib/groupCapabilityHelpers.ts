@@ -39,14 +39,14 @@ export function getGroupWhoCanPostValue(
 ) {
   return capabilities?.member?.add?.includes('core-posts-create-*')
     ? 'members'
-    : 'moderators';
+    : 'admin';
 }
 
 export function getGroupWhoCanPostEventsValue(
   capabilities: GroupCapabilities | undefined,
 ) {
   return capabilities?.member?.remove?.includes('core-posts-create-event')
-    ? 'moderators'
+    ? 'admin'
     : 'members';
 }
 
@@ -155,7 +155,7 @@ export function setGroupWhoCanPostEvents(
     member: {
       add: capabilities.member?.add,
       remove:
-        value === 'moderators'
+        value === 'admin'
           ? addCapabilities(
               ['core-posts-create-event'],
               capabilities.member?.remove,
