@@ -4,14 +4,19 @@ import {
   AuthorizationData,
   CapabilitiesConfig,
   EntryWithPublicProfile,
+  Event,
   GroupWithMeta,
   PostType,
+  PostDataUnion,
   PublicPost,
+  PublicProfile,
+  PublicRsvp,
   Question,
   Thread,
   VisibilityType,
   visibilityTypeValues,
 } from '../types';
+import { canModerateJam } from './jamHelpers';
 import {
   checkGroupCapabilities,
   checkPostCapabilities,
@@ -91,11 +96,117 @@ export const collectVotes = (
   };
 };
 
-export const calculateEffectiveRsvps = (post: PublicPost) => {
-  const rsvps = post.rsvps || [];
+const latestRsvpPerProfile = (rsvps: PublicRsvp[]) => {
   const rsvpsByProfile = groupBy(rsvps, (r) => r.profile.id);
-  const effectiveRsvps = Object.values(rsvpsByProfile).map((r) => r[0]);
-  return effectiveRsvps;
+  return Object.values(rsvpsByProfile).map((profileRsvps) => {
+    const sorted = profileRsvps.sort(dateSorter<PublicRsvp>());
+    return sorted[sorted.length - 1];
+  });
+};
+
+export const calculateEffectiveRsvps = (post: PublicPost) =>
+  latestRsvpPerProfile(post.rsvps || []);
+
+export const getEffectiveRsvp = (post: PublicPost, profileId: string) =>
+  calculateEffectiveRsvps(post).find((r) => r.profile.id === profileId);
+
+export const countYesRsvps = (post: PublicPost) =>
+  calculateEffectiveRsvps(post).filter((r) => r.response === 'yes').length;
+
+export const isCapacityEvent = (event: Event) => !!event.maxAttendees;
+
+export const parseEventMaxAttendeesInput = (raw: string): number | undefined => {
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  const parsed = Number.parseInt(trimmed, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+};
+
+export const withoutEventMaxAttendees = <T extends Event>(event: T): T => {
+  const { maxAttendees: _, ...rest } = event;
+  return rest as T;
+};
+
+export const normalizeEventDataForSave = <T extends Event>(event: T): T => {
+  const { maxAttendees } = event;
+  if (
+    maxAttendees == null ||
+    !Number.isFinite(maxAttendees) ||
+    maxAttendees < 1
+  ) {
+    return withoutEventMaxAttendees(event);
+  }
+  return { ...event, maxAttendees: Math.trunc(maxAttendees) };
+};
+
+/** ArangoDB may store null when capacity was cleared; strip for validation/output. */
+export const normalizeEventDataFromDb = <T extends Event>(event: T): T => {
+  if (event.maxAttendees != null) {
+    return event;
+  }
+  return withoutEventMaxAttendees(event);
+};
+
+export const normalizePostDataFromDb = (
+  data: PostDataUnion,
+): PostDataUnion =>
+  data.type === 'event' ? normalizeEventDataFromDb(data) : data;
+
+/** ArangoDB update deep-merges nested `data`; null removes maxAttendees. */
+export type EventDbUpdate = Omit<Event, 'maxAttendees'> & {
+  maxAttendees?: number | null;
+};
+
+export const eventDataForDbUpdate = (
+  previous: Event | undefined,
+  normalized: Event,
+): EventDbUpdate => {
+  if (
+    previous?.maxAttendees != null &&
+    !('maxAttendees' in normalized)
+  ) {
+    return { ...normalized, maxAttendees: null };
+  }
+  return normalized;
+};
+
+export const canManageEventRsvps = (
+  profile: Pick<PublicProfile, 'id'> | undefined,
+  post: PublicPost,
+) =>
+  !!(
+    profile &&
+    (post.profile.id === profile.id || canModerateJam(profile, post))
+  );
+
+export type JamCapacityJoinBlock =
+  | { blocked: false }
+  | { blocked: true; reason: 'full' | 'rsvp-required' | 'removed' };
+
+export const getJamCapacityJoinBlock = (
+  post: PublicPost,
+  profile: Pick<PublicProfile, 'id'> | undefined,
+): JamCapacityJoinBlock => {
+  const event = post.data?.type === 'event' ? post.data : undefined;
+  if (!event?.maxAttendees || !profile?.id) {
+    return { blocked: false };
+  }
+
+  if (canModerateJam(profile, post)) {
+    return { blocked: false };
+  }
+
+  const myRsvp = getEffectiveRsvp(post, profile.id);
+  if (myRsvp?.response === 'yes') {
+    return { blocked: false };
+  }
+  if (myRsvp?.response === 'removed') {
+    return { blocked: true, reason: 'removed' };
+  }
+  if (countYesRsvps(post) >= event.maxAttendees) {
+    return { blocked: true, reason: 'full' };
+  }
+  return { blocked: true, reason: 'rsvp-required' };
 };
 
 export const canDeletePost = (

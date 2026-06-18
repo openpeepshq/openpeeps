@@ -16,7 +16,10 @@ export const jamFromEvent = (event: PublicPost): Jam | undefined => {
     return undefined;
 };
 
-export const canModerateJam = (profile: PublicProfile | undefined, post: PublicPost) =>
+export const canModerateJam = (
+    profile: Pick<PublicProfile, 'id'> | undefined,
+    post: PublicPost,
+) =>
     !!(
         profile &&
         jamFromEvent(post)?.moderators?.includes(profile.id)

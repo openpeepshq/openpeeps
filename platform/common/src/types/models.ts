@@ -526,7 +526,7 @@ export const answerSchema = z
 
 export type Answer = z.infer<typeof answerSchema>;
 
-export const rsvpResponseSchema = z.enum(['yes', 'no', 'tentative']);
+export const rsvpResponseSchema = z.enum(['yes', 'no', 'tentative', 'removed']);
 export type RsvpResponse = z.infer<typeof rsvpResponseSchema>;
 
 export const rsvpSchema = z.object({

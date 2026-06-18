@@ -4,6 +4,11 @@ import {
   PublicProfile,
   publicProfileSchema,
 } from '@openpeeps/common/types';
+import {
+  canModerateJam,
+  countYesRsvps,
+  getEffectiveRsvp,
+} from '@openpeeps/common/lib';
 import { authNeeded, forbidden, notFound } from '../errors';
 import { config } from '../config';
 import { AccessToken, TrackSource } from 'livekit-server-sdk';
@@ -27,9 +32,33 @@ const calculateSources = (jam: Jam, profile: PublicProfile) => {
   return sources;
 };
 
+export const assertJamRsvpAllowed = (
+  event: PostWithMeta,
+  profile: PublicProfile,
+) => {
+  const eventData = event.data?.type === 'event' ? event.data : undefined;
+  if (!eventData?.maxAttendees) {
+    return;
+  }
+
+  if (canModerateJam(profile, event)) {
+    return;
+  }
+
+  if (getEffectiveRsvp(event, profile.id)?.response === 'yes') {
+    return;
+  }
+
+  if (countYesRsvps(event) >= eventData.maxAttendees) {
+    throw forbidden({ errorKey: 'error.eventAtCapacity' });
+  }
+
+  throw forbidden({ errorKey: 'error.jamRsvpRequired' });
+};
+
 export const createJamEgressToken = async (event: PostWithMeta) => {
   const jamId = event.id;
-  const jam = event.data?.type === "event" && event.data?.jam;
+  const jam = event.data?.type === 'event' && event.data?.jam;
   if (!jam) {
     throw notFound({ errorKey: 'error.jamNotFound', parameters: { jamId } });
   }
@@ -49,7 +78,6 @@ export const createJamEgressToken = async (event: PostWithMeta) => {
   });
 
   return accessToken.toJwt();
-
 };
 
 export const createJamToken = async (
@@ -60,13 +88,15 @@ export const createJamToken = async (
   if (!profile.id) throw authNeeded({ errorKey: 'error.profileRequired' });
 
   const jamId = event.id;
-  const jam = event.data?.type === "event" && event.data?.jam;
+  const jam = event.data?.type === 'event' && event.data?.jam;
 
   if (!jam) {
     throw notFound({ errorKey: 'error.jamNotFound', parameters: { jamId } });
   }
 
-  const rs = await roomService()
+  assertJamRsvpAllowed(event, profile);
+
+  const rs = await roomService();
 
   if (rs === undefined) {
     throw forbidden({ errorKey: 'error.jamNotOpen' });
@@ -90,7 +120,6 @@ export const createJamToken = async (
 
   const { apiKey, apiSecret } = (await config()).jams.livekit;
   const accessToken = new AccessToken(apiKey, apiSecret, {
-
     identity: profile.id,
     metadata: JSON.stringify({
       profile: publicProfileSchema.parse(profile),

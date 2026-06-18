@@ -15,6 +15,7 @@ import { useCurrentProfile } from '../layout/IdentityContext';
 import { useJamContext } from './JamContext';
 import { JamGuestForm } from './JamGuestForm';
 import { useJamLocalSettings } from './jamLocalSettings';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 
 export interface JamLobbyProps {
   /** Called once the user has picked devices and the join token has been obtained. */
@@ -214,13 +215,14 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
         pathParameters: { id: jamPost.id },
       });
       if ('error' in res) {
-        const message = (res as { error?: { message?: string } }).error
-          ?.message;
         setError(
-          message ??
+          apiErrorMessage(
+            res.error,
+            t,
             t('jams.lobby.tokenError', {
               defaultValue: 'Failed to get jam token',
             }),
+          ),
         );
         return;
       }
@@ -237,7 +239,15 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
         },
       });
     } catch (err) {
-      setError((err as Error).message);
+      setError(
+        apiErrorMessage(
+          err,
+          t,
+          t('jams.lobby.tokenError', {
+            defaultValue: 'Failed to get jam token',
+          }),
+        ),
+      );
     } finally {
       setSubmitting(false);
     }

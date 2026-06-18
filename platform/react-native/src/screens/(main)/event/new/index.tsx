@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Toast from 'react-native-toast-message';
 import { useForm } from 'react-hook-form';
 import { PostCreationData, postCreationDataSchema } from '@openpeeps/common';
+import { normalizeEventDataForSave } from '@openpeeps/common/lib';
 import { useOpenpeeps } from '@openpeeps/react';
 import { MainScreenProps } from '~/components/navigation/types';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
@@ -45,7 +46,13 @@ export const NewEvent: React.FC<NewEventProps> = ({ navigation }) => {
   async function onSubmit(values: PostCreationData) {
     try {
       setIsLoading(true);
-      const response = await createPost(values);
+      const response = await createPost({
+        ...values,
+        data:
+          values.data.type === 'event'
+            ? normalizeEventDataForSave(values.data)
+            : values.data,
+      });
       Toast.show({
         type: 'success',
         text1: 'Success',

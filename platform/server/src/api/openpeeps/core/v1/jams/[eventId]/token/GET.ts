@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
 import { config } from '@openpeeps/core/config';
-import { notFound, forbidden } from '#lib/errors';
+import { notFound, forbidden, rethrowIfOpenpeepsError } from '#lib/errors';
 import { canModerateJam, jamFromEvent } from '@openpeeps/common/lib';
 import { createJamToken, findJamEvent, createJamEgressToken } from '@openpeeps/core/jams';
 import { ensurePostCapabilities, ensureProfileOrGuest, serviceScopeMatches } from '#lib/auth';
@@ -31,7 +31,11 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
       scopeLevel: undefined,
       resource: { type: 'jam', id: param.eventId },
     })) {
-      return { success: true, token: await createJamEgressToken(jamEvent), livekitUrl: jams.livekit.url };
+      return {
+        success: true,
+        token: await createJamEgressToken(jamEvent).catch(rethrowIfOpenpeepsError),
+        livekitUrl: jams.livekit.url,
+      };
     }
 
     await ensurePostCapabilities(event, jamEvent, ['core-posts-read']);
@@ -52,7 +56,9 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
       throw forbidden();
     }
 
-    const token = await createJamToken(jamEvent, currentProfile);
+    const token = await createJamToken(jamEvent, currentProfile).catch(
+      rethrowIfOpenpeepsError,
+    );
 
     return { success: true, token, livekitUrl: jams.livekit.url };
   },

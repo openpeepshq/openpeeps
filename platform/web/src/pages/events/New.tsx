@@ -10,6 +10,7 @@ import {
 } from '@openpeeps/react';
 import { EventForm, useServerInfo } from '@openpeeps/react/components';
 import { Button, Toast } from '@openpeeps/react-ui';
+import { normalizeEventDataForSave } from '@openpeeps/common/lib';
 
 export function NewEvent() {
   const t = useT();
@@ -59,7 +60,11 @@ export function NewEvent() {
     }
     setSubmitting(true);
     try {
-      const created = await createPost({ ...postData, type: 'event' });
+      const created = await createPost({
+        ...postData,
+        type: 'event',
+        data: normalizeEventDataForSave(event),
+      });
       stores.resetNewEventState();
       navigate(`/posts/${created.id}`);
     } catch (err) {

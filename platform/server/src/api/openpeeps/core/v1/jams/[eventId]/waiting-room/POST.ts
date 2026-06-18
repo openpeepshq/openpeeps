@@ -1,5 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden, notFound } from '#lib/errors';
+import { forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
 import type { RequestEvent } from '@riddl/core';
 import { jamTokenResponseSchema } from '@openpeeps/common/types';
 import { config } from '@openpeeps/core/config';
@@ -37,7 +37,7 @@ export const apiEndpoint = endpoint({ Param, Stream, Error }).handle(
       throw notFound(`Jam with id ${input.eventId}`);
     }
 
-    await joinWaitingRoom(jamEvent, profile);
+    await joinWaitingRoom(jamEvent, profile).catch(rethrowIfOpenpeepsError);
 
     const { jams } = coreConfig;
 

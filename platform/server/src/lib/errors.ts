@@ -1,4 +1,5 @@
 import type { OpenpeepsError } from '@openpeeps/common/types';
+import { isOpenpeepsError } from '@openpeeps/core/errors';
 
 /**
  * HTTP error helpers — produces error objects compatible with Riddl's
@@ -38,3 +39,10 @@ export const internalError = (message = 'Internal error') =>
   httpError(500, message);
 export const fromOpenpeepsError = (allPeepError: OpenpeepsError) =>
   httpError(allPeepError.code || 500, allPeepError.errorKey);
+
+export const rethrowIfOpenpeepsError = (err: unknown): never => {
+  if (isOpenpeepsError(err)) {
+    throw fromOpenpeepsError(err as OpenpeepsError);
+  }
+  throw err;
+};
