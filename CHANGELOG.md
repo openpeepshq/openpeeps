@@ -16,6 +16,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **navigation**: unify sidebar nav link active styles
+- **hashtags**: normalize hashtag case for consistency
 - **react**: added Inter font and update styles
 - **jams**: repair recording start button
 - **react**: use modal for moderator jam leave/close choice
@@ -37,6 +39,12 @@ Changelog for OpenPeeps
 - **react-native**: upgrade safe-area-context for RN 0.85
 - bump version to 0.2.21 and update theme handling in OpenPeepsThemeProvider
 - upgrade and sync livekit across openpeeps
+
+## 2026-06-17
+
+### Refactoring
+
+- **push-subscriptions**: update push subscription schemas and mutation handling
 
 ## 2026-06-16
 
