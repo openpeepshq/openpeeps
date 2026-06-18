@@ -19,7 +19,7 @@ import type {
   Resource,
   Scope,
 } from '../types';
-import { calculateRequiredScope, scopeMatches } from './scopeHelpers';
+import { calculateRequiredScope, scopeMatches, withPublicPostReadScopes } from './scopeHelpers';
 
 export const checkCapabilities = (
   neededCapabilities: string[],
@@ -400,16 +400,19 @@ export const checkPostCapabilities = (
   neededCapabilities: string[],
   post: PublicPost,
   config: CapabilitiesConfig,
-) =>
-  checkCapabilitiesWithCalculatedScope(
-    mergeCapabilities([
-      getPostCapabilities(authData, post, config),
-      getScopedPostReadCapabilities(authData, neededCapabilities, post),
-    ]),
-    authData,
+) => {
+  const capabilities = mergeCapabilities([
+    getPostCapabilities(authData, post, config),
+    getScopedPostReadCapabilities(authData, neededCapabilities, post),
+  ]);
+
+  return checkCapabilitiesWithCalculatedScope(
+    capabilities,
+    withPublicPostReadScopes(authData, post, neededCapabilities),
     neededCapabilities,
     { type: 'posts', id: post.id },
   );
+};
 
 export const checkProfileCapabilities = (
   authData: AuthorizationData,

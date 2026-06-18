@@ -1,4 +1,4 @@
-import { ProfileResourceType, Resource, Scope, ScopeLevel, ServiceResourceType } from "../types";
+import { AuthorizationData, ProfileResourceType, PublicPost, Resource, Scope, ScopeLevel, ServiceResourceType } from "../types";
 
 const includesScopeLevel = (scopeLevel: ScopeLevel, requiredScopeLevel: ScopeLevel) => {
     switch (requiredScopeLevel) {
@@ -54,3 +54,28 @@ export const scopeMatches = ({
                 s.resource.type === '*' ||
                 requiredScope.resource.type === '*'),
     );
+
+export const getPublicPostReadScope = (postId: string): Scope => ({
+    scopeLevel: 'read',
+    resource: { type: 'posts', id: postId },
+});
+
+/** Public posts are readable without auth; grant read scope for that post id. */
+export const withPublicPostReadScopes = (
+    authData: AuthorizationData,
+    post: Pick<PublicPost, 'id' | 'visibility'>,
+    neededCapabilities: string[],
+): AuthorizationData => {
+    if (
+        post.visibility !== 'public' ||
+        !neededCapabilities.every((c) => c.endsWith('-read'))
+    ) {
+        return authData;
+    }
+    const publicReadScope = getPublicPostReadScope(post.id);
+    const scopes = authData.scopes ?? [];
+    if (scopeMatches({ scopes, requiredScope: publicReadScope })) {
+        return authData;
+    }
+    return { ...authData, scopes: [...scopes, publicReadScope] };
+};

@@ -612,6 +612,17 @@ describe('capabilitiesHelpers', () => {
       expect(checkCapabilities(['core-posts-read'], caps).success).toBe(true);
     });
 
+    it('should allow anonymous checkPostCapabilities reads of public posts', () => {
+      const result = checkPostCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-posts-read'],
+        { ...mockPost, visibility: 'public', group: null },
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(true);
+      expect(result.missingScope).toBeUndefined();
+    });
+
     it('should not throw when a group has no capabilities map', () => {
       const groupWithoutCapabilities = {
         ...mockGroup,
