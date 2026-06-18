@@ -19,7 +19,7 @@ export const accounts = (rawClient: FetchClient) => ({
       '/accounts/current',
     ),
     createPushSubscription: allpeepPayloadEndpoint<
-      PushSubscriptionData,
+      PushSubscription,
       PushSubscriptionData
     >(rawClient, '/accounts/current/push-subscriptions'),
     listPushSubscriptions: allpeepNoPayloadEndpoint<PushSubscription[]>(

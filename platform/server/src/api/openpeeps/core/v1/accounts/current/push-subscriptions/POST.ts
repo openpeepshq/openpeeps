@@ -2,11 +2,14 @@ import { endpoint } from '#lib/endpoint';
 import { ensureAccount } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden } from '#lib/errors';
-import { pushSubscriptionDataSchema } from '@openpeeps/common/types';
+import {
+  pushSubscriptionDataSchema,
+  pushSubscriptionSchema,
+} from '@openpeeps/common/types';
 import { createPushSubscription } from '@openpeeps/core/pushSubscriptions';
 
 export const Input = pushSubscriptionDataSchema;
-export const Output = pushSubscriptionDataSchema;
+export const Output = pushSubscriptionSchema;
 
 export const Error = {
   403: forbidden(),
