@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pencil, Play, X } from 'lucide-react';
+import { Pencil, X } from 'lucide-react';
 import type { MediaAttachment, MediaAttachmentData } from '@openpeeps/common';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { DescriptionEditModal } from './DescriptionEditModal';
+import { VideoPlayOverlay } from '../VideoPlayOverlay';
+import { resolveAttachmentPreviewUrl } from '../attachmentPreview';
 
 export interface ComposeItem {
   key: string;
@@ -140,7 +142,7 @@ export function AttachmentCard({
     onRemove(item.key);
   };
 
-  const previewUrl = item.previewUrl ?? att?.previewUrl ?? att?.url ?? '';
+  const previewUrl = resolveAttachmentPreviewUrl(item.previewUrl, att);
   const isImage =
     (att?.type ?? (item.file?.type.startsWith('image/') ? 'image' : '')) ===
     'image';
@@ -255,20 +257,14 @@ export function AttachmentCard({
       {showOverlay || failed ? (
         <div className="bg-surface-200 h-full w-full" />
       ) : isImage || isVideo ? (
-        <>
+        <div className="relative h-full w-full">
           <img
             src={previewUrl}
             alt={att?.description ?? ''}
             className="h-full w-full object-cover"
           />
-          {isVideo ? (
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <span className="flex size-10 items-center justify-center rounded-full bg-black/60">
-                <Play className="size-5 text-white" />
-              </span>
-            </div>
-          ) : null}
-        </>
+          <VideoPlayOverlay video={isVideo} />
+        </div>
       ) : (
         <div className="flex h-full w-full items-center justify-center p-2">
           <p className="truncate text-xs">

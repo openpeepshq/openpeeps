@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { MediaAttachmentData, PublicPost } from '@openpeeps/common/types';
 import { useStaticRender } from '../../markdown/staticRender';
+import { VideoPlayOverlay } from '../VideoPlayOverlay';
 import { GalleryModal } from './GalleryModal';
 
 export interface AttachmentsProps {
@@ -54,12 +55,15 @@ export function Attachments({ post }: AttachmentsProps) {
                   alt={att.description ?? `attachment ${idx + 1}`}
                   className={mediaClass}
                 />
-              ) : isVideo(att) && (att.url || att.previewUrl) ? (
-                <video
-                  src={att.url ?? undefined}
-                  poster={att.previewUrl ?? undefined}
-                  className={`pointer-events-none ${mediaClass}`}
-                />
+              ) : isVideo(att) && (att.previewUrl || att.url) ? (
+                <div className="relative h-full w-full">
+                  <img
+                    src={att.previewUrl ?? att.url ?? ''}
+                    alt={att.description ?? `attachment ${idx + 1}`}
+                    className={mediaClass}
+                  />
+                  <VideoPlayOverlay video />
+                </div>
               ) : (
                 <div className="flex min-h-24 w-full flex-col items-center justify-center gap-1 p-4 text-center text-xs text-muted-foreground">
                   <span className="break-all font-medium text-foreground">
