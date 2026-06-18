@@ -226,12 +226,13 @@ function LogoutRow() {
   const t = useT();
   const navigate = useNavigate();
   const { openpeepsApi } = useOpenpeeps();
+  const logout = openpeepsApi.logoutAction();
   return (
     <NavButton
       icon={LogOut}
       danger
       onClick={async () => {
-        await openpeepsApi.logoutAction()();
+        await logout();
         navigate('/auth/login');
       }}
     >
