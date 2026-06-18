@@ -318,7 +318,7 @@ export function CreateNewJamModal({ onClose }: CreateNewJamModalProps) {
 
           {error ? <p className="text-error text-sm">{error}</p> : null}
 
-          <DialogFooter className="justify-between gap-2">
+          <DialogFooter>
             {isAdmin ? (
               <Button variant="variant-ringed-primary" action={handleSchedule}>
                 {t('jams.createFlow.schedule')}

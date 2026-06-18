@@ -226,7 +226,7 @@ export function PostAudienceSelector({
           </div>
         )}
 
-        <DialogFooter className="gap-2">
+        <DialogFooter>
           {view !== 'main' ? (
             <Button variant="variant-ringed-surface" action={() => setView('main')}>
               {t('navigation.back', { defaultValue: 'Back' })}
