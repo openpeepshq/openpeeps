@@ -1,5 +1,4 @@
-import { useMemo, useState } from 'react';
-import { Eye } from 'lucide-react';
+import { useState } from 'react';
 import type {
   AudienceSetting,
   Event,
@@ -14,7 +13,7 @@ import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { EventTypeSwitcher } from './EventTypeSwitcher';
 import { PostAudienceSelector } from './PostAudienceSelector';
-import { audienceSummary } from './audienceChoices';
+import { VisibilitySelector } from './VisibilitySelector';
 
 export interface EventFormProps {
   postData: PostCreationData;
@@ -52,12 +51,6 @@ export function EventForm({
   const event = postData.data as Event;
   const [showEndDate, setShowEndDate] = useState(event.end !== undefined);
   const [audienceOpen, setAudienceOpen] = useState(false);
-
-  const selectedGroupName = useMemo(() => {
-    if (!postData.groupId) return undefined;
-    return me?.memberships?.find((m) => m.group.id === postData.groupId)?.group
-      .displayName;
-  }, [postData.groupId, me?.memberships]);
 
   const patchEvent = (patch: Partial<Event>) => {
     onChange({
@@ -228,33 +221,20 @@ export function EventForm({
           {t('events.form.people', { defaultValue: 'People' })}
         </h2>
 
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Eye className="size-4" />
-            <span>
-              {t('events.form.visibility', { defaultValue: 'Visibility' })}
-            </span>
-          </div>
-          <p className="text-surface-500 text-sm">
-            {t('events.form.visibilityNotChangeable', {
-              defaultValue:
-                "Note:  The event visibility cannot be changed once the event is published.  Make sure you're adding the right people or group.",
-            })}
-          </p>
-          <button
-            type="button"
-            className="flex h-10 w-full items-center text-sm font-light"
-            onClick={() => !isEdit && setAudienceOpen(true)}
+        <Label
+          title={t('events.form.visibility', { defaultValue: 'Visibility' })}
+          description={t('events.form.visibilityNotChangeable', {
+            defaultValue:
+              "Note:  The event visibility cannot be changed once the event is published.  Make sure you're adding the right people or group.",
+          })}
+        >
+          <VisibilitySelector
+            postData={postData}
+            onClick={() => setAudienceOpen(true)}
             disabled={isEdit}
-          >
-            {audienceSummary(
-              postData.visibility,
-              t,
-              selectedGroupName,
-              postData.audience?.length,
-            )}
-          </button>
-        </div>
+            showDirect
+          />
+        </Label>
 
         <Label
           description={t('events.form.attendeeListPublic', {

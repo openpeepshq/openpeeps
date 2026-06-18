@@ -1,5 +1,4 @@
-import { useMemo, useState } from 'react';
-import { Eye } from 'lucide-react';
+import { useState } from 'react';
 import type {
   Article,
   AudienceSetting,
@@ -12,7 +11,7 @@ import { ImageInput } from '../../form/ImageInput';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { PostAudienceSelector } from './PostAudienceSelector';
-import { audienceSummary } from './audienceChoices';
+import { VisibilitySelector } from './VisibilitySelector';
 
 export interface ArticleFormProps {
   postData: PostCreationData;
@@ -30,13 +29,6 @@ export function ArticleForm({
 
   const article = postData.data as Article;
   const [audienceOpen, setAudienceOpen] = useState(false);
-
-  const selectedGroupName = useMemo(
-    () =>
-      me?.memberships?.find((m) => m.group.id === postData.groupId)?.group
-        .displayName,
-    [me?.memberships, postData.groupId],
-  );
 
   const patchArticle = (patch: Partial<Article>) => {
     onChange({
@@ -104,35 +96,22 @@ export function ArticleForm({
         />
         <ComposePreviewLinks content={article.content} />
 
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Eye className="size-4" />
-            <span>
-              {t('articles.form.visibility', {
-                defaultValue: 'Who can see this (Required)',
-              })}
-            </span>
-          </div>
-          <p className="text-surface-500 text-sm">
-            {t('articles.form.visibilityNotChangeable', {
-              defaultValue:
-                "Once you post your article, you can't change the visibility",
-            })}
-          </p>
-          <button
-            type="button"
-            className="flex h-10 w-full items-center text-sm font-light"
-            onClick={() => !isEdit && setAudienceOpen(true)}
+        <Label
+          title={t('articles.form.visibility', {
+            defaultValue: 'Who can see this (Required)',
+          })}
+          description={t('articles.form.visibilityNotChangeable', {
+            defaultValue:
+              "Once you post your article, you can't change the visibility",
+          })}
+        >
+          <VisibilitySelector
+            postData={postData}
+            onClick={() => setAudienceOpen(true)}
             disabled={isEdit}
-          >
-            {audienceSummary(
-              postData.visibility,
-              t,
-              selectedGroupName,
-              postData.audience?.length,
-            )}
-          </button>
-        </div>
+            showDirect
+          />
+        </Label>
       </div>
 
       {!isEdit ? (
