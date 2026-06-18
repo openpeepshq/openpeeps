@@ -88,7 +88,7 @@ function JamParticipantModeratorMenu({
   return (
     <PopupMenu
       icon={Ellipsis}
-      className="bg-surface-50/70"
+      className="bg-surface-100 text-foreground"
       iconSize={16}
       title={t('jams.participants.title', { defaultValue: 'Participants' })}
     >
@@ -146,7 +146,7 @@ function JamParticipantOverlay({
           ) : null}
         </div>
         <div
-          className={`bg-surface-50/70 rounded-full p-2 ${micOn && speaking ? 'text-primary-500' : ''}`}
+          className={`bg-surface-100 text-foreground rounded-full p-2 ${micOn && speaking ? 'text-primary-500' : ''}`}
         >
           {!micOn ? (
             <MicOff className={iconSize} />
@@ -159,7 +159,7 @@ function JamParticipantOverlay({
       </div>
       <div className="flex w-full items-end justify-between">
         <div
-          className={`bg-surface-50/70 block max-w-full truncate rounded-lg p-1 ${compact ? 'text-xs' : 'text-sm'}`}
+          className={`bg-surface-100 text-foreground block max-w-full truncate rounded-lg p-1 ${compact ? 'text-xs' : 'text-sm'}`}
         >
           {profile
             ? (isModerator ? '* ' : '') +
