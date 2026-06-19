@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import '@livekit/components-styles';
 import type { LocalUserChoices } from '@livekit/components-react';
 import type { Event, PublicPost } from '@openpeeps/common/types';
 import { jamFromEvent } from '@openpeeps/common/lib';
