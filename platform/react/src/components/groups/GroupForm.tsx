@@ -214,7 +214,7 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
           options={whoCanPostEventsOptions}
           optionTestId={(value) =>
             value === 'admin'
-              ? 'groups-who-can-post-events-moderators'
+              ? 'groups-who-can-post-events-admin'
               : 'groups-who-can-post-events-members'
           }
           onChange={(value) =>

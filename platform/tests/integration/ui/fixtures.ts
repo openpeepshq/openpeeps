@@ -210,7 +210,7 @@ export const createGroupViaUi = async (
     handle?: string;
     description?: string;
     rules?: string;
-    moderatorsOnlyEvents?: boolean;
+    adminsOnlyEvents?: boolean;
   } = {},
 ) => {
   const suffix = uniqueSuffix();
@@ -234,8 +234,8 @@ export const createGroupViaUi = async (
     testIds.groups.whoCanPostEventsMembers,
   );
   if (await whoCanPostEventsMembers.isVisible()) {
-    if (options.moderatorsOnlyEvents) {
-      await page.getByTestId(testIds.groups.whoCanPostEventsModerators).check();
+    if (options.adminsOnlyEvents) {
+      await page.getByTestId(testIds.groups.whoCanPostEventsAdmin).check();
     } else {
       await whoCanPostEventsMembers.check();
     }

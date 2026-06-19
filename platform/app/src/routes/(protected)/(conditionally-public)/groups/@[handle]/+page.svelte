@@ -69,11 +69,11 @@
   let whoCanPostValue = $derived(
     group?.capabilities?.member?.add?.includes('core-posts-create-*')
       ? 'members'
-      : 'moderators',
+      : 'admin',
   );
   let whoCanPostEventsValue = $derived(
     group?.capabilities?.member?.remove?.includes('core-posts-create-event')
-      ? 'moderators'
+      ? 'admin'
       : 'members',
   );
 

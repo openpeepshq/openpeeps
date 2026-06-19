@@ -44,11 +44,11 @@
   let whoCanPostValue = $derived(
     groupData?.capabilities?.member?.add?.includes('core-posts-create-*')
       ? 'members'
-      : 'moderators',
+      : 'admin',
   );
   let whoCanPostEventsValue = $derived(
     groupData?.capabilities?.member?.remove?.includes('core-posts-create-event')
-      ? 'moderators'
+      ? 'admin'
       : 'members',
   );
 
@@ -205,7 +205,7 @@
       member: {
         add: groupData.capabilities.member?.add,
         remove:
-          value === 'moderators'
+          value === 'admin'
             ? addCapabilities(
                 ['core-posts-create-event'],
                 groupData.capabilities.member?.remove,
@@ -298,7 +298,7 @@
       title={t('groups.whoCanPost.title')}
       description={t('groups.whoCanPost.description')}
       value={whoCanPostValue}
-      options={['members', 'moderators'].map((value) => ({
+      options={['members', 'admin'].map((value) => ({
         title: t(`groups.whoCanPost.${value}.title`),
         value,
         description: t(`groups.whoCanPost.${value}.description`),
@@ -310,7 +310,7 @@
         title={t('groups.whoCanPostEvents.title')}
         description={t('groups.whoCanPostEvents.description')}
         value={whoCanPostEventsValue}
-        options={['members', 'moderators'].map((value) => ({
+        options={['members', 'admin'].map((value) => ({
           title: t(`groups.whoCanPostEvents.${value}.title`),
           value,
           description: t(`groups.whoCanPostEvents.${value}.description`),
