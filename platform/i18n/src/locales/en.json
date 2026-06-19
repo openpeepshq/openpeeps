@@ -1524,7 +1524,7 @@
             "level": "Level",
             "allLevels": "All levels",
             "filter": "Filter",
-            "filterPlaceholder": "Search message or namespace…",
+            "filterPlaceholder": "Search…",
             "refresh": "Refresh",
             "autoRefresh": "Auto-refreshing every 5 seconds",
             "showing": "Showing {{count}} of {{total}} entries",

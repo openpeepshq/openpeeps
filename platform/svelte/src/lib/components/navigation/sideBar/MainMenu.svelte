@@ -22,7 +22,6 @@
     BookCheck,
     LogOut,
     KeyRound,
-    Logs,
   } from 'lucide-svelte';
   import { TreeView } from '@skeletonlabs/skeleton';
   import { currentProfileStore } from '$lib/api';
@@ -47,7 +46,6 @@
     moderation: ShieldAlert,
     backups: DatabaseBackup,
     analytics: ChartLine,
-    logs: Logs,
     apiKeys: KeyRound,
     configuration: Wrench,
     diagnostics: Stethoscope,
@@ -60,7 +58,6 @@
     moderation: () => t('navigation.moderation'),
     backups: () => t('navigation.backups'),
     analytics: () => t('navigation.analytics'),
-    logs: () => t('navigation.logs'),
     apiKeys: () => t('navigation.apiKeys'),
     configuration: () => t('navigation.configuration'),
     diagnostics: () => t('navigation.diagnostics'),

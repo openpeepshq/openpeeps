@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   BrowserRouter,
+  Navigate,
   Route,
   Routes,
   useLocation,
@@ -266,7 +267,6 @@ const SettingsPages = {
 
 const Admin = {
   Index: AdminDashboard,
-  Logs: AdminDiagnosticsLogs,
   Diagnostics: AdminDiagnostics,
   DiagnosticsEmail: AdminDiagnosticsEmail,
   DiagnosticsLogs: AdminDiagnosticsLogs,
@@ -375,9 +375,10 @@ function AppShell() {
             <Route path="/about" element={<About />} />
             <Route path="/code-of-conduct" element={<CodeOfConduct />} />
 
-            <Route element={<RequireAdminSection section="logs" />}>
-              <Route path="/admin/logs" element={<Admin.Logs />} />
-            </Route>
+            <Route
+              path="/admin/logs"
+              element={<Navigate to="/admin/diagnostics/logs" replace />}
+            />
             {/* DB browser gates on `core-db-access` via the page's ProfileGuard
                 (mirrors the Svelte admin DB route), not an admin-menu section. */}
             <Route path="/admin/db" element={<Admin.Db />} />
