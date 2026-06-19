@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **admin**: add downloadable members CSV export (#88) Add admin members list CSV download with profile data from the profile cache and batch activity stats via membersExportMapping. API lives in platform/server; React admin UI gets a download button. Document platform/app and platform/svelte as deprecated in AGENTS.md.
 - **posts**: add optional jam recording download and reply
 - **events**: email an .ics file when a member RSVPs yes/maybe
 - **react**: close low-severity Svelte UI parity gaps + i18n reconciliation
@@ -16,6 +17,16 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **posts**: grant read scope for public post detail access
+- **react**: improve video attachment previews
+- **react**: enhance layout responsiveness in FeedPost and modals
+- **groups**: use admin labels for posting permission radios
+- **react**: update JamCallParticipant styles for improved visibility
+- **react**: use profile selector for jam moderators on event form
+- **react**: simplify DialogFooter components across multiple modals
+- **navigation**: streamline logout action in LogoutRow component
+- **react**: make event visibility selector look clickable
+- **react**: keep page header actions after navigation
 - **navigation**: unify sidebar nav link active styles
 - **hashtags**: normalize hashtag case for consistency
 - **react**: added Inter font and update styles
@@ -26,6 +37,7 @@ Changelog for OpenPeeps
 
 ### Refactoring
 
+- **push**: split PushSubscriptionData and PushSubscription schemas PushSubscriptionData is the create payload without id; pushSubscriptionSchema uses modelSchema per variant for API responses. Removes the separate create schema introduced in the prior fix.
 - **FullEvent**: removed unnecessary border class
 - Move app from svelte-kit to react and riddl
 
