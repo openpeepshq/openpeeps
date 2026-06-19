@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import type { ReportWithMeta } from '@openpeeps/common/types';
 import { useT, useOpenpeeps } from '@openpeeps/react';
@@ -32,25 +32,57 @@ export function AdminReports() {
     'not-resolved',
   );
   const [resolving, setResolving] = useState<ReportWithMeta | null>(null);
+  const initialTabHandle = useRef<string | null>(null);
 
   const profile = profileQuery.data;
-  const reports = useMemo(() => {
-    const all = reportsQuery.data ?? [];
-    return all
-      .filter((r) => r.reportedProfile.handle === handle)
-      .filter((r) =>
-        tab === 'profile'
-          ? r.reportedPosts.length === 0
-          : r.reportedPosts.length > 0,
-      )
-      .filter((r) => {
-        if (filter === 'resolved') return !!r.resolution;
-        if (filter === 'not-resolved') return !r.resolution;
-        return true;
-      });
-  }, [reportsQuery.data, handle, tab, filter]);
 
-  if (profileQuery.isLoading) {
+  const profileReportsBase = useMemo(() => {
+    const all = reportsQuery.data ?? [];
+    return all.filter((r) =>
+      profile
+        ? r.reportedProfile.id === profile.id
+        : r.reportedProfile.handle === handle,
+    );
+  }, [reportsQuery.data, profile, handle]);
+
+  useEffect(() => {
+    if (!profile || reportsQuery.isLoading || !reportsQuery.data) return;
+    if (initialTabHandle.current === handle) return;
+    initialTabHandle.current = handle;
+
+    const unresolvedPost = profileReportsBase.filter(
+      (r) => r.reportedPosts.length > 0 && !r.resolution,
+    ).length;
+    const unresolvedProfile = profileReportsBase.filter(
+      (r) => r.reportedPosts.length === 0 && !r.resolution,
+    ).length;
+
+    setTab(unresolvedPost === 0 && unresolvedProfile > 0 ? 'profile' : 'post');
+  }, [
+    profile,
+    handle,
+    reportsQuery.data,
+    reportsQuery.isLoading,
+    profileReportsBase,
+  ]);
+
+  const reports = useMemo(
+    () =>
+      profileReportsBase
+        .filter((r) =>
+          tab === 'profile'
+            ? r.reportedPosts.length === 0
+            : r.reportedPosts.length > 0,
+        )
+        .filter((r) => {
+          if (filter === 'resolved') return !!r.resolution;
+          if (filter === 'not-resolved') return !r.resolution;
+          return true;
+        }),
+    [profileReportsBase, tab, filter],
+  );
+
+  if (profileQuery.isLoading || reportsQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
         {t('common.loading', { defaultValue: 'Loading…' })}

@@ -24,7 +24,7 @@ const reportRelations: Relation[] = [
     {
         alias: 'reportedPosts',
         edgeCollection: collectionInfos.isReportedObjectCollection.name,
-        direction: 'INBOUND',
+        direction: 'OUTBOUND',
         cardinality: 'many',
         mapping: postsMapping.data(),
         skipEdge: true,

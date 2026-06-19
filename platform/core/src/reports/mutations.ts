@@ -2,7 +2,12 @@ import { PostWithMeta, ReportData, ReportResolution, ReportWithMeta } from "@ope
 import { ProfileWithMeta } from "@openpeeps/common/types";
 import { allpeepDb } from "../db";
 import { reportsMapping } from "./mapping";
-import { createdReportConnector, reportedPostsConnector, reportedProfileConnector } from "./helpers";
+import {
+    createdReportConnector,
+    reportedPostsConnector,
+    reportedProfileConnector,
+    transformReport,
+} from "./helpers";
 import { throwIfUndefined } from "../lib/utils";
 
 export const createReport = async (
@@ -15,7 +20,11 @@ export const createReport = async (
     await createdReportConnector(db, reporter, report);
     await reportedProfileConnector(db, report, reportedProfile);
     await Promise.all(reportedPosts.map(post => reportedPostsConnector(db, report, post)));
-    return throwIfUndefined(await reportsMapping.find(db, report.id));
+    return throwIfUndefined(
+        await reportsMapping
+            .find(db, report.id)
+            .then((loaded) => (loaded ? transformReport(loaded) : undefined)),
+    );
 }
 
 export const resolveReport = async (report: ReportWithMeta, resolution: ReportResolution) =>
