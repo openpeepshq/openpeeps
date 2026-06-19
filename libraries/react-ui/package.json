@@ -1,6 +1,6 @@
 {
   "name": "@openpeeps/react-ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "OpenPeeps React UI library — shadcn/Tailwind v4 components, ported from @openpeeps/ui (Svelte/Skeleton).",
   "license": "MIT",
   "type": "module",
