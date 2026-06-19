@@ -118,10 +118,10 @@ export const GroupInfoAsComponent: React.FC<GroupInfoAsComponentProps> = ({
     'core-posts-create-*',
   )
     ? 'members'
-    : 'moderators';
+    : 'admin';
   const whoCanPostEventsValue =
     groupData?.capabilities?.member?.remove?.includes('core-posts-create-event')
-      ? 'moderators'
+      ? 'admin'
       : 'members';
 
   return (

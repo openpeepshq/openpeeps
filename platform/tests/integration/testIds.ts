@@ -29,7 +29,7 @@ export const testIds = {
     descriptionInput: 'groups-description-input',
     rulesInput: 'groups-rules-input',
     whoCanPostEventsMembers: 'groups-who-can-post-events-members',
-    whoCanPostEventsModerators: 'groups-who-can-post-events-moderators',
+    whoCanPostEventsAdmin: 'groups-who-can-post-events-admin',
     createSubmit: 'groups-create-submit',
     duplicateHandleError: 'groups-duplicate-handle-error',
     headerTitle: 'groups-header-title',

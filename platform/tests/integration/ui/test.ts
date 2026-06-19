@@ -234,7 +234,7 @@ const runCase = async (page: Page, uiCase: UiCase) => {
         description: `Sample group description for UI ${uniqueSuffix()}`,
         rules:
           'Gaming Group Rules & Guidelines: be respectful and stay on topic.',
-        moderatorsOnlyEvents: true,
+        adminsOnlyEvents: true,
       });
       break;
     case 'createEvent':
