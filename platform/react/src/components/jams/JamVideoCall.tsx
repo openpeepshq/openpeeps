@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { LiveKitRoom } from '@livekit/components-react';
-import '@livekit/components-styles';
 import { defaultRoomOptions } from './constants';
 import { useJamContext } from './JamContext';
 import { JamConference } from './JamConference';

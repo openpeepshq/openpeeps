@@ -6,7 +6,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
+    ".": {
+      "react-native": "./dist/react-native.js",
+      "default": "./dist/index.js"
+    },
     "./pwa": "./dist/pwa/index.js",
     "./pwa/vite": "./dist/pwa/vite.js",
     "./service-worker": "./src/pwa/sw.ts",
