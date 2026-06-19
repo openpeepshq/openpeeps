@@ -54,6 +54,6 @@ describe('adminSections', () => {
 
   it('shows all sections for the owner wildcard', () => {
     const roles = [roleWith(['*'])];
-    expect(getVisibleAdminSections(roles).length).toBe(10);
+    expect(getVisibleAdminSections(roles).length).toBe(9);
   });
 });

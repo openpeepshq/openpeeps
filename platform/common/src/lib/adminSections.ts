@@ -38,11 +38,6 @@ export const adminSections = [
     capabilities: ['core-analytics-read'],
   },
   {
-    key: 'logs',
-    path: '/admin/logs',
-    capabilities: ['core-logs-read'],
-  },
-  {
     key: 'apiKeys',
     path: '/admin/api-keys',
     capabilities: ['core-serviceTokens-read'],
