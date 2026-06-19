@@ -163,52 +163,53 @@ const scaleToShorterSide = (
  *
  * Rules:
  * - Never upscale (rung's shorter side must be ≤ source shorter side).
- * - Never spend an encode pass that's within ~15% of the source bitrate.
- * - If no rung is eligible (very small / low-bitrate source), produce a
- *   single source-quality rung so the output is always playable.
- *
- * See the discussion of "why ~1.2 Mbps cutoff" — the rung bitrates below
- * encode the same heuristic: rungs with `videoBitrateKbps > srcBitrate*0.85`
- * are dropped, so a 1 Mbps source ends up with just the 500 kbps rung (or
- * just the source rung, depending on its size).
+ * - Always include the highest ladder rung that fits the source resolution,
+ *   using ladder bitrates (screen recordings often under-report average bitrate
+ *   in ffprobe while still needing a full-res encode for legible text).
+ * - Include lower rungs only when their target bitrate is ≤ ~85% of the probed
+ *   source bitrate (avoids redundant encodes on genuinely low-bitrate sources).
+ * - If the source is below the smallest ladder rung, produce a single
+ *   source-quality variant so the output is always playable.
  */
+const rungToVariant = (source: ProbedSource, rung: LadderRung): Variant => {
+  const { width, height } = scaleToShorterSide(
+    source.width,
+    source.height,
+    rung.shorterSide,
+  );
+  return {
+    width,
+    height,
+    videoBitrateKbps: rung.videoBitrateKbps,
+    maxBitrateKbps: rung.maxBitrateKbps,
+  };
+};
+
 const pickVariants = (source: ProbedSource): Variant[] => {
   const srcShorter = Math.min(source.width, source.height);
-  const eligible = LADDER.filter(
+  const fitsSource = LADDER.filter((r) => r.shorterSide <= srcShorter);
+  const topRung = fitsSource[0];
+
+  if (!topRung) {
+    const bitrate = Math.max(400, source.videoBitrateKbps);
+    return [
+      {
+        width: roundEven(source.width),
+        height: roundEven(source.height),
+        videoBitrateKbps: bitrate,
+        maxBitrateKbps: Math.round(bitrate * 1.5),
+      },
+    ];
+  }
+
+  const lowerRungs = LADDER.filter(
     (r) =>
+      r.shorterSide < topRung.shorterSide &&
       r.shorterSide <= srcShorter &&
       r.videoBitrateKbps <= source.videoBitrateKbps * 0.85,
   );
 
-  if (eligible.length > 0) {
-    return eligible.map((rung) => {
-      const { width, height } = scaleToShorterSide(
-        source.width,
-        source.height,
-        rung.shorterSide,
-      );
-      return {
-        width,
-        height,
-        videoBitrateKbps: rung.videoBitrateKbps,
-        maxBitrateKbps: rung.maxBitrateKbps,
-      };
-    });
-  }
-
-  // Fallback: single variant matching the source. We still re-encode to
-  // normalise the codec to H.264 baseline so the output is reliably playable
-  // on the broadest range of devices, but we keep dimensions and pick a
-  // bitrate that won't degrade quality.
-  const bitrate = Math.max(400, source.videoBitrateKbps);
-  return [
-    {
-      width: roundEven(source.width),
-      height: roundEven(source.height),
-      videoBitrateKbps: bitrate,
-      maxBitrateKbps: Math.round(bitrate * 1.5),
-    },
-  ];
+  return [topRung, ...lowerRungs].map((rung) => rungToVariant(source, rung));
 };
 
 const buildFilterComplex = (variants: Variant[]): string => {
