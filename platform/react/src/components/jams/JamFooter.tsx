@@ -81,7 +81,9 @@ const useFooterControls = () => {
 
   const startRecording = openpeepsApi.startRecordingAction({ id: jamPost.id });
   const stopRecording = openpeepsApi.stopRecordingAction({ id: jamPost.id });
-  const waitingRoom = openpeepsApi.useWaitingRoomStream(jamPost.id);
+  const waitingRoom = openpeepsApi.useWaitingRoomStream(
+    isModerator && jam.waitingRoom ? jamPost.id : '',
+  );
 
   const [busy, setBusy] = useState(false);
 

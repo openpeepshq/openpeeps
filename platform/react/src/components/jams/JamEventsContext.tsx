@@ -10,7 +10,7 @@ import {
 } from 'react';
 import type { JamEvent } from '@openpeeps/common/types';
 import { useRoomContext } from '@livekit/components-react';
-import { RoomEvent } from 'livekit-client';
+import { RoomEvent, ConnectionState } from 'livekit-client';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useJamContext, useJamObserver } from './JamContext';
 import {
@@ -53,12 +53,32 @@ export function JamEventsProvider({ children }: { children: ReactNode }) {
   const createEventRef = useRef(createEvent);
   createEventRef.current = createEvent;
 
-  // Announce join on mount and leave on unmount (mirrors Svelte sendAttendance).
+  // Announce join once connected and leave on unmount (mirrors Svelte sendAttendance).
   useEffect(() => {
     if (observer) return;
-    void sendAttendance(room, createEventRef.current, 'join');
+
+    const announceJoin = () => {
+      void sendAttendance(room, createEventRef.current, 'join').catch(
+        () => undefined,
+      );
+    };
+    const announceLeave = () => {
+      void sendAttendance(room, createEventRef.current, 'leave').catch(
+        () => undefined,
+      );
+    };
+
+    if (room.state === ConnectionState.Connected) {
+      announceJoin();
+    } else {
+      room.on(RoomEvent.Connected, announceJoin);
+    }
+
     return () => {
-      void sendAttendance(room, createEventRef.current, 'leave');
+      room.off(RoomEvent.Connected, announceJoin);
+      if (room.state === ConnectionState.Connected) {
+        announceLeave();
+      }
     };
   }, [observer, room]);
 

@@ -14,7 +14,6 @@ import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { useJamContext } from './JamContext';
 import { JamGuestForm } from './JamGuestForm';
-import { createBlurProcessor } from './blurProcessor';
 import { useJamLocalSettings } from './jamLocalSettings';
 
 export interface JamLobbyProps {
@@ -179,11 +178,20 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
   // lobby `BlurSwitch`.
   useEffect(() => {
     if (!videoTrack) return;
+    let cancelled = false;
     if (settings.blur) {
-      void videoTrack.setProcessor(createBlurProcessor());
+      void import('./blurProcessor').then(({ createBlurProcessor }) => {
+        if (cancelled) return;
+        void videoTrack
+          .setProcessor(createBlurProcessor())
+          .catch(() => undefined);
+      });
     } else {
-      void videoTrack.stopProcessor();
+      void videoTrack.stopProcessor().catch(() => undefined);
     }
+    return () => {
+      cancelled = true;
+    };
   }, [videoTrack, settings.blur]);
 
   const showVideo = videoTrack?.mediaStreamTrack?.readyState === 'live';

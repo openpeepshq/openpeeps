@@ -5,6 +5,7 @@
   "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
+    "predev": "pnpm --filter @openpeeps/greenscreen build",
     "dev": "vite",
     "build": "tsc -b --noEmit && vite build",
     "build:watch": "concurrently --names tsc,vite -c blue,magenta \"tsc -b --noEmit --watch --preserveWatchOutput\" \"vite build --watch\"",
