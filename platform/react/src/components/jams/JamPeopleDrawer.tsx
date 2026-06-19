@@ -42,7 +42,9 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   const isModerator = !!me && jam.moderators.includes(me.id);
   const hasWaitingRoom = !!jam.waitingRoom;
 
-  const waitingRoom = openpeepsApi.useWaitingRoomStream(jamPost.id);
+  const waitingRoom = openpeepsApi.useWaitingRoomStream(
+    isModerator && hasWaitingRoom ? jamPost.id : '',
+  );
   const admitParticipant = openpeepsApi.admitParticipantAction();
 
   const [query, setQuery] = useState('');

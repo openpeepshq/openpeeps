@@ -18,7 +18,6 @@ import { JamFooter } from './JamFooter';
 import { JamPeopleDrawer } from './JamPeopleDrawer';
 import { JamNetworkQuality, JamRecordingIndicator } from './JamRoomIndicators';
 import { JamVideoLayout } from './JamVideoLayout';
-import { createBlurProcessor } from './blurProcessor';
 import { useJamLocalSettings } from './jamLocalSettings';
 
 type Drawer = 'chat' | 'people' | 'details' | null;
@@ -71,11 +70,18 @@ function JamParticipantConferenceInner() {
   useEffect(() => {
     const track = cameraTrack?.track;
     if (!(track instanceof LocalVideoTrack)) return;
+    let cancelled = false;
     if (settings.blur) {
-      void track.setProcessor(createBlurProcessor()).catch(() => undefined);
+      void import('./blurProcessor').then(({ createBlurProcessor }) => {
+        if (cancelled) return;
+        void track.setProcessor(createBlurProcessor()).catch(() => undefined);
+      });
     } else {
       void track.stopProcessor().catch(() => undefined);
     }
+    return () => {
+      cancelled = true;
+    };
   }, [cameraTrack, settings.blur]);
 
   const toggleDrawer = (next: Exclude<Drawer, null>) =>
