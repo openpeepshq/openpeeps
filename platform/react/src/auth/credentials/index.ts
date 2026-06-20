@@ -8,12 +8,25 @@ export const AUTH_CREDENTIALS_STORAGE_KEY = 'auth_credentials';
 export const OPENPEEPS_CREDENTIALS_CHANGED_EVENT =
   'openpeeps-credentials-changed';
 
-const notifyCredentialsChanged = () => {
+const credentialsChangedListeners = new Set<() => void>();
+
+/** Cross-platform credential change subscription (required on React Native). */
+export const subscribeCredentialsChanged = (listener: () => void) => {
+  credentialsChangedListeners.add(listener);
+  return () => {
+    credentialsChangedListeners.delete(listener);
+  };
+};
+
+export const notifyCredentialsChanged = () => {
+  credentialsChangedListeners.forEach((listener) => listener());
   if (typeof window === 'undefined') return;
   // Defer so callers finish mutating localStorage before listeners run (avoids
   // synchronous re-entrancy and duplicate work during the same task).
   queueMicrotask(() => {
-    window.dispatchEvent(new Event(OPENPEEPS_CREDENTIALS_CHANGED_EVENT));
+    if (typeof window.dispatchEvent === 'function') {
+      window.dispatchEvent(new Event(OPENPEEPS_CREDENTIALS_CHANGED_EVENT));
+    }
   });
 };
 

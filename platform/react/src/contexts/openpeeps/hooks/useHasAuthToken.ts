@@ -1,26 +1,14 @@
 import { useEffect, useState } from 'react';
 import {
   AUTH_CREDENTIALS_STORAGE_KEY,
-  OPENPEEPS_CREDENTIALS_CHANGED_EVENT,
+  subscribeCredentialsChanged,
 } from '../../../auth/credentials';
 import { useCredentialsStore } from '../../credentialsStore';
-
-function readTokenPresent(): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    const raw = localStorage.getItem(AUTH_CREDENTIALS_STORAGE_KEY);
-    if (!raw) return false;
-    const parsed = JSON.parse(raw) as { token?: string };
-    return !!parsed?.token;
-  } catch {
-    return false;
-  }
-}
 
 /** True when credentials storage contains a bearer token (sync read + store listener). */
 export function useHasAuthToken(): boolean {
   const { credentialsStore } = useCredentialsStore();
-  const [hasToken, setHasToken] = useState(readTokenPresent);
+  const [hasToken, setHasToken] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -31,17 +19,27 @@ export function useHasAuthToken(): boolean {
 
     void refresh();
 
-    const onCred = () => void refresh();
+    const unsubCredentials = subscribeCredentialsChanged(() => void refresh());
+
+    const hasWindow =
+      typeof window !== 'undefined' &&
+      typeof window.addEventListener === 'function';
+
     const onStorage = (e: StorageEvent) => {
       if (e.key === AUTH_CREDENTIALS_STORAGE_KEY || e.key === null)
         void refresh();
     };
-    window.addEventListener(OPENPEEPS_CREDENTIALS_CHANGED_EVENT, onCred);
-    window.addEventListener('storage', onStorage);
+
+    if (hasWindow) {
+      window.addEventListener('storage', onStorage);
+    }
+
     return () => {
       cancelled = true;
-      window.removeEventListener(OPENPEEPS_CREDENTIALS_CHANGED_EVENT, onCred);
-      window.removeEventListener('storage', onStorage);
+      unsubCredentials();
+      if (hasWindow) {
+        window.removeEventListener('storage', onStorage);
+      }
     };
   }, [credentialsStore]);
 
