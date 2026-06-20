@@ -5,7 +5,11 @@ import {
   updateMediaAttachment,
 } from '../mediaAttachments';
 import { estimateProcessingDuration } from '../processingStats';
-import { disconnect, getConnection, getSharedConnection } from '../redis/connection';
+import {
+  disconnect,
+  getConnection,
+  getSharedConnection,
+} from '../redis/connection';
 import { runProcessing } from './processing';
 
 const log = logger('app:media:jobs');
@@ -118,9 +122,7 @@ const [mediaProcessingQueue, mediaProcessingWorker] = queueAndWorker<
       await updateMediaAttachment(mediaAttachmentId, {
         status: 'failed',
         error: message,
-      }).catch((e) =>
-        log.error('Failed to mark media as failed in worker', e),
-      );
+      }).catch((e) => log.error('Failed to mark media as failed in worker', e));
       await publishMediaProgress(mediaAttachmentId, 'failed');
       throw error;
     } finally {

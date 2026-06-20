@@ -4,16 +4,29 @@
 #   pnpm --filter @openpeeps/tests run integration
 #
 # Or step by step from `platform/tests/`:
-#   docker compose -f docker-compose.integration.yml up --build arangodb redis web
+#   docker compose -f docker-compose.integration.yml up --build postgres redis web
 #   docker compose -f docker-compose.integration.yml run --rm tests
 #
 # Paths in this file are relative to this directory (`platform/tests/`).
 
 services:
-  arangodb:
-    image: arangodb:3.11
+  postgres:
+    image: postgres:16-alpine
     environment:
-      ARANGO_NO_AUTH: "true"
+      POSTGRES_USER: openpeeps
+      POSTGRES_PASSWORD: openpeeps
+      POSTGRES_DB: openpeeps
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openpeeps -d openpeeps"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Legacy ArangoDB — uncomment for migration tooling only.
+  # arangodb:
+  #   image: arangodb:3.11
+  #   environment:
+  #     ARANGO_NO_AUTH: "true"
 
   redis:
     image: redis:alpine
@@ -26,8 +39,7 @@ services:
         VERSION: local-integration
         ENVIRONMENT: test
     environment:
-      DB_URL: http://arangodb:8529
-      DB_NAME: test
+      DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
       REDIS_HOST: redis
       HOST: "0.0.0.0"
       PORT: "8080"
@@ -35,8 +47,8 @@ services:
       JAMS_LIVEKIT_API_KEY: APIxxxxxxxxxxxx
       JAMS_LIVEKIT_API_SECRET: xxxxxxxxxxxxx
     depends_on:
-      arangodb:
-        condition: service_started
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_started
     ports:
@@ -62,7 +74,7 @@ services:
     environment:
       CI: "true"
       PLAYWRIGHT_BASE_URL: http://web:8080
-      DB_NAME: test
+      DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
       FORCE_COLOR: "0"
       NO_COLOR: "1"
     depends_on:

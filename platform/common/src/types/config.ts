@@ -107,6 +107,7 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
       z.object({
         url: z.string().url(),
         databaseName: z.string().optional(),
+        databaseUrl: z.string(),
       }),
       sanitize,
     ),

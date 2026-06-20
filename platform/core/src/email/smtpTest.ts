@@ -1,9 +1,6 @@
 import { deepmerge } from 'deepmerge-ts';
 import { passwordPlaceHolder } from '@openpeeps/common/types';
-import type {
-  AdminEmailTestInput,
-  CoreConfig,
-} from '@openpeeps/common/types';
+import type { AdminEmailTestInput, CoreConfig } from '@openpeeps/common/types';
 import { config } from '../config';
 import { sendEmail } from './send';
 

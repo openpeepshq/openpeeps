@@ -1,6 +1,19 @@
-import { JamRecording, JamRecordingWithMeta, JamState, PostWithMeta, ProfileWithMeta } from '@openpeeps/common/types';
+import {
+  JamRecording,
+  JamRecordingWithMeta,
+  JamState,
+  PostWithMeta,
+  ProfileWithMeta,
+} from '@openpeeps/common/types';
 import { config } from '../config';
-import { DataPacket_Kind, EgressClient, EncodedFileOutput, EncodedFileType, EncodingOptionsPreset, RoomServiceClient } from 'livekit-server-sdk';
+import {
+  DataPacket_Kind,
+  EgressClient,
+  EncodedFileOutput,
+  EncodedFileType,
+  EncodingOptionsPreset,
+  RoomServiceClient,
+} from 'livekit-server-sdk';
 import { connectRecording } from './helpers';
 import { allpeepDb } from '../db';
 import { jwtUtil } from '../jwt';
@@ -16,7 +29,7 @@ const encoder = new TextEncoder();
 export const roomService = async () => {
   const { url, apiKey, apiSecret } = (await config()).jams.livekit;
   if (!url || !apiKey || !apiSecret) {
-    return undefined
+    return undefined;
   }
 
   return new RoomServiceClient(url, apiKey, apiSecret);
@@ -25,16 +38,20 @@ export const roomService = async () => {
 export const listParticipantIds = async (jamId: string) => {
   const rs = await roomService();
   if (rs === undefined) {
-    return []
+    return [];
   }
-  return (await rs.listParticipants(jamId)).map((p) => p.identity).filter((identity) => !identity.startsWith('EG_'));
-}
+  return (await rs.listParticipants(jamId))
+    .map((p) => p.identity)
+    .filter((identity) => !identity.startsWith('EG_'));
+};
 
 const getJamEgressToken = async (jamId: string) =>
   createSignedServiceToken({
-    scopes: [{
-      resource: { type: 'jam', id: jamId },
-    }],
+    scopes: [
+      {
+        resource: { type: 'jam', id: jamId },
+      },
+    ],
     name: 'jam-egress',
     expirationTime: '1d',
   }).then((token) => token.signedToken);
@@ -66,13 +83,15 @@ export const getJamObserverPath = async (jamId: string) => {
 export const getJamRecordingUrl = async (jamId: string) =>
   `${await serverRootUrl()}${await getJamObserverPath(jamId)}`;
 
-
 const getEgressClient = async () => {
   const { url, apiKey, apiSecret } = (await config()).jams.livekit;
   return new EgressClient(url, apiKey, apiSecret);
 };
 
-export const startRecording = async (profile: ProfileWithMeta, jamPost: PostWithMeta): Promise<JamRecording> => {
+export const startRecording = async (
+  profile: ProfileWithMeta,
+  jamPost: PostWithMeta,
+): Promise<JamRecording> => {
   const jamId = jamPost.id;
   const recordingId = uuidv7();
 
@@ -83,10 +102,12 @@ export const startRecording = async (profile: ProfileWithMeta, jamPost: PostWith
     await updateJamRecording(staleRecording.id, { status: 'failed' });
   }
 
-  let recording = await allpeepDb().then(({ db }) => connectRecording(db, profile, jamPost, {
-    id: recordingId,
-    status: 'requested',
-  }));
+  let recording = (await allpeepDb().then(({ db }) =>
+    connectRecording(db, profile, jamPost, {
+      id: recordingId,
+      status: 'requested',
+    }),
+  )) as JamRecording;
 
   const egressClient = await getEgressClient();
   const outputFilename = `${recordingId}.mp4`;
@@ -105,19 +126,20 @@ export const startRecording = async (profile: ProfileWithMeta, jamPost: PostWith
           secret: recordingId,
           sessionToken: recordingId,
           forcePathStyle: true,
-        }
+        },
       },
       filepath: outputFilename,
       fileType: EncodedFileType.MP4,
     }),
     {
       encodingOptions: EncodingOptionsPreset.H264_1080P_30,
-    });
+    },
+  );
 
-  recording = await updateJamRecording(recordingId, {
+  recording = (await updateJamRecording(recordingId, {
     egressId: egressInfo.egressId,
     status: 'active',
-  });
+  })) as JamRecording;
 
   const jamEvent = await createJamEvent({
     id: uuidv7(),
@@ -126,19 +148,24 @@ export const startRecording = async (profile: ProfileWithMeta, jamPost: PostWith
     profileId: profile.id,
   });
 
-  await roomService().then(async (rs) => rs?.sendData(
-    jamId,
-    encoder.encode(JSON.stringify(jamEvent)),
-    DataPacket_Kind.LOSSY,
-    {}
-  ));
+  await roomService().then(async (rs) =>
+    rs?.sendData(
+      jamId,
+      encoder.encode(JSON.stringify(jamEvent)),
+      DataPacket_Kind.LOSSY,
+      {},
+    ),
+  );
 
-  setTimeout(async () => {
-    await stopRecording(jamPost);
-  }, 60 * 60 * 1000);
+  setTimeout(
+    async () => {
+      await stopRecording(jamPost);
+    },
+    60 * 60 * 1000,
+  );
 
   return recording;
-}
+};
 
 export const stopEgress = async (egressId: string) => {
   const egressClient = await getEgressClient();
@@ -171,12 +198,14 @@ export const stopRecording = async (jamPost: PostWithMeta) => {
     profileId: jamRecording.profile.id,
   });
 
-  await roomService().then(async (rs) => rs?.sendData(
-    jamPost.id,
-    encoder.encode(JSON.stringify(jamEvent)),
-    DataPacket_Kind.LOSSY,
-    {}
-  ));
+  await roomService().then(async (rs) =>
+    rs?.sendData(
+      jamPost.id,
+      encoder.encode(JSON.stringify(jamEvent)),
+      DataPacket_Kind.LOSSY,
+      {},
+    ),
+  );
 
   return jamRecording;
 };
@@ -189,15 +218,15 @@ export const finishRecording = async (jamRecording: JamRecordingWithMeta) => {
     profileId: jamRecording.profile.id,
   });
 
-  await roomService().then(async (rs) => rs?.sendData(
-    jamRecording.post.id,
-    encoder.encode(JSON.stringify(jamEvent)),
-    DataPacket_Kind.LOSSY,
-    {}
-  ));
-
-}
-
+  await roomService().then(async (rs) =>
+    rs?.sendData(
+      jamRecording.post.id,
+      encoder.encode(JSON.stringify(jamEvent)),
+      DataPacket_Kind.LOSSY,
+      {},
+    ),
+  );
+};
 
 export const jamState = async (
   jam: PostWithMeta,
@@ -228,6 +257,5 @@ export const jamState = async (
 };
 
 const getActiveRecording = async (jamId: string) => {
-
   const egressClient = await getEgressClient();
 };

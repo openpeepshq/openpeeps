@@ -129,8 +129,6 @@ export const runProcessing = async ({
     }).catch((e) => log.error('Failed to mark media as failed', e));
     throw error;
   } finally {
-    await Promise.all(
-      [...temps].map((p) => unlink(p).catch(() => undefined)),
-    );
+    await Promise.all([...temps].map((p) => unlink(p).catch(() => undefined)));
   }
 };

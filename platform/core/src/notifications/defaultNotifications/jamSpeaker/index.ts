@@ -7,14 +7,12 @@ import {
 } from '@openpeeps/common/types';
 
 import { findProfile } from '@openpeeps/core/profiles';
-import {
-  maybeCreateNotification,
-} from '@openpeeps/core/notifications';
+import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { profileName } from '@openpeeps/common/lib';
 
 const eventHandler = async (eventData: unknown) => {
   const post = eventData as PostWithMeta;
-  const jam = post.data?.type === "event" && post.data?.jam;
+  const jam = post.data?.type === 'event' && post.data?.jam;
   if (!jam) {
     return;
   }

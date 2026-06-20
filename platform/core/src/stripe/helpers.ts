@@ -1,8 +1,20 @@
 import type Stripe from 'stripe';
 import { config } from '@openpeeps/core/config';
-import type { AccountWithMeta, ProfileWithMeta, StripePaymentConfig } from '@openpeeps/common/types';
-import { getStripeCustomerId, isOwnerProfile, isStripeActive } from '@openpeeps/common/lib';
-import { getUserStripeSubscription, refreshStripeSubscription, stripeCache } from './cache';
+import type {
+  AccountWithMeta,
+  ProfileWithMeta,
+  StripePaymentConfig,
+} from '@openpeeps/common/types';
+import {
+  getStripeCustomerId,
+  isOwnerProfile,
+  isStripeActive,
+} from '@openpeeps/common/lib';
+import {
+  getUserStripeSubscription,
+  refreshStripeSubscription,
+  stripeCache,
+} from './cache';
 import { findProfileSettings, updateProfileSettings } from '../profileSettings';
 import { getStripe, initStripeWithCredentials } from './connection';
 
@@ -91,28 +103,35 @@ export const createStripeCustomerPortal = async (stripeId: string) => {
   }
   const { portal_return_url } = (await getStripeDetails())!;
   try {
-    const session = await getStripe().then(stripe => stripe.billingPortal.sessions.create({
-      customer: stripeId,
-      return_url: portal_return_url,
-    }));
+    const session = await getStripe().then((stripe) =>
+      stripe.billingPortal.sessions.create({
+        customer: stripeId,
+        return_url: portal_return_url,
+      }),
+    );
     return session.url;
-  } catch { }
+  } catch {}
 };
 
-export const createStripeCustomer = async (profile: ProfileWithMeta, account: AccountWithMeta) => {
+export const createStripeCustomer = async (
+  profile: ProfileWithMeta,
+  account: AccountWithMeta,
+) => {
   const profileSettings = await findProfileSettings(profile.id);
   let stripeCustomerId = getStripeCustomerId(profileSettings);
   if (!stripeCustomerId) {
-    const customer = await getStripe().then(stripe => stripe.customers.create({
-      email: account.email,
-      metadata: {
-        userId: profile.id,
-      },
-    }));
+    const customer = await getStripe().then((stripe) =>
+      stripe.customers.create({
+        email: account.email,
+        metadata: {
+          userId: profile.id,
+        },
+      }),
+    );
     await updateProfileSettings(profile.id, {
       stripeSettings: {
         customerId: customer.id,
-      }
+      },
     });
     stripeCustomerId = customer.id;
   }
@@ -156,25 +175,43 @@ export const processEvent = async (event: Stripe.Event) => {
   return stripeCache.del(customerId);
 };
 
-const getOrCreateStripeCustomerId = async (profile: ProfileWithMeta, account: AccountWithMeta): Promise<string | undefined> =>
-  getStripeCustomerId(await findProfileSettings(profile.id)) || await createStripeCustomer(profile, account);
+const getOrCreateStripeCustomerId = async (
+  profile: ProfileWithMeta,
+  account: AccountWithMeta,
+): Promise<string | undefined> =>
+  getStripeCustomerId(await findProfileSettings(profile.id)) ||
+  (await createStripeCustomer(profile, account));
 
-export const checkSubscription = async (profile?: ProfileWithMeta, account?: AccountWithMeta, refresh = false): Promise<boolean> => {
-  if (await stripeMembershipActive() && profile && profile.type === 'local' && !isOwnerProfile(profile)) {
+export const checkSubscription = async (
+  profile?: ProfileWithMeta,
+  account?: AccountWithMeta,
+  refresh = false,
+): Promise<boolean> => {
+  if (
+    (await stripeMembershipActive()) &&
+    profile &&
+    profile.type === 'local' &&
+    !isOwnerProfile(profile)
+  ) {
     if (!account) {
       return false;
     }
-    const stripeCustomerId = await getOrCreateStripeCustomerId(profile, account);
+    const stripeCustomerId = await getOrCreateStripeCustomerId(
+      profile,
+      account,
+    );
     if (!stripeCustomerId) {
       return false;
     }
-    const subscription = refresh ? await refreshStripeSubscription(stripeCustomerId) : await getUserStripeSubscription(stripeCustomerId);
+    const subscription = refresh
+      ? await refreshStripeSubscription(stripeCustomerId)
+      : await getUserStripeSubscription(stripeCustomerId);
     if (!isStripeActive(subscription)) {
       return false;
     }
   }
   return true;
-}
+};
 
 export const createStripeCheckoutUrl = async (
   profile: ProfileWithMeta,
@@ -207,18 +244,22 @@ export const createStripeCheckoutUrl = async (
     const subscription_data =
       trialPeriodDays > 0
         ? {
-          trial_period_days: trialPeriodDays,
-        }
+            trial_period_days: trialPeriodDays,
+          }
         : undefined;
-    return getStripe().then(stripe => stripe.checkout.sessions.create({
-      customer: stripeCustomerId,
-      success_url: successUrl,
-      cancel_url,
-      line_items,
-      mode: 'subscription',
-      client_reference_id: profile.id,
-      subscription_data,
-      allow_promotion_codes: true,
-    })).then(session => session.url ?? undefined);
-  } catch { }
+    return getStripe()
+      .then((stripe) =>
+        stripe.checkout.sessions.create({
+          customer: stripeCustomerId,
+          success_url: successUrl,
+          cancel_url,
+          line_items,
+          mode: 'subscription',
+          client_reference_id: profile.id,
+          subscription_data,
+          allow_promotion_codes: true,
+        }),
+      )
+      .then((session) => session.url ?? undefined);
+  } catch {}
 };

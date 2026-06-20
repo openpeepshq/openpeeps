@@ -10,18 +10,19 @@ import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { getGroupAvatar, profileName } from '@openpeeps/common/lib';
 import { communityConfig } from '../../../config';
 
-
 const eventHandler = async (data: unknown) => {
-  const post = data as PostWithMeta
+  const post = data as PostWithMeta;
 
   if (!post.group) {
     return;
   }
 
-  const group = post.group
+  const group = post.group;
 
   for (const groupMember of await listGroupMembers(group).then((members) =>
-    members.map((m) => m.profile).filter((profile) => post.profile.id !== profile.id),
+    members
+      .map((m) => m.profile)
+      .filter((profile) => post.profile.id !== profile.id),
   )) {
     await maybeCreateNotification(groupMember, {
       type: 'newGroupPost',
@@ -36,7 +37,10 @@ const pushRenderer = async (notification: ExpandedNotification) => ({
   title: `${profileName(notification.post?.profile)} made a post in ${notification?.group?.displayName}`,
   options: {
     body: notification.post?.data?.content,
-    icon: getGroupAvatar(notification.group as GroupWithMeta, await communityConfig()),
+    icon: getGroupAvatar(
+      notification.group as GroupWithMeta,
+      await communityConfig(),
+    ),
     actions: [
       {
         action: `goto:/groups/@${notification.group?.handle}`,

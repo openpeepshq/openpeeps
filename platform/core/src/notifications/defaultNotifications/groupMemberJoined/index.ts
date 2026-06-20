@@ -4,7 +4,11 @@ import type {
   ProfileWithMeta,
 } from '@openpeeps/common/types';
 import { maybeCreateNotification } from '@openpeeps/core/notifications';
-import { getProfileAvatar, groupName, profileName } from '@openpeeps/common/lib';
+import {
+  getProfileAvatar,
+  groupName,
+  profileName,
+} from '@openpeeps/common/lib';
 import { listGroupMembers } from '@openpeeps/core/profiles';
 import { communityConfig } from '../../../config';
 
@@ -15,12 +19,7 @@ export default {
     const [group, profile] = args as [GroupWithMeta, ProfileWithMeta];
 
     for (const groupAdmin of await listGroupMembers(group).then((members) =>
-      members
-        .filter(
-          (m) =>
-            m.roles?.includes('admin'),
-        )
-        .map((m) => m.profile),
+      members.filter((m) => m.roles?.includes('admin')).map((m) => m.profile),
     )) {
       await maybeCreateNotification(groupAdmin, {
         type: 'groupMemberJoined',
@@ -33,7 +32,10 @@ export default {
     title: `New member ${profileName(notification.senderProfile!)} joined ${groupName(notification.group as GroupWithMeta)}`,
     options: {
       body: "Let's welcome them!",
-      icon: getProfileAvatar(notification.senderProfile, await communityConfig()),
+      icon: getProfileAvatar(
+        notification.senderProfile,
+        await communityConfig(),
+      ),
       actions: [
         {
           action: `goto:/@${notification.senderProfile?.handle}`,

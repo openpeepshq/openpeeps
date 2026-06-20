@@ -16,11 +16,8 @@ export default {
       });
 
       for (const doc of newCollectionData) {
-        await db
-          .collection('accountToPushSubscription')
-          .replace(doc._key, doc);
+        await db.collection('accountToPushSubscription').replace(doc._key, doc);
       }
     }
   },
 };
-

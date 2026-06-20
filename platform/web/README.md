@@ -120,7 +120,7 @@ covered while feature-specific forms can replace them slot-by-slot later.
 | ---------------- | ----------------------------- |
 | `/test/markdown` | `src/pages/test/Markdown.tsx` |
 | `/test/error`    | `src/pages/test/Error.tsx`    |
-| `/admin/db`      | `src/pages/admin/Db.tsx`      |
+| `/admin/db`      | `src/pages/admin/Db.tsx`      | Postgres admin (Drizzle Studio / psql) |
 
 ### React component additions
 

@@ -1,6 +1,6 @@
-import { Database, aql } from "arangojs";
-import { collectionInfos } from "../../structure";
-import { logger } from "../../../log";
+import { Database, aql } from 'arangojs';
+import { collectionInfos } from '../../structure';
+import { logger } from '../../../log';
 
 const log = logger('db:dataMigrations');
 

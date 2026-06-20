@@ -6,20 +6,5 @@ export { sendEmailValidationMail } from './helpers';
 export * from './mutations';
 export * from './finders';
 
-
 export const checkPassword = async (account: Account, password: string) =>
-    compare(password, account.passwordHash);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  compare(password, account.passwordHash);

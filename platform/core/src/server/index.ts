@@ -1,14 +1,14 @@
-import type { ServerInfo } from "@openpeeps/common/types";
-import { communityConfig, config } from "../config";
+import type { ServerInfo } from '@openpeeps/common/types';
+import { communityConfig, config } from '../config';
 
 export type DurationType =
-  | "yesterday"
-  | "today"
-  | "last7Days"
-  | "last30Days"
-  | "last90Days";
+  | 'yesterday'
+  | 'today'
+  | 'last7Days'
+  | 'last30Days'
+  | 'last90Days';
 export const serverProtocol = async () =>
-  (await config()).server.host.startsWith("localhost") ? "http" : "https";
+  (await config()).server.host.startsWith('localhost') ? 'http' : 'https';
 
 export const serverRootUrl = async () =>
   `${await serverProtocol()}://${(await config()).server.host}`;
@@ -51,13 +51,16 @@ export const serverInfo = () =>
           },
         },
       },
-      sso: coreConfig.sso.oidc.length > 0
-        ? {
-            oidc: coreConfig.sso.oidc.map((p: { id: string; name: string }) => ({
-              id: p.id,
-              name: p.name,
-            })),
-          }
-        : undefined,
+      sso:
+        coreConfig.sso.oidc.length > 0
+          ? {
+              oidc: coreConfig.sso.oidc.map(
+                (p: { id: string; name: string }) => ({
+                  id: p.id,
+                  name: p.name,
+                }),
+              ),
+            }
+          : undefined,
     }),
   );

@@ -57,9 +57,7 @@ export const estimateProcessingDuration = async ({
   );
   if (allByType.length) {
     const scaledMedian = median(
-      allByType.map(
-        (r) => (r.durationMs / Math.max(1, r.filesize)) * filesize,
-      ),
+      allByType.map((r) => (r.durationMs / Math.max(1, r.filesize)) * filesize),
     );
     if (scaledMedian > 0) return scaledMedian;
   }

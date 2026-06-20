@@ -1,11 +1,11 @@
-import { Database } from 'arangojs';
 import { initDb } from './init';
+import type { PgDb } from './pg/client';
 import { OpenpeepsDatabase } from './types';
 
 export { empty } from './examples';
 export * from './structure';
 
-export * from './arango'
+export type { PgDb } from './pg/client';
 
 let dbPromise: Promise<OpenpeepsDatabase>;
 export const allpeepDb = () => {
@@ -15,4 +15,4 @@ export const allpeepDb = () => {
   return dbPromise;
 };
 
-export const database = (): Promise<Database> => dbPromise.then(({ db }) => db);
+export const database = (): Promise<PgDb> => allpeepDb().then(({ db }) => db);

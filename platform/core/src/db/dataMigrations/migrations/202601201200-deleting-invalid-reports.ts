@@ -1,6 +1,6 @@
-import { Database, aql } from "arangojs";
-import { collectionInfos } from "../../structure";
-import { logger } from "../../../log";
+import { Database, aql } from 'arangojs';
+import { collectionInfos } from '../../structure';
+import { logger } from '../../../log';
 
 const log = logger('db:dataMigrations');
 
@@ -35,14 +35,16 @@ export default {
       return;
     }
 
-    const reportKeys = itemsToDelete.map(i => i.reportKey);
-    const edgeKeys = itemsToDelete.map(i => i.edgeKey);
+    const reportKeys = itemsToDelete.map((i) => i.reportKey);
+    const edgeKeys = itemsToDelete.map((i) => i.edgeKey);
 
     log.info(`Found ${reportKeys.length} guest reports. Deleting...`);
 
     await edgeCol.removeAll(edgeKeys);
     await reportsCol.removeAll(reportKeys);
 
-    log.info(`Successfully deleted ${reportKeys.length} reports and their edges.`);
+    log.info(
+      `Successfully deleted ${reportKeys.length} reports and their edges.`,
+    );
   },
 };

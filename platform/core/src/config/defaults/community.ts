@@ -42,5 +42,5 @@ export const defaultCommunityConfig: CommunityConfig = {
   roles: {
     onRegistration: { add: ['pendingmember'], remove: [] },
     onEmailValidation: { add: ['member'], remove: ['pendingmember'] },
-  }
+  },
 };

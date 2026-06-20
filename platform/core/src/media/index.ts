@@ -94,9 +94,9 @@ export const storeFromPath = (
 ): Promise<{ key: string; size: number }> =>
   mediaStorage().then((storage) =>
     storage.storeStream(
-      Readable.toWeb(
-        createReadStream(filePath),
-      ) as unknown as Parameters<MediaStorage['storeStream']>[0],
+      Readable.toWeb(createReadStream(filePath)) as unknown as Parameters<
+        MediaStorage['storeStream']
+      >[0],
     ),
   );
 
@@ -185,7 +185,11 @@ const createImagePreview = async (
   }
 
   const outputPath = join(tmpdir(), `preview-${randomString(16)}.webp`);
-  await sharp(inputPath).rotate().resize(previewMaxWidth).webp().toFile(outputPath);
+  await sharp(inputPath)
+    .rotate()
+    .resize(previewMaxWidth)
+    .webp()
+    .toFile(outputPath);
   return { path: outputPath, mimetype: 'image/webp' };
 };
 
@@ -221,7 +225,8 @@ const getVideoStreamInfo = (filePath: string): Promise<VideoStreamInfo> =>
       }
       const stream = metadata.streams.find((s) => s.codec_type === 'video');
       const duration =
-        metadata.format.duration ?? (stream?.duration ? Number(stream.duration) : undefined);
+        metadata.format.duration ??
+        (stream?.duration ? Number(stream.duration) : undefined);
       if (!stream?.width || !stream?.height || !duration) {
         reject(new Error('Could not determine video stream info'));
         return;

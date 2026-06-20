@@ -1,30 +1,29 @@
-import { map } from "@openpeeps/arango-querybuilder";
-import { Relation } from "@openpeeps/arango-querybuilder/types";
-import { GroupData, GroupWithMeta } from "@openpeeps/common/types";
-import { collectionInfos } from "../db/structure";
+import { map, Relation } from '../db/pg/map';
+import { GroupData, GroupWithMeta } from '@openpeeps/common/types';
+import { collectionInfos } from '../db/structure';
 
 const groupRelations: Relation[] = [
-    {
-        alias: 'membersCount',
-        edgeCollection: 'userGroups',
-        direction: 'INBOUND',
-        skipEdge: true,
-        cardinality: 'one',
-        count: true,
-        mapping: {
-            collection: `profiles`,
-            softDelete: true
-        }
+  {
+    alias: 'membersCount',
+    edgeCollection: 'userGroups',
+    direction: 'INBOUND',
+    skipEdge: true,
+    cardinality: 'one',
+    count: true,
+    mapping: {
+      collection: `profiles`,
+      softDelete: true,
     },
+  },
 ];
 
 export const groupsMapping = map<GroupData, GroupWithMeta>({
-    collection: 'groups',
-    relations: groupRelations,
-    derivedProperties: [
-        {
-            alias: 'lastPostAt',
-            expression: `
+  collection: 'groups',
+  relations: groupRelations,
+  derivedProperties: [
+    {
+      alias: 'lastPostAt',
+      expression: `
                 FIRST(
                     FOR edge IN ${collectionInfos.postGroupsCollection.name}
                         FILTER edge._to == DOC._id
@@ -33,7 +32,7 @@ export const groupsMapping = map<GroupData, GroupWithMeta>({
                         RETURN edge.createdAt
                 )
             `,
-        },
-    ],
-    softDelete: true,
+    },
+  ],
+  softDelete: true,
 });

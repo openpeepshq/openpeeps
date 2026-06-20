@@ -11,13 +11,12 @@ export default {
       };
       return oldJamEvent.sender.actor
         ? {
-          ...oldJamEvent,
-          sender: {
-            participantId: oldJamEvent.sender.participantId,
-            profile: oldJamEvent.sender.actor,
-          },
-        }
+            ...oldJamEvent,
+            sender: {
+              participantId: oldJamEvent.sender.participantId,
+              profile: oldJamEvent.sender.actor,
+            },
+          }
         : oldJamEvent;
     }),
 };
-

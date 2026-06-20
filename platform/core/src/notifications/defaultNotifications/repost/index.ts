@@ -1,4 +1,8 @@
-import type { PostWithMeta, NotificationHandler, PublicProfile } from '@openpeeps/common/types';
+import type {
+  PostWithMeta,
+  NotificationHandler,
+  PublicProfile,
+} from '@openpeeps/common/types';
 import { findProfile } from '@openpeeps/core/profiles';
 import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
@@ -28,7 +32,10 @@ export default {
     title: `${profileName(notification.senderProfile!)} reposted your post`,
     options: {
       body: notification.post?.data?.content,
-      icon: getProfileAvatar(notification.senderProfile as PublicProfile, await communityConfig()),
+      icon: getProfileAvatar(
+        notification.senderProfile as PublicProfile,
+        await communityConfig(),
+      ),
       actions: [
         {
           action: `goto:/posts/${notification.post?.id}`,

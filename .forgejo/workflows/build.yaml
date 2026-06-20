@@ -151,10 +151,16 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     services:
-      arangodb:
-        image: arangodb:3.11
+      postgres:
+        image: postgres:16-alpine
         env:
-          ARANGO_NO_AUTH: "true"
+          POSTGRES_USER: openpeeps
+          POSTGRES_PASSWORD: openpeeps
+          POSTGRES_DB: openpeeps
+      # arangodb:
+      #   image: arangodb:3.11
+      #   env:
+      #     ARANGO_NO_AUTH: "true"
       redis:
         image: redis:alpine
       web:
@@ -165,7 +171,7 @@ jobs:
           username: ${{ vars.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
         env:
-          DB_URL: "http://arangodb:8529"
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
           REDIS_HOST: "redis"
           JWT_SECRET: xxx
           JAMS_LIVEKIT_API_KEY: APIxxxxxxxxxxxx

@@ -42,14 +42,25 @@ const initJwt = async () => {
 
   return {
     publicKey,
-    sign: ({ payload, expirationTime, id }: { payload: unknown, expirationTime: string, id: string }) => new SignJWT(payload as JWTPayload)
-      .setProtectedHeader({ alg: 'EdDSA', kid: publicKey })
-      .setIssuedAt()
-      .setExpirationTime(expirationTime)
-      .setJti(id)
-      .sign(jwkPrivateKey)
-    ,
-    verify: async (token: string) => jwtVerify(token, jwkPublicKey, { algorithms: ['EdDSA'] }).catch(() => undefined),
+    sign: ({
+      payload,
+      expirationTime,
+      id,
+    }: {
+      payload: unknown;
+      expirationTime: string;
+      id: string;
+    }) =>
+      new SignJWT(payload as JWTPayload)
+        .setProtectedHeader({ alg: 'EdDSA', kid: publicKey })
+        .setIssuedAt()
+        .setExpirationTime(expirationTime)
+        .setJti(id)
+        .sign(jwkPrivateKey),
+    verify: async (token: string) =>
+      jwtVerify(token, jwkPublicKey, { algorithms: ['EdDSA'] }).catch(
+        () => undefined,
+      ),
   };
 };
 

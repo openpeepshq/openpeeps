@@ -42,7 +42,12 @@ export const registerConfigSchema = <T>(
     defaults,
   });
 
-registerConfigSchema('openpeeps', 'core', coreConfigSchemaFactory, defaultConfig);
+registerConfigSchema(
+  'openpeeps',
+  'core',
+  coreConfigSchemaFactory,
+  defaultConfig,
+);
 registerConfigSchema(
   'openpeeps',
   'community',
@@ -75,7 +80,9 @@ const initConfig = async <T = CoreConfig>(
     customConfigDocument?.config &&
     zodDeepPartialSchema(factory()).parse(customConfigDocument.config);
 
-  return (customConfig ? deepmerge(defaults as T, customConfig) : defaults) as T;
+  return (
+    customConfig ? deepmerge(defaults as T, customConfig) : defaults
+  ) as T;
 };
 
 export const refreshConfig = (namespace = 'openpeeps', name = 'core') => {

@@ -8,7 +8,7 @@ import {
   publicPostWithActivityScoreSchema,
 } from '@openpeeps/common/types';
 import { sub } from 'date-fns';
-import { Database } from 'arangojs';
+import type { PgDb } from '../db/pg/client';
 import { baseProfilesMapping } from '../profiles';
 import { allpeepDb } from '../db';
 import {
@@ -31,34 +31,30 @@ import {
   jamSessionStartsMapping,
 } from '../jams/mapping';
 
-export const activeProfilesCount = (db: Database, start?: Date, end?: Date) =>
+export const activeProfilesCount = (db: PgDb, start?: Date, end?: Date) =>
   profileWithActivityScoreMapping(start, end)
     .filter('DOC.activityScore > 0')
     .count(db);
 export const activeProfilesStats = (): Promise<ObjectStatsWithAll> =>
   compileStatsWithAll(activeProfilesCount);
 
-export const profilesCount = (db: Database, start?: Date, end?: Date) =>
+export const profilesCount = (db: PgDb, start?: Date, end?: Date) =>
   baseProfilesMapping.filter(creationDateFilter(start, end)).count(db);
 export const profileStats = (): Promise<ObjectStatsWithAll> =>
   compileStatsWithAll(profilesCount);
 
-export const postsCount = (db: Database, start?: Date, end?: Date) =>
+export const postsCount = (db: PgDb, start?: Date, end?: Date) =>
   postsMapping.filter(creationDateFilter(start, end)).count(db);
 export const postsStats = (): Promise<ObjectStatsWithAll> =>
   compileStatsWithAll(postsCount);
 
-export const eventsCount = (db: Database, start?: Date, end?: Date) =>
+export const eventsCount = (db: PgDb, start?: Date, end?: Date) =>
   postsMapping
     .filter(creationDateFilter(start, end))
     .filter({ matches: { type: 'event' } })
     .count(db);
 
-export const postsWithoutReplyCount = (
-  db: Database,
-  start?: Date,
-  end?: Date,
-) =>
+export const postsWithoutReplyCount = (db: PgDb, start?: Date, end?: Date) =>
   postsWithReplyCountMapping
     .filter(creationDateFilter(start, end))
     .filter({ matches: { replyCount: 0 } })
@@ -66,7 +62,7 @@ export const postsWithoutReplyCount = (
 export const postsWithoutReplyStats = (): Promise<ObjectStatsWithAll> =>
   compileStatsWithAll(postsWithoutReplyCount);
 
-export const postsWithRepliesCount = (db: Database, start?: Date, end?: Date) =>
+export const postsWithRepliesCount = (db: PgDb, start?: Date, end?: Date) =>
   postsWithReplyCountMapping
     .filter(creationDateFilter(start, end))
     .filter('DOC.replyCount > 0')
@@ -74,7 +70,7 @@ export const postsWithRepliesCount = (db: Database, start?: Date, end?: Date) =>
 export const postsWithRepliesStats = (): Promise<ObjectStatsWithAll> =>
   compileStatsWithAll(postsWithRepliesCount);
 
-export const postsRepliesCount = (db: Database, start?: Date, end?: Date) =>
+export const postsRepliesCount = (db: PgDb, start?: Date, end?: Date) =>
   postsWithReplyToCountMapping
     .filter(creationDateFilter(start, end))
     .filter({ matches: { replyToCount: 1 } })
@@ -82,21 +78,21 @@ export const postsRepliesCount = (db: Database, start?: Date, end?: Date) =>
 export const postsRepliesStats = (): Promise<ObjectStatsWithAll> =>
   compileStatsWithAll(postsRepliesCount);
 
-const reactionCount = (db: Database, start?: Date, end?: Date) =>
+const reactionCount = (db: PgDb, start?: Date, end?: Date) =>
   reactionsMapping.filter(creationDateFilter(start, end)).count(db);
-const rsvpCount = (db: Database, start?: Date, end?: Date) =>
+const rsvpCount = (db: PgDb, start?: Date, end?: Date) =>
   entriesMapping
     .filter(creationDateFilter(start, end))
     .filter('DOC.type == "rsvp"')
     .count(db);
-const followCount = (db: Database, start?: Date, end?: Date) =>
+const followCount = (db: PgDb, start?: Date, end?: Date) =>
   followsMapping.filter(creationDateFilter(start, end)).count(db);
-const entryCount = (db: Database, start?: Date, end?: Date) =>
+const entryCount = (db: PgDb, start?: Date, end?: Date) =>
   entriesMapping.filter(creationDateFilter(start, end)).count(db);
-const repostCount = (db: Database, start?: Date, end?: Date) =>
+const repostCount = (db: PgDb, start?: Date, end?: Date) =>
   repostsMapping.filter(creationDateFilter(start, end)).count(db);
 
-const interactionsCount = async (db: Database, start?: Date, end?: Date) =>
+const interactionsCount = async (db: PgDb, start?: Date, end?: Date) =>
   (await reactionCount(db, start, end)) +
   (await followCount(db, start, end)) +
   (await entryCount(db, start, end)) +
@@ -123,18 +119,18 @@ export const serverCounts = async (): Promise<ServerCounts> =>
     };
   });
 
-const jamSessionStarts = (db: Database, start?: Date, end?: Date) =>
+const jamSessionStarts = (db: PgDb, start?: Date, end?: Date) =>
   jamSessionStartsMapping.filter(creationDateFilter(start, end)).count(db);
 export const jamSessionsStats = (): Promise<ObjectStatsWithAll> =>
   compileStatsWithAll(jamSessionStarts);
 
-const jamParticipants = (db: Database, start?: Date, end?: Date) =>
+const jamParticipants = (db: PgDb, start?: Date, end?: Date) =>
   jamParticipantsMapping.filter(creationDateFilter(start, end)).count(db);
 export const jamParticipantsStats = (): Promise<ObjectStatsWithAll> =>
   compileStatsWithAll(jamParticipants);
 
 const topPosts = (
-  db: Database,
+  db: PgDb,
   start: Date,
 ): Promise<PublicPostWithActivityScore[]> =>
   postsWithActivityScoreMapping
@@ -151,7 +147,7 @@ const topPosts = (
     );
 
 const topProfiles = (
-  db: Database,
+  db: PgDb,
   start: Date,
 ): Promise<PublicProfileWithActivityScore[]> =>
   profileWithActivityScoreMapping(start, new Date())

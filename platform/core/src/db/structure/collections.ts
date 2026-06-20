@@ -1,4 +1,4 @@
-import { CollectionInfo } from "@openpeeps/arango-querybuilder";
+import type { CollectionInfo } from '../pg/map/queryTypes';
 
 const allPeepCollections = {
   dataMigrationsCollection: {
@@ -47,7 +47,7 @@ const allPeepCollections = {
         ],
         analyzer: 'text_en',
         name: 'search-profiles',
-      }
+      },
     ],
   },
   followsCollection: {
@@ -84,12 +84,16 @@ const allPeepCollections = {
           'data.physicalLocation.text',
           'data.url',
           { name: 'data.options', searchField: true, includeAllFields: true },
-          { name: 'data.attachments', searchField: true, includeAllFields: true },
+          {
+            name: 'data.attachments',
+            searchField: true,
+            includeAllFields: true,
+          },
         ],
         analyzer: 'text_en',
         name: 'search-posts',
       },
-    ]
+    ],
   },
   mentionsCollection: {
     name: 'mentions',
@@ -257,7 +261,6 @@ const allPeepCollections = {
         name: 'search-groups',
       },
     ],
-
   },
   postGroupsCollection: {
     name: 'postGroups',
@@ -292,4 +295,10 @@ const allPeepCollections = {
   },
 };
 
-export const collectionInfos: Record<keyof typeof allPeepCollections, CollectionInfo> = allPeepCollections as Record<keyof typeof allPeepCollections, CollectionInfo>;
+export const collectionInfos: Record<
+  keyof typeof allPeepCollections,
+  CollectionInfo
+> = allPeepCollections as Record<
+  keyof typeof allPeepCollections,
+  CollectionInfo
+>;

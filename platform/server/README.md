@@ -3,7 +3,7 @@
 A standalone Node/Express server that exposes the full OpenPeeps Community
 Server API via [`@riddl/core`](https://www.npmjs.com/package/@riddl/core).
 logic is reused unchanged — every handler delegates to the same
-`@openpeeps/core` services (ArangoDB models, JWT helpers, S3/media, Stripe,
+`@openpeeps/core` services (PostgreSQL models, JWT helpers, S3/media, Stripe,
 LiveKit jams, push notifications, …).
 
 ## Quick start

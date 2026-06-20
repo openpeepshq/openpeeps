@@ -1,4 +1,9 @@
-import { jamRecordingSchema, type JamEvent, type JamRecording, type PostWithMeta } from '@openpeeps/common/types';
+import {
+  jamRecordingSchema,
+  type JamEvent,
+  type JamRecording,
+  type PostWithMeta,
+} from '@openpeeps/common/types';
 import { allpeepDb } from '../db';
 import { jamEventsMapping, jamRecordingsMapping } from './mapping';
 import { addStartLimit, sortNewestFirst } from '../db/helpers';
@@ -31,18 +36,23 @@ export const listAttendance = (
     baseListJam({ jamId, type: 'join' }, { start, limit }).all(db),
   );
 
-export const findJamState = async (jam: PostWithMeta, hideParticipants?: boolean) => {
+export const findJamState = async (
+  jam: PostWithMeta,
+  hideParticipants?: boolean,
+) => {
   const state = await getJamState(jam);
   return {
     ...state,
     participants: hideParticipants ? [] : state.participants,
   };
-}
+};
 
 export const findJamRecording = async (recordingId: string) =>
   allpeepDb()
     .then(({ db }) => jamRecordingsMapping.find(db, recordingId))
-    .then(recording => recording ? transformJamRecordingData(recording) : undefined);
+    .then((recording) =>
+      recording ? transformJamRecordingData(recording) : undefined,
+    );
 
 export const findActiveRecording = async (jamPost: PostWithMeta) =>
   allpeepDb()
@@ -53,11 +63,19 @@ export const findActiveRecording = async (jamPost: PostWithMeta) =>
         }),
       ).first(db),
     )
-    .then(recording => recording ? transformJamRecordingData(recording) : undefined);
+    .then((recording) =>
+      recording ? transformJamRecordingData(recording) : undefined,
+    );
 
-export const listPostRecordings = async (postId: string): Promise<JamRecording[]> =>
+export const listPostRecordings = async (
+  postId: string,
+): Promise<JamRecording[]> =>
   allpeepDb()
     .then(({ db }) =>
-      sortNewestFirst(jamRecordingsMapping.filter({ matches: { _to: `posts/${postId}` } })).all(db),
+      sortNewestFirst(
+        jamRecordingsMapping.filter({ matches: { _to: `posts/${postId}` } }),
+      ).all(db),
     )
-    .then((recordings) => recordings.map((recording) => jamRecordingSchema.parse(recording)));
+    .then((recordings) =>
+      recordings.map((recording) => jamRecordingSchema.parse(recording)),
+    );
