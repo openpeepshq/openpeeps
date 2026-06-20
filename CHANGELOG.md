@@ -17,6 +17,12 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **react**: add react-native entry and isolate LiveKit CSS from RN bundles
+- **admin**: shorten logs filter placeholder and drop duplicate logs nav (#601)
+- **jams**: reduce console errors when starting a jam (#821)
+- **reports**: load reported posts for admin moderation (#835)
+- **groups**: remove moderator role from group role selection
+- **media**: always include full-res HLS variant for VOD transcoding
 - **posts**: grant read scope for public post detail access
 - **react**: improve video attachment previews
 - **react**: enhance layout responsiveness in FeedPost and modals
@@ -43,10 +49,12 @@ Changelog for OpenPeeps
 
 ### Documentation
 
+- **admin**: add OIDC SSO setup guide for server settings
 - **agents**: document rebase and single-commit PR requirements
 
 ### Chores
 
+- **react-native**: bump package versions for changed dependencies
 - **react-native**: bump version to 0.2.23 and enhance profile screen scroll behavior
 - **react-native**: upgrade safe-area-context for RN 0.85
 - bump version to 0.2.21 and update theme handling in OpenPeepsThemeProvider
