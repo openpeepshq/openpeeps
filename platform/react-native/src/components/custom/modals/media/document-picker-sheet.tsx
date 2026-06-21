@@ -16,6 +16,12 @@ import Toast from 'react-native-toast-message';
 import { uploadMedia } from '~/lib/uploadMedia';
 import { BaseSheet, SheetFooter } from '../common';
 import { ThemedText } from '~/components/ui/themed-text';
+import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
+import {
+  decodeFileUri,
+  dismissSheetForNativeModal,
+  resolveDocumentMime,
+} from '~/lib/mediaUriHelpers';
 
 interface DocumentPickerSheetProps {
   onSelect: (documentAttachments: MediaAttachment[]) => void | Promise<void>;
@@ -69,6 +75,7 @@ export const DocumentPickerSheet = forwardRef<
 
   const handlePickDocument = async () => {
     try {
+      await dismissSheetForNativeModal(ref);
       const results = await pick({
         type: [...ATTACHMENT_DOCUMENT_TYPES],
         allowMultiSelection: true,
@@ -83,24 +90,35 @@ export const DocumentPickerSheet = forwardRef<
         );
         return [...prev, ...newDocs];
       });
+      bottomSheetPresent(ref);
     } catch (err: any) {
       if (err.code === 'CANCELED') {
         console.log('User cancelled document picker');
       } else {
         console.log('DocumentPicker Error: ', err);
       }
+      bottomSheetPresent(ref);
     }
   };
 
   const handlePreview = async (doc: DocumentPickerResponse) => {
     try {
+      await dismissSheetForNativeModal(ref);
       await viewDocument({
-        uri: doc.uri,
+        uri: decodeFileUri(doc.uri),
         headerTitle: doc.name ?? 'Document Preview',
-        mimeType: doc.type ?? undefined,
+        mimeType: resolveDocumentMime(doc.type, doc.name),
+        presentationStyle: 'fullScreen',
       });
+      bottomSheetPresent(ref);
     } catch (error) {
       console.log('Error viewing document:', error);
+      Toast.show({
+        type: 'error',
+        text1: t('form.preview', { defaultValue: 'Preview' }),
+        text2: t('form.upload.failed', { defaultValue: 'File upload failed' }),
+      });
+      bottomSheetPresent(ref);
     }
   };
 

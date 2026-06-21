@@ -4,6 +4,10 @@ import { Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
 import type { MediaAttachment } from '@openpeeps/common';
 import i18next from '~/i18n';
+import {
+  decodeFileUri,
+  resolveDocumentMime,
+} from '~/lib/mediaUriHelpers';
 
 type UploadProgressInfo = {
   loaded: number;
@@ -14,54 +18,6 @@ type UploadProgressInfo = {
 
 export type UploadProgressMap = {
   [key: string]: { percent: number; estimatedRemainingMs?: number };
-};
-
-const EXTENSION_MIME: Record<string, string> = {
-  jpg: 'image/jpeg',
-  jpeg: 'image/jpeg',
-  png: 'image/png',
-  gif: 'image/gif',
-  webp: 'image/webp',
-  heic: 'image/heic',
-  heif: 'image/heif',
-  pdf: 'application/pdf',
-  doc: 'application/msword',
-  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  txt: 'text/plain',
-  csv: 'text/csv',
-  zip: 'application/zip',
-};
-
-const decodeFileUri = (uri: string): string => {
-  if (!uri.startsWith('file://')) {
-    return uri;
-  }
-  try {
-    return decodeURI(uri);
-  } catch {
-    return uri;
-  }
-};
-
-const inferMimeFromFilename = (name: string): string | undefined => {
-  const ext = name.split('.').pop()?.toLowerCase() ?? '';
-  return EXTENSION_MIME[ext];
-};
-
-const resolveDocumentMime = (
-  mimeType: string | null | undefined,
-  name: string | null | undefined,
-): string => {
-  if (mimeType?.includes('/')) {
-    return mimeType;
-  }
-  if (name) {
-    const inferred = inferMimeFromFilename(name);
-    if (inferred) {
-      return inferred;
-    }
-  }
-  return 'application/octet-stream';
 };
 
 type UploadMediaType = {

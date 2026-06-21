@@ -13,6 +13,11 @@ import Toast from 'react-native-toast-message';
 import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
 import { BaseSheet } from '../common';
 import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import {
+  dismissSheetForNativeModal,
+  isPickerCancelled,
+  toCropperPath,
+} from '~/lib/mediaUriHelpers';
 
 interface ImagePickerSheetProps {
   onSelect: (images: MediaAttachment[]) => void;
@@ -31,12 +36,13 @@ export const ImagePickerSheet = forwardRef<
   const createAttachment = openpeepsApi.createMediaAttachmentAction();
   const { colors, isDark } = useOpenPeepsTheme();
 
-  const cropImage = (uri: string) =>
-    ImagePicker.openCropper(
+  const cropImage = async (uri: string) => {
+    const path = await toCropperPath(uri);
+    return ImagePicker.openCropper(
       Platform.OS === 'android'
-        ? { path: uri, width: 1000, height: 1000, mediaType: 'photo' }
+        ? { path, width: 1000, height: 1000, mediaType: 'photo' }
         : {
-            path: uri,
+            path,
             width: 1000,
             height: 1000,
             cropperToolbarTitle: t('form.imageEditModal.title'),
@@ -46,6 +52,7 @@ export const ImagePickerSheet = forwardRef<
             cropperToolbarWidgetColor: colors.foreground,
           },
     );
+  };
 
   const finalize = async (uris: string[]) => {
     if (uris.length === 0) {
@@ -72,6 +79,29 @@ export const ImagePickerSheet = forwardRef<
   };
 
   const handleLibrary = async () => {
+    await dismissSheetForNativeModal(ref);
+
+    if (Platform.OS === 'ios') {
+      try {
+        const picked = await ImagePicker.openPicker({
+          width: 1000,
+          height: 1000,
+          cropping: true,
+          mediaType: 'photo',
+          cropperToolbarTitle: t('form.imageEditModal.title'),
+          cropperToolbarColor: colors.background,
+          cropperStatusBarLight: !isDark,
+          cropperToolbarWidgetColor: colors.foreground,
+        });
+        await finalize([picked.path]);
+      } catch (error) {
+        if (!isPickerCancelled(error)) {
+          console.error('iOS library pick failed:', error);
+        }
+      }
+      return;
+    }
+
     const result = await launchImageLibrary({
       mediaType: 'photo',
       selectionLimit: 0,
@@ -83,13 +113,15 @@ export const ImagePickerSheet = forwardRef<
     const uris = result.assets
       .map(asset => asset.uri)
       .filter((uri): uri is string => Boolean(uri));
-    // Offer a crop step only for single selections; batches upload as-is.
     if (uris.length === 1) {
       try {
         const cropped = await cropImage(uris[0]);
         await finalize([cropped.path]);
-      } catch {
-        // user cancelled cropping
+      } catch (error) {
+        if (isPickerCancelled(error)) {
+          return;
+        }
+        await finalize(uris);
       }
       return;
     }
@@ -98,6 +130,7 @@ export const ImagePickerSheet = forwardRef<
 
   const handleCamera = async () => {
     try {
+      await dismissSheetForNativeModal(ref);
       if (Platform.OS === 'android') {
         const result = await ImagePicker.openCamera({
           width: 1000,
@@ -117,10 +150,19 @@ export const ImagePickerSheet = forwardRef<
       if (!uri) {
         return;
       }
-      const cropped = await cropImage(uri);
-      await finalize([cropped.path]);
-    } catch {
-      // user cancelled camera or cropping
+      try {
+        const cropped = await cropImage(uri);
+        await finalize([cropped.path]);
+      } catch (error) {
+        if (isPickerCancelled(error)) {
+          return;
+        }
+        await finalize([uri]);
+      }
+    } catch (error) {
+      if (!isPickerCancelled(error)) {
+        console.error('Camera pick failed:', error);
+      }
     }
   };
 
