@@ -12,6 +12,7 @@ import { formatSize, MediaAttachment } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
 import { Button } from '~/components/ui/button';
 import { FileIcon, XIcon, PlusIcon, FileTextIcon } from '~/components/icons';
+import Toast from 'react-native-toast-message';
 import { uploadMedia } from '~/lib/uploadMedia';
 import { BaseSheet, SheetFooter } from '../common';
 import { ThemedText } from '~/components/ui/themed-text';
@@ -129,6 +130,16 @@ export const DocumentPickerSheet = forwardRef<
         }),
       ).then(attachments => attachments.filter(Boolean) as MediaAttachment[]);
 
+      if (documentAttachments.length === 0 && selectedDocs.length > 0) {
+        Toast.show({
+          type: 'error',
+          text1: t('form.upload.failed', {
+            defaultValue: 'File upload failed',
+          }),
+        });
+        return;
+      }
+
       await onSelect(documentAttachments);
 
       resetStates();
@@ -148,7 +159,11 @@ export const DocumentPickerSheet = forwardRef<
             <FileTextIcon size={32} className="text-muted-foreground" />
           </View>
           <Button variant="outline" onPress={handlePickDocument}>
-            <ThemedText>Upload Document</ThemedText>
+            <ThemedText>
+              {t('form.documentInput.pickPrompt', {
+                defaultValue: 'Choose files',
+              })}
+            </ThemedText>
           </Button>
         </View>
       );
@@ -204,7 +219,9 @@ export const DocumentPickerSheet = forwardRef<
           onPress={handlePickDocument}>
           <PlusIcon size={16} className="text-foreground mr-2" />
           <Text className="text-foreground font-medium">
-            {t('form.documentInput.addMore')}
+            {t('form.documentInput.addMore', {
+              defaultValue: 'Add more files',
+            })}
           </Text>
         </Button>
       </View>
@@ -216,7 +233,9 @@ export const DocumentPickerSheet = forwardRef<
       <View className="flex-1">
         <View className="px-4 py-3 border-b border-border mb-2">
           <Text className="text-lg font-semibold text-foreground">
-            Upload Document
+            {t('form.documentInput.uploadTitle', {
+              defaultValue: 'Upload Files',
+            })}
           </Text>
         </View>
 
@@ -231,7 +250,10 @@ export const DocumentPickerSheet = forwardRef<
           disabled={selectedDocs.length === 0 || isConfirmLoading}
           confirmText={
             selectedDocs.length > 0
-              ? `${t('configuration.community.upload')} (${selectedDocs.length})`
+              ? t('form.documentInput.uploadFilesCount', {
+                  count: selectedDocs.length,
+                  defaultValue: `Upload Files (${selectedDocs.length})`,
+                })
               : t('common.done')
           }
           isLoading={isConfirmLoading}

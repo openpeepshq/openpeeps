@@ -1,9 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {
-  View,
-  FlatList,
-  ViewToken,
-} from 'react-native';
+import { View, FlatList, ViewToken } from 'react-native';
 import { MediaAttachmentData, PublicPost } from '@openpeeps/common';
 import { GalleryImage } from './gallery/GalleryImage';
 import { GalleryVideo } from './gallery/GalleryVideo';
@@ -11,12 +7,9 @@ import { GalleryAudio } from './gallery/GalleryAudio';
 import { GalleryDocument } from './gallery/GalleryDocument';
 import { ThemedText } from '~/components/ui/themed-text';
 import { ThemedView } from '~/components/ui/themed-view';
+import { isImageAttachment } from '~/lib/attachmentHelpers';
 
-export const Attachments = ({
-  post,
-}: {
-  post: PublicPost;
-}) => {
+export const Attachments = ({ post }: { post: PublicPost }) => {
   const attachments = post?.data?.attachments || [];
   const profile = post?.profile || {};
   const [activeIndex, setActiveIndex] = useState(0);
@@ -33,13 +26,17 @@ export const Attachments = ({
         const newIndex = viewableItems[0].index ?? 0;
         setActiveIndex(newIndex);
       }
-    },
+    }
   ).current;
 
-  const renderAttachmentContent = (attachment: MediaAttachmentData, isCurrent: boolean) => {
+  const renderAttachmentContent = (
+    attachment: MediaAttachmentData,
+    isCurrent: boolean
+  ) => {
+    if (isImageAttachment(attachment)) {
+      return <GalleryImage {...{ attachment }} />;
+    }
     switch (attachment.type) {
-      case 'image':
-        return <GalleryImage {...{ attachment }} />;
       case 'video':
         return <GalleryVideo {...{ attachment, profile }} />;
       case 'audio':
@@ -50,7 +47,6 @@ export const Attachments = ({
         return null;
     }
   };
-
 
   const renderMediaItem = ({
     item,
@@ -110,11 +106,15 @@ export const Attachments = ({
         maxToRenderPerBatch={1}
         windowSize={3}
         removeClippedSubviews={true}
-        getItemLayout={containerWidth > 0 ? (_, index) => ({
-          length: containerWidth,
-          offset: containerWidth * index,
-          index,
-        }) : undefined}
+        getItemLayout={
+          containerWidth > 0
+            ? (_, index) => ({
+                length: containerWidth,
+                offset: containerWidth * index,
+                index,
+              })
+            : undefined
+        }
         keyExtractor={(_, index) => `media-${index}`}
       />
       {attachments.length > 1 && (
@@ -122,8 +122,9 @@ export const Attachments = ({
           {attachments.map((_, index) => (
             <View
               key={index}
-              className={`h-2 w-2 rounded-full ${index === activeIndex ? 'bg-primary' : 'bg-muted'
-                }`}
+              className={`h-2 w-2 rounded-full ${
+                index === activeIndex ? 'bg-primary' : 'bg-muted'
+              }`}
               onTouchEnd={() => scrollToIndex(index)}
             />
           ))}
@@ -132,4 +133,3 @@ export const Attachments = ({
     </View>
   );
 };
-

@@ -16,6 +16,54 @@ export type UploadProgressMap = {
   [key: string]: { percent: number; estimatedRemainingMs?: number };
 };
 
+const EXTENSION_MIME: Record<string, string> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  heic: 'image/heic',
+  heif: 'image/heif',
+  pdf: 'application/pdf',
+  doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  txt: 'text/plain',
+  csv: 'text/csv',
+  zip: 'application/zip',
+};
+
+const decodeFileUri = (uri: string): string => {
+  if (!uri.startsWith('file://')) {
+    return uri;
+  }
+  try {
+    return decodeURI(uri);
+  } catch {
+    return uri;
+  }
+};
+
+const inferMimeFromFilename = (name: string): string | undefined => {
+  const ext = name.split('.').pop()?.toLowerCase() ?? '';
+  return EXTENSION_MIME[ext];
+};
+
+const resolveDocumentMime = (
+  mimeType: string | null | undefined,
+  name: string | null | undefined,
+): string => {
+  if (mimeType?.includes('/')) {
+    return mimeType;
+  }
+  if (name) {
+    const inferred = inferMimeFromFilename(name);
+    if (inferred) {
+      return inferred;
+    }
+  }
+  return 'application/octet-stream';
+};
+
 type UploadMediaType = {
   mediaUri: string;
   createAttachments: (
@@ -23,7 +71,7 @@ type UploadMediaType = {
     pathParams?: undefined,
     queryParams?: undefined,
     headers?: Record<string, string>,
-    onUploadProgress?: (info: UploadProgressInfo) => void,
+    onUploadProgress?: (info: UploadProgressInfo) => void
   ) => Promise<any>;
   type: 'image' | 'video' | 'audio' | 'document';
   usage: string;
@@ -43,7 +91,8 @@ export const uploadMedia = async ({
   mimeType,
   setUploadProgress,
 }: UploadMediaType) => {
-  let finalUri = mediaUri;
+  const decodedMediaUri = decodeFileUri(mediaUri);
+  let finalUri = decodedMediaUri;
 
   let fileExtension = 'bin';
   let finalMimeType = 'application/octet-stream';
@@ -61,30 +110,13 @@ export const uploadMedia = async ({
         fileExtension = extractedExt;
       }
     }
-    if (mimeType) {
-      finalMimeType = mimeType;
-    } else if (name) {
-      const ext = name.split('.').pop()?.toLowerCase() ?? '';
-      const inferred: Record<string, string> = {
-        jpg: 'image/jpeg',
-        jpeg: 'image/jpeg',
-        png: 'image/png',
-        gif: 'image/gif',
-        webp: 'image/webp',
-        heic: 'image/heic',
-        heif: 'image/heif',
-        pdf: 'application/pdf',
-      };
-      if (inferred[ext]) {
-        finalMimeType = inferred[ext];
-      }
-    }
+    finalMimeType = resolveDocumentMime(mimeType, name);
   }
 
   const tempFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExtension}`;
 
   if (setUploadProgress) {
-    setUploadProgress(prev => ({
+    setUploadProgress((prev) => ({
       ...prev,
       [mediaUri]: { percent: 0, estimatedRemainingMs: undefined },
     }));
@@ -117,10 +149,11 @@ export const uploadMedia = async ({
     }
   }
 
+  // iOS document picker import mode already copies into the app sandbox;
+  // copying again often fails on encoded paths. Android needs content:// copied.
   const shouldCopyPickerFile =
-    mediaUri.startsWith('content://') ||
-    (Platform.OS === 'android' && mediaUri.startsWith('file://')) ||
-    (Platform.OS === 'ios' && mediaUri.startsWith('file://'));
+    decodedMediaUri.startsWith('content://') ||
+    (Platform.OS === 'android' && decodedMediaUri.startsWith('file://'));
 
   if (shouldCopyPickerFile) {
     const destPath = `${RNFS.CachesDirectoryPath}/${tempFileName}`;
@@ -130,16 +163,16 @@ export const uploadMedia = async ({
         await RNFS.unlink(destPath);
       }
 
-      await RNFS.copyFile(mediaUri, destPath);
+      await RNFS.copyFile(decodedMediaUri, destPath);
       finalUri = `file://${destPath}`;
     } catch (error) {
-      console.error('Failed to copy content:// file:', error);
+      console.error('Failed to copy picker file:', error);
       return null;
     }
   }
 
   try {
-    const cleanPath = finalUri.replace('file://', '');
+    const cleanPath = finalUri.replace(/^file:\/\//, '');
     const fileStat = await RNFS.stat(cleanPath);
 
     const file = {
@@ -160,24 +193,24 @@ export const uploadMedia = async ({
       undefined,
       ({ percent, estimatedRemainingMs }) => {
         if (setUploadProgress) {
-          setUploadProgress(prev => ({
+          setUploadProgress((prev) => ({
             ...prev,
             [mediaUri]: { percent, estimatedRemainingMs },
           }));
         }
-      },
+      }
     );
 
     return {
       id: mediaAttachment.id,
-      type: type,
+      type: mediaAttachment.type ?? type,
       url: mediaAttachment.url,
       previewUrl: mediaAttachment.previewUrl,
       textUrl: null,
       filename: mediaAttachment.filename || file.name,
       meta: {
-        usage: type,
-        mimetype: finalMimeType,
+        usage: mediaAttachment.meta?.usage ?? usage,
+        mimetype: mediaAttachment.meta?.mimetype ?? finalMimeType,
         size: fileStat.size,
       },
       description: mediaAttachment.description,
@@ -185,10 +218,7 @@ export const uploadMedia = async ({
       status: mediaAttachment.status,
     };
   } catch (error) {
-    console.error(
-      `Failed to upload ${type}: ${mediaUri}`,
-      error,
-    );
+    console.error(`Failed to upload ${type}: ${mediaUri}`, error);
     const reason = error instanceof Error ? error.message : undefined;
     Toast.show({
       type: 'error',
@@ -198,7 +228,7 @@ export const uploadMedia = async ({
     return null;
   } finally {
     if (setUploadProgress) {
-      setUploadProgress(prev => {
+      setUploadProgress((prev) => {
         const next = { ...prev };
         delete next[mediaUri];
         return next;
