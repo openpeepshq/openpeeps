@@ -13,26 +13,15 @@ initializeServer().then();
 
 initLibraryLogging();
 
-/** Forward legacy /api/allpeep requests to /api/openpeeps (same method, headers, body). */
+/** Rewrite legacy /api/allpeep paths to /api/openpeeps before routing. */
 const forwardAllpeepToOpenpeeps: Handle = async ({ event, resolve }) => {
-  if (!event.url.pathname.startsWith('/api/allpeep')) {
-    return resolve(event);
+  if (event.url.pathname.startsWith('/api/allpeep')) {
+    event.url.pathname = event.url.pathname.replace(
+      /^\/api\/allpeep/,
+      '/api/openpeeps',
+    );
   }
-  const newPath = event.url.pathname.replace(/^\/api\/allpeep/, '/api/openpeeps');
-  const newUrl = new URL(event.url);
-  newUrl.pathname = newPath;
-  const body =
-    event.request.method !== 'GET' && event.request.method !== 'HEAD'
-      ? event.request.body
-      : undefined;
-  const duplex = body ? 'half' : undefined;
-  const forwardedRequest = new Request(newUrl, {
-    method: event.request.method,
-    headers: event.request.headers,
-    body,
-    duplex,
-  });
-  return fetch(forwardedRequest);
+  return resolve(event);
 };
 
 const requestDurationLogger: Handle = async ({ event, resolve }) => {
