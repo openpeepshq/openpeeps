@@ -73,9 +73,14 @@ const startServer = async () => {
     next();
   });
 
-  // Forward legacy /api/allpeep → /api/openpeeps (same body, headers).
+  // Forward legacy /api/allpeep → /api/openpeeps. Riddl reads `originalUrl`,
+  // so rewrite both Express URL fields.
   app.use((req, _res, next) => {
-    if (req.url.startsWith('/api/allpeep')) {
+    if (req.originalUrl.startsWith('/api/allpeep')) {
+      req.originalUrl = req.originalUrl.replace(
+        /^\/api\/allpeep/,
+        '/api/openpeeps',
+      );
       req.url = req.url.replace(/^\/api\/allpeep/, '/api/openpeeps');
     }
     next();
