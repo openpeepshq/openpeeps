@@ -8,7 +8,8 @@ const renderSubject = async (
 	const { t } = props.globals.i18nContext;
 
 	return t('emails.mention.subject', {
-		profileName: profileName(props.locals.senderProfile)
+		profileName: profileName(props.locals.senderProfile),
+		communityName: props.globals.communityConfig.info.name
 	});
 };
 

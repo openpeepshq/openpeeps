@@ -21,7 +21,8 @@
 <BaseEmailLayout
 	{globals}
 	previewText={t('emails.mention.body', {
-		profileName: profileName(locals.senderProfile)
+		profileName: profileName(locals.senderProfile),
+		communityName: globals.communityConfig.info.name
 	})}
 	showLogo={true}
 	showGreeting={true}
@@ -30,7 +31,8 @@
 >
 	<Text style={emailStyles.heading}>
 		{t('emails.mention.body', {
-			profileName: profileName(locals.senderProfile)
+			profileName: profileName(locals.senderProfile),
+			communityName: globals.communityConfig.info.name
 		})}
 	</Text>
 	{#if locals.post?.data?.content}
