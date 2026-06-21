@@ -4,7 +4,6 @@ import type { MediaAttachmentData } from '@openpeeps/common';
 export const isImageAttachment = (att: MediaAttachmentData): boolean => {
   const mime = att.meta?.mimetype?.toLowerCase() ?? '';
   if (att.type === 'image' || mime.startsWith('image/')) return true;
-  if (att.previewUrl && att.type === 'document') return true;
   const fname = att.filename ?? '';
   if (
     att.type === 'document' &&

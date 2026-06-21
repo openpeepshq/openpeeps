@@ -24,3 +24,7 @@ export function bottomSheetClose(ref: BottomSheetRefArg): void {
 export function bottomSheetDismiss(ref: BottomSheetRefArg): void {
   getSheetInstance(ref)?.dismiss();
 }
+
+export function bottomSheetPresent(ref: BottomSheetRefArg): void {
+  getSheetInstance(ref)?.present();
+}
