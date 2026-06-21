@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/sveltekit';
 import { initializeServer } from '$lib/server/init';
 import { sequence } from '@sveltejs/kit/hooks';
 import { handleApiErrors, handleAuthorization } from '$lib/server/middleware';
-import type { Handle, HandleServerError } from '@sveltejs/kit';
+import type { Handle, HandleServerError, Reroute } from '@sveltejs/kit';
 import { logger } from '@openpeeps/core/log';
 import { initLibraryLogging } from '$lib/server/log';
 
@@ -13,15 +13,11 @@ initializeServer().then();
 
 initLibraryLogging();
 
-/** Rewrite legacy /api/allpeep paths to /api/openpeeps before routing. */
-const forwardAllpeepToOpenpeeps: Handle = async ({ event, resolve }) => {
-  if (event.url.pathname.startsWith('/api/allpeep')) {
-    event.url.pathname = event.url.pathname.replace(
-      /^\/api\/allpeep/,
-      '/api/openpeeps',
-    );
+/** Route legacy /api/allpeep URLs to the /api/openpeeps handlers. */
+export const reroute: Reroute = ({ url }) => {
+  if (url.pathname.startsWith('/api/allpeep')) {
+    return url.pathname.replace(/^\/api\/allpeep/, '/api/openpeeps');
   }
-  return resolve(event);
 };
 
 const requestDurationLogger: Handle = async ({ event, resolve }) => {
@@ -32,7 +28,7 @@ const requestDurationLogger: Handle = async ({ event, resolve }) => {
   return response;
 }
 
-export const handle = sequence(forwardAllpeepToOpenpeeps, requestDurationLogger, Sentry.sentryHandle(), handleApiErrors, handleAuthorization);
+export const handle = sequence(requestDurationLogger, Sentry.sentryHandle(), handleApiErrors, handleAuthorization);
 
 export const handleError: HandleServerError = Sentry.handleErrorWithSentry(async ({
   error,
