@@ -1,6 +1,6 @@
 {
   "name": "@openpeeps/react-native",
-  "version": "0.2.28",
+  "version": "0.2.29",
   "description": "React Native community screens and shared UI (extracted from the Black Ambition app) for the OpenPeeps stack.",
   "source": "./src/index.ts",
   "main": "./lib/commonjs/index.js",
@@ -9,7 +9,8 @@
   "sideEffects": [
     "./src/i18n/index.ts",
     "./src/global.css",
-    "./src/lib/polyfills/customEvent.ts"
+    "./src/lib/polyfills/customEvent.ts",
+    "./src/lib/push-notifications-background.ts"
   ],
   "exports": {
     ".": {
@@ -32,6 +33,15 @@
       "require": {
         "types": "./lib/typescript/commonjs/i18n/index.d.ts",
         "default": "./lib/commonjs/i18n/index.js"
+      }
+    },
+    "./push-background": {
+      "react-native": "./src/lib/push-notifications-background.ts",
+      "import": {
+        "default": "./lib/module/lib/push-notifications-background.js"
+      },
+      "require": {
+        "default": "./lib/commonjs/lib/push-notifications-background.js"
       }
     }
   },

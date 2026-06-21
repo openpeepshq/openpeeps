@@ -39,7 +39,7 @@ const pushRenderer = async (notification: ExpandedNotification) => ({
     icon: getGroupAvatar(notification.group as GroupWithMeta, await communityConfig()),
     actions: [
       {
-        action: `goto:/posts/${notification.post?.id}`,
+        action: `goto:/groups/@${notification.group?.handle}`,
         title: 'Go to post',
       },
     ],

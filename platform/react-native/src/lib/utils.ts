@@ -140,28 +140,49 @@ export const handleInternalURLNavigation = (
   defaultAction: string,
   goto: ReturnType<typeof buildGoto>,
 ) => {
-  const actionList = defaultAction.replace('goto:/', '').split('/');
-
-  const path = isLocalLink(defaultAction, BASE_URL as string) ? new URL(defaultAction).pathname : null;
-
-
-  if (path) {
+  const navigatePath = (path: string) => {
     if (isGroupPath(path)) {
-      goto({ target: 'group', params: { handle: path.substring(9) } });
-      return;
+      goto({
+        target: 'group',
+        params: { handle: path.slice('/groups/@'.length).split('/')[0] },
+      });
+      return true;
     }
-    else if (isJamPath(path)) {
+    if (isJamPath(path)) {
       goto({ target: 'event', params: { id: path.split('/')[2] } });
-      return;
+      return true;
     }
-    else if (isPostPath(path)) {
+    if (isPostPath(path)) {
       goto({ target: 'posts', params: { id: path.split('/')[2] } });
-      return;
-    } else if (isProfilePath(path)) {
-      goto({ target: 'profile', params: { handle: path.substring(2) } });
+      return true;
+    }
+    if (isProfilePath(path)) {
+      goto({
+        target: 'profile',
+        params: { handle: path.slice(2).split('/')[0] },
+      });
+      return true;
+    }
+    return false;
+  };
+
+  if (defaultAction.startsWith('goto:')) {
+    const gotoPath = defaultAction.slice('goto:'.length);
+    const path = gotoPath.startsWith('/') ? gotoPath : `/${gotoPath}`;
+    if (navigatePath(path)) {
       return;
     }
   }
+
+  const path = isLocalLink(defaultAction, BASE_URL as string)
+    ? new URL(defaultAction).pathname
+    : null;
+
+  if (path && navigatePath(path)) {
+    return;
+  }
+
+  const actionList = defaultAction.replace('goto:/', '').split('/');
 
   if (actionList[0].startsWith('@')) {
     goto({ target: 'profile', params: { handle: actionList[0].replace('@', '') } });
