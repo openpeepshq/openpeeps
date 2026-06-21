@@ -17,6 +17,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **react-native**: guard useHasAuthToken for RN and notify credential changes
 - **react**: add react-native entry and isolate LiveKit CSS from RN bundles
 - **admin**: shorten logs filter placeholder and drop duplicate logs nav (#601)
 - **jams**: reduce console errors when starting a jam (#821)
