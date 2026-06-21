@@ -1,0 +1,5 @@
+# AllPeep Documentation
+
+Welcome to AllPeep, the first federated community platform targeted at non-technical groups.
+
+--
