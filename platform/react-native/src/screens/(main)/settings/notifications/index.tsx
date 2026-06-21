@@ -12,6 +12,20 @@ import {ChevronRightIcon} from '~/components/icons';
 import {useOpenpeeps} from '@openpeeps/react';
 import {NotificationType} from '@openpeeps/common';
 
+const notificationTypeDefaults: Record<
+  string,
+  {label: string; description: string}
+> = {
+  directMessage: {
+    label: 'Direct Messages',
+    description: 'Manage notifications for when you receive a direct message',
+  },
+  mention: {
+    label: 'Mentions',
+    description: 'Receive a notification when someone mentions you in a post',
+  },
+};
+
 type NotificationsSettingsProps = MainScreenProps<'NotificationsSettings'>;
 
 export const NotificationsSettings: React.FC<
@@ -23,7 +37,11 @@ export const NotificationsSettings: React.FC<
 
   return (
     <ThemedSafeAreaView style={{flex: 1}}>
-      <GenericHeader title="Notifications" />
+      <GenericHeader
+        title={t('settings.notifications.title', {
+          defaultValue: 'Notification Settings',
+        })}
+      />
       <KeyboardAwareScrollView
         contentContainerStyle={{flexGrow: 1}}
         className="w-full flex py-3 px-5">
@@ -32,7 +50,9 @@ export const NotificationsSettings: React.FC<
             contentContainerStyle={{flexGrow: 1}}
             className="w-full flex py-3 px-5">
             <ThemedText className="text-lg text-muted-foreground">
-              {t('settings.notifications.description')}
+              {t('settings.notifications.description', {
+                defaultValue: 'Manage your notification preferences',
+              })}
             </ThemedText>
 
             <ThemedView className=" gap-7 py-4 w-full  items-center rounded-md">
@@ -41,9 +61,18 @@ export const NotificationsSettings: React.FC<
                   <NotificationItem
                     key={index}
                     name={item.type}
-                    label={t(`settings.notifications.types.${item.type}.label`)}
+                    label={t(`settings.notifications.types.${item.type}.label`, {
+                      defaultValue:
+                        notificationTypeDefaults[item.type]?.label ??
+                        item.type,
+                    })}
                     description={t(
                       `settings.notifications.types.${item.type}.description`,
+                      {
+                        defaultValue:
+                          notificationTypeDefaults[item.type]?.description ??
+                          '',
+                      },
                     )}
                     notificationType={item}
                   />

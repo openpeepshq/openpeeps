@@ -1781,7 +1781,8 @@
                     "description": "Manage notifications for when you receive an announcement"
                 },
                 "directMessage": {
-                    "label": "Direct Messages"
+                    "label": "Direct Messages",
+                    "description": "Manage notifications for when you receive a direct message"
                 },
                 "follow": {
                     "description": "Manage notifications for when someone follows you",
@@ -1816,7 +1817,8 @@
                     "description": "Manage notifications for when someone rsvps to your event"
                 },
                 "mention": {
-                    "label": "Mentions"
+                    "label": "Mentions",
+                    "description": "Receive a notification when someone mentions you in a post"
                 }
             },
             "pushSettings": "Push Notifications",
@@ -1851,10 +1853,6 @@
                     "cancel": "Cancel",
                     "header": "Remove this device?"
                 }
-            },
-            "mention": {
-                "description": "Receive a notification when someone mentions you in a post",
-                "label": "Mentions"
             }
         },
         "form": {
