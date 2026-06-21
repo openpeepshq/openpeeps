@@ -1612,7 +1612,8 @@
                     "description": "Benachrichtigungen verwalten, wenn Sie eine Ankündigung erhalten"
                 },
                 "directMessage": {
-                    "label": "Direktnachrichten"
+                    "label": "Direktnachrichten",
+                    "description": "Benachrichtigungen verwalten, wenn Sie eine Direktnachricht erhalten"
                 },
                 "follow": {
                     "description": "Benachrichtigungen verwalten, wenn Ihnen jemand folgt",
@@ -1645,6 +1646,10 @@
                 "rsvp": {
                     "label": "RSVP",
                     "description": "Benachrichtigungen verwalten, wenn jemand an Ihrer Veranstaltung teilnimmt"
+                },
+                "mention": {
+                    "label": "Erwähnungen",
+                    "description": "Benachrichtigung erhalten, wenn Sie in einem Beitrag erwähnt werden"
                 }
             },
             "pushSettings": "Push-Benachrichtigungen",

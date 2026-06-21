@@ -40,7 +40,7 @@
 
 <div class="bg-surface-100 mb-3 mt-4 w-full rounded-md p-3">
   <p class="mb-2 font-bold">
-    {t(`settings.notifications.types.${type}.label`)}:
+    {t(`settings.notifications.types.${type}.label`, { defaultValue: type })}:
   </p>
   {#each ['create', 'push', 'email'] as const as action (action)}
     <div class="mb-3">

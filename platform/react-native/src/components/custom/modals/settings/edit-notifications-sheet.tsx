@@ -84,7 +84,9 @@ export const EditNotificationsSheet = forwardRef<
           Toast.show({
             type: 'success',
             text1: t('common.actions.success'),
-            text2: t('settings.notifications.updateSuccess'),
+            text2: t('settings.notifications.updateSuccess', {
+              defaultValue: 'Community settings updated',
+            }),
           });
         }
       })
@@ -114,7 +116,9 @@ export const EditNotificationsSheet = forwardRef<
         </View>
         <View className="flex-row items-center justify-between mb-4">
           <ThemedText className="text-base font-semibold">
-            {t('settings.notifications.inApp')}
+            {t('settings.notifications.inApp', {
+              defaultValue: 'In-App Notifications',
+            })}
           </ThemedText>
           {isProfileSettingsLoading ? (
             <ActivityIndicator size={'small'} />
@@ -130,7 +134,9 @@ export const EditNotificationsSheet = forwardRef<
         </View>
         <View className="flex-row items-center justify-between mb-4">
           <ThemedText className="text-base font-semibold">
-            {t('settings.notifications.push')}
+            {t('settings.notifications.push', {
+              defaultValue: 'Push Notifications',
+            })}
           </ThemedText>
           {isProfileSettingsLoading ? (
             <ActivityIndicator size={'small'} />
@@ -146,7 +152,9 @@ export const EditNotificationsSheet = forwardRef<
         </View>
         <View className="flex-row items-center justify-between mb-4">
           <ThemedText className="text-base font-semibold">
-            {t('settings.notifications.email')}
+            {t('settings.notifications.email', {
+              defaultValue: 'Email Notifications',
+            })}
           </ThemedText>
           {isProfileSettingsLoading ? (
             <ActivityIndicator size={'small'} />
