@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { openpeepsPwaPluginConfig } from '@openpeeps/react/pwa/vite';
+import { openpeepsDocsPlugin } from './vite-plugin-docs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** Use workspace TypeScript sources in dev so `pnpm dev` picks up @openpeeps/react changes without a separate library build. */
@@ -27,6 +28,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    openpeepsDocsPlugin(path.resolve(__dirname, 'docs')),
     // `openpeepsPwaPluginConfig` returns the right `VitePWA(...)` options to
     // wire in the shared `@openpeeps/react/service-worker.ts`.
     VitePWA(

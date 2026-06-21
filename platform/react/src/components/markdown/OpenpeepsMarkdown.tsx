@@ -1,8 +1,12 @@
 import { useMemo } from 'react';
-import { marked } from 'marked';
 import { handleRegexBase } from '@openpeeps/common/types';
 import { extractUrlsFromText, isEmail } from '../preview-link/helpers';
 import { PreviewLink } from '../preview-link/PreviewLink';
+import {
+  OPENPEEPS_MARKDOWN_PROSE_CLASS,
+  OPENPEEPS_MARKDOWN_STATIC_CLASS,
+} from './classes';
+import { compileMarkdownToHtml } from './compileMarkdown';
 import { resolveStaticUrl, useStaticRender } from './staticRender';
 
 export type MarkdownMention = {
@@ -38,8 +42,7 @@ function preprocessSource(
   }
   text = text.replace(
     mentionPattern,
-    (_, prefix: string, handle: string) =>
-      `${prefix}[@${handle}](/@${handle})`,
+    (_, prefix: string, handle: string) => `${prefix}[@${handle}](/@${handle})`,
   );
   text = text.replace(
     hashtagPattern,
@@ -68,7 +71,7 @@ export function OpenpeepsMarkdown({
 
   const html = useMemo(() => {
     const processed = preprocessSource(source ?? '', mentions);
-    let out = marked.parse(processed, { async: false }) as string;
+    let out = compileMarkdownToHtml(processed);
     if (staticRender && baseUrl) {
       out = out.replace(/href="(\/[^"]*)"/g, (_, path: string) => {
         return `href="${resolveStaticUrl(path, baseUrl)}"`;
@@ -86,8 +89,8 @@ export function OpenpeepsMarkdown({
         className={
           className ??
           (staticRender
-            ? 'allpeep-markdown text-sm leading-relaxed break-words text-foreground'
-            : "allpeep-markdown prose prose-sm max-w-none break-words dark:prose-invert prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:before:content-[''] prose-code:after:content-[''] prose-pre:max-w-full prose-pre:overflow-x-auto")
+            ? OPENPEEPS_MARKDOWN_STATIC_CLASS
+            : OPENPEEPS_MARKDOWN_PROSE_CLASS)
         }
         dangerouslySetInnerHTML={{ __html: html }}
       />

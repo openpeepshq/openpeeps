@@ -113,6 +113,9 @@ import { SsoCallback } from './pages/auth/SsoCallback';
 import { OidcCallback } from './pages/auth/OidcCallback';
 import { OidcPending } from './pages/auth/OidcPending';
 
+import { DocsLayout } from './pages/docs/DocsLayout';
+import { DocsPage } from './pages/docs/DocsPage';
+
 import { AdminDb } from './pages/admin/Db';
 import { AdminDiagnosticsJob } from './pages/admin/DiagnosticsJob';
 import { AdminConfigurationCommunityLanguage } from './pages/admin/ConfigurationCommunityLanguage';
@@ -374,6 +377,23 @@ function AppShell() {
             {/* AuthLayout pages: full-bleed auth shell, not inside RootLayout */}
             <Route path="/about" element={<About />} />
             <Route path="/code-of-conduct" element={<CodeOfConduct />} />
+
+            <Route
+              path="/docs/*"
+              element={
+                <DocsLayout>
+                  <DocsPage />
+                </DocsLayout>
+              }
+            />
+            <Route
+              path="/docs"
+              element={
+                <DocsLayout>
+                  <DocsPage />
+                </DocsLayout>
+              }
+            />
 
             <Route
               path="/admin/logs"
