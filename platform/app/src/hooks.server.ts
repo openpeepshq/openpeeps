@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/sveltekit';
 import { initializeServer } from '$lib/server/init';
 import { sequence } from '@sveltejs/kit/hooks';
 import { handleApiErrors, handleAuthorization } from '$lib/server/middleware';
-import type { Handle, HandleServerError, Reroute } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { logger } from '@openpeeps/core/log';
 import { initLibraryLogging } from '$lib/server/log';
 
@@ -12,13 +12,6 @@ const accessLog = logger('app:requestDuration');
 initializeServer().then();
 
 initLibraryLogging();
-
-/** Route legacy /api/allpeep URLs to the /api/openpeeps handlers. */
-export const reroute: Reroute = ({ url }) => {
-  if (url.pathname.startsWith('/api/allpeep')) {
-    return url.pathname.replace(/^\/api\/allpeep/, '/api/openpeeps');
-  }
-};
 
 const requestDurationLogger: Handle = async ({ event, resolve }) => {
   const start = Date.now();
