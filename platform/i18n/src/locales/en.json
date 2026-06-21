@@ -1948,6 +1948,12 @@
             "remove": "Remove image",
             "aspectRatio": "Minimum 800px wide."
         },
+        "documentInput": {
+            "uploadTitle": "Upload Files",
+            "pickPrompt": "Choose files",
+            "addMore": "Add more files",
+            "uploadFilesCount": "Upload Files ({{count}})"
+        },
         "upload": {
             "failed": "File upload failed",
             "failedWithReason": "File upload failed: {{reason}}",

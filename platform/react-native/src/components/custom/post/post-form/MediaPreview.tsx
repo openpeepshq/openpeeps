@@ -1,36 +1,24 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {PlayIcon, VideoIcon, XIcon} from '~/components/icons';
-import {ThemedText} from '~/components/ui/themed-text';
-import {AltSheet} from '../../modals/media/alt-text-sheet';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {MediaAttachmentData} from '@openpeeps/common';
-import {useOpenpeeps} from '@openpeeps/react';
-import {CachedImage} from '../../common/cached-image';
-import {DocumentAttachment} from '../pieces/DocumentAttachment';
-import {GalleryAudio} from '../pieces/gallery/GalleryAudio';
-
-function attachmentHasRenderableImage(att: MediaAttachmentData): boolean {
-  const mime = att.meta?.mimetype?.toLowerCase?.() ?? '';
-  if (mime.startsWith('image/')) return true;
-  if (att.previewUrl && att.type === 'document') return true;
-  const fname = att.filename ?? '';
-  if (
-    att.type === 'document' &&
-    /\.(jpe?g|png|gif|webp|heic|heif)$/i.test(fname)
-  ) {
-    return true;
-  }
-  return false;
-}
+import { PlayIcon, VideoIcon, XIcon } from '~/components/icons';
+import { ThemedText } from '~/components/ui/themed-text';
+import { AltSheet } from '../../modals/media/alt-text-sheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useTranslation } from 'react-i18next';
+import { MediaAttachmentData } from '@openpeeps/common';
+import { useOpenpeeps } from '@openpeeps/react';
+import { CachedImage } from '../../common/cached-image';
+import { DocumentAttachment } from '../pieces/DocumentAttachment';
+import { GalleryAudio } from '../pieces/gallery/GalleryAudio';
+import { isImageAttachment } from '~/lib/attachmentHelpers';
 
 const attachmentId = (att: MediaAttachmentData): string | undefined =>
-  (att as MediaAttachmentData & {id?: string}).id;
+  (att as MediaAttachmentData & { id?: string }).id;
 
 interface MediaPreviewProps {
   attachments: MediaAttachmentData[];
@@ -55,7 +43,7 @@ const ProcessingTracker: React.FC<ProcessingTrackerProps> = ({
   attachment,
   onUpdate,
 }) => {
-  const {openpeepsApi} = useOpenpeeps();
+  const { openpeepsApi } = useOpenpeeps();
   const event = openpeepsApi.useMediaProgress(id);
   const reportedStatusRef = useRef<string | undefined>(attachment.status);
 
@@ -73,9 +61,7 @@ const ProcessingTracker: React.FC<ProcessingTrackerProps> = ({
         type: data.type,
       });
     }
-    // Replace with the server snapshot once processing finishes. Keep the
-    // local `type` (the server occasionally normalizes it differently).
-    onUpdate({...attachment, ...data, type: attachment.type});
+    onUpdate({ ...attachment, ...data });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event?.mediaAttachment?.status]);
 
@@ -84,32 +70,20 @@ const ProcessingTracker: React.FC<ProcessingTrackerProps> = ({
 
 interface MediaPreviewItemProps {
   attachment: MediaAttachmentData;
-  index: number;
   isActive: boolean;
-  onRemove: () => void;
-  onAltPress: () => void;
   onAttachmentUpdate: (attachment: MediaAttachmentData) => void;
 }
 
 const MediaPreviewItem: React.FC<MediaPreviewItemProps> = ({
   attachment,
-  index,
   isActive,
-  onRemove,
-  onAltPress,
   onAttachmentUpdate,
 }) => {
   const id = attachmentId(attachment);
   const isProcessing = attachment.status === 'processing' && !!id;
 
-  const canShowAlt =
-    attachment.type === 'image' ||
-    (attachment.type === 'document' && attachmentHasRenderableImage(attachment));
-
   return (
-    <View
-      key={index}
-      className="relative items-center justify-center w-screen md:size-96">
+    <View className="relative items-center justify-center w-screen md:size-96">
       {attachment.type === 'video' ? (
         <View className="overflow-hidden rounded-lg w-full aspect-square md:size-96 bg-muted">
           {attachment.previewUrl ? (
@@ -125,7 +99,8 @@ const MediaPreviewItem: React.FC<MediaPreviewItemProps> = ({
           )}
           <View
             pointerEvents="none"
-            className="absolute inset-0 items-center justify-center">
+            className="absolute inset-0 items-center justify-center"
+          >
             <View className="w-14 h-14 rounded-full bg-black/60 items-center justify-center">
               <PlayIcon size={24} className="text-white" />
             </View>
@@ -133,9 +108,7 @@ const MediaPreviewItem: React.FC<MediaPreviewItemProps> = ({
         </View>
       ) : attachment.type === 'audio' ? (
         <GalleryAudio attachment={attachment} isActive={isActive} />
-      ) : attachment.type === 'image' ||
-        (attachment.type === 'document' &&
-          attachmentHasRenderableImage(attachment)) ? (
+      ) : isImageAttachment(attachment) ? (
         <View className="overflow-hidden rounded-lg w-full aspect-square md:size-96">
           <CachedImage
             url={attachment.previewUrl || attachment.url}
@@ -158,26 +131,14 @@ const MediaPreviewItem: React.FC<MediaPreviewItemProps> = ({
           />
           <View
             pointerEvents="none"
-            className="absolute inset-0 items-center justify-center bg-black/40 rounded-lg">
+            className="absolute inset-0 items-center justify-center bg-black/40 rounded-lg"
+          >
             <ActivityIndicator size="large" color="#ffffff" />
             <ThemedText className="text-white text-xs mt-2">
               Processing…
             </ThemedText>
           </View>
         </>
-      )}
-
-      <TouchableOpacity
-        onPress={onRemove}
-        className="absolute top-4 mt-3 right-8 w-8 h-8 rounded-full bg-background/50 items-center justify-center">
-        <XIcon size={16} className="text-foreground" />
-      </TouchableOpacity>
-      {canShowAlt && (
-        <TouchableOpacity
-          onPress={onAltPress}
-          className="absolute bottom-4 mt-3 right-8 w-16 h-10 rounded-full bg-background/50 items-center justify-center">
-          <ThemedText>ALT</ThemedText>
-        </TouchableOpacity>
       )}
     </View>
   );
@@ -188,9 +149,24 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
   removeAttachment,
   updateAttachment,
 }) => {
+  const { t } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const altModalRef = useRef<BottomSheetModal>(null);
+
+  const currentAttachment = attachments[currentImageIndex];
+  const canShowAlt = currentAttachment
+    ? isImageAttachment(currentAttachment)
+    : false;
+
+  useEffect(() => {
+    if (
+      attachments.length > 0 &&
+      currentImageIndex >= attachments.length
+    ) {
+      setCurrentImageIndex(attachments.length - 1);
+    }
+  }, [attachments.length, currentImageIndex]);
 
   const handleAltModalPress = useCallback(() => {
     altModalRef.current?.present();
@@ -208,11 +184,11 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
       updateAttachment(currentImageIndex, attachments[currentImageIndex]);
       altModalRef.current?.dismiss();
     },
-    [currentImageIndex, attachments, updateAttachment],
+    [currentImageIndex, attachments, updateAttachment]
   );
 
   return (
-    <View className="w-full flex justify-center items-center">
+    <View className="relative w-full flex justify-center items-center">
       <ScrollView
         horizontal
         pagingEnabled
@@ -220,19 +196,45 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
         className="w-full aspect-square md:size-96"
         onScroll={handleScroll}
         scrollEventThrottle={16}
-        decelerationRate="fast">
+        decelerationRate="fast"
+      >
         {attachments.map((attachment, index) => (
           <MediaPreviewItem
             key={attachmentId(attachment) ?? index}
             attachment={attachment}
-            index={index}
             isActive={index === currentImageIndex}
-            onRemove={() => removeAttachment(index)}
-            onAltPress={handleAltModalPress}
-            onAttachmentUpdate={updated => updateAttachment(index, updated)}
+            onAttachmentUpdate={(updated) => updateAttachment(index, updated)}
           />
         ))}
       </ScrollView>
+
+      <View
+        pointerEvents="box-none"
+        className="absolute top-3 right-3 z-50 flex-row gap-2"
+      >
+        {canShowAlt && (
+          <TouchableOpacity
+            onPress={handleAltModalPress}
+            accessibilityRole="button"
+            accessibilityLabel={t('form.imageEditModal.altText', {
+              defaultValue: 'Alt text',
+            })}
+            className="min-h-10 px-3 rounded-full bg-background/90 border border-border items-center justify-center"
+          >
+            <ThemedText className="text-xs font-semibold">ALT</ThemedText>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          onPress={() => removeAttachment(currentImageIndex)}
+          accessibilityRole="button"
+          accessibilityLabel={t('posts.attachments.deleteTitle', {
+            defaultValue: 'Delete attachment',
+          })}
+          className="w-10 h-10 rounded-full bg-background/90 border border-border items-center justify-center"
+        >
+          <XIcon size={18} className="text-foreground" />
+        </TouchableOpacity>
+      </View>
       {attachments && attachments.length > 1 && (
         <View className="flex-row justify-center mt-2 mb-2 gap-2">
           {attachments.map((_, index) => (
