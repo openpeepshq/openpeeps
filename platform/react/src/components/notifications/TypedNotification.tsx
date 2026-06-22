@@ -329,7 +329,7 @@ function NewGroupInvitationNotification({
             defaultValue: 'You were invited to',
           })}{' '}
           <a href={`/groups/@${group.handle}`} className="font-semibold">
-            {group.displayName}
+            {groupName(group)}
           </a>
           <span className="text-muted-foreground ml-2 text-xs">
             <UpdatingDate date={notification.createdAt} />
@@ -365,7 +365,7 @@ function NewGroupMemberNotification({
             profileName: profileName(profile),
           })}{' '}
           <a href={`/groups/@${group.handle}`} className="font-semibold">
-            {group.displayName}
+            {groupName(group)}
           </a>
           <span className="text-muted-foreground ml-2 text-xs">
             <UpdatingDate date={notification.createdAt} />
@@ -399,7 +399,7 @@ function GroupMemberExitNotification({
           {t('notification.groupMemberExit.text', {
             defaultValue: '{{profileName}} left {{groupName}}',
             profileName: profileName(profile),
-            groupName: group.displayName,
+            groupName: groupName(group),
           })}
           <span className="text-muted-foreground ml-2 text-xs">
             <UpdatingDate date={notification.createdAt} />
@@ -559,9 +559,9 @@ const TYPED: Partial<
   announcement: AnnouncementNotification,
   pollVote: PollVoteNotification,
   rsvp: RsvpNotification,
-  newGroupInvitation: NewGroupInvitationNotification,
-  newGroupMember: NewGroupMemberNotification,
-  groupMemberExit: GroupMemberExitNotification,
+  groupAdded: NewGroupInvitationNotification,
+  groupMemberJoined: NewGroupMemberNotification,
+  groupMemberLeft: GroupMemberExitNotification,
   newProfile: NewProfileNotification,
   newGroupPost: NewGroupPostNotification,
 };
