@@ -1,23 +1,36 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Database, Download, FlaskConical } from 'lucide-react';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Button } from '@openpeeps/react-ui';
 import { RestoreBackupModal } from './components/RestoreBackupModal';
 import { RestoreTestBackupModal } from './components/RestoreTestBackupModal';
 
-const downloadBase =
-  import.meta.env.VITE_OPENPEEPS_BASE_URL ??
-  (typeof window !== 'undefined' ? window.location.origin : '');
+const downloadBlob = (blob: Blob, filename: string) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+};
 
 export function AdminBackups() {
   const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi, client } = useOpenpeeps();
   const backupsQuery = openpeepsApi.admin.useBackupsList();
   const createBackup = openpeepsApi.admin.createBackupAction();
   const [showRestore, setShowRestore] = useState(false);
   const [showTestRestore, setShowTestRestore] = useState(false);
 
   const backups = backupsQuery.data ?? [];
+
+  const handleDownload = useCallback(
+    async (name: string) => {
+      const blob = await client.admin.backups.download(name);
+      downloadBlob(blob, `${name}.zip`);
+    },
+    [client],
+  );
 
   const createLabel = t('admin.backups.create', {
     defaultValue: 'Create backup',
@@ -96,16 +109,16 @@ export function AdminBackups() {
               className="flex items-center justify-between border-b px-2 py-1 last:border-b-0"
             >
               <span>{name}</span>
-              <a
+              <button
+                type="button"
                 title={t('common.actions.download', {
                   defaultValue: 'Download',
                 })}
-                download
-                href={`${downloadBase}/backups/${name}.zip`}
                 className="hover:text-primary"
+                onClick={() => handleDownload(name)}
               >
                 <Download size={18} />
-              </a>
+              </button>
             </li>
           ))}
         </ul>
