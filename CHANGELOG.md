@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **web**: migrate in-app docs to React web with build-time markdown
 - **admin**: add downloadable members CSV export (#88) Add admin members list CSV download with profile data from the profile cache and batch activity stats via membersExportMapping. API lives in platform/server; React admin UI gets a download button. Document platform/app and platform/svelte as deprecated in AGENTS.md.
 - **posts**: add optional jam recording download and reply
 - **events**: email an .ics file when a member RSVPs yes/maybe
@@ -17,6 +18,10 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **notifications**: navigate push taps to the correct group (#867)
+- **i18n**: add direct message notification strings for settings
+- **react-native**: iOS media pick, document sheet, and PDF preview
+- **react-native**: attachment upload, preview remove, and iOS file handling
 - **react-native**: guard useHasAuthToken for RN and notify credential changes
 - **react**: add react-native entry and isolate LiveKit CSS from RN bundles
 - **admin**: shorten logs filter placeholder and drop duplicate logs nav (#601)
@@ -60,6 +65,14 @@ Changelog for OpenPeeps
 - **react-native**: upgrade safe-area-context for RN 0.85
 - bump version to 0.2.21 and update theme handling in OpenPeepsThemeProvider
 - upgrade and sync livekit across openpeeps
+
+## 2026-06-21
+
+### Bug Fixes
+
+- **api**: export allpeep reroute from universal hooks.ts
+- **api**: use SvelteKit reroute for /api/allpeep forwarding
+- **api**: repair legacy /api/allpeep → /api/openpeeps forwarding
 
 ## 2026-06-17
 
