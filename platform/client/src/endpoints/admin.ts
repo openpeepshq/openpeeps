@@ -38,6 +38,17 @@ export const admin = (rawClient: FetchClient) => (
                 '/admin/backups',
                 'post',
             ),
+            download: async (name: string) => {
+                const response = await rawClient.get(
+                    `/admin/backups/${encodeURIComponent(name)}`,
+                );
+
+                if (!response.ok) {
+                    throw { ...(await response.json()), status: response.status };
+                }
+
+                return response.blob();
+            },
             restore: allpeepPayloadEndpoint<SuccessResponse, File>(
                 rawClient,
                 '/admin/backups/restore',
