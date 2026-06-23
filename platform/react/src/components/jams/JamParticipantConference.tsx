@@ -88,10 +88,7 @@ function JamParticipantConferenceInner() {
     setDrawer((current) => (current === next ? null : next));
 
   return (
-    <div
-      className="bg-surface-50 relative flex h-screen w-screen flex-col overflow-hidden"
-      data-lk-theme="default"
-    >
+    <div className="bg-surface-50 relative flex h-screen w-screen flex-col overflow-hidden">
       <JamNetworkQuality />
       <JamRecordingIndicator />
       <div className="relative flex w-full flex-1 overflow-hidden p-2">

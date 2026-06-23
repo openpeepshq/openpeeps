@@ -34,7 +34,7 @@ function JamObserverConference() {
 
   return (
     <JamObserverShell>
-      <div className="min-h-0 flex-1" data-lk-theme="default">
+      <div className="min-h-0 flex-1">
         <JamVideoLayout
           cameraTracks={cameraTracks}
           screenShareTracks={screenShareTracks}
