@@ -18,6 +18,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **client**: fixed backup download functionality
 - **notifications**: navigate push taps to the correct group (#867)
 - **i18n**: add direct message notification strings for settings
 - **react-native**: iOS media pick, document sheet, and PDF preview
@@ -65,6 +66,12 @@ Changelog for OpenPeeps
 - **react-native**: upgrade safe-area-context for RN 0.85
 - bump version to 0.2.21 and update theme handling in OpenPeepsThemeProvider
 - upgrade and sync livekit across openpeeps
+
+## 2026-06-22
+
+### Bug Fixes
+
+- **notifications**: add mention notification template and update email content
 
 ## 2026-06-21
 
