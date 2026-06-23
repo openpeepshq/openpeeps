@@ -41,10 +41,6 @@ export function Login() {
   const paymentParam = searchParams.get('payment');
 
   useEffect(() => {
-    setError(null);
-  }, [data.email, data.password]);
-
-  useEffect(() => {
     if (paymentParam === 'success') {
       success(
         t('payment.success.message', {
