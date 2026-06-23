@@ -179,10 +179,17 @@ const sendAppIOSPushNotifications = async (
   );
 };
 
+const describeFcmTarget = (
+  account: Account,
+  subscription: Extract<PushSubscription, { type: 'fcm' }>,
+) =>
+  `account ${account.id} (${account.email}); ${describeSubscription(subscription)}`;
+
 const sendAppFCMPushNotifications = async (
   subscriptions: Extract<PushSubscription, { type: 'fcm' }>[],
   payload: PushPayload,
   notification: PushNotification,
+  account: Account,
   jobLog?: JobLog,
 ) => {
   if (subscriptions.length === 0) return;
@@ -190,15 +197,23 @@ const sendAppFCMPushNotifications = async (
   const serializedPayload = JSON.stringify(payload);
   const tokens = subscriptions.map((sub) => sub.fcmToken);
   if (firebase.apps.length === 0) {
-    await logFailure(
-      jobLog,
-      log,
-      `FCM not initialized; skipping ${tokens.length} Android push(es)`,
-    );
+    for (const subscription of subscriptions) {
+      await logFailure(
+        jobLog,
+        log,
+        `FCM not initialized; skipping push to ${describeFcmTarget(account, subscription)}`,
+      );
+    }
     return;
   }
 
-  await logStep(jobLog, log, `Sending FCM push to ${tokens.length} device(s)`);
+  for (const subscription of subscriptions) {
+    await logStep(
+      jobLog,
+      log,
+      `Attempting FCM push to ${describeFcmTarget(account, subscription)}`,
+    );
+  }
 
   let result: Awaited<
     ReturnType<ReturnType<typeof firebase.messaging>['sendEachForMulticast']>
@@ -220,22 +235,32 @@ const sendAppFCMPushNotifications = async (
       },
     });
   } catch (error) {
-    await logFailure(
-      jobLog,
-      log,
-      `FCM sendEachForMulticast threw for ${tokens.length} device(s)`,
-      error,
-    );
+    for (const subscription of subscriptions) {
+      await logFailure(
+        jobLog,
+        log,
+        `FCM push to ${describeFcmTarget(account, subscription)} failed`,
+        error,
+      );
+    }
     return;
   }
 
   for (let i = 0; i < result.responses.length; i++) {
     const response = result.responses[i];
-    if (!response.success) {
+    const subscription = subscriptions[i];
+    if (!subscription) continue;
+    if (response.success) {
+      await logStep(
+        jobLog,
+        log,
+        `FCM push delivered to ${describeFcmTarget(account, subscription)}`,
+      );
+    } else {
       await logFailure(
         jobLog,
         log,
-        `FCM push to ${describeSubscription(subscriptions[i])} failed`,
+        `FCM push to ${describeFcmTarget(account, subscription)} failed`,
         response.error,
       );
     }
@@ -377,6 +402,7 @@ export const doPush = async (
     fcmSubscriptions,
     payloadData,
     notification,
+    account,
     jobLog,
   );
 
