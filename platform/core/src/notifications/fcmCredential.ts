@@ -5,9 +5,10 @@ const FCM_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging';
 const TOKEN_HOST = 'oauth2.googleapis.com';
 const TOKEN_PATH = '/token';
 
-type ServiceAccountJson = {
+type FcmServiceAccount = {
   client_email: string;
   private_key: string;
+  project_id?: string;
 };
 
 type AccessTokenResponse = {
@@ -15,7 +16,7 @@ type AccessTokenResponse = {
   expires_in: number;
 };
 
-const signJwt = (serviceAccount: ServiceAccountJson) => {
+const signJwt = (serviceAccount: FcmServiceAccount) => {
   const now = Math.floor(Date.now() / 1000);
   const header = Buffer.from(
     JSON.stringify({ alg: 'RS256', typ: 'JWT' }),
@@ -38,7 +39,7 @@ const signJwt = (serviceAccount: ServiceAccountJson) => {
 };
 
 const fetchAccessToken = (
-  serviceAccount: ServiceAccountJson,
+  serviceAccount: FcmServiceAccount,
   agent: https.Agent,
 ): Promise<AccessTokenResponse> =>
   new Promise((resolve, reject) => {
@@ -78,7 +79,7 @@ const fetchAccessToken = (
   });
 
 export const createFcmCredential = (
-  serviceAccount: ServiceAccountJson,
+  serviceAccount: FcmServiceAccount,
   agent: https.Agent,
 ) => {
   let cached: { access_token: string; expiresAt: number } | undefined;
