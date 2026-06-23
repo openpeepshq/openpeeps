@@ -1,22 +1,19 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Database, Download, FlaskConical } from 'lucide-react';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import {
+  useT,
+  useOpenpeeps,
+  useSetPageHeader,
+  useCredentialsStore,
+} from '@openpeeps/react';
 import { Button } from '@openpeeps/react-ui';
 import { RestoreBackupModal } from './components/RestoreBackupModal';
 import { RestoreTestBackupModal } from './components/RestoreTestBackupModal';
 
-const downloadBlob = (blob: Blob, filename: string) => {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-};
-
 export function AdminBackups() {
   const t = useT();
-  const { openpeepsApi, client } = useOpenpeeps();
+  const { openpeepsApi } = useOpenpeeps();
+  const { credentialsStore } = useCredentialsStore();
   const backupsQuery = openpeepsApi.admin.useBackupsList();
   const createBackup = openpeepsApi.admin.createBackupAction();
   const [showRestore, setShowRestore] = useState(false);
@@ -26,10 +23,12 @@ export function AdminBackups() {
 
   const handleDownload = useCallback(
     async (name: string) => {
-      const blob = await client.admin.backups.download(name);
-      downloadBlob(blob, `${name}.zip`);
+      const token = (await credentialsStore.get())?.token;
+      if (!token) return;
+      const url = `/backups/${encodeURIComponent(name)}.zip?token=${encodeURIComponent(token)}`;
+      window.location.assign(url);
     },
-    [client],
+    [credentialsStore],
   );
 
   const createLabel = t('admin.backups.create', {
