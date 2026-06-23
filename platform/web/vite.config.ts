@@ -67,6 +67,10 @@ export default defineConfig({
         target: apiTarget,
         changeOrigin: true,
       },
+      '/backups': {
+        target: apiTarget,
+        changeOrigin: true,
+      },
     },
   },
   build: {

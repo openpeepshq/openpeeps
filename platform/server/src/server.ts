@@ -10,6 +10,7 @@ import { logger } from '@openpeeps/core/log';
 import { mediaStorage } from '@openpeeps/core/media';
 import { initializeServer } from '#lib/init';
 import { installDbBrowserProxy } from './lib/dbBrowserProxy';
+import { installBackupsEndpoint } from './lib/backups';
 import { installS3Endpoint } from './lib/s3';
 import { installStreamingEndpoint } from './lib/streaming';
 
@@ -154,6 +155,11 @@ const startServer = async () => {
   // Must be registered before the SPA catch-all so playlist requests aren't
   // served the React `index.html`.
   installStreamingEndpoint(app);
+
+  // Database backup downloads (`/backups/<name>.zip`). Must be registered
+  // before the SPA catch-all so large archives stream instead of returning
+  // `index.html`.
+  installBackupsEndpoint(app);
 
   // Serve locally-stored media at the legacy `/storage/<bucket>/<id>/<filename>`
   // URL (matches `mediaStorage().getPath(id, filename)` in
