@@ -3,6 +3,7 @@ import { LiveKitRoom } from '@livekit/components-react';
 import { defaultRoomOptions } from './constants';
 import { useJamContext } from './JamContext';
 import { JamConference } from './JamConference';
+import { useJamLiveKitTheme } from './useJamLiveKitTheme';
 
 export interface JamVideoCallProps {
   token: string;
@@ -27,6 +28,7 @@ export function JamVideoCall({
   onDisconnected,
 }: JamVideoCallProps) {
   const { jam } = useJamContext();
+  const lkTheme = useJamLiveKitTheme();
   const roomOptions = useMemo(
     () => defaultRoomOptions[jam.type] ?? defaultRoomOptions['video-call'],
     [jam.type],
@@ -39,7 +41,7 @@ export function JamVideoCall({
       audio={audio}
       video={video}
       options={roomOptions}
-      data-lk-theme="default"
+      data-lk-theme={lkTheme}
       style={{ height: '100vh', width: '100vw' }}
       onDisconnected={onDisconnected}
     >

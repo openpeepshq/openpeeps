@@ -97,7 +97,7 @@ function ScreenSharingLayout({
   return (
     <div className="flex h-auto w-full flex-col justify-center gap-2 p-2 md:h-full md:flex-row">
       <div className="flex flex-1 flex-col gap-2 md:size-full">
-        <div className="flex-0 mx-auto flex w-full items-center justify-between rounded-full">
+        <div className="flex w-full items-center justify-between">
           {isLocal ? (
             <>
               <div className="flex items-center gap-x-2">
