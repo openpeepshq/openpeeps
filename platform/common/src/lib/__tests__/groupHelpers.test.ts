@@ -17,6 +17,8 @@ import type {
     PublicProfile,
     ProfileWithMeta,
 } from '../../types';
+import { groupRoleSchema } from '../../types/models';
+import { groupRelationships } from '../../types/capabilities';
 
 // Mock data for testing
 const mockGroupData: GroupData = {
@@ -322,6 +324,15 @@ describe('groupHelpers', () => {
             expect(template.capabilities.member).toBeDefined();
             expect(template.capabilities.moderator).toBeDefined();
             expect(template.capabilities.admin).toBeDefined();
+        });
+    });
+
+    describe('group membership roles', () => {
+        it('should allow moderator in groupRelationships and groupRoleSchema', () => {
+            expect(groupRelationships).toContain('moderator');
+            expect(
+                groupRoleSchema.safeParse({ roles: ['member', 'moderator'] }).success,
+            ).toBe(true);
         });
     });
 });
