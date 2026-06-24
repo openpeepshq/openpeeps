@@ -3,7 +3,7 @@ import {
   MemberExportStats,
   Profile,
 } from '@openpeeps/common/types';
-import { toCsvRow } from '@openpeeps/common/lib';
+import { formatMemberExportCustomFields, toCsvRow } from '@openpeeps/common/lib';
 import { allpeepDb } from '../db';
 import { baseProfilesMapping, membersExportMapping } from './mapping';
 import { expandProfiles } from './helpers';
@@ -51,8 +51,14 @@ export const listMembersForExport = async (): Promise<MemberExportRow[]> => {
 
 const formatCustomFields = (
   fields: MemberExportRow['fields'],
-): string =>
-  fields?.map((field) => `${field.name}: ${field.value}`).join('; ') ?? '';
+): string => formatMemberExportCustomFields(fields);
+
+const formatEmailVerified = (
+  controllers: MemberExportRow['controllers'],
+): string => {
+  const validated = controllers[0]?.emailValidated;
+  return validated == null ? '' : validated ? 'yes' : 'no';
+};
 
 const formatGroups = (memberships: MemberExportRow['memberships']): string =>
   memberships?.map((membership) => membership.group.displayName).join('; ') ??
@@ -63,6 +69,7 @@ const formatRoles = (roles: MemberExportRow['roles']): string =>
 
 const memberExportHeaders = [
   'Email',
+  'Email Verified',
   'Profile Created Date',
   'Handle',
   'Display Name',
@@ -86,6 +93,7 @@ export const exportMembersCsv = async (): Promise<string> => {
     ...members.map((member) =>
       toCsvRow([
         member.controllers[0]?.email ?? '',
+        formatEmailVerified(member.controllers),
         member.createdAt,
         member.handle,
         member.displayName ?? '',
