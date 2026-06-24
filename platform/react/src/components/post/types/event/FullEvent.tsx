@@ -1,4 +1,4 @@
-import { Download, MoreHorizontal, Share } from 'lucide-react';
+import { Download, MoreHorizontal, Share, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type {
   Event,
@@ -17,7 +17,7 @@ import {
   isCapacityEvent,
   profileName,
 } from '@openpeeps/common/lib';
-import { Button, PopupMenu, PopupMenuButton, UpdatingDate } from '@openpeeps/react-ui';
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, PopupMenu, PopupMenuButton, UpdatingDate } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
@@ -404,7 +404,7 @@ export function FullEvent({ post }: FullEventProps) {
               key={recording.id}
               post={post}
               recording={recording}
-              canPublish={canViewRecordings}
+              canManage={canViewRecordings}
             />
           ))
         ) : (
@@ -422,19 +422,42 @@ export function FullEvent({ post }: FullEventProps) {
 function JamRecordingItem({
   post,
   recording,
-  canPublish,
+  canManage,
 }: {
   post: PublicPost;
   recording: JamRecording;
-  canPublish: boolean;
+  canManage: boolean;
 }) {
   const t = useT();
   const { success, error: toastError } = useToast();
   const { openpeepsApi } = useOpenpeeps();
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const publishReply = openpeepsApi.publishRecordingReplyAction({
     id: post.id,
     recordingId: recording.id,
   });
+  const deleteRecording = openpeepsApi.deleteRecordingAction({
+    id: post.id,
+    recordingId: recording.id,
+  });
+
+  const handleDelete = async () => {
+    try {
+      await deleteRecording();
+      setConfirmOpen(false);
+      success(
+        t('events.deleteRecordingSuccess', {
+          defaultValue: 'Recording deleted',
+        }),
+      );
+    } catch {
+      toastError(
+        t('events.deleteRecordingError', {
+          defaultValue: 'Failed to delete recording',
+        }),
+      );
+    }
+  };
 
   return (
     <div className="flex flex-col gap-2 py-4">
@@ -469,42 +492,90 @@ function JamRecordingItem({
               })}
         </p>
       )}
-      {canPublish &&
-      recording.status === 'completed' &&
-      recording.attachment ? (
-        recording.replyPostId ? (
-          <p className="text-muted-foreground text-sm">
-            {t('events.recordingReplyPosted', {
-              defaultValue: 'Posted to discussion',
-            })}
-          </p>
-        ) : (
-          <Button
-            variant="variant-ringed-primary"
-            className="self-start"
-            action={async () => {
-              try {
-                await publishReply();
-                success(
-                  t('events.postRecordingReplySuccess', {
-                    defaultValue: 'Recording posted to discussion',
-                  }),
-                );
-              } catch {
-                toastError(
-                  t('events.postRecordingReplyError', {
-                    defaultValue: 'Failed to post recording to discussion',
-                  }),
-                );
-              }
-            }}
-          >
-            {t('events.postRecordingReply', {
-              defaultValue: 'Post to discussion',
-            })}
-          </Button>
-        )
-      ) : null}
+      <div className="flex flex-wrap items-center gap-2">
+        {canManage &&
+        recording.status === 'completed' &&
+        recording.attachment ? (
+          recording.replyPostId ? (
+            <p className="text-muted-foreground text-sm">
+              {t('events.recordingReplyPosted', {
+                defaultValue: 'Posted to discussion',
+              })}
+            </p>
+          ) : (
+            <Button
+              variant="variant-ringed-primary"
+              className="self-start"
+              action={async () => {
+                try {
+                  await publishReply();
+                  success(
+                    t('events.postRecordingReplySuccess', {
+                      defaultValue: 'Recording posted to discussion',
+                    }),
+                  );
+                } catch {
+                  toastError(
+                    t('events.postRecordingReplyError', {
+                      defaultValue: 'Failed to post recording to discussion',
+                    }),
+                  );
+                }
+              }}
+            >
+              {t('events.postRecordingReply', {
+                defaultValue: 'Post to discussion',
+              })}
+            </Button>
+          )
+        ) : null}
+        {canManage &&
+        recording.status !== 'active' &&
+        recording.status !== 'requested' ? (
+          <>
+            <Button
+              variant="variant-ringed-error"
+              className="self-start"
+              action={() => setConfirmOpen(true)}
+            >
+              <Trash2 className="mr-1 h-4 w-4" />
+              {t('events.deleteRecording', {
+                defaultValue: 'Delete recording',
+              })}
+            </Button>
+            <Dialog
+              open={confirmOpen}
+              onOpenChange={(next) => !next && setConfirmOpen(false)}
+            >
+              <DialogContent className="max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>
+                    {t('events.deleteRecording', {
+                      defaultValue: 'Delete recording',
+                    })}
+                  </DialogTitle>
+                </DialogHeader>
+                <p className="text-sm">
+                  {t('events.deleteRecordingConfirm', {
+                    defaultValue: 'Delete this recording permanently?',
+                  })}
+                </p>
+                <DialogFooter>
+                  <Button
+                    variant="variant-ringed-surface"
+                    action={() => setConfirmOpen(false)}
+                  >
+                    {t('posts.deleteModal.cancel', { defaultValue: 'Cancel' })}
+                  </Button>
+                  <Button variant="variant-filled-error" action={handleDelete}>
+                    {t('posts.deleteModal.delete', { defaultValue: 'Delete' })}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
+        ) : null}
+      </div>
     </div>
   );
 }

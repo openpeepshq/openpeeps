@@ -244,6 +244,9 @@ const postMutators = (client: OpenpeepsClient) => ({
     client.posts.publishRecordingReply,
     [['posts']],
   ),
+  deleteRecordingAction: noPayloadMutation(client.posts.deleteRecording, [
+    ['posts'],
+  ]),
 });
 
 type PostMutators = ReturnType<typeof postMutators>;

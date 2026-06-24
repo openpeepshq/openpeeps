@@ -70,6 +70,10 @@ const finders = (rawClient: FetchClient) => ({
     JamRecording,
     { id: string; recordingId: string }
   >(rawClient, '/posts/:id/recordings/:recordingId/reply', 'post'),
+  deleteRecording: allpeepNoPayloadEndpoint<
+    SuccessResponse,
+    { id: string; recordingId: string }
+  >(rawClient, '/posts/:id/recordings/:recordingId', 'delete'),
   unseenCounts: allpeepNoPayloadEndpoint<UnseenPostCounts>(
     rawClient,
     '/posts/unseen/counts',
