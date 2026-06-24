@@ -112,9 +112,20 @@ export const membersExportMapping = baseProfilesMapping
         alias: 'lastSeen',
         expression: `
             MAX(
-                FOR edge IN ${collectionInfos.entriesCollection.name}
-                    FILTER edge._from == DOC._id
-                    RETURN edge.createdAt
+                APPEND(
+                    (
+                        FOR edge IN ${collectionInfos.entriesCollection.name}
+                            FILTER edge._from == DOC._id
+                            FILTER edge.createdAt != null
+                            RETURN edge.createdAt
+                    ),
+                    (
+                        FOR edge IN ${collectionInfos.postSeenCollection.name}
+                            FILTER edge._from == DOC._id
+                            FILTER edge.createdAt != null
+                            RETURN edge.createdAt
+                    )
+                )
             )`,
     });
 

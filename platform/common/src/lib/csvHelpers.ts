@@ -1,5 +1,5 @@
 export const escapeCsvCell = (
-  value: string | number | null | undefined,
+  value: string | number | boolean | null | undefined,
 ): string => {
   if (value == null) {
     return '';
@@ -15,5 +15,17 @@ export const escapeCsvCell = (
 };
 
 export const toCsvRow = (
-  values: Array<string | number | null | undefined>,
+  values: Array<string | number | null | undefined | boolean>,
 ): string => values.map(escapeCsvCell).join(',');
+
+export const formatMemberExportCustomFields = (
+  fields: ReadonlyArray<{ name: string; value: string }> | undefined,
+): string => {
+  if (!fields?.length) {
+    return '';
+  }
+
+  return JSON.stringify(
+    fields.map(({ name, value }) => ({ name, value })),
+  );
+};
