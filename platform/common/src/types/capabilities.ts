@@ -15,7 +15,7 @@ export const postRelationships = [
   'collaborator',
 ] as const;
 
-export const defaultGroupRoles = ['member', 'admin'] as const;
+export const defaultGroupRoles = ['member', 'admin', 'moderator'] as const;
 
 export const groupRelationships = [
   ...defaultGroupRoles,
