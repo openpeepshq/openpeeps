@@ -6,8 +6,8 @@ import type { PublicPost } from '@openpeeps/common/types';
 import {
   Avatar,
   FeedPostContent,
-  UpdatingDate,
 } from '@openpeeps/react/components';
+import { UpdatingDate } from '@openpeeps/react-ui';
 import {
   Button,
   Dialog,

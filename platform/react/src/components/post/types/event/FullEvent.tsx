@@ -13,7 +13,7 @@ import {
   groupName,
   profileName,
 } from '@openpeeps/common/lib';
-import { Button, PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
+import { Button, PopupMenu, PopupMenuButton, UpdatingDate } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
@@ -33,7 +33,6 @@ import { EventLocation } from '../../pieces/EventLocation';
 import { EventMenu } from '../../pieces/EventMenu';
 import { EventRsvpButton } from '../../pieces/EventRsvpButton';
 import { ShareMenu } from '../../pieces/ShareMenu';
-import { UpdatingDate } from '../../pieces/UpdatingDate';
 import { VideoPlayer } from '../../pieces/VideoPlayer';
 
 export interface FullEventProps {

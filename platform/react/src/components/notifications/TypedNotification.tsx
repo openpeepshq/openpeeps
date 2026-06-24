@@ -14,7 +14,7 @@ import type {
   PublicPost,
 } from '@openpeeps/common/types';
 import { useT } from '../../i18n';
-import { UpdatingDate } from '../post/pieces/UpdatingDate';
+import { UpdatingDate } from '@openpeeps/react-ui';
 import { NotificationWrapper } from './NotificationWrapper';
 import { ConversationMessageBubble } from '../conversations/ConversationMessageBubble';
 import { FeedPost } from '../post/FeedPost';

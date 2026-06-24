@@ -11,12 +11,12 @@ import {
 import {
   Avatar,
   PostMarkdown,
-  UpdatingDate,
   useAuthData,
   useCurrentProfile,
   useCreateNewConversation,
   AccessDeniedLoader,
 } from '@openpeeps/react/components';
+import { UpdatingDate } from '@openpeeps/react-ui';
 
 function ChatPreview({ conversation }: { conversation: PublicPost[] }) {
   const t = useT();
