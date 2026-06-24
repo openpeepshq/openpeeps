@@ -18,6 +18,9 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **jams**: sync LiveKit theme with app light/dark mode
+- **web**: show login error toast on first failed attempt
+- **react**: show group name on group join notifications (#878)
 - **client**: fixed backup download functionality
 - **notifications**: navigate push taps to the correct group (#867)
 - **i18n**: add direct message notification strings for settings
@@ -66,6 +69,22 @@ Changelog for OpenPeeps
 - **react-native**: upgrade safe-area-context for RN 0.85
 - bump version to 0.2.21 and update theme handling in OpenPeepsThemeProvider
 - upgrade and sync livekit across openpeeps
+
+## 2026-06-23
+
+### Bug Fixes
+
+- **notifications**: pass FCM project ID and log each push attempt
+
+## 2026-06-23
+
+### Features
+
+- **notifications**: implement Firebase Cloud Messaging credential handling
+
+### Refactoring
+
+- **notifications**: update email notification component to use ExpandedNotification type
 
 ## 2026-06-22
 
