@@ -10,14 +10,16 @@ import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 interface AltSheetProps {
   onUpdate?: (altText: string) => Promise<void> | void;
   initialAltText: string;
+  variant?: 'image' | 'document';
 }
 
 export const AltSheet = forwardRef<BottomSheetModal, AltSheetProps>(
-  ({ onUpdate, initialAltText }, ref) => {
+  ({ onUpdate, initialAltText, variant = 'image' }, ref) => {
     const [isLoading, setIsLoading] = useState(false);
     const [altText, setAltText] = useState(initialAltText);
     const { t } = useTranslation();
     const { colors } = useOpenPeepsTheme();
+    const isDocument = variant === 'document';
 
     const handleConfirm = async () => {
       if (onUpdate) {
@@ -45,15 +47,23 @@ export const AltSheet = forwardRef<BottomSheetModal, AltSheetProps>(
             <View>
               <View className="items-center mb-5">
                 <ThemedText className="text-xl font-semibold">
-                  {t('media.image.addAltText')}
+                  {isDocument
+                    ? t('form.uploadEditModal.description.title')
+                    : t('media.image.addAltText')}
                 </ThemedText>
               </View>
 
               <ThemedText className="text-sm font-medium mb-1">
-                {t('media.image.altTextLabel')}
+                {isDocument
+                  ? t('form.uploadEditModal.description.altText')
+                  : t('media.image.altTextLabel')}
               </ThemedText>
               <TextInput
-                placeholder={t('media.image.altTextPlaceholder')}
+                placeholder={
+                  isDocument
+                    ? t('form.uploadEditModal.description.placeholder')
+                    : t('media.image.altTextPlaceholder')
+                }
                 placeholderTextColor={colors['muted-foreground']}
                 value={altText}
                 onChangeText={setAltText}

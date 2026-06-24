@@ -80,7 +80,7 @@ export const dismissSheetForNativeModal = async (
   bottomSheetClose(ref);
   await new Promise<void>(resolve => {
     InteractionManager.runAfterInteractions(() => {
-      setTimeout(resolve, Platform.OS === 'ios' ? 350 : 100);
+      setTimeout(resolve, Platform.OS === 'ios' ? 500 : 100);
     });
   });
 };
