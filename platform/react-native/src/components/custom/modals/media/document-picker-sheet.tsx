@@ -1,4 +1,10 @@
-import React, { forwardRef, useState } from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -11,21 +17,33 @@ import { viewDocument } from '@react-native-documents/viewer';
 import { formatSize, MediaAttachment } from '@openpeeps/common';
 import { useOpenpeeps } from '@openpeeps/react';
 import { Button } from '~/components/ui/button';
-import { FileIcon, XIcon, PlusIcon, FileTextIcon } from '~/components/icons';
+import {
+  EyeOnIcon,
+  FileIcon,
+  XIcon,
+  PlusIcon,
+  FileTextIcon,
+} from '~/components/icons';
 import Toast from 'react-native-toast-message';
 import { uploadMedia } from '~/lib/uploadMedia';
+import { AltSheet } from './alt-text-sheet';
 import { BaseSheet, SheetFooter } from '../common';
 import { ThemedText } from '~/components/ui/themed-text';
 import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
 import {
   decodeFileUri,
   dismissSheetForNativeModal,
+  isPickerCancelled,
   resolveDocumentMime,
 } from '~/lib/mediaUriHelpers';
 
 interface DocumentPickerSheetProps {
   onSelect: (documentAttachments: MediaAttachment[]) => void | Promise<void>;
 }
+
+export type DocumentPickerSheetHandle = {
+  open: () => Promise<void>;
+};
 
 const ATTACHMENT_DOCUMENT_TYPES = [
   types.pdf,
@@ -61,56 +79,89 @@ function isIgnoredSidecar(doc: DocumentPickerResponse): boolean {
   return false;
 }
 
+const mergePickedDocs = (
+  prev: DocumentPickerResponse[],
+  results: DocumentPickerResponse[],
+): DocumentPickerResponse[] => {
+  const newDocs = results.filter(
+    newDoc =>
+      !isIgnoredSidecar(newDoc) && !prev.some(p => p.uri === newDoc.uri),
+  );
+  return [...prev, ...newDocs];
+};
+
 export const DocumentPickerSheet = forwardRef<
-  BottomSheetModal,
+  DocumentPickerSheetHandle,
   DocumentPickerSheetProps
 >(({ onSelect }, ref) => {
+  const sheetRef = useRef<BottomSheetModal>(null);
+  const descriptionSheetRef = useRef<BottomSheetModal>(null);
+
   const [selectedDocs, setSelectedDocs] = useState<DocumentPickerResponse[]>(
     [],
   );
+  const [descriptions, setDescriptions] = useState<Record<string, string>>({});
+  const [editingDocUri, setEditingDocUri] = useState<string | null>(null);
   const [isConfirmLoading, setIsConfirmLoading] = useState(false);
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
   const createAttachment = openpeepsApi.createMediaAttachmentAction();
 
-  const handlePickDocument = async () => {
-    try {
-      await dismissSheetForNativeModal(ref);
+  const pickDocuments = useCallback(
+    async (dismissSheetFirst: boolean): Promise<DocumentPickerResponse[]> => {
+      if (dismissSheetFirst) {
+        await dismissSheetForNativeModal(sheetRef);
+      }
+
       const results = await pick({
         type: [...ATTACHMENT_DOCUMENT_TYPES],
         allowMultiSelection: true,
         mode: 'import',
       });
 
-      setSelectedDocs(prev => {
-        const newDocs = results.filter(
-          newDoc =>
-            !isIgnoredSidecar(newDoc) &&
-            !prev.some(p => p.uri === newDoc.uri),
-        );
-        return [...prev, ...newDocs];
-      });
-      bottomSheetPresent(ref);
-    } catch (err: any) {
-      if (err.code === 'CANCELED') {
-        console.log('User cancelled document picker');
-      } else {
-        console.log('DocumentPicker Error: ', err);
+      setSelectedDocs(prev => mergePickedDocs(prev, results));
+      return results;
+    },
+    [],
+  );
+
+  const open = useCallback(async () => {
+    try {
+      const results = await pickDocuments(false);
+      if (results.length > 0) {
+        bottomSheetPresent(sheetRef);
       }
-      bottomSheetPresent(ref);
+    } catch (error) {
+      if (!isPickerCancelled(error)) {
+        console.log('DocumentPicker Error: ', error);
+      }
+    }
+  }, [pickDocuments]);
+
+  useImperativeHandle(ref, () => ({ open }), [open]);
+
+  const handlePickDocument = async () => {
+    try {
+      await pickDocuments(true);
+      bottomSheetPresent(sheetRef);
+    } catch (error) {
+      if (!isPickerCancelled(error)) {
+        console.log('DocumentPicker Error: ', error);
+      }
+      bottomSheetPresent(sheetRef);
     }
   };
 
   const handlePreview = async (doc: DocumentPickerResponse) => {
     try {
-      await dismissSheetForNativeModal(ref);
+      await dismissSheetForNativeModal(sheetRef);
       await viewDocument({
         uri: decodeFileUri(doc.uri),
         headerTitle: doc.name ?? 'Document Preview',
         mimeType: resolveDocumentMime(doc.type, doc.name),
         presentationStyle: 'fullScreen',
       });
-      bottomSheetPresent(ref);
+      bottomSheetPresent(sheetRef);
     } catch (error) {
       console.log('Error viewing document:', error);
       Toast.show({
@@ -118,16 +169,36 @@ export const DocumentPickerSheet = forwardRef<
         text1: t('form.preview', { defaultValue: 'Preview' }),
         text2: t('form.upload.failed', { defaultValue: 'File upload failed' }),
       });
-      bottomSheetPresent(ref);
+      bottomSheetPresent(sheetRef);
     }
+  };
+
+  const openDescriptionEditor = (doc: DocumentPickerResponse) => {
+    setEditingDocUri(doc.uri);
+    descriptionSheetRef.current?.present();
+  };
+
+  const handleDescriptionUpdate = (description: string) => {
+    if (editingDocUri) {
+      setDescriptions(prev => ({ ...prev, [editingDocUri]: description }));
+    }
+    setEditingDocUri(null);
+    descriptionSheetRef.current?.dismiss();
   };
 
   const removeDocument = (uri: string) => {
     setSelectedDocs(prev => prev.filter(doc => doc.uri !== uri));
+    setDescriptions(prev => {
+      const next = { ...prev };
+      delete next[uri];
+      return next;
+    });
   };
 
   const resetStates = () => {
     setSelectedDocs([]);
+    setDescriptions({});
+    setEditingDocUri(null);
     setIsConfirmLoading(false);
   };
 
@@ -136,12 +207,14 @@ export const DocumentPickerSheet = forwardRef<
     try {
       const documentAttachments = await Promise.all(
         selectedDocs.map(async doc => {
+          const description =
+            descriptions[doc.uri]?.trim() || doc.name || 'Document attachment';
           return uploadMedia({
             mediaUri: doc.uri,
             createAttachments: createAttachment,
             type: 'document',
             usage: 'post-document',
-            alt: doc.name || 'Document attachment',
+            alt: description,
             name: doc.name ?? undefined,
             mimeType: doc.type ?? undefined,
           });
@@ -161,13 +234,15 @@ export const DocumentPickerSheet = forwardRef<
       await onSelect(documentAttachments);
 
       resetStates();
-      (ref as any).current?.close();
+      sheetRef.current?.close();
     } catch (error) {
       console.error('Upload error:', error);
     } finally {
       setIsConfirmLoading(false);
     }
   };
+
+  const editingDoc = selectedDocs.find(doc => doc.uri === editingDocUri);
 
   const renderDocumentList = () => {
     if (selectedDocs.length === 0) {
@@ -190,12 +265,13 @@ export const DocumentPickerSheet = forwardRef<
     return (
       <View className="px-4">
         {selectedDocs.map((doc, index) => (
-          <TouchableOpacity
+          <View
             key={`${doc.uri}-${index}`}
-            onPress={() => handlePreview(doc)}
-            activeOpacity={0.7}
             className="flex-row items-center justify-between bg-card p-3 rounded-lg mb-2 border border-border">
-            <View className="flex-row items-center flex-1 mr-2">
+            <TouchableOpacity
+              onPress={() => openDescriptionEditor(doc)}
+              activeOpacity={0.7}
+              className="flex-row items-center flex-1 mr-2">
               <View className="bg-muted w-10 h-10 items-center justify-center rounded-md mr-3">
                 <FileIcon size={20} className="text-foreground" />
               </View>
@@ -211,24 +287,33 @@ export const DocumentPickerSheet = forwardRef<
                     {formatSize(doc.size || 0)}
                   </Text>
                   <Text className="text-muted-foreground/50 text-[10px] ml-2">
-                    {t('form.preview')}
+                    {descriptions[doc.uri]?.trim()
+                      ? t('form.uploadEditModal.description.altText')
+                      : t('form.uploadEditModal.description.placeholder')}
                   </Text>
                 </View>
               </View>
-            </View>
-
-            <TouchableOpacity
-              onPress={e => {
-                e.stopPropagation();
-                removeDocument(doc.uri);
-              }}
-              className="p-2 bg-muted/50 rounded-full hover:bg-destructive/10">
-              <XIcon
-                size={16}
-                className="text-muted-foreground hover:text-destructive"
-              />
             </TouchableOpacity>
-          </TouchableOpacity>
+
+            <View className="flex-row items-center gap-1">
+              <TouchableOpacity
+                onPress={() => handlePreview(doc)}
+                accessibilityRole="button"
+                accessibilityLabel={t('form.preview')}
+                className="p-2 bg-muted/50 rounded-full">
+                <EyeOnIcon size={16} className="text-muted-foreground" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => removeDocument(doc.uri)}
+                accessibilityRole="button"
+                accessibilityLabel={t('posts.attachments.deleteTitle', {
+                  defaultValue: 'Delete attachment',
+                })}
+                className="p-2 bg-muted/50 rounded-full">
+                <XIcon size={16} className="text-muted-foreground" />
+              </TouchableOpacity>
+            </View>
+          </View>
         ))}
 
         <Button
@@ -247,36 +332,49 @@ export const DocumentPickerSheet = forwardRef<
   };
 
   return (
-    <BaseSheet ref={ref}>
-      <View className="flex-1">
-        <View className="px-4 py-3 border-b border-border mb-2">
-          <Text className="text-lg font-semibold text-foreground">
-            {t('form.documentInput.uploadTitle', {
-              defaultValue: 'Upload Files',
-            })}
-          </Text>
+    <>
+      <BaseSheet ref={sheetRef}>
+        <View className="flex-1">
+          <View className="px-4 py-3 border-b border-border mb-2">
+            <Text className="text-lg font-semibold text-foreground">
+              {t('form.documentInput.uploadTitle', {
+                defaultValue: 'Upload Files',
+              })}
+            </Text>
+          </View>
+
+          <ScrollView className="flex-1 h-96">{renderDocumentList()}</ScrollView>
+
+          <SheetFooter
+            onCancel={() => {
+              resetStates();
+              sheetRef.current?.close();
+            }}
+            onConfirm={onConfirm}
+            disabled={selectedDocs.length === 0 || isConfirmLoading}
+            confirmText={
+              selectedDocs.length > 0
+                ? t('form.documentInput.uploadFilesCount', {
+                    count: selectedDocs.length,
+                    defaultValue: `Upload Files (${selectedDocs.length})`,
+                  })
+                : t('common.done')
+            }
+            isLoading={isConfirmLoading}
+          />
         </View>
+      </BaseSheet>
 
-        <ScrollView className="flex-1 h-96">{renderDocumentList()}</ScrollView>
-
-        <SheetFooter
-          onCancel={() => {
-            resetStates();
-            (ref as any).current?.close();
-          }}
-          onConfirm={onConfirm}
-          disabled={selectedDocs.length === 0 || isConfirmLoading}
-          confirmText={
-            selectedDocs.length > 0
-              ? t('form.documentInput.uploadFilesCount', {
-                  count: selectedDocs.length,
-                  defaultValue: `Upload Files (${selectedDocs.length})`,
-                })
-              : t('common.done')
-          }
-          isLoading={isConfirmLoading}
-        />
-      </View>
-    </BaseSheet>
+      <AltSheet
+        ref={descriptionSheetRef}
+        variant="document"
+        initialAltText={
+          editingDoc
+            ? descriptions[editingDoc.uri] ?? editingDoc.name ?? ''
+            : ''
+        }
+        onUpdate={handleDescriptionUpdate}
+      />
+    </>
   );
 });

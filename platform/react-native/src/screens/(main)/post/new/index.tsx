@@ -12,6 +12,7 @@ import {
   ImagePickerSheet,
   VideoPickerSheet,
   DocumentPickerSheet,
+  type DocumentPickerSheetHandle,
   ArticleForm,
 } from '~/components/custom';
 import {
@@ -58,7 +59,7 @@ export const NewPost = ({ route, navigation }: PostProps) => {
   const imagePickerModalRef = useRef<BottomSheetModal>(null);
   const videoPickerModalRef = useRef<BottomSheetModal>(null);
   const audioPickerModalRef = useRef<BottomSheetModal>(null);
-  const documentPickerModalRef = useRef<BottomSheetModal>(null);
+  const documentPickerModalRef = useRef<DocumentPickerSheetHandle>(null);
 
   const [mediaPermissionsGranted] = useState(false);
 
@@ -123,7 +124,7 @@ export const NewPost = ({ route, navigation }: PostProps) => {
   const handleDocumentModalPress = useCallback(async () => {
     const hasPermission = await checkMediaPermissions('file');
     if (hasPermission) {
-      documentPickerModalRef.current?.present();
+      await documentPickerModalRef.current?.open();
     }
   }, []);
 
