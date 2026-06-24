@@ -4,7 +4,7 @@ import { usePostViewRef } from '../../../../lib/postViewCounter';
 import { FeedPostContent } from '../../FeedPostContent';
 import { PostActions } from '../../pieces/PostActions';
 import { PostMenu } from '../../pieces/PostMenu';
-import { UpdatingDate } from '../../pieces/UpdatingDate';
+import { UpdatingDate } from '@openpeeps/react-ui';
 
 export interface ThreadPostProps {
   post: PublicPost;

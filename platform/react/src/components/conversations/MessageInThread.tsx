@@ -2,7 +2,7 @@ import type { PublicPost, PublicProfile } from '@openpeeps/common/types';
 import { profileName } from '@openpeeps/common';
 import { useT } from '../../i18n';
 import { usePostViewRef } from '../../lib/postViewCounter';
-import { UpdatingDate } from '../post';
+import { UpdatingDate } from '@openpeeps/react-ui';
 import { Avatar } from '../profile';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { ConversationMessageBubble } from './ConversationMessageBubble';

@@ -71,7 +71,6 @@ export { PostReactionHeader } from './pieces/PostReactionHeader';
 export { FeedPostStats } from './pieces/FeedPostStats';
 export { PostActions } from './pieces/PostActions';
 export { Attachments } from './pieces/Attachments';
-export { UpdatingDate } from './pieces/UpdatingDate';
 
 // Helpers
 export { firstNWords, postReactionStats, stringToSegments } from './helpers';

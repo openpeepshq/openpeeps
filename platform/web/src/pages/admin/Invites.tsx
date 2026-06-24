@@ -3,7 +3,8 @@ import { CheckCheck, Copy, MoreVertical, Users, X } from 'lucide-react';
 import { inviteLinkMatchesQuery } from '@openpeeps/common/lib';
 import type { InviteLinkWithMeta } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Avatar, UpdatingDate } from '@openpeeps/react/components';
+import { Avatar } from '@openpeeps/react/components';
+import { UpdatingDate } from '@openpeeps/react-ui';
 import {
   Dialog,
   DialogContent,

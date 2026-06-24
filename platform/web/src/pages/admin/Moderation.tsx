@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { ReportWithMeta } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Avatar, UpdatingDate } from '@openpeeps/react/components';
+import { Avatar } from '@openpeeps/react/components';
+import { UpdatingDate } from '@openpeeps/react-ui';
 import { Button } from '@openpeeps/react-ui';
 
 type Tab = 'summary' | 'resolved';
