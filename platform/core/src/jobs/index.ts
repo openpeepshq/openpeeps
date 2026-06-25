@@ -85,3 +85,10 @@ export const queueAndWorker = <Input, Output = undefined>(
   ];
 
 export { getJobDetail } from './jobDetail';
+export {
+  jobLogger,
+  logStep,
+  logFailure,
+  formatErrorDetail,
+  type JobLog,
+} from './jobLog';
