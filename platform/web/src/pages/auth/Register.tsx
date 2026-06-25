@@ -107,7 +107,7 @@ export function Register({ invite = false }: RegisterProps) {
   }, [invite, registrationOpen, navigate]);
 
   const privacyPolicyLink =
-    serverInfo.communityConfig?.info?.privacyPolicy ?? '/docs/privacy';
+    serverInfo.communityConfig?.info?.privacyPolicy || '/docs/privacy';
   const stripeMembershipEnabled =
     !!serverInfo.payments?.stripe?.paidMembership?.enabled;
 
