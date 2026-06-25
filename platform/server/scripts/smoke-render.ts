@@ -152,7 +152,14 @@ const fixtures: Array<{ template: string; locals?: Record<string, unknown> }> = 
       recipientProfile: fakeProfile,
       post: fakePost,
       group: fakeGroup,
-      data: { replyPost: fakePost },
+    },
+  },
+  {
+    template: 'notification-mention',
+    locals: {
+      senderProfile: fakeProfile,
+      recipientProfile: fakeProfile,
+      post: fakePost,
     },
   },
 ];

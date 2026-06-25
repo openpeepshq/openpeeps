@@ -1,34 +1,21 @@
-import type {
-  EmailOptionsWithGlobals,
-  GroupData,
-  PublicPost,
-  PublicProfile,
-} from '@openpeeps/common/types';
+import type { EmailOptionsWithGlobals, ExpandedNotification } from '@openpeeps/common/types';
 import { groupName, profileName } from '@openpeeps/common/lib';
 
 import type { ReactEmailTemplate } from '../../types';
 import { NewGroupPostEmail } from './Email';
 
-interface Locals {
-  senderProfile: PublicProfile;
-  recipientProfile: PublicProfile;
-  post: PublicPost;
-  group: GroupData;
-  data: { replyPost: PublicPost };
-}
-
 const renderSubject = async (
-  props: EmailOptionsWithGlobals & { locals: Locals },
+  props: EmailOptionsWithGlobals & { locals: ExpandedNotification },
 ): Promise<string> => {
   const { t } = props.globals.i18nContext;
   return t('emails.newGroupPost.subject', {
-    profileName: profileName(props.locals.senderProfile),
-    groupName: groupName(props.locals.group),
+    profileName: profileName(props.locals.senderProfile ?? undefined),
+    groupName: groupName(props.locals.group ?? undefined),
     communityName: props.globals.communityConfig.info.name,
   });
 };
 
-const template: ReactEmailTemplate<Locals> = {
+const template: ReactEmailTemplate<ExpandedNotification> = {
   component: NewGroupPostEmail,
   renderSubject,
 };
