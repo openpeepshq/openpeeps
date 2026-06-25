@@ -18,6 +18,10 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **admin**: improve members CSV export feedback (#88)
+- **groups**: allow moderator as a group membership role
+- **react**: use react-ui UpdatingDate for date and time
+- **backups**: stream downloads via /backups route
 - **jams**: sync LiveKit theme with app light/dark mode
 - **web**: show login error toast on first failed attempt
 - **react**: show group name on group join notifications (#878)
