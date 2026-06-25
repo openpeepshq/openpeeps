@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import {
   type TrackReferenceOrPlaceholder,
   TrackRefContext,
@@ -124,6 +125,21 @@ function JamParticipantOverlay({
 
   const micOn = participant.isMicrophoneEnabled;
   const handUp = raisedHands.has(participant.identity);
+  const handRaiseSound = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (!handRaiseSound.current) {
+      handRaiseSound.current = new Audio('/audio/click-notification.wav');
+      handRaiseSound.current.volume = 0.5;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (handUp) {
+      void handRaiseSound.current?.play().catch(() => {});
+    }
+  }, [handUp]);
+
   const profile = parseParticipantMetadata(participant.metadata).profile;
   const isModerator = jam.moderators.includes(participant.identity);
   const viewerIsModerator = !!me && jam.moderators.includes(me.id);
