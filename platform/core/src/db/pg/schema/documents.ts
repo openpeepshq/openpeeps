@@ -8,7 +8,7 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { idColumn, modelTimestamps } from './base';
+import { idColumn, modelTimestamps, tsvector } from './base';
 
 export const dataMigrations = pgTable('data_migrations', {
   id: idColumn(),
@@ -56,6 +56,7 @@ export const profiles = pgTable(
     activityPubDomain: text('activity_pub_domain'),
     type: text('type').notNull(),
     body: jsonb('body').notNull().default({}),
+    searchVector: tsvector('search_vector'),
     ...modelTimestamps,
   },
   (t) => [
@@ -63,6 +64,7 @@ export const profiles = pgTable(
       t.handle,
       t.activityPubDomain,
     ),
+    index('profiles_search_vector_idx').using('gin', t.searchVector),
   ],
 );
 
@@ -94,9 +96,13 @@ export const groups = pgTable(
     id: idColumn(),
     handle: text('handle').notNull(),
     body: jsonb('body').notNull().default({}),
+    searchVector: tsvector('search_vector'),
     ...modelTimestamps,
   },
-  (t) => [uniqueIndex('groups_handle_unique').on(t.handle)],
+  (t) => [
+    uniqueIndex('groups_handle_unique').on(t.handle),
+    index('groups_search_vector_idx').using('gin', t.searchVector),
+  ],
 );
 
 export const posts = pgTable(
@@ -107,12 +113,14 @@ export const posts = pgTable(
     visibility: text('visibility').notNull(),
     creatorId: text('creator_id').notNull(),
     body: jsonb('body').notNull().default({}),
+    searchVector: tsvector('search_vector'),
     ...modelTimestamps,
   },
   (t) => [
     index('posts_type_idx').on(t.type),
     index('posts_visibility_idx').on(t.visibility),
     index('posts_creator_idx').on(t.creatorId),
+    index('posts_search_vector_idx').using('gin', t.searchVector),
   ],
 );
 

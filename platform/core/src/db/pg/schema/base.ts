@@ -1,5 +1,9 @@
 import { sql } from 'drizzle-orm';
-import { timestamp, uuid } from 'drizzle-orm/pg-core';
+import { customType, timestamp, uuid } from 'drizzle-orm/pg-core';
+
+export const tsvector = customType<{ data: string }>({
+  dataType: () => 'tsvector',
+});
 
 export const idColumn = () => uuid('id').primaryKey();
 

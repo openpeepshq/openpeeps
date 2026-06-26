@@ -30,22 +30,34 @@ const fieldToSql = (collection: string, field: string) => {
   if (scalars?.[top]) {
     return sql.raw(`"${scalars[top]}"`);
   }
-  const jsonPath = field
+  let path = field;
+  if (collection === 'posts' && path.startsWith('data.')) {
+    path = path.slice(5);
+  }
+  const jsonPath = path
     .split('.')
     .map((s, i) => (i === 0 ? s : `'${s}'`))
     .join('->');
   return sql.raw(`body->${jsonPath}`);
 };
 
+const searchableCollections = new Set(['profiles', 'groups', 'posts']);
+
+const searchVectorExpr = (table: Record<string, unknown>) => {
+  if (table.searchVector) {
+    return sql`${table.searchVector}`;
+  }
+  return sql`to_tsvector('english', coalesce(${table.body}::text, ''))`;
+};
+
 const buildSearchWhere = (
   collection: string,
   fields: string[],
   query: string,
+  table: Record<string, unknown>,
 ) => {
-  const tableRef = getTableForCollection(collection);
-  const table = asTable(tableRef);
   const tsQuery = sql`plainto_tsquery('english', ${query})`;
-  const tsvectorExpr = sql`to_tsvector('english', coalesce(${table.body}::text, ''))`;
+  const tsvectorExpr = searchVectorExpr(table);
   const ilikeParts = fields.map(
     (field) => sql`${fieldToSql(collection, field)} ILIKE ${'%' + query + '%'}`,
   );
@@ -77,10 +89,13 @@ export const buildSearchResult = <O extends object>(
       collection,
       searchDefinition.fields,
       searchDefinition.query,
+      table,
     );
     const where = sqlWhere ? and(searchWhere, sqlWhere) : searchWhere;
     const tsQuery = sql`plainto_tsquery('english', ${searchDefinition.query})`;
-    const rank = sql<number>`ts_rank(to_tsvector('english', coalesce(${table.body}::text, '')), ${tsQuery})`;
+    const rank = searchableCollections.has(collection)
+      ? sql<number>`ts_rank(${searchVectorExpr(table)}, ${tsQuery})`
+      : sql<number>`ts_rank(to_tsvector('english', coalesce(${table.body}::text, '')), ${tsQuery})`;
 
     const rows = await db
       .select({
@@ -161,6 +176,7 @@ export const buildSearchResult = <O extends object>(
         collection,
         searchDefinition.fields,
         searchDefinition.query,
+        asTable(tableRef),
       );
       const where = sqlWhere ? and(searchWhere, sqlWhere) : searchWhere;
       const rows = (await db

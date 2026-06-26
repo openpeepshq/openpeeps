@@ -26,8 +26,9 @@ migrations run automatically when the server starts.
 
 Drizzle table definitions live under `platform/core/src/db/pg/schema/`. Document
 tables hold scalar columns plus JSONB payloads where needed; edge tables use
-`from_id`, `to_id`, and optional `data` JSONB. Full-text search uses generated
-`tsvector` columns with GIN indexes.
+`from_id`, `to_id`, and optional `data` JSONB. Full-text search uses
+`search_vector` `tsvector` columns with GIN indexes on `profiles`, `posts`, and
+`groups`, maintained by database triggers.
 
 Collection and edge names used by mappings are defined in
 `platform/core/src/db/pg/collections.ts`, aligned with the Drizzle schema
