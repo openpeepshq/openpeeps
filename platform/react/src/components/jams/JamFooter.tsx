@@ -173,7 +173,7 @@ const RecordButton = ({
     title={
       isRecording
         ? t('jams.recording.stopTitle')
-        : t('jams.recording.recordTitle')
+        : t('events.recordingInProgress')
     }
     onClick={onToggle}
     className={`bg-error-500 text-on-primary-token flex size-10 items-center justify-center rounded-full p-2 ${className}`}
@@ -403,7 +403,7 @@ const MobileMenu = ({
         <span>
           {isRecording
             ? t('jams.recording.stopTitle')
-            : t('jams.recording.recordTitle')}
+            : t('events.recordingInProgress')}
         </span>
       </button>
     ) : null}
