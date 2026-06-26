@@ -29,7 +29,9 @@ tables hold scalar columns plus JSONB payloads where needed; edge tables use
 `from_id`, `to_id`, and optional `data` JSONB. Full-text search uses generated
 `tsvector` columns with GIN indexes.
 
-Legacy collection names are preserved in `platform/core/src/db/structure/collections.ts` for mapping configuration.
+Collection and edge names used by mappings are defined in
+`platform/core/src/db/pg/collections.ts`, aligned with the Drizzle schema
+registries in `platform/core/src/db/pg/map/registry.ts`.
 
 ### Mappings
 

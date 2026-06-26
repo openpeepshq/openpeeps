@@ -3,7 +3,7 @@ import {
   PushSubscriptionData,
 } from '@openpeeps/common/types';
 import { map } from '../db/pg/map';
-import { collectionInfos } from '../db/structure';
+import { collectionInfos } from '../db';
 
 export const pushSubscriptionsMapping = map<
   PushSubscriptionData,

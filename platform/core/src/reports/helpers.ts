@@ -1,5 +1,5 @@
 import { connector } from '../db/helpers';
-import { collectionInfos } from '../db/structure';
+import { collectionInfos } from '../db';
 import {
   DbPost,
   PostWithMeta,

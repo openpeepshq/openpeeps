@@ -8,7 +8,7 @@ import {
 } from '@openpeeps/common/types';
 import { PostData } from '@openpeeps/common/types';
 import { groupsMapping } from '../groups/mapping';
-import { collectionInfos } from '../db/structure';
+import { collectionInfos } from '../db';
 
 const seenByCurrentProfileDerivedProperty = (profile?: { id: string }) => ({
   alias: 'seen',

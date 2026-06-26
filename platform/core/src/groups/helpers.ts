@@ -7,7 +7,7 @@ import type {
 import type { OMFilter, OMFilterList } from '../db/pg/map/queryTypes';
 import { checkRoleCapabilities, isLocal } from '@openpeeps/common/lib';
 import { connectionUpdater, connector, disconnector } from '../db/helpers';
-import { collectionInfos } from '../db/structure';
+import { collectionInfos } from '../db';
 
 export const addMember = connector<PublicProfile, GroupWithMeta, GroupRoleData>(
   collectionInfos.profilesCollection,

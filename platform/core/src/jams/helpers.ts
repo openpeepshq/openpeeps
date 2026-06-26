@@ -7,7 +7,7 @@ import {
   ProfileWithMeta,
 } from '@openpeeps/common/types';
 import { connector } from '../db/helpers';
-import { collectionInfos } from '../db/structure';
+import { collectionInfos } from '../db';
 import { findProfile } from '../profiles';
 import { findPost } from '../posts';
 

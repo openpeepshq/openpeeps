@@ -7,7 +7,7 @@ import {
   ProfileWithMeta,
 } from '@openpeeps/common/types';
 import { groupsMapping } from '../groups/mapping';
-import { collectionInfos } from '../db/structure';
+import { collectionInfos } from '../db';
 
 const membersExportStatsRelations: Relation[] = [
   {

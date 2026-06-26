@@ -3,7 +3,8 @@ import type { PgDb } from './pg/client';
 import { OpenpeepsDatabase } from './types';
 
 export { empty } from './examples';
-export * from './structure';
+export { collectionInfos } from './pg/collections';
+export type { CollectionInfoKey } from './pg/collections';
 
 export type { PgDb } from './pg/client';
 

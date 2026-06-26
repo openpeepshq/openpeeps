@@ -5,7 +5,7 @@ import {
   Role,
 } from '@openpeeps/common/types';
 import { connectionFinder, connector, disconnector } from '../db/helpers';
-import { collectionInfos } from '../db/structure';
+import { collectionInfos } from '../db';
 import { getProfiles } from './cache';
 
 export const followConnector = connector<Profile, Profile, FollowData>(

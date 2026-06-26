@@ -1,7 +1,7 @@
 import { appendFile, mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { aql, Database } from 'arangojs';
-import { collectionInfos } from '../structure/collections';
+import { collectionInfos } from '../pg/collections';
 import { logger } from '../../log';
 import {
   arangoConfig,

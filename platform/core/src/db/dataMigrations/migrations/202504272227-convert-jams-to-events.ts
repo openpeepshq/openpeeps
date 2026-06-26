@@ -1,6 +1,6 @@
 import { aql, Database } from 'arangojs';
 import { ensureIndexedCollection } from '../../helpers';
-import { collectionInfos } from '../../structure';
+import { collectionInfos } from '../../pg/collections';
 import type { CollectionInfo } from '@openpeeps/arango-querybuilder';
 
 export default {

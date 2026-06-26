@@ -3,7 +3,7 @@ import { profilesMapping } from '../../../profiles/mapping';
 import { logger } from '../../../log';
 import { Role, RoleData } from '@openpeeps/common/types';
 import { map } from '@openpeeps/arango-querybuilder';
-import { collectionInfos } from '../../structure';
+import { collectionInfos } from '../../pg/collections';
 import { roleAssigner, roleUnassigner } from '../../../profiles/helpers';
 
 const log = logger('db:dataMigrations');

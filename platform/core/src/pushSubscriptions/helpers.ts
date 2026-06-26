@@ -1,6 +1,6 @@
 import { Account, PushSubscription } from '@openpeeps/common/types';
 import { connector } from '../db/helpers';
-import { collectionInfos } from '../db/structure';
+import { collectionInfos } from '../db';
 
 export const pushSubscriptionAccountConnector = connector<
   Account,

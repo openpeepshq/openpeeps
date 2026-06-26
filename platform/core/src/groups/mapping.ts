@@ -1,6 +1,6 @@
 import { map, Relation } from '../db/pg/map';
 import { GroupData, GroupWithMeta } from '@openpeeps/common/types';
-import { collectionInfos } from '../db/structure';
+import { collectionInfos } from '../db';
 
 const groupRelations: Relation[] = [
   {
