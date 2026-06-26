@@ -1,14 +1,42 @@
-import { and, eq, gte, isNull, lt, sql, type SQL } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gt,
+  gte,
+  isNull,
+  lt,
+  lte,
+  ne,
+  or,
+  sql,
+  type SQL,
+} from 'drizzle-orm';
 import { checkCapabilities, mergeCapabilities } from '@openpeeps/common/lib';
-import type { OMFilter } from './queryTypes';
+import type { Limit, ObjectSort, OMFilter } from './queryTypes';
 import {
   asTable,
-  documentRegistry,
   edgeRegistry,
   getCollectionConfig,
+  getTableForCollection,
   parseDocRef,
   type PgTable,
 } from './registry';
+
+const SCALAR_COLUMNS: Record<string, string[]> = {
+  accounts: ['email', 'passwordHash', 'emailValidated', 'guest'],
+  profiles: ['handle', 'type', 'activityPubDomain'],
+  posts: ['type', 'visibility', 'creatorId'],
+  groups: ['handle'],
+  hashtags: ['name'],
+  roles: ['key', 'isDefault'],
+  notifications: ['profileId'],
+  jamEvents: ['postId', 'type'],
+  processingStats: ['filetype', 'filesize'],
+  profileSettings: ['profileId'],
+  inviteLinks: ['slug'],
+};
 
 const getPath = (obj: Record<string, unknown>, path: string): unknown => {
   const parts = path.replace(/\[['"]?(\w+)['"]?\]/g, '.$1').split('.');
@@ -89,6 +117,355 @@ export const evaluateFilter = (
 
 const bodyColumn = (table: Record<string, unknown>) => table.body as SQL;
 
+const postsReplyCountSql = (table: PgTable): SQL => {
+  const postsTable = asTable(table);
+  const replyToTable = getTableForCollection('replyTo');
+  const posts = getTableForCollection('posts');
+  return sql`(SELECT count(*)::int FROM ${replyToTable} rt INNER JOIN ${posts} p ON p.id = rt.from_id WHERE rt.to_id = ${postsTable.id} AND p.deleted_at IS NULL)`;
+};
+
+const docFieldSql = (
+  collection: string,
+  table: PgTable,
+  fieldPath: string,
+): SQL | undefined => {
+  const t = asTable(table);
+  if (fieldPath === '_key' || fieldPath === 'id') return sql`${t.id}`;
+  if (fieldPath === 'createdAt' && t.createdAt) return sql`${t.createdAt}`;
+  if (fieldPath === 'updatedAt' && t.updatedAt) return sql`${t.updatedAt}`;
+  if (fieldPath === '_from' && t.fromId) return sql`${t.fromId}`;
+  if (fieldPath === '_to' && t.toId) return sql`${t.toId}`;
+
+  const scalars = SCALAR_COLUMNS[collection];
+  if (scalars?.includes(fieldPath)) return sql`${t[fieldPath]}`;
+
+  let jsonPath = fieldPath;
+  if (collection === 'posts' && jsonPath.startsWith('data.')) {
+    jsonPath = jsonPath.slice(5);
+  }
+
+  if (!t.body) return undefined;
+
+  const parts = jsonPath.split('.');
+  if (parts.length === 1) {
+    return sql`${bodyColumn(t)}->>${parts[0]}`;
+  }
+  const head = parts
+    .slice(0, -1)
+    .map((part) => `'${part}'`)
+    .join('->');
+  return sql`${bodyColumn(t)}->${sql.raw(head)}->>${parts[parts.length - 1]}`;
+};
+
+const docFieldJsonSql = (
+  collection: string,
+  table: PgTable,
+  fieldPath: string,
+): SQL | undefined => {
+  const t = asTable(table);
+  let jsonPath = fieldPath;
+  if (collection === 'posts' && jsonPath.startsWith('data.')) {
+    jsonPath = jsonPath.slice(5);
+  }
+  if (!t.body) return undefined;
+  const parts = jsonPath.split('.');
+  if (parts.length === 1) {
+    return sql`${bodyColumn(t)}->${parts[0]}`;
+  }
+  const path = parts.map((part) => `'${part}'`).join('->');
+  return sql`${bodyColumn(t)}->${sql.raw(path)}`;
+};
+
+const parseLiteral = (raw: string): string | number | boolean | null => {
+  const trimmed = raw.trim();
+  if (trimmed === 'null') return null;
+  if (trimmed === 'true') return true;
+  if (trimmed === 'false') return false;
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return Number(trimmed);
+  const quoted =
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"));
+  if (quoted) return trimmed.slice(1, -1);
+  return trimmed;
+};
+
+const compareSql = (
+  left: SQL,
+  op: string,
+  value: string | number | boolean | null,
+): SQL | undefined => {
+  switch (op) {
+    case '==':
+      return value === null ? sql`${left} IS NULL` : eq(left, value);
+    case '!=':
+      return value === null ? sql`${left} IS NOT NULL` : ne(left, value);
+    case '>':
+      return gt(left, value as never);
+    case '>=':
+      return gte(left, value as never);
+    case '<':
+      return lt(left, value as never);
+    case '<=':
+      return lte(left, value as never);
+    default:
+      return undefined;
+  }
+};
+
+const unwrapParens = (expression: string): string => {
+  let expr = expression.trim();
+  while (expr.startsWith('(') && expr.endsWith(')')) {
+    let depth = 0;
+    let closed = true;
+    for (let i = 0; i < expr.length; i++) {
+      if (expr[i] === '(') depth++;
+      if (expr[i] === ')') depth--;
+      if (depth === 0 && i < expr.length - 1) {
+        closed = false;
+        break;
+      }
+    }
+    if (!closed) break;
+    expr = expr.slice(1, -1).trim();
+  }
+  return expr;
+};
+
+const splitTopLevel = (expression: string, separator: string): string[] => {
+  const parts: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < expression.length; i++) {
+    const ch = expression[i];
+    if (ch === '(') depth++;
+    else if (ch === ')') depth--;
+    else if (depth === 0 && expression.startsWith(separator, i)) {
+      parts.push(expression.slice(start, i).trim());
+      start = i + separator.length;
+      i += separator.length - 1;
+    }
+  }
+  parts.push(expression.slice(start).trim());
+  return parts.filter(Boolean);
+};
+
+const createdAtRangeSql = (
+  table: PgTable,
+  expression: string,
+): SQL | undefined => {
+  const t = asTable(table);
+  const range = expression.match(
+    /DATE_TIMESTAMP\(DOC\.createdAt\)\s*>=\s*(\d+).*DATE_TIMESTAMP\(DOC\.createdAt\)\s*<\s*(\d+)/,
+  );
+  if (range) {
+    return and(
+      gte(t.createdAt as never, new Date(Number(range[1])).toISOString()),
+      lt(t.createdAt as never, new Date(Number(range[2])).toISOString()),
+    );
+  }
+  const startOnly = expression.match(
+    /DATE_TIMESTAMP\(DOC\.createdAt\)\s*>=\s*(\d+)/,
+  );
+  if (startOnly) {
+    return gte(
+      t.createdAt as never,
+      new Date(Number(startOnly[1])).toISOString(),
+    );
+  }
+  const endOnly = expression.match(
+    /DATE_TIMESTAMP\(DOC\.createdAt\)\s*<\s*(\d+)/,
+  );
+  if (endOnly) {
+    return lt(t.createdAt as never, new Date(Number(endOnly[1])).toISOString());
+  }
+  return undefined;
+};
+
+const eventFilterSql = (
+  collection: string,
+  table: PgTable,
+  expression: string,
+): SQL | undefined => {
+  if (collection !== 'posts') return undefined;
+  const t = asTable(table);
+  const body = bodyColumn(t);
+
+  const past = expression.match(
+    /^\(DOC\.data\.end \|\| DOC\.data\.start\)\s*<\s*['"]([^'"]+)['"]$/,
+  );
+  if (past) {
+    return sql`COALESCE(${body}->>'end', ${body}->>'start') < ${past[1]}`;
+  }
+
+  const upcoming = expression.match(
+    /^\(\(DOC\.data\.start\s*>\s*['"]([^'"]+)['"]\)\s*\|\|\s*\(DOC\.data\.end && DOC\.data\.end\s*>\s*['"]\1['"]\)\)$/,
+  );
+  if (upcoming) {
+    const now = upcoming[1];
+    return or(
+      sql`${body}->>'start' > ${now}`,
+      and(sql`${body}->'end' IS NOT NULL`, sql`${body}->>'end' > ${now}`),
+    );
+  }
+
+  const current = expression.match(
+    /^DOC\.data\.start\s*<=\s*['"]([^'"]+)['"]\s*&&\s*\(!DOC\.data\.end \|\| DOC\.data\.end\s*>=\s*['"]\1['"]\)$/,
+  );
+  if (current) {
+    const now = current[1];
+    return and(
+      sql`${body}->>'start' <= ${now}`,
+      or(sql`${body}->'end' IS NULL`, sql`${body}->>'end' >= ${now}`),
+    );
+  }
+
+  return undefined;
+};
+
+const singleStringFilterToSql = (
+  collection: string,
+  table: PgTable,
+  expression: string,
+): SQL | undefined => {
+  const expr = unwrapParens(expression);
+  if (!expr || expr.includes('ALLPEEP::') || expr.includes(' FOR ')) {
+    return undefined;
+  }
+
+  const dateRange = createdAtRangeSql(table, expr);
+  if (dateRange) return dateRange;
+
+  const eventFilter = eventFilterSql(collection, table, expr);
+  if (eventFilter) return eventFilter;
+
+  const negation = expr.match(/^!DOC\.([a-zA-Z0-9_.]+)$/);
+  if (negation) {
+    const fieldPath = negation[1];
+    if (fieldPath === 'seen' || fieldPath === 'read') {
+      const field = docFieldSql(collection, table, fieldPath);
+      return field ? sql`NOT COALESCE((${field})::boolean, false)` : undefined;
+    }
+    const jsonField = docFieldJsonSql(collection, table, fieldPath);
+    return jsonField ? sql`${jsonField} IS NULL` : undefined;
+  }
+
+  const replyCountMatch = expr.match(
+    /^DOC\.replyCount\s*(==|!=|>=|<=|>|<)\s*(\d+)$/,
+  );
+  if (replyCountMatch && collection === 'posts') {
+    const countExpr = postsReplyCountSql(table);
+    return compareSql(
+      countExpr,
+      replyCountMatch[1],
+      Number(replyCountMatch[2]),
+    );
+  }
+
+  const comparison = expr.match(
+    /^DOC\.([a-zA-Z0-9_.]+)\s*(==|!=|>=|<=|>|<)\s*(.+)$/,
+  );
+  if (comparison) {
+    const [, fieldPath, op, rawValue] = comparison;
+    const value = parseLiteral(rawValue);
+    if (fieldPath === 'replyCount' && collection === 'posts') {
+      if (typeof value !== 'number') return undefined;
+      return compareSql(postsReplyCountSql(table), op, value);
+    }
+    if (op === '!=' && rawValue.trim() === 'null') {
+      const jsonField = docFieldJsonSql(collection, table, fieldPath);
+      return jsonField ? sql`${jsonField} IS NOT NULL` : undefined;
+    }
+    if (op === '==' && rawValue.trim() === 'null') {
+      const jsonField = docFieldJsonSql(collection, table, fieldPath);
+      return jsonField ? sql`${jsonField} IS NULL` : undefined;
+    }
+    const field = docFieldSql(collection, table, fieldPath);
+    if (!field) return undefined;
+    if (fieldPath === 'seen' || fieldPath === 'read') {
+      if (op === '!=' && value === null) {
+        return sql`COALESCE((${field})::boolean, false) = true`;
+      }
+    }
+    return compareSql(field, op, value);
+  }
+
+  const keyCompare = expr.match(/^DOC\._key\s*(<|>)\s*['"]([^'"]+)['"]$/);
+  if (keyCompare) {
+    const t = asTable(table);
+    return keyCompare[1] === '<'
+      ? lt(t.id as never, keyCompare[2])
+      : gt(t.id as never, keyCompare[2]);
+  }
+
+  const truthyField = expr.match(/^DOC\.([a-zA-Z0-9_.]+)$/);
+  if (truthyField) {
+    const jsonField = docFieldJsonSql(collection, table, truthyField[1]);
+    return jsonField ? sql`${jsonField} IS NOT NULL` : undefined;
+  }
+
+  const coalesceCompare = expr.match(
+    /^\(DOC\.([a-zA-Z0-9_.]+)\s*\|\|\s*DOC\.([a-zA-Z0-9_.]+)\)\s*(<|>|<=|>=)\s*['"]([^'"]+)['"]$/,
+  );
+  if (coalesceCompare) {
+    const left = docFieldSql(collection, table, coalesceCompare[1]);
+    const right = docFieldSql(collection, table, coalesceCompare[2]);
+    if (!left || !right) return undefined;
+    return compareSql(
+      sql`COALESCE(${left}, ${right})`,
+      coalesceCompare[3],
+      coalesceCompare[4],
+    );
+  }
+
+  const fieldTruthyAndCompare = expr.match(
+    /^DOC\.([a-zA-Z0-9_.]+)\s*&&\s*DOC\.([a-zA-Z0-9_.]+)\s*(>|>=|<|<=|==|!=)\s*(.+)$/,
+  );
+  if (
+    fieldTruthyAndCompare &&
+    fieldTruthyAndCompare[1] === fieldTruthyAndCompare[2]
+  ) {
+    const [, fieldPath, , op, rawValue] = fieldTruthyAndCompare;
+    const jsonField = docFieldJsonSql(collection, table, fieldPath);
+    const field = docFieldSql(collection, table, fieldPath);
+    if (!jsonField || !field) return undefined;
+    const value = parseLiteral(rawValue);
+    const compare = compareSql(field, op, value);
+    if (!compare) return undefined;
+    return and(sql`${jsonField} IS NOT NULL`, compare);
+  }
+
+  return undefined;
+};
+
+export const stringFilterToSql = (
+  collection: string,
+  table: PgTable,
+  expression: string,
+): SQL | undefined => {
+  const expr = unwrapParens(expression);
+  if (!expr) return undefined;
+
+  if (expr.includes('||')) {
+    const parts = splitTopLevel(expr, '||');
+    const sqlParts = parts.map((part) =>
+      stringFilterToSql(collection, table, part),
+    );
+    if (sqlParts.some((part) => !part)) return undefined;
+    return or(...(sqlParts as SQL[]));
+  }
+
+  if (expr.includes('&&')) {
+    const parts = splitTopLevel(expr, '&&');
+    const sqlParts = parts.map((part) =>
+      stringFilterToSql(collection, table, part),
+    );
+    if (sqlParts.some((part) => !part)) return undefined;
+    return and(...(sqlParts as SQL[]));
+  }
+
+  return singleStringFilterToSql(collection, table, expr);
+};
+
 const matchToSql = (
   collection: string,
   table: PgTable,
@@ -112,25 +489,25 @@ const matchToSql = (
       if (parsed) conditions.push(eq(t.toId as never, parsed.id));
       continue;
     }
+    if (key === 'replyCount' && collection === 'posts') {
+      if (typeof value !== 'number') continue;
+      const countExpr = postsReplyCountSql(table);
+      conditions.push(eq(countExpr, value));
+      continue;
+    }
+    if (key === 'replyToCount' && collection === 'posts') {
+      if (typeof value !== 'number') continue;
+      const replyToTable = getTableForCollection('replyTo');
+      conditions.push(
+        sql`(SELECT count(*)::int FROM ${replyToTable} rt WHERE rt.from_id = ${t.id}) = ${value}`,
+      );
+      continue;
+    }
 
     const config = getCollectionConfig(collection);
     if (!config || config.kind !== 'document') continue;
 
-    const scalarColumns: Record<string, string[]> = {
-      accounts: ['email', 'passwordHash', 'emailValidated', 'guest'],
-      profiles: ['handle', 'type', 'activityPubDomain'],
-      posts: ['type', 'visibility', 'creatorId'],
-      groups: ['handle'],
-      hashtags: ['name'],
-      roles: ['key', 'isDefault'],
-      notifications: ['profileId'],
-      jamEvents: ['postId', 'type'],
-      processingStats: ['filetype', 'filesize'],
-      profileSettings: ['profileId'],
-      inviteLinks: ['slug'],
-    };
-
-    const scalars = scalarColumns[collection];
+    const scalars = SCALAR_COLUMNS[collection];
     if (scalars?.includes(key)) {
       conditions.push(eq(t[key] as never, value as never));
     } else if (t.body) {
@@ -143,63 +520,100 @@ const matchToSql = (
   return conditions.length ? and(...conditions) : undefined;
 };
 
+export const filterToSql = (
+  collection: string,
+  table: PgTable,
+  filter: OMFilter<Record<string, unknown>>,
+): SQL | undefined => {
+  if (typeof filter === 'string') {
+    return stringFilterToSql(collection, table, filter);
+  }
+  if ('operator' in filter) {
+    const parts = filter.predicates.map((predicate) =>
+      filterToSql(collection, table, predicate),
+    );
+    if (parts.some((part) => !part)) return undefined;
+    return filter.operator === '&&'
+      ? and(...(parts as SQL[]))
+      : or(...(parts as SQL[]));
+  }
+  if ('matches' in filter) {
+    const matches = Array.isArray(filter.matches)
+      ? filter.matches
+      : [filter.matches];
+    const parts = matches
+      .map((match) => matchToSql(collection, table, match))
+      .filter(Boolean) as SQL[];
+    if (!parts.length) return undefined;
+    return parts.length === 1 ? parts[0] : or(...parts);
+  }
+  return undefined;
+};
+
+export const partitionFilters = (
+  collection: string,
+  table: PgTable,
+  filters: OMFilter<Record<string, unknown>>[] | undefined,
+  defaultFilter?: OMFilter<Record<string, unknown>>,
+  softDelete?: boolean,
+): {
+  sqlWhere: SQL | undefined;
+  postFilters: OMFilter<Record<string, unknown>>[];
+} => {
+  const t = asTable(table);
+  const sqlConditions: SQL[] = [];
+  const postFilters: OMFilter<Record<string, unknown>>[] = [];
+
+  if (softDelete !== false && t.deletedAt) {
+    sqlConditions.push(isNull(t.deletedAt as never));
+  }
+
+  for (const filter of [
+    ...(defaultFilter ? [defaultFilter] : []),
+    ...(filters ?? []),
+  ]) {
+    const sqlFilter = filterToSql(collection, table, filter);
+    if (sqlFilter) sqlConditions.push(sqlFilter);
+    else postFilters.push(filter);
+  }
+
+  return {
+    sqlWhere: sqlConditions.length ? and(...sqlConditions) : undefined,
+    postFilters,
+  };
+};
+
 export const filtersToSql = (
   collection: string,
   table: PgTable,
   filters: OMFilter<Record<string, unknown>>[] | undefined,
   softDelete: boolean | undefined,
-): SQL | undefined => {
-  const t = asTable(table);
-  const conditions: SQL[] = [];
-
-  if (softDelete !== false && t.deletedAt) {
-    conditions.push(isNull(t.deletedAt as never));
-  }
-
-  for (const filter of filters ?? []) {
-    if (typeof filter === 'string') continue;
-    if ('operator' in filter) continue;
-    if ('matches' in filter) {
-      const matches = Array.isArray(filter.matches)
-        ? filter.matches
-        : [filter.matches];
-      for (const match of matches) {
-        const sqlMatch = matchToSql(collection, table, match);
-        if (sqlMatch) conditions.push(sqlMatch);
-      }
-    }
-  }
-
-  return conditions.length ? and(...conditions) : undefined;
-};
+): SQL | undefined =>
+  partitionFilters(collection, table, filters, undefined, softDelete).sqlWhere;
 
 export const applyDateRangeToEdgeSql = (
   table: PgTable,
   filter?: string,
 ): SQL | undefined => {
   if (!filter) return undefined;
-  const t = asTable(table);
-  const range = filter.match(
-    /DATE_TIMESTAMP\(DOC\.createdAt\) >= (\d+).*DATE_TIMESTAMP\(DOC\.createdAt\) < (\d+)/,
-  );
-  if (range) {
-    return and(
-      gte(t.createdAt as never, new Date(Number(range[1])).toISOString()),
-      lt(t.createdAt as never, new Date(Number(range[2])).toISOString()),
-    );
+  return createdAtRangeSql(table, filter);
+};
+
+export const sortToSqlOrderBy = (
+  collection: string,
+  table: PgTable,
+  sort?: ObjectSort,
+): SQL[] | undefined => {
+  if (!sort?.length) return undefined;
+  const orderBy: SQL[] = [];
+  for (const [expr, direction] of sort) {
+    const path = expr.replace(/^DOC\./, '');
+    if (path === 'activityScore' || path === 'replyCount') return undefined;
+    const field = docFieldSql(collection, table, path);
+    if (!field) return undefined;
+    orderBy.push(direction === 'DESC' ? desc(field) : asc(field));
   }
-  const startOnly = filter.match(/DATE_TIMESTAMP\(DOC\.createdAt\) >= (\d+)/);
-  if (startOnly) {
-    return gte(
-      t.createdAt as never,
-      new Date(Number(startOnly[1])).toISOString(),
-    );
-  }
-  const endOnly = filter.match(/DATE_TIMESTAMP\(DOC\.createdAt\) < (\d+)/);
-  if (endOnly) {
-    return lt(t.createdAt as never, new Date(Number(endOnly[1])).toISOString());
-  }
-  return undefined;
+  return orderBy.length ? orderBy : undefined;
 };
 
 export const applyPostFilters = <O extends object>(
@@ -240,14 +654,22 @@ export const applySort = <O extends object>(
   });
 };
 
-export const applyLimit = <O>(
-  docs: O[],
-  limit?: number | [number, number],
-): O[] => {
+export const applyLimit = <O>(docs: O[], limit?: Limit): O[] => {
   if (!limit) return docs;
   if (typeof limit === 'number') return docs.slice(0, limit);
-  const [offset, count] = limit;
-  return docs.slice(offset, offset + count);
+  const [offset, countValue] = limit;
+  return docs.slice(offset, offset + countValue);
+};
+
+export const applySqlLimit = <
+  T extends { limit: (n: number) => T; offset: (n: number) => T },
+>(
+  query: T,
+  limit?: Limit,
+): T => {
+  if (!limit) return query;
+  if (typeof limit === 'number') return query.limit(limit);
+  return query.offset(limit[0]).limit(limit[1]);
 };
 
 export const getEdgeTable = (edgeCollection: string): PgTable => {

@@ -3,6 +3,7 @@ import type {
   DerivedProperty,
   ForeignKeyRelation,
   MapData,
+  OMFilter,
   Relation,
 } from './queryTypes';
 import type { PgDb } from '../client';
@@ -10,8 +11,10 @@ import {
   applyDateRangeToEdgeSql,
   applyLimit,
   applyPostFilters,
+  applySqlLimit,
   applySort,
-  filtersToSql,
+  partitionFilters,
+  sortToSqlOrderBy,
   getEdgeTable,
 } from './filters';
 import {
@@ -71,6 +74,7 @@ const hydrateDocuments = async (
   collection: string,
   mapData: MapData<object, object>,
   rows: Doc[],
+  postFilters?: OMFilter<Record<string, unknown>>[],
 ): Promise<Doc[]> => {
   let docs = rows;
   for (const relation of mapData.relations ?? []) {
@@ -89,8 +93,8 @@ const hydrateDocuments = async (
   }
   docs = applyPostFilters(
     docs,
-    mapData.filters,
-    mapData.defaultFilter,
+    postFilters ?? mapData.filters,
+    postFilters ? undefined : mapData.defaultFilter,
   ) as Doc[];
   docs = applySort(docs, mapData.sort);
   for (const relation of mapData.postFilterRelations ?? []) {
@@ -114,7 +118,9 @@ export const hydrateMapData = async (
   db: PgDb,
   mapData: MapData<object, object>,
   rows: Doc[],
-): Promise<Doc[]> => hydrateDocuments(db, mapData.collection, mapData, rows);
+  postFilters?: OMFilter<Record<string, unknown>>[],
+): Promise<Doc[]> =>
+  hydrateDocuments(db, mapData.collection, mapData, rows, postFilters);
 
 const attachForeignKeyRelation = async (
   db: PgDb,
@@ -360,27 +366,63 @@ export const executeAll = async (
   mapData: MapData<object, object>,
 ): Promise<Doc[]> => {
   const table = getTableForCollection(mapData.collection);
-  const sqlFilters = filtersToSql(
+  const { sqlWhere, postFilters } = partitionFilters(
     mapData.collection,
     table,
     mapData.filters,
+    mapData.defaultFilter,
     mapData.softDelete,
   );
-  const rows = await db
+  const orderBy = sortToSqlOrderBy(mapData.collection, table, mapData.sort);
+  const canSqlPaginate =
+    postFilters.length === 0 && (!mapData.sort?.length || !!orderBy);
+
+  let query = db
     .select()
     .from(table as never)
-    .where(sqlFilters);
+    .$dynamic();
+  if (sqlWhere) query = query.where(sqlWhere);
+  if (canSqlPaginate && orderBy) query = query.orderBy(...orderBy);
+  if (canSqlPaginate && mapData.limit) {
+    query = applySqlLimit(query, mapData.limit);
+  }
+
+  const rows = await query;
   let docs = rows.map((row) =>
     rowToDocument(mapData.collection, row as Record<string, unknown>),
   );
-  docs = await hydrateMapData(db, mapData, docs);
-  return applyLimit(docs, mapData.limit) as Doc[];
+  docs = await hydrateMapData(db, mapData, docs, postFilters);
+
+  if (!orderBy) {
+    docs = applySort(docs, mapData.sort);
+  }
+  if (!canSqlPaginate) {
+    docs = applyLimit(docs, mapData.limit) as Doc[];
+  }
+  return docs;
 };
 
 export const executeCount = async (
   db: PgDb,
   mapData: MapData<object, object>,
 ): Promise<number> => {
+  const table = getTableForCollection(mapData.collection);
+  const { sqlWhere, postFilters } = partitionFilters(
+    mapData.collection,
+    table,
+    mapData.filters,
+    mapData.defaultFilter,
+    mapData.softDelete,
+  );
+
+  if (!postFilters.length) {
+    const rows = (await db
+      .select({ value: sql<number>`count(*)::int` })
+      .from(table as never)
+      .where(sqlWhere)) as { value: number | null }[];
+    return Number(rows[0]?.value ?? 0);
+  }
+
   const docs = await executeAll(db, { ...mapData, limit: undefined });
   return docs.length;
 };

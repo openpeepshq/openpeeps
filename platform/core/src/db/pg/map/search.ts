@@ -1,8 +1,13 @@
-import { sql } from 'drizzle-orm';
+import { and, sql } from 'drizzle-orm';
 import type { Limit, MapData, SearchDefinition } from './queryTypes';
 import type { PgDb } from '../client';
 import type { PgQueryResult } from './types';
-import { applyLimit, applyPostFilters, applySort } from './filters';
+import {
+  applyLimit,
+  applyPostFilters,
+  applySort,
+  partitionFilters,
+} from './filters';
 import { hydrateMapData } from './relations';
 import {
   asTable,
@@ -58,11 +63,22 @@ export const buildSearchResult = <O extends object>(
   const runSearch = async (db: PgDb): Promise<SearchHit<O>[]> => {
     const tableRef = getTableForCollection(collection);
     const table = asTable(tableRef);
-    const where = buildSearchWhere(
+    const { sqlWhere, postFilters } =
+      collection === mapData.collection
+        ? partitionFilters(
+            mapData.collection,
+            tableRef,
+            mapData.filters as never,
+            mapData.defaultFilter as never,
+            mapData.softDelete,
+          )
+        : { sqlWhere: undefined, postFilters: [] as never[] };
+    const searchWhere = buildSearchWhere(
       collection,
       searchDefinition.fields,
       searchDefinition.query,
     );
+    const where = sqlWhere ? and(searchWhere, sqlWhere) : searchWhere;
     const tsQuery = sql`plainto_tsquery('english', ${searchDefinition.query})`;
     const rank = sql<number>`ts_rank(to_tsvector('english', coalesce(${table.body}::text, '')), ${tsQuery})`;
 
@@ -81,23 +97,43 @@ export const buildSearchResult = <O extends object>(
     }));
 
     if (collection === mapData.collection) {
-      docs = await Promise.all(
-        docs.map(async ({ data, score }) => ({
-          data: (
-            await hydrateMapData(db, mapData, [data as Record<string, unknown>])
-          )[0] as O,
-          score,
-        })),
-      );
-      const filtered = applyPostFilters(
-        docs.map((d) => d.data as Record<string, unknown>),
-        mapData.filters as never,
-        mapData.defaultFilter as never,
-      );
-      docs = filtered.map((data, i) => ({
-        data: data as unknown as O,
-        score: docs[i]?.score ?? 0,
-      }));
+      if (postFilters.length) {
+        docs = await Promise.all(
+          docs.map(async ({ data, score }) => ({
+            data: (
+              await hydrateMapData(
+                db,
+                mapData,
+                [data as Record<string, unknown>],
+                postFilters,
+              )
+            )[0] as O,
+            score,
+          })),
+        );
+        const filtered = applyPostFilters(
+          docs.map((d) => d.data as Record<string, unknown>),
+          postFilters,
+        );
+        docs = filtered.map((data, i) => ({
+          data: data as unknown as O,
+          score: docs[i]?.score ?? 0,
+        }));
+      } else {
+        docs = await Promise.all(
+          docs.map(async ({ data, score }) => ({
+            data: (
+              await hydrateMapData(
+                db,
+                mapData,
+                [data as Record<string, unknown>],
+                [],
+              )
+            )[0] as O,
+            score,
+          })),
+        );
+      }
     }
 
     docs = applySort(
@@ -107,9 +143,39 @@ export const buildSearchResult = <O extends object>(
     return applyLimit(docs, searchDefinition.limit ?? mapData.limit);
   };
 
+  const runCount = async (db: PgDb): Promise<number> => {
+    const tableRef = getTableForCollection(collection);
+    const { sqlWhere, postFilters } =
+      collection === mapData.collection
+        ? partitionFilters(
+            mapData.collection,
+            tableRef,
+            mapData.filters as never,
+            mapData.defaultFilter as never,
+            mapData.softDelete,
+          )
+        : { sqlWhere: undefined, postFilters: [] as never[] };
+
+    if (!postFilters.length) {
+      const searchWhere = buildSearchWhere(
+        collection,
+        searchDefinition.fields,
+        searchDefinition.query,
+      );
+      const where = sqlWhere ? and(searchWhere, sqlWhere) : searchWhere;
+      const rows = (await db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(tableRef as never)
+        .where(where)) as { value: number | null }[];
+      return Number(rows[0]?.value ?? 0);
+    }
+
+    return runSearch(db).then((rows) => rows.length);
+  };
+
   return {
     all: (db: PgDb) => runSearch(db),
-    count: (db: PgDb) => runSearch(db).then((rows) => rows.length),
+    count: (db: PgDb) => runCount(db),
     first: (db: PgDb) => runSearch(db).then((rows) => rows[0]),
     limit: (limit: Limit) =>
       buildSearchResult(
