@@ -18,6 +18,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **notifications**: pass FCM project ID and log each push attempt
+- **react**: backport stable notification fixes
 - **admin**: improve members CSV export feedback (#88)
 - **groups**: allow moderator as a group membership role
 - **react**: use react-ui UpdatingDate for date and time
@@ -68,6 +70,7 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **web**: sync public static assets from app
 - **react-native**: bump package versions for changed dependencies
 - **react-native**: bump version to 0.2.23 and enhance profile screen scroll behavior
 - **react-native**: upgrade safe-area-context for RN 0.85
