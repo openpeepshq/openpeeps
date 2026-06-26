@@ -1,11 +1,11 @@
-import { getTableName, sql, type Table } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { logger } from '../../log';
 import { closePostgres, pgDb } from '../pg/client';
 import {
   documentRegistry,
   edgeRegistry,
-  getTableForCollection,
 } from '../pg/map/registry';
+import { tableCount } from './detect';
 import {
   assertExportDir,
   exportDirFromEnv,
@@ -20,16 +20,6 @@ type ValidationIssue = {
   kind: 'count' | 'checksum';
   expected: string | number;
   actual: string | number;
-};
-
-const tableCount = async (collection: string): Promise<number> => {
-  const table = getTableForCollection(collection);
-  const tableName = getTableName(table as Table);
-  const db = pgDb();
-  const result = await db.execute<{ count: string }>(
-    sql.raw(`SELECT COUNT(*)::text AS count FROM "${tableName}"`),
-  );
-  return Number(result.rows[0]?.count ?? 0);
 };
 
 const accountEmailChecksum = async (): Promise<string> => {
@@ -48,7 +38,11 @@ const postIdChecksum = async (): Promise<string> => {
   return sortedChecksum(rows.rows.map((row) => row.id));
 };
 
-export const validateMigration = async (exportDir = exportDirFromEnv()) => {
+export const validateMigration = async (
+  exportDir = exportDirFromEnv(),
+  options: { closeConnection?: boolean } = {},
+) => {
+  const closeConnection = options.closeConnection ?? true;
   await assertExportDir(exportDir);
   const manifest = await readManifest(exportDir);
   const issues: ValidationIssue[] = [];
@@ -86,7 +80,9 @@ export const validateMigration = async (exportDir = exportDirFromEnv()) => {
     });
   }
 
-  await closePostgres();
+  if (closeConnection) {
+    await closePostgres();
+  }
 
   if (issues.length === 0) {
     log.info('Validation passed for export %s', exportDir);

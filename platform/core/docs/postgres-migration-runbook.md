@@ -1,7 +1,23 @@
 # Postgres migration runbook (Arango → Postgres)
 
-One-time offline cutover per OpenPeeps instance. Run from `platform/core` after
-building `@openpeeps/core`.
+One-time offline cutover per OpenPeeps instance, or automatic migration on
+startup when Postgres is empty and Arango still holds data.
+
+## Automatic migration (startup)
+
+When the API or worker starts, `@openpeeps/core` will:
+
+1. Apply Drizzle schema migrations to Postgres.
+2. If Postgres has no application data yet, probe Arango at `DB_URL` / `DB_NAME`.
+3. If Arango has documents in `accounts`, `profiles`, or `posts`, export,
+   import, and validate in a temporary directory.
+
+Set `AUTO_MIGRATE_FROM_ARANGO=false` to disable. For production cutovers with
+both databases running, stop other writers first or use the manual steps below.
+
+## Manual cutover
+
+Run from `platform/core` after building `@openpeeps/core`.
 
 ## Prerequisites
 
@@ -18,6 +34,7 @@ building `@openpeeps/core`.
 | `DB_NAME`              | export           | Arango database name                                |
 | `DATABASE_URL`         | import, validate | Postgres connection string                          |
 | `MIGRATION_EXPORT_DIR` | all              | Export directory (default `./arango-export`)        |
+| `AUTO_MIGRATE_FROM_ARANGO` | startup      | Set to `false` to disable automatic migration       |
 
 ## Steps
 

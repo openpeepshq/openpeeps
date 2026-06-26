@@ -8,6 +8,13 @@ services:
       POSTGRES_DB: openpeeps
     ports:
       - "5432:5432"
+  arango:
+    restart: always
+    image: arangodb:3.11.8
+    environment:
+      ARANGO_NO_AUTH: "1"
+    ports:
+      - "8529:8529"
   redis:
     restart: always
     image: redis:alpine

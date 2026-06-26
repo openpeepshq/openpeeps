@@ -85,7 +85,11 @@ const truncateMigrationTables = async () => {
   );
 };
 
-export const importPostgres = async (exportDir = exportDirFromEnv()) => {
+export const importPostgres = async (
+  exportDir = exportDirFromEnv(),
+  options: { closeConnection?: boolean } = {},
+) => {
+  const closeConnection = options.closeConnection ?? true;
   await assertExportDir(exportDir);
   const manifest = await readManifest(exportDir);
   log.info(
@@ -114,6 +118,8 @@ export const importPostgres = async (exportDir = exportDirFromEnv()) => {
     Object.keys(imported).length,
   );
 
-  await closePostgres();
+  if (closeConnection) {
+    await closePostgres();
+  }
   return imported;
 };
