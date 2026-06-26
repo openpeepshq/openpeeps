@@ -21,7 +21,7 @@ export function JamRecordingIndicator() {
   return (
     <div className="bg-error/90 text-error-foreground pointer-events-none fixed left-4 top-4 z-50 flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium shadow-lg">
       <Circle className="size-3 animate-pulse fill-current" />
-      {t('jams.recording.recordTitle', { defaultValue: 'Recording' })}
+      {t('events.recordingInProgress', { defaultValue: 'Recording' })}
     </div>
   );
 }
