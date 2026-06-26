@@ -1,6 +1,7 @@
 packages:
   - "libraries/*"
   - "platform/*"
+  - "examples/*"
 
 linkWorkspacePackages: deep
 
@@ -16,7 +17,6 @@ allowBuilds:
   "@evilmartians/lefthook": true
   "@firebase/util": true
   "@sentry/cli": true
-  "@sveltejs/kit": true
   bcrypt: true
   canvas: true
   core-js: true
@@ -27,14 +27,6 @@ allowBuilds:
   protobufjs: true
   sharp: true
   web-audio-api: true
-
-patchedDependencies:
-  sveltekit-api: patches/sveltekit-api.patch
-
-packageExtensions:
-  "@sveltejs/package":
-    dependencies:
-      typescript: ^5.0.0
 
 minimumReleaseAgeExclude:
   - livekit-client@2.19.2

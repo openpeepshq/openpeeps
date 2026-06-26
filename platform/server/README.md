@@ -1,10 +1,7 @@
 # @openpeeps/server
 
 A standalone Node/Express server that exposes the full OpenPeeps Community
-Server API, ported from the SvelteKit application in `platform/app` to
-[`@riddl/core`](https://www.npmjs.com/package/@riddl/core).
-
-All 156 endpoints from `platform/app/src/api/` are mirrored 1:1 here. Business
+Server API via [`@riddl/core`](https://www.npmjs.com/package/@riddl/core).
 logic is reused unchanged — every handler delegates to the same
 `@openpeeps/core` services (ArangoDB models, JWT helpers, S3/media, Stripe,
 LiveKit jams, push notifications, …).
@@ -54,7 +51,7 @@ platform/server/
 │   │   ├── pwa/manifest.json/ # served at /api/pwa/manifest.json
 │   │   └── …
 │   └── lib/
-│       ├── endpoint.ts        # sveltekit-api → @riddl/core shim
+│       ├── endpoint.ts        # Riddl endpoint helper (legacy input merge shim)
 │       ├── errors.ts          # forbidden(), notFound(), conflict(), etc.
 │       ├── helpers.ts         # Response-based variants of the same
 │       ├── auth.ts            # ensureLocalProfile, ensureProfileOrPublicCommunity, …
@@ -69,18 +66,11 @@ platform/server/
 └── package.json
 ```
 
-## How the port works
+## How endpoints work
 
-`platform/app` uses [`sveltekit-api`](https://www.npmjs.com/package/sveltekit-api)
-which has a very similar API to `@riddl/core`. The two big differences are:
-
-1. **Handler signature** – sveltekit-api hands the handler a single merged
-   `input` object (body ∪ query ∪ param). Riddl gives them as separate
-   `{ body, query, param, event }` fields.
-2. **Request context** – sveltekit-api uses SvelteKit's `event.locals`. Riddl
-   uses `event.context` typed against the `Riddl.RequestContext` namespace.
-
-The `src/lib/endpoint.ts` shim papers over both differences:
+Handlers use the `endpoint()` helper from `src/lib/endpoint.ts`, which wraps
+`@riddl/core` and merges body, query, and path params into a single `input`
+object for convenience:
 
 ```ts
 import { endpoint, z } from '#lib/endpoint';
@@ -90,7 +80,7 @@ export const Output = tokenResponseSchema;
 
 export const apiEndpoint = endpoint({ Input, Output }).handle(
   async (input, event) => {
-    // Just like sveltekit-api: `input` is merged body+query+param,
+    // `input` is merged body+query+param;
     // `event.context.currentProfile` is populated by middleware.ts.
   },
 );
@@ -101,8 +91,7 @@ Riddl auto-discovers each `apiEndpoint` export via the glob in `server.ts`.
 `src/api/middleware.ts` is picked up by Riddl's middleware loader and wraps
 every request below `./api/...`. It reads the `Authorization: Bearer <jwt>`
 header and populates `event.context.{authorization, currentProfile,
-currentAccount}` so `auth.ts` helpers (e.g. `ensureLocalProfile`) work
-exactly like in `platform/app`.
+currentAccount}` so `auth.ts` helpers (e.g. `ensureLocalProfile`) work as expected.
 
 ## Sanity check
 
@@ -123,13 +112,8 @@ curl -s -H "authorization: Bearer $JWT" \
 
 ## Known limitations
 
-- **Sentry integration was dropped.** `platform/app` used the SvelteKit Sentry
-  integration. A Node-side equivalent can be re-added in `src/lib/init.ts`
-  via `@sentry/node` whenever it's wanted.
-- **Email template registration was dropped from `initializeServer()`.**
-  `registerDefaultEmailTemplates` still lives in `platform/app/src/lib/server/emails`
-  and depends on Svelte components. Move (or extract) those templates if you
-  want this server to send the same emails.
+- **Sentry integration was dropped.** A Node-side equivalent can be re-added in
+  `src/lib/init.ts` via `@sentry/node` whenever it's wanted.
 - **`.well-known/apple-app-site-association`, `.test/`** and the manifest are
   exposed under `/api/` rather than at the root path. If you need the
   original root paths (e.g. for iOS deep-linking), add a few `app.get(...)`

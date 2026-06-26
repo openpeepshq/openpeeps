@@ -14,9 +14,8 @@ Some convenience methods around fetch and to build nice api libraries.
 
 ## greenscreen
 
-A standalone library to allow background blurring and background 
-images/videos for camera streams
+A standalone library to allow background blurring and background
+images/videos for camera streams.
 
-## ui
-
-An opinionated set of UI components that are the building block of the AllPeeP UI
+Try it: `pnpm --filter @openpeeps/greenscreen-demo dev` (React demo in
+`examples/greenscreen-demo`).

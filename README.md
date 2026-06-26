@@ -13,9 +13,7 @@ The runtime is composed of three core packages:
 - `@openpeeps/react` (`platform/react`) — Shared React components and hooks
   used by `@openpeeps/web` and downstream consumers.
 
-The legacy `@openpeeps/app` (SvelteKit) and `@openpeeps/svelte` packages are
-deprecated and will be removed once the remaining stubs in `@openpeeps/web` are
-ported. See `platform/README.md` for the full package inventory.
+See `platform/README.md` for the full package inventory.
 
 ## Prerequisites
 

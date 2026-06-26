@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/docs/[...6]examples/[...1]apple-receipt/+page.md";

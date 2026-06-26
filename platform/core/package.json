@@ -36,7 +36,6 @@
     "safe-json-stringify": "^1.2.0",
     "sharp": "^0.33.5",
     "stripe": "^18.4.0",
-    "sveltekit-api": "^0.6.1",
     "tweetnacl": "^1.0.3",
     "type-fest": "^4.31.0",
     "uuidv7": "^1.0.2",
