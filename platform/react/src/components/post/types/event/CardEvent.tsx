@@ -48,12 +48,14 @@ export function CardEvent({ post }: CardEventProps) {
     typeof window !== 'undefined' ? window.location.origin : undefined,
   );
 
+  const postLink = `/posts/${post.id}`;
+
   return (
-    <a
-      href={`/posts/${post.id}`}
-      className="hover:bg-surface-100 mb-6 block w-full overflow-hidden rounded-lg border"
+    <div
+      ref={postViewRef}
+      className="hover:bg-surface-100 mb-6 w-full overflow-hidden rounded-lg border"
     >
-      <div ref={postViewRef}>
+      <a href={postLink} className="block">
         <div className="aspect-video w-full overflow-hidden">
           <img
             src={event.image || '/img/event-default.png'}
@@ -61,47 +63,45 @@ export function CardEvent({ post }: CardEventProps) {
             className="h-full w-full object-cover"
           />
         </div>
-        <div className="grid gap-y-4 p-4">
+      </a>
+      <div className="grid gap-y-4 p-4">
+        <a href={postLink} className="block text-inherit no-underline">
           <p className="text-muted-foreground text-sm">
             {formatEventTimespan(event)}
           </p>
           <h3 className="text-xl font-semibold">
             {truncateText(event.name, 100) || '-'}
           </h3>
-          <div className="flex flex-wrap gap-x-2 gap-y-1">
-            <EventLocation post={post} truncate />
-            <ProfileEventRelationship post={post} />
-          </div>
-          {jam && me ? (
-            jamState?.active ? (
-              <div className="text-surface-600 flex items-center justify-start gap-2 text-xs">
-                <span className="w-12">
-                  <ParticipantsCard jamState={jamState} />
-                </span>
-                <span>
-                  {attendeesLength}{' '}
-                  {attendeesLength === 1
-                    ? t('events.jam.attendee', { defaultValue: 'attendee' })
-                    : t('events.jam.attendees', { defaultValue: 'attendees' })}
-                </span>
-                <Button
-                  action={jamLink}
-                  variant="variant-filled-primary"
-                  compact
-                >
-                  {t('jam.join.submit', { defaultValue: 'Join Jam' })}
-                </Button>
-              </div>
-            ) : jam.moderators.includes(me.id) ? (
-              <div>
-                <Button action={jamLink} variant="variant-filled-primary">
-                  {t('jam.start.submit', { defaultValue: 'Start Jam' })}
-                </Button>
-              </div>
-            ) : null
-          ) : null}
+        </a>
+        <div className="flex flex-wrap gap-x-2 gap-y-1">
+          <EventLocation post={post} truncate />
+          <ProfileEventRelationship post={post} />
         </div>
+        {jam && me ? (
+          jamState?.active ? (
+            <div className="text-surface-600 flex items-center justify-start gap-2 text-xs">
+              <span className="w-12">
+                <ParticipantsCard jamState={jamState} />
+              </span>
+              <span>
+                {attendeesLength}{' '}
+                {attendeesLength === 1
+                  ? t('events.jam.attendee', { defaultValue: 'attendee' })
+                  : t('events.jam.attendees', { defaultValue: 'attendees' })}
+              </span>
+              <Button action={jamLink} variant="variant-filled-primary" compact>
+                {t('jam.join.submit', { defaultValue: 'Join Jam' })}
+              </Button>
+            </div>
+          ) : jam.moderators.includes(me.id) ? (
+            <div>
+              <Button action={jamLink} variant="variant-filled-primary">
+                {t('jam.start.submit', { defaultValue: 'Start Jam' })}
+              </Button>
+            </div>
+          ) : null
+        ) : null}
       </div>
-    </a>
+    </div>
   );
 }
