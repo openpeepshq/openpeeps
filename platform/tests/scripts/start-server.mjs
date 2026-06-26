@@ -18,6 +18,7 @@ if (!existsSync(webDist)) {
 
 const env = {
   ...process.env,
+  AUTO_MIGRATE_FROM_ARANGO: 'false',
   DB_NAME: process.env.DB_NAME ?? 'test',
   HOST: process.env.HOST ?? '127.0.0.1',
   PORT: process.env.PORT ?? '8080',

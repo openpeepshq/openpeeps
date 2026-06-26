@@ -6,6 +6,10 @@ export type RowTimestamps = {
   deletedAt?: string | null;
 };
 
+/** Postgres returns timestamptz strings with offsets; Zod expects UTC `Z`. */
+export const normalizeIsoDatetime = (value: string): string =>
+  new Date(value).toISOString();
+
 export const rowToModel = <T extends object>(
   id: string,
   data: T,
@@ -13,15 +17,17 @@ export const rowToModel = <T extends object>(
 ): Model<T> => ({
   id,
   ...data,
-  createdAt: timestamps.createdAt,
-  updatedAt: timestamps.updatedAt,
-  ...(timestamps.deletedAt ? { deletedAt: timestamps.deletedAt } : {}),
+  createdAt: normalizeIsoDatetime(timestamps.createdAt),
+  updatedAt: normalizeIsoDatetime(timestamps.updatedAt),
+  ...(timestamps.deletedAt
+    ? { deletedAt: normalizeIsoDatetime(timestamps.deletedAt) }
+    : {}),
 });
 
 export const modelTimestampsFromRow = (row: RowTimestamps) => ({
-  createdAt: row.createdAt,
-  updatedAt: row.updatedAt,
-  deletedAt: row.deletedAt ?? undefined,
+  createdAt: normalizeIsoDatetime(row.createdAt),
+  updatedAt: normalizeIsoDatetime(row.updatedAt),
+  deletedAt: row.deletedAt ? normalizeIsoDatetime(row.deletedAt) : undefined,
 });
 
 export const notDeleted = <T extends { deletedAt?: string | null }>(

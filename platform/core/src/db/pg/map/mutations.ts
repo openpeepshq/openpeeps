@@ -133,7 +133,7 @@ const rowToPatchInput = (
         guest: row.guest,
       };
     case 'hashtags':
-      return { name: row.name };
+      return { tag: row.name };
     default:
       return { ...(row.body as object) };
   }

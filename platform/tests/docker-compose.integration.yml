@@ -40,6 +40,7 @@ services:
         ENVIRONMENT: test
     environment:
       DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
+      AUTO_MIGRATE_FROM_ARANGO: "false"
       REDIS_HOST: redis
       HOST: "0.0.0.0"
       PORT: "8080"

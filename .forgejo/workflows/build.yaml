@@ -172,6 +172,7 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
         env:
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          AUTO_MIGRATE_FROM_ARANGO: "false"
           REDIS_HOST: "redis"
           JWT_SECRET: xxx
           JAMS_LIVEKIT_API_KEY: APIxxxxxxxxxxxx

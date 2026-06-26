@@ -68,7 +68,7 @@ export function PublicProfileSettings() {
       );
       success(
         t('settings.profile.updateSuccess', {
-          defaultValue: 'Profile updated',
+          defaultValue: 'Your profile has been updated',
         }),
       );
     } catch (err) {

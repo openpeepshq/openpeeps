@@ -73,7 +73,7 @@ export const createPost = async (
   }
 
   const group = await (repliedToPost?.group ||
-    findGroup(relations.groupId ?? ''));
+    (relations.groupId ? findGroup(relations.groupId) : undefined));
   const hashtags = extractHashtags(data);
 
   const post = await postsMapping

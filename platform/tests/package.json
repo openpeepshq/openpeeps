@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "pnpm run test:integration",
-    "pretest:integration": "pnpm --filter @openpeeps/server... build && pnpm --filter @openpeeps/web build",
+    "pretest:integration": "pnpm --filter @openpeeps/server... build && pnpm --filter @openpeeps/web build && pnpm exec playwright install chromium chromium-headless-shell",
     "db:clear:test": "DB_NAME=test node scripts/db-clear-test.mjs",
     "test:integration": "if [ -z \"$CI\" ]; then pnpm run db:clear:test; fi && unset FORCE_COLOR && DB_NAME=test playwright test",
     "test:integration:no-clean": "unset FORCE_COLOR && DB_NAME=test playwright test",

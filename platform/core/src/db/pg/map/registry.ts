@@ -77,6 +77,16 @@ const profilesSplit = (data: Record<string, unknown>) => {
   return { scalars, body: { ...rest } };
 };
 
+/** App model uses `tag`; Postgres column is `name`. */
+const hashtagsSplit = (data: Record<string, unknown>) => {
+  const normalized = { ...data };
+  if ('tag' in normalized && !('name' in normalized)) {
+    normalized.name = normalized.tag;
+    delete normalized.tag;
+  }
+  return withScalars('name')(normalized);
+};
+
 export const documentRegistry: Record<string, DocumentConfig> = {
   accounts: {
     kind: 'document',
@@ -101,7 +111,7 @@ export const documentRegistry: Record<string, DocumentConfig> = {
   hashtags: {
     kind: 'document',
     table: documents.hashtags,
-    splitPatch: withScalars('name'),
+    splitPatch: hashtagsSplit,
   },
   roles: {
     kind: 'document',
@@ -423,7 +433,7 @@ export const rowToDocument = (
         timestamps,
       );
     case 'hashtags':
-      return rowToModel(row.id as string, { name: row.name }, timestamps);
+      return rowToModel(row.id as string, { tag: row.name }, timestamps);
     case 'roles':
       return rowToModel(
         row.id as string,

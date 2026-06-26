@@ -20,6 +20,7 @@ const config: PlaywrightTestConfig = {
         reuseExistingServer: false,
         timeout: 180 * 1000,
         env: {
+          AUTO_MIGRATE_FROM_ARANGO: 'false',
           DB_NAME: 'test',
           HOST: '127.0.0.1',
           PORT: '8080',

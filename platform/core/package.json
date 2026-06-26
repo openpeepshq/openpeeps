@@ -79,7 +79,7 @@
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
     "clean": "rm -rf tsconfig.tsbuildinfo dist",
-    "build": "tsc && tsc-alias && cp -r src/db/pg/sql dist/db/pg/sql",
+    "build": "tsc && tsc-alias && rm -rf dist/db/pg/sql && cp -r src/db/pg/sql dist/db/pg/sql",
     "build:watch": "tsc && tsc-alias && (concurrently \"tsc -w\" \"tsc-alias -w\")",
     "prepublishOnly": "pnpm build",
     "uuidv7": "node -e 'import(\"uuidv7\").then(u => console.log(u.uuidv7()))'",

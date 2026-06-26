@@ -18,6 +18,29 @@ import {
 
 type SearchHit<O> = { data: O; score: number };
 
+const escapeJsonKey = (key: string) => key.replace(/'/g, "''");
+
+const normalizeSearchPath = (collection: string, field: string) => {
+  let path = field;
+  if (collection === 'posts' && path.startsWith('data.')) {
+    path = path.slice(5);
+  }
+  return path;
+};
+
+const jsonBodyTextExpr = (path: string) => {
+  const parts = path.split('.');
+  if (parts.length === 1) {
+    return sql.raw(`body->>'${escapeJsonKey(parts[0]!)}'`);
+  }
+  const parents = parts
+    .slice(0, -1)
+    .map((part) => `'${escapeJsonKey(part)}'`)
+    .join('->');
+  const last = escapeJsonKey(parts[parts.length - 1]!);
+  return sql.raw(`body->${parents}->>'${last}'`);
+};
+
 const fieldToSql = (collection: string, field: string) => {
   const scalarFields: Record<string, Record<string, string>> = {
     profiles: { handle: 'handle' },
@@ -26,19 +49,41 @@ const fieldToSql = (collection: string, field: string) => {
   };
 
   const scalars = scalarFields[collection];
-  const top = field.split('.')[0];
+  const path = normalizeSearchPath(collection, field);
+  const top = path.split('.')[0];
   if (scalars?.[top]) {
     return sql.raw(`"${scalars[top]}"`);
   }
-  let path = field;
-  if (collection === 'posts' && path.startsWith('data.')) {
-    path = path.slice(5);
+
+  return jsonBodyTextExpr(path);
+};
+
+const fieldMatchesQuery = (
+  collection: string,
+  field: string,
+  query: string,
+) => {
+  const like = `%${query}%`;
+  const scalarFields: Record<string, Record<string, string>> = {
+    profiles: { handle: 'handle' },
+    groups: { handle: 'handle' },
+    posts: { type: 'type', visibility: 'visibility' },
+  };
+  const path = normalizeSearchPath(collection, field);
+  const top = path.split('.')[0];
+  if (scalarFields[collection]?.[top]) {
+    return sql`${fieldToSql(collection, field)} ILIKE ${like}`;
   }
-  const jsonPath = path
-    .split('.')
-    .map((s, i) => (i === 0 ? s : `'${s}'`))
-    .join('->');
-  return sql.raw(`body->${jsonPath}`);
+
+  const parts = path.split('.');
+  if (parts[0] === 'attachments' && parts.length === 2) {
+    return sql`EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(body->'attachments', '[]'::jsonb)) AS elem WHERE elem->>${parts[1]!} ILIKE ${like})`;
+  }
+  if (parts[0] === 'options' && parts.length === 2) {
+    return sql`EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(body->'options', '[]'::jsonb)) AS elem WHERE elem->>${parts[1]!} ILIKE ${like})`;
+  }
+
+  return sql`${jsonBodyTextExpr(path)} ILIKE ${like}`;
 };
 
 const searchableCollections = new Set(['profiles', 'groups', 'posts']);
@@ -58,8 +103,8 @@ const buildSearchWhere = (
 ) => {
   const tsQuery = sql`plainto_tsquery('english', ${query})`;
   const tsvectorExpr = searchVectorExpr(table);
-  const ilikeParts = fields.map(
-    (field) => sql`${fieldToSql(collection, field)} ILIKE ${'%' + query + '%'}`,
+  const ilikeParts = fields.map((field) =>
+    fieldMatchesQuery(collection, field, query),
   );
 
   return sql`(${tsvectorExpr} @@ ${tsQuery} OR ${sql.join(ilikeParts, sql` OR `)})`;

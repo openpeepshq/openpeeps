@@ -292,17 +292,17 @@ export const createPostViaUi = async (page: Page, content?: string) => {
 
   await page.goto('/feeds/local');
   await page.getByTestId(testIds.posts.newPostButton).click();
+  const createPostResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      /\/posts\/?$/.test(new URL(response.url()).pathname),
+  );
   await page.getByTestId(testIds.posts.composerContent).fill(postContent);
   const submitButton = page.getByTestId(testIds.posts.composerPublish);
   await expect(submitButton).toBeEnabled();
-  const createPost = page.waitForResponse(
-    (response) =>
-      response.request().method() === 'POST' &&
-      /\/posts(\?|$)/.test(new URL(response.url()).pathname) &&
-      response.ok(),
-  );
   await submitButton.click();
-  await createPost;
+  const response = await createPostResponse;
+  expect(response.ok(), `create post failed: ${response.status()}`).toBe(true);
   await expect(page.getByTestId(testIds.posts.composerContent)).not.toBeVisible();
   await page.reload();
   await expect(page.getByTestId(testIds.feeds.communityHeading)).toBeVisible();
@@ -383,8 +383,14 @@ export const updateBioViaUi = async (page: Page, bio?: string) => {
 
   await page.goto('/settings/public-profile');
   await page.getByTestId(testIds.settings.bioInput).fill(newBio);
+  const saveResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'PATCH' &&
+      response.url().includes('/profiles/current') &&
+      response.ok(),
+  );
   await page.getByTestId(testIds.settings.saveButton).click();
-  await expect(page.getByText(/profile has been updated/i)).toBeVisible();
+  await saveResponse;
   await page.reload();
   await expect(page.getByTestId(testIds.settings.bioInput)).toHaveValue(newBio);
 

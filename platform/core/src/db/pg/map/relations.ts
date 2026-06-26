@@ -23,6 +23,10 @@ import {
   getTableForCollection,
   rowToDocument,
 } from './registry';
+import { normalizeIsoDatetime } from '../mappers';
+
+const asIsoDatetime = (value: unknown): unknown =>
+  typeof value === 'string' ? normalizeIsoDatetime(value) : value;
 
 type Doc = Record<string, unknown>;
 
@@ -343,6 +347,7 @@ export const executeFind = async (
   id: string,
   ignoreSoftDelete = false,
 ): Promise<Doc | undefined> => {
+  if (!id) return undefined;
   const table = asTable(getTableForCollection(collection));
   const conditions = [eq(table.id as never, id)];
   if (!ignoreSoftDelete && mapData.softDelete !== false && table.deletedAt) {
@@ -557,7 +562,9 @@ export const evaluateDerived = async (
       .select({ max: sql<string>`max(${edgeTable.createdAt})` })
       .from(edgeTableRef as never)
       .where(eq(edgeTable.fromId as never, doc.id as string));
-    return (rows[0] as { max?: string | null } | undefined)?.max ?? null;
+    return asIsoDatetime(
+      (rows[0] as { max?: string | null } | undefined)?.max ?? null,
+    );
   }
 
   if (expression.includes('FOR edge IN postGroups')) {
@@ -569,7 +576,9 @@ export const evaluateDerived = async (
       .where(eq(edgeTable.toId as never, doc.id as string))
       .orderBy(sql`${edgeTable.createdAt} DESC`)
       .limit(1);
-    return (rows[0] as Record<string, unknown> | undefined)?.createdAt ?? null;
+    return asIsoDatetime(
+      (rows[0] as Record<string, unknown> | undefined)?.createdAt ?? null,
+    );
   }
 
   if (expression.startsWith('{')) {

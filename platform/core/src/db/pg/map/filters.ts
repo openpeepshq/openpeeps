@@ -503,6 +503,10 @@ const matchToSql = (
       );
       continue;
     }
+    if (collection === 'hashtags' && key === 'tag') {
+      conditions.push(eq(t.name as never, value as never));
+      continue;
+    }
 
     const config = getCollectionConfig(collection);
     if (!config || config.kind !== 'document') continue;
