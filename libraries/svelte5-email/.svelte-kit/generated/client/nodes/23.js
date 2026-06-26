@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/docs/[...5]integrations/[...4]postmark/+page.md";

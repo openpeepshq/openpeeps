@@ -1,9 +1,7 @@
 # @openpeeps/web
 
 Vite + React SPA shell that consumes `@openpeeps/react`, `@openpeeps/react-ui`
-and the REST API exposed by `@openpeeps/server`. Mirrors the SvelteKit app in
-`platform/app` route-for-route; pages that depend on yet-unported components
-render a `<PageStub>` that points back to their Svelte source.
+and the REST API exposed by `@openpeeps/server`.
 
 ## Scripts
 
@@ -20,11 +18,10 @@ package alongside `@openpeeps/server` and `@openpeeps/worker`, and the server
 serves `dist/` as static files with an SPA fallback. See `docker/prod/start.sh`
 for the entry-point commands (`web`, `worker`).
 
-## Page port status
+## Routes
 
-Mapped 1:1 against `platform/app/src/routes/**/+page.svelte` (76 pages). Only
-one route still renders `<PageStub>` (the admin DB browser); the rest are
-real React pages.
+All routes are implemented as React pages in `src/pages/` and wired in
+`src/App.tsx`.
 
 ### Public / auth
 
@@ -123,12 +120,7 @@ covered while feature-specific forms can replace them slot-by-slot later.
 | ---------------- | ----------------------------- |
 | `/test/markdown` | `src/pages/test/Markdown.tsx` |
 | `/test/error`    | `src/pages/test/Error.tsx`    |
-
-### Remaining stubs
-
-Only one route still renders `<PageStub>`:
-
-- `/admin/db` — needs the specialized RethinkDB browser to be ported.
+| `/admin/db`      | `src/pages/admin/Db.tsx`      |
 
 ### React component additions
 

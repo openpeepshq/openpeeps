@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/docs/[...1]overview/[...1]svelte-email/+page.md";

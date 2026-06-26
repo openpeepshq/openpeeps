@@ -37,7 +37,7 @@ accompanied by a written outline of exactly what changed and why.**
 - **No TypeScript classes.** This codebase does not use `class`. Model behavior
   with functions and plain data; model data with types and Zod schemas.
 - **Named exports.** No default exports except where a framework requires them
-  (e.g. Svelte components, SvelteKit route files, email template `index.ts`).
+  (e.g. email template `index.ts`).
 - **`type` and `interface` for shapes; Zod for runtime-validated data.** Where a
   schema exists, derive the type with `z.infer<typeof schema>` rather than
   hand-writing a duplicate type.
@@ -76,18 +76,6 @@ accompanied by a written outline of exactly what changed and why.**
 - `platform/react`, `platform/react-native` — React/RN clients.
 - `platform/worker` — BullMQ workers (email, media, notifications, events).
 - `platform/i18n` — locale files; user-facing strings go in `locales/en.json`.
-- `platform/app` — **deprecated** SvelteKit application. Do not implement new
-  features or fixes here unless explicitly asked to maintain it.
-- `platform/svelte` — **deprecated** shared Svelte components. Do not implement
-  new features or fixes here unless explicitly asked to maintain it.
-
-## Deprecated packages
-
-`platform/app` and `platform/svelte` are legacy. **Do not add or change code in
-them** when implementing features — use `platform/server` for APIs and
-`platform/web` / `platform/react` for UI instead. Only touch the deprecated
-packages when the task explicitly targets them (e.g. a critical production fix
-on an instance still running the Svelte app).
 
 ## Build, test, lint
 
@@ -95,7 +83,6 @@ on an instance still running the Svelte app).
 - After editing a `platform/*` or `libraries/*` package, rebuild it so consumers
   pick up changes: `pnpm --filter @openpeeps/<pkg> build` (build dependencies
   before dependents — typically `common` → `core` → server/worker/web).
-- Typecheck Svelte: `pnpm --filter @openpeeps/svelte check`.
 - Tests use Vitest: `pnpm --filter @openpeeps/<pkg> test` (or
   `pnpm exec vitest run <path>` within a package).
 - Verify the packages you touched build cleanly before finishing.

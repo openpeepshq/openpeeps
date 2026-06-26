@@ -48,19 +48,3 @@ Default emails and notifications.
 ### react-native
 
 React Native components and utilities for native mobile apps.
-
-## Deprecated
-
-The frontend is now React (Vite + React SPA). The following SvelteKit
-packages are legacy, deprecated, and kept only until the remaining stubs
-in `@openpeeps/web` are ported — do not use them for new work.
-
-### app
-
-`@openpeeps/app` — the previous SvelteKit application. Superseded by the
-React `web` app.
-
-### svelte
-
-`@openpeeps/svelte` — legacy Svelte components and utilities. Superseded
-by `react`.
