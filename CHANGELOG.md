@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **recordings**: add delete recording functionality
+- **events**: implement event capacity
 - **web**: migrate in-app docs to React web with build-time markdown
 - **admin**: add downloadable members CSV export (#88) Add admin members list CSV download with profile data from the profile cache and batch activity stats via membersExportMapping. API lives in platform/server; React admin UI gets a download button. Document platform/app and platform/svelte as deprecated in AGENTS.md.
 - **posts**: add optional jam recording download and reply
@@ -18,6 +20,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **auth**: update privacy policy link fallback logic
+- **jams**: add hand raise sound notification for participants
 - **notifications**: pass FCM project ID and log each push attempt
 - **react**: backport stable notification fixes
 - **admin**: improve members CSV export feedback (#88)
@@ -70,6 +74,8 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- remove Svelte stack and add React greenscreen demo
+- **react-native**: update version and enhance document picker functionality
 - **web**: sync public static assets from app
 - **react-native**: bump package versions for changed dependencies
 - **react-native**: bump version to 0.2.23 and enhance profile screen scroll behavior
