@@ -110,7 +110,7 @@ export function CreateNewConversation({
                   placeholder={t('conversations.createNew.searchPlaceholder', {
                     defaultValue: 'Search members…',
                   })}
-                  className="border-none shadow-none"
+                  className="border-none bg-transparent shadow-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
 
