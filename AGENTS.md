@@ -77,15 +77,18 @@ accompanied by a written outline of exactly what changed and why.**
 - `platform/worker` — BullMQ workers (email, media, notifications, events).
 - `platform/i18n` — locale files; user-facing strings go in `locales/en.json`.
 
+## Run the app
+
+To run OpenPeeps locally, use the `run-openpeeps` skill
+(`.agents/skills/run-openpeeps/SKILL.md`). Do not improvise setup or startup
+steps — follow that skill.
+
 ## Build, test, lint
 
-- Install: `pnpm install`.
-- After editing a `platform/*` or `libraries/*` package, rebuild it so consumers
-  pick up changes: `pnpm --filter @openpeeps/<pkg> build` (build dependencies
-  before dependents — typically `common` → `core` → server/worker/web).
 - Tests use Vitest: `pnpm --filter @openpeeps/<pkg> test` (or
   `pnpm exec vitest run <path>` within a package).
-- Verify the packages you touched build cleanly before finishing.
+- Rebuild, lint, and verify touched packages before finishing — see
+  `check-openpeeps-pr-readiness` when preparing a PR.
 
 ## Conventions to respect
 
@@ -101,14 +104,5 @@ accompanied by a written outline of exactly what changed and why.**
 ## Git & PRs
 
 - Only commit when explicitly asked.
-- Conventional-commit style subjects: `type(scope): summary`
-  (e.g. `fix(media): …`, `feat(events): …`).
-- For non-trivial changes, the body must contain the change outline described
-  above.
 - Don't force-push shared branches or amend pushed commits unless asked.
-- Branches need to be rebased on main to be merged
-- PRs into main need to have exactly one commit that is different
-- Commit messages and PR descriptions may **reference** issues (e.g.
-  `References #827`, or a link in the body) but must **not** claim to fix or
-  close them — avoid `Fixes #…`, `Closes #…`, `Resolves #…`, and similar
-  auto-close phrasing.
+- Before opening a PR, follow the `check-openpeeps-pr-readiness` skill.
