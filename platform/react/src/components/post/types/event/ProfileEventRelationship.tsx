@@ -21,7 +21,7 @@ export function ProfileEventRelationship({
 
   if (myEvent) {
     return (
-      <div className="variant-ghost-primary rounded-2xl px-2">
+      <div className="text-muted-foreground rounded-2xl px-2">
         <span className="text-background text-center text-sm">
           {t('events.profileRelationship.owner', { defaultValue: 'Owner' })}
         </span>
@@ -31,7 +31,7 @@ export function ProfileEventRelationship({
 
   if (iAmModerator) {
     return (
-      <div className="variant-ghost-primary rounded-2xl px-2">
+      <div className="text-muted-foreground rounded-2xl px-2">
         <span className="text-center text-sm">
           {t('events.profileRelationship.moderator', {
             defaultValue: 'Moderator',
@@ -43,7 +43,7 @@ export function ProfileEventRelationship({
 
   if (myRsvp?.response === 'yes') {
     return (
-      <div className="variant-ghost-tertiary rounded-2xl px-2">
+      <div className="text-muted-foreground rounded-2xl px-2">
         <span className="text-foreground text-center text-sm">
           {t('events.profileRelationship.attending', {
             defaultValue: 'Attending',
@@ -55,7 +55,7 @@ export function ProfileEventRelationship({
 
   if (myRsvp?.response === 'tentative') {
     return (
-      <div className="variant-ghost-surface rounded-2xl px-2">
+      <div className="text-muted-foreground rounded-2xl px-2">
         <span className="text-foreground text-center text-sm">
           {t('events.profileRelationship.tentative', {
             defaultValue: 'Tentative',
