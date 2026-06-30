@@ -53,6 +53,8 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
   const [isPosting, setIsPosting] = useState(false);
 
   const replyModalRef = useRef<BottomSheetModal>(null);
+  const scrollRef = useRef<KeyboardAwareScrollView>(null);
+  const hasScrolledToReplyRef = useRef(false);
 
   const handleReplyModalPress = useCallback(() => {
     replyModalRef.current?.present();
@@ -107,6 +109,18 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
       }
     }
   }, [post, currentProfile, navigation, t]);
+
+  useEffect(() => {
+    hasScrolledToReplyRef.current = false;
+  }, [id]);
+
+  const scrollToReplyForm = useCallback(() => {
+    if (isPostLoading || !post || !postData || hasScrolledToReplyRef.current) {
+      return;
+    }
+    hasScrolledToReplyRef.current = true;
+    scrollRef.current?.scrollToEnd(false);
+  }, [isPostLoading, post, postData]);
 
   const handlePostCreation = async () => {
     if (!post) {
@@ -282,19 +296,26 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
 
   return (
     <ThemedSafeAreaView className="flex-1 bg-background">
-      <KeyboardAwareScrollView>
-        <GenericHeader
-          rightType="button"
-          rightButtonTitle={
-            isPosting
-              ? t('posts.create.loading')
-              : attachmentsProcessing
-                ? t('posts.create.processing', 'Processing…')
-                : t('posts.create.submit')
-          }
-          onRightButtonPress={handlePostCreation}
-          rightButtonDisabled={isPosting || attachmentsProcessing}
-        />
+      <GenericHeader
+        rightType="button"
+        rightButtonTitle={
+          isPosting
+            ? t('posts.create.loading')
+            : attachmentsProcessing
+              ? t('posts.create.processing', 'Processing…')
+              : t('posts.create.submit')
+        }
+        onRightButtonPress={handlePostCreation}
+        rightButtonDisabled={isPosting || attachmentsProcessing}
+      />
+      <KeyboardAwareScrollView
+        ref={scrollRef}
+        className="flex-1"
+        enableOnAndroid
+        extraScrollHeight={80}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{paddingBottom: 80}}
+        onContentSizeChange={scrollToReplyForm}>
         {isPostLoading ? (
           <ActivityIndicator />
         ) : (
@@ -339,6 +360,7 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
 
             {postData ? (
               <PostForm
+                autoFocus
                 postData={postData}
                 setPostData={setPostData}
                 form={form}
