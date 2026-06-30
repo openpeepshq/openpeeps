@@ -16,6 +16,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ProfilePickerSheet } from '../../modals';
 
 interface PostFormProps {
+  autoFocus?: boolean;
   canEditVisibility?: boolean;
   postData: PostCreationData;
   setPostData: (postData: PostCreationData) => void;
@@ -23,6 +24,7 @@ interface PostFormProps {
 }
 
 export const PostForm = ({
+  autoFocus = false,
   canEditVisibility = false,
   postData,
   setPostData,
@@ -142,6 +144,7 @@ export const PostForm = ({
           name={'data.content'}
           render={({field: {onChange, value, ...rest}}) => (
             <FormTextarea
+              autoFocus={autoFocus}
               containerClassName={'w-full'}
               className={cn(
                 'px-4 py-2 border-0 text-foreground ',
