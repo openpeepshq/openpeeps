@@ -78,6 +78,23 @@ function JamRoomInner() {
     });
   };
 
+  const capacityBlock = (() => {
+    if (!me) {
+      const eventData = post.data?.type === 'event' ? post.data : undefined;
+      if (eventData?.maxAttendees) {
+        return { blocked: true as const, reason: 'rsvp-required' as const };
+      }
+      return { blocked: false as const };
+    }
+    return getJamCapacityJoinBlock(post, me);
+  })();
+
+  const shouldAutoRsvp =
+    !!me &&
+    jamActive &&
+    capacityBlock.blocked &&
+    capacityBlock.reason === 'rsvp-required';
+
   useEffect(() => {
     if (!observer) return;
     let cancelled = false;
@@ -126,53 +143,6 @@ function JamRoomInner() {
     };
   }, [observer, jamPost.id, client, livekitUrl, t]);
 
-  if (connection) {
-    return (
-      <JamVideoCall
-        token={connection.token}
-        serverUrl={connection.livekitUrl}
-        audio={connection.audio}
-        video={connection.video}
-        onDisconnected={() => setConnection(undefined)}
-      />
-    );
-  }
-
-  if (observer) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        {observerError ? (
-          <span className="text-destructive text-center text-sm">
-            {observerError}
-          </span>
-        ) : (
-          <span className="text-center text-lg">
-            {t('jams.room.observerConnecting', {
-              defaultValue: 'Connecting as observer…',
-            })}
-          </span>
-        )}
-      </div>
-    );
-  }
-
-  const capacityBlock = (() => {
-    if (!me) {
-      const eventData = post.data?.type === 'event' ? post.data : undefined;
-      if (eventData?.maxAttendees) {
-        return { blocked: true as const, reason: 'rsvp-required' as const };
-      }
-      return { blocked: false as const };
-    }
-    return getJamCapacityJoinBlock(post, me);
-  })();
-
-  const shouldAutoRsvp =
-    !!me &&
-    jamActive &&
-    capacityBlock.blocked &&
-    capacityBlock.reason === 'rsvp-required';
-
   useEffect(() => {
     if (!shouldAutoRsvp || autoRsvpStarted.current) return;
     autoRsvpStarted.current = true;
@@ -202,6 +172,36 @@ function JamRoomInner() {
       cancelled = true;
     };
   }, [shouldAutoRsvp, postQuery, rsvpToEvent, t]);
+
+  if (connection) {
+    return (
+      <JamVideoCall
+        token={connection.token}
+        serverUrl={connection.livekitUrl}
+        audio={connection.audio}
+        video={connection.video}
+        onDisconnected={() => setConnection(undefined)}
+      />
+    );
+  }
+
+  if (observer) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        {observerError ? (
+          <span className="text-destructive text-center text-sm">
+            {observerError}
+          </span>
+        ) : (
+          <span className="text-center text-lg">
+            {t('jams.room.observerConnecting', {
+              defaultValue: 'Connecting as observer…',
+            })}
+          </span>
+        )}
+      </div>
+    );
+  }
 
   if (shouldAutoRsvp && !autoRsvpError) {
     return (
