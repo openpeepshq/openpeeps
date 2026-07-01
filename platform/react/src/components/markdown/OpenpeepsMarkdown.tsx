@@ -19,6 +19,8 @@ export interface OpenpeepsMarkdownProps {
   mentions?: MarkdownMention[];
   className?: string;
   linkPreviewMode?: 'prepend' | 'append' | 'none';
+  /** When true, all links open in a new tab. External links always do. */
+  newTab?: boolean;
 }
 
 const mentionPattern = new RegExp(
@@ -52,16 +54,35 @@ function preprocessSource(
   return text;
 }
 
+const markdownOrigin = (
+  staticRender: boolean,
+  baseUrl: string | undefined,
+): string | undefined => {
+  if (staticRender && baseUrl) {
+    try {
+      return new URL(baseUrl).origin;
+    } catch {
+      return undefined;
+    }
+  }
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return undefined;
+};
+
 export function OpenpeepsMarkdown({
   source,
   mentions = [],
   className,
   linkPreviewMode = 'none',
+  newTab = false,
 }: OpenpeepsMarkdownProps) {
   // Link previews fetch data via the Openpeeps providers, which aren't present
   // in static renders (notification emails). Suppress them there.
   const { enabled: staticRender, baseUrl } = useStaticRender();
   const effectiveLinkPreviewMode = staticRender ? 'none' : linkPreviewMode;
+  const origin = markdownOrigin(staticRender, baseUrl);
   const links = useMemo(() => {
     const fromText = extractUrlsFromText(source);
     return fromText
@@ -71,14 +92,14 @@ export function OpenpeepsMarkdown({
 
   const html = useMemo(() => {
     const processed = preprocessSource(source ?? '', mentions);
-    let out = compileMarkdownToHtml(processed);
+    let out = compileMarkdownToHtml(processed, { origin, newTab });
     if (staticRender && baseUrl) {
       out = out.replace(/href="(\/[^"]*)"/g, (_, path: string) => {
         return `href="${resolveStaticUrl(path, baseUrl)}"`;
       });
     }
     return out;
-  }, [source, mentions, staticRender, baseUrl]);
+  }, [source, mentions, staticRender, baseUrl, origin, newTab]);
 
   return (
     <div className="min-w-0 max-w-full">
