@@ -9,6 +9,7 @@ import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
 import { getConversationByEnd } from '@openpeeps/core/posts';
 import { communityConfig } from '../../../config';
+import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
 const eventHandler = async (data: unknown) => {
   const post = data as PostWithMeta;
@@ -49,6 +50,10 @@ const pushRenderer = async (notification: ExpandedNotification) => {
         },
       ],
     },
+    invalidateQueries: [
+      PUSH_INVALIDATE.conversations,
+      PUSH_INVALIDATE.unseenCounts,
+    ],
   };
 };
 

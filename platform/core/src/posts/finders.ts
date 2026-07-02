@@ -260,13 +260,16 @@ export const getUnseenPostCounts = async (
         .map((conversation) => [conversation[0].id, conversation]),
     ).values(),
   );
-  const direct = uniqueConversations.reduce(
-    (sum, conversation) =>
-      sum +
-      conversation.filter(
-        (post) => post.seen === false && post.profile.id !== profile.id,
-      ).length,
-    0,
+  const direct = Object.fromEntries(
+    uniqueConversations
+      .map((conversation) => {
+        const conversationId = conversation[0].id;
+        const unread = conversation.filter(
+          (post) => post.seen === false && post.profile.id !== profile.id,
+        ).length;
+        return [conversationId, unread] as const;
+      })
+      .filter(([, unread]) => unread > 0),
   );
 
   return { groups: groupCounts, direct };

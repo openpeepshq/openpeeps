@@ -28,6 +28,7 @@ import {
 } from '@tanstack/react-query';
 import { useContext, useEffect, useState } from 'react';
 import { useCredentialsStore } from '../credentialsStore';
+import { invalidatePostsExceptUnseenCounts } from '../../lib/unseenCountsOptimistic';
 
 const throwError =
   <O>(callbacks?: {
@@ -55,6 +56,13 @@ const handleMutationResult = <O>(
           await queryClient.invalidateQueries({ queryKey });
         }
       }
+    },
+  });
+
+const handlePostsReadMutationResult = <O>(queryClient: QueryClient) =>
+  throwError<O>({
+    onSuccess: async () => {
+      await invalidatePostsExceptUnseenCounts(queryClient);
     },
   });
 
@@ -383,6 +391,68 @@ export const noPayloadMutation =
         queryParameters: queryParams,
         headers,
       }).then(handleMutationResult<Output>(queryClient, queryKeys));
+  };
+
+export const payloadPostsReadMutation =
+  <
+    Input extends BodyType,
+    Output,
+    PathParams extends Record<string, string> | undefined = undefined,
+    QueryParams extends Record<string, string> | undefined = undefined,
+  >(
+    endpoint: OpenpeepsPayloadEndpoint<Output, Input, PathParams, QueryParams>,
+  ) =>
+  (defaultPathParams?: PathParams extends undefined ? never : PathParams) => {
+    const queryClient = useContext(QueryClientContext);
+
+    if (!queryClient) {
+      throw new Error('QueryClientContext is not set');
+    }
+
+    return async (
+      input: Input,
+      pathParams?: PathParams extends undefined ? never : PathParams,
+      queryParams?: QueryParams extends undefined ? never : QueryParams,
+      headers?: Record<string, string>,
+    ): Promise<Output> =>
+      endpoint(input, {
+        pathParameters: {
+          ...(defaultPathParams ?? {}),
+          ...(pathParams ?? {}),
+        } as PathParams,
+        queryParameters: queryParams,
+        headers,
+      }).then(handlePostsReadMutationResult<Output>(queryClient));
+  };
+
+export const noPayloadPostsReadMutation =
+  <
+    Output,
+    PathParams extends Record<string, string> | undefined = undefined,
+    QueryParams extends Record<string, string> | undefined = undefined,
+  >(
+    endpoint: OpenpeepsNoPayloadEndpoint<Output, PathParams, QueryParams>,
+  ) =>
+  (defaultPathParams?: PathParams extends undefined ? never : PathParams) => {
+    const queryClient = useContext(QueryClientContext);
+
+    if (!queryClient) {
+      throw new Error('QueryClientContext is not set');
+    }
+
+    return async (
+      pathParams?: PathParams extends undefined ? never : PathParams,
+      queryParams?: QueryParams extends undefined ? never : QueryParams,
+      headers?: Record<string, string>,
+    ): Promise<Output> =>
+      endpoint({
+        pathParameters: {
+          ...(defaultPathParams ?? {}),
+          ...(pathParams ?? {}),
+        } as PathParams,
+        queryParameters: queryParams,
+        headers,
+      }).then(handlePostsReadMutationResult<Output>(queryClient));
   };
 
 export const noPayloadStream = <

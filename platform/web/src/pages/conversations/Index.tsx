@@ -18,7 +18,13 @@ import {
 } from '@openpeeps/react/components';
 import { UpdatingDate } from '@openpeeps/react-ui';
 
-function ChatPreview({ conversation }: { conversation: PublicPost[] }) {
+function ChatPreview({
+  conversation,
+  unreadCount = 0,
+}: {
+  conversation: PublicPost[];
+  unreadCount?: number;
+}) {
   const t = useT();
   const me = useCurrentProfile();
   const lastMessage = conversation[conversation.length - 1];
@@ -44,8 +50,16 @@ function ChatPreview({ conversation }: { conversation: PublicPost[] }) {
             <Avatar key={p.id} profile={p} size={2.5} borderless />
           ))}
         </div>
-        <div className="flex items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
           <span className="truncate font-bold">{truncateText(title, 20)}</span>
+          {unreadCount > 0 ? (
+            <span
+              className="bg-destructive text-destructive-foreground flex size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold"
+              aria-label={`${unreadCount} unread messages`}
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          ) : null}
         </div>
       </div>
       <span className="text-surface-500 text-sm">
@@ -85,6 +99,8 @@ export function ConversationsIndex() {
   const { openCreateConversation } = useCreateNewConversation();
   const authData = useAuthData();
   const query = openpeepsApi.useConversations();
+  const unseenCountsQuery = openpeepsApi.useUnseenPostCounts();
+  const unseenByConversation = unseenCountsQuery.data?.direct ?? {};
 
   const canCreate = canCreatePost(authData, 'note', 'direct');
   const plusButton = useMemo(
@@ -135,7 +151,10 @@ export function ConversationsIndex() {
                   defaultValue: 'Open conversation',
                 })}
               >
-                <ChatPreview conversation={conversation} />
+                <ChatPreview
+                  conversation={conversation}
+                  unreadCount={unseenByConversation[first.id] ?? 0}
+                />
               </a>
             );
           })}

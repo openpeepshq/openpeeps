@@ -26,6 +26,23 @@
 
 import type { NotificationOptionsType, PushMessage } from '@openpeeps/common';
 
+const PUSH_BASE_INVALIDATE_KEYS = [
+  ['profiles', 'current', 'notifications', 'stats'],
+  ['profiles', 'current', 'notifications'],
+] as const;
+
+const dedupeQueryKeys = (
+  keys: readonly (readonly string[])[],
+): (readonly string[])[] => {
+  const seen = new Set<string>();
+  return keys.filter((key) => {
+    const serialized = JSON.stringify(key);
+    if (seen.has(serialized)) return false;
+    seen.add(serialized);
+    return true;
+  });
+};
+
 declare const self: ServiceWorkerGlobalScope;
 
 const log = (level: string, ...args: unknown[]) =>
@@ -77,11 +94,14 @@ self.addEventListener('push', (event) => {
 
       const { notification, notificationStats } = message;
 
-      if (refreshPort && notification?.invalidateQueries) {
-        refreshPort.postMessage([
-          ...(notification.invalidateQueries ?? []),
-          ['profiles', 'current', 'notifications'],
-        ]);
+      if (refreshPort) {
+        refreshPort.postMessage({
+          keys: dedupeQueryKeys([
+            ...PUSH_BASE_INVALIDATE_KEYS,
+            ...(notification?.invalidateQueries ?? []),
+          ]),
+          notificationStats,
+        });
       }
 
       if (

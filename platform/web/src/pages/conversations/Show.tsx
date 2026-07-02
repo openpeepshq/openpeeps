@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { PostCreationData } from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import {
+  useT,
+  useOpenpeeps,
+  useSetPageHeader,
+  usePostViewFlush,
+  adjustUnseenCounts,
+} from '@openpeeps/react';
 import { canCreatePost } from '@openpeeps/common';
 import {
   Avatar,
@@ -27,6 +33,8 @@ export function ConversationShow() {
 
   const conversationQuery = openpeepsApi.useConversation(id);
   const createMessage = openpeepsApi.createConversationPostAction({ id });
+  const markPostsSeen = openpeepsApi.markPostsSeenAction();
+  const flushPostViews = usePostViewFlush();
 
   const messages = conversationQuery.data ?? [];
   const lastMessage = messages[messages.length - 1];
@@ -76,6 +84,24 @@ export function ConversationShow() {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length]);
 
+  useEffect(() => {
+    if (!id) return;
+    adjustUnseenCounts(queryClient, client, { clearConversation: id });
+    void flushPostViews();
+    return () => {
+      void flushPostViews();
+    };
+  }, [id, client, queryClient, flushPostViews]);
+
+  useEffect(() => {
+    if (!id || !me || conversationQuery.isLoading) return;
+    const unseenIds = messages
+      .filter((m) => m.seen === false && m.profile.id !== me.id)
+      .map((m) => m.id);
+    if (unseenIds.length === 0) return;
+    void markPostsSeen({ postIds: unseenIds });
+  }, [id, me, messages, conversationQuery.isLoading, markPostsSeen]);
+
   if (conversationQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
@@ -114,6 +140,7 @@ export function ConversationShow() {
             previous={messages[index - 1]}
             message={m}
             multipleParticipants={multipleParticipants}
+            conversationRootId={id}
           />
         ))}
         <div ref={endRef} />

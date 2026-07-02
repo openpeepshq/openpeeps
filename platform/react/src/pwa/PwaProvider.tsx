@@ -1,10 +1,13 @@
-import { useEffect, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { applyNotificationStatsToCache } from '../lib/notificationBadge';
 import {
   useServiceWorker,
   type UseServiceWorkerOptions,
 } from './useServiceWorker';
 import { useNavigate } from '../contexts/router';
+import { normalizePushInvalidateMessage } from './pushInvalidate';
+import { useNotificationBadgeSync } from './useNotificationBadgeSync';
 
 export interface PwaProviderProps
   extends Omit<UseServiceWorkerOptions, 'onNavigate' | 'onInvalidateQueries'> {
@@ -33,6 +36,7 @@ export function PwaProvider({
     navigate = undefined;
   }
   const queryClient = useQueryClient();
+  useNotificationBadgeSync();
 
   const handleNavigate =
     onNavigate ??
@@ -44,29 +48,23 @@ export function PwaProvider({
   useServiceWorker({
     ...options,
     onNavigate: handleNavigate,
-    onInvalidateQueries: (keys) => {
-      const list = Array.isArray(keys) ? keys : [];
-      if (list.length === 0) {
+    onInvalidateQueries: (message) => {
+      const { keys, notificationStats } =
+        normalizePushInvalidateMessage(message);
+      if (notificationStats) {
+        applyNotificationStatsToCache(queryClient, notificationStats);
+      }
+      if (keys.length === 0) {
         queryClient.invalidateQueries();
         return;
       }
-      for (const key of list) {
+      for (const key of keys) {
         queryClient.invalidateQueries({
-          queryKey: Array.isArray(key) ? (key as readonly unknown[]) : [key],
+          queryKey: key as readonly unknown[],
         });
       }
     },
   });
-
-  // Apply badge from notifications on first paint when supported
-  useEffect(() => {
-    if (typeof navigator === 'undefined') return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const setBadge = (navigator as any).setAppBadge;
-    if (typeof setBadge === 'function') {
-      setBadge.call(navigator, 0).catch(() => undefined);
-    }
-  }, []);
 
   return <>{children}</>;
 }

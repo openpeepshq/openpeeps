@@ -7,6 +7,7 @@ import type {
 import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { getProfileAvatar, groupName } from '@openpeeps/common/lib';
 import { communityConfig } from '../../../config';
+import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
 export default {
   type: 'groupAdded',
@@ -38,5 +39,6 @@ export default {
         },
       ],
     },
+    invalidateQueries: [PUSH_INVALIDATE.groups],
   }),
 } satisfies NotificationHandler;

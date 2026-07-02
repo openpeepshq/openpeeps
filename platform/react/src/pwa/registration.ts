@@ -1,6 +1,7 @@
 /// <reference lib="dom" />
 
 import { logger } from '../log';
+import type { PushInvalidateMessage } from './pushInvalidate';
 
 const log = logger('pwa');
 
@@ -16,7 +17,7 @@ export interface RegisterServiceWorkerOptions {
   /** Called for inbound `NAVIGATE_TO` messages. */
   onNavigate?: (url: string) => void;
   /** Called when the SW posts query keys to invalidate. */
-  onInvalidateQueries?: (keys: unknown[]) => void;
+  onInvalidateQueries?: (message: PushInvalidateMessage | unknown) => void;
 }
 
 export interface ServiceWorkerHandle {
@@ -98,7 +99,7 @@ export const registerServiceWorker = async (
       // when combined with useServiceWorker({ autoReload: true }).
       channel.port1.onmessage = (event) => {
         log.debug('Invalidating queries for keys:', event.data);
-        options.onInvalidateQueries?.(event.data as unknown[]);
+        options.onInvalidateQueries?.(event.data);
       };
       navigator.serviceWorker.controller.postMessage({
         type: 'GET_PENDING_DEEPLINK',

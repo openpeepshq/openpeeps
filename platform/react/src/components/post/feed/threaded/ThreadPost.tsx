@@ -1,9 +1,12 @@
 import type { PublicPost } from '@openpeeps/common/types';
 import { Avatar } from '../../../profile';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
+import { isUnreadPostForViewer } from '../../../../lib/postUnread';
+import { useCurrentProfile } from '../../../layout/IdentityContext';
 import { FeedPostContent } from '../../FeedPostContent';
 import { PostActions } from '../../pieces/PostActions';
 import { PostMenu } from '../../pieces/PostMenu';
+import { UnreadPostIndicator } from '../../pieces/UnreadPostIndicator';
 import { UpdatingDate } from '@openpeeps/react-ui';
 
 export interface ThreadPostProps {
@@ -21,10 +24,16 @@ export function ThreadPost({
   noActions = false,
   noMenu = false,
 }: ThreadPostProps) {
-  const postViewRef = usePostViewRef(post.id);
+  const me = useCurrentProfile();
+  const isUnread = isUnreadPostForViewer(post, me?.id);
+  const postViewRef = usePostViewRef(post.id, {
+    groupId: post.groupId,
+    adjustUnread: isUnread,
+  });
 
   return (
-    <div ref={postViewRef} className="flex flex-row gap-2 p-2">
+    <div ref={postViewRef} className="relative flex flex-row gap-2 p-2">
+      <UnreadPostIndicator show={isUnread} className="left-0.5 top-5" />
       <div className="relative w-12 shrink-0">
         <a href={`/@${post.profile.handle}`}>
           <Avatar profile={post.profile} size={3} />

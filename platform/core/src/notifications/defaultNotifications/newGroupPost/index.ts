@@ -9,6 +9,7 @@ import { listGroupMembers } from '@openpeeps/core/profiles';
 import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { getGroupAvatar, profileName } from '@openpeeps/common/lib';
 import { communityConfig } from '../../../config';
+import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
 const eventHandler = async (data: unknown) => {
   const post = data as PostWithMeta;
@@ -48,6 +49,7 @@ const pushRenderer = async (notification: ExpandedNotification) => ({
       },
     ],
   },
+  invalidateQueries: [PUSH_INVALIDATE.posts, PUSH_INVALIDATE.unseenCounts],
 });
 
 export default {

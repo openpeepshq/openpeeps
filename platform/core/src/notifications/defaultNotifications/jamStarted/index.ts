@@ -13,6 +13,7 @@ import {
 } from '@openpeeps/core/profiles';
 import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { profileName } from '@openpeeps/common/lib';
+import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
 const eventHandler = async (...args: unknown[]) => {
   const [profile, post] = args as [ProfileWithMeta, PostWithMeta];
@@ -84,6 +85,7 @@ const pushRenderer = async (notification: ExpandedNotification) => ({
       },
     ],
   },
+  invalidateQueries: [PUSH_INVALIDATE.posts],
 });
 
 export default {

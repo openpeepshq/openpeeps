@@ -8,6 +8,7 @@ export interface GroupCardProps {
   avatarSize?: number;
   noPadding?: boolean;
   showAction?: boolean;
+  unreadCount?: number;
 }
 
 /**
@@ -19,6 +20,7 @@ export function GroupCard({
   avatarSize = 3.5,
   noPadding = false,
   showAction = true,
+  unreadCount = 0,
 }: GroupCardProps) {
   return (
     <div className={`flex w-full justify-between ${noPadding ? '' : 'p-4'}`}>
@@ -33,10 +35,20 @@ export function GroupCard({
           containerClassName="flex-shrink-0"
         />
         <span className="flex min-w-0 flex-1 flex-col items-start overflow-hidden text-left">
-          <span
-            className={`w-32 truncate font-semibold md:w-full ${avatarSize < 2 ? 'text-sm' : 'text-lg'}`}
-          >
-            {groupName(group)}
+          <span className="flex w-full min-w-0 items-center gap-2">
+            <span
+              className={`truncate font-semibold md:w-full ${avatarSize < 2 ? 'text-sm' : 'text-lg'}`}
+            >
+              {groupName(group)}
+            </span>
+            {unreadCount > 0 ? (
+              <span
+                className="bg-destructive text-destructive-foreground flex size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold"
+                aria-label={`${unreadCount} unread posts`}
+              >
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            ) : null}
           </span>
           <span
             className={`truncate ${avatarSize < 2 ? 'text-xs' : 'text-sm'}`}

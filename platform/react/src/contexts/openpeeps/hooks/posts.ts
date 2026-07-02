@@ -3,6 +3,8 @@ import {
   apiHook,
   payloadMutation,
   noPayloadMutation,
+  payloadPostsReadMutation,
+  noPayloadPostsReadMutation,
   infiniteOffsetQueryApiHook,
   infiniteChronologicalQueryApiHook,
 } from '../helpers';
@@ -232,7 +234,8 @@ const postMutators = (client: OpenpeepsClient) => ({
     ['posts'],
     ['profiles', 'current', 'bookmarkedIds'],
   ]),
-  markPostsSeenAction: payloadMutation(client.posts.seen, [['posts']]),
+  markPostsSeenAction: payloadPostsReadMutation(client.posts.seen),
+  markGroupPostsSeenAction: noPayloadPostsReadMutation(client.posts.seenByGroup),
   repostPostAction: noPayloadMutation(client.posts.repost, [['posts']]),
   voteOnPostAction: payloadMutation(client.posts.vote, [['posts']]),
   rsvpToEventAction: payloadMutation(client.posts.rsvp, [['posts'], ['rsvp']]),

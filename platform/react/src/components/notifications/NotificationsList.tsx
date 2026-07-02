@@ -6,6 +6,7 @@ import type {
 
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
+import { syncAppBadgeCount } from '../../lib/notificationBadge';
 import { NotificationItem } from './NotificationItem';
 import { LoadingSpinner } from '@openpeeps/react-ui';
 
@@ -42,9 +43,7 @@ export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
         unread: current?.unread ?? 0,
         unseen: 0,
       }));
-      if (typeof navigator !== 'undefined' && navigator.clearAppBadge) {
-        await navigator.clearAppBadge();
-      }
+      await syncAppBadgeCount(0);
     } catch {
       // A failed mark-seen should not block rendering the feed.
     }

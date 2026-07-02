@@ -224,6 +224,11 @@ const mutators = (rawClient: FetchClient) => ({
     '/posts/seen',
     'post',
   ),
+  seenByGroup: allpeepNoPayloadEndpoint<SuccessResponse, { groupId: string }>(
+    rawClient,
+    '/posts/seen/by-group/:groupId',
+    'post',
+  ),
   repost: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
     rawClient,
     '/posts/:id/reposts',

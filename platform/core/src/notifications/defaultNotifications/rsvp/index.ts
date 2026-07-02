@@ -8,6 +8,7 @@ import type {
 import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
 import { communityConfig } from '../../../config';
+import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
 const eventHandler = async (
   senderProfile: unknown,
@@ -41,6 +42,7 @@ const pushRenderer = async (notification: ExpandedNotification) => ({
       },
     ],
   },
+  invalidateQueries: [PUSH_INVALIDATE.posts],
 });
 
 export default {
