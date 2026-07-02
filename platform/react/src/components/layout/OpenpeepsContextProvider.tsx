@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, type ReactNode } from 'react';
 import {
   initializeNewPostStores,
   initializePageStores,
@@ -53,7 +53,7 @@ export function OpenpeepsContextProvider({
     initializePageStores();
   }, [serverInfo.publicContent]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (typeof document === 'undefined') return;
     const name = serverInfo.communityConfig?.info.name ?? '';
     const title =
