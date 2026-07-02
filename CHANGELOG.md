@@ -20,6 +20,11 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **markdown**: open external links in a new tab
+- **jams**: update recording titles
+- **post-form**: add autoFocus prop to PostForm and enhance ReplyPost scrolling behavior
+- **events**: update class names for event status indicators
+- **jams**: streamline JamRoom component logic for capacity and auto RSVP handling
 - **auth**: update privacy policy link fallback logic
 - **jams**: add hand raise sound notification for participants
 - **notifications**: pass FCM project ID and log each push attempt
@@ -63,12 +68,14 @@ Changelog for OpenPeeps
 
 ### Refactoring
 
+- **CardEvent**: update link structure and improve accessibility
 - **push**: split PushSubscriptionData and PushSubscription schemas PushSubscriptionData is the create payload without id; pushSubscriptionSchema uses modelSchema per variant for API responses. Removes the separate create schema introduced in the prior fix.
 - **FullEvent**: removed unnecessary border class
 - Move app from svelte-kit to react and riddl
 
 ### Documentation
 
+- **agents**: add contributor skills for local run and PR readiness
 - **admin**: add OIDC SSO setup guide for server settings
 - **agents**: document rebase and single-commit PR requirements
 
