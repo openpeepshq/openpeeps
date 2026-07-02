@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { useT, useOpenpeeps, useCredentialsStore } from '@openpeeps/react';
+import { useT, useOpenpeeps, useCredentialsStore, useSetPageHeader } from '@openpeeps/react';
 import { JamRoom, useCurrentProfile } from '@openpeeps/react/components';
 
 /**
@@ -33,6 +33,18 @@ export function JamEvent() {
   }
 
   const postQuery = openpeepsApi.usePost(eventId ?? '');
+
+  const jamEvent =
+    postQuery.data?.data?.type === 'event' ? postQuery.data.data : undefined;
+
+  useSetPageHeader(
+    jamEvent?.name
+      ? t('jams.room.pageTitle', {
+          name: jamEvent.name,
+          defaultValue: 'Jam Room - {{name}}',
+        })
+      : undefined,
+  );
 
   // On a capability/access error, send guests to login (preserving the return
   // path) and authenticated users back to the jams list.
