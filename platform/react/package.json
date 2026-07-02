@@ -26,6 +26,8 @@
     "clean": "rm -rf tsconfig.tsbuildinfo dist",
     "build": "tsc && tsc-alias",
     "build:watch": "tsc && tsc-alias && (concurrently \"tsc -w\" \"tsc-alias -w\")",
+    "test": "vitest",
+    "test:run": "vitest run",
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
@@ -64,6 +66,7 @@
     "concurrently": "^9.1.2",
     "eslint": "^9.19.0",
     "tsc-alias": "^1.8.10",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
   }
 }

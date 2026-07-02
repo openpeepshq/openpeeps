@@ -1,11 +1,18 @@
-import { useEffect, useLayoutEffect, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, type ReactNode } from 'react';
 import {
   initializeNewPostStores,
   initializePageStores,
   usePageHeader,
 } from '../../stores';
 import { useServerInfo } from '../server-data';
-import { PostViewCounterProvider } from '../../lib/postViewCounter';
+import {
+  PostViewCounterProvider,
+  type PostViewContext,
+} from '../../lib/postViewCounter';
+import {
+  adjustUnseenCounts,
+  invalidateUnseenCounts,
+} from '../../lib/unseenCountsOptimistic';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useHasAuthToken } from '../../contexts/openpeeps/hooks/useHasAuthToken';
 import { ReplyModalProvider } from '../post/post-form/ReplyModalContext';
@@ -17,9 +24,32 @@ import { SignUpLoginModalProvider } from '../accounts/SignUpLoginModalContext';
 import { ToastProvider } from './ToastProvider';
 
 function PostViewTracking({ children }: { children: ReactNode }) {
-  const { openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi, queryClient, client } = useOpenpeeps();
   const hasToken = useHasAuthToken();
   const markPostsSeenAction = openpeepsApi.markPostsSeenAction();
+
+  const handlePostQueued = useCallback(
+    (_postId: string, viewContext?: PostViewContext) => {
+      if (!viewContext?.adjustUnread) return;
+
+      if (viewContext.groupId) {
+        adjustUnseenCounts(queryClient, client, {
+          groupId: viewContext.groupId,
+        });
+      }
+
+      if (viewContext.conversationRootId) {
+        adjustUnseenCounts(queryClient, client, {
+          conversationRootId: viewContext.conversationRootId,
+        });
+      }
+    },
+    [client, queryClient],
+  );
+
+  const handleFlushFailed = useCallback(() => {
+    void invalidateUnseenCounts(queryClient, client);
+  }, [client, queryClient]);
 
   return (
     <PostViewCounterProvider
@@ -27,6 +57,8 @@ function PostViewTracking({ children }: { children: ReactNode }) {
       markPostsSeen={async (postIds) => {
         await markPostsSeenAction({ postIds });
       }}
+      onPostQueued={handlePostQueued}
+      onFlushFailed={handleFlushFailed}
     >
       {children}
     </PostViewCounterProvider>

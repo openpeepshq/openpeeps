@@ -11,6 +11,7 @@ import {
 } from '@openpeeps/common/lib';
 import { listGroupMembers } from '@openpeeps/core/profiles';
 import { communityConfig } from '../../../config';
+import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
 export default {
   type: 'groupMemberJoined',
@@ -43,5 +44,6 @@ export default {
         },
       ],
     },
+    invalidateQueries: [PUSH_INVALIDATE.groups],
   }),
 } satisfies NotificationHandler;

@@ -1,4 +1,5 @@
 import {
+  AuthorizationData,
   Answer,
   Hashtag,
   PostWithMeta,
@@ -33,6 +34,7 @@ import { postsMapping, repostRelation } from './mapping';
 import { findGroup } from '../groups/finders';
 import { findOrCreateHashtag } from '../hashtags';
 import { hub } from '../events';
+import { listPostsByGroup } from './finders';
 import {
   canManageEventRsvps,
   countYesRsvps,
@@ -207,6 +209,25 @@ export const markPostsSeen = async (
   const { db } = await allpeepDb();
 
   await Promise.all(posts.map((post) => postSeenConnector(db, profile, post)));
+};
+
+export const markGroupPostsSeen = async (
+  authData: AuthorizationData,
+  groupId: string,
+) => {
+  if (!authData.profile) {
+    throw new Error('Profile required');
+  }
+
+  const profile = authData.profile;
+  const posts = await listPostsByGroup(authData, groupId, { limit: 9999 });
+  const unseen = posts.filter(
+    (post) => post.seen === false && post.profile.id !== profile.id,
+  );
+
+  if (unseen.length > 0) {
+    await markPostsSeen(unseen, profile);
+  }
 };
 
 export const deletePost = async (post: PostWithMeta, profile: Profile) => {

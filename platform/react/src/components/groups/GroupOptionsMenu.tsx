@@ -1,10 +1,14 @@
 import { useMemo, useState } from 'react';
-import { Ellipsis, LogOut, Pencil, Trash, UserPlus } from 'lucide-react';
+import { CheckCheck, Ellipsis, LogOut, Pencil, Trash, UserPlus } from 'lucide-react';
 import type { GroupWithMeta } from '@openpeeps/common/types';
 import { checkGroupCapabilities } from '@openpeeps/common/lib';
 import { PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
 import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
+import {
+  adjustUnseenCounts,
+  invalidateUnseenCounts,
+} from '../../lib/unseenCountsOptimistic';
 import { useT } from '../../i18n';
 import { useAuthData, useCurrentProfile } from '../layout/IdentityContext';
 import { AddGroupMemberModal } from './AddGroupMemberModal';
@@ -22,9 +26,12 @@ export function GroupOptionsMenu({ group }: GroupOptionsMenuProps) {
   const navigate = useNavigate();
   const authData = useAuthData();
   const me = useCurrentProfile();
-  const { openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi, queryClient, client } = useOpenpeeps();
   const membersQuery = openpeepsApi.useGroupMembers(group.id);
+  const markGroupPostsSeen = openpeepsApi.markGroupPostsSeenAction();
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+
+  const isMember = me?.memberships?.some((m) => m.group.id === group.id);
 
   const canEdit = checkGroupCapabilities(authData, ['core-groups-update'], group)
     .success;
@@ -57,12 +64,38 @@ export function GroupOptionsMenu({ group }: GroupOptionsMenuProps) {
     setActiveModal('leave');
   };
 
+  const handleMarkAllRead = async () => {
+    adjustUnseenCounts(queryClient, client, { clearGroup: group.id });
+    try {
+      await markGroupPostsSeen({ groupId: group.id });
+    } catch {
+      await invalidateUnseenCounts(queryClient, client);
+      window.alert(
+        t('groups.markAllRead.error', {
+          defaultValue: 'Failed to mark group posts as read',
+        }),
+      );
+    }
+  };
+
   return (
     <>
       <PopupMenu
         icon={Ellipsis}
         title={t('groups.actions.more', { defaultValue: 'Group options' })}
       >
+        {isMember ? (
+          <PopupMenuButton
+            title={t('groups.actions.markAllRead', {
+              defaultValue: 'Mark all posts as read',
+            })}
+            text={t('groups.actions.markAllRead', {
+              defaultValue: 'Mark all posts as read',
+            })}
+            icon={CheckCheck}
+            action={() => void handleMarkAllRead()}
+          />
+        ) : null}
         {canEdit ? (
           <PopupMenuButton
             title={t('groups.actions.editGroup', { defaultValue: 'Edit group' })}

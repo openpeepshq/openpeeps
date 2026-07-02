@@ -663,6 +663,13 @@
         "new": "New Group",
         "goto": "Go to group",
         "viewMembers": "View members",
+        "tabs": {
+            "myGroups": "My groups",
+            "allGroups": "All groups"
+        },
+        "markAllRead": {
+            "error": "Failed to mark group posts as read"
+        },
         "noGroupsYet": "You have no groups yet",
         "noGroupsFound": "No groups found",
         "searchPlaceholder": "Search by group name",
@@ -687,6 +694,7 @@
             "shareOnCommunity": "Share on community",
             "shareToFeed": "Share to feed",
             "shareInMessage": "Share in a message",
+            "markAllRead": "Mark all posts as read",
             "otherOptions": "Other options"
         },
         "modals": {

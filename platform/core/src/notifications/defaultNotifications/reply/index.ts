@@ -10,6 +10,7 @@ import { findProfile } from '@openpeeps/core/profiles';
 import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
 import { communityConfig } from '../../../config';
+import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
 export default {
   type: 'reply',
@@ -70,5 +71,6 @@ export default {
         },
       ],
     },
+    invalidateQueries: [PUSH_INVALIDATE.posts],
   }),
 } satisfies NotificationHandler;

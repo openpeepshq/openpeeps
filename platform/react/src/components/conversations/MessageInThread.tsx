@@ -2,10 +2,12 @@ import type { PublicPost, PublicProfile } from '@openpeeps/common/types';
 import { profileName } from '@openpeeps/common';
 import { useT } from '../../i18n';
 import { usePostViewRef } from '../../lib/postViewCounter';
+import { isUnreadPostForViewer } from '../../lib/postUnread';
 import { UpdatingDate } from '@openpeeps/react-ui';
 import { Avatar } from '../profile';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { ConversationMessageBubble } from './ConversationMessageBubble';
+import { UnreadPostIndicator } from '../post/pieces/UnreadPostIndicator';
 
 const inAudience = (post: PublicPost, profile: PublicProfile) =>
   !!post.audience?.some((p) => p.id === profile.id);
@@ -26,6 +28,7 @@ export interface MessageInThreadProps {
   previous: PublicPost | undefined;
   message: PublicPost;
   multipleParticipants?: boolean;
+  conversationRootId?: string;
 }
 
 /**
@@ -37,10 +40,15 @@ export function MessageInThread({
   previous,
   message,
   multipleParticipants = true,
+  conversationRootId,
 }: MessageInThreadProps) {
   const t = useT();
   const me = useCurrentProfile();
-  const postViewRef = usePostViewRef(message.id);
+  const isUnread = isUnreadPostForViewer(message, me?.id);
+  const postViewRef = usePostViewRef(message.id, {
+    conversationRootId,
+    adjustUnread: isUnread,
+  });
   const { added, removed } = audienceDiff(previous, message);
   const name = profileName(message.profile);
   const isMe = message.profile.id === me?.id;
@@ -94,7 +102,15 @@ export function MessageInThread({
             navigate
           />
         )}
-        <ConversationMessageBubble message={message} />
+        <div className="relative min-w-0 flex-1">
+          {!isMe ? (
+            <UnreadPostIndicator
+              show={isUnread}
+              className="left-0 top-1/2 -translate-y-1/2"
+            />
+          ) : null}
+          <ConversationMessageBubble message={message} />
+        </div>
       </div>
 
       <div

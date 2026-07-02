@@ -11,6 +11,7 @@ import {
   truncateText,
 } from '@openpeeps/common/lib';
 import { communityConfig } from '../../../config';
+import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
 export default {
   type: 'follow',
@@ -36,5 +37,6 @@ export default {
         },
       ],
     },
+    invalidateQueries: [PUSH_INVALIDATE.profiles],
   }),
 } satisfies NotificationHandler;

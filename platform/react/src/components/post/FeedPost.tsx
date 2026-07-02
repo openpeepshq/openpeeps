@@ -1,6 +1,8 @@
 import type { ReactNode, RefObject } from 'react';
 import type { PublicPost } from '@openpeeps/common/types';
 import { usePostViewRef } from '../../lib/postViewCounter';
+import { isUnreadPostForViewer } from '../../lib/postUnread';
+import { useCurrentProfile } from '../layout/IdentityContext';
 
 import { FeedPostContent } from './FeedPostContent';
 import { PostInfoHeader } from './pieces/PostInfoHeader';
@@ -8,6 +10,7 @@ import { PostReactionHeader } from './pieces/PostReactionHeader';
 import { FeedPostStats } from './pieces/FeedPostStats';
 import { PostActions } from './pieces/PostActions';
 import { ThreadPost } from './feed/threaded/ThreadPost';
+import { UnreadPostIndicator } from './pieces/UnreadPostIndicator';
 
 export interface FeedPostProps {
   post: PublicPost;
@@ -32,12 +35,17 @@ export function FeedPost({
   showReplyTo = false,
   content,
 }: FeedPostProps) {
-  const postViewRef = usePostViewRef(post.id) as RefObject<HTMLDivElement>;
+  const me = useCurrentProfile();
+  const displayedPost: PublicPost = post.repost ?? post;
+  const isUnread = isUnreadPostForViewer(displayedPost, me?.id);
+  const postViewRef = usePostViewRef(displayedPost.id, {
+    groupId: displayedPost.groupId,
+    adjustUnread: isUnread,
+  }) as RefObject<HTMLDivElement>;
   const hasReactionHeader =
     !noReactionHeader &&
     (!!post.repost || !!post.inReplyToId || (!!post.groupId && !inGroup));
 
-  const displayedPost: PublicPost = post.repost ?? post;
   const hasStats = !!(
     displayedPost?.repostCount ||
     displayedPost?.reactions?.length ||
@@ -45,7 +53,8 @@ export function FeedPost({
   );
 
   return (
-    <div ref={postViewRef} className="min-w-0 border-b p-4">
+    <div ref={postViewRef} className="relative min-w-0 border-b p-4">
+      <UnreadPostIndicator show={isUnread} />
       {hasReactionHeader && (
         <PostReactionHeader
           post={post}

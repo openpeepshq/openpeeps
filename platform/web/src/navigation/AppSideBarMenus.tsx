@@ -77,11 +77,13 @@ function NavItem({
   end,
   icon: Icon,
   children,
+  pill,
 }: {
   to: string;
   end?: boolean;
   icon: LucideIcon;
   children: ReactNode;
+  pill?: number;
 }) {
   const closeDrawer = useSidebarNavClose();
   return (
@@ -92,7 +94,12 @@ function NavItem({
       onClick={() => closeDrawer?.()}
     >
       <Icon className="size-4 shrink-0" />
-      {children}
+      <span className="min-w-0 flex-1 truncate">{children}</span>
+      {pill != null && pill > 0 ? (
+        <span className="bg-destructive text-destructive-foreground flex size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold">
+          {pill > 99 ? '99+' : pill}
+        </span>
+      ) : null}
     </NavLink>
   );
 }
@@ -132,7 +139,15 @@ export function AppSideBarMainMenu() {
   const t = useT();
   const serverInfo = useServerInfo();
   const profile = useCurrentProfile();
+  const { openpeepsApi } = useOpenpeeps();
   const jamsEnabled = serverInfo.jams.livekit.enabled;
+  const unseenCounts = openpeepsApi.useUnseenPostCounts();
+  const unreadGroupPosts = Object.values(
+    unseenCounts.data?.groups ?? {},
+  ).reduce((sum, count) => sum + count, 0);
+  const unreadConversationThreads = Object.keys(
+    unseenCounts.data?.direct ?? {},
+  ).length;
 
   const visibleAdminSections =
     profile?.type === 'local' ? getVisibleAdminSections(profile.roles) : [];
@@ -165,7 +180,7 @@ export function AppSideBarMainMenu() {
           {t('navigation.jams')}
         </NavItem>
       )}
-      <NavItem to="/groups" icon={Users}>
+      <NavItem to="/groups" icon={Users} pill={unreadGroupPosts}>
         {t('navigation.groups')}
       </NavItem>
       <NavItem to="/events" icon={CalendarDays}>
@@ -174,7 +189,7 @@ export function AppSideBarMainMenu() {
       <NavItem to="/articles" icon={ScrollText}>
         {t('navigation.articles')}
       </NavItem>
-      <NavItem to="/conversations" icon={MessageSquareText}>
+      <NavItem to="/conversations" icon={MessageSquareText} pill={unreadConversationThreads}>
         {t('navigation.messages')}
       </NavItem>
       <NavItem to="/members" icon={BookUser}>

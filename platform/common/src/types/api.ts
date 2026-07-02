@@ -338,7 +338,7 @@ export type NotificationStats = z.infer<typeof notificationStatsSchema>;
 
 export const unseenPostCountsSchema = z.object({
   groups: z.record(z.string(), z.number()),
-  direct: z.number(),
+  direct: z.record(z.string(), z.number()),
 });
 export type UnseenPostCounts = z.infer<typeof unseenPostCountsSchema>;
 
