@@ -19,6 +19,7 @@ import {
   useOpenpeeps,
   type RouterAdapter,
 } from '@openpeeps/react';
+import type { i18n as I18nInstance } from 'i18next';
 import {
   OpenpeepsContextProvider,
   OpenpeepsThemeProvider,
@@ -177,18 +178,18 @@ function BootSplash() {
  * the rest of the tree.
  */
 function I18nBoot({ children }: { children: ReactNode }) {
-  const [ready, setReady] = useState(false);
+  const [i18n, setI18n] = useState<I18nInstance | null>(null);
 
   useEffect(() => {
     const lang =
       (typeof navigator !== 'undefined' && navigator.language?.slice(0, 2)) ||
       'en';
-    initI18N(lang, baseUrl).then(() => setReady(true));
+    initI18N(lang, baseUrl).then(setI18n);
   }, []);
 
-  if (!ready) return <BootSplash />;
+  if (!i18n) return <BootSplash />;
 
-  return <I18nProvider>{children}</I18nProvider>;
+  return <I18nProvider instance={i18n}>{children}</I18nProvider>;
 }
 
 /* ------------------------------------------------------------------ routes --
