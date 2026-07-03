@@ -10,19 +10,24 @@ export const initI18N = (
   lang: string,
   baseUrl: string,
   debug = false,
-): Promise<I18nInstance> =>
-  i18next
+): Promise<I18nInstance> => {
+  const instance = i18next.createInstance();
+  return instance
     .use(httpBackend)
     .use(initReactI18next)
     .init({
       lng: lang,
       fallbackLng: lang,
       debug,
+      interpolation: {
+        escapeValue: false,
+      },
       backend: {
         loadPath: `${baseUrl}/api/openpeeps/core/v1/i18n/{{lng}}`,
       },
     } as InitOptions & { resources?: ResourceLanguage })
-    .then(() => i18next);
+    .then(() => instance);
+};
 
 export { I18nProvider } from './I18nProvider';
 export type { I18nProviderProps } from './I18nProvider';
