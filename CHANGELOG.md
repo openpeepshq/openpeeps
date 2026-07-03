@@ -20,6 +20,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **context**: replace useEffect with useLayoutEffect in OpenpeepsContextProvider for improved layout handling; add useSetPageHeader in JamEvent for dynamic page title management
 - **markdown**: open external links in a new tab
 - **jams**: update recording titles
 - **post-form**: add autoFocus prop to PostForm and enhance ReplyPost scrolling behavior
