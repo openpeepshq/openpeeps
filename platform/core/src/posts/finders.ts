@@ -233,12 +233,14 @@ export const getUnseenPostCounts = async (
   const groupIds = profile.memberships
     .map((membership) => membership.group.id)
     .filter((groupId): groupId is string => typeof groupId === 'string');
-  const groups = Object.fromEntries(groupIds.map((groupId) => [groupId, 0]));
+  const groupCounts: Record<string, number> = Object.fromEntries(
+    groupIds.map((groupId) => [groupId, 0]),
+  );
 
   await Promise.all(
     groupIds.map(async (groupId) => {
       const posts = await listPostsByGroup(authData, groupId, { limit: 9999 });
-      groups[groupId] = posts.filter(
+      groupCounts[groupId] = posts.filter(
         (post) => post.seen === false && post.profile.id !== profile.id,
       ).length;
     }),
@@ -265,7 +267,7 @@ export const getUnseenPostCounts = async (
     0,
   );
 
-  return { groups, direct };
+  return { groups: groupCounts, direct };
 };
 
 export const listPostsByType = async (
