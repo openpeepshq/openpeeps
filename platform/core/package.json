@@ -73,11 +73,13 @@
     "i18next": "^24.2.3",
     "prettier": "^3.4.2",
     "tsc-alias": "^1.8.10",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
   },
   "scripts": {
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
+    "test": "vitest run",
     "clean": "rm -rf tsconfig.tsbuildinfo dist",
     "build": "tsc && tsc-alias && rm -rf dist/db/pg/sql && cp -r src/db/pg/sql dist/db/pg/sql",
     "build:watch": "tsc && tsc-alias && (concurrently \"tsc -w\" \"tsc-alias -w\")",

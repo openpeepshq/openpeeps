@@ -29,9 +29,7 @@ export const maybeAutoMigrateFromArango = async () => {
     return;
   }
 
-  const exportDir = await mkdtemp(
-    join(tmpdir(), 'openpeeps-arango-export-'),
-  );
+  const exportDir = await mkdtemp(join(tmpdir(), 'openpeeps-arango-export-'));
 
   log.info(
     'Postgres is empty and Arango has data; starting automatic migration (export dir: %s)',
@@ -54,7 +52,11 @@ export const maybeAutoMigrateFromArango = async () => {
     log.info('Automatic Arango → Postgres migration completed successfully');
   } finally {
     await rm(exportDir, { recursive: true, force: true }).catch((err) => {
-      log.warn('Failed to remove temporary export directory %s', exportDir, err);
+      log.warn(
+        'Failed to remove temporary export directory %s',
+        exportDir,
+        err,
+      );
     });
   }
 };

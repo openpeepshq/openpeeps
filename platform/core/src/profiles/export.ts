@@ -3,7 +3,10 @@ import {
   MemberExportStats,
   Profile,
 } from '@openpeeps/common/types';
-import { formatMemberExportCustomFields, toCsvRow } from '@openpeeps/common/lib';
+import {
+  formatMemberExportCustomFields,
+  toCsvRow,
+} from '@openpeeps/common/lib';
 import { allpeepDb } from '../db';
 import { baseProfilesMapping, membersExportMapping } from './mapping';
 import { expandProfiles } from './helpers';
@@ -49,9 +52,8 @@ export const listMembersForExport = async (): Promise<MemberExportRow[]> => {
   }));
 };
 
-const formatCustomFields = (
-  fields: MemberExportRow['fields'],
-): string => formatMemberExportCustomFields(fields);
+const formatCustomFields = (fields: MemberExportRow['fields']): string =>
+  formatMemberExportCustomFields(fields);
 
 const formatEmailVerified = (
   controllers: MemberExportRow['controllers'],

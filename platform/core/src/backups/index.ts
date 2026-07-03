@@ -1,10 +1,10 @@
 import {
-  appendFile,
   access,
   cp,
   mkdir,
   mkdtemp,
   readdir,
+  rm,
   writeFile,
   readFile,
 } from 'node:fs/promises';
@@ -15,11 +15,23 @@ import { join, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import archiver from 'archiver';
 import extract from 'extract-zip';
-import { allpeepDb } from '../db';
-import { pgConnectionString } from '../db/pg/client';
+import { collectionInfos } from '../db';
 import { communityConfig, config } from '../config';
+import {
+  exportAllPostgresCollections,
+  importAllArangoCollections,
+  importAllPostgresCollections,
+} from '../db/migration/importCollections';
+import { replaceHostname } from '../db/replaceHostname';
 import { logger } from '../log';
 import { setDefaultRoles } from '../roles';
+import {
+  resolveBackupDatabaseType,
+  type BackupDatabaseType,
+  type BackupMetadata,
+} from './metadata';
+
+export { resolveBackupDatabaseType } from './metadata';
 
 const log = logger('core:backups');
 
@@ -89,12 +101,6 @@ const extractZipArchive = (zipPath: string, tempDir: string) =>
     ? extractWithUnzipCli(zipPath, tempDir)
     : extractWithExtractZip(zipPath, tempDir);
 
-type BackupMetadata = {
-  config?: {
-    hostname?: string;
-  };
-};
-
 const hostnameFromServerHost = (host: string) => {
   const serverUrl = host.includes('://') ? host : `http://${host}`;
 
@@ -144,36 +150,24 @@ const withTimeout = <T>(
   });
 };
 
-const runCommand = (command: string, args: string[]): Promise<void> =>
-  new Promise((resolve, reject) => {
-    const proc = spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'] });
-    let stderrTail = '';
-    proc.stderr?.setEncoding('utf8');
-    proc.stderr?.on('data', (chunk: string) => {
-      stderrTail = (stderrTail + chunk).slice(-4096);
-    });
-    proc.on('error', (err: NodeJS.ErrnoException) => {
-      reject(
-        err.code === 'ENOENT' ? new Error(`${command} binary not found`) : err,
-      );
-    });
-    proc.on('close', (code) => {
-      if (code === 0) {
-        resolve();
-        return;
-      }
-      const detail = stderrTail.trim();
-      reject(
-        new Error(
-          `${command} exited with code ${code ?? 'null'}${detail ? `: ${detail}` : ''}`,
-        ),
-      );
-    });
-  });
-
 const assertBackupExtracted = async (tempDir: string) => {
   const metadataPath = join(tempDir, 'metadata.json');
-  const databasePath = join(tempDir, 'database.dump');
+  const collectionsPath = join(tempDir, 'collections');
+  const legacyDumpPath = join(tempDir, 'database.dump');
+
+  try {
+    await access(legacyDumpPath, constants.F_OK);
+    throw new Error(
+      'Backup uses legacy database.dump format (pg_dump); restore JSONL collection backups instead',
+    );
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.includes('legacy database.dump')
+    ) {
+      throw error;
+    }
+  }
 
   try {
     await access(metadataPath, constants.F_OK);
@@ -184,10 +178,42 @@ const assertBackupExtracted = async (tempDir: string) => {
   }
 
   try {
-    await access(databasePath, constants.F_OK);
+    await access(collectionsPath, constants.F_OK);
   } catch {
-    throw new Error('Backup invalid: missing database.dump after extract');
+    throw new Error(
+      'Backup invalid: missing collections/ directory after extract',
+    );
   }
+
+  const files = await readdir(collectionsPath);
+  const jsonlFiles = files.filter((f) => f.endsWith('.jsonl'));
+  if (jsonlFiles.length === 0) {
+    throw new Error(
+      'Backup invalid: collections/ contains no .jsonl files (zip may be truncated)',
+    );
+  }
+
+  log.info(`Found ${jsonlFiles.length} collection backup files in archive`);
+};
+
+const restoreDatabaseFromBackup = async (
+  collectionsDir: string,
+  databaseType: BackupDatabaseType,
+) => {
+  log.info('Restoring %s database from JSONL collections', databaseType);
+
+  const { total } =
+    databaseType === 'postgres'
+      ? await importAllPostgresCollections(collectionsDir)
+      : await importAllArangoCollections(collectionsDir);
+
+  if (total === 0) {
+    throw new Error(
+      'Backup restore completed with zero rows; archive may be empty or corrupt',
+    );
+  }
+
+  log.info('Restored %d database rows from backup', total);
 };
 
 export const createBackup = async () => {
@@ -202,10 +228,13 @@ export const createBackup = async () => {
     ).replace(/[^a-zA-Z0-9_-]/g, '_');
 
     const backupDir = await mkdtemp(join(tmpdir(), dirName));
+    const metaDir = join(backupDir, 'meta');
+    const collectionsDir = join(backupDir, 'collections');
     const mediaDir = join(backupDir, 'media');
     const logsDir = join(backupDir, 'logs');
-    const databaseDumpPath = join(backupDir, 'database.dump');
 
+    await mkdir(metaDir);
+    await mkdir(collectionsDir);
     await mkdir(mediaDir);
     await cp(coreConfig.media.storage.params.path, mediaDir, {
       recursive: true,
@@ -216,9 +245,14 @@ export const createBackup = async () => {
     });
 
     await writeFile(
+      join(metaDir, 'collectionInfos.json'),
+      JSON.stringify(collectionInfos, null, 2),
+    );
+    await writeFile(
       join(backupDir, 'metadata.json'),
       JSON.stringify(
         {
+          databaseType: 'postgres',
           config: {
             hostname: hostnameFromServerHost(coreConfig.server.host),
           },
@@ -228,15 +262,12 @@ export const createBackup = async () => {
       ),
     );
 
-    await runCommand('pg_dump', [
-      '--format=custom',
-      '--file',
-      databaseDumpPath,
-      pgConnectionString(),
-    ]);
+    log.info('Exporting Postgres tables to JSONL collections');
+    await exportAllPostgresCollections(collectionsDir);
 
     const backupZip = `${backupDir}.zip`;
     await zipDirectory(backupDir, backupZip);
+    await rm(backupDir, { recursive: true, force: true });
 
     return backupDir.split(sep).pop();
   } catch (e) {
@@ -287,12 +318,14 @@ export const restoreBackups = async (zipFilePath: string) => {
   log.info(`Unpacking backup into ${tempDir} complete`);
   await assertBackupExtracted(tempDir);
 
+  const collectionsDir = join(tempDir, 'collections');
   const backupMetadata: BackupMetadata | undefined = await readFile(
     join(tempDir, 'metadata.json'),
     'utf-8',
   )
     .then(JSON.parse)
     .catch(() => undefined);
+  const databaseType = resolveBackupDatabaseType(backupMetadata);
 
   log.info(`Emptying media directory ${coreConfig.media.storage.params.path}`);
   await emptyDir(coreConfig.media.storage.params.path);
@@ -310,18 +343,15 @@ export const restoreBackups = async (zipFilePath: string) => {
     recursive: true,
   });
 
-  log.info('Restoring Postgres database');
-  await runCommand('pg_restore', [
-    '--clean',
-    '--if-exists',
-    '--no-owner',
-    '--dbname',
-    pgConnectionString(),
-    join(tempDir, 'database.dump'),
-  ]);
+  await restoreDatabaseFromBackup(collectionsDir, databaseType);
+
+  await replaceHostname(
+    backupMetadata?.config?.hostname,
+    hostnameFromServerHost(coreConfig.server.host),
+  );
 
   log.info(
-    `Restored backup (hostname was ${backupMetadata?.config?.hostname ?? 'unknown'})`,
+    `Restored ${databaseType} backup (hostname was ${backupMetadata?.config?.hostname ?? 'unknown'})`,
   );
 
   await setDefaultRoles();

@@ -1,10 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { logger } from '../../log';
 import { closePostgres, pgDb } from '../pg/client';
-import {
-  documentRegistry,
-  edgeRegistry,
-} from '../pg/map/registry';
+import { documentRegistry, edgeRegistry } from '../pg/map/registry';
 import { tableCount } from './detect';
 import {
   assertExportDir,

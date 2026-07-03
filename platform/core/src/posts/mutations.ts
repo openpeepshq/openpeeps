@@ -135,8 +135,7 @@ export const updatePost = async (
   profile: Profile,
   data: PostDataUnion,
 ) => {
-  const previousEvent =
-    post.data?.type === 'event' ? post.data : undefined;
+  const previousEvent = post.data?.type === 'event' ? post.data : undefined;
   const normalized =
     data.type === 'event' ? normalizeEventDataForSave(data) : data;
   const dataForDb =

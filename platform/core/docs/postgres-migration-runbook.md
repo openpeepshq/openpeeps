@@ -28,13 +28,13 @@ Run from `platform/core` after building `@openpeeps/core`.
 
 ## Environment
 
-| Variable               | Used by          | Purpose                                             |
-| ---------------------- | ---------------- | --------------------------------------------------- |
-| `DB_URL`               | export           | Arango server URL (default `http://localhost:8529`) |
-| `DB_NAME`              | export           | Arango database name                                |
-| `DATABASE_URL`         | import, validate | Postgres connection string                          |
-| `MIGRATION_EXPORT_DIR` | all              | Export directory (default `./arango-export`)        |
-| `AUTO_MIGRATE_FROM_ARANGO` | startup      | Set to `false` to disable automatic migration       |
+| Variable                   | Used by          | Purpose                                             |
+| -------------------------- | ---------------- | --------------------------------------------------- |
+| `DB_URL`                   | export           | Arango server URL (default `http://localhost:8529`) |
+| `DB_NAME`                  | export           | Arango database name                                |
+| `DATABASE_URL`             | import, validate | Postgres connection string                          |
+| `MIGRATION_EXPORT_DIR`     | all              | Export directory (default `./arango-export`)        |
+| `AUTO_MIGRATE_FROM_ARANGO` | startup          | Set to `false` to disable automatic migration       |
 
 ## Steps
 

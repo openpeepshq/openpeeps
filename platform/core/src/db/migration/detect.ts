@@ -2,9 +2,7 @@ import { aql, Database } from 'arangojs';
 import { getTableName, sql, type Table } from 'drizzle-orm';
 import { logger } from '../../log';
 import { pgDb } from '../pg/client';
-import {
-  getTableForCollection,
-} from '../pg/map/registry';
+import { getTableForCollection } from '../pg/map/registry';
 import { connectArango } from './exportArango';
 import { arangoConfig, DOCUMENT_IMPORT_ORDER } from './shared';
 
