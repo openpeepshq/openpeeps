@@ -3,6 +3,12 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Bug Fixes
+
+- **i18n**: enhance i18n initialization by creating a new instance and updating the I18nProvider to accept the instance; improve interpolation settings
+
+## 2026-07-03
+
 ### Features
 
 - **recordings**: add delete recording functionality
