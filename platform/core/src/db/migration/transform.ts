@@ -23,46 +23,11 @@ const isNonEmptyTimestamp = (value: unknown): value is string =>
 
 const timestampsFromModel = (model: Record<string, unknown>) => {
   const ts = nowIso();
-  const rawCreatedAt = model.createdAt;
-  const rawUpdatedAt = model.updatedAt;
-  const rawDeletedAt = model.deletedAt;
-  const createdAt = isNonEmptyTimestamp(rawCreatedAt) ? rawCreatedAt : ts;
-  const updatedAt = isNonEmptyTimestamp(rawUpdatedAt) ? rawUpdatedAt : ts;
-  const deletedAt = isNonEmptyTimestamp(rawDeletedAt) ? rawDeletedAt : null;
-
-  // #region agent log
-  if (
-    rawCreatedAt === '' ||
-    rawUpdatedAt === '' ||
-    rawDeletedAt === ''
-  ) {
-    fetch('http://127.0.0.1:7499/ingest/27c2d08d-4470-4015-abd2-33d1e0e3ecd8', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Debug-Session-Id': 'a0a46a',
-      },
-      body: JSON.stringify({
-        sessionId: 'a0a46a',
-        runId: 'post-fix',
-        hypothesisId: 'H1',
-        location: 'transform.ts:timestampsFromModel',
-        message: 'normalized empty-string timestamps',
-        data: {
-          rawCreatedAt,
-          rawUpdatedAt,
-          rawDeletedAt,
-          createdAt,
-          updatedAt,
-          deletedAt,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-  }
-  // #endregion
-
-  return { createdAt, updatedAt, deletedAt };
+  return {
+    createdAt: isNonEmptyTimestamp(model.createdAt) ? model.createdAt : ts,
+    updatedAt: isNonEmptyTimestamp(model.updatedAt) ? model.updatedAt : ts,
+    deletedAt: isNonEmptyTimestamp(model.deletedAt) ? model.deletedAt : null,
+  };
 };
 
 export const arangoDocToDocumentRow = (
