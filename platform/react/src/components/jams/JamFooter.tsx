@@ -18,7 +18,7 @@ import {
   ScreenShareOff,
   UsersRound,
 } from 'lucide-react';
-import { Blur, Button } from '@openpeeps/react-ui';
+import { Blur, Button, SquareStop } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { subscribePushNotifications } from '../../push';
 import { useT } from '../../i18n';
@@ -178,7 +178,7 @@ const RecordButton = ({
     onClick={onToggle}
     className={`bg-error-500 text-on-primary-token flex size-10 items-center justify-center rounded-full p-2 ${className}`}
   >
-    {isRecording ? <CircleStop /> : <Disc />}
+    {isRecording ? <SquareStop /> : <Disc />}
   </button>
 );
 
