@@ -51,4 +51,21 @@ describe('arango backup document transform', () => {
       toId: 'bob',
     });
   });
+
+  it('treats empty-string timestamps as missing when mapping configs', () => {
+    const row = arangoDocToDocumentRow('configs', {
+      _key: 'openpeeps-core',
+      config: { server: { signUpsOpen: true } },
+      createdAt: '',
+      updatedAt: '',
+      deletedAt: '',
+    });
+
+    expect(row.key).toBe('openpeeps-core');
+    expect(row.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(row.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(row.deletedAt).toBeNull();
+    expect(row.createdAt).not.toBe('');
+    expect(row.updatedAt).not.toBe('');
+  });
 });

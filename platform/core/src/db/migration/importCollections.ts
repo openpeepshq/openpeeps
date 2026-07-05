@@ -87,6 +87,34 @@ export const importArangoCollection = async (
 
     await db.insert(table as never).values(rows as never);
     imported += rows.length;
+
+    // #region agent log
+    if (collection === 'configs' && offset === 0 && rows.length > 0) {
+      const sample = rows[0] as Record<string, unknown>;
+      fetch('http://127.0.0.1:7499/ingest/27c2d08d-4470-4015-abd2-33d1e0e3ecd8', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Debug-Session-Id': 'a0a46a',
+        },
+        body: JSON.stringify({
+          sessionId: 'a0a46a',
+          runId: 'post-fix',
+          hypothesisId: 'H3',
+          location: 'importCollections.ts:importArangoCollection',
+          message: 'configs batch insert sample',
+          data: {
+            rowCount: rows.length,
+            sampleKey: sample.key,
+            sampleCreatedAt: sample.createdAt,
+            sampleUpdatedAt: sample.updatedAt,
+            sampleDeletedAt: sample.deletedAt,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+    }
+    // #endregion
   }
 
   log.info('Imported %d rows into %s from Arango JSONL', imported, collection);

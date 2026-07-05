@@ -18,13 +18,51 @@ export const arangoDocToModel = (
   return model;
 };
 
+const isNonEmptyTimestamp = (value: unknown): value is string =>
+  typeof value === 'string' && value.trim() !== '';
+
 const timestampsFromModel = (model: Record<string, unknown>) => {
   const ts = nowIso();
-  return {
-    createdAt: (model.createdAt as string | undefined) ?? ts,
-    updatedAt: (model.updatedAt as string | undefined) ?? ts,
-    deletedAt: (model.deletedAt as string | null | undefined) ?? null,
-  };
+  const rawCreatedAt = model.createdAt;
+  const rawUpdatedAt = model.updatedAt;
+  const rawDeletedAt = model.deletedAt;
+  const createdAt = isNonEmptyTimestamp(rawCreatedAt) ? rawCreatedAt : ts;
+  const updatedAt = isNonEmptyTimestamp(rawUpdatedAt) ? rawUpdatedAt : ts;
+  const deletedAt = isNonEmptyTimestamp(rawDeletedAt) ? rawDeletedAt : null;
+
+  // #region agent log
+  if (
+    rawCreatedAt === '' ||
+    rawUpdatedAt === '' ||
+    rawDeletedAt === ''
+  ) {
+    fetch('http://127.0.0.1:7499/ingest/27c2d08d-4470-4015-abd2-33d1e0e3ecd8', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Debug-Session-Id': 'a0a46a',
+      },
+      body: JSON.stringify({
+        sessionId: 'a0a46a',
+        runId: 'post-fix',
+        hypothesisId: 'H1',
+        location: 'transform.ts:timestampsFromModel',
+        message: 'normalized empty-string timestamps',
+        data: {
+          rawCreatedAt,
+          rawUpdatedAt,
+          rawDeletedAt,
+          createdAt,
+          updatedAt,
+          deletedAt,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+  }
+  // #endregion
+
+  return { createdAt, updatedAt, deletedAt };
 };
 
 export const arangoDocToDocumentRow = (
@@ -47,12 +85,12 @@ export const arangoDocToDocumentRow = (
   }
 
   if (collection === 'dataMigrations') {
+    const appliedAtRaw =
+      (doc.appliedAt as string | undefined) ??
+      (model.createdAt as string | undefined);
     return {
       id: doc._key ?? id,
-      appliedAt:
-        (doc.appliedAt as string | undefined) ??
-        (model.createdAt as string | undefined) ??
-        nowIso(),
+      appliedAt: isNonEmptyTimestamp(appliedAtRaw) ? appliedAtRaw : nowIso(),
     };
   }
 
