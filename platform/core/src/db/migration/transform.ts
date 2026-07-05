@@ -4,8 +4,11 @@ import {
   parseDocRef,
 } from '../pg/map/registry';
 import { nowIso } from '../pg/mappers';
+import { uuidv7 } from 'uuidv7';
 
 const ARANGO_META = ['_id', '_key', '_rev', '_from', '_to'] as const;
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const arangoDocToModel = (
   doc: Record<string, unknown>,
@@ -20,6 +23,16 @@ export const arangoDocToModel = (
 
 const isNonEmptyTimestamp = (value: unknown): value is string =>
   typeof value === 'string' && value.trim() !== '';
+
+const resolveDocumentId = (doc: Record<string, unknown>): string => {
+  const candidates = [doc.id, doc._key]
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const uuid = candidates.find((value) => UUID_REGEX.test(value));
+  return uuid ?? uuidv7();
+};
 
 const timestampsFromModel = (model: Record<string, unknown>) => {
   const ts = nowIso();
@@ -78,7 +91,15 @@ export const arangoDocToDocumentRow = (
         } = model;
         return rest;
       })();
-    return { id, locale, namespace, body, createdAt, updatedAt, deletedAt };
+    return {
+      id: resolveDocumentId(doc),
+      locale,
+      namespace,
+      body,
+      createdAt,
+      updatedAt,
+      deletedAt,
+    };
   }
 
   const config = documentRegistry[collection];

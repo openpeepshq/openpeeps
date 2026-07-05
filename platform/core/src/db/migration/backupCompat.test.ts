@@ -5,6 +5,9 @@ import {
   type BackupMetadata,
 } from '../../backups/metadata';
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 describe('resolveBackupDatabaseType', () => {
   it('defaults to arango when databaseType is missing', () => {
     expect(resolveBackupDatabaseType({})).toBe('arango');
@@ -67,5 +70,36 @@ describe('arango backup document transform', () => {
     expect(row.deletedAt).toBeNull();
     expect(row.createdAt).not.toBe('');
     expect(row.updatedAt).not.toBe('');
+  });
+
+  it('assigns a uuid id when Arango i18n used locale as _key', () => {
+    const row = arangoDocToDocumentRow('i18n', {
+      _key: 'en',
+      locale: 'en',
+      namespace: 'translation',
+      translations: {
+        navigation: { myFeed: 'My Feed' },
+      },
+      createdAt: '2026-04-20T16:22:38.214Z',
+      updatedAt: '2025-07-02T21:59:51.661Z',
+    });
+
+    expect(row.locale).toBe('en');
+    expect(row.namespace).toBe('translation');
+    expect(row.id).toMatch(UUID_REGEX);
+    expect(row.id).not.toBe('en');
+  });
+
+  it('keeps an existing uuid id on Arango i18n documents', () => {
+    const existingId = '01934567-89ab-7def-8123-456789abcdef';
+    const row = arangoDocToDocumentRow('i18n', {
+      _key: 'en',
+      id: existingId,
+      locale: 'en',
+      namespace: 'translation',
+      body: { common: { edit: 'Edit' } },
+    });
+
+    expect(row.id).toBe(existingId);
   });
 });
