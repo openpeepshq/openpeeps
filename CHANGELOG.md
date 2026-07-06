@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **jams**: make record button clearly indicate recording state
 - **i18n**: enhance i18n initialization by creating a new instance and updating the I18nProvider to accept the instance; improve interpolation settings
 
 ## 2026-07-03
