@@ -13,6 +13,7 @@ import {
   DatabaseBackup,
   Home,
   KeyRound,
+  LayoutDashboard,
   LogOut,
   MailOpen,
   MessageSquareText,
@@ -201,6 +202,9 @@ export function AppSideBarMainMenu() {
           </button>
           {adminExpanded ? (
             <div className="border-border ml-2 mt-1 flex flex-col gap-0.5 border-l pl-2">
+              <NavItem to="/admin" end icon={LayoutDashboard}>
+                {t('navigation.overview')}
+              </NavItem>
               {visibleAdminSections.map((section) => (
                 <NavItem
                   key={section.key}
