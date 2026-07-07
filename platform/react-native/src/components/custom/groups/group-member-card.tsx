@@ -19,6 +19,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
+import { MainStackParamList } from '~/components/navigation/types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 
 interface GroupMemberCardProps {
   member: GroupMember;
@@ -42,9 +45,18 @@ export const GroupMemberCard = ({
   const {openpeepsApi, currentProfile} = useOpenpeeps();
   const {data: server} = openpeepsApi.useServerInfo();
 
+  const navigation =
+  useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+
   return (
     <View className="flex flex-row justify-between w-full px-4 mb-8">
-      <View className="flex flex-row items-center gap-x-2">
+      <Pressable
+      onPress={() => {
+        navigation.navigate('Profile', {
+          handle: member.profile.handle,
+        });
+      }}
+      className="flex flex-row items-center gap-x-2">
         <Avatar alt="profile" className="size-16">
           {member.profile.avatar ? (
             <AvatarImage
@@ -77,11 +89,11 @@ export const GroupMemberCard = ({
             </View>
           )}
         </View>
-      </View>
+      </Pressable>
       {showActions && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Pressable className="flex items-center justify-center p-2">
+            <Pressable className="flex items-center justify-center p-3">
               <MoreHorizontalIcon size={16} className="text-foreground" />
             </Pressable>
           </DropdownMenuTrigger>
