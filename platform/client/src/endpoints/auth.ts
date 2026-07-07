@@ -8,7 +8,7 @@ import type {
     SuccessResponse,
     TokenResponse,
 } from '@openpeeps/common';
-import { allpeepPayloadEndpoint } from './helpers';
+import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 
 export const auth = (rawClient: FetchClient) => ({
     login: allpeepPayloadEndpoint<TokenResponse, LoginRequest>(
@@ -35,4 +35,9 @@ export const auth = (rawClient: FetchClient) => ({
         rawClient,
         '/auth/refresh',
     ),
+    validateEmail: allpeepNoPayloadEndpoint<
+        SuccessResponse,
+        undefined,
+        { token: string }
+    >(rawClient, '/auth/validate-email'),
 }); 
