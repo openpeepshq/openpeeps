@@ -498,6 +498,11 @@ export const resetPasswordFormSchema = resetPasswordRequestSchema.refine(
   },
 );
 
+export const validateEmailQuerySchema = z.object({
+  token: z.string().min(1),
+});
+export type ValidateEmailQuery = z.infer<typeof validateEmailQuerySchema>;
+
 export const tokenResponseSchema = z.object({
   success: z.literal(true),
   token: z.string(),

@@ -1,23 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useT } from '@openpeeps/react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useT, useOpenpeeps } from '@openpeeps/react';
 import { AuthLayout, useToast } from '@openpeeps/react/components';
 
-const baseUrl =
-  import.meta.env.VITE_OPENPEEPS_BASE_URL ??
-  (typeof window !== 'undefined' ? window.location.origin : '');
-
 /**
- * SPA handler for the `/auth/validate-email?token=...` email link. Mirrors the
- * SvelteKit server route: it calls the backend validation endpoint and, on
- * success, sends the user home with a confirmation toast. The endpoint replies
- * with a redirect on success and a 4xx on an invalid/expired token.
+ * SPA handler for the `/auth/validate-email?token=...` email link. Calls the
+ * backend validation endpoint and, on success, sends the user home with a
+ * confirmation toast.
  */
 export function ValidateEmail() {
   const t = useT();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { success, error: toastError } = useToast();
+  const { client } = useOpenpeeps();
+  const queryClient = useQueryClient();
   const [failed, setFailed] = useState(false);
   const ranRef = useRef(false);
 
@@ -42,10 +40,14 @@ export function ValidateEmail() {
 
     void (async () => {
       try {
-        const res = await fetch(
-          `${baseUrl}/auth/validate-email?token=${encodeURIComponent(token)}`,
-        );
-        if (!res.ok) throw new Error('validation failed');
+        const result = await client.auth.validateEmail({
+          queryParameters: { token },
+        });
+        if ('error' in result) throw new Error('validation failed');
+        await queryClient.invalidateQueries({ queryKey: ['accounts'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['profiles', 'current'],
+        });
         success(
           t('auth.emails.validation.success', {
             defaultValue:
@@ -57,7 +59,7 @@ export function ValidateEmail() {
         fail();
       }
     })();
-  }, [searchParams, navigate, success, toastError, t]);
+  }, [searchParams, navigate, success, toastError, t, client, queryClient]);
 
   return (
     <AuthLayout navigate={navigate} noRedirect>
