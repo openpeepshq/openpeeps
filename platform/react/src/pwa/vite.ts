@@ -34,6 +34,8 @@ export interface OpenpeepsPwaPluginOptions {
   }>;
   /** Replace the default manifest entirely. */
   manifest?: Record<string, unknown>;
+  /** When false, skip emitting a static web manifest (use `/pwa/manifest.json`). */
+  generateManifest?: boolean;
   /** Replace the default workbox `injectManifest` config. */
   injectManifest?: Record<string, unknown>;
 }
@@ -71,25 +73,31 @@ export const openpeepsPwaPluginConfig = (
     devOptions,
     icons = defaultIcons,
     manifest,
+    generateManifest = true,
     injectManifest,
   } = options;
+
+  const resolvedManifest =
+    generateManifest === false
+      ? false
+      : (manifest ?? {
+          name: appName,
+          short_name: shortName,
+          description,
+          theme_color: themeColor,
+          background_color: backgroundColor,
+          display: 'standalone',
+          scope,
+          start_url: startUrl,
+          icons,
+        });
 
   return {
     strategies: 'injectManifest',
     registerType: 'prompt',
     filename,
     srcDir: 'node_modules/@openpeeps/react/dist/pwa',
-    manifest: manifest ?? {
-      name: appName,
-      short_name: shortName,
-      description,
-      theme_color: themeColor,
-      background_color: backgroundColor,
-      display: 'standalone',
-      scope,
-      start_url: startUrl,
-      icons,
-    },
+    manifest: resolvedManifest,
     injectManifest: {
       injectionPoint: undefined,
       ...injectManifest,

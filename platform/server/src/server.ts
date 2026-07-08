@@ -13,6 +13,7 @@ import { installDbBrowserProxy } from './lib/dbBrowserProxy';
 import { installBackupsEndpoint } from './lib/backups';
 import { installS3Endpoint } from './lib/s3';
 import { installStreamingEndpoint } from './lib/streaming';
+import { installPwaEndpoint } from './lib/pwa';
 
 const log = logger('server');
 const requestLog = logger('server:request');
@@ -160,6 +161,10 @@ const startServer = async () => {
   // before the SPA catch-all so large archives stream instead of returning
   // `index.html`.
   installBackupsEndpoint(app);
+
+  // Community favicons, PWA manifest, and install icons (`/pwa/*`, `/favicon.ico`).
+  // Must be registered before the SPA catch-all so browsers don't receive HTML.
+  installPwaEndpoint(app);
 
   // Serve locally-stored media at the legacy `/storage/<bucket>/<id>/<filename>`
   // URL (matches `mediaStorage().getPath(id, filename)` in

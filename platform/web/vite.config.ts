@@ -36,6 +36,7 @@ export default defineConfig({
         appName: 'OpenPeeps',
         shortName: 'OpenPeeps',
         description: 'OpenPeeps community',
+        generateManifest: false,
         devOptions: { enabled: false },
       }) as Parameters<typeof VitePWA>[0],
     ),
@@ -68,6 +69,14 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/backups': {
+        target: apiTarget,
+        changeOrigin: true,
+      },
+      '/pwa': {
+        target: apiTarget,
+        changeOrigin: true,
+      },
+      '/favicon.ico': {
         target: apiTarget,
         changeOrigin: true,
       },
