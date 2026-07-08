@@ -3,6 +3,7 @@ import { groupsMapping } from '../groups';
 import { canSeeGroupFilter } from '../groups/helpers';
 import { profilesMapping } from '../profiles/mapping';
 import { baseListPosts } from '../posts/finders';
+import { postFilters } from '../db/pg/filters';
 
 export const groupSearchMapping = (profile: ProfileWithMeta, query: string) =>
   groupsMapping.filter(canSeeGroupFilter(profile)).fulltextSearch({
@@ -39,7 +40,7 @@ const postSearchDefinition = (query: string) => ({
 
 export const postSearchMapping = (profile: ProfileWithMeta, query: string) =>
   baseListPosts({ profile })
-    .filter('DOC.visibility != "direct"')
+    .filter(postFilters.notDirect())
     .fulltextSearch(postSearchDefinition(query));
 
 export const eventSearchMapping = (profile: ProfileWithMeta, query: string) =>
@@ -50,5 +51,5 @@ export const eventSearchMapping = (profile: ProfileWithMeta, query: string) =>
 export const jamSearchMapping = (profile: ProfileWithMeta, query: string) =>
   baseListPosts({ profile })
     .filter({ matches: { type: 'event' } })
-    .filter('DOC.data.jam != null')
+    .filter(postFilters.hasJam())
     .fulltextSearch(postSearchDefinition(query));

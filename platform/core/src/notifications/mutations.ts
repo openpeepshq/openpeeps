@@ -1,5 +1,6 @@
 import { notificationsMapping } from './mapping';
 import { allpeepDb } from '../db';
+import { notificationFilters } from '../db/pg/filters';
 import {
   DbNotification,
   ExpandedNotification,
@@ -37,7 +38,9 @@ export const setNotificationSeen = async (
 export const setAllSeen = async (profile: ProfileWithMeta) =>
   allpeepDb()
     .then(({ db }) =>
-      baseListNotifications(profile).filter('!DOC.seen').all(db),
+      baseListNotifications(profile)
+        .filter(notificationFilters.unseen())
+        .all(db),
     )
     .then((notifications) =>
       notifications.map((notification) => setNotificationSeen(notification)),

@@ -28,6 +28,8 @@ import { deleteEdge as deletePgEdge, insertEdge } from './pg/helpers';
 import { asTable, edgeRegistry } from './pg/map/registry';
 import { nowIso } from './pg/mappers';
 import { and, eq } from 'drizzle-orm';
+import { documentKeyAfter, documentKeyBefore } from './pg/filters';
+import { sorts } from './pg/queries';
 import { EdgeDefinition, EdgeDefinitionOptions } from 'arangojs/graphs';
 import { asyncFilter } from '@openpeeps/common/lib';
 import { EnsureIndexOptions } from 'arangojs/indexes';
@@ -399,20 +401,26 @@ export const connectionFinder =
 export const filterBefore = <T extends object>(
   mapping: Mapping<T>,
   id?: string,
-) => (id ? mapping.filter(`DOC._key < "${id}"`) : mapping);
+) =>
+  id
+    ? mapping.filter(documentKeyBefore(mapping.data().collection, id))
+    : mapping;
 export const filterAfter = <T extends object>(
   mapping: Mapping<T>,
   id?: string,
-) => (id ? mapping.filter(`DOC._key > "${id}"`) : mapping);
+) =>
+  id
+    ? mapping.filter(documentKeyAfter(mapping.data().collection, id))
+    : mapping;
 
 export const addQuerySort = <T extends object>(
   mapping: Mapping<T>,
   sort?: ObjectSort,
 ) => (sort?.length ? mapping.sort(sort) : mapping);
 export const sortNewestFirst = <T extends object>(mapping: Mapping<T>) =>
-  mapping.sort([['DOC._key', 'DESC']]);
+  mapping.sort(sorts.idDesc);
 export const sortOldestFirst = <T extends object>(mapping: Mapping<T>) =>
-  mapping.sort([['DOC._key', 'ASC']]);
+  mapping.sort(sorts.idAsc);
 
 export const addStartLimit = <T extends object>(
   mapping: Mapping<T>,

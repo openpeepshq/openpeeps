@@ -10,6 +10,7 @@ import {
 } from '@openpeeps/common/types';
 import { ProfileWithMeta } from '@openpeeps/common/types';
 import { allpeepDb, collectionInfos } from '../db';
+import { edgeFilters, postFilters } from '../db/pg/filters';
 import {
   contextRelation,
   conversationLeavesMappingForProfile,
@@ -31,8 +32,9 @@ import {
   transformPost,
   upcomingEventsFilter,
 } from './helpers';
-import type { Mapping, ObjectSort, OMFilter } from '../db/pg/map';
+import type { Mapping, ObjectSort, PgFilter } from '../db/pg/map';
 import { addQuerySort, addStart, sortOldestFirst } from '../db/helpers';
+import { sorts } from '../db/pg/queries';
 import { findHashtagByTag, hashtagsMapping } from '../hashtags';
 import { findGroup } from '../groups/finders';
 import { groupsMapping } from '../groups/mapping';
@@ -117,13 +119,13 @@ export const baseFeed = ({
   profile?: ProfileWithMeta;
 }) =>
   addQuerySort(
-    baseListPosts({ start, profile }).filter('DOC.visibility != "direct"'),
+    baseListPosts({ start, profile }).filter(postFilters.notDirect()),
     sort,
   );
 
 export const baseEventsFeed = (profile?: ProfileWithMeta) => {
   const mapping = postsMappingForProfile(profile)
-    .sort([['DOC.data.start', 'ASC']])
+    .sort(sorts.eventStartAsc)
     .filter({ matches: { type: 'event' } });
   return mapping;
 };
@@ -134,7 +136,7 @@ export const listPosts = async (
     start,
     limit = 100,
     filter,
-  }: { start?: string; limit?: number; filter?: OMFilter<DbBasePost> } = {
+  }: { start?: string; limit?: number; filter?: PgFilter<DbBasePost> } = {
     limit: 100,
   },
 ) =>
@@ -165,7 +167,7 @@ export const listPostsByProfile = async (
     start,
     limit = 100,
     filter,
-  }: { start?: string; limit?: number; filter?: OMFilter<DbBasePost> } = {
+  }: { start?: string; limit?: number; filter?: PgFilter<DbBasePost> } = {
     limit: 100,
   },
 ) =>
@@ -174,7 +176,7 @@ export const listPostsByProfile = async (
       alias: 'posts',
       edgeCollection: collectionInfos.entriesCollection.name,
       direction: 'OUTBOUND',
-      edgeFilter: 'DOC.type == "create"',
+      edgeFilter: edgeFilters.entryType('create'),
       skipEdge: true,
       cardinality: 'many',
       mapping: baseFeed({ start, profile: authData.profile })
@@ -191,7 +193,7 @@ export const listBookmarkedPosts = async (
     start,
     limit = 100,
     filter,
-  }: { start?: string; limit?: number; filter?: OMFilter<DbBasePost> } = {
+  }: { start?: string; limit?: number; filter?: PgFilter<DbBasePost> } = {
     limit: 100,
   },
 ) =>
@@ -277,7 +279,7 @@ export const listPostsByType = async (
     start,
     limit = 100,
     filter,
-  }: { start?: string; limit?: number; filter?: OMFilter<DbBasePost> } = {
+  }: { start?: string; limit?: number; filter?: PgFilter<DbBasePost> } = {
     limit: 100,
   },
 ) =>
@@ -295,7 +297,7 @@ export const listPostsByTag = async (
     start,
     limit = 100,
     filter,
-  }: { start?: string; limit?: number; filter?: OMFilter<DbBasePost> } = {
+  }: { start?: string; limit?: number; filter?: PgFilter<DbBasePost> } = {
     limit: 100,
   },
 ) => {
@@ -329,7 +331,7 @@ export const listPostsByGroup = async (
   }: {
     start?: string;
     limit?: number;
-    filter?: OMFilter<DbBasePost>;
+    filter?: PgFilter<DbBasePost>;
     sort?: ObjectSort;
   } = { limit: 100 },
 ) => {
@@ -358,7 +360,7 @@ export const listUpcomingEventsFeed = async (
     offset,
     limit = 100,
     filter,
-  }: { offset?: number; limit?: number; filter?: OMFilter<DbBasePost> } = {
+  }: { offset?: number; limit?: number; filter?: PgFilter<DbBasePost> } = {
     limit: 100,
   },
 ) =>
@@ -375,7 +377,7 @@ export const listCurrentEventsFeed = async (
     offset,
     limit = 100,
     filter,
-  }: { offset?: number; limit?: number; filter?: OMFilter<DbBasePost> } = {
+  }: { offset?: number; limit?: number; filter?: PgFilter<DbBasePost> } = {
     limit: 100,
   },
 ) =>
@@ -392,13 +394,13 @@ export const listPastEventsFeed = async (
     offset,
     limit = 100,
     filter,
-  }: { offset?: number; limit?: number; filter?: OMFilter<DbBasePost> } = {
+  }: { offset?: number; limit?: number; filter?: PgFilter<DbBasePost> } = {
     limit: 100,
   },
 ) =>
   toFilteredPostsList(
     baseEventsFeed(authData.profile)
-      .sort([['DOC.data.start', 'DESC']])
+      .sort(sorts.eventStartDesc)
       .filter(pastEventsFilter())
       .filter(filter),
     { authData, limit, offset },
@@ -473,7 +475,7 @@ export const listMyUpcomingJamsFeed = async (
 const baseGroupEventsFeed = async (
   authData: AuthorizationData,
   groupId: string,
-  { filter, sort }: { filter?: OMFilter<DbBasePost>; sort?: ObjectSort } = {},
+  { filter, sort }: { filter?: PgFilter<DbBasePost>; sort?: ObjectSort } = {},
 ) => {
   const group = await findGroup(groupId);
   if (!group) {
@@ -510,7 +512,7 @@ export const listPastGroupEventsFeed = async (
   toFilteredPostsList(
     await baseGroupEventsFeed(authData, groupId, {
       filter: pastEventsFilter(),
-      sort: [['DOC.data.start', 'DESC']],
+      sort: sorts.eventStartDesc,
     }),
     { authData, limit, offset },
   );

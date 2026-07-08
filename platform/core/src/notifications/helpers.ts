@@ -9,6 +9,7 @@ import {
   ProfileSettings,
 } from '@openpeeps/common/types';
 import { allpeepDb } from '../db';
+import { notificationFilters } from '../db/pg/filters';
 import {
   notificationsMapping,
   unexpandedNotificationsMapping,
@@ -22,7 +23,7 @@ import { notificationHandlers } from './handlers';
 export const baseListNotifications = (
   profile: ProfileWithMeta,
 ): Mapping<NotificationData, DbNotification> =>
-  notificationsMapping.filter(`DOC.profileId == '${profile.id}'`);
+  notificationsMapping.filter(notificationFilters.forProfile(profile.id));
 
 export const notificationSettings = (
   profileSettings: ProfileSettings,
@@ -56,14 +57,20 @@ export const expandNotification = async (
 const baseStatNotificationsMapping = (
   profile: ProfileWithMeta,
 ): Mapping<NotificationData, Notification> =>
-  unexpandedNotificationsMapping.filter(`DOC.profileId == '${profile.id}'`);
+  unexpandedNotificationsMapping.filter(
+    notificationFilters.forProfile(profile.id),
+  );
 
 export const unseenNotifications = (profile: ProfileWithMeta) =>
   allpeepDb().then(({ db }) =>
-    baseStatNotificationsMapping(profile).filter('!DOC.seen').count(db),
+    baseStatNotificationsMapping(profile)
+      .filter(notificationFilters.unseen())
+      .count(db),
   );
 
 export const unreadNotifications = (profile: ProfileWithMeta) =>
   allpeepDb().then(({ db }) =>
-    baseStatNotificationsMapping(profile).filter('!DOC.read').count(db),
+    baseStatNotificationsMapping(profile)
+      .filter(notificationFilters.unread())
+      .count(db),
   );

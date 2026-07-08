@@ -1,4 +1,7 @@
 import { map, Mapping, Relation, RelationWithMapping } from '../db/pg/map';
+import { postFilters } from '../db/pg/filters';
+import { profileDerived, postDerived } from '../db/pg/queries';
+import { collectionInfos } from '../db';
 import {
   EntryData,
   Post,
@@ -8,21 +11,10 @@ import {
 } from '@openpeeps/common/types';
 import { PostData } from '@openpeeps/common/types';
 import { groupsMapping } from '../groups/mapping';
-import { collectionInfos } from '../db';
 
 const seenByCurrentProfileDerivedProperty = (profile?: { id: string }) => ({
   alias: 'seen',
-  expression: profile
-    ? `
-        LENGTH(
-            FOR edge IN ${collectionInfos.postSeenCollection.name}
-                FILTER edge._from == "${collectionInfos.profilesCollection.name}/${profile.id}"
-                    AND edge._to == DOC._id
-                LIMIT 1
-                RETURN 1
-        ) > 0
-    `
-    : 'false',
+  resolve: postDerived.seen(profile?.id),
 });
 
 export const entriesRelation: Relation<Profile, EntryData> = {
@@ -137,14 +129,11 @@ const basePostMapData = {
   postFilterDerivedProperties: [
     {
       alias: 'inReplyToId',
-      expression: `
-            DOC.replyTo.id
-            `,
+      resolve: postDerived.inReplyToId,
     },
     {
       alias: 'groupId',
-      expression: `
-            DOC.group.id`,
+      resolve: postDerived.groupId,
     },
   ],
 };
@@ -281,17 +270,22 @@ export const contextRelation = (
   mapping: contextMapping.data(),
 });
 
+const conversationLeafFilters = [
+  postFilters.replyCountZero(),
+  postFilters.isDirect(),
+];
+
 export const conversationLeavesMapping = map<PostData, DbPost>({
   ...basePostMapData,
   relations: [replyCountRelation],
-  filters: ['DOC.replyCount == 0', 'DOC.visibility == "direct"'],
+  filters: conversationLeafFilters,
 });
 
 export const conversationLeavesMappingForProfile = (profile?: { id: string }) =>
   map<PostData, DbPost>({
     ...basePostMapDataForProfile(profile),
     relations: [replyCountRelation],
-    filters: ['DOC.replyCount == 0', 'DOC.visibility == "direct"'],
+    filters: conversationLeafFilters,
   });
 
 export const postIdsMapping = map<PostData, { id: string }>(preFilterMapData);

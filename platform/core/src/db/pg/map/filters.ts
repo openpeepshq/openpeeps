@@ -14,7 +14,20 @@ import {
   type SQL,
 } from 'drizzle-orm';
 import { checkCapabilities, mergeCapabilities } from '@openpeeps/common/lib';
-import type { Limit, ObjectSort, OMFilter } from './queryTypes';
+import { isSqlFilter } from '../filters';
+import {
+  groupLastPostAtExpr,
+  postActivityScoreExpr,
+  postReplyCountExpr,
+  profileActivityScoreExpr,
+} from '../queries/activity';
+import type {
+  ActivityWindow,
+  Limit,
+  ObjectSort,
+  OMFilter,
+  PgFilter,
+} from './queryTypes';
 import {
   asTable,
   edgeRegistry,
@@ -56,9 +69,7 @@ const normalizeAqlExpression = (expression: string): string =>
     .replace(/==/g, '===')
     .replace(/!=/g, '!==')
     .replace(/DATE_TIMESTAMP\(([^)]+)\)/g, 'new Date($1).getTime()')
-    .replace(/LENGTH\(([^)]+)\)/g, '(Array.isArray($1) ? $1.length : 0)')
-    .replace(/ALLPEEP::CHECK_CAPABILITIES\(/g, 'CHECK_CAPABILITIES(')
-    .replace(/ALLPEEP::MERGE_CAPABILITIES\(/g, 'MERGE_CAPABILITIES(');
+    .replace(/LENGTH\(([^)]+)\)/g, '(Array.isArray($1) ? $1.length : 0)');
 
 export const evaluateStringFilter = (
   doc: Record<string, unknown>,
@@ -80,14 +91,18 @@ export const evaluateStringFilter = (
 
 export const evaluateFilter = (
   doc: Record<string, unknown>,
-  filter?: OMFilter<Record<string, unknown>>,
+  filter?: PgFilter<Record<string, unknown>>,
 ): boolean => {
   if (!filter) return true;
+  if (isSqlFilter(filter)) return true;
   if (typeof filter === 'string') {
     return evaluateStringFilter(doc, filter);
   }
   if ('operator' in filter) {
-    const preds = filter.predicates.map((p) => evaluateFilter(doc, p));
+    const preds = filter.predicates.map((p) => {
+      if (isSqlFilter(p)) return true;
+      return evaluateFilter(doc, p);
+    });
     return filter.operator === '&&'
       ? preds.every(Boolean)
       : preds.some(Boolean);
@@ -117,12 +132,7 @@ export const evaluateFilter = (
 
 const bodyColumn = (table: Record<string, unknown>) => table.body as SQL;
 
-const postsReplyCountSql = (table: PgTable): SQL => {
-  const postsTable = asTable(table);
-  const replyToTable = getTableForCollection('replyTo');
-  const posts = getTableForCollection('posts');
-  return sql`(SELECT count(*)::int FROM ${replyToTable} rt INNER JOIN ${posts} p ON p.id = rt.from_id WHERE rt.to_id = ${postsTable.id} AND p.deleted_at IS NULL)`;
-};
+const postsReplyCountSql = (_table: PgTable): SQL => postReplyCountExpr();
 
 const docFieldSql = (
   collection: string,
@@ -328,7 +338,7 @@ const singleStringFilterToSql = (
   expression: string,
 ): SQL | undefined => {
   const expr = unwrapParens(expression);
-  if (!expr || expr.includes('ALLPEEP::') || expr.includes(' FOR ')) {
+  if (!expr || expr.includes(' FOR ')) {
     return undefined;
   }
 
@@ -527,15 +537,17 @@ const matchToSql = (
 export const filterToSql = (
   collection: string,
   table: PgTable,
-  filter: OMFilter<Record<string, unknown>>,
+  filter: PgFilter<Record<string, unknown>>,
 ): SQL | undefined => {
+  if (isSqlFilter(filter)) return filter.where;
   if (typeof filter === 'string') {
     return stringFilterToSql(collection, table, filter);
   }
   if ('operator' in filter) {
-    const parts = filter.predicates.map((predicate) =>
-      filterToSql(collection, table, predicate),
-    );
+    const parts = filter.predicates.map((predicate) => {
+      if (isSqlFilter(predicate)) return predicate.where;
+      return filterToSql(collection, table, predicate);
+    });
     if (parts.some((part) => !part)) return undefined;
     return filter.operator === '&&'
       ? and(...(parts as SQL[]))
@@ -557,16 +569,16 @@ export const filterToSql = (
 export const partitionFilters = (
   collection: string,
   table: PgTable,
-  filters: OMFilter<Record<string, unknown>>[] | undefined,
-  defaultFilter?: OMFilter<Record<string, unknown>>,
+  filters: PgFilter<Record<string, unknown>>[] | undefined,
+  defaultFilter?: PgFilter<Record<string, unknown>>,
   softDelete?: boolean,
 ): {
   sqlWhere: SQL | undefined;
-  postFilters: OMFilter<Record<string, unknown>>[];
+  postFilters: PgFilter<Record<string, unknown>>[];
 } => {
   const t = asTable(table);
   const sqlConditions: SQL[] = [];
-  const postFilters: OMFilter<Record<string, unknown>>[] = [];
+  const postFilters: PgFilter<Record<string, unknown>>[] = [];
 
   if (softDelete !== false && t.deletedAt) {
     sqlConditions.push(isNull(t.deletedAt as never));
@@ -576,6 +588,10 @@ export const partitionFilters = (
     ...(defaultFilter ? [defaultFilter] : []),
     ...(filters ?? []),
   ]) {
+    if (isSqlFilter(filter)) {
+      sqlConditions.push(filter.where);
+      continue;
+    }
     const sqlFilter = filterToSql(collection, table, filter);
     if (sqlFilter) sqlConditions.push(sqlFilter);
     else postFilters.push(filter);
@@ -590,16 +606,18 @@ export const partitionFilters = (
 export const filtersToSql = (
   collection: string,
   table: PgTable,
-  filters: OMFilter<Record<string, unknown>>[] | undefined,
+  filters: PgFilter<Record<string, unknown>>[] | undefined,
   softDelete: boolean | undefined,
 ): SQL | undefined =>
   partitionFilters(collection, table, filters, undefined, softDelete).sqlWhere;
 
 export const applyDateRangeToEdgeSql = (
   table: PgTable,
-  filter?: string,
+  filter?: PgFilter<Record<string, unknown>>,
 ): SQL | undefined => {
   if (!filter) return undefined;
+  if (isSqlFilter(filter)) return filter.where;
+  if (typeof filter !== 'string') return undefined;
   return createdAtRangeSql(table, filter);
 };
 
@@ -607,35 +625,59 @@ export const sortToSqlOrderBy = (
   collection: string,
   table: PgTable,
   sort?: ObjectSort,
+  activityWindow?: ActivityWindow,
 ): SQL[] | undefined => {
   if (!sort?.length) return undefined;
   const orderBy: SQL[] = [];
   for (const [expr, direction] of sort) {
     const path = expr.replace(/^DOC\./, '');
-    if (path === 'activityScore' || path === 'replyCount') return undefined;
+    const dir = direction === 'DESC' ? desc : asc;
+
+    if (path === 'activityScore') {
+      if (collection === 'profiles') {
+        orderBy.push(dir(profileActivityScoreExpr(activityWindow)));
+        continue;
+      }
+      if (collection === 'posts') {
+        orderBy.push(dir(postActivityScoreExpr()));
+        continue;
+      }
+    }
+
+    if (path === 'replyCount' && collection === 'posts') {
+      orderBy.push(dir(postReplyCountExpr()));
+      continue;
+    }
+
+    if (path === 'lastPostAt' && collection === 'groups') {
+      orderBy.push(dir(groupLastPostAtExpr()));
+      continue;
+    }
+
     const field = docFieldSql(collection, table, path);
     if (!field) return undefined;
-    orderBy.push(direction === 'DESC' ? desc(field) : asc(field));
+    orderBy.push(dir(field));
   }
   return orderBy.length ? orderBy : undefined;
 };
 
 export const applyPostFilters = <O extends object>(
   docs: O[],
-  filters: OMFilter<O>[] | undefined,
-  defaultFilter?: OMFilter<O>,
+  filters: PgFilter<O>[] | undefined,
+  defaultFilter?: PgFilter<O>,
 ): O[] => {
   const allFilters = [
     ...(defaultFilter ? [defaultFilter] : []),
     ...(filters ?? []),
   ];
   return docs.filter((doc) =>
-    allFilters.every((f) =>
-      evaluateFilter(
+    allFilters.every((f) => {
+      if (isSqlFilter(f)) return true;
+      return evaluateFilter(
         doc as Record<string, unknown>,
-        f as OMFilter<Record<string, unknown>>,
-      ),
-    ),
+        f as PgFilter<Record<string, unknown>>,
+      );
+    }),
   );
 };
 

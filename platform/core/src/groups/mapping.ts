@@ -1,6 +1,6 @@
 import { map, Relation } from '../db/pg/map';
 import { GroupData, GroupWithMeta } from '@openpeeps/common/types';
-import { collectionInfos } from '../db';
+import { computedFields } from '../db/pg/queries';
 
 const groupRelations: Relation[] = [
   {
@@ -20,19 +20,6 @@ const groupRelations: Relation[] = [
 export const groupsMapping = map<GroupData, GroupWithMeta>({
   collection: 'groups',
   relations: groupRelations,
-  derivedProperties: [
-    {
-      alias: 'lastPostAt',
-      expression: `
-                FIRST(
-                    FOR edge IN ${collectionInfos.postGroupsCollection.name}
-                        FILTER edge._to == DOC._id
-                        SORT edge.createdAt DESC
-                        LIMIT 1
-                        RETURN edge.createdAt
-                )
-            `,
-    },
-  ],
+  computedFields: [computedFields.groupLastPostAt()],
   softDelete: true,
 });

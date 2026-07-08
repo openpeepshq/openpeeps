@@ -3,7 +3,7 @@ import type {
   Limit,
   MapData,
   ObjectSort,
-  OMFilter,
+  PgFilter,
   Relation,
   RelationWithMapping,
   SearchDefinition,
@@ -32,9 +32,11 @@ export type {
   ObjectSort,
   OMFilter,
   OMFilterList,
+  PgFilter,
   Relation,
   RelationWithMapping,
   SearchDefinition,
+  SqlFilter,
   WithId,
 } from './queryTypes';
 
@@ -50,7 +52,7 @@ export type Mapping<
   ) => Mapping<T, O, F>;
   addDerivedProperty: (derivedProperty: DerivedProperty) => Mapping<T, O, F>;
   removeDefaultFilter: () => Mapping<T, O, F>;
-  filter: (filter?: OMFilter<F>) => Mapping<T, O, F>;
+  filter: (filter?: PgFilter<F>) => Mapping<T, O, F>;
   clearFilters: () => Mapping<T, O, F>;
   sort: (sort?: ObjectSort) => Mapping<T, O, F>;
   limit: (limit?: Limit) => Mapping<T, O, F>;
@@ -60,7 +62,7 @@ export type Mapping<
     id: string,
     options?: { ignoreSoftDelete?: boolean },
   ) => Promise<O | undefined>;
-  findOneBy: (db: PgDb, filter: OMFilter<F>) => Promise<O | undefined>;
+  findOneBy: (db: PgDb, filter: PgFilter<F>) => Promise<O | undefined>;
   all: (db: PgDb) => Promise<O[]>;
   fulltextSearch: (
     searchDefinition: SearchDefinition,
@@ -134,7 +136,7 @@ export const map = <
       defaultFilter: undefined,
     }),
 
-  filter: (filter?: OMFilter<F>) => map(addFilter(mapData, filter)),
+  filter: (filter?: PgFilter<F>) => map(addFilter(mapData, filter)),
 
   clearFilters: () =>
     map({
@@ -162,7 +164,7 @@ export const map = <
       options?.ignoreSoftDelete,
     ) as Promise<O | undefined>,
 
-  findOneBy: (db: PgDb, filter: OMFilter<F>) =>
+  findOneBy: (db: PgDb, filter: PgFilter<F>) =>
     map(addFilter(mapData, filter)).first(db),
 
   all: (db: PgDb) =>

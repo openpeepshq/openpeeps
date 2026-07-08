@@ -2,62 +2,23 @@ import { collectionInfos } from '../db';
 import { baseProfilesMapping } from '../profiles';
 import { postsMapping } from '../posts';
 import { map } from '../db/pg/map';
-import { creationDateFilter } from './helpers';
+import { computedFields } from '../db/pg/queries';
+import { DbPost, PostData } from '@openpeeps/common/types';
 
 export const profileWithActivityScoreMapping = (start?: Date, end?: Date) =>
-  baseProfilesMapping
-    .addRelations([
-      {
-        alias: 'entriesCount',
-        edgeCollection: collectionInfos.entriesCollection.name,
-        direction: 'OUTBOUND',
-        cardinality: 'one',
-        edgeFilter: creationDateFilter(start, end),
-        count: true,
-      },
-      {
-        alias: 'reactionsCount',
-        edgeCollection: collectionInfos.reactionsCollection.name,
-        direction: 'OUTBOUND',
-        cardinality: 'one',
-        edgeFilter: creationDateFilter(start, end),
-        count: true,
-      },
-      {
-        alias: 'followsCount',
-        edgeCollection: collectionInfos.followsCollection.name,
-        direction: 'OUTBOUND',
-        cardinality: 'one',
-        edgeFilter: creationDateFilter(start, end),
-        count: true,
-      },
-    ])
-    .addDerivedProperty({
-      alias: 'activityScore',
-      expression: `DOC.entriesCount + DOC.reactionsCount + DOC.followsCount`,
-    });
-
-export const postsWithActivityScoreMapping = postsMapping
-  .addRelations([
-    {
-      alias: 'reactionsCount',
-      edgeCollection: collectionInfos.reactionsCollection.name,
-      direction: 'INBOUND',
-      count: true,
-      cardinality: 'one',
-    },
-    {
-      alias: 'entriesCount',
-      edgeCollection: collectionInfos.entriesCollection.name,
-      direction: 'INBOUND',
-      cardinality: 'one',
-      count: true,
-    },
-  ])
-  .addDerivedProperty({
-    alias: 'activityScore',
-    expression: `DOC.entriesCount + DOC.reactionsCount + DOC.replyCount + DOC.repostCount`,
+  map({
+    ...baseProfilesMapping.data(),
+    activityWindow: { start, end },
+    computedFields: [computedFields.profileActivityScore({ start, end })],
   });
+
+export const postsWithActivityScoreMapping = map<
+  PostData,
+  DbPost & { activityScore: number }
+>({
+  ...postsMapping.data(),
+  computedFields: [computedFields.postActivityScore()],
+});
 
 export const reactionsMapping = map({
   collection: collectionInfos.reactionsCollection.name,

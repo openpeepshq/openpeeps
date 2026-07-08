@@ -1,6 +1,7 @@
 import { ProcessingStats } from '@openpeeps/common/types';
 import { processingStatsMapping } from './mapping';
 import { allpeepDb } from '../db';
+import { sorts } from '../db/pg/queries';
 
 const HISTORY_SAMPLE_SIZE = 50;
 
@@ -27,7 +28,7 @@ const findRecent = async (
   const db = await allpeepDb().then((db) => db.db);
   return processingStatsMapping
     .filter({ matches: filter })
-    .sort([['DOC.createdAt', 'DESC']])
+    .sort(sorts.createdAtDesc)
     .limit(HISTORY_SAMPLE_SIZE)
     .all(db);
 };

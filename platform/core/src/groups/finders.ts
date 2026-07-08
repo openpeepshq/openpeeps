@@ -3,6 +3,7 @@ import { AuthorizationData, PublicProfile } from '@openpeeps/common/types';
 import { groupsMapping } from './mapping';
 import { profilesMapping, membersRelation } from '../profiles/mapping';
 import { canSeeGroupFilter } from './helpers';
+import { sorts } from '../db/pg/queries';
 
 export const findGroup = (id: string) =>
   allpeepDb().then((db) => groupsMapping.find(db.db, id));
@@ -24,7 +25,7 @@ export const listGroups = (authData: AuthorizationData) =>
   allpeepDb().then((db) =>
     groupsMapping
       .filter(canSeeGroupFilter(authData.profile))
-      .sort([['DOC.lastPostAt', 'DESC']])
+      .sort(sorts.lastPostAtDesc)
       .all(db.db),
   );
 

@@ -7,12 +7,12 @@ import {
   ProfileWithMeta,
 } from '@openpeeps/common/types';
 import { groupsMapping } from '../groups/mapping';
-import { collectionInfos } from '../db';
+import { profileDerived } from '../db/pg/queries';
 
 const membersExportStatsRelations: Relation[] = [
   {
     alias: 'reactionsCount',
-    edgeCollection: collectionInfos.reactionsCollection.name,
+    edgeCollection: 'reactions',
     direction: 'OUTBOUND',
     count: true,
     cardinality: 'one',
@@ -90,11 +90,7 @@ export const profilesMapping = map<ProfileData, ProfileWithMeta>({
   postFilterDerivedProperties: [
     {
       alias: 'profileStats',
-      expression: `
-            {
-                followersCount: LENGTH(DOC.followers),
-                followingCount: LENGTH(DOC.following),
-            }`,
+      resolve: profileDerived.profileStats,
     },
   ],
 });
@@ -103,33 +99,11 @@ export const membersExportMapping = baseProfilesMapping
   .addRelations(membersExportStatsRelations)
   .addDerivedProperty({
     alias: 'postsCount',
-    expression: `
-            LENGTH(
-                FOR post IN ${collectionInfos.postsCollection.name}
-                    FILTER post.creatorId == DOC._key
-                    FILTER post.deletedAt == null
-                    RETURN 1
-            )`,
+    resolve: profileDerived.postsCount,
   })
   .addDerivedProperty({
     alias: 'lastSeen',
-    expression: `
-            MAX(
-                APPEND(
-                    (
-                        FOR edge IN ${collectionInfos.entriesCollection.name}
-                            FILTER edge._from == DOC._id
-                            FILTER edge.createdAt != null
-                            RETURN edge.createdAt
-                    ),
-                    (
-                        FOR edge IN ${collectionInfos.postSeenCollection.name}
-                            FILTER edge._from == DOC._id
-                            FILTER edge.createdAt != null
-                            RETURN edge.createdAt
-                    )
-                )
-            )`,
+    resolve: profileDerived.lastSeen,
   });
 
 export const membersRelation: RelationWithMapping<
@@ -147,7 +121,7 @@ export const membersRelation: RelationWithMapping<
 export const profileRoleRelation: RelationWithMapping<Profile> = {
   alias: 'profiles',
   direction: 'INBOUND',
-  edgeCollection: collectionInfos.hasRoleCollection.name,
+  edgeCollection: 'hasRole',
   mapping: baseProfilesMapping.data(),
   cardinality: 'many',
   skipEdge: true,

@@ -1,4 +1,4 @@
-import type { OMFilter } from '../../db/pg/map/queryTypes';
+import type { PgFilter } from '../../db/pg/map/queryTypes';
 import {
   AuthorizationData,
   PostWithMeta,
@@ -7,26 +7,26 @@ import {
   postWithMetaSchema,
   DbBasePost,
 } from '@openpeeps/common/types';
-import { yesOrMaybeRsvpExpression } from './aql';
+import { combine, eventTimeFilters, postFilters } from '../../db/pg/filters';
 import { checkCapabilities, getPostCapabilities } from '@openpeeps/common/lib';
 import { ObjectFilter } from '../../db/types';
 
 export const ownPostsFilter = (
   profile: ProfileWithMeta,
-): OMFilter<DbBasePost> => ({
+): PgFilter<DbBasePost> => ({
   matches: {
     creatorId: profile.id,
   },
 });
 
 /** Widen the feed query to any group-tagged post; membership is enforced in `myFeedGroupMembershipFilter`. */
-const groupPostVisibilityQueryFilter: OMFilter<DbBasePost> = {
+const groupPostVisibilityQueryFilter: PgFilter<DbBasePost> = {
   matches: { visibility: 'group' },
 };
 
 export const followFilter = (
   profile: ProfileWithMeta,
-): OMFilter<DbBasePost> => ({
+): PgFilter<DbBasePost> => ({
   matches: profile.following.map((f) => ({
     creatorId: f.id,
   })),
@@ -34,7 +34,7 @@ export const followFilter = (
 
 export const myFeedFilter = (
   profile: ProfileWithMeta,
-): OMFilter<DbBasePost> => ({
+): PgFilter<DbBasePost> => ({
   operator: '||',
   predicates: [
     ownPostsFilter(profile),
@@ -52,7 +52,7 @@ export const myFeedGroupMembershipFilter =
 
 export const localFeedFilter = (
   _profile?: ProfileWithMeta,
-): OMFilter<DbBasePost> => ({
+): PgFilter<DbBasePost> => ({
   matches: [{ visibility: 'local' }, { visibility: 'public' }],
 });
 
@@ -66,34 +66,19 @@ export const canReadPost =
     ).success &&
     postWithMetaSchema.safeParse(post).success;
 
-export const upcomingEventsFilter = () => {
-  const now = new Date().toISOString();
-  return `((DOC.data.start > '${now}') || (DOC.data.end && DOC.data.end > '${now}'))`;
-};
+export const upcomingEventsFilter = () => eventTimeFilters.upcoming();
 
-export const currentEventsFilter = () => {
-  const now = new Date().toISOString();
-  return `DOC.data.start <= '${now}' && (!DOC.data.end || DOC.data.end >= '${now}')`;
-};
+export const currentEventsFilter = () => eventTimeFilters.current();
 
-export const pastEventsFilter = () => {
-  const now = new Date().toISOString();
-  return `(DOC.data.end || DOC.data.start) < '${now}'`;
-};
+export const pastEventsFilter = () => eventTimeFilters.past();
 
 export const myEventsFilter = (
   profile: ProfileWithMeta,
-): OMFilter<DbBasePost> => ({
-  operator: '||',
-  predicates: [
-    {
-      matches: {
-        creatorId: profile.id,
-      },
-    },
-    `"${profile.id}" IN DOC.data.jam.moderators || []`,
-    yesOrMaybeRsvpExpression(profile),
-  ],
-});
+): PgFilter<DbBasePost> =>
+  combine.or(
+    postFilters.creatorId(profile.id),
+    postFilters.isJamModerator(profile.id),
+    postFilters.hasYesOrMaybeRsvp(profile.id),
+  );
 
-export const jamFilter = 'DOC.data.jam != null';
+export const jamFilter = postFilters.hasJam();

@@ -13,6 +13,7 @@ import {
   profileRoleRelation,
 } from './mapping';
 import { allpeepDb } from '../db';
+import { profileFilters } from '../db/pg/filters';
 import { rolesMapping } from '../roles/mapping';
 import { findRolesByCapabilities } from '../roles/finders';
 import { expandProfiles, followFinder } from './helpers';
@@ -33,7 +34,9 @@ export const existsProfileByHandle = (handle: string) =>
 
 export const listProfiles = (): Promise<ProfileWithMeta[]> =>
   allpeepDb()
-    .then(({ db }) => baseProfilesMapping.filter(`DOC.type != "guest"`).all(db))
+    .then(({ db }) =>
+      baseProfilesMapping.filter(profileFilters.notGuest()).all(db),
+    )
     .then(expandProfiles);
 
 export const listProfilesByRole = (role: Role): Promise<ProfileWithMeta[]> =>

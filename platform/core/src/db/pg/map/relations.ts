@@ -1,9 +1,17 @@
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import {
+  and,
+  eq,
+  getTableColumns,
+  inArray,
+  sql,
+  type Table,
+} from 'drizzle-orm';
 import type {
   DerivedProperty,
   ForeignKeyRelation,
   MapData,
   OMFilter,
+  PgFilter,
   Relation,
 } from './queryTypes';
 import type { PgDb } from '../client';
@@ -23,12 +31,36 @@ import {
   getTableForCollection,
   rowToDocument,
 } from './registry';
-import { normalizeIsoDatetime } from '../mappers';
-
-const asIsoDatetime = (value: unknown): unknown =>
-  typeof value === 'string' ? normalizeIsoDatetime(value) : value;
 
 type Doc = Record<string, unknown>;
+
+const buildComputedSelect = (
+  mapData: MapData<object, object>,
+  table: ReturnType<typeof asTable>,
+) =>
+  Object.fromEntries(
+    (mapData.computedFields ?? []).map((field) => [
+      field.alias,
+      field.expr({
+        table,
+        collection: mapData.collection,
+        activityWindow: mapData.activityWindow,
+      }),
+    ]),
+  );
+
+const mapRowToDoc = (
+  mapData: MapData<object, object>,
+  row: Record<string, unknown>,
+): Doc => {
+  const doc = rowToDocument(mapData.collection, row);
+  for (const field of mapData.computedFields ?? []) {
+    if (field.alias in row) {
+      doc[field.alias] = row[field.alias];
+    }
+  }
+  return doc;
+};
 
 const vertexCollectionFor = (relation: Relation): string | undefined => {
   const edgeName =
@@ -78,7 +110,7 @@ const hydrateDocuments = async (
   collection: string,
   mapData: MapData<object, object>,
   rows: Doc[],
-  postFilters?: OMFilter<Record<string, unknown>>[],
+  postFilters?: PgFilter<Record<string, unknown>>[],
 ): Promise<Doc[]> => {
   let docs = rows;
   for (const relation of mapData.relations ?? []) {
@@ -122,7 +154,7 @@ export const hydrateMapData = async (
   db: PgDb,
   mapData: MapData<object, object>,
   rows: Doc[],
-  postFilters?: OMFilter<Record<string, unknown>>[],
+  postFilters?: PgFilter<Record<string, unknown>>[],
 ): Promise<Doc[]> =>
   hydrateDocuments(db, mapData.collection, mapData, rows, postFilters);
 
@@ -348,20 +380,23 @@ export const executeFind = async (
   ignoreSoftDelete = false,
 ): Promise<Doc | undefined> => {
   if (!id) return undefined;
-  const table = asTable(getTableForCollection(collection));
+  const tableRef = getTableForCollection(collection);
+  const table = asTable(tableRef);
+  const columns = getTableColumns(tableRef as Table);
+  const computedSelect = buildComputedSelect(mapData, table);
   const conditions = [eq(table.id as never, id)];
   if (!ignoreSoftDelete && mapData.softDelete !== false && table.deletedAt) {
     conditions.push(sql`${table.deletedAt} IS NULL`);
   }
   const rows = await db
-    .select()
-    .from(getTableForCollection(collection) as never)
+    .select({ ...columns, ...computedSelect })
+    .from(tableRef as never)
     .where(and(...conditions))
     .limit(1);
   const row = rows[0];
   if (!row) return undefined;
   const hydrated = await hydrateMapData(db, mapData, [
-    rowToDocument(collection, row as Record<string, unknown>),
+    mapRowToDoc(mapData, row as Record<string, unknown>),
   ]);
   return hydrated[0];
 };
@@ -370,7 +405,8 @@ export const executeAll = async (
   db: PgDb,
   mapData: MapData<object, object>,
 ): Promise<Doc[]> => {
-  const table = getTableForCollection(mapData.collection);
+  const tableRef = getTableForCollection(mapData.collection);
+  const table = asTable(tableRef);
   const { sqlWhere, postFilters } = partitionFilters(
     mapData.collection,
     table,
@@ -378,13 +414,21 @@ export const executeAll = async (
     mapData.defaultFilter,
     mapData.softDelete,
   );
-  const orderBy = sortToSqlOrderBy(mapData.collection, table, mapData.sort);
+  const orderBy = sortToSqlOrderBy(
+    mapData.collection,
+    table,
+    mapData.sort,
+    mapData.activityWindow,
+  );
   const canSqlPaginate =
     postFilters.length === 0 && (!mapData.sort?.length || !!orderBy);
 
+  const columns = getTableColumns(tableRef as Table);
+  const computedSelect = buildComputedSelect(mapData, table);
+
   let query = db
-    .select()
-    .from(table as never)
+    .select({ ...columns, ...computedSelect })
+    .from(tableRef as never)
     .$dynamic();
   if (sqlWhere) query = query.where(sqlWhere);
   if (canSqlPaginate && orderBy) query = query.orderBy(...orderBy);
@@ -394,7 +438,7 @@ export const executeAll = async (
 
   const rows = await query;
   let docs = rows.map((row) =>
-    rowToDocument(mapData.collection, row as Record<string, unknown>),
+    mapRowToDoc(mapData, row as Record<string, unknown>),
   );
   docs = await hydrateMapData(db, mapData, docs, postFilters);
 
@@ -486,121 +530,11 @@ export const relationsFrom = async (
   );
 };
 
-const getPath = (obj: Record<string, unknown>, path: string): unknown => {
-  const parts = path.replace(/\[['"]?(\w+)['"]?\]/g, '.$1').split('.');
-  let current: unknown = obj;
-  for (const part of parts) {
-    if (current == null || typeof current !== 'object') return undefined;
-    current = (current as Record<string, unknown>)[part];
-  }
-  return current;
-};
-
-const substituteDerivedExpression = (
-  doc: Record<string, unknown>,
-  expression: string,
-): string => {
-  let result = expression.trim();
-  result = result.replace(
-    /LENGTH\(\s*DOC\.(\w+)\s*\)/g,
-    (_, prop) => `${Array.isArray(doc[prop]) ? doc[prop].length : 0}`,
-  );
-  result = result.replace(/DOC\.([a-zA-Z0-9_.]+)/g, (_, path) => {
-    const value = getPath(doc, path);
-    return JSON.stringify(value ?? null);
-  });
-  return result;
-};
-
 export const evaluateDerived = async (
   db: PgDb,
   doc: Doc,
   derived: DerivedProperty,
-): Promise<unknown> => {
-  const expression = derived.expression.trim();
-
-  if (expression.includes('FOR edge IN postSeen')) {
-    const fromMatch = expression.match(/profiles\/([^"]+)/);
-    const profileId = fromMatch?.[1];
-    if (profileId) {
-      const edgeTableRef = getEdgeTable('postSeen');
-      const edgeTable = asTable(edgeTableRef);
-      const rows = await db
-        .select()
-        .from(edgeTableRef as never)
-        .where(
-          and(
-            eq(edgeTable.fromId as never, profileId),
-            eq(edgeTable.toId as never, doc.id as string),
-          ),
-        )
-        .limit(1);
-      return rows.length > 0;
-    }
-    return false;
-  }
-
-  if (expression.includes('FOR post IN posts')) {
-    const postsTableRef = getTableForCollection('posts');
-    const postsTable = asTable(postsTableRef);
-    const rows = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(postsTableRef as never)
-      .where(
-        and(
-          eq(postsTable.creatorId as never, doc.id as string),
-          sql`${postsTable.deletedAt} IS NULL`,
-        ),
-      );
-    return (rows[0] as { count?: number } | undefined)?.count ?? 0;
-  }
-
-  if (expression.includes('FOR edge IN entries')) {
-    const edgeTableRef = getEdgeTable('entries');
-    const edgeTable = asTable(edgeTableRef);
-    const rows = await db
-      .select({ max: sql<string>`max(${edgeTable.createdAt})` })
-      .from(edgeTableRef as never)
-      .where(eq(edgeTable.fromId as never, doc.id as string));
-    return asIsoDatetime(
-      (rows[0] as { max?: string | null } | undefined)?.max ?? null,
-    );
-  }
-
-  if (expression.includes('FOR edge IN postGroups')) {
-    const edgeTableRef = getEdgeTable('postGroups');
-    const edgeTable = asTable(edgeTableRef);
-    const rows = await db
-      .select()
-      .from(edgeTableRef as never)
-      .where(eq(edgeTable.toId as never, doc.id as string))
-      .orderBy(sql`${edgeTable.createdAt} DESC`)
-      .limit(1);
-    return asIsoDatetime(
-      (rows[0] as Record<string, unknown> | undefined)?.createdAt ?? null,
-    );
-  }
-
-  if (expression.startsWith('{')) {
-    try {
-      const substituted = substituteDerivedExpression(doc, expression);
-      return new Function(`return ${substituted};`)();
-    } catch {
-      return undefined;
-    }
-  }
-
-  if (expression.startsWith('DOC.')) {
-    return getPath(doc, expression.slice(4));
-  }
-
-  try {
-    const substituted = substituteDerivedExpression(doc, expression);
-    return new Function(`return ${substituted};`)();
-  } catch {
-    return undefined;
-  }
-};
+): Promise<unknown> => derived.resolve(db, doc);
 
 export const deleteRelationsFor = async (
   db: PgDb,

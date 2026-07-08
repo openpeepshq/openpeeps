@@ -2,15 +2,16 @@ import type { PgDb } from '../db/pg/client';
 import { sub } from 'date-fns';
 import { allpeepDb } from '../db';
 import { ObjectStats, ObjectStatsWithAll } from '@openpeeps/common/types';
+import { createdAtBetween } from '../db/pg/filters';
+import type { SqlFilter } from '../db/pg/filters/types';
 
-export const creationDateFilter = (start?: Date, end?: Date) =>
-  start && end
-    ? `(DATE_TIMESTAMP(DOC.createdAt) >= ${start.getTime()} && DATE_TIMESTAMP(DOC.createdAt) < ${end.getTime()})`
-    : start
-      ? `(DATE_TIMESTAMP(DOC.createdAt) >= ${start.getTime()})`
-      : end
-        ? `(DATE_TIMESTAMP(DOC.createdAt) < ${end.getTime()})`
-        : undefined;
+type TimestampTable = { createdAt: unknown };
+
+export const createdAtFilter = (
+  table: TimestampTable,
+  start?: Date,
+  end?: Date,
+): SqlFilter | undefined => createdAtBetween(table, start, end);
 
 export const pastStats = async (
   fn: (db: PgDb, start?: Date, end?: Date) => Promise<number>,

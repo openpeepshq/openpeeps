@@ -1,8 +1,8 @@
-import type { MapData, OMFilter } from './queryTypes';
+import type { MapData, PgFilter } from './queryTypes';
 
-export const addFilter = <O extends object, F>(
+export const addFilter = <O extends object, F extends object>(
   mapData: MapData<O, F>,
-  filter?: OMFilter<F>,
+  filter?: PgFilter<F>,
 ): MapData<O, F> =>
   filter
     ? {

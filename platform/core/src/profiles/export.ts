@@ -8,10 +8,11 @@ import {
   toCsvRow,
 } from '@openpeeps/common/lib';
 import { allpeepDb } from '../db';
+import { profileFilters } from '../db/pg/filters';
 import { baseProfilesMapping, membersExportMapping } from './mapping';
 import { expandProfiles } from './helpers';
 
-const guestFilter = `DOC.type != "guest"`;
+const guestFilter = profileFilters.notGuest();
 
 type MemberExportStatsQueryRow = Profile &
   MemberExportStats & {

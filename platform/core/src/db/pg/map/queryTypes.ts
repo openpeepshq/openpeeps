@@ -1,4 +1,9 @@
 import type { PgDb } from '../client';
+import type { SqlFilter } from '../filters/types';
+import type { SQL } from 'drizzle-orm';
+import type { PgTable } from './registry';
+
+export type { SqlFilter };
 
 export type SortDirection = 'ASC' | 'DESC' | undefined;
 
@@ -6,22 +11,44 @@ export type Limit = number | [number, number];
 
 export type ObjectSort = [string, SortDirection][];
 
-export type OMFilterList<O> = {
+export type OMFilterList<O extends object> = {
   operator: '&&' | '||';
-  predicates: OMFilter<O>[];
+  predicates: PgFilter<O>[];
 };
 
-export type OMMatcher<O> = {
+export type OMMatcher<O extends object> = {
   matches: Partial<O> | Partial<O>[];
 };
 
-export type OMFilter<O> = string | OMMatcher<O> | OMFilterList<O>;
+export type OMFilter<O extends object> =
+  | string
+  | OMMatcher<O>
+  | OMFilterList<O>;
+
+export type PgFilter<O extends object = Record<string, unknown>> =
+  | OMFilter<O>
+  | SqlFilter;
 
 export type WithId<T extends object> = T & { id: string };
 
+export type ActivityWindow = { start?: Date; end?: Date };
+
+export type ComputedFieldContext = {
+  table: PgTable;
+  collection: string;
+  activityWindow?: ActivityWindow;
+};
+
+export type ComputedField = {
+  alias: string;
+  expr: (ctx: ComputedFieldContext) => SQL;
+};
+
+export type DerivedDoc = Record<string, unknown>;
+
 export interface DerivedProperty {
   alias: string;
-  expression: string;
+  resolve: (db: PgDb, doc: DerivedDoc) => Promise<unknown> | unknown;
 }
 
 export type TraversalDirection = 'INBOUND' | 'OUTBOUND' | 'ANY';
@@ -31,7 +58,7 @@ export interface Relation<O extends object = object, E extends object = O> {
   edgeCollection: string | { name: string };
   direction: TraversalDirection;
   maxDepth?: number;
-  edgeFilter?: OMFilter<E>;
+  edgeFilter?: PgFilter<E>;
   vertexAlias?: string;
   skipEdge?: boolean;
   cardinality: 'one' | 'many';
@@ -51,16 +78,18 @@ export type RelationWithMapping<
   E extends object = O,
 > = Relation<O, E> & { mapping: MapData<O> };
 
-export interface MapData<O, F = O> {
+export interface MapData<O extends object, F extends object = O> {
   collection: string;
   relations?: Relation[];
   foreignKeyRelations?: ForeignKeyRelation[];
   derivedProperties?: DerivedProperty[];
+  computedFields?: ComputedField[];
+  activityWindow?: ActivityWindow;
   postFilterRelations?: Relation[];
   postFilterForeignKeyRelations?: ForeignKeyRelation[];
   postFilterDerivedProperties?: DerivedProperty[];
-  defaultFilter?: OMFilter<F>;
-  filters?: OMFilter<F>[];
+  defaultFilter?: PgFilter<F>;
+  filters?: PgFilter<F>[];
   sort?: ObjectSort;
   limit?: Limit;
   keepMetadata?: boolean;
