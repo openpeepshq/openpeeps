@@ -1308,7 +1308,7 @@
             "iconRequirements": "Submit an image (PNG, JPG, SVG, ICO…), at least 70x70. Your image should be 260x260 or more for optimal results.",
             "currentLogo": "Current logo",
             "uploadLogo": "Browse and upload a logo",
-            "logoRequirements": "Submit an image (PNG, JPG, SVG, ICO…) with an aspect ratio of 16:9.",
+            "logoRequirements": "Submit an image (PNG, JPG, SVG, ICO…) with an aspect ratio of 4x1.",
             "logoFullRequirements": "Submit an image (PNG, JPG, SVG, ICO…).",
             "theme": {
                 "title": "Theme",
@@ -1940,7 +1940,8 @@
         },
         "headerAvatarInput": {
             "coverImage": "Cover Image",
-            "avatar": "Profile photo"
+            "avatar": "Profile photo",
+            "coverImageDescription": "Use an image that's at least 670px by 210px. You will have a chance to crop after uploading."
         },
         "imageInput": {
             "maxSize": "Max size: {{size}}",
@@ -2459,7 +2460,7 @@
     },
     "infos": {
         "emailNotVerified": {
-            "verify": "Send Verification Link",
+            "verify": "Resend Email",
             "title": "Your email is not verified",
             "text": "Click on the link in the email we sent you to verify your email and fully participate in the community."
         }
