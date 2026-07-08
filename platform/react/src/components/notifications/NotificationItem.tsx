@@ -1,4 +1,5 @@
 import type { PublicNotification } from '@openpeeps/common/types';
+import { NotificationErrorBoundary } from './NotificationErrorBoundary';
 import { TypedNotification } from './TypedNotification';
 
 export interface NotificationItemProps {
@@ -6,5 +7,9 @@ export interface NotificationItemProps {
 }
 
 export function NotificationItem({ notification }: NotificationItemProps) {
-  return <TypedNotification notification={notification} />;
+  return (
+    <NotificationErrorBoundary notificationId={notification.id}>
+      <TypedNotification notification={notification} />
+    </NotificationErrorBoundary>
+  );
 }

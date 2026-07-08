@@ -446,8 +446,13 @@ function NewGroupPostNotification({
 }) {
   const t = useT();
   const profile = notification.senderProfile!;
-  const post = notification.post!;
-  const group = post.group!;
+  const post = notification.post;
+  const group = (notification.group ?? post?.group) as
+    | GroupWithMeta
+    | undefined;
+  if (!post || !group) {
+    return <GenericNotification notification={notification} />;
+  }
   return (
     <NotificationWrapper
       profile={profile}
