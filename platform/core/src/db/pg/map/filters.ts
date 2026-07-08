@@ -132,7 +132,7 @@ export const evaluateFilter = (
 
 const bodyColumn = (table: Record<string, unknown>) => table.body as SQL;
 
-const postsReplyCountSql = (_table: PgTable): SQL => postReplyCountExpr();
+const postsReplyCountSql = (table: PgTable): SQL => postReplyCountExpr(table);
 
 const docFieldSql = (
   collection: string,
@@ -635,22 +635,22 @@ export const sortToSqlOrderBy = (
 
     if (path === 'activityScore') {
       if (collection === 'profiles') {
-        orderBy.push(dir(profileActivityScoreExpr(activityWindow)));
+        orderBy.push(dir(profileActivityScoreExpr(table, activityWindow)));
         continue;
       }
       if (collection === 'posts') {
-        orderBy.push(dir(postActivityScoreExpr()));
+        orderBy.push(dir(postActivityScoreExpr(table)));
         continue;
       }
     }
 
     if (path === 'replyCount' && collection === 'posts') {
-      orderBy.push(dir(postReplyCountExpr()));
+      orderBy.push(dir(postReplyCountExpr(table)));
       continue;
     }
 
     if (path === 'lastPostAt' && collection === 'groups') {
-      orderBy.push(dir(groupLastPostAtExpr()));
+      orderBy.push(dir(groupLastPostAtExpr(table)));
       continue;
     }
 

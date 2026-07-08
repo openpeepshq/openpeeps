@@ -1,5 +1,5 @@
-import { and, gte, lt, sql, type SQL } from 'drizzle-orm';
-import { posts, profiles, groups } from '../schema/documents';
+import { and, gte, lt, sql, getTableName, type SQL, type Table } from 'drizzle-orm';
+import { posts } from '../schema/documents';
 import {
   entries,
   follows,
@@ -9,12 +9,21 @@ import {
   replyTo,
 } from '../schema/edges';
 import type { ActivityWindow } from '../map/queryTypes';
+import type { PgTable } from '../map/registry';
+
+const outerIdText = (table: PgTable): SQL => {
+  const tableName = getTableName(table as Table);
+  return sql.raw(`"${tableName}"."id"::text`);
+};
 
 const edgeOutboundCount = (
   edgeTable: typeof entries,
+  outerTable: PgTable,
   window?: ActivityWindow,
 ): SQL => {
-  const conditions: SQL[] = [sql`${edgeTable.fromId} = ${profiles.id}`];
+  const conditions: SQL[] = [
+    sql`${edgeTable.fromId} = ${outerIdText(outerTable)}`,
+  ];
   if (window?.start) {
     conditions.push(gte(edgeTable.createdAt, window.start.toISOString()));
   }
@@ -24,14 +33,21 @@ const edgeOutboundCount = (
   return sql`(SELECT count(*)::int FROM ${edgeTable} WHERE ${and(...conditions)})`;
 };
 
-export const profileActivityScoreExpr = (window?: ActivityWindow): SQL =>
-  sql`COALESCE(${edgeOutboundCount(entries, window)}, 0) + COALESCE(${edgeOutboundCount(reactions, window)}, 0) + COALESCE(${edgeOutboundCount(follows, window)}, 0)`;
+export const profileActivityScoreExpr = (
+  outerTable: PgTable,
+  window?: ActivityWindow,
+): SQL =>
+  sql`COALESCE(${edgeOutboundCount(entries, outerTable, window)}, 0) + COALESCE(${edgeOutboundCount(reactions, outerTable, window)}, 0) + COALESCE(${edgeOutboundCount(follows, outerTable, window)}, 0)`;
 
-export const postActivityScoreExpr = (): SQL =>
-  sql`(SELECT count(*)::int FROM ${reactions} WHERE ${reactions.toId} = ${posts.id}) + (SELECT count(*)::int FROM ${entries} WHERE ${entries.toId} = ${posts.id}) + (SELECT count(*)::int FROM ${replyTo} rt INNER JOIN ${posts} p ON p.id = rt.from_id WHERE rt.to_id = ${posts.id} AND p.deleted_at IS NULL) + (SELECT count(*)::int FROM ${repost} WHERE ${repost.toId} = ${posts.id})`;
+export const postActivityScoreExpr = (outerTable: PgTable): SQL => {
+  const postId = outerIdText(outerTable);
+  return sql`(SELECT count(*)::int FROM ${reactions} WHERE ${reactions.toId} = ${postId}) + (SELECT count(*)::int FROM ${entries} WHERE ${entries.toId} = ${postId}) + (SELECT count(*)::int FROM ${replyTo} rt INNER JOIN ${posts} p ON p.id::text = rt.from_id WHERE rt.to_id = ${postId} AND p.deleted_at IS NULL) + (SELECT count(*)::int FROM ${repost} WHERE ${repost.toId} = ${postId})`;
+};
 
-export const postReplyCountExpr = (): SQL =>
-  sql`(SELECT count(*)::int FROM ${replyTo} rt INNER JOIN ${posts} p ON p.id = rt.from_id WHERE rt.to_id = ${posts.id} AND p.deleted_at IS NULL)`;
+export const postReplyCountExpr = (outerTable: PgTable): SQL => {
+  const postId = outerIdText(outerTable);
+  return sql`(SELECT count(*)::int FROM ${replyTo} rt INNER JOIN ${posts} p ON p.id::text = rt.from_id WHERE rt.to_id = ${postId} AND p.deleted_at IS NULL)`;
+};
 
-export const groupLastPostAtExpr = (): SQL =>
-  sql`(SELECT max(${postGroups.createdAt}) FROM ${postGroups} WHERE ${postGroups.toId} = ${groups.id})`;
+export const groupLastPostAtExpr = (outerTable: PgTable): SQL =>
+  sql`(SELECT max(${postGroups.createdAt}) FROM ${postGroups} WHERE ${postGroups.toId} = ${outerIdText(outerTable)})`;

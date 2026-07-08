@@ -9,5 +9,5 @@ export const profileFilters = {
   type: (type: string): SqlFilter => pgSql(eq(profiles.type, type)),
 
   activityScorePositive: (start?: Date, end?: Date): SqlFilter =>
-    pgSql(gt(profileActivityScoreExpr({ start, end }), 0)),
+    pgSql(gt(profileActivityScoreExpr(profiles, { start, end }), 0)),
 };

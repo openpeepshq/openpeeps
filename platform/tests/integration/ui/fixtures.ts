@@ -2,7 +2,7 @@ import { expect, type APIRequestContext, type Page } from '@playwright/test';
 import { testIds } from '../testIds';
 
 /** Matches `@openpeeps/react` `AUTH_CREDENTIALS_STORAGE_KEY`. */
-const credentialsStorageKey = 'auth_credentials';
+export const credentialsStorageKey = 'auth_credentials';
 const password = 'ui-test-password';
 
 type Role = {
@@ -72,7 +72,7 @@ const register = async (
   });
 
   if (!response.ok()) {
-    for (let attempt = 0; attempt < 20; attempt += 1) {
+    for (let attempt = 0; attempt < 40; attempt += 1) {
       const credentials = await login(request, user.email, user.password ?? password);
       if (credentials) return credentials;
       await wait(250);
@@ -123,7 +123,10 @@ export const signInAsUiUser = async (
   let profile = uiOwner?.profile;
 
   if (!token || !profile) {
-    token = (await register(request, ownerUser)).token;
+    const credentials =
+      (await login(request, ownerUser.email, ownerUser.password)) ??
+      (await register(request, ownerUser));
+    token = credentials.token;
     profile = await currentProfile(request, token);
 
     if (can(profile, 'core-groups-create')) {

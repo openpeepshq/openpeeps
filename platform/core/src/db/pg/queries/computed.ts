@@ -1,4 +1,3 @@
-import type { SQL } from 'drizzle-orm';
 import type { ActivityWindow, ComputedField } from '../map/queryTypes';
 import {
   groupLastPostAtExpr,
@@ -9,16 +8,16 @@ import {
 export const computedFields = {
   profileActivityScore: (window?: ActivityWindow): ComputedField => ({
     alias: 'activityScore',
-    expr: () => profileActivityScoreExpr(window),
+    expr: ({ table }) => profileActivityScoreExpr(table, window),
   }),
 
   postActivityScore: (): ComputedField => ({
     alias: 'activityScore',
-    expr: () => postActivityScoreExpr(),
+    expr: ({ table }) => postActivityScoreExpr(table),
   }),
 
   groupLastPostAt: (): ComputedField => ({
     alias: 'lastPostAt',
-    expr: (): SQL => groupLastPostAtExpr(),
+    expr: ({ table }) => groupLastPostAtExpr(table),
   }),
 };

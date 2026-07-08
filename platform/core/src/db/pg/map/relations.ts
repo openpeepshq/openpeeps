@@ -36,13 +36,13 @@ type Doc = Record<string, unknown>;
 
 const buildComputedSelect = (
   mapData: MapData<object, object>,
-  table: ReturnType<typeof asTable>,
+  tableRef: ReturnType<typeof getTableForCollection>,
 ) =>
   Object.fromEntries(
     (mapData.computedFields ?? []).map((field) => [
       field.alias,
       field.expr({
-        table,
+        table: tableRef,
         collection: mapData.collection,
         activityWindow: mapData.activityWindow,
       }),
@@ -383,7 +383,7 @@ export const executeFind = async (
   const tableRef = getTableForCollection(collection);
   const table = asTable(tableRef);
   const columns = getTableColumns(tableRef as Table);
-  const computedSelect = buildComputedSelect(mapData, table);
+  const computedSelect = buildComputedSelect(mapData, tableRef);
   const conditions = [eq(table.id as never, id)];
   if (!ignoreSoftDelete && mapData.softDelete !== false && table.deletedAt) {
     conditions.push(sql`${table.deletedAt} IS NULL`);
@@ -416,7 +416,7 @@ export const executeAll = async (
   );
   const orderBy = sortToSqlOrderBy(
     mapData.collection,
-    table,
+    tableRef,
     mapData.sort,
     mapData.activityWindow,
   );
@@ -424,7 +424,7 @@ export const executeAll = async (
     postFilters.length === 0 && (!mapData.sort?.length || !!orderBy);
 
   const columns = getTableColumns(tableRef as Table);
-  const computedSelect = buildComputedSelect(mapData, table);
+  const computedSelect = buildComputedSelect(mapData, tableRef);
 
   let query = db
     .select({ ...columns, ...computedSelect })
