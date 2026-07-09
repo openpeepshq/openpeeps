@@ -26,6 +26,30 @@ import {
 
 const log = logger('core:db:import');
 
+const rowDedupeKey = (row: Record<string, unknown>): string | undefined => {
+  const key = row.id ?? row.key;
+  return typeof key === 'string' ? key : undefined;
+};
+
+/** Arango exports can contain duplicate _key lines; keep the last row per id. */
+export const dedupeRowsById = <T extends Record<string, unknown>>(
+  rows: T[],
+): T[] => {
+  const byKey = new Map<string, T>();
+  const withoutKey: T[] = [];
+
+  for (const row of rows) {
+    const key = rowDedupeKey(row);
+    if (key) {
+      byKey.set(key, row);
+    } else {
+      withoutKey.push(row);
+    }
+  }
+
+  return [...byKey.values(), ...withoutKey];
+};
+
 export const collectionJsonlPath = (
   collectionsDir: string,
   collection: string,
@@ -97,24 +121,33 @@ export const importArangoCollection = async (
 
   const table = getTableForCollection(collection);
   const db = pgDb();
+  const mapped = docs
+    .map((doc) =>
+      isEdgeCollection(collection)
+        ? arangoDocToEdgeRow(collection, doc)
+        : arangoDocToDocumentRow(collection, doc, context),
+    )
+    .filter((row) => documentRowIsImportable(collection, row));
+  const rows = dedupeRowsById(mapped);
+
+  if (rows.length < mapped.length) {
+    log.warn(
+      'Dropped %d duplicate row(s) while importing %s',
+      mapped.length - rows.length,
+      collection,
+    );
+  }
+
+  if (rows.length === 0) {
+    return 0;
+  }
+
   let imported = 0;
 
-  for (let offset = 0; offset < docs.length; offset += BATCH_SIZE) {
-    const batch = docs.slice(offset, offset + BATCH_SIZE);
-    const rows = batch
-      .map((doc) =>
-        isEdgeCollection(collection)
-          ? arangoDocToEdgeRow(collection, doc)
-          : arangoDocToDocumentRow(collection, doc, context),
-      )
-      .filter((row) => documentRowIsImportable(collection, row));
-
-    if (rows.length === 0) {
-      continue;
-    }
-
-    await db.insert(table as never).values(rows as never);
-    imported += rows.length;
+  for (let offset = 0; offset < rows.length; offset += BATCH_SIZE) {
+    const batch = rows.slice(offset, offset + BATCH_SIZE);
+    await db.insert(table as never).values(batch as never);
+    imported += batch.length;
   }
 
   log.info('Imported %d rows into %s from Arango JSONL', imported, collection);
@@ -137,9 +170,18 @@ export const importPostgresRowCollection = async (
     return 0;
   }
 
-  const rows = await readJsonl(filePath);
-  if (rows.length === 0) {
+  const mapped = await readJsonl(filePath);
+  if (mapped.length === 0) {
     return 0;
+  }
+
+  const rows = dedupeRowsById(mapped);
+  if (rows.length < mapped.length) {
+    log.warn(
+      'Dropped %d duplicate row(s) while importing %s',
+      mapped.length - rows.length,
+      collection,
+    );
   }
 
   const table = getTableForCollection(collection);

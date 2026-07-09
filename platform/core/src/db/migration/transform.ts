@@ -181,6 +181,13 @@ export const arangoDocToDocumentRow = (
     scalars.profileId = id;
   }
 
+  if (collection === 'notifications' && scalars.profileId === undefined) {
+    const actorId = model.actorId ?? model.profileId;
+    if (typeof actorId === 'string') {
+      scalars.profileId = actorId;
+    }
+  }
+
   return {
     id,
     ...scalars,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { arangoDocToDocumentRow, arangoDocToEdgeRow } from './transform';
+import { dedupeRowsById } from './importCollections';
 import {
   resolveBackupDatabaseType,
   type BackupMetadata,
@@ -180,5 +181,36 @@ describe('arango backup document transform', () => {
       id: '019637a0-1200-7000-8000-resource-type-legacy',
       appliedAt: '2026-05-22T16:10:06.575Z',
     });
+  });
+
+  it('maps legacy notification actorId to profileId', () => {
+    const recipientId = '01980bb2-2e56-7d31-8ee2-d002ed67fcb2';
+    const row = arangoDocToDocumentRow('notifications', {
+      _key: '019dda39-9d97-7da7-aaf6-de174e170688',
+      actorId: recipientId,
+      type: 'jamStarted',
+      fromProfileId: '018e61da-b213-7e1c-8093-daec21e8e324',
+      postId: '019bb222-8109-7087-97ed-244754f53076',
+      emailHandled: true,
+      pushHandled: true,
+      createdAt: '2026-04-29T17:11:42.232Z',
+      updatedAt: '2026-04-29T17:11:42.232Z',
+    });
+
+    expect(row.profileId).toBe(recipientId);
+  });
+});
+
+describe('import row deduplication', () => {
+  it('keeps the last row per id across batches', () => {
+    const rows = dedupeRowsById([
+      { id: 'a', value: 1 },
+      { id: 'b', value: 1 },
+      { id: 'a', value: 2 },
+    ]);
+
+    expect(rows).toHaveLength(2);
+    expect(rows.find((row) => row.id === 'a')?.value).toBe(2);
+    expect(rows.find((row) => row.id === 'b')?.value).toBe(1);
   });
 });

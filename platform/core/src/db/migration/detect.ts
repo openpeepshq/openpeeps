@@ -4,7 +4,11 @@ import { logger } from '../../log';
 import { pgDb } from '../pg/client';
 import { getTableForCollection } from '../pg/map/registry';
 import { connectArango } from './exportArango';
-import { arangoConfig, DOCUMENT_IMPORT_ORDER } from './shared';
+import {
+  arangoConfig,
+  DOCUMENT_IMPORT_ORDER,
+  EDGE_IMPORT_ORDER,
+} from './shared';
 
 const log = logger('core:migration:detect');
 
@@ -21,7 +25,10 @@ export const tableCount = async (collection: string): Promise<number> => {
 };
 
 export const isPostgresEmpty = async (): Promise<boolean> => {
-  for (const collection of DOCUMENT_IMPORT_ORDER) {
+  for (const collection of [
+    ...DOCUMENT_IMPORT_ORDER,
+    ...EDGE_IMPORT_ORDER,
+  ] as const) {
     if ((await tableCount(collection)) > 0) {
       return false;
     }
