@@ -41,7 +41,7 @@ export function GroupHeader({ group }: GroupHeaderProps) {
           <JoinGroupButton group={group} />
         </div>
       ) : (
-        <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
+          <div className="flex justify-end space-x-2 p-2">
           <GroupShareMenu group={group} />
           <GroupOptionsMenu group={group} />
         </div>
