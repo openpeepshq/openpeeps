@@ -15,6 +15,13 @@
       "when": 1782056276190,
       "tag": "0001_search_vector",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782142676190,
+      "tag": "0002_data_migrations_id_text",
+      "breakpoints": true
     }
   ]
 }

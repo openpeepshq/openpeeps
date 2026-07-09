@@ -11,7 +11,7 @@ import { sql } from 'drizzle-orm';
 import { idColumn, modelTimestamps, tsvector } from './base';
 
 export const dataMigrations = pgTable('data_migrations', {
-  id: idColumn(),
+  id: text('id').primaryKey(),
   appliedAt: timestamp('applied_at', { withTimezone: true, mode: 'string' })
     .notNull()
     .default(sql`now()`),

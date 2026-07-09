@@ -102,4 +102,16 @@ describe('arango backup document transform', () => {
 
     expect(row.id).toBe(existingId);
   });
+
+  it('preserves legacy Arango data migration keys that are not UUIDs', () => {
+    const row = arangoDocToDocumentRow('dataMigrations', {
+      _key: '019637a0-1200-7000-8000-resource-type-legacy',
+      appliedAt: '2026-05-22T16:10:06.575Z',
+    });
+
+    expect(row).toEqual({
+      id: '019637a0-1200-7000-8000-resource-type-legacy',
+      appliedAt: '2026-05-22T16:10:06.575Z',
+    });
+  });
 });
