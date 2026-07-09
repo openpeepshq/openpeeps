@@ -87,6 +87,17 @@ const hashtagsSplit = (data: Record<string, unknown>) => {
   return withScalars('name')(normalized);
 };
 
+/** Arango jam events use jamId; Postgres column is post_id. */
+const jamEventsSplit = (data: Record<string, unknown>) => {
+  const { postId, jamId, ...rest } = data;
+  const scalars: Record<string, unknown> = {};
+  const resolvedPostId = postId ?? jamId;
+  if (resolvedPostId !== undefined) {
+    scalars.postId = resolvedPostId;
+  }
+  return { scalars, body: { ...rest } };
+};
+
 export const documentRegistry: Record<string, DocumentConfig> = {
   accounts: {
     kind: 'document',
@@ -146,7 +157,7 @@ export const documentRegistry: Record<string, DocumentConfig> = {
   jamEvents: {
     kind: 'document',
     table: documents.jamEvents,
-    splitPatch: withScalars('postId'),
+    splitPatch: jamEventsSplit,
   },
   mediaAttachments: {
     kind: 'document',
@@ -457,7 +468,7 @@ export const rowToDocument = (
       return rowToModel(
         row.id as string,
         {
-          postId: row.postId,
+          jamId: row.postId,
           ...((row.body ?? {}) as Record<string, unknown>),
         },
         timestamps,

@@ -114,7 +114,7 @@ const rowToPatchInput = (
     case 'notifications':
       return { profileId: row.profileId, ...(row.body as object) };
     case 'jamEvents':
-      return { postId: row.postId, ...(row.body as object) };
+      return { jamId: row.postId, ...(row.body as object) };
     case 'processingStats':
       return {
         filetype: row.filetype,

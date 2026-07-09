@@ -54,12 +54,19 @@ export const truncateAllTables = async () => {
   );
 };
 
-const postRowIsImportable = (row: Record<string, unknown>) => {
-  if (row.creatorId) {
-    return true;
+const documentRowIsImportable = (
+  collection: string,
+  row: Record<string, unknown>,
+) => {
+  if (collection === 'posts' && !row.creatorId) {
+    log.warn('Skipping post %s: missing creatorId', row.id);
+    return false;
   }
-  log.warn('Skipping post %s: missing creatorId', row.id);
-  return false;
+  if (collection === 'jamEvents' && !row.postId) {
+    log.warn('Skipping jam event %s: missing postId', row.id);
+    return false;
+  }
+  return true;
 };
 
 export const importArangoCollection = async (
@@ -96,7 +103,7 @@ export const importArangoCollection = async (
           ? arangoDocToEdgeRow(collection, doc)
           : arangoDocToDocumentRow(collection, doc, context),
       )
-      .filter((row) => collection !== 'posts' || postRowIsImportable(row));
+      .filter((row) => documentRowIsImportable(collection, row));
 
     if (rows.length === 0) {
       continue;

@@ -45,7 +45,7 @@ const SCALAR_COLUMNS: Record<string, string[]> = {
   hashtags: ['name'],
   roles: ['key', 'isDefault'],
   notifications: ['profileId'],
-  jamEvents: ['postId', 'type'],
+  jamEvents: ['postId'],
   processingStats: ['filetype', 'filesize'],
   profileSettings: ['profileId'],
   inviteLinks: ['slug'],
@@ -515,6 +515,10 @@ const matchToSql = (
     }
     if (collection === 'hashtags' && key === 'tag') {
       conditions.push(eq(t.name as never, value as never));
+      continue;
+    }
+    if (collection === 'jamEvents' && key === 'jamId') {
+      conditions.push(eq(t.postId as never, value as never));
       continue;
     }
 
