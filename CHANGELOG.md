@@ -3,8 +3,18 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Features
+
+- **auth**: add email validation endpoint and update ValidateEmail component
+
 ### Bug Fixes
 
+- **pwa**: restore community favicons and dynamic manifest
+- **conversations**: update input class for improved focus visibility
+- **group-member-card**: enable navigation to member profile on press
+- **web**: update sidebar navigation to include overview link
+- **input**: update checkbox styling for improved usability
+- **notifications**: guard newGroupPost and isolate render failures
 - **jams**: make record button clearly indicate recording state
 - **i18n**: enhance i18n initialization by creating a new instance and updating the I18nProvider to accept the instance; improve interpolation settings
 
