@@ -103,6 +103,40 @@ describe('arango backup document transform', () => {
     expect(row.id).toBe(existingId);
   });
 
+  it('derives creatorId for legacy posts from entries import context', () => {
+    const postId = '01964459-8893-7cb5-b88d-df3a1badee15';
+    const profileId = '018f1ad9-a891-7518-9c48-3b9003de56b3';
+    const row = arangoDocToDocumentRow(
+      'posts',
+      {
+        _key: postId,
+        type: 'note',
+        visibility: 'local',
+        content: 'Hello',
+        createdAt: '2025-04-17T15:24:00.532Z',
+        updatedAt: '2025-04-17T15:24:00.532Z',
+      },
+      { postCreatorIdByPostId: new Map([[postId, profileId]]) },
+    );
+
+    expect(row.creatorId).toBe(profileId);
+  });
+
+  it('keeps an explicit creatorId on posts when present', () => {
+    const creatorId = '018f1ad9-a891-7518-9c48-3b9003de56b3';
+    const row = arangoDocToDocumentRow('posts', {
+      _key: '01964459-8893-7cb5-b88d-df3a1badee15',
+      type: 'note',
+      visibility: 'local',
+      creatorId,
+      data: { content: 'Hello', type: 'note' },
+      createdAt: '2025-04-17T15:24:00.532Z',
+      updatedAt: '2025-04-17T15:24:00.532Z',
+    });
+
+    expect(row.creatorId).toBe(creatorId);
+  });
+
   it('preserves legacy Arango data migration keys that are not UUIDs', () => {
     const row = arangoDocToDocumentRow('dataMigrations', {
       _key: '019637a0-1200-7000-8000-resource-type-legacy',

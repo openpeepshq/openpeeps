@@ -13,6 +13,8 @@ import {
 import {
   arangoDocToDocumentRow,
   arangoDocToEdgeRow,
+  buildPostCreatorIdByPostId,
+  type ImportContext,
   isEdgeCollection,
 } from './transform';
 import {
@@ -52,9 +54,18 @@ export const truncateAllTables = async () => {
   );
 };
 
+const postRowIsImportable = (row: Record<string, unknown>) => {
+  if (row.creatorId) {
+    return true;
+  }
+  log.warn('Skipping post %s: missing creatorId', row.id);
+  return false;
+};
+
 export const importArangoCollection = async (
   collection: string,
   collectionsDir: string,
+  context: ImportContext = {},
 ): Promise<number> => {
   if (!isKnownCollection(collection)) {
     return 0;
@@ -79,11 +90,17 @@ export const importArangoCollection = async (
 
   for (let offset = 0; offset < docs.length; offset += BATCH_SIZE) {
     const batch = docs.slice(offset, offset + BATCH_SIZE);
-    const rows = batch.map((doc) =>
-      isEdgeCollection(collection)
-        ? arangoDocToEdgeRow(collection, doc)
-        : arangoDocToDocumentRow(collection, doc),
-    );
+    const rows = batch
+      .map((doc) =>
+        isEdgeCollection(collection)
+          ? arangoDocToEdgeRow(collection, doc)
+          : arangoDocToDocumentRow(collection, doc, context),
+      )
+      .filter((row) => collection !== 'posts' || postRowIsImportable(row));
+
+    if (rows.length === 0) {
+      continue;
+    }
 
     await db.insert(table as never).values(rows as never);
     imported += rows.length;
@@ -140,11 +157,15 @@ export const importAllArangoCollections = async (collectionsDir: string) => {
   await truncateAllTables();
 
   const imported: Record<string, number> = {};
+  const context: ImportContext = {
+    postCreatorIdByPostId: await buildPostCreatorIdByPostId(collectionsDir),
+  };
 
   for (const collection of DOCUMENT_IMPORT_ORDER) {
     imported[collection] = await importArangoCollection(
       collection,
       collectionsDir,
+      context,
     );
   }
 
@@ -152,6 +173,7 @@ export const importAllArangoCollections = async (collectionsDir: string) => {
     imported[collection] = await importArangoCollection(
       collection,
       collectionsDir,
+      context,
     );
   }
 

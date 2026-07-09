@@ -1,3 +1,6 @@
+import { access } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { join } from 'node:path';
 import {
   documentRegistry,
   edgeRegistry,
@@ -5,6 +8,7 @@ import {
 } from '../pg/map/registry';
 import { nowIso } from '../pg/mappers';
 import { uuidv7 } from 'uuidv7';
+import { readJsonl } from './shared';
 
 const ARANGO_META = ['_id', '_key', '_rev', '_from', '_to'] as const;
 const UUID_REGEX =
@@ -43,9 +47,55 @@ const timestampsFromModel = (model: Record<string, unknown>) => {
   };
 };
 
+export type ImportContext = {
+  postCreatorIdByPostId?: Map<string, string>;
+};
+
+const entryTypeFromDoc = (doc: Record<string, unknown>) => {
+  if (typeof doc.type === 'string') {
+    return doc.type;
+  }
+  const body = doc.body;
+  if (body && typeof body === 'object' && 'type' in body) {
+    return (body as { type?: unknown }).type;
+  }
+  return undefined;
+};
+
+/** Pre-scan entries edges so legacy posts without creatorId can be imported. */
+export const buildPostCreatorIdByPostId = async (
+  collectionsDir: string,
+): Promise<Map<string, string>> => {
+  const map = new Map<string, string>();
+  const filePath = join(collectionsDir, 'entries.jsonl');
+
+  try {
+    await access(filePath, constants.F_OK);
+  } catch {
+    return map;
+  }
+
+  const docs = await readJsonl(filePath);
+  for (const doc of docs) {
+    const fromRef = parseDocRef(doc._from as string);
+    const toRef = parseDocRef(doc._to as string);
+    if (!fromRef || !toRef || toRef.collection !== 'posts') {
+      continue;
+    }
+
+    const entryType = entryTypeFromDoc(doc);
+    if (entryType === 'create' || !map.has(toRef.id)) {
+      map.set(toRef.id, fromRef.id);
+    }
+  }
+
+  return map;
+};
+
 export const arangoDocToDocumentRow = (
   collection: string,
   doc: Record<string, unknown>,
+  context?: ImportContext,
 ): Record<string, unknown> => {
   const id = (doc._key ?? doc.id) as string;
   const model = arangoDocToModel(doc);
@@ -115,6 +165,17 @@ export const arangoDocToDocumentRow = (
     ...data
   } = model;
   const { scalars, body } = config.splitPatch(data);
+
+  if (
+    collection === 'posts' &&
+    scalars.creatorId === undefined &&
+    context?.postCreatorIdByPostId
+  ) {
+    const creatorId = context.postCreatorIdByPostId.get(id);
+    if (creatorId) {
+      scalars.creatorId = creatorId;
+    }
+  }
 
   return {
     id,
