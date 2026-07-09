@@ -82,7 +82,7 @@ export function AdminConfigurationCommunityFavicons() {
         </p>
       </div>
       <Button
-        variant="variant-ghost-primary"
+        variant="variant-filled-primary"
         className="mt-4 w-full"
         action={handleSubmit}
         title={t('configuration.community.save')}
