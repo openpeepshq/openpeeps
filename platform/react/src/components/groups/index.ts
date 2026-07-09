@@ -16,6 +16,8 @@ export { GroupShareMenu } from './GroupShareMenu';
 export type { GroupShareMenuProps } from './GroupShareMenu';
 export { AddGroupMemberModal } from './AddGroupMemberModal';
 export type { AddGroupMemberModalProps } from './AddGroupMemberModal';
+export { AddGroupMembersButton } from './AddGroupMembersButton';
+export type { AddGroupMembersButtonProps } from './AddGroupMembersButton';
 export { ConfirmGroupExitModal } from './ConfirmGroupExitModal';
 export type { ConfirmGroupExitModalProps } from './ConfirmGroupExitModal';
 export { DeleteGroupModal } from './DeleteGroupModal';

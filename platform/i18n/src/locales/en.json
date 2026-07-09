@@ -666,8 +666,13 @@
         "noGroupsFound": "No groups found",
         "searchPlaceholder": "Search by group name",
         "openGroup": "Open group",
+        "members": {
+            "title": "Members"
+        },
         "form": {
-            "groupName": "Group Name"
+            "groupName": "Group Name",
+            "members": "Members",
+            "membersPlaceholder": "Add members to this group"
         },
         "actions": {
             "editGroup": "Edit group",

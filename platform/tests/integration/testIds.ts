@@ -33,6 +33,7 @@ export const testIds = {
     createSubmit: 'groups-create-submit',
     duplicateHandleError: 'groups-duplicate-handle-error',
     headerTitle: 'groups-header-title',
+    addMembersButton: 'groups-add-members-button',
     tabGroup: 'tab-group',
     tabEvents: 'groups-tab-events',
     tabDescription: 'groups-tab-description',
