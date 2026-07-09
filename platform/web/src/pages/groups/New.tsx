@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { GroupData } from '@openpeeps/common/types';
+import type { GroupData, PublicProfile } from '@openpeeps/common/types';
 import { groupCapabilityTemplates } from '@openpeeps/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { GroupForm, useServerInfo } from '@openpeeps/react/components';
-import { Button, Toast } from '@openpeeps/react-ui';
+import {
+  GroupForm,
+  ProfileSelector,
+  useCurrentProfile,
+  useServerInfo,
+} from '@openpeeps/react/components';
+import { Button, Label, Toast } from '@openpeeps/react-ui';
 
 export function NewGroup() {
   const t = useT();
@@ -12,6 +17,8 @@ export function NewGroup() {
   const { openpeepsApi } = useOpenpeeps();
   const createGroup = openpeepsApi.createGroupAction();
   const { publicContent } = useServerInfo();
+  const me = useCurrentProfile();
+  const [members, setMembers] = useState<PublicProfile[]>([]);
 
   useSetPageHeader(
     t('groups.new.title', { defaultValue: 'Create group' }),
@@ -55,7 +62,10 @@ export function NewGroup() {
     }
     setSubmitting(true);
     try {
-      const group = (await createGroup(data)) as { handle: string };
+      const group = (await createGroup({
+        ...data,
+        members,
+      })) as { handle: string };
       navigate(`/groups/@${group.handle}`);
     } catch (err) {
       setError((err as Error).message);
@@ -67,6 +77,21 @@ export function NewGroup() {
   return (
     <div className="space-y-4 p-4 pb-12">
       <GroupForm groupData={groupData} onChange={setGroupData} />
+
+      <div className="space-y-2 px-1">
+        <Label htmlFor="group-members">
+          {t('groups.form.members', { defaultValue: 'Members' })}
+        </Label>
+        <ProfileSelector
+          selectedProfiles={members}
+          onChange={setMembers}
+          profilesToExclude={me ? [me] : []}
+          placeholder={t('groups.form.membersPlaceholder', {
+            defaultValue: 'Add members to this group',
+          })}
+          containerClassName="px-0"
+        />
+      </div>
 
       {error && (
         <Toast

@@ -1,7 +1,11 @@
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { groupName } from '@openpeeps/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { GroupMembersList } from '@openpeeps/react/components';
+import {
+  AddGroupMembersButton,
+  GroupMembersList,
+} from '@openpeeps/react/components';
 import { routeHandleParam } from '../../lib/routeHandles';
 
 export function GroupMembers() {
@@ -13,11 +17,15 @@ export function GroupMembers() {
   const groupQuery = openpeepsApi.useGroupByHandle(handle);
   const group = groupQuery.data;
 
-  useSetPageHeader(
-    group
-      ? `${groupName(group)} - ${t('groups.members.title', { defaultValue: 'Members' })}`
-      : t('groups.members.title', { defaultValue: 'Members' }),
+  const headerTitle = group
+    ? `${groupName(group)} - ${t('groups.members.title', { defaultValue: 'Members' })}`
+    : t('groups.members.title', { defaultValue: 'Members' });
+  const headerActions = useMemo(
+    () => (group ? <AddGroupMembersButton group={group} /> : undefined),
+    [group],
   );
+
+  useSetPageHeader(headerTitle, headerActions);
 
   if (groupQuery.isLoading) {
     return (
