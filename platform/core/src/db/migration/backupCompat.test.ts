@@ -122,6 +122,20 @@ describe('arango backup document transform', () => {
     expect(row.creatorId).toBe(profileId);
   });
 
+  it('maps legacy profile settings id to profileId', () => {
+    const profileId = '019585f8-213d-7316-b4dd-f450e540c0c6';
+    const row = arangoDocToDocumentRow('profileSettings', {
+      _key: profileId,
+      theme: 'community',
+      createdAt: '2025-12-23T06:36:32.406Z',
+      updatedAt: '2025-12-23T06:36:32.406Z',
+    });
+
+    expect(row.id).toBe(profileId);
+    expect(row.profileId).toBe(profileId);
+    expect(row.body).toEqual({ theme: 'community' });
+  });
+
   it('maps legacy jamId to postId when importing jam events', () => {
     const jamId = '01997695-d91b-77cd-aad7-335215eaf3df';
     const row = arangoDocToDocumentRow('jamEvents', {

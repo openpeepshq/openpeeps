@@ -66,6 +66,10 @@ const documentRowIsImportable = (
     log.warn('Skipping jam event %s: missing postId', row.id);
     return false;
   }
+  if (collection === 'profileSettings' && !row.profileId) {
+    log.warn('Skipping profile settings %s: missing profileId', row.id);
+    return false;
+  }
   return true;
 };
 

@@ -98,6 +98,17 @@ const jamEventsSplit = (data: Record<string, unknown>) => {
   return { scalars, body: { ...rest } };
 };
 
+/** Legacy settings docs use profile id as document id, not profileId. */
+const profileSettingsSplit = (data: Record<string, unknown>) => {
+  const { profileId, id, ...rest } = data;
+  const scalars: Record<string, unknown> = {};
+  const resolvedProfileId = profileId ?? id;
+  if (resolvedProfileId !== undefined) {
+    scalars.profileId = resolvedProfileId;
+  }
+  return { scalars, body: { ...rest } };
+};
+
 export const documentRegistry: Record<string, DocumentConfig> = {
   accounts: {
     kind: 'document',
@@ -172,7 +183,7 @@ export const documentRegistry: Record<string, DocumentConfig> = {
   profileSettings: {
     kind: 'document',
     table: documents.profileSettings,
-    splitPatch: withScalars('profileId'),
+    splitPatch: profileSettingsSplit,
   },
   configs: {
     kind: 'document',
@@ -485,11 +496,8 @@ export const rowToDocument = (
       );
     case 'profileSettings':
       return rowToModel(
-        row.id as string,
-        {
-          profileId: row.profileId,
-          ...((row.body ?? {}) as Record<string, unknown>),
-        },
+        row.profileId as string,
+        (row.body ?? {}) as Record<string, unknown>,
         timestamps,
       );
     case 'inviteLinks':

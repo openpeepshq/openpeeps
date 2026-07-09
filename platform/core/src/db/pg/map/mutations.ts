@@ -122,7 +122,7 @@ const rowToPatchInput = (
         ...(row.body as object),
       };
     case 'profileSettings':
-      return { profileId: row.profileId, ...(row.body as object) };
+      return { id: row.profileId, ...(row.body as object) };
     case 'inviteLinks':
       return { slug: row.slug, ...(row.body as object) };
     case 'accounts':

@@ -177,6 +177,10 @@ export const arangoDocToDocumentRow = (
     }
   }
 
+  if (collection === 'profileSettings' && scalars.profileId === undefined) {
+    scalars.profileId = id;
+  }
+
   return {
     id,
     ...scalars,
