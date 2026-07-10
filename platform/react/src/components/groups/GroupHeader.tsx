@@ -36,17 +36,17 @@ export function GroupHeader({ group }: GroupHeaderProps) {
           containerClassName="absolute -bottom-12 left-4"
         />
       </div>
-      {!isMember ? (
-        <div className="flex justify-end space-x-2 p-2">
+      <div className="flex justify-end space-x-2 p-2">
+        {!isMember ? (
           <JoinGroupButton group={group} />
-        </div>
-      ) : (
-        <div className="absolute right-2 top-2 z-10 flex items-center gap-2">
-          <GroupShareMenu group={group} />
-          <GroupOptionsMenu group={group} />
-        </div>
-      )}
-      <div className="mb-8 p-2 pt-14">
+        ) : (
+          <>
+            <GroupShareMenu group={group} />
+            <GroupOptionsMenu group={group} />
+          </>
+        )}
+      </div>
+      <div className="mb-8 p-2 pt-6">
         <h1 className="text-xl font-semibold" data-testid="groups-header-title">
           {groupName(group)}
         </h1>
