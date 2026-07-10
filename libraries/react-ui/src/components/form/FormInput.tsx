@@ -109,13 +109,16 @@ export function FormInput({
           data-testid={testId}
         />
       ) : type === 'checkbox' ? (
-        <Input
-          disabled={disabled}
-          type="checkbox"
-          checked={checked}
-          onChange={update}
-          data-testid={testId}
-        />
+        <>
+          <Input
+            disabled={disabled}
+            type="checkbox"
+            checked={checked}
+            onChange={update}
+            data-testid={testId}
+          />
+          {children}
+        </>
       ) : type === 'select' ? (
         <select
           disabled={disabled}
