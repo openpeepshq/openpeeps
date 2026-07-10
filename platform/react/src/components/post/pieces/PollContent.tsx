@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { collectVotes, hasValue, type PublicPost } from '@openpeeps/common';
 import { checkPostCapabilities, groupName } from '@openpeeps/common/lib';
 
@@ -37,7 +37,6 @@ export function PollContent({ post }: PollContentProps) {
 
   const [selectedPollOption, setSelectedPollOption] = useState<number>();
   const [selectedPollOptions, setSelectedPollOptions] = useState<number[]>([]);
-  const [submitting, setSubmitting] = useState(false);
 
   if (post.data?.type !== 'question') return null;
 
@@ -90,7 +89,6 @@ export function PollContent({ post }: PollContentProps) {
       );
       return;
     }
-    setSubmitting(true);
     try {
       await votePoll({ selection });
       success(
@@ -98,25 +96,42 @@ export function PollContent({ post }: PollContentProps) {
           defaultValue: 'Your vote was counted.',
         }),
       );
-    } finally {
-      setSubmitting(false);
+    } catch {
+      error(
+        t('posts.vote.error', {
+          defaultValue: 'Could not update your vote. Please try again.',
+        }),
+      );
     }
   };
 
   const handleClearVote = async () => {
-    setSubmitting(true);
     try {
       await votePoll({ selection: [] });
       success(
         t('posts.vote.cleared', { defaultValue: 'Your vote was cleared.' }),
       );
-    } finally {
-      setSubmitting(false);
+    } catch {
+      error(
+        t('posts.vote.error', {
+          defaultValue: 'Could not update your vote. Please try again.',
+        }),
+      );
     }
   };
 
+  const stopFeedNavigation = (e: MouseEvent | KeyboardEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
-    <div className="bg-surface-100 rounded-lg px-4 py-4">
+    <div
+      className="bg-surface-100 rounded-lg px-4 py-4"
+      onClick={stopFeedNavigation}
+      onKeyDown={stopFeedNavigation}
+      role="presentation"
+    >
       <div className="space-y-4">
         {pollData.options.map((option, index) => (
           <div
@@ -185,7 +200,6 @@ export function PollContent({ post }: PollContentProps) {
           className="mt-4"
           title={t('posts.poll.vote', { defaultValue: 'Vote' })}
           action={handleVote}
-          disabled={submitting}
         >
           {t('posts.form.poll.submit', { defaultValue: 'Vote' })}
         </Button>
@@ -203,16 +217,16 @@ export function PollContent({ post }: PollContentProps) {
           </span>
         ) : null}
         {hasVoted && !hasPollEnded ? (
-          <button
-            type="button"
+          <Button
+            variant="variant-ghost-primary"
+            className="h-auto min-h-0 px-0 font-semibold"
             title={t('posts.poll.undoVoteTitle', {
               defaultValue: 'Undo your vote',
             })}
-            className="text-primary font-semibold"
-            onClick={() => void handleClearVote()}
+            action={handleClearVote}
           >
             {t('posts.poll.undoVote', { defaultValue: 'Undo vote' })}
-          </button>
+          </Button>
         ) : null}
       </div>
     </div>
