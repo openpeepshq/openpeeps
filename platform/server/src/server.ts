@@ -144,7 +144,7 @@ const startServer = async () => {
     next();
   });
 
-  // Legacy /_db URLs redirect to /admin/db (Postgres admin instructions).
+  // Postgres admin browser proxy at /_db (pgweb when PGWEB_URL is set).
   installDbBrowserProxy(app);
 
   // S3-compatible endpoint LiveKit egress uploads jam recordings to. Mirrors

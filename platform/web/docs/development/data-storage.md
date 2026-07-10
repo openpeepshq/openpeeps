@@ -108,13 +108,20 @@ Mappings with `softDelete: true` exclude rows where `deleted_at` is set.
 
 ### Admin Access
 
-The former ArangoDB web UI (Aardvark) is removed. Admins with the
-`core-db-access` capability should use:
+Admins with the `core-db-access` capability can use the in-app Postgres browser
+at `/admin/db`. The server proxies `/_db/*` to **pgweb** when `PGWEB_URL` is
+set (see `.env.dev.example`). Authentication uses the existing
+`GET /api/openpeeps/core/v1/admin/db/token` endpoint and a short-lived
+`db-admin` JWT cookie.
 
-- **Drizzle Studio** — `pnpm --filter @openpeeps/core db:studio`
+- **pgweb** — `docker compose up -d postgres pgweb`, set
+  `PGWEB_URL=http://127.0.0.1:8081`, open `/admin/db`
+- **Drizzle Studio** — `pnpm --filter @openpeeps/core db:studio` (schema-aware
+  dev tool)
 - **`psql`** — connect with `DATABASE_URL`
 
-The `/admin/db` route in the web app documents these options.
+In production, run pgweb with `--readonly` on the internal network only; do not
+expose port 8081 publicly.
 
 ## Redis
 

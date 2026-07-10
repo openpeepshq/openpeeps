@@ -82,4 +82,4 @@ is the baseline.
 - `@openpeeps/arango-querybuilder` and `arangojs` removed after cutover
 - Feed/search queries rewritten as explicit SQL in repositories (no generic graph builder)
 - Backups use `pg_dump` / `pg_restore` instead of collection zip export
-- Admin DB browser (Aardvark) replaced by Drizzle Studio / `psql` documentation
+- Admin DB browser (Aardvark) replaced by pgweb proxied at `/_db` and embedded at `/admin/db`

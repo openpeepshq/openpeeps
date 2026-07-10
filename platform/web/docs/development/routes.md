@@ -108,7 +108,7 @@ Routes that require authentication but don't use the standard layout (e.g., paym
 **Available routes:**
 
 - `/payment/success` - Payment success page
-- `/admin/db` - Database admin interface (ArangoDB web UI)
+- `/admin/db` - Database admin interface (pgweb, embedded iframe)
 - `/admin/diagnostics/logs` - Server logs viewer
 
 ## Authentication Routes
@@ -376,9 +376,9 @@ Well-known URLs for various services.
 
 ### `/_db`
 
-Database admin interface proxy.
+Authenticated proxy to the pgweb Postgres browser (requires `db-admin` JWT).
 
-- `/_db/[...aardvarkPath]` - ArangoDB web interface (Aardvark)
+- `/_db` - pgweb UI (proxied when `PGWEB_URL` is set)
 
 ## Dynamic Route Parameters
 

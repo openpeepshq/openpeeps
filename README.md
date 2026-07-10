@@ -135,6 +135,11 @@ documentation.
 
 ## Database
 
-Admins with database access use **Drizzle Studio**
+Admins with the `core-db-access` capability can browse Postgres at **`/admin/db`**
+in the web app (pgweb, proxied at `/_db`). Set `PGWEB_URL` to the internal pgweb
+service (e.g. `http://127.0.0.1:8081` in local dev with `docker compose up -d
+postgres pgweb`). In production, run pgweb with `--readonly` and do not publish
+its port publicly.
+
+Developers can also use **Drizzle Studio**
 (`pnpm --filter @openpeeps/core db:studio`) or **`psql`** with `DATABASE_URL`.
-See `/admin/db` in the web app.
