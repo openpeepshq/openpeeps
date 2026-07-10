@@ -10,6 +10,16 @@ import type {
 const containsIgnoreCase = (candidate: string, query: string) =>
   candidate.toLowerCase().indexOf(query.toLowerCase()) > -1;
 
+export const PROFILE_DISPLAY_NAME_MAX_LENGTH = 30;
+
+export const clampProfileDisplayName = (
+  displayName: string | undefined | null,
+): string | undefined => {
+  if (!displayName) return undefined;
+  const clamped = displayName.slice(0, PROFILE_DISPLAY_NAME_MAX_LENGTH);
+  return clamped || undefined;
+};
+
 export const profileName = (profile?: PublicProfile) =>
   profile?.displayName || profile?.handle;
 
