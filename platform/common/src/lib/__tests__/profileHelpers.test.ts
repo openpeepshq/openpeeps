@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  clampProfileDisplayName,
   profileName,
   matchesQuery,
   inviteLinkMatchesQuery,
@@ -32,6 +33,19 @@ const mockInviteLink: InviteLinkWithMeta = {
 } as unknown as InviteLinkWithMeta;
 
 describe('profileHelpers', () => {
+  describe('clampProfileDisplayName', () => {
+    it('truncates names longer than 30 characters', () => {
+      expect(clampProfileDisplayName('Nikoraus costantine shitungulu ')).toBe(
+        'Nikoraus costantine shitungulu',
+      );
+    });
+
+    it('returns undefined for empty values', () => {
+      expect(clampProfileDisplayName(undefined)).toBeUndefined();
+      expect(clampProfileDisplayName('')).toBeUndefined();
+    });
+  });
+
   describe('profileName', () => {
     it('should return displayName when available', () => {
       const result = profileName(mockProfile);
@@ -160,7 +174,6 @@ describe('profileHelpers', () => {
       expect(result).toBe(false);
     });
 
-
     it('should respect query options for slug', () => {
       const result = inviteLinkMatchesQuery(mockInviteLink, 'test', {
         handle: true,
@@ -179,7 +192,11 @@ describe('profileHelpers', () => {
       const inviteLinkWithGroup = {
         ...mockInviteLink,
         groups: [
-          { id: mockGroup.id, handle: mockGroup.handle, displayName: mockGroup.displayName },
+          {
+            id: mockGroup.id,
+            handle: mockGroup.handle,
+            displayName: mockGroup.displayName,
+          },
         ],
       } as unknown as InviteLinkWithMeta;
       expect(inviteLinkMatchesQuery(inviteLinkWithGroup, 'Test Group')).toBe(

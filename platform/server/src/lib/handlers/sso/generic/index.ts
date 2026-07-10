@@ -1,5 +1,5 @@
 import jp from 'jsonpath';
-import { interpolate } from '@openpeeps/common/lib';
+import { clampProfileDisplayName, interpolate } from '@openpeeps/common/lib';
 import { endpoint, z } from '#lib/endpoint';
 import {
   findNewFreeHandle,
@@ -44,7 +44,7 @@ const extractProfileDataFromProfile = async (
   return {
     handle,
     avatar,
-    displayName,
+    displayName: clampProfileDisplayName(displayName),
     type: 'local',
   };
 };

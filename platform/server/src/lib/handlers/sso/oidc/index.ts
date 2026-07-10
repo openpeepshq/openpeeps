@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 
+import { clampProfileDisplayName } from '@openpeeps/common/lib';
 import { z } from '#lib/endpoint';
 import {
   findNewFreeHandle,
@@ -71,7 +72,7 @@ const extractProfileDataFromOidc = async (
   return {
     handle,
     avatar,
-    displayName: displayName || undefined,
+    displayName: clampProfileDisplayName(displayName),
     type: 'local',
   };
 };

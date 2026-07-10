@@ -266,7 +266,7 @@ export const accountCreationDataSchema = z.object({
   profile: z.object({
     handle: z.string().min(4).max(255),
     avatar: z.string().url().optional(),
-    displayName: z.string().optional(),
+    displayName: profileDataSchema.shape.displayName,
   }),
 });
 
@@ -456,7 +456,7 @@ export const registerRequestSchema = z.object({
   password: z
     .string()
     .min(8, { message: 'Your password should be at least 8 characters long' }),
-  displayName: z.string().optional(),
+  displayName: profileDataSchema.shape.displayName,
   confirmPassword: z.string().optional(),
   privacyPolicyAccepted: z.boolean(),
   inviteCode: z.string().optional(),
