@@ -3,6 +3,10 @@ Changelog for OpenPeeps
 
 ## Current
 
+- No changes
+
+## 2026-07-09
+
 ### Features
 
 - **auth**: add email validation endpoint and update ValidateEmail component
