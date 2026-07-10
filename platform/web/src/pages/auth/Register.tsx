@@ -223,29 +223,27 @@ export function Register({ invite = false }: RegisterProps) {
             </div>
           )}
 
-        <span className="flex w-full items-center justify-start">
-          <FormInput
-            description=""
-            type="checkbox"
-            path={['privacyPolicyAccepted']}
-            testId="auth-register-privacy-checkbox"
-          />
-          <p className="ml-4">
+        <FormInput
+          type="checkbox"
+          path={['privacyPolicyAccepted']}
+          testId="auth-register-privacy-checkbox"
+        >
+          <p>
             {t('auth.register.privacyPolicyAgreement', {
               defaultValue: 'I have read and agree to the',
-            })}
+            })}{' '}
             <a
               href={privacyPolicyLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="anchor w-full px-4 text-sm"
+              className="anchor text-sm"
             >
               {t('auth.register.privacyPolicy', {
                 defaultValue: 'Privacy Policy',
               })}
             </a>
           </p>
-        </span>
+        </FormInput>
 
         {error && (
           <Toast variant="error" onDismiss={() => setError(null)}>
