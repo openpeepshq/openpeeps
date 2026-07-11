@@ -3,7 +3,20 @@ Changelog for OpenPeeps
 
 ## Current
 
-- No changes
+### Bug Fixes
+
+- **poll**: fix undo vote and prevent feed navigation
+- **community-favicons**: update button variant for improved UI consistency
+
+### Chores
+
+- **cursor**: enable Figma plugin in workspace settings
+
+## 2026-07-10
+
+### Bug Fixes
+
+- **groups**: restore add-member UI on members and create pages
 
 ## 2026-07-09
 
