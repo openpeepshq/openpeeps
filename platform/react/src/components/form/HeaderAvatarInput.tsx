@@ -33,6 +33,7 @@ export function HeaderAvatarInput({
         text={t('form.headerAvatarInput.coverImage', {
           defaultValue: 'Cover image',
         })}
+        specsText={t('form.headerAvatarInput.coverImageDescription')}
       />
       <div className="absolute -bottom-12 left-4">
         <ImageInput
