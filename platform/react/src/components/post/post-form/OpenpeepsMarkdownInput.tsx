@@ -1,6 +1,13 @@
 import { useMemo, useRef, useState } from 'react';
 import type { PublicProfile } from '@openpeeps/common/types';
-import { Button, Textarea, cn } from '@openpeeps/react-ui';
+import {
+  Button,
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+  Textarea,
+  cn,
+} from '@openpeeps/react-ui';
 import { useT } from '../../../i18n';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { OpenpeepsMarkdown } from '../../markdown';
@@ -41,6 +48,7 @@ export function OpenpeepsMarkdownInput({
   const [open, setOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
 
   const profilesQuery = openpeepsApi.useSearchProfiles(query);
 
@@ -52,6 +60,8 @@ export function OpenpeepsMarkdownInput({
         .slice(0, 6),
     [profilesQuery.data],
   );
+
+  const showMentions = open && query.length >= 1 && profiles.length > 0;
 
   const handleChange = (next: string) => {
     onChange(next);
@@ -113,19 +123,36 @@ export function OpenpeepsMarkdownInput({
         </div>
       ) : null}
 
-      <Textarea
-        ref={textareaRef}
-        rows={rows}
-        value={value}
-        maxLength={maxLength}
-        placeholder={placeholder ?? t('posts.form.content')}
-        onChange={(e) => handleChange(e.target.value)}
-        data-testid={testId}
-        className={cn('resize-y', className)}
-      />
+      <Popover open={showMentions} modal={false}>
+        <PopoverAnchor asChild>
+          <div ref={anchorRef} className="w-full">
+            <Textarea
+              ref={textareaRef}
+              rows={rows}
+              value={value}
+              maxLength={maxLength}
+              placeholder={placeholder ?? t('posts.form.content')}
+              onChange={(e) => handleChange(e.target.value)}
+              data-testid={testId}
+              className={cn('resize-y', className)}
+            />
+          </div>
+        </PopoverAnchor>
 
-      {open && query.length >= 1 && profiles.length > 0 ? (
-        <div className="bg-card absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-md border shadow-md">
+        <PopoverContent
+          align="start"
+          side="bottom"
+          sideOffset={4}
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          // Keep the list open while the user keeps typing in the anchored field.
+          onPointerDownOutside={(e) => {
+            if (anchorRef.current?.contains(e.target as Node)) {
+              e.preventDefault();
+            }
+          }}
+          className="bg-card z-[100] max-h-48 w-[var(--radix-popover-trigger-width)] overflow-y-auto p-0 shadow-md"
+        >
           {profiles.map((profile) => (
             <button
               key={profile.id}
@@ -139,8 +166,8 @@ export function OpenpeepsMarkdownInput({
               <ProfileCard profile={profile} showAction={false} />
             </button>
           ))}
-        </div>
-      ) : null}
+        </PopoverContent>
+      </Popover>
 
       <div className="w-full px-2 text-right text-sm">
         <span className={overLimit ? 'text-error' : undefined}>

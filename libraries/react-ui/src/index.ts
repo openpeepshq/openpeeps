@@ -34,6 +34,7 @@ export {
   Popover,
   PopoverTrigger,
   PopoverContent,
+  PopoverAnchor,
   RadioGroup,
   RadioGroupItem,
   ScrollArea,
