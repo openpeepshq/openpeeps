@@ -413,7 +413,7 @@ export function NewPostModal({
             ) : null}
           </div>
 
-          <ModalFooter className="z-30 flex-col items-stretch border-t-0 px-6 py-4">
+          <ModalFooter className="flex-col items-stretch border-t-0 px-6 py-4">
             <div className="flex w-full items-center justify-between">
               <div className="flex items-center gap-x-2">
                 <button
