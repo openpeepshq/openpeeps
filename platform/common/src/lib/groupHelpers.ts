@@ -65,6 +65,15 @@ export const hasMemberOnlyPostsVisibility = (
   !capabilities?.none?.add?.includes('core-posts-read') &&
   !capabilities?.local?.add?.includes('core-posts-read');
 
+/** Shared by every group capability template — keep admins-only settings out. */
+export const groupModeratorCapabilities = {
+  add: [
+    'core-posts-*',
+    'core-groups-addMember',
+    'core-groups-removeMember',
+  ],
+} as const;
+
 export const groupCapabilityTemplates = {
   defaultGroup: {
     name: 'defaultGroup',
@@ -93,9 +102,7 @@ export const groupCapabilityTemplates = {
         ],
         remove: ['core-posts-create-event'],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
+      moderator: groupModeratorCapabilities,
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
       },
@@ -124,9 +131,7 @@ export const groupCapabilityTemplates = {
         ],
         remove: ['core-posts-create-event'],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
+      moderator: groupModeratorCapabilities,
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
       },
@@ -151,9 +156,7 @@ export const groupCapabilityTemplates = {
           'core-posts-vote',
         ],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
+      moderator: groupModeratorCapabilities,
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
       },
@@ -178,9 +181,7 @@ export const groupCapabilityTemplates = {
           'core-posts-vote',
         ],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
+      moderator: groupModeratorCapabilities,
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
       },
@@ -200,9 +201,7 @@ export const groupCapabilityTemplates = {
           'core-posts-vote',
         ],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
+      moderator: groupModeratorCapabilities,
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
       },
@@ -221,9 +220,7 @@ export const groupCapabilityTemplates = {
           'core-posts-vote',
         ],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
+      moderator: groupModeratorCapabilities,
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
       },
@@ -238,9 +235,7 @@ export const groupCapabilityTemplates = {
       member: {
         add: ['core-posts-reply', 'core-posts-rsvp', 'core-posts-vote'],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
+      moderator: groupModeratorCapabilities,
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
       },

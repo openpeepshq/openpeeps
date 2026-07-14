@@ -21,6 +21,23 @@ import type {
 } from '../types';
 import { calculateRequiredScope, scopeMatches, withPublicPostReadScopes } from './scopeHelpers';
 
+const capabilityMatches = (pattern: string, capability: string) =>
+  pattern === capability ||
+  (pattern.includes('*') && capability.startsWith(pattern.split('*')[0]));
+
+const containsCapability = (capability: string, list: string[]) =>
+  !!list?.find((pattern) => capabilityMatches(pattern, capability));
+
+/** Lower number is applied first; later relationships can cancel earlier removes. */
+const groupRelationshipPriority: Record<string, number> = {
+  none: 0,
+  local: 1,
+  invited: 2,
+  member: 3,
+  moderator: 4,
+  admin: 5,
+};
+
 export const checkCapabilities = (
   neededCapabilities: string[],
   presentCapabilities: { add?: string[]; remove?: string[] } = {
@@ -28,10 +45,6 @@ export const checkCapabilities = (
     remove: [],
   },
 ) => {
-  const containsCapability = (c: string, clist: string[]) =>
-    !!clist?.find(
-      (pc) => pc === c || (pc.includes('*') && c.startsWith(pc.split('*')[0])),
-    );
   const missingCapabilities = neededCapabilities.filter(
     (c) =>
       containsCapability(c, presentCapabilities.remove ?? []) ||
@@ -53,6 +66,40 @@ export const mergeCapabilities = (
       ...new Set(capabilities?.map((c) => c?.remove || []).flat() ?? []),
     ],
   };
+};
+
+/**
+ * Merge group relationship capabilities in role-priority order so a higher role
+ * (e.g. moderator) can restore powers that a lower role carved out via remove
+ * (e.g. member removing `core-posts-create-event`).
+ */
+export const mergeGroupCapabilities = (
+  entries: {
+    relationship: string;
+    capabilities: Partial<Capabilities>;
+  }[],
+): Capabilities => {
+  const ordered = [...entries].sort(
+    (a, b) =>
+      (groupRelationshipPriority[a.relationship] ?? 0) -
+      (groupRelationshipPriority[b.relationship] ?? 0),
+  );
+
+  let add: string[] = [];
+  let remove: string[] = [];
+
+  for (const entry of ordered) {
+    const newAdd = entry.capabilities?.add ?? [];
+    const newRemove = entry.capabilities?.remove ?? [];
+
+    remove = remove.filter(
+      (r) => !newAdd.some((a) => capabilityMatches(a, r)),
+    );
+    add = [...new Set([...add, ...newAdd])];
+    remove = [...new Set([...remove, ...newRemove])];
+  }
+
+  return { add, remove };
 };
 
 export const checkRoleCapabilities = (
@@ -224,11 +271,12 @@ const getGroupRelationshipCapabilities = (
   authData: AuthorizationData,
   group?: GroupWithMeta | null,
 ): Capabilities =>
-  mergeCapabilities(
+  mergeGroupCapabilities(
     group
-      ? getGroupRelationships(authData, group).map(
-        (r) => group.capabilities?.[r] ?? { add: [], remove: [] },
-      )
+      ? getGroupRelationships(authData, group).map((r) => ({
+          relationship: r,
+          capabilities: group.capabilities?.[r] ?? { add: [], remove: [] },
+        }))
       : [],
   );
 
@@ -236,8 +284,11 @@ export const getGroupCapabilitiesByRoles = (
   roles: string[] | undefined | null,
   group?: GroupWithMeta | null,
 ) =>
-  mergeCapabilities(
-    (roles ?? []).map((r) => group?.capabilities?.[r] ?? { add: [], remove: [] }),
+  mergeGroupCapabilities(
+    (roles ?? []).map((r) => ({
+      relationship: r,
+      capabilities: group?.capabilities?.[r] ?? { add: [], remove: [] },
+    })),
   );
 
 // Per-group powers (add member, post in group, moderate, …) come from the

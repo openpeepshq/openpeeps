@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   checkCapabilities,
   mergeCapabilities,
+  mergeGroupCapabilities,
   checkRoleCapabilities,
   isLocal,
   localOrNone,
@@ -277,6 +278,65 @@ describe('capabilitiesHelpers', () => {
       const result = mergeCapabilities(undefined);
       expect(result?.add).toEqual([]);
       expect(result?.remove).toEqual([]);
+    });
+  });
+
+  describe('mergeGroupCapabilities', () => {
+    it('lets a higher role restore capabilities carved out by a lower role', () => {
+      const result = mergeGroupCapabilities([
+        {
+          relationship: 'member',
+          capabilities: {
+            add: ['core-posts-create-*'],
+            remove: ['core-posts-create-event'],
+          },
+        },
+        {
+          relationship: 'moderator',
+          capabilities: { add: ['core-posts-*'] },
+        },
+      ]);
+
+      expect(
+        checkCapabilities(['core-posts-create-event'], result).success,
+      ).toBe(true);
+      expect(result.remove).not.toContain('core-posts-create-event');
+    });
+
+    it('keeps member carve-outs when no higher role is present', () => {
+      const result = mergeGroupCapabilities([
+        {
+          relationship: 'member',
+          capabilities: {
+            add: ['core-posts-create-*'],
+            remove: ['core-posts-create-event'],
+          },
+        },
+      ]);
+
+      expect(
+        checkCapabilities(['core-posts-create-event'], result).success,
+      ).toBe(false);
+    });
+
+    it('orders by role priority regardless of input order', () => {
+      const result = mergeGroupCapabilities([
+        {
+          relationship: 'moderator',
+          capabilities: { add: ['core-posts-*'] },
+        },
+        {
+          relationship: 'member',
+          capabilities: {
+            add: ['core-posts-create-*'],
+            remove: ['core-posts-create-event'],
+          },
+        },
+      ]);
+
+      expect(
+        checkCapabilities(['core-posts-create-event'], result).success,
+      ).toBe(true);
     });
   });
 

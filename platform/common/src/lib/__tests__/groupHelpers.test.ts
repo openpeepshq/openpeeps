@@ -8,13 +8,17 @@ import {
     canRemoveMember,
     isGroupDiscoverable,
     groupCapabilityTemplates,
+    groupModeratorCapabilities,
     hasMemberOnlyPostsVisibility,
 } from '../groupHelpers';
+import {
+    checkCapabilities,
+    getGroupCapabilitiesByRoles,
+} from '../capabilitiesHelpers';
 import type {
     GroupData,
     GroupMember,
     GroupWithMeta,
-    PublicProfile,
     ProfileWithMeta,
 } from '../../types';
 import { groupRoleSchema } from '../../types/models';
@@ -50,15 +54,21 @@ const mockGroupWithMeta: GroupWithMeta = {
     deletedAt: null,
 } as GroupWithMeta;
 
-const mockProfile: PublicProfile = {
+const mockProfile: ProfileWithMeta = {
     id: 'profile1',
     displayName: 'John Doe',
     handle: 'johndoe',
-} as PublicProfile;
+    memberships: [
+        {
+            group: { id: 'group1' },
+            roles: ['member'],
+        },
+    ],
+} as ProfileWithMeta;
 
 const mockGroupMember: GroupMember = {
     id: 'member1',
-    profile: mockProfile as ProfileWithMeta,
+    profile: mockProfile,
     roles: ['member'],
 } as GroupMember;
 
@@ -333,6 +343,58 @@ describe('groupHelpers', () => {
             expect(
                 groupRoleSchema.safeParse({ roles: ['member', 'moderator'] }).success,
             ).toBe(true);
+        });
+    });
+
+    describe('group moderator capabilities', () => {
+        const templates = Object.values(groupCapabilityTemplates);
+
+        it('grants member management and post powers on every template', () => {
+            for (const template of templates) {
+                expect(template.capabilities.moderator).toEqual(
+                    groupModeratorCapabilities,
+                );
+            }
+        });
+
+        it('does not grant group settings update to moderators', () => {
+            for (const template of templates) {
+                const caps = getGroupCapabilitiesByRoles(
+                    ['member', 'moderator'],
+                    {
+                        ...mockGroupWithMeta,
+                        capabilities: template.capabilities,
+                    },
+                );
+                expect(
+                    checkCapabilities(['core-groups-update'], caps).success,
+                ).toBe(false);
+                expect(
+                    checkCapabilities(['core-groups-addMember'], caps).success,
+                ).toBe(true);
+                expect(
+                    checkCapabilities(['core-groups-removeMember'], caps).success,
+                ).toBe(true);
+                expect(
+                    checkCapabilities(['core-posts-delete'], caps).success,
+                ).toBe(true);
+                expect(
+                    checkCapabilities(['core-posts-create-event'], caps).success,
+                ).toBe(true);
+            }
+        });
+
+        it('keeps group settings update admin-only', () => {
+            const caps = getGroupCapabilitiesByRoles(
+                ['member', 'admin'],
+                {
+                    ...mockGroupWithMeta,
+                    capabilities: groupCapabilityTemplates.defaultGroup.capabilities,
+                },
+            );
+            expect(checkCapabilities(['core-groups-update'], caps).success).toBe(
+                true,
+            );
         });
     });
 });
