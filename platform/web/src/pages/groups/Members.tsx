@@ -7,6 +7,7 @@ import {
   GroupMembersList,
 } from '@openpeeps/react/components';
 import { routeHandleParam } from '../../lib/routeHandles';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 export function GroupMembers() {
   const t = useT();
@@ -30,7 +31,7 @@ export function GroupMembers() {
   if (groupQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

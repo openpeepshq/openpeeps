@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  LoadingSpinner,
 } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
@@ -30,9 +31,9 @@ export function RepostModal({ post, open, onClose }: RepostModalProps) {
         </DialogHeader>
         <article className="pb-3">
           {repostsQuery.isLoading ? (
-            <p className="p-5 text-center text-sm text-muted-foreground">
-              {t('common.loading', { defaultValue: 'Loading…' })}
-            </p>
+            <div className="p-5 text-center text-sm text-muted-foreground">
+              <LoadingSpinner />
+            </div>
           ) : repostsQuery.data?.length ? (
             repostsQuery.data.map((repost) => (
               <ProfileWithActionCard

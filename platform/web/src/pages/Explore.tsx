@@ -13,7 +13,7 @@ import {
   GroupCard,
   ProfileCard,
 } from '@openpeeps/react/components';
-import { Button, Input } from '@openpeeps/react-ui';
+import { Button, Input, LoadingSpinner } from '@openpeeps/react-ui';
 
 type Tab = 'members' | 'posts' | 'jams' | 'events' | 'groups';
 
@@ -224,7 +224,7 @@ export function Explore() {
           </p>
         ) : listQuery.isLoading ? (
           <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-            {t('common.loading', { defaultValue: 'Loading…' })}
+            <LoadingSpinner />
           </div>
         ) : tab === 'jams' ? (
           <EventSearchResults
@@ -283,7 +283,7 @@ export function Explore() {
         <div ref={sentinelRef} aria-hidden="true" className="h-8" />
         {listQuery.isFetchingNextPage ? (
           <div className="text-muted-foreground flex justify-center py-4 text-sm">
-            {t('common.loadingMore', { defaultValue: 'Loading more…' })}
+            <LoadingSpinner />
           </div>
         ) : null}
       </div>

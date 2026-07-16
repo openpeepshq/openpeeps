@@ -1,19 +1,18 @@
+import { LoadingSpinner } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
-import { useT } from '../../i18n';
 
 export interface RemotePreviewLinkProps {
   url: string;
 }
 
 export function RemotePreviewLink({ url }: RemotePreviewLinkProps) {
-  const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const previewQuery = openpeepsApi.usePreviewLink(url);
 
   if (previewQuery.isLoading) {
     return (
       <div className="text-muted-foreground py-2 text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+            <LoadingSpinner />
       </div>
     );
   }

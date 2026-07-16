@@ -128,6 +128,7 @@ import {
   RequireAdminMenu,
   RequireAdminSection,
 } from './navigation/RequireAdminSection';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 const baseUrl =
   import.meta.env.VITE_OPENPEEPS_BASE_URL ??
@@ -167,7 +168,7 @@ function ServerData({ children }: { children: ReactNode }) {
 function BootSplash() {
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <p className="text-muted-foreground text-sm">Loading…</p>
+      <LoadingSpinner />
     </div>
   );
 }

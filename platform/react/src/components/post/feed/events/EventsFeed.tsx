@@ -7,6 +7,7 @@ import type {
 } from '@tanstack/react-query';
 import { useT } from '../../../../i18n';
 import { CardEvent } from '../../types/event/CardEvent';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 export type EventsFeedQuery = UseInfiniteQueryResult<
   InfiniteData<PublicPost[], unknown>,
@@ -52,8 +53,8 @@ export function EventsFeed({ query }: EventsFeedProps) {
   if (query.isLoading) {
     return (
       <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-        {t('common.loading', { defaultValue: 'Loading…' })}
-      </div>
+        <LoadingSpinner />
+        </div>
     );
   }
 
@@ -76,7 +77,7 @@ export function EventsFeed({ query }: EventsFeedProps) {
       <div ref={sentinelRef} aria-hidden="true" className="col-span-full h-8" />
       {query.isFetchingNextPage ? (
         <div className="col-span-full flex justify-center py-4 text-sm text-muted-foreground">
-          {t('common.loadingMore', { defaultValue: 'Loading more…' })}
+          <LoadingSpinner />
         </div>
       ) : null}
     </div>

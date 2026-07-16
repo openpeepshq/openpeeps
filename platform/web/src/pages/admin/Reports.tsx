@@ -7,7 +7,7 @@ import {
   Avatar,
   FeedPostContent,
 } from '@openpeeps/react/components';
-import { UpdatingDate } from '@openpeeps/react-ui';
+import { LoadingSpinner, UpdatingDate } from '@openpeeps/react-ui';
 import {
   Button,
   Dialog,
@@ -85,7 +85,7 @@ export function AdminReports() {
   if (profileQuery.isLoading || reportsQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

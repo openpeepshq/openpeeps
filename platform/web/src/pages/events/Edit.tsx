@@ -4,7 +4,7 @@ import type { Event, PostCreationData, PostDataUnion } from '@openpeeps/common/t
 import { normalizeEventDataForSave, truncateText } from '@openpeeps/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { EventForm } from '@openpeeps/react/components';
-import { Button, Toast } from '@openpeeps/react-ui';
+import { Button, LoadingSpinner, Toast } from '@openpeeps/react-ui';
 
 export function EditEvent() {
   const t = useT();
@@ -86,7 +86,7 @@ export function EditEvent() {
   if (postQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

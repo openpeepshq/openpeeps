@@ -4,7 +4,7 @@ import { AlertCircle, Calendar, CheckCircle, CreditCard } from 'lucide-react';
 import { formatTimeStamp, isOwnerProfile } from '@openpeeps/common';
 import { useT, useOpenpeeps } from '@openpeeps/react';
 import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
-import { Button } from '@openpeeps/react-ui';
+import { Button, LoadingSpinner } from '@openpeeps/react-ui';
 
 function statusInfo(status: string) {
   switch (status) {
@@ -58,7 +58,7 @@ export function BillingSettings() {
   if (paymentStatusQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

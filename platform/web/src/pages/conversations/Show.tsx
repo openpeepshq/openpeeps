@@ -11,7 +11,7 @@ import {
   useCurrentProfile,
   useToast,
 } from '@openpeeps/react/components';
-import { Button, Input } from '@openpeeps/react-ui';
+import { Button, Input, LoadingSpinner } from '@openpeeps/react-ui';
 
 const MAX_LENGTH = 500;
 
@@ -79,7 +79,7 @@ export function ConversationShow() {
   if (conversationQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

@@ -51,6 +51,7 @@ export {
   TooltipTrigger,
   TooltipContent,
   TooltipProvider,
+  LoadingSpinner,
 } from './components/ui';
 
 // OpenPeeps components (translated 1:1 from @openpeeps/ui)
