@@ -3,10 +3,21 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Features
+
+- **post**: integrate Popover component for mentions in markdown input
+
 ### Bug Fixes
 
+- **HeaderAvatarInput**: add specsText for cover image description
+- **form**: enhance FormInput checkbox to support children rendering
+- **profiles**: enforce displayName max length on registration
 - **poll**: fix undo vote and prevent feed navigation
 - **community-favicons**: update button variant for improved UI consistency
+
+### Refactoring
+
+- **groups**: simplify conditional rendering for group actions
 
 ### Chores
 
