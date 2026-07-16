@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useT, useOpenpeeps } from '@openpeeps/react';
 import { GroupHeader, PostMarkdown } from '@openpeeps/react/components';
 import { routeHandleParam } from '../../lib/routeHandles';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 export function GroupInfo() {
   const t = useT();
@@ -15,7 +16,7 @@ export function GroupInfo() {
   if (groupQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

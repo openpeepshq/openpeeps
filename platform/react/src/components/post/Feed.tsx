@@ -9,6 +9,7 @@ import type {
 import { useT } from '../../i18n';
 import { FeedPost } from './FeedPost';
 import { PinnedPost } from './PinnedPost';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 export type FeedQuery = UseInfiniteQueryResult<
   InfiniteData<PublicPost[], unknown>,
@@ -70,7 +71,7 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
   if (query.isLoading) {
     return (
       <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }
@@ -105,7 +106,7 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
 
       {query.isFetchingNextPage && (
         <div className="flex justify-center py-4 text-sm text-muted-foreground">
-          {t('common.loadingMore', { defaultValue: 'Loading more…' })}
+        <LoadingSpinner />
         </div>
       )}
     </div>

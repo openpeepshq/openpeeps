@@ -2,6 +2,7 @@ import { Hash, UsersRound } from 'lucide-react';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { useServerInfo } from '@openpeeps/react/components';
 import { CommunityStatsCard, SignupChart } from './components/AdminCharts';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 function Card({
   title,
@@ -34,7 +35,7 @@ export function AdminDashboard() {
   if (statsQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

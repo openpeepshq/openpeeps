@@ -4,6 +4,7 @@ import { FullNote } from './types/note/FullNote';
 import { FullArticle } from './types/article/FullArticle';
 import { FullPoll } from './types/poll/FullPoll';
 import { FullEvent } from './types/event/FullEvent';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 export interface PostDetailProps {
   postId: string;
@@ -18,8 +19,8 @@ export function PostDetail({ postId }: PostDetailProps) {
   if (postQuery.isLoading) {
     return (
       <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-        {t('common.loading', { defaultValue: 'Loading…' })}
-      </div>
+        <LoadingSpinner />
+        </div>
     );
   }
 

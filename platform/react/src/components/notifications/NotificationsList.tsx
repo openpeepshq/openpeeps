@@ -7,6 +7,7 @@ import type {
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { NotificationItem } from './NotificationItem';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 export interface NotificationsListProps {
   pageSize?: number;
@@ -98,7 +99,7 @@ export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
   if (query.isLoading) {
     return (
       <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }
@@ -119,7 +120,7 @@ export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
       <div ref={sentinelRef} aria-hidden="true" className="h-8" />
       {query.isFetchingNextPage && (
         <div className="flex justify-center py-4 text-sm text-muted-foreground">
-          {t('common.loadingMore', { defaultValue: 'Loading more…' })}
+        <LoadingSpinner />
         </div>
       )}
     </div>

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import type { GroupData } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { GroupForm } from '@openpeeps/react/components';
-import { Button, Toast } from '@openpeeps/react-ui';
+import { Button, LoadingSpinner, Toast } from '@openpeeps/react-ui';
 import { routeHandleParam } from '../../lib/routeHandles';
 
 export function EditGroup() {
@@ -47,7 +47,7 @@ export function EditGroup() {
   if (groupQuery.isLoading || !groupData) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

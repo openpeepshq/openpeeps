@@ -6,7 +6,7 @@ import {
   ConfigurationTree,
   resolveAdminConfigSchema,
 } from '@openpeeps/react';
-import { Button, Toast } from '@openpeeps/react-ui';
+import { Button, LoadingSpinner, Toast } from '@openpeeps/react-ui';
 
 export interface ConfigEditorProps {
   /** Page title. */
@@ -68,7 +68,7 @@ export function AdminConfigEditor({
   if (configQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

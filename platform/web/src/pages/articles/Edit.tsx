@@ -8,7 +8,7 @@ import type {
 import { truncateText } from '@openpeeps/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { ArticleForm } from '@openpeeps/react/components';
-import { Button, Toast } from '@openpeeps/react-ui';
+import { Button, LoadingSpinner, Toast } from '@openpeeps/react-ui';
 
 export function EditArticle() {
   const t = useT();
@@ -77,7 +77,7 @@ export function EditArticle() {
   if (postQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

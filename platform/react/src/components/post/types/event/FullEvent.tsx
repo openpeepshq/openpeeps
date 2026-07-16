@@ -17,7 +17,7 @@ import {
   isCapacityEvent,
   profileName,
 } from '@openpeeps/common/lib';
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, PopupMenu, PopupMenuButton, UpdatingDate } from '@openpeeps/react-ui';
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, LoadingSpinner, PopupMenu, PopupMenuButton, UpdatingDate } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
@@ -292,9 +292,9 @@ export function FullEvent({ post }: FullEventProps) {
         <>
           <ReplyBox post={post} />
           {contextQuery.isLoading ? (
-            <p className="text-muted-foreground py-4 text-sm">
-              {t('common.loading', { defaultValue: 'Loading…' })}
-            </p>
+            <div className="text-muted-foreground py-4 text-sm">
+              <LoadingSpinner />
+            </div>
           ) : (
             descendentThreads.map((thread) => (
               <ThreadedFeed key={thread.id} thread={thread} isDescendants />
@@ -395,9 +395,9 @@ export function FullEvent({ post }: FullEventProps) {
 
       {tab === 'recordings' && event.jam && canViewRecordings ? (
         recordingsQuery.isLoading ? (
-          <p className="text-muted-foreground py-4 text-sm">
-            {t('common.loading', { defaultValue: 'Loading…' })}
-          </p>
+          <div className="text-muted-foreground py-4 text-sm">
+            <LoadingSpinner />
+          </div>
         ) : recordingsQuery.data?.length ? (
           recordingsQuery.data.map((recording) => (
             <JamRecordingItem

@@ -27,6 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
   Label,
+  LoadingSpinner,
   PopupMenu,
   PopupMenuButton,
 } from '@openpeeps/react-ui';
@@ -49,7 +50,7 @@ export function AdminGroupMembers() {
   if (groupQuery.isLoading || membersQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

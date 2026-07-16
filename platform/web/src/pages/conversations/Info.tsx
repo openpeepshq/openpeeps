@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useT, useOpenpeeps } from '@openpeeps/react';
 import { Avatar, useCurrentProfile } from '@openpeeps/react/components';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 export function ConversationInfo() {
   const t = useT();
@@ -17,7 +18,7 @@ export function ConversationInfo() {
   if (conversationQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

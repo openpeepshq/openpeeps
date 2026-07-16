@@ -1,6 +1,7 @@
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import { Avatar } from '@openpeeps/react/components';
 import { SignupChart } from './components/AdminCharts';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 function StatRow({ label, value }: { label: string; value: number }) {
   return (
@@ -36,7 +37,7 @@ export function AdminAnalytics() {
   if (statsQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
+        <LoadingSpinner />
       </div>
     );
   }

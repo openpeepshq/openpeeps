@@ -1,6 +1,6 @@
 import { FeedPostContent } from '../../post/FeedPostContent';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
-import { useT } from '../../../i18n';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 export interface JamPreviewProps {
   path: string;
@@ -12,16 +12,15 @@ export interface JamPreviewProps {
  * is a post, so render its feed content as the preview.
  */
 export function JamPreview({ path }: JamPreviewProps) {
-  const t = useT();
   const eventId = path.substring(8, 44);
   const { openpeepsApi } = useOpenpeeps();
   const postQuery = openpeepsApi.usePost(eventId);
 
   if (postQuery.isLoading) {
     return (
-      <p className="text-muted-foreground text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
-      </p>
+      <div className="text-muted-foreground text-sm">
+          <LoadingSpinner />
+      </div>
     );
   }
 

@@ -1,22 +1,21 @@
 import { GroupCard } from '../../groups/GroupCard';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
-import { useT } from '../../../i18n';
+import { LoadingSpinner } from '@openpeeps/react-ui';
 
 export interface GroupPreviewProps {
   path: string;
 }
 
 export function GroupPreview({ path }: GroupPreviewProps) {
-  const t = useT();
   const handle = path.substring(9);
   const { openpeepsApi } = useOpenpeeps();
   const groupQuery = openpeepsApi.useGroupByHandle(handle);
 
   if (groupQuery.isLoading) {
     return (
-      <p className="text-muted-foreground text-sm">
-        {t('common.loading', { defaultValue: 'Loading…' })}
-      </p>
+      <div className="text-muted-foreground text-sm">
+          <LoadingSpinner />
+      </div>
     );
   }
 
