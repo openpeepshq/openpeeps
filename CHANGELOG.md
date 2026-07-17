@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **react-ui**: replace loading text with LoadingSpinner animation
 - **post**: integrate Popover component for mentions in markdown input
 
 ### Bug Fixes
