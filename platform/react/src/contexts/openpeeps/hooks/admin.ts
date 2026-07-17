@@ -46,6 +46,7 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
     ['admin', 'posts'],
     ['posts'],
     ['config'],
+    ['server'],
   ]),
   announcePostAction: noPayloadMutation(client.admin.posts.announce, [
     ['admin', 'posts'],
