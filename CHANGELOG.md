@@ -10,6 +10,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **post**: fixed  pinned post refetch
+- **cleanup**: removed old skeleton theme files
 - **HeaderAvatarInput**: add specsText for cover image description
 - **form**: enhance FormInput checkbox to support children rendering
 - **profiles**: enforce displayName max length on registration
