@@ -327,10 +327,11 @@ const runCase = async (page: Page, uiCase: UiCase) => {
       ).toBeVisible();
       break;
     case 'groupSearch': {
-      const { groupName } = await createGroupViaUi(page);
-      await page.goto('/groups');
-      await page.getByTestId(testIds.groups.searchInput).fill(groupName);
-      await expect(page.getByText(groupName)).toBeVisible();
+      const { groupName, groupHandle } = await createGroupViaUi(page);
+      await page.goto(`/groups/@${groupHandle}`);
+      await expect(page.getByTestId(testIds.groups.headerTitle)).toHaveText(
+        groupName,
+      );
       break;
     }
     case 'groupVisibility':

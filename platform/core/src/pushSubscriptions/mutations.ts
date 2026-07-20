@@ -8,9 +8,11 @@ export const createPushSubscription = async (
   data: PushSubscriptionData,
 ) => {
   const db = await allpeepDb().then((db) => db.db);
-  const existingPushSubscription = await pushSubscriptionsMapping.filter({
-    matches: data
-  }).first(db);
+  const existingPushSubscription = await pushSubscriptionsMapping
+    .filter({
+      matches: data,
+    })
+    .first(db);
 
   if (existingPushSubscription) {
     return existingPushSubscription;

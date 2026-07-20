@@ -1,17 +1,29 @@
-import { ConfigData } from "@openpeeps/common/types"
-import { allpeepDb, collectionInfos } from "../db"
+import { eq } from 'drizzle-orm';
+import { ConfigData } from '@openpeeps/common/types';
+import { allpeepDb } from '../db';
+import { configs } from '../db/pg/schema/documents';
+import { nowIso } from '../db/pg/mappers';
 
 export const storeConfig = (key: string, config: ConfigData) =>
-    allpeepDb()
-        .then(({ db }) =>
-            db.collection(collectionInfos.configCollection.name).save(
-                { ...config, _key: key, updatedAt: '', createdAt: '' },
-                { overwriteMode: 'update', returnNew: true },
-            )
-        )
-        .then((result) => result.new);
+  allpeepDb().then(async ({ db }) => {
+    const ts = nowIso();
+    const rows = await db
+      .insert(configs)
+      .values({ key, body: config, createdAt: ts, updatedAt: ts })
+      .onConflictDoUpdate({
+        target: configs.key,
+        set: { body: config, updatedAt: ts },
+      })
+      .returning();
+    return rows[0]?.body as ConfigData;
+  });
 
 export const loadConfig = (key: string) =>
-    allpeepDb().then(({ db }) =>
-        db.collection(collectionInfos.configCollection.name).document(key, { graceful: true })
-    );
+  allpeepDb().then(async ({ db }) => {
+    const rows = await db
+      .select()
+      .from(configs)
+      .where(eq(configs.key, key))
+      .limit(1);
+    return rows[0]?.body as ConfigData | undefined;
+  });

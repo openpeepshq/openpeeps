@@ -16,9 +16,9 @@ export const passwordPlaceHolder = '*********';
 export const password = (sanitize?: boolean) =>
   sanitize
     ? z
-      .string()
-      .transform(() => passwordPlaceHolder)
-      .describe('password')
+        .string()
+        .transform(() => passwordPlaceHolder)
+        .describe('password')
     : z.string();
 
 export const fixed = <T extends ZodType>(type: T, sanitize?: boolean): T =>
@@ -62,11 +62,14 @@ export const emailConfigSchemaFactory = (sanitize?: boolean) =>
     transportConfig: z.object({
       host: z.string(),
       port: z.number(),
-      secure: z.literal(true),
-      auth: z.object({
-        user: z.string().optional(),
-        pass: password(sanitize).optional(),
-      }),
+      secure: z.boolean().default(true),
+      // Optional so unauthenticated SMTP (e.g. Mailpit) can omit credentials.
+      auth: z
+        .object({
+          user: z.string().optional(),
+          pass: password(sanitize).optional(),
+        })
+        .optional(),
     }),
   });
 
@@ -77,10 +80,10 @@ export type EmailConfig = z.infer<typeof emailConfigSchema>;
 export type ConfigValue = string | number | boolean | undefined;
 export interface ConfigTree {
   [key: string]:
-  | ConfigTree
-  | ConfigValue
-  | (ConfigTree | undefined)[]
-  | (ConfigValue | undefined)[];
+    | ConfigTree
+    | ConfigValue
+    | (ConfigTree | undefined)[]
+    | (ConfigValue | undefined)[];
 }
 export type ConfigElement =
   | ConfigTree
@@ -107,6 +110,7 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
       z.object({
         url: z.string().url(),
         databaseName: z.string().optional(),
+        databaseUrl: z.string(),
       }),
       sanitize,
     ),

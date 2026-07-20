@@ -26,12 +26,13 @@ export * from './mutations';
 export * from './finders';
 export * from './recording';
 
-
-export const listLiveJams = async (authData: AuthorizationData): Promise<PostWithMeta[]> => {
+export const listLiveJams = async (
+  authData: AuthorizationData,
+): Promise<PostWithMeta[]> => {
   const rs = await roomService();
 
   if (rs === undefined) {
-    return []
+    return [];
   }
 
   const rooms = await rs.listRooms();
@@ -39,9 +40,8 @@ export const listLiveJams = async (authData: AuthorizationData): Promise<PostWit
   const config = await capabilitiesConfig();
 
   return Promise.all(rooms.map(async (room) => findPost(room.name))).then(
-    (posts) => posts.filter(Boolean).filter(canReadPost(config, authData))
-  ) as Promise<PostWithMeta[]>
-
+    (posts) => posts.filter(Boolean).filter(canReadPost(config, authData)),
+  ) as Promise<PostWithMeta[]>;
 };
 
 export const findJamEvent = async (
@@ -51,14 +51,13 @@ export const findJamEvent = async (
     post?.data?.type === 'event' && post.data?.jam ? post : undefined,
   );
 
-
 export const closeJam = async (profile: Profile, jamEvent: PostWithMeta) => {
   const rs = await roomService();
   if (rs === undefined) {
-    return undefined
+    return undefined;
   }
 
-  await stopRecording(jamEvent)
+  await stopRecording(jamEvent);
 
   return rs.deleteRoom(jamEvent.id).then(() =>
     createJamEvent({
@@ -66,9 +65,9 @@ export const closeJam = async (profile: Profile, jamEvent: PostWithMeta) => {
       jamId: jamEvent.id,
       type: 'close',
       profileId: profile.id,
-    }));
-}
-
+    }),
+  );
+};
 
 export const muteParticipant = async (
   jamId: string,

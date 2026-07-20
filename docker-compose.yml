@@ -1,9 +1,18 @@
 services:
-  db:
+  postgres:
     restart: always
-    image: arangodb:3.11
+    image: postgres:16-alpine
     environment:
-      - "ARANGO_NO_AUTH=1"
+      POSTGRES_USER: openpeeps
+      POSTGRES_PASSWORD: openpeeps
+      POSTGRES_DB: openpeeps
+    ports:
+      - "5432:5432"
+  arango:
+    restart: always
+    image: arangodb:3.11.8
+    environment:
+      ARANGO_NO_AUTH: "1"
     ports:
       - "8529:8529"
   redis:

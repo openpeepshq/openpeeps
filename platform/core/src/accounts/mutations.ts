@@ -17,15 +17,22 @@ import { assignRole, unassignRole } from '../profiles/mutations';
 import { hash } from 'bcrypt';
 import { profilesMapping } from '../profiles/mapping';
 import { findRoleByKey } from '../roles';
-import { log, normalizeEmailAddress, sendEmailValidationMail, sendWelcomeEmail } from './helpers';
+import {
+  log,
+  normalizeEmailAddress,
+  sendEmailValidationMail,
+  sendWelcomeEmail,
+} from './helpers';
 import { findAccountByEmail } from './finders';
 import { inviteLinksMapping } from '../inviteLinks/mapping';
 import { redeemInviteLink } from '../inviteLinks/mutations';
 import { conflict } from '../errors';
 import { connector } from '../db/helpers';
 import { hub } from '../events';
-import { deletePushSubscription, listPushSubscriptionsByAccount } from '../pushSubscriptions';
-
+import {
+  deletePushSubscription,
+  listPushSubscriptionsByAccount,
+} from '../pushSubscriptions';
 
 export const createAccount = async (
   accountCreationData: AccountCreationData,
@@ -34,14 +41,22 @@ export const createAccount = async (
   const coreConfig = await config();
   const communityConf = await communityConfig();
 
-  const { email, password, emailValidated = false, inviteCode } = accountCreationData;
+  const {
+    email,
+    password,
+    emailValidated = false,
+    inviteCode,
+  } = accountCreationData;
 
   const normalizedEmail = normalizeEmailAddress(email)!; // We know that email is not undefined because of the schema
 
   const firstAccount = (await accountsMapping.count(db)) === 0;
 
   if (await findAccountByEmail(normalizedEmail)) {
-    throw conflict({ errorKey: 'emailAlreadyTaken', parameters: { email: normalizedEmail } });
+    throw conflict({
+      errorKey: 'emailAlreadyTaken',
+      parameters: { email: normalizedEmail },
+    });
   }
 
   if (
@@ -92,7 +107,7 @@ export const createAccount = async (
         log.error('Owner role missing');
       }
     } else {
-      await hub.emit("profileCreated", profile);
+      await hub.emit('profileCreated', profile);
       const registrationRoleKeys = communityConf.roles.onRegistration.add;
 
       for (const roleKey of registrationRoleKeys) {
@@ -172,12 +187,20 @@ export const deleteAccount = async (account: Account) => {
   await accountsCache.del(account.id);
   await accountsCache.del(account.email);
   const subscriptions = await listPushSubscriptionsByAccount(account);
-  await Promise.all(subscriptions.map(async (sub) => await deletePushSubscription(sub.id)))
+  await Promise.all(
+    subscriptions.map(async (sub) => await deletePushSubscription(sub.id)),
+  );
 };
 
 export const sendResetPasswordEmail = async (account: AccountWithMeta) => {
-
-  const token = await createSignedProfileAccessToken({ account, name: 'reset-password', scopes: [{ scopeLevel: 'admin', resource: { type: 'profiles', id: account.id } }], expirationTime: '1d' });
+  const token = await createSignedProfileAccessToken({
+    account,
+    name: 'reset-password',
+    scopes: [
+      { scopeLevel: 'admin', resource: { type: 'profiles', id: account.id } },
+    ],
+    expirationTime: '1d',
+  });
 
   const resetPasswordLink = `${await serverRootUrl()}/auth/reset-password#token=${token.signedToken}`;
 

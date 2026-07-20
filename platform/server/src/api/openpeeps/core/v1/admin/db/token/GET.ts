@@ -11,14 +11,16 @@ export const Error = {
   500: internalError(),
 };
 
-export const apiEndpoint = endpoint({ Output, Error }).handle(async (_, event) => {
-  const profile = await ensureRoleCapabilities(event, ['core-db-access']);
+export const apiEndpoint = endpoint({ Output, Error }).handle(
+  async (_, event) => {
+    const profile = await ensureRoleCapabilities(event, ['core-db-access']);
 
-  const token = await createSignedDbToken(profile);
+    const token = await createSignedDbToken(profile);
 
-  if (!token.signedToken) {
-    throw internalError('accessTokens.createFailed');
-  }
+    if (!token.signedToken) {
+      throw internalError('accessTokens.createFailed');
+    }
 
-  return { success: true, token: token.signedToken };
-});
+    return { success: true, token: token.signedToken };
+  },
+);

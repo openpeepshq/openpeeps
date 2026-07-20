@@ -8,7 +8,9 @@ export const throwIfUndefined = <T>(maybeObject: T | undefined): T => {
   }
 };
 
-export const toArrayBuffer = (data: SharedArrayBuffer | ArrayBuffer): ArrayBuffer => {
+export const toArrayBuffer = (
+  data: SharedArrayBuffer | ArrayBuffer,
+): ArrayBuffer => {
   if (data instanceof ArrayBuffer) {
     return data;
   }

@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1781969876190,
+      "tag": "0000_bizarre_chat",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782056276190,
+      "tag": "0001_search_vector",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782142676190,
+      "tag": "0002_data_migrations_id_text",
+      "breakpoints": true
+    }
+  ]
+}

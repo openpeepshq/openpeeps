@@ -144,7 +144,7 @@ const startServer = async () => {
     next();
   });
 
-  // ArangoDB Aardvark browser proxy (same as SvelteKit `/_db` route).
+  // Legacy /_db URLs redirect to /admin/db (Postgres admin instructions).
   installDbBrowserProxy(app);
 
   // S3-compatible endpoint LiveKit egress uploads jam recordings to. Mirrors

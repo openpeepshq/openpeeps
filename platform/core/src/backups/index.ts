@@ -1,46 +1,43 @@
 import {
-  appendFile,
   access,
   cp,
   mkdir,
   mkdtemp,
   readdir,
+  rm,
   writeFile,
   readFile,
 } from 'node:fs/promises';
-import { constants, createReadStream, createWriteStream } from 'node:fs';
+import { constants, createWriteStream } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { emptyDir } from 'fs-extra';
-import { createInterface } from 'node:readline';
-import { join, sep } from 'node:path';
+import { join, sep, isAbsolute } from 'node:path';
 import { tmpdir } from 'node:os';
-import { aql } from 'arangojs';
 import archiver from 'archiver';
 import extract from 'extract-zip';
-import { allpeepDb, arangoDb } from '../db';
-import { communityConfig, config } from '../config';
-import { logger } from '../log';
-import { ensureIndexedCollection } from '../db/helpers';
 import { collectionInfos } from '../db';
-import { runDataMigrations } from '../db/dataMigrations';
-import { CollectionInfo } from '@openpeeps/arango-querybuilder';
-import { setDefaultRoles } from '../roles';
+import { communityConfig, config } from '../config';
+import {
+  exportAllPostgresCollections,
+  importAllArangoCollections,
+  importAllPostgresCollections,
+} from '../db/migration/importCollections';
 import { replaceHostname } from '../db/replaceHostname';
+import { logger } from '../log';
+import { setDefaultRoles } from '../roles';
+import {
+  resolveBackupDatabaseType,
+  type BackupDatabaseType,
+  type BackupMetadata,
+} from './metadata';
+
+export { resolveBackupDatabaseType } from './metadata';
 
 const log = logger('core:backups');
 
 /** Safety net if extraction stalls (normal 1 GiB restore finishes in a few minutes). */
 const EXTRACT_TIMEOUT_MS = 30 * 60 * 1000;
 
-/**
- * Native `unzip` (Info-ZIP) extractor used on Linux containers. Node-based zip
- * libraries (`unarchive`, `extract-zip`) reliably wedge at ~1 GiB on linux/x64
- * with 0% CPU; the system `unzip` binary handles the same archives without issue.
- *
- * `-qq` silences per-file output so the OS pipe buffer (~64 KiB) can't fill
- * and deadlock the child on `write()` for large archives. We still drain
- * stderr and capture the tail for diagnostics if `unzip` exits non-zero.
- */
 const extractWithUnzipCli = (
   zipPath: string,
   tempDir: string,
@@ -59,7 +56,9 @@ const extractWithUnzipCli = (
     proc.on('error', (err: NodeJS.ErrnoException) => {
       reject(
         err.code === 'ENOENT'
-          ? new Error('unzip binary not found (install unzip in the container image)')
+          ? new Error(
+              'unzip binary not found (install unzip in the container image)',
+            )
           : err,
       );
     });
@@ -97,14 +96,30 @@ const extractWithExtractZip = (
   },
 });
 
-const extractZipArchive = (zipPath: string, tempDir: string) =>
-  process.platform === 'linux'
-    ? extractWithUnzipCli(zipPath, tempDir)
-    : extractWithExtractZip(zipPath, tempDir);
+const extractZipArchive = (zipPath: string, tempDir: string) => {
+  if (process.platform !== 'linux') {
+    return extractWithExtractZip(zipPath, tempDir);
+  }
 
-type BackupMetadata = {
-  config?: {
-    hostname?: string;
+  const cli = extractWithUnzipCli(zipPath, tempDir);
+  let fallbackKill: (() => void) | undefined;
+  const promise = cli.promise.catch(async (err: unknown) => {
+    const message = err instanceof Error ? err.message : String(err);
+    if (!message.includes('unzip binary not found')) {
+      throw err;
+    }
+    log.warn('unzip CLI unavailable; falling back to extract-zip');
+    const fallback = extractWithExtractZip(zipPath, tempDir);
+    fallbackKill = fallback.kill;
+    await fallback.promise;
+  });
+
+  return {
+    promise,
+    kill: () => {
+      cli.kill();
+      fallbackKill?.();
+    },
   };
 };
 
@@ -160,12 +175,28 @@ const withTimeout = <T>(
 const assertBackupExtracted = async (tempDir: string) => {
   const metadataPath = join(tempDir, 'metadata.json');
   const collectionsPath = join(tempDir, 'collections');
+  const legacyDumpPath = join(tempDir, 'database.dump');
+
+  try {
+    await access(legacyDumpPath, constants.F_OK);
+    throw new Error(
+      'Backup uses legacy database.dump format (pg_dump); restore JSONL collection backups instead',
+    );
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.includes('legacy database.dump')
+    ) {
+      throw error;
+    }
+  }
 
   try {
     await access(metadataPath, constants.F_OK);
   } catch {
-    throw new Error(
-      `Backup invalid: missing metadata.json after extracting to ${tempDir}`,
+    // Legacy Arango JSONL templates (e.g. test-backup.zip) omit metadata.json.
+    log.warn(
+      `Backup has no metadata.json under ${tempDir}; treating as legacy Arango JSONL`,
     );
   }
 
@@ -188,12 +219,30 @@ const assertBackupExtracted = async (tempDir: string) => {
   log.info(`Found ${jsonlFiles.length} collection backup files in archive`);
 };
 
+const restoreDatabaseFromBackup = async (
+  collectionsDir: string,
+  databaseType: BackupDatabaseType,
+) => {
+  log.info('Restoring %s database from JSONL collections', databaseType);
+
+  const { total } =
+    databaseType === 'postgres'
+      ? await importAllPostgresCollections(collectionsDir)
+      : await importAllArangoCollections(collectionsDir);
+
+  if (total === 0) {
+    throw new Error(
+      'Backup restore completed with zero rows; archive may be empty or corrupt',
+    );
+  }
+
+  log.info('Restored %d database rows from backup', total);
+};
+
 export const createBackup = async () => {
   try {
-    const db = await allpeepDb();
     const coreConfig = await config();
     const comConfig = await communityConfig();
-    const collections = await db.db.listCollections();
     const dirName = (
       comConfig.info.name +
       '-backup-' +
@@ -206,6 +255,7 @@ export const createBackup = async () => {
     const collectionsDir = join(backupDir, 'collections');
     const mediaDir = join(backupDir, 'media');
     const logsDir = join(backupDir, 'logs');
+
     await mkdir(metaDir);
     await mkdir(collectionsDir);
     await mkdir(mediaDir);
@@ -225,6 +275,7 @@ export const createBackup = async () => {
       join(backupDir, 'metadata.json'),
       JSON.stringify(
         {
+          databaseType: 'postgres',
           config: {
             hostname: hostnameFromServerHost(coreConfig.server.host),
           },
@@ -234,30 +285,12 @@ export const createBackup = async () => {
       ),
     );
 
-    for (const collection of collections) {
-      const collectionName = collection.name;
-
-      const collectionData = db.db.collection(collectionName);
-
-      const collectionFileName = join(
-        collectionsDir,
-        `${collectionName}.jsonl`,
-      );
-
-      const allCollectionCursor = await db.db.query(
-        aql`
-        FOR doc IN ${collectionData}
-        RETURN doc
-      `,
-      );
-
-      for await (const doc of allCollectionCursor) {
-        await appendFile(collectionFileName, JSON.stringify(doc) + '\n');
-      }
-    }
+    log.info('Exporting Postgres tables to JSONL collections');
+    await exportAllPostgresCollections(collectionsDir);
 
     const backupZip = `${backupDir}.zip`;
     await zipDirectory(backupDir, backupZip);
+    await rm(backupDir, { recursive: true, force: true });
 
     return backupDir.split(sep).pop();
   } catch (e) {
@@ -288,11 +321,13 @@ export const listAllBackups = async () => {
 export const restoreBackups = async (zipFilePath: string) => {
   console.log('Restoring backup', zipFilePath);
   log.info(`Restoring backup ${zipFilePath}`);
-  const database = await arangoDb();
-  log.info(`Database connected`);
   const coreConfig = await config();
   const tempDir = await mkdtemp(join(tmpdir(), 'restore-'));
-  const zipPath = join(tmpdir(), zipFilePath);
+  // Admin/CLI may pass a bare filename under tmpdir(); fixtures pass absolute paths.
+  // Do not path.join(tmpdir(), absolutePath) — Node join keeps the tmpdir prefix.
+  const zipPath = isAbsolute(zipFilePath)
+    ? zipFilePath
+    : join(tmpdir(), zipFilePath);
   log.info(`Unpacking backup into ${tempDir} ...`);
 
   const extraction = extractZipArchive(zipPath, tempDir);
@@ -309,6 +344,7 @@ export const restoreBackups = async (zipFilePath: string) => {
   }
   log.info(`Unpacking backup into ${tempDir} complete`);
   await assertBackupExtracted(tempDir);
+
   const collectionsDir = join(tempDir, 'collections');
   const backupMetadata: BackupMetadata | undefined = await readFile(
     join(tempDir, 'metadata.json'),
@@ -316,6 +352,7 @@ export const restoreBackups = async (zipFilePath: string) => {
   )
     .then(JSON.parse)
     .catch(() => undefined);
+  const databaseType = resolveBackupDatabaseType(backupMetadata);
 
   log.info(`Emptying media directory ${coreConfig.media.storage.params.path}`);
   await emptyDir(coreConfig.media.storage.params.path);
@@ -333,104 +370,15 @@ export const restoreBackups = async (zipFilePath: string) => {
     recursive: true,
   });
 
-  const restoreCollectionInfos: Record<string, CollectionInfo> = await readFile(
-    join(tempDir, 'meta', 'collectionInfos.json'),
-    'utf-8',
-  )
-    .then(JSON.parse)
-    .catch(() => collectionInfos);
+  await restoreDatabaseFromBackup(collectionsDir, databaseType);
 
-  log.info(`Restoring collections`);
-  let totalDocuments = 0;
-  for (const collectionInfo of Object.values(restoreCollectionInfos)) {
-    const collectionName = collectionInfo.name;
-    const jsonlPath = join(collectionsDir, `${collectionName}.jsonl`);
-
-    try {
-      await access(jsonlPath, constants.F_OK);
-    } catch {
-      log.info(`Skipping collection ${collectionName} (no backup file)`);
-      continue;
-    }
-
-    log.info(`Restoring collection ${collectionName}`);
-    const oldCollection = database.collection(collectionName);
-    if (await oldCollection.exists()) {
-      log.info(`Dropping collection ${collectionName}`);
-      await oldCollection.drop();
-    }
-
-    const collectionObject = await ensureIndexedCollection(
-      database,
-      collectionInfo,
-    );
-    let buffer = '';
-    let documentCount = 0;
-
-    const lineReader = createInterface({
-      input: createReadStream(jsonlPath),
-      crlfDelay: Infinity,
-    });
-
-    for await (const line of lineReader) {
-      buffer += line;
-      try {
-        const json = JSON.parse(buffer);
-
-        buffer = '';
-
-        await collectionObject.save(json, { returnNew: true });
-        documentCount++;
-      } catch (err: any) {
-        const isInvalidJSON: boolean =
-          err.message.includes('Unexpected end of JSON input') ||
-          err.message.includes('Unterminated string') ||
-          err.message.includes('Unexpected token');
-        if (!isInvalidJSON) {
-          log.error(
-            `JSON parse error in ${collectionName}:`,
-            err.message,
-          );
-          buffer = '';
-          throw err;
-        }
-      }
-    }
-
-    if (buffer.trim().length > 0) {
-      throw new Error(
-        `Unparsed JSON remaining in ${collectionName}: ${buffer.slice(0, 200)}`,
-      );
-    }
-
-    totalDocuments += documentCount;
-    log.info(
-      `Successfully restored collection ${collectionName} (${documentCount} documents)`,
-    );
-  }
-
-  log.info(`Restored ${totalDocuments} documents across all collections`);
-  if (totalDocuments === 0) {
-    throw new Error(
-      'Backup restore completed with zero documents; archive may be empty or corrupt',
-    );
-  }
-
-  const newCollectionNames = Object.values(restoreCollectionInfos).map(
-    (ci) => ci.name,
-  );
-  for (const oldCollection of await database.listCollections()) {
-    if (!newCollectionNames.includes(oldCollection.name)) {
-      await database.collection(oldCollection.name).drop();
-      log.info(`Dropped collection ${oldCollection.name}`);
-    }
-  }
-
-  await runDataMigrations(database);
   await replaceHostname(
-    database,
     backupMetadata?.config?.hostname,
     hostnameFromServerHost(coreConfig.server.host),
+  );
+
+  log.info(
+    `Restored ${databaseType} backup (hostname was ${backupMetadata?.config?.hostname ?? 'unknown'})`,
   );
 
   await setDefaultRoles();

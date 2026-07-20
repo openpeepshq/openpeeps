@@ -17,6 +17,12 @@ If you're trying to access the Release Notes, you may visit the [Release Notes](
 
 <div style="height:20px"></div>
 
+## Operations
+
+- [Backups](/docs/admin/backups) - Backup archive format, restore, and migration from ArangoDB
+
+<div style="height:20px"></div>
+
 <div style="height:20px"></div>
 
 ## Accessing the Community Administration interface

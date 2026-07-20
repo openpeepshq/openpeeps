@@ -555,6 +555,37 @@ describe('capabilitiesHelpers', () => {
       );
       expect(result).toBeDefined();
     });
+
+    it('allows anonymous reads when none grants core-groups-read', () => {
+      const publicGroup = {
+        ...mockGroup,
+        capabilities: {
+          none: { add: ['core-groups-read'], remove: [] },
+        },
+      } as GroupWithMeta;
+      const result = checkGroupCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-groups-read'],
+        publicGroup,
+      );
+      expect(result.success).toBe(true);
+      expect(result.missingScope).toBeUndefined();
+    });
+
+    it('denies anonymous reads when none does not grant core-groups-read', () => {
+      const privateGroup = {
+        ...mockGroup,
+        capabilities: {
+          member: { add: ['core-groups-read'], remove: [] },
+        },
+      } as GroupWithMeta;
+      const result = checkGroupCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-groups-read'],
+        privateGroup,
+      );
+      expect(result.success).toBe(false);
+    });
   });
 
   describe('checkPostCapabilities', () => {

@@ -33,7 +33,7 @@ import addCreatorIdsToPosts from './migrations/202510081854-add-creator-ids-to-p
 import removeJamMessagesWithoutProfileId from './migrations/202510160916-remove-jam-messages-without-profile-id';
 import makeCurrentUsersMembers from './migrations/202510281401-make-current-users-members';
 import createProfileSettings from './migrations/202511201612-create-profile-configs';
-import deleteInvalidReports from './migrations/202601201200-deleting-invalid-reports'
+import deleteInvalidReports from './migrations/202601201200-deleting-invalid-reports';
 import deleteDuplicateGroupMemberships from './migrations/202602200230-deleting-duplicate-group-memberships';
 import addMemberPostCapabilities from './migrations/202602261200-add-member-post-capabilities';
 import removingDeletedAccounts from './migrations/202603180917-permanently-removing-deleted-accounts';

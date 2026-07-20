@@ -96,8 +96,13 @@ const allpeepStorage = async (
    * TypeScript across the boundary.
    */
   const getStream: MediaStorage['getStream'] = async (id) =>
-    Readable.toWeb(createReadStream(storagePath + '/' + id)) as unknown as
-      ReturnType<MediaStorage['getStream']> extends Promise<infer R> ? R : never;
+    Readable.toWeb(
+      createReadStream(storagePath + '/' + id),
+    ) as unknown as ReturnType<MediaStorage['getStream']> extends Promise<
+      infer R
+    >
+      ? R
+      : never;
 
   return {
     store: async (data: ArrayBuffer | SharedArrayBuffer) => {

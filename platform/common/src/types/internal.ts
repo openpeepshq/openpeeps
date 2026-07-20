@@ -49,6 +49,11 @@ export const groupWithMetaSchema = groupDataSchema.extend({
   lastPostAt: z.string().datetime().nullable().optional(),
 });
 
+export const adminGroupSchema = groupWithMetaSchema.extend({
+  postsCount: z.number(),
+  admins: profileSchema.array(),
+});
+
 export const membershipSchema = groupRoleSchema.extend({
   group: modelSchema(groupWithMetaSchema),
 });
@@ -57,6 +62,7 @@ export type Membership = z.infer<typeof membershipSchema>;
 
 export type GroupWithMeta = z.infer<typeof groupWithMetaSchema>;
 export type GroupWithMetaInput = z.input<typeof groupWithMetaSchema>;
+export type AdminGroup = z.infer<typeof adminGroupSchema>;
 
 export const profileWithMetaSchema = profileDataSchema.extend({
   ...baseSchemaShape,
@@ -217,7 +223,7 @@ export interface ExpandedNotification {
   group?: Group | null;
   post?: PostWithMeta | null;
   data?: unknown;
-};
+}
 
 export const expandedNotificationSchema = z.object({
   id: z.string().uuid(),
@@ -235,7 +241,6 @@ export const expandedNotificationSchema = z.object({
   post: postWithMetaSchema.nullable().optional(),
   data: jsonSchema.optional(),
 });
-
 
 export const groupMemberSchema = groupRoleSchema.extend({
   profile: profileWithMetaSchema,
@@ -281,7 +286,7 @@ export type ReportWithMeta = Report & {
 
 export const jamRecordingWithMetaSchema = jamRecordingSchema.extend({
   profile: profileWithMetaSchema,
-  post: postWithMetaSchema
+  post: postWithMetaSchema,
 });
 
 export type JamRecordingWithMeta = JamRecording & {

@@ -1,10 +1,7 @@
 import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import { join, normalize, sep } from 'node:path';
-import type {
-  MediaStream,
-  MediaStreamStatus,
-} from '@openpeeps/common/types';
+import type { MediaStream, MediaStreamStatus } from '@openpeeps/common/types';
 import { config } from '../config';
 import { logger } from '../log';
 import { getSharedConnection } from '../redis/connection';

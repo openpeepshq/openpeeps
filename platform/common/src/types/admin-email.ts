@@ -3,7 +3,7 @@ import { z } from 'zod';
 const transportOverrideSchema = z.object({
   host: z.string().optional(),
   port: z.number().optional(),
-  secure: z.literal(true).optional(),
+  secure: z.boolean().optional(),
   auth: z
     .object({
       user: z.string().optional(),

@@ -8,13 +8,13 @@ import {
 import { extractMentionHandles } from '@openpeeps/core/posts/helpers';
 import { findPost } from '@openpeeps/core/posts';
 import { findProfile, findProfileByHandle } from '@openpeeps/core/profiles';
-import {
-  maybeCreateNotification,
-} from '@openpeeps/core/notifications';
+import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
 import { communityConfig } from '../../../config';
 
-const getMentionedProfiles = async (post: PostWithMeta): Promise<PublicProfile[]> => {
+const getMentionedProfiles = async (
+  post: PostWithMeta,
+): Promise<PublicProfile[]> => {
   const byId = new Map<string, PublicProfile>();
 
   for (const mention of post.mentions ?? []) {
@@ -62,7 +62,8 @@ export default {
     let replyTargetProfileId: string | undefined;
     if (post.inReplyToId) {
       const repliedPost = await findPost(post.inReplyToId);
-      replyTargetProfileId = (repliedPost?.profile as PublicProfile | undefined)?.id;
+      replyTargetProfileId = (repliedPost?.profile as PublicProfile | undefined)
+        ?.id;
     }
 
     const notified = new Set<string>();
@@ -97,7 +98,10 @@ export default {
     title: `${profileName(notification.senderProfile!)} mentioned you`,
     options: {
       body: notification.post?.data?.content,
-      icon: getProfileAvatar(notification.senderProfile, await communityConfig()),
+      icon: getProfileAvatar(
+        notification.senderProfile,
+        await communityConfig(),
+      ),
       actions: [
         {
           action: `goto:/posts/${notification.post?.id}`,

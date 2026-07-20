@@ -1,6 +1,6 @@
 import { aql, Database } from 'arangojs';
 import { ensureIndexedCollection } from '../../helpers';
-import { collectionInfos } from '../../structure';
+import { collectionInfos } from '../../pg/collections';
 
 export default {
   key: '0194fc1f-13ea-72f7-8954-0609b77af91e',

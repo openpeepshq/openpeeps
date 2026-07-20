@@ -88,14 +88,19 @@ export const ensureGroupCapabilities = async (
 ) => {
   await ensureAccess(event);
 
-  const { success, missingCapabilities } = checkGroupCapabilities(
+  const { success, missingCapabilities, missingScope } = checkGroupCapabilities(
     event.context.authData,
     capabilities,
     group,
   );
 
   if (!success) {
-    throw forbidden(`Missing capabilities: ${missingCapabilities.join(', ')}`);
+    const scopeHint = missingScope
+      ? ` (missing scope ${missingScope.scopeLevel}:${missingScope.resource.type})`
+      : '';
+    throw forbidden(
+      `Missing capabilities: ${missingCapabilities.join(', ')}${scopeHint}`,
+    );
   }
 };
 
@@ -279,9 +284,7 @@ export const ensureProfileOrGuest = async (
   resource?: Resource,
 ): Promise<ProfileWithMeta> => {
   const normalizedScope =
-    typeof scopeLevel === 'string'
-      ? (scopeLevel as ScopeLevel)
-      : scopeLevel;
+    typeof scopeLevel === 'string' ? (scopeLevel as ScopeLevel) : scopeLevel;
 
   if (
     event.context.currentProfile &&

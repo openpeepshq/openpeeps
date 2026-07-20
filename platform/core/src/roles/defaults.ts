@@ -25,7 +25,8 @@ export const defaultRoles: RoleData[] = [
         'core-roles-read',
         'core-maintenance-restart',
         'core-inviteLinks-*',
-      ], remove: []
+      ],
+      remove: [],
     },
     default: true,
     description: 'An admin of the community',
@@ -50,7 +51,8 @@ export const defaultRoles: RoleData[] = [
         'core-posts-create-*',
         'core-groups-create',
         'core-reports-create',
-      ], remove: []
+      ],
+      remove: [],
     },
     default: true,
     description: 'A moderator of the community',
@@ -64,7 +66,8 @@ export const defaultRoles: RoleData[] = [
         'core-posts-create-*',
         'core-groups-create',
         'core-reports-create',
-      ], remove: []
+      ],
+      remove: [],
     },
     default: true,
     description: 'A member of the community',
@@ -73,7 +76,8 @@ export const defaultRoles: RoleData[] = [
     key: 'pendingmember',
     displayName: 'Pending Member',
     capabilities: {
-      add: ['core-local'], remove: []
+      add: ['core-local'],
+      remove: [],
     },
     default: true,
     description: 'A member of the community that has not been approved yet',
@@ -82,9 +86,11 @@ export const defaultRoles: RoleData[] = [
     key: 'limitedmember',
     displayName: 'Limited Member',
     capabilities: {
-      add: [], remove: []
+      add: [],
+      remove: [],
     },
     default: true,
-    description: 'A member of the community that can only partcipate in group they are added to',
+    description:
+      'A member of the community that can only partcipate in group they are added to',
   },
 ];

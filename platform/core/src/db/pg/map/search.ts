@@ -1,0 +1,255 @@
+import { and, sql } from 'drizzle-orm';
+import type { Limit, MapData, SearchDefinition } from './queryTypes';
+import type { PgDb } from '../client';
+import type { PgQueryResult } from './types';
+import {
+  applyLimit,
+  applyPostFilters,
+  applySort,
+  partitionFilters,
+} from './filters';
+import { hydrateMapData } from './relations';
+import {
+  asTable,
+  getTableForCollection,
+  rowToDocument,
+  searchViewCollections,
+} from './registry';
+
+type SearchHit<O> = { data: O; score: number };
+
+const escapeJsonKey = (key: string) => key.replace(/'/g, "''");
+
+const normalizeSearchPath = (collection: string, field: string) => {
+  let path = field;
+  if (collection === 'posts' && path.startsWith('data.')) {
+    path = path.slice(5);
+  }
+  return path;
+};
+
+const jsonBodyTextExpr = (path: string) => {
+  const parts = path.split('.');
+  if (parts.length === 1) {
+    return sql.raw(`body->>'${escapeJsonKey(parts[0]!)}'`);
+  }
+  const parents = parts
+    .slice(0, -1)
+    .map((part) => `'${escapeJsonKey(part)}'`)
+    .join('->');
+  const last = escapeJsonKey(parts[parts.length - 1]!);
+  return sql.raw(`body->${parents}->>'${last}'`);
+};
+
+const fieldToSql = (collection: string, field: string) => {
+  const scalarFields: Record<string, Record<string, string>> = {
+    profiles: { handle: 'handle' },
+    groups: { handle: 'handle' },
+    posts: { type: 'type', visibility: 'visibility' },
+  };
+
+  const scalars = scalarFields[collection];
+  const path = normalizeSearchPath(collection, field);
+  const top = path.split('.')[0];
+  if (scalars?.[top]) {
+    return sql.raw(`"${scalars[top]}"`);
+  }
+
+  return jsonBodyTextExpr(path);
+};
+
+const fieldMatchesQuery = (
+  collection: string,
+  field: string,
+  query: string,
+) => {
+  const like = `%${query}%`;
+  const scalarFields: Record<string, Record<string, string>> = {
+    profiles: { handle: 'handle' },
+    groups: { handle: 'handle' },
+    posts: { type: 'type', visibility: 'visibility' },
+  };
+  const path = normalizeSearchPath(collection, field);
+  const top = path.split('.')[0];
+  if (scalarFields[collection]?.[top]) {
+    return sql`${fieldToSql(collection, field)} ILIKE ${like}`;
+  }
+
+  const parts = path.split('.');
+  if (parts[0] === 'attachments' && parts.length === 2) {
+    return sql`EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(body->'attachments', '[]'::jsonb)) AS elem WHERE elem->>${parts[1]!} ILIKE ${like})`;
+  }
+  if (parts[0] === 'options' && parts.length === 2) {
+    return sql`EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(body->'options', '[]'::jsonb)) AS elem WHERE elem->>${parts[1]!} ILIKE ${like})`;
+  }
+
+  return sql`${jsonBodyTextExpr(path)} ILIKE ${like}`;
+};
+
+const searchableCollections = new Set(['profiles', 'groups', 'posts']);
+
+const searchVectorExpr = (table: Record<string, unknown>) => {
+  if (table.searchVector) {
+    return sql`${table.searchVector}`;
+  }
+  return sql`to_tsvector('english', coalesce(${table.body}::text, ''))`;
+};
+
+const buildSearchWhere = (
+  collection: string,
+  fields: string[],
+  query: string,
+  table: Record<string, unknown>,
+) => {
+  const tsQuery = sql`plainto_tsquery('english', ${query})`;
+  const tsvectorExpr = searchVectorExpr(table);
+  const ilikeParts = fields.map((field) =>
+    fieldMatchesQuery(collection, field, query),
+  );
+
+  return sql`(${tsvectorExpr} @@ ${tsQuery} OR ${sql.join(ilikeParts, sql` OR `)})`;
+};
+
+export const buildSearchResult = <O extends object>(
+  mapData: MapData<O>,
+  searchDefinition: SearchDefinition,
+): PgQueryResult<{ data: O; score: number }> => {
+  const collection =
+    searchViewCollections[searchDefinition.view] ?? mapData.collection;
+
+  const runSearch = async (db: PgDb): Promise<SearchHit<O>[]> => {
+    const tableRef = getTableForCollection(collection);
+    const table = asTable(tableRef);
+    const { sqlWhere, postFilters } =
+      collection === mapData.collection
+        ? partitionFilters(
+            mapData.collection,
+            tableRef,
+            mapData.filters as never,
+            mapData.defaultFilter as never,
+            mapData.softDelete,
+          )
+        : { sqlWhere: undefined, postFilters: [] as never[] };
+    const searchWhere = buildSearchWhere(
+      collection,
+      searchDefinition.fields,
+      searchDefinition.query,
+      table,
+    );
+    const where = sqlWhere ? and(searchWhere, sqlWhere) : searchWhere;
+    const tsQuery = sql`plainto_tsquery('english', ${searchDefinition.query})`;
+    const rank = searchableCollections.has(collection)
+      ? sql<number>`ts_rank(${searchVectorExpr(table)}, ${tsQuery})`
+      : sql<number>`ts_rank(to_tsvector('english', coalesce(${table.body}::text, '')), ${tsQuery})`;
+
+    const rows = await db
+      .select({
+        row: tableRef as never,
+        score: rank,
+      })
+      .from(tableRef as never)
+      .where(where)
+      .orderBy(sql`${rank} DESC`);
+
+    let docs: SearchHit<O>[] = rows.map(({ row, score }) => ({
+      data: rowToDocument(collection, row as Record<string, unknown>) as O,
+      score: score ?? 0,
+    }));
+
+    if (collection === mapData.collection) {
+      if (postFilters.length) {
+        docs = await Promise.all(
+          docs.map(async ({ data, score }) => ({
+            data: (
+              await hydrateMapData(
+                db,
+                mapData,
+                [data as Record<string, unknown>],
+                postFilters,
+              )
+            )[0] as O,
+            score,
+          })),
+        );
+        const filtered = applyPostFilters(
+          docs.map((d) => d.data as Record<string, unknown>),
+          postFilters,
+        );
+        docs = filtered.map((data, i) => ({
+          data: data as unknown as O,
+          score: docs[i]?.score ?? 0,
+        }));
+      } else {
+        docs = await Promise.all(
+          docs.map(async ({ data, score }) => ({
+            data: (
+              await hydrateMapData(
+                db,
+                mapData,
+                [data as Record<string, unknown>],
+                [],
+              )
+            )[0] as O,
+            score,
+          })),
+        );
+      }
+    }
+
+    docs = applySort(
+      docs,
+      mapData.sort as [string, 'ASC' | 'DESC' | undefined][] | undefined,
+    );
+    return applyLimit(docs, searchDefinition.limit ?? mapData.limit);
+  };
+
+  const runCount = async (db: PgDb): Promise<number> => {
+    const tableRef = getTableForCollection(collection);
+    const { sqlWhere, postFilters } =
+      collection === mapData.collection
+        ? partitionFilters(
+            mapData.collection,
+            tableRef,
+            mapData.filters as never,
+            mapData.defaultFilter as never,
+            mapData.softDelete,
+          )
+        : { sqlWhere: undefined, postFilters: [] as never[] };
+
+    if (!postFilters.length) {
+      const searchWhere = buildSearchWhere(
+        collection,
+        searchDefinition.fields,
+        searchDefinition.query,
+        asTable(tableRef),
+      );
+      const where = sqlWhere ? and(searchWhere, sqlWhere) : searchWhere;
+      const rows = (await db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(tableRef as never)
+        .where(where)) as { value: number | null }[];
+      return Number(rows[0]?.value ?? 0);
+    }
+
+    return runSearch(db).then((rows) => rows.length);
+  };
+
+  return {
+    all: (db: PgDb) => runSearch(db),
+    count: (db: PgDb) => runCount(db),
+    first: (db: PgDb) => runSearch(db).then((rows) => rows[0]),
+    limit: (limit: Limit) =>
+      buildSearchResult(
+        { ...mapData, limit: limit as never },
+        searchDefinition,
+      ),
+    query: () => {
+      throw new Error('query() is not supported for Postgres fulltextSearch');
+    },
+    cursor: async function* (db: PgDb) {
+      for (const row of await runSearch(db)) {
+        yield row;
+      }
+    },
+  };
+};

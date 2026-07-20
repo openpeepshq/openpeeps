@@ -1,7 +1,5 @@
 import { allpeepDb } from '../db';
-import {
-  Profile,
-} from '@openpeeps/common/types';
+import { Profile } from '@openpeeps/common/types';
 import { findProfileByHandle } from './finders';
 
 export * from './mapping';
@@ -26,6 +24,3 @@ export const findNewFreeHandle = async (seed: string) => {
   }
   return candidate;
 };
-
-
-

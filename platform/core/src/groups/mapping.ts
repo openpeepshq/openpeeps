@@ -1,39 +1,52 @@
-import { map } from "@openpeeps/arango-querybuilder";
-import { Relation } from "@openpeeps/arango-querybuilder/types";
-import { GroupData, GroupWithMeta } from "@openpeeps/common/types";
-import { collectionInfos } from "../db/structure";
+import { map, Relation } from '../db/pg/map';
+import { AdminGroup, GroupData, GroupWithMeta } from '@openpeeps/common/types';
+import { computedFields } from '../db/pg/queries';
+import { edgeFilters } from '../db/pg/filters';
 
 const groupRelations: Relation[] = [
-    {
-        alias: 'membersCount',
-        edgeCollection: 'userGroups',
-        direction: 'INBOUND',
-        skipEdge: true,
-        cardinality: 'one',
-        count: true,
-        mapping: {
-            collection: `profiles`,
-            softDelete: true
-        }
+  {
+    alias: 'membersCount',
+    edgeCollection: 'userGroups',
+    direction: 'INBOUND',
+    skipEdge: true,
+    cardinality: 'one',
+    count: true,
+    mapping: {
+      collection: `profiles`,
+      softDelete: true,
     },
+  },
+];
+
+const adminGroupComputedFields = [
+  computedFields.groupLastPostAt(),
+  computedFields.groupPostsCount(),
 ];
 
 export const groupsMapping = map<GroupData, GroupWithMeta>({
-    collection: 'groups',
-    relations: groupRelations,
-    derivedProperties: [
-        {
-            alias: 'lastPostAt',
-            expression: `
-                FIRST(
-                    FOR edge IN ${collectionInfos.postGroupsCollection.name}
-                        FILTER edge._to == DOC._id
-                        SORT edge.createdAt DESC
-                        LIMIT 1
-                        RETURN edge.createdAt
-                )
-            `,
-        },
-    ],
-    softDelete: true,
+  collection: 'groups',
+  relations: groupRelations,
+  computedFields: [computedFields.groupLastPostAt()],
+  softDelete: true,
+});
+
+export const adminGroupsMapping = map<GroupData, AdminGroup>({
+  collection: 'groups',
+  relations: [
+    ...groupRelations,
+    {
+      alias: 'admins',
+      edgeCollection: 'userGroups',
+      direction: 'INBOUND',
+      skipEdge: true,
+      cardinality: 'many',
+      edgeFilter: edgeFilters.groupAdminRole(),
+      mapping: {
+        collection: 'profiles',
+        softDelete: true,
+      },
+    },
+  ],
+  computedFields: adminGroupComputedFields,
+  softDelete: true,
 });

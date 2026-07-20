@@ -1,6 +1,6 @@
-import { Database } from "arangojs";
-import { GroupData } from "@openpeeps/common/types";
-import { transformDocsInCollection } from "../helpers";
+import { Database } from 'arangojs';
+import { GroupData } from '@openpeeps/common/types';
+import { transformDocsInCollection } from '../helpers';
 
 const capabilitiesToAdd = [
   'core-posts-reply',
@@ -14,7 +14,8 @@ export default {
   migration: async (db: Database) =>
     transformDocsInCollection(db, 'groups', (doc) => {
       const oldGroup = doc as GroupData;
-      const currentMemberAddCapabilities = oldGroup.capabilities?.member?.add ?? [];
+      const currentMemberAddCapabilities =
+        oldGroup.capabilities?.member?.add ?? [];
 
       return {
         ...oldGroup,
@@ -22,7 +23,9 @@ export default {
           ...oldGroup.capabilities,
           member: {
             ...oldGroup.capabilities?.member,
-            add: Array.from(new Set([...currentMemberAddCapabilities, ...capabilitiesToAdd])),
+            add: Array.from(
+              new Set([...currentMemberAddCapabilities, ...capabilitiesToAdd]),
+            ),
           },
         },
       };

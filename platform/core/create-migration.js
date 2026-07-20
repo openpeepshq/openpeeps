@@ -15,8 +15,12 @@ const migrationName = args[0];
 const migrationInfo = args[1];
 
 if (!migrationName || !migrationInfo) {
-  console.error('Usage: node create-migration.js <migration-name> <migration-info>');
-  console.error('Example: node create-migration.js "add-user-avatar" "Adding avatar field to user profiles"');
+  console.error(
+    'Usage: node create-migration.js <migration-name> <migration-info>',
+  );
+  console.error(
+    'Example: node create-migration.js "add-user-avatar" "Adding avatar field to user profiles"',
+  );
   process.exit(1);
 }
 
@@ -29,11 +33,19 @@ const kebabCaseName = migrationName
   .replace(/[^a-z0-9]+/g, '-')
   .replace(/^-+|-+$/g, '');
 
-
 const dateString = extractDateFromUUIDv7(uuid);
 // Create the migration file path
-const migrationsDir = join(__dirname, 'src', 'db', 'dataMigrations', 'migrations');
-const migrationFilePath = join(migrationsDir, `${dateString}-${kebabCaseName}.ts`);
+const migrationsDir = join(
+  __dirname,
+  'src',
+  'db',
+  'dataMigrations',
+  'migrations',
+);
+const migrationFilePath = join(
+  migrationsDir,
+  `${dateString}-${kebabCaseName}.ts`,
+);
 
 // Ensure migrations directory exists
 if (!existsSync(migrationsDir)) {
@@ -70,7 +82,13 @@ export default {
 writeFileSync(migrationFilePath, migrationContent);
 
 // Read the migrations.ts file
-const migrationsFilePath = join(__dirname, 'src', 'db', 'dataMigrations', 'migrations.ts');
+const migrationsFilePath = join(
+  __dirname,
+  'src',
+  'db',
+  'dataMigrations',
+  'migrations.ts',
+);
 const migrationsContent = readFileSync(migrationsFilePath, 'utf8');
 
 // Add import for the new migration
@@ -83,20 +101,28 @@ const lastImport = imports ? imports[imports.length - 1] : '';
 
 let newMigrationsContent = migrationsContent;
 if (lastImport) {
-  newMigrationsContent = migrationsContent.replace(lastImport, `${lastImport}\n${importStatement}`);
+  newMigrationsContent = migrationsContent.replace(
+    lastImport,
+    `${lastImport}\n${importStatement}`,
+  );
 } else {
   // If no existing imports, add after the first import
   const firstImportMatch = migrationsContent.match(/import .* from '.*';/);
   if (firstImportMatch) {
-    newMigrationsContent = migrationsContent.replace(firstImportMatch[0], `${firstImportMatch[0]}\n${importStatement}`);
+    newMigrationsContent = migrationsContent.replace(
+      firstImportMatch[0],
+      `${firstImportMatch[0]}\n${importStatement}`,
+    );
   }
 }
 
 // Add the migration to the dataMigrations array
 const migrationObject = `  ${kebabCaseName.replace(/-([a-z])/g, (g) => g[1].toUpperCase())},`;
 
-newMigrationsContent = newMigrationsContent.replace('];', `${migrationObject}\n];`);
-
+newMigrationsContent = newMigrationsContent.replace(
+  '];',
+  `${migrationObject}\n];`,
+);
 
 // Write the updated migrations.ts file
 writeFileSync(migrationsFilePath, newMigrationsContent);
@@ -109,4 +135,3 @@ console.log(`\nNext steps:`);
 console.log(`1. Edit ${migrationFilePath} to implement your migration logic`);
 console.log(`2. Test your migration`);
 console.log(`3. Run the migration when ready`);
-

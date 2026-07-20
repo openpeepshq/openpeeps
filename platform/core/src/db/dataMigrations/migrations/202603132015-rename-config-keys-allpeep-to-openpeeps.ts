@@ -21,7 +21,10 @@ export default {
     for await (const doc of cursor) {
       const newKey = NEW_PREFIX + doc._key.slice(OLD_PREFIX.length);
       const { _id, _rev, _key, ...rest } = doc;
-      await collection.save({ _key: newKey, ...rest }, { overwriteMode: 'replace' });
+      await collection.save(
+        { _key: newKey, ...rest },
+        { overwriteMode: 'replace' },
+      );
       await collection.remove(doc._id);
       console.log(`✅ Config key migrated: ${doc._key} → ${newKey}`);
     }

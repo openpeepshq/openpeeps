@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { groupWithMetaSchema } from '@openpeeps/common/types';
-import { ensureGroupCapabilities, ensureProfileOrPublicCommunity } from '#lib/auth';
+import { ensureGroupCapabilities } from '#lib/auth';
 import { notFound } from '#lib/errors';
 import { findGroupByHandle } from '@openpeeps/core/groups';
 

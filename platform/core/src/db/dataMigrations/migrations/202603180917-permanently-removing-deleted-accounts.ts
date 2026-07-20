@@ -5,8 +5,10 @@ export default {
   info: 'Removing all deleted accounts, their push subscriptions, and connecting edges',
   migration: async (db: Database) => {
     if (await db.collection('accounts').exists()) {
-
-      if (await db.collection('pushSubscriptions').exists() && await db.collection('accountToPushSubscription').exists()) {
+      if (
+        (await db.collection('pushSubscriptions').exists()) &&
+        (await db.collection('accountToPushSubscription').exists())
+      ) {
         const subscriptionsCursor = await db.query(aql`
           FOR account IN accounts
             FILTER account.deletedAt != null 
@@ -16,7 +18,9 @@ export default {
               RETURN OLD._key
         `);
         const removedSubscriptions = await subscriptionsCursor.all();
-        console.log(`Removed ${removedSubscriptions.length} subscriptions and their edges`);
+        console.log(
+          `Removed ${removedSubscriptions.length} subscriptions and their edges`,
+        );
       }
 
       const cursor = await db.query(aql`

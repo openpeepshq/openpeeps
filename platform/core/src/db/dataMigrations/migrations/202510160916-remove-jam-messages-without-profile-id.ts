@@ -1,4 +1,4 @@
-import { aql, Database } from "arangojs";
+import { aql, Database } from 'arangojs';
 
 export default {
   key: '0199ec4e-aed3-787c-a180-9aed9166a882',

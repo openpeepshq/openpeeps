@@ -1,5 +1,5 @@
 import { Database, aql } from 'arangojs';
-import { collectionInfos } from '../../structure';
+import { collectionInfos } from '../../pg/collections';
 import { logger } from '../../../log';
 
 const log = logger('db:dataMigrations');

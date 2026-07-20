@@ -5,7 +5,11 @@ import {
   notificationAll,
 } from '@openpeeps/common/types';
 import { maybeCreateNotification } from '@openpeeps/core/notifications';
-import { getProfileAvatar, profileName, truncateText } from '@openpeeps/common/lib';
+import {
+  getProfileAvatar,
+  profileName,
+  truncateText,
+} from '@openpeeps/common/lib';
 import { communityConfig } from '../../../config';
 
 export default {
@@ -21,7 +25,10 @@ export default {
     title: `${profileName(notification.senderProfile!)} followed you`,
     options: {
       body: truncateText(notification.senderProfile?.bio),
-      icon: getProfileAvatar(notification.senderProfile, await communityConfig()),
+      icon: getProfileAvatar(
+        notification.senderProfile,
+        await communityConfig(),
+      ),
       actions: [
         {
           action: `goto:/@${notification.senderProfile?.handle}`,

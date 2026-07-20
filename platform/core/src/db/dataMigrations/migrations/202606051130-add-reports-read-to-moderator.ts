@@ -25,7 +25,9 @@ export default {
       }
 
       const add = role.capabilities?.add ?? [];
-      const toAdd = MODERATOR_ADMIN_READ_CAPABILITIES.filter((c) => !add.includes(c));
+      const toAdd = MODERATOR_ADMIN_READ_CAPABILITIES.filter(
+        (c) => !add.includes(c),
+      );
       if (toAdd.length === 0) {
         return role;
       }

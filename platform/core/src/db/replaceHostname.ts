@@ -1,5 +1,7 @@
-import { aql, Database } from 'arangojs';
+import { eq } from 'drizzle-orm';
 import { logger } from '../log';
+import { pgDb } from './pg/client';
+import { asTable, getTableForCollection } from './pg/map/registry';
 
 const log = logger('db:replaceHostname');
 
@@ -9,7 +11,7 @@ const hostnameCollections = [
   'jamEvents',
   'mediaAttachments',
   'profiles',
-];
+] as const;
 
 const absoluteHttpUrlPattern = /https?:\/\/[^\s"'<>`]+/g;
 
@@ -83,44 +85,54 @@ const replaceInValue = (
 };
 
 export const replaceHostname = async (
-  db: Database,
   oldHostname?: string,
   newHostname?: string,
 ) => {
   if (!oldHostname || !newHostname || oldHostname === newHostname) {
-    log.info(`No hostname to replace`);
+    log.info('No hostname to replace');
     return;
   }
 
   log.info(`Replacing restored hostname ${oldHostname} with ${newHostname}`);
 
+  const db = pgDb();
+
   for (const collectionName of hostnameCollections) {
-    const collection = db.collection(collectionName);
-
-    if (!(await collection.exists())) {
-      continue;
-    }
-
-    const cursor = await db.query(aql`
-      FOR doc IN ${collection}
-        RETURN doc
-    `);
+    const table = getTableForCollection(collectionName);
+    const rows = await db.select().from(table as never);
     let replacedCount = 0;
 
-    for await (const doc of cursor) {
-      const updatedDoc = replaceInValue(doc, oldHostname, newHostname);
+    for (const row of rows) {
+      const current = row as Record<string, unknown>;
+      const updated = replaceInValue(
+        current,
+        oldHostname,
+        newHostname,
+      ) as Record<string, unknown>;
 
-      if (JSON.stringify(doc) === JSON.stringify(updatedDoc)) {
+      if (JSON.stringify(current) === JSON.stringify(updated)) {
         continue;
       }
 
-      await collection.replace(doc._key, updatedDoc);
+      const t = asTable(table);
+      if (collectionName === 'configs') {
+        await db
+          .update(table as never)
+          .set(updated as never)
+          .where(eq(t.key as never, current.key as string));
+      } else {
+        await db
+          .update(table as never)
+          .set(updated as never)
+          .where(eq(t.id as never, current.id as string));
+      }
+
       replacedCount += 1;
     }
 
     if (replacedCount > 0) {
       log.info(
-        `Replaced hostname in ${replacedCount} ${collectionName} document(s)`,
+        `Replaced hostname in ${replacedCount} ${collectionName} row(s)`,
       );
     }
   }

@@ -148,15 +148,38 @@ jobs:
   test-integration:
     runs-on: docker
     needs: [build, set-variables]
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [empty, default, public, sso]
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     services:
-      arangodb:
-        image: arangodb:3.11
+      postgres:
+        image: postgres:16-alpine
         env:
-          ARANGO_NO_AUTH: "true"
+          POSTGRES_USER: openpeeps
+          POSTGRES_PASSWORD: openpeeps
+          POSTGRES_DB: openpeeps
       redis:
         image: redis:alpine
+      mailpit:
+        image: axllent/mailpit:v1.21
+        env:
+          MP_SMTP_AUTH_ACCEPT_ANY: "1"
+          MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+      pushcatcher:
+        # Accepts arbitrary POSTs with HTTP 200 so webhook delivery succeeds.
+        # Full payload capture is covered in Compose via scripts/push-catcher-server.mjs.
+        image: mendhak/http-https-echo:31
+      oauth:
+        image: ghcr.io/navikt/mock-oauth2-server:2.1.10
+        env:
+          LOG_LEVEL: info
+          SERVER_PORT: "8080"
+          # Standalone defaults to interactiveLogin=true, which leaves the
+          # Playwright authorize→callback flow stuck on a login form.
+          JSON_CONFIG: '{"interactiveLogin":false,"tokenCallbacks":[{"issuerId":"default","tokenExpiry":3600,"requestMappings":[{"requestParam":"client_id","match":"*","claims":{"sub":"sso-test-user","email":"sso-oidc@openpeeps.test","preferred_username":"ssooidc","name":"SSO OIDC User"}}]}]}'
       web:
         image:
           ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
@@ -165,11 +188,158 @@ jobs:
           username: ${{ vars.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
         env:
-          DB_URL: "http://arangodb:8529"
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          AUTO_MIGRATE_FROM_ARANGO: "false"
+          DISABLE_CONFIG_CACHE: "true"
           REDIS_HOST: "redis"
           JWT_SECRET: xxx
+          EMAIL_CONFIG_HOST: mailpit
+          EMAIL_CONFIG_PORT: "1025"
+          EMAIL_CONFIG_SECURE: "false"
+          EMAIL_DEFAULT_FROM: test@openpeeps.test
+          SERVER_HOST: web:8080
+          SERVER_PROTOCOL: http
           JAMS_LIVEKIT_API_KEY: APIxxxxxxxxxxxx
           JAMS_LIVEKIT_API_SECRET: xxxxxxxxxxxxx
+      worker:
+        image:
+          ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
+          }}
+        credentials:
+          username: ${{ vars.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+        env:
+          OPENPEEPS_COMMAND: worker
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          AUTO_MIGRATE_FROM_ARANGO: "false"
+          DISABLE_CONFIG_CACHE: "true"
+          REDIS_HOST: "redis"
+          JWT_SECRET: xxx
+          EMAIL_CONFIG_HOST: mailpit
+          EMAIL_CONFIG_PORT: "1025"
+          EMAIL_CONFIG_SECURE: "false"
+          EMAIL_DEFAULT_FROM: test@openpeeps.test
+          EMAIL_RENDER_HOST_BASE_URL: http://web:8080
+          SERVER_HOST: web:8080
+          SERVER_PROTOCOL: http
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.set-variables.outputs.full_sha }}
+      - name: Install pnpm and dependencies
+        run: |
+          apt-get update -qq && apt-get install -y -qq unzip
+          corepack enable
+          pnpm install
+          pnpm --filter @openpeeps/core... build
+          cd platform/tests
+          pnpm exec playwright install chromium chromium-headless-shell
+      - name: Wait for web service
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://web:8080/health >/dev/null 2>&1; then
+              echo "Web service is ready (attempt $i)"
+              exit 0
+            fi
+            echo "Waiting for web service... ($i/60)"
+            sleep 2
+          done
+          echo "Web service did not become ready in time" >&2
+          exit 1
+      - name: Restore backup fixture
+        if: matrix.suite == 'default' || matrix.suite == 'public'
+        env:
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          AUTO_MIGRATE_FROM_ARANGO: "false"
+          JWT_SECRET: xxx
+          MEDIA_STORAGE_PARAMS_PATH: /tmp/openpeeps-media
+          LOGS_LOCAL_PATH: /tmp/openpeeps-logs
+        run: |
+          fixture=default-install.zip
+          if [ "${{ matrix.suite }}" = "public" ]; then
+            fixture=public-community.zip
+          fi
+          node platform/tests/scripts/restore-fixture.mjs "fixtures/backups/${fixture}"
+      - name: Run integration suite
+        env:
+          CI: "true"
+          PLAYWRIGHT_BASE_URL: http://web:8080
+          MAILPIT_URL: http://mailpit:8025
+          PUSH_CATCHER_URL: http://pushcatcher:8080
+          PUSH_CATCHER_ASSERT: delivery-only
+          OAUTH_ISSUER_URL: http://oauth:8080/default
+          INTEGRATION_SUITE: ${{ matrix.suite }}
+          INTEGRATION_SKIP_RESTORE: "true"
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+        run: pnpm --filter @openpeeps/tests run "test:integration:${{ matrix.suite }}"
+
+  test-integration-jams:
+    runs-on: docker
+    needs: [build, set-variables]
+    # Non-blocking when LiveKit secrets are absent; suite self-skips on placeholders.
+    continue-on-error: true
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: openpeeps
+          POSTGRES_PASSWORD: openpeeps
+          POSTGRES_DB: openpeeps
+      redis:
+        image: redis:alpine
+      mailpit:
+        image: axllent/mailpit:v1.21
+        env:
+          MP_SMTP_AUTH_ACCEPT_ANY: "1"
+          MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+      web:
+        image:
+          ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
+          }}
+        credentials:
+          username: ${{ vars.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+        env:
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          AUTO_MIGRATE_FROM_ARANGO: "false"
+          DISABLE_CONFIG_CACHE: "true"
+          REDIS_HOST: "redis"
+          JWT_SECRET: xxx
+          EMAIL_CONFIG_HOST: mailpit
+          EMAIL_CONFIG_PORT: "1025"
+          EMAIL_CONFIG_SECURE: "false"
+          EMAIL_DEFAULT_FROM: test@openpeeps.test
+          SERVER_HOST: web:8080
+          SERVER_PROTOCOL: http
+          JAMS_LIVEKIT_URL: ${{ secrets.JAMS_LIVEKIT_URL }}
+          JAMS_LIVEKIT_API_KEY: ${{ secrets.JAMS_LIVEKIT_API_KEY }}
+          JAMS_LIVEKIT_API_SECRET: ${{ secrets.JAMS_LIVEKIT_API_SECRET }}
+      worker:
+        image:
+          ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
+          }}
+        credentials:
+          username: ${{ vars.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+        env:
+          OPENPEEPS_COMMAND: worker
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          AUTO_MIGRATE_FROM_ARANGO: "false"
+          DISABLE_CONFIG_CACHE: "true"
+          REDIS_HOST: "redis"
+          JWT_SECRET: xxx
+          EMAIL_CONFIG_HOST: mailpit
+          EMAIL_CONFIG_PORT: "1025"
+          EMAIL_CONFIG_SECURE: "false"
+          EMAIL_DEFAULT_FROM: test@openpeeps.test
+          EMAIL_RENDER_HOST_BASE_URL: http://web:8080
+          SERVER_HOST: web:8080
+          SERVER_PROTOCOL: http
+          JAMS_LIVEKIT_URL: ${{ secrets.JAMS_LIVEKIT_URL }}
+          JAMS_LIVEKIT_API_KEY: ${{ secrets.JAMS_LIVEKIT_API_KEY }}
+          JAMS_LIVEKIT_API_SECRET: ${{ secrets.JAMS_LIVEKIT_API_SECRET }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -192,8 +362,17 @@ jobs:
           done
           echo "Web service did not become ready in time" >&2
           exit 1
-      - name: Run integration tests
-        run: pnpm --filter @openpeeps/tests run test:integration:no-clean
+      - name: Run jams integration suite
+        env:
+          CI: "true"
+          PLAYWRIGHT_BASE_URL: http://web:8080
+          MAILPIT_URL: http://mailpit:8025
+          INTEGRATION_SUITE: jams
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          JAMS_LIVEKIT_URL: ${{ secrets.JAMS_LIVEKIT_URL }}
+          JAMS_LIVEKIT_API_KEY: ${{ secrets.JAMS_LIVEKIT_API_KEY }}
+          JAMS_LIVEKIT_API_SECRET: ${{ secrets.JAMS_LIVEKIT_API_SECRET }}
+        run: pnpm --filter @openpeeps/tests run test:integration:jams
 
   commit-check:
     runs-on: docker

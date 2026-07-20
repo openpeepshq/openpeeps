@@ -17,7 +17,13 @@ const roleWith = (add: string[]): Role =>
 describe('adminSections', () => {
   it('shows moderation when the profile can read reports', () => {
     const roles = [roleWith(['core-reports-read', 'core-local'])];
-    expect(canAccessAdminSection(roles, { key: 'moderation', path: '/admin/moderation', capabilities: ['core-reports-read'] })).toBe(true);
+    expect(
+      canAccessAdminSection(roles, {
+        key: 'moderation',
+        path: '/admin/moderation',
+        capabilities: ['core-reports-read'],
+      }),
+    ).toBe(true);
     expect(canAccessAdminMenu(roles)).toBe(true);
   });
 
@@ -35,7 +41,13 @@ describe('adminSections', () => {
     ];
     const keys = getVisibleAdminSections(roles).map((s) => s.key);
     expect(keys).toEqual(
-      expect.arrayContaining(['members', 'groups', 'invites', 'moderation', 'analytics']),
+      expect.arrayContaining([
+        'members',
+        'groups',
+        'invites',
+        'moderation',
+        'analytics',
+      ]),
     );
     expect(keys).not.toContain('backups');
     expect(keys).not.toContain('configuration');
@@ -44,16 +56,27 @@ describe('adminSections', () => {
 
   it('does not show moderation when the profile can only update reports', () => {
     const roles = [roleWith(['core-reports-update', 'core-local'])];
-    expect(getVisibleAdminSections(roles).map((s) => s.key)).not.toContain('moderation');
+    expect(getVisibleAdminSections(roles).map((s) => s.key)).not.toContain(
+      'moderation',
+    );
   });
 
   it('shows backups when the profile has the plural backup read capability', () => {
     const roles = [roleWith(['core-backups-read'])];
-    expect(getVisibleAdminSections(roles).map((s) => s.key)).toContain('backups');
+    expect(getVisibleAdminSections(roles).map((s) => s.key)).toContain(
+      'backups',
+    );
   });
 
   it('shows all sections for the owner wildcard', () => {
     const roles = [roleWith(['*'])];
-    expect(getVisibleAdminSections(roles).length).toBe(9);
+    expect(getVisibleAdminSections(roles).length).toBe(10);
+  });
+
+  it('shows database when the profile has core-db-access', () => {
+    const roles = [roleWith(['core-db-access'])];
+    expect(getVisibleAdminSections(roles).map((s) => s.key)).toContain(
+      'database',
+    );
   });
 });

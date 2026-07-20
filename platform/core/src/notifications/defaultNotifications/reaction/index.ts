@@ -5,9 +5,7 @@ import type {
   Reaction,
 } from '@openpeeps/common/types';
 import { findProfile } from '@openpeeps/core/profiles';
-import {
-  maybeCreateNotification,
-} from '@openpeeps/core/notifications';
+import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
 import { communityConfig } from '../../../config';
 
@@ -22,7 +20,10 @@ export default {
       ' to your post',
     options: {
       body: notification.post?.data?.content,
-      icon: getProfileAvatar(notification.senderProfile, await communityConfig()),
+      icon: getProfileAvatar(
+        notification.senderProfile,
+        await communityConfig(),
+      ),
       actions: [
         {
           action: `goto:/posts/${notification.post?.id}`,
@@ -32,7 +33,11 @@ export default {
     },
   }),
   eventHandler: async (...eventData) => {
-    const [profile, post, data] = eventData as [Profile, PostWithMeta, Reaction];
+    const [profile, post, data] = eventData as [
+      Profile,
+      PostWithMeta,
+      Reaction,
+    ];
     const recipientProfile = await findProfile(post.profile.id);
 
     if (recipientProfile && recipientProfile?.id !== profile.id) {

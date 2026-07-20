@@ -17,7 +17,10 @@ import { default as groupMemberLeft } from './groupMemberLeft';
 import { default as pollVote } from './pollVote';
 import { default as newGroupPost } from './newGroupPost';
 import { default as rsvp } from './rsvp';
-import type { NotificationHandler, NotificationType } from '@openpeeps/common/types';
+import type {
+  NotificationHandler,
+  NotificationType,
+} from '@openpeeps/common/types';
 
 const defaultNotificationsHandlers: NotificationHandler[] = [
   announcement,
@@ -40,7 +43,9 @@ const defaultNotificationsHandlers: NotificationHandler[] = [
 ];
 
 export const defaultNotificationTypes: NotificationType[] =
-  defaultNotificationsHandlers.map((handler) => pick(handler, 'type', 'requiredCapabilities', 'defaultSettings'));
+  defaultNotificationsHandlers.map((handler) =>
+    pick(handler, 'type', 'requiredCapabilities', 'defaultSettings'),
+  );
 
 export const registerDefaultNotifications = async () => {
   for (const handler of defaultNotificationsHandlers) {
