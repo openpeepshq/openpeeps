@@ -73,7 +73,7 @@ export const createPost = async (
   }
 
   const group = await (repliedToPost?.group ||
-    findGroup(relations.groupId ?? ''));
+    (relations.groupId ? findGroup(relations.groupId) : undefined));
   const hashtags = extractHashtags(data);
 
   const post = await postsMapping
@@ -135,8 +135,7 @@ export const updatePost = async (
   profile: Profile,
   data: PostDataUnion,
 ) => {
-  const previousEvent =
-    post.data?.type === 'event' ? post.data : undefined;
+  const previousEvent = post.data?.type === 'event' ? post.data : undefined;
   const normalized =
     data.type === 'event' ? normalizeEventDataForSave(data) : data;
   const dataForDb =

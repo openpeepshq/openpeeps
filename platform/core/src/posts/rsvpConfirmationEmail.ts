@@ -47,7 +47,10 @@ const handleRsvpCreated = async (
     return;
   }
 
-  if (payload.previousResponse && attendingResponses.includes(payload.previousResponse)) {
+  if (
+    payload.previousResponse &&
+    attendingResponses.includes(payload.previousResponse)
+  ) {
     return;
   }
 

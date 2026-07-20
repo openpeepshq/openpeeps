@@ -6,7 +6,10 @@ export default {
   migration: async (db: Database) => {
     const collection = db.collection('configs');
 
-    if (await collection.exists() && (await collection.documentExists('allpeep-community'))) {
+    if (
+      (await collection.exists()) &&
+      (await collection.documentExists('allpeep-community'))
+    ) {
       const doc = await collection.document('allpeep-community');
 
       const theme = doc.config?.theme;
@@ -56,11 +59,12 @@ export default {
         };
 
         await collection.replace('allpeep-community', newDoc);
-        console.log("✅ Config migration applied: allpeep-community updated");
+        console.log('✅ Config migration applied: allpeep-community updated');
       } else {
-        console.log("ℹ️ Migration skipped: config already has light/dark theme");
+        console.log(
+          'ℹ️ Migration skipped: config already has light/dark theme',
+        );
       }
     }
   },
 };
-

@@ -11,6 +11,7 @@ import {
   ChartLine,
   ChevronDown,
   DatabaseBackup,
+  Database,
   Home,
   KeyRound,
   LayoutDashboard,
@@ -55,6 +56,7 @@ const adminSectionIcons: Record<AdminSectionKey, LucideIcon> = {
   apiKeys: KeyRound,
   configuration: Wrench,
   diagnostics: Stethoscope,
+  database: Database,
 };
 
 const adminSectionLabelKeys: Record<AdminSectionKey, string> = {
@@ -67,6 +69,7 @@ const adminSectionLabelKeys: Record<AdminSectionKey, string> = {
   apiKeys: 'navigation.apiKeys',
   configuration: 'navigation.configuration',
   diagnostics: 'navigation.diagnostics',
+  database: 'navigation.database',
 };
 
 function NavItem({

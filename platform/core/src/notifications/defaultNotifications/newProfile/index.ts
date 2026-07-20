@@ -1,4 +1,8 @@
-import { NotificationHandler, Profile, notificationAll } from '@openpeeps/common/types';
+import {
+  NotificationHandler,
+  Profile,
+  notificationAll,
+} from '@openpeeps/common/types';
 import { listProfilesWithCapabilities } from '@openpeeps/core/profiles';
 import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
@@ -24,7 +28,10 @@ export default {
     title: `New user ${profileName(notification.senderProfile!)} joined`,
     options: {
       body: "Let's welcome them!",
-      icon: getProfileAvatar(notification.senderProfile, await communityConfig()),
+      icon: getProfileAvatar(
+        notification.senderProfile,
+        await communityConfig(),
+      ),
       actions: [
         {
           action: `goto:/@${notification.senderProfile?.handle}`,

@@ -1,7 +1,9 @@
 #!/bin/sh
 set -e
 
-COMMAND=${1:-web}
+# Prefer OPENPEEPS_COMMAND so Forgejo/GitHub Actions service containers can
+# run as worker without a custom command (services often cannot override CMD).
+COMMAND=${OPENPEEPS_COMMAND:-${1:-web}}
 
 case "$COMMAND" in
   web)

@@ -108,7 +108,7 @@ Routes that require authentication but don't use the standard layout (e.g., paym
 **Available routes:**
 
 - `/payment/success` - Payment success page
-- `/admin/db` - Database admin interface (ArangoDB web UI)
+- `/admin/db` - In-app Postgres database explorer (`core-db-access`)
 - `/admin/diagnostics/logs` - Server logs viewer
 
 ## Authentication Routes
@@ -312,7 +312,12 @@ export default new Endpoint({ Param, Output, Error }).handle(
 - `GET /api/openpeeps/core/v1/admin/roles/[roleId]` - Get role
 - `PUT /api/openpeeps/core/v1/admin/roles/[roleId]` - Update role
 - `PUT /api/openpeeps/core/v1/admin/profiles/[profileId]/roles` - Update profile roles
-- `GET /api/openpeeps/core/v1/admin/db/token` - Get database access token
+- `GET /api/openpeeps/core/v1/admin/db/token` - Get database access token (legacy)
+- `GET /api/openpeeps/core/v1/admin/db/tables` - List Drizzle schema tables
+- `GET /api/openpeeps/core/v1/admin/db/tables/:table/rows` - Browse table rows
+- `PUT /api/openpeeps/core/v1/admin/db/tables/:table/rows` - Update a table row
+- `GET /api/openpeeps/core/v1/admin/db/tables/:table/export` - Export table CSV
+- `POST /api/openpeeps/core/v1/admin/db/sql` - Run arbitrary SQL
 - `POST /api/openpeeps/core/v1/admin/server/restart` - Restart server
 - `GET /api/openpeeps/core/v1/admin/i18n` - Get i18n data
 - `PUT /api/openpeeps/core/v1/admin/i18n/overrides` - Update i18n overrides

@@ -1,14 +1,38 @@
-import type { ServerInfo } from "@openpeeps/common/types";
-import { communityConfig, config } from "../config";
+import type { ServerInfo } from '@openpeeps/common/types';
+import { communityConfig, config } from '../config';
 
 export type DurationType =
-  | "yesterday"
-  | "today"
-  | "last7Days"
-  | "last30Days"
-  | "last90Days";
+  | 'yesterday'
+  | 'today'
+  | 'last7Days'
+  | 'last30Days'
+  | 'last90Days';
+
+/** Infer http vs https for absolute URLs (OIDC redirects, emails, media). */
+export const protocolForServerHost = (
+  host: string,
+  envProtocol = process.env.SERVER_PROTOCOL,
+): 'http' | 'https' => {
+  if (envProtocol === 'http' || envProtocol === 'https') {
+    return envProtocol;
+  }
+  if (
+    host.startsWith('localhost') ||
+    host.startsWith('127.0.0.1') ||
+    host.startsWith('[::1]')
+  ) {
+    return 'http';
+  }
+  // Docker/CI service names (e.g. web:8080) have no DNS domain — plain HTTP.
+  const hostname = host.replace(/:\d+$/, '');
+  if (!hostname.includes('.')) {
+    return 'http';
+  }
+  return 'https';
+};
+
 export const serverProtocol = async () =>
-  (await config()).server.host.startsWith("localhost") ? "http" : "https";
+  protocolForServerHost((await config()).server.host);
 
 export const serverRootUrl = async () =>
   `${await serverProtocol()}://${(await config()).server.host}`;
@@ -51,13 +75,16 @@ export const serverInfo = () =>
           },
         },
       },
-      sso: coreConfig.sso.oidc.length > 0
-        ? {
-            oidc: coreConfig.sso.oidc.map((p: { id: string; name: string }) => ({
-              id: p.id,
-              name: p.name,
-            })),
-          }
-        : undefined,
+      sso:
+        coreConfig.sso.oidc.length > 0
+          ? {
+              oidc: coreConfig.sso.oidc.map(
+                (p: { id: string; name: string }) => ({
+                  id: p.id,
+                  name: p.name,
+                }),
+              ),
+            }
+          : undefined,
     }),
   );

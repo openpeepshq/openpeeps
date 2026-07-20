@@ -42,7 +42,12 @@ export const registerConfigSchema = <T>(
     defaults,
   });
 
-registerConfigSchema('openpeeps', 'core', coreConfigSchemaFactory, defaultConfig);
+registerConfigSchema(
+  'openpeeps',
+  'core',
+  coreConfigSchemaFactory,
+  defaultConfig,
+);
 registerConfigSchema(
   'openpeeps',
   'community',
@@ -75,7 +80,9 @@ const initConfig = async <T = CoreConfig>(
     customConfigDocument?.config &&
     zodDeepPartialSchema(factory()).parse(customConfigDocument.config);
 
-  return (customConfig ? deepmerge(defaults as T, customConfig) : defaults) as T;
+  return (
+    customConfig ? deepmerge(defaults as T, customConfig) : defaults
+  ) as T;
 };
 
 export const refreshConfig = (namespace = 'openpeeps', name = 'core') => {
@@ -109,6 +116,12 @@ export const config = <T = CoreConfig>(
   name = 'core',
 ) => {
   const key = configKey(namespace, name);
+
+  // Integration suites restore backups while the process is running; skip the
+  // in-memory cache so config always reflects the current DB.
+  if (process.env.DISABLE_CONFIG_CACHE === 'true') {
+    return initConfig(namespace, name) as Promise<T>;
+  }
 
   if (!configPromises.has(key)) {
     configPromises.set(key, initConfig(namespace, name));

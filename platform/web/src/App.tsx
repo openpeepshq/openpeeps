@@ -401,9 +401,7 @@ function AppShell() {
               path="/admin/logs"
               element={<Navigate to="/admin/diagnostics/logs" replace />}
             />
-            {/* DB browser gates on `core-db-access` via the page's ProfileGuard
-                (mirrors the Svelte admin DB route), not an admin-menu section. */}
-            <Route path="/admin/db" element={<Admin.Db />} />
+            {/* DB browser gates on `core-db-access` via adminSections. */}
             <Route element={<RequireAdminSection section="apiKeys" />}>
               <Route path="/admin/api-keys" element={<Admin.ApiKeys />} />
             </Route>
@@ -708,6 +706,10 @@ function AppShell() {
                         path="/admin/diagnostics/jobs/:queue/:jobId"
                         element={<Admin.DiagnosticsJob />}
                       />
+                    </Route>
+
+                    <Route element={<RequireAdminSection section="database" />}>
+                      <Route path="/admin/db" element={<Admin.Db />} />
                     </Route>
 
                     <Route path="*" element={<NotFound />} />

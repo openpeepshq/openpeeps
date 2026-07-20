@@ -1,22 +1,119 @@
-# Local reproduction of the Forgejo `test-integration` job.
+# Local / CI reproduction of multi-suite Postgres integration tests.
 #
-# From repo root:
-#   pnpm --filter @openpeeps/tests run integration
+# From platform/tests:
+#   INTEGRATION_SUITE=empty pnpm run integration
+#   INTEGRATION_SUITE=default pnpm run integration
+#   INTEGRATION_SUITE=public pnpm run integration
+#   INTEGRATION_SUITE=sso pnpm run integration --profile sso
+#   INTEGRATION_SUITE=jams pnpm run integration
 #
-# Or step by step from `platform/tests/`:
-#   docker compose -f docker-compose.integration.yml up --build arangodb redis web
-#   docker compose -f docker-compose.integration.yml run --rm tests
-#
-# Paths in this file are relative to this directory (`platform/tests/`).
+# Paths are relative to this directory (`platform/tests/`).
+
+x-openpeeps-env: &openpeeps-env
+  DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
+  AUTO_MIGRATE_FROM_ARANGO: "false"
+  DISABLE_CONFIG_CACHE: "true"
+  REDIS_HOST: redis
+  HOST: "0.0.0.0"
+  PORT: "8080"
+  JWT_SECRET: xxx
+  EMAIL_CONFIG_HOST: mailpit
+  EMAIL_CONFIG_PORT: "1025"
+  EMAIL_CONFIG_SECURE: "false"
+  EMAIL_DEFAULT_FROM: test@openpeeps.test
+  JAMS_LIVEKIT_URL: ${JAMS_LIVEKIT_URL:-https://livekit.test.allpeep.cloud}
+  JAMS_LIVEKIT_API_KEY: ${JAMS_LIVEKIT_API_KEY:-APIxxxxxxxxxxxx}
+  JAMS_LIVEKIT_API_SECRET: ${JAMS_LIVEKIT_API_SECRET:-xxxxxxxxxxxxx}
+  SERVER_HOST: web:8080
+  SERVER_PROTOCOL: http
 
 services:
-  arangodb:
-    image: arangodb:3.11
+  postgres:
+    image: postgres:16-alpine
     environment:
-      ARANGO_NO_AUTH: "true"
+      POSTGRES_USER: openpeeps
+      POSTGRES_PASSWORD: openpeeps
+      POSTGRES_DB: openpeeps
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openpeeps -d openpeeps"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
 
   redis:
     image: redis:alpine
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+  pushcatcher:
+    image: node:24-alpine
+    working_dir: /app
+    volumes:
+      - ./scripts/push-catcher-server.mjs:/app/server.mjs:ro
+    command: ["node", "server.mjs"]
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8099"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:8099/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  oauth:
+    profiles: ["sso"]
+    image: ghcr.io/navikt/mock-oauth2-server:2.1.10
+    environment:
+      LOG_LEVEL: info
+      SERVER_PORT: "8080"
+      # Standalone defaults to interactiveLogin=true; disable so authorize
+      # immediately redirects with an auth code (and stable test claims).
+      JSON_CONFIG: '{"interactiveLogin":false,"tokenCallbacks":[{"issuerId":"default","tokenExpiry":3600,"requestMappings":[{"requestParam":"client_id","match":"*","claims":{"sub":"sso-test-user","email":"sso-oidc@openpeeps.test","preferred_username":"ssooidc","name":"SSO OIDC User"}}]}]}'
+
+  restore:
+    image: mcr.microsoft.com/playwright:v1.56.1-noble
+    working_dir: /workspace
+    volumes:
+      - ../..:/workspace
+    environment:
+      DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
+      AUTO_MIGRATE_FROM_ARANGO: "false"
+      JWT_SECRET: xxx
+      MEDIA_STORAGE_PARAMS_PATH: /tmp/openpeeps-media
+      LOGS_LOCAL_PATH: /tmp/openpeeps-logs
+      INTEGRATION_SUITE: ${INTEGRATION_SUITE:-empty}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - bash
+      - -lc
+      - |
+        set -euo pipefail
+        suite="$${INTEGRATION_SUITE:-empty}"
+        if [ "$$suite" != "default" ] && [ "$$suite" != "public" ]; then
+          echo "No fixture restore for suite $$suite"
+          exit 0
+        fi
+        fixture="default-install.zip"
+        if [ "$$suite" = "public" ]; then
+          fixture="public-community.zip"
+        fi
+        corepack enable
+        apt-get update -qq && apt-get install -y -qq unzip
+        pnpm install --filter @openpeeps/tests...
+        pnpm --filter @openpeeps/core... build
+        node platform/tests/scripts/restore-fixture.mjs "fixtures/backups/$$fixture"
 
   web:
     build:
@@ -26,19 +123,16 @@ services:
         VERSION: local-integration
         ENVIRONMENT: test
     environment:
-      DB_URL: http://arangodb:8529
-      DB_NAME: test
-      REDIS_HOST: redis
-      HOST: "0.0.0.0"
-      PORT: "8080"
-      JWT_SECRET: xxx
-      JAMS_LIVEKIT_API_KEY: APIxxxxxxxxxxxx
-      JAMS_LIVEKIT_API_SECRET: xxxxxxxxxxxxx
+      <<: *openpeeps-env
     depends_on:
-      arangodb:
-        condition: service_started
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_started
+      mailpit:
+        condition: service_started
+      restore:
+        condition: service_completed_successfully
     ports:
       - "8080:8080"
     healthcheck:
@@ -54,6 +148,25 @@ services:
       retries: 36
       start_period: 60s
 
+  worker:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        VERSION: local-integration
+        ENVIRONMENT: test
+    environment:
+      <<: *openpeeps-env
+      OPENPEEPS_COMMAND: worker
+      EMAIL_RENDER_HOST_BASE_URL: http://web:8080
+    depends_on:
+      web:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+      redis:
+        condition: service_started
+
   tests:
     image: mcr.microsoft.com/playwright:v1.56.1-noble
     working_dir: /workspace
@@ -62,12 +175,29 @@ services:
     environment:
       CI: "true"
       PLAYWRIGHT_BASE_URL: http://web:8080
-      DB_NAME: test
+      MAILPIT_URL: http://mailpit:8025
+      PUSH_CATCHER_URL: http://pushcatcher:8099
+      DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
+      OAUTH_ISSUER_URL: http://oauth:8080/default
       FORCE_COLOR: "0"
       NO_COLOR: "1"
+      INTEGRATION_SUITE: ${INTEGRATION_SUITE:-empty}
+      INTEGRATION_SKIP_RESTORE: "true"
+      JAMS_LIVEKIT_URL: ${JAMS_LIVEKIT_URL:-}
+      JAMS_LIVEKIT_API_KEY: ${JAMS_LIVEKIT_API_KEY:-}
+      JAMS_LIVEKIT_API_SECRET: ${JAMS_LIVEKIT_API_SECRET:-}
     depends_on:
       web:
         condition: service_healthy
+      worker:
+        condition: service_started
+      mailpit:
+        condition: service_started
+      pushcatcher:
+        condition: service_healthy
+      oauth:
+        condition: service_started
+        required: false
     command:
       - bash
       - -lc
@@ -89,4 +219,4 @@ services:
           echo "Waiting for web service... ($$i/60)"
           sleep 2
         done
-        pnpm run test:integration:no-clean
+        pnpm run "test:integration:$${INTEGRATION_SUITE}"

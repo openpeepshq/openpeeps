@@ -1,6 +1,6 @@
-import { Database } from "arangojs";
-import { transformDocsInCollection } from "../helpers";
-import { Profile } from "@openpeeps/common/types";
+import { Database } from 'arangojs';
+import { transformDocsInCollection } from '../helpers';
+import { Profile } from '@openpeeps/common/types';
 
 export default {
   key: '01988a61-aa54-7b47-abc8-f0e63bf5fdd6',

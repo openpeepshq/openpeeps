@@ -432,20 +432,35 @@ export const sendTestPushNotification = async (
     notificationStats,
   };
   const subscriptions = await listPushSubscriptionsByAccount(account);
-  const subscription = subscriptions
+  const webSubscription = subscriptions
     .filter((s) => s.type === 'web')
     .find((s) => s?.keys?.auth === subscriptionKey);
-  if (subscription) {
-    await sendWebPushNotification(subscription, payload)
+  if (webSubscription) {
+    await sendWebPushNotification(webSubscription, payload)
       .catch(async (error) => {
         log.error(error);
-        await deletePushSubscription(subscription.id);
+        await deletePushSubscription(webSubscription.id);
         throw error;
       })
       .then((r) => {
         if (!r?.statusCode || r.statusCode >= 400) log.error(r);
       });
-  } else {
-    throw new Error('Subscription not found');
+    return;
   }
+
+  const webhookSubscription = subscriptions
+    .filter((s) => s.type === 'webhook')
+    .find((s) => s.publicKey === subscriptionKey || s.url === subscriptionKey);
+  if (webhookSubscription) {
+    await sendWebhookPushNotification(webhookSubscription, payload).catch(
+      async (error) => {
+        log.error(error);
+        await deletePushSubscription(webhookSubscription.id);
+        throw error;
+      },
+    );
+    return;
+  }
+
+  throw new Error('Subscription not found');
 };

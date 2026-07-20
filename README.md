@@ -37,11 +37,17 @@ From the repo root:
    uses Vite envs (`VITE_*`) and only needs `VITE_API_PROXY_TARGET` if the
    server is not on `http://localhost:5173`.
 
-2. Start the database and Redis:
+2. Start Postgres and Redis:
 
    ```bash
-   docker compose up -d db redis
+   docker compose up -d postgres redis
    ```
+
+   Postgres listens on `localhost:5432` with user/database/password
+   `openpeeps`. Set `DATABASE_URL` in `.env` if you use different credentials
+   (default:
+   `postgresql://openpeeps:openpeeps@localhost:5432/openpeeps`). Drizzle
+   migrations run automatically when the server starts.
 
 3. Install workspace dependencies (only what server + web actually need):
 
@@ -81,8 +87,7 @@ From the repo root:
    scheduled tasks). It connects to the same Redis instance started in
    step 2.
 
-   Open `http://localhost:5174`. The default ArangoDB admin UI is at
-   `http://localhost:8529/`.
+   Open `http://localhost:5174`.
 
 ## Development workflow
 
@@ -110,7 +115,7 @@ automatically, so you don't need a separate build step.
 
 ## Docker / production
 
-`docker-compose.yml` only provides `db` (ArangoDB) and `redis` for local dev.
+`docker-compose.yml` provides `postgres` and `redis` for local dev.
 For a production-style build use the workspace `Dockerfile`, which:
 
 1. Installs the dependency closure for `@openpeeps/server`,
@@ -130,4 +135,6 @@ documentation.
 
 ## Database
 
-The ArangoDB web UI runs on port `8529`: <http://localhost:8529/>.
+Admins with database access use **Drizzle Studio**
+(`pnpm --filter @openpeeps/core db:studio`) or **`psql`** with `DATABASE_URL`.
+See `/admin/db` in the web app.

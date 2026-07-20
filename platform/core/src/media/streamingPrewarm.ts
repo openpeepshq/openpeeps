@@ -95,7 +95,9 @@ const prewarmVideoAttachments = async (
         continue;
       }
       const result = await ensureStreamingJob(storageId);
-      log.info(`Prewarmed HLS for ${context} attachment ${storageId}: ${result.status}`);
+      log.info(
+        `Prewarmed HLS for ${context} attachment ${storageId}: ${result.status}`,
+      );
     } catch (e) {
       // A single bad attachment shouldn't block prewarming siblings.
       log.warn(

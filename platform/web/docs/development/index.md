@@ -18,7 +18,7 @@ Here you should find everything useful to work on the AllPeep Community Server.
 
 - [Code Style](/docs/development/code-style) - Coding standards and conventions
 - [Routes](/docs/development/routes) - URL structure and routing patterns
-- [Data Storage](/docs/development/data-storage) - ArangoDB and Redis usage
+- [Data Storage](/docs/development/data-storage) - PostgreSQL and Redis usage
 - [Notifications](/docs/development/notifications) - Notification system development guide
 
 ## Extensibility

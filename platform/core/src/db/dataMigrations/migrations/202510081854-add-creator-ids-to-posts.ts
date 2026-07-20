@@ -1,8 +1,8 @@
-import { Database } from "arangojs";
-import { query } from "@openpeeps/arango-querybuilder";
-import { logger } from "../../../log";
-import { postsMapping } from "../../../posts/mapping";
-import { retrievePaged } from "../../helpers";
+import { Database } from 'arangojs';
+import { query } from '@openpeeps/arango-querybuilder';
+import { logger } from '../../../log';
+import { postsMapping } from '../../../posts/mapping';
+import { retrievePaged } from '../../helpers';
 
 const log = logger('db:dataMigrations:add-creator-ids-to-posts');
 
@@ -28,7 +28,7 @@ export default {
         } catch (error) {
           await postsCollection.remove(post.id);
           log.error(`Error updating post ${post.id}: ${error}`);
-        };
+        }
       }
       log.info(`Updated ${count} posts in ${Date.now() - startTimestamp}ms`);
     }

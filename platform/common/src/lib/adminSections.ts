@@ -52,6 +52,11 @@ export const adminSections = [
     path: '/admin/diagnostics',
     capabilities: ['core-config-read'],
   },
+  {
+    key: 'database',
+    path: '/admin/db',
+    capabilities: ['core-db-access'],
+  },
 ] as const;
 
 export type AdminSectionKey = (typeof adminSections)[number]['key'];
@@ -61,9 +66,12 @@ export type AdminSection = (typeof adminSections)[number];
 export const canAccessAdminSection = (
   roles: Role[] | undefined,
   section: AdminSection,
-): boolean => checkRoleCapabilities(roles ?? [], [...section.capabilities]).success;
+): boolean =>
+  checkRoleCapabilities(roles ?? [], [...section.capabilities]).success;
 
-export const getVisibleAdminSections = (roles: Role[] | undefined): AdminSection[] =>
+export const getVisibleAdminSections = (
+  roles: Role[] | undefined,
+): AdminSection[] =>
   adminSections.filter((section) => canAccessAdminSection(roles, section));
 
 /** True when the profile may see at least one admin menu entry. */

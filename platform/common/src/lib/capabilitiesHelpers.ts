@@ -19,7 +19,12 @@ import type {
   Resource,
   Scope,
 } from '../types';
-import { calculateRequiredScope, scopeMatches, withPublicPostReadScopes } from './scopeHelpers';
+import {
+  calculateRequiredScope,
+  scopeMatches,
+  withPublicPostReadScopes,
+  withPublicGroupReadScopes,
+} from './scopeHelpers';
 
 export const checkCapabilities = (
   neededCapabilities: string[],
@@ -79,8 +84,8 @@ export const ADMIN_SIDEBAR_MENU_CAPABILITIES = [
 ] as const;
 
 export const hasAdminSidebarAccess = (roles: Role[] = []) =>
-  ADMIN_SIDEBAR_MENU_CAPABILITIES.some((cap) =>
-    checkRoleCapabilities(roles, [cap]).success,
+  ADMIN_SIDEBAR_MENU_CAPABILITIES.some(
+    (cap) => checkRoleCapabilities(roles, [cap]).success,
   );
 
 export const isLocal = (profile: ProfileWithMeta) =>
@@ -111,7 +116,8 @@ export const getGroupRelationships = (
     return [
       'local',
       'none',
-      ...(profile.memberships.find((m) => m.group.id === group.id)?.roles ?? []),
+      ...(profile.memberships.find((m) => m.group.id === group.id)?.roles ??
+        []),
     ];
   }
   if (authData.service) {
@@ -119,7 +125,6 @@ export const getGroupRelationships = (
   }
   return ['none'];
 };
-
 
 export const getProfileRelationships = (
   authData: AuthorizationData,
@@ -149,7 +154,6 @@ export const getPostRelationships = (
   if (['public', 'local'].includes(post.visibility)) {
     relationships.push(...localOrNone(authData));
   }
-
 
   if (profile && post.audience?.some((a) => a.id === profile.id)) {
     relationships.push('audience');
@@ -227,8 +231,8 @@ const getGroupRelationshipCapabilities = (
   mergeCapabilities(
     group
       ? getGroupRelationships(authData, group).map(
-        (r) => group.capabilities?.[r] ?? { add: [], remove: [] },
-      )
+          (r) => group.capabilities?.[r] ?? { add: [], remove: [] },
+        )
       : [],
   );
 
@@ -237,7 +241,9 @@ export const getGroupCapabilitiesByRoles = (
   group?: GroupWithMeta | null,
 ) =>
   mergeCapabilities(
-    (roles ?? []).map((r) => group?.capabilities?.[r] ?? { add: [], remove: [] }),
+    (roles ?? []).map(
+      (r) => group?.capabilities?.[r] ?? { add: [], remove: [] },
+    ),
   );
 
 // Per-group powers (add member, post in group, moderate, …) come from the
@@ -263,7 +269,10 @@ export const getProfileCapabilities = (
     config,
   );
 
-const getPostVisibilityCapabilities = (post: PublicPost, profile: ProfileWithMeta | undefined) => {
+const getPostVisibilityCapabilities = (
+  post: PublicPost,
+  profile: ProfileWithMeta | undefined,
+) => {
   switch (post.visibility) {
     case 'public':
       return { add: ['core-posts-read'], remove: [] };
@@ -279,7 +288,7 @@ const getPostVisibilityCapabilities = (post: PublicPost, profile: ProfileWithMet
     default:
       return getRoleCapabilities(profile);
   }
-}
+};
 
 const getScopedPostReadCapabilities = (
   authData: AuthorizationData,
@@ -293,7 +302,10 @@ const getScopedPostReadCapabilities = (
     neededCapabilities[0] !== 'core-posts-read' ||
     !scopeMatches({
       scopes: authData.scopes,
-      requiredScope: { scopeLevel: 'admin', resource: { type: 'posts', id: post.id } },
+      requiredScope: {
+        scopeLevel: 'admin',
+        resource: { type: 'posts', id: post.id },
+      },
     })
   ) {
     return { add: [], remove: [] };
@@ -305,17 +317,17 @@ export const getPostCapabilities = (
   authData: AuthorizationData,
   post: PublicPost,
   config: CapabilitiesConfig,
-): Capabilities => mergeCapabilities([
-  getPostVisibilityCapabilities(post, authData.profile),
-  getConfigCapabilities('post', getPostRelationships(authData, post), config),
-  getConfigCapabilities(
-    'profile',
-    getProfileRelationships(authData, post.profile),
-    config,
-  ),
-  getGroupCapabilities(authData, post.group),
-])
-
+): Capabilities =>
+  mergeCapabilities([
+    getPostVisibilityCapabilities(post, authData.profile),
+    getConfigCapabilities('post', getPostRelationships(authData, post), config),
+    getConfigCapabilities(
+      'profile',
+      getProfileRelationships(authData, post.profile),
+      config,
+    ),
+    getGroupCapabilities(authData, post.group),
+  ]);
 
 const getReportCapabilities = (
   authData: AuthorizationData,
@@ -362,9 +374,17 @@ const checkCapabilitiesWithCalculatedScope = (
   neededCapabilities: string[],
   resource: Resource,
 ) => {
-  const requiredScope = calculateRequiredScope({ resource, requiredCapabilities: neededCapabilities });
-  return checkCapabilitiesWithExplicitScope(capabilities, authData, neededCapabilities, requiredScope);
-}
+  const requiredScope = calculateRequiredScope({
+    resource,
+    requiredCapabilities: neededCapabilities,
+  });
+  return checkCapabilitiesWithExplicitScope(
+    capabilities,
+    authData,
+    neededCapabilities,
+    requiredScope,
+  );
+};
 
 const checkCapabilitiesWithExplicitScope = (
   capabilities: Capabilities,
@@ -372,15 +392,17 @@ const checkCapabilitiesWithExplicitScope = (
   neededCapabilities: string[],
   requiredScope: Scope,
 ) => {
-  const capabilitiesResult = checkCapabilities(neededCapabilities, capabilities);
+  const capabilitiesResult = checkCapabilities(
+    neededCapabilities,
+    capabilities,
+  );
   const scopeResult = scopeMatches({ scopes: authData.scopes, requiredScope });
   return {
     success: capabilitiesResult.success && scopeResult,
     missingCapabilities: capabilitiesResult.missingCapabilities,
     missingScope: scopeResult ? undefined : requiredScope,
   };
-}
-
+};
 
 export const checkGroupCapabilities = (
   authData: AuthorizationData,
@@ -389,11 +411,10 @@ export const checkGroupCapabilities = (
 ) =>
   checkCapabilitiesWithCalculatedScope(
     getGroupCapabilities(authData, group),
-    authData,
+    withPublicGroupReadScopes(authData, group, neededCapabilities),
     neededCapabilities,
     { type: 'groups', id: group.id },
   );
-
 
 export const checkPostCapabilities = (
   authData: AuthorizationData,

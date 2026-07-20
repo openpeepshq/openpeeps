@@ -1,5 +1,5 @@
-import { NotificationHandler } from "@openpeeps/common/types";
-import { CoreEventKey, hub } from "../events";
+import { NotificationHandler } from '@openpeeps/common/types';
+import { CoreEventKey, hub } from '../events';
 
 export const notificationHandlers = new Map<string, NotificationHandler>();
 

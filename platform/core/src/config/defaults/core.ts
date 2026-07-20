@@ -27,11 +27,15 @@ export const defaultConfig: CoreConfig = {
     transportConfig: {
       host: process.env.EMAIL_CONFIG_HOST || 'localhost',
       port: readEnvInteger('EMAIL_CONFIG_PORT', 465),
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_CONFIG_AUTH_USER,
-        pass: process.env.EMAIL_CONFIG_AUTH_PASS,
-      },
+      secure: process.env.EMAIL_CONFIG_SECURE !== 'false',
+      ...(process.env.EMAIL_CONFIG_AUTH_USER
+        ? {
+            auth: {
+              user: process.env.EMAIL_CONFIG_AUTH_USER,
+              pass: process.env.EMAIL_CONFIG_AUTH_PASS,
+            },
+          }
+        : {}),
     },
   },
   logs,

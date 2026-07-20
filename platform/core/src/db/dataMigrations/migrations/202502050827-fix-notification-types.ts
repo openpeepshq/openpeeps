@@ -1,7 +1,7 @@
-import { Database } from "arangojs";
-import { transformDocsInCollection } from "../helpers";
-import { Notification } from "@openpeeps/common/types";
-import { camelCase } from "change-case";
+import { Database } from 'arangojs';
+import { transformDocsInCollection } from '../helpers';
+import { Notification } from '@openpeeps/common/types';
+import { camelCase } from 'change-case';
 
 export default {
   key: '0194d539-06ac-750c-9577-e982464575ae',

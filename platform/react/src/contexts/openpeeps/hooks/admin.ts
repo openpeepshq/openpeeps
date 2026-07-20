@@ -27,6 +27,19 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
     ['config'],
   ]),
   useDbToken: () => apiHook(client.admin.db.token),
+  useDbTables: () => apiHook(client.admin.db.tables),
+  useDbRows: (table: string, query?: Record<string, string>) =>
+    apiHook(client.admin.db.rows, {
+      pathParams: { table },
+      queryParams: query,
+      enabled: !!table,
+    }),
+  updateDbRowAction: payloadMutation(client.admin.db.updateRow, [
+    ['admin', 'db', 'rows'],
+  ]),
+  runDbSqlAction: payloadMutation(client.admin.db.runSql, [
+    ['admin', 'db', 'sql'],
+  ]),
   createInviteAction: payloadMutation(client.admin.invites.create, [
     ['admin', 'invites'],
   ]),
@@ -61,10 +74,10 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
   ]),
   useProfileRoles: (id: string) =>
     apiHook(client.admin.profiles.listRoles, { pathParams: { id } }),
-  updateProfileRolesAction: payloadMutation(
-    client.admin.profiles.updateRoles,
-    [['admin', 'profiles'], ['profiles']],
-  ),
+  updateProfileRolesAction: payloadMutation(client.admin.profiles.updateRoles, [
+    ['admin', 'profiles'],
+    ['profiles'],
+  ]),
   useRolesList: () => apiHook(client.admin.roles.list),
   updateRoleAction: payloadMutation(client.admin.roles.update, [
     ['admin', 'roles'],

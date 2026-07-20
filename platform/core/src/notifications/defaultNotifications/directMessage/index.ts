@@ -5,9 +5,7 @@ import {
   type ProfileWithMeta,
   notificationAll,
 } from '@openpeeps/common/types';
-import {
-  maybeCreateNotification,
-} from '@openpeeps/core/notifications';
+import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
 import { getConversationByEnd } from '@openpeeps/core/posts';
 import { communityConfig } from '../../../config';
@@ -37,9 +35,12 @@ const pushRenderer = async (notification: ExpandedNotification) => {
     title: `${profileName(notification.senderProfile!)} sent you a direct message`,
     options: {
       body: notification.post?.data?.content,
-      icon: getProfileAvatar(notification.senderProfile, await communityConfig()),
+      icon: getProfileAvatar(
+        notification.senderProfile,
+        await communityConfig(),
+      ),
       data: {
-        url: path
+        url: path,
       },
       actions: [
         {
@@ -52,17 +53,16 @@ const pushRenderer = async (notification: ExpandedNotification) => {
 };
 
 const expander = async (notification: ExpandedNotification) => {
-
   const { post, recipientProfile } = notification;
   const previousPost = post?.replyTo;
   const conversationStart =
     post &&
     recipientProfile &&
     (
-      await getConversationByEnd(
-        post,
-        { profile: recipientProfile as ProfileWithMeta, scopes: [] },
-      )
+      await getConversationByEnd(post, {
+        profile: recipientProfile as ProfileWithMeta,
+        scopes: [],
+      })
     )[0];
   return {
     ...notification,

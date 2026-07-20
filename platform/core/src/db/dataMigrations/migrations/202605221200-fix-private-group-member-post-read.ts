@@ -1,7 +1,7 @@
-import { Database } from "arangojs";
-import { GroupData } from "@openpeeps/common/types";
-import { hasMemberOnlyPostsVisibility } from "@openpeeps/common/lib";
-import { transformDocsInCollection } from "../helpers";
+import { Database } from 'arangojs';
+import { GroupData } from '@openpeeps/common/types';
+import { hasMemberOnlyPostsVisibility } from '@openpeeps/common/lib';
+import { transformDocsInCollection } from '../helpers';
 
 export default {
   key: '019f2a10-8c40-7f2a-b0a0-000000000001',

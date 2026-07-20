@@ -22,5 +22,7 @@
       "inputGlob": "{js,mjs}",
       "outputCheck": ["js", "json", "mjs"]
     }
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["drizzle.config.ts", "src/db/dataMigrations/**", "**/*.test.ts"]
 }

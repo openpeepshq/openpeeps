@@ -27,7 +27,10 @@ export default {
     title: `You've been added to ${groupName(notification.group as GroupWithMeta)}`,
     options: {
       body: 'Welcome to the group!',
-      icon: getProfileAvatar(notification.senderProfile, await communityConfig()),
+      icon: getProfileAvatar(
+        notification.senderProfile,
+        await communityConfig(),
+      ),
       actions: [
         {
           action: `goto:/groups/@${notification.group?.handle}`,

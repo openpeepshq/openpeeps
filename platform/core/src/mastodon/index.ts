@@ -1,4 +1,8 @@
-import { CustomEmoji, PostWithMeta, PublicProfile } from '@openpeeps/common/types';
+import {
+  CustomEmoji,
+  PostWithMeta,
+  PublicProfile,
+} from '@openpeeps/common/types';
 import { Account, Emoji, MediaAttachment, Status } from './typescript';
 import { serverRootUrl } from '../server';
 import { snakeCase } from 'change-case/keys';
@@ -6,7 +10,6 @@ import { snakeCase } from 'change-case/keys';
 export * from './types';
 
 const profileToAccount = async (profile: PublicProfile): Promise<Account> => {
-
   return {
     id: profile.id,
     avatar: profile.avatar ?? '',
@@ -52,5 +55,8 @@ export const postToStatus = async (o: PostWithMeta): Promise<Status> => ({
   spoiler_text: o.data?.spoilerText ?? '',
   tags: [], // TODO
   uri: `${await serverRootUrl()}/objects/${o.id}`,
-  visibility: o.visibility === 'group' || o.visibility === 'report' ? 'private' : o.visibility,
+  visibility:
+    o.visibility === 'group' || o.visibility === 'report'
+      ? 'private'
+      : o.visibility,
 });

@@ -16,5 +16,7 @@ export const convertUrls = async (
 ): Promise<MediaAttachmentData> => ({
   ...data,
   url: await setUrlToCurrentHost(data.url),
-  previewUrl: data.previewUrl ? await setUrlToCurrentHost(data.previewUrl) : null,
+  previewUrl: data.previewUrl
+    ? await setUrlToCurrentHost(data.previewUrl)
+    : null,
 });

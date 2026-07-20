@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users } from 'lucide-react';
 import { groupName } from '@openpeeps/common/lib';
-import type { GroupWithMeta } from '@openpeeps/common/types';
+import type { AdminGroup } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import {
   Button,
@@ -21,7 +21,7 @@ export function AdminGroups() {
   const { openpeepsApi } = useOpenpeeps();
   const groupsQuery = openpeepsApi.admin.useAllGroupsList();
   const [search, setSearch] = useState('');
-  const [toDelete, setToDelete] = useState<GroupWithMeta | null>(null);
+  const [toDelete, setToDelete] = useState<AdminGroup | null>(null);
 
   const createLabel = t('groups.create.title', {
     defaultValue: 'Create Group',
@@ -95,7 +95,7 @@ function DeleteGroupModal({
   group,
   onClose,
 }: {
-  group: GroupWithMeta;
+  group: AdminGroup;
   onClose: () => void;
 }) {
   const t = useT();

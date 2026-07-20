@@ -90,15 +90,17 @@ const probeSource = (inputPath: string): Promise<ProbedSource> =>
       // to the container-level bitrate (which includes audio) minus a rough
       // audio allowance, then to a resolution-based heuristic.
       const streamBitrate = Number(video.bit_rate);
-      let videoBitrateKbps = Number.isFinite(streamBitrate) && streamBitrate > 0
-        ? Math.round(streamBitrate / 1000)
-        : 0;
+      let videoBitrateKbps =
+        Number.isFinite(streamBitrate) && streamBitrate > 0
+          ? Math.round(streamBitrate / 1000)
+          : 0;
       if (!videoBitrateKbps) {
         const formatBitrate = Number(metadata.format.bit_rate);
         if (Number.isFinite(formatBitrate) && formatBitrate > 0) {
           videoBitrateKbps = Math.max(
             100,
-            Math.round(formatBitrate / 1000) - (hasAudio ? AUDIO_BITRATE_KBPS : 0),
+            Math.round(formatBitrate / 1000) -
+              (hasAudio ? AUDIO_BITRATE_KBPS : 0),
           );
         }
       }
@@ -219,10 +221,7 @@ const buildFilterComplex = (variants: Variant[]): string => {
   const splitLabels = variants.map((_, i) => `[s${i}]`).join('');
   const split = `[0:v]split=${variants.length}${splitLabels}`;
   const scales = variants
-    .map(
-      (v, i) =>
-        `[s${i}]scale=${v.width}:${v.height}:flags=lanczos[v${i}]`,
-    )
+    .map((v, i) => `[s${i}]scale=${v.width}:${v.height}:flags=lanczos[v${i}]`)
     .join('; ');
   return `${split}; ${scales}`;
 };
@@ -263,7 +262,9 @@ const runHls = async (
 ): Promise<void> => {
   // Each variant gets its own subdirectory so segment filenames never collide.
   await Promise.all(
-    variants.map((_, i) => fs.mkdir(join(streamDir, `v${i}`), { recursive: true })),
+    variants.map((_, i) =>
+      fs.mkdir(join(streamDir, `v${i}`), { recursive: true }),
+    ),
   );
 
   const segmentTemplate = join(streamDir, `v%v`, SEGMENT_PATTERN);
@@ -273,9 +274,7 @@ const runHls = async (
   // into each variant. Audio is duplicated per-variant (a:0, a:1, …) because
   // we want each variant to carry its own audio track for simplicity.
   const streamMap = variants
-    .map((_, i) =>
-      source.hasAudio ? `v:${i},a:${i}` : `v:${i}`,
-    )
+    .map((_, i) => (source.hasAudio ? `v:${i},a:${i}` : `v:${i}`))
     .join(' ');
 
   const outputOptions = [
@@ -322,9 +321,7 @@ const runHls = async (
       // Two-arg form disables fluent-ffmpeg's space-splitting heuristic.
       .outputOptions('-var_stream_map', streamMap)
       .output(variantPlaylistTemplate)
-      .on('start', (cmd) =>
-        log.debug(`ffmpeg command: ${cmd}`),
-      )
+      .on('start', (cmd) => log.debug(`ffmpeg command: ${cmd}`))
       .on('end', () => resolve())
       .on('error', (err, _stdout, stderr) => {
         // fluent-ffmpeg's `err.message` is just "ffmpeg exited with code N:
@@ -357,7 +354,9 @@ const finalizeMasterPlaylist = async (streamDir: string): Promise<void> => {
   await fs.rename(tempPath, finalPath);
 };
 
-const writeFileFromStorageToTemp = async (storageId: string): Promise<string> => {
+const writeFileFromStorageToTemp = async (
+  storageId: string,
+): Promise<string> => {
   const storage = await mediaStorage();
   const tempPath = join(
     tmpdir(),
@@ -407,18 +406,14 @@ const [mediaStreamingQueue, mediaStreamingWorker] = queueAndWorker<
         `HLS for ${storageId}: source ${source.width}x${source.height} ` +
           `@${source.videoBitrateKbps}kbps → ${variants.length} variant(s): ` +
           variants
-            .map(
-              (v) =>
-                `${v.width}x${v.height}@${v.videoBitrateKbps}kbps`,
-            )
+            .map((v) => `${v.width}x${v.height}@${v.videoBitrateKbps}kbps`)
             .join(', '),
       );
       await runHls(inputPath, streamDir, source, variants);
       await finalizeMasterPlaylist(streamDir);
       log.info(`HLS transcoding for ${storageId} finished`);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? error.message : String(error);
       log.error(`HLS transcoding for ${storageId} failed: ${message}`);
       await writeErrorsLog(streamDir, message);
       throw error;

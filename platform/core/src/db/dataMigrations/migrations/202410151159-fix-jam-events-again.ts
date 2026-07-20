@@ -11,16 +11,15 @@ export default {
       };
       return oldJamEvent.sender?.profile?.username
         ? {
-          ...oldJamEvent,
-          sender: {
-            participantId: oldJamEvent.sender.participantId,
-            profile: {
-              ...oldJamEvent.sender.profile,
-              handle: oldJamEvent.sender.profile.username,
+            ...oldJamEvent,
+            sender: {
+              participantId: oldJamEvent.sender.participantId,
+              profile: {
+                ...oldJamEvent.sender.profile,
+                handle: oldJamEvent.sender.profile.username,
+              },
             },
-          },
-        }
+          }
         : oldJamEvent;
     }),
 };
-

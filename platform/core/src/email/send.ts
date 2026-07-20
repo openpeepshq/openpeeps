@@ -72,9 +72,11 @@ let renderToken: string | undefined = undefined;
 const getRenderToken = async () => {
   if (!renderToken) {
     const accessToken = await createSignedServiceToken({
-      scopes: [{
-        resource: { type: 'render', id: '*' },
-      }],
+      scopes: [
+        {
+          resource: { type: 'render', id: '*' },
+        },
+      ],
       name: 'render-email',
       expirationTime: '99y',
     });
@@ -101,7 +103,10 @@ const renderEmailViaHttp = async (
   const renderHostBaseUrl =
     coreConfig.email.renderHostBaseUrl || (await serverRootUrl());
   const baseUrl = `${renderHostBaseUrl}/api/openpeeps/core/v1`;
-  await logStep(log, `Render via HTTP: POST ${baseUrl}/remote-control/render-email`);
+  await logStep(
+    log,
+    `Render via HTTP: POST ${baseUrl}/remote-control/render-email`,
+  );
 
   const token = await getRenderToken();
 
@@ -112,7 +117,9 @@ const renderEmailViaHttp = async (
     }),
   }).catch(async (err) => {
     await logFailure(log, err);
-    throw new Error('Fetch failed: ' + (err instanceof Error ? err.message : String(err)));
+    throw new Error(
+      'Fetch failed: ' + (err instanceof Error ? err.message : String(err)),
+    );
   });
 
   if ('data' in result) {
@@ -150,7 +157,10 @@ export const sendEmail = async (
       localKeys.length ? ` (locals: ${localKeys.join(', ')})` : ''
     }`,
   );
-  await logStep(log, `defaultFrom=${coreConfig.email.defaultFrom ?? '(unset)'}`);
+  await logStep(
+    log,
+    `defaultFrom=${coreConfig.email.defaultFrom ?? '(unset)'}`,
+  );
   await logStep(
     log,
     `SMTP transport: ${formatTransportSummary(coreConfig.email.transportConfig)}`,
@@ -201,7 +211,10 @@ export const sendEmail = async (
       `SMTP accepted message (messageId: ${result.messageId ?? 'n/a'}, response: ${result.response ?? 'n/a'})`,
     );
     if (result.rejected?.length) {
-      await logStep(log, `SMTP rejected recipients: ${result.rejected.join(', ')}`);
+      await logStep(
+        log,
+        `SMTP rejected recipients: ${result.rejected.join(', ')}`,
+      );
     }
     return result;
   } catch (err) {
@@ -221,5 +234,7 @@ export const send = async (job: Job<EmailOptions>) => {
 
   const coreConfig = await config();
   await logStep(log, 'Loaded core config');
-  return sendEmail(job.data, coreConfig, { log });
+  // Worker process registers React email templates at boot; render in-process
+  // instead of round-tripping to the API server.
+  return sendEmail(job.data, coreConfig, { log, renderLocally: true });
 };
