@@ -59,11 +59,11 @@ function MobileFooter() {
  */
 export function RootLayout({ children, sideBar }: RootLayoutProps) {
   return (
-    <div className="flex h-full w-full flex-col">
-      <div className="flex-grow">
-        <div className="flex min-h-full w-full flex-col overflow-y-auto">
-          <div className="mx-auto h-1 w-full flex-grow md:max-w-[950px]">
-            <div className="flex w-full flex-col md:flex-row">
+    <div className="flex h-full w-full flex-col overflow-x-hidden">
+      <div className="min-w-0 flex-grow">
+        <div className="flex min-h-full w-full flex-col overflow-y-auto overflow-x-hidden">
+          <div className="mx-auto h-1 w-full min-w-0 flex-grow md:max-w-[950px]">
+            <div className="flex w-full min-w-0 flex-col md:flex-row">
               <aside className="bg-card w-70 hidden shrink-0 border-r md:sticky md:top-0 md:flex md:h-screen md:self-start">
                 <SideBar
                   mainMenu={sideBar?.mainMenu?.()}
