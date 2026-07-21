@@ -1,5 +1,6 @@
 import type {
   EmailOptionsWithGlobals,
+  Event,
   PublicPost,
   PublicProfile,
 } from '@openpeeps/common/types';
@@ -17,8 +18,9 @@ const renderSubject = async (
   props: EmailOptionsWithGlobals & { locals: Locals },
 ): Promise<string> => {
   const { t } = props.globals.i18nContext;
+  const event = props.locals.post.data as Event;
   return t('emails.jamModerator.subject', {
-    jamName: props.locals.post.data.content,
+    jamName: event.name?.trim() || event.content || '',
   });
 };
 

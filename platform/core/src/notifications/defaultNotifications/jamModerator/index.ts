@@ -9,6 +9,7 @@ import {
 import { findProfile } from '@openpeeps/core/profiles';
 import { maybeCreateNotification } from '@openpeeps/core/notifications';
 import { profileName } from '@openpeeps/common/lib';
+import { initI18nEmailContext } from '../../../i18n';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
 const eventHandler = async (eventData: unknown) => {
@@ -31,19 +32,22 @@ const eventHandler = async (eventData: unknown) => {
     }
 };
 
-const pushRenderer = async (notification: ExpandedNotification) => ({
-  title: `${profileName(notification.senderProfile!)} invited you to moderate a jam`,
-  options: {
-    body: (notification.post?.data as Event).name,
-    actions: [
-      {
-        action: `goto:/events/${notification.post?.id}/jam`,
-        title: 'Join Jam',
-      },
-    ],
-  },
-  invalidateQueries: [PUSH_INVALIDATE.posts],
-});
+const pushRenderer = async (notification: ExpandedNotification) => {
+  const { t } = await initI18nEmailContext();
+  return {
+    title: `${profileName(notification.senderProfile!)} invited you to moderate a jam`,
+    options: {
+      body: (notification.post?.data as Event).name,
+      actions: [
+        {
+          action: `goto:/posts/${notification.post?.id}`,
+          title: t('emails.jamModerator.cta'),
+        },
+      ],
+    },
+    invalidateQueries: [PUSH_INVALIDATE.posts],
+  };
+};
 
 export default {
   event: 'postCreated',
