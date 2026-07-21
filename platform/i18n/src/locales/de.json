@@ -2017,7 +2017,8 @@
         "jamModerator": {
             "subject": "Sie wurden als Moderator zu {{jamName}} eingeladen!",
             "body": "{{profileName}} hat Sie eingeladen, einen Jam zu moderieren!",
-            "cta": "Jam beitreten"
+            "scheduledFor": "Der Jam ist geplant für {{when}}",
+            "cta": "Veranstaltung ansehen"
         },
         "jamSpeaker": {
             "subject": "{{profileName}} hat Sie als Sprecher zu einem Jam eingeladen!",

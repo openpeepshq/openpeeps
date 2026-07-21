@@ -2334,7 +2334,8 @@
         "jamModerator": {
             "subject": "You have been invited to {{jamName}} as a moderator!",
             "body": "{{profileName}} invited you to moderate a jam!",
-            "cta": "Join Jam"
+            "scheduledFor": "The jam is scheduled for {{when}}",
+            "cta": "View Event"
         },
         "jamSpeaker": {
             "subject": "{{profileName}} invited you to speak at a jam!",
