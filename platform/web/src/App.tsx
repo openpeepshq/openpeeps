@@ -401,10 +401,6 @@ function AppShell() {
               path="/admin/logs"
               element={<Navigate to="/admin/diagnostics/logs" replace />}
             />
-            {/* DB browser gates on `core-db-access` via adminSections. */}
-            <Route element={<RequireAdminSection section="apiKeys" />}>
-              <Route path="/admin/api-keys" element={<Admin.ApiKeys />} />
-            </Route>
 
             {/* Everything else under the standard RootLayout shell */}
             <Route
@@ -569,6 +565,13 @@ function AppShell() {
                       <Route
                         path="/admin/members"
                         element={<Admin.Members />}
+                      />
+                    </Route>
+
+                    <Route element={<RequireAdminSection section="apiKeys" />}>
+                      <Route
+                        path="/admin/api-keys"
+                        element={<Admin.ApiKeys />}
                       />
                     </Route>
 

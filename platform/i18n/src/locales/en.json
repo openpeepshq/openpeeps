@@ -964,6 +964,38 @@
             "title": "Access denied",
             "description": "You do not have permission to view this part of the administration area."
         },
+        "apiKeys": {
+            "title": "Service Access Tokens",
+            "createTitle": "Create Service Access Token",
+            "createDescription": "Create a service token for integrations. Copy the token value when it is created.",
+            "create": "Create Service Token",
+            "creating": "Creating…",
+            "createError": "Failed to create service token.",
+            "name": "Name",
+            "nameRequired": "Name is required.",
+            "descriptionLabel": "Description",
+            "expiration": "Expiration",
+            "expirationOptions": {
+                "sevenDays": "7 days",
+                "thirtyDays": "30 days",
+                "ninetyDays": "90 days",
+                "oneYear": "1 year"
+            },
+            "scopes": "Scopes",
+            "addScope": "Add Scope",
+            "removeScope": "Remove",
+            "scopeRequired": "At least one scope is required.",
+            "copy": "Copy",
+            "copyWarning": "Copy this token now. It will not be shown again.",
+            "listTitle": "Service Access Tokens",
+            "empty": "No active service access tokens.",
+            "expiresAt": "Expires at",
+            "never": "Never",
+            "revoke": "Revoke",
+            "revoked": "Revoked",
+            "noScopes": "No scopes",
+            "expiredToggle": "Expired tokens ({{count}})"
+        },
         "inviteLink": {
             "unlimited": "Unlimited",
             "createSuccess": "Invite link created successfully",
