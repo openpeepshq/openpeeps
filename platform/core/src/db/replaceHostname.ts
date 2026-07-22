@@ -5,11 +5,16 @@ import { asTable, getTableForCollection } from './pg/map/registry';
 
 const log = logger('db:replaceHostname');
 
+// Walk collections that embed absolute media URLs (avatar/header/image,
+// denormalized attachments, jam backgrounds). posts covers articles + events.
 const hostnameCollections = [
   'configs',
   'entries',
+  'groups',
   'jamEvents',
   'mediaAttachments',
+  'posts',
+  'profileSettings',
   'profiles',
 ] as const;
 
