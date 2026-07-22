@@ -14,6 +14,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { PlusIcon, SearchIcon, XIcon } from '~/components/icons';
 import { Input } from '~/components/ui/input';
 import { GroupMember, Profile, PublicProfile } from '@openpeeps/common';
+import {
+  canAddMember,
+  canChangeMemberRole,
+  canRemoveMember,
+} from '@openpeeps/common/lib';
 import { ThemedText } from '~/components/ui/themed-text';
 import { ActivityIndicator, Pressable } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -95,9 +100,14 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
     }
   }, [searchQuery, groupMembers, currentProfile]);
 
-  const isGroupAdmin = currentProfile?.memberships
-    .find(g => g.group.id === groupData?.id)
-    ?.roles?.includes('admin');
+  const canEditRoles =
+    !!currentProfile &&
+    !!groupData &&
+    canChangeMemberRole(currentProfile, groupData);
+  const canRemove =
+    !!currentProfile && !!groupData && canRemoveMember(currentProfile, groupData);
+  const canAdd =
+    !!currentProfile && !!groupData && canAddMember(currentProfile, groupData);
 
   const onRemoveMember = async () => {
     removeMemberFromGroup()
@@ -265,7 +275,8 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
                       setMemberToDelete(member.profile);
                       handleRemoveMemberModalPress();
                     }}
-                    isCurrentProfileAdmin={isGroupAdmin}
+                    canEditRoles={canEditRoles}
+                    canRemoveMember={canRemove}
                   />
                 );
               })}
@@ -278,7 +289,7 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
         asynOnSelect={onAddMembers}
         profilesToExclude={groupMembers?.map(m => m.profile)}
       />
-      {isGroupAdmin && (
+      {canAdd && (
         <Pressable
           onPress={handleProfileModalPress}
           className="z-20 absolute bottom-10 right-6 size-16 flex items-center justify-center bg-foreground rounded-full">

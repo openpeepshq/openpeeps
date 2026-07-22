@@ -29,14 +29,16 @@ interface GroupMemberCardProps {
   handleMakeAdmin?: () => void;
   handleRemovePrivilegesAdmin?: () => void;
   handleRemoveMember?: () => void;
-  isCurrentProfileAdmin?: boolean;
+  canEditRoles?: boolean;
+  canRemoveMember?: boolean;
   showActions?: boolean;
 }
 
 export const GroupMemberCard = ({
   member,
   showActions = true,
-  isCurrentProfileAdmin = false,
+  canEditRoles = false,
+  canRemoveMember = false,
   handleMessageMember,
   handleMakeAdmin,
   handleRemovePrivilegesAdmin,
@@ -105,7 +107,7 @@ export const GroupMemberCard = ({
                 <MessageSquareTextIcon size={16} className="text-foreground" />
                 <ThemedText>Message @{member.profile.handle}</ThemedText>
               </DropdownMenuItem>
-              {isCurrentProfileAdmin && (
+              {canEditRoles && (
                 <>
                   {member?.roles?.includes('admin') ? (
                     <DropdownMenuItem
@@ -122,15 +124,17 @@ export const GroupMemberCard = ({
                       <ThemedText>Make group admin</ThemedText>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem
-                    onPress={handleRemoveMember}
-                    className=" flex-row gap-x-2 items-center">
-                    <UserMinusIcon size={16} className="text-destructive" />
-                    <ThemedText className="text-destructive">
-                      Remove @{member.profile.handle}
-                    </ThemedText>
-                  </DropdownMenuItem>
                 </>
+              )}
+              {canRemoveMember && (
+                <DropdownMenuItem
+                  onPress={handleRemoveMember}
+                  className=" flex-row gap-x-2 items-center">
+                  <UserMinusIcon size={16} className="text-destructive" />
+                  <ThemedText className="text-destructive">
+                    Remove @{member.profile.handle}
+                  </ThemedText>
+                </DropdownMenuItem>
               )}
             </DropdownMenuGroup>
           </DropdownMenuContent>

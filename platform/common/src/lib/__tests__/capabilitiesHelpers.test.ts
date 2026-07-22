@@ -511,6 +511,44 @@ describe('capabilitiesHelpers', () => {
       expect(result?.add).toEqual([]);
       expect(result?.remove).toEqual([]);
     });
+
+    it('lets moderator grants override member removals', () => {
+      const group = {
+        ...mockGroup,
+        capabilities: {
+          member: {
+            add: ['core-posts-create-*'],
+            remove: ['core-posts-create-event'],
+          },
+          moderator: {
+            add: [
+              'core-posts-*',
+              'core-groups-addMember',
+              'core-groups-removeMember',
+            ],
+          },
+        },
+      } as GroupWithMeta;
+
+      const memberOnly = getGroupCapabilitiesByRoles(['member'], group);
+      expect(
+        checkCapabilities(['core-posts-create-event'], memberOnly).success,
+      ).toBe(false);
+
+      const moderator = getGroupCapabilitiesByRoles(
+        ['member', 'moderator'],
+        group,
+      );
+      expect(
+        checkCapabilities(['core-posts-create-event'], moderator).success,
+      ).toBe(true);
+      expect(
+        checkCapabilities(['core-groups-addMember'], moderator).success,
+      ).toBe(true);
+      expect(
+        checkCapabilities(['core-groups-update'], moderator).success,
+      ).toBe(false);
+    });
   });
 
   describe('getGroupCapabilities', () => {

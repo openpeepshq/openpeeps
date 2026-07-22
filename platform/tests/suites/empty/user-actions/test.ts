@@ -46,7 +46,13 @@ const memberCaps = {
     ],
     remove: ['core-posts-create-event'],
   },
-  moderator: { add: ['core-posts-*'] },
+  moderator: {
+    add: [
+      'core-posts-*',
+      'core-groups-addMember',
+      'core-groups-removeMember',
+    ],
+  },
   admin: { add: ['core-posts-*', 'core-groups-*'] },
 };
 

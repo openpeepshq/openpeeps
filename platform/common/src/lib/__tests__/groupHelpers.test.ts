@@ -14,7 +14,6 @@ import type {
     GroupData,
     GroupMember,
     GroupWithMeta,
-    PublicProfile,
     ProfileWithMeta,
 } from '../../types';
 import { groupRoleSchema } from '../../types/models';
@@ -50,15 +49,21 @@ const mockGroupWithMeta: GroupWithMeta = {
     deletedAt: null,
 } as GroupWithMeta;
 
-const mockProfile: PublicProfile = {
+const mockProfile: ProfileWithMeta = {
     id: 'profile1',
     displayName: 'John Doe',
     handle: 'johndoe',
-} as PublicProfile;
+    memberships: [
+        {
+            group: mockGroupWithMeta,
+            roles: ['member'],
+        },
+    ],
+} as ProfileWithMeta;
 
 const mockGroupMember: GroupMember = {
     id: 'member1',
-    profile: mockProfile as ProfileWithMeta,
+    profile: mockProfile,
     roles: ['member'],
 } as GroupMember;
 
@@ -299,6 +304,21 @@ describe('groupHelpers', () => {
             const localAdd =
                 groupCapabilityTemplates.defaultGroupClosedCommunity.capabilities.local?.add ?? [];
             expect(localAdd).toContain('core-posts-vote');
+        });
+
+        it('should grant moderators member management without group settings', () => {
+            const templates = Object.values(groupCapabilityTemplates);
+            for (const template of templates) {
+                const moderatorAdd = template.capabilities.moderator?.add ?? [];
+                expect(moderatorAdd).toContain('core-posts-*');
+                expect(moderatorAdd).toContain('core-groups-addMember');
+                expect(moderatorAdd).toContain('core-groups-removeMember');
+                expect(moderatorAdd).not.toContain('core-groups-*');
+                expect(moderatorAdd).not.toContain('core-groups-update');
+
+                const adminAdd = template.capabilities.admin?.add ?? [];
+                expect(adminAdd).toContain('core-groups-*');
+            }
         });
 
         it('should have correct structure for privateGroup', () => {

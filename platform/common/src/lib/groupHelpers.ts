@@ -94,7 +94,11 @@ export const groupCapabilityTemplates = {
         remove: ['core-posts-create-event'],
       },
       moderator: {
-        add: ['core-posts-*'],
+        add: [
+          'core-posts-*',
+          'core-groups-addMember',
+          'core-groups-removeMember',
+        ],
       },
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
@@ -125,7 +129,11 @@ export const groupCapabilityTemplates = {
         remove: ['core-posts-create-event'],
       },
       moderator: {
-        add: ['core-posts-*'],
+        add: [
+          'core-posts-*',
+          'core-groups-addMember',
+          'core-groups-removeMember',
+        ],
       },
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
@@ -152,7 +160,11 @@ export const groupCapabilityTemplates = {
         ],
       },
       moderator: {
-        add: ['core-posts-*'],
+        add: [
+          'core-posts-*',
+          'core-groups-addMember',
+          'core-groups-removeMember',
+        ],
       },
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
@@ -179,7 +191,11 @@ export const groupCapabilityTemplates = {
         ],
       },
       moderator: {
-        add: ['core-posts-*'],
+        add: [
+          'core-posts-*',
+          'core-groups-addMember',
+          'core-groups-removeMember',
+        ],
       },
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
@@ -201,7 +217,11 @@ export const groupCapabilityTemplates = {
         ],
       },
       moderator: {
-        add: ['core-posts-*'],
+        add: [
+          'core-posts-*',
+          'core-groups-addMember',
+          'core-groups-removeMember',
+        ],
       },
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
@@ -222,7 +242,11 @@ export const groupCapabilityTemplates = {
         ],
       },
       moderator: {
-        add: ['core-posts-*'],
+        add: [
+          'core-posts-*',
+          'core-groups-addMember',
+          'core-groups-removeMember',
+        ],
       },
       admin: {
         add: ['core-posts-*', 'core-groups-*'],
@@ -239,7 +263,11 @@ export const groupCapabilityTemplates = {
         add: ['core-posts-reply', 'core-posts-rsvp', 'core-posts-vote'],
       },
       moderator: {
-        add: ['core-posts-*'],
+        add: [
+          'core-posts-*',
+          'core-groups-addMember',
+          'core-groups-removeMember',
+        ],
       },
       admin: {
         add: ['core-posts-*', 'core-groups-*'],

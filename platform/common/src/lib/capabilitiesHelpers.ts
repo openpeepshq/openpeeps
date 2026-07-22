@@ -60,6 +60,50 @@ export const mergeCapabilities = (
   };
 };
 
+const capabilityCovers = (grant: string, capability: string) =>
+  grant === capability ||
+  (grant.includes('*') && capability.startsWith(grant.split('*')[0]));
+
+/** Lower → higher. Higher roles' adds clear matching removals from lower roles. */
+const groupRelationshipHierarchy: GroupRelationship[] = [
+  'none',
+  'local',
+  'invited',
+  'member',
+  'moderator',
+  'admin',
+];
+
+/**
+ * Merge per-relationship group caps in hierarchy order so e.g. moderator
+ * `core-posts-*` restores `core-posts-create-event` after a member removal.
+ */
+export const mergeGroupRelationshipCapabilities = (
+  relationships: readonly string[],
+  groupCapabilities: GroupWithMeta['capabilities'] | undefined | null,
+): Capabilities => {
+  const ordered = groupRelationshipHierarchy.filter((r) =>
+    relationships.includes(r),
+  );
+  const add: string[] = [];
+  let remove: string[] = [];
+
+  for (const relationship of ordered) {
+    const caps = groupCapabilities?.[relationship];
+    if (!caps) continue;
+
+    for (const c of caps.add ?? []) {
+      if (!add.includes(c)) add.push(c);
+      remove = remove.filter((r) => !capabilityCovers(c, r));
+    }
+    for (const c of caps.remove ?? []) {
+      if (!remove.includes(c)) remove.push(c);
+    }
+  }
+
+  return { add, remove };
+};
+
 export const checkRoleCapabilities = (
   roles: Role[] = [],
   neededCapabilities: string[],
@@ -228,23 +272,18 @@ const getGroupRelationshipCapabilities = (
   authData: AuthorizationData,
   group?: GroupWithMeta | null,
 ): Capabilities =>
-  mergeCapabilities(
-    group
-      ? getGroupRelationships(authData, group).map(
-          (r) => group.capabilities?.[r] ?? { add: [], remove: [] },
-        )
-      : [],
-  );
+  group
+    ? mergeGroupRelationshipCapabilities(
+        getGroupRelationships(authData, group),
+        group.capabilities,
+      )
+    : { add: [], remove: [] };
 
 export const getGroupCapabilitiesByRoles = (
   roles: string[] | undefined | null,
   group?: GroupWithMeta | null,
 ) =>
-  mergeCapabilities(
-    (roles ?? []).map(
-      (r) => group?.capabilities?.[r] ?? { add: [], remove: [] },
-    ),
-  );
+  mergeGroupRelationshipCapabilities(roles ?? [], group?.capabilities);
 
 // Per-group powers (add member, post in group, moderate, …) come from the
 // caller's relationship to the group (edge roles plus none/local), never from
