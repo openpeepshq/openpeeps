@@ -5,11 +5,14 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **web**: responsive unread indicators and push notification badge sync
+- **db**: migrate OpenPeeps from ArangoDB to PostgreSQL
 - **react-ui**: replace loading text with LoadingSpinner animation
 - **post**: integrate Popover component for mentions in markdown input
 
 ### Bug Fixes
 
+- **react**: updated various components to improve UX
 - **post**: fixed  pinned post refetch
 - **cleanup**: removed old skeleton theme files
 - **HeaderAvatarInput**: add specsText for cover image description
@@ -20,6 +23,7 @@ Changelog for OpenPeeps
 
 ### Refactoring
 
+- **notifications**: update jam moderator email and notification links
 - **groups**: simplify conditional rendering for group actions
 
 ### Chores
