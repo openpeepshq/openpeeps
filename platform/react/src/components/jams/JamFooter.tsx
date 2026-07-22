@@ -343,7 +343,7 @@ const MobileMenu = ({
   onToggleRecording: () => void;
   t: ReturnType<typeof useT>;
 }) => (
-  <div className="variant-filled-surface absolute bottom-20 left-2 right-2 grid grid-cols-3 rounded-md p-2">
+  <div className="bg-surface-100 text-foreground absolute bottom-20 left-2 right-2 z-50 grid grid-cols-3 rounded-md p-2">
     <button
       type="button"
       className="text-tertiary-500 flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
