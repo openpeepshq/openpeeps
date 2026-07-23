@@ -23,12 +23,14 @@ interface ConversationPreviewCardProps {
   conversation: PublicPost[];
   onPress: () => void;
   onLongPress?: () => void;
+  unreadCount?: number;
 }
 
 export const ConversationPreviewCard = ({
   conversation,
   onPress,
   onLongPress,
+  unreadCount = 0,
 }: ConversationPreviewCardProps) => {
   const profileSheetRef = useRef<BottomSheetModal>(null);
   const deleteMessageModalRef = useRef<BottomSheetModal>(null);
@@ -72,6 +74,13 @@ export const ConversationPreviewCard = ({
                     : participants
                 }
               />
+              {unreadCount > 0 ? (
+                <View className="bg-destructive size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 ml-2">
+                  <Text className="text-xs font-semibold text-destructive-foreground">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </Text>
+                </View>
+              ) : null}
             </View>
             <View className="flex-row gap-1">
               <Text className="">{lastMessage.profile.handle}</Text>

@@ -19,6 +19,8 @@ import {
 } from '../../auth/credentials';
 import { buildOpenpeepsApi } from './hooks';
 import { CredentialsStoreProvider } from '../credentialsStore';
+
+export { useHasAuthToken } from './hooks/useHasAuthToken';
 import {
   jwtHasRemainingValidityAtLeast,
   type ProfileWithMeta,

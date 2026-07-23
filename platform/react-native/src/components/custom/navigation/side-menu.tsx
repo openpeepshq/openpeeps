@@ -111,6 +111,19 @@ export const SideMenu = ({
   const { logoSmall } = useAppImagesStore();
   const logout = openpeepsApi.logoutAction();
   const { data: serverInfo } = openpeepsApi.useServerInfo();
+  const unseenCounts = openpeepsApi.useUnseenPostCounts();
+
+  const unreadGroupPosts = Object.values(
+    unseenCounts.data?.groups ?? {},
+  ).reduce((sum, count) => sum + count, 0);
+  const unreadConversationThreads = Object.keys(
+    unseenCounts.data?.direct ?? {},
+  ).length;
+
+  const menuUnreadCounts: Record<string, number> = {
+    groups: unreadGroupPosts,
+    messages: unreadConversationThreads,
+  };
 
   const { t } = useTranslation();
 
@@ -192,18 +205,29 @@ export const SideMenu = ({
                     setCurrentRoute(item.target);
                     handleNavigation({ target: item.target });
                   }}>
-                  <View className="flex-row items-center">
-                    <Icon
-                      size={20}
-                      className={`
+                  <View className="flex-row items-center flex-1 justify-between">
+                    <View className="flex-row items-center">
+                      <Icon
+                        size={20}
+                        className={`
                     ${isActive ? 'text-foreground' : 'text-muted-foreground'
                         } mr-5`}
-                    />
-                    <ThemedText
-                      className={`
+                      />
+                      <ThemedText
+                        className={`
                     ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      {t(`navigation.${item.target}`)}
-                    </ThemedText>
+                        {t(`navigation.${item.target}`)}
+                      </ThemedText>
+                    </View>
+                    {(menuUnreadCounts[item.target] ?? 0) > 0 ? (
+                      <View className="bg-destructive size-5 min-w-5 items-center justify-center rounded-full px-1">
+                        <ThemedText className="text-xs font-semibold text-destructive-foreground">
+                          {(menuUnreadCounts[item.target] ?? 0) > 99
+                            ? '99+'
+                            : menuUnreadCounts[item.target]}
+                        </ThemedText>
+                      </View>
+                    ) : null}
                   </View>
                 </Button>
               );

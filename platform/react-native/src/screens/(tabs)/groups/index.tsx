@@ -44,6 +44,8 @@ type GroupsProps = CompositeScreenProps<
 export const Groups: React.FC<GroupsProps> = ({ navigation }) => {
   const { openpeepsApi, currentProfile } = useOpenpeeps();
   const { data: groups, refetch, isLoading } = openpeepsApi.useGroups();
+  const unseenCountsQuery = openpeepsApi.useUnseenPostCounts();
+  const unseenByGroup = unseenCountsQuery.data?.groups ?? {};
 
   const [filterBy, setFilterBy] = useState<'all-groups' | 'my-groups'>(
     'all-groups',
@@ -149,6 +151,7 @@ export const Groups: React.FC<GroupsProps> = ({ navigation }) => {
               key={group.id}
               group={group}
               isGroupMember={isMember(group.id)}
+              unreadCount={isMember(group.id) ? unseenByGroup[group.id] ?? 0 : 0}
               handleViewGroup={() =>
                 navigation.navigate('Group', { id: group.id })
               }

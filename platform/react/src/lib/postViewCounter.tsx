@@ -47,7 +47,15 @@ export const usePostViewFlush = (): (() => Promise<void>) => {
   return context?.flush ?? (async () => undefined);
 };
 
-export function PostViewCounterProvider({
+export const useQueuePostView = (): ((
+  postId: string,
+  viewContext?: PostViewContext,
+) => void) => {
+  const context = useContext(PostViewCounterContext);
+  return context?.queuePostView ?? (() => undefined);
+};
+
+export const PostViewCounterProvider = ({
   markPostsSeen,
   hasAuthToken,
   onPostQueued,
@@ -59,7 +67,7 @@ export function PostViewCounterProvider({
   onPostQueued?: (postId: string, viewContext?: PostViewContext) => void;
   onFlushFailed?: () => void;
   children: ReactNode;
-}) {
+}) => {
   const pendingPostIds = useRef(new Set<string>());
   const flushing = useRef(false);
   const flushDebounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
@@ -76,12 +84,7 @@ export function PostViewCounterProvider({
       flushDebounceTimer.current = undefined;
     }
 
-    if (
-      typeof window === 'undefined' ||
-      flushing.current ||
-      pendingPostIds.current.size === 0 ||
-      !hasAuthToken
-    ) {
+    if (flushing.current || pendingPostIds.current.size === 0 || !hasAuthToken) {
       return;
     }
 
@@ -100,7 +103,7 @@ export function PostViewCounterProvider({
   }, [hasAuthToken]);
 
   const scheduleFlush = useCallback(() => {
-    if (typeof window === 'undefined' || !hasAuthToken) return;
+    if (!hasAuthToken) return;
 
     if (pendingPostIds.current.size >= FLUSH_THRESHOLD) {
       void flush();
@@ -130,27 +133,39 @@ export function PostViewCounterProvider({
   );
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !hasAuthToken) return;
+    if (!hasAuthToken) return;
 
-    const interval = window.setInterval(() => {
+    const interval = setInterval(() => {
       void flush();
     }, FLUSH_MAX_INTERVAL_MS);
+
+    const hasWindow =
+      typeof window !== 'undefined' &&
+      typeof document !== 'undefined' &&
+      typeof window.addEventListener === 'function';
 
     const flushOnPageHide = () => void flush();
     const flushOnVisibilityHidden = () => {
       if (document.visibilityState === 'hidden') void flush();
     };
 
-    window.addEventListener('pagehide', flushOnPageHide);
-    document.addEventListener('visibilitychange', flushOnVisibilityHidden);
+    if (hasWindow) {
+      window.addEventListener('pagehide', flushOnPageHide);
+      document.addEventListener('visibilitychange', flushOnVisibilityHidden);
+    }
 
     return () => {
-      window.clearInterval(interval);
+      clearInterval(interval);
       if (flushDebounceTimer.current) {
         clearTimeout(flushDebounceTimer.current);
       }
-      window.removeEventListener('pagehide', flushOnPageHide);
-      document.removeEventListener('visibilitychange', flushOnVisibilityHidden);
+      if (hasWindow) {
+        window.removeEventListener('pagehide', flushOnPageHide);
+        document.removeEventListener(
+          'visibilitychange',
+          flushOnVisibilityHidden,
+        );
+      }
       void flush();
     };
   }, [flush, hasAuthToken]);
@@ -161,7 +176,7 @@ export function PostViewCounterProvider({
       {children}
     </PostViewCounterContext.Provider>
   );
-}
+};
 
 /** Attach the returned ref to a post container to batch-mark it seen after 1s in view. */
 export const usePostViewRef = (

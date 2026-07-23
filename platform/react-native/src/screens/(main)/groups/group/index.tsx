@@ -176,7 +176,12 @@ export const Group = ({ route, navigation }: GroupProps) => {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="posts" className="p-0">
-                <Feed query={postsQuery} pinnedPostId={groupData?.pinnedPostId}/>
+                <Feed
+                  query={postsQuery}
+                  pinnedPostId={groupData?.pinnedPostId}
+                  inGroup
+                  isPostFeed={false}
+                />
               </TabsContent>
               <TabsContent value="events" className="p-2">
                 <EventsFeed query={eventsQuery} />

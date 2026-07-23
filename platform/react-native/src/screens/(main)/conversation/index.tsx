@@ -1,6 +1,10 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MainScreenProps } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import {
+  adjustUnseenCounts,
+  useOpenpeeps,
+  usePostViewFlush,
+} from '@openpeeps/react';
 import {
   GenericHeader,
   ProfileBio,
@@ -15,8 +19,8 @@ import {
   View,
   Platform,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
-import { TextInput } from 'react-native';
 import {
   InfoIcon,
   SendHorizonalIcon,
@@ -25,34 +29,25 @@ import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 import { MediaAttachmentData } from '@openpeeps/common';
 import { MediaPreview } from '~/components/custom/post/post-form/MediaPreview';
 import { DropdownMenu } from '~/components/ui/dropdown-menu';
-import { ConversationProfileHeader, MessageCard } from '~/components/custom/conversations';
+import {
+  ConversationProfileHeader,
+  MessageCard,
+} from '~/components/custom/conversations';
 
 type ConversationProps = MainScreenProps<'Conversation'>;
 
 export const Conversation = ({ route, navigation }: ConversationProps) => {
   const { id } = route.params;
-  const { openpeepsApi, currentProfile } = useOpenpeeps();
-  const { data: messages } = openpeepsApi.useConversation(id);
+  const { openpeepsApi, currentProfile, queryClient, client } = useOpenpeeps();
+  const { data: messages, isLoading } = openpeepsApi.useConversation(id);
+  const markPostsSeen = openpeepsApi.markPostsSeenAction();
+  const flushPostViews = usePostViewFlush();
   const [isSending, setIsSending] = useState(false);
   const [attachments, setAttachments] = useState<MediaAttachmentData[]>([]);
   const [content, setContent] = useState('');
   const scrollViewRef = useRef<ScrollView>(null);
-  // const imagePickerModalRef = useRef<BottomSheetModal>(null);
-  // const videoPickerModalRef = useRef<BottomSheetModal>(null);
 
   const sendMessage = openpeepsApi.createConversationPostAction({ id });
-
-  // const handleImageModalPress = useCallback(() => {
-  //   imagePickerModalRef.current?.present();
-  // }, []);
-
-  // const handleVideoModalPress = useCallback(() => {
-  //   videoPickerModalRef.current?.present();
-  // }, []);
-
-  // const handleAddAttachments = useCallback((attachments: MediaAttachmentData[]) => {
-  //   setAttachments(prev => [...prev, ...attachments]);
-  // }, []);
 
   const resetForm = useCallback(() => {
     setContent('');
@@ -60,7 +55,9 @@ export const Conversation = ({ route, navigation }: ConversationProps) => {
   }, []);
 
   const handleSendMessage = async () => {
-    if (!content.trim()) { return; }
+    if (!content.trim()) {
+      return;
+    }
 
     try {
       setIsSending(true);
@@ -72,7 +69,6 @@ export const Conversation = ({ route, navigation }: ConversationProps) => {
         data: {
           type: 'note',
           content: content,
-          // attachments: attachments,
         },
       });
       resetForm();
@@ -84,161 +80,144 @@ export const Conversation = ({ route, navigation }: ConversationProps) => {
     }
   };
 
+  useEffect(() => {
+    if (!id) return;
+    adjustUnseenCounts(queryClient, client, { clearConversation: id });
+    void flushPostViews();
+    return () => {
+      void flushPostViews();
+    };
+  }, [id, client, queryClient, flushPostViews]);
+
+  useEffect(() => {
+    if (!id || !currentProfile || isLoading || !messages) return;
+    const unseenIds = messages
+      .filter(m => m.seen === false && m.profile.id !== currentProfile.id)
+      .map(m => m.id);
+    if (unseenIds.length === 0) return;
+    void markPostsSeen({ postIds: unseenIds });
+  }, [id, currentProfile, messages, isLoading, markPostsSeen]);
+
   return (
     <ThemedSafeAreaView style={{ flex: 1 }}>
       <View className="flex-1">
-      <DropdownMenu>
-        <GenericHeader
-          title={
-            <ConversationProfileHeader
-              participants={
-                messages?.[0]?.audience?.length === 2
-                  ? messages?.[0]?.audience?.filter(
-                    p => p.id !== currentProfile?.id,
-                  ) || []
-                  : messages?.[0]?.audience || []
-              }
-            />
+        <DropdownMenu>
+          <GenericHeader
+            title={
+              <ConversationProfileHeader
+                participants={
+                  messages?.[0]?.audience?.length === 2
+                    ? messages?.[0]?.audience?.filter(
+                        p => p.id !== currentProfile?.id,
+                      ) || []
+                    : messages?.[0]?.audience || []
+                }
+              />
+            }
+            rightType="icon"
+            rightButtonIcon={
+              <InfoIcon size={20} className="text-foreground" />
+            }
+            onRightButtonPress={() =>
+              navigation.navigate('ConversationInfo', { id: id })
+            }
+          />
 
-          }
-          rightType="icon"
-          rightButtonIcon={<InfoIcon size={20} className="text-foreground" />}
-          onRightButtonPress={() =>
-            navigation.navigate('ConversationInfo', { id: id })
-          }
-        />
-
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
-          <ScrollView
-            ref={scrollViewRef}
-            className="flex-1 pb-44"
-            onContentSizeChange={() =>
-              scrollViewRef.current?.scrollToEnd({ animated: true })
-            }>
-            {messages?.[0]?.audience?.length === 2 && (
-              <View className="bg-background border-b border-border">
-                <View className="flex items-center justify-center py-6">
-                  <ProfileImages
-                    profile={
-                      messages?.[0].audience.filter(
-                        p => p.id !== currentProfile?.id,
-                      ) || []
-                    }
-                  />
-                  <ProfileName
-                    profile={
-                      messages?.[0].audience.filter(
-                        p => p.id !== currentProfile?.id,
-                      ) || []
-                    }
-                  />
-                  <ProfileHandle
-                    profile={
-                      messages?.[0].audience.filter(
-                        p => p.id !== currentProfile?.id,
-                      ) || []
-                    }
-                  />
-                  <ProfileBio
-                    profile={
-                      messages?.[0].audience.filter(
-                        p => p.id !== currentProfile?.id,
-                      ) || []
-                    }
-                  />
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
+            <ScrollView
+              ref={scrollViewRef}
+              className="flex-1 pb-44"
+              onContentSizeChange={() =>
+                scrollViewRef.current?.scrollToEnd({ animated: true })
+              }>
+              {messages?.[0]?.audience?.length === 2 && (
+                <View className="bg-background border-b border-border">
+                  <View className="flex items-center justify-center py-6">
+                    <ProfileImages
+                      profile={
+                        messages?.[0].audience.filter(
+                          p => p.id !== currentProfile?.id,
+                        ) || []
+                      }
+                    />
+                    <ProfileName
+                      profile={
+                        messages?.[0].audience.filter(
+                          p => p.id !== currentProfile?.id,
+                        ) || []
+                      }
+                    />
+                    <ProfileHandle
+                      profile={
+                        messages?.[0].audience.filter(
+                          p => p.id !== currentProfile?.id,
+                        ) || []
+                      }
+                    />
+                    <ProfileBio
+                      profile={
+                        messages?.[0].audience.filter(
+                          p => p.id !== currentProfile?.id,
+                        ) || []
+                      }
+                    />
+                  </View>
                 </View>
-              </View>
-            )}
+              )}
 
-            {messages?.map((message, idx) => (
-              <View key={idx} className="mt-4 px-2">
-                <MessageCard message={message} />
-              </View>
-            ))}
-          </ScrollView>
+              {messages?.map((message, idx) => (
+                <View key={idx} className="mt-4 px-2">
+                  <MessageCard message={message} />
+                </View>
+              ))}
+            </ScrollView>
 
-          <View>
-            {attachments.length > 0 && (
-              <MediaPreview
-                attachments={attachments}
-                removeAttachment={(index) => {
-                  setAttachments(attachments.filter((_, i) => i !== index));
-                }}
-                updateAttachment={(index, attachment) => {
-                  setAttachments(attachments.map((a, i) => i === index ? attachment : a));
-                }}
-              />
-            )}
-            <View className="flex-row items-center px-4 py-3 bg-background border-t border-border">
-              {/* <DropdownMenuTrigger asChild>
-                <PlusIcon className="text-foreground" />
-              </DropdownMenuTrigger> */}
-              <TextInput
-                className="flex-1 mx-4 text-foreground"
-                placeholder="Message..."
-                placeholderTextColor="#666"
-                multiline
-                value={content}
-                onChangeText={setContent}
-                maxLength={500}
-              />
-              {/* TODO remove when mic is implemented */}
-              <TouchableOpacity
-                onPress={handleSendMessage}
-                disabled={isSending}
-                className={`p-2 rounded-full ${content.trim() ? 'bg-primary' : 'bg-muted'
-                }`}>
-                {isSending ? (
-                  <ActivityIndicator size="small" />
-                ) : (
-                  <SendHorizonalIcon />
-                )}
-              </TouchableOpacity>
-
-              {/* TODO uncomment when mic is implemented */}
-              {/* {content.trim() ? (
+            <View>
+              {attachments.length > 0 && (
+                <MediaPreview
+                  attachments={attachments}
+                  removeAttachment={index => {
+                    setAttachments(attachments.filter((_, i) => i !== index));
+                  }}
+                  updateAttachment={(index, attachment) => {
+                    setAttachments(
+                      attachments.map((a, i) =>
+                        i === index ? attachment : a,
+                      ),
+                    );
+                  }}
+                />
+              )}
+              <View className="flex-row items-center px-4 py-3 bg-background border-t border-border">
+                <TextInput
+                  className="flex-1 mx-4 text-foreground"
+                  placeholder="Message..."
+                  placeholderTextColor="#666"
+                  multiline
+                  value={content}
+                  onChangeText={setContent}
+                  maxLength={500}
+                />
                 <TouchableOpacity
                   onPress={handleSendMessage}
-                  disabled={isSending}>
+                  disabled={isSending}
+                  className={`p-2 rounded-full ${
+                    content.trim() ? 'bg-primary' : 'bg-muted'
+                  }`}>
                   {isSending ? (
                     <ActivityIndicator size="small" />
                   ) : (
-                    <SendHorizonalIcon className="text-foreground -rotate-45" />
+                    <SendHorizonalIcon />
                   )}
                 </TouchableOpacity>
-              ) : (
-                <TouchableOpacity>
-                  <MicIcon className="text-foreground" />
-                </TouchableOpacity>
-              )} */}
+              </View>
             </View>
-          </View>
-        </KeyboardAvoidingView>
-        {/*
-        <DropdownMenuContent side="top">
-          <DropdownMenuItem onPress={handleImageModalPress}>
-            <ImageIcon size={18} className=" mr-2 text-foreground" />
-            <Text>Image</Text>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem onPress={handleVideoModalPress}>
-            <FilmIcon size={18} className="mr-2 text-foreground" />
-            <Text>Video</Text>
-          </DropdownMenuItem>
-        </DropdownMenuContent> */}
-      </DropdownMenu>
+          </KeyboardAvoidingView>
+        </DropdownMenu>
       </View>
-      {/* <ImagePickerSheet
-        ref={imagePickerModalRef}
-        onSelect={handleAddAttachments}
-      />
-      <VideoPickerSheet
-        ref={videoPickerModalRef}
-        onSelect={handleAddAttachments}
-      /> */}
     </ThemedSafeAreaView>
   );
 };

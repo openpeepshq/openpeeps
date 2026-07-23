@@ -6,3 +6,4 @@ export * from './PostMenu';
 export * from './PostReactionHeader';
 export * from './ReplyButton';
 export * from './VisibilityDisplay';
+export * from './UnreadPostIndicator';
