@@ -12,6 +12,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **web**: put admin API keys under RootLayout
 - **react**: updated various components to improve UX
 - **post**: fixed  pinned post refetch
 - **cleanup**: removed old skeleton theme files
