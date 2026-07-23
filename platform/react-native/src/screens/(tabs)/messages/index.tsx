@@ -55,6 +55,8 @@ export const Messages: React.FC<MessagesProps> = ({ navigation }) => {
     isLoading,
     refetch,
   } = openpeepsApi.useConversations();
+  const unseenCountsQuery = openpeepsApi.useUnseenPostCounts();
+  const unseenByConversation = unseenCountsQuery.data?.direct ?? {};
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -139,6 +141,11 @@ export const Messages: React.FC<MessagesProps> = ({ navigation }) => {
             <ConversationPreviewCard
               key={idx}
               conversation={conversation}
+              unreadCount={
+                conversation[0]?.id
+                  ? unseenByConversation[conversation[0].id] ?? 0
+                  : 0
+              }
               onPress={() =>
                 navigation.navigate('Conversation', {
                   id: conversation[0]?.id,

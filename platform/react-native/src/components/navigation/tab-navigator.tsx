@@ -68,6 +68,14 @@ export const TabNavigator = () => {
   const { colors: { background } } = useOpenPeepsTheme();
   const { isMediumScreenOrLarger } = useWindowSize();
   const { data: serverInfo } = openpeepsApi.useServerInfo();
+  const unseenCounts = openpeepsApi.useUnseenPostCounts();
+
+  const unreadGroupPosts = Object.values(
+    unseenCounts.data?.groups ?? {},
+  ).reduce((sum, count) => sum + count, 0);
+  const unreadConversationThreads = Object.keys(
+    unseenCounts.data?.direct ?? {},
+  ).length;
 
   const display = isMediumScreenOrLarger ? 'none' : 'flex';
   return (
@@ -101,8 +109,23 @@ export const TabNavigator = () => {
           },
         }}
       />
-      <Tab.Screen name={TAB_ROUTES.GROUPS} component={Groups} />
-      <Tab.Screen name={TAB_ROUTES.MESSAGES} component={Messages} />
+      <Tab.Screen
+        name={TAB_ROUTES.GROUPS}
+        component={Groups}
+        options={{
+          tabBarBadge: unreadGroupPosts > 0 ? unreadGroupPosts : undefined,
+        }}
+      />
+      <Tab.Screen
+        name={TAB_ROUTES.MESSAGES}
+        component={Messages}
+        options={{
+          tabBarBadge:
+            unreadConversationThreads > 0
+              ? unreadConversationThreads
+              : undefined,
+        }}
+      />
       {serverInfo?.jams.livekit.enabled && (
         <Tab.Screen
           name={TAB_ROUTES.JAM}

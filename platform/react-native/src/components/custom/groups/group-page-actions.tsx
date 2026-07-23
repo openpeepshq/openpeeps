@@ -19,10 +19,15 @@ import {
   ShareIcon,
   TrashIcon,
   LoaderIcon,
+  CheckIcon,
 } from '~/components/icons';
 import { Button } from '~/components/ui/button';
 import { ThemedText } from '~/components/ui/themed-text';
-import { useOpenpeeps } from '@openpeeps/react';
+import {
+  adjustUnseenCounts,
+  invalidateUnseenCounts,
+  useOpenpeeps,
+} from '@openpeeps/react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { DeleteGroupConfirmationSheet } from '../modals';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -30,6 +35,7 @@ import { BASE_URL } from '~/lib/constants';
 import Toast from 'react-native-toast-message';
 import { useLocalPostStore } from '~/stores/useLocalPostStore';
 import { useNewConversationStore } from '~/stores/useNewConversationStore';
+import { useTranslation } from 'react-i18next';
 
 interface GroupPageActionsProps extends MainScreenProps<'Group'> {
   groupData: GroupWithMeta;
@@ -40,7 +46,8 @@ export const GroupPageActions = ({
   groupData,
   navigation,
 }: GroupPageActionsProps) => {
-  const { currentProfile, openpeepsApi } = useOpenpeeps();
+  const { currentProfile, openpeepsApi, queryClient, client } = useOpenpeeps();
+  const { t } = useTranslation();
   const deleteGroupModalRef = useRef<BottomSheetModal>(null);
   const { postData, setPostData } = useLocalPostStore();
   const { setContt } = useNewConversationStore();
@@ -48,6 +55,7 @@ export const GroupPageActions = ({
 
   const deleteGroup = openpeepsApi.deleteGroupAction({ id: groupData.id });
   const leaveGroup = openpeepsApi.leaveGroupAction({ id: groupData.id });
+  const markGroupPostsSeen = openpeepsApi.markGroupPostsSeenAction();
   const { data: groupMembers } = openpeepsApi.useGroupMembers(groupData.id);
   const isGroupMember = currentProfile?.memberships
     ?.map(m => m.group.id)
@@ -152,6 +160,21 @@ export const GroupPageActions = ({
     navigation.navigate('SelectPrivateMessageMembers');
   };
 
+  const onMarkAllRead = async () => {
+    adjustUnseenCounts(queryClient, client, { clearGroup: groupData.id });
+    try {
+      await markGroupPostsSeen({ groupId: groupData.id });
+    } catch {
+      await invalidateUnseenCounts(queryClient, client);
+      Toast.show({
+        type: 'error',
+        text1: t('groups.markAllRead.error', {
+          defaultValue: 'Failed to mark group posts as read',
+        }),
+      });
+    }
+  };
+
   return (
     <View className="flex flex-row justify-end gap-x-3 mt-2 pr-2">
       {!isGroupMember && (
@@ -217,18 +240,16 @@ export const GroupPageActions = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent className=" mt-1">
               <DropdownMenuGroup>
-                {/* {isGroupAdmin && (
-                  <DropdownMenuItem
-                    onPress={() =>
-                      navigation.navigate('EditGroupDetails', {
-                        id: groupData.id,
-                      })
-                    }
-                    className=" flex-row gap-x-2 items-center">
-                    <PencilLineIcon size={16} className="text-foreground" />
-                    <ThemedText>Edit </ThemedText>
-                  </DropdownMenuItem>
-                )} */}
+                <DropdownMenuItem
+                  onPress={() => void onMarkAllRead()}
+                  className=" flex-row gap-x-2 items-center">
+                  <CheckIcon size={16} className="text-foreground" />
+                  <ThemedText>
+                    {t('groups.actions.markAllRead', {
+                      defaultValue: 'Mark all posts as read',
+                    })}
+                  </ThemedText>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onPress={onLeave}
                   className=" flex-row gap-x-2 items-center">

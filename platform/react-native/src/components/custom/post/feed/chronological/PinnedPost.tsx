@@ -10,10 +10,12 @@ import { useOpenpeeps } from '@openpeeps/react';
 
 interface PinnedPostProps {
     postId: string;
+    inGroup?: boolean;
 }
 
 export const PinnedPost = ({
     postId,
+    inGroup = false,
 }: PinnedPostProps) => {
     const { openpeepsApi } = useOpenpeeps();
     const postQuery = openpeepsApi.usePost(postId);
@@ -38,6 +40,7 @@ export const PinnedPost = ({
                 <FeedPost
                     post={post}
                     showMenu={false}
+                    inGroup={inGroup}
                 />
             </>
         ) || null

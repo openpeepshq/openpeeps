@@ -1,89 +1,102 @@
 import { type PublicPost } from '@openpeeps/common';
+import { isUnreadPostForViewer, useOpenpeeps } from '@openpeeps/react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';
 import {
-    PostHeader,
-    PostActions,
-    FeedPostContent,
-    PostReactionHeader,
+  PostHeader,
+  PostActions,
+  FeedPostContent,
+  PostReactionHeader,
+  UnreadPostIndicator,
 } from '../../pieces';
 import React from 'react';
 import { ThreadPost } from '../threaded/ThreadPost';
 import { ThemedView } from '~/components/ui/themed-view';
+import { usePostViewRef } from '~/hooks/use-post-view-ref';
 
 interface FeedPostProps {
-    post: PublicPost;
-    accessible?: boolean;
-    hideReply?: boolean;
-    previewMode?: boolean;
-    showMenu?: boolean;
-    inGroup?: boolean;
-    refetch?: () => void;
-    showReplyTo?: boolean;
-    showReactionHeader?: boolean;
+  post: PublicPost;
+  accessible?: boolean;
+  hideReply?: boolean;
+  previewMode?: boolean;
+  showMenu?: boolean;
+  inGroup?: boolean;
+  refetch?: () => void;
+  showReplyTo?: boolean;
+  showReactionHeader?: boolean;
 }
 
 export const FeedPost = ({
-    post,
-    hideReply,
-    previewMode = false,
-    showMenu = true,
-    inGroup = false,
-    showReplyTo = false,
-    showReactionHeader = true,
+  post,
+  hideReply,
+  previewMode = false,
+  showMenu = true,
+  inGroup = false,
+  showReplyTo = false,
+  showReactionHeader = true,
 }: FeedPostProps) => {
-    const navigation =
-        useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+  const { currentProfile } = useOpenpeeps();
 
-    const displayedPost = post.repost || post;
+  const displayedPost = post.repost || post;
+  const isUnread = isUnreadPostForViewer(displayedPost, currentProfile?.id);
+  const postViewRef = usePostViewRef(displayedPost.id, {
+    groupId: displayedPost.groupId,
+    adjustUnread: isUnread,
+  });
 
-    if (!post) { return null; }
+  if (!post) {
+    return null;
+  }
 
-    const handlePostPress = () => {
-        navigation.navigate('Post', {
-            id: displayedPost.id,
-        });
-    };
+  const handlePostPress = () => {
+    navigation.navigate('Post', {
+      id: displayedPost.id,
+    });
+  };
 
-    if (!displayedPost?.profile) {
-        return <></>;
-    }
+  if (!displayedPost?.profile) {
+    return <></>;
+  }
 
-    return (
-        <ThemedView className="py-5 border-b border-border">
-            {showReactionHeader && (
+  return (
+    <ThemedView
+      ref={postViewRef}
+      className="relative py-5 border-b border-border">
+      <UnreadPostIndicator show={isUnread} />
+      {showReactionHeader && (
+        <PostReactionHeader
+          post={post}
+          inGroup={inGroup}
+          hideReply={hideReply}
+          previewMode={previewMode}
+        />
+      )}
+      {post.replyTo && showReplyTo ? (
+        <ThreadPost
+          post={post.replyTo as PublicPost}
+          isParent={true}
+          isChild={false}
+          noActions={true}
+          noMenu={true}
+        />
+      ) : null}
 
-                <PostReactionHeader
-                    post={post}
-                    inGroup={inGroup}
-                    hideReply={hideReply}
-                    previewMode={previewMode}
-                />
-            )}
-            {post.replyTo && showReplyTo ? (
-                <ThreadPost
-                    post={post.replyTo as PublicPost}
-                    isParent={true}
-                    isChild={false}
-                    noActions={true}
-                    noMenu={true}
-                />
-            ) : null}
+      <PostHeader
+        post={displayedPost}
+        showMenu={!post.repost && !post.inReplyToId && !previewMode && showMenu}
+      />
 
-            <PostHeader
-                post={displayedPost}
-                showMenu={!post.repost && !post.inReplyToId && !previewMode && showMenu}
-            />
-
-            <ThemedView className="px-5">
-                <FeedPostContent post={displayedPost} />
-            </ThemedView>
-            <PostActions
-                post={displayedPost}
-                previewMode={previewMode}
-                onPostPress={handlePostPress}
-            />
-        </ThemedView>
-    );
+      <ThemedView className="px-5">
+        <FeedPostContent post={displayedPost} />
+      </ThemedView>
+      <PostActions
+        post={displayedPost}
+        previewMode={previewMode}
+        onPostPress={handlePostPress}
+      />
+    </ThemedView>
+  );
 };

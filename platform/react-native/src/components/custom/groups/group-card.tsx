@@ -17,12 +17,14 @@ interface GroupCardProps {
   group: GroupWithMeta;
   isGroupMember: boolean;
   handleViewGroup: () => void;
+  unreadCount?: number;
 }
 
 export const GroupCard = ({
   group,
   isGroupMember = false,
   handleViewGroup,
+  unreadCount = 0,
 }: GroupCardProps) => {
   const { openpeepsApi, currentProfile, queryClient } = useOpenpeeps();
   const [isLoading, setIsLoading] = React.useState(false);
@@ -80,17 +82,23 @@ export const GroupCard = ({
           )}
         </Avatar>
         <View className="ml-2">
-          <ThemedText className="text-lg font-semibold">
-            {truncateText(group.displayName, 25) || '-'}
-          </ThemedText>
+          <View className="flex-row items-center gap-x-2">
+            <ThemedText className="text-lg font-semibold">
+              {truncateText(group.displayName, 25) || '-'}
+            </ThemedText>
+            {unreadCount > 0 ? (
+              <View className="bg-destructive size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1">
+                <ThemedText className="text-xs font-semibold text-destructive-foreground">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </ThemedText>
+              </View>
+            ) : null}
+          </View>
           <View className="flex-row gap-x-3 mt-2 items-center">
             <ThemedText className="text-sm">
               {group?.membersCount} Member
               {group?.membersCount && group?.membersCount > 1 ? 's' : ''}
             </ThemedText>
-            {/* <ThemedText className="text-sm px-2 py-1 rounded-md bg-background">
-              2 new post
-            </ThemedText> */}
           </View>
         </View>
       </Pressable>

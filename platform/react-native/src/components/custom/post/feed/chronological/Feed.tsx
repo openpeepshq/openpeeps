@@ -14,7 +14,8 @@ interface Props {
     pinnedPostId?: string;
     refetchServerInfo?: () => void;
     isPostFeed?: boolean;
-    type?: EmptyStateContainerType
+    type?: EmptyStateContainerType;
+    inGroup?: boolean;
 }
 
 export const Feed = ({
@@ -22,7 +23,8 @@ export const Feed = ({
     pinnedPostId,
     refetchServerInfo,
     isPostFeed = true,
-    type = "posts"
+    type = "posts",
+    inGroup = false,
 }: Props) => {
     const [refreshing, setRefreshing] = React.useState(false);
     const refetchRef = React.useRef(query.refetch);
@@ -55,7 +57,7 @@ export const Feed = ({
             {!query.isLoading && query.isFetched && (
                 <>
                     {pinnedPostId && (
-                        <PinnedPost postId={pinnedPostId} />
+                        <PinnedPost postId={pinnedPostId} inGroup={inGroup} />
                     )}
                     <View>
                         {allPosts?.map((p) => {
@@ -64,6 +66,7 @@ export const Feed = ({
                                     key={p.id}
                                     post={p as PublicPost}
                                     showReplyTo={true}
+                                    inGroup={inGroup}
                                 />
                             );
                         })}
