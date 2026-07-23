@@ -16,6 +16,7 @@ import { accountsCache } from './cache';
 import { assignRole, unassignRole } from '../profiles/mutations';
 import { hash } from 'bcrypt';
 import { profilesMapping } from '../profiles/mapping';
+import { assertProfileCapacity } from '../profiles/capacity';
 import { findRoleByKey } from '../roles';
 import {
   log,
@@ -87,6 +88,7 @@ export const createAccount = async (
 
   let profile: ProfileWithMeta | undefined;
   if (accountCreationData.profile) {
+    await assertProfileCapacity();
     const { handle, displayName, avatar } = accountCreationData.profile;
 
     profile = await profilesMapping.create(db, {

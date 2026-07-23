@@ -105,6 +105,8 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
       host: z.string(),
       signUpsOpen: z.boolean(),
       publicContent: z.boolean(),
+      /** Cap on non-deleted profiles; 0 / unset = unlimited. Env-only (not admin-editable). */
+      maxProfiles: fixed(z.number().int().nonnegative().optional(), sanitize),
     }),
     db: fixed(
       z.object({
