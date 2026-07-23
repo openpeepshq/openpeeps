@@ -50,6 +50,8 @@ const timestampsFromModel = (model: Record<string, unknown>) => {
 
 export type ImportContext = {
   postCreatorIdByPostId?: Map<string, string>;
+  /** Empty-name / duplicate-name hashtags: old id → kept id, or '' if dropped. */
+  hashtagIdRemap?: Map<string, string>;
 };
 
 const entryTypeFromDoc = (doc: Record<string, unknown>) => {
