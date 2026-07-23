@@ -20,11 +20,13 @@ import { randomString } from '@openpeeps/common/lib';
 import { deleteAccessTokensForProfile } from '../accessTokens/helpers';
 import { profilesCache, getProfile } from './cache';
 import { accountsCache } from '../accounts/cache';
+import { assertProfileCapacity } from './capacity';
 
 export const createProfile = async (
   data: ProfileData,
   controllingAccount?: Account,
 ) => {
+  await assertProfileCapacity();
   const db = await allpeepDb().then((db) => db.db);
   const profile = await profilesMapping.create(db, data);
   if (controllingAccount) {

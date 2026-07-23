@@ -43,6 +43,7 @@ export const serverInfo = () =>
       version: coreConfig.version,
       environment: coreConfig.environment,
       publicContent: coreConfig.server.publicContent,
+      maxProfiles: coreConfig.server.maxProfiles || undefined,
       communityConfig: {
         ...(await communityConfig()),
         settings: {

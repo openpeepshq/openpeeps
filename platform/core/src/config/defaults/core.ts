@@ -16,6 +16,7 @@ export const defaultConfig: CoreConfig = {
     host: process.env.SERVER_HOST || 'localhost:5174',
     signUpsOpen: true,
     publicContent: false,
+    maxProfiles: readEnvInteger('SERVER_MAX_PROFILES', 0) || undefined,
   },
   db,
   redis,

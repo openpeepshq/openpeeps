@@ -295,6 +295,7 @@ export const serverInfoSchema = z.object({
   version: z.string(),
   environment: z.string(),
   publicContent: z.boolean(),
+  maxProfiles: z.number().int().nonnegative().optional(),
   communityConfig: communityConfigSchema,
   jams: z.object({
     livekit: z.object({
