@@ -97,6 +97,78 @@ const documentRowIsImportable = (
   return true;
 };
 
+/** Collapse empty / duplicate hashtag names onto one row (unique on name). */
+export const prepareHashtagRows = (
+  rows: Record<string, unknown>[],
+  context: ImportContext,
+): Record<string, unknown>[] => {
+  const remap = context.hashtagIdRemap ?? new Map<string, string>();
+  context.hashtagIdRemap = remap;
+  const byName = new Map<string, Record<string, unknown>>();
+  const prepared: Record<string, unknown>[] = [];
+
+  for (const row of rows) {
+    const id = typeof row.id === 'string' ? row.id : undefined;
+    const name =
+      typeof row.name === 'string' ? row.name.trim().toLowerCase() : '';
+    if (!name) {
+      if (id) remap.set(id, '');
+      log.warn('Skipping hashtag %s: empty name', id ?? '(no id)');
+      continue;
+    }
+    row.name = name;
+    const existing = byName.get(name);
+    if (existing) {
+      const keptId = typeof existing.id === 'string' ? existing.id : '';
+      if (id) remap.set(id, keptId);
+      log.warn(
+        'Skipping duplicate hashtag name "%s" (id %s → %s)',
+        name,
+        id,
+        keptId || '(unknown)',
+      );
+      continue;
+    }
+    byName.set(name, row);
+    prepared.push(row);
+  }
+
+  return prepared;
+};
+
+const applyHashtagEdgeRemap = (
+  collection: string,
+  rows: Record<string, unknown>[],
+  context: ImportContext,
+): Record<string, unknown>[] => {
+  if (collection !== 'postHashtags' || !context.hashtagIdRemap?.size) {
+    return rows;
+  }
+  const remap = context.hashtagIdRemap;
+  const out: Record<string, unknown>[] = [];
+  let dropped = 0;
+  for (const row of rows) {
+    const toId = typeof row.toId === 'string' ? row.toId : undefined;
+    if (!toId || !remap.has(toId)) {
+      out.push(row);
+      continue;
+    }
+    const mapped = remap.get(toId);
+    if (!mapped) {
+      dropped += 1;
+      continue;
+    }
+    out.push({ ...row, toId: mapped });
+  }
+  if (dropped > 0) {
+    log.warn(
+      'Dropped %d postHashtags edge(s) pointing at skipped hashtags',
+      dropped,
+    );
+  }
+  return out;
+};
+
 export const importArangoCollection = async (
   collection: string,
   collectionsDir: string,
@@ -121,13 +193,20 @@ export const importArangoCollection = async (
 
   const table = getTableForCollection(collection);
   const db = pgDb();
-  const mapped = docs
-    .map((doc) =>
-      isEdgeCollection(collection)
-        ? arangoDocToEdgeRow(collection, doc)
-        : arangoDocToDocumentRow(collection, doc, context),
-    )
-    .filter((row) => documentRowIsImportable(collection, row));
+  let mapped = docs.map((doc) =>
+    isEdgeCollection(collection)
+      ? arangoDocToEdgeRow(collection, doc)
+      : arangoDocToDocumentRow(collection, doc, context),
+  );
+
+  if (collection === 'hashtags') {
+    mapped = prepareHashtagRows(mapped, context);
+  } else {
+    mapped = mapped.filter((row) => documentRowIsImportable(collection, row));
+  }
+
+  mapped = applyHashtagEdgeRemap(collection, mapped, context);
+
   const rows = dedupeRowsById(mapped);
 
   if (rows.length < mapped.length) {
@@ -212,6 +291,7 @@ export const importAllArangoCollections = async (collectionsDir: string) => {
   const imported: Record<string, number> = {};
   const context: ImportContext = {
     postCreatorIdByPostId: await buildPostCreatorIdByPostId(collectionsDir),
+    hashtagIdRemap: new Map(),
   };
 
   for (const collection of DOCUMENT_IMPORT_ORDER) {

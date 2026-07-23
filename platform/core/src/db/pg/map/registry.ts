@@ -84,6 +84,9 @@ const hashtagsSplit = (data: Record<string, unknown>) => {
     normalized.name = normalized.tag;
     delete normalized.tag;
   }
+  if (typeof normalized.name === 'string') {
+    normalized.name = normalized.name.trim().toLowerCase();
+  }
   return withScalars('name')(normalized);
 };
 

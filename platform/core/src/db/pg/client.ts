@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 import { logger } from '../../log';
@@ -42,4 +43,15 @@ export const closePostgres = async () => {
   await pool?.end();
   pool = undefined;
   dbInstance = undefined;
+};
+
+/** Wipe all app tables after a failed auto-migration (keeps the database). */
+export const wipePostgresDatabase = async () => {
+  const db = pgDb();
+  await db.execute(sql.raw('DROP SCHEMA public CASCADE'));
+  await db.execute(sql.raw('CREATE SCHEMA public'));
+  await db.execute(sql.raw('GRANT ALL ON SCHEMA public TO CURRENT_USER'));
+  await db.execute(sql.raw('GRANT ALL ON SCHEMA public TO public'));
+  log.warn('Wiped Postgres public schema after failed migration');
+  await closePostgres();
 };

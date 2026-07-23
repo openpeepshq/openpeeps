@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { arangoDocToDocumentRow, arangoDocToEdgeRow } from './transform';
-import { dedupeRowsById } from './importCollections';
+import { dedupeRowsById, prepareHashtagRows } from './importCollections';
 import {
   resolveBackupDatabaseType,
   type BackupMetadata,
@@ -282,5 +282,26 @@ describe('import row deduplication', () => {
     expect(rows).toHaveLength(2);
     expect(rows.find((row) => row.id === 'a')?.value).toBe(2);
     expect(rows.find((row) => row.id === 'b')?.value).toBe(1);
+  });
+});
+
+describe('prepareHashtagRows', () => {
+  it('drops empty hashtag names and remaps them for edges', () => {
+    const context = { hashtagIdRemap: new Map<string, string>() };
+    const rows = prepareHashtagRows(
+      [
+        { id: 'a', name: 'introduction' },
+        { id: 'b', name: '' },
+        { id: 'c', name: '   ' },
+        { id: 'd', name: 'Introduction' },
+      ],
+      context,
+    );
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ id: 'a', name: 'introduction' });
+    expect(context.hashtagIdRemap?.get('b')).toBe('');
+    expect(context.hashtagIdRemap?.get('c')).toBe('');
+    expect(context.hashtagIdRemap?.get('d')).toBe('a');
   });
 });
