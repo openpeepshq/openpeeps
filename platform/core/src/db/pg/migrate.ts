@@ -91,6 +91,13 @@ const resetAndMigrate = async (reason: string) => {
 /**
  * Apply Drizzle migrations. Heals half-wiped DBs where the journal and
  * `public` schema disagree (orphan types, missing tables, etc.).
+ *
+ * Concurrent starters often hit duplicate_table / pg_type conflicts; if app
+ * tables already exist we must NOT reset — that would DROP SCHEMA under the
+ * other process mid-import.
+ *
+ * Callers that may race (initPostgres, auto-migrate) must hold
+ * SCHEMA_MIGRATE_LOCK around this function.
  */
 export const runMigrations = async () => {
   log.info('Running Postgres migrations from %s', migrationsFolder);
@@ -98,12 +105,18 @@ export const runMigrations = async () => {
   try {
     await applyMigrations();
   } catch (err) {
-    if (isSchemaConflictError(err)) {
-      await resetAndMigrate(
-        'Postgres migrate hit a schema conflict with incomplete app tables',
+    if (!isSchemaConflictError(err)) {
+      throw err;
+    }
+    const missing = await missingAppTables();
+    if (missing.length === 0) {
+      log.warn(
+        'Postgres migrate hit a schema conflict but app tables exist (likely a concurrent migrator); continuing',
       );
     } else {
-      throw err;
+      await resetAndMigrate(
+        `Postgres migrate hit a schema conflict and tables are missing (${missing.join(', ')})`,
+      );
     }
   }
 

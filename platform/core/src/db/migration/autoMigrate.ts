@@ -3,7 +3,12 @@ import { constants } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { logger } from '../../log';
-import { wipePostgresDatabase } from '../pg/client';
+import {
+  SCHEMA_MIGRATE_LOCK,
+  closePostgres,
+  resetPostgresSchemas,
+  withPostgresAdvisoryLock,
+} from '../pg/client';
 import { arangoHasSourceData, isPostgresEmpty } from './detect';
 import { exportArango } from './exportArango';
 import { importPostgres } from './importPostgres';
@@ -39,19 +44,8 @@ const idleForever = async (message: string) => {
   });
 };
 
-const recordFailureAndHalt = async (err: unknown) => {
+const writeFailureMarker = async (detail: string) => {
   const marker = autoMigrateFailureMarkerPath();
-  const detail =
-    err instanceof Error ? `${err.message}\n${err.stack ?? ''}` : String(err);
-
-  log.error('Automatic Arango → Postgres migration failed:\n%s', detail);
-
-  try {
-    await wipePostgresDatabase();
-  } catch (wipeErr) {
-    log.error('Failed to wipe Postgres after auto-migration failure', wipeErr);
-  }
-
   try {
     await writeFile(
       marker,
@@ -69,10 +63,6 @@ const recordFailureAndHalt = async (err: unknown) => {
       markerErr,
     );
   }
-
-  await idleForever(
-    'Automatic Arango → Postgres migration failed; Postgres was wiped and this process will idle. Redeploy/replace the container (or remove the ephemeral failure marker) to retry.',
-  );
 };
 
 export const maybeAutoMigrateFromArango = async () => {
@@ -100,36 +90,85 @@ export const maybeAutoMigrateFromArango = async () => {
     return;
   }
 
-  const exportDir = await mkdtemp(join(tmpdir(), 'openpeeps-arango-export-'));
+  let failureDetail: string | undefined;
 
-  log.info(
-    'Postgres is empty and Arango has data; starting automatic migration (export dir: %s)',
-    exportDir,
+  // Serialize against concurrent apat processes (compose scale, rolling
+  // restart). A peer that hits a migrate conflict used to DROP SCHEMA under
+  // an in-flight import — holding this lock for the whole import prevents that.
+  await withPostgresAdvisoryLock(
+    SCHEMA_MIGRATE_LOCK.key1,
+    SCHEMA_MIGRATE_LOCK.key2,
+    async () => {
+      if (!(await isPostgresEmpty())) {
+        log.info(
+          'Postgres is no longer empty after acquiring migrate lock; skipping auto migration',
+        );
+        return;
+      }
+
+      const exportDir = await mkdtemp(
+        join(tmpdir(), 'openpeeps-arango-export-'),
+      );
+
+      log.info(
+        'Postgres is empty and Arango has data; starting automatic migration (export dir: %s)',
+        exportDir,
+      );
+
+      try {
+        await exportArango(exportDir);
+        await importPostgres(exportDir, { closeConnection: false });
+        const result = await validateMigration(exportDir, {
+          closeConnection: false,
+        });
+
+        if (!result.ok) {
+          throw new Error(
+            `Automatic Arango → Postgres migration failed validation (${result.issues.length} issue(s))`,
+          );
+        }
+
+        log.info(
+          'Automatic Arango → Postgres migration completed successfully',
+        );
+      } catch (err) {
+        failureDetail =
+          err instanceof Error
+            ? `${err.message}\n${err.stack ?? ''}`
+            : String(err);
+        log.error(
+          'Automatic Arango → Postgres migration failed:\n%s',
+          failureDetail,
+        );
+        try {
+          // Keep the pool open until the advisory lock client is released.
+          await resetPostgresSchemas({ closePool: false });
+          log.warn(
+            'Wiped Postgres public + drizzle schemas after failed migration',
+          );
+        } catch (wipeErr) {
+          log.error(
+            'Failed to wipe Postgres after auto-migration failure',
+            wipeErr,
+          );
+        }
+      } finally {
+        await rm(exportDir, { recursive: true, force: true }).catch((err) => {
+          log.warn(
+            'Failed to remove temporary export directory %s',
+            exportDir,
+            err,
+          );
+        });
+      }
+    },
   );
 
-  try {
-    await exportArango(exportDir);
-    await importPostgres(exportDir, { closeConnection: false });
-    const result = await validateMigration(exportDir, {
-      closeConnection: false,
-    });
-
-    if (!result.ok) {
-      throw new Error(
-        `Automatic Arango → Postgres migration failed validation (${result.issues.length} issue(s))`,
-      );
-    }
-
-    log.info('Automatic Arango → Postgres migration completed successfully');
-  } catch (err) {
-    await recordFailureAndHalt(err);
-  } finally {
-    await rm(exportDir, { recursive: true, force: true }).catch((err) => {
-      log.warn(
-        'Failed to remove temporary export directory %s',
-        exportDir,
-        err,
-      );
-    });
+  if (failureDetail) {
+    await closePostgres();
+    await writeFailureMarker(failureDetail);
+    await idleForever(
+      'Automatic Arango → Postgres migration failed; Postgres was wiped and this process will idle. Redeploy/replace the container (or remove the ephemeral failure marker) to retry.',
+    );
   }
 };
