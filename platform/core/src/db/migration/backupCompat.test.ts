@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { arangoDocToDocumentRow, arangoDocToEdgeRow } from './transform';
-import { dedupeRowsById, prepareHashtagRows } from './importCollections';
+import {
+  dedupeRowsById,
+  isUuid,
+  prepareHashtagRows,
+} from './importCollections';
 import {
   resolveBackupDatabaseType,
   type BackupMetadata,
@@ -303,5 +307,13 @@ describe('prepareHashtagRows', () => {
     expect(context.hashtagIdRemap?.get('b')).toBe('');
     expect(context.hashtagIdRemap?.get('c')).toBe('');
     expect(context.hashtagIdRemap?.get('d')).toBe('a');
+  });
+});
+
+describe('isUuid', () => {
+  it('accepts UUID strings and rejects numeric Arango keys', () => {
+    expect(isUuid('01961271-0702-7389-8793-dd0478331a8a')).toBe(true);
+    expect(isUuid('70585199')).toBe(false);
+    expect(isUuid(undefined)).toBe(false);
   });
 });
