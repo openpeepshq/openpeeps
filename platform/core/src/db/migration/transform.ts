@@ -15,6 +15,18 @@ const ARANGO_META = ['_id', '_key', '_rev', '_from', '_to'] as const;
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** Postgres uuid compares case-insensitively; normalize so dedupe matches. */
+export const normalizeImportId = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  return UUID_REGEX.test(trimmed) ? trimmed.toLowerCase() : trimmed;
+};
+
 export const arangoDocToModel = (
   doc: Record<string, unknown>,
 ): Record<string, unknown> => {
@@ -31,9 +43,8 @@ const isNonEmptyTimestamp = (value: unknown): value is string =>
 
 const resolveDocumentId = (doc: Record<string, unknown>): string => {
   const candidates = [doc.id, doc._key]
-    .filter((value): value is string => typeof value === 'string')
-    .map((value) => value.trim())
-    .filter(Boolean);
+    .map((value) => normalizeImportId(value))
+    .filter((value): value is string => Boolean(value));
 
   const uuid = candidates.find((value) => UUID_REGEX.test(value));
   return uuid ?? uuidv7();
@@ -87,8 +98,10 @@ export const buildPostCreatorIdByPostId = async (
     }
 
     const entryType = entryTypeFromDoc(doc);
-    if (entryType === 'create' || !map.has(toRef.id)) {
-      map.set(toRef.id, fromRef.id);
+    const postId = normalizeImportId(toRef.id) ?? toRef.id;
+    const creatorId = normalizeImportId(fromRef.id) ?? fromRef.id;
+    if (entryType === 'create' || !map.has(postId)) {
+      map.set(postId, creatorId);
     }
   }
 
@@ -121,7 +134,6 @@ export const arangoDocToDocumentRow = (
   doc: Record<string, unknown>,
   context?: ImportContext,
 ): Record<string, unknown> => {
-  const id = (doc._key ?? doc.id) as string;
   const model = arangoDocToModel(doc);
   const { createdAt, updatedAt, deletedAt } = timestampsFromModel(model);
 
@@ -133,7 +145,7 @@ export const arangoDocToDocumentRow = (
       id: _id,
       ...body
     } = model;
-    const rawKey = String(doc._key ?? id);
+    const rawKey = String(doc._key ?? doc.id ?? '');
     // Legacy Arango backups used allpeep-* keys; runtime loaders use openpeeps-*.
     const key = rawKey.startsWith('allpeep-')
       ? `openpeeps-${rawKey.slice('allpeep-'.length)}`
@@ -146,12 +158,13 @@ export const arangoDocToDocumentRow = (
       (doc.appliedAt as string | undefined) ??
       (model.createdAt as string | undefined);
     return {
-      id: doc._key ?? id,
+      id: doc._key ?? doc.id,
       appliedAt: isNonEmptyTimestamp(appliedAtRaw) ? appliedAtRaw : nowIso(),
     };
   }
 
   if (collection === 'i18n') {
+    const id = resolveDocumentId(doc);
     const locale = (doc.locale ?? doc._key ?? id) as string;
     const namespace = (doc.namespace ?? 'translation') as string;
     const body =
@@ -171,7 +184,7 @@ export const arangoDocToDocumentRow = (
         return rest;
       })();
     return {
-      id: resolveDocumentId(doc),
+      id,
       locale,
       namespace,
       body,
@@ -185,6 +198,9 @@ export const arangoDocToDocumentRow = (
   if (!config) {
     throw new Error(`Unknown document collection: ${collection}`);
   }
+
+  const id =
+    normalizeImportId(doc._key ?? doc.id) ?? String(doc._key ?? doc.id ?? '');
 
   const {
     createdAt: _c,
@@ -256,9 +272,9 @@ export const arangoDocToEdgeRow = (
   const { createdAt: _c, updatedAt: _u, id: _id, ...body } = model;
 
   return {
-    id: (doc._key ?? doc.id) as string,
-    fromId: fromRef.id,
-    toId: toRef.id,
+    id: normalizeImportId(doc._key ?? doc.id) ?? String(doc._key ?? doc.id),
+    fromId: normalizeImportId(fromRef.id) ?? fromRef.id,
+    toId: normalizeImportId(toRef.id) ?? toRef.id,
     body,
     createdAt,
     updatedAt,

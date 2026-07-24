@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { arangoDocToDocumentRow, arangoDocToEdgeRow } from './transform';
+import {
+  arangoDocToDocumentRow,
+  arangoDocToEdgeRow,
+  normalizeImportId,
+} from './transform';
 import {
   dedupeRowsById,
   isUuid,
@@ -287,6 +291,41 @@ describe('import row deduplication', () => {
     expect(rows).toHaveLength(2);
     expect(rows.find((row) => row.id === 'a')?.value).toBe(2);
     expect(rows.find((row) => row.id === 'b')?.value).toBe(1);
+  });
+
+  it('treats UUID ids that differ only by case as the same key', () => {
+    const rows = dedupeRowsById([
+      { id: '01961271-0702-7389-8793-DD0478331A8A', value: 1 },
+      { id: '01961271-0702-7389-8793-dd0478331a8a', value: 2 },
+    ]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      id: '01961271-0702-7389-8793-dd0478331a8a',
+      value: 2,
+    });
+  });
+});
+
+describe('normalizeImportId', () => {
+  it('lowercases UUID ids and trims whitespace', () => {
+    expect(normalizeImportId(' 01961271-0702-7389-8793-DD0478331A8A ')).toBe(
+      '01961271-0702-7389-8793-dd0478331a8a',
+    );
+    expect(normalizeImportId('allpeep-core')).toBe('allpeep-core');
+    expect(normalizeImportId('')).toBeUndefined();
+  });
+});
+
+describe('jamEvents id normalization', () => {
+  it('lowercases jam event UUID keys so Postgres pkey dedupe matches', () => {
+    const row = arangoDocToDocumentRow('jamEvents', {
+      _key: '01997697-1E21-7840-A6BA-9ADB76C6AACB',
+      jamId: '01997695-d91b-77cd-aad7-335215eaf3df',
+      type: 'start',
+      createdAt: '2025-09-23T12:40:52.251Z',
+      updatedAt: '2025-09-23T12:40:52.251Z',
+    });
+    expect(row.id).toBe('01997697-1e21-7840-a6ba-9adb76c6aacb');
   });
 });
 

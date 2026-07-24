@@ -17,6 +17,7 @@ import {
   buildPostCreatorIdByPostId,
   type ImportContext,
   isEdgeCollection,
+  normalizeImportId,
 } from './transform';
 import {
   BATCH_SIZE,
@@ -27,10 +28,8 @@ import {
 
 const log = logger('core:db:import');
 
-const rowDedupeKey = (row: Record<string, unknown>): string | undefined => {
-  const key = row.id ?? row.key;
-  return typeof key === 'string' ? key : undefined;
-};
+const rowDedupeKey = (row: Record<string, unknown>): string | undefined =>
+  normalizeImportId(row.id ?? row.key);
 
 /** Arango exports can contain duplicate _key lines; keep the last row per id. */
 export const dedupeRowsById = <T extends Record<string, unknown>>(
@@ -42,7 +41,7 @@ export const dedupeRowsById = <T extends Record<string, unknown>>(
   for (const row of rows) {
     const key = rowDedupeKey(row);
     if (key) {
-      byKey.set(key, row);
+      byKey.set(key, typeof row.id === 'string' ? { ...row, id: key } : row);
     } else {
       withoutKey.push(row);
     }
@@ -94,8 +93,12 @@ const ensureEdgeUuidId = (
   collection: string,
   row: Record<string, unknown>,
 ): Record<string, unknown> => {
-  if (!isEdgeCollection(collection) || isUuid(row.id)) {
+  if (!isEdgeCollection(collection)) {
     return row;
+  }
+  if (isUuid(row.id)) {
+    const normalized = normalizeImportId(row.id) ?? String(row.id);
+    return normalized === row.id ? row : { ...row, id: normalized };
   }
   const next = { ...row, id: randomUUID() };
   log.warn(
