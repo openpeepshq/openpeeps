@@ -12,7 +12,7 @@ const usage = () => {
 Commands:
   export    Export ArangoDB collections to JSONL (DB_URL, DB_NAME)
   import    Import export into Postgres (DATABASE_URL)
-  validate  Compare Postgres row counts and checksums to export manifest
+  validate  Compare Postgres to import-stats.json (or export manifest) + checksums
 
 Environment:
   MIGRATION_EXPORT_DIR  Export directory (default: ./arango-export)

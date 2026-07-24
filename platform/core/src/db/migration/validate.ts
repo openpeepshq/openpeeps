@@ -5,9 +5,12 @@ import { documentRegistry, edgeRegistry } from '../pg/map/registry';
 import { tableCount } from './detect';
 import {
   assertExportDir,
+  expectedCollectionCount,
   exportDirFromEnv,
+  readImportStats,
   readManifest,
   sortedChecksum,
+  type CollectionCounts,
 } from './shared';
 
 const log = logger('core:migration:validate');
@@ -37,11 +40,22 @@ const postIdChecksum = async (): Promise<string> => {
 
 export const validateMigration = async (
   exportDir = exportDirFromEnv(),
-  options: { closeConnection?: boolean } = {},
+  options: {
+    closeConnection?: boolean;
+    importedCounts?: CollectionCounts;
+  } = {},
 ) => {
   const closeConnection = options.closeConnection ?? true;
   await assertExportDir(exportDir);
   const manifest = await readManifest(exportDir);
+  const importStats = await readImportStats(exportDir);
+  const importedCounts =
+    options.importedCounts ?? importStats?.collections ?? null;
+  if (importedCounts) {
+    log.info(
+      'Validating Postgres counts against import stats (intentional Arango skips/remaps allowed)',
+    );
+  }
   const issues: ValidationIssue[] = [];
 
   const collections = [
@@ -50,7 +64,11 @@ export const validateMigration = async (
   ];
 
   for (const collection of collections) {
-    const expected = manifest.collections[collection] ?? 0;
+    const expected = expectedCollectionCount(
+      collection,
+      manifest.collections,
+      importedCounts,
+    );
     const actual = await tableCount(collection);
     if (expected !== actual) {
       issues.push({ collection, kind: 'count', expected, actual });
