@@ -153,9 +153,9 @@ export const listConversationLeaves = async (authData: AuthorizationData) =>
       direction: 'INBOUND',
       skipEdge: true,
       cardinality: 'many',
-      mapping: conversationLeavesMappingForProfile(
-        requireProfile(authData),
-      ).data(),
+      mapping: conversationLeavesMappingForProfile(requireProfile(authData))
+        .sort(sorts.createdAtDesc)
+        .data(),
     }),
     { authData, limit: 9999 },
   );
