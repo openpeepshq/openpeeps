@@ -45,13 +45,19 @@ export const closePostgres = async () => {
   dbInstance = undefined;
 };
 
-/** Wipe all app tables after a failed auto-migration (keeps the database). */
+/**
+ * Wipe all app tables after a failed auto-migration (keeps the database).
+ * Also drops the `drizzle` schema — Drizzle records applied migrations there
+ * (not in `public`), so leaving it would make the next `migrate()` a no-op
+ * while app tables are gone.
+ */
 export const wipePostgresDatabase = async () => {
   const db = pgDb();
-  await db.execute(sql.raw('DROP SCHEMA public CASCADE'));
+  await db.execute(sql.raw('DROP SCHEMA IF EXISTS public CASCADE'));
+  await db.execute(sql.raw('DROP SCHEMA IF EXISTS drizzle CASCADE'));
   await db.execute(sql.raw('CREATE SCHEMA public'));
   await db.execute(sql.raw('GRANT ALL ON SCHEMA public TO CURRENT_USER'));
   await db.execute(sql.raw('GRANT ALL ON SCHEMA public TO public'));
-  log.warn('Wiped Postgres public schema after failed migration');
+  log.warn('Wiped Postgres public + drizzle schemas after failed migration');
   await closePostgres();
 };

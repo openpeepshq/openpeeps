@@ -10,6 +10,7 @@ import {
   prepareHashtagRows,
 } from './importCollections';
 import { expectedCollectionCount } from './shared';
+import { isUndefinedTableError } from './detect';
 import {
   resolveBackupDatabaseType,
   type BackupMetadata,
@@ -347,6 +348,20 @@ describe('prepareHashtagRows', () => {
     expect(context.hashtagIdRemap?.get('b')).toBe('');
     expect(context.hashtagIdRemap?.get('c')).toBe('');
     expect(context.hashtagIdRemap?.get('d')).toBe('a');
+  });
+});
+
+describe('isUndefinedTableError', () => {
+  it('detects Postgres undefined_table (42P01) on the error or its cause', () => {
+    expect(isUndefinedTableError({ code: '42P01' })).toBe(true);
+    expect(
+      isUndefinedTableError({
+        message: 'Failed query',
+        cause: { code: '42P01' },
+      }),
+    ).toBe(true);
+    expect(isUndefinedTableError({ code: '23505' })).toBe(false);
+    expect(isUndefinedTableError(new Error('boom'))).toBe(false);
   });
 });
 
