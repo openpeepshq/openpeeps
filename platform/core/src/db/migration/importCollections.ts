@@ -237,12 +237,13 @@ export const importArangoCollection = async (
   mapped = applyHashtagEdgeRemap(collection, mapped, context);
   mapped = mapped.map((row) => ensureEdgeUuidId(collection, row));
 
+  const beforeDedupe = mapped.length;
   const rows = dedupeRowsById(mapped);
 
-  if (rows.length < mapped.length) {
+  if (rows.length < beforeDedupe) {
     log.warn(
-      'Dropped %d duplicate row(s) while importing %s',
-      mapped.length - rows.length,
+      'Dropped %d duplicate row(s) while importing %s (e.g. remapped config keys or duplicate _key)',
+      beforeDedupe - rows.length,
       collection,
     );
   }

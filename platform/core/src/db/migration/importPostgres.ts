@@ -5,6 +5,7 @@ import {
   collectionsDir,
   exportDirFromEnv,
   readManifest,
+  writeImportStats,
 } from './shared';
 import { importAllArangoCollections } from './importCollections';
 
@@ -26,6 +27,7 @@ export const importPostgres = async (
   const { imported } = await importAllArangoCollections(
     collectionsDir(exportDir),
   );
+  await writeImportStats(exportDir, imported);
 
   if (closeConnection) {
     await closePostgres();

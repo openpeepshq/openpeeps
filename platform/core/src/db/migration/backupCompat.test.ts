@@ -5,6 +5,7 @@ import {
   isUuid,
   prepareHashtagRows,
 } from './importCollections';
+import { expectedCollectionCount } from './shared';
 import {
   resolveBackupDatabaseType,
   type BackupMetadata,
@@ -315,5 +316,18 @@ describe('isUuid', () => {
     expect(isUuid('01961271-0702-7389-8793-dd0478331a8a')).toBe(true);
     expect(isUuid('70585199')).toBe(false);
     expect(isUuid(undefined)).toBe(false);
+  });
+});
+
+describe('expectedCollectionCount', () => {
+  it('uses import stats when present so intentional skips pass validation', () => {
+    const manifest = { hashtags: 12, postHashtags: 60, configs: 3 };
+    const imported = { hashtags: 10, postHashtags: 48, configs: 2 };
+    expect(expectedCollectionCount('hashtags', manifest, imported)).toBe(10);
+    expect(expectedCollectionCount('postHashtags', manifest, imported)).toBe(
+      48,
+    );
+    expect(expectedCollectionCount('configs', manifest, imported)).toBe(2);
+    expect(expectedCollectionCount('hashtags', manifest, null)).toBe(12);
   });
 });

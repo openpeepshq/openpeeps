@@ -19,6 +19,15 @@ export const collectionsDir = (exportDir: string) =>
 export const manifestPath = (exportDir: string) =>
   join(exportDir, 'manifest.json');
 
+/** Counts actually inserted into Postgres (after skips / remaps / dedupe). */
+export const importStatsPath = (exportDir: string) =>
+  join(exportDir, 'import-stats.json');
+
+export type ImportStats = {
+  importedAt: string;
+  collections: CollectionCounts;
+};
+
 export const collectionFilePath = (exportDir: string, collection: string) =>
   join(collectionsDir(exportDir), `${collection}.jsonl`);
 
@@ -146,6 +155,39 @@ export const writeManifest = async (
 ) => {
   await writeFile(manifestPath(exportDir), JSON.stringify(manifest, null, 2));
 };
+
+export const writeImportStats = async (
+  exportDir: string,
+  collections: CollectionCounts,
+) => {
+  const stats: ImportStats = {
+    importedAt: new Date().toISOString(),
+    collections,
+  };
+  await writeFile(importStatsPath(exportDir), JSON.stringify(stats, null, 2));
+};
+
+export const readImportStats = async (
+  exportDir: string,
+): Promise<ImportStats | null> => {
+  try {
+    await access(importStatsPath(exportDir), constants.F_OK);
+  } catch {
+    return null;
+  }
+  const raw = await readFile(importStatsPath(exportDir), 'utf-8');
+  return JSON.parse(raw) as ImportStats;
+};
+
+/** Prefer post-import counts when present (skips / remaps / dedupe). */
+export const expectedCollectionCount = (
+  collection: string,
+  manifestCounts: CollectionCounts,
+  importedCounts: CollectionCounts | null,
+): number =>
+  importedCounts
+    ? (importedCounts[collection] ?? 0)
+    : (manifestCounts[collection] ?? 0);
 
 export const assertExportDir = async (exportDir: string) => {
   await access(manifestPath(exportDir), constants.F_OK);
