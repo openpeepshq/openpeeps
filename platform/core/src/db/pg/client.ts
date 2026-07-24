@@ -55,7 +55,7 @@ export const wipePostgresDatabase = async () => {
   const db = pgDb();
   await db.execute(sql.raw('DROP SCHEMA IF EXISTS public CASCADE'));
   await db.execute(sql.raw('DROP SCHEMA IF EXISTS drizzle CASCADE'));
-  await db.execute(sql.raw('CREATE SCHEMA public'));
+  await db.execute(sql.raw('CREATE SCHEMA IF NOT EXISTS public'));
   await db.execute(sql.raw('GRANT ALL ON SCHEMA public TO CURRENT_USER'));
   await db.execute(sql.raw('GRANT ALL ON SCHEMA public TO public'));
   log.warn('Wiped Postgres public + drizzle schemas after failed migration');

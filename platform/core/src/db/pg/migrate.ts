@@ -33,7 +33,16 @@ const appSchemaExists = async (): Promise<boolean> => {
   return result.rows[0]?.regclass != null;
 };
 
+const ensurePublicSchema = async () => {
+  const db = pgDb();
+  await db.execute(sql.raw('CREATE SCHEMA IF NOT EXISTS public'));
+  await db.execute(sql.raw('GRANT ALL ON SCHEMA public TO CURRENT_USER'));
+  await db.execute(sql.raw('GRANT ALL ON SCHEMA public TO public'));
+};
+
 const applyMigrations = async () => {
+  // A failed wipe can leave the DB with no `public` schema; Drizzle needs it.
+  await ensurePublicSchema();
   await migrate(pgDb(), { migrationsFolder });
 };
 
