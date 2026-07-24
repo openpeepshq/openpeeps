@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { appendFile, access } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { join } from 'node:path';
@@ -76,6 +77,34 @@ export const truncateAllTables = async () => {
       `TRUNCATE TABLE ${tableNames.map((name) => `"${name}"`).join(', ')} RESTART IDENTITY CASCADE`,
     ),
   );
+};
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export const isUuid = (value: unknown): value is string =>
+  typeof value === 'string' && UUID_RE.test(value);
+
+/**
+ * Edge `id` columns are uuid. Legacy Arango edge `_key`s are sometimes numeric
+ * (or otherwise non-UUID); replace those so the insert does not fail. Document
+ * collections are left alone (`data_migrations.id` is text, not uuid).
+ */
+const ensureEdgeUuidId = (
+  collection: string,
+  row: Record<string, unknown>,
+): Record<string, unknown> => {
+  if (!isEdgeCollection(collection) || isUuid(row.id)) {
+    return row;
+  }
+  const next = { ...row, id: randomUUID() };
+  log.warn(
+    'Replaced non-UUID %s edge id %s with %s',
+    collection,
+    String(row.id),
+    next.id,
+  );
+  return next;
 };
 
 const documentRowIsImportable = (
@@ -206,6 +235,7 @@ export const importArangoCollection = async (
   }
 
   mapped = applyHashtagEdgeRemap(collection, mapped, context);
+  mapped = mapped.map((row) => ensureEdgeUuidId(collection, row));
 
   const rows = dedupeRowsById(mapped);
 
@@ -225,7 +255,23 @@ export const importArangoCollection = async (
 
   for (let offset = 0; offset < rows.length; offset += BATCH_SIZE) {
     const batch = rows.slice(offset, offset + BATCH_SIZE);
-    await db.insert(table as never).values(batch as never);
+    try {
+      await db.insert(table as never).values(batch as never);
+    } catch (err) {
+      const cause =
+        err && typeof err === 'object' && 'cause' in err
+          ? (err as { cause: unknown }).cause
+          : undefined;
+      const detail =
+        cause instanceof Error
+          ? cause.message
+          : err instanceof Error
+            ? err.message
+            : String(err);
+      throw new Error(
+        `Failed importing ${collection} batch at offset ${offset} (${batch.length} rows): ${detail}`,
+      );
+    }
     imported += batch.length;
   }
 
@@ -254,7 +300,8 @@ export const importPostgresRowCollection = async (
     return 0;
   }
 
-  const rows = dedupeRowsById(mapped);
+  const withValidIds = mapped.map((row) => ensureEdgeUuidId(collection, row));
+  const rows = dedupeRowsById(withValidIds);
   if (rows.length < mapped.length) {
     log.warn(
       'Dropped %d duplicate row(s) while importing %s',

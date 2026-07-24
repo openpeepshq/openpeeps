@@ -32,7 +32,11 @@ const markerExists = async (path: string) => {
 /** Stay alive so Docker `restart: always` does not retry a failed migration. */
 const idleForever = async (message: string) => {
   log.error(message);
-  await new Promise<never>(() => undefined);
+  // A bare pending Promise does not keep Node's event loop alive — schedule a
+  // timer so the process does not exit(0) and get restarted by Docker.
+  await new Promise<never>(() => {
+    setInterval(() => undefined, 60_000);
+  });
 };
 
 const recordFailureAndHalt = async (err: unknown) => {
