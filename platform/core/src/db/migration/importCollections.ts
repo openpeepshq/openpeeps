@@ -71,9 +71,23 @@ export const truncateAllTables = async () => {
       ),
   ];
 
+  const existing: string[] = [];
+  for (const name of tableNames) {
+    const result = await db.execute<{ regclass: string | null }>(
+      sql.raw(`SELECT to_regclass('public.${name}')::text AS regclass`),
+    );
+    if (result.rows[0]?.regclass != null) {
+      existing.push(name);
+    }
+  }
+
+  if (existing.length === 0) {
+    return;
+  }
+
   await db.execute(
     sql.raw(
-      `TRUNCATE TABLE ${tableNames.map((name) => `"${name}"`).join(', ')} RESTART IDENTITY CASCADE`,
+      `TRUNCATE TABLE ${existing.map((name) => `"${name}"`).join(', ')} RESTART IDENTITY CASCADE`,
     ),
   );
 };
