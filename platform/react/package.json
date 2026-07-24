@@ -18,7 +18,8 @@
   "files": [
     "/dist",
     "/src/pwa/sw.ts",
-    "/src/pwa/sw-types.ts"
+    "/src/pwa/sw-types.ts",
+    "/src/pwa/navigationUrl.ts"
   ],
   "scripts": {
     "lint": "prettier --check . && eslint .",

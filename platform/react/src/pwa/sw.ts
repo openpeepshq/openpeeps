@@ -25,6 +25,7 @@
  */
 
 import type { NotificationOptionsType, PushMessage } from '@openpeeps/common';
+import { resolveGotoTarget } from './navigationUrl';
 
 const PUSH_BASE_INVALIDATE_KEYS = [
   ['profiles', 'current', 'notifications', 'stats'],
@@ -140,23 +141,15 @@ self.addEventListener('notificationclick', (event) => {
   if (!action.startsWith('goto:')) return;
 
   const origin = self.location.origin;
-  const basePath = base ?? '/';
-  const relativePath = action.split(':')[1] ?? '/';
-  const normalizedBase =
-    basePath === '/'
-      ? ''
-      : basePath.endsWith('/')
-        ? basePath.slice(0, -1)
-        : basePath;
-  const normalizedRel = relativePath.startsWith('/')
-    ? relativePath
-    : `/${relativePath}`;
-  const target = new URL(
-    `${normalizedBase}${normalizedRel}`,
+  // Absolute URL for openWindow / Client.navigate; path-only for in-page
+  // NAVIGATE_TO — React Router treats scheme URLs as relative pathnames.
+  const { absoluteUrl, routerPath } = resolveGotoTarget(
+    action,
     origin,
-  ).toString();
+    base ?? '/',
+  );
 
-  pendingDeepLink = target;
+  pendingDeepLink = routerPath;
 
   event.waitUntil(
     self.clients
@@ -172,14 +165,14 @@ self.addEventListener('notificationclick', (event) => {
               try {
                 (client as WindowClient).postMessage({
                   type: 'NAVIGATE_TO',
-                  url: target,
+                  url: routerPath,
                 });
               } catch {
                 // ignore
               }
-              if (client.url !== target && 'navigate' in client) {
+              if (client.url !== absoluteUrl && 'navigate' in client) {
                 const c = await (client as WindowClient)
-                  .navigate(target)
+                  .navigate(absoluteUrl)
                   .catch(() => undefined);
                 return (c ?? client).focus();
               }
@@ -191,7 +184,7 @@ self.addEventListener('notificationclick', (event) => {
         }
 
         if (self.clients.openWindow) {
-          await self.clients.openWindow(target).catch(() => undefined);
+          await self.clients.openWindow(absoluteUrl).catch(() => undefined);
         }
 
         const start = Date.now();
@@ -208,7 +201,7 @@ self.addEventListener('notificationclick', (event) => {
               try {
                 (c as WindowClient).postMessage({
                   type: 'NAVIGATE_TO',
-                  url: target,
+                  url: routerPath,
                 });
               } catch {
                 // ignore

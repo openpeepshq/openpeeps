@@ -6,6 +6,7 @@ import {
   type UseServiceWorkerOptions,
 } from './useServiceWorker';
 import { useNavigate } from '../contexts/router';
+import { toRouterPath } from './navigationUrl';
 import { normalizePushInvalidateMessage } from './pushInvalidate';
 import { useNotificationBadgeSync } from './useNotificationBadgeSync';
 
@@ -41,7 +42,9 @@ export function PwaProvider({
   const handleNavigate =
     onNavigate ??
     ((url: string) => {
-      if (navigate) navigate(url);
+      // React Router resolves absolute URLs as pathnames (`/https:/…`).
+      const path = toRouterPath(url);
+      if (navigate) navigate(path);
       else if (typeof window !== 'undefined') window.location.assign(url);
     });
 
