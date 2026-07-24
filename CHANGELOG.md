@@ -5,15 +5,30 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **core**: add SERVER_MAX_PROFILES cap for non-deleted profiles
 - **web**: responsive unread indicators and push notification badge sync
 - **db**: migrate OpenPeeps from ArangoDB to PostgreSQL
+
+### Bug Fixes
+
+- **core**: harden Arango→Postgres automigration for hashtags
+- **jams**: update JamFooter component styling for improved visibility
+- **web**: put admin API keys under RootLayout
+- **react**: updated various components to improve UX
+
+### Refactoring
+
+- **notifications**: update jam moderator email and notification links
+
+## 2026-07-23
+
+### Features
+
 - **react-ui**: replace loading text with LoadingSpinner animation
 - **post**: integrate Popover component for mentions in markdown input
 
 ### Bug Fixes
 
-- **web**: put admin API keys under RootLayout
-- **react**: updated various components to improve UX
 - **post**: fixed  pinned post refetch
 - **cleanup**: removed old skeleton theme files
 - **HeaderAvatarInput**: add specsText for cover image description
@@ -24,7 +39,6 @@ Changelog for OpenPeeps
 
 ### Refactoring
 
-- **notifications**: update jam moderator email and notification links
 - **groups**: simplify conditional rendering for group actions
 
 ### Chores
