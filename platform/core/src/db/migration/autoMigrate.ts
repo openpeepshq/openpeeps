@@ -44,6 +44,8 @@ const recordFailureAndHalt = async (err: unknown) => {
   const detail =
     err instanceof Error ? `${err.message}\n${err.stack ?? ''}` : String(err);
 
+  log.error('Automatic Arango → Postgres migration failed:\n%s', detail);
+
   try {
     await wipePostgresDatabase();
   } catch (wipeErr) {
