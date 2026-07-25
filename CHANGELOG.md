@@ -5,12 +5,20 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **react-native**: enhance unread message and post tracking features
 - **core**: add SERVER_MAX_PROFILES cap for non-deleted profiles
 - **web**: responsive unread indicators and push notification badge sync
 - **db**: migrate OpenPeeps from ArangoDB to PostgreSQL
 
 ### Bug Fixes
 
+- **core**: stop concurrent migrators from dropping schema mid-import
+- **core**: heal incomplete Postgres schema after public wipe
+- **core**: remigrate after wipe that left drizzle journal
+- **core**: normalize UUID case during Arango→Postgres import
+- **core**: validate Arango migrate against post-import counts
+- **core**: coerce legacy edge ids and keep failed migrate idle
+- **events**: enhance event location resolution and refactor ICS generation
 - **core**: harden Arango→Postgres automigration for hashtags
 - **jams**: update JamFooter component styling for improved visibility
 - **web**: put admin API keys under RootLayout
