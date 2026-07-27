@@ -50,17 +50,11 @@ export function ProfilePostsAndReplies({
       ) : (
         <AccessDeniedLoader queries={[commonGroupsQuery]}>
           {(commonGroupsQuery.data ?? []).map((group) => (
-            <button
+            <GroupCard
               key={group.id}
-              type="button"
-              title={t('profile.postsAndReplies.openGroupTitle', {
-                defaultValue: 'Open group',
-              })}
-              className="w-full text-left"
-              onClick={() => navigate(`/groups/@${group.handle}`)}
-            >
-              <GroupCard group={group} />
-            </button>
+              group={group}
+              onSelect={() => navigate(`/groups/@${group.handle}`)}
+            />
           ))}
           {!commonGroupsQuery.data?.length ? (
             <div className="flex h-[60vh] w-full flex-col items-center justify-center gap-y-6">
