@@ -139,21 +139,24 @@ export function PostAudienceSelector({
         {view === 'groups' ? (
           <div className="space-y-2">
             {groups.map((group) => (
-              <button
+              <div
                 key={group.id}
-                type="button"
-                className="flex w-full items-center justify-between rounded-md border p-2 text-left"
-                onClick={() => {
-                  setDraftGroupId(group.id);
-                  setDraftVisibility('group');
-                  setView('main');
-                }}
+                className="flex w-full items-center justify-between rounded-md border p-2"
               >
-                <GroupCard group={group as GroupWithMeta} noPadding />
+                <GroupCard
+                  group={group as GroupWithMeta}
+                  noPadding
+                  showAction={false}
+                  onSelect={() => {
+                    setDraftGroupId(group.id);
+                    setDraftVisibility('group');
+                    setView('main');
+                  }}
+                />
                 {draftGroupId === group.id ? (
                   <CheckCircle className="text-primary size-5" />
                 ) : null}
-              </button>
+              </div>
             ))}
             {groups.length === 0 ? (
               <p className="text-muted-foreground py-4 text-center text-sm">
@@ -174,14 +177,16 @@ export function PostAudienceSelector({
             {profileResults.map((profile) => {
               const selected = draftAudience.some((p) => p.id === profile.id);
               return (
-                <button
+                <div
                   key={profile.id}
-                  type="button"
-                  className={`w-full rounded-md text-left ${selected ? 'bg-primary/10' : ''}`}
-                  onClick={() => toggleAudience(profile)}
+                  className={`w-full rounded-md ${selected ? 'bg-primary/10' : ''}`}
                 >
-                  <ProfileCard profile={profile} showAction={false} />
-                </button>
+                  <ProfileCard
+                    profile={profile}
+                    showAction={false}
+                    onSelect={() => toggleAudience(profile)}
+                  />
+                </div>
               );
             })}
           </div>

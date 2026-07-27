@@ -9,6 +9,12 @@ export interface GroupCardProps {
   noPadding?: boolean;
   showAction?: boolean;
   unreadCount?: number;
+  /**
+   * When provided, the card acts as a selection control: clicking it calls
+   * `onSelect` instead of navigating to the group page. Used in selection
+   * contexts such as choosing post audience.
+   */
+  onSelect?: (group: GroupWithMeta) => void;
 }
 
 /**
@@ -21,42 +27,59 @@ export function GroupCard({
   noPadding = false,
   showAction = true,
   unreadCount = 0,
+  onSelect,
 }: GroupCardProps) {
+  const details = (
+    <>
+      <GroupAvatar
+        group={group}
+        size={avatarSize}
+        borderless
+        containerClassName="flex-shrink-0"
+      />
+      <span className="flex min-w-0 flex-1 flex-col items-start overflow-hidden text-left">
+        <span className="flex w-full min-w-0 items-center gap-2">
+          <span
+            className={`truncate font-semibold md:w-full ${avatarSize < 2 ? 'text-sm' : 'text-lg'}`}
+          >
+            {groupName(group)}
+          </span>
+          {unreadCount > 0 ? (
+            <span
+              className="bg-destructive text-destructive-foreground flex size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold"
+              aria-label={`${unreadCount} unread posts`}
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          ) : null}
+        </span>
+        <span
+          className={`truncate ${avatarSize < 2 ? 'text-xs' : 'text-sm'}`}
+        >
+          {group.membersCount} member{group.membersCount === 1 ? '' : 's'}
+        </span>
+      </span>
+    </>
+  );
+
   return (
     <div className={`flex w-full justify-between ${noPadding ? '' : 'p-4'}`}>
-      <a
-        href={`/groups/@${group.handle}`}
-        className="hover:bg-surface-100 flex min-w-0 flex-1 items-center gap-x-2"
-      >
-        <GroupAvatar
-          group={group}
-          size={avatarSize}
-          borderless
-          containerClassName="flex-shrink-0"
-        />
-        <span className="flex min-w-0 flex-1 flex-col items-start overflow-hidden text-left">
-          <span className="flex w-full min-w-0 items-center gap-2">
-            <span
-              className={`truncate font-semibold md:w-full ${avatarSize < 2 ? 'text-sm' : 'text-lg'}`}
-            >
-              {groupName(group)}
-            </span>
-            {unreadCount > 0 ? (
-              <span
-                className="bg-destructive text-destructive-foreground flex size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold"
-                aria-label={`${unreadCount} unread posts`}
-              >
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            ) : null}
-          </span>
-          <span
-            className={`truncate ${avatarSize < 2 ? 'text-xs' : 'text-sm'}`}
-          >
-            {group.membersCount} member{group.membersCount === 1 ? '' : 's'}
-          </span>
-        </span>
-      </a>
+      {onSelect ? (
+        <button
+          type="button"
+          onClick={() => onSelect(group)}
+          className="hover:bg-surface-100 flex min-w-0 flex-1 items-center gap-x-2 text-left"
+        >
+          {details}
+        </button>
+      ) : (
+        <a
+          href={`/groups/@${group.handle}`}
+          className="hover:bg-surface-100 flex min-w-0 flex-1 items-center gap-x-2"
+        >
+          {details}
+        </a>
+      )}
       {showAction && (
         <div className="ml-2 flex flex-shrink-0 items-center">
           <JoinGroupButton group={group} />
