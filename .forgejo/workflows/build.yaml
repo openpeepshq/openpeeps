@@ -83,7 +83,7 @@ jobs:
             echo "Could not derive owner/repo for registry (caller repository input, GITHUB_REPOSITORY, FORGEJO_REPOSITORY, or git remote)." >&2
             exit 1
           fi
-          registry_image_base="codeberg.org/${image_repo}"
+          registry_image_base="code.openpeeps.org/${image_repo}"
 
           echo "tag=$tag" >> $FORGEJO_OUTPUT
           echo "version=$version" >> $FORGEJO_OUTPUT
@@ -124,11 +124,11 @@ jobs:
           echo "TAG=${{ needs.set-variables.outputs.tag }}" >> $GITHUB_ENV
       - name: Docker login
         run: |
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "codeberg.org"
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "code.openpeeps.org"
       - name: Create release tag on stable
         if: forgejo.ref_name == 'stable'
         run: |
-          git remote set-url origin "https://${{ forgejo.actor }}:${{ forgejo.token }}@codeberg.org/${{ needs.set-variables.outputs.image_repo }}.git"
+          git remote set-url origin "https://${{ forgejo.actor }}:${{ forgejo.token }}@code.openpeeps.org/${{ needs.set-variables.outputs.image_repo }}.git"
           release_tag="${VERSION}-RELEASE"
           if git ls-remote --exit-code --tags origin "refs/tags/${release_tag}" >/dev/null 2>&1; then
             echo "Git tag ${release_tag} already exists. Skipping tag creation."
@@ -422,9 +422,9 @@ jobs:
           cd /apat
           # Forgejo npm: https://docs.gitea.com/usage/packages/npm
           owner="${{ needs.set-variables.outputs.image_repo }}" && owner="${owner%%/*}"
-          echo "@openpeeps:registry=https://codeberg.org/api/packages/${owner}/npm/" >> .npmrc
-          echo "//codeberg.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
-          echo "//codeberg.org/api/packages/${owner}/npm/:always-auth=true" >> .npmrc
+          echo "@openpeeps:registry=https://code.openpeeps.org/api/packages/${owner}/npm/" >> .npmrc
+          echo "//code.openpeeps.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
+          echo "//code.openpeeps.org/api/packages/${owner}/npm/:always-auth=true" >> .npmrc
           cat .npmrc
           corepack enable
           pnpm install
@@ -438,7 +438,7 @@ jobs:
     steps:
       - name: Docker login
         run: |
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "codeberg.org"
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "code.openpeeps.org"
       - name: Tag version if on stable
         if: forgejo.ref_name == 'stable'
         run: |

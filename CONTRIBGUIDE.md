@@ -25,7 +25,7 @@ The end-user product wiki can be found at (WIKI LINK TBA). This wiki is closed t
 
 #### Developer Documentation
 
-The OpenPeeps developer wiki is open for anyone to edit, and can be found [here](https://codeberg.org/openpeeps/openpeeps/wiki). In order to make an edit:
+The OpenPeeps developer wiki is open for anyone to edit, and can be found [here](https://code.openpeeps.org/openpeeps/openpeeps/wiki). In order to make an edit:
 
 1. Create a free account and log in  
 2. Make your proposed edit
@@ -39,7 +39,7 @@ If you are interested in making contributions to the OpenPeeps codebase itself, 
 
 #### Bugfixing
 
-If you're looking to start bugfixing, you can either search the [OpenPeeps issues board](https://codeberg.org/openpeeps/openpeeps/issues/new) for an unaddressed bug, or address one that you encounter yourself. **In the later case,** you should first contact DevRel to confirm that the bug is in fact unintended behavior, and then consult the [repository issues board](https://codeberg.org/openpeeps/openpeeps/issues/new) to ensure that the bug is not already being addressed. Once you have indentified a bug, you are ready to do the following:  
+If you're looking to start bugfixing, you can either search the [OpenPeeps issues board](https://code.openpeeps.org/openpeeps/openpeeps/issues/new) for an unaddressed bug, or address one that you encounter yourself. **In the later case,** you should first contact DevRel to confirm that the bug is in fact unintended behavior, and then consult the [repository issues board](https://code.openpeeps.org/openpeeps/openpeeps/issues/new) to ensure that the bug is not already being addressed. Once you have indentified a bug, you are ready to do the following:  
 
 1. Mark the issue as in progress  
 2. Create your own fork and clone it to your local device  
@@ -53,7 +53,7 @@ If you're looking to start bugfixing, you can either search the [OpenPeeps issue
 
 **Before beginning work on feature additions/changes intended for the OpenPeeps main branch,** you should do the following:  
 
-1. Check the [repository issues board](https://codeberg.org/openpeeps/openpeeps/issues/new) and Feature Proposal group in the OpenPeep Development Community to ensure that the a similar feature is not already being developed  
+1. Check the [repository issues board](https://code.openpeeps.org/openpeeps/openpeeps/issues/new) and Feature Proposal group in the OpenPeep Development Community to ensure that the a similar feature is not already being developed  
 2. Make a post in the Feature Proposal group to gauge interest from OpenPeeps maintainers
 3. Gauge interest from other developers/users
 
