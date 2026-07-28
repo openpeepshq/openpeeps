@@ -12,6 +12,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **react**: update PWA navigation handling and add new utility functions
+- **core**: update conversation leaves mapping to sort by creation date
 - **core**: stop concurrent migrators from dropping schema mid-import
 - **core**: heal incomplete Postgres schema after public wipe
 - **core**: remigrate after wipe that left drizzle journal
