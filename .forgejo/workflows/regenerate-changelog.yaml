@@ -55,6 +55,6 @@ jobs:
           # CHANGELOG.md is exempt from branch protection, so the changelog-only
           # commit can go straight to the default branch. Rebase first in case
           # main advanced during the run.
-          git remote set-url origin "https://${CHANGELOG_USER}:${CHANGELOG_TOKEN}@codeberg.org/${REPO}.git"
+          git remote set-url origin "https://${CHANGELOG_USER}:${CHANGELOG_TOKEN}@code.openpeeps.org/${REPO}.git"
           git pull --rebase origin "${{ env.DEFAULT_BRANCH }}"
           git push origin "HEAD:${{ env.DEFAULT_BRANCH }}"

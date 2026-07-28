@@ -2,7 +2,7 @@
 name: check-openpeeps-pr-readiness
 description: >-
   Validate OpenPeeps changes meet PR prerequisites before opening a pull
-  request on codeberg.org/openpeeps/openpeeps. Use when preparing a PR,
+  request on code.openpeeps.org/openpeeps/openpeeps. Use when preparing a PR,
   checking branch readiness, squashing commits, verifying conventional commit
   format, or before asking the user to open a draft PR.
 ---
@@ -19,7 +19,7 @@ Policy sources: `scripts/check-branch.mjs`, `scripts/squash-branch.sh`,
 ## When to Use
 
 - User asks "is this ready for a PR?" or "check my branch"
-- Before creating a draft PR on Codeberg
+- Before creating a draft PR on code.openpeeps.org
 - After finishing a feature branch, before push
 
 ## Quick Gate
