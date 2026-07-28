@@ -1,13 +1,16 @@
 import { and, eq, isNotNull, ne, or, sql } from 'drizzle-orm';
 import { posts } from '../schema/documents';
-import { entries, replyTo } from '../schema/edges';
+import {
+  postHasYesOrMaybeRsvpExpr,
+  postReplyCountExpr,
+} from '../queries/activity';
 import { compareCount } from './common';
 import { pgSql, type SqlFilter } from './types';
 
 const eventStart = sql`${posts.body}->>'start'`;
 const eventEnd = sql`${posts.body}->>'end'`;
 
-const postsReplyCountExpr = sql`(SELECT count(*)::int FROM ${replyTo} rt INNER JOIN ${posts} p ON p.id = rt.from_id WHERE rt.to_id = ${posts.id} AND p.deleted_at IS NULL)`;
+const postsReplyCountExpr = postReplyCountExpr(posts);
 
 export const postFilters = {
   notDirect: (): SqlFilter => pgSql(ne(posts.visibility, 'direct')),
@@ -33,13 +36,7 @@ export const postFilters = {
     pgSql(sql`${posts.body}->'jam'->'moderators' ? ${profileId}`),
 
   hasYesOrMaybeRsvp: (profileId: string): SqlFilter =>
-    pgSql(sql`EXISTS (
-      SELECT 1 FROM ${entries} e
-      WHERE e.to_id = ${posts.id}
-        AND e.from_id = ${profileId}
-        AND e.body->>'type' = 'rsvp'
-        AND e.body->'data'->>'response' IN ('yes', 'tentative')
-    )`),
+    pgSql(postHasYesOrMaybeRsvpExpr(posts, profileId)),
 };
 
 export const eventTimeFilters = {
