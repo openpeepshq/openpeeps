@@ -1,6 +1,6 @@
 import { hub } from '../events';
 import { passwordPlaceHolder } from '@openpeeps/common/types';
-import { config, updateConfig } from '../config';
+import { config, updateConfigValues } from '../config';
 import webPush from 'web-push';
 import { initializeFirebase } from './firebase';
 import { notificationQueue } from './jobs';
@@ -34,7 +34,7 @@ export const initializeNotifications = async () => {
     coreConfig.vapid.privateKey === passwordPlaceHolder
   ) {
     const vapid = generateVAPIDKeys();
-    await updateConfig({
+    await updateConfigValues({
       vapid,
     });
   }
