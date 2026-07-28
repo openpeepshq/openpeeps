@@ -2,7 +2,7 @@ import { endpoint, z } from '#lib/endpoint';
 import { successResponseSchema } from '@openpeeps/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { updateConfig } from '@openpeeps/core/config';
+import { updateConfigValues } from '@openpeeps/core/config';
 
 export const Input = z.object({
   postId: z.string(),
@@ -18,7 +18,7 @@ export const Error = {
 export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
   async (input, event) => {
     await ensureRoleCapabilities(event, ['core-customization-update']);
-    await updateConfig(
+    await updateConfigValues(
       { content: { pinnedPost: input.postId } },
       'openpeeps',
       'community',
