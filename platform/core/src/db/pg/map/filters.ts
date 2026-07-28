@@ -19,6 +19,7 @@ import {
   groupLastPostAtExpr,
   postActivityScoreExpr,
   postReplyCountExpr,
+  postReplyToCountExpr,
   profileActivityScoreExpr,
 } from '../queries/activity';
 import type {
@@ -32,7 +33,6 @@ import {
   asTable,
   edgeRegistry,
   getCollectionConfig,
-  getTableForCollection,
   parseDocRef,
   type PgTable,
 } from './registry';
@@ -507,10 +507,7 @@ const matchToSql = (
     }
     if (key === 'replyToCount' && collection === 'posts') {
       if (typeof value !== 'number') continue;
-      const replyToTable = getTableForCollection('replyTo');
-      conditions.push(
-        sql`(SELECT count(*)::int FROM ${replyToTable} rt WHERE rt.from_id = ${t.id}) = ${value}`,
-      );
+      conditions.push(eq(postReplyToCountExpr(table), value));
       continue;
     }
     if (collection === 'hashtags' && key === 'tag') {

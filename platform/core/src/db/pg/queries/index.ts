@@ -2,7 +2,9 @@ export {
   groupLastPostAtExpr,
   groupPostsCountExpr,
   postActivityScoreExpr,
+  postHasYesOrMaybeRsvpExpr,
   postReplyCountExpr,
+  postReplyToCountExpr,
   profileActivityScoreExpr,
 } from './activity';
 export { computedFields } from './computed';
