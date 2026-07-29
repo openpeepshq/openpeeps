@@ -61,7 +61,7 @@ const modelBaseFields = {
  */
 export const modelSchema = <T extends ZodRawShape>(
   dataSchema: ZodObject<T>,
-): ZodObject<util.Extend<T, typeof modelBaseFields>> =>
+): ZodObject<util.Extend<T, util.Writeable<typeof modelBaseFields>>> =>
   dataSchema.extend(modelBaseFields);
 
 export type Model<T> = Base<T> & { id: string };
@@ -165,9 +165,11 @@ export const profileSettingsDataSchema = z.object({
   defaults: profileSettingsDefaultsSchema.optional(),
   notifications: z.record(z.string(), profileNotificationSettings).optional(),
   jamSettings: jamSettingsSchema.optional(),
-  stripeSettings: z.object({
-    customerId: z.string().optional(),
-  }).optional(),
+  stripeSettings: z
+    .object({
+      customerId: z.string().optional(),
+    })
+    .optional(),
   feedSettings: z
     .object({
       communityFeed: z
@@ -210,7 +212,7 @@ const profileResourceTypes = [
   'groups',
   'reports',
   'webhooks',
-  'notifications'
+  'notifications',
 ] as const;
 
 export const profileResourceTypeSchema = z.enum(profileResourceTypes);
@@ -370,7 +372,15 @@ export const followSchema = connectionSchema(
 
 export type Follow = z.infer<typeof followSchema>;
 
-export const visibilityTypeValues = ['public', 'unlisted', 'private', 'direct', 'local', 'group', 'report'] as const;
+export const visibilityTypeValues = [
+  'public',
+  'unlisted',
+  'private',
+  'direct',
+  'local',
+  'group',
+  'report',
+] as const;
 
 export const visibilityTypeSchema = z.enum(visibilityTypeValues);
 
@@ -750,7 +760,16 @@ export type GuestData = z.infer<typeof guestDataSchema>;
 export const jamEventDataSchema = z.object({
   id: z.string(),
   jamId: z.string(),
-  type: z.enum(['message', 'reaction', 'join', 'leave', 'start', 'close', 'recordStart', 'recordStop']),
+  type: z.enum([
+    'message',
+    'reaction',
+    'join',
+    'leave',
+    'start',
+    'close',
+    'recordStart',
+    'recordStop',
+  ]),
   profileId: z.string(),
   content: z.string().optional(),
   reaction: reactionTypeSchema.optional(),
@@ -783,14 +802,16 @@ export type HashtagData = z.infer<typeof hashtagDataSchema>;
 export const hashtagSchema = modelSchema(hashtagDataSchema);
 export type Hashtag = Model<HashtagData>;
 
-
 export const normalizeHashtagTag = (tag: string) => tag.toLowerCase();
 
 export const hashtagRegexBase = '(?<!\\S)#([a-z0-9_]+)(?![a-z0-9_])';
 export const hashtagRegex = new RegExp(hashtagRegexBase, 'gi');
 
-
-export const jamRecordingTypeSchema = z.enum(['compositeVideo', 'compositeAudio', 'streams']);
+export const jamRecordingTypeSchema = z.enum([
+  'compositeVideo',
+  'compositeAudio',
+  'streams',
+]);
 export type JamRecordingType = z.infer<typeof jamRecordingTypeSchema>;
 
 export const jamRecordingDataSchema = z.object({
