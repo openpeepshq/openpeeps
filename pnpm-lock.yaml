@@ -10,7 +10,6 @@ overrides:
   '@tanstack/react-query': 5.90.16
   react: 19.2.6
   react-dom: 19.2.6
-  zod: ^4.3.6
 
 importers:
 
@@ -297,8 +296,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@tanstack/react-query':
         specifier: 5.90.16
@@ -413,8 +412,8 @@ importers:
         specifier: ^13.11.0
         version: 13.11.0
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/validator':
         specifier: ^13.11.9
@@ -451,7 +450,7 @@ importers:
     dependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.5.0
-        version: 8.5.0(zod@4.3.6)
+        version: 8.5.0(zod@4.4.3)
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -471,8 +470,8 @@ importers:
         specifier: ^13.15.35
         version: 13.15.35
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/node':
         specifier: ^24.1.12
@@ -527,7 +526,7 @@ importers:
     dependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.5.0
-        version: 8.5.0(zod@4.3.6)
+        version: 8.5.0(zod@4.4.3)
       '@keyv/redis':
         specifier: ^5.1.4
         version: 5.1.4(keyv@5.5.4)
@@ -620,7 +619,7 @@ importers:
         version: 0.33.5
       stripe:
         specifier: ^18.4.0
-        version: 18.4.0(@types/node@24.12.2)
+        version: 18.4.0(@types/node@22.19.17)
       tweetnacl:
         specifier: ^1.0.3
         version: 1.0.3
@@ -634,8 +633,8 @@ importers:
         specifier: ^3.6.7
         version: 3.6.7
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@openpeeps/arango-querybuilder':
         specifier: workspace:^
@@ -655,6 +654,9 @@ importers:
       '@types/html-to-text':
         specifier: ^9.0.4
         version: 9.0.4
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.19.17
       '@types/nodemailer':
         specifier: ^6.4.17
         version: 6.4.17
@@ -705,7 +707,7 @@ importers:
         version: 5.7.2
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@24.12.2)(@vitest/ui@2.1.9)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.37.0)
+        version: 2.1.8(@types/node@22.19.17)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.37.0)
 
   platform/i18n:
     devDependencies:
@@ -806,8 +808,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@openpeeps/fetch-client':
         specifier: workspace:^
@@ -1092,8 +1094,8 @@ importers:
         specifier: ^13.15.23
         version: 13.15.35
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
       zustand:
         specifier: ^5.0.3
         version: 5.0.12(@types/react@19.2.14)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
@@ -1211,7 +1213,7 @@ importers:
     dependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.5.0
-        version: 8.5.0(zod@4.3.6)
+        version: 8.5.0(zod@4.4.3)
       '@openpeeps/cli':
         specifier: workspace:^
         version: link:../cli
@@ -1234,8 +1236,8 @@ importers:
         specifier: ^1.3.4
         version: 1.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@riddl/core':
-        specifier: ^0.2.4
-        version: 0.2.4
+        specifier: ^0.2.5
+        version: 0.2.5
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -1273,8 +1275,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/express':
         specifier: ^5.0.6
@@ -1370,8 +1372,8 @@ importers:
         specifier: ^7.0.0
         version: 7.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@tailwindcss/typography':
         specifier: ^0.5.15
@@ -1553,7 +1555,7 @@ packages:
   '@asteasolutions/zod-to-openapi@8.5.0':
     resolution: {integrity: sha512-SABbKiObg5dLRiTFnqiW1WWwGcg1BJfmHtT2asIBnBHg6Smy/Ms2KHc650+JI4Hw7lSkdiNebEGXpwoxfben8Q==}
     peerDependencies:
-      zod: ^4.3.6
+      zod: ^4.0.0
 
   '@babel/code-frame@7.26.2':
     resolution: {integrity: sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ==}
@@ -2474,11 +2476,11 @@ packages:
 
   '@esbuild-kit/core-utils@3.3.2':
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
-    deprecated: 'Merged into tsx: https://tsx.is'
+    deprecated: 'Merged into tsx: https://tsx.hirok.io'
 
   '@esbuild-kit/esm-loader@2.6.5':
     resolution: {integrity: sha512-FxEMIkJKnodyA1OaCUoEvbYRkoZlLZ4d/eXFu9Fh8CbBBgP5EmZxrfTRyN0qpXZ4vOvqnE5YdRdcrmUUXuU+dA==}
-    deprecated: 'Merged into tsx: https://tsx.is'
+    deprecated: 'Merged into tsx: https://tsx.hirok.io'
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -5736,8 +5738,8 @@ packages:
     peerDependencies:
       release-it: ^17.0.0
 
-  '@riddl/core@0.2.4':
-    resolution: {integrity: sha512-lHSDWTmWFHwT/jwQs1uELRVxI8XSeee+mO6TL+gSe+rjpJ8nJQ6NeuZP+CfXvYj40IxJ6LI1QiWV2YXDGz1X1A==}
+  '@riddl/core@0.2.5':
+    resolution: {integrity: sha512-OllmN1QFyGNheQ5e02AeCccakthNOOx+HDP/R2X4HizpubnIRrvRatYALdJ1ThOYOa4jeiCvG7eV43pOA0MbLA==}
 
   '@rn-primitives/avatar@1.1.0':
     resolution: {integrity: sha512-GqhsQHeY7OP9oe3MZkl1Z0IbhIiuQX4+FxafoRK/Aes2m5386nMGK0NBaZBJy06WnFQBN52C8yq+LYv27sA86A==}
@@ -8010,10 +8012,12 @@ packages:
   conventional-changelog-atom@5.0.0:
     resolution: {integrity: sha512-WfzCaAvSCFPkznnLgLnfacRAzjgqjLUjvf3MftfsJzQdDICqkOOpcMtdJF3wTerxSpv2IAAjX8doM3Vozqle3g==}
     engines: {node: '>=18'}
+    deprecated: This preset is deprecated. Please use conventional-changelog-conventionalcommits or conventional-changelog-angular instead.
 
   conventional-changelog-codemirror@5.0.0:
     resolution: {integrity: sha512-8gsBDI5Y3vrKUCxN6Ue8xr6occZ5nsDEc4C7jO/EovFGozx8uttCAyfhRrvoUAWi2WMm3OmYs+0mPJU7kQdYWQ==}
     engines: {node: '>=18'}
+    deprecated: This preset is deprecated. Please use conventional-changelog-conventionalcommits or conventional-changelog-angular instead.
 
   conventional-changelog-conventionalcommits@6.1.0:
     resolution: {integrity: sha512-3cS3GEtR78zTfMzk0AizXKKIdN4OvSh7ibNz6/DPbhWWQu7LqE/8+/GqSodV+sywUR2gpJAdP/1JFf4XtN7Zpw==}
@@ -8026,26 +8030,32 @@ packages:
   conventional-changelog-core@8.0.0:
     resolution: {integrity: sha512-EATUx5y9xewpEe10UEGNpbSHRC6cVZgO+hXQjofMqpy+gFIrcGvH3Fl6yk2VFKh7m+ffenup2N7SZJYpyD9evw==}
     engines: {node: '>=18'}
+    deprecated: Deprecated and no longer maintained. Please use conventional-changelog instead.
 
   conventional-changelog-ember@5.0.0:
     resolution: {integrity: sha512-RPflVfm5s4cSO33GH/Ey26oxhiC67akcxSKL8CLRT3kQX2W3dbE19sSOM56iFqUJYEwv9mD9r6k79weWe1urfg==}
     engines: {node: '>=18'}
+    deprecated: This preset is deprecated. Please use conventional-changelog-conventionalcommits or conventional-changelog-angular instead.
 
   conventional-changelog-eslint@6.0.0:
     resolution: {integrity: sha512-eiUyULWjzq+ybPjXwU6NNRflApDWlPEQEHvI8UAItYW/h22RKkMnOAtfCZxMmrcMO1OKUWtcf2MxKYMWe9zJuw==}
     engines: {node: '>=18'}
+    deprecated: This preset is deprecated. Please use conventional-changelog-conventionalcommits or conventional-changelog-angular instead.
 
   conventional-changelog-express@5.0.0:
     resolution: {integrity: sha512-D8Q6WctPkQpvr2HNCCmwU5GkX22BVHM0r4EW8vN0230TSyS/d6VQJDAxGb84lbg0dFjpO22MwmsikKL++Oo/oQ==}
     engines: {node: '>=18'}
+    deprecated: This preset is deprecated. Please use conventional-changelog-conventionalcommits or conventional-changelog-angular instead.
 
   conventional-changelog-jquery@6.0.0:
     resolution: {integrity: sha512-2kxmVakyehgyrho2ZHBi90v4AHswkGzHuTaoH40bmeNqUt20yEkDOSpw8HlPBfvEQBwGtbE+5HpRwzj6ac2UfA==}
     engines: {node: '>=18'}
+    deprecated: This preset is deprecated. Please use conventional-changelog-conventionalcommits or conventional-changelog-angular instead.
 
   conventional-changelog-jshint@5.0.0:
     resolution: {integrity: sha512-gGNphSb/opc76n2eWaO6ma4/Wqu3tpa2w7i9WYqI6Cs2fncDSI2/ihOfMvXveeTTeld0oFvwMVNV+IYQIk3F3g==}
     engines: {node: '>=18'}
+    deprecated: This preset is deprecated. Please use conventional-changelog-conventionalcommits or conventional-changelog-angular instead.
 
   conventional-changelog-preset-loader@5.0.0:
     resolution: {integrity: sha512-SetDSntXLk8Jh1NOAl1Gu5uLiCNSYenB5tm0YVeZKePRIgDW9lQImromTwLa3c/Gae298tsgOM+/CYT9XAl0NA==}
@@ -9399,19 +9409,19 @@ packages:
   git-raw-commits@2.0.11:
     resolution: {integrity: sha512-VnctFhw+xfj8Va1xtfEqCUD2XDrbAPSJx+hSrE5K7fGdjZruW7XV+QOrN7LF/RJyvspRiD2I0asWsxFp0ya26A==}
     engines: {node: '>=10'}
-    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
+    deprecated: Deprecated and no longer maintained. Use @conventional-changelog/git-client instead.
     hasBin: true
 
   git-raw-commits@5.0.0:
     resolution: {integrity: sha512-I2ZXrXeOc0KrCvC7swqtIFXFN+rbjnC7b2T943tvemIOVNl+XP8YnA9UVwqFhzzLClnSA60KR/qEjLpXzs73Qg==}
     engines: {node: '>=18'}
-    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
+    deprecated: Deprecated and no longer maintained. Use @conventional-changelog/git-client instead.
     hasBin: true
 
   git-semver-tags@8.0.0:
     resolution: {integrity: sha512-N7YRIklvPH3wYWAR2vysaqGLPRcpwQ0GKdlqTiVN5w1UmCdaeY3K8s6DMKRCh54DDdzyt/OAB6C8jgVtb7Y2Fg==}
     engines: {node: '>=18'}
-    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
+    deprecated: Deprecated and no longer maintained. Use @conventional-changelog/git-client instead.
     hasBin: true
 
   git-up@7.0.0:
@@ -14454,16 +14464,19 @@ packages:
     resolution: {integrity: sha512-Q6/nZLe6jxuU80qb/4uJ4t5v2VEZ44lzQjPDhYJNztRQ4wyWc6VF3D3Kb/fAuPetZQnhS3hnajCf9CsWesghLQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      zod: ^4.3.6
+      zod: ^3.25.0 || ^4.0.0
 
   zod-validation-error@5.0.0:
     resolution: {integrity: sha512-hmk+pkyKq7Q71PiWVSDUc3VfpzpvcRHZ3QPw9yEMVvmtCekaMeOHnbr3WbxfrgEnQTv6haGP4cmv0Ojmihzsxw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      zod: ^4.3.6
+      zod: ^3.25.0 || ^4.0.0
 
   zod@4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+
+  zod@4.4.3:
+    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
   zustand@4.5.7:
     resolution: {integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==}
@@ -14570,10 +14583,10 @@ snapshots:
       '@ast-grep/napi-win32-ia32-msvc': 0.27.3
       '@ast-grep/napi-win32-x64-msvc': 0.27.3
 
-  '@asteasolutions/zod-to-openapi@8.5.0(zod@4.3.6)':
+  '@asteasolutions/zod-to-openapi@8.5.0(zod@4.4.3)':
     dependencies:
       openapi3-ts: 4.2.1
-      zod: 4.3.6
+      zod: 4.4.3
 
   '@babel/code-frame@7.26.2':
     dependencies:
@@ -16325,7 +16338,7 @@ snapshots:
       '@types/node': 20.5.1
       chalk: 4.1.2
       cosmiconfig: 8.3.6(typescript@5.8.3)
-      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.8.3))(typescript@5.8.3)
+      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@22.19.17)(typescript@5.8.3))(typescript@5.8.3)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -19859,16 +19872,16 @@ snapshots:
       - conventional-commits-filter
       - conventional-commits-parser
 
-  '@riddl/core@0.2.4':
+  '@riddl/core@0.2.5':
     dependencies:
-      '@asteasolutions/zod-to-openapi': 8.5.0(zod@4.3.6)
+      '@asteasolutions/zod-to-openapi': 8.5.0(zod@4.4.3)
       busboy: 1.6.0
       debug: 4.4.3
       express: 5.2.1
       set-cookie-parser: 3.1.0
       sse.js: 2.5.0
-      zod: 4.3.6
-      zod-validation-error: 5.0.0(zod@4.3.6)
+      zod: 4.4.3
+      zod-validation-error: 5.0.0(zod@4.4.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -22712,7 +22725,7 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
-  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.8.3))(typescript@5.8.3):
+  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@22.19.17)(typescript@5.8.3))(typescript@5.8.3):
     dependencies:
       '@types/node': 20.5.1
       cosmiconfig: 8.3.6(typescript@5.8.3)
@@ -28933,11 +28946,11 @@ snapshots:
 
   strip-json-comments@5.0.3: {}
 
-  stripe@18.4.0(@types/node@24.12.2):
+  stripe@18.4.0(@types/node@22.19.17):
     dependencies:
       qs: 6.13.0
     optionalDependencies:
-      '@types/node': 24.12.2
+      '@types/node': 22.19.17
 
   strnum@1.0.5:
     optional: true
@@ -30291,11 +30304,13 @@ snapshots:
     dependencies:
       zod: 4.3.6
 
-  zod-validation-error@5.0.0(zod@4.3.6):
+  zod-validation-error@5.0.0(zod@4.4.3):
     dependencies:
-      zod: 4.3.6
+      zod: 4.4.3
 
   zod@4.3.6: {}
+
+  zod@4.4.3: {}
 
   zustand@4.5.7(@types/react@19.2.14)(react@19.2.6):
     dependencies:
