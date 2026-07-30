@@ -27,6 +27,34 @@ import {
   type PublicAccount,
 } from '@openpeeps/common';
 
+/** Refresh when less than this many seconds remain (login JWTs are 1w). */
+const REFRESH_WHEN_REMAINING_BELOW_SEC = 24 * 60 * 60;
+
+const isAuthFailure = (error: unknown): boolean => {
+  if (!error || typeof error !== 'object') return false;
+  const { status, statusCode } = error as {
+    status?: number;
+    statusCode?: number;
+  };
+  const code = status ?? statusCode;
+  return code === 401 || code === 403;
+};
+
+/** Web-only; RN relies on cleared profile for the auth/main switch. */
+const redirectToLogin = () => {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.location?.href !== 'string'
+  ) {
+    return;
+  }
+  const { pathname, search } = window.location;
+  if (pathname.startsWith('/auth')) return;
+  window.location.href = `/auth/login?redirect=${encodeURIComponent(
+    `${pathname}${search}`,
+  )}`;
+};
+
 const OpenpeepsContext = createContext<OpenpeepsContextValue | null>(null);
 
 export const useOpenpeeps = () => {
@@ -88,6 +116,14 @@ export const OpenpeepsProvider: React.FC<{
     },
   );
 
+  const endSession = useCallback(async () => {
+    await credentialsStore.clear();
+    queryClient.clear();
+    setCurrentProfile(undefined);
+    setCurrentAccount(undefined);
+    redirectToLogin();
+  }, [credentialsStore, queryClient]);
+
   useEffect(() => {
     const fetchProfile = async () => {
       const cred = await credentialsStore.get();
@@ -96,8 +132,13 @@ export const OpenpeepsProvider: React.FC<{
         return;
       }
       const res = await client.profiles.current.read();
-      const profile = 'data' in res ? res.data : undefined;
-      setCurrentProfile(profile);
+      if (!('data' in res)) {
+        if (isAuthFailure(res.error)) {
+          await endSession();
+        }
+        return;
+      }
+      setCurrentProfile(res.data);
     };
 
     void fetchProfile();
@@ -128,25 +169,37 @@ export const OpenpeepsProvider: React.FC<{
         window.removeEventListener('storage', onStorage);
       }
     };
-  }, [credentialsStore, client]);
+  }, [credentialsStore, client, endSession]);
 
   useEffect(() => {
     const refreshIfExpiringSoon = async () => {
       const token = (await credentialsStore.get())?.token;
       if (!token?.trim()) return;
-      if (!jwtHasRemainingValidityAtLeast(token, 1)) return;
-      if (jwtHasRemainingValidityAtLeast(token, 60 * 60)) return;
+      if (!jwtHasRemainingValidityAtLeast(token, 1)) {
+        await endSession();
+        return;
+      }
+      if (
+        jwtHasRemainingValidityAtLeast(token, REFRESH_WHEN_REMAINING_BELOW_SEC)
+      ) {
+        return;
+      }
       const res = await client.auth.refresh({});
-      if (!('data' in res)) return;
+      if (!('data' in res)) {
+        if (isAuthFailure(res.error)) {
+          await endSession();
+        }
+        return;
+      }
       await credentialsStore.set({ token: res.data.token });
       queryClient.invalidateQueries({ queryKey: ['profiles', 'current'] });
-      const profile = await client.profiles.current.read().then((r) =>
-        'data' in r ? r.data : undefined,
-      );
+      const profile = await client.profiles.current
+        .read()
+        .then((r) => ('data' in r ? r.data : undefined));
       setCurrentProfile(profile);
-      const account = await client.accounts.current.read().then((r) =>
-        'data' in r ? r.data : undefined,
-      );
+      const account = await client.accounts.current
+        .read()
+        .then((r) => ('data' in r ? r.data : undefined));
       setCurrentAccount(account);
     };
 
@@ -177,7 +230,13 @@ export const OpenpeepsProvider: React.FC<{
     return () => {
       for (const cleanup of cleanups) cleanup();
     };
-  }, [client, credentialsStore, queryClient, subscribeToForeground]);
+  }, [
+    client,
+    credentialsStore,
+    queryClient,
+    subscribeToForeground,
+    endSession,
+  ]);
 
   return (
     <OpenpeepsContext.Provider
