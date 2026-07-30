@@ -7,18 +7,11 @@ import {
   unsubscribePushNotifications,
 } from './index';
 
-export interface UsePushSubscriptionResult {
-  /** True when the subscription is registered locally and on the server. */
-  isSubscribed: boolean;
-  /** Browser permission state for notifications. */
-  permission: NotificationPermission | 'unsupported';
-  /** Initial check is in progress. */
-  isLoading: boolean;
-  /** Subscribe + register with the OpenPeeps server. */
-  subscribe: () => Promise<void>;
-  /** Unsubscribe locally. */
-  unsubscribe: () => Promise<void>;
-}
+export type PushSubscriptionError =
+  | 'unsupported'
+  | 'no-service-worker'
+  | 'permission-denied'
+  | 'subscribe-failed';
 
 export interface UsePushSubscriptionOptions {
   client: OpenpeepsClient;
@@ -27,54 +20,96 @@ export interface UsePushSubscriptionOptions {
   autoCheck?: boolean;
 }
 
-export function usePushSubscription({
+const pushSupported =
+  typeof window !== 'undefined' &&
+  'Notification' in window &&
+  'serviceWorker' in navigator &&
+  'PushManager' in window;
+
+export const usePushSubscription = ({
   client,
   applicationServerKey,
   autoCheck = true,
-}: UsePushSubscriptionOptions): UsePushSubscriptionResult {
+}: UsePushSubscriptionOptions) => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [permission, setPermission] = useState<
     NotificationPermission | 'unsupported'
-  >(
-    typeof window !== 'undefined' && 'Notification' in window
-      ? Notification.permission
-      : 'unsupported',
-  );
+  >(pushSupported ? Notification.permission : 'unsupported');
+  const [hasServiceWorker, setHasServiceWorker] = useState(false);
   const [isLoading, setIsLoading] = useState(autoCheck);
+  const [error, setError] = useState<PushSubscriptionError | null>(
+    pushSupported ? null : 'unsupported',
+  );
 
   useEffect(() => {
-    if (!autoCheck || !applicationServerKey) {
+    if (!autoCheck || !pushSupported) {
       setIsLoading(false);
       return;
     }
     let cancelled = false;
-    void checkPushSubscription({ client, applicationServerKey })
-      .then((ok) => {
+    void (async () => {
+      try {
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (cancelled) return;
+        setHasServiceWorker(!!registration);
+        if (!registration) {
+          setError('no-service-worker');
+          return;
+        }
+        if (!applicationServerKey) return;
+        const ok = await checkPushSubscription({
+          client,
+          applicationServerKey,
+        });
         if (!cancelled) setIsSubscribed(ok);
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setIsLoading(false);
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };
   }, [client, applicationServerKey, autoCheck]);
 
-  const subscribe = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      await subscribePushNotifications({ client, applicationServerKey });
-      const sub = await getPushSubscription();
-      setIsSubscribed(!!sub);
-      if (typeof Notification !== 'undefined')
+  const subscribe =
+    useCallback(async (): Promise<PushSubscriptionError | null> => {
+      if (!pushSupported) {
+        setError('unsupported');
+        return 'unsupported';
+      }
+      setIsLoading(true);
+      setError(null);
+      try {
+        const registration = await navigator.serviceWorker.getRegistration();
+        setHasServiceWorker(!!registration);
+        if (!registration) {
+          setError('no-service-worker');
+          return 'no-service-worker';
+        }
+
+        await subscribePushNotifications({ client, applicationServerKey });
+        const sub = await getPushSubscription();
+        setIsSubscribed(!!sub);
         setPermission(Notification.permission);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [client, applicationServerKey]);
+        if (sub) return null;
+
+        const reason: PushSubscriptionError =
+          Notification.permission !== 'granted'
+            ? 'permission-denied'
+            : 'subscribe-failed';
+        setError(reason);
+        return reason;
+      } catch {
+        setError('subscribe-failed');
+        return 'subscribe-failed';
+      } finally {
+        setIsLoading(false);
+      }
+    }, [client, applicationServerKey]);
 
   const unsubscribe = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
       await unsubscribePushNotifications();
       setIsSubscribed(false);
@@ -83,5 +118,14 @@ export function usePushSubscription({
     }
   }, []);
 
-  return { isSubscribed, permission, isLoading, subscribe, unsubscribe };
-}
+  return {
+    isSubscribed,
+    permission,
+    isSupported: pushSupported,
+    hasServiceWorker,
+    isLoading,
+    error,
+    subscribe,
+    unsubscribe,
+  };
+};
