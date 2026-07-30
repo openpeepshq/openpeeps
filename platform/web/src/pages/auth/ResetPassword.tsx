@@ -17,7 +17,7 @@ export function ResetPassword() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // SvelteKit version reads `location.hash.substring(7)` (`#token=...`).
+    // Token arrives as `#token=...` in the URL hash.
     setToken(window.location.hash.replace(/^#token=/, ''));
   }, []);
 

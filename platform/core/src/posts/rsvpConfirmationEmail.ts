@@ -13,7 +13,7 @@ import { findByProfile } from '../accounts';
 import { serverRootUrl } from '../server';
 import { logger } from '../log';
 
-const log = logger('allpeep:rsvp-email');
+const log = logger('openpeeps:rsvp-email');
 
 const attendingResponses: RsvpResponse[] = ['yes', 'tentative'];
 

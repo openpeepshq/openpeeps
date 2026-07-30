@@ -23,7 +23,7 @@ export interface FeedPostProps {
 }
 
 /**
- * Single post card for the chronological feed. Mirrors `FeedPost.svelte`:
+ * Single post card for the chronological feed:
  * shows a small reaction/reply/group banner, the author header, the body,
  * stats and actions. The body component dispatches on `post.type`.
  */

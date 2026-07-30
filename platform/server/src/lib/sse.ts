@@ -1,9 +1,7 @@
 import { uuidv7 } from 'uuidv7';
 
 /**
- * Minimal observable used in place of `svelte/store`'s `writable`.
- *
- * Mirrors the API used by the original platform/app SSE module:
+ * Minimal observable for SSE fan-out:
  *   - `subscribe(fn)` returns an unsubscribe function and invokes `fn` once
  *     with the current value
  *   - `set(value)` replaces the current value and notifies subscribers

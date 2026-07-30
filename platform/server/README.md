@@ -59,8 +59,6 @@ platform/server/
 │       ├── handlers/          # framework-agnostic request handlers
 │       ├── sse.ts             # produceStream() helper for SSE endpoints
 │       └── init.ts            # initializeServer() — roles, plugins, notifications
-├── scripts/
-│   └── port-imports.mjs       # one-shot codemod used during the port
 ├── vite.config.ts
 ├── tsconfig.json
 └── package.json

@@ -5,9 +5,8 @@
 /**
  * @openpeeps/react PWA service worker.
  *
- * Direct port of `platform/app/src/service-worker.ts` (the SvelteKit version)
- * adapted to be framework-agnostic. Designed to be referenced from
- * vite-plugin-pwa via `injectManifest`:
+ * Framework-agnostic worker referenced from vite-plugin-pwa via
+ * `injectManifest`:
  *
  *   VitePWA({
  *     strategies: 'injectManifest',

@@ -10,12 +10,10 @@ const log = logger('server:init');
 let initialized = false;
 
 /**
- * Ported from `platform/app/src/lib/server/init` minus the SvelteKit-specific
- * Sentry helper. Email templates are React (`react-email`) based and live
- * under `platform/server/src/emails`; they are registered here so any in-process
- * call to `emailService.render(...)` (including the BullMQ worker pulling
- * `send-email` jobs in the same process) can resolve them without an extra
- * HTTP round-trip.
+ * Bootstraps roles, plugins, notifications, and React Email templates under
+ * `platform/server/src/emails`. Templates are registered here so in-process
+ * `emailService.render(...)` (including the BullMQ worker pulling `send-email`
+ * jobs in the same process) can resolve them without an HTTP round-trip.
  */
 export const initializeServer = async () => {
   if (initialized) return;

@@ -1,8 +1,7 @@
 import { type RoomOptions, VideoPresets } from 'livekit-client';
 
 /**
- * Defaults for LiveKit `Room` keyed by jam `type`, mirroring
- * `platform/svelte/.../jams/constants.ts`. Tweaks here apply to every
+ * Defaults for LiveKit `Room` keyed by jam `type`. Tweaks here apply to every
  * `<JamRoom>` automatically.
  */
 export const defaultRoomOptions: Record<string, RoomOptions> = {

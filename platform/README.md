@@ -8,7 +8,8 @@ for developing plugins or other integrations with openpeeps.
 
 ### server
 
-The openpeeps Community Server runtime.
+The openpeeps Community Server runtime (Express + Riddl API, React Email
+templates under `src/emails`, and the BullMQ worker entrypoint).
 
 ### web
 
@@ -41,10 +42,15 @@ Types and utilities used by multiple parts of the openpeeps server.
 Basic interactions with the database and other logic running
 on the backend.
 
-### interactions
+### i18n
 
-Default emails and notifications.
+Locale files and translation helpers for user-facing copy.
 
 ### react-native
 
 React Native components and utilities for native mobile apps.
+
+### worker
+
+BullMQ job definitions consumed by the server worker entrypoint
+(notifications, media, emails, events).

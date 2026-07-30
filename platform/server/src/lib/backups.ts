@@ -15,9 +15,7 @@ const log = logger('server:backups');
 
 // Serves backup archives at `/backups/<name>.zip` with streaming and
 // Content-Length so the browser download manager starts immediately.
-// Mirrors the SvelteKit handler at
-// `platform/app/src/routes/backups/[backupDir].zip/+server.ts`, but adds
-// auth (Bearer header or `?token=` for navigation-based downloads).
+// Auth via Bearer header or `?token=` for navigation-based downloads.
 
 const readToken = (req: Request): string | undefined => {
   const bearer = req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];

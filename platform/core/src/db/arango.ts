@@ -5,7 +5,7 @@ import { ArangoError } from 'arangojs/errors';
 import { logger } from '../log';
 import { sleep } from '@openpeeps/common/lib';
 
-const log = logger('allpeep:db');
+const log = logger('openpeeps:db');
 
 const DB_AVAILABILITY_TIMEOUT = 10000;
 

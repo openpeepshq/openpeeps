@@ -5,10 +5,9 @@ import { useT } from '@openpeeps/react';
 import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
 
 /**
- * Mirrors `platform/app/src/routes/+page.svelte`: redirect to `/feeds/local`
- * when the user is signed in or the community has public content, otherwise
- * to `/auth/login`. Surfaces the `?toast=success` notice from the email
- * validation flow as a transient banner.
+ * Redirect to `/feeds/local` when the user is signed in or the community has
+ * public content, otherwise to `/auth/login`. Surfaces the `?toast=success`
+ * notice from the email validation flow as a transient banner.
  */
 export function Home() {
   const navigate = useNavigate();
