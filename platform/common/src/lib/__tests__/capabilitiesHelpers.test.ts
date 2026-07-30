@@ -3,12 +3,14 @@ import {
   checkCapabilities,
   mergeCapabilities,
   checkRoleCapabilities,
+  hasAdminSidebarAccess,
   isLocal,
   localOrNone,
   getGroupRelationships,
   getProfileRelationships,
   getPostRelationships,
   getReportRelationships,
+  getAccessTokenRelationships,
   getGroupCapabilitiesByRoles,
   getGroupCapabilities,
   getProfileCapabilities,
@@ -17,9 +19,11 @@ import {
   getPostCapabilities,
   checkProfileCapabilities,
   checkReportCapabilities,
+  checkAccessTokenCapabilities,
   checkAccountCapabilities,
 } from '../capabilitiesHelpers';
 import type {
+  AccessTokenWithMeta,
   AuthorizationData,
   CapabilitiesConfig,
   Role,
@@ -175,7 +179,7 @@ const mockCapabilitiesConfig: CapabilitiesConfig = {
     local: { add: ['profile-local'], remove: [] },
     none: { add: ['profile-none'], remove: [] },
     self: { add: ['profile-self'], remove: [] },
-    followedBy: { add: ['profile-followed-by'], remove: [] },
+    'followed-by': { add: ['profile-followed-by'], remove: [] },
     following: { add: ['profile-following'], remove: [] },
   },
   report: {
@@ -185,11 +189,16 @@ const mockCapabilitiesConfig: CapabilitiesConfig = {
     reported: { add: ['report-reported'], remove: [] },
   },
   accessToken: {
-    none: { add: [], remove: [] },
-    local: { add: [], remove: [] },
-    owner: { add: [], remove: [] },
+    none: { add: ['token-none'], remove: [] },
+    local: { add: ['token-local'], remove: [] },
+    owner: { add: ['core-serviceTokens-read'], remove: [] },
   },
 };
+
+const mockAccessToken = {
+  id: 'token-1',
+  ownedBy: { id: 'profile1' },
+} as AccessTokenWithMeta;
 
 describe('capabilitiesHelpers', () => {
   describe('checkCapabilities', () => {
@@ -243,7 +252,6 @@ describe('capabilitiesHelpers', () => {
       expect(result.success).toBe(false);
       expect(result.missingCapabilities).toEqual(['a-b-c-d']);
     });
-
   });
 
   describe('mergeCapabilities', () => {
@@ -294,6 +302,24 @@ describe('capabilitiesHelpers', () => {
     it('should handle empty roles array', () => {
       const result = checkRoleCapabilities([], ['any-capability']);
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe('hasAdminSidebarAccess', () => {
+    it('grants access for any admin sidebar capability', () => {
+      expect(
+        hasAdminSidebarAccess([
+          {
+            ...mockRoles[0],
+            capabilities: { add: ['core-analytics-read'], remove: [] },
+          },
+        ]),
+      ).toBe(true);
+    });
+
+    it('denies access without admin sidebar capabilities', () => {
+      expect(hasAdminSidebarAccess(mockRoles)).toBe(false);
+      expect(hasAdminSidebarAccess([])).toBe(false);
     });
   });
 
@@ -354,7 +380,9 @@ describe('capabilitiesHelpers', () => {
     });
 
     it('should return local and none for service token without profile', () => {
-      const result = localOrNone(authData({ profile: undefined, service: 'service-1' }));
+      const result = localOrNone(
+        authData({ profile: undefined, service: 'service-1' }),
+      );
       expect(result).toEqual(['local', 'none']);
     });
 
@@ -386,7 +414,10 @@ describe('capabilitiesHelpers', () => {
           },
         ],
       } as ProfileWithMeta;
-      const result = getGroupRelationships(authData({ profile: localProfile }), mockGroup);
+      const result = getGroupRelationships(
+        authData({ profile: localProfile }),
+        mockGroup,
+      );
       expect(result).toContain('local');
       expect(result).toContain('none');
     });
@@ -397,6 +428,25 @@ describe('capabilitiesHelpers', () => {
         mockGroup,
       );
       expect(result).toEqual(['local', 'none']);
+    });
+
+    it('should include membership edge roles for the group', () => {
+      const memberProfile = {
+        ...mockProfile,
+        memberships: [
+          {
+            group: { id: 'group1' },
+            roles: ['member', 'moderator'],
+          },
+        ],
+      } as ProfileWithMeta;
+      const result = getGroupRelationships(
+        authData({ profile: memberProfile }),
+        mockGroup,
+      );
+      expect(result).toEqual(
+        expect.arrayContaining(['local', 'none', 'member', 'moderator']),
+      );
     });
   });
 
@@ -429,6 +479,21 @@ describe('capabilitiesHelpers', () => {
       );
       expect(result).toEqual(['local', 'none']);
     });
+
+    it('should include following and followed-by relationships', () => {
+      const networked = {
+        ...mockProfile,
+        following: [{ id: 'public-profile1' }],
+        followers: [{ id: 'public-profile1' }],
+      } as ProfileWithMeta;
+      const result = getProfileRelationships(
+        authData({ profile: networked }),
+        mockPublicProfile,
+      );
+      expect(result).toEqual(
+        expect.arrayContaining(['following', 'followed-by', 'none']),
+      );
+    });
   });
 
   describe('getPostRelationships', () => {
@@ -457,6 +522,27 @@ describe('capabilitiesHelpers', () => {
         mockPostInput,
       );
       expect(result).toEqual(['local', 'none']);
+    });
+
+    it('should include audience, mentioned, and attendee relationships', () => {
+      const post = {
+        ...mockPostInput,
+        visibility: 'direct',
+        audience: [{ id: 'profile1' }],
+        mentions: [{ profile: { id: 'profile1' } }],
+        entries: [
+          {
+            type: 'rsvp',
+            profile: { id: 'profile1' },
+            data: { response: 'yes' },
+          },
+        ],
+      } as PublicPostInput;
+      const result = getPostRelationships(authData(), post);
+      expect(result).toEqual(
+        expect.arrayContaining(['audience', 'mentioned', 'attendee']),
+      );
+      expect(result).not.toContain('none');
     });
   });
 
@@ -533,6 +619,18 @@ describe('capabilitiesHelpers', () => {
       const result = getGroupCapabilities(authData(), mockGroup);
       expect(result.add).not.toContain('admin-capability');
     });
+
+    it('should grant member capabilities when membership roles match', () => {
+      const memberProfile = {
+        ...mockProfile,
+        memberships: [{ group: { id: 'group1' }, roles: ['member'] }],
+      } as ProfileWithMeta;
+      const result = getGroupCapabilities(
+        authData({ profile: memberProfile }),
+        mockGroup,
+      );
+      expect(result.add).toContain('group-member-capability');
+    });
   });
 
   describe('getProfileCapabilities', () => {
@@ -603,7 +701,9 @@ describe('capabilitiesHelpers', () => {
       const result = checkPostCapabilities(
         authData({
           profile: undefined,
-          scopes: [{ scopeLevel: 'admin', resource: { type: 'posts', id: '*' } }],
+          scopes: [
+            { scopeLevel: 'admin', resource: { type: 'posts', id: '*' } },
+          ],
         }),
         ['core-posts-read'],
         { ...mockPost, visibility: 'local', group: null },
@@ -616,7 +716,9 @@ describe('capabilitiesHelpers', () => {
       const result = checkPostCapabilities(
         authData({
           profile: undefined,
-          scopes: [{ scopeLevel: 'read', resource: { type: 'posts', id: '*' } }],
+          scopes: [
+            { scopeLevel: 'read', resource: { type: 'posts', id: '*' } },
+          ],
         }),
         ['core-posts-read'],
         { ...mockPost, visibility: 'local', group: null },
@@ -678,7 +780,9 @@ describe('capabilitiesHelpers', () => {
       const result = checkPostCapabilities(
         authData({
           profile: undefined,
-          scopes: [{ scopeLevel: 'read', resource: { type: 'posts', id: '*' } }],
+          scopes: [
+            { scopeLevel: 'read', resource: { type: 'posts', id: '*' } },
+          ],
         }),
         ['core-posts-read'],
         { ...mockPost, visibility: 'group', group: publicGroup },
@@ -692,7 +796,12 @@ describe('capabilitiesHelpers', () => {
       // must not gain per-group post powers; group posts are edge-driven.
       const instanceAdmin = {
         ...mockProfile,
-        roles: [{ ...mockRoles[0], capabilities: { add: ['core-posts-*'], remove: [] } }],
+        roles: [
+          {
+            ...mockRoles[0],
+            capabilities: { add: ['core-posts-*'], remove: [] },
+          },
+        ],
         memberships: [],
       } as ProfileWithMeta;
       const memberOnlyGroup = {
@@ -710,7 +819,9 @@ describe('capabilitiesHelpers', () => {
         mockCapabilitiesConfig,
       );
       expect(checkCapabilities(['core-posts-read'], caps).success).toBe(false);
-      expect(checkCapabilities(['core-posts-delete'], caps).success).toBe(false);
+      expect(checkCapabilities(['core-posts-delete'], caps).success).toBe(
+        false,
+      );
     });
 
     it('should still grant instance-role capabilities on local posts', () => {
@@ -718,7 +829,10 @@ describe('capabilitiesHelpers', () => {
       const instanceModerator = {
         ...mockProfile,
         roles: [
-          { ...mockRoles[0], capabilities: { add: ['core-posts-delete'], remove: [] } },
+          {
+            ...mockRoles[0],
+            capabilities: { add: ['core-posts-delete'], remove: [] },
+          },
         ],
         memberships: [],
       } as ProfileWithMeta;
@@ -746,6 +860,19 @@ describe('capabilitiesHelpers', () => {
       );
       expect(result).toBeDefined();
     });
+
+    it('grants following capabilities from profile relationships', () => {
+      const networked = {
+        ...mockProfile,
+        following: [{ id: 'public-profile1' }],
+      } as ProfileWithMeta;
+      const caps = getProfileCapabilities(
+        authData({ profile: networked }),
+        mockPublicProfile,
+        mockCapabilitiesConfig,
+      );
+      expect(caps.add).toContain('profile-following');
+    });
   });
 
   describe('checkReportCapabilities', () => {
@@ -757,6 +884,65 @@ describe('capabilitiesHelpers', () => {
         mockCapabilitiesConfig,
       );
       expect(result).toBeDefined();
+    });
+
+    it('grants reporter capabilities to the reporting profile', () => {
+      const caps = checkReportCapabilities(
+        authData({
+          scopes: [
+            {
+              scopeLevel: 'admin',
+              resource: { type: 'reports', id: 'report1' },
+            },
+          ],
+        }),
+        ['report-reporter'],
+        {
+          ...mockReport,
+          reporterProfile: mockProfile as PublicProfile,
+        },
+        mockCapabilitiesConfig,
+      );
+      expect(caps.success).toBe(true);
+    });
+  });
+
+  describe('access token capabilities', () => {
+    it('marks the owning profile as owner', () => {
+      expect(
+        getAccessTokenRelationships(authData(), mockAccessToken),
+      ).toContain('owner');
+      expect(
+        getAccessTokenRelationships(
+          authData({
+            profile: { ...mockProfile, id: 'other' } as ProfileWithMeta,
+          }),
+          mockAccessToken,
+        ),
+      ).not.toContain('owner');
+    });
+
+    it('allows owners to read their service tokens with admin self scope', () => {
+      const result = checkAccessTokenCapabilities(
+        authData({ scopes: mockAccountAdminSelfScopes }),
+        ['core-serviceTokens-read'],
+        mockAccessToken,
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(true);
+    });
+
+    it('denies token reads without matching capabilities or scope', () => {
+      const result = checkAccessTokenCapabilities(
+        authData({
+          profile: { ...mockProfile, id: 'other' } as ProfileWithMeta,
+          scopes: [],
+        }),
+        ['core-serviceTokens-read'],
+        mockAccessToken,
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(false);
     });
   });
 

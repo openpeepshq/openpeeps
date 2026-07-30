@@ -145,6 +145,32 @@ jobs:
               -t "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}" --push .
           fi
 
+  test-unit:
+    runs-on: docker
+    needs: [set-variables]
+    container:
+      image: node:24-alpine
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.set-variables.outputs.full_sha }}
+      - name: Install dependencies
+        run: |
+          corepack enable
+          pnpm install
+      - name: Build packages needed by unit tests
+        run: >
+          pnpm --filter @openpeeps/common...
+          --filter @openpeeps/core...
+          --filter @openpeeps/react...
+          build
+      - name: Run unit tests
+        run: >
+          pnpm --filter @openpeeps/common
+          --filter @openpeeps/core
+          --filter @openpeeps/react
+          exec vitest run
+
   test-integration:
     runs-on: docker
     needs: [build, set-variables]
@@ -432,7 +458,7 @@ jobs:
 
   deploy-docker:
     runs-on: docker
-    needs: [test-integration, set-variables]
+    needs: [test-integration, test-unit, set-variables]
     container:
       image: docker:latest
     steps:

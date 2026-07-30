@@ -330,7 +330,7 @@ describe('utils', () => {
   describe('getTheme', () => {
     it('should return dark theme for OpenpeepsDark base', () => {
       const result = getTheme(mockConfig);
-      expect(result).toBe(mockConfig.theme.dark);
+      expect(result).toEqual({ ...mockConfig.theme.dark, dark: true });
     });
 
     it('should return light theme for non-OpenpeepsDark base', () => {
@@ -339,7 +339,7 @@ describe('utils', () => {
         theme: { ...mockConfig.theme, base: 'Light' },
       };
       const result = getTheme(lightConfig);
-      expect(result).toBe(lightConfig.theme.light);
+      expect(result).toEqual({ ...lightConfig.theme.light, dark: false });
     });
   });
 

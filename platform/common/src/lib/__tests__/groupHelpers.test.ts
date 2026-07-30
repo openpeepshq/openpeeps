@@ -56,9 +56,19 @@ const mockProfile: PublicProfile = {
     handle: 'johndoe',
 } as PublicProfile;
 
+const mockMemberProfile: ProfileWithMeta = {
+    ...mockProfile,
+    memberships: [
+        {
+            group: mockGroupWithMeta,
+            roles: ['member'],
+        },
+    ],
+} as ProfileWithMeta;
+
 const mockGroupMember: GroupMember = {
     id: 'member1',
-    profile: mockProfile as ProfileWithMeta,
+    profile: mockMemberProfile,
     roles: ['member'],
 } as GroupMember;
 

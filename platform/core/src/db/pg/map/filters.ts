@@ -457,20 +457,25 @@ export const stringFilterToSql = (
 
   if (expr.includes('||')) {
     const parts = splitTopLevel(expr, '||');
-    const sqlParts = parts.map((part) =>
-      stringFilterToSql(collection, table, part),
-    );
-    if (sqlParts.some((part) => !part)) return undefined;
-    return or(...(sqlParts as SQL[]));
+    // Nested `||` yields a single part — fall through instead of recursing.
+    if (parts.length > 1) {
+      const sqlParts = parts.map((part) =>
+        stringFilterToSql(collection, table, part),
+      );
+      if (sqlParts.some((part) => !part)) return undefined;
+      return or(...(sqlParts as SQL[]));
+    }
   }
 
   if (expr.includes('&&')) {
     const parts = splitTopLevel(expr, '&&');
-    const sqlParts = parts.map((part) =>
-      stringFilterToSql(collection, table, part),
-    );
-    if (sqlParts.some((part) => !part)) return undefined;
-    return and(...(sqlParts as SQL[]));
+    if (parts.length > 1) {
+      const sqlParts = parts.map((part) =>
+        stringFilterToSql(collection, table, part),
+      );
+      if (sqlParts.some((part) => !part)) return undefined;
+      return and(...(sqlParts as SQL[]));
+    }
   }
 
   return singleStringFilterToSql(collection, table, expr);
