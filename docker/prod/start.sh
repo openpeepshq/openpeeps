@@ -16,6 +16,9 @@ case "$COMMAND" in
     # boots the BullMQ workers from @openpeeps/worker.
     exec node /apat/platform/server/dist/worker.js
     ;;
+  migrate)
+    exec node /apat/platform/core/dist/db/bootMigrate.js
+    ;;
   *)
     # Escape hatch: run an arbitrary command in the container.
     shift
