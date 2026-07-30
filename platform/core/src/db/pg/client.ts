@@ -3,7 +3,7 @@ import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 import { logger } from '../../log';
 import { schema, type Schema } from './schema';
-import { runMigrations } from './migrate';
+import { assertSchemaReady, runMigrations } from './migrate';
 
 const log = logger('openpeeps:pg');
 
@@ -70,12 +70,16 @@ export const initPostgres = async (): Promise<PgDb> => {
   await client.query('SELECT 1');
   await client.query('SET search_path TO public');
   log.info('Postgres connection established');
-  // Serialize DDL / schema reset against concurrent apat processes.
-  await withPostgresAdvisoryLock(
-    SCHEMA_MIGRATE_LOCK.key1,
-    SCHEMA_MIGRATE_LOCK.key2,
-    () => runMigrations(),
-  );
+  // Hosted web/worker set RUN_DB_MIGRATE_ON_BOOT=false; migrate runs as one-shot.
+  if (process.env.RUN_DB_MIGRATE_ON_BOOT !== 'false') {
+    await withPostgresAdvisoryLock(
+      SCHEMA_MIGRATE_LOCK.key1,
+      SCHEMA_MIGRATE_LOCK.key2,
+      () => runMigrations(),
+    );
+  } else {
+    await assertSchemaReady();
+  }
   return pgDb();
 };
 

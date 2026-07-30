@@ -82,10 +82,41 @@ const applyMigrations = async () => {
   await migrate(pgDb(), { migrationsFolder });
 };
 
+const postgresHasAppData = async (): Promise<boolean> => {
+  const db = pgDb();
+  for (const tableName of APP_TABLE_NAMES) {
+    if (!(await tableExists(tableName))) {
+      continue;
+    }
+    const result = await db.execute(
+      sql.raw(`SELECT 1 FROM "${tableName}" LIMIT 1`),
+    );
+    if (result.rows.length > 0) {
+      return true;
+    }
+  }
+  return false;
+};
+
 const resetAndMigrate = async (reason: string) => {
+  if (await postgresHasAppData()) {
+    throw new Error(
+      `${reason}; refusing to DROP SCHEMA because Postgres already has application data`,
+    );
+  }
   log.warn('%s; resetting public + drizzle schemas and remigrating', reason);
   await resetPostgresSchemas();
   await applyMigrations();
+};
+
+/** Fail if app tables are missing (used when RUN_DB_MIGRATE_ON_BOOT=false). */
+export const assertSchemaReady = async () => {
+  const missing = await missingAppTables();
+  if (missing.length > 0) {
+    throw new Error(
+      `Postgres schema incomplete (missing: ${missing.join(', ')}); run migrate job first`,
+    );
+  }
 };
 
 /**
@@ -94,7 +125,7 @@ const resetAndMigrate = async (reason: string) => {
  *
  * Concurrent starters often hit duplicate_table / pg_type conflicts; if app
  * tables already exist we must NOT reset — that would DROP SCHEMA under the
- * other process mid-import.
+ * other process mid-import. Also refuses reset when application data exists.
  *
  * Callers that may race (initPostgres, auto-migrate) must hold
  * SCHEMA_MIGRATE_LOCK around this function.
