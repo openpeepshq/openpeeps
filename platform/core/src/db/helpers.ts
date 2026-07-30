@@ -40,7 +40,7 @@ import {
   UserFunctionDefinition,
 } from './types';
 
-const log = logger('allpeep:db');
+const log = logger('openpeeps:db');
 
 const collectionName = (collectionOrName: ArangoCollection | string) =>
   typeof collectionOrName === 'string'

@@ -3,7 +3,7 @@ import { logger } from '../log';
 import { sendEmailQueue } from './jobs';
 import { render } from './render';
 
-const log = logger('allpeep:email');
+const log = logger('openpeeps:email');
 
 const defaultEmailService: EmailService = {
   send: async (emailOptions: EmailOptions) =>

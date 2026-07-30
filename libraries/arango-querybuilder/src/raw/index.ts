@@ -23,7 +23,7 @@ import {
 } from '../types';
 import { ensureLiteral, flattenObject, pathToString, randomEdgeName, randomPathName } from '../utils';
 
-const log = debug('allpeep:db:querybuilder');
+const log = debug('openpeeps:db:querybuilder');
 
 export { literal, join } from 'arangojs/aql';
 

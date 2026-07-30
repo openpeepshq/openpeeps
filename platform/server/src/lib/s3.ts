@@ -23,10 +23,8 @@ import { serverRootUrl } from '@openpeeps/core/server';
 
 const log = logger('server:s3');
 
-// LiveKit egress uploads jam recordings to an S3-compatible endpoint. This is
-// the React-server port of the SvelteKit handler at
-// `platform/app/src/routes/s3/[bucket]/[filename]/+server.ts`: it speaks just
-// enough of the S3 multipart protocol for the egress uploader.
+// LiveKit egress uploads jam recordings to an S3-compatible endpoint. Speaks
+// just enough of the S3 multipart protocol for the egress uploader.
 
 interface MultipartUploadState {
   uploadId: string;

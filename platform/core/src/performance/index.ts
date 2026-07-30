@@ -4,7 +4,7 @@ export const logTime = <T extends (...args: any[]) => any>(
   fn: T,
   category: string,
 ): T => {
-  const log = logger(`allpeep:performance:${category}`);
+  const log = logger(`openpeeps:performance:${category}`);
   return (async (...args: Parameters<T>) => {
     const start = performance.now();
     const result = await fn(...args);

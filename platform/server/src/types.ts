@@ -7,9 +7,7 @@ import type {
 
 /**
  * Per-request context exposed to endpoint handlers via `event.context`.
- *
- * Populated by the authorization middleware. Mirrors the `event.locals` shape
- * from the SvelteKit version of the API (`platform/app`).
+ * Populated by the authorization middleware.
  */
 declare global {
   namespace Riddl {

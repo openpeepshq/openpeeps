@@ -1,7 +1,7 @@
-# AllPeeP Libraries
+# OpenPeeps Libraries
 
-The packages in this folder are independent from AllPeeP data 
-structures and will probably be move into their own repositories
+The packages in this folder are independent from OpenPeeps data
+structures and will probably be moved into their own repositories
 at some point if they find adoption.
 
 ## arango-querybuilder
@@ -12,6 +12,10 @@ A typesafe querybuilder for ArangoDb
 
 Some convenience methods around fetch and to build nice api libraries.
 
+## geocoder
+
+Geocoding helpers.
+
 ## greenscreen
 
 A standalone library to allow background blurring and background
@@ -19,3 +23,7 @@ images/videos for camera streams.
 
 Try it: `pnpm --filter @openpeeps/greenscreen-demo dev` (React demo in
 `examples/greenscreen-demo`).
+
+## react-ui
+
+Shared React UI primitives used by `@openpeeps/web` and `@openpeeps/react`.

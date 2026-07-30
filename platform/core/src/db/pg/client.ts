@@ -5,7 +5,7 @@ import { logger } from '../../log';
 import { schema, type Schema } from './schema';
 import { runMigrations } from './migrate';
 
-const log = logger('allpeep:pg');
+const log = logger('openpeeps:pg');
 
 /** Shared by initPostgres + auto-migrate so DDL cannot race an import. */
 export const SCHEMA_MIGRATE_LOCK = { key1: 8742301, key2: 1 } as const;

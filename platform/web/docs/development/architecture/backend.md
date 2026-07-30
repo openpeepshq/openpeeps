@@ -1,6 +1,6 @@
 # Backend Architecture
 
-The AllPeeP backend is organized into modular packages that handle business logic, API endpoints, background jobs, and administrative tasks.
+The OpenPeeps backend is organized into modular packages that handle business logic, API endpoints, background jobs, and administrative tasks.
 
 ## Backend Components
 
@@ -61,39 +61,39 @@ const post = await createPost(data, profile, postData, relations);
 const post = await findPost(postId);
 ```
 
-### Application Server (SvelteKit)
+### Application Server
 
-The main application server built on SvelteKit.
+The HTTP API and static SPA host built on Express + Riddl.
 
-**Location**: `platform/app/`
+**Location**: `platform/server/`
 
-**Package**: `@openpeeps/app`
+**Package**: `@openpeeps/server`
 
 **Responsibilities:**
 
 - HTTP request handling
-- API route definitions
-- Server-side rendering
+- API route definitions (Riddl endpoints under `/api/openpeeps/core/v1`)
 - Authentication middleware
-- File serving
+- File / media serving
+- React Email template registration
+- BullMQ worker entrypoint (`src/worker.ts`)
 
 **Key Files:**
 
-- `src/routes/api/` - API endpoint handlers
-- `src/api/api/` - OpenAPI endpoint definitions
-- `src/lib/server/` - Server utilities
-  - `auth/` - Authentication helpers
-  - `api/` - API utilities
-  - `middleware/` - Request middleware
+- `src/api/` - Riddl API endpoint modules
+- `src/lib/` - Server utilities (auth, middleware, streaming, S3, PWA)
+- `src/emails/` - React Email templates
+- `src/server.ts` - Express boot
+- `src/worker.ts` - BullMQ worker boot
 
 **API Structure:**
 
 ```
-routes/api/openpeeps/core/v1/
+src/api/openpeeps/core/v1/
 ├── posts/
 │   ├── [postId]/
-│   │   └── +server.ts
-│   └── +server.ts
+│   │   └── GET.ts / POST.ts / …
+│   └── GET.ts
 ├── profiles/
 ├── groups/
 └── ...
@@ -102,12 +102,8 @@ routes/api/openpeeps/core/v1/
 **Endpoint Definition Pattern:**
 
 ```typescript
-// routes/api/.../+server.ts
-import api from '$api';
-export const GET = (event) => api.handle(event);
-
-// api/api/.../GET.ts
-import { Endpoint, z } from 'sveltekit-api';
+// src/api/.../GET.ts
+import { Endpoint, z } from '@riddl/core';
 export const Param = z.object({...});
 export const Output = schema;
 export default new Endpoint({ Param, Output }).handle(async (input, event) => {
@@ -302,12 +298,12 @@ Email sending via SMTP:
 ### Request Flow
 
 ```
-1. HTTP Request → SvelteKit Route Handler
+1. HTTP Request → Express / Riddl route handler
 2. Authentication Check → await ensureLocalProfile()
 3. Authorization Check → await ensurePostCapabilities()
 4. Business Logic → @openpeeps/core domain functions
-5. Database Access → ArangoDB via mappings
-6. Response → JSON or HTML
+5. Database Access → Postgres (and legacy Arango mappings where present)
+6. Response → JSON (SPA HTML is served by the static catch-all)
 ```
 
 ### Event Flow
@@ -364,7 +360,7 @@ DB_NAME=test pnpm test
 3. **Input Validation**: Zod schemas for all inputs
 4. **SQL Injection**: Not applicable (ArangoDB uses parameterized queries)
 5. **XSS Prevention**: Content sanitization
-6. **CSRF Protection**: SvelteKit built-in protection
+6. **CSRF Protection**: Same-origin SPA + Bearer JWT (no cookie session CSRF surface)
 
 ## Best Practices
 

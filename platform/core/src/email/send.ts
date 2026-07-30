@@ -13,7 +13,7 @@ import { serverRootUrl } from '../server';
 import { render } from './render';
 import { logger } from '../log';
 
-const serverLog = logger('allpeep:email');
+const serverLog = logger('openpeeps:email');
 
 export type EmailJobLog = (message: string) => void | Promise<void>;
 
@@ -94,7 +94,7 @@ const renderEndpoint = typedPayloadEndpoint<
   method: 'post',
 });
 
-/** HTTP render path for the email worker (templates live in the SvelteKit app). */
+/** HTTP render path for the email worker (templates live in `@openpeeps/server`). */
 const renderEmailViaHttp = async (
   emailData: EmailOptions,
   coreConfig: CoreConfig,
@@ -136,7 +136,7 @@ const renderEmailViaHttp = async (
 export type SendEmailOptions = {
   /**
    * Render in-process using registered templates.
-   * Use from the SvelteKit app; the worker must use the default HTTP path.
+   * Use from the API/server process; the worker must use the default HTTP path.
    */
   renderLocally?: boolean;
   /** Writes to BullMQ job logs when processing a queued email. */

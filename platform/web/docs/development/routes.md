@@ -1,26 +1,26 @@
 # Routes
 
-An overview of the available routes in the AllPeeP application. The application uses [SvelteKit](https://kit.svelte.dev/) for routing, which provides file-based routing with support for dynamic routes, route groups, and API endpoints.
+An overview of the available routes in the OpenPeeps web application. The UI
+is a React SPA (`platform/web`) routed with React Router. The API lives under
+`/api/openpeeps/core/v1/` on `@openpeeps/server` (Riddl endpoints).
 
 ## Route Structure
 
-SvelteKit uses a file-based routing system where:
-
-- **Pages**: `+page.svelte` files render HTML pages
-- **API Routes**: `+server.ts` files handle HTTP requests (GET, POST, PUT, DELETE, etc.)
-- **Layouts**: `+layout.svelte` files wrap child routes
-- **Route Groups**: Parentheses `()` create route groups that don't affect the URL
-- **Dynamic Routes**: Square brackets `[]` create dynamic route parameters
+- **Pages**: React components registered in the web router
+- **API Routes**: Riddl modules under `platform/server/src/api/`
+- **Layouts**: Shared layout components in `@openpeeps/react`
+- **Dynamic Routes**: Path params (e.g. `/posts/:postId`, `/@:handle`)
 
 ## Route Groups
 
-Route groups organize routes by access level and layout requirements. They don't appear in the URL but affect which layouts and guards are applied.
+Routes are organized by access level. Guards in the React app enforce auth;
+they do not appear in the URL.
 
-### `(protected)`
+### Protected
 
 Routes that require authentication. All routes under this group require a logged-in user.
 
-#### `(protected)/(conditionally-public)`
+#### Conditionally public
 
 Routes that are accessible to authenticated users but may also be viewable by unauthenticated users depending on content visibility settings (e.g., public profiles, public posts, public groups).
 
@@ -51,7 +51,7 @@ Routes that are accessible to authenticated users but may also be viewable by un
 - `/members` - Members directory
 - `/about` - About page
 
-#### `(protected)/(private)`
+#### Private
 
 Routes that are only accessible to authenticated users and are never publicly viewable.
 
@@ -93,7 +93,7 @@ Routes that are only accessible to authenticated users and are never publicly vi
     - `/admin/configuration/i18n` - Internationalization settings
     - `/admin/configuration/server-settings` - Server configuration
 
-### `(public)`
+### Public
 
 Routes that are accessible without login (no ProfileGuard). Used for public jam and guest-join flow.
 
@@ -130,7 +130,7 @@ Authentication-related pages that don't require authentication to access.
 
 ## API Routes
 
-All API endpoints are under `/api/openpeeps/core/v1/`. The API uses [sveltekit-api](https://github.com/xiroV/sveltekit-api) for OpenAPI integration and type-safe endpoints.
+All API endpoints are under `/api/openpeeps/core/v1/`. The API uses [@riddl/core](https://www.npmjs.com/package/@riddl/core) for OpenAPI integration and type-safe endpoints.
 
 ### API Structure
 
@@ -157,13 +157,13 @@ API routes follow RESTful conventions and are organized by resource:
 
 API endpoints are defined in two places:
 
-1. **Route handler**: `routes/api/.../+server.ts` - Handles HTTP methods
+1. **Route module**: `platform/server/src/api/.../{GET,POST,...}.ts` - Handles HTTP methods
 2. **Endpoint definition**: `api/api/.../METHOD.ts` - Defines OpenAPI schema and logic
 
 Example endpoint structure:
 
 ```typescript
-// routes/api/openpeeps/core/v1/posts/[postId]/bookmark/+server.ts
+// platform/server/src/api/openpeeps/core/v1/posts/[postId]/bookmark/POST.ts
 import api from '$api';
 import type { RequestEvent } from '@sveltejs/kit';
 
@@ -173,7 +173,7 @@ export const DELETE = async (event: RequestEvent) => api.handle(event);
 
 ```typescript
 // api/api/openpeeps/core/v1/posts/[postId]/bookmark/POST.ts
-import { Endpoint, z } from 'sveltekit-api';
+import { Endpoint, z } from '@riddl/core';
 import { forbidden, notFound } from '$lib/server/api/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '$lib/server/auth';
 
@@ -418,7 +418,7 @@ Layouts wrap child routes and provide shared UI components:
 1. **Route Organization**: Use route groups to organize routes by access level
 2. **Dynamic Routes**: Use descriptive parameter names in square brackets
 3. **API Consistency**: Follow RESTful conventions for API endpoints
-4. **Type Safety**: Use sveltekit-api for type-safe API endpoints
+4. **Type Safety**: Use @riddl/core for type-safe API endpoints
 5. **Access Control**: Implement authorization checks in route handlers
 6. **Error Handling**: Use consistent error responses (404, 403, etc.)
 7. **Documentation**: Keep API documentation up to date with OpenAPI schemas
@@ -441,7 +441,7 @@ Layouts wrap child routes and provide shared UI components:
 ### Creating a New API Endpoint
 
 ```typescript
-// routes/api/openpeeps/core/v1/my-resource/+server.ts
+// platform/server/src/api/openpeeps/core/v1/my-resource/GET.ts
 import api from '$api';
 import type { RequestEvent } from '@sveltejs/kit';
 
@@ -451,7 +451,7 @@ export const POST = async (event: RequestEvent) => api.handle(event);
 
 ```typescript
 // api/api/openpeeps/core/v1/my-resource/GET.ts
-import { Endpoint, z } from 'sveltekit-api';
+import { Endpoint, z } from '@riddl/core';
 import { notFound } from '$lib/server/api/errors';
 
 export const Param = z.object({
@@ -486,7 +486,7 @@ let postId = $derived(page.params.postId);
 ```
 
 ```typescript
-// In +server.ts
+// Mounted via Riddl route modules
 export const GET = async (event: RequestEvent) => {
   const { postId } = event.params;
   // Use postId

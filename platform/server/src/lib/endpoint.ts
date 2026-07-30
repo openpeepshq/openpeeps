@@ -4,18 +4,18 @@ import { z } from 'zod';
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 
 // Augment zod with `.openapi(...)` so endpoints can attach OpenAPI metadata
-// to their schemas, matching what sveltekit-api and Riddl's `zod-to-openapi`
-// integration expect. Safe to call multiple times.
+// to their schemas for Riddl's `zod-to-openapi` integration. Safe to call
+// multiple times.
 extendZodWithOpenApi(z);
 
 export { z, type RequestEvent };
 
 /**
- * Drop-in replacement for `sveltekit-api`'s `Endpoint` factory shape.
+ * Thin wrapper around Riddl's `endpoint` factory.
  *
- * sveltekit-api hands the handler a single merged `input` object
- * (body ∪ query ∪ param). Riddl gives them as separate fields. This wrapper
- * merges them so endpoints can be ported mechanically.
+ * Riddl passes body, query, and path params as separate fields. This helper
+ * merges them into a single `input` object so handlers can destructure one
+ * argument.
  *
  * Note: schemas from `@openpeeps/common/types` use zod v3 while Riddl's types
  * are typed against zod v4. The wrapper is deliberately type-opaque

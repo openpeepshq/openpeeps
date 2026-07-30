@@ -7,11 +7,9 @@ import { logger } from '@openpeeps/core/log';
 const log = logger('server:streaming');
 
 // Serves the HLS playlists and segments produced by the VOD transcoder at
-// `/media/streaming/<storageId>/<file>`. This is the React-server port of the
-// SvelteKit handler at
-// `platform/app/src/routes/media/streaming/[storageId]/[...filename]/+server.ts`.
-// `vodMasterPlaylistUrl` (in `@openpeeps/react`) points players here, so it must
-// be registered before the SPA catch-all.
+// `/media/streaming/<storageId>/<file>`. `vodMasterPlaylistUrl` (in
+// `@openpeeps/react`) points players here, so it must be registered before
+// the SPA catch-all.
 
 // HLS players issue range requests against segments to seek. Without this they
 // fall back to full-segment downloads — functional but wasteful.

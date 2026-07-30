@@ -5,7 +5,6 @@ import { useCredentialsStore, useT } from '@openpeeps/react';
 /**
  * Lands the browser after the server's OIDC callback has exchanged the code.
  * The server redirects here with either `?token=` (success) or `?error=`.
- * Mirrors `platform/app/.../auth/sso/oidc/[id]/callback/+page.svelte`.
  */
 export function OidcCallback() {
   const t = useT();

@@ -4,8 +4,7 @@ import { useT } from '@openpeeps/react';
 
 /**
  * Shown when an OIDC sign-in created a new account that requires admin
- * approval before it can be used. Mirrors
- * `platform/app/.../auth/sso/oidc/pending/+page.svelte`.
+ * approval before it can be used.
  */
 export function OidcPending() {
   const t = useT();

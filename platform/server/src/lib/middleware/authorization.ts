@@ -8,8 +8,6 @@ const emptyAuthData = () => ({ scopes: [] as Authorization['scopes'] });
 /**
  * Reads the `Authorization: Bearer <jwt>` header, verifies the JWT and
  * populates `event.context.{authorization, currentProfile, currentAccount, authData}`.
- *
- * Mirrors the SvelteKit `handleAuthorization` hook from `platform/app`.
  */
 const pre = async (event: RequestEvent): Promise<RequestEvent> => {
   event.context.authData = emptyAuthData();

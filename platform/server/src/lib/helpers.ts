@@ -1,6 +1,5 @@
 /**
- * `Response`-based error helpers, drop-in for `$lib/server/helpers` from
- * `platform/app`. Used by middleware paths that need to return a Response
+ * `Response`-based error helpers for middleware paths that return a Response
  * directly (rather than throw an `HttpError`).
  */
 

@@ -143,7 +143,7 @@ hub.on('postCreated', (post: PostWithMeta) => {
 });
 ```
 
-Events are namespaced with the prefix `allpeep:core:` to avoid collisions.
+Events are namespaced with the Redis pub/sub prefix `allpeep:core:` (kept for compatibility with existing workers/clients; rename to `openpeeps:core:` when all consumers can migrate together). Logger namespaces use `openpeeps:`.
 
 ### Caching
 

@@ -1,6 +1,8 @@
 # Primary Web Interface Layout
 
-The AllPeeP primary web interface is built with SvelteKit and Svelte 5, using a mobile-first responsive design approach. This document explains the layout structure and how responsiveness is achieved.
+The OpenPeeps primary web interface is a React SPA (`platform/web` +
+`@openpeeps/react`), using a mobile-first responsive design approach. This
+document explains the layout structure and how responsiveness is achieved.
 
 ## Layout Architecture
 
@@ -9,8 +11,8 @@ The AllPeeP primary web interface is built with SvelteKit and Svelte 5, using a 
 The application uses a hierarchical layout system:
 
 ```
-Root Layout (+layout.svelte)
-  └── RootLayout Component
+Root (React Router layout)
+  └── Root layout component
       ├── Sidebar (Desktop only)
       ├── HeaderMobile (Mobile only)
       ├── Content Area
@@ -23,11 +25,11 @@ Root Layout (+layout.svelte)
 
 ### Layout Components
 
-**Location**: `platform/svelte/src/lib/components/layout/`
+**Location**: `platform/react/src/components/layout/`
 
-- **`Root.svelte`** - Main application layout
-- **`Auth.svelte`** - Authentication pages layout
-- **`Infos.svelte`** - Information banners (e.g., email verification)
+- **`Root.tsx`** - Main application layout
+- **`Auth` layout** - Authentication pages layout
+- **Infos / banners** - Information banners (e.g., email verification)
 
 ## Responsive Design Strategy
 
@@ -114,7 +116,7 @@ The application uses Tailwind CSS breakpoints:
 
 ### RootLayout
 
-**Location**: `platform/svelte/src/lib/components/layout/Root.svelte`
+**Location**: `platform/react/src/components/layout/Root.tsx`
 
 The main layout component that wraps all authenticated pages.
 
@@ -160,7 +162,7 @@ The main layout component that wraps all authenticated pages.
 
 ### Sidebar
 
-**Location**: `platform/svelte/src/lib/components/navigation/SideBar.svelte`
+**Location**: `platform/react/src/components/navigation/ (sidebar)`
 
 Desktop navigation sidebar.
 
@@ -179,7 +181,7 @@ Desktop navigation sidebar.
 
 ### HeaderMobile
 
-**Location**: `platform/svelte/src/lib/components/navigation/HeaderMobile.svelte`
+**Location**: `platform/react/src/components/navigation/ (mobile header)`
 
 Mobile header with essential navigation.
 
@@ -207,7 +209,7 @@ Mobile header with essential navigation.
 
 ### FooterMobile
 
-**Location**: `platform/svelte/src/lib/components/navigation/FooterMobile.svelte`
+**Location**: `platform/react/src/components/navigation/ (mobile footer)`
 
 Bottom navigation bar for mobile devices.
 
@@ -323,7 +325,7 @@ Main page content, rendered via `{@render children?.()}`
 
 ### Tailwind CSS
 
-**Configuration**: `platform/app/tailwind.config.ts`
+**Configuration**: `platform/web/tailwind.config.ts` (or package equivalent)
 
 **Features:**
 
@@ -334,7 +336,7 @@ Main page content, rendered via `{@render children?.()}`
 
 ### PostCSS
 
-**Location**: `platform/app/src/routes/app.postcss`
+**Location**: web/react global CSS entry (Tailwind)
 
 **Custom Styles:**
 

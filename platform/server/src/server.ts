@@ -62,8 +62,7 @@ const startServer = async () => {
     res.status(200).json({ status: 'ok' });
   });
 
-  // Request-duration logger, mirrors `requestDurationLogger` in
-  // `platform/app/src/hooks.server.ts`.
+  // Request-duration logger.
   app.use((req, _res, next) => {
     const start = Date.now();
     _res.on('finish', () => {
@@ -72,14 +71,6 @@ const startServer = async () => {
         `${req.method.padEnd(6)} | ${_res.statusCode.toString().padEnd(3)} | ${req.originalUrl} | ${duration}ms`,
       );
     });
-    next();
-  });
-
-  // Forward legacy /api/allpeep → /api/openpeeps (same body, headers).
-  app.use((req, _res, next) => {
-    if (req.url.startsWith('/api/allpeep')) {
-      req.url = req.url.replace(/^\/api\/allpeep/, '/api/openpeeps');
-    }
     next();
   });
 
@@ -102,7 +93,7 @@ const startServer = async () => {
         title: 'OpenPeeps Community Server API',
         version: '1.0.0',
         description:
-          'API for the OpenPeeps Community Server — port of platform/app exposed via @riddl/core.',
+          'API for the OpenPeeps Community Server (Express + @riddl/core).',
       },
     },
   });
@@ -147,9 +138,9 @@ const startServer = async () => {
   // Legacy /_db URLs redirect to /admin/db (Postgres admin instructions).
   installDbBrowserProxy(app);
 
-  // S3-compatible endpoint LiveKit egress uploads jam recordings to. Mirrors
-  // the SvelteKit `/s3/<bucket>/<filename>` route. Must be registered before
-  // the SPA catch-all so uploads don't fall through to `index.html`.
+  // S3-compatible endpoint LiveKit egress uploads jam recordings to
+  // (`/s3/<bucket>/<filename>`). Must be registered before the SPA catch-all
+  // so uploads don't fall through to `index.html`.
   installS3Endpoint(app);
 
   // HLS playlists/segments for VOD playback (`/media/streaming/<id>/<file>`).
@@ -166,10 +157,8 @@ const startServer = async () => {
   // Must be registered before the SPA catch-all so browsers don't receive HTML.
   installPwaEndpoint(app);
 
-  // Serve locally-stored media at the legacy `/storage/<bucket>/<id>/<filename>`
-  // URL (matches `mediaStorage().getPath(id, filename)` in
-  // `@openpeeps/core/media/openpeeps`). Mirrors the SvelteKit handler at
-  // `platform/app/src/routes/storage/allpeep/[id]/[filename]/+server.ts`.
+  // Serve locally-stored media at `/storage/<bucket>/<id>/<filename>`
+  // (matches `mediaStorage().getPath` in `@openpeeps/core/media/openpeeps`).
   // Without this, requests fall through to the SPA catch-all and the React
   // `index.html` is served as if the URL were a client-side route.
   app.get('/storage/:bucket/:id/:filename', async (req, res, next) => {

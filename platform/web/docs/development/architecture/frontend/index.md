@@ -1,72 +1,48 @@
 # Frontend Architecture
 
-The AllPeeP platform supports multiple frontend frameworks to provide flexibility for different use cases.
+The OpenPeeps web UI is a React SPA. Shared UI lives in `@openpeeps/react`;
+the assembled app is `@openpeeps/web`. React Native covers mobile.
 
 ## Frontend Options
 
-### SvelteKit (Primary Web Interface)
+### Web SPA (Primary)
 
-The main web application is built with **SvelteKit** and **Svelte 5**, providing a modern, reactive user interface.
+The main web application is a **Vite + React** single-page app that talks to
+`@openpeeps/server` over `/api/openpeeps/core/v1`.
 
-**Location**: `platform/app/`
+**Location**: `platform/web/`
 
 **Key Features:**
 
-- Server-side rendering (SSR) and static site generation
-- File-based routing
-- Type-safe API integration
+- Client-side routing (React Router)
+- Type-safe API integration via `@openpeeps/client`
 - Progressive Web App (PWA) support
 - Mobile-first responsive design
 
 **Technology Stack:**
 
-- SvelteKit - Full-stack framework
-- Svelte 5 - Component framework with runes (`$state`, `$derived`, `$props`)
+- React 19 - Component framework
+- React Router - Client routing
 - TypeScript - Type safety
 - Tailwind CSS - Styling
 - Vite - Build tool
 
-**Package**: `@openpeeps/app`
+**Package**: `@openpeeps/web`
 
 **Documentation:**
 
 - [Primary Web Interface Layout](/docs/development/architecture/frontend/primary-web-interface) - Layout structure and responsive design
 
-### Svelte Component Library
-
-Reusable Svelte components for building AllPeeP interfaces.
-
-**Location**: `platform/svelte/`
-
-**Key Components:**
-
-- Post components (feed, thread, form)
-- Profile components (avatar, header, form)
-- Group components (list, detail, form)
-- Jam components (video call interface)
-- Navigation components (sidebar, header)
-- Form components (inputs, modals)
-- Notification components
-
-**Package**: `@openpeeps/svelte`
-
-**Dependencies:**
-
-- `@openpeeps/client` - API client
-- `@openpeeps/common` - Shared types
-- Skeleton UI - Component library
-- LiveKit Client - Video/audio
-
 ### React Component Library
 
-React components and hooks for building AllPeeP web applications.
+React components and hooks for building OpenPeeps web applications.
 
 **Location**: `platform/react/`
 
 **Key Features:**
 
 - React Query integration for data fetching
-- Custom hooks for AllPeeP resources
+- Custom hooks for OpenPeeps resources
 - Context providers for authentication and data
 - Type-safe API integration
 
@@ -75,7 +51,7 @@ React components and hooks for building AllPeeP web applications.
 **Key Exports:**
 
 - `AllPeepProvider` - Main context provider
-- `useAllPeep()` - Hook to access AllPeep API
+- `useAllPeep()` - Hook to access the API
 - Hooks for posts, profiles, groups, jams, etc.
 - Credentials store management
 
@@ -216,9 +192,10 @@ All frontends use the `@openpeeps/client` package for type-safe API access:
 
 ## UI Libraries
 
-### Skeleton UI
+### React UI
 
-The SvelteKit app uses [Skeleton UI](https://www.skeleton.dev/) for base components:
+Shared primitives live in `@openpeeps/react-ui` and higher-level components in
+`@openpeeps/react`:
 
 - Buttons, inputs, cards
 - Navigation components
@@ -239,15 +216,16 @@ Utility-first CSS framework for styling:
 ### Development
 
 ```bash
-# SvelteKit app
-cd platform/app
+# API + worker (see run-openpeeps skill)
+cd platform/server
+pnpm dev
+pnpm dev:worker
+
+# Web SPA
+cd platform/web
 pnpm dev
 
-# Svelte components (watch mode)
-cd platform/svelte
-pnpm build:watch
-
-# React components
+# Shared React components (watch mode)
 cd platform/react
 pnpm build:watch
 ```
@@ -255,45 +233,24 @@ pnpm build:watch
 ### Production
 
 ```bash
-# Build all dependencies
-pnpm --filter @openpeeps/app... build
-
-# Build app
-cd platform/app
-pnpm build
+# Build server + web dependency closure
+pnpm -r \
+  --filter "@openpeeps/server..." \
+  --filter "@openpeeps/web..." \
+  build
 ```
 
 ## Frontend Best Practices
 
 1. **Type Safety**: Always use TypeScript types from `@openpeeps/common`
-2. **Component Reusability**: Use shared components from `@openpeeps/svelte` or `@openpeeps/react`
+2. **Component Reusability**: Use shared components from `@openpeeps/react`
 3. **API Client**: Always use `@openpeeps/client` for API calls
-4. **State Management**: Use appropriate state management for each framework
+4. **State Management**: Prefer React Query for server state
 5. **Responsive Design**: Mobile-first approach
 6. **Accessibility**: Follow WCAG guidelines
 7. **Performance**: Lazy load components, optimize images, use code splitting
 
 ## Examples
-
-### Svelte Component
-
-```svelte
-<script lang="ts">
-  import { Avatar } from '@openpeeps/svelte/components';
-  import type { PublicProfile } from '@openpeeps/common/types';
-
-  interface Props {
-    profile: PublicProfile;
-  }
-
-  let { profile }: Props = $props();
-</script>
-
-<div class="flex items-center gap-2">
-  <Avatar {profile} size={3} />
-  <span>{profile.displayName}</span>
-</div>
-```
 
 ### React Hook Usage
 

@@ -334,9 +334,9 @@ await sendTestPushNotification(account, {
 
 ### Email Templates
 
-Email notifications use Svelte email templates located in:
+Email notifications use React Email templates located in:
 
-- `platform/svelte/src/lib/components/emails/defaultTemplates/notification-[type]/`
+- `platform/server/src/emails/notifications/` and `platform/server/src/emails/defaultTemplates/`
 
 ### Template Structure
 
@@ -423,7 +423,7 @@ const mailer = await emailService();
 
 **View email templates:**
 
-Templates are in `platform/svelte/src/lib/components/emails/defaultTemplates/`
+Templates are in `platform/server/src/emails/`
 
 ### 4. Debugging Notifications
 

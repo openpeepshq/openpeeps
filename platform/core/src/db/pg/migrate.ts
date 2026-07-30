@@ -8,7 +8,7 @@ import { pgDb, resetPostgresSchemas } from './client';
 import { getTableForCollection } from './map/registry';
 import { DOCUMENT_IMPORT_ORDER, EDGE_IMPORT_ORDER } from '../migration/shared';
 
-const log = logger('allpeep:pg:migrate');
+const log = logger('openpeeps:pg:migrate');
 
 const moduleDir = dirname(fileURLToPath(import.meta.url));
 

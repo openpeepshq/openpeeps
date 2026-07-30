@@ -1,1 +1,0 @@
-export { default as component } from "../../../../src/routes/docs/[...5]integrations/[...2]nodemailer/+page.md";

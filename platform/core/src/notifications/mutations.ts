@@ -18,7 +18,7 @@ import { findProfile } from '../profiles';
 import { logger } from '../log';
 import { findProfileSettings } from '../profileSettings';
 
-const log = logger('allpeep:notifications');
+const log = logger('openpeeps:notifications');
 
 export const updateNotification = async (
   notification: ExpandedNotification | DbNotification,

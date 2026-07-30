@@ -48,14 +48,14 @@ If types are to be used for runtime validation they should be created as [zod](h
 
 - **Svelte components**: Files should be named in PascalCase matching the component name (e.g., `Avatar.svelte` exports `Avatar`)
 - **React components**: Use PascalCase for component names (e.g., `AllPeepProvider`, `useAllPeep`)
-- **Component props**: Define props using an `interface Props` in Svelte components
+- **Component props**: Define props with TypeScript types / interfaces on React components
 - **Component exports**: If components are exported from a module, their exported name should coincide with their file name
 
 ### API Routes
 
 - **API endpoint files**: Use HTTP method names in PascalCase (e.g., `GET.ts`, `POST.ts`, `PUT.ts`, `DELETE.ts`)
-- **Route handlers**: Use SvelteKit's `+server.ts` convention for route handlers
-- **API structure**: Follow the pattern `/api/api/openpeeps/core/v1/[resource]/[method].ts`
+- **Route handlers**: Riddl endpoint modules named by HTTP method (`GET.ts`, `POST.ts`, …)
+- **API structure**: Follow the pattern `platform/server/src/api/openpeeps/core/v1/[resource]/[method].ts`
 
 ### File Organization
 
@@ -129,14 +129,14 @@ If types are to be used for runtime validation they should be created as [zod](h
 
 ### API Route Patterns
 
-- **Endpoint structure**: Use the `Endpoint` class from `sveltekit-api`:
+- **Endpoint structure**: Use the `endpoint` helper from `@openpeeps/server`:
 
   ```typescript
   export const Param = z.object({...});
   export const Output = schema;
   export const Error = { 404: notFound(), 403: forbidden() };
 
-  export default new Endpoint({ Param, Output, Error }).handle(async (param, event) => {...});
+  export const apiEndpoint = endpoint({ Param, Output, Error }).handle(async (param, event) => {...});
   ```
 
 - **Error handling**: Use consistent error helpers (e.g., `notFound()`, `forbidden()`)
@@ -149,14 +149,10 @@ If types are to be used for runtime validation they should be created as [zod](h
 - **Query building**: Use the query builder pattern with filters and sorts
 - **Relations**: Use relation finders for graph queries (e.g., `relationsFrom()`)
 
-### Store Patterns (Svelte)
+### Data Fetching (React Query)
 
-- **Store naming**: Use descriptive names ending with `Store` (e.g., `localFeedStore`, `getPostStore`)
-- **Store types**:
-  - `simpleStore` - for single queries
-  - `infiniteChronologicalStore` - for infinite scroll with chronological ordering
-  - `infiniteOffsetStore` - for infinite scroll with offset pagination
-- **Mutation naming**: Use `*Mutation` suffix (e.g., `reactToPostMutation`, `createPostMutation`)
+- Prefer hooks from `@openpeeps/react` backed by `@openpeeps/client`
+- Keep mutations next to the resource hooks they update
 
 ## Examples
 
@@ -189,32 +185,30 @@ export const createPost = async (
 };
 ```
 
-### Svelte Component
+### React Component
 
-```svelte
-<script lang="ts">
-  import type { PublicProfile } from '@openpeeps/common/types';
+```tsx
+import type { PublicProfile } from '@openpeeps/common/types';
 
-  interface Props {
-    profile?: PublicProfile | undefined;
-    size?: number;
-  }
+type Props = {
+  profile?: PublicProfile;
+  size?: number;
+};
 
-  let { profile = undefined, size = 3.5 }: Props = $props();
-</script>
-
-<div style={`width: ${size}rem; height: ${size}rem;`}>
-  <!-- component content -->
-</div>
+export const Avatar = ({ profile, size = 3.5 }: Props) => (
+  <div style={{ width: `${size}rem`, height: `${size}rem` }}>
+    {/* component content */}
+  </div>
+);
 ```
 
 ### API Endpoint
 
 ```typescript
-import { Endpoint, z } from 'sveltekit-api';
+import { endpoint, z } from '#lib/endpoint';
 import { findPost } from '@openpeeps/core/posts';
 import { publicPostSchema } from '@openpeeps/common/types';
-import { notFound, forbidden } from '$lib/server/api/errors';
+import { notFound, forbidden } from '#lib/errors';
 
 export const Param = z.object({
   postId: z.string(),
@@ -227,8 +221,8 @@ export const Error = {
   403: forbidden(),
 };
 
-export default new Endpoint({ Param, Output, Error }).handle(
-  async (param, event) => {
+export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
+  async (param, _event) => {
     const post = await findPost(param.postId);
     if (!post) {
       throw notFound(`Post with id ${param.postId}`);
