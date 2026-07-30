@@ -13,6 +13,7 @@ import {
   useT,
   useOpenpeeps,
   useSetPageHeader,
+  type PushSubscriptionError,
 } from '@openpeeps/react';
 import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
 import { Button, Toast } from '@openpeeps/react-ui';
@@ -90,6 +91,7 @@ function PushSettingsPanel() {
     applicationServerKey: vapidKey,
   });
   const testPush = openpeepsApi.testPushSubscriptionAction();
+  const [actionError, setActionError] = useState<string | null>(null);
 
   if (!vapidKey) {
     return (
@@ -101,12 +103,38 @@ function PushSettingsPanel() {
     );
   }
 
-  const handleToggle = async (enabled: boolean) => {
-    if (enabled) {
-      await push.subscribe();
-    } else {
-      await push.unsubscribe();
+  const errorMessage = (code: PushSubscriptionError) => {
+    switch (code) {
+      case 'unsupported':
+        return t('settings.notifications.pushUnsupported', {
+          defaultValue: 'Push notifications are not supported in this browser.',
+        });
+      case 'no-service-worker':
+        return t('settings.notifications.pushServiceWorkerRequired', {
+          defaultValue:
+            'Push notifications require the app service worker. They are unavailable in this environment.',
+        });
+      case 'permission-denied':
+        return t('settings.notifications.pushPermissionDenied', {
+          defaultValue:
+            'Notification permission was denied. Enable it in your browser settings and try again.',
+        });
+      default:
+        return t('settings.notifications.pushSubscribeFailed', {
+          defaultValue:
+            'Could not enable push notifications. Please try again.',
+        });
     }
+  };
+
+  const handleToggle = async (enabled: boolean) => {
+    setActionError(null);
+    if (!enabled) {
+      await push.unsubscribe();
+      return;
+    }
+    const error = await push.subscribe();
+    if (error) setActionError(errorMessage(error));
   };
 
   const sendTest = async () => {
@@ -116,6 +144,12 @@ function PushSettingsPanel() {
       await testPush({ subscriptionKey: auth });
     }
   };
+
+  const unavailable =
+    !push.isSupported || (!push.isLoading && !push.hasServiceWorker);
+  const unavailableMessage = unavailable
+    ? errorMessage(push.isSupported ? 'no-service-worker' : 'unsupported')
+    : null;
 
   return (
     <div className="mb-6 rounded-md border p-3">
@@ -130,13 +164,21 @@ function PushSettingsPanel() {
             type="checkbox"
             className="peer sr-only"
             checked={push.isSubscribed}
-            disabled={push.isLoading}
+            disabled={push.isLoading || unavailable}
             onChange={(e) => void handleToggle(e.target.checked)}
           />
           <div className="bg-surface-300 peer-checked:bg-primary h-5 w-9 rounded-full"></div>
           <div className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"></div>
         </label>
       </div>
+      {unavailableMessage ? (
+        <p className="text-muted-foreground mt-2 text-sm">
+          {unavailableMessage}
+        </p>
+      ) : null}
+      {actionError && !unavailableMessage ? (
+        <p className="text-error mt-2 text-sm">{actionError}</p>
+      ) : null}
       {push.isSubscribed ? (
         <div className="pt-3">
           <Button variant="default" action={sendTest}>

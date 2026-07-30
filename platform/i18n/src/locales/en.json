@@ -1905,6 +1905,11 @@
             "pushSettings": "Push Notifications",
             "pushEnabled": "Enabled for this Browser",
             "testPush": "Send a Push Notification",
+            "serverPushDisabled": "Push notifications are not configured on this server.",
+            "pushUnsupported": "Push notifications are not supported in this browser.",
+            "pushServiceWorkerRequired": "Push notifications require the app service worker. They are unavailable in this environment.",
+            "pushPermissionDenied": "Notification permission was denied. Enable it in your browser settings and try again.",
+            "pushSubscribeFailed": "Could not enable push notifications. Please try again.",
             "create": "In-App Notifications",
             "title": "Notification Settings",
             "feedPreferences": {
