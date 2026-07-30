@@ -20,8 +20,10 @@ import { default as dbConfig } from './defaults/db';
 import { hub } from '../events';
 import { loadConfig, storeConfig } from './db';
 import { defaultCapabilitiesConfig } from './defaults/capabilities';
+import { pruneEmptyConfigStrings } from './pruneEmptyConfigStrings';
 
 export { defaultConfig, defaultCommunityConfig, logsConfig, dbConfig };
+export { pruneEmptyConfigStrings } from './pruneEmptyConfigStrings';
 
 const deepmerge = deepmergeCustom({
   mergeArrays: (values) => values[1],
@@ -78,7 +80,9 @@ const initConfig = async <T = CoreConfig>(
 
   const customConfig =
     customConfigDocument?.config &&
-    zodDeepPartialSchema(factory()).parse(customConfigDocument.config);
+    zodDeepPartialSchema(factory()).parse(
+      pruneEmptyConfigStrings(customConfigDocument.config),
+    );
 
   return (
     customConfig ? deepmerge(defaults as T, customConfig) : defaults
@@ -94,7 +98,9 @@ export const updateConfig = (
   namespace = 'openpeeps',
   name = 'core',
 ) =>
-  storeConfig(configKey(namespace, name), { config })
+  storeConfig(configKey(namespace, name), {
+    config: pruneEmptyConfigStrings(config),
+  })
     .then(() => refreshConfig(namespace, name))
     .then(() => hub.emit('configUpdated', namespace, name));
 
