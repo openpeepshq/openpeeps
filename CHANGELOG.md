@@ -12,6 +12,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **config**: merge partial config updates instead of replacing them
+- **core**: pin @types/node and align workspace on zod 4.4.3
 - **react**: update PWA navigation handling and add new utility functions
 - **core**: update conversation leaves mapping to sort by creation date
 - **core**: stop concurrent migrators from dropping schema mid-import
@@ -29,6 +31,10 @@ Changelog for OpenPeeps
 ### Refactoring
 
 - **notifications**: update jam moderator email and notification links
+
+### Chores
+
+- point repository URLs at code.openpeeps.org
 
 ## 2026-07-23
 
