@@ -61,6 +61,12 @@ const isLoopbackHost = (hostname: string) =>
 
 const assertEgressCanReachRecordingHost = async (recordingUrl: string) => {
   const { jams } = await config();
+  if (!jams.livekit.url) {
+    throw unprocessableRequest({
+      errorKey: 'jamsRecordingEgressUnreachable',
+      parameters: { recordingHost: new URL(recordingUrl).hostname },
+    });
+  }
   const recordingHost = new URL(recordingUrl).hostname;
   const livekitHost = new URL(jams.livekit.url).hostname;
   if (isLoopbackHost(recordingHost) && !isLoopbackHost(livekitHost)) {

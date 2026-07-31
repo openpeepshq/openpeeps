@@ -21,9 +21,10 @@ x-openpeeps-env: &openpeeps-env
   EMAIL_CONFIG_PORT: "1025"
   EMAIL_CONFIG_SECURE: "false"
   EMAIL_DEFAULT_FROM: test@openpeeps.test
-  JAMS_LIVEKIT_URL: ${JAMS_LIVEKIT_URL:-https://livekit.test.allpeep.cloud}
-  JAMS_LIVEKIT_API_KEY: ${JAMS_LIVEKIT_API_KEY:-APIxxxxxxxxxxxx}
-  JAMS_LIVEKIT_API_SECRET: ${JAMS_LIVEKIT_API_SECRET:-xxxxxxxxxxxxx}
+  # Leave unset unless the jams suite supplies real credentials.
+  JAMS_LIVEKIT_URL: ${JAMS_LIVEKIT_URL:-}
+  JAMS_LIVEKIT_API_KEY: ${JAMS_LIVEKIT_API_KEY:-}
+  JAMS_LIVEKIT_API_SECRET: ${JAMS_LIVEKIT_API_SECRET:-}
   SERVER_HOST: web:8080
   SERVER_PROTOCOL: http
 

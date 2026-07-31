@@ -9,6 +9,7 @@ import { api, expressAdapter } from '@riddl/core';
 import { logger } from '@openpeeps/core/log';
 import { mediaStorage } from '@openpeeps/core/media';
 import { initializeServer } from '#lib/init';
+import { corsMiddleware } from './lib/cors';
 import { installDbBrowserProxy } from './lib/dbBrowserProxy';
 import { installBackupsEndpoint } from './lib/backups';
 import { installS3Endpoint } from './lib/s3';
@@ -62,6 +63,9 @@ const startServer = async () => {
     res.status(200).json({ status: 'ok' });
   });
 
+  // Narrow API CORS (Riddl's default is `*`). See `lib/cors.ts` / CORS_ORIGINS.
+  app.use('/api', corsMiddleware());
+
   // Request-duration logger.
   app.use((req, _res, next) => {
     const start = Date.now();
@@ -86,7 +90,7 @@ const startServer = async () => {
         () => Promise.resolve(mod),
       ]),
     ),
-    cors: true,
+    cors: false,
     config: {
       openapi: '3.0.0',
       info: {

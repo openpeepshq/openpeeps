@@ -1,10 +1,9 @@
 import type { CoreConfig } from '@openpeeps/common/types';
 import db from './db';
 import redis from './redis';
-import { readEnvInteger } from '../helpers';
+import { readEnvInteger, resolveJwtSecret } from '../helpers';
 import logs from './logs';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -57,11 +56,12 @@ export const defaultConfig: CoreConfig = {
     path: path.resolve(process.env.PLUGINS_PATH || '../plugins'),
   },
   secrets: {
-    jwt: process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex'),
+    jwt: resolveJwtSecret(),
   },
   jams: {
     livekit: {
-      url: process.env.JAMS_LIVEKIT_URL || 'https://livekit.test.allpeep.cloud',
+      // Empty unless set — jams stay disabled until URL + keys are explicit.
+      url: process.env.JAMS_LIVEKIT_URL || '',
       apiKey: process.env.JAMS_LIVEKIT_API_KEY,
       apiSecret: process.env.JAMS_LIVEKIT_API_SECRET,
       recordingEnabled: process.env.JAMS_LIVEKIT_RECORDING_ENABLED === 'true',
