@@ -12,6 +12,10 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **core**: omit empty strings from stored config overrides
+- **react**: stop push toggle hang and surface clear errors
+- **core**: build post filters with Drizzle queries
+- **react**: refresh JWTs earlier and redirect when session ends
 - **config**: merge partial config updates instead of replacing them
 - **core**: pin @types/node and align workspace on zod 4.4.3
 - **react**: update PWA navigation handling and add new utility functions
@@ -31,6 +35,10 @@ Changelog for OpenPeeps
 ### Refactoring
 
 - **notifications**: update jam moderator email and notification links
+
+### Tests
+
+- **core**: cover db/pg map filters, relations, and capability helpers
 
 ### Chores
 
