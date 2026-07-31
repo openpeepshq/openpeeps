@@ -34,6 +34,7 @@ Changelog for OpenPeeps
 
 ### Refactoring
 
+- retire SvelteKit and allpeep port residue
 - **notifications**: update jam moderator email and notification links
 
 ### Tests
