@@ -317,16 +317,20 @@ Email sending via SMTP:
 
 ## Configuration
 
-**Environment Variables:**
+**Environment variables** (see `.env.dev.example` for a fuller list):
 
-- Database connection (ArangoDB)
-- Redis connection
-- Stripe keys
-- LiveKit configuration
-- Email SMTP settings
-- Media storage (S3)
+- `JWT_SECRET` — required in production; random fallback is cryptographically
+  fine for a single local process but breaks multi-instance / restart
+  consistency (server warns or fails fast accordingly)
+- Database (`DATABASE_URL`, optional legacy `DB_URL` / `DB_NAME`)
+- Redis (`REDIS_HOST`, `REDIS_PORT`)
+- `SERVER_HOST` / `SERVER_PROTOCOL` — public hostname for links and prod CORS
+- `CORS_ORIGINS` — optional comma-separated API allowlist (defaults from
+  `SERVER_HOST` in production, `http://localhost:5174` locally)
+- Stripe, LiveKit, SMTP, VAPID, media storage — leave unset until needed;
+  LiveKit has no default URL (jams stay disabled until URL + keys are set)
 
-**Configuration Files:**
+**Configuration files:**
 
 - `platform/core/src/config/defaults/` - Default configurations
 - Environment-specific overrides via `.env`
@@ -355,12 +359,17 @@ DB_NAME=test pnpm test
 
 ## Security
 
-1. **Authentication**: JWT-based authentication
+1. **Authentication**: JWT-based authentication (`JWT_SECRET` must be stable
+   and shared across API/worker replicas)
 2. **Authorization**: Capability-based access control
 3. **Input Validation**: Zod schemas for all inputs
 4. **SQL Injection**: Not applicable (ArangoDB uses parameterized queries)
 5. **XSS Prevention**: Content sanitization
 6. **CSRF Protection**: Same-origin SPA + Bearer JWT (no cookie session CSRF surface)
+7. **CORS**: API allowlist via `CORS_ORIGINS` / `SERVER_HOST` (not `*`)
+8. **Edge rate limiting**: Prefer Traefik/CDN limits on `/api/.../auth/*`
+   (login, register, password reset) and anonymous public GETs; the app does
+   not ship in-process rate limits
 
 ## Best Practices
 

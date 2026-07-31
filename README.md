@@ -35,7 +35,13 @@ From the repo root:
 
    `@openpeeps/server` reads `.env` at startup via `dotenv`; `@openpeeps/web`
    uses Vite envs (`VITE_*`) and only needs `VITE_API_PROXY_TARGET` if the
-   server is not on `http://localhost:5173`.
+   server is not on `http://localhost:5173`. See `.env.dev.example` for Redis,
+   SMTP, media, LiveKit, VAPID, Stripe, and CORS knobs (leave optional
+   integrations unset until you need them).
+
+   Set a stable `JWT_SECRET` if you run more than one server/worker process or
+   care about tokens surviving restarts. Production images fail fast when it is
+   missing.
 
 2. Start Postgres and Redis:
 
@@ -126,6 +132,13 @@ For a production-style build use the workspace `Dockerfile`, which:
      SPA from the baked-in `WEB_DIST_PATH`).
    - `start.sh worker` → `node platform/server/dist/worker.js` (BullMQ workers
      from `@openpeeps/worker`, plus React email templates).
+
+Production checklist (ops/DX):
+
+- Set `JWT_SECRET` (required; shared across replicas).
+- Set `SERVER_HOST` (and `CORS_ORIGINS` if the SPA is on another origin).
+- Enable LiveKit only by setting `JAMS_LIVEKIT_URL` + API key/secret.
+- Put edge rate limits (Traefik/CDN) on auth routes and anonymous public GETs.
 
 ## Documentation
 
