@@ -97,6 +97,10 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
     ['admin', 'reports'],
   ]),
   useAllGroupsList: () => apiHook(client.admin.groups.list),
+  deleteGroupAction: noPayloadMutation(client.admin.groups.delete, [
+    ['admin', 'groups'],
+    ['groups'],
+  ]),
   useEmailQueueStats: () =>
     apiHook(client.admin.diagnostics.email.queueStats, {
       refetchInterval: 60_000,

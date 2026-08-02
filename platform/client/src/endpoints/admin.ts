@@ -275,6 +275,11 @@ export const admin = (rawClient: FetchClient) => ({
   },
   groups: {
     list: allpeepNoPayloadEndpoint<AdminGroup[]>(rawClient, '/admin/groups'),
+    delete: allpeepNoPayloadEndpoint<SuccessResponse, { groupId: string }>(
+      rawClient,
+      '/admin/groups/:groupId',
+      'delete',
+    ),
   },
   serviceAccessTokens: {
     list: allpeepNoPayloadEndpoint<PublicAccessToken[]>(
