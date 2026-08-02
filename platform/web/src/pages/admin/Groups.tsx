@@ -100,7 +100,7 @@ function DeleteGroupModal({
 }) {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
-  const deleteGroup = openpeepsApi.deleteGroupAction();
+  const deleteGroup = openpeepsApi.admin.deleteGroupAction();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -108,7 +108,7 @@ function DeleteGroupModal({
     setError(null);
     setSubmitting(true);
     try {
-      await deleteGroup({ id: group.id });
+      await deleteGroup({ groupId: group.id });
       onClose();
     } catch (err) {
       setError((err as Error).message);
