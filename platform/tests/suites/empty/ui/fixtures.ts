@@ -326,6 +326,57 @@ export const createPostViaUi = async (page: Page, content?: string) => {
   return postContent;
 };
 
+export const createPollViaUi = async (
+  page: Page,
+  options: { question?: string; choices?: string[] } = {},
+) => {
+  const question =
+    options.question ?? `UI poll ${uniqueSuffix()}`.slice(0, 80);
+  const choices = options.choices ?? ['Alpha', 'Bravo'];
+
+  await page.goto('/feeds/local');
+  await page.getByTestId(testIds.posts.newPostButton).click();
+  await page.getByTestId(testIds.posts.composerPollType).click();
+  await expect(page.getByTestId(testIds.posts.pollOption(1))).toBeVisible();
+  await page.getByTestId(testIds.posts.composerContent).fill(question);
+  for (let index = 0; index < choices.length; index += 1) {
+    const optionTestId = testIds.posts.pollOption(index + 1);
+    if (!(await page.getByTestId(optionTestId).isVisible())) {
+      await page.getByRole('button', { name: /add option/i }).click();
+    }
+    await page.getByTestId(optionTestId).fill(choices[index]!);
+  }
+
+  const createPostResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      /\/posts\/?$/.test(new URL(response.url()).pathname),
+  );
+  const submitButton = page.getByTestId(testIds.posts.composerPublish);
+  await expect(submitButton).toBeEnabled();
+  await submitButton.click();
+  const response = await createPostResponse;
+  expect(response.ok(), `create poll failed: ${response.status()}`).toBe(true);
+  await page.reload();
+  const published = page.locator('a').filter({ hasText: question }).first();
+  await expect(published).toBeVisible();
+  await expect(published.getByText(choices[0]!)).toBeVisible();
+
+  return { question, choices };
+};
+
+export const repostFirstPostViaUi = async (page: Page, content: string) => {
+  await expect(page.getByText(content)).toBeVisible();
+  const repostResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      /\/reposts\/?$/.test(new URL(response.url()).pathname),
+  );
+  await page.getByTestId(testIds.posts.repostButton).first().click();
+  const response = await repostResponse;
+  expect(response.ok(), `repost failed: ${response.status()}`).toBe(true);
+};
+
 export const assertExploreNoResults = async (page: Page) => {
   const search = `noresults${handleSuffix()}`;
   await page.goto(`/explore?q=${search}`);

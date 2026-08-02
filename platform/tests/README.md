@@ -4,6 +4,14 @@ Postgres-native Playwright suites that run against a Compose stack (or Forgejo
 CI services). Each suite is a Playwright **project** and is intended to run in
 isolation (its own DB / Compose project / CI job).
 
+## Test plans
+
+Comprehensive checklists of cases that **should** be covered (not a claim of
+current suite coverage):
+
+- [UI test plan](./UI_TESTPLAN.md) — browser user interactions
+- [API test plan](./API_TESTPLAN.md) — HTTP API + Express mounts
+
 | Suite | Seed | Always? |
 |-------|------|---------|
 | `empty` | Cleared DB + owner bootstrap | Yes |
@@ -147,12 +155,18 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 | Create note on local feed | UI | `ui/` (`createPost`) |
 | Create note with hashtag / @mention text | UI | `ui/` (`createPostWithHashtag`, `createPostWithMention`) |
 | Create second post (named “edit” in UI suite — does not PUT) | UI (smoke) | `ui/` (`createPostAndEdit`) |
-| Open poll composer (does not publish) | UI (smoke) | `ui/` (`createPoll`) |
-| Repost button visible after create | UI (smoke) | `ui/` (`repost`) |
+| Publish poll with options | UI | `ui/` (`createPoll`) |
+| Repost created post (clicks repost) | UI | `ui/` (`repost`) |
 | Reply to note → list replies | API | `user-actions/` |
 | React 👍 / unreact | API | `user-actions/` |
 | Bookmark → bookmarks feed | API | `user-actions/` |
 | Edit note (PUT) / delete note | API | `user-actions/` |
+| Create question → vote → undo | API | `api/gaps/` |
+| Repost note via API | API | `api/gaps/` |
+| Search posts finds created content | API | `api/gaps/` |
+| Mark posts seen + unseen counts | API | `api/gaps/` |
+| Pin / unpin post globally | API | `api/gaps/` |
+| Announce local post | API | `api/gaps/` |
 
 #### Groups
 
@@ -166,6 +180,9 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 | Open created group by handle | UI | `ui/` (`groupSearch`) |
 | Create group → create event on group | UI | `ui/` (`createGroupAndEvent`) |
 | Join group → members list → leave | API | `user-actions/` |
+| Duplicate group handle conflict | API | `api/gaps/` |
+| Member leave after join | API | `api/gaps/` |
+| Admin delete group | API | `api/gaps/` |
 | Regular member can open groups/events pages | UI (smoke) | `ui/` (`regularMemberRestrictions`) |
 
 #### Events & jams (listing / create; not LiveKit)
@@ -179,6 +196,7 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 | Jams page + create jam-named event | UI (smoke) | `ui/` (`createJam`) |
 | Upcoming events feed includes created event | API | `user-actions/` |
 | RSVP yes on event | API | `user-actions/` |
+| RSVP tentative → no → yes cycle | API | `api/gaps/` |
 
 #### Profiles & social graph
 
@@ -197,6 +215,7 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 | Conversations page heading | UI (smoke) | `ui/` (`messages`) |
 | Notifications page heading | UI (smoke) | `ui/` (`notifications`) |
 | Direct message create + reply in conversation | API | `user-actions/` |
+| Mark all notifications seen | API | `api/gaps/` |
 
 #### Explore & settings
 
@@ -208,6 +227,17 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 | Billing link / heading when present | UI (smoke) | `ui/` (`billing`) |
 | Login page available (unauthenticated) | UI (smoke) | `ui/` (`siteAvailable`) |
 
+#### Auth & access matrix (gaps)
+
+| Flow | Depth | Where |
+|------|-------|-------|
+| `/health` + `server/info` public | API | `api/gaps/` |
+| Protected routes reject missing Bearer | API | `api/gaps/` |
+| Bad login credentials fail | API | `api/gaps/` |
+| Closed registration (`signUpsOpen=false`) rejects signup | API | `api/gaps/` |
+| Member forbidden on `/admin/stats` | API | `api/gaps/` |
+| Personal access token create/list/revoke | API | `api/gaps/` |
+
 #### Admin & moderation
 
 | Flow | Depth | Where |
@@ -216,6 +246,9 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 | Admin invites page (new invite button) | UI (smoke) | `ui/` (`adminInvites`) |
 | Invite link create + redeem on register | API | `user-actions/` |
 | Report create + admin resolve | API | `user-actions/` |
+| Admin reopen resolved report | API | `api/gaps/` |
+| Admin stats / groups / logs | API | `api/gaps/` |
+| Service access token create/revoke | API | `api/gaps/` |
 
 ---
 
@@ -279,17 +312,20 @@ are missing.
 ## Intentionally shallow / not covered
 
 These UI case **names** exist in `suites/empty/ui/` but only exercise page smoke
-or create-only helpers (real coverage lives in `user-actions/` where listed
-above):
+or create-only helpers (real coverage lives in `user-actions/` / `api/gaps/`
+where listed above):
 
 - Follow / unfollow from the members page (opens `/members` only)
 - “Edit post” (creates a second post; no PUT)
 - Send / reply PM (opens conversations heading only)
 - Change email / password in account settings (settings pages visible only)
-- Pin post, poll submit, Stripe configure, community rename
+- Stripe configure, community rename (admin configuration heading only)
 
 Still out of scope for this harness:
 
 - Native FCM / APN push paths
 - Full browser WebRTC jam quality
 - Deep E2E of every admin configuration screen
+- Live Stripe checkout / portal
+- Poll vote via UI (API covered in `api/gaps/`)
+- Pin post via UI (API covered in `api/gaps/`)

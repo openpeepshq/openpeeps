@@ -188,6 +188,29 @@ export const createNote = async (
   return response.json() as Promise<{ id: string }>;
 };
 
+export const createQuestion = async (
+  request: APIRequestContext,
+  token: string,
+  content: string,
+  options: string[],
+) => {
+  const response = await request.post('/api/openpeeps/core/v1/posts', {
+    headers: apiHeaders(token),
+    data: {
+      type: 'question',
+      visibility: 'local',
+      data: {
+        type: 'question',
+        content,
+        options: options.map((text) => ({ type: 'note', content: text })),
+        multiple: false,
+      },
+    },
+  });
+  await assertOk(response, 'createQuestion');
+  return response.json() as Promise<{ id: string }>;
+};
+
 export const createEvent = async (
   request: APIRequestContext,
   token: string,
