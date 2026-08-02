@@ -71,6 +71,8 @@ const config: PlaywrightTestConfig = {
         timeout: 180 * 1000,
         env: {
           AUTO_MIGRATE_FROM_ARANGO: 'false',
+          DISABLE_CONFIG_CACHE: 'true',
+          DB_NAME: process.env.DB_NAME ?? 'test',
           DATABASE_URL:
             process.env.DATABASE_URL ??
             'postgresql://openpeeps:openpeeps@127.0.0.1:5432/openpeeps',

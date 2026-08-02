@@ -14,9 +14,11 @@ import {
   assertSettingsPages,
   createEventViaUi,
   createGroupViaUi,
+  createPollViaUi,
   createPostViaUi,
   handleSuffix,
   registerViaUi,
+  repostFirstPostViaUi,
   signInAsRegularUiUser,
   signInAsUiUser,
   uniqueSuffix,
@@ -296,10 +298,7 @@ const runCase = async (page: Page, uiCase: UiCase) => {
       );
       break;
     case 'createPoll':
-      await page.goto('/feeds/local');
-      await page.getByTestId(testIds.posts.newPostButton).click();
-      await page.getByTestId(testIds.posts.composerPollType).click();
-      await expect(page.getByTestId(testIds.posts.pollOption(1))).toBeVisible();
+      await createPollViaUi(page);
       break;
     case 'duplicateGroupHandle': {
       const groupHandle = `dup${handleSuffix().slice(-12)}`;
@@ -391,12 +390,12 @@ const runCase = async (page: Page, uiCase: UiCase) => {
       await page.goto('/events');
       await expect(page.getByTestId(testIds.events.pageHeading)).toBeVisible();
       break;
-    case 'repost':
-      await createPostViaUi(page, `Repostable UI post ${uniqueSuffix()}`);
-      await expect(
-        page.getByTestId(testIds.posts.repostButton).first(),
-      ).toBeVisible();
+    case 'repost': {
+      const content = `Repostable UI post ${uniqueSuffix()}`;
+      await createPostViaUi(page, content);
+      await repostFirstPostViaUi(page, content);
       break;
+    }
     case 'searchNoResults':
       await assertExploreNoResults(page);
       break;
