@@ -329,6 +329,10 @@ Email sending via SMTP:
   `SERVER_HOST` in production, `http://localhost:5174` locally)
 - Stripe, LiveKit, SMTP, VAPID, media storage — leave unset until needed;
   LiveKit has no default URL (jams stay disabled until URL + keys are set)
+- `SENTRY_DSN` — optional; Sentry stays disabled (`enabled: false`) when
+  unset or empty. There is no hardcoded default DSN, so self-hosted
+  instances do not send errors to a shared project unless operators
+  configure their own DSN
 
 **Configuration files:**
 

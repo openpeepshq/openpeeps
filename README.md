@@ -36,8 +36,9 @@ From the repo root:
    `@openpeeps/server` reads `.env` at startup via `dotenv`; `@openpeeps/web`
    uses Vite envs (`VITE_*`) and only needs `VITE_API_PROXY_TARGET` if the
    server is not on `http://localhost:5173`. See `.env.dev.example` for Redis,
-   SMTP, media, LiveKit, VAPID, Stripe, and CORS knobs (leave optional
-   integrations unset until you need them).
+   SMTP, media, LiveKit, VAPID, Stripe, Sentry (`SENTRY_DSN`), and CORS
+   knobs (leave optional integrations unset until you need them; Sentry
+   is off unless `SENTRY_DSN` is set).
 
    Set a stable `JWT_SECRET` if you run more than one server/worker process or
    care about tokens surviving restarts. Production images fail fast when it is
