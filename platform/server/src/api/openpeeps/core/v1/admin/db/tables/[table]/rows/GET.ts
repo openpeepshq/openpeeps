@@ -2,7 +2,7 @@ import { endpoint, z } from '#lib/endpoint';
 import { forbidden, badRequest, notFound } from '#lib/errors';
 import { explorerRowsResponseSchema } from '@openpeeps/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { listExplorerRows } from '@openpeeps/core/db/explorer';
+import { listExplorerRows } from '@openpeeps/core/db';
 
 export const Param = z.object({
   table: z.string(),

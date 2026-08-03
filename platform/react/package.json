@@ -11,7 +11,7 @@
       "default": "./dist/index.js"
     },
     "./pwa": "./dist/pwa/index.js",
-    "./pwa/vite": "./dist/pwa/vite.js",
+    "./pwa-vite": "./dist/pwa/vite.js",
     "./service-worker": "./src/pwa/sw.ts",
     "./*": "./dist/*/index.js"
   },
@@ -22,7 +22,7 @@
     "/src/pwa/navigationUrl.ts"
   ],
   "scripts": {
-    "lint": "prettier --check . && eslint .",
+    "lint": "prettier --check . && ESLINT_USE_FLAT_CONFIG=false eslint .",
     "format": "prettier --write .",
     "clean": "rm -rf tsconfig.tsbuildinfo dist",
     "build": "tsc && tsc-alias",

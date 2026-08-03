@@ -6,5 +6,5 @@ export {
   collectReplyClosureIds,
   loadReplyContextPosts,
 } from './contextClosure';
-export { transformPost } from './helpers';
+export * from './helpers';
 export { registerRsvpConfirmationEmail } from './rsvpConfirmationEmail';

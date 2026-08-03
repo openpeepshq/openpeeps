@@ -1,4 +1,4 @@
-/** @type { import("eslint").Linter.FlatConfig } */
+/** @type { import("eslint").Linter.Config } */
 module.exports = {
   root: true,
   extends: [
@@ -16,5 +16,8 @@ module.exports = {
     browser: true,
     es2017: true,
     node: true,
+  },
+  rules: {
+    ...require('../../eslint-openpeeps-import-depth.cjs'),
   },
 };

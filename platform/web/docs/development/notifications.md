@@ -203,7 +203,7 @@ Settings are stored in `profileSettings.notifications[type]` and default to the 
 ### Checking Settings
 
 ```typescript
-import { notificationSettings } from '@openpeeps/core/notifications/helpers';
+import { notificationSettings } from '@openpeeps/core/notifications';
 
 const settings = notificationSettings(profileSettings, 'follow');
 // Returns: { create: true, push: true, email: true }
@@ -446,7 +446,7 @@ console.log(settings.notifications);
 **Verify event handlers:**
 
 ```typescript
-import { notificationHandlers } from '@openpeeps/core/notifications/handlers';
+import { notificationHandlers } from '@openpeeps/core/notifications';
 
 console.log(Array.from(notificationHandlers.keys()));
 // Should include all registered notification types

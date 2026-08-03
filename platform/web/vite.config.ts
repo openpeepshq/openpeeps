@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
-import { openpeepsPwaPluginConfig } from '@openpeeps/react/pwa/vite';
+import { openpeepsPwaPluginConfig } from '@openpeeps/react/pwa-vite';
 import { openpeepsDocsPlugin } from './vite-plugin-docs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -16,6 +16,10 @@ export default defineConfig({
   resolve: {
     alias: [
       // Longer match first (subpath before package root).
+      {
+        find: '@openpeeps/react/pwa-vite',
+        replacement: path.join(openpeepsReactSrc, 'pwa/vite.ts'),
+      },
       {
         find: '@openpeeps/react/components',
         replacement: path.join(openpeepsReactSrc, 'components/index.ts'),
