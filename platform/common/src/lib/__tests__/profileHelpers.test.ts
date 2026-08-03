@@ -5,11 +5,17 @@ import {
   matchesQuery,
   inviteLinkMatchesQuery,
   sortProfiles,
+  isDeletedProfile,
+  toPublicDeletedProfile,
+  anonymizeProfileIfDeleted,
+  DELETED_AUTHOR_DISPLAY_NAME,
+  DELETED_AUTHOR_HANDLE,
 } from '../profileHelpers';
-import type {
-  PublicProfile,
-  GroupWithMeta,
-  InviteLinkWithMeta,
+import {
+  publicProfileSchema,
+  type PublicProfile,
+  type GroupWithMeta,
+  type InviteLinkWithMeta,
 } from '../../types';
 
 // Mock data for testing
@@ -18,6 +24,20 @@ const mockProfile: PublicProfile = {
   displayName: 'John Doe',
   handle: 'johndoe',
 } as PublicProfile;
+
+const deletedProfile: PublicProfile = {
+  id: '11111111-1111-4111-8111-111111111111',
+  type: 'local',
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-06-01T00:00:00.000Z',
+  deletedAt: '2024-06-01T00:00:00.000Z',
+  handle: 'realhandle',
+  displayName: 'Real Name',
+  avatar: 'https://example.com/avatar.png',
+  header: 'https://example.com/header.png',
+  bio: 'secret bio',
+  memberships: [],
+};
 
 const mockGroup: GroupWithMeta = {
   id: 'group1',
@@ -33,6 +53,36 @@ const mockInviteLink: InviteLinkWithMeta = {
 } as unknown as InviteLinkWithMeta;
 
 describe('profileHelpers', () => {
+  describe('deleted profile presentation', () => {
+    it('detects soft-deleted profiles', () => {
+      expect(isDeletedProfile(deletedProfile)).toBe(true);
+      expect(isDeletedProfile(mockProfile)).toBe(false);
+      expect(isDeletedProfile(undefined)).toBe(false);
+      expect(isDeletedProfile({ deletedAt: null })).toBe(false);
+    });
+
+    it('anonymizes deleted profiles for public surfaces', () => {
+      const result = toPublicDeletedProfile(deletedProfile);
+      expect(result.id).toBe(deletedProfile.id);
+      expect(result.deletedAt).toBe(deletedProfile.deletedAt);
+      expect(result.displayName).toBe(DELETED_AUTHOR_DISPLAY_NAME);
+      expect(result.handle).toBe(DELETED_AUTHOR_HANDLE);
+      expect(result.avatar).toBeNull();
+      expect(result.header).toBeNull();
+      expect(result.bio).toBeUndefined();
+      expect(result.memberships).toEqual([]);
+      expect(publicProfileSchema.parse(result)).toMatchObject({
+        handle: DELETED_AUTHOR_HANDLE,
+        displayName: DELETED_AUTHOR_DISPLAY_NAME,
+      });
+    });
+
+    it('leaves active profiles unchanged', () => {
+      expect(anonymizeProfileIfDeleted(mockProfile)).toBe(mockProfile);
+      expect(anonymizeProfileIfDeleted(undefined)).toBeUndefined();
+    });
+  });
+
   describe('clampProfileDisplayName', () => {
     it('truncates names longer than 30 characters', () => {
       expect(clampProfileDisplayName('Nikoraus costantine shitungulu ')).toBe(

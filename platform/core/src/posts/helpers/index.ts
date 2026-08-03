@@ -34,7 +34,10 @@ import { allpeepDb, collectionInfos } from '../../db';
 import type { PgQueryResult } from '../../db/pg/map/types';
 import { capabilitiesConfig } from '../../config';
 import { canReadPost } from './filters';
-import { normalizePostDataFromDb } from '@openpeeps/common/lib';
+import {
+  anonymizeProfileIfDeleted,
+  normalizePostDataFromDb,
+} from '@openpeeps/common/lib';
 import { ObjectFilter } from '../../db/types';
 import { getProfile } from '../../profiles/cache';
 
@@ -196,25 +199,29 @@ export const postSeenConnector = connector<Profile, Post>(
   collectionInfos.postSeenCollection,
 );
 
+const loadPublicProfile = async (profileId: string, ignoreSoftDelete = false) =>
+  anonymizeProfileIfDeleted(await getProfile(profileId, ignoreSoftDelete));
+
 const addProfileForEntry = async (
   rawEntry: DbEntry,
 ): Promise<EntryWithProfile> => ({
   ...rawEntry,
-  profile: (await getProfile(rawEntry.profile.id))!,
+  // ignoreSoftDelete: authorship must survive account removal
+  profile: (await loadPublicProfile(rawEntry.profile.id, true))!,
 });
 
 const addProfileForReaction = async (
   rawReaction: DbReaction,
 ): Promise<ReactionProfile> => ({
   ...rawReaction,
-  profile: (await getProfile(rawReaction.profile.id))!,
+  profile: (await loadPublicProfile(rawReaction.profile.id, true))!,
 });
 
 const addProfileForMention = async (
   rawMention: DbMention,
 ): Promise<MentionWithProfile> => ({
   ...rawMention,
-  profile: (await getProfile(rawMention.profile.id))!,
+  profile: (await loadPublicProfile(rawMention.profile.id, true))!,
 });
 
 export const transformPost = async (
@@ -228,13 +235,21 @@ export const transformPost = async (
     ? await Promise.all(post.reactions.map(addProfileForReaction))
     : [];
   const audience = post.audience
-    ? ((await Promise.all(
-        post.audience.map((p) => getProfile(p.id)),
-      )) as ProfileWithMeta[])
+    ? (
+        await Promise.all(post.audience.map((p) => loadPublicProfile(p.id)))
+      ).filter((profile): profile is ProfileWithMeta => !!profile)
     : [];
   const mentions = post.mentions
     ? await Promise.all(post.mentions.map(addProfileForMention))
     : [];
+  const createProfile = entries.find(
+    (entry) => entry.type === 'create',
+  )?.profile;
+  const profile =
+    createProfile ??
+    (post.creatorId
+      ? await loadPublicProfile(post.creatorId, true)
+      : undefined);
   return {
     ...post,
     data: post.data ? normalizePostDataFromDb(post.data) : post.data,
@@ -254,7 +269,7 @@ export const transformPost = async (
       })),
     audience,
     mentions,
-    profile: entries.find((entry) => entry.type === 'create')?.profile!,
+    profile: profile!,
     entries,
     reactions,
   };

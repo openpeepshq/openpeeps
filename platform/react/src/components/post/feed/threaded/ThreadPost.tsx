@@ -1,5 +1,5 @@
 import type { PublicPost } from '@openpeeps/common/types';
-import { Avatar } from '../../../profile';
+import { Avatar, ProfileLink } from '../../../profile';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
 import { isUnreadPostForViewer } from '../../../../lib/postUnread';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
@@ -35,9 +35,9 @@ export function ThreadPost({
     <div ref={postViewRef} className="relative flex flex-row gap-2 p-2">
       <UnreadPostIndicator show={isUnread} className="left-0.5 top-5" />
       <div className="relative w-12 shrink-0">
-        <a href={`/@${post.profile.handle}`}>
+        <ProfileLink profile={post.profile}>
           <Avatar profile={post.profile} size={3} />
-        </a>
+        </ProfileLink>
         {isParent ? (
           <div className="bg-surface-300 absolute left-6 top-12 h-[calc(100%-2rem)] w-px" />
         ) : null}
@@ -49,12 +49,12 @@ export function ThreadPost({
         <div className="bg-surface-100 rounded-xl p-2">
           <div className="mb-2 flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <a
-                href={`/@${post.profile.handle}`}
+              <ProfileLink
+                profile={post.profile}
                 className="text-sm font-semibold hover:underline"
               >
                 {post.profile.displayName || `@${post.profile.handle}`}
-              </a>
+              </ProfileLink>
               <span className="text-muted-foreground ml-2 text-xs">
                 @{post.profile.handle}
               </span>

@@ -1,5 +1,5 @@
 import type { PublicPost, PublicReplyPost } from '@openpeeps/common/types';
-import { Avatar } from '../../profile';
+import { Avatar, ProfileLink } from '../../profile';
 import { UpdatingDate } from '@openpeeps/react-ui';
 import { PostMenu } from './PostMenu';
 
@@ -18,17 +18,17 @@ export function PostInfoHeader({
   return (
     <div className="flex justify-between py-2">
       <div className="flex w-fit space-x-2">
-        <a href={`/@${profile.handle}`}>
+        <ProfileLink profile={profile}>
           <Avatar profile={profile} size={3} />
-        </a>
+        </ProfileLink>
         <div className="flex flex-col flex-wrap">
-          <a
-            href={`/@${profile.handle}`}
+          <ProfileLink
+            profile={profile}
             className="text-sm font-semibold hover:underline"
           >
             {profile.displayName || `@${profile.handle}`}
-          </a>
-          <span className="text-xs text-muted-foreground">
+          </ProfileLink>
+          <span className="text-muted-foreground text-xs">
             @{profile.handle}
           </span>
           <span className="text-xs font-extralight">

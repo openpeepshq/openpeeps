@@ -1,5 +1,5 @@
 import type { PublicPost } from '@openpeeps/common/types';
-import { Avatar, AvatarWithName } from '../../profile';
+import { Avatar, AvatarWithName, ProfileLink } from '../../profile';
 import { useT } from '../../../i18n';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { PostMenu } from './PostMenu';
@@ -50,24 +50,24 @@ export function PostReactionHeader({
           <>
             {isRepost ? (
               <>
-                <a href={`/@${post.profile.handle}`}>
+                <ProfileLink profile={post.profile}>
                   <Avatar profile={post.profile} size={2.25} />
-                </a>
+                </ProfileLink>
                 <span className="font-light">
                   {t('posts.reposted', { defaultValue: 'reposted' })}
                 </span>
               </>
             ) : isReply && replyPost?.profile ? (
               <>
-                <a href={`/@${post.profile.handle}`}>
+                <ProfileLink profile={post.profile}>
                   <AvatarWithName profile={post.profile} />
-                </a>
+                </ProfileLink>
                 <a className="w-max" href={`/posts/${post.inReplyToId}`}>
                   {t('posts.replyTo', { defaultValue: 'replied to' })}
                 </a>
-                <a className="w-max" href={`/@${replyPost.profile.handle}`}>
+                <ProfileLink className="w-max" profile={replyPost.profile}>
                   <AvatarWithName profile={replyPost.profile} />
-                </a>
+                </ProfileLink>
                 <span className="font-light">in</span>
               </>
             ) : (
@@ -82,24 +82,24 @@ export function PostReactionHeader({
           </>
         ) : isRepost ? (
           <>
-            <a href={`/@${post.profile.handle}`}>
+            <ProfileLink profile={post.profile}>
               <AvatarWithName profile={post.profile} />
-            </a>
+            </ProfileLink>
             <span className="font-light">
               {t('posts.reposted', { defaultValue: 'reposted' })}
             </span>
           </>
         ) : isReply && replyPost?.profile ? (
           <>
-            <a href={`/@${post.profile.handle}`}>
+            <ProfileLink profile={post.profile}>
               <AvatarWithName profile={post.profile} />
-            </a>
+            </ProfileLink>
             <a href={`/posts/${post.inReplyToId}`} className="text-sm">
               {t('posts.replyTo', { defaultValue: 'replied to' })}
             </a>
-            <a href={`/@${replyPost.profile.handle}`}>
+            <ProfileLink profile={replyPost.profile}>
               <AvatarWithName profile={replyPost.profile} />
-            </a>
+            </ProfileLink>
           </>
         ) : null}
       </div>

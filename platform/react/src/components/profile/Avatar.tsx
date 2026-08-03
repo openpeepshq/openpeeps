@@ -1,5 +1,6 @@
 import type { PublicProfile } from '@openpeeps/common/types';
-import { getTheme } from '@openpeeps/common';
+import { getTheme, isDeletedProfile } from '@openpeeps/common';
+import { UserX } from 'lucide-react';
 
 import { useServerInfo } from '../server-data';
 import { useCurrentProfileSettings } from '../layout/IdentityContext';
@@ -27,6 +28,7 @@ const initials = (profile?: PublicProfile): string => {
  * Translation of `@openpeeps/svelte/components/core/profile/Avatar.svelte`.
  * Renders a circular avatar with the profile picture, falling back to the
  * community's `defaultProfileAvatar` and finally to letter initials.
+ * Soft-deleted profiles use a dedicated glyph and never link to a profile page.
  */
 export function Avatar({
   profile,
@@ -37,10 +39,14 @@ export function Avatar({
 }: AvatarProps) {
   const serverInfo = useServerInfo();
   const profileSettings = useCurrentProfileSettings();
-  const defaultAvatar = getTheme(serverInfo.communityConfig, profileSettings)
-    .defaultProfileAvatar;
+  const defaultAvatar = getTheme(
+    serverInfo.communityConfig,
+    profileSettings,
+  ).defaultProfileAvatar;
+  const deleted = isDeletedProfile(profile);
 
-  const src = profile?.avatar || defaultAvatar;
+  const src = deleted ? null : profile?.avatar || defaultAvatar;
+  const iconSize = Math.max(12, size * 8);
 
   const borderClass = borderless
     ? ''
@@ -48,17 +54,23 @@ export function Avatar({
 
   const inner = (
     <div
-      className={`relative inline-flex items-center justify-center overflow-hidden rounded-full bg-surface-200 ${borderClass}`}
+      className={`bg-surface-200 relative inline-flex items-center justify-center overflow-hidden rounded-full ${borderClass}`}
       style={{ width: `${size}rem`, height: `${size}rem` }}
     >
-      {src ? (
+      {deleted ? (
+        <UserX
+          aria-label={profile?.displayName || 'Deleted author'}
+          className="text-muted-foreground"
+          size={iconSize}
+        />
+      ) : src ? (
         <img
           src={src}
           alt={profile?.displayName || profile?.handle || 'avatar'}
           className="h-full w-full rounded-full object-cover"
         />
       ) : (
-        <span className="text-sm font-medium text-foreground/80">
+        <span className="text-foreground/80 text-sm font-medium">
           {initials(profile)}
         </span>
       )}
@@ -74,7 +86,7 @@ export function Avatar({
         minWidth: `${size}rem`,
       }}
     >
-      {navigate && profile ? (
+      {navigate && profile && !deleted ? (
         <a href={`/@${profile.handle}`}>{inner}</a>
       ) : (
         inner
