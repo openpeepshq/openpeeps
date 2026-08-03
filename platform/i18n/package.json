@@ -26,7 +26,7 @@
     "typescript": "^5.7.2"
   },
   "scripts": {
-    "lint": "prettier --check . && eslint .",
+    "lint": "prettier --check . && ESLINT_USE_FLAT_CONFIG=false eslint .",
     "format": "prettier --write .",
     "clean": "rm -rf tsconfig.tsbuildinfo dist",
     "build": "tsc && tsc-alias",

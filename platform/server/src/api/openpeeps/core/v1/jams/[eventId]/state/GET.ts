@@ -4,7 +4,7 @@ import { jamStateSchema } from '@openpeeps/common';
 import { findPost } from '@openpeeps/core/posts';
 import { notFound, forbidden } from '#lib/errors';
 import { findJamState } from '@openpeeps/core/jams';
-import { isPublic } from '@openpeeps/core/posts/helpers';
+import { isPublic } from '@openpeeps/core/posts';
 
 export const Param = z.object({
   eventId: z.string(),

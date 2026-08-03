@@ -5,7 +5,7 @@ import {
   explorerUpdateRowResponseSchema,
 } from '@openpeeps/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { updateExplorerRow } from '@openpeeps/core/db/explorer';
+import { updateExplorerRow } from '@openpeeps/core/db';
 
 export const Param = z.object({
   table: z.string(),

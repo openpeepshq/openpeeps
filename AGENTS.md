@@ -47,9 +47,15 @@ accompanied by a written outline of exactly what changed and why.**
   precise types or `unknown` + narrowing.
 - **Prefix intentionally-unused identifiers with `_`** (matches the lint rule).
 - **Barrel files.** Each module exposes its public surface via `index.ts`.
-  Export new public symbols there; import from package roots
-  (`@openpeeps/common`, `@openpeeps/core`, …), not deep relative paths across
-  packages.
+  Export new public symbols there.
+- **`@openpeeps/*` import depth.** Import from the package root
+  (`@openpeeps/core`, `@openpeeps/common`, …) **or at most one subpath
+  segment** (`@openpeeps/core/jams`, `@openpeeps/common/types`,
+  `@openpeeps/react/email`). No deeper chains
+  (`@openpeeps/core/db/explorer`, `@openpeeps/react/pwa/vite`). One-level
+  entry points are the public surface (`package.json` `exports` `./*` →
+  `dist/*/index.js`); re-export nested modules from that segment’s barrel
+  instead of importing deeper.
 
 ## Comments
 

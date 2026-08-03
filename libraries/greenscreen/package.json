@@ -28,7 +28,7 @@
     "vite-plugin-dts": "^4.4.0"
   },
   "scripts": {
-    "lint": "prettier --check . && eslint .",
+    "lint": "prettier --check . && ESLINT_USE_FLAT_CONFIG=false eslint .",
     "format": "prettier --write .",
     "build": "vite build",
     "build:watch": "vite build --watch",

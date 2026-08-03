@@ -13,7 +13,7 @@
     "start:node": "NODE_ENV=production node dist/server.js",
     "start:worker": "NODE_ENV=production vite-node dist/worker.js",
     "start:worker:node": "NODE_ENV=production node dist/worker.js",
-    "lint": "prettier --check . && eslint .",
+    "lint": "prettier --check . && ESLINT_USE_FLAT_CONFIG=false eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "test": "vite-node src/lib/spaHtml.test.ts"

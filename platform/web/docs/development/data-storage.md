@@ -40,7 +40,7 @@ Mappings describe how to load entities and their relations. They are built with
 `map()` from `platform/core/src/db/pg/map/`:
 
 ```typescript
-import { map } from '@openpeeps/core/db/pg/map';
+import { map } from '@openpeeps/core/db';
 import { PostData } from '@openpeeps/common/types';
 
 export const postsMapping = map<PostData, DbPost>({

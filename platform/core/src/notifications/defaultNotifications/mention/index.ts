@@ -5,7 +5,7 @@ import {
   PublicProfile,
   notificationAll,
 } from '@openpeeps/common/types';
-import { extractMentionHandles } from '@openpeeps/core/posts/helpers';
+import { extractMentionHandles } from '@openpeeps/core/posts';
 import { findPost } from '@openpeeps/core/posts';
 import { findProfile, findProfileByHandle } from '@openpeeps/core/profiles';
 import { maybeCreateNotification } from '@openpeeps/core/notifications';

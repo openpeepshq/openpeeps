@@ -5,7 +5,7 @@ import {
   explorerSqlResponseSchema,
 } from '@openpeeps/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { runExplorerSql } from '@openpeeps/core/db/explorer';
+import { runExplorerSql } from '@openpeeps/core/db';
 
 export const Input = explorerSqlInputSchema;
 export const Output = explorerSqlResponseSchema;

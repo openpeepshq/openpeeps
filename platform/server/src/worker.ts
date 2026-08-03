@@ -8,7 +8,7 @@ import { registerDefaultEmailTemplates } from './emails';
 const log = logger('worker');
 
 const main = async () => {
-  // The BullMQ `send-email` worker calls `@openpeeps/core/email/render`
+  // The BullMQ `send-email` worker calls `@openpeeps/core/email` render
   // directly (no more HTTP round-trip to the API server), so this process
   // must populate the in-memory template registry before
   // `@openpeeps/worker`'s `start()` opens the queue and starts pulling jobs.

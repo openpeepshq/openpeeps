@@ -80,7 +80,7 @@
     "vitest": "^2.1.8"
   },
   "scripts": {
-    "lint": "prettier --check . && eslint .",
+    "lint": "prettier --check . && ESLINT_USE_FLAT_CONFIG=false eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
     "clean": "rm -rf tsconfig.tsbuildinfo dist",

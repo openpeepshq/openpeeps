@@ -243,6 +243,17 @@
     ],
     "rules": {
       "react/react-in-jsx-scope": "off",
+      "no-restricted-imports": [
+        "error",
+        {
+          "patterns": [
+            {
+              "regex": "^@openpeeps/[^/]+/[^/]+/.+",
+              "message": "Import from @openpeeps/<pkg> or @openpeeps/<pkg>/<segment> only (at most one subpath)."
+            }
+          ]
+        }
+      ],
       "prettier/prettier": [
         "error",
         {

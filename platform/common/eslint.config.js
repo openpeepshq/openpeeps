@@ -2,6 +2,10 @@ import js from '@eslint/js';
 import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import prettier from 'eslint-config-prettier';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const openpeepsImportDepth = require('../../eslint-openpeeps-import-depth.cjs');
 
 export default [
   js.configs.recommended,
@@ -39,6 +43,7 @@ export default [
     rules: {
       ...typescript.configs.recommended.rules,
       ...prettier.rules,
+      ...openpeepsImportDepth,
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
