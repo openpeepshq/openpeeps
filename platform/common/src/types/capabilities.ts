@@ -42,11 +42,7 @@ export const reportRelationships = [
   'acted-on',
 ] as const;
 
-export const accessTokenRelationships = [
-  'none',
-  'local',
-  'owner',
-] as const;
+export const accessTokenRelationships = ['none', 'local', 'owner'] as const;
 
 export type PostRelationship = (typeof postRelationships)[number];
 export type GroupRelationship = (typeof groupRelationships)[number];
@@ -115,6 +111,7 @@ export type AccessTokenCapability = (typeof accessTokenCapabilities)[number];
 export const roleCapabilities = [
   'core-local',
   'core-accounts-read',
+  'core-accounts-create',
   'core-accounts-update',
   'core-accounts-delete',
   'core-reports-create',

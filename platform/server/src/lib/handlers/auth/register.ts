@@ -1,20 +1,27 @@
-import type { RegisterRequest, TokenResponse } from '@openpeeps/common/types';
+import type {
+  AuthorizationData,
+  RegisterRequest,
+  TokenResponse,
+} from '@openpeeps/common/types';
+import { checkAccountCreateAuthorization } from '@openpeeps/common/lib';
 import { conflict, forbidden } from '#lib/errors';
 import { createAccount, existsAccountByEmail } from '@openpeeps/core/accounts';
 import { existsProfileByHandle } from '@openpeeps/core/profiles';
 import { existsGroupByHandle } from '@openpeeps/core/groups';
-import type { OpenpeepsError } from '@openpeeps/common/types';
 import { config } from '@openpeeps/core/config';
 import { findInviteLinkBySlug } from '@openpeeps/core/inviteLinks';
 import { createSignedProfileAccessToken } from '@openpeeps/core/accessTokens';
 
 export const registerHandler = async (
   registerRequest: RegisterRequest,
+  authData: AuthorizationData = { scopes: [] },
 ): Promise<TokenResponse> => {
   const { handle, password, email, displayName, inviteCode } = registerRequest;
 
-
-  if (await existsProfileByHandle(handle) || await existsGroupByHandle(handle)) {
+  if (
+    (await existsProfileByHandle(handle)) ||
+    (await existsGroupByHandle(handle))
+  ) {
     throw conflict('profiles.handleExists');
   }
 
@@ -41,30 +48,35 @@ export const registerHandler = async (
     inviteCode &&
     (!inviteLinkDetails || !inviteLinkValid || !inviteLinkUsable)
   ) {
-    throw {
-      __allPeepError__: true,
-      code: 403,
-      errorKey: 'invalidInviteCode',
-      message: inviteLinkDetails
+    throw forbidden(
+      inviteLinkDetails
         ? !inviteLinkValid
           ? 'Invalid Invite Code'
           : 'Max Uses Reached'
         : 'Invalid Invite Code',
-    } as OpenpeepsError;
+    );
   }
 
+  let authorizedCreate = false;
   if (!signUpsOpen && !inviteCode) {
-    throw {
-      __allPeepError__: true,
-      code: 403,
-      errorKey: 'signUpsClosed',
-      message: 'Sign-ups are closed and no valid invite code provided',
-    } as OpenpeepsError;
+    const authResult = checkAccountCreateAuthorization(authData);
+    if (authResult.success) {
+      authorizedCreate = true;
+    } else if (authData.service || authData.profile) {
+      throw forbidden(
+        authResult.missingScope
+          ? 'auth.scope.not-authorized'
+          : `Missing capabilities: ${authResult.missingCapabilities.join(', ')}`,
+      );
+    } else {
+      throw forbidden('Sign-ups are closed and no valid invite code provided');
+    }
   }
 
   const { account, profile } = await createAccount({
     email,
     password,
+    emailValidated: authorizedCreate,
     profile: {
       handle,
       displayName,

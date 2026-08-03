@@ -22,8 +22,14 @@ const assertOk = async (
   }
 };
 
-export const uniqueHandle = (prefix = 'u') =>
-  `${prefix}${Date.now().toString(36).slice(-6)}${Math.random().toString(36).slice(2, 6)}`;
+/** Account handles are limited to 16 alphanumeric/underscore characters. */
+export const uniqueHandle = (prefix = 'u') => {
+  const suffix = `${Date.now().toString(36).slice(-6)}${Math.random()
+    .toString(36)
+    .slice(2, 6)}`;
+  const maxPrefixLen = Math.max(1, 16 - suffix.length);
+  return `${prefix.slice(0, maxPrefixLen)}${suffix}`.slice(0, 16);
+};
 
 export const registerUser = async (
   request: APIRequestContext,

@@ -21,6 +21,8 @@ import {
   checkReportCapabilities,
   checkAccessTokenCapabilities,
   checkAccountCapabilities,
+  checkAccountCreateAuthorization,
+  ACCOUNT_CREATE_CAPABILITY,
 } from '../capabilitiesHelpers';
 import type {
   AccessTokenWithMeta,
@@ -964,6 +966,63 @@ describe('capabilitiesHelpers', () => {
         otherAccount,
       );
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe('checkAccountCreateAuthorization', () => {
+    const writeProfilesScope: Scope[] = [
+      { scopeLevel: 'write', resource: { type: 'profiles', id: '*' } },
+    ];
+
+    it('allows service tokens with write profiles scope', () => {
+      const result = checkAccountCreateAuthorization(
+        authData({
+          profile: undefined,
+          service: 'svc-1',
+          scopes: writeProfilesScope,
+        }),
+      );
+      expect(result.success).toBe(true);
+    });
+
+    it('rejects service tokens with only read profiles scope', () => {
+      const result = checkAccountCreateAuthorization(
+        authData({
+          profile: undefined,
+          service: 'svc-1',
+          scopes: [
+            { scopeLevel: 'read', resource: { type: 'profiles', id: '*' } },
+          ],
+        }),
+      );
+      expect(result.success).toBe(false);
+      expect(result.missingScope?.scopeLevel).toBe('write');
+    });
+
+    it('allows profile tokens with create capability and matching scope', () => {
+      const result = checkAccountCreateAuthorization(
+        authData({
+          profile: {
+            ...mockProfile,
+            roles: [
+              {
+                ...mockRoles[0],
+                capabilities: { add: [ACCOUNT_CREATE_CAPABILITY], remove: [] },
+              },
+            ],
+          },
+          scopes: writeProfilesScope,
+        }),
+      );
+      expect(result.success).toBe(true);
+    });
+
+    it('rejects profile tokens missing create capability', () => {
+      const result = checkAccountCreateAuthorization(
+        authData({ scopes: writeProfilesScope }),
+      );
+      expect(result.success).toBe(false);
+      expect(result.missingCapabilities).toContain(ACCOUNT_CREATE_CAPABILITY);
     });
   });
 });
