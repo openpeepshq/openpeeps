@@ -8,6 +8,7 @@ import {
   DbNotification,
   ProfileSettings,
 } from '@openpeeps/common/types';
+import { anonymizeProfileIfDeleted } from '@openpeeps/common/lib';
 import { allpeepDb } from '../db';
 import { notificationFilters } from '../db/pg/filters';
 import {
@@ -39,7 +40,7 @@ export const expandNotification = async (
   const intermediateNotification = {
     ...notification,
     senderProfile: notification.fromProfileId
-      ? await getProfile(notification.fromProfileId)
+      ? anonymizeProfileIfDeleted(await getProfile(notification.fromProfileId))
       : undefined,
     post: notification.post
       ? await transformPost(notification.post)

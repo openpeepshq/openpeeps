@@ -22,9 +22,11 @@ export const entriesRelation: Relation<Profile, EntryData> = {
   edgeCollection: 'entries',
   direction: 'INBOUND',
   vertexAlias: 'profile',
+  // Keep create/edit authors even after the profile is soft-deleted so
+  // historical posts (and nested replyTo) still serialize for API output.
   mapping: {
     collection: 'profiles',
-    softDelete: true,
+    softDelete: false,
   },
   cardinality: 'many',
 };

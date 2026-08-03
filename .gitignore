@@ -19,3 +19,4 @@ platform/react/tsconfig.tsbuildinfo
 platform/tests/test-results
 platform/tests/.logs
 platform/tests/.loadtest-results
+stuff

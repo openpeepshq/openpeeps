@@ -12,12 +12,50 @@ const containsIgnoreCase = (candidate: string, query: string) =>
 
 export const PROFILE_DISPLAY_NAME_MAX_LENGTH = 30;
 
+/** Public sentinel shown for soft-deleted authors (API + clients). */
+export const DELETED_AUTHOR_DISPLAY_NAME = 'Deleted author';
+export const DELETED_AUTHOR_HANDLE = 'deleted';
+
 export const clampProfileDisplayName = (
   displayName: string | undefined | null,
 ): string | undefined => {
   if (!displayName) return undefined;
   const clamped = displayName.slice(0, PROFILE_DISPLAY_NAME_MAX_LENGTH);
   return clamped || undefined;
+};
+
+export const isDeletedProfile = (
+  profile: { deletedAt?: string | null } | undefined | null,
+): boolean => !!profile?.deletedAt;
+
+/**
+ * Strip PII from a soft-deleted profile for public API / UI surfaces.
+ * Keeps id + timestamps (including deletedAt) so clients can detect the state.
+ */
+export const toPublicDeletedProfile = <T extends PublicProfile>(
+  profile: T,
+): T =>
+  ({
+    ...profile,
+    displayName: DELETED_AUTHOR_DISPLAY_NAME,
+    handle: DELETED_AUTHOR_HANDLE,
+    avatar: null,
+    header: null,
+    bio: undefined,
+    location: undefined,
+    locked: undefined,
+    bot: undefined,
+    discoverable: undefined,
+    memberships: [],
+    fields: undefined,
+    profileStats: undefined,
+  }) as T;
+
+export const anonymizeProfileIfDeleted = <T extends PublicProfile>(
+  profile: T | undefined | null,
+): T | undefined => {
+  if (!profile) return undefined;
+  return isDeletedProfile(profile) ? toPublicDeletedProfile(profile) : profile;
 };
 
 export const profileName = (profile?: PublicProfile) =>
@@ -33,11 +71,11 @@ export const matchesQuery = (
     (query.startsWith('@')
       ? profile.handle && containsIgnoreCase(profile.handle, query.substring(1))
       : (queryOptions.handle &&
-        profile.handle &&
-        containsIgnoreCase(profile.handle, query)) ||
-      (queryOptions.displayName &&
-        profile.displayName &&
-        containsIgnoreCase(profile.displayName, query)))
+          profile.handle &&
+          containsIgnoreCase(profile.handle, query)) ||
+        (queryOptions.displayName &&
+          profile.displayName &&
+          containsIgnoreCase(profile.displayName, query)))
   );
 
 export const inviteLinkMatchesQuery = (

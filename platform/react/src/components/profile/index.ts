@@ -1,5 +1,7 @@
 export { Avatar } from './Avatar';
 export type { AvatarProps } from './Avatar';
+export { ProfileLink } from './ProfileLink';
+export type { ProfileLinkProps } from './ProfileLink';
 export { ProfileCard } from './ProfileCard';
 export type { ProfileCardProps } from './ProfileCard';
 export { ProfileHeader } from './ProfileHeader';

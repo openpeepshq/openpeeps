@@ -1,9 +1,10 @@
 import React from 'react';
-import { Profile } from '@openpeeps/common';
+import { Profile, isDeletedProfile } from '@openpeeps/common';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';
 import { useTranslation } from 'react-i18next';
 import { View, Text } from 'react-native';
 import { cn, getInitials } from '~/lib/utils';
+import { UserXIcon } from '~/components/icons';
 
 export const ProfileAvatar = ({
   profile,
@@ -17,14 +18,16 @@ export const ProfileAvatar = ({
   const isSmall = className?.includes('size-8');
   const sizeClass = isSmall ? 'h-8 w-8' : 'h-16 w-16';
   const textSizeClass = isSmall ? 'text-[14px]' : 'text-[24px]';
+  const iconSize = isSmall ? 16 : 28;
   const roundedClass = 'rounded-full';
+  const deleted = isDeletedProfile(profile);
 
-  const avatarSource = profile?.avatar
-    ? { uri: `${profile.avatar}?cache=${Date.now()}` }
-    : null;
+  const avatarSource =
+    !deleted && profile?.avatar
+      ? { uri: `${profile.avatar}?cache=${Date.now()}` }
+      : null;
 
-  if (!avatarSource) {
-    const initials = getInitials(profile);
+  if (deleted || !avatarSource) {
     return (
       <Avatar
         alt={t('profile.header.avatarAlt')}
@@ -41,14 +44,13 @@ export const ProfileAvatar = ({
             roundedClass
           )}
         >
-          <Text
-            className={cn(
-              'text-foreground font-medium',
-              textSizeClass
-            )}
-          >
-            {initials}
-          </Text>
+          {deleted ? (
+            <UserXIcon size={iconSize} className="text-muted-foreground" />
+          ) : (
+            <Text className={cn('text-foreground font-medium', textSizeClass)}>
+              {getInitials(profile)}
+            </Text>
+          )}
         </View>
       </Avatar>
     );
@@ -66,10 +68,7 @@ export const ProfileAvatar = ({
     >
       <AvatarImage
         source={avatarSource}
-        className={cn(
-          'h-full w-full',
-          roundedClass
-        )}
+        className={cn('h-full w-full', roundedClass)}
         resizeMode="cover"
       />
     </Avatar>
