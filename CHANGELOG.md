@@ -12,6 +12,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **admin**: add role-gated endpoint for deleting groups
+- **framework**: update privacy policy text
 - **core**: omit empty strings from stored config overrides
 - **react**: stop push toggle hang and surface clear errors
 - **core**: build post filters with Drizzle queries
