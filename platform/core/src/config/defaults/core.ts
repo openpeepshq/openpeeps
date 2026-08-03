@@ -88,11 +88,10 @@ export const defaultConfig: CoreConfig = {
   sso: { generic: [], oidc: [] },
   services: {
     sentry: {
-      enabled: true,
-      replayEnabled: true,
-      dsn:
-        process.env.SENTRY_DSN ||
-        'https://b27e3069e23abcf3c158ef9a34892458@sentry.allpeep-hq.com/4',
+      // Opt-in only — no shared default DSN (privacy for self-hosted deploys).
+      enabled: Boolean(process.env.SENTRY_DSN),
+      replayEnabled: Boolean(process.env.SENTRY_DSN),
+      dsn: process.env.SENTRY_DSN || undefined,
     },
     location: {
       type: 'nominatim',

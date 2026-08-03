@@ -65,9 +65,13 @@ export const serverInfo = () =>
         publicKey: coreConfig.vapid.publicKey,
       },
       sentryConfig: {
-        enabled: !!coreConfig.services?.sentry?.enabled,
+        enabled:
+          !!coreConfig.services?.sentry?.enabled &&
+          !!coreConfig.services?.sentry?.dsn,
         dsn: coreConfig.services?.sentry?.dsn,
-        replayEnabled: !!coreConfig.services?.sentry?.replayEnabled,
+        replayEnabled:
+          !!coreConfig.services?.sentry?.replayEnabled &&
+          !!coreConfig.services?.sentry?.dsn,
       },
       payments: {
         stripe: {
