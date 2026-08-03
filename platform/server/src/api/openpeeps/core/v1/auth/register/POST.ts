@@ -1,4 +1,5 @@
 import { endpoint } from '#lib/endpoint';
+import type { RequestEvent } from '@riddl/core';
 import {
   registerRequestSchema,
   tokenResponseSchema,
@@ -14,4 +15,7 @@ export const Error = {
   403: forbidden(),
 };
 
-export const apiEndpoint = endpoint({ Input, Output, Error }).handle(registerHandler);
+export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
+  (input, event: RequestEvent) =>
+    registerHandler(input, event.context.authData),
+);

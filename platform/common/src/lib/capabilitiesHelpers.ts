@@ -485,3 +485,26 @@ export const checkAccountCapabilities = (
     neededCapabilities,
     { scopeLevel: 'admin', resource: { type: 'self' } },
   );
+
+/** Capability required to create accounts when public sign-ups are closed. */
+export const ACCOUNT_CREATE_CAPABILITY = 'core-accounts-create';
+
+/**
+ * Whether the caller may register a new account/profile while sign-ups are closed.
+ * Profile tokens need the role capability; service tokens are treated as having it
+ * and are gated by write scope on profiles (same as other create operations).
+ */
+export const checkAccountCreateAuthorization = (
+  authData: AuthorizationData,
+) => {
+  const neededCapabilities = [ACCOUNT_CREATE_CAPABILITY];
+  const capabilities = authData.service
+    ? { add: neededCapabilities, remove: [] }
+    : getRoleCapabilities(authData.profile);
+  return checkCapabilitiesWithCalculatedScope(
+    capabilities,
+    authData,
+    neededCapabilities,
+    { type: 'profiles', id: '*' },
+  );
+};
