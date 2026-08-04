@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="theme-color" content="{{themeColor}}" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <link rel="icon" href="/pwa/icons/32x32.png" />
@@ -27,7 +27,22 @@
       sizes="167x167"
       href="/pwa/mobile-icons/167x167.png"
     />
-    <title>OpenPeeps</title>
+    <title>{{name}}</title>
+    <meta name="description" content="{{description}}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="{{name}}" />
+    <meta property="og:title" content="{{name}}" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:url" content="{{pageUrl}}" />
+    {{#imageUrl}}
+    <meta property="og:image" content="{{imageUrl}}" />
+    {{/imageUrl}}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{{name}}" />
+    <meta name="twitter:description" content="{{description}}" />
+    {{#imageUrl}}
+    <meta name="twitter:image" content="{{imageUrl}}" />
+    {{/imageUrl}}
   </head>
   <body>
     <div id="root"></div>
