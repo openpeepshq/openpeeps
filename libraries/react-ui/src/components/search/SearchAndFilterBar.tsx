@@ -41,7 +41,7 @@ export function SearchAndFilterBar({
 
   return (
     <div className={className}>
-      <div className={cn('flex items-center rounded-md border border-surface-400')}>
+      <div className={cn('flex items-center rounded-md border border-border-2')}>
         {!hideIcon && (
           <button
             type="button"

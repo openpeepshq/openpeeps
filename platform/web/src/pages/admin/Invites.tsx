@@ -58,7 +58,7 @@ export function AdminInvites() {
       ) : (
         <div className="rounded-md border">
           <table className="w-full text-sm">
-            <thead className="bg-surface-100">
+            <thead className="bg-muted">
               <tr>
                 <th className="p-2 text-left">
                   {t('admin.invites.linkColumn', { defaultValue: 'Link' })}
@@ -228,7 +228,7 @@ function ListOfInvitedMembers({
               <a
                 key={profile.id}
                 href={`/@${profile.handle}`}
-                className="hover:bg-surface-100 flex items-center gap-2 rounded-md p-2"
+                className="hover:bg-muted flex items-center gap-2 rounded-md p-2"
               >
                 <Avatar profile={profile} size={2} />
                 <span>{profile.displayName || `@${profile.handle}`}</span>

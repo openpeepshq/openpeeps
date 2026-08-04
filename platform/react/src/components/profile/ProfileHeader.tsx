@@ -26,7 +26,7 @@ export function ProfileHeader({
     <div className="relative">
       <div className="mb-8">
         <div className="relative aspect-[3/1] w-full">
-          <div className="bg-surface-200 absolute inset-0 overflow-hidden">
+          <div className="bg-surface-2 absolute inset-0 overflow-hidden">
             {profile.header && (
               <img
                 src={profile.header}
@@ -56,7 +56,7 @@ export function ProfileHeader({
             {truncateText(profile.displayName || profile.handle, 50)}
           </h1>
 
-          <span className="text-surface-500 my-1 text-sm font-normal">
+          <span className="text-muted-foreground my-1 text-sm font-normal">
             @{profile.handle}
           </span>
 
@@ -77,7 +77,7 @@ export function ProfileHeader({
 
           {(profile.fields ?? []).map((field) => (
             <div key={field.name} className="mt-4 flex items-center gap-2">
-              <span className="text-surface-500 text-sm">{field.name}</span>
+              <span className="text-muted-foreground text-sm">{field.name}</span>
               <PostMarkdown source={field.value} className="pt-1 text-sm" />
             </div>
           ))}

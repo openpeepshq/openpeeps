@@ -57,7 +57,7 @@ export function GroupMembersList({ group }: GroupMembersListProps) {
           >
             <a
               href={`/@${member.profile.handle}`}
-              className="hover:bg-surface-100 flex min-w-0 flex-1 items-center gap-3 rounded-md"
+              className="hover:bg-muted flex min-w-0 flex-1 items-center gap-3 rounded-md"
             >
               <Avatar profile={member.profile} size={3} />
               <div className="flex min-w-0 flex-col">

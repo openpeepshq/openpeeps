@@ -352,7 +352,7 @@ function JamRoomInner() {
     <div className="mx-auto flex h-full w-full items-center justify-center p-4">
       <div className="space-y-5 text-center">
         <h3 className="text-lg">{jamEvent.name}</h3>
-        <div className="bg-surface-100 flex w-full flex-col items-center justify-center space-y-3 rounded border p-4">
+        <div className="bg-muted flex w-full flex-col items-center justify-center space-y-3 rounded border p-4">
           <span>
             {t('jams.room.jamNotActive', {
               defaultValue: 'This jam is not active right now.',

@@ -350,7 +350,7 @@ function TabButton({
       {countLoading ? (
         <Loader2 className="ml-1 inline-block h-3 w-3 animate-spin" />
       ) : typeof count === 'number' ? (
-        <span className="bg-surface-200 ml-1 rounded-full px-2 py-0.5 text-xs">
+        <span className="bg-surface-2 ml-1 rounded-full px-2 py-0.5 text-xs">
           {count > 99 ? '99+' : count}
         </span>
       ) : null}

@@ -3,6 +3,7 @@ export type { OpenpeepsMarkdownProps } from './OpenpeepsMarkdown';
 export {
   OPENPEEPS_MARKDOWN_PROSE_CLASS,
   OPENPEEPS_MARKDOWN_STATIC_CLASS,
+  OPENPEEPS_POST_CAPTION_CLASS,
 } from './classes';
 export { compileMarkdownToHtml } from './compileMarkdown';
 export { CompiledMarkdown } from './CompiledMarkdown';

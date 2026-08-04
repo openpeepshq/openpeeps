@@ -90,7 +90,7 @@ function JamParticipantModeratorMenu({
   return (
     <PopupMenu
       icon={Ellipsis}
-      className="bg-surface-100 text-foreground"
+      className="bg-muted text-foreground"
       iconSize={16}
       title={t('jams.participants.title', { defaultValue: 'Participants' })}
     >
@@ -156,7 +156,7 @@ function JamParticipantOverlay({
       <div className="flex w-full items-start justify-between">
         <div className="flex items-center gap-1">
           {handUp ? (
-            <div className="bg-surface-50/70 rounded-full p-2">
+            <div className="bg-background/70 rounded-full p-2">
               <Hand className={iconSize} />
             </div>
           ) : null}
@@ -165,7 +165,7 @@ function JamParticipantOverlay({
           ) : null}
         </div>
         <div
-          className={`bg-surface-100 text-foreground rounded-full p-2 ${micOn && speaking && !connectionLost ? 'text-primary-500' : ''}`}
+          className={`bg-muted text-foreground rounded-full p-2 ${micOn && speaking && !connectionLost ? 'text-primary' : ''}`}
           title={
             connectionLost
               ? t('jams.people.connectionLost', {
@@ -187,7 +187,7 @@ function JamParticipantOverlay({
       </div>
       <div className="flex w-full items-end justify-between">
         <div
-          className={`bg-surface-100 text-foreground block max-w-full truncate rounded-lg p-1 ${compact ? 'text-xs' : 'text-sm'}`}
+          className={`bg-muted text-foreground block max-w-full truncate rounded-lg p-1 ${compact ? 'text-xs' : 'text-sm'}`}
         >
           {profile
             ? (isModerator ? '* ' : '') +
@@ -196,7 +196,7 @@ function JamParticipantOverlay({
         </div>
         {connectionLost ? (
           <div
-            className={`bg-surface-100 text-muted-foreground ml-1 shrink-0 truncate rounded-lg p-1 ${compact ? 'text-xs' : 'text-sm'}`}
+            className={`bg-muted text-muted-foreground ml-1 shrink-0 truncate rounded-lg p-1 ${compact ? 'text-xs' : 'text-sm'}`}
           >
             {t('jams.people.connectionLost', {
               defaultValue: 'Connection lost',
@@ -224,7 +224,7 @@ export function JamCallParticipant({
   const connectionLost = useConnectionLost(participant);
 
   return (
-    <div className={`${size} bg-surface-50 relative rounded-xl border`}>
+    <div className={`${size} bg-background relative rounded-xl border`}>
       <TrackRefContext.Provider value={trackRef}>
         <div
           className={`size-full overflow-hidden rounded-xl ${connectionLost ? 'opacity-40 grayscale' : ''}`}

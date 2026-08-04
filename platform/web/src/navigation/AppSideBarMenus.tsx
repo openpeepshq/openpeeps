@@ -120,7 +120,7 @@ function NavButton({
     <button
       type="button"
       className={[
-        'hover:bg-muted flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm',
+        'hover:bg-sidebar-accent flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm',
         danger ? 'text-destructive' : '',
       ].join(' ')}
       onClick={() => {
@@ -202,10 +202,10 @@ export function AppSideBarMainMenu() {
         {t('navigation.settings')}
       </NavItem>
       {showAdminMenu && (
-        <div className="border-border mt-2 border-t pt-2">
+        <div className="border-sidebar-border mt-2 border-t pt-2">
           <button
             type="button"
-            className="text-foreground hover:bg-muted flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
+            className="text-sidebar-foreground hover:bg-sidebar-accent flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
             onClick={() => setAdminExpanded((v) => !v)}
             aria-expanded={adminExpanded}
           >
@@ -219,7 +219,7 @@ export function AppSideBarMainMenu() {
             />
           </button>
           {adminExpanded ? (
-            <div className="border-border ml-2 mt-1 flex flex-col gap-0.5 border-l pl-2">
+            <div className="border-sidebar-border ml-2 mt-1 flex flex-col gap-0.5 border-l pl-2">
               <NavItem to="/admin" end icon={LayoutDashboard}>
                 {t('navigation.overview')}
               </NavItem>
@@ -314,7 +314,7 @@ export function AppSideBarProfileMenu() {
         <button
           type="button"
           title={t('navigation.openNotifications')}
-          className="text-foreground hover:bg-muted relative shrink-0 rounded-md p-2"
+          className="text-sidebar-foreground hover:bg-sidebar-accent relative shrink-0 rounded-md p-2"
           onClick={() => void openNotifications()}
         >
           <Bell className="size-6" />

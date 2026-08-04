@@ -12,7 +12,7 @@ export interface FeedPostContentProps {
 export function FeedPostContent({ post }: FeedPostContentProps) {
   if (post.deletedAt) {
     return (
-      <div className="text-sm text-gray-500">This post has been deleted.</div>
+      <div className="text-sm text-muted-foreground">This post has been deleted.</div>
     );
   }
 

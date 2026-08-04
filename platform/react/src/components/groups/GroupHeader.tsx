@@ -20,7 +20,7 @@ export function GroupHeader({ group }: GroupHeaderProps) {
   return (
     <div className="relative">
       <div className="relative aspect-[3/1] w-full">
-        <div className="bg-surface-200 absolute inset-0 overflow-hidden">
+        <div className="bg-surface-2 absolute inset-0 overflow-hidden">
           {group.header && (
             <img
               src={group.header}
@@ -50,7 +50,7 @@ export function GroupHeader({ group }: GroupHeaderProps) {
         <h1 className="text-xl font-semibold" data-testid="groups-header-title">
           {groupName(group)}
         </h1>
-        <p className="text-surface-500 text-sm">@{group.handle}</p>
+        <p className="text-muted-foreground text-sm">@{group.handle}</p>
         <a
           href={`/groups/@${group.handle}/members`}
           title={t('groups.viewMembers', { defaultValue: 'View members' })}

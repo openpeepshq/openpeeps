@@ -8,8 +8,6 @@ export * from './types';
 // shadcn primitives (low level)
 export * as primitives from './components/ui';
 export {
-  ShadcnButton,
-  buttonVariants,
   ShadcnBadge,
   badgeVariants,
   Input,

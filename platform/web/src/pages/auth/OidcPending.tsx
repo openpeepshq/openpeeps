@@ -34,18 +34,18 @@ export function OidcPending() {
 
   return (
     <div className="mx-auto mt-8 max-w-md text-center">
-      <div className="border-surface-300 border-t-primary-500 mx-auto size-8 animate-spin rounded-full border-4" />
+      <div className="border-border border-t-primary-500 mx-auto size-8 animate-spin rounded-full border-4" />
       <h1 className="mt-4 text-2xl font-semibold">
         {t('auth.sso.pendingTitle', { defaultValue: 'Account Pending Review' })}
       </h1>
-      <p className="text-surface-600 mt-4">
+      <p className="text-muted-foreground mt-4">
         {t('auth.sso.pendingBody', {
           defaultValue:
             'A new account for {{email}} requires administrator approval.',
           email: pendingEmail,
         })}
       </p>
-      <p className="text-surface-500 mt-2 text-sm">
+      <p className="text-muted-foreground mt-2 text-sm">
         {t('auth.sso.pendingContact', {
           defaultValue:
             'Please contact the {{provider}} administrator to have your account reviewed.',

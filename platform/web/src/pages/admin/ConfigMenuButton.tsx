@@ -15,11 +15,11 @@ export function ConfigMenuButton({
   return (
     <Link
       to={action}
-      className="hover:bg-surface-100 flex w-full items-center justify-between px-4 py-3 text-start"
+      className="hover:bg-muted flex w-full items-center justify-between px-4 py-3 text-start"
     >
       <div>
         <div className="font-medium">{t(`${translationPrefix}.title`)}</div>
-        <div className="text-surface-500 text-xs">
+        <div className="text-muted-foreground text-xs">
           {t(`${translationPrefix}.description`)}
         </div>
       </div>

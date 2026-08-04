@@ -118,7 +118,7 @@ export function ImageInput({
       <div className={`relative size-24 ${className ?? ''}`}>
         <button
           type="button"
-          className={`flex size-24 items-center justify-center overflow-hidden rounded-full bg-cover bg-center ${url ? '' : 'bg-surface-300 text-muted-foreground'}`}
+          className={`flex size-24 items-center justify-center overflow-hidden rounded-full bg-cover bg-center ${url ? '' : 'bg-muted text-muted-foreground'}`}
           style={url ? { backgroundImage: `url(${url})` } : undefined}
           onClick={() => fileInputRef.current?.click()}
           title={t('form.headerAvatarInput.avatar', {
@@ -128,12 +128,12 @@ export function ImageInput({
           {url ? null : <ImageIcon className="size-8" />}
         </button>
         <span
-          className={`bg-surface-200 pointer-events-none absolute bottom-0 right-0 flex size-9 items-center justify-center rounded-full ${url ? 'opacity-80' : ''}`}
+          className={`bg-surface-2 pointer-events-none absolute bottom-0 right-0 flex size-9 items-center justify-center rounded-full ${url ? 'opacity-80' : ''}`}
         >
           <Camera className="size-5" />
         </span>
         {loading ? (
-          <span className="bg-surface-100/80 absolute inset-0 z-20 flex items-center justify-center rounded-full">
+          <span className="bg-muted/80 absolute inset-0 z-20 flex items-center justify-center rounded-full">
             <Loader2 className="size-6 animate-spin" />
           </span>
         ) : null}
@@ -145,7 +145,7 @@ export function ImageInput({
 
   return (
     <div
-      className={`bg-surface-200 relative flex h-52 w-full items-center justify-center overflow-hidden rounded border border-dashed bg-center bg-no-repeat ${showFullImage ? 'bg-contain' : 'bg-cover'} ${className ?? ''}`}
+      className={`bg-surface-2 relative flex h-52 w-full items-center justify-center overflow-hidden rounded border border-dashed bg-center bg-no-repeat ${showFullImage ? 'bg-contain' : 'bg-cover'} ${className ?? ''}`}
       style={url ? { backgroundImage: `url(${url})` } : undefined}
     >
       {url ? (
@@ -155,7 +155,7 @@ export function ImageInput({
             title={t('form.imageInput.replace', {
               defaultValue: 'Replace image',
             })}
-            className="bg-surface-200/80 flex size-10 items-center justify-center rounded-full"
+            className="bg-surface-2/80 flex size-10 items-center justify-center rounded-full"
             onClick={() => fileInputRef.current?.click()}
           >
             <Camera className="size-5" />
@@ -165,7 +165,7 @@ export function ImageInput({
             title={t('form.imageInput.remove', {
               defaultValue: 'Remove image',
             })}
-            className="bg-surface-200/80 flex size-10 items-center justify-center rounded-full"
+            className="bg-surface-2/80 flex size-10 items-center justify-center rounded-full"
             onClick={() => onChange(undefined)}
           >
             <X className="size-5" />
@@ -187,7 +187,7 @@ export function ImageInput({
       )}
 
       {loading ? (
-        <span className="bg-surface-100/80 absolute inset-0 z-20 flex items-center justify-center">
+        <span className="bg-muted/80 absolute inset-0 z-20 flex items-center justify-center">
           <Loader2 className="size-8 animate-spin" />
         </span>
       ) : null}

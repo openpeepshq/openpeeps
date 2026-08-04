@@ -53,7 +53,10 @@ export function FeedPost({
   );
 
   return (
-    <div ref={postViewRef} className="relative min-w-0 border-b p-4">
+    <div
+      ref={postViewRef}
+      className="bg-background border-border relative min-w-0 border-b p-4"
+    >
       <UnreadPostIndicator show={isUnread} />
       {hasReactionHeader && (
         <PostReactionHeader

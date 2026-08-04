@@ -117,7 +117,7 @@ export const AnalyticsLayout = () => {
 
   return (
     <AnalyticsRangeContext.Provider value={{ range, setRange, queryParams }}>
-      <div className="bg-surface-50 min-h-full space-y-5 p-4 sm:p-6">
+      <div className="bg-background min-h-full space-y-5 p-4 sm:p-6">
         <nav className="border-border flex flex-wrap gap-1 border-b">
           {tabs.map((tab) => (
             <NavLink

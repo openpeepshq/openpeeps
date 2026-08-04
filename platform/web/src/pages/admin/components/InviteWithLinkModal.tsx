@@ -100,7 +100,7 @@ export function InviteWithLinkModal({ onClose }: { onClose: () => void }) {
 
         {createdSlug ? (
           <div className="space-y-3 px-1">
-            <div className="bg-surface-100 flex items-center gap-2 rounded-md border p-2">
+            <div className="bg-muted flex items-center gap-2 rounded-md border p-2">
               <span className="flex-1 break-all text-xs">
                 {inviteUrl(createdSlug)}
               </span>

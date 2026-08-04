@@ -16,7 +16,7 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
   [
     'block rounded-md px-2 py-1 text-sm',
     isActive
-      ? 'bg-primary-100 text-primary-900 font-medium'
+      ? 'bg-primary-surface text-primary font-medium'
       : 'text-foreground/80 hover:bg-muted',
   ].join(' ');
 

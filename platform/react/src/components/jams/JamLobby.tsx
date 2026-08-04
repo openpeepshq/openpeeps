@@ -66,12 +66,12 @@ function DeviceControl({
   iconOnly = false,
 }: DeviceControlProps) {
   return (
-    <div className="bg-surface-100 flex items-center gap-1 rounded-full border p-1">
+    <div className="bg-muted flex items-center gap-1 rounded-full border p-1">
       <button
         type="button"
         title={enabled ? offLabel : onLabel}
         onClick={onToggle}
-        className={`flex size-9 items-center justify-center rounded-full ${enabled ? '' : 'bg-surface-200'}`}
+        className={`flex size-9 items-center justify-center rounded-full ${enabled ? '' : 'bg-surface-2'}`}
       >
         {enabled ? (
           <OnIcon className="size-4" />
@@ -102,7 +102,7 @@ function DeviceControl({
  * on/off toggle since no audio is playing pre-room. */
 function SpeakerControl({ label }: { label: string }) {
   return (
-    <div className="bg-surface-100 flex items-center gap-1 rounded-full border p-1">
+    <div className="bg-muted flex items-center gap-1 rounded-full border p-1">
       <span
         title={label}
         className="flex size-9 items-center justify-center rounded-full"
@@ -255,7 +255,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
 
   return (
     <div className="mx-auto flex h-full w-full max-w-lg items-center justify-center p-4">
-      <div className="bg-surface-50 w-full rounded-md border p-4">
+      <div className="bg-background w-full rounded-md border p-4">
         <div className="flex items-center justify-between border-b p-2">
           <h2 className="text-lg">
             {t('jams.lobby.readyTitle', { defaultValue: 'Ready to join' })}
@@ -263,7 +263,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
           <button
             type="button"
             title={t('jams.exit.title', { defaultValue: 'Leave' })}
-            className="bg-surface-200 flex size-8 items-center justify-center rounded-full"
+            className="bg-surface-2 flex size-8 items-center justify-center rounded-full"
             onClick={exitLobby}
           >
             <X className="size-4" />
@@ -285,7 +285,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
               className={`size-64 rounded-xl object-cover ${showVideo ? '' : 'hidden'}`}
             />
             {!showVideo ? (
-              <div className="bg-surface-100 flex size-64 items-center justify-center rounded-xl">
+              <div className="bg-muted flex size-64 items-center justify-center rounded-xl">
                 <p className="text-lg">
                   {t('jams.lobby.cameraOff', { defaultValue: 'Camera is off' })}
                 </p>
@@ -332,7 +332,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
                     })
               }
               onClick={() => updateSettings({ blur: !settings.blur })}
-              className={`flex size-11 items-center justify-center rounded-full border ${settings.blur ? 'bg-primary text-primary-foreground' : 'bg-surface-100'}`}
+              className={`flex size-11 items-center justify-center rounded-full border ${settings.blur ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
             >
               <Blur className="size-4" />
             </button>

@@ -67,7 +67,7 @@ export const AdminDiagnosticsPerformance = () => {
       ) : (
         <div className="overflow-x-auto rounded-md border">
           <table className="w-full text-left text-sm">
-            <thead className="bg-surface-100">
+            <thead className="bg-muted">
               <tr>
                 <th className="p-2 font-medium">
                   {t('diagnostics.performance.when', { defaultValue: 'When' })}

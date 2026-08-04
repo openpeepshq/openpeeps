@@ -69,7 +69,7 @@ export function AdminGroupMembers() {
     <div className="p-4">
       <div className="rounded-md border">
         <table className="w-full text-sm">
-          <thead className="bg-surface-100">
+          <thead className="bg-muted">
             <tr>
               <th className="p-2 text-left">
                 {t('admin.members.profileColumn', { defaultValue: 'Profile' })}

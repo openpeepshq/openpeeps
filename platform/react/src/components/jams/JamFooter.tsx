@@ -176,7 +176,7 @@ const RecordButton = ({
         : t('events.recordingInProgress')
     }
     onClick={onToggle}
-    className={`bg-error-500 text-on-primary-token flex size-10 items-center justify-center rounded-full p-2 ${className}`}
+    className={`bg-error text-on-primary-token flex size-10 items-center justify-center rounded-full p-2 ${className}`}
   >
     {isRecording ? <SquareStop /> : <Disc />}
   </button>
@@ -202,11 +202,11 @@ const UserButton = ({
     className="relative size-10 rounded-full p-2"
     action={onToggle}
   >
-    <span className="bg-surface-400 absolute -right-2 -top-2 size-6 rounded-full p-1 px-2 text-xs">
+    <span className="bg-border-2 absolute -right-2 -top-2 size-6 rounded-full p-1 px-2 text-xs">
       {count}
     </span>
     {waitingRoomCount > 0 ? (
-      <span className="bg-surface-400 absolute -bottom-2 -right-2 size-6 rounded-full p-1 px-2 text-xs">
+      <span className="bg-border-2 absolute -bottom-2 -right-2 size-6 rounded-full p-1 px-2 text-xs">
         {waitingRoomCount}
       </span>
     ) : null}
@@ -261,7 +261,7 @@ const ChatButton = ({
       {hasNewMessages && !active ? (
         <Dot
           size={13}
-          className="bg-error-500 text-error-500 absolute right-0 top-0 rounded-full"
+          className="bg-error text-destructive absolute right-0 top-0 rounded-full"
         />
       ) : null}
     </Button>
@@ -343,7 +343,7 @@ const MobileMenu = ({
   onToggleRecording: () => void;
   t: ReturnType<typeof useT>;
 }) => (
-  <div className="bg-surface-100 text-foreground absolute bottom-20 left-2 right-2 z-50 grid grid-cols-3 rounded-md p-2">
+  <div className="bg-muted text-foreground absolute bottom-20 left-2 right-2 z-50 grid grid-cols-3 rounded-md p-2">
     <button
       type="button"
       className="flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
@@ -531,7 +531,7 @@ export const JamFooter = ({
       </div>
 
       {/* Mobile toolbar */}
-      <div className="bg-surface-50/75 relative flex w-full items-center justify-between gap-x-2 px-2 py-3 md:hidden">
+      <div className="bg-background/75 relative flex w-full items-center justify-between gap-x-2 px-2 py-3 md:hidden">
         {reactionMenuOpen ? (
           <div className="absolute bottom-20 right-[7%] z-50 mt-2 w-[90%] rounded-md p-2">
             <JamReactionMenu onSelect={handleEmojiSelect} mobile />
@@ -567,7 +567,7 @@ export const JamFooter = ({
           title={t('jams.reactions.sendTitle')}
           onClick={() => setReactionMenuOpen((open) => !open)}
           className={`text-on-primary-token flex items-center justify-center rounded-full p-2 ${
-            reactionMenuOpen ? 'bg-primary-500' : 'bg-surface-400'
+            reactionMenuOpen ? 'bg-primary' : 'bg-border-2'
           }`}
         >
           <Laugh />
@@ -577,7 +577,7 @@ export const JamFooter = ({
           type="button"
           title={t('jams.drawer.jamControls')}
           onClick={() => setMobileMenuOpen((open) => !open)}
-          className="bg-surface-400 text-on-primary-token flex items-center justify-center rounded-full p-2"
+          className="bg-border-2 text-on-primary-token flex items-center justify-center rounded-full p-2"
         >
           <CircleEllipsis />
         </button>

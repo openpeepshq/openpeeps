@@ -50,7 +50,7 @@ function NotificationSettingRow({
   };
 
   return (
-    <div className="bg-surface-100 mb-3 mt-4 w-full rounded-md p-3">
+    <div className="bg-muted mb-3 mt-4 w-full rounded-md p-3">
       <p className="mb-2 font-bold">
         {t(`settings.notifications.types.${notificationType.type}.label`, {
           defaultValue: notificationType.type,
@@ -72,7 +72,7 @@ function NotificationSettingRow({
                 checked={effective[action] ?? false}
                 onChange={(e) => handleChange(action, e.target.checked)}
               />
-              <div className="bg-surface-300 peer-checked:bg-primary h-5 w-9 rounded-full"></div>
+              <div className="bg-input peer-checked:bg-primary h-5 w-9 rounded-full"></div>
               <div className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"></div>
             </label>
           </div>
@@ -169,7 +169,7 @@ function PushSettingsPanel() {
             disabled={push.isLoading || unavailable}
             onChange={(e) => void handleToggle(e.target.checked)}
           />
-          <div className="bg-surface-300 peer-checked:bg-primary h-5 w-9 rounded-full"></div>
+          <div className="bg-input peer-checked:bg-primary h-5 w-9 rounded-full"></div>
           <div className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"></div>
         </label>
       </div>

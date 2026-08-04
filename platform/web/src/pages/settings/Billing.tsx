@@ -93,14 +93,14 @@ export function BillingSettings() {
         {subscription && (
           <div className="space-y-4">
             {subscription.paymentMethod && (
-              <div className="border-surface-200 flex items-center justify-between border-b py-3">
-                <span className="text-surface-600 text-sm">
+              <div className="border-border flex items-center justify-between border-b py-3">
+                <span className="text-muted-foreground text-sm">
                   {t('settings.billing.paymentMethod', {
                     defaultValue: 'Payment method',
                   })}
                 </span>
                 <div className="flex items-center gap-2">
-                  <CreditCard size={16} className="text-surface-500" />
+                  <CreditCard size={16} className="text-muted-foreground" />
                   <span className="text-sm font-medium">
                     {subscription.paymentMethod.brand
                       ? subscription.paymentMethod.brand.toUpperCase()
@@ -111,14 +111,14 @@ export function BillingSettings() {
               </div>
             )}
 
-            <div className="border-surface-200 flex items-center justify-between border-b py-3">
-              <span className="text-surface-600 text-sm">
+            <div className="border-border flex items-center justify-between border-b py-3">
+              <span className="text-muted-foreground text-sm">
                 {t('settings.billing.currentPeriod', {
                   defaultValue: 'Current period',
                 })}
               </span>
               <div className="flex items-center gap-2">
-                <Calendar size={16} className="text-surface-500" />
+                <Calendar size={16} className="text-muted-foreground" />
                 <span className="text-sm font-medium">
                   {formatTimeStamp(subscription.currentPeriodStart)} -{' '}
                   {formatTimeStamp(
@@ -130,7 +130,7 @@ export function BillingSettings() {
             </div>
 
             <div className="flex items-center justify-between py-3">
-              <span className="text-surface-600 text-sm">
+              <span className="text-muted-foreground text-sm">
                 {t('settings.billing.autoRenewal', {
                   defaultValue: 'Auto-renewal',
                 })}

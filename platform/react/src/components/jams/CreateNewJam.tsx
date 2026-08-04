@@ -184,7 +184,7 @@ export function CreateNewJamModal({ onClose }: CreateNewJamModalProps) {
               </div>
               <button
                 type="button"
-                className="hover:bg-surface-100 flex w-full items-center gap-2 rounded-md border p-3 text-left text-sm"
+                className="hover:bg-muted flex w-full items-center gap-2 rounded-md border p-3 text-left text-sm"
                 onClick={() => setAudienceOpen(true)}
               >
                 <span className="flex-1">{visibilityDescription}</span>

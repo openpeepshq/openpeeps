@@ -110,7 +110,7 @@ export function AdminReports() {
         </div>
         <a
           href={`/@${profile.handle}`}
-          className="border-input hover:bg-surface-100 rounded-md border px-3 py-1.5 text-sm"
+          className="border-input hover:bg-muted rounded-md border px-3 py-1.5 text-sm"
         >
           {t('admin.moderation.report.goToProfile', {
             defaultValue: 'Go to profile',
@@ -134,7 +134,7 @@ export function AdminReports() {
             key={value}
             type="button"
             onClick={() => setFilter(value)}
-            className={`rounded px-2 py-1 ${filter === value ? 'bg-primary text-primary-foreground' : 'bg-surface-100 hover:bg-surface-200'}`}
+            className={`rounded px-2 py-1 ${filter === value ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted'}`}
           >
             {value === 'all'
               ? 'All'
@@ -166,7 +166,7 @@ export function AdminReports() {
               {report.reportedPosts.length > 0 && (
                 <ul className="space-y-2">
                   {report.reportedPosts.map((post) => (
-                    <li key={post.id} className="bg-surface-100 rounded-md p-2">
+                    <li key={post.id} className="bg-muted rounded-md p-2">
                       <div className="mb-2 flex items-center justify-between">
                         <h3 className="text-sm font-medium">
                           {t('admin.moderation.reportList.postHeading', {
@@ -175,7 +175,7 @@ export function AdminReports() {
                         </h3>
                         <a
                           href={`/posts/${post.repost?.id ?? post.id}`}
-                          className="border-input hover:bg-surface-200 rounded-md border px-2 py-1 text-xs"
+                          className="border-input hover:bg-muted rounded-md border px-2 py-1 text-xs"
                         >
                           {t('admin.moderation.reportList.goToPost', {
                             defaultValue: 'Go to post',

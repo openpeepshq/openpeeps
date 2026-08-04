@@ -55,7 +55,7 @@ const DeviceSelectorPill = ({
 
   return (
     <SplitButtonMenu
-      className="bg-surface-100 rounded-full backdrop-blur"
+      className="bg-muted rounded-full backdrop-blur"
       title={`${enabled ? t('jams.device.turnOff') : t('jams.device.turnOn')}${deviceLabel ? ` ${deviceLabel}` : ''}`}
       variant={enabled ? 'variant-soft-surface' : 'variant-filled-error'}
       action={onToggle}

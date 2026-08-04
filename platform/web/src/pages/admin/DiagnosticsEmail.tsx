@@ -69,7 +69,7 @@ export function AdminDiagnosticsEmail() {
 
   return (
     <div className="space-y-6 p-4">
-      <div className="bg-surface-200 rounded-lg p-4">
+      <div className="bg-surface-2 rounded-lg p-4">
         <p className="font-medium">{t('diagnostics.email.testTitle')}</p>
         <p className="mb-3 text-sm opacity-80">
           {t('diagnostics.email.testHint')}
@@ -104,7 +104,7 @@ export function AdminDiagnosticsEmail() {
         ) : null}
       </div>
 
-      <div className="bg-surface-200 rounded-lg p-4">
+      <div className="bg-surface-2 rounded-lg p-4">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <p className="font-medium">{t('diagnostics.email.queueTitle')}</p>
           <Button
@@ -141,7 +141,7 @@ export function AdminDiagnosticsEmail() {
             </dl>
 
             {stats.recentFailures.length > 0 ? (
-              <div className="border-surface-300 mt-4 border-t pt-3">
+              <div className="border-border mt-4 border-t pt-3">
                 <p className="text-error mb-2 font-medium">
                   {t('diagnostics.email.recentFailures')}
                 </p>

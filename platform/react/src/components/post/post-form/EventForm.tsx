@@ -119,7 +119,7 @@ export function EventForm({
           />
         </Label>
 
-        <p className="text-surface-500 text-sm">
+        <p className="text-muted-foreground text-sm">
           {t('events.form.description', {
             defaultValue: 'Give your event a clear, descriptive name',
           })}

@@ -98,7 +98,7 @@ export function OpenpeepsMarkdownInput({
   return (
     <div className="relative w-full">
       {showPreview ? (
-        <div className="bg-surface-50 border-surface-200 absolute inset-0 z-10 overflow-y-auto rounded-md border p-4 pt-16">
+        <div className="bg-background border-border absolute inset-0 z-10 overflow-y-auto rounded-md border p-4 pt-16">
           <Button
             compact
             variant="variant-ringed-surface"
@@ -157,7 +157,7 @@ export function OpenpeepsMarkdownInput({
             <button
               key={profile.id}
               type="button"
-              className="hover:bg-surface-100 w-full text-left"
+              className="hover:bg-muted w-full text-left"
               onMouseDown={(e) => {
                 e.preventDefault();
                 insertMention(profile);

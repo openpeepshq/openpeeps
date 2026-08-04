@@ -37,7 +37,7 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
   const { name, tagLine } = serverInfo.communityConfig?.info ?? {};
 
   return (
-    <div className="relative h-screen w-full pt-3 md:h-full">
+    <div className="bg-sidebar-background text-sidebar-foreground relative h-screen w-full pt-3 md:h-full">
       <div className="h-[90%] overflow-y-auto">
         <div className="flex w-full items-center justify-between px-4 md:items-start">
           <a href="/">
@@ -86,7 +86,7 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
           </div>
         )}
       </div>
-      <div className="bg-card absolute bottom-3">
+      <div className="bg-sidebar-background absolute bottom-3">
         <p className="ml-4 text-center">{t('navigation.poweredBy')}</p>
       </div>
     </div>

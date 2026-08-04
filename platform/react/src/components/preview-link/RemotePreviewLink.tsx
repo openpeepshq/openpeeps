@@ -32,7 +32,7 @@ export function RemotePreviewLink({ url }: RemotePreviewLinkProps) {
       href={url}
       target="_blank"
       rel="noreferrer"
-      className="hover:bg-surface-100 mb-2 block w-full min-w-0 max-w-full overflow-hidden rounded-md border no-underline"
+      className="hover:bg-muted mb-2 block w-full min-w-0 max-w-full overflow-hidden rounded-md border no-underline"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex w-full min-w-0 flex-row items-center gap-4 p-2">

@@ -114,7 +114,7 @@ export function AdminGroupCard({ group, onDelete }: AdminGroupCardProps) {
             <Link
               key={admin.id}
               to={`/@${admin.handle}`}
-              className="bg-surface-100 hover:bg-surface-200 flex items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-2 text-xs"
+              className="bg-muted hover:bg-muted flex items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-2 text-xs"
             >
               <Avatar profile={admin as PublicProfile} size={1.5} />
               <span>{admin.displayName || `@${admin.handle}`}</span>

@@ -147,7 +147,7 @@ export function Welcome() {
               else if (item.route) navigate(item.route);
             }}
           >
-            <div className="bg-surface-100 flex items-center justify-center rounded-full p-4">
+            <div className="bg-muted flex items-center justify-center rounded-full p-4">
               <item.Icon />
             </div>
             <div className="ml-4 flex-1 text-lg">

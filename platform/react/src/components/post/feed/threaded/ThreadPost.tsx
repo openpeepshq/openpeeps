@@ -39,14 +39,14 @@ export function ThreadPost({
           <Avatar profile={post.profile} size={3} />
         </ProfileLink>
         {isParent ? (
-          <div className="bg-surface-300 absolute left-6 top-12 h-[calc(100%-2rem)] w-px" />
+          <div className="bg-border-2 absolute left-6 top-12 h-[calc(100%-2rem)] w-px" />
         ) : null}
         {isChild ? (
-          <div className="bg-surface-300 absolute left-6 top-0 h-8 w-px" />
+          <div className="bg-border-2 absolute left-6 top-0 h-8 w-px" />
         ) : null}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="bg-surface-100 rounded-xl p-2">
+        <div className="bg-muted rounded-xl p-2">
           <div className="mb-2 flex items-start justify-between gap-2">
             <div className="min-w-0">
               <ProfileLink

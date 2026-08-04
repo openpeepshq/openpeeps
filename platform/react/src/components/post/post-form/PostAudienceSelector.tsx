@@ -160,10 +160,10 @@ export const PostAudienceSelector = ({
                   <button
                     key={choice.value}
                     type="button"
-                    className="hover:bg-surface-100 flex w-full items-start gap-3 rounded-md border p-3 text-left"
+                    className="hover:bg-muted flex w-full items-start gap-3 rounded-md border p-3 text-left"
                     onClick={() => selectVisibility(choice.value)}
                   >
-                    <span className="bg-surface-100 flex size-10 items-center justify-center rounded-full">
+                    <span className="bg-muted flex size-10 items-center justify-center rounded-full">
                       <Icon className="size-5" />
                     </span>
                     <span className="flex-1">

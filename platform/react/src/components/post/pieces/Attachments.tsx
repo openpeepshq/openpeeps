@@ -81,7 +81,7 @@ export function Attachments({ post }: AttachmentsProps) {
             return (
               <div
                 key={`${att.url ?? idx}-${idx}`}
-                className={`${tileClass} overflow-hidden bg-surface-100`}
+                className={`${tileClass} overflow-hidden bg-muted`}
               >
                 {tile}
               </div>
@@ -92,7 +92,7 @@ export function Attachments({ post }: AttachmentsProps) {
             <button
               key={`${att.url ?? idx}-${idx}`}
               type="button"
-              className={`${tileClass} overflow-hidden bg-surface-100`}
+              className={`${tileClass} overflow-hidden bg-muted`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

@@ -30,7 +30,7 @@ export const NewGroupInvitation: React.FC<NotificationTypeProps> = ({
       showProfile={false}>
       <View className="w-full">
         <View className="w-full flex items-center gap-x-4 flex-wrap">
-          <UsersIcon className="text-surface-500 h-8 w-8" />
+          <UsersIcon className="text-muted-foreground h-8 w-8" />
           <ProfileAvatar profile={profile} className="size-16" />
         </View>
         <View className="mt-2">

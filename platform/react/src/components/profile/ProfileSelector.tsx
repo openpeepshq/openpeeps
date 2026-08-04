@@ -165,7 +165,7 @@ export const ProfileSelector = ({
                   <button
                     key={profile.id}
                     type="button"
-                    className={`hover:bg-surface-100 flex w-full items-center gap-3 rounded-md p-2 text-left ${selected ? 'bg-secondary/40' : ''}`}
+                    className={`hover:bg-muted flex w-full items-center gap-3 rounded-md p-2 text-left ${selected ? 'bg-secondary/40' : ''}`}
                     onClick={() => toggleProfile(profile)}
                   >
                     <Avatar profile={profile} size={2.5} borderless />

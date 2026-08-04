@@ -45,7 +45,7 @@ export function FeedEvent({ post }: FeedEventProps) {
         </span>
       )}
       <div className="flex w-full items-center justify-between">
-        <span className="text-error-600 text-sm">
+        <span className="text-destructive text-sm">
           {fmtRange(event.start, event.end)}{' '}
           <span className="text-muted-foreground">(your local time)</span>
         </span>

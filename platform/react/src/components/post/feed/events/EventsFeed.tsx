@@ -61,7 +61,7 @@ export function EventsFeed({ query }: EventsFeedProps) {
   if (posts.length === 0) {
     return (
       <div className="flex h-96 w-full flex-col items-center justify-center gap-y-4">
-        <Rss className="text-surface-300 size-20" />
+        <Rss className="text-muted-foreground size-20" />
         <p className="text-xl">
           {t('feed.empty', { defaultValue: 'No events yet.' })}
         </p>

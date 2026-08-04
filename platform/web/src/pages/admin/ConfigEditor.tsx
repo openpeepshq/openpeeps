@@ -161,7 +161,7 @@ export function AdminConfigEditor({
           rows={20}
           value={draft}
           spellCheck={false}
-          className="bg-surface-100 w-full rounded-md border p-2 font-mono text-xs"
+          className="bg-muted w-full rounded-md border p-2 font-mono text-xs"
           onChange={(e) => setDraft(e.target.value)}
         />
       </section>
@@ -171,7 +171,7 @@ export function AdminConfigEditor({
           <summary className="cursor-pointer font-medium">
             View server defaults
           </summary>
-          <pre className="bg-surface-100 overflow-x-auto whitespace-pre-wrap p-2 text-xs">
+          <pre className="bg-muted overflow-x-auto whitespace-pre-wrap p-2 text-xs">
             {defaultsForView}
           </pre>
         </details>

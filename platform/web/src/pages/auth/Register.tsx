@@ -216,7 +216,7 @@ export function Register({ invite = false }: RegisterProps) {
 
         {(data.password ?? '').length > 0 &&
           (data.confirmPassword ?? '').length === 0 && (
-            <div className="bg-surface-300 border-surface-100 flex w-full justify-center rounded py-2">
+            <div className="bg-muted border-border flex w-full justify-center rounded py-2">
               <p>
                 {getStrengthMessage(calculatePasswordStrength(data.password))}
               </p>

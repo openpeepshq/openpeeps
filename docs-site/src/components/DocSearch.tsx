@@ -30,7 +30,7 @@ export const DocSearch = ({ docs }: Props): ReactElement => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search docs…"
-        className="border-border bg-card text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm outline-none focus:border-primary-500"
+        className="border-border bg-card text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm outline-none focus:border-primary"
         aria-label="Search documentation"
       />
       {results.length > 0 && (

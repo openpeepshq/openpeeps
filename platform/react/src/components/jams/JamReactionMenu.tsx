@@ -106,7 +106,7 @@ export function JamReactionMenu({
 
   return (
     <div
-      className={`bg-surface-200 rounded-2xl p-2 ${mobile ? 'w-full' : 'md:w-max'}`}
+      className={`bg-surface-2 rounded-2xl p-2 ${mobile ? 'w-full' : 'md:w-max'}`}
     >
       {showAllEmojis ? (
         <>
@@ -142,7 +142,7 @@ export function JamReactionMenu({
 
             <div className="flex flex-wrap items-center gap-x-1 md:flex-nowrap">
               <div
-                className="bg-surface-400 mx-1 h-8 w-px shrink-0 self-center max-md:hidden"
+                className="bg-border-2 mx-1 h-8 w-px shrink-0 self-center max-md:hidden"
                 aria-hidden="true"
               />
 
@@ -160,7 +160,7 @@ export function JamReactionMenu({
                     </button>
                   ))}
                   <div
-                    className="bg-surface-400 mx-1 h-8 w-px shrink-0 self-center"
+                    className="bg-border-2 mx-1 h-8 w-px shrink-0 self-center"
                     aria-hidden="true"
                   />
                 </>
@@ -169,7 +169,7 @@ export function JamReactionMenu({
               <button
                 type="button"
                 title={t('jams.reactions.skinToneTitle')}
-                className={`shrink-0 rounded p-2 text-lg ${showSkinToneSelector ? 'bg-surface-400' : ''}`}
+                className={`shrink-0 rounded p-2 text-lg ${showSkinToneSelector ? 'bg-border-2' : ''}`}
                 onClick={() => setShowSkinToneSelector((open) => !open)}
               >
                 {selectedSkinToneEmoji}
@@ -187,13 +187,13 @@ export function JamReactionMenu({
           </div>
 
           {showSkinToneSelector ? (
-            <div className="border-surface-300 mt-2 flex gap-1 border-t pt-2">
+            <div className="border-border mt-2 flex gap-1 border-t pt-2">
               {SKIN_TONE_OPTIONS.map((option) => (
                 <button
                   key={option.tone}
                   type="button"
                   title={t('jams.reactions.skinToneTitle')}
-                  className={`rounded p-1 text-lg ${skinTone === option.tone ? 'bg-surface-400' : ''}`}
+                  className={`rounded p-1 text-lg ${skinTone === option.tone ? 'bg-border-2' : ''}`}
                   onClick={() => void handleSetSkinTone(option.tone)}
                 >
                   {option.emoji}

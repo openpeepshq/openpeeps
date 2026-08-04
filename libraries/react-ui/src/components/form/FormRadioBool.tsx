@@ -45,15 +45,15 @@ export function FormRadioBool({
           id={`${name}-false`}
           checked={!currentValue}
           onChange={update}
-          className="mt-1 size-4 text-primary-500"
+          className="mt-1 size-4 text-primary"
           value="false"
           disabled={disabled}
         />
         <div>
-          <label className="font-medium text-surface-700" htmlFor={`${name}-false`}>
+          <label className="font-medium text-foreground" htmlFor={`${name}-false`}>
             {titleFalse}
           </label>
-          <label className="text-surface-700" htmlFor={`${name}-false`}>
+          <label className="text-foreground" htmlFor={`${name}-false`}>
             {descriptionFalse}
           </label>
         </div>
@@ -65,15 +65,15 @@ export function FormRadioBool({
           id={`${name}-true`}
           checked={currentValue}
           onChange={update}
-          className="mt-1 size-4 text-primary-500"
+          className="mt-1 size-4 text-primary"
           value="true"
           disabled={disabled}
         />
         <div>
-          <label className="font-medium text-surface-700" htmlFor={`${name}-true`}>
+          <label className="font-medium text-foreground" htmlFor={`${name}-true`}>
             {titleTrue}
           </label>
-          <label className="text-surface-700" htmlFor={`${name}-true`}>
+          <label className="text-foreground" htmlFor={`${name}-true`}>
             {descriptionTrue}
           </label>
         </div>

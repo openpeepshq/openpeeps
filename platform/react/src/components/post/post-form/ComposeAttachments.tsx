@@ -252,7 +252,7 @@ export function ComposeAttachments(props: ComposeAttachmentsProps) {
             defaultValue: 'Add image or video',
           })}
           onClick={openImagePicker}
-          className="hover:bg-surface-200 rounded-md p-2"
+          className="hover:bg-muted rounded-md p-2"
         >
           <Image className="size-5" />
         </button>
@@ -260,7 +260,7 @@ export function ComposeAttachments(props: ComposeAttachmentsProps) {
           type="button"
           title={t('posts.form.addDocument', { defaultValue: 'Add document' })}
           onClick={openDocumentPicker}
-          className="hover:bg-surface-200 rounded-md p-2"
+          className="hover:bg-muted rounded-md p-2"
         >
           <Paperclip className="size-5" />
         </button>

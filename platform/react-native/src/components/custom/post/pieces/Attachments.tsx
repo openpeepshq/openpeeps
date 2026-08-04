@@ -56,7 +56,7 @@ export const Attachments = ({ post }: { post: PublicPost }) => {
     index: number;
   }) => (
     <ThemedView
-      className="h-72 bg-surface-100"
+      className="h-72 bg-muted"
       style={{ width: containerWidth || '100%' }}
     >
       {renderAttachmentContent(item, index === activeIndex)}

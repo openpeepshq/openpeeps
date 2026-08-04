@@ -24,7 +24,7 @@ const levelClass = (level: string) => {
       return 'bg-warning/15 text-warning';
     case 'debug':
     case 'trace':
-      return 'bg-surface-300 text-muted-foreground';
+      return 'bg-muted text-muted-foreground';
     default:
       return 'bg-primary/10 text-primary';
   }
@@ -70,7 +70,7 @@ export function AdminDiagnosticsLogs() {
 
   return (
     <div className="space-y-4 p-4">
-      <div className="bg-surface-200 rounded-lg p-4">
+      <div className="bg-surface-2 rounded-lg p-4">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="font-medium">{t('diagnostics.logs.title')}</p>
@@ -142,7 +142,7 @@ export function AdminDiagnosticsLogs() {
         </div>
       </div>
 
-      <div className="border-surface-300 bg-surface-100 overflow-hidden rounded-lg border">
+      <div className="border-border bg-muted overflow-hidden rounded-lg border">
         {logsQuery.isPending ? (
           <p className="p-4 text-sm opacity-70">{t('common.form.loading')}</p>
         ) : logsQuery.isError ? (
@@ -156,7 +156,7 @@ export function AdminDiagnosticsLogs() {
         ) : (
           <div className="max-h-[calc(100vh-20rem)] overflow-y-auto">
             <table className="w-full table-fixed text-sm">
-              <thead className="bg-surface-200 sticky top-0 z-10 text-left">
+              <thead className="bg-surface-2 sticky top-0 z-10 text-left">
                 <tr>
                   <th className="w-28 px-3 py-2 font-medium">
                     {t('diagnostics.logs.timestamp')}
@@ -176,7 +176,7 @@ export function AdminDiagnosticsLogs() {
                 {filtered.map((log, idx) => (
                   <tr
                     key={`${log.timestamp}-${log.namespace}-${idx}`}
-                    className="border-surface-300 border-t align-top"
+                    className="border-border border-t align-top"
                   >
                     <td className="px-3 py-2 text-xs opacity-80">
                       {formatTimestamp(log.timestamp)}

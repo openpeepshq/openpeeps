@@ -3,6 +3,7 @@ import type { PublicPost } from '@openpeepshq/common/types';
 import { useT } from '../../../i18n';
 import { resolveStaticUrl, useStaticRender } from '../../markdown/staticRender';
 import { PostMarkdown } from '../Markdown';
+import { OPENPEEPS_POST_CAPTION_CLASS } from '../../markdown/classes';
 import { firstNWords } from '../helpers';
 
 export interface FeedArticleProps {
@@ -30,10 +31,13 @@ export function FeedArticle({ post }: FeedArticleProps) {
           alt={`image for ${article.title ?? 'article'}`}
         />
       )}
-      <div className="prose">
+      <div className="prose-sm">
         <h3>{article.title}</h3>
       </div>
-      <PostMarkdown source={`${previewContent}${showReadMore ? '...' : ''}`} />
+      <PostMarkdown
+        source={`${previewContent}${showReadMore ? '...' : ''}`}
+        className={OPENPEEPS_POST_CAPTION_CLASS}
+      />
       {showReadMore && (
         <div className="flex justify-end">
           <a

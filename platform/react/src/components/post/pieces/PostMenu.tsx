@@ -119,7 +119,7 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
   return (
     <>
       <PopupMenu
-        className="hover:bg-surface-200 h-max rounded-full p-2"
+        className="bg-muted h-max rounded-lg p-2 hover:opacity-80"
         title={t('posts.menu.title', { defaultValue: 'Post menu' })}
       >
         {postProfile.id !== me.id ? (

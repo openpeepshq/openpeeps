@@ -127,7 +127,7 @@ export function PollContent({ post }: PollContentProps) {
 
   return (
     <div
-      className="bg-surface-100 rounded-lg px-4 py-4"
+      className="bg-muted rounded-lg px-4 py-4"
       onClick={stopFeedNavigation}
       onKeyDown={stopFeedNavigation}
       role="presentation"
@@ -181,7 +181,7 @@ export function PollContent({ post }: PollContentProps) {
                   <span>{voteCounts?.[index] ?? 0}</span>
                 </div>
               </div>
-              <div className="bg-surface-300 mt-2 h-2 overflow-hidden rounded-full">
+              <div className="bg-muted mt-2 h-2 overflow-hidden rounded-full">
                 <div
                   className="bg-primary h-full rounded-full transition-all"
                   style={{

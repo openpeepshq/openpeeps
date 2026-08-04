@@ -29,7 +29,7 @@ function JobDetails({
 
   return (
     <div className="space-y-4 p-4">
-      <div className="bg-surface-100 rounded-lg border p-4">
+      <div className="bg-muted rounded-lg border p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <p className="font-medium">
             {t('diagnostics.jobs.details', { defaultValue: 'Job details' })}
@@ -94,13 +94,13 @@ function JobDetails({
           <p className="mb-1 text-sm opacity-70">
             {t('diagnostics.jobs.payload', { defaultValue: 'Payload' })}
           </p>
-          <pre className="bg-surface-200 max-h-64 overflow-auto whitespace-pre-wrap break-words rounded p-2 font-mono text-xs">
+          <pre className="bg-surface-2 max-h-64 overflow-auto whitespace-pre-wrap break-words rounded p-2 font-mono text-xs">
             {formatPayload(job.data)}
           </pre>
         </div>
       </div>
 
-      <div className="bg-surface-100 rounded-lg border p-4">
+      <div className="bg-muted rounded-lg border p-4">
         <p className="mb-2 font-medium">
           {t('diagnostics.jobs.logs', { defaultValue: 'Logs' })}
         </p>
@@ -121,7 +121,7 @@ function JobDetails({
             {job.logs.map((line, index) => (
               <li
                 key={index}
-                className="bg-surface-200 whitespace-pre-wrap break-words rounded px-2 py-1"
+                className="bg-surface-2 whitespace-pre-wrap break-words rounded px-2 py-1"
               >
                 <span className="mr-2 opacity-50">{index + 1}.</span>
                 {line}

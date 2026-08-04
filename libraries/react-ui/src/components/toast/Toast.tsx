@@ -20,7 +20,7 @@ export interface ToastProps {
 }
 
 const variantClasses: Record<ToastVariant, string> = {
-  success: 'bg-success text-success-foreground border-success-700',
+  success: 'bg-success text-success-foreground border-success',
   error: 'bg-error text-error-foreground border-error-700',
 };
 

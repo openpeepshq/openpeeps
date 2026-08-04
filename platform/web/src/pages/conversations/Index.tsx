@@ -62,7 +62,7 @@ function ChatPreview({
           ) : null}
         </div>
       </div>
-      <span className="text-surface-500 text-sm">
+      <span className="text-muted-foreground text-sm">
         <UpdatingDate date={lastMessage.createdAt} />
       </span>
 
@@ -146,7 +146,7 @@ export function ConversationsIndex() {
               <a
                 key={first.id}
                 href={`/conversations/${first.id}`}
-                className="hover:bg-surface-300 block text-left transition-all"
+                className="hover:bg-muted block text-left transition-all"
                 title={t('conversations.open', {
                   defaultValue: 'Open conversation',
                 })}

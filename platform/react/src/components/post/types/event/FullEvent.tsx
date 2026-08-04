@@ -111,11 +111,11 @@ export function FullEvent({ post }: FullEventProps) {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex gap-x-4">
-            <span className="bg-surface-200 mb-3 inline-block rounded-lg px-3 py-1 text-sm">
+            <span className="bg-surface-2 mb-3 inline-block rounded-lg px-3 py-1 text-sm">
               {eventScope}
             </span>
             {slotsLeft !== null ? (
-              <span className="bg-surface-200 mb-3 inline-block rounded-lg px-3 py-1 text-sm">
+              <span className="bg-surface-2 mb-3 inline-block rounded-lg px-3 py-1 text-sm">
                 {slotsLeft <= 0
                   ? t('events.noSpotsAvailable', {
                       defaultValue: 'No spots available',

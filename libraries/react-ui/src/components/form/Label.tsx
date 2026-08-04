@@ -20,9 +20,9 @@ const messageColor = (m: FormMessage, dirty: boolean) => {
   if (!dirty) return '';
   switch (m.severity) {
     case 'error':
-      return 'text-error-500';
+      return 'text-destructive';
     case 'warning':
-      return 'text-warning-500';
+      return 'text-warning';
     case 'info':
       return '';
   }
@@ -56,7 +56,7 @@ export function Label({
       {title && (
         <span>
           {title}
-          {required && <span className={cn(dirty && 'text-error-500')}>*</span>}
+          {required && <span className={cn(dirty && 'text-destructive')}>*</span>}
         </span>
       )}
       <span

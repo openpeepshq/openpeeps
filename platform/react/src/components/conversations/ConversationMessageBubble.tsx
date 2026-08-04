@@ -18,7 +18,7 @@ export function ConversationMessageBubble({
         className={`mt-2 w-[80%] rounded-t-xl p-3 md:w-[60%] ${
           mine
             ? 'variant-soft-primary bg-primary/10 rounded-bl-xl'
-            : 'bg-surface-200 rounded-br-xl'
+            : 'bg-surface-2 rounded-br-xl'
         }`}
       >
         <FeedPostContent post={message} />

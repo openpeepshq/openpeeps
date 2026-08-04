@@ -81,7 +81,7 @@ function SimpleLocationInput({
             <button
               key={`${item.name}-${item.center.lat}-${item.center.lng}`}
               type="button"
-              className="hover:bg-surface-100 w-full px-3 py-2 text-left text-sm"
+              className="hover:bg-muted w-full px-3 py-2 text-left text-sm"
               onClick={() => {
                 setText(item.name);
                 onChange({

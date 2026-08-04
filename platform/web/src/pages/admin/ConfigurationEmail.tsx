@@ -208,7 +208,7 @@ export function AdminConfigurationEmail() {
         </span>
       </Form>
 
-      <div className="bg-surface-200 rounded-lg p-4">
+      <div className="bg-surface-2 rounded-lg p-4">
         <p className="font-medium">{t('configuration.email.testTitle')}</p>
         <p className="mb-3 text-sm opacity-80">
           {t('configuration.email.testHint')}

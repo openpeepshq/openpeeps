@@ -41,7 +41,7 @@ export function GroupAvatar({
 
   const borderClass = borderless
     ? ''
-    : 'border-4 border-surface-300 hover:border-neutral-500';
+    : 'border-4 border-border hover:border-neutral-500';
 
   return (
     <div
@@ -53,7 +53,7 @@ export function GroupAvatar({
       }}
     >
       <div
-        className={`relative inline-flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-surface-200 ${borderClass}`}
+        className={`relative inline-flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-surface-2 ${borderClass}`}
       >
         {src ? (
           <img

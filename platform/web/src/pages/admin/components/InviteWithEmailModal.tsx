@@ -103,7 +103,7 @@ export function InviteWithEmailModal({ onClose }: { onClose: () => void }) {
                   {emailList.map((email) => (
                     <span
                       key={email}
-                      className="bg-surface-200 rounded-md border px-2 py-0.5 text-xs"
+                      className="bg-surface-2 rounded-md border px-2 py-0.5 text-xs"
                     >
                       {email}
                     </span>

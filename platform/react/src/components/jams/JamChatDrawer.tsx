@@ -97,7 +97,7 @@ export function JamChatDrawer({
   return (
     <div
       className={
-        'bg-surface-100 text-foreground absolute right-0 top-0 flex h-full w-full flex-col gap-3 overflow-hidden rounded md:relative md:w-80'
+        'bg-muted text-foreground absolute right-0 top-0 flex h-full w-full flex-col gap-3 overflow-hidden rounded md:relative md:w-80'
       }
     >
       <div className="flex w-full flex-none items-center justify-between border-b p-2">
@@ -139,7 +139,7 @@ export function JamChatDrawer({
       </div>
 
       {!readOnly && (
-        <div className="bg-surface-50 sticky bottom-0 flex w-full items-center gap-x-2 p-2">
+        <div className="bg-background sticky bottom-0 flex w-full items-center gap-x-2 p-2">
           <textarea
             ref={textareaRef}
             disabled={isSending}
@@ -155,7 +155,7 @@ export function JamChatDrawer({
                 void handleSendMessage();
               }
             }}
-            className="bg-surface-50 w-full resize-none border-none outline-none"
+            className="bg-background w-full resize-none border-none outline-none"
             placeholder={t('jams.chat.messagePlaceholder', {
               defaultValue: 'Send a message…',
             })}

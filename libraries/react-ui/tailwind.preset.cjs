@@ -38,15 +38,21 @@ module.exports = {
     },
     extend: {
       colors: {
+        // primary/secondary/success no longer have a Skeleton-style ramp —
+        // DEFAULT+foreground are Figma's flat tokens, and the numeric
+        // shades had zero remaining call sites so the ramp was deleted from
+        // globals.css. tertiary/error/warning keep their 50-900 ramp
+        // (channel(`--color-{key}-{shade}`)): tertiary has no Figma
+        // equivalent at all, error is a deliberately-kept-separate legacy
+        // family from destructive, and warning still has live numeric call
+        // sites (e.g. bg-warning-900) alongside its Figma-sourced DEFAULT.
         primary: {
-          ...palette('primary'),
-          DEFAULT: channel('--color-primary-500'),
-          foreground: onColor('primary'),
+          DEFAULT: channel('--color-primary'),
+          foreground: channel('--color-primary-foreground'),
         },
         secondary: {
-          ...palette('secondary'),
-          DEFAULT: channel('--color-secondary-500'),
-          foreground: onColor('secondary'),
+          DEFAULT: channel('--color-secondary'),
+          foreground: channel('--color-secondary-foreground'),
         },
         tertiary: {
           ...palette('tertiary'),
@@ -54,13 +60,12 @@ module.exports = {
           foreground: onColor('tertiary'),
         },
         success: {
-          ...palette('success'),
-          DEFAULT: channel('--color-success-500'),
+          DEFAULT: channel('--color-success'),
           foreground: onColor('success'),
         },
         warning: {
           ...palette('warning'),
-          DEFAULT: channel('--color-warning-500'),
+          DEFAULT: channel('--color-warning'),
           foreground: onColor('warning'),
         },
         error: {
@@ -68,36 +73,79 @@ module.exports = {
           DEFAULT: channel('--color-error-500'),
           foreground: onColor('error'),
         },
-        surface: {
-          ...palette('surface'),
-          DEFAULT: channel('--color-surface-500'),
-          foreground: onColor('surface'),
-        },
-        background: channel('--color-surface-50'),
-        foreground: channel('--theme-font-color-base'),
-        border: channel('--color-surface-300'),
-        input: channel('--color-surface-200'),
-        ring: channel('--color-primary-500'),
+        background: channel('--color-background'),
+        foreground: channel('--color-foreground'),
+        border: channel('--color-border-1'),
+        'border-2': channel('--color-border-2'),
+        input: channel('--color-input'),
+        ring: channel('--color-ring'),
+        'ring-offset': channel('--color-ring-offset'),
+        text: channel('--color-text'),
         muted: {
-          DEFAULT: channel('--color-surface-100'),
-          foreground: channel('--color-surface-700'),
+          DEFAULT: channel('--color-muted'),
+          foreground: channel('--color-muted-foreground'),
         },
         accent: {
-          DEFAULT: channel('--color-surface-100'),
-          foreground: channel('--theme-font-color-base'),
+          DEFAULT: channel('--color-muted'),
+          foreground: channel('--color-accent-foreground'),
         },
         popover: {
-          DEFAULT: channel('--color-surface-50'),
-          foreground: channel('--theme-font-color-base'),
+          DEFAULT: channel('--color-popover'),
+          foreground: channel('--color-popover-foreground'),
         },
         card: {
-          DEFAULT: channel('--color-surface-50'),
-          foreground: channel('--theme-font-color-base'),
+          DEFAULT: channel('--color-card'),
+          foreground: channel('--color-card-foreground'),
         },
         destructive: {
-          DEFAULT: channel('--color-error-500'),
-          foreground: onColor('error'),
+          DEFAULT: channel('--color-destructive'),
+          foreground: channel('--color-destructive-foreground'),
         },
+        'primary-surface': channel('--color-primary-surface'),
+        'modal-backdrop': 'var(--color-modal-backdrop)',
+        progress: channel('--color-progress'),
+        'surface-2': channel('--color-surface-2'),
+        'surface-warning': channel('--color-surface-warning'),
+        'surface-success': channel('--color-surface-success'),
+        'surface-progress': channel('--color-surface-progress'),
+        chart: {
+          1: channel('--color-chart-1'),
+          2: channel('--color-chart-2'),
+          3: channel('--color-chart-3'),
+          4: channel('--color-chart-4'),
+          5: channel('--color-chart-5'),
+        },
+        sidebar: {
+          background: channel('--color-sidebar-background'),
+          foreground: channel('--color-sidebar-foreground'),
+          primary: channel('--color-sidebar-primary'),
+          'primary-foreground': channel('--color-sidebar-primary-foreground'),
+          accent: channel('--color-sidebar-accent'),
+          'accent-foreground': channel('--color-sidebar-accent-foreground'),
+          border: channel('--color-sidebar-border'),
+          ring: channel('--color-sidebar-ring'),
+        },
+        alpha: {
+          10: 'var(--color-alpha-10)',
+          20: 'var(--color-alpha-20)',
+          30: 'var(--color-alpha-30)',
+          40: 'var(--color-alpha-40)',
+          50: 'var(--color-alpha-50)',
+          60: 'var(--color-alpha-60)',
+          70: 'var(--color-alpha-70)',
+          80: 'var(--color-alpha-80)',
+          90: 'var(--color-alpha-90)',
+        },
+      },
+      // Tailwind's stock config hardcodes `borderColor.DEFAULT` to
+      // `colors.gray.200` regardless of the `colors` theme (see
+      // tailwindcss/stubs/config.full.js) — Preflight's `*,::before,::after`
+      // reset uses this directly, so bare `border`/`border-b`/etc. utilities
+      // rendered a static light gray in both themes instead of following
+      // --color-border-1. Overriding it here (divideColor inherits the fix
+      // since it's defined as `theme('borderColor')`).
+      borderColor: {
+        DEFAULT: channel('--color-border-1'),
       },
       borderRadius: {
         lg: 'var(--theme-rounded-container, 0.5rem)',

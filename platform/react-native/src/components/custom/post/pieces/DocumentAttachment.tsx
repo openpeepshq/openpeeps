@@ -16,7 +16,7 @@ export const DocumentAttachment = ({ attachment }: DocumentAttachmentProps) => {
     const Icon = useMemo(() => attachment.type === 'document' ? getFileIcon(fileType) : FileQuestionIcon, [attachment, fileType]);
     return (
         <ThemedView className="w-full flex flex-col items-start gap-3">
-            <ThemedView className="bg-surface-400 flex size-10 items-center justify-center rounded-md p-1">
+            <ThemedView className="bg-muted flex size-10 items-center justify-center rounded-md p-1">
                 <Icon className="text-foreground" />
             </ThemedView>
             <ThemedText className="break-all text-base font-medium w-full">

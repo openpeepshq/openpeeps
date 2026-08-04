@@ -117,7 +117,7 @@ export const CreateNewConversation = ({
             </DialogHeader>
 
             <textarea
-              className="bg-surface-100 min-h-32 w-full rounded-lg border p-3 text-sm outline-none"
+              className="bg-muted min-h-32 w-full rounded-lg border p-3 text-sm outline-none"
               placeholder={t('conversations.createNew.messagePlaceholder', {
                 defaultValue: 'Write a message…',
               })}

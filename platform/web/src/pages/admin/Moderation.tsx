@@ -79,7 +79,7 @@ function SummaryTab({ reports }: { reports: ReportWithMeta[] }) {
           <li key={profile.id}>
             <Link
               to={`/admin/moderation/reports/@${profile.handle}`}
-              className="hover:bg-surface-100 flex items-center justify-between rounded-md border p-3"
+              className="hover:bg-muted flex items-center justify-between rounded-md border p-3"
             >
               <div className="flex items-center gap-3">
                 <Avatar profile={profile} size={2} />

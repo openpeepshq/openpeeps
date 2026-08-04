@@ -29,7 +29,7 @@ const colorMap = {
   },
   error: { bg: 'bg-error', text: 'text-error', fg: 'text-error-foreground' },
   surface: {
-    bg: 'bg-surface-100',
+    bg: 'bg-muted',
     text: 'text-foreground',
     fg: 'text-foreground',
   },
@@ -52,7 +52,7 @@ export function variantClasses(variant?: Variant): string {
 
   switch (kind) {
     case 'filled':
-      return cn(c.bg, c.fg, 'hover:opacity-90');
+      return cn(c.bg, c.fg, color === 'primary' && 'shadow', 'hover:opacity-90');
     case 'soft':
       return cn(c.bg, c.fg, 'opacity-90 hover:opacity-100');
     case 'ghost':

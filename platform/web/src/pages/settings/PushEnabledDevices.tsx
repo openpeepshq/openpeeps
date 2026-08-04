@@ -92,7 +92,7 @@ export function PushEnabledDevices() {
               return (
                 <li
                   key={subscription.id}
-                  className="hover:bg-surface-100 flex items-center justify-between p-4 transition-colors"
+                  className="hover:bg-muted flex items-center justify-between p-4 transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <div className="text-muted-foreground">

@@ -32,7 +32,9 @@ export function JoinGroupButton({ group, onJoined }: JoinGroupButtonProps) {
 
   return (
     <Button
-      variant="variant-ringed-primary"
+      variant="variant-ghost-primary"
+      compact
+      className="border-border bg-background text-foreground hover:bg-muted border shadow-sm"
       title={t('groups.join.submit', { defaultValue: 'Join group' })}
       action={async () => {
         await joinGroup(undefined);
