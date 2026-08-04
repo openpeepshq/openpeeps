@@ -93,7 +93,8 @@ export const refreshConfig = (namespace = 'openpeeps', name = 'core') => {
   configPromises.set(configKey(namespace, name), initConfig(namespace, name));
 };
 
-export const updateConfig = (
+/** Full-document write. Prefer `updateConfigValues` for patches. */
+const replaceStoredConfig = (
   config: unknown,
   namespace = 'openpeeps',
   name = 'core',
@@ -104,13 +105,18 @@ export const updateConfig = (
     .then(() => refreshConfig(namespace, name))
     .then(() => hub.emit('configUpdated', namespace, name));
 
+/**
+ * Merge a sparse patch into the stored config overrides.
+ * Callers must use this (not a full replace) so unrelated keys survive —
+ * admin UI forms and pin/unpin all send partial trees.
+ */
 export const updateConfigValues = (
   configValues: unknown,
   namespace = 'openpeeps',
   name = 'core',
 ) =>
   loadConfig(configKey(namespace, name)).then((configDocument) =>
-    updateConfig(
+    replaceStoredConfig(
       deepmerge(configDocument?.config ?? {}, configValues),
       namespace,
       name,
