@@ -135,7 +135,9 @@ For a production-style build use the workspace `Dockerfile`, which:
 
 Production checklist (ops/DX):
 
-- Set `JWT_SECRET` (required; shared across replicas).
+- Set `JWT_SECRET` (required; shared across replicas). Mint with
+  `node scripts/create-jwt-secret.mjs` or `opc secrets create-jwt-secret`
+  (the opc path does not load core config, so it works before the secret exists).
 - Set `SERVER_HOST` (and `CORS_ORIGINS` if the SPA is on another origin).
 - Enable LiveKit only by setting `JAMS_LIVEKIT_URL` + API key/secret.
 - Put edge rate limits (Traefik/CDN) on auth routes and anonymous public GETs.
