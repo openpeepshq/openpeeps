@@ -1,9 +1,30 @@
 import { PackageJson } from 'type-fest';
 import fs from 'node:fs';
 import path from 'node:path';
+import { logger } from '../log';
+
+const log = logger('core:plugins');
+
+const isPluginEnabled = (info: PackageJson) =>
+  (info as PackageJson & { openpeeps?: { enabled?: boolean } }).openpeeps
+    ?.enabled !== false;
 
 export const sortByDependencies = (pluginInfos: [string, PackageJson][]) => {
   const pluginKeys = pluginInfos.map(([key]) => key);
+  const packageNameToKey = new Map<string, string>(
+    pluginInfos
+      .filter(([, info]) => typeof info.name === 'string')
+      .map(([key, info]) => [info.name as string, key]),
+  );
+
+  const resolvePluginDependencyKey = (
+    dependencyKey: string,
+  ): string | undefined => {
+    if (pluginKeys.includes(dependencyKey)) {
+      return dependencyKey;
+    }
+    return packageNameToKey.get(dependencyKey);
+  };
 
   let addedPluginInfos: [string, PackageJson][] = [];
   let pluginInfosToAdd = pluginInfos;
@@ -15,16 +36,18 @@ export const sortByDependencies = (pluginInfos: [string, PackageJson][]) => {
     }
 
     const addablePluginInfos = pluginInfosToAdd.filter(([, info]) =>
-      Object.keys(info.dependencies || {}).every(
-        (dependencyKey) =>
-          addedPluginKeys.includes(dependencyKey) ||
-          !pluginKeys.includes(dependencyKey),
-      ),
+      Object.keys(info.dependencies || {}).every((dependencyKey) => {
+        const pluginDependencyKey = resolvePluginDependencyKey(dependencyKey);
+        return (
+          pluginDependencyKey === undefined ||
+          addedPluginKeys.includes(pluginDependencyKey)
+        );
+      }),
     );
 
     if (addablePluginInfos.length === 0) {
-      console.error(
-        `The following plugins could not be added: ${pluginInfosToAdd
+      log.error(
+        `Dependency cycle or unresolved dependency detected. The following plugins could not be loaded: ${pluginInfosToAdd
           .map(([key]) => key)
           .join(', ')}`,
       );
@@ -57,7 +80,14 @@ const enumeratePluginsForNamespace = (
           'utf-8',
         ),
       ) as PackageJson;
-      return [key, info];
+      return [key, info] as [string, PackageJson];
+    })
+    .filter(([key, info]) => {
+      if (isPluginEnabled(info)) {
+        return true;
+      }
+      log.info(`Skipping disabled plugin ${key}.`);
+      return false;
     });
 };
 

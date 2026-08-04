@@ -40,6 +40,24 @@ export type CoreEvents = {
 
 export type CoreEventKey = keyof CoreEvents;
 
+// `satisfies Record<CoreEventKey, true>` guarantees at compile time that every
+// event key is present and that no unexpected keys can slip in.
+const validEventKeyMap = {
+  profileCreated: true,
+  postCreated: true,
+  jamRecordingCompleted: true,
+  followCreated: true,
+  notificationCreated: true,
+  reactionCreated: true,
+  entryCreated: true,
+  rsvpCreated: true,
+  postAnnounced: true,
+  configUpdated: true,
+  profileSettingsUpdated: true,
+} satisfies Record<CoreEventKey, true>;
+
+export const VALID_EVENT_KEYS = Object.keys(validEventKeyMap) as CoreEventKey[];
+
 let connectionPromise: Promise<RedisClientType> | undefined = undefined;
 const publishConnection = async () => {
   if (connectionPromise) {

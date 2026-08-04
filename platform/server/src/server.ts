@@ -8,6 +8,7 @@ import express from 'express';
 import { api, expressAdapter } from '@riddl/core';
 import { logger } from '@openpeeps/core/log';
 import { mediaStorage } from '@openpeeps/core/media';
+import { defaultConfig } from '@openpeeps/core/config';
 import { initializeServer } from '#lib/init';
 import { corsMiddleware } from './lib/cors';
 import { installDbBrowserProxy } from './lib/dbBrowserProxy';
@@ -16,6 +17,7 @@ import { installS3Endpoint } from './lib/s3';
 import { installStreamingEndpoint } from './lib/streaming';
 import { installPwaEndpoint } from './lib/pwa';
 import { sendSpaHtml } from './lib/spaHtml';
+import { buildPluginRouters, pluginAssetsMiddleware } from './lib/plugins';
 
 const log = logger('server');
 const requestLog = logger('server:request');
@@ -57,6 +59,10 @@ const isDbBrowserRequest = (originalUrl: string): boolean =>
 
 const startServer = async () => {
   await initializeServer();
+
+  const {
+    plugins: { path: pluginsPath },
+  } = defaultConfig;
 
   const app = express();
 
@@ -135,6 +141,25 @@ const startServer = async () => {
     }
   });
 
+  // Plugin-provided API routes are raw Express routers mounted before Riddl so
+  // plugin namespaces win over the generic `/api/*` catch-all. They bypass
+  // Riddl's auth/error-handling pipeline, so plugin authors must implement their
+  // own authentication and capability checks. See docs/PLUGINS.md §3.
+  //
+  // Body parsers have to be applied here because Riddl's pipeline is not
+  // invoked for these paths; without it `req.body` is undefined in plugin POST
+  // handlers.
+  app.use('/api/openpeeps/core/v1/plugins', express.json());
+  app.use(
+    '/api/openpeeps/core/v1/plugins',
+    express.urlencoded({ extended: true }),
+  );
+
+  const pluginRouters = await buildPluginRouters();
+  for (const [pluginKey, router] of Object.entries(pluginRouters)) {
+    app.use(`/api/openpeeps/core/v1/plugins/${pluginKey}`, router);
+  }
+
   // Mount Riddl at root, but only delegate `/api/*` requests to it so that
   // non-API URLs fall through to the SPA fallback below. Route-folder layout:
   // `src/api/openpeeps/...` → `/api/openpeeps/...`, `src/api/pwa/...` →
@@ -168,6 +193,15 @@ const startServer = async () => {
   // Community favicons, PWA manifest, and install icons (`/pwa/*`, `/favicon.ico`).
   // Must be registered before the SPA catch-all so browsers don't receive HTML.
   installPwaEndpoint(app);
+
+  // Serve plugin frontend assets (`/plugin-assets/<namespace>/<name>/...`).
+  // Plugins ship their own UI bundles and reference them in their manifest.
+  // Note: Express 5 / path-to-regexp v8 doesn't support `*` splats in the middle
+  // of a pattern, so we use a regex matcher here.
+  app.use(
+    /^\/plugin-assets\/[^/]+\/[^/]+\/(.*)/,
+    pluginAssetsMiddleware(pluginsPath),
+  );
 
   // Serve locally-stored media at `/storage/<bucket>/<id>/<filename>`
   // (matches `mediaStorage().getPath` in `@openpeeps/core/media/openpeeps`).

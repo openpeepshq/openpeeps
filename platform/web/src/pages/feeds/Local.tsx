@@ -4,6 +4,7 @@ import {
   useDefaultVisibility,
   useNewNotePlusButton,
   useServerInfo,
+  PluginSlot,
 } from '@openpeeps/react/components';
 
 export function FeedsLocal() {
@@ -25,6 +26,7 @@ export function FeedsLocal() {
 
   return (
     <div className="space-y-4 p-4">
+      <PluginSlot name="plugins.header" className="mb-6" />
       <Feed query={query} pinnedPostId={pinnedPostId ?? undefined} />
     </div>
   );

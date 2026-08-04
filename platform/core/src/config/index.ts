@@ -33,6 +33,9 @@ const configSchemaRegistry = new Map<string, ConfigSchema<unknown>>();
 
 const configKey = (namespace: string, name: string) => `${namespace}-${name}`;
 
+export const hasConfigSchema = (namespace: string, name: string) =>
+  configSchemaRegistry.has(configKey(namespace, name));
+
 export const registerConfigSchema = <T>(
   namespace: string,
   name: string,

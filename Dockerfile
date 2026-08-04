@@ -39,6 +39,7 @@ RUN pnpm \
     --filter "@openpeeps/server..." \
     --filter "@openpeeps/worker..." \
     --filter "@openpeeps/web..." \
+    --filter "*plugins*" \
     install --frozen-lockfile
 
 # Build the dependency closure in topological order. `pnpm -r` walks the
@@ -48,6 +49,7 @@ RUN pnpm -r \
     --filter "@openpeeps/server..." \
     --filter "@openpeeps/worker..." \
     --filter "@openpeeps/web..." \
+    --filter "*plugins*" \
     build
 
 #─────────────────────────────────────────────────────────────────────────────
@@ -88,6 +90,12 @@ ENV DEBUG_COLORS=false DEBUG_HIDE_DATE=true DEBUG_DEPTH=20
 # `start.sh` honours this when launching the `web` command.
 ENV WEB_DIST_PATH=/apat/platform/web/dist
 
+# Plugins are loaded from a volume-mounted directory at runtime, not baked into
+# the image. Operators control which plugins are active by mounting the desired
+# plugin tree to /apat/plugins. Keeping the mount inside /apat lets pnpm
+# workspace symlinks resolve exactly as they do on the build host.
+ENV PLUGINS_PATH=/apat/plugins
+
 WORKDIR /apat
 
 EXPOSE 8080
@@ -105,7 +113,7 @@ COPY --from=builder /apat /apat
 RUN ln -sf /apat/platform/cli/bin/opc.mjs /usr/local/bin/opc \
  && chmod +x /apat/platform/cli/bin/opc.mjs
 
-RUN mkdir -p /apat/.media && mkdir -p /apat/.logs
+RUN mkdir -p /apat/.media && mkdir -p /apat/.logs && mkdir -p /apat/plugins
 
 VOLUME /apat/.media
 VOLUME /apat/.logs
