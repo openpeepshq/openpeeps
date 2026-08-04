@@ -23,6 +23,8 @@ import type { i18n as I18nInstance } from 'i18next';
 import {
   OpenpeepsContextProvider,
   OpenpeepsThemeProvider,
+  PluginLoader,
+  PluginRegistryProvider,
   ProfileProvider,
   RootLayout,
   ServerDataProvider,
@@ -92,6 +94,7 @@ import { AdminModeration } from './pages/admin/Moderation';
 import { PaymentSuccess } from './pages/payment/Success';
 import { TestMarkdown } from './pages/test/Markdown';
 import { TestError } from './pages/test/Error';
+import { PluginsIndex } from './pages/plugins/Index';
 import { EditArticle } from './pages/articles/Edit';
 import { EditEvent } from './pages/events/Edit';
 import { EditGroup } from './pages/groups/Edit';
@@ -443,6 +446,11 @@ function AppShell() {
                       path="/test/error"
                       element={<MiscPages.TestError />}
                     />
+                    <Route
+                      element={<RequireAdminSection section="configuration" />}
+                    >
+                      <Route path="/plugins" element={<PluginsIndex />} />
+                    </Route>
 
                     {/* Feeds */}
                     <Route path="/feeds/local" element={<Feeds.Local />} />
@@ -781,9 +789,12 @@ export function App() {
             baseUrl={baseUrl}
           >
             <ServerData>
-              <ProfileProvider>
-                <AppShell />
-              </ProfileProvider>
+              <PluginRegistryProvider>
+                <PluginLoader />
+                <ProfileProvider>
+                  <AppShell />
+                </ProfileProvider>
+              </PluginRegistryProvider>
             </ServerData>
           </OpenpeepsProvider>
         </I18nBoot>

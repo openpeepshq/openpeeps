@@ -1,5 +1,11 @@
 import type { ComponentType } from 'react';
 import { ErrorComponent } from './ErrorComponent';
+import {
+  PluginRegistryProvider,
+  usePluginRegistry,
+} from './PluginRegistryProvider';
+import { PluginSlot } from './PluginSlot';
+import { PluginLoader } from './PluginLoader';
 
 const registry = new Map<string, ComponentType<Record<string, unknown>>>();
 
@@ -31,5 +37,12 @@ export const getComponent = <P extends Record<string, unknown>>(
   );
 };
 
-export { ErrorComponent };
+export {
+  ErrorComponent,
+  PluginLoader,
+  PluginRegistryProvider,
+  PluginSlot,
+  usePluginRegistry,
+};
 export type { ErrorComponentProps } from './ErrorComponent';
+export type { PluginSlotProps } from './PluginSlot';

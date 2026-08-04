@@ -16,7 +16,7 @@
     "lint": "prettier --check . && ESLINT_USE_FLAT_CONFIG=false eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "test": "vite-node src/lib/spaHtml.test.ts"
+    "test": "vitest run && vite-node src/lib/spaHtml.test.ts"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
@@ -53,6 +53,7 @@
     "@types/react-dom": "^19.0.0",
     "typescript": "^5.7.3",
     "vite": "^5.4.11",
-    "vite-node": "^5.3.0"
+    "vite-node": "^5.3.0",
+    "vitest": "^2.1.8"
   }
 }

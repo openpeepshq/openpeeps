@@ -2,6 +2,7 @@ packages:
   - "libraries/*"
   - "platform/*"
   - "examples/*"
+  - "plugins/*/*"
 
 linkWorkspacePackages: deep
 

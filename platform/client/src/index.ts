@@ -1,7 +1,4 @@
-import {
-  noPayloadEventSource,
-  fetchClient,
-} from '@openpeeps/fetch-client';
+import { noPayloadEventSource, fetchClient } from '@openpeeps/fetch-client';
 import type {
   ClientConfig,
   ClientConfigSource,
@@ -14,6 +11,7 @@ import { auth } from './endpoints/auth';
 import { conversations } from './endpoints/conversations';
 import { groups } from './endpoints/groups';
 import { posts } from './endpoints/posts';
+import { plugins } from './endpoints/plugins';
 import { server } from './endpoints/server';
 import { profiles } from './endpoints/profiles';
 import { sso } from './endpoints/sso';
@@ -38,8 +36,8 @@ const allPeepClientOptionsToClientConfig = (
   baseUrl: (options?.baseUrl ?? '') + '/api/openpeeps/core/v1',
   headers: options?.token
     ? {
-      Authorization: `Bearer ${options.token}`,
-    }
+        Authorization: `Bearer ${options.token}`,
+      }
     : undefined,
 });
 
@@ -66,6 +64,7 @@ export const openpeepsClient = (
     i18n: i18n(rawClient),
     jams: jams(rawClient, allPeepNoPayloadEventSource),
     mediaAttachment: media(rawClient, allPeepNoPayloadEventSource),
+    plugins: plugins(rawClient),
     posts: posts(rawClient),
     previewLink: previewLink(rawClient),
     profiles: profiles(rawClient),
@@ -80,5 +79,8 @@ export const openpeepsClient = (
   };
 };
 
-export type { OpenpeepsPayloadEndpoint, OpenpeepsNoPayloadEndpoint } from './types';
+export type {
+  OpenpeepsPayloadEndpoint,
+  OpenpeepsNoPayloadEndpoint,
+} from './types';
 export type OpenpeepsClient = ReturnType<typeof openpeepsClient>;

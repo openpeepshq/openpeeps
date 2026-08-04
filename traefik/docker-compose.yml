@@ -1,0 +1,87 @@
+# Production-style deployment stack using the Traefik reverse proxy.
+#
+# This compose file is intended to be copied/adapted by operators; the
+# hardcoded absolute paths below match the current demo deployment. Adjust
+# `context`, plugin volume source and `SERVICE_DOMAIN` for your environment.
+
+services:
+  openpeeps:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        - VERSION=feat-plugin-system
+        - ENVIRONMENT=production
+    image: openpeeps:latest
+    env_file:
+      - .env
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.openpeeps.rule=Host(`${SERVICE_DOMAIN}`)'
+      - 'traefik.http.routers.openpeeps.entrypoints=websecure'
+      - 'traefik.http.routers.openpeeps.tls=true'
+      - 'traefik.http.routers.openpeeps.tls.certresolver=${TRAEFIK_CERTRESOLVER:-autodns}'
+      - 'traefik.http.routers.openpeeps.service=openpeeps'
+      - 'traefik.http.services.openpeeps.loadbalancer.server.port=8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ../plugins:/apat/plugins
+    networks:
+      - traefik-public
+      - default
+
+  postgres:
+    image: postgres:16-alpine
+    env_file:
+      - .env
+    environment:
+      - 'POSTGRES_USER=${POSTGRES_USER?POSTGRES_USER is required}'
+      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD?POSTGRES_PASSWORD is required}'
+      - 'POSTGRES_DB=${POSTGRES_DB?POSTGRES_DB is required}'
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U openpeeps']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - default
+
+  redis:
+    image: redis:alpine
+    command:
+      - 'redis-server'
+      - '--appendonly'
+      - 'yes'
+      - '--appendfsync'
+      - 'no'
+      - '--no-appendfsync-on-rewrite'
+      - 'yes'
+      - '--notify-keyspace-events'
+      - 'KEA'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - default
+
+networks:
+  traefik-public:
+    external: true
+    name: ${TRAEFIK_NETWORK_NAME?TRAEFIK_NETWORK_NAME is required}
+
+volumes:
+  pg-data:
+  redis-data:

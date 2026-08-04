@@ -74,14 +74,15 @@ accompanied by a written outline of exactly what changed and why.**
 
 ## Repository layout
 
-- pnpm workspace monorepo. Packages live under `platform/*` and `libraries/*`.
+- pnpm workspace monorepo. Packages live under `platform/*`, `libraries/*`, and `plugins/*/*`.
 - `platform/common` — shared types and utilities (Zod schemas live here).
-- `platform/core` — backend logic: DB, notifications, email, jobs, roles.
+- `platform/core` — backend logic: DB, notifications, email, jobs, roles, plugin loader.
 - `platform/server` — API server (Riddl); add new API endpoints here.
 - `platform/web` — web client (React); add new UI here.
-- `platform/react`, `platform/react-native` — React/RN clients.
+- `platform/react` — React client (includes plugin registry). `platform/react-native` — React Native client.
 - `platform/worker` — BullMQ workers (email, media, notifications, events).
 - `platform/i18n` — locale files; user-facing strings go in `locales/en.json`.
+- `plugins/<namespace>/<name>` — plugin packages. See `docs/PLUGINS.md` for the contract.
 
 ## Run the app
 

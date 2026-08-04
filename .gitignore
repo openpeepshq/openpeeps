@@ -9,8 +9,8 @@ yarn-error.log
 
 .env.*
 !.env.dev.example
+!.env.example
 
-plugins/**
 /.pnpm-store/
 
 .DS_Store
@@ -22,3 +22,16 @@ platform/tests/.loadtest-results
 stuff
 .logs-test
 .media-test
+
+# Generated artifacts
+**/.logs
+libraries/ui/.svelte-kit/
+libraries/ui/dist/
+platform/app/.svelte-kit/
+platform/app/build/
+platform/app/.logs/
+platform/svelte/.svelte-kit/
+platform/svelte/dist/
+
+# Plugin build artifacts (keep plugin sources tracked)
+plugins/*/*/dist/

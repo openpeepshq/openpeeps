@@ -2162,5 +2162,12 @@
             "title": "Ihre E-Mail ist nicht verifiziert",
             "text": "Klicken Sie auf den Link in der E-Mail, die wir Ihnen gesendet haben, um Ihre E-Mail-Adresse zu verifizieren und vollständig an der Community teilzunehmen."
         }
+    },
+    "plugins": {
+        "pageTitle": "Plugins",
+        "noPlugins": "Keine Plugins geladen.",
+        "error": "Plugins konnten nicht geladen werden",
+        "errorBoundary": "Plugin-Fehler: Komponente konnte nicht gerendert werden.",
+        "configTitle": "Plugin-Konfiguration (sensible Werte sind maskiert)"
     }
 }
