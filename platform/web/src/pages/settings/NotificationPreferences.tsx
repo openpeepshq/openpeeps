@@ -237,18 +237,37 @@ export function NotificationPreferences() {
       const wantsPush = Object.values(settings.notifications ?? {}).some(
         (entry) => entry?.push,
       );
+      // Push device registration is best-effort — preference saves must not
+      // fail when the browser already has a push subscription for another key.
+      let pushWarning: string | undefined;
       if (wantsPush && vapidKey) {
-        await subscribePushNotifications({
-          client,
-          applicationServerKey: vapidKey,
-        });
+        try {
+          await subscribePushNotifications({
+            client,
+            applicationServerKey: vapidKey,
+          });
+        } catch (err) {
+          pushWarning =
+            err instanceof Error
+              ? err.message
+              : t('settings.notifications.pushSubscribeFailed', {
+                  defaultValue:
+                    'Could not enable push notifications on this device.',
+                });
+        }
       }
       await updateSettings(settings);
       setStatus({
         type: 'success',
-        message: t('settings.notifications.updateSuccess', {
-          defaultValue: 'Notification settings updated.',
-        }),
+        message: pushWarning
+          ? t('settings.notifications.updateSuccessPushFailed', {
+              defaultValue:
+                'Notification settings updated, but push on this device failed: {{detail}}',
+              detail: pushWarning,
+            })
+          : t('settings.notifications.updateSuccess', {
+              defaultValue: 'Notification settings updated.',
+            }),
       });
     } catch (err) {
       setStatus({ type: 'error', message: (err as Error).message });
