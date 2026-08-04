@@ -43,3 +43,22 @@ describe('resolveJwtSecret', () => {
     expect(() => resolveJwtSecret()).toThrow(/JWT_SECRET is required/);
   });
 });
+
+describe('defaultConfig.secrets.jwt', () => {
+  it('imports without JWT_SECRET in production (lazy)', async () => {
+    delete process.env.JWT_SECRET;
+    process.env.NODE_ENV = 'production';
+    delete process.env.ENVIRONMENT;
+    const { defaultConfig } = await import('./defaults/core');
+    expect(defaultConfig.secrets).toBeDefined();
+    expect(() => defaultConfig.secrets.jwt).toThrow(/JWT_SECRET is required/);
+  });
+
+  it('reads JWT_SECRET when accessed', async () => {
+    process.env.JWT_SECRET = 'fixed-secret';
+    delete process.env.NODE_ENV;
+    delete process.env.ENVIRONMENT;
+    const { defaultConfig } = await import('./defaults/core');
+    expect(defaultConfig.secrets.jwt).toBe('fixed-secret');
+  });
+});

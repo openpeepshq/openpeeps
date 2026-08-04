@@ -56,7 +56,11 @@ export const defaultConfig: CoreConfig = {
     path: path.resolve(process.env.PLUGINS_PATH || '../plugins'),
   },
   secrets: {
-    jwt: resolveJwtSecret(),
+    // Lazy: importing this module (e.g. `opc secrets create-jwt-secret`) must
+    // not require JWT_SECRET already — production still fails on first read.
+    get jwt() {
+      return resolveJwtSecret();
+    },
   },
   jams: {
     livekit: {
