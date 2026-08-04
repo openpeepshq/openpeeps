@@ -11,6 +11,9 @@ overrides:
   "@tanstack/react-query": "5.90.16"
   react: "19.2.6"
   react-dom: "19.2.6"
+  # icon-set-creator pins sharp@0.30.7; its prebuild often times out in CI and
+  # then node-gyp fails (no make). Force the same sharp used by core/server.
+  sharp: "0.33.5"
 
 allowBuilds:
   "@evilmartians/lefthook": true

@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
-import { Base64 } from 'js-base64';
 import type { OpenpeepsClient } from '@openpeeps/client';
 import type { PushSubscriptionData } from '@openpeeps/common';
+import { subscriptionKeyMatches, vapidKeyBytes } from './vapid';
 
 const isPushSupported = () =>
   typeof window !== 'undefined' &&
@@ -27,17 +27,46 @@ const getRegistration = async (): Promise<
 const keyMatches = (
   subscription: PushSubscription,
   applicationServerKey: string,
-): boolean => {
-  const key = subscription.options.applicationServerKey;
-  if (!key) return false;
-  return (
-    Base64.fromUint8Array(new Uint8Array(key), true) === applicationServerKey
+): boolean =>
+  subscriptionKeyMatches(
+    subscription.options.applicationServerKey,
+    applicationServerKey,
+  );
+
+const isApplicationServerKeyConflict = (err: unknown): boolean => {
+  const message = err instanceof Error ? err.message : String(err);
+  return /applicationServerKey|gcm_sender_id/i.test(message);
+};
+
+/**
+ * Drop push subscriptions that don't match the current VAPID key across every
+ * service-worker registration. Browsers keep at most one push subscription per
+ * registration, but a page can have several registrations — clearing only the
+ * current scope leaves subscribe() failing with applicationServerKey errors.
+ */
+const clearMismatchedPushSubscriptions = async (
+  applicationServerKey: string,
+): Promise<void> => {
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(
+    registrations.map(async (registration) => {
+      const sub = await registration.pushManager.getSubscription();
+      if (sub && !keyMatches(sub, applicationServerKey)) {
+        await sub.unsubscribe();
+      }
+    }),
   );
 };
 
-/** Copy into a tight buffer — some browsers reject views into larger ArrayBuffers. */
-const vapidKeyBytes = (applicationServerKey: string): Uint8Array =>
-  new Uint8Array(Base64.toUint8Array(applicationServerKey));
+const clearAllPushSubscriptions = async (): Promise<void> => {
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(
+    registrations.map(async (registration) => {
+      const sub = await registration.pushManager.getSubscription();
+      if (sub) await sub.unsubscribe();
+    }),
+  );
+};
 
 const registerWithServer = async (
   client: OpenpeepsClient,
@@ -49,6 +78,23 @@ const registerWithServer = async (
       type: 'web',
     } as PushSubscriptionData)
     .then(handleResult);
+};
+
+const subscribeOnRegistration = async (
+  registration: ServiceWorkerRegistration,
+  applicationServerKey: string,
+): Promise<PushSubscription> => {
+  const existing = await registration.pushManager.getSubscription();
+  if (existing && keyMatches(existing, applicationServerKey)) {
+    return existing;
+  }
+  if (existing) {
+    await existing.unsubscribe();
+  }
+  return registration.pushManager.subscribe({
+    applicationServerKey: vapidKeyBytes(applicationServerKey) as BufferSource,
+    userVisibleOnly: true,
+  });
 };
 
 export interface PushSubscriptionOptions {
@@ -73,31 +119,40 @@ export const subscribePushNotifications = async ({
   const registration = await getRegistration();
   if (!registration) return undefined;
 
-  const existing = await registration.pushManager.getSubscription();
-  if (existing) {
-    if (keyMatches(existing, applicationServerKey)) {
-      await registerWithServer(client, existing);
-      return existing;
-    }
-    // Browsers reject subscribe() when a subscription exists for another key.
-    await existing.unsubscribe();
+  await clearMismatchedPushSubscriptions(applicationServerKey);
+
+  let subscription: PushSubscription;
+  try {
+    subscription = await subscribeOnRegistration(
+      registration,
+      applicationServerKey,
+    );
+  } catch (err) {
+    if (!isApplicationServerKeyConflict(err)) throw err;
+    // Last resort: wipe every SW push subscription and retry once.
+    await clearAllPushSubscriptions();
+    subscription = await registration.pushManager.subscribe({
+      applicationServerKey: vapidKeyBytes(applicationServerKey) as BufferSource,
+      userVisibleOnly: true,
+    });
   }
 
-  const subscription = await registration.pushManager.subscribe({
-    applicationServerKey: vapidKeyBytes(applicationServerKey),
-    userVisibleOnly: true,
-  });
   await registerWithServer(client, subscription);
   return subscription;
 };
 
 export const unsubscribePushNotifications = async (): Promise<boolean> => {
   if (!isPushSupported()) return false;
-  const registration = await getRegistration();
-  if (!registration) return false;
-  const sub = await registration.pushManager.getSubscription();
-  if (!sub) return false;
-  return sub.unsubscribe();
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  if (registrations.length === 0) return false;
+  const results = await Promise.all(
+    registrations.map(async (registration) => {
+      const sub = await registration.pushManager.getSubscription();
+      if (!sub) return false;
+      return sub.unsubscribe();
+    }),
+  );
+  return results.some(Boolean);
 };
 
 export const getPushSubscription =
