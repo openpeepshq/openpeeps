@@ -60,8 +60,9 @@ export const defaultConfig: CoreConfig = {
   },
   jams: {
     livekit: {
-      // Empty unless set — jams stay disabled until URL + keys are explicit.
-      url: process.env.JAMS_LIVEKIT_URL || '',
+      // Shared test SFU when unset; jams still need API key/secret to enable.
+      url:
+        process.env.JAMS_LIVEKIT_URL || 'https://livekit.test.allpeep.cloud',
       apiKey: process.env.JAMS_LIVEKIT_API_KEY,
       apiSecret: process.env.JAMS_LIVEKIT_API_SECRET,
       recordingEnabled: process.env.JAMS_LIVEKIT_RECORDING_ENABLED === 'true',
