@@ -1,6 +1,9 @@
 .media
+**/.media
 .home
+**/.home
 .pnpm-store
+.git
 
 node_modules
 
@@ -11,12 +14,17 @@ node_modules
 **/build
 **/*.tsbuildinfo
 
-# Test reports / coverage
+# Local runtime artifacts
+**/.logs
 **/coverage
 **/test-results
 **/playwright-report
+**/.loadtest-results
 
 # Editor / OS noise
 .vscode
 .idea
 .DS_Store
+
+# Local scratch / large backups (never needed in images)
+stuff

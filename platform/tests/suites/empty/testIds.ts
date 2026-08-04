@@ -10,6 +10,12 @@ export const testIds = {
     registerSubmit: 'auth-register-submit',
     loginEmail: 'auth-login-email',
     loginPassword: 'auth-login-password',
+    requestResetHeading: 'auth-request-reset-heading',
+    requestResetEmail: 'auth-request-reset-email',
+    requestResetSubmit: 'auth-request-reset-submit',
+  },
+  welcome: {
+    verifyEmail: 'welcome-checklist-verify-email',
   },
   feeds: {
     communityHeading: 'feeds-community-heading',

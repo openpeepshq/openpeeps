@@ -17,7 +17,7 @@ export default {
   eventHandler: async (data: unknown) => {
     const profile = data as Profile;
     for (const recipientProfile of await listProfilesWithCapabilities([
-      'allpeep-core-member-management',
+      'core-profiles-roles-update',
     ])) {
       await maybeCreateNotification(recipientProfile, {
         type: 'newProfile',
