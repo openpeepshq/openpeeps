@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **auth**: allow capability-scoped register when sign-ups are closed
 - **react-native**: enhance unread message and post tracking features
 - **core**: add SERVER_MAX_PROFILES cap for non-deleted profiles
 - **web**: responsive unread indicators and push notification badge sync
@@ -12,6 +13,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **posts**: load and anonymize deleted authors so DMs open
 - **admin**: add role-gated endpoint for deleting groups
 - **framework**: update privacy policy text
 - **core**: omit empty strings from stored config overrides
@@ -45,6 +47,7 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- update .env.dev.example and documentation for improved configuration clarity
 - point repository URLs at code.openpeeps.org
 
 ## 2026-07-23
