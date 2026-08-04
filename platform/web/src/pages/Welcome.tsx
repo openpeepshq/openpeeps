@@ -140,6 +140,7 @@ export function Welcome() {
         {items.map((item) => (
           <div
             key={item.key}
+            data-testid={`welcome-checklist-${item.key}`}
             className="mb-2 flex w-full cursor-pointer flex-row items-center justify-between rounded-md px-1 py-2"
             onClick={() => {
               if (item.action) item.action();

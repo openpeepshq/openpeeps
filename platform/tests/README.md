@@ -130,9 +130,14 @@ account (community owner) before tests run.
 
 #### Email & push plumbing
 
+See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
+
 | Flow | Depth | Where |
 |------|-------|-------|
 | Admin diagnostics test email delivered | API + Mailpit | `email-push/` |
+| Welcome / validate / reset / RSVP confirmation | API + Mailpit | `email-push/` |
+| Notification emails (follow, reply, mention, DM, announce, groups, …) | API + Mailpit | `email-push/` |
+| UI signup / forgot-password / resend validation | UI + Mailpit | `email-push/` |
 | Webhook push subscription + test push received | API + Webhook | `email-push/` |
 
 #### Posts

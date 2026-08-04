@@ -58,7 +58,7 @@ export function RequestResetPassword() {
           void handleSubmit();
         }}
       >
-        <h2 className="text-xl">
+        <h2 className="text-xl" data-testid="auth-request-reset-heading">
           {t('auth.requestResetPassword.heading', {
             defaultValue: 'Request Password Reset',
           })}
@@ -72,6 +72,7 @@ export function RequestResetPassword() {
         >
           <Input
             type="email"
+            data-testid="auth-request-reset-email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -99,6 +100,7 @@ export function RequestResetPassword() {
           action={handleSubmit}
           variant="variant-filled-primary"
           className="w-full"
+          data-testid="auth-request-reset-submit"
         >
           {t('auth.requestResetPassword.proceed', { defaultValue: 'Proceed' })}
         </Button>

@@ -43,6 +43,8 @@ services:
 
   redis:
     image: redis:alpine
+    # Match CI: ephemeral cache/queue; avoid MISCONF when disk is tight.
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
 
   mailpit:
     image: axllent/mailpit:v1.21

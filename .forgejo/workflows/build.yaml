@@ -189,6 +189,9 @@ jobs:
           POSTGRES_DB: openpeeps
       redis:
         image: redis:alpine
+        # Ephemeral CI cache/queue: skip RDB so a full runner disk cannot
+        # trip stop-writes-on-bgsave-error and break session/SSO writes.
+        cmd: ["redis-server", "--save", "", "--appendonly", "no"]
       mailpit:
         image: axllent/mailpit:v1.21
         env:
@@ -315,6 +318,9 @@ jobs:
           POSTGRES_DB: openpeeps
       redis:
         image: redis:alpine
+        # Ephemeral CI cache/queue: skip RDB so a full runner disk cannot
+        # trip stop-writes-on-bgsave-error and break session/SSO writes.
+        cmd: ["redis-server", "--save", "", "--appendonly", "no"]
       mailpit:
         image: axllent/mailpit:v1.21
         env:

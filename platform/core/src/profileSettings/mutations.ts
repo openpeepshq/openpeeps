@@ -1,6 +1,7 @@
 import { ProfileSettingsData } from '@openpeeps/common/types';
 import { conflict } from '../errors';
 import { allpeepDb } from '../db';
+import { hub } from '../events';
 import { profileSettingsMapping } from './mapping';
 import { findProfileSettings } from './finders';
 import { profileSettingsCache } from './cache';
@@ -31,5 +32,6 @@ export const updateProfileSettings = async (
     profileSettingsData,
   );
   await profileSettingsCache.del(id);
+  await hub.emit('profileSettingsUpdated', id);
   return updatedSettings;
 };

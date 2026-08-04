@@ -283,3 +283,104 @@ export const validateEmailToken = async (
   await assertOk(response, 'validateEmail');
   return response.json() as Promise<{ success: boolean }>;
 };
+
+export const getProfileSettings = async (
+  request: APIRequestContext,
+  token: string,
+) => {
+  const response = await request.get(
+    '/api/openpeeps/core/v1/profiles/current/settings',
+    { headers: apiHeaders(token) },
+  );
+  await assertOk(response, 'getProfileSettings');
+  return response.json() as Promise<{
+    id: string;
+    notifications?: Record<
+      string,
+      { create: boolean; push: boolean; email: boolean }
+    >;
+  }>;
+};
+
+/** Merge notification channel prefs (used to opt into email-off-by-default types). */
+export const enableEmailNotifications = async (
+  request: APIRequestContext,
+  token: string,
+  types: string[],
+) => {
+  const settings = await getProfileSettings(request, token);
+  const notifications = { ...(settings.notifications ?? {}) };
+  for (const type of types) {
+    notifications[type] = { create: true, push: true, email: true };
+  }
+  const response = await request.put(
+    '/api/openpeeps/core/v1/profiles/current/settings',
+    {
+      headers: apiHeaders(token),
+      data: { ...settings, notifications },
+    },
+  );
+  await assertOk(response, 'enableEmailNotifications');
+  return response.json();
+};
+
+export const announcePost = async (
+  request: APIRequestContext,
+  token: string,
+  postId: string,
+) => {
+  const response = await request.post(
+    `/api/openpeeps/core/v1/admin/posts/${postId}/announce`,
+    {
+      headers: apiHeaders(token),
+      data: {},
+    },
+  );
+  await assertOk(response, 'announcePost');
+};
+
+export const getPublicProfile = async (
+  request: APIRequestContext,
+  token: string,
+  profileId: string,
+) => {
+  const response = await request.get(
+    `/api/openpeeps/core/v1/profiles/${profileId}`,
+    { headers: apiHeaders(token) },
+  );
+  await assertOk(response, 'getPublicProfile');
+  return response.json();
+};
+
+/** Admin-add: body is a public profile (not just an id). */
+export const addGroupMember = async (
+  request: APIRequestContext,
+  token: string,
+  groupId: string,
+  profile: unknown,
+) => {
+  const response = await request.post(
+    `/api/openpeeps/core/v1/groups/${groupId}/members`,
+    {
+      headers: apiHeaders(token),
+      data: profile,
+    },
+  );
+  await assertOk(response, 'addGroupMember');
+};
+
+export const repostNote = async (
+  request: APIRequestContext,
+  token: string,
+  postId: string,
+) => {
+  const response = await request.post(
+    `/api/openpeeps/core/v1/posts/${postId}/reposts`,
+    {
+      headers: apiHeaders(token),
+      data: {},
+    },
+  );
+  await assertOk(response, 'repostNote');
+  return response.json() as Promise<{ id: string }>;
+};

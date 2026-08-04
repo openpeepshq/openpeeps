@@ -77,14 +77,23 @@ export const waitForMailpitMessage = async (
   );
 };
 
+/** Full HTML + text body for content assertions. */
+export const getMailpitBody = async (
+  id: string,
+): Promise<{ html: string; text: string; combined: string }> => {
+  const detail = await getMailpitMessage(id);
+  const html = detail.HTML ?? '';
+  const text = detail.Text ?? '';
+  return { html, text, combined: `${html}\n${text}` };
+};
+
 /** Extract first matching capture group from Mailpit HTML/text body. */
 export const extractFromMailpitMessage = async (
   id: string,
   pattern: RegExp,
 ): Promise<string> => {
-  const detail = await getMailpitMessage(id);
-  const haystack = `${detail.HTML ?? ''}\n${detail.Text ?? ''}`;
-  const match = haystack.match(pattern);
+  const { combined } = await getMailpitBody(id);
+  const match = combined.match(pattern);
   if (!match?.[1]) {
     throw new Error(`Pattern ${pattern} not found in Mailpit message ${id}`);
   }
