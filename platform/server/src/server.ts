@@ -15,6 +15,7 @@ import { installBackupsEndpoint } from './lib/backups';
 import { installS3Endpoint } from './lib/s3';
 import { installStreamingEndpoint } from './lib/streaming';
 import { installPwaEndpoint } from './lib/pwa';
+import { sendSpaHtml } from './lib/spaHtml';
 
 const log = logger('server');
 const requestLog = logger('server:request');
@@ -214,7 +215,8 @@ const startServer = async () => {
       if (isApiRequest(req.originalUrl)) return next();
       if (isDbBrowserRequest(req.originalUrl)) return next();
       if (req.method !== 'GET') return next();
-      res.sendFile(indexHtml);
+      // Render Mustache placeholders in index.html (community name, OG tags).
+      void sendSpaHtml(indexHtml, req, res);
     });
   } else {
     log.warn(

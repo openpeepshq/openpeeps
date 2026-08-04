@@ -29,6 +29,25 @@ export default defineConfig({
   plugins: [
     react(),
     openpeepsDocsPlugin(path.resolve(__dirname, 'docs')),
+    // `index.html` is a Mustache template rendered by the API server in
+    // production. Fill placeholders only during `vite serve` so local UI
+    // work doesn't flash `{{name}}` in the tab title.
+    {
+      name: 'spa-mustache-dev-defaults',
+      transformIndexHtml: {
+        order: 'pre',
+        handler(html, ctx) {
+          if (!ctx.server) return html;
+          return html
+            .replaceAll('{{name}}', 'OpenPeeps')
+            .replaceAll('{{description}}', 'OpenPeeps community')
+            .replaceAll('{{themeColor}}', '#0f172a')
+            .replaceAll('{{pageUrl}}', '/')
+            .replaceAll('{{path}}', '/')
+            .replace(/\{\{#imageUrl\}\}[\s\S]*?\{\{\/imageUrl\}\}/g, '');
+        },
+      },
+    },
     // `openpeepsPwaPluginConfig` returns the right `VitePWA(...)` options to
     // wire in the shared `@openpeeps/react/service-worker.ts`.
     VitePWA(
