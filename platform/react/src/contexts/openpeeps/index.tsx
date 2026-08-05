@@ -22,6 +22,7 @@ import { CredentialsStoreProvider } from '../credentialsStore';
 
 export { useHasAuthToken } from './hooks/useHasAuthToken';
 import {
+  isServiceOnlyJwt,
   jwtHasRemainingValidityAtLeast,
   type ProfileWithMeta,
   type PublicAccount,
@@ -131,6 +132,12 @@ export const OpenpeepsProvider: React.FC<{
         setCurrentProfile(undefined);
         return;
       }
+      // Service-only JWTs (jam observer links) have no profile — skip the fetch
+      // so a 403 does not clear credentials and bounce to login.
+      if (isServiceOnlyJwt(cred.token)) {
+        setCurrentProfile(undefined);
+        return;
+      }
       const res = await client.profiles.current.read();
       if (!('data' in res)) {
         if (isAuthFailure(res.error)) {
@@ -175,6 +182,13 @@ export const OpenpeepsProvider: React.FC<{
     const refreshIfExpiringSoon = async () => {
       const token = (await credentialsStore.get())?.token;
       if (!token?.trim()) return;
+      // Observer/egress service JWTs are not refreshed via /auth/refresh.
+      if (isServiceOnlyJwt(token)) {
+        if (!jwtHasRemainingValidityAtLeast(token, 1)) {
+          await endSession();
+        }
+        return;
+      }
       if (!jwtHasRemainingValidityAtLeast(token, 1)) {
         await endSession();
         return;
