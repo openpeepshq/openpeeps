@@ -1162,8 +1162,6 @@
                 "transport": "SMTP-Transport"
             },
             "fields": {
-                "renderHostBaseUrl": "Basis-URL des Render-Hosts",
-                "renderHostBaseUrlDescription": "Optional. Basis-URL für die Darstellung von E-Mail-HTML (Links und Assets).",
                 "service": "E-Mail-Dienst",
                 "defaultTemplatePath": "Standard-Vorlagenpfad",
                 "defaultTemplatePathDescription": "Dateisystempfad zu E-Mail-Vorlagen, relativ zum Server.",

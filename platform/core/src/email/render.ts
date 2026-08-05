@@ -7,8 +7,7 @@ import { initI18nEmailContext } from '../i18n';
 
 const globals = async (): Promise<EmailGlobals> => {
   const serverConfig = await config();
-  const rootUrl =
-    serverConfig.email.renderHostBaseUrl?.trim() || (await serverRootUrl());
+  const rootUrl = await serverRootUrl();
   return {
     communityConfig: await communityConfig(),
     serverData: {

@@ -55,7 +55,6 @@ export type StripePaymentConfig = z.infer<
 
 export const emailConfigSchemaFactory = (sanitize?: boolean) =>
   z.object({
-    renderHostBaseUrl: z.string().optional(),
     service: z.string(),
     defaultTemplatePath: z.string(),
     defaultFrom: z.string().optional(),
