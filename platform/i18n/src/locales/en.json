@@ -1937,6 +1937,11 @@
                     "cancel": "Cancel",
                     "header": "Remove this device?"
                 }
+            },
+            "bravePushWarning": {
+              "title": "Brave browser setting required",
+              "body": "Brave disables Google push messaging by default. Open {{settingsPath}} and enable \"{{settingName}}\", then try again.",
+              "learnMore": "Learn more about Brave push notifications"
             }
         },
         "form": {

@@ -8,6 +8,7 @@ import {
 } from '@openpeeps/common';
 import {
   getPushSubscription,
+  isBraveBrowser,
   subscribePushNotifications,
   usePushSubscription,
   useT,
@@ -150,6 +151,7 @@ function PushSettingsPanel() {
   const unavailableMessage = unavailable
     ? errorMessage(push.isSupported ? 'no-service-worker' : 'unsupported')
     : null;
+  const showBraveWarning = isBraveBrowser();
 
   return (
     <div className="mb-6 rounded-md border p-3">
@@ -171,6 +173,33 @@ function PushSettingsPanel() {
           <div className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"></div>
         </label>
       </div>
+      {showBraveWarning ? (
+        <div className="border-warning-500 bg-warning-50 dark:bg-warning-900/30 mt-3 rounded border p-3 text-sm">
+          <p className="font-medium">
+            {t('settings.notifications.bravePushWarning.title', {
+              defaultValue: 'Brave browser setting required',
+            })}
+          </p>
+          <p className="mt-1">
+            {t('settings.notifications.bravePushWarning.body', {
+              defaultValue:
+                'Brave disables Google push messaging by default. Open {{settingsPath}} and enable "{{settingName}}", then try again.',
+              settingsPath: 'brave://settings/privacy',
+              settingName: 'Use Google services for push messaging',
+            })}
+          </p>
+          <a
+            className="op-anchor mt-2 inline-block"
+            href="https://intercom.help/progressier/en/articles/6885624-i-can-t-receive-push-notifications-with-the-brave-browser"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('settings.notifications.bravePushWarning.learnMore', {
+              defaultValue: 'Learn more about Brave push notifications',
+            })}
+          </a>
+        </div>
+      ) : null}
       {unavailableMessage ? (
         <p className="text-muted-foreground mt-2 text-sm">
           {unavailableMessage}

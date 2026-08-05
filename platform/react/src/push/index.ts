@@ -9,6 +9,10 @@ const isPushSupported = () =>
   'serviceWorker' in navigator &&
   'PushManager' in window;
 
+/** Brave exposes `navigator.brave`; other Chromium browsers do not. */
+export const isBraveBrowser = (): boolean =>
+  typeof navigator !== 'undefined' && 'brave' in navigator;
+
 const handleResult = <T>(r: { data: T } | { error: unknown }): T => {
   if ('data' in r) return r.data;
   throw r.error;
