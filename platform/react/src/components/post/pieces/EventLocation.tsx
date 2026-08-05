@@ -1,6 +1,12 @@
-import { ExternalLink, Link as LinkIcon, MapPin, PhoneCall } from 'lucide-react';
+import {
+  ExternalLink,
+  Link as LinkIcon,
+  MapPin,
+  PhoneCall,
+} from 'lucide-react';
 import type { Event, PublicPost } from '@openpeeps/common/types';
 import { getJamUrl, truncateText } from '@openpeeps/common/lib';
+import { useStaticRender } from '../../markdown/staticRender';
 
 export interface EventLocationProps {
   post: PublicPost;
@@ -13,9 +19,14 @@ export function EventLocation({
   preview = true,
   truncate = false,
 }: EventLocationProps) {
+  const { enabled: staticRender, baseUrl } = useStaticRender();
   if (post.data?.type !== 'event') return null;
   const event = post.data as Event;
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const origin = staticRender
+    ? baseUrl
+    : typeof window !== 'undefined'
+      ? window.location.origin
+      : undefined;
   const jamLink = getJamUrl(post.id, origin);
 
   if (preview) {
@@ -33,7 +44,12 @@ export function EventLocation({
         ) : event.jam ? (
           <>
             <PhoneCall className="h-4 w-4 shrink-0" />
-            <a href={jamLink} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+            <a
+              href={jamLink}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline"
+            >
               Jam Event
             </a>
           </>
@@ -68,18 +84,32 @@ export function EventLocation({
       </div>
       <div>
         {event.physicalLocation ? (
-          <p>{truncate ? truncateText(event.physicalLocation.text) : event.physicalLocation.text}</p>
+          <p>
+            {truncate
+              ? truncateText(event.physicalLocation.text)
+              : event.physicalLocation.text}
+          </p>
         ) : event.jam ? (
           <>
             <p>Jam Event</p>
-            <a href={jamLink} target="_blank" rel="noreferrer" className="text-primary mt-2 block text-sm">
+            <a
+              href={jamLink}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary mt-2 block text-sm"
+            >
               {truncateText(jamLink, 30)}
             </a>
           </>
         ) : event.url ? (
           <>
             <p>External Event</p>
-            <a href={event.url} target="_blank" rel="noreferrer" className="text-primary mt-2 block text-sm">
+            <a
+              href={event.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary mt-2 block text-sm"
+            >
               {truncateText(event.url, 40)}
             </a>
           </>

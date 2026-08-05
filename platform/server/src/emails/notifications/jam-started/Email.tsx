@@ -24,17 +24,19 @@ export const JamStartedEmail = ({
   locals: Locals;
 }) => {
   const { t } = globals.i18nContext;
+  const body = t('emails.jamStarted.body', {
+    profileName: profileName(locals.senderProfile),
+  });
 
   return (
     <BaseEmailLayout
       globals={globals}
-      previewText={t('emails.jamStarted.body', {
-        profileName: profileName(locals.senderProfile),
-      })}
+      previewText={body}
       showGreeting
       recipientProfile={locals.recipientProfile}
     >
       <Text style={emailStyles.heading}>{t('emails.jams.started')}</Text>
+      <Text style={emailStyles.paragraph}>{body}</Text>
       {locals.post ? (
         <EmailPostEmbed post={locals.post} globals={globals} />
       ) : null}
