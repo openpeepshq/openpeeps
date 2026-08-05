@@ -32,4 +32,4 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - livekit-client@2.19.2
-  - '@riddl/core@0.2.5'
+  - '@riddl/core@0.2.6'

@@ -101,6 +101,9 @@ const startServer = async () => {
           'API for the OpenPeeps Community Server (Express + @riddl/core).',
       },
     },
+    onInternalError: (error) => {
+      log.error(error);
+    },
   });
 
   // Note: authorization middleware is loaded by Riddl via `src/api/middleware.ts`
