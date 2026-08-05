@@ -102,7 +102,11 @@ const startServer = async () => {
       },
     },
     onInternalError: (error) => {
-      log.error(error);
+      if (error instanceof Error) {
+        log.error(error.message, error.stack);
+      } else {
+        log.error(error);
+      }
     },
   });
 
