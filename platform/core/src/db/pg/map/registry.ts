@@ -401,11 +401,13 @@ export const rowToDocument = (
   if (config.kind === 'edge') {
     const fromId = row.fromId as string;
     const toId = row.toId as string;
+    // Body fields first; row id / edge refs / timestamps always win so a
+    // stale body.id (from older inserts) cannot shadow the primary key.
     const base = {
+      ...((row.body ?? {}) as Record<string, unknown>),
       id: row.id as string,
       _from: docRef(config.fromCollection, fromId),
       _to: docRef(config.toCollection, toId),
-      ...((row.body ?? {}) as Record<string, unknown>),
       createdAt: timestamps.createdAt,
       updatedAt: timestamps.updatedAt,
     };

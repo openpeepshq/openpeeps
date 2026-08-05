@@ -52,13 +52,19 @@ export const insertEdge = async (
   toId: string,
   body: Record<string, unknown> = {},
 ) => {
-  const id = uuidv7();
+  // Callers (e.g. jam recordings) pass a pre-generated id on the body; use it
+  // as the row primary key and keep it out of jsonb so finds/updates match.
+  const { id: providedId, ...edgeBody } = body;
+  const id =
+    typeof providedId === 'string' && providedId.length > 0
+      ? providedId
+      : uuidv7();
   const ts = nowIso();
   await db.insert(table as never).values({
     id,
     fromId,
     toId,
-    body,
+    body: edgeBody,
     createdAt: ts,
     updatedAt: ts,
   } as never);

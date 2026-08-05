@@ -114,9 +114,11 @@ export const startRecording = async (
       status: 'requested',
     }),
   )) as JamRecording;
+  // Prefer the persisted edge id in case insert paths ever diverge.
+  const persistedRecordingId = recording.id;
 
   const egressClient = await getEgressClient();
-  const outputFilename = `${recordingId}.mp4`;
+  const outputFilename = `${persistedRecordingId}.mp4`;
   const recordingUrl = await getJamRecordingUrl(jamId);
   await assertEgressCanReachRecordingHost(recordingUrl);
 
@@ -128,9 +130,9 @@ export const startRecording = async (
         value: {
           endpoint: `${await serverRootUrl()}/s3`,
           bucket: 'allpeep-recordings',
-          accessKey: recordingId,
-          secret: recordingId,
-          sessionToken: recordingId,
+          accessKey: persistedRecordingId,
+          secret: persistedRecordingId,
+          sessionToken: persistedRecordingId,
           forcePathStyle: true,
         },
       },
@@ -142,7 +144,7 @@ export const startRecording = async (
     },
   );
 
-  recording = (await updateJamRecording(recordingId, {
+  recording = (await updateJamRecording(persistedRecordingId, {
     egressId: egressInfo.egressId,
     status: 'active',
   })) as JamRecording;
