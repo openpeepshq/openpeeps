@@ -1,7 +1,13 @@
 import type { LucideIcon } from 'lucide-react';
-import type { ComponentProps, ComponentType as RComponentType } from 'react';
+import type {
+  ComponentProps,
+  ComponentType as RComponentType,
+  ReactNode,
+} from 'react';
 
-export type IconType = LucideIcon | RComponentType<{ size?: number; className?: string }>;
+export type IconType =
+  | LucideIcon
+  | RComponentType<{ size?: number; className?: string }>;
 
 export type ThemeColor =
   | 'primary'
@@ -20,10 +26,12 @@ export type Variant =
 
 interface ColumnDefinitionBase {
   id: string | number | symbol;
-  header: string | RComponentType;
+  header: string | ReactNode | RComponentType;
 }
 
-export interface PropertyColumnDefinition<RowType> extends ColumnDefinitionBase {
+export interface PropertyColumnDefinition<
+  RowType,
+> extends ColumnDefinitionBase {
   id: keyof RowType;
   type: 'property';
 }
@@ -35,10 +43,12 @@ export interface PathColumnDefinition<RowType> extends ColumnDefinitionBase {
 
 export interface TextColumnDefinition<RowType> extends ColumnDefinitionBase {
   type: 'text';
-  render: (row: RowType) => string;
+  render: (row: RowType) => ReactNode;
 }
 
-export interface ComponentColumnDefinition<RowType> extends ColumnDefinitionBase {
+export interface ComponentColumnDefinition<
+  RowType,
+> extends ColumnDefinitionBase {
   type: 'component';
   render: (row: RowType) => {
     component: RComponentType<Record<string, unknown>>;

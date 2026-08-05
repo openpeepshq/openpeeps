@@ -45,6 +45,7 @@ import renameBackupCapabilitiesToPlural from './migrations/202606051100-rename-b
 import addReportsReadToModerator from './migrations/202606051130-add-reports-read-to-moderator';
 import fixSearchPostsArrayFields from './migrations/202606060000-fix-search-posts-array-fields';
 import fixSearchProfilesArrayFields from './migrations/202606060100-fix-search-profiles-array-fields';
+import addAnalyticsReadToAdmin from './migrations/202608051230-add-analytics-read-to-admin';
 
 export const dataMigrations = [
   addNoteTypeToEntries,
@@ -94,4 +95,5 @@ export const dataMigrations = [
   addReportsReadToModerator,
   fixSearchPostsArrayFields,
   fixSearchProfilesArrayFields,
+  addAnalyticsReadToAdmin,
 ];

@@ -83,6 +83,21 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
     ['admin', 'roles'],
   ]),
   useGeneralStats: () => apiHook(client.admin.stats.general),
+  useAnalyticsOverview: (query?: Record<string, string>) =>
+    apiHook(client.admin.analytics.overview, { queryParams: query }),
+  useAnalyticsGrowth: (query?: Record<string, string>) =>
+    apiHook(client.admin.analytics.growth, { queryParams: query }),
+  useAnalyticsEngagement: (query?: Record<string, string>) =>
+    apiHook(client.admin.analytics.engagement, { queryParams: query }),
+  useAnalyticsRetention: (query?: Record<string, string>) =>
+    apiHook(client.admin.analytics.retention, { queryParams: query }),
+  useAnalyticsReportSettings: () =>
+    apiHook(client.admin.analytics.reportSettings.read),
+  updateAnalyticsReportSettingsAction: payloadMutation(
+    client.admin.analytics.reportSettings.update,
+    [['admin', 'analytics', 'reportSettings']],
+  ),
+
   usei18n: () => apiHook(client.admin.i18n.read),
   updateI18nAction: payloadMutation(client.admin.i18n.update, [
     ['admin', 'i18n'],

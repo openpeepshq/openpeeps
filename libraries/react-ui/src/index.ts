@@ -71,5 +71,8 @@ export * from './components/table';
 export * from './components/toast';
 export * from './components/tooltip';
 
+// analytics primitives
+export * from './components/analytics';
+
 // theme generation utilities
 export * from './theme';

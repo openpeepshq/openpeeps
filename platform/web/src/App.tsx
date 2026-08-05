@@ -75,7 +75,15 @@ import { NewGroup } from './pages/groups/New';
 import { NewEvent } from './pages/events/New';
 import { NewArticle } from './pages/articles/New';
 import { AdminDashboard } from './pages/admin/Dashboard';
-import { AdminAnalytics } from './pages/admin/Analytics';
+import {
+  AdminAnalytics,
+  AnalyticsOverviewPage,
+  AnalyticsMembersPage,
+  AnalyticsContentPage,
+  AnalyticsEngagementPage,
+  AnalyticsGroupsPage,
+  AnalyticsReportSettingsPage,
+} from './pages/admin/Analytics';
 import { AdminBackups } from './pages/admin/Backups';
 import { AdminGroups } from './pages/admin/Groups';
 import { AdminInvites } from './pages/admin/Invites';
@@ -282,6 +290,12 @@ const Admin = {
   Invites: AdminInvites,
   Backups: AdminBackups,
   Analytics: AdminAnalytics,
+  AnalyticsOverview: AnalyticsOverviewPage,
+  AnalyticsMembers: AnalyticsMembersPage,
+  AnalyticsContent: AnalyticsContentPage,
+  AnalyticsEngagement: AnalyticsEngagementPage,
+  AnalyticsGroups: AnalyticsGroupsPage,
+  AnalyticsReports: AnalyticsReportSettingsPage,
   Moderation: AdminModeration,
   ModerationReports: AdminReports,
   Groups: AdminGroups,
@@ -595,7 +609,37 @@ function AppShell() {
                       <Route
                         path="/admin/analytics"
                         element={<Admin.Analytics />}
-                      />
+                      >
+                        <Route index element={<Admin.AnalyticsOverview />} />
+                        <Route
+                          path="members"
+                          element={<Admin.AnalyticsMembers />}
+                        />
+                        <Route
+                          path="content"
+                          element={<Admin.AnalyticsContent />}
+                        />
+                        <Route
+                          path="engagement"
+                          element={<Admin.AnalyticsEngagement />}
+                        />
+                        <Route
+                          path="groups"
+                          element={<Admin.AnalyticsGroups />}
+                        />
+                        <Route
+                          path="reports"
+                          element={<Admin.AnalyticsReports />}
+                        />
+                        <Route
+                          path="growth"
+                          element={<Admin.AnalyticsMembers />}
+                        />
+                        <Route
+                          path="retention"
+                          element={<Admin.AnalyticsMembers />}
+                        />
+                      </Route>
                     </Route>
 
                     <Route

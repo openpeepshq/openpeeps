@@ -6,7 +6,17 @@ import {
   RoleData,
 } from '@openpeeps/common';
 
-import { AdminServerStats } from '@openpeeps/common';
+import {
+  AdminServerStats,
+  AnalyticsBackfillInput,
+  AnalyticsBackfillResponse,
+  AnalyticsDateQuery,
+  AnalyticsEngagement,
+  AnalyticsGrowth,
+  AnalyticsOverview,
+  AnalyticsReportSettings,
+  AnalyticsRetention,
+} from '@openpeeps/common';
 
 import { Role } from '@openpeeps/common';
 
@@ -252,6 +262,52 @@ export const admin = (rawClient: FetchClient) => ({
       rawClient,
       '/admin/stats',
     ),
+  },
+  analytics: {
+    overview: allpeepNoPayloadEndpoint<
+      AnalyticsOverview,
+      undefined,
+      AnalyticsDateQuery
+    >(rawClient, '/admin/analytics/overview'),
+    growth: allpeepNoPayloadEndpoint<
+      AnalyticsGrowth,
+      undefined,
+      AnalyticsDateQuery
+    >(rawClient, '/admin/analytics/growth'),
+    engagement: allpeepNoPayloadEndpoint<
+      AnalyticsEngagement,
+      undefined,
+      AnalyticsDateQuery
+    >(rawClient, '/admin/analytics/engagement'),
+    retention: allpeepNoPayloadEndpoint<
+      AnalyticsRetention,
+      undefined,
+      AnalyticsDateQuery
+    >(rawClient, '/admin/analytics/retention'),
+    reportSettings: {
+      read: allpeepNoPayloadEndpoint<AnalyticsReportSettings>(
+        rawClient,
+        '/admin/analytics/report-settings',
+      ),
+      update: allpeepPayloadEndpoint<
+        AnalyticsReportSettings,
+        AnalyticsReportSettings
+      >(rawClient, '/admin/analytics/report-settings', 'put'),
+    },
+    export: allpeepNoPayloadEndpoint<
+      {
+        filename: string;
+        contentType: string;
+        content: string;
+        encoding: 'utf8' | 'base64';
+      },
+      undefined,
+      AnalyticsDateQuery & { format?: 'csv' | 'pdf' }
+    >(rawClient, '/admin/analytics/export'),
+    backfill: allpeepPayloadEndpoint<
+      AnalyticsBackfillResponse,
+      AnalyticsBackfillInput
+    >(rawClient, '/admin/analytics/backfill', 'post'),
   },
   reports: {
     list: allpeepNoPayloadEndpoint<ReportWithMeta[]>(

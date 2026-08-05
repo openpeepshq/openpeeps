@@ -25,6 +25,7 @@ export const defaultRoles: RoleData[] = [
         'core-roles-read',
         'core-maintenance-restart',
         'core-inviteLinks-*',
+        'core-analytics-read',
       ],
       remove: [],
     },
