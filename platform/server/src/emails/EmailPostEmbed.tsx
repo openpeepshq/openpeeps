@@ -1,4 +1,4 @@
-import { Tailwind } from '@react-email/components';
+import { Head, Tailwind } from '@react-email/components';
 import type { EmailGlobals, PublicPost } from '@openpeeps/common/types';
 import {
   FeedPostContent,
@@ -37,14 +37,17 @@ export const EmailPostEmbed = ({ post, globals }: EmailPostEmbedProps) => {
 
   // Providers must wrap <Tailwind>: the Tailwind compiler walks the element
   // tree and may invoke component render functions outside a provider subtree.
+  // <Head> is required so non-inlinable utilities (e.g. hover:) have a place
+  // for their <style> rules — without it, event embeds render empty.
   return (
     <StaticRenderContext.Provider value={{ enabled: true, baseUrl }}>
       <I18nContext.Provider
         value={globals.i18nContext as unknown as I18nContextValue}
       >
         <Tailwind config={config}>
+          <Head />
           <style>{emailMarkdownCss(primaryColor)}</style>
-          <div className="mt-2 rounded-md border border-border bg-surface-100 p-3">
+          <div className="border-border bg-surface-100 mt-2 rounded-md border p-3">
             <FeedPostContent post={post} />
           </div>
         </Tailwind>
