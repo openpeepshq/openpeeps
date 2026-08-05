@@ -119,12 +119,19 @@ describe('map filters sql conversion', () => {
     const edge = filterToSql('follows', followsTable, {
       matches: { _from: 'profiles/a', _to: 'profiles/b' },
     });
+    const jamRecordingsTable = getTableForCollection('jamRecordings');
+    const edgeBody = filterToSql('jamRecordings', jamRecordingsTable, {
+      matches: { _to: 'posts/jam1', status: 'active' },
+    });
 
     expect(visibility).toBeDefined();
     expect(key).toBeDefined();
     expect(edge).toBeDefined();
+    expect(edgeBody).toBeDefined();
     expect(flattenSql(visibility)).toContain('public');
     expect(flattenSql(edge)).toContain('"a"');
+    expect(flattenSql(edgeBody)).toContain('active');
+    expect(flattenSql(edgeBody)).toContain('jam1');
   });
 
   it('converts replyCount comparisons via postReplyCountExpr with uuid text cast', () => {

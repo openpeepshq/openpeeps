@@ -525,12 +525,22 @@ const matchToSql = (
     }
 
     const config = getCollectionConfig(collection);
-    if (!config || config.kind !== 'document') continue;
+    if (!config) continue;
 
-    const scalars = SCALAR_COLUMNS[collection];
-    if (scalars?.includes(key)) {
-      conditions.push(eq(t[key] as never, value as never));
-    } else if (t.body) {
+    if (config.kind === 'document') {
+      const scalars = SCALAR_COLUMNS[collection];
+      if (scalars?.includes(key)) {
+        conditions.push(eq(t[key] as never, value as never));
+      } else if (t.body) {
+        conditions.push(
+          sql`${bodyColumn(t)} @> ${JSON.stringify({ [key]: value })}::jsonb`,
+        );
+      }
+      continue;
+    }
+
+    // Edge collections store non-meta fields in jsonb body.
+    if (config.kind === 'edge' && t.body) {
       conditions.push(
         sql`${bodyColumn(t)} @> ${JSON.stringify({ [key]: value })}::jsonb`,
       );
