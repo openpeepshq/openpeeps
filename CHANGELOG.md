@@ -13,6 +13,10 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **web**: inject community name into SPA Open Graph meta
+- **config**: merge admin config PATCH instead of replacing
+- **cli**: short-circuit opc JWT secret mint without loading core
+- **jams**: restore default LiveKit test SFU URL
 - **posts**: load and anonymize deleted authors so DMs open
 - **admin**: add role-gated endpoint for deleting groups
 - **framework**: update privacy policy text
