@@ -5,8 +5,8 @@ import { ImageInput } from './ImageInput';
 export interface HeaderAvatarInputProps {
   header?: string;
   avatar?: string;
-  onHeaderChange: (url: string) => void;
-  onAvatarChange: (url: string) => void;
+  onHeaderChange: (url: string | null) => void;
+  onAvatarChange: (url: string | null) => void;
 }
 
 /**
@@ -27,7 +27,7 @@ export function HeaderAvatarInput({
       <ImageInput
         usage="header-image"
         url={header}
-        onChange={(url) => onHeaderChange(url ?? '')}
+        onChange={(url) => onHeaderChange(url ?? null)}
         aspectRatio={PROFILE_GROUP_HEADER_ASPECT_RATIO}
         showAltInput={false}
         text={t('form.headerAvatarInput.coverImage', {
@@ -40,7 +40,7 @@ export function HeaderAvatarInput({
           usage="avatar-image"
           displayType="avatar"
           url={avatar}
-          onChange={(url) => onAvatarChange(url ?? '')}
+          onChange={(url) => onAvatarChange(url ?? null)}
           showAltInput={false}
         />
       </div>
