@@ -110,6 +110,21 @@ export const createJamToken = async (
   }
 
   if (!jamOpen) {
+    // Stamp community domain so Cockpit can attribute shared-SFU webhooks.
+    const host = (await config()).server.host;
+    const instanceDomain = (
+      host.includes('://') ? new URL(host).hostname : host.replace(/:\d+$/, '')
+    ).toLowerCase();
+    if (instanceDomain) {
+      try {
+        await rs.createRoom({
+          name: jamId,
+          metadata: JSON.stringify({ instanceDomain }),
+        });
+      } catch {
+        // Concurrent open may have created the room already.
+      }
+    }
     createJamEvent({
       id: uuidv7(),
       jamId,
