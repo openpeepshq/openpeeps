@@ -3,8 +3,34 @@ import { uuidv7 } from 'uuidv7';
 import type { MapData } from './queryTypes';
 import type { PgDb } from '../client';
 import { nowIso } from '../mappers';
-import { asTable, documentRegistry, getTableForCollection } from './registry';
+import {
+  asTable,
+  documentRegistry,
+  getCollectionConfig,
+  getTableForCollection,
+} from './registry';
 import { executeFind } from './relations';
+
+const EDGE_PATCH_META_KEYS = new Set([
+  'id',
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  '_from',
+  '_to',
+  'fromId',
+  'toId',
+]);
+
+const edgeBodyPatch = (patch: Record<string, unknown>) => {
+  const body: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(patch)) {
+    if (!EDGE_PATCH_META_KEYS.has(key)) {
+      body[key] = value;
+    }
+  }
+  return body;
+};
 
 export const createDocument = async <O extends { id: string }>(
   db: PgDb,
@@ -44,7 +70,7 @@ export const updateDocument = async <O extends { id: string }>(
   patch: Record<string, unknown>,
 ): Promise<O> => {
   const collection = mapData.collection;
-  const config = documentRegistry[collection];
+  const config = getCollectionConfig(collection);
   if (!config) {
     throw new Error(`Cannot update collection: ${collection}`);
   }
@@ -60,20 +86,33 @@ export const updateDocument = async <O extends { id: string }>(
     throw new Error(`update ${collection} ${id}`);
   }
 
-  const merged = {
-    ...rowToPatchInput(collection, row),
-    ...patch,
-  };
-  const { scalars, body } = config.splitPatch(merged);
+  if (config.kind === 'edge') {
+    const currentBody = {
+      ...((row.body ?? {}) as Record<string, unknown>),
+    };
+    await db
+      .update(table as never)
+      .set({
+        body: { ...currentBody, ...edgeBodyPatch(patch) },
+        updatedAt: nowIso(),
+      } as never)
+      .where(eq(table.id as never, id));
+  } else {
+    const merged = {
+      ...rowToPatchInput(collection, row),
+      ...patch,
+    };
+    const { scalars, body } = config.splitPatch(merged);
 
-  await db
-    .update(table as never)
-    .set({
-      ...scalars,
-      body,
-      updatedAt: nowIso(),
-    } as never)
-    .where(eq(table.id as never, id));
+    await db
+      .update(table as never)
+      .set({
+        ...scalars,
+        body,
+        updatedAt: nowIso(),
+      } as never)
+      .where(eq(table.id as never, id));
+  }
 
   const updated = await executeFind(db, collection, mapData, id, true);
   if (!updated) {

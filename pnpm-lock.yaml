@@ -1237,8 +1237,8 @@ importers:
         specifier: ^1.3.4
         version: 1.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@riddl/core':
-        specifier: ^0.2.6
-        version: 0.2.6
+        specifier: ^0.2.7
+        version: 0.2.7
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -6178,8 +6178,8 @@ packages:
     peerDependencies:
       release-it: ^17.0.0
 
-  '@riddl/core@0.2.6':
-    resolution: {integrity: sha512-eUxB9t6DwLwbBq1bb4n8khDUhioLvfYr9CqNywaTqk+r6x2a4n9xI6X1bb5GHf1g+2Qi0Agbw0byAEdKVUTrmw==}
+  '@riddl/core@0.2.7':
+    resolution: {integrity: sha512-Gkm6jmp+Ta1+ZwWQOJNl5KuFnxGY6W2/w7MYId9LY2Skfn2jVY7tXjpEtgiIKxAcIsYsF9g7ngV12/i1Hfkyow==}
 
   '@rn-primitives/avatar@1.1.0':
     resolution: {integrity: sha512-GqhsQHeY7OP9oe3MZkl1Z0IbhIiuQX4+FxafoRK/Aes2m5386nMGK0NBaZBJy06WnFQBN52C8yq+LYv27sA86A==}
@@ -13371,11 +13371,11 @@ packages:
   set-blocking@2.0.0:
     resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
 
-  set-cookie-parser@2.6.0:
-    resolution: {integrity: sha512-RVnVQxTXuerk653XfuliOxBP81Sf0+qfQE73LIYKcyMYHG94AuH0kgrQpRDuTZnSmjpysHmzxJXKNfa6PjFhyQ==}
+  set-cookie-parser@2.7.2:
+    resolution: {integrity: sha512-oeM1lpU/UvhTxw+g3cIfxXHyJRc/uidd3yK1P242gzHds0udQBYzs3y8j4gCCW+ZJ7ad0yctld8RYO+bdurlvw==}
 
-  set-cookie-parser@3.1.0:
-    resolution: {integrity: sha512-kjnC1DXBHcxaOaOXBHBeRtltsDG2nUiUni+jP92M9gYdW12rsmx92UsfpH7o5tDRs7I1ZZPSQJQGv3UaRfCiuw==}
+  set-cookie-parser@3.1.2:
+    resolution: {integrity: sha512-5/r/lTwbJ3zQ+qwdUFZYeRNqda7P5HD8zQKqlSjdGt1/S0cjLAphHusj4Y58ahDtWn/g32xrIS58/ikOvwl0Lw==}
 
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
@@ -13570,6 +13570,9 @@ packages:
 
   sse.js@2.5.0:
     resolution: {integrity: sha512-I7zYndqOOkNpz9KIdFZ8c8A7zs1YazNewBr8Nsi/tqThfJkVPuP1q7UE2h4B0RwoWZxbBYpd06uoW3NI3SaZXg==}
+
+  sse.js@2.8.0:
+    resolution: {integrity: sha512-35RyyFYpzzHZgMw9D5GxwADbL6gnntSwW/rKXcuIy1KkYCPjW6oia0moNdNRhs34oVHU1Sjgovj3l7uIEZjrKA==}
 
   stack-utils@2.0.6:
     resolution: {integrity: sha512-XlkWvfIm6RmsWtNJx+uqtKLS8eqFbxUg0ZzLXqY0caEy9l7hruX8IpiDnjsLavoBgqCCR71TqWO8MaXYheJ3RQ==}
@@ -17242,7 +17245,7 @@ snapshots:
       '@babel/parser': 7.29.7
       '@babel/template': 7.29.7
       '@babel/types': 7.29.7
-      debug: 4.4.3
+      debug: 4.4.0
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -20923,14 +20926,14 @@ snapshots:
       - conventional-commits-filter
       - conventional-commits-parser
 
-  '@riddl/core@0.2.6':
+  '@riddl/core@0.2.7':
     dependencies:
       '@asteasolutions/zod-to-openapi': 8.5.0(zod@4.4.3)
       busboy: 1.6.0
       debug: 4.4.3
       express: 5.2.1
-      set-cookie-parser: 3.1.0
-      sse.js: 2.5.0
+      set-cookie-parser: 3.1.2
+      sse.js: 2.8.0
       zod: 4.4.3
       zod-validation-error: 5.0.0(zod@4.4.3)
     transitivePeerDependencies:
@@ -22193,7 +22196,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 8.19.1(typescript@5.7.2)
       '@typescript-eslint/utils': 8.19.1(eslint@9.17.0(jiti@1.21.6))(typescript@5.7.2)
-      debug: 4.4.3
+      debug: 4.4.0
       eslint: 9.17.0(jiti@1.21.6)
       ts-api-utils: 2.0.0(typescript@5.7.2)
       typescript: 5.7.2
@@ -22235,7 +22238,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.19.0
       '@typescript-eslint/visitor-keys': 8.19.0
-      debug: 4.4.3
+      debug: 4.4.0
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -22249,7 +22252,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.19.0
       '@typescript-eslint/visitor-keys': 8.19.0
-      debug: 4.4.3
+      debug: 4.4.0
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -22263,7 +22266,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.19.1
       '@typescript-eslint/visitor-keys': 8.19.1
-      debug: 4.4.3
+      debug: 4.4.0
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -22277,7 +22280,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.20.0
       '@typescript-eslint/visitor-keys': 8.20.0
-      debug: 4.4.3
+      debug: 4.4.0
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -26337,7 +26340,7 @@ snapshots:
   istanbul-lib-source-maps@5.0.6:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.29
-      debug: 4.4.3
+      debug: 4.4.1
       istanbul-lib-coverage: 3.2.2
     transitivePeerDependencies:
       - supports-color
@@ -29112,7 +29115,7 @@ snapshots:
     dependencies:
       cookie: 1.1.1
       react: 19.2.6
-      set-cookie-parser: 2.6.0
+      set-cookie-parser: 2.7.2
     optionalDependencies:
       react-dom: 19.2.6(react@19.2.6)
 
@@ -29631,9 +29634,9 @@ snapshots:
 
   set-blocking@2.0.0: {}
 
-  set-cookie-parser@2.6.0: {}
+  set-cookie-parser@2.7.2: {}
 
-  set-cookie-parser@3.1.0: {}
+  set-cookie-parser@3.1.2: {}
 
   set-function-length@1.2.2:
     dependencies:
@@ -29850,6 +29853,8 @@ snapshots:
   sprintf-js@1.1.3: {}
 
   sse.js@2.5.0: {}
+
+  sse.js@2.8.0: {}
 
   stack-utils@2.0.6:
     dependencies:

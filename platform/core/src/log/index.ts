@@ -51,6 +51,22 @@ const defaultLogLevel = logLevels.info;
 
 const namespaceLogLevels: Record<string, number> = {};
 
+/** Errors stringify to `{}` unless message/stack are copied onto enumerable keys. */
+const serializeLogArg = (arg: unknown): unknown => {
+  if (arg instanceof Error) {
+    return safeJsonStringify({
+      name: arg.name,
+      message: arg.message,
+      stack: arg.stack,
+      ...(arg as unknown as Record<string, unknown>),
+    });
+  }
+  if (arg !== null && typeof arg === 'object') {
+    return safeJsonStringify(arg);
+  }
+  return arg;
+};
+
 export const logger: LoggerFactory = (
   ns: string,
   meta?: Record<string, unknown>,
@@ -71,11 +87,7 @@ export const logger: LoggerFactory = (
       currentFile(date),
       JSON.stringify({
         level,
-        message: args
-          .map((a) =>
-            a !== null && typeof a === 'object' ? safeJsonStringify(a) : a,
-          )
-          .join(' '),
+        message: args.map(serializeLogArg).join(' '),
         timestamp: date.toISOString(),
         meta,
         namespace: ns,
