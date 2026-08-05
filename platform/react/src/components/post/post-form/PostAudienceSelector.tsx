@@ -15,6 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Input,
 } from '@openpeeps/react-ui';
 import { useT } from '../../../i18n';
 import { useAuthData, useCurrentProfile } from '../../layout/IdentityContext';
@@ -166,8 +167,7 @@ export function PostAudienceSelector({
           </div>
         ) : view === 'audience' ? (
           <div className="space-y-2">
-            <input
-              className="w-full rounded-md border px-3 py-2 text-sm"
+            <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('posts.form.mentionSearch', {
