@@ -4,9 +4,9 @@ import {
   importJWK,
   jwtVerify,
   type JWTPayload,
-} from "jose";
-import { authorizationSchema } from "../types/auth";
-import type { Scope } from "../types/models";
+} from 'jose';
+import { authorizationSchema } from '../types/auth';
+import type { Scope } from '../types/models';
 
 export const decodeJwtPayloadUnverified = (token: string): JWTPayload =>
   decodeJwt(token);
@@ -30,6 +30,24 @@ export const parseScopesFromJwt = (
 };
 
 /**
+ * True for JWTs that authenticate a service identity without a profile
+ * (e.g. jam observer / egress links). These cannot load `profiles/current`.
+ */
+export const isServiceOnlyJwt = (token: string | undefined | null): boolean => {
+  if (!token?.trim()) {
+    return false;
+  }
+  try {
+    const parsed = authorizationSchema.safeParse(decodeJwt(token));
+    if (!parsed.success) return false;
+    const { service, profile } = parsed.data.identities;
+    return !!service && !profile;
+  } catch {
+    return false;
+  }
+};
+
+/**
  * True when the token has a numeric `exp`, is not expired yet, and seconds until expiry is at least
  * `minRemainingSeconds`. Non-finite or negative `minRemainingSeconds` yields false. Invalid or undecodable
  * tokens return false.
@@ -47,7 +65,7 @@ export const jwtHasRemainingValidityAtLeast = (
   }
   try {
     const { exp } = decodeJwt(token);
-    if (typeof exp !== "number") {
+    if (typeof exp !== 'number') {
       return false;
     }
     const nowSec = Date.now() / 1000;

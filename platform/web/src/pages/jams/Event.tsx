@@ -1,6 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { useT, useOpenpeeps, useCredentialsStore, useSetPageHeader } from '@openpeeps/react';
+import {
+  useT,
+  useOpenpeeps,
+  useCredentialsStore,
+  useSetPageHeader,
+} from '@openpeeps/react';
 import { JamRoom, useCurrentProfile } from '@openpeeps/react/components';
 
 /**
@@ -27,12 +32,17 @@ export function JamEvent() {
   // jam post is fetched, mirroring the Svelte jam route.
   const token = searchParams.get('token');
   const tokenApplied = useRef(false);
+  const [tokenReady, setTokenReady] = useState(!token);
   if (token && !tokenApplied.current) {
     tokenApplied.current = true;
-    void credentialsStore.set({ token });
+    void credentialsStore.set({ token }).then(() => {
+      setTokenReady(true);
+    });
   }
 
-  const postQuery = openpeepsApi.usePost(eventId ?? '');
+  // Wait until a URL `?token=` (if present) is stored so the post fetch
+  // uses the observer service JWT instead of racing as anonymous.
+  const postQuery = openpeepsApi.usePost(tokenReady ? (eventId ?? '') : '');
 
   const jamEvent =
     postQuery.data?.data?.type === 'event' ? postQuery.data.data : undefined;
@@ -53,7 +63,11 @@ export function JamEvent() {
     if (me) {
       navigate('/jams');
     } else {
-      navigate(`/auth/login?redirect=${window.location.pathname}`);
+      navigate(
+        `/auth/login?redirect=${encodeURIComponent(
+          `${window.location.pathname}${window.location.search}`,
+        )}`,
+      );
     }
   }, [postQuery.isError, postQuery.error, me, navigate]);
 
