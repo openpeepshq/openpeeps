@@ -161,7 +161,6 @@ services:
     environment:
       <<: *openpeeps-env
       OPENPEEPS_COMMAND: worker
-      EMAIL_RENDER_HOST_BASE_URL: http://web:8080
     depends_on:
       web:
         condition: service_healthy

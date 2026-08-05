@@ -20,7 +20,6 @@ export const defaultConfig: CoreConfig = {
   db,
   redis,
   email: {
-    renderHostBaseUrl: process.env.EMAIL_RENDER_HOST_BASE_URL || undefined,
     service: 'smtp',
     defaultTemplatePath: 'assets/email/templates',
     defaultFrom: process.env.EMAIL_DEFAULT_FROM,

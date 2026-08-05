@@ -172,15 +172,6 @@ export function AdminConfigurationEmail() {
           >
             <div className="flex flex-col gap-4 pt-1">
               <FormInput
-                path={['renderHostBaseUrl']}
-                type="text"
-                title={t('configuration.email.fields.renderHostBaseUrl')}
-                description={t(
-                  'configuration.email.fields.renderHostBaseUrlDescription',
-                )}
-                placeholder="https://example.com"
-              />
-              <FormInput
                 path={['service']}
                 type="text"
                 title={t('configuration.email.fields.service')}

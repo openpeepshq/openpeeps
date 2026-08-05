@@ -1324,8 +1324,6 @@
                 "transport": "SMTP transport"
             },
             "fields": {
-                "renderHostBaseUrl": "Render host base URL",
-                "renderHostBaseUrlDescription": "Optional. Base URL used when rendering email HTML (links and assets).",
                 "service": "Mail service",
                 "defaultTemplatePath": "Default template path",
                 "defaultTemplatePathDescription": "Filesystem path to email templates, relative to the server.",

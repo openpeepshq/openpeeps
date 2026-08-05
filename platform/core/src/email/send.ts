@@ -1,15 +1,11 @@
 import { communityConfig, config } from '../config';
 import nodemailer from 'nodemailer';
 import type { Job } from 'bullmq';
-import { createSignedServiceToken } from '../accessTokens/tokens';
 import {
   CoreConfig,
   EmailOptions,
   RenderedEmail,
-  SuccessFailureResponse,
 } from '@openpeeps/common/types';
-import { fetchClient, typedPayloadEndpoint } from '@openpeeps/fetch-client';
-import { serverRootUrl } from '../server';
 import { render } from './render';
 import { logger } from '../log';
 
@@ -67,78 +63,7 @@ const logFailure = async (log: EmailJobLog | undefined, err: unknown) => {
   }
 };
 
-let renderToken: string | undefined = undefined;
-
-const getRenderToken = async () => {
-  if (!renderToken) {
-    const accessToken = await createSignedServiceToken({
-      scopes: [
-        {
-          resource: { type: 'render', id: '*' },
-        },
-      ],
-      name: 'render-email',
-      expirationTime: '99y',
-    });
-    renderToken = accessToken.signedToken;
-  }
-  return renderToken;
-};
-
-const renderEndpoint = typedPayloadEndpoint<
-  RenderedEmail,
-  EmailOptions,
-  SuccessFailureResponse
->({
-  path: '/remote-control/render-email',
-  method: 'post',
-});
-
-/** HTTP render path for the email worker (templates live in `@openpeeps/server`). */
-const renderEmailViaHttp = async (
-  emailData: EmailOptions,
-  coreConfig: CoreConfig,
-  log?: EmailJobLog,
-): Promise<RenderedEmail> => {
-  const renderHostBaseUrl =
-    coreConfig.email.renderHostBaseUrl || (await serverRootUrl());
-  const baseUrl = `${renderHostBaseUrl}/api/openpeeps/core/v1`;
-  await logStep(
-    log,
-    `Render via HTTP: POST ${baseUrl}/remote-control/render-email`,
-  );
-
-  const token = await getRenderToken();
-
-  const result = await renderEndpoint(emailData, {
-    fetchClient: fetchClient({
-      baseUrl,
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-  }).catch(async (err) => {
-    await logFailure(log, err);
-    throw new Error(
-      'Fetch failed: ' + (err instanceof Error ? err.message : String(err)),
-    );
-  });
-
-  if ('data' in result) {
-    return result.data;
-  }
-
-  const renderError = new Error(
-    'Error rendering email: ' + JSON.stringify(result.error.message),
-  );
-  await logFailure(log, renderError);
-  throw renderError;
-};
-
 export type SendEmailOptions = {
-  /**
-   * Render in-process using registered templates.
-   * Use from the API/server process; the worker must use the default HTTP path.
-   */
-  renderLocally?: boolean;
   /** Writes to BullMQ job logs when processing a queued email. */
   log?: EmailJobLog;
 };
@@ -167,17 +92,12 @@ export const sendEmail = async (
   );
 
   let renderedEmail: RenderedEmail;
-  if (options?.renderLocally) {
-    await logStep(log, 'Render in-process (local templates)');
-    try {
-      renderedEmail = await render(emailData);
-    } catch (err) {
-      await logFailure(log, err);
-      throw err;
-    }
-  } else {
-    await logStep(log, 'Render via worker HTTP endpoint');
-    renderedEmail = await renderEmailViaHttp(emailData, coreConfig, log);
+  await logStep(log, 'Render in-process (worker templates)');
+  try {
+    renderedEmail = await render(emailData);
+  } catch (err) {
+    await logFailure(log, err);
+    throw err;
   }
 
   await logStep(
@@ -234,7 +154,5 @@ export const send = async (job: Job<EmailOptions>) => {
 
   const coreConfig = await config();
   await logStep(log, 'Loaded core config');
-  // Worker process registers React email templates at boot; render in-process
-  // instead of round-tripping to the API server.
-  return sendEmail(job.data, coreConfig, { log, renderLocally: true });
+  return sendEmail(job.data, coreConfig, { log });
 };

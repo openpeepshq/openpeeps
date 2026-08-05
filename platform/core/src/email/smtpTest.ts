@@ -35,7 +35,5 @@ export const sendSmtpTestEmail = async (input: AdminEmailTestInput) => {
 
   const draftConfig: CoreConfig = { ...saved, email: emailSettings };
 
-  await sendEmail({ to: input.to, template: 'test' }, draftConfig, {
-    renderLocally: true,
-  });
+  await sendEmail({ to: input.to, template: 'test' }, draftConfig);
 };
