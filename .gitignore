@@ -20,3 +20,5 @@ platform/tests/test-results
 platform/tests/.logs
 platform/tests/.loadtest-results
 stuff
+.logs-test
+.media-test

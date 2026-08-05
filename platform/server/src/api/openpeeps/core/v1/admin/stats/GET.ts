@@ -5,6 +5,8 @@ import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
 import { serverStats } from '@openpeeps/core/stats';
 
+// Legacy live OLTP aggregates for the admin Dashboard.
+// Prefer /admin/analytics/* (rollup + Redis) for the analytics UI.
 export const Output = adminServerStatsSchema;
 export const Error = {
   403: forbidden(),

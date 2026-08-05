@@ -16,7 +16,9 @@ export const jsonSchema = z
 
 export const i18nResourceKeySchema = z
   .any()
-  .openapi('I18nResourceKey', { type: 'object' }) as unknown as z.ZodType<ResourceKey>;
+  .openapi('I18nResourceKey', {
+    type: 'object',
+  }) as unknown as z.ZodType<ResourceKey>;
 export const i18nResourceLanguageSchema = z.record(
   z.string(),
   i18nResourceKeySchema,
@@ -32,6 +34,8 @@ export const emailAttachmentSchema = z.object({
    *  stay JSON-serializable across the email queue and HTTP render boundary. */
   content: z.string(),
   contentType: z.string().optional(),
+  /** Set to base64 when `content` is a base64-encoded binary payload (e.g. PDF). */
+  encoding: z.enum(['utf8', 'base64']).optional(),
 });
 export type EmailAttachment = z.infer<typeof emailAttachmentSchema>;
 

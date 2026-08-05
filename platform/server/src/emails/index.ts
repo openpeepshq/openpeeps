@@ -8,6 +8,7 @@ import testTemplate from './defaultTemplates/test';
 import validateEmailTemplate from './defaultTemplates/validate-email';
 import resetPasswordTemplate from './defaultTemplates/reset-password';
 import eventRsvpConfirmationTemplate from './defaultTemplates/event-rsvp-confirmation';
+import analyticsMonthlyReportTemplate from './defaultTemplates/analytics-monthly-report';
 
 import announcementTemplate from './notifications/announcement';
 import directMessageTemplate from './notifications/direct-message';
@@ -41,6 +42,7 @@ export const registerDefaultEmailTemplates = () => {
   register('validateEmail', validateEmailTemplate);
   register('resetPassword', resetPasswordTemplate);
   register('eventRsvpConfirmation', eventRsvpConfirmationTemplate);
+  register('analyticsMonthlyReport', analyticsMonthlyReportTemplate);
 
   register('notification-announcement', announcementTemplate);
   register('notification-directMessage', directMessageTemplate);

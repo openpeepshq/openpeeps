@@ -8,6 +8,7 @@ export * from './utils';
 export * from './config';
 export * from './auth';
 export * from './stats';
+export * from './analytics';
 export * from './notifications';
 export * from './stripe';
 export * from './db';

@@ -24,7 +24,9 @@ export function Table<D>({
             <th key={String(column.id)} className="py-4 pl-4 text-left">
               {typeof column.header === 'string'
                 ? column.header
-                : React.createElement(column.header)}
+                : typeof column.header === 'function'
+                  ? React.createElement(column.header)
+                  : column.header}
             </th>
           ))}
         </tr>
@@ -37,7 +39,10 @@ export function Table<D>({
               if (column.type === 'property') {
                 return (
                   <td key={key} className="px-2 py-4">
-                    {String((row as Record<string, unknown>)[column.id as string] ?? '')}
+                    {String(
+                      (row as Record<string, unknown>)[column.id as string] ??
+                        '',
+                    )}
                   </td>
                 );
               }
