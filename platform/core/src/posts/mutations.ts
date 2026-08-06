@@ -76,6 +76,11 @@ export const createPost = async (
 
   const group = await (repliedToPost?.group ||
     (relations.groupId ? findGroup(relations.groupId) : undefined));
+  // Group-linked posts always use visibility=group so community/local feeds
+  // (which only include public/local) never surface them incorrectly.
+  if (group) {
+    postData = { ...postData, visibility: 'group' };
+  }
   const hashtags = extractHashtags(data);
 
   const post = await postsMapping
