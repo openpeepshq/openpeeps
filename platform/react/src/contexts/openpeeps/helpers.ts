@@ -175,13 +175,20 @@ export const infiniteChronologicalQueryApiHook = <
     initialPageParam?: unknown;
   },
 ) =>
-  useInfiniteQuery<Output, SuccessFailureResponse, InfiniteData<Output>, QueryKey, string | undefined>({
+  useInfiniteQuery<
+    Output,
+    SuccessFailureResponse,
+    InfiniteData<Output>,
+    QueryKey,
+    string | undefined
+  >({
     queryKey: endpoint.queryKey({
       pathParameters: options?.pathParams,
       queryParameters: options?.queryParams,
     }),
     queryFn: async ({ pageParam }) => {
-      const baseParams = { ...options?.queryParams } as QueryParams & ChronologicalInfiniteQueryParams;
+      const baseParams = { ...options?.queryParams } as QueryParams &
+        ChronologicalInfiniteQueryParams;
       const currentQueryParams = pageParam
         ? { ...baseParams, start: String(pageParam) }
         : baseParams;
@@ -204,7 +211,15 @@ export const infiniteChronologicalQueryApiHook = <
     initialPageParam: undefined,
     getNextPageParam: (lastPage: Output) => {
       const last = Array.isArray(lastPage) ? lastPage : [];
-      return last.length > 0 ? last[last.length - 1]?.id : undefined;
+      if (!last.length) return undefined;
+      // A short page means we've reached the end. Without this, feeds that
+      // ignore `start` (or return a non-empty repeat) keep fetching forever —
+      // which toggles the next-page spinner and jitters the sticky plus button.
+      const limit = Number(
+        (options?.queryParams as { limit?: number } | undefined)?.limit ?? 0,
+      );
+      if (limit > 0 && last.length < limit) return undefined;
+      return last[last.length - 1]?.id;
     },
     retry: false,
     refetchInterval: options?.refetchInterval,
@@ -335,32 +350,32 @@ export const payloadProgressMutation =
       PathParams,
       QueryParams
     >,
-    queryKeys?: string[][]
+    queryKeys?: string[][],
   ) =>
-    (defaultPathParams?: PathParams extends undefined ? never : PathParams) => {
-      const queryClient = useContext(QueryClientContext);
+  (defaultPathParams?: PathParams extends undefined ? never : PathParams) => {
+    const queryClient = useContext(QueryClientContext);
 
-      if (!queryClient) {
-        throw new Error('QueryClientContext is not set');
-      }
+    if (!queryClient) {
+      throw new Error('QueryClientContext is not set');
+    }
 
-      return async (
-        input: Input,
-        pathParams?: PathParams extends undefined ? never : PathParams,
-        queryParams?: QueryParams extends undefined ? never : QueryParams,
-        headers?: Record<string, string>,
-        onUploadProgress?: (event: UploadProgressEvent) => void,
-      ): Promise<Output> =>
-        endpoint(input, {
-          pathParameters: {
-            ...(defaultPathParams ?? {}),
-            ...(pathParams ?? {}),
-          } as PathParams,
-          queryParameters: queryParams,
-          headers,
-          onUploadProgress,
-        }).then(handleMutationResult<Output>(queryClient, queryKeys));
-    };
+    return async (
+      input: Input,
+      pathParams?: PathParams extends undefined ? never : PathParams,
+      queryParams?: QueryParams extends undefined ? never : QueryParams,
+      headers?: Record<string, string>,
+      onUploadProgress?: (event: UploadProgressEvent) => void,
+    ): Promise<Output> =>
+      endpoint(input, {
+        pathParameters: {
+          ...(defaultPathParams ?? {}),
+          ...(pathParams ?? {}),
+        } as PathParams,
+        queryParameters: queryParams,
+        headers,
+        onUploadProgress,
+      }).then(handleMutationResult<Output>(queryClient, queryKeys));
+  };
 
 export const noPayloadMutation =
   <
@@ -482,10 +497,7 @@ export const noPayloadStream = <
       const params = options.pathParameters as
         | Record<string, string | undefined>
         | undefined;
-      if (
-        params &&
-        Object.values(params).some(v => v == null || v === '')
-      ) {
+      if (params && Object.values(params).some((v) => v == null || v === '')) {
         return;
       }
 
@@ -499,7 +511,7 @@ export const noPayloadStream = <
           ...options,
           headers: {
             ...(options.headers || {}),
-            ...(token ? {Authorization: `Bearer ${token}`} : {}),
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           handler: (e: EventType) => {
             if (!closed) setState(e);
@@ -537,10 +549,7 @@ export const noPayloadStream = <
       const params = options.pathParameters as
         | Record<string, string | undefined>
         | undefined;
-      if (
-        params &&
-        Object.values(params).some(v => v == null || v === '')
-      ) {
+      if (params && Object.values(params).some((v) => v == null || v === '')) {
         return;
       }
 
@@ -554,10 +563,10 @@ export const noPayloadStream = <
           ...options,
           headers: {
             ...(options.headers || {}),
-            ...(token ? {Authorization: `Bearer ${token}`} : {}),
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           handler: (e: EventType) => {
-            if (!closed) setState(prev => [...prev, e]);
+            if (!closed) setState((prev) => [...prev, e]);
           },
         });
         if (!closed) {

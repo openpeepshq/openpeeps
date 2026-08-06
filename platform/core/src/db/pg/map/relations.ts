@@ -110,6 +110,59 @@ export const fetchRowsByIds = async (
   );
 };
 
+/**
+ * Like {@link fetchRowsByIds}, but applies mapping SQL filters (and SQL sort).
+ * Returns `{ docs, postFilters }` so callers can hydrate with the remaining
+ * OM filters — same split as {@link executeAll}.
+ */
+export const fetchFilteredRowsByIds = async (
+  db: PgDb,
+  mapData: MapData<object, object>,
+  ids: string[],
+): Promise<{
+  docs: Doc[];
+  postFilters: PgFilter<Record<string, unknown>>[];
+}> => {
+  if (!ids.length) return { docs: [], postFilters: [] };
+  const tableRef = getTableForCollection(mapData.collection);
+  const table = asTable(tableRef);
+  const { sqlWhere, postFilters } = partitionFilters(
+    mapData.collection,
+    table,
+    mapData.filters,
+    mapData.defaultFilter,
+    mapData.softDelete,
+  );
+  const conditions = [inArray(table.id as never, ids)];
+  if (sqlWhere) {
+    conditions.push(sqlWhere);
+  }
+  const orderBy = sortToSqlOrderBy(
+    mapData.collection,
+    tableRef,
+    mapData.sort,
+    mapData.activityWindow,
+  );
+  const columns = getTableColumns(tableRef as Table);
+  const computedSelect = buildComputedSelect(mapData, tableRef);
+  let query = db
+    .select({ ...columns, ...computedSelect })
+    .from(tableRef as never)
+    .where(and(...conditions))
+    .$dynamic();
+  if (orderBy) {
+    query = query.orderBy(...orderBy);
+  }
+  const rows = await query;
+  let docs = rows.map((row) =>
+    mapRowToDoc(mapData, row as Record<string, unknown>),
+  );
+  if (!orderBy) {
+    docs = applySort(docs, mapData.sort);
+  }
+  return { docs, postFilters };
+};
+
 const hydrateDocuments = async (
   db: PgDb,
   collection: string,
@@ -566,16 +619,16 @@ export const relationsFrom = async (
     const vertexIds = edgeRows.map(
       (e) => (e as Record<string, unknown>)[vertexCol] as string,
     );
-    return hydrateMapData(
+    // Apply mapping SQL filters (e.g. documentKeyBefore for `start` cursors)
+    // here — fetchRowsByIds alone ignores them, and applyPostFilters skips
+    // SqlFilters, which previously broke chronological pagination for group /
+    // profile / bookmark / hashtag feeds built via relationsFrom.
+    const { docs, postFilters } = await fetchFilteredRowsByIds(
       db,
       relation.mapping,
-      await fetchRowsByIds(
-        db,
-        relation.mapping.collection,
-        vertexIds,
-        relation.mapping.softDelete,
-      ),
+      vertexIds,
     );
+    return hydrateMapData(db, relation.mapping, docs, postFilters);
   }
 
   // Keep edge fields (e.g. roles) and attach the related vertex under

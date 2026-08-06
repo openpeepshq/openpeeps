@@ -1,6 +1,9 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { Rss } from 'lucide-react';
-import type { PublicPost, SuccessFailureResponse } from '@openpeeps/common/types';
+import type {
+  PublicPost,
+  SuccessFailureResponse,
+} from '@openpeeps/common/types';
 import type {
   InfiniteData,
   UseInfiniteQueryResult,
@@ -66,11 +69,16 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [query]);
+  }, [
+    query.hasNextPage,
+    query.isFetchingNextPage,
+    query.fetchNextPage,
+    query.data?.pages,
+  ]);
 
   if (query.isLoading) {
     return (
-      <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
         <LoadingSpinner />
       </div>
     );
@@ -105,8 +113,8 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
       <div ref={sentinelRef} aria-hidden="true" className="h-8" />
 
       {query.isFetchingNextPage && (
-        <div className="flex justify-center py-4 text-sm text-muted-foreground">
-        <LoadingSpinner />
+        <div className="text-muted-foreground flex justify-center py-4 text-sm">
+          <LoadingSpinner />
         </div>
       )}
     </div>
