@@ -236,4 +236,168 @@ describe('map relations', () => {
     });
     expect(counted).toEqual([{ count: 2 }]);
   });
+
+  it('relationsFrom honors maxDepth and returns nested descendents', async () => {
+    const db = createFakeDb({
+      reply_to: [
+        { id: 'r1', fromId: 'child-1', toId: 'root', body: {}, ...stamp },
+        { id: 'r2', fromId: 'child-2', toId: 'child-1', body: {}, ...stamp },
+      ],
+      posts: [
+        {
+          id: 'child-1',
+          type: 'note',
+          visibility: 'direct',
+          creatorId: 'p1',
+          body: { text: 'one' },
+          ...stamp,
+        },
+        {
+          id: 'child-2',
+          type: 'note',
+          visibility: 'direct',
+          creatorId: 'p1',
+          body: { text: 'two' },
+          ...stamp,
+        },
+      ],
+    });
+
+    const mapping: MapData<object, object> = { collection: 'posts' };
+    const replies = await relationsFrom(db, { id: 'root' }, 'posts', {
+      alias: 'context',
+      edgeCollection: 'replyTo',
+      direction: 'INBOUND',
+      cardinality: 'many',
+      skipEdge: true,
+      maxDepth: 9999,
+      mapping,
+    });
+
+    expect(replies.map((r) => r.id).sort()).toEqual(['child-1', 'child-2']);
+  });
+
+  it('relationsFrom applies mapping sort so ancestors are root-first', async () => {
+    // UUIDv7-style ids: earlier messages sort first with DOC.id ASC.
+    const db = createFakeDb({
+      reply_to: [
+        { id: 'r1', fromId: '002-mid', toId: '001-root', body: {}, ...stamp },
+        { id: 'r2', fromId: '003-leaf', toId: '002-mid', body: {}, ...stamp },
+      ],
+      posts: [
+        {
+          id: '001-root',
+          type: 'note',
+          visibility: 'direct',
+          creatorId: 'p1',
+          body: { text: 'root' },
+          ...stamp,
+        },
+        {
+          id: '002-mid',
+          type: 'note',
+          visibility: 'direct',
+          creatorId: 'p1',
+          body: { text: 'mid' },
+          ...stamp,
+        },
+      ],
+    });
+
+    const mapping: MapData<object, object> = {
+      collection: 'posts',
+      sort: [['DOC.id', 'ASC']],
+    };
+    const ancestors = await relationsFrom(db, { id: '003-leaf' }, 'posts', {
+      alias: 'context',
+      edgeCollection: 'replyTo',
+      direction: 'OUTBOUND',
+      cardinality: 'many',
+      skipEdge: true,
+      maxDepth: 9999,
+      mapping,
+    });
+
+    // BFS alone would be [002-mid, 001-root]; id ASC puts the true root first.
+    expect(ancestors.map((r) => r.id)).toEqual(['001-root', '002-mid']);
+  });
+
+  it('relationsFrom honors mapping.limit during BFS traversal', async () => {
+    const db = createFakeDb({
+      reply_to: [
+        { id: 'r1', fromId: 'c1', toId: 'root', body: {}, ...stamp },
+        { id: 'r2', fromId: 'c2', toId: 'root', body: {}, ...stamp },
+        { id: 'r3', fromId: 'c3', toId: 'root', body: {}, ...stamp },
+      ],
+      posts: [
+        {
+          id: 'c1',
+          type: 'note',
+          visibility: 'public',
+          creatorId: 'p1',
+          body: {},
+          ...stamp,
+        },
+        {
+          id: 'c2',
+          type: 'note',
+          visibility: 'public',
+          creatorId: 'p1',
+          body: {},
+          ...stamp,
+        },
+        {
+          id: 'c3',
+          type: 'note',
+          visibility: 'public',
+          creatorId: 'p1',
+          body: {},
+          ...stamp,
+        },
+      ],
+    });
+
+    const mapping: MapData<object, object> = {
+      collection: 'posts',
+      limit: 2,
+    };
+    const replies = await relationsFrom(db, { id: 'root' }, 'posts', {
+      alias: 'context',
+      edgeCollection: 'replyTo',
+      direction: 'INBOUND',
+      cardinality: 'many',
+      skipEdge: true,
+      maxDepth: 9999,
+      mapping,
+    });
+
+    expect(replies).toHaveLength(2);
+  });
+
+  it('hydrateMapData uses batchResolve for derived properties', async () => {
+    const db = createFakeDb({});
+    let batchCalls = 0;
+    const docs = await hydrateMapData(
+      db,
+      {
+        collection: 'posts',
+        postFilterDerivedProperties: [
+          {
+            alias: 'seen',
+            resolve: () => false,
+            batchResolve: (_db, batch) => {
+              batchCalls += 1;
+              return new Map(batch.map((d) => [d.id as string, true]));
+            },
+          },
+        ],
+      },
+      [
+        { id: 'a', type: 'note' },
+        { id: 'b', type: 'note' },
+      ],
+    );
+    expect(batchCalls).toBe(1);
+    expect(docs.map((d) => d.seen)).toEqual([true, true]);
+  });
 });

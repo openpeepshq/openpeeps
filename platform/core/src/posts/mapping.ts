@@ -17,6 +17,9 @@ const seenByCurrentProfileDerivedProperty = (profile?: { id: string }) => ({
   resolve: postDerived.seen(profile?.id),
 });
 
+const seenBatchByCurrentProfileDerivedProperty = (profile?: { id: string }) =>
+  postDerived.seenBatch(profile?.id);
+
 export const entriesRelation: Relation<Profile, EntryData> = {
   alias: 'entries',
   edgeCollection: 'entries',
@@ -256,6 +259,36 @@ export const postsMappingForProfile = (profile?: { id: string }) =>
       repostRelationForProfile(profile),
       replyToRelation,
     ],
+  });
+
+/** Lean mapping for post detail context — skips audience + nested repost. */
+const contextPostFilterRelations: Relation[] = [
+  entriesRelation,
+  groupRelation,
+  replyCountRelation,
+  repostCountRelation,
+  reactionsRelation,
+  tagsRelation,
+  mentionsRelation,
+  replyToRelation,
+];
+
+export const postContextMappingForProfile = (profile?: { id: string }) =>
+  map<PostData, DbPost>({
+    ...preFilterMapData,
+    postFilterRelations: contextPostFilterRelations,
+    postFilterDerivedProperties: [
+      {
+        alias: 'inReplyToId',
+        resolve: postDerived.inReplyToId,
+      },
+      {
+        alias: 'groupId',
+        resolve: postDerived.groupId,
+      },
+      seenBatchByCurrentProfileDerivedProperty(profile),
+    ],
+    limit: 100,
   });
 
 export const contextRelation = (

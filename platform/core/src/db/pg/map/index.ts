@@ -214,10 +214,11 @@ export const map = <
         relationsFrom(db, start, mapData.collection, relation).then(
           (rows) => rows[0] as E | undefined,
         ),
-      limit: (limit: Limit) => {
-        const limited = map({ ...mapData, limit });
-        return limited.relationsFrom(start, relation);
-      },
+      limit: (limit: Limit) =>
+        map(mapData).relationsFrom(start, {
+          ...relation,
+          mapping: { ...relation.mapping, limit },
+        }),
       query: () => {
         throw new Error('query() is not supported for Postgres relationsFrom');
       },

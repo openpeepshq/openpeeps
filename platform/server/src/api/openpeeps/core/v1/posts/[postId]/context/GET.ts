@@ -1,5 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import { findPost, ancestors, descendents } from '@openpeeps/core/posts';
+import { findPost, getPostContext } from '@openpeeps/core/posts';
 import { postContextSchema } from '@openpeeps/common/types';
 import { notFound, forbidden } from '#lib/errors';
 import { ensureProfileOrPublicCommunity } from '#lib/auth';
@@ -17,7 +17,6 @@ export const Error = {
 
 export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (param, event) => {
-
     await ensureProfileOrPublicCommunity(event);
 
     const mergedPost = await findPost(param.postId, event.context.authData);
@@ -26,9 +25,6 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
       throw notFound(`Object with id ${param.postId}`);
     }
 
-    return {
-      ancestors: await ancestors(event.context.authData, mergedPost, 25),
-      descendants: await descendents(event.context.authData, mergedPost, 25)
-    };
+    return getPostContext(mergedPost, event.context.authData);
   },
 );
