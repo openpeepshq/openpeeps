@@ -22,6 +22,13 @@
       "when": 1782142676190,
       "tag": "0002_data_migrations_id_text",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783440000000,
+      "tag": "0003_fix_group_post_visibility",
+      "breakpoints": true
     }
   ]
 }
