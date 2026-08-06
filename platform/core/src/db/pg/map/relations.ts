@@ -9,6 +9,7 @@ import {
 import type {
   DerivedProperty,
   ForeignKeyRelation,
+  Limit,
   MapData,
   OMFilter,
   PgFilter,
@@ -123,14 +124,7 @@ const hydrateDocuments = async (
   for (const fkr of mapData.foreignKeyRelations ?? []) {
     docs = await attachForeignKeyRelation(db, docs, fkr);
   }
-  for (const dp of mapData.derivedProperties ?? []) {
-    docs = await Promise.all(
-      docs.map(async (doc) => ({
-        ...doc,
-        [String(dp.alias)]: await evaluateDerived(db, doc, dp),
-      })),
-    );
-  }
+  docs = await attachDerivedProperties(db, docs, mapData.derivedProperties);
   docs = applyPostFilters(
     docs,
     postFilters ?? mapData.filters,
@@ -143,15 +137,38 @@ const hydrateDocuments = async (
   for (const fkr of mapData.postFilterForeignKeyRelations ?? []) {
     docs = await attachForeignKeyRelation(db, docs, fkr);
   }
-  for (const dp of mapData.postFilterDerivedProperties ?? []) {
-    docs = await Promise.all(
-      docs.map(async (doc) => ({
+  docs = await attachDerivedProperties(
+    db,
+    docs,
+    mapData.postFilterDerivedProperties,
+  );
+  return docs;
+};
+
+const attachDerivedProperties = async (
+  db: PgDb,
+  docs: Doc[],
+  derivedProperties?: DerivedProperty[],
+): Promise<Doc[]> => {
+  if (!derivedProperties?.length) return docs;
+  let result = docs;
+  for (const dp of derivedProperties) {
+    if (dp.batchResolve) {
+      const values = await dp.batchResolve(db, result);
+      result = result.map((doc) => ({
+        ...doc,
+        [String(dp.alias)]: values.get(doc.id as string),
+      }));
+      continue;
+    }
+    result = await Promise.all(
+      result.map(async (doc) => ({
         ...doc,
         [String(dp.alias)]: await evaluateDerived(db, doc, dp),
       })),
     );
   }
-  return docs;
+  return result;
 };
 
 export const hydrateMapData = async (
@@ -333,20 +350,29 @@ const resolveRelationValue = async (
   return relation.cardinality === 'one' ? items[0] : items;
 };
 
+const nodeCapFromLimit = (limit?: Limit): number | undefined => {
+  if (limit == null) return undefined;
+  return typeof limit === 'number' ? limit : limit[1];
+};
+
 const traverseRelation = async (
   db: PgDb,
   startId: string,
   relation: Relation,
 ): Promise<Doc[]> => {
   const maxDepth = relation.maxDepth ?? 1;
+  const nodeCap = nodeCapFromLimit(relation.mapping?.limit);
   const edgeTableRef = getEdgeTable(
     edgeCollectionName(relation.edgeCollection),
   );
   const edgeTable = asTable(edgeTableRef);
   const collected: Doc[] = [];
+  const visited = new Set<string>([startId]);
   let frontier = [startId];
 
   for (let depth = 0; depth < maxDepth && frontier.length; depth++) {
+    if (nodeCap !== undefined && collected.length >= nodeCap) break;
+
     const parentCol = edgeTable[parentEdgeColumn(relation)] as never;
     const vertexCol = vertexEdgeColumn(relation);
     const edgeRows = await db
@@ -356,9 +382,24 @@ const traverseRelation = async (
 
     if (!edgeRows.length) break;
 
-    const vertexIds = edgeRows.map(
-      (e) => (e as Record<string, unknown>)[vertexCol] as string,
-    );
+    let vertexIds = [
+      ...new Set(
+        edgeRows
+          .map((e) => (e as Record<string, unknown>)[vertexCol] as string)
+          .filter((id) => !visited.has(id)),
+      ),
+    ];
+    if (!vertexIds.length) break;
+
+    if (nodeCap !== undefined) {
+      const remaining = nodeCap - collected.length;
+      vertexIds = vertexIds.slice(0, remaining);
+    }
+
+    for (const id of vertexIds) {
+      visited.add(id);
+    }
+
     const vertexCollection = vertexCollectionFor(relation);
     if (!vertexCollection) break;
 
@@ -375,7 +416,11 @@ const traverseRelation = async (
     frontier = vertexIds;
   }
 
-  return collected;
+  // BFS is nearest-first; conversation roots need mapping sort (e.g. id ASC).
+  return applyLimit(
+    applySort(collected, relation.mapping?.sort),
+    relation.mapping?.limit,
+  ) as Doc[];
 };
 
 export const executeFind = async (
@@ -496,6 +541,12 @@ export const relationsFrom = async (
   parentCollection: string,
   relation: Relation & { mapping: MapData<object, object> },
 ): Promise<Doc[]> => {
+  // Match attachRelation: honor maxDepth via BFS traversal. Without this,
+  // callers like getConversationByStart only see direct (depth-1) replies.
+  if (relation.maxDepth && relation.maxDepth > 1) {
+    return traverseRelation(db, start.id, relation);
+  }
+
   const edgeTableRef = getEdgeTable(
     edgeCollectionName(relation.edgeCollection),
   );

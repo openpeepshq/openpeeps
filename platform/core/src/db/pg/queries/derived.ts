@@ -1,10 +1,11 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import type { PgDb } from '../client';
 import { posts } from '../schema/documents';
 import { entries, postGroups, postSeen } from '../schema/edges';
 import { normalizeIsoDatetime } from '../mappers';
 import { asTable } from '../map/registry';
 import { getEdgeTable } from '../map/filters';
+import type { DerivedProperty } from '../map/queryTypes';
 
 type Doc = Record<string, unknown>;
 
@@ -74,6 +75,34 @@ export const postDerived = {
         .limit(1);
       return rows.length > 0;
     },
+
+  /** One post_seen query for the whole hydrate batch. */
+  seenBatch: (profileId?: string): DerivedProperty => ({
+    alias: 'seen',
+    resolve: postDerived.seen(profileId),
+    batchResolve: async (db, docs) => {
+      const values = new Map<string, unknown>();
+      if (!profileId || !docs.length) {
+        for (const doc of docs) values.set(doc.id as string, false);
+        return values;
+      }
+      const ids = docs.map((doc) => doc.id as string);
+      const edgeTableRef = getEdgeTable('postSeen');
+      const edgeTable = asTable(edgeTableRef);
+      const rows = (await db
+        .select({ toId: edgeTable.toId as never })
+        .from(edgeTableRef as never)
+        .where(
+          and(
+            eq(edgeTable.fromId as never, profileId),
+            inArray(edgeTable.toId as never, ids),
+          ),
+        )) as { toId: string }[];
+      const seenIds = new Set(rows.map((row) => row.toId));
+      for (const id of ids) values.set(id, seenIds.has(id));
+      return values;
+    },
+  }),
 
   inReplyToId: (_db: PgDb, doc: Doc) =>
     (doc.replyTo as { id?: string } | undefined)?.id,

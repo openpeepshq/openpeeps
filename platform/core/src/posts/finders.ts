@@ -14,6 +14,7 @@ import { edgeFilters, postFilters } from '../db/pg/filters';
 import {
   contextRelation,
   conversationLeavesMappingForProfile,
+  postContextMappingForProfile,
   postsMappingForProfile,
   repostsOfPostRelationForProfile,
   postIdsMapping,
@@ -39,6 +40,7 @@ import { findHashtagByTag, hashtagsMapping } from '../hashtags';
 import { findGroup } from '../groups/finders';
 import { groupsMapping } from '../groups/mapping';
 import { profilesMapping } from '../profiles/mapping';
+import { CONTEXT_NODE_CAP, loadReplyContextPosts } from './contextClosure';
 
 /**
  * Throws if the given `authData` does not include a profile.
@@ -575,6 +577,27 @@ export const getConversationByStart = async (
     9999,
     sortOldestFirst<DbPost>(postsMappingForProfile(authData.profile)),
   ).then((conversation) => [post, ...conversation]);
+
+/** Full ancestor/descendant trees for post detail (CTE + lean mapping). */
+export const getPostContext = async (
+  post: PostWithMeta,
+  authData: AuthorizationData,
+) => {
+  const mapping = sortOldestFirst<DbPost>(
+    postContextMappingForProfile(authData.profile),
+  );
+  const [ancestorPosts, descendantPosts] = await Promise.all([
+    loadReplyContextPosts(authData, post.id, 'ancestors', mapping, {
+      maxDepth: 9999,
+      limit: CONTEXT_NODE_CAP,
+    }),
+    loadReplyContextPosts(authData, post.id, 'descendents', mapping, {
+      maxDepth: 9999,
+      limit: CONTEXT_NODE_CAP,
+    }),
+  ]);
+  return { ancestors: ancestorPosts, descendants: descendantPosts };
+};
 
 export const mentions = async (post: Post, profile: Profile) =>
   allpeepDb().then(({ db }) => mentionsConnectionFinder(db, post, profile));

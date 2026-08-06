@@ -49,6 +49,11 @@ export type DerivedDoc = Record<string, unknown>;
 export interface DerivedProperty {
   alias: string;
   resolve: (db: PgDb, doc: DerivedDoc) => Promise<unknown> | unknown;
+  /** When set, hydrate calls this once per batch instead of per-doc resolve. */
+  batchResolve?: (
+    db: PgDb,
+    docs: DerivedDoc[],
+  ) => Promise<Map<string, unknown>> | Map<string, unknown>;
 }
 
 export type TraversalDirection = 'INBOUND' | 'OUTBOUND' | 'ANY';
