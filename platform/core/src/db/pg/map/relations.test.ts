@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getTableName, type Table } from 'drizzle-orm';
 import type { PgDb } from '../client';
+import { documentKeyBefore } from '../filters';
 import { fetchRowsByIds, hydrateMapData, relationsFrom } from './relations';
 import type { MapData, Relation } from './queryTypes';
 
@@ -235,6 +236,86 @@ describe('map relations', () => {
       mapping,
     });
     expect(counted).toEqual([{ count: 2 }]);
+  });
+
+  it('relationsFrom skipEdge applies documentKeyBefore SQL filter', async () => {
+    // Fake DB cannot evaluate Drizzle SQL predicates; instead assert that the
+    // skipEdge path builds a filtered select (where + orderBy) rather than a
+    // bare fetchRowsByIds query that ignored `start` cursors (#1121).
+    const calls: { table: string; usedWhere: boolean; usedOrderBy: boolean }[] =
+      [];
+    const rowsByTable: Record<string, Row[]> = {
+      reply_to: [
+        { id: 'r1', fromId: 'child-1', toId: 'parent', body: {}, ...stamp },
+        { id: 'r2', fromId: 'child-2', toId: 'parent', body: {}, ...stamp },
+      ],
+      posts: [
+        {
+          id: 'child-1',
+          type: 'note',
+          visibility: 'public',
+          creatorId: 'p1',
+          body: { text: 'one' },
+          ...stamp,
+        },
+        {
+          id: 'child-2',
+          type: 'note',
+          visibility: 'public',
+          creatorId: 'p1',
+          body: { text: 'two' },
+          ...stamp,
+        },
+      ],
+    };
+    const db = {
+      select: () => ({
+        from: (table: unknown) => {
+          const name = getTableName(table as Table);
+          const state = { usedWhere: false, usedOrderBy: false };
+          const result = Promise.resolve(rowsByTable[name] ?? []).then(
+            (rows) => {
+              calls.push({ ...state, table: name });
+              return rows;
+            },
+          );
+          const api: Record<string, unknown> = {
+            where: () => {
+              state.usedWhere = true;
+              return api;
+            },
+            limit: () => api,
+            orderBy: () => {
+              state.usedOrderBy = true;
+              return api;
+            },
+            offset: () => api,
+            $dynamic: () => api,
+            then: result.then.bind(result),
+            catch: result.catch.bind(result),
+            finally: result.finally.bind(result),
+          };
+          return api;
+        },
+      }),
+    } as unknown as PgDb;
+
+    await relationsFrom(db, { id: 'parent' }, 'posts', {
+      alias: 'replies',
+      edgeCollection: 'replyTo',
+      direction: 'INBOUND',
+      cardinality: 'many',
+      skipEdge: true,
+      mapping: {
+        collection: 'posts',
+        filters: [documentKeyBefore('posts', 'child-2')],
+        sort: [['DOC.id', 'DESC']],
+      },
+    });
+
+    const postsQuery = calls.find((c) => c.table === 'posts');
+    expect(postsQuery?.usedWhere).toBe(true);
+    expect(postsQuery?.usedOrderBy).toBe(true);
   });
 
   it('relationsFrom honors maxDepth and returns nested descendents', async () => {
