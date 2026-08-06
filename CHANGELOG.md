@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **jams**: stamp instanceDomain on LiveKit room create
 - **auth**: allow capability-scoped register when sign-ups are closed
 - **react-native**: enhance unread message and post tracking features
 - **core**: add SERVER_MAX_PROFILES cap for non-deleted profiles
@@ -13,6 +14,14 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **ui**: theme audience search input for dark mode
+- **jams**: keep observer service JWTs from redirecting to login
+- **emails**: restore jam-started notification body for event posts
+- **jams**: keep jam recording edge ids aligned with row keys
+- **jams**: restore jam recording updates on Postgres edges
+- **server**: log Riddl internal errors at error level
+- **push**: clear mismatched VAPID subscriptions before resubscribe
+- **email**: remove unused renderHostBaseUrl
 - **web**: inject community name into SPA Open Graph meta
 - **config**: merge admin config PATCH instead of replacing
 - **cli**: short-circuit opc JWT secret mint without loading core
@@ -47,6 +56,8 @@ Changelog for OpenPeeps
 
 ### Tests
 
+- **integration**: fill empty-suite gaps and fix closed-signup 403
+- **email**: expand Mailpit coverage and fix settings cache
 - **core**: cover db/pg map filters, relations, and capability helpers
 
 ### Chores
