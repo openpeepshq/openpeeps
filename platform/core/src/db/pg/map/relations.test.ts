@@ -236,4 +236,44 @@ describe('map relations', () => {
     });
     expect(counted).toEqual([{ count: 2 }]);
   });
+
+  it('relationsFrom honors maxDepth and returns nested descendents', async () => {
+    const db = createFakeDb({
+      reply_to: [
+        { id: 'r1', fromId: 'child-1', toId: 'root', body: {}, ...stamp },
+        { id: 'r2', fromId: 'child-2', toId: 'child-1', body: {}, ...stamp },
+      ],
+      posts: [
+        {
+          id: 'child-1',
+          type: 'note',
+          visibility: 'direct',
+          creatorId: 'p1',
+          body: { text: 'one' },
+          ...stamp,
+        },
+        {
+          id: 'child-2',
+          type: 'note',
+          visibility: 'direct',
+          creatorId: 'p1',
+          body: { text: 'two' },
+          ...stamp,
+        },
+      ],
+    });
+
+    const mapping: MapData<object, object> = { collection: 'posts' };
+    const replies = await relationsFrom(db, { id: 'root' }, 'posts', {
+      alias: 'context',
+      edgeCollection: 'replyTo',
+      direction: 'INBOUND',
+      cardinality: 'many',
+      skipEdge: true,
+      maxDepth: 9999,
+      mapping,
+    });
+
+    expect(replies.map((r) => r.id).sort()).toEqual(['child-1', 'child-2']);
+  });
 });

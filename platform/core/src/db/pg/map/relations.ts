@@ -344,6 +344,7 @@ const traverseRelation = async (
   );
   const edgeTable = asTable(edgeTableRef);
   const collected: Doc[] = [];
+  const visited = new Set<string>([startId]);
   let frontier = [startId];
 
   for (let depth = 0; depth < maxDepth && frontier.length; depth++) {
@@ -356,9 +357,19 @@ const traverseRelation = async (
 
     if (!edgeRows.length) break;
 
-    const vertexIds = edgeRows.map(
-      (e) => (e as Record<string, unknown>)[vertexCol] as string,
-    );
+    const vertexIds = [
+      ...new Set(
+        edgeRows
+          .map((e) => (e as Record<string, unknown>)[vertexCol] as string)
+          .filter((id) => !visited.has(id)),
+      ),
+    ];
+    if (!vertexIds.length) break;
+
+    for (const id of vertexIds) {
+      visited.add(id);
+    }
+
     const vertexCollection = vertexCollectionFor(relation);
     if (!vertexCollection) break;
 
@@ -496,6 +507,12 @@ export const relationsFrom = async (
   parentCollection: string,
   relation: Relation & { mapping: MapData<object, object> },
 ): Promise<Doc[]> => {
+  // Match attachRelation: honor maxDepth via BFS traversal. Without this,
+  // callers like getConversationByStart only see direct (depth-1) replies.
+  if (relation.maxDepth && relation.maxDepth > 1) {
+    return traverseRelation(db, start.id, relation);
+  }
+
   const edgeTableRef = getEdgeTable(
     edgeCollectionName(relation.edgeCollection),
   );

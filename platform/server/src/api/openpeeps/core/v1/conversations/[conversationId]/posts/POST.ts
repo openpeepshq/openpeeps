@@ -34,18 +34,26 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
 
     await ensurePostCapabilities(event, post, ['core-posts-reply']);
 
-    const lastPost = await descendents(event.context.authData, post, 9999).then(
-      (conversation) => conversation[0] ?? post,
-    );
+    // Newest leaf by id (UUIDv7 is time-ordered). Unsorted [0] is not
+    // reliably the latest and forks the DM chain.
+    const replies = await descendents(event.context.authData, post, 9999);
+    const lastPost =
+      replies.length === 0
+        ? post
+        : replies.reduce((newest, current) =>
+            current.id > newest.id ? current : newest,
+          );
 
     if (!lastPost?.audience?.map((m) => m.id).includes(profile.id)) {
       throw forbidden();
     }
 
     const postData = postDataUnionSchema.parse(input.data);
-    const object: PostData = postDataSchema.parse(
-      { ...input, creatorId: profile.id, visibility: 'direct' }
-    );
+    const object: PostData = postDataSchema.parse({
+      ...input,
+      creatorId: profile.id,
+      visibility: 'direct',
+    });
     const inReplyToId = lastPost.id;
     const audience = input?.audience;
 
