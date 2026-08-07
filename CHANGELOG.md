@@ -3,6 +3,21 @@ Changelog for OpenPeeps
 
 ## Current
 
+- No changes
+
+## 2026-08-06
+
+### Bug Fixes
+
+- **groups**: stop plus-button jitter on short group feeds
+- **posts**: coerce group-linked posts to visibility group
+
+### Performance
+
+- **posts**: speed up post context with CTE and lean mapping
+
+## 2026-08-06
+
 ### Features
 
 - **jams**: stamp instanceDomain on LiveKit room create
