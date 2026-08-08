@@ -33,7 +33,7 @@ import { PollComposerFields } from './PollComposerFields';
 import { PostAudienceSelector } from './PostAudienceSelector';
 import { PostTypeSwitcher } from './PostTypeSwitcher';
 import { audienceSummary } from './audienceChoices';
-import { Avatar } from '../../profile';
+import { Avatar, ProfileBadge } from '../../profile';
 
 const toDatetimeLocal = (iso?: string): string => {
   if (!iso) return '';
@@ -339,12 +339,20 @@ export function NewPostModal({
                     {me.displayName ?? me.handle}
                     <ChevronDown className="text-muted-foreground size-4" />
                   </span>
-                  <span className="text-muted-foreground truncate text-sm">
-                    {audienceSummary(
-                      visibility,
-                      t,
-                      selectedGroupName,
-                      audience.length,
+                  <span className="text-muted-foreground text-sm">
+                    {visibility === 'direct' && audience.length > 0 ? (
+                      <span className="flex flex-wrap gap-1">
+                        {audience.map((profile) => (
+                          <ProfileBadge key={profile.id} profile={profile} />
+                        ))}
+                      </span>
+                    ) : (
+                      audienceSummary(
+                        visibility,
+                        t,
+                        selectedGroupName,
+                        audience.length,
+                      )
                     )}
                   </span>
                 </span>

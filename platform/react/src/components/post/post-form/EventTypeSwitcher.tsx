@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, MapPin } from 'lucide-react';
-import type { Event, GeocodingResult, Location, PublicProfile } from '@openpeeps/common/types';
+import type {
+  Event,
+  GeocodingResult,
+  Location,
+  PublicProfile,
+} from '@openpeeps/common/types';
 import { Input, Label } from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useServerInfo } from '../../server-data';
 import { useCurrentProfile } from '../../layout/IdentityContext';
-import { ProfileSelector } from '../../profile';
+import { ProfilesInput } from '../../profile';
 
 export type EventFormat = 'jam' | 'external' | 'in-person';
 
@@ -142,8 +147,7 @@ export function EventTypeSwitcher({
   const switchFormat = (value: EventFormat) => {
     if (eventFormat === value) return;
     setEventFormat(value);
-    const origin =
-      typeof window !== 'undefined' ? window.location.origin : '';
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
     if (value === 'jam') {
       onChange({
         ...event,
@@ -208,7 +212,9 @@ export function EventTypeSwitcher({
 
   return (
     <div className="space-y-3">
-      <Label title={t('events.form.eventFormat', { defaultValue: 'Event format' })}>
+      <Label
+        title={t('events.form.eventFormat', { defaultValue: 'Event format' })}
+      >
         <div className="mt-2 flex flex-col gap-2">
           {formats.map((format) => (
             <label key={format.value} className="flex w-fit items-center gap-2">
@@ -263,8 +269,8 @@ export function EventTypeSwitcher({
                 defaultValue: 'Jam moderators',
               })}
             </Label>
-            <ProfileSelector
-              selectedProfiles={moderatorProfiles}
+            <ProfilesInput
+              value={moderatorProfiles}
               onChange={handleModeratorsChange}
               placeholder={t('events.form.jamModeratorsDescription', {
                 defaultValue: 'Click to select jam moderators',

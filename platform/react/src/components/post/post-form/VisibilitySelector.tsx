@@ -6,7 +6,7 @@ import { useT } from '../../../i18n';
 import { useAuthData, useCurrentProfile } from '../../layout/IdentityContext';
 import { useServerInfo } from '../../server-data';
 import { GroupAvatar } from '../../groups/GroupAvatar';
-import { Avatar } from '../../profile';
+import { ProfileBadge } from '../../profile';
 import { buildAudienceChoices } from './audienceChoices';
 
 export interface VisibilitySelectorProps {
@@ -63,22 +63,15 @@ export const VisibilitySelector = ({
     if (postData.visibility === 'direct') {
       const audience = postData.audience ?? [];
       return (
-        <span className="flex items-center gap-1 text-sm font-light">
-          <span className="pr-2">{description('direct')}</span>
-          <span className="flex items-center">
-            {audience.slice(0, 5).map((profile) => (
-              <Avatar
-                key={profile.id}
-                profile={profile}
-                borderless
-                size={1.2}
-                containerClassName="!p-0 border-none -ml-2"
-              />
-            ))}
-            {audience.length > 5 ? (
-              <span className="text-sm font-light">+{audience.length - 5}</span>
-            ) : null}
-          </span>
+        <span className="flex min-w-0 items-center gap-1 text-sm font-light">
+          <span className="shrink-0 pr-2">{description('direct')}</span>
+          {audience.length ? (
+            <span className="flex min-w-0 flex-wrap items-center gap-1">
+              {audience.map((profile) => (
+                <ProfileBadge key={profile.id} profile={profile} />
+              ))}
+            </span>
+          ) : null}
         </span>
       );
     }

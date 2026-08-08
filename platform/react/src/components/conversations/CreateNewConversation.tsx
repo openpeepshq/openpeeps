@@ -1,7 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Check, Search, X } from 'lucide-react';
+import { useState } from 'react';
 import type { PostCreationData, PublicProfile } from '@openpeeps/common/types';
-import { matchesQuery } from '@openpeeps/common/lib';
 import {
   Button,
   Dialog,
@@ -9,13 +7,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Input,
 } from '@openpeeps/react-ui';
 import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';
-import { Avatar, ProfileCard } from '../profile';
+import { ProfilesInput } from '../profile';
 
 const MAX_MESSAGE_LENGTH = 500;
 
@@ -26,43 +23,24 @@ export interface CreateNewConversationProps {
   onClose: () => void;
 }
 
-export function CreateNewConversation({
+export const CreateNewConversation = ({
   profiles: initialProfiles = [],
   message: initialMessage = '',
   skipProfileSelection = false,
   onClose,
-}: CreateNewConversationProps) {
+}: CreateNewConversationProps) => {
   const t = useT();
   const navigate = useNavigate();
   const me = useCurrentProfile();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
-  const profilesQuery = openpeepsApi.useProfiles();
 
   const [step, setStep] = useState(skipProfileSelection ? 2 : 1);
-  const [profileQuery, setProfileQuery] = useState('');
   const [selectedProfiles, setSelectedProfiles] =
     useState<PublicProfile[]>(initialProfiles);
   const [message, setMessage] = useState(initialMessage);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const selectableProfiles = useMemo(() => {
-    const all = profilesQuery.data ?? [];
-    return all.filter(
-      (profile) =>
-        profile.id !== me?.id &&
-        (!profileQuery || matchesQuery(profile, profileQuery)),
-    );
-  }, [profilesQuery.data, me?.id, profileQuery]);
-
-  const toggleProfile = (profile: PublicProfile) => {
-    setSelectedProfiles((prev) =>
-      prev.some((p) => p.id === profile.id)
-        ? prev.filter((p) => p.id !== profile.id)
-        : [...prev, profile],
-    );
-  };
 
   const send = async () => {
     if (!me || selectedProfiles.length === 0) return;
@@ -101,68 +79,18 @@ export function CreateNewConversation({
               </DialogTitle>
             </DialogHeader>
 
-            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
-              <div className="flex items-center gap-2 border-b pb-2">
-                <Search className="size-5 shrink-0" />
-                <Input
-                  value={profileQuery}
-                  onChange={(e) => setProfileQuery(e.target.value)}
-                  placeholder={t('conversations.createNew.searchPlaceholder', {
-                    defaultValue: 'Search members…',
-                  })}
-                  className="border-none bg-transparent shadow-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
-
-              {selectedProfiles.length > 0 ? (
-                <div className="flex flex-wrap gap-2 border-b pb-2">
-                  {selectedProfiles.map((profile) => (
-                    <div
-                      key={profile.id}
-                      className="flex items-center gap-2 rounded-xl border px-3 py-1"
-                    >
-                      <Avatar profile={profile} size={2} borderless />
-                      <span className="text-sm font-semibold">
-                        {profile.displayName || profile.handle}
-                      </span>
-                      <button
-                        type="button"
-                        title={t('common.remove', { defaultValue: 'Remove' })}
-                        onClick={() =>
-                          setSelectedProfiles((prev) =>
-                            prev.filter((p) => p.id !== profile.id),
-                          )
-                        }
-                      >
-                        <X className="size-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-
-              {profilesQuery.isSuccess
-                ? selectableProfiles.map((profile) => {
-                    const selected = selectedProfiles.some(
-                      (p) => p.id === profile.id,
-                    );
-                    return (
-                      <div
-                        key={profile.id}
-                        className="hover:bg-surface-100 flex w-full items-center justify-between rounded-md"
-                      >
-                        <ProfileCard
-                          profile={profile}
-                          onSelect={() => toggleProfile(profile)}
-                          showAction={false}
-                        />
-                        {selected ? (
-                          <Check className="text-primary mr-4 size-5 shrink-0" />
-                        ) : null}
-                      </div>
-                    );
-                  })
-                : null}
+            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">
+              <ProfilesInput
+                value={selectedProfiles}
+                onChange={setSelectedProfiles}
+                banlist={me ? [me] : []}
+                placeholder={t('conversations.createNew.searchPlaceholder', {
+                  defaultValue: 'Search members…',
+                })}
+                title={t('conversations.createNew.title', {
+                  defaultValue: 'New message',
+                })}
+              />
             </div>
 
             <DialogFooter>
@@ -233,4 +161,4 @@ export function CreateNewConversation({
       </DialogContent>
     </Dialog>
   );
-}
+};

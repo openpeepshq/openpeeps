@@ -241,6 +241,17 @@
       "noResults": "No results found",
       "noProfilesAvailable": "No profiles available"
     },
+    "selector": {
+      "title": "Select profiles",
+      "search": "Search profiles…",
+      "empty": "No profiles available",
+      "emptySearch": "No results found",
+      "confirm": "OK",
+      "remove": "Remove"
+    },
+    "input": {
+      "placeholder": "Select profiles"
+    },
     "postsAndReplies": {
       "openGroupTitle": "Open group"
     },

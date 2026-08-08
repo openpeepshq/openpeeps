@@ -15,14 +15,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Input,
 } from '@openpeeps/react-ui';
 import { useT } from '../../../i18n';
 import { useAuthData, useCurrentProfile } from '../../layout/IdentityContext';
 import { useServerInfo } from '../../server-data';
 import { GroupCard } from '../../groups/GroupCard';
-import { ProfileCard } from '../../profile';
-import { useOpenpeeps } from '../../../contexts/openpeeps';
+import { ProfileBadge, ProfileSelector } from '../../profile';
 import { buildAudienceChoices } from './audienceChoices';
 
 export interface PostAudienceSelectorProps {
@@ -36,7 +34,7 @@ export interface PostAudienceSelectorProps {
   onConfirm: (settings: AudienceSetting) => void;
 }
 
-export function PostAudienceSelector({
+export const PostAudienceSelector = ({
   open,
   onClose,
   type = 'note',
@@ -45,19 +43,15 @@ export function PostAudienceSelector({
   audience = [],
   showDirect = true,
   onConfirm,
-}: PostAudienceSelectorProps) {
+}: PostAudienceSelectorProps) => {
   const t = useT();
   const authData = useAuthData();
   const me = useCurrentProfile();
   const serverInfo = useServerInfo();
-  const { openpeepsApi } = useOpenpeeps();
   const [draftVisibility, setDraftVisibility] = useState(visibility);
   const [draftGroupId, setDraftGroupId] = useState(groupId);
   const [draftAudience, setDraftAudience] = useState(audience);
   const [view, setView] = useState<'main' | 'groups' | 'audience'>('main');
-  const [search, setSearch] = useState('');
-
-  const profilesQuery = openpeepsApi.useSearchProfiles(search);
 
   useEffect(() => {
     if (!open) return;
@@ -65,7 +59,6 @@ export function PostAudienceSelector({
     setDraftGroupId(groupId);
     setDraftAudience(audience);
     setView('main');
-    setSearch('');
   }, [open, visibility, groupId, audience]);
 
   const choices = useMemo(
@@ -81,171 +74,171 @@ export function PostAudienceSelector({
     () =>
       me?.memberships
         ?.map((m) => m.group)
-        .filter((grp) =>
-          checkGroupCapabilities(
-            authData,
-            [`core-posts-create-${type}`],
-            grp,
-          ).success,
+        .filter(
+          (grp) =>
+            checkGroupCapabilities(authData, [`core-posts-create-${type}`], grp)
+              .success,
         ) ?? [],
     [me, authData, type],
   );
 
-  const profileResults = (profilesQuery.data?.pages ?? [])
-    .flat()
-    .map((item) => item.data)
-    .filter((p) => p.id !== me?.id)
-    .slice(0, 8);
-
   const selectVisibility = (value: VisibilityType) => {
     setDraftVisibility(value);
+    if (value !== 'direct') setDraftAudience([]);
+    if (value !== 'group') setDraftGroupId(undefined);
     if (value === 'group' && !draftGroupId) {
       setView('groups');
       return;
     }
-    if (value === 'direct' && draftAudience.length === 0) {
+    if (value === 'direct') {
       setView('audience');
-      return;
     }
-    if (value !== 'group') setDraftGroupId(undefined);
-    if (value !== 'direct') setDraftAudience([]);
-  };
-
-  const toggleAudience = (profile: PublicProfile) => {
-    setDraftAudience((prev) =>
-      prev.some((p) => p.id === profile.id)
-        ? prev.filter((p) => p.id !== profile.id)
-        : [...prev, profile],
-    );
   };
 
   const confirm = () => {
     onConfirm({
       visibility: draftVisibility,
-      groupId: draftGroupId,
-      audience: draftAudience.length ? draftAudience : undefined,
+      groupId: draftVisibility === 'group' ? draftGroupId : undefined,
+      audience:
+        draftVisibility === 'direct' && draftAudience.length
+          ? draftAudience
+          : undefined,
     });
     onClose();
   };
 
   return (
-    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {t('posts.form.audienceTitle', { defaultValue: 'Who can see this?' })}
-          </DialogTitle>
-        </DialogHeader>
-
-        {view === 'groups' ? (
-          <div className="space-y-2">
-            {groups.map((group) => (
-              <div
-                key={group.id}
-                className="flex w-full items-center justify-between rounded-md border p-2"
-              >
-                <GroupCard
-                  group={group as GroupWithMeta}
-                  noPadding
-                  showAction={false}
-                  onSelect={() => {
-                    setDraftGroupId(group.id);
-                    setDraftVisibility('group');
-                    setView('main');
-                  }}
-                />
-                {draftGroupId === group.id ? (
-                  <CheckCircle className="text-primary size-5" />
-                ) : null}
-              </div>
-            ))}
-            {groups.length === 0 ? (
-              <p className="text-muted-foreground py-4 text-center text-sm">
-                {t('posts.form.noGroups', { defaultValue: 'No groups available' })}
-              </p>
-            ) : null}
-          </div>
-        ) : view === 'audience' ? (
-          <div className="space-y-2">
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t('posts.form.mentionSearch', {
-                defaultValue: 'Search members…',
+    <>
+      <Dialog
+        open={open && view !== 'audience'}
+        onOpenChange={(next) => !next && onClose()}
+      >
+        <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {t('posts.form.audienceTitle', {
+                defaultValue: 'Who can see this?',
               })}
-            />
-            {profileResults.map((profile) => {
-              const selected = draftAudience.some((p) => p.id === profile.id);
-              return (
-                <div
-                  key={profile.id}
-                  className={`w-full rounded-md ${selected ? 'bg-primary/10' : ''}`}
-                >
-                  <ProfileCard
-                    profile={profile}
-                    showAction={false}
-                    onSelect={() => toggleAudience(profile)}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {choices.map((choice) => {
-              const Icon = choice.icon;
-              return (
-                <button
-                  key={choice.value}
-                  type="button"
-                  className="hover:bg-surface-100 flex w-full items-start gap-3 rounded-md border p-3 text-left"
-                  onClick={() => selectVisibility(choice.value)}
-                >
-                  <span className="bg-surface-100 flex size-10 items-center justify-center rounded-full">
-                    <Icon className="size-5" />
-                  </span>
-                  <span className="flex-1">
-                    <span className="block font-medium">{choice.title}</span>
-                    <span className="text-muted-foreground block text-sm">
-                      {choice.description}
-                    </span>
-                    {choice.value === 'group' && draftGroupId ? (
-                      <span className="text-primary mt-1 block text-xs">
-                        {groups.find((g) => g.id === draftGroupId)?.displayName ??
-                          groups.find((g) => g.id === draftGroupId)?.handle}
-                      </span>
-                    ) : null}
-                    {choice.value === 'direct' && draftAudience.length ? (
-                      <span className="text-primary mt-1 block text-xs">
-                        {draftAudience.length}{' '}
-                        {t('posts.form.recipients', { defaultValue: 'recipients' })}
-                      </span>
-                    ) : null}
-                  </span>
-                  <span
-                    className={`mt-1 size-4 rounded-full border ${draftVisibility === choice.value ? 'bg-primary border-primary' : ''}`}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        )}
+            </DialogTitle>
+          </DialogHeader>
 
-        <DialogFooter>
-          {view !== 'main' ? (
-            <Button variant="variant-ringed-surface" action={() => setView('main')}>
-              {t('navigation.back', { defaultValue: 'Back' })}
-            </Button>
+          {view === 'groups' ? (
+            <div className="space-y-2">
+              {groups.map((group) => (
+                <div
+                  key={group.id}
+                  className="flex w-full items-center justify-between rounded-md border p-2"
+                >
+                  <GroupCard
+                    group={group as GroupWithMeta}
+                    noPadding
+                    showAction={false}
+                    onSelect={() => {
+                      setDraftGroupId(group.id);
+                      setDraftVisibility('group');
+                      setView('main');
+                    }}
+                  />
+                  {draftGroupId === group.id ? (
+                    <CheckCircle className="text-primary size-5" />
+                  ) : null}
+                </div>
+              ))}
+              {groups.length === 0 ? (
+                <p className="text-muted-foreground py-4 text-center text-sm">
+                  {t('posts.form.noGroups', {
+                    defaultValue: 'No groups available',
+                  })}
+                </p>
+              ) : null}
+            </div>
           ) : (
-            <Button variant="variant-ringed-surface" action={onClose}>
-              {t('common.cancel', { defaultValue: 'Cancel' })}
-            </Button>
+            <div className="space-y-2">
+              {choices.map((choice) => {
+                const Icon = choice.icon;
+                return (
+                  <button
+                    key={choice.value}
+                    type="button"
+                    className="hover:bg-surface-100 flex w-full items-start gap-3 rounded-md border p-3 text-left"
+                    onClick={() => selectVisibility(choice.value)}
+                  >
+                    <span className="bg-surface-100 flex size-10 items-center justify-center rounded-full">
+                      <Icon className="size-5" />
+                    </span>
+                    <span className="flex-1">
+                      <span className="block font-medium">{choice.title}</span>
+                      <span className="text-muted-foreground block text-sm">
+                        {choice.description}
+                      </span>
+                      {choice.value === 'group' && draftGroupId ? (
+                        <span className="text-primary mt-1 block text-xs">
+                          {groups.find((g) => g.id === draftGroupId)
+                            ?.displayName ??
+                            groups.find((g) => g.id === draftGroupId)?.handle}
+                        </span>
+                      ) : null}
+                      {choice.value === 'direct' && draftAudience.length ? (
+                        <span className="mt-1 flex flex-wrap gap-1">
+                          {draftAudience.map((profile) => (
+                            <ProfileBadge
+                              key={profile.id}
+                              profile={profile}
+                              onRemove={() =>
+                                setDraftAudience((current) =>
+                                  current.filter((p) => p.id !== profile.id),
+                                )
+                              }
+                            />
+                          ))}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span
+                      className={`mt-1 size-4 rounded-full border ${draftVisibility === choice.value ? 'bg-primary border-primary' : ''}`}
+                    />
+                  </button>
+                );
+              })}
+            </div>
           )}
-          <Button variant="variant-filled-primary" action={confirm}>
-            {t('common.done', { defaultValue: 'Done' })}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+
+          <DialogFooter>
+            {view !== 'main' ? (
+              <Button
+                variant="variant-ringed-surface"
+                action={() => setView('main')}
+              >
+                {t('navigation.back', { defaultValue: 'Back' })}
+              </Button>
+            ) : (
+              <Button variant="variant-ringed-surface" action={onClose}>
+                {t('common.cancel', { defaultValue: 'Cancel' })}
+              </Button>
+            )}
+            <Button variant="variant-filled-primary" action={confirm}>
+              {t('common.done', { defaultValue: 'Done' })}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <ProfileSelector
+        open={open && view === 'audience'}
+        onOpenChange={(next) => {
+          if (!next) setView('main');
+        }}
+        mode="multiple"
+        selectedProfiles={draftAudience}
+        banlist={me ? [me] : []}
+        onConfirm={(profiles) => {
+          setDraftAudience(profiles);
+          setView('main');
+        }}
+        title={t('posts.form.audienceTitle', {
+          defaultValue: 'Who can see this?',
+        })}
+      />
+    </>
   );
-}
+};
