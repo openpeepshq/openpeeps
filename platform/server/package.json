@@ -23,6 +23,7 @@
     "@openpeepshq/cli": "workspace:^",
     "@openpeepshq/common": "workspace:^",
     "@openpeepshq/core": "workspace:^",
+    "@openpeepshq/mcp": "workspace:^",
     "@openpeepshq/react": "workspace:^",
     "@openpeepshq/worker": "workspace:^",
     "@react-email/components": "^0.5.5",

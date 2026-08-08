@@ -38,6 +38,10 @@ point at this server with no URL changes.
 A machine-readable OpenAPI 3.0 document is served at `/openapi.json` — ~4 MB
 covering all 155 endpoints.
 
+MCP Streamable HTTP is mounted at `/mcp/community` and `/mcp/ops` (Bearer
+token pass-through to the API). See [`@openpeepshq/mcp`](../mcp/README.md).
+Disable with `OPENPEEPS_MCP=0`.
+
 ## Layout
 
 ```
