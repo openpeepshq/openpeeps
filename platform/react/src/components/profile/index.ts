@@ -22,5 +22,12 @@ export { ReportProfileOrPostModal } from './ReportProfileOrPostModal';
 export type { ReportProfileOrPostModalProps } from './ReportProfileOrPostModal';
 export { AvatarWithName } from './AvatarWithName';
 export type { AvatarWithNameProps } from './AvatarWithName';
+export { ProfileBadge } from './ProfileBadge';
+export type { ProfileBadgeProps } from './ProfileBadge';
 export { ProfileSelector } from './ProfileSelector';
-export type { ProfileSelectorProps } from './ProfileSelector';
+export type {
+  ProfileSelectorMode,
+  ProfileSelectorProps,
+} from './ProfileSelector';
+export { ProfilesInput } from './ProfilesInput';
+export type { ProfilesInputProps } from './ProfilesInput';

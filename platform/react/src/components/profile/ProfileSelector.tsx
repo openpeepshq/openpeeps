@@ -1,179 +1,208 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, ChevronDown, Search, Users, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Check, Search } from 'lucide-react';
 import type { PublicProfile } from '@openpeeps/common/types';
 import { matchesQuery, profileName, sortProfiles } from '@openpeeps/common/lib';
-import { Button, Input } from '@openpeeps/react-ui';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+} from '@openpeeps/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { Avatar } from './Avatar';
+import { ProfileBadge } from './ProfileBadge';
 
-export interface ProfileSelectorProps {
+export type ProfileSelectorMode = 'single' | 'multiple';
+
+export type ProfileSelectorProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  mode: ProfileSelectorMode;
   selectedProfiles: PublicProfile[];
-  onChange: (profiles: PublicProfile[]) => void;
-  placeholder?: string;
-  profilesToExclude?: PublicProfile[];
-  containerClassName?: string;
-}
+  onConfirm: (profiles: PublicProfile[]) => void | Promise<void>;
+  filter?: (profile: PublicProfile) => boolean;
+  allowlist?: PublicProfile[];
+  banlist?: PublicProfile[] | string[];
+  title?: string;
+};
+
+const banlistIds = (banlist?: PublicProfile[] | string[]): Set<string> => {
+  if (!banlist?.length) return new Set();
+  return new Set(
+    banlist.map((entry) => (typeof entry === 'string' ? entry : entry.id)),
+  );
+};
+
+const dialogContentClassName =
+  'flex max-h-[85vh] max-w-lg flex-col overflow-hidden max-sm:inset-0 max-sm:h-dvh max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:max-h-none';
 
 export const ProfileSelector = ({
+  open,
+  onOpenChange,
+  mode,
   selectedProfiles,
-  onChange,
-  placeholder = '',
-  profilesToExclude = [],
-  containerClassName,
+  onConfirm,
+  filter,
+  allowlist,
+  banlist,
+  title,
 }: ProfileSelectorProps) => {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const profilesQuery = openpeepsApi.useProfiles();
-  const [isOpen, setIsOpen] = useState(false);
   const [searchString, setSearchString] = useState('');
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const excludeIds = useMemo(
-    () => new Set(profilesToExclude.map((p) => p.id)),
-    [profilesToExclude],
-  );
-
-  const selectableProfiles = useMemo(
-    () =>
-      sortProfiles(
-        (profilesQuery.data ?? [])
-          .filter((p) => !excludeIds.has(p.id))
-          .filter((p) => !searchString || matchesQuery(p, searchString)),
-      ),
-    [profilesQuery.data, excludeIds, searchString],
-  );
+  const [draft, setDraft] = useState<PublicProfile[]>(selectedProfiles);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-        setSearchString('');
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const removeProfile = (profileId: string) => {
-    onChange(selectedProfiles.filter((p) => p.id !== profileId));
-  };
-
-  const addProfile = (profile: PublicProfile) => {
-    if (!selectedProfiles.some((p) => p.id === profile.id)) {
-      onChange([...selectedProfiles, profile]);
-    }
+    if (!open) return;
+    setDraft(selectedProfiles);
     setSearchString('');
+  }, [open, selectedProfiles]);
+
+  const banned = useMemo(() => banlistIds(banlist), [banlist]);
+
+  const selectableProfiles = useMemo(() => {
+    const source = allowlist ?? profilesQuery.data ?? [];
+    return sortProfiles(
+      source
+        .filter((profile) => !banned.has(profile.id))
+        .filter((profile) => !filter || filter(profile))
+        .filter(
+          (profile) => !searchString || matchesQuery(profile, searchString),
+        ),
+    );
+  }, [allowlist, profilesQuery.data, banned, filter, searchString]);
+
+  const isSelected = (profileId: string) =>
+    draft.some((profile) => profile.id === profileId);
+
+  const toggleProfile = (profile: PublicProfile) => {
+    if (mode === 'single') {
+      void Promise.resolve(onConfirm([profile])).then(() => {
+        onOpenChange(false);
+      });
+      return;
+    }
+    setDraft((prev) =>
+      prev.some((p) => p.id === profile.id)
+        ? prev.filter((p) => p.id !== profile.id)
+        : [...prev, profile],
+    );
   };
 
-  const isProfileSelected = (profileId: string) =>
-    selectedProfiles.some((p) => p.id === profileId);
+  const removeDraft = (profileId: string) => {
+    setDraft((prev) => prev.filter((p) => p.id !== profileId));
+  };
+
+  const confirmMultiple = () => {
+    void Promise.resolve(onConfirm(draft)).then(() => {
+      onOpenChange(false);
+    });
+  };
+
+  const singleSelectionId = selectedProfiles[0]?.id;
 
   return (
-    <div
-      ref={containerRef}
-      className={`relative w-full ${containerClassName ?? ''}`}
-    >
-      <Button
-        className="border-surface-300 bg-surface-200 flex min-h-10 w-full items-center justify-between rounded-lg border px-3 py-1 text-left"
-        action={() => setIsOpen((open) => !open)}
-      >
-        <div className="flex flex-1 flex-wrap items-center gap-1">
-          {selectedProfiles.length === 0 ? (
-            <span className="text-muted-foreground flex items-center gap-2">
-              <Users className="size-4" />
-              {placeholder}
-            </span>
-          ) : (
-            selectedProfiles.map((profile) => (
-              <div
-                key={profile.id}
-                className="border-secondary bg-surface-50 text-primary flex items-center gap-1.5 rounded-md border px-2 py-1 text-sm"
-              >
-                <Avatar profile={profile} size={0.75} borderless />
-                <span className="font-medium">{profileName(profile)}</span>
-                <button
-                  type="button"
-                  className="hover:bg-secondary ml-1 rounded-full p-0.5 transition-colors"
-                  title={t('common.remove', { defaultValue: 'Remove' })}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeProfile(profile.id);
-                  }}
-                >
-                  <X className="size-3" />
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-        <ChevronDown
-          className={`text-surface-600 size-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </Button>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={dialogContentClassName}>
+        <DialogHeader>
+          <DialogTitle>
+            {title ??
+              t('profile.selector.title', { defaultValue: 'Select profiles' })}
+          </DialogTitle>
+        </DialogHeader>
 
-      {isOpen ? (
-        <div className="border-surface-300 bg-surface-200 absolute z-[1000] mt-1 w-full rounded-lg border shadow-lg">
-          <div className="border-surface-300 border-b p-3">
-            <div className="relative">
-              <Search className="text-primary absolute left-3 top-1/2 size-4 -translate-y-1/2" />
-              <Input
-                value={searchString}
-                onChange={(e) => setSearchString(e.target.value)}
-                className="border-surface-300 bg-surface-50 w-full rounded-md border py-2 pl-10 pr-3 text-sm"
-                placeholder={t('profile.search.profilesPlaceholder', {
-                  defaultValue: 'Search profiles…',
-                })}
-              />
+        {mode === 'multiple' && draft.length > 0 ? (
+          <div className="shrink-0 border-b pb-2">
+            <div className="flex max-h-40 flex-wrap content-start gap-2 overflow-y-auto">
+              {draft.map((profile) => (
+                <ProfileBadge
+                  key={profile.id}
+                  profile={profile}
+                  onRemove={() => removeDraft(profile.id)}
+                />
+              ))}
             </div>
           </div>
+        ) : null}
 
-          {profilesQuery.isSuccess ? (
-            <div className="max-h-64 overflow-y-auto">
-              {selectableProfiles.length === 0 ? (
-                <div className="text-surface-500 p-4 text-center text-sm">
-                  {searchString
-                    ? t('profile.search.noResults', {
-                        defaultValue: 'No results',
-                      })
-                    : t('profile.search.noProfilesAvailable', {
-                        defaultValue: 'No profiles available',
-                      })}
-                </div>
-              ) : (
-                selectableProfiles.map((profile) => (
-                  <Button
+        <div className="relative">
+          <Search className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+          <Input
+            value={searchString}
+            onChange={(e) => setSearchString(e.target.value)}
+            className="pl-9"
+            placeholder={t('profile.selector.search', {
+              defaultValue: 'Search profiles…',
+            })}
+            autoFocus
+          />
+        </div>
+
+        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
+          {profilesQuery.isSuccess || allowlist ? (
+            selectableProfiles.length === 0 ? (
+              <p className="text-muted-foreground p-4 text-center text-sm">
+                {searchString
+                  ? t('profile.selector.emptySearch', {
+                      defaultValue: 'No results found',
+                    })
+                  : t('profile.selector.empty', {
+                      defaultValue: 'No profiles available',
+                    })}
+              </p>
+            ) : (
+              selectableProfiles.map((profile) => {
+                const selected =
+                  mode === 'single'
+                    ? profile.id === singleSelectionId || isSelected(profile.id)
+                    : isSelected(profile.id);
+                return (
+                  <button
                     key={profile.id}
-                    className={`border-surface-300 hover:bg-surface-100 flex w-full items-center justify-between border-b-[0.5px] p-3 text-left transition-colors last:border-b-0 ${isProfileSelected(profile.id) ? 'bg-secondary text-primary' : ''}`}
-                    action={() => addProfile(profile)}
+                    type="button"
+                    className={`hover:bg-surface-100 flex w-full items-center gap-3 rounded-md p-2 text-left ${selected ? 'bg-secondary/40' : ''}`}
+                    onClick={() => toggleProfile(profile)}
                   >
-                    <div className="flex items-center gap-3">
-                      <Avatar profile={profile} size={1.25} borderless />
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium">
-                          {profileName(profile)}
+                    <Avatar profile={profile} size={2.5} borderless />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium">
+                        {profileName(profile)}
+                      </span>
+                      {profile.handle ? (
+                        <span className="text-muted-foreground block truncate text-xs">
+                          @{profile.handle}
                         </span>
-                        {profile.handle ? (
-                          <span className="text-xs text-gray-500">
-                            {profile.handle}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-                    {isProfileSelected(profile.id) ? (
-                      <Check className="text-primary size-4" />
+                      ) : null}
+                    </span>
+                    {selected ? (
+                      <Check className="text-primary size-4 shrink-0" />
                     ) : null}
-                  </Button>
-                ))
-              )}
-            </div>
+                  </button>
+                );
+              })
+            )
           ) : null}
         </div>
-      ) : null}
-    </div>
+
+        {mode === 'multiple' ? (
+          <DialogFooter>
+            <Button
+              variant="variant-ringed-surface"
+              action={() => onOpenChange(false)}
+            >
+              {t('common.cancel', { defaultValue: 'Cancel' })}
+            </Button>
+            <Button variant="variant-filled-primary" action={confirmMultiple}>
+              {t('profile.selector.confirm', { defaultValue: 'OK' })}
+            </Button>
+          </DialogFooter>
+        ) : null}
+      </DialogContent>
+    </Dialog>
   );
 };
