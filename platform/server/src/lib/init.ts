@@ -2,6 +2,8 @@ import { initializePlugins } from '@openpeeps/core/plugins';
 import { setDefaultRoles } from '@openpeeps/core/roles';
 import { logger } from '@openpeeps/core/log';
 import { registerDefaultNotifications } from '@openpeeps/core/notifications';
+import { initSentry } from '@openpeeps/core/sentry';
+import { defaultConfig } from '@openpeeps/core/config';
 
 import { registerDefaultEmailTemplates } from '../emails';
 
@@ -17,6 +19,14 @@ let initialized = false;
  */
 export const initializeServer = async () => {
   if (initialized) return;
+
+  const sentry = defaultConfig.services?.sentry;
+  initSentry({
+    enabled: sentry?.enabled,
+    dsn: sentry?.dsn,
+    hostname: defaultConfig.server.host,
+    service: 'api',
+  });
 
   await setDefaultRoles();
   await initializePlugins();

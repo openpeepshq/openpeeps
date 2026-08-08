@@ -1,0 +1,122 @@
+name: API performance (fixture)
+
+# Manual / weekly only — not on every PR (same policy as jam loadtest).
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * 1'
+
+env:
+  DEFAULT_BRANCH: main
+
+jobs:
+  api-perf:
+    runs-on: docker
+    container:
+      image: node:24-alpine
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: openpeeps
+          POSTGRES_PASSWORD: openpeeps
+          POSTGRES_DB: openpeeps
+        options: >-
+          --health-cmd "pg_isready -U openpeeps"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
+      REDIS_URL: redis://redis:6379
+      DISABLE_CONFIG_CACHE: 'true'
+      PERF_DB_TIMING: '1'
+      PERF_BASE_URL: http://127.0.0.1:5173
+    steps:
+      - name: Install tools
+        run: apk add --no-cache git python3 make g++ unzip zip
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.1.3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: |
+          pnpm --filter "@openpeeps/server..." \
+            --filter "@openpeeps/tests..." \
+            build
+      - name: Generate perf fixture
+        run: pnpm --filter @openpeeps/tests run fixtures:generate-perf
+      - name: Restore fixture
+        run: |
+          node platform/tests/scripts/restore-fixture.mjs \
+            platform/tests/fixtures/backups/perf-scale.zip
+      - name: Start API
+        run: |
+          pnpm --filter @openpeeps/server start &
+          for i in $(seq 1 60); do
+            if wget -qO- http://127.0.0.1:5173/health >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "API failed to become healthy" >&2
+          exit 1
+      - name: Bootstrap owner + token
+        id: auth
+        run: |
+          # Register first owner on empty-after-restore may fail if fixture has accounts;
+          # login with a known fixture account when possible. Prefer PERF_TOKEN override.
+          set -e
+          HANDLE="perf$(date +%s | tail -c 8)"
+          EMAIL="${HANDLE}@example.com"
+          PASS="perf-password-1"
+          CODE=$(wget -qO- http://127.0.0.1:5173/api/openpeeps/core/v1/server/info \
+            | sed -n 's/.*"inviteCode":"\([^"]*\)".*/\1/p' | head -1 || true)
+          BODY="{\"handle\":\"${HANDLE}\",\"displayName\":\"Perf\",\"email\":\"${EMAIL}\",\"password\":\"${PASS}\",\"privacyPolicyAccepted\":true"
+          if [ -n "$CODE" ]; then BODY="${BODY},\"inviteCode\":\"${CODE}\""; fi
+          BODY="${BODY}}"
+          RESP=$(wget -qO- --header='content-type: application/json' \
+            --post-data="$BODY" \
+            http://127.0.0.1:5173/api/openpeeps/core/v1/auth/register || true)
+          TOKEN=$(printf '%s' "$RESP" | sed -n 's/.*"token":"\([^"]*\)".*/\1/p' | head -1)
+          if [ -z "$TOKEN" ]; then
+            RESP=$(wget -qO- --header='content-type: application/json' \
+              --post-data="{\"email\":\"${EMAIL}\",\"password\":\"${PASS}\"}" \
+              http://127.0.0.1:5173/api/openpeeps/core/v1/auth/login || true)
+            TOKEN=$(printf '%s' "$RESP" | sed -n 's/.*"token":"\([^"]*\)".*/\1/p' | head -1)
+          fi
+          if [ -z "$TOKEN" ]; then
+            echo "Could not obtain auth token" >&2
+            echo "$RESP" >&2
+            exit 1
+          fi
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+          echo "email=$EMAIL" >> "$GITHUB_OUTPUT"
+          echo "password=$PASS" >> "$GITHUB_OUTPUT"
+      - name: Run API perf
+        env:
+          PERF_TOKEN: ${{ steps.auth.outputs.token }}
+          PERF_ENFORCE: '1'
+          PERF_ITERATIONS: '5'
+          PERF_WARMUP: '1'
+        run: pnpm --filter @openpeeps/tests run perf:api
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-perf-results
+          path: platform/tests/.perf-results/
+          if-no-files-found: ignore

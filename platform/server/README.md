@@ -108,10 +108,59 @@ curl -s -H "authorization: Bearer $JWT" \
   http://localhost:5173/api/openpeeps/core/v1/profiles/current
 ```
 
+## Performance & observability
+
+Set `SENTRY_DSN` to enable Node performance tracing (server + worker). Optional:
+
+| Env | Default | Purpose |
+|-----|---------|---------|
+| `SENTRY_TRACES_SAMPLE_RATE` | `0.1` | Fraction of transactions sampled |
+| `SENTRY_ENVIRONMENT` | (see below) | Override Sentry environment name |
+| `ENVIRONMENT` | `local` when unset | Deploy profile; baked into CI images from branch |
+| `PERF_SLOW_REQUEST_MS` | `1000` | Warn + ring-buffer slow HTTP requests |
+| `PERF_SLOW_QUERY_MS` | `200` | Warn on slow SQL when DB timing is on |
+| `PERF_SLOW_SPAN_MS` | `250` | Warn on slow named spans |
+| `PERF_DB_TIMING` | off | Set `1` to time Postgres `pool.query` |
+
+Sentry `environment` resolution (does **not** use `NODE_ENV`, which is always
+`production` in Docker): `SENTRY_ENVIRONMENT` → `ENVIRONMENT` → `local`.
+CI Docker builds set `ENVIRONMENT` from the git branch: `main` or `prod/*` →
+`production`, any other branch → `development`.
+
+**Live triage:** open Sentry Performance for the shared project. Each process
+tags events with `community.hostname` (from `SERVER_HOST`, port stripped) and
+`service` (`api` or `worker`), so you can compare communities in one project:
+
+- Filter `community.hostname:community.blackambitionprize.com` (and optionally
+  `service:api`)
+- Or group / compare across hostnames while keeping `environment` as
+  production/staging/development
+
+Also filter by transaction / span names such as `feed.local`, `feed.group`,
+`conversations.list`, `unseen.counts`, `worker.media.processing`. Correlate with
+`server:request` / `openpeeps:performance` lines in Admin → Diagnostics → Logs,
+or the slow-request table at `/admin/diagnostics/performance` (includes
+hostname). Set `SERVER_HOST` correctly on each community deployment so tags are
+meaningful.
+
+**Offline reproduce:** download a backup from Admin → Backups, restore locally
+(never commit live zips — they contain PII):
+
+```bash
+node platform/tests/scripts/restore-fixture.mjs /path/to/community-backup.zip
+DISABLE_CONFIG_CACHE=true PERF_DB_TIMING=1 pnpm --filter @openpeeps/server dev
+# other terminal:
+PERF_TOKEN=<jwt> PERF_BASE_URL=http://localhost:5173 \
+  pnpm --filter @openpeeps/tests run perf:api
+```
+
+Fixture-only runs (no live backup) use `default-install.zip` thresholds in
+`platform/tests/perf/thresholds.json`. Live-backup runs are report-only unless
+`PERF_ENFORCE=1`. Deep-dive a bad p95 with `node --cpu-prof` on the server
+process while replaying the failing scenario.
+
 ## Known limitations
 
-- **Sentry integration was dropped.** A Node-side equivalent can be re-added in
-  `src/lib/init.ts` via `@sentry/node` whenever it's wanted.
 - **`.well-known/apple-app-site-association`, `.test/`** and the manifest are
   exposed under `/api/` rather than at the root path. If you need the
   original root paths (e.g. for iOS deep-linking), add a few `app.get(...)`

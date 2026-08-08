@@ -1708,6 +1708,23 @@
   "diagnostics": {
     "title": "Diagnostics",
     "description": "Inspect runtime services and confirm they work end-to-end.",
+    "performance": {
+      "title": "Performance",
+      "description": "Recent slow HTTP requests from this process (in-memory ring buffer). Threshold is controlled by PERF_SLOW_REQUEST_MS.",
+      "threshold": "Slow threshold",
+      "dbTiming": "DB timing",
+      "on": "on",
+      "off": "off",
+      "refresh": "Refresh",
+      "loadError": "Could not load performance stats.",
+      "empty": "No slow requests recorded yet.",
+      "when": "When",
+      "hostname": "Hostname",
+      "method": "Method",
+      "path": "Path",
+      "status": "Status",
+      "duration": "Duration"
+    },
     "email": {
       "title": "Email",
       "description": "Inspect the outbound email queue and queue a test email through the regular delivery pipeline.",

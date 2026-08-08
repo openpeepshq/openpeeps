@@ -16,6 +16,10 @@ export function AdminDiagnostics() {
         translationPrefix="diagnostics.logs"
         action="/admin/diagnostics/logs"
       />
+      <ConfigMenuButton
+        translationPrefix="diagnostics.performance"
+        action="/admin/diagnostics/performance"
+      />
     </div>
   );
 }

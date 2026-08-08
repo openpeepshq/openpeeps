@@ -1,0 +1,14 @@
+{
+  "comment": "p95 ceilings in ms for fixture-based runs (default-install / perf-scale). Live backups are report-only unless PERF_ENFORCE=1.",
+  "endpoints": {
+    "localFeed": 3000,
+    "myFeed": 3000,
+    "groupFeed": 4000,
+    "groupFeedPage2": 4000,
+    "conversations": 5000,
+    "unseenCounts": 8000,
+    "searchProfiles": 3000,
+    "searchPosts": 4000,
+    "postDetail": 2000
+  }
+}

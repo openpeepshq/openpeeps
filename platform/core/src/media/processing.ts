@@ -6,6 +6,7 @@ import {
 } from '../mediaAttachments';
 import { recordProcessingStats } from '../processingStats';
 import { logger } from '../log';
+import { withSpan } from '../performance';
 import {
   mediaStorage,
   transcodeIncomingMedia,
@@ -38,7 +39,14 @@ export interface RunProcessingInput {
  * are streamed to a temp file, ffmpeg/sharp read and write files directly, and
  * the outputs are streamed back into storage. All temps are removed afterwards.
  */
-export const runProcessing = async ({
+export const runProcessing = async (
+  input: RunProcessingInput,
+): Promise<MediaAttachment> =>
+  withSpan('worker.media.processing', () => runProcessingBody(input), {
+    mediaAttachmentId: input.mediaAttachmentId,
+  });
+
+const runProcessingBody = async ({
   mediaAttachmentId,
   sourceStorageKey,
   thumbnail,

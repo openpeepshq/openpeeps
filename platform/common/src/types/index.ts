@@ -15,3 +15,4 @@ export * from './db';
 export * from './admin-email';
 export * from './admin-jobs';
 export * from './admin-db';
+export * from './admin-performance';

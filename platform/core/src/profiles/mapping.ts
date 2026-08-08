@@ -83,6 +83,22 @@ export const baseProfilesMapping = map<ProfileData, Profile>({
   softDelete: true,
 });
 
+/** Lean mapping for public search results (memberships only). */
+export const publicProfilesSearchMapping = map<ProfileData, ProfileWithMeta>({
+  collection: 'profiles',
+  softDelete: true,
+  postFilterRelations: [
+    {
+      alias: 'memberships',
+      edgeCollection: 'userGroups',
+      vertexAlias: 'group',
+      direction: 'OUTBOUND',
+      cardinality: 'many',
+      mapping: groupsMapping.data(),
+    },
+  ],
+});
+
 export const profilesMapping = map<ProfileData, ProfileWithMeta>({
   collection: 'profiles',
   postFilterRelations: profileRelations,

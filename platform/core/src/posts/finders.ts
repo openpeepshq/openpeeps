@@ -41,6 +41,7 @@ import { findGroup } from '../groups/finders';
 import { groupsMapping } from '../groups/mapping';
 import { profilesMapping } from '../profiles/mapping';
 import { CONTEXT_NODE_CAP, loadReplyContextPosts } from './contextClosure';
+import { withSpan } from '../performance';
 
 /**
  * Throws if the given `authData` does not include a profile.
@@ -148,18 +149,20 @@ export const listPosts = async (
   );
 
 export const listConversationLeaves = async (authData: AuthorizationData) =>
-  toFilteredPostsList(
-    profilesMapping.relationsFrom(requireProfile(authData), {
-      alias: 'posts',
-      edgeCollection: collectionInfos.audienceCollection.name,
-      direction: 'INBOUND',
-      skipEdge: true,
-      cardinality: 'many',
-      mapping: conversationLeavesMappingForProfile(requireProfile(authData))
-        .sort(sorts.createdAtDesc)
-        .data(),
-    }),
-    { authData, limit: 9999 },
+  withSpan('conversations.list', () =>
+    toFilteredPostsList(
+      profilesMapping.relationsFrom(requireProfile(authData), {
+        alias: 'posts',
+        edgeCollection: collectionInfos.audienceCollection.name,
+        direction: 'INBOUND',
+        skipEdge: true,
+        cardinality: 'many',
+        mapping: conversationLeavesMappingForProfile(requireProfile(authData))
+          .sort(sorts.createdAtDesc)
+          .data(),
+      }),
+      { authData, limit: 9999 },
+    ),
   );
 
 export const listPostsByProfile = async (
@@ -232,50 +235,53 @@ export const listBookmarkedPostIds = async (
 
 export const getUnseenPostCounts = async (
   authData: AuthorizationData,
-): Promise<UnseenPostCounts> => {
-  const profile = requireProfile(authData);
-  const groupIds = profile.memberships
-    .map((membership) => membership.group.id)
-    .filter((groupId): groupId is string => typeof groupId === 'string');
-  const groupCounts: Record<string, number> = Object.fromEntries(
-    groupIds.map((groupId) => [groupId, 0]),
-  );
+): Promise<UnseenPostCounts> =>
+  withSpan('unseen.counts', async () => {
+    const profile = requireProfile(authData);
+    const groupIds = profile.memberships
+      .map((membership) => membership.group.id)
+      .filter((groupId): groupId is string => typeof groupId === 'string');
+    const groupCounts: Record<string, number> = Object.fromEntries(
+      groupIds.map((groupId) => [groupId, 0]),
+    );
 
-  await Promise.all(
-    groupIds.map(async (groupId) => {
-      const posts = await listPostsByGroup(authData, groupId, { limit: 9999 });
-      groupCounts[groupId] = posts.filter(
-        (post) => post.seen === false && post.profile.id !== profile.id,
-      ).length;
-    }),
-  );
-
-  const conversations = await Promise.all(
-    (await listConversationLeaves(authData)).map((post) =>
-      getConversationByEnd(post, authData),
-    ),
-  );
-  const uniqueConversations = Array.from(
-    new Map(
-      conversations
-        .filter((conversation) => conversation[0])
-        .map((conversation) => [conversation[0].id, conversation]),
-    ).values(),
-  );
-  const direct = Object.fromEntries(
-    uniqueConversations
-      .map((conversation) => {
-        const conversationId = conversation[0].id;
-        const unread = conversation.filter(
+    await Promise.all(
+      groupIds.map(async (groupId) => {
+        const posts = await listPostsByGroup(authData, groupId, {
+          limit: 9999,
+        });
+        groupCounts[groupId] = posts.filter(
           (post) => post.seen === false && post.profile.id !== profile.id,
         ).length;
-        return [conversationId, unread] as const;
-      })
-      .filter(([, unread]) => unread > 0),
-  );
+      }),
+    );
 
-  return { groups: groupCounts, direct };
-};
+    const conversations = await Promise.all(
+      (await listConversationLeaves(authData)).map((post) =>
+        getConversationByEnd(post, authData),
+      ),
+    );
+    const uniqueConversations = Array.from(
+      new Map(
+        conversations
+          .filter((conversation) => conversation[0])
+          .map((conversation) => [conversation[0].id, conversation]),
+      ).values(),
+    );
+    const direct = Object.fromEntries(
+      uniqueConversations
+        .map((conversation) => {
+          const conversationId = conversation[0].id;
+          const unread = conversation.filter(
+            (post) => post.seen === false && post.profile.id !== profile.id,
+          ).length;
+          return [conversationId, unread] as const;
+        })
+        .filter(([, unread]) => unread > 0),
+    );
+
+    return { groups: groupCounts, direct };
+  });
 
 export const listPostsByType = async (
   authData: AuthorizationData,
@@ -339,23 +345,50 @@ export const listPostsByGroup = async (
     filter?: PgFilter<DbBasePost>;
     sort?: ObjectSort;
   } = { limit: 100 },
+) =>
+  withSpan('feed.group', async () => {
+    const group = await findGroup(groupId);
+    if (!group) {
+      return [];
+    }
+    return toFilteredPostsList(
+      groupsMapping.relationsFrom(group, {
+        alias: 'posts',
+        edgeCollection: collectionInfos.postGroupsCollection.name,
+        direction: 'INBOUND',
+        skipEdge: true,
+        cardinality: 'many',
+        mapping: baseFeed({ start, profile: authData.profile })
+          .filter(filter)
+          .data(),
+      }),
+      { authData, limit },
+    );
+  });
+
+export const listLocalFeed = async (
+  authData: AuthorizationData,
+  { start, limit = 100 }: { start?: string; limit?: number } = { limit: 100 },
+) =>
+  withSpan('feed.local', () =>
+    toFilteredPostsList(
+      baseFeed({ start, profile: authData.profile }).filter(
+        localFeedFilter(authData.profile),
+      ),
+      { authData, limit },
+    ),
+  );
+
+export const listMyFeed = async (
+  authData: AuthorizationData,
+  { start, limit = 100 }: { start?: string; limit?: number } = { limit: 100 },
 ) => {
-  const group = await findGroup(groupId);
-  if (!group) {
-    return [];
-  }
-  return toFilteredPostsList(
-    groupsMapping.relationsFrom(group, {
-      alias: 'posts',
-      edgeCollection: collectionInfos.postGroupsCollection.name,
-      direction: 'INBOUND',
-      skipEdge: true,
-      cardinality: 'many',
-      mapping: baseFeed({ start, profile: authData.profile })
-        .filter(filter)
-        .data(),
-    }),
-    { authData, limit },
+  const profile = requireProfile(authData);
+  return withSpan('feed.my', () =>
+    toFilteredPostsList(
+      baseFeed({ start, profile }).filter(myFeedFilter(profile)),
+      { authData, limit, filters: [myFeedGroupMembershipFilter(profile)] },
+    ),
   );
 };
 
@@ -521,28 +554,6 @@ export const listPastGroupEventsFeed = async (
     }),
     { authData, limit, offset },
   );
-
-export const listLocalFeed = async (
-  authData: AuthorizationData,
-  { start, limit = 100 }: { start?: string; limit?: number } = { limit: 100 },
-) =>
-  toFilteredPostsList(
-    baseFeed({ start, profile: authData.profile }).filter(
-      localFeedFilter(authData.profile),
-    ),
-    { authData, limit },
-  );
-
-export const listMyFeed = async (
-  authData: AuthorizationData,
-  { start, limit = 100 }: { start?: string; limit?: number } = { limit: 100 },
-) => {
-  const profile = requireProfile(authData);
-  return toFilteredPostsList(
-    baseFeed({ start, profile }).filter(myFeedFilter(profile)),
-    { authData, limit, filters: [myFeedGroupMembershipFilter(profile)] },
-  );
-};
 
 export const reposts = async (
   post: PostWithMeta,

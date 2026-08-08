@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 import { logger } from '../../log';
+import { dbTimingEnabled, maybeLogSlowQuery } from '../../performance';
 import { schema, type Schema } from './schema';
 import { assertSchemaReady, runMigrations } from './migrate';
 
@@ -19,10 +20,39 @@ export const pgConnectionString = () =>
   process.env.DATABASE_URL ??
   'postgresql://openpeeps:openpeeps@localhost:5432/openpeeps';
 
+const instrumentPoolQuery = (target: pg.Pool) => {
+  if (!dbTimingEnabled()) return;
+  const originalQuery = target.query.bind(target) as (
+    ...args: unknown[]
+  ) => unknown;
+  // Pool.query has many overloads; wrap for timing without changing call sites.
+  (target as unknown as { query: (...args: unknown[]) => unknown }).query = (
+    ...args: unknown[]
+  ) => {
+    const start = performance.now();
+    const result = originalQuery(...args);
+    if (result && typeof (result as Promise<unknown>).then === 'function') {
+      return (result as Promise<unknown>).then(
+        (value) => {
+          maybeLogSlowQuery(args[0], performance.now() - start);
+          return value;
+        },
+        (err: unknown) => {
+          maybeLogSlowQuery(args[0], performance.now() - start);
+          throw err;
+        },
+      );
+    }
+    maybeLogSlowQuery(args[0], performance.now() - start);
+    return result;
+  };
+};
+
 export const pgPool = (): pg.Pool => {
   if (!pool) {
     pool = new pg.Pool({ connectionString: pgConnectionString() });
     pool.on('error', (err) => log.error(err, 'Postgres pool error'));
+    instrumentPoolQuery(pool);
   }
   return pool;
 };

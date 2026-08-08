@@ -60,6 +60,32 @@ Env of note:
   must be real credentials (not `APIxxxxxxxxxxxx` placeholders) for the jams
   suite
 
+## API performance harness (manual / scheduled)
+
+Measures p50/p95/p99 for feed, conversation, search, and unseen-count endpoints
+against a running API. Writes JSON to `platform/tests/.perf-results/`
+(gitignored).
+
+```bash
+# Against a running local API (fixture thresholds enforced by default):
+export PERF_BASE_URL=http://localhost:5173
+export PERF_TOKEN=<member JWT>
+pnpm --filter @openpeeps/tests run perf:api
+
+# Optional: restore a backup first (live zip — do not commit):
+PERF_RESTORE=1 PERF_BACKUP_ZIP=/path/to/community-backup.zip \
+  PERF_TOKEN=<jwt> pnpm --filter @openpeeps/tests run perf:api
+
+# Larger synthetic fixture for edge-scan stress:
+pnpm --filter @openpeeps/tests run fixtures:generate-perf
+PERF_BACKUP_ZIP=platform/tests/fixtures/backups/perf-scale.zip PERF_RESTORE=1 \
+  PERF_TOKEN=<jwt> pnpm --filter @openpeeps/tests run perf:api
+```
+
+Thresholds: `platform/tests/perf/thresholds.json`. Live-backup runs skip
+enforcement unless `PERF_ENFORCE=1`. Enable `PERF_DB_TIMING=1` on the API for
+slow-query logs while profiling.
+
 ## Jam load test (manual)
 
 Node harness that joins a jam as **N publishers** (default 100), holds audio for
@@ -90,6 +116,7 @@ Synthetic backups are derived from `platform/web/public/template/test-backup.zip
 
 ```bash
 pnpm --filter @openpeeps/tests run fixtures:generate-backups
+pnpm --filter @openpeeps/tests run fixtures:generate-perf   # larger perf-scale.zip
 ```
 
 ## Layout
@@ -100,9 +127,12 @@ platform/tests/
   playwright.config.ts          # multi-project
   helpers/                      # mailpit, pushCatcher, api, backup, wait
   fixtures/backups/
+  perf/thresholds.json
   suites/{empty,default,public,sso,jams}/
   suites/*/seed.setup.ts        # Playwright setup project (runs before suite)
-  scripts/jam-loadtest.mjs          # manual jam SFU + chat load harness
+  scripts/jam-loadtest.mjs      # manual jam SFU + chat load harness
+  scripts/api-perf.mjs          # API latency harness
+  scripts/generate-perf-fixture.mjs
 ```
 
 ---

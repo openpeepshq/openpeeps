@@ -120,6 +120,10 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
     apiHook(client.admin.diagnostics.email.queueStats, {
       refetchInterval: 60_000,
     }),
+  usePerformanceStats: () =>
+    apiHook(client.admin.diagnostics.performance, {
+      refetchInterval: 15_000,
+    }),
   useJobDetail: (queue: string, jobId: string) =>
     apiHook(client.admin.diagnostics.jobs.jobDetail, {
       pathParams: { queue, jobId },

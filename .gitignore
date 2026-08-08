@@ -19,6 +19,7 @@ platform/react/tsconfig.tsbuildinfo
 platform/tests/test-results
 platform/tests/.logs
 platform/tests/.loadtest-results
+platform/tests/.perf-results
 stuff
 .logs-test
 .media-test
