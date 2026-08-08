@@ -1,15 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Check, Eye, Search, X } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import type {
   Event,
   PostCreationData,
   PublicProfile,
 } from '@openpeeps/common/types';
-import {
-  hasAdminSidebarAccess,
-  matchesQuery,
-  profileName,
-} from '@openpeeps/common/lib';
+import { hasAdminSidebarAccess } from '@openpeeps/common/lib';
 import {
   Button,
   Dialog,
@@ -26,7 +22,7 @@ import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useServerInfo } from '../server-data';
 import { useAuthData, useCurrentProfile } from '../layout/IdentityContext';
-import { Avatar, ProfileCard } from '../profile';
+import { Avatar, ProfilesInput } from '../profile';
 import { PostAudienceSelector } from '../post/post-form/PostAudienceSelector';
 import { buildAudienceChoices } from '../post/post-form/audienceChoices';
 
@@ -52,7 +48,6 @@ export function CreateNewJamModal({ onClose }: CreateNewJamModalProps) {
     sanitize(newPostStores.jam),
   );
   const [audienceOpen, setAudienceOpen] = useState(false);
-  const [moderatorSearch, setModeratorSearch] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -111,22 +106,17 @@ export function CreateNewJamModal({ onClose }: CreateNewJamModalProps) {
     }));
   };
 
-  const toggleModerator = (profile: PublicProfile) => {
+  const handleModeratorsChange = (profiles: PublicProfile[]) => {
     if (!event.jam) return;
-    const ids = event.jam.moderators ?? [];
-    const next = ids.includes(profile.id)
-      ? ids.filter((id) => id !== profile.id)
-      : [...ids, profile.id];
-    patchEvent({ jam: { ...event.jam, moderators: next } });
+    patchEvent({
+      jam: { ...event.jam, moderators: profiles.map((p) => p.id) },
+    });
   };
 
   const moderatorIds = event.jam?.moderators ?? [];
   const allProfiles = profilesQuery.data ?? [];
   const selectedModerators = allProfiles.filter((p) =>
     moderatorIds.includes(p.id),
-  );
-  const selectableProfiles = allProfiles.filter(
-    (p) => !moderatorSearch || matchesQuery(p, moderatorSearch),
   );
   const directAudience = postData.audience ?? [];
 
@@ -251,68 +241,13 @@ export function CreateNewJamModal({ onClose }: CreateNewJamModalProps) {
 
             <div className="space-y-2">
               <Label>{t('events.form.jamModerators')}</Label>
-
-              {selectedModerators.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {selectedModerators.map((profile) => (
-                    <div
-                      key={profile.id}
-                      className="border-secondary bg-surface-50 text-primary flex items-center gap-1.5 rounded-md border px-2 py-1 text-sm"
-                    >
-                      <Avatar profile={profile} size={1.5} borderless />
-                      <span className="font-medium">
-                        {profileName(profile)}
-                      </span>
-                      <button
-                        type="button"
-                        className="hover:bg-secondary ml-1 rounded-full p-0.5"
-                        title={t('common.remove', { defaultValue: 'Remove' })}
-                        onClick={() => toggleModerator(profile)}
-                      >
-                        <X className="size-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-
-              <div className="relative">
-                <Search className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
-                <Input
-                  className="pl-9"
-                  value={moderatorSearch}
-                  onChange={(e) => setModeratorSearch(e.target.value)}
-                  placeholder={t('profile.search.profilesPlaceholder')}
-                />
-              </div>
-
-              <div className="max-h-48 space-y-1 overflow-y-auto">
-                {selectableProfiles.map((profile) => {
-                  const selected = moderatorIds.includes(profile.id);
-                  return (
-                    <div
-                      key={profile.id}
-                      className="hover:bg-surface-100 flex w-full items-center justify-between rounded-md"
-                    >
-                      <ProfileCard
-                        profile={profile}
-                        onSelect={() => toggleModerator(profile)}
-                        showAction={false}
-                      />
-                      {selected ? (
-                        <Check className="text-primary mr-4 size-5 shrink-0" />
-                      ) : null}
-                    </div>
-                  );
+              <ProfilesInput
+                value={selectedModerators}
+                onChange={handleModeratorsChange}
+                placeholder={t('events.form.jamModeratorsDescription', {
+                  defaultValue: 'Click to select jam moderators',
                 })}
-                {profilesQuery.isSuccess && selectableProfiles.length === 0 ? (
-                  <p className="text-muted-foreground p-2 text-center text-sm">
-                    {moderatorSearch
-                      ? t('profile.search.noResults')
-                      : t('profile.search.noProfilesAvailable')}
-                  </p>
-                ) : null}
-              </div>
+              />
             </div>
           </div>
 

@@ -151,7 +151,7 @@ jobs:
     container:
       image: node:24-alpine
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install dependencies
@@ -251,7 +251,7 @@ jobs:
           SERVER_HOST: web:8080
           SERVER_PROTOCOL: http
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install pnpm and dependencies
@@ -371,7 +371,7 @@ jobs:
           JAMS_LIVEKIT_API_KEY: ${{ secrets.JAMS_LIVEKIT_API_KEY }}
           JAMS_LIVEKIT_API_SECRET: ${{ secrets.JAMS_LIVEKIT_API_SECRET }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install pnpm and dependencies
@@ -419,7 +419,7 @@ jobs:
       - name: Install git
         if: needs.set-variables.outputs.is_release_branch == 'false' && forgejo.ref_name != 'weblate'
         run: apk add --no-cache git
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: needs.set-variables.outputs.is_release_branch == 'false' && forgejo.ref_name != 'weblate'
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}

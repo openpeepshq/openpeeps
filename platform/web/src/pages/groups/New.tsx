@@ -5,7 +5,7 @@ import { groupCapabilityTemplates } from '@openpeeps/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import {
   GroupForm,
-  ProfileSelector,
+  ProfilesInput,
   useCurrentProfile,
   useServerInfo,
 } from '@openpeeps/react/components';
@@ -82,14 +82,13 @@ export function NewGroup() {
         <Label htmlFor="group-members">
           {t('groups.form.members', { defaultValue: 'Members' })}
         </Label>
-        <ProfileSelector
-          selectedProfiles={members}
+        <ProfilesInput
+          value={members}
           onChange={setMembers}
-          profilesToExclude={me ? [me] : []}
+          banlist={me ? [me] : []}
           placeholder={t('groups.form.membersPlaceholder', {
             defaultValue: 'Add members to this group',
           })}
-          containerClassName="px-0"
         />
       </div>
 
