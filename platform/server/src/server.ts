@@ -17,6 +17,7 @@ import {
   getCommunityHostname,
   Sentry,
 } from '@openpeepshq/core/sentry';
+import { installMcpEndpoints } from '@openpeepshq/mcp';
 import { initializeServer } from '#lib/init';
 import { corsMiddleware } from './lib/cors';
 import { installDbBrowserProxy } from './lib/dbBrowserProxy';
@@ -82,6 +83,12 @@ const startServer = async () => {
     applyCommunitySentryTags();
     next();
   });
+
+  // MCP Streamable HTTP (`/mcp/community`, `/mcp/ops`). Must be registered
+  // before the SPA catch-all. Disable with OPENPEEPS_MCP=0.
+  if (installMcpEndpoints(app)) {
+    log.info('MCP endpoints mounted at /mcp/community and /mcp/ops');
+  }
 
   // Request-duration logger + slow-request ring buffer for admin diagnostics.
   app.use((req, _res, next) => {
