@@ -18,6 +18,7 @@ import {
 } from './mapping';
 import { queryParamsToLimit } from './helpers';
 import type { WithId } from '../db/pg/map/queryTypes';
+import { withSpan } from '../performance';
 
 const requireProfile = (authData: AuthorizationData): ProfileWithMeta => {
   if (!authData.profile) {
@@ -41,12 +42,13 @@ export const searchProfiles = async (
   query: string,
   authData: AuthorizationData,
   limit: OffsetInfiniteQueryParams = { offset: 0, limit: 15 },
-) => {
-  const { db } = await allpeepDb();
-  return profileSearchMapping(requireProfile(authData), query)
-    .limit(queryParamsToLimit(limit))
-    .all(db);
-};
+) =>
+  withSpan('profiles.search', async () => {
+    const { db } = await allpeepDb();
+    return profileSearchMapping(requireProfile(authData), query)
+      .limit(queryParamsToLimit(limit))
+      .all(db);
+  });
 
 const canReadPostFilter = async (authData: AuthorizationData) => {
   const postFilter = canReadPost(await capabilitiesConfig(), authData);
@@ -65,17 +67,18 @@ export const searchPosts = async (
   query: string,
   authData: AuthorizationData,
   limitOffset: OffsetInfiniteQueryParams = { offset: 0, limit: 15 },
-) => {
-  const profile = requireProfile(authData);
-  const { db } = await allpeepDb();
-  const mapping = postSearchMapping(profile, query);
+) =>
+  withSpan('posts.search', async () => {
+    const profile = requireProfile(authData);
+    const { db } = await allpeepDb();
+    const mapping = postSearchMapping(profile, query);
 
-  return filterAndTransform(mapping, db, {
-    transform: transformPostWithScore(profile),
-    filter: await canReadPostFilter(authData),
-    ...limitOffset,
+    return filterAndTransform(mapping, db, {
+      transform: transformPostWithScore(profile),
+      filter: await canReadPostFilter(authData),
+      ...limitOffset,
+    });
   });
-};
 
 export const searchEvents = async (
   query: string,

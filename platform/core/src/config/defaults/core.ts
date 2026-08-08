@@ -10,7 +10,7 @@ dotenv.config();
 
 export const defaultConfig: CoreConfig = {
   version: process.env.VERSION || 'dev',
-  environment: process.env.ENVIRONMENT || 'dev',
+  environment: process.env.ENVIRONMENT || 'local',
   server: {
     host: process.env.SERVER_HOST || 'localhost:5174',
     signUpsOpen: true,

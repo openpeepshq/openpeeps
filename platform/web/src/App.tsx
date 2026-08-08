@@ -130,6 +130,7 @@ import { DocsPage } from './pages/docs/DocsPage';
 
 import { AdminDb } from './pages/admin/Db';
 import { AdminDiagnosticsJob } from './pages/admin/DiagnosticsJob';
+import { AdminDiagnosticsPerformance } from './pages/admin/DiagnosticsPerformance';
 import { AdminConfigurationCommunityLanguage } from './pages/admin/ConfigurationCommunityLanguage';
 import {
   AppSideBarMainMenu,
@@ -287,6 +288,7 @@ const Admin = {
   DiagnosticsEmail: AdminDiagnosticsEmail,
   DiagnosticsLogs: AdminDiagnosticsLogs,
   DiagnosticsJob: AdminDiagnosticsJob,
+  DiagnosticsPerformance: AdminDiagnosticsPerformance,
   ApiKeys: AdminApiKeys,
   Db: AdminDb,
   Members: AdminMembers,
@@ -760,6 +762,10 @@ function AppShell() {
                       <Route
                         path="/admin/diagnostics/jobs/:queue/:jobId"
                         element={<Admin.DiagnosticsJob />}
+                      />
+                      <Route
+                        path="/admin/diagnostics/performance"
+                        element={<Admin.DiagnosticsPerformance />}
                       />
                     </Route>
 

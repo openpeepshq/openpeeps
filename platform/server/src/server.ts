@@ -9,6 +9,12 @@ import { api, expressAdapter } from '@riddl/core';
 import { logger } from '@openpeeps/core/log';
 import { mediaStorage } from '@openpeeps/core/media';
 import { defaultConfig } from '@openpeeps/core/config';
+import { recordSlowRequest, slowRequestMs } from '@openpeeps/core/performance';
+import {
+  applyCommunitySentryTags,
+  getCommunityHostname,
+  Sentry,
+} from '@openpeeps/core/sentry';
 import { initializeServer } from '#lib/init';
 import { corsMiddleware } from './lib/cors';
 import { installDbBrowserProxy } from './lib/dbBrowserProxy';
@@ -73,14 +79,34 @@ const startServer = async () => {
   // Narrow API CORS (Riddl's default is `*`). See `lib/cors.ts` / CORS_ORIGINS.
   app.use('/api', corsMiddleware());
 
-  // Request-duration logger.
+  // Keep community.hostname on the request isolation scope for Performance.
+  app.use((_req, _res, next) => {
+    applyCommunitySentryTags();
+    next();
+  });
+
+  // Request-duration logger + slow-request ring buffer for admin diagnostics.
   app.use((req, _res, next) => {
     const start = Date.now();
     _res.on('finish', () => {
-      const duration = Date.now() - start;
+      const durationMs = Date.now() - start;
+      const path = req.originalUrl.split('?')[0] ?? req.originalUrl;
       requestLog.info(
-        `${req.method.padEnd(6)} | ${_res.statusCode.toString().padEnd(3)} | ${req.originalUrl} | ${duration}ms`,
+        `${req.method.padEnd(6)} | ${_res.statusCode.toString().padEnd(3)} | ${req.originalUrl} | ${durationMs}ms`,
       );
+      if (durationMs >= slowRequestMs()) {
+        requestLog.warn(
+          { method: req.method, path, status: _res.statusCode, durationMs },
+          'slow request',
+        );
+        recordSlowRequest({
+          method: req.method,
+          path,
+          status: _res.statusCode,
+          durationMs,
+          hostname: getCommunityHostname(),
+        });
+      }
     });
     next();
   });
@@ -264,6 +290,9 @@ const startServer = async () => {
       'No SPA build found. Set WEB_DIST_PATH or run `pnpm --filter @openpeeps/web build`.',
     );
   }
+
+  // Sentry error handler must sit before other error handlers / final 404.
+  Sentry.setupExpressErrorHandler(app);
 
   // Final fall-through: anything that wasn't an API route, an OpenAPI doc,
   // or a static asset gets a 404 here so misconfigured requests don't hang.

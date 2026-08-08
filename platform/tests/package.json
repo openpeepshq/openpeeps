@@ -15,6 +15,8 @@
     "test:integration:sso": "unset FORCE_COLOR; INTEGRATION_SUITE=sso playwright test --project=sso",
     "test:integration:jams": "unset FORCE_COLOR; INTEGRATION_SUITE=jams playwright test --project=jams",
     "loadtest:jam": "node scripts/jam-loadtest.mjs",
+    "perf:api": "node scripts/api-perf.mjs",
+    "fixtures:generate-perf": "node scripts/generate-perf-fixture.mjs",
     "integration": "docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit tests",
     "integration:empty": "INTEGRATION_SUITE=empty pnpm run integration",
     "integration:default": "INTEGRATION_SUITE=default pnpm run integration",

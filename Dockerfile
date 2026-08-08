@@ -7,6 +7,8 @@ FROM realies/audiowaveform AS audiowaveform
 FROM node:24-alpine AS builder
 
 ARG VERSION
+# Set by CI from git branch: main|prod/* → production, else development.
+# Unset locally → runtime defaults to local (see resolveSentryEnvironment).
 ARG ENVIRONMENT
 
 # `git`            → consumed by scripts/generate-changelog.mjs

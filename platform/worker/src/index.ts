@@ -26,7 +26,8 @@ import {
   notificationWorker,
 } from '@openpeeps/core/notifications';
 import { registerRsvpConfirmationEmail } from '@openpeeps/core/posts';
-import { refreshConfig } from '@openpeeps/core/config';
+import { refreshConfig, defaultConfig } from '@openpeeps/core/config';
+import { initSentry } from '@openpeeps/core/sentry';
 
 const startWorkers = () => {
   console.log('Starting email worker ...');
@@ -82,13 +83,15 @@ const logJobStats = async () => {
   console.log('==================================');
   for (const queue of Object.values(queues)) {
     console.log(queue.name);
-    for (const failedJob of (await queue.getFailed(0, 5)).filter((job) => job.finishedOn > new Date().getTime() - 1000 * 60 * 60 * 24 * 7)) {
+    for (const failedJob of (await queue.getFailed(0, 5)).filter(
+      (job) => job.finishedOn > new Date().getTime() - 1000 * 60 * 60 * 24 * 7,
+    )) {
       console.log(
         new Date(failedJob.finishedOn || 0).toISOString() +
-        ' | ' +
-        failedJob.name +
-        ' | ' +
-        failedJob.failedReason,
+          ' | ' +
+          failedJob.name +
+          ' | ' +
+          failedJob.failedReason,
       );
     }
     console.log('==================================');
@@ -101,6 +104,13 @@ const initJobLogs = () =>
   });
 
 export const start = async () => {
+  const sentry = defaultConfig.services?.sentry;
+  initSentry({
+    enabled: sentry?.enabled,
+    dsn: sentry?.dsn,
+    hostname: defaultConfig.server.host,
+    service: 'worker',
+  });
   console.log('Using backend ' + (await serverRootUrl()));
   console.log('Registering config refresh listener...');
   hub.on('configUpdated', (namespace: string, name: string) => {

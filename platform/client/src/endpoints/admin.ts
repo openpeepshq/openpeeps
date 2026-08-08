@@ -26,6 +26,7 @@ import {
   AdminEmailQueueTestInput,
   AdminEmailTestInput,
   AdminJobDetail,
+  AdminPerformanceStats,
   ConfigData,
   ConfigDataWithDefaults,
   ExplorerRowsResponse,
@@ -123,6 +124,10 @@ export const admin = (rawClient: FetchClient) => ({
         { queue: string; jobId: string }
       >(rawClient, '/admin/diagnostics/jobs/:queue/:jobId'),
     },
+    performance: allpeepNoPayloadEndpoint<AdminPerformanceStats>(
+      rawClient,
+      '/admin/diagnostics/performance',
+    ),
   },
   db: {
     token: allpeepNoPayloadEndpoint<TokenResponse>(

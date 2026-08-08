@@ -1,7 +1,7 @@
 import { ProfileWithMeta } from '@openpeeps/common/types';
 import { groupsMapping } from '../groups';
 import { canSeeGroupFilter } from '../groups/helpers';
-import { profilesMapping } from '../profiles/mapping';
+import { publicProfilesSearchMapping } from '../profiles/mapping';
 import { baseListPosts } from '../posts/finders';
 import { postFilters } from '../db/pg/filters';
 
@@ -13,8 +13,11 @@ export const groupSearchMapping = (profile: ProfileWithMeta, query: string) =>
     query,
   });
 
-export const profileSearchMapping = (profile: ProfileWithMeta, query: string) =>
-  profilesMapping.fulltextSearch({
+export const profileSearchMapping = (
+  _profile: ProfileWithMeta,
+  query: string,
+) =>
+  publicProfilesSearchMapping.fulltextSearch({
     view: 'profileSearch',
     analyzer: 'text_en',
     fields: ['handle', 'displayName', 'bio', 'location.text', 'fields.value'],

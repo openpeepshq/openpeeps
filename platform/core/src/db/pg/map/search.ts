@@ -6,6 +6,7 @@ import {
   applyLimit,
   applyPostFilters,
   applySort,
+  applySqlLimit,
   partitionFilters,
 } from './filters';
 import { hydrateMapData } from './relations';
@@ -62,8 +63,9 @@ const fieldMatchesQuery = (
   collection: string,
   field: string,
   query: string,
+  mode: 'substring' | 'prefix' = 'substring',
 ) => {
-  const like = `%${query}%`;
+  const like = mode === 'prefix' ? `${query}%` : `%${query}%`;
   const scalarFields: Record<string, Record<string, string>> = {
     profiles: { handle: 'handle' },
     groups: { handle: 'handle' },
@@ -95,6 +97,18 @@ const searchVectorExpr = (table: Record<string, unknown>) => {
   return sql`to_tsvector('english', coalesce(${table.body}::text, ''))`;
 };
 
+const shortQueryPrefixFields = (collection: string, fields: string[]) => {
+  const allowed = new Set(
+    collection === 'profiles' || collection === 'groups'
+      ? ['handle', 'displayName']
+      : ['handle', 'displayName', 'data.name'],
+  );
+  return fields.filter((field) => {
+    const path = normalizeSearchPath(collection, field);
+    return allowed.has(path) || allowed.has(field);
+  });
+};
+
 const buildSearchWhere = (
   collection: string,
   fields: string[],
@@ -103,9 +117,23 @@ const buildSearchWhere = (
 ) => {
   const tsQuery = sql`plainto_tsquery('english', ${query})`;
   const tsvectorExpr = searchVectorExpr(table);
-  const ilikeParts = fields.map((field) =>
-    fieldMatchesQuery(collection, field, query),
+  const trimmed = query.trim();
+  const shortQuery = trimmed.length > 0 && trimmed.length < 2;
+  const ilikeFields = shortQuery
+    ? shortQueryPrefixFields(collection, fields)
+    : fields;
+  const ilikeParts = ilikeFields.map((field) =>
+    fieldMatchesQuery(
+      collection,
+      field,
+      trimmed,
+      shortQuery ? 'prefix' : 'substring',
+    ),
   );
+
+  if (!ilikeParts.length) {
+    return sql`(${tsvectorExpr} @@ ${tsQuery})`;
+  }
 
   return sql`(${tsvectorExpr} @@ ${tsQuery} OR ${sql.join(ilikeParts, sql` OR `)})`;
 };
@@ -142,57 +170,49 @@ export const buildSearchResult = <O extends object>(
       ? sql<number>`ts_rank(${searchVectorExpr(table)}, ${tsQuery})`
       : sql<number>`ts_rank(to_tsvector('english', coalesce(${table.body}::text, '')), ${tsQuery})`;
 
-    const rows = await db
+    const pageLimit = searchDefinition.limit ?? mapData.limit;
+    // When post-filters must run in JS, fetch the full match set; otherwise
+    // page in SQL so we only hydrate the requested window.
+    let selectQuery = db
       .select({
         row: tableRef as never,
         score: rank,
       })
       .from(tableRef as never)
       .where(where)
-      .orderBy(sql`${rank} DESC`);
+      .orderBy(sql`${rank} DESC`)
+      .$dynamic();
+    if (!postFilters.length) {
+      selectQuery = applySqlLimit(selectQuery, pageLimit);
+    }
+
+    const rows = await selectQuery;
 
     let docs: SearchHit<O>[] = rows.map(({ row, score }) => ({
       data: rowToDocument(collection, row as Record<string, unknown>) as O,
       score: score ?? 0,
     }));
 
-    if (collection === mapData.collection) {
+    if (collection === mapData.collection && docs.length) {
+      const hydrated = await hydrateMapData(
+        db,
+        mapData,
+        docs.map((d) => d.data as Record<string, unknown>),
+        postFilters,
+      );
+      docs = hydrated.map((data, i) => ({
+        data: data as O,
+        score: docs[i]?.score ?? 0,
+      }));
+
       if (postFilters.length) {
-        docs = await Promise.all(
-          docs.map(async ({ data, score }) => ({
-            data: (
-              await hydrateMapData(
-                db,
-                mapData,
-                [data as Record<string, unknown>],
-                postFilters,
-              )
-            )[0] as O,
-            score,
-          })),
+        const kept = new Set(
+          applyPostFilters(
+            docs.map((d) => d.data as Record<string, unknown>),
+            postFilters,
+          ),
         );
-        const filtered = applyPostFilters(
-          docs.map((d) => d.data as Record<string, unknown>),
-          postFilters,
-        );
-        docs = filtered.map((data, i) => ({
-          data: data as unknown as O,
-          score: docs[i]?.score ?? 0,
-        }));
-      } else {
-        docs = await Promise.all(
-          docs.map(async ({ data, score }) => ({
-            data: (
-              await hydrateMapData(
-                db,
-                mapData,
-                [data as Record<string, unknown>],
-                [],
-              )
-            )[0] as O,
-            score,
-          })),
-        );
+        docs = docs.filter((d) => kept.has(d.data as Record<string, unknown>));
       }
     }
 
@@ -200,7 +220,7 @@ export const buildSearchResult = <O extends object>(
       docs,
       mapData.sort as [string, 'ASC' | 'DESC' | undefined][] | undefined,
     );
-    return applyLimit(docs, searchDefinition.limit ?? mapData.limit);
+    return applyLimit(docs, pageLimit);
   };
 
   const runCount = async (db: PgDb): Promise<number> => {
