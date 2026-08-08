@@ -3,7 +3,20 @@ Changelog for OpenPeeps
 
 ## Current
 
-- No changes
+### Features
+
+- **plugins**: route registration, config endpoint, frontend registry and example
+- **analytics**: add rollup-based admin analytics platform
+- **config**: update Sentry configuration and documentation for clarity
+- **push**: add warning for Brave browser users regarding push notifications
+
+### Bug Fixes
+
+- **form**: update HeaderAvatarInput to handle null values for header and avatar changes
+
+### Chores
+
+- update ESLint configurations and import paths across multiple libraries
 
 ## 2026-08-06
 
