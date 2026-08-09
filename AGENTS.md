@@ -111,6 +111,12 @@ steps — follow that skill.
   `platform/core/src/db/dataMigrations/` is **Arango cutover history only** —
   do not add new migrations there for Postgres. One-off PG data backfills
   belong in an intentional SQL migration or a documented one-shot script.
+- **Queries:** keep `platform/core/src/db/pg/map/` for existing document/edge
+  call sites, but **new features and hot-path work** should prefer Drizzle /
+  SQL-native queries (typed repositories under domain modules or
+  `db/pg/queries/`) over deepening the map DSL (`filters.ts`, `relations.ts`,
+  `registry.ts`). Expand the map layer only when an existing mapping call site
+  truly requires it. See `platform/web/docs/development/data-storage.md`.
 - **Capabilities:** gate features by role capabilities (`core-*`) rather than
   hardcoded role checks.
 - **Async work** belongs in a BullMQ queue/worker, not inline in request paths.
