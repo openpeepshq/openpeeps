@@ -81,5 +81,7 @@ is the baseline.
 
 - `@openpeeps/arango-querybuilder` and `arangojs` removed after cutover
 - Feed/search queries rewritten as explicit SQL in repositories (no generic graph builder)
+- `db/pg/map` remains for existing document/edge call sites; **new features
+  prefer Drizzle / SQL-native queries** over deepening that compatibility DSL
 - Backups use `pg_dump` / `pg_restore` instead of collection zip export
 - Admin DB browser (Aardvark) replaced by Drizzle Studio / `psql` documentation
