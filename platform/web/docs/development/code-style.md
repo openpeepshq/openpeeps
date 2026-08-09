@@ -35,8 +35,9 @@ If types are to be used for runtime validation they should be created as [zod](h
   - `create*` - for creating entities (e.g., `createPost`)
   - `update*` - for updating entities (e.g., `updatePost`)
   - `delete*` - for deleting entities (e.g., `deletePost`)
-  - `*Mutation` - for mutation functions (e.g., `reactToPostMutation`, `createPostMutation`)
-  - `*Store` - for store functions (e.g., `localFeedStore`, `getPostStore`)
+  - `*Mutation` / `*Action` - for mutation helpers (e.g., `createPostMutation`,
+    `updateCurrentProfileAction`)
+  - `use*` - for React Query / UI hooks (e.g., `usePost`, `useProfileByHandle`)
 
 ### Variables and Constants
 
@@ -46,10 +47,11 @@ If types are to be used for runtime validation they should be created as [zod](h
 
 ### Components
 
-- **Svelte components**: Files should be named in PascalCase matching the component name (e.g., `Avatar.svelte` exports `Avatar`)
-- **React components**: Use PascalCase for component names (e.g., `AllPeepProvider`, `useAllPeep`)
-- **Component props**: Define props with TypeScript types / interfaces on React components
-- **Component exports**: If components are exported from a module, their exported name should coincide with their file name
+- **React components**: Files should be named in PascalCase matching the
+  component export (e.g., `Avatar.tsx` exports `Avatar`)
+- **Component props**: Define props with TypeScript types / interfaces
+- **Component exports**: Prefer named exports; the exported name should match
+  the file name
 
 ### API Routes
 
@@ -65,7 +67,7 @@ If types are to be used for runtime validation they should be created as [zod](h
   - `mapping.ts` - for database mapping operations
   - `helpers.ts` - for helper/utility functions
   - `index.ts` - for re-exports
-- **Component organization**: Group related components in directories (e.g., `components/core/jams/pieces/`)
+- **Component organization**: Group related components in directories (e.g., `components/jams/`)
 - **Type definitions**: Centralize shared types in `@openpeeps/common/types`
 
 ## Code Structure
@@ -99,33 +101,15 @@ If types are to be used for runtime validation they should be created as [zod](h
 - **Optional chaining**: Use optional chaining and nullish coalescing where appropriate
 - **Async/await**: Prefer `async/await` over promise chains for better readability
 
-### Svelte Patterns
-
-- **Svelte 5 runes**: Use Svelte 5 runes syntax:
-  - `$props()` for component props
-  - `$state()` for reactive state
-  - `$derived()` for derived state
-  - `$effect()` for side effects
-- **Props destructuring**: Destructure props with defaults:
-
-  ```typescript
-  interface Props {
-    profile?: PublicProfile | undefined;
-    size?: number;
-  }
-
-  let { profile = undefined, size = 3.5 }: Props = $props();
-  ```
-
-- **Script tags**: Always use `lang="ts"` for TypeScript in Svelte files
-- **Indentation**: Use tabs for indentation in Svelte files
-
 ### React Patterns
 
-- **Hooks**: Use custom hooks for reusable logic (e.g., `useAllPeep`, `useRenderCount`)
-- **Context**: Use React Context for shared state (e.g., `AllPeepProvider`)
-- **Component types**: Use `React.FC<Props>` or explicit function component types
-- **Hook naming**: Custom hooks should start with `use` (e.g., `useWhyDidYouUpdate`, `useRenderCount`)
+- **Hooks**: Use custom hooks for reusable logic (e.g., `useOpenpeeps`,
+  `useCurrentProfile`)
+- **Context**: Use React Context for shared state (`OpenpeepsProvider`, toast /
+  theme / profile providers)
+- **Components**: Prefer named arrow-function components with explicit props
+  types (avoid `React.FC` unless required)
+- **Hook naming**: Custom hooks should start with `use`
 
 ### API Route Patterns
 

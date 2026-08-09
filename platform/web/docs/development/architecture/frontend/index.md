@@ -50,10 +50,10 @@ React components and hooks for building OpenPeeps web applications.
 
 **Key Exports:**
 
-- `AllPeepProvider` - Main context provider
-- `useAllPeep()` - Hook to access the API
-- Hooks for posts, profiles, groups, jams, etc.
-- Credentials store management
+- `OpenpeepsProvider` - Main context provider
+- `useOpenpeeps()` - Hook to access the API client and query helpers
+- Hooks for posts, profiles, groups, jams, etc. (via `openpeepsApi`)
+- Credentials / session management
 
 **Dependencies:**
 
@@ -121,61 +121,39 @@ Shared types, utilities, and constants used across frontend and backend.
 
 ### Component Structure
 
-Components follow a consistent structure:
+Components are TypeScript React modules (`.tsx`), typically arrow functions with
+explicit props types:
 
-```svelte
-<script lang="ts">
-  import type { PublicProfile } from '@openpeeps/common/types';
-  import { profileByHandleStore } from '@openpeeps/svelte/api';
+```tsx
+import type { PublicProfile } from '@openpeeps/common/types';
+import { useOpenpeeps } from '@openpeeps/react';
 
-  interface Props {
-    handle: string;
-  }
+type Props = {
+  handle: string;
+};
 
-  let { handle }: Props = $props();
+export const ProfileByHandle = ({ handle }: Props) => {
+  const { openpeepsApi } = useOpenpeeps();
+  const { data: profile } = openpeepsApi.useProfileByHandle(handle);
 
-  let profileQuery = $derived(profileByHandleStore(handle));
-  let profile = $derived($profileQuery.data);
-</script>
-
-<div>
-  <!-- Component markup -->
-</div>
+  return <div>{/* Component markup */}</div>;
+};
 ```
 
 ### State Management
 
-**Svelte:**
-
-- Uses Svelte 5 runes for reactivity
-- Stores for server state (TanStack Query integration)
-- Local component state with `$state()`
-- Derived state with `$derived()`
-
-**React:**
-
-- React Query for server state
-- Context API for global state
-- Local state with `useState()`
+- **React Query** for server state (via `openpeepsApi.*` hooks)
+- **React Context** for session, theme, and cross-cutting UI (`OpenpeepsProvider`,
+  profile / toast providers)
+- **Local state** with `useState` / `useReducer`
 
 ### Data Fetching
 
-**Svelte:**
+```tsx
+import { useOpenpeeps } from '@openpeeps/react';
 
-```typescript
-import { getPostStore } from '@openpeeps/svelte/api';
-
-let postQuery = $derived(getPostStore(postId));
-let post = $derived($postQuery.data);
-```
-
-**React:**
-
-```typescript
-import { useAllPeep } from '@openpeeps/react';
-
-const { posts } = useAllPeep();
-const { data: post } = posts.findById(postId);
+const { openpeepsApi } = useOpenpeeps();
+const { data: post, isLoading } = openpeepsApi.usePost(postId);
 ```
 
 ### API Integration
@@ -197,7 +175,7 @@ All frontends use the `@openpeeps/client` package for type-safe API access:
 Shared primitives live in `@openpeeps/react-ui` and higher-level components in
 `@openpeeps/react`:
 
-- Buttons, inputs, cards
+- Buttons, inputs, dialogs, cards
 - Navigation components
 - Theme system
 - Responsive utilities
@@ -244,7 +222,7 @@ pnpm -r \
 
 1. **Type Safety**: Always use TypeScript types from `@openpeeps/common`
 2. **Component Reusability**: Use shared components from `@openpeeps/react`
-3. **API Client**: Always use `@openpeeps/client` for API calls
+3. **API Client**: Always use `@openpeeps/client` / `openpeepsApi` for API calls
 4. **State Management**: Prefer React Query for server state
 5. **Responsive Design**: Mobile-first approach
 6. **Accessibility**: Follow WCAG guidelines
@@ -255,18 +233,18 @@ pnpm -r \
 ### React Hook Usage
 
 ```tsx
-import { useAllPeep } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeeps/react';
 
-function PostList() {
-  const { posts } = useAllPeep();
-  const { data, isLoading } = posts.list();
+export const PostList = () => {
+  const { openpeepsApi } = useOpenpeeps();
+  const { data, isLoading } = openpeepsApi.useLocalFeed();
 
   if (isLoading) return <div>Loading...</div>;
 
   return (
     <div>{data?.map((post) => <PostItem key={post.id} post={post} />)}</div>
   );
-}
+};
 ```
 
 ## Related Documentation
