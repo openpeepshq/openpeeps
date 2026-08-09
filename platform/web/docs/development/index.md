@@ -13,6 +13,7 @@ Here you should find everything useful to work on the AllPeep Community Server.
 - [Frontend Architecture](/docs/development/architecture/frontend) - Frontend components and structure
   - [Primary Web Interface](/docs/development/architecture/frontend/primary-web-interface) - Layout and responsive design
 - [Backend Architecture](/docs/development/architecture/backend) - Backend components and patterns
+- [Realtime Architecture](/docs/development/architecture/realtime) - HTTP, LiveKit, SSE, BullMQ/Redis, push
 
 ## Development Guides
 
