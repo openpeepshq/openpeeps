@@ -13,7 +13,12 @@ import { authNeeded, forbidden, notFound } from '../errors';
 import { config } from '../config';
 import { AccessToken, TrackSource } from 'livekit-server-sdk';
 import { hub } from '../events';
-import { roomService } from './livekit';
+import {
+  JAM_ROOM_DEPARTURE_TIMEOUT_SEC,
+  JAM_ROOM_EMPTY_TIMEOUT_SEC,
+  roomService,
+} from './livekit';
+import { localInstanceDomain } from './helpers';
 import { createJamEvent } from './mutations';
 import { uuidv7 } from 'uuidv7';
 
@@ -111,15 +116,14 @@ export const createJamToken = async (
 
   if (!jamOpen) {
     // Stamp community domain so Cockpit can attribute shared-SFU webhooks.
-    const host = (await config()).server.host;
-    const instanceDomain = (
-      host.includes('://') ? new URL(host).hostname : host.replace(/:\d+$/, '')
-    ).toLowerCase();
+    const instanceDomain = await localInstanceDomain();
     if (instanceDomain) {
       try {
         await rs.createRoom({
           name: jamId,
           metadata: JSON.stringify({ instanceDomain }),
+          emptyTimeout: JAM_ROOM_EMPTY_TIMEOUT_SEC,
+          departureTimeout: JAM_ROOM_DEPARTURE_TIMEOUT_SEC,
         });
       } catch {
         // Concurrent open may have created the room already.

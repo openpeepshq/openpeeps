@@ -10,7 +10,11 @@ import {
 export type JamHooks = ReturnType<typeof jamHooks>;
 
 export const jamHooks = (client: OpenpeepsClient) => ({
-  useJams: () => apiHook(client.jams.list, { queryParams: { live: 'true' } }),
+  useJams: () =>
+    apiHook(client.jams.list, {
+      queryParams: { live: 'true' },
+      refetchInterval: 10_000,
+    }),
   closeJamAction: noPayloadMutation(client.jams.close, [['jams']]),
   useJamToken: (id: string) =>
     apiHook(client.jams.token, { pathParams: { id } }),

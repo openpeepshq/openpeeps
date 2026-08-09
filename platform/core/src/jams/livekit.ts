@@ -21,10 +21,18 @@ import { serverRootUrl } from '../server';
 import { uuidv7 } from 'uuidv7';
 import { createJamEvent, updateJamRecording } from './mutations';
 import { findActiveRecording } from './finders';
+import { cancelRecordingAutoStop, scheduleRecordingAutoStop } from './jobs';
 import { createSignedServiceToken } from '../accessTokens/tokens';
 import { unprocessableRequest } from '../errors';
+import { logger } from '../log';
 
 const encoder = new TextEncoder();
+const log = logger('app:jams:livekit');
+
+/** Seconds a new room stays open before anyone joins. */
+export const JAM_ROOM_EMPTY_TIMEOUT_SEC = 5 * 60;
+/** Seconds a room stays open after the last participant leaves. */
+export const JAM_ROOM_DEPARTURE_TIMEOUT_SEC = 60;
 
 export const roomService = async () => {
   const { url, apiKey, apiSecret } = (await config()).jams.livekit;
@@ -105,6 +113,7 @@ export const startRecording = async (
   // one is the sole active recording for this jam.
   const staleRecording = await findActiveRecording(jamPost);
   if (staleRecording) {
+    await cancelRecordingAutoStop(staleRecording.id);
     await updateJamRecording(staleRecording.id, { status: 'failed' });
   }
 
@@ -165,12 +174,8 @@ export const startRecording = async (
     ),
   );
 
-  setTimeout(
-    async () => {
-      await stopRecording(jamPost);
-    },
-    60 * 60 * 1000,
-  );
+  // BullMQ delayed job survives API/worker restarts (unlike setTimeout).
+  await scheduleRecordingAutoStop(jamId, persistedRecordingId);
 
   return recording;
 };
@@ -190,6 +195,8 @@ export const stopRecording = async (jamPost: PostWithMeta) => {
   if (!jamRecording) {
     return undefined;
   }
+
+  await cancelRecordingAutoStop(jamRecording.id);
 
   if (jamRecording.egressId) {
     // Don't block the API response on egress stop; LiveKit can take 15s+ and
@@ -216,6 +223,28 @@ export const stopRecording = async (jamPost: PostWithMeta) => {
   );
 
   return jamRecording;
+};
+
+/**
+ * Stops leftover egress and deletes a LiveKit room that has no human
+ * participants (egress-only / orphan rooms). Safe to call repeatedly.
+ */
+export const reclaimOrphanJamRoom = async (jam: PostWithMeta) => {
+  try {
+    await stopRecording(jam);
+  } catch (e) {
+    log.warn(
+      `Failed to stop recording while reclaiming jam ${jam.id}: ${(e as Error).message}`,
+    );
+  }
+  try {
+    const rs = await roomService();
+    await rs?.deleteRoom(jam.id);
+  } catch (e) {
+    log.warn(
+      `Failed to delete orphan jam room ${jam.id}: ${(e as Error).message}`,
+    );
+  }
 };
 
 export const finishRecording = async (jamRecording: JamRecordingWithMeta) => {
@@ -248,22 +277,26 @@ export const jamState = async (
     };
   }
   const room = await rs
-    .listRooms()
+    .listRooms([jam.id])
     .then((rooms) => rooms.find((r) => r.name === jam.id));
-  if (room) {
-    const participants = await listParticipantIds(jam.id);
-    return {
-      participants: hideParticipants ? [] : participants,
-      active: participants.length > 0,
-    };
-  } else {
+  if (!room) {
     return {
       participants: [],
       active: false,
     };
   }
-};
-
-const getActiveRecording = async (jamId: string) => {
-  const egressClient = await getEgressClient();
+  const participants = await listParticipantIds(jam.id);
+  if (participants.length === 0) {
+    // Room exists only for egress ghosts / empty leftovers — reclaim so it
+    // stops appearing under Live jams.
+    void reclaimOrphanJamRoom(jam);
+    return {
+      participants: [],
+      active: false,
+    };
+  }
+  return {
+    participants: hideParticipants ? [] : participants,
+    active: true,
+  };
 };

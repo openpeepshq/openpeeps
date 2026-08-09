@@ -18,6 +18,10 @@ import {
   analyticsCompileWorker,
   ensureAnalyticsSchedules,
 } from '@openpeeps/core/analytics';
+import {
+  jamRecordingStopQueue,
+  jamRecordingStopWorker,
+} from '@openpeeps/core/jams';
 import { serverRootUrl } from '@openpeeps/core/server';
 import {
   initializeNotifications,
@@ -42,6 +46,8 @@ const startWorkers = () => {
   mediaStreamingWorker();
   console.log('Starting media streaming cleanup worker ...');
   mediaStreamingCleanupWorker();
+  console.log('Starting jam recording stop worker ...');
+  jamRecordingStopWorker();
   console.log('Starting analytics compile worker ...');
   analyticsCompileWorker();
 };
@@ -53,6 +59,7 @@ const setupQueues = async () => {
   mediaProcessingQueue();
   mediaStreamingQueue();
   mediaStreamingCleanupQueue();
+  jamRecordingStopQueue();
   analyticsCompileQueue();
   // Register the daily cron schedule. Idempotent under upsertJobScheduler so
   // it's safe to call on every worker boot.
