@@ -15,7 +15,7 @@ The heart of the backend, containing all business logic and data access.
 **Responsibilities:**
 
 - Domain models (Posts, Profiles, Groups, Jams, etc.)
-- Database operations (ArangoDB)
+- Database operations (PostgreSQL via Drizzle / `pg/map`)
 - Business logic (mutations, finders, helpers)
 - Event system (Redis pub/sub)
 - External service integrations (Stripe, LiveKit, email)
@@ -359,7 +359,7 @@ DB_NAME=test pnpm test
 2. **Caching**: Redis for frequently accessed data
 3. **Background Jobs**: Offload heavy operations to worker
 4. **Connection Pooling**: Reuse database connections
-5. **Indexing**: Proper ArangoDB indices for queries
+5. **Indexing**: Proper PostgreSQL indexes for query paths
 
 ## Security
 
@@ -367,7 +367,7 @@ DB_NAME=test pnpm test
    and shared across API/worker replicas)
 2. **Authorization**: Capability-based access control
 3. **Input Validation**: Zod schemas for all inputs
-4. **SQL Injection**: Not applicable (ArangoDB uses parameterized queries)
+4. **SQL Injection**: Parameterized queries via Drizzle / the query layer
 5. **XSS Prevention**: Content sanitization
 6. **CSRF Protection**: Same-origin SPA + Bearer JWT (no cookie session CSRF surface)
 7. **CORS**: API allowlist via `CORS_ORIGINS` / `SERVER_HOST` (not `*`)

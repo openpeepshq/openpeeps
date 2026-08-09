@@ -6,7 +6,7 @@ The AllPeeP notification system handles user notifications through multiple chan
 
 The notification system is event-driven and supports:
 
-- **In-app notifications** - Stored in ArangoDB, displayed in the UI
+- **In-app notifications** - Stored in PostgreSQL, displayed in the UI
 - **Push notifications** - Web Push, iOS (APNs), Android (FCM)
 - **Email notifications** - HTML email templates
 

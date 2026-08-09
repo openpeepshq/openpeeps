@@ -45,8 +45,8 @@ Express API server, shared libraries, and background workers.
 ┌─────────────────────────────────────────────────────────┐
 │                    Data Layer                            │
 │  ┌──────────┐  ┌──────────┐                             │
-│  │ ArangoDB │  │  Redis   │                             │
-│  │  (Graph) │  │  (Cache) │                             │
+│  │PostgreSQL│  │  Redis   │                             │
+│  │ (primary)│  │  (Cache) │                             │
 │  └──────────┘  └──────────┘                             │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -68,11 +68,12 @@ Express API server, shared libraries, and background workers.
 
 ### Libraries
 
-- **`@openpeeps/arango-querybuilder`** — ArangoDB query builder
 - **`@openpeeps/fetch-client`** — HTTP client with event handling
 - **`@openpeeps/geocoder`** — Geocoding service abstraction
 - **`@openpeeps/greenscreen`** — Background processing for video
 - **`@openpeeps/react-ui`** — Shared React UI components
+- **`@openpeeps/arango-querybuilder`** — Legacy Arango query builder (cutover /
+  historical tooling only; not the PG runtime path)
 
 ### Dependency graph
 
@@ -86,7 +87,6 @@ Express API server, shared libraries, and background workers.
 @openpeeps/server (API)
    ├── @openpeeps/core
    │   ├── @openpeeps/common
-   │   ├── @openpeeps/arango-querybuilder
    │   └── @openpeeps/fetch-client
    └── @openpeeps/worker
        └── @openpeeps/core
@@ -101,7 +101,7 @@ Express API server, shared libraries, and background workers.
 
 ## Data storage
 
-- **ArangoDB** — Primary graph database for entities and relationships
+- **PostgreSQL** — Primary database for entities and relationships (Drizzle ORM)
 - **Redis** — Caching and event pub/sub system
 
 See [Data Storage](/docs/development/data-storage) for details.
@@ -112,7 +112,7 @@ See [Data Storage](/docs/development/data-storage) for details.
 - **Express + Riddl** — API server (`@openpeeps/server`)
 - **TypeScript** — Type-safe development
 - **Zod** — Runtime type validation
-- **ArangoDB** — Multi-model graph database
+- **PostgreSQL** — Primary relational store
 - **Redis** — In-memory data store
 - **LiveKit** — Real-time video/audio
 - **Stripe** — Payment processing

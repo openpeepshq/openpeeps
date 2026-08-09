@@ -155,27 +155,21 @@ API routes follow RESTful conventions and are organized by resource:
 
 ### API Endpoint Pattern
 
-API endpoints are defined in two places:
+API endpoints are Riddl modules under `platform/server/src/api/`. Each HTTP
+method is a file that exports `apiEndpoint` (discovered via
+`import.meta.glob`). Handlers use `endpoint()` from `#lib/endpoint` and
+auth helpers from `#lib/auth`.
 
-1. **Route module**: `platform/server/src/api/.../{GET,POST,...}.ts` - Handles HTTP methods
-2. **Endpoint definition**: `api/api/.../METHOD.ts` - Defines OpenAPI schema and logic
-
-Example endpoint structure:
+Example:
 
 ```typescript
 // platform/server/src/api/openpeeps/core/v1/posts/[postId]/bookmark/POST.ts
-import api from '$api';
-import type { RequestEvent } from '@sveltejs/kit';
-
-export const POST = async (event: RequestEvent) => api.handle(event);
-export const DELETE = async (event: RequestEvent) => api.handle(event);
-```
-
-```typescript
-// api/api/openpeeps/core/v1/posts/[postId]/bookmark/POST.ts
-import { Endpoint, z } from '@riddl/core';
-import { forbidden, notFound } from '$lib/server/api/errors';
-import { ensureLocalProfile, ensurePostCapabilities } from '$lib/server/auth';
+import { endpoint, z } from '#lib/endpoint';
+import { forbidden, notFound } from '#lib/errors';
+import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
+import type { RequestEvent } from '@riddl/core';
+import { findPost, bookmarkPost } from '@openpeeps/core/posts';
+import { successResponseSchema } from '@openpeeps/common/types';
 
 export const Param = z.object({
   postId: z.string(),
@@ -188,14 +182,21 @@ export const Error = {
   404: notFound(),
 };
 
-export default new Endpoint({ Param, Output, Error }).handle(
+export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (input, event: RequestEvent) => {
     const profile = await ensureLocalProfile(event);
-    // … load post, then e.g. await ensurePostCapabilities(event, post, ['core-posts-read'])
+    const mergedPost = await findPost(input.postId);
+    if (!mergedPost) {
+      throw notFound(`Object with id ${input.postId}`);
+    }
+    await ensurePostCapabilities(event, mergedPost, ['core-posts-read']);
+    await bookmarkPost(mergedPost, profile);
+    return { success: true };
   },
 );
 ```
 
+See `platform/server/README.md` for layout and middleware details.
 ### Key API Endpoints
 
 #### Authentication
@@ -312,7 +313,6 @@ export default new Endpoint({ Param, Output, Error }).handle(
 - `GET /api/openpeeps/core/v1/admin/roles/[roleId]` - Get role
 - `PUT /api/openpeeps/core/v1/admin/roles/[roleId]` - Update role
 - `PUT /api/openpeeps/core/v1/admin/profiles/[profileId]/roles` - Update profile roles
-- `GET /api/openpeeps/core/v1/admin/db/token` - Get database access token (legacy)
 - `GET /api/openpeeps/core/v1/admin/db/tables` - List Drizzle schema tables
 - `GET /api/openpeeps/core/v1/admin/db/tables/:table/rows` - Browse table rows
 - `PUT /api/openpeeps/core/v1/admin/db/tables/:table/rows` - Update a table row
@@ -379,83 +379,60 @@ Well-known URLs for various services.
 
 - `/.well-known/apple-app-site-association` - Apple App Site Association for deep linking
 
-### `/_db`
-
-Database admin interface proxy.
-
-- `/_db/[...aardvarkPath]` - ArangoDB web interface (Aardvark)
-
 ## Dynamic Route Parameters
 
-Routes use square brackets `[]` to define dynamic parameters:
+Web (React Router) and API path params use descriptive names:
 
-- `[postId]` - Post UUID
-- `[profileId]` - Profile UUID
-- `[groupId]` - Group UUID
-- `[eventId]` - Event UUID (also used for jams)
-- `[handle]` - Profile or group handle (username)
-- `[hashtag]` - Hashtag name
-- `[type]` - Post type (note, question, event, article)
-- `[notificationId]` - Notification UUID
-- `[conversationId]` - Conversation UUID
-- `[backupDir]` - Backup directory name
-- `[size]` - Icon size for PWA icons
-- `[bucket]` - S3 bucket name
-- `[filename]` - File name
-- `[...aardvarkPath]` - Catch-all for ArangoDB paths
+- `postId` - Post UUID
+- `profileId` - Profile UUID
+- `groupId` - Group UUID
+- `eventId` - Event UUID (also used for jams)
+- `handle` - Profile or group handle (username)
+- `hashtag` - Hashtag name
+- `type` - Post type (note, question, event, article)
+- `notificationId` - Notification UUID
+- `conversationId` - Conversation UUID
+- `backupDir` - Backup directory name
+- `size` - Icon size for PWA icons
+- `bucket` - S3 bucket name
+- `filename` - File name
 
-## Route Layouts
+On the server, Riddl folders use `[param]` segments (e.g.
+`posts/[postId]/GET.ts`); the web app uses React Router `:param` segments.
 
-Layouts wrap child routes and provide shared UI components:
+## Layouts
 
-- **Root layout** (`+layout.svelte`) - App-wide layout with navigation
-- **Auth layout** (`auth/+layout.svelte`) - Authentication pages layout
-- **Protected layout** (`(protected)/(private)/+layout.svelte`) - Private routes with ProfileGuard
-- **Conditionally public layout** (`(protected)/(conditionally-public)/+layout.svelte`) - Public/private routes
+Shared UI shells live in `@openpeeps/react` / `@openpeeps/web` (app shell,
+auth screens, profile guards). They are React components, not filesystem route
+groups.
 
 ## Best Practices
 
-1. **Route Organization**: Use route groups to organize routes by access level
-2. **Dynamic Routes**: Use descriptive parameter names in square brackets
+1. **Route Organization**: Group pages by access level in the web router
+2. **Dynamic Routes**: Use descriptive parameter names
 3. **API Consistency**: Follow RESTful conventions for API endpoints
-4. **Type Safety**: Use @riddl/core for type-safe API endpoints
+4. **Type Safety**: Use @riddl/core / `endpoint()` for type-safe API endpoints
 5. **Access Control**: Implement authorization checks in route handlers
 6. **Error Handling**: Use consistent error responses (404, 403, etc.)
-7. **Documentation**: Keep API documentation up to date with OpenAPI schemas
+7. **Documentation**: Keep OpenAPI schemas up to date (`/openapi.json`)
 
 ## Examples
 
 ### Creating a New Page Route
 
-```svelte
-<!-- routes/(protected)/(conditionally-public)/my-page/+page.svelte -->
-<script lang="ts">
-  // Page component
-</script>
-
-<div>
-  <h1>My Page</h1>
-</div>
-```
+Register a React page component in `platform/web` (React Router) and navigate
+with path params (e.g. `/posts/:postId`). Prefer shared layout components from
+`@openpeeps/react` rather than duplicating shells.
 
 ### Creating a New API Endpoint
 
 ```typescript
 // platform/server/src/api/openpeeps/core/v1/my-resource/GET.ts
-import api from '$api';
-import type { RequestEvent } from '@sveltejs/kit';
-
-export const GET = async (event: RequestEvent) => api.handle(event);
-export const POST = async (event: RequestEvent) => api.handle(event);
-```
-
-```typescript
-// api/api/openpeeps/core/v1/my-resource/GET.ts
-import { Endpoint, z } from '@riddl/core';
-import { notFound } from '$lib/server/api/errors';
+import { endpoint, z } from '#lib/endpoint';
+import { notFound } from '#lib/errors';
 
 export const Param = z.object({
-  // Parameters
+  // Path parameters
 });
 
 export const Output = z.object({
@@ -466,9 +443,9 @@ export const Error = {
   404: notFound(),
 };
 
-export default new Endpoint({ Param, Output, Error }).handle(
+export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (input, event) => {
-    // Endpoint logic
+    // Endpoint logic — delegate to @openpeeps/core
     return {
       /* response */
     };
@@ -479,16 +456,18 @@ export default new Endpoint({ Param, Output, Error }).handle(
 ### Accessing Route Parameters
 
 ```typescript
-// In +page.svelte or +page.ts
-import { page } from '$app/state';
+// Web (React Router)
+import { useParams } from 'react-router-dom';
 
-let postId = $derived(page.params.postId);
+const { postId } = useParams<{ postId: string }>();
 ```
 
 ```typescript
-// Mounted via Riddl route modules
-export const GET = async (event: RequestEvent) => {
-  const { postId } = event.params;
-  // Use postId
-};
+// API (Riddl handler) — path params are merged into `input` by endpoint()
+export const apiEndpoint = endpoint({ Param, Output }).handle(
+  async (input) => {
+    const { postId } = input;
+    // Use postId
+  },
+);
 ```
