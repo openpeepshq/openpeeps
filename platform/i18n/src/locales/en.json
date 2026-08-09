@@ -158,7 +158,10 @@
     "form": {
       "displayName": "Display Name",
       "handle": "Handle",
-      "handlePlaceholder": "Enter your handle",
+      "handlePlaceholder": "your-handle",
+      "handleHint": "1–16 characters. Letters, numbers, underscores, and hyphens only — no spaces or punctuation.",
+      "handleInvalid": "Handle must be 1–16 characters: letters, numbers, underscores, or hyphens (no spaces or punctuation)",
+      "handleReserved": "That handle is reserved. Please choose another.",
       "bio": "Bio",
       "bioPlaceholder": "Tell us about yourself",
       "avatar": "Avatar",
@@ -1969,7 +1972,7 @@
     "description": "Manage all settings relating to your acccount here:",
     "profile": {
       "description": "Make changes to your profile details",
-      "updateError": "There was an error updating your profile.",
+      "updateError": "There was an error updating your profile: {{error}}",
       "updateSuccess": "Your profile has been updated",
       "updateHandleExists": "Handle already taken"
     },
