@@ -5,6 +5,9 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **react**: streamline profile selection into shared modal
+- **perf**: add live and offline performance profiling
+- **db**: add migration command and enhance schema readiness checks
 - **plugins**: route registration, config endpoint, frontend registry and example
 - **analytics**: add rollup-based admin analytics platform
 - **config**: update Sentry configuration and documentation for clarity
