@@ -34,6 +34,23 @@ Collection and edge names used by mappings are defined in
 `platform/core/src/db/pg/collections.ts`, aligned with the Drizzle schema
 registries in `platform/core/src/db/pg/map/registry.ts`.
 
+### Schema migrations
+
+Schema (and most stored-shape) changes go through **Drizzle SQL**:
+
+1. Edit table definitions under `platform/core/src/db/pg/schema/`.
+2. Generate SQL: `pnpm --filter @openpeeps/core db:generate` — files land in
+   `platform/core/src/db/pg/sql/`.
+3. Apply: `pnpm --filter @openpeeps/core db:migrate` (also runs automatically
+   when the server starts).
+
+Rationale and cutover notes: `platform/core/docs/postgres-schema-adr.md` and
+`platform/core/docs/postgres-migration-runbook.md`.
+`platform/core/src/db/dataMigrations/` is **Arango-era history** used for
+cutover export shapes; it is **not** replayed on Postgres and must not receive
+new migrations. One-off PG data backfills belong in an intentional SQL
+migration or a documented one-shot script.
+
 ### Mappings
 
 Mappings describe how to load entities and their relations. They are built with

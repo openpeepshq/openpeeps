@@ -101,9 +101,16 @@ steps — follow that skill.
 
 - **i18n:** never hardcode user-facing copy. Add a key to `locales/en.json` and
   reference it via the `t()` function.
-- **Data migrations:** changes to stored data shape need a migration under
-  `platform/core/src/db/dataMigrations/migrations/`, registered in
-  `migrations.ts`, keyed with a UUIDv7 (`pnpm --filter @openpeeps/core uuidv7`).
+- **Schema migrations:** changes to stored data shape go through **Drizzle SQL**,
+  not Arango-era TypeScript migrations. Update tables under
+  `platform/core/src/db/pg/schema/`, then
+  `pnpm --filter @openpeeps/core db:generate` (SQL lands in
+  `platform/core/src/db/pg/sql/`) and apply with `db:migrate` (also runs on
+  server start). See `platform/core/docs/postgres-schema-adr.md` and
+  `platform/core/docs/postgres-migration-runbook.md`.
+  `platform/core/src/db/dataMigrations/` is **Arango cutover history only** —
+  do not add new migrations there for Postgres. One-off PG data backfills
+  belong in an intentional SQL migration or a documented one-shot script.
 - **Capabilities:** gate features by role capabilities (`core-*`) rather than
   hardcoded role checks.
 - **Async work** belongs in a BullMQ queue/worker, not inline in request paths.
