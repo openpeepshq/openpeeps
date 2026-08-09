@@ -22,6 +22,7 @@ import { uuidv7 } from 'uuidv7';
 import { createJamEvent, updateJamRecording } from './mutations';
 import { findActiveRecording } from './finders';
 import { cancelRecordingAutoStop, scheduleRecordingAutoStop } from './jobs';
+import { jamRecordingUploadSecret } from './recordingUploadAuth';
 import { createSignedServiceToken } from '../accessTokens/tokens';
 import { unprocessableRequest } from '../errors';
 import { logger } from '../log';
@@ -131,6 +132,7 @@ export const startRecording = async (
   const recordingUrl = await getJamRecordingUrl(jamId);
   await assertEgressCanReachRecordingHost(recordingUrl);
 
+  const uploadSecret = await jamRecordingUploadSecret(persistedRecordingId);
   const egressInfo = await egressClient.startWebEgress(
     recordingUrl,
     new EncodedFileOutput({
@@ -140,7 +142,7 @@ export const startRecording = async (
           endpoint: `${await serverRootUrl()}/s3`,
           bucket: 'allpeep-recordings',
           accessKey: persistedRecordingId,
-          secret: persistedRecordingId,
+          secret: uploadSecret,
           sessionToken: persistedRecordingId,
           forcePathStyle: true,
         },

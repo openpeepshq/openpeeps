@@ -42,6 +42,10 @@ export * from './waitingRoom';
 export * from './mutations';
 export * from './finders';
 export * from './recording';
+export {
+  deriveJamRecordingUploadSecret,
+  jamRecordingUploadSecret,
+} from './recordingUploadAuth';
 
 const invalidateJamCaches = async (jamId: string) => {
   await Promise.all([
