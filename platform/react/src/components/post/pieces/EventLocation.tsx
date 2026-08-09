@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import type { Event, PublicPost } from '@openpeeps/common/types';
 import { getJamUrl, truncateText } from '@openpeeps/common/lib';
+import { useT } from '../../../i18n';
 import { useStaticRender } from '../../markdown/staticRender';
 
 export interface EventLocationProps {
@@ -19,6 +20,7 @@ export function EventLocation({
   preview = true,
   truncate = false,
 }: EventLocationProps) {
+  const t = useT();
   const { enabled: staticRender, baseUrl } = useStaticRender();
   if (post.data?.type !== 'event') return null;
   const event = post.data as Event;
@@ -50,7 +52,7 @@ export function EventLocation({
               rel="noreferrer"
               className="text-primary hover:underline"
             >
-              Jam Event
+              {t('events.location.jam', { defaultValue: 'Jam Event' })}
             </a>
           </>
         ) : event.url ? (
@@ -62,7 +64,7 @@ export function EventLocation({
               rel="noreferrer"
               className="text-primary inline-flex items-center gap-1 hover:underline"
             >
-              Online
+              {t('events.location.online', { defaultValue: 'Online' })}
               <ExternalLink className="h-4 w-4" />
             </a>
           </>
@@ -91,7 +93,7 @@ export function EventLocation({
           </p>
         ) : event.jam ? (
           <>
-            <p>Jam Event</p>
+            <p>{t('events.location.jam', { defaultValue: 'Jam Event' })}</p>
             <a
               href={jamLink}
               target="_blank"
@@ -103,7 +105,11 @@ export function EventLocation({
           </>
         ) : event.url ? (
           <>
-            <p>External Event</p>
+            <p>
+              {t('events.location.external', {
+                defaultValue: 'External Event',
+              })}
+            </p>
             <a
               href={event.url}
               target="_blank"

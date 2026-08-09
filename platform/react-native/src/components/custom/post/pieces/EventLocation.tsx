@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Event, PublicPost, truncateText } from '@openpeeps/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import { MapPinIcon, LinkIcon, PhoneCallIcon } from '~/components/icons';
@@ -11,6 +12,7 @@ export const EventLocation: React.FC<EventLocationProps> = ({
   post,
   truncate = false,
 }) => {
+  const { t } = useTranslation();
   const event = post.data as Event;
 
   return (
@@ -27,12 +29,16 @@ export const EventLocation: React.FC<EventLocationProps> = ({
       ) : event.jam ? (
         <>
           <PhoneCallIcon className="text-muted-foreground" size={18} />
-          <ThemedText className="text-muted-foreground">Jam Event</ThemedText>
+          <ThemedText className="text-muted-foreground">
+            {t('events.location.jam', { defaultValue: 'Jam Event' })}
+          </ThemedText>
         </>
       ) : event.url ? (
         <>
           <LinkIcon className="text-muted-foreground" size={18} />
-          <ThemedText className="text-muted-foreground">Online</ThemedText>
+          <ThemedText className="text-muted-foreground">
+            {t('events.location.online', { defaultValue: 'Online' })}
+          </ThemedText>
         </>
       ) : null}
     </View>
