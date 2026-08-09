@@ -340,22 +340,51 @@ Email notifications use React Email templates located in:
 
 ### Template Structure
 
-```svelte
-<!-- Email.svelte -->
-<script lang="ts">
-  import type { ExpandedNotification } from '@openpeeps/common/types';
+```tsx
+import { Button, Link, Section, Text } from '@react-email/components';
+import type {
+  EmailGlobals,
+  ExpandedNotification,
+} from '@openpeeps/common/types';
+import { BaseEmailLayout } from '../../BaseEmailLayout';
+import { emailStyles } from '../../styles';
 
-  interface Props {
-    notification: ExpandedNotification;
-  }
+export const FollowEmail = ({
+  globals,
+  locals,
+}: {
+  globals: EmailGlobals;
+  locals: ExpandedNotification;
+}) => {
+  const { t } = globals.i18nContext;
 
-  let { notification }: Props = $props();
-</script>
-
-<div>
-  <h1>Notification Title</h1>
-  <p>{notification.senderProfile?.displayName}...</p>
-</div>
+  return (
+    <BaseEmailLayout
+      globals={globals}
+      previewText={t('emails.follow.body')}
+      showGreeting
+      recipientProfile={locals.recipientProfile}
+    >
+      <Text style={emailStyles.paragraph}>
+        <Link
+          href={`${globals.serverData.rootUrl}/@${locals.senderProfile?.handle}`}
+          style={emailStyles.linkStyle}
+        >
+          @{locals.senderProfile?.handle}
+        </Link>{' '}
+        {t('emails.follow.body')}
+      </Text>
+      <Section style={emailStyles.ctaContainer}>
+        <Button
+          href={`${globals.serverData.rootUrl}/@${locals.senderProfile?.handle}`}
+          style={emailStyles.button}
+        >
+          {t('emails.follow.cta')}
+        </Button>
+      </Section>
+    </BaseEmailLayout>
+  );
+};
 ```
 
 ### Sending Emails
