@@ -193,7 +193,7 @@ export const accountNameSchema = z
   })
   .refine((value: string) => handleRegex.test(value ?? ''), {
     message:
-      'Handle can only contain alphanumeric characters and underscores and not have more than 16 characters',
+      'Handle must be 1–16 characters: letters, numbers, underscores, or hyphens (no spaces or punctuation)',
   })
   .openapi({
     type: 'string',

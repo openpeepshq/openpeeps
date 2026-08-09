@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ProfileWithMeta } from '@openpeeps/common/types';
-import { profileDataSchema } from '@openpeeps/common/types';
+import { accountNameSchema, profileDataSchema } from '@openpeeps/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
 import {
   HeaderAvatarInput,
@@ -10,6 +10,10 @@ import {
   useToast,
 } from '@openpeeps/react/components';
 import { Button, Input, Label, Textarea } from '@openpeeps/react-ui';
+import { ZodError } from 'zod';
+
+const firstZodMessage = (err: ZodError): string | undefined =>
+  err.issues[0]?.message;
 
 export function PublicProfileSettings() {
   const t = useT();
@@ -18,6 +22,7 @@ export function PublicProfileSettings() {
   const { openpeepsApi } = useOpenpeeps();
   const me = useCurrentProfile();
   const updateProfile = openpeepsApi.updateCurrentProfileAction();
+  const submittingRef = useRef(false);
 
   useSetPageHeader(
     t('settings.publicProfile.title', { defaultValue: 'Public profile' }),
@@ -30,6 +35,7 @@ export function PublicProfileSettings() {
 
   const [draft, setDraft] = useState<Partial<ProfileWithMeta>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [handleError, setHandleError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!me) return;
@@ -47,16 +53,45 @@ export function PublicProfileSettings() {
       location: me.location,
       fields: fields.length ? fields : undefined,
     });
+    setHandleError(null);
   }, [me?.id, additionalFieldDefs]);
 
   if (!me) return null;
 
+  const validateHandle = (value: string): string | null => {
+    const result = accountNameSchema.safeParse(value);
+    if (result.success) return null;
+    const message = firstZodMessage(result.error);
+    if (message === 'Handle is reserved') {
+      return t('profile.form.handleReserved', {
+        defaultValue: 'That handle is reserved. Please choose another.',
+      });
+    }
+    return t('profile.form.handleInvalid', {
+      defaultValue:
+        'Handle must be 1–16 characters: letters, numbers, underscores, or hyphens (no spaces or punctuation)',
+    });
+  };
+
   const submit = async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setSubmitting(true);
+
+    const nextHandle = (draft.handle ?? me.handle ?? '').replace(/^@/, '');
+    const localHandleError = validateHandle(nextHandle);
+    if (localHandleError) {
+      setHandleError(localHandleError);
+      submittingRef.current = false;
+      setSubmitting(false);
+      return;
+    }
+    setHandleError(null);
+
     try {
       await updateProfile(
         profileDataSchema.parse({
-          handle: draft.handle ?? me.handle,
+          handle: nextHandle,
           type: me.type,
           displayName: draft.displayName,
           bio: draft.bio,
@@ -72,13 +107,31 @@ export function PublicProfileSettings() {
         }),
       );
     } catch (err) {
+      if (err instanceof ZodError) {
+        const message = firstZodMessage(err);
+        if (message?.toLowerCase().includes('handle')) {
+          setHandleError(
+            message === 'Handle is reserved'
+              ? t('profile.form.handleReserved', {
+                  defaultValue:
+                    'That handle is reserved. Please choose another.',
+                })
+              : t('profile.form.handleInvalid', {
+                  defaultValue:
+                    'Handle must be 1–16 characters: letters, numbers, underscores, or hyphens (no spaces or punctuation)',
+                }),
+          );
+          return;
+        }
+      }
       toastError(
         t('settings.profile.updateError', {
-          defaultValue: `Failed: ${(err as Error).message}`,
+          defaultValue: `There was an error updating your profile: ${(err as Error).message}`,
           error: (err as Error).message,
         }),
       );
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   };
@@ -123,17 +176,34 @@ export function PublicProfileSettings() {
         <Input
           id="handle"
           value={draft.handle ?? ''}
-          onChange={(e) =>
-            setDraft((d) => ({
-              ...d,
-              handle: e.target.value.replace(/^@/, ''),
-            }))
-          }
+          maxLength={16}
+          aria-invalid={Boolean(handleError)}
+          aria-describedby="handle-hint"
+          onChange={(e) => {
+            const handle = e.target.value.replace(/^@/, '');
+            setDraft((d) => ({ ...d, handle }));
+            if (handleError) setHandleError(validateHandle(handle));
+          }}
           placeholder={t('profile.form.handlePlaceholder', {
             defaultValue: 'your-handle',
           })}
           data-testid="settings-handle-input"
         />
+        <p
+          id="handle-hint"
+          className={
+            handleError
+              ? 'text-destructive text-sm'
+              : 'text-muted-foreground text-sm'
+          }
+          data-testid="settings-handle-hint"
+        >
+          {handleError ??
+            t('profile.form.handleHint', {
+              defaultValue:
+                '1–16 characters. Letters, numbers, underscores, and hyphens only — no spaces or punctuation.',
+            })}
+        </p>
       </div>
 
       <div className="space-y-2">
