@@ -1,0 +1,7 @@
+node_modules
+dist
+.build
+docs
+public/logo-small.png
+public/**/*.md
+public/*.md

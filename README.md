@@ -145,8 +145,14 @@ Production checklist (ops/DX):
 
 ## Documentation
 
-Visit `/docs/development` on your local install or
-<https://openpeeps.ap.social/docs/> for the latest stable version
+Product docs live in `platform/web/docs/` and are available:
+
+- In the community SPA at `/docs` (local or deployed instance)
+- As a multi-version React static site at `docs.openpeeps.org` (once deployed —
+  `main`, `staging`, and recent `*-RELEASE` tags); see [`docs-site/`](docs-site/).
+  Hosting compose: `code` repo `devops/services/openpeeps-docs/`
+
+Stable community docs mirror: <https://openpeeps.ap.social/docs/>
 documentation.
 
 ## Database
