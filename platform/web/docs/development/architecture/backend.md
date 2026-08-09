@@ -392,3 +392,4 @@ DB_NAME=test pnpm test
 - [Routes](/docs/development/routes) - API endpoint structure
 - [Code Style](/docs/development/code-style) - Backend coding standards
 - [Frontend Architecture](/docs/development/architecture/frontend) - Client-side architecture
+- [Realtime Architecture](/docs/development/architecture/realtime) - HTTP, LiveKit, SSE, hub/queues, push

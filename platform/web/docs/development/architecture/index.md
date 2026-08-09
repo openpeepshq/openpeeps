@@ -98,6 +98,8 @@ Express API server, shared libraries, and background workers.
   web client and React Native mobile
 - **[Backend Architecture](/docs/development/architecture/backend)** — Core,
   API server, worker, CLI
+- **[Realtime Architecture](/docs/development/architecture/realtime)** — HTTP,
+  LiveKit, SSE, BullMQ/Redis hub, and push (no app-wide WebSocket)
 
 ## Data storage
 

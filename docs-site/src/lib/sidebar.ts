@@ -53,6 +53,7 @@ export const SIDEBAR: NavSection[] = [
         label: 'Primary web interface',
         slug: 'development/architecture/frontend/primary-web-interface',
       },
+      { label: 'Realtime', slug: 'development/architecture/realtime' },
     ],
   },
 ];
