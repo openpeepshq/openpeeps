@@ -3,6 +3,7 @@ packages:
   - "platform/*"
   - "examples/*"
   - "plugins/*/*"
+  - "docs-site"
 
 linkWorkspacePackages: deep
 
