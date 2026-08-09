@@ -272,19 +272,28 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
           {event?.physicalLocation ? (
             <>
               <ThemedText className="text-xl">
-                {event?.physicalLocation.text || 'Physical Location'}
+                {event?.physicalLocation.text ||
+                  t('events.location.physical', {
+                    defaultValue: 'Physical Location',
+                  })}
               </ThemedText>
             </>
           ) : event?.jam ? (
             <>
-              <ThemedText className="text-xl">Jam Event</ThemedText>
+              <ThemedText className="text-xl">
+                {t('events.location.jam', { defaultValue: 'Jam Event' })}
+              </ThemedText>
               <ThemedText className="text-muted-foreground mt-2">
                 {truncateText(jamLink, 30)}
               </ThemedText>
             </>
           ) : event?.url ? (
             <>
-              <ThemedText className="text-xl">External Event</ThemedText>
+              <ThemedText className="text-xl">
+                {t('events.location.external', {
+                  defaultValue: 'External Event',
+                })}
+              </ThemedText>
               <ThemedText className="text-muted-foreground mt-2">
                 {truncateText(event?.url, 40)}
               </ThemedText>

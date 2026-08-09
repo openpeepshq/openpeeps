@@ -2369,6 +2369,12 @@
       "attendee": "attendee",
       "attendees": "attendees"
     },
+    "location": {
+      "jam": "Jam Event",
+      "online": "Online",
+      "external": "External Event",
+      "physical": "Physical Location"
+    },
     "hostedBy": "Organizer",
     "group": "Group Event In:",
     "startDate": "Start Date",
