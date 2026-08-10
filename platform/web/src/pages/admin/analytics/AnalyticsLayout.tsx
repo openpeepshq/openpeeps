@@ -10,8 +10,8 @@ import {
   DropdownMenuTrigger,
   LoadingSpinner,
   ShadcnButton,
-} from '@openpeeps/react-ui';
-import { useOpenpeeps, useSetPageHeader, useT } from '@openpeeps/react';
+} from '@openpeepshq/react-ui';
+import { useOpenpeeps, useSetPageHeader, useT } from '@openpeepshq/react';
 import { useAnalyticsRange } from './useAnalyticsRange';
 import { AnalyticsRangeContext } from './AnalyticsRangeContext';
 

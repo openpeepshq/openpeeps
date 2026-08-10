@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useCredentialsStore, useT } from '@openpeeps/react';
+import { useCredentialsStore, useT } from '@openpeepshq/react';
 
 /**
  * Lands the browser after the server's OIDC callback has exchanged the code.

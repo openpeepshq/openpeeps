@@ -1,6 +1,6 @@
 import type { Middleware, RequestEvent } from '@riddl/core';
-import { jwtUtil } from '@openpeeps/core/jwt';
-import type { Authorization } from '@openpeeps/common/types';
+import { jwtUtil } from '@openpeepshq/core/jwt';
+import type { Authorization } from '@openpeepshq/common/types';
 import { loadCurrentProfile, loadCurrentAccount } from '../auth';
 
 const emptyAuthData = () => ({ scopes: [] as Authorization['scopes'] });

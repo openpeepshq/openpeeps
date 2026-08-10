@@ -1,11 +1,11 @@
 import { endpoint } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
-import { successFailureResponseSchema } from '@openpeeps/common/types';
+import { successFailureResponseSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import {
   checkSubscription,
   stripeMembershipActive,
-} from '@openpeeps/core/stripe';
+} from '@openpeepshq/core/stripe';
 import { ensureAccount, ensureLocalProfile } from '#lib/auth';
 
 export const Output = successFailureResponseSchema;

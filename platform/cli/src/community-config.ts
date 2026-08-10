@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { updateConfigValues } from '@openpeeps/core/config';
+import { updateConfigValues } from '@openpeepshq/core/config';
 
 type CommunityConfigOptions = {
   object?: boolean;

@@ -1,4 +1,4 @@
-import { CommunityConfig } from '@openpeeps/common/types';
+import { CommunityConfig } from '@openpeepshq/common/types';
 import dotenv from 'dotenv';
 
 dotenv.config();

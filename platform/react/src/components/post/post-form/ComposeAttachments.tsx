@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Image, Paperclip } from 'lucide-react';
-import type { MediaAttachment, MediaAttachmentData } from '@openpeeps/common';
+import type { MediaAttachment, MediaAttachmentData } from '@openpeepshq/common';
 import { useT } from '../../../i18n';
 import { ImageEditModal } from '../../form/ImageEditModal';
 import { convertToWebpIfHeic } from '../../../lib/canvasUtils';

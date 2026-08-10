@@ -1,4 +1,4 @@
-import { registerEmailRenderer } from '@openpeeps/core/email';
+import { registerEmailRenderer } from '@openpeepshq/core/email';
 
 import { reactEmailRenderer } from './renderer';
 import type { ReactEmailTemplate } from './types';

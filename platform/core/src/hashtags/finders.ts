@@ -1,4 +1,4 @@
-import { normalizeHashtagTag } from '@openpeeps/common/types';
+import { normalizeHashtagTag } from '@openpeepshq/common/types';
 
 import { allpeepDb } from '../db';
 import { hashtagsMapping } from './mapping';

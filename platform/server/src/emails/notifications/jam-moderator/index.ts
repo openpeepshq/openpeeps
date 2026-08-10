@@ -3,7 +3,7 @@ import type {
   Event,
   PublicPost,
   PublicProfile,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 import type { ReactEmailTemplate } from '../../types';
 import { JamModeratorEmail } from './Email';

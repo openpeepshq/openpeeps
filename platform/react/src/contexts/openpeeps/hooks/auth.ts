@@ -1,11 +1,11 @@
-import type { OpenpeepsClient } from '@openpeeps/client';
+import type { OpenpeepsClient } from '@openpeepshq/client';
 import {
   payloadMutation,
   retrieveAccount,
   retrieveProfile,
   updateCredentialsWrapper,
 } from '../helpers';
-import type { ProfileWithMeta, PublicAccount } from '@openpeeps/common';
+import type { ProfileWithMeta, PublicAccount } from '@openpeepshq/common';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCredentialsStore } from '../../credentialsStore';
 

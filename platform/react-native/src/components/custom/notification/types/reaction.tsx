@@ -4,7 +4,7 @@ import { ThemedText } from '~/components/ui/themed-text';
 import { NotificationWrapper } from '../NotificationWrapper';
 import {
   PublicNotification,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { profileName } from '~/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { MainStackParamList } from '~/components/navigation/types';

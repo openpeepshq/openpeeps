@@ -1,4 +1,4 @@
-import type { JamEventData, JamRecordingData } from '@openpeeps/common/types';
+import type { JamEventData, JamRecordingData } from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import { jamEventsMapping, jamRecordingsMapping } from './mapping';
 

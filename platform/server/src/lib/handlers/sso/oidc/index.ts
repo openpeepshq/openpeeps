@@ -1,23 +1,23 @@
 import { createHash, randomBytes } from 'node:crypto';
 
-import { clampProfileDisplayName } from '@openpeeps/common/lib';
+import { clampProfileDisplayName } from '@openpeepshq/common/lib';
 import { z } from '#lib/endpoint';
 import {
   findNewFreeHandle,
   createProfile,
   listProfilesByAccount,
-} from '@openpeeps/core/profiles';
-import { createAccount, findAccountByEmail } from '@openpeeps/core/accounts';
+} from '@openpeepshq/core/profiles';
+import { createAccount, findAccountByEmail } from '@openpeepshq/core/accounts';
 import type {
   CoreConfig,
   ProfileData,
   ProfileWithMeta,
-} from '@openpeeps/common/types';
-import { config } from '@openpeeps/core/config';
-import { logger } from '@openpeeps/core/log';
-import { serverRootUrl } from '@openpeeps/core/server';
-import { createSignedProfileAccessToken } from '@openpeeps/core/accessTokens';
-import { getSharedConnection } from '@openpeeps/core/redis';
+} from '@openpeepshq/common/types';
+import { config } from '@openpeepshq/core/config';
+import { logger } from '@openpeepshq/core/log';
+import { serverRootUrl } from '@openpeepshq/core/server';
+import { createSignedProfileAccessToken } from '@openpeepshq/core/accessTokens';
+import { getSharedConnection } from '@openpeepshq/core/redis';
 import { uuidv4 } from 'uuidv7';
 
 const log = logger('server:sso:oidc');

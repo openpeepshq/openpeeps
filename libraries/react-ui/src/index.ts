@@ -54,7 +54,7 @@ export {
   LoadingSpinner,
 } from './components/ui';
 
-// OpenPeeps components (translated 1:1 from @openpeeps/ui)
+// OpenPeeps components (translated 1:1 from @openpeepshq/ui)
 export * from './components/badges';
 export * from './components/button';
 export * from './components/date';

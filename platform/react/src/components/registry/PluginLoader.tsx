@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { PLUGIN_ASSETS_PREFIX } from '@openpeeps/common';
+import { PLUGIN_ASSETS_PREFIX } from '@openpeepshq/common';
 
 import { useOpenpeeps } from '../../contexts/openpeeps';
 

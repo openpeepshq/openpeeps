@@ -1,4 +1,4 @@
-import type { CoreConfig } from '@openpeeps/common/types';
+import type { CoreConfig } from '@openpeepshq/common/types';
 import db from './db';
 import redis from './redis';
 import { readEnvInteger, resolveJwtSecret } from '../helpers';

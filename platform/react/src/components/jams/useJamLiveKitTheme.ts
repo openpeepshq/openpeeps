@@ -1,4 +1,4 @@
-import { getTheme } from '@openpeeps/common/lib';
+import { getTheme } from '@openpeepshq/common/lib';
 import { useCurrentProfileSettings } from '../layout/IdentityContext';
 import { useServerInfo } from '../server-data/context';
 

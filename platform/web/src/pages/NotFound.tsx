@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import { useT } from '@openpeeps/react';
+import { useT } from '@openpeepshq/react';
 
 export function NotFound() {
   const t = useT();

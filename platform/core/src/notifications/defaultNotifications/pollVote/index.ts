@@ -4,9 +4,9 @@ import type {
   PostWithMeta,
   NotificationHandler,
   Profile,
-} from '@openpeeps/common/types';
-import { maybeCreateNotification } from '@openpeeps/core/notifications';
-import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { maybeCreateNotification } from '@openpeepshq/core/notifications';
+import { getProfileAvatar, profileName } from '@openpeepshq/common/lib';
 import { communityConfig } from '../../../config';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
 

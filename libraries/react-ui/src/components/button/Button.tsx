@@ -28,7 +28,7 @@ export interface ButtonProps {
 }
 
 /**
- * Translation of `@openpeeps/ui` Button.
+ * Translation of `@openpeepshq/ui` Button.
  *
  * — When `action` is a string we render an `<a>`.
  * — When `action` is a function we render a `<button>` and toggle internal

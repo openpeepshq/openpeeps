@@ -1,9 +1,9 @@
 import { endpoint, z } from '#lib/endpoint';
-import { deleteAccount, findAccount } from '@openpeeps/core/accounts';
+import { deleteAccount, findAccount } from '@openpeepshq/core/accounts';
 import type { RequestEvent } from '@riddl/core';
 import { ensureRoleCapabilities } from '#lib/auth';
 import { forbidden, notFound } from '#lib/errors';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { successResponseSchema } from '@openpeepshq/common/types';
 
 export const Output = successResponseSchema;
 export const Param = z.object({

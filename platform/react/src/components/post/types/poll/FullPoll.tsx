@@ -1,4 +1,4 @@
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import { FullPostLayout } from '../../FullPostLayout';
 import { FeedPost } from '../../FeedPost';
 import { FeedPoll } from '../Poll';

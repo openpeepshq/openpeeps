@@ -1,4 +1,4 @@
-import { Button, Input, Label } from '@openpeeps/react-ui';
+import { Button, Input, Label } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 
 export interface PollComposerFieldsProps {

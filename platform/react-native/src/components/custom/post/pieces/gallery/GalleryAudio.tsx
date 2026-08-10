@@ -1,5 +1,5 @@
 import React from 'react';
-import { MediaAttachmentData } from '@openpeeps/common';
+import { MediaAttachmentData } from '@openpeepshq/common';
 import { View } from 'react-native';
 import { AudioPlayer } from '~/components/custom/common/audio-player';
 

@@ -12,7 +12,7 @@
     "prettier": "^3.4.2"
   },
   "scripts": {
-    "build-deps": "pnpm -r --filter \"@openpeeps/server...\" --filter \"@openpeeps/web...\" build",
+    "build-deps": "pnpm -r --filter \"@openpeepshq/server...\" --filter \"@openpeepshq/web...\" build",
     "check-circular-deps": "ds",
     "check-branch": "node scripts/check-branch.mjs",
     "squash-branch": "scripts/squash-branch.sh"

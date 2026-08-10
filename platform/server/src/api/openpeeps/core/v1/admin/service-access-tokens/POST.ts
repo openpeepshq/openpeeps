@@ -3,8 +3,8 @@ import type { RequestEvent } from '@riddl/core';
 import {
   accessTokenCreationDataSchema,
   accessTokenSchema,
-} from '@openpeeps/common/types';
-import { createSignedServiceToken } from '@openpeeps/core/accessTokens';
+} from '@openpeepshq/common/types';
+import { createSignedServiceToken } from '@openpeepshq/core/accessTokens';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
 

@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import { Button } from '@openpeeps/react-ui';
+import { Button } from '@openpeepshq/react-ui';
 import { usePlusButton } from '../../stores';
 
 export function PlusButton() {

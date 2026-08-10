@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { GroupData, PublicProfile } from '@openpeeps/common/types';
-import { groupCapabilityTemplates } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import type { GroupData, PublicProfile } from '@openpeepshq/common/types';
+import { groupCapabilityTemplates } from '@openpeepshq/common/lib';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
 import {
   GroupForm,
   ProfilesInput,
   useCurrentProfile,
   useServerInfo,
-} from '@openpeeps/react/components';
-import { Button, Label, Toast } from '@openpeeps/react-ui';
+} from '@openpeepshq/react/components';
+import { Button, Label, Toast } from '@openpeepshq/react-ui';
 
 export function NewGroup() {
   const t = useT();

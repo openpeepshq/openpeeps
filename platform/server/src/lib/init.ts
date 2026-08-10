@@ -1,9 +1,9 @@
-import { initializePlugins } from '@openpeeps/core/plugins';
-import { setDefaultRoles } from '@openpeeps/core/roles';
-import { logger } from '@openpeeps/core/log';
-import { registerDefaultNotifications } from '@openpeeps/core/notifications';
-import { initSentry } from '@openpeeps/core/sentry';
-import { defaultConfig } from '@openpeeps/core/config';
+import { initializePlugins } from '@openpeepshq/core/plugins';
+import { setDefaultRoles } from '@openpeepshq/core/roles';
+import { logger } from '@openpeepshq/core/log';
+import { registerDefaultNotifications } from '@openpeepshq/core/notifications';
+import { initSentry } from '@openpeepshq/core/sentry';
+import { defaultConfig } from '@openpeepshq/core/config';
 
 import { registerDefaultEmailTemplates } from '../emails';
 

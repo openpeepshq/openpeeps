@@ -5,7 +5,7 @@ import {
   notificationDefaults,
   type ProfileNotificationSettings,
   type ProfileSettings,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import {
   getPushSubscription,
   isBraveBrowser,
@@ -15,9 +15,9 @@ import {
   useOpenpeeps,
   useSetPageHeader,
   type PushSubscriptionError,
-} from '@openpeeps/react';
-import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
-import { Button, Toast } from '@openpeeps/react-ui';
+} from '@openpeepshq/react';
+import { useCurrentProfile, useServerInfo } from '@openpeepshq/react/components';
+import { Button, Toast } from '@openpeepshq/react-ui';
 
 interface NotificationSettingProps {
   notificationType: NotificationType;

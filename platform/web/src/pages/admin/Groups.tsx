@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users } from 'lucide-react';
-import { groupName } from '@openpeeps/common/lib';
-import type { AdminGroup } from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import { groupName } from '@openpeepshq/common/lib';
+import type { AdminGroup } from '@openpeepshq/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
 import {
   Button,
   Dialog,
@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { AdminGroupCard } from './components/AdminGroupCard';
 
 export function AdminGroups() {

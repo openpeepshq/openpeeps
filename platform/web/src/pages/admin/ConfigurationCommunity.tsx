@@ -1,4 +1,4 @@
-import { useSetPageHeader } from '@openpeeps/react';
+import { useSetPageHeader } from '@openpeepshq/react';
 import { ConfigMenuButton } from './ConfigMenuButton';
 
 export function AdminConfigurationCommunity() {

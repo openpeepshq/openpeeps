@@ -6,11 +6,11 @@ import {
   updateProfile,
   assignRole,
   unassignRole,
-} from '@openpeeps/core/profiles';
+} from '@openpeepshq/core/profiles';
 import {
   findRoleByKey,
   listRoles,
-} from '@openpeeps/core/roles';
+} from '@openpeepshq/core/roles';
 import { uuidv4 } from 'uuidv7';
 
 export const registerProfilesCommand = (program: Command) => {

@@ -3,9 +3,9 @@ import type {
   GroupWithMeta,
   ProfileWithMeta,
   PublicProfile,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import type { PgFilter } from '../db/pg/map/queryTypes';
-import { checkRoleCapabilities, isLocal } from '@openpeeps/common/lib';
+import { checkRoleCapabilities, isLocal } from '@openpeepshq/common/lib';
 import { connectionUpdater, connector, disconnector } from '../db/helpers';
 import { collectionInfos } from '../db';
 import { groupFilters } from '../db/pg/filters';

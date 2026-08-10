@@ -1,6 +1,6 @@
-import type { PublicPost, PublicReplyPost } from '@openpeeps/common/types';
+import type { PublicPost, PublicReplyPost } from '@openpeepshq/common/types';
 import { Avatar, ProfileLink } from '../../profile';
-import { UpdatingDate } from '@openpeeps/react-ui';
+import { UpdatingDate } from '@openpeepshq/react-ui';
 import { PostMenu } from './PostMenu';
 
 export interface PostInfoHeaderProps {

@@ -2,16 +2,16 @@
 
 The runtime is composed of three core packages:
 
-- `@openpeeps/server` (`platform/server`) — Express + Riddl API and static
+- `@openpeepshq/server` (`platform/server`) — Express + Riddl API and static
   host for the SPA. Listens on `PORT` (default `5173`) and exposes the full
   API under `/api/openpeeps/core/v1/...`. Ships a sibling worker entrypoint
   (`src/worker.ts` → `dist/worker.js`) that runs the BullMQ jobs from
-  `@openpeeps/worker` (notifications, media processing, emails, …) and must
+  `@openpeepshq/worker` (notifications, media processing, emails, …) and must
   be started as its own process alongside the API.
-- `@openpeeps/web` (`platform/web`) — Vite + React SPA shell that consumes the
+- `@openpeepshq/web` (`platform/web`) — Vite + React SPA shell that consumes the
   API. Dev server runs on port `5174` and proxies `/api` to the server.
-- `@openpeeps/react` (`platform/react`) — Shared React components and hooks
-  used by `@openpeeps/web` and downstream consumers.
+- `@openpeepshq/react` (`platform/react`) — Shared React components and hooks
+  used by `@openpeepshq/web` and downstream consumers.
 
 See `platform/README.md` for the full package inventory.
 
@@ -33,7 +33,7 @@ From the repo root:
    cp .env.dev.example .env
    ```
 
-   `@openpeeps/server` reads `.env` at startup via `dotenv`; `@openpeeps/web`
+   `@openpeepshq/server` reads `.env` at startup via `dotenv`; `@openpeepshq/web`
    uses Vite envs (`VITE_*`) and only needs `VITE_API_PROXY_TARGET` if the
    server is not on `http://localhost:5173`. See `.env.dev.example` for Redis,
    SMTP, media, LiveKit, VAPID, Stripe, Sentry (`SENTRY_DSN`), and CORS
@@ -60,8 +60,8 @@ From the repo root:
 
    ```bash
    pnpm \
-     --filter "@openpeeps/server..." \
-     --filter "@openpeeps/web..." \
+     --filter "@openpeepshq/server..." \
+     --filter "@openpeepshq/web..." \
      install
    ```
 
@@ -71,8 +71,8 @@ From the repo root:
 
    ```bash
    pnpm -r \
-     --filter "@openpeeps/server..." \
-     --filter "@openpeeps/web..." \
+     --filter "@openpeepshq/server..." \
+     --filter "@openpeepshq/web..." \
      build
    ```
 
@@ -100,10 +100,10 @@ From the repo root:
 
 - When you change a package under `platform/` or `libraries/`, rebuild it with
   `pnpm --filter <pkg> build` (or run a `build:watch` script where available,
-  e.g. `pnpm --filter @openpeeps/web build:watch`). Both `@openpeeps/server`
-  and `@openpeeps/web` re-pick up workspace `dist/` outputs through pnpm.
-- `@openpeeps/react` ships as a built package; after editing it run
-  `pnpm --filter @openpeeps/react build` so the web app sees the changes.
+  e.g. `pnpm --filter @openpeepshq/web build:watch`). Both `@openpeepshq/server`
+  and `@openpeepshq/web` re-pick up workspace `dist/` outputs through pnpm.
+- `@openpeepshq/react` ships as a built package; after editing it run
+  `pnpm --filter @openpeepshq/react build` so the web app sees the changes.
 
 ## Tests
 
@@ -111,13 +111,13 @@ Integration tests live in `platform/tests` (Playwright).
 
 ```bash
 # One-time browser install
-pnpm --filter @openpeeps/tests exec playwright install
+pnpm --filter @openpeepshq/tests exec playwright install
 
 # Build server + web and run the suite (resets the `test` DB by default)
-pnpm --filter @openpeeps/tests test:integration
+pnpm --filter @openpeepshq/tests test:integration
 ```
 
-`pretest:integration` builds `@openpeeps/server...` and `@openpeeps/web`
+`pretest:integration` builds `@openpeepshq/server...` and `@openpeepshq/web`
 automatically, so you don't need a separate build step.
 
 ## Docker / production
@@ -125,14 +125,14 @@ automatically, so you don't need a separate build step.
 `docker-compose.yml` provides `postgres` and `redis` for local dev.
 For a production-style build use the workspace `Dockerfile`, which:
 
-1. Installs the dependency closure for `@openpeeps/server`,
-   `@openpeeps/worker`, and `@openpeeps/web`.
+1. Installs the dependency closure for `@openpeepshq/server`,
+   `@openpeepshq/worker`, and `@openpeepshq/web`.
 2. Builds them in topological order with `pnpm -r build`.
 3. Runs the resulting Node process via `docker/prod/start.sh`:
    - `start.sh web` → `node platform/server/dist/server.js` (API + serves the
      SPA from the baked-in `WEB_DIST_PATH`).
    - `start.sh worker` → `node platform/server/dist/worker.js` (BullMQ workers
-     from `@openpeeps/worker`, plus React email templates).
+     from `@openpeepshq/worker`, plus React email templates).
 
 Production checklist (ops/DX):
 
@@ -158,5 +158,5 @@ documentation.
 ## Database
 
 Admins with database access use **Drizzle Studio**
-(`pnpm --filter @openpeeps/core db:studio`) or **`psql`** with `DATABASE_URL`.
+(`pnpm --filter @openpeepshq/core db:studio`) or **`psql`** with `DATABASE_URL`.
 See `/admin/db` in the web app.

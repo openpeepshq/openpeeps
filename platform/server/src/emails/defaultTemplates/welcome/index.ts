@@ -1,4 +1,4 @@
-import type { EmailOptionsWithGlobals } from '@openpeeps/common/types';
+import type { EmailOptionsWithGlobals } from '@openpeepshq/common/types';
 
 import type { ReactEmailTemplate } from '../../types';
 import { Welcome } from './Welcome';

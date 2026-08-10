@@ -5,12 +5,12 @@ import {
   useOpenpeeps,
   useCredentialsStore,
   useSetPageHeader,
-} from '@openpeeps/react';
-import { JamRoom, useCurrentProfile } from '@openpeeps/react/components';
+} from '@openpeepshq/react';
+import { JamRoom, useCurrentProfile } from '@openpeepshq/react/components';
 
 /**
  * `/events/:eventId/jam` — loads the jam post and hands it off to
- * `<JamRoom>` from `@openpeeps/react`. Honors the `?observer=1` query string
+ * `<JamRoom>` from `@openpeepshq/react`. Honors the `?observer=1` query string
  * for moderator/observer mode. Rendered full-screen (outside the sidebar
  * `RootLayout`); the wrapper guarantees a full-viewport height so the lobby
  * and non-room states fill the screen.

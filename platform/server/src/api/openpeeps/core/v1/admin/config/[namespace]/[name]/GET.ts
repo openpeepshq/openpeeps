@@ -1,8 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { sanitizedConfigWithDefaults } from '@openpeeps/core/config';
-import { configDataWithDefaultsSchema } from '@openpeeps/common/types';
+import { sanitizedConfigWithDefaults } from '@openpeepshq/core/config';
+import { configDataWithDefaultsSchema } from '@openpeepshq/common/types';
 
 export const Param = z.object({
   namespace: z.string(),

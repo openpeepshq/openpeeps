@@ -3,7 +3,7 @@ import {
   MainStackParamList,
   TabStackParamList,
 } from '~/components/navigation/types';
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {TabScreensHeader, Feed} from '~/components/custom';
 import {ThemedText} from '~/components/ui/themed-text';
 import {CompositeScreenProps} from '@react-navigation/native';

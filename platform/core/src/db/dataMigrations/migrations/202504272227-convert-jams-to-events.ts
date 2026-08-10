@@ -1,7 +1,7 @@
 import { aql, Database } from 'arangojs';
 import { ensureIndexedCollection } from '../../helpers';
 import { collectionInfos } from '../../pg/collections';
-import type { CollectionInfo } from '@openpeeps/arango-querybuilder';
+import type { CollectionInfo } from '@openpeepshq/arango-querybuilder';
 
 export default {
   key: '0196795d-274b-7c51-9095-95880f9e815e',

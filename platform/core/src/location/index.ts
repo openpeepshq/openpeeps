@@ -3,7 +3,7 @@ import {
   geocoder,
   type GeocodingResult,
   type GeocoderType,
-} from '@openpeeps/geocoder';
+} from '@openpeepshq/geocoder';
 import { createCache } from 'cache-manager';
 
 const cache = createCache({

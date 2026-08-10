@@ -1,4 +1,4 @@
-import { Profile } from '@openpeeps/common';
+import { Profile } from '@openpeepshq/common';
 import React from 'react';
 import { Image, View } from 'react-native';
 import { ProfileAvatar } from './profile-avatar';

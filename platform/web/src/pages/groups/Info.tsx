@@ -1,8 +1,8 @@
 import { useParams } from 'react-router-dom';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { GroupHeader, PostMarkdown } from '@openpeeps/react/components';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
+import { GroupHeader, PostMarkdown } from '@openpeepshq/react/components';
 import { routeHandleParam } from '../../lib/routeHandles';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export function GroupInfo() {
   const t = useT();

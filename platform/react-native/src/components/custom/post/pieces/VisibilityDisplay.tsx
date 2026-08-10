@@ -1,5 +1,5 @@
 import React from 'react';
-import { AudienceSetting } from '@openpeeps/common';
+import { AudienceSetting } from '@openpeepshq/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import { View } from 'react-native';
 import { GroupNameFromId } from '../../groups/group-name-from-id';

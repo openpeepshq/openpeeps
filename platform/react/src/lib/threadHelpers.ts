@@ -1,4 +1,4 @@
-import { dateSorter, type PublicPost, type Thread } from '@openpeeps/common';
+import { dateSorter, type PublicPost, type Thread } from '@openpeepshq/common';
 
 export const lastLongestPathSelector = (
   thread: Thread,

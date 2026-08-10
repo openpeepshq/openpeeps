@@ -52,7 +52,7 @@ function MobileFooter() {
 }
 
 /**
- * Translation of @openpeeps/svelte/components/layout/Root.svelte. Provides the
+ * Translation of @openpeepshq/svelte/components/layout/Root.svelte. Provides the
  * top-level layout shell: on desktop, sidebar and main column sit in a row
  * inside the centered max-width band (`md:flex-row`); mobile header / footer,
  * plus button, and breadcrumbs / content header wrap `children`.

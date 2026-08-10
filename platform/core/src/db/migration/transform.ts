@@ -1,7 +1,7 @@
 import { access } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { join } from 'node:path';
-import { groupCapabilityTemplates } from '@openpeeps/common/lib';
+import { groupCapabilityTemplates } from '@openpeepshq/common/lib';
 import {
   documentRegistry,
   edgeRegistry,

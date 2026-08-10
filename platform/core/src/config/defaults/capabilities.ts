@@ -1,7 +1,7 @@
 import {
   CapabilitiesConfigInput,
   postCapabilities,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 export const defaultCapabilitiesConfig: CapabilitiesConfigInput = {
   post: {

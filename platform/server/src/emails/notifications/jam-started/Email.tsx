@@ -3,8 +3,8 @@ import type {
   EmailGlobals,
   PublicPost,
   PublicProfile,
-} from '@openpeeps/common/types';
-import { getJamUrl, profileName } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { getJamUrl, profileName } from '@openpeepshq/common/lib';
 
 import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { EmailPostEmbed } from '../../EmailPostEmbed';

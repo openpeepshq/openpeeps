@@ -12,12 +12,12 @@ import {
   MediaAttachment,
   PostCreationData,
   PublicProfile,
-} from '@openpeeps/common';
-import { parseEventMaxAttendeesInput } from '@openpeeps/common/lib';
+} from '@openpeepshq/common';
+import { parseEventMaxAttendeesInput } from '@openpeepshq/common/lib';
 import { UseFormReturn } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { VisibilityInput } from './VisibilityInput';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 import { truncateText } from '~/lib/utils';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';

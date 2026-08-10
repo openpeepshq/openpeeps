@@ -1,4 +1,4 @@
-import type { Credentials } from '@openpeeps/common/types';
+import type { Credentials } from '@openpeepshq/common/types';
 import type { CredentialsStore } from './types';
 
 /** localStorage key — exported for `storage` listeners in other modules. */
@@ -67,4 +67,4 @@ export const credentialsStore: CredentialsStore = {
 };
 
 export type { CredentialsStore } from './types';
-export type { Credentials } from '@openpeeps/common/types';
+export type { Credentials } from '@openpeepshq/common/types';

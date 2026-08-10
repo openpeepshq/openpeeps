@@ -1,7 +1,7 @@
 import React from 'react';
-import { buildThreads, PublicPost } from '@openpeeps/common';
+import { buildThreads, PublicPost } from '@openpeepshq/common';
 import { ThreadedFeed } from '../../feed/threaded/ThreadedFeed';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { useMemo } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { FeedPost } from '../../feed/chronological/FeedPost';

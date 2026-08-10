@@ -2,13 +2,13 @@ import {
   type FollowData,
   followDataSchema,
   type SuccessResponse,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 import { ensureLocalProfile, ensureProfileCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { endpoint, z } from '#lib/endpoint';
 import { notFound } from '#lib/helpers';
-import { findProfile, follow, unfollow } from '@openpeeps/core/profiles';
+import { findProfile, follow, unfollow } from '@openpeepshq/core/profiles';
 
 export const followParamsSchema = z.object({
   profileId: z.string(),

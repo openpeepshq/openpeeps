@@ -1,4 +1,4 @@
-import type { SuccessFailureResponse } from "@openpeeps/common";
+import type { SuccessFailureResponse } from "@openpeepshq/common";
 import {
 	type BodyType,
 	type EndpointDefinition,
@@ -10,7 +10,7 @@ import {
 	typedPayloadEndpoint,
 	typedPayloadProgressObserverEndpoint,
 	type Verb,
-} from "@openpeeps/fetch-client";
+} from "@openpeepshq/fetch-client";
 
 export const allpeepPayloadEndpoint = <
 	Output,

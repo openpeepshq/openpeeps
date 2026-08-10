@@ -1,5 +1,5 @@
 import { MainScreenProps } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { GenericHeader } from '~/components/custom';
 import React, { useEffect, useState } from 'react';
 import { ThemedText } from '~/components/ui/themed-text';
@@ -10,7 +10,7 @@ import { Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
-import { getTheme, THEME_OPTIONS, type ThemeOptions } from '@openpeeps/common';
+import { getTheme, THEME_OPTIONS, type ThemeOptions } from '@openpeepshq/common';
 import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
 import { useAppImagesStore } from '~/stores/useAppImagesStore';
 

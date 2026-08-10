@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { DbPost, ProfileWithMeta } from '@openpeeps/common/types';
+import type { DbPost, ProfileWithMeta } from '@openpeepshq/common/types';
 import {
   DELETED_AUTHOR_DISPLAY_NAME,
   DELETED_AUTHOR_HANDLE,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 
 vi.mock('../../profiles/cache', () => ({
   getProfile: vi.fn(),

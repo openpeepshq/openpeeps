@@ -2,9 +2,9 @@ import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureGroupCapabilities, ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { addMembersToGroup, findGroup } from '@openpeeps/core/groups';
-import { successResponseSchema } from '@openpeeps/common/types';
-import { hub } from '@openpeeps/core/events';
+import { addMembersToGroup, findGroup } from '@openpeepshq/core/groups';
+import { successResponseSchema } from '@openpeepshq/common/types';
+import { hub } from '@openpeepshq/core/events';
 
 export const Output = successResponseSchema;
 export const Param = z.object({

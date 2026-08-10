@@ -70,7 +70,7 @@ export interface OpenpeepsContextProviderProps {
 }
 
 /**
- * Translation of @openpeeps/svelte/components/layout/OpenpeepsContextProvider.
+ * Translation of @openpeepshq/svelte/components/layout/OpenpeepsContextProvider.
  * Initialises the new-post + page-level stores and updates `document.title`
  * based on the active page header.
  */

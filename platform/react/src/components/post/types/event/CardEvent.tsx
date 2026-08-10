@@ -1,6 +1,6 @@
-import type { Event, PublicPost } from '@openpeeps/common/types';
-import { getJamUrl, truncateText } from '@openpeeps/common/lib';
-import { Button } from '@openpeeps/react-ui';
+import type { Event, PublicPost } from '@openpeepshq/common/types';
+import { getJamUrl, truncateText } from '@openpeepshq/common/lib';
+import { Button } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';

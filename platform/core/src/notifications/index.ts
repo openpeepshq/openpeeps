@@ -1,5 +1,5 @@
 import { hub } from '../events';
-import { passwordPlaceHolder } from '@openpeeps/common/types';
+import { passwordPlaceHolder } from '@openpeepshq/common/types';
 import { config, updateConfigValues } from '../config';
 import webPush from 'web-push';
 import { initializeFirebase } from './firebase';

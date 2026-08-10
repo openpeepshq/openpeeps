@@ -2,9 +2,9 @@ import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { findPost, reactToPost } from '@openpeeps/core/posts';
-import { successResponseSchema } from '@openpeeps/common/types';
-import { reactionDataSchema } from '@openpeeps/common/types';
+import { findPost, reactToPost } from '@openpeepshq/core/posts';
+import { successResponseSchema } from '@openpeepshq/common/types';
+import { reactionDataSchema } from '@openpeepshq/common/types';
 
 export const Param = z.object({
   postId: z.string(),

@@ -1,4 +1,4 @@
-import type { MediaStream } from '@openpeeps/common/types';
+import type { MediaStream } from '@openpeepshq/common/types';
 import { hub } from '../events';
 import { logger } from '../log';
 import {

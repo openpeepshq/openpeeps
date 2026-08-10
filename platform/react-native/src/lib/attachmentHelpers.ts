@@ -1,4 +1,4 @@
-import type { MediaAttachmentData } from '@openpeeps/common';
+import type { MediaAttachmentData } from '@openpeepshq/common';
 
 /** True when an attachment should render as an image (not a document download). */
 export const isImageAttachment = (att: MediaAttachmentData): boolean => {

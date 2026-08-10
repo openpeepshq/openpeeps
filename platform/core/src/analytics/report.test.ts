@@ -3,7 +3,7 @@ import type {
   AnalyticsEngagement,
   AnalyticsGrowth,
   AnalyticsOverview,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { buildAnalyticsPdf } from './pdfReport';
 import { buildSimplePdf } from './report';
 

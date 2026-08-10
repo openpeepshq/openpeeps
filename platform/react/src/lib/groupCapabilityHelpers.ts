@@ -1,4 +1,4 @@
-import type { GroupData } from '@openpeeps/common/types';
+import type { GroupData } from '@openpeepshq/common/types';
 
 type GroupCapabilities = GroupData['capabilities'];
 

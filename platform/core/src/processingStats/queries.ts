@@ -1,4 +1,4 @@
-import { ProcessingStats } from '@openpeeps/common/types';
+import { ProcessingStats } from '@openpeepshq/common/types';
 import { processingStatsMapping } from './mapping';
 import { allpeepDb } from '../db';
 import { sorts } from '../db/pg/queries';

@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { JamEvent } from '@openpeeps/common/types';
+import type { JamEvent } from '@openpeepshq/common/types';
 import { useRoomContext } from '@livekit/components-react';
 import { RoomEvent, ConnectionState } from 'livekit-client';
 import { useOpenpeeps } from '../../contexts/openpeeps';

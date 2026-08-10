@@ -5,7 +5,7 @@ import type {
   PostWithMeta,
   ProfileWithMeta,
   PublicProfile,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { groupsMapping } from './mapping';
 import { allpeepDb, collectionInfos } from '../db';
 import { addMember, removeMember, updateMember } from './helpers';

@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { serverCounts } from '@openpeeps/core/stats';
+import { serverCounts } from '@openpeepshq/core/stats';
 
 export const registerStatsCommand = (program: Command) => {
   const stats = program.command('stats').description('Server stats');

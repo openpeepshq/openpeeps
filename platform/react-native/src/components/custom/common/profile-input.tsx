@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { MiniProfileCard } from '../profile/profile-card';
-import { PublicProfile } from '@openpeeps/common';
+import { PublicProfile } from '@openpeepshq/common';
 import { SearchIcon } from '~/components/icons';
 import { ThemedText } from '~/components/ui/themed-text';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';

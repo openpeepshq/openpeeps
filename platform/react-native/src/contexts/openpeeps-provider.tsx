@@ -14,7 +14,7 @@ import {
   useOpenpeeps,
   usePostViewFlush,
   type PostViewContext,
-} from '@openpeeps/react';
+} from '@openpeepshq/react';
 
 type BaseProps = ComponentProps<typeof BaseOpenpeepsProvider>;
 
@@ -77,14 +77,14 @@ const PostViewTracking = ({ children }: { children: ReactNode }) => {
 
 /**
  * React Native flavor of `OpenpeepsProvider`. Identical to the web provider
- * exported by `@openpeeps/react`, but pre-wires `subscribeToForeground` to
+ * exported by `@openpeepshq/react`, but pre-wires `subscribeToForeground` to
  * React Native's `AppState` so token refresh happens when the app returns to
  * the foreground, and mounts post-view tracking for read/unread parity.
  *
- * `@openpeeps/react` deliberately has no `react-native` import — this wrapper
+ * `@openpeepshq/react` deliberately has no `react-native` import — this wrapper
  * is the single place where the dependency lives. Host apps should import
- * `OpenpeepsProvider` from `@openpeeps/react-native` (not from
- * `@openpeeps/react`) so this wiring is in place.
+ * `OpenpeepsProvider` from `@openpeepshq/react-native` (not from
+ * `@openpeepshq/react`) so this wiring is in place.
  */
 export const OpenpeepsProvider: React.FC<
   Omit<BaseProps, 'subscribeToForeground'>

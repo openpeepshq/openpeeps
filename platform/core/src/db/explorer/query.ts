@@ -1,4 +1,4 @@
-import type { ExplorerRowsResponse } from '@openpeeps/common/types';
+import type { ExplorerRowsResponse } from '@openpeepshq/common/types';
 import { pgPool } from '../pg/client';
 import {
   assertKnownColumns,

@@ -1,4 +1,4 @@
-import type { NotificationStats } from '@openpeeps/common/types';
+import type { NotificationStats } from '@openpeepshq/common/types';
 
 export type PushInvalidateMessage = {
   keys: readonly (readonly string[])[];

@@ -26,6 +26,6 @@ process.env.MEDIA_STORAGE_PARAMS_PATH =
 process.env.LOGS_LOCAL_PATH =
   process.env.LOGS_LOCAL_PATH || path.join(repoRoot, '.logs-test');
 
-const { restoreBackups } = await import('@openpeeps/core/backups');
+const { restoreBackups } = await import('@openpeepshq/core/backups');
 await restoreBackups(fixturePath);
 console.log(`Restored fixture ${fixturePath}`);

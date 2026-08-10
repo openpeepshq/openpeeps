@@ -1,10 +1,10 @@
-import type { ReactionWithPublicProfile } from '@openpeeps/common/types';
+import type { ReactionWithPublicProfile } from '@openpeepshq/common/types';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useT } from '../../../../i18n';
 import { Avatar } from '../../../profile';
 import { FollowUnfollowButton } from '../../../profile/FollowUnfollowButton';

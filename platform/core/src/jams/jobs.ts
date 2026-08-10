@@ -1,4 +1,4 @@
-import type { PostWithMeta } from '@openpeeps/common/types';
+import type { PostWithMeta } from '@openpeepshq/common/types';
 import { queueAndWorker } from '../jobs';
 import { logger } from '../log';
 import { findPost } from '../posts';

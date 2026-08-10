@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Button } from '@openpeeps/react-ui';
+import { Button } from '@openpeepshq/react-ui';
 import {
   useServiceWorker,
   type UseServiceWorkerOptions,

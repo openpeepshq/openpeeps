@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
-import { Button, Toast } from '@openpeeps/react-ui';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
+import { useCurrentProfile, useServerInfo } from '@openpeepshq/react/components';
+import { Button, Toast } from '@openpeepshq/react-ui';
 
 const AVAILABLE_LANGUAGES = [
   { code: 'en', name: 'English' },

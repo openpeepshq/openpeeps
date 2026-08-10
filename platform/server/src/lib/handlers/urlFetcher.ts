@@ -1,8 +1,8 @@
 import { JSDOM, VirtualConsole } from 'jsdom';
-import type { FetchUrlRequest } from '@openpeeps/common/types';
+import type { FetchUrlRequest } from '@openpeepshq/common/types';
 import { notFound } from '#lib/errors';
-import { getSharedConnection } from '@openpeeps/core/redis';
-import { mediaStorage } from '@openpeeps/core/media';
+import { getSharedConnection } from '@openpeepshq/core/redis';
+import { mediaStorage } from '@openpeepshq/core/media';
 import sharp from 'sharp';
 import type { RequestEvent } from '@riddl/core';
 

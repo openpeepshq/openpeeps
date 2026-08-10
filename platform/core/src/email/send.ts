@@ -5,7 +5,7 @@ import {
   CoreConfig,
   EmailOptions,
   RenderedEmail,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { render } from './render';
 import { logger } from '../log';
 

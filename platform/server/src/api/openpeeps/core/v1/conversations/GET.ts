@@ -1,9 +1,9 @@
 import { endpoint } from '#lib/endpoint';
-import { publicPostSchema } from '@openpeeps/common/types';
+import { publicPostSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
-import { getConversationByEnd, listConversationLeaves } from '@openpeeps/core/posts';
+import { getConversationByEnd, listConversationLeaves } from '@openpeepshq/core/posts';
 import { ensureLocalProfile } from '#lib/auth';
-import { getUniqueBy } from '@openpeeps/common/lib';
+import { getUniqueBy } from '@openpeepshq/common/lib';
 
 export const Output = publicPostSchema.array().array();
 

@@ -7,7 +7,7 @@ import {
   ScrollView,
   View,
 } from 'react-native';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '~/components/ui/themed-text';
 import { MoreVerticalIcon } from '~/components/icons';
 import {

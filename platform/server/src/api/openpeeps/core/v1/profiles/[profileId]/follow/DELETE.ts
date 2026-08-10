@@ -1,5 +1,5 @@
 import { endpoint } from '#lib/endpoint';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { successResponseSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import {
   unfollowProfileHandler,

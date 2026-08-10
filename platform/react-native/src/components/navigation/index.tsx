@@ -2,11 +2,11 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList, ROOT_ROUTES } from './types';
 import { AuthNavigator } from './auth-navigator';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { MainNavigator } from './main-navigator';
 import { useAppImagesStore } from '../../stores/useAppImagesStore';
 import { fetchCachedMedia } from '../../utils/media-cache';
-import { getTheme } from '@openpeeps/common';
+import { getTheme } from '@openpeepshq/common';
 import { ActivityIndicator, Image, View } from 'react-native';
 import { toAbsoluteMediaUrl } from '../../lib/media-url';
 

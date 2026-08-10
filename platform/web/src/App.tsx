@@ -18,7 +18,7 @@ import {
   credentialsStore,
   useOpenpeeps,
   type RouterAdapter,
-} from '@openpeeps/react';
+} from '@openpeepshq/react';
 import type { i18n as I18nInstance } from 'i18next';
 import {
   OpenpeepsContextProvider,
@@ -28,7 +28,7 @@ import {
   ProfileProvider,
   RootLayout,
   ServerDataProvider,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 
 import { About } from './pages/About';
 import { CodeOfConduct } from './pages/CodeOfConduct';
@@ -140,7 +140,7 @@ import {
   RequireAdminMenu,
   RequireAdminSection,
 } from './navigation/RequireAdminSection';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 const baseUrl =
   import.meta.env.VITE_OPENPEEPS_BASE_URL ??
@@ -148,7 +148,7 @@ const baseUrl =
 
 /**
  * Bridges react-router-dom to the `RouterAdapter` interface expected by
- * `@openpeeps/react`'s `RouterProvider`.
+ * `@openpeepshq/react`'s `RouterProvider`.
  */
 function ReactRouterAdapter({ children }: { children: ReactNode }) {
   const location = useLocation();

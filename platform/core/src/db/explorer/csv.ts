@@ -1,4 +1,4 @@
-import { toCsvRow } from '@openpeeps/common/lib';
+import { toCsvRow } from '@openpeepshq/common/lib';
 
 export const rowsToCsv = (
   columns: string[],

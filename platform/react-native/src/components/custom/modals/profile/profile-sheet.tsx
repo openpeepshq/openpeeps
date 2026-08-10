@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { PublicProfile } from '@openpeeps/common';
+import { PublicProfile } from '@openpeepshq/common';
 import { BaseSheet } from '../common';
 
 import {

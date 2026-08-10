@@ -1,5 +1,5 @@
 import { map, Relation } from '../db/pg/map';
-import { AdminGroup, GroupData, GroupWithMeta } from '@openpeeps/common/types';
+import { AdminGroup, GroupData, GroupWithMeta } from '@openpeepshq/common/types';
 import { computedFields } from '../db/pg/queries';
 import { edgeFilters } from '../db/pg/filters';
 

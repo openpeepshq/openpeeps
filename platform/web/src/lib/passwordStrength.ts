@@ -1,5 +1,5 @@
 /**
- * Port of `@openpeeps/svelte/utils/password-strength.ts`. Scores a password
+ * Port of `@openpeepshq/svelte/utils/password-strength.ts`. Scores a password
  * from 0 to 5 based on length + character class diversity.
  */
 export const calculatePasswordStrength = (password: string): number => {

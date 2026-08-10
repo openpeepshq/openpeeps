@@ -1,9 +1,9 @@
-import type { FetchClient } from '@openpeeps/fetch-client';
+import type { FetchClient } from '@openpeepshq/fetch-client';
 import type {
     ReportCreationData,
     PublicReport,
     SuccessResponse,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 
 export const reports = (rawClient: FetchClient) => ({

@@ -8,7 +8,7 @@ export const usePageHeader = () => useStore(pageHeaderStore);
 
 /**
  * Mount-scoped page header. Equivalent to `setPageHeader` from
- * @openpeeps/svelte (which used `onMount` + cleanup).
+ * @openpeepshq/svelte (which used `onMount` + cleanup).
  *
  * Accepts primitives so deps stay stable across renders without forcing
  * callers to memoize. The value is refreshed whenever any of `title`,

@@ -1,15 +1,15 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden } from '#lib/errors';
-import { jamEventSchema } from '@openpeeps/common/types';
+import { jamEventSchema } from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import {
   findJamEvent,
   listAttendance,
   listParticipantIds,
-} from '@openpeeps/core/jams';
+} from '@openpeepshq/core/jams';
 import { notFound } from '#lib/helpers';
-import { jamFromEvent } from '@openpeeps/common/lib';
+import { jamFromEvent } from '@openpeepshq/common/lib';
 
 export const Output = jamEventSchema.array();
 export const Param = z.object({

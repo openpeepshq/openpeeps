@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import type { CommunityConfig, Role } from '@openpeeps/common/types';
-import { useT, useSetPageHeader, useOpenpeeps } from '@openpeeps/react';
-import { Button, Label, Toast } from '@openpeeps/react-ui';
+import type { CommunityConfig, Role } from '@openpeepshq/common/types';
+import { useT, useSetPageHeader, useOpenpeeps } from '@openpeepshq/react';
+import { Button, Label, Toast } from '@openpeepshq/react-ui';
 
 function DefaultRoles({ base }: { base: CommunityConfig }) {
   const t = useT();

@@ -1,6 +1,6 @@
 import { View, TouchableWithoutFeedback, Pressable } from 'react-native';
 import React from 'react';
-import { Profile } from '@openpeeps/common';
+import { Profile } from '@openpeepshq/common';
 import { XIcon } from '~/components/icons';
 import { ThemedText } from '~/components/ui/themed-text';
 import { truncateText } from '~/lib/utils';

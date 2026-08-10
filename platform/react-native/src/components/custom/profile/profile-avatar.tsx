@@ -1,5 +1,5 @@
 import React from 'react';
-import { Profile, isDeletedProfile } from '@openpeeps/common';
+import { Profile, isDeletedProfile } from '@openpeepshq/common';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';
 import { useTranslation } from 'react-i18next';
 import { View, Text } from 'react-native';

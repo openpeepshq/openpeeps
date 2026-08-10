@@ -1,4 +1,4 @@
-import type { OpenpeepsClient } from '@openpeeps/client';
+import type { OpenpeepsClient } from '@openpeepshq/client';
 import { apiHook, payloadMutation, noPayloadMutation } from '../helpers';
 
 export type GroupHooks = ReturnType<typeof groupHooks>;

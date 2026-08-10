@@ -3,7 +3,7 @@ import type {
   EmailGlobals,
   PublicPost,
   PublicProfile,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { EmailPostEmbed } from '../../EmailPostEmbed';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Drawer } from 'react-native-drawer-layout';
 import { useDrawer } from '~/contexts/drawer-context';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from './types';

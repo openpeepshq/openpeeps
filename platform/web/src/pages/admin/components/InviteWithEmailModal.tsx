@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { randomString } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { randomString } from '@openpeepshq/common/lib';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
 import {
   Button,
   Dialog,
@@ -10,7 +10,7 @@ import {
   DialogTitle,
   Input,
   Label,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { DAY_MS, EXPIRY_OPTIONS, UNLIMITED_USES } from './InviteWithLinkModal';
 
 export function InviteWithEmailModal({ onClose }: { onClose: () => void }) {

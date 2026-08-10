@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { getTheme } from '@openpeeps/common';
-import { useServerInfo } from '@openpeeps/react/components';
+import { getTheme } from '@openpeepshq/common';
+import { useServerInfo } from '@openpeepshq/react/components';
 
 const navSeparator = (
   <>

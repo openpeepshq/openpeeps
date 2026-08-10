@@ -17,7 +17,7 @@ export { z, type RequestEvent };
  * merges them into a single `input` object so handlers can destructure one
  * argument.
  *
- * Note: schemas from `@openpeeps/common/types` use zod v3 while Riddl's types
+ * Note: schemas from `@openpeepshq/common/types` use zod v3 while Riddl's types
  * are typed against zod v4. The wrapper is deliberately type-opaque
  * (everything is `unknown`/`any` at its boundary) to keep TypeScript out of
  * the deeply-recursive zod inference paths that would otherwise OOM when

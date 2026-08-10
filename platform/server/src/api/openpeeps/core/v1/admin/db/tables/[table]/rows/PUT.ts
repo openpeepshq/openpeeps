@@ -3,9 +3,9 @@ import { forbidden, badRequest, notFound } from '#lib/errors';
 import {
   explorerUpdateRowInputSchema,
   explorerUpdateRowResponseSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { updateExplorerRow } from '@openpeeps/core/db';
+import { updateExplorerRow } from '@openpeepshq/core/db';
 
 export const Param = z.object({
   table: z.string(),

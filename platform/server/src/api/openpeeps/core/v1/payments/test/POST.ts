@@ -3,8 +3,8 @@ import { forbidden, notFound } from '#lib/errors';
 import {
   successFailureResponseSchema,
   stripePaymentConfigSchema,
-} from '@openpeeps/common/types';
-import { testStripeCredentials } from '@openpeeps/core/stripe';
+} from '@openpeepshq/common/types';
+import { testStripeCredentials } from '@openpeepshq/core/stripe';
 
 export const Input = stripePaymentConfigSchema();
 export const Output = successFailureResponseSchema;

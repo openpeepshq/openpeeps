@@ -1,16 +1,16 @@
 import { useMemo, useState } from 'react';
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import {
   calculateEffectiveRsvps,
   checkPostCapabilities,
   countYesRsvps,
   isCapacityEvent,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useAuthData, useCurrentProfile } from '../../layout/IdentityContext';
 import { useCapabilities } from '../../server-data';
-import { Button } from '@openpeeps/react-ui';
+import { Button } from '@openpeepshq/react-ui';
 import { apiErrorMessage } from '../../../lib/apiErrorMessage';
 
 export interface EventRsvpButtonProps {

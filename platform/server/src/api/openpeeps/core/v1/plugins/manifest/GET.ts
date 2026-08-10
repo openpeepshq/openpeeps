@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
-import { pluginManifestSchema } from '@openpeeps/common/types';
-import { getPlugins, getPluginManifests } from '@openpeeps/core/plugins';
+import { pluginManifestSchema } from '@openpeepshq/common/types';
+import { getPlugins, getPluginManifests } from '@openpeepshq/core/plugins';
 
 const manifestEntrySchema = pluginManifestSchema
   .extend({

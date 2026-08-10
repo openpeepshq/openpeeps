@@ -5,8 +5,8 @@ import {
   useSetPageHeader,
   ConfigurationTree,
   resolveAdminConfigSchema,
-} from '@openpeeps/react';
-import { Button, LoadingSpinner, Toast } from '@openpeeps/react-ui';
+} from '@openpeepshq/react';
+import { Button, LoadingSpinner, Toast } from '@openpeepshq/react-ui';
 
 export interface ConfigEditorProps {
   /** Page title. */

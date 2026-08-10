@@ -1,4 +1,4 @@
-import { Event, Jam, JamEvent, PublicPost } from '@openpeeps/common';
+import { Event, Jam, JamEvent, PublicPost } from '@openpeepshq/common';
 import { create } from 'zustand';
 
 interface JamSettingsStore {

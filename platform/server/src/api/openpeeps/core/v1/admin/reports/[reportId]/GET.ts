@@ -1,6 +1,6 @@
-import { findReport } from "@openpeeps/core/reports";
+import { findReport } from "@openpeepshq/core/reports";
 import { endpoint, z } from '#lib/endpoint';
-import { reportWithMetaSchema } from "@openpeeps/common";
+import { reportWithMetaSchema } from "@openpeepshq/common";
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
 

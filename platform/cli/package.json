@@ -1,9 +1,9 @@
 {
-  "name": "@openpeeps/cli",
+  "name": "@openpeepshq/cli",
   "version": "0.1.0",
   "type": "module",
   "dependencies": {
-    "@openpeeps/core": "workspace:^",
+    "@openpeepshq/core": "workspace:^",
     "commander": "^13.1.0",
     "deepmerge-ts": "^5.1.0",
     "dotenv": "^16.4.7",

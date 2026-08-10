@@ -1,7 +1,7 @@
 import type {
   AnalyticsMetricCard,
   AnalyticsSeriesPoint,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 export const deltaPct = (
   current: number,

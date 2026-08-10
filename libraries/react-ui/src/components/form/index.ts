@@ -27,7 +27,7 @@ export type {
   OptionData,
   FormMessagesStore,
 } from './types';
-// re-export the shadcn primitives so callers can `import { Input, Textarea } from '@openpeeps/react-ui'`
+// re-export the shadcn primitives so callers can `import { Input, Textarea } from '@openpeepshq/react-ui'`
 export { Input } from '@/components/ui/input';
 export type { InputProps } from '@/components/ui/input';
 export { Textarea } from '@/components/ui/textarea';

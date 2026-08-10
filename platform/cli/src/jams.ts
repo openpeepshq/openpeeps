@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { stopEgress, stopRecording } from '@openpeeps/core/jams';
-import { findPost } from '@openpeeps/core/posts';
+import { stopEgress, stopRecording } from '@openpeepshq/core/jams';
+import { findPost } from '@openpeepshq/core/posts';
 
 export const registerJamsCommand = (program: Command) => {
   const jams = program.command('jams').description('Jam utilities');

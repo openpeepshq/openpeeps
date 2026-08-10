@@ -1,5 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import { serverRootUrl } from '@openpeeps/core/server';
+import { serverRootUrl } from '@openpeepshq/core/server';
 import { notFound } from '#lib/errors';
 import { callback as oidcCallback } from '#lib/handlers/sso/oidc';
 

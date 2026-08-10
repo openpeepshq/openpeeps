@@ -1,4 +1,4 @@
-import type { FetchClient } from '@openpeeps/fetch-client';
+import type { FetchClient } from '@openpeepshq/fetch-client';
 import type {
     ChronologicalInfiniteQueryParams,
     JamEvent,
@@ -10,9 +10,9 @@ import type {
     SuccessResponse,
     JamRecording,
     JamObserverResponseData,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
-import { noPayloadEventSource } from '@openpeeps/fetch-client';
+import { noPayloadEventSource } from '@openpeepshq/fetch-client';
 
 export const jams = (rawClient: FetchClient, eventSource: ReturnType<typeof noPayloadEventSource>) => {
 

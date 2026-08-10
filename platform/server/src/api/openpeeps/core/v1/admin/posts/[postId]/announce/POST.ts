@@ -1,9 +1,9 @@
 import { endpoint, z } from '#lib/endpoint';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { successResponseSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { hub } from '@openpeeps/core/events';
-import { findPost } from '@openpeeps/core/posts';
+import { hub } from '@openpeepshq/core/events';
+import { findPost } from '@openpeepshq/core/posts';
 
 export const Param = z.object({
   postId: z.string(),

@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { UpdatingDate } from '../../date/updating-date';
 import { PostMenu } from './PostMenu';
-import { type PublicPost } from '@openpeeps/common';
+import { type PublicPost } from '@openpeepshq/common';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';

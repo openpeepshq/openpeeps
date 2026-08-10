@@ -4,9 +4,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { zodResolver } from '@hookform/resolvers/zod';
 import Toast from 'react-native-toast-message';
 import { useForm } from 'react-hook-form';
-import { PostCreationData, postCreationDataSchema } from '@openpeeps/common';
-import { normalizeEventDataForSave } from '@openpeeps/common/lib';
-import { useOpenpeeps } from '@openpeeps/react';
+import { PostCreationData, postCreationDataSchema } from '@openpeepshq/common';
+import { normalizeEventDataForSave } from '@openpeepshq/common/lib';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { MainScreenProps } from '~/components/navigation/types';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 import { EventForm } from '~/components/custom/post';

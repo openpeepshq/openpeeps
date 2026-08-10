@@ -1,6 +1,6 @@
 import { MapPin } from 'lucide-react';
-import type { PublicProfile } from '@openpeeps/common/types';
-import { truncateText } from '@openpeeps/common/lib';
+import type { PublicProfile } from '@openpeepshq/common/types';
+import { truncateText } from '@openpeepshq/common/lib';
 
 import { useT } from '../../i18n';
 import { Avatar } from './Avatar';

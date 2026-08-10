@@ -1,4 +1,4 @@
-import type { PublicNotification } from '@openpeeps/common/types';
+import type { PublicNotification } from '@openpeepshq/common/types';
 import { NotificationErrorBoundary } from './NotificationErrorBoundary';
 import { TypedNotification } from './TypedNotification';
 

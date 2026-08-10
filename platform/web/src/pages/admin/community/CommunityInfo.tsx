@@ -2,9 +2,9 @@ import { useState } from 'react';
 import {
   communityConfigSchema,
   type CommunityConfig,
-} from '@openpeeps/common/types';
-import { useT, useSetPageHeader } from '@openpeeps/react';
-import { Button, Form, FormInput, Toast } from '@openpeeps/react-ui';
+} from '@openpeepshq/common/types';
+import { useT, useSetPageHeader } from '@openpeepshq/react';
+import { Button, Form, FormInput, Toast } from '@openpeepshq/react-ui';
 import { useCommunityConfig } from './useCommunityConfig';
 
 export function AdminConfigurationCommunityInfo() {

@@ -1,8 +1,8 @@
-import { sendEmailWorker } from '@openpeeps/core/email';
-import { hub, onceWorker } from '@openpeeps/core/events';
-import { queues } from '@openpeeps/core/jobs';
-import { sendEmailQueue } from '@openpeeps/core/email';
-import { onceQueue } from '@openpeeps/core/events';
+import { sendEmailWorker } from '@openpeepshq/core/email';
+import { hub, onceWorker } from '@openpeepshq/core/events';
+import { queues } from '@openpeepshq/core/jobs';
+import { sendEmailQueue } from '@openpeepshq/core/email';
+import { onceQueue } from '@openpeepshq/core/events';
 import {
   ensureStreamingCleanupSchedule,
   mediaProcessingQueue,
@@ -12,26 +12,26 @@ import {
   mediaStreamingQueue,
   mediaStreamingWorker,
   registerStreamingPrewarmHandlers,
-} from '@openpeeps/core/media';
+} from '@openpeepshq/core/media';
 import {
   analyticsCompileQueue,
   analyticsCompileWorker,
   ensureAnalyticsSchedules,
-} from '@openpeeps/core/analytics';
+} from '@openpeepshq/core/analytics';
 import {
   jamRecordingStopQueue,
   jamRecordingStopWorker,
-} from '@openpeeps/core/jams';
-import { serverRootUrl } from '@openpeeps/core/server';
+} from '@openpeepshq/core/jams';
+import { serverRootUrl } from '@openpeepshq/core/server';
 import {
   initializeNotifications,
   registerDefaultNotifications,
   notificationQueue,
   notificationWorker,
-} from '@openpeeps/core/notifications';
-import { registerRsvpConfirmationEmail } from '@openpeeps/core/posts';
-import { refreshConfig, defaultConfig } from '@openpeeps/core/config';
-import { initSentry } from '@openpeeps/core/sentry';
+} from '@openpeepshq/core/notifications';
+import { registerRsvpConfirmationEmail } from '@openpeepshq/core/posts';
+import { refreshConfig, defaultConfig } from '@openpeepshq/core/config';
+import { initSentry } from '@openpeepshq/core/sentry';
 
 const startWorkers = () => {
   console.log('Starting email worker ...');

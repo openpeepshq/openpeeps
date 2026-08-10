@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Dot, User, Users } from 'lucide-react';
-import type { PublicProfile } from '@openpeeps/common/types';
+import type { PublicProfile } from '@openpeepshq/common/types';
 import { Avatar, ProfileLink } from '../profile';
 
 export interface NotificationWrapperProps {

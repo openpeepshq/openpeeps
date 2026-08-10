@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Users } from 'lucide-react';
-import type { PublicProfile } from '@openpeeps/common/types';
+import type { PublicProfile } from '@openpeepshq/common/types';
 import { useT } from '../../i18n';
 import { ProfileBadge } from './ProfileBadge';
 import {

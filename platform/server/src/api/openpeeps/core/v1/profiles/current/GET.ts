@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
 import { authNeeded, forbidden } from '#lib/errors';
-import { profileWithMetaSchema } from '@openpeeps/common/types';
+import { profileWithMetaSchema } from '@openpeepshq/common/types';
 
 export const Output = profileWithMetaSchema || z.object({});
 

@@ -1,4 +1,4 @@
-import type { MediaStorage, MediaStorageParams } from '@openpeeps/common/types';
+import type { MediaStorage, MediaStorageParams } from '@openpeepshq/common/types';
 import { createHash, randomBytes } from 'node:crypto';
 import { createReadStream, createWriteStream } from 'node:fs';
 import fs from 'node:fs/promises';

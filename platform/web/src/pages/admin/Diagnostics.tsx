@@ -1,4 +1,4 @@
-import { useT, useSetPageHeader } from '@openpeeps/react';
+import { useT, useSetPageHeader } from '@openpeepshq/react';
 import { ConfigMenuButton } from './ConfigMenuButton';
 
 export function AdminDiagnostics() {

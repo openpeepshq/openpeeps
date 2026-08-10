@@ -1,9 +1,9 @@
-import type { OpenpeepsClient } from '@openpeeps/client';
+import type { OpenpeepsClient } from '@openpeepshq/client';
 import type {
   MediaAttachment,
   MediaStorageRequestInput,
   SuccessFailureResponse,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { useCallback, useState } from 'react';
 import {
   apiHook,

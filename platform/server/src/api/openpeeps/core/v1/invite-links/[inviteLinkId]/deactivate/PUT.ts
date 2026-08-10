@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
-import { findInviteLink, updateInviteLink } from '@openpeeps/core/inviteLinks';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { findInviteLink, updateInviteLink } from '@openpeepshq/core/inviteLinks';
+import { successResponseSchema } from '@openpeepshq/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
 
 export const Output = successResponseSchema;

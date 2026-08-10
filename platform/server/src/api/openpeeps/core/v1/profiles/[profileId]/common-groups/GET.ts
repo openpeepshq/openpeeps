@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
-import { findProfile, listCommonGroups } from '@openpeeps/core/profiles';
+import { findProfile, listCommonGroups } from '@openpeepshq/core/profiles';
 import type { RequestEvent } from '@riddl/core';
-import { groupWithMetaSchema } from '@openpeeps/common/types';
+import { groupWithMetaSchema } from '@openpeepshq/common/types';
 import { ensureProfileOrPublicCommunity } from '#lib/auth';
 import { notFound } from '#lib/errors';
 

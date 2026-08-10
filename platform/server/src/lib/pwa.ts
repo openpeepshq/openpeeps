@@ -4,10 +4,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Express, Request, Response } from 'express';
 import sharp from 'sharp';
-import type { CommunityConfig } from '@openpeeps/common/types';
-import { communityConfig } from '@openpeeps/core/config';
-import { mediaStorage } from '@openpeeps/core/media';
-import { logger } from '@openpeeps/core/log';
+import type { CommunityConfig } from '@openpeepshq/common/types';
+import { communityConfig } from '@openpeepshq/core/config';
+import { mediaStorage } from '@openpeepshq/core/media';
+import { logger } from '@openpeepshq/core/log';
 
 const log = logger('server:pwa');
 

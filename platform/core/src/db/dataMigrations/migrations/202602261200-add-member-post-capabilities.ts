@@ -1,5 +1,5 @@
 import { Database } from 'arangojs';
-import { GroupData } from '@openpeeps/common/types';
+import { GroupData } from '@openpeepshq/common/types';
 import { transformDocsInCollection } from '../helpers';
 
 const capabilitiesToAdd = [

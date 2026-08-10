@@ -1,6 +1,6 @@
-import { AnalyticsDayHeatmap, MetricCard, Table } from '@openpeeps/react-ui';
-import type { AnalyticsSignupRow } from '@openpeeps/common/types';
-import { useOpenpeeps, useT } from '@openpeeps/react';
+import { AnalyticsDayHeatmap, MetricCard, Table } from '@openpeepshq/react-ui';
+import type { AnalyticsSignupRow } from '@openpeepshq/common/types';
+import { useOpenpeeps, useT } from '@openpeepshq/react';
 import { AnalyticsLoading, AnalyticsSection } from './AnalyticsLayout';
 import { useAnalyticsRangeContext } from './AnalyticsRangeContext';
 import { columnHeader } from './analyticsInfo';

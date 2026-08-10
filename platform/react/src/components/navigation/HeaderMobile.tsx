@@ -6,8 +6,8 @@ import {
   DialogPortal,
   DialogOverlay,
   DialogTrigger,
-} from '@openpeeps/react-ui';
-import { getTheme } from '@openpeeps/common';
+} from '@openpeepshq/react-ui';
+import { getTheme } from '@openpeepshq/common';
 import { useServerInfo } from '../server-data';
 import {
   useCurrentProfile,

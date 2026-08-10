@@ -54,18 +54,18 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build
         run: |
-          pnpm --filter "@openpeeps/server..." \
-            --filter "@openpeeps/tests..." \
+          pnpm --filter "@openpeepshq/server..." \
+            --filter "@openpeepshq/tests..." \
             build
       - name: Generate perf fixture
-        run: pnpm --filter @openpeeps/tests run fixtures:generate-perf
+        run: pnpm --filter @openpeepshq/tests run fixtures:generate-perf
       - name: Restore fixture
         run: |
           node platform/tests/scripts/restore-fixture.mjs \
             platform/tests/fixtures/backups/perf-scale.zip
       - name: Start API
         run: |
-          pnpm --filter @openpeeps/server start &
+          pnpm --filter @openpeepshq/server start &
           for i in $(seq 1 60); do
             if wget -qO- http://127.0.0.1:5173/health >/dev/null 2>&1; then
               exit 0
@@ -112,7 +112,7 @@ jobs:
           PERF_ENFORCE: '1'
           PERF_ITERATIONS: '5'
           PERF_WARMUP: '1'
-        run: pnpm --filter @openpeeps/tests run perf:api
+        run: pnpm --filter @openpeepshq/tests run perf:api
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4

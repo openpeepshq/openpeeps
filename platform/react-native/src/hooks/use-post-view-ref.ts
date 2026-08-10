@@ -3,7 +3,7 @@ import { Dimensions, type View } from 'react-native';
 import {
   useQueuePostView,
   type PostViewContext,
-} from '@openpeeps/react';
+} from '@openpeepshq/react';
 
 const VIEW_DELAY_MS = 1_000;
 const POLL_INTERVAL_MS = 500;

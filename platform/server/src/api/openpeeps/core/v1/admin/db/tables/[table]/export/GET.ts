@@ -5,7 +5,7 @@ import {
   listExplorerRows,
   MAX_EXPORT_LIMIT,
   rowsToCsv,
-} from '@openpeeps/core/db';
+} from '@openpeepshq/core/db';
 
 export const Param = z.object({
   table: z.string(),

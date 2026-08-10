@@ -4,10 +4,10 @@ import {
   reportDataSchema,
   publicReportSchema,
   type PostWithMeta,
-} from '@openpeeps/common';
-import { findPost } from '@openpeeps/core/posts';
-import { findProfile } from '@openpeeps/core/profiles';
-import { createReport } from '@openpeeps/core/reports';
+} from '@openpeepshq/common';
+import { findPost } from '@openpeepshq/core/posts';
+import { findProfile } from '@openpeepshq/core/profiles';
+import { createReport } from '@openpeepshq/core/reports';
 import { endpoint, z } from '#lib/endpoint';
 
 export const Input = z.object({

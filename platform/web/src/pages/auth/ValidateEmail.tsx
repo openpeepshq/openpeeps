@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { AuthLayout, useToast } from '@openpeeps/react/components';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
+import { AuthLayout, useToast } from '@openpeepshq/react/components';
 
 /**
  * SPA handler for the `/auth/validate-email?token=...` email link. Calls the

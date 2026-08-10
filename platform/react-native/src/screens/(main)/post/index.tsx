@@ -3,10 +3,10 @@ import { GenericHeader } from '~/components/custom';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 
 import { MainScreenProps } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { RefreshControl } from 'react-native-gesture-handler';
-import { Group, GroupData, type PublicPost } from '@openpeeps/common';
+import { Group, GroupData, type PublicPost } from '@openpeepshq/common';
 import { FullArticle } from '~/components/custom/post/types/article/FullArticle';
 import { FullPoll } from '~/components/custom/post/types/poll/FullPoll';
 import { FullNote } from '~/components/custom/post/types/note/FullNote';

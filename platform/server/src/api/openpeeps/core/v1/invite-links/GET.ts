@@ -1,8 +1,8 @@
 import { endpoint } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
-import { inviteLinkWithMetaSchema } from '@openpeeps/common/types';
+import { inviteLinkWithMetaSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
-import { listInviteLinks } from '@openpeeps/core/inviteLinks';
+import { listInviteLinks } from '@openpeepshq/core/inviteLinks';
 import { ensureRoleCapabilities } from '#lib/auth';
 
 export const Output = inviteLinkWithMetaSchema.array();

@@ -114,8 +114,8 @@ services:
         fi
         corepack enable
         apt-get update -qq && apt-get install -y -qq unzip
-        pnpm install --filter @openpeeps/tests...
-        pnpm --filter @openpeeps/core... build
+        pnpm install --filter @openpeepshq/tests...
+        pnpm --filter @openpeepshq/core... build
         node platform/tests/scripts/restore-fixture.mjs "fixtures/backups/$$fixture"
 
   web:

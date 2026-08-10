@@ -1,5 +1,5 @@
-import { cn } from '@openpeeps/react-ui';
-import type { IconType } from '@openpeeps/react-ui';
+import { cn } from '@openpeepshq/react-ui';
+import type { IconType } from '@openpeepshq/react-ui';
 import { useRouter } from '../../contexts/router';
 
 export interface MobileMenuItemProps {

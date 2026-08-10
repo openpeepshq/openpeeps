@@ -2,14 +2,14 @@ import type {
   openpeepsClient,
   OpenpeepsNoPayloadEndpoint,
   OpenpeepsPayloadEndpoint,
-} from '@openpeeps/client';
+} from '@openpeepshq/client';
 import type {
   ChronologicalInfiniteQueryParams,
   ProfileWithMeta,
   PublicAccount,
   SuccessFailureResponse,
   TokenResponse,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import type {
   BodyType,
   EventSourceOptions,
@@ -17,7 +17,7 @@ import type {
   TypedNoPayloadEventSource,
   TypedPayloadProgressObserverEndpoint,
   UploadProgressEvent,
-} from '@openpeeps/fetch-client';
+} from '@openpeepshq/fetch-client';
 import {
   QueryClient,
   QueryClientContext,

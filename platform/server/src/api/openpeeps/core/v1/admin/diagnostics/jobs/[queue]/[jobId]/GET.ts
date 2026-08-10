@@ -1,9 +1,9 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { adminJobDetailSchema } from '@openpeeps/common/types';
+import { adminJobDetailSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { getJobDetail } from '@openpeeps/core/jobs';
+import { getJobDetail } from '@openpeepshq/core/jobs';
 
 export const Output = adminJobDetailSchema;
 

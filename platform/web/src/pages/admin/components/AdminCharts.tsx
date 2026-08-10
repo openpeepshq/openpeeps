@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import type { AdminServerStats } from '@openpeeps/common/types';
-import { useT } from '@openpeeps/react';
-import { PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
+import type { AdminServerStats } from '@openpeepshq/common/types';
+import { useT } from '@openpeepshq/react';
+import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 
 export function CommunityStatsCard({
   title,

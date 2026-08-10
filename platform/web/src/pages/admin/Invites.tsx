@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { CheckCheck, Copy, MoreVertical, Users, X } from 'lucide-react';
-import { inviteLinkMatchesQuery } from '@openpeeps/common/lib';
-import type { InviteLinkWithMeta } from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Avatar } from '@openpeeps/react/components';
-import { UpdatingDate } from '@openpeeps/react-ui';
+import { inviteLinkMatchesQuery } from '@openpeepshq/common/lib';
+import type { InviteLinkWithMeta } from '@openpeepshq/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { Avatar } from '@openpeepshq/react/components';
+import { UpdatingDate } from '@openpeepshq/react-ui';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
   Input,
   PopupMenu,
   PopupMenuButton,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { AdminInviteActions } from './components/AdminInviteActions';
 import { inviteUrl } from './components/InviteWithLinkModal';
 

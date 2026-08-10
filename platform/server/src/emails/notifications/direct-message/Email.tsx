@@ -4,8 +4,8 @@ import type {
   Profile,
   PublicPost,
   PublicProfile,
-} from '@openpeeps/common/types';
-import { profileName } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { profileName } from '@openpeepshq/common/lib';
 
 import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { EmailPostEmbed } from '../../EmailPostEmbed';

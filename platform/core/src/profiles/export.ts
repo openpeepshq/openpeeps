@@ -2,11 +2,11 @@ import {
   MemberExportRow,
   MemberExportStats,
   Profile,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   formatMemberExportCustomFields,
   toCsvRow,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 import { allpeepDb } from '../db';
 import { profileFilters } from '../db/pg/filters';
 import { baseProfilesMapping, membersExportMapping } from './mapping';

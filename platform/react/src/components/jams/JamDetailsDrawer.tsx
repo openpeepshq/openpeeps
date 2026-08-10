@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Copy, CopyCheck, X } from 'lucide-react';
-import { truncateText } from '@openpeeps/common';
+import { truncateText } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useJamContext } from './JamContext';

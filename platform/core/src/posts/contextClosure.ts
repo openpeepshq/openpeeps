@@ -3,7 +3,7 @@ import type {
   AuthorizationData,
   DbPost,
   PostWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import type { PgDb } from '../db/pg/client';
 import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatSize, type MediaAttachmentData } from '@openpeeps/common';
+import { formatSize, type MediaAttachmentData } from '@openpeepshq/common';
 import { getFileIcon, getFileType } from '~/components/custom/post/helpers';
 import { FileQuestionIcon } from '~/components/icons';
 import { useMemo } from 'react';

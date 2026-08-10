@@ -5,8 +5,8 @@ import {
   useOpenpeeps,
   useSetPageHeader,
   useSetPlusButtonActions,
-} from '@openpeeps/react';
-import { Feed } from '@openpeeps/react/components';
+} from '@openpeepshq/react';
+import { Feed } from '@openpeepshq/react/components';
 
 export function ArticlesIndex() {
   const t = useT();

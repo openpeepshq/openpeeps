@@ -4,7 +4,7 @@ import {
   AccountUpdateData,
   AccountWithMeta,
   ProfileWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { createSignedProfileAccessToken } from '../accessTokens/tokens';
 import { jwtUtil } from '../jwt';
 import { serverRootUrl } from '../server';

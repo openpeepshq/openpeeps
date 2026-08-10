@@ -1,4 +1,4 @@
-import { randomString } from '@openpeeps/common/lib';
+import { randomString } from '@openpeepshq/common/lib';
 
 const imageFileExtension = 'webp';
 const imageFileFormat = `image/${imageFileExtension}`;

@@ -1,6 +1,6 @@
-import { AnalyticsBarChart, MetricCard } from '@openpeeps/react-ui';
-import type { AnalyticsPostTypeKey } from '@openpeeps/common/types';
-import { useOpenpeeps, useT } from '@openpeeps/react';
+import { AnalyticsBarChart, MetricCard } from '@openpeepshq/react-ui';
+import type { AnalyticsPostTypeKey } from '@openpeepshq/common/types';
+import { useOpenpeeps, useT } from '@openpeepshq/react';
 import { AnalyticsLoading, AnalyticsSection } from './AnalyticsLayout';
 import { useAnalyticsRangeContext } from './AnalyticsRangeContext';
 

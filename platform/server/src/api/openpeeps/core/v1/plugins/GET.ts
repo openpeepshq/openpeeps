@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
-import { pluginInfoSchema } from '@openpeeps/common/types';
-import { getPlugins } from '@openpeeps/core/plugins';
+import { pluginInfoSchema } from '@openpeepshq/common/types';
+import { getPlugins } from '@openpeepshq/core/plugins';
 
 export const Output = z.array(pluginInfoSchema);
 

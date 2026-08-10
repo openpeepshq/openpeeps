@@ -1,12 +1,12 @@
 import { Link, Outlet } from 'react-router-dom';
-import { useT } from '@openpeeps/react';
-import { useCurrentProfile } from '@openpeeps/react/components';
+import { useT } from '@openpeepshq/react';
+import { useCurrentProfile } from '@openpeepshq/react/components';
 import {
   adminSections,
   canAccessAdminMenu,
   canAccessAdminSection,
   type AdminSectionKey,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 
 function AdminAccessDenied() {
   const t = useT();

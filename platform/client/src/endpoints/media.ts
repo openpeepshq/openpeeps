@@ -1,13 +1,13 @@
 import type {
     FetchClient,
     noPayloadEventSource,
-} from '@openpeeps/fetch-client';
+} from '@openpeepshq/fetch-client';
 import type {
     MediaAttachment,
     MediaProgressEvent,
     MediaStorageRequestInput,
     SuccessResponse,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import {
     allpeepNoPayloadEndpoint,
     allpeepPayloadEndpoint,

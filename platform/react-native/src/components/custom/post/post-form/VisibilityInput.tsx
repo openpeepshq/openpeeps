@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { ChevronDownIcon } from 'lucide-react-native';
 import { TouchableOpacity } from 'react-native';
 import { View } from 'react-native';
-import { AudienceSetting } from '@openpeeps/common';
+import { AudienceSetting } from '@openpeepshq/common';
 import { VisibilitySheet } from '../../modals/post/visibility-sheet';
 import { useRef, useState } from 'react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';

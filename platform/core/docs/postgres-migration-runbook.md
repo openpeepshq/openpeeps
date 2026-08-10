@@ -5,7 +5,7 @@ startup when Postgres is empty and Arango still holds data.
 
 ## Automatic migration (startup)
 
-When the API or worker starts, `@openpeeps/core` will:
+When the API or worker starts, `@openpeepshq/core` will:
 
 1. Apply Drizzle schema migrations to Postgres.
 2. If Postgres has no application data yet, probe Arango at `DB_URL` / `DB_NAME`.
@@ -17,7 +17,7 @@ both databases running, stop other writers first or use the manual steps below.
 
 ## Manual cutover
 
-Run from `platform/core` after building `@openpeeps/core`.
+Run from `platform/core` after building `@openpeepshq/core`.
 
 ## Prerequisites
 

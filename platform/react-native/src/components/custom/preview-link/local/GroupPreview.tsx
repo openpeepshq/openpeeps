@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import type { QueryObserverResult } from '@tanstack/react-query';
-import type { GroupWithMeta } from '@openpeeps/common';
+import type { GroupWithMeta } from '@openpeepshq/common';
 import { GroupCard } from '../../groups/group-card';
 import { AccessDenied } from '../AccessDenied';
 

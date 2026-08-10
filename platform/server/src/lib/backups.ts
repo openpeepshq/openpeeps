@@ -1,15 +1,15 @@
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import type { Express, Request, Response } from 'express';
-import type { Authorization } from '@openpeeps/common/types';
-import { checkRoleCapabilities } from '@openpeeps/common/lib';
+import type { Authorization } from '@openpeepshq/common/types';
+import { checkRoleCapabilities } from '@openpeepshq/common/lib';
 import {
   downloadBackup,
   listAllBackups,
-} from '@openpeeps/core/backups';
-import { jwtUtil } from '@openpeeps/core/jwt';
-import { findProfile } from '@openpeeps/core/profiles';
-import { logger } from '@openpeeps/core/log';
+} from '@openpeepshq/core/backups';
+import { jwtUtil } from '@openpeepshq/core/jwt';
+import { findProfile } from '@openpeepshq/core/profiles';
+import { logger } from '@openpeepshq/core/log';
 
 const log = logger('server:backups');
 

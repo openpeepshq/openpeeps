@@ -2,7 +2,7 @@ import { createReadStream, existsSync, mkdirSync } from 'node:fs';
 import { appendFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import * as readline from 'node:readline';
-import type { Logger, LoggerFactory } from '@openpeeps/common/types';
+import type { Logger, LoggerFactory } from '@openpeepshq/common/types';
 import { formatDate } from 'date-fns/format';
 import safeJsonStringify from 'safe-json-stringify';
 import { default as logsConfig } from '../config/defaults/logs';

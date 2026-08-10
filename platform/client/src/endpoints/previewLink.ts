@@ -1,7 +1,7 @@
-import type { FetchClient } from '@openpeeps/fetch-client';
+import type { FetchClient } from '@openpeepshq/fetch-client';
 import type {
     FetchUrlResponse,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint } from './helpers';
 
 export const previewLink = (rawClient: FetchClient) => allpeepNoPayloadEndpoint<FetchUrlResponse, { url: string }>(

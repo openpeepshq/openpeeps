@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MainScreenProps } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import {
   GenericHeader,
   GroupMemberCard,
@@ -13,7 +13,7 @@ import { profileMatchesQuery, truncateText } from '~/lib/utils';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { PlusIcon, SearchIcon, XIcon } from '~/components/icons';
 import { Input } from '~/components/ui/input';
-import { GroupMember, Profile, PublicProfile } from '@openpeeps/common';
+import { GroupMember, Profile, PublicProfile } from '@openpeepshq/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import { ActivityIndicator, Pressable } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';

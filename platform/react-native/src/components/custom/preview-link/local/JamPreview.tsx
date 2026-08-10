@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { FeedPostContent } from '../../post/pieces';
 import { AccessDenied } from '../AccessDenied';

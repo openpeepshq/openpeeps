@@ -1,4 +1,4 @@
-import { RoleData } from '@openpeeps/common/types';
+import { RoleData } from '@openpeepshq/common/types';
 
 export const defaultRoles: RoleData[] = [
   {

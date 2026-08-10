@@ -2,7 +2,7 @@
  * Builds fixtures/backups/perf-scale.zip by cloning posts (+ edges) from
  * default-install.zip so offline perf runs exercise larger edge scans.
  *
- *   pnpm --filter @openpeeps/tests run fixtures:generate-perf
+ *   pnpm --filter @openpeepshq/tests run fixtures:generate-perf
  */
 import {
   mkdtemp,

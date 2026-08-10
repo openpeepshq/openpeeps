@@ -13,14 +13,14 @@ templates under `src/emails`, and the BullMQ worker entrypoint).
 
 ### web
 
-`@openpeeps/web` — the assembled web application and the primary
+`@openpeepshq/web` — the assembled web application and the primary
 frontend for the openpeeps server. A Vite + React single-page app
 that consumes the API and serves the SPA.
 
 ### react
 
-`@openpeeps/react` — shared React components and hooks used by
-`@openpeeps/web` and downstream consumers to build frontends for the
+`@openpeepshq/react` — shared React components and hooks used by
+`@openpeepshq/web` and downstream consumers to build frontends for the
 openpeeps server.
 
 ## Supporting packages

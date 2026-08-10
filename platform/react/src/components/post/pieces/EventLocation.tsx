@@ -4,8 +4,8 @@ import {
   MapPin,
   PhoneCall,
 } from 'lucide-react';
-import type { Event, PublicPost } from '@openpeeps/common/types';
-import { getJamUrl, truncateText } from '@openpeeps/common/lib';
+import type { Event, PublicPost } from '@openpeepshq/common/types';
+import { getJamUrl, truncateText } from '@openpeepshq/common/lib';
 import { useT } from '../../../i18n';
 import { useStaticRender } from '../../markdown/staticRender';
 

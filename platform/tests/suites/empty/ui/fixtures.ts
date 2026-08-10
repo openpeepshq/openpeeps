@@ -1,7 +1,7 @@
 import { expect, type APIRequestContext, type Page } from '@playwright/test';
 import { testIds } from '../testIds';
 
-/** Matches `@openpeeps/react` `AUTH_CREDENTIALS_STORAGE_KEY`. */
+/** Matches `@openpeepshq/react` `AUTH_CREDENTIALS_STORAGE_KEY`. */
 export const credentialsStorageKey = 'auth_credentials';
 const password = 'ui-test-password';
 

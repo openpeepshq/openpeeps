@@ -1,4 +1,4 @@
-import { StripePaymentConfig } from '@openpeeps/common/types';
+import { StripePaymentConfig } from '@openpeepshq/common/types';
 import Stripe from 'stripe';
 import { config } from '../config';
 import { hub } from '../events';

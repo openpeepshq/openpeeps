@@ -1,15 +1,15 @@
 /**
- * @openpeeps/react-ui Tailwind preset.
+ * @openpeepshq/react-ui Tailwind preset.
  *
  * Bridges Skeleton-style CSS variables (--color-primary-500 as "R G B" channels)
  * with shadcn semantic tokens (background/foreground/etc).
  *
  * Usage in a consumer tailwind.config.cjs:
  *   module.exports = {
- *     presets: [require('@openpeeps/react-ui/tailwind-preset')],
+ *     presets: [require('@openpeepshq/react-ui/tailwind-preset')],
  *     content: [
  *       './src/**\/*.{ts,tsx}',
- *       './node_modules/@openpeeps/react-ui/dist/**\/*.{js,mjs}',
+ *       './node_modules/@openpeepshq/react-ui/dist/**\/*.{js,mjs}',
  *     ],
  *   };
  */

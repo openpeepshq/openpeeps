@@ -5,8 +5,8 @@ import { ensureRoleCapabilities } from '#lib/auth';
 import {
   analyticsDateQuerySchema,
   analyticsGrowthSchema,
-} from '@openpeeps/common/types';
-import { getAnalyticsGrowth } from '@openpeeps/core/analytics';
+} from '@openpeepshq/common/types';
+import { getAnalyticsGrowth } from '@openpeepshq/core/analytics';
 
 export const Query = analyticsDateQuerySchema;
 export const Output = analyticsGrowthSchema;

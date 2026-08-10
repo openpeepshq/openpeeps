@@ -1,8 +1,8 @@
 import { endpoint } from '#lib/endpoint';
 import { forbidden, internalError } from '#lib/errors';
-import { tokenResponseSchema } from '@openpeeps/common/types';
+import { tokenResponseSchema } from '@openpeepshq/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { createSignedDbToken } from '@openpeeps/core/accessTokens';
+import { createSignedDbToken } from '@openpeepshq/core/accessTokens';
 
 export const Output = tokenResponseSchema;
 

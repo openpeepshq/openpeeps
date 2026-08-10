@@ -170,15 +170,15 @@ jobs:
           pnpm install
       - name: Build packages needed by unit tests
         run: >
-          pnpm --filter @openpeeps/common...
-          --filter @openpeeps/core...
-          --filter @openpeeps/react...
+          pnpm --filter @openpeepshq/common...
+          --filter @openpeepshq/core...
+          --filter @openpeepshq/react...
           build
       - name: Run unit tests
         run: >
-          pnpm --filter @openpeeps/common
-          --filter @openpeeps/core
-          --filter @openpeeps/react
+          pnpm --filter @openpeepshq/common
+          --filter @openpeepshq/core
+          --filter @openpeepshq/react
           exec vitest run
 
   test-integration:
@@ -269,7 +269,7 @@ jobs:
           apt-get update -qq && apt-get install -y -qq unzip
           corepack enable
           pnpm install
-          pnpm --filter @openpeeps/core... build
+          pnpm --filter @openpeepshq/core... build
           cd platform/tests
           pnpm exec playwright install chromium chromium-headless-shell
       - name: Wait for web service
@@ -309,7 +309,7 @@ jobs:
           INTEGRATION_SUITE: ${{ matrix.suite }}
           INTEGRATION_SKIP_RESTORE: "true"
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
-        run: pnpm --filter @openpeeps/tests run "test:integration:${{ matrix.suite }}"
+        run: pnpm --filter @openpeepshq/tests run "test:integration:${{ matrix.suite }}"
 
   test-integration-jams:
     runs-on: docker
@@ -412,7 +412,7 @@ jobs:
           JAMS_LIVEKIT_URL: ${{ secrets.JAMS_LIVEKIT_URL }}
           JAMS_LIVEKIT_API_KEY: ${{ secrets.JAMS_LIVEKIT_API_KEY }}
           JAMS_LIVEKIT_API_SECRET: ${{ secrets.JAMS_LIVEKIT_API_SECRET }}
-        run: pnpm --filter @openpeeps/tests run test:integration:jams
+        run: pnpm --filter @openpeepshq/tests run test:integration:jams
 
   commit-check:
     runs-on: docker
@@ -454,21 +454,39 @@ jobs:
     steps:
       - name: Publish npm packages
         env:
-          # Pass token via env so `npm config` does not break on $ ` " in the PAT, and to avoid _auth key/registry URL mismatch
-          npm_pat: ${{ secrets.REGISTRY_PASSWORD }}
+          # Tokens via env so shell/npmrc do not break on special chars in PATs
+          FORGEJO_NPM_TOKEN: ${{ secrets.REGISTRY_PASSWORD }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_OPTIONS: "--max-old-space-size=12288"
         run: |
           set -e
           cd /apat
-          # Forgejo npm: https://docs.gitea.com/usage/packages/npm
           owner="${{ needs.set-variables.outputs.image_repo }}" && owner="${owner%%/*}"
-          echo "@openpeeps:registry=https://code.openpeeps.org/api/packages/${owner}/npm/" >> .npmrc
-          echo "//code.openpeeps.org/api/packages/${owner}/npm/:_authToken=${{ secrets.REGISTRY_PASSWORD }}" >> .npmrc
-          echo "//code.openpeeps.org/api/packages/${owner}/npm/:always-auth=true" >> .npmrc
-          cat .npmrc
+          forgejo_registry="https://code.openpeeps.org/api/packages/${owner}/npm/"
+
           corepack enable
           pnpm install
+
+          # Forgejo package registry (scoped @openpeepshq)
+          # https://docs.gitea.com/usage/packages/npm
+          {
+            echo "@openpeepshq:registry=${forgejo_registry}"
+            echo "//code.openpeeps.org/api/packages/${owner}/npm/:_authToken=${FORGEJO_NPM_TOKEN}"
+            echo "//code.openpeeps.org/api/packages/${owner}/npm/:always-auth=true"
+          } > .npmrc
           pnpm -r publish --access private --no-git-checks
+
+          # npmjs.com (same versions, public scoped packages)
+          if [ -z "${NPM_TOKEN}" ]; then
+            echo "NPM_TOKEN secret is required to publish @openpeepshq to npmjs.com" >&2
+            exit 1
+          fi
+          {
+            echo "@openpeepshq:registry=https://registry.npmjs.org/"
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}"
+            echo "//registry.npmjs.org/:always-auth=true"
+          } > .npmrc
+          pnpm -r publish --access public --no-git-checks
 
   deploy-docker:
     runs-on: docker

@@ -3,8 +3,8 @@ import {
   type WebhookData,
   type WebhookKeyResponse,
   type WebhookVerifyRequest,
-} from '@openpeeps/common/types';
-import { parseJwtKeyId, verifyJwt } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { parseJwtKeyId, verifyJwt } from '@openpeepshq/common/lib';
 import type { OpenpeepsNoPayloadEndpoint } from '../types';
 
 export type WebhookHandler = ((

@@ -1,4 +1,4 @@
-import type { PublicProfile } from '@openpeeps/common/types';
+import type { PublicProfile } from '@openpeepshq/common/types';
 import { useT } from '../../i18n';
 
 export interface ProfileStatsProps {

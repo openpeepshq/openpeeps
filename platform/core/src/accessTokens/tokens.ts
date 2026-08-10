@@ -5,7 +5,7 @@ import {
   ProfileWithMeta,
   Scope,
   authorizationSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { uuidv7 } from 'uuidv7';
 import { findAccount } from '../accounts/finders';
 import { jwtUtil } from '../jwt';

@@ -2,8 +2,8 @@
  * Offline API latency harness against a running OpenPeeps API.
  *
  * Examples:
- *   PERF_BASE_URL=http://localhost:5173 pnpm --filter @openpeeps/tests run perf:api
- *   PERF_BACKUP_ZIP=/path/to/live.zip PERF_RESTORE=1 pnpm --filter @openpeeps/tests run perf:api
+ *   PERF_BASE_URL=http://localhost:5173 pnpm --filter @openpeepshq/tests run perf:api
+ *   PERF_BACKUP_ZIP=/path/to/live.zip PERF_RESTORE=1 pnpm --filter @openpeepshq/tests run perf:api
  *
  * Writes JSON to platform/tests/.perf-results/
  */

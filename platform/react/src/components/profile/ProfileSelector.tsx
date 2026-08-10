@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Check, Search } from 'lucide-react';
-import type { PublicProfile } from '@openpeeps/common/types';
-import { matchesQuery, profileName, sortProfiles } from '@openpeeps/common/lib';
+import type { PublicProfile } from '@openpeepshq/common/types';
+import { matchesQuery, profileName, sortProfiles } from '@openpeepshq/common/lib';
 import {
   Button,
   Dialog,
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { Avatar } from './Avatar';

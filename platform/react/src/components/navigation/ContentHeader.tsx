@@ -1,5 +1,5 @@
 import { ChevronLeft } from 'lucide-react';
-import { capitalizeFirstLetter } from '@openpeeps/common/lib';
+import { capitalizeFirstLetter } from '@openpeepshq/common/lib';
 import { usePageHeader } from '../../stores';
 import { useT } from '../../i18n';
 import { useRouter } from '../../contexts/router';

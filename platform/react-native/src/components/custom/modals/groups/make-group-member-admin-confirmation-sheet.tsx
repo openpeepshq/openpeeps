@@ -2,7 +2,7 @@ import React, {forwardRef} from 'react';
 import {View} from 'react-native';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {ThemedText} from '~/components/ui/themed-text';
-import {Profile} from '@openpeeps/common';
+import {Profile} from '@openpeepshq/common';
 import {BaseSheet, SheetFooter} from '../common';
 import Toast from 'react-native-toast-message';
 import {useTranslation} from 'react-i18next';

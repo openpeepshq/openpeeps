@@ -10,7 +10,7 @@ import {
   DialogTitle,
   Label,
   Textarea,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { convertToWebpIfHeic, getCroppedImg } from '../../lib/canvasUtils';
 

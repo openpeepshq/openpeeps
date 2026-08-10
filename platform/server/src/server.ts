@@ -6,15 +6,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { api, expressAdapter } from '@riddl/core';
-import { logger } from '@openpeeps/core/log';
-import { mediaStorage } from '@openpeeps/core/media';
-import { defaultConfig } from '@openpeeps/core/config';
-import { recordSlowRequest, slowRequestMs } from '@openpeeps/core/performance';
+import { logger } from '@openpeepshq/core/log';
+import { mediaStorage } from '@openpeepshq/core/media';
+import { defaultConfig } from '@openpeepshq/core/config';
+import { recordSlowRequest, slowRequestMs } from '@openpeepshq/core/performance';
 import {
   applyCommunitySentryTags,
   getCommunityHostname,
   Sentry,
-} from '@openpeeps/core/sentry';
+} from '@openpeepshq/core/sentry';
 import { initializeServer } from '#lib/init';
 import { corsMiddleware } from './lib/cors';
 import { installDbBrowserProxy } from './lib/dbBrowserProxy';
@@ -230,7 +230,7 @@ const startServer = async () => {
   );
 
   // Serve locally-stored media at `/storage/<bucket>/<id>/<filename>`
-  // (matches `mediaStorage().getPath` in `@openpeeps/core/media/openpeeps`).
+  // (matches `mediaStorage().getPath` in `@openpeepshq/core/media/openpeeps`).
   // Without this, requests fall through to the SPA catch-all and the React
   // `index.html` is served as if the URL were a client-side route.
   app.get('/storage/:bucket/:id/:filename', async (req, res, next) => {
@@ -265,7 +265,7 @@ const startServer = async () => {
     }
   });
 
-  // Serve the React SPA built by `@openpeeps/web`. The Docker image places it
+  // Serve the React SPA built by `@openpeepshq/web`. The Docker image places it
   // under `/apat/platform/web/dist`; locally we resolve it from this file.
   const webDist = resolveWebDist();
   if (webDist) {
@@ -287,7 +287,7 @@ const startServer = async () => {
     });
   } else {
     log.warn(
-      'No SPA build found. Set WEB_DIST_PATH or run `pnpm --filter @openpeeps/web build`.',
+      'No SPA build found. Set WEB_DIST_PATH or run `pnpm --filter @openpeepshq/web build`.',
     );
   }
 

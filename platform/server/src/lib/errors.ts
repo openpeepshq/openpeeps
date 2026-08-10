@@ -1,5 +1,5 @@
-import type { OpenpeepsError } from '@openpeeps/common/types';
-import { isOpenpeepsError } from '@openpeeps/core/errors';
+import type { OpenpeepsError } from '@openpeepshq/common/types';
+import { isOpenpeepsError } from '@openpeepshq/core/errors';
 
 /**
  * HTTP error helpers — produces error objects compatible with Riddl's

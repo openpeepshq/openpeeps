@@ -2,7 +2,7 @@ import {
   type PublicProfile,
   publicProfileSchema,
   type PostWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { assertJamRsvpAllowed, createJamToken } from './token';
 import {
   disconnect,

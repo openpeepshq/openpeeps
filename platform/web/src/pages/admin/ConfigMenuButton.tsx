@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
-import { useT } from '@openpeeps/react';
+import { useT } from '@openpeepshq/react';
 
 export interface ConfigMenuButtonProps {
   translationPrefix: string;

@@ -5,7 +5,7 @@ import {
   Profile,
   ProfileWithMeta,
   Role,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   accountProfileRelation,
   baseProfilesMapping,

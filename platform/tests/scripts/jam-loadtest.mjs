@@ -4,7 +4,7 @@
  *
  * Prerequisites: an OpenPeeps API root whose jam token endpoint can mint
  * LiveKit JWTs (server-side LiveKit config). No local JAMS_LIVEKIT_* needed.
- * Run: pnpm --filter @openpeeps/tests run loadtest:jam
+ * Run: pnpm --filter @openpeepshq/tests run loadtest:jam
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';

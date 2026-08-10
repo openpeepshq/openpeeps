@@ -7,7 +7,7 @@ import type {
   JamRecordingWithMeta,
   RSVP,
   RsvpResponse,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { getConnection } from '../redis/connection';
 import type { RedisClientType } from 'redis';
 import { logger } from '../log';

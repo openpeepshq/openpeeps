@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import type { NotificationStats } from '@openpeeps/common/types';
+import type { NotificationStats } from '@openpeepshq/common/types';
 import {
   NOTIFICATION_STATS_QUERY_KEY,
   syncAppBadgeCount,

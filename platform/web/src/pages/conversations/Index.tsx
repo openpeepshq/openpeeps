@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import { MessageCircleOff, Calendar, MessageSquarePlus } from 'lucide-react';
-import type { PublicPost } from '@openpeeps/common/types';
-import { canCreatePost, truncateText } from '@openpeeps/common';
+import type { PublicPost } from '@openpeepshq/common/types';
+import { canCreatePost, truncateText } from '@openpeepshq/common';
 import {
   useT,
   useOpenpeeps,
   useSetPlusButtonActions,
   useSetPageHeader,
-} from '@openpeeps/react';
+} from '@openpeepshq/react';
 import {
   Avatar,
   PostMarkdown,
@@ -15,8 +15,8 @@ import {
   useCurrentProfile,
   useCreateNewConversation,
   AccessDeniedLoader,
-} from '@openpeeps/react/components';
-import { UpdatingDate } from '@openpeeps/react-ui';
+} from '@openpeepshq/react/components';
+import { UpdatingDate } from '@openpeepshq/react-ui';
 
 function ChatPreview({
   conversation,

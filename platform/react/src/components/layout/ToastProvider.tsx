@@ -5,8 +5,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { Toast, type ToastVariant } from '@openpeeps/react-ui';
-import { randomString } from '@openpeeps/common/lib';
+import { Toast, type ToastVariant } from '@openpeepshq/react-ui';
+import { randomString } from '@openpeepshq/common/lib';
 
 export interface ToastOptions {
   variant?: ToastVariant;

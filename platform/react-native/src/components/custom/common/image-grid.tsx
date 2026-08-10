@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import {Dimensions, Image, TouchableOpacity, View} from 'react-native';
 import {ThemedText} from '../../ui/themed-text';
 import ImageView from 'react-native-image-viewing';
-import {type MediaAttachmentData} from '@openpeeps/common';
+import {type MediaAttachmentData} from '@openpeepshq/common';
 
 export const ImageGrid = ({images}: {images: MediaAttachmentData[]}) => {
   const [isVisible, setIsVisible] = useState(false);

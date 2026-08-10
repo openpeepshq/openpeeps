@@ -1,4 +1,4 @@
-import type { AdminEmailQueueStats } from '@openpeeps/common/types';
+import type { AdminEmailQueueStats } from '@openpeepshq/common/types';
 import { SEND_EMAIL_QUEUE_NAME, sendEmailQueue } from './jobs';
 
 const n = (record: Record<string, number>, key: string) => record[key] ?? 0;

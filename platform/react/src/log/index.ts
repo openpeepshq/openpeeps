@@ -1,5 +1,5 @@
 /**
- * Translation of @openpeeps/svelte/log — namespaced logger.
+ * Translation of @openpeepshq/svelte/log — namespaced logger.
  */
 export const logger = (ns: string, meta?: Record<string, unknown>) => {
   const log = (level: string, ...args: unknown[]) =>

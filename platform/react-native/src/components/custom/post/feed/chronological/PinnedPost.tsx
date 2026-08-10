@@ -5,7 +5,7 @@ import { PinIcon } from '~/components/icons';
 import { ThemedText } from '~/components/ui/themed-text';
 import { PostMenu } from '../../pieces';
 import { FeedPost } from './FeedPost';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 
 
 interface PinnedPostProps {

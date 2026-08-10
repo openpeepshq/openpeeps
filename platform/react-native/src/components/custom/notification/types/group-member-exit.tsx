@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import React from 'react';
 import { ThemedText } from '~/components/ui/themed-text';
 import { NotificationWrapper } from '../NotificationWrapper';
-import { PublicNotification, GroupWithMeta } from '@openpeeps/common';
+import { PublicNotification, GroupWithMeta } from '@openpeepshq/common';
 import { UsersIcon } from '~/components/icons';
 import { profileName } from '~/lib/utils';
 import { UpdatingDate } from '../../date/updating-date';

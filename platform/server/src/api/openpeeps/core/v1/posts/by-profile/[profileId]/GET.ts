@@ -1,10 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { publicPostSchema } from '@openpeeps/common/types';
+import { publicPostSchema } from '@openpeepshq/common/types';
 import { ensureProfileOrPublicCommunity } from '#lib/auth';
 import { notFound } from '#lib/errors';
-import { findProfile } from '@openpeeps/core/profiles';
-import { listPostsByProfile } from '@openpeeps/core/posts';
+import { findProfile } from '@openpeepshq/core/profiles';
+import { listPostsByProfile } from '@openpeepshq/core/posts';
 
 export const Output = publicPostSchema.array();
 export const Param = z.object({

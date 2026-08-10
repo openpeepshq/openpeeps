@@ -1,7 +1,7 @@
 import React from 'react';
-import { Profile } from '@openpeeps/common';
+import { Profile } from '@openpeepshq/common';
 import { truncateText } from '~/lib/utils';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { Pressable, View } from 'react-native';
 import { ThemedText } from '~/components/ui/themed-text';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';

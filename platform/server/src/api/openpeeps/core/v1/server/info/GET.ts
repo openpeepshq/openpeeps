@@ -1,7 +1,7 @@
 import { endpoint } from '#lib/endpoint';
 import { authNeeded, forbidden } from '#lib/errors';
-import { serverInfoSchema } from '@openpeeps/common/types';
-import { serverInfo } from '@openpeeps/core/server';
+import { serverInfoSchema } from '@openpeepshq/common/types';
+import { serverInfo } from '@openpeepshq/core/server';
 
 export const Output = serverInfoSchema;
 

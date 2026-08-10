@@ -1,5 +1,5 @@
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Button } from '@openpeeps/react-ui';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { Button } from '@openpeepshq/react-ui';
 
 export const AdminDiagnosticsPerformance = () => {
   const t = useT();

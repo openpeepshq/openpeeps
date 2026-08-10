@@ -1,6 +1,6 @@
 import React from 'react';
 import { DownloadIcon } from '~/components/icons';
-import type { MediaAttachmentData } from '@openpeeps/common';
+import type { MediaAttachmentData } from '@openpeepshq/common';
 import { Button } from '~/components/ui/button';
 import { DocumentAttachment } from '../DocumentAttachment';
 import { useTranslation } from 'react-i18next';

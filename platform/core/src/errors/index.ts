@@ -1,4 +1,4 @@
-import { OpenpeepsError, OpenpeepsErrorData } from '@openpeeps/common/types';
+import { OpenpeepsError, OpenpeepsErrorData } from '@openpeepshq/common/types';
 
 const allPeepError = ({
   code = 500,

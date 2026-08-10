@@ -1,8 +1,8 @@
-import { blurProcessor, transformStream } from '@openpeeps/greenscreen';
+import { blurProcessor, transformStream } from '@openpeepshq/greenscreen';
 import type { Track, TrackProcessor } from 'livekit-client';
 
 /**
- * LiveKit video track processor that applies the `@openpeeps/greenscreen`
+ * LiveKit video track processor that applies the `@openpeepshq/greenscreen`
  * background blur, mirroring the Svelte `blurProcessor` pipeline. Used both for
  * the lobby preview track and the published in-room camera track via
  * `LocalVideoTrack.setProcessor` / `stopProcessor`.

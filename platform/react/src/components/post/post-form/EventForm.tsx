@@ -4,13 +4,13 @@ import type {
   AudienceSetting,
   Event,
   PostCreationData,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   EVENT_HEADER_ASPECT_RATIO,
   parseEventMaxAttendeesInput,
   withoutEventMaxAttendees,
-} from '@openpeeps/common/lib';
-import { Input, Label } from '@openpeeps/react-ui';
+} from '@openpeepshq/common/lib';
+import { Input, Label } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
 import { ImageInput } from '../../form/ImageInput';

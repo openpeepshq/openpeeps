@@ -1,4 +1,4 @@
-import type { CommunityConfig } from '@openpeeps/common/types';
+import type { CommunityConfig } from '@openpeepshq/common/types';
 
 /** "R G B" channel string → `#rrggbb` for email-safe inline styles. */
 const channelToHex = (channels: string): string => {

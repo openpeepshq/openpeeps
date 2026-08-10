@@ -7,8 +7,8 @@ import {
 import type {
   EmailGlobals,
   ExpandedNotification,
-} from '@openpeeps/common/types';
-import { profileName } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { profileName } from '@openpeepshq/common/lib';
 
 import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { emailStyles } from '../../styles';

@@ -5,8 +5,8 @@ import type {
   ProfileWithMeta,
   PublicAccount,
   Scope,
-} from '@openpeeps/common';
-import { parseScopesFromJwt } from '@openpeeps/common';
+} from '@openpeepshq/common';
+import { parseScopesFromJwt } from '@openpeepshq/common';
 import {
   AUTH_CREDENTIALS_STORAGE_KEY,
   OPENPEEPS_CREDENTIALS_CHANGED_EVENT,

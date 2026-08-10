@@ -3,9 +3,9 @@ import {
   accountDataSchema,
   publicAccountSchema,
   type PublicAccount,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
-import { findAccount, updateAccount } from '@openpeeps/core/accounts';
+import { findAccount, updateAccount } from '@openpeepshq/core/accounts';
 import type { RequestEvent } from '@riddl/core';
 import { ensureRoleCapabilities } from '#lib/auth';
 

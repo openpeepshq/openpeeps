@@ -21,12 +21,12 @@ Clients (web / React Native)
   ├── LiveKit (jams only)
   └── Push (web / APNs / FCM / webhook)
 
-API server (@openpeeps/server)
-  ├── Riddl HTTP handlers → @openpeeps/core
+API server (@openpeepshq/server)
+  ├── Riddl HTTP handlers → @openpeepshq/core
   ├── SSE endpoints (produceStream)
   └── LiveKit token / room admin APIs
 
-Worker (@openpeeps/worker)
+Worker (@openpeepshq/worker)
   ├── BullMQ processors (email, media, notifications, jam recording stop, …)
   └── hub.once / hub.on subscribers (Redis-backed)
 
@@ -44,7 +44,7 @@ LiveKit SFU (external)
 ### HTTP (default)
 
 Almost all product features use request/response HTTP through
-`@openpeeps/client` and React Query-style hooks in `@openpeeps/react`.
+`@openpeepshq/client` and React Query-style hooks in `@openpeepshq/react`.
 
 **Also use HTTP polling** when:
 
@@ -87,7 +87,7 @@ Examples:
 - Jam waiting-room listen / join streams.
 
 Implementation: `produceStream` in `platform/server/src/lib/sse.ts`, consumed
-via `@openpeeps/fetch-client` event sources and
+via `@openpeepshq/fetch-client` event sources and
 `noPayloadStream` helpers in React.
 
 Use SSE when:

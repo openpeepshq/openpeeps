@@ -11,7 +11,7 @@ const webDist = path.join(repoRoot, 'platform/web/dist/index.html');
 
 if (!existsSync(webDist)) {
   console.error(
-    'Missing platform/web/dist. Run: pnpm --filter @openpeeps/server... build',
+    'Missing platform/web/dist. Run: pnpm --filter @openpeepshq/server... build',
   );
   process.exit(1);
 }

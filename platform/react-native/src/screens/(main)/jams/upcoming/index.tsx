@@ -1,7 +1,7 @@
 import React from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { GenericHeader } from '~/components/custom';
 import { MoreVerticalIcon } from '~/components/icons';

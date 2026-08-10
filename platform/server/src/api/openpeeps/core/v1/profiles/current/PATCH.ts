@@ -2,7 +2,7 @@ import { endpoint } from '#lib/endpoint';
 import {
   updateProfileRequestSchema,
   profileWithMetaSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { updateCurrentProfileHandler } from '#lib/handlers/profile/updateCurrent';
 

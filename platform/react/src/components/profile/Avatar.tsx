@@ -1,5 +1,5 @@
-import type { PublicProfile } from '@openpeeps/common/types';
-import { getTheme, isDeletedProfile } from '@openpeeps/common';
+import type { PublicProfile } from '@openpeepshq/common/types';
+import { getTheme, isDeletedProfile } from '@openpeepshq/common';
 import { UserX } from 'lucide-react';
 
 import { useServerInfo } from '../server-data';
@@ -25,7 +25,7 @@ const initials = (profile?: PublicProfile): string => {
 };
 
 /**
- * Translation of `@openpeeps/svelte/components/core/profile/Avatar.svelte`.
+ * Translation of `@openpeepshq/svelte/components/core/profile/Avatar.svelte`.
  * Renders a circular avatar with the profile picture, falling back to the
  * community's `defaultProfileAvatar` and finally to letter initials.
  * Soft-deleted profiles use a dedicated glyph and never link to a profile page.

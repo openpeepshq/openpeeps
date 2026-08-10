@@ -1,4 +1,4 @@
-import { Account } from '@openpeeps/common/types';
+import { Account } from '@openpeepshq/common/types';
 import { compare } from 'bcrypt';
 
 export { accountsMapping } from './mapping';

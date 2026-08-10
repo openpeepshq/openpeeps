@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { OpenpeepsClient } from '@openpeeps/client';
+import type { OpenpeepsClient } from '@openpeepshq/client';
 import {
   checkPushSubscription,
   getPushSubscription,

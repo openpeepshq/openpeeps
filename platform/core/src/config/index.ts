@@ -9,7 +9,7 @@ import {
   ConfigSchemaFactory,
   CapabilitiesConfig,
   capabilitiesConfigSchemaFactory,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 import { zodDeepPartialSchema } from '../lib/zodDeepPartial';
 

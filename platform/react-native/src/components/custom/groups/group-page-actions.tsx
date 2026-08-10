@@ -1,7 +1,7 @@
 import { View, Pressable } from 'react-native';
 import React, { useCallback, useRef } from 'react';
 import { MainScreenProps } from '~/components/navigation/types';
-import { GroupWithMeta, PublicProfile } from '@openpeeps/common';
+import { GroupWithMeta, PublicProfile } from '@openpeepshq/common';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +27,7 @@ import {
   adjustUnseenCounts,
   invalidateUnseenCounts,
   useOpenpeeps,
-} from '@openpeeps/react';
+} from '@openpeepshq/react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { DeleteGroupConfirmationSheet } from '../modals';
 import Clipboard from '@react-native-clipboard/clipboard';

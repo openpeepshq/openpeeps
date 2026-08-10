@@ -1,5 +1,5 @@
-import type { SuccessResponse } from '@openpeeps/common/types';
-import { validateEmail } from '@openpeeps/core/accounts';
+import type { SuccessResponse } from '@openpeepshq/common/types';
+import { validateEmail } from '@openpeepshq/core/accounts';
 import { badRequest } from '#lib/errors';
 
 export const validateEmailHandler = async (input: {

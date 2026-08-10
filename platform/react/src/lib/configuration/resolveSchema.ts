@@ -3,7 +3,7 @@ import {
   capabilitiesConfigSchema,
   communityConfigSanitizedSchema,
   coreConfigSanitizedSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 const configSchemas: Record<string, ZodObject<ZodRawShape>> = {
   'openpeeps-core': coreConfigSanitizedSchema,
@@ -11,7 +11,7 @@ const configSchemas: Record<string, ZodObject<ZodRawShape>> = {
   'openpeeps-capabilities': capabilitiesConfigSchema,
 };
 
-/** Client-side schemas registered in `@openpeeps/core` config (mirrors Svelte admin). */
+/** Client-side schemas registered in `@openpeepshq/core` config (mirrors Svelte admin). */
 export const resolveAdminConfigSchema = (
   namespace: string,
   name: string,

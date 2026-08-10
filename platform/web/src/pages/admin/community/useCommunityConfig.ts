@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import type { CommunityConfig } from '@openpeeps/common/types';
-import type { ConfigTree } from '@openpeeps/common/types';
-import { useOpenpeeps, diffConfigTrees } from '@openpeeps/react';
+import type { CommunityConfig } from '@openpeepshq/common/types';
+import type { ConfigTree } from '@openpeepshq/common/types';
+import { useOpenpeeps, diffConfigTrees } from '@openpeepshq/react';
 
 /**
  * Mirrors the Svelte community config pages: load the effective

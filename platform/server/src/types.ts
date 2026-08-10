@@ -3,7 +3,7 @@ import type {
   Authorization,
   AuthorizationData,
   ProfileWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 /**
  * Per-request context exposed to endpoint handlers via `event.context`.

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Loader, SendHorizontal, X } from 'lucide-react';
-import { dateSorter, type JamEvent } from '@openpeeps/common';
+import { dateSorter, type JamEvent } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useJamContext } from './JamContext';

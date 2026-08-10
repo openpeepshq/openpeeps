@@ -3,7 +3,7 @@ import { forbidden, notFound } from '#lib/errors';
 import {
   fetchUrlReponseSchema,
   fetchUrlRequestSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { fetchUrlHandler } from '#lib/handlers';
 
 export const Param = fetchUrlRequestSchema;

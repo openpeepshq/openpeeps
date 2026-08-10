@@ -1,9 +1,9 @@
-import type { FetchClient } from '@openpeeps/fetch-client';
+import type { FetchClient } from '@openpeepshq/fetch-client';
 import type {
   PluginConfigResponse,
   PluginEntry,
   PluginManifest,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint } from './helpers';
 
 type PluginManifestEntry = PluginManifest & {

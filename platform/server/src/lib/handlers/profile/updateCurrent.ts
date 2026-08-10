@@ -2,12 +2,12 @@ import {
   profileDataSchema,
   type ProfileWithMeta,
   type UpdateProfileRequest,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { updateProfile, findProfileByHandle } from '@openpeeps/core/profiles';
-import { findGroupByHandle } from '@openpeeps/core/groups';
+import { updateProfile, findProfileByHandle } from '@openpeepshq/core/profiles';
+import { findGroupByHandle } from '@openpeepshq/core/groups';
 import { conflict } from '#lib/helpers';
 
 export const updateCurrentProfileHandler = async (

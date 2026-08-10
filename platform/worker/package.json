@@ -1,10 +1,10 @@
 {
-  "name": "@openpeeps/worker",
+  "name": "@openpeepshq/worker",
   "version": "0.1.2",
   "type": "module",
   "dependencies": {
-    "@openpeeps/common": "workspace:^",
-    "@openpeeps/core": "workspace:^",
+    "@openpeepshq/common": "workspace:^",
+    "@openpeepshq/core": "workspace:^",
     "command-line-args": "^5.2.1",
     "deepmerge-ts": "^5.1.0",
     "uuidv7": "^0.6.3"

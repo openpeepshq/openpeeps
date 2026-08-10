@@ -71,11 +71,11 @@ Edit the commit message in your editor to conventional format, then re-run
 
 ### Code quality
 
-For each `@openpeeps/<pkg>` you touched under `platform/` or `libraries/`:
+For each `@openpeepshq/<pkg>` you touched under `platform/` or `libraries/`:
 
-- [ ] `pnpm --filter @openpeeps/<pkg> build` — succeeds
-- [ ] `pnpm --filter @openpeeps/<pkg> lint` — succeeds
-- [ ] `pnpm --filter @openpeeps/<pkg> test` — if the package has tests
+- [ ] `pnpm --filter @openpeepshq/<pkg> build` — succeeds
+- [ ] `pnpm --filter @openpeepshq/<pkg> lint` — succeeds
+- [ ] `pnpm --filter @openpeepshq/<pkg> test` — if the package has tests
 
 Discover touched paths from the diff:
 
@@ -84,7 +84,7 @@ git diff main --name-only | cut -d/ -f1-2 | sort -u
 ```
 
 Map paths to packages via each directory's `package.json` `name` field (e.g.
-`platform/server` → `@openpeeps/server`, `libraries/greenscreen` → check
+`platform/server` → `@openpeepshq/server`, `libraries/greenscreen` → check
 `package.json`).
 
 ### Pre-commit hooks (if lefthook installed)
@@ -102,7 +102,7 @@ Commit `CHANGELOG.md` if the hook regenerated it. This is separate from
 CI also builds a Docker image and runs Playwright integration tests:
 
 ```bash
-pnpm --filter @openpeeps/tests test:integration
+pnpm --filter @openpeepshq/tests test:integration
 ```
 
 Run this for API, UI, or cross-cutting changes.
@@ -127,7 +127,7 @@ Run this for API, UI, or cross-cutting changes.
 - check-branch.mjs: [pass/fail]
 
 ### Packages checked
-- @openpeeps/…: build [pass/fail], lint [pass/fail]
+- @openpeepshq/…: build [pass/fail], lint [pass/fail]
 
 ### Blockers
 - [list anything that must be fixed]
@@ -140,7 +140,7 @@ Run this for API, UI, or cross-cutting changes.
 | `could not compare to main` | `git fetch origin && git branch -f main origin/main` |
 | N commits ahead of main (N ≠ 1) | `./scripts/squash-branch.sh` with clean tree |
 | Non-conventional commit subject | Re-squash or amend (unpushed only) with `type(scope): description` |
-| Lint errors | `pnpm --filter @openpeeps/<pkg> format` then re-run lint |
+| Lint errors | `pnpm --filter @openpeepshq/<pkg> format` then re-run lint |
 | Build errors after editing a library | Rebuild chain: `common` → `core` → dependents |
 | Branch behind main | `git fetch origin && git branch -f main origin/main && git rebase main` |
 

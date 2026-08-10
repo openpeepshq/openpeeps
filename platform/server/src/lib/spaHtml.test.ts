@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import type { CommunityConfig } from '@openpeeps/common/types';
+import type { CommunityConfig } from '@openpeepshq/common/types';
 import { renderSpaHtmlTemplate, spaHtmlContextFromConfig } from './spaHtml';
 
 const baseConfig = {

@@ -96,15 +96,15 @@ jobs:
           corepack prepare pnpm@11.1.3 --activate
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --filter @openpeeps/docs-site...
+        run: pnpm install --frozen-lockfile --filter @openpeepshq/docs-site...
 
       - name: Build react-ui + multi-version docs
         env:
           CI: 'true'
           DOCS_STRICT: '1'
         run: |
-          pnpm --filter @openpeeps/react-ui build
-          pnpm --filter @openpeeps/docs-site run build
+          pnpm --filter @openpeepshq/react-ui build
+          pnpm --filter @openpeepshq/docs-site run build
 
       - name: Docker login
         run: |

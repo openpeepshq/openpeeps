@@ -3,7 +3,7 @@ import type { ConfigOptions } from 'arangojs/configuration';
 import { defaultConfig } from '../config/defaults/core';
 import { ArangoError } from 'arangojs/errors';
 import { logger } from '../log';
-import { sleep } from '@openpeeps/common/lib';
+import { sleep } from '@openpeepshq/common/lib';
 
 const log = logger('openpeeps:db');
 

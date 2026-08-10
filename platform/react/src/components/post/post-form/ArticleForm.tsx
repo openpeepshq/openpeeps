@@ -3,8 +3,8 @@ import type {
   Article,
   AudienceSetting,
   PostCreationData,
-} from '@openpeeps/common/types';
-import { Input, Label } from '@openpeeps/react-ui';
+} from '@openpeepshq/common/types';
+import { Input, Label } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
 import { ImageInput } from '../../form/ImageInput';

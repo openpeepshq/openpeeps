@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import type { PublicProfile } from '@openpeeps/common/types';
-import { isDeletedProfile } from '@openpeeps/common';
+import type { PublicProfile } from '@openpeepshq/common/types';
+import { isDeletedProfile } from '@openpeepshq/common';
 
 export interface ProfileLinkProps {
   profile?: PublicProfile;

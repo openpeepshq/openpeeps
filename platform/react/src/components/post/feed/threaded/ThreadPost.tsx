@@ -1,4 +1,4 @@
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import { Avatar, ProfileLink } from '../../../profile';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
 import { isUnreadPostForViewer } from '../../../../lib/postUnread';
@@ -7,7 +7,7 @@ import { FeedPostContent } from '../../FeedPostContent';
 import { PostActions } from '../../pieces/PostActions';
 import { PostMenu } from '../../pieces/PostMenu';
 import { UnreadPostIndicator } from '../../pieces/UnreadPostIndicator';
-import { UpdatingDate } from '@openpeeps/react-ui';
+import { UpdatingDate } from '@openpeepshq/react-ui';
 
 export interface ThreadPostProps {
   post: PublicPost;

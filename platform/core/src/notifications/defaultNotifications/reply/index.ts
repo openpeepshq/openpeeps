@@ -4,11 +4,11 @@ import {
   NotificationHandler,
   PublicProfile,
   notificationAll,
-} from '@openpeeps/common/types';
-import { findPost } from '@openpeeps/core/posts';
-import { findProfile } from '@openpeeps/core/profiles';
-import { maybeCreateNotification } from '@openpeeps/core/notifications';
-import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { findPost } from '@openpeepshq/core/posts';
+import { findProfile } from '@openpeepshq/core/profiles';
+import { maybeCreateNotification } from '@openpeepshq/core/notifications';
+import { getProfileAvatar, profileName } from '@openpeepshq/common/lib';
 import { communityConfig } from '../../../config';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
 

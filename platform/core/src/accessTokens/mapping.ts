@@ -1,5 +1,5 @@
 import { map, RelationWithMapping } from '../db/pg/map';
-import { AccessToken, AccessTokenData } from '@openpeeps/common/types';
+import { AccessToken, AccessTokenData } from '@openpeepshq/common/types';
 import { collectionInfos } from '../db';
 import { baseProfilesMapping } from '../profiles/mapping';
 

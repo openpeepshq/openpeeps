@@ -7,8 +7,8 @@ import {
   Notification,
   DbNotification,
   ProfileSettings,
-} from '@openpeeps/common/types';
-import { anonymizeProfileIfDeleted } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { anonymizeProfileIfDeleted } from '@openpeepshq/common/lib';
 import { allpeepDb } from '../db';
 import { notificationFilters } from '../db/pg/filters';
 import {

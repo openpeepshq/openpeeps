@@ -1,4 +1,4 @@
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import { PostMarkdown } from '../Markdown';
 import { Attachments } from '../pieces/Attachments';
 import { PollContent } from '../pieces/PollContent';

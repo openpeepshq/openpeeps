@@ -1,4 +1,4 @@
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 
 /** Splits a string into user-visible grapheme clusters (so emojis don't get chopped). */
 export const stringToSegments = (text: string) =>

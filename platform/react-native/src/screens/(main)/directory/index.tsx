@@ -16,7 +16,7 @@ import {
   MainStackParamList,
   TabStackParamList,
 } from '~/components/navigation/types';
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {profileMatchesQuery} from '~/lib/utils';
 import {CompositeScreenProps} from '@react-navigation/native';
 import {useNewConversationStore} from '~/stores/useNewConversationStore';

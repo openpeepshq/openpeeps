@@ -1,5 +1,5 @@
 import { Database } from 'arangojs';
-import { query } from '@openpeeps/arango-querybuilder';
+import { query } from '@openpeepshq/arango-querybuilder';
 import { logger } from '../../../log';
 import { postsMapping } from '../../../posts/mapping';
 import { retrievePaged } from '../../helpers';

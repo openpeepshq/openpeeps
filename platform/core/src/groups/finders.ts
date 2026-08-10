@@ -1,5 +1,5 @@
 import { allpeepDb } from '../db';
-import { AuthorizationData, PublicProfile } from '@openpeeps/common/types';
+import { AuthorizationData, PublicProfile } from '@openpeepshq/common/types';
 import { adminGroupsMapping, groupsMapping } from './mapping';
 import { profilesMapping, membersRelation } from '../profiles/mapping';
 import { canSeeGroupFilter } from './helpers';

@@ -6,9 +6,9 @@ import {
 } from 'express';
 import path from 'node:path';
 import fs from 'node:fs';
-import { getPlugins, getPluginModule } from '@openpeeps/core/plugins';
-import { logger } from '@openpeeps/core/log';
-import { PLUGIN_ASSETS_PREFIX } from '@openpeeps/common';
+import { getPlugins, getPluginModule } from '@openpeepshq/core/plugins';
+import { logger } from '@openpeepshq/core/log';
+import { PLUGIN_ASSETS_PREFIX } from '@openpeepshq/common';
 
 const NAMESPACE_RE = /^[a-z0-9-]+$/;
 

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
 import {
   EventsFeed,
   NewEventButton,
   useCurrentProfile,
   useDefaultVisibility,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 
 export function EventsIndex() {
   const t = useT();

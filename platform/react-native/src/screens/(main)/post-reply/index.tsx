@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {
   AudioPickerSheet,
   DocumentPickerSheet,
@@ -14,7 +14,7 @@ import {
   PostCreationData,
   postCreationDataSchema,
   PublicPost,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import Toast from 'react-native-toast-message';
 import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
 import {postDataDefaults, useLocalPostStore} from '~/stores/useLocalPostStore';

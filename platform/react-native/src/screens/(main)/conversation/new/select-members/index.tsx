@@ -6,7 +6,7 @@ import {
 import { GenericHeader } from '~/components/custom/headers';
 import { EmptyStateContainer } from '~/components/custom/common';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { CheckIcon, XIcon } from '~/components/icons';
 import { ThemedText } from '~/components/ui/themed-text';
 import { ActivityIndicator, Pressable, View } from 'react-native';

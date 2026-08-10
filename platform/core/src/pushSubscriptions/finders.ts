@@ -1,5 +1,5 @@
 import { pushSubscriptionsRelation } from '../accounts/mapping';
-import { Account } from '@openpeeps/common/types';
+import { Account } from '@openpeepshq/common/types';
 import { accountsMapping } from '../accounts/mapping';
 import { allpeepDb } from '../db';
 import { pushSubscriptionsMapping } from './mapping';

@@ -11,7 +11,7 @@ import type { OpenpeepsContextValue } from './types';
 import {
   openpeepsClient,
   type OpenpeepsClientOptions,
-} from '@openpeeps/client';
+} from '@openpeepshq/client';
 import type { CredentialsStore } from '../../auth/credentials/types';
 import {
   AUTH_CREDENTIALS_STORAGE_KEY,
@@ -26,7 +26,7 @@ import {
   jwtHasRemainingValidityAtLeast,
   type ProfileWithMeta,
   type PublicAccount,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 
 /** Refresh when less than this many seconds remain (login JWTs are 1w). */
 const REFRESH_WHEN_REMAINING_BELOW_SEC = 24 * 60 * 60;
@@ -77,8 +77,8 @@ export const OpenpeepsProvider: React.FC<{
    * Must return an unsubscribe function.
    *
    * React Native consumers should import `OpenpeepsProvider` from
-   * `@openpeeps/react-native`, which wires this up against `AppState` so
-   * `@openpeeps/react` itself stays free of any `react-native` import.
+   * `@openpeepshq/react-native`, which wires this up against `AppState` so
+   * `@openpeepshq/react` itself stays free of any `react-native` import.
    */
   subscribeToForeground?: (onForeground: () => void) => () => void;
 }> = ({ children, credentialsStore, baseUrl, subscribeToForeground }) => {

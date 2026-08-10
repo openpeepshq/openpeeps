@@ -1,9 +1,9 @@
 import { endpoint } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { ensureLocalProfile } from '#lib/auth';
-import { notificationStatsSchema } from '@openpeeps/common/types';
+import { notificationStatsSchema } from '@openpeepshq/common/types';
 import { forbidden } from '#lib/errors';
-import { getNotificationStats } from '@openpeeps/core/notifications';
+import { getNotificationStats } from '@openpeepshq/core/notifications';
 
 export const Output = notificationStatsSchema;
 

@@ -4,7 +4,7 @@ import { FullNote } from './types/note/FullNote';
 import { FullArticle } from './types/article/FullArticle';
 import { FullPoll } from './types/poll/FullPoll';
 import { FullEvent } from './types/event/FullEvent';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export interface PostDetailProps {
   postId: string;

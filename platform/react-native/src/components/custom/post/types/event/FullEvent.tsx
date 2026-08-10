@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import {
   CancelEventSheet,
   DeleteEventSheet,
@@ -34,7 +34,7 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { ThemedText } from '~/components/ui/themed-text';
 import { Image, View } from 'react-native';
-import { Event, PublicPost, Profile, PublicRsvp, Group, GroupData, buildThreads } from '@openpeeps/common';
+import { Event, PublicPost, Profile, PublicRsvp, Group, GroupData, buildThreads } from '@openpeepshq/common';
 import { ProfileAvatar } from '~/components/custom/profile/profile-avatar';
 import { profileName, truncateText } from '~/lib/utils';
 import { useNavigation } from '@react-navigation/native';

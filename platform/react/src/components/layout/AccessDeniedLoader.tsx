@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Loader, type LoaderProps } from '@openpeeps/react-ui';
+import { Loader, type LoaderProps } from '@openpeepshq/react-ui';
 import { AccessDenied } from './AccessDenied';
 
 export interface AccessDeniedLoaderProps extends Omit<LoaderProps, 'error'> {
@@ -11,7 +11,7 @@ export interface AccessDeniedLoaderProps extends Omit<LoaderProps, 'error'> {
 }
 
 /**
- * Translation of @openpeeps/svelte/components/layout/AccessDeniedLoader.svelte.
+ * Translation of @openpeepshq/svelte/components/layout/AccessDeniedLoader.svelte.
  *
  * Like {@link Loader} but renders {@link AccessDenied} in place of the default
  * error UI, distinguishing capability failures from other query errors.

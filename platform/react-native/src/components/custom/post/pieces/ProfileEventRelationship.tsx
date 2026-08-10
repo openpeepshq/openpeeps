@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import React from 'react';
-import { calculateEffectiveRsvps, Event, PublicPost } from '@openpeeps/common';
-import { useOpenpeeps } from '@openpeeps/react';
+import { calculateEffectiveRsvps, Event, PublicPost } from '@openpeepshq/common';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '~/components/ui/themed-text';
 import { useTranslation } from 'react-i18next';
 

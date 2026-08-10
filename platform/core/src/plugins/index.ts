@@ -4,8 +4,8 @@ import { CoreEventKey, CoreEvents, hub, VALID_EVENT_KEYS } from '../events';
 import { defaultConfig, registerConfigSchema } from '../config';
 
 import type { PackageJson } from 'type-fest';
-import type { Plugin, PluginManifest } from '@openpeeps/common';
-import { pluginManifestSchema } from '@openpeeps/common';
+import type { Plugin, PluginManifest } from '@openpeepshq/common';
+import { pluginManifestSchema } from '@openpeepshq/common';
 import { enumeratePluginInfos, sortByDependencies } from './helpers';
 import { logger } from '../log';
 

@@ -1,8 +1,8 @@
 import { endpoint } from '#lib/endpoint';
-import { profileWithMetaSchema } from '@openpeeps/common/types';
+import { profileWithMetaSchema } from '@openpeepshq/common/types';
 import { forbidden } from '#lib/errors';
 import type { RequestEvent } from '@riddl/core';
-import { listProfiles } from '@openpeeps/core/profiles';
+import { listProfiles } from '@openpeepshq/core/profiles';
 import { ensureLocalProfile, ensureRoleCapabilities } from '#lib/auth';
 
 export const Output = profileWithMetaSchema.array();

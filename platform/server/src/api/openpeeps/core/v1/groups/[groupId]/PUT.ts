@@ -1,11 +1,11 @@
 import { endpoint, z } from '#lib/endpoint';
-import { groupDataSchema } from '@openpeeps/common/types';
+import { groupDataSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import { ensureGroupCapabilities } from '#lib/auth';
 import { conflict, forbidden, notFound } from '#lib/errors';
-import { findGroup, findGroupByHandle, updateGroup } from '@openpeeps/core/groups';
-import { groupWithMetaSchema } from '@openpeeps/common/types';
-import { findProfileByHandle } from '@openpeeps/core/profiles';
+import { findGroup, findGroupByHandle, updateGroup } from '@openpeepshq/core/groups';
+import { groupWithMetaSchema } from '@openpeepshq/common/types';
+import { findProfileByHandle } from '@openpeepshq/core/profiles';
 
 export const Output = groupWithMetaSchema;
 export const Param = z.object({

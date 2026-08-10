@@ -5,8 +5,8 @@ import {
   type GroupWithMeta,
   type ProfileWithMeta,
   type VisibilityType,
-} from '@openpeeps/common';
-import { Button } from '@openpeeps/react-ui';
+} from '@openpeepshq/common';
+import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { getNewPostStores, useSetPlusButtonActions } from '../../stores';
 import { useAuthData } from '../layout/IdentityContext';

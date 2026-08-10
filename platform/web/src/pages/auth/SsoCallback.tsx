@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCredentialsStore, useOpenpeeps, useT } from '@openpeeps/react';
+import { useCredentialsStore, useOpenpeeps, useT } from '@openpeepshq/react';
 
 export function SsoCallback() {
   const t = useT();

@@ -1,11 +1,11 @@
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   LoadingSpinner,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { ProfileWithActionCard } from '../../../profile/ProfileWithActionCard';

@@ -1,4 +1,4 @@
-import type { AnalyticsReportSettings } from '@openpeeps/common/types';
+import type { AnalyticsReportSettings } from '@openpeepshq/common/types';
 import { eq } from 'drizzle-orm';
 import { database } from '../db';
 import { analyticsSettings } from '../db/pg/schema/analytics';

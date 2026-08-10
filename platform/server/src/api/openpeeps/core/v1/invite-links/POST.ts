@@ -3,10 +3,10 @@ import { forbidden } from '#lib/errors';
 import {
   inviteLinkDataSchema,
   inviteLinkWithMetaSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { createInviteLink } from '@openpeeps/core/inviteLinks';
+import { createInviteLink } from '@openpeepshq/core/inviteLinks';
 
 export const Input = inviteLinkDataSchema;
 export const Output = inviteLinkWithMetaSchema;

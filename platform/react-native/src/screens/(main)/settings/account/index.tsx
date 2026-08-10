@@ -1,5 +1,5 @@
 import {MainScreenProps} from '~/components/navigation/types';
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {GenericHeader} from '~/components/custom';
 import React, {useEffect, useState} from 'react';
 import {ThemedText} from '~/components/ui/themed-text';
@@ -10,7 +10,7 @@ import {Form, FormField, FormInput} from '~/components/ui/form';
 import Toast from 'react-native-toast-message';
 import {Button} from '~/components/ui/button';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {Account, updateAccountPasswordFormSchema} from '@openpeeps/common';
+import {Account, updateAccountPasswordFormSchema} from '@openpeepshq/common';
 import {View} from 'react-native';
 import {useTranslation} from 'react-i18next';
 import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';

@@ -2,7 +2,7 @@ import { Button, Link, Section, Text } from '@react-email/components';
 import type {
   EmailGlobals,
   ExpandedNotification,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { emailStyles } from '../../styles';

@@ -3,7 +3,7 @@ import {
   type JamEvent,
   type JamRecording,
   type PostWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import { jamEventsMapping, jamRecordingsMapping } from './mapping';
 import { addStartLimit, sortNewestFirst } from '../db/helpers';

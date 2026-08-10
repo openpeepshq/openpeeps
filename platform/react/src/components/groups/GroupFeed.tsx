@@ -1,4 +1,4 @@
-import type { GroupWithMeta } from '@openpeeps/common/types';
+import type { GroupWithMeta } from '@openpeepshq/common/types';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useNewNotePlusButton } from '../post/NewNoteButton';
 import { Feed } from '../post/Feed';

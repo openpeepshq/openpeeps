@@ -21,7 +21,7 @@ import {
   DbMention,
   DbReaction,
   handleRegex,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { findProfileByHandle } from '../../profiles/finders';
 import {
   composeFilters,
@@ -37,7 +37,7 @@ import { canReadPost } from './filters';
 import {
   anonymizeProfileIfDeleted,
   normalizePostDataFromDb,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 import { ObjectFilter } from '../../db/types';
 import { getProfile } from '../../profiles/cache';
 

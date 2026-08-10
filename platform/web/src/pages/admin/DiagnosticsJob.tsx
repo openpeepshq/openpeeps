@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
-import type { AdminJobDetail } from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Button } from '@openpeeps/react-ui';
+import type { AdminJobDetail } from '@openpeepshq/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { Button } from '@openpeepshq/react-ui';
 
 function formatTime(ms: number | null) {
   if (ms == null) return '—';

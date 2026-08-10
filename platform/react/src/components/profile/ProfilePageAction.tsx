@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Copy, Flag, MessageSquareText } from 'lucide-react';
-import type { PublicProfile } from '@openpeeps/common/types';
-import { canCreatePost } from '@openpeeps/common/lib';
+import type { PublicProfile } from '@openpeepshq/common/types';
+import { canCreatePost } from '@openpeepshq/common/lib';
 import {
   Button,
   PopupMenu,
   PopupMenuButton,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useAuthData, useCurrentProfile } from '../layout/IdentityContext';
 import { useCreateNewConversation } from '../conversations/CreateNewConversationContext';

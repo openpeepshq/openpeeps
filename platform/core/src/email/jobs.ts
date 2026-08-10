@@ -1,5 +1,5 @@
 import { queueAndWorker } from '../jobs';
-import { EmailOptions } from '@openpeeps/common/types';
+import { EmailOptions } from '@openpeepshq/common/types';
 import { send } from './send';
 import { SentMessageInfo } from 'nodemailer';
 

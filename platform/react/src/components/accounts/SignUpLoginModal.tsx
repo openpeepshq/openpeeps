@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useRouter } from '../../contexts/router';
 
@@ -15,7 +15,7 @@ export interface SignUpLoginModalProps {
 }
 
 /**
- * Translation of @openpeeps/svelte/components/core/accounts/modals/
+ * Translation of @openpeepshq/svelte/components/core/accounts/modals/
  * SignUpLoginModal.svelte. Prompts a guest to sign in before performing an
  * action that requires authentication (e.g. replying to a post).
  */

@@ -6,9 +6,9 @@ import type {
   PublicAccessToken,
   Scope,
   ScopeLevel,
-} from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Button, Input, Label, ShadcnBadge, Toast } from '@openpeeps/react-ui';
+} from '@openpeepshq/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { Button, Input, Label, ShadcnBadge, Toast } from '@openpeepshq/react-ui';
 
 const scopeLabel = (scope: Scope) =>
   `${scope.scopeLevel ?? 'read'}:${scope.resource.type}:${scope.resource.id ?? '*'}`;

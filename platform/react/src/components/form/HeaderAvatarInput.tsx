@@ -1,4 +1,4 @@
-import { PROFILE_GROUP_HEADER_ASPECT_RATIO } from '@openpeeps/common/lib';
+import { PROFILE_GROUP_HEADER_ASPECT_RATIO } from '@openpeepshq/common/lib';
 import { useT } from '../../i18n';
 import { ImageInput } from './ImageInput';
 

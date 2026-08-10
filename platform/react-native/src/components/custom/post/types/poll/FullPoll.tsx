@@ -1,5 +1,5 @@
 import React from 'react';
-import { PublicPost } from '@openpeeps/common';
+import { PublicPost } from '@openpeepshq/common';
 import { FullNote } from '../note/FullNote';
 
 interface FullPollProps {

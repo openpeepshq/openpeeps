@@ -1,12 +1,12 @@
-import type { OpenpeepsClient } from '@openpeeps/client';
-import type { CredentialsStore } from '@openpeeps/react';
+import type { OpenpeepsClient } from '@openpeepshq/client';
+import type { CredentialsStore } from '@openpeepshq/react';
 import type {
   LoginRequest,
   RegisterRequest,
   RequestResetPasswordRequest,
   ResetPasswordRequest,
   TokenResponse,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 
 /**
  * Thin promise unwrapping for endpoints that return

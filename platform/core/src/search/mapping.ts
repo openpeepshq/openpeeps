@@ -1,4 +1,4 @@
-import { ProfileWithMeta } from '@openpeeps/common/types';
+import { ProfileWithMeta } from '@openpeepshq/common/types';
 import { groupsMapping } from '../groups';
 import { canSeeGroupFilter } from '../groups/helpers';
 import { publicProfilesSearchMapping } from '../profiles/mapping';

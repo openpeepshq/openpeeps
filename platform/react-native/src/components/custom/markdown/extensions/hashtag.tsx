@@ -3,7 +3,7 @@ import {
   type MarkdownIt,
   type RenderFunction,
 } from 'react-native-markdown-display';
-import { hashtagRegex } from '@openpeeps/common';
+import { hashtagRegex } from '@openpeepshq/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import type { MarkdownInlineRulerState } from '~/types/markdown-plugin';
 

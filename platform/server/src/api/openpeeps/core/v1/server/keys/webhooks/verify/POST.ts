@@ -2,8 +2,8 @@ import { endpoint } from '#lib/endpoint';
 import {
   webhookVerifyRequestSchema,
   webhookVerifyResponseSchema,
-} from '@openpeeps/common/types';
-import { jwtUtil } from '@openpeeps/core/jwt';
+} from '@openpeepshq/common/types';
+import { jwtUtil } from '@openpeepshq/core/jwt';
 import { forbidden } from '#lib/errors';
 
 export const Input = webhookVerifyRequestSchema;

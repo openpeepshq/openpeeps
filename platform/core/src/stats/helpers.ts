@@ -1,7 +1,7 @@
 import type { PgDb } from '../db/pg/client';
 import { sub } from 'date-fns';
 import { allpeepDb } from '../db';
-import { ObjectStats, ObjectStatsWithAll } from '@openpeeps/common/types';
+import { ObjectStats, ObjectStatsWithAll } from '@openpeepshq/common/types';
 import { createdAtBetween } from '../db/pg/filters';
 import type { SqlFilter } from '../db/pg/filters/types';
 

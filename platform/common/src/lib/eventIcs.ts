@@ -67,7 +67,7 @@ export const buildEventIcs = (
     const startYmd = event.start.slice(0, 10);
     const lastInclusiveYmd = event.end?.slice(0, 10) ?? startYmd;
     calendar.createEvent({
-      id: `openpeeps-event-${post.id}@openpeeps`,
+      id: `openpeeps-event-${post.id}@openpeepshq`,
       allDay: true,
       start: utcDateFromYmd(startYmd),
       end: exclusiveEndAfterInclusiveDay(lastInclusiveYmd),
@@ -82,7 +82,7 @@ export const buildEventIcs = (
       ? new Date(event.end)
       : new Date(start.getTime() + 60 * 60 * 1000);
     calendar.createEvent({
-      id: `openpeeps-event-${post.id}@openpeeps`,
+      id: `openpeeps-event-${post.id}@openpeepshq`,
       start,
       end,
       summary,

@@ -21,9 +21,9 @@ Geocoding helpers.
 A standalone library to allow background blurring and background
 images/videos for camera streams.
 
-Try it: `pnpm --filter @openpeeps/greenscreen-demo dev` (React demo in
+Try it: `pnpm --filter @openpeepshq/greenscreen-demo dev` (React demo in
 `examples/greenscreen-demo`).
 
 ## react-ui
 
-Shared React UI primitives used by `@openpeeps/web` and `@openpeeps/react`.
+Shared React UI primitives used by `@openpeepshq/web` and `@openpeepshq/react`.

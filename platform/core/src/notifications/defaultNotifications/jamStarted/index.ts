@@ -4,15 +4,15 @@ import type {
   PostWithMeta,
   Event,
   ProfileWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 import {
   listProfiles,
   listGroupMembers,
   findProfile,
-} from '@openpeeps/core/profiles';
-import { maybeCreateNotification } from '@openpeeps/core/notifications';
-import { profileName } from '@openpeeps/common/lib';
+} from '@openpeepshq/core/profiles';
+import { maybeCreateNotification } from '@openpeepshq/core/notifications';
+import { profileName } from '@openpeepshq/common/lib';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
 const eventHandler = async (...args: unknown[]) => {

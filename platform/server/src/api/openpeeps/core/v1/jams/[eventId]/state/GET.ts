@@ -1,10 +1,10 @@
 import { ensurePostCapabilities, ensureProfileOrGuest, scopeMatches } from '#lib/auth';
 import { endpoint, z } from '#lib/endpoint';
-import { jamStateSchema } from '@openpeeps/common';
-import { findPost } from '@openpeeps/core/posts';
+import { jamStateSchema } from '@openpeepshq/common';
+import { findPost } from '@openpeepshq/core/posts';
 import { notFound, forbidden } from '#lib/errors';
-import { findJamState } from '@openpeeps/core/jams';
-import { isPublic } from '@openpeeps/core/posts';
+import { findJamState } from '@openpeepshq/core/jams';
+import { isPublic } from '@openpeepshq/core/posts';
 
 export const Param = z.object({
   eventId: z.string(),

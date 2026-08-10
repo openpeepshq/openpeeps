@@ -2,8 +2,8 @@ import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { roleSchema } from '@openpeeps/common/types';
-import { findProfile } from '@openpeeps/core/profiles';
+import { roleSchema } from '@openpeepshq/common/types';
+import { findProfile } from '@openpeepshq/core/profiles';
 
 export const Output = roleSchema.array();
 export const Param = z.object({

@@ -1,14 +1,14 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { PostCreationData } from '@openpeeps/common/types';
+import type { PostCreationData } from '@openpeepshq/common/types';
 import {
   useT,
   useOpenpeeps,
   defaultNewArticle,
   useSetPageHeader,
-} from '@openpeeps/react';
-import { ArticleForm, useServerInfo } from '@openpeeps/react/components';
-import { Button, Toast } from '@openpeeps/react-ui';
+} from '@openpeepshq/react';
+import { ArticleForm, useServerInfo } from '@openpeepshq/react/components';
+import { Button, Toast } from '@openpeepshq/react-ui';
 
 export function NewArticle() {
   const t = useT();

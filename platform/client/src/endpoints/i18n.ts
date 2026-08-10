@@ -1,4 +1,4 @@
-import type { FetchClient } from '@openpeeps/fetch-client';
+import type { FetchClient } from '@openpeepshq/fetch-client';
 import type { ResourceLanguage } from 'i18next';
 import { allpeepNoPayloadEndpoint } from './helpers';
 

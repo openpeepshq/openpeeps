@@ -2,7 +2,7 @@ import {
   InviteLinkData,
   InviteLinkWithMeta,
   PublicProfile,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   createInviteLinkConnector,
   redeemInviteLinkConnector,

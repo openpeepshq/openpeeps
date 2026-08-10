@@ -2,9 +2,9 @@ import { endpoint, z } from '#lib/endpoint';
 import {
   publicAccountSchema,
   type PublicAccount,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
-import { findAccount } from '@openpeeps/core/accounts';
+import { findAccount } from '@openpeepshq/core/accounts';
 import type { RequestEvent } from '@riddl/core';
 import { ensureRoleCapabilities } from '#lib/auth';
 

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import type { OpenpeepsClient } from '@openpeeps/client';
+import type { OpenpeepsClient } from '@openpeepshq/client';
 import { ServerDataContext } from './context';
 
 const handleResult = <T,>(r: { data: T } | { error: unknown }): T => {

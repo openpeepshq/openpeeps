@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { GroupData } from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { GroupForm } from '@openpeeps/react/components';
-import { Button, LoadingSpinner, Toast } from '@openpeeps/react-ui';
+import type { GroupData } from '@openpeepshq/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { GroupForm } from '@openpeepshq/react/components';
+import { Button, LoadingSpinner, Toast } from '@openpeepshq/react-ui';
 import { routeHandleParam } from '../../lib/routeHandles';
 
 export function EditGroup() {

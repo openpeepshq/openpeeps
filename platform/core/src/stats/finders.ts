@@ -6,7 +6,7 @@ import {
   ServerCounts,
   publicProfileWithActivityScoreSchema,
   publicPostWithActivityScoreSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { sub } from 'date-fns';
 import type { PgDb } from '../db/pg/client';
 import { baseProfilesMapping } from '../profiles';

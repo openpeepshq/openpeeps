@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Button } from '@openpeeps/react-ui';
-import { canCreatePostType } from '@openpeeps/common';
+import { Button } from '@openpeepshq/react-ui';
+import { canCreatePostType } from '@openpeepshq/common';
 import { useAuthData, useIdentity } from './IdentityContext';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 
 /**
- * Translation of @openpeeps/svelte/components/layout/Infos.svelte — renders
+ * Translation of @openpeepshq/svelte/components/layout/Infos.svelte — renders
  * the "verify your email" warning when the current account/profile applies.
  */
 export function Infos() {

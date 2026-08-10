@@ -4,7 +4,7 @@ import {
   isTable,
   type Table,
 } from 'drizzle-orm';
-import type { ExplorerColumn, ExplorerTable } from '@openpeeps/common/types';
+import type { ExplorerColumn, ExplorerTable } from '@openpeepshq/common/types';
 import { schema } from '../pg/schema';
 
 const tableBySqlName = (): Map<string, Table> => {

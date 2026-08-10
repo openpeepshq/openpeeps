@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Button, Toast } from '@openpeeps/react-ui';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { Button, Toast } from '@openpeepshq/react-ui';
 
 const formatFailureTime = (finishedOn: number) => {
   const iso = new Date(finishedOn).toISOString();

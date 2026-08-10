@@ -2,7 +2,7 @@ import { View, TouchableOpacity } from 'react-native';
 import React, { useCallback, useRef } from 'react';
 import { UpdatingDate } from '../date/updating-date';
 import { OpenPeepsMarkdown } from '../markdown/OpenPeepsMarkdown';
-import { PublicPost } from '@openpeeps/common';
+import { PublicPost } from '@openpeepshq/common';
 import { Text } from '~/components/ui/text';
 import { Button } from '~/components/ui/button';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
 } from '~/components/ui/dropdown-menu';
 import { BellOffIcon, FlagIcon, Trash2Icon } from '~/components/icons';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import {
   ProfileSheet,
   ParticipantsSheet,

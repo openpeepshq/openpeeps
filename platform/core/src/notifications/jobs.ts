@@ -1,5 +1,5 @@
 import { jobLogger, logFailure, logStep, queueAndWorker } from '../jobs';
-import { ExpandedNotification, Json } from '@openpeeps/common/types';
+import { ExpandedNotification, Json } from '@openpeepshq/common/types';
 import { emailService } from '../email';
 import { findProfile } from '../profiles';
 import { notificationSettings } from './helpers';

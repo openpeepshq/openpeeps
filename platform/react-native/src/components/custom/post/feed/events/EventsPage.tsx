@@ -1,5 +1,5 @@
 import React from 'react';
-import type { PublicPost } from '@openpeeps/common';
+import type { PublicPost } from '@openpeepshq/common';
 import { TabbedView } from '~/components/ui/tabs';
 import { EventsFeed } from './EventsFeed';
 import { useTranslation } from 'react-i18next';

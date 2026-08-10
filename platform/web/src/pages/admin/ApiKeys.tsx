@@ -7,9 +7,9 @@ import type {
   Scope,
   ScopeLevel,
   ServiceResourceType,
-} from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Button, Input, Label, Toast } from '@openpeeps/react-ui';
+} from '@openpeepshq/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { Button, Input, Label, Toast } from '@openpeepshq/react-ui';
 
 const SERVICE_RESOURCE_TYPES: (ServiceResourceType | '*')[] = [
   'analytics',

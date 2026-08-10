@@ -1,6 +1,6 @@
 import { ChevronRight } from 'lucide-react';
-import { Button } from '@openpeeps/react-ui';
-import { useT, useSetPageHeader } from '@openpeeps/react';
+import { Button } from '@openpeepshq/react-ui';
+import { useT, useSetPageHeader } from '@openpeepshq/react';
 
 interface MenuButtonProps {
   translationPrefix: string;

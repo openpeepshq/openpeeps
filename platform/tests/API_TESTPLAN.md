@@ -436,7 +436,7 @@ Absolute paths (not under `/api/openpeeps/core/v1` unless noted).
 | API-X-10 | `GET /api/.well-known/apple-app-site-association` | none | AASA | |
 | API-X-11 | SPA `GET /*` non-api | built web dist | `index.html` | |
 
-### MCP (when `@openpeeps/mcp` is mounted)
+### MCP (when `@openpeepshq/mcp` is mounted)
 
 Disable with `OPENPEEPS_MCP=0`.
 
@@ -496,6 +496,6 @@ Use suites `public` + `default`/`empty` for both sides.
 ## Out of scope / env-dependent
 
 - Charging real Stripe customers or mutating production webhooks
-- Jam A/V quality (see `pnpm --filter @openpeeps/tests run loadtest:jam`)
+- Jam A/V quality (see `pnpm --filter @openpeepshq/tests run loadtest:jam`)
 - Destructive DB SQL / backup restore against shared non-ephemeral data
 - Auto-generating cases from OpenAPI without human allow-lists (tooling may help later)

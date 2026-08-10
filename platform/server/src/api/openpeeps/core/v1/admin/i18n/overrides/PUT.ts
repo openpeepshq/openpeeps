@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
 import { notFound } from '#lib/errors';
-import { updateI18nOverrides } from '@openpeeps/core/i18n';
-import { i18nResourceSchema, successResponseSchema } from '@openpeeps/common';
+import { updateI18nOverrides } from '@openpeepshq/core/i18n';
+import { i18nResourceSchema, successResponseSchema } from '@openpeepshq/common';
 import { ensureRoleCapabilities } from '#lib/auth';
 
 export const Output = successResponseSchema;

@@ -6,14 +6,14 @@ import {
   useOpenpeeps,
   useSetPlusButtonActions,
   useSetPageHeader,
-} from '@openpeeps/react';
+} from '@openpeepshq/react';
 import {
   EventsFeed,
   LiveJamsSection,
   useCreateNewJam,
   useServerInfo,
-} from '@openpeeps/react/components';
-import { PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
+} from '@openpeepshq/react/components';
+import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 
 interface Props {
   /** When true, scope to the current user's jams (`/jams/my`). */

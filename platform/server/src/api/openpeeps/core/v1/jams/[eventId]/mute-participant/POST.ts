@@ -3,10 +3,10 @@ import { forbidden } from '#lib/errors';
 import {
   muteParticipantRequestSchema,
   successFailureResponseSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { muteParticipant } from '@openpeeps/core/jams';
+import { muteParticipant } from '@openpeepshq/core/jams';
 
 export const Input = muteParticipantRequestSchema;
 export const Output = successFailureResponseSchema;

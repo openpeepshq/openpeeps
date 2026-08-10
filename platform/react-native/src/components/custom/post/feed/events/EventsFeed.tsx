@@ -3,7 +3,7 @@ import React from 'react';
 import { EmptyStateContainer } from '~/components/custom/common/empty-state-container';
 import { handleScroll } from '~/lib/utils';
 import { useFocusEffect } from '@react-navigation/native';
-import type { PublicPost } from '@openpeeps/common';
+import type { PublicPost } from '@openpeepshq/common';
 import { CardEvent } from '../../types/event/CardEvent';
 import { InfiniteQueryResult } from '~/types';
 

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, type ReactNode } from 'react';
-import { checkRoleCapabilities } from '@openpeeps/common';
+import { checkRoleCapabilities } from '@openpeepshq/common';
 import { useCurrentProfile } from './IdentityContext';
 
 export interface ProfileGuardProps {
@@ -11,7 +11,7 @@ export interface ProfileGuardProps {
 }
 
 /**
- * Translation of @openpeeps/svelte/components/layout/ProfileGuard.svelte.
+ * Translation of @openpeepshq/svelte/components/layout/ProfileGuard.svelte.
  * Hides children unless the current profile has the needed capabilities, and
  * triggers a login redirect if the profile is missing.
  */

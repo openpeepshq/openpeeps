@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { THEME_OPTIONS, type ThemeOptions } from '@openpeeps/common';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { useCurrentProfile } from '@openpeeps/react/components';
-import { Button } from '@openpeeps/react-ui';
+import { THEME_OPTIONS, type ThemeOptions } from '@openpeepshq/common';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { useCurrentProfile } from '@openpeepshq/react/components';
+import { Button } from '@openpeepshq/react-ui';
 
 export function ThemeSettings() {
   const t = useT();

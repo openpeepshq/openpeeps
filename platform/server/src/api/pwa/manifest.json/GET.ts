@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
 import { buildPwaManifest } from '#lib/pwa';
-import { communityConfig } from '@openpeeps/core/config';
+import { communityConfig } from '@openpeepshq/core/config';
 
 export const Output = z.any();
 

@@ -3,12 +3,12 @@ import {
   PostWithMeta,
   PublicProfile,
   publicProfileSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   canModerateJam,
   countYesRsvps,
   getEffectiveRsvp,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 import { authNeeded, forbidden, notFound } from '../errors';
 import { config } from '../config';
 import { AccessToken, TrackSource } from 'livekit-server-sdk';

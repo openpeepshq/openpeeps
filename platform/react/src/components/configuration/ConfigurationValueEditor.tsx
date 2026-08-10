@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { z, type ZodType } from 'zod';
-import { Input, Textarea } from '@openpeeps/react-ui';
+import { Input, Textarea } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { unwrap } from '../../lib/configuration/helpers';
 

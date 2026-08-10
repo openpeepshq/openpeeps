@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { queueTestEmail } from '@openpeeps/core/email';
+import { queueTestEmail } from '@openpeepshq/core/email';
 
 export const registerEmailCommand = (program: Command) => {
   const email = program.command('email').description('Email utilities');

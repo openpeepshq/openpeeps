@@ -5,15 +5,15 @@ import type {
   GroupWithMeta,
   PublicPost,
   PublicProfile,
-} from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+} from '@openpeepshq/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
 import {
   CardEvent,
   FeedPost,
   GroupCard,
   ProfileCard,
-} from '@openpeeps/react/components';
-import { Button, Input, LoadingSpinner } from '@openpeeps/react-ui';
+} from '@openpeepshq/react/components';
+import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
 
 type Tab = 'members' | 'posts' | 'jams' | 'events' | 'groups';
 

@@ -5,7 +5,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import express from 'express';
-import { PLUGIN_ASSETS_PREFIX } from '@openpeeps/common';
+import { PLUGIN_ASSETS_PREFIX } from '@openpeepshq/common';
 import { pluginAssetsMiddleware } from '../plugins';
 
 let registeredPlugins: Array<{
@@ -15,7 +15,7 @@ let registeredPlugins: Array<{
   status: 'loaded' | 'failed';
 }> = [];
 
-vi.mock('@openpeeps/core/plugins', () => ({
+vi.mock('@openpeepshq/core/plugins', () => ({
   getPlugins: () => registeredPlugins,
   getPluginModule: () => undefined,
 }));

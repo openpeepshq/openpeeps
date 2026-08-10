@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {ArticleForm, GenericHeader} from '~/components/custom';
 import Toast from 'react-native-toast-message';
 import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
 import {PostForm} from '~/components/custom/post/post-form/PostForm';
 import {useTranslation} from 'react-i18next';
 import {MainScreenProps} from '~/components/navigation/types';
-import {PostCreationData, postCreationDataSchema} from '@openpeeps/common';
+import {PostCreationData, postCreationDataSchema} from '@openpeepshq/common';
 import {ActivityIndicator} from 'react-native';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';

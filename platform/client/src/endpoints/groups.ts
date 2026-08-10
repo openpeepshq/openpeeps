@@ -1,4 +1,4 @@
-import type { FetchClient } from '@openpeeps/fetch-client';
+import type { FetchClient } from '@openpeepshq/fetch-client';
 import type {
     CreateGroupRequest,
     GroupData,
@@ -7,7 +7,7 @@ import type {
     GroupWithMeta,
     PublicProfile,
     SuccessResponse,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 
 export const groups = (rawClient: FetchClient) => ({

@@ -1,7 +1,7 @@
 # Primary Web Interface Layout
 
 The OpenPeeps primary web interface is a React SPA (`platform/web` +
-`@openpeeps/react`), using a mobile-first responsive design approach. This
+`@openpeepshq/react`), using a mobile-first responsive design approach. This
 document explains the layout structure and how responsiveness is achieved.
 
 ## Layout Architecture
@@ -252,7 +252,7 @@ Sidebar width uses the `70` spacing token (`17.5rem`) as `w-70`.
 
 ### 4. Drawer for Mobile Navigation
 
-Mobile opens the same `SideBar` inside a `@openpeeps/react-ui` `Dialog`
+Mobile opens the same `SideBar` inside a `@openpeepshq/react-ui` `Dialog`
 (full-height panel), not a separate navigation tree.
 
 ## Content Area Structure
@@ -277,13 +277,13 @@ Main page content, rendered as React `{children}` of `RootLayout`.
 
 ### Tailwind CSS
 
-Utility-first styles across `@openpeeps/web` and `@openpeeps/react`.
+Utility-first styles across `@openpeepshq/web` and `@openpeepshq/react`.
 
 **Features:**
 
 - Custom spacing (e.g. sidebar `w-70`)
 - Dark mode via theme class / selector
-- Shared tokens with `@openpeeps/react-ui`
+- Shared tokens with `@openpeepshq/react-ui`
 
 ### Theme System
 

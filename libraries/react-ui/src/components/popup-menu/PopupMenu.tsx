@@ -38,7 +38,7 @@ export interface PopupMenuProps {
 }
 
 /**
- * Translation of @openpeeps/ui PopupMenu.
+ * Translation of @openpeepshq/ui PopupMenu.
  *
  * Pieces it apart so consumers can put `<PopupMenuButton>` / `<PopupSection>` /
  * `<PopupSeparator>` children inside, just like the Svelte original.

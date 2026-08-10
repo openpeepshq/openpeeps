@@ -10,17 +10,17 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import express, { type Express, type Request, type Response } from 'express';
-import type { Event, JamRecordingWithMeta } from '@openpeeps/common';
+import type { Event, JamRecordingWithMeta } from '@openpeepshq/common';
 import {
   completeJamRecording,
   findJamRecording,
   finishRecording,
   jamRecordingUploadSecret,
-} from '@openpeeps/core/jams';
-import { logger } from '@openpeeps/core/log';
-import { mediaStorage } from '@openpeeps/core/media';
-import { createMediaAttachment } from '@openpeeps/core/mediaAttachments';
-import { serverRootUrl } from '@openpeeps/core/server';
+} from '@openpeepshq/core/jams';
+import { logger } from '@openpeepshq/core/log';
+import { mediaStorage } from '@openpeepshq/core/media';
+import { createMediaAttachment } from '@openpeepshq/core/mediaAttachments';
+import { serverRootUrl } from '@openpeepshq/core/server';
 import { verifyAwsSigV4 } from './s3SigV4';
 
 const log = logger('server:s3');

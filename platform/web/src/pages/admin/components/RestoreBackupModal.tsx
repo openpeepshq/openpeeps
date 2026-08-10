@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
 import {
   Button,
   Dialog,
@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 
 export interface RestoreBackupModalProps {
   onClose: () => void;

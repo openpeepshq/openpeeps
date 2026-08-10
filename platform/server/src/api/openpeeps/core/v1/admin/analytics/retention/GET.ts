@@ -5,8 +5,8 @@ import { ensureRoleCapabilities } from '#lib/auth';
 import {
   analyticsDateQuerySchema,
   analyticsRetentionSchema,
-} from '@openpeeps/common/types';
-import { getAnalyticsRetention } from '@openpeeps/core/analytics';
+} from '@openpeepshq/common/types';
+import { getAnalyticsRetention } from '@openpeepshq/core/analytics';
 
 export const Query = analyticsDateQuerySchema;
 export const Output = analyticsRetentionSchema;

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ZodObject, type ZodRawShape } from 'zod';
-import { Button } from '@openpeeps/react-ui';
+import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
-import type { ConfigTree } from '@openpeeps/common/types';
+import type { ConfigTree } from '@openpeepshq/common/types';
 import { diffConfigTrees, equal } from '../../lib/configuration/helpers';
 import { ConfigurationCategory } from './ConfigurationCategory';
 

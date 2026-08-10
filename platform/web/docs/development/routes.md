@@ -2,13 +2,13 @@
 
 An overview of the available routes in the OpenPeeps web application. The UI
 is a React SPA (`platform/web`) routed with React Router. The API lives under
-`/api/openpeeps/core/v1/` on `@openpeeps/server` (Riddl endpoints).
+`/api/openpeeps/core/v1/` on `@openpeepshq/server` (Riddl endpoints).
 
 ## Route Structure
 
 - **Pages**: React components registered in the web router
 - **API Routes**: Riddl modules under `platform/server/src/api/`
-- **Layouts**: Shared layout components in `@openpeeps/react`
+- **Layouts**: Shared layout components in `@openpeepshq/react`
 - **Dynamic Routes**: Path params (e.g. `/posts/:postId`, `/@:handle`)
 
 ## Route Groups
@@ -168,8 +168,8 @@ import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { findPost, bookmarkPost } from '@openpeeps/core/posts';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { findPost, bookmarkPost } from '@openpeepshq/core/posts';
+import { successResponseSchema } from '@openpeepshq/common/types';
 
 export const Param = z.object({
   postId: z.string(),
@@ -402,7 +402,7 @@ On the server, Riddl folders use `[param]` segments (e.g.
 
 ## Layouts
 
-Shared UI shells live in `@openpeeps/react` / `@openpeeps/web` (app shell,
+Shared UI shells live in `@openpeepshq/react` / `@openpeepshq/web` (app shell,
 auth screens, profile guards). They are React components, not filesystem route
 groups.
 
@@ -422,7 +422,7 @@ groups.
 
 Register a React page component in `platform/web` (React Router) and navigate
 with path params (e.g. `/posts/:postId`). Prefer shared layout components from
-`@openpeeps/react` rather than duplicating shells.
+`@openpeepshq/react` rather than duplicating shells.
 
 ### Creating a New API Endpoint
 
@@ -445,7 +445,7 @@ export const Error = {
 
 export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (input, event) => {
-    // Endpoint logic — delegate to @openpeeps/core
+    // Endpoint logic — delegate to @openpeepshq/core
     return {
       /* response */
     };

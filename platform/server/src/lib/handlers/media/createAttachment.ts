@@ -4,14 +4,14 @@ import {
   type MediaAttachment,
   type MediaStorageRequest,
   getAttachmentType,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import {
   mediaProcessingQueue,
   mediaStorage,
   runProcessing,
   SYNC_PROCESSING_LIMIT,
-} from '@openpeeps/core/media';
-import { createMediaAttachment } from '@openpeeps/core/mediaAttachments';
+} from '@openpeepshq/core/media';
+import { createMediaAttachment } from '@openpeepshq/core/mediaAttachments';
 
 export const createMediaAttachmentHandler = async (
   mediaStorageRequest: MediaStorageRequest,

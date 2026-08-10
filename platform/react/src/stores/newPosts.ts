@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { PostCreationData, PostType } from '@openpeeps/common';
+import type { PostCreationData, PostType } from '@openpeepshq/common';
 import { persistedStore } from './createStore';
 import type { NewPostsState } from './types';
 

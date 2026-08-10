@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { MailIcon, PencilIcon, Trash2 } from 'lucide-react';
-import type { ProfileWithMeta, Role } from '@openpeeps/common/types';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import type { ProfileWithMeta, Role } from '@openpeepshq/common/types';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
 import {
   Button,
   Dialog,
@@ -15,7 +15,7 @@ import {
   PopupMenuButton,
   PopupSection,
   PopupSeparator,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 
 export interface ProfileRowActionsProps {
   profile: ProfileWithMeta;

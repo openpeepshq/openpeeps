@@ -12,7 +12,7 @@ import {
 } from '@livekit/react-native';
 import { View } from 'react-native';
 import { ThemedText } from '~/components/ui/themed-text';
-import { ProfileData } from '@openpeeps/common';
+import { ProfileData } from '@openpeepshq/common';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';
 import {
   AudioLinesIcon,
@@ -29,7 +29,7 @@ import { JamParticipantActionSheet } from '../../modals';
 import { Button } from '~/components/ui/button';
 import { OwnReactions } from './own-reactions';
 import { RemoteReactions } from './remote-reactions';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 
 interface ParticipantViewProps {
   trackRef: TrackReferenceOrPlaceholder;

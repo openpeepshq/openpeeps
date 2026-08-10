@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import type { GroupWithMeta, PublicProfile } from '@openpeeps/common/types';
-import { groupName } from '@openpeeps/common/lib';
+import type { GroupWithMeta, PublicProfile } from '@openpeepshq/common/types';
+import { groupName } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';

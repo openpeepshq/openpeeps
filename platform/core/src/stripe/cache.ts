@@ -1,4 +1,4 @@
-import { StripeSubscriptionData } from '@openpeeps/common/types';
+import { StripeSubscriptionData } from '@openpeepshq/common/types';
 import { getStripe } from './connection';
 
 export const STRIPE_CACHE_KEY = 'stripe-customer-sub:';

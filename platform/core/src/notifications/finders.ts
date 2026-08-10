@@ -3,7 +3,7 @@ import {
   ExpandedNotification,
   NotificationStats,
   ProfileWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import { addStart, filterAndTransform } from '../db/helpers';
 import {

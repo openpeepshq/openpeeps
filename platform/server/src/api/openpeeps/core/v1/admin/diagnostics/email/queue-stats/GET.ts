@@ -1,9 +1,9 @@
 import { endpoint } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { adminEmailQueueStatsSchema } from '@openpeeps/common/types';
+import { adminEmailQueueStatsSchema } from '@openpeepshq/common/types';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { getSendEmailQueueStats } from '@openpeeps/core/email';
+import { getSendEmailQueueStats } from '@openpeepshq/core/email';
 
 export const Output = adminEmailQueueStatsSchema;
 

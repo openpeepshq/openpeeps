@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import type { IconType } from '@openpeeps/react-ui';
-import type { PostCreationData } from '@openpeeps/common';
+import type { IconType } from '@openpeepshq/react-ui';
+import type { PostCreationData } from '@openpeepshq/common';
 
 export interface Crumb {
   text: string;

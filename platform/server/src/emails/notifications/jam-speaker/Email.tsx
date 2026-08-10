@@ -11,12 +11,12 @@ import type {
   Event,
   PublicPost,
   PublicProfile,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   getJamUrl,
   getProfileAvatar,
   profileName,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 
 import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { emailStyles } from '../../styles';

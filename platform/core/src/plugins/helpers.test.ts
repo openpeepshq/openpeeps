@@ -46,9 +46,9 @@ describe('sortByDependencies', () => {
     const input: [string, PackageJson][] = [
       [
         'openpeeps/dependent',
-        pkg({ '@openpeeps-plugins/greeting': 'workspace:^' }),
+        pkg({ '@openpeepshq-plugins/greeting': 'workspace:^' }),
       ],
-      ['openpeeps/greeting', pkg(undefined, '@openpeeps-plugins/greeting')],
+      ['openpeeps/greeting', pkg(undefined, '@openpeepshq-plugins/greeting')],
     ];
     const sorted = sortByDependencies(input);
     expect(sorted.map(([key]) => key)).toEqual([

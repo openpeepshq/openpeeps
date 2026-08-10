@@ -1,16 +1,16 @@
 import { endpoint } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
-import { paymentCheckoutSchema } from '@openpeeps/common/types';
+import { paymentCheckoutSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import {
   stripeMembershipActive,
   createStripeCheckoutUrl,
-} from '@openpeeps/core/stripe';
+} from '@openpeepshq/core/stripe';
 import {
   ensureAccount,
   ensureLocalProfile,
 } from '#lib/auth';
-import { isOwnerProfile } from '@openpeeps/common';
+import { isOwnerProfile } from '@openpeepshq/common';
 
 export const Output = paymentCheckoutSchema;
 

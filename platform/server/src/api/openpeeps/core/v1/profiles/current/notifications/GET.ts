@@ -3,9 +3,9 @@ import type { RequestEvent } from '@riddl/core';
 import {
   type PublicNotification,
   publicNotificationSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
-import { listNotificationsByProfile } from '@openpeeps/core/notifications';
+import { listNotificationsByProfile } from '@openpeepshq/core/notifications';
 import { forbidden } from '#lib/errors';
 
 export const Output = publicNotificationSchema.array();

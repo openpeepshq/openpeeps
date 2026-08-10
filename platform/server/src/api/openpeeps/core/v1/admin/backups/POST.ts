@@ -2,7 +2,7 @@ import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { createBackup } from '@openpeeps/core/backups';
+import { createBackup } from '@openpeepshq/core/backups';
 
 export const Output = z.object({
   success: z.boolean(),

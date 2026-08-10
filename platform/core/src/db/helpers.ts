@@ -13,13 +13,13 @@ import {
   Patch,
 } from 'arangojs/documents';
 import { uuidv7 } from 'uuidv7';
-import type { Base } from '@openpeeps/common/types';
+import type { Base } from '@openpeepshq/common/types';
 import {
   collectionElement,
   type Filter,
   query,
   literal,
-} from '@openpeeps/arango-querybuilder';
+} from '@openpeepshq/arango-querybuilder';
 import type { CollectionInfo, ViewInfo } from './pg/map/queryTypes';
 import type { Limit, Mapping, ObjectSort, WithId } from './pg/map';
 import type { PgQueryResult } from './pg/map/types';
@@ -31,7 +31,7 @@ import { and, eq } from 'drizzle-orm';
 import { documentKeyAfter, documentKeyBefore } from './pg/filters';
 import { sorts } from './pg/queries';
 import { EdgeDefinition, EdgeDefinitionOptions } from 'arangojs/graphs';
-import { asyncFilter } from '@openpeeps/common/lib';
+import { asyncFilter } from '@openpeepshq/common/lib';
 import { EnsureIndexOptions } from 'arangojs/indexes';
 import { logger } from '../log';
 import {

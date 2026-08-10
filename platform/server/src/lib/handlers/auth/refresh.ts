@@ -1,13 +1,13 @@
 import type { RequestEvent } from '@riddl/core';
-import type { TokenResponse } from '@openpeeps/common/types';
+import type { TokenResponse } from '@openpeepshq/common/types';
 import {
   refreshSignedAccessToken,
   verifySignedAccessToken,
-} from '@openpeeps/core/accessTokens';
+} from '@openpeepshq/core/accessTokens';
 import {
   checkSubscription,
   createStripeCheckoutUrl,
-} from '@openpeeps/core/stripe';
+} from '@openpeepshq/core/stripe';
 import { authNeeded, forbidden } from '#lib/errors';
 import { loadCurrentAccount, loadCurrentProfile } from '#lib/auth';
 

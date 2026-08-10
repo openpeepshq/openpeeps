@@ -83,6 +83,6 @@ export { FeedPoll } from './types/Poll';
 
 /**
  * Default visibility helper. Translation of
- * `@openpeeps/svelte/utils/postHelpers.ts::getDefaultVisibility()`.
+ * `@openpeepshq/svelte/utils/postHelpers.ts::getDefaultVisibility()`.
  */
 export { useDefaultVisibility } from './visibility';

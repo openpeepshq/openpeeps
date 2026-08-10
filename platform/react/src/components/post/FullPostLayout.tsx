@@ -1,6 +1,6 @@
 import { useMemo, useRef, useEffect } from 'react';
-import type { PublicPost } from '@openpeeps/common/types';
-import { buildThreads } from '@openpeeps/common/lib';
+import type { PublicPost } from '@openpeepshq/common/types';
+import { buildThreads } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { FeedPost } from './FeedPost';

@@ -1,8 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { successResponseSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { updateConfigValues } from '@openpeeps/core/config';
+import { updateConfigValues } from '@openpeepshq/core/config';
 
 export const Input = z.object({
   postId: z.string(),

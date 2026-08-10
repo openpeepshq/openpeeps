@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
-import { setTheme, themeStyleString } from '@openpeeps/react-ui';
-import { getTheme } from '@openpeeps/common';
+import { setTheme, themeStyleString } from '@openpeepshq/react-ui';
+import { getTheme } from '@openpeepshq/common';
 import { useServerInfo } from '../server-data';
 import { useCurrentProfileSettings } from './IdentityContext';
 
@@ -9,7 +9,7 @@ export interface OpenpeepsThemeProviderProps {
 }
 
 /**
- * Translation of @openpeeps/svelte/components/layout/OpenpeepsThemeProvider.
+ * Translation of @openpeepshq/svelte/components/layout/OpenpeepsThemeProvider.
  * Reads the theme from server config + profile settings, applies the matching
  * data-theme on the body, and injects a `<style>` tag with primary-color
  * overrides into the document head.

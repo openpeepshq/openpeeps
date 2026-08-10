@@ -4,11 +4,11 @@ import type {
   Article,
   PostCreationData,
   PostDataUnion,
-} from '@openpeeps/common/types';
-import { truncateText } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { ArticleForm } from '@openpeeps/react/components';
-import { Button, LoadingSpinner, Toast } from '@openpeeps/react-ui';
+} from '@openpeepshq/common/types';
+import { truncateText } from '@openpeepshq/common/lib';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { ArticleForm } from '@openpeepshq/react/components';
+import { Button, LoadingSpinner, Toast } from '@openpeepshq/react-ui';
 
 export function EditArticle() {
   const t = useT();

@@ -4,8 +4,8 @@ import type {
   JamRecordingWithMeta,
   MediaAttachment,
   PostWithMeta,
-} from '@openpeeps/common/types';
-import { jamRecordingSchema } from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
+import { jamRecordingSchema } from '@openpeepshq/common/types';
 import { hub } from '../events';
 import { createPost } from '../posts';
 import { allpeepDb } from '../db';

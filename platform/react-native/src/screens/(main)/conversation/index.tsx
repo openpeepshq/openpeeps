@@ -4,7 +4,7 @@ import {
   adjustUnseenCounts,
   useOpenpeeps,
   usePostViewFlush,
-} from '@openpeeps/react';
+} from '@openpeepshq/react';
 import {
   GenericHeader,
   ProfileBio,
@@ -26,7 +26,7 @@ import {
   SendHorizonalIcon,
 } from '~/components/icons';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { MediaAttachmentData } from '@openpeeps/common';
+import { MediaAttachmentData } from '@openpeepshq/common';
 import { MediaPreview } from '~/components/custom/post/post-form/MediaPreview';
 import { DropdownMenu } from '~/components/ui/dropdown-menu';
 import {

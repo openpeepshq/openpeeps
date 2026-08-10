@@ -14,9 +14,9 @@ import { GenericHeader } from '~/components/custom/headers';
 import {
   SendHorizonalIcon,
 } from '~/components/icons';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '~/components/ui/themed-text';
-import { Profile, PublicProfile } from '@openpeeps/common';
+import { Profile, PublicProfile } from '@openpeepshq/common';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 
 type DraftMessageProps = MainScreenProps<'DraftMessage'>;

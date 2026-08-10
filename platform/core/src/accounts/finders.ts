@@ -1,4 +1,4 @@
-import { Profile } from '@openpeeps/common/types';
+import { Profile } from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import { accountsMapping } from './mapping';
 import { profilesMapping } from '../profiles/mapping';

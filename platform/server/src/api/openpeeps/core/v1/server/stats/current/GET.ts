@@ -1,6 +1,6 @@
 import { endpoint } from '#lib/endpoint';
-import { serverCountsSchema } from '@openpeeps/common/types';
-import { serverCounts } from '@openpeeps/core/stats';
+import { serverCountsSchema } from '@openpeepshq/common/types';
+import { serverCounts } from '@openpeepshq/core/stats';
 
 export const Output = serverCountsSchema;
 

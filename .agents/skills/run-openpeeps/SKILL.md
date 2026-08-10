@@ -20,10 +20,10 @@ description: >-
 
 | Package | Path | Role |
 |---------|------|------|
-| `@openpeeps/server` | `platform/server` | Express + Riddl API on port **5173** |
+| `@openpeepshq/server` | `platform/server` | Express + Riddl API on port **5173** |
 | Worker (same package) | `platform/server` | BullMQ jobs — separate process |
-| `@openpeeps/web` | `platform/web` | Vite + React SPA on port **5174** (proxies `/api` → 5173) |
-| `@openpeeps/react` | `platform/react` | Shared components (built dependency of web) |
+| `@openpeepshq/web` | `platform/web` | Vite + React SPA on port **5174** (proxies `/api` → 5173) |
+| `@openpeepshq/react` | `platform/react` | Shared components (built dependency of web) |
 
 ## Prerequisites
 
@@ -43,18 +43,18 @@ docker compose up -d db redis
 
 # 3. Dependencies (filtered install is faster; full install also works)
 pnpm \
-  --filter "@openpeeps/server..." \
-  --filter "@openpeeps/web..." \
+  --filter "@openpeepshq/server..." \
+  --filter "@openpeepshq/web..." \
   install
 
 # 4. One-time build of the server + web closure
 pnpm -r \
-  --filter "@openpeeps/server..." \
-  --filter "@openpeeps/web..." \
+  --filter "@openpeepshq/server..." \
+  --filter "@openpeepshq/web..." \
   build
 ```
 
-`@openpeeps/server` reads `.env` via dotenv. `@openpeeps/web` only needs `VITE_API_PROXY_TARGET` if the API is not on `http://localhost:5173`.
+`@openpeepshq/server` reads `.env` via dotenv. `@openpeepshq/web` only needs `VITE_API_PROXY_TARGET` if the API is not on `http://localhost:5173`.
 
 ## Start (three terminals)
 
@@ -65,7 +65,7 @@ cd platform/server && pnpm dev
 # Terminal 2 — BullMQ worker (notifications, media, emails, scheduled tasks)
 cd platform/server && pnpm dev:worker
 
-# Terminal 3 — React SPA (runs predev: builds @openpeeps/greenscreen first)
+# Terminal 3 — React SPA (runs predev: builds @openpeepshq/greenscreen first)
 cd platform/web && pnpm dev
 ```
 
@@ -84,13 +84,13 @@ The worker is optional for loading pages but required for push/email delivery, m
 Rebuild the package you edited so consumers pick up workspace `dist/` output:
 
 ```bash
-pnpm --filter @openpeeps/<pkg> build
+pnpm --filter @openpeepshq/<pkg> build
 ```
 
 Typical dependency order: `common` → `core` → `react` → `server` / `web`.
 
-- `@openpeeps/react` must be rebuilt after edits — web consumes its built output.
-- `@openpeeps/web` has `build:watch` for iterative UI work.
+- `@openpeepshq/react` must be rebuilt after edits — web consumes its built output.
+- `@openpeepshq/web` has `build:watch` for iterative UI work.
 
 ## Verify It Works
 
@@ -112,8 +112,8 @@ Expect `200`. A blank page or hung load usually means Vite failed during startup
 ## Integration Tests
 
 ```bash
-pnpm --filter @openpeeps/tests exec playwright install   # one-time
-pnpm --filter @openpeeps/tests test:integration
+pnpm --filter @openpeepshq/tests exec playwright install   # one-time
+pnpm --filter @openpeepshq/tests test:integration
 ```
 
 `pretest:integration` builds server + web automatically.
@@ -124,10 +124,10 @@ pnpm --filter @openpeeps/tests test:integration
 |---------|-----|
 | Opening port 5173 in the browser | Use **5174** — that's the SPA |
 | Running only the API, not the web dev server | Start server and web (plus worker when testing background jobs) |
-| Editing `@openpeeps/react` without rebuilding | `pnpm --filter @openpeeps/react build` |
+| Editing `@openpeepshq/react` without rebuilding | `pnpm --filter @openpeepshq/react build` |
 | Expecting `docker compose up` to start the app | Compose provides `db` and `redis`; run server, worker, and web separately |
-| Port 5174 open but blank / Vite import errors on `@openpeeps/common` | Rebuild libraries: `pnpm --filter @openpeeps/common build` (or re-run the full step-4 build), then restart `pnpm dev` in `platform/web` |
-| Skipping the initial build step | Step 4 is required — `@openpeeps/web` imports from built `dist/` outputs in workspace packages like `@openpeeps/common` |
+| Port 5174 open but blank / Vite import errors on `@openpeepshq/common` | Rebuild libraries: `pnpm --filter @openpeepshq/common build` (or re-run the full step-4 build), then restart `pnpm dev` in `platform/web` |
+| Skipping the initial build step | Step 4 is required — `@openpeepshq/web` imports from built `dist/` outputs in workspace packages like `@openpeepshq/common` |
 
 ## Production Note
 

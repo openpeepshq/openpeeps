@@ -58,7 +58,7 @@ Plugin authors **must** implement their own authentication and capability checks
 
 ```ts
 import type { Router } from 'express';
-import { ensurePluginAuth } from '@openpeeps/core/plugins';
+import { ensurePluginAuth } from '@openpeepshq/core/plugins';
 
 export const routes = async (router: Router) => {
   router.get('/secure-data', ensurePluginAuth(), async (req, res) => {
@@ -86,15 +86,15 @@ The frontend uses a **slot-based registry**. Plugins ship plain JavaScript IIFE 
 
 | Symbol                   | Location                      | Purpose                                                                     |
 | ------------------------ | ----------------------------- | --------------------------------------------------------------------------- |
-| `PluginRegistryProvider` | `@openpeeps/react/components` | Context owning slot/component state; exposes `window.__OPENPEEPS_PLUGINS__` |
-| `PluginLoader`           | `@openpeeps/react/components` | Fetches manifest, injects `<script>` tags for each declared asset           |
-| `PluginSlot`             | `@openpeeps/react/components` | Renders all components registered for a named slot                          |
-| `usePluginRegistry`      | `@openpeeps/react/components` | Direct access to `registerComponent` and `getComponentsForSlot`             |
+| `PluginRegistryProvider` | `@openpeepshq/react/components` | Context owning slot/component state; exposes `window.__OPENPEEPS_PLUGINS__` |
+| `PluginLoader`           | `@openpeepshq/react/components` | Fetches manifest, injects `<script>` tags for each declared asset           |
+| `PluginSlot`             | `@openpeepshq/react/components` | Renders all components registered for a named slot                          |
+| `usePluginRegistry`      | `@openpeepshq/react/components` | Direct access to `registerComponent` and `getComponentsForSlot`             |
 
 ### Usage example
 
 ```tsx
-import { PluginSlot } from '@openpeeps/react/components';
+import { PluginSlot } from '@openpeepshq/react/components';
 
 function SomePage() {
   return (
@@ -160,7 +160,7 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: ['react', 'react-dom', '@openpeeps/core'],
+      external: ['react', 'react-dom', '@openpeepshq/core'],
     },
   },
 });
@@ -186,15 +186,15 @@ A working example lives at `plugins/openpeeps/greeting/`:
 
 - `src/index.ts` — backend entry with `interceptors`, `routes`, `configSchema`, `manifest`
 - `web/greeting.js` — frontend IIFE bundle
-- `package.json` — declares `@openpeeps/core` and `@openpeeps/common` as dependencies
+- `package.json` — declares `@openpeepshq/core` and `@openpeepshq/common` as dependencies
 
-Build: `pnpm --filter @openpeeps-plugins/greeting build`
+Build: `pnpm --filter @openpeepshq-plugins/greeting build`
 
 ---
 
 ## 8. Open Decisions
 
-1. **No sandboxing.** Plugins run in the same Node process with full access to `@openpeeps/core` and the Express app. Plugin installation = server code execution.
+1. **No sandboxing.** Plugins run in the same Node process with full access to `@openpeepshq/core` and the Express app. Plugin installation = server code execution.
 2. **No signing/validating manifests.** `pluginManifestSchema.parse()` validates structure; semantic trust of manifest content is the server operator's responsibility.
 3. **No npm registry.** Plugins are installed manually as subdirectories.
 4. **Plugin enumeration is public.** `GET /plugins` and `GET /plugins/manifest` return plugin names, versions, and manifest metadata without authentication. This is considered acceptable metadata disclosure, but operators should be aware that plugin names/versions may leak implementation details.

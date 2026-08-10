@@ -6,7 +6,7 @@ export const plusButtonStore = createStore<PlusButtonActions>(undefined);
 
 export const usePlusButton = () => useStore(plusButtonStore);
 
-/** Mount-scoped helper — mirrors `setPlusButtonActions` from @openpeeps/svelte. */
+/** Mount-scoped helper — mirrors `setPlusButtonActions` from @openpeepshq/svelte. */
 export const useSetPlusButtonActions = (actions: PlusButtonActions) => {
   useEffect(() => {
     plusButtonStore.set(actions);

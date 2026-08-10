@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { ThemedView } from '~/components/ui/themed-view';
 import { ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { OpenPeepsMarkdown, TabScreensHeader } from '~/components/custom';
 import {
   UserCheckIcon,

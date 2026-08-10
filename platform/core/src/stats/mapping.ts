@@ -3,7 +3,7 @@ import { baseProfilesMapping } from '../profiles';
 import { postsMapping } from '../posts';
 import { map } from '../db/pg/map';
 import { computedFields } from '../db/pg/queries';
-import { DbPost, PostData } from '@openpeeps/common/types';
+import { DbPost, PostData } from '@openpeepshq/common/types';
 
 export const profileWithActivityScoreMapping = (start?: Date, end?: Date) =>
   map({

@@ -1,6 +1,6 @@
 import { Button, Heading, Link, Section } from '@react-email/components';
-import type { EmailGlobals, ExpandedNotification } from '@openpeeps/common/types';
-import { groupName, profileName } from '@openpeeps/common/lib';
+import type { EmailGlobals, ExpandedNotification } from '@openpeepshq/common/types';
+import { groupName, profileName } from '@openpeepshq/common/lib';
 
 import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { EmailPostEmbed } from '../../EmailPostEmbed';

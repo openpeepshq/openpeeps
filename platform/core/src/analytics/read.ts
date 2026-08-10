@@ -6,7 +6,7 @@ import type {
   AnalyticsOverview,
   AnalyticsRetention,
   AnalyticsSeriesPoint,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { formatISO, startOfDay } from 'date-fns';
 import { database } from '../db';
 import {

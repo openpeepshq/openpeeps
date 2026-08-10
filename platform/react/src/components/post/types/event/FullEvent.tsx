@@ -5,7 +5,7 @@ import type {
   JamRecording,
   PublicPost,
   PublicProfile,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   buildThreads,
   calculateEffectiveRsvps,
@@ -16,8 +16,8 @@ import {
   groupName,
   isCapacityEvent,
   profileName,
-} from '@openpeeps/common/lib';
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, LoadingSpinner, PopupMenu, PopupMenuButton, UpdatingDate } from '@openpeeps/react-ui';
+} from '@openpeepshq/common/lib';
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, LoadingSpinner, PopupMenu, PopupMenuButton, UpdatingDate } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';

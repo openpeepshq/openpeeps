@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@openpeeps/react-ui';
-import { useT } from '@openpeeps/react';
-import { AuthLayout } from '@openpeeps/react/components';
+import { Button } from '@openpeepshq/react-ui';
+import { useT } from '@openpeepshq/react';
+import { AuthLayout } from '@openpeepshq/react/components';
 
 export function AuthClosed() {
   const t = useT();

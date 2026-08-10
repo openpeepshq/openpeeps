@@ -8,11 +8,11 @@ import {
   NotificationType,
   ProfileNotificationSettings,
   ProfileSettings,
-} from '@openpeeps/common';
-import {useOpenpeeps} from '@openpeeps/react';
+} from '@openpeepshq/common';
+import {useOpenpeeps} from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
 import {useTranslation} from 'react-i18next';
-import {notificationDefaults} from '@openpeeps/common';
+import {notificationDefaults} from '@openpeepshq/common';
 import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 interface EditNotificationsSheetProps {

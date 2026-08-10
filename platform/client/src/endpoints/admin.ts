@@ -4,7 +4,7 @@ import {
   ReportResolution,
   ReportWithMeta,
   RoleData,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 
 import {
   AdminServerStats,
@@ -16,9 +16,9 @@ import {
   AnalyticsOverview,
   AnalyticsReportSettings,
   AnalyticsRetention,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 
-import { Role } from '@openpeeps/common';
+import { Role } from '@openpeepshq/common';
 
 import {
   AccessTokenCreationData,
@@ -43,12 +43,12 @@ import {
   Resource,
   SuccessResponse,
   TokenResponse,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 
 import { allpeepPayloadEndpoint } from './helpers';
 
-import { AccountData, PublicAccount } from '@openpeeps/common';
-import { FetchClient } from '@openpeeps/fetch-client';
+import { AccountData, PublicAccount } from '@openpeepshq/common';
+import { FetchClient } from '@openpeepshq/fetch-client';
 import { allpeepNoPayloadEndpoint } from './helpers';
 
 export type ExplorerRowsQuery = Record<string, string>;

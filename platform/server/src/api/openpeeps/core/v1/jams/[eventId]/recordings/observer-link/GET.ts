@@ -2,8 +2,8 @@ import { endpoint, z } from '#lib/endpoint';
 import { forbidden, authNeeded } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { findJamEvent, getJamObserverPath } from '@openpeeps/core/jams';
-import { jamObserverResponseSchema } from '@openpeeps/common/types';
+import { findJamEvent, getJamObserverPath } from '@openpeepshq/core/jams';
+import { jamObserverResponseSchema } from '@openpeepshq/common/types';
 import { notFound } from '#lib/helpers';
 
 export const Output = jamObserverResponseSchema.optional();

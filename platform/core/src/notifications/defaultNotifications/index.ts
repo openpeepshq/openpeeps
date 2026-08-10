@@ -1,4 +1,4 @@
-import { pick } from '@openpeeps/common/lib';
+import { pick } from '@openpeepshq/common/lib';
 import { registerNotificationHandler } from '../handlers';
 import { default as announcement } from './announcement';
 import { default as directMessage } from './directMessage';
@@ -20,7 +20,7 @@ import { default as rsvp } from './rsvp';
 import type {
   NotificationHandler,
   NotificationType,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 const defaultNotificationsHandlers: NotificationHandler[] = [
   announcement,

@@ -1,4 +1,4 @@
-import { map } from '@openpeeps/arango-querybuilder';
+import { map } from '@openpeepshq/arango-querybuilder';
 import { Database } from 'arangojs';
 
 const basePostRelations = [

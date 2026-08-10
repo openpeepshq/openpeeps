@@ -1,4 +1,4 @@
-import { Button } from '@openpeeps/react-ui';
+import { Button } from '@openpeepshq/react-ui';
 
 export interface PageHeaderActionProps {
   title: string;

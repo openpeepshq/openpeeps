@@ -1,15 +1,15 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Plus, Users } from 'lucide-react';
-import { checkRoleCapabilities } from '@openpeeps/common';
-import { matchesQuery } from '@openpeeps/common/lib';
+import { checkRoleCapabilities } from '@openpeepshq/common';
+import { matchesQuery } from '@openpeepshq/common/lib';
 import {
   useT,
   useOpenpeeps,
   useSetPageHeader,
   useSetPlusButtonActions,
-} from '@openpeeps/react';
-import { GroupCard, useCurrentProfile } from '@openpeeps/react/components';
-import { Input } from '@openpeeps/react-ui';
+} from '@openpeepshq/react';
+import { GroupCard, useCurrentProfile } from '@openpeepshq/react/components';
+import { Input } from '@openpeepshq/react-ui';
 
 type GroupsTab = 'mine' | 'all';
 

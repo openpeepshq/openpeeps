@@ -1,5 +1,5 @@
 import { z, type ZodType } from 'zod';
-import type { ConfigElement, ConfigTree } from '@openpeeps/common/types';
+import type { ConfigElement, ConfigTree } from '@openpeepshq/common/types';
 
 type SchemaWithDef = ZodType & {
   def?: { type?: string; innerType?: ZodType; in?: ZodType };

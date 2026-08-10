@@ -1,4 +1,4 @@
-import { ProfileWithMeta } from '@openpeeps/common/types';
+import { ProfileWithMeta } from '@openpeepshq/common/types';
 import { createCache } from 'cache-manager';
 import { allpeepDb } from '../db';
 import { profilesMapping } from './mapping';

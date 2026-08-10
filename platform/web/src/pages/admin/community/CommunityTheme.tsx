@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import type { CommunityConfig } from '@openpeeps/common/types';
-import { useT, useSetPageHeader, useOpenpeeps, equal } from '@openpeeps/react';
-import { Button, Toast } from '@openpeeps/react-ui';
+import type { CommunityConfig } from '@openpeepshq/common/types';
+import { useT, useSetPageHeader, useOpenpeeps, equal } from '@openpeepshq/react';
+import { Button, Toast } from '@openpeepshq/react-ui';
 import { useCommunityConfig } from './useCommunityConfig';
 
 type Mode = 'light' | 'dark';

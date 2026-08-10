@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapPin } from 'lucide-react';
-import { Button, Input, Label, LoadingIcon, cn } from '@openpeeps/react-ui';
-import type { GeocodingResult, Location } from '@openpeeps/common';
+import { Button, Input, Label, LoadingIcon, cn } from '@openpeepshq/react-ui';
+import type { GeocodingResult, Location } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 
@@ -20,7 +20,7 @@ export interface LocationInputProps {
 }
 
 /**
- * Controlled port of @openpeeps/svelte/components/form/LocationInput.svelte. A
+ * Controlled port of @openpeepshq/svelte/components/form/LocationInput.svelte. A
  * text input wired to a debounced geocoder that captures coordinates from the
  * selected suggestion.
  */

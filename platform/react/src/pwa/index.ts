@@ -24,10 +24,10 @@ export type { SWMessageFromPage, SWMessageToPage } from './sw-types';
 /**
  * Build a vite-plugin-pwa config that uses our shipped service-worker.ts.
  *
- * Prefer `@openpeeps/react/pwa-vite` in Vite configs so the import stays a
+ * Prefer `@openpeepshq/react/pwa-vite` in Vite configs so the import stays a
  * single subpath and does not pull in React PWA UI modules.
  *
- *   import { openpeepsPwaPluginConfig } from '@openpeeps/react/pwa-vite';
+ *   import { openpeepsPwaPluginConfig } from '@openpeepshq/react/pwa-vite';
  */
 export { openpeepsPwaPluginConfig } from './vite';
 export type { OpenpeepsPwaPluginOptions } from './vite';

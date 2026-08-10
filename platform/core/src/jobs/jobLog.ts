@@ -1,5 +1,5 @@
 import type { Job } from 'bullmq';
-import type { Logger } from '@openpeeps/common/types';
+import type { Logger } from '@openpeepshq/common/types';
 
 // Helpers for writing structured, step-by-step progress to BOTH a BullMQ job's
 // per-job log (visible in the admin diagnostics UI) and a namespace `logger`.

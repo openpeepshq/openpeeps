@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
-import { useT, useSetPageHeader, useOpenpeeps } from '@openpeeps/react';
-import { Button, Toast } from '@openpeeps/react-ui';
+import { useT, useSetPageHeader, useOpenpeeps } from '@openpeepshq/react';
+import { Button, Toast } from '@openpeepshq/react-ui';
 import { useCommunityConfig } from './useCommunityConfig';
 
 export function AdminConfigurationCommunityFavicons() {

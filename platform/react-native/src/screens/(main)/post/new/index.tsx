@@ -5,7 +5,7 @@ import {
   MainStackParamList,
   TabStackParamList,
 } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import {
   AudioPickerSheet,
   GenericHeader,
@@ -21,7 +21,7 @@ import {
   postCreationDataSchema,
   PublicProfile,
   VisibilityType,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { CompositeScreenProps } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';

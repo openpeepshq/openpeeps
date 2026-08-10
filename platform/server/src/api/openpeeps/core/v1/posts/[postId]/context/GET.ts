@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
-import { findPost, getPostContext } from '@openpeeps/core/posts';
-import { postContextSchema } from '@openpeeps/common/types';
+import { findPost, getPostContext } from '@openpeepshq/core/posts';
+import { postContextSchema } from '@openpeepshq/common/types';
 import { notFound, forbidden } from '#lib/errors';
 import { ensureProfileOrPublicCommunity } from '#lib/auth';
 

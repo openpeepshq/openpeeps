@@ -2,7 +2,7 @@ import {
   AccessTokenData,
   AccountWithMeta,
   ProfileWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import {
   profileAccessTokenConnector,

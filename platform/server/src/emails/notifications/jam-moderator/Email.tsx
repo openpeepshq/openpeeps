@@ -11,8 +11,8 @@ import type {
   Event,
   PublicPost,
   PublicProfile,
-} from '@openpeeps/common/types';
-import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { getProfileAvatar, profileName } from '@openpeepshq/common/lib';
 
 import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { emailStyles } from '../../styles';

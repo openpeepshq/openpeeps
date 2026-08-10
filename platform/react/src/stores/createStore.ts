@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 /**
  * Tiny pub/sub used as a React-friendly equivalent of svelte/store's writable.
- * Lets us replicate the store semantics from @openpeeps/svelte without
+ * Lets us replicate the store semantics from @openpeepshq/svelte without
  * requiring zustand/jotai/etc as a runtime dep.
  */
 export interface ReactStore<T> {

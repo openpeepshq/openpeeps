@@ -3,12 +3,12 @@ import { notFound } from '#lib/errors';
 import {
   type MediaProgressEvent,
   mediaProgressEventSchema,
-} from '@openpeeps/common/types';
-import { findMediaAttachment } from '@openpeeps/core/mediaAttachments';
+} from '@openpeepshq/common/types';
+import { findMediaAttachment } from '@openpeepshq/core/mediaAttachments';
 import {
   getMediaProcessingMeta,
   subscribeToMediaProgress,
-} from '@openpeeps/core/media';
+} from '@openpeepshq/core/media';
 import { produceStream } from '#lib/sse';
 
 export const Param = z.object({

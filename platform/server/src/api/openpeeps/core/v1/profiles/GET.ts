@@ -1,8 +1,8 @@
 import { endpoint } from '#lib/endpoint';
-import { publicProfileSchema } from '@openpeeps/common/types';
+import { publicProfileSchema } from '@openpeepshq/common/types';
 import { forbidden } from '#lib/errors';
 import type { RequestEvent } from '@riddl/core';
-import { listProfiles } from '@openpeeps/core/profiles';
+import { listProfiles } from '@openpeepshq/core/profiles';
 import { ensureProfileOrPublicCommunity } from '#lib/auth';
 
 export const Output = publicProfileSchema.array();

@@ -6,7 +6,7 @@ import {
   processEvent,
   getStripeDetails,
   stripeMembershipActive,
-} from '@openpeeps/core/stripe';
+} from '@openpeepshq/core/stripe';
 
 export const Error = {
   403: forbidden(),

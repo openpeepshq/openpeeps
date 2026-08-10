@@ -1,13 +1,13 @@
 import { endpoint } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { adminPerformanceStatsSchema } from '@openpeeps/common/types';
+import { adminPerformanceStatsSchema } from '@openpeepshq/common/types';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
 import {
   dbTimingEnabled,
   getSlowRequests,
   slowRequestMs,
-} from '@openpeeps/core/performance';
+} from '@openpeepshq/core/performance';
 
 export const Output = adminPerformanceStatsSchema;
 

@@ -1,7 +1,7 @@
 # OpenPeeps documentation site (docs.openpeeps.org)
 
 Static multi-version docs built from [`platform/web/docs/`](../platform/web/docs/)
-as a **React** SPA themed with [`@openpeeps/react-ui`](../libraries/react-ui/)
+as a **React** SPA themed with [`@openpeepshq/react-ui`](../libraries/react-ui/)
 (`OpenpeepsLight`), served by nginx.
 
 ## Versions
@@ -20,15 +20,15 @@ There is **no** separate `stable` entry — it is collapsed into the newest
 
 ```bash
 pnpm install
-pnpm --filter @openpeeps/react-ui build
-pnpm --filter @openpeeps/docs-site run build:local   # worktree → dist/main/
-pnpm --filter @openpeeps/docs-site run dev           # Vite dev server :5175
+pnpm --filter @openpeepshq/react-ui build
+pnpm --filter @openpeepshq/docs-site run build:local   # worktree → dist/main/
+pnpm --filter @openpeepshq/docs-site run dev           # Vite dev server :5175
 ```
 
 Full multi-version (needs remotes + tags):
 
 ```bash
-pnpm --filter @openpeeps/docs-site run build
+pnpm --filter @openpeepshq/docs-site run build
 ```
 
 Docker image (after build):

@@ -2,11 +2,11 @@ import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { analyticsDateQuerySchema } from '@openpeeps/common/types';
+import { analyticsDateQuerySchema } from '@openpeepshq/common/types';
 import {
   buildAnalyticsBoardReport,
   exportAnalyticsCsv,
-} from '@openpeeps/core/analytics';
+} from '@openpeepshq/core/analytics';
 
 export const Query = analyticsDateQuerySchema.extend({
   format: z.enum(['csv', 'pdf']).optional().default('csv'),

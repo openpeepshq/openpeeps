@@ -14,14 +14,14 @@ import {
   useOpenpeeps,
   useNewPostModal,
   useDefaultVisibility,
-} from '@openpeeps/react';
+} from '@openpeepshq/react';
 import {
   useCurrentProfile,
   useCurrentAccount,
   useServerInfo,
   useToast,
   AccessDeniedLoader,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 
 import { Markdown } from '../lib/Markdown';
 

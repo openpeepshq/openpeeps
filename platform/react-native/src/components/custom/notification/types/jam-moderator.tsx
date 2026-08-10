@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import React from 'react';
 import { ThemedText } from '~/components/ui/themed-text';
 import { NotificationWrapper } from '../NotificationWrapper';
-import { PublicNotification } from '@openpeeps/common';
+import { PublicNotification } from '@openpeepshq/common';
 import { profileName } from '~/lib/utils';
 import { UpdatingDate } from '../../date/updating-date';
 import { JamCard } from '../../jam/jam-card';

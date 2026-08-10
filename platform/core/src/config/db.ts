@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { ConfigData } from '@openpeeps/common/types';
+import { ConfigData } from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import { configs } from '../db/pg/schema/documents';
 import { nowIso } from '../db/pg/mappers';

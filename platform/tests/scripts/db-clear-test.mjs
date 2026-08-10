@@ -13,5 +13,5 @@ config({ path: path.join(repoRoot, 'platform/server/.env') });
 process.env.DB_NAME = process.env.DB_NAME || 'test';
 process.argv = [process.argv[0], process.argv[1], 'db', 'clear'];
 
-const { cli } = await import('@openpeeps/cli');
+const { cli } = await import('@openpeepshq/cli');
 await cli();

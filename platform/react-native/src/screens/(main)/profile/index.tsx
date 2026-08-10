@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { MainScreenProps } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '~/components/ui/themed-text';
 import {
   ActivityIndicator,
@@ -32,7 +32,7 @@ import {
   LucideIcon,
 } from '~/components/icons';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ProfileData } from '@openpeeps/common';
+import { ProfileData } from '@openpeepshq/common';
 import { useTranslation } from 'react-i18next';
 import { handleScroll, isValidUrl } from '~/lib/utils';
 import { useFocusEffect } from '@react-navigation/native';

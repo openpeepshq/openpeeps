@@ -4,7 +4,7 @@ import {
   JamState,
   PostWithMeta,
   ProfileWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { config } from '../config';
 import {
   DataPacket_Kind,

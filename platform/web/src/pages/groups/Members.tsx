@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { groupName } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import { groupName } from '@openpeepshq/common/lib';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
 import {
   AddGroupMembersButton,
   GroupMembersList,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 import { routeHandleParam } from '../../lib/routeHandles';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export function GroupMembers() {
   const t = useT();

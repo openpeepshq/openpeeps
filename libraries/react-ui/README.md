@@ -1,11 +1,11 @@
-# @openpeeps/react-ui
+# @openpeepshq/react-ui
 
 OpenPeeps React UI library. A 1:1 React + shadcn/Tailwind translation of
-[`@openpeeps/ui`](../ui) (Svelte + Skeleton).
+[`@openpeepshq/ui`](../ui) (Svelte + Skeleton).
 
 ## What's inside
 
-| @openpeeps/ui (Svelte)     | @openpeeps/react-ui (React)                     |
+| @openpeepshq/ui (Svelte)     | @openpeepshq/react-ui (React)                     |
 | -------------------------- | ----------------------------------------------- |
 | `badges/`                  | `Badge`, `Badges`                               |
 | `button/`                  | `Button`, `IconButton`, `TextButton`            |
@@ -32,7 +32,7 @@ In addition the package exposes shadcn primitives directly (`Input`,
 ## Install
 
 ```bash
-pnpm add @openpeeps/react-ui
+pnpm add @openpeepshq/react-ui
 ```
 
 Peer deps: `react`, `react-dom`, `@tanstack/react-query`.
@@ -43,10 +43,10 @@ Extend the bundled preset from your app's `tailwind.config.cjs`:
 
 ```js
 module.exports = {
-  presets: [require('@openpeeps/react-ui/tailwind-preset')],
+  presets: [require('@openpeepshq/react-ui/tailwind-preset')],
   content: [
     './src/**/*.{ts,tsx}',
-    './node_modules/@openpeeps/react-ui/dist/**/*.{js,mjs}',
+    './node_modules/@openpeepshq/react-ui/dist/**/*.{js,mjs}',
   ],
 };
 ```
@@ -54,7 +54,7 @@ module.exports = {
 Then import the bundled stylesheet once at your app entry:
 
 ```ts
-import '@openpeeps/react-ui/styles.css';
+import '@openpeepshq/react-ui/styles.css';
 ```
 
 ## Theming
@@ -63,21 +63,21 @@ Themes are CSS-variable based, mirroring Skeleton. Set the active theme by
 toggling `data-theme` on the `<body>`:
 
 ```ts
-import { setTheme } from '@openpeeps/react-ui';
+import { setTheme } from '@openpeepshq/react-ui';
 setTheme('OpenpeepsLight'); // or 'OpenpeepsDark'
 ```
 
 To produce CSS overrides for a custom primary color use:
 
 ```ts
-import { themeStyleString } from '@openpeeps/react-ui';
+import { themeStyleString } from '@openpeepshq/react-ui';
 const css = themeStyleString('OpenpeepsLight', '#55ACBA', '/bg.png');
 ```
 
 ## Forms
 
 ```tsx
-import { Form, FormInput, SubmitButton } from '@openpeeps/react-ui';
+import { Form, FormInput, SubmitButton } from '@openpeepshq/react-ui';
 import { z } from 'zod';
 
 const Schema = z.object({ email: z.string().email() });
@@ -93,7 +93,7 @@ const Schema = z.object({ email: z.string().email() });
 Mount once near the root of your app:
 
 ```tsx
-import { Modal } from '@openpeeps/react-ui';
+import { Modal } from '@openpeepshq/react-ui';
 
 <App>
   <Modal />
@@ -103,7 +103,7 @@ import { Modal } from '@openpeeps/react-ui';
 Trigger from anywhere — even outside React — with `getModalManager()`:
 
 ```ts
-import { getModalManager } from '@openpeeps/react-ui';
+import { getModalManager } from '@openpeepshq/react-ui';
 const m = getModalManager();
 m.show(MyModal, { foo: 'bar' }, (response) => console.log(response));
 ```

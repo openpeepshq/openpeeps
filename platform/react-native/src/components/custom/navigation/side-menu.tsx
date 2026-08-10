@@ -23,7 +23,7 @@ import {
 import { ThemedText } from '~/components/ui/themed-text';
 import { useWindowSize } from '~/hooks/helper';
 import { useAppImagesStore } from '~/stores/useAppImagesStore';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { LucideProps, SquarePenIcon } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { ProfileAvatar } from '../profile/profile-avatar';

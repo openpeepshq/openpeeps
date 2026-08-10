@@ -1,4 +1,4 @@
-import {Profile} from '@openpeeps/common';
+import {Profile} from '@openpeepshq/common';
 import {create} from 'zustand';
 
 interface NewConversationStore {

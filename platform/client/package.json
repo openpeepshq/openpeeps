@@ -1,11 +1,11 @@
 {
-  "name": "@openpeeps/client",
+  "name": "@openpeepshq/client",
   "version": "0.1.36",
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@openpeeps/common": "workspace:^",
-    "@openpeeps/fetch-client": "workspace:^",
+    "@openpeepshq/common": "workspace:^",
+    "@openpeepshq/fetch-client": "workspace:^",
     "validator": "^13.11.0",
     "zod": "^4.4.3"
   },

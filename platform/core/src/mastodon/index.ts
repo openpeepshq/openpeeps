@@ -2,7 +2,7 @@ import {
   CustomEmoji,
   PostWithMeta,
   PublicProfile,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { Account, Emoji, MediaAttachment, Status } from './typescript';
 import { serverRootUrl } from '../server';
 import { snakeCase } from 'change-case/keys';

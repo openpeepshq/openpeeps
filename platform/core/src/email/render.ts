@@ -1,4 +1,4 @@
-import type { EmailGlobals, EmailOptions } from '@openpeeps/common/types';
+import type { EmailGlobals, EmailOptions } from '@openpeepshq/common/types';
 import { communityConfig, config } from '../config';
 import { convert } from 'html-to-text';
 import { registeredTemplates } from './registry';

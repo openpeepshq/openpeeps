@@ -1,4 +1,4 @@
-import { RoleData } from '@openpeeps/common/types';
+import { RoleData } from '@openpeepshq/common/types';
 import { findRoleByKey } from './finders';
 import { defaultRoles } from './defaults';
 import { allpeepDb } from '../db';

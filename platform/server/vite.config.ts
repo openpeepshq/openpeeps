@@ -16,7 +16,7 @@ export default defineConfig({
         format: 'es',
         entryFileNames: '[name].js',
       },
-      // Externalise every dependency — `@openpeeps/*` and everything in
+      // Externalise every dependency — `@openpeepshq/*` and everything in
       // node_modules. Vite's default SSR externaliser tries to inline some
       // packages which then fails on pre-compiled workspace packages with
       // stale `dist/` outputs. Explicitly externalising everything makes the

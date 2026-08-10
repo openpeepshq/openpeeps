@@ -4,10 +4,10 @@ import {
   type PostWithMeta,
   publicPostSchema,
   type PostData,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { ensureGroupCapabilities, ensureLocalProfile, ensureRoleCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { createPost, findPost } from '@openpeeps/core/posts';
+import { createPost, findPost } from '@openpeepshq/core/posts';
 
 export const Output = publicPostSchema;
 export const Param = z.object({

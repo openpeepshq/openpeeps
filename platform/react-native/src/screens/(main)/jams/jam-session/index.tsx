@@ -4,7 +4,7 @@ import { MainScreenProps } from '~/components/navigation/types';
 import { useRoomContext, useConnectionState } from '@livekit/react-native';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 import { JamLobby } from '~/components/custom';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ActivityIndicator } from 'react-native';
 import { useJamStore } from '~/stores/useJamStore';
 

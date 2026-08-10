@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
-import { Button, Link } from '@openpeeps/react-ui';
-import { getTheme } from '@openpeeps/common';
+import { Button, Link } from '@openpeepshq/react-ui';
+import { getTheme } from '@openpeepshq/common';
 import { useServerInfo } from '../server-data';
 import {
   useCurrentProfile,
@@ -17,7 +17,7 @@ export interface SideBarProps {
 }
 
 /**
- * Translation of @openpeeps/svelte/components/navigation/SideBar.svelte.
+ * Translation of @openpeepshq/svelte/components/navigation/SideBar.svelte.
  *
  * The Svelte version reached into a sprawling `<MainMenu />` / `<ProfileMenu />`
  * sub-tree (which referenced 30+ feature components). To keep the React port

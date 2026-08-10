@@ -1,10 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { successResponseSchema } from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
 import { forbidden, notFound, rethrowIfOpenpeepsError, unprocessableRequest } from '#lib/errors';
-import { findPost, rsvpManageByOrganizer } from '@openpeeps/core/posts';
-import { findProfile } from '@openpeeps/core/profiles';
+import { findPost, rsvpManageByOrganizer } from '@openpeepshq/core/posts';
+import { findProfile } from '@openpeepshq/core/profiles';
 
 export const Input = z.object({
   response: z.enum(['removed', 'yes']),

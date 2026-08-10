@@ -1,8 +1,8 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 
-import { PublicPost } from '@openpeeps/common';
-import { isUnreadPostForViewer, useOpenpeeps } from '@openpeeps/react';
+import { PublicPost } from '@openpeepshq/common';
+import { isUnreadPostForViewer, useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '~/components/ui/themed-text';
 import { ThemedView } from '~/components/ui/themed-view';
 import { FeedPostContent, UpdatingDate } from '~/components/custom';

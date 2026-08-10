@@ -3,7 +3,7 @@ import { render } from '@react-email/render';
 import type {
   EmailOptionsWithGlobals,
   EmailRenderer,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 import type { ReactEmailTemplate } from './types';
 

@@ -1,4 +1,4 @@
-import type { OpenpeepsClient } from '@openpeeps/client';
+import type { OpenpeepsClient } from '@openpeepshq/client';
 import { infiniteOffsetQueryApiHook, apiHook } from '../helpers';
 
 export type SearchHooks = ReturnType<typeof searchHooks>;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { PostCreationData, PublicProfile } from '@openpeeps/common/types';
+import type { PostCreationData, PublicProfile } from '@openpeepshq/common/types';
 import {
   Button,
   Dialog,
@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';

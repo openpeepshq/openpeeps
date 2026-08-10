@@ -3,10 +3,10 @@ import type { RequestEvent } from '@riddl/core';
 import {
   adminEmailQueueTestInputSchema,
   successResponseSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { badRequest, forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { queueTestEmail } from '@openpeeps/core/email';
+import { queueTestEmail } from '@openpeepshq/core/email';
 
 export const Input = adminEmailQueueTestInputSchema;
 

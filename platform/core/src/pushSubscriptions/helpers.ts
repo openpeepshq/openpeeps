@@ -1,4 +1,4 @@
-import { Account, PushSubscription } from '@openpeeps/common/types';
+import { Account, PushSubscription } from '@openpeepshq/common/types';
 import { connector } from '../db/helpers';
 import { collectionInfos } from '../db';
 

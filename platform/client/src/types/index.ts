@@ -3,8 +3,8 @@ import {
   ParametersType,
   TypedNoPayloadEndpoint,
   TypedPayloadEndpoint,
-} from '@openpeeps/fetch-client';
-import { SuccessFailureResponse } from '@openpeeps/common/types';
+} from '@openpeepshq/fetch-client';
+import { SuccessFailureResponse } from '@openpeepshq/common/types';
 
 export type OpenpeepsPayloadEndpoint<
   O,

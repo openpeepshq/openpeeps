@@ -1,4 +1,4 @@
-import type { OpenpeepsClient } from '@openpeeps/client';
+import type { OpenpeepsClient } from '@openpeepshq/client';
 import {
   apiHook,
   payloadMutation,
@@ -9,7 +9,7 @@ import { useHasAuthToken } from './useHasAuthToken';
 import type {
   ChronologicalInfiniteQueryParams,
   ProfileWithMeta,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 
 export type ProfileHooks = ReturnType<typeof profileHooks>;
 

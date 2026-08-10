@@ -1,21 +1,21 @@
 # Frontend Architecture
 
-The OpenPeeps web UI is a React SPA. Shared UI lives in `@openpeeps/react`;
-the assembled app is `@openpeeps/web`. React Native covers mobile.
+The OpenPeeps web UI is a React SPA. Shared UI lives in `@openpeepshq/react`;
+the assembled app is `@openpeepshq/web`. React Native covers mobile.
 
 ## Frontend Options
 
 ### Web SPA (Primary)
 
 The main web application is a **Vite + React** single-page app that talks to
-`@openpeeps/server` over `/api/openpeeps/core/v1`.
+`@openpeepshq/server` over `/api/openpeeps/core/v1`.
 
 **Location**: `platform/web/`
 
 **Key Features:**
 
 - Client-side routing (React Router)
-- Type-safe API integration via `@openpeeps/client`
+- Type-safe API integration via `@openpeepshq/client`
 - Progressive Web App (PWA) support
 - Mobile-first responsive design
 
@@ -27,7 +27,7 @@ The main web application is a **Vite + React** single-page app that talks to
 - Tailwind CSS - Styling
 - Vite - Build tool
 
-**Package**: `@openpeeps/web`
+**Package**: `@openpeepshq/web`
 
 **Documentation:**
 
@@ -46,7 +46,7 @@ React components and hooks for building OpenPeeps web applications.
 - Context providers for authentication and data
 - Type-safe API integration
 
-**Package**: `@openpeeps/react`
+**Package**: `@openpeepshq/react`
 
 **Key Exports:**
 
@@ -57,8 +57,8 @@ React components and hooks for building OpenPeeps web applications.
 
 **Dependencies:**
 
-- `@openpeeps/client` - API client
-- `@openpeeps/common` - Shared types
+- `@openpeepshq/client` - API client
+- `@openpeepshq/common` - Shared types
 - `@tanstack/react-query` - Data fetching
 - React - Component framework
 
@@ -68,7 +68,7 @@ Mobile app components for iOS and Android.
 
 **Location**: `platform/react-native/`
 
-**Package**: `@openpeeps/react-native`
+**Package**: `@openpeepshq/react-native`
 
 **Features:**
 
@@ -84,7 +84,7 @@ Type-safe API client used by all frontend frameworks.
 
 **Location**: `platform/client/`
 
-**Package**: `@openpeeps/client`
+**Package**: `@openpeepshq/client`
 
 **Features:**
 
@@ -96,7 +96,7 @@ Type-safe API client used by all frontend frameworks.
 **Usage:**
 
 ```typescript
-import { allpeepClient } from '@openpeeps/client';
+import { allpeepClient } from '@openpeepshq/client';
 
 const client = allpeepClient({ baseUrl: 'https://api.example.com' });
 const posts = await client.posts.list();
@@ -108,7 +108,7 @@ Shared types, utilities, and constants used across frontend and backend.
 
 **Location**: `platform/common/`
 
-**Package**: `@openpeeps/common`
+**Package**: `@openpeepshq/common`
 
 **Exports:**
 
@@ -125,8 +125,8 @@ Components are TypeScript React modules (`.tsx`), typically arrow functions with
 explicit props types:
 
 ```tsx
-import type { PublicProfile } from '@openpeeps/common/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import type { PublicProfile } from '@openpeepshq/common/types';
+import { useOpenpeeps } from '@openpeepshq/react';
 
 type Props = {
   handle: string;
@@ -150,7 +150,7 @@ export const ProfileByHandle = ({ handle }: Props) => {
 ### Data Fetching
 
 ```tsx
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 
 const { openpeepsApi } = useOpenpeeps();
 const { data: post, isLoading } = openpeepsApi.usePost(postId);
@@ -158,7 +158,7 @@ const { data: post, isLoading } = openpeepsApi.usePost(postId);
 
 ### API Integration
 
-All frontends use the `@openpeeps/client` package for type-safe API access:
+All frontends use the `@openpeepshq/client` package for type-safe API access:
 
 ```typescript
 // Client automatically handles:
@@ -172,8 +172,8 @@ All frontends use the `@openpeeps/client` package for type-safe API access:
 
 ### React UI
 
-Shared primitives live in `@openpeeps/react-ui` and higher-level components in
-`@openpeeps/react`:
+Shared primitives live in `@openpeepshq/react-ui` and higher-level components in
+`@openpeepshq/react`:
 
 - Buttons, inputs, dialogs, cards
 - Navigation components
@@ -213,16 +213,16 @@ pnpm build:watch
 ```bash
 # Build server + web dependency closure
 pnpm -r \
-  --filter "@openpeeps/server..." \
-  --filter "@openpeeps/web..." \
+  --filter "@openpeepshq/server..." \
+  --filter "@openpeepshq/web..." \
   build
 ```
 
 ## Frontend Best Practices
 
-1. **Type Safety**: Always use TypeScript types from `@openpeeps/common`
-2. **Component Reusability**: Use shared components from `@openpeeps/react`
-3. **API Client**: Always use `@openpeeps/client` / `openpeepsApi` for API calls
+1. **Type Safety**: Always use TypeScript types from `@openpeepshq/common`
+2. **Component Reusability**: Use shared components from `@openpeepshq/react`
+3. **API Client**: Always use `@openpeepshq/client` / `openpeepsApi` for API calls
 4. **State Management**: Prefer React Query for server state
 5. **Responsive Design**: Mobile-first approach
 6. **Accessibility**: Follow WCAG guidelines
@@ -233,7 +233,7 @@ pnpm -r \
 ### React Hook Usage
 
 ```tsx
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 
 export const PostList = () => {
   const { openpeepsApi } = useOpenpeeps();

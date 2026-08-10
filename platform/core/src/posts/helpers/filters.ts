@@ -6,9 +6,9 @@ import {
   CapabilitiesConfig,
   postWithMetaSchema,
   DbBasePost,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { combine, eventTimeFilters, postFilters } from '../../db/pg/filters';
-import { checkCapabilities, getPostCapabilities } from '@openpeeps/common/lib';
+import { checkCapabilities, getPostCapabilities } from '@openpeepshq/common/lib';
 import { ObjectFilter } from '../../db/types';
 
 export const ownPostsFilter = (

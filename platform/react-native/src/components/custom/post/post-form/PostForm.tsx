@@ -3,15 +3,15 @@ import { View } from 'react-native';
 import { UseFormReturn } from 'react-hook-form';
 import { ProfileAvatar } from '../../profile/profile-avatar';
 import { VisibilityInput } from './VisibilityInput';
-import { AudienceSetting, PublicProfile } from '@openpeeps/common';
-import { PostCreationData } from '@openpeeps/common';
+import { AudienceSetting, PublicProfile } from '@openpeepshq/common';
+import { PostCreationData } from '@openpeepshq/common';
 import { Form, FormTextarea, FormField } from '~/components/ui/form';
 import { MediaPreview } from './MediaPreview';
 import { cn, maxContentLength } from '~/lib/utils';
 import { PollForm } from './PollForm';
 import { useTranslation } from 'react-i18next';
 
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ProfilePickerSheet } from '../../modals';
 

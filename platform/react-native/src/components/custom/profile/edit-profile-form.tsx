@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { ThemedView } from '~/components/ui/themed-view';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '~/components/ui/themed-text';
 import { useForm } from 'react-hook-form';
 import {
@@ -10,7 +10,7 @@ import {
   Profile,
   ProfileData,
   profileSchema,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ActivityIndicator, Image, Pressable, View } from 'react-native';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';

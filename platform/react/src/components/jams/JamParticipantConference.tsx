@@ -8,7 +8,7 @@ import {
   useTracks,
 } from '@livekit/components-react';
 import { LocalVideoTrack, Track } from 'livekit-client';
-import { truncateText } from '@openpeeps/common';
+import { truncateText } from '@openpeepshq/common';
 import { JamChatDrawer } from './JamChatDrawer';
 import { JamDetailsDrawer } from './JamDetailsDrawer';
 import { useJamContext } from './JamContext';

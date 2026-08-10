@@ -1,5 +1,5 @@
-import type { JamEvent, PublicProfile } from '@openpeeps/common/types';
-import { jamEventSchema } from '@openpeeps/common/types';
+import type { JamEvent, PublicProfile } from '@openpeepshq/common/types';
+import { jamEventSchema } from '@openpeepshq/common/types';
 import type { Room } from 'livekit-client';
 import { uuidv7 } from 'uuidv7';
 

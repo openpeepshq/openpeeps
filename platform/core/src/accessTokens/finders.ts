@@ -4,11 +4,11 @@ import {
   authorizationSchema,
   ProfileWithMeta,
   Scope,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   decodeJwtPayloadUnverified,
   parseScopesFromJwt,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { allpeepDb } from '../db';
 import { getProfile } from '../profiles/cache';
 import { profilesMapping } from '../profiles/mapping';
