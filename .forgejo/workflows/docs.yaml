@@ -34,7 +34,7 @@ jobs:
         run: apk add --no-cache git docker-cli docker-cli-buildx tar
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@main
         with:
           fetch-depth: 0
           token: ${{ forgejo.token }}

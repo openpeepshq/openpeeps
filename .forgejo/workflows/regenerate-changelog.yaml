@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: apk add --no-cache git
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@main
         with:
           # Full history + tags are required for the changelog to span releases.
           fetch-depth: 0
