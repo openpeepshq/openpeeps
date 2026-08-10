@@ -292,7 +292,7 @@ const ScreenShareButton = ({
     return (
       <button
         type="button"
-        className="text-tertiary-500 flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
+        className="flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
         onClick={action}
       >
         {enabled ? <ScreenShareOff /> : <ScreenShare />}
@@ -346,7 +346,7 @@ const MobileMenu = ({
   <div className="bg-surface-100 text-foreground absolute bottom-20 left-2 right-2 z-50 grid grid-cols-3 rounded-md p-2">
     <button
       type="button"
-      className="text-tertiary-500 flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
+      className="flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
       onClick={() => {
         onClose();
         onOpenChat();
@@ -357,7 +357,7 @@ const MobileMenu = ({
     </button>
     <button
       type="button"
-      className="text-tertiary-500 flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
+      className="flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
       onClick={() => {
         onClose();
         onOpenDetails();
@@ -369,7 +369,7 @@ const MobileMenu = ({
     <ScreenShareButton closeMenu={onClose} t={t} mobile />
     <button
       type="button"
-      className="text-tertiary-500 flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
+      className="flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
       onClick={() => {
         onClose();
         onRaiseHand();
@@ -380,7 +380,7 @@ const MobileMenu = ({
     </button>
     <button
       type="button"
-      className="text-tertiary-500 flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
+      className="flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
       onClick={() => {
         onClose();
         onOpenPeople();
@@ -393,7 +393,7 @@ const MobileMenu = ({
       <button
         type="button"
         disabled={busy}
-        className="text-tertiary-500 flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
+        className="flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
         onClick={() => {
           onClose();
           onToggleRecording();
@@ -531,7 +531,7 @@ export const JamFooter = ({
       </div>
 
       {/* Mobile toolbar */}
-      <div className="bg-surface-50/75 fixed bottom-0 flex w-full items-center justify-between gap-x-2 px-2 py-3 md:hidden">
+      <div className="bg-surface-50/75 relative flex w-full items-center justify-between gap-x-2 px-2 py-3 md:hidden">
         {reactionMenuOpen ? (
           <div className="absolute bottom-20 right-[7%] z-50 mt-2 w-[90%] rounded-md p-2">
             <JamReactionMenu onSelect={handleEmojiSelect} mobile />

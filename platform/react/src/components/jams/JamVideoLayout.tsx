@@ -28,7 +28,7 @@ function DefaultGrid({
   cameraTracks: TrackReferenceOrPlaceholder[];
 }) {
   return (
-    <div className="mb-16 grid h-full w-full auto-rows-min grid-cols-2 place-items-center content-start justify-items-center gap-2 overflow-auto p-2 md:mb-32 md:flex md:flex-grow md:flex-wrap md:content-center md:items-center md:justify-center">
+    <div className="grid h-full w-full auto-rows-min grid-cols-2 place-items-center content-start justify-items-center gap-2 overflow-auto p-2 md:mb-32 md:flex md:flex-grow md:flex-wrap md:content-center md:items-center md:justify-center">
       {cameraTracks.map((track) => (
         <JamCallParticipant
           key={track.participant.identity}
@@ -61,7 +61,7 @@ function OneOnOneLayout({
   return (
     <div className="relative size-full p-2">
       <JamCallParticipant trackRef={remote} size="size-full" />
-      <div className="absolute bottom-12 right-12 mb-8 size-32 md:size-56">
+      <div className="absolute bottom-4 right-4 size-32 md:size-56">
         <JamCallParticipant trackRef={local} size="size-full" />
       </div>
     </div>

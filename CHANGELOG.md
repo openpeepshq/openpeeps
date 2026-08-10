@@ -16,6 +16,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **jams**: fix mobile jam menu contrast and footer overlap in dark mode
 - **profiles**: clarify invalid handle errors on profile save
 - **security**: harden LiveKit egress S3 receiver
 - **jams**: stop orphan LiveKit rooms from staying Live
@@ -29,8 +30,13 @@ Changelog for OpenPeeps
 - **architecture**: document realtime channel stack
 - align migration guidance with Postgres ADR
 
+### CI/CD
+
+- use one floating actions/checkout ref in all workflows
+
 ### Chores
 
+- **packages**: rename npm scope from @openpeeps to @openpeepshq
 - update ESLint configurations and import paths across multiple libraries
 
 ## 2026-08-06
