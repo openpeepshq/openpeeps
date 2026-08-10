@@ -8,6 +8,10 @@ export const defaultRoomOptions: Record<string, RoomOptions> = {
   'video-call': {
     adaptiveStream: true,
     dynacast: true,
+    // Prefer reconnect over tearing down the session when the tab is
+    // backgrounded. livekit-client still disconnects on `freeze`; JamRoom
+    // re-tokens and rejoins when the page becomes visible again.
+    disconnectOnPageLeave: false,
     publishDefaults: {
       simulcast: true,
       videoSimulcastLayers: [VideoPresets.h90, VideoPresets.h216],

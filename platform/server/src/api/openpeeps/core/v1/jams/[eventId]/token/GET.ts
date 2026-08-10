@@ -2,8 +2,17 @@ import { endpoint, z } from '#lib/endpoint';
 import { config } from '@openpeepshq/core/config';
 import { notFound, forbidden, rethrowIfOpenpeepsError } from '#lib/errors';
 import { canModerateJam, jamFromEvent } from '@openpeepshq/common/lib';
-import { createJamToken, findJamEvent, createJamEgressToken } from '@openpeepshq/core/jams';
-import { ensurePostCapabilities, ensureProfileOrGuest, serviceScopeMatches } from '#lib/auth';
+import {
+  createJamToken,
+  findJamEvent,
+  createJamEgressToken,
+  isAdmittedToJam,
+} from '@openpeepshq/core/jams';
+import {
+  ensurePostCapabilities,
+  ensureProfileOrGuest,
+  serviceScopeMatches,
+} from '#lib/auth';
 import { jamTokenResponseSchema } from '@openpeepshq/common/types';
 
 export const Param = z.object({
@@ -26,14 +35,18 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
       throw notFound(`Post with id ${param.eventId}`);
     }
 
-    if (serviceScopeMatches({
-      authorization: event.context.authorization,
-      scopeLevel: undefined,
-      resource: { type: 'jam', id: param.eventId },
-    })) {
+    if (
+      serviceScopeMatches({
+        authorization: event.context.authorization,
+        scopeLevel: undefined,
+        resource: { type: 'jam', id: param.eventId },
+      })
+    ) {
       return {
         success: true,
-        token: await createJamEgressToken(jamEvent).catch(rethrowIfOpenpeepsError),
+        token: await createJamEgressToken(jamEvent).catch(
+          rethrowIfOpenpeepsError,
+        ),
         livekitUrl: jams.livekit.url,
       };
     }
@@ -51,9 +64,13 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
       id: jamEvent.id,
     });
 
-
     if (jam.waitingRoom && !canModerateJam(currentProfile, jamEvent)) {
-      throw forbidden();
+      // Previously admitted guests may re-token after mobile idle / reconnect
+      // without going through the waiting room again.
+      const admitted = await isAdmittedToJam(jamEvent, currentProfile.id);
+      if (!admitted) {
+        throw forbidden();
+      }
     }
 
     const token = await createJamToken(jamEvent, currentProfile).catch(

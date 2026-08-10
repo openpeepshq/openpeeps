@@ -7,7 +7,7 @@ import {
   useIsSpeaking,
   useRoomContext,
 } from '@livekit/components-react';
-import { AudioLines, Ellipsis, Hand, Mic, MicOff } from 'lucide-react';
+import { AudioLines, Ellipsis, Hand, Mic, MicOff, WifiOff } from 'lucide-react';
 import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
@@ -18,6 +18,7 @@ import { JamAnimatedEmoji } from './JamAnimatedEmoji';
 import { useJamContext } from './JamContext';
 import { useJamEventsContext } from './JamEventsContext';
 import { parseParticipantMetadata } from './jamEventActions';
+import { useConnectionLost } from './useParticipantConnection';
 import { useRaisedHands } from './useJamHands';
 
 export interface JamCallParticipantProps {
@@ -116,12 +117,14 @@ function JamParticipantOverlay({
   trackRef: TrackReferenceOrPlaceholder;
   compact: boolean;
 }) {
+  const t = useT();
   const participant = trackRef.participant;
   const room = useRoomContext();
   const me = useCurrentProfile();
   const { jam } = useJamContext();
   const raisedHands = useRaisedHands(room);
   const speaking = useIsSpeaking(participant);
+  const connectionLost = useConnectionLost(participant);
 
   const micOn = participant.isMicrophoneEnabled;
   const handUp = raisedHands.has(participant.identity);
@@ -162,9 +165,18 @@ function JamParticipantOverlay({
           ) : null}
         </div>
         <div
-          className={`bg-surface-100 text-foreground rounded-full p-2 ${micOn && speaking ? 'text-primary-500' : ''}`}
+          className={`bg-surface-100 text-foreground rounded-full p-2 ${micOn && speaking && !connectionLost ? 'text-primary-500' : ''}`}
+          title={
+            connectionLost
+              ? t('jams.people.connectionLost', {
+                  defaultValue: 'Connection lost',
+                })
+              : undefined
+          }
         >
-          {!micOn ? (
+          {connectionLost ? (
+            <WifiOff className={iconSize} />
+          ) : !micOn ? (
             <MicOff className={iconSize} />
           ) : speaking ? (
             <AudioLines className={iconSize} />
@@ -182,6 +194,15 @@ function JamParticipantOverlay({
               (profile.displayName || `@${profile.handle}`)
             : ''}
         </div>
+        {connectionLost ? (
+          <div
+            className={`bg-surface-100 text-muted-foreground ml-1 shrink-0 truncate rounded-lg p-1 ${compact ? 'text-xs' : 'text-sm'}`}
+          >
+            {t('jams.people.connectionLost', {
+              defaultValue: 'Connection lost',
+            })}
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -200,11 +221,14 @@ export function JamCallParticipant({
 }: JamCallParticipantProps) {
   const participant = trackRef.participant;
   const profile = parseParticipantMetadata(participant.metadata).profile;
+  const connectionLost = useConnectionLost(participant);
 
   return (
     <div className={`${size} bg-surface-50 relative rounded-xl border`}>
       <TrackRefContext.Provider value={trackRef}>
-        <div className="size-full overflow-hidden rounded-xl">
+        <div
+          className={`size-full overflow-hidden rounded-xl ${connectionLost ? 'opacity-40 grayscale' : ''}`}
+        >
           {isTrackReference(trackRef) && !trackRef.publication.isMuted ? (
             <VideoTrack
               trackRef={trackRef}

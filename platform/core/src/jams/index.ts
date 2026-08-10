@@ -14,6 +14,7 @@ import { jamStateCache, LIVE_JAMS_CACHE_KEY, liveJamPostsCache } from './cache';
 import { localInstanceDomain, parseRoomInstanceDomain } from './helpers';
 import { findPost } from '../posts';
 import { createJamEvent } from './mutations';
+import { clearJamAdmittance } from './waitingRoom';
 import { uuidv7 } from 'uuidv7';
 import { canReadPost } from '../posts/helpers';
 import { capabilitiesConfig } from '../config';
@@ -139,7 +140,10 @@ export const closeJam = async (profile: Profile, jamEvent: PostWithMeta) => {
   await stopRecording(jamEvent);
 
   return rs.deleteRoom(jamEvent.id).then(async () => {
-    await invalidateJamCaches(jamEvent.id);
+    await Promise.all([
+      invalidateJamCaches(jamEvent.id),
+      clearJamAdmittance(jamEvent).catch(() => undefined),
+    ]);
     return createJamEvent({
       id: uuidv7(),
       jamId: jamEvent.id,

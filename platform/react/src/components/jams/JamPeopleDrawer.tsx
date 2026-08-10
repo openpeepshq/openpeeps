@@ -6,11 +6,13 @@ import {
   MicOff,
   Search,
   UserRoundCheck,
+  WifiOff,
   X,
 } from 'lucide-react';
 import type { PublicProfile } from '@openpeepshq/common/types';
 import { matchesQuery, profileName } from '@openpeepshq/common/lib';
 import { useParticipants, useRoomContext } from '@livekit/components-react';
+import type { Participant } from 'livekit-client';
 import { Button, Input } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
@@ -18,11 +20,62 @@ import { useCurrentProfile } from '../layout/IdentityContext';
 import { Avatar } from '../profile';
 import { useJamContext } from './JamContext';
 import { parseParticipantMetadata } from './jamEventActions';
+import { useConnectionLost } from './useParticipantConnection';
 import { useRaisedHands } from './useJamHands';
 
 export interface JamPeopleDrawerProps {
   open: boolean;
   onClose: () => void;
+}
+
+/** One "In jam" row. Split out so the connection-quality hook runs per participant. */
+function JamParticipantRow({
+  participant,
+  handUp,
+  isModerator,
+}: {
+  participant: Participant;
+  handUp: boolean;
+  isModerator: boolean;
+}) {
+  const t = useT();
+  const profile = parseParticipantMetadata(participant.metadata).profile;
+  const micOn = participant.isMicrophoneEnabled;
+  const speaking = participant.isSpeaking;
+  const connectionLost = useConnectionLost(participant);
+
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div
+        className={`flex min-w-0 items-center gap-2 ${connectionLost ? 'opacity-50' : ''}`}
+      >
+        <Avatar profile={profile} size={2} />
+        <span className="truncate text-sm">
+          {(isModerator ? '* ' : '') +
+            (profile ? profileName(profile) : participant.identity)}
+        </span>
+      </div>
+      <div className="flex items-center gap-1.5">
+        {handUp ? <Hand className="size-4" /> : null}
+        {connectionLost ? (
+          <span
+            className="text-muted-foreground flex items-center gap-1 text-xs"
+            title={t('jams.people.connectionLost', {
+              defaultValue: 'Connection lost',
+            })}
+          >
+            <WifiOff className="size-4" />
+          </span>
+        ) : !micOn ? (
+          <MicOff className="text-muted-foreground size-4" />
+        ) : speaking ? (
+          <AudioLines className="text-primary size-4" />
+        ) : (
+          <Mic className="size-4" />
+        )}
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -118,40 +171,14 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
             {t('jams.people.inJam', { defaultValue: 'In jam' })}
           </h4>
           <div className="mt-1 flex flex-col gap-2">
-            {listedParticipants.map((participant) => {
-              const profile = parseParticipantMetadata(
-                participant.metadata,
-              ).profile;
-              const handUp = raisedHands.has(participant.identity);
-              const micOn = participant.isMicrophoneEnabled;
-              const speaking = participant.isSpeaking;
-              return (
-                <div
-                  key={participant.identity}
-                  className="flex items-center justify-between gap-2"
-                >
-                  <div className="flex min-w-0 items-center gap-2">
-                    <Avatar profile={profile} size={2} />
-                    <span className="truncate text-sm">
-                      {(jam.moderators.includes(participant.identity)
-                        ? '* '
-                        : '') +
-                        (profile ? profileName(profile) : participant.identity)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {handUp ? <Hand className="size-4" /> : null}
-                    {!micOn ? (
-                      <MicOff className="text-muted-foreground size-4" />
-                    ) : speaking ? (
-                      <AudioLines className="text-primary size-4" />
-                    ) : (
-                      <Mic className="size-4" />
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+            {listedParticipants.map((participant) => (
+              <JamParticipantRow
+                key={participant.identity}
+                participant={participant}
+                handUp={raisedHands.has(participant.identity)}
+                isModerator={jam.moderators.includes(participant.identity)}
+              />
+            ))}
             {listedParticipants.length === 0 ? (
               <p className="text-muted-foreground py-4 text-center text-sm">
                 {t('jams.people.noParticipants', {

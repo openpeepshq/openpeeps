@@ -13,6 +13,9 @@ import {
 const waitingRoomKey = (event: PostWithMeta) => `jams:waiting-room:${event.id}`;
 const admittanceKey = (event: PostWithMeta) => `jams:admitted:${event.id}`;
 
+/** Keep admissions around for the length of a long jam / mobile backgrounding. */
+const ADMITTANCE_TTL_SEC = 12 * 60 * 60;
+
 const currentWaitingRoom = (event: PostWithMeta) =>
   getSharedConnection()
     .then((conn) => conn.hGetAll(waitingRoomKey(event)))
@@ -28,6 +31,20 @@ const currentWaitingRoom = (event: PostWithMeta) =>
 
 const currentAdmittance = (event: PostWithMeta) =>
   getSharedConnection().then((conn) => conn.hGetAll(admittanceKey(event)));
+
+export const isAdmittedToJam = async (
+  event: PostWithMeta,
+  profileId: string,
+): Promise<boolean> => {
+  const conn = await getSharedConnection();
+  return Boolean(await conn.hExists(admittanceKey(event), profileId));
+};
+
+export const clearJamAdmittance = async (
+  event: PostWithMeta,
+): Promise<void> => {
+  await getSharedConnection().then((conn) => conn.del(admittanceKey(event)));
+};
 
 export const currentWaitingRoomWatch = (
   jamEvent: PostWithMeta,
@@ -91,16 +108,11 @@ export const joinWaitingRoom = async (
   assertJamRsvpAllowed(event, profile);
 
   const conn = await getSharedConnection();
-  const multi = conn.multi();
-
   const wrKey = waitingRoomKey(event);
-  const aKey = admittanceKey(event);
 
-  multi.hDel(aKey, profile.id);
-
-  multi.hSet(wrKey, { [profile.id]: JSON.stringify(profile) });
-
-  await multi.exec();
+  // Do not clear admittance here — once admitted, the guest may reconnect
+  // (mobile idle / tab freeze) without a second moderator approval.
+  await conn.hSet(wrKey, { [profile.id]: JSON.stringify(profile) });
 };
 
 export const acceptFromWaitingRoom = async (
@@ -121,4 +133,5 @@ export const acceptFromWaitingRoom = async (
   await conn.hSet(aKey, {
     [profile.id]: await createJamToken(event, profile),
   });
+  await conn.expire(aKey, ADMITTANCE_TTL_SEC);
 };

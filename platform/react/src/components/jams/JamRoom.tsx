@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import '@livekit/components-styles';
 import './livekit-light-theme.css';
 import type { LocalUserChoices } from '@livekit/components-react';
@@ -21,6 +21,18 @@ export interface JamRoomProps {
   observer?: boolean;
 }
 
+type JamConnection = {
+  token: string;
+  livekitUrl: string;
+  audio: boolean;
+  video: boolean;
+};
+
+type ReconnectPrefs = {
+  audio: boolean;
+  video: boolean;
+};
+
 /**
  * Top-level React port of `core/jams/room/Room.svelte`. Decides whether to
  * render the lobby, the live video call, an "access denied / jam not active"
@@ -39,7 +51,8 @@ export function JamRoom({ jamPost, observer = false }: JamRoomProps) {
 
 function JamRoomInner() {
   const t = useT();
-  const { jamPost, jam, jamEvent, observer } = useJamContext();
+  const { jamPost, jam, jamEvent, observer, consumeIntentionalLeave } =
+    useJamContext();
   const { openpeepsApi, client } = useOpenpeeps();
   const serverInfo = useServerInfo();
   const me = useCurrentProfile();
@@ -49,17 +62,29 @@ function JamRoomInner() {
   const rsvpToEvent = openpeepsApi.rsvpToEventAction({ id: jamPost.id });
   const post = postQuery.data ?? jamPost;
 
-  const [connection, setConnection] = useState<
-    | { token: string; livekitUrl: string; audio: boolean; video: boolean }
-    | undefined
+  const [connection, setConnection] = useState<JamConnection | undefined>(
+    undefined,
+  );
+  const [reconnectPrefs, setReconnectPrefs] = useState<
+    ReconnectPrefs | undefined
   >(undefined);
+  const [reconnectError, setReconnectError] = useState<string | undefined>();
   const [observerError, setObserverError] = useState<string | undefined>();
   const [autoRsvpError, setAutoRsvpError] = useState<string | undefined>();
   const autoRsvpStarted = useRef(false);
+  const reconnectInFlight = useRef(false);
+  const mounted = useRef(true);
 
   const livekitUrl = serverInfo.jams.livekit.url;
   const isModerator = !!me && (jam?.moderators.includes(me.id) ?? false);
   const jamActive = !!jamStateQuery.data?.active;
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   const handleJoin = ({
     token,
@@ -70,6 +95,8 @@ function JamRoomInner() {
     livekitUrl: string;
     choices?: LocalUserChoices;
   }) => {
+    setReconnectPrefs(undefined);
+    setReconnectError(undefined);
     setConnection({
       token,
       livekitUrl: url ?? livekitUrl,
@@ -77,6 +104,74 @@ function JamRoomInner() {
       video: choices?.videoEnabled ?? true,
     });
   };
+
+  const tryReconnect = useCallback(
+    async (prefs: ReconnectPrefs) => {
+      if (reconnectInFlight.current || !mounted.current) return;
+      reconnectInFlight.current = true;
+      setReconnectError(undefined);
+      try {
+        const res = await client.jams.token({
+          pathParameters: { id: jamPost.id },
+        });
+        if (!mounted.current) return;
+        if ('error' in res) {
+          // Not admitted / jam closed — fall back to the normal gate UI.
+          setReconnectPrefs(undefined);
+          return;
+        }
+        setConnection({
+          token: res.data.token,
+          livekitUrl: res.data.livekitUrl ?? livekitUrl,
+          audio: prefs.audio,
+          video: prefs.video,
+        });
+        setReconnectPrefs(undefined);
+      } catch (err) {
+        if (!mounted.current) return;
+        setReconnectError(
+          apiErrorMessage(
+            err,
+            t,
+            t('jams.lobby.tokenError', {
+              defaultValue: 'Failed to get jam token',
+            }),
+          ),
+        );
+      } finally {
+        reconnectInFlight.current = false;
+      }
+    },
+    [client, jamPost.id, livekitUrl, t],
+  );
+
+  const handleDisconnected = useCallback(() => {
+    if (consumeIntentionalLeave()) {
+      setConnection(undefined);
+      setReconnectPrefs(undefined);
+      setReconnectError(undefined);
+      return;
+    }
+    setConnection((current) => {
+      if (!current) return undefined;
+      const prefs = { audio: current.audio, video: current.video };
+      setReconnectPrefs(prefs);
+      queueMicrotask(() => void tryReconnect(prefs));
+      return undefined;
+    });
+  }, [consumeIntentionalLeave, tryReconnect]);
+
+  // Retry when the page becomes visible again (mobile idle / tab freeze).
+  useEffect(() => {
+    if (!reconnectPrefs) return;
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void tryReconnect(reconnectPrefs);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, [reconnectPrefs, tryReconnect]);
 
   const capacityBlock = (() => {
     if (!me) {
@@ -180,8 +275,25 @@ function JamRoomInner() {
         serverUrl={connection.livekitUrl}
         audio={connection.audio}
         video={connection.video}
-        onDisconnected={() => setConnection(undefined)}
+        onDisconnected={handleDisconnected}
       />
+    );
+  }
+
+  if (reconnectPrefs) {
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-2 p-4">
+        <span className="text-center text-lg">
+          {t('jams.room.reconnecting', {
+            defaultValue: 'Reconnecting to the jam…',
+          })}
+        </span>
+        {reconnectError ? (
+          <span className="text-destructive text-center text-sm">
+            {reconnectError}
+          </span>
+        ) : null}
+      </div>
     );
   }
 
