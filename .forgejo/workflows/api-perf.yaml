@@ -42,7 +42,7 @@ jobs:
     steps:
       - name: Install tools
         run: apk add --no-cache git python3 make g++ unzip zip
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
       - uses: pnpm/action-setup@v4
         with:
           version: 11.1.3

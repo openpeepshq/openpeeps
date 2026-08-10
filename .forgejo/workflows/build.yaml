@@ -30,7 +30,7 @@ jobs:
       - name: Install git
         run: apk add --no-cache git
       - name: Checkout (resolve SHA for workflow_call when forgejo.sha is empty)
-        uses: actions/checkout@v6
+        uses: actions/checkout@main
         with:
           fetch-depth: 0
           token: ${{ forgejo.token }}
@@ -119,7 +119,7 @@ jobs:
     steps:
       - name: Install Docker CLI and git
         run: apk add --no-cache docker-cli docker-cli-buildx git
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@main
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
           fetch-depth: 0
@@ -161,7 +161,7 @@ jobs:
     container:
       image: node:24-alpine
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install dependencies
@@ -261,7 +261,7 @@ jobs:
           SERVER_HOST: web:8080
           SERVER_PROTOCOL: http
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install pnpm and dependencies
@@ -381,7 +381,7 @@ jobs:
           JAMS_LIVEKIT_API_KEY: ${{ secrets.JAMS_LIVEKIT_API_KEY }}
           JAMS_LIVEKIT_API_SECRET: ${{ secrets.JAMS_LIVEKIT_API_SECRET }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install pnpm and dependencies
@@ -429,7 +429,7 @@ jobs:
       - name: Install git
         if: needs.set-variables.outputs.is_release_branch == 'false' && forgejo.ref_name != 'weblate'
         run: apk add --no-cache git
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
         if: needs.set-variables.outputs.is_release_branch == 'false' && forgejo.ref_name != 'weblate'
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
