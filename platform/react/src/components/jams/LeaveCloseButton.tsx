@@ -24,7 +24,7 @@ export const LeaveCloseButton = () => {
   const room = useRoomContext();
   const navigate = useNavigate();
   const me = useCurrentProfile();
-  const { jam, jamPost } = useJamContext();
+  const { jam, jamPost, markIntentionalLeave } = useJamContext();
   const { openpeepsApi } = useOpenpeeps();
   const closeJam = openpeepsApi.closeJamAction({ id: jamPost.id });
 
@@ -33,6 +33,7 @@ export const LeaveCloseButton = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const leave = async () => {
+    markIntentionalLeave();
     await room.disconnect();
     navigate('/jams');
   };
@@ -49,6 +50,7 @@ export const LeaveCloseButton = () => {
   const handleClose = async () => {
     setBusy(true);
     try {
+      markIntentionalLeave();
       await closeJam();
       navigate('/jams');
     } finally {

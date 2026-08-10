@@ -16,6 +16,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **jams**: reconnect admitted guests after mobile idle disconnect
 - **jams**: fix mobile jam menu contrast and footer overlap in dark mode
 - **profiles**: clarify invalid handle errors on profile save
 - **security**: harden LiveKit egress S3 receiver

@@ -3,7 +3,13 @@ import { forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
 import type { RequestEvent } from '@riddl/core';
 import { jamTokenResponseSchema } from '@openpeepshq/common/types';
 import { config } from '@openpeepshq/core/config';
-import { admittanceWatch, findJamEvent, joinWaitingRoom } from '@openpeepshq/core/jams';
+import {
+  admittanceWatch,
+  createJamToken,
+  findJamEvent,
+  isAdmittedToJam,
+  joinWaitingRoom,
+} from '@openpeepshq/core/jams';
 import { produceStream } from '#lib/sse';
 import { ensureProfileOrGuest } from '#lib/auth';
 import { jamFromEvent } from '@openpeepshq/common/lib';
@@ -37,9 +43,27 @@ export const apiEndpoint = endpoint({ Param, Stream, Error }).handle(
       throw notFound(`Jam with id ${input.eventId}`);
     }
 
-    await joinWaitingRoom(jamEvent, profile).catch(rethrowIfOpenpeepsError);
-
     const { jams } = coreConfig;
+
+    // Already admitted (e.g. mobile idle reconnect): mint a fresh token and
+    // skip the waiting-room queue entirely.
+    if (await isAdmittedToJam(jamEvent, profile.id)) {
+      const token = await createJamToken(jamEvent, profile).catch(
+        rethrowIfOpenpeepsError,
+      );
+      return produceStream<z.infer<typeof Stream>>({
+        start: ({ emit, stop }) => {
+          emit({
+            success: true,
+            token,
+            livekitUrl: jams.livekit.url,
+          });
+          stop();
+        },
+      });
+    }
+
+    await joinWaitingRoom(jamEvent, profile).catch(rethrowIfOpenpeepsError);
 
     return produceStream<z.infer<typeof Stream>>({
       start: ({ emit, stop }) =>

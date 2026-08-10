@@ -855,7 +855,8 @@
     "people": {
       "inJam": "IN JAM",
       "inWaitingRoom": "IN WAITING ROOM",
-      "noParticipants": "No participants found"
+      "noParticipants": "No participants found",
+      "connectionLost": "Connection lost"
     },
     "debug": {
       "audioLevelLabel": "Audio Level",
@@ -965,7 +966,8 @@
       "notFound": "Jam not found",
       "viewEvent": "View event",
       "autoRsvpInProgress": "Registering you for this event…",
-      "autoRsvpError": "Failed to register for this event."
+      "autoRsvpError": "Failed to register for this event.",
+      "reconnecting": "Reconnecting to the jam…"
     },
     "participant": {
       "showEveryone": "Show everyone",
