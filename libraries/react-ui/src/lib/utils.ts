@@ -16,7 +16,7 @@ export const deepGet = (obj: unknown, path: (string | number | symbol)[]): unkno
   );
 
 /**
- * Mutates `obj` by setting `path` to `val`. Mirrors @openpeeps/ui's deepSet
+ * Mutates `obj` by setting `path` to `val`. Mirrors @openpeepshq/ui's deepSet
  * so we keep the same call sites in form helpers.
  */
 export const deepSet = <T>(obj: T, path: string | (string | number)[], val: unknown): T => {

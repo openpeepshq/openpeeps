@@ -19,10 +19,10 @@ import {
   SendHorizonalIcon,
   LoaderIcon,
 } from '~/components/icons';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';
-import { JamEvent, PublicProfile } from '@openpeeps/common';
+import { JamEvent, PublicProfile } from '@openpeepshq/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import { truncateText } from '~/lib/utils';
 import { useChat, useLocalParticipant } from '@livekit/react-native';

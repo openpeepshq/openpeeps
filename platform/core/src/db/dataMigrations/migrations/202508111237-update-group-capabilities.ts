@@ -1,7 +1,7 @@
 import { Database } from 'arangojs';
 import { transformDocsInCollection } from '../helpers';
-import { GroupData } from '@openpeeps/common/types';
-import { groupCapabilityTemplates } from '@openpeeps/common/lib';
+import { GroupData } from '@openpeepshq/common/types';
+import { groupCapabilityTemplates } from '@openpeepshq/common/lib';
 
 export default {
   key: '01989922-a9a0-7aae-8b9e-6416ed9c67b7',

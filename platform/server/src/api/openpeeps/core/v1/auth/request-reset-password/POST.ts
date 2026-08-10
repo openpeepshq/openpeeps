@@ -2,7 +2,7 @@ import { endpoint } from '#lib/endpoint';
 import {
   requestResetPasswordRequestSchema,
   successResponseSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { requestResetPasswordHandler } from '#lib/handlers/auth/resetPassword';
 import { forbidden, notFound } from '#lib/errors';
 

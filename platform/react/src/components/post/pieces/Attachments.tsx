@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { MediaAttachmentData, PublicPost } from '@openpeeps/common/types';
+import type { MediaAttachmentData, PublicPost } from '@openpeepshq/common/types';
 import { useStaticRender } from '../../markdown/staticRender';
 import { VideoPlayOverlay } from '../VideoPlayOverlay';
 import { GalleryModal } from './GalleryModal';

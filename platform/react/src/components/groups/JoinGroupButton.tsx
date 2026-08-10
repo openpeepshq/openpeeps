@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { GroupWithMeta } from '@openpeeps/common/types';
-import { checkGroupCapabilities } from '@openpeeps/common/lib';
-import { Button } from '@openpeeps/react-ui';
+import type { GroupWithMeta } from '@openpeepshq/common/types';
+import { checkGroupCapabilities } from '@openpeepshq/common/lib';
+import { Button } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useAuthData, useCurrentProfile } from '../layout/IdentityContext';

@@ -1,8 +1,8 @@
 FROM realies/audiowaveform AS audiowaveform
 
 #─────────────────────────────────────────────────────────────────────────────
-# Build stage — installs all workspace deps, builds @openpeeps/server,
-# @openpeeps/worker and @openpeeps/web (plus their workspace dependencies).
+# Build stage — installs all workspace deps, builds @openpeepshq/server,
+# @openpeepshq/worker and @openpeepshq/web (plus their workspace dependencies).
 #─────────────────────────────────────────────────────────────────────────────
 FROM node:24-alpine AS builder
 
@@ -38,9 +38,9 @@ RUN node scripts/generate-changelog.mjs
 # transitive workspace dependencies. The `...` suffix on each filter expands
 # to "this package + everything it depends on".
 RUN pnpm \
-    --filter "@openpeeps/server..." \
-    --filter "@openpeeps/worker..." \
-    --filter "@openpeeps/web..." \
+    --filter "@openpeepshq/server..." \
+    --filter "@openpeepshq/worker..." \
+    --filter "@openpeepshq/web..." \
     --filter "*plugins*" \
     install --frozen-lockfile
 
@@ -48,9 +48,9 @@ RUN pnpm \
 # workspace graph so libraries (common → core → react-ui → react → …) are
 # built before the packages that consume them.
 RUN pnpm -r \
-    --filter "@openpeeps/server..." \
-    --filter "@openpeeps/worker..." \
-    --filter "@openpeeps/web..." \
+    --filter "@openpeepshq/server..." \
+    --filter "@openpeepshq/worker..." \
+    --filter "@openpeepshq/web..." \
     --filter "*plugins*" \
     build
 
@@ -88,7 +88,7 @@ ENV LOGS_LOCAL_PATH=/apat/.logs
 
 ENV DEBUG_COLORS=false DEBUG_HIDE_DATE=true DEBUG_DEPTH=20
 
-# Tell @openpeeps/server where to find the React SPA build at runtime.
+# Tell @openpeepshq/server where to find the React SPA build at runtime.
 # `start.sh` honours this when launching the `web` command.
 ENV WEB_DIST_PATH=/apat/platform/web/dist
 
@@ -108,10 +108,10 @@ COPY --from=audiowaveform /usr/local/bin/audiowaveform /usr/local/bin/audiowavef
 # node_modules to the closure of server/worker/web via filtered installs.
 COPY --from=builder /apat /apat
 
-# Expose the @openpeeps/cli `opc` bin on PATH so operators can run admin
+# Expose the @openpeepshq/cli `opc` bin on PATH so operators can run admin
 # commands (`opc db clear`, `opc accounts create`, …) from anywhere in the
 # container. The script imports the compiled CLI via a relative path so it
-# does not depend on `@openpeeps/cli` being resolvable from the cwd.
+# does not depend on `@openpeepshq/cli` being resolvable from the cwd.
 RUN ln -sf /apat/platform/cli/bin/opc.mjs /usr/local/bin/opc \
  && chmod +x /apat/platform/cli/bin/opc.mjs
 

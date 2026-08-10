@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pencil, X } from 'lucide-react';
-import type { MediaAttachment, MediaAttachmentData } from '@openpeeps/common';
+import type { MediaAttachment, MediaAttachmentData } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { DescriptionEditModal } from './DescriptionEditModal';

@@ -5,8 +5,8 @@ import {
   AnalyticsStackedAreaChart,
   MetricCard,
   type StackedSeries,
-} from '@openpeeps/react-ui';
-import { useOpenpeeps, useT } from '@openpeeps/react';
+} from '@openpeepshq/react-ui';
+import { useOpenpeeps, useT } from '@openpeepshq/react';
 import { AnalyticsLoading, AnalyticsSection } from './AnalyticsLayout';
 import { useAnalyticsRangeContext } from './AnalyticsRangeContext';
 

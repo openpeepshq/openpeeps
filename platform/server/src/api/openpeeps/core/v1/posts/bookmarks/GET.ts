@@ -1,8 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { publicPostSchema } from '@openpeeps/common/types';
+import { publicPostSchema } from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
-import { listBookmarkedPosts } from '@openpeeps/core/posts';
+import { listBookmarkedPosts } from '@openpeepshq/core/posts';
 
 export const Output = publicPostSchema.array();
 export const Query = z.object({

@@ -11,7 +11,7 @@ import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ChevronRightIcon } from '~/components/icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';

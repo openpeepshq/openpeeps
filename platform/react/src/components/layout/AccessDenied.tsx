@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { EyeOff } from 'lucide-react';
-import type { PartialQueryObserverResult } from '@openpeeps/react-ui';
+import type { PartialQueryObserverResult } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 
 export interface AccessDeniedProps {

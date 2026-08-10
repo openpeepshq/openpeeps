@@ -1,8 +1,8 @@
-import { truncateText, type JamEvent } from '@openpeeps/common';
+import { truncateText, type JamEvent } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { OpenpeepsMarkdown } from '../markdown/OpenpeepsMarkdown';
 import { Avatar } from '../profile/Avatar';
-import { UpdatingDate } from '@openpeeps/react-ui';
+import { UpdatingDate } from '@openpeepshq/react-ui';
 
 const attendance = ['join', 'leave', 'start', 'close'] as const;
 

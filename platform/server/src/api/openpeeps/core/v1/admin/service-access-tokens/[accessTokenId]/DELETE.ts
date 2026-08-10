@@ -1,11 +1,11 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { successResponseSchema } from '@openpeepshq/common/types';
 import {
   findAccessToken,
   isServiceAccessToken,
   revokeAccessToken,
-} from '@openpeeps/core/accessTokens';
+} from '@openpeepshq/core/accessTokens';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
 

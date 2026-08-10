@@ -3,7 +3,7 @@
 // import { FsBlockstore } from 'blockstore-fs';
 // import { CID } from 'multiformats';
 
-// import type {MediaStorage, MediaStorageParams} from '@openpeeps/common/types';
+// import type {MediaStorage, MediaStorageParams} from '@openpeepshq/common/types';
 //
 // interface EnhancedReadableStream extends ReadableStream {
 // 	from: <T> (iterable: Iterable<T> | AsyncIterable<T>) => ReadableStream<T>

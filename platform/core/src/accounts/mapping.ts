@@ -4,7 +4,7 @@ import {
   AccountWithMeta,
   ProfileWithMeta,
   PushSubscription,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { pushSubscriptionsMapping } from '../pushSubscriptions/mapping';
 
 export const profileAccountRelation: RelationWithMapping<ProfileWithMeta> = {

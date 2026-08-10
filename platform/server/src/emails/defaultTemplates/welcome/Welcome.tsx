@@ -1,6 +1,6 @@
 import { Button, Heading, Link, Section, Text } from '@react-email/components';
 import { marked } from 'marked';
-import type { EmailGlobals } from '@openpeeps/common/types';
+import type { EmailGlobals } from '@openpeepshq/common/types';
 
 import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { emailStyles } from '../../styles';

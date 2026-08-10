@@ -1,11 +1,11 @@
 {
-  "name": "@openpeeps/tests",
+  "name": "@openpeepshq/tests",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "pnpm run test:integration",
-    "pretest:integration": "pnpm --filter @openpeeps/server... build && pnpm --filter @openpeeps/web build && pnpm exec playwright install chromium chromium-headless-shell",
+    "pretest:integration": "pnpm --filter @openpeepshq/server... build && pnpm --filter @openpeepshq/web build && pnpm exec playwright install chromium chromium-headless-shell",
     "db:clear:test": "DB_NAME=test node scripts/db-clear-test.mjs",
     "test:integration": "if [ -z \"$CI\" ]; then pnpm run db:clear:test; fi && unset FORCE_COLOR && DB_NAME=test INTEGRATION_SUITE=empty playwright test --project=empty",
     "test:integration:no-clean": "unset FORCE_COLOR && DB_NAME=test INTEGRATION_SUITE=empty playwright test --project=empty",
@@ -35,8 +35,8 @@
   },
   "devDependencies": {
     "@livekit/rtc-node": "^0.13.31",
-    "@openpeeps/cli": "workspace:^",
-    "@openpeeps/core": "workspace:^",
+    "@openpeepshq/cli": "workspace:^",
+    "@openpeepshq/core": "workspace:^",
     "@playwright/test": "^1.56.1",
     "@types/node": "^24.1.0",
     "dotenv": "^16.4.5",

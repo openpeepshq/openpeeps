@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import type { PublicProfile } from '@openpeeps/common/types';
+import type { PublicProfile } from '@openpeepshq/common/types';
 import {
   Button,
   Popover,
@@ -7,7 +7,7 @@ import {
   PopoverContent,
   Textarea,
   cn,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { OpenpeepsMarkdown } from '../../markdown';

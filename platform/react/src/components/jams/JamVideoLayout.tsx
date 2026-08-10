@@ -6,8 +6,8 @@ import {
   useRoomContext,
 } from '@livekit/components-react';
 import { Maximize2, ScreenShare } from 'lucide-react';
-import { profileName } from '@openpeeps/common/lib';
-import { Button } from '@openpeeps/react-ui';
+import { profileName } from '@openpeepshq/common/lib';
+import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { AvatarWithName } from '../profile';
 import { JamCallParticipant } from './JamCallParticipant';

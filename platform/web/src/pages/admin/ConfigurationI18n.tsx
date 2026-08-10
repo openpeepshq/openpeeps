@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useT, useSetPageHeader, useOpenpeeps } from '@openpeeps/react';
+import { useT, useSetPageHeader, useOpenpeeps } from '@openpeepshq/react';
 import {
   Button,
   ExpandableBox,
@@ -8,7 +8,7 @@ import {
   Toast,
   deepGet,
   deepSet,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 
 // The admin i18n endpoint is mistyped in the client as the media `Resource`
 // type; mirror the Svelte editor and work against the real translation shape.

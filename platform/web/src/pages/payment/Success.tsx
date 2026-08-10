@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, Loader2 } from 'lucide-react';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
 
 export function PaymentSuccess() {
   const t = useT();

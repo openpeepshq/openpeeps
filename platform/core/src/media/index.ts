@@ -1,4 +1,4 @@
-import type { MediaStorage } from '@openpeeps/common/types';
+import type { MediaStorage } from '@openpeepshq/common/types';
 import { communityConfig, config } from '../config';
 
 import openpeepsStorage from './openpeeps';
@@ -10,7 +10,7 @@ import fs from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { getTheme, randomString } from '@openpeeps/common/lib';
+import { getTheme, randomString } from '@openpeepshq/common/lib';
 import { execSync } from 'node:child_process';
 import { logger } from '../log';
 import { hub } from '../events';

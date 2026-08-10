@@ -1,6 +1,6 @@
-import { appleAppSiteAssociationSchema } from '@openpeeps/common';
+import { appleAppSiteAssociationSchema } from '@openpeepshq/common';
 import { endpoint } from '#lib/endpoint';
-import { config } from '@openpeeps/core/config';
+import { config } from '@openpeepshq/core/config';
 
 export const Output = appleAppSiteAssociationSchema;
 

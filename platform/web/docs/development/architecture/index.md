@@ -55,41 +55,41 @@ Express API server, shared libraries, and background workers.
 
 ### Platform packages
 
-- **`@openpeeps/server`** — Express + Riddl API server and static SPA host
-- **`@openpeeps/web`** — Vite + React SPA
-- **`@openpeeps/react`** — Shared React components and hooks
-- **`@openpeeps/core`** — Backend business logic and data access
-- **`@openpeeps/worker`** — Background job processor
-- **`@openpeeps/cli`** — Command-line administration tools
-- **`@openpeeps/react-native`** — React Native components
-- **`@openpeeps/client`** — API client library
-- **`@openpeeps/common`** — Shared types and utilities
-- **`@openpeeps/i18n`** — Internationalization
+- **`@openpeepshq/server`** — Express + Riddl API server and static SPA host
+- **`@openpeepshq/web`** — Vite + React SPA
+- **`@openpeepshq/react`** — Shared React components and hooks
+- **`@openpeepshq/core`** — Backend business logic and data access
+- **`@openpeepshq/worker`** — Background job processor
+- **`@openpeepshq/cli`** — Command-line administration tools
+- **`@openpeepshq/react-native`** — React Native components
+- **`@openpeepshq/client`** — API client library
+- **`@openpeepshq/common`** — Shared types and utilities
+- **`@openpeepshq/i18n`** — Internationalization
 
 ### Libraries
 
-- **`@openpeeps/fetch-client`** — HTTP client with event handling
-- **`@openpeeps/geocoder`** — Geocoding service abstraction
-- **`@openpeeps/greenscreen`** — Background processing for video
-- **`@openpeeps/react-ui`** — Shared React UI components
-- **`@openpeeps/arango-querybuilder`** — Legacy Arango query builder (cutover /
+- **`@openpeepshq/fetch-client`** — HTTP client with event handling
+- **`@openpeepshq/geocoder`** — Geocoding service abstraction
+- **`@openpeepshq/greenscreen`** — Background processing for video
+- **`@openpeepshq/react-ui`** — Shared React UI components
+- **`@openpeepshq/arango-querybuilder`** — Legacy Arango query builder (cutover /
   historical tooling only; not the PG runtime path)
 
 ### Dependency graph
 
 ```
-@openpeeps/web (React SPA)
-   ├── @openpeeps/react
-   │   ├── @openpeeps/client
-   │   └── @openpeeps/common
-   └── @openpeeps/react-ui
+@openpeepshq/web (React SPA)
+   ├── @openpeepshq/react
+   │   ├── @openpeepshq/client
+   │   └── @openpeepshq/common
+   └── @openpeepshq/react-ui
 
-@openpeeps/server (API)
-   ├── @openpeeps/core
-   │   ├── @openpeeps/common
-   │   └── @openpeeps/fetch-client
-   └── @openpeeps/worker
-       └── @openpeeps/core
+@openpeepshq/server (API)
+   ├── @openpeepshq/core
+   │   ├── @openpeepshq/common
+   │   └── @openpeepshq/fetch-client
+   └── @openpeepshq/worker
+       └── @openpeepshq/core
 ```
 
 ## Architecture components
@@ -110,8 +110,8 @@ See [Data Storage](/docs/development/data-storage) for details.
 
 ## Key technologies
 
-- **React** — Web UI (`@openpeeps/web`, `@openpeeps/react`)
-- **Express + Riddl** — API server (`@openpeeps/server`)
+- **React** — Web UI (`@openpeepshq/web`, `@openpeepshq/react`)
+- **Express + Riddl** — API server (`@openpeepshq/server`)
 - **TypeScript** — Type-safe development
 - **Zod** — Runtime type validation
 - **PostgreSQL** — Primary relational store
@@ -122,8 +122,8 @@ See [Data Storage](/docs/development/data-storage) for details.
 
 ## Development workflow
 
-1. **Shared code**: Types and utilities in `@openpeeps/common`
-2. **Backend logic**: Business logic in `@openpeeps/core`
-3. **API**: Endpoints in `@openpeeps/server/src/api/`
-4. **Frontend**: React components in `@openpeeps/react`, pages in `@openpeeps/web`
-5. **Build**: `pnpm -r --filter "@openpeeps/server..." --filter "@openpeeps/web..." build`
+1. **Shared code**: Types and utilities in `@openpeepshq/common`
+2. **Backend logic**: Business logic in `@openpeepshq/core`
+3. **API**: Endpoints in `@openpeepshq/server/src/api/`
+4. **Frontend**: React components in `@openpeepshq/react`, pages in `@openpeepshq/web`
+5. **Build**: `pnpm -r --filter "@openpeepshq/server..." --filter "@openpeepshq/web..." build`

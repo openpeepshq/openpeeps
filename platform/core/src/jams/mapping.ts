@@ -6,7 +6,7 @@ import {
   JamRecording,
   JamRecordingData,
   PostWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 type EdgeMetadata = {
   _from: string;

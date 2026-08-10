@@ -1,5 +1,5 @@
-import type { OpenpeepsClient } from '@openpeeps/client';
-import type { MediaStream } from '@openpeeps/common';
+import type { OpenpeepsClient } from '@openpeepshq/client';
+import type { MediaStream } from '@openpeepshq/common';
 import { payloadMutation, apiHook } from '../helpers';
 
 export type StreamingHooks = ReturnType<typeof streamingHooks>;

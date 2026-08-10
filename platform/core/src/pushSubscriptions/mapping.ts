@@ -1,7 +1,7 @@
 import {
   PushSubscription,
   PushSubscriptionData,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { map } from '../db/pg/map';
 import { collectionInfos } from '../db';
 

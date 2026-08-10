@@ -1,10 +1,10 @@
 import { View, Pressable } from 'react-native';
 import React from 'react';
-import { PublicPost } from '@openpeeps/common';
+import { PublicPost } from '@openpeepshq/common';
 import { MainStackParamList } from '~/components/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ProfileAvatar } from '../../profile/profile-avatar';
 import { ImageIcon } from '~/components/icons';
 import { ThemedText } from '~/components/ui/themed-text';

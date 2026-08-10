@@ -1,4 +1,4 @@
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import { Avatar, AvatarWithName, ProfileLink } from '../../profile';
 import { useT } from '../../../i18n';
 import { useOpenpeeps } from '../../../contexts/openpeeps';

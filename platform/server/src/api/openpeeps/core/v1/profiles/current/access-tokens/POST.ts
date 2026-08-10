@@ -4,8 +4,8 @@ import {
   accessTokenCreationDataSchema,
   accessTokenWithMetaSchema,
   type Scope,
-} from '@openpeeps/common/types';
-import { createSignedProfileAccessToken, findAccessToken } from '@openpeeps/core/accessTokens';
+} from '@openpeepshq/common/types';
+import { createSignedProfileAccessToken, findAccessToken } from '@openpeepshq/core/accessTokens';
 import { forbidden } from '#lib/errors';
 import { ensureLocalProfile } from '#lib/auth';
 

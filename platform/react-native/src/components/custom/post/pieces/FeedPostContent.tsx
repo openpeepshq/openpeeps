@@ -1,5 +1,5 @@
 import React from 'react';
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import { FeedNote } from '../types/note/FeedNote';
 import { FeedPoll } from '../types/poll/FeedPoll';
 import { FeedEvent } from '../types/event/FeedEvent';

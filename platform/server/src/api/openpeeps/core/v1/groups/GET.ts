@@ -1,7 +1,7 @@
 import { endpoint } from '#lib/endpoint';
-import { groupWithMetaSchema } from '@openpeeps/common/types';
+import { groupWithMetaSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
-import { listGroups } from '@openpeeps/core/groups';
+import { listGroups } from '@openpeepshq/core/groups';
 import { ensureAccess } from '#lib/auth';
 
 export const Output = groupWithMetaSchema.array();

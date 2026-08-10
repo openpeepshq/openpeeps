@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { PublicProfile } from '@openpeeps/common';
-import { useOpenpeeps } from '@openpeeps/react';
+import { PublicProfile } from '@openpeepshq/common';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { Button } from '~/components/ui/button';
 import { ThemedText } from '~/components/ui/themed-text';
 import Toast from 'react-native-toast-message';

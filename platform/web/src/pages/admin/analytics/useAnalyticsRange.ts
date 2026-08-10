@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { DateRangeValue } from '@openpeeps/react-ui';
+import type { DateRangeValue } from '@openpeepshq/react-ui';
 
 export const useAnalyticsRange = () => {
   const [range, setRange] = useState<DateRangeValue>({ preset: '30d' });

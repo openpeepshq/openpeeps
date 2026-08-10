@@ -1,8 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
-import { roleDataSchema, roleSchema } from '@openpeeps/common/types';
+import { roleDataSchema, roleSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { findRole, updateRole } from '@openpeeps/core/roles';
+import { findRole, updateRole } from '@openpeepshq/core/roles';
 
 export const Input = roleDataSchema;
 

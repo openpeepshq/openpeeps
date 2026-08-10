@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { listPosts } from '@openpeeps/core/posts';
+import { listPosts } from '@openpeepshq/core/posts';
 import { ensureProfileOrPublicCommunity } from '#lib/auth';
 
 export const Query = z.object({

@@ -1,15 +1,15 @@
 import type Stripe from 'stripe';
-import { config } from '@openpeeps/core/config';
+import { config } from '@openpeepshq/core/config';
 import type {
   AccountWithMeta,
   ProfileWithMeta,
   StripePaymentConfig,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   getStripeCustomerId,
   isOwnerProfile,
   isStripeActive,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 import {
   getUserStripeSubscription,
   refreshStripeSubscription,

@@ -1,8 +1,8 @@
 import type { Router } from 'express';
 import { z } from 'zod';
-import { config } from '@openpeeps/core/config';
-import { logger } from '@openpeeps/core/log';
-import type { PluginManifest } from '@openpeeps/common';
+import { config } from '@openpeepshq/core/config';
+import { logger } from '@openpeepshq/core/log';
+import type { PluginManifest } from '@openpeepshq/common';
 
 const log = logger('plugin:greeting');
 

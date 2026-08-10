@@ -7,7 +7,7 @@ import {
   NotificationData,
   ProfileWithMeta,
   PublicProfile,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   baseListNotifications,
   expandNotification,

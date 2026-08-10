@@ -1,13 +1,13 @@
 import { FeedPostContent } from '../../post/FeedPostContent';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export interface JamPreviewProps {
   path: string;
 }
 
 /**
- * Translation of @openpeeps/svelte/components/core/preview-link/local/
+ * Translation of @openpeepshq/svelte/components/core/preview-link/local/
  * JamPreview.svelte. A jam path is `/events/<uuid>/jam`; the underlying event
  * is a post, so render its feed content as the preview.
  */

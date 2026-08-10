@@ -3,13 +3,13 @@ import {
   AnalyticsStackedBarChart,
   MetricCard,
   Table,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import type {
   AnalyticsMemberRow,
   AnalyticsPostRow,
   AnalyticsPostTypeKey,
-} from '@openpeeps/common/types';
-import { useOpenpeeps, useT } from '@openpeeps/react';
+} from '@openpeepshq/common/types';
+import { useOpenpeeps, useT } from '@openpeepshq/react';
 import { AnalyticsLoading, AnalyticsSection } from './AnalyticsLayout';
 import { useAnalyticsRangeContext } from './AnalyticsRangeContext';
 import { columnHeader } from './analyticsInfo';

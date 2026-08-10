@@ -1,8 +1,8 @@
 import { ChevronRight } from 'lucide-react';
-import { Button } from '@openpeeps/react-ui';
-import { isOwnerProfile } from '@openpeeps/common';
-import { useT, useSetPageHeader } from '@openpeeps/react';
-import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
+import { Button } from '@openpeepshq/react-ui';
+import { isOwnerProfile } from '@openpeepshq/common';
+import { useT, useSetPageHeader } from '@openpeepshq/react';
+import { useCurrentProfile, useServerInfo } from '@openpeepshq/react/components';
 
 interface ConfigMenuButtonProps {
   translationPrefix: string;

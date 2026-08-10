@@ -1,6 +1,6 @@
 import { endpoint } from '#lib/endpoint';
-import { followDataSchema } from '@openpeeps/common/types';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { followDataSchema } from '@openpeepshq/common/types';
+import { successResponseSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import {
   followProfileHandler,

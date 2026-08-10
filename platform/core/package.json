@@ -1,15 +1,15 @@
 {
-  "name": "@openpeeps/core",
+  "name": "@openpeepshq/core",
   "version": "0.1.31",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
     "@keyv/redis": "^5.1.4",
-    "@openpeeps/common": "workspace:*",
-    "@openpeeps/fetch-client": "workspace:^",
-    "@openpeeps/geocoder": "workspace:^",
-    "@openpeeps/i18n": "workspace:^",
+    "@openpeepshq/common": "workspace:*",
+    "@openpeepshq/fetch-client": "workspace:^",
+    "@openpeepshq/geocoder": "workspace:^",
+    "@openpeepshq/i18n": "workspace:^",
     "@sentry/node": "^9.13.0",
     "apns2": "^12.2.0",
     "archiver": "^7.0.1",
@@ -53,7 +53,7 @@
     "/dist"
   ],
   "devDependencies": {
-    "@openpeeps/arango-querybuilder": "workspace:^",
+    "@openpeepshq/arango-querybuilder": "workspace:^",
     "@types/archiver": "^6.0.3",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.6",

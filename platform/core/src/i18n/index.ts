@@ -1,6 +1,6 @@
 import { deepmerge } from 'deepmerge-ts';
 import type { Resource, ResourceLanguage } from 'i18next';
-import { i18nextResources } from '@openpeeps/i18n';
+import { i18nextResources } from '@openpeepshq/i18n';
 import { allpeepDb } from '../db';
 import { i18nEntries } from '../db/pg/schema/documents';
 import { nowIso } from '../db/pg/mappers';

@@ -6,19 +6,19 @@ import {
   PencilIcon,
   Trash2,
 } from 'lucide-react';
-import { groupName, truncateText } from '@openpeeps/common/lib';
-import { defaultGroupRoles } from '@openpeeps/common/types';
+import { groupName, truncateText } from '@openpeepshq/common/lib';
+import { defaultGroupRoles } from '@openpeepshq/common/types';
 import type {
   GroupMember,
   GroupRelationship,
   GroupWithMeta,
-} from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+} from '@openpeepshq/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
 import {
   Avatar,
   useCreateNewConversation,
   useCurrentProfile,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 import {
   Button,
   Dialog,
@@ -30,7 +30,7 @@ import {
   LoadingSpinner,
   PopupMenu,
   PopupMenuButton,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { routeHandleParam } from '../../lib/routeHandles';
 
 export function AdminGroupMembers() {

@@ -1,6 +1,6 @@
 import { View, Share as ShareApi } from 'react-native';
 import React, { useCallback, useRef } from 'react';
-import { PublicProfile } from '@openpeeps/common';
+import { PublicProfile } from '@openpeepshq/common';
 import { Button } from '~/components/ui/button';
 import {
   ShareIcon,

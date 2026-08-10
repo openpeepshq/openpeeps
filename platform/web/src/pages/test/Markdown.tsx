@@ -1,5 +1,5 @@
-import { useSetPageHeader } from '@openpeeps/react';
-import { PostMarkdown } from '@openpeeps/react/components';
+import { useSetPageHeader } from '@openpeepshq/react';
+import { PostMarkdown } from '@openpeepshq/react/components';
 
 const source = `
 # Hello World

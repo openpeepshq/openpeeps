@@ -1,14 +1,14 @@
 import { createReadStream } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import type { Express, Request, Response } from 'express';
-import { getStreamDir, resolveStreamFile } from '@openpeeps/core/media';
-import { logger } from '@openpeeps/core/log';
+import { getStreamDir, resolveStreamFile } from '@openpeepshq/core/media';
+import { logger } from '@openpeepshq/core/log';
 
 const log = logger('server:streaming');
 
 // Serves the HLS playlists and segments produced by the VOD transcoder at
 // `/media/streaming/<storageId>/<file>`. `vodMasterPlaylistUrl` (in
-// `@openpeeps/react`) points players here, so it must be registered before
+// `@openpeepshq/react`) points players here, so it must be registered before
 // the SPA catch-all.
 
 // HLS players issue range requests against segments to seek. Without this they

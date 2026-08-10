@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { useCurrentAccount } from '@openpeeps/react/components';
-import { Button, Input, Label, Toast } from '@openpeeps/react-ui';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { useCurrentAccount } from '@openpeepshq/react/components';
+import { Button, Input, Label, Toast } from '@openpeepshq/react-ui';
 
 export function AccountSettings() {
   const t = useT();

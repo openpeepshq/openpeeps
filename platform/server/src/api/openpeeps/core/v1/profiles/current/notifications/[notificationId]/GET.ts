@@ -1,8 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { expandedNotificationSchema } from '@openpeeps/common/types';
+import { expandedNotificationSchema } from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
-import { findNotification } from '@openpeeps/core/notifications';
+import { findNotification } from '@openpeepshq/core/notifications';
 import { notFound, forbidden } from '#lib/errors';
 
 export const Output = expandedNotificationSchema;

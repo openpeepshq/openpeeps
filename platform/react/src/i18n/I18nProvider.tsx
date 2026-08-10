@@ -16,7 +16,7 @@ export interface I18nProviderProps {
 }
 
 /**
- * React port of @openpeeps/svelte/I18nProvider. Provides an i18next instance
+ * React port of @openpeepshq/svelte/I18nProvider. Provides an i18next instance
  * + bound `t` to the tree.
  */
 export function I18nProvider({

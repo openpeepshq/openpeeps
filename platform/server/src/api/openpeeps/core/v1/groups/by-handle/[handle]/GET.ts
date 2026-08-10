@@ -1,9 +1,9 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { groupWithMetaSchema } from '@openpeeps/common/types';
+import { groupWithMetaSchema } from '@openpeepshq/common/types';
 import { ensureGroupCapabilities } from '#lib/auth';
 import { notFound } from '#lib/errors';
-import { findGroupByHandle } from '@openpeeps/core/groups';
+import { findGroupByHandle } from '@openpeepshq/core/groups';
 
 export const Output = groupWithMetaSchema;
 export const Param = z.object({

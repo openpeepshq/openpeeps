@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Rss } from 'lucide-react';
-import type { PublicPost, SuccessFailureResponse } from '@openpeeps/common/types';
+import type { PublicPost, SuccessFailureResponse } from '@openpeepshq/common/types';
 import type {
   InfiniteData,
   UseInfiniteQueryResult,
 } from '@tanstack/react-query';
 import { useT } from '../../../../i18n';
 import { CardEvent } from '../../types/event/CardEvent';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export type EventsFeedQuery = UseInfiniteQueryResult<
   InfiniteData<PublicPost[], unknown>,

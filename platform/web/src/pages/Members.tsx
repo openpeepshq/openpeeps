@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { matchesQuery, sortProfiles } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { ProfileCard, AccessDeniedLoader } from '@openpeeps/react/components';
-import { Input } from '@openpeeps/react-ui';
+import { matchesQuery, sortProfiles } from '@openpeepshq/common/lib';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
+import { ProfileCard, AccessDeniedLoader } from '@openpeepshq/react/components';
+import { Input } from '@openpeepshq/react-ui';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const MIN_SEARCH_LENGTH = 3;

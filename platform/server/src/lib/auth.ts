@@ -10,10 +10,10 @@ import {
   type ReportWithMeta,
   type Resource,
   type ScopeLevel,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
-import { findProfile } from '@openpeeps/core/profiles';
-import { findAccount } from '@openpeeps/core/accounts';
+import { findProfile } from '@openpeepshq/core/profiles';
+import { findAccount } from '@openpeepshq/core/accounts';
 import type { RequestEvent } from '@riddl/core';
 import { authNeeded, forbidden } from './errors';
 import {
@@ -24,9 +24,9 @@ import {
   checkReportCapabilities,
   checkRoleCapabilities,
   scopeMatches as commonScopeMatches,
-} from '@openpeeps/common/lib';
-import { capabilitiesConfig, config } from '@openpeeps/core/config';
-import { checkSubscription } from '@openpeeps/core/stripe';
+} from '@openpeepshq/common/lib';
+import { capabilitiesConfig, config } from '@openpeepshq/core/config';
+import { checkSubscription } from '@openpeepshq/core/stripe';
 
 export const loadCurrentProfile = async (
   authorization: Authorization,

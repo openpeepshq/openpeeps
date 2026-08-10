@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { CredentialsStore, Credentials } from '@openpeeps/react';
-import { notifyCredentialsChanged } from '@openpeeps/react';
+import type { CredentialsStore, Credentials } from '@openpeepshq/react';
+import { notifyCredentialsChanged } from '@openpeepshq/react';
 
 const CREDENTIALS_KEY = 'credentials';
 

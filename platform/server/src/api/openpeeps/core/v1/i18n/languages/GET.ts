@@ -1,5 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import { i18nComplete } from '@openpeeps/core/i18n';
+import { i18nComplete } from '@openpeepshq/core/i18n';
 
 export const Output = z.string().array();
 

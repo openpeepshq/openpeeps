@@ -68,7 +68,7 @@ If types are to be used for runtime validation they should be created as [zod](h
   - `helpers.ts` - for helper/utility functions
   - `index.ts` - for re-exports
 - **Component organization**: Group related components in directories (e.g., `components/jams/`)
-- **Type definitions**: Centralize shared types in `@openpeeps/common/types`
+- **Type definitions**: Centralize shared types in `@openpeepshq/common/types`
 
 ## Code Structure
 
@@ -76,7 +76,7 @@ If types are to be used for runtime validation they should be created as [zod](h
 
 - **Type imports**: Use `import type` for type-only imports:
   ```typescript
-  import type { PostWithMeta, Profile } from '@openpeeps/common/types';
+  import type { PostWithMeta, Profile } from '@openpeepshq/common/types';
   ```
 - **Value imports**: Use regular `import` for runtime values:
   ```typescript
@@ -113,7 +113,7 @@ If types are to be used for runtime validation they should be created as [zod](h
 
 ### API Route Patterns
 
-- **Endpoint structure**: Use the `endpoint` helper from `@openpeeps/server`:
+- **Endpoint structure**: Use the `endpoint` helper from `@openpeepshq/server`:
 
   ```typescript
   export const Param = z.object({...});
@@ -135,7 +135,7 @@ If types are to be used for runtime validation they should be created as [zod](h
 
 ### Data Fetching (React Query)
 
-- Prefer hooks from `@openpeeps/react` backed by `@openpeeps/client`
+- Prefer hooks from `@openpeepshq/react` backed by `@openpeepshq/client`
 - Keep mutations next to the resource hooks they update
 
 ## Examples
@@ -172,7 +172,7 @@ export const createPost = async (
 ### React Component
 
 ```tsx
-import type { PublicProfile } from '@openpeeps/common/types';
+import type { PublicProfile } from '@openpeepshq/common/types';
 
 type Props = {
   profile?: PublicProfile;
@@ -190,8 +190,8 @@ export const Avatar = ({ profile, size = 3.5 }: Props) => (
 
 ```typescript
 import { endpoint, z } from '#lib/endpoint';
-import { findPost } from '@openpeeps/core/posts';
-import { publicPostSchema } from '@openpeeps/common/types';
+import { findPost } from '@openpeepshq/core/posts';
+import { publicPostSchema } from '@openpeepshq/common/types';
 import { notFound, forbidden } from '#lib/errors';
 
 export const Param = z.object({

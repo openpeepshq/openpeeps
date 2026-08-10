@@ -1,6 +1,6 @@
 import {
   MentionWithProfile,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { ReactNode, useMemo } from 'react';

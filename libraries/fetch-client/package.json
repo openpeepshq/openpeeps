@@ -1,5 +1,5 @@
 {
-  "name": "@openpeeps/fetch-client",
+  "name": "@openpeepshq/fetch-client",
   "version": "0.1.6",
   "license": "MIT",
   "type": "module",

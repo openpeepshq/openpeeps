@@ -1,4 +1,4 @@
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import React from 'react';
 import {Image, View} from 'react-native';
 import {Avatar, AvatarImage} from '~/components/ui/avatar';

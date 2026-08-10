@@ -9,7 +9,7 @@ const PATH_D =
 
 /**
  * "Blur" SVG icon, ported from the lucide-svelte custom icon used in
- * @openpeeps/ui. Behaves like a lucide icon — accepts standard SVG props.
+ * @openpeepshq/ui. Behaves like a lucide icon — accepts standard SVG props.
  */
 export function Blur({ size = 16, className, ...props }: BlurProps) {
   return (

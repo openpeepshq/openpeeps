@@ -1,8 +1,8 @@
-import { noPayloadEventSource, fetchClient } from '@openpeeps/fetch-client';
+import { noPayloadEventSource, fetchClient } from '@openpeepshq/fetch-client';
 import type {
   ClientConfig,
   ClientConfigSource,
-} from '@openpeeps/fetch-client/types';
+} from '@openpeepshq/fetch-client/types';
 import { admin } from './endpoints/admin';
 import { i18n } from './endpoints/i18n';
 import { accounts } from './endpoints/accounts';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Event, PublicPost } from '@openpeeps/common';
+import { Event, PublicPost } from '@openpeepshq/common';
 import { Image, View } from 'react-native';
 import { ParticipantAvatar } from '~/components/custom/common/participant-avatar';
 import { ThemedText } from '~/components/ui/themed-text';

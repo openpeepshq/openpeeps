@@ -1,8 +1,8 @@
 import { endpoint } from '#lib/endpoint';
 import { forbidden, badRequest } from '#lib/errors';
-import { explorerTablesResponseSchema } from '@openpeeps/common/types';
+import { explorerTablesResponseSchema } from '@openpeepshq/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { listExplorerTables } from '@openpeeps/core/db';
+import { listExplorerTables } from '@openpeepshq/core/db';
 
 export const Output = explorerTablesResponseSchema;
 

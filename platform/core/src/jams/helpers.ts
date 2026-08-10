@@ -5,7 +5,7 @@ import {
   JamRecordingWithMeta,
   PostWithMeta,
   ProfileWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { connector } from '../db/helpers';
 import { collectionInfos } from '../db';
 import { findProfile } from '../profiles';

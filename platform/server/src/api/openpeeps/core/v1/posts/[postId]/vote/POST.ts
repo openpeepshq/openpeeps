@@ -6,9 +6,9 @@ import {
 } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { findPost, vote } from '@openpeeps/core/posts';
-import { successResponseSchema } from '@openpeeps/common/types';
-import { answerSchema } from '@openpeeps/common/types';
+import { findPost, vote } from '@openpeepshq/core/posts';
+import { successResponseSchema } from '@openpeepshq/common/types';
+import { answerSchema } from '@openpeepshq/common/types';
 
 export const Param = z.object({
   postId: z.string(),

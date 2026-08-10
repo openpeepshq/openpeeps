@@ -1,7 +1,7 @@
-# @openpeeps/web
+# @openpeepshq/web
 
-Vite + React SPA shell that consumes `@openpeeps/react`, `@openpeeps/react-ui`
-and the REST API exposed by `@openpeeps/server`.
+Vite + React SPA shell that consumes `@openpeepshq/react`, `@openpeepshq/react-ui`
+and the REST API exposed by `@openpeepshq/server`.
 
 ## Scripts
 
@@ -14,7 +14,7 @@ and the REST API exposed by `@openpeeps/server`.
 ## Deployment
 
 The production Docker image (`Dockerfile` at the workspace root) builds this
-package alongside `@openpeeps/server` and `@openpeeps/worker`, and the server
+package alongside `@openpeepshq/server` and `@openpeepshq/worker`, and the server
 serves `dist/` as static files with an SPA fallback. See `docker/prod/start.sh`
 for the entry-point commands (`web`, `worker`).
 
@@ -124,7 +124,7 @@ covered while feature-specific forms can replace them slot-by-slot later.
 
 ### React component additions
 
-The following components live in `@openpeeps/react/components`:
+The following components live in `@openpeepshq/react/components`:
 
 - **Profile**: `<Avatar>`, `<ProfileHeader>`, `<ProfileCard>`,
   `<ProfilePostsAndReplies>`.
@@ -142,16 +142,16 @@ The following components live in `@openpeeps/react/components`:
   `@livekit/components-react` (`PreJoin`, `LiveKitRoom`, `VideoConference`,
   `RoomAudioRenderer`) and `livekit-client`.
 
-`@openpeeps/react` depends on `marked` for the inline post-markdown renderer
+`@openpeepshq/react` depends on `marked` for the inline post-markdown renderer
 and now also exposes `usePaymentStatus` / `createCustomerPortalAction` /
 `createCheckoutAction` (via `paymentHooks`).
 
 ## Patterns
 
-- Use `useT()` from `@openpeeps/react` for i18n (not `react-i18next`).
+- Use `useT()` from `@openpeepshq/react` for i18n (not `react-i18next`).
 - Use `useOpenpeeps()` to get the API client and `useCredentialsStore()` for
   the credentials store. Shared mutations live in `src/lib/auth.ts`.
-- Form pages use `Form` + `FormInput` + `SubmitButton` from `@openpeeps/react-ui`.
+- Form pages use `Form` + `FormInput` + `SubmitButton` from `@openpeepshq/react-ui`.
   Pass a stable `data` reference; `FormInput` mutates it through `deepSet`.
 - Static markdown content (about, code-of-conduct, welcome) uses the local
   `src/lib/Markdown.tsx` renderer (powered by `marked`).

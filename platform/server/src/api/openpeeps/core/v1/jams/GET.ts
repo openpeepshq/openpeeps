@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { publicPostSchema } from '@openpeeps/common';
-import { listLiveJams } from '@openpeeps/core/jams';
+import { publicPostSchema } from '@openpeepshq/common';
+import { listLiveJams } from '@openpeepshq/core/jams';
 
 export const Output = publicPostSchema.array();
 export const Query = z.object({ live: z.enum(['true', 'false']).optional() });

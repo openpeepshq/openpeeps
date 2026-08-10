@@ -1,5 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import { tokenResponseSchema } from '@openpeeps/common/types';
+import { tokenResponseSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { handle } from '#lib/handlers/sso/generic';
 

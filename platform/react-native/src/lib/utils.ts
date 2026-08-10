@@ -8,7 +8,7 @@ import {
   PublicPost,
   PublicProfile,
   SuccessFailureResponse,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { NativeScrollEvent } from 'react-native';
 import { buildGoto } from '../components/navigation/helpers';
 import { BASE_URL } from './constants';
@@ -240,4 +240,4 @@ export {
   countYesRsvps,
   canManageEventRsvps,
   isCapacityEvent,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';

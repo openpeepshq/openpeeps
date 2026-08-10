@@ -1,4 +1,4 @@
-// Ported verbatim from @openpeeps/ui/theme/colors.ts.
+// Ported verbatim from @openpeepshq/ui/theme/colors.ts.
 
 export type Palette = {
   [key: number]: {

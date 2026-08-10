@@ -1,4 +1,4 @@
-import type { ExplorerSqlResponse } from '@openpeeps/common/types';
+import type { ExplorerSqlResponse } from '@openpeepshq/common/types';
 import { pgPool } from '../pg/client';
 
 export const SQL_STATEMENT_TIMEOUT_MS = 15_000;

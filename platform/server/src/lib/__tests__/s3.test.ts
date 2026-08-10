@@ -34,7 +34,7 @@ const {
   };
 });
 
-vi.mock('@openpeeps/core/jams', () => ({
+vi.mock('@openpeepshq/core/jams', () => ({
   findJamRecording: (id: string) => findJamRecording(id),
   completeJamRecording: (id: string, attachment: unknown) =>
     completeJamRecording(id, attachment),
@@ -42,22 +42,22 @@ vi.mock('@openpeeps/core/jams', () => ({
   jamRecordingUploadSecret: (id: string) => jamRecordingUploadSecret(id),
 }));
 
-vi.mock('@openpeeps/core/media', () => ({
+vi.mock('@openpeepshq/core/media', () => ({
   mediaStorage: async () => ({
     store: async () => 'stored-key',
     getPath: (key: string, name: string) => `/media/${key}/${name}`,
   }),
 }));
 
-vi.mock('@openpeeps/core/mediaAttachments', () => ({
+vi.mock('@openpeepshq/core/mediaAttachments', () => ({
   createMediaAttachment: async (data: unknown) => data,
 }));
 
-vi.mock('@openpeeps/core/server', () => ({
+vi.mock('@openpeepshq/core/server', () => ({
   serverRootUrl: async () => 'https://community.example',
 }));
 
-vi.mock('@openpeeps/core/log', () => ({
+vi.mock('@openpeepshq/core/log', () => ({
   logger: () => ({
     error: vi.fn(),
     warn: vi.fn(),

@@ -1,6 +1,6 @@
 import { endpoint } from '#lib/endpoint';
-import { webhookKeyResponseSchema } from '@openpeeps/common/types';
-import { jwtUtil } from '@openpeeps/core/jwt';
+import { webhookKeyResponseSchema } from '@openpeepshq/common/types';
+import { jwtUtil } from '@openpeepshq/core/jwt';
 
 export const Output = webhookKeyResponseSchema;
 

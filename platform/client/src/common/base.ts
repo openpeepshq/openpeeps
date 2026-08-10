@@ -2,7 +2,7 @@ import {
   type ClientConfig,
   fetchClient,
   type FetchClient,
-} from '@openpeeps/fetch-client';
+} from '@openpeepshq/fetch-client';
 
 export const apiClientConfig: ClientConfig = {
   baseUrl: '/api/openpeeps/core/v1',

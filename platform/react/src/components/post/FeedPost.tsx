@@ -1,5 +1,5 @@
 import type { ReactNode, RefObject } from 'react';
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import { usePostViewRef } from '../../lib/postViewCounter';
 import { isUnreadPostForViewer } from '../../lib/postUnread';
 import { useCurrentProfile } from '../layout/IdentityContext';

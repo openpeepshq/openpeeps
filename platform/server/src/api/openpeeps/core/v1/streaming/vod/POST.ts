@@ -4,13 +4,13 @@ import {
   type MediaStream,
   mediaStreamRequestSchema,
   mediaStreamSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import {
   ensureStreamingJob,
   parseLocalStorageUrl,
-} from '@openpeeps/core/media';
+} from '@openpeepshq/core/media';
 
 export const Input = mediaStreamRequestSchema;
 export const Output = mediaStreamSchema;

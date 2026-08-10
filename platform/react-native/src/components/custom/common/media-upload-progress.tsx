@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { Progress } from '~/components/ui/progress';
 import { ThemedText } from '~/components/ui/themed-text';
-import { useOpenpeeps } from '@openpeeps/react';
-import type { MediaAttachment } from '@openpeeps/common';
+import { useOpenpeeps } from '@openpeepshq/react';
+import type { MediaAttachment } from '@openpeepshq/common';
 
 interface Props {
   /**

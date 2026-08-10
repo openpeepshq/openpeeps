@@ -1,8 +1,8 @@
 import { endpoint } from '#lib/endpoint';
 import { authNeeded, forbidden } from '#lib/errors';
-import { pushSubscriptionSchema } from '@openpeeps/common/types';
+import { pushSubscriptionSchema } from '@openpeepshq/common/types';
 import { ensureAccount } from '#lib/auth';
-import { listPushSubscriptionsByAccount } from '@openpeeps/core/pushSubscriptions';
+import { listPushSubscriptionsByAccount } from '@openpeepshq/core/pushSubscriptions';
 
 export const Output = pushSubscriptionSchema.array();
 

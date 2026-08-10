@@ -1,9 +1,9 @@
 import { EdgeCollection } from 'arangojs/collections';
 import { Database } from 'arangojs';
 import { EdgeData } from 'arangojs/documents';
-import { FollowData } from '@openpeeps/common/types';
-import { query } from '@openpeeps/arango-querybuilder';
-import { asyncFilter } from '@openpeeps/common/lib';
+import { FollowData } from '@openpeepshq/common/types';
+import { query } from '@openpeepshq/arango-querybuilder';
+import { asyncFilter } from '@openpeepshq/common/lib';
 
 export const makeEdgesUnique = async (
   db: Database,

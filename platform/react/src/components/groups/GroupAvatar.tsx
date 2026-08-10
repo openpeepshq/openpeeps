@@ -1,5 +1,5 @@
-import type { GroupData, GroupWithMeta } from '@openpeeps/common/types';
-import { getTheme } from '@openpeeps/common';
+import type { GroupData, GroupWithMeta } from '@openpeepshq/common/types';
+import { getTheme } from '@openpeepshq/common';
 
 import { useServerInfo } from '../server-data';
 import { useCurrentProfileSettings } from '../layout/IdentityContext';
@@ -22,7 +22,7 @@ const initials = (group?: GroupData | GroupWithMeta): string => {
 };
 
 /**
- * Translation of `@openpeeps/svelte/components/core/groups/GroupAvatar.svelte`.
+ * Translation of `@openpeepshq/svelte/components/core/groups/GroupAvatar.svelte`.
  * Renders a circular group avatar with the group picture, falling back to the
  * community's `defaultGroupAvatar` and finally to letter initials.
  */

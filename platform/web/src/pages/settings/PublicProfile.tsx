@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { ProfileWithMeta } from '@openpeeps/common/types';
-import { accountNameSchema, profileDataSchema } from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import type { ProfileWithMeta } from '@openpeepshq/common/types';
+import { accountNameSchema, profileDataSchema } from '@openpeepshq/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
 import {
   HeaderAvatarInput,
   LocationInput,
   useCurrentProfile,
   useServerInfo,
   useToast,
-} from '@openpeeps/react/components';
-import { Button, Input, Label, Textarea } from '@openpeeps/react-ui';
+} from '@openpeepshq/react/components';
+import { Button, Input, Label, Textarea } from '@openpeepshq/react-ui';
 import { ZodError } from 'zod';
 
 const firstZodMessage = (err: ZodError): string | undefined =>

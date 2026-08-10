@@ -1,5 +1,5 @@
 import React from 'react';
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {Avatar, AvatarImage} from '~/components/ui/avatar';
 
 interface ParticipantAvatarProps {

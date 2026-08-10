@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
 import { notFound } from '#lib/errors';
-import { i18nComplete } from '@openpeeps/core/i18n';
-import { i18nResourceLanguageSchema } from '@openpeeps/common';
+import { i18nComplete } from '@openpeepshq/core/i18n';
+import { i18nResourceLanguageSchema } from '@openpeepshq/common';
 
 
 export const Param = z.object({

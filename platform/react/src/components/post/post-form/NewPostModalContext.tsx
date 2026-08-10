@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { GroupWithMeta, VisibilityType } from '@openpeeps/common';
+import type { GroupWithMeta, VisibilityType } from '@openpeepshq/common';
 import { useToast } from '../../layout/ToastProvider';
 import { NewPostModal } from './NewPostModal';
 

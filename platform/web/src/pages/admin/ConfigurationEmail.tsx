@@ -3,21 +3,21 @@ import {
   coreConfigSanitizedSchema,
   type CoreConfig,
   type ConfigTree,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   useT,
   useSetPageHeader,
   useOpenpeeps,
   diffConfigTrees,
   equal,
-} from '@openpeeps/react';
+} from '@openpeepshq/react';
 import {
   Button,
   ExpandableBox,
   Form,
   FormInput,
   Toast,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 
 type EmailConfig = CoreConfig['email'];
 const emailFormSchema = coreConfigSanitizedSchema.shape.email;

@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
-import { modelSchema, mediaAttachmentDataSchema } from '@openpeeps/common/types';
+import { modelSchema, mediaAttachmentDataSchema } from '@openpeepshq/common/types';
 import { notFound, forbidden } from '#lib/errors';
-import { findMediaAttachment } from '@openpeeps/core/mediaAttachments';
+import { findMediaAttachment } from '@openpeepshq/core/mediaAttachments';
 
 export const Param = z.object({
   mediaAttachmentId: z.string(),

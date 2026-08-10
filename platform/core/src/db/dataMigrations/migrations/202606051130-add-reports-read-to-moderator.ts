@@ -1,5 +1,5 @@
 import { Database } from 'arangojs';
-import { RoleData } from '@openpeeps/common/types';
+import { RoleData } from '@openpeepshq/common/types';
 import { transformDocsInCollection } from '../helpers';
 
 // Grant moderators the read capabilities required for the admin sections they

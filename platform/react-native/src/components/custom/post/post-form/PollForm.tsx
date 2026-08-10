@@ -7,7 +7,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { PlusIcon, MinusIcon } from '~/components/icons';
 import { formatDateTime } from '~/lib/utils';
 import { useTranslation } from 'react-i18next';
-import { PostCreationData } from '@openpeeps/common';
+import { PostCreationData } from '@openpeepshq/common';
 import { DateSheet } from '../../modals/post/date-sheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 

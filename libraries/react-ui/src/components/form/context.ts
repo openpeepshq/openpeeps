@@ -7,7 +7,7 @@ export function useFormContext<T = unknown>(): FormContextValue<T> {
   const ctx = useContext(FormCtx) as FormContextValue<T> | null;
   if (!ctx) {
     throw new Error(
-      'useFormContext must be used inside a <Form> from @openpeeps/react-ui.',
+      'useFormContext must be used inside a <Form> from @openpeepshq/react-ui.',
     );
   }
   return ctx;

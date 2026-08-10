@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { GuestData } from '@openpeeps/common/types';
-import { profileName } from '@openpeeps/common/lib';
-import { Button, Input, Label } from '@openpeeps/react-ui';
+import type { GuestData } from '@openpeepshq/common/types';
+import { profileName } from '@openpeepshq/common/lib';
+import { Button, Input, Label } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useServerInfo } from '../server-data/context';

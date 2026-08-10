@@ -1,5 +1,5 @@
 import { endpoint } from '#lib/endpoint';
-import { loginRequestSchema, tokenResponseSchema } from '@openpeeps/common/types';
+import { loginRequestSchema, tokenResponseSchema } from '@openpeepshq/common/types';
 import { loginHandler } from '#lib/handlers/auth/login';
 import { forbidden, notFound } from '#lib/errors';
 

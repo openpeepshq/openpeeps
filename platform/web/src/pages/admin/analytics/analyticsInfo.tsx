@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { AnalyticsInfoBadge } from '@openpeeps/react-ui';
+import { AnalyticsInfoBadge } from '@openpeepshq/react-ui';
 
 /** Table header with a trailing clickable info badge. */
 export const columnHeader = (label: string, info: string): ReactNode => (

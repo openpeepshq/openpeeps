@@ -4,7 +4,7 @@ import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {ThemedText} from '~/components/ui/themed-text';
 import {BaseSheet, SheetFooter} from '../common';
 import {useTranslation} from 'react-i18next';
-import {GroupWithMeta} from '@openpeeps/common';
+import {GroupWithMeta} from '@openpeepshq/common';
 import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 interface DeleteGroupConfirmationSheetProps {

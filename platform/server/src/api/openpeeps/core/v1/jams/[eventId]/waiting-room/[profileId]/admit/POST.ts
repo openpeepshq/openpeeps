@@ -1,9 +1,9 @@
 import { endpoint, z } from '#lib/endpoint';
 import { notFound, forbidden } from '#lib/errors';
-import { canModerateJam } from '@openpeeps/common/lib';
-import { acceptFromWaitingRoom, findJamEvent } from '@openpeeps/core/jams';
+import { canModerateJam } from '@openpeepshq/common/lib';
+import { acceptFromWaitingRoom, findJamEvent } from '@openpeepshq/core/jams';
 import { ensureLocalProfile } from '#lib/auth';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { successResponseSchema } from '@openpeepshq/common/types';
 
 export const Param = z.object({
   eventId: z.string(),

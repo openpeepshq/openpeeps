@@ -8,10 +8,10 @@ import {
   UserRoundCheck,
   X,
 } from 'lucide-react';
-import type { PublicProfile } from '@openpeeps/common/types';
-import { matchesQuery, profileName } from '@openpeeps/common/lib';
+import type { PublicProfile } from '@openpeepshq/common/types';
+import { matchesQuery, profileName } from '@openpeepshq/common/lib';
 import { useParticipants, useRoomContext } from '@livekit/components-react';
-import { Button, Input } from '@openpeeps/react-ui';
+import { Button, Input } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';

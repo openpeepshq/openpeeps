@@ -6,8 +6,8 @@ import type {
   PostType,
   PublicProfile,
   VisibilityType,
-} from '@openpeeps/common';
-import { checkGroupCapabilities } from '@openpeeps/common/lib';
+} from '@openpeepshq/common';
+import { checkGroupCapabilities } from '@openpeepshq/common/lib';
 import {
   Button,
   Dialog,
@@ -15,7 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useAuthData, useCurrentProfile } from '../../layout/IdentityContext';
 import { useServerInfo } from '../../server-data';

@@ -6,7 +6,7 @@ import {
   PostCreationData,
   PublicPost,
   Thread,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { uploadMedia } from './uploadMedia';
 
 /** True if the attachment is still being processed server-side. */

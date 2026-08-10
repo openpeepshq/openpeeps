@@ -5,11 +5,11 @@ import {
   postDataUnionSchema,
   postDataSchema,
   type PostData,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { createPost, descendents, findPost } from '@openpeeps/core/posts';
-import { postCreationDataSchema } from '@openpeeps/common/types';
+import { createPost, descendents, findPost } from '@openpeepshq/core/posts';
+import { postCreationDataSchema } from '@openpeepshq/common/types';
 
 export const Input = postCreationDataSchema;
 export const Output = publicPostSchema;

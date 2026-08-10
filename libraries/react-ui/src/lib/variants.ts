@@ -39,7 +39,7 @@ type ColorKey = keyof typeof colorMap;
 
 /**
  * Translate a Skeleton-style `variant-{kind}-{color}` string to Tailwind
- * classes. We keep the same string surface as @openpeeps/ui so component call
+ * classes. We keep the same string surface as @openpeepshq/ui so component call
  * sites can be ported 1:1.
  */
 export function variantClasses(variant?: Variant): string {

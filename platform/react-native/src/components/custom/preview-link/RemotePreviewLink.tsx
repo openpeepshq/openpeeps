@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Image, TouchableOpacity, Linking } from 'react-native';
 import { ThemedText as Text } from '~/components/ui/themed-text';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ActivityIndicator } from 'react-native';
 
 interface RemotePreviewLinkProps {

@@ -10,7 +10,7 @@ The heart of the backend, containing all business logic and data access.
 
 **Location**: `platform/core/`
 
-**Package**: `@openpeeps/core`
+**Package**: `@openpeepshq/core`
 
 **Responsibilities:**
 
@@ -52,7 +52,7 @@ core/
 **Example:**
 
 ```typescript
-import { createPost, findPost } from '@openpeeps/core/posts';
+import { createPost, findPost } from '@openpeepshq/core/posts';
 
 // Create a post
 const post = await createPost(data, profile, postData, relations);
@@ -67,7 +67,7 @@ The HTTP API and static SPA host built on Express + Riddl.
 
 **Location**: `platform/server/`
 
-**Package**: `@openpeeps/server`
+**Package**: `@openpeepshq/server`
 
 **Responsibilities:**
 
@@ -117,7 +117,7 @@ Background job processor for asynchronous tasks.
 
 **Location**: `platform/worker/`
 
-**Package**: `@openpeeps/worker`
+**Package**: `@openpeepshq/worker`
 
 **Responsibilities:**
 
@@ -134,10 +134,10 @@ Background job processor for asynchronous tasks.
 **Usage:**
 
 ```typescript
-import { worker } from '@openpeeps/worker';
+import { worker } from '@openpeepshq/worker';
 
 // Jobs are automatically processed
-// when added to queues in @openpeeps/core
+// when added to queues in @openpeepshq/core
 ```
 
 ### CLI
@@ -146,7 +146,7 @@ Command-line interface for administrative tasks.
 
 **Location**: `platform/cli/`
 
-**Package**: `@openpeeps/cli`
+**Package**: `@openpeepshq/cli`
 
 **Commands:**
 
@@ -183,7 +183,7 @@ The backend follows domain-driven design principles:
 **Pattern:**
 
 ```typescript
-import { allpeepDb } from '@openpeeps/core/db';
+import { allpeepDb } from '@openpeepshq/core/db';
 
 const { db } = await allpeepDb();
 const post = await postsMapping.find(db, postId);
@@ -201,7 +201,7 @@ const post = await postsMapping.find(db, postId);
 **Redis Pub/Sub:**
 
 ```typescript
-import { hub } from '@openpeeps/core/events';
+import { hub } from '@openpeepshq/core/events';
 
 // Emit event
 hub.emit('postCreated', post);
@@ -301,7 +301,7 @@ Email sending via SMTP:
 1. HTTP Request → Express / Riddl route handler
 2. Authentication Check → await ensureLocalProfile()
 3. Authorization Check → await ensurePostCapabilities()
-4. Business Logic → @openpeeps/core domain functions
+4. Business Logic → @openpeepshq/core domain functions
 5. Database Access → Postgres (and legacy Arango mappings where present)
 6. Response → JSON (SPA HTML is served by the static catch-all)
 ```
@@ -377,7 +377,7 @@ DB_NAME=test pnpm test
 
 ## Best Practices
 
-1. **Domain Logic**: Keep business logic in `@openpeeps/core`
+1. **Domain Logic**: Keep business logic in `@openpeepshq/core`
 2. **API Layer**: Thin layer, delegate to core
 3. **Error Handling**: Use consistent error responses
 4. **Type Safety**: Use TypeScript and Zod throughout

@@ -1,8 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
-import { canAccessJamRecordings } from '@openpeeps/common/lib';
-import { jamRecordingSchema } from '@openpeeps/common/types';
-import { listPostRecordings } from '@openpeeps/core/jams';
-import { findPost } from '@openpeeps/core/posts';
+import { canAccessJamRecordings } from '@openpeepshq/common/lib';
+import { jamRecordingSchema } from '@openpeepshq/common/types';
+import { listPostRecordings } from '@openpeepshq/core/jams';
+import { findPost } from '@openpeepshq/core/posts';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureLocalProfile } from '#lib/auth';
 

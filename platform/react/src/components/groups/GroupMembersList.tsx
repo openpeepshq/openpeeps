@@ -5,17 +5,17 @@ import {
   UserCog,
   UserMinus,
 } from 'lucide-react';
-import type { GroupMember, GroupWithMeta } from '@openpeeps/common/types';
+import type { GroupMember, GroupWithMeta } from '@openpeepshq/common/types';
 import {
   canChangeMemberRole,
   canRemoveMember,
   sortGroupMembers,
   truncateText,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 import {
   PopupMenu,
   PopupMenuButton,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { AccessDeniedLoader } from '../layout/AccessDeniedLoader';

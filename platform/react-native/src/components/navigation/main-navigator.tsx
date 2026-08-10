@@ -38,7 +38,7 @@ import { SideMenuDrawer } from './side-menu-drawer';
 import { MainStackParamList } from './types';
 import { useWindowSize } from '~/hooks';
 import { initializePushNotifications } from '~/lib/push-notifications';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 

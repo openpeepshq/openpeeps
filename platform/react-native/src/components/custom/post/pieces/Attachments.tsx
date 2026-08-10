@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, FlatList, ViewToken } from 'react-native';
-import { MediaAttachmentData, PublicPost } from '@openpeeps/common';
+import { MediaAttachmentData, PublicPost } from '@openpeepshq/common';
 import { GalleryImage } from './gallery/GalleryImage';
 import { GalleryVideo } from './gallery/GalleryVideo';
 import { GalleryAudio } from './gallery/GalleryAudio';

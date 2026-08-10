@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import type { PostCreationData } from '@openpeeps/common/types';
+import type { PostCreationData } from '@openpeepshq/common/types';
 import {
   useT,
   useOpenpeeps,
   useSetPageHeader,
   usePostViewFlush,
   adjustUnseenCounts,
-} from '@openpeeps/react';
-import { canCreatePost } from '@openpeeps/common';
+} from '@openpeepshq/react';
+import { canCreatePost } from '@openpeepshq/common';
 import {
   Avatar,
   MessageInThread,
@@ -16,8 +16,8 @@ import {
   useAuthData,
   useCurrentProfile,
   useToast,
-} from '@openpeeps/react/components';
-import { Button, Input, LoadingSpinner } from '@openpeeps/react-ui';
+} from '@openpeepshq/react/components';
+import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
 
 const MAX_LENGTH = 500;
 

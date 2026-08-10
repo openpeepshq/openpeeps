@@ -39,5 +39,5 @@ export type {
 
 export const initializePageStores = () => {
   // page-scoped stores live module-level — calling this is a no-op kept for
-  // API compatibility with @openpeeps/svelte.
+  // API compatibility with @openpeepshq/svelte.
 };

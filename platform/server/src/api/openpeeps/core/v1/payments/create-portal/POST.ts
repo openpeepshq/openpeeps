@@ -1,14 +1,14 @@
 import { endpoint } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
-import { stripeCustomerPortalResponseSchema } from '@openpeeps/common/types';
+import { stripeCustomerPortalResponseSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import {
   stripeMembershipActive,
   createStripeCustomerPortal,
-} from '@openpeeps/core/stripe';
+} from '@openpeepshq/core/stripe';
 import { ensureLocalProfile } from '#lib/auth';
-import { getStripeCustomerId, hasValue, isOwnerProfile } from '@openpeeps/common';
-import { findProfileSettings } from '@openpeeps/core/profileSettings';
+import { getStripeCustomerId, hasValue, isOwnerProfile } from '@openpeepshq/common';
+import { findProfileSettings } from '@openpeepshq/core/profileSettings';
 
 export const Output = stripeCustomerPortalResponseSchema;
 

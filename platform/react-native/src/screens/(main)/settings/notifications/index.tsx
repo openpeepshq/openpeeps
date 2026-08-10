@@ -9,8 +9,8 @@ import {ThemedText} from '~/components/ui/themed-text';
 import {ThemedView} from '~/components/ui/themed-view';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {ChevronRightIcon} from '~/components/icons';
-import {useOpenpeeps} from '@openpeeps/react';
-import {NotificationType} from '@openpeeps/common';
+import {useOpenpeeps} from '@openpeepshq/react';
+import {NotificationType} from '@openpeepshq/common';
 
 const notificationTypeDefaults: Record<
   string,

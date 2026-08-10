@@ -2,8 +2,8 @@ import type {
   EmailOptionsWithGlobals,
   ExpandedNotification,
   GroupData,
-} from '@openpeeps/common/types';
-import { groupName } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { groupName } from '@openpeepshq/common/lib';
 
 import type { ReactEmailTemplate } from '../../types';
 import { GroupAddedEmail } from './Email';

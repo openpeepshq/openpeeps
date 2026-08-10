@@ -2,7 +2,7 @@ import React from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';
 import { Pressable, View } from 'react-native';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '~/components/ui/themed-text';
 import { ThemedView } from '~/components/ui/themed-view';
 import {
@@ -25,7 +25,7 @@ import {
 import { Input } from '~/components/ui/input';
 import { useTranslation } from 'react-i18next';
 import { EventsFeed } from '~/components/custom/post/feed/events';
-import { checkRoleCapabilities } from '@openpeeps/common';
+import { checkRoleCapabilities } from '@openpeepshq/common';
 
 export const Events = ({
   navigation,

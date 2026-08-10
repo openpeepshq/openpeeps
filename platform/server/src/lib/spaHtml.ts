@@ -1,9 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import type { Request, Response } from 'express';
 import Mustache from 'mustache';
-import type { CommunityConfig } from '@openpeeps/common/types';
-import { communityConfig } from '@openpeeps/core/config';
-import { logger } from '@openpeeps/core/log';
+import type { CommunityConfig } from '@openpeepshq/common/types';
+import { communityConfig } from '@openpeepshq/core/config';
+import { logger } from '@openpeepshq/core/log';
 
 const log = logger('server:spaHtml');
 

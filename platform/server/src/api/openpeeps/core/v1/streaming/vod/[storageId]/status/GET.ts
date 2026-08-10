@@ -3,8 +3,8 @@ import { notFound } from '#lib/errors';
 import {
   type MediaStream,
   mediaStreamSchema,
-} from '@openpeeps/common/types';
-import { buildStream } from '@openpeeps/core/media';
+} from '@openpeepshq/common/types';
+import { buildStream } from '@openpeepshq/core/media';
 
 export const Param = z.object({
   storageId: z.string(),

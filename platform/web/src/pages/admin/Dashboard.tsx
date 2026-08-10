@@ -1,8 +1,8 @@
 import { Hash, UsersRound } from 'lucide-react';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { useServerInfo } from '@openpeeps/react/components';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { useServerInfo } from '@openpeepshq/react/components';
 import { CommunityStatsCard, SignupChart } from './components/AdminCharts';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 function Card({
   title,

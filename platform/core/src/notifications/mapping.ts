@@ -2,7 +2,7 @@ import {
   DbNotification,
   Notification,
   NotificationData,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { map } from '../db/pg/map';
 import { postsMapping } from '../posts/mapping';
 

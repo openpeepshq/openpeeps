@@ -8,7 +8,7 @@ import {
   ListRenderItem,
 } from 'react-native';
 import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
-import type { SuccessFailureResponse } from '@openpeeps/common';
+import type { SuccessFailureResponse } from '@openpeepshq/common';
 
 interface InfiniteScrollContainerProps<D> {
   query: UseInfiniteQueryResult<InfiniteData<D[], unknown>, SuccessFailureResponse>;

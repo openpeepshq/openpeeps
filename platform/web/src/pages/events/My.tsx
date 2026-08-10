@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Feed } from '@openpeeps/react/components';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { Feed } from '@openpeepshq/react/components';
 
 export function EventsMy() {
   const t = useT();

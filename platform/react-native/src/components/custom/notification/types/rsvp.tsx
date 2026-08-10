@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { ThemedText } from '~/components/ui/themed-text';
-import { PublicNotification } from '@openpeeps/common';
+import { PublicNotification } from '@openpeepshq/common';
 import { NotificationWrapper } from '../NotificationWrapper';
 import { profileName } from '~/lib/utils';
 import { useTranslation } from 'react-i18next';

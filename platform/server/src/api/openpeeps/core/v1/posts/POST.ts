@@ -4,13 +4,13 @@ import {
   publicPostSchema,
   postDataUnionSchema,
   postDataSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { createPost } from '@openpeeps/core/posts';
-import { postCreationDataSchema } from '@openpeeps/common/types';
-import { canCreatePost } from '@openpeeps/common/lib';
-import { findGroup } from '@openpeeps/core/groups';
+import { createPost } from '@openpeepshq/core/posts';
+import { postCreationDataSchema } from '@openpeepshq/common/types';
+import { canCreatePost } from '@openpeepshq/common/lib';
+import { findGroup } from '@openpeepshq/core/groups';
 
 export const Input = postCreationDataSchema;
 export const Output = publicPostSchema;

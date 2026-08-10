@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { empty } from '@openpeeps/core/db';
+import { empty } from '@openpeepshq/core/db';
 
 export const registerDbCommand = (program: Command) => {
   const db = program.command('db').description('Database maintenance');

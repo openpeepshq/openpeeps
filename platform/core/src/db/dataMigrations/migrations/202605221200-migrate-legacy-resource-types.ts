@@ -1,5 +1,5 @@
 import { Database } from 'arangojs';
-import { Profile } from '@openpeeps/common/types';
+import { Profile } from '@openpeepshq/common/types';
 import { transformDocsInCollection } from '../helpers';
 
 const LEGACY_RESOURCE_TYPE_MAP: Record<string, string> = {

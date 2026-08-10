@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
-import { profileName } from '@openpeeps/common';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { PostDetail as PostDetailComponent } from '@openpeeps/react/components';
+import { profileName } from '@openpeepshq/common';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { PostDetail as PostDetailComponent } from '@openpeepshq/react/components';
 
 export function PostDetail() {
   const t = useT();

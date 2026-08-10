@@ -2,9 +2,9 @@ import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { findGroup } from '@openpeeps/core/groups';
-import { markGroupPostsSeen } from '@openpeeps/core/posts';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { findGroup } from '@openpeepshq/core/groups';
+import { markGroupPostsSeen } from '@openpeepshq/core/posts';
+import { successResponseSchema } from '@openpeepshq/common/types';
 
 export const Param = z.object({
   groupId: z.string(),

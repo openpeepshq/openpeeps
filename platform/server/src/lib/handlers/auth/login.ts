@@ -2,17 +2,17 @@ import type {
   AccountWithMeta,
   LoginRequest,
   TokenResponse,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
-import { checkPassword, findAccountByEmail } from '@openpeeps/core/accounts';
-import { findProfile, listProfilesByAccount, assignRole } from '@openpeeps/core/profiles';
+import { checkPassword, findAccountByEmail } from '@openpeepshq/core/accounts';
+import { findProfile, listProfilesByAccount, assignRole } from '@openpeepshq/core/profiles';
 import {
   createStripeCheckoutUrl,
   checkSubscription,
-} from '@openpeeps/core/stripe';
-import { communityConfig } from '@openpeeps/core/config';
-import { findRoleByKey } from '@openpeeps/core/roles';
-import { createSignedProfileAccessToken } from '@openpeeps/core/accessTokens';
+} from '@openpeepshq/core/stripe';
+import { communityConfig } from '@openpeepshq/core/config';
+import { findRoleByKey } from '@openpeepshq/core/roles';
+import { createSignedProfileAccessToken } from '@openpeepshq/core/accessTokens';
 
 const retrieveProfile = async (account: AccountWithMeta) => {
   const communityConf = await communityConfig();

@@ -29,7 +29,7 @@ import {
 } from '../icons';
 import { cn } from '../../lib/utils';
 import { useWindowSize } from '../../hooks';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
 
 const Tab = createBottomTabNavigator<TabStackParamList>();

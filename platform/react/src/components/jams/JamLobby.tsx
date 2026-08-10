@@ -6,8 +6,8 @@ import {
   usePreviewTracks,
 } from '@livekit/components-react';
 import { type LocalVideoTrack, Track } from 'livekit-client';
-import { profileName } from '@openpeeps/common/lib';
-import { Blur, Button } from '@openpeeps/react-ui';
+import { profileName } from '@openpeepshq/common/lib';
+import { Blur, Button } from '@openpeepshq/react-ui';
 import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { HlsVideo } from '@videojs/react/media/hls-video';
 import { CircleAlert, LoaderCircle } from 'lucide-react';
-import type { MediaAttachmentData, MediaStream } from '@openpeeps/common';
+import type { MediaAttachmentData, MediaStream } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 

@@ -7,7 +7,7 @@ export interface InfiniteScrollOptions {
 }
 
 /**
- * React port of `buildInfiniteScroll` from @openpeeps/ui — observes a sentinel
+ * React port of `buildInfiniteScroll` from @openpeepshq/ui — observes a sentinel
  * ref and fires `callback` when it intersects the viewport.
  */
 export function useInfiniteScroll<T extends Element>(

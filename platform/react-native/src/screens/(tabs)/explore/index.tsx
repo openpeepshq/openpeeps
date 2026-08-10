@@ -4,7 +4,7 @@ import {
   TabStackParamList,
   MainStackParamList,
 } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { XIcon, SearchIcon, MessageSquareTextIcon } from '~/components/icons';
 import { CompositeScreenProps } from '@react-navigation/native';
 import {

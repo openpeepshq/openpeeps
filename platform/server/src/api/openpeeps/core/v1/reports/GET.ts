@@ -1,7 +1,7 @@
 import { ensureLocalProfile } from '#lib/auth';
-import { listReportsByReporterProfile } from "@openpeeps/core/reports";
+import { listReportsByReporterProfile } from "@openpeepshq/core/reports";
 import { endpoint } from '#lib/endpoint';
-import { reportWithMetaSchema } from "@openpeeps/common";
+import { reportWithMetaSchema } from "@openpeepshq/common";
 export const Output = reportWithMetaSchema.array();
 
 export const apiEndpoint = endpoint({ Output }).handle(async (_, event) => {

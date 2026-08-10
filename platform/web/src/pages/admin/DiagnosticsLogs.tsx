@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import type { LogRow } from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Button } from '@openpeeps/react-ui';
+import type { LogRow } from '@openpeepshq/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { Button } from '@openpeepshq/react-ui';
 
 const LOG_LEVELS = [
   'trace',

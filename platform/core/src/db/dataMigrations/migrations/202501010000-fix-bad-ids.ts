@@ -4,7 +4,7 @@ import {
   DocumentCollection,
   EdgeCollection,
 } from 'arangojs/collections';
-import { asyncFilter } from '@openpeeps/common/lib';
+import { asyncFilter } from '@openpeepshq/common/lib';
 import { logger } from '../../../log';
 
 const uuidPattern =

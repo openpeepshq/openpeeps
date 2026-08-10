@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { useOpenpeeps, useT } from '@openpeeps/react';
-import { PluginSlot } from '@openpeeps/react/components';
-import type { PluginConfigResponse, PluginEntry } from '@openpeeps/common';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { useOpenpeeps, useT } from '@openpeepshq/react';
+import { PluginSlot } from '@openpeepshq/react/components';
+import type { PluginConfigResponse, PluginEntry } from '@openpeepshq/common';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 const SENSITIVE_KEY_PATTERNS = [
   'password',

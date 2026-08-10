@@ -3,7 +3,7 @@ import type {
   AnalyticsEngagement,
   AnalyticsGrowth,
   AnalyticsOverview,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 export type AnalyticsPdfData = {
   overview: AnalyticsOverview;

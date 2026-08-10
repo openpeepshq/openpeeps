@@ -1,4 +1,4 @@
-import { fetchClient, type FetchClient } from '@openpeeps/fetch-client';
+import { fetchClient, type FetchClient } from '@openpeepshq/fetch-client';
 import { apiClientConfig } from './base';
 
 export const authHeaders = (token: string) => {

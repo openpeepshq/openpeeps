@@ -3,7 +3,7 @@ import {
   createBackup,
   listAllBackups,
   restoreBackups,
-} from '@openpeeps/core/backups';
+} from '@openpeepshq/core/backups';
 
 export const registerBackupsCommand = (program: Command) => {
   const backups = program

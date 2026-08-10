@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
-import { i18nComplete, i18nOverrides, i18nWithPlugins } from '@openpeeps/core/i18n';
-import { i18nResourceSchema } from '@openpeeps/common';
+import { i18nComplete, i18nOverrides, i18nWithPlugins } from '@openpeepshq/core/i18n';
+import { i18nResourceSchema } from '@openpeepshq/common';
 
 export const Output = z.object({
   defaults: i18nResourceSchema,

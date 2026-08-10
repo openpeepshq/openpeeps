@@ -1,4 +1,4 @@
-import type { OpenpeepsClient } from '@openpeeps/client';
+import type { OpenpeepsClient } from '@openpeepshq/client';
 import {
   apiHook,
   payloadMutation,
@@ -15,7 +15,7 @@ import type {
   PostType,
   PublicPost,
   UnseenPostCounts,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 
 type EventFeedHook = ReturnType<
   typeof infiniteOffsetQueryApiHook<
@@ -84,7 +84,7 @@ type EventFeeds = ReturnType<typeof eventFeeds>;
 /**
  * Default page size for any feed-style query. Callers can override by passing
  * an explicit `limit`. Keep in sync with `defaultFeedLimit` in
- * `@openpeeps/svelte`.
+ * `@openpeepshq/svelte`.
  */
 const DEFAULT_FEED_LIMIT = 15;
 

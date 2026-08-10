@@ -17,7 +17,7 @@ import {
   PopupMenuButton,
   SplitButtonMenu,
   type IconType,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { audioOutputSupported } from './constants';
 

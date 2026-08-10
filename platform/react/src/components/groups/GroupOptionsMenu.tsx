@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { CheckCheck, Ellipsis, LogOut, Pencil, Trash, UserPlus } from 'lucide-react';
-import type { GroupWithMeta } from '@openpeeps/common/types';
-import { checkGroupCapabilities } from '@openpeeps/common/lib';
-import { PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
+import type { GroupWithMeta } from '@openpeepshq/common/types';
+import { checkGroupCapabilities } from '@openpeepshq/common/lib';
+import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import {

@@ -48,11 +48,11 @@ accompanied by a written outline of exactly what changed and why.**
 - **Prefix intentionally-unused identifiers with `_`** (matches the lint rule).
 - **Barrel files.** Each module exposes its public surface via `index.ts`.
   Export new public symbols there.
-- **`@openpeeps/*` import depth.** Import from the package root
-  (`@openpeeps/core`, `@openpeeps/common`, …) **or at most one subpath
-  segment** (`@openpeeps/core/jams`, `@openpeeps/common/types`,
-  `@openpeeps/react/email`). No deeper chains
-  (`@openpeeps/core/db/explorer`, `@openpeeps/react/pwa/vite`). One-level
+- **`@openpeepshq/*` import depth.** Import from the package root
+  (`@openpeepshq/core`, `@openpeepshq/common`, …) **or at most one subpath
+  segment** (`@openpeepshq/core/jams`, `@openpeepshq/common/types`,
+  `@openpeepshq/react/email`). No deeper chains
+  (`@openpeepshq/core/db/explorer`, `@openpeepshq/react/pwa/vite`). One-level
   entry points are the public surface (`package.json` `exports` `./*` →
   `dist/*/index.js`); re-export nested modules from that segment’s barrel
   instead of importing deeper.
@@ -92,7 +92,7 @@ steps — follow that skill.
 
 ## Build, test, lint
 
-- Tests use Vitest: `pnpm --filter @openpeeps/<pkg> test` (or
+- Tests use Vitest: `pnpm --filter @openpeepshq/<pkg> test` (or
   `pnpm exec vitest run <path>` within a package).
 - Rebuild, lint, and verify touched packages before finishing — see
   `check-openpeeps-pr-readiness` when preparing a PR.
@@ -104,7 +104,7 @@ steps — follow that skill.
 - **Schema migrations:** changes to stored data shape go through **Drizzle SQL**,
   not Arango-era TypeScript migrations. Update tables under
   `platform/core/src/db/pg/schema/`, then
-  `pnpm --filter @openpeeps/core db:generate` (SQL lands in
+  `pnpm --filter @openpeepshq/core db:generate` (SQL lands in
   `platform/core/src/db/pg/sql/`) and apply with `db:migrate` (also runs on
   server start). See `platform/core/docs/postgres-schema-adr.md` and
   `platform/core/docs/postgres-migration-runbook.md`.

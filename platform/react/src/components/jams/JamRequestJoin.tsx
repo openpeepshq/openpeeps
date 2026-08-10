@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { LocalUserChoices } from '@livekit/components-react';
-import { Button } from '@openpeeps/react-ui';
+import { Button } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useJamContext } from './JamContext';

@@ -2,14 +2,14 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Image, Pressable, View} from 'react-native';
 import {UseFormReturn} from 'react-hook-form';
 import {VisibilityInput} from './VisibilityInput';
-import {AudienceSetting, MediaAttachment} from '@openpeeps/common';
-import {PostCreationData} from '@openpeeps/common';
-import {HEADER_IMAGE_MAX_WIDTH} from '@openpeeps/common/lib';
+import {AudienceSetting, MediaAttachment} from '@openpeepshq/common';
+import {PostCreationData} from '@openpeepshq/common';
+import {HEADER_IMAGE_MAX_WIDTH} from '@openpeepshq/common/lib';
 import {Form, FormTextarea, FormField, FormInput} from '~/components/ui/form';
 import {cn} from '~/lib/utils';
 import {useTranslation} from 'react-i18next';
 
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {ThemedView} from '~/components/ui/themed-view';
 import {CameraIcon, XIcon} from '~/components/icons';

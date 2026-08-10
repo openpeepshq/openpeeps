@@ -1,10 +1,10 @@
 import React, {useCallback, useRef, useState} from 'react';
 import {Pressable, View, Image} from 'react-native';
 import {UseFormReturn} from 'react-hook-form';
-import {MediaAttachment, Profile, PublicProfile} from '@openpeeps/common';
-import {GroupData} from '@openpeeps/common';
+import {MediaAttachment, Profile, PublicProfile} from '@openpeepshq/common';
+import {GroupData} from '@openpeepshq/common';
 import {FormField, FormInput, FormTextarea} from '~/components/ui/form';
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {ImagePickerSheet, ProfilePickerSheet} from '../modals';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';

@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
-import type { Event, Jam, PublicPost } from '@openpeeps/common/types';
-import { jamFromEvent } from '@openpeeps/common/lib';
+import type { Event, Jam, PublicPost } from '@openpeepshq/common/types';
+import { jamFromEvent } from '@openpeepshq/common/lib';
 
 export interface JamContextValue {
   jamPost: PublicPost;

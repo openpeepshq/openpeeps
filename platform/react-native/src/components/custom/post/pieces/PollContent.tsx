@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { ThemedText as Text } from '~/components/ui/themed-text';
-import { hasValue, type PublicPost } from '@openpeeps/common';
-import { collectVotes } from '@openpeeps/common';
+import { hasValue, type PublicPost } from '@openpeepshq/common';
+import { collectVotes } from '@openpeepshq/common';
 import { formatDistanceToNow, isPast } from 'date-fns';
 import { Progress } from '~/components/ui/progress';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
 import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';

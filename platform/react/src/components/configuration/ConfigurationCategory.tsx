@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ZodObject, type ZodRawShape, ZodArray, type ZodType } from 'zod';
-import type { ConfigTree } from '@openpeeps/common/types';
-import { capitalizeFirstLetter } from '@openpeeps/common';
-import { ExpandableBox } from '@openpeeps/react-ui';
+import type { ConfigTree } from '@openpeepshq/common/types';
+import { capitalizeFirstLetter } from '@openpeepshq/common';
+import { ExpandableBox } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import {
   diffConfigTrees,

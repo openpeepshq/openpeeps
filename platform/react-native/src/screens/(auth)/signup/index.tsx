@@ -13,9 +13,9 @@ import {
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
-import { registerFormSchema, RegisterRequest } from '@openpeeps/common';
+import { registerFormSchema, RegisterRequest } from '@openpeepshq/common';
 import { ArrowLeftIcon } from '~/components/icons';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
 import { useTheme } from '@react-navigation/native';
 

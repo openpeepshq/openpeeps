@@ -1,4 +1,4 @@
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import {
   Button,
   Dialog,
@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { FeedPost } from '../../FeedPost';

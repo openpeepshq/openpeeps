@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { GroupWithMeta } from '@openpeeps/common/types';
-import { groupName } from '@openpeeps/common/lib';
+import type { GroupWithMeta } from '@openpeepshq/common/types';
+import { groupName } from '@openpeepshq/common/lib';
 import {
   Button,
   Dialog,
@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useRouter } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';

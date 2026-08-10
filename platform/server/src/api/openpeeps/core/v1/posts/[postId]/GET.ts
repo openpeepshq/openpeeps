@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
-import { findPost } from '@openpeeps/core/posts';
-import { publicPostSchema } from '@openpeeps/common/types';
+import { findPost } from '@openpeepshq/core/posts';
+import { publicPostSchema } from '@openpeepshq/common/types';
 import { notFound, forbidden } from '#lib/errors';
 import { ensurePostCapabilities, scopeMatches } from '#lib/auth';
 

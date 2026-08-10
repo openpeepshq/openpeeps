@@ -1,5 +1,5 @@
 {
-  "name": "@openpeeps/react-native",
+  "name": "@openpeepshq/react-native",
   "version": "0.2.33",
   "description": "React Native community screens and shared UI (extracted from the Black Ambition app) for the OpenPeeps stack.",
   "source": "./src/index.ts",
@@ -61,7 +61,7 @@
     "lint": "eslint \"src/**/*.{js,ts,tsx}\"",
     "clean": "del-cli lib",
     "build": "bob build",
-    "prepublishOnly": "pnpm --filter @openpeeps/react-native... build",
+    "prepublishOnly": "pnpm --filter @openpeepshq/react-native... build",
     "release": "release-it"
   },
   "packageManager": "pnpm@11.1.3",
@@ -81,8 +81,8 @@
   },
   "homepage": "https://gitlab.allpeep-hq.com/allpeep/open-source/react-native-components#readme",
   "dependencies": {
-    "@openpeeps/common": "workspace:^",
-    "@openpeeps/react": "workspace:^",
+    "@openpeepshq/common": "workspace:^",
+    "@openpeepshq/react": "workspace:^",
     "@gorhom/bottom-sheet": "^5.2.9",
     "@hookform/resolvers": "^3.10.0",
     "@livekit/react-native": "2.11.0",
@@ -248,8 +248,8 @@
         {
           "patterns": [
             {
-              "regex": "^@openpeeps/[^/]+/[^/]+/.+",
-              "message": "Import from @openpeeps/<pkg> or @openpeeps/<pkg>/<segment> only (at most one subpath)."
+              "regex": "^@openpeepshq/[^/]+/[^/]+/.+",
+              "message": "Import from @openpeepshq/<pkg> or @openpeepshq/<pkg>/<segment> only (at most one subpath)."
             }
           ]
         }

@@ -5,7 +5,7 @@ import {
   Profile,
   ProfileData,
   Role,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { profilesMapping } from './mapping';
 import { allpeepDb } from '../db';
 import {
@@ -16,7 +16,7 @@ import {
   roleUnassigner,
 } from './helpers';
 import { hub } from '../events';
-import { randomString } from '@openpeeps/common/lib';
+import { randomString } from '@openpeepshq/common/lib';
 import { deleteAccessTokensForProfile } from '../accessTokens/helpers';
 import { profilesCache, getProfile } from './cache';
 import { accountsCache } from '../accounts/cache';

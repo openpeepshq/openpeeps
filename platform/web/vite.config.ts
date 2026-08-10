@@ -3,11 +3,11 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
-import { openpeepsPwaPluginConfig } from '@openpeeps/react/pwa-vite';
+import { openpeepsPwaPluginConfig } from '@openpeepshq/react/pwa-vite';
 import { openpeepsDocsPlugin } from './vite-plugin-docs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-/** Use workspace TypeScript sources in dev so `pnpm dev` picks up @openpeeps/react changes without a separate library build. */
+/** Use workspace TypeScript sources in dev so `pnpm dev` picks up @openpeepshq/react changes without a separate library build. */
 const openpeepsReactSrc = path.resolve(__dirname, '../react/src');
 
 const apiTarget = process.env.VITE_API_PROXY_TARGET ?? 'http://localhost:5173';
@@ -17,15 +17,15 @@ export default defineConfig({
     alias: [
       // Longer match first (subpath before package root).
       {
-        find: '@openpeeps/react/pwa-vite',
+        find: '@openpeepshq/react/pwa-vite',
         replacement: path.join(openpeepsReactSrc, 'pwa/vite.ts'),
       },
       {
-        find: '@openpeeps/react/components',
+        find: '@openpeepshq/react/components',
         replacement: path.join(openpeepsReactSrc, 'components/index.ts'),
       },
       {
-        find: '@openpeeps/react',
+        find: '@openpeepshq/react',
         replacement: path.join(openpeepsReactSrc, 'index.ts'),
       },
     ],
@@ -53,7 +53,7 @@ export default defineConfig({
       },
     },
     // `openpeepsPwaPluginConfig` returns the right `VitePWA(...)` options to
-    // wire in the shared `@openpeeps/react/service-worker.ts`.
+    // wire in the shared `@openpeepshq/react/service-worker.ts`.
     VitePWA(
       openpeepsPwaPluginConfig({
         appName: 'OpenPeeps',

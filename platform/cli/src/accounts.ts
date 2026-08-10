@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 import { Command } from 'commander';
-import { createAccount, listAccounts } from '@openpeeps/core/accounts';
+import { createAccount, listAccounts } from '@openpeepshq/core/accounts';
 
 export const registerAccountsCommand = (program: Command) => {
   const accounts = program

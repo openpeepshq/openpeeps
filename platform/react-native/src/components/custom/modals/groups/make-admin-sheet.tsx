@@ -3,7 +3,7 @@ import {View} from 'react-native';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {ThemedText} from '~/components/ui/themed-text';
 import {BaseSheet, SheetFooter} from '../common';
-import {Profile} from '@openpeeps/common';
+import {Profile} from '@openpeepshq/common';
 import {useTranslation} from 'react-i18next';
 import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { ThemedView } from '~/components/ui/themed-view';
 import { MainStackParamList } from '~/components/navigation/types';
-import { Thread } from '@openpeeps/common';
+import { Thread } from '@openpeepshq/common';
 import { Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';

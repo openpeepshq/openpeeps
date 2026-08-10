@@ -1,6 +1,6 @@
 import {View} from 'react-native';
 import React from 'react';
-import {Profile} from '@openpeeps/common';
+import {Profile} from '@openpeepshq/common';
 import {ThemedText} from '~/components/ui/themed-text';
 import {ProfileImages, ProfileName} from '../common/profile-pieces';
 

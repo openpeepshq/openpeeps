@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Paperclip } from 'lucide-react';
-import type { PostCreationData, PublicPost } from '@openpeeps/common/types';
+import type { PostCreationData, PublicPost } from '@openpeepshq/common/types';
 import {
   Button,
   Dialog,
@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   ModalFooter,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useToast } from '../../layout/ToastProvider';

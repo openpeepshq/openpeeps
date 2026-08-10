@@ -1,10 +1,10 @@
 import { Link, Pencil, Share } from 'lucide-react';
-import type { GroupWithMeta } from '@openpeeps/common/types';
+import type { GroupWithMeta } from '@openpeepshq/common/types';
 import {
   PopupMenu,
   PopupMenuButton,
   PopupSection,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useToast } from '../layout/ToastProvider';
 import { useNewPostModal } from '../post/post-form/NewPostModalContext';

@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
-import { getTheme, isStripeActive } from '@openpeeps/common';
+import { getTheme, isStripeActive } from '@openpeepshq/common';
 import { useT } from '../../i18n';
 import { useServerInfo } from '../server-data';
 import { useCurrentProfileSettings } from './IdentityContext';
@@ -24,7 +24,7 @@ export interface AuthLayoutProps {
 }
 
 /**
- * Translation of @openpeeps/svelte/components/layout/Auth.svelte. Renders the
+ * Translation of @openpeepshq/svelte/components/layout/Auth.svelte. Renders the
  * standard auth split-pane shell and triggers a redirect once an authenticated
  * profile is detected.
  */

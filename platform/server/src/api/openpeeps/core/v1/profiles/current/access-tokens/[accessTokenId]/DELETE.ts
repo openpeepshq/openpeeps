@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { successResponseSchema, type AccessTokenWithMeta } from '@openpeeps/common/types';
-import { findAccessToken, revokeAccessToken } from '@openpeeps/core/accessTokens';
+import { successResponseSchema, type AccessTokenWithMeta } from '@openpeepshq/common/types';
+import { findAccessToken, revokeAccessToken } from '@openpeepshq/core/accessTokens';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureAccessTokenCapabilities } from '#lib/auth';
 

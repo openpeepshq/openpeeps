@@ -10,11 +10,11 @@ import type {
   AuthorizationData,
   PostType,
   VisibilityType,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import {
   canCreatePostTypeInAnyGroup,
   canCreatePostTypeWithVisibility,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 
 export interface AudienceChoice {
   title: string;

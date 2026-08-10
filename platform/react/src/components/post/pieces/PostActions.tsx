@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { MessageCircle, Repeat2, ThumbsUp } from 'lucide-react';
-import type { PublicPost } from '@openpeeps/common/types';
-import { Button } from '@openpeeps/react-ui';
+import type { PublicPost } from '@openpeepshq/common/types';
+import { Button } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';

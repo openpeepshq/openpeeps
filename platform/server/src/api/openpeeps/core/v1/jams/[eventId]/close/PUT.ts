@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
 import { notFound, forbidden } from '#lib/errors';
-import { closeJam, findJamEvent } from '@openpeeps/core/jams';
-import { successResponseSchema, type SuccessResponse } from '@openpeeps/common/types';
+import { closeJam, findJamEvent } from '@openpeepshq/core/jams';
+import { successResponseSchema, type SuccessResponse } from '@openpeepshq/common/types';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 
 export const Param = z.object({

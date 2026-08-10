@@ -1,6 +1,6 @@
 import React from 'react';
 import { MainScreenProps } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ThemedView } from '~/components/ui/themed-view';
 import {
   GenericHeader,

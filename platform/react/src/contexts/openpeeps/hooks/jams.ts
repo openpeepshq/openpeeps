@@ -1,4 +1,4 @@
-import type { OpenpeepsClient } from '@openpeeps/client';
+import type { OpenpeepsClient } from '@openpeepshq/client';
 import {
   apiHook,
   infiniteChronologicalQueryApiHook,

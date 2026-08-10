@@ -3,7 +3,7 @@ import {
   type MuteParticipantRequest,
   type PostWithMeta,
   type Profile,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   listParticipantIds,
   reclaimOrphanJamRoom,

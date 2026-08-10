@@ -1,6 +1,6 @@
 import { useState, type KeyboardEvent, type MouseEvent } from 'react';
-import { collectVotes, hasValue, type PublicPost } from '@openpeeps/common';
-import { checkPostCapabilities, groupName } from '@openpeeps/common/lib';
+import { collectVotes, hasValue, type PublicPost } from '@openpeepshq/common';
+import { checkPostCapabilities, groupName } from '@openpeepshq/common/lib';
 
 const isPast = (date: Date | string) => new Date(date).getTime() < Date.now();
 
@@ -20,7 +20,7 @@ import { useAuthData, useCurrentProfile } from '../../layout/IdentityContext';
 import { useToast } from '../../layout/ToastProvider';
 import { useCapabilities } from '../../server-data';
 import { Avatar } from '../../profile';
-import { Button } from '@openpeeps/react-ui';
+import { Button } from '@openpeepshq/react-ui';
 
 export interface PollContentProps {
   post: PublicPost;

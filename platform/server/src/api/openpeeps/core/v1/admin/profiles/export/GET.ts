@@ -1,7 +1,7 @@
 import { endpoint } from '#lib/endpoint';
 import { forbidden } from '#lib/errors';
 import type { RequestEvent } from '@riddl/core';
-import { exportMembersCsv } from '@openpeeps/core/profiles';
+import { exportMembersCsv } from '@openpeepshq/core/profiles';
 import { ensureRoleCapabilities } from '#lib/auth';
 
 export const Error = {

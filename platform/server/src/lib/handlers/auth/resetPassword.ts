@@ -3,13 +3,13 @@ import type {
   RequestResetPasswordRequest,
   ResetPasswordRequest,
   SuccessResponse,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { notFound } from '#lib/errors';
 import {
   findAccountByEmail,
   sendResetPasswordEmail,
   updateAccount,
-} from '@openpeeps/core/accounts';
+} from '@openpeepshq/core/accounts';
 import type { RequestEvent } from '@riddl/core';
 
 export const requestResetPasswordHandler = async (

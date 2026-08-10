@@ -96,7 +96,7 @@ export const openpeepsPwaPluginConfig = (
     strategies: 'injectManifest',
     registerType: 'prompt',
     filename,
-    srcDir: 'node_modules/@openpeeps/react/dist/pwa',
+    srcDir: 'node_modules/@openpeepshq/react/dist/pwa',
     manifest: resolvedManifest,
     injectManifest: {
       injectionPoint: undefined,

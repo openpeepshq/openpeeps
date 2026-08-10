@@ -8,7 +8,7 @@ import {
   useRoomContext,
 } from '@livekit/components-react';
 import { AudioLines, Ellipsis, Hand, Mic, MicOff } from 'lucide-react';
-import { PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
+import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';

@@ -2,15 +2,15 @@ import type {
   GroupWithMeta,
   NotificationHandler,
   Profile,
-} from '@openpeeps/common/types';
-import { maybeCreateNotification } from '@openpeeps/core/notifications';
+} from '@openpeepshq/common/types';
+import { maybeCreateNotification } from '@openpeepshq/core/notifications';
 import {
   checkCapabilities,
   getProfileAvatar,
   groupName,
   profileName,
-} from '@openpeeps/common/lib';
-import { listGroupMembers } from '@openpeeps/core/profiles';
+} from '@openpeepshq/common/lib';
+import { listGroupMembers } from '@openpeepshq/core/profiles';
 import { communityConfig } from '../../../config';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
 

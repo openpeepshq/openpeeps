@@ -1,12 +1,12 @@
 import { Calendar, Copy, Repeat2, Send, Share } from 'lucide-react';
-import type { Event, PublicPost } from '@openpeeps/common/types';
-import { buildEventIcs } from '@openpeeps/common/lib';
+import type { Event, PublicPost } from '@openpeepshq/common/types';
+import { buildEventIcs } from '@openpeepshq/common/lib';
 import {
   PopupMenu,
   PopupMenuButton,
   PopupSection,
   PopupSeparator,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';

@@ -5,13 +5,13 @@ import {
   pluginConfigItemSchema,
   pluginConfigResponseSchema,
   type PluginConfigItem,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   sanitizedConfigWithDefaults,
   hasConfigSchema,
-} from '@openpeeps/core/config';
-import { getPlugins } from '@openpeeps/core/plugins';
-import { logger } from '@openpeeps/core/log';
+} from '@openpeepshq/core/config';
+import { getPlugins } from '@openpeepshq/core/plugins';
+import { logger } from '@openpeepshq/core/log';
 
 const log = logger('server:plugins');
 

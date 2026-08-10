@@ -1,16 +1,16 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { PostCreationData } from '@openpeeps/common/types';
+import type { PostCreationData } from '@openpeepshq/common/types';
 import {
   useT,
   useOpenpeeps,
   eventSanitizer,
   getNewPostStores,
   useSetPageHeader,
-} from '@openpeeps/react';
-import { EventForm, useServerInfo } from '@openpeeps/react/components';
-import { Button, Toast } from '@openpeeps/react-ui';
-import { normalizeEventDataForSave } from '@openpeeps/common/lib';
+} from '@openpeepshq/react';
+import { EventForm, useServerInfo } from '@openpeepshq/react/components';
+import { Button, Toast } from '@openpeepshq/react-ui';
+import { normalizeEventDataForSave } from '@openpeepshq/common/lib';
 
 export function NewEvent() {
   const t = useT();

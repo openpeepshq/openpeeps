@@ -1,4 +1,4 @@
-import { EmailOptions, EmailService } from '@openpeeps/common/types';
+import { EmailOptions, EmailService } from '@openpeepshq/common/types';
 import { logger } from '../log';
 import { sendEmailQueue } from './jobs';
 import { render } from './render';

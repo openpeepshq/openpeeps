@@ -22,7 +22,7 @@ import type {
   AnalyticsDateQuery,
   AnalyticsPreset,
   AnalyticsRangeMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 export type ResolvedAnalyticsRange = AnalyticsRangeMeta & {
   fromDate: Date;

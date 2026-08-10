@@ -1,6 +1,6 @@
 import { apiHook, noPayloadMutation } from '../helpers';
 
-import type { openpeepsClient } from '@openpeeps/client';
+import type { openpeepsClient } from '@openpeepshq/client';
 import { payloadMutation } from '../helpers';
 
 export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({

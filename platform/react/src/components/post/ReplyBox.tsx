@@ -1,5 +1,5 @@
 import { Image } from 'lucide-react';
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { Avatar } from '../profile';

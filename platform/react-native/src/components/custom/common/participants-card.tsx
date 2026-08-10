@@ -1,6 +1,6 @@
 import {View} from 'react-native';
 import React from 'react';
-import type {JamState} from '@openpeeps/common/types';
+import type {JamState} from '@openpeepshq/common/types';
 import {AvatarFromId} from './avatar-from-id';
 
 interface ParticipantsCardProps {

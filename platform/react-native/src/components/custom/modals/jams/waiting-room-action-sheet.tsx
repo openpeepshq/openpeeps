@@ -4,7 +4,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ThemedText } from '~/components/ui/themed-text';
 import { DoorOpenIcon, CircleSlash2Icon } from '~/components/icons';
 import { MetadataType } from '~/types';
-import { Profile } from '@openpeeps/common';
+import { Profile } from '@openpeepshq/common';
 import { truncateText } from '~/lib/utils';
 import { useJamStore } from '~/stores/useJamStore';
 import { Participant } from 'livekit-client';

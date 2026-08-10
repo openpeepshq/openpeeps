@@ -1,4 +1,4 @@
-import { ProfileSettingsData } from '@openpeeps/common/types';
+import { ProfileSettingsData } from '@openpeepshq/common/types';
 import { conflict } from '../errors';
 import { allpeepDb } from '../db';
 import { hub } from '../events';

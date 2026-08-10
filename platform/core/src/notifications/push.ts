@@ -5,7 +5,7 @@ import {
   ProfileWithMeta,
   PushNotification,
   PushSubscription,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { communityConfig, config } from '../config';
 import webPush from 'web-push';
 import { logger } from '../log';

@@ -1,5 +1,5 @@
-import type { GroupData } from '@openpeeps/common/types';
-import { Input, Label, RadioSelect, Textarea } from '@openpeeps/react-ui';
+import type { GroupData } from '@openpeepshq/common/types';
+import { Input, Label, RadioSelect, Textarea } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useServerInfo } from '../server-data/context';
 import { HeaderAvatarInput } from '../form/HeaderAvatarInput';

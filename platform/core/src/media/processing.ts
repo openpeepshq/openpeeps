@@ -1,5 +1,5 @@
 import { unlink } from 'node:fs/promises';
-import type { MediaAttachment } from '@openpeeps/common/types';
+import type { MediaAttachment } from '@openpeepshq/common/types';
 import {
   findMediaAttachment,
   updateMediaAttachment,

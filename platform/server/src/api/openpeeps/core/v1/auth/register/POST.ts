@@ -3,7 +3,7 @@ import type { RequestEvent } from '@riddl/core';
 import {
   registerRequestSchema,
   tokenResponseSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { registerHandler } from '#lib/handlers/auth/register';
 import { conflict, forbidden } from '#lib/errors';
 

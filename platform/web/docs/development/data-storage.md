@@ -19,7 +19,7 @@ hot-path work should prefer Drizzle / SQL-native queries** (see
 Access the database using the `allpeepDb()` function:
 
 ```typescript
-import { allpeepDb } from '@openpeeps/core/db';
+import { allpeepDb } from '@openpeepshq/core/db';
 
 const { db } = await allpeepDb();
 ```
@@ -45,9 +45,9 @@ registries in `platform/core/src/db/pg/map/registry.ts`.
 Schema (and most stored-shape) changes go through **Drizzle SQL**:
 
 1. Edit table definitions under `platform/core/src/db/pg/schema/`.
-2. Generate SQL: `pnpm --filter @openpeeps/core db:generate` — files land in
+2. Generate SQL: `pnpm --filter @openpeepshq/core db:generate` — files land in
    `platform/core/src/db/pg/sql/`.
-3. Apply: `pnpm --filter @openpeeps/core db:migrate` (also runs automatically
+3. Apply: `pnpm --filter @openpeepshq/core db:migrate` (also runs automatically
    when the server starts).
 
 Rationale and cutover notes: `platform/core/docs/postgres-schema-adr.md` and
@@ -83,8 +83,8 @@ still use the document/edge API. They are built with `map()` from
 `platform/core/src/db/pg/map/`:
 
 ```typescript
-import { map } from '@openpeeps/core/db';
-import { PostData } from '@openpeeps/common/types';
+import { map } from '@openpeepshq/core/db';
+import { PostData } from '@openpeepshq/common/types';
 
 export const postsMapping = map<PostData, DbPost>({
   collection: 'posts',
@@ -156,7 +156,7 @@ Admins with the `core-db-access` capability can use the in-app explorer at
 
 Optional local tools:
 
-- **Drizzle Studio** — `pnpm --filter @openpeeps/core db:studio`
+- **Drizzle Studio** — `pnpm --filter @openpeepshq/core db:studio`
 - **`psql`** — connect with `DATABASE_URL`
 
 ## Redis
@@ -169,7 +169,7 @@ Redis is used for:
 ### Redis Connection
 
 ```typescript
-import { getSharedConnection } from '@openpeeps/core/redis';
+import { getSharedConnection } from '@openpeepshq/core/redis';
 
 const redis = await getSharedConnection();
 ```
@@ -177,7 +177,7 @@ const redis = await getSharedConnection();
 ### Event System
 
 ```typescript
-import { hub } from '@openpeeps/core/events';
+import { hub } from '@openpeepshq/core/events';
 
 hub.emit('postCreated', transformedPost);
 

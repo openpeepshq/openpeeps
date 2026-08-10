@@ -1,9 +1,9 @@
 import { endpoint } from '#lib/endpoint';
-import { adminServerStatsSchema } from '@openpeeps/common/types';
+import { adminServerStatsSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { serverStats } from '@openpeeps/core/stats';
+import { serverStats } from '@openpeepshq/core/stats';
 
 // Legacy live OLTP aggregates for the admin Dashboard.
 // Prefer /admin/analytics/* (rollup + Redis) for the analytics UI.

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Thread } from '@openpeeps/common';
+import type { Thread } from '@openpeepshq/common';
 import { collectPath, lastLongestPathSelector } from '../../../../lib/threadHelpers';
 import { ThreadPost } from './ThreadPost';
 

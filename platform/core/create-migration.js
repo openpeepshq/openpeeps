@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { extractDateFromUUIDv7 } from '@openpeeps/common';
+import { extractDateFromUUIDv7 } from '@openpeepshq/common';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';

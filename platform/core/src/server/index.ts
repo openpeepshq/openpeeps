@@ -1,4 +1,4 @@
-import type { ServerInfo } from '@openpeeps/common/types';
+import type { ServerInfo } from '@openpeepshq/common/types';
 import { communityConfig, config } from '../config';
 
 export type DurationType =

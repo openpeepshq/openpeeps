@@ -1,9 +1,9 @@
 import { endpoint } from '#lib/endpoint';
-import { adminGroupSchema } from '@openpeeps/common/types';
+import { adminGroupSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { listAdminGroups } from '@openpeeps/core/groups';
+import { listAdminGroups } from '@openpeepshq/core/groups';
 
 export const Output = adminGroupSchema.array();
 

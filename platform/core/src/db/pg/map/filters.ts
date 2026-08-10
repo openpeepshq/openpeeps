@@ -13,7 +13,7 @@ import {
   sql,
   type SQL,
 } from 'drizzle-orm';
-import { checkCapabilities, mergeCapabilities } from '@openpeeps/common/lib';
+import { checkCapabilities, mergeCapabilities } from '@openpeepshq/common/lib';
 import { isSqlFilter } from '../filters';
 import {
   groupLastPostAtExpr,

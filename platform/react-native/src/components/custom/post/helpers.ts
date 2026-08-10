@@ -1,4 +1,4 @@
-import { type MediaAttachmentData } from '@openpeeps/common';
+import { type MediaAttachmentData } from '@openpeepshq/common';
 import { FileIcon } from 'lucide-react-native';
 import { FileChartPieIcon, FileTextIcon } from '~/components/icons';
 

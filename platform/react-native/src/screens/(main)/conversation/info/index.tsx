@@ -1,6 +1,6 @@
 import React from 'react';
 import { MainScreenProps, MainStackParamList } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from '~/components/ui/themed-text';
 import { FollowUnfollowButton } from '~/components/custom/profile/follow-unfollow-button';

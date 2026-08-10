@@ -5,8 +5,8 @@ import { ensureRoleCapabilities } from '#lib/auth';
 import {
   analyticsBackfillInputSchema,
   analyticsBackfillResponseSchema,
-} from '@openpeeps/common/types';
-import { enqueueAnalyticsBackfill } from '@openpeeps/core/analytics';
+} from '@openpeepshq/common/types';
+import { enqueueAnalyticsBackfill } from '@openpeepshq/core/analytics';
 
 export const Input = analyticsBackfillInputSchema;
 export const Output = analyticsBackfillResponseSchema;

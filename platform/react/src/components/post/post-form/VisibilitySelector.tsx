@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { ChevronDown, Eye } from 'lucide-react';
-import type { PostCreationData } from '@openpeeps/common/types';
-import { groupName } from '@openpeeps/common/lib';
+import type { PostCreationData } from '@openpeepshq/common/types';
+import { groupName } from '@openpeepshq/common/lib';
 import { useT } from '../../../i18n';
 import { useAuthData, useCurrentProfile } from '../../layout/IdentityContext';
 import { useServerInfo } from '../../server-data';

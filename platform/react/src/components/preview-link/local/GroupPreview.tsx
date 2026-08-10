@@ -1,6 +1,6 @@
 import { GroupCard } from '../../groups/GroupCard';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export interface GroupPreviewProps {
   path: string;

@@ -18,7 +18,7 @@ import {
   ScreenShareOff,
   UsersRound,
 } from 'lucide-react';
-import { Blur, Button, SquareStop } from '@openpeeps/react-ui';
+import { Blur, Button, SquareStop } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { subscribePushNotifications } from '../../push';
 import { useT } from '../../i18n';

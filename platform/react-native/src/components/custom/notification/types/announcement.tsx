@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import React from 'react';
 import { ThemedText } from '~/components/ui/themed-text';
 import { NotificationWrapper } from '../NotificationWrapper';
-import { PublicNotification } from '@openpeeps/common';
+import { PublicNotification } from '@openpeepshq/common';
 import { MegaphoneIcon } from '~/components/icons';
 import { profileName } from '~/lib/utils';
 import { useTranslation } from 'react-i18next';

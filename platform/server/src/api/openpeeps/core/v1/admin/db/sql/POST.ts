@@ -3,9 +3,9 @@ import { forbidden, badRequest } from '#lib/errors';
 import {
   explorerSqlInputSchema,
   explorerSqlResponseSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { runExplorerSql } from '@openpeeps/core/db';
+import { runExplorerSql } from '@openpeepshq/core/db';
 
 export const Input = explorerSqlInputSchema;
 export const Output = explorerSqlResponseSchema;

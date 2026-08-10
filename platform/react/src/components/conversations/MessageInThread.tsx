@@ -1,9 +1,9 @@
-import type { PublicPost, PublicProfile } from '@openpeeps/common/types';
-import { profileName } from '@openpeeps/common';
+import type { PublicPost, PublicProfile } from '@openpeepshq/common/types';
+import { profileName } from '@openpeepshq/common';
 import { useT } from '../../i18n';
 import { usePostViewRef } from '../../lib/postViewCounter';
 import { isUnreadPostForViewer } from '../../lib/postUnread';
-import { UpdatingDate } from '@openpeeps/react-ui';
+import { UpdatingDate } from '@openpeepshq/react-ui';
 import { Avatar } from '../profile';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { ConversationMessageBubble } from './ConversationMessageBubble';
@@ -32,7 +32,7 @@ export interface MessageInThreadProps {
 }
 
 /**
- * Translation of `@openpeeps/svelte` `MessageInThread.svelte`: renders a single
+ * Translation of `@openpeepshq/svelte` `MessageInThread.svelte`: renders a single
  * thread message together with the participant system messages (started/added/
  * left/removed) derived from how the audience changed between posts.
  */

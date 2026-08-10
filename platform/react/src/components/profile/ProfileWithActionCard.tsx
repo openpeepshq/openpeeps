@@ -1,4 +1,4 @@
-import type { PublicProfile } from '@openpeeps/common/types';
+import type { PublicProfile } from '@openpeepshq/common/types';
 import { Avatar } from './Avatar';
 import { FollowUnfollowButton } from './FollowUnfollowButton';
 

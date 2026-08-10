@@ -1,5 +1,5 @@
-import type { FetchClient } from '@openpeeps/fetch-client';
-import type { PublicPost, PostCreationData } from '@openpeeps/common';
+import type { FetchClient } from '@openpeepshq/fetch-client';
+import type { PublicPost, PostCreationData } from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 
 export const conversations = (rawClient: FetchClient) => ({

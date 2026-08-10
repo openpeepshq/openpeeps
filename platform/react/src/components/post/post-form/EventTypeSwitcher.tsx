@@ -5,8 +5,8 @@ import type {
   GeocodingResult,
   Location,
   PublicProfile,
-} from '@openpeeps/common/types';
-import { Input, Label } from '@openpeeps/react-ui';
+} from '@openpeepshq/common/types';
+import { Input, Label } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useServerInfo } from '../../server-data';

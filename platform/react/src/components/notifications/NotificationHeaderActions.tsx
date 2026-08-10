@@ -1,5 +1,5 @@
 import { CheckCheck, Settings2 } from 'lucide-react';
-import { Button } from '@openpeeps/react-ui';
+import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useToast } from '../layout/ToastProvider';

@@ -5,7 +5,7 @@ import {
   Profile,
   ProfileData,
   ProfileWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { groupsMapping } from '../groups/mapping';
 import { profileDerived } from '../db/pg/queries';
 

@@ -1,4 +1,4 @@
-import { AccountWithMeta } from '@openpeeps/common/types';
+import { AccountWithMeta } from '@openpeepshq/common/types';
 import { jwtUtil } from '../jwt';
 import { emailService } from '../email';
 import { serverRootUrl } from '../server';

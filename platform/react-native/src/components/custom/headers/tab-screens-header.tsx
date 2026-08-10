@@ -7,7 +7,7 @@ import {Button} from '~/components/ui/button';
 import {BellIcon} from '~/components/icons';
 import {User} from 'lucide-react-native';
 import {useDrawer} from '~/contexts/drawer-context';
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {useNavigation, useFocusEffect, useNavigationState} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useAppImagesStore} from '~/stores/useAppImagesStore';

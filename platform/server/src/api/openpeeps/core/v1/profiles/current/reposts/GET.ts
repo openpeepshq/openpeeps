@@ -1,9 +1,9 @@
 import { endpoint } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { publicPostSchema } from '@openpeeps/common/types';
+import { publicPostSchema } from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
 import { authNeeded, forbidden } from '#lib/errors';
-import { listPostsByProfile } from '@openpeeps/core/posts';
+import { listPostsByProfile } from '@openpeepshq/core/posts';
 
 export const Output = publicPostSchema.array();
 

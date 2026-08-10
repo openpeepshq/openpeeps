@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { CopyPlus, Pencil, Trash } from 'lucide-react';
-import type { Event, PublicPost } from '@openpeeps/common/types';
-import { checkPostCapabilities } from '@openpeeps/common/lib';
-import { PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
+import type { Event, PublicPost } from '@openpeepshq/common/types';
+import { checkPostCapabilities } from '@openpeepshq/common/lib';
+import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { useNavigate } from '../../../contexts/router';
 import { useT } from '../../../i18n';
 import { getNewPostStores } from '../../../stores';

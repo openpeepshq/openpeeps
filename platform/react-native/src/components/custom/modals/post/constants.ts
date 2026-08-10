@@ -1,4 +1,4 @@
-import { VisibilityType } from '@openpeeps/common';
+import { VisibilityType } from '@openpeepshq/common';
 import { Globe, LucideIcon, UserCheck, Users, WashingMachine } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 

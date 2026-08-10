@@ -10,7 +10,7 @@ import {
   PaperclipIcon,
   NewspaperIcon,
 } from '~/components/icons';
-import {PostCreationData, PostType} from '@openpeeps/common';
+import {PostCreationData, PostType} from '@openpeepshq/common';
 import {maxContentLength, maxArticleContentLength} from '~/lib/utils';
 
 interface FooterProps {

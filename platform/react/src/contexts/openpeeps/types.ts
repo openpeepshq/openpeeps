@@ -1,6 +1,6 @@
-import type { OpenpeepsClient } from '@openpeeps/client';
+import type { OpenpeepsClient } from '@openpeepshq/client';
 import type { buildOpenpeepsApi } from './hooks';
-import type { ProfileWithMeta, PublicAccount } from '@openpeeps/common';
+import type { ProfileWithMeta, PublicAccount } from '@openpeepshq/common';
 import type { QueryClient } from '@tanstack/react-query';
 
 export interface OpenpeepsContextValue {

@@ -2,11 +2,11 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 import {
   existsAccountByEmail,
   findAccountByEmail,
-} from '@openpeeps/core/accounts';
+} from '@openpeepshq/core/accounts';
 import {
   existsProfileByHandle,
   findProfileByHandle,
-} from '@openpeeps/core/profiles';
+} from '@openpeepshq/core/profiles';
 import {
   apiHeaders,
   currentProfile,

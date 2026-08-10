@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
-import { groupWithMetaSchema } from '@openpeeps/common/types';
-import { findGroup } from '@openpeeps/core/groups';
+import { groupWithMetaSchema } from '@openpeepshq/common/types';
+import { findGroup } from '@openpeepshq/core/groups';
 import { ensureGroupCapabilities } from '#lib/auth';
 import { notFound } from '#lib/errors';
 

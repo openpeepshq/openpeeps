@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ShadcnButton } from '@openpeeps/react-ui';
-import { useOpenpeeps, useT } from '@openpeeps/react';
+import { ShadcnButton } from '@openpeepshq/react-ui';
+import { useOpenpeeps, useT } from '@openpeepshq/react';
 import { AnalyticsLoading } from './AnalyticsLayout';
 
 const parseRecipients = (raw: string) =>

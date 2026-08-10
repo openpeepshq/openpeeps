@@ -5,7 +5,7 @@ import {
   PostWithMeta,
   ReportWithMeta,
   ProfileWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { transformPost } from '../posts';
 
 export const transformReport = async (

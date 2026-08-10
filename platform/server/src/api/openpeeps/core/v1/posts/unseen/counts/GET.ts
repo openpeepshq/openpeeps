@@ -2,8 +2,8 @@ import { endpoint } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden } from '#lib/errors';
 import { ensureLocalProfile } from '#lib/auth';
-import { getUnseenPostCounts } from '@openpeeps/core/posts';
-import { unseenPostCountsSchema } from '@openpeeps/common/types';
+import { getUnseenPostCounts } from '@openpeepshq/core/posts';
+import { unseenPostCountsSchema } from '@openpeepshq/common/types';
 
 export const Output = unseenPostCountsSchema;
 

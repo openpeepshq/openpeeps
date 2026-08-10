@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from 'react';
-import { Loader } from '@openpeeps/react-ui';
+import { Loader } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useHasAuthToken } from '../../contexts/openpeeps/hooks/useHasAuthToken';
 import { useOptionalPathname } from '../../contexts/router';
@@ -10,7 +10,7 @@ export interface ProfileProviderProps {
 }
 
 /**
- * Translation of @openpeeps/svelte/components/layout/ProfileProvider.svelte.
+ * Translation of @openpeepshq/svelte/components/layout/ProfileProvider.svelte.
  * Pulls profile/account/profileSettings via the openpeeps API and provides
  * them through React context.
  */

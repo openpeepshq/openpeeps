@@ -1,5 +1,5 @@
-import type { OpenpeepsClient } from '@openpeeps/client';
-import type { ProfileWithMeta, PublicAccount } from '@openpeeps/common';
+import type { OpenpeepsClient } from '@openpeepshq/client';
+import type { ProfileWithMeta, PublicAccount } from '@openpeepshq/common';
 import { adminHooks, type AdminHooks } from './admin';
 import { authHooks, type AuthHooks } from './auth';
 import { accountHooks, type AccountHooks } from './accounts';

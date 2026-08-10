@@ -1,12 +1,12 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden } from '#lib/errors';
-import { jamEventSchema } from '@openpeeps/common/types';
+import { jamEventSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import {
   findJamEvent,
   listJamEvents,
   listParticipantIds,
-} from '@openpeeps/core/jams';
+} from '@openpeepshq/core/jams';
 import { notFound } from '#lib/helpers';
 import { ensureProfileOrGuest } from '#lib/auth';
 

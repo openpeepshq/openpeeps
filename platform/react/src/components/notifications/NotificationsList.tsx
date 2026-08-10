@@ -2,13 +2,13 @@ import { useCallback, useEffect, useRef, useMemo } from 'react';
 import type {
   NotificationStats,
   PublicNotification,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { syncAppBadgeCount } from '../../lib/notificationBadge';
 import { NotificationItem } from './NotificationItem';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export interface NotificationsListProps {
   pageSize?: number;

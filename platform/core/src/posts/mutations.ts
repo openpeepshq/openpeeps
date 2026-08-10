@@ -8,9 +8,9 @@ import {
   ReactionData,
   RSVP,
   RsvpResponse,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
-import { PostDataUnion } from '@openpeeps/common/types';
+import { PostDataUnion } from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import {
   audienceConnector,
@@ -42,7 +42,7 @@ import {
   getEffectiveRsvp,
   normalizeEventDataForSave,
   passThroughUndefined,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 import { forbidden, unprocessableRequest } from '../errors';
 
 export const createPost = async (

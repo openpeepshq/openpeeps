@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
-import { postTypeSchema, publicPostSchema } from '@openpeeps/common/types';
+import { postTypeSchema, publicPostSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
-import { listPostsByType } from '@openpeeps/core/posts';
+import { listPostsByType } from '@openpeepshq/core/posts';
 import { ensureProfileOrPublicCommunity } from '#lib/auth';
 
 export const Output = publicPostSchema.array();

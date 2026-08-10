@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { Event, PostCreationData, PostDataUnion } from '@openpeeps/common/types';
-import { normalizeEventDataForSave, truncateText } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { EventForm } from '@openpeeps/react/components';
-import { Button, LoadingSpinner, Toast } from '@openpeeps/react-ui';
+import type { Event, PostCreationData, PostDataUnion } from '@openpeepshq/common/types';
+import { normalizeEventDataForSave, truncateText } from '@openpeepshq/common/lib';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { EventForm } from '@openpeepshq/react/components';
+import { Button, LoadingSpinner, Toast } from '@openpeepshq/react-ui';
 
 export function EditEvent() {
   const t = useT();

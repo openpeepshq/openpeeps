@@ -2,8 +2,8 @@ import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import {
   publicAccessTokenSchema,
-} from '@openpeeps/common/types';
-import { listAccessTokensForProfile } from '@openpeeps/core/accessTokens';
+} from '@openpeepshq/common/types';
+import { listAccessTokensForProfile } from '@openpeepshq/core/accessTokens';
 import { forbidden } from '#lib/errors';
 import { ensureLocalProfile } from '#lib/auth';
 

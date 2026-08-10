@@ -1,5 +1,5 @@
 {
-  "name": "@openpeeps/arango-querybuilder",
+  "name": "@openpeepshq/arango-querybuilder",
   "version": "0.4.6",
   "license": "MIT",
   "type": "module",

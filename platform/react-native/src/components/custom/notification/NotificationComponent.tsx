@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import React from 'react';
-import { PublicNotification } from '@openpeeps/common';
+import { PublicNotification } from '@openpeepshq/common';
 import {
   Announcement,
   DirectMessage,

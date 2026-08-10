@@ -5,8 +5,8 @@ import {
   useOpenpeeps,
   useSetPageHeader,
   useCredentialsStore,
-} from '@openpeeps/react';
-import { Button } from '@openpeeps/react-ui';
+} from '@openpeepshq/react';
+import { Button } from '@openpeepshq/react-ui';
 import { RestoreBackupModal } from './components/RestoreBackupModal';
 import { RestoreTestBackupModal } from './components/RestoreTestBackupModal';
 

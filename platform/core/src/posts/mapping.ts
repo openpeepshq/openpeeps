@@ -8,8 +8,8 @@ import {
   Profile,
   DbPost,
   DbBasePost,
-} from '@openpeeps/common/types';
-import { PostData } from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
+import { PostData } from '@openpeepshq/common/types';
 import { groupsMapping } from '../groups/mapping';
 
 const seenByCurrentProfileDerivedProperty = (profile?: { id: string }) => ({

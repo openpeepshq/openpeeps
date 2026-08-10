@@ -1,7 +1,7 @@
-import { Role } from '@openpeeps/common/types';
+import { Role } from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import { rolesMapping } from './mapping';
-import { checkRoleCapabilities } from '@openpeeps/common/lib';
+import { checkRoleCapabilities } from '@openpeepshq/common/lib';
 
 export const findRole = (id: string): Promise<Role | undefined> =>
   allpeepDb().then(({ db }) => rolesMapping.find(db, id));

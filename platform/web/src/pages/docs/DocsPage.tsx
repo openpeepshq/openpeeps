@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { CompiledMarkdown } from '@openpeeps/react/components';
+import { CompiledMarkdown } from '@openpeepshq/react/components';
 import { docsBySlug } from 'virtual:openpeeps-docs';
 
 import { NotFound } from '../NotFound';

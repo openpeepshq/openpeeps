@@ -50,7 +50,7 @@ The notification system is event-driven and supports:
 The primary way to create notifications is through `maybeCreateNotification()`, which respects user preferences:
 
 ```typescript
-import { maybeCreateNotification } from '@openpeeps/core/notifications';
+import { maybeCreateNotification } from '@openpeepshq/core/notifications';
 
 await maybeCreateNotification(profile, {
   type: 'follow',
@@ -120,9 +120,9 @@ import {
   NotificationHandler,
   PublicProfile,
   notificationAll,
-} from '@openpeeps/common/types';
-import { maybeCreateNotification } from '@openpeeps/core/notifications';
-import { getProfileAvatar, profileName } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { maybeCreateNotification } from '@openpeepshq/core/notifications';
+import { getProfileAvatar, profileName } from '@openpeepshq/common/lib';
 import { communityConfig } from '../../../config';
 
 export default {
@@ -179,7 +179,7 @@ const defaultNotificationsHandlers: NotificationHandler[] = [
 3. **Emit the event**:
 
 ```typescript
-import { hub } from '@openpeeps/core/events';
+import { hub } from '@openpeepshq/core/events';
 
 hub.emit('myEventCreated', actor, target);
 ```
@@ -203,7 +203,7 @@ Settings are stored in `profileSettings.notifications[type]` and default to the 
 ### Checking Settings
 
 ```typescript
-import { notificationSettings } from '@openpeeps/core/notifications';
+import { notificationSettings } from '@openpeepshq/core/notifications';
 
 const settings = notificationSettings(profileSettings, 'follow');
 // Returns: { create: true, push: true, email: true }
@@ -226,7 +226,7 @@ import {
   setNotificationRead,
   setNotificationSeen,
   setAllSeen,
-} from '@openpeeps/core/notifications';
+} from '@openpeepshq/core/notifications';
 
 // Mark single notification as read
 await setNotificationRead(notification);
@@ -243,7 +243,7 @@ await setAllSeen(profile);
 ### List Notifications
 
 ```typescript
-import { listNotificationsByProfile } from '@openpeeps/core/notifications';
+import { listNotificationsByProfile } from '@openpeepshq/core/notifications';
 
 const notifications = await listNotificationsByProfile(profile, {
   start: 'cursor-id', // For pagination
@@ -254,7 +254,7 @@ const notifications = await listNotificationsByProfile(profile, {
 ### Find Single Notification
 
 ```typescript
-import { findNotification } from '@openpeeps/core/notifications';
+import { findNotification } from '@openpeepshq/core/notifications';
 
 const notification = await findNotification(profile, notificationId);
 ```
@@ -262,7 +262,7 @@ const notification = await findNotification(profile, notificationId);
 ### Get Stats
 
 ```typescript
-import { getNotificationStats } from '@openpeeps/core/notifications';
+import { getNotificationStats } from '@openpeepshq/core/notifications';
 
 const stats = await getNotificationStats(profile);
 // Returns: { unread: number, unseen: number }
@@ -320,7 +320,7 @@ pushRenderer: async (notification: ExpandedNotification) => ({
 ### Testing Push Notifications
 
 ```typescript
-import { sendTestPushNotification } from '@openpeeps/core/notifications';
+import { sendTestPushNotification } from '@openpeepshq/core/notifications';
 
 await sendTestPushNotification(account, {
   title: 'Test Notification',
@@ -345,7 +345,7 @@ import { Button, Link, Section, Text } from '@react-email/components';
 import type {
   EmailGlobals,
   ExpandedNotification,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { emailStyles } from '../../styles';
 
@@ -401,8 +401,8 @@ Emails are automatically sent when notifications are created if:
 **Create a test notification:**
 
 ```typescript
-import { maybeCreateNotification } from '@openpeeps/core/notifications';
-import { findProfile } from '@openpeeps/core/profiles';
+import { maybeCreateNotification } from '@openpeepshq/core/notifications';
+import { findProfile } from '@openpeepshq/core/profiles';
 
 const profile = await findProfile(profileId);
 await maybeCreateNotification(profile, {
@@ -414,7 +414,7 @@ await maybeCreateNotification(profile, {
 **Check notification in database:**
 
 ```typescript
-import { listNotificationsByProfile } from '@openpeeps/core/notifications';
+import { listNotificationsByProfile } from '@openpeepshq/core/notifications';
 
 const notifications = await listNotificationsByProfile(profile);
 console.log(notifications);
@@ -431,7 +431,7 @@ console.log(notifications);
 **Test push manually:**
 
 ```typescript
-import { sendTestPushNotification } from '@openpeeps/core/notifications';
+import { sendTestPushNotification } from '@openpeepshq/core/notifications';
 
 await sendTestPushNotification(account, {
   title: 'Test',
@@ -444,7 +444,7 @@ await sendTestPushNotification(account, {
 **Check email service:**
 
 ```typescript
-import { emailService } from '@openpeeps/core/email';
+import { emailService } from '@openpeepshq/core/email';
 
 const mailer = await emailService();
 // Emails are sent automatically when notifications are created
@@ -466,7 +466,7 @@ Templates are in `platform/server/src/emails/`
 **Check notification settings:**
 
 ```typescript
-import { findProfileSettings } from '@openpeeps/core/profileSettings';
+import { findProfileSettings } from '@openpeepshq/core/profileSettings';
 
 const settings = await findProfileSettings(profileId);
 console.log(settings.notifications);
@@ -475,7 +475,7 @@ console.log(settings.notifications);
 **Verify event handlers:**
 
 ```typescript
-import { notificationHandlers } from '@openpeeps/core/notifications';
+import { notificationHandlers } from '@openpeepshq/core/notifications';
 
 console.log(Array.from(notificationHandlers.keys()));
 // Should include all registered notification types

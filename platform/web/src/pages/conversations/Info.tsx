@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { Avatar, useCurrentProfile } from '@openpeeps/react/components';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
+import { Avatar, useCurrentProfile } from '@openpeepshq/react/components';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export function ConversationInfo() {
   const t = useT();

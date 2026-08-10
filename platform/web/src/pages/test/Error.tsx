@@ -1,5 +1,5 @@
-import { useSetPageHeader } from '@openpeeps/react';
-import { Button } from '@openpeeps/react-ui';
+import { useSetPageHeader } from '@openpeepshq/react';
+import { Button } from '@openpeepshq/react-ui';
 
 export function TestError() {
   useSetPageHeader('Error sandbox');

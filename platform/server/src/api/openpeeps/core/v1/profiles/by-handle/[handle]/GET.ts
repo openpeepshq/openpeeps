@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
-import { findProfileByHandle } from '@openpeeps/core/profiles';
+import { findProfileByHandle } from '@openpeepshq/core/profiles';
 import type { RequestEvent } from '@riddl/core';
-import { publicProfileSchema } from '@openpeeps/common/types';
+import { publicProfileSchema } from '@openpeepshq/common/types';
 import {
   ensureProfileCapabilities,
   ensureProfileOrPublicCommunity,

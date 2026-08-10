@@ -1,5 +1,5 @@
 import React from 'react';
-import {GroupMember} from '@openpeeps/common';
+import {GroupMember} from '@openpeepshq/common';
 import {View, Pressable} from 'react-native';
 import {Avatar, AvatarImage} from '~/components/ui/avatar';
 import {
@@ -11,7 +11,7 @@ import {
 } from '~/components/icons';
 import {ThemedText} from '~/components/ui/themed-text';
 import { truncateText} from '~/lib/utils';
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {
   DropdownMenu,
   DropdownMenuContent,

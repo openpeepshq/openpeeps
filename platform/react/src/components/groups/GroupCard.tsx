@@ -1,5 +1,5 @@
-import type { GroupWithMeta } from '@openpeeps/common/types';
-import { groupName } from '@openpeeps/common/lib';
+import type { GroupWithMeta } from '@openpeepshq/common/types';
+import { groupName } from '@openpeepshq/common/lib';
 import { GroupAvatar } from './GroupAvatar';
 import { JoinGroupButton } from './JoinGroupButton';
 

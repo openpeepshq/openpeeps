@@ -1,6 +1,6 @@
 import { ensureAccount, ensureLocalProfile } from '#lib/auth';
-import { sendTestPushNotification } from "@openpeeps/core/notifications";
-import { successFailureResponseSchema } from "@openpeeps/common";
+import { sendTestPushNotification } from "@openpeepshq/core/notifications";
+import { successFailureResponseSchema } from "@openpeepshq/common";
 import { endpoint, z } from '#lib/endpoint';
 
 export const Output = successFailureResponseSchema;

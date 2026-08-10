@@ -1,6 +1,6 @@
 import { FeedPostContent } from '../../post/FeedPostContent';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export interface PostPreviewProps {
   path: string;

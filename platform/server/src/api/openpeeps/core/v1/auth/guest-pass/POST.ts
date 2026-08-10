@@ -1,11 +1,11 @@
 import { endpoint } from '#lib/endpoint';
-import { tokenResponseSchema } from '@openpeeps/common/types';
+import { tokenResponseSchema } from '@openpeepshq/common/types';
 import { conflict, forbidden } from '#lib/errors';
-import { config } from '@openpeeps/core/config';
-import { createSignedGuestPass } from '@openpeeps/core/accessTokens';
-import { guestPassRequestSchema } from '@openpeeps/common/types';
-import { createGuestProfile } from '@openpeeps/core/profiles';
-import { findPost } from '@openpeeps/core/posts';
+import { config } from '@openpeepshq/core/config';
+import { createSignedGuestPass } from '@openpeepshq/core/accessTokens';
+import { guestPassRequestSchema } from '@openpeepshq/common/types';
+import { createGuestProfile } from '@openpeepshq/core/profiles';
+import { findPost } from '@openpeepshq/core/posts';
 
 export const Input = guestPassRequestSchema;
 export const Output = tokenResponseSchema;

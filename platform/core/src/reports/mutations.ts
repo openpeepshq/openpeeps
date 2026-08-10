@@ -3,8 +3,8 @@ import {
   ReportData,
   ReportResolution,
   ReportWithMeta,
-} from '@openpeeps/common/types';
-import { ProfileWithMeta } from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
+import { ProfileWithMeta } from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import { reportsMapping } from './mapping';
 import {

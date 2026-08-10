@@ -14,8 +14,8 @@ import {
   DocumentPickerResponse,
 } from '@react-native-documents/picker';
 import { viewDocument } from '@react-native-documents/viewer';
-import { formatSize, MediaAttachment } from '@openpeeps/common';
-import { useOpenpeeps } from '@openpeeps/react';
+import { formatSize, MediaAttachment } from '@openpeepshq/common';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { Button } from '~/components/ui/button';
 import {
   EyeOnIcon,

@@ -1,8 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
 import { ensureRoleCapabilities } from '#lib/auth';
 import { forbidden, notFound } from '#lib/errors';
-import { successResponseSchema } from '@openpeeps/common/types';
-import { deleteGroup, findGroup } from '@openpeeps/core/groups';
+import { successResponseSchema } from '@openpeepshq/common/types';
+import { deleteGroup, findGroup } from '@openpeepshq/core/groups';
 import type { RequestEvent } from '@riddl/core';
 
 export const Output = successResponseSchema;

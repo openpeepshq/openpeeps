@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import { useT } from '../../../i18n';
 import { postReactionStats } from '../helpers';
 import { ReactionsModal } from './modals/ReactionsModal';

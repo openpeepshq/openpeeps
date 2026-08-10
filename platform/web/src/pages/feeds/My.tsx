@@ -1,9 +1,9 @@
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
 import {
   Feed,
   useDefaultVisibility,
   useNewNotePlusButton,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 
 export function FeedsMy() {
   const t = useT();

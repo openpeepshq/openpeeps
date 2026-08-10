@@ -1,4 +1,4 @@
-import { EmailRenderer } from '@openpeeps/common/types';
+import { EmailRenderer } from '@openpeepshq/common/types';
 
 export const registeredTemplates = new Map<string, EmailRenderer>();
 

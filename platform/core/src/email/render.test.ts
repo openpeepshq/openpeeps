@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { EmailGlobals } from '@openpeeps/common/types';
+import type { EmailGlobals } from '@openpeepshq/common/types';
 
 vi.mock('../config', () => ({
   config: vi.fn(),

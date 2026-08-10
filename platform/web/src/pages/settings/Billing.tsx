@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, Calendar, CheckCircle, CreditCard } from 'lucide-react';
-import { formatTimeStamp, isOwnerProfile } from '@openpeeps/common';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
-import { Button, LoadingSpinner } from '@openpeeps/react-ui';
+import { formatTimeStamp, isOwnerProfile } from '@openpeepshq/common';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
+import { useCurrentProfile, useServerInfo } from '@openpeepshq/react/components';
+import { Button, LoadingSpinner } from '@openpeepshq/react-ui';
 
 function statusInfo(status: string) {
   switch (status) {

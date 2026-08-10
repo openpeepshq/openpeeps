@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Laptop, Smartphone, Trash2 } from 'lucide-react';
-import type { PushSubscription } from '@openpeeps/common/types';
+import type { PushSubscription } from '@openpeepshq/common/types';
 import {
   pushSubscriptionDeviceName,
   pushSubscriptionEndpoint,
   pushSubscriptionIsMobile,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 import {
   getPushSubscription,
   unsubscribePushNotifications,
   useT,
   useOpenpeeps,
   useSetPageHeader,
-} from '@openpeeps/react';
-import { Button, Toast } from '@openpeeps/react-ui';
+} from '@openpeepshq/react';
+import { Button, Toast } from '@openpeepshq/react-ui';
 
 export function PushEnabledDevices() {
   const t = useT();

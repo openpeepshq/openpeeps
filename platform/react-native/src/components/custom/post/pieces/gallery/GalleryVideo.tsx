@@ -1,5 +1,5 @@
 import React from 'react';
-import { MediaAttachmentData, PublicProfile } from '@openpeeps/common';
+import { MediaAttachmentData, PublicProfile } from '@openpeepshq/common';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PlayIcon } from 'lucide-react-native';

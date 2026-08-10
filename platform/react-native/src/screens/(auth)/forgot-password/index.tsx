@@ -7,12 +7,12 @@ import { Form, FormField, FormInput } from '~/components/ui/form';
 import {
   requestResetPasswordRequestSchema,
   type RequestResetPasswordRequest,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ActivityIndicator, View } from 'react-native';
 import { ArrowLeftIcon } from '~/components/icons';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
 
 export const ForgotPassword = ({

@@ -5,8 +5,8 @@ import type {
   PublicPost,
   RSVP,
   RsvpResponse,
-} from '@openpeeps/common/types';
-import { buildEventIcs } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { buildEventIcs } from '@openpeepshq/common/lib';
 import { hub } from '../events';
 import { emailService } from '../email';
 import { findByProfile } from '../accounts';

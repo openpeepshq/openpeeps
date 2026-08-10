@@ -2,8 +2,8 @@ import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { deletePost, findPost } from '@openpeeps/core/posts';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { deletePost, findPost } from '@openpeepshq/core/posts';
+import { successResponseSchema } from '@openpeepshq/common/types';
 
 export const Output = successResponseSchema;
 export const Param = z.object({

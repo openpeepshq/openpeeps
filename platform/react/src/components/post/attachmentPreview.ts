@@ -1,4 +1,4 @@
-import type { MediaAttachmentData } from '@openpeeps/common';
+import type { MediaAttachmentData } from '@openpeepshq/common';
 
 export const isBlobUrl = (url?: string | null): boolean =>
   !!url?.startsWith('blob:');

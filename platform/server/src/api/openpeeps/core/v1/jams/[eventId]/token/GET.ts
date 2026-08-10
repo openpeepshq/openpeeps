@@ -1,10 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
-import { config } from '@openpeeps/core/config';
+import { config } from '@openpeepshq/core/config';
 import { notFound, forbidden, rethrowIfOpenpeepsError } from '#lib/errors';
-import { canModerateJam, jamFromEvent } from '@openpeeps/common/lib';
-import { createJamToken, findJamEvent, createJamEgressToken } from '@openpeeps/core/jams';
+import { canModerateJam, jamFromEvent } from '@openpeepshq/common/lib';
+import { createJamToken, findJamEvent, createJamEgressToken } from '@openpeepshq/core/jams';
 import { ensurePostCapabilities, ensureProfileOrGuest, serviceScopeMatches } from '#lib/auth';
-import { jamTokenResponseSchema } from '@openpeeps/common/types';
+import { jamTokenResponseSchema } from '@openpeepshq/common/types';
 
 export const Param = z.object({
   eventId: z.string(),

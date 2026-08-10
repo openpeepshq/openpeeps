@@ -1,4 +1,4 @@
-# Integration tests (`@openpeeps/tests`)
+# Integration tests (`@openpeepshq/tests`)
 
 Postgres-native Playwright suites that run against a Compose stack (or Forgejo
 CI services). Each suite is a Playwright **project** and is intended to run in
@@ -24,14 +24,14 @@ current suite coverage):
 
 ```bash
 # From repo root — clear DB then run empty suite
-pnpm --filter @openpeeps/tests run test:integration
+pnpm --filter @openpeepshq/tests run test:integration
 
 # Single suite
-pnpm --filter @openpeeps/tests run test:integration:empty
-pnpm --filter @openpeeps/tests run test:integration:default
-pnpm --filter @openpeeps/tests run test:integration:public
-pnpm --filter @openpeeps/tests run test:integration:sso
-pnpm --filter @openpeeps/tests run test:integration:jams
+pnpm --filter @openpeepshq/tests run test:integration:empty
+pnpm --filter @openpeepshq/tests run test:integration:default
+pnpm --filter @openpeepshq/tests run test:integration:public
+pnpm --filter @openpeepshq/tests run test:integration:sso
+pnpm --filter @openpeepshq/tests run test:integration:jams
 ```
 
 ## Docker Compose (full stack)
@@ -70,16 +70,16 @@ against a running API. Writes JSON to `platform/tests/.perf-results/`
 # Against a running local API (fixture thresholds enforced by default):
 export PERF_BASE_URL=http://localhost:5173
 export PERF_TOKEN=<member JWT>
-pnpm --filter @openpeeps/tests run perf:api
+pnpm --filter @openpeepshq/tests run perf:api
 
 # Optional: restore a backup first (live zip — do not commit):
 PERF_RESTORE=1 PERF_BACKUP_ZIP=/path/to/community-backup.zip \
-  PERF_TOKEN=<jwt> pnpm --filter @openpeeps/tests run perf:api
+  PERF_TOKEN=<jwt> pnpm --filter @openpeepshq/tests run perf:api
 
 # Larger synthetic fixture for edge-scan stress:
-pnpm --filter @openpeeps/tests run fixtures:generate-perf
+pnpm --filter @openpeepshq/tests run fixtures:generate-perf
 PERF_BACKUP_ZIP=platform/tests/fixtures/backups/perf-scale.zip PERF_RESTORE=1 \
-  PERF_TOKEN=<jwt> pnpm --filter @openpeeps/tests run perf:api
+  PERF_TOKEN=<jwt> pnpm --filter @openpeepshq/tests run perf:api
 ```
 
 Thresholds: `platform/tests/perf/thresholds.json`. Live-backup runs skip
@@ -101,7 +101,7 @@ export LOADTEST_BASE_URL=https://your.openpeeps.instance
 # optional: LOADTEST_TOKEN=<moderator JWT>, LOADTEST_PARTICIPANTS=100,
 # LOADTEST_DURATION_SEC=300, LOADTEST_EVENTS_PER_MIN=100
 
-pnpm --filter @openpeeps/tests run loadtest:jam
+pnpm --filter @openpeepshq/tests run loadtest:jam
 ```
 
 Uses `@livekit/rtc-node` (not Playwright). Writes JSON reports to
@@ -115,8 +115,8 @@ Synthetic backups are derived from `platform/web/public/template/test-backup.zip
 (Arango JSONL, restorable into Postgres):
 
 ```bash
-pnpm --filter @openpeeps/tests run fixtures:generate-backups
-pnpm --filter @openpeeps/tests run fixtures:generate-perf   # larger perf-scale.zip
+pnpm --filter @openpeepshq/tests run fixtures:generate-backups
+pnpm --filter @openpeepshq/tests run fixtures:generate-perf   # larger perf-scale.zip
 ```
 
 ## Layout

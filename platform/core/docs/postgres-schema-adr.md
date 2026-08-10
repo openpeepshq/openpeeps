@@ -7,7 +7,7 @@ Accepted — replaces ArangoDB as the primary data store.
 ## Context
 
 OpenPeeps stores application state in ArangoDB as documents and edges, queried via
-`@openpeeps/arango-querybuilder`. We migrate to PostgreSQL with Drizzle ORM and a
+`@openpeepshq/arango-querybuilder`. We migrate to PostgreSQL with Drizzle ORM and a
 one-time offline cutover per instance.
 
 Redis remains unchanged (queues, pub/sub, cache).
@@ -79,7 +79,7 @@ is the baseline.
 
 ## Consequences
 
-- `@openpeeps/arango-querybuilder` and `arangojs` removed after cutover
+- `@openpeepshq/arango-querybuilder` and `arangojs` removed after cutover
 - Feed/search queries rewritten as explicit SQL in repositories (no generic graph builder)
 - `db/pg/map` remains for existing document/edge call sites; **new features
   prefer Drizzle / SQL-native queries** over deepening that compatibility DSL

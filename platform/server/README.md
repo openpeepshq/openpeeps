@@ -1,9 +1,9 @@
-# @openpeeps/server
+# @openpeepshq/server
 
 A standalone Node/Express server that exposes the full OpenPeeps Community
 Server API via [`@riddl/core`](https://www.npmjs.com/package/@riddl/core).
 logic is reused unchanged — every handler delegates to the same
-`@openpeeps/core` services (PostgreSQL models, JWT helpers, S3/media, Stripe,
+`@openpeepshq/core` services (PostgreSQL models, JWT helpers, S3/media, Stripe,
 LiveKit jams, push notifications, …).
 
 ## Quick start
@@ -22,14 +22,14 @@ pnpm start          # runs dist/server.js under vite-node
 ```
 
 The server listens on `PORT` (default `5173`). All routes are mounted under
-`/api/openpeeps/core/v1/...` so existing `@openpeeps/client` consumers can
+`/api/openpeeps/core/v1/...` so existing `@openpeepshq/client` consumers can
 point at this server with no URL changes.
 
 > **Why `vite-node` in production?** `pnpm build` already produces a thin
 > `dist/server.js` entry that defers everything to workspace packages at
 > runtime. We use `vite-node` (not bare `node`) as the runtime loader because
 > several of those workspace packages ship `dist/` outputs that omit `.js`
-> extensions on relative imports (e.g. `@openpeeps/common/dist/lib/index.js`
+> extensions on relative imports (e.g. `@openpeepshq/common/dist/lib/index.js`
 > does `export * from './capabilitiesHelpers'`). That's invalid under strict
 > Node ESM but resolves cleanly under `vite-node`'s loader. Once the upstream
 > packages are rebuilt with correct ESM specifiers, swap `pnpm start` for
@@ -148,10 +148,10 @@ meaningful.
 
 ```bash
 node platform/tests/scripts/restore-fixture.mjs /path/to/community-backup.zip
-DISABLE_CONFIG_CACHE=true PERF_DB_TIMING=1 pnpm --filter @openpeeps/server dev
+DISABLE_CONFIG_CACHE=true PERF_DB_TIMING=1 pnpm --filter @openpeepshq/server dev
 # other terminal:
 PERF_TOKEN=<jwt> PERF_BASE_URL=http://localhost:5173 \
-  pnpm --filter @openpeeps/tests run perf:api
+  pnpm --filter @openpeepshq/tests run perf:api
 ```
 
 Fixture-only runs (no live backup) use `default-install.zip` thresholds in
@@ -167,6 +167,6 @@ process while replaying the failing scenario.
   routes in `src/server.ts` that delegate to the Riddl handler manually or
   set up a reverse-proxy alias.
 - **Production currently requires `vite-node`** (see Quick start). This is a
-  workaround for missing `.js` extensions in `@openpeeps/common`'s and
-  `@openpeeps/core`'s compiled `dist/` outputs — not an issue with this
+  workaround for missing `.js` extensions in `@openpeepshq/common`'s and
+  `@openpeepshq/core`'s compiled `dist/` outputs — not an issue with this
   server. `pnpm start:node` is provided for the day those packages are fixed.

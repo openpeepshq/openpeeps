@@ -7,8 +7,8 @@ import {
   ImageSourcePropType,
 } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useOpenpeeps } from '@openpeeps/react';
-import { type GroupWithMeta } from '@openpeeps/common';
+import { useOpenpeeps } from '@openpeepshq/react';
+import { type GroupWithMeta } from '@openpeepshq/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';

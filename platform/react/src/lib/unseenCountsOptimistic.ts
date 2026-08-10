@@ -1,5 +1,5 @@
-import type { openpeepsClient } from '@openpeeps/client';
-import type { UnseenPostCounts } from '@openpeeps/common/types';
+import type { openpeepsClient } from '@openpeepshq/client';
+import type { UnseenPostCounts } from '@openpeepshq/common/types';
 import type { QueryClient, QueryKey } from '@tanstack/react-query';
 
 export type UnseenCountsAdjustment = {

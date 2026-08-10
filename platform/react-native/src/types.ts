@@ -1,7 +1,7 @@
 import {
   publicProfileSchema,
   SuccessFailureResponse,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
 
 import { z } from 'zod';

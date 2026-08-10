@@ -1,7 +1,7 @@
 import { View, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { ThemedText } from '~/components/ui/themed-text';
-import { Article, PublicPost } from '@openpeeps/common';
+import { Article, PublicPost } from '@openpeepshq/common';
 import { truncateText } from '~/lib/utils';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';

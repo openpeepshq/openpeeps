@@ -1,4 +1,4 @@
-import { cn } from '@openpeeps/react-ui';
+import { cn } from '@openpeepshq/react-ui';
 
 /** Active/inactive classes for sidebar nav links (parity with Svelte `MenuItem.svelte`). */
 export const sideBarNavLinkClass = ({ isActive }: { isActive: boolean }) =>

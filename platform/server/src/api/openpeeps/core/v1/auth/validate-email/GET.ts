@@ -3,7 +3,7 @@ import { badRequest } from '#lib/errors';
 import {
   successResponseSchema,
   validateEmailQuerySchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { validateEmailHandler } from '#lib/handlers/auth/validateEmail';
 
 export const Query = validateEmailQuerySchema;

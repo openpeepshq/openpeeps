@@ -1,10 +1,10 @@
 import React from 'react';
-import type { Article, PublicPost } from '@openpeeps/common/types';
+import type { Article, PublicPost } from '@openpeepshq/common/types';
 import { Image, View } from 'react-native';
 import { ThemedText } from '~/components/ui/themed-text';
 import { OpenPeepsMarkdown } from '~/components/custom/markdown';
 import { useMemo } from 'react';
-import { firstNWords } from '@openpeeps/common';
+import { firstNWords } from '@openpeepshq/common';
 import { Button } from '~/components/ui/button';
 import { ArrowRightIcon } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';

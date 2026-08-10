@@ -1,5 +1,5 @@
-import type { Event, PublicPost } from '@openpeeps/common/types';
-import { calculateEffectiveRsvps } from '@openpeeps/common/lib';
+import type { Event, PublicPost } from '@openpeepshq/common/types';
+import { calculateEffectiveRsvps } from '@openpeepshq/common/lib';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
 

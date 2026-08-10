@@ -11,7 +11,7 @@ import {
   EmptyStateContainer,
 } from '~/components/custom';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import {
   MessageSquarePlusIcon,
   XIcon,
@@ -23,7 +23,7 @@ import {
   TabStackParamList,
   MainStackParamList,
 } from '~/components/navigation/types';
-import { PublicPost } from '@openpeeps/common';
+import { PublicPost } from '@openpeepshq/common';
 import { useNewConversationStore } from '~/stores/useNewConversationStore';
 import { Input } from '~/components/ui/input';
 import { ThemedText } from '~/components/ui/themed-text';

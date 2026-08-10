@@ -1,6 +1,6 @@
 import { endpoint } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { tokenResponseSchema } from '@openpeeps/common/types';
+import { tokenResponseSchema } from '@openpeepshq/common/types';
 import { refreshAuthTokenHandler } from '#lib/handlers/auth/refresh';
 import { authNeeded, forbidden } from '#lib/errors';
 

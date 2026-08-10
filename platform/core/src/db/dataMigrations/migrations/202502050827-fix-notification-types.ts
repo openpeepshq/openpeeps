@@ -1,6 +1,6 @@
 import { Database } from 'arangojs';
 import { transformDocsInCollection } from '../helpers';
-import { Notification } from '@openpeeps/common/types';
+import { Notification } from '@openpeepshq/common/types';
 import { camelCase } from 'change-case';
 
 export default {

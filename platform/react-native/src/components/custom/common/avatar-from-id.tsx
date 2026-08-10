@@ -1,8 +1,8 @@
 import React from 'react';
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {ActivityIndicator, View} from 'react-native';
 import {ProfileAvatar} from '../profile/profile-avatar';
-import {Profile} from '@openpeeps/common';
+import {Profile} from '@openpeepshq/common';
 
 interface AvatarFromIdProps {
   id?: string;

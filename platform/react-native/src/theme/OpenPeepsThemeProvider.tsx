@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import { View, useColorScheme as useRNColorScheme } from 'react-native';
 import { colorScheme } from 'nativewind';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { OpenPeepsTheme } from './types';
 import { defaultTheme } from './defaults';
 import { buildTheme, getThemeVars } from './utils';
-import { CommunityConfig, getTheme } from '@openpeeps/common';
+import { CommunityConfig, getTheme } from '@openpeepshq/common';
 
 const OpenPeepsThemeContext = createContext<OpenPeepsTheme>(defaultTheme);
 

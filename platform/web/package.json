@@ -1,11 +1,11 @@
 {
-  "name": "@openpeeps/web",
+  "name": "@openpeepshq/web",
   "version": "0.1.0",
   "private": true,
   "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
-    "predev": "pnpm --filter @openpeeps/greenscreen build",
+    "predev": "pnpm --filter @openpeepshq/greenscreen build",
     "dev": "vite",
     "build": "tsc -b --noEmit && vite build",
     "build:watch": "concurrently --names tsc,vite -c blue,magenta \"tsc -b --noEmit --watch --preserveWatchOutput\" \"vite build --watch\"",
@@ -16,10 +16,10 @@
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.5",
-    "@openpeeps/client": "workspace:^",
-    "@openpeeps/common": "workspace:^",
-    "@openpeeps/react": "workspace:^",
-    "@openpeeps/react-ui": "workspace:^",
+    "@openpeepshq/client": "workspace:^",
+    "@openpeepshq/common": "workspace:^",
+    "@openpeepshq/react": "workspace:^",
+    "@openpeepshq/react-ui": "workspace:^",
     "@tanstack/react-query": "^5.0.0",
     "i18next": "^24.2.3",
     "lucide-react": "^0.469.0",

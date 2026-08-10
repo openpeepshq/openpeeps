@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import type { CommunityConfig } from '@openpeeps/common/types';
-import { useT, useSetPageHeader } from '@openpeeps/react';
-import { OpenpeepsMarkdownInput } from '@openpeeps/react/components';
-import { Button, Toast, deepGet, deepSet } from '@openpeeps/react-ui';
+import type { CommunityConfig } from '@openpeepshq/common/types';
+import { useT, useSetPageHeader } from '@openpeepshq/react';
+import { OpenpeepsMarkdownInput } from '@openpeepshq/react/components';
+import { Button, Toast, deepGet, deepSet } from '@openpeepshq/react-ui';
 import { useCommunityConfig } from './useCommunityConfig';
 
 export interface CommunityMarkdownPageProps {

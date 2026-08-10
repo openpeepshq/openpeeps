@@ -18,9 +18,9 @@ import {
   PublicProfile,
   VisibilityType,
   type GroupWithMeta,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { ThemedText } from '~/components/ui/themed-text';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
 import { useAudienceChoices } from './constants';

@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CreateNewConversation } from '@openpeeps/react/components';
+import { CreateNewConversation } from '@openpeepshq/react/components';
 
 export function NewConversation() {
   const navigate = useNavigate();

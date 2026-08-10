@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { MediaAttachmentData } from '@openpeeps/common/types';
+import type { MediaAttachmentData } from '@openpeepshq/common/types';
 import {
   Button,
   Dialog,
@@ -9,7 +9,7 @@ import {
   DialogTitle,
   Label,
   Textarea,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 
 export interface DescriptionEditModalProps {

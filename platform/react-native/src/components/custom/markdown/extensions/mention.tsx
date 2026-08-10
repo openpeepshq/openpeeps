@@ -3,7 +3,7 @@ import {
   type MarkdownIt,
   type RenderFunction,
 } from 'react-native-markdown-display';
-import { handleRegexBase, type MentionWithProfile } from '@openpeeps/common';
+import { handleRegexBase, type MentionWithProfile } from '@openpeepshq/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import type { MarkdownInlineRulerState } from '~/types/markdown-plugin';
 

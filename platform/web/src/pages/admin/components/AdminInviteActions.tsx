@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { LinkIcon, MailIcon, PlusIcon } from 'lucide-react';
-import { useT } from '@openpeeps/react';
-import { PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
+import { useT } from '@openpeepshq/react';
+import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { InviteWithEmailModal } from './InviteWithEmailModal';
 import { InviteWithLinkModal } from './InviteWithLinkModal';
 

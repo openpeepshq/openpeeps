@@ -2,10 +2,10 @@ import { ensureAccount } from '#lib/auth';
 import {
   type SuccessResponse,
   type UpdateAccountPasswordRequest,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden } from '#lib/errors';
-import { checkPassword, updateAccount } from '@openpeeps/core/accounts';
+import { checkPassword, updateAccount } from '@openpeepshq/core/accounts';
 
 export const updateCurrentAccountPasswordHandler = async (
   updateCurrentAccountRequest: UpdateAccountPasswordRequest,

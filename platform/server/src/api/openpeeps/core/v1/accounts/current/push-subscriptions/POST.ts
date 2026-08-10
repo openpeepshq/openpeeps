@@ -5,8 +5,8 @@ import { forbidden } from '#lib/errors';
 import {
   pushSubscriptionDataSchema,
   pushSubscriptionSchema,
-} from '@openpeeps/common/types';
-import { createPushSubscription } from '@openpeeps/core/pushSubscriptions';
+} from '@openpeepshq/common/types';
+import { createPushSubscription } from '@openpeepshq/core/pushSubscriptions';
 
 export const Input = pushSubscriptionDataSchema;
 export const Output = pushSubscriptionSchema;

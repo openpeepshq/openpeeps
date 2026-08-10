@@ -1,6 +1,6 @@
 import { ensureAccount } from '#lib/auth';
-import { sendEmailValidationMail } from "@openpeeps/core/accounts";
-import { successResponseSchema } from "@openpeeps/common";
+import { sendEmailValidationMail } from "@openpeepshq/core/accounts";
+import { successResponseSchema } from "@openpeepshq/common";
 import { endpoint } from '#lib/endpoint';
 
 export const Output = successResponseSchema;

@@ -5,7 +5,7 @@ import { Button } from '~/components/ui/button';
 import { ThemedText } from '~/components/ui/themed-text';
 import { TouchableWithoutFeedback } from 'react-native';
 import { View } from 'react-native';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 
 export const Welcome = ({

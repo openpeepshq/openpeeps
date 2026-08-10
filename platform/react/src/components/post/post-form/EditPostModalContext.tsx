@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import { EditPostModal } from './EditPostModal';
 
 interface EditPostModalContextValue {

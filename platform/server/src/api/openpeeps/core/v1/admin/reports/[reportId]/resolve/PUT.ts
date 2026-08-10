@@ -1,8 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
-import { reportResolutionSchema, successResponseSchema } from '@openpeeps/common/types';
+import { reportResolutionSchema, successResponseSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { findReport, resolveReport } from "@openpeeps/core/reports";
+import { findReport, resolveReport } from "@openpeepshq/core/reports";
 
 export const Param = z.object({
   reportId: z.string(),

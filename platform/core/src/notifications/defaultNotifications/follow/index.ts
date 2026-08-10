@@ -3,13 +3,13 @@ import {
   NotificationHandler,
   PublicProfile,
   notificationAll,
-} from '@openpeeps/common/types';
-import { maybeCreateNotification } from '@openpeeps/core/notifications';
+} from '@openpeepshq/common/types';
+import { maybeCreateNotification } from '@openpeepshq/core/notifications';
 import {
   getProfileAvatar,
   profileName,
   truncateText,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 import { communityConfig } from '../../../config';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
 

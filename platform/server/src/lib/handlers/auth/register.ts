@@ -2,15 +2,15 @@ import type {
   AuthorizationData,
   RegisterRequest,
   TokenResponse,
-} from '@openpeeps/common/types';
-import { checkAccountCreateAuthorization } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { checkAccountCreateAuthorization } from '@openpeepshq/common/lib';
 import { conflict, forbidden } from '#lib/errors';
-import { createAccount, existsAccountByEmail } from '@openpeeps/core/accounts';
-import { existsProfileByHandle } from '@openpeeps/core/profiles';
-import { existsGroupByHandle } from '@openpeeps/core/groups';
-import { config } from '@openpeeps/core/config';
-import { findInviteLinkBySlug } from '@openpeeps/core/inviteLinks';
-import { createSignedProfileAccessToken } from '@openpeeps/core/accessTokens';
+import { createAccount, existsAccountByEmail } from '@openpeepshq/core/accounts';
+import { existsProfileByHandle } from '@openpeepshq/core/profiles';
+import { existsGroupByHandle } from '@openpeepshq/core/groups';
+import { config } from '@openpeepshq/core/config';
+import { findInviteLinkBySlug } from '@openpeepshq/core/inviteLinks';
+import { createSignedProfileAccessToken } from '@openpeepshq/core/accessTokens';
 
 export const registerHandler = async (
   registerRequest: RegisterRequest,

@@ -1,5 +1,5 @@
 import { map, Relation } from '../db/pg/map';
-import { InviteLinkData, InviteLinkWithMeta } from '@openpeeps/common/types';
+import { InviteLinkData, InviteLinkWithMeta } from '@openpeepshq/common/types';
 import { profilesMapping } from '../profiles/mapping';
 import { groupsMapping } from '../groups/mapping';
 

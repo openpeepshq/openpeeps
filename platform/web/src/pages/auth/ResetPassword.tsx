@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Input, Label, Toast } from '@openpeeps/react-ui';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import { AuthLayout } from '@openpeeps/react/components';
+import { Button, Input, Label, Toast } from '@openpeepshq/react-ui';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
+import { AuthLayout } from '@openpeepshq/react/components';
 
 import { performResetPassword } from '../../lib/auth';
 

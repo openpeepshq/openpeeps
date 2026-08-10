@@ -2,7 +2,7 @@ import RNFS from 'react-native-fs';
 import RNConvertPhAsset from 'react-native-convert-ph-asset';
 import { Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
-import type { MediaAttachment } from '@openpeeps/common';
+import type { MediaAttachment } from '@openpeepshq/common';
 import i18next from '~/i18n';
 import {
   decodeFileUri,

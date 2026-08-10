@@ -1,6 +1,6 @@
 import { Database } from 'arangojs';
 import { transformDocsInCollection } from '../helpers';
-import { JamEvent } from '@openpeeps/common/types';
+import { JamEvent } from '@openpeepshq/common/types';
 
 const convertJamEventType = (
   type: string,

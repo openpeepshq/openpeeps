@@ -6,7 +6,7 @@
 import 'dotenv/config';
 
 import { Command } from 'commander';
-import { closeQueues } from '@openpeeps/core/jobs';
+import { closeQueues } from '@openpeepshq/core/jobs';
 import { registerAccountsCommand } from './accounts';
 import { registerSecretsCommand } from './secrets';
 import { registerEmailCommand } from './email';

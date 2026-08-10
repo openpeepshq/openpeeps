@@ -1,5 +1,5 @@
 {
-  "name": "@openpeeps-plugins/greeting",
+  "name": "@openpeepshq-plugins/greeting",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -13,8 +13,8 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@openpeeps/common": "workspace:^",
-    "@openpeeps/core": "workspace:^",
+    "@openpeepshq/common": "workspace:^",
+    "@openpeepshq/core": "workspace:^",
     "express": "^5.2.1",
     "zod": "^4.4.3"
   },

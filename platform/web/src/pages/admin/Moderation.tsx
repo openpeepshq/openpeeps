@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { ReportWithMeta } from '@openpeeps/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Avatar } from '@openpeeps/react/components';
-import { UpdatingDate } from '@openpeeps/react-ui';
-import { Button } from '@openpeeps/react-ui';
+import type { ReportWithMeta } from '@openpeepshq/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { Avatar } from '@openpeepshq/react/components';
+import { UpdatingDate } from '@openpeepshq/react-ui';
+import { Button } from '@openpeepshq/react-ui';
 
 type Tab = 'summary' | 'resolved';
 

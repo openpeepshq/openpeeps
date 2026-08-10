@@ -1,5 +1,5 @@
-import type { FetchClient } from '@openpeeps/fetch-client';
-import type { TokenResponse } from '@openpeeps/common';
+import type { FetchClient } from '@openpeepshq/fetch-client';
+import type { TokenResponse } from '@openpeepshq/common';
 import { allpeepPayloadEndpoint, allpeepNoPayloadEndpoint } from './helpers';
 
 export const sso = (rawClient: FetchClient) => ({

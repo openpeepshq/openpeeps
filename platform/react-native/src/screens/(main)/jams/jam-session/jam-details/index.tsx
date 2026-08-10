@@ -12,12 +12,12 @@ import {
   CopyIcon,
   ShareIcon,
 } from '~/components/icons';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { ThemedText } from '~/components/ui/themed-text';
-import { AudienceSetting, Event, Profile } from '@openpeeps/common';
+import { AudienceSetting, Event, Profile } from '@openpeepshq/common';
 import { Input } from '~/components/ui/input';
 import { useParticipants, useRoomContext } from '@livekit/react-native';
 import { profileMatchesQuery, truncateText } from '~/lib/utils';

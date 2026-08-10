@@ -1,11 +1,11 @@
 import { Head, Tailwind } from '@react-email/components';
-import type { EmailGlobals, PublicPost } from '@openpeeps/common/types';
+import type { EmailGlobals, PublicPost } from '@openpeepshq/common/types';
 import {
   FeedPostContent,
   I18nContext,
   StaticRenderContext,
-} from '@openpeeps/react/email';
-import type { I18nContextValue } from '@openpeeps/react/email';
+} from '@openpeepshq/react/email';
+import type { I18nContextValue } from '@openpeepshq/react/email';
 
 import { buildEmailTailwindConfig } from './tailwindConfig';
 

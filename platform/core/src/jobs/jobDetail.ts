@@ -1,4 +1,4 @@
-import type { AdminJobDetail } from '@openpeeps/common/types';
+import type { AdminJobDetail } from '@openpeepshq/common/types';
 import { Queue } from 'bullmq';
 import { connection, queues } from './index';
 

@@ -1,4 +1,4 @@
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import React from 'react';
 
 import { Image, ImageBackground, View } from 'react-native';
@@ -7,7 +7,7 @@ import { ThemedText } from '../ui/themed-text';
 import { isProduction } from '~/lib/constants';
 import { BASE_URL } from '~/lib/constants';
 import { useWindowSize } from '~/hooks';
-import { getTheme } from '@openpeeps/common';
+import { getTheme } from '@openpeepshq/common';
 import { toAbsoluteMediaUrl } from '~/lib/media-url';
 
 const DevBanner = () =>

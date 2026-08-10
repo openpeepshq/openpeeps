@@ -2,8 +2,8 @@ import { endpoint, z } from '#lib/endpoint';
 import { ensureAccount } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden, notFound } from '#lib/errors';
-import { successResponseSchema } from '@openpeeps/common/types';
-import { findPushSubscription, deletePushSubscription, listPushSubscriptionsByAccount } from '@openpeeps/core/pushSubscriptions';
+import { successResponseSchema } from '@openpeepshq/common/types';
+import { findPushSubscription, deletePushSubscription, listPushSubscriptionsByAccount } from '@openpeepshq/core/pushSubscriptions';
 
 export const Param = z.object({
   pushSubscriptionId: z.string(),

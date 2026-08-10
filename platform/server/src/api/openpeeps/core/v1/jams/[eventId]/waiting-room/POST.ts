@@ -1,12 +1,12 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
 import type { RequestEvent } from '@riddl/core';
-import { jamTokenResponseSchema } from '@openpeeps/common/types';
-import { config } from '@openpeeps/core/config';
-import { admittanceWatch, findJamEvent, joinWaitingRoom } from '@openpeeps/core/jams';
+import { jamTokenResponseSchema } from '@openpeepshq/common/types';
+import { config } from '@openpeepshq/core/config';
+import { admittanceWatch, findJamEvent, joinWaitingRoom } from '@openpeepshq/core/jams';
 import { produceStream } from '#lib/sse';
 import { ensureProfileOrGuest } from '#lib/auth';
-import { jamFromEvent } from '@openpeeps/common/lib';
+import { jamFromEvent } from '@openpeepshq/common/lib';
 export const Stream = jamTokenResponseSchema;
 export const Param = z.object({
   eventId: z.string(),

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMemo } from 'react';
-import { buildThreads, type Article, type PublicPost } from '@openpeeps/common';
-import { useOpenpeeps } from '@openpeeps/react';
+import { buildThreads, type Article, type PublicPost } from '@openpeepshq/common';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ThreadedFeed } from '../../feed/threaded/ThreadedFeed';
 import { ActivityIndicator, Image, View } from 'react-native';
 import { ThemedText } from '~/components/ui/themed-text';

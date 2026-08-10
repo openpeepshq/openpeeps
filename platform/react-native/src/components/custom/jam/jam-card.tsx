@@ -1,9 +1,9 @@
 import { Image, View } from 'react-native';
 import React from 'react';
-import { Event, PublicPost } from '@openpeeps/common';
+import { Event, PublicPost } from '@openpeepshq/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import { UpdatingDate } from '../date/updating-date';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ParticipantAvatar } from '../common/participant-avatar';
 import { JamActionsFooter } from './jam-actions-footer';
 

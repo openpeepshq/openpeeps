@@ -1,9 +1,9 @@
 import { endpoint } from '#lib/endpoint';
-import { publicAccountSchema } from '@openpeeps/common/types';
+import { publicAccountSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { listAccounts } from '@openpeeps/core/accounts';
+import { listAccounts } from '@openpeepshq/core/accounts';
 
 export const Output = publicAccountSchema.array();
 

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router-dom';
-import { useT } from '@openpeeps/react';
+import { useT } from '@openpeepshq/react';
 
 /**
  * Shown when an OIDC sign-in created a new account that requires admin

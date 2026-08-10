@@ -1,9 +1,9 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden } from '#lib/errors';
-import { jamRecordingSchema } from '@openpeeps/common/types';
+import { jamRecordingSchema } from '@openpeepshq/common/types';
 import { ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { findJamEvent, stopRecording } from '@openpeeps/core/jams';
+import { findJamEvent, stopRecording } from '@openpeepshq/core/jams';
 import { notFound } from '#lib/helpers';
 
 export const Output = jamRecordingSchema;

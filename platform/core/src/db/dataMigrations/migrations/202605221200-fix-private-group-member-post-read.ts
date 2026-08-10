@@ -1,6 +1,6 @@
 import { Database } from 'arangojs';
-import { GroupData } from '@openpeeps/common/types';
-import { hasMemberOnlyPostsVisibility } from '@openpeeps/common/lib';
+import { GroupData } from '@openpeepshq/common/types';
+import { hasMemberOnlyPostsVisibility } from '@openpeepshq/common/lib';
 import { transformDocsInCollection } from '../helpers';
 
 export default {

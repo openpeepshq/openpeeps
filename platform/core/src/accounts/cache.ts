@@ -1,4 +1,4 @@
-import { AccountWithMeta } from '@openpeeps/common/types';
+import { AccountWithMeta } from '@openpeepshq/common/types';
 import { createCache } from 'cache-manager';
 import { allpeepDb } from '../db';
 import { accountsMapping } from './mapping';

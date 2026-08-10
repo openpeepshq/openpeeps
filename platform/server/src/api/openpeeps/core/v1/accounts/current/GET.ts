@@ -1,6 +1,6 @@
 import { endpoint } from '#lib/endpoint';
 import { authNeeded, forbidden } from '#lib/errors';
-import { publicAccountSchema, type PublicAccount } from '@openpeeps/common/types';
+import { publicAccountSchema, type PublicAccount } from '@openpeepshq/common/types';
 import { ensureAccount } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 

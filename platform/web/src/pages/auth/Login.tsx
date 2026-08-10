@@ -5,7 +5,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import { loginRequestSchema, type LoginRequest } from '@openpeeps/common/types';
+import { loginRequestSchema, type LoginRequest } from '@openpeepshq/common/types';
 import {
   Button,
   Form,
@@ -13,13 +13,13 @@ import {
   Link,
   SubmitButton,
   Toast,
-} from '@openpeeps/react-ui';
-import { useT, useOpenpeeps, useCredentialsStore } from '@openpeeps/react';
+} from '@openpeepshq/react-ui';
+import { useT, useOpenpeeps, useCredentialsStore } from '@openpeepshq/react';
 import {
   AuthLayout,
   useServerInfo,
   useToast,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 
 import { performLogin } from '../../lib/auth';
 

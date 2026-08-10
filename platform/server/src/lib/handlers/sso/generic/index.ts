@@ -1,23 +1,23 @@
 import jp from 'jsonpath';
-import { clampProfileDisplayName, interpolate } from '@openpeeps/common/lib';
+import { clampProfileDisplayName, interpolate } from '@openpeepshq/common/lib';
 import { endpoint, z } from '#lib/endpoint';
 import {
   findNewFreeHandle,
   createProfile,
   listProfilesByAccount,
-} from '@openpeeps/core/profiles';
-import { createAccount, findAccountByEmail } from '@openpeeps/core/accounts';
+} from '@openpeepshq/core/profiles';
+import { createAccount, findAccountByEmail } from '@openpeepshq/core/accounts';
 import {
   type CoreConfig,
   accountCreationDataSchema,
   type ProfileWithMeta,
-} from '@openpeeps/common/types';
-import { config } from '@openpeeps/core/config';
+} from '@openpeepshq/common/types';
+import { config } from '@openpeepshq/core/config';
 import { authNeeded, forbidden } from '#lib/errors';
 import { uuidv4 } from 'uuidv7';
-import type { ProfileData, TokenResponse } from '@openpeeps/common/types';
-import { logger } from '@openpeeps/core/log';
-import { createSignedProfileAccessToken } from '@openpeeps/core/accessTokens';
+import type { ProfileData, TokenResponse } from '@openpeepshq/common/types';
+import { logger } from '@openpeepshq/core/log';
+import { createSignedProfileAccessToken } from '@openpeepshq/core/accessTokens';
 
 const log = logger('app:sso');
 

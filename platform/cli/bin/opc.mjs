@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 // Resolve the compiled CLI relative to this script so the binary works even
-// when invoked from a package that does not list `@openpeeps/cli` in its
+// when invoked from a package that does not list `@openpeepshq/cli` in its
 // dependency closure (e.g. the production Docker image).
 //
 // `secrets create-jwt-secret` must not import the full CLI: that pulls
-// @openpeeps/core config, which refuses to load in production without
+// @openpeepshq/core config, which refuses to load in production without
 // JWT_SECRET — the catch-22 for minting that secret on first boot.
 import { createJwtSecret } from './createJwtSecret.mjs';
 

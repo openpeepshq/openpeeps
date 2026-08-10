@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { DateRangeValue } from '@openpeeps/react-ui';
+import type { DateRangeValue } from '@openpeepshq/react-ui';
 
 type AnalyticsRangeContextValue = {
   range: DateRangeValue;

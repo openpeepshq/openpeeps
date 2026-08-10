@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import { DownloadIcon } from 'lucide-react';
-import { matchesQuery } from '@openpeeps/common/lib';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Avatar } from '@openpeeps/react/components';
-import { Button, Input } from '@openpeeps/react-ui';
+import { matchesQuery } from '@openpeepshq/common/lib';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { Avatar } from '@openpeepshq/react/components';
+import { Button, Input } from '@openpeepshq/react-ui';
 import { AdminInviteActions } from './components/AdminInviteActions';
 import { ProfileRowActions } from './components/ProfileRowActions';
 

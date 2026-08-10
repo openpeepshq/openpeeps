@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { MinusSquare, PlusSquare } from 'lucide-react';
-import type { CommunityConfig } from '@openpeeps/common/types';
-import { useT, useSetPageHeader, useOpenpeeps } from '@openpeeps/react';
-import { Button, Input, Label, Toast } from '@openpeeps/react-ui';
+import type { CommunityConfig } from '@openpeepshq/common/types';
+import { useT, useSetPageHeader, useOpenpeeps } from '@openpeepshq/react';
+import { Button, Input, Label, Toast } from '@openpeepshq/react-ui';
 
 type Field = NonNullable<
   NonNullable<CommunityConfig['profiles']>['additionalFields']

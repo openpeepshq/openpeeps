@@ -1,5 +1,5 @@
-import { type PublicPost } from '@openpeeps/common';
-import { isUnreadPostForViewer, useOpenpeeps } from '@openpeeps/react';
+import { type PublicPost } from '@openpeepshq/common';
+import { isUnreadPostForViewer, useOpenpeeps } from '@openpeepshq/react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';

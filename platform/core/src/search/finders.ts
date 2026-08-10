@@ -4,7 +4,7 @@ import {
   OffsetInfiniteQueryParams,
   PostWithMeta,
   ProfileWithMeta,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import { filterAndTransform } from '../db/helpers';
 import { canReadPost, transformPost } from '../posts/helpers';

@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express';
-import { protocolForServerHost } from '@openpeeps/core/server';
+import { protocolForServerHost } from '@openpeepshq/core/server';
 
 const CORS_METHODS = 'GET, POST, PUT, DELETE, PATCH, OPTIONS';
 const CORS_HEADERS = 'Content-Type, Authorization';

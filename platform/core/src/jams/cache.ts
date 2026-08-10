@@ -1,6 +1,6 @@
 import { createCache } from 'cache-manager';
 import { jamState } from './livekit';
-import { PostWithMeta } from '@openpeeps/common/types';
+import { PostWithMeta } from '@openpeepshq/common/types';
 
 export const jamStateCache = createCache({
   ttl: 20 * 1000,

@@ -3,7 +3,7 @@ import {
   Profile,
   ProfileWithMeta,
   Role,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { connectionFinder, connector, disconnector } from '../db/helpers';
 import { collectionInfos } from '../db';
 import { getProfiles } from './cache';

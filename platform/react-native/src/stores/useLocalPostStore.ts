@@ -2,7 +2,7 @@ import {
   PostCreationData,
   PostType,
   PostDataUnion,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { create } from 'zustand';
 
 const defaultPostData = (type: PostType): PostDataUnion => {

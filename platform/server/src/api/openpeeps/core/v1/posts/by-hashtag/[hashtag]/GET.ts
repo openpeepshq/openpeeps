@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
-import { publicPostSchema } from '@openpeeps/common/types';
+import { publicPostSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
-import { listPostsByTag } from '@openpeeps/core/posts';
+import { listPostsByTag } from '@openpeepshq/core/posts';
 import { ensureProfileOrPublicCommunity } from '#lib/auth';
 import { forbidden } from '#lib/errors';
 

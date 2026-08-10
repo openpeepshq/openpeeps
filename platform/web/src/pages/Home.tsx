@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Toast } from '@openpeeps/react-ui';
-import { useT } from '@openpeeps/react';
-import { useCurrentProfile, useServerInfo } from '@openpeeps/react/components';
+import { Toast } from '@openpeepshq/react-ui';
+import { useT } from '@openpeepshq/react';
+import { useCurrentProfile, useServerInfo } from '@openpeepshq/react/components';
 
 /**
  * Redirect to `/feeds/local` when the user is signed in or the community has

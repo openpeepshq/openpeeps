@@ -1,6 +1,6 @@
-import { FetchClient } from "@openpeeps/fetch-client";
+import { FetchClient } from "@openpeepshq/fetch-client";
 import { allpeepNoPayloadEndpoint } from "./helpers";
-import { GroupWithMeta, PublicPost, OffsetInfiniteQueryParams, PublicProfile, SearchResult, SearchResultCounts } from "@openpeeps/common";
+import { GroupWithMeta, PublicPost, OffsetInfiniteQueryParams, PublicProfile, SearchResult, SearchResultCounts } from "@openpeepshq/common";
 
 type SearchQueryParams = OffsetInfiniteQueryParams & {
     q: string;

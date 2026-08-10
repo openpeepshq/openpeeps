@@ -1,9 +1,9 @@
 // Smoke test: register React email templates in-process, render every
 // registered template against minimal fake locals, and print a summary.
-// Run with: pnpm --filter @openpeeps/server exec vite-node scripts/smoke-render.ts
+// Run with: pnpm --filter @openpeepshq/server exec vite-node scripts/smoke-render.ts
 import '../src/loadServerEnv';
 import { initializeServer } from '../src/lib/init';
-import { emailService } from '@openpeeps/core/email';
+import { emailService } from '@openpeepshq/core/email';
 
 const fakeProfile = {
   id: 'p_1',

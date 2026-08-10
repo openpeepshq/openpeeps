@@ -3,7 +3,7 @@ import { forbidden } from '#lib/errors';
 import {
   mediaAttachmentSchema,
   mediaStorageRequestSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { createMediaAttachmentHandler } from '#lib/handlers/media/createAttachment';
 
 export const Input = mediaStorageRequestSchema;

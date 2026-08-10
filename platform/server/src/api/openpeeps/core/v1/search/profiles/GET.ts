@@ -1,6 +1,6 @@
 import { ensureLocalProfile } from '#lib/auth';
-import { offsetInfiniteQueryParamsSchema, publicProfileSchema, searchResultSchema } from "@openpeeps/common";
-import { searchProfiles } from "@openpeeps/core/search";
+import { offsetInfiniteQueryParamsSchema, publicProfileSchema, searchResultSchema } from "@openpeepshq/common";
+import { searchProfiles } from "@openpeepshq/core/search";
 import { endpoint, z } from '#lib/endpoint';
 import { notFound } from '#lib/errors';
 

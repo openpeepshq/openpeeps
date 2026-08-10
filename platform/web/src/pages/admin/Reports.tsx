@@ -1,13 +1,13 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import type { ReportWithMeta } from '@openpeeps/common/types';
-import { useT, useOpenpeeps } from '@openpeeps/react';
-import type { PublicPost } from '@openpeeps/common/types';
+import type { ReportWithMeta } from '@openpeepshq/common/types';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
+import type { PublicPost } from '@openpeepshq/common/types';
 import {
   Avatar,
   FeedPostContent,
-} from '@openpeeps/react/components';
-import { LoadingSpinner, UpdatingDate } from '@openpeeps/react-ui';
+} from '@openpeepshq/react/components';
+import { LoadingSpinner, UpdatingDate } from '@openpeepshq/react-ui';
 import {
   Button,
   Dialog,
@@ -15,7 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { routeHandleParam } from '../../lib/routeHandles';
 
 export function AdminReports() {

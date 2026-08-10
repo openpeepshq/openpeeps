@@ -1,10 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
-import { roleSchema } from '@openpeeps/common/types';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { roleSchema } from '@openpeepshq/common/types';
+import { successResponseSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { findProfile, assignRole, unassignRole } from '@openpeeps/core/profiles';
-import { findRoleByKey } from '@openpeeps/core/roles';
+import { findProfile, assignRole, unassignRole } from '@openpeepshq/core/profiles';
+import { findRoleByKey } from '@openpeepshq/core/roles';
 
 export const Param = z.object({
   profileId: z.string(),

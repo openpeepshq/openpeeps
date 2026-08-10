@@ -6,13 +6,13 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { useForm } from 'react-hook-form';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Form, FormField, FormInput } from '~/components/ui/form';
 import { ThemedText } from '~/components/ui/themed-text';
 import { Button } from '~/components/ui/button';
-import { Event, PublicPost } from '@openpeeps/common';
+import { Event, PublicPost } from '@openpeepshq/common';
 
 interface GuestDataFormProps {
   jamPost: PublicPost;

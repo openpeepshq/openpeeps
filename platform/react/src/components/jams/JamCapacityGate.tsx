@@ -1,5 +1,5 @@
-import type { PublicPost } from '@openpeeps/common/types';
-import { isCapacityEvent } from '@openpeeps/common/lib';
+import type { PublicPost } from '@openpeepshq/common/types';
+import { isCapacityEvent } from '@openpeepshq/common/lib';
 import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { EventRsvpButton } from '../post/pieces/EventRsvpButton';

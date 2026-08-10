@@ -9,7 +9,7 @@ import {
   MainStackParamList,
   TabStackParamList,
 } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import {
   Feed,
   GenericHeader,

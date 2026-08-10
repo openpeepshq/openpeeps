@@ -1,8 +1,8 @@
 import { Database } from 'arangojs';
 import { profilesMapping } from '../../../profiles/mapping';
 import { logger } from '../../../log';
-import { Role, RoleData } from '@openpeeps/common/types';
-import { map } from '@openpeeps/arango-querybuilder';
+import { Role, RoleData } from '@openpeepshq/common/types';
+import { map } from '@openpeepshq/arango-querybuilder';
 import { collectionInfos } from '../../pg/collections';
 import { roleAssigner, roleUnassigner } from '../../../profiles/helpers';
 

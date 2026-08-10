@@ -3,7 +3,7 @@ import { Rss } from 'lucide-react';
 import type {
   PublicPost,
   SuccessFailureResponse,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import type {
   InfiniteData,
   UseInfiniteQueryResult,
@@ -12,7 +12,7 @@ import type {
 import { useT } from '../../i18n';
 import { FeedPost } from './FeedPost';
 import { PinnedPost } from './PinnedPost';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export type FeedQuery = UseInfiniteQueryResult<
   InfiniteData<PublicPost[], unknown>,
@@ -28,7 +28,7 @@ export interface FeedProps {
 }
 
 /**
- * Translation of `@openpeeps/svelte/components/core/post/feed/chronological/Feed.svelte`.
+ * Translation of `@openpeepshq/svelte/components/core/post/feed/chronological/Feed.svelte`.
  * Wires a TanStack `useInfiniteQuery` result to an IntersectionObserver-backed
  * loader and renders each post as a `<FeedPost>`.
  *

@@ -4,7 +4,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import React from 'react';
-import type { PublicNotification } from '@openpeeps/common';
+import type { PublicNotification } from '@openpeepshq/common';
 import { useFocusEffect } from '@react-navigation/native';
 import { handleScroll } from '~/lib/utils';
 import { EmptyStateContainer } from '../common/empty-state-container';

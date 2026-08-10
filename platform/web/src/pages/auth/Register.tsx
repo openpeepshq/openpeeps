@@ -9,20 +9,20 @@ import { z } from 'zod';
 import {
   registerRequestSchema,
   type RegisterRequest,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import {
   Form,
   FormInput,
   Link,
   SubmitButton,
   Toast,
-} from '@openpeeps/react-ui';
-import { useT, useOpenpeeps, useCredentialsStore } from '@openpeeps/react';
+} from '@openpeepshq/react-ui';
+import { useT, useOpenpeeps, useCredentialsStore } from '@openpeepshq/react';
 import {
   AuthLayout,
   useServerInfo,
   useToast,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 import type { TFunction } from 'i18next';
 
 import { performRegister } from '../../lib/auth';

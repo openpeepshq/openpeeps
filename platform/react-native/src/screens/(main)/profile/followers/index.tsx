@@ -1,5 +1,5 @@
 import React from 'react';
-import {useOpenpeeps} from '@openpeeps/react';
+import {useOpenpeeps} from '@openpeepshq/react';
 import {MainScreenProps} from '~/components/navigation/types';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {

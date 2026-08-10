@@ -9,9 +9,9 @@ import {
 } from '@livekit/react-native';
 import { ThemedText } from '~/components/ui/themed-text';
 import { Track } from 'livekit-client';
-import { Profile } from '@openpeeps/common';
+import { Profile } from '@openpeepshq/common';
 import { MetadataType } from '~/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { truncateText } from '~/lib/utils';
 import { ScreenShareIcon } from '~/components/icons';
 import { Button } from '~/components/ui/button';

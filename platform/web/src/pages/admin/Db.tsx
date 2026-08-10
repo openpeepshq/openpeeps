@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { Button } from '@openpeeps/react-ui';
-import { toCsvRow } from '@openpeeps/common/lib';
-import type { ExplorerColumn, ExplorerTable } from '@openpeeps/common/types';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { Button } from '@openpeepshq/react-ui';
+import { toCsvRow } from '@openpeepshq/common/lib';
+import type { ExplorerColumn, ExplorerTable } from '@openpeepshq/common/types';
 
 type Tab = 'browse' | 'sql';
 

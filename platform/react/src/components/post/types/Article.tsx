@@ -1,5 +1,5 @@
 import { ArrowRight } from 'lucide-react';
-import type { PublicPost } from '@openpeeps/common/types';
+import type { PublicPost } from '@openpeepshq/common/types';
 import { useT } from '../../../i18n';
 import { resolveStaticUrl, useStaticRender } from '../../markdown/staticRender';
 import { PostMarkdown } from '../Markdown';

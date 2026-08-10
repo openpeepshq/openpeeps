@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import React from 'react';
 import { ThemedText } from '~/components/ui/themed-text';
 import { NotificationWrapper } from '../NotificationWrapper';
-import { PublicNotification, PublicPost } from '@openpeeps/common';
+import { PublicNotification, PublicPost } from '@openpeepshq/common';
 import { MessageSquareIcon } from '~/components/icons';
 import { profileName } from '~/lib/utils';
 import { MessageCard } from '../../conversations/message-card';

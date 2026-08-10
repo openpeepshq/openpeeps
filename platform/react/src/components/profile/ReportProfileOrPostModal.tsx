@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { PublicPost, PublicProfile } from '@openpeeps/common/types';
+import type { PublicPost, PublicProfile } from '@openpeepshq/common/types';
 import {
   Button,
   Dialog,
@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   Textarea,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useServerInfo } from '../server-data';

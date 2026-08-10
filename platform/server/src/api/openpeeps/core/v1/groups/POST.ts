@@ -4,12 +4,12 @@ import {
   groupDataSchema,
   groupWithMetaSchema,
   publicProfileSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { createGroup, findGroupByHandle } from '@openpeeps/core/groups';
-import { createGroupRequestSchema } from '@openpeeps/common/types';
-import { findProfileByHandle } from '@openpeeps/core/profiles';
+import { createGroup, findGroupByHandle } from '@openpeepshq/core/groups';
+import { createGroupRequestSchema } from '@openpeepshq/common/types';
+import { findProfileByHandle } from '@openpeepshq/core/profiles';
 
 
 export const Input = createGroupRequestSchema;

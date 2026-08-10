@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import type { JamEvent } from '@openpeeps/common/types';
-import { getUniqueBy } from '@openpeeps/common';
+import type { JamEvent } from '@openpeepshq/common/types';
+import { getUniqueBy } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useJamContext } from './JamContext';
 import { useJamEventsContext } from './JamEventsContext';

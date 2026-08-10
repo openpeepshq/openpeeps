@@ -1,6 +1,6 @@
 import { ensureLocalProfile } from '#lib/auth';
-import { publicPostSchema, offsetInfiniteQueryParamsSchema, searchResultSchema } from "@openpeeps/common";
-import { searchEvents } from "@openpeeps/core/search";
+import { publicPostSchema, offsetInfiniteQueryParamsSchema, searchResultSchema } from "@openpeepshq/common";
+import { searchEvents } from "@openpeepshq/core/search";
 import { endpoint, z } from '#lib/endpoint';
 
 export const Query = offsetInfiniteQueryParamsSchema.extend({

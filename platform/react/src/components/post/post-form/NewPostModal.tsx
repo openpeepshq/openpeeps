@@ -6,8 +6,8 @@ import type {
   PostCreationData,
   PublicProfile,
   VisibilityType,
-} from '@openpeeps/common';
-import { checkRoleCapabilities } from '@openpeeps/common';
+} from '@openpeepshq/common';
+import { checkRoleCapabilities } from '@openpeepshq/common';
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,7 @@ import {
   DialogTitle,
   ModalFooter,
   Button,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useServerInfo } from '../../server-data';

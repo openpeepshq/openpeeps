@@ -2,8 +2,8 @@ import { endpoint } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { listRoles } from '@openpeeps/core/roles';
-import { roleSchema } from '@openpeeps/common/types';
+import { listRoles } from '@openpeepshq/core/roles';
+import { roleSchema } from '@openpeepshq/common/types';
 
 export const Output = roleSchema.array();
 

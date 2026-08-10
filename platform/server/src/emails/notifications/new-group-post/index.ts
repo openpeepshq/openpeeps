@@ -1,5 +1,5 @@
-import type { EmailOptionsWithGlobals, ExpandedNotification } from '@openpeeps/common/types';
-import { groupName, profileName } from '@openpeeps/common/lib';
+import type { EmailOptionsWithGlobals, ExpandedNotification } from '@openpeepshq/common/types';
+import { groupName, profileName } from '@openpeepshq/common/lib';
 
 import type { ReactEmailTemplate } from '../../types';
 import { NewGroupPostEmail } from './Email';

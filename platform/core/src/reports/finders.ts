@@ -1,4 +1,4 @@
-import { PostWithMeta, Profile, ReportWithMeta } from '@openpeeps/common/types';
+import { PostWithMeta, Profile, ReportWithMeta } from '@openpeepshq/common/types';
 import { allpeepDb, collectionInfos } from '../db';
 import { reportsMapping } from './mapping';
 import { profilesMapping } from '../profiles/mapping';

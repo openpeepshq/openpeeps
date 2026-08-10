@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
-import type { OpenpeepsClient } from '@openpeeps/client';
-import type { PushSubscriptionData } from '@openpeeps/common';
+import type { OpenpeepsClient } from '@openpeepshq/client';
+import type { PushSubscriptionData } from '@openpeepshq/common';
 import { subscriptionKeyMatches, vapidKeyBytes } from './vapid';
 
 const isPushSupported = () =>

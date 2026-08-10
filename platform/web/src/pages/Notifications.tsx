@@ -1,8 +1,8 @@
-import { useT, useSetPageHeader } from '@openpeeps/react';
+import { useT, useSetPageHeader } from '@openpeepshq/react';
 import {
   NotificationsList,
   NotificationHeaderActions,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 
 export function Notifications() {
   const t = useT();

@@ -3,14 +3,14 @@
 /// <reference lib="webworker" />
 
 /**
- * @openpeeps/react PWA service worker.
+ * @openpeepshq/react PWA service worker.
  *
  * Framework-agnostic worker referenced from vite-plugin-pwa via
  * `injectManifest`:
  *
  *   VitePWA({
  *     strategies: 'injectManifest',
- *     srcDir: 'node_modules/@openpeeps/react/dist/pwa',
+ *     srcDir: 'node_modules/@openpeepshq/react/dist/pwa',
  *     filename: 'sw.js',
  *     ...
  *   })
@@ -23,7 +23,7 @@
  *   - notificationclick `goto:` action → focus matching client / open window
  */
 
-import type { NotificationOptionsType, PushMessage } from '@openpeeps/common';
+import type { NotificationOptionsType, PushMessage } from '@openpeepshq/common';
 import { resolveGotoTarget } from './navigationUrl';
 
 const PUSH_BASE_INVALIDATE_KEYS = [

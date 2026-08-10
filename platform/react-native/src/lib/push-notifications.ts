@@ -1,4 +1,4 @@
-import type { PushMessage, PushSubscriptionData } from '@openpeeps/common';
+import type { PushMessage, PushSubscriptionData } from '@openpeepshq/common';
 import { getApp } from '@react-native-firebase/app';
 import {
   FirebaseMessagingTypes,

@@ -10,7 +10,7 @@ import {
 } from '@livekit/react-native-webrtc';
 import { AudioSession } from '@livekit/react-native';
 import { Button } from '~/components/ui/button';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { MicIcon, MicOffIcon, VideoIcon, VideoOffIcon } from '~/components/icons';
 import { useJamSettingsStore } from '~/stores/useJamStore';
 

@@ -1,6 +1,6 @@
 import { ensureRoleCapabilities } from '#lib/auth';
-import { reportWithMetaSchema } from "@openpeeps/common";
-import { listReports } from "@openpeeps/core/reports";
+import { reportWithMetaSchema } from "@openpeepshq/common";
+import { listReports } from "@openpeepshq/core/reports";
 import { endpoint } from '#lib/endpoint';
 
 export const Output = reportWithMetaSchema.array();

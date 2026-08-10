@@ -1,7 +1,7 @@
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { Link } from '@openpeeps/react-ui';
-import { useT } from '@openpeeps/react';
-import { AuthLayout, useServerInfo } from '@openpeeps/react/components';
+import { Link } from '@openpeepshq/react-ui';
+import { useT } from '@openpeepshq/react';
+import { AuthLayout, useServerInfo } from '@openpeepshq/react/components';
 
 import { Markdown } from '../lib/Markdown';
 

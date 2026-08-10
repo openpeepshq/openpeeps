@@ -4,8 +4,8 @@ import {
   Notebook,
   ScrollText,
 } from 'lucide-react';
-import type { PostType } from '@openpeeps/common/types';
-import { Button } from '@openpeeps/react-ui';
+import type { PostType } from '@openpeepshq/common/types';
+import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useNavigate } from '../../../contexts/router';
 import { useCurrentProfile } from '../../layout/IdentityContext';

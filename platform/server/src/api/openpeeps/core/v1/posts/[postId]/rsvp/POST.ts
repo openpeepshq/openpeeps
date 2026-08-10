@@ -3,10 +3,10 @@ import type { RequestEvent } from '@riddl/core';
 import {
   rsvpSchema,
   successFailureResponseSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import { forbidden, notFound, rethrowIfOpenpeepsError, unprocessableRequest } from '#lib/errors';
-import { findPost, rsvpRespond } from '@openpeeps/core/posts';
+import { findPost, rsvpRespond } from '@openpeepshq/core/posts';
 
 export const Input = rsvpSchema;
 export const Output = successFailureResponseSchema;

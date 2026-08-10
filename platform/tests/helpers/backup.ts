@@ -13,6 +13,6 @@ export const restoreBackupFixture = async (
   name: 'default-install' | 'public-community',
 ) => {
   const fixturePath = backupFixturePath(name);
-  const { restoreBackups } = await import('@openpeeps/core/backups');
+  const { restoreBackups } = await import('@openpeepshq/core/backups');
   await restoreBackups(fixturePath);
 };

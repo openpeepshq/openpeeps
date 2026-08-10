@@ -1,4 +1,4 @@
-import { Account, PushSubscriptionData } from '@openpeeps/common/types';
+import { Account, PushSubscriptionData } from '@openpeepshq/common/types';
 import { pushSubscriptionsMapping } from './mapping';
 import { allpeepDb } from '../db';
 import { pushSubscriptionAccountConnector } from './helpers';

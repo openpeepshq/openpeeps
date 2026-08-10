@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { Button } from '@openpeeps/react-ui';
+import { Button } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../contexts/openpeeps';
 import { usePushSubscription } from '../push/usePushSubscription';
 

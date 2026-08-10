@@ -7,14 +7,14 @@ import {
   Users,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { profileName, groupName } from '@openpeeps/common';
+import { profileName, groupName } from '@openpeepshq/common';
 import type {
   GroupWithMeta,
   PublicNotification,
   PublicPost,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { useT } from '../../i18n';
-import { UpdatingDate } from '@openpeeps/react-ui';
+import { UpdatingDate } from '@openpeepshq/react-ui';
 import { NotificationWrapper } from './NotificationWrapper';
 import { ConversationMessageBubble } from '../conversations/ConversationMessageBubble';
 import { FeedPost } from '../post/FeedPost';

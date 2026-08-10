@@ -2,7 +2,7 @@ import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { listAllBackups } from '@openpeeps/core/backups';
+import { listAllBackups } from '@openpeepshq/core/backups';
 
 export const Output = z.array(z.string());
 export const Error = {

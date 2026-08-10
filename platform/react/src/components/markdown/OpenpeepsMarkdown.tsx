@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { handleRegexBase } from '@openpeeps/common/types';
+import { handleRegexBase } from '@openpeepshq/common/types';
 import { extractUrlsFromText, isEmail } from '../preview-link/helpers';
 import { PreviewLink } from '../preview-link/PreviewLink';
 import {

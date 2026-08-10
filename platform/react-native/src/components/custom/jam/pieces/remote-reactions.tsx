@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRoomContext } from '@livekit/react-native';
-import { JamEvent, jamEventSchema } from '@openpeeps/common';
+import { JamEvent, jamEventSchema } from '@openpeepshq/common';
 import { RoomEvent } from 'livekit-client';
 import { AnimatedEmoji } from './animated-emoji';
 import { Buffer } from 'react-native-buffer';

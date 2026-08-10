@@ -13,8 +13,8 @@ import Video, {
   OnProgressData,
 } from 'react-native-video';
 import { useNavigation } from '@react-navigation/native';
-import { useOpenpeeps, vodMasterPlaylistUrl } from '@openpeeps/react';
-import type { MediaStream } from '@openpeeps/common';
+import { useOpenpeeps, vodMasterPlaylistUrl } from '@openpeepshq/react';
+import type { MediaStream } from '@openpeepshq/common';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeftIcon,

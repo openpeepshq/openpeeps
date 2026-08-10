@@ -4,8 +4,8 @@ import type {
   Event,
   PostCreationData,
   PublicProfile,
-} from '@openpeeps/common/types';
-import { hasAdminSidebarAccess } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { hasAdminSidebarAccess } from '@openpeepshq/common/lib';
 import {
   Button,
   Dialog,
@@ -15,7 +15,7 @@ import {
   DialogTitle,
   Input,
   Label,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 import { eventSanitizer, useNewPostStores } from '../../stores';
 import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';

@@ -3,8 +3,8 @@ import type {
   ExpandedNotification,
   GroupData,
   PublicProfile,
-} from '@openpeeps/common/types';
-import { groupName, profileName } from '@openpeeps/common/lib';
+} from '@openpeepshq/common/types';
+import { groupName, profileName } from '@openpeepshq/common/lib';
 
 import type { ReactEmailTemplate } from '../../types';
 import { GroupMemberLeftEmail } from './Email';

@@ -12,7 +12,7 @@ export interface ModalManager {
   closeAll: () => void;
 }
 
-/** Headless API mirroring `getModalManager()` from @openpeeps/ui — works
+/** Headless API mirroring `getModalManager()` from @openpeepshq/ui — works
  * outside React components. */
 export const getModalManager = (): ModalManager => ({
   show: (component, props, callback) =>

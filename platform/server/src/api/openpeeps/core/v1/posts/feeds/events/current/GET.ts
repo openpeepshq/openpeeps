@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
-import { publicPostSchema, offsetInfiniteQueryParamsSchema } from '@openpeeps/common/types';
+import { publicPostSchema, offsetInfiniteQueryParamsSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
-import { listCurrentEventsFeed } from '@openpeeps/core/posts';
+import { listCurrentEventsFeed } from '@openpeepshq/core/posts';
 import { ensureProfileOrPublicCommunity } from '#lib/auth';
 
 export const Output = publicPostSchema.array();

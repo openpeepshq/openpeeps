@@ -4,10 +4,10 @@ import type {
   AdminGroup,
   GroupData,
   PublicProfile,
-} from '@openpeeps/common/types';
-import { useT } from '@openpeeps/react';
-import { Avatar, GroupCard } from '@openpeeps/react/components';
-import { PopupMenu, PopupMenuButton } from '@openpeeps/react-ui';
+} from '@openpeepshq/common/types';
+import { useT } from '@openpeepshq/react';
+import { Avatar, GroupCard } from '@openpeepshq/react/components';
+import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 
 export interface AdminGroupCardProps {
   group: AdminGroup;

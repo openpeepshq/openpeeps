@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { MediaAttachmentData } from '@openpeeps/common/types';
+import type { MediaAttachmentData } from '@openpeepshq/common/types';
 import { useT } from '../../../i18n';
 import { VideoPlayer } from './VideoPlayer';
 

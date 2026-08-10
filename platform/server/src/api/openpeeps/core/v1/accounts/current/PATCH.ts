@@ -2,7 +2,7 @@ import { endpoint } from '#lib/endpoint';
 import {
   successResponseSchema,
   updateAccountPasswordRequestSchema,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { updateCurrentAccountPasswordHandler } from '#lib/handlers/accounts/updateCurrent';
 

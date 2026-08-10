@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { UserX } from 'lucide-react';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
-import { ProfileCard, AccessDeniedLoader } from '@openpeeps/react/components';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
+import { ProfileCard, AccessDeniedLoader } from '@openpeepshq/react/components';
 import { routeHandleParam } from '../../lib/routeHandles';
 
 interface Props {

@@ -1,7 +1,7 @@
 import { TouchableWithoutFeedback, View } from 'react-native';
 import { MessageSquareIcon } from '~/components/icons';
-import { type PublicPost } from '@openpeeps/common';
-import { useOpenpeeps } from '@openpeeps/react';
+import { type PublicPost } from '@openpeepshq/common';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '~/components/ui/themed-text';
 import React from 'react';
 import { useTranslation } from 'react-i18next';

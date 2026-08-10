@@ -4,7 +4,7 @@ import {
   imageProcessor,
   transformStream,
   videoProcessor,
-} from '@openpeeps/greenscreen';
+} from '@openpeepshq/greenscreen';
 import { Video } from './Video';
 
 const VIDEO_CONSTRAINTS: MediaStreamConstraints = {
@@ -52,7 +52,7 @@ export const App = () => {
     <main className="page">
       <h1>Welcome to the demo for GreenScreen by AllPeeP</h1>
       <p>
-        This demo uses <code>@openpeeps/greenscreen</code> to blur or replace
+        This demo uses <code>@openpeepshq/greenscreen</code> to blur or replace
         the background of a camera stream.
       </p>
       <p>

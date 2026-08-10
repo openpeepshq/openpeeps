@@ -1,5 +1,5 @@
 import { View, StyleSheet } from 'react-native';
-import { ReactNativeComponentsView } from '@openpeeps/react-native-components';
+import { ReactNativeComponentsView } from '@openpeepshq/react-native-components';
 
 export default function App() {
   return (

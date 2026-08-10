@@ -6,8 +6,8 @@ import { CameraIcon, FilmIcon } from '~/components/icons';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { BaseSheet } from '../common';
 import { useTranslation } from 'react-i18next';
-import { MediaAttachment } from '@openpeeps/common';
-import { useOpenpeeps } from '@openpeeps/react';
+import { MediaAttachment } from '@openpeepshq/common';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { uploadMedia } from '~/lib/uploadMedia';
 import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
 

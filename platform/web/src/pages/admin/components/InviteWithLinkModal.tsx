@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Copy } from 'lucide-react';
-import { randomString } from '@openpeeps/common/lib';
-import type { GroupWithMeta } from '@openpeeps/common/types';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { randomString } from '@openpeepshq/common/lib';
+import type { GroupWithMeta } from '@openpeepshq/common/types';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
 import {
   Button,
   Dialog,
@@ -12,7 +12,7 @@ import {
   DialogTitle,
   Input,
   Label,
-} from '@openpeeps/react-ui';
+} from '@openpeepshq/react-ui';
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 export const EXPIRY_OPTIONS = [

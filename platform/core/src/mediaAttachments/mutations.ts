@@ -1,4 +1,4 @@
-import { MediaAttachmentData } from '@openpeeps/common/types';
+import { MediaAttachmentData } from '@openpeepshq/common/types';
 import { mediaAttachmentsMapping } from './mapping';
 import { allpeepDb } from '../db';
 

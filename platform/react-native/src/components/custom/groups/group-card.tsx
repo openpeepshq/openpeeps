@@ -4,12 +4,12 @@ import {
   checkGroupCapabilities,
   GroupWithMeta,
   PublicProfile,
-} from '@openpeeps/common';
+} from '@openpeepshq/common';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { ThemedText } from '~/components/ui/themed-text';
 import { truncateText } from '~/lib/utils';
 import { Button } from '~/components/ui/button';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
 import {UsersIcon} from '~/components/icons';
 

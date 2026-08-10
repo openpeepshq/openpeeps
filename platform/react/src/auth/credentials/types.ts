@@ -1,4 +1,4 @@
-import type { Credentials } from '@openpeeps/common/types';
+import type { Credentials } from '@openpeepshq/common/types';
 
 export interface CredentialsStore {
   get: () => Promise<Credentials | null>;

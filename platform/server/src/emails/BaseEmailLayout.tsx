@@ -10,7 +10,7 @@ import {
   Text,
 } from '@react-email/components';
 import type { ReactNode } from 'react';
-import type { EmailGlobals, PublicProfile } from '@openpeeps/common/types';
+import type { EmailGlobals, PublicProfile } from '@openpeepshq/common/types';
 
 import { emailStyles } from './styles';
 

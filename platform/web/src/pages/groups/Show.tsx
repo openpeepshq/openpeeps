@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useT, useOpenpeeps } from '@openpeeps/react';
+import { useT, useOpenpeeps } from '@openpeepshq/react';
 import {
   Feed,
   GroupFeed,
@@ -8,9 +8,9 @@ import {
   NewEventButton,
   PostMarkdown,
   useCurrentProfile,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 import { routeHandleParam } from '../../lib/routeHandles';
-import { LoadingSpinner } from '@openpeeps/react-ui';
+import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export function GroupShow() {
   const t = useT();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { ImageBackground, View } from 'react-native';
 import { SideMenu } from '../custom/navigation/side-menu';
 import { useNavigation } from '@react-navigation/native';
@@ -8,7 +8,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { buildGoto } from './helpers';
 import { registerMessageHandler } from '~/lib/push-notifications';
 import type { GotoHandlerParams } from '~/types/goto';
-import { getTheme } from '@openpeeps/common';
+import { getTheme } from '@openpeepshq/common';
 import { toAbsoluteMediaUrl } from '~/lib/media-url';
 
 export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {

@@ -1,7 +1,7 @@
 import { endOfMonth, formatISO, startOfMonth, subMonths } from 'date-fns';
 import { eq } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
-import type { AnalyticsDateQuery } from '@openpeeps/common/types';
+import type { AnalyticsDateQuery } from '@openpeepshq/common/types';
 import { sendEmailQueue } from '../email';
 import { database } from '../db';
 import { analyticsReportDeliveries } from '../db/pg/schema/analytics';

@@ -8,13 +8,13 @@ import {
   ThumbsUpIcon,
 } from '~/components/icons';
 import { Separator } from '~/components/ui/separator';
-import { type PublicPost } from '@openpeeps/common';
-import { getReactionCount } from '@openpeeps/common';
+import { type PublicPost } from '@openpeepshq/common';
+import { getReactionCount } from '@openpeepshq/common';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 
 interface PostActionsProps {
   post: PublicPost;

@@ -1,9 +1,9 @@
 import { View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import React, { useMemo } from 'react';
 import { ThemedText } from '~/components/ui/themed-text';
-import { Event, PublicPost, PublicRsvp } from '@openpeeps/common';
+import { Event, PublicPost, PublicRsvp } from '@openpeepshq/common';
 import { truncateText } from '~/lib/utils';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';

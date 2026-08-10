@@ -1,6 +1,6 @@
 import React from 'react';
-import { PublicPost } from '@openpeeps/common';
-import { isUnreadPostForViewer, useOpenpeeps } from '@openpeeps/react';
+import { PublicPost } from '@openpeepshq/common';
+import { isUnreadPostForViewer, useOpenpeeps } from '@openpeepshq/react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Pressable } from 'react-native';

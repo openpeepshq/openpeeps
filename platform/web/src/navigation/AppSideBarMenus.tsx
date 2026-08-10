@@ -34,17 +34,17 @@ import {
   useT,
   useOpenpeeps,
   subscribePushNotifications,
-} from '@openpeeps/react';
+} from '@openpeepshq/react';
 import {
   sideBarNavLinkClass,
   useCurrentProfile,
   useServerInfo,
   useSidebarNavClose,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 import {
   getVisibleAdminSections,
   type AdminSectionKey,
-} from '@openpeeps/common/lib';
+} from '@openpeepshq/common/lib';
 
 const adminSectionIcons: Record<AdminSectionKey, LucideIcon> = {
   members: User,

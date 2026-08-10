@@ -3,7 +3,7 @@ import { TabScreensHeader } from '~/components/custom';
 import { ThemedView } from '~/components/ui/themed-view';
 import { ThemedText } from '~/components/ui/themed-text';
 import { View } from 'react-native';
-import { useOpenpeeps } from '@openpeeps/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 import { NotificationFeed } from '~/components/custom/notification/NotificationFeed';
 import { useNotificationBadgeReset } from '~/hooks/use-notification-badge-reset';

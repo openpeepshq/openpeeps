@@ -4,11 +4,11 @@ import {
   NotificationHandler,
   Event,
   notificationAll,
-} from '@openpeeps/common/types';
+} from '@openpeepshq/common/types';
 
-import { findProfile } from '@openpeeps/core/profiles';
-import { maybeCreateNotification } from '@openpeeps/core/notifications';
-import { profileName } from '@openpeeps/common/lib';
+import { findProfile } from '@openpeepshq/core/profiles';
+import { maybeCreateNotification } from '@openpeepshq/core/notifications';
+import { profileName } from '@openpeepshq/common/lib';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
 const eventHandler = async (eventData: unknown) => {

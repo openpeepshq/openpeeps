@@ -2,7 +2,7 @@ import { endpoint } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { successResponseSchema } from '@openpeeps/common/types';
+import { successResponseSchema } from '@openpeepshq/common/types';
 
 export const Error = {
   403: forbidden(),

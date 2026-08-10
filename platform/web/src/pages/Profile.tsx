@@ -1,12 +1,12 @@
 import { useParams } from 'react-router-dom';
 import { Rss } from 'lucide-react';
-import { useT, useOpenpeeps, useSetPageHeader } from '@openpeeps/react';
+import { useT, useOpenpeeps, useSetPageHeader } from '@openpeepshq/react';
 import {
   ProfileHeader,
   ProfilePostsAndReplies,
   useCurrentProfile,
   AccessDeniedLoader,
-} from '@openpeeps/react/components';
+} from '@openpeepshq/react/components';
 import { routeHandleParam } from '../lib/routeHandles';
 
 export function Profile() {

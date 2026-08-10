@@ -1,4 +1,4 @@
-# Pre-built static docs (CI runs `pnpm --filter @openpeeps/docs-site build`
+# Pre-built static docs (CI runs `pnpm --filter @openpeepshq/docs-site build`
 # before this image build). Serves multi-version VitePress output.
 FROM nginx:alpine
 
