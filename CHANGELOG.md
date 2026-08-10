@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **docs**: add multi-version docs.openpeeps.org static site
 - **react**: streamline profile selection into shared modal
 - **perf**: add live and offline performance profiling
 - **db**: add migration command and enhance schema readiness checks
@@ -15,7 +16,18 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **profiles**: clarify invalid handle errors on profile save
+- **security**: harden LiveKit egress S3 receiver
+- **jams**: stop orphan LiveKit rooms from staying Live
+- **i18n**: move event location labels into locale file
 - **form**: update HeaderAvatarInput to handle null values for header and avatar changes
+
+### Documentation
+
+- update frontend docs from Svelte to React
+- **db**: prefer Drizzle / SQL-native for new features
+- **architecture**: document realtime channel stack
+- align migration guidance with Postgres ADR
 
 ### Chores
 
