@@ -38,15 +38,17 @@ export function ThreadPost({
         <ProfileLink profile={post.profile}>
           <Avatar profile={post.profile} size={3} />
         </ProfileLink>
+        {/* Connectors run in the row's `p-2` gutter so they meet the next / previous
+            avatar's edge instead of crossing the avatar itself. */}
         {isParent ? (
-          <div className="bg-surface-300 absolute left-6 top-12 h-[calc(100%-2rem)] w-px" />
+          <div className="bg-border-2 absolute left-6 top-12 h-[calc(100%-2.5rem)] w-px" />
         ) : null}
         {isChild ? (
-          <div className="bg-surface-300 absolute left-6 top-0 h-8 w-px" />
+          <div className="bg-border-2 absolute -top-2 left-6 h-2 w-px" />
         ) : null}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="bg-surface-100 rounded-xl p-2">
+        <div className="bg-surface rounded-xl p-2">
           <div className="mb-2 flex items-start justify-between gap-2">
             <div className="min-w-0">
               <ProfileLink

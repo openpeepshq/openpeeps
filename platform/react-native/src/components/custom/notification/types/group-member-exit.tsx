@@ -29,7 +29,7 @@ export const GroupMemberExit: React.FC<NotificationTypeProps> = ({
       showProfile={false}>
       <View className="w-full">
         <View className="flex items-center gap-x-4">
-          <UsersIcon className="text-surface-500 h-8 w-8" />
+          <UsersIcon className="text-muted-foreground h-8 w-8" />
           <ProfileAvatar profile={profile} className="w-16 h-16" />
         </View>
         <View className="mt-2">

@@ -49,7 +49,9 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
   >(null);
 
   const bookmarkedIdsQuery = openpeepsApi.useCurrentProfileBookmarkedIds();
-  const followProfile = openpeepsApi.followProfileAction({ id: post.profile.id });
+  const followProfile = openpeepsApi.followProfileAction({
+    id: post.profile.id,
+  });
   const unfollowProfile = openpeepsApi.unfollowProfileAction({
     id: post.profile.id,
   });
@@ -84,12 +86,8 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
 
   const canDeletePost = useMemo(
     () =>
-      checkPostCapabilities(
-        authData,
-        ['core-posts-delete'],
-        post,
-        capabilities,
-      ).success,
+      checkPostCapabilities(authData, ['core-posts-delete'], post, capabilities)
+        .success,
     [authData, post, capabilities],
   );
 
@@ -119,13 +117,15 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
   return (
     <>
       <PopupMenu
-        className="hover:bg-surface-200 h-max rounded-full p-2"
+        className="h-max rounded-lg p-2 hover:opacity-80"
         title={t('posts.menu.title', { defaultValue: 'Post menu' })}
       >
         {postProfile.id !== me.id ? (
           isFollowing ? (
             <PopupMenuButton
-              title={t('profile.actions.unfollow', { defaultValue: 'Unfollow' })}
+              title={t('profile.actions.unfollow', {
+                defaultValue: 'Unfollow',
+              })}
               text={t('profile.actions.unfollow', { defaultValue: 'Unfollow' })}
               action={() => unfollowProfile(undefined)}
             />
@@ -151,8 +151,12 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
         />
         {isBookmarked ? (
           <PopupMenuButton
-            title={t('posts.unbookmark.title', { defaultValue: 'Remove bookmark' })}
-            text={t('posts.unbookmark.title', { defaultValue: 'Remove bookmark' })}
+            title={t('posts.unbookmark.title', {
+              defaultValue: 'Remove bookmark',
+            })}
+            text={t('posts.unbookmark.title', {
+              defaultValue: 'Remove bookmark',
+            })}
             icon={BookmarkMinus}
             action={async () => {
               await unbookmarkPost(undefined);
@@ -172,12 +176,16 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
           <PopupMenuButton
             title={
               pinnedGlobally
-                ? t('posts.unpinGlobally.title', { defaultValue: 'Unpin globally' })
+                ? t('posts.unpinGlobally.title', {
+                    defaultValue: 'Unpin globally',
+                  })
                 : t('posts.pinGlobally.title', { defaultValue: 'Pin globally' })
             }
             text={
               pinnedGlobally
-                ? t('posts.unpinGlobally.title', { defaultValue: 'Unpin globally' })
+                ? t('posts.unpinGlobally.title', {
+                    defaultValue: 'Unpin globally',
+                  })
                 : t('posts.pinGlobally.title', { defaultValue: 'Pin globally' })
             }
             icon={Pin}
@@ -189,17 +197,23 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
         {canPinToGroup && post.group ? (
           pinnedInGroup ? (
             <PopupMenuButton
-              title={t('posts.unpinInGroup.title', { defaultValue: 'Unpin in group' })}
-              text={t('posts.unpinInGroup.title', { defaultValue: 'Unpin in group' })}
+              title={t('posts.unpinInGroup.title', {
+                defaultValue: 'Unpin in group',
+              })}
+              text={t('posts.unpinInGroup.title', {
+                defaultValue: 'Unpin in group',
+              })}
               icon={Pin}
-              action={() =>
-                updateGroup({ ...post.group!, pinnedPostId: '' })
-              }
+              action={() => updateGroup({ ...post.group!, pinnedPostId: '' })}
             />
           ) : (
             <PopupMenuButton
-              title={t('posts.pinInGroup.title', { defaultValue: 'Pin in group' })}
-              text={t('posts.pinInGroup.title', { defaultValue: 'Pin in group' })}
+              title={t('posts.pinInGroup.title', {
+                defaultValue: 'Pin in group',
+              })}
+              text={t('posts.pinInGroup.title', {
+                defaultValue: 'Pin in group',
+              })}
               icon={Pin}
               action={() =>
                 updateGroup({ ...post.group!, pinnedPostId: post.id })
@@ -230,8 +244,12 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
         {canReportPost ? (
           <>
             <PopupMenuButton
-              title={t('common.actions.reportPost', { defaultValue: 'Report post' })}
-              text={t('common.actions.reportPost', { defaultValue: 'Report post' })}
+              title={t('common.actions.reportPost', {
+                defaultValue: 'Report post',
+              })}
+              text={t('common.actions.reportPost', {
+                defaultValue: 'Report post',
+              })}
               icon={FlagIcon}
               danger
               action={() => setModal('reportPost')}

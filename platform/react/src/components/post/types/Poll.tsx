@@ -1,5 +1,6 @@
 import type { PublicPost } from '@openpeepshq/common/types';
 import { PostMarkdown } from '../Markdown';
+import { OPENPEEPS_POST_CAPTION_CLASS } from '../../markdown/classes';
 import { Attachments } from '../pieces/Attachments';
 import { PollContent } from '../pieces/PollContent';
 
@@ -26,9 +27,8 @@ export function FeedPoll({ post, interactive = true }: FeedPollProps) {
         <PostMarkdown
           source={data.content}
           mentions={post.mentions}
-          linkPreviewMode={
-            data.attachments?.length ? 'none' : 'append'
-          }
+          className={OPENPEEPS_POST_CAPTION_CLASS}
+          linkPreviewMode={data.attachments?.length ? 'none' : 'append'}
         />
       ) : null}
       <Attachments post={post} />
@@ -40,7 +40,7 @@ export function FeedPoll({ post, interactive = true }: FeedPollProps) {
             {data.options.map((opt, idx) => (
               <li
                 key={idx}
-                className="rounded-md border border-border px-3 py-2 text-sm"
+                className="border-border rounded-md border px-3 py-2 text-sm"
               >
                 {opt.content}
               </li>

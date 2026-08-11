@@ -88,7 +88,7 @@ function JamParticipantConferenceInner() {
     setDrawer((current) => (current === next ? null : next));
 
   return (
-    <div className="bg-surface-50 relative flex h-dvh w-screen flex-col overflow-hidden">
+    <div className="bg-background relative flex h-dvh w-screen flex-col overflow-hidden">
       <JamNetworkQuality />
       <JamRecordingIndicator />
       <div className="relative flex w-full flex-1 overflow-hidden p-2">
@@ -119,7 +119,7 @@ function JamParticipantConferenceInner() {
           />
         </div>
       </div>
-      <div className="bg-surface-50 w-full flex-shrink-0 md:h-20 md:p-2">
+      <div className="bg-background w-full flex-shrink-0 md:h-20 md:p-2">
         <JamFooter
           chatOpen={drawer === 'chat'}
           onToggleChat={() => toggleDrawer('chat')}

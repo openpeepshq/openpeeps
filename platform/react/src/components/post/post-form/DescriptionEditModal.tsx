@@ -65,10 +65,10 @@ export function DescriptionEditModal({
         </div>
 
         <DialogFooter>
-          <Button variant="variant-ringed-primary" action={onClose}>
+          <Button variant="outline" action={onClose}>
             {t('common.back', { defaultValue: 'Back' })}
           </Button>
-          <Button variant="variant-filled-primary" action={saveAndClose}>
+          <Button variant="default" action={saveAndClose}>
             {t('common.done', { defaultValue: 'Done' })}
           </Button>
         </DialogFooter>

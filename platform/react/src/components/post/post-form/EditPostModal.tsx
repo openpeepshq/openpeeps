@@ -161,11 +161,11 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
         {error ? <p className="text-error text-sm">{error}</p> : null}
 
         <DialogFooter>
-          <Button variant="variant-ghost-primary" action={onClose}>
+          <Button variant="ghost" action={onClose}>
             {t('common.cancel', { defaultValue: 'Cancel' })}
           </Button>
           <Button
-            variant="variant-filled-primary"
+            variant="default"
             action={publish}
             disabled={submitting || !canSave}
           >

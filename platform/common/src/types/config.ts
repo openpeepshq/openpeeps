@@ -291,6 +291,10 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       background: z.string().optional(),
       light: z.object({
         primaryHex: z.string(),
+        secondaryHex: z.string().optional(),
+        fontFamily: z.string().optional(),
+        buttonRadius: z.string().optional(),
+        radius: z.string().optional(),
         logoSmall: z.string().optional(),
         defaultProfileAvatar: z.string().optional(),
         defaultGroupAvatar: z.string().optional(),
@@ -299,6 +303,10 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       }),
       dark: z.object({
         primaryHex: z.string(),
+        secondaryHex: z.string().optional(),
+        fontFamily: z.string().optional(),
+        buttonRadius: z.string().optional(),
+        radius: z.string().optional(),
         logoSmall: z.string().optional(),
         defaultProfileAvatar: z.string().optional(),
         defaultGroupAvatar: z.string().optional(),

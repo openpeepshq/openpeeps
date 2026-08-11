@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
-import { setTheme, themeStyleString } from '@openpeepshq/react-ui';
+import { applyThemeOverrides, setTheme } from '@openpeepshq/react-ui';
 import { getTheme } from '@openpeepshq/common';
 import { useServerInfo } from '../server-data';
 import { useCurrentProfileSettings } from './IdentityContext';
@@ -9,10 +9,9 @@ export interface OpenpeepsThemeProviderProps {
 }
 
 /**
- * Translation of @openpeepshq/svelte/components/layout/OpenpeepsThemeProvider.
- * Reads the theme from server config + profile settings, applies the matching
- * data-theme on the body, and injects a `<style>` tag with primary-color
- * overrides into the document head.
+ * Reads theme from server config + profile settings, applies `data-theme` on
+ * the body, and injects CSS variable overrides (primary/secondary, font,
+ * radii, background).
  */
 export function OpenpeepsThemeProvider({
   children,
@@ -27,18 +26,20 @@ export function OpenpeepsThemeProvider({
     if (typeof document === 'undefined') return;
 
     const styleId = '__openpeeps_theme__';
-    const css = themeStyleString(
-      base,
-      userTheme.primaryHex,
-      userTheme.background ?? '',
-    );
+    const css = applyThemeOverrides(base, {
+      primaryHex: userTheme.primaryHex,
+      secondaryHex: userTheme.secondaryHex,
+      fontFamily: userTheme.fontFamily,
+      buttonRadius: userTheme.buttonRadius,
+      radius: userTheme.radius,
+      background: userTheme.background ?? '',
+    });
     const wrapper = document.createElement('div');
     wrapper.innerHTML = css;
     const styleEl = wrapper.firstElementChild as HTMLStyleElement | null;
     if (!styleEl) return;
     styleEl.id = styleId;
-    const previous = document.getElementById(styleId);
-    previous?.remove();
+    document.getElementById(styleId)?.remove();
     document.head.appendChild(styleEl);
 
     const themeColorMeta =
@@ -57,7 +58,16 @@ export function OpenpeepsThemeProvider({
     return () => {
       styleEl.remove();
     };
-  }, [base, userTheme.primaryHex, userTheme.background, serverInfo]);
+  }, [
+    base,
+    userTheme.primaryHex,
+    userTheme.secondaryHex,
+    userTheme.fontFamily,
+    userTheme.buttonRadius,
+    userTheme.radius,
+    userTheme.background,
+    serverInfo,
+  ]);
 
   return <>{children}</>;
 }

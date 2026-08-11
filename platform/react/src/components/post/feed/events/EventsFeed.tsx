@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Rss } from 'lucide-react';
-import type { PublicPost, SuccessFailureResponse } from '@openpeepshq/common/types';
+import type {
+  PublicPost,
+  SuccessFailureResponse,
+} from '@openpeepshq/common/types';
 import type {
   InfiniteData,
   UseInfiniteQueryResult,
@@ -52,16 +55,16 @@ export function EventsFeed({ query }: EventsFeedProps) {
 
   if (query.isLoading) {
     return (
-      <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
         <LoadingSpinner />
-        </div>
+      </div>
     );
   }
 
   if (posts.length === 0) {
     return (
       <div className="flex h-96 w-full flex-col items-center justify-center gap-y-4">
-        <Rss className="text-surface-300 size-20" />
+        <Rss className="text-muted-foreground size-20" />
         <p className="text-xl">
           {t('feed.empty', { defaultValue: 'No events yet.' })}
         </p>
@@ -76,7 +79,7 @@ export function EventsFeed({ query }: EventsFeedProps) {
       ))}
       <div ref={sentinelRef} aria-hidden="true" className="col-span-full h-8" />
       {query.isFetchingNextPage ? (
-        <div className="col-span-full flex justify-center py-4 text-sm text-muted-foreground">
+        <div className="text-muted-foreground col-span-full flex justify-center py-4 text-sm">
           <LoadingSpinner />
         </div>
       ) : null}

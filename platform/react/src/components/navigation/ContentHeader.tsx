@@ -22,7 +22,7 @@ export function ContentHeader() {
       : null;
 
   return (
-    <div className="bg-card sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b p-4">
+    <div className="bg-background sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b p-4">
       <div className="flex min-w-0 items-center gap-2">
         <button
           type="button"

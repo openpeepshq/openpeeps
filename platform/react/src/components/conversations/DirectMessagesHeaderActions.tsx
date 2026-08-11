@@ -9,7 +9,7 @@ export function DirectMessagesHeaderActions() {
 
   return (
     <Button
-      variant="variant-filled-primary"
+      variant="default"
       title={t('conversations.newMessage', { defaultValue: 'New message' })}
       action={() => openCreateConversation()}
     >

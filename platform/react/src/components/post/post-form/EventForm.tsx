@@ -119,7 +119,7 @@ export function EventForm({
           />
         </Label>
 
-        <p className="text-surface-500 text-sm">
+        <p className="text-muted-foreground text-sm">
           {t('events.form.description', {
             defaultValue: 'Give your event a clear, descriptive name',
           })}
@@ -283,7 +283,7 @@ export function EventForm({
             {event.maxAttendees != null ? (
               <button
                 type="button"
-                className="op-input-group-shim hover:bg-muted/80"
+                className="op-input-group-shim hover:bg-surface/80"
                 title={t('events.form.clearMaxAttendees', {
                   defaultValue: 'Remove capacity limit',
                 })}

@@ -248,7 +248,7 @@ export const DocumentPickerSheet = forwardRef<
     if (selectedDocs.length === 0) {
       return (
         <View className="flex-1 items-center justify-center py-12 px-4 border-2 border-dashed border-muted rounded-xl mx-4 my-2">
-          <View className="bg-muted p-4 rounded-full mb-3">
+          <View className="bg-surface p-4 rounded-full mb-3">
             <FileTextIcon size={32} className="text-muted-foreground" />
           </View>
           <Button variant="outline" onPress={handlePickDocument}>
@@ -267,12 +267,12 @@ export const DocumentPickerSheet = forwardRef<
         {selectedDocs.map((doc, index) => (
           <View
             key={`${doc.uri}-${index}`}
-            className="flex-row items-center justify-between bg-card p-3 rounded-lg mb-2 border border-border">
+            className="flex-row items-center justify-between bg-surface p-3 rounded-lg mb-2 border border-border">
             <TouchableOpacity
               onPress={() => openDescriptionEditor(doc)}
               activeOpacity={0.7}
               className="flex-row items-center flex-1 mr-2">
-              <View className="bg-muted w-10 h-10 items-center justify-center rounded-md mr-3">
+              <View className="bg-surface w-10 h-10 items-center justify-center rounded-md mr-3">
                 <FileIcon size={20} className="text-foreground" />
               </View>
               <View className="flex-1">
@@ -300,7 +300,7 @@ export const DocumentPickerSheet = forwardRef<
                 onPress={() => handlePreview(doc)}
                 accessibilityRole="button"
                 accessibilityLabel={t('form.preview')}
-                className="p-2 bg-muted/50 rounded-full">
+                className="p-2 bg-surface/50 rounded-full">
                 <EyeOnIcon size={16} className="text-muted-foreground" />
               </TouchableOpacity>
               <TouchableOpacity
@@ -309,7 +309,7 @@ export const DocumentPickerSheet = forwardRef<
                 accessibilityLabel={t('posts.attachments.deleteTitle', {
                   defaultValue: 'Delete attachment',
                 })}
-                className="p-2 bg-muted/50 rounded-full">
+                className="p-2 bg-surface/50 rounded-full">
                 <XIcon size={16} className="text-muted-foreground" />
               </TouchableOpacity>
             </View>

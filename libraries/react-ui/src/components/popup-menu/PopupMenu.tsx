@@ -6,8 +6,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { variantClasses } from '@/lib/variants';
-import type { IconType, Variant } from '@/types';
+import { buttonVariants, type StyledButtonVariant } from '@/lib/buttonVariants';
+import type { IconType } from '@/types';
 
 export type PopupPlacement =
   | 'top'
@@ -24,7 +24,7 @@ export type PopupPlacement =
   | 'left-end';
 
 export interface PopupMenuProps {
-  variant?: Variant;
+  variant?: StyledButtonVariant;
   className?: string;
   icon?: IconType;
   iconSize?: number;
@@ -65,8 +65,8 @@ export function PopupMenu({
           type="button"
           title={title}
           className={cn(
-            'inline-flex items-center justify-center gap-1 rounded-full',
-            variantClasses(variant),
+            'rounded-button inline-flex items-center justify-center gap-1',
+            variant && buttonVariants({ variant }),
             className,
           )}
           onClick={(e) => {
@@ -94,7 +94,10 @@ export function PopupMenu({
 
 function parsePlacement(
   placement: PopupPlacement,
-): [side: 'top' | 'right' | 'bottom' | 'left', align: 'start' | 'center' | 'end'] {
+): [
+  side: 'top' | 'right' | 'bottom' | 'left',
+  align: 'start' | 'center' | 'end',
+] {
   const [side, anchor] = placement.split('-') as [
     'top' | 'right' | 'bottom' | 'left',
     'start' | 'end' | undefined,

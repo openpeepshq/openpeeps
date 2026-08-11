@@ -215,7 +215,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                       resizeMode="cover"
                     />
                   ) : (
-                    <View className="w-full h-full rounded-md absolute top-0 bg-muted" />
+                    <View className="w-full h-full rounded-md absolute top-0 bg-surface" />
                   )}
                 </View>
                 <View className="z-10 absolute -bottom-10 mt-4 left-4">

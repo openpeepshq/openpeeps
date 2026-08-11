@@ -74,7 +74,7 @@ export function EventRsvpButton({ post }: EventRsvpButtonProps) {
     return (
       <div className="w-full">
         <Button
-          variant="variant-ringed-secondary"
+          variant="outline"
           className="text-error w-full"
           action={() => respond('no')}
         >
@@ -102,7 +102,7 @@ export function EventRsvpButton({ post }: EventRsvpButtonProps) {
     <div className="mt-4 w-full">
       <div className="flex w-full gap-x-2">
         <Button
-          variant="variant-filled-primary"
+          variant="default"
           className="w-[70%]"
           disabled={full}
           action={() => respond('yes')}
@@ -112,14 +112,11 @@ export function EventRsvpButton({ post }: EventRsvpButtonProps) {
             : t('posts.rsvp.register', { defaultValue: 'Register' })}
         </Button>
         {!capacityEvent ? (
-          <Button
-            variant="variant-ghost-primary"
-            action={() => respond('tentative')}
-          >
+          <Button variant="ghost" action={() => respond('tentative')}>
             {t('posts.rsvp.maybe', { defaultValue: 'Maybe' })}
           </Button>
         ) : null}
-        <Button variant="variant-ringed-primary" action={() => respond('no')}>
+        <Button variant="outline" action={() => respond('no')}>
           {t('posts.rsvp.no', { defaultValue: 'No' })}
         </Button>
       </div>

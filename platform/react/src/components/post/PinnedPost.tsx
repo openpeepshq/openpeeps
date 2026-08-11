@@ -19,12 +19,16 @@ export function PinnedPost({ pinnedPostId, inGroup = false }: PinnedPostProps) {
   const href = `/posts/${post.repost ? post.repost.id : post.id}`;
 
   return (
-    <a href={href} className="bg-surface-300 block">
+    <a href={href} className="bg-surface block">
       <div className="px-5 pt-3 text-sm">
         <Pin className="mr-1 inline-block size-4" />
         {t('feed.pinned', { defaultValue: 'Pinned post' })}
       </div>
-      <FeedPost post={post} inGroup={inGroup} />
+      <FeedPost
+        post={post}
+        inGroup={inGroup}
+        className="bg-surface border-b-0"
+      />
     </a>
   );
 }

@@ -205,7 +205,7 @@ export const Conversation = ({ route, navigation }: ConversationProps) => {
                   onPress={handleSendMessage}
                   disabled={isSending}
                   className={`p-2 rounded-full ${
-                    content.trim() ? 'bg-primary' : 'bg-muted'
+                    content.trim() ? 'bg-primary' : 'bg-surface'
                   }`}>
                   {isSending ? (
                     <ActivityIndicator size="small" />

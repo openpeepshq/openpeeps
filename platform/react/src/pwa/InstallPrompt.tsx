@@ -26,12 +26,12 @@ export function InstallPrompt({
     <div
       className={
         className ??
-        'border-border bg-card flex w-full items-center justify-between gap-3 rounded border p-3 text-sm shadow-sm'
+        'border-border bg-surface flex w-full items-center justify-between gap-3 rounded border p-3 text-sm shadow-sm'
       }
     >
       <div>{message}</div>
       <Button
-        variant="variant-filled-primary"
+        variant="default"
         action={async () => {
           await promptInstall();
         }}

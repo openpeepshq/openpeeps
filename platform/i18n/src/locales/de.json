@@ -767,8 +767,6 @@
         },
         "lobby": {
             "readyTitle": "Bereit zum Starten?",
-            "exitLobbyBody": "Möchten Sie die Lobby wirklich verlassen?",
-            "exitLobbyConfirm": "Jam verlassen",
             "guestIntro": "Geben Sie unten Ihre Daten ein, um zum Warteraum zu gelangen",
             "guestFullNameLabel": "Vollständiger Name",
             "guestFullNamePlaceholder": "Vollständiger Name",

@@ -1,19 +1,27 @@
 import { cn } from '@/lib/utils';
-import { variantClasses } from '@/lib/variants';
-import type { Variant } from '@/types';
+import { badgeVariants } from '@/components/ui/badge';
+
+/** Badge surfaces aligned with theme badge tokens. */
+export type BadgeVariant =
+  | 'default'
+  | 'secondary'
+  | 'destructive'
+  | 'outline'
+  | 'success'
+  | 'warning';
 
 export interface BadgeProps {
   status: string;
-  variant?: Variant;
+  variant?: BadgeVariant;
   className?: string;
 }
 
-export function Badge({
+export const Badge = ({
   status,
-  variant = 'variant-filled-primary',
+  variant = 'default',
   className,
-}: BadgeProps) {
-  return (
-    <span className={cn('op-badge', variantClasses(variant), className)}>{status}</span>
-  );
-}
+}: BadgeProps) => (
+  <span className={cn(badgeVariants({ variant }), 'op-badge', className)}>
+    {status}
+  </span>
+);

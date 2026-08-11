@@ -2,11 +2,7 @@ import { useState } from 'react';
 import { Copy, Flag, MessageSquareText } from 'lucide-react';
 import type { PublicProfile } from '@openpeepshq/common/types';
 import { canCreatePost } from '@openpeepshq/common/lib';
-import {
-  Button,
-  PopupMenu,
-  PopupMenuButton,
-} from '@openpeepshq/react-ui';
+import { Button, PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useAuthData, useCurrentProfile } from '../layout/IdentityContext';
 import { useCreateNewConversation } from '../conversations/CreateNewConversationContext';
@@ -35,10 +31,7 @@ export function ProfilePageAction({
           covering the profile name (mirrors the Svelte layout). */}
       <div className="mt-2 flex h-6 items-center justify-end gap-x-2 pr-2 pt-3">
         {isCurrentProfile ? (
-          <Button
-            variant="variant-ringed-surface"
-            action="/settings/public-profile"
-          >
+          <Button variant="outline" action="/settings/public-profile">
             {t('profile.edit.title', { defaultValue: 'Edit profile' })}
           </Button>
         ) : me ? (
@@ -80,7 +73,7 @@ export function ProfilePageAction({
 
             {canCreatePost(authData, 'note', 'direct') ? (
               <Button
-                variant="variant-ringed-surface"
+                variant="outline"
                 title={t('conversations.newMessage', {
                   defaultValue: 'New message',
                 })}

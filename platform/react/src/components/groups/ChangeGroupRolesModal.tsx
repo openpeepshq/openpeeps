@@ -99,14 +99,10 @@ export function ChangeGroupRolesModal({
           </p>
         ) : null}
         <DialogFooter>
-          <Button variant="variant-ringed-primary" action={onClose}>
+          <Button variant="outline" action={onClose}>
             {t('common.cancel', { defaultValue: 'Cancel' })}
           </Button>
-          <Button
-            variant="variant-filled-primary"
-            action={submit}
-            disabled={submitting}
-          >
+          <Button variant="default" action={submit} disabled={submitting}>
             {t('groups.changeRoles.confirm', { defaultValue: 'Save roles' })}
           </Button>
         </DialogFooter>

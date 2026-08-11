@@ -17,7 +17,18 @@ import {
   isCapacityEvent,
   profileName,
 } from '@openpeepshq/common/lib';
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, LoadingSpinner, PopupMenu, PopupMenuButton, UpdatingDate } from '@openpeepshq/react-ui';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  LoadingSpinner,
+  PopupMenu,
+  PopupMenuButton,
+  UpdatingDate,
+} from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
@@ -111,11 +122,11 @@ export function FullEvent({ post }: FullEventProps) {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex gap-x-4">
-            <span className="bg-surface-200 mb-3 inline-block rounded-lg px-3 py-1 text-sm">
+            <span className="bg-surface-2 mb-3 inline-block rounded-lg px-3 py-1 text-sm">
               {eventScope}
             </span>
             {slotsLeft !== null ? (
-              <span className="bg-surface-200 mb-3 inline-block rounded-lg px-3 py-1 text-sm">
+              <span className="bg-surface-2 mb-3 inline-block rounded-lg px-3 py-1 text-sm">
                 {slotsLeft <= 0
                   ? t('events.noSpotsAvailable', {
                       defaultValue: 'No spots available',
@@ -243,7 +254,7 @@ export function FullEvent({ post }: FullEventProps) {
 
       {event.jam && (myEvent || iAmModerator) ? (
         <Button
-          variant="variant-filled-primary"
+          variant="default"
           className="mt-2 w-full"
           action={`/events/${post.id}/jam`}
         >
@@ -340,7 +351,7 @@ export function FullEvent({ post }: FullEventProps) {
               {canManageRsvps && rsvp.profile.id !== post.profile.id ? (
                 rsvp.response === 'removed' ? (
                   <Button
-                    variant="variant-ringed-primary"
+                    variant="outline"
                     action={() =>
                       rsvpManage(
                         { response: 'yes' },
@@ -354,7 +365,7 @@ export function FullEvent({ post }: FullEventProps) {
                   </Button>
                 ) : (
                   <Button
-                    variant="variant-ringed-error"
+                    variant="outline"
                     action={() =>
                       rsvpManage(
                         { response: 'removed' },
@@ -504,7 +515,7 @@ function JamRecordingItem({
             </p>
           ) : (
             <Button
-              variant="variant-ringed-primary"
+              variant="outline"
               className="self-start"
               action={async () => {
                 try {
@@ -534,7 +545,7 @@ function JamRecordingItem({
         recording.status !== 'requested' ? (
           <>
             <Button
-              variant="variant-ringed-error"
+              variant="outline"
               className="self-start"
               action={() => setConfirmOpen(true)}
             >
@@ -562,12 +573,12 @@ function JamRecordingItem({
                 </p>
                 <DialogFooter>
                   <Button
-                    variant="variant-ringed-surface"
+                    variant="outline"
                     action={() => setConfirmOpen(false)}
                   >
                     {t('posts.deleteModal.cancel', { defaultValue: 'Cancel' })}
                   </Button>
-                  <Button variant="variant-filled-error" action={handleDelete}>
+                  <Button variant="destructive" action={handleDelete}>
                     {t('posts.deleteModal.delete', { defaultValue: 'Delete' })}
                   </Button>
                 </DialogFooter>

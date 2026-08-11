@@ -35,7 +35,7 @@ export function GalleryModal({
         <button
           type="button"
           title={t('posts.gallery.previous', { defaultValue: 'Previous' })}
-          className="absolute left-2 top-1/2 z-50 -translate-y-1/2 rounded-md bg-white/15 p-4 text-xl font-bold shadow-xl md:left-4"
+          className="rounded-button absolute left-2 top-1/2 z-50 -translate-y-1/2 bg-white/15 p-4 text-xl font-bold shadow-xl md:left-4"
           onClick={prev}
         >
           ←
@@ -43,26 +43,29 @@ export function GalleryModal({
       ) : null}
 
       <div className="max-h-[90vh] max-w-[90vw] overflow-auto p-4">
-        {attachment.type === 'video' || attachment.meta?.mimetype?.startsWith('video/') ? (
+        {attachment.type === 'video' ||
+        attachment.meta?.mimetype?.startsWith('video/') ? (
           <VideoPlayer
             key={attachment.url}
             attachment={attachment}
             className="max-h-[85vh] max-w-full"
           />
-        ) : attachment.type === 'audio' || attachment.meta?.mimetype?.startsWith('audio/') ? (
+        ) : attachment.type === 'audio' ||
+          attachment.meta?.mimetype?.startsWith('audio/') ? (
           <audio
             src={attachment.url}
             controls
             className="w-full min-w-[280px]"
           />
-        ) : attachment.type === 'image' || attachment.meta?.mimetype?.startsWith('image/') ? (
+        ) : attachment.type === 'image' ||
+          attachment.meta?.mimetype?.startsWith('image/') ? (
           <img
             src={attachment.url ?? attachment.previewUrl ?? ''}
             alt={attachment.description ?? ''}
             className="max-h-[85vh] max-w-full object-contain"
           />
         ) : (
-          <div className="bg-card space-y-3 rounded-md p-6 text-center">
+          <div className="bg-surface space-y-3 rounded-md p-6 text-center">
             <p className="font-medium">
               {attachment.filename ?? attachment.description ?? 'Document'}
             </p>
@@ -86,7 +89,7 @@ export function GalleryModal({
         <button
           type="button"
           title={t('posts.gallery.next', { defaultValue: 'Next' })}
-          className="absolute right-2 top-1/2 z-50 -translate-y-1/2 rounded-md bg-white/15 p-4 text-xl font-bold shadow-xl md:right-4"
+          className="rounded-button absolute right-2 top-1/2 z-50 -translate-y-1/2 bg-white/15 p-4 text-xl font-bold shadow-xl md:right-4"
           onClick={next}
         >
           →
@@ -96,7 +99,7 @@ export function GalleryModal({
       <button
         type="button"
         title={t('posts.gallery.close', { defaultValue: 'Close' })}
-        className="fixed right-4 top-4 z-50 rounded-md bg-primary px-3 py-2 text-lg font-bold text-primary-foreground shadow-xl"
+        className="rounded-button bg-primary text-primary-foreground fixed right-4 top-4 z-50 px-3 py-2 text-lg font-bold shadow-xl"
         onClick={onClose}
       >
         ×

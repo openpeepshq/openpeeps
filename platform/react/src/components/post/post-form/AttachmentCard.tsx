@@ -191,7 +191,7 @@ export function AttachmentCard({
       {showOverlay ? (
         <div
           data-testid="attachment-progress"
-          className="bg-surface-700 absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 text-white"
+          className="bg-foreground absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 text-white"
         >
           <svg
             viewBox="0 0 36 36"
@@ -247,7 +247,7 @@ export function AttachmentCard({
             title={t('posts.attachments.deleteTitle', {
               defaultValue: 'Delete attachment',
             })}
-            className="bg-surface-50 text-error-700 hover:bg-surface-200 rounded-full p-3"
+            className="bg-background text-destructive hover:bg-surface rounded-full p-3"
           >
             <X className="size-8" />
           </button>
@@ -255,7 +255,7 @@ export function AttachmentCard({
       ) : null}
 
       {showOverlay || failed ? (
-        <div className="bg-surface-200 h-full w-full" />
+        <div className="bg-surface-2 h-full w-full" />
       ) : isImage || isVideo ? (
         <div className="relative h-full w-full">
           <img

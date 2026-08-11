@@ -6,13 +6,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { variantClasses } from '@/lib/variants';
-import type { ButtonAction, IconType, Variant } from '@/types';
+import { buttonVariants, type StyledButtonVariant } from '@/lib/buttonVariants';
+import type { ButtonAction, IconType } from '@/types';
 import type { PopupPlacement } from './PopupMenu';
 
 export interface SplitButtonMenuProps {
   /** Variant applied to the primary (circular) button. */
-  variant?: Variant;
+  variant?: StyledButtonVariant;
   /** Click handler for the primary button (separate from opening the menu). */
   action?: ButtonAction;
   title?: string;
@@ -53,7 +53,6 @@ export function SplitButtonMenu({
   disabled = false,
 }: SplitButtonMenuProps) {
   const [side, align] = parsePlacement(placement);
-  const variantClass = variantClasses(variant);
 
   const runAction = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -70,8 +69,8 @@ export function SplitButtonMenu({
         disabled={disabled}
         onClick={runAction}
         className={cn(
-          'flex size-10 items-center justify-center rounded-full transition-opacity disabled:pointer-events-none disabled:opacity-50',
-          variantClass,
+          buttonVariants({ variant: variant ?? 'secondary', size: 'icon' }),
+          'rounded-button size-10 transition-opacity',
         )}
       >
         {children}
@@ -82,7 +81,7 @@ export function SplitButtonMenu({
           <button
             type="button"
             title={menuTitle}
-            className="hover:bg-muted -ml-1 flex h-10 items-center justify-center rounded-r-full pl-0.5 pr-1.5 text-foreground transition-colors"
+            className="hover:bg-surface rounded-r-button text-foreground -ml-1 flex h-10 items-center justify-center pl-0.5 pr-1.5 transition-colors"
             onClick={(e) => e.stopPropagation()}
           >
             <ChevronIcon size={chevronSize} />

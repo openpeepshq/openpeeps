@@ -144,7 +144,7 @@ export function CreateNewJamModal({ onClose }: CreateNewJamModalProps) {
       const created = await createPost(payload);
       newPostStores.resetNewJamState();
       onClose();
-      navigate(`/events/${created.id}/jam`);
+      navigate({ type: 'jam', id: created.id, view: 'event' });
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -156,7 +156,7 @@ export function CreateNewJamModal({ onClose }: CreateNewJamModalProps) {
     newPostStores.event = postData;
     newPostStores.resetNewJamState();
     onClose();
-    navigate('/events/new');
+    navigate({ type: 'events', view: 'new' });
   };
 
   return (
@@ -184,7 +184,7 @@ export function CreateNewJamModal({ onClose }: CreateNewJamModalProps) {
               </div>
               <button
                 type="button"
-                className="hover:bg-surface-100 flex w-full items-center gap-2 rounded-md border p-3 text-left text-sm"
+                className="hover:bg-surface rounded-button flex w-full items-center gap-2 border p-3 text-left text-sm"
                 onClick={() => setAudienceOpen(true)}
               >
                 <span className="flex-1">{visibilityDescription}</span>
@@ -255,12 +255,12 @@ export function CreateNewJamModal({ onClose }: CreateNewJamModalProps) {
 
           <DialogFooter>
             {isAdmin ? (
-              <Button variant="variant-ringed-primary" action={handleSchedule}>
+              <Button variant="outline" action={handleSchedule}>
                 {t('jams.createFlow.schedule')}
               </Button>
             ) : null}
             <Button
-              variant="variant-filled-primary"
+              variant="default"
               disabled={submitting}
               action={handleCreate}
             >

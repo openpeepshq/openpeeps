@@ -147,13 +147,13 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
       <View className="w-full flex-row items-center gap-x-2 py-4">
         <View className="flex-1">
           <View className="flex flex-row gap-x-4">
-            <View className="px-3 py-1 bg-muted rounded-lg mb-3">
+            <View className="px-3 py-1 bg-surface rounded-lg mb-3">
               <ThemedText>
                 {eventScope}
               </ThemedText>
             </View>
             {slotsLeft !== null ? (
-              <View className="px-3 py-1 bg-muted rounded-lg mb-3">
+              <View className="px-3 py-1 bg-surface rounded-lg mb-3">
                 <ThemedText>
                   {slotsLeft <= 0
                     ? t('events.noSpotsAvailable')

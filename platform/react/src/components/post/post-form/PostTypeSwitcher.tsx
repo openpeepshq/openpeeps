@@ -47,7 +47,7 @@ export function PostTypeSwitcher({
       {type !== 'note' ? (
         <Button
           compact
-          variant="variant-ghost-primary"
+          variant="ghost"
           title={t('posts.switcher.note', { defaultValue: 'Write Note' })}
           action={() => onSelect('note')}
         >
@@ -57,7 +57,7 @@ export function PostTypeSwitcher({
       {type !== 'question' ? (
         <Button
           compact
-          variant="variant-ghost-primary"
+          variant="ghost"
           title={t('posts.switcher.poll', { defaultValue: 'Add Poll' })}
           action={() => onSelect('question')}
           data-testid="posts-composer-poll-type"
@@ -68,7 +68,7 @@ export function PostTypeSwitcher({
       {showEventType && isOwner ? (
         <Button
           compact
-          variant="variant-ghost-primary"
+          variant="ghost"
           title={t('posts.switcher.event', { defaultValue: 'Create an Event' })}
           action={() => goto('/events/new')}
         >
@@ -78,7 +78,7 @@ export function PostTypeSwitcher({
       {showArticleType ? (
         <Button
           compact
-          variant="variant-ghost-primary"
+          variant="ghost"
           title={t('posts.switcher.article', { defaultValue: 'Write Article' })}
           action={() => goto('/articles/new')}
         >

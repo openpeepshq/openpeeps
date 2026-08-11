@@ -43,7 +43,7 @@ export function JamGuestForm() {
 
   return (
     <div className="mx-auto flex h-full w-full max-w-md items-center justify-center p-4">
-      <div className="bg-card w-full space-y-4 rounded-md border p-6">
+      <div className="bg-surface w-full space-y-4 rounded-md border p-6">
         <div className="text-center">
           <h2 className="text-xl font-semibold">
             {jamEvent.name} — {profileName(jamPost.profile)}
@@ -112,7 +112,7 @@ export function JamGuestForm() {
         ) : null}
 
         <Button
-          variant="variant-filled-primary"
+          variant="default"
           action={submit}
           disabled={
             submitting ||

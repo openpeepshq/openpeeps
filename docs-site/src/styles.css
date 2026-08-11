@@ -47,12 +47,12 @@ body {
   }
 
   .docs-markdown a {
-    color: rgb(var(--color-primary-600));
+    color: rgb(var(--color-primary));
     text-decoration: underline;
     text-underline-offset: 2px;
   }
 
   .docs-markdown a:hover {
-    color: rgb(var(--color-primary-700));
+    color: rgb(var(--color-primary) / 0.8);
   }
 }

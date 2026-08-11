@@ -127,7 +127,7 @@ export function PollContent({ post }: PollContentProps) {
 
   return (
     <div
-      className="bg-surface-100 rounded-lg px-4 py-4"
+      className="bg-surface rounded-lg px-4 py-4"
       onClick={stopFeedNavigation}
       onKeyDown={stopFeedNavigation}
       role="presentation"
@@ -181,7 +181,7 @@ export function PollContent({ post }: PollContentProps) {
                   <span>{voteCounts?.[index] ?? 0}</span>
                 </div>
               </div>
-              <div className="bg-surface-300 mt-2 h-2 overflow-hidden rounded-full">
+              <div className="bg-surface mt-2 h-2 overflow-hidden rounded-full">
                 <div
                   className="bg-primary h-full rounded-full transition-all"
                   style={{
@@ -196,7 +196,7 @@ export function PollContent({ post }: PollContentProps) {
 
       {canVote ? (
         <Button
-          variant="variant-filled-primary"
+          variant="default"
           className="mt-4"
           title={t('posts.poll.vote', { defaultValue: 'Vote' })}
           action={handleVote}
@@ -218,7 +218,7 @@ export function PollContent({ post }: PollContentProps) {
         ) : null}
         {hasVoted && !hasPollEnded ? (
           <Button
-            variant="variant-ghost-primary"
+            variant="ghost"
             className="h-auto min-h-0 px-0 font-semibold"
             title={t('posts.poll.undoVoteTitle', {
               defaultValue: 'Undo your vote',

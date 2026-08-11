@@ -10,7 +10,9 @@ export interface AddGroupMembersButtonProps {
   group: GroupWithMeta;
 }
 
-export const AddGroupMembersButton = ({ group }: AddGroupMembersButtonProps) => {
+export const AddGroupMembersButton = ({
+  group,
+}: AddGroupMembersButtonProps) => {
   const t = useT();
   const authData = useAuthData();
   const [open, setOpen] = useState(false);
@@ -29,7 +31,7 @@ export const AddGroupMembersButton = ({ group }: AddGroupMembersButtonProps) => 
     <>
       <Button
         title={t('groups.actions.addMembers', { defaultValue: 'Add Members' })}
-        variant="variant-ringed-primary"
+        variant="outline"
         action={() => setOpen(true)}
         data-testid="groups-add-members-button"
       >

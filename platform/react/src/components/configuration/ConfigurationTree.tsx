@@ -51,7 +51,7 @@ export function ConfigurationTree({
       <div className="mt-4 flex justify-end">
         <Button
           title={t('common.submit', { defaultValue: 'Submit' })}
-          variant="variant-filled-primary"
+          variant="default"
           disabled={unchanged}
           action={handleSubmit}
         >

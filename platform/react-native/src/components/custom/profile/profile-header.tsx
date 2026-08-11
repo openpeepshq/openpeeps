@@ -10,7 +10,7 @@ interface ProfileProps {
 export const ProfileHeader: React.FC<ProfileProps> = ({ profile }) => {
 
   return (
-    <View className="w-full p-2 relative rounded-md aspect-[3/1] bg-muted">
+    <View className="w-full p-2 relative rounded-md aspect-[3/1] bg-surface">
       <Image
         source={
           profile?.header

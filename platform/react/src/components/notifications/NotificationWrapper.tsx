@@ -19,16 +19,17 @@ export function NotificationWrapper({
   children,
 }: NotificationWrapperProps) {
   return (
-    <div className="hover:bg-surface-300 w-full items-start gap-3 overflow-hidden border-b px-4 py-5">
+    <div className="hover:bg-surface w-full items-start gap-3 overflow-hidden border-b px-4 py-5">
       <div className="flex justify-end">
         {!seen ? <Dot className="h-3 w-3" /> : null}
       </div>
+
       {showProfile ? (
         <div className="flex items-center gap-4 px-6">
           {isGroup ? (
-            <Users className="text-surface-500 h-8 w-8" />
+            <Users className="text-muted-foreground h-8 w-8" />
           ) : (
-            <User className="text-surface-500 h-8 w-8" />
+            <User className="text-muted-foreground h-8 w-8" />
           )}
           <ProfileLink profile={profile}>
             <Avatar profile={profile} size={3.5} />

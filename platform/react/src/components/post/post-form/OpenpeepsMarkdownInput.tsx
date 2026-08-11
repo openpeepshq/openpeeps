@@ -98,10 +98,10 @@ export function OpenpeepsMarkdownInput({
   return (
     <div className="relative w-full">
       {showPreview ? (
-        <div className="bg-surface-50 border-surface-200 absolute inset-0 z-10 overflow-y-auto rounded-md border p-4 pt-16">
+        <div className="bg-background border-border absolute inset-0 z-10 overflow-y-auto rounded-md border p-4 pt-16">
           <Button
             compact
-            variant="variant-ringed-surface"
+            variant="outline"
             className="absolute left-2 top-2"
             action={() => setShowPreview(false)}
           >
@@ -113,11 +113,7 @@ export function OpenpeepsMarkdownInput({
 
       {previewButton ? (
         <div className="w-full pb-2">
-          <Button
-            compact
-            variant="variant-ringed-surface"
-            action={() => setShowPreview(true)}
-          >
+          <Button compact variant="outline" action={() => setShowPreview(true)}>
             {t('form.preview', { defaultValue: 'Preview' })}
           </Button>
         </div>
@@ -151,13 +147,13 @@ export function OpenpeepsMarkdownInput({
               e.preventDefault();
             }
           }}
-          className="bg-card z-[100] max-h-48 w-[var(--radix-popover-trigger-width)] overflow-y-auto p-0 shadow-md"
+          className="bg-surface z-[100] max-h-48 w-[var(--radix-popover-trigger-width)] overflow-y-auto p-0 shadow-md"
         >
           {profiles.map((profile) => (
             <button
               key={profile.id}
               type="button"
-              className="hover:bg-surface-100 w-full text-left"
+              className="hover:bg-surface w-full text-left"
               onMouseDown={(e) => {
                 e.preventDefault();
                 insertMention(profile);

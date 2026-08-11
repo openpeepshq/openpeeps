@@ -93,7 +93,7 @@ export const VisibilitySelector = ({
         title={t('posts.form.changeAudience', {
           defaultValue: 'Change audience',
         })}
-        className="hover:bg-muted/50 flex h-10 w-full min-w-0 items-center px-3 text-left disabled:cursor-not-allowed disabled:opacity-50"
+        className="hover:bg-surface/50 flex h-10 w-full min-w-0 items-center px-3 text-left disabled:cursor-not-allowed disabled:opacity-50"
         onClick={onClick}
         disabled={disabled}
       >

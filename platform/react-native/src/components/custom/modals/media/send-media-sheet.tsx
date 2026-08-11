@@ -129,7 +129,7 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
                     width: Dimensions.get('window').width - 32,
                     height: Dimensions.get('window').width - 32,
                   }}
-                  className="bg-muted rounded-lg"
+                  className="bg-surface rounded-lg"
                   resizeMode="cover"
                 />
                 {uploadProgress[uri] !== undefined && (
@@ -165,7 +165,7 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
               {selectedImages.map((_image, index) => (
                 <View
                   key={index}
-                  className={`w-2 h-2 rounded-full ${index === currentImageIndex ? 'bg-primary' : 'bg-muted'
+                  className={`w-2 h-2 rounded-full ${index === currentImageIndex ? 'bg-primary' : 'bg-surface'
                     }`}
                 />
               ))}

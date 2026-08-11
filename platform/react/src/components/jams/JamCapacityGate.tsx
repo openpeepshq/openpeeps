@@ -39,7 +39,7 @@ export const JamCapacityGate = ({
     <div className="mx-auto flex h-full w-full items-center justify-center p-4">
       <div className="w-full max-w-md space-y-5 text-center">
         {eventName ? <h3 className="text-lg">{eventName}</h3> : null}
-        <div className="bg-surface-100 flex w-full flex-col items-center justify-center space-y-4 rounded border p-4">
+        <div className="bg-surface flex w-full flex-col items-center justify-center space-y-4 rounded border p-4">
           <p className="text-sm">{message}</p>
           {showRsvp ? (
             <div className="w-full px-2">

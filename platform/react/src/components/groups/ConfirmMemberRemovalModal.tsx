@@ -64,14 +64,10 @@ export function ConfirmMemberRemovalModal({
           </p>
         ) : null}
         <DialogFooter>
-          <Button variant="variant-ringed-primary" action={onClose}>
+          <Button variant="outline" action={onClose}>
             {t('common.cancel', { defaultValue: 'Cancel' })}
           </Button>
-          <Button
-            variant="variant-filled-error"
-            action={submit}
-            disabled={submitting}
-          >
+          <Button variant="destructive" action={submit} disabled={submitting}>
             {t('groups.removeMember.confirm', { defaultValue: 'Remove' })}
           </Button>
         </DialogFooter>

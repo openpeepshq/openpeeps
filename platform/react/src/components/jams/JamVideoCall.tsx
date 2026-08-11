@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
 import { LiveKitRoom } from '@livekit/components-react';
+import { getTheme } from '@openpeepshq/common/lib';
 import { defaultRoomOptions } from './constants';
 import { useJamContext } from './JamContext';
 import { JamConference } from './JamConference';
-import { useJamLiveKitTheme } from './useJamLiveKitTheme';
+import { useCurrentProfileSettings } from '../layout/IdentityContext';
+import { useServerInfo } from '../server-data/context';
 
 export interface JamVideoCallProps {
   token: string;
@@ -28,7 +30,10 @@ export function JamVideoCall({
   onDisconnected,
 }: JamVideoCallProps) {
   const { jam } = useJamContext();
-  const lkTheme = useJamLiveKitTheme();
+  const serverInfo = useServerInfo();
+  const profileSettings = useCurrentProfileSettings();
+  const userTheme = getTheme(serverInfo.communityConfig, profileSettings);
+  const lkTheme = userTheme.dark ? 'default' : 'light';
   const roomOptions = useMemo(
     () => defaultRoomOptions[jam.type] ?? defaultRoomOptions['video-call'],
     [jam.type],

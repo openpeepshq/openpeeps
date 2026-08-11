@@ -7,7 +7,6 @@ import { UpdatingDate } from '@openpeepshq/react-ui';
 import { Avatar } from '../profile';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { ConversationMessageBubble } from './ConversationMessageBubble';
-import { UnreadPostIndicator } from '../post/pieces/UnreadPostIndicator';
 
 const inAudience = (post: PublicPost, profile: PublicProfile) =>
   !!post.audience?.some((p) => p.id === profile.id);
@@ -102,14 +101,8 @@ export function MessageInThread({
             navigate
           />
         )}
-        <div className="relative min-w-0 flex-1">
-          {!isMe ? (
-            <UnreadPostIndicator
-              show={isUnread}
-              className="left-0 top-1/2 -translate-y-1/2"
-            />
-          ) : null}
-          <ConversationMessageBubble message={message} />
+        <div className="min-w-0 flex-1">
+          <ConversationMessageBubble message={message} unread={isUnread} />
         </div>
       </div>
 

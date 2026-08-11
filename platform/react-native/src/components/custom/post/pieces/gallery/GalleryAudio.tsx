@@ -11,7 +11,7 @@ interface GalleryAudioProps {
 export const GalleryAudio = ({ attachment, isActive }: GalleryAudioProps) =>
 (
     <View
-        className="size-full bg-muted rounded-none items-center justify-center">
+        className="size-full bg-surface rounded-none items-center justify-center">
         <AudioPlayer uri={attachment.url} isActive={isActive} />
     </View>
 );

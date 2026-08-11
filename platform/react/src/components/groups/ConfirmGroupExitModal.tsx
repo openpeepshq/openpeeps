@@ -34,7 +34,7 @@ export function ConfirmGroupExitModal({
     try {
       await leaveGroup();
       onClose();
-      navigate('/groups');
+      navigate({ type: 'groups' });
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -64,14 +64,10 @@ export function ConfirmGroupExitModal({
           </p>
         ) : null}
         <DialogFooter>
-          <Button variant="variant-ringed-primary" action={onClose}>
+          <Button variant="outline" action={onClose}>
             {t('common.cancel', { defaultValue: 'Cancel' })}
           </Button>
-          <Button
-            variant="variant-filled-error"
-            action={submit}
-            disabled={submitting}
-          >
+          <Button variant="destructive" action={submit} disabled={submitting}>
             {t('groups.modals.confirmExit.leave', { defaultValue: 'Leave' })}
           </Button>
         </DialogFooter>

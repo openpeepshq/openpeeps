@@ -276,7 +276,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
                   <>
                     <Button
                       compact
-                      variant="variant-ghost-primary"
+                      variant="ghost"
                       title={t('posts.form.addImage', {
                         defaultValue: 'Add image',
                       })}
@@ -286,7 +286,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
                     </Button>
                     <Button
                       compact
-                      variant="variant-ghost-primary"
+                      variant="ghost"
                       title={t('posts.form.addAttachment', {
                         defaultValue: 'Add attachment',
                       })}
@@ -305,11 +305,11 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
                 />
               </div>
               <div className="flex gap-2">
-                <Button variant="variant-ghost-primary" action={onClose}>
+                <Button variant="ghost" action={onClose}>
                   {t('common.cancel', { defaultValue: 'Cancel' })}
                 </Button>
                 <Button
-                  variant="variant-filled-primary"
+                  variant="default"
                   action={publish}
                   disabled={!canSubmit}
                 >

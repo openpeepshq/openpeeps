@@ -53,13 +53,10 @@ export function DeletePostModal({
           </p>
         </article>
         <DialogFooter>
-          <Button
-            variant="variant-filled-error"
-            action={handleDelete}
-          >
+          <Button variant="destructive" action={handleDelete}>
             {t('posts.deleteModal.delete', { defaultValue: 'Delete' })}
           </Button>
-          <Button variant="variant-ringed-surface" action={onClose}>
+          <Button variant="outline" action={onClose}>
             {t('posts.deleteModal.cancel', { defaultValue: 'Cancel' })}
           </Button>
         </DialogFooter>

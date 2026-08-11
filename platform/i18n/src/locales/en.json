@@ -820,8 +820,6 @@
     },
     "lobby": {
       "readyTitle": "Ready to start?",
-      "exitLobbyBody": "Are you sure you want to exit the lobby?",
-      "exitLobbyConfirm": "Exit Jam",
       "guestIntro": "Enter your details below to proceed to waiting room",
       "guestFullNameLabel": "Full name",
       "guestFullNamePlaceholder": "Full Name",

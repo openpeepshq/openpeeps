@@ -44,7 +44,7 @@ export function PostReactionHeader({
   const menuPost = (post.repost as PublicPost | undefined) ?? post;
 
   return (
-    <div className="flex items-center justify-between gap-2 border-b py-2 text-sm">
+    <div className="border-border flex items-center justify-between gap-2 border-b py-2 text-sm">
       <div className="flex w-5/6 flex-1 items-center gap-2">
         {showGroup ? (
           <>

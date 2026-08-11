@@ -132,7 +132,7 @@ export const ProfilePickerSheet = forwardRef<
               {title}
             </ThemedText>
             <View className="flex-row items-center mb-4 w-full">
-              <View className="rounded-l-md bg-muted p-3">
+              <View className="rounded-l-md bg-surface p-3">
                 <SearchIcon size={24} className="text-muted-foreground" />
               </View>
               <Input

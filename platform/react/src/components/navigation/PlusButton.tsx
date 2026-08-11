@@ -12,7 +12,7 @@ export function PlusButton() {
       <Button
         compact
         title={plusButton.title ?? ''}
-        variant="variant-filled-primary"
+        variant="default"
         action={plusButton.action}
         className="z-10 mr-4 size-16 rounded-full sm:mb-4"
         data-testid="posts-new-post-button"

@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Mic, MicOff, Video, VideoOff, Volume2, X } from 'lucide-react';
+import {
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  Volume2,
+  VolumeX,
+  X,
+} from 'lucide-react';
 import {
   type LocalUserChoices,
   useMediaDevices,
@@ -13,7 +21,10 @@ import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { useJamContext } from './JamContext';
+import { audioOutputSupported } from './constants';
+import { DeviceSelectorPill } from './JamDeviceSelectors';
 import { JamGuestForm } from './JamGuestForm';
+import { JamToolbarButton } from './JamToolbarButton';
 import { useJamLocalSettings } from './jamLocalSettings';
 import { apiErrorMessage } from '../../lib/apiErrorMessage';
 
@@ -35,81 +46,6 @@ function canAccessJamLobby(
   return (
     profile.guestData?.resource?.type === 'jams' &&
     profile.guestData.resource.id === jamPostId
-  );
-}
-
-interface DeviceControlProps {
-  enabled: boolean;
-  onToggle: () => void;
-  onLabel: string;
-  offLabel: string;
-  OnIcon: typeof Mic;
-  OffIcon: typeof MicOff;
-  devices: MediaDeviceInfo[];
-  deviceId: string;
-  onDeviceChange: (deviceId: string) => void;
-  /** Hide the device picker so the control shows the toggle icon only. */
-  iconOnly?: boolean;
-}
-
-/** Pill mirroring the Svelte "selector and switch" controls (toggle + device list). */
-function DeviceControl({
-  enabled,
-  onToggle,
-  onLabel,
-  offLabel,
-  OnIcon,
-  OffIcon,
-  devices,
-  deviceId,
-  onDeviceChange,
-  iconOnly = false,
-}: DeviceControlProps) {
-  return (
-    <div className="bg-surface-100 flex items-center gap-1 rounded-full border p-1">
-      <button
-        type="button"
-        title={enabled ? offLabel : onLabel}
-        onClick={onToggle}
-        className={`flex size-9 items-center justify-center rounded-full ${enabled ? '' : 'bg-surface-200'}`}
-      >
-        {enabled ? (
-          <OnIcon className="size-4" />
-        ) : (
-          <OffIcon className="size-4" />
-        )}
-      </button>
-      {!iconOnly && devices.length > 1 ? (
-        <select
-          value={deviceId}
-          onChange={(e) => onDeviceChange(e.target.value)}
-          className="max-w-[6rem] truncate bg-transparent pr-1 text-xs outline-none"
-        >
-          <option value="">{onLabel}</option>
-          {devices.map((device, index) => (
-            <option key={device.deviceId} value={device.deviceId}>
-              {device.label || `${index + 1}`}
-            </option>
-          ))}
-        </select>
-      ) : null}
-    </div>
-  );
-}
-
-/** Speaker (audio output) selector for the lobby. Icon-only: the chosen device
- * is persisted and applied to the room's audio output on join, and there is no
- * on/off toggle since no audio is playing pre-room. */
-function SpeakerControl({ label }: { label: string }) {
-  return (
-    <div className="bg-surface-100 flex items-center gap-1 rounded-full border p-1">
-      <span
-        title={label}
-        className="flex size-9 items-center justify-center rounded-full"
-      >
-        <Volume2 className="size-4" />
-      </span>
-    </div>
   );
 }
 
@@ -142,6 +78,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
 
   const audioDevices = useMediaDevices({ kind: 'audioinput' });
   const videoDevices = useMediaDevices({ kind: 'videoinput' });
+  const speakerDevices = useMediaDevices({ kind: 'audiooutput' });
 
   // Video preview only — mic state is persisted for join but not acquired here,
   // mirroring Svelte's separate CameraSelectorAndSwitch track management.
@@ -202,9 +139,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
   }
 
   const exitLobby = () => {
-    if (window.confirm(t('jams.lobby.exitLobbyBody', { defaultValue: '' }))) {
-      navigate('/jams');
-    }
+    navigate({ type: 'jams' });
   };
 
   const handleJoin = async () => {
@@ -255,7 +190,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
 
   return (
     <div className="mx-auto flex h-full w-full max-w-lg items-center justify-center p-4">
-      <div className="bg-surface-50 w-full rounded-md border p-4">
+      <div className="bg-background w-full rounded-md border p-4">
         <div className="flex items-center justify-between border-b p-2">
           <h2 className="text-lg">
             {t('jams.lobby.readyTitle', { defaultValue: 'Ready to join' })}
@@ -263,7 +198,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
           <button
             type="button"
             title={t('jams.exit.title', { defaultValue: 'Leave' })}
-            className="bg-surface-200 flex size-8 items-center justify-center rounded-full"
+            className="bg-surface-2 flex size-8 items-center justify-center rounded-full"
             onClick={exitLobby}
           >
             <X className="size-4" />
@@ -285,7 +220,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
               className={`size-64 rounded-xl object-cover ${showVideo ? '' : 'hidden'}`}
             />
             {!showVideo ? (
-              <div className="bg-surface-100 flex size-64 items-center justify-center rounded-xl">
+              <div className="bg-surface flex size-64 items-center justify-center rounded-xl">
                 <p className="text-lg">
                   {t('jams.lobby.cameraOff', { defaultValue: 'Camera is off' })}
                 </p>
@@ -293,37 +228,44 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
             ) : null}
           </div>
 
-          <div className="mt-4 flex w-full justify-center gap-2">
-            <DeviceControl
+          <div className="mt-4 flex w-full items-center justify-center gap-x-4">
+            <DeviceSelectorPill
               enabled={audioEnabled}
               onToggle={() => setAudioEnabled((on) => !on)}
-              onLabel={`${t('jams.device.turnOn', { defaultValue: 'Turn on' })} ${t('jams.device.microphone', { defaultValue: 'microphone' })}`}
-              offLabel={`${t('jams.device.turnOff', { defaultValue: 'Turn off' })} ${t('jams.device.microphone', { defaultValue: 'microphone' })}`}
-              OnIcon={Mic}
-              OffIcon={MicOff}
+              onIcon={Mic}
+              offIcon={MicOff}
+              deviceType="mic"
               devices={audioDevices}
-              deviceId={audioDeviceId}
+              activeDeviceId={audioDeviceId}
               onDeviceChange={setAudioDeviceId}
-              iconOnly
             />
-            <SpeakerControl
-              label={t('jams.device.defaultSpeaker', {
-                defaultValue: 'Default Speaker',
-              })}
-            />
-            <DeviceControl
+            {audioOutputSupported ? (
+              <DeviceSelectorPill
+                enabled={settings.speakerEnabled}
+                onToggle={() =>
+                  updateSettings({ speakerEnabled: !settings.speakerEnabled })
+                }
+                onIcon={Volume2}
+                offIcon={VolumeX}
+                deviceType="speaker"
+                devices={speakerDevices}
+                activeDeviceId={settings.speakerDeviceId}
+                onDeviceChange={(speakerDeviceId) =>
+                  updateSettings({ speakerDeviceId })
+                }
+              />
+            ) : null}
+            <DeviceSelectorPill
               enabled={videoEnabled}
               onToggle={() => setVideoEnabled((on) => !on)}
-              onLabel={`${t('jams.device.turnOn', { defaultValue: 'Turn on' })} ${t('jams.device.camera', { defaultValue: 'camera' })}`}
-              offLabel={`${t('jams.device.turnOff', { defaultValue: 'Turn off' })} ${t('jams.device.camera', { defaultValue: 'camera' })}`}
-              OnIcon={Video}
-              OffIcon={VideoOff}
+              onIcon={Video}
+              offIcon={VideoOff}
+              deviceType="camera"
               devices={videoDevices}
-              deviceId={videoDeviceId}
+              activeDeviceId={videoDeviceId}
               onDeviceChange={setVideoDeviceId}
             />
-            <button
-              type="button"
+            <JamToolbarButton
               title={
                 settings.blur
                   ? t('jams.blur.turnOff', { defaultValue: 'Turn off blur' })
@@ -331,21 +273,20 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
                       defaultValue: 'Blur background',
                     })
               }
-              onClick={() => updateSettings({ blur: !settings.blur })}
-              className={`flex size-11 items-center justify-center rounded-full border ${settings.blur ? 'bg-primary text-primary-foreground' : 'bg-surface-100'}`}
+              tone={settings.blur ? 'active' : 'default'}
+              action={() => updateSettings({ blur: !settings.blur })}
             >
-              <Blur className="size-4" />
-            </button>
+              <Blur />
+            </JamToolbarButton>
           </div>
         </div>
 
         <div className="flex w-full flex-col items-center px-5 pb-4">
           <Button
-            variant="variant-filled-primary"
+            variant="default"
             title={t('jams.join.submit', { defaultValue: 'Join Jam' })}
             loading={submitting}
             action={handleJoin}
-            className="rounded-full"
           >
             {jamActive
               ? t('jams.join.ctaJoin', { defaultValue: 'Join' })

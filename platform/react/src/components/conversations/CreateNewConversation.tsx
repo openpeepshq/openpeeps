@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import type { PostCreationData, PublicProfile } from '@openpeepshq/common/types';
+import type { PublicProfile } from '@openpeepshq/common/types';
 import {
   Button,
   Dialog,
@@ -8,10 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@openpeepshq/react-ui';
-import { useNavigate } from '../../contexts/router';
-import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
-import { useCurrentProfile } from '../layout/IdentityContext';
+import { useCreateConversation } from '../../hooks/conversations/useCreateConversation';
 import { ProfilesInput } from '../profile';
 
 const MAX_MESSAGE_LENGTH = 500;
@@ -30,41 +27,23 @@ export const CreateNewConversation = ({
   onClose,
 }: CreateNewConversationProps) => {
   const t = useT();
-  const navigate = useNavigate();
-  const me = useCurrentProfile();
-  const { openpeepsApi } = useOpenpeeps();
-  const createPost = openpeepsApi.createPostAction();
-
-  const [step, setStep] = useState(skipProfileSelection ? 2 : 1);
-  const [selectedProfiles, setSelectedProfiles] =
-    useState<PublicProfile[]>(initialProfiles);
-  const [message, setMessage] = useState(initialMessage);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const send = async () => {
-    if (!me || selectedProfiles.length === 0) return;
-    setError(null);
-    setSubmitting(true);
-    try {
-      const payload: PostCreationData = {
-        visibility: 'direct',
-        type: 'note',
-        audience: [me, ...selectedProfiles],
-        data: {
-          type: 'note',
-          content: message.trim(),
-        },
-      };
-      const created = await createPost(payload);
-      onClose();
-      navigate(`/conversations/${created.id}`);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const {
+    me,
+    step,
+    setStep,
+    selectedProfiles,
+    setSelectedProfiles,
+    message,
+    setMessage,
+    submitting,
+    error,
+    send,
+  } = useCreateConversation({
+    profiles: initialProfiles,
+    message: initialMessage,
+    skipProfileSelection,
+    onClose,
+  });
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -94,11 +73,11 @@ export const CreateNewConversation = ({
             </div>
 
             <DialogFooter>
-              <Button variant="variant-ghost-primary" action={onClose}>
+              <Button variant="ghost" action={onClose}>
                 {t('common.cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
-                variant="variant-filled-primary"
+                variant="default"
                 disabled={selectedProfiles.length === 0}
                 action={() => setStep(2)}
               >
@@ -117,7 +96,7 @@ export const CreateNewConversation = ({
             </DialogHeader>
 
             <textarea
-              className="bg-surface-100 min-h-32 w-full rounded-lg border p-3 text-sm outline-none"
+              className="bg-surface min-h-32 w-full rounded-lg border p-3 text-sm outline-none"
               placeholder={t('conversations.createNew.messagePlaceholder', {
                 defaultValue: 'Write a message…',
               })}
@@ -130,14 +109,11 @@ export const CreateNewConversation = ({
 
             <DialogFooter className="flex-wrap gap-2">
               {!skipProfileSelection ? (
-                <Button
-                  variant="variant-ringed-surface"
-                  action={() => setStep(1)}
-                >
+                <Button variant="outline" action={() => setStep(1)}>
                   {t('common.back', { defaultValue: 'Back' })}
                 </Button>
               ) : (
-                <Button variant="variant-ringed-surface" action={onClose}>
+                <Button variant="outline" action={onClose}>
                   {t('common.cancel', { defaultValue: 'Cancel' })}
                 </Button>
               )}
@@ -145,7 +121,7 @@ export const CreateNewConversation = ({
                 {MAX_MESSAGE_LENGTH - message.length}
               </span>
               <Button
-                variant="variant-filled-primary"
+                variant="default"
                 disabled={submitting || selectedProfiles.length === 0}
                 action={send}
               >

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { CompiledMarkdown } from '@openpeepshq/react/components';
 import { docsBySlug } from 'virtual:openpeeps-docs';
 
-import { NotFound } from '../NotFound';
+import { NotFound } from '@openpeepshq/react/pages';
 
 export const docsSlugFromPath = (pathname: string): string =>
   pathname.replace(/^\/docs\/?/, '').replace(/\/$/, '');

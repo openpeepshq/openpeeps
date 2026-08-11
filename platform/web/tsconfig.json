@@ -16,8 +16,19 @@
     "noEmit": true,
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": ["node", "vite/client", "vite-plugin-pwa/client"],
-    "baseUrl": "./src"
+    "baseUrl": ".",
+    "paths": {
+      "@openpeepshq/react": ["../react/src/index.ts"],
+      "@openpeepshq/react/pages": ["../react/src/pages/index.ts"],
+      "@openpeepshq/react/components": ["../react/src/components/index.ts"],
+      "@openpeepshq/react/pwa-vite": ["../react/src/pwa/vite.ts"]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.d.ts",
+    "../react/src/**/*.d.ts"
+  ],
   "exclude": ["dist", "node_modules"]
 }

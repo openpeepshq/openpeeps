@@ -19,13 +19,13 @@ import {
 } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { Button } from '../button';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  ShadcnButton,
 } from '../ui';
 
 export type AnalyticsPreset =
@@ -92,11 +92,11 @@ const MonthCalendar = ({
 
   return (
     <div className="w-[252px]">
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">
         {title}
       </div>
       <div className="mb-2 flex items-center justify-between">
-        <ShadcnButton
+        <Button
           type="button"
           size="sm"
           variant="ghost"
@@ -105,9 +105,9 @@ const MonthCalendar = ({
           onClick={() => onMonthChange(subMonths(month, 1))}
         >
           <ChevronLeft className="size-4" />
-        </ShadcnButton>
+        </Button>
         <div className="text-sm font-medium">{format(month, 'MMMM yyyy')}</div>
-        <ShadcnButton
+        <Button
           type="button"
           size="sm"
           variant="ghost"
@@ -116,9 +116,9 @@ const MonthCalendar = ({
           onClick={() => onMonthChange(addMonths(month, 1))}
         >
           <ChevronRight className="size-4" />
-        </ShadcnButton>
+        </Button>
       </div>
-      <div className="mb-1 grid grid-cols-7 gap-0.5 text-center text-[10px] font-medium uppercase text-muted-foreground">
+      <div className="text-muted-foreground mb-1 grid grid-cols-7 gap-0.5 text-center text-[10px] font-medium uppercase">
         {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d) => (
           <div key={d} className="py-1">
             {d}
@@ -178,8 +178,7 @@ export const DateRangeFilter = ({
     value.preset ?? (value.from && value.to ? 'custom' : '30d');
 
   const openCustomDialog = () => {
-    const from =
-      value.from ?? dayString(subDays(startOfDay(new Date()), 29));
+    const from = value.from ?? dayString(subDays(startOfDay(new Date()), 29));
     const to = value.to ?? dayString(startOfDay(new Date()));
     setDraftFrom(from);
     setDraftTo(to);
@@ -207,7 +206,7 @@ export const DateRangeFilter = ({
         )}
       >
         {PRESETS.map((p) => (
-          <ShadcnButton
+          <Button
             key={p.key}
             type="button"
             size="sm"
@@ -226,7 +225,7 @@ export const DateRangeFilter = ({
             }}
           >
             {p.label}
-          </ShadcnButton>
+          </Button>
         ))}
       </div>
 
@@ -272,14 +271,14 @@ export const DateRangeFilter = ({
               {draftFrom ?? '—'} → {draftTo ?? '—'}
             </p>
             <div className="flex gap-2">
-              <ShadcnButton
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ShadcnButton>
-              <ShadcnButton
+              </Button>
+              <Button
                 type="button"
                 disabled={!canApply}
                 onClick={() => {
@@ -289,7 +288,7 @@ export const DateRangeFilter = ({
                 }}
               >
                 Apply
-              </ShadcnButton>
+              </Button>
             </div>
           </DialogFooter>
         </DialogContent>

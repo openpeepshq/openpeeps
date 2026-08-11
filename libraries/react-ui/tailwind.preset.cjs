@@ -1,8 +1,8 @@
 /**
  * @openpeepshq/react-ui Tailwind preset.
  *
- * Bridges Skeleton-style CSS variables (--color-primary-500 as "R G B" channels)
- * with shadcn semantic tokens (background/foreground/etc).
+ * Bridges theme CSS variables (--color-* as "R G B" channels) with shadcn
+ * semantic tokens (background/foreground/etc).
  *
  * Usage in a consumer tailwind.config.cjs:
  *   module.exports = {
@@ -14,14 +14,6 @@
  *   };
  */
 const channel = (name) => `rgb(var(${name}) / <alpha-value>)`;
-
-const palette = (key) =>
-  Object.fromEntries(
-    [50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((shade) => [
-      shade,
-      channel(`--color-${key}-${shade}`),
-    ]),
-  );
 
 const onColor = (name) => channel(`--on-${name}`);
 
@@ -38,72 +30,106 @@ module.exports = {
     },
     extend: {
       colors: {
+        // Flat Figma semantic tokens. tertiary/error are legacy flat anchors
+        // (no Figma token for those families yet).
         primary: {
-          ...palette('primary'),
-          DEFAULT: channel('--color-primary-500'),
-          foreground: onColor('primary'),
+          DEFAULT: channel('--color-primary'),
+          foreground: channel('--color-primary-foreground'),
         },
         secondary: {
-          ...palette('secondary'),
-          DEFAULT: channel('--color-secondary-500'),
-          foreground: onColor('secondary'),
+          DEFAULT: channel('--color-secondary'),
+          foreground: channel('--color-secondary-foreground'),
         },
         tertiary: {
-          ...palette('tertiary'),
-          DEFAULT: channel('--color-tertiary-500'),
+          DEFAULT: channel('--color-tertiary'),
           foreground: onColor('tertiary'),
         },
         success: {
-          ...palette('success'),
-          DEFAULT: channel('--color-success-500'),
+          DEFAULT: channel('--color-success'),
           foreground: onColor('success'),
         },
         warning: {
-          ...palette('warning'),
-          DEFAULT: channel('--color-warning-500'),
+          DEFAULT: channel('--color-warning'),
           foreground: onColor('warning'),
         },
         error: {
-          ...palette('error'),
-          DEFAULT: channel('--color-error-500'),
+          DEFAULT: channel('--color-error'),
           foreground: onColor('error'),
         },
-        surface: {
-          ...palette('surface'),
-          DEFAULT: channel('--color-surface-500'),
-          foreground: onColor('surface'),
-        },
-        background: channel('--color-surface-50'),
-        foreground: channel('--theme-font-color-base'),
-        border: channel('--color-surface-300'),
-        input: channel('--color-surface-200'),
-        ring: channel('--color-primary-500'),
+        background: channel('--color-background'),
+        foreground: channel('--color-foreground'),
+        border: channel('--color-border-1'),
+        'border-2': channel('--color-border-2'),
+        input: channel('--color-input'),
+        ring: channel('--color-ring'),
+        'ring-offset': channel('--color-ring-offset'),
+        text: channel('--color-text'),
         muted: {
-          DEFAULT: channel('--color-surface-100'),
-          foreground: channel('--color-surface-700'),
+          DEFAULT: channel('--color-surface'),
+          foreground: channel('--color-muted-foreground'),
         },
         accent: {
-          DEFAULT: channel('--color-surface-100'),
-          foreground: channel('--theme-font-color-base'),
+          DEFAULT: channel('--color-surface'),
+          foreground: channel('--color-accent-foreground'),
         },
         popover: {
-          DEFAULT: channel('--color-surface-50'),
-          foreground: channel('--theme-font-color-base'),
+          DEFAULT: channel('--color-popover'),
+          foreground: channel('--color-popover-foreground'),
         },
         card: {
-          DEFAULT: channel('--color-surface-50'),
-          foreground: channel('--theme-font-color-base'),
+          DEFAULT: channel('--color-surface'),
+          foreground: channel('--color-muted-foreground'),
         },
         destructive: {
-          DEFAULT: channel('--color-error-500'),
-          foreground: onColor('error'),
+          DEFAULT: channel('--color-destructive'),
+          foreground: channel('--color-destructive-foreground'),
         },
+        'modal-backdrop': 'var(--color-modal-backdrop)',
+        progress: channel('--color-progress'),
+        surface: {
+          DEFAULT: channel('--color-surface'),
+          foreground: channel('--color-muted-foreground'),
+        },
+        'surface-2': channel('--color-surface-2'),
+        'surface-primary': channel('--color-surface-primary'),
+        'surface-warning': channel('--color-surface-warning'),
+        'surface-success': channel('--color-surface-success'),
+        'surface-progress': channel('--color-surface-progress'),
+        chart: {
+          1: channel('--color-chart-1'),
+          2: channel('--color-chart-2'),
+          3: channel('--color-chart-3'),
+          4: channel('--color-chart-4'),
+          5: channel('--color-chart-5'),
+        },
+        alpha: {
+          10: 'var(--color-alpha-10)',
+          20: 'var(--color-alpha-20)',
+          30: 'var(--color-alpha-30)',
+          40: 'var(--color-alpha-40)',
+          50: 'var(--color-alpha-50)',
+          60: 'var(--color-alpha-60)',
+          70: 'var(--color-alpha-70)',
+          80: 'var(--color-alpha-80)',
+          90: 'var(--color-alpha-90)',
+        },
+      },
+      // Tailwind's stock config hardcodes `borderColor.DEFAULT` to
+      // `colors.gray.200` regardless of the `colors` theme (see
+      // tailwindcss/stubs/config.full.js) — Preflight's `*,::before,::after`
+      // reset uses this directly, so bare `border`/`border-b`/etc. utilities
+      // rendered a static light gray in both themes instead of following
+      // --color-border-1. Overriding it here (divideColor inherits the fix
+      // since it's defined as `theme('borderColor')`).
+      borderColor: {
+        DEFAULT: channel('--color-border-1'),
       },
       borderRadius: {
         lg: 'var(--theme-rounded-container, 0.5rem)',
         md: 'calc(var(--theme-rounded-container, 0.5rem) - 2px)',
         sm: 'calc(var(--theme-rounded-container, 0.5rem) - 4px)',
-        full: 'var(--theme-rounded-base, 9999px)',
+        button: 'var(--theme-rounded-base, 9999px)',
+        full: '9999px',
       },
       fontFamily: {
         sans: 'var(--theme-font-family-base, system-ui)',

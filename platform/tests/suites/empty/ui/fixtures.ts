@@ -200,11 +200,26 @@ export const registerViaUi = async (page: Page) => {
   await expect(page).toHaveURL(/\/welcome|\/feeds\/local|\/payment/);
 };
 
+export const loginViaUi = async (
+  page: Page,
+  email = ownerUser.email,
+  loginPassword = ownerUser.password,
+) => {
+  await page.goto('/auth/login');
+  await page.getByTestId(testIds.auth.loginEmail).fill(email);
+  await page.getByTestId(testIds.auth.loginPassword).fill(loginPassword);
+  await page.getByTestId(testIds.auth.loginSubmit).click();
+  await expect(page).toHaveURL(/\/feeds\/local|\/welcome/);
+  await page.goto('/feeds/local');
+  await expect(page.getByTestId(testIds.feeds.communityHeading)).toBeVisible();
+};
+
 export const assertLoginPage = async (page: Page) => {
   await page.goto('/auth/login');
   await expect(page.getByTestId(testIds.auth.loginTitle)).toBeVisible();
   await expect(page.getByTestId(testIds.auth.loginEmail)).toBeVisible();
   await expect(page.getByTestId(testIds.auth.loginPassword)).toBeVisible();
+  await expect(page.getByTestId(testIds.auth.loginSubmit)).toBeVisible();
 };
 
 export const assertLoggedIn = async (page: Page) => {
@@ -330,8 +345,7 @@ export const createPollViaUi = async (
   page: Page,
   options: { question?: string; choices?: string[] } = {},
 ) => {
-  const question =
-    options.question ?? `UI poll ${uniqueSuffix()}`.slice(0, 80);
+  const question = options.question ?? `UI poll ${uniqueSuffix()}`.slice(0, 80);
   const choices = options.choices ?? ['Alpha', 'Bravo'];
 
   await page.goto('/feeds/local');

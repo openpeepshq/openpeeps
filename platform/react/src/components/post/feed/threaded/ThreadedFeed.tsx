@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
 import type { Thread } from '@openpeepshq/common';
-import { collectPath, lastLongestPathSelector } from '../../../../lib/threadHelpers';
+import {
+  collectPath,
+  lastLongestPathSelector,
+} from '../../../../lib/threadHelpers';
 import { ThreadPost } from './ThreadPost';
 
 export interface ThreadedFeedProps {
@@ -8,6 +11,8 @@ export interface ThreadedFeedProps {
   pathSelector?: (thread: Thread) => Thread & { depth: number };
   isAncestors?: boolean;
   isDescendants?: boolean;
+  /** Another sibling thread follows, so the last post keeps its rail running down. */
+  continuesBelow?: boolean;
 }
 
 export function ThreadedFeed({
@@ -15,6 +20,7 @@ export function ThreadedFeed({
   pathSelector = lastLongestPathSelector,
   isAncestors = false,
   isDescendants = false,
+  continuesBelow = false,
 }: ThreadedFeedProps) {
   const postList = useMemo(
     () => collectPath(pathSelector(thread)),
@@ -27,7 +33,9 @@ export function ThreadedFeed({
         <a key={post.id} href={`/posts/${post.id}`} className="block w-full">
           <ThreadPost
             post={post}
-            isParent={index !== postList.length - 1 || isAncestors}
+            isParent={
+              index !== postList.length - 1 || isAncestors || continuesBelow
+            }
             isChild={index !== 0 || isDescendants}
           />
         </a>

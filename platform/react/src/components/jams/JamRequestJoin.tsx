@@ -57,10 +57,7 @@ export function JamRequestJoin({ onJoin }: JamRequestJoinProps) {
           </p>
         </>
       ) : (
-        <Button
-          variant="variant-filled-primary"
-          action={() => setRequested(true)}
-        >
+        <Button variant="default" action={() => setRequested(true)}>
           {t('jams.join.requestToJoin', { defaultValue: 'Request to join' })}
         </Button>
       )}

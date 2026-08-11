@@ -93,7 +93,7 @@ export const WaitingRoomActionSheet = forwardRef<
           <TouchableOpacity
             onPress={handleAdmitParticipant}
             disabled={isLoading}
-            className="w-full px-4 py-3 flex-row items-center gap-x-3 rounded-lg hover:bg-muted/50">
+            className="w-full px-4 py-3 flex-row items-center gap-x-3 rounded-lg hover:bg-surface/50">
             {!isLoading ? (
               <>
                 <DoorOpenIcon className="text-foreground" />
@@ -110,7 +110,7 @@ export const WaitingRoomActionSheet = forwardRef<
           <TouchableOpacity
             onPress={handleRejectParticipant}
             disabled={isLoading}
-            className="mt-2 w-full px-4 py-3 flex-row items-center gap-x-3 rounded-lg hover:bg-muted/50">
+            className="mt-2 w-full px-4 py-3 flex-row items-center gap-x-3 rounded-lg hover:bg-surface/50">
             <CircleSlash2Icon className="text-destructive" />
             <ThemedText className="text-lg text-destructive">
               {t('jams.waitingRoom.rejectParticipant')}

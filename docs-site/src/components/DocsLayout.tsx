@@ -16,8 +16,8 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
   [
     'block rounded-md px-2 py-1 text-sm',
     isActive
-      ? 'bg-primary-100 text-primary-900 font-medium'
-      : 'text-foreground/80 hover:bg-muted',
+      ? 'bg-surface-primary text-primary font-medium'
+      : 'text-foreground/80 hover:bg-surface',
   ].join(' ');
 
 export const DocsLayout = ({
@@ -27,7 +27,7 @@ export const DocsLayout = ({
   versionLabel,
 }: Props): ReactElement => (
   <div className="bg-background flex min-h-full flex-col">
-    <header className="border-border bg-card sticky top-0 z-10 border-b">
+    <header className="border-border bg-surface sticky top-0 z-10 border-b">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3 md:px-6">
         <Link to="/" className="flex items-center gap-2">
           <img src={`${import.meta.env.BASE_URL}logo-small.png`} alt="" className="h-6" />

@@ -28,7 +28,7 @@ export function MobileMenuItem({
       <span
         className={cn(
           'flex items-center gap-x-2',
-          active ? 'text-primary-500 font-bold' : 'text-foreground/70',
+          active ? 'text-primary font-bold' : 'text-foreground/70',
         )}
       >
         <Icon className="mr-1 h-5 w-5" />

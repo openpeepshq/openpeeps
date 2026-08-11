@@ -12,6 +12,7 @@
     },
     "./pwa": "./dist/pwa/index.js",
     "./pwa-vite": "./dist/pwa/vite.js",
+    "./pages": "./dist/pages/index.js",
     "./service-worker": "./src/pwa/sw.ts",
     "./*": "./dist/*/index.js"
   },
@@ -51,13 +52,16 @@
     "react": "^18.3.1 || ^19.0.0",
     "react-dom": "^18.3.1 || ^19.0.0",
     "react-easy-crop": "^5.5.7",
+    "react-hook-form": "^7.73.1",
+    "@hookform/resolvers": "^5.4.2",
     "react-i18next": "^15.4.1",
     "uuidv7": "^1.0.2",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
     "react": "^18.3.0 || ^19.0.0",
-    "react-dom": "^18.3.0 || ^19.0.0"
+    "react-dom": "^18.3.0 || ^19.0.0",
+    "react-router-dom": "^6.0.0 || ^7.0.0"
   },
   "devDependencies": {
     "@openpeepshq/fetch-client": "workspace:^",
@@ -66,6 +70,7 @@
     "@types/react-dom": "19.2.3",
     "concurrently": "^9.1.2",
     "eslint": "^9.19.0",
+    "react-router-dom": "^7.0.0",
     "tsc-alias": "^1.8.10",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8"

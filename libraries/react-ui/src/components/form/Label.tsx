@@ -20,9 +20,9 @@ const messageColor = (m: FormMessage, dirty: boolean) => {
   if (!dirty) return '';
   switch (m.severity) {
     case 'error':
-      return 'text-error-500';
+      return 'text-destructive';
     case 'warning':
-      return 'text-warning-500';
+      return 'text-warning';
     case 'info':
       return '';
   }
@@ -56,17 +56,25 @@ export function Label({
       {title && (
         <span>
           {title}
-          {required && <span className={cn(dirty && 'text-error-500')}>*</span>}
+          {required && (
+            <span className={cn(dirty && 'text-destructive')}>*</span>
+          )}
         </span>
       )}
       <span
-        className={cn('flex flex-grow', forCheckbox ? 'items-center gap-2' : 'flex-col')}
+        className={cn(
+          'flex flex-grow',
+          forCheckbox ? 'items-center gap-2' : 'flex-col',
+        )}
       >
         {description && <span className="text-sm">{description}</span>}
         {children}
       </span>
       {messages.map((m, idx) => (
-        <span key={idx} className={cn('flex items-center gap-2', messageColor(m, dirty))}>
+        <span
+          key={idx}
+          className={cn('flex items-center gap-2', messageColor(m, dirty))}
+        >
           <Info className="size-4" />
           {m.text}
         </span>

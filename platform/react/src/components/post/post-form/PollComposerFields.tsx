@@ -45,7 +45,7 @@ export function PollComposerFields({
       ))}
       {options.length < 6 ? (
         <Button
-          variant="variant-ghost-primary"
+          variant="ghost"
           action={() => onOptionsChange([...options, ''])}
         >
           {t('posts.form.poll.addOption', { defaultValue: 'Add option' })}

@@ -18,7 +18,7 @@ import {
   ScreenShareOff,
   UsersRound,
 } from 'lucide-react';
-import { Blur, Button, SquareStop } from '@openpeepshq/react-ui';
+import { Blur, SquareStop } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { subscribePushNotifications } from '../../push';
 import { useT } from '../../i18n';
@@ -34,6 +34,7 @@ import {
   JamMicSelector,
 } from './JamDeviceSelectors';
 import { JamReactionMenu } from './JamReactionMenu';
+import { JamToolbarButton } from './JamToolbarButton';
 import { LeaveCloseButton } from './LeaveCloseButton';
 import { toggleHand } from './jamEventActions';
 import { useRaisedHands } from './useJamHands';
@@ -129,57 +130,30 @@ const useFooterControls = () => {
   };
 };
 
-/** Toolbar icon button mirroring Svelte `Button` with soft variants. */
-const ToolbarButton = ({
-  title,
-  active,
-  className = '',
-  onClick,
-  children,
-}: {
-  title: string;
-  active?: boolean;
-  className?: string;
-  onClick: () => void;
-  children: React.ReactNode;
-}) => (
-  <Button
-    title={title}
-    variant={active ? 'variant-soft-primary' : 'variant-soft-surface'}
-    className={`size-10 rounded-full p-2 ${className}`}
-    action={onClick}
-  >
-    {children}
-  </Button>
-);
-
 /** Record control mirroring `RecordSwitch.svelte` (always red, Disc / SquareStop). */
 const RecordButton = ({
   isRecording,
   busy,
   onToggle,
   t,
-  className = '',
 }: {
   isRecording: boolean;
   busy: boolean;
   onToggle: () => void;
   t: ReturnType<typeof useT>;
-  className?: string;
 }) => (
-  <button
-    type="button"
+  <JamToolbarButton
+    tone="danger"
     disabled={busy}
     title={
       isRecording
         ? t('jams.recording.stopTitle')
         : t('events.recordingInProgress')
     }
-    onClick={onToggle}
-    className={`bg-error-500 text-on-primary-token flex size-10 items-center justify-center rounded-full p-2 ${className}`}
+    action={onToggle}
   >
     {isRecording ? <SquareStop /> : <Disc />}
-  </button>
+  </JamToolbarButton>
 );
 
 /** People button with count badges mirroring Svelte `UserButton.svelte`. */
@@ -196,22 +170,21 @@ const UserButton = ({
   onToggle: () => void;
   t: ReturnType<typeof useT>;
 }) => (
-  <Button
+  <JamToolbarButton
     title={t('jams.participant.showEveryone')}
-    variant={active ? 'variant-soft-primary' : 'variant-soft-surface'}
-    className="relative size-10 rounded-full p-2"
+    tone={active ? 'active' : 'default'}
     action={onToggle}
   >
-    <span className="bg-surface-400 absolute -right-2 -top-2 size-6 rounded-full p-1 px-2 text-xs">
+    <span className="bg-border-2 text-foreground absolute -right-2 -top-2 size-6 rounded-full p-1 px-2 text-xs">
       {count}
     </span>
     {waitingRoomCount > 0 ? (
-      <span className="bg-surface-400 absolute -bottom-2 -right-2 size-6 rounded-full p-1 px-2 text-xs">
+      <span className="bg-border-2 text-foreground absolute -bottom-2 -right-2 size-6 rounded-full p-1 px-2 text-xs">
         {waitingRoomCount}
       </span>
     ) : null}
     <UsersRound />
-  </Button>
+  </JamToolbarButton>
 );
 
 /** Chat toggle with unread dot mirroring `ChatDrawerButton.svelte`. */
@@ -248,10 +221,9 @@ const ChatButton = ({
   }, [sessionEvents, active, lastSeenMessageId]);
 
   return (
-    <Button
+    <JamToolbarButton
       title={t('jams.chat.openEveryoneTitle')}
-      variant={active ? 'variant-soft-primary' : 'variant-soft-surface'}
-      className="relative size-10 rounded-full p-1"
+      tone={active ? 'active' : 'default'}
       action={() => {
         onToggle();
         setHasNewMessages(false);
@@ -261,10 +233,10 @@ const ChatButton = ({
       {hasNewMessages && !active ? (
         <Dot
           size={13}
-          className="bg-error-500 text-error-500 absolute right-0 top-0 rounded-full"
+          className="bg-error text-destructive absolute right-0 top-0 rounded-full"
         />
       ) : null}
-    </Button>
+    </JamToolbarButton>
   );
 };
 
@@ -306,14 +278,14 @@ const ScreenShareButton = ({
   }
 
   return (
-    <Button
+    <JamToolbarButton
       title={t('jams.screenShare.startStopTitle')}
-      variant={enabled ? 'variant-soft-primary' : 'variant-soft-surface'}
-      className="hidden size-10 rounded-full p-2 md:flex"
+      tone={enabled ? 'active' : 'default'}
+      className="hidden md:flex"
       action={action}
     >
       {enabled ? <ScreenShareOff /> : <ScreenShare />}
-    </Button>
+    </JamToolbarButton>
   );
 };
 
@@ -343,7 +315,7 @@ const MobileMenu = ({
   onToggleRecording: () => void;
   t: ReturnType<typeof useT>;
 }) => (
-  <div className="bg-surface-100 text-foreground absolute bottom-20 left-2 right-2 z-50 grid grid-cols-3 rounded-md p-2">
+  <div className="bg-surface text-foreground absolute bottom-20 left-2 right-2 z-50 grid grid-cols-3 rounded-md p-2">
     <button
       type="button"
       className="flex flex-col items-center justify-center gap-y-2 p-2 md:hidden"
@@ -480,45 +452,45 @@ export const JamFooter = ({
             />
           ) : null}
 
-          <ToolbarButton
+          <JamToolbarButton
             title={
               blur ? t('jams.blur.turnOff') : t('jams.blur.blurBackground')
             }
-            active={blur}
-            onClick={onToggleBlur}
+            tone={blur ? 'active' : 'default'}
+            action={onToggleBlur}
           >
             <Blur />
-          </ToolbarButton>
+          </JamToolbarButton>
 
-          <ToolbarButton
+          <JamToolbarButton
             title={t('jams.hand.raiseTitle')}
-            active={handRaised}
-            onClick={raiseHand}
+            tone={handRaised ? 'active' : 'default'}
+            action={raiseHand}
           >
             <Hand />
-          </ToolbarButton>
+          </JamToolbarButton>
 
           <ScreenShareButton t={t} />
 
-          <ToolbarButton
+          <JamToolbarButton
             title={t('jams.reactions.sendTitle')}
-            active={reactionMenuOpen}
-            onClick={() => setReactionMenuOpen((open) => !open)}
+            tone={reactionMenuOpen ? 'active' : 'default'}
+            action={() => setReactionMenuOpen((open) => !open)}
           >
             <Laugh />
-          </ToolbarButton>
+          </JamToolbarButton>
 
           <ChatButton active={chatOpen} onToggle={onToggleChat} t={t} />
         </div>
 
         <div className="relative flex items-center gap-x-4">
-          <ToolbarButton
+          <JamToolbarButton
             title={t('jams.mobileMenu.jamDetails')}
-            active={detailsOpen}
-            onClick={onToggleDetails}
+            tone={detailsOpen ? 'active' : 'default'}
+            action={onToggleDetails}
           >
             <Info />
-          </ToolbarButton>
+          </JamToolbarButton>
           <UserButton
             active={peopleOpen}
             count={participantCount}
@@ -531,7 +503,7 @@ export const JamFooter = ({
       </div>
 
       {/* Mobile toolbar */}
-      <div className="bg-surface-50/75 relative flex w-full items-center justify-between gap-x-2 px-2 py-3 md:hidden">
+      <div className="bg-background/75 relative flex w-full items-center justify-between gap-x-2 px-2 py-3 md:hidden">
         {reactionMenuOpen ? (
           <div className="absolute bottom-20 right-[7%] z-50 mt-2 w-[90%] rounded-md p-2">
             <JamReactionMenu onSelect={handleEmojiSelect} mobile />
@@ -562,25 +534,20 @@ export const JamFooter = ({
           onToggleSpeaker={onToggleSpeaker}
         />
 
-        <button
-          type="button"
+        <JamToolbarButton
           title={t('jams.reactions.sendTitle')}
-          onClick={() => setReactionMenuOpen((open) => !open)}
-          className={`text-on-primary-token flex items-center justify-center rounded-full p-2 ${
-            reactionMenuOpen ? 'bg-primary-500' : 'bg-surface-400'
-          }`}
+          tone={reactionMenuOpen ? 'active' : 'default'}
+          action={() => setReactionMenuOpen((open) => !open)}
         >
           <Laugh />
-        </button>
+        </JamToolbarButton>
 
-        <button
-          type="button"
+        <JamToolbarButton
           title={t('jams.drawer.jamControls')}
-          onClick={() => setMobileMenuOpen((open) => !open)}
-          className="bg-surface-400 text-on-primary-token flex items-center justify-center rounded-full p-2"
+          action={() => setMobileMenuOpen((open) => !open)}
         >
           <CircleEllipsis />
-        </button>
+        </JamToolbarButton>
 
         <LeaveCloseButton />
       </div>

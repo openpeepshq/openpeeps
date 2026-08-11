@@ -105,7 +105,7 @@ function ScreenSharingLayout({
                 {profileName(profile)} {t('jams.screenShare.youPresenting')}
               </div>
               <Button
-                variant="variant-ringed-secondary"
+                variant="outline"
                 title={t('jams.screenShare.stopTitle')}
                 action={() =>
                   void room.localParticipant
@@ -136,7 +136,7 @@ function ScreenSharingLayout({
               <button
                 type="button"
                 title={t('jams.screenShare.startStopTitle')}
-                className="bg-surface-900/60 text-on-primary-token hover:bg-surface-900/80 absolute bottom-3 right-3 rounded-full p-2 transition-colors"
+                className="bg-foreground/60 text-on-primary-token hover:bg-foreground/80 absolute bottom-3 right-3 rounded-full p-2 transition-colors"
                 onClick={toggleFullscreen}
               >
                 <Maximize2 className="size-5" />

@@ -41,7 +41,7 @@ export function EventMenu({ post, menuButton }: EventMenuProps) {
       groupId: post.groupId,
       mentions: post.mentions,
     };
-    navigate('/events/new');
+    navigate({ type: 'events', view: 'new' });
   };
 
   return (

@@ -5,29 +5,28 @@ OpenPeeps React UI library. A 1:1 React + shadcn/Tailwind translation of
 
 ## What's inside
 
-| @openpeepshq/ui (Svelte)     | @openpeepshq/react-ui (React)                     |
-| -------------------------- | ----------------------------------------------- |
-| `badges/`                  | `Badge`, `Badges`                               |
-| `button/`                  | `Button`, `IconButton`, `TextButton`            |
-| `date/`                    | `UpdatingDate`, `StopWatch`, `Timespan`         |
-| `expandable-box/`          | `ExpandableBox`                                 |
-| `form/`                    | `Form`, `FormInput`, `Label`, `RadioSelect`, `FormRadioBool`, `SubmitButton`, `useFormContext`, `useFormMessages`, helpers |
-| `icons/`                   | `Blur`                                          |
-| `infinite-scrolling/`      | `InfiniteScrollContainer`, `ScrollObserver`     |
-| `link/`                    | `Link`                                          |
-| `loaders/`                 | `Loader`, `LoadingIcon`, `WaitForQueries`       |
-| `modal/`                   | `Modal`, `ModalWrapper`, `ModalHeader`, `ModalFooter`, `getModalManager`, `useModalManager` |
-| `popup-menu/`              | `PopupMenu`, `PopupMenuButton`, `PopupSection`, `PopupSeparator` |
-| `search/`                  | `SearchAndFilterBar`                            |
-| `table/`                   | `Table`                                         |
-| `theme/`                   | `generatePalette`, `setTheme`, color utilities  |
-| `tooltip/`                 | `Tooltip`                                       |
-| `utils/`                   | `cn`, `deepGet`, `deepSet`, `getUniqueBy`, `preventDefault`, `stopPropagation`, `useInfiniteScroll` |
+| @openpeepshq/ui (Svelte) | @openpeepshq/react-ui (React)                                                                                              |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `badges/`                | `Badge`, `Badges`                                                                                                          |
+| `button/`                | `Button`, `IconButton`, `TextButton`                                                                                       |
+| `date/`                  | `UpdatingDate`, `StopWatch`, `Timespan`                                                                                    |
+| `expandable-box/`        | `ExpandableBox`                                                                                                            |
+| `form/`                  | `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage`, `Label`, `RadioSelect` |
+| `icons/`                 | `Blur`                                                                                                                     |
+| `infinite-scrolling/`    | `InfiniteScrollContainer`, `ScrollObserver`                                                                                |
+| `link/`                  | `Link`                                                                                                                     |
+| `loaders/`               | `Loader`, `LoadingIcon`, `WaitForQueries`                                                                                  |
+| `modal/`                 | `Modal`, `ModalWrapper`, `ModalHeader`, `ModalFooter`, `getModalManager`, `useModalManager`                                |
+| `popup-menu/`            | `PopupMenu`, `PopupMenuButton`, `PopupSection`, `PopupSeparator`                                                           |
+| `search/`                | `SearchAndFilterBar`                                                                                                       |
+| `table/`                 | `Table`                                                                                                                    |
+| `theme/`                 | `applyThemeOverrides`, `setTheme`, color utilities                                                                         |
+| `tooltip/`               | `Tooltip`                                                                                                                  |
+| `utils/`                 | `cn`, `deepGet`, `deepSet`, `getUniqueBy`, `preventDefault`, `stopPropagation`, `useInfiniteScroll`                        |
 
 In addition the package exposes shadcn primitives directly (`Input`,
 `Textarea`, `Dialog*`, `DropdownMenu*`, `Popover*`, `RadioGroup`, `Tooltip*`,
-`Table*`, `ScrollArea`, `Separator`, `Skeleton`, `ShadcnButton`,
-`ShadcnBadge`, …).
+`Table*`, `ScrollArea`, `Separator`, `Skeleton`, `ShadcnBadge`, …).
 
 ## Install
 
@@ -77,14 +76,40 @@ const css = themeStyleString('OpenpeepsLight', '#55ACBA', '/bg.png');
 ## Forms
 
 ```tsx
-import { Form, FormInput, SubmitButton } from '@openpeepshq/react-ui';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  Input,
+  Button,
+} from '@openpeepshq/react-ui';
 import { z } from 'zod';
 
-const Schema = z.object({ email: z.string().email() });
+const schema = z.object({ email: z.string().email() });
+const form = useForm({ resolver: zodResolver(schema), defaultValues: { email: '' } });
 
-<Form data={state} schema={Schema} onSubmit={(d) => save(d)}>
-  <FormInput path={['email']} title="Email" type="email" />
-  <SubmitButton title="Save" action={() => save(state)} />
+<Form {...form}>
+  <form onSubmit={form.handleSubmit(save)}>
+    <FormField
+      control={form.control}
+      name="email"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Email</FormLabel>
+          <FormControl>
+            <Input {...field} type="email" />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+    <Button type="submit">Save</Button>
+  </form>
 </Form>;
 ```
 

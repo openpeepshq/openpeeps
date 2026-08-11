@@ -56,7 +56,7 @@ export const Attachments = ({ post }: { post: PublicPost }) => {
     index: number;
   }) => (
     <ThemedView
-      className="h-72 bg-surface-100"
+      className="h-72 bg-surface"
       style={{ width: containerWidth || '100%' }}
     >
       {renderAttachmentContent(item, index === activeIndex)}
@@ -123,7 +123,7 @@ export const Attachments = ({ post }: { post: PublicPost }) => {
             <View
               key={index}
               className={`h-2 w-2 rounded-full ${
-                index === activeIndex ? 'bg-primary' : 'bg-muted'
+                index === activeIndex ? 'bg-primary' : 'bg-surface'
               }`}
               onTouchEnd={() => scrollToIndex(index)}
             />

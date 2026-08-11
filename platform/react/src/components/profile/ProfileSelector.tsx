@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Check, Search } from 'lucide-react';
 import type { PublicProfile } from '@openpeepshq/common/types';
-import { matchesQuery, profileName, sortProfiles } from '@openpeepshq/common/lib';
+import {
+  matchesQuery,
+  profileName,
+  sortProfiles,
+} from '@openpeepshq/common/lib';
 import {
   Button,
   Dialog,
@@ -165,7 +169,7 @@ export const ProfileSelector = ({
                   <button
                     key={profile.id}
                     type="button"
-                    className={`hover:bg-surface-100 flex w-full items-center gap-3 rounded-md p-2 text-left ${selected ? 'bg-secondary/40' : ''}`}
+                    className={`hover:bg-surface rounded-button flex w-full items-center gap-3 p-2 text-left ${selected ? 'bg-secondary/40' : ''}`}
                     onClick={() => toggleProfile(profile)}
                   >
                     <Avatar profile={profile} size={2.5} borderless />
@@ -191,13 +195,10 @@ export const ProfileSelector = ({
 
         {mode === 'multiple' ? (
           <DialogFooter>
-            <Button
-              variant="variant-ringed-surface"
-              action={() => onOpenChange(false)}
-            >
+            <Button variant="outline" action={() => onOpenChange(false)}>
               {t('common.cancel', { defaultValue: 'Cancel' })}
             </Button>
-            <Button variant="variant-filled-primary" action={confirmMultiple}>
+            <Button variant="default" action={confirmMultiple}>
               {t('profile.selector.confirm', { defaultValue: 'OK' })}
             </Button>
           </DialogFooter>

@@ -76,12 +76,12 @@ function SimpleLocationInput({
         />
       </div>
       {suggestions.length > 0 ? (
-        <div className="bg-card absolute z-10 mt-1 max-h-40 w-full overflow-y-auto rounded-md border shadow-md">
+        <div className="bg-surface absolute z-10 mt-1 max-h-40 w-full overflow-y-auto rounded-md border shadow-md">
           {suggestions.map((item) => (
             <button
               key={`${item.name}-${item.center.lat}-${item.center.lng}`}
               type="button"
-              className="hover:bg-surface-100 w-full px-3 py-2 text-left text-sm"
+              className="hover:bg-surface w-full px-3 py-2 text-left text-sm"
               onClick={() => {
                 setText(item.name);
                 onChange({

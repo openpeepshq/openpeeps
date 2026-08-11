@@ -15,7 +15,7 @@ export interface PopupMenuButtonProps {
 }
 
 const baseClass =
-  'flex w-full items-center gap-x-2 rounded p-2 text-left transition-colors hover:bg-muted disabled:opacity-60';
+  'flex w-full items-center gap-x-2 rounded-button p-2 text-left transition-colors hover:bg-surface disabled:opacity-60';
 
 export function PopupMenuButton({
   action,
@@ -46,7 +46,11 @@ export function PopupMenuButton({
       <a
         title={title}
         href={action}
-        className={cn(baseClass, danger && 'text-error', compact && 'justify-center')}
+        className={cn(
+          baseClass,
+          danger && 'text-error',
+          compact && 'justify-center',
+        )}
         onClick={(e) => {
           e.stopPropagation();
           setIsLoading(true);
@@ -62,7 +66,11 @@ export function PopupMenuButton({
       type="button"
       title={title}
       disabled={isLoading}
-      className={cn(baseClass, danger && 'text-error', compact && 'justify-center')}
+      className={cn(
+        baseClass,
+        danger && 'text-error',
+        compact && 'justify-center',
+      )}
       onClick={async (e) => {
         e.stopPropagation();
         e.preventDefault();

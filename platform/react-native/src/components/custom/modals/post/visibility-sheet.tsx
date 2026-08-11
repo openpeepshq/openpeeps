@@ -157,7 +157,7 @@ export const VisibilitySheet = forwardRef<
                 }>
                 <View className="w-full flex-row items-center justify-between py-4">
                   <View className="flex-row items-center flex-1">
-                    <View className="w-12 h-12 rounded-full bg-muted items-center justify-center mr-3">
+                    <View className="w-12 h-12 rounded-full bg-surface items-center justify-center mr-3">
                       <option.icon size={20} className="text-foreground" />
                     </View>
                     <View className="flex-row items-center gap-4">

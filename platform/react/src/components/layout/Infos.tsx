@@ -15,9 +15,9 @@ export function Infos() {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const validateEmail = openpeepsApi.validationEmailAction();
-  const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>(
-    'idle',
-  );
+  const [status, setStatus] = useState<
+    'idle' | 'pending' | 'success' | 'error'
+  >('idle');
 
   const showEmailWarning =
     !!account &&
@@ -62,7 +62,7 @@ export function Infos() {
         </div>
         <Button
           action={handleValidate}
-          variant="variant-ghost-primary"
+          variant="ghost"
           disabled={status === 'pending'}
         >
           {status === 'pending'

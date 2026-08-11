@@ -25,6 +25,10 @@ export default defineConfig({
         replacement: path.join(openpeepsReactSrc, 'components/index.ts'),
       },
       {
+        find: '@openpeepshq/react/pages',
+        replacement: path.join(openpeepsReactSrc, 'pages/index.ts'),
+      },
+      {
         find: '@openpeepshq/react',
         replacement: path.join(openpeepsReactSrc, 'index.ts'),
       },

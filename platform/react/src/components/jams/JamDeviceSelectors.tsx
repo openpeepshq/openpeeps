@@ -13,13 +13,10 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
-import {
-  PopupMenuButton,
-  SplitButtonMenu,
-  type IconType,
-} from '@openpeepshq/react-ui';
+import { PopupMenuButton, type IconType } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { audioOutputSupported } from './constants';
+import { JamToolbarButton } from './JamToolbarButton';
 
 type DeviceType = 'mic' | 'camera' | 'speaker';
 
@@ -35,7 +32,7 @@ interface DeviceSelectorPillProps {
 }
 
 /** Pill mirroring Svelte `DeviceSelectorAndSwitch.svelte`. */
-const DeviceSelectorPill = ({
+export const DeviceSelectorPill = ({
   enabled,
   onToggle,
   onIcon: OnIcon,
@@ -54,13 +51,11 @@ const DeviceSelectorPill = ({
         : '';
 
   return (
-    <SplitButtonMenu
-      className="bg-surface-100 rounded-full backdrop-blur"
+    <JamToolbarButton
       title={`${enabled ? t('jams.device.turnOff') : t('jams.device.turnOn')}${deviceLabel ? ` ${deviceLabel}` : ''}`}
-      variant={enabled ? 'variant-soft-surface' : 'variant-filled-error'}
+      tone={enabled ? 'default' : 'danger'}
       action={onToggle}
       menuTitle={t('jams.device.changeTitle')}
-      placement="top-start"
       menuChildren={
         <>
           {!enabled ? (
@@ -109,7 +104,7 @@ const DeviceSelectorPill = ({
       }
     >
       {enabled ? <OnIcon /> : <OffIcon />}
-    </SplitButtonMenu>
+    </JamToolbarButton>
   );
 };
 

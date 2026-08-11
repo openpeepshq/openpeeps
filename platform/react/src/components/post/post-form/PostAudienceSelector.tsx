@@ -160,10 +160,10 @@ export const PostAudienceSelector = ({
                   <button
                     key={choice.value}
                     type="button"
-                    className="hover:bg-surface-100 flex w-full items-start gap-3 rounded-md border p-3 text-left"
+                    className="hover:bg-surface rounded-button flex w-full items-start gap-3 border p-3 text-left"
                     onClick={() => selectVisibility(choice.value)}
                   >
-                    <span className="bg-surface-100 flex size-10 items-center justify-center rounded-full">
+                    <span className="bg-surface flex size-10 items-center justify-center rounded-full">
                       <Icon className="size-5" />
                     </span>
                     <span className="flex-1">
@@ -205,18 +205,15 @@ export const PostAudienceSelector = ({
 
           <DialogFooter>
             {view !== 'main' ? (
-              <Button
-                variant="variant-ringed-surface"
-                action={() => setView('main')}
-              >
+              <Button variant="outline" action={() => setView('main')}>
                 {t('navigation.back', { defaultValue: 'Back' })}
               </Button>
             ) : (
-              <Button variant="variant-ringed-surface" action={onClose}>
+              <Button variant="outline" action={onClose}>
                 {t('common.cancel', { defaultValue: 'Cancel' })}
               </Button>
             )}
-            <Button variant="variant-filled-primary" action={confirm}>
+            <Button variant="default" action={confirm}>
               {t('common.done', { defaultValue: 'Done' })}
             </Button>
           </DialogFooter>

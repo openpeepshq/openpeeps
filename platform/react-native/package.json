@@ -84,7 +84,7 @@
     "@openpeepshq/common": "workspace:^",
     "@openpeepshq/react": "workspace:^",
     "@gorhom/bottom-sheet": "^5.2.9",
-    "@hookform/resolvers": "^3.10.0",
+    "@hookform/resolvers": "^5.4.2",
     "@livekit/react-native": "2.11.0",
     "@livekit/react-native-krisp-noise-filter": "^0.0.3",
     "@livekit/react-native-webrtc": "^144.1.0",

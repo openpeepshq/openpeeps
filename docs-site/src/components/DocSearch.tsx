@@ -30,16 +30,16 @@ export const DocSearch = ({ docs }: Props): ReactElement => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search docs…"
-        className="border-border bg-card text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm outline-none focus:border-primary-500"
+        className="border-border bg-surface text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm outline-none focus:border-primary"
         aria-label="Search documentation"
       />
       {results.length > 0 && (
-        <ul className="border-border bg-card absolute z-20 mt-1 max-h-72 w-full overflow-auto rounded-md border shadow-md">
+        <ul className="border-border bg-surface absolute z-20 mt-1 max-h-72 w-full overflow-auto rounded-md border shadow-md">
           {results.map((doc) => (
             <li key={doc.slug || 'home'}>
               <Link
                 to={slugToPath(doc.slug)}
-                className="hover:bg-muted block px-3 py-2 text-sm"
+                className="hover:bg-surface block px-3 py-2 text-sm"
                 onClick={() => setQuery('')}
               >
                 <div className="font-medium">{doc.title}</div>

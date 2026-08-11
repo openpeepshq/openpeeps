@@ -17,125 +17,129 @@
     --theme-rounded-container: 8px;
     --theme-border-base: 1px;
 
-    --on-primary: 255 255 255;
-    --on-secondary: 255 255 255;
     --on-tertiary: 255 255 255;
     --on-success: 0 0 0;
     --on-warning: 0 0 0;
     --on-error: 255 255 255;
-    --on-surface: 0 0 0;
 
-    --color-primary-50: 230 245 248;
-    --color-primary-100: 205 234 240;
-    --color-primary-200: 180 224 233;
-    --color-primary-300: 155 213 225;
-    --color-primary-400: 120 197 213;
-    --color-primary-500: 85 172 186;
-    --color-primary-600: 68 138 149;
-    --color-primary-700: 51 103 112;
-    --color-primary-800: 34 69 74;
-    --color-primary-900: 17 34 37;
+    /* Legacy flat anchors for tertiary/error (no Figma token yet). */
+    --color-tertiary: 50 14 59;
+    --color-error: 163 0 0;
 
-    --color-secondary-50: 232 245 240;
-    --color-secondary-100: 209 235 226;
-    --color-secondary-200: 187 226 211;
-    --color-secondary-300: 142 207 182;
-    --color-secondary-400: 96 187 154;
-    --color-secondary-500: 49 178 139;
-    --color-secondary-600: 39 142 111;
-    --color-secondary-700: 29 107 83;
-    --color-secondary-800: 20 71 56;
-    --color-secondary-900: 10 36 28;
+    /* Figma "AllPeep UI 2026" Styles page — Semantic Colors / Dark Mode
+       comparison (node 14184:2). */
+    --color-background: 255 255 255;
+    --color-foreground: 24 24 27;
+    --color-card: 244 244 245;
+    --color-card-foreground: 113 113 122;
+    --color-accent-foreground: 254 226 226;
+    --color-destructive: 220 38 38;
+    --color-destructive-foreground: 254 242 242;
+    --color-border-1: 228 228 231;
+    --color-border-2: 212 212 216;
+    --color-input: 228 228 231;
+    --color-muted: 244 244 245;
+    --color-muted-foreground: 113 113 122;
+    --color-surface: 244 244 245;
+    --color-popover: 255 255 255;
+    --color-popover-foreground: 9 9 11;
+    --color-primary: 12 144 167;
+    --color-primary-foreground: 255 255 255;
+    --color-ring: 24 24 27;
+    --color-ring-offset: 255 255 255;
+    --color-secondary: 49 178 139;
+    --color-secondary-foreground: 216 243 230;
+    --color-text: 9 9 11;
+    --color-modal-backdrop: rgba(30, 30, 32, 0.7);
 
-    --color-tertiary-50: 235 224 232;
-    --color-tertiary-100: 215 192 209;
-    --color-tertiary-200: 195 161 187;
-    --color-tertiary-300: 155 98 142;
-    --color-tertiary-400: 100 56 100;
-    --color-tertiary-500: 50 14 59;
-    --color-tertiary-600: 40 11 47;
-    --color-tertiary-700: 30 8 35;
-    --color-tertiary-800: 20 6 24;
-    --color-tertiary-900: 10 3 12;
+    --color-chart-1: 42 157 144;
+    --color-chart-2: 231 110 80;
+    --color-chart-3: 39 71 84;
+    --color-chart-4: 232 196 104;
+    --color-chart-5: 244 164 98;
 
-    --color-success-50: 237 247 220;
-    --color-success-100: 230 245 208;
-    --color-success-200: 224 242 197;
-    --color-success-300: 206 235 162;
-    --color-success-400: 169 219 92;
-    --color-success-500: 132 204 22;
-    --color-success-600: 119 184 20;
-    --color-success-700: 99 153 17;
-    --color-success-800: 79 122 13;
-    --color-success-900: 65 100 11;
+    --color-progress: 251 146 60;
+    --color-surface-2: 228 228 231;
+    --color-surface-primary: 208 251 253;
+    --color-surface-warning: 254 226 226;
+    --color-surface-success: 220 252 231;
+    --color-surface-progress: 255 237 213;
 
-    --color-warning-50: 255 250 232;
-    --color-warning-100: 255 249 224;
-    --color-warning-200: 255 247 216;
-    --color-warning-300: 255 242 193;
-    --color-warning-400: 255 233 147;
-    --color-warning-500: 255 223 100;
-    --color-warning-600: 230 201 90;
-    --color-warning-700: 191 167 75;
-    --color-warning-800: 153 134 60;
-    --color-warning-900: 125 109 49;
+    /* Figma flat base/warning and base/success tokens. */
+    --color-warning: 239 68 68;
+    --color-success: 34 197 94;
 
-    --color-error-50: 241 217 217;
-    --color-error-100: 237 204 204;
-    --color-error-200: 232 191 191;
-    --color-error-300: 218 153 153;
-    --color-error-400: 191 77 77;
-    --color-error-500: 163 0 0;
-    --color-error-600: 147 0 0;
-    --color-error-700: 122 0 0;
-    --color-error-800: 98 0 0;
-    --color-error-900: 80 0 0;
-
-    --color-surface-50: 255 255 255;
-    --color-surface-100: 245 246 247;
-    --color-surface-200: 233 235 238;
-    --color-surface-300: 211 215 220;
-    --color-surface-400: 154 162 174;
-    --color-surface-500: 109 119 134;
-    --color-surface-600: 84 92 104;
-    --color-surface-700: 60 66 75;
-    --color-surface-800: 36 39 45;
-    --color-surface-900: 18 20 22;
+    --color-alpha-10: rgba(255, 255, 255, 0.9);
+    --color-alpha-20: rgba(255, 255, 255, 0.8);
+    --color-alpha-30: rgba(255, 255, 255, 0.7);
+    --color-alpha-40: rgba(255, 255, 255, 0.6);
+    --color-alpha-50: rgba(255, 255, 255, 0.5);
+    --color-alpha-60: rgba(255, 255, 255, 0.4);
+    --color-alpha-70: rgba(255, 255, 255, 0.3);
+    --color-alpha-80: rgba(255, 255, 255, 0.2);
+    --color-alpha-90: rgba(255, 255, 255, 0.1);
   }
 
   [data-theme='OpenpeepsDark'] {
     --theme-font-color-base: 255 255 255;
     --theme-font-color-dark: 0 0 0;
 
-    --on-primary: 0 0 0;
-    --on-secondary: 0 0 0;
     --on-tertiary: 255 255 255;
     --on-success: 0 0 0;
     --on-warning: 0 0 0;
     --on-error: 255 255 255;
-    --on-surface: 255 255 255;
 
-    --color-primary-900: 219 237 240;
-    --color-primary-800: 206 231 235;
-    --color-primary-700: 194 225 231;
-    --color-primary-600: 158 207 216;
-    --color-primary-500: 85 172 186;
-    --color-primary-400: 12 136 157;
-    --color-primary-300: 11 122 141;
-    --color-primary-200: 9 102 118;
-    --color-primary-100: 7 82 94;
-    --color-primary-50: 6 67 77;
+    /* Figma "AllPeep UI 2026" Styles page — Dark Mode comparison (node 14184:2) */
+    --color-background: 9 9 11;
+    --color-foreground: 250 250 250;
+    --color-card: 39 39 42;
+    --color-card-foreground: 113 113 122;
+    --color-accent-foreground: 69 10 10;
+    --color-destructive: 127 29 29;
+    --color-destructive-foreground: 254 242 242;
+    --color-border-1: 39 39 42;
+    --color-border-2: 63 63 70;
+    --color-input: 39 39 42;
+    --color-muted: 39 39 42;
+    --color-muted-foreground: 161 161 170;
+    --color-surface: 39 39 42;
+    --color-popover: 9 9 11;
+    --color-popover-foreground: 250 250 250;
+    --color-primary: 12 144 167;
+    --color-primary-foreground: 255 255 255;
+    --color-ring: 212 212 216;
+    --color-ring-offset: 255 255 255;
+    --color-secondary: 49 178 139;
+    --color-secondary-foreground: 255 255 255;
+    --color-text: 255 255 255;
+    --color-modal-backdrop: rgba(30, 30, 32, 0.7);
 
-    --color-surface-900: 242 243 244;
-    --color-surface-800: 237 239 240;
-    --color-surface-700: 233 235 236;
-    --color-surface-600: 219 223 225;
-    --color-surface-500: 193 198 203;
-    --color-surface-400: 37 41 44;
-    --color-surface-300: 33 37 40;
-    --color-surface-200: 28 31 33;
-    --color-surface-100: 22 25 26;
-    --color-surface-50: 18 20 22;
+    --color-chart-1: 38 98 217;
+    --color-chart-2: 226 54 112;
+    --color-chart-3: 232 140 48;
+    --color-chart-4: 175 87 219;
+    --color-chart-5: 46 184 138;
+
+    --color-progress: 251 146 60;
+    --color-surface-2: 63 63 70;
+    --color-surface-primary: 24 80 97;
+    --color-surface-warning: 69 10 10;
+    --color-surface-success: 5 46 22;
+    --color-surface-progress: 67 20 7;
+
+    /* See Light theme comment above. */
+    --color-warning: 239 68 68;
+    --color-success: 34 197 94;
+
+    --color-alpha-10: rgba(9, 9, 11, 0.9);
+    --color-alpha-20: rgba(9, 9, 11, 0.8);
+    --color-alpha-30: rgba(9, 9, 11, 0.7);
+    --color-alpha-40: rgba(9, 9, 11, 0.6);
+    --color-alpha-50: rgba(9, 9, 11, 0.5);
+    --color-alpha-60: rgba(9, 9, 11, 0.4);
+    --color-alpha-70: rgba(9, 9, 11, 0.3);
+    --color-alpha-80: rgba(9, 9, 11, 0.2);
+    --color-alpha-90: rgba(9, 9, 11, 0.1);
   }
 
   * {
@@ -151,28 +155,21 @@
 @layer components {
   /* Skeleton variant compatibility classes — produced by the {variant}() helper */
   .op-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium
-           ring-offset-background transition-colors
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
-           disabled:pointer-events-none disabled:opacity-50
-           h-10 px-4 py-2;
+    @apply ring-offset-background focus-visible:ring-ring rounded-button inline-flex h-9 items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
   .op-btn-sm {
-    @apply h-8 rounded-md px-3 text-xs;
+    @apply h-8 px-3 text-xs;
   }
 
   .op-input {
-    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base
-           ring-offset-background placeholder:text-muted-foreground
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
-           disabled:cursor-not-allowed disabled:opacity-50 md:text-sm;
+    @apply border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm;
   }
   .op-input-error {
     @apply border-error;
   }
 
   .op-card {
-    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+    @apply bg-surface text-muted-foreground rounded-lg border shadow-sm;
   }
 
   .op-anchor {
@@ -185,10 +182,10 @@
 
   /* Shim to look like Skeleton's input-group */
   .op-input-group {
-    @apply flex items-stretch overflow-hidden rounded-md border border-input bg-background;
+    @apply border-input bg-background flex items-stretch overflow-hidden rounded-md border;
   }
   .op-input-group-shim {
-    @apply flex items-center justify-center bg-muted px-3 text-muted-foreground;
+    @apply bg-surface text-muted-foreground flex items-center justify-center px-3;
   }
   .op-input-group > .op-input {
     @apply rounded-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0;

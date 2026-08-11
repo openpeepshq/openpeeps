@@ -66,7 +66,7 @@ export const CardEvent = ({ post }: CardEventProps) => {
               <View
                 className={`flex justify-start ${jamState?.participants?.length || 0 > 1 ? 'gap-5' : 'gap-2'
                   }
-               text-surface-600 text-xs ${(jamState?.participants?.length ?? 0) > 0 ? '-mt-4' : ''
+               text-muted-foreground text-xs ${(jamState?.participants?.length ?? 0) > 0 ? '-mt-4' : ''
                   }`}>
                 <View className="flex flex-row items-center gap-x-2">
                   {jamState?.participants?.length > 0 && (

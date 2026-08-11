@@ -37,7 +37,7 @@ export const VersionSwitcher = ({ currentId }: Props): ReactElement | null => {
     <label className="flex items-center gap-2 text-sm">
       <span className="text-muted-foreground sr-only">Version</span>
       <select
-        className="border-border bg-card text-foreground rounded-md border px-2 py-1"
+        className="border-border bg-surface text-foreground rounded-md border px-2 py-1"
         value={currentId}
         aria-label="Documentation version"
         onChange={(e) => onChange(e.target.value)}

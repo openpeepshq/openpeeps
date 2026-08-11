@@ -85,7 +85,7 @@ export function HeaderMobile({ avatar, sideBar }: HeaderMobileProps = {}) {
         <button
           type="button"
           title={t('navigation.messages')}
-          onClick={() => router.navigate('/conversations')}
+          onClick={() => router.navigate({ type: 'conversation' })}
         >
           <MessageSquareText />
         </button>

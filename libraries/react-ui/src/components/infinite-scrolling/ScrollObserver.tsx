@@ -22,11 +22,13 @@ export function ScrollObserver({ query }: ScrollObserverProps) {
 
   return (
     <>
-      {query.hasNextPage && <div ref={ref} className="h-4 w-full" aria-hidden="true" />}
+      {query.hasNextPage && (
+        <div ref={ref} className="h-4 w-full" aria-hidden="true" />
+      )}
       {query.isFetchingNextPage && (
         <div className="flex items-center justify-center py-6">
-          <div className="flex items-center gap-2 text-surface-500">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-surface-300 border-t-primary" />
+          <div className="text-muted-foreground flex items-center gap-2">
+            <div className="border-border border-t-primary h-4 w-4 animate-spin rounded-full border-2" />
           </div>
         </div>
       )}

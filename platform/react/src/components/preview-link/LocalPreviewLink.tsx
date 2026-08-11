@@ -16,7 +16,7 @@ export function LocalPreviewLink({ url }: LocalPreviewLinkProps) {
   return (
     <a
       href={url}
-      className="hover:bg-surface-100 mb-2 block w-full min-w-0 max-w-full overflow-hidden rounded-md border p-3 no-underline"
+      className="hover:bg-surface mb-2 block w-full min-w-0 max-w-full overflow-hidden rounded-md border p-3 no-underline"
       onClick={(e) => e.stopPropagation()}
     >
       {isPost ? <PostPreview path={path} /> : null}
