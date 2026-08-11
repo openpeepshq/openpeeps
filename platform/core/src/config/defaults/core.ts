@@ -53,6 +53,9 @@ export const defaultConfig: CoreConfig = {
   },
   plugins: {
     path: path.resolve(process.env.PLUGINS_PATH || '../plugins'),
+    rootPackageJsonPath: path.resolve(
+      process.env.ROOT_PACKAGE_JSON_PATH || '../package.json',
+    ),
   },
   secrets: {
     jwt: resolveJwtSecret(),
@@ -60,8 +63,7 @@ export const defaultConfig: CoreConfig = {
   jams: {
     livekit: {
       // Shared test SFU when unset; jams still need API key/secret to enable.
-      url:
-        process.env.JAMS_LIVEKIT_URL || 'https://livekit.test.allpeep.cloud',
+      url: process.env.JAMS_LIVEKIT_URL || 'https://livekit.test.allpeep.cloud',
       apiKey: process.env.JAMS_LIVEKIT_API_KEY,
       apiSecret: process.env.JAMS_LIVEKIT_API_SECRET,
       recordingEnabled: process.env.JAMS_LIVEKIT_RECORDING_ENABLED === 'true',

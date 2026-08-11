@@ -7,6 +7,9 @@
     "type": "git",
     "url": "git@gitlab.allpeep-hq.com:allpeep/open-source/ap-at.git"
   },
+  "openpeeps": {
+    "plugins": []
+  },
   "dependencies": {
     "eslint": "^9.17.0",
     "prettier": "^3.4.2"

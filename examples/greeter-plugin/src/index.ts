@@ -4,37 +4,37 @@ import { config } from '@openpeepshq/core/config';
 import { logger } from '@openpeepshq/core/log';
 import type { PluginManifest } from '@openpeepshq/common';
 
-const log = logger('plugin:greeting');
+const log = logger('plugin:greeter');
 
-const greetingConfigSchema = () =>
+const greeterConfigSchema = () =>
   z.object({
-    greeting: z.string().default('Hello from the Greeting plugin!'),
+    greeting: z.string().default('Hello from the Greeter plugin!'),
   });
 
-const getGreetingConfig = async () => {
+const getGreeterConfig = async () => {
   // Config is registered under the plugin's directory namespace/name.
-  const pluginConfig = await config('openpeeps', 'greeting');
-  return greetingConfigSchema().parse(pluginConfig);
+  const pluginConfig = await config('examples', 'greeter-plugin');
+  return greeterConfigSchema().parse(pluginConfig);
 };
 
 export const interceptors = async () => ({
   postCreated: async () => {
-    const { greeting } = await getGreetingConfig();
+    const { greeting } = await getGreeterConfig();
     log.info(`postCreated intercepted, greeting: ${greeting}`);
   },
 });
 
 export const routes = async (router: Router) => {
   router.get('/hello', async (_req, res) => {
-    const { greeting } = await getGreetingConfig();
+    const { greeting } = await getGreeterConfig();
     res.json({ message: greeting });
   });
 };
 
 export const configSchema = {
-  schema: greetingConfigSchema,
+  schema: greeterConfigSchema,
   defaults: {
-    greeting: 'Hello from the Greeting plugin!',
+    greeting: 'Hello from the Greeter plugin!',
   },
 };
 
@@ -42,8 +42,8 @@ export const manifest: PluginManifest = {
   components: [
     {
       slot: 'plugins.header',
-      asset: 'web/greeting.js',
-      componentKey: 'openpeeps/greeting/header',
+      asset: 'web/greeter.js',
+      componentKey: 'examples/greeter-plugin/header',
     },
   ],
 };

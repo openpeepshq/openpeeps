@@ -98,6 +98,11 @@ ENV WEB_DIST_PATH=/apat/platform/web/dist
 # workspace symlinks resolve exactly as they do on the build host.
 ENV PLUGINS_PATH=/apat/plugins
 
+# Referenced example/demo plugins (e.g. `examples/*`) only load when listed in
+# the root package.json's `openpeeps.plugins` array, so this must point at the
+# baked-in root package.json to resolve those references.
+ENV ROOT_PACKAGE_JSON_PATH=/apat/package.json
+
 WORKDIR /apat
 
 EXPOSE 8080

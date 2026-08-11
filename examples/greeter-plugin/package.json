@@ -1,12 +1,9 @@
 {
-  "name": "@openpeepshq-plugins/greeting",
+  "name": "@openpeepshq-examples/greeter-plugin",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "openpeeps": {
-    "enabled": true
-  },
-  "description": "Example OpenPeeps plugin demonstrating backend events, API routes, config, and a frontend component.",
+  "description": "Example OpenPeeps plugin demonstrating backend events, API routes, config, and a frontend component. Only loaded when referenced in the root package.json's `openpeeps.plugins` array.",
   "scripts": {
     "build": "tsc",
     "lint": "prettier --check . && ESLINT_USE_FLAT_CONFIG=false eslint .",

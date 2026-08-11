@@ -4,7 +4,7 @@
   const registerComponent = (window.__OPENPEEPS_PLUGINS__ || {})
     .registerComponent;
 
-  const GreetingHeader = () => {
+  const GreeterHeader = () => {
     return React.createElement(
       'div',
       {
@@ -17,15 +17,15 @@
           textAlign: 'center',
         },
       },
-      'Hello from the Greeting plugin frontend component!',
+      'Hello from the Greeter plugin frontend component!',
     );
   };
 
   if (typeof registerComponent === 'function') {
     registerComponent(
       'plugins.header',
-      'openpeeps/greeting/header',
-      GreetingHeader,
+      'examples/greeter-plugin/header',
+      GreeterHeader,
     );
   }
 })();

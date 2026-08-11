@@ -53,7 +53,7 @@ export const buildPluginRouters = async () => {
 
 const ASSET_BASE = `${PLUGIN_ASSETS_PREFIX}/`;
 
-export const pluginAssetsMiddleware = (pluginsPath: string) => {
+export const pluginAssetsMiddleware = () => {
   return (req: Request, res: Response, _next: NextFunction) => {
     // Express regex routes strip the matched portion from req.url.
     // Use req.originalUrl to get the full original path, but drop any
@@ -86,7 +86,11 @@ export const pluginAssetsMiddleware = (pluginsPath: string) => {
       return;
     }
 
-    const root = path.resolve(pluginsPath, namespace, name);
+    // Use the plugin's own resolved directory (set by the loader) rather
+    // than recomputing it from `plugins.path`/namespace/name. Referenced
+    // plugins (e.g. under `examples/`) live outside `plugins.path`, so
+    // recomputing here would 404 on their assets.
+    const root = plugin.path;
     let resolvedRoot: string;
     try {
       resolvedRoot = fs.realpathSync(root);

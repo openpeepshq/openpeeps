@@ -12,6 +12,7 @@ let registeredPlugins: Array<{
   key: string;
   namespace: string;
   name: string;
+  path: string;
   status: 'loaded' | 'failed';
 }> = [];
 
@@ -58,13 +59,14 @@ describe('pluginAssetsMiddleware', () => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'opeeps-plugin-test-'));
     pluginsPath = path.join(tempDir, 'plugins');
     app = express();
-    app.use(PLUGIN_ASSETS_PREFIX, pluginAssetsMiddleware(pluginsPath));
+    app.use(PLUGIN_ASSETS_PREFIX, pluginAssetsMiddleware());
 
     registeredPlugins = [
       {
         key: 'openpeeps/greeting',
         namespace: 'openpeeps',
         name: 'greeting',
+        path: path.join(pluginsPath, 'openpeeps', 'greeting'),
         status: 'loaded',
       },
     ];
@@ -157,6 +159,7 @@ describe('pluginAssetsMiddleware', () => {
         key: 'openpeeps/greeting',
         namespace: 'openpeeps',
         name: 'greeting',
+        path: path.join(pluginsPath, 'openpeeps', 'greeting'),
         status: 'failed',
       },
     ];

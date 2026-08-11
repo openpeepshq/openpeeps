@@ -8,8 +8,10 @@ import express from 'express';
 import { api, expressAdapter } from '@riddl/core';
 import { logger } from '@openpeepshq/core/log';
 import { mediaStorage } from '@openpeepshq/core/media';
-import { defaultConfig } from '@openpeepshq/core/config';
-import { recordSlowRequest, slowRequestMs } from '@openpeepshq/core/performance';
+import {
+  recordSlowRequest,
+  slowRequestMs,
+} from '@openpeepshq/core/performance';
 import {
   applyCommunitySentryTags,
   getCommunityHostname,
@@ -65,10 +67,6 @@ const isDbBrowserRequest = (originalUrl: string): boolean =>
 
 const startServer = async () => {
   await initializeServer();
-
-  const {
-    plugins: { path: pluginsPath },
-  } = defaultConfig;
 
   const app = express();
 
@@ -170,7 +168,7 @@ const startServer = async () => {
   // Plugin-provided API routes are raw Express routers mounted before Riddl so
   // plugin namespaces win over the generic `/api/*` catch-all. They bypass
   // Riddl's auth/error-handling pipeline, so plugin authors must implement their
-  // own authentication and capability checks. See docs/PLUGINS.md §3.
+  // own authentication and capability checks. See platform/web/docs/development/plugins.md §3.
   //
   // Body parsers have to be applied here because Riddl's pipeline is not
   // invoked for these paths; without it `req.body` is undefined in plugin POST
@@ -224,10 +222,7 @@ const startServer = async () => {
   // Plugins ship their own UI bundles and reference them in their manifest.
   // Note: Express 5 / path-to-regexp v8 doesn't support `*` splats in the middle
   // of a pattern, so we use a regex matcher here.
-  app.use(
-    /^\/plugin-assets\/[^/]+\/[^/]+\/(.*)/,
-    pluginAssetsMiddleware(pluginsPath),
-  );
+  app.use(/^\/plugin-assets\/[^/]+\/[^/]+\/(.*)/, pluginAssetsMiddleware());
 
   // Serve locally-stored media at `/storage/<bucket>/<id>/<filename>`
   // (matches `mediaStorage().getPath` in `@openpeepshq/core/media/openpeeps`).
