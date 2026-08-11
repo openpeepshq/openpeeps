@@ -57,7 +57,7 @@ export function GalleryModal({
           />
         ) : attachment.type === 'image' || attachment.meta?.mimetype?.startsWith('image/') ? (
           <img
-            src={attachment.previewUrl ?? attachment.url ?? ''}
+            src={attachment.url ?? attachment.previewUrl ?? ''}
             alt={attachment.description ?? ''}
             className="max-h-[85vh] max-w-full object-contain"
           />
