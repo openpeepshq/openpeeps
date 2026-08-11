@@ -9,7 +9,9 @@ const isPluginEnabled = (info: PackageJson) =>
   (info as PackageJson & { openpeeps?: { enabled?: boolean } }).openpeeps
     ?.enabled !== false;
 
-export const sortByDependencies = (pluginInfos: [string, PackageJson][]) => {
+type PluginInfo = [string, PackageJson, string];
+
+export const sortByDependencies = (pluginInfos: PluginInfo[]) => {
   const pluginKeys = pluginInfos.map(([key]) => key);
   const packageNameToKey = new Map<string, string>(
     pluginInfos
@@ -26,7 +28,7 @@ export const sortByDependencies = (pluginInfos: [string, PackageJson][]) => {
     return packageNameToKey.get(dependencyKey);
   };
 
-  let addedPluginInfos: [string, PackageJson][] = [];
+  let addedPluginInfos: PluginInfo[] = [];
   let pluginInfosToAdd = pluginInfos;
 
   do {
@@ -66,7 +68,7 @@ export const sortByDependencies = (pluginInfos: [string, PackageJson][]) => {
 const enumeratePluginsForNamespace = (
   pluginsPath: string,
   namespace: string,
-): [string, PackageJson][] => {
+): PluginInfo[] => {
   return fs
     .readdirSync(path.join(pluginsPath, namespace))
     .filter((pluginName) =>
@@ -74,13 +76,11 @@ const enumeratePluginsForNamespace = (
     )
     .map((name) => {
       const key = path.join(namespace, name);
+      const pluginPath = path.join(pluginsPath, key);
       const info = JSON.parse(
-        fs.readFileSync(
-          path.join(path.join(pluginsPath, key), 'package.json'),
-          'utf-8',
-        ),
+        fs.readFileSync(path.join(pluginPath, 'package.json'), 'utf-8'),
       ) as PackageJson;
-      return [key, info] as [string, PackageJson];
+      return [key, info, pluginPath] as PluginInfo;
     })
     .filter(([key, info]) => {
       if (isPluginEnabled(info)) {
@@ -105,4 +105,30 @@ export const enumeratePluginInfos = async (pluginsPath: string) => {
   } else {
     return [];
   }
+};
+
+// Plugins outside `plugins/<namespace>/<name>/` (e.g. `examples/*`) are not
+// scanned automatically. They only load when explicitly referenced from the
+// root `package.json`'s `openpeeps.plugins` array (paths relative to the repo
+// root), keeping example/demo plugins opt-in.
+export const enumerateReferencedPluginInfos = (
+  rootPackageJsonPath: string,
+): PluginInfo[] => {
+  if (!fs.existsSync(rootPackageJsonPath)) {
+    return [];
+  }
+
+  const rootPackageJson = JSON.parse(
+    fs.readFileSync(rootPackageJsonPath, 'utf-8'),
+  ) as PackageJson & { openpeeps?: { plugins?: string[] } };
+  const repoRoot = path.dirname(rootPackageJsonPath);
+
+  return (rootPackageJson.openpeeps?.plugins ?? []).map((relativePath) => {
+    const pluginPath = path.join(repoRoot, relativePath);
+    const key = path.join('examples', path.basename(pluginPath));
+    const info = JSON.parse(
+      fs.readFileSync(path.join(pluginPath, 'package.json'), 'utf-8'),
+    ) as PackageJson;
+    return [key, info, pluginPath] as PluginInfo;
+  });
 };

@@ -82,7 +82,7 @@ accompanied by a written outline of exactly what changed and why.**
 - `platform/react` — React client (includes plugin registry). `platform/react-native` — React Native client.
 - `platform/worker` — BullMQ workers (email, media, notifications, events).
 - `platform/i18n` — locale files; user-facing strings go in `locales/en.json`.
-- `plugins/<namespace>/<name>` — plugin packages. See `docs/PLUGINS.md` for the contract.
+- `plugins/<namespace>/<name>` — plugin packages. See `platform/web/docs/development/plugins.md` for the contract.
 
 ## Run the app
 

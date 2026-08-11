@@ -144,6 +144,7 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
     }),
     plugins: z.object({
       path: z.string(),
+      rootPackageJsonPath: z.string(),
     }),
     secrets: z.object({
       jwt: password(sanitize),

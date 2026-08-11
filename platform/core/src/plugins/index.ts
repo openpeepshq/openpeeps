@@ -1,12 +1,14 @@
-import path from 'node:path';
-
 import { CoreEventKey, CoreEvents, hub, VALID_EVENT_KEYS } from '../events';
 import { defaultConfig, registerConfigSchema } from '../config';
 
 import type { PackageJson } from 'type-fest';
 import type { Plugin, PluginManifest } from '@openpeepshq/common';
 import { pluginManifestSchema } from '@openpeepshq/common';
-import { enumeratePluginInfos, sortByDependencies } from './helpers';
+import {
+  enumeratePluginInfos,
+  enumerateReferencedPluginInfos,
+  sortByDependencies,
+} from './helpers';
 import { logger } from '../log';
 
 export * from './pluginAuth';
@@ -36,16 +38,15 @@ export const initializePlugins = async () => {
   }
 
   const {
-    plugins: { path: pluginsPath },
+    plugins: { path: pluginsPath, rootPackageJsonPath },
   } = await defaultConfig;
 
   const loadPlugin = async (
-    pluginsPath: string,
     key: string,
     info: PackageJson,
+    pluginPath: string,
   ): Promise<void> => {
     const [namespace, name] = key.split('/');
-    const pluginPath = path.join(pluginsPath, key);
     const displayName =
       typeof info?.config?.displayName === 'string'
         ? info.config.displayName
@@ -118,12 +119,13 @@ export const initializePlugins = async () => {
     loadedPlugins.set(key, plugin);
   };
 
-  const sortedInfos = sortByDependencies(
-    await enumeratePluginInfos(pluginsPath),
-  );
+  const sortedInfos = sortByDependencies([
+    ...(await enumeratePluginInfos(pluginsPath)),
+    ...enumerateReferencedPluginInfos(rootPackageJsonPath),
+  ]);
 
-  for (const [key, info] of sortedInfos) {
-    await loadPlugin(pluginsPath, key, info);
+  for (const [key, info, pluginPath] of sortedInfos) {
+    await loadPlugin(key, info, pluginPath);
   }
 
   initialized = true;
@@ -133,8 +135,11 @@ export const initializePlugins = async () => {
 
 export const sortedPluginInfos = async () => {
   const {
-    plugins: { path: pluginsPath },
+    plugins: { path: pluginsPath, rootPackageJsonPath },
   } = defaultConfig;
 
-  return sortByDependencies(await enumeratePluginInfos(pluginsPath));
+  return sortByDependencies([
+    ...(await enumeratePluginInfos(pluginsPath)),
+    ...enumerateReferencedPluginInfos(rootPackageJsonPath),
+  ]);
 };

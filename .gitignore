@@ -36,3 +36,4 @@ platform/svelte/dist/
 
 # Plugin build artifacts (keep plugin sources tracked)
 plugins/*/*/dist/
+examples/*/dist/
