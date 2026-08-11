@@ -74,7 +74,7 @@ export function NewEventButton({
     <div className="mb-4 p-4 pb-0">
       <Button
         title={t('events.form.title', { defaultValue: 'New event' })}
-        variant="variant-filled-primary"
+        variant="default"
         action={openNewEvent}
         data-testid="events-new-event-button"
       >

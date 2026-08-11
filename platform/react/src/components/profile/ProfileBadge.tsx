@@ -19,7 +19,7 @@ export const ProfileBadge = ({
 
   return (
     <div
-      className={`border-secondary bg-surface-50 text-primary flex items-center gap-1.5 rounded-md border px-2 py-1 text-sm ${className ?? ''}`}
+      className={`border-secondary bg-background text-primary flex items-center gap-1.5 rounded-md border px-2 py-1 text-sm ${className ?? ''}`}
     >
       <Avatar profile={profile} size={0.75} borderless />
       <span className="max-w-40 truncate font-medium">

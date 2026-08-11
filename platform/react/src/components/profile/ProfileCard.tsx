@@ -51,7 +51,7 @@ export function ProfileCard({
   );
 
   return (
-    <div className="hover:bg-surface-100 flex items-center justify-between gap-3 border-b p-4">
+    <div className="hover:bg-surface flex items-center justify-between gap-3 border-b p-4">
       {onSelect ? (
         <button
           type="button"

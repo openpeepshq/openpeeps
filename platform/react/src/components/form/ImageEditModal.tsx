@@ -187,9 +187,7 @@ export function ImageEditModal({
                         <Badge
                           status={item.label}
                           variant={
-                            aspectIndex === index
-                              ? 'variant-filled-primary'
-                              : 'variant-ghost-primary'
+                            aspectIndex === index ? 'default' : 'outline'
                           }
                         />
                       </button>
@@ -219,14 +217,10 @@ export function ImageEditModal({
         </div>
 
         <DialogFooter>
-          <Button variant="variant-ghost-primary" action={onClose}>
+          <Button variant="ghost" action={onClose}>
             {t('common.cancel', { defaultValue: 'Cancel' })}
           </Button>
-          <Button
-            variant="variant-filled-primary"
-            action={confirm}
-            disabled={submitting}
-          >
+          <Button variant="default" action={confirm} disabled={submitting}>
             {submitting
               ? t('common.uploading', { defaultValue: 'Uploading…' })
               : t('common.add', { defaultValue: 'Add' })}

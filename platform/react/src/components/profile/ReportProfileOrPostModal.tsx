@@ -100,7 +100,7 @@ export function ReportProfileOrPostModal({
 
         {step === 1 ? (
           <>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {t(`reports.create.${reportType}.description`, {
                 defaultValue: 'Help moderators understand what is wrong.',
               })}
@@ -130,13 +130,10 @@ export function ReportProfileOrPostModal({
               })}
             />
             <DialogFooter>
-              <Button variant="variant-ringed-surface" action={onClose}>
+              <Button variant="outline" action={onClose}>
                 {t('common.cancel', { defaultValue: 'Cancel' })}
               </Button>
-              <Button
-                variant="variant-filled-primary"
-                action={() => setStep(2)}
-              >
+              <Button variant="default" action={() => setStep(2)}>
                 {t(`reports.create.${reportType}.continue`, {
                   defaultValue: 'Continue',
                 })}
@@ -152,7 +149,7 @@ export function ReportProfileOrPostModal({
               })}
             </h3>
             {reportType === 'profile' ? (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {t('reports.create.profile.confirmMessageDescription', {
                   defaultValue:
                     'Moderators at {{community}} will review this report.',
@@ -162,18 +159,17 @@ export function ReportProfileOrPostModal({
               </p>
             ) : null}
             <DialogFooter>
-              <Button
-                variant="variant-ringed-surface"
-                action={() => setStep(1)}
-              >
+              <Button variant="outline" action={() => setStep(1)}>
                 {t('reports.create.back', { defaultValue: 'Back' })}
               </Button>
               <Button
-                variant="variant-filled-error"
+                variant="destructive"
                 action={submit}
                 disabled={submitting}
               >
-                {t('reports.create.sendReport', { defaultValue: 'Send report' })}
+                {t('reports.create.sendReport', {
+                  defaultValue: 'Send report',
+                })}
               </Button>
             </DialogFooter>
           </>

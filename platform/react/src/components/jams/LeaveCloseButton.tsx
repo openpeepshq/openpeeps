@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useRoomContext } from '@livekit/components-react';
 import {
   Button,
@@ -8,10 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@openpeepshq/react-ui';
-import { useNavigate } from '../../contexts/router';
-import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
-import { useCurrentProfile } from '../layout/IdentityContext';
+import { useLeaveCloseJam } from '../../hooks/jams/useLeaveCloseJam';
 import { useJamContext } from './JamContext';
 
 /**
@@ -22,55 +19,25 @@ import { useJamContext } from './JamContext';
 export const LeaveCloseButton = () => {
   const t = useT();
   const room = useRoomContext();
-  const navigate = useNavigate();
-  const me = useCurrentProfile();
   const { jam, jamPost, markIntentionalLeave } = useJamContext();
-  const { openpeepsApi } = useOpenpeeps();
-  const closeJam = openpeepsApi.closeJamAction({ id: jamPost.id });
-
-  const isModerator = !!me && jam.moderators.includes(me.id);
-  const [busy, setBusy] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-
-  const leave = async () => {
-    markIntentionalLeave();
-    await room.disconnect();
-    navigate('/jams');
-  };
-
-  const handleLeave = async () => {
-    setBusy(true);
-    try {
-      await leave();
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleClose = async () => {
-    setBusy(true);
-    try {
-      markIntentionalLeave();
-      await closeJam();
-      navigate('/jams');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleClick = () => {
-    if (isModerator) {
-      setConfirmOpen(true);
-    } else {
-      void handleLeave();
-    }
-  };
+  const {
+    busy,
+    confirmOpen,
+    setConfirmOpen,
+    handleClick,
+    handleLeave,
+    handleClose,
+  } = useLeaveCloseJam({
+    jamPostId: jamPost.id,
+    moderatorIds: jam.moderators,
+    disconnect: () => room.disconnect(),
+    markIntentionalLeave,
+  });
 
   return (
     <>
       <Button
-        variant="variant-filled-error"
-        className="rounded-full"
+        variant="destructive"
         title={t('jams.exit.confirm')}
         disabled={busy}
         action={handleClick}
@@ -90,14 +57,14 @@ export const LeaveCloseButton = () => {
           </p>
           <DialogFooter>
             <Button
-              variant="variant-ringed-error"
+              variant="outline"
               disabled={busy}
               action={() => void handleClose()}
             >
               {t('jams.close.confirm')}
             </Button>
             <Button
-              variant="variant-filled-error"
+              variant="destructive"
               disabled={busy}
               action={() => void handleLeave()}
             >

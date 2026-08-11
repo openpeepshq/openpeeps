@@ -43,7 +43,7 @@ export const PostOptionsSheet = forwardRef<
                 onSelect(option.id);
                 bottomSheetClose(ref);
               }}>
-              <View className="w-14 h-14 rounded-full bg-muted items-center justify-center mb-2">
+              <View className="w-14 h-14 rounded-full bg-surface items-center justify-center mb-2">
                 <option.icon size={24} className="text-foreground" />
               </View>
               <Text className="text-foreground font-semibold tracking-wider text-center">

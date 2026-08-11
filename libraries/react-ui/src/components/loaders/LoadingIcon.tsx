@@ -10,7 +10,7 @@ export function LoadingIcon({ className }: LoadingIconProps) {
       role="status"
       aria-label="Loading"
       className={cn(
-        'block h-10 w-10 animate-spin rounded-full border-4 border-surface-400 border-t-surface-50',
+        'border-border-2 border-t-background block h-10 w-10 animate-spin rounded-full border-4',
         className,
       )}
     />

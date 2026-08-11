@@ -40,7 +40,7 @@ export function NotificationHeaderActions() {
           defaultValue: 'Mark all as read',
         })}
         action={markAllRead}
-        variant="variant-ringed-surface"
+        variant="outline"
       >
         <CheckCheck size={18} />
       </Button>
@@ -49,7 +49,7 @@ export function NotificationHeaderActions() {
           defaultValue: 'Notification preferences',
         })}
         action="/settings/notifications/preferences"
-        variant="variant-ringed-surface"
+        variant="outline"
       >
         <Settings2 size={18} />
       </Button>

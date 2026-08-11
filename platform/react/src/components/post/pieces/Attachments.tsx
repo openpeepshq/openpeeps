@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import type { MediaAttachmentData, PublicPost } from '@openpeepshq/common/types';
+import type {
+  MediaAttachmentData,
+  PublicPost,
+} from '@openpeepshq/common/types';
 import { useStaticRender } from '../../markdown/staticRender';
 import { VideoPlayOverlay } from '../VideoPlayOverlay';
 import { GalleryModal } from './GalleryModal';
@@ -65,8 +68,8 @@ export function Attachments({ post }: AttachmentsProps) {
                   <VideoPlayOverlay video />
                 </div>
               ) : (
-                <div className="flex min-h-24 w-full flex-col items-center justify-center gap-1 p-4 text-center text-xs text-muted-foreground">
-                  <span className="break-all font-medium text-foreground">
+                <div className="text-muted-foreground flex min-h-24 w-full flex-col items-center justify-center gap-1 p-4 text-center text-xs">
+                  <span className="text-foreground break-all font-medium">
                     {att.filename ?? att.description ?? `Attachment ${idx + 1}`}
                   </span>
                   {att.meta?.mimetype ? (
@@ -81,7 +84,7 @@ export function Attachments({ post }: AttachmentsProps) {
             return (
               <div
                 key={`${att.url ?? idx}-${idx}`}
-                className={`${tileClass} overflow-hidden bg-surface-100`}
+                className={`${tileClass} bg-surface overflow-hidden`}
               >
                 {tile}
               </div>
@@ -92,7 +95,7 @@ export function Attachments({ post }: AttachmentsProps) {
             <button
               key={`${att.url ?? idx}-${idx}`}
               type="button"
-              className={`${tileClass} overflow-hidden bg-surface-100`}
+              className={`${tileClass} bg-surface overflow-hidden`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

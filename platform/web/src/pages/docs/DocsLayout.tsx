@@ -19,7 +19,7 @@ export const DocsLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <div className="bg-background min-h-full">
-      <header className="border-border bg-card border-b px-4 py-3 md:px-6">
+      <header className="border-border bg-surface border-b px-4 py-3 md:px-6">
         <nav className="flex flex-wrap items-center gap-y-2 text-sm">
           {logoSmall ? (
             <Link to="/">

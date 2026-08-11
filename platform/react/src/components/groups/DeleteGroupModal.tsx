@@ -60,14 +60,10 @@ export function DeleteGroupModal({ group, onClose }: DeleteGroupModalProps) {
           </p>
         ) : null}
         <DialogFooter>
-          <Button variant="variant-ringed-surface" action={onClose}>
+          <Button variant="outline" action={onClose}>
             {t('groups.delete.cancel', { defaultValue: 'Cancel' })}
           </Button>
-          <Button
-            variant="variant-filled-error"
-            action={submit}
-            disabled={submitting}
-          >
+          <Button variant="destructive" action={submit} disabled={submitting}>
             {t('groups.delete.deleteButton', { defaultValue: 'Delete' })}
           </Button>
         </DialogFooter>

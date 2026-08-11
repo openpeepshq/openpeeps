@@ -40,7 +40,7 @@ export function ReplyBox({ post }: ReplyBoxProps) {
       className="flex w-full items-center gap-x-2 border-b-2 p-5"
     >
       <Avatar profile={profile} size={2.5} />
-      <span className="bg-surface-200 hover:bg-surface-300 flex h-max w-full items-center justify-between rounded-full border-b border-t p-5">
+      <span className="bg-surface-2 hover:bg-border-2 flex h-max w-full items-center justify-between rounded-full border-b border-t p-5">
         <span>
           {t('posts.replyBox.addReplyPlaceholder', {
             defaultValue: 'Add a reply…',

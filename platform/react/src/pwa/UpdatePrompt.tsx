@@ -30,11 +30,15 @@ export function UpdatePrompt({
     <div
       className={
         className ??
-        'border-warning-500 bg-warning-50 dark:bg-warning-900/30 flex w-full items-center justify-between gap-3 rounded border p-3 text-sm shadow-sm'
+        'border-warning bg-surface-warning flex w-full items-center justify-between gap-3 rounded border p-3 text-sm shadow-sm'
       }
     >
       <div>{message}</div>
-      <Button variant="variant-filled-warning" action={applyUpdate}>
+      <Button
+        variant="default"
+        className="bg-warning text-warning-foreground"
+        action={applyUpdate}
+      >
         {reloadLabel}
       </Button>
     </div>

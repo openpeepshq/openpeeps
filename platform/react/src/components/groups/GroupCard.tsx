@@ -23,7 +23,7 @@ export interface GroupCardProps {
  */
 export function GroupCard({
   group,
-  avatarSize = 3.5,
+  avatarSize = 3,
   noPadding = false,
   showAction = true,
   unreadCount = 0,
@@ -54,7 +54,7 @@ export function GroupCard({
           ) : null}
         </span>
         <span
-          className={`truncate ${avatarSize < 2 ? 'text-xs' : 'text-sm'}`}
+          className={`text-muted-foreground truncate ${avatarSize < 2 ? 'text-xs' : 'text-sm'}`}
         >
           {group.membersCount} member{group.membersCount === 1 ? '' : 's'}
         </span>
@@ -68,14 +68,14 @@ export function GroupCard({
         <button
           type="button"
           onClick={() => onSelect(group)}
-          className="hover:bg-surface-100 flex min-w-0 flex-1 items-center gap-x-2 text-left"
+          className="hover:bg-surface flex min-w-0 flex-1 items-center gap-x-2 text-left"
         >
           {details}
         </button>
       ) : (
         <a
           href={`/groups/@${group.handle}`}
-          className="hover:bg-surface-100 flex min-w-0 flex-1 items-center gap-x-2"
+          className="hover:bg-surface flex min-w-0 flex-1 items-center gap-x-2"
         >
           {details}
         </a>

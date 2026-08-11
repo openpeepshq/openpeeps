@@ -48,7 +48,7 @@ export function ShareMenu({ post, menuButton }: ShareMenuProps) {
     <PopupMenu
       menuButton={menuButton ?? <Share className="size-4" />}
       title={t('posts.shareMenu.title', { defaultValue: 'Share' })}
-      variant="variant-ringed-primary"
+      variant="outline"
     >
       {me ? (
         <>
@@ -58,7 +58,9 @@ export function ShareMenu({ post, menuButton }: ShareMenuProps) {
             })}
           />
           <PopupMenuButton
-            title={t('posts.shareMenu.repostToFeed', { defaultValue: 'Repost' })}
+            title={t('posts.shareMenu.repostToFeed', {
+              defaultValue: 'Repost',
+            })}
             text={t('posts.shareMenu.repostToFeed', { defaultValue: 'Repost' })}
             icon={Repeat2}
             action={() => repostPost(undefined)}
@@ -71,9 +73,7 @@ export function ShareMenu({ post, menuButton }: ShareMenuProps) {
               defaultValue: 'Send in message',
             })}
             icon={Send}
-            action={() =>
-              openCreateConversation({ message: postUrl })
-            }
+            action={() => openCreateConversation({ message: postUrl })}
           />
           <PopupSeparator />
           <PopupSection

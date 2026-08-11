@@ -59,11 +59,11 @@ The application uses Tailwind CSS breakpoints:
 **Mobile**: Hidden sidebar, opened from the header as a dialog drawer
 
 ```tsx
-<aside className="bg-card w-70 hidden shrink-0 border-r md:sticky md:top-0 md:flex md:h-screen md:self-start">
+<aside className="bg-surface w-70 hidden shrink-0 border-r md:sticky md:top-0 md:flex md:h-screen md:self-start">
   <SideBar mainMenu={sideBar?.mainMenu?.()} profileMenu={sideBar?.profileMenu?.()} />
 </aside>
 
-<div className="bg-card flex min-h-screen min-w-0 flex-1 flex-col border-r">
+<div className="bg-surface flex min-h-screen min-w-0 flex-1 flex-col border-r">
   {/* Content */}
 </div>
 ```
@@ -118,13 +118,13 @@ export const RootLayout = ({ children, sideBar }: RootLayoutProps) => (
     <div className="min-w-0 flex-grow">
       <div className="mx-auto h-1 w-full min-w-0 flex-grow md:max-w-[950px]">
         <div className="flex w-full min-w-0 flex-col md:flex-row">
-          <aside className="bg-card w-70 hidden shrink-0 border-r md:sticky md:top-0 md:flex md:h-screen md:self-start">
+          <aside className="bg-surface w-70 hidden shrink-0 border-r md:sticky md:top-0 md:flex md:h-screen md:self-start">
             <SideBar
               mainMenu={sideBar?.mainMenu?.()}
               profileMenu={sideBar?.profileMenu?.()}
             />
           </aside>
-          <div className="bg-card flex min-h-screen min-w-0 flex-1 flex-col border-r">
+          <div className="bg-surface flex min-h-screen min-w-0 flex-1 flex-col border-r">
             <HeaderMobile sideBar={sideBar} />
             <ContentHeader />
             <Breadcrumbs />
@@ -215,7 +215,7 @@ Bottom navigation bar for mobile devices.
 - Notifications (`/notifications`)
 
 ```tsx
-<div className="bg-card flex h-20 w-full items-center justify-evenly md:hidden">
+<div className="bg-surface flex h-20 w-full items-center justify-evenly md:hidden">
   <MobileMenuItem icon={Home} action="/feeds/local" />
   <MobileMenuItem icon={Newspaper} action="/feeds/my" />
   <MobileMenuItem icon={PlusSquare} action={onNewPost ?? '/posts/new'} />

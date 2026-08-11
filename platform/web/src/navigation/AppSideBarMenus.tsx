@@ -45,7 +45,10 @@ import {
   getVisibleAdminSections,
   type AdminSectionKey,
 } from '@openpeepshq/common/lib';
+import { createWebNavigator } from './webNavigator';
 
+const webNavigator = createWebNavigator();
+const href = webNavigator.hrefOf;
 const adminSectionIcons: Record<AdminSectionKey, LucideIcon> = {
   members: User,
   groups: Users,
@@ -120,7 +123,7 @@ function NavButton({
     <button
       type="button"
       className={[
-        'hover:bg-muted flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm',
+        'hover:bg-surface flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm',
         danger ? 'text-destructive' : '',
       ].join(' ')}
       onClick={() => {
@@ -163,49 +166,57 @@ export function AppSideBarMainMenu() {
 
   return (
     <nav className="flex flex-col gap-0.5 py-2 pr-2">
-      <NavItem to="/feeds/local" icon={Home}>
+      <NavItem to={href({ type: 'feed', feed: 'local' })} icon={Home}>
         {t('navigation.community')}
       </NavItem>
-      <NavItem to="/welcome" icon={BookCheck}>
+      <NavItem to={href({ type: 'welcome' })} icon={BookCheck}>
         {t('navigation.goToWelcomePage')}
       </NavItem>
-      <NavItem to="/explore" icon={Search}>
+      <NavItem to={href({ type: 'explore' })} icon={Search}>
         {t('navigation.explore')}
       </NavItem>
-      <NavItem to="/feeds/my" icon={Newspaper}>
+      <NavItem to={href({ type: 'feed', feed: 'my' })} icon={Newspaper}>
         {t('navigation.myFeed')}
       </NavItem>
       {jamsEnabled && (
-        <NavItem to="/jams" icon={PhoneCall}>
+        <NavItem to={href({ type: 'jams' })} icon={PhoneCall}>
           {t('navigation.jams')}
         </NavItem>
       )}
-      <NavItem to="/groups" icon={Users} pill={unreadGroupPosts}>
+      <NavItem
+        to={href({ type: 'groups' })}
+        icon={Users}
+        pill={unreadGroupPosts}
+      >
         {t('navigation.groups')}
       </NavItem>
-      <NavItem to="/events" icon={CalendarDays}>
+      <NavItem to={href({ type: 'events' })} icon={CalendarDays}>
         {t('navigation.events')}
       </NavItem>
-      <NavItem to="/articles" icon={ScrollText}>
+      <NavItem to={href({ type: 'articles' })} icon={ScrollText}>
         {t('navigation.articles')}
       </NavItem>
-      <NavItem to="/conversations" icon={MessageSquareText} pill={unreadConversationThreads}>
+      <NavItem
+        to={href({ type: 'conversation' })}
+        icon={MessageSquareText}
+        pill={unreadConversationThreads}
+      >
         {t('navigation.messages')}
       </NavItem>
-      <NavItem to="/members" icon={BookUser}>
+      <NavItem to={href({ type: 'members' })} icon={BookUser}>
         {t('navigation.members')}
       </NavItem>
-      <NavItem to="/feeds/bookmarks" icon={Bookmark}>
+      <NavItem to={href({ type: 'feed', feed: 'bookmarks' })} icon={Bookmark}>
         {t('navigation.bookmarks')}
       </NavItem>
-      <NavItem to="/settings" icon={Settings}>
+      <NavItem to={href({ type: 'settings' })} icon={Settings}>
         {t('navigation.settings')}
       </NavItem>
       {showAdminMenu && (
         <div className="border-border mt-2 border-t pt-2">
           <button
             type="button"
-            className="text-foreground hover:bg-muted flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
+            className="text-foreground hover:bg-surface flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
             onClick={() => setAdminExpanded((v) => !v)}
             aria-expanded={adminExpanded}
           >
@@ -220,7 +231,7 @@ export function AppSideBarMainMenu() {
           </button>
           {adminExpanded ? (
             <div className="border-border ml-2 mt-1 flex flex-col gap-0.5 border-l pl-2">
-              <NavItem to="/admin" end icon={LayoutDashboard}>
+              <NavItem to={href({ type: 'admin' })} end icon={LayoutDashboard}>
                 {t('navigation.overview')}
               </NavItem>
               {visibleAdminSections.map((section) => (
@@ -252,7 +263,7 @@ function LogoutRow() {
       danger
       onClick={async () => {
         await logout();
-        navigate('/auth/login');
+        navigate(href({ type: 'auth', mode: 'login' }));
       }}
     >
       {t('navigation.logOut')}
@@ -281,7 +292,7 @@ export function AppSideBarProfileMenu() {
     } catch {
       // Push registration is best-effort; ignore failures.
     } finally {
-      navigate('/notifications');
+      navigate(href({ type: 'notifications' }));
       closeDrawer?.();
     }
   };
@@ -306,7 +317,7 @@ export function AppSideBarProfileMenu() {
               className="size-10 shrink-0 rounded-full object-cover"
             />
           ) : (
-            <span className="bg-muted text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
+            <span className="bg-surface text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
               {handle.slice(0, 1).toUpperCase()}
             </span>
           )}
@@ -314,7 +325,7 @@ export function AppSideBarProfileMenu() {
         <button
           type="button"
           title={t('navigation.openNotifications')}
-          className="text-foreground hover:bg-muted relative shrink-0 rounded-md p-2"
+          className="text-foreground hover:bg-surface relative shrink-0 rounded-md p-2"
           onClick={() => void openNotifications()}
         >
           <Bell className="size-6" />

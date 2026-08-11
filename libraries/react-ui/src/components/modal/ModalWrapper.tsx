@@ -15,7 +15,7 @@ export function ModalWrapper({
   return (
     <div
       className={cn(
-        'op-card max-h-[90vh] overflow-y-auto bg-card shadow-xl',
+        'op-card max-h-[90vh] overflow-y-auto bg-surface shadow-xl',
         width,
         className,
       )}

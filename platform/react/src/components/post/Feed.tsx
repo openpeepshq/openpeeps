@@ -78,7 +78,7 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
 
   if (query.isLoading) {
     return (
-      <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
+      <div className="bg-surface text-muted-foreground flex h-32 items-center justify-center text-sm">
         <LoadingSpinner />
       </div>
     );
@@ -86,8 +86,8 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
 
   if (posts.length === 0 && !pinnedPostId) {
     return (
-      <div className="flex h-96 w-full flex-col items-center justify-center gap-y-4">
-        <Rss className="text-surface-300 size-20" />
+      <div className="bg-surface flex h-96 w-full flex-col items-center justify-center gap-y-4">
+        <Rss className="text-muted-foreground size-20" />
         <p className="text-xl">
           {t('feed.empty', { defaultValue: 'No posts yet.' })}
         </p>
@@ -96,7 +96,7 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
   }
 
   return (
-    <div className="relative">
+    <div className="bg-surface relative flex min-h-full flex-col gap-0.5">
       {pinnedPostId ? (
         <PinnedPost pinnedPostId={pinnedPostId} inGroup={inGroup} />
       ) : null}
@@ -106,7 +106,13 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
           href={`/posts/${post.repost ? post.repost.id : post.id}`}
           className="block"
         >
-          <FeedPost post={post} inGroup={inGroup} showReplyTo />
+          {/* The feed separates posts with gaps, so the card divider is dropped. */}
+          <FeedPost
+            post={post}
+            inGroup={inGroup}
+            showReplyTo
+            className="border-b-0"
+          />
         </a>
       ))}
 

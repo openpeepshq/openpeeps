@@ -85,7 +85,7 @@ const MediaPreviewItem: React.FC<MediaPreviewItemProps> = ({
   return (
     <View className="relative items-center justify-center w-screen md:size-96">
       {attachment.type === 'video' ? (
-        <View className="overflow-hidden rounded-lg w-full aspect-square md:size-96 bg-muted">
+        <View className="overflow-hidden rounded-lg w-full aspect-square md:size-96 bg-surface">
           {attachment.previewUrl ? (
             <CachedImage
               url={attachment.previewUrl}
@@ -241,7 +241,7 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
             <View
               key={index}
               className={`w-2 h-2 rounded-full ${
-                index === currentImageIndex ? 'bg-primary' : 'bg-muted'
+                index === currentImageIndex ? 'bg-primary' : 'bg-surface'
               }`}
             />
           ))}

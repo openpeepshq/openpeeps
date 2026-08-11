@@ -36,7 +36,7 @@ export const DocPage = ({ docsBySlug }: Props): ReactElement => {
       <div className="mb-4 flex justify-end">
         <a
           href={rawMdHref}
-          className="text-muted-foreground hover:text-primary-700 text-xs underline underline-offset-2"
+          className="text-muted-foreground hover:text-primary text-xs underline underline-offset-2"
         >
           View as Markdown
         </a>

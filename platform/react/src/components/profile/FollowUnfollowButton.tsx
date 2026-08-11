@@ -51,7 +51,7 @@ export function FollowUnfollowButton({
     return (
       <Button
         compact={compact}
-        variant="variant-ringed-secondary"
+        variant="outline"
         action={() => unfollowProfile(undefined)}
       >
         {t('profile.actions.unfollow', { defaultValue: 'Unfollow' })}
@@ -62,7 +62,7 @@ export function FollowUnfollowButton({
   return (
     <Button
       compact={compact}
-      variant="variant-filled-primary"
+      variant="default"
       action={() => followProfile({ reblogs: true, notify: true })}
     >
       {t('profile.actions.follow', { defaultValue: 'Follow' })}

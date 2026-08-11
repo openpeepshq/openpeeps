@@ -1,5 +1,12 @@
 import { useMemo, useState } from 'react';
-import { CheckCheck, Ellipsis, LogOut, Pencil, Trash, UserPlus } from 'lucide-react';
+import {
+  CheckCheck,
+  Ellipsis,
+  LogOut,
+  Pencil,
+  Trash,
+  UserPlus,
+} from 'lucide-react';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
 import { checkGroupCapabilities } from '@openpeepshq/common/lib';
 import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
@@ -33,15 +40,21 @@ export function GroupOptionsMenu({ group }: GroupOptionsMenuProps) {
 
   const isMember = me?.memberships?.some((m) => m.group.id === group.id);
 
-  const canEdit = checkGroupCapabilities(authData, ['core-groups-update'], group)
-    .success;
+  const canEdit = checkGroupCapabilities(
+    authData,
+    ['core-groups-update'],
+    group,
+  ).success;
   const canAddMembers = checkGroupCapabilities(
     authData,
     ['core-groups-addMember'],
     group,
   ).success;
-  const canDelete = checkGroupCapabilities(authData, ['core-groups-delete'], group)
-    .success;
+  const canDelete = checkGroupCapabilities(
+    authData,
+    ['core-groups-delete'],
+    group,
+  ).success;
 
   const isLastAdmin = useMemo(() => {
     const membership = me?.memberships?.find((m) => m.group.id === group.id);
@@ -56,7 +69,8 @@ export function GroupOptionsMenu({ group }: GroupOptionsMenuProps) {
     if (isLastAdmin) {
       window.alert(
         t('groups.leave.lastAdminError', {
-          defaultValue: 'You are the last admin. Assign another admin before leaving.',
+          defaultValue:
+            'You are the last admin. Assign another admin before leaving.',
         }),
       );
       return;
@@ -98,22 +112,32 @@ export function GroupOptionsMenu({ group }: GroupOptionsMenuProps) {
         ) : null}
         {canEdit ? (
           <PopupMenuButton
-            title={t('groups.actions.editGroup', { defaultValue: 'Edit group' })}
+            title={t('groups.actions.editGroup', {
+              defaultValue: 'Edit group',
+            })}
             text={t('groups.actions.editGroup', { defaultValue: 'Edit group' })}
             icon={Pencil}
-            action={() => navigate(`/groups/@${group.handle}/edit`)}
+            action={() =>
+              navigate({ type: 'group', handle: group.handle, view: 'edit' })
+            }
           />
         ) : null}
         {canAddMembers ? (
           <PopupMenuButton
-            title={t('groups.actions.addMembers', { defaultValue: 'Add members' })}
-            text={t('groups.actions.addMembers', { defaultValue: 'Add members' })}
+            title={t('groups.actions.addMembers', {
+              defaultValue: 'Add members',
+            })}
+            text={t('groups.actions.addMembers', {
+              defaultValue: 'Add members',
+            })}
             icon={UserPlus}
             action={() => setActiveModal('addMember')}
           />
         ) : null}
         <PopupMenuButton
-          title={t('groups.actions.leaveGroup', { defaultValue: 'Leave group' })}
+          title={t('groups.actions.leaveGroup', {
+            defaultValue: 'Leave group',
+          })}
           text={t('groups.actions.leaveGroup', { defaultValue: 'Leave group' })}
           icon={LogOut}
           action={handleLeave}

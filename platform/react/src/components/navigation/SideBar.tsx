@@ -6,6 +6,7 @@ import {
   useCurrentProfile,
   useCurrentProfileSettings,
 } from '../layout/IdentityContext';
+import { useHrefOf } from '../../contexts/router';
 import { useT } from '../../i18n';
 
 export interface SideBarProps {
@@ -29,18 +30,22 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
   const profileSettings = useCurrentProfileSettings();
   const profile = useCurrentProfile();
   const t = useT();
+  const hrefOf = useHrefOf();
 
   const logoSmall = getTheme(
     serverInfo.communityConfig,
     profileSettings,
   ).logoSmall;
   const { name, tagLine } = serverInfo.communityConfig?.info ?? {};
+  const homeHref = hrefOf({ type: 'home' });
+  const registerHref = hrefOf({ type: 'auth', mode: 'register' });
+  const loginHref = hrefOf({ type: 'auth', mode: 'login' });
 
   return (
-    <div className="relative h-screen w-full pt-3 md:h-full">
+    <div className="bg-background text-foreground relative h-screen w-full pt-3 md:h-full">
       <div className="h-[90%] overflow-y-auto">
         <div className="flex w-full items-center justify-between px-4 md:items-start">
-          <a href="/">
+          <a href={homeHref}>
             {logoSmall && (
               <img src={logoSmall} alt="logo" className="h-10 object-contain" />
             )}
@@ -73,20 +78,20 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
               {tagLine && <p className="px-2 text-center text-sm">{tagLine}</p>}
               <Button
                 title={t('navigation.joinCommunity')}
-                variant="variant-filled-primary"
-                action="/auth/register"
+                variant="default"
+                action={registerHref}
               >
                 {t('navigation.joinCommunity')}
               </Button>
               <span className="text-sm">
                 {t('navigation.haveAccount')}{' '}
-                <Link action="/auth/login">{t('navigation.logIn')}</Link>
+                <Link action={loginHref}>{t('navigation.logIn')}</Link>
               </span>
             </div>
           </div>
         )}
       </div>
-      <div className="bg-card absolute bottom-3">
+      <div className="bg-background absolute bottom-3">
         <p className="ml-4 text-center">{t('navigation.poweredBy')}</p>
       </div>
     </div>

@@ -34,14 +34,16 @@ export function GroupAvatar({
 }: GroupAvatarProps) {
   const serverInfo = useServerInfo();
   const profileSettings = useCurrentProfileSettings();
-  const defaultAvatar = getTheme(serverInfo.communityConfig, profileSettings)
-    .defaultGroupAvatar;
+  const defaultAvatar = getTheme(
+    serverInfo.communityConfig,
+    profileSettings,
+  ).defaultGroupAvatar;
 
   const src = group?.avatar || defaultAvatar;
 
   const borderClass = borderless
     ? ''
-    : 'border-4 border-surface-300 hover:border-neutral-500';
+    : 'border-4 border-border hover:border-neutral-500';
 
   return (
     <div
@@ -53,7 +55,7 @@ export function GroupAvatar({
       }}
     >
       <div
-        className={`relative inline-flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-surface-200 ${borderClass}`}
+        className={`bg-surface-2 relative inline-flex h-full w-full items-center justify-center overflow-hidden rounded-full ${borderClass}`}
       >
         {src ? (
           <img
@@ -62,7 +64,7 @@ export function GroupAvatar({
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="text-sm font-medium text-foreground/80">
+          <span className="text-foreground/80 text-sm font-medium">
             {initials(group)}
           </span>
         )}

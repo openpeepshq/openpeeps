@@ -136,7 +136,7 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   };
 
   return (
-    <div className="bg-surface-100 text-foreground absolute right-0 top-0 flex h-full w-full flex-col gap-3 overflow-hidden rounded md:relative md:w-80">
+    <div className="bg-surface text-foreground absolute right-0 top-0 flex h-full w-full flex-col gap-3 overflow-hidden rounded md:relative md:w-80">
       <div className="flex w-full flex-none items-center justify-between border-b p-2">
         <h3 className="text-lg">
           {t('jams.drawer.peopleTitle', { defaultValue: 'People' })}
@@ -209,7 +209,7 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
                     </span>
                   </div>
                   <Button
-                    variant="variant-ringed-surface"
+                    variant="outline"
                     compact
                     action={() => admit(profile)}
                     disabled={admittingId === profile.id}

@@ -19,7 +19,7 @@ export function ModalHeader({
   const modalManager = useModalManager();
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between border-b border-surface-300 bg-card px-4 py-2 text-2xl font-bold">
+    <header className="bg-surface sticky top-0 z-10 flex items-center justify-between border-b px-4 py-2 text-2xl font-bold">
       {isCustomTitle ? (
         children
       ) : (

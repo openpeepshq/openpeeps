@@ -330,7 +330,7 @@ export function NewPostModal({
                 title={t('posts.form.changeAudience', {
                   defaultValue: 'Change audience',
                 })}
-                className="hover:bg-surface-100 flex w-full items-center gap-3 rounded-md border p-3 text-left"
+                className="hover:bg-surface rounded-button flex w-full items-center gap-3 border p-3 text-left"
                 onClick={() => setAudienceOpen(true)}
               >
                 <Avatar profile={me} size={3} borderless />
@@ -408,7 +408,7 @@ export function NewPostModal({
                   aria-checked={notify}
                   onClick={() => setNotify((v) => !v)}
                   className={`relative h-5 w-9 rounded-full transition ${
-                    notify ? 'bg-primary' : 'bg-surface-300'
+                    notify ? 'bg-primary' : 'bg-input'
                   }`}
                 >
                   <span
@@ -430,7 +430,7 @@ export function NewPostModal({
                     defaultValue: 'Add Media',
                   })}
                   onClick={composeAttachments.openImagePicker}
-                  className="hover:bg-surface-200 rounded-md p-2"
+                  className="hover:bg-surface rounded-button p-2"
                 >
                   <Image className="size-5" />
                 </button>
@@ -440,7 +440,7 @@ export function NewPostModal({
                     defaultValue: 'Add Document',
                   })}
                   onClick={composeAttachments.openDocumentPicker}
-                  className="hover:bg-surface-200 rounded-md p-2"
+                  className="hover:bg-surface rounded-button p-2"
                 >
                   <Paperclip className="size-5" />
                 </button>
@@ -453,11 +453,11 @@ export function NewPostModal({
               />
             </div>
 
-            <div className="border-surface-400 my-2 w-full border-t" />
+            <div className="border-border-2 my-2 w-full border-t" />
 
             <div className="flex items-center justify-end gap-x-2">
               <Button
-                variant="variant-filled-primary"
+                variant="default"
                 action={publish}
                 disabled={!canSubmit}
                 data-testid="posts-composer-publish"

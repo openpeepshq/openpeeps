@@ -53,7 +53,7 @@ export function CardEvent({ post }: CardEventProps) {
   return (
     <div
       ref={postViewRef}
-      className="hover:bg-surface-100 mb-6 w-full overflow-hidden rounded-lg border"
+      className="hover:bg-surface mb-6 w-full overflow-hidden rounded-lg border"
     >
       <a href={postLink} className="block">
         <div className="aspect-video w-full overflow-hidden">
@@ -79,7 +79,7 @@ export function CardEvent({ post }: CardEventProps) {
         </div>
         {jam && me ? (
           jamState?.active ? (
-            <div className="text-surface-600 flex items-center justify-start gap-2 text-xs">
+            <div className="text-muted-foreground flex items-center justify-start gap-2 text-xs">
               <span className="w-12">
                 <ParticipantsCard jamState={jamState} />
               </span>
@@ -89,13 +89,13 @@ export function CardEvent({ post }: CardEventProps) {
                   ? t('events.jam.attendee', { defaultValue: 'attendee' })
                   : t('events.jam.attendees', { defaultValue: 'attendees' })}
               </span>
-              <Button action={jamLink} variant="variant-filled-primary" compact>
+              <Button action={jamLink} variant="default" compact>
                 {t('jam.join.submit', { defaultValue: 'Join Jam' })}
               </Button>
             </div>
           ) : jam.moderators.includes(me.id) ? (
             <div>
-              <Button action={jamLink} variant="variant-filled-primary">
+              <Button action={jamLink} variant="default">
                 {t('jam.start.submit', { defaultValue: 'Start Jam' })}
               </Button>
             </div>

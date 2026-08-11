@@ -127,7 +127,7 @@ export const InJamChat = ({
         </ScrollView>
         <ThemedView className="flex-row items-center p-2 border-t border-border bg-background">
           <TextInput
-            className="flex-1 px-4 py-2 pb-4 text-lg text-foreground bg-muted rounded-2xl mx-2"
+            className="flex-1 px-4 py-2 pb-4 text-lg text-foreground bg-surface rounded-2xl mx-2"
             placeholder="Type a message..."
             multiline
             value={content}
@@ -137,7 +137,7 @@ export const InJamChat = ({
           <TouchableOpacity
             onPress={handleSendMessage}
             disabled={!content.trim() || isSending}
-            className={`p-2 rounded-full ${content.trim() ? 'bg-primary' : 'bg-muted'
+            className={`p-2 rounded-full ${content.trim() ? 'bg-primary' : 'bg-surface'
               }`}>
             {isSending ? (
               <ActivityIndicator size={'small'} />

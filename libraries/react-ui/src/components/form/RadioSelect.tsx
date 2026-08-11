@@ -43,16 +43,16 @@ export function RadioSelect({
               id={id}
               checked={value === option.value}
               onChange={(e) => onChange?.(e.currentTarget.value)}
-              className="mt-1 size-4 text-primary-500"
+              className="text-primary mt-1 size-4"
               value={option.value}
               disabled={disabled}
               data-testid={optionTestId?.(option.value)}
             />
             <div className="flex flex-col gap-1">
-              <label className="font-medium text-surface-700" htmlFor={id}>
+              <label className="text-foreground font-medium" htmlFor={id}>
                 {option.title}
               </label>
-              <label className="text-surface-500 text-sm" htmlFor={id}>
+              <label className="text-muted-foreground text-sm" htmlFor={id}>
                 {option.description}
               </label>
             </div>

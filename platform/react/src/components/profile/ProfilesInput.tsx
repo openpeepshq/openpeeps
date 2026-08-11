@@ -47,7 +47,7 @@ export const ProfilesInput = ({
         role="button"
         tabIndex={disabled ? -1 : 0}
         aria-disabled={disabled}
-        className={`border-surface-300 bg-surface-200 flex max-h-40 min-h-10 w-full flex-wrap content-start items-center gap-1 overflow-y-auto rounded-lg border px-3 py-1.5 text-left ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${className ?? ''}`}
+        className={`border-border bg-surface-2 flex max-h-40 min-h-10 w-full flex-wrap content-start items-center gap-1 overflow-y-auto rounded-lg border px-3 py-1.5 text-left ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${className ?? ''}`}
         onClick={() => {
           if (!disabled) setOpen(true);
         }}

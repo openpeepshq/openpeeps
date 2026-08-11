@@ -9,6 +9,8 @@ export * from './lib/unseenCountsOptimistic';
 export * from './lib/notificationBadge';
 export * from './lib/postUnread';
 export * from './components';
+export * from './navigation';
+export * from './hooks';
 export { resolveAdminConfigSchema } from './lib/configuration/resolveSchema';
 export { diffConfigTrees, equal } from './lib/configuration/helpers';
 export * as pwa from './pwa';

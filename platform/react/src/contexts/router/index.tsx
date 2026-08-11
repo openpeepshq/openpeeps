@@ -6,11 +6,15 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import type { Navigator, NavTarget } from '../../navigation';
 
 export interface RouterAdapter {
   pathname: string;
   searchParams: URLSearchParams;
-  navigate: (url: string) => void;
+  /** Navigate to an abstract target (preferred) or a raw path string. */
+  navigate: (target: NavTarget | string) => void;
+  hrefOf: (target: NavTarget) => string;
+  match: (pathname: string) => NavTarget | null;
   back: () => void;
 }
 
@@ -23,6 +27,7 @@ export const useRouter = (): RouterAdapter => {
 };
 
 export const useNavigate = () => useRouter().navigate;
+export const useHrefOf = () => useRouter().hrefOf;
 export const usePathname = () => useRouter().pathname;
 export const useSearchParams = () => useRouter().searchParams;
 
@@ -52,7 +57,7 @@ export function RouterProvider({ adapter, children }: RouterProviderProps) {
  * Browser-only fallback — uses `window.location` + `popstate`. Suitable for
  * standalone PWAs that don't ship with a real router (e.g. dev shells).
  */
-export function useBrowserRouter(): RouterAdapter {
+export function useBrowserRouter(navigator: Navigator): RouterAdapter {
   const initial = useMemo(() => {
     if (typeof window === 'undefined') {
       return { pathname: '/', searchParams: new URLSearchParams() };
@@ -80,8 +85,12 @@ export function useBrowserRouter(): RouterAdapter {
     () => ({
       pathname: state.pathname,
       searchParams: state.searchParams,
-      navigate: (url) => {
+      hrefOf: navigator.hrefOf,
+      match: navigator.match,
+      navigate: (target) => {
         if (typeof window === 'undefined') return;
+        const url =
+          typeof target === 'string' ? target : navigator.hrefOf(target);
         history.pushState({}, '', url);
         setState({
           pathname: window.location.pathname,
@@ -93,6 +102,6 @@ export function useBrowserRouter(): RouterAdapter {
         history.back();
       },
     }),
-    [state],
+    [state, navigator],
   );
 }

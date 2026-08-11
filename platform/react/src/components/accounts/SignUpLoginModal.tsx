@@ -37,13 +37,13 @@ export function SignUpLoginModal({ onClose }: SignUpLoginModalProps) {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="variant-ringed-surface" action={onClose}>
+          <Button variant="outline" action={onClose}>
             {t('common.cancel', { defaultValue: 'Cancel' })}
           </Button>
           <Button
-            variant="variant-filled-primary"
+            variant="default"
             action={() => {
-              router.navigate('/auth/login');
+              router.navigate({ type: 'auth', mode: 'login' });
               onClose();
             }}
           >

@@ -28,7 +28,7 @@ export const ParticipantsSheet = forwardRef<
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 
   const renderParticipant = ({ item }: { item: PublicProfile }) => (
-    <View className="flex-row items-center justify-between px-4 py-3 hover:bg-muted/50">
+    <View className="flex-row items-center justify-between px-4 py-3 hover:bg-surface/50">
       <View className="flex-row items-center gap-x-3">
         <TouchableOpacity
           onPress={() => {

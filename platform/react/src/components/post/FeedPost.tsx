@@ -1,5 +1,6 @@
 import type { ReactNode, RefObject } from 'react';
 import type { PublicPost } from '@openpeepshq/common/types';
+import { cn } from '@openpeepshq/react-ui';
 import { usePostViewRef } from '../../lib/postViewCounter';
 import { isUnreadPostForViewer } from '../../lib/postUnread';
 import { useCurrentProfile } from '../layout/IdentityContext';
@@ -20,6 +21,7 @@ export interface FeedPostProps {
   showReplyTo?: boolean;
   /** Optional override for the body (used when threading). */
   content?: ReactNode;
+  className?: string;
 }
 
 /**
@@ -34,6 +36,7 @@ export function FeedPost({
   inGroup = false,
   showReplyTo = false,
   content,
+  className,
 }: FeedPostProps) {
   const me = useCurrentProfile();
   const displayedPost: PublicPost = post.repost ?? post;
@@ -46,6 +49,8 @@ export function FeedPost({
     !noReactionHeader &&
     (!!post.repost || !!post.inReplyToId || (!!post.groupId && !inGroup));
 
+  const showsReplyTo = !!(showReplyTo && displayedPost.replyTo);
+
   const hasStats = !!(
     displayedPost?.repostCount ||
     displayedPost?.reactions?.length ||
@@ -53,8 +58,14 @@ export function FeedPost({
   );
 
   return (
-    <div ref={postViewRef} className="relative min-w-0 border-b p-4">
-      <UnreadPostIndicator show={isUnread} />
+    <div
+      ref={postViewRef}
+      className={cn(
+        'bg-background border-border relative min-w-0 border-b p-4',
+        className,
+      )}
+    >
+      <UnreadPostIndicator show={isUnread} variant="corner" />
       {hasReactionHeader && (
         <PostReactionHeader
           post={post}
@@ -63,8 +74,10 @@ export function FeedPost({
         />
       )}
 
-      {displayedPost.replyTo && showReplyTo && (
-        <a href={`/posts/${displayedPost.replyTo.id}`}>
+      {showsReplyTo && displayedPost.replyTo && (
+        // ThreadPost carries its own `p-2`, so pull it back to line its avatar
+        // and rail up with this post's avatar.
+        <a href={`/posts/${displayedPost.replyTo.id}`} className="-ml-2 block">
           <ThreadPost
             post={displayedPost.replyTo as PublicPost}
             isParent
@@ -74,7 +87,12 @@ export function FeedPost({
         </a>
       )}
 
-      <div>
+      <div className="relative">
+        {/* Carries the reply preview's rail across the header's `py-2` down to
+            this post's avatar. */}
+        {showsReplyTo && (
+          <div className="bg-border-2 pointer-events-none absolute left-6 top-0 h-2 w-px" />
+        )}
         <PostInfoHeader
           post={displayedPost}
           showMenu={!hasReactionHeader}

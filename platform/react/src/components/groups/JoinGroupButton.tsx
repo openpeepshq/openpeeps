@@ -1,10 +1,7 @@
-import { useState } from 'react';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
-import { checkGroupCapabilities } from '@openpeepshq/common/lib';
 import { Button } from '@openpeepshq/react-ui';
-import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
-import { useAuthData, useCurrentProfile } from '../layout/IdentityContext';
+import { useJoinGroup } from '../../hooks/groups/useJoinGroup';
 
 export interface JoinGroupButtonProps {
   group: GroupWithMeta;
@@ -13,32 +10,17 @@ export interface JoinGroupButtonProps {
 
 export function JoinGroupButton({ group, onJoined }: JoinGroupButtonProps) {
   const t = useT();
-  const authData = useAuthData();
-  const me = useCurrentProfile();
-  const { openpeepsApi } = useOpenpeeps();
-  const joinGroup = openpeepsApi.joinGroupAction({ id: group.id });
-  // Optimistically reflect the join so the button hides immediately, instead of
-  // waiting for the `['profiles','current']` refetch to repopulate memberships
-  // (mirrors the Svelte JoinGroupButton's local `joined` flag).
-  const [joined, setJoined] = useState(false);
-
-  const isMember =
-    joined || me?.memberships?.some((m) => m.group.id === group.id);
-  const canJoin =
-    !isMember &&
-    checkGroupCapabilities(authData, ['core-groups-join'], group).success;
+  const { canJoin, join } = useJoinGroup(group, onJoined);
 
   if (!canJoin) return null;
 
   return (
     <Button
-      variant="variant-ringed-primary"
+      variant="ghost"
+      compact
+      className="border-border bg-background text-foreground hover:bg-surface border shadow-sm"
       title={t('groups.join.submit', { defaultValue: 'Join group' })}
-      action={async () => {
-        await joinGroup(undefined);
-        setJoined(true);
-        onJoined?.();
-      }}
+      action={join}
     >
       {t('groups.join.submit', { defaultValue: 'Join group' })}
     </Button>

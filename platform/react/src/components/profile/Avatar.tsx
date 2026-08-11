@@ -50,11 +50,11 @@ export function Avatar({
 
   const borderClass = borderless
     ? ''
-    : 'border-4 border-surface-300 hover:border-neutral-500';
+    : 'border-4 border-border hover:border-neutral-500';
 
   const inner = (
     <div
-      className={`bg-surface-200 relative inline-flex items-center justify-center overflow-hidden rounded-full ${borderClass}`}
+      className={`bg-surface-2 relative inline-flex items-center justify-center overflow-hidden rounded-full ${borderClass}`}
       style={{ width: `${size}rem`, height: `${size}rem` }}
     >
       {deleted ? (

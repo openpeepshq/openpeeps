@@ -30,54 +30,51 @@ import {
   ServerDataProvider,
 } from '@openpeepshq/react/components';
 
-import { About } from './pages/About';
-import { CodeOfConduct } from './pages/CodeOfConduct';
-import { Home } from './pages/Home';
-import { NotFound } from './pages/NotFound';
-import { Welcome } from './pages/Welcome';
-
-import { AuthClosed } from './pages/auth/Closed';
-import { Login } from './pages/auth/Login';
-import { Register } from './pages/auth/Register';
-import { RegisterInvitation } from './pages/auth/RegisterInvitation';
-import { RequestResetPassword } from './pages/auth/RequestResetPassword';
-import { ResetPassword } from './pages/auth/ResetPassword';
-import { ValidateEmail } from './pages/auth/ValidateEmail';
-
-import { Settings } from './pages/settings/Index';
-
-import { FeedsLocal } from './pages/feeds/Local';
-import { FeedsMy } from './pages/feeds/My';
-import { FeedsBookmarks } from './pages/feeds/Bookmarks';
-import { Tags as TagsPage } from './pages/Tags';
-import { PostDetail } from './pages/PostDetail';
-import { Notifications as NotificationsPage } from './pages/Notifications';
-import { Profile as ProfilePage } from './pages/Profile';
-import { Explore as ExplorePage } from './pages/Explore';
-import { Members as MembersPage } from './pages/Members';
-import { ConversationsIndex } from './pages/conversations/Index';
-import { NewConversation } from './pages/conversations/New';
-import { ConversationShow } from './pages/conversations/Show';
-import { EventsIndex } from './pages/events/Index';
-import { EventsMy } from './pages/events/My';
-import { GroupsIndex } from './pages/groups/Index';
-import { GroupShow } from './pages/groups/Show';
-import { GroupInfo } from './pages/groups/Info';
-import { GroupMembers } from './pages/groups/Members';
-import { JamsIndex } from './pages/jams/Index';
-import { JamEvent } from './pages/jams/Event';
-import { ArticlesIndex } from './pages/articles/Index';
-import { Followers as ProfileFollowers } from './pages/profile/Followers';
-import { PublicProfileSettings } from './pages/settings/PublicProfile';
-import { ThemeSettings } from './pages/settings/Theme';
-import { AccountSettings } from './pages/settings/Account';
-import { NotificationSettings as NotificationSettingsPage } from './pages/settings/Notifications';
-import { BillingSettings } from './pages/settings/Billing';
-import { NewGroup } from './pages/groups/New';
-import { NewEvent } from './pages/events/New';
-import { NewArticle } from './pages/articles/New';
-import { AdminDashboard } from './pages/admin/Dashboard';
 import {
+  About,
+  CodeOfConduct,
+  Home,
+  NotFound,
+  Welcome,
+  AuthClosed,
+  Login,
+  Register,
+  RegisterInvitation,
+  RequestResetPassword,
+  ResetPassword,
+  ValidateEmail,
+  Settings,
+  FeedsLocal,
+  FeedsMy,
+  FeedsBookmarks,
+  TagsPage,
+  PostDetail,
+  NotificationsPage,
+  ProfilePage,
+  ExplorePage,
+  MembersPage,
+  ConversationsIndex,
+  NewConversation,
+  ConversationShow,
+  EventsIndex,
+  EventsMy,
+  GroupsIndex,
+  GroupShow,
+  GroupInfo,
+  GroupMembers,
+  JamsIndex,
+  JamEvent,
+  ArticlesIndex,
+  ProfileFollowers,
+  PublicProfileSettings,
+  ThemeSettings,
+  AccountSettings,
+  NotificationSettingsPage,
+  BillingSettings,
+  NewGroup,
+  NewEvent,
+  NewArticle,
+  AdminDashboard,
   AdminAnalytics,
   AnalyticsOverviewPage,
   AnalyticsMembersPage,
@@ -85,53 +82,53 @@ import {
   AnalyticsEngagementPage,
   AnalyticsGroupsPage,
   AnalyticsReportSettingsPage,
-} from './pages/admin/Analytics';
-import { AdminBackups } from './pages/admin/Backups';
-import { AdminGroups } from './pages/admin/Groups';
-import { AdminInvites } from './pages/admin/Invites';
-import { AdminMembers } from './pages/admin/Members';
-import { AdminModeration } from './pages/admin/Moderation';
-import { PaymentSuccess } from './pages/payment/Success';
-import { TestMarkdown } from './pages/test/Markdown';
-import { TestError } from './pages/test/Error';
-import { PluginsIndex } from './pages/plugins/Index';
-import { EditArticle } from './pages/articles/Edit';
-import { EditEvent } from './pages/events/Edit';
-import { EditGroup } from './pages/groups/Edit';
-import { AdminConfiguration } from './pages/admin/Configuration';
-import { AdminConfigurationCommunity } from './pages/admin/ConfigurationCommunity';
-import { AdminConfigEditor } from './pages/admin/ConfigEditor';
-import { AdminConfigurationI18n } from './pages/admin/ConfigurationI18n';
-import { AdminConfigurationCommunityInfo } from './pages/admin/community/CommunityInfo';
-import { AdminConfigurationCommunityLinks } from './pages/admin/community/CommunityLinks';
-import { CommunityMarkdownPage } from './pages/admin/community/CommunityMarkdownPage';
-import { AdminConfigurationCommunityFavicons } from './pages/admin/community/CommunityFavicons';
-import { AdminConfigurationCommunityTheme } from './pages/admin/community/CommunityTheme';
-import { AdminConfigurationCommunityProfileFields } from './pages/admin/community/CommunityProfileFields';
-import { AdminConfigurationCommunityRoles } from './pages/admin/community/CommunityRoles';
-import { AdminGroupMembers } from './pages/admin/GroupMembers';
-import { AdminReports } from './pages/admin/Reports';
-import { AdminApiKeys } from './pages/admin/ApiKeys';
-import { AdminDiagnostics } from './pages/admin/Diagnostics';
-import { AdminDiagnosticsEmail } from './pages/admin/DiagnosticsEmail';
-import { AdminDiagnosticsLogs } from './pages/admin/DiagnosticsLogs';
-import { AdminConfigurationEmail } from './pages/admin/ConfigurationEmail';
-import { AccessTokensSettings } from './pages/settings/AccessTokens';
-import { LanguageSettings } from './pages/settings/Language';
-import { NotificationPreferences } from './pages/settings/NotificationPreferences';
-import { PushEnabledDevices } from './pages/settings/PushEnabledDevices';
-import { ConversationInfo } from './pages/conversations/Info';
-import { SsoCallback } from './pages/auth/SsoCallback';
-import { OidcCallback } from './pages/auth/OidcCallback';
-import { OidcPending } from './pages/auth/OidcPending';
+  AdminBackups,
+  AdminGroups,
+  AdminInvites,
+  AdminMembers,
+  AdminModeration,
+  PaymentSuccess,
+  TestMarkdown,
+  TestError,
+  PluginsIndex,
+  EditArticle,
+  EditEvent,
+  EditGroup,
+  AdminConfiguration,
+  AdminConfigurationCommunity,
+  AdminConfigEditor,
+  AdminConfigurationI18n,
+  AdminConfigurationCommunityInfo,
+  AdminConfigurationCommunityLinks,
+  CommunityMarkdownPage,
+  AdminConfigurationCommunityFavicons,
+  AdminConfigurationCommunityTheme,
+  AdminConfigurationCommunityProfileFields,
+  AdminConfigurationCommunityRoles,
+  AdminGroupMembers,
+  AdminReports,
+  AdminApiKeys,
+  AdminDiagnostics,
+  AdminDiagnosticsEmail,
+  AdminDiagnosticsLogs,
+  AdminConfigurationEmail,
+  AccessTokensSettings,
+  LanguageSettings,
+  NotificationPreferences,
+  PushEnabledDevices,
+  ConversationInfo,
+  SsoCallback,
+  OidcCallback,
+  OidcPending,
+  AdminDb,
+  AdminDiagnosticsJob,
+  AdminDiagnosticsPerformance,
+  AdminConfigurationCommunityLanguage,
+} from '@openpeepshq/react/pages';
 
 import { DocsLayout } from './pages/docs/DocsLayout';
 import { DocsPage } from './pages/docs/DocsPage';
 
-import { AdminDb } from './pages/admin/Db';
-import { AdminDiagnosticsJob } from './pages/admin/DiagnosticsJob';
-import { AdminDiagnosticsPerformance } from './pages/admin/DiagnosticsPerformance';
-import { AdminConfigurationCommunityLanguage } from './pages/admin/ConfigurationCommunityLanguage';
 import {
   AppSideBarMainMenu,
   AppSideBarProfileMenu,
@@ -141,6 +138,9 @@ import {
   RequireAdminSection,
 } from './navigation/RequireAdminSection';
 import { LoadingSpinner } from '@openpeepshq/react-ui';
+import { createWebNavigator } from './navigation/webNavigator';
+
+const webNavigator = createWebNavigator();
 
 const baseUrl =
   import.meta.env.VITE_OPENPEEPS_BASE_URL ??
@@ -159,8 +159,16 @@ function ReactRouterAdapter({ children }: { children: ReactNode }) {
     () => ({
       pathname: location.pathname,
       searchParams,
-      navigate: (url) => navigate(url),
-      back: () => navigate(-1),
+      hrefOf: webNavigator.hrefOf,
+      match: webNavigator.match,
+      navigate: (target) => {
+        const url =
+          typeof target === 'string' ? target : webNavigator.hrefOf(target);
+        void navigate(url);
+      },
+      back: () => {
+        void navigate(-1);
+      },
     }),
     [location.pathname, searchParams, navigate],
   );

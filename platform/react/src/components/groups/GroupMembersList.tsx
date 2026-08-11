@@ -12,10 +12,7 @@ import {
   sortGroupMembers,
   truncateText,
 } from '@openpeepshq/common/lib';
-import {
-  PopupMenu,
-  PopupMenuButton,
-} from '@openpeepshq/react-ui';
+import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { AccessDeniedLoader } from '../layout/AccessDeniedLoader';
@@ -57,15 +54,14 @@ export function GroupMembersList({ group }: GroupMembersListProps) {
           >
             <a
               href={`/@${member.profile.handle}`}
-              className="hover:bg-surface-100 flex min-w-0 flex-1 items-center gap-3 rounded-md"
+              className="hover:bg-surface flex min-w-0 flex-1 items-center gap-3 rounded-md"
             >
               <Avatar profile={member.profile} size={3} />
               <div className="flex min-w-0 flex-col">
                 <span className="text-sm font-semibold">
-                  {member.profile.displayName ||
-                    `@${member.profile.handle}`}
+                  {member.profile.displayName || `@${member.profile.handle}`}
                 </span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-muted-foreground text-xs">
                   @{member.profile.handle}
                 </span>
                 {member.roles?.length ? (
@@ -108,9 +104,7 @@ export function GroupMembersList({ group }: GroupMembersListProps) {
                     text={t('groups.changeRoles.title', {
                       defaultValue: 'Change roles',
                     })}
-                    action={() =>
-                      setActiveModal({ type: 'roles', member })
-                    }
+                    action={() => setActiveModal({ type: 'roles', member })}
                   />
                 ) : null}
                 {me && canRemoveMember(me, group) ? (
@@ -122,9 +116,7 @@ export function GroupMembersList({ group }: GroupMembersListProps) {
                     text={t('groups.actions.removeFromGroup', {
                       defaultValue: 'Remove from group',
                     })}
-                    action={() =>
-                      setActiveModal({ type: 'remove', member })
-                    }
+                    action={() => setActiveModal({ type: 'remove', member })}
                     danger
                   />
                 ) : null}

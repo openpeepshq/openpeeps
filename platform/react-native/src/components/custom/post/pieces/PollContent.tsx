@@ -100,7 +100,7 @@ export const PollContent = ({ post }: Props) => {
   };
 
   return (
-    <View className="bg-card rounded-lg px-4 py-4">
+    <View className="bg-surface rounded-lg px-4 py-4">
       <View className="gap-4">
         {post?.data?.type === 'question' &&
           post.data.options.map((option, index) => (

@@ -101,7 +101,7 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
             {isMenuOpen ? <XIcon /> : <PlusIcon />}
           </TouchableOpacity> */}
           <TextInput
-            className="flex-1 px-4 py-2 pb-4 text-lg text-foreground bg-muted rounded-2xl mx-2"
+            className="flex-1 px-4 py-2 pb-4 text-lg text-foreground bg-surface rounded-2xl mx-2"
             placeholder="Type a message..."
             placeholderTextColor="#666"
             multiline
@@ -112,7 +112,7 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
           <TouchableOpacity
             onPress={handleSendMessage}
             disabled={!content.trim() || isSending}
-            className={`p-2 rounded-full ${content.trim() ? 'bg-primary' : 'bg-muted'
+            className={`p-2 rounded-full ${content.trim() ? 'bg-primary' : 'bg-surface'
               }`}>
             {isSending ? (
               <ActivityIndicator size={'small'} />

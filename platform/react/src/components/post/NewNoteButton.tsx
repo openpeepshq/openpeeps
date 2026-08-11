@@ -72,7 +72,7 @@ export function NewNoteButton({
     <div className="mb-4">
       <Button
         title={t('posts.form.title', { defaultValue: 'New post' })}
-        variant="variant-filled-primary"
+        variant="default"
         action={openNewPost}
         data-testid="posts-new-post-button"
       >

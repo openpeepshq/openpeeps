@@ -68,13 +68,13 @@ export function NotificationPermissionPrompt({
     <div
       className={
         className ??
-        'border-border bg-card flex w-full items-center justify-between gap-3 rounded border p-3 text-sm shadow-sm'
+        'border-border bg-surface flex w-full items-center justify-between gap-3 rounded border p-3 text-sm shadow-sm'
       }
     >
       <div>{message}</div>
       <div className="flex items-center gap-2">
         <Button
-          variant="variant-soft"
+          variant="secondary"
           action={() => {
             try {
               window.localStorage.setItem(storageKey, '1');
@@ -87,7 +87,7 @@ export function NotificationPermissionPrompt({
           {dismissLabel}
         </Button>
         <Button
-          variant="variant-filled-primary"
+          variant="default"
           action={async () => {
             await subscribe();
           }}

@@ -118,7 +118,7 @@ export function LocationInput({
           ) : (
             <>
               <Button
-                className="border-surface-300 hover:bg-muted w-full rounded border p-2 text-left"
+                className="border-border hover:bg-surface w-full border p-2 text-left"
                 action={() => onSelection({ name })}
               >
                 {name}
@@ -126,7 +126,7 @@ export function LocationInput({
               {suggestions?.map((res, idx) => (
                 <Button
                   key={idx}
-                  className="border-surface-300 hover:bg-muted w-full rounded border p-2 text-left"
+                  className="border-border hover:bg-surface w-full border p-2 text-left"
                   action={() => onSelection(res)}
                 >
                   {res.name}

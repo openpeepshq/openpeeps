@@ -151,8 +151,8 @@ and now also exposes `usePaymentStatus` / `createCustomerPortalAction` /
 - Use `useT()` from `@openpeepshq/react` for i18n (not `react-i18next`).
 - Use `useOpenpeeps()` to get the API client and `useCredentialsStore()` for
   the credentials store. Shared mutations live in `src/lib/auth.ts`.
-- Form pages use `Form` + `FormInput` + `SubmitButton` from `@openpeepshq/react-ui`.
-  Pass a stable `data` reference; `FormInput` mutates it through `deepSet`.
+- Form pages use react-hook-form with `Form` / `FormField` / `FormItem` from
+  `@openpeepshq/react-ui` and Zod resolvers from `@openpeepshq/common`.
 - Static markdown content (about, code-of-conduct, welcome) uses the local
   `src/lib/Markdown.tsx` renderer (powered by `marked`).
 - Page routing lives entirely in `src/App.tsx`; protected vs public layout is

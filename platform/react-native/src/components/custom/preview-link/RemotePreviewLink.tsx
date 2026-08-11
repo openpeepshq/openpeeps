@@ -49,14 +49,14 @@ export const RemotePreviewLink = ({ url }: RemotePreviewLinkProps) => {
               className={`flex ${image ? 'w-32 flex-1' : 'w-full'
                 } flex-col items-start justify-start gap-y-3`}>
               <View className="w-fit">
-                <Text className="text-surface-800 text-sm font-thin sm:text-xs">
+                <Text className="text-foreground text-sm font-thin sm:text-xs">
                   {new URL(url).hostname}
                 </Text>
               </View>
               <View className="w-fit font-bold">
                 <Text className="font-bold">{title ?? ''}</Text>
               </View>
-              <View className="text-surface-800 w-full truncate text-sm font-thin">
+              <View className="text-foreground w-full truncate text-sm font-thin">
                 <Text>{description ?? ''}</Text>
               </View>
             </View>

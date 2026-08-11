@@ -321,7 +321,7 @@ function NewGroupInvitationNotification({
     >
       <div className="w-full px-4 py-2">
         <div className="mb-2 flex items-center gap-4">
-          <Users className="text-surface-500 size-8" />
+          <Users className="text-muted-foreground size-8" />
           <GroupAvatarThumb group={group} />
         </div>
         <p className="text-sm">
@@ -356,7 +356,7 @@ function NewGroupMemberNotification({
     >
       <div className="w-full px-4 py-2">
         <div className="mb-2 flex items-center gap-4">
-          <Users className="text-surface-500 size-8" />
+          <Users className="text-muted-foreground size-8" />
           <GroupAvatarThumb group={group} />
         </div>
         <p className="text-sm">
@@ -392,7 +392,7 @@ function GroupMemberExitNotification({
     >
       <div className="w-full px-4 py-2">
         <div className="mb-2 flex items-center gap-4">
-          <Users className="text-surface-500 size-8" />
+          <Users className="text-muted-foreground size-8" />
           <GroupAvatarThumb group={group} />
         </div>
         <p className="text-sm">

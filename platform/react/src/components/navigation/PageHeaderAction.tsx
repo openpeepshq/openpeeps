@@ -10,7 +10,7 @@ export function PageHeaderAction({ title, action }: PageHeaderActionProps) {
     <Button
       title={title}
       className="h-6 w-fit text-sm"
-      variant="variant-ringed-surface"
+      variant="outline"
       action={
         action
           ? () => Promise.resolve(action()).then(() => undefined)

@@ -118,7 +118,7 @@ export const JamParticipantActionSheet = forwardRef<
           <TouchableOpacity
             onPress={handleMuteParticipant}
             disabled={isLoading}
-            className="w-full px-4 py-3 flex-row items-center gap-x-3 rounded-lg hover:bg-muted/50">
+            className="w-full px-4 py-3 flex-row items-center gap-x-3 rounded-lg hover:bg-surface/50">
             {!isLoading ? (
               <>
                 <MicOffIcon className="text-foreground" />
@@ -139,7 +139,7 @@ export const JamParticipantActionSheet = forwardRef<
           <TouchableOpacity
             onPress={handleMuteParticipantCamera}
             disabled={isLoading}
-            className="mt-2 w-full px-4 py-3 flex-row items-center gap-x-3 rounded-lg hover:bg-muted/50">
+            className="mt-2 w-full px-4 py-3 flex-row items-center gap-x-3 rounded-lg hover:bg-surface/50">
             <CameraOffIcon className="text-foreground" />
             <ThemedText className="text-lg">
               {t('jams.participant.turnOffCamera')}
