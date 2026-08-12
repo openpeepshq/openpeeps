@@ -33,8 +33,7 @@ export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
 
   const markAllNotificationsAsSeen =
     openpeepsApi.markAllNotificationsAsSeenAction()();
-  const statsQueryKey =
-    client.profiles.current.notificationStats.queryKey({});
+  const statsQueryKey = client.profiles.current.notificationStats.queryKey({});
 
   const resetNotificationsView = useCallback(async () => {
     try {
@@ -97,7 +96,7 @@ export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
 
   if (query.isLoading) {
     return (
-      <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
         <LoadingSpinner />
       </div>
     );
@@ -105,21 +104,25 @@ export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
 
   if (notifications.length === 0) {
     return (
-      <p className="px-5 py-8 text-sm text-muted-foreground">
+      <p className="text-muted-foreground px-5 py-8 text-sm">
         {t('notification.empty', { defaultValue: 'No notifications' })}
       </p>
     );
   }
 
   return (
-    <div className="relative overflow-hidden">
+    <div
+      role="feed"
+      aria-busy={query.isFetchingNextPage || undefined}
+      className="relative overflow-hidden"
+    >
       {notifications.map((n) => (
         <NotificationItem key={n.id} notification={n} />
       ))}
       <div ref={sentinelRef} aria-hidden="true" className="h-8" />
       {query.isFetchingNextPage && (
-        <div className="flex justify-center py-4 text-sm text-muted-foreground">
-        <LoadingSpinner />
+        <div className="text-muted-foreground flex justify-center py-4 text-sm">
+          <LoadingSpinner />
         </div>
       )}
     </div>

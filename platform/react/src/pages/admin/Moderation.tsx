@@ -20,7 +20,12 @@ export function AdminModeration() {
 
   return (
     <div className="space-y-4 p-4">
-      <nav className="border-border flex border-b">
+      <nav
+        aria-label={t('admin.moderation.tabsLabel', {
+          defaultValue: 'Moderation sections',
+        })}
+        className="border-border flex border-b"
+      >
         <TabButton active={tab === 'summary'} onClick={() => setTab('summary')}>
           {t('admin.moderation.summaryTab', { defaultValue: 'Summary' })}
         </TabButton>

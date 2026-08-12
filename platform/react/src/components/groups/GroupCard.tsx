@@ -63,7 +63,9 @@ export function GroupCard({
   );
 
   return (
-    <div className={`flex w-full justify-between ${noPadding ? '' : 'p-4'}`}>
+    <article
+      className={`flex w-full justify-between ${noPadding ? '' : 'p-4'}`}
+    >
       {onSelect ? (
         <button
           type="button"
@@ -85,6 +87,6 @@ export function GroupCard({
           <JoinGroupButton group={group} />
         </div>
       )}
-    </div>
+    </article>
   );
 }

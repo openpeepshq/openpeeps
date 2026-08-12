@@ -115,7 +115,12 @@ export function AdminReports() {
         </a>
       </header>
 
-      <nav className="border-border flex border-b">
+      <nav
+        aria-label={t('admin.moderation.report.tabsLabel', {
+          defaultValue: 'Report types',
+        })}
+        className="border-border flex border-b"
+      >
         <TabButton active={tab === 'post'} onClick={() => setTab('post')}>
           Post Reports
         </TabButton>

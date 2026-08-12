@@ -49,7 +49,7 @@ export function HeaderMobile({ avatar, sideBar }: HeaderMobileProps = {}) {
     (profile ? <Avatar profile={profile} size={2.5} borderless /> : <Menu />);
 
   return (
-    <div className="bg-background sticky top-0 z-10 flex px-4 py-2 md:hidden">
+    <header className="bg-background sticky top-0 z-10 flex px-4 py-2 md:hidden">
       <div className="flex w-full items-center justify-between">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -90,6 +90,6 @@ export function HeaderMobile({ avatar, sideBar }: HeaderMobileProps = {}) {
           <MessageSquareText />
         </button>
       </div>
-    </div>
+    </header>
   );
 }

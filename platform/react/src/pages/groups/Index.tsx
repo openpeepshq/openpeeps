@@ -66,7 +66,12 @@ export function GroupsIndex() {
 
   return (
     <div className="p-4">
-      <nav className="border-border mb-4 flex border-b">
+      <nav
+        aria-label={t('groups.tabs.label', {
+          defaultValue: 'Group lists',
+        })}
+        className="border-border mb-4 flex border-b"
+      >
         <TabButton active={tab === 'mine'} onClick={() => setTab('mine')}>
           {t('groups.tabs.myGroups', { defaultValue: 'My groups' })}
         </TabButton>
@@ -74,14 +79,21 @@ export function GroupsIndex() {
           {t('groups.tabs.allGroups', { defaultValue: 'All groups' })}
         </TabButton>
       </nav>
-      <Input
-        placeholder={t('groups.searchPlaceholder', {
-          defaultValue: 'Search by group name',
-        })}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        data-testid="groups-search-input"
-      />
+      <form
+        role="search"
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <Input
+          placeholder={t('groups.searchPlaceholder', {
+            defaultValue: 'Search by group name',
+          })}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          data-testid="groups-search-input"
+        />
+      </form>
       <div className="space-y-2 py-4">
         {filtered.map((group) => (
           <GroupCard

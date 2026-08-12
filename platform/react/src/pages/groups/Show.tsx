@@ -79,7 +79,13 @@ export function GroupShow() {
     <div>
       <GroupHeader group={group} />
 
-      <nav className="border-border flex border-b" data-testid="tab-group">
+      <nav
+        aria-label={t('groups.sections.label', {
+          defaultValue: 'Group sections',
+        })}
+        className="border-border flex border-b"
+        data-testid="tab-group"
+      >
         <TabButton
           active={tab === 'posts'}
           onClick={() => {
@@ -129,7 +135,12 @@ export function GroupShow() {
             group={group}
             onNavigate={() => navigate('/events/new')}
           />
-          <nav className="border-border flex border-b">
+          <nav
+            aria-label={t('groups.eventsTabs.label', {
+              defaultValue: 'Event timeframe',
+            })}
+            className="border-border flex border-b"
+          >
             <TabButton
               active={eventsTab === 'upcoming'}
               onClick={() => setEventsTab('upcoming')}

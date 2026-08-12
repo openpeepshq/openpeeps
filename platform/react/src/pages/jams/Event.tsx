@@ -72,7 +72,7 @@ export function JamEvent() {
   }, [postQuery.isError, postQuery.error, me, navigate]);
 
   return (
-    <div className="bg-surface h-screen w-screen overflow-hidden">
+    <main className="bg-surface h-screen w-screen overflow-hidden">
       {postQuery.isLoading ? (
         <div className="text-muted-foreground flex h-full w-full items-center justify-center p-6 text-sm">
           {t('jams.room.loading', { defaultValue: 'Loading jam…' })}
@@ -84,6 +84,6 @@ export function JamEvent() {
       ) : (
         <JamRoom jamPost={postQuery.data} observer={observer} />
       )}
-    </div>
+    </main>
   );
 }

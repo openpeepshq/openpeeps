@@ -58,7 +58,7 @@ export function Toast({
 
   const body = (
     <div
-      role="status"
+      role={variant === 'error' ? 'alert' : 'status'}
       data-testid={testId}
       className={cn(
         'flex items-start gap-2 rounded-md border p-3 text-sm font-medium shadow-md',

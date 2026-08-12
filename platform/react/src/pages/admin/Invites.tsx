@@ -37,7 +37,13 @@ export function AdminInvites() {
 
   return (
     <div className="p-4">
-      <div className="mb-4">
+      <form
+        role="search"
+        className="mb-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+      >
         <Input
           placeholder={t('admin.invites.searchPlaceholder', {
             defaultValue: 'Search by name or email',
@@ -45,7 +51,7 @@ export function AdminInvites() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-      </div>
+      </form>
 
       {filtered.length === 0 ? (
         <div className="flex w-full items-center justify-center p-4">

@@ -19,7 +19,7 @@ export function NotificationWrapper({
   children,
 }: NotificationWrapperProps) {
   return (
-    <div className="hover:bg-surface w-full items-start gap-3 overflow-hidden border-b px-4 py-5">
+    <article className="hover:bg-surface w-full items-start gap-3 overflow-hidden border-b px-4 py-5">
       <div className="flex justify-end">
         {!seen ? <Dot className="h-3 w-3" /> : null}
       </div>
@@ -37,6 +37,6 @@ export function NotificationWrapper({
         </div>
       ) : null}
       <div className="flex flex-1 flex-col">{children}</div>
-    </div>
+    </article>
   );
 }

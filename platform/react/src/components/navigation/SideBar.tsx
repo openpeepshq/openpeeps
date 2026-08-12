@@ -91,9 +91,9 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
           </div>
         )}
       </div>
-      <div className="bg-background absolute bottom-3">
+      <footer className="bg-background absolute bottom-3">
         <p className="ml-4 text-center">{t('navigation.poweredBy')}</p>
-      </div>
+      </footer>
     </div>
   );
 }

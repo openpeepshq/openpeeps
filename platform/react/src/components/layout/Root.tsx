@@ -72,10 +72,12 @@ export function RootLayout({ children, sideBar }: RootLayoutProps) {
               </aside>
               <div className="bg-background flex min-h-screen min-w-0 flex-1 flex-col border-r">
                 <HeaderMobile sideBar={sideBar} />
-                <ContentHeader />
-                <Breadcrumbs />
-                <Infos />
-                {children}
+                <main className="flex min-w-0 flex-1 flex-col">
+                  <ContentHeader />
+                  <Breadcrumbs />
+                  <Infos />
+                  {children}
+                </main>
                 <PlusButton />
               </div>
             </div>

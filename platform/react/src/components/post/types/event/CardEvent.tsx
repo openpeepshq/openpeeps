@@ -51,7 +51,7 @@ export function CardEvent({ post }: CardEventProps) {
   const postLink = `/posts/${post.id}`;
 
   return (
-    <div
+    <article
       ref={postViewRef}
       className="hover:bg-surface mb-6 w-full overflow-hidden rounded-lg border"
     >
@@ -102,6 +102,6 @@ export function CardEvent({ post }: CardEventProps) {
           ) : null
         ) : null}
       </div>
-    </div>
+    </article>
   );
 }

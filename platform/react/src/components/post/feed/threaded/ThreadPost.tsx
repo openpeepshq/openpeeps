@@ -32,7 +32,7 @@ export function ThreadPost({
   });
 
   return (
-    <div ref={postViewRef} className="relative flex flex-row gap-2 p-2">
+    <article ref={postViewRef} className="relative flex flex-row gap-2 p-2">
       <UnreadPostIndicator show={isUnread} className="left-0.5 top-5" />
       <div className="relative w-12 shrink-0">
         <ProfileLink profile={post.profile}>
@@ -72,6 +72,6 @@ export function ThreadPost({
         </div>
         {!noActions ? <PostActions post={post} compact /> : null}
       </div>
-    </div>
+    </article>
   );
 }

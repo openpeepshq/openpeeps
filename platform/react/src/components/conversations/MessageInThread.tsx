@@ -93,7 +93,7 @@ export function MessageInThread({
         </div>
       )}
 
-      <div ref={postViewRef} className="flex">
+      <article ref={postViewRef} className="flex">
         {!isMe && multipleParticipants && (
           <Avatar
             containerClassName="mt-6 mr-2"
@@ -104,7 +104,7 @@ export function MessageInThread({
         <div className="min-w-0 flex-1">
           <ConversationMessageBubble message={message} unread={isUnread} />
         </div>
-      </div>
+      </article>
 
       <div
         className={`mt-2 w-full text-sm ${isMe ? 'text-right' : 'text-left'}`}

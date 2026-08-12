@@ -78,7 +78,10 @@ export function JamsIndex({ my = false }: Props) {
     <div className="p-4">
       {!my && serverInfo.jams.livekit.enabled ? <LiveJamsSection /> : null}
 
-      <nav className="border-border mb-4 flex border-b">
+      <nav
+        aria-label={t('jams.feed.label', { defaultValue: 'Jam timeframe' })}
+        className="border-border mb-4 flex border-b"
+      >
         <TabButton
           active={tab === 'upcoming'}
           onClick={() => setTab('upcoming')}

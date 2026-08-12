@@ -22,7 +22,12 @@ export function EventsMy() {
 
   return (
     <div>
-      <nav className="border-border flex border-b">
+      <nav
+        aria-label={t('events.feed.label', {
+          defaultValue: 'Event timeframe',
+        })}
+        className="border-border flex border-b"
+      >
         <TabButton
           active={tab === 'upcoming'}
           onClick={() => setTab('upcoming')}

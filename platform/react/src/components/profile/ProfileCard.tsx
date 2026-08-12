@@ -51,7 +51,7 @@ export function ProfileCard({
   );
 
   return (
-    <div className="hover:bg-surface flex items-center justify-between gap-3 border-b p-4">
+    <article className="hover:bg-surface flex items-center justify-between gap-3 border-b p-4">
       {onSelect ? (
         <button
           type="button"
@@ -75,6 +75,6 @@ export function ProfileCard({
           <FollowUnfollowButton profile={profile} compact />
         </div>
       ) : null}
-    </div>
+    </article>
   );
 }

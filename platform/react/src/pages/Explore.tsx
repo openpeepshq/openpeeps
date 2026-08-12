@@ -145,7 +145,14 @@ export function Explore() {
 
   return (
     <div className="p-4">
-      <div className="flex gap-x-2">
+      <form
+        role="search"
+        className="flex gap-x-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          triggerSearch();
+        }}
+      >
         <Input
           placeholder={t('explore.enterSearchQuery', {
             defaultValue: 'Search for members, posts, groups…',
@@ -153,9 +160,6 @@ export function Explore() {
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           data-testid="explore-search-input"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') triggerSearch();
-          }}
         />
         <Button
           title={t('explore.SearchButton', { defaultValue: 'Search' })}
@@ -165,9 +169,12 @@ export function Explore() {
         >
           <Search />
         </Button>
-      </div>
+      </form>
 
-      <nav className="border-border mt-4 flex flex-wrap border-b">
+      <nav
+        aria-label={t('explore.tabs.label', { defaultValue: 'Result types' })}
+        className="border-border mt-4 flex flex-wrap border-b"
+      >
         <TabButton
           active={tab === 'members'}
           onClick={() => switchTab('members')}
@@ -249,7 +256,7 @@ export function Explore() {
             ) : null}
           </>
         ) : tab === 'posts' ? (
-          <>
+          <div role="feed">
             {postItems.map((post) => (
               <a key={post.id} href={`/posts/${post.id}`}>
                 <FeedPost post={post} />
@@ -262,7 +269,7 @@ export function Explore() {
                 })}
               />
             ) : null}
-          </>
+          </div>
         ) : profileItems.length === 0 ? (
           <EmptyResults
             message={t('explore.noProfilesFound', {
@@ -298,7 +305,7 @@ function EventSearchResults({
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-4 sm:grid-cols-2" role="feed">
       {posts.map((post) => (
         <CardEvent key={post.id} post={post} />
       ))}

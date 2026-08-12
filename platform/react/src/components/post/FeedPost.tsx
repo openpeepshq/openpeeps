@@ -1,4 +1,4 @@
-import type { ReactNode, RefObject } from 'react';
+import type { ReactNode } from 'react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { cn } from '@openpeepshq/react-ui';
 import { usePostViewRef } from '../../lib/postViewCounter';
@@ -44,7 +44,7 @@ export function FeedPost({
   const postViewRef = usePostViewRef(displayedPost.id, {
     groupId: displayedPost.groupId,
     adjustUnread: isUnread,
-  }) as RefObject<HTMLDivElement>;
+  });
   const hasReactionHeader =
     !noReactionHeader &&
     (!!post.repost || !!post.inReplyToId || (!!post.groupId && !inGroup));
@@ -58,7 +58,7 @@ export function FeedPost({
   );
 
   return (
-    <div
+    <article
       ref={postViewRef}
       className={cn(
         'bg-background border-border relative min-w-0 border-b p-4',
@@ -105,6 +105,6 @@ export function FeedPost({
       </div>
 
       <PostActions post={displayedPost} />
-    </div>
+    </article>
   );
 }

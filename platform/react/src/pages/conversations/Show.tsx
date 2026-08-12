@@ -133,7 +133,14 @@ export function ConversationShow() {
         )}
       </header>
 
-      <div className="flex-1 overflow-y-auto px-3">
+      <div
+        role="log"
+        aria-live="polite"
+        aria-label={t('conversations.messageLog', {
+          defaultValue: 'Messages',
+        })}
+        className="flex-1 overflow-y-auto px-3"
+      >
         {messages.map((m, index) => (
           <MessageInThread
             key={m.id}

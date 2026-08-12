@@ -84,7 +84,11 @@ export const PostViewCounterProvider = ({
       flushDebounceTimer.current = undefined;
     }
 
-    if (flushing.current || pendingPostIds.current.size === 0 || !hasAuthToken) {
+    if (
+      flushing.current ||
+      pendingPostIds.current.size === 0 ||
+      !hasAuthToken
+    ) {
       return;
     }
 
@@ -179,12 +183,12 @@ export const PostViewCounterProvider = ({
 };
 
 /** Attach the returned ref to a post container to batch-mark it seen after 1s in view. */
-export const usePostViewRef = (
+export const usePostViewRef = <T extends HTMLElement = HTMLElement>(
   postId: string | undefined,
   viewContext?: PostViewContext,
 ) => {
   const context = useContext(PostViewCounterContext);
-  const ref = useRef<HTMLDivElement | null>(null);
+  const ref = useRef<T | null>(null);
   const viewContextRef = useRef(viewContext);
   viewContextRef.current = viewContext;
 
