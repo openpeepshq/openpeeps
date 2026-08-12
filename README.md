@@ -44,17 +44,22 @@ From the repo root:
    care about tokens surviving restarts. Production images fail fast when it is
    missing.
 
-2. Start Postgres and Redis:
+2. Start Postgres, Redis, and Mailpit:
 
    ```bash
-   docker compose up -d postgres redis
+   docker compose up -d postgres redis mailpit
    ```
+
+   Or skip this step and use `pnpm dev` later — it starts the same services.
 
    Postgres listens on `localhost:5432` with user/database/password
    `openpeeps`. Set `DATABASE_URL` in `.env` if you use different credentials
    (default:
    `postgresql://openpeeps:openpeeps@localhost:5432/openpeeps`). Drizzle
    migrations run automatically when the server starts.
+
+   Mailpit catches outbound mail: SMTP on `localhost:1025`, UI at
+   `http://localhost:8025`. `.env.dev.example` points SMTP at Mailpit.
 
 3. Install workspace dependencies (only what server + web actually need):
 
@@ -76,23 +81,31 @@ From the repo root:
      build
    ```
 
-5. Run the API, the worker, and the SPA dev server in separate terminals:
+5. Start the full local stack (Postgres + Redis + Mailpit, API, worker, SPA):
 
    ```bash
-   # Terminal 1 — API on http://localhost:5173
+   pnpm dev
+   ```
+
+   That brings up `postgres`, `redis`, and `mailpit` via Docker Compose, then
+   runs the API (`http://localhost:5173`), BullMQ worker, and SPA
+   (`http://localhost:5174`, proxies `/api` to the API) in one terminal.
+   Prefixes are `api` / `worker` / `web`. Ctrl+C stops all three app
+   processes; containers keep running until you `docker compose down`.
+   Caught mail is at `http://localhost:8025`.
+
+   To run processes separately instead:
+
+   ```bash
+   pnpm run dev:infra   # postgres + redis + mailpit
    cd platform/server && pnpm dev
-
-   # Terminal 2 — BullMQ worker (notifications, media, emails, …)
    cd platform/server && pnpm dev:worker
-
-   # Terminal 3 — SPA on http://localhost:5174 (proxies /api to :5173)
    cd platform/web && pnpm dev
    ```
 
    The worker is optional for serving pages but required for anything that
    relies on background jobs (push/email delivery, media transcoding,
-   scheduled tasks). It connects to the same Redis instance started in
-   step 2.
+   scheduled tasks).
 
    Open `http://localhost:5174`.
 
