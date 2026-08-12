@@ -132,3 +132,16 @@ import { getModalManager } from '@openpeepshq/react-ui';
 const m = getModalManager();
 m.show(MyModal, { foo: 'bar' }, (response) => console.log(response));
 ```
+
+## Preview components locally
+
+Use the workspace component gallery to see live fixtures while editing this
+package (and `@openpeepshq/react`):
+
+```bash
+pnpm gallery:dev
+```
+
+Opens http://localhost:5176 and hot-reloads TypeScript sources under
+`libraries/react-ui/` and `platform/react/`. See
+[`examples/component-gallery/README.md`](../../examples/component-gallery/README.md).

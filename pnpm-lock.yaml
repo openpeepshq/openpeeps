@@ -79,6 +79,70 @@ importers:
         specifier: ^6.0.7
         version: 6.0.7(@types/node@24.12.2)(jiti@1.21.6)(lightningcss@1.32.0)(terser@5.49.1)(tsx@4.22.4)(yaml@2.8.3)
 
+  examples/component-gallery:
+    dependencies:
+      '@hookform/resolvers':
+        specifier: ^5.4.2
+        version: 5.7.1(@sinclair/typebox@0.27.8)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)
+      '@openpeepshq/common':
+        specifier: workspace:^
+        version: link:../../platform/common
+      '@openpeepshq/i18n':
+        specifier: workspace:^
+        version: link:../../platform/i18n
+      '@openpeepshq/react':
+        specifier: workspace:^
+        version: link:../../platform/react
+      '@openpeepshq/react-ui':
+        specifier: workspace:^
+        version: link:../../libraries/react-ui
+      i18next:
+        specifier: ^24.2.3
+        version: 24.2.3(typescript@5.8.3)
+      lucide-react:
+        specifier: ^0.469.0
+        version: 0.469.0(react@19.2.6)
+      react:
+        specifier: 19.2.6
+        version: 19.2.6
+      react-dom:
+        specifier: 19.2.6
+        version: 19.2.6(react@19.2.6)
+      react-hook-form:
+        specifier: ^7.73.1
+        version: 7.73.1(react@19.2.6)
+      react-router-dom:
+        specifier: ^7.0.0
+        version: 7.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@types/react':
+        specifier: 19.2.14
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.4
+        version: 4.7.0(vite@6.0.7(@types/node@24.12.2)(jiti@1.21.6)(lightningcss@1.32.0)(terser@5.49.1)(tsx@4.22.4)(yaml@2.8.3))
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.5.26)
+      postcss:
+        specifier: ^8.4.49
+        version: 8.5.26
+      tailwindcss:
+        specifier: ^3.4.17
+        version: 3.4.17(ts-node@10.9.2(@types/node@24.12.2)(typescript@5.8.3))
+      typescript:
+        specifier: ^5.7.3
+        version: 5.8.3
+      vite:
+        specifier: ^6.0.7
+        version: 6.0.7(@types/node@24.12.2)(jiti@1.21.6)(lightningcss@1.32.0)(terser@5.49.1)(tsx@4.22.4)(yaml@2.8.3)
+
   examples/greenscreen-demo:
     dependencies:
       '@openpeepshq/greenscreen':
@@ -339,7 +403,7 @@ importers:
         version: 0.27.19(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@hookform/resolvers':
         specifier: ^5.4.2
-        version: 5.7.1(@sinclair/typebox@0.27.8)(ajv@8.13.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)
+        version: 5.7.1(@sinclair/typebox@0.27.8)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.23
         version: 1.1.23(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -8832,9 +8896,6 @@ packages:
   camelize@1.0.1:
     resolution: {integrity: sha512-dU+Tx2fsypxTgtLoE36npi3UqcjSSMNYfkqgmoEhtZrraP5VWq0K7FkWVTYa8eMPtnU/G2txVsfdCJTn9uzpuQ==}
 
-  caniuse-lite@1.0.30001743:
-    resolution: {integrity: sha512-e6Ojr7RV14Un7dz6ASD0aZDmQPT/A+eZU+nuTNfjqmRrmkmQlnTNWH0SKmqagx9PeW87UVqapSurtAXifmtdmw==}
-
   caniuse-lite@1.0.30001806:
     resolution: {integrity: sha512-72Cuvd95zbSYPKq6Fhg8eDJRlzgWDf7/mtoZv6Qe/DYNCEBdNxoA3+rZAU2ZhGCpZlns3EssFavaZomckT5Uuw==}
 
@@ -15929,7 +15990,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.29.7
       '@babel/helper-validator-option': 7.29.7
-      browserslist: 4.24.4
+      browserslist: 4.28.7
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -19289,16 +19350,6 @@ snapshots:
     dependencies:
       '@hapi/hoek': 9.3.0
 
-  '@hookform/resolvers@5.7.1(@sinclair/typebox@0.27.8)(ajv@8.13.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)':
-    dependencies:
-      '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.73.1(react@19.2.6)
-    optionalDependencies:
-      '@sinclair/typebox': 0.27.8
-      ajv: 8.13.0
-      joi: 17.13.3
-      zod: 4.4.3
-
   '@hookform/resolvers@5.7.1(@sinclair/typebox@0.27.8)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)':
     dependencies:
       '@standard-schema/utils': 0.3.0
@@ -21902,9 +21953,7 @@ snapshots:
       metro-runtime: 0.84.3
     transitivePeerDependencies:
       - '@babel/core'
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@react-native/metro-config@0.85.2(@babel/core@7.29.7)':
     dependencies:
@@ -21914,7 +21963,9 @@ snapshots:
       metro-runtime: 0.84.3
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@react-native/normalize-colors@0.85.2': {}
 
@@ -24502,7 +24553,7 @@ snapshots:
 
   browserslist@4.24.4:
     dependencies:
-      caniuse-lite: 1.0.30001743
+      caniuse-lite: 1.0.30001806
       electron-to-chromium: 1.5.76
       node-releases: 2.0.19
       update-browserslist-db: 1.1.1(browserslist@4.24.4)
@@ -24637,8 +24688,6 @@ snapshots:
   camelcase@8.0.0: {}
 
   camelize@1.0.1: {}
-
-  caniuse-lite@1.0.30001743: {}
 
   caniuse-lite@1.0.30001806: {}
 
@@ -25035,7 +25084,7 @@ snapshots:
 
   core-js-compat@3.40.0:
     dependencies:
-      browserslist: 4.24.4
+      browserslist: 4.28.7
 
   core-js-compat@3.49.0:
     dependencies:
@@ -27144,19 +27193,19 @@ snapshots:
 
   i18next@24.2.3(typescript@5.7.2):
     dependencies:
-      '@babel/runtime': 7.27.0
+      '@babel/runtime': 7.29.7
     optionalDependencies:
       typescript: 5.7.2
 
   i18next@24.2.3(typescript@5.7.3):
     dependencies:
-      '@babel/runtime': 7.27.0
+      '@babel/runtime': 7.29.7
     optionalDependencies:
       typescript: 5.7.3
 
   i18next@24.2.3(typescript@5.8.3):
     dependencies:
-      '@babel/runtime': 7.27.0
+      '@babel/runtime': 7.29.7
     optionalDependencies:
       typescript: 5.8.3
 
@@ -28750,12 +28799,12 @@ snapshots:
 
   metro-runtime@0.80.12:
     dependencies:
-      '@babel/runtime': 7.27.0
+      '@babel/runtime': 7.29.7
       flow-enums-runtime: 0.0.6
 
   metro-runtime@0.84.3:
     dependencies:
-      '@babel/runtime': 7.27.0
+      '@babel/runtime': 7.29.7
       flow-enums-runtime: 0.0.6
 
   metro-source-map@0.80.12:
@@ -30030,10 +30079,8 @@ snapshots:
       which: 2.0.2
       yargs: 17.7.2
     transitivePeerDependencies:
-      - bufferutil
       - supports-color
       - typescript
-      - utf-8-validate
 
   react-native-builder-bob@0.35.2(typescript@6.0.3):
     dependencies:
@@ -30060,8 +30107,10 @@ snapshots:
       which: 2.0.2
       yargs: 17.7.2
     transitivePeerDependencies:
+      - bufferutil
       - supports-color
       - typescript
+      - utf-8-validate
 
   react-native-calendars@1.1314.0(react-native@0.85.2(@babel/core@7.26.7)(@react-native-community/cli@20.1.3(typescript@5.8.3))(@react-native/jest-preset@0.85.2(@babel/core@7.26.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.26.7))(@types/react@19.2.14)(react@19.2.6))(react@19.2.6):
     dependencies:
@@ -30600,7 +30649,7 @@ snapshots:
 
   regenerator-transform@0.15.2:
     dependencies:
-      '@babel/runtime': 7.27.0
+      '@babel/runtime': 7.29.7
 
   regexp.prototype.flags@1.5.4:
     dependencies:
