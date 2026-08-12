@@ -3,7 +3,7 @@ import { logger } from '../log';
 import { pgDb } from './pg/client';
 import { asTable, getTableForCollection } from './pg/map/registry';
 
-const log = logger('db:replaceHostname');
+const log = logger('db:replaceOrigin');
 
 const hostnameCollections = [
   'configs',
@@ -15,14 +15,21 @@ const hostnameCollections = [
 
 const absoluteHttpUrlPattern = /https?:\/\/[^\s"'<>`]+/g;
 
-const replaceHostnameInUrl = (
+/**
+ * Rewrite the origin (scheme + host + port) of a single URL when its hostname
+ * matches the backup's origin. Matching by hostname — rather than the full
+ * origin — lets a backup taken on `https://community.example` restore onto a
+ * `http://localhost:5174` dev server: the old scheme/port are dropped and the
+ * current server's origin takes their place. Path, query, hash, and any
+ * userinfo are preserved verbatim (no URL normalization).
+ */
+const replaceOriginInUrl = (
   urlValue: string,
   oldHostname: string,
-  newHostname: string,
-) => {
+  newOrigin: string,
+): string => {
   try {
     const url = new URL(urlValue);
-
     if (
       !['http:', 'https:'].includes(url.protocol) ||
       url.hostname !== oldHostname
@@ -35,48 +42,58 @@ const replaceHostnameInUrl = (
     const authorityEnd =
       afterAuthority === -1 ? urlValue.length : authorityStart + afterAuthority;
     const authority = urlValue.slice(authorityStart, authorityEnd);
-    const hostStart = authority.lastIndexOf('@') + 1;
-    const updatedAuthority =
-      authority.slice(0, hostStart) +
-      authority.slice(hostStart).replace(oldHostname, newHostname);
+    const userinfo = authority.slice(0, authority.lastIndexOf('@') + 1);
+    const rest = urlValue.slice(authorityEnd);
 
-    return (
-      urlValue.slice(0, authorityStart) +
-      updatedAuthority +
-      urlValue.slice(authorityEnd)
-    );
+    const newOriginTrimmed = newOrigin.replace(/\/+$/, '');
+    if (userinfo) {
+      const newAuthorityStart = newOriginTrimmed.indexOf('://') + 3;
+      return (
+        newOriginTrimmed.slice(0, newAuthorityStart) +
+        userinfo +
+        newOriginTrimmed.slice(newAuthorityStart) +
+        rest
+      );
+    }
+    return newOriginTrimmed + rest;
   } catch {
     return urlValue;
   }
 };
 
-const replaceHostnameInUrls = (
+const replaceOriginInString = (
   value: string,
   oldHostname: string,
-  newHostname: string,
-) =>
+  newOrigin: string,
+): string =>
   value.replace(absoluteHttpUrlPattern, (urlValue) =>
-    replaceHostnameInUrl(urlValue, oldHostname, newHostname),
+    replaceOriginInUrl(urlValue, oldHostname, newOrigin),
   );
 
-const replaceInValue = (
+/**
+ * Recursively rewrite every absolute http(s) URL under `value` whose hostname
+ * matches `oldHostname` so it points at `newOrigin`. Pure — exported for tests.
+ */
+export const replaceOriginInValue = (
   value: unknown,
   oldHostname: string,
-  newHostname: string,
+  newOrigin: string,
 ): unknown => {
   if (typeof value === 'string') {
-    return replaceHostnameInUrls(value, oldHostname, newHostname);
+    return replaceOriginInString(value, oldHostname, newOrigin);
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => replaceInValue(item, oldHostname, newHostname));
+    return value.map((item) =>
+      replaceOriginInValue(item, oldHostname, newOrigin),
+    );
   }
 
   if (value && typeof value === 'object') {
     return Object.fromEntries(
       Object.entries(value).map(([key, item]) => [
         key,
-        replaceInValue(item, oldHostname, newHostname),
+        replaceOriginInValue(item, oldHostname, newOrigin),
       ]),
     );
   }
@@ -84,16 +101,21 @@ const replaceInValue = (
   return value;
 };
 
-export const replaceHostname = async (
+/**
+ * After a restore, repoint stored absolute URLs from the backup's origin to the
+ * current server. `oldHostname` comes from the backup metadata; `newOrigin` is
+ * this server's `serverRootUrl()` (scheme + host + port).
+ */
+export const replaceOrigin = async (
   oldHostname?: string,
-  newHostname?: string,
+  newOrigin?: string,
 ) => {
-  if (!oldHostname || !newHostname || oldHostname === newHostname) {
-    log.info('No hostname to replace');
+  if (!oldHostname || !newOrigin) {
+    log.info('No origin to replace');
     return;
   }
 
-  log.info(`Replacing restored hostname ${oldHostname} with ${newHostname}`);
+  log.info(`Repointing restored URLs from ${oldHostname} to ${newOrigin}`);
 
   const db = pgDb();
 
@@ -104,10 +126,10 @@ export const replaceHostname = async (
 
     for (const row of rows) {
       const current = row as Record<string, unknown>;
-      const updated = replaceInValue(
+      const updated = replaceOriginInValue(
         current,
         oldHostname,
-        newHostname,
+        newOrigin,
       ) as Record<string, unknown>;
 
       if (JSON.stringify(current) === JSON.stringify(updated)) {
@@ -131,9 +153,7 @@ export const replaceHostname = async (
     }
 
     if (replacedCount > 0) {
-      log.info(
-        `Replaced hostname in ${replacedCount} ${collectionName} row(s)`,
-      );
+      log.info(`Repointed URLs in ${replacedCount} ${collectionName} row(s)`);
     }
   }
 };
