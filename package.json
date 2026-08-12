@@ -18,11 +18,14 @@
     "build-deps": "pnpm -r --filter \"@openpeepshq/server...\" --filter \"@openpeepshq/web...\" build",
     "check-circular-deps": "ds",
     "check-branch": "node scripts/check-branch.mjs",
-    "squash-branch": "scripts/squash-branch.sh"
+    "squash-branch": "scripts/squash-branch.sh",
+    "dev:infra": "docker compose up -d postgres redis mailpit",
+    "dev": "pnpm run dev:infra && concurrently -k --names api,worker,web -c blue,magenta,green \"pnpm --filter @openpeepshq/server dev\" \"pnpm --filter @openpeepshq/server dev:worker\" \"pnpm --filter @openpeepshq/web dev\""
   },
   "packageManager": "pnpm@11.1.3",
   "devDependencies": {
     "circular-dependency-scanner": "^2.3.0",
+    "concurrently": "^9.1.2",
     "prettier-plugin-tailwindcss": "^0.6.13"
   }
 }
