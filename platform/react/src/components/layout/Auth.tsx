@@ -115,7 +115,7 @@ export function AuthLayout({
         )}
       </div>
 
-      <div className="bg-surface flex h-full w-full flex-1 justify-center overflow-y-auto md:h-auto">
+      <main className="bg-surface flex h-full w-full flex-1 justify-center overflow-y-auto md:h-auto">
         <div className="mx-auto h-fit space-y-4 p-4 md:mx-10 md:w-[60%]">
           {userTheme.logoSmall && (
             <img
@@ -129,7 +129,7 @@ export function AuthLayout({
           )}
           <div>{children}</div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

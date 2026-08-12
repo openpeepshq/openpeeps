@@ -165,7 +165,10 @@ export function AppSideBarMainMenu() {
   }, [onAdminRoute]);
 
   return (
-    <nav className="flex flex-col gap-0.5 py-2 pr-2">
+    <nav
+      aria-label={t('navigation.primary', { defaultValue: 'Primary' })}
+      className="flex flex-col gap-0.5 py-2 pr-2"
+    >
       <NavItem to={href({ type: 'feed', feed: 'local' })} icon={Home}>
         {t('navigation.community')}
       </NavItem>

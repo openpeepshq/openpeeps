@@ -35,7 +35,12 @@ export function EventsIndex() {
         onNavigate={() => navigate('/events/new')}
         showButton={false}
       />
-      <nav className="border-border mb-4 flex border-b">
+      <nav
+        aria-label={t('events.feed.label', {
+          defaultValue: 'Event timeframe',
+        })}
+        className="border-border mb-4 flex border-b"
+      >
         <TabButton
           active={tab === 'upcoming'}
           onClick={() => setTab('upcoming')}

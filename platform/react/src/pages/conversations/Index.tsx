@@ -43,7 +43,7 @@ function ChatPreview({
     : t('common.you', { defaultValue: 'You' });
 
   return (
-    <div className="flex w-full flex-col gap-x-1 border-b p-3 text-left sm:p-4">
+    <article className="flex w-full flex-col gap-x-1 border-b p-3 text-left sm:p-4">
       <div className="flex items-center gap-4">
         <div className="flex -space-x-2">
           {participants.slice(0, 3).map((p) => (
@@ -89,7 +89,7 @@ function ChatPreview({
           />
         )}
       </div>
-    </div>
+    </article>
   );
 }
 

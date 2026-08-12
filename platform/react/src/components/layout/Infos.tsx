@@ -39,7 +39,10 @@ export function Infos() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="border-error bg-error/10 flex w-full items-start justify-between gap-4 rounded border p-4">
+      <div
+        role="status"
+        className="border-error bg-error/10 flex w-full items-start justify-between gap-4 rounded border p-4"
+      >
         <div>
           <h4 className="text-error font-semibold">
             {t('infos.emailNotVerified.title')}

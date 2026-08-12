@@ -96,7 +96,11 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
   }
 
   return (
-    <div className="bg-surface relative flex min-h-full flex-col gap-0.5">
+    <div
+      role="feed"
+      aria-busy={query.isFetchingNextPage || undefined}
+      className="bg-surface relative flex min-h-full flex-col gap-0.5"
+    >
       {pinnedPostId ? (
         <PinnedPost pinnedPostId={pinnedPostId} inGroup={inGroup} />
       ) : null}

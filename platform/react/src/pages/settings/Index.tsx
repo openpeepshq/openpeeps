@@ -1,5 +1,5 @@
 import { isOwnerProfile } from '@openpeepshq/common';
-import { useSetPageHeader } from '../../index';
+import { useT, useSetPageHeader } from '../../index';
 import {
   ConfigMenuButton,
   useCurrentProfile,
@@ -7,6 +7,7 @@ import {
 } from '../../components';
 
 export function Settings() {
+  const t = useT();
   const profile = useCurrentProfile();
   const serverInfo = useServerInfo();
 
@@ -17,7 +18,10 @@ export function Settings() {
     !(profile && isOwnerProfile(profile));
 
   return (
-    <div className="p-4">
+    <nav
+      aria-label={t('settings.menu', { defaultValue: 'Settings' })}
+      className="p-4"
+    >
       <ConfigMenuButton
         translationPrefix="settings.publicProfile"
         action="/settings/public-profile"
@@ -53,6 +57,6 @@ export function Settings() {
           testId="settings-link-billing"
         />
       )}
-    </div>
+    </nav>
   );
 }

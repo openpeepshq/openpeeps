@@ -31,7 +31,10 @@ export function LiveJamsSection() {
       {open ? (
         <AccessDeniedLoader queries={[liveJamsQuery]}>
           {(liveJamsQuery.data ?? []).length ? (
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4">
+            <div
+              role="feed"
+              className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4"
+            >
               {(liveJamsQuery.data ?? []).map((jam) => (
                 <CardEvent key={jam.id} post={jam} />
               ))}

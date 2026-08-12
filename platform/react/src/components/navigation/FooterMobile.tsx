@@ -12,7 +12,12 @@ export function FooterMobile({ onNewPost }: FooterMobileProps = {}) {
   const t = useT();
   const hrefOf = useHrefOf();
   return (
-    <div className="bg-surface flex h-20 w-full items-center justify-evenly md:hidden">
+    <nav
+      aria-label={t('navigation.primaryMobile', {
+        defaultValue: 'Primary',
+      })}
+      className="bg-surface flex h-20 w-full items-center justify-evenly md:hidden"
+    >
       <MobileMenuItem
         title={t('navigation.home')}
         icon={Home}
@@ -38,6 +43,6 @@ export function FooterMobile({ onNewPost }: FooterMobileProps = {}) {
         icon={Bell}
         action={hrefOf({ type: 'notifications' })}
       />
-    </div>
+    </nav>
   );
 }

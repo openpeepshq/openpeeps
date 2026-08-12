@@ -28,7 +28,12 @@ export function ProfilePostsAndReplies({
 
   return (
     <div>
-      <div className="flex border-b">
+      <nav
+        aria-label={t('profile.tabs.label', {
+          defaultValue: 'Profile sections',
+        })}
+        className="flex border-b"
+      >
         <button
           type="button"
           className={`flex-1 px-4 py-3 text-sm font-medium ${tab === 'posts' ? 'border-primary border-b-2' : 'text-muted-foreground'}`}
@@ -43,7 +48,7 @@ export function ProfilePostsAndReplies({
         >
           {t('profile.groups.tabName', { defaultValue: 'Groups' })}
         </button>
-      </div>
+      </nav>
 
       {tab === 'posts' ? (
         <Feed query={postsQuery} />

@@ -48,7 +48,7 @@ export const DocsLayout = ({ children }: { children: ReactNode }) => {
           </Link>
         </nav>
       </header>
-      <div className="px-10 py-6">{children}</div>
+      <main className="px-10 py-6">{children}</main>
     </div>
   );
 };

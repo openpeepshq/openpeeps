@@ -37,14 +37,21 @@ export function Members() {
   return (
     <AccessDeniedLoader queries={[profilesQuery]}>
       <div className="p-4">
-        <Input
-          placeholder={t('members.searchPlaceholder', {
-            defaultValue: 'Search member by name or handle',
-          })}
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          data-testid="members-search-input"
-        />
+        <form
+          role="search"
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <Input
+            placeholder={t('members.searchPlaceholder', {
+              defaultValue: 'Search member by name or handle',
+            })}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            data-testid="members-search-input"
+          />
+        </form>
 
         <div className="my-4 pb-10">
           {filtered.map((profile) => (

@@ -130,11 +130,17 @@
     "explore": "Explore",
     "articles": "Articles",
     "bookmarks": "Bookmarks",
-    "conversations": "Messages"
+    "conversations": "Messages",
+    "primaryMobile": "Primary",
+    "breadcrumbs": "Breadcrumbs",
+    "primary": "Primary"
   },
   "profile": {
     "noBio": "No bio yet",
     "posts": "Posts",
+    "tabs": {
+      "label": "Profile sections"
+    },
     "edit": {
       "title": "Edit Profile",
       "save": "Save Changes",
@@ -579,9 +585,13 @@
     },
     "handleExists": "This handle is already in use.  Please try a different one.",
     "sections": {
+      "label": "Group sections",
       "posts": "Posts",
       "events": "Events",
       "description": "Description"
+    },
+    "eventsTabs": {
+      "label": "Event timeframe"
     },
     "visibility": {
       "title": "Visibility",
@@ -678,6 +688,7 @@
     "goto": "Go to group",
     "viewMembers": "View members",
     "tabs": {
+      "label": "Group lists",
       "myGroups": "My groups",
       "allGroups": "All groups"
     },
@@ -744,6 +755,11 @@
   "jams": {
     "form": {
       "name": "Jam Name"
+    },
+    "feed": {
+      "label": "Jam timeframe",
+      "past": "Past",
+      "upcoming": "Upcoming"
     },
     "create": {
       "title": "Create Jam",
@@ -1219,10 +1235,12 @@
       "title": "Moderation",
       "summaryTab": "Summary",
       "resolvedTab": "Resolved",
+      "tabsLabel": "Moderation sections",
       "reopen": "Reopen",
       "report": {
         "title": "{{reportsCount}} unresolved reports relating to this profile",
         "description": "{{reportsCount}} unresolved  reports for {{profileName}}",
+        "tabsLabel": "Report types",
         "unresolvedBadge": "{{reportsCount}} unresovled reports",
         "resolvedBadge": "All reports resolved",
         "closeOptions": {
@@ -1302,6 +1320,7 @@
     },
     "analytics": {
       "title": "Analytics",
+      "tabsLabel": "Analytics sections",
       "tabs": {
         "overview": "Overview",
         "members": "Members",
@@ -1903,6 +1922,7 @@
     "newMessage": "New Message",
     "noMessages": "No direct messages here",
     "sendError": "Failed to send message",
+    "messageLog": "Messages",
     "createNew": {
       "title": "New Conversation",
       "searchPlaceholder": "Search for people",
@@ -1970,6 +1990,7 @@
   },
   "settings": {
     "description": "Manage all settings relating to your acccount here:",
+    "menu": "Settings",
     "profile": {
       "description": "Make changes to your profile details",
       "updateError": "There was an error updating your profile: {{error}}",
@@ -2346,6 +2367,7 @@
       "imageSpecs": "Your image should be at least 800 pixels wide with a 16x9 aspect ratio."
     },
     "feed": {
+      "label": "Event timeframe",
       "past": "Past",
       "upcoming": "Upcoming",
       "empty": "No {{type}}s"
@@ -2354,12 +2376,14 @@
       "title": "Create Event"
     },
     "tabs": {
+      "label": "Event sections",
       "rsvps": "RSVPs",
       "discussion": "Discussion",
       "attendees": "Attendees",
       "invited": "Invited",
       "jamAttendees": "Jam Attendees",
-      "description": "Description"
+      "description": "Description",
+      "recordings": "Recordings"
     },
     "profileRelationship": {
       "owner": "You are hosting",
@@ -2690,6 +2714,7 @@
     "SearchButton": "Search",
     "title": "Explore",
     "tabs": {
+      "label": "Result types",
       "members": "Members",
       "posts": "Posts",
       "jams": "Jams",

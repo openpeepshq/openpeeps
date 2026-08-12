@@ -110,7 +110,7 @@ export function FullEvent({ post }: FullEventProps) {
     !!event.jam && (myEvent || iAmModerator) && jamAttendeesQuery.isSuccess;
 
   return (
-    <div ref={postViewRef} className="flex w-full flex-col gap-2 p-3">
+    <article ref={postViewRef} className="flex w-full flex-col gap-2 p-3">
       <span className="mb-3 block aspect-video w-full overflow-hidden rounded">
         <img
           src={event.image || '/img/event-default.png'}
@@ -262,7 +262,10 @@ export function FullEvent({ post }: FullEventProps) {
         </Button>
       ) : null}
 
-      <nav className="mt-4 flex flex-wrap gap-2 border-b">
+      <nav
+        aria-label={t('events.tabs.label', { defaultValue: 'Event sections' })}
+        className="mt-4 flex flex-wrap gap-2 border-b"
+      >
         {event.content ? (
           <TabButton
             active={tab === 'description'}
@@ -426,7 +429,7 @@ export function FullEvent({ post }: FullEventProps) {
       ) : null}
 
       <div className="h-[40vh]" />
-    </div>
+    </article>
   );
 }
 

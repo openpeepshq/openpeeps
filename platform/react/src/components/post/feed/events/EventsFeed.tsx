@@ -73,7 +73,11 @@ export function EventsFeed({ query }: EventsFeedProps) {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div
+      role="feed"
+      aria-busy={query.isFetchingNextPage || undefined}
+      className="grid gap-4 sm:grid-cols-2"
+    >
       {posts.map((post) => (
         <CardEvent key={post.id} post={post} />
       ))}
