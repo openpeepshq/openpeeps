@@ -16,6 +16,7 @@
   },
   "scripts": {
     "build-deps": "pnpm -r --filter \"@openpeepshq/server...\" --filter \"@openpeepshq/web...\" build",
+    "gallery:dev": "pnpm --filter @openpeepshq/component-gallery dev",
     "check-circular-deps": "ds",
     "check-branch": "node scripts/check-branch.mjs",
     "squash-branch": "scripts/squash-branch.sh",

@@ -1,0 +1,111 @@
+# Build and push the static component gallery image (components.openpeeps.org).
+#
+# Triggers on pushes to main / staging / stable (and manual dispatch). Rebuilds
+# version trees that contain examples/component-gallery into one nginx image:
+# code.openpeeps.org/openpeeps/openpeeps-components:{sha,latest}.
+
+name: component-gallery
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - stable
+    paths:
+      - 'examples/component-gallery/**'
+      - 'libraries/react-ui/**'
+      - 'platform/react/**'
+      - 'platform/common/**'
+      - 'platform/client/**'
+      - 'platform/i18n/**'
+      - '.forgejo/workflows/component-gallery.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+concurrency:
+  group: component-gallery-${{ forgejo.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build-gallery:
+    runs-on: docker
+    container:
+      image: node:24-alpine
+    steps:
+      - name: Install tools
+        run: apk add --no-cache git docker-cli docker-cli-buildx tar
+
+      - name: Checkout
+        uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+          token: ${{ forgejo.token }}
+
+      - name: Fetch branches and tags
+        run: |
+          git fetch --tags --force origin
+          git fetch origin main:refs/remotes/origin/main || true
+          git fetch origin staging:refs/remotes/origin/staging || true
+          git fetch origin stable:refs/remotes/origin/stable || true
+
+      - name: Resolve image coordinates
+        id: vars
+        run: |
+          sha="$(git rev-parse HEAD)"
+          short_sha="$(echo "$sha" | cut -c1-8)"
+          version="$(date +%Y-%m-%d)-${short_sha}"
+
+          if [ -n "${GITHUB_REPOSITORY:-}" ]; then
+            image_repo="$GITHUB_REPOSITORY"
+          elif [ -n "${FORGEJO_REPOSITORY:-}" ]; then
+            image_repo="$FORGEJO_REPOSITORY"
+          else
+            image_repo="openpeeps/openpeeps"
+          fi
+
+          case "$image_repo" in
+            */*) owner="${image_repo%/*}" ;;
+            *) owner="openpeeps" ;;
+          esac
+          registry_image_base="code.openpeeps.org/${owner}/openpeeps-components"
+
+          {
+            echo "short_sha=$short_sha"
+            echo "full_sha=$sha"
+            echo "version=$version"
+            echo "image_repo=$image_repo"
+            echo "registry_image_base=$registry_image_base"
+          } >> "$FORGEJO_OUTPUT"
+          echo "Gallery image base=$registry_image_base version=$version"
+
+      - name: Enable corepack / pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.1.3 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --filter @openpeepshq/component-gallery...
+
+      - name: Build multi-version component gallery
+        env:
+          CI: 'true'
+          GALLERY_STRICT: '1'
+        run: pnpm --filter @openpeepshq/component-gallery run build
+
+      - name: Docker login
+        run: |
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "code.openpeeps.org"
+
+      - name: Build and push gallery image
+        run: |
+          base="${{ steps.vars.outputs.registry_image_base }}"
+          sha="${{ steps.vars.outputs.short_sha }}"
+          docker buildx build \
+            -f examples/component-gallery/Dockerfile \
+            -t "${base}:${sha}" \
+            -t "${base}:latest" \
+            --push \
+            examples/component-gallery
+          echo "Pushed ${base}:${sha} and ${base}:latest"
