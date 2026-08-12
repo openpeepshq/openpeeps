@@ -22,9 +22,10 @@ import {
   importAllArangoCollections,
   importAllPostgresCollections,
 } from '../db/migration/importCollections';
-import { replaceHostname } from '../db/replaceHostname';
+import { replaceOrigin } from '../db/replaceOrigin';
 import { logger } from '../log';
 import { setDefaultRoles } from '../roles';
+import { serverRootUrl } from '../server';
 import {
   resolveBackupDatabaseType,
   type BackupDatabaseType,
@@ -372,10 +373,11 @@ export const restoreBackups = async (zipFilePath: string) => {
 
   await restoreDatabaseFromBackup(collectionsDir, databaseType);
 
-  await replaceHostname(
-    backupMetadata?.config?.hostname,
-    hostnameFromServerHost(coreConfig.server.host),
-  );
+  // Repoint the backup's absolute URLs at this server's full origin (scheme +
+  // host + port). Matching by the backup hostname means a prod backup on
+  // `https://host` restores cleanly onto `http://localhost:5174` without
+  // stranding the old scheme/port.
+  await replaceOrigin(backupMetadata?.config?.hostname, await serverRootUrl());
 
   log.info(
     `Restored ${databaseType} backup (hostname was ${backupMetadata?.config?.hostname ?? 'unknown'})`,
