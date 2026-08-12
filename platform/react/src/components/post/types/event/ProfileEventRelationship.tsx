@@ -1,5 +1,6 @@
 import type { Event, PublicPost } from '@openpeepshq/common/types';
 import { calculateEffectiveRsvps } from '@openpeepshq/common/lib';
+import { Badge, type BadgeVariant } from '@openpeepshq/react-ui';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
 
@@ -7,9 +8,14 @@ export interface ProfileEventRelationshipProps {
   post: PublicPost;
 }
 
-export function ProfileEventRelationship({
+type RelationshipBadge = {
+  status: string;
+  variant: BadgeVariant;
+};
+
+export const ProfileEventRelationship = ({
   post,
-}: ProfileEventRelationshipProps) {
+}: ProfileEventRelationshipProps) => {
   const t = useT();
   const me = useCurrentProfile();
   const event = post.data as Event;
@@ -19,51 +25,43 @@ export function ProfileEventRelationship({
     (rsvp) => me?.id === rsvp.profile.id,
   );
 
-  if (myEvent) {
-    return (
-      <div className="text-muted-foreground rounded-2xl px-2">
-        <span className="text-background text-center text-sm">
-          {t('events.profileRelationship.owner', { defaultValue: 'Owner' })}
-        </span>
-      </div>
-    );
-  }
+  const badge = ((): RelationshipBadge | null => {
+    if (myEvent) {
+      return {
+        status: t('events.profileRelationship.owner', {
+          defaultValue: 'Owner',
+        }),
+        variant: 'default',
+      };
+    }
+    if (iAmModerator) {
+      return {
+        status: t('events.profileRelationship.moderator', {
+          defaultValue: 'Moderator',
+        }),
+        variant: 'default',
+      };
+    }
+    if (myRsvp?.response === 'yes') {
+      return {
+        status: t('events.profileRelationship.attending', {
+          defaultValue: 'Attending',
+        }),
+        variant: 'success',
+      };
+    }
+    if (myRsvp?.response === 'tentative') {
+      return {
+        status: t('events.profileRelationship.tentative', {
+          defaultValue: 'Tentative',
+        }),
+        variant: 'outline',
+      };
+    }
+    return null;
+  })();
 
-  if (iAmModerator) {
-    return (
-      <div className="text-muted-foreground rounded-2xl px-2">
-        <span className="text-center text-sm">
-          {t('events.profileRelationship.moderator', {
-            defaultValue: 'Moderator',
-          })}
-        </span>
-      </div>
-    );
-  }
+  if (!badge) return null;
 
-  if (myRsvp?.response === 'yes') {
-    return (
-      <div className="text-muted-foreground rounded-2xl px-2">
-        <span className="text-foreground text-center text-sm">
-          {t('events.profileRelationship.attending', {
-            defaultValue: 'Attending',
-          })}
-        </span>
-      </div>
-    );
-  }
-
-  if (myRsvp?.response === 'tentative') {
-    return (
-      <div className="text-muted-foreground rounded-2xl px-2">
-        <span className="text-foreground text-center text-sm">
-          {t('events.profileRelationship.tentative', {
-            defaultValue: 'Tentative',
-          })}
-        </span>
-      </div>
-    );
-  }
-
-  return null;
-}
+  return <Badge status={badge.status} variant={badge.variant} />;
+};
