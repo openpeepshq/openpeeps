@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **plugins**: move example plugin to examples/, gate by root package.json
 - **docs**: add multi-version docs.openpeeps.org static site
 - **react**: streamline profile selection into shared modal
 - **perf**: add live and offline performance profiling
@@ -16,6 +17,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **posts**: show full image instead of preview in gallery
 - **jams**: reconnect admitted guests after mobile idle disconnect
 - **jams**: fix mobile jam menu contrast and footer overlap in dark mode
 - **profiles**: clarify invalid handle errors on profile save
@@ -26,6 +28,7 @@ Changelog for OpenPeeps
 
 ### Documentation
 
+- **planning**: add regenerable roadmap timeline to 2028
 - update frontend docs from Svelte to React
 - **db**: prefer Drizzle / SQL-native for new features
 - **architecture**: document realtime channel stack
