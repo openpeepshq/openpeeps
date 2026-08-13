@@ -1,5 +1,5 @@
 import type { ChangeEvent, ReactElement, ReactNode } from 'react';
-import { Button } from '@openpeepshq/react-ui';
+import { Button, ThemeFontSelect } from '@openpeepshq/react-ui';
 import { useGalleryTheme } from '@/providers/GalleryThemeProvider';
 import { isHexColor } from '@/theme';
 
@@ -70,17 +70,12 @@ export const ThemeControls = (): ReactElement => {
         value={current.primaryHex}
         onChange={(primaryHex) => patchCurrent({ primaryHex })}
       />
-      <ColorField
-        label="Secondary"
-        value={current.secondaryHex}
-        onChange={(secondaryHex) => patchCurrent({ secondaryHex })}
-      />
-      <Field label="Font family">
-        <input
+      <Field label="Font">
+        <ThemeFontSelect
           className={fieldClass}
+          aria-label="Font"
           value={current.fontFamily}
-          placeholder="Inter, system-ui, sans-serif"
-          onChange={(event) => patchCurrent({ fontFamily: event.target.value })}
+          onChange={(fontFamily) => patchCurrent({ fontFamily })}
         />
       </Field>
       <Field label="Button radius">

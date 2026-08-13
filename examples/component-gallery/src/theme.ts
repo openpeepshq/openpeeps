@@ -1,4 +1,8 @@
-import { applyThemeOverrides, setTheme } from '@openpeepshq/react-ui';
+import {
+  applyThemeOverrides,
+  matchThemeFont,
+  setTheme,
+} from '@openpeepshq/react-ui';
 
 export type GalleryThemeMode = 'light' | 'dark';
 
@@ -28,7 +32,7 @@ const HEX = /^#[0-9a-fA-F]{6}$/;
 export const DEFAULT_MODE_OVERRIDES: GalleryModeOverrides = {
   primaryHex: '#0c90a7',
   secondaryHex: '#31b28b',
-  fontFamily: 'Inter, system-ui, sans-serif',
+  fontFamily: 'Inter',
   buttonRadius: '9999px',
   radius: '8px',
   background: '',
@@ -74,10 +78,9 @@ const parseModeOverrides = (raw: unknown): GalleryModeOverrides => {
     secondaryHex: isHexColor(value.secondaryHex ?? '')
       ? value.secondaryHex!
       : DEFAULT_MODE_OVERRIDES.secondaryHex,
-    fontFamily:
-      typeof value.fontFamily === 'string'
-        ? value.fontFamily
-        : DEFAULT_MODE_OVERRIDES.fontFamily,
+    fontFamily: matchThemeFont(
+      typeof value.fontFamily === 'string' ? value.fontFamily : undefined,
+    ).id,
     buttonRadius:
       typeof value.buttonRadius === 'string'
         ? value.buttonRadius
@@ -160,7 +163,7 @@ export const applyGalleryTheme = (
     secondaryHex: isHexColor(overrides.secondaryHex)
       ? overrides.secondaryHex
       : undefined,
-    fontFamily: overrides.fontFamily.trim() || undefined,
+    fontFamily: matchThemeFont(overrides.fontFamily).id,
     buttonRadius: overrides.buttonRadius.trim() || undefined,
     radius: overrides.radius.trim() || undefined,
     background: overrides.background.trim(),
