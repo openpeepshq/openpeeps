@@ -10,6 +10,7 @@ import { updateNotification } from './mutations';
 import { getNotificationStats } from './finders';
 import { findProfileSettings } from '../profileSettings';
 import { logger } from '../log';
+import { publishSessionEvent } from '../session';
 
 const log = logger('core:notifications:worker');
 
@@ -69,6 +70,8 @@ const [notificationQueue, notificationWorker] = queueAndWorker<
         `delivery channels: email=${email} push=${push}`,
     );
 
+    let sessionPublished = false;
+
     for (const account of accounts) {
       if (email) {
         await logStep(
@@ -99,10 +102,26 @@ const [notificationQueue, notificationWorker] = queueAndWorker<
 
       if (push) {
         try {
+          const pushNotification = await notificationHandlers
+            .get(notification.type)
+            ?.pushRenderer(notification);
+          if (pushNotification && !sessionPublished) {
+            sessionPublished = true;
+            await publishSessionEvent(profile.id, {
+              type: 'invalidate',
+              notification: pushNotification,
+              notificationStats,
+            }).catch((error) =>
+              logFailure(
+                jobLog,
+                log,
+                `session SSE publish for profile ${profile.id} failed`,
+                error,
+              ),
+            );
+          }
           await doPush(
-            await notificationHandlers
-              .get(notification.type)
-              ?.pushRenderer(notification),
+            pushNotification,
             notificationStats,
             account,
             jobLog,

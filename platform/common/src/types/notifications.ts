@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { NotificationStats } from './api';
 import { roleCapabilities, RoleCapability } from './capabilities';
 import { ExpandedNotification } from './internal';
 
@@ -29,10 +28,28 @@ export const pushNotificationSchema = z.object({
 });
 export type PushNotification = z.infer<typeof pushNotificationSchema>;
 
+export const notificationStatsSchema = z.object({
+  unread: z.number(),
+  unseen: z.number(),
+});
+export type NotificationStats = z.infer<typeof notificationStatsSchema>;
+
 export interface PushMessage {
   notificationStats: NotificationStats;
   notification: PushNotification;
 }
+
+/** Session SSE / presence platform. */
+export const sessionPlatformSchema = z.enum(['web', 'ios', 'android']);
+export type SessionPlatform = z.infer<typeof sessionPlatformSchema>;
+
+/** Invalidate-light envelope mirrored from web push. */
+export const sessionEventSchema = z.object({
+  type: z.literal('invalidate'),
+  notification: pushNotificationSchema.optional(),
+  notificationStats: notificationStatsSchema.optional(),
+});
+export type SessionEvent = z.infer<typeof sessionEventSchema>;
 
 export interface NotificationHandler {
   type: string;

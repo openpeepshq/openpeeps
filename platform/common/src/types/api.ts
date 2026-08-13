@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { pushNotificationSchema, type PushNotification } from './notifications';
+import {
+  notificationStatsSchema,
+  pushNotificationSchema,
+  type PushNotification,
+} from './notifications';
 import {
   AccessToken,
   accessTokenSchema,
@@ -330,12 +334,6 @@ export const serverInfoSchema = z.object({
 });
 
 export type ServerInfo = z.infer<typeof serverInfoSchema>;
-
-export const notificationStatsSchema = z.object({
-  unread: z.number(),
-  unseen: z.number(),
-});
-export type NotificationStats = z.infer<typeof notificationStatsSchema>;
 
 export const unseenPostCountsSchema = z.object({
   groups: z.record(z.string(), z.number()),

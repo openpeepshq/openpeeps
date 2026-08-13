@@ -75,29 +75,37 @@ config). Those stay on HTTP / hub / push.
 **Code:** `platform/core/src/jams/` (especially `livekit.ts`, `token.ts`),
 jam UI under `platform/react/src/components/jams/`.
 
-### SSE (narrow streams)
+### SSE (narrow streams + session foreground channel)
 
 SSE is used for **bounded, session-scoped** streams where the client keeps a
-connection open while a specific UI flow is active.
+connection open while a specific UI flow — or the authenticated app shell — is
+active.
 
 Examples:
 
 - Media attachment processing progress
   (`GET /media/:mediaAttachmentId/progress`).
 - Jam waiting-room listen / join streams.
+- **Session foreground channel**
+  (`GET /profiles/current/session/events`): while signed in, one SSE carries
+  invalidate-light envelopes (same logical payload as web push) so badge /
+  notification queries update without push permission. Presence
+  (`web`/`ios`/`android`) is registered on that connection in Redis
+  (`@openpeepshq/core/session`). Catalog stays invalidate-only — not a hub
+  mirror.
 
 Implementation: `produceStream` in `platform/server/src/lib/sse.ts`, consumed
 via `@openpeepshq/fetch-client` event sources and
-`noPayloadStream` helpers in React.
+`noPayloadStream` / `useSessionEvents` in React.
 
 Use SSE when:
 
-- The client is on-screen for that resource for seconds to minutes.
-- Events are a small typed payload stream (progress, admit/deny).
+- The client is on-screen for that resource (or the app shell) for seconds to
+  minutes / the session.
+- Events are a small typed payload stream (progress, admit/deny, invalidate).
 
-Do **not** use SSE for global inbox fan-out, multi-tab sync of the whole app,
-or anything that needs store-and-forward while the browser is closed (use
-**push** + in-app notification fetch instead).
+Do **not** use SSE for store-and-forward while the browser is closed (use
+**push** + in-app notification fetch instead), or auto-forward all hub events.
 
 ### BullMQ + Redis hub (server-side realtime)
 
@@ -132,11 +140,13 @@ After notifications are created (see
 - **FCM** (Android)
 - **Webhook** push subscriptions
 
-Push is for alerting users who are not holding an interactive stream. The
-in-app notification list is still loaded over HTTP when they open the app.
+Push is for alerting users who are not holding an interactive stream. When the
+app is open, **session SSE** delivers the same invalidate envelope for in-app
+UI updates without requiring push permission.
 
-**Code:** `platform/core/src/notifications/push.ts`, subscription types under
-`platform/core/src/pushSubscriptions/`.
+**Code:** `platform/core/src/notifications/push.ts`, session publish in
+`platform/core/src/notifications/jobs.ts` + `platform/core/src/session/`,
+subscription types under `platform/core/src/pushSubscriptions/`.
 
 ## When **not** to add another channel
 
@@ -146,7 +156,8 @@ particular, do **not**:
 1. **Add an app-wide WebSocket** “because everything else does.” HTTP + the
    channels above are the product architecture.
 2. **Reuse LiveKit** for non-jam messaging or presence.
-3. **Open a long-lived SSE** for the whole session / global notification bus.
+3. **Auto-forward all `hub.emit` events** to browsers — expand the session
+   catalog only with authz review; prefer invalidate-style envelopes.
 4. **Subscribe browsers to Redis** or BullMQ.
 5. **Duplicate an existing path** (e.g. a socket that only mirrors what a
    poll or notification already provides).
@@ -154,7 +165,7 @@ particular, do **not**:
    BullMQ (see jam recording auto-stop) or `hub.once`.
 
 If a feature needs “live enough” UX, try in order: **invalidate/refetch on
-user action → short HTTP poll → SSE for that resource → push for offline**.
+user action → short HTTP poll → session/resource SSE → push for offline**.
 Escalate only with a clear failure of the previous step.
 
 ## Decision cheat sheet
@@ -165,6 +176,7 @@ Escalate only with a clear failure of the previous step.
 | Slightly stale list/detail while page is open | HTTP polling |
 | Upload/transcode progress on one attachment | SSE |
 | Waiting-room admit flow | SSE |
+| Foreground notification badge/list without push | Session SSE (`invalidate`) |
 | Jam A/V and in-room signals | LiveKit |
 | Email / heavy media / durable side effects | BullMQ (+ hub) |
 | User offline / background alert | Push (+ notification row) |

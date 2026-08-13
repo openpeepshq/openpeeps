@@ -67,7 +67,7 @@ export const openpeepsClient = (
     plugins: plugins(rawClient),
     posts: posts(rawClient),
     previewLink: previewLink(rawClient),
-    profiles: profiles(rawClient),
+    profiles: profiles(rawClient, allPeepNoPayloadEventSource),
     server: serverEndpoints,
     sso: sso(rawClient),
     location: location(rawClient),
