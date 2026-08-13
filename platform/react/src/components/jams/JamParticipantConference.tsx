@@ -91,18 +91,20 @@ function JamParticipantConferenceInner() {
     <div className="bg-background relative flex h-dvh w-screen flex-col overflow-hidden">
       <JamNetworkQuality />
       <JamRecordingIndicator />
-      <div className="relative flex w-full flex-1 overflow-hidden p-2">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center md:hidden">
+      <div className="relative flex min-h-0 w-full flex-1 overflow-hidden p-2">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <div className="flex flex-shrink-0 items-center md:hidden landscape:hidden">
             <h1 className="font-semibold" title={jamEvent.name}>
               {truncateText(jamEvent.name, 40)}
             </h1>
           </div>
-          <JamVideoLayout
-            cameraTracks={cameraTracks}
-            screenShareTracks={screenShareTracks}
-            observer={false}
-          />
+          <div className="min-h-0 flex-1">
+            <JamVideoLayout
+              cameraTracks={cameraTracks}
+              screenShareTracks={screenShareTracks}
+              observer={false}
+            />
+          </div>
         </div>
         <div className="max-h-full overflow-y-auto md:flex-shrink-0">
           <JamChatDrawer

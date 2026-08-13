@@ -94,10 +94,20 @@ function ScreenSharingLayout({
     }
   };
 
+  const participantStripClass = [
+    'flex w-full flex-shrink-0 flex-row flex-wrap content-start',
+    'justify-center gap-1 overflow-y-auto',
+    'max-md:landscape:h-full max-md:landscape:w-28',
+    'max-md:landscape:flex-col max-md:landscape:flex-nowrap',
+    'md:my-4 md:h-full',
+    cameraTracks.length > 7 ? 'md:w-56' : 'md:w-28',
+  ].join(' ');
+
+  // Phone landscape is still below `md`; a side strip keeps the share on-screen.
   return (
-    <div className="flex h-auto w-full flex-col justify-center gap-2 p-2 md:h-full md:flex-row">
-      <div className="flex flex-1 flex-col gap-2 md:size-full">
-        <div className="flex w-full items-center justify-between">
+    <div className="flex h-full min-h-0 w-full flex-col gap-2 md:flex-row max-md:landscape:flex-row">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
+        <div className="flex w-full flex-shrink-0 items-center justify-between">
           {isLocal ? (
             <>
               <div className="flex items-center gap-x-2">
@@ -117,7 +127,7 @@ function ScreenSharingLayout({
               </Button>
             </>
           ) : (
-            <div className="flex items-center gap-x-2 py-2">
+            <div className="flex items-center gap-x-2 py-1 landscape:py-0">
               <AvatarWithName profile={profile} />
               {t('jams.screenShare.presenting')}
             </div>
@@ -125,13 +135,13 @@ function ScreenSharingLayout({
         </div>
         <div
           ref={containerRef}
-          className="relative w-full flex-1 overflow-hidden rounded-xl border md:p-0"
+          className="relative min-h-0 w-full min-w-0 flex-1 overflow-hidden rounded-xl border"
         >
           {isTrackReference(screenShareTrack) ? (
             <>
               <VideoTrack
                 trackRef={screenShareTrack}
-                className="h-full w-full object-contain object-center"
+                className="absolute inset-0 h-full w-full object-contain object-center"
               />
               <button
                 type="button"
@@ -145,9 +155,7 @@ function ScreenSharingLayout({
           ) : null}
         </div>
       </div>
-      <div
-        className={`flex w-full flex-row flex-wrap content-start justify-center gap-1 overflow-y-auto md:my-4 md:h-full ${cameraTracks.length > 7 ? 'md:w-56' : 'md:w-28'}`}
-      >
+      <div className={participantStripClass}>
         {cameraTracks.map((track) => (
           <JamCallParticipant
             key={track.participant.identity}
