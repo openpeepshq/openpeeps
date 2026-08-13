@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { CommunityConfig } from '@openpeepshq/common/types';
 import { useT, useSetPageHeader, useOpenpeeps, equal } from '../../../index';
-import { Button, Toast } from '@openpeepshq/react-ui';
+import { Button, ThemeFontSelect, Toast } from '@openpeepshq/react-ui';
 import { useCommunityConfig } from './useCommunityConfig';
 
 type Mode = 'light' | 'dark';
@@ -146,59 +146,10 @@ export function AdminConfigurationCommunityTheme() {
         </div>
       </div>
 
-      {/* secondary color */}
-      <div className="border p-4">
-        <h4 className="my-4 text-lg font-semibold">
-          {t('configuration.community.secondaryColor', {
-            defaultValue: 'Secondary color',
-          })}
-        </h4>
-        <span>
-          {t('configuration.community.secondaryColorDescription', {
-            defaultValue: 'Accent color for secondary buttons and surfaces.',
-          })}
-        </span>
-        <div className="mt-2 flex gap-x-4">
-          {(['light', 'dark'] as Mode[]).map((mode) => (
-            <div
-              key={mode}
-              className="flex flex-wrap items-center gap-x-4 gap-y-2"
-            >
-              <span className="mr-4">
-                {t(`configuration.community.${mode}Theme.color`)}
-              </span>
-              <input
-                className="!size-8 !rounded-full"
-                type="color"
-                value={cfg.theme[mode].secondaryHex ?? '#64748b'}
-                onChange={(e) =>
-                  patch((c) => (c.theme[mode].secondaryHex = e.target.value))
-                }
-              />
-              <input
-                className="op-input w-32"
-                type="text"
-                value={cfg.theme[mode].secondaryHex ?? ''}
-                placeholder="#64748b"
-                onChange={(e) =>
-                  patch(
-                    (c) =>
-                      (c.theme[mode].secondaryHex =
-                        e.target.value || undefined),
-                  )
-                }
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* typography + radii */}
       <div className="border p-4">
         <h4 className="my-4 text-lg font-semibold">
-          {t('configuration.community.typographyAndRadii', {
-            defaultValue: 'Typography and radii',
-          })}
+          {t('configuration.community.typographyAndRadii')}
         </h4>
         <div className="mt-2 grid gap-4 sm:grid-cols-2">
           {(['light', 'dark'] as Mode[]).map((mode) => (
@@ -207,27 +158,18 @@ export function AdminConfigurationCommunityTheme() {
                 {t(`configuration.community.${mode}Theme.color`)}
               </div>
               <label className="block text-sm">
-                {t('configuration.community.fontFamily', {
-                  defaultValue: 'Font family',
-                })}
-                <input
+                {t('configuration.community.fontFamily')}
+                <ThemeFontSelect
                   className="op-input mt-1 w-full"
-                  type="text"
-                  placeholder="system-ui, sans-serif"
-                  value={cfg.theme[mode].fontFamily ?? ''}
-                  onChange={(e) =>
-                    patch(
-                      (c) =>
-                        (c.theme[mode].fontFamily =
-                          e.target.value || undefined),
-                    )
+                  aria-label={t('configuration.community.fontFamily')}
+                  value={cfg.theme[mode].fontFamily}
+                  onChange={(fontFamily) =>
+                    patch((c) => (c.theme[mode].fontFamily = fontFamily))
                   }
                 />
               </label>
               <label className="block text-sm">
-                {t('configuration.community.buttonRadius', {
-                  defaultValue: 'Button border radius',
-                })}
+                {t('configuration.community.buttonRadius')}
                 <input
                   className="op-input mt-1 w-full"
                   type="text"
@@ -243,9 +185,7 @@ export function AdminConfigurationCommunityTheme() {
                 />
               </label>
               <label className="block text-sm">
-                {t('configuration.community.radius', {
-                  defaultValue: 'Default border radius (cards, modals)',
-                })}
+                {t('configuration.community.radius')}
                 <input
                   className="op-input mt-1 w-full"
                   type="text"

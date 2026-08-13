@@ -17,10 +17,18 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  experimental: {
+    renderBuiltUrl(filename, { hostType }) {
+      if (hostType === 'css') {
+        return { relative: true };
+      }
+    },
+  },
   build: {
     target: 'es2022',
     sourcemap: true,
     cssCodeSplit: false,
+    assetsInlineLimit: 0,
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       formats: ['es'],
@@ -38,6 +46,9 @@ export default defineConfig({
         preserveModules: false,
         assetFileNames: (asset) => {
           if (asset.name && asset.name.endsWith('.css')) return 'style.css';
+          if (asset.name && /\.(woff2?|ttf)$/i.test(asset.name)) {
+            return 'fonts/[name][extname]';
+          }
           return asset.name ?? 'asset-[name][extname]';
         },
       },

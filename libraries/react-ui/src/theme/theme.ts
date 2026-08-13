@@ -1,4 +1,5 @@
 import { generateA11yOnColor, hexToTailwindRgbString } from './colors';
+import { resolveThemeFontCss } from './fonts';
 
 export type ThemeOverrides = {
   primaryHex: string;
@@ -36,11 +37,13 @@ export const applyThemeOverrides = (
     background = '',
   } = overrides;
 
+  const fontCss = resolveThemeFontCss(fontFamily);
+
   const vars = [
     flatColorVars('primary', primaryHex),
     secondaryHex ? flatColorVars('secondary', secondaryHex) : '',
-    fontFamily
-      ? `--theme-font-family-base: ${fontFamily};\n\t--theme-font-family-heading: ${fontFamily};\n\t`
+    fontCss
+      ? `--theme-font-family-base: ${fontCss};\n\t--theme-font-family-heading: ${fontCss};\n\t`
       : '',
     buttonRadius ? `--theme-rounded-base: ${buttonRadius};\n\t` : '',
     radius ? `--theme-rounded-container: ${radius};\n\t` : '',
