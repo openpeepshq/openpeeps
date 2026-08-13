@@ -21,7 +21,7 @@ export const apiEndpoint = endpoint({ Input, Param, Output, Error }).handle(
   async (input, event) => {
     await ensureRoleCapabilities(event, ['core-roles-update']);
 
-    const role = findRole(input.roleId);
+    const role = await findRole(input.roleId);
     if (!role) {
       throw notFound();
     }

@@ -1,4 +1,4 @@
-import { RoleData } from '@openpeepshq/common/types';
+import { Role, RoleData } from '@openpeepshq/common/types';
 import { findRoleByKey } from './finders';
 import { defaultRoles } from './defaults';
 import { allpeepDb } from '../db';
@@ -18,10 +18,15 @@ export const createRole = (roleData: RoleData) =>
     return rolesMapping.create(db, roleData);
   });
 
-export const updateRole = (id: string, roleData: Partial<RoleData>) =>
-  allpeepDb()
-    .then(async ({ db }) => rolesMapping.update(db, id, roleData))
-    .then(() => profilesCache.clear());
+export const updateRole = (
+  id: string,
+  roleData: Partial<RoleData>,
+): Promise<Role> =>
+  allpeepDb().then(async ({ db }) => {
+    const role = await rolesMapping.update(db, id, roleData);
+    await profilesCache.clear();
+    return role;
+  });
 
 export const setDefaultRoles = async () => {
   for (const role of defaultRoles) {
