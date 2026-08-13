@@ -27,6 +27,8 @@ import {
   type ProfileWithMeta,
   type PublicAccount,
 } from '@openpeepshq/common';
+import { useSessionEvents } from '../../session/useSessionEvents';
+import { useNotificationBadgeSync } from '../../pwa/useNotificationBadgeSync';
 
 /** Refresh when less than this many seconds remain (login JWTs are 1w). */
 const REFRESH_WHEN_REMAINING_BELOW_SEC = 24 * 60 * 60;
@@ -64,6 +66,13 @@ export const useOpenpeeps = () => {
     throw new Error('useOpenpeeps must be used within an OpenpeepsProvider');
   }
   return context;
+};
+
+const SessionEventsMount = () => {
+  const { client, currentProfile } = useOpenpeeps();
+  useNotificationBadgeSync();
+  useSessionEvents(client, Boolean(currentProfile));
+  return null;
 };
 
 export const OpenpeepsProvider: React.FC<{
@@ -264,6 +273,7 @@ export const OpenpeepsProvider: React.FC<{
     >
       <QueryClientProvider client={queryClient}>
         <CredentialsStoreProvider credentialsStore={credentialsStore}>
+          <SessionEventsMount />
           {children}
         </CredentialsStoreProvider>
       </QueryClientProvider>

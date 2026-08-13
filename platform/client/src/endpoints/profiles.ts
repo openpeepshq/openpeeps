@@ -1,4 +1,4 @@
-import type { FetchClient } from '@openpeepshq/fetch-client';
+import type { FetchClient, noPayloadEventSource } from '@openpeepshq/fetch-client';
 import type {
   AccessTokenCreationData,
   AccessTokenWithMeta,
@@ -17,10 +17,15 @@ import type {
   ProfileSettings,
   ProfileSettingsData,
   PublicAccessToken,
+  SessionEvent,
+  SessionPlatform,
 } from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 
-export const profiles = (rawClient: FetchClient) => ({
+export const profiles = (
+  rawClient: FetchClient,
+  eventSource: ReturnType<typeof noPayloadEventSource>,
+) => ({
   current: {
     read: allpeepNoPayloadEndpoint<ProfileWithMeta>(
       rawClient,
@@ -86,6 +91,13 @@ export const profiles = (rawClient: FetchClient) => ({
       '/profiles/current/access-tokens/:accessTokenId',
       'delete',
     ),
+    sessionEvents: {
+      listen: eventSource<
+        SessionEvent,
+        undefined,
+        { platform: SessionPlatform; connectionId: string }
+      >('/profiles/current/session/events'),
+    },
   },
 
   list: allpeepNoPayloadEndpoint<PublicProfile[]>(
