@@ -3,6 +3,16 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Bug Fixes
+
+- **backups**: repoint restored URLs to the full server origin
+
+### Chores
+
+- **dev**: add one-command local stack with Mailpit
+
+## 2026-08-12
+
 ### Features
 
 - **plugins**: move example plugin to examples/, gate by root package.json
