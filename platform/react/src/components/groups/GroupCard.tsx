@@ -64,20 +64,20 @@ export function GroupCard({
 
   return (
     <article
-      className={`flex w-full justify-between ${noPadding ? '' : 'p-4'}`}
+      className={`hover:bg-surface flex w-full items-center justify-between ${noPadding ? '' : 'p-4'}`}
     >
       {onSelect ? (
         <button
           type="button"
           onClick={() => onSelect(group)}
-          className="hover:bg-surface flex min-w-0 flex-1 items-center gap-x-2 text-left"
+          className="flex min-w-0 flex-1 items-center gap-x-2 text-left"
         >
           {details}
         </button>
       ) : (
         <a
           href={`/groups/@${group.handle}`}
-          className="hover:bg-surface flex min-w-0 flex-1 items-center gap-x-2"
+          className="flex min-w-0 flex-1 items-center gap-x-2"
         >
           {details}
         </a>
