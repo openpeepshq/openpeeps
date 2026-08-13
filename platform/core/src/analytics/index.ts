@@ -23,6 +23,11 @@ export {
   exportAnalyticsCsv,
 } from './read';
 export {
+  recordClickEvents,
+  getAnalyticsClicks,
+  normalizeClickEvent,
+} from './clicks';
+export {
   getAnalyticsReportSettings,
   setAnalyticsReportSettings,
 } from './settings';

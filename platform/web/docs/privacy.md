@@ -99,7 +99,7 @@ Unlike a cookie, this identifier is **not automatically transmitted with every r
 
 **This identifier persists on the User's device beyond a single browser session** and is not automatically cleared when the browser is closed. It remains stored until it expires, or until the User logs out, at which point it is cleared.
 
-This Application **does not use cookies, third-party trackers, advertising identifiers, or analytics tracking.**
+This Application **does not use cookies, third-party trackers, or advertising identifiers.** Signed-in use of in-app pages and outbound links is counted in aggregate for community administrators. The Application authenticates the caller but **does not store who** viewed a page or clicked a link.
 
 ## Further Information for Users
 

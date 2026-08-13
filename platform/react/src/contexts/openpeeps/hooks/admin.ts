@@ -91,6 +91,8 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
     apiHook(client.admin.analytics.engagement, { queryParams: query }),
   useAnalyticsRetention: (query?: Record<string, string>) =>
     apiHook(client.admin.analytics.retention, { queryParams: query }),
+  useAnalyticsClicks: (query?: Record<string, string>) =>
+    apiHook(client.admin.analytics.clicks, { queryParams: query }),
   useAnalyticsReportSettings: () =>
     apiHook(client.admin.analytics.reportSettings.read),
   updateAnalyticsReportSettingsAction: payloadMutation(

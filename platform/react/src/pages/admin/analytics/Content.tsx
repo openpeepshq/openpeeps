@@ -1,8 +1,12 @@
-import { AnalyticsBarChart, MetricCard } from '@openpeepshq/react-ui';
-import type { AnalyticsPostTypeKey } from '@openpeepshq/common/types';
+import { AnalyticsBarChart, MetricCard, Table } from '@openpeepshq/react-ui';
+import type {
+  AnalyticsClickRow,
+  AnalyticsPostTypeKey,
+} from '@openpeepshq/common/types';
 import { useOpenpeeps, useT } from '../../../index';
 import { AnalyticsLoading, AnalyticsSection } from './AnalyticsLayout';
 import { useAnalyticsRangeContext } from './AnalyticsRangeContext';
+import { columnHeader } from './analyticsInfo';
 
 const POST_TYPE_META: Array<{
   key: AnalyticsPostTypeKey;
@@ -90,6 +94,7 @@ export const AnalyticsContentPage = () => {
   const { openpeepsApi } = useOpenpeeps();
   const { queryParams } = useAnalyticsRangeContext();
   const overview = openpeepsApi.admin.useAnalyticsOverview(queryParams);
+  const clicks = openpeepsApi.admin.useAnalyticsClicks(queryParams);
 
   if (overview.isLoading) return <AnalyticsLoading />;
   const data = overview.data;
@@ -166,6 +171,11 @@ export const AnalyticsContentPage = () => {
           'postsByPeriod',
           'Total posts created in each time bucket of the selected range.',
         )}
+        csvFilename="posts-by-period.csv"
+        csvRows={[
+          ['label', 'posts'],
+          ...postsByPeriod.map((p) => [p.label, p.value]),
+        ]}
       >
         <AnalyticsBarChart data={postsByPeriod} />
       </AnalyticsSection>
@@ -178,6 +188,11 @@ export const AnalyticsContentPage = () => {
           'contentDistribution',
           'Share of posts in the range by type (events, jams, articles, notes, polls).',
         )}
+        csvFilename="content-distribution.csv"
+        csvRows={[
+          ['type', 'count'],
+          ...data.postTypes.map((p) => [p.type, p.count]),
+        ]}
       >
         <ContentDistribution
           items={data.postTypes}
@@ -185,6 +200,97 @@ export const AnalyticsContentPage = () => {
             defaultValue: 'Total content items',
           })}
         />
+      </AnalyticsSection>
+
+      <AnalyticsSection
+        title={t('admin.analytics.topPages', { defaultValue: 'Top pages' })}
+        info={info(
+          'topPages',
+          'In-app routes with the most page views in the selected range. Counts are anonymous aggregates.',
+        )}
+        csvFilename="top-pages.csv"
+        csvRows={[
+          ['page', 'clicks'],
+          ...(clicks.data?.pages ?? []).map((row) => [row.target, row.clicks]),
+        ]}
+      >
+        {(clicks.data?.pages.length ?? 0) > 0 ? (
+          <Table
+            data={clicks.data?.pages ?? []}
+            columnDefinitions={[
+              {
+                id: 'target',
+                type: 'text',
+                header: columnHeader(
+                  t('admin.analytics.table.page', { defaultValue: 'Page' }),
+                  info('tablePage', 'In-app pathname that was viewed.'),
+                ),
+                render: (row: AnalyticsClickRow) => row.target,
+              },
+              {
+                id: 'clicks',
+                type: 'property',
+                header: columnHeader(
+                  t('admin.analytics.table.clicks', { defaultValue: 'Views' }),
+                  info(
+                    'tablePageClicks',
+                    'Anonymous page-view counts in the selected range.',
+                  ),
+                ),
+              },
+            ]}
+          />
+        ) : (
+          <p className="text-muted-foreground text-sm">No data yet</p>
+        )}
+      </AnalyticsSection>
+
+      <AnalyticsSection
+        title={t('admin.analytics.topOutboundLinks', {
+          defaultValue: 'Top outbound links',
+        })}
+        info={info(
+          'topOutboundLinks',
+          'External URLs clicked from posts and previews in the selected range. Counts are anonymous aggregates.',
+        )}
+        csvFilename="top-outbound-links.csv"
+        csvRows={[
+          ['link', 'clicks'],
+          ...(clicks.data?.links ?? []).map((row) => [row.target, row.clicks]),
+        ]}
+      >
+        {(clicks.data?.links.length ?? 0) > 0 ? (
+          <Table
+            data={clicks.data?.links ?? []}
+            columnDefinitions={[
+              {
+                id: 'target',
+                type: 'text',
+                header: columnHeader(
+                  t('admin.analytics.table.link', { defaultValue: 'Link' }),
+                  info(
+                    'tableLink',
+                    'Outbound URL origin and path (query strings stripped).',
+                  ),
+                ),
+                render: (row: AnalyticsClickRow) => row.target,
+              },
+              {
+                id: 'clicks',
+                type: 'property',
+                header: columnHeader(
+                  t('admin.analytics.table.clicks', { defaultValue: 'Clicks' }),
+                  info(
+                    'tableLinkClicks',
+                    'Anonymous outbound click counts in the selected range.',
+                  ),
+                ),
+              },
+            ]}
+          />
+        ) : (
+          <p className="text-muted-foreground text-sm">No data yet</p>
+        )}
       </AnalyticsSection>
     </div>
   );

@@ -4,6 +4,7 @@ import type {
   ClientConfigSource,
 } from '@openpeepshq/fetch-client/types';
 import { admin } from './endpoints/admin';
+import { analytics } from './endpoints/analytics';
 import { i18n } from './endpoints/i18n';
 import { accounts } from './endpoints/accounts';
 import { jams } from './endpoints/jams';
@@ -57,6 +58,7 @@ export const openpeepsClient = (
   const serverEndpoints = server(rawClient);
   return {
     admin: admin(rawClient),
+    analytics: analytics(rawClient),
     accounts: accounts(rawClient),
     auth: auth(rawClient),
     conversations: conversations(rawClient),

@@ -1,5 +1,6 @@
 import { LoadingSpinner } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
+import { recordOutboundClick } from '../../lib/analyticsClicks';
 
 export interface RemotePreviewLinkProps {
   url: string;
@@ -33,7 +34,10 @@ export function RemotePreviewLink({ url }: RemotePreviewLinkProps) {
       target="_blank"
       rel="noreferrer"
       className="hover:bg-surface mb-2 block w-full min-w-0 max-w-full overflow-hidden rounded-md border no-underline"
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        recordOutboundClick(url);
+      }}
     >
       <div className="flex w-full min-w-0 flex-row items-center gap-4 p-2">
         {data.image ? (

@@ -10,13 +10,20 @@ import { useOpenpeeps, useT } from '../../../index';
 import { AnalyticsLoading, AnalyticsSection } from './AnalyticsLayout';
 import { useAnalyticsRangeContext } from './AnalyticsRangeContext';
 
-type OverTimeMetric = 'all' | 'likes' | 'reposts' | 'bookmarks' | 'comments';
+type OverTimeMetric =
+  | 'all'
+  | 'likes'
+  | 'reposts'
+  | 'bookmarks'
+  | 'comments'
+  | 'dms';
 
 const OVER_TIME_SERIES: StackedSeries[] = [
   { key: 'likes', label: 'Likes', color: '#111827' },
   { key: 'reposts', label: 'Shares', color: '#4b5563' },
   { key: 'bookmarks', label: 'Bookmarks', color: '#6b7280' },
   { key: 'comments', label: 'Replies', color: '#9ca3af' },
+  { key: 'dms', label: 'DMs', color: '#d97706' },
 ];
 
 const ratePct = (numerator: number, denominator: number) =>
@@ -143,6 +150,12 @@ export const AnalyticsEngagementPage = () => {
             defaultValue: 'Replies',
           }),
         },
+        {
+          value: 'dms' as const,
+          label: t('admin.analytics.metrics.dms', {
+            defaultValue: 'Direct messages',
+          }),
+        },
       ] as const,
     [t],
   );
@@ -165,11 +178,12 @@ export const AnalyticsEngagementPage = () => {
 
   const overTimeData = data.engagementOverTime.map((p) => ({
     label: p.label,
-    value: p.likes + p.comments + p.reposts + p.bookmarks,
+    value: p.likes + p.comments + p.reposts + p.bookmarks + p.dms,
     likes: p.likes,
     comments: p.comments,
     reposts: p.reposts,
     bookmarks: p.bookmarks,
+    dms: p.dms,
   }));
 
   const metricInfo: Record<string, string> = {
@@ -233,8 +247,29 @@ export const AnalyticsEngagementPage = () => {
         })}
         info={t('admin.analytics.info.engagementOverTime', {
           defaultValue:
-            'Likes, shares (reposts), bookmarks, and replies aggregated into each time bucket. "All metrics" stacks them together.',
+            'Likes, shares (reposts), bookmarks, replies, and direct messages aggregated into each time bucket. "All metrics" stacks them together.',
         })}
+        csvFilename="engagement-over-time.csv"
+        csvRows={[
+          [
+            'bucket',
+            'label',
+            'likes',
+            'reposts',
+            'bookmarks',
+            'comments',
+            'dms',
+          ],
+          ...data.engagementOverTime.map((p) => [
+            p.day,
+            p.label,
+            p.likes,
+            p.reposts,
+            p.bookmarks,
+            p.comments,
+            p.dms,
+          ]),
+        ]}
       >
         <div className="mb-3">
           <label className="sr-only" htmlFor="engagement-metric-filter">
@@ -292,6 +327,11 @@ export const AnalyticsEngagementPage = () => {
           defaultValue:
             'Post view events (impressions) summed into each time bucket of the range.',
         })}
+        csvFilename="views-by-period.csv"
+        csvRows={[
+          ['bucket', 'label', 'impressions'],
+          ...data.impressionsByPeriod.map((p) => [p.day, p.label, p.value]),
+        ]}
       >
         <AnalyticsBarChart
           data={data.impressionsByPeriod.map((p) => ({
@@ -310,6 +350,42 @@ export const AnalyticsEngagementPage = () => {
           defaultValue:
             'Per-action rates for the range: each action count divided by impressions, as a percentage. Overall = (likes + shares + bookmarks + comments) / impressions.',
         })}
+        csvFilename="engagement-rate-breakdown.csv"
+        csvRows={[
+          ['rate', 'percent'],
+          [
+            'like',
+            ratePct(data.metrics.likes.value, data.metrics.impressions.value),
+          ],
+          [
+            'share',
+            ratePct(data.metrics.reposts.value, data.metrics.impressions.value),
+          ],
+          [
+            'bookmark',
+            ratePct(
+              data.metrics.bookmarks.value,
+              data.metrics.impressions.value,
+            ),
+          ],
+          [
+            'comment',
+            ratePct(
+              data.metrics.comments.value,
+              data.metrics.impressions.value,
+            ),
+          ],
+          [
+            'overall',
+            ratePct(
+              data.metrics.likes.value +
+                data.metrics.reposts.value +
+                data.metrics.bookmarks.value +
+                data.metrics.comments.value,
+              data.metrics.impressions.value,
+            ),
+          ],
+        ]}
       >
         <EngagementRateBreakdown
           likes={data.metrics.likes.value}

@@ -1,6 +1,6 @@
 {
-  "id": "c636f081-be6e-4478-8365-3291ad02bd84",
-  "prevId": "2c6d3c18-f523-43ed-8eb0-08dde60cddcd",
+  "id": "4ce6a7e6-778e-41d1-9fd1-1a39bb0622d5",
+  "prevId": "c636f081-be6e-4478-8365-3291ad02bd84",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -3620,6 +3620,71 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.analytics_daily_clicks": {
+      "name": "analytics_daily_clicks",
+      "schema": "",
+      "columns": {
+        "day": {
+          "name": "day",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target": {
+          "name": "target",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "clicks": {
+          "name": "clicks",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "analytics_daily_clicks_day_kind_idx": {
+          "name": "analytics_daily_clicks_day_kind_idx",
+          "columns": [
+            {
+              "expression": "day",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "analytics_daily_clicks_day_kind_target_pk": {
+          "name": "analytics_daily_clicks_day_kind_target_pk",
+          "columns": ["day", "kind", "target"]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},

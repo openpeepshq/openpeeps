@@ -161,6 +161,19 @@ export const AnalyticsOverviewPage = () => {
             'postsOverTime',
             'Posts created in each time bucket of the range, stacked by type (jams, articles, notes, polls, events).',
           )}
+          csvFilename="posts-over-time.csv"
+          csvRows={[
+            ['bucket', 'label', 'jam', 'article', 'note', 'poll', 'event'],
+            ...data.postsOverTime.map((p) => [
+              p.day,
+              p.label,
+              p.jam,
+              p.article,
+              p.note,
+              p.poll,
+              p.event,
+            ]),
+          ]}
         >
           <AnalyticsStackedBarChart
             data={stackedData}
@@ -189,6 +202,11 @@ export const AnalyticsOverviewPage = () => {
             'postTypes',
             'Total posts in the range broken down by type.',
           )}
+          csvFilename="post-types.csv"
+          csvRows={[
+            ['type', 'count'],
+            ...data.postTypes.map((p) => [p.type, p.count]),
+          ]}
         >
           <PostTypesList items={data.postTypes} />
         </AnalyticsSection>
@@ -202,6 +220,11 @@ export const AnalyticsOverviewPage = () => {
           'activeUsers',
           'Active members per time bucket in the selected range.',
         )}
+        csvFilename="active-users.csv"
+        csvRows={[
+          ['bucket', 'label', 'active_members'],
+          ...data.activeUsersSeries.map((p) => [p.day, p.label, p.value]),
+        ]}
       >
         <AnalyticsLineChart data={activeUsersChart} />
       </AnalyticsSection>
@@ -216,6 +239,17 @@ export const AnalyticsOverviewPage = () => {
             'topMembers',
             'Members ranked by contributions in the range: posts created plus reactions and replies given.',
           )}
+          csvFilename="top-members.csv"
+          csvRows={[
+            ['handle', 'display_name', 'role', 'joined_at', 'contributions'],
+            ...data.topMembers.map((m) => [
+              m.handle,
+              m.displayName ?? '',
+              m.role ?? '',
+              m.joinedAt,
+              m.contributions,
+            ]),
+          ]}
         >
           {data.topMembers.length > 0 ? (
             <Table
@@ -288,6 +322,17 @@ export const AnalyticsOverviewPage = () => {
             'topPosts',
             'Posts with the most unique viewers in the selected range.',
           )}
+          csvFilename="top-posts.csv"
+          csvRows={[
+            ['post_id', 'snippet', 'creator', 'type', 'unique_viewers'],
+            ...data.topPosts.map((p) => [
+              p.postId,
+              p.snippet ?? '',
+              p.authorDisplayName ?? p.authorHandle ?? '',
+              p.postType ?? '',
+              p.uniqueViewers,
+            ]),
+          ]}
         >
           {data.topPosts.length > 0 ? (
             <Table

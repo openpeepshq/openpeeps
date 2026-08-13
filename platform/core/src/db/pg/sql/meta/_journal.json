@@ -36,6 +36,13 @@
       "when": 1785770303150,
       "tag": "0004_analytics",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786638408097,
+      "tag": "0005_open_power_man",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,7 @@
 import {
   AnalyticsMultiLineChart,
   Table,
+  type ChartPoint,
   type StackedSeries,
 } from '@openpeepshq/react-ui';
 import type { AnalyticsGroupRow } from '@openpeepshq/common/types';
@@ -67,7 +68,7 @@ const VisibilityBadge = ({
 const cumulativeGrowthPoints = (
   points: Array<{ label: string; values: Record<string, number> }>,
   series: StackedSeries[],
-) => {
+): ChartPoint[] => {
   const running: Record<string, number> = Object.fromEntries(
     series.map((s) => [s.key, 0]),
   );
@@ -123,6 +124,29 @@ export const AnalyticsGroupsPage = () => {
           'topGroupsByActivity',
           'Groups ranked by activity in the range: posts + likes + comments on group posts. Shows the top 6.',
         )}
+        csvFilename="top-groups.csv"
+        csvRows={[
+          [
+            'group_id',
+            'name',
+            'visibility',
+            'members',
+            'active_members',
+            'posts',
+            'engagement_rate',
+            'growth',
+          ],
+          ...data.topGroups.map((g) => [
+            g.groupId,
+            g.name ?? g.handle ?? '',
+            g.visibility,
+            g.members,
+            g.activeMembers,
+            g.posts,
+            g.engagementRate,
+            g.growth,
+          ]),
+        ]}
       >
         {data.topGroups.length > 0 ? (
           <Table
@@ -228,6 +252,17 @@ export const AnalyticsGroupsPage = () => {
           'groupGrowth',
           'Cumulative new group memberships (joins) over the range for the six groups with the largest membership growth. Each line is one group.',
         )}
+        csvFilename="group-growth.csv"
+        csvRows={[
+          ['label', ...growthSeries.map((s) => s.label)],
+          ...growthChartData.map((p) => [
+            p.label,
+            ...growthSeries.map((s) => {
+              const value = p[s.key];
+              return typeof value === 'number' ? value : 0;
+            }),
+          ]),
+        ]}
       >
         {growthSeries.length > 0 ? (
           <div>

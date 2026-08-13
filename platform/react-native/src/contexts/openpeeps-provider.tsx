@@ -8,6 +8,7 @@ import { AppState } from 'react-native';
 import {
   OpenpeepsProvider as BaseOpenpeepsProvider,
   PostViewCounterProvider,
+  AnalyticsClickTracker,
   adjustUnseenCounts,
   invalidateUnseenCounts,
   useHasAuthToken,
@@ -70,6 +71,7 @@ const PostViewTracking = ({ children }: { children: ReactNode }) => {
       onPostQueued={handlePostQueued}
       onFlushFailed={handleFlushFailed}>
       <PostViewFlushOnBackground />
+      <AnalyticsClickTracker />
       {children}
     </PostViewCounterProvider>
   );

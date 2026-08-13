@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Image, TouchableOpacity, Linking } from 'react-native';
 import { ThemedText as Text } from '~/components/ui/themed-text';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useOpenpeeps, recordOutboundClick } from '@openpeepshq/react';
 import { ActivityIndicator } from 'react-native';
 
 interface RemotePreviewLinkProps {
@@ -14,6 +14,7 @@ export const RemotePreviewLink = ({ url }: RemotePreviewLinkProps) => {
   const { data: linkPreview, isLoading, isError } = openpeepsApi.usePreviewLink(url);
 
   const handlePress = () => {
+    recordOutboundClick(url);
     Linking.openURL(url);
   };
 

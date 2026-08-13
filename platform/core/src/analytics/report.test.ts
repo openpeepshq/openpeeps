@@ -126,7 +126,12 @@ const overviewFixture: AnalyticsOverview = {
 
 const growthFixture: AnalyticsGrowth = {
   range,
-  metrics: { newSignups: metric(18, 12) },
+  metrics: {
+    newSignups: metric(18, 12),
+    dau: metric(22, 18),
+    mau: metric(80, 70),
+    dauMau: metric(27.5, 25.7),
+  },
   signupsByDay: [
     { day: '2026-07-01', value: 2 },
     { day: '2026-07-02', value: 0 },
@@ -162,6 +167,7 @@ const engagementFixture: AnalyticsEngagement = {
       comments: 4,
       reposts: 2,
       bookmarks: 3,
+      dms: 1,
     },
     {
       day: '2026-07-08',
@@ -170,6 +176,7 @@ const engagementFixture: AnalyticsEngagement = {
       comments: 6,
       reposts: 1,
       bookmarks: 4,
+      dms: 2,
     },
   ],
   impressionsByPeriod: [

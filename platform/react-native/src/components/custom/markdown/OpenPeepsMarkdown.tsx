@@ -18,6 +18,7 @@ import { markdownTheme } from './theme';
 import { extractLinks, isEmail, isInternalLink, toGotoUrl } from './utils';
 import { PreviewLink } from '../preview-link';
 import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
+import { recordOutboundClick } from '@openpeepshq/react';
 
 interface OpenPeepsMarkdownProps {
   source: string;
@@ -59,6 +60,7 @@ export const OpenPeepsMarkdown = ({
   const handleLinkPress = (url: string) => {
     const origin = BASE_URL as string;
     if (shouldOpenExternally(url)) {
+      recordOutboundClick(url, origin);
       Linking.openURL(url);
       return;
     }

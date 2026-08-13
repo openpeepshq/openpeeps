@@ -203,6 +203,9 @@ export const analyticsGrowthSchema = z.object({
   range: analyticsRangeMetaSchema,
   metrics: z.object({
     newSignups: analyticsMetricCardSchema,
+    dau: analyticsMetricCardSchema,
+    mau: analyticsMetricCardSchema,
+    dauMau: analyticsMetricCardSchema,
   }),
   /** New-member counts for every day in the selected range. */
   signupsByDay: analyticsDayHeatmapCellSchema.array(),
@@ -217,6 +220,7 @@ export const analyticsEngagementOverTimePointSchema = z.object({
   comments: z.number(),
   reposts: z.number(),
   bookmarks: z.number(),
+  dms: z.number(),
 });
 export type AnalyticsEngagementOverTimePoint = z.infer<
   typeof analyticsEngagementOverTimePointSchema
@@ -281,3 +285,30 @@ export const analyticsBackfillResponseSchema = z.object({
 export type AnalyticsBackfillResponse = z.infer<
   typeof analyticsBackfillResponseSchema
 >;
+
+export const analyticsClickKindSchema = z.enum(['page', 'link']);
+export type AnalyticsClickKind = z.infer<typeof analyticsClickKindSchema>;
+
+export const analyticsClickEventSchema = z.object({
+  kind: analyticsClickKindSchema,
+  target: z.string().min(1).max(2048),
+});
+export type AnalyticsClickEvent = z.infer<typeof analyticsClickEventSchema>;
+
+export const analyticsClicksIngestSchema = z.object({
+  events: analyticsClickEventSchema.array().min(1).max(20),
+});
+export type AnalyticsClicksIngest = z.infer<typeof analyticsClicksIngestSchema>;
+
+export const analyticsClickRowSchema = z.object({
+  target: z.string(),
+  clicks: z.number(),
+});
+export type AnalyticsClickRow = z.infer<typeof analyticsClickRowSchema>;
+
+export const analyticsClicksSchema = z.object({
+  range: analyticsRangeMetaSchema,
+  pages: analyticsClickRowSchema.array(),
+  links: analyticsClickRowSchema.array(),
+});
+export type AnalyticsClicks = z.infer<typeof analyticsClicksSchema>;
