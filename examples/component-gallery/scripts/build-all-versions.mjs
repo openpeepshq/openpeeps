@@ -112,7 +112,14 @@ const buildInRepo = ({ id, label, cwd }) => {
   const base = `/${id}/`;
   log(`\n=== building ${label} base=${base} cwd=${cwd} ===`);
 
-  run('pnpm', ['--filter', '@openpeepshq/react...', 'build'], cwd);
+  // Gallery imports @openpeepshq/i18n directly; that package is not in
+  // react's workspace graph, so `react...` never builds it. `^...` is
+  // gallery dependencies only (avoids recursively running this script).
+  run(
+    'pnpm',
+    ['--filter', '@openpeepshq/component-gallery^...', 'build'],
+    cwd,
+  );
 
   run(
     'pnpm',
