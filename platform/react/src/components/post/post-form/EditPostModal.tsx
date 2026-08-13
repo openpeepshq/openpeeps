@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { resolvePollOptionContents } from '@openpeepshq/common';
 import type {
   MediaAttachmentData,
   PostDataUnion,
@@ -18,7 +19,7 @@ import { OpenpeepsMarkdown } from '../../markdown/OpenpeepsMarkdown';
 import { ComposeAttachments } from './ComposeAttachments';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
-import { PollComposerFields } from './PollComposerFields';
+import { PollComposerFields, pollOptionLabel } from './PollComposerFields';
 
 export interface EditPostModalProps {
   post: PublicPost;
@@ -42,11 +43,33 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const content =
+    data.type === 'note' || data.type === 'question'
+      ? (data.content ?? '')
+      : '';
+
+  const pollOptions =
+    data.type === 'question' ? data.options.map((o) => o.content) : [];
+
+  const resolvedPollOptions = resolvePollOptionContents(pollOptions, (index) =>
+    pollOptionLabel(index, t),
+  );
+
   const publish = async () => {
     setError(null);
     setSubmitting(true);
     try {
-      await updatePost(data);
+      const payload =
+        data.type === 'question'
+          ? {
+              ...data,
+              options: resolvedPollOptions.map((optionContent) => ({
+                type: 'note' as const,
+                content: optionContent,
+              })),
+            }
+          : data;
+      await updatePost(payload);
       onClose();
     } catch (err) {
       setError((err as Error).message);
@@ -55,9 +78,9 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
     }
   };
 
-  const setContent = (content: string) => {
+  const setContent = (nextContent: string) => {
     if (data.type === 'note' || data.type === 'question') {
-      setData({ ...data, content });
+      setData({ ...data, content: nextContent });
     }
   };
 
@@ -67,25 +90,15 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
     }
   };
 
-  const content =
-    data.type === 'note' || data.type === 'question'
-      ? (data.content ?? '')
-      : '';
-
-  const pollOptions =
-    data.type === 'question' ? data.options.map((o) => o.content) : [];
-
-  const validPollOptions = pollOptions.map((o) => o.trim()).filter(Boolean);
-
   const canSave = useMemo(() => {
     if (data.type === 'question') {
-      return content.trim().length > 0 && validPollOptions.length >= 2;
+      return content.trim().length > 0 && resolvedPollOptions.length >= 2;
     }
     if (data.type === 'note') {
       return content.trim().length > 0 || (data.attachments?.length ?? 0) > 0;
     }
     return true;
-  }, [content, data, validPollOptions.length]);
+  }, [content, data, resolvedPollOptions.length]);
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>

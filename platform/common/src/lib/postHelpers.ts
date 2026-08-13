@@ -38,7 +38,6 @@ export const buildThreads = (posts: PublicPost[]) =>
     .map((post) => buildThread(post, posts))
     .sort(dateSorter());
 
-
 export const getReactionCount = (post: PublicPost) => {
   return countBy(post.reactions, (r) => r.reaction);
 };
@@ -54,6 +53,16 @@ export const countVotes = (optionsCount: number, answers: Answer[]) => {
   }
   return voteCounts;
 };
+
+/** Fill blank poll choices with their placeholder label (e.g. "Option 1"). */
+export const resolvePollOptionContents = (
+  options: readonly string[],
+  fallbackLabel: (index: number) => string,
+): string[] =>
+  options.map((text, index) => {
+    const trimmed = text.trim();
+    return trimmed.length > 0 ? trimmed : fallbackLabel(index);
+  });
 
 export const collectVotes = (
   post: PublicPost,
@@ -115,7 +124,9 @@ export const countYesRsvps = (post: PublicPost) =>
 
 export const isCapacityEvent = (event: Event) => !!event.maxAttendees;
 
-export const parseEventMaxAttendeesInput = (raw: string): number | undefined => {
+export const parseEventMaxAttendeesInput = (
+  raw: string,
+): number | undefined => {
   const trimmed = raw.trim();
   if (!trimmed) return undefined;
   const parsed = Number.parseInt(trimmed, 10);
@@ -147,9 +158,7 @@ export const normalizeEventDataFromDb = <T extends Event>(event: T): T => {
   return withoutEventMaxAttendees(event);
 };
 
-export const normalizePostDataFromDb = (
-  data: PostDataUnion,
-): PostDataUnion =>
+export const normalizePostDataFromDb = (data: PostDataUnion): PostDataUnion =>
   data.type === 'event' ? normalizeEventDataFromDb(data) : data;
 
 /** ArangoDB update deep-merges nested `data`; null removes maxAttendees. */
@@ -161,10 +170,7 @@ export const eventDataForDbUpdate = (
   previous: Event | undefined,
   normalized: Event,
 ): EventDbUpdate => {
-  if (
-    previous?.maxAttendees != null &&
-    !('maxAttendees' in normalized)
-  ) {
+  if (previous?.maxAttendees != null && !('maxAttendees' in normalized)) {
     return { ...normalized, maxAttendees: null };
   }
   return normalized;
@@ -216,25 +222,39 @@ export const canDeletePost = (
 ) =>
   checkPostCapabilities(authData, ['core-posts-delete'], post, config).success;
 
-
 export const canCreatePost = (
   authData: AuthorizationData,
   type: PostType,
   visibility: VisibilityType,
   group?: GroupWithMeta,
 ) =>
-  visibility === 'group' ?
-    !!group && checkGroupCapabilities(authData, [`core-posts-create-${type}`], group).success :
-    checkRoleCapabilities(authData.profile?.roles, [`core-posts-create-${type}-${visibility}`]).success
-    && scopeMatches({ scopes: authData.scopes, requiredScope: { scopeLevel: 'write', resource: { type: 'posts' } } });
+  visibility === 'group'
+    ? !!group &&
+      checkGroupCapabilities(authData, [`core-posts-create-${type}`], group)
+        .success
+    : checkRoleCapabilities(authData.profile?.roles, [
+        `core-posts-create-${type}-${visibility}`,
+      ]).success &&
+      scopeMatches({
+        scopes: authData.scopes,
+        requiredScope: { scopeLevel: 'write', resource: { type: 'posts' } },
+      });
 
 export const canCreatePostTypeInAnyGroup = (
   authData: AuthorizationData,
   type: PostType,
 ) =>
-  scopeMatches({ scopes: authData.scopes, requiredScope: { scopeLevel: 'write', resource: { type: 'groups' } } }) &&
-  !!authData.profile?.memberships?.some((m) =>
-    checkGroupCapabilities(authData, [`core-posts-create-${type}`], m.group as GroupWithMeta).success,
+  scopeMatches({
+    scopes: authData.scopes,
+    requiredScope: { scopeLevel: 'write', resource: { type: 'groups' } },
+  }) &&
+  !!authData.profile?.memberships?.some(
+    (m) =>
+      checkGroupCapabilities(
+        authData,
+        [`core-posts-create-${type}`],
+        m.group as GroupWithMeta,
+      ).success,
   );
 
 export const canCreatePostTypeWithVisibility = (
@@ -242,15 +262,20 @@ export const canCreatePostTypeWithVisibility = (
   type: PostType,
   visibility: VisibilityType,
 ) =>
-  visibility === 'group' ?
-    canCreatePostTypeInAnyGroup(authData, type) :
-    checkRoleCapabilities(authData.profile?.roles, [`core-posts-create-${type}-${visibility}`]).success &&
-    scopeMatches({ scopes: authData.scopes, requiredScope: { scopeLevel: 'write', resource: { type: 'posts' } } });
+  visibility === 'group'
+    ? canCreatePostTypeInAnyGroup(authData, type)
+    : checkRoleCapabilities(authData.profile?.roles, [
+        `core-posts-create-${type}-${visibility}`,
+      ]).success &&
+      scopeMatches({
+        scopes: authData.scopes,
+        requiredScope: { scopeLevel: 'write', resource: { type: 'posts' } },
+      });
 
 export const canCreatePostType = (
   authData: AuthorizationData,
   type: PostType,
 ) =>
-  visibilityTypeValues.some((visibility) => canCreatePostTypeWithVisibility(authData, type, visibility));
-
-
+  visibilityTypeValues.some((visibility) =>
+    canCreatePostTypeWithVisibility(authData, type, visibility),
+  );
