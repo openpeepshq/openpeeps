@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Button, Input, Label } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 
@@ -11,6 +12,12 @@ export interface PollComposerFieldsProps {
   votersVisible?: boolean;
   onVotersVisibleChange?: (value: boolean) => void;
 }
+
+export const pollOptionLabel = (index: number, t: TFunction): string =>
+  t('posts.form.poll.option', {
+    defaultValue: 'Option {{number}}',
+    number: index + 1,
+  });
 
 /** Shared poll option + settings fields used in compose and edit flows. */
 export function PollComposerFields({
@@ -27,22 +34,24 @@ export function PollComposerFields({
 
   return (
     <div className="space-y-2">
-      {options.map((opt, index) => (
-        <Input
-          key={index}
-          value={opt}
-          placeholder={t('posts.form.poll.optionPlaceholder', {
-            defaultValue: 'Option {{n}}',
-            n: index + 1,
-          })}
-          data-testid={`posts-poll-option-${index + 1}`}
-          onChange={(e) => {
-            const next = [...options];
-            next[index] = e.target.value;
-            onOptionsChange(next);
-          }}
-        />
-      ))}
+      {options.map((opt, index) => {
+        const label = pollOptionLabel(index, t);
+        return (
+          <Label key={index} title={label} htmlFor={`poll-option-${index + 1}`}>
+            <Input
+              id={`poll-option-${index + 1}`}
+              value={opt}
+              placeholder={label}
+              data-testid={`posts-poll-option-${index + 1}`}
+              onChange={(e) => {
+                const next = [...options];
+                next[index] = e.target.value;
+                onOptionsChange(next);
+              }}
+            />
+          </Label>
+        );
+      })}
       {options.length < 6 ? (
         <Button
           variant="ghost"

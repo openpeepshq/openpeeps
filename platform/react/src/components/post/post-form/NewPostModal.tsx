@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, Image, Megaphone, Paperclip } from 'lucide-react';
-import type {
-  GroupWithMeta,
-  MediaAttachmentData,
-  PostCreationData,
-  PublicProfile,
-  VisibilityType,
+import {
+  checkRoleCapabilities,
+  resolvePollOptionContents,
+  type GroupWithMeta,
+  type MediaAttachmentData,
+  type PostCreationData,
+  type PublicProfile,
+  type VisibilityType,
 } from '@openpeepshq/common';
-import { checkRoleCapabilities } from '@openpeepshq/common';
 import {
   Dialog,
   DialogContent,
@@ -29,7 +30,7 @@ import {
 import { useComposeAttachments } from './ComposeAttachments';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
-import { PollComposerFields } from './PollComposerFields';
+import { PollComposerFields, pollOptionLabel } from './PollComposerFields';
 import { PostAudienceSelector } from './PostAudienceSelector';
 import { PostTypeSwitcher } from './PostTypeSwitcher';
 import { audienceSummary } from './audienceChoices';
@@ -205,7 +206,9 @@ export function NewPostModal({
   }, [serverInfo.publicContent, visibility]);
 
   const trimmedContent = content.trim();
-  const validPollOptions = pollOptions.map((o) => o.trim()).filter(Boolean);
+  const resolvedPollOptions = resolvePollOptionContents(pollOptions, (index) =>
+    pollOptionLabel(index, t),
+  );
 
   // Mirrors the Svelte `isPostFormSubmittable`: block while uploading, and
   // require enough content for the active composer type.
@@ -214,7 +217,7 @@ export function NewPostModal({
     if (visibility === 'direct' && audience.length === 0) return false;
     if (visibility === 'group' && !group?.id && !groupId) return false;
     if (composerType === 'question') {
-      return trimmedContent.length > 0 && validPollOptions.length >= 2;
+      return trimmedContent.length > 0 && resolvedPollOptions.length >= 2;
     }
     return (
       (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
@@ -229,7 +232,7 @@ export function NewPostModal({
     groupId,
     composerType,
     trimmedContent,
-    validPollOptions.length,
+    resolvedPollOptions.length,
     attachments.length,
   ]);
 
@@ -248,7 +251,7 @@ export function NewPostModal({
           data: {
             type: 'question',
             content: trimmedContent,
-            options: validPollOptions.map((text) => ({
+            options: resolvedPollOptions.map((text) => ({
               type: 'note' as const,
               content: text,
             })),

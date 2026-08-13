@@ -4,6 +4,7 @@ import {
   getReactionCount,
   countVotes,
   collectVotes,
+  resolvePollOptionContents,
   calculateEffectiveRsvps,
   countYesRsvps,
   getEffectiveRsvp,
@@ -248,19 +249,17 @@ describe('postHelpers', () => {
   describe('jamFromEvent', () => {
     it('should return jam from event post', () => {
       const result = jamFromEvent(mockEventPost);
-      expect(result).toEqual(
-        {
-          id: 'jam1',
-          name: 'Test Jam',
-          type: 'video-call',
-          moderators: [],
-          videoEnabled: true,
-          speakers: [],
-          presenters: [],
-          audience: [],
-          waitingRoom: false,
-        },
-      );
+      expect(result).toEqual({
+        id: 'jam1',
+        name: 'Test Jam',
+        type: 'video-call',
+        moderators: [],
+        videoEnabled: true,
+        speakers: [],
+        presenters: [],
+        audience: [],
+        waitingRoom: false,
+      });
     });
 
     it('should return undefined for non-event post', () => {
@@ -317,6 +316,25 @@ describe('postHelpers', () => {
       ];
       const result = countVotes(3, answers);
       expect(result).toEqual([1, 1, 0]);
+    });
+  });
+
+  describe('resolvePollOptionContents', () => {
+    const fallback = (index: number) => `Option ${index + 1}`;
+
+    it('uses placeholder labels for blank choices', () => {
+      expect(resolvePollOptionContents(['', '  '], fallback)).toEqual([
+        'Option 1',
+        'Option 2',
+      ]);
+    });
+
+    it('keeps typed labels and trims them', () => {
+      expect(resolvePollOptionContents([' Yes ', '', 'No'], fallback)).toEqual([
+        'Yes',
+        'Option 2',
+        'No',
+      ]);
     });
   });
 
@@ -434,9 +452,7 @@ describe('postHelpers', () => {
           },
         ] as PublicRsvp[],
       };
-      expect(getEffectiveRsvp(postWithRsvps, 'profile1')?.response).toBe(
-        'yes',
-      );
+      expect(getEffectiveRsvp(postWithRsvps, 'profile1')?.response).toBe('yes');
     });
 
     it('should detect capacity events', () => {
@@ -451,9 +467,7 @@ describe('postHelpers', () => {
         wholeDay: false,
       } as Event;
 
-      expect(
-        normalizeEventDataForSave({ ...base, maxAttendees: 10 }),
-      ).toEqual({
+      expect(normalizeEventDataForSave({ ...base, maxAttendees: 10 })).toEqual({
         ...base,
         maxAttendees: 10,
       });
@@ -488,12 +502,12 @@ describe('postHelpers', () => {
         wholeDay: false,
       } as Event;
 
-      expect(
-        normalizeEventDataFromDb({ ...base, maxAttendees: null }),
-      ).toEqual(base);
-      expect(
-        normalizePostDataFromDb({ ...base, maxAttendees: null }),
-      ).toEqual(base);
+      expect(normalizeEventDataFromDb({ ...base, maxAttendees: null })).toEqual(
+        base,
+      );
+      expect(normalizePostDataFromDb({ ...base, maxAttendees: null })).toEqual(
+        base,
+      );
     });
 
     it('should block jam join when capacity event is full', () => {
@@ -573,7 +587,9 @@ describe('postHelpers', () => {
       const result = canDeletePost(
         {
           profile: mockProfile,
-          scopes: [{ scopeLevel: 'write', resource: { type: 'posts', id: '*' } }],
+          scopes: [
+            { scopeLevel: 'write', resource: { type: 'posts', id: '*' } },
+          ],
         },
         mockPost,
         mockCapabilitiesConfig,
@@ -595,7 +611,9 @@ describe('postHelpers', () => {
       const result = canDeletePost(
         {
           profile: mockProfile,
-          scopes: [{ scopeLevel: 'write', resource: { type: 'posts', id: '*' } }],
+          scopes: [
+            { scopeLevel: 'write', resource: { type: 'posts', id: '*' } },
+          ],
         },
         mockPost,
         configWithoutDelete,

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Paperclip } from 'lucide-react';
+import { resolvePollOptionContents } from '@openpeepshq/common';
 import type { PostCreationData, PublicPost } from '@openpeepshq/common/types';
 import {
   Button,
@@ -26,7 +27,7 @@ import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { useComposeAttachments } from './ComposeAttachments';
 import { PostTypeSwitcher } from './PostTypeSwitcher';
-import { PollComposerFields } from './PollComposerFields';
+import { PollComposerFields, pollOptionLabel } from './PollComposerFields';
 
 export interface ReplyModalProps {
   post: PublicPost;
@@ -109,12 +110,14 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
   };
 
   const trimmedContent = content.trim();
-  const validPollOptions = pollOptions.map((o) => o.trim()).filter(Boolean);
+  const resolvedPollOptions = resolvePollOptionContents(pollOptions, (index) =>
+    pollOptionLabel(index, t),
+  );
 
   const canSubmit = useMemo(() => {
     if (submitting || composeAttachments.pending) return false;
     if (composerType === 'question') {
-      return trimmedContent.length > 0 && validPollOptions.length >= 2;
+      return trimmedContent.length > 0 && resolvedPollOptions.length >= 2;
     }
     return (
       (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
@@ -125,7 +128,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
     composeAttachments.pending,
     composerType,
     trimmedContent,
-    validPollOptions.length,
+    resolvedPollOptions.length,
     attachments.length,
   ]);
 
@@ -142,7 +145,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
             ...payload.data,
             type: 'question',
             content: trimmedContent,
-            options: validPollOptions.map((text) => ({
+            options: resolvedPollOptions.map((text) => ({
               type: 'note' as const,
               content: text,
             })),
