@@ -5,15 +5,12 @@ import {
   AnalyticsInfoBadge,
   Button,
   DateRangeFilter,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   LoadingSpinner,
   type DateRangeValue,
 } from '@openpeepshq/react-ui';
 import { useOpenpeeps, useSetPageHeader, useT } from '../../../index';
 import { AnalyticsRangeContext } from './AnalyticsRangeContext';
+import { downloadCsv } from './downloadCsv';
 
 const tabs = [
   {
@@ -62,52 +59,41 @@ export const AnalyticsLayout = () => {
     return params;
   }, [range]);
 
-  const onExport = useCallback(
-    async (format: 'csv' | 'pdf') => {
-      const result = await client.admin.analytics.export({
-        queryParameters: { ...queryParams, format },
-      });
-      if ('error' in result) return;
-      const { filename, content, encoding, contentType } = result.data;
-      const blob =
-        encoding === 'base64'
-          ? new Blob([Uint8Array.from(atob(content), (c) => c.charCodeAt(0))], {
-              type: contentType,
-            })
-          : new Blob([content], { type: contentType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    },
-    [client, queryParams],
-  );
+  const onExportPdf = useCallback(async () => {
+    const result = await client.admin.analytics.export({
+      queryParameters: { ...queryParams, format: 'pdf' },
+    });
+    if ('error' in result) return;
+    const { filename, content, encoding, contentType } = result.data;
+    const blob =
+      encoding === 'base64'
+        ? new Blob([Uint8Array.from(atob(content), (c) => c.charCodeAt(0))], {
+            type: contentType,
+          })
+        : new Blob([content], { type: contentType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [client, queryParams]);
 
   const headerActions = useMemo(
     () => (
       <div className="flex flex-wrap items-center justify-end gap-2">
         <DateRangeFilter compact value={range} onChange={setRange} />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button type="button" size="sm" variant="outline">
-              {t('admin.analytics.export', { defaultValue: 'Export' })}
-              <ChevronDown className="ml-1 size-3.5 opacity-70" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={() => void onExport('csv')}>
-              {t('admin.analytics.exportCsv', { defaultValue: 'Export CSV' })}
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => void onExport('pdf')}>
-              {t('admin.analytics.exportPdf', { defaultValue: 'Export PDF' })}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => void onExportPdf()}
+        >
+          {t('admin.analytics.exportPdf', { defaultValue: 'Export PDF' })}
+        </Button>
       </div>
     ),
-    [onExport, range, setRange, t],
+    [onExportPdf, range, setRange, t],
   );
 
   useSetPageHeader(
@@ -169,6 +155,8 @@ export const AnalyticsSection = ({
   className,
   collapsible = false,
   defaultOpen = true,
+  csvRows,
+  csvFilename,
 }: {
   title: string;
   /** Explanation shown from the section info badge. */
@@ -177,13 +165,31 @@ export const AnalyticsSection = ({
   className?: string;
   collapsible?: boolean;
   defaultOpen?: boolean;
+  csvRows?: Array<Array<string | number>>;
+  csvFilename?: string;
 }) => {
+  const t = useT();
   const titleRow = (
     <div className="flex items-start justify-between gap-2">
       <h2 className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
         {title}
       </h2>
       <div className="flex shrink-0 items-center gap-2">
+        {csvRows && csvRows.length > 0 ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="h-7 px-2 text-xs"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              downloadCsv(csvFilename ?? 'analytics.csv', csvRows);
+            }}
+          >
+            {t('admin.analytics.sectionCsv', { defaultValue: 'CSV' })}
+          </Button>
+        ) : null}
         {info ? <AnalyticsInfoBadge label={title} info={info} /> : null}
         {collapsible ? (
           <ChevronDown

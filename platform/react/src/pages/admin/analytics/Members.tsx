@@ -87,7 +87,45 @@ export const AnalyticsMembersPage = () => {
           subtitle={thisPeriod}
           info={info(
             'activeMembers',
-            'Distinct members who were active on at least one day in the range, summed from daily active-member rollups.',
+            'Sum of daily active-member rollups in the range. A member active on multiple days is counted once per day.',
+          )}
+        />
+        <MetricCard
+          label={t('admin.analytics.metrics.dau', {
+            defaultValue: 'DAU',
+          })}
+          value={data.metrics.dau.value}
+          deltaPct={data.metrics.dau.deltaPct}
+          subtitle={thisPeriod}
+          info={info(
+            'dau',
+            'Average daily active members in the selected range. Active means posted, liked, replied, reposted, or bookmarked that day.',
+          )}
+        />
+        <MetricCard
+          label={t('admin.analytics.metrics.mau', {
+            defaultValue: 'MAU',
+          })}
+          value={data.metrics.mau.value}
+          deltaPct={data.metrics.mau.deltaPct}
+          subtitle={t('admin.analytics.period.rolling30d', {
+            defaultValue: 'Rolling 30 days',
+          })}
+          info={info(
+            'mau',
+            'Distinct members who posted, liked, replied, reposted, or bookmarked in the 30 days ending at the range end.',
+          )}
+        />
+        <MetricCard
+          label={t('admin.analytics.metrics.dauMau', {
+            defaultValue: 'DAU/MAU',
+          })}
+          value={`${data.metrics.dauMau.value}%`}
+          deltaPct={data.metrics.dauMau.deltaPct}
+          subtitle={thisPeriod}
+          info={info(
+            'dauMau',
+            'Stickiness: average DAU divided by MAU for the range, as a percentage.',
           )}
         />
         <MetricCard
@@ -111,6 +149,11 @@ export const AnalyticsMembersPage = () => {
           'signupsByDay',
           'New member profiles created on each calendar day in the selected range. Darker cells mean more signups.',
         )}
+        csvFilename="signups-by-day.csv"
+        csvRows={[
+          ['day', 'signups'],
+          ...signupsByDay.map((p) => [p.day, p.value]),
+        ]}
       >
         <AnalyticsDayHeatmap data={signupsByDay} />
       </AnalyticsSection>
@@ -124,6 +167,16 @@ export const AnalyticsMembersPage = () => {
           'recentSignups',
           'Most recent member profiles created in the selected range, with signup channel when known.',
         )}
+        csvFilename="recent-signups.csv"
+        csvRows={[
+          ['handle', 'display_name', 'channel', 'joined_at'],
+          ...data.recentSignups.map((s) => [
+            s.handle,
+            s.displayName ?? '',
+            s.channel,
+            s.joinedAt,
+          ]),
+        ]}
       >
         {data.recentSignups.length > 0 ? (
           <Table

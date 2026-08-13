@@ -4,6 +4,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -148,4 +149,19 @@ export const analyticsReportDeliveries = pgTable(
       .default(sql`now()`),
   },
   (t) => [index('analytics_report_deliveries_period_idx').on(t.periodStart)],
+);
+
+/** Aggregate in-app page views and outbound link clicks. No identity columns. */
+export const analyticsDailyClicks = pgTable(
+  'analytics_daily_clicks',
+  {
+    day: date('day', { mode: 'string' }).notNull(),
+    kind: text('kind').notNull(),
+    target: text('target').notNull(),
+    clicks: integer('clicks').notNull().default(0),
+  },
+  (t) => [
+    primaryKey({ columns: [t.day, t.kind, t.target] }),
+    index('analytics_daily_clicks_day_kind_idx').on(t.day, t.kind),
+  ],
 );

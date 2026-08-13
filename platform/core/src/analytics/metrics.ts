@@ -3,10 +3,7 @@ import type {
   AnalyticsSeriesPoint,
 } from '@openpeepshq/common/types';
 
-export const deltaPct = (
-  current: number,
-  previous: number,
-): number | null => {
+export const deltaPct = (current: number, previous: number): number | null => {
   if (previous === 0) return current === 0 ? 0 : null;
   return Math.round(((current - previous) / previous) * 1000) / 10;
 };
@@ -26,3 +23,8 @@ export const metricCard = (
 
 export const sumSeries = (series: AnalyticsSeriesPoint[]) =>
   series.reduce((acc, p) => acc + p.value, 0);
+
+export const averageSeries = (series: AnalyticsSeriesPoint[]) => {
+  if (series.length === 0) return 0;
+  return Math.round((sumSeries(series) / series.length) * 10) / 10;
+};

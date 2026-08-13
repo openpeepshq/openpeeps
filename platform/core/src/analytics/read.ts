@@ -7,7 +7,7 @@ import type {
   AnalyticsRetention,
   AnalyticsSeriesPoint,
 } from '@openpeepshq/common/types';
-import { formatISO, startOfDay } from 'date-fns';
+import { formatISO, startOfDay, subDays, parseISO, addDays } from 'date-fns';
 import { database } from '../db';
 import {
   analyticsDailyByGroup,
@@ -28,7 +28,7 @@ import {
   selectChartBuckets,
   type ResolvedAnalyticsRange,
 } from './dateRange';
-import { metricCard, sumSeries } from './metrics';
+import { metricCard, sumSeries, averageSeries } from './metrics';
 
 const POST_TYPE_KEYS = ['jam', 'article', 'note', 'poll', 'event'] as const;
 
@@ -36,6 +36,44 @@ const todayString = () =>
   formatISO(startOfDay(new Date()), { representation: 'date' });
 
 const includesToday = (to: string) => to >= todayString();
+
+const utcDayStart = (day: string) => `${day}T00:00:00.000Z`;
+
+const exclusiveEnd = (day: string) =>
+  `${formatISO(addDays(parseISO(utcDayStart(day)), 1), { representation: 'date' })}T00:00:00.000Z`;
+
+const rollingMauFrom = (to: string) =>
+  formatISO(subDays(parseISO(utcDayStart(to)), 29), { representation: 'date' });
+
+const countDistinctActives = async (
+  from: string,
+  to: string,
+): Promise<number> => {
+  const db = await database();
+  const start = utcDayStart(from);
+  const end = exclusiveEnd(to);
+  const result = await db.execute(sql`
+    select count(*)::int as c from (
+      select creator_id as profile_id from posts
+        where deleted_at is null
+          and created_at >= ${start} and created_at < ${end}
+      union
+      select from_id from reactions
+        where created_at >= ${start} and created_at < ${end}
+      union
+      select from_id from repost
+        where created_at >= ${start} and created_at < ${end}
+      union
+      select from_id from reply_to
+        where created_at >= ${start} and created_at < ${end}
+      union
+      select from_id from bookmarks
+        where created_at >= ${start} and created_at < ${end}
+    ) active
+  `);
+  const rows = result.rows as Array<Record<string, unknown>>;
+  return Number(rows[0]?.c ?? 0);
+};
 
 /** Earliest day with compiled analytics — used to bound the `all` preset. */
 const earliestAnalyticsDay = async (): Promise<string | null> => {
@@ -759,14 +797,28 @@ export const getAnalyticsGrowth = async (
   query: AnalyticsDateQuery = {},
 ): Promise<AnalyticsGrowth> => {
   const range = await resolveQueryRange(query);
-  return withCache('growth-v5', range.from, range.to, async () => {
+  return withCache('growth-v6', range.from, range.to, async () => {
     const db = await database();
-    const [newMembersSeries, prevNew, compiledAt, recentRows] =
-      await Promise.all([
-        loadTotalsSeries(range.from, range.to, 'newMembers'),
-        sumColumn(range.previousFrom, range.previousTo, 'newMembers'),
-        latestCompiledAt(range.from, range.to),
-        db.execute(sql`
+    const mauFrom = rollingMauFrom(range.to);
+    const prevMauFrom = rollingMauFrom(range.previousTo);
+    const [
+      newMembersSeries,
+      activeMembersSeries,
+      prevNew,
+      prevActiveSeries,
+      mau,
+      prevMau,
+      compiledAt,
+      recentRows,
+    ] = await Promise.all([
+      loadTotalsSeries(range.from, range.to, 'newMembers'),
+      loadTotalsSeries(range.from, range.to, 'activeMembers'),
+      sumColumn(range.previousFrom, range.previousTo, 'newMembers'),
+      loadTotalsSeries(range.previousFrom, range.previousTo, 'activeMembers'),
+      countDistinctActives(mauFrom, range.to),
+      countDistinctActives(prevMauFrom, range.previousTo),
+      latestCompiledAt(range.from, range.to),
+      db.execute(sql`
         select p.id, p.handle, p.body, p.created_at,
           case when r.to_id is not null then 'invite' else 'organic' end as channel
         from profiles p
@@ -777,9 +829,14 @@ export const getAnalyticsGrowth = async (
         order by p.created_at desc
         limit 25
       `),
-      ]);
+    ]);
 
     const newSignups = sumSeries(newMembersSeries);
+    const dau = averageSeries(activeMembersSeries);
+    const prevDau = averageSeries(prevActiveSeries);
+    const dauMau = mau === 0 ? 0 : Math.round((dau / mau) * 1000) / 10;
+    const prevDauMau =
+      prevMau === 0 ? 0 : Math.round((prevDau / prevMau) * 1000) / 10;
     const byDay = new Map(
       newMembersSeries.map((p) => [p.day, p.value] as const),
     );
@@ -812,6 +869,9 @@ export const getAnalyticsGrowth = async (
           prevNew,
           newMembersSeries,
         ),
+        dau: metricCard('dau', dau, prevDau, activeMembersSeries),
+        mau: metricCard('mau', mau, prevMau),
+        dauMau: metricCard('dauMau', dauMau, prevDauMau),
       },
       signupsByDay,
       recentSignups,
@@ -823,7 +883,7 @@ export const getAnalyticsEngagement = async (
   query: AnalyticsDateQuery = {},
 ): Promise<AnalyticsEngagement> => {
   const range = await resolveQueryRange(query);
-  return withCache('engagement-v3', range.from, range.to, async () => {
+  return withCache('engagement-v4', range.from, range.to, async () => {
     const [
       likesSeries,
       commentsSeries,
@@ -871,6 +931,7 @@ export const getAnalyticsEngagement = async (
       bookmarksSeries,
       buckets,
     );
+    const dmsByBucket = aggregateSeriesIntoBuckets(dmsSeries, buckets);
     const impressionsByPeriod = aggregateSeriesIntoBuckets(
       impressionsSeries,
       buckets,
@@ -882,6 +943,7 @@ export const getAnalyticsEngagement = async (
       comments: commentsByBucket[i]?.value ?? 0,
       reposts: repostsByBucket[i]?.value ?? 0,
       bookmarks: bookmarksByBucket[i]?.value ?? 0,
+      dms: dmsByBucket[i]?.value ?? 0,
     }));
 
     return {

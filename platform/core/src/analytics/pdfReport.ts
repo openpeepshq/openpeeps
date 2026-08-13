@@ -51,6 +51,7 @@ const ENGAGEMENT_SERIES = [
   { key: 'reposts' as const, label: 'Shares', color: '#4b5563' },
   { key: 'bookmarks' as const, label: 'Bookmarks', color: '#6b7280' },
   { key: 'comments' as const, label: 'Replies', color: '#9ca3af' },
+  { key: 'dms' as const, label: 'DMs', color: '#d97706' },
 ];
 
 type Doc = PDFKit.PDFDocument;
@@ -531,6 +532,7 @@ const drawStackedAreaAsBars = (
     comments: number;
     reposts: number;
     bookmarks: number;
+    dms: number;
   }>,
   height = 170,
 ) => {
@@ -539,7 +541,7 @@ const drawStackedAreaAsBars = (
   const plotW = frame.w - pad.l - pad.r;
   const plotH = frame.h - pad.t - pad.b;
   const totals = points.map(
-    (p) => p.likes + p.comments + p.reposts + p.bookmarks,
+    (p) => p.likes + p.comments + p.reposts + p.bookmarks + p.dms,
   );
   const max = Math.max(1, ...totals);
   const barGap = 3;

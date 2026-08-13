@@ -12,6 +12,7 @@ import type { reports } from './reports';
 import type { server } from './server';
 import type { sso } from './sso';
 import type { admin } from './admin';
+import type { analytics } from './analytics';
 import type { previewLink } from './previewLink';
 import type { search } from './search';
 import type { payments } from './payments';
@@ -20,6 +21,7 @@ import type { streaming } from './streaming';
 import type { WebhookHandler } from '../webhooks';
 
 export type AdminEndpoints = ReturnType<typeof admin>;
+export type AnalyticsEndpoints = ReturnType<typeof analytics>;
 export type AccountsEndpoints = ReturnType<typeof accounts>;
 export type AuthEndpoints = ReturnType<typeof auth>;
 export type ConversationsEndpoints = ReturnType<typeof conversations>;
@@ -41,6 +43,7 @@ export type StreamingEndpoints = ReturnType<typeof streaming>;
 
 export type Endpoints = {
   admin: AdminEndpoints;
+  analytics: AnalyticsEndpoints;
   accounts: AccountsEndpoints;
   auth: AuthEndpoints;
   conversations: ConversationsEndpoints;

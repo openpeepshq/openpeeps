@@ -1333,6 +1333,7 @@
       },
       "export": "Export",
       "exportCsv": "Export CSV",
+      "sectionCsv": "CSV",
       "exportPdf": "Export PDF",
       "backfill": "Backfill",
       "backfillQueued": "Backfill queued for {{from}} to {{to}}",
@@ -1350,6 +1351,8 @@
       "topGroupsByActivity": "Top Groups by Activity",
       "groupGrowth": "Group Growth (New Members)",
       "topPosts": "Top posts",
+      "topPages": "Top pages",
+      "topOutboundLinks": "Top outbound links",
       "activityHeatmap": "Activity heatmap",
       "signupsByDay": "Signups by day",
       "recentSignups": "Recent signups",
@@ -1394,7 +1397,10 @@
         "engagement": "Engagement",
         "growth": "Growth",
         "dailyVisits": "Daily visits",
-        "activity": "Activity"
+        "activity": "Activity",
+        "page": "Page",
+        "link": "Link",
+        "clicks": "Clicks"
       },
       "reports": {
         "title": "Monthly board report",
@@ -1408,12 +1414,16 @@
       },
       "period": {
         "thisPeriod": "This period",
-        "allTime": "All-time"
+        "allTime": "All-time",
+        "rolling30d": "Rolling 30 days"
       },
       "metrics": {
         "totalMembers": "Total members",
         "newMembers": "New members",
         "activeMembers": "Active members",
+        "dau": "DAU",
+        "mau": "MAU",
+        "dauMau": "DAU/MAU",
         "totalPosts": "Total posts",
         "postsThisPeriod": "Posts this period",
         "avgPostsPerDay": "Avg posts per day",
@@ -1433,7 +1443,10 @@
       "info": {
         "totalMembers": "Count of non-deleted member profiles created on or before the end of the selected range (all-time cumulative).",
         "newMembers": "Profiles created during the selected range. Delta compares to the previous period of the same length.",
-        "activeMembers": "Distinct members who were active on at least one day in the range (posts, reactions, replies, or similar activity), summed from daily active-member rollups.",
+        "activeMembers": "Sum of daily active-member rollups in the range. A member active on multiple days is counted once per day.",
+        "dau": "Average daily active members in the selected range. Active means posted, liked, replied, reposted, or bookmarked that day.",
+        "mau": "Distinct members who posted, liked, replied, reposted, or bookmarked in the 30 days ending at the range end.",
+        "dauMau": "Stickiness: average DAU divided by MAU for the range, as a percentage.",
         "engagementRateMembers": "Average of the daily engagement-rate series for the range. Each day is (likes + comments) / posts that day, as a percentage.",
         "totalPostsPeriod": "Posts created during the selected range (excluding direct messages). Delta compares to the previous period.",
         "totalPostsAllTime": "All non-deleted, non-direct posts created on or before the end of the selected range.",
@@ -1452,11 +1465,13 @@
         "activeUsers": "Active members per time bucket in the selected range.",
         "topMembers": "Members ranked by contributions in the range: posts created plus reactions and replies given.",
         "topPosts": "Posts with the most unique viewers in the selected range.",
+        "topPages": "In-app routes with the most page views in the selected range. Counts are anonymous aggregates; who viewed a page is not stored.",
+        "topOutboundLinks": "External URLs clicked from posts and previews in the selected range. Counts are anonymous aggregates; who clicked is not stored.",
         "signupsByDay": "New member profiles created on each calendar day in the selected range. Darker cells mean more signups.",
         "recentSignups": "Most recent member profiles created in the selected range, with signup channel when known.",
         "postsByPeriod": "Total posts created in each time bucket of the selected range.",
         "contentDistribution": "Share of posts in the range by type (events, jams, articles, notes, polls).",
-        "engagementOverTime": "Likes, shares (reposts), bookmarks, and replies aggregated into each time bucket. \"All metrics\" stacks them together.",
+        "engagementOverTime": "Likes, shares (reposts), bookmarks, replies, and direct messages aggregated into each time bucket. \"All metrics\" stacks them together.",
         "viewsByPeriod": "Post view events (impressions) summed into each time bucket of the range.",
         "engagementRateBreakdown": "Per-action rates for the range: each action count divided by impressions, as a percentage. Overall = (likes + shares + bookmarks + comments) / impressions.",
         "topGroupsByActivity": "Groups ranked by activity in the range: posts + likes + comments on group posts. Shows the top 6.",
@@ -1474,7 +1489,11 @@
         "tableMembers": "Current total members in the group, with active members underneath (distinct post authors in the group during the range).",
         "tableGroupPosts": "Posts published into the group during the selected range.",
         "tableGroupEngagement": "(Likes + comments) on group posts ÷ unique viewers of group posts in the range, as a percentage. Can exceed 100% when engagements outnumber viewers.",
-        "tableGroupGrowth": "New memberships (joins) added to the group during the selected range."
+        "tableGroupGrowth": "New memberships (joins) added to the group during the selected range.",
+        "tablePage": "In-app pathname that was viewed.",
+        "tablePageClicks": "Anonymous page-view counts in the selected range.",
+        "tableLink": "Outbound URL origin and path (query strings stripped).",
+        "tableLinkClicks": "Anonymous outbound click counts in the selected range."
       }
     },
     "dashboard": {

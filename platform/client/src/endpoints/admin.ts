@@ -10,6 +10,7 @@ import {
   AdminServerStats,
   AnalyticsBackfillInput,
   AnalyticsBackfillResponse,
+  AnalyticsClicks,
   AnalyticsDateQuery,
   AnalyticsEngagement,
   AnalyticsGrowth,
@@ -289,6 +290,11 @@ export const admin = (rawClient: FetchClient) => ({
       undefined,
       AnalyticsDateQuery
     >(rawClient, '/admin/analytics/retention'),
+    clicks: allpeepNoPayloadEndpoint<
+      AnalyticsClicks,
+      undefined,
+      AnalyticsDateQuery
+    >(rawClient, '/admin/analytics/clicks'),
     reportSettings: {
       read: allpeepNoPayloadEndpoint<AnalyticsReportSettings>(
         rawClient,

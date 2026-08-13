@@ -9,6 +9,7 @@ import {
   PostViewCounterProvider,
   type PostViewContext,
 } from '../../lib/postViewCounter';
+import { AnalyticsClickTracker } from '../../lib/analyticsClicks';
 import {
   adjustUnseenCounts,
   invalidateUnseenCounts,
@@ -60,6 +61,7 @@ function PostViewTracking({ children }: { children: ReactNode }) {
       onPostQueued={handlePostQueued}
       onFlushFailed={handleFlushFailed}
     >
+      <AnalyticsClickTracker />
       {children}
     </PostViewCounterProvider>
   );
