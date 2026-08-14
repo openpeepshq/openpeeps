@@ -3,6 +3,7 @@ import { getTheme } from '@openpeepshq/common';
 
 import { useServerInfo } from '../server-data';
 import { useCurrentProfileSettings } from '../layout/IdentityContext';
+import { svgCoverSrc } from '../../lib/svgCover';
 
 export interface GroupAvatarProps {
   group?: GroupData | GroupWithMeta;
@@ -59,7 +60,7 @@ export function GroupAvatar({
       >
         {src ? (
           <img
-            src={src}
+            src={svgCoverSrc(src)}
             alt={group?.displayName || group?.handle || 'group avatar'}
             className="h-full w-full object-cover"
           />
