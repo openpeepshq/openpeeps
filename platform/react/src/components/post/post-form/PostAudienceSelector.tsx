@@ -160,10 +160,13 @@ export const PostAudienceSelector = ({
                   <button
                     key={choice.value}
                     type="button"
-                    className="hover:bg-surface rounded-button flex w-full items-start gap-3 border p-3 text-left"
+                    aria-pressed={draftVisibility === choice.value}
+                    className={`hover:bg-surface rounded-button flex w-full items-start gap-3 border p-3 text-left ${
+                      draftVisibility === choice.value ? 'border-primary' : ''
+                    }`}
                     onClick={() => selectVisibility(choice.value)}
                   >
-                    <span className="bg-surface flex size-10 items-center justify-center rounded-full">
+                    <span className="bg-surface flex size-10 shrink-0 items-center justify-center rounded-full">
                       <Icon className="size-5" />
                     </span>
                     <span className="flex-1">
@@ -194,9 +197,6 @@ export const PostAudienceSelector = ({
                         </span>
                       ) : null}
                     </span>
-                    <span
-                      className={`mt-1 size-4 rounded-full border ${draftVisibility === choice.value ? 'bg-primary border-primary' : ''}`}
-                    />
                   </button>
                 );
               })}
