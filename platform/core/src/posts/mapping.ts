@@ -261,9 +261,11 @@ export const postsMappingForProfile = (profile?: { id: string }) =>
     ],
   });
 
-/** Lean mapping for post detail context — skips audience + nested repost. */
+/** Lean mapping for post detail context — skips nested repost. Audience is
+ * required so direct replies stay readable to the thread's recipients. */
 const contextPostFilterRelations: Relation[] = [
   entriesRelation,
+  audienceRelation,
   groupRelation,
   replyCountRelation,
   repostCountRelation,
