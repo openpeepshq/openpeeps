@@ -64,7 +64,7 @@ export function ThemeSettings() {
 
       <Button
         title="Save"
-        variant="ghost"
+        variant="default"
         action={submit}
         disabled={submitting}
       >
