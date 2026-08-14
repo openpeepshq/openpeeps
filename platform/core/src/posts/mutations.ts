@@ -121,10 +121,13 @@ export const createPost = async (
     );
   }
 
-  if (relations.audience) {
+  const audienceToLink = relations.audience?.length
+    ? relations.audience
+    : repliedToPost?.audience;
+  if (audienceToLink?.length) {
     await Promise.all(
-      relations.audience.map(async (profile) => {
-        await audienceConnector(db, post, profile);
+      audienceToLink.map(async (member) => {
+        await audienceConnector(db, post, member);
       }),
     );
   }
