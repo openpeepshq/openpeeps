@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
+import { createPortal } from 'react-dom';
 import type { MediaAttachmentData } from '@openpeepshq/common/types';
 import { useT } from '../../../i18n';
 import { VideoPlayer } from './VideoPlayer';
@@ -9,6 +10,11 @@ export interface GalleryModalProps {
   onClose: () => void;
 }
 
+const stop = (e: MouseEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+};
+
 export function GalleryModal({
   attachments,
   initialIndex = 0,
@@ -18,18 +24,34 @@ export function GalleryModal({
   const [index, setIndex] = useState(initialIndex);
   const attachment = attachments[index];
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   if (!attachment) return null;
 
-  const prev = () =>
+  const prev = (e: MouseEvent) => {
+    stop(e);
     setIndex((i) => (i === 0 ? attachments.length - 1 : i - 1));
-  const next = () =>
+  };
+  const next = (e: MouseEvent) => {
+    stop(e);
     setIndex((i) => (i === attachments.length - 1 ? 0 : i + 1));
+  };
 
-  return (
+  const modal = (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
       role="dialog"
       aria-modal
+      onClick={(e) => {
+        stop(e);
+        onClose();
+      }}
     >
       {attachments.length > 1 ? (
         <button
@@ -42,7 +64,10 @@ export function GalleryModal({
         </button>
       ) : null}
 
-      <div className="max-h-[90vh] max-w-[90vw] overflow-auto p-4">
+      <div
+        className="max-h-[90vh] max-w-[90vw] overflow-auto p-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         {attachment.type === 'video' ||
         attachment.meta?.mimetype?.startsWith('video/') ? (
           <VideoPlayer
@@ -100,10 +125,17 @@ export function GalleryModal({
         type="button"
         title={t('posts.gallery.close', { defaultValue: 'Close' })}
         className="rounded-button bg-primary text-primary-foreground fixed right-4 top-4 z-50 px-3 py-2 text-lg font-bold shadow-xl"
-        onClick={onClose}
+        onClick={(e) => {
+          stop(e);
+          onClose();
+        }}
       >
         ×
       </button>
     </div>
   );
+
+  return typeof document === 'undefined'
+    ? modal
+    : createPortal(modal, document.body);
 }
