@@ -290,7 +290,7 @@ export function AdminConfigurationCommunityTheme() {
       </div>
 
       <Button
-        variant="ghost"
+        variant="default"
         action={handleSubmit}
         disabled={!base || equal(base, cfg)}
         title={t('configuration.community.save')}
