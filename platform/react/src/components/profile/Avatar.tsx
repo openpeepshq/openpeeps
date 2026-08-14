@@ -4,6 +4,7 @@ import { UserX } from 'lucide-react';
 
 import { useServerInfo } from '../server-data';
 import { useCurrentProfileSettings } from '../layout/IdentityContext';
+import { svgCoverSrc } from '../../lib/svgCover';
 
 export interface AvatarProps {
   profile?: PublicProfile;
@@ -65,7 +66,7 @@ export function Avatar({
         />
       ) : src ? (
         <img
-          src={src}
+          src={svgCoverSrc(src)}
           alt={profile?.displayName || profile?.handle || 'avatar'}
           className="h-full w-full rounded-full object-cover"
         />

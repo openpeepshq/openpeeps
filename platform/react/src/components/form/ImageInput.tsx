@@ -2,7 +2,8 @@ import { useRef, useState } from 'react';
 import { Camera, Image as ImageIcon, Loader2, X } from 'lucide-react';
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
-import { convertToWebpIfHeic } from '../../lib/canvasUtils';
+import { convertToWebpIfHeic, normalizeSvgFile } from '../../lib/canvasUtils';
+import { svgCoverSrc } from '../../lib/svgCover';
 import { ImageEditModal } from './ImageEditModal';
 
 export interface ImageInputProps {
@@ -63,7 +64,7 @@ export function ImageInput({
 
   const pickFile = (file: File) => {
     void (async () => {
-      const processed = await convertToWebpIfHeic(file);
+      const processed = await normalizeSvgFile(await convertToWebpIfHeic(file));
       setPendingImage({
         file: processed,
         previewUrl: URL.createObjectURL(processed),
@@ -119,7 +120,9 @@ export function ImageInput({
         <button
           type="button"
           className={`flex size-24 items-center justify-center overflow-hidden rounded-full bg-cover bg-center ${url ? '' : 'bg-surface text-muted-foreground'}`}
-          style={url ? { backgroundImage: `url(${url})` } : undefined}
+          style={
+            url ? { backgroundImage: `url("${svgCoverSrc(url)}")` } : undefined
+          }
           onClick={() => fileInputRef.current?.click()}
           title={t('form.headerAvatarInput.avatar', {
             defaultValue: 'Profile photo',
@@ -146,7 +149,13 @@ export function ImageInput({
   return (
     <div
       className={`bg-surface-2 relative flex h-52 w-full items-center justify-center overflow-hidden rounded border border-dashed bg-center bg-no-repeat ${showFullImage ? 'bg-contain' : 'bg-cover'} ${className ?? ''}`}
-      style={url ? { backgroundImage: `url(${url})` } : undefined}
+      style={
+        url
+          ? {
+              backgroundImage: `url("${showFullImage ? url : svgCoverSrc(url)}")`,
+            }
+          : undefined
+      }
     >
       {url ? (
         <div className="relative z-10 flex items-center gap-4">

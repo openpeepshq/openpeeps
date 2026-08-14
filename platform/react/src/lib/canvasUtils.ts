@@ -5,6 +5,72 @@ const imageFileFormat = `image/${imageFileExtension}`;
 
 export type ImageSource = string | File;
 
+const isSvgFile = (file: File): boolean =>
+  file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+
+const parseSvgLength = (value: string | null): number | undefined => {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (trimmed.endsWith('%')) return undefined;
+  const n = parseFloat(trimmed);
+  return Number.isFinite(n) && n > 0 ? n : undefined;
+};
+
+const viewBoxSize = (
+  viewBox: string | null,
+): { width: number; height: number } | undefined => {
+  if (!viewBox) return undefined;
+  const parts = viewBox
+    .trim()
+    .split(/[\s,]+/)
+    .map(Number);
+  const width = parts[2];
+  const height = parts[3];
+  if (
+    typeof width !== 'number' ||
+    typeof height !== 'number' ||
+    !Number.isFinite(width) ||
+    !Number.isFinite(height) ||
+    width <= 0 ||
+    height <= 0
+  ) {
+    return undefined;
+  }
+  return { width, height };
+};
+
+/**
+ * Give an SVG intrinsic pixel size so the cropper and canvas treat it like a
+ * raster. Percentage / missing width+height otherwise collapse to the
+ * browser's default replaced-element size and letterbox inside the avatar.
+ */
+export const normalizeSvgFile = async (file: File): Promise<File> => {
+  if (!isSvgFile(file) || typeof DOMParser === 'undefined') return file;
+
+  const text = await file.text();
+  const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+  const svg = doc.documentElement;
+  if (svg.namespaceURI && !svg.namespaceURI.includes('svg')) return file;
+  if (svg.tagName.toLowerCase() !== 'svg') return file;
+
+  const fromViewBox = viewBoxSize(svg.getAttribute('viewBox'));
+  const width = parseSvgLength(svg.getAttribute('width')) ?? fromViewBox?.width;
+  const height =
+    parseSvgLength(svg.getAttribute('height')) ?? fromViewBox?.height;
+  const nextWidth = width && width > 0 ? width : 1024;
+  const nextHeight = height && height > 0 ? height : 1024;
+
+  svg.setAttribute('width', String(nextWidth));
+  svg.setAttribute('height', String(nextHeight));
+  if (!svg.getAttribute('viewBox')) {
+    svg.setAttribute('viewBox', `0 0 ${nextWidth} ${nextHeight}`);
+  }
+
+  return new File([new XMLSerializer().serializeToString(svg)], file.name, {
+    type: 'image/svg+xml',
+  });
+};
+
 const canvasToFile = (canvas: HTMLCanvasElement): Promise<File> =>
   new Promise((resolve, reject) =>
     canvas.toBlob(
@@ -100,7 +166,10 @@ export const getRotatedImage = async (imageSrc: ImageSource, rotation = 0) => {
   const ctx = canvas.getContext('2d');
 
   const orientationChanged =
-    rotation === 90 || rotation === -90 || rotation === 270 || rotation === -270;
+    rotation === 90 ||
+    rotation === -90 ||
+    rotation === 270 ||
+    rotation === -270;
   if (orientationChanged) {
     canvas.width = image.height;
     canvas.height = image.width;
