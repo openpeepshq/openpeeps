@@ -3,9 +3,26 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Features
+
+- **analytics**: add per-graph CSV, DAU/MAU, and anonymous click tracking
+- **mcp**: add community and ops MCP endpoints
+- **profiles**: enhance profiles endpoint with session event handling
+- **react-ui**: add selectable OFL community theme fonts
+- **poll**: add resolvePollOptionContents function and integrate into post forms
+- **examples**: add multi-version component gallery site
+- **react-ui**: straighten component framework and Figma tokens
+
 ### Bug Fixes
 
+- **examples**: build gallery workspace deps including i18n
 - **backups**: repoint restored URLs to the full server origin
+
+### Refactoring
+
+- **jams**: enhance layout responsiveness and structure
+- update role attributes and semantic elements across components
+- **ProfileEventRelationship**: simplify badge rendering logic and integrate Badge component
 
 ### Chores
 
