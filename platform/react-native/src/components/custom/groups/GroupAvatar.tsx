@@ -18,7 +18,9 @@ export const GroupAvatar = ({
   const sizeClass = isSmall ? 'h-8 w-8' : 'h-16 w-16';
   const roundedClass = 'rounded-full';
 
-  const avatarSource = { uri: `${group.avatar || server?.communityConfig.theme.defaultGroupAvatar}?cache=${Date.now()}` };
+  const avatarSource = {
+    uri: group.avatar || server?.communityConfig.theme.defaultGroupAvatar,
+  };
 
   return (
     <Avatar
@@ -32,10 +34,7 @@ export const GroupAvatar = ({
     >
       <AvatarImage
         source={avatarSource}
-        className={cn(
-          'h-full w-full',
-          roundedClass
-        )}
+        className={cn('h-full w-full', roundedClass)}
         resizeMode="cover"
       />
     </Avatar>

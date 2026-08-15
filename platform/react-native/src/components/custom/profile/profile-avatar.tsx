@@ -23,9 +23,7 @@ export const ProfileAvatar = ({
   const deleted = isDeletedProfile(profile);
 
   const avatarSource =
-    !deleted && profile?.avatar
-      ? { uri: `${profile.avatar}?cache=${Date.now()}` }
-      : null;
+    !deleted && profile?.avatar ? { uri: profile.avatar } : null;
 
   if (deleted || !avatarSource) {
     return (

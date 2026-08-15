@@ -1,12 +1,7 @@
-import {
-  ActivityIndicator,
-  Dimensions,
-  Image,
-  Linking,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Dimensions, Linking, View } from 'react-native';
 import React from 'react';
 import { useOpenpeeps } from '@openpeepshq/react';
+import { CachedImage } from '~/components/custom/common';
 import { useForm } from 'react-hook-form';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Form, FormField, FormInput } from '~/components/ui/form';
@@ -44,11 +39,13 @@ export const GuestDataForm: React.FC<GuestDataFormProps> = ({ jamPost }) => {
     <KeyboardAwareScrollView className="flex h-full w-full">
       {isLoading && <ActivityIndicator size={'small'} />}
       <Form {...form}>
-        <Image
-          source={{ uri: server?.communityConfig.theme.logoSmall }}
-          style={{ width, height: width * 0.6 }}
-          resizeMode="cover"
-        />
+        {server?.communityConfig.theme.logoSmall ? (
+          <CachedImage
+            url={server.communityConfig.theme.logoSmall}
+            style={{ width, height: width * 0.6 }}
+            resizeMode="cover"
+          />
+        ) : null}
         <ThemedText className="text-2xl mt-2 text-center">
           {jamEvent?.name || 'Jam'}
         </ThemedText>
@@ -92,7 +89,8 @@ export const GuestDataForm: React.FC<GuestDataFormProps> = ({ jamPost }) => {
             <ThemedText>By continuing, you agree to the</ThemedText>
             <ThemedText
               className="underline ml-2"
-              onPress={() => Linking.openURL('/docs/terms-and-conditions')}>
+              onPress={() => Linking.openURL('/docs/terms-and-conditions')}
+            >
               Terms of Service
             </ThemedText>
           </View>

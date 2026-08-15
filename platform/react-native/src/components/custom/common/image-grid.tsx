@@ -1,11 +1,12 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 
-import {Dimensions, Image, TouchableOpacity, View} from 'react-native';
-import {ThemedText} from '../../ui/themed-text';
+import { Dimensions, TouchableOpacity, View } from 'react-native';
+import { ThemedText } from '../../ui/themed-text';
 import ImageView from 'react-native-image-viewing';
-import {type MediaAttachmentData} from '@openpeepshq/common';
+import { type MediaAttachmentData } from '@openpeepshq/common';
+import { CachedImage } from './cached-image';
 
-export const ImageGrid = ({images}: {images: MediaAttachmentData[]}) => {
+export const ImageGrid = ({ images }: { images: MediaAttachmentData[] }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
 
@@ -60,9 +61,10 @@ export const ImageGrid = ({images}: {images: MediaAttachmentData[]}) => {
               onPress={() => {
                 setImageIndex(index);
                 setIsVisible(true);
-              }}>
-              <Image
-                source={{uri: image.url}}
+              }}
+            >
+              <CachedImage
+                url={image.url}
                 className="rounded"
                 style={{
                   width: dimensions.width,
@@ -81,7 +83,7 @@ export const ImageGrid = ({images}: {images: MediaAttachmentData[]}) => {
         })}
       </View>
       <ImageView
-        images={images.map(img => ({uri: img.url}))}
+        images={images.map((img) => ({ uri: img.url }))}
         imageIndex={imageIndex}
         visible={isVisible}
         onRequestClose={() => setIsVisible(false)}
