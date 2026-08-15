@@ -15,6 +15,16 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **posts**: keep direct jam replies visible in DMs
+- **posts**: close media gallery without navigating to the post
+- **posts**: mark selected visibility with a primary border
+- **admin**: use default variant for community theme save button
+- **settings**: use ConfigMenuButton on notification settings
+- **settings**: use default variant for theme save button
+- **profiles**: drop duplicate following/followers page heading
+- **ui**: make SVG avatars fill the circular crop
+- **roles**: return updated role so capability save shows success
+- **groups**: span group card hover across the full row
 - **examples**: build gallery workspace deps including i18n
 - **backups**: repoint restored URLs to the full server origin
 
