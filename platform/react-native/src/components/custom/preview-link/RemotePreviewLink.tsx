@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Image, TouchableOpacity, Linking } from 'react-native';
+import { View, TouchableOpacity, Linking } from 'react-native';
 import { ThemedText as Text } from '~/components/ui/themed-text';
 import { useOpenpeeps, recordOutboundClick } from '@openpeepshq/react';
 import { ActivityIndicator } from 'react-native';
+import { CachedImage } from '~/components/custom/common';
 
 interface RemotePreviewLinkProps {
   url: string;
@@ -11,7 +12,11 @@ interface RemotePreviewLinkProps {
 export const RemotePreviewLink = ({ url }: RemotePreviewLinkProps) => {
   const { openpeepsApi } = useOpenpeeps();
 
-  const { data: linkPreview, isLoading, isError } = openpeepsApi.usePreviewLink(url);
+  const {
+    data: linkPreview,
+    isLoading,
+    isError,
+  } = openpeepsApi.usePreviewLink(url);
 
   const handlePress = () => {
     recordOutboundClick(url);
@@ -39,16 +44,18 @@ export const RemotePreviewLink = ({ url }: RemotePreviewLinkProps) => {
           <View className="flex w-full flex-row items-center gap-4 p-2">
             {image && (
               <View className="flex h-32 w-32 flex-shrink-0 items-center justify-center">
-                <Image
-                  source={{ uri: image }}
+                <CachedImage
+                  url={image}
                   className="h-full w-full rounded-md object-cover object-center"
                   resizeMode="cover"
                 />
               </View>
             )}
             <View
-              className={`flex ${image ? 'w-32 flex-1' : 'w-full'
-                } flex-col items-start justify-start gap-y-3`}>
+              className={`flex ${
+                image ? 'w-32 flex-1' : 'w-full'
+              } flex-col items-start justify-start gap-y-3`}
+            >
               <View className="w-fit">
                 <Text className="text-foreground text-sm font-thin sm:text-xs">
                   {new URL(url).hostname}
@@ -67,4 +74,3 @@ export const RemotePreviewLink = ({ url }: RemotePreviewLinkProps) => {
     </TouchableOpacity>
   );
 };
-

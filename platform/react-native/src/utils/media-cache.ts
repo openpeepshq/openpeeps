@@ -7,9 +7,22 @@ interface CacheMetadata {
   mediaType: 'image' | 'video' | 'audio';
 }
 
-const CACHE_EXPIRATION = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 const MEDIA_CACHE_DIR = `${RNFS.DocumentDirectoryPath}/media-cache`;
 const inFlightDownloads = new Map<string, Promise<RNFS.DownloadResult>>();
+
+/** Drop RN cache-bust query params so hashed media URLs share one cache key. */
+export const stableMediaUrl = (url: string): string => {
+  const queryIndex = url.indexOf('?');
+  if (queryIndex === -1) {
+    return url;
+  }
+  const base = url.slice(0, queryIndex);
+  const params = url
+    .slice(queryIndex + 1)
+    .split('&')
+    .filter((part) => part.length > 0 && !part.startsWith('cache='));
+  return params.length > 0 ? `${base}?${params.join('&')}` : base;
+};
 
 const unlinkIfExists = async (path: string) => {
   try {
@@ -22,7 +35,7 @@ const unlinkIfExists = async (path: string) => {
 };
 
 export const getCacheMetadata = async (
-  path: string,
+  path: string
 ): Promise<CacheMetadata | null> => {
   try {
     const metadataPath = `${path}.metadata`;
@@ -39,7 +52,7 @@ export const getCacheMetadata = async (
 
 export const saveCacheMetadata = async (
   path: string,
-  mediaType: 'image' | 'video' | 'audio',
+  mediaType: 'image' | 'video' | 'audio'
 ) => {
   const metadata: CacheMetadata = {
     path,
@@ -49,23 +62,9 @@ export const saveCacheMetadata = async (
   await RNFS.writeFile(`${path}.metadata`, JSON.stringify(metadata), 'utf8');
 };
 
-export const cleanupExpiredCache = async (path: string) => {
-  try {
-    const metadata = await getCacheMetadata(path);
-    if (metadata && Date.now() - metadata.timestamp > CACHE_EXPIRATION) {
-      await RNFS.unlink(path);
-      await RNFS.unlink(`${path}.metadata`);
-      return true;
-    }
-    return false;
-  } catch {
-    return false;
-  }
-};
-
 export const getProperFileExtension = (
   url: string,
-  mediaType: 'image' | 'video' | 'audio',
+  mediaType: 'image' | 'video' | 'audio'
 ): string => {
   const extension = url?.split('.').pop()?.toLowerCase() || '';
 
@@ -91,7 +90,7 @@ export const getProperFileExtension = (
 
 export const generateUniqueFileName = (
   url: string,
-  mediaType: 'image' | 'video' | 'audio',
+  mediaType: 'image' | 'video' | 'audio'
 ): string => {
   const urlHash = url?.split('').reduce((hash, char) => {
     // eslint-disable-next-line no-bitwise
@@ -104,7 +103,7 @@ export const generateUniqueFileName = (
 export const fetchCachedMedia = async (
   url: string,
   mediaType: 'image' | 'video' | 'audio',
-  progressCallback?: (progress: number) => void,
+  progressCallback?: (progress: number) => void
 ): Promise<string | undefined> => {
   try {
     const resolvedUrl = toAbsoluteMediaUrl(url);
@@ -113,13 +112,15 @@ export const fetchCachedMedia = async (
       return;
     }
 
+    // Content-hashed media URLs are immutable; cache them indefinitely.
+    const cacheKeyUrl = stableMediaUrl(resolvedUrl);
+
     await RNFS.mkdir(MEDIA_CACHE_DIR);
 
-    const uniqueFileName = generateUniqueFileName(resolvedUrl, mediaType);
+    const uniqueFileName = generateUniqueFileName(cacheKeyUrl, mediaType);
     const path = `${MEDIA_CACHE_DIR}/${uniqueFileName}`;
 
-    const isExpired = await cleanupExpiredCache(path);
-    const fileExists = !isExpired && (await RNFS.exists(path));
+    const fileExists = await RNFS.exists(path);
 
     if (!fileExists) {
       if (!inFlightDownloads.has(path)) {
@@ -127,13 +128,13 @@ export const fetchCachedMedia = async (
         await unlinkIfExists(`${path}.metadata`);
 
         const { promise } = RNFS.downloadFile({
-          fromUrl: resolvedUrl,
+          fromUrl: cacheKeyUrl,
           toFile: path,
           headers: {
-            Accept: '*/*',
+            'Accept': '*/*',
             'Content-Type': '*/*',
           },
-          progress: response => {
+          progress: (response) => {
             const progress =
               (response.bytesWritten / response.contentLength) * 100;
             if (progressCallback) {
@@ -146,7 +147,7 @@ export const fetchCachedMedia = async (
           path,
           promise.finally(() => {
             inFlightDownloads.delete(path);
-          }),
+          })
         );
       }
 

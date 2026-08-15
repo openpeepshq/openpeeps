@@ -12,8 +12,9 @@ import {
   profileSchema,
 } from '@openpeepshq/common';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActivityIndicator, Image, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';
+import { CachedImage } from '~/components/custom/common';
 import { Form, FormField, FormInput, FormTextarea } from '~/components/ui/form';
 import Toast from 'react-native-toast-message';
 import { ImagePickerSheet } from '~/components/custom';
@@ -61,9 +62,9 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
     const customFields =
       serverInfo &&
       serverInfo.communityConfig?.profiles?.additionalFields &&
-      serverInfo.communityConfig.profiles?.additionalFields.map(fld => ({
+      serverInfo.communityConfig.profiles?.additionalFields.map((fld) => ({
         name: fld.label,
-        value: profileData?.fields?.find(field => field.name === fld.label)
+        value: profileData?.fields?.find((field) => field.name === fld.label)
           ?.value,
       }));
 
@@ -88,20 +89,16 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
     values.type = profileData?.type || 'local';
 
     if (newAvatar !== undefined) {
-
       values.avatar = newAvatar;
     }
     if (newBackground !== undefined) {
-
       values.header = newBackground;
     }
 
-
-
-    values.fields = values.fields?.filter(field => !!field.value);
+    values.fields = values.fields?.filter((field) => !!field.value);
 
     updateProfileDetails(values)
-      .then(async response => {
+      .then(async (response) => {
         console.log('response', response);
         Toast.show({
           type: 'success',
@@ -116,7 +113,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
         });
         await refetch();
       })
-      .catch(err => {
+      .catch((err) => {
         console.log('response', err);
         Toast.show({
           type: 'error',
@@ -143,7 +140,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
       setNewAvatar(attachments[0].previewUrl || attachments[0].url);
       setIsAvatarChanged(true);
     },
-    [],
+    []
   );
 
   const handleHeaderModalPress = useCallback(() => {
@@ -155,11 +152,13 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
       setNewBackground(attachments[0].previewUrl || attachments[0].url);
       setIsBackgroundChanged(true);
     },
-    [],
+    []
   );
 
   const defaultProfileAvatarUri = toAbsoluteMediaUrl(
-    serverInfo ? getTheme(serverInfo.communityConfig).defaultProfileAvatar : undefined,
+    serverInfo
+      ? getTheme(serverInfo.communityConfig).defaultProfileAvatar
+      : undefined
   );
   const headerUri =
     isBackgroundChanged && newBackground
@@ -174,7 +173,8 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
     <ThemedView style={{ flex: 1 }}>
       <KeyboardAwareScrollView
         contentContainerStyle={{ flexGrow: 1 }}
-        className="w-full flex">
+        className="w-full flex"
+      >
         <Form {...form}>
           {isLoading && <ActivityIndicator size={'small'} />}
           {!isLoading && (
@@ -185,7 +185,8 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                     <View className="flex flex-row gap-x-2 z-30">
                       <Pressable
                         className="bg-black/40 p-2 rounded-full"
-                        onPress={() => setIsBackgroundChanged(false)}>
+                        onPress={() => setIsBackgroundChanged(false)}
+                      >
                         <CameraIcon className="text-foreground" />
                       </Pressable>
                       <Pressable
@@ -193,7 +194,8 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                           setNewBackground('');
                           setIsBackgroundChanged(false);
                         }}
-                        className="bg-black/40 p-2 rounded-full">
+                        className="bg-black/40 p-2 rounded-full"
+                      >
                         <XIcon className="text-foreground" />
                       </Pressable>
                     </View>
@@ -203,14 +205,15 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                         className="bg-black/40 p-2 rounded-full"
                         onPress={() => {
                           handleHeaderModalPress();
-                        }}>
+                        }}
+                      >
                         <CameraIcon className="text-foreground" />
                       </Pressable>
                     </View>
                   )}
                   {headerUri ? (
-                    <Image
-                      source={{ uri: headerUri }}
+                    <CachedImage
+                      url={headerUri}
                       className="w-full h-full rounded-md object-bottom absolute top-0"
                       resizeMode="cover"
                     />
@@ -222,7 +225,8 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                   <View className="w-full h-full relative">
                     <Avatar
                       alt={t('profile.header.avatarAlt')}
-                      className=" size-28">
+                      className=" size-28"
+                    >
                       {avatarUri ? (
                         <AvatarImage source={{ uri: avatarUri }} />
                       ) : null}
@@ -232,7 +236,8 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                     <View className="absolute bottom-10 right-0  flex flex-row gap-x-2">
                       <Pressable
                         onPress={handleAvatarModalPress}
-                        className="bg-black/40 p-2 rounded-full">
+                        className="bg-black/40 p-2 rounded-full"
+                      >
                         <CameraIcon className="text-foreground" />
                       </Pressable>
                       <Pressable
@@ -240,14 +245,16 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                         onPress={() => {
                           setNewAvatar('');
                           setIsAvatarChanged(false);
-                        }}>
+                        }}
+                      >
                         <XIcon className="text-foreground" />
                       </Pressable>
                     </View>
                   ) : (
                     <Pressable
                       className="absolute bottom-10 right-10 bg-black/40 p-2 rounded-full  flex flex-row gap-x-2"
-                      onPress={handleAvatarModalPress}>
+                      onPress={handleAvatarModalPress}
+                    >
                       <CameraIcon className="text-foreground" />
                     </Pressable>
                   )}
@@ -312,7 +319,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                         placeholder=""
                         {...field}
                         value={field.value?.text || ''}
-                        onChangeText={text => field.onChange({ text: text })}
+                        onChangeText={(text) => field.onChange({ text: text })}
                         className="rounded-md"
                       />
                     )}
@@ -336,13 +343,14 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                         />
                       </View>
                     );
-                  },
+                  }
                 )}
               </ThemedView>
               <Button
                 className="w-[85%] mx-auto mt-4"
                 disabled={isSubmitting}
-                onPress={handleSubmit}>
+                onPress={handleSubmit}
+              >
                 {isSubmitting ? (
                   <ActivityIndicator size={'small'} />
                 ) : (

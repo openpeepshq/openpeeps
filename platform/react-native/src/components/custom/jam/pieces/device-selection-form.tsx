@@ -1,6 +1,7 @@
-import { Platform, View, Image, Dimensions } from 'react-native';
+import { Platform, View, Dimensions } from 'react-native';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { ThemedText } from '~/components/ui/themed-text';
+import { CachedImage } from '~/components/custom/common';
 import {
   MediaStreamTrack,
   mediaDevices,
@@ -11,7 +12,12 @@ import {
 import { AudioSession } from '@livekit/react-native';
 import { Button } from '~/components/ui/button';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { MicIcon, MicOffIcon, VideoIcon, VideoOffIcon } from '~/components/icons';
+import {
+  MicIcon,
+  MicOffIcon,
+  VideoIcon,
+  VideoOffIcon,
+} from '~/components/icons';
 import { useJamSettingsStore } from '~/stores/useJamStore';
 
 export const DeviceSelectionForm: React.FC = () => {
@@ -138,8 +144,8 @@ export const DeviceSelectionForm: React.FC = () => {
 
     if (currentProfile?.avatar) {
       return (
-        <Image
-          source={{ uri: currentProfile.avatar }}
+        <CachedImage
+          url={currentProfile.avatar}
           style={{
             width: 50,
             height: 50,
@@ -168,7 +174,8 @@ export const DeviceSelectionForm: React.FC = () => {
           borderColor: 'rgba(255,255,255,0.1)',
           position: 'relative',
           overflow: 'hidden',
-        }}>
+        }}
+      >
         {renderVideoView()}
       </View>
 
@@ -177,7 +184,8 @@ export const DeviceSelectionForm: React.FC = () => {
           variant={localAudioTrack ? 'ghost' : 'destructive'}
           size={'default'}
           onPress={toggleAudio}
-          className={!localAudioTrack ? 'bg-red-600' : ''}>
+          className={!localAudioTrack ? 'bg-red-600' : ''}
+        >
           {localAudioTrack ? (
             <MicIcon size={24} className="text-foreground" />
           ) : (
@@ -188,7 +196,8 @@ export const DeviceSelectionForm: React.FC = () => {
           variant={localVideoTrack ? 'ghost' : 'destructive'}
           size={'default'}
           onPress={toggleCamera}
-          className={!localVideoTrack ? 'bg-red-600' : ''}>
+          className={!localVideoTrack ? 'bg-red-600' : ''}
+        >
           {localVideoTrack ? (
             <VideoIcon size={24} className="text-foreground" />
           ) : (
