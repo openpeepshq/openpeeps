@@ -15,6 +15,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **react-native**: cache hashed media images indefinitely
 - **posts**: keep direct jam replies visible in DMs
 - **posts**: close media gallery without navigating to the post
 - **posts**: mark selected visibility with a primary border
