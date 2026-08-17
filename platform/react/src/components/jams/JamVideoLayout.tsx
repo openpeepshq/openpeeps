@@ -84,9 +84,14 @@ function ScreenSharingLayout({
   const profile = parseParticipantMetadata(participant.metadata).profile;
   const isLocal = participant.isLocal;
 
+  const canFullscreen =
+    typeof document !== 'undefined' &&
+    typeof document.documentElement.requestFullscreen === 'function' &&
+    document.fullscreenEnabled;
+
   const toggleFullscreen = () => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!el || !canFullscreen) return;
     if (document.fullscreenElement) {
       void document.exitFullscreen().catch(() => undefined);
     } else {
@@ -103,7 +108,6 @@ function ScreenSharingLayout({
     cameraTracks.length > 7 ? 'md:w-56' : 'md:w-28',
   ].join(' ');
 
-  // Phone landscape is still below `md`; a side strip keeps the share on-screen.
   return (
     <div className="flex h-full min-h-0 w-full flex-col gap-2 md:flex-row max-md:landscape:flex-row">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
@@ -143,14 +147,16 @@ function ScreenSharingLayout({
                 trackRef={screenShareTrack}
                 className="absolute inset-0 h-full w-full object-contain object-center"
               />
-              <button
-                type="button"
-                title={t('jams.screenShare.startStopTitle')}
-                className="bg-foreground/60 text-on-primary-token hover:bg-foreground/80 absolute bottom-3 right-3 rounded-full p-2 transition-colors"
-                onClick={toggleFullscreen}
-              >
-                <Maximize2 className="size-5" />
-              </button>
+              {canFullscreen ? (
+                <button
+                  type="button"
+                  title={t('jams.screenShare.startStopTitle')}
+                  className="bg-foreground/60 text-on-primary-token hover:bg-foreground/80 absolute bottom-3 right-3 rounded-full p-2 transition-colors"
+                  onClick={toggleFullscreen}
+                >
+                  <Maximize2 className="size-5" />
+                </button>
+              ) : null}
             </>
           ) : null}
         </div>
