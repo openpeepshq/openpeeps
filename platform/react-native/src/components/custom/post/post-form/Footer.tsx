@@ -1,7 +1,7 @@
-import { View } from 'react-native';
+import {View} from 'react-native';
 import React from 'react';
-import { ThemedText } from '~/components/ui/themed-text';
-import { Button } from '~/components/ui/button';
+import {ThemedText} from '~/components/ui/themed-text';
+import {Button} from '~/components/ui/button';
 import {
   ImageIcon,
   FilmIcon,
@@ -10,8 +10,8 @@ import {
   PaperclipIcon,
   NewspaperIcon,
 } from '~/components/icons';
-import { PostCreationData, PostType } from '@openpeepshq/common';
-import { cn, maxContentLength, maxArticleContentLength } from '~/lib/utils';
+import {PostCreationData, PostType} from '@openpeepshq/common';
+import {maxContentLength, maxArticleContentLength} from '~/lib/utils';
 
 interface FooterProps {
   content: PostCreationData;
@@ -22,7 +22,6 @@ interface FooterProps {
   onDocumentPress: () => void;
   onArticlePress: () => void;
   postType?: PostType | undefined;
-  className?: string;
 }
 
 export default function Footer({
@@ -32,17 +31,16 @@ export default function Footer({
   onPollPress,
   onDocumentPress,
   onArticlePress,
-  postType = 'note',
-  className,
+  postType = "note",
 }: FooterProps) {
   return (
-    <View className={cn('absolute bottom-2 w-full', className)}>
+    <View className="absolute bottom-2 w-full">
       <View className="flex-row justify-between items-center p-4">
         <ThemedText className="text-muted-foreground">
           {String(
             (postType === 'note' || postType === 'question'
               ? maxContentLength
-              : maxArticleContentLength) - (content?.data.content ?? '').length
+              : maxArticleContentLength) - (content?.data.content ?? '').length,
           )}
         </ThemedText>
         <View className="flex-row gap-8">
