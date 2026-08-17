@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {useOpenpeeps} from '@openpeepshq/react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import {
   AudioPickerSheet,
   DocumentPickerSheet,
@@ -16,58 +16,73 @@ import {
   PublicPost,
 } from '@openpeepshq/common';
 import Toast from 'react-native-toast-message';
-import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
-import {postDataDefaults, useLocalPostStore} from '~/stores/useLocalPostStore';
-import {PostForm} from '~/components/custom/post/post-form/PostForm';
-import {ThemedText} from '~/components/ui/themed-text';
+import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import {
+  postDataDefaults,
+  useLocalPostStore,
+} from '~/stores/useLocalPostStore';
+import { PostForm } from '~/components/custom/post/post-form/PostForm';
+import { ThemedText } from '~/components/ui/themed-text';
 import {
   ActivityIndicator,
   Alert,
+  Keyboard,
+  KeyboardAvoidingView,
   Linking,
   PermissionsAndroid,
   Platform,
+  ScrollView,
+  View,
+  type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
   type Permission,
   TouchableWithoutFeedback,
 } from 'react-native';
-import {Button} from '~/components/ui/button';
-import {MainScreenProps} from '~/components/navigation/types';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {useTranslation} from 'react-i18next';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import { Button } from '~/components/ui/button';
+import { MainScreenProps } from '~/components/navigation/types';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useTranslation } from 'react-i18next';
 import Footer from '~/components/custom/post/post-form/Footer';
-import {useForm} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {hasProcessingAttachments, toArticle, toNote, toQuestion} from '~/lib/post';
-import {FeedPost} from '~/components/custom/post/feed/chronological/FeedPost';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  hasProcessingAttachments,
+  toArticle,
+  toNote,
+  toQuestion,
+} from '~/lib/post';
+import { FeedPost } from '~/components/custom/post/feed/chronological/FeedPost';
 
 type PostProps = MainScreenProps<'ReplyPost'>;
 
-export const ReplyPost = ({route, navigation}: PostProps) => {
-  const {t} = useTranslation();
-  const {id} = route.params;
-  const {openpeepsApi, currentProfile} = useOpenpeeps();
-  const {data: post, isLoading: isPostLoading} = openpeepsApi.usePost(id);
+export const ReplyPost = ({ route, navigation }: PostProps) => {
+  const { t } = useTranslation();
+  const { id } = route.params;
+  const { openpeepsApi, currentProfile } = useOpenpeeps();
+  const { data: post, isLoading: isPostLoading } = openpeepsApi.usePost(id);
 
   const createPost = openpeepsApi.createPostAction();
 
   const [isPosting, setIsPosting] = useState(false);
 
   const replyModalRef = useRef<BottomSheetModal>(null);
-  const scrollRef = useRef<KeyboardAwareScrollView>(null);
-  const hasScrolledToReplyRef = useRef(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const composerYRef = useRef(0);
+  const stickToComposerRef = useRef(true);
 
   const handleReplyModalPress = useCallback(() => {
     replyModalRef.current?.present();
   }, []);
 
-  const postData = useLocalPostStore(state => state.replyData[id]);
+  const postData = useLocalPostStore((state) => state.replyData[id]);
   const attachmentsProcessing = hasProcessingAttachments(postData);
-  const setReplyData = useLocalPostStore(state => state.setReplyData);
+  const setReplyData = useLocalPostStore((state) => state.setReplyData);
   const setPostData = useCallback(
     (data: PostCreationData) => setReplyData(id, data),
-    [id, setReplyData],
+    [id, setReplyData]
   );
-  const resetReplyData = useLocalPostStore(state => state.resetReplyData);
+  const resetReplyData = useLocalPostStore((state) => state.resetReplyData);
 
   const form = useForm<PostCreationData>({
     resolver: zodResolver(postCreationDataSchema),
@@ -96,7 +111,7 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
   useEffect(() => {
     if (post && post.groupId && currentProfile) {
       const isGroupMember = currentProfile.memberships?.some(
-        membership => membership.group?.id === post.groupId,
+        (membership) => membership.group?.id === post.groupId
       );
 
       if (!isGroupMember) {
@@ -111,20 +126,63 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
   }, [post, currentProfile, navigation, t]);
 
   useEffect(() => {
-    hasScrolledToReplyRef.current = false;
+    stickToComposerRef.current = true;
+    composerYRef.current = 0;
   }, [id]);
 
-  const scrollToReplyForm = useCallback(() => {
-    if (isPostLoading || !post || !postData || hasScrolledToReplyRef.current) {
+  const scrollToReplyForm = useCallback((animated = false) => {
+    if (!stickToComposerRef.current) {
       return;
     }
-    hasScrolledToReplyRef.current = true;
-    scrollRef.current?.scrollToEnd(false);
-  }, [isPostLoading, post, postData]);
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({
+        y: composerYRef.current,
+        animated,
+      });
+    });
+  }, []);
+
+  const handleComposerLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      composerYRef.current = event.nativeEvent.layout.y;
+      scrollToReplyForm();
+    },
+    [scrollToReplyForm]
+  );
+
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const y = event.nativeEvent.contentOffset.y;
+      stickToComposerRef.current = y >= composerYRef.current - 80;
+    },
+    []
+  );
+
+  useEffect(() => {
+    const onShow = () => {
+      stickToComposerRef.current = true;
+      scrollToReplyForm(true);
+    };
+    const subs = [
+      Keyboard.addListener(
+        Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+        onShow
+      ),
+    ];
+    if (Platform.OS === 'ios') {
+      subs.push(
+        Keyboard.addListener('keyboardDidShow', () => {
+          stickToComposerRef.current = true;
+          scrollToReplyForm();
+        })
+      );
+    }
+    return () => subs.forEach((sub) => sub.remove());
+  }, [scrollToReplyForm]);
 
   const handlePostCreation = async () => {
     if (!post) {
-      Toast.show({type: 'error', text1: t('posts.create.error')});
+      Toast.show({ type: 'error', text1: t('posts.create.error') });
       return;
     }
 
@@ -140,14 +198,14 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
 
       handlePostSuccess();
     } catch (error) {
-      Toast.show({type: 'error', text1: t('posts.create.error')});
+      Toast.show({ type: 'error', text1: t('posts.create.error') });
     } finally {
       setIsPosting(false);
     }
   };
 
   const handlePostSuccess = async () => {
-    Toast.show({type: 'success', text1: t('posts.create.success')});
+    Toast.show({ type: 'success', text1: t('posts.create.success') });
     resetReplyData(id);
     navigation.navigate('TabNavigator', {
       screen: 'Feed',
@@ -192,7 +250,7 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
       form.reset(newPostData);
       setPostData(newPostData);
     },
-    [postData, form, setPostData],
+    [postData, form, setPostData]
   );
 
   const handleSwitchPollPress = useCallback(() => {
@@ -212,7 +270,7 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
   }, [postData, form, setPostData]);
 
   const checkMediaPermissions = async (
-    type: 'photo' | 'video' | 'audio' | 'file',
+    type: 'photo' | 'video' | 'audio' | 'file'
   ) => {
     if (Platform.OS !== 'android') return true;
 
@@ -230,17 +288,16 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
         if (permissions.length === 0) return true;
 
         const statuses = await Promise.all(
-          permissions.map(p => PermissionsAndroid.check(p)),
+          permissions.map((p) => PermissionsAndroid.check(p))
         );
-        const allGranted = statuses.every(s => s === true);
+        const allGranted = statuses.every((s) => s === true);
 
         if (allGranted) return true;
 
-        const requestResults = await PermissionsAndroid.requestMultiple(
-          permissions,
-        );
+        const requestResults =
+          await PermissionsAndroid.requestMultiple(permissions);
         const isGranted = Object.values(requestResults).every(
-          status => status === PermissionsAndroid.RESULTS.GRANTED,
+          (status) => status === PermissionsAndroid.RESULTS.GRANTED
         );
 
         if (!isGranted) {
@@ -250,13 +307,13 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
         return true;
       } else {
         const hasStorage = await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
         );
 
         if (hasStorage) return true;
 
         const status = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
         );
 
         if (status === PermissionsAndroid.RESULTS.GRANTED) return true;
@@ -275,15 +332,15 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
       t('permissions.title', 'Permission Required'),
       t(
         'permissions.message',
-        'Please allow access to your media library in settings to attach files.',
+        'Please allow access to your media library in settings to attach files.'
       ),
       [
-        {text: t('common.cancel', 'Cancel'), style: 'cancel'},
+        { text: t('common.cancel', 'Cancel'), style: 'cancel' },
         {
           text: t('navigation.settings', 'Open Settings'),
           onPress: () => Linking.openSettings(),
         },
-      ],
+      ]
     );
   };
 
@@ -308,80 +365,92 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
         onRightButtonPress={handlePostCreation}
         rightButtonDisabled={isPosting || attachmentsProcessing}
       />
-      <KeyboardAwareScrollView
-        ref={scrollRef}
-        className="flex-1"
-        enableOnAndroid
-        extraScrollHeight={80}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{paddingBottom: 80}}
-        onContentSizeChange={scrollToReplyForm}>
-        {isPostLoading ? (
-          <ActivityIndicator />
-        ) : (
-          <>
-            <FeedPost
-              post={post as PublicPost}
-              showReplyTo={false}
-              showMenu={false}
-              showReactionHeader={false}
-            />
-            <Button
-              variant={'link'}
-              onPress={handleReplyModalPress}
-              className=" items-start ">
-              <ThemedText className="text-lg tracking-wider text-left">
-                Replies
-              </ThemedText>
-            </Button>
-            <ThemedText className="text-lg px-4 mb-2 text-muted-foreground tracking-wider ">
-              Replying to{' '}
-              <TouchableWithoutFeedback
-                onPress={() => {}}
-                className="inline-flex items-center ">
-                <ThemedText className="text-lg text-blue-600">
-                  {`@${post?.profile.handle}`}
-                </ThemedText>
-              </TouchableWithoutFeedback>
-              {post?.group && (
-                <>
-                  {' '}
-                  in{' '}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView
+          ref={scrollRef}
+          className="flex-1"
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          onContentSizeChange={() => scrollToReplyForm()}
+        >
+          {isPostLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <>
+              <FeedPost
+                post={post as PublicPost}
+                showReplyTo={false}
+                showMenu={false}
+                showReactionHeader={false}
+              />
+              <View onLayout={handleComposerLayout}>
+                <Button
+                  variant={'link'}
+                  onPress={handleReplyModalPress}
+                  className=" items-start "
+                >
+                  <ThemedText className="text-lg tracking-wider text-left">
+                    Replies
+                  </ThemedText>
+                </Button>
+                <ThemedText className="text-lg px-4 mb-2 text-muted-foreground tracking-wider ">
+                  Replying to{' '}
                   <TouchableWithoutFeedback
                     onPress={() => {}}
-                    className="inline-flex items-center ">
+                    className="inline-flex items-center "
+                  >
                     <ThemedText className="text-lg text-blue-600">
-                      {post.group.displayName}
+                      {`@${post?.profile.handle}`}
                     </ThemedText>
                   </TouchableWithoutFeedback>
-                </>
-              )}
-            </ThemedText>
+                  {post?.group && (
+                    <>
+                      {' '}
+                      in{' '}
+                      <TouchableWithoutFeedback
+                        onPress={() => {}}
+                        className="inline-flex items-center "
+                      >
+                        <ThemedText className="text-lg text-blue-600">
+                          {post.group.displayName}
+                        </ThemedText>
+                      </TouchableWithoutFeedback>
+                    </>
+                  )}
+                </ThemedText>
 
-            {postData ? (
-              <PostForm
-                autoFocus
-                postData={postData}
-                setPostData={setPostData}
-                form={form}
-              />
-            ) : (
-              <ActivityIndicator />
-            )}
-          </>
-        )}
-        <ReplySheet ref={replyModalRef} onSelect={() => {}} id={id} />
-      </KeyboardAwareScrollView>
-      <Footer
-        content={postData}
-        postType={postData?.data?.type}
-        onImagePress={handleImageModalPress}
-        onMicPress={handleAudioModalPress}
-        onVideoPress={handleVideoModalPress}
-        onPollPress={handleSwitchPollPress}
-        onDocumentPress={handleDocumentModalPress}
-        onArticlePress={handleSwithToArticlePress}
-      />
+                {postData ? (
+                  <PostForm
+                    autoFocus
+                    postData={postData}
+                    setPostData={setPostData}
+                    form={form}
+                  />
+                ) : (
+                  <ActivityIndicator />
+                )}
+              </View>
+            </>
+          )}
+          <ReplySheet ref={replyModalRef} onSelect={() => {}} id={id} />
+        </ScrollView>
+        <Footer
+          className="relative bottom-0 bg-background"
+          content={postData}
+          postType={postData?.data?.type}
+          onImagePress={handleImageModalPress}
+          onMicPress={handleAudioModalPress}
+          onVideoPress={handleVideoModalPress}
+          onPollPress={handleSwitchPollPress}
+          onDocumentPress={handleDocumentModalPress}
+          onArticlePress={handleSwithToArticlePress}
+        />
+      </KeyboardAvoidingView>
       <ImagePickerSheet
         ref={imagePickerModalRef}
         onSelect={handleAddAttachments}
