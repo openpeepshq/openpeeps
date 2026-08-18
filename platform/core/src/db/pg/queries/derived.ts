@@ -54,6 +54,29 @@ export const profileDerived = {
     followersCount: Array.isArray(doc.followers) ? doc.followers.length : 0,
     followingCount: Array.isArray(doc.following) ? doc.following.length : 0,
   }),
+
+  /** Counts without loading follower/following trees. */
+  profileStatsCounts: async (db: PgDb, doc: Doc) => {
+    const edgeTableRef = getEdgeTable('follows');
+    const edgeTable = asTable(edgeTableRef);
+    const profileId = doc.id as string;
+    const [followersRows, followingRows] = await Promise.all([
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(edgeTableRef as never)
+        .where(eq(edgeTable.toId as never, profileId)),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(edgeTableRef as never)
+        .where(eq(edgeTable.fromId as never, profileId)),
+    ]);
+    return {
+      followersCount:
+        (followersRows[0] as { count?: number } | undefined)?.count ?? 0,
+      followingCount:
+        (followingRows[0] as { count?: number } | undefined)?.count ?? 0,
+    };
+  },
 };
 
 export const postDerived = {

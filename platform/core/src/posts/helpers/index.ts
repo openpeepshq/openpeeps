@@ -23,6 +23,7 @@ import {
   handleRegex,
 } from '@openpeepshq/common/types';
 import { findProfileByHandle } from '../../profiles/finders';
+import { getPublicProfile } from '../../profiles/cache';
 import {
   composeFilters,
   connectionFinder,
@@ -39,7 +40,6 @@ import {
   normalizePostDataFromDb,
 } from '@openpeepshq/common/lib';
 import { ObjectFilter } from '../../db/types';
-import { getProfile } from '../../profiles/cache';
 
 export const isDirect = (post: PostWithMeta) => post.visibility === 'direct';
 export const isPrivate = (post: PostWithMeta) => post.visibility === 'private';
@@ -200,7 +200,9 @@ export const postSeenConnector = connector<Profile, Post>(
 );
 
 const loadPublicProfile = async (profileId: string, ignoreSoftDelete = false) =>
-  anonymizeProfileIfDeleted(await getProfile(profileId, ignoreSoftDelete));
+  anonymizeProfileIfDeleted(
+    await getPublicProfile(profileId, ignoreSoftDelete),
+  );
 
 const addProfileForEntry = async (
   rawEntry: DbEntry,

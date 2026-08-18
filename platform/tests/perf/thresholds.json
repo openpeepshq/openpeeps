@@ -5,8 +5,8 @@
     "myFeed": 3000,
     "groupFeed": 4000,
     "groupFeedPage2": 4000,
-    "conversations": 5000,
-    "unseenCounts": 8000,
+    "conversations": 2000,
+    "unseenCounts": 500,
     "searchProfiles": 3000,
     "searchPosts": 4000,
     "postDetail": 2000

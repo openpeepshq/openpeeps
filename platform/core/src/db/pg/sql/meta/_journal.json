@@ -43,6 +43,13 @@
       "when": 1786638408097,
       "tag": "0005_open_power_man",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787042540973,
+      "tag": "0006_fine_trish_tilby",
+      "breakpoints": true
     }
   ]
 }

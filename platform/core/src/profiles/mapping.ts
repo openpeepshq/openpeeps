@@ -99,6 +99,31 @@ export const publicProfilesSearchMapping = map<ProfileData, ProfileWithMeta>({
   ],
 });
 
+/**
+ * Lean public profile for feed/API hydrate — memberships + SQL follower
+ * counts, no followers/following trees.
+ */
+export const publicProfilesMapping = map<ProfileData, ProfileWithMeta>({
+  collection: 'profiles',
+  softDelete: true,
+  postFilterRelations: [
+    {
+      alias: 'memberships',
+      edgeCollection: 'userGroups',
+      vertexAlias: 'group',
+      direction: 'OUTBOUND',
+      cardinality: 'many',
+      mapping: groupsMapping.data(),
+    },
+  ],
+  postFilterDerivedProperties: [
+    {
+      alias: 'profileStats',
+      resolve: profileDerived.profileStatsCounts,
+    },
+  ],
+});
+
 export const profilesMapping = map<ProfileData, ProfileWithMeta>({
   collection: 'profiles',
   postFilterRelations: profileRelations,

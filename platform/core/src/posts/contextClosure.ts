@@ -26,9 +26,13 @@ export const collectReplyClosureIds = async (
   {
     maxDepth = 9999,
     limit = CONTEXT_NODE_CAP,
-  }: { maxDepth?: number; limit?: number } = {},
+    /** Newest-first by uuidv7 id (useful for long DM threads). */
+    newestFirst = false,
+  }: { maxDepth?: number; limit?: number; newestFirst?: boolean } = {},
 ): Promise<string[]> => {
   if (!startId || limit <= 0) return [];
+
+  const orderClause = newestFirst ? sql`ORDER BY id DESC` : sql``;
 
   const query =
     direction === 'ancestors'
@@ -44,6 +48,7 @@ export const collectReplyClosureIds = async (
             WHERE t.depth < ${maxDepth}
           )
           SELECT id FROM t
+          ${orderClause}
           LIMIT ${limit}
         `
       : sql`
@@ -58,6 +63,7 @@ export const collectReplyClosureIds = async (
             WHERE t.depth < ${maxDepth}
           )
           SELECT id FROM t
+          ${orderClause}
           LIMIT ${limit}
         `;
 

@@ -6,10 +6,10 @@ import {
 } from '@openpeepshq/common/lib';
 
 vi.mock('../../profiles/cache', () => ({
-  getProfile: vi.fn(),
+  getPublicProfile: vi.fn(),
 }));
 
-import { getProfile } from '../../profiles/cache';
+import { getPublicProfile } from '../../profiles/cache';
 import { transformPost } from './index';
 
 const deletedAuthor = {
@@ -67,8 +67,8 @@ const basePost = {
 
 describe('transformPost deleted authors', () => {
   beforeEach(() => {
-    vi.mocked(getProfile).mockReset();
-    vi.mocked(getProfile).mockImplementation(async (id: string) => {
+    vi.mocked(getPublicProfile).mockReset();
+    vi.mocked(getPublicProfile).mockImplementation(async (id: string) => {
       if (id === deletedAuthor.id) return deletedAuthor;
       if (id === activeAuthor.id) return activeAuthor;
       return undefined;
