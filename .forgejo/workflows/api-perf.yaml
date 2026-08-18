@@ -60,16 +60,25 @@ jobs:
           node platform/tests/scripts/restore-fixture.mjs \
             platform/tests/fixtures/backups/perf-scale.zip
       - name: Start API
+        working-directory: platform/server
         run: |
-          pnpm --filter @openpeepshq/server start &
+          # Redirect logs so the API cannot block on a closed step pipe,
+          # and avoid `exit` from this script (that can take the process group).
+          NODE_ENV=production nohup node dist/server.js \
+            >/tmp/openpeeps-api.log 2>&1 &
+          echo $! >/tmp/openpeeps-api.pid
           for i in $(seq 1 60); do
             if wget -q -T 5 -O- http://127.0.0.1:5173/health >/dev/null 2>&1; then
-              exit 0
+              echo "API ready (pid $(cat /tmp/openpeeps-api.pid))"
+              break
+            fi
+            if [ "$i" -eq 60 ]; then
+              echo "API failed to become healthy" >&2
+              tail -n 80 /tmp/openpeeps-api.log >&2 || true
+              exit 1
             fi
             sleep 2
           done
-          echo "API failed to become healthy" >&2
-          exit 1
       - name: Bootstrap owner + token
         id: auth
         run: |
@@ -97,20 +106,30 @@ jobs:
           if [ -z "$TOKEN" ]; then
             echo "Could not obtain auth token" >&2
             echo "$RESP" >&2
+            echo "----- API log -----" >&2
+            tail -n 80 /tmp/openpeeps-api.log >&2 || true
             exit 1
           fi
           {
             echo "token=$TOKEN"
             echo "email=$EMAIL"
             echo "password=$PASS"
-          } >> "${GITHUB_OUTPUT:-$FORGEJO_OUTPUT}"
+          } | tee -a "${FORGEJO_OUTPUT:-/dev/null}" >> "${GITHUB_OUTPUT:-/dev/null}"
       - name: Run API perf
         env:
           PERF_TOKEN: ${{ steps.auth.outputs.token }}
           PERF_ENFORCE: '1'
           PERF_ITERATIONS: '5'
           PERF_WARMUP: '1'
-        run: pnpm --filter @openpeepshq/tests run perf:api
+        run: |
+          set +e
+          pnpm --filter @openpeepshq/tests run perf:api
+          status=$?
+          if [ "$status" -ne 0 ]; then
+            echo "----- API log -----" >&2
+            tail -n 80 /tmp/openpeeps-api.log >&2 || true
+          fi
+          exit "$status"
       # Print results in the job log. GitHub upload-artifact@v4 looks for
       # hostedtoolcache Node and fails Complete job on this runner.
       - name: Upload results
