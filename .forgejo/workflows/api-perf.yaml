@@ -35,7 +35,7 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
-      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
       DISABLE_CONFIG_CACHE: 'true'
       JWT_SECRET: xxx
       PERF_DB_TIMING: '1'
@@ -44,15 +44,10 @@ jobs:
       - name: Install tools
         run: apk add --no-cache git python3 make g++ unzip zip
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.1.3
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
       - name: Install
-        run: pnpm install --frozen-lockfile
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
       - name: Build
         run: |
           pnpm --filter "@openpeepshq/server..." \
@@ -68,7 +63,7 @@ jobs:
         run: |
           pnpm --filter @openpeepshq/server start &
           for i in $(seq 1 60); do
-            if wget -qO- http://127.0.0.1:5173/health >/dev/null 2>&1; then
+            if wget -q -T 5 -O- http://127.0.0.1:5173/health >/dev/null 2>&1; then
               exit 0
             fi
             sleep 2
@@ -84,17 +79,17 @@ jobs:
           HANDLE="perf$(date +%s | tail -c 8)"
           EMAIL="${HANDLE}@example.com"
           PASS="perf-password-1"
-          CODE=$(wget -qO- http://127.0.0.1:5173/api/openpeeps/core/v1/server/info \
+          CODE=$(wget -q -T 15 -O- http://127.0.0.1:5173/api/openpeeps/core/v1/server/info \
             | sed -n 's/.*"inviteCode":"\([^"]*\)".*/\1/p' | head -1 || true)
           BODY="{\"handle\":\"${HANDLE}\",\"displayName\":\"Perf\",\"email\":\"${EMAIL}\",\"password\":\"${PASS}\",\"privacyPolicyAccepted\":true"
           if [ -n "$CODE" ]; then BODY="${BODY},\"inviteCode\":\"${CODE}\""; fi
           BODY="${BODY}}"
-          RESP=$(wget -qO- --header='content-type: application/json' \
+          RESP=$(wget -q -T 20 -O- --header='content-type: application/json' \
             --post-data="$BODY" \
             http://127.0.0.1:5173/api/openpeeps/core/v1/auth/register || true)
           TOKEN=$(printf '%s' "$RESP" | sed -n 's/.*"token":"\([^"]*\)".*/\1/p' | head -1)
           if [ -z "$TOKEN" ]; then
-            RESP=$(wget -qO- --header='content-type: application/json' \
+            RESP=$(wget -q -T 20 -O- --header='content-type: application/json' \
               --post-data="{\"email\":\"${EMAIL}\",\"password\":\"${PASS}\"}" \
               http://127.0.0.1:5173/api/openpeeps/core/v1/auth/login || true)
             TOKEN=$(printf '%s' "$RESP" | sed -n 's/.*"token":"\([^"]*\)".*/\1/p' | head -1)
@@ -104,9 +99,11 @@ jobs:
             echo "$RESP" >&2
             exit 1
           fi
-          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
-          echo "email=$EMAIL" >> "$GITHUB_OUTPUT"
-          echo "password=$PASS" >> "$GITHUB_OUTPUT"
+          {
+            echo "token=$TOKEN"
+            echo "email=$EMAIL"
+            echo "password=$PASS"
+          } >> "${GITHUB_OUTPUT:-$FORGEJO_OUTPUT}"
       - name: Run API perf
         env:
           PERF_TOKEN: ${{ steps.auth.outputs.token }}
@@ -114,10 +111,19 @@ jobs:
           PERF_ITERATIONS: '5'
           PERF_WARMUP: '1'
         run: pnpm --filter @openpeepshq/tests run perf:api
+      # Print results in the job log. GitHub upload-artifact@v4 looks for
+      # hostedtoolcache Node and fails Complete job on this runner.
       - name: Upload results
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-perf-results
-          path: platform/tests/.perf-results/
-          if-no-files-found: ignore
+        run: |
+          results=platform/tests/.perf-results
+          if [ ! -d "$results" ]; then
+            echo "No perf results directory"
+            exit 0
+          fi
+          ls -la "$results"
+          for f in "$results"/*; do
+            [ -f "$f" ] || continue
+            echo "===== $(basename "$f") ====="
+            cat "$f"
+          done
