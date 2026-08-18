@@ -15,6 +15,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **react-native**: clean up imports and improve Footer component
+- **jams**: hide fullscreen when the API is unavailable
 - **react-native**: cache hashed media images indefinitely
 - **posts**: keep direct jam replies visible in DMs
 - **posts**: close media gallery without navigating to the post
@@ -31,9 +33,18 @@ Changelog for OpenPeeps
 
 ### Refactoring
 
+- **react-native**: bug fix
 - **jams**: enhance layout responsiveness and structure
 - update role attributes and semantic elements across components
 - **ProfileEventRelationship**: simplify badge rendering logic and integrate Badge component
+
+### Tests
+
+- **session**: cover session SSE fan-out and presence
+
+### CI/CD
+
+- pin actions/checkout to the v6.1.0 SHA
 
 ### Chores
 
