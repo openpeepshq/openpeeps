@@ -144,15 +144,23 @@ const main = async () => {
   maybeRestore();
 
   console.log(`Waiting for ${cfg.baseUrl}/health ...`);
+  let lastHealthError = 'unknown error';
   for (let i = 0; i < 60; i++) {
     try {
-      const res = await fetch(`${cfg.baseUrl}/health`);
+      const res = await fetch(`${cfg.baseUrl}/health`, {
+        signal: AbortSignal.timeout(5000),
+      });
       if (res.ok) break;
-    } catch {
-      /* retry */
+      lastHealthError = `status ${res.status}`;
+    } catch (err) {
+      lastHealthError = err instanceof Error ? err.message : String(err);
     }
     await new Promise((r) => setTimeout(r, 1000));
-    if (i === 59) throw new Error('API health check timed out');
+    if (i === 59) {
+      throw new Error(
+        `API health check timed out (${cfg.baseUrl}/health): ${lastHealthError}`,
+      );
+    }
   }
 
   const token = await login();
