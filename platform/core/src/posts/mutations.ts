@@ -12,6 +12,9 @@ import {
 
 import { PostDataUnion } from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
+import { uuidv7 } from 'uuidv7';
+import { nowIso } from '../db/pg/mappers';
+import { postSeen } from '../db/pg/schema/edges';
 import {
   audienceConnector,
   bookmarkConnector,
@@ -22,7 +25,6 @@ import {
   hashtagConnector,
   hashtagDisconnector,
   mentionConnector,
-  postSeenConnector,
   reactionConnector,
   reactionDisconnector,
   replyConnector,
@@ -211,12 +213,27 @@ export const unbookmarkPost = async (post: PostWithMeta, profile: Profile) =>
   allpeepDb().then(({ db }) => bookmarkDisconnector(db, profile, post));
 
 export const markPostsSeen = async (
-  posts: PostWithMeta[],
+  posts: { id: string }[],
   profile: Profile,
 ) => {
+  if (posts.length === 0) return;
   const { db } = await allpeepDb();
-
-  await Promise.all(posts.map((post) => postSeenConnector(db, profile, post)));
+  const ts = nowIso();
+  await db
+    .insert(postSeen)
+    .values(
+      posts.map((post) => ({
+        id: uuidv7(),
+        fromId: profile.id,
+        toId: post.id,
+        body: {},
+        createdAt: ts,
+        updatedAt: ts,
+      })),
+    )
+    .onConflictDoNothing({
+      target: [postSeen.fromId, postSeen.toId],
+    });
 };
 
 export const markGroupPostsSeen = async (

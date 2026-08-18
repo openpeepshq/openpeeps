@@ -15,6 +15,7 @@ import {
   contextRelation,
   conversationLeavesMappingForProfile,
   postContextMappingForProfile,
+  postsAuthMapping,
   postsMappingForProfile,
   repostsOfPostRelationForProfile,
   postIdsMapping,
@@ -42,6 +43,9 @@ import { groupsMapping } from '../groups/mapping';
 import { profilesMapping } from '../profiles/mapping';
 import { CONTEXT_NODE_CAP, loadReplyContextPosts } from './contextClosure';
 import { withSpan } from '../performance';
+import { queryUnseenPostCounts } from './unseenCounts';
+import { getConversationThread } from './conversationQueries';
+import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';
 
 /**
  * Throws if the given `authData` does not include a profile.
@@ -65,6 +69,39 @@ export const findPost = async (
   return allpeepDb()
     .then(({ db }) => postsMappingForProfile(profile).find(db, id))
     .then((post) => (post ? transformPost(post, profile) : undefined));
+};
+
+/** Lean post load for capability checks (no nested reply/repost). */
+export const findPostsForAuth = async (
+  ids: string[],
+  authData?: AuthorizationData,
+): Promise<PostWithMeta[]> => {
+  if (ids.length === 0) return [];
+  const profile = authData?.profile;
+  const { db } = await allpeepDb();
+  const mapData = postsAuthMapping.data();
+  const rows = await fetchRowsByIds(
+    db,
+    mapData.collection,
+    ids,
+    mapData.softDelete,
+  );
+  const hydrated = (await hydrateMapData(
+    db,
+    mapData,
+    rows,
+  )) as unknown as DbPost[];
+  const byId = new Map(
+    await Promise.all(
+      hydrated.map(async (post) => {
+        const transformed = await transformPost(post, profile);
+        return [transformed.id, transformed] as const;
+      }),
+    ),
+  );
+  return ids
+    .map((id) => byId.get(id))
+    .filter((post): post is PostWithMeta => !!post);
 };
 
 export const postContext = async (
@@ -241,46 +278,8 @@ export const getUnseenPostCounts = async (
     const groupIds = profile.memberships
       .map((membership) => membership.group.id)
       .filter((groupId): groupId is string => typeof groupId === 'string');
-    const groupCounts: Record<string, number> = Object.fromEntries(
-      groupIds.map((groupId) => [groupId, 0]),
-    );
-
-    await Promise.all(
-      groupIds.map(async (groupId) => {
-        const posts = await listPostsByGroup(authData, groupId, {
-          limit: 9999,
-        });
-        groupCounts[groupId] = posts.filter(
-          (post) => post.seen === false && post.profile.id !== profile.id,
-        ).length;
-      }),
-    );
-
-    const conversations = await Promise.all(
-      (await listConversationLeaves(authData)).map((post) =>
-        getConversationByEnd(post, authData),
-      ),
-    );
-    const uniqueConversations = Array.from(
-      new Map(
-        conversations
-          .filter((conversation) => conversation[0])
-          .map((conversation) => [conversation[0].id, conversation]),
-      ).values(),
-    );
-    const direct = Object.fromEntries(
-      uniqueConversations
-        .map((conversation) => {
-          const conversationId = conversation[0].id;
-          const unread = conversation.filter(
-            (post) => post.seen === false && post.profile.id !== profile.id,
-          ).length;
-          return [conversationId, unread] as const;
-        })
-        .filter(([, unread]) => unread > 0),
-    );
-
-    return { groups: groupCounts, direct };
+    const { db } = await allpeepDb();
+    return queryUnseenPostCounts(db, profile.id, groupIds);
   });
 
 export const listPostsByType = async (
@@ -581,13 +580,7 @@ export const getConversationByEnd = async (
 export const getConversationByStart = async (
   post: PostWithMeta,
   authData: AuthorizationData,
-) =>
-  descendents(
-    authData,
-    post,
-    9999,
-    sortOldestFirst<DbPost>(postsMappingForProfile(authData.profile)),
-  ).then((conversation) => [post, ...conversation]);
+) => getConversationThread(post, authData);
 
 /** Full ancestor/descendant trees for post detail (CTE + lean mapping). */
 export const getPostContext = async (

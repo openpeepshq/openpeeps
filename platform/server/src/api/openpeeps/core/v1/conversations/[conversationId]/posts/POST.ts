@@ -8,7 +8,12 @@ import {
 } from '@openpeepshq/common/types';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { createPost, descendents, findPost } from '@openpeepshq/core/posts';
+import {
+  createPost,
+  findLatestThreadPostId,
+  findPost,
+  findPostsForAuth,
+} from '@openpeepshq/core/posts';
 import { postCreationDataSchema } from '@openpeepshq/common/types';
 
 export const Input = postCreationDataSchema;
@@ -27,37 +32,32 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
     const profile = await ensureLocalProfile(event);
 
     const post = await findPost(input.conversationId);
-
     if (!post) {
       throw notFound(`Post with id ${input.conversationId}`);
     }
 
     await ensurePostCapabilities(event, post, ['core-posts-reply']);
 
-    // Newest leaf by id (UUIDv7 is time-ordered). Unsorted [0] is not
-    // reliably the latest and forks the DM chain.
-    const replies = await descendents(event.context.authData, post, 9999);
-    const lastPost =
-      replies.length === 0
-        ? post
-        : replies.reduce((newest, current) =>
-            current.id > newest.id ? current : newest,
-          );
+    const lastPostId = await findLatestThreadPostId(post.id);
+    const [lastPost] =
+      lastPostId === post.id
+        ? [post]
+        : await findPostsForAuth([lastPostId], event.context.authData);
 
     if (!lastPost?.audience?.map((m) => m.id).includes(profile.id)) {
       throw forbidden();
     }
 
     const postData = postDataUnionSchema.parse(input.data);
-    const object: PostData = postDataSchema.parse(
-      { ...input, creatorId: profile.id, visibility: 'direct' }
-    );
-    const inReplyToId = lastPost.id;
-    const audience = input?.audience;
+    const object: PostData = postDataSchema.parse({
+      ...input,
+      creatorId: profile.id,
+      visibility: 'direct',
+    });
 
     return await createPost(postData, profile, object, {
-      inReplyToId,
-      audience: audience || undefined,
+      inReplyToId: lastPost.id,
+      audience: input?.audience || undefined,
     });
   },
 );

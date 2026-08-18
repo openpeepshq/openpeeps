@@ -6,5 +6,10 @@ export {
   collectReplyClosureIds,
   loadReplyContextPosts,
 } from './contextClosure';
+export {
+  listConversationPreviews,
+  getConversationThread,
+  findLatestThreadPostId,
+} from './conversationQueries';
 export * from './helpers';
 export { registerRsvpConfirmationEmail } from './rsvpConfirmationEmail';

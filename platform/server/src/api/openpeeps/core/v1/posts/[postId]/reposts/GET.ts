@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
 import { findPost, reposts } from '@openpeepshq/core/posts';
-import { publicPostSchema, type PostWithMeta } from '@openpeepshq/common/types';
+import { publicPostSchema } from '@openpeepshq/common/types';
 import { notFound, forbidden } from '#lib/errors';
 import { ensurePostCapabilities } from '#lib/auth';
 
@@ -25,13 +25,6 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-read']);
 
-    const reposted = await reposts(mergedPost, event.context.authData);
-    const repostedWithMeta = await Promise.all(
-      reposted.map((post) => findPost(post.id, event.context.authData)),
-    );
-
-    return repostedWithMeta.filter(
-      (post): post is PostWithMeta => Boolean(post),
-    );
+    return reposts(mergedPost, event.context.authData);
   },
 );

@@ -1,6 +1,6 @@
 import { map, Mapping, Relation, RelationWithMapping } from '../db/pg/map';
 import { postFilters } from '../db/pg/filters';
-import { profileDerived, postDerived } from '../db/pg/queries';
+import { postDerived } from '../db/pg/queries';
 import { collectionInfos } from '../db';
 import {
   EntryData,
@@ -11,11 +11,6 @@ import {
 } from '@openpeepshq/common/types';
 import { PostData } from '@openpeepshq/common/types';
 import { groupsMapping } from '../groups/mapping';
-
-const seenByCurrentProfileDerivedProperty = (profile?: { id: string }) => ({
-  alias: 'seen',
-  resolve: postDerived.seen(profile?.id),
-});
 
 const seenBatchByCurrentProfileDerivedProperty = (profile?: { id: string }) =>
   postDerived.seenBatch(profile?.id);
@@ -147,7 +142,7 @@ const basePostMapDataForProfile = (profile?: { id: string }) => ({
   ...basePostMapData,
   postFilterDerivedProperties: [
     ...(basePostMapData.postFilterDerivedProperties || []),
-    seenByCurrentProfileDerivedProperty(profile),
+    seenBatchByCurrentProfileDerivedProperty(profile),
   ],
 });
 
@@ -249,6 +244,12 @@ export const postsMapping = map<PostData, DbPost>({
     repostRelation,
     replyToRelation,
   ],
+});
+
+/** Auth / mark-seen: post graph without nested replyTo/repost hydrate. */
+export const postsAuthMapping = map<PostData, DbPost>({
+  ...basePostMapData,
+  postFilterRelations: basePostFilterRelations,
 });
 
 export const postsMappingForProfile = (profile?: { id: string }) =>

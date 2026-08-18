@@ -1,10 +1,13 @@
-import { ensurePostCapabilities, ensureProfileOrGuest, scopeMatches } from '#lib/auth';
+import {
+  ensurePostCapabilities,
+  ensureProfileOrGuest,
+  scopeMatches,
+} from '#lib/auth';
 import { endpoint, z } from '#lib/endpoint';
 import { jamStateSchema } from '@openpeepshq/common';
-import { findPost } from '@openpeepshq/core/posts';
+import { findPostsForAuth, isPublic } from '@openpeepshq/core/posts';
 import { notFound, forbidden } from '#lib/errors';
 import { findJamState } from '@openpeepshq/core/jams';
-import { isPublic } from '@openpeepshq/core/posts';
 
 export const Param = z.object({
   eventId: z.string(),
@@ -19,7 +22,7 @@ export const Error = {
 
 export const apiEndpoint = endpoint({ Output, Param, Error }).handle(
   async (input, event) => {
-    const jamEvent = await findPost(input.eventId);
+    const [jamEvent] = await findPostsForAuth([input.eventId]);
     if (!jamEvent) {
       throw notFound(`Jam with id ${input.eventId} not found`);
     }
@@ -42,7 +45,10 @@ export const apiEndpoint = endpoint({ Output, Param, Error }).handle(
       await ensurePostCapabilities(event, jamEvent, ['core-posts-read']);
     }
 
-    const state = await findJamState(jamEvent, !(profile || isServiceAuthorized));
+    const state = await findJamState(
+      jamEvent,
+      !(profile || isServiceAuthorized),
+    );
 
     return state;
   },

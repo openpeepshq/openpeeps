@@ -19,7 +19,7 @@ export const jamHooks = (client: OpenpeepsClient) => ({
   useJamToken: (id: string) =>
     apiHook(client.jams.token, { pathParams: { id } }),
   useJamState: (id: string) =>
-    apiHook(client.jams.state, { pathParams: { id }, refetchInterval: 1500 }),
+    apiHook(client.jams.state, { pathParams: { id }, refetchInterval: 5000 }),
   muteJamParticipantAction: payloadMutation(client.jams.muteParticipant),
   useJamEvents: (id: string) =>
     apiHook(client.jams.events.list, { pathParams: { id } }),
