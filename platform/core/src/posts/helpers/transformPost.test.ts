@@ -141,4 +141,30 @@ describe('transformPost deleted authors', () => {
     expect(result.replyTo?.deletedAt).toBe(deletedParent.deletedAt);
     expect(result.replyTo?.profile.handle).toBe(DELETED_AUTHOR_HANDLE);
   });
+
+  it('tombstones a deleted reposter while keeping the original author', async () => {
+    const original = {
+      ...basePost,
+      id: '77777777-7777-4777-8777-777777777777',
+      creatorId: activeAuthor.id,
+      entries: [
+        {
+          ...basePost.entries![0],
+          id: '99999999-9999-4999-8999-999999999999',
+          profile: { id: activeAuthor.id },
+        },
+      ],
+    } as unknown as DbPost;
+    const wrapper = {
+      ...basePost,
+      id: '88888888-8888-4888-8888-888888888888',
+      creatorId: deletedAuthor.id,
+      repost: original,
+    } as unknown as DbPost;
+
+    const result = await transformPost(wrapper);
+    expect(result.profile.handle).toBe(DELETED_AUTHOR_HANDLE);
+    expect(result.repost?.id).toBe(original.id);
+    expect(result.repost?.profile.handle).toBe('active');
+  });
 });

@@ -1,5 +1,8 @@
 import { type PublicPost } from '@openpeepshq/common';
-import { isUnreadPostForViewer, useOpenpeeps } from '@openpeepshq/react';
+import {
+  isUnreadFeedActivityForViewer,
+  useOpenpeeps,
+} from '@openpeepshq/react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';
@@ -41,9 +44,9 @@ export const FeedPost = ({
   const { currentProfile } = useOpenpeeps();
 
   const displayedPost = post.repost || post;
-  const isUnread = isUnreadPostForViewer(displayedPost, currentProfile?.id);
-  const postViewRef = usePostViewRef(displayedPost.id, {
-    groupId: displayedPost.groupId,
+  const isUnread = isUnreadFeedActivityForViewer(post, currentProfile?.id);
+  const postViewRef = usePostViewRef(post.id, {
+    groupId: post.groupId,
     adjustUnread: isUnread,
   });
 
@@ -64,7 +67,8 @@ export const FeedPost = ({
   return (
     <ThemedView
       ref={postViewRef}
-      className="relative py-5 border-b border-border">
+      className="relative py-5 border-b border-border"
+    >
       <UnreadPostIndicator show={isUnread} />
       {showReactionHeader && (
         <PostReactionHeader
