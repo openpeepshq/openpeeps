@@ -146,8 +146,10 @@ const basePostMapDataForProfile = (profile?: { id: string }) => ({
   ],
 });
 
+// Keep soft-deleted parents so replies can render a tombstone / deleted post.
 const replyPostMapData = {
-  ...preFilterMapData,
+  collection: 'posts',
+  softDelete: false,
   postFilterRelations: [entriesRelation],
 };
 
@@ -278,7 +280,8 @@ const contextPostFilterRelations: Relation[] = [
 
 export const postContextMappingForProfile = (profile?: { id: string }) =>
   map<PostData, DbPost>({
-    ...preFilterMapData,
+    collection: 'posts',
+    softDelete: false,
     postFilterRelations: contextPostFilterRelations,
     postFilterDerivedProperties: [
       {

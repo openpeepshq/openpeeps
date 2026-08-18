@@ -36,8 +36,8 @@ import type { PgQueryResult } from '../../db/pg/map/types';
 import { capabilitiesConfig } from '../../config';
 import { canReadPost } from './filters';
 import {
-  anonymizeProfileIfDeleted,
   normalizePostDataFromDb,
+  tombstoneProfileWithMetaIfDeleted,
 } from '@openpeepshq/common/lib';
 import { ObjectFilter } from '../../db/types';
 
@@ -200,7 +200,7 @@ export const postSeenConnector = connector<Profile, Post>(
 );
 
 const loadPublicProfile = async (profileId: string, ignoreSoftDelete = false) =>
-  anonymizeProfileIfDeleted(
+  tombstoneProfileWithMetaIfDeleted(
     await getPublicProfile(profileId, ignoreSoftDelete),
   );
 

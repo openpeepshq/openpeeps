@@ -82,6 +82,10 @@ describe('transformPost deleted authors', () => {
     expect(result.profile.avatar).toBeNull();
     expect(result.profile.bio).toBeUndefined();
     expect(result.profile.deletedAt).toBe(deletedAuthor.deletedAt);
+    expect(result.profile.profileStats).toEqual({
+      followersCount: 0,
+      followingCount: 0,
+    });
     expect(result.entries[0]?.profile.handle).toBe(DELETED_AUTHOR_HANDLE);
   });
 
@@ -106,5 +110,35 @@ describe('transformPost deleted authors', () => {
     expect(result.replyTo?.profile.displayName).toBe(
       DELETED_AUTHOR_DISPLAY_NAME,
     );
+    expect(result.replyTo?.profile.profileStats).toEqual({
+      followersCount: 0,
+      followingCount: 0,
+    });
+  });
+
+  it('keeps a deleted parent post so the client can render a tombstone', async () => {
+    const deletedParent = {
+      ...basePost,
+      deletedAt: '2024-06-02T00:00:00.000Z',
+    } as unknown as DbPost;
+    const child = {
+      ...basePost,
+      id: '55555555-5555-4555-8555-555555555555',
+      creatorId: activeAuthor.id,
+      deletedAt: null,
+      entries: [
+        {
+          ...basePost.entries![0],
+          id: '66666666-6666-4666-8666-666666666666',
+          profile: { id: activeAuthor.id },
+        },
+      ],
+      replyTo: deletedParent,
+    } as unknown as DbPost;
+
+    const result = await transformPost(child);
+    expect(result.deletedAt).toBeNull();
+    expect(result.replyTo?.deletedAt).toBe(deletedParent.deletedAt);
+    expect(result.replyTo?.profile.handle).toBe(DELETED_AUTHOR_HANDLE);
   });
 });
