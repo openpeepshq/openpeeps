@@ -36,7 +36,7 @@ import { postsMapping, repostRelation } from './mapping';
 import { findGroup } from '../groups/finders';
 import { findOrCreateHashtag } from '../hashtags';
 import { hub } from '../events';
-import { listPostsByGroup } from './finders';
+import { listUnseenGroupPostIds } from './unseenCounts';
 import {
   canManageEventRsvps,
   countYesRsvps,
@@ -245,14 +245,12 @@ export const markGroupPostsSeen = async (
   }
 
   const profile = authData.profile;
-  const posts = await listPostsByGroup(authData, groupId, { limit: 9999 });
-  const unseen = posts.filter(
-    (post) => post.seen === false && post.profile.id !== profile.id,
+  const { db } = await allpeepDb();
+  const unseenIds = await listUnseenGroupPostIds(db, profile.id, groupId);
+  await markPostsSeen(
+    unseenIds.map((id) => ({ id })),
+    profile,
   );
-
-  if (unseen.length > 0) {
-    await markPostsSeen(unseen, profile);
-  }
 };
 
 export const deletePost = async (post: PostWithMeta, profile: Profile) => {

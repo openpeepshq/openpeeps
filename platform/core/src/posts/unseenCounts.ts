@@ -49,6 +49,35 @@ export const countUnseenGroupPosts = async (
   return counts;
 };
 
+/** Same posts as {@link countUnseenGroupPosts} for one group (mark-all-read). */
+export const listUnseenGroupPostIds = async (
+  db: PgDb,
+  profileId: string,
+  groupId: string,
+): Promise<string[]> => {
+  const result = (await db.execute(sql`
+    SELECT p.id::text AS post_id
+    FROM post_groups pg
+    INNER JOIN posts p
+      ON p.id::text = pg.from_id
+      AND p.deleted_at IS NULL
+    INNER JOIN profiles creator
+      ON creator.id::text = p.creator_id
+      AND creator.deleted_at IS NULL
+    WHERE pg.to_id = ${groupId}
+      AND p.visibility <> 'direct'
+      AND p.creator_id <> ${profileId}
+      AND NOT EXISTS (
+        SELECT 1
+        FROM post_seen ps
+        WHERE ps.from_id = ${profileId}
+          AND ps.to_id = p.id::text
+      )
+  `)) as unknown as ExecuteResult;
+
+  return result.rows.map((row) => row.post_id as string).filter((id) => !!id);
+};
+
 /**
  * Direct-message unread counts keyed by conversation root.
  * Ignores deleted authors so badges match inbox previews.
