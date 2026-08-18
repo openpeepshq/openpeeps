@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { cn } from '@openpeepshq/react-ui';
 import { usePostViewRef } from '../../lib/postViewCounter';
-import { isUnreadPostForViewer } from '../../lib/postUnread';
+import { isUnreadFeedActivityForViewer } from '../../lib/postUnread';
 import { useCurrentProfile } from '../layout/IdentityContext';
 
 import { FeedPostContent } from './FeedPostContent';
@@ -40,9 +40,9 @@ export function FeedPost({
 }: FeedPostProps) {
   const me = useCurrentProfile();
   const displayedPost: PublicPost = post.repost ?? post;
-  const isUnread = isUnreadPostForViewer(displayedPost, me?.id);
-  const postViewRef = usePostViewRef(displayedPost.id, {
-    groupId: displayedPost.groupId,
+  const isUnread = isUnreadFeedActivityForViewer(post, me?.id);
+  const postViewRef = usePostViewRef(post.id, {
+    groupId: post.groupId,
     adjustUnread: isUnread,
   });
   const hasReactionHeader =

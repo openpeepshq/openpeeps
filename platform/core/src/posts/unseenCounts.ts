@@ -4,6 +4,18 @@ import type { PgDb } from '../db/pg/client';
 
 type ExecuteResult = { rows: Record<string, unknown>[] };
 
+/** Shared predicates for group unseen count and mark-all-read. */
+const unseenGroupPostMatch = (profileId: string) => sql`
+  p.visibility <> 'direct'
+  AND p.creator_id <> ${profileId}
+  AND NOT EXISTS (
+    SELECT 1
+    FROM post_seen ps
+    WHERE ps.from_id = ${profileId}
+      AND ps.to_id = p.id::text
+  )
+`;
+
 /** Group unseen counts via anti-join (no post hydration). */
 export const countUnseenGroupPosts = async (
   db: PgDb,
@@ -25,14 +37,7 @@ export const countUnseenGroupPosts = async (
       groupIds.map((id) => sql`${id}`),
       sql`, `,
     )})
-      AND p.visibility <> 'direct'
-      AND p.creator_id <> ${profileId}
-      AND NOT EXISTS (
-        SELECT 1
-        FROM post_seen ps
-        WHERE ps.from_id = ${profileId}
-          AND ps.to_id = p.id::text
-      )
+      AND ${unseenGroupPostMatch(profileId)}
     GROUP BY pg.to_id
   `)) as unknown as ExecuteResult;
 
@@ -57,18 +62,8 @@ export const listUnseenGroupPostIds = async (
     INNER JOIN posts p
       ON p.id::text = pg.from_id
       AND p.deleted_at IS NULL
-    INNER JOIN profiles creator
-      ON creator.id::text = p.creator_id
-      AND creator.deleted_at IS NULL
     WHERE pg.to_id = ${groupId}
-      AND p.visibility <> 'direct'
-      AND p.creator_id <> ${profileId}
-      AND NOT EXISTS (
-        SELECT 1
-        FROM post_seen ps
-        WHERE ps.from_id = ${profileId}
-          AND ps.to_id = p.id::text
-      )
+      AND ${unseenGroupPostMatch(profileId)}
   `)) as unknown as ExecuteResult;
 
   return result.rows.map((row) => row.post_id as string).filter((id) => !!id);
