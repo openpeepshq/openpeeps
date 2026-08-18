@@ -1,8 +1,9 @@
-import { notFound } from '#lib/errors';
+import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
 import {
   reportDataSchema,
   publicReportSchema,
+  isSelfReport,
   type PostWithMeta,
 } from '@openpeepshq/common';
 import { findPost } from '@openpeepshq/core/posts';
@@ -18,7 +19,12 @@ export const Input = z.object({
 
 export const Output = publicReportSchema;
 
-export const apiEndpoint = endpoint({ Input, Output }).handle(
+export const Error = {
+  403: forbidden(),
+  404: notFound(),
+};
+
+export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
   async (input, event) => {
     const profile = await ensureRoleCapabilities(event, [
       'core-reports-create',
@@ -32,6 +38,12 @@ export const apiEndpoint = endpoint({ Input, Output }).handle(
         (input.postIds as string[]).map((postId: string) => findPost(postId)),
       )
     ).filter(Boolean) as PostWithMeta[];
+    const postAuthorIds = posts.map(
+      (post) => post.profile?.id ?? post.creatorId,
+    );
+    if (isSelfReport(profile.id, reportedProfile.id, postAuthorIds)) {
+      throw forbidden();
+    }
     return createReport(input.report, profile, reportedProfile, posts);
   },
 );

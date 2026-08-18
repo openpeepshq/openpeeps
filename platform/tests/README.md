@@ -277,6 +277,7 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 | Invite link create + redeem on register | API | `user-actions/` |
 | Report create + admin resolve | API | `user-actions/` |
 | Admin reopen resolved report | API | `api/gaps/` |
+| Report create / list / detail / caps / self-report / resolve / reopen | API | `moderation/` |
 | Admin stats / groups / logs | API | `api/gaps/` |
 | Service access token create/revoke | API | `api/gaps/` |
 

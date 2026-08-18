@@ -7,12 +7,16 @@ import {
   sortProfiles,
   isDeletedProfile,
   toPublicDeletedProfile,
+  toDeletedProfileWithMeta,
+  tombstoneProfileWithMetaIfDeleted,
   anonymizeProfileIfDeleted,
   DELETED_AUTHOR_DISPLAY_NAME,
   DELETED_AUTHOR_HANDLE,
 } from '../profileHelpers';
 import {
+  profileWithMetaSchema,
   publicProfileSchema,
+  type ProfileWithMeta,
   type PublicProfile,
   type GroupWithMeta,
   type InviteLinkWithMeta,
@@ -80,6 +84,71 @@ describe('profileHelpers', () => {
     it('leaves active profiles unchanged', () => {
       expect(anonymizeProfileIfDeleted(mockProfile)).toBe(mockProfile);
       expect(anonymizeProfileIfDeleted(undefined)).toBeUndefined();
+    });
+  });
+
+  describe('ProfileWithMeta tombstone', () => {
+    const deletedWithMeta = {
+      id: '22222222-2222-4222-8222-222222222222',
+      type: 'local',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-06-01T00:00:00.000Z',
+      deletedAt: '2024-06-01T00:00:00.000Z',
+      handle: 'realhandle',
+      displayName: 'Real Name',
+      avatar: 'https://example.com/avatar.png',
+      bio: 'secret bio',
+      timeZone: 'Europe/Berlin',
+      guestData: { email: 'private@example.com' },
+      roles: [{ key: 'member' }],
+      followers: [{ id: 'f1' }],
+      following: [{ id: 'g1' }],
+      controllers: [{ id: 'acc1', email: 'private@example.com' }],
+      memberships: [{ group: { id: 'grp1' } }],
+      profileStats: { followersCount: 3, followingCount: 5 },
+    } as unknown as ProfileWithMeta;
+
+    it('strips PII and keeps identity/timestamps', () => {
+      const result = toDeletedProfileWithMeta(deletedWithMeta);
+      expect(result.id).toBe(deletedWithMeta.id);
+      expect(result.deletedAt).toBe(deletedWithMeta.deletedAt);
+      expect(result.handle).toBe(DELETED_AUTHOR_HANDLE);
+      expect(result.displayName).toBe(DELETED_AUTHOR_DISPLAY_NAME);
+      expect(result.avatar).toBeNull();
+      expect(result.roles).toEqual([]);
+      expect(result.followers).toEqual([]);
+      expect(result.following).toEqual([]);
+      expect(result.controllers).toEqual([]);
+      expect(result.memberships).toEqual([]);
+      expect(result.profileStats).toEqual({
+        followersCount: 0,
+        followingCount: 0,
+      });
+      // No leaked PII fields survive the explicit rebuild.
+      expect(
+        (result as unknown as Record<string, unknown>).bio,
+      ).toBeUndefined();
+      expect(
+        (result as unknown as Record<string, unknown>).timeZone,
+      ).toBeUndefined();
+      expect(
+        (result as unknown as Record<string, unknown>).guestData,
+      ).toBeUndefined();
+    });
+
+    it('validates against the internal profileWithMetaSchema', () => {
+      expect(() =>
+        profileWithMetaSchema.parse(toDeletedProfileWithMeta(deletedWithMeta)),
+      ).not.toThrow();
+    });
+
+    it('only tombstones soft-deleted profiles', () => {
+      expect(tombstoneProfileWithMetaIfDeleted(undefined)).toBeUndefined();
+      const active = { ...deletedWithMeta, deletedAt: null };
+      expect(tombstoneProfileWithMetaIfDeleted(active)).toBe(active);
+      expect(tombstoneProfileWithMetaIfDeleted(deletedWithMeta)?.handle).toBe(
+        DELETED_AUTHOR_HANDLE,
+      );
     });
   });
 

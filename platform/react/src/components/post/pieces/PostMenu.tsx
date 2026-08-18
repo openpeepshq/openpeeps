@@ -91,14 +91,15 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
     [authData, post, capabilities],
   );
 
+  const isPostOwner = postProfile?.id === me?.id;
+
   const canReportPost = useMemo(
     () =>
       !!me &&
+      !isPostOwner &&
       checkRoleCapabilities(me.roles ?? [], ['core-reports-create']).success,
-    [me],
+    [me, isPostOwner],
   );
-
-  const isPostOwner = postProfile?.id === me?.id;
 
   if (!me) return null;
 
