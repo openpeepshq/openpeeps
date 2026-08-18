@@ -39,6 +39,15 @@ export function AdminConfigurationCommunityProfileFields() {
 
   const handleSubmit = async () => {
     setStatus(null);
+    if (fields.some((field) => !field.key.trim())) {
+      setStatus({
+        type: 'error',
+        message: t('configuration.community.profileFields.emptyKeyError', {
+          defaultValue: 'Each profile field needs a non-empty key.',
+        }),
+      });
+      return;
+    }
     try {
       await updateConfig({
         config: { profiles: { additionalFields: fields } },

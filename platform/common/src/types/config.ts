@@ -276,6 +276,18 @@ export const coreConfigSchema = coreConfigSchemaFactory(false);
 export const coreConfigSanitizedSchema = coreConfigSchemaFactory(true);
 export type CoreConfig = z.infer<typeof coreConfigSchema>;
 
+/** Community-configured member profile fields (`profiles.additionalFields`). */
+export const communityProfileAdditionalFieldSchema = z.object({
+  // Trim so whitespace-only keys fail the same as "".
+  key: z.string().trim().min(1),
+  label: z.string(),
+  icon: z.string().optional(),
+  linkPattern: z.string().optional(),
+});
+export type CommunityProfileAdditionalField = z.infer<
+  typeof communityProfileAdditionalFieldSchema
+>;
+
 export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
   z.object({
     theme: z.object({
@@ -317,13 +329,7 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
     profiles: z
       .object({
         additionalFields: z
-          .object({
-            key: z.string(),
-            label: z.string(),
-            icon: z.string().optional(),
-            linkPattern: z.string().optional(),
-          })
-          .array()
+          .array(communityProfileAdditionalFieldSchema)
           .optional(),
       })
       .optional(),

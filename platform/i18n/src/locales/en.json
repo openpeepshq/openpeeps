@@ -1706,7 +1706,8 @@
       },
       "profileFields": {
         "title": "Profile Fields",
-        "description": "Customize your members' profile pages with additional info fields"
+        "description": "Customize your members' profile pages with additional info fields",
+        "emptyKeyError": "Each profile field needs a non-empty key."
       },
       "roles": {
         "title": "Roles and Capabilities",
