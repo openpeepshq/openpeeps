@@ -15,16 +15,12 @@ export const countUnseenGroupPosts = async (
   );
   if (groupIds.length === 0) return counts;
 
-  // Feeds omit tombstoned authors (canReadPost); keep badges aligned.
   const result = (await db.execute(sql`
     SELECT pg.to_id AS group_id, count(*)::int AS cnt
     FROM post_groups pg
     INNER JOIN posts p
       ON p.id::text = pg.from_id
       AND p.deleted_at IS NULL
-    INNER JOIN profiles creator
-      ON creator.id::text = p.creator_id
-      AND creator.deleted_at IS NULL
     WHERE pg.to_id IN (${sql.join(
       groupIds.map((id) => sql`${id}`),
       sql`, `,
@@ -80,7 +76,7 @@ export const listUnseenGroupPostIds = async (
 
 /**
  * Direct-message unread counts keyed by conversation root.
- * Ignores deleted authors so badges match inbox previews.
+ * Walks reply_to to roots without hydrating posts.
  */
 export const countUnseenDirectPosts = async (
   db: PgDb,
@@ -112,15 +108,6 @@ export const countUnseenDirectPosts = async (
     SELECT roots.root_id, count(*)::int AS cnt
     FROM my_direct d
     INNER JOIN roots ON roots.post_id = d.post_id
-    INNER JOIN profiles msg_creator
-      ON msg_creator.id::text = d.creator_id
-      AND msg_creator.deleted_at IS NULL
-    INNER JOIN posts root_post
-      ON root_post.id::text = roots.root_id
-      AND root_post.deleted_at IS NULL
-    INNER JOIN profiles root_creator
-      ON root_creator.id::text = root_post.creator_id
-      AND root_creator.deleted_at IS NULL
     WHERE d.creator_id <> ${profileId}
       AND NOT EXISTS (
         SELECT 1
