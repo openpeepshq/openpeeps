@@ -1,10 +1,10 @@
 name: API performance (fixture)
 
-# Manual / weekly only — not on every PR (same policy as jam loadtest).
+# Manual / daily — not on every PR (same policy as jam loadtest).
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 4 * * 1'
+    - cron: '0 4 * * *'
 
 env:
   DEFAULT_BRANCH: main
