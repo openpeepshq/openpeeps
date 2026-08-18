@@ -2,6 +2,7 @@ import { endOfMonth, formatISO, startOfMonth, subMonths } from 'date-fns';
 import { eq } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 import type { AnalyticsDateQuery } from '@openpeepshq/common/types';
+import { communityConfig } from '../config';
 import { sendEmailQueue } from '../email';
 import { database } from '../db';
 import { analyticsReportDeliveries } from '../db/pg/schema/analytics';
@@ -42,10 +43,11 @@ const narrativeSentence = (
 export const buildAnalyticsBoardReport = async (
   query: AnalyticsDateQuery = {},
 ) => {
-  const [overview, growth, engagement] = await Promise.all([
+  const [overview, growth, engagement, community] = await Promise.all([
     getAnalyticsOverview(query),
     getAnalyticsGrowth(query),
     getAnalyticsEngagement(query),
+    communityConfig(),
   ]);
   const from = overview.range.from;
   const to = overview.range.to;
@@ -92,7 +94,12 @@ export const buildAnalyticsBoardReport = async (
     ...summary,
   ].join('\n');
 
-  const pdf = await buildAnalyticsPdf({ overview, growth, engagement });
+  const pdf = await buildAnalyticsPdf({
+    communityName: community.info.name,
+    overview,
+    growth,
+    engagement,
+  });
 
   return { text, pdf, overview, growth, engagement };
 };

@@ -189,6 +189,7 @@ const engagementFixture: AnalyticsEngagement = {
 describe('buildAnalyticsPdf', () => {
   it('builds a multi-page visual PDF for the analytics tabs', async () => {
     const pdf = await buildAnalyticsPdf({
+      communityName: 'Example Community',
       overview: overviewFixture,
       growth: growthFixture,
       engagement: engagementFixture,
@@ -196,7 +197,7 @@ describe('buildAnalyticsPdf', () => {
     const text = pdf.toString('latin1');
     expect(text.startsWith('%PDF')).toBe(true);
     expect(text).toContain('%%EOF');
-    expect(text).toContain('Community analytics report');
+    expect(text).toContain('Example Community analytics report');
     const pageCount = Number(text.match(/\/Count\s+(\d+)/)?.[1] ?? 0);
     expect(pageCount).toBeGreaterThanOrEqual(5);
     expect(pdf.byteLength).toBeGreaterThan(5_000);

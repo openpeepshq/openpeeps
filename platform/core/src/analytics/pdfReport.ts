@@ -6,6 +6,7 @@ import type {
 } from '@openpeepshq/common/types';
 
 export type AnalyticsPdfData = {
+  communityName: string;
   overview: AnalyticsOverview;
   growth: AnalyticsGrowth;
   engagement: AnalyticsEngagement;
@@ -136,13 +137,13 @@ const cumulativeGrowth = (
   });
 };
 
-const createDoc = () =>
+const createDoc = (communityName: string) =>
   new PDFDocument({
     size: 'LETTER',
     margin: MARGIN,
     compress: false,
     info: {
-      Title: 'Community analytics report',
+      Title: `${communityName} analytics report`,
       Author: 'OpenPeeps',
     },
   });
@@ -1049,7 +1050,7 @@ const drawGroupsPage = (layout: Layout, overview: AnalyticsOverview) => {
 export const buildAnalyticsPdf = async (
   data: AnalyticsPdfData,
 ): Promise<Buffer> => {
-  const doc = createDoc();
+  const doc = createDoc(data.communityName);
   const pending = bufferFromDoc(doc);
   const period = `${data.overview.range.from} to ${data.overview.range.to}`;
   const layout: Layout = {
@@ -1062,9 +1063,16 @@ export const buildAnalyticsPdf = async (
 
   // Cover strip on first page before section chrome
   doc.fontSize(10).fillColor(COLORS.muted).font('Helvetica');
-  writeText(doc, 'OpenPeeps - Community analytics', MARGIN, layout.y, {
-    width: CONTENT_WIDTH,
-  });
+  writeText(
+    doc,
+    `${data.communityName} - Community analytics`,
+    MARGIN,
+    layout.y,
+    {
+      width: CONTENT_WIDTH,
+      ellipsis: true,
+    },
+  );
   layout.y += 16;
   doc.fontSize(22).fillColor(COLORS.ink).font('Helvetica-Bold');
   writeText(doc, 'Analytics report', MARGIN, layout.y, {
