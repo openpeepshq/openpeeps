@@ -1,23 +1,14 @@
 # Postgres migration runbook (Arango → Postgres)
 
-One-time offline cutover per OpenPeeps instance, or automatic migration on
-startup when Postgres is empty and Arango still holds data.
+One-time offline cutover per OpenPeeps instance that still has data in Arango.
 
-## Automatic migration (startup)
-
-When the API or worker starts, `@openpeepshq/core` will:
-
-1. Apply Drizzle schema migrations to Postgres.
-2. If Postgres has no application data yet, probe Arango at `DB_URL` / `DB_NAME`.
-3. If Arango has documents in `accounts`, `profiles`, or `posts`, export,
-   import, and validate in a temporary directory.
-
-Set `AUTO_MIGRATE_FROM_ARANGO=false` to disable. For production cutovers with
-both databases running, stop other writers first or use the manual steps below.
+Arango is **not** part of the default runtime (Compose, `.env.dev.example`).
+Startup no longer auto-migrates; set `AUTO_MIGRATE_FROM_ARANGO=false` (the
+default). Use the archive CLI below.
 
 ## Manual cutover
 
-Run from `platform/core` after building `@openpeepshq/core`.
+Run from the repo after building `@openpeepshq/arango-migrate` (and `@openpeepshq/core`).
 
 ## Prerequisites
 
@@ -25,6 +16,12 @@ Run from `platform/core` after building `@openpeepshq/core`.
 - Empty Postgres database with schema applied (`DATABASE_URL`).
 - Application and worker processes **stopped** for the cutover window.
 - Sufficient disk space for `./arango-export` (or `MIGRATION_EXPORT_DIR`).
+
+Optional local Arango:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.arango.yml up -d
+```
 
 ## Environment
 
@@ -34,7 +31,7 @@ Run from `platform/core` after building `@openpeepshq/core`.
 | `DB_NAME`                  | export           | Arango database name                                |
 | `DATABASE_URL`             | import, validate | Postgres connection string                          |
 | `MIGRATION_EXPORT_DIR`     | all              | Export directory (default `./arango-export`)        |
-| `AUTO_MIGRATE_FROM_ARANGO` | startup          | Set to `false` to disable automatic migration       |
+| `AUTO_MIGRATE_FROM_ARANGO` | startup          | Ignored at runtime; keep `false`                    |
 
 ## Steps
 
@@ -46,8 +43,8 @@ Confirm no clients are mutating Arango during export.
 ### 2. Export Arango
 
 ```bash
-cd platform/core
-pnpm db:export-arango
+pnpm --filter @openpeepshq/arango-migrate... build
+pnpm --filter @openpeepshq/arango-migrate export
 ```
 
 Writes:
@@ -65,7 +62,7 @@ truncates all migration tables and reloads in FK-safe order (documents, then
 edges).
 
 ```bash
-pnpm db:import-pg
+pnpm --filter @openpeepshq/arango-migrate import
 ```
 
 Drizzle SQL migrations run automatically before import.
@@ -73,7 +70,7 @@ Drizzle SQL migrations run automatically before import.
 ### 4. Validate
 
 ```bash
-pnpm db:validate-migration
+pnpm --filter @openpeepshq/arango-migrate validate
 ```
 
 Exits non-zero if any collection count or checksum differs from the export
@@ -103,17 +100,13 @@ re-run validate against the original export manifest.
 ## Commands reference
 
 ```bash
-pnpm db:export-arango      # node dist/db/migration/cli.js export
-pnpm db:import-pg          # node dist/db/migration/cli.js import
-pnpm db:validate-migration # node dist/db/migration/cli.js validate
+pnpm --filter @openpeepshq/arango-migrate export
+pnpm --filter @openpeepshq/arango-migrate import
+pnpm --filter @openpeepshq/arango-migrate validate
 ```
 
-Build is run automatically by these scripts. For manual invocation:
-
-```bash
-pnpm build
-node dist/db/migration/cli.js export|import|validate
-```
+Build first with `pnpm --filter @openpeepshq/arango-migrate... build`.
+Source: `archive/arango-migrate`.
 
 ## Notes
 

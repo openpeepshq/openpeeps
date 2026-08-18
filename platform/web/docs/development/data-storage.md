@@ -55,7 +55,8 @@ Rationale and cutover notes: `platform/core/docs/postgres-schema-adr.md` and
 `platform/core/src/db/dataMigrations/` is **Arango-era history** used for
 cutover export shapes; it is **not** replayed on Postgres and must not receive
 new migrations. One-off PG data backfills belong in an intentional SQL
-migration or a documented one-shot script.
+migration or a documented one-shot script. Remaining Arango cutover CLI
+lives in `archive/arango-migrate` (not the default runtime).
 
 ### Query style
 

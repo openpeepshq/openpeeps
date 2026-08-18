@@ -4,10 +4,6 @@ The packages in this folder are independent from OpenPeeps data
 structures and will probably be moved into their own repositories
 at some point if they find adoption.
 
-## arango-querybuilder
-
-A typesafe querybuilder for ArangoDb
-
 ## fetch-client
 
 Some convenience methods around fetch and to build nice api libraries.

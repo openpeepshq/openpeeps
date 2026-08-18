@@ -1,6 +1,8 @@
 {
   "name": "@openpeepshq/arango-querybuilder",
   "version": "0.4.7",
+  "private": true,
+  "description": "ARCHIVE: Arango query builder for historical cutover tooling. Not part of the OpenPeeps runtime.",
   "license": "MIT",
   "type": "module",
   "dependencies": {

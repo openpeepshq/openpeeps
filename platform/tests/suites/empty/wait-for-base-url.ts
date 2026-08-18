@@ -2,7 +2,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Polls the app base URL until it responds or times out. CI service containers
- * (web, arangodb, redis) can take a few seconds to join the job network; Playwright
+ * (web, postgres, redis) can take a few seconds to join the job network; Playwright
  * globalSetup used to fail immediately with getaddrinfo EAI_AGAIN on `web`.
  */
 export async function waitForBaseUrl(

@@ -4,6 +4,7 @@ packages:
   - "examples/*"
   - "plugins/*/*"
   - "docs-site"
+  - "archive/*"
 
 linkWorkspacePackages: deep
 

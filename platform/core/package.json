@@ -53,7 +53,6 @@
     "/dist"
   ],
   "devDependencies": {
-    "@openpeepshq/arango-querybuilder": "workspace:^",
     "@types/archiver": "^6.0.3",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.6",
@@ -68,7 +67,6 @@
     "@types/web-push": "^3.6.4",
     "@typescript-eslint/eslint-plugin": "^8.19.1",
     "@typescript-eslint/parser": "^8.19.1",
-    "arangojs": "10.0.0",
     "concurrently": "^9.1.2",
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.17.0",
@@ -92,9 +90,6 @@
     "create-migration": "node create-migration.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
-    "db:export-arango": "pnpm build && node dist/db/migration/cli.js export",
-    "db:import-pg": "pnpm build && node dist/db/migration/cli.js import",
-    "db:validate-migration": "pnpm build && node dist/db/migration/cli.js validate"
+    "db:studio": "drizzle-kit studio"
   }
 }

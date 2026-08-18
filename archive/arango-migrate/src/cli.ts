@@ -1,23 +1,33 @@
+#!/usr/bin/env node
+import { aql, Database } from 'arangojs';
 import { appendFile, mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { aql, Database } from 'arangojs';
-import { collectionInfos } from '../pg/collections';
-import { logger } from '../../log';
+import dotenv from 'dotenv';
+import { logger } from '@openpeepshq/core/log';
 import {
-  arangoConfig,
   collectionFilePath,
+  collectionInfos,
   collectionsDir,
   exportDirFromEnv,
+  importPostgres,
   sortedChecksum,
+  validateMigration,
   writeManifest,
   type MigrationManifest,
-} from './shared';
+} from '@openpeepshq/core/migration';
 
-const log = logger('core:migration:export');
+dotenv.config();
 
-export const connectArango = () => new Database(arangoConfig());
+const log = logger('archive:arango-migrate');
 
-export const exportArango = async (exportDir = exportDirFromEnv()) => {
+const arangoConfig = () => ({
+  url: process.env.DB_URL ?? 'http://localhost:8529',
+  databaseName: process.env.DB_NAME,
+});
+
+const connectArango = () => new Database(arangoConfig());
+
+const exportArango = async (exportDir = exportDirFromEnv()) => {
   const config = arangoConfig();
   const db = connectArango();
   log.info(
@@ -85,3 +95,59 @@ export const exportArango = async (exportDir = exportDirFromEnv()) => {
   log.info('Export complete: %s', exportDir);
   return manifest;
 };
+
+const usage = () => {
+  console.log(`Usage: arango-migrate <command>
+
+ARCHIVE: Arango → Postgres cutover. Not part of the OpenPeeps runtime.
+
+Commands:
+  export    Export ArangoDB collections to JSONL (DB_URL, DB_NAME)
+  import    Import export into Postgres (DATABASE_URL)
+  validate  Compare Postgres to import-stats.json (or export manifest)
+
+Environment:
+  MIGRATION_EXPORT_DIR  Export directory (default: ./arango-export)
+  DB_URL                Arango server URL (default: http://localhost:8529)
+  DB_NAME               Arango database name
+  DATABASE_URL          Postgres connection string
+`);
+};
+
+export const runCli = async (argv = process.argv.slice(2)) => {
+  const [command] = argv;
+  const exportDir = exportDirFromEnv();
+
+  switch (command) {
+    case 'export': {
+      await exportArango(exportDir);
+      return 0;
+    }
+    case 'import': {
+      await importPostgres(exportDir);
+      return 0;
+    }
+    case 'validate': {
+      const result = await validateMigration(exportDir);
+      return result.ok ? 0 : 1;
+    }
+    default:
+      usage();
+      if (command) {
+        log.error('Unknown command: %s', command);
+        return 1;
+      }
+      return 1;
+  }
+};
+
+runCli()
+  .then((code) => {
+    if (code !== 0) {
+      process.exitCode = code;
+    }
+  })
+  .catch((err: unknown) => {
+    log.error('Migration CLI failed', err);
+    process.exitCode = 1;
+  });

@@ -4,11 +4,6 @@ export interface OpenpeepsDatabase {
   db: PgDb;
 }
 
-export interface UserFunctionDefinition {
-  name: string;
-  dbFunction: Function;
-}
-
 export interface ObjectFilter<O extends object> {
   (item: O): boolean;
 }

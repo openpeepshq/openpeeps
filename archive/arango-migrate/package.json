@@ -1,0 +1,39 @@
+{
+  "name": "@openpeepshq/arango-migrate",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ARCHIVE: Arango → Postgres export/import/validate CLI. Not part of the OpenPeeps runtime.",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "bin": {
+    "arango-migrate": "./dist/cli.js"
+  },
+  "main": "dist/cli.js",
+  "files": [
+    "/dist"
+  ],
+  "dependencies": {
+    "@openpeepshq/core": "workspace:*",
+    "arangojs": "10.0.0",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.17",
+    "@typescript-eslint/eslint-plugin": "^8.19.1",
+    "@typescript-eslint/parser": "^8.19.1",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  },
+  "scripts": {
+    "lint": "prettier --check . && ESLINT_USE_FLAT_CONFIG=false eslint .",
+    "format": "prettier --write .",
+    "clean": "rm -rf tsconfig.tsbuildinfo dist",
+    "build": "tsc",
+    "arango-migrate": "node dist/cli.js",
+    "export": "node dist/cli.js export",
+    "import": "node dist/cli.js import",
+    "validate": "node dist/cli.js validate"
+  }
+}
