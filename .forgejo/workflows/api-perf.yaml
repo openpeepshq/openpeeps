@@ -37,6 +37,7 @@ jobs:
       DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
       REDIS_URL: redis://redis:6379
       DISABLE_CONFIG_CACHE: 'true'
+      JWT_SECRET: xxx
       PERF_DB_TIMING: '1'
       PERF_BASE_URL: http://127.0.0.1:5173
     steps:
