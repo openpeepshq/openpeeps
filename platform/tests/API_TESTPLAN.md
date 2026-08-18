@@ -262,10 +262,13 @@ All require local profile today (`ensureLocalProfile`) unless policy changes.
 
 | ID | Endpoint | Preconditions | Expected | Notes |
 |----|----------|---------------|----------|-------|
-| API-REP-01 | `POST /reports` | `core-reports-create` | created | |
-| API-REP-02 | `POST /reports` | no create cap | `403` | |
-| API-REP-03 | `GET /reports` | local | member-visible list | |
-| API-REP-04 | `GET /reports/:reportId` | allowed | detail | |
+| API-REP-01 | `POST /reports` | `core-reports-create` | created | `empty/moderation/` |
+| API-REP-02 | `POST /reports` | no create cap (pending) | `403` | `empty/moderation/` |
+| API-REP-03 | `GET /reports` | local reporter | member-visible list | `empty/moderation/` |
+| API-REP-04 | `GET /reports/:reportId` | reporter or `core-reports-read` | detail; other member `403` | `empty/moderation/` |
+| API-REP-05 | `POST /reports` | own post or own profile | `403` | #446; `empty/moderation/` |
+| API-REP-06 | `POST /reports` | unknown `profileId` | `404` | `empty/moderation/` |
+| API-REP-07 | `POST /reports` | empty `postIds` | profile-only report | `empty/moderation/` |
 
 Do **not** assert client `PATCH/DELETE /reports/:id` until server routes exist.
 
@@ -309,10 +312,11 @@ Unless noted: Bearer + `ensureRoleCapabilities`. Matrix: unauth `401`, member
 |----|----------|-------------|----------|
 | API-ADM-GRP-01 | `GET /admin/groups` | `core-groups-read` | list |
 | API-ADM-GRP-02 | `DELETE /admin/groups/:groupId` | `core-groups-delete` | deleted |
-| API-ADM-REP-01 | `GET /admin/reports` | `core-reports-read` | list |
-| API-ADM-REP-02 | `GET /admin/reports/:reportId` | read | detail |
-| API-ADM-REP-03 | `PUT /admin/reports/:reportId/resolve` | update | resolved |
-| API-ADM-REP-04 | `PUT /admin/reports/:reportId/reopen` | update | reopened |
+| API-ADM-REP-01 | `GET /admin/reports` | `core-reports-read` | list | `empty/moderation/` |
+| API-ADM-REP-02 | `GET /admin/reports/:reportId` | read | detail | `empty/moderation/` |
+| API-ADM-REP-03 | `PUT /admin/reports/:reportId/resolve` | update | resolved (`ignore` / `remove`) | `empty/moderation/` |
+| API-ADM-REP-04 | `PUT /admin/reports/:reportId/reopen` | update | reopened | `empty/moderation/` |
+| API-ADM-REP-05 | `GET/PUT /admin/reports…` | member JWT | `403` | `empty/moderation/` |
 | API-ADM-ROLE-01 | `GET /admin/roles` | `core-roles-read` | list |
 | API-ADM-ROLE-02 | `PUT /admin/roles/:roleId` | `core-roles-update` | updated |
 

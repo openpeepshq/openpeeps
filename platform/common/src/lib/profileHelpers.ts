@@ -58,6 +58,42 @@ export const anonymizeProfileIfDeleted = <T extends PublicProfile>(
   return isDeletedProfile(profile) ? toPublicDeletedProfile(profile) : profile;
 };
 
+/**
+ * Tombstone for internal `ProfileWithMeta` surfaces (e.g. moderation reports).
+ * Built explicitly rather than by spreading the original so no PII of the
+ * deleted account (email/controllers, social graph, time zone, guest data)
+ * can leak, while still satisfying `profileWithMetaSchema` — unlike
+ * {@link toPublicDeletedProfile}, whose stripped shape is only valid for the
+ * looser `publicProfileSchema`.
+ */
+export const toDeletedProfileWithMeta = (
+  profile: ProfileWithMeta,
+): ProfileWithMeta => ({
+  id: profile.id,
+  type: profile.type,
+  createdAt: profile.createdAt,
+  updatedAt: profile.updatedAt,
+  deletedAt: profile.deletedAt,
+  handle: DELETED_AUTHOR_HANDLE,
+  displayName: DELETED_AUTHOR_DISPLAY_NAME,
+  avatar: null,
+  header: null,
+  roles: [],
+  followers: [],
+  following: [],
+  controllers: [],
+  memberships: [],
+  profileStats: { followersCount: 0, followingCount: 0 },
+});
+
+/** Tombstone a `ProfileWithMeta` only when it is soft-deleted. */
+export const tombstoneProfileWithMetaIfDeleted = (
+  profile: ProfileWithMeta | undefined,
+): ProfileWithMeta | undefined =>
+  profile && isDeletedProfile(profile)
+    ? toDeletedProfileWithMeta(profile)
+    : profile;
+
 export const profileName = (profile?: PublicProfile) =>
   profile?.displayName || profile?.handle;
 

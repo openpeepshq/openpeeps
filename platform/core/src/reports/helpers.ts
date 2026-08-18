@@ -6,6 +6,7 @@ import {
   ReportWithMeta,
   ProfileWithMeta,
 } from '@openpeepshq/common/types';
+import { tombstoneProfileWithMetaIfDeleted } from '@openpeepshq/common/lib';
 import { transformPost } from '../posts';
 
 export const transformReport = async (
@@ -14,6 +15,12 @@ export const transformReport = async (
   const rawPosts = (report.reportedPosts ?? []) as unknown as DbPost[];
   return {
     ...report,
+    reporterProfile: tombstoneProfileWithMetaIfDeleted(
+      report.reporterProfile,
+    ) as ProfileWithMeta,
+    reportedProfile: tombstoneProfileWithMetaIfDeleted(
+      report.reportedProfile,
+    ) as ProfileWithMeta,
     reportedPosts: await Promise.all(
       rawPosts.map((post) => transformPost(post)),
     ),
