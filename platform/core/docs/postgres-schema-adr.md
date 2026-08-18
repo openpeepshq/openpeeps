@@ -79,7 +79,8 @@ is the baseline.
 
 ## Consequences
 
-- `@openpeepshq/arango-querybuilder` and `arangojs` removed after cutover
+- `@openpeepshq/arango-querybuilder` and `arangojs` live in `archive/` (cutover
+  CLI only; not a runtime dependency)
 - Feed/search queries rewritten as explicit SQL in repositories (no generic graph builder)
 - `db/pg/map` remains for existing document/edge call sites; **new features
   prefer Drizzle / SQL-native queries** over deepening that compatibility DSL

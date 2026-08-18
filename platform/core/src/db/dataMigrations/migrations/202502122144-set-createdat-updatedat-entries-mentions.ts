@@ -1,5 +1,5 @@
 import { aql, Database } from 'arangojs';
-import { ensureIndexedCollection } from '../../helpers';
+import { ensureIndexedCollection } from '../helpers';
 import { collectionInfos } from '../../pg/collections';
 
 export default {

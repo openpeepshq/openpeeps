@@ -2,7 +2,7 @@ import { Database } from 'arangojs';
 import { baseProfilesMapping } from '../../../profiles/mapping';
 import { logger } from '../../../log';
 import { profileSettingsMapping } from '../../../profileSettings';
-import { ensureIndexedCollection } from '../../helpers';
+import { ensureIndexedCollection } from '../helpers';
 import { collectionInfos } from '../../pg/collections';
 
 const log = logger('db:dataMigrations');

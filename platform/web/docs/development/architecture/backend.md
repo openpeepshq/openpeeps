@@ -322,7 +322,7 @@ Email sending via SMTP:
 - `JWT_SECRET` — required in production; random fallback is cryptographically
   fine for a single local process but breaks multi-instance / restart
   consistency (server warns or fails fast accordingly)
-- Database (`DATABASE_URL`, optional legacy `DB_URL` / `DB_NAME`)
+- Database (`DATABASE_URL`)
 - Redis (`REDIS_HOST`, `REDIS_PORT`)
 - `SERVER_HOST` / `SERVER_PROTOCOL` — public hostname for links and prod CORS
 - `CORS_ORIGINS` — optional comma-separated API allowlist (defaults from

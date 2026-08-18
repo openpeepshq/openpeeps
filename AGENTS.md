@@ -74,7 +74,8 @@ accompanied by a written outline of exactly what changed and why.**
 
 ## Repository layout
 
-- pnpm workspace monorepo. Packages live under `platform/*`, `libraries/*`, and `plugins/*/*`.
+- pnpm workspace monorepo. Packages live under `platform/*`, `libraries/*`,
+  `plugins/*/*`, and `archive/*` (Arango cutover tooling only — not runtime).
 - `platform/common` — shared types and utilities (Zod schemas live here).
 - `platform/core` — backend logic: DB, notifications, email, jobs, roles, plugin loader.
 - `platform/server` — API server (Riddl); add new API endpoints here.

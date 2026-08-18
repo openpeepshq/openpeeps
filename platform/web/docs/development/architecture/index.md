@@ -72,8 +72,11 @@ Express API server, shared libraries, and background workers.
 - **`@openpeepshq/geocoder`** — Geocoding service abstraction
 - **`@openpeepshq/greenscreen`** — Background processing for video
 - **`@openpeepshq/react-ui`** — Shared React UI components
-- **`@openpeepshq/arango-querybuilder`** — Legacy Arango query builder (cutover /
-  historical tooling only; not the PG runtime path)
+
+Archive (cutover only, not runtime):
+
+- **`@openpeepshq/arango-migrate`** — Arango → Postgres export/import/validate
+- **`@openpeepshq/arango-querybuilder`** — Historical Arango query builder
 
 ### Dependency graph
 

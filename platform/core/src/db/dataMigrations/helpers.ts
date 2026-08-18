@@ -1,9 +1,15 @@
-import { EdgeCollection } from 'arangojs/collections';
+import { DocumentCollection, EdgeCollection } from 'arangojs/collections';
 import { Database } from 'arangojs';
 import { EdgeData } from 'arangojs/documents';
+import { EnsureIndexOptions } from 'arangojs/indexes';
 import { FollowData } from '@openpeepshq/common/types';
+import type { Base } from '@openpeepshq/common/types';
 import { query } from '@openpeepshq/arango-querybuilder';
 import { asyncFilter } from '@openpeepshq/common/lib';
+import type { CollectionInfo } from '../pg/map/queryTypes';
+import { logger } from '../../log';
+
+const log = logger('openpeeps:db');
 
 export const makeEdgesUnique = async (
   db: Database,
@@ -66,3 +72,72 @@ export const edgeCollections = async (database: Database) =>
           .then((p) => p.type === 3 /* CollectionType.EDGE_COLLECTION */),
       ),
     );
+
+export const addModificationDates = async (collection: DocumentCollection) => {
+  await collection.properties({
+    computedValues: [
+      {
+        name: 'createdAt',
+        expression: 'RETURN DATE_ISO8601(DATE_NOW())',
+        computeOn: ['insert'],
+        overwrite: false,
+        failOnWarning: false,
+        keepNull: true,
+      },
+      {
+        name: 'updatedAt',
+        expression: 'RETURN DATE_ISO8601(DATE_NOW())',
+        computeOn: ['update', 'replace', 'insert'],
+        overwrite: false,
+        failOnWarning: false,
+        keepNull: true,
+      },
+    ],
+  });
+};
+
+export const addIndices = async (
+  collection: DocumentCollection | EdgeCollection,
+  indices: EnsureIndexOptions[],
+) => {
+  for (const index of indices) {
+    if (!index.name) {
+      return;
+    }
+    try {
+      log.info('ensuring index', index.name);
+      await collection.ensureIndex(index);
+    } catch (error) {
+      const message = (error as Error).message;
+      if (message.includes('duplicate value')) {
+        log.info('index already exists', index.name);
+        log.info('dropping and recreating...');
+        await collection.dropIndex(index.name);
+        await collection.ensureIndex(index);
+        log.info('index recreated');
+      } else {
+        log.error('error ensuring index', index.name, message);
+      }
+    }
+  }
+};
+
+export const ensureIndexedCollection = async <
+  T extends Record<string, unknown>,
+>(
+  db: Database,
+  collectionInfo: CollectionInfo,
+): Promise<DocumentCollection<Base<T>, T>> => {
+  const maybeCollection = db.collection(collectionInfo.name);
+  const collection = (await maybeCollection.exists())
+    ? maybeCollection
+    : collectionInfo.edge
+      ? await db.createEdgeCollection<Base<T>, T>(collectionInfo.name)
+      : await db.createCollection<Base<T>, T>(collectionInfo.name);
+  await addModificationDates(collection);
+  await addIndices(
+    collection,
+    (collectionInfo.indices ?? []) as EnsureIndexOptions[],
+  );
+  return collection;
+};

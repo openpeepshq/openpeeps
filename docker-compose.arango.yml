@@ -1,0 +1,12 @@
+# ARCHIVE: optional ArangoDB for one-time cutover tooling.
+# Not part of the default runtime. Start with:
+#   docker compose -f docker-compose.yml -f docker-compose.arango.yml up -d
+# Then run @openpeepshq/arango-migrate (see archive/arango-migrate).
+services:
+  arango:
+    restart: always
+    image: arangodb:3.11.8
+    environment:
+      ARANGO_NO_AUTH: "1"
+    ports:
+      - "8529:8529"
