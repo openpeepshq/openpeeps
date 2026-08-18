@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent, type MouseEvent } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { collectVotes, hasValue, type PublicPost } from '@openpeepshq/common';
 import { checkPostCapabilities, groupName } from '@openpeepshq/common/lib';
 
@@ -20,7 +20,7 @@ import { useAuthData, useCurrentProfile } from '../../layout/IdentityContext';
 import { useToast } from '../../layout/ToastProvider';
 import { useCapabilities } from '../../server-data';
 import { Avatar } from '../../profile';
-import { Button } from '@openpeepshq/react-ui';
+import { Button, cn } from '@openpeepshq/react-ui';
 
 export interface PollContentProps {
   post: PublicPost;
@@ -43,11 +43,10 @@ export function PollContent({ post }: PollContentProps) {
   const pollData = post.data;
   const { votes, voteCounts } = collectVotes(post);
   const hasPollEnded = !!(pollData.expiresAt && isPast(pollData.expiresAt));
-  const hasVoted = !!(
-    currentProfile &&
-    (votes.find((v) => v?.profile?.id === currentProfile.id)?.selection
-      ?.length ?? 0) > 0
-  );
+  const ownSelection = currentProfile
+    ? (votes.find((v) => v?.profile?.id === currentProfile.id)?.selection ?? [])
+    : [];
+  const hasVoted = ownSelection.length > 0;
   const canVote = !!(currentProfile && !hasPollEnded && !hasVoted);
   const totalVotes = votes.length || 1;
 
@@ -120,8 +119,15 @@ export function PollContent({ post }: PollContentProps) {
     }
   };
 
-  const stopFeedNavigation = (e: MouseEvent | KeyboardEvent) => {
-    e.preventDefault();
+  // The feed wraps each post in a link, so clicks inside the poll must not
+  // reach it. Clicks on the option controls are exempt: cancelling those
+  // reverts the checkbox/radio the browser just ticked, so a pending selection
+  // would never show. They are their own activation target, so the surrounding
+  // link does not navigate. Key events only stop propagation for the same
+  // reason — cancelling them swallows keyboard activation.
+  const stopFeedNavigation = (e: MouseEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (!target?.closest('input,label')) e.preventDefault();
     e.stopPropagation();
   };
 
@@ -129,69 +135,98 @@ export function PollContent({ post }: PollContentProps) {
     <div
       className="bg-surface rounded-lg px-4 py-4"
       onClick={stopFeedNavigation}
-      onKeyDown={stopFeedNavigation}
+      onKeyDown={(e) => e.stopPropagation()}
       role="presentation"
     >
       <div className="space-y-4">
-        {pollData.options.map((option, index) => (
-          <div
-            key={`${option.content}-${index}`}
-            className="flex items-center gap-2 py-2"
-          >
-            {canVote ? (
-              pollData.multiple ? (
-                <input
-                  type="checkbox"
-                  checked={selectedPollOptions.includes(index)}
-                  onChange={() =>
-                    setSelectedPollOptions((prev) =>
-                      prev.includes(index)
-                        ? prev.filter((i) => i !== index)
-                        : [...prev, index],
-                    )
-                  }
-                />
-              ) : (
-                <input
-                  type="radio"
-                  name={`poll-${post.id}`}
-                  checked={selectedPollOption === index}
-                  onChange={() => setSelectedPollOption(index)}
-                />
-              )
-            ) : null}
-            <div className="flex-1">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-base">{option.content}</span>
-                <div className="flex items-center gap-2">
-                  {pollData.votersVisible ? (
-                    <div className="flex -space-x-2">
-                      {votes
-                        .filter((v) => v.selection.includes(index))
-                        .slice(0, 2)
-                        .map((vote) => (
-                          <Avatar
-                            key={vote.profile.id}
-                            profile={vote.profile}
-                            size={1.5}
-                          />
-                        ))}
-                    </div>
-                  ) : null}
-                  <span>{voteCounts?.[index] ?? 0}</span>
+        {pollData.options.map((option, index) => {
+          const optionId = `poll-${post.id}-option-${index}`;
+          const isOwnChoice = ownSelection.includes(index);
+          // Kept visible (checked, disabled) once the viewer has voted so their
+          // own selection stays readable while the results show.
+          const hasControl = canVote || hasVoted;
+          const labelClass = cn(
+            'text-base',
+            isOwnChoice && 'font-medium',
+            canVote && 'cursor-pointer',
+          );
+
+          return (
+            <div
+              key={`${option.content}-${index}`}
+              className="flex items-center gap-2 py-2"
+            >
+              {hasControl ? (
+                pollData.multiple ? (
+                  <input
+                    type="checkbox"
+                    id={optionId}
+                    disabled={!canVote}
+                    checked={
+                      canVote
+                        ? selectedPollOptions.includes(index)
+                        : isOwnChoice
+                    }
+                    onChange={() =>
+                      setSelectedPollOptions((prev) =>
+                        prev.includes(index)
+                          ? prev.filter((i) => i !== index)
+                          : [...prev, index],
+                      )
+                    }
+                  />
+                ) : (
+                  <input
+                    type="radio"
+                    id={optionId}
+                    name={`poll-${post.id}`}
+                    disabled={!canVote}
+                    checked={
+                      canVote ? selectedPollOption === index : isOwnChoice
+                    }
+                    onChange={() => setSelectedPollOption(index)}
+                  />
+                )
+              ) : null}
+              <div className="flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  {hasControl ? (
+                    <label htmlFor={optionId} className={labelClass}>
+                      {option.content}
+                    </label>
+                  ) : (
+                    <span className={labelClass}>{option.content}</span>
+                  )}
+                  <div className="flex items-center gap-2">
+                    {pollData.votersVisible ? (
+                      <div className="flex -space-x-2">
+                        {votes
+                          .filter((v) => v.selection.includes(index))
+                          .slice(0, 2)
+                          .map((vote) => (
+                            <Avatar
+                              key={vote.profile.id}
+                              profile={vote.profile}
+                              size={1.5}
+                            />
+                          ))}
+                      </div>
+                    ) : null}
+                    <span>{voteCounts?.[index] ?? 0}</span>
+                  </div>
+                </div>
+                <div className="bg-surface mt-2 h-2 overflow-hidden rounded-full">
+                  <div
+                    className="bg-primary h-full rounded-full transition-all"
+                    style={{
+                      width: `${((voteCounts[index] ?? 0) / totalVotes) * 100}%`,
+                    }}
+                  />
                 </div>
               </div>
-              <div className="bg-surface mt-2 h-2 overflow-hidden rounded-full">
-                <div
-                  className="bg-primary h-full rounded-full transition-all"
-                  style={{
-                    width: `${((voteCounts[index] ?? 0) / totalVotes) * 100}%`,
-                  }}
-                />
-              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {canVote ? (
