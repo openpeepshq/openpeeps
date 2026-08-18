@@ -29,6 +29,7 @@ import {
   type ResolvedAnalyticsRange,
 } from './dateRange';
 import { metricCard, sumSeries, averageSeries } from './metrics';
+import { isPublicAnalyticsGroup } from './privacy';
 
 const POST_TYPE_KEYS = ['jam', 'article', 'note', 'poll', 'event'] as const;
 
@@ -205,9 +206,7 @@ type GroupBody = {
 };
 
 const groupVisibility = (body: GroupBody): 'public' | 'private' =>
-  (body.capabilities?.none?.add ?? []).includes('core-groups-read')
-    ? 'public'
-    : 'private';
+  isPublicAnalyticsGroup(body) ? 'public' : 'private';
 
 const groupDisplayName = (body: GroupBody, handle: string | null | undefined) =>
   body.name ?? body.displayName ?? handle ?? undefined;
@@ -568,6 +567,11 @@ const topMembers = async (from: string, to: string, limit = 10) => {
   }));
 };
 
+/**
+ * Top posts must not expose DM content or private-group posts (snippets +
+ * authors). SQL mirrors {@link isAnalyticsTopPostEligible} /
+ * {@link isPublicAnalyticsGroup}.
+ */
 const topPostsByViews = async (from: string, to: string, limit = 10) => {
   const db = await database();
   const rows = await db
@@ -581,12 +585,26 @@ const topPostsByViews = async (from: string, to: string, limit = 10) => {
       profileBody: profiles.body,
     })
     .from(analyticsPostViewsDaily)
-    .leftJoin(posts, sql`${posts.id}::text = ${analyticsPostViewsDaily.postId}`)
+    .innerJoin(
+      posts,
+      sql`${posts.id}::text = ${analyticsPostViewsDaily.postId}`,
+    )
     .leftJoin(profiles, sql`${profiles.id}::text = ${posts.creatorId}`)
     .where(
       and(
         gte(analyticsPostViewsDaily.day, from),
         lte(analyticsPostViewsDaily.day, to),
+        sql`${posts.visibility} <> 'direct'`,
+        sql`not exists (
+          select 1
+          from post_groups pg
+          inner join groups g on g.id::text = pg.to_id
+          where pg.from_id = ${posts.id}::text
+            and not coalesce(
+              g.body->'capabilities'->'none'->'add' ? 'core-groups-read',
+              false
+            )
+        )`,
       ),
     )
     .groupBy(
@@ -650,7 +668,7 @@ export const getAnalyticsOverview = async (
   query: AnalyticsDateQuery = {},
 ): Promise<AnalyticsOverview> => {
   const range = await resolveQueryRange(query);
-  return withCache('overview-v5', range.from, range.to, async () => {
+  return withCache('overview-v6', range.from, range.to, async () => {
     const [
       activeMembersSeries,
       postsSeries,
