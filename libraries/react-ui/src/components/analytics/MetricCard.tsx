@@ -14,9 +14,15 @@ export type MetricCardProps = {
 
 const formatDelta = (deltaPct: number | null | undefined) => {
   if (deltaPct == null) return null;
-  const sign = deltaPct > 0 ? '+' : '';
-  return `${sign}${deltaPct}%`;
+  const rounded = Math.round(deltaPct);
+  const sign = rounded > 0 ? '+' : '';
+  return `${sign}${rounded}%`;
 };
+
+const compact = new Intl.NumberFormat(undefined, {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
 
 export const MetricCard = ({
   label,
@@ -37,7 +43,10 @@ export const MetricCard = ({
   return (
     <div
       className={cn(
-        'bg-background relative flex min-h-28 flex-col justify-between rounded-xl border p-4 shadow-sm',
+        // min-w-0 lets grid columns shrink below the intrinsic width of
+        // large numbers + deltas; overflow-hidden clips anything left over.
+        // Safe for the info badge because its popover renders in a portal.
+        'bg-background relative flex min-h-28 min-w-0 flex-col justify-between overflow-hidden rounded-xl border p-4 shadow-sm',
         className,
       )}
     >
@@ -54,15 +63,18 @@ export const MetricCard = ({
       >
         {label}
       </div>
-      <div className="mt-2">
-        <div className="flex items-baseline gap-2">
-          <div className="text-3xl font-semibold tabular-nums tracking-tight">
-            {typeof value === 'number' ? value.toLocaleString() : value}
+      <div className="mt-2 min-w-0">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <div
+            className="min-w-0 truncate text-3xl font-semibold tabular-nums tracking-tight"
+            title={typeof value === 'number' ? value.toLocaleString() : value}
+          >
+            {typeof value === 'number' ? compact.format(value) : value}
           </div>
           {delta != null ? (
             <span
               className={cn(
-                'inline-flex items-center gap-0.5 text-sm font-medium tabular-nums',
+                'inline-flex shrink-0 items-center gap-0.5 text-sm font-medium tabular-nums',
                 tone,
               )}
             >
