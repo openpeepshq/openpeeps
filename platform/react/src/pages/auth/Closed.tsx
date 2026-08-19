@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../index';
-import { AuthLayout } from '../../components';
+import { AuthLayout, useCurrentProfile } from '../../components';
 
 export function AuthClosed() {
   const t = useT();
   const navigate = useNavigate();
+  const currentProfile = useCurrentProfile();
+  const signedIn = currentProfile?.type === 'local';
 
   return (
     <AuthLayout navigate={(url) => void navigate(url)} noRedirect>
@@ -22,14 +24,16 @@ export function AuthClosed() {
           })}
         </p>
 
-        <Button
-          title={t('auth.closed.goToLogin', { defaultValue: 'Go to Login' })}
-          action={() => navigate('/auth/login')}
-          variant="default"
-          className="mt-4 w-full"
-        >
-          {t('auth.closed.goToLogin', { defaultValue: 'Go to Login' })}
-        </Button>
+        {!signedIn && (
+          <Button
+            title={t('auth.closed.goToLogin', { defaultValue: 'Go to Login' })}
+            action={() => navigate('/auth/login')}
+            variant="default"
+            className="mt-4 w-full"
+          >
+            {t('auth.closed.goToLogin', { defaultValue: 'Go to Login' })}
+          </Button>
+        )}
       </div>
     </AuthLayout>
   );

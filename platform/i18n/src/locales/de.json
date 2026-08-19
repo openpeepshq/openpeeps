@@ -79,6 +79,8 @@
             "error": "Gastzugang konnte nicht gewährt werden",
             "loading": "Gastzugang wird eingerichtet…"
         },
+        "signedInAs": "Angemeldet als {{name}}",
+        "goToCommunity": "Zur Community",
         "tagline": "AllPeeP ist die Community-Plattform für Menschen, die ein exklusives, markengerechtes Erlebnis wünschen",
         "emails": {
             "validation": {

@@ -1,7 +1,7 @@
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Link } from '@openpeepshq/react-ui';
 import { useT } from '../index';
-import { AuthLayout, useServerInfo } from '../components';
+import { AuthLayout, useCurrentProfile, useServerInfo } from '../components';
 
 import { Markdown } from '../lib/Markdown';
 
@@ -9,6 +9,7 @@ export function CodeOfConduct() {
   const t = useT();
   const navigate = useNavigate();
   const serverInfo = useServerInfo();
+  const currentProfile = useCurrentProfile();
 
   const source =
     serverInfo.communityConfig?.content?.codeOfConduct ??
@@ -22,23 +23,25 @@ export function CodeOfConduct() {
 
       <Markdown source={source} />
 
-      <div className="flex justify-between px-2 pt-4">
-        {serverInfo.communityConfig?.settings?.openRegistrations && (
-          <span>
-            Don't have an account?{' '}
-            <Link action="/auth/register" className="text-sm">
-              Sign Up
-            </Link>
-          </span>
-        )}
-        {serverInfo.publicContent && (
-          <span>
-            <RouterLink to="/feeds/local" className="op-anchor text-sm">
-              See community feed
-            </RouterLink>
-          </span>
-        )}
-      </div>
+      {!currentProfile && (
+        <div className="flex justify-between px-2 pt-4">
+          {serverInfo.communityConfig?.settings?.openRegistrations && (
+            <span>
+              Don't have an account?{' '}
+              <Link action="/auth/register" className="text-sm">
+                Sign Up
+              </Link>
+            </span>
+          )}
+          {serverInfo.publicContent && (
+            <span>
+              <RouterLink to="/feeds/local" className="op-anchor text-sm">
+                See community feed
+              </RouterLink>
+            </span>
+          )}
+        </div>
+      )}
     </AuthLayout>
   );
 }
