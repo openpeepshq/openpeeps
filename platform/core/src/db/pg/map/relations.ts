@@ -347,6 +347,11 @@ const attachRelation = async (
   );
 };
 
+const nodeCapFromLimit = (limit?: Limit): number | undefined => {
+  if (limit == null) return undefined;
+  return typeof limit === 'number' ? limit : limit[1];
+};
+
 const resolveRelationValue = async (
   db: PgDb,
   edgeRows: Record<string, unknown>[],
@@ -355,7 +360,7 @@ const resolveRelationValue = async (
 ): Promise<unknown> => {
   const vertexCollection = vertexCollectionFor(relation);
   const vertexCol = vertexEdgeColumn(relation);
-  const vertexIds = edgeRows.map((e) => e[vertexCol] as string);
+  let vertexIds = edgeRows.map((e) => e[vertexCol] as string);
 
   if (!vertexCollection) {
     const items = edgeRows.map((edge) =>
@@ -366,6 +371,17 @@ const resolveRelationValue = async (
       ),
     );
     return relation.cardinality === 'one' ? items[0] : items;
+  }
+
+  // Cap before fetch when mapping.limit is set so hot inbound lists
+  // (e.g. embedded reposters) do not hydrate every vertex.
+  const nodeCap = nodeCapFromLimit(relation.mapping?.limit);
+  if (nodeCap !== undefined && relation.cardinality === 'many') {
+    // uuidv7 ids are time-ordered; newest first approximates createdAt DESC
+    // before we have row data to sort on.
+    vertexIds = [...new Set(vertexIds)]
+      .sort((a, b) => (a < b ? 1 : a > b ? -1 : 0))
+      .slice(0, nodeCap);
   }
 
   let vertices = await fetchRowsByIds(
@@ -380,7 +396,11 @@ const resolveRelationValue = async (
   }
 
   if (relation.skipEdge) {
-    return relation.cardinality === 'one' ? vertices[0] : vertices;
+    if (relation.cardinality === 'one') return vertices[0];
+    return applyLimit(
+      applySort(vertices, relation.mapping?.sort),
+      relation.mapping?.limit,
+    );
   }
 
   const items = edgeRows
@@ -401,11 +421,6 @@ const resolveRelationValue = async (
     .filter(Boolean);
 
   return relation.cardinality === 'one' ? items[0] : items;
-};
-
-const nodeCapFromLimit = (limit?: Limit): number | undefined => {
-  if (limit == null) return undefined;
-  return typeof limit === 'number' ? limit : limit[1];
 };
 
 const traverseRelation = async (

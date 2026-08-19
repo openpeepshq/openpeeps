@@ -167,4 +167,47 @@ describe('transformPost deleted authors', () => {
     expect(result.repost?.id).toBe(original.id);
     expect(result.repost?.profile.handle).toBe('active');
   });
+
+  it('maps lean inbound wrappers to capped reposts with profiles', async () => {
+    const wrappers = Array.from({ length: 3 }, (_, i) => ({
+      id: `aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa${i}`,
+      type: 'note',
+      visibility: 'public',
+      createdAt: `2024-05-0${i + 1}T00:00:00.000Z`,
+      updatedAt: `2024-05-0${i + 1}T00:00:00.000Z`,
+      creatorId: activeAuthor.id,
+      data: { content: '' },
+      entries: [
+        {
+          id: `bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb${i}`,
+          type: 'create',
+          createdAt: `2024-05-0${i + 1}T00:00:00.000Z`,
+          updatedAt: `2024-05-0${i + 1}T00:00:00.000Z`,
+          data: {},
+          profile: { id: activeAuthor.id },
+        },
+      ],
+      reactions: [],
+      mentions: [],
+      tags: [],
+      audience: [],
+      replyCount: 0,
+      repostCount: 0,
+    }));
+
+    const result = await transformPost({
+      ...basePost,
+      repostCount: 3,
+      reposts: wrappers,
+    } as unknown as DbPost);
+
+    expect(result.reposts).toHaveLength(3);
+    expect(result.reposts[0]?.profile.handle).toBe('active');
+    // Newest first
+    expect(result.reposts.map((r) => r.createdAt)).toEqual([
+      '2024-05-03T00:00:00.000Z',
+      '2024-05-02T00:00:00.000Z',
+      '2024-05-01T00:00:00.000Z',
+    ]);
+  });
 });

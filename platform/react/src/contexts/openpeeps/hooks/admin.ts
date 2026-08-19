@@ -1,9 +1,24 @@
-import { apiHook, noPayloadMutation } from '../helpers';
-
+import { apiHook, noPayloadMutation, payloadMutation } from '../helpers';
 import type { openpeepsClient } from '@openpeepshq/client';
-import { payloadMutation } from '../helpers';
+import type {
+  AdminServerStats,
+  AnalyticsClicks,
+  AnalyticsEngagement,
+  AnalyticsGrowth,
+  AnalyticsOverview,
+  AnalyticsReportSettings,
+  AnalyticsRetention,
+  SuccessFailureResponse,
+} from '@openpeepshq/common';
+import type { UseQueryResult } from '@tanstack/react-query';
 
-export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
+type OpenpeepsClientInstance = ReturnType<typeof openpeepsClient>;
+type Query<T> = UseQueryResult<T, SuccessFailureResponse>;
+
+// Split factories (like postFinders) so each ReturnType stays under the TS7056
+// .d.ts limit once PublicPost grows (embedded `reposts`).
+
+const adminAccounts = (client: OpenpeepsClientInstance) => ({
   useAccountsList: () => apiHook(client.admin.accounts.list),
   useAccountById: (id: string) =>
     apiHook(client.admin.accounts.findById, { pathParams: { id } }),
@@ -13,6 +28,10 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
   deleteAccountAction: noPayloadMutation(client.admin.accounts.delete, [
     ['admin', 'accounts'],
   ]),
+});
+type AdminAccounts = ReturnType<typeof adminAccounts>;
+
+const adminBackupsConfig = (client: OpenpeepsClientInstance) => ({
   useBackupsList: () => apiHook(client.admin.backups.list),
   createBackupAction: noPayloadMutation(client.admin.backups.create, [
     ['admin', 'backups'],
@@ -26,6 +45,14 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
     ['admin', 'config'],
     ['config'],
   ]),
+  usei18n: () => apiHook(client.admin.i18n.read),
+  updateI18nAction: payloadMutation(client.admin.i18n.update, [
+    ['admin', 'i18n'],
+  ]),
+});
+type AdminBackupsConfig = ReturnType<typeof adminBackupsConfig>;
+
+const adminDbInvites = (client: OpenpeepsClientInstance) => ({
   useDbToken: () => apiHook(client.admin.db.token),
   useDbTables: () => apiHook(client.admin.db.tables),
   useDbRows: (table: string, query?: Record<string, string>) =>
@@ -55,6 +82,10 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
       queryParams: date ? { date } : undefined,
       refetchInterval,
     }),
+});
+type AdminDbInvites = ReturnType<typeof adminDbInvites>;
+
+const adminPeopleContent = (client: OpenpeepsClientInstance) => ({
   pinPostGloballyAction: payloadMutation(client.admin.posts.pinGlobally, [
     ['admin', 'posts'],
     ['posts'],
@@ -82,6 +113,49 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
   updateRoleAction: payloadMutation(client.admin.roles.update, [
     ['admin', 'roles'],
   ]),
+  useReportsList: () => apiHook(client.admin.reports.list),
+  useReport: (reportId: string) =>
+    apiHook(client.admin.reports.findById, { pathParams: { reportId } }),
+  resolveReportAction: payloadMutation(client.admin.reports.resolve, [
+    ['admin', 'reports'],
+  ]),
+  reopenReportAction: noPayloadMutation(client.admin.reports.reopen, [
+    ['admin', 'reports'],
+  ]),
+  useAllGroupsList: () => apiHook(client.admin.groups.list),
+  deleteGroupAction: noPayloadMutation(client.admin.groups.delete, [
+    ['admin', 'groups'],
+    ['groups'],
+  ]),
+});
+type AdminPeopleContent = ReturnType<typeof adminPeopleContent>;
+
+type AdminAnalytics = {
+  useGeneralStats: () => Query<AdminServerStats>;
+  useAnalyticsOverview: (
+    query?: Record<string, string>,
+  ) => Query<AnalyticsOverview>;
+  useAnalyticsGrowth: (
+    query?: Record<string, string>,
+  ) => Query<AnalyticsGrowth>;
+  useAnalyticsEngagement: (
+    query?: Record<string, string>,
+  ) => Query<AnalyticsEngagement>;
+  useAnalyticsRetention: (
+    query?: Record<string, string>,
+  ) => Query<AnalyticsRetention>;
+  useAnalyticsClicks: (
+    query?: Record<string, string>,
+  ) => Query<AnalyticsClicks>;
+  useAnalyticsReportSettings: () => Query<AnalyticsReportSettings>;
+  // Looser than inferred payloadMutation so PathParams variance does not block
+  // the explicit AdminAnalytics annotation needed for TS7056.
+  updateAnalyticsReportSettingsAction: (
+    defaultPathParams?: undefined,
+  ) => (input: AnalyticsReportSettings) => Promise<AnalyticsReportSettings>;
+};
+
+const adminAnalytics = (client: OpenpeepsClientInstance): AdminAnalytics => ({
   useGeneralStats: () => apiHook(client.admin.stats.general),
   useAnalyticsOverview: (query?: Record<string, string>) =>
     apiHook(client.admin.analytics.overview, { queryParams: query }),
@@ -98,26 +172,10 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
   updateAnalyticsReportSettingsAction: payloadMutation(
     client.admin.analytics.reportSettings.update,
     [['admin', 'analytics', 'reportSettings']],
-  ),
+  ) as AdminAnalytics['updateAnalyticsReportSettingsAction'],
+});
 
-  usei18n: () => apiHook(client.admin.i18n.read),
-  updateI18nAction: payloadMutation(client.admin.i18n.update, [
-    ['admin', 'i18n'],
-  ]),
-  useReportsList: () => apiHook(client.admin.reports.list),
-  useReport: (reportId: string) =>
-    apiHook(client.admin.reports.findById, { pathParams: { reportId } }),
-  resolveReportAction: payloadMutation(client.admin.reports.resolve, [
-    ['admin', 'reports'],
-  ]),
-  reopenReportAction: noPayloadMutation(client.admin.reports.reopen, [
-    ['admin', 'reports'],
-  ]),
-  useAllGroupsList: () => apiHook(client.admin.groups.list),
-  deleteGroupAction: noPayloadMutation(client.admin.groups.delete, [
-    ['admin', 'groups'],
-    ['groups'],
-  ]),
+const adminDiagnostics = (client: OpenpeepsClientInstance) => ({
   useEmailQueueStats: () =>
     apiHook(client.admin.diagnostics.email.queueStats, {
       refetchInterval: 60_000,
@@ -149,4 +207,20 @@ export const adminHooks = (client: ReturnType<typeof openpeepsClient>) => ({
     [['admin', 'serviceAccessTokens']],
   ),
 });
-export type AdminHooks = ReturnType<typeof adminHooks>;
+type AdminDiagnostics = ReturnType<typeof adminDiagnostics>;
+
+export type AdminHooks = AdminAccounts &
+  AdminBackupsConfig &
+  AdminDbInvites &
+  AdminPeopleContent &
+  AdminAnalytics &
+  AdminDiagnostics;
+
+export const adminHooks = (client: OpenpeepsClientInstance): AdminHooks => ({
+  ...adminAccounts(client),
+  ...adminBackupsConfig(client),
+  ...adminDbInvites(client),
+  ...adminPeopleContent(client),
+  ...adminAnalytics(client),
+  ...adminDiagnostics(client),
+});

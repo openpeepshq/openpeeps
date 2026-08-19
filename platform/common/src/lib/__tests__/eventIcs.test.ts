@@ -17,6 +17,7 @@ const baseEventPost = {
   updatedAt: '2023-01-01T00:00:00Z',
   inReplyToId: null,
   reactions: [],
+  reposts: [],
   entries: [],
   rsvps: [],
   group: null,

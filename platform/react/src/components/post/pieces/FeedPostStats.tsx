@@ -22,7 +22,7 @@ export function FeedPostStats({ post }: FeedPostStatsProps) {
 
   return (
     <>
-      <div className="flex justify-between pb-2 text-xs text-muted-foreground">
+      <div className="text-muted-foreground flex justify-between pb-2 text-xs">
         <div>
           {post?.reactions?.length ? (
             <button
@@ -71,7 +71,8 @@ export function FeedPostStats({ post }: FeedPostStatsProps) {
         onClose={() => setModal(null)}
       />
       <RepostModal
-        post={post}
+        reposts={post.reposts ?? []}
+        repostCount={post.repostCount ?? 0}
         open={modal === 'reposts'}
         onClose={() => setModal(null)}
       />

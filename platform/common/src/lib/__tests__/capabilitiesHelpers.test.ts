@@ -129,6 +129,7 @@ const mockPost: PublicPost = {
   repostCount: 0,
   replyCount: 0,
   tags: [],
+  reposts: [],
 } as PublicPost;
 
 const mockPostInput: PublicPostInput = {
@@ -148,6 +149,7 @@ const mockPostInput: PublicPostInput = {
   replyCount: 0,
   tags: [],
   reactions: [],
+  reposts: [],
   rsvps: [],
 } as PublicPostInput;
 

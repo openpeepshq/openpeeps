@@ -75,6 +75,7 @@ const mockPost: PublicPost = {
     { reaction: '💜', profile: mockPublicProfile },
     { reaction: '👍', profile: mockPublicProfile },
   ],
+  reposts: [],
   entries: [],
   rsvps: [],
   group: null,
@@ -88,6 +89,7 @@ const mockEventPost: PublicPost = {
   createdAt: '2023-01-01T00:00:00Z',
   inReplyToId: null,
   reactions: [],
+  reposts: [],
   entries: [],
   rsvps: [],
   group: null,
@@ -122,6 +124,7 @@ const mockQuestionPost: PublicPost = {
   createdAt: '2023-01-01T00:00:00Z',
   inReplyToId: null,
   reactions: [],
+  reposts: [],
   entries: [
     {
       type: 'answer',

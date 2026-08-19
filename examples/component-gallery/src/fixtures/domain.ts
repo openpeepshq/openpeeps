@@ -79,6 +79,7 @@ export const fixtureGroup = {
 const basePost = {
   entries: [],
   reactions: [],
+  reposts: [],
   mentions: [],
   tags: [],
   rsvps: [],

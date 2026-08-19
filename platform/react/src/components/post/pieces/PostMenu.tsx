@@ -278,7 +278,8 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
         onClose={() => setModal(null)}
       />
       <RepostModal
-        post={post}
+        reposts={post.reposts ?? []}
+        repostCount={post.repostCount ?? 0}
         open={modal === 'reposts'}
         onClose={() => setModal(null)}
       />
