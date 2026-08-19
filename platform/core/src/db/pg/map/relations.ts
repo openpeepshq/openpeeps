@@ -11,7 +11,6 @@ import type {
   ForeignKeyRelation,
   Limit,
   MapData,
-  OMFilter,
   PgFilter,
   Relation,
 } from './queryTypes';
@@ -263,7 +262,7 @@ const attachForeignKeyRelation = async (
 
 const attachRelation = async (
   db: PgDb,
-  parentCollection: string,
+  _parentCollection: string,
   docs: Doc[],
   relation: Relation,
 ): Promise<Doc[]> => {
@@ -312,39 +311,67 @@ const attachRelation = async (
     grouped.set(parentId, list);
   }
 
-  return Promise.all(
-    docs.map(async (doc) => {
-      const edgesForDoc = grouped.get(doc.id as string) ?? [];
-      if (relation.count) {
-        let count = edgesForDoc.length;
-        if (relation.mapping?.collection) {
-          const vertexCol = vertexEdgeColumn(relation);
-          const vertexIds = edgesForDoc.map((e) => e[vertexCol] as string);
-          const vertices = await fetchRowsByIds(
-            db,
-            relation.mapping.collection,
-            vertexIds,
-            relation.mapping.softDelete,
-          );
-          const filtered = applyPostFilters(
-            vertices,
-            relation.mapping.filters,
-            relation.mapping.defaultFilter,
-          );
-          count = filtered.length;
-        }
-        return { ...doc, [relation.alias]: count };
-      }
+  const vertexCol = vertexEdgeColumn(relation);
+  const edgesFor = (doc: Doc) => grouped.get(doc.id as string) ?? [];
+  const edgeVertexIdsFor = (doc: Doc) =>
+    edgesFor(doc).map((edge) => edge[vertexCol] as string);
 
-      const value = await resolveRelationValue(
+  // Vertices are fetched and hydrated once for the whole batch. Doing it per
+  // parent row cost a query per row per relation, so one feed page ran
+  // hundreds of round trips.
+  const batchIdsFrom = (idsFor: (doc: Doc) => string[]) => [
+    ...new Set(docs.flatMap(idsFor)),
+  ];
+
+  if (relation.count) {
+    if (!relation.mapping?.collection) {
+      return docs.map((doc) => ({
+        ...doc,
+        [relation.alias]: edgesFor(doc).length,
+      }));
+    }
+    const rows = await fetchRowsByIds(
+      db,
+      relation.mapping.collection,
+      batchIdsFrom(edgeVertexIdsFor),
+      relation.mapping.softDelete,
+    );
+    const counted = new Set(
+      applyPostFilters<Doc>(
+        rows,
+        relation.mapping.filters,
+        relation.mapping.defaultFilter,
+      ).map((row) => row.id as string),
+    );
+    return docs.map((doc) => ({
+      ...doc,
+      [relation.alias]: [...new Set(edgeVertexIdsFor(doc))].filter((id) =>
+        counted.has(id),
+      ).length,
+    }));
+  }
+
+  const vertexIdsFor = (doc: Doc) =>
+    capVertexIds(edgeVertexIdsFor(doc), relation);
+  const vertexCollection = vertexCollectionFor(relation);
+  const lookup = vertexCollection
+    ? await fetchVertexLookup(
         db,
-        edgesForDoc,
+        vertexCollection,
+        batchIdsFrom(vertexIdsFor),
         relation,
-        parentCollection,
-      );
-      return { ...doc, [relation.alias]: value };
-    }),
-  );
+      )
+    : emptyVertexLookup;
+
+  return docs.map((doc) => ({
+    ...doc,
+    [relation.alias]: relationValueFrom(
+      edgesFor(doc),
+      relation,
+      vertexIdsFor(doc),
+      lookup,
+    ),
+  }));
 };
 
 const nodeCapFromLimit = (limit?: Limit): number | undefined => {
@@ -352,50 +379,79 @@ const nodeCapFromLimit = (limit?: Limit): number | undefined => {
   return typeof limit === 'number' ? limit : limit[1];
 };
 
-const resolveRelationValue = async (
-  db: PgDb,
-  edgeRows: Record<string, unknown>[],
-  relation: Relation,
-  _parentCollection: string,
-): Promise<unknown> => {
-  const vertexCollection = vertexCollectionFor(relation);
-  const vertexCol = vertexEdgeColumn(relation);
-  let vertexIds = edgeRows.map((e) => e[vertexCol] as string);
-
-  if (!vertexCollection) {
-    const items = edgeRows.map((edge) =>
-      rowToDocument(
-        edgeCollectionName(relation.edgeCollection),
-        edge,
-        relation.mapping?.keepMetadata,
-      ),
-    );
-    return relation.cardinality === 'one' ? items[0] : items;
-  }
-
-  // Cap before fetch when mapping.limit is set so hot inbound lists
-  // (e.g. embedded reposters) do not hydrate every vertex.
+/**
+ * Cap before fetch when mapping.limit is set so hot inbound lists (e.g.
+ * embedded reposters) do not hydrate every vertex. uuidv7 ids are
+ * time-ordered, so newest-first approximates `createdAt DESC` before we have
+ * row data to sort on.
+ */
+const capVertexIds = (vertexIds: string[], relation: Relation): string[] => {
   const nodeCap = nodeCapFromLimit(relation.mapping?.limit);
-  if (nodeCap !== undefined && relation.cardinality === 'many') {
-    // uuidv7 ids are time-ordered; newest first approximates createdAt DESC
-    // before we have row data to sort on.
-    vertexIds = [...new Set(vertexIds)]
-      .sort((a, b) => (a < b ? 1 : a > b ? -1 : 0))
-      .slice(0, nodeCap);
+  if (nodeCap === undefined || relation.cardinality !== 'many') {
+    return vertexIds;
   }
+  return [...new Set(vertexIds)]
+    .sort((a, b) => (a < b ? 1 : a > b ? -1 : 0))
+    .slice(0, nodeCap);
+};
 
-  let vertices = await fetchRowsByIds(
+/** Hydrated vertices keyed by id, keeping the row order the fetch returned. */
+type VertexLookup = {
+  get: (id: string) => Doc | undefined;
+  rank: (id: string) => number;
+};
+
+const emptyVertexLookup: VertexLookup = {
+  get: () => undefined,
+  rank: () => 0,
+};
+
+const fetchVertexLookup = async (
+  db: PgDb,
+  vertexCollection: string,
+  vertexIds: string[],
+  relation: Relation,
+): Promise<VertexLookup> => {
+  const rows = await fetchRowsByIds(
     db,
     vertexCollection,
     vertexIds,
     relation.mapping?.softDelete,
   );
+  const vertices = relation.mapping
+    ? await hydrateMapData(db, relation.mapping, rows)
+    : rows;
+  const byId = new Map(vertices.map((vertex) => [vertex.id as string, vertex]));
+  const ranks = new Map(vertices.map((vertex, index) => [vertex.id, index]));
+  return {
+    get: (id) => byId.get(id),
+    rank: (id) => ranks.get(id) ?? Number.MAX_SAFE_INTEGER,
+  };
+};
 
-  if (relation.mapping) {
-    vertices = await hydrateMapData(db, relation.mapping, vertices);
+const relationValueFrom = (
+  edgeRows: Record<string, unknown>[],
+  relation: Relation,
+  vertexIds: string[],
+  lookup: VertexLookup,
+): unknown => {
+  const toEdgeDoc = (edge: Record<string, unknown>) =>
+    rowToDocument(
+      edgeCollectionName(relation.edgeCollection),
+      edge,
+      relation.mapping?.keepMetadata,
+    );
+
+  if (!vertexCollectionFor(relation)) {
+    const items = edgeRows.map(toEdgeDoc);
+    return relation.cardinality === 'one' ? items[0] : items;
   }
 
   if (relation.skipEdge) {
+    const vertices = [...new Set(vertexIds)]
+      .sort((a, b) => lookup.rank(a) - lookup.rank(b))
+      .map((id) => lookup.get(id))
+      .filter((vertex): vertex is Doc => !!vertex);
     if (relation.cardinality === 'one') return vertices[0];
     return applyLimit(
       applySort(vertices, relation.mapping?.sort),
@@ -403,16 +459,14 @@ const resolveRelationValue = async (
     );
   }
 
+  const vertexCol = vertexEdgeColumn(relation);
+  const capped = new Set(vertexIds);
   const items = edgeRows
     .map((edge) => {
       const vertexId = edge[vertexCol] as string;
-      const vertex = vertices.find((v) => v.id === vertexId);
+      const vertex = capped.has(vertexId) ? lookup.get(vertexId) : undefined;
       if (!vertex) return undefined;
-      const edgeDoc = rowToDocument(
-        edgeCollectionName(relation.edgeCollection),
-        edge,
-        relation.mapping?.keepMetadata,
-      );
+      const edgeDoc = toEdgeDoc(edge);
       if (relation.vertexAlias) {
         return { ...edgeDoc, [relation.vertexAlias]: vertex };
       }
@@ -421,6 +475,22 @@ const resolveRelationValue = async (
     .filter(Boolean);
 
   return relation.cardinality === 'one' ? items[0] : items;
+};
+
+const resolveRelationValue = async (
+  db: PgDb,
+  edgeRows: Record<string, unknown>[],
+  relation: Relation,
+): Promise<unknown> => {
+  const vertexCollection = vertexCollectionFor(relation);
+  const vertexIds = capVertexIds(
+    edgeRows.map((edge) => edge[vertexEdgeColumn(relation)] as string),
+    relation,
+  );
+  const lookup = vertexCollection
+    ? await fetchVertexLookup(db, vertexCollection, vertexIds, relation)
+    : emptyVertexLookup;
+  return relationValueFrom(edgeRows, relation, vertexIds, lookup);
 };
 
 const traverseRelation = async (
@@ -606,7 +676,7 @@ export const executeFirst = async (
 export const relationsFrom = async (
   db: PgDb,
   start: { id: string },
-  parentCollection: string,
+  _parentCollection: string,
   relation: Relation & { mapping: MapData<object, object> },
 ): Promise<Doc[]> => {
   // Match attachRelation: honor maxDepth via BFS traversal. Without this,
@@ -652,7 +722,6 @@ export const relationsFrom = async (
     db,
     edgeRows as Record<string, unknown>[],
     relation,
-    parentCollection,
   );
   if (relation.cardinality === 'one') {
     return value ? [value as Doc] : [];

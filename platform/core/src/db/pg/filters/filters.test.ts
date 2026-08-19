@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { PgDialect } from 'drizzle-orm/pg-core';
+import type { SQLWrapper } from 'drizzle-orm';
 import {
   combine,
   createdAtBetween,
@@ -10,6 +12,13 @@ import {
   profileFilters,
 } from './index';
 import { entries } from '../schema/edges';
+
+const dialect = new PgDialect();
+
+const flattenSql = (value: SQLWrapper): string => {
+  const query = dialect.sqlToQuery(value.getSQL());
+  return `${query.sql} ${JSON.stringify(query.params)}`;
+};
 
 describe('pg filters', () => {
   it('wraps SQL in SqlFilter', () => {
@@ -43,5 +52,24 @@ describe('pg filters', () => {
     expect(eventTimeFilters.upcoming().kind).toBe('sql');
     expect(postFilters.replyCountZero().kind).toBe('sql');
     expect(postFilters.creatorId('profile-id').kind).toBe('sql');
+  });
+
+  it('builds my-feed membership and following checks entirely in SQL', () => {
+    const rendered = flattenSql(
+      postFilters.myFeed(
+        'current-profile',
+        ['followed-profile'],
+        ['joined-group'],
+      ).where,
+    );
+
+    expect(rendered).toContain('"posts"."creator_id"');
+    expect(rendered).toContain('EXISTS (SELECT 1 FROM "post_groups"');
+    expect(rendered).toContain('"posts"."id"::text');
+    expect(rendered).toContain('"post_groups"."from_id"');
+    expect(rendered).toContain('"post_groups"."to_id"');
+    expect(rendered).toContain('current-profile');
+    expect(rendered).toContain('followed-profile');
+    expect(rendered).toContain('joined-group');
   });
 });

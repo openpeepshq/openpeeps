@@ -28,7 +28,6 @@ import {
   mentionsConnectionFinder,
   myEventsFilter,
   myFeedFilter,
-  myFeedGroupMembershipFilter,
   pastEventsFilter,
   toFilteredPostsList,
   transformPost,
@@ -372,7 +371,7 @@ export const listLocalFeed = async (
   withSpan('feed.local', () =>
     toFilteredPostsList(
       baseFeed({ start, profile: authData.profile }).filter(
-        localFeedFilter(authData.profile),
+        localFeedFilter(),
       ),
       { authData, limit },
     ),
@@ -386,7 +385,7 @@ export const listMyFeed = async (
   return withSpan('feed.my', () =>
     toFilteredPostsList(
       baseFeed({ start, profile }).filter(myFeedFilter(profile)),
-      { authData, limit, filters: [myFeedGroupMembershipFilter(profile)] },
+      { authData, limit },
     ),
   );
 };

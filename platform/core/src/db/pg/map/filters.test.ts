@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { sql, type SQL, type SQLWrapper } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
 import { pgSql } from '../filters/types';
+import { postFilters } from '../filters';
 import { addFilter } from './helpers';
 import {
   applyLimit,
@@ -77,6 +78,36 @@ describe('map filters evaluation', () => {
         predicates: [pgSql(sql`true`), { matches: { visibility: 'direct' } }],
       }),
     ).toBe(false);
+  });
+
+  it('keeps empty match lists as SQL false inside compound filters', () => {
+    const empty = filterToSql('posts', postsTable, { matches: [] });
+    expect(flattenSql(empty)).toContain('false');
+
+    const compound = filterToSql('posts', postsTable, {
+      operator: '||',
+      predicates: [{ matches: { visibility: 'group' } }, { matches: [] }],
+    });
+    const rendered = flattenSql(compound);
+    expect(rendered).toContain('"posts"."visibility"');
+    expect(rendered).toContain('false');
+  });
+
+  it('keeps my-feed filtering in SQL so limits apply before hydration', () => {
+    const { sqlWhere, postFilters: remaining } = partitionFilters(
+      'posts',
+      postsTable,
+      [
+        postFilters.myFeed(
+          'current-profile',
+          ['followed-profile'],
+          ['joined-group'],
+        ),
+      ],
+    );
+
+    expect(sqlWhere).toBeDefined();
+    expect(remaining).toEqual([]);
   });
 
   it('evaluates string filters with DATE_TIMESTAMP, LENGTH, and capabilities', () => {

@@ -172,6 +172,13 @@ export const addStart = <T extends object>(
 const buildLimit = (limit: number, offset: number): Limit =>
   limit && offset ? [offset, limit] : limit;
 
+/**
+ * Ceiling on base rows read for one page, as a multiple of the page size. A
+ * post-filter that rejects everything would otherwise walk (and hydrate) the
+ * whole collection before returning an empty page.
+ */
+const MAX_SCAN_FACTOR = 10;
+
 export const filterAndTransform = async <
   I extends object,
   O extends object = I,
@@ -187,16 +194,26 @@ export const filterAndTransform = async <
     offset = 0,
   } = options;
   const result: O[] = [];
+  const maxScan = limit * MAX_SCAN_FACTOR;
+  let scanned = 0;
   let pageOffset = 0;
-  while (result.length < limit) {
-    const nextPageLength = (limit - result.length) * 2;
+  while (result.length < limit && scanned < maxScan) {
+    const shortfall = limit - result.length;
+    // Transform is the expensive part, so read only what the page still needs
+    // until a page proves the filter is dropping rows; then over-fetch to
+    // converge without a round trip per remaining row.
+    const nextPageLength = Math.min(
+      pageOffset === 0 ? shortfall : shortfall * 2,
+      maxScan - scanned,
+    );
     const list = await queryResult
       .limit(buildLimit(nextPageLength, offset + pageOffset))
       .all(db);
     const filteredList = await Promise.all(list.map(transform)).then((items) =>
       items.filter(filter),
     );
-    result.push(...filteredList.slice(0, limit - result.length));
+    result.push(...filteredList.slice(0, shortfall));
+    scanned += list.length;
     if (list.length < nextPageLength) {
       break;
     }
