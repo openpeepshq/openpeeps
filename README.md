@@ -164,6 +164,8 @@ Product docs live in `platform/web/docs/` and are available:
 - As a multi-version React static site at `docs.openpeeps.org` (once deployed —
   `main`, `staging`, and recent `*-RELEASE` tags); see [`docs-site/`](docs-site/).
   Hosting compose: `code` repo `devops/services/openpeeps-docs/`
+- Release notes at `releases.openpeeps.org`; see [`releases/`](releases/).
+  Hosting compose: `code` repo `devops/services/openpeeps-releases/`
 
 Stable community docs mirror: <https://openpeeps.ap.social/docs/>
 documentation.

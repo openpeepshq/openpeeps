@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenPeeps releases</title>
+    <style>
+      :root {
+        --bg: #fafafa;
+        --text: #171717;
+        --text-2: #404040;
+        --text-3: #737373;
+        --text-4: #a3a3a3;
+        --line: #d4d4d4;
+        --line-strong: #525252;
+        --accent: #2563eb;
+        --surface: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          'Segoe UI',
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+      }
+
+      .page {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 24px;
+        line-height: 30px;
+        font-weight: 600;
+      }
+
+      .subtitle {
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+      }
+
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      a.card {
+        display: block;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-top: 2px solid var(--accent);
+        padding: 14px 16px;
+        color: inherit;
+        text-decoration: none;
+      }
+
+      a.card .when {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--accent);
+      }
+
+      a.card .tag {
+        margin-left: 8px;
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--text-4);
+      }
+
+      a.card p {
+        margin: 6px 0 0;
+        font-size: 13px;
+        line-height: 18px;
+        color: var(--text-2);
+      }
+
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        margin-top: 16px;
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+      }
+
+      footer .source {
+        color: var(--text-4);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <h1>OpenPeeps releases</h1>
+        <div class="subtitle">Narrative notes from git RELEASE tags</div>
+      </header>
+
+      <ul>
+        <li>
+          <a class="card" href="./2026-08-12-855c41aa.html">
+            <span class="when">12 Aug 2026</span>
+            <span class="tag">2026-08-12-855c41aa-RELEASE</span>
+            <p>
+              Plugins, admin analytics, mobile jam reconnect, versioned docs,
+              and the @openpeepshq package rename.
+            </p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./2026-08-06-8233151f.html">
+            <span class="when">6 Aug 2026</span>
+            <span class="tag">2026-08-06-8233151f-RELEASE</span>
+            <p>
+              Follow-up: group compose jitter, group post visibility, faster
+              post-context SQL.
+            </p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./2026-08-06-4702f3ce.html">
+            <span class="when">6 Aug 2026</span>
+            <span class="tag">2026-08-06-4702f3ce-RELEASE</span>
+            <p>
+              PostgreSQL cutover, SvelteKit retirement, unread/PWA badges,
+              jam recordings on Postgres, and closed-community register.
+            </p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./2026-07-23-d306a25c.html">
+            <span class="when">23 Jul 2026</span>
+            <span class="tag">2026-07-23-d306a25c-RELEASE</span>
+            <p>
+              Mention popover, LoadingSpinner, poll undo-vote, display-name
+              length, and pinned-post refetch.
+            </p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./2026-07-10-60d34b34.html">
+            <span class="when">10 Jul 2026</span>
+            <span class="tag">2026-07-10-60d34b34-RELEASE</span>
+            <p>
+              Restore the add-member control on group members and group
+              create.
+            </p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./2026-07-09-47d10465.html">
+            <span class="when">9 Jul 2026</span>
+            <span class="tag">2026-07-09-47d10465-RELEASE</span>
+            <p>
+              PWA favicons and manifest, jam record-button state, email
+              validation, and group-member tap-to-profile.
+            </p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./2026-07-03-94b607e2.html">
+            <span class="when">3 Jul 2026</span>
+            <span class="tag">2026-07-03-94b607e2-RELEASE</span>
+            <p>
+              React + Riddl replaces SvelteKit. Event capacity, ICS email,
+              jam recordings, capability-gated admin, and Svelte UI parity.
+            </p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./2026-06-23-d77d2b20.html">
+            <span class="when">23 Jun 2026</span>
+            <span class="tag">2026-06-23-d77d2b20-RELEASE</span>
+            <p>
+              Follow-up: FCM project ID on each push attempt, plus attempt
+              logging.
+            </p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./2026-06-23-ae0b1d51.html">
+            <span class="when">23 Jun 2026</span>
+            <span class="tag">2026-06-23-ae0b1d51-RELEASE</span>
+            <p>
+              FCM credentials as first-class config. Notification emails use
+              the expanded notification payload.
+            </p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./2026-06-22-07b3bcf1.html">
+            <span class="when">22 Jun 2026</span>
+            <span class="tag">2026-06-22-07b3bcf1-RELEASE</span>
+            <p>
+              Mention notification template and email copy, so mentions can
+              notify by email as well as in-app.
+            </p>
+          </a>
+        </li>
+      </ul>
+
+      <footer>
+        <div>
+          Each page splits what changed in the product UI from what changed
+          in the backend and operations.
+        </div>
+        <div class="source">
+          Source: code.openpeeps.org/openpeeps/openpeeps
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
