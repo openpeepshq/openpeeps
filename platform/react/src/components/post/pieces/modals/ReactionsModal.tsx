@@ -6,8 +6,7 @@ import {
   DialogTitle,
 } from '@openpeepshq/react-ui';
 import { useT } from '../../../../i18n';
-import { Avatar } from '../../../profile';
-import { FollowUnfollowButton } from '../../../profile/FollowUnfollowButton';
+import { ProfileWithActionCard } from '../../../profile/ProfileWithActionCard';
 
 export interface ReactionsModalProps {
   reactions: ReactionWithPublicProfile[];
@@ -32,27 +31,14 @@ export function ReactionsModal({
         </DialogHeader>
         <article className="pb-3">
           {reactions.map(({ reaction, profile }) => (
-            <div
+            <ProfileWithActionCard
               key={profile.id}
-              className="mb-4 flex w-full items-center justify-between"
-            >
-              <div className="flex items-center gap-2">
-                <span>{reaction}</span>
-                <Avatar profile={profile} />
-                <div>
-                  <p className="font-bold">
-                    {profile.displayName || profile.handle}
-                  </p>
-                  <span className="text-muted-foreground text-sm">
-                    @{profile.handle}
-                  </span>
-                </div>
-              </div>
-              <FollowUnfollowButton profile={profile} compact />
-            </div>
+              profile={profile}
+              leading={<span>{reaction}</span>}
+            />
           ))}
           {reactions.length === 0 ? (
-            <p className="p-5 text-center text-sm text-muted-foreground">
+            <p className="text-muted-foreground p-5 text-center text-sm">
               {t('posts.reactionsModal.empty', {
                 defaultValue: 'No reactions yet',
               })}
