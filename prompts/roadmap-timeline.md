@@ -153,7 +153,47 @@ points evenly in the right zone):
 </html>
 ```
 
-## 4. Quality bar
+## 4. Export the PNG
+
+Render the finished HTML to **`planning/roadmap-timeline.png`** (same path,
+overwrite the old one). Use the Chromium that ships with the repo's Playwright —
+do not install a new browser or add a dependency.
+
+Full-page screenshot at a 1648×920 viewport, `deviceScaleFactor: 1` (matches the
+1600px canvas + 24px body padding on each side):
+
+```bash
+REPO="$(git rev-parse --show-toplevel)"   # this repo root
+cd "$REPO"
+PLAYWRIGHT_BROWSERS_PATH="$HOME/Library/Caches/ms-playwright" node -e "
+const { chromium } = require('$REPO/node_modules/.pnpm/playwright@<version>/node_modules/playwright');
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage({
+    viewport: { width: 1648, height: 920 },
+    deviceScaleFactor: 1,
+  });
+  await page.goto('file://$REPO/planning/roadmap-timeline.html', { waitUntil: 'networkidle' });
+  await page.screenshot({ path: '$REPO/planning/roadmap-timeline.png', fullPage: true });
+  await browser.close();
+})();
+"
+```
+
+Notes:
+
+- pnpm hides `playwright` behind `.pnpm/playwright@<version>/node_modules/`, so a
+  bare `require('playwright')` fails — require the absolute path (find the
+  version with `ls node_modules/.pnpm/playwright@*`).
+- The sandbox may point Playwright at an empty temp cache; set
+  `PLAYWRIGHT_BROWSERS_PATH` to the real cache (`~/Library/Caches/ms-playwright`)
+  so it finds the already-installed Chromium headless shell.
+- If the milestone count changes the page height, adjust the viewport height so
+  the full-page screenshot has no large empty band, but keep width at 1648.
+- Confirm the output is `PNG image data, 1648 x <h>` and re-open it to check the
+  axis, nodes and labels rendered.
+
+## 5. Quality bar
 
 Before finishing:
 
@@ -165,9 +205,11 @@ Before finishing:
 - [ ] Counts in labels and footer match the fetch
 - [ ] File is at `planning/roadmap-timeline.html` and opens as one landscape page
 - [ ] No external CDN / fonts / images required
+- [ ] `planning/roadmap-timeline.png` was re-rendered from the new HTML and
+      matches the current data
 
-## 5. Chat response
+## 6. Chat response
 
-After writing the file, briefly report: snapshot date, total open issues,
+After writing the files, briefly report: snapshot date, total open issues,
 how many timeline points, and the near-term → far-horizon theme sequence
-(one line each). Link the HTML path.
+(one line each). Link the HTML and PNG paths.
