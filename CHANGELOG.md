@@ -15,6 +15,17 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **poll**: mark the clicked poll option as selected
+- **ui**: keep analytics metric values inside the card
+- **analytics**: hide DMs and private-group posts from top posts
+- **posts**: count and mark unseen reposts by the wrapper row
+- **posts**: show tombstones for deleted authors and parents
+- **posts**: mark group unread with the same SQL as the badge
+- **posts**: exclude deleted authors from unseen counts
+- **perf**: speed up inbox unseen counts and conversation APIs
+- **tests**: resolve restore-fixture paths from tests or repo root
+- **config**: reject empty community profile field keys
+- **moderation**: keep reports usable for owners and deleted reporters
 - **react-native**: clean up imports and improve Footer component
 - **jams**: hide fullscreen when the API is unavailable
 - **react-native**: cache hashed media images indefinitely
@@ -44,10 +55,15 @@ Changelog for OpenPeeps
 
 ### CI/CD
 
+- **perf**: keep the fixture API alive across workflow steps
+- **perf**: connect Redis and drop GitHub Node actions
+- **perf**: set JWT_SECRET so the fixture API can start
+- **perf**: run the API performance fixture workflow daily
 - pin actions/checkout to the v6.1.0 SHA
 
 ### Chores
 
+- **packages**: bump versions for unpublished package changes
 - **dev**: add one-command local stack with Mailpit
 
 ## 2026-08-12
