@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenPeeps release · 9 Jul 2026</title>
+    <style>
+      :root {
+        --bg: #fafafa;
+        --text: #171717;
+        --text-2: #404040;
+        --text-3: #737373;
+        --text-4: #a3a3a3;
+        --line: #d4d4d4;
+        --line-strong: #525252;
+        --accent: #2563eb;
+        --surface: #ffffff;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      .page { max-width: 960px; margin: 0 auto; }
+
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 16px;
+      }
+
+      h1 { margin: 0; font-size: 24px; line-height: 30px; font-weight: 600; }
+
+      .subtitle {
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+        white-space: nowrap;
+      }
+
+      .lede {
+        margin: 0 0 20px;
+        padding: 14px 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-top: 2px solid var(--accent);
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--text-2);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      section {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: 16px 18px 18px;
+      }
+
+      section h2 {
+        margin: 0 0 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      section .kicker {
+        margin: 0 0 12px;
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+      }
+
+      section h3 {
+        margin: 14px 0 6px;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 18px;
+        color: var(--text);
+      }
+
+      section p, section li, .notes li {
+        font-size: 13px;
+        line-height: 18px;
+        color: var(--text-2);
+      }
+
+      section p { margin: 0 0 8px; }
+
+      ul { margin: 0; padding: 0; list-style: none; }
+
+      li { display: flex; gap: 8px; margin: 0 0 8px; }
+
+      li::before {
+        content: '';
+        margin-top: 7px;
+        width: 3px;
+        height: 3px;
+        border-radius: 9999px;
+        background: var(--text-4);
+        flex-shrink: 0;
+      }
+
+      .notes {
+        margin-top: 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: 14px 16px;
+      }
+
+      .notes h2 {
+        margin: 0 0 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-2);
+      }
+
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        margin-top: 16px;
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+      }
+
+      footer a { color: var(--accent); text-decoration: none; }
+
+      footer .source { color: var(--text-4); white-space: nowrap; }
+
+      @media (max-width: 720px) {
+        header, footer { flex-direction: column; gap: 8px; }
+        .subtitle, footer .source { white-space: normal; }
+        .grid { grid-template-columns: 1fr; }
+      }
+
+      @media print {
+        @page { size: landscape; margin: 12mm; }
+        body { padding: 0; background: #fff; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <h1>OpenPeeps release · 9 Jul 2026</h1>
+        <div class="subtitle">2026-07-09-47d10465-RELEASE</div>
+      </header>
+
+      <p class="lede">
+        Installed PWAs get their community favicon and manifest back. Moderators can tell when a jam is recording. New accounts can validate email through a dedicated endpoint and screen.
+      </p>
+
+      <div class="grid">
+        <section>
+          <h2>In the product</h2>
+          <p class="kicker">What members, moderators, and admins see</p>
+          <h3>Install and navigation</h3>
+          <ul>
+            <li>Community favicons and the dynamic web manifest work again for the PWA.</li>
+            <li>The sidebar includes an overview link. Conversation inputs show a clearer focus ring. Checkboxes are easier to hit.</li>
+            <li>Tapping a group member card opens that person’s profile.</li>
+          </ul>
+
+          <h3>Jams and signup</h3>
+          <ul>
+            <li>The jam record button looks recorded when recording is on.</li>
+            <li>Email validation has its own page, wired to a new auth endpoint.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>In the platform</h2>
+          <p class="kicker">APIs, runtime, plugins, and operations</p>
+          <h3>Auth and notifications</h3>
+          <ul>
+            <li>A dedicated email-validation API backs the new screen.</li>
+            <li>New-group-post notifications are isolated so one bad render cannot take down the rest of the notification list.</li>
+            <li>i18n boots a dedicated instance with more reliable interpolation.</li>
+          </ul>
+        </section>
+      </div>
+
+      <footer>
+        <div>
+          Range
+          <code>2026-07-03-94b607e2-RELEASE</code>
+          →
+          <code>2026-07-09-47d10465-RELEASE</code>.
+          Previous notes: <a href="./2026-07-03-94b607e2.html">3 Jul 2026</a>.
+          Next notes: <a href="./2026-07-10-60d34b34.html">10 Jul 2026</a>.
+        </div>
+        <div class="source">
+          Source: code.openpeeps.org/openpeeps/openpeeps · tag 2026-07-09-47d10465-RELEASE
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

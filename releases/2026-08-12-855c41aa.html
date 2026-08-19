@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenPeeps release · 12 Aug 2026</title>
+    <style>
+      :root {
+        --bg: #fafafa;
+        --text: #171717;
+        --text-2: #404040;
+        --text-3: #737373;
+        --text-4: #a3a3a3;
+        --line: #d4d4d4;
+        --line-strong: #525252;
+        --accent: #2563eb;
+        --surface: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          'Segoe UI',
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+      }
+
+      .page {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 24px;
+        line-height: 30px;
+        font-weight: 600;
+      }
+
+      .subtitle {
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+        white-space: nowrap;
+      }
+
+      .lede {
+        margin: 0 0 20px;
+        padding: 14px 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-top: 2px solid var(--accent);
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--text-2);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      section {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: 16px 18px 18px;
+      }
+
+      section h2 {
+        margin: 0 0 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      section .kicker {
+        margin: 0 0 12px;
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+      }
+
+      section h3 {
+        margin: 14px 0 6px;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 18px;
+        color: var(--text);
+      }
+
+      section p,
+      section li {
+        font-size: 13px;
+        line-height: 18px;
+        color: var(--text-2);
+      }
+
+      section p {
+        margin: 0 0 8px;
+      }
+
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      li {
+        display: flex;
+        gap: 8px;
+        margin: 0 0 8px;
+      }
+
+      li::before {
+        content: '';
+        margin-top: 7px;
+        width: 3px;
+        height: 3px;
+        border-radius: 9999px;
+        background: var(--text-4);
+        flex-shrink: 0;
+      }
+
+      .notes {
+        margin-top: 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: 14px 16px;
+      }
+
+      .notes h2 {
+        margin: 0 0 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-2);
+      }
+
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        margin-top: 16px;
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+      }
+
+      footer a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      footer .source {
+        color: var(--text-4);
+        white-space: nowrap;
+      }
+
+      @media (max-width: 720px) {
+        header,
+        footer {
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .subtitle,
+        footer .source {
+          white-space: normal;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media print {
+        @page {
+          size: landscape;
+          margin: 12mm;
+        }
+
+        body {
+          padding: 0;
+          background: #fff;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <h1>OpenPeeps release · 12 Aug 2026</h1>
+        <div class="subtitle">2026-08-12-855c41aa-RELEASE</div>
+      </header>
+
+      <p class="lede">
+        This week ships a first-class plugin surface, admin analytics, and
+        calmer jam reliability on mobile. The public docs site is now
+        versioned, packages moved to the <code>@openpeepshq</code> npm scope,
+        and operators get clearer database migration tooling after the
+        Postgres cutover.
+      </p>
+
+      <div class="grid">
+        <section>
+          <h2>In the product</h2>
+          <p class="kicker">What members, moderators, and admins see</p>
+
+          <h3>Jams on a phone</h3>
+          <ul>
+            <li>
+              Guests who were already admitted reconnect after a mobile idle
+              disconnect instead of sitting outside the call.
+            </li>
+            <li>
+              The jam menu is readable in dark mode, and the footer no longer
+              overlaps the controls.
+            </li>
+          </ul>
+
+          <h3>Posts, profiles, and push</h3>
+          <ul>
+            <li>
+              Opening an image in the gallery shows the full picture, not the
+              cropped preview.
+            </li>
+            <li>
+              Choosing who you are posting as uses one shared profile selector
+              instead of ad-hoc pickers.
+            </li>
+            <li>
+              Invalid profile handles explain what is wrong on save. Cover and
+              avatar edits tolerate a cleared image.
+            </li>
+            <li>
+              Brave users see a warning that push notifications need extra
+              browser setup.
+            </li>
+            <li>
+              Event location strings come from locale files, so they follow
+              the community language.
+            </li>
+          </ul>
+
+          <h3>Admin analytics</h3>
+          <ul>
+            <li>
+              The admin area includes a rollup-based analytics platform:
+              graphs and summaries over community activity, not a raw event
+              dump.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>In the platform</h2>
+          <p class="kicker">APIs, runtime, plugins, and operations</p>
+
+          <h3>Plugins</h3>
+          <ul>
+            <li>
+              Plugins can register API routes, expose config, and hook the
+              frontend registry. An example plugin lives under
+              <code>examples/</code> and is gated from the root package
+              manifest.
+            </li>
+          </ul>
+
+          <h3>Jams and media</h3>
+          <ul>
+            <li>
+              Empty LiveKit rooms are reclaimed so a jam does not stay “Live”
+              with nobody in it.
+            </li>
+            <li>
+              LiveKit egress writing to S3 is hardened so recording upload
+              credentials are not a weak link.
+            </li>
+          </ul>
+
+          <h3>Data, performance, and packaging</h3>
+          <ul>
+            <li>
+              A migration command and schema-readiness checks sit in front of
+              Postgres bring-up.
+            </li>
+            <li>
+              Live and offline performance profiling is in the tree for
+              measuring API and client cost.
+            </li>
+            <li>
+              Published packages use <code>@openpeepshq</code> instead of
+              <code>@openpeeps</code>. Import lint and ESLint configs follow.
+            </li>
+            <li>
+              Sentry configuration is documented more clearly for deployed
+              instances.
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="notes">
+        <h2>Also in this tag</h2>
+        <ul>
+          <li>
+            Multi-version static docs at docs.openpeeps.org, with frontend
+            docs rewritten for the React client.
+          </li>
+          <li>
+            Architecture notes: prefer Drizzle / SQL-native queries, the
+            realtime channel stack, and Postgres migration guidance aligned
+            with the ADR.
+          </li>
+          <li>
+            CI uses one floating <code>actions/checkout</code> ref across
+            workflows.
+          </li>
+        </ul>
+      </div>
+
+      <footer>
+        <div>
+          Range
+          <code>2026-08-06-8233151f-RELEASE</code>
+          →
+          <code>2026-08-12-855c41aa-RELEASE</code>.
+          Previous notes:
+          <a href="./2026-08-06-8233151f.html">6 Aug 2026</a>.
+        </div>
+        <div class="source">
+          Source: code.openpeeps.org/openpeeps/openpeeps · tag
+          2026-08-12-855c41aa-RELEASE
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

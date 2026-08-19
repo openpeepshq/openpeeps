@@ -1,0 +1,77 @@
+# Build and push the static release-notes image.
+#
+# Serves `releases/*.html` via nginx as
+# code.openpeeps.org/openpeeps/openpeeps-releases:{sha,latest}.
+
+name: releases
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - stable
+    paths:
+      - 'releases/**'
+      - '.forgejo/workflows/releases.yaml'
+  workflow_dispatch:
+
+concurrency:
+  group: releases-${{ forgejo.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build-releases:
+    runs-on: docker
+    container:
+      image: node:24-alpine
+    steps:
+      - name: Install tools
+        run: apk add --no-cache git docker-cli docker-cli-buildx
+
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          token: ${{ forgejo.token }}
+
+      - name: Resolve image coordinates
+        id: vars
+        run: |
+          sha="$(git rev-parse HEAD)"
+          short_sha="$(echo "$sha" | cut -c1-8)"
+
+          if [ -n "${GITHUB_REPOSITORY:-}" ]; then
+            image_repo="$GITHUB_REPOSITORY"
+          elif [ -n "${FORGEJO_REPOSITORY:-}" ]; then
+            image_repo="$FORGEJO_REPOSITORY"
+          else
+            image_repo="openpeeps/openpeeps"
+          fi
+
+          case "$image_repo" in
+            */*) owner="${image_repo%/*}" ;;
+            *) owner="openpeeps" ;;
+          esac
+          registry_image_base="code.openpeeps.org/${owner}/openpeeps-releases"
+
+          {
+            echo "short_sha=$short_sha"
+            echo "registry_image_base=$registry_image_base"
+          } >> "$FORGEJO_OUTPUT"
+          echo "Releases image base=$registry_image_base sha=$short_sha"
+
+      - name: Docker login
+        run: |
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "code.openpeeps.org"
+
+      - name: Build and push releases image
+        run: |
+          base="${{ steps.vars.outputs.registry_image_base }}"
+          sha="${{ steps.vars.outputs.short_sha }}"
+          docker buildx build \
+            -f releases/Dockerfile \
+            -t "${base}:${sha}" \
+            -t "${base}:latest" \
+            --push \
+            releases
+          echo "Pushed ${base}:${sha} and ${base}:latest"

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenPeeps release · 6 Aug 2026</title>
+    <style>
+      :root {
+        --bg: #fafafa;
+        --text: #171717;
+        --text-2: #404040;
+        --text-3: #737373;
+        --text-4: #a3a3a3;
+        --line: #d4d4d4;
+        --line-strong: #525252;
+        --accent: #2563eb;
+        --surface: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          'Segoe UI',
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+      }
+
+      .page {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 24px;
+        line-height: 30px;
+        font-weight: 600;
+      }
+
+      .subtitle {
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+        white-space: nowrap;
+      }
+
+      .lede {
+        margin: 0 0 20px;
+        padding: 14px 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-top: 2px solid var(--accent);
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--text-2);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      section {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: 16px 18px 18px;
+      }
+
+      section h2 {
+        margin: 0 0 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      section .kicker {
+        margin: 0 0 12px;
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+      }
+
+      section h3 {
+        margin: 14px 0 6px;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 18px;
+        color: var(--text);
+      }
+
+      section p,
+      section li {
+        font-size: 13px;
+        line-height: 18px;
+        color: var(--text-2);
+      }
+
+      section p {
+        margin: 0 0 8px;
+      }
+
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      li {
+        display: flex;
+        gap: 8px;
+        margin: 0 0 8px;
+      }
+
+      li::before {
+        content: '';
+        margin-top: 7px;
+        width: 3px;
+        height: 3px;
+        border-radius: 9999px;
+        background: var(--text-4);
+        flex-shrink: 0;
+      }
+
+      .notes {
+        margin-top: 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: 14px 16px;
+      }
+
+      .notes h2 {
+        margin: 0 0 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-2);
+      }
+
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        margin-top: 16px;
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+      }
+
+      footer a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      footer .source {
+        color: var(--text-4);
+        white-space: nowrap;
+      }
+
+      @media (max-width: 720px) {
+        header,
+        footer {
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .subtitle,
+        footer .source {
+          white-space: normal;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media print {
+        @page {
+          size: landscape;
+          margin: 12mm;
+        }
+
+        body {
+          padding: 0;
+          background: #fff;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <h1>OpenPeeps release · 6 Aug 2026</h1>
+        <div class="subtitle">2026-08-06-8233151f-RELEASE</div>
+      </header>
+
+      <p class="lede">
+        A short follow-up on the same-day Postgres cutover tag
+        (<code>2026-08-06-4702f3ce-RELEASE</code>). Three product fixes:
+        group feeds stop jittering, group posts stay group-visible, and
+        opening a post loads faster.
+      </p>
+
+      <div class="grid">
+        <section>
+          <h2>In the product</h2>
+          <p class="kicker">What members, moderators, and admins see</p>
+
+          <h3>Groups</h3>
+          <ul>
+            <li>
+              The compose plus button on a short group feed no longer jumps
+              around while the page settles.
+            </li>
+            <li>
+              Posts created into a group are stored and shown as group
+              visibility, so they do not leak onto the public local feed.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>In the platform</h2>
+          <p class="kicker">APIs, runtime, plugins, and operations</p>
+
+          <h3>Post context</h3>
+          <ul>
+            <li>
+              Loading a post and its thread uses a SQL CTE and a leaner
+              mapping path, so the “open this post” round-trip is cheaper
+              after the Postgres move.
+            </li>
+            <li>
+              Group-linked posts are coerced to group visibility in the
+              write path, not only in the UI.
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="notes">
+        <h2>How this tag relates to the earlier 6 Aug cut</h2>
+        <ul>
+          <li>
+            <a href="./2026-08-06-4702f3ce.html"><code>2026-08-06-4702f3ce-RELEASE</code></a>
+            is the large Postgres migration, jam recording, auth, and
+            Svelte-retirement drop from earlier the same week.
+          </li>
+          <li>
+            This tag is only
+            <code>2026-08-06-4702f3ce-RELEASE</code>
+            →
+            <code>2026-08-06-8233151f-RELEASE</code>.
+          </li>
+        </ul>
+      </div>
+
+      <footer>
+        <div>
+          Range
+          <code>2026-08-06-4702f3ce-RELEASE</code>
+          →
+          <code>2026-08-06-8233151f-RELEASE</code>.
+          Previous notes:
+          <a href="./2026-08-06-4702f3ce.html">6 Aug 2026 (Postgres cutover)</a>.
+          Next notes:
+          <a href="./2026-08-12-855c41aa.html">12 Aug 2026</a>.
+        </div>
+        <div class="source">
+          Source: code.openpeeps.org/openpeeps/openpeeps · tag
+          2026-08-06-8233151f-RELEASE
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
