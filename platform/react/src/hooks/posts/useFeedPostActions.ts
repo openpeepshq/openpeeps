@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 import type { PublicPost } from '@openpeepshq/common/types';
+import { getPostActionAvailability } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
-import { useCurrentProfile } from '../../components/layout/IdentityContext';
+import {
+  useAuthData,
+  useCurrentProfile,
+} from '../../components/layout/IdentityContext';
+import { useCapabilities } from '../../components/server-data';
 import { useReplyModal } from '../../components/post/post-form/ReplyModalContext';
 
 /**
@@ -9,6 +14,8 @@ import { useReplyModal } from '../../components/post/post-form/ReplyModalContext
  */
 export const useFeedPostActions = (post: PublicPost) => {
   const me = useCurrentProfile();
+  const authData = useAuthData();
+  const capabilities = useCapabilities();
   const { openpeepsApi } = useOpenpeeps();
   const { openReply } = useReplyModal();
   const repostsQuery = openpeepsApi.useCurrentProfileReposts();
@@ -34,19 +41,23 @@ export const useFeedPostActions = (post: PublicPost) => {
     [post.reactions, me?.id],
   );
 
-  const isGroupPost = !!post.groupId;
-  const membershipExists = !!me?.memberships?.some(
-    (m) => m.group.id === post.group?.id,
+  const { canReply, canRepost, canReact } = useMemo(
+    () => getPostActionAvailability(authData, post, capabilities),
+    [authData, post, capabilities],
   );
-  const disabledForGroup = isGroupPost && !membershipExists;
 
-  const reply = () => openReply(post);
+  const reply = () => {
+    if (!canReply) return;
+    openReply(post);
+  };
 
   const toggleRepost = async () => {
     if (myRepost) {
       await deletePost({ id: myRepost.id } as never);
-    } else {
+    } else if (canRepost) {
       await repostPost(undefined);
+    } else {
+      return;
     }
     await repostsQuery.refetch();
   };
@@ -54,7 +65,7 @@ export const useFeedPostActions = (post: PublicPost) => {
   const toggleReaction = async () => {
     if (iReacted) {
       await retractReaction(undefined);
-    } else {
+    } else if (canReact) {
       await reactToPost({ reaction: '👍' });
     }
   };
@@ -63,7 +74,9 @@ export const useFeedPostActions = (post: PublicPost) => {
     me,
     myRepost,
     iReacted,
-    disabledForGroup,
+    canReply,
+    canRepost: canRepost || !!myRepost,
+    canReact: canReact || iReacted,
     reply,
     toggleRepost,
     toggleReaction,

@@ -279,3 +279,51 @@ export const canCreatePostType = (
   visibilityTypeValues.some((visibility) =>
     canCreatePostTypeWithVisibility(authData, type, visibility),
   );
+
+export type PostActionAvailability = {
+  canReply: boolean;
+  canRepost: boolean;
+  canReact: boolean;
+};
+
+/**
+ * Whether Reply / Repost / Like should look live. Non-members of a group
+ * post stay fully disabled (existing feed rule). Each action also follows
+ * the capability the matching write endpoint actually checks: feed replies
+ * and reposts need create-*, likes need core-posts-react.
+ */
+export const getPostActionAvailability = (
+  authData: AuthorizationData,
+  post: PublicPost,
+  config: CapabilitiesConfig,
+): PostActionAvailability => {
+  const isGroupPost = !!post.groupId || !!post.group;
+  const membershipExists = !!authData.profile?.memberships?.some(
+    (m) => m.group.id === post.group?.id || m.group.id === post.groupId,
+  );
+  if (isGroupPost && !membershipExists) {
+    return { canReply: false, canRepost: false, canReact: false };
+  }
+
+  const canReply =
+    checkPostCapabilities(authData, ['core-posts-reply'], post, config)
+      .success &&
+    canCreatePost(authData, 'note', post.visibility, post.group ?? undefined);
+
+  const canReact = checkPostCapabilities(
+    authData,
+    ['core-posts-react'],
+    post,
+    config,
+  ).success;
+
+  const canRepost = post.group
+    ? checkGroupCapabilities(
+        authData,
+        [`core-posts-create-${post.type}`],
+        post.group,
+      ).success
+    : canCreatePost(authData, post.type, post.visibility);
+
+  return { canReply, canRepost, canReact };
+};
