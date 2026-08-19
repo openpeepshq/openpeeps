@@ -769,6 +769,8 @@ export const jamEventDataSchema = z.object({
     'close',
     'recordStart',
     'recordStop',
+    'streamStart',
+    'streamStop',
   ]),
   profileId: z.string(),
   content: z.string().optional(),
@@ -814,8 +816,13 @@ export const jamRecordingTypeSchema = z.enum([
 ]);
 export type JamRecordingType = z.infer<typeof jamRecordingTypeSchema>;
 
+export const jamRecordingKindSchema = z.enum(['file', 'rtmp']);
+export type JamRecordingKind = z.infer<typeof jamRecordingKindSchema>;
+
 export const jamRecordingDataSchema = z.object({
   status: z.enum(['requested', 'active', 'completed', 'failed']),
+  kind: jamRecordingKindSchema.optional(),
+  destinationHost: z.string().optional(),
   egressId: z.string().optional(),
   attachment: mediaAttachmentSchema.optional(),
   replyPostId: z.string().optional(),

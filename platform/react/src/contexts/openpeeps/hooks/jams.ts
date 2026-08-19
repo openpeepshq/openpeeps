@@ -48,4 +48,8 @@ export const jamHooks = (client: OpenpeepsClient) => ({
   ]),
   useObserverLink: (id: string) =>
     apiHook(client.jams.recordings.observerLink, { pathParams: { id } }),
+  useRtmpStream: (id: string) =>
+    apiHook(client.jams.streams.get, { pathParams: { id } }),
+  startRtmpStreamAction: payloadMutation(client.jams.streams.start, [['jams']]),
+  stopRtmpStreamAction: noPayloadMutation(client.jams.streams.stop, [['jams']]),
 });

@@ -932,7 +932,19 @@
       "copyObserverLink": "Copy observer link",
       "copiedObserverLink": "Copied observer link",
       "copyObserverLinkButtonTitle": "Copy Observer Link",
-      "copiedObserverLinkButtonTitle": "Copied Observer Link"
+      "copiedObserverLinkButtonTitle": "Copied Observer Link",
+      "rtmpHeading": "Live stream",
+      "rtmpHelp": "Paste the RTMP URL and stream key from StreamYard to push this jam out live.",
+      "rtmpUrlLabel": "RTMP URL",
+      "rtmpUrlPlaceholder": "rtmps://…",
+      "rtmpStreamKeyLabel": "Stream key",
+      "rtmpStart": "Start stream",
+      "rtmpStop": "Stop stream",
+      "rtmpLive": "Streaming to {{host}}",
+      "rtmpStarted": "Live stream started",
+      "rtmpStopped": "Live stream stopped",
+      "rtmpStartError": "Failed to start live stream",
+      "rtmpStopError": "Failed to stop live stream"
     },
     "hand": {
       "raiseTitle": "Raise Hand",

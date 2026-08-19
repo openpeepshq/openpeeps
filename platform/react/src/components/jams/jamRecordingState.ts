@@ -14,10 +14,11 @@ export const calculateRecordingState = (
     [...persistedEvents, ...sessionEvents],
     (event) => event.id,
   ).sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
-  const lastRecordingStart = events.find((event) => event.type === 'recordStart');
+  const lastRecordingStart = events.find(
+    (event) => event.type === 'recordStart',
+  );
   const lastRecordingStop = events.find((event) => event.type === 'recordStop');
   const isRecording =
     !!lastRecordingStart &&
@@ -29,6 +30,23 @@ export const calculateRecordingState = (
   return { isRecording, recordingStart };
 };
 
+export const calculateRtmpStreamState = (
+  persistedEvents: JamEvent[],
+  sessionEvents: JamEvent[],
+) => {
+  const events = getUniqueBy(
+    [...persistedEvents, ...sessionEvents],
+    (event) => event.id,
+  ).sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+  const lastStart = events.find((event) => event.type === 'streamStart');
+  const lastStop = events.find((event) => event.type === 'streamStop');
+  const isStreaming =
+    !!lastStart && (!lastStop || lastStart.createdAt > lastStop.createdAt);
+  return { isStreaming };
+};
+
 export const useJamRecordingState = () => {
   const { jamPost } = useJamContext();
   const { sessionEvents } = useJamEventsContext();
@@ -37,6 +55,18 @@ export const useJamRecordingState = () => {
 
   return useMemo(
     () => calculateRecordingState(eventsQuery.data ?? [], sessionEvents),
+    [eventsQuery.data, sessionEvents],
+  );
+};
+
+export const useJamRtmpStreamState = () => {
+  const { jamPost } = useJamContext();
+  const { sessionEvents } = useJamEventsContext();
+  const { openpeepsApi } = useOpenpeeps();
+  const eventsQuery = openpeepsApi.useJamEvents(jamPost.id);
+
+  return useMemo(
+    () => calculateRtmpStreamState(eventsQuery.data ?? [], sessionEvents),
     [eventsQuery.data, sessionEvents],
   );
 };
