@@ -51,7 +51,7 @@ export function JamRoom({ jamPost, observer = false }: JamRoomProps) {
 
 function JamRoomInner() {
   const t = useT();
-  const { jamPost, jam, jamEvent, observer, consumeIntentionalLeave } =
+  const { jamPost, jam, jamEvent, observer, isIntentionalLeave } =
     useJamContext();
   const { openpeepsApi, client } = useOpenpeeps();
   const serverInfo = useServerInfo();
@@ -107,6 +107,7 @@ function JamRoomInner() {
 
   const tryReconnect = useCallback(
     async (prefs: ReconnectPrefs) => {
+      if (isIntentionalLeave()) return;
       if (reconnectInFlight.current || !mounted.current) return;
       reconnectInFlight.current = true;
       setReconnectError(undefined);
@@ -114,7 +115,10 @@ function JamRoomInner() {
         const res = await client.jams.token({
           pathParameters: { id: jamPost.id },
         });
-        if (!mounted.current) return;
+        if (!mounted.current || isIntentionalLeave()) {
+          setReconnectPrefs(undefined);
+          return;
+        }
         if ('error' in res) {
           // Not admitted / jam closed — fall back to the normal gate UI.
           setReconnectPrefs(undefined);
@@ -142,11 +146,11 @@ function JamRoomInner() {
         reconnectInFlight.current = false;
       }
     },
-    [client, jamPost.id, livekitUrl, t],
+    [client, isIntentionalLeave, jamPost.id, livekitUrl, t],
   );
 
   const handleDisconnected = useCallback(() => {
-    if (consumeIntentionalLeave()) {
+    if (isIntentionalLeave()) {
       setConnection(undefined);
       setReconnectPrefs(undefined);
       setReconnectError(undefined);
@@ -159,7 +163,7 @@ function JamRoomInner() {
       queueMicrotask(() => void tryReconnect(prefs));
       return undefined;
     });
-  }, [consumeIntentionalLeave, tryReconnect]);
+  }, [isIntentionalLeave, tryReconnect]);
 
   // Retry when the page becomes visible again (mobile idle / tab freeze).
   useEffect(() => {
