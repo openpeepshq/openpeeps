@@ -1,7 +1,8 @@
 name: API performance (fixture)
 
-# Manual / daily — not on every PR (same policy as jam loadtest).
+# Run independently so API latency checks stay parallel with integration jobs.
 on:
+  push:
   workflow_dispatch:
   schedule:
     - cron: '0 4 * * *'
@@ -79,47 +80,14 @@ jobs:
             fi
             sleep 2
           done
-      - name: Bootstrap owner + token
-        id: auth
-        run: |
-          # Register first owner on empty-after-restore may fail if fixture has accounts;
-          # login with a known fixture account when possible. Prefer PERF_TOKEN override.
-          set -e
-          HANDLE="perf$(date +%s | tail -c 8)"
-          EMAIL="${HANDLE}@example.com"
-          PASS="perf-password-1"
-          CODE=$(wget -q -T 15 -O- http://127.0.0.1:5173/api/openpeeps/core/v1/server/info \
-            | sed -n 's/.*"inviteCode":"\([^"]*\)".*/\1/p' | head -1 || true)
-          BODY="{\"handle\":\"${HANDLE}\",\"displayName\":\"Perf\",\"email\":\"${EMAIL}\",\"password\":\"${PASS}\",\"privacyPolicyAccepted\":true"
-          if [ -n "$CODE" ]; then BODY="${BODY},\"inviteCode\":\"${CODE}\""; fi
-          BODY="${BODY}}"
-          RESP=$(wget -q -T 20 -O- --header='content-type: application/json' \
-            --post-data="$BODY" \
-            http://127.0.0.1:5173/api/openpeeps/core/v1/auth/register || true)
-          TOKEN=$(printf '%s' "$RESP" | sed -n 's/.*"token":"\([^"]*\)".*/\1/p' | head -1)
-          if [ -z "$TOKEN" ]; then
-            RESP=$(wget -q -T 20 -O- --header='content-type: application/json' \
-              --post-data="{\"email\":\"${EMAIL}\",\"password\":\"${PASS}\"}" \
-              http://127.0.0.1:5173/api/openpeeps/core/v1/auth/login || true)
-            TOKEN=$(printf '%s' "$RESP" | sed -n 's/.*"token":"\([^"]*\)".*/\1/p' | head -1)
-          fi
-          if [ -z "$TOKEN" ]; then
-            echo "Could not obtain auth token" >&2
-            echo "$RESP" >&2
-            echo "----- API log -----" >&2
-            tail -n 80 /tmp/openpeeps-api.log >&2 || true
-            exit 1
-          fi
-          {
-            echo "token=$TOKEN"
-            echo "email=$EMAIL"
-            echo "password=$PASS"
-          } | tee -a "${FORGEJO_OUTPUT:-/dev/null}" >> "${GITHUB_OUTPUT:-/dev/null}"
       - name: Run API perf
         env:
-          PERF_TOKEN: ${{ steps.auth.outputs.token }}
+          PERF_BACKUP_ZIP: platform/tests/fixtures/backups/perf-scale.zip
+          PERF_EMAIL: trinay+0@allpeep.com
           PERF_ENFORCE: '1'
           PERF_ITERATIONS: '5'
+          PERF_PASSWORD: perf-password-1
+          PERF_REQUIRE_PROFILE_GRAPH: '1'
           PERF_WARMUP: '1'
         run: |
           set +e
