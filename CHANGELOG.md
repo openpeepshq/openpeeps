@@ -3,10 +3,15 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Features
+
+- **jams**: stream jam A/V to StreamYard over RTMP
+- **archive**: introduce ArangoDB cutover tooling and update documentation
+
 ### Bug Fixes
 
+- **i18n**: add missing DE translations for #1240
 - **deps**: pin RN host versions and bump react 0.2.5 / rn-components 0.3.1
-
 
 ### Refactoring
 

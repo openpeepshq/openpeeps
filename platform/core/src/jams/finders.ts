@@ -4,6 +4,11 @@ import {
   type JamRecording,
   type PostWithMeta,
 } from '@openpeepshq/common/types';
+import {
+  isFileJamRecording,
+  pickActiveFileRecording,
+  pickActiveRtmpStream,
+} from '@openpeepshq/common/lib';
 import { allpeepDb } from '../db';
 import { jamEventsMapping, jamRecordingsMapping } from './mapping';
 import { addStartLimit, sortNewestFirst } from '../db/helpers';
@@ -54,18 +59,26 @@ export const findJamRecording = async (recordingId: string) =>
       recording ? transformJamRecordingData(recording) : undefined,
     );
 
-export const findActiveRecording = async (jamPost: PostWithMeta) =>
-  allpeepDb()
-    .then(({ db }) =>
-      sortNewestFirst(
-        jamRecordingsMapping.filter({
-          matches: { _to: `posts/${jamPost.id}`, status: 'active' },
-        }),
-      ).first(db),
-    )
-    .then((recording) =>
-      recording ? transformJamRecordingData(recording) : undefined,
-    );
+export const findActiveRecording = async (jamPost: PostWithMeta) => {
+  const recordings = await listActiveJamRecordings(jamPost);
+  const recording = pickActiveFileRecording(recordings);
+  return recording ? transformJamRecordingData(recording) : undefined;
+};
+
+export const findActiveRtmpStream = async (jamPost: PostWithMeta) => {
+  const recordings = await listActiveJamRecordings(jamPost);
+  const recording = pickActiveRtmpStream(recordings);
+  return recording ? transformJamRecordingData(recording) : undefined;
+};
+
+const listActiveJamRecordings = (jamPost: PostWithMeta) =>
+  allpeepDb().then(({ db }) =>
+    sortNewestFirst(
+      jamRecordingsMapping.filter({
+        matches: { _to: `posts/${jamPost.id}`, status: 'active' },
+      }),
+    ).all(db),
+  );
 
 export const listPostRecordings = async (
   postId: string,
@@ -77,5 +90,7 @@ export const listPostRecordings = async (
       ).all(db),
     )
     .then((recordings) =>
-      recordings.map((recording) => jamRecordingSchema.parse(recording)),
+      recordings
+        .filter(isFileJamRecording)
+        .map((recording) => jamRecordingSchema.parse(recording)),
     );

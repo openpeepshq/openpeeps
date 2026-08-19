@@ -9,6 +9,7 @@ import {
   reclaimOrphanJamRoom,
   roomService,
   stopRecording,
+  stopRtmpStream,
 } from './livekit';
 import { jamStateCache, LIVE_JAMS_CACHE_KEY, liveJamPostsCache } from './cache';
 import { localInstanceDomain, parseRoomInstanceDomain } from './helpers';
@@ -23,6 +24,8 @@ export { createJamToken, createJamEgressToken } from './token';
 export {
   startRecording,
   stopRecording,
+  startRtmpStream,
+  stopRtmpStream,
   stopEgress,
   listParticipantIds,
   reclaimOrphanJamRoom,
@@ -32,6 +35,7 @@ export {
   JAM_ROOM_EMPTY_TIMEOUT_SEC,
   JAM_ROOM_DEPARTURE_TIMEOUT_SEC,
 } from './livekit';
+export { rtmpStreamOutput } from './rtmp';
 export {
   jamRecordingStopQueue,
   jamRecordingStopWorker,
@@ -138,6 +142,7 @@ export const closeJam = async (profile: Profile, jamEvent: PostWithMeta) => {
   }
 
   await stopRecording(jamEvent);
+  await stopRtmpStream(jamEvent);
 
   return rs.deleteRoom(jamEvent.id).then(async () => {
     await Promise.all([

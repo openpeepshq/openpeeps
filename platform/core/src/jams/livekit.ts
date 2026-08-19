@@ -16,16 +16,16 @@ import {
 } from 'livekit-server-sdk';
 import { connectRecording } from './helpers';
 import { allpeepDb } from '../db';
-import { jwtUtil } from '../jwt';
 import { serverRootUrl } from '../server';
 import { uuidv7 } from 'uuidv7';
 import { createJamEvent, updateJamRecording } from './mutations';
-import { findActiveRecording } from './finders';
+import { findActiveRecording, findActiveRtmpStream } from './finders';
 import { cancelRecordingAutoStop, scheduleRecordingAutoStop } from './jobs';
 import { jamRecordingUploadSecret } from './recordingUploadAuth';
 import { createSignedServiceToken } from '../accessTokens/tokens';
 import { unprocessableRequest } from '../errors';
 import { logger } from '../log';
+import { rtmpStreamOutput, rtmpWebEgressOptions } from './rtmp';
 
 const encoder = new TextEncoder();
 const log = logger('app:jams:livekit');
@@ -87,8 +87,8 @@ const assertEgressCanReachRecordingHost = async (recordingUrl: string) => {
 };
 
 /**
- * Relative path for the observer view (full jam UI). Used both for human
- * moderator observer links and as the page LiveKit web egress records.
+ * Relative path for the observer view (full jam UI). Used for human
+ * moderator observer links, jam recording web egress, and RTMP web egress.
  */
 export const getJamObserverPath = async (jamId: string) => {
   const jamEgressToken = await getJamEgressToken(jamId);
@@ -182,6 +182,111 @@ export const startRecording = async (
   return recording;
 };
 
+const assertLivekitConfigured = async () => {
+  const { url, apiKey, apiSecret } = (await config()).jams.livekit;
+  if (!url || !apiKey || !apiSecret) {
+    throw unprocessableRequest({ errorKey: 'error.jamNotOpen' });
+  }
+};
+
+const assertJamRoomOpen = async (jamId: string) => {
+  const rs = await roomService();
+  if (rs === undefined) {
+    throw unprocessableRequest({ errorKey: 'error.jamNotOpen' });
+  }
+  const rooms = await rs.listRooms([jamId]);
+  if (rooms.length !== 1) {
+    throw unprocessableRequest({ errorKey: 'error.jamNotOpen' });
+  }
+};
+
+const emitJamEvent = async (
+  jamId: string,
+  jamEvent: { id: string; jamId: string; type: string; profileId: string },
+) => {
+  await roomService().then(async (rs) =>
+    rs?.sendData(
+      jamId,
+      encoder.encode(JSON.stringify(jamEvent)),
+      DataPacket_Kind.LOSSY,
+      {},
+    ),
+  );
+};
+
+export const startRtmpStream = async (
+  profile: ProfileWithMeta,
+  jamPost: PostWithMeta,
+  rtmpUrl: string,
+  destinationHost?: string,
+): Promise<JamRecording> => {
+  await assertLivekitConfigured();
+  await assertJamRoomOpen(jamPost.id);
+
+  await stopRtmpStream(jamPost);
+
+  const jamId = jamPost.id;
+  const recordingId = uuidv7();
+
+  let recording = (await allpeepDb().then(({ db }) =>
+    connectRecording(db, profile, jamPost, {
+      id: recordingId,
+      status: 'requested',
+      kind: 'rtmp',
+      destinationHost,
+    }),
+  )) as JamRecording;
+  const persistedRecordingId = recording.id;
+
+  const observerUrl = await getJamRecordingUrl(jamId);
+  await assertEgressCanReachRecordingHost(observerUrl);
+
+  const egressClient = await getEgressClient();
+  const egressInfo = await egressClient.startWebEgress(
+    observerUrl,
+    rtmpStreamOutput(rtmpUrl),
+    rtmpWebEgressOptions,
+  );
+
+  recording = (await updateJamRecording(persistedRecordingId, {
+    egressId: egressInfo.egressId,
+    status: 'active',
+  })) as JamRecording;
+
+  const jamEvent = await createJamEvent({
+    id: uuidv7(),
+    jamId,
+    type: 'streamStart',
+    profileId: profile.id,
+  });
+  await emitJamEvent(jamId, jamEvent);
+
+  return recording;
+};
+
+export const stopRtmpStream = async (jamPost: PostWithMeta) => {
+  const stream = await findActiveRtmpStream(jamPost);
+  if (!stream) {
+    return undefined;
+  }
+
+  if (stream.egressId) {
+    void stopEgress(stream.egressId);
+  }
+
+  await updateJamRecording(stream.id, { status: 'completed' });
+
+  const jamEvent = await createJamEvent({
+    id: uuidv7(),
+    jamId: jamPost.id,
+    type: 'streamStop',
+    profileId: stream.profile.id,
+  });
+  await emitJamEvent(jamPost.id, jamEvent);
+
+  return { ...stream, status: 'completed' as const };
+};
+
 export const stopEgress = async (egressId: string) => {
   const egressClient = await getEgressClient();
   try {
@@ -237,6 +342,13 @@ export const reclaimOrphanJamRoom = async (jam: PostWithMeta) => {
   } catch (e) {
     log.warn(
       `Failed to stop recording while reclaiming jam ${jam.id}: ${(e as Error).message}`,
+    );
+  }
+  try {
+    await stopRtmpStream(jam);
+  } catch (e) {
+    log.warn(
+      `Failed to stop RTMP stream while reclaiming jam ${jam.id}: ${(e as Error).message}`,
     );
   }
   try {

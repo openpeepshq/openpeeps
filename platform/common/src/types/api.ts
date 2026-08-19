@@ -781,6 +781,20 @@ export const jamObserverResponseSchema = z.object({
 
 export type JamObserverResponseData = z.infer<typeof jamObserverResponseSchema>;
 
+export const jamRtmpStreamRequestSchema = z.object({
+  url: z.string().min(1),
+  streamKey: z.string().min(1),
+});
+export type JamRtmpStreamRequest = z.infer<typeof jamRtmpStreamRequestSchema>;
+
+export const jamRtmpStreamResponseSchema = z.object({
+  id: z.string(),
+  status: z.enum(['requested', 'active', 'completed', 'failed']),
+  destinationHost: z.string().optional(),
+  egressId: z.string().optional(),
+});
+export type JamRtmpStreamResponse = z.infer<typeof jamRtmpStreamResponseSchema>;
+
 export const accessTokenCreationDataSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
