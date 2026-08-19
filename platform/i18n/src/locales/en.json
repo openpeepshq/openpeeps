@@ -79,6 +79,8 @@
       "error": "Failed to get guest access",
       "loading": "Getting guest access…"
     },
+    "signedInAs": "Signed in as {{name}}",
+    "goToCommunity": "Go to community",
     "tagline": "AllPeeP is the community platform for people who want an exclusive, branded experience",
     "emails": {
       "validation": {
