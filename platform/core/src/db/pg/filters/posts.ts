@@ -1,5 +1,6 @@
-import { and, eq, isNotNull, ne, or, sql } from 'drizzle-orm';
+import { and, eq, exists, inArray, isNotNull, ne, or, sql } from 'drizzle-orm';
 import { posts } from '../schema/documents';
+import { postGroups } from '../schema/edges';
 import {
   postHasYesOrMaybeRsvpExpr,
   postReplyCountExpr,
@@ -20,6 +21,30 @@ export const postFilters = {
   hasJam: (): SqlFilter => pgSql(isNotNull(sql`${posts.body}->'jam'`)),
 
   creatorId: (id: string): SqlFilter => pgSql(eq(posts.creatorId, id)),
+
+  myFeed: (
+    profileId: string,
+    followedProfileIds: string[],
+    groupIds: string[],
+  ): SqlFilter => {
+    const followed = followedProfileIds.length
+      ? inArray(posts.creatorId, followedProfileIds)
+      : sql`false`;
+    const groupMemberPost = groupIds.length
+      ? and(
+          eq(posts.visibility, 'group'),
+          exists(
+            sql`SELECT 1 FROM ${postGroups} WHERE ${postGroups.fromId} = ${posts.id} AND ${inArray(
+              postGroups.toId,
+              groupIds,
+            )}`,
+          ),
+        )
+      : sql`false`;
+    return pgSql(
+      or(eq(posts.creatorId, profileId), followed, groupMemberPost)!,
+    );
+  },
 
   type: (type: string): SqlFilter => pgSql(eq(posts.type, type)),
 

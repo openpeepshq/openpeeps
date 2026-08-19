@@ -42,6 +42,9 @@ const cfg = {
     !process.env.PERF_BACKUP_ZIP,
   restore:
     process.env.PERF_RESTORE === '1' || process.env.PERF_RESTORE === 'true',
+  requireProfileGraph:
+    process.env.PERF_REQUIRE_PROFILE_GRAPH === '1' ||
+    process.env.PERF_REQUIRE_PROFILE_GRAPH === 'true',
   backupZip:
     process.env.PERF_BACKUP_ZIP ||
     join(testsRoot, 'fixtures/backups/default-install.zip'),
@@ -167,6 +170,14 @@ const main = async () => {
   const me = (
     await apiJson('GET', '/api/openpeeps/core/v1/profiles/current', { token })
   ).data;
+  if (
+    cfg.requireProfileGraph &&
+    (!me?.following?.length || !me?.memberships?.length)
+  ) {
+    throw new Error(
+      'Perf profile must have at least one follow and group membership',
+    );
+  }
 
   const memberships = me?.memberships ?? [];
   const groupId = memberships[0]?.group?.id ?? memberships[0]?.groupId;
@@ -231,11 +242,9 @@ const main = async () => {
   );
   scenarios.push(
     await runTimed('searchProfiles', () =>
-      apiJson(
-        'GET',
-        '/api/openpeeps/core/v1/search/profiles?q=a&limit=15',
-        { token },
-      ),
+      apiJson('GET', '/api/openpeeps/core/v1/search/profiles?q=a&limit=15', {
+        token,
+      }),
     ),
   );
   scenarios.push(
@@ -280,6 +289,10 @@ const main = async () => {
     iterations: cfg.iterations,
     warmup: cfg.warmup,
     enforce: cfg.enforce,
+    profile: {
+      following: me?.following?.length ?? 0,
+      memberships: me?.memberships?.length ?? 0,
+    },
     scenarios,
     failures,
   };
