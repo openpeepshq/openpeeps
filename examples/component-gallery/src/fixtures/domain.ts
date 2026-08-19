@@ -189,6 +189,7 @@ export const fixtureServerInfo: ServerInfo = {
   version: 'gallery',
   environment: 'gallery',
   publicContent: true,
+  lastAccessed: null,
   communityConfig: {
     theme: {
       base: 'OpenpeepsLight',
