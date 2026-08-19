@@ -309,6 +309,8 @@ export const serverInfoSchema = z.object({
   version: z.string(),
   environment: z.string(),
   publicContent: z.boolean(),
+  /** Latest post view (`post_seen.created_at`); null if none yet. */
+  lastAccessed: z.iso.datetime().nullable(),
   maxProfiles: z.number().int().nonnegative().optional(),
   communityConfig: communityConfigSchema,
   jams: z.object({
