@@ -16,6 +16,7 @@ import {
   ReactionProfile,
   MentionWithProfile,
   MentionWithPublicProfile,
+  RepostWithProfile,
   DbPost,
   DbEntry,
   DbMention,
@@ -40,6 +41,7 @@ import {
   tombstoneProfileWithMetaIfDeleted,
 } from '@openpeepshq/common/lib';
 import { ObjectFilter } from '../../db/types';
+import { EMBEDDED_REPOSTS_LIMIT } from '../mapping';
 
 export const isDirect = (post: PostWithMeta) => post.visibility === 'direct';
 export const isPrivate = (post: PostWithMeta) => post.visibility === 'private';
@@ -226,6 +228,35 @@ const addProfileForMention = async (
   profile: (await loadPublicProfile(rawMention.profile.id, true))!,
 });
 
+const leanRepostsFromWrappers = async (
+  wrappers: DbPost['reposts'],
+): Promise<RepostWithProfile[]> => {
+  if (!wrappers?.length) return [];
+
+  const withProfiles = await Promise.all(
+    wrappers.map(async (wrapper) => {
+      const createEntry = wrapper.entries?.find(
+        (entry) => entry.type === 'create',
+      );
+      const profileId = createEntry?.profile?.id ?? wrapper.creatorId;
+      if (!profileId) return null;
+      const profile = createEntry?.profile
+        ? await loadPublicProfile(createEntry.profile.id, true)
+        : await loadPublicProfile(profileId, true);
+      if (!profile) return null;
+      return {
+        profile,
+        createdAt: wrapper.createdAt,
+      } satisfies RepostWithProfile;
+    }),
+  );
+
+  return withProfiles
+    .filter((r): r is RepostWithProfile => !!r)
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+    .slice(0, EMBEDDED_REPOSTS_LIMIT);
+};
+
 export const transformPost = async (
   post: DbPost,
   currentProfile?: { id: string },
@@ -236,6 +267,7 @@ export const transformPost = async (
   const reactions = post.reactions
     ? await Promise.all(post.reactions.map(addProfileForReaction))
     : [];
+  const reposts = await leanRepostsFromWrappers(post.reposts);
   const audience = post.audience
     ? (
         await Promise.all(post.audience.map((p) => loadPublicProfile(p.id)))
@@ -274,6 +306,7 @@ export const transformPost = async (
     profile: profile!,
     entries,
     reactions,
+    reposts,
   };
 };
 

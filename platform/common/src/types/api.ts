@@ -170,6 +170,14 @@ export type ReactionWithPublicProfile = z.infer<
   typeof reactionWithPublicProfileSchema
 >;
 
+const repostWithPublicProfileSchema = z.object({
+  profile: publicProfileSchema,
+  createdAt: z.string().datetime(),
+});
+export type RepostWithPublicProfile = z.infer<
+  typeof repostWithPublicProfileSchema
+>;
+
 export const publicReplyPostSchema = z.object({
   id: z.string(),
   type: postTypeSchema,
@@ -200,6 +208,8 @@ const basePublicPostSchema = publicReplyPostSchema.extend({
   repostCount: z.number(),
   replyCount: z.number(),
   reactions: reactionWithPublicProfileSchema.array(),
+  /** Capped lean list of who reposted (most recent). Count stays in repostCount. */
+  reposts: repostWithPublicProfileSchema.array(),
   application: publicApplicationSchema.optional(),
   mentions: z.array(mentionWithPublicProfileSchema),
   tags: z.array(hashtagSchema),
@@ -323,14 +333,16 @@ export const serverInfoSchema = z.object({
       }),
     }),
   }),
-  sso: z.object({
-    oidc: z.array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-      }),
-    ),
-  }).optional(),
+  sso: z
+    .object({
+      oidc: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+        }),
+      ),
+    })
+    .optional(),
 });
 
 export type ServerInfo = z.infer<typeof serverInfoSchema>;
@@ -526,9 +538,10 @@ const focusCoordinatesPattern = /^-?\d+,-?\d+$/;
 // they actually got a `File` / `Blob` instance.
 export const mediaStorageRequestSchema = z.object({
   description: z.string().optional(),
-  file: z
-    .any()
-    .openapi({ type: 'string', format: 'binary' }) as unknown as z.ZodType<File>,
+  file: z.any().openapi({
+    type: 'string',
+    format: 'binary',
+  }) as unknown as z.ZodType<File>,
   thumbnail: z
     .any()
     .optional()
@@ -720,29 +733,35 @@ export const postCreationDataSchema = z.object({
 export type PostCreationData = z.infer<typeof postCreationDataSchema>;
 
 export const postCreationDataFormSchema = postCreationDataSchema
-  .refine((data) => {
-    if (data.type !== "event") return true;
-    if (data.data.type !== "event") return true;
-    return !!data.data.name;
-  }, {
-    message: "Name is required",
-    path: ["data", "name"],
-  })
-  .refine((data) => {
-    if (data.type !== "event") return true;
-    if (data.data.type !== "event") return true;
+  .refine(
+    (data) => {
+      if (data.type !== 'event') return true;
+      if (data.data.type !== 'event') return true;
+      return !!data.data.name;
+    },
+    {
+      message: 'Name is required',
+      path: ['data', 'name'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.type !== 'event') return true;
+      if (data.data.type !== 'event') return true;
 
-    const { start, end } = data.data;
+      const { start, end } = data.data;
 
-    if (end && start && new Date(end) < new Date(start)) {
-      return false;
-    }
+      if (end && start && new Date(end) < new Date(start)) {
+        return false;
+      }
 
-    return true;
-  }, {
-    message: "End date cannot be before start date",
-    path: ["data", "end"],
-  });
+      return true;
+    },
+    {
+      message: 'End date cannot be before start date',
+      path: ['data', 'end'],
+    },
+  );
 
 const answerWithPublicProfileSchema = answerSchema.extend({
   profile: publicProfileSchema,
@@ -768,4 +787,6 @@ export const accessTokenCreationDataSchema = z.object({
   scopes: z.array(scopeSchema).optional(),
   expirationTime: z.string(),
 });
-export type AccessTokenCreationData = z.infer<typeof accessTokenCreationDataSchema>;
+export type AccessTokenCreationData = z.infer<
+  typeof accessTokenCreationDataSchema
+>;

@@ -323,6 +323,11 @@
       "reposts": "Reposts",
       "reactions": "Reactions"
     },
+    "repostModal": {
+      "title": "Reposters",
+      "empty": "No reposters yet",
+      "andMore": "and {{count}} more"
+    },
     "form": {
       "content": "What's on your mind?",
       "changeGroup": "Change group",

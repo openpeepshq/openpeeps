@@ -75,6 +75,29 @@ const reactionsRelation: Relation = {
   },
 };
 
+/** Cap for embedded who-reposted lists on feed/detail posts. */
+export const EMBEDDED_REPOSTS_LIMIT = 50;
+
+/**
+ * Lean inbound wrappers for the embedded `reposts` preview. Only loads create
+ * entries (for the reposter profile) — not the full post graph used by
+ * `repostsOfPostRelation`. Cap + newest-first sort keep hot posts bounded.
+ */
+const leanRepostsRelation: Relation = {
+  alias: 'reposts',
+  edgeCollection: 'repost',
+  direction: 'INBOUND',
+  skipEdge: true,
+  cardinality: 'many',
+  mapping: {
+    collection: 'posts',
+    softDelete: true,
+    limit: EMBEDDED_REPOSTS_LIMIT,
+    sort: [['createdAt', 'DESC']],
+    postFilterRelations: [entriesRelation],
+  },
+};
+
 const audienceRelation: Relation = {
   alias: 'audience',
   edgeCollection: 'audience',
@@ -114,6 +137,7 @@ const basePostFilterRelations: Relation[] = [
   replyCountRelation,
   repostCountRelation,
   reactionsRelation,
+  leanRepostsRelation,
   tagsRelation,
   mentionsRelation,
 ];
@@ -273,6 +297,7 @@ const contextPostFilterRelations: Relation[] = [
   replyCountRelation,
   repostCountRelation,
   reactionsRelation,
+  leanRepostsRelation,
   tagsRelation,
   mentionsRelation,
   replyToRelation,

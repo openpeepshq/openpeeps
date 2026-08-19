@@ -1,25 +1,29 @@
-import type { PublicPost } from '@openpeepshq/common/types';
+import type { RepostWithPublicProfile } from '@openpeepshq/common/types';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  LoadingSpinner,
 } from '@openpeepshq/react-ui';
-import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { ProfileWithActionCard } from '../../../profile/ProfileWithActionCard';
 
 export interface RepostModalProps {
-  post: PublicPost;
+  reposts: RepostWithPublicProfile[];
+  /** Authoritative total; may exceed `reposts.length` when the list is capped. */
+  repostCount: number;
   open: boolean;
   onClose: () => void;
 }
 
-export function RepostModal({ post, open, onClose }: RepostModalProps) {
+export function RepostModal({
+  reposts,
+  repostCount,
+  open,
+  onClose,
+}: RepostModalProps) {
   const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
-  const repostsQuery = openpeepsApi.usePostReposts(post.id);
+  const moreCount = Math.max(0, repostCount - reposts.length);
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
@@ -30,19 +34,25 @@ export function RepostModal({ post, open, onClose }: RepostModalProps) {
           </DialogTitle>
         </DialogHeader>
         <article className="pb-3">
-          {repostsQuery.isLoading ? (
-            <div className="p-5 text-center text-sm text-muted-foreground">
-              <LoadingSpinner />
-            </div>
-          ) : repostsQuery.data?.length ? (
-            repostsQuery.data.map((repost) => (
-              <ProfileWithActionCard
-                key={repost.profile.id}
-                profile={repost.profile}
-              />
-            ))
+          {reposts.length ? (
+            <>
+              {reposts.map((repost) => (
+                <ProfileWithActionCard
+                  key={repost.profile.id}
+                  profile={repost.profile}
+                />
+              ))}
+              {moreCount > 0 ? (
+                <p className="text-muted-foreground px-5 pt-2 text-center text-sm">
+                  {t('posts.repostModal.andMore', {
+                    defaultValue: 'and {{count}} more',
+                    count: moreCount,
+                  })}
+                </p>
+              ) : null}
+            </>
           ) : (
-            <p className="p-5 text-center text-sm text-muted-foreground">
+            <p className="text-muted-foreground p-5 text-center text-sm">
               {t('posts.repostModal.empty', {
                 defaultValue: 'No reposters yet',
               })}

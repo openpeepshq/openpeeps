@@ -113,6 +113,12 @@ const reactionWithProfileSchema = reactionDataSchema.extend({
 });
 export type ReactionProfile = z.infer<typeof reactionWithProfileSchema>;
 
+const repostWithProfileSchema = z.object({
+  profile: profileWithMetaSchema,
+  createdAt: z.string().datetime(),
+});
+export type RepostWithProfile = z.infer<typeof repostWithProfileSchema>;
+
 const _answerWithProfileSchema = answerSchema.extend({
   profile: profileWithMetaSchema,
 });
@@ -178,6 +184,8 @@ const basePostSchema = replyPostSchema.extend({
   repostCount: z.number(),
   replyCount: z.number(),
   reactions: reactionWithProfileSchema.array(),
+  /** Capped lean list of who reposted (most recent). Count stays in repostCount. */
+  reposts: repostWithProfileSchema.array(),
   application: applicationDataSchema.optional(),
   mentions: z.array(mentionWithProfileSchema),
   tags: z.array(hashtagSchema),
