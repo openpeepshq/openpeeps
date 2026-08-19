@@ -32,8 +32,8 @@ export const useLeaveCloseJam = ({
 
   const leave = async () => {
     markIntentionalLeave();
-    await disconnect();
     navigate({ type: 'jams' });
+    await disconnect();
   };
 
   const handleLeave = async () => {

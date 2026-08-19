@@ -9,8 +9,11 @@ export interface JamContextValue {
   observer: boolean;
   /** Call before an intentional Leave/Close so disconnect does not auto-rejoin. */
   markIntentionalLeave: () => void;
-  /** Returns true once after {@link markIntentionalLeave}; clears the flag. */
-  consumeIntentionalLeave: () => boolean;
+  /**
+   * True after {@link markIntentionalLeave} until this provider unmounts.
+   * Sticky so a second LiveKit disconnect cannot start an idle reconnect.
+   */
+  isIntentionalLeave: () => boolean;
 }
 
 const JamContext = createContext<JamContextValue | null>(null);
@@ -43,11 +46,7 @@ export function JamProvider({
       markIntentionalLeave: () => {
         intentionalLeave.current = true;
       },
-      consumeIntentionalLeave: () => {
-        const flagged = intentionalLeave.current;
-        intentionalLeave.current = false;
-        return flagged;
-      },
+      isIntentionalLeave: () => intentionalLeave.current,
     }),
     [jamPost, jam, jamEvent, observer],
   );
