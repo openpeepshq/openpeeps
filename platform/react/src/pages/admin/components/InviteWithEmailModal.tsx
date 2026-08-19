@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { randomString } from '@openpeepshq/common/lib';
 import { useT, useOpenpeeps } from '../../../index';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Input,
@@ -195,24 +194,22 @@ export function InviteWithEmailModal({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
-        <DialogFooter>
-          {sent ? (
-            <Button variant="default" action={onClose}>
-              {t('admin.inviteLink.done', { defaultValue: 'Done' })}
-            </Button>
-          ) : (
-            <>
-              <Button variant="outline" action={onClose}>
-                {t('common.cancel', { defaultValue: 'Cancel' })}
-              </Button>
-              <Button variant="default" action={submit} disabled={submitting}>
-                {t('admin.inviteEmail.sendInvite', {
-                  defaultValue: 'Send Invite',
-                })}
-              </Button>
-            </>
-          )}
-        </DialogFooter>
+        {sent ? (
+          <DialogActions
+            actionLabel={t('admin.inviteLink.done', { defaultValue: 'Done' })}
+            onAction={onClose}
+          />
+        ) : (
+          <DialogActions
+            cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+            onCancel={onClose}
+            actionLabel={t('admin.inviteEmail.sendInvite', {
+              defaultValue: 'Send Invite',
+            })}
+            onAction={submit}
+            disabled={submitting}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

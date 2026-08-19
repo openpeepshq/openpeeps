@@ -2,10 +2,9 @@ import { useState } from 'react';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
 import { groupName } from '@openpeepshq/common/lib';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@openpeepshq/react-ui';
@@ -59,14 +58,16 @@ export function DeleteGroupModal({ group, onClose }: DeleteGroupModalProps) {
             {error}
           </p>
         ) : null}
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('groups.delete.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button variant="destructive" action={submit} disabled={submitting}>
-            {t('groups.delete.deleteButton', { defaultValue: 'Delete' })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('groups.delete.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={t('groups.delete.deleteButton', {
+            defaultValue: 'Delete',
+          })}
+          onAction={submit}
+          actionVariant="destructive"
+          disabled={submitting}
+        />
       </DialogContent>
     </Dialog>
   );

@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useT, useOpenpeeps } from '../../../index';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@openpeepshq/react-ui';
@@ -60,16 +59,17 @@ export function RestoreTestBackupModal({
             {error}
           </p>
         ) : null}
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('admin.backups.testRestore.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button variant="default" action={submit} disabled={submitting}>
-            {t('admin.backups.testRestore.continue', {
-              defaultValue: 'Continue',
-            })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('admin.backups.testRestore.cancel', {
+            defaultValue: 'Cancel',
+          })}
+          onCancel={onClose}
+          actionLabel={t('admin.backups.testRestore.continue', {
+            defaultValue: 'Continue',
+          })}
+          onAction={submit}
+          disabled={submitting}
+        />
       </DialogContent>
     </Dialog>
   );

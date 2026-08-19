@@ -7,10 +7,9 @@ import {
   sortProfiles,
 } from '@openpeepshq/common/lib';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Input,
@@ -194,14 +193,12 @@ export const ProfileSelector = ({
         </div>
 
         {mode === 'multiple' ? (
-          <DialogFooter>
-            <Button variant="outline" action={() => onOpenChange(false)}>
-              {t('common.cancel', { defaultValue: 'Cancel' })}
-            </Button>
-            <Button variant="default" action={confirmMultiple}>
-              {t('profile.selector.confirm', { defaultValue: 'OK' })}
-            </Button>
-          </DialogFooter>
+          <DialogActions
+            cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+            onCancel={() => onOpenChange(false)}
+            actionLabel={t('profile.selector.confirm', { defaultValue: 'OK' })}
+            onAction={confirmMultiple}
+          />
         ) : null}
       </DialogContent>
     </Dialog>

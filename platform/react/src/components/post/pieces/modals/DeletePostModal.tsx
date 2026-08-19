@@ -1,9 +1,8 @@
 import type { PublicPost } from '@openpeepshq/common/types';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@openpeepshq/react-ui';
@@ -52,14 +51,17 @@ export function DeletePostModal({
             })}
           </p>
         </article>
-        <DialogFooter>
-          <Button variant="destructive" action={handleDelete}>
-            {t('posts.deleteModal.delete', { defaultValue: 'Delete' })}
-          </Button>
-          <Button variant="outline" action={onClose}>
-            {t('posts.deleteModal.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('posts.deleteModal.cancel', {
+            defaultValue: 'Cancel',
+          })}
+          onCancel={onClose}
+          actionLabel={t('posts.deleteModal.delete', {
+            defaultValue: 'Delete',
+          })}
+          onAction={handleDelete}
+          actionVariant="destructive"
+        />
       </DialogContent>
     </Dialog>
   );

@@ -13,6 +13,7 @@ import {
   AnalyticsStackedAreaChart,
   AnalyticsStackedBarChart,
   Button,
+  DialogActions,
   Form,
   FormControl,
   FormDescription,
@@ -22,7 +23,6 @@ import {
   FormMessage,
   Input,
   Modal,
-  ModalFooter,
   ModalHeader,
   ModalWrapper,
   Table,
@@ -45,7 +45,6 @@ const {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -61,7 +60,6 @@ const {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -75,12 +73,12 @@ const SampleModal = ({ close }: ModalControlProps): ReactElement => (
     <div className="p-4 text-sm">
       Send an invite link so they can join this group.
     </div>
-    <ModalFooter>
-      <Button variant="outline" action={close}>
-        Cancel
-      </Button>
-      <Button action={close}>Send invite</Button>
-    </ModalFooter>
+    <DialogActions
+      cancelLabel="Cancel"
+      onCancel={close}
+      actionLabel="Send invite"
+      onAction={close}
+    />
   </ModalWrapper>
 );
 
@@ -119,12 +117,12 @@ const OverlayShowcase = (): ReactElement => {
                 Saturday street cleanup starts at 9:00. Bring gloves.
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" action={() => undefined}>
-                Cancel
-              </Button>
-              <Button action={() => undefined}>I am in</Button>
-            </DialogFooter>
+            <DialogActions
+              cancelLabel="Cancel"
+              onCancel={() => undefined}
+              actionLabel="I am in"
+              onAction={() => undefined}
+            />
           </DialogContent>
         </Dialog>
       ) : null}
@@ -160,9 +158,7 @@ const OverlayShowcase = (): ReactElement => {
               </SheetDescription>
             </SheetHeader>
             <p className="text-sm">Members, rules, and pinned posts.</p>
-            <SheetFooter>
-              <Button action={() => undefined}>Done</Button>
-            </SheetFooter>
+            <DialogActions actionLabel="Done" onAction={() => undefined} />
           </SheetContent>
         </Sheet>
       ) : null}

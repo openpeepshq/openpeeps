@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import type { PublicPost, PublicProfile } from '@openpeepshq/common/types';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Textarea,
@@ -129,16 +128,14 @@ export function ReportProfileOrPostModal({
                 defaultValue: 'Anything else we should know?',
               })}
             />
-            <DialogFooter>
-              <Button variant="outline" action={onClose}>
-                {t('common.cancel', { defaultValue: 'Cancel' })}
-              </Button>
-              <Button variant="default" action={() => setStep(2)}>
-                {t(`reports.create.${reportType}.continue`, {
-                  defaultValue: 'Continue',
-                })}
-              </Button>
-            </DialogFooter>
+            <DialogActions
+              cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+              onCancel={onClose}
+              actionLabel={t(`reports.create.${reportType}.continue`, {
+                defaultValue: 'Continue',
+              })}
+              onAction={() => setStep(2)}
+            />
           </>
         ) : (
           <>
@@ -158,20 +155,16 @@ export function ReportProfileOrPostModal({
                 })}
               </p>
             ) : null}
-            <DialogFooter>
-              <Button variant="outline" action={() => setStep(1)}>
-                {t('reports.create.back', { defaultValue: 'Back' })}
-              </Button>
-              <Button
-                variant="destructive"
-                action={submit}
-                disabled={submitting}
-              >
-                {t('reports.create.sendReport', {
-                  defaultValue: 'Send report',
-                })}
-              </Button>
-            </DialogFooter>
+            <DialogActions
+              cancelLabel={t('reports.create.back', { defaultValue: 'Back' })}
+              onCancel={() => setStep(1)}
+              actionLabel={t('reports.create.sendReport', {
+                defaultValue: 'Send report',
+              })}
+              onAction={submit}
+              actionVariant="destructive"
+              disabled={submitting}
+            />
           </>
         )}
       </DialogContent>
