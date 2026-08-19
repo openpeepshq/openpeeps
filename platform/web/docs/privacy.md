@@ -18,6 +18,7 @@ Among the types of Personal Data that this Application collects, by itself or th
 - **Usage Data** — collected automatically, including browser and platform information (see "Usage Data" definition below).
 - **IP address.**
 - **Authentication data** — a session identifier stored in the User's browser via local storage.
+- **Post-seen records** — which posts a signed-in User has viewed, so the Application can show seen versus unseen posts.
 - At the User's discretion, **additional information such as name, location, and uploaded content.**
 
 Complete details on each type of Personal Data collected are provided in the dedicated sections of this privacy policy or by specific explanation texts displayed prior to the Data collection.
@@ -53,6 +54,8 @@ This Application does not transfer Personal Data outside the European Union. For
 Unless specified otherwise in this document, Personal Data shall be processed and stored for as long as required by the purpose they have been collected for and may be retained for longer due to applicable legal obligation or based on the Users' consent.
 
 - **Personal Data and User-generated content** (email address, name, location, and other account-associated Data) are deleted when the User's account is deleted, whether by the User or by an Administrator.
+- **Post-seen records** are retained for the lifetime of the User's account. They are not deleted on a rolling schedule, because the Application needs them to show which posts the User has already seen. They are deleted when the User's account is deleted, whether by the User or by an Administrator.
+- **Aggregate analytics** (daily counts of community activity, including page views, outbound link clicks, post reach, and active-member totals) do not identify individual Users. These counts are retained indefinitely and are not deleted on a rolling schedule. Periods with no recorded activity simply have no stored counts.
 - **Uploaded media files** are retained for as long as they are referenced within the Application. Unreferenced files are periodically garbage-collected and permanently deleted after a period of non-reference.
 - **Authentication data** (the local storage session identifier) is retained on the User's device until the User logs out, at which point it is cleared, or until it naturally expires, whichever occurs first.
 
@@ -70,6 +73,14 @@ Personal Data is collected for the following purposes and using the following se
   The services in this section allow Users to register and authenticate to gain access to this Application.
   **Direct registration**
   Personal Data processed: **email address.**
+
+- **Post-seen records**
+  When a signed-in User views a post, this Application records that the User has seen that post. This processing is necessary to provide the Service of distinguishing seen and unseen posts. These records are not purged after a fixed period.
+  Personal Data processed: **the User's profile identifier; the identifiers of posts the User has seen; the time the post was first marked as seen.**
+
+- **Aggregate analytics**
+  Signed-in use of in-app pages and outbound links, and community activity such as posts, replies, and active-member totals, are compiled into daily counts for community administrators. These counts **do not store who** viewed a page, clicked a link, or was counted as active. They are retained indefinitely so administrators can review historical activity. Days or periods with no recorded activity have no corresponding counts; this Application does not invent or interpolate missing periods.
+  Personal Data processed: **none (aggregate counts only).**
 
 - **User-generated content**
   Users may optionally provide additional Personal Data through their use of this Application.
@@ -99,7 +110,7 @@ Unlike a cookie, this identifier is **not automatically transmitted with every r
 
 **This identifier persists on the User's device beyond a single browser session** and is not automatically cleared when the browser is closed. It remains stored until it expires, or until the User logs out, at which point it is cleared.
 
-This Application **does not use cookies, third-party trackers, or advertising identifiers.** Signed-in use of in-app pages and outbound links is counted in aggregate for community administrators. The Application authenticates the caller but **does not store who** viewed a page or clicked a link.
+This Application **does not use cookies, third-party trackers, or advertising identifiers.** Signed-in use of in-app pages and outbound links is counted in aggregate for community administrators. For those aggregate counts, the Application authenticates the caller but **does not store who** viewed a page or clicked a link. Separately, this Application **does store which posts** a signed-in User has seen, as described under "Post-seen records" above.
 
 ## Further Information for Users
 
@@ -225,4 +236,4 @@ Unless otherwise specified, all references made within this document to the Euro
 
 This privacy policy relates solely to this Application, if not stated otherwise within this document.
 
-Latest update: *July 13, 2026*
+Latest update: *August 19, 2026*
