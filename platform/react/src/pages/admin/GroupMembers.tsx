@@ -20,10 +20,9 @@ import {
   useCurrentProfile,
 } from '../../components';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Label,
@@ -264,14 +263,15 @@ function ChangeRolesModal({
             {error}
           </p>
         ) : null}
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('common.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button variant="default" action={submit} disabled={submitting}>
-            {t('groups.changeRoles.confirm', { defaultValue: 'Update Roles' })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={t('groups.changeRoles.confirm', {
+            defaultValue: 'Update Roles',
+          })}
+          onAction={submit}
+          disabled={submitting}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -325,14 +325,16 @@ function RemoveMemberModal({
             {error}
           </p>
         ) : null}
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('common.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button variant="destructive" action={submit} disabled={submitting}>
-            {t('groups.removeMember.confirm', { defaultValue: 'Remove' })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={t('groups.removeMember.confirm', {
+            defaultValue: 'Remove',
+          })}
+          onAction={submit}
+          actionVariant="destructive"
+          disabled={submitting}
+        />
       </DialogContent>
     </Dialog>
   );

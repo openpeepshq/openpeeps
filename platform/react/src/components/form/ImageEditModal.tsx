@@ -2,10 +2,9 @@ import { useCallback, useState } from 'react';
 import Cropper, { type Area, type Point } from 'react-easy-crop';
 import {
   Badge,
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Label,
@@ -216,16 +215,17 @@ export function ImageEditModal({
           ) : null}
         </div>
 
-        <DialogFooter>
-          <Button variant="ghost" action={onClose}>
-            {t('common.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button variant="default" action={confirm} disabled={submitting}>
-            {submitting
+        <DialogActions
+          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={
+            submitting
               ? t('common.uploading', { defaultValue: 'Uploading…' })
-              : t('common.add', { defaultValue: 'Add' })}
-          </Button>
-        </DialogFooter>
+              : t('common.add', { defaultValue: 'Add' })
+          }
+          onAction={confirm}
+          disabled={submitting}
+        />
       </DialogContent>
     </Dialog>
   );

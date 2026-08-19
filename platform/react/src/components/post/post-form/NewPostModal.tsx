@@ -10,12 +10,12 @@ import {
   type VisibilityType,
 } from '@openpeepshq/common';
 import {
+  Button,
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  ModalFooter,
-  Button,
 } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
@@ -424,7 +424,7 @@ export function NewPostModal({
             ) : null}
           </div>
 
-          <ModalFooter className="flex-col items-stretch border-t-0 px-6 py-4">
+          <DialogFooter className="flex-col items-stretch gap-0 border-t-0 px-6 py-4 sm:flex-col">
             <div className="flex w-full items-center justify-between">
               <div className="flex items-center gap-x-2">
                 <button
@@ -470,7 +470,7 @@ export function NewPostModal({
                   : t('posts.create.submit', { defaultValue: 'Post' })}
               </Button>
             </div>
-          </ModalFooter>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

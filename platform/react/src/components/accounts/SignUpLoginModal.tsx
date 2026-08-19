@@ -1,9 +1,8 @@
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@openpeepshq/react-ui';
@@ -36,20 +35,17 @@ export function SignUpLoginModal({ onClose }: SignUpLoginModalProps) {
             })}
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('common.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button
-            variant="default"
-            action={() => {
-              router.navigate({ type: 'auth', mode: 'login' });
-              onClose();
-            }}
-          >
-            {t('accounts.login.loginButton', { defaultValue: 'Log In' })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={t('accounts.login.loginButton', {
+            defaultValue: 'Log In',
+          })}
+          onAction={() => {
+            router.navigate({ type: 'auth', mode: 'login' });
+            onClose();
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

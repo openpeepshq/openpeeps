@@ -9,10 +9,9 @@ import type {
 } from '@openpeepshq/common';
 import { checkGroupCapabilities } from '@openpeepshq/common/lib';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@openpeepshq/react-ui';
@@ -203,20 +202,16 @@ export const PostAudienceSelector = ({
             </div>
           )}
 
-          <DialogFooter>
-            {view !== 'main' ? (
-              <Button variant="outline" action={() => setView('main')}>
-                {t('navigation.back', { defaultValue: 'Back' })}
-              </Button>
-            ) : (
-              <Button variant="outline" action={onClose}>
-                {t('common.cancel', { defaultValue: 'Cancel' })}
-              </Button>
-            )}
-            <Button variant="default" action={confirm}>
-              {t('common.done', { defaultValue: 'Done' })}
-            </Button>
-          </DialogFooter>
+          <DialogActions
+            cancelLabel={
+              view !== 'main'
+                ? t('navigation.back', { defaultValue: 'Back' })
+                : t('common.cancel', { defaultValue: 'Cancel' })
+            }
+            onCancel={view !== 'main' ? () => setView('main') : onClose}
+            actionLabel={t('common.done', { defaultValue: 'Done' })}
+            onAction={confirm}
+          />
         </DialogContent>
       </Dialog>
 

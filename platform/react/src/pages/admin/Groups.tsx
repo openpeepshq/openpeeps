@@ -7,8 +7,8 @@ import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
 import {
   Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Input,
@@ -143,14 +143,16 @@ function DeleteGroupModal({
             {error}
           </p>
         ) : null}
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('common.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button variant="destructive" action={submit} disabled={submitting}>
-            {t('admin.groups.delete', { defaultValue: 'Delete group' })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={t('admin.groups.delete', {
+            defaultValue: 'Delete group',
+          })}
+          onAction={submit}
+          actionVariant="destructive"
+          disabled={submitting}
+        />
       </DialogContent>
     </Dialog>
   );

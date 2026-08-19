@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import type { MediaAttachmentData } from '@openpeepshq/common/types';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Label,
@@ -64,14 +63,12 @@ export function DescriptionEditModal({
           />
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('common.back', { defaultValue: 'Back' })}
-          </Button>
-          <Button variant="default" action={saveAndClose}>
-            {t('common.done', { defaultValue: 'Done' })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('common.back', { defaultValue: 'Back' })}
+          onCancel={onClose}
+          actionLabel={t('common.done', { defaultValue: 'Done' })}
+          onAction={saveAndClose}
+        />
       </DialogContent>
     </Dialog>
   );

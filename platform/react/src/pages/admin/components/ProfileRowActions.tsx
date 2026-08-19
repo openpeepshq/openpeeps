@@ -3,10 +3,9 @@ import { MailIcon, PencilIcon, Trash2 } from 'lucide-react';
 import type { ProfileWithMeta, Role } from '@openpeepshq/common/types';
 import { useT, useOpenpeeps } from '../../../index';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Input,
@@ -159,16 +158,15 @@ function EditEmailModal({
             {error}
           </p>
         ) : null}
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('common.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button variant="default" action={submit} disabled={submitting}>
-            {t('accounts.editEmail.saveChanges', {
-              defaultValue: 'Update Email',
-            })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={t('accounts.editEmail.saveChanges', {
+            defaultValue: 'Update Email',
+          })}
+          onAction={submit}
+          disabled={submitting}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -267,16 +265,15 @@ function EditRolesModal({
             {error}
           </p>
         ) : null}
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('common.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button variant="default" action={submit} disabled={submitting}>
-            {t('profile.modals.editProfile.saveChanges', {
-              defaultValue: 'Save Changes',
-            })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={t('profile.modals.editProfile.saveChanges', {
+            defaultValue: 'Save Changes',
+          })}
+          onAction={submit}
+          disabled={submitting}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -338,16 +335,16 @@ function DeleteProfileModal({
             {error}
           </p>
         ) : null}
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('common.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button variant="destructive" action={submit} disabled={submitting}>
-            {t('profile.modals.deleteProfile.delete', {
-              defaultValue: 'Delete',
-            })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={t('profile.modals.deleteProfile.delete', {
+            defaultValue: 'Delete',
+          })}
+          onAction={submit}
+          actionVariant="destructive"
+          disabled={submitting}
+        />
       </DialogContent>
     </Dialog>
   );

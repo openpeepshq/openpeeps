@@ -6,10 +6,9 @@ import type {
 } from '@openpeepshq/common/types';
 import { defaultGroupRoles } from '@openpeepshq/common/types';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Label,
@@ -98,14 +97,15 @@ export function ChangeGroupRolesModal({
             {error}
           </p>
         ) : null}
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('common.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button variant="default" action={submit} disabled={submitting}>
-            {t('groups.changeRoles.confirm', { defaultValue: 'Save roles' })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={t('groups.changeRoles.confirm', {
+            defaultValue: 'Save roles',
+          })}
+          onAction={submit}
+          disabled={submitting}
+        />
       </DialogContent>
     </Dialog>
   );

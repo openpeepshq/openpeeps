@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useT, useOpenpeeps } from '../../../index';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@openpeepshq/react-ui';
@@ -63,18 +62,17 @@ export function RestoreBackupModal({ onClose }: RestoreBackupModalProps) {
             {error}
           </p>
         ) : null}
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('admin.backups.restore.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button
-            variant="default"
-            action={submit}
-            disabled={!file || submitting}
-          >
-            {t('admin.backups.restore.confirm', { defaultValue: 'Confirm' })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('admin.backups.restore.cancel', {
+            defaultValue: 'Cancel',
+          })}
+          onCancel={onClose}
+          actionLabel={t('admin.backups.restore.confirm', {
+            defaultValue: 'Confirm',
+          })}
+          onAction={submit}
+          disabled={!file || submitting}
+        />
       </DialogContent>
     </Dialog>
   );

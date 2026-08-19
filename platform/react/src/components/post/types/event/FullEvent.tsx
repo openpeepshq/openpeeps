@@ -20,8 +20,8 @@ import {
 import {
   Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   LoadingSpinner,
@@ -574,17 +574,17 @@ function JamRecordingItem({
                     defaultValue: 'Delete this recording permanently?',
                   })}
                 </p>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    action={() => setConfirmOpen(false)}
-                  >
-                    {t('posts.deleteModal.cancel', { defaultValue: 'Cancel' })}
-                  </Button>
-                  <Button variant="destructive" action={handleDelete}>
-                    {t('posts.deleteModal.delete', { defaultValue: 'Delete' })}
-                  </Button>
-                </DialogFooter>
+                <DialogActions
+                  cancelLabel={t('posts.deleteModal.cancel', {
+                    defaultValue: 'Cancel',
+                  })}
+                  onCancel={() => setConfirmOpen(false)}
+                  actionLabel={t('posts.deleteModal.delete', {
+                    defaultValue: 'Delete',
+                  })}
+                  onAction={handleDelete}
+                  actionVariant="destructive"
+                />
               </DialogContent>
             </Dialog>
           </>

@@ -6,9 +6,9 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  ModalFooter,
 } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
@@ -272,7 +272,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
               </div>
             </div>
           </div>
-          <ModalFooter className="border-t">
+          <DialogFooter className="border-t px-4 py-2 sm:justify-between">
             <div className="flex w-full items-center justify-between gap-2">
               <div className="flex items-center gap-1">
                 {composerType === 'note' ? (
@@ -322,7 +322,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
                 </Button>
               </div>
             </div>
-          </ModalFooter>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
       {composeAttachments.inputs}

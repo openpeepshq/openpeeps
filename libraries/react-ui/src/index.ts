@@ -63,6 +63,7 @@ export {
   DialogContent,
   DialogHeader,
   DialogFooter,
+  DialogActions,
   DialogTitle,
   DialogDescription,
   DropdownMenu,

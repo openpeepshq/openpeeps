@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@openpeepshq/react-ui';
@@ -63,14 +62,16 @@ export function ConfirmGroupExitModal({
             {error}
           </p>
         ) : null}
-        <DialogFooter>
-          <Button variant="outline" action={onClose}>
-            {t('common.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button variant="destructive" action={submit} disabled={submitting}>
-            {t('groups.modals.confirmExit.leave', { defaultValue: 'Leave' })}
-          </Button>
-        </DialogFooter>
+        <DialogActions
+          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={t('groups.modals.confirmExit.leave', {
+            defaultValue: 'Leave',
+          })}
+          onAction={submit}
+          actionVariant="destructive"
+          disabled={submitting}
+        />
       </DialogContent>
     </Dialog>
   );

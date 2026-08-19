@@ -2,6 +2,7 @@ import type { PublicProfile } from '@openpeepshq/common/types';
 import {
   Button,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -72,18 +73,13 @@ export const CreateNewConversation = ({
               />
             </div>
 
-            <DialogFooter>
-              <Button variant="ghost" action={onClose}>
-                {t('common.cancel', { defaultValue: 'Cancel' })}
-              </Button>
-              <Button
-                variant="default"
-                disabled={selectedProfiles.length === 0}
-                action={() => setStep(2)}
-              >
-                {t('common.next', { defaultValue: 'Next' })}
-              </Button>
-            </DialogFooter>
+            <DialogActions
+              cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+              onCancel={onClose}
+              actionLabel={t('common.next', { defaultValue: 'Next' })}
+              onAction={() => setStep(2)}
+              disabled={selectedProfiles.length === 0}
+            />
           </>
         ) : (
           <>

@@ -4,10 +4,9 @@ import { randomString } from '@openpeepshq/common/lib';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
 import { useT, useOpenpeeps } from '../../../index';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   Input,
@@ -240,24 +239,22 @@ export function InviteWithLinkModal({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
-        <DialogFooter>
-          {createdSlug ? (
-            <Button variant="default" action={onClose}>
-              {t('admin.inviteLink.done', { defaultValue: 'Done' })}
-            </Button>
-          ) : (
-            <>
-              <Button variant="outline" action={onClose}>
-                {t('common.cancel', { defaultValue: 'Cancel' })}
-              </Button>
-              <Button variant="default" action={submit} disabled={submitting}>
-                {t('admin.inviteLink.generateButton', {
-                  defaultValue: 'Create Link',
-                })}
-              </Button>
-            </>
-          )}
-        </DialogFooter>
+        {createdSlug ? (
+          <DialogActions
+            actionLabel={t('admin.inviteLink.done', { defaultValue: 'Done' })}
+            onAction={onClose}
+          />
+        ) : (
+          <DialogActions
+            cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+            onCancel={onClose}
+            actionLabel={t('admin.inviteLink.generateButton', {
+              defaultValue: 'Create Link',
+            })}
+            onAction={submit}
+            disabled={submitting}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

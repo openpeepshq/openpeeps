@@ -6,10 +6,9 @@ import type {
   PublicPost,
 } from '@openpeepshq/common/types';
 import {
-  Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@openpeepshq/react-ui';
@@ -173,20 +172,17 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
 
         {error ? <p className="text-error text-sm">{error}</p> : null}
 
-        <DialogFooter>
-          <Button variant="ghost" action={onClose}>
-            {t('common.cancel', { defaultValue: 'Cancel' })}
-          </Button>
-          <Button
-            variant="default"
-            action={publish}
-            disabled={submitting || !canSave}
-          >
-            {submitting
+        <DialogActions
+          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={
+            submitting
               ? t('common.saving', { defaultValue: 'Saving…' })
-              : t('common.save', { defaultValue: 'Save' })}
-          </Button>
-        </DialogFooter>
+              : t('common.save', { defaultValue: 'Save' })
+          }
+          onAction={publish}
+          disabled={submitting || !canSave}
+        />
       </DialogContent>
     </Dialog>
   );

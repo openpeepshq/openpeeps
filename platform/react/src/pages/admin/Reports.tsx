@@ -8,8 +8,8 @@ import { LoadingSpinner, UpdatingDate } from '@openpeepshq/react-ui';
 import {
   Button,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@openpeepshq/react-ui';
@@ -417,38 +417,32 @@ function ResolveReportModal({
         ) : null}
 
         {step !== 'options' ? (
-          <DialogFooter>
-            <Button
-              variant="outline"
-              action={() => setStep('options')}
-              disabled={submitting}
-            >
-              {t('admin.moderation.report.close.cancel', {
-                defaultValue: 'Back',
-              })}
-            </Button>
-            <Button
-              variant="destructive"
-              action={() => {
-                if (step === 'confirmClose') closeReport();
-                else if (step === 'confirmPost' && firstPostId)
-                  removeAndResolve(() => deletePost({ id: firstPostId }));
-                else if (step === 'confirmProfile')
-                  removeAndResolve(() =>
-                    deleteProfile({ id: report.reportedProfile.id }),
-                  );
-              }}
-              disabled={submitting}
-            >
-              {step === 'confirmClose'
+          <DialogActions
+            cancelLabel={t('admin.moderation.report.close.cancel', {
+              defaultValue: 'Back',
+            })}
+            onCancel={() => setStep('options')}
+            actionLabel={
+              step === 'confirmClose'
                 ? t('admin.moderation.report.close.confirm', {
                     defaultValue: 'Yes, close it',
                   })
                 : t('admin.moderation.post.delete.confirm', {
                     defaultValue: 'Yes, delete it',
-                  })}
-            </Button>
-          </DialogFooter>
+                  })
+            }
+            onAction={() => {
+              if (step === 'confirmClose') closeReport();
+              else if (step === 'confirmPost' && firstPostId)
+                removeAndResolve(() => deletePost({ id: firstPostId }));
+              else if (step === 'confirmProfile')
+                removeAndResolve(() =>
+                  deleteProfile({ id: report.reportedProfile.id }),
+                );
+            }}
+            actionVariant="destructive"
+            disabled={submitting}
+          />
         ) : null}
       </DialogContent>
     </Dialog>
