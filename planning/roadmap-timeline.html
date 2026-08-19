@@ -209,16 +209,16 @@
       <header>
         <h1>OpenPeeps roadmap to 2028</h1>
         <div class="subtitle">
-          320 open issues · resolution narrows as the horizon widens
+          298 open issues · resolution narrows as the horizon widens
         </div>
       </header>
 
       <main class="timeline" aria-label="Roadmap timeline">
         <div class="zone near" style="left: 44px; width: 856px">
           <div class="title">Q3 2026 — current quarter</div>
-          <div class="detail">Weekly releases · 103 issues scheduled</div>
+          <div class="detail">Weekly releases · 82 issues scheduled</div>
         </div>
-        <div class="zone" style="left: 940px; width: 644px">
+        <div class="zone" style="left: 900px; width: 644px">
           <div class="title">Horizon</div>
           <div class="detail">Quarterly themes · 171 issues scheduled</div>
         </div>
@@ -229,7 +229,6 @@
           viewBox="0 0 1600 760"
           aria-hidden="true"
         >
-          <!-- Near-term axis -->
           <line
             x1="44"
             y1="372"
@@ -238,7 +237,6 @@
             stroke="var(--accent)"
             stroke-width="4"
           />
-          <!-- Horizon axis -->
           <line
             x1="900"
             y1="372"
@@ -252,18 +250,17 @@
             fill="var(--line-strong)"
           />
 
-          <!-- Today tick -->
           <line
-            x1="68"
+            x1="72"
             y1="348"
-            x2="68"
+            x2="72"
             y2="390"
             stroke="var(--text-3)"
             stroke-width="1"
             stroke-dasharray="3 3"
           />
           <text
-            x="68"
+            x="72"
             y="406"
             text-anchor="middle"
             fill="var(--text-3)"
@@ -273,117 +270,98 @@
             today
           </text>
 
-          <!-- Stems + nodes (radius ~ 5 + sqrt(count)*1.2, capped at 15) -->
-          <!-- Aug 12 · 3 · r≈7.1 -->
-          <line x1="100" y1="362.9" x2="100" y2="340" stroke="var(--line)" stroke-width="1" />
-          <circle cx="100" cy="372" r="7.1" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
+          <!-- Aug 19 · 4 · r=7.4 -->
+          <line x1="108" y1="364.6" x2="108" y2="340" stroke="var(--line)" stroke-width="1" />
+          <circle cx="108" cy="372" r="7.4" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
 
-          <!-- Aug 19 · 28 · r≈11.3 -->
-          <line x1="204" y1="385.3" x2="204" y2="404" stroke="var(--line)" stroke-width="1" />
-          <circle cx="204" cy="372" r="11.3" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
+          <!-- Aug 26 · 17 · r=10.0 -->
+          <line x1="228" y1="382" x2="228" y2="404" stroke="var(--line)" stroke-width="1" />
+          <circle cx="228" cy="372" r="10" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
 
-          <!-- Aug 26 · 10 · r≈8.8 -->
-          <line x1="308" y1="361.2" x2="308" y2="340" stroke="var(--line)" stroke-width="1" />
-          <circle cx="308" cy="372" r="8.8" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
+          <!-- Sep 2 · 16 · r=9.8 -->
+          <line x1="348" y1="362.2" x2="348" y2="340" stroke="var(--line)" stroke-width="1" />
+          <circle cx="348" cy="372" r="9.8" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
 
-          <!-- Sep 2 · 17 · r≈9.9 -->
-          <line x1="412" y1="383.9" x2="412" y2="404" stroke="var(--line)" stroke-width="1" />
-          <circle cx="412" cy="372" r="9.9" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
+          <!-- Sep 9 · 17 · r=10.0 -->
+          <line x1="468" y1="382" x2="468" y2="404" stroke="var(--line)" stroke-width="1" />
+          <circle cx="468" cy="372" r="10" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
 
-          <!-- Sep 9 · 17 · r≈9.9 -->
-          <line x1="516" y1="360.1" x2="516" y2="340" stroke="var(--line)" stroke-width="1" />
-          <circle cx="516" cy="372" r="9.9" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
+          <!-- Sep 16 · 5 · r=7.7 -->
+          <line x1="588" y1="364.3" x2="588" y2="340" stroke="var(--line)" stroke-width="1" />
+          <circle cx="588" cy="372" r="7.7" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
 
-          <!-- Sep 16 · 5 · r≈7.7 -->
-          <line x1="620" y1="381.7" x2="620" y2="404" stroke="var(--line)" stroke-width="1" />
-          <circle cx="620" cy="372" r="7.7" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
+          <!-- Sep 23 · 7 · r=8.2 -->
+          <line x1="708" y1="380.2" x2="708" y2="404" stroke="var(--line)" stroke-width="1" />
+          <circle cx="708" cy="372" r="8.2" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
 
-          <!-- Sep 23 · 7 · r≈8.2 -->
-          <line x1="724" y1="361.8" x2="724" y2="340" stroke="var(--line)" stroke-width="1" />
-          <circle cx="724" cy="372" r="8.2" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
-
-          <!-- Sep 30 · 16 · r≈9.8 -->
-          <line x1="828" y1="383.8" x2="828" y2="404" stroke="var(--line)" stroke-width="1" />
+          <!-- Sep 30 · 16 · r=9.8 -->
+          <line x1="828" y1="362.2" x2="828" y2="340" stroke="var(--line)" stroke-width="1" />
           <circle cx="828" cy="372" r="9.8" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" />
 
           <!-- 2026 Q4 · 101 · r=15 -->
-          <line x1="1030" y1="355" x2="1030" y2="340" stroke="var(--line)" stroke-width="1" />
-          <circle cx="1030" cy="372" r="15" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="2" />
+          <line x1="1020" y1="387" x2="1020" y2="404" stroke="var(--line)" stroke-width="1" />
+          <circle cx="1020" cy="372" r="15" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="2" />
 
-          <!-- 2027 Q1 · 37 · r≈12.3 -->
-          <line x1="1150" y1="386.3" x2="1150" y2="404" stroke="var(--line)" stroke-width="1" />
-          <circle cx="1150" cy="372" r="12.3" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="2" />
+          <!-- 2027 Q1 · 37 · r=12.3 -->
+          <line x1="1135" y1="359.7" x2="1135" y2="340" stroke="var(--line)" stroke-width="1" />
+          <circle cx="1135" cy="372" r="12.3" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="2" />
 
-          <!-- 2027 Q2 · 14 · r≈9.5 -->
-          <line x1="1265" y1="360.5" x2="1265" y2="340" stroke="var(--line)" stroke-width="1" />
-          <circle cx="1265" cy="372" r="9.5" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="2" />
+          <!-- 2027 Q2 · 14 · r=9.5 -->
+          <line x1="1250" y1="381.5" x2="1250" y2="404" stroke="var(--line)" stroke-width="1" />
+          <circle cx="1250" cy="372" r="9.5" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="2" />
 
-          <!-- 2027 Q3–Q4 · 4 · r≈7.4 -->
-          <line x1="1375" y1="381.4" x2="1375" y2="404" stroke="var(--line)" stroke-width="1" />
-          <circle cx="1375" cy="372" r="7.4" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="2" />
+          <!-- 2027 Q3–Q4 · 4 · r=7.4 -->
+          <line x1="1365" y1="364.6" x2="1365" y2="340" stroke="var(--line)" stroke-width="1" />
+          <circle cx="1365" cy="372" r="7.4" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="2" />
 
-          <!-- 2028 · 15 · r≈9.6 -->
-          <line x1="1480" y1="360.4" x2="1480" y2="340" stroke="var(--line)" stroke-width="1" />
+          <!-- 2028 · 15 · r=9.6 -->
+          <line x1="1480" y1="381.6" x2="1480" y2="404" stroke="var(--line)" stroke-width="1" />
           <circle cx="1480" cy="372" r="9.6" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="2" />
         </svg>
 
-        <!-- Labels: left = x - 98; above bottom = 760 - 340 = 420; below top = 404 -->
-        <article class="milestone above near" style="left: 2px; bottom: 420px">
-          <div class="when">
-            <span class="date">Aug 12</span>
-            <span class="count">3</span>
-          </div>
-          <div class="theme">Plugin foundation</div>
-          <ul class="topics">
-            <li>Activate and deactivate plugins</li>
-            <li>Plugin theme contract</li>
-            <li>Install from UI, npm or git</li>
-          </ul>
-        </article>
-
-        <article class="milestone below near" style="left: 106px; top: 404px">
+        <article class="milestone above near" style="left: 10px; bottom: 420px">
           <div class="when">
             <span class="date">Aug 19</span>
-            <span class="count">28</span>
+            <span class="count">4</span>
           </div>
-          <div class="theme">Mobile and jam quality</div>
+          <div class="theme">Mobile client polish</div>
           <ul class="topics">
-            <li>Jam chat, layout and recording fixes</li>
-            <li>React Native upload and keyboard polish</li>
-            <li>Group moderator role</li>
-            <li>Live session updates over SSE</li>
+            <li>Android API update by Aug 31</li>
+            <li>Conversation avatars on mobile</li>
+            <li>Header profile tap on small screens</li>
+            <li>iOS keyboard covering the composer</li>
           </ul>
         </article>
 
-        <article class="milestone above near" style="left: 210px; bottom: 420px">
+        <article class="milestone below near" style="left: 130px; top: 404px">
           <div class="when">
             <span class="date">Aug 26</span>
-            <span class="count">10</span>
+            <span class="count">17</span>
           </div>
-          <div class="theme">Runtime hardening</div>
+          <div class="theme">Plugins and platform runtime</div>
           <ul class="topics">
+            <li>Plugin theme, install and activate</li>
+            <li>Jam RTMP ingest and leave-to-lobby</li>
             <li>Drop Arango from the default runtime</li>
-            <li>Carve out domain hotspots</li>
-            <li>Single sign-on entry point</li>
-            <li>Analytics retention policy</li>
+            <li>Group moderator role</li>
           </ul>
         </article>
 
-        <article class="milestone below near" style="left: 314px; top: 404px">
+        <article class="milestone above near" style="left: 250px; bottom: 420px">
           <div class="when">
             <span class="date">Sep 2</span>
-            <span class="count">17</span>
+            <span class="count">16</span>
           </div>
           <div class="theme">Onboarding and accessibility</div>
           <ul class="topics">
-            <li>Welcome email and invite flow fixes</li>
-            <li>Member and invite search</li>
-            <li>Follow state on profiles</li>
-            <li>Narrator labels across the app</li>
+            <li>Welcome email and invite search</li>
+            <li>QR community invite</li>
+            <li>Narrator labels and docs search</li>
+            <li>Follow state and overflowing profile URLs</li>
           </ul>
         </article>
 
-        <article class="milestone above near" style="left: 418px; bottom: 420px">
+        <article class="milestone below near" style="left: 370px; top: 404px">
           <div class="when">
             <span class="date">Sep 9</span>
             <span class="count">17</span>
@@ -392,12 +370,12 @@
           <ul class="topics">
             <li>Admin, plugin and architecture guides</li>
             <li>Direct message and quote-post UI</li>
-            <li>Consistent buttons and overflow</li>
-            <li>Activity summary view</li>
+            <li>Buttons, theme swatches and strings</li>
+            <li>Activity summary on profiles</li>
           </ul>
         </article>
 
-        <article class="milestone below near" style="left: 522px; top: 404px">
+        <article class="milestone above near" style="left: 490px; bottom: 420px">
           <div class="when">
             <span class="date">Sep 16</span>
             <span class="count">5</span>
@@ -406,40 +384,40 @@
           <ul class="topics">
             <li>Community timezone setting</li>
             <li>Start a DM from member lists</li>
-            <li>Pin posts, show roles on profiles</li>
+            <li>Pin posts and show roles on profiles</li>
             <li>Force SPA reload after deploy</li>
           </ul>
         </article>
 
-        <article class="milestone above near" style="left: 626px; bottom: 420px">
+        <article class="milestone below near" style="left: 610px; top: 404px">
           <div class="when">
             <span class="date">Sep 23</span>
             <span class="count">7</span>
           </div>
-          <div class="theme">Groups depth</div>
+          <div class="theme">Groups and conversations</div>
           <ul class="topics">
             <li>Per-group notification settings</li>
             <li>Leave a group DM thread</li>
             <li>Group member search</li>
-            <li>Poll closed notifications</li>
+            <li>Poll-ended notifications</li>
           </ul>
         </article>
 
-        <article class="milestone below near" style="left: 730px; top: 404px">
+        <article class="milestone above near" style="left: 730px; bottom: 420px">
           <div class="when">
             <span class="date">Sep 30</span>
             <span class="count">16</span>
           </div>
           <div class="theme">Insights and completeness</div>
           <ul class="topics">
-            <li>Page view and verified-user analytics</li>
+            <li>Page-view and verified-user analytics</li>
             <li>Calendar view for events</li>
             <li>Account data export</li>
             <li>Follow a hashtag</li>
           </ul>
         </article>
 
-        <article class="milestone above" style="left: 932px; bottom: 420px">
+        <article class="milestone below" style="left: 922px; top: 404px">
           <div class="when">
             <span class="date">2026 Q4</span>
             <span class="count">101</span>
@@ -452,7 +430,7 @@
           </ul>
         </article>
 
-        <article class="milestone below" style="left: 1052px; top: 404px">
+        <article class="milestone above" style="left: 1037px; bottom: 420px">
           <div class="when">
             <span class="date">2027 Q1</span>
             <span class="count">37</span>
@@ -465,7 +443,7 @@
           </ul>
         </article>
 
-        <article class="milestone above" style="left: 1167px; bottom: 420px">
+        <article class="milestone below" style="left: 1152px; top: 404px">
           <div class="when">
             <span class="date">2027 Q2</span>
             <span class="count">14</span>
@@ -477,7 +455,7 @@
           </ul>
         </article>
 
-        <article class="milestone below" style="left: 1277px; top: 404px">
+        <article class="milestone above" style="left: 1267px; bottom: 420px">
           <div class="when">
             <span class="date">2027 Q3–Q4</span>
             <span class="count">4</span>
@@ -489,7 +467,7 @@
           </ul>
         </article>
 
-        <article class="milestone above" style="left: 1382px; bottom: 420px">
+        <article class="milestone below" style="left: 1382px; top: 404px">
           <div class="when">
             <span class="date">2028</span>
             <span class="count">15</span>
@@ -505,11 +483,11 @@
       <footer>
         <div>
           Off the arrow: 38 issues need specification before they can be
-          scheduled, 7 are marked not planned, 1 is unmilestoned. Node size is
-          proportional to the number of issues in that milestone.
+          scheduled, 7 are marked not planned, none are unmilestoned. Node size
+          is proportional to the number of issues in that milestone.
         </div>
         <div class="source">
-          Source: code.openpeeps.org/openpeeps/openpeeps · snapshot 11 Aug 2026
+          Source: code.openpeeps.org/openpeeps/openpeeps · snapshot 18 Aug 2026
         </div>
       </footer>
     </div>
