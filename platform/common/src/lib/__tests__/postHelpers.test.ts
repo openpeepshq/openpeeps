@@ -15,7 +15,9 @@ import {
   eventDataForDbUpdate,
   getJamCapacityJoinBlock,
   canDeletePost,
+  getPostActionAvailability,
 } from '../postHelpers';
+import { groupCapabilityTemplates } from '../groupHelpers';
 import { getJamUrl, jamFromEvent } from '../jamHelpers';
 import type {
   Event,
@@ -28,6 +30,7 @@ import type {
   CapabilitiesConfig,
   EntryWithPublicProfile,
   PublicRsvp,
+  GroupWithMeta,
 } from '../../types';
 
 // Mock data for testing
@@ -622,6 +625,102 @@ describe('postHelpers', () => {
         configWithoutDelete,
       );
       expect(result).toBe(false);
+    });
+  });
+
+  describe('getPostActionAvailability', () => {
+    const writeScopes = [
+      {
+        scopeLevel: 'admin' as const,
+        resource: { type: '*' as const, id: '*' },
+      },
+    ];
+
+    const groupFromTemplate = (
+      id: string,
+      template: (typeof groupCapabilityTemplates)[keyof typeof groupCapabilityTemplates],
+    ) =>
+      ({
+        id,
+        capabilities: template.capabilities,
+      }) as GroupWithMeta;
+
+    const memberProfile = (group: GroupWithMeta) =>
+      ({
+        ...mockProfile,
+        memberships: [
+          {
+            group,
+            roles: ['member'],
+          },
+        ],
+      }) as ProfileWithMeta;
+
+    it('disables all actions for a group post when the viewer is not a member', () => {
+      const group = groupFromTemplate(
+        'g1',
+        groupCapabilityTemplates.defaultGroup,
+      );
+      const post = {
+        ...mockPost,
+        visibility: 'group',
+        groupId: group.id,
+        group,
+      } as PublicPost;
+
+      expect(
+        getPostActionAvailability(
+          { profile: mockProfile, scopes: writeScopes },
+          post,
+          mockCapabilitiesConfig,
+        ),
+      ).toEqual({
+        canReply: false,
+        canRepost: false,
+        canReact: false,
+      });
+    });
+
+    it('disables reply and repost for locked-group members without create', () => {
+      const group = groupFromTemplate(
+        'g-locked',
+        groupCapabilityTemplates.lockedGroup,
+      );
+      const post = {
+        ...mockPost,
+        visibility: 'group',
+        groupId: group.id,
+        group,
+      } as PublicPost;
+
+      const result = getPostActionAvailability(
+        { profile: memberProfile(group), scopes: writeScopes },
+        post,
+        mockCapabilitiesConfig,
+      );
+      expect(result.canReply).toBe(false);
+      expect(result.canRepost).toBe(false);
+    });
+
+    it('allows reply and repost for members who can create group notes', () => {
+      const group = groupFromTemplate(
+        'g-default',
+        groupCapabilityTemplates.defaultGroup,
+      );
+      const post = {
+        ...mockPost,
+        visibility: 'group',
+        groupId: group.id,
+        group,
+      } as PublicPost;
+
+      const result = getPostActionAvailability(
+        { profile: memberProfile(group), scopes: writeScopes },
+        post,
+        mockCapabilitiesConfig,
+      );
+      expect(result.canReply).toBe(true);
+      expect(result.canRepost).toBe(true);
     });
   });
 });

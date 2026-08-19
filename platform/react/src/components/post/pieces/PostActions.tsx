@@ -16,7 +16,9 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
     me,
     myRepost,
     iReacted,
-    disabledForGroup,
+    canReply,
+    canRepost,
+    canReact,
     reply,
     toggleRepost,
     toggleReaction,
@@ -46,7 +48,7 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
         className={`${actionClass} justify-self-start`}
         title={t('posts.actions.reply', { defaultValue: 'Reply' })}
         action={reply}
-        disabled={disabledForGroup}
+        disabled={!canReply}
       >
         <Reply className="h-4 w-4" />
         {compact ? post.replyCount || null : replyLabel}
@@ -56,7 +58,7 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
         className={`${actionClass} justify-self-center ${myRepost ? 'text-primary' : ''}`}
         title={t('posts.actions.repost', { defaultValue: 'Repost' })}
         action={toggleRepost}
-        disabled={disabledForGroup}
+        disabled={!canRepost}
         spinnerOnlyOnLoading
         data-testid="posts-repost-button"
       >
@@ -68,7 +70,7 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
         className={`${actionClass} justify-self-end ${iReacted ? 'text-primary' : ''}`}
         title={t('posts.actions.react', { defaultValue: 'React' })}
         action={toggleReaction}
-        disabled={disabledForGroup}
+        disabled={!canReact}
         spinnerOnlyOnLoading
       >
         <ThumbsUp className="h-4 w-4" />
