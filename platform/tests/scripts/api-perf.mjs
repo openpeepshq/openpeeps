@@ -42,6 +42,9 @@ const cfg = {
     !process.env.PERF_BACKUP_ZIP,
   restore:
     process.env.PERF_RESTORE === '1' || process.env.PERF_RESTORE === 'true',
+  requireProfileGraph:
+    process.env.PERF_REQUIRE_PROFILE_GRAPH === '1' ||
+    process.env.PERF_REQUIRE_PROFILE_GRAPH === 'true',
   backupZip:
     process.env.PERF_BACKUP_ZIP ||
     join(testsRoot, 'fixtures/backups/default-install.zip'),
@@ -130,15 +133,24 @@ const maybeRestore = () => {
 
 const runTimed = async (name, fn) => {
   const samples = [];
+  let rows;
   for (let i = 0; i < cfg.warmup; i++) {
     await fn();
   }
   for (let i = 0; i < cfg.iterations; i++) {
-    const { durationMs } = await fn();
+    const { durationMs, data } = await fn();
     samples.push(durationMs);
+    rows = Array.isArray(data) ? data.length : rows;
   }
-  return { name, ...summarize(samples) };
+  return { name, rows, ...summarize(samples) };
 };
+
+/**
+ * Feeds that must return rows for the run to mean anything. An empty page still
+ * costs a full candidate scan, so a fixture the API cannot serve reports
+ * plausible-looking latencies for work no user would ever do.
+ */
+const NON_EMPTY_SCENARIOS = ['localFeed', 'myFeed', 'groupFeed'];
 
 const main = async () => {
   maybeRestore();
@@ -167,6 +179,14 @@ const main = async () => {
   const me = (
     await apiJson('GET', '/api/openpeeps/core/v1/profiles/current', { token })
   ).data;
+  if (
+    cfg.requireProfileGraph &&
+    (!me?.following?.length || !me?.memberships?.length)
+  ) {
+    throw new Error(
+      'Perf profile must have at least one follow and group membership',
+    );
+  }
 
   const memberships = me?.memberships ?? [];
   const groupId = memberships[0]?.group?.id ?? memberships[0]?.groupId;
@@ -231,11 +251,9 @@ const main = async () => {
   );
   scenarios.push(
     await runTimed('searchProfiles', () =>
-      apiJson(
-        'GET',
-        '/api/openpeeps/core/v1/search/profiles?q=a&limit=15',
-        { token },
-      ),
+      apiJson('GET', '/api/openpeeps/core/v1/search/profiles?q=a&limit=15', {
+        token,
+      }),
     ),
   );
   scenarios.push(
@@ -260,6 +278,15 @@ const main = async () => {
     );
   }
 
+  const emptyFeeds = scenarios.filter(
+    (row) => NON_EMPTY_SCENARIOS.includes(row.name) && row.rows === 0,
+  );
+  if (emptyFeeds.length) {
+    throw new Error(
+      `Fixture served no posts for: ${emptyFeeds.map((row) => row.name).join(', ')}`,
+    );
+  }
+
   const thresholds = JSON.parse(await readFile(thresholdsPath, 'utf8'));
   const failures = [];
   for (const row of scenarios) {
@@ -280,6 +307,10 @@ const main = async () => {
     iterations: cfg.iterations,
     warmup: cfg.warmup,
     enforce: cfg.enforce,
+    profile: {
+      following: me?.following?.length ?? 0,
+      memberships: me?.memberships?.length ?? 0,
+    },
     scenarios,
     failures,
   };

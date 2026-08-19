@@ -190,6 +190,124 @@ describe('map relations', () => {
     });
   });
 
+  it('fetches relation vertices once per batch, not once per parent row', async () => {
+    const queriedTables: string[] = [];
+    const rowsByTable: Record<string, Row[]> = {
+      entries: [
+        { id: 'e1', fromId: 'a1', toId: 'post-1', body: {}, ...stamp },
+        { id: 'e2', fromId: 'a2', toId: 'post-2', body: {}, ...stamp },
+        { id: 'e3', fromId: 'a3', toId: 'post-3', body: {}, ...stamp },
+      ],
+      profiles: [
+        { id: 'a1', handle: 'alice', type: 'local', body: {}, ...stamp },
+        { id: 'a2', handle: 'bob', type: 'local', body: {}, ...stamp },
+        { id: 'a3', handle: 'cara', type: 'local', body: {}, ...stamp },
+      ],
+    };
+    const db = {
+      select: () => ({
+        from: (table: unknown) => {
+          const name = getTableName(table as Table);
+          queriedTables.push(name);
+          const result = Promise.resolve(rowsByTable[name] ?? []);
+          const api: Record<string, unknown> = {
+            where: () => api,
+            limit: () => api,
+            orderBy: () => api,
+            offset: () => api,
+            $dynamic: () => api,
+            then: result.then.bind(result),
+            catch: result.catch.bind(result),
+            finally: result.finally.bind(result),
+          };
+          return api;
+        },
+      }),
+    } as unknown as PgDb;
+
+    const docs = await hydrateMapData(
+      db,
+      {
+        collection: 'posts',
+        relations: [
+          {
+            alias: 'entries',
+            edgeCollection: 'entries',
+            direction: 'INBOUND',
+            vertexAlias: 'profile',
+            cardinality: 'many',
+            mapping: { collection: 'profiles' },
+          },
+        ],
+      },
+      [{ id: 'post-1' }, { id: 'post-2' }, { id: 'post-3' }],
+    );
+
+    expect(docs).toHaveLength(3);
+    expect((docs[0].entries as Row[])[0]).toMatchObject({
+      id: 'e1',
+      profile: expect.objectContaining({ id: 'a1' }),
+    });
+    expect(queriedTables.filter((name) => name === 'profiles')).toHaveLength(1);
+  });
+
+  it('counts relation vertices for the whole batch in one query', async () => {
+    const queriedTables: string[] = [];
+    const rowsByTable: Record<string, Row[]> = {
+      reply_to: [
+        { id: 'r1', fromId: 'reply-1', toId: 'post-1', body: {}, ...stamp },
+        { id: 'r2', fromId: 'reply-2', toId: 'post-1', body: {}, ...stamp },
+        { id: 'r3', fromId: 'reply-3', toId: 'post-2', body: {}, ...stamp },
+      ],
+      posts: [
+        { id: 'reply-1', type: 'note', body: {}, ...stamp },
+        { id: 'reply-2', type: 'note', body: {}, ...stamp },
+        { id: 'reply-3', type: 'note', body: {}, ...stamp },
+      ],
+    };
+    const db = {
+      select: () => ({
+        from: (table: unknown) => {
+          const name = getTableName(table as Table);
+          queriedTables.push(name);
+          const result = Promise.resolve(rowsByTable[name] ?? []);
+          const api: Record<string, unknown> = {
+            where: () => api,
+            limit: () => api,
+            orderBy: () => api,
+            offset: () => api,
+            $dynamic: () => api,
+            then: result.then.bind(result),
+            catch: result.catch.bind(result),
+            finally: result.finally.bind(result),
+          };
+          return api;
+        },
+      }),
+    } as unknown as PgDb;
+
+    const docs = await hydrateMapData(
+      db,
+      {
+        collection: 'posts',
+        relations: [
+          {
+            alias: 'replyCount',
+            edgeCollection: 'replyTo',
+            direction: 'INBOUND',
+            cardinality: 'one',
+            count: true,
+            mapping: { collection: 'posts', softDelete: true },
+          },
+        ],
+      },
+      [{ id: 'post-1' }, { id: 'post-2' }],
+    );
+
+    expect(docs.map((doc) => doc.replyCount)).toEqual([2, 1]);
+    expect(queriedTables.filter((name) => name === 'posts')).toHaveLength(1);
+  });
+
   it('relationsFrom returns skipEdge vertices and count rows', async () => {
     const db = createFakeDb({
       reply_to: [

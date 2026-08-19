@@ -573,6 +573,10 @@ export const filterToSql = (
     const matches = Array.isArray(filter.matches)
       ? filter.matches
       : [filter.matches];
+    // An empty match list is a valid predicate that can never match. Keeping
+    // it in SQL prevents an empty OR branch from demoting the whole filter to
+    // post-hydration evaluation.
+    if (!matches.length) return sql`false`;
     const parts = matches
       .map((match) => matchToSql(collection, table, match))
       .filter(Boolean) as SQL[];

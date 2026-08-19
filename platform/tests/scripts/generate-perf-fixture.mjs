@@ -22,6 +22,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceZip = path.join(root, 'fixtures/backups/default-install.zip');
 const outZip = path.join(root, 'fixtures/backups/perf-scale.zip');
 const TARGET_POSTS = Number(process.env.PERF_FIXTURE_POSTS || 400);
+const PERF_ACCOUNT_EMAIL = 'trinay+0@allpeep.com';
+// bcrypt for the synthetic CI-only password `perf-password-1`.
+const PERF_PASSWORD_HASH =
+  '$2b$10$HzZGKmJlpujQenfsu2JSn.ZusGKHHxeYkGQ4JdnlrTgbqJKJ/ki1q';
 
 const readJsonl = async (filePath) => {
   try {
@@ -65,6 +69,18 @@ const tmp = await mkdtemp(path.join(tmpdir(), 'op-perf-fixture-'));
 try {
   execFileSync('unzip', ['-q', sourceZip, '-d', tmp]);
   const collectionsDir = path.join(tmp, 'collections');
+  const accountsPath = path.join(collectionsDir, 'accounts.jsonl');
+  const accounts = await readJsonl(accountsPath);
+  const perfAccount = accounts.find(
+    (account) => account.email === PERF_ACCOUNT_EMAIL,
+  );
+  if (!perfAccount) {
+    throw new Error(`Source fixture has no ${PERF_ACCOUNT_EMAIL} account`);
+  }
+  perfAccount.passwordHash = PERF_PASSWORD_HASH;
+  perfAccount.emailValidated = true;
+  await writeJsonl(accountsPath, accounts);
+
   const posts = await readJsonl(path.join(collectionsDir, 'posts.jsonl'));
   if (!posts.length) {
     throw new Error('Source fixture has no posts');
@@ -85,6 +101,28 @@ try {
   const edgesByFile = {};
   for (const file of edgeFiles) {
     edgesByFile[file] = await readJsonl(path.join(collectionsDir, file));
+  }
+
+  // The source backup predates `posts.data` (content used to live only on the
+  // `create` entry). Restores no longer run the Arango-era backfill migration,
+  // so without this every post fails `postWithMetaSchema` and no feed can
+  // return it — the harness would then time an empty feed.
+  const createEntryByPost = new Map(
+    edgesByFile['entries.jsonl']
+      .filter((edge) => edge.type === 'create')
+      .map((edge) => [String(edge._to), edge]),
+  );
+  const postsMissingData = posts.filter((post) => !post.data);
+  for (const post of postsMissingData) {
+    const data = createEntryByPost.get(`posts/${post._key}`)?.data;
+    if (!data?.type) {
+      throw new Error(`Post ${post._key} has no create entry data to backfill`);
+    }
+    post.data = data;
+    post.type = data.type;
+  }
+  if (postsMissingData.length) {
+    console.log(`Backfilled data on ${postsMissingData.length} post(s)`);
   }
 
   const notePosts = posts.filter((p) => p.type === 'note' || !p.type);
