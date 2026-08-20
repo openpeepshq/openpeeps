@@ -77,6 +77,7 @@ export { AdminConfigurationCommunityRoles } from './admin/community/CommunityRol
 export { AdminGroupMembers } from './admin/GroupMembers';
 export { AdminReports } from './admin/Reports';
 export { AdminApiKeys } from './admin/ApiKeys';
+export { AdminPlugins } from './admin/Plugins';
 export { AdminDiagnostics } from './admin/Diagnostics';
 export { AdminDiagnosticsEmail } from './admin/DiagnosticsEmail';
 export { AdminDiagnosticsLogs } from './admin/DiagnosticsLogs';

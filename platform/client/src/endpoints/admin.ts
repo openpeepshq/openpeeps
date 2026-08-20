@@ -48,7 +48,11 @@ import {
 
 import { allpeepPayloadEndpoint } from './helpers';
 
-import { AccountData, PublicAccount } from '@openpeepshq/common';
+import {
+  AccountData,
+  PublicAccount,
+  AdminPluginInfo,
+} from '@openpeepshq/common';
 import { FetchClient } from '@openpeepshq/fetch-client';
 import { allpeepNoPayloadEndpoint } from './helpers';
 
@@ -362,5 +366,29 @@ export const admin = (rawClient: FetchClient) => ({
       SuccessResponse,
       { accessTokenId: string }
     >(rawClient, '/admin/service-access-tokens/:accessTokenId', 'delete'),
+  },
+  plugins: {
+    list: allpeepNoPayloadEndpoint<AdminPluginInfo[]>(
+      rawClient,
+      '/admin/plugins',
+    ),
+    install: allpeepPayloadEndpoint<
+      SuccessResponse & { pluginKey?: string },
+      { type: 'npm'; package: string; version?: string } | { type: 'git'; url: string; ref?: string }
+    >(rawClient, '/admin/plugins/install', 'post'),
+    uninstall: allpeepNoPayloadEndpoint<
+      SuccessResponse,
+      { namespace: string; name: string }
+    >(rawClient, '/admin/plugins/:namespace/:name', 'delete'),
+    update: allpeepPayloadEndpoint<
+      SuccessResponse,
+      { enabled: boolean },
+      { namespace: string; name: string }
+    >(rawClient, '/admin/plugins/:namespace/:name', 'patch'),
+    reload: allpeepNoPayloadEndpoint<SuccessResponse>(
+      rawClient,
+      '/admin/plugins/reload',
+      'post',
+    ),
   },
 });

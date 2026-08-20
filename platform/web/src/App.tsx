@@ -108,6 +108,7 @@ import {
   AdminGroupMembers,
   AdminReports,
   AdminApiKeys,
+  AdminPlugins,
   AdminDiagnostics,
   AdminDiagnosticsEmail,
   AdminDiagnosticsLogs,
@@ -298,6 +299,7 @@ const Admin = {
   DiagnosticsJob: AdminDiagnosticsJob,
   DiagnosticsPerformance: AdminDiagnosticsPerformance,
   ApiKeys: AdminApiKeys,
+  Plugins: AdminPlugins,
   Db: AdminDb,
   Members: AdminMembers,
   Invites: AdminInvites,
@@ -604,6 +606,13 @@ function AppShell() {
                       <Route
                         path="/admin/api-keys"
                         element={<Admin.ApiKeys />}
+                      />
+                    </Route>
+
+                    <Route element={<RequireAdminSection section="plugins" />}>
+                      <Route
+                        path="/admin/plugins"
+                        element={<Admin.Plugins />}
                       />
                     </Route>
 

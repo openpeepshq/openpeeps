@@ -43,6 +43,11 @@ export const adminSections = [
     capabilities: ['core-serviceTokens-read'],
   },
   {
+    key: 'plugins',
+    path: '/admin/plugins',
+    capabilities: ['core-plugins-manage'],
+  },
+  {
     key: 'configuration',
     path: '/admin/configuration',
     capabilities: ['core-config-read'],

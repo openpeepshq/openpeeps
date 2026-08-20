@@ -172,6 +172,7 @@ export const roleCapabilities = [
   'core-serviceTokens-read',
   'core-serviceTokens-update',
   'core-serviceTokens-delete',
+  'core-plugins-manage',
 ] as const;
 
 export type RoleCapability = (typeof roleCapabilities)[number];

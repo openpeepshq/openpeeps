@@ -7,7 +7,7 @@ export interface Plugin {
   name: string;
   info: PackageJson;
   path: string;
-  status?: 'loaded' | 'failed';
+  status?: 'loaded' | 'failed' | 'disabled';
   error?: string;
 }
 
@@ -18,10 +18,21 @@ export const pluginInfoSchema = z.object({
   version: z.string().optional(),
   displayName: z.string().optional(),
   description: z.string().optional(),
-  status: z.enum(['loaded', 'failed']).optional(),
+  status: z.enum(['loaded', 'failed', 'disabled']).optional(),
 });
 
 export type PluginInfo = z.infer<typeof pluginInfoSchema>;
+
+export const adminPluginInfoSchema = pluginInfoSchema.extend({
+  error: z.string().optional(),
+  /** Persisted desired state (DB override, falling back to the static gate). */
+  enabled: z.boolean(),
+  repositoryUrl: z.string().optional(),
+  /** True when installed via the admin UI (can be uninstalled). */
+  installed: z.boolean().optional(),
+});
+
+export type AdminPluginInfo = z.infer<typeof adminPluginInfoSchema>;
 
 export const pluginManifestSchema = z.object({
   components: z

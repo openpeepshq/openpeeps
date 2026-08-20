@@ -5,7 +5,7 @@ import { logger } from '../log';
 
 const log = logger('core:plugins');
 
-const isPluginEnabled = (info: PackageJson) =>
+export const isPluginEnabled = (info: PackageJson) =>
   (info as PackageJson & { openpeeps?: { enabled?: boolean } }).openpeeps
     ?.enabled !== false;
 
@@ -81,13 +81,6 @@ const enumeratePluginsForNamespace = (
         fs.readFileSync(path.join(pluginPath, 'package.json'), 'utf-8'),
       ) as PackageJson;
       return [key, info, pluginPath] as PluginInfo;
-    })
-    .filter(([key, info]) => {
-      if (isPluginEnabled(info)) {
-        return true;
-      }
-      log.info(`Skipping disabled plugin ${key}.`);
-      return false;
     });
 };
 

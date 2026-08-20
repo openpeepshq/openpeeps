@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Bell,
+  Blocks,
   Bolt,
   BookCheck,
   Bookmark,
@@ -57,6 +58,7 @@ const adminSectionIcons: Record<AdminSectionKey, LucideIcon> = {
   backups: DatabaseBackup,
   analytics: ChartLine,
   apiKeys: KeyRound,
+  plugins: Blocks,
   configuration: Wrench,
   diagnostics: Stethoscope,
   database: Database,
@@ -70,6 +72,7 @@ const adminSectionLabelKeys: Record<AdminSectionKey, string> = {
   backups: 'navigation.backups',
   analytics: 'navigation.analytics',
   apiKeys: 'navigation.apiKeys',
+  plugins: 'navigation.plugins',
   configuration: 'navigation.configuration',
   diagnostics: 'navigation.diagnostics',
   database: 'navigation.database',

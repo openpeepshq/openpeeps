@@ -1,11 +1,32 @@
 import { useEffect, type ReactNode } from 'react';
-import { applyThemeOverrides, setTheme } from '@openpeepshq/react-ui';
+import {
+  applyThemeOverrides,
+  readCssColorVar,
+  setTheme,
+} from '@openpeepshq/react-ui';
 import { getTheme } from '@openpeepshq/common';
 import { useServerInfo } from '../server-data';
 import { useCurrentProfileSettings } from './IdentityContext';
 
 export interface OpenpeepsThemeProviderProps {
   children?: ReactNode;
+}
+
+const THEME_GLOBAL_KEY = '__OPENPEEPS_THEME__';
+
+/** Resolved theme tokens exposed to plugin frontends. See docs/PLUGINS.md. */
+export interface OpenpeepsPluginTheme {
+  primary?: string;
+  primaryForeground?: string;
+  secondary?: string;
+  secondaryForeground?: string;
+  surface?: string;
+}
+
+declare global {
+  interface Window {
+    [THEME_GLOBAL_KEY]?: OpenpeepsPluginTheme;
+  }
 }
 
 /**
@@ -41,6 +62,17 @@ export function OpenpeepsThemeProvider({
     styleEl.id = styleId;
     document.getElementById(styleId)?.remove();
     document.head.appendChild(styleEl);
+
+    // Resolved once the override <style> is in the DOM so plugin frontends
+    // (loaded via `window.__OPENPEEPS_PLUGINS__`) can read live theme colors
+    // without duplicating the community theme's hex → rgb() conversion.
+    window[THEME_GLOBAL_KEY] = {
+      primary: readCssColorVar('--color-primary'),
+      primaryForeground: readCssColorVar('--color-primary-foreground'),
+      secondary: readCssColorVar('--color-secondary'),
+      secondaryForeground: readCssColorVar('--color-secondary-foreground'),
+      surface: readCssColorVar('--color-surface'),
+    };
 
     const themeColorMeta =
       document.head.querySelector<HTMLMetaElement>(

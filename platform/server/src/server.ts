@@ -26,7 +26,14 @@ import { installS3Endpoint } from './lib/s3';
 import { installStreamingEndpoint } from './lib/streaming';
 import { installPwaEndpoint } from './lib/pwa';
 import { sendSpaHtml } from './lib/spaHtml';
-import { buildPluginRouters, pluginAssetsMiddleware } from './lib/plugins';
+import {
+  buildPluginRouters,
+  pluginAssetsMiddleware,
+  unmountAllPluginRouters,
+} from './lib/plugins';
+import { setAppInstance, reloadPlugins } from './lib/pluginReload';
+
+export { reloadPlugins };
 
 const log = logger('server');
 const requestLog = logger('server:request');
@@ -70,6 +77,7 @@ const startServer = async () => {
   await initializeServer();
 
   const app = express();
+  setAppInstance(app);
 
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok' });
@@ -186,7 +194,7 @@ const startServer = async () => {
     express.urlencoded({ extended: true }),
   );
 
-  const pluginRouters = await buildPluginRouters();
+  const pluginRouters = await buildPluginRouters(app);
   for (const [pluginKey, router] of Object.entries(pluginRouters)) {
     app.use(`/api/openpeeps/core/v1/plugins/${pluginKey}`, router);
   }

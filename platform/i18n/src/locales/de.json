@@ -118,6 +118,7 @@
         "invites": "Einladungen",
         "configuration": "Konfiguration",
         "diagnostics": "Diagnose",
+        "plugins": "Plugins",
         "moderation": "Moderation",
         "backups": "Sicherungen",
         "analytics": "Statistiken",
@@ -997,6 +998,21 @@
         }
     },
     "admin": {
+        "plugins": {
+            "title": "Plugins",
+            "empty": "Keine Plugins geladen.",
+            "error": "Plugins konnten nicht geladen werden",
+            "repository": "Repository",
+            "description": "Plugins aktivieren oder deaktivieren. Änderungen werden nach dem Neuladen wirksam.",
+            "reload": "Neu laden",
+            "reloadRequired": "Gespeichert. Drücke \"Neu laden\", um die Änderungen anzuwenden.",
+            "restartRequired": "Gespeichert. Das Plugin wird erst nach dem nächsten Neustart des Dienstes geladen (bzw. entladen).",
+            "status": {
+                "loaded": "Geladen",
+                "disabled": "Deaktiviert",
+                "failed": "Fehlgeschlagen"
+            }
+        },
         "inviteLink": {
             "unlimited": "Unbegrenzt",
             "createSuccess": "Einladungslink erfolgreich erstellt",
@@ -1525,6 +1541,88 @@
         "i18n": {
             "pageTitle": "Texte und Übersetzungen",
             "save": "Text aktualisieren"
+        }
+    },
+    "diagnostics": {
+        "title": "Diagnose",
+        "description": "Laufzeitsysteme überprüfen und prüfen, ob sie funktionsfähig sind.",
+        "performance": {
+            "title": "Leistung",
+            "description": "Aktuelle langsame HTTP-Anfragen aus diesem Prozess (In-Memory-Ringpuffer). Schwellenwert wird über PERF_SLOW_REQUEST_MS gesteuert.",
+            "threshold": "Langsamer Schwellenwert",
+            "dbTiming": "DB-Zeitmessung",
+            "on": "an",
+            "off": "aus",
+            "refresh": "Aktualisieren",
+            "loadError": "Leistungsstatistiken konnten nicht geladen werden.",
+            "empty": "Noch keine langsamen Anfragen aufgezeichnet.",
+            "when": "Wann",
+            "hostname": "Hostname",
+            "method": "Methode",
+            "path": "Pfad",
+            "status": "Status",
+            "duration": "Dauer"
+        },
+        "email": {
+            "title": "E-Mail",
+            "description": "Postausgangs-Warteschlange überprüfen und eine Test-E-Mail über den regulären Zustellungsprozess in die Warteschlange setzen.",
+            "testTitle": "Test-E-Mail in Warteschlange setzen",
+            "testHint": "Fügt eine Test-E-Mail an die Warteschlange, genau wie der CLI-Befehl.",
+            "testRecipient": "Test senden an",
+            "testRecipientPlaceholder": "sie@beispiel.de",
+            "queueTest": "Test-E-Mail in Warteschlange setzen",
+            "recipientRequired": "Geben Sie eine E-Mail-Adresse für den Test ein.",
+            "queueSuccess": "Test-E-Mail in Warteschlange gesetzt. Beobachten Sie die Warteschlangenzähler, um zu sehen, wann sie verarbeitet wird.",
+            "queueFailed": "Test-E-Mail konnte nicht in die Warteschlange gesetzt werden",
+            "queueTitle": "Postausgangs-Warteschlange",
+            "refresh": "Aktualisieren",
+            "countsHint": "Jobs in Redis für den E-Mail-Worker. Abgeschlossene Jobs werden nach ca. 24 Stunden entfernt; fehlgeschlagene Jobs werden länger aufbewahrt, damit Sie Probleme diagnostizieren können.",
+            "statsError": "Warteschlangenstatistiken konnten nicht geladen werden. Läuft Redis und ist es erreichbar?",
+            "waiting": "Wartend",
+            "active": "In Bearbeitung",
+            "completed": "Abgeschlossen",
+            "failed": "Fehlgeschlagen",
+            "delayed": "Verzögert",
+            "prioritized": "Priorisiert",
+            "recentFailures": "Aktuelle Sendefehler",
+            "bounceNote": "Diese Zahlen zeigen an, ob Ihr Server die E-Mail an Ihren SMTP-Anbieter übergeben konnte. Sie enthalten keine Bounce-Rückmeldungen, Spam-Ordner-Zustellungen oder ungültige Adressen nach der Übergabe."
+        },
+        "jobs": {
+            "title": "Warteschlangen-Job",
+            "viewLogs": "Job-Protokolle anzeigen",
+            "notFound": "Job nicht gefunden. Er wurde möglicherweise aus der Warteschlange entfernt.",
+            "details": "Job-Details",
+            "refresh": "Aktualisieren",
+            "queue": "Warteschlange",
+            "id": "Job-ID",
+            "name": "Job-Name",
+            "state": "Status",
+            "queuedAt": "In Warteschlange gesetzt am",
+            "finishedAt": "Beendet am",
+            "failedReason": "Fehlergrund",
+            "payload": "Job-Nutzdaten",
+            "logs": "Job-Protokolle",
+            "logsHint": "{{count}} Protokollzeile(n) für diesen Job gespeichert.",
+            "logsEmpty": "Noch keine Protokollzeilen für diesen Job aufgezeichnet."
+        },
+        "logs": {
+            "title": "Protokolle",
+            "description": "Server-Protokolleinträge nach Tag durchsuchen, nach Stufe oder Text filtern und den heutigen Protokollstrom live beobachten.",
+            "hint": "Protokolle werden in täglichen Dateien auf dem Server gespeichert. Wählen Sie ein Datum aus, um vergangene Einträge anzuzeigen.",
+            "date": "Datum",
+            "level": "Stufe",
+            "allLevels": "Alle Stufen",
+            "filter": "Filter",
+            "filterPlaceholder": "Suchen…",
+            "refresh": "Aktualisieren",
+            "autoRefresh": "Automatische Aktualisierung alle 5 Sekunden",
+            "showing": "{{count}} von {{total}} Einträgen angezeigt",
+            "loadError": "Protokolle konnten nicht geladen werden.",
+            "empty": "Keine Protokolleinträge entsprechen den aktuellen Filtern.",
+            "timestamp": "Zeit (UTC)",
+            "levelColumn": "Stufe",
+            "namespaceColumn": "Namensbereich",
+            "messageColumn": "Nachricht"
         }
     },
     "diagnostics": {
