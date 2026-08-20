@@ -16,7 +16,8 @@
             "forgotPassword": "Passwort vergessen?",
             "logIn": "Anmelden",
             "joinCommunity": "Community beitreten",
-            "seeCommunityFeed": "Community-Feed ansehen"
+            "seeCommunityFeed": "Community-Feed ansehen",
+            "loginWith": "Mit {{provider}} anmelden"
         },
         "register": {
             "title": "Registrieren",
@@ -81,8 +82,14 @@
         "tagline": "AllPeeP ist die Community-Plattform für Menschen, die ein exklusives, markengerechtes Erlebnis wünschen",
         "emails": {
             "validation": {
-                "success": "Ihre E-Mail-Adresse ist nun verifiziert. Sie können jetzt vollständig an der Community teilnehmen."
+                "success": "Ihre E-Mail-Adresse ist nun verifiziert. Sie können jetzt vollständig an der Community teilnehmen.",
+                "loading": "E-Mail wird überprüft…",
+                "error": "Dieser Bestätigungslink ist ungültig oder abgelaufen.",
+                "errorHeading": "Bestätigung fehlgeschlagen"
             }
+        },
+        "sso": {
+            "signingIn": "Sie werden angemeldet…"
         }
     },
     "navigation": {
@@ -120,7 +127,13 @@
         "myEvents": "Meine Veranstaltungen",
         "explore": "Entdecken",
         "articles": "Artikel",
-        "bookmarks": "Lesezeichen"
+        "bookmarks": "Lesezeichen",
+        "apiKeys": "API-Schlüssel",
+        "database": "Datenbank",
+        "conversations": "Nachrichten",
+        "primaryMobile": "Primär",
+        "breadcrumbs": "Breadcrumbs",
+        "primary": "Primär"
     },
     "profile": {
         "noBio": "Noch keine Biografie",
@@ -160,7 +173,10 @@
                 "value": "Wert",
                 "add": "Feld hinzufügen",
                 "remove": "Feld entfernen"
-            }
+            },
+            "handleHint": "1–16 Zeichen. Nur Buchstaben, Zahlen, Unterstriche und Bindestriche – keine Leerzeichen oder Satzzeichen.",
+            "handleInvalid": "Der Benutzername muss 1–16 Zeichen lang sein: Buchstaben, Zahlen, Unterstriche oder Bindestriche (keine Leerzeichen oder Satzzeichen)",
+            "handleReserved": "Dieser Benutzername ist reserviert. Bitte wählen Sie einen anderen."
         },
         "header": {
             "followers": "Follower",
@@ -241,6 +257,20 @@
         "notFound": {
             "title": "Profil nicht gefunden",
             "description": "Dieses Profil existiert nicht. Sie können versuchen, die Person in der Mitgliederliste zu finden."
+        },
+        "tabs": {
+            "label": "Profilbereiche"
+        },
+        "selector": {
+            "title": "Profile auswählen",
+            "search": "Profile suchen…",
+            "empty": "Keine Profile verfügbar",
+            "emptySearch": "Keine Ergebnisse gefunden",
+            "confirm": "OK",
+            "remove": "Entfernen"
+        },
+        "input": {
+            "placeholder": "Profile auswählen"
         }
     },
     "posts": {
@@ -317,13 +347,17 @@
                 "multipleAnswers": "Mehrfachantworten",
                 "seeWhoVotedTitle": "Sehen, wer abgestimmt hat",
                 "multipleAnswersDescription": "Erlauben Sie den Teilnehmenden, mehrere Antworten auszuwählen",
-                "votersVisibleDescription": "Erlauben Sie allen zu sehen, wer abgestimmt hat und welche Option gewählt wurde"
+                "votersVisibleDescription": "Erlauben Sie allen zu sehen, wer abgestimmt hat und welche Option gewählt wurde",
+                "question": "Umfragefrage…"
             },
             "changeAudience": "Zielgruppe ändern",
             "remainingCharacters": "Verbleibende Zeichen",
             "addImage": "Medien hinzufügen",
             "addDocument": "Dokument hinzufügen",
-            "title": "Neuer Beitrag"
+            "title": "Neuer Beitrag",
+            "note": {
+                "placeholder": "Was möchten Sie mitteilen?"
+            }
         },
         "copyPostLink": {
             "submit": "Link kopieren",
@@ -334,11 +368,16 @@
         },
         "event": {
             "attendees": "Teilnehmende",
-            "online": "Online"
+            "online": "Online",
+            "viewEvent": "Veranstaltung ansehen"
         },
         "actions": {
             "shareMessage": "Diesen Beitrag teilen",
-            "seeThread": "Thread anzeigen"
+            "seeThread": "Thread anzeigen",
+            "seeEvent": "Veranstaltung ansehen",
+            "react": "Reagieren",
+            "reply": "Antworten",
+            "repost": "Repost"
         },
         "footer": {
             "reply": "Antworten",
@@ -353,7 +392,9 @@
             "directMessage": "Direktnachricht",
             "sendInMessage": "In einer Nachricht senden",
             "otherOptions": "Weitere Optionen",
-            "copyLink": "Link kopieren"
+            "copyLink": "Link kopieren",
+            "downloadCalendarIcs": "Zum Kalender hinzufügen",
+            "downloadCalendarIcsTitle": ".ics-Datei herunterladen"
         },
         "gallery": {
             "previous": "Zurück",
@@ -394,7 +435,8 @@
         },
         "attachments": {
             "deleteTitle": "Anhang löschen",
-            "failed": "Upload fehlgeschlagen"
+            "failed": "Upload fehlgeschlagen",
+            "editTitle": "Beschreibung bearbeiten"
         },
         "deleteModal": {
             "deletePostTitle": "Beitrag löschen",
@@ -468,6 +510,14 @@
         "unpinGlobally": {
             "title": "Vom Feed lösen",
             "success": "Beitrag ist nicht mehr angepinnt"
+        },
+        "repostModal": {
+            "title": "Geteilt von",
+            "empty": "Noch keine Reposts",
+            "andMore": "und {{count}} weitere"
+        },
+        "newPost": {
+            "title": "Neuer Beitrag"
         }
     },
     "groups": {
@@ -542,7 +592,8 @@
         "sections": {
             "posts": "Beiträge",
             "events": "Veranstaltungen",
-            "description": "Beschreibung"
+            "description": "Beschreibung",
+            "label": "Gruppenbereiche"
         },
         "visibility": {
             "title": "Sichtbarkeit",
@@ -643,7 +694,9 @@
         "searchPlaceholder": "Nach Gruppenname suchen",
         "openGroup": "Gruppe öffnen",
         "form": {
-            "groupName": "Gruppenname"
+            "groupName": "Gruppenname",
+            "members": "Mitglieder",
+            "membersPlaceholder": "Mitglieder zu dieser Gruppe hinzufügen"
         },
         "actions": {
             "editGroup": "Gruppe bearbeiten",
@@ -657,7 +710,8 @@
             "shareOnCommunity": "In der Community teilen",
             "shareToFeed": "Im Feed teilen",
             "shareInMessage": "In einer Nachricht teilen",
-            "otherOptions": "Weitere Optionen"
+            "otherOptions": "Weitere Optionen",
+            "markAllRead": "Alle Beiträge als gelesen markieren"
         },
         "modals": {
             "addMembers": {
@@ -686,7 +740,22 @@
             "sendInMessage": "In einer Nachricht senden",
             "copyLink": "Link kopieren",
             "linkCopied": "Gruppenlink kopiert"
-        }
+        },
+        "eventsTabs": {
+            "label": "Veranstaltungszeitraum"
+        },
+        "tabs": {
+            "label": "Gruppenlisten",
+            "myGroups": "Meine Gruppen",
+            "allGroups": "Alle Gruppen"
+        },
+        "markAllRead": {
+            "error": "Gruppenbeiträge konnten nicht als gelesen markiert werden"
+        },
+        "members": {
+            "title": "Mitglieder"
+        },
+        "notFound": "Gruppe nicht gefunden"
     },
     "jams": {
         "form": {
@@ -800,7 +869,8 @@
         "people": {
             "inJam": "IM JAM",
             "inWaitingRoom": "IM WARTERAUM",
-            "noParticipants": "Keine Teilnehmenden gefunden"
+            "noParticipants": "Keine Teilnehmenden gefunden",
+            "connectionLost": "Verbindung unterbrochen"
         },
         "debug": {
             "audioLevelLabel": "Audiopegel",
@@ -901,12 +971,27 @@
         "room": {
             "pageTitle": "Jam-Raum - {{name}}",
             "observerConnecting": "Verbindung zum Jam wird hergestellt",
-            "jamNotActive": "Dieser Jam ist nicht aktiv"
+            "jamNotActive": "Dieser Jam ist nicht aktiv",
+            "loading": "Jam wird geladen…",
+            "notFound": "Jam nicht gefunden",
+            "viewEvent": "Veranstaltung ansehen",
+            "autoRsvpInProgress": "Sie werden für diese Veranstaltung angemeldet…",
+            "autoRsvpError": "Anmeldung zu dieser Veranstaltung fehlgeschlagen.",
+            "reconnecting": "Verbindung zum Jam wird wiederhergestellt…"
         },
         "participant": {
             "showEveryone": "Alle anzeigen",
             "turnOffCamera": "Video ausschalten",
             "muteParticipant": "Teilnehmer stummschalten"
+        },
+        "feed": {
+            "label": "Jam-Zeitraum",
+            "past": "Vergangen",
+            "upcoming": "Bevorstehend"
+        },
+        "blur": {
+            "blurBackground": "Hintergrund weichzeichnen",
+            "turnOff": "Weichzeichnung ausschalten"
         }
     },
     "admin": {
@@ -933,7 +1018,12 @@
             "deactivateTitle": "Link deaktivieren: Keine neuen Registrierungen werden zugelassen",
             "generateButton": "Link erstellen",
             "done": "Fertig",
-            "generateSuccess": "Einladungslink erfolgreich erstellt"
+            "generateSuccess": "Einladungslink erfolgreich erstellt",
+            "generateError": "Der Einladungslink konnte nicht erstellt werden",
+            "autoJoinGroups": "Automatisch Gruppen beitreten",
+            "autoJoinGroupsHint": "Personen, die sich über diesen Link registrieren, werden als Mitglieder der ausgewählten Gruppen hinzugefügt.",
+            "selectGroupsPlaceholder": "Gruppen auswählen…",
+            "noGroupsToAdd": "Sie können derzeit keine Mitglieder zu einer Gruppe hinzufügen. Treten Sie einer Gruppe bei, in der Sie berechtigt sind, Mitglieder hinzuzufügen (z. B. als Admin), und versuchen Sie es erneut."
         },
         "signupChart": {
             "last30Days": "Letzte 30 Tage",
@@ -972,7 +1062,8 @@
                 "title": "Sicherung wiederherstellen",
                 "cancel": "Abbrechen",
                 "confirm": "Bestätigen"
-            }
+            },
+            "create": "Backup erstellen"
         },
         "invites": {
             "inviteWithLinkTitle": "Mitglied per Link einladen",
@@ -1000,7 +1091,9 @@
             "expirationDateColumn": "Ablaufdatum",
             "usesColumn": "Nutzungen",
             "statusColumn": "Status",
-            "linkHeading": "Link"
+            "linkHeading": "Link",
+            "statusActive": "Aktiv",
+            "statusInactive": "Inaktiv"
         },
         "filter": {
             "title": "Filter",
@@ -1036,7 +1129,10 @@
             "searchPlaceholder": "Mitglied nach Name oder E-Mail suchen",
             "noUsersFound": "Keine Benutzer gefunden",
             "profileColumn": "Profil",
-            "rolesColumn": "Rollen"
+            "rolesColumn": "Rollen",
+            "createdColumn": "Erstellt",
+            "handleColumn": "Benutzername",
+            "downloadCsv": "CSV herunterladen"
         },
         "community": {
             "totalProfiles": "Profile gesamt",
@@ -1063,7 +1159,9 @@
             "recentInteractions": "Letzte Interaktionen",
             "jamSessions": "Jam-Sitzungen",
             "jamParticipants": "Jam-Teilnehmende",
-            "lastWeek": "Letzte Woche"
+            "lastWeek": "Letzte Woche",
+            "communityName": "Community-Name",
+            "serverVersion": "Serverversion"
         },
         "moderation": {
             "title": "Moderation",
@@ -1095,7 +1193,9 @@
                     "description": "Sie sind dabei, diese Meldung zu schließen, ohne eine Maßnahme zu ergreifen. Sie wird als gelöst markiert. Sind Sie sicher?",
                     "cancel": "Zurück",
                     "confirm": "Ja, schließen"
-                }
+                },
+                "tabsLabel": "Meldungsarten",
+                "goToProfile": "Zum Profil"
             },
             "post": {
                 "delete": {
@@ -1120,7 +1220,9 @@
                 "unresolvedBadge": "Nicht gelöst",
                 "goToPost": "Zum Beitrag",
                 "closeReport": "Schließen"
-            }
+            },
+            "tabsLabel": "Moderationsbereiche",
+            "reopen": "Wieder öffnen"
         },
         "configuration": {
             "unnamedSection": "Konfiguration",
@@ -1147,6 +1249,362 @@
                     "success": "Community-Konfiguration aktualisiert"
                 }
             }
+        },
+        "accessDenied": {
+            "title": "Zugriff verweigert",
+            "description": "Sie haben keine Berechtigung, diesen Bereich der Administration anzuzeigen."
+        },
+        "apiKeys": {
+            "title": "Dienstzugriffstoken",
+            "createTitle": "Dienstzugriffstoken erstellen",
+            "createDescription": "Erstellen Sie ein Dienstzugriffstoken für Integrationen. Kopieren Sie den Tokenwert bei der Erstellung.",
+            "create": "Dienstzugriffstoken erstellen",
+            "creating": "Wird erstellt…",
+            "createError": "Dienstzugriffstoken konnte nicht erstellt werden.",
+            "name": "Name",
+            "nameRequired": "Name ist erforderlich.",
+            "descriptionLabel": "Beschreibung",
+            "expiration": "Ablauf",
+            "expirationOptions": {
+                "sevenDays": "7 Tage",
+                "thirtyDays": "30 Tage",
+                "ninetyDays": "90 Tage",
+                "oneYear": "1 Jahr"
+            },
+            "scopes": "Berechtigungen",
+            "addScope": "Berechtigung hinzufügen",
+            "removeScope": "Entfernen",
+            "scopeRequired": "Mindestens eine Berechtigung ist erforderlich.",
+            "copy": "Kopieren",
+            "copyWarning": "Kopieren Sie dieses Token jetzt. Es wird nicht erneut angezeigt.",
+            "listTitle": "Dienstzugriffstoken",
+            "empty": "Keine aktiven Dienstzugriffstoken.",
+            "expiresAt": "Läuft ab am",
+            "never": "Nie",
+            "revoke": "Widerrufen",
+            "revoked": "Widerrufen",
+            "noScopes": "Keine Berechtigungen",
+            "expiredToggle": "Abgelaufene Token ({{count}})"
+        },
+        "database": {
+            "title": "Datenbank",
+            "browseTab": "Durchsuchen",
+            "sqlTab": "SQL",
+            "tables": "Tabellen",
+            "loading": "Wird geladen…",
+            "selectTable": "Wählen Sie eine Tabelle aus, um Zeilen zu durchsuchen.",
+            "filterColumn": "Spalte filtern",
+            "anyColumn": "—",
+            "filterValue": "Enthält",
+            "applyFilter": "Anwenden",
+            "clearFilter": "Zurücksetzen",
+            "downloadCsv": "CSV herunterladen",
+            "loadError": "Zeilen konnten nicht geladen werden.",
+            "showing": "{{from}}–{{to}} von {{total}} werden angezeigt",
+            "prev": "Zurück",
+            "next": "Weiter",
+            "runSql": "Ausführen",
+            "pageSize": "Zeilen",
+            "pageSizeAll": "Alle",
+            "sqlMeta": "{{command}} — {{count}} Zeile(n)",
+            "sqlMetaTruncated": "{{command}} — {{shown}} von {{count}} Zeile(n) angezeigt",
+            "editTitle": "{{column}} bearbeiten",
+            "cancel": "Abbrechen",
+            "save": "Speichern"
+        },
+        "groups": {
+            "title": "Gruppen",
+            "delete": "Gruppe löschen",
+            "deleteTitle": "Gruppe löschen",
+            "deleteDescription": "Möchten Sie diese Gruppe wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+            "created": "Erstellt",
+            "lastPost": "Letzter Beitrag",
+            "members": "Mitglieder",
+            "posts": "Beiträge",
+            "settings": "Einstellungen"
+        },
+        "analytics": {
+            "title": "Analysen",
+            "tabsLabel": "Analysebereiche",
+            "tabs": {
+                "overview": "Übersicht",
+                "members": "Mitglieder",
+                "content": "Inhalte",
+                "engagement": "Interaktion",
+                "groups": "Gruppen",
+                "reports": "Berichte",
+                "growth": "Wachstum",
+                "retention": "Bindung"
+            },
+            "export": "Exportieren",
+            "exportCsv": "CSV exportieren",
+            "sectionCsv": "CSV",
+            "exportPdf": "PDF exportieren",
+            "backfill": "Nachträglich berechnen",
+            "backfillQueued": "Nachberechnung eingeplant für {{from}} bis {{to}}",
+            "backfillFailed": "Nachberechnung konnte nicht eingeplant werden",
+            "activity": "Aktive Mitglieder",
+            "engagementRate": "Interaktionsrate",
+            "postsOverTime": "Beiträge im Zeitverlauf",
+            "postsByPeriod": "Beiträge pro Zeitraum",
+            "contentDistribution": "Inhaltsverteilung",
+            "totalContentItems": "Inhalte insgesamt",
+            "postTypes": "Beitragstypen",
+            "activeUsers": "Aktive Nutzer",
+            "topMembers": "Top-Mitglieder",
+            "topGroups": "Top-Gruppen",
+            "topGroupsByActivity": "Top-Gruppen nach Aktivität",
+            "groupGrowth": "Gruppenwachstum (neue Mitglieder)",
+            "topPosts": "Top-Beiträge",
+            "topPages": "Top-Seiten",
+            "topOutboundLinks": "Top ausgehende Links",
+            "activityHeatmap": "Aktivitäts-Heatmap",
+            "signupsByDay": "Registrierungen pro Tag",
+            "recentSignups": "Letzte Registrierungen",
+            "postsByGroup": "Beiträge pro Gruppe",
+            "engagementHeatmap": "Interaktions-Heatmap",
+            "engagementOverTime": "Interaktion im Zeitverlauf",
+            "viewsByPeriod": "Aufrufe/Impressionen pro Zeitraum",
+            "engagementRateBreakdown": "Interaktionsrate im Detail",
+            "overallEngagementRate": "Gesamte Interaktionsrate",
+            "overallEngagementHelp": "(Likes + Shares + Lesezeichen + Kommentare) / Aufrufe",
+            "filters": {
+                "allMetrics": "Alle Kennzahlen"
+            },
+            "rates": {
+                "like": "Like-Rate",
+                "share": "Share-Rate",
+                "bookmark": "Lesezeichen-Rate",
+                "comment": "Kommentar-Rate"
+            },
+            "visibility": {
+                "public": "Öffentlich",
+                "private": "Privat"
+            },
+            "cohortRetention": "D7-Kohortenbindung",
+            "retentionByGroup": "Aktivität nach Gruppe",
+            "table": {
+                "member": "Mitglied",
+                "channel": "Kanal",
+                "joined": "Beigetreten am",
+                "dateJoined": "Beigetreten am",
+                "role": "Rolle",
+                "contributions": "Beiträge",
+                "post": "Beitrag",
+                "author": "Autor",
+                "creator": "Ersteller",
+                "type": "Typ",
+                "group": "Gruppe",
+                "groupName": "Gruppenname",
+                "visibility": "Sichtbarkeit",
+                "members": "Mitglieder",
+                "activeShort": "aktiv",
+                "engagement": "Interaktion",
+                "growth": "Wachstum",
+                "dailyVisits": "Tägliche Besuche",
+                "activity": "Aktivität",
+                "page": "Seite",
+                "link": "Link",
+                "clicks": "Klicks"
+            },
+            "reports": {
+                "title": "Monatlicher Vorstandsbericht",
+                "help": "Wenn aktiviert, wird am 1. um 08:00 UTC ein PDF-Bericht für den vorherigen Kalendermonat per E-Mail versendet.",
+                "enabled": "Monatliche Bericht-E-Mails aktivieren",
+                "recipients": "Empfänger",
+                "recipientsHelp": "Eine E-Mail pro Zeile oder durch Komma getrennt.",
+                "save": "Speichern",
+                "saved": "Berichtseinstellungen gespeichert",
+                "saveFailed": "Berichtseinstellungen konnten nicht gespeichert werden"
+            },
+            "period": {
+                "thisPeriod": "Dieser Zeitraum",
+                "allTime": "Gesamter Zeitraum",
+                "rolling30d": "Letzte 30 Tage"
+            },
+            "metrics": {
+                "totalMembers": "Mitglieder insgesamt",
+                "newMembers": "Neue Mitglieder",
+                "activeMembers": "Aktive Mitglieder",
+                "dau": "DAU",
+                "mau": "MAU",
+                "dauMau": "DAU/MAU",
+                "totalPosts": "Beiträge insgesamt",
+                "postsThisPeriod": "Beiträge in diesem Zeitraum",
+                "avgPostsPerDay": "Ø Beiträge pro Tag",
+                "totalGroups": "Gruppen insgesamt",
+                "newSignups": "Neue Registrierungen",
+                "likes": "Likes",
+                "comments": "Kommentare",
+                "reposts": "Reposts",
+                "bookmarks": "Lesezeichen",
+                "dms": "Direktnachrichten",
+                "uniqueViewers": "Eindeutige Betrachter",
+                "impressions": "Impressionen",
+                "day1": "Tag-1-Bindung %",
+                "day7": "Tag-7-Bindung %",
+                "day30": "Tag-30-Bindung %"
+            },
+            "info": {
+                "totalMembers": "Anzahl nicht gelöschter Mitgliedsprofile, die am oder vor dem Ende des ausgewählten Zeitraums erstellt wurden (kumulativ, gesamter Zeitraum).",
+                "newMembers": "Profile, die im ausgewählten Zeitraum erstellt wurden. Die Differenz vergleicht mit dem vorherigen Zeitraum gleicher Länge.",
+                "activeMembers": "Summe der täglichen Zusammenfassungen aktiver Mitglieder im Zeitraum. Ein an mehreren Tagen aktives Mitglied wird pro Tag einmal gezählt.",
+                "dau": "Durchschnittlich aktive Mitglieder pro Tag im ausgewählten Zeitraum. Aktiv bedeutet: an diesem Tag gepostet, geliked, geantwortet, geteilt oder mit Lesezeichen versehen.",
+                "mau": "Eindeutige Mitglieder, die in den 30 Tagen bis zum Ende des Zeitraums gepostet, geliked, geantwortet, geteilt oder mit Lesezeichen versehen haben.",
+                "dauMau": "Bindung (Stickiness): durchschnittliche DAU geteilt durch MAU für den Zeitraum, in Prozent.",
+                "engagementRateMembers": "Durchschnitt der täglichen Interaktionsrate im Zeitraum. Pro Tag berechnet als (Likes + Kommentare) / Beiträge an diesem Tag, in Prozent.",
+                "totalPostsPeriod": "Im ausgewählten Zeitraum erstellte Beiträge (ohne Direktnachrichten). Die Differenz vergleicht mit dem vorherigen Zeitraum.",
+                "totalPostsAllTime": "Alle nicht gelöschten, nicht direkten Beiträge, die am oder vor dem Ende des ausgewählten Zeitraums erstellt wurden.",
+                "postsThisPeriod": "Im ausgewählten Zeitraum erstellte Beiträge (ohne Direktnachrichten).",
+                "avgPostsPerDay": "Im ausgewählten Zeitraum erstellte Beiträge geteilt durch die Anzahl der Kalendertage im Zeitraum.",
+                "totalGroups": "Anzahl nicht gelöschter Gruppen, die am oder vor dem Ende des ausgewählten Zeitraums bestanden.",
+                "likes": "Im ausgewählten Zeitraum erfasste Like-Reaktionen.",
+                "comments": "Im ausgewählten Zeitraum erfasste Antworten.",
+                "reposts": "Im ausgewählten Zeitraum erfasste Reposts (Shares).",
+                "bookmarks": "Im ausgewählten Zeitraum erfasste Lesezeichen.",
+                "dms": "Im ausgewählten Zeitraum erstellte Direktnachrichten.",
+                "uniqueViewers": "Summe der täglichen eindeutigen Beitragsbetrachter im Zeitraum (eine Person, die an mehreren Tagen ansieht, kann mehrfach gezählt werden).",
+                "impressions": "Gesamtzahl der Beitragsaufrufe (Impressionen) im ausgewählten Zeitraum.",
+                "postsOverTime": "Im jeweiligen Zeitfenster des Zeitraums erstellte Beiträge, gestapelt nach Typ (Jams, Artikel, Notizen, Umfragen, Veranstaltungen).",
+                "postTypes": "Beiträge im Zeitraum insgesamt, aufgeschlüsselt nach Typ.",
+                "activeUsers": "Aktive Mitglieder pro Zeitfenster im ausgewählten Zeitraum.",
+                "topMembers": "Mitglieder, gerankt nach Beiträgen im Zeitraum: erstellte Beiträge plus gegebene Reaktionen und Antworten.",
+                "topPosts": "Beiträge mit den meisten eindeutigen Betrachtern im ausgewählten Zeitraum.",
+                "topPages": "In-App-Routen mit den meisten Seitenaufrufen im ausgewählten Zeitraum. Zählungen sind anonyme Aggregate; wer eine Seite angesehen hat, wird nicht gespeichert.",
+                "topOutboundLinks": "Externe URLs, die aus Beiträgen und Vorschauen im ausgewählten Zeitraum angeklickt wurden. Zählungen sind anonyme Aggregate; wer geklickt hat, wird nicht gespeichert.",
+                "signupsByDay": "Neue Mitgliedsprofile, die an jedem Kalendertag im ausgewählten Zeitraum erstellt wurden. Dunklere Zellen bedeuten mehr Registrierungen.",
+                "recentSignups": "Zuletzt erstellte Mitgliedsprofile im ausgewählten Zeitraum, mit Registrierungskanal, sofern bekannt.",
+                "postsByPeriod": "Gesamtzahl der im jeweiligen Zeitfenster des ausgewählten Zeitraums erstellten Beiträge.",
+                "contentDistribution": "Anteil der Beiträge im Zeitraum nach Typ (Veranstaltungen, Jams, Artikel, Notizen, Umfragen).",
+                "engagementOverTime": "Likes, Shares (Reposts), Lesezeichen, Antworten und Direktnachrichten, zusammengefasst in jedem Zeitfenster. „Alle Kennzahlen“ stapelt sie zusammen.",
+                "viewsByPeriod": "Beitragsaufrufe (Impressionen), summiert in jedem Zeitfenster des Zeitraums.",
+                "engagementRateBreakdown": "Raten pro Aktion für den Zeitraum: jede Aktionsanzahl geteilt durch Impressionen, in Prozent. Gesamt = (Likes + Shares + Lesezeichen + Kommentare) / Impressionen.",
+                "topGroupsByActivity": "Gruppen, gerankt nach Aktivität im Zeitraum: Beiträge + Likes + Kommentare auf Gruppenbeiträge. Zeigt die Top 6.",
+                "groupGrowth": "Kumulative neue Gruppenmitgliedschaften (Beitritte) über den Zeitraum für die sechs Gruppen mit dem größten Mitgliederwachstum. Jede Linie ist eine Gruppe.",
+                "tableMember": "Anzeigename (oder Benutzername) des Mitglieds.",
+                "tableRole": "Primäre Community- oder Gruppenrolle des Mitglieds, sofern verfügbar.",
+                "tableDateJoined": "Datum, an dem das Mitgliedsprofil erstellt wurde.",
+                "tableContributions": "Vom Mitglied im ausgewählten Zeitraum erstellte Beiträge plus gegebene Reaktionen und Antworten.",
+                "tablePost": "Kurzer Ausschnitt des Beitragstexts.",
+                "tableCreator": "Autor des Beitrags.",
+                "tableType": "Beitragstyp (Notiz, Artikel, Jam, Umfrage oder Veranstaltung).",
+                "tableViews": "Eindeutige Betrachter des Beitrags im ausgewählten Zeitraum.",
+                "tableChannel": "Für das Mitglied erfasster Registrierungskanal (z. B. Einladung oder organisch), sofern bekannt.",
+                "tableGroupName": "Anzeigename (oder Benutzername) der Gruppe.",
+                "tableMembers": "Aktuelle Gesamtmitgliederzahl der Gruppe, darunter aktive Mitglieder (eindeutige Beitragsautoren in der Gruppe im Zeitraum).",
+                "tableGroupPosts": "Im ausgewählten Zeitraum in der Gruppe veröffentlichte Beiträge.",
+                "tableGroupEngagement": "(Likes + Kommentare) auf Gruppenbeiträge ÷ eindeutige Betrachter von Gruppenbeiträgen im Zeitraum, in Prozent. Kann 100 % übersteigen, wenn Interaktionen die Betrachter übersteigen.",
+                "tableGroupGrowth": "Neue Mitgliedschaften (Beitritte), die im ausgewählten Zeitraum zur Gruppe hinzugefügt wurden.",
+                "tablePage": "In-App-Pfad, der angesehen wurde.",
+                "tablePageClicks": "Anonyme Seitenaufruf-Zählungen im ausgewählten Zeitraum.",
+                "tableLink": "Ausgehende URL-Herkunft und Pfad (Query-Strings entfernt).",
+                "tableLinkClicks": "Anonyme Zählungen ausgehender Klicks im ausgewählten Zeitraum."
+            }
+        },
+        "dashboard": {
+            "title": "Administration"
+        },
+        "inviteEmail": {
+            "composeMessage": "Nachricht verfassen",
+            "defaultMessage": "Sie wurden eingeladen, unserer Community beizutreten.",
+            "emailAddress": "E-Mail-Adressen",
+            "emailPlaceholder": "email1@example.com, email2@example.com",
+            "emailRequired": "Geben Sie mindestens eine E-Mail-Adresse ein.",
+            "expires1Day": "Ein Tag",
+            "expires1Month": "Ein Monat",
+            "expires1Week": "Eine Woche",
+            "expires2Days": "Zwei Tage",
+            "expiresAfter": "Läuft ab nach",
+            "expiresNever": "Nie",
+            "sendInvite": "Einladung senden",
+            "success": "Einladungen versendet.",
+            "title": "Per E-Mail einladen"
+        },
+        "i18n": {
+            "pageTitle": "Texte und Übersetzungen",
+            "save": "Text aktualisieren"
+        }
+    },
+    "diagnostics": {
+        "title": "Diagnose",
+        "description": "Laufzeitsysteme überprüfen und prüfen, ob sie funktionsfähig sind.",
+        "performance": {
+            "title": "Leistung",
+            "description": "Aktuelle langsame HTTP-Anfragen aus diesem Prozess (In-Memory-Ringpuffer). Schwellenwert wird über PERF_SLOW_REQUEST_MS gesteuert.",
+            "threshold": "Langsamer Schwellenwert",
+            "dbTiming": "DB-Zeitmessung",
+            "on": "an",
+            "off": "aus",
+            "refresh": "Aktualisieren",
+            "loadError": "Leistungsstatistiken konnten nicht geladen werden.",
+            "empty": "Noch keine langsamen Anfragen aufgezeichnet.",
+            "when": "Wann",
+            "hostname": "Hostname",
+            "method": "Methode",
+            "path": "Pfad",
+            "status": "Status",
+            "duration": "Dauer"
+        },
+        "email": {
+            "title": "E-Mail",
+            "description": "Postausgangs-Warteschlange überprüfen und eine Test-E-Mail über den regulären Zustellungsprozess in die Warteschlange setzen.",
+            "testTitle": "Test-E-Mail in Warteschlange setzen",
+            "testHint": "Fügt eine Test-E-Mail an die Warteschlange, genau wie der CLI-Befehl.",
+            "testRecipient": "Test senden an",
+            "testRecipientPlaceholder": "sie@beispiel.de",
+            "queueTest": "Test-E-Mail in Warteschlange setzen",
+            "recipientRequired": "Geben Sie eine E-Mail-Adresse für den Test ein.",
+            "queueSuccess": "Test-E-Mail in Warteschlange gesetzt. Beobachten Sie die Warteschlangenzähler, um zu sehen, wann sie verarbeitet wird.",
+            "queueFailed": "Test-E-Mail konnte nicht in die Warteschlange gesetzt werden",
+            "queueTitle": "Postausgangs-Warteschlange",
+            "refresh": "Aktualisieren",
+            "countsHint": "Jobs in Redis für den E-Mail-Worker. Abgeschlossene Jobs werden nach ca. 24 Stunden entfernt; fehlgeschlagene Jobs werden länger aufbewahrt, damit Sie Probleme diagnostizieren können.",
+            "statsError": "Warteschlangenstatistiken konnten nicht geladen werden. Läuft Redis und ist es erreichbar?",
+            "waiting": "Wartend",
+            "active": "In Bearbeitung",
+            "completed": "Abgeschlossen",
+            "failed": "Fehlgeschlagen",
+            "delayed": "Verzögert",
+            "prioritized": "Priorisiert",
+            "recentFailures": "Aktuelle Sendefehler",
+            "bounceNote": "Diese Zahlen zeigen an, ob Ihr Server die E-Mail an Ihren SMTP-Anbieter übergeben konnte. Sie enthalten keine Bounce-Rückmeldungen, Spam-Ordner-Zustellungen oder ungültige Adressen nach der Übergabe."
+        },
+        "jobs": {
+            "title": "Warteschlangen-Job",
+            "viewLogs": "Job-Protokolle anzeigen",
+            "notFound": "Job nicht gefunden. Er wurde möglicherweise aus der Warteschlange entfernt.",
+            "details": "Job-Details",
+            "refresh": "Aktualisieren",
+            "queue": "Warteschlange",
+            "id": "Job-ID",
+            "name": "Job-Name",
+            "state": "Status",
+            "queuedAt": "In Warteschlange gesetzt am",
+            "finishedAt": "Beendet am",
+            "failedReason": "Fehlergrund",
+            "payload": "Job-Nutzdaten",
+            "logs": "Job-Protokolle",
+            "logsHint": "{{count}} Protokollzeile(n) für diesen Job gespeichert.",
+            "logsEmpty": "Noch keine Protokollzeilen für diesen Job aufgezeichnet."
+        },
+        "logs": {
+            "title": "Protokolle",
+            "description": "Server-Protokolleinträge nach Tag durchsuchen, nach Stufe oder Text filtern und den heutigen Protokollstrom live beobachten.",
+            "hint": "Protokolle werden in täglichen Dateien auf dem Server gespeichert. Wählen Sie ein Datum aus, um vergangene Einträge anzuzeigen.",
+            "date": "Datum",
+            "level": "Stufe",
+            "allLevels": "Alle Stufen",
+            "filter": "Filter",
+            "filterPlaceholder": "Suchen…",
+            "refresh": "Aktualisieren",
+            "autoRefresh": "Automatische Aktualisierung alle 5 Sekunden",
+            "showing": "{{count}} von {{total}} Einträgen angezeigt",
+            "loadError": "Protokolle konnten nicht geladen werden.",
+            "empty": "Keine Protokolleinträge entsprechen den aktuellen Filtern.",
+            "timestamp": "Zeit (UTC)",
+            "levelColumn": "Stufe",
+            "namespaceColumn": "Namensbereich",
+            "messageColumn": "Nachricht"
         }
     },
     "configuration": {
@@ -1327,7 +1785,8 @@
             },
             "profileFields": {
                 "title": "Profilfelder",
-                "description": "Passen Sie die Profilseiten Ihrer Mitglieder mit zusätzlichen Informationsfeldern an"
+                "description": "Passen Sie die Profilseiten Ihrer Mitglieder mit zusätzlichen Informationsfeldern an",
+                "emptyKeyError": "Jedes Profilfeld benötigt einen nicht leeren Schlüssel."
             },
             "roles": {
                 "title": "Rollen und Berechtigungen",
@@ -1356,7 +1815,15 @@
                 "uploadBackground": "Klicken Sie, um ein neues Community-Hintergrundbild für das dunkle Design hochzuladen"
             },
             "authBackgroundRequirements": "Dieses Bild passt vertikal auf diese Seiten, verwenden Sie daher ein vertikales Seitenverhältnis für beste Ergebnisse. Bilder unter 2 MB werden empfohlen.",
-            "backgroundRequirements": "Dieses Bild erscheint hinter dem Community-Inhalt bei der Verwendung eines breiteren Bildschirms. Es ist für Nutzer auf Mobilgeräten nicht sichtbar."
+            "backgroundRequirements": "Dieses Bild erscheint hinter dem Community-Inhalt bei der Verwendung eines breiteren Bildschirms. Es ist für Nutzer auf Mobilgeräten nicht sichtbar.",
+            "fontFamily": "Schriftart",
+            "typographyAndRadii": "Typografie und Rundungen",
+            "buttonRadius": "Eckenradius für Buttons",
+            "radius": "Standard-Eckenradius (Karten, Dialoge)",
+            "codeOfConduct": {
+                "title": "Verhaltenskodex",
+                "description": "Legen Sie die Regeln und Erwartungen für Ihre Community fest. Die Seite ist öffentlich unter /code-of-conduct für alle sichtbar, auch für nicht angemeldete Besucher. <br/> Sie können Markdown verwenden, um den Inhalt dieser Seite zu formatieren; siehe https://www.markdownguide.org/"
+            }
         },
         "server": {
             "stripe": {
@@ -1457,7 +1924,8 @@
             },
             "send": "Senden",
             "sending": "Wird gesendet…",
-            "altTextDescription": "Sie können hier Beschreibungen zu Ihren Mediendateien hinzufügen – dies kann Betrachtenden helfen, mehr Kontext zu Ihren Bildern und Dokumenten zu erhalten."
+            "altTextDescription": "Sie können hier Beschreibungen zu Ihren Mediendateien hinzufügen – dies kann Betrachtenden helfen, mehr Kontext zu Ihren Bildern und Dokumenten zu erhalten.",
+            "altText": "Alternativtext"
         },
         "members": {
             "addSuccess": "Mitglied erfolgreich hinzugefügt",
@@ -1467,11 +1935,22 @@
         "add": "Hinzufügen",
         "cancel": "Abbrechen",
         "none": "Keine",
-        "remove": "Entfernen"
+        "remove": "Entfernen",
+        "thisDevice": "Dieses Gerät und dieser Browser",
+        "error": "Fehler",
+        "loading": "Wird geladen…",
+        "loadingMore": "Weitere werden geladen…",
+        "posting": "Wird gepostet…",
+        "save": "Speichern",
+        "saving": "Wird gespeichert…",
+        "send": "Senden",
+        "sending": "Wird gesendet…",
+        "submitting": "Wird übermittelt…"
     },
     "conversations": {
         "newMessage": "Neue Nachricht",
         "noMessages": "Keine Direktnachrichten vorhanden",
+        "empty": "Keine Direktnachrichten vorhanden",
         "createNew": {
             "title": "Neue Unterhaltung",
             "searchPlaceholder": "Personen suchen",
@@ -1530,7 +2009,13 @@
                 "everyone": "Alle",
                 "noOne": "Niemand"
             }
-        }
+        },
+        "sendError": "Nachricht konnte nicht gesendet werden",
+        "messageLog": "Nachrichten",
+        "open": "Unterhaltung öffnen",
+        "placeholder": "Nachricht schreiben…",
+        "title": "Unterhaltung",
+        "titleWithYou": "{{names}} und Sie"
     },
     "settings": {
         "description": "Verwalten Sie hier alle Einstellungen zu Ihrem Konto:",
@@ -1567,7 +2052,8 @@
             "autoRenewal": "Automatische Verlängerung",
             "autoRenewalCanceled": "Gekündigt",
             "autoRenewalActive": "Aktiv",
-            "createPortal": "Kundenportal"
+            "createPortal": "Kundenportal",
+            "noSubscription": "Kein aktives Abonnement. Abonnieren Sie, um Ihre Community zu unterstützen."
         },
         "notifications": {
             "inApp": "In-App-Benachrichtigungen",
@@ -1665,7 +2151,33 @@
                 "repostsSection": "Geteilte Beiträge"
             },
             "headerPreferencesTitle": "Benachrichtigungseinstellungen",
-            "markAllReadSuccess": "Benachrichtigungen erfolgreich gelöscht"
+            "markAllReadSuccess": "Benachrichtigungen erfolgreich gelöscht",
+            "serverPushDisabled": "Push-Benachrichtigungen sind auf diesem Server nicht konfiguriert.",
+            "pushUnsupported": "Push-Benachrichtigungen werden in diesem Browser nicht unterstützt.",
+            "pushServiceWorkerRequired": "Push-Benachrichtigungen erfordern den App-Service-Worker. Sie sind in dieser Umgebung nicht verfügbar.",
+            "pushPermissionDenied": "Die Benachrichtigungsberechtigung wurde verweigert. Aktivieren Sie sie in Ihren Browsereinstellungen und versuchen Sie es erneut.",
+            "pushSubscribeFailed": "Push-Benachrichtigungen konnten nicht aktiviert werden. Bitte versuchen Sie es erneut.",
+            "preferences": {
+                "title": "Alle Benachrichtigungseinstellungen",
+                "description": "Konfigurieren Sie In-App-, Push- und E-Mail-Benachrichtigungen für Gruppen, Jams, Nachrichten und weitere Funktionen."
+            },
+            "pushEnabledDevices": {
+                "title": "Push-Benachrichtigungen für Geräte",
+                "description": "Zeigen Sie die Geräte an, auf denen Sie Push-Benachrichtigungen aktiviert haben.",
+                "noDevicesFound": "Für dieses Profil erhalten keine Geräte Push-Benachrichtigungen. Gehen Sie zu den Benachrichtigungseinstellungen, um sie zu aktivieren.",
+                "delete": {
+                    "success": "Gerät entfernt",
+                    "description": "Sie erhalten auf diesem Gerät und Browser keine Benachrichtigungen mehr",
+                    "confirm": "OK",
+                    "cancel": "Abbrechen",
+                    "header": "Dieses Gerät entfernen?"
+                }
+            },
+            "bravePushWarning": {
+                "title": "Brave-Browser-Einstellung erforderlich",
+                "body": "Brave deaktiviert standardmäßig Google-Push-Benachrichtigungen. Öffnen Sie {{settingsPath}} und aktivieren Sie „{{settingName}}“, dann versuchen Sie es erneut.",
+                "learnMore": "Mehr über Brave-Push-Benachrichtigungen erfahren"
+            }
         },
         "form": {
             "imageEditModal": {
@@ -1703,7 +2215,41 @@
             "languageDescription": "Wählen Sie die Sprache, die Sie auf der gesamten Plattform verwenden möchten. Dies ändert alle Oberflächentexte in die gewählte Sprache.",
             "default": "(Standard)",
             "updateSuccess": "Spracheinstellungen aktualisiert. Die Seite wird jetzt neu geladen."
-        }
+        },
+        "accessTokens": {
+            "title": "Zugriffstoken",
+            "description": "Verwalten Sie Ihre API-Zugriffstoken",
+            "addScope": "Bereich hinzufügen",
+            "copy": "Kopieren",
+            "copyWarning": "Kopieren Sie dieses Token jetzt. Es wird nicht erneut angezeigt.",
+            "create": "Token erstellen",
+            "createDescription": "Erstellen Sie ein persönliches Zugriffstoken für die API.",
+            "createError": "Token konnte nicht erstellt werden",
+            "createTitle": "Token erstellen",
+            "creating": "Wird erstellt…",
+            "descriptionLabel": "Beschreibung",
+            "descriptionPlaceholder": "Wofür ist dieses Token?",
+            "empty": "Noch keine Zugriffstoken.",
+            "expiration": "Ablauf",
+            "expirationOptions": {
+                "ninetyDays": "90 Tage",
+                "oneYear": "1 Jahr",
+                "sevenDays": "7 Tage",
+                "thirtyDays": "30 Tage"
+            },
+            "expiresAt": "Läuft ab",
+            "listTitle": "Ihre Token",
+            "name": "Name",
+            "namePlaceholder": "Meine Integration",
+            "nameRequired": "Name ist erforderlich",
+            "never": "Nie",
+            "noScopes": "Keine Bereiche",
+            "revoke": "Widerrufen",
+            "revoked": "Widerrufen",
+            "scopeRequired": "Mindestens ein Bereich ist erforderlich",
+            "scopes": "Bereiche"
+        },
+        "menu": "Einstellungen"
     },
     "form": {
         "imageEditModal": {
@@ -1714,12 +2260,17 @@
             "crop": "Zuschneiden"
         },
         "headerAvatarInput": {
-            "coverImage": "Titelbild"
+            "coverImage": "Titelbild",
+            "coverImageDescription": "Verwenden Sie ein Bild mit mindestens 670 x 210 Pixel. Sie haben nach dem Hochladen die Möglichkeit, das Bild zuzuschneiden.",
+            "avatar": "Profilbild"
         },
         "imageInput": {
             "maxSize": "Maximale Größe: {{size}}",
             "uploadText": "Bild hochladen",
-            "uploadTitle": "Bild hochladen"
+            "uploadTitle": "Bild hochladen",
+            "replace": "Bild ersetzen",
+            "remove": "Bild entfernen",
+            "aspectRatio": "Mindestens 800px breit."
         },
         "upload": {
             "failed": "Datei-Upload fehlgeschlagen",
@@ -1735,6 +2286,12 @@
                 "title": "Dokumentinformationen bearbeiten",
                 "placeholder": "Fügen Sie hier Ihre Beschreibung hinzu"
             }
+        },
+        "documentInput": {
+            "uploadTitle": "Dateien hochladen",
+            "pickPrompt": "Dateien auswählen",
+            "addMore": "Weitere Dateien hinzufügen",
+            "uploadFilesCount": "Dateien hochladen ({{count}})"
         }
     },
     "accounts": {
@@ -1831,12 +2388,18 @@
             "timezoneSearch": "Zeitzone suchen",
             "visibilityNotChangeable": "Hinweis: Die Sichtbarkeit der Veranstaltung kann nach der Veröffentlichung nicht mehr geändert werden. Stellen Sie sicher, dass Sie die richtigen Personen oder die richtige Gruppe hinzufügen.",
             "jamModeratorsDescription": "Klicken Sie, um Jam-Moderatoren auszuwählen",
-            "externalEventUrlPlaceholder": "https://example.com/event"
+            "externalEventUrlPlaceholder": "https://example.com/event",
+            "maxAttendees": "Maximale Teilnehmerzahl",
+            "maxAttendeesDescription": "Begrenzen Sie, wie viele Personen mit Ja für diese Veranstaltung zusagen können. Leer lassen für keine Begrenzung.",
+            "clearMaxAttendees": "Teilnehmerbegrenzung entfernen",
+            "imageDescription": "Laden Sie ein Bild für Ihre Veranstaltung hoch",
+            "imageSpecs": "Ihr Bild sollte mindestens 800 Pixel breit sein, im Seitenverhältnis 16:9."
         },
         "feed": {
             "past": "Vergangene",
             "upcoming": "Kommende",
-            "empty": "Keine Ergebnisse"
+            "empty": "Keine Ergebnisse",
+            "label": "Veranstaltungszeitraum"
         },
         "create": {
             "title": "Veranstaltung erstellen"
@@ -1847,20 +2410,56 @@
             "attendees": "Teilnehmende",
             "invited": "Eingeladen",
             "jamAttendees": "Jam-Teilnehmende",
-            "description": "Beschreibung"
+            "description": "Beschreibung",
+            "label": "Veranstaltungsbereiche",
+            "recordings": "Aufzeichnungen"
         },
         "profileRelationship": {
             "owner": "Sie sind Gastgeber",
             "attending": "Teilnahme",
-            "tentative": "Vielleicht"
+            "tentative": "Vielleicht",
+            "moderator": "Moderator"
         },
         "jam": {
-            "start": "Jam starten"
+            "start": "Jam starten",
+            "attendee": "Teilnehmer",
+            "attendees": "Teilnehmer"
         },
         "hostedBy": "Veranstalter",
         "group": "Gruppenveranstaltung in:",
         "startDate": "Startdatum",
-        "endDate": "Enddatum"
+        "endDate": "Enddatum",
+        "location": {
+            "jam": "Jam-Veranstaltung",
+            "online": "Online",
+            "external": "Externe Veranstaltung",
+            "physical": "Physischer Ort"
+        },
+        "community": "Community-Veranstaltung",
+        "noRsvps": "Noch keine Zusagen",
+        "noAttendees": "Noch keine Teilnehmer",
+        "noRecordings": "Noch keine Aufzeichnungen.",
+        "downloadRecording": "Aufzeichnung herunterladen",
+        "recordingInProgress": "Aufzeichnung läuft…",
+        "recordingProcessing": "Aufzeichnung wird verarbeitet…",
+        "postRecordingReply": "In Diskussion posten",
+        "recordingReplyPosted": "In Diskussion gepostet",
+        "postRecordingReplySuccess": "Aufzeichnung in Diskussion gepostet",
+        "postRecordingReplyError": "Aufzeichnung konnte nicht in Diskussion gepostet werden",
+        "deleteRecording": "Aufzeichnung löschen",
+        "deleteRecordingConfirm": "Diese Aufzeichnung dauerhaft löschen?",
+        "deleteRecordingSuccess": "Aufzeichnung gelöscht",
+        "deleteRecordingError": "Aufzeichnung konnte nicht gelöscht werden",
+        "public": "Öffentliche Veranstaltung",
+        "private": "Private Veranstaltung",
+        "slotsLeft": "{{count}} Plätze verfügbar",
+        "noSpotsAvailable": "Keine Plätze verfügbar",
+        "rsvp": {
+            "removeAttendee": "Entfernen",
+            "restoreAttendee": "Wiederherstellen",
+            "removedMessage": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
+            "full": "Veranstaltung ist ausgebucht"
+        }
     },
     "reports": {
         "categories": {
@@ -1955,7 +2554,14 @@
         },
         "newGroupPost": {
             "text": "Neuer Beitrag in {{groupName}}"
-        }
+        },
+        "mention": {
+            "text": "{{profileName}} hat Sie erwähnt"
+        },
+        "groupMemberExit": {
+            "text": "{{profileName}} hat {{groupName}} verlassen"
+        },
+        "markAllReadError": "Benachrichtigungen konnten nicht als gelesen markiert werden"
     },
     "handle": {
         "validation": {
@@ -2104,6 +2710,21 @@
         },
         "test": {
             "description": "Wenn Sie diese E-Mail erhalten, funktioniert Ihre E-Mail-Konfiguration korrekt!"
+        },
+        "eventRsvp": {
+            "subjectYes": "Sie nehmen teil: {{eventName}}",
+            "subjectMaybe": "Vielleicht nehmen Sie teil: {{eventName}}",
+            "headingYes": "Sie nehmen an {{eventName}} teil",
+            "headingMaybe": "Sie haben mit Vielleicht auf {{eventName}} geantwortet",
+            "intro": "Wir haben eine Kalenderdatei (.ics) angehängt, damit Sie diese Veranstaltung zu Ihrem Kalender hinzufügen können.",
+            "when": "Wann",
+            "where": "Wo",
+            "cta": "Veranstaltung ansehen"
+        },
+        "mention": {
+            "subject": "{{profileName}} hat Sie in {{communityName}} erwähnt",
+            "body": "{{profileName}} hat Sie in einem Beitrag auf {{communityName}} erwähnt. Hier ist, was gesagt wurde: ",
+            "cta": "Beitrag ansehen"
         }
     },
     "media": {
@@ -2126,17 +2747,24 @@
             "posts": "Beiträge",
             "jams": "Jams",
             "events": "Veranstaltungen",
-            "groups": "Gruppen"
+            "groups": "Gruppen",
+            "label": "Ergebnistypen"
         },
         "noProfilesFound": "Keine Profile gefunden",
         "noPostsFound": "Keine Beiträge gefunden",
         "noJamsFound": "Keine Jams gefunden",
         "noEventsFound": "Keine Veranstaltungen gefunden",
-        "noGroupsFound": "Keine Gruppen gefunden"
+        "noGroupsFound": "Keine Gruppen gefunden",
+        "startTyping": "Geben Sie mindestens 3 Zeichen ein, um die Suche zu starten."
     },
     "group": {
         "roles": {
             "admin": "Administrator"
+        },
+        "search": {
+            "groupsPlaceholder": "Gruppen suchen…",
+            "noResults": "Keine Ergebnisse gefunden",
+            "noGroupsAvailable": "Keine Gruppen verfügbar"
         }
     },
     "articles": {
@@ -2167,5 +2795,42 @@
         "error": "Plugins konnten nicht geladen werden",
         "errorBoundary": "Plugin-Fehler: Komponente konnte nicht gerendert werden.",
         "configTitle": "Plugin-Konfiguration (sensible Werte sind maskiert)"
+    },
+    "welcome": {
+        "addProfileDetails": "Profildetails hinzufügen",
+        "completeSetup": "Kontoeinrichtung abschließen",
+        "connect": "Mit anderen vernetzen",
+        "firstPost": "Ersten Beitrag verfassen",
+        "heading": "Willkommen bei {{name}}",
+        "usefulLinks": "Nützliche Links",
+        "validationEmailFailed": "Validierungs-E-Mail konnte nicht gesendet werden",
+        "validationEmailSent": "Validierungs-E-Mail gesendet",
+        "verifyEmail": "E-Mail-Adresse verifizieren"
+    },
+    "members": {
+        "empty": "Keine Profile gefunden",
+        "fetchError": "Konten konnten nicht abgerufen werden. Bitte versuchen Sie es später erneut.",
+        "searchPlaceholder": "Mitglied nach Name oder Benutzernamen suchen"
+    },
+    "profiles": {
+        "handleExists": "Dieser Benutzername existiert bereits, bitte wählen Sie einen anderen.",
+        "notFound": "Profil nicht gefunden"
+    },
+    "error": {
+        "eventAtCapacity": "Diese Veranstaltung ist voll.",
+        "eventTentativeNotAllowed": "Diese Veranstaltung akzeptiert nur Ja- oder Nein-Antworten.",
+        "jamRsvpRequired": "Sie müssen mit Ja antworten, um an dieser Veranstaltung teilzunehmen.",
+        "rsvpRemoved": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
+        "rsvpRemovedForbidden": "Nur der Organisator kann Teilnehmer entfernen.",
+        "unprocessableRequest": "Ungültige Anfrage"
+    },
+    "payment": {
+        "cancelled": "Bezahlvorgang wurde abgebrochen.",
+        "success": {
+            "message": "Zahlung erhalten. Weiterleitung…"
+        }
+    },
+    "tags": {
+        "title": "#{{hashtag}}"
     }
 }
