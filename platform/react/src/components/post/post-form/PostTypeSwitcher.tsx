@@ -4,10 +4,11 @@ import {
   Notebook,
   ScrollText,
 } from 'lucide-react';
-import type { PostType } from '@openpeepshq/common/types';
+import type { PostType, VisibilityType } from '@openpeepshq/common/types';
 import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useNavigate } from '../../../contexts/router';
+import { getNewPostStores } from '../../../stores/newPosts';
 import { useCurrentProfile } from '../../layout/IdentityContext';
 
 export interface PostTypeSwitcherProps {
@@ -18,6 +19,9 @@ export interface PostTypeSwitcherProps {
   onClose: () => void;
   showEventType?: boolean;
   showArticleType?: boolean;
+  /** Current composer audience, carried into article/event pages. */
+  visibility?: VisibilityType;
+  groupId?: string;
 }
 
 /**
@@ -31,13 +35,31 @@ export function PostTypeSwitcher({
   onClose,
   showEventType = true,
   showArticleType = true,
+  visibility,
+  groupId,
 }: PostTypeSwitcherProps) {
   const t = useT();
   const navigate = useNavigate();
   const me = useCurrentProfile();
   const isOwner = Boolean(me?.roles?.some((role) => role.key === 'owner'));
 
-  const goto = (path: string) => {
+  const goto = (path: '/articles/new' | '/events/new') => {
+    const stores = getNewPostStores();
+    if (path === '/articles/new') {
+      stores.article = {
+        ...stores.article,
+        type: 'article',
+        visibility: visibility ?? stores.article.visibility,
+        groupId,
+      };
+    } else {
+      stores.event = {
+        ...stores.event,
+        type: 'event',
+        visibility: visibility ?? stores.event.visibility,
+        groupId,
+      };
+    }
     onClose();
     navigate(path);
   };
