@@ -13,10 +13,10 @@ export const analyticsCacheKey = (
 export const getAnalyticsCache = async <T>(
   key: string,
 ): Promise<T | undefined> => {
-  const redis = await getSharedConnection();
-  const raw = await redis.get(key);
-  if (!raw) return undefined;
   try {
+    const redis = await getSharedConnection();
+    const raw = await redis.get(key);
+    if (!raw) return undefined;
     return JSON.parse(raw) as T;
   } catch {
     return undefined;
@@ -28,9 +28,13 @@ export const setAnalyticsCache = async (
   value: unknown,
   opts?: { includesToday?: boolean },
 ): Promise<void> => {
-  const redis = await getSharedConnection();
-  const ttl = opts?.includesToday ? OPEN_DAY_TTL_SEC : CLOSED_RANGE_TTL_SEC;
-  await redis.set(key, JSON.stringify(value), { EX: ttl });
+  try {
+    const redis = await getSharedConnection();
+    const ttl = opts?.includesToday ? OPEN_DAY_TTL_SEC : CLOSED_RANGE_TTL_SEC;
+    await redis.set(key, JSON.stringify(value), { EX: ttl });
+  } catch {
+    // Overview still returns; Redis must not 500 the request.
+  }
 };
 
 export const invalidateAnalyticsCache = async (): Promise<void> => {

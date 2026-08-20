@@ -639,7 +639,10 @@ const topPostsByViews = async (from: string, to: string, limit = 10) => {
     };
     return {
       postId: r.postId,
-      snippet: content.slice(0, 120) || undefined,
+      snippet:
+        typeof content === 'string'
+          ? content.slice(0, 120) || undefined
+          : undefined,
       authorHandle: r.handle ?? undefined,
       authorDisplayName:
         profileBody.displayName ?? profileBody.name ?? undefined,
