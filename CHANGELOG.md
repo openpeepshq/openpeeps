@@ -3,8 +3,13 @@ Changelog for OpenPeeps
 
 ## Current
 
+- No changes
+
+## 2026-08-19
+
 ### Features
 
+- **posts**: embed capped reposter list on posts
 - **analytics**: add per-graph CSV, DAU/MAU, and anonymous click tracking
 - **mcp**: add community and ops MCP endpoints
 - **profiles**: enhance profiles endpoint with session event handling
@@ -15,6 +20,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **analytics**: brand the analytics PDF with the community name
 - **poll**: mark the clicked poll option as selected
 - **ui**: keep analytics metric values inside the card
 - **analytics**: hide DMs and private-group posts from top posts
@@ -48,6 +54,10 @@ Changelog for OpenPeeps
 - **jams**: enhance layout responsiveness and structure
 - update role attributes and semantic elements across components
 - **ProfileEventRelationship**: simplify badge rendering logic and integrate Badge component
+
+### Documentation
+
+- **planning**: refresh roadmap timeline snapshot
 
 ### Tests
 
