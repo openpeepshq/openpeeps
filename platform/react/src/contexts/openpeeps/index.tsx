@@ -86,7 +86,7 @@ export const OpenpeepsProvider: React.FC<{
    * Must return an unsubscribe function.
    *
    * React Native consumers should import `OpenpeepsProvider` from
-   * `@openpeepshq/react-native`, which wires this up against `AppState` so
+   * `@openpeepshq/rn-components`, which wires this up against `AppState` so
    * `@openpeepshq/react` itself stays free of any `react-native` import.
    */
   subscribeToForeground?: (onForeground: () => void) => () => void;

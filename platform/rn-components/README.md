@@ -1,18 +1,31 @@
-# @openpeepshq/react-native
+# @openpeepshq/rn-components
 
 React Native **screens and shared UI** used by OpenPeeps community apps. This package contains code extracted from the Black Ambition community app (`screens/`, `components/`, plus supporting `lib/`, `stores/`, `hooks/`, `theme/`, `contexts/`, `i18n/`, etc.).
+
+Formerly published as `@openpeepshq/react-native`. The rename avoids NativeWind's css-interop Babel skip regex, which treats any `react-native` path segment as `node_modules/react-native` and left community UIs unstyled.
 
 ## Installation
 
 Host applications must provide the same **peer dependencies** as a full community client (React Navigation, NativeWind, `@openpeepshq/common`, `@openpeepshq/react`, LiveKit, cameras, etc.). See `package.json` → `peerDependencies`.
 
 ```sh
-pnpm add @openpeepshq/react-native
+pnpm add @openpeepshq/rn-components
 ```
 
-Wrap your app with **`OpenpeepsProvider`** from `@openpeepshq/react-native` (and a credentials store + `baseUrl`) so `useOpenpeeps()` and theme code work. This re-exports the web provider from `@openpeepshq/react` with React Native `AppState` foreground handling wired in — do not import `OpenpeepsProvider` from `@openpeepshq/react` in native apps.
+Wrap your app with **`OpenpeepsProvider`** from `@openpeepshq/rn-components` (and a credentials store + `baseUrl`) so `useOpenpeeps()` and theme code work. This re-exports the web provider from `@openpeepshq/react` with React Native `AppState` foreground handling wired in — do not import `OpenpeepsProvider` from `@openpeepshq/react` in native apps.
 
-Configure **NativeWind** / Tailwind in the app (including this package in Tailwind `content` if needed), load `src/global.css` from your entry, and supply **`react-native-config`** (or compatible env) for `BASE_URL` and related keys used by `~/lib/constants`.
+Configure **NativeWind** / Tailwind in the app (include this package in Tailwind `content`), load `src/global.css` from your entry, and supply **`react-native-config`** (or compatible env) for `BASE_URL` and related keys used by `~/lib/constants`.
+
+Wrap Metro with **`withOpenPeepsMetro`** (outside `withNativeWind`) so css-interop observables defer on React 19. Hosts should not patch `react-native-css-interop`.
+
+```js
+const { withNativeWind } = require('nativewind/metro');
+const { withOpenPeepsMetro } = require('@openpeepshq/rn-components/metro');
+
+module.exports = withOpenPeepsMetro(
+  withNativeWind(config, { input: './src/global.css' }),
+);
+```
 
 ## Usage
 
@@ -22,7 +35,7 @@ import {
   Home,
   OpenPeepsThemeProvider,
   useAppImagesStore,
-} from '@openpeepshq/react-native';
+} from '@openpeepshq/rn-components';
 ```
 
 Wire navigators and providers in your app root (the previous template’s single native view component has been removed; this is a **JavaScript-only** library).

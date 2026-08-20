@@ -7,7 +7,7 @@ Accepted — incremental migration; see phase checklist in this ADR.
 ## Context
 
 The web UI is split across `@openpeepshq/react-ui`, `@openpeepshq/react`, and
-`@openpeepshq/web`, with a parallel tree in `@openpeepshq/react-native`. Forms,
+`@openpeepshq/web`, with a parallel tree in `@openpeepshq/rn-components`. Forms,
 navigation, and theme overrides were inconsistent (custom Zod Form vs RHF,
 string paths, primary-only theme injection). The component audit
 (`code/reports/component-audit`) and AllPeep UI 2026 Figma file are the design
@@ -22,7 +22,7 @@ sources of truth.
 | **react-ui** | Design-system primitives, tokens, theme injection, RHF field wrappers, layout chrome with no domain types | `@openpeepshq/common` types, `openpeepsApi`, auth/profile providers |
 | **react** | Domain components, pages, `NavTarget` API + pluggable menus, domain hooks/controllers | Concrete URL strings, `react-router` |
 | **web** | Path `Navigator`, `App.tsx` route table, host bootstrap | Page UI |
-| **react-native** | Native screens/chrome; shared hooks/controllers from react | DOM components from react-ui (for now) |
+| **rn-components** | Native screens/chrome; shared hooks/controllers from react | DOM components from react-ui (for now) |
 
 **Move to react-ui** only when a module has no `@openpeepshq/common` types **and**
 no `openpeepsApi` / domain context imports.

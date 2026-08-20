@@ -66,9 +66,9 @@ React components and hooks for building OpenPeeps web applications.
 
 Mobile app components for iOS and Android.
 
-**Location**: `platform/react-native/`
+**Location**: `platform/rn-components/`
 
-**Package**: `@openpeepshq/react-native`
+**Package**: `@openpeepshq/rn-components`
 
 **Features:**
 

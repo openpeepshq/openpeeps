@@ -3,7 +3,9 @@ Changelog for OpenPeeps
 
 ## Current
 
-- No changes
+### Refactoring
+
+- **BREAKING**: **rn-components**: publish as @openpeepshq/rn-components
 
 ## 2026-08-19
 
