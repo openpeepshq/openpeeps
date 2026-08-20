@@ -126,6 +126,7 @@
     "logOut": "Log out",
     "logs": "Logs",
     "apiKeys": "API Keys",
+    "plugins": "Plugins",
     "database": "Database",
     "myJams": "My Jams",
     "myEvents": "My Events",
@@ -1044,6 +1045,21 @@
       "revoked": "Revoked",
       "noScopes": "No scopes",
       "expiredToggle": "Expired tokens ({{count}})"
+    },
+    "plugins": {
+      "title": "Plugins",
+      "empty": "No plugins loaded.",
+      "error": "Failed to load plugins",
+      "repository": "Repository",
+      "description": "Enable or disable plugins. Changes take effect after reload.",
+      "reload": "Reload",
+      "reloadRequired": "Toggle saved. Press \"Reload\" to apply changes.",
+      "restartRequired": "Saved. The plugin is only loaded (or unloaded) after the next service restart.",
+      "status": {
+        "loaded": "Loaded",
+        "disabled": "Disabled",
+        "failed": "Failed"
+      }
     },
     "inviteLink": {
       "unlimited": "Unlimited",

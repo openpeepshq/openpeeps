@@ -8,7 +8,7 @@ const toOptionalString = (value: unknown) =>
   value != null ? String(value) : undefined;
 
 export const apiEndpoint = endpoint({ Output }).handle(async () => {
-  const plugins = getPlugins();
+  const plugins = getPlugins().filter((plugin) => plugin.status !== 'disabled');
   return plugins.map((plugin) =>
     pluginInfoSchema.parse({
       key: plugin.key,

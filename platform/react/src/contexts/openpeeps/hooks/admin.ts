@@ -206,6 +206,19 @@ const adminDiagnostics = (client: OpenpeepsClientInstance) => ({
     client.admin.serviceAccessTokens.revoke,
     [['admin', 'serviceAccessTokens']],
   ),
+  usePluginsList: () => apiHook(client.admin.plugins.list),
+  installPluginAction: payloadMutation(client.admin.plugins.install, [
+    ['admin', 'plugins'],
+  ]),
+  uninstallPluginAction: noPayloadMutation(client.admin.plugins.uninstall, [
+    ['admin', 'plugins'],
+  ]),
+  updatePluginStateAction: payloadMutation(client.admin.plugins.update, [
+    ['admin', 'plugins'],
+  ]),
+  reloadPluginsAction: noPayloadMutation(client.admin.plugins.reload, [
+    ['admin', 'plugins'],
+  ]),
 });
 type AdminDiagnostics = ReturnType<typeof adminDiagnostics>;
 

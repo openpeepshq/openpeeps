@@ -3,6 +3,7 @@ import {
   type Request,
   type Response,
   type NextFunction,
+  type Express,
 } from 'express';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -25,7 +26,35 @@ interface PluginModule {
   manifest?: Record<string, unknown>;
 }
 
-export const buildPluginRouters = async () => {
+const mountedRouters = new Map<string, { path: string; router: Router }>();
+
+export const getMountedPluginRouters = () =>
+  Object.fromEntries(
+    Array.from(mountedRouters.entries()).map(([k, v]) => [k, v]),
+  );
+
+const unmountRouter = (app: Express, pluginKey: string) => {
+  const mounted = mountedRouters.get(pluginKey);
+  if (!mounted || !app._router) return;
+  const stack = app._router.stack;
+  const idx = stack.findIndex(
+    (layer: { name?: string; handle?: { _router?: unknown } }) =>
+      layer.name === 'router' && layer.handle?._router === mounted.router,
+  );
+  if (idx !== -1) {
+    stack.splice(idx, 1);
+    mountedRouters.delete(pluginKey);
+    log.info(`Unmounted routes for plugin ${pluginKey}.`);
+  }
+};
+
+export const unmountAllPluginRouters = (app: Express) => {
+  for (const key of mountedRouters.keys()) {
+    unmountRouter(app, key);
+  }
+};
+
+export const buildPluginRouters = async (app?: Express) => {
   const routers: Record<string, Router> = {};
 
   for (const plugin of getPlugins()) {
@@ -42,6 +71,10 @@ export const buildPluginRouters = async () => {
     try {
       await module.routes(router);
       routers[plugin.key] = router;
+      mountedRouters.set(plugin.key, {
+        path: `/api/openpeeps/core/v1/plugins/${plugin.key}`,
+        router,
+      });
       log.info(`Registered routes for plugin ${plugin.key}.`);
     } catch (e) {
       log.error(e, `Failed to register routes for plugin ${plugin.key}.`);

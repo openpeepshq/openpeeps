@@ -58,6 +58,8 @@ const validEventKeyMap = {
 
 export const VALID_EVENT_KEYS = Object.keys(validEventKeyMap) as CoreEventKey[];
 
+type Unsubscribe = () => void;
+
 let connectionPromise: Promise<RedisClientType> | undefined = undefined;
 const publishConnection = async () => {
   if (connectionPromise) {
@@ -69,42 +71,65 @@ const publishConnection = async () => {
   return connectionPromise;
 };
 
-const baseHub = (prefix: string) => ({
-  /**
-   * Fan-out must not fail the caller (register/react/etc.). Redis publish and
-   * the BullMQ once-queue are best-effort side channels.
-   */
-  emit: async (eventType: string, ...eventArgs: unknown[]) => {
-    const qualifiedEventType = `${prefix}:${eventType}`;
-    try {
-      const conn = await publishConnection();
-      await conn.publish(qualifiedEventType, JSON.stringify(eventArgs));
-      log.info({ qualifiedEventType }, 'hub event published');
-    } catch (err) {
-      log.error({ qualifiedEventType, err }, 'hub publish failed');
-    }
-    try {
-      await onceQueue().add(qualifiedEventType, eventArgs);
-    } catch (err) {
-      log.error({ qualifiedEventType, err }, 'hub once-queue enqueue failed');
-    }
-  },
-  on: <T extends unknown[]>(
-    eventType: string,
-    handler: (...args: T) => unknown,
-  ) => {
-    // Subscriber mode requires a dedicated connection (not the publisher).
-    getConnection().then((conn) =>
-      conn.subscribe(`${prefix}:${eventType}`, (message) => {
-        const args = JSON.parse(message);
-        handler(...args);
-      }),
-    );
-  },
-  once: (eventType: string, handler: (...args: unknown[]) => unknown) => {
-    registerOnceHandler(`${prefix}:${eventType}`, handler);
-  },
-});
+const baseHub = (prefix: string) => {
+  const subscriptions = new Map<
+    string,
+    { conn: RedisClientType; channels: string[] }
+  >();
+
+  return {
+    /**
+     * Fan-out must not fail the caller (register/react/etc.). Redis publish and
+     * the BullMQ once-queue are best-effort side channels.
+     */
+    emit: async (eventType: string, ...eventArgs: unknown[]) => {
+      const qualifiedEventType = `${prefix}:${eventType}`;
+      try {
+        const conn = await publishConnection();
+        await conn.publish(qualifiedEventType, JSON.stringify(eventArgs));
+        log.info({ qualifiedEventType }, 'hub event published');
+      } catch (err) {
+        log.error({ qualifiedEventType, err }, 'hub publish failed');
+      }
+      try {
+        await onceQueue().add(qualifiedEventType, eventArgs);
+      } catch (err) {
+        log.error({ qualifiedEventType, err }, 'hub once-queue enqueue failed');
+      }
+    },
+    on: <T extends unknown[]>(
+      eventType: string,
+      handler: (...args: T) => unknown,
+    ): Unsubscribe => {
+      const channel = `${prefix}:${eventType}`;
+      getConnection().then((conn) => {
+        conn.subscribe(channel, (message) => {
+          const args = JSON.parse(message);
+          handler(...args);
+        });
+        let entry = subscriptions.get(channel);
+        if (!entry) {
+          entry = { conn, channels: [] };
+          subscriptions.set(channel, entry);
+        }
+        entry.channels.push(channel);
+      });
+      return () => {
+        getConnection().then((conn) => conn.unsubscribe(channel));
+        const entry = subscriptions.get(channel);
+        if (entry) {
+          entry.channels = entry.channels.filter((c) => c !== channel);
+          if (entry.channels.length === 0) {
+            subscriptions.delete(channel);
+          }
+        }
+      };
+    },
+    once: (eventType: string, handler: (...args: unknown[]) => unknown) => {
+      registerOnceHandler(`${prefix}:${eventType}`, handler);
+    },
+  };
+};
 
 export const hub = baseHub('allpeep:core');
 export { onceWorker, onceQueue } from './once';

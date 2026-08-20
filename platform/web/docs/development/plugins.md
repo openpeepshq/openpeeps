@@ -197,6 +197,62 @@ const pluginManifestSchema = z.object({
 });
 ```
 
+### Theming
+
+Plugins should follow the host's community theme rather than hardcode colors, so
+they stay readable when an admin changes the primary/secondary color or switches
+light/dark. There are two ways to do this, and they're complementary:
+
+1. **CSS custom properties.** `libraries/react-ui/src/styles/globals.css` defines
+   the color tokens on `:root` / `[data-theme='OpenpeepsLight'|'OpenpeepsDark']`.
+   The ones a plugin can rely on (host-wide, not plugin-internal) are:
+
+   | Variable                       | Meaning                                                                       |
+   | ------------------------------ | ----------------------------------------------------------------------------- |
+   | `--color-primary`              | Community's configured primary/brand color                                    |
+   | `--color-primary-foreground`   | Text/icon color that reads on `--color-primary`                               |
+   | `--color-secondary`            | Community's configured secondary color (falls back to a default if unset)     |
+   | `--color-secondary-foreground` | Text/icon color that reads on `--color-secondary`                             |
+   | `--color-surface`              | Neutral panel/card background (not admin-configurable, but tracks light/dark) |
+
+   **Important:** the values are stored as space-separated RGB channels (e.g.
+   `--color-primary: 12 144 167;`), not hex and not a full `rgb(...)` string. Use
+   them with the `rgb()` function: `rgb(var(--color-primary) / 0.5)` for 50%
+   opacity, or `rgb(var(--color-primary))` for solid. A plugin's own stylesheet
+   (see the Tailwind caveat below) can reference these directly — they're set on
+   `document.body`, so any element inside the app picks them up by inheritance.
+
+2. **`window.__OPENPEEPS_THEME__` for plugin JS.** For plugin code that builds
+   inline styles (like `web/greeter.js` in the example plugin) rather than
+   shipping a stylesheet, the host resolves the same tokens to ready-to-use
+   `rgb(...)` strings and publishes them on `window` once the theme is applied:
+
+   ```js
+   window.__OPENPEEPS_THEME__ = {
+     primary: 'rgb(12 144 167)',
+     primaryForeground: 'rgb(255 255 255)',
+     secondary: 'rgb(...)', // only set if the community configured one
+     secondaryForeground: 'rgb(...)', // only set alongside `secondary`
+     surface: 'rgb(244 244 245)',
+   };
+   ```
+
+   Read it defensively — it may be `undefined` on older hosts, and individual
+   keys may be missing (e.g. `secondary` when the community hasn't set one):
+
+   ```js
+   const theme = window.__OPENPEEPS_THEME__ || {};
+   const primary = theme.primary || '#2563eb'; // sensible hardcoded fallback
+   ```
+
+   The global is set by `OpenpeepsThemeProvider`
+   (`platform/react/src/components/layout/OpenpeepsThemeProvider.tsx`) right
+   after it injects the theme override `<style>` tag, so it reflects the
+   current community theme and the signed-in profile's light/dark preference.
+   It is **not** reactive — if the admin changes the theme while the page is
+   open, plugin components that read it once won't update until next reload,
+   same as any other value read off `window` at mount time.
+
 ---
 
 ## 5. Plugin Frontend Bundles

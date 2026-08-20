@@ -8,7 +8,7 @@
     "url": "git@gitlab.allpeep-hq.com:allpeep/open-source/ap-at.git"
   },
   "openpeeps": {
-    "plugins": []
+    "plugins": ["examples/greeter-plugin"]
   },
   "dependencies": {
     "eslint": "^9.17.0",

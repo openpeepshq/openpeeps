@@ -82,3 +82,22 @@ export const setTheme = (baseTheme: string): void => {
   if (typeof document === 'undefined') return;
   document.body?.setAttribute('data-theme', baseTheme);
 };
+
+/**
+ * Reads a `--color-*` custom property (stored as space-separated "R G B"
+ * channels, e.g. `12 144 167`) off the live DOM and returns it as a ready
+ * `rgb(...)` string. Returns `undefined` if the variable is unset — callers
+ * should read after theme CSS has been applied (see `OpenpeepsThemeProvider`).
+ */
+export const readCssColorVar = (name: string): string | undefined => {
+  if (
+    typeof document === 'undefined' ||
+    typeof getComputedStyle !== 'function'
+  ) {
+    return undefined;
+  }
+  const channels = getComputedStyle(document.body || document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+  return channels ? `rgb(${channels})` : undefined;
+};

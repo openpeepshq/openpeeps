@@ -36,12 +36,18 @@ RUN node scripts/generate-changelog.mjs
 
 # Install workspace deps for the three runtime packages and all of their
 # transitive workspace dependencies. The `...` suffix on each filter expands
-# to "this package + everything it depends on".
+# to "this package + everything it depends on". `*plugins*` matches scanned
+# plugins under `plugins/<namespace>/<name>` (package names like
+# `@openpeepshq-plugins/*`); referenced example plugins (root package.json's
+# `openpeeps.plugins`) live under `examples/*` and need their own filter or
+# they're never installed/built, so `initializePlugins()` fails with
+# "Cannot find module '.../dist/index.js'" the moment one is enabled.
 RUN pnpm \
     --filter "@openpeepshq/server..." \
     --filter "@openpeepshq/worker..." \
     --filter "@openpeepshq/web..." \
     --filter "*plugins*" \
+    --filter "./examples/greeter-plugin" \
     install --frozen-lockfile
 
 # Build the dependency closure in topological order. `pnpm -r` walks the
@@ -52,6 +58,7 @@ RUN pnpm -r \
     --filter "@openpeepshq/worker..." \
     --filter "@openpeepshq/web..." \
     --filter "*plugins*" \
+    --filter "./examples/greeter-plugin" \
     build
 
 #─────────────────────────────────────────────────────────────────────────────
@@ -66,6 +73,7 @@ ARG ENVIRONMENT
 RUN apk add --no-cache \
     dumb-init \
     ffmpeg \
+    git \
     tini \
     unzip
 

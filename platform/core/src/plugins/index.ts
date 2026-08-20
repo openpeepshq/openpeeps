@@ -7,11 +7,15 @@ import { pluginManifestSchema } from '@openpeepshq/common';
 import {
   enumeratePluginInfos,
   enumerateReferencedPluginInfos,
+  isPluginEnabled,
   sortByDependencies,
 } from './helpers';
+import { getPluginStateOverrides } from './state';
 import { logger } from '../log';
 
 export * from './pluginAuth';
+export * from './state';
+export * from './install';
 
 const log = logger('core:plugins');
 
@@ -23,6 +27,7 @@ let initialized = false;
 const loadedPlugins = new Map<string, Plugin>();
 const loadedModules = new Map<string, unknown>();
 const pluginManifests = new Map<string, PluginManifest>();
+const pluginUnsubscribers = new Map<string, (() => void)[]>();
 
 export const getPlugins = (): Plugin[] => Array.from(loadedPlugins.values());
 
@@ -32,6 +37,19 @@ export const getPluginModule = (key: string): unknown | undefined =>
 export const getPluginManifests = (): Record<string, PluginManifest> =>
   Object.fromEntries(pluginManifests.entries());
 
+const clearPluginState = () => {
+  for (const unsubscribers of pluginUnsubscribers.values()) {
+    for (const unsub of unsubscribers) {
+      unsub();
+    }
+  }
+  loadedPlugins.clear();
+  loadedModules.clear();
+  pluginManifests.clear();
+  pluginUnsubscribers.clear();
+  initialized = false;
+};
+
 export const initializePlugins = async () => {
   if (initialized) {
     return;
@@ -40,6 +58,7 @@ export const initializePlugins = async () => {
   const {
     plugins: { path: pluginsPath, rootPackageJsonPath },
   } = await defaultConfig;
+  const stateOverrides = await getPluginStateOverrides();
 
   const loadPlugin = async (
     key: string,
@@ -52,10 +71,6 @@ export const initializePlugins = async () => {
         ? info.config.displayName
         : key;
 
-    log.info(
-      `Loading plugin "${displayName}" (key: ${key}) from path ${pluginPath}.`,
-    );
-
     const plugin: Plugin = {
       key,
       namespace,
@@ -63,6 +78,22 @@ export const initializePlugins = async () => {
       info,
       path: pluginPath,
     };
+
+    // DB override (set via the admin toggle) takes precedence over the
+    // static `openpeeps.enabled` package.json gate; a missing override
+    // falls back to the static gate.
+    const enabled = stateOverrides[key] ?? isPluginEnabled(info);
+
+    if (!enabled) {
+      log.info(`Skipping disabled plugin "${displayName}" (key: ${key}).`);
+      plugin.status = 'disabled';
+      loadedPlugins.set(key, plugin);
+      return;
+    }
+
+    log.info(
+      `Loading plugin "${displayName}" (key: ${key}) from path ${pluginPath}.`,
+    );
 
     try {
       const pluginModule = await import(
@@ -73,6 +104,7 @@ export const initializePlugins = async () => {
       if ('interceptors' in pluginModule) {
         const interceptors: Partial<CoreEvents> =
           await pluginModule.interceptors();
+        const unsubscribers: (() => void)[] = [];
         for (const [eventKey, handler] of Object.entries(interceptors)) {
           if (!VALID_EVENT_KEYS.includes(eventKey as CoreEventKey)) {
             log.warn(
@@ -81,7 +113,7 @@ export const initializePlugins = async () => {
             continue;
           }
           log.info(`${plugin.key} listening for event ${eventKey}`);
-          hub.on(eventKey as CoreEventKey, async (...args) => {
+          const unsub = hub.on(eventKey as CoreEventKey, async (...args) => {
             try {
               await (handler as EventHandler)(...args);
             } catch (e) {
@@ -91,7 +123,9 @@ export const initializePlugins = async () => {
               );
             }
           });
+          unsubscribers.push(unsub);
         }
+        pluginUnsubscribers.set(key, unsubscribers);
       }
       if ('configSchema' in pluginModule) {
         registerConfigSchema(
@@ -142,4 +176,12 @@ export const sortedPluginInfos = async () => {
     ...(await enumeratePluginInfos(pluginsPath)),
     ...enumerateReferencedPluginInfos(rootPackageJsonPath),
   ]);
+};
+
+export const reloadPlugins = async () => {
+  log.info('Reloading all plugins...');
+  clearPluginState();
+  const result = await initializePlugins();
+  log.info('Plugin reload complete.');
+  return result;
 };
