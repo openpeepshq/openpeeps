@@ -453,6 +453,8 @@ export function NewPostModal({
                 type={composerType}
                 onSelect={selectComposerType}
                 onClose={onClose}
+                visibility={group ? 'group' : visibility}
+                groupId={group?.id ?? groupId}
               />
             </div>
 

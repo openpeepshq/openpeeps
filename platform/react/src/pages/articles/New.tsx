@@ -5,6 +5,7 @@ import {
   useT,
   useOpenpeeps,
   defaultNewArticle,
+  getNewPostStores,
   useSetPageHeader,
 } from '../../index';
 import { ArticleForm, useServerInfo } from '../../components';
@@ -16,10 +17,15 @@ export function NewArticle() {
   const serverInfo = useServerInfo();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
+  const stores = getNewPostStores();
 
-  const [postData, setPostData] = useState<PostCreationData>(() =>
-    defaultNewArticle(serverInfo.publicContent),
-  );
+  const [postData, setPostData] = useState<PostCreationData>(() => {
+    const stored = stores.article;
+    if (stored.type === 'article' && stored.data.type === 'article') {
+      return stored;
+    }
+    return defaultNewArticle(serverInfo.publicContent);
+  });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,13 +51,14 @@ export function NewArticle() {
     setSubmitting(true);
     try {
       const created = await createPost({ ...postData, type: 'article' });
+      stores.resetNewArticleState();
       navigate(`/posts/${created.id}`);
     } catch (err) {
       setError((err as Error).message);
     } finally {
       setSubmitting(false);
     }
-  }, [article, createPost, navigate, postData, t]);
+  }, [article, createPost, navigate, postData, stores, t]);
 
   const headerActions = useMemo(
     () => (
@@ -76,7 +83,13 @@ export function NewArticle() {
 
   return (
     <div className="pb-12">
-      <ArticleForm postData={postData} onChange={setPostData} />
+      <ArticleForm
+        postData={postData}
+        onChange={(data) => {
+          setPostData(data);
+          stores.article = data;
+        }}
+      />
 
       {error ? (
         <div className="px-3">
