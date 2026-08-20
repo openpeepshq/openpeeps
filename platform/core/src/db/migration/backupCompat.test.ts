@@ -26,7 +26,10 @@ describe('resolveBackupDatabaseType', () => {
   });
 
   it('recognizes postgres backups', () => {
-    const metadata: BackupMetadata = { databaseType: 'postgres' };
+    const metadata: BackupMetadata = {
+      databaseType: 'postgres',
+      createdAt: '2026-08-20T12:00:00.000Z',
+    };
     expect(resolveBackupDatabaseType(metadata)).toBe('postgres');
   });
 });
