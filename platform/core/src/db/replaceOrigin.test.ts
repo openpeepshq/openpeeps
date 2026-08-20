@@ -76,4 +76,33 @@ describe('replaceOriginInValue', () => {
       ),
     ).toBe('http://user:pass@localhost:5174/a');
   });
+
+  it('rewrites article cover and note attachment URLs in a post body', () => {
+    const postBody = {
+      type: 'article',
+      title: 'Lookbook',
+      image: 'https://old.example/storage/allpeep/abc/cover.jpg',
+      attachments: [
+        {
+          url: 'https://old.example/storage/allpeep/abc/a.png',
+          previewUrl: 'https://old.example/storage/allpeep/abc/a-preview.png',
+        },
+      ],
+    };
+
+    expect(
+      replaceOriginInValue(postBody, 'old.example', 'https://pfw2.ap.social'),
+    ).toEqual({
+      type: 'article',
+      title: 'Lookbook',
+      image: 'https://pfw2.ap.social/storage/allpeep/abc/cover.jpg',
+      attachments: [
+        {
+          url: 'https://pfw2.ap.social/storage/allpeep/abc/a.png',
+          previewUrl:
+            'https://pfw2.ap.social/storage/allpeep/abc/a-preview.png',
+        },
+      ],
+    });
+  });
 });
