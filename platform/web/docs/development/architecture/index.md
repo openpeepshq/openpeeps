@@ -61,7 +61,7 @@ Express API server, shared libraries, and background workers.
 - **`@openpeepshq/core`** — Backend business logic and data access
 - **`@openpeepshq/worker`** — Background job processor
 - **`@openpeepshq/cli`** — Command-line administration tools
-- **`@openpeepshq/react-native`** — React Native components
+- **`@openpeepshq/rn-components`** — React Native components
 - **`@openpeepshq/client`** — API client library
 - **`@openpeepshq/common`** — Shared types and utilities
 - **`@openpeepshq/i18n`** — Internationalization

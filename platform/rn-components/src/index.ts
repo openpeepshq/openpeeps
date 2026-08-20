@@ -1,7 +1,9 @@
 /**
  * Community UI extracted from the Black Ambition app: screens, shared components, and wiring.
  *
- * Host apps must configure NativeWind, `react-native-config`, i18n, and the same peer native modules.
+ * Host apps must configure NativeWind, wrap Metro with `withOpenPeepsMetro`
+ * from `@openpeepshq/rn-components/metro`, `react-native-config`, i18n, and
+ * the same peer native modules.
  */
 
 import './lib/polyfills/customEvent';

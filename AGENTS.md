@@ -79,7 +79,7 @@ accompanied by a written outline of exactly what changed and why.**
 - `platform/core` — backend logic: DB, notifications, email, jobs, roles, plugin loader.
 - `platform/server` — API server (Riddl); add new API endpoints here.
 - `platform/web` — web client (React); add new UI here.
-- `platform/react` — React client (includes plugin registry). `platform/react-native` — React Native client.
+- `platform/react` — React client (includes plugin registry). `platform/rn-components` — React Native client.
 - `platform/worker` — BullMQ workers (email, media, notifications, events).
 - `platform/i18n` — locale files; user-facing strings go in `locales/en.json`.
 - `plugins/<namespace>/<name>` — plugin packages. See `platform/web/docs/development/plugins.md` for the contract.

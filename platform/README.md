@@ -46,9 +46,9 @@ on the backend.
 
 Locale files and translation helpers for user-facing copy.
 
-### react-native
+### rn-components
 
-React Native components and utilities for native mobile apps.
+`@openpeepshq/rn-components` — React Native screens and shared UI for native mobile apps.
 
 ### worker
 

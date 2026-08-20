@@ -85,7 +85,7 @@ const PostViewTracking = ({ children }: { children: ReactNode }) => {
  *
  * `@openpeepshq/react` deliberately has no `react-native` import — this wrapper
  * is the single place where the dependency lives. Host apps should import
- * `OpenpeepsProvider` from `@openpeepshq/react-native` (not from
+ * `OpenpeepsProvider` from `@openpeepshq/rn-components` (not from
  * `@openpeepshq/react`) so this wiring is in place.
  */
 export const OpenpeepsProvider: React.FC<
