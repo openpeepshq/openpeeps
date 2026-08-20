@@ -2,6 +2,8 @@ export type BackupDatabaseType = 'arango' | 'postgres';
 
 export type BackupMetadata = {
   databaseType?: BackupDatabaseType;
+  /** When this backup archive was created (ISO-8601). */
+  createdAt?: string;
   config?: {
     hostname?: string;
   };

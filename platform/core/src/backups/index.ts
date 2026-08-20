@@ -277,6 +277,7 @@ export const createBackup = async () => {
       JSON.stringify(
         {
           databaseType: 'postgres',
+          createdAt: new Date().toISOString(),
           config: {
             hostname: hostnameFromServerHost(coreConfig.server.host),
           },
