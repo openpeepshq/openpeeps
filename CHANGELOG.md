@@ -3,6 +3,10 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Bug Fixes
+
+- **deps**: pin RN host versions and bump react 0.2.5 / rn-components 0.3.1
+
 ### Refactoring
 
 - **BREAKING**: **rn-components**: publish as @openpeepshq/rn-components
