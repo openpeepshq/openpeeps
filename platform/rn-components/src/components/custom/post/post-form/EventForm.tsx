@@ -12,8 +12,14 @@ import {
   MediaAttachment,
   PostCreationData,
   PublicProfile,
+  RecurrenceFreq,
+  RecurrenceWeekday,
 } from '@openpeepshq/common';
-import { parseEventMaxAttendeesInput } from '@openpeepshq/common/lib';
+import {
+  parseEventMaxAttendeesInput,
+  previewUpcomingOccurrences,
+  weekdayFromDate,
+} from '@openpeepshq/common/lib';
 import { UseFormReturn } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { VisibilityInput } from './VisibilityInput';
@@ -96,12 +102,23 @@ export const EventForm = ({
     control: form.control,
     name: 'data.timeZone',
   });
+  const recurrence = useWatch({
+    control: form.control,
+    name: 'data.recurrence',
+  });
+  const eventData = useWatch({
+    control: form.control,
+    name: 'data',
+  });
 
-  const handleHeaderImageSelect = useCallback((image: MediaAttachment[]) => {
-    setHeaderImage(image[0].previewUrl || image[0].url);
-    form.setValue('data.image', image[0].previewUrl || image[0].url);
-    setIsBackgroundChanged(true);
-  }, [form]);
+  const handleHeaderImageSelect = useCallback(
+    (image: MediaAttachment[]) => {
+      setHeaderImage(image[0].previewUrl || image[0].url);
+      form.setValue('data.image', image[0].previewUrl || image[0].url);
+      setIsBackgroundChanged(true);
+    },
+    [form]
+  );
 
   const maybeSwitchEventFormat = (value: string) => {
     if (eventFormat === value) {
@@ -142,7 +159,7 @@ export const EventForm = ({
     }
     form.setValue(
       'data.jam.moderators',
-      moderators.map(m => m.id),
+      moderators.map((m) => m.id)
     );
     if (form.getValues('data.end')) {
       setShowEndDate(true);
@@ -168,7 +185,8 @@ export const EventForm = ({
                 onPress={() => {
                   handleHeaderModalPress();
                   setIsBackgroundChanged(false);
-                }}>
+                }}
+              >
                 <CameraIcon className="text-foreground" />
               </Pressable>
               <Pressable
@@ -176,7 +194,8 @@ export const EventForm = ({
                   setHeaderImage('');
                   setIsBackgroundChanged(false);
                 }}
-                className="bg-black/40 p-2 rounded-full">
+                className="bg-black/40 p-2 rounded-full"
+              >
                 <XIcon className="text-foreground" />
               </Pressable>
             </View>
@@ -187,7 +206,8 @@ export const EventForm = ({
                 onPress={() => {
                   handleHeaderModalPress();
                   setIsBackgroundChanged(false);
-                }}>
+                }}
+              >
                 <CameraIcon className="text-foreground" />
               </Pressable>
             </View>
@@ -233,7 +253,8 @@ export const EventForm = ({
         <ThemedText className="">Description</ThemedText>
         <Pressable
           onPress={handleDescriptionModalPress}
-          className="relative w-full mt-2 border border-muted-foreground/40 rounded-md p-2">
+          className="relative w-full mt-2 border border-muted-foreground/40 rounded-md p-2"
+        >
           <ThemedText className="py-2">
             {description
               ? truncateText(description, 60)
@@ -249,7 +270,8 @@ export const EventForm = ({
         <ThemedText className="">{t('events.form.startDate')}</ThemedText>
         <Pressable
           onPress={handleStartDateModal}
-          className="relative w-full mt-2 border border-muted-foreground/40 rounded-md py-4 px-2 flex-row gap-x-2 items-center">
+          className="relative w-full mt-2 border border-muted-foreground/40 rounded-md py-4 px-2 flex-row gap-x-2 items-center"
+        >
           <CalendarIcon className="text-muted-foreground" size={18} />
           <ThemedText className="">
             {start
@@ -272,7 +294,8 @@ export const EventForm = ({
           <ThemedText className="">{t('events.form.endDate')}</ThemedText>
           <Pressable
             onPress={handleEnddDateModal}
-            className="relative w-full mt-2 border border-muted-foreground/40 rounded-md py-4 px-2 flex-row gap-x-2 items-center">
+            className="relative w-full mt-2 border border-muted-foreground/40 rounded-md py-4 px-2 flex-row gap-x-2 items-center"
+          >
             <CalendarIcon className="text-muted-foreground" size={18} />
             <ThemedText className="">
               {end
@@ -286,15 +309,183 @@ export const EventForm = ({
         <ThemedText className="">{t('events.form.timezone')}</ThemedText>
         <Pressable
           onPress={handleTimezoneModalPress}
-          className="relative w-full mt-2 border border-muted-foreground/40 rounded-md py-4 px-2 flex-row justify-between items-center">
+          className="relative w-full mt-2 border border-muted-foreground/40 rounded-md py-4 px-2 flex-row justify-between items-center"
+        >
           <ThemedText className="">
             {timeZone
-              ? timezones.find(tz => tz.tzCode === timeZone)?.label
+              ? timezones.find((tz) => tz.tzCode === timeZone)?.label
               : t('events.form.timezonePlaceholder')}
           </ThemedText>
           <ChevronDownIcon className="text-muted-foreground" size={18} />
         </Pressable>
       </ThemedView>
+      <ThemedView className="relative w-full mt-4">
+        <ThemedText>{t('events.form.repeat.title')}</ThemedText>
+        <RadioGroup
+          value={recurrence?.freq ?? 'none'}
+          onValueChange={(value: string) => {
+            if (value === 'none') {
+              form.setValue('data.recurrence', undefined);
+              return;
+            }
+            const freq = value as RecurrenceFreq;
+            form.setValue('data.recurrence', {
+              freq,
+              interval: recurrence?.interval,
+              until: recurrence?.until,
+              count: recurrence?.count,
+              byDay:
+                freq === 'WEEKLY'
+                  ? recurrence?.byDay?.length
+                    ? recurrence.byDay
+                    : start
+                      ? [weekdayFromDate(new Date(start))]
+                      : (['MO'] as RecurrenceWeekday[])
+                  : undefined,
+            });
+          }}
+        >
+          <View>
+            {(['none', 'DAILY', 'WEEKLY', 'MONTHLY'] as const).map((freq) => (
+              <View key={freq} className="flex-row items-center gap-x-2 mt-2">
+                <RadioGroupItem value={freq} id={`repeat-${freq}`} />
+                <ThemedText>
+                  {t(
+                    freq === 'none'
+                      ? 'events.form.repeat.none'
+                      : `events.form.repeat.${freq.toLowerCase()}`
+                  )}
+                </ThemedText>
+              </View>
+            ))}
+          </View>
+        </RadioGroup>
+      </ThemedView>
+      {recurrence?.freq === 'WEEKLY' ? (
+        <ThemedView className="relative w-full mt-4">
+          <ThemedText>{t('events.form.repeat.weekdays')}</ThemedText>
+          <View className="flex-row flex-wrap gap-2 mt-2">
+            {(
+              ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] as RecurrenceWeekday[]
+            ).map((day) => {
+              const selected = recurrence.byDay?.includes(day);
+              return (
+                <Pressable
+                  key={day}
+                  onPress={() => {
+                    const current = recurrence.byDay ?? [];
+                    const next = selected
+                      ? current.filter((value) => value !== day)
+                      : [...current, day];
+                    form.setValue('data.recurrence', {
+                      ...recurrence,
+                      byDay:
+                        next.length > 0
+                          ? next
+                          : start
+                            ? [weekdayFromDate(new Date(start))]
+                            : ['MO'],
+                    });
+                  }}
+                  className={`rounded-md border px-2 py-1 ${
+                    selected ? 'bg-primary' : 'bg-background'
+                  }`}
+                >
+                  <ThemedText
+                    className={selected ? 'text-primary-foreground' : ''}
+                  >
+                    {t(`events.form.repeat.day.${day}`)}
+                  </ThemedText>
+                </Pressable>
+              );
+            })}
+          </View>
+        </ThemedView>
+      ) : null}
+      {recurrence ? (
+        <ThemedView className="relative w-full mt-4">
+          <ThemedText>{t('events.form.repeat.end')}</ThemedText>
+          <RadioGroup
+            value={
+              recurrence.until ? 'until' : recurrence.count ? 'count' : 'never'
+            }
+            onValueChange={(value: string) => {
+              if (value === 'never') {
+                form.setValue('data.recurrence', {
+                  ...recurrence,
+                  until: undefined,
+                  count: undefined,
+                });
+              } else if (value === 'until') {
+                form.setValue('data.recurrence', {
+                  ...recurrence,
+                  count: undefined,
+                  until:
+                    recurrence.until ??
+                    new Date(
+                      Date.now() + 90 * 24 * 60 * 60 * 1000
+                    ).toISOString(),
+                });
+              } else {
+                form.setValue('data.recurrence', {
+                  ...recurrence,
+                  until: undefined,
+                  count: recurrence.count ?? 10,
+                });
+              }
+            }}
+          >
+            <View>
+              {(['never', 'until', 'count'] as const).map((mode) => (
+                <View key={mode} className="flex-row items-center gap-x-2 mt-2">
+                  <RadioGroupItem value={mode} id={`repeat-end-${mode}`} />
+                  <ThemedText>
+                    {t(
+                      mode === 'never'
+                        ? 'events.form.repeat.never'
+                        : mode === 'until'
+                          ? 'events.form.repeat.onDate'
+                          : 'events.form.repeat.after'
+                    )}
+                  </ThemedText>
+                </View>
+              ))}
+            </View>
+          </RadioGroup>
+          {recurrence.count ? (
+            <FormField
+              control={form.control}
+              name="data.recurrence.count"
+              render={({ field }) => (
+                <FormInput
+                  label={t('events.form.repeat.count')}
+                  keyboardType="numeric"
+                  value={String(field.value ?? 10)}
+                  onChangeText={(text) =>
+                    field.onChange(Math.max(1, Number(text) || 1))
+                  }
+                  className="rounded-md w-full mt-2"
+                />
+              )}
+            />
+          ) : null}
+          {eventData?.type === 'event' && eventData.start ? (
+            <ThemedText className="mt-2 text-muted-foreground">
+              {t('events.form.repeat.preview', {
+                dates: previewUpcomingOccurrences(eventData, 3)
+                  .map((item) =>
+                    new Date(item.start).toLocaleDateString(undefined, {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                    })
+                  )
+                  .join(', '),
+              })}
+            </ThemedText>
+          ) : null}
+        </ThemedView>
+      ) : null}
       <View className="w-full h-[0.5px] bg-foreground/20 mt-6" />
       <ThemedText className="mt-4 text-xl font-semibold tracking-wider">
         {t('events.form.location')}
@@ -305,12 +496,14 @@ export const EventForm = ({
           value={eventFormat}
           onValueChange={(value: string) => {
             maybeSwitchEventFormat(value);
-          }}>
+          }}
+        >
           <View className="">
-            {eventFormats.map(fmt => (
+            {eventFormats.map((fmt) => (
               <View
                 key={fmt.value}
-                className="flex-row items-center gap-x-2 mt-2">
+                className="flex-row items-center gap-x-2 mt-2"
+              >
                 <RadioGroupItem value={fmt.value} id={fmt.value} />
                 <ThemedText>{fmt.label}</ThemedText>
               </View>
@@ -335,7 +528,7 @@ export const EventForm = ({
                   checked={field.value ?? false}
                   className="rounded-md w-full mt-2"
                   onCheckedChange={field.onChange}
-                  handleOnLabelPress={() => { }}
+                  handleOnLabelPress={() => {}}
                 />
               )}
             />
@@ -395,7 +588,7 @@ export const EventForm = ({
         disabled={isEdit}
         audienceSetting={form.getValues()}
         type="event"
-        onChange={audienceSetting => {
+        onChange={(audienceSetting) => {
           form.setValue('visibility', audienceSetting.visibility);
           form.setValue('groupId', audienceSetting.groupId);
           form.setValue('audience', audienceSetting.audience);
@@ -429,7 +622,7 @@ export const EventForm = ({
               checked={field.value ?? false}
               className="rounded-md w-full"
               onCheckedChange={field.onChange}
-              handleOnLabelPress={() => { }}
+              handleOnLabelPress={() => {}}
             />
           )}
         />
@@ -457,7 +650,8 @@ export const EventForm = ({
                 <Pressable
                   accessibilityLabel={t('events.form.clearMaxAttendees')}
                   onPress={() => field.onChange(undefined)}
-                  className="border-muted-foreground/40 mb-1 rounded-md border p-3">
+                  className="border-muted-foreground/40 mb-1 rounded-md border p-3"
+                >
                   <XIcon className="text-foreground" size={18} />
                 </Pressable>
               ) : null}
@@ -469,7 +663,7 @@ export const EventForm = ({
       <EventDescriptionSheet
         initialDescription={form.getValues('data.content')}
         ref={descriptionRef}
-        onDone={v => {
+        onDone={(v) => {
           form.setValue('data.content', v);
         }}
       />
@@ -480,7 +674,7 @@ export const EventForm = ({
       <DateSheet
         ref={startDateSheetModalRef}
         value={form.getValues('data.start')}
-        onChange={v => {
+        onChange={(v) => {
           form.setValue('data.start', v);
         }}
         onClose={() => startDateSheetModalRef.current?.close()}
@@ -488,7 +682,7 @@ export const EventForm = ({
       <DateSheet
         ref={endDateSheetModalRef}
         value={form.getValues('data.end')}
-        onChange={v => {
+        onChange={(v) => {
           form.setValue('data.end', v);
         }}
         onClose={() => endDateSheetModalRef.current?.close()}
@@ -496,7 +690,7 @@ export const EventForm = ({
       <TimeZoneSelectorSheet
         ref={timezoneSheetModalRef}
         initialTimeZone={timeZone}
-        onDone={v => {
+        onDone={(v) => {
           form.setValue('data.timeZone', v);
         }}
       />

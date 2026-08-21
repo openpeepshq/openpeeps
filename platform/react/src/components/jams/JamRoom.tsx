@@ -19,6 +19,7 @@ export interface JamRoomProps {
   jamPost: PublicPost;
   /** When true, connect immediately as observer without a lobby. */
   observer?: boolean;
+  occurrence?: string;
 }
 
 type JamConnection = {
@@ -41,9 +42,13 @@ type ReconnectPrefs = {
  * Drop this into a route or page; everything below it lives inside the
  * `<JamProvider>`.
  */
-export function JamRoom({ jamPost, observer = false }: JamRoomProps) {
+export function JamRoom({
+  jamPost,
+  observer = false,
+  occurrence,
+}: JamRoomProps) {
   return (
-    <JamProvider jamPost={jamPost} observer={observer}>
+    <JamProvider jamPost={jamPost} observer={observer} occurrence={occurrence}>
       <JamRoomInner />
     </JamProvider>
   );
@@ -51,13 +56,19 @@ export function JamRoom({ jamPost, observer = false }: JamRoomProps) {
 
 function JamRoomInner() {
   const t = useT();
-  const { jamPost, jam, jamEvent, observer, isIntentionalLeave } =
-    useJamContext();
+  const {
+    jamPost,
+    jam,
+    jamEvent,
+    observer,
+    occurrence,
+    isIntentionalLeave,
+  } = useJamContext();
   const { openpeepsApi, client } = useOpenpeeps();
   const serverInfo = useServerInfo();
   const me = useCurrentProfile();
 
-  const jamStateQuery = openpeepsApi.useJamState(jamPost.id);
+  const jamStateQuery = openpeepsApi.useJamState(jamPost.id, occurrence);
   const postQuery = openpeepsApi.usePost(jamPost.id);
   const rsvpToEvent = openpeepsApi.rsvpToEventAction({ id: jamPost.id });
   const post = postQuery.data ?? jamPost;
@@ -114,6 +125,7 @@ function JamRoomInner() {
       try {
         const res = await client.jams.token({
           pathParameters: { id: jamPost.id },
+          queryParameters: occurrence ? { occurrence } : undefined,
         });
         if (!mounted.current || isIntentionalLeave()) {
           setReconnectPrefs(undefined);
@@ -146,7 +158,7 @@ function JamRoomInner() {
         reconnectInFlight.current = false;
       }
     },
-    [client, isIntentionalLeave, jamPost.id, livekitUrl, t],
+    [client, isIntentionalLeave, jamPost.id, livekitUrl, occurrence, t],
   );
 
   const handleDisconnected = useCallback(() => {
@@ -185,7 +197,7 @@ function JamRoomInner() {
       }
       return { blocked: false as const };
     }
-    return getJamCapacityJoinBlock(post, me);
+    return getJamCapacityJoinBlock(post, me, occurrence);
   })();
 
   const shouldAutoRsvp =
@@ -201,6 +213,7 @@ function JamRoomInner() {
       try {
         const res = await client.jams.token({
           pathParameters: { id: jamPost.id },
+          queryParameters: occurrence ? { occurrence } : undefined,
         });
         if ('error' in res) {
           if (!cancelled) {
@@ -240,7 +253,7 @@ function JamRoomInner() {
     return () => {
       cancelled = true;
     };
-  }, [observer, jamPost.id, client, livekitUrl, t]);
+  }, [observer, jamPost.id, client, livekitUrl, occurrence, t]);
 
   useEffect(() => {
     if (!shouldAutoRsvp || autoRsvpStarted.current) return;
@@ -248,7 +261,10 @@ function JamRoomInner() {
     let cancelled = false;
     (async () => {
       try {
-        await rsvpToEvent({ response: 'yes' });
+        await rsvpToEvent({
+          response: 'yes',
+          recurrenceId: occurrence,
+        });
         if (!cancelled) {
           await postQuery.refetch();
         }
@@ -337,6 +353,7 @@ function JamRoomInner() {
         jamPost={post}
         reason={capacityBlock.reason}
         eventName={jamEvent.name}
+        occurrence={occurrence}
       />
     );
   }

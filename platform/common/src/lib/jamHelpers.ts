@@ -1,11 +1,32 @@
 import { Jam, JamRecording, PublicPost, PublicProfile } from '../types';
+import { normalizeRecurrenceId } from './eventRecurrence';
 
-export const getJamUrl = (id: string, origin: string | undefined) => {
+export const jamRoomName = (postId: string, recurrenceId?: string) => {
+  if (!recurrenceId) return postId;
+  return `${postId}_${normalizeRecurrenceId(recurrenceId).replace(/[^a-zA-Z0-9-]/g, '-')}`;
+};
+
+const UUID_PREFIX =
+  /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:_.*)?$/i;
+
+export const postIdFromJamRoomName = (roomName: string): string => {
+  const match = roomName.match(UUID_PREFIX);
+  return match?.[1] ?? roomName;
+};
+
+export const getJamUrl = (
+  id: string,
+  origin: string | undefined,
+  occurrence?: string,
+) => {
   if (!id) {
     return '';
   }
-  if (!origin) return `/events/${id}/jam`;
-  return `${origin}/events/${id}/jam`;
+  const query = occurrence
+    ? `?occurrence=${encodeURIComponent(normalizeRecurrenceId(occurrence))}`
+    : '';
+  if (!origin) return `/events/${id}/jam${query}`;
+  return `${origin}/events/${id}/jam${query}`;
 };
 
 export const jamFromEvent = (event: PublicPost): Jam | undefined => {

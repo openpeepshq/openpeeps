@@ -15,9 +15,10 @@ import { apiErrorMessage } from '../../../lib/apiErrorMessage';
 
 export interface EventRsvpButtonProps {
   post: PublicPost;
+  recurrenceId?: string;
 }
 
-export function EventRsvpButton({ post }: EventRsvpButtonProps) {
+export function EventRsvpButton({ post, recurrenceId }: EventRsvpButtonProps) {
   const t = useT();
   const profile = useCurrentProfile();
   const authData = useAuthData();
@@ -31,13 +32,15 @@ export function EventRsvpButton({ post }: EventRsvpButtonProps) {
   const atCapacity =
     capacityEvent &&
     eventData?.maxAttendees !== undefined &&
-    countYesRsvps(post) >= eventData.maxAttendees;
+    countYesRsvps(post, recurrenceId) >= eventData.maxAttendees;
 
   const myEvent = post.profile?.id === profile?.id;
   const myRsvp = useMemo(
     () =>
-      calculateEffectiveRsvps(post).find((r) => r.profile.id === profile?.id),
-    [post, profile?.id],
+      calculateEffectiveRsvps(post, recurrenceId).find(
+        (r) => r.profile.id === profile?.id,
+      ),
+    [post, profile?.id, recurrenceId],
   );
   const canRsvp = useMemo(
     () =>
@@ -52,7 +55,7 @@ export function EventRsvpButton({ post }: EventRsvpButtonProps) {
   const respond = async (response: 'yes' | 'tentative' | 'no') => {
     setError(null);
     try {
-      await rsvpToEvent({ response });
+      await rsvpToEvent({ response, recurrenceId });
     } catch (err) {
       setError(apiErrorMessage(err, t));
     }

@@ -1,5 +1,5 @@
 import type { Event, PublicPost } from '@openpeepshq/common/types';
-import { getJamUrl, truncateText } from '@openpeepshq/common/lib';
+import { getJamUrl, truncateText, formatEventRecurrence } from '@openpeepshq/common/lib';
 import { Button } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
@@ -13,10 +13,12 @@ export interface CardEventProps {
   post: PublicPost;
 }
 
-function formatEventTimespan(event: Event) {
-  if (!event.start) return '';
-  const start = new Date(event.start);
-  const end = event.end ? new Date(event.end) : undefined;
+function formatEventTimespan(event: Event, startIso?: string, endIso?: string) {
+  const startValue = startIso ?? event.start;
+  if (!startValue) return '';
+  const start = new Date(startValue);
+  const end =
+    (endIso ?? event.end) ? new Date(endIso ?? event.end!) : undefined;
   const datePart = start.toLocaleDateString(undefined, {
     weekday: 'short',
     month: 'short',
@@ -39,16 +41,20 @@ export function CardEvent({ post }: CardEventProps) {
   const { openpeepsApi } = useOpenpeeps();
   const event = post.data as Event;
   const jam = event.jam;
-  const jamStateQuery = openpeepsApi.useJamState(post.id);
+  const occurrenceId = post.occurrenceRecurrenceId;
+  const jamStateQuery = openpeepsApi.useJamState(post.id, occurrenceId);
   const jamState = jam ? jamStateQuery.data : undefined;
   const attendeesLength = jamState?.participants.length ?? 0;
 
   const jamLink = getJamUrl(
     post.id,
     typeof window !== 'undefined' ? window.location.origin : undefined,
+    occurrenceId,
   );
 
-  const postLink = `/posts/${post.id}`;
+  const postLink = occurrenceId
+    ? `/posts/${post.id}?occurrence=${encodeURIComponent(occurrenceId)}`
+    : `/posts/${post.id}`;
 
   return (
     <article
@@ -67,14 +73,23 @@ export function CardEvent({ post }: CardEventProps) {
       <div className="grid gap-y-4 p-4">
         <a href={postLink} className="block text-inherit no-underline">
           <p className="text-muted-foreground text-sm">
-            {formatEventTimespan(event)}
+            {formatEventTimespan(
+              event,
+              post.occurrenceStart,
+              post.occurrenceEnd,
+            )}
           </p>
           <h3 className="text-xl font-semibold">
             {truncateText(event.name, 100) || '-'}
           </h3>
         </a>
+        {event.recurrence ? (
+          <p className="text-muted-foreground text-sm">
+            {formatEventRecurrence(event.recurrence, t, event.start)}
+          </p>
+        ) : null}
         <div className="flex flex-wrap gap-x-2 gap-y-1">
-          <EventLocation post={post} truncate />
+          <EventLocation post={post} truncate occurrence={occurrenceId} />
           <ProfileEventRelationship post={post} />
         </div>
         {jam && me ? (

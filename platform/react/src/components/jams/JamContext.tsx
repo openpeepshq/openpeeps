@@ -7,6 +7,7 @@ export interface JamContextValue {
   jam: Jam;
   jamEvent: Event;
   observer: boolean;
+  occurrence?: string;
   /** Call before an intentional Leave/Close so disconnect does not auto-rejoin. */
   markIntentionalLeave: () => void;
   /**
@@ -21,6 +22,7 @@ const JamContext = createContext<JamContextValue | null>(null);
 export interface JamProviderProps {
   jamPost: PublicPost;
   observer?: boolean;
+  occurrence?: string;
   children: React.ReactNode;
 }
 
@@ -31,6 +33,7 @@ export interface JamProviderProps {
 export function JamProvider({
   jamPost,
   observer = false,
+  occurrence,
   children,
 }: JamProviderProps) {
   const jam = jamFromEvent(jamPost) as Jam;
@@ -43,12 +46,13 @@ export function JamProvider({
       jam,
       jamEvent,
       observer,
+      occurrence,
       markIntentionalLeave: () => {
         intentionalLeave.current = true;
       },
       isIntentionalLeave: () => intentionalLeave.current,
     }),
-    [jamPost, jam, jamEvent, observer],
+    [jamPost, jam, jamEvent, observer, occurrence],
   );
 
   return <JamContext.Provider value={value}>{children}</JamContext.Provider>;

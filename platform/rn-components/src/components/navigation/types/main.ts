@@ -19,6 +19,7 @@ export type MainStackParamList = {
   Jam: undefined;
   JamSession: {
     jamId: string;
+    occurrence?: string;
   };
   JamHostControls: {
     id: string;
@@ -60,12 +61,15 @@ export type MainStackParamList = {
   NewEvent: undefined;
   EditEvent: {
     id: string;
+    occurrence?: string;
   };
   EventPage: {
     id: string;
+    occurrence?: string;
   };
   Post: {
     id: string;
+    occurrence?: string;
   };
   ReplyPost: {
     id: string;

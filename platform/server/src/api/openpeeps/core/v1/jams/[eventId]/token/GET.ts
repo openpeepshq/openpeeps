@@ -1,3 +1,4 @@
+import { parseOccurrenceQuery } from '@openpeepshq/common/lib';
 import { endpoint, z } from '#lib/endpoint';
 import { config } from '@openpeepshq/core/config';
 import { notFound, forbidden, rethrowIfOpenpeepsError } from '#lib/errors';
@@ -19,6 +20,10 @@ export const Param = z.object({
   eventId: z.string(),
 });
 
+export const Query = z.object({
+  occurrence: z.string().optional(),
+});
+
 export const Output = jamTokenResponseSchema;
 
 export const Error = {
@@ -26,9 +31,10 @@ export const Error = {
   403: forbidden(),
 };
 
-export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
+export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
   async (param, event) => {
     const { jams } = await config();
+    const recurrenceId = parseOccurrenceQuery(param.occurrence);
 
     const jamEvent = await findJamEvent(param.eventId);
     if (!jamEvent) {
@@ -44,7 +50,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     ) {
       return {
         success: true,
-        token: await createJamEgressToken(jamEvent).catch(
+        token: await createJamEgressToken(jamEvent, recurrenceId).catch(
           rethrowIfOpenpeepsError,
         ),
         livekitUrl: jams.livekit.url,
@@ -67,15 +73,22 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     if (jam.waitingRoom && !canModerateJam(currentProfile, jamEvent)) {
       // Previously admitted guests may re-token after mobile idle / reconnect
       // without going through the waiting room again.
-      const admitted = await isAdmittedToJam(jamEvent, currentProfile.id);
+      const admitted = await isAdmittedToJam(
+        jamEvent,
+        currentProfile.id,
+        recurrenceId,
+      );
       if (!admitted) {
         throw forbidden();
       }
     }
 
-    const token = await createJamToken(jamEvent, currentProfile).catch(
-      rethrowIfOpenpeepsError,
-    );
+    const token = await createJamToken(
+      jamEvent,
+      currentProfile,
+      false,
+      recurrenceId,
+    ).catch(rethrowIfOpenpeepsError);
 
     return { success: true, token, livekitUrl: jams.livekit.url };
   },

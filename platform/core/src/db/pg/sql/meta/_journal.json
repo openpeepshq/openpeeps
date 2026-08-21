@@ -64,6 +64,13 @@
       "when": 1787112000000,
       "tag": "0008_group_owner_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1787144788484,
+      "tag": "0009_event_occurrences",
+      "breakpoints": true
     }
   ]
 }

@@ -12,15 +12,50 @@ import {
   checkCapabilities,
   getPostCapabilities,
 } from '@openpeepshq/common/lib';
+import { ObjectFilter } from '../../db/types';
 
-export const myFeedFilter = (profile: ProfileWithMeta): PgFilter<DbBasePost> =>
-  postFilters.myFeed(
-    profile.id,
-    profile.following.map(({ id }) => id),
-    profile.memberships.map(({ group }) => group.id),
-  );
+export const ownPostsFilter = (
+  profile: ProfileWithMeta,
+): PgFilter<DbBasePost> => ({
+  matches: {
+    creatorId: profile.id,
+  },
+});
 
-export const localFeedFilter = (): PgFilter<DbBasePost> => ({
+/** Widen the feed query to any group-tagged post; membership is enforced in `myFeedGroupMembershipFilter`. */
+const groupPostVisibilityQueryFilter: PgFilter<DbBasePost> = {
+  matches: { visibility: 'group' },
+};
+
+export const followFilter = (
+  profile: ProfileWithMeta,
+): PgFilter<DbBasePost> => ({
+  matches: profile.following.map((f) => ({
+    creatorId: f.id,
+  })),
+});
+
+export const myFeedFilter = (
+  profile: ProfileWithMeta,
+): PgFilter<DbBasePost> => ({
+  operator: '||',
+  predicates: [
+    ownPostsFilter(profile),
+    groupPostVisibilityQueryFilter,
+    followFilter(profile),
+  ],
+});
+
+export const myFeedGroupMembershipFilter =
+  (profile: ProfileWithMeta): ObjectFilter<PostWithMeta> =>
+  (post) =>
+    post.visibility !== 'group' ||
+    (!!post.group &&
+      profile.memberships.some((m) => m.group.id === post.group?.id));
+
+export const localFeedFilter = (
+  _profile?: ProfileWithMeta,
+): PgFilter<DbBasePost> => ({
   matches: [{ visibility: 'local' }, { visibility: 'public' }],
 });
 

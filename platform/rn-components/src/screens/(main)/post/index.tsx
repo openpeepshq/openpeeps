@@ -18,10 +18,16 @@ import { hasValue, groupName } from '~/lib/utils';
 
 type PostProps = MainScreenProps<'Post'>;
 
-const PostType = ({ post }: { post: PublicPost }) => {
+const PostType = ({
+  post,
+  occurrence,
+}: {
+  post: PublicPost;
+  occurrence?: string;
+}) => {
   switch (post.type) {
     case 'event':
-      return <FullEvent post={post} />;
+      return <FullEvent post={post} occurrence={occurrence} />;
     case 'note':
       return <FullNote post={post} />;
     case 'question':
@@ -35,7 +41,7 @@ const PostType = ({ post }: { post: PublicPost }) => {
 
 export const Post: React.FC<PostProps> = ({ route }) => {
   const { openpeepsApi } = useOpenpeeps();
-  const { id } = route.params;
+  const { id, occurrence } = route.params;
 
   const { data: post, refetch: refetchPost } = openpeepsApi.usePost(id);
   const group = useMemo(() => post?.group as Group, [post]);
@@ -57,7 +63,12 @@ export const Post: React.FC<PostProps> = ({ route }) => {
               : ''
           }`}
           rightType="icon"
-          rightButtonIcon={<FullEventActions post={post as PublicPost} />}
+          rightButtonIcon={
+            <FullEventActions
+              post={post as PublicPost}
+              occurrence={occurrence}
+            />
+          }
         />
       );
     } else {
@@ -74,7 +85,7 @@ export const Post: React.FC<PostProps> = ({ route }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {post && <PostType post={post as PublicPost} />}
+        {post && <PostType post={post as PublicPost} occurrence={occurrence} />}
       </KeyboardAwareScrollView>
     </ThemedSafeAreaView>
   );

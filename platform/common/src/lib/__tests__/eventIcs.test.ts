@@ -124,4 +124,18 @@ describe('buildEventIcs', () => {
 
     expect(ics).not.toMatch(/^LOCATION:/m);
   });
+
+  it('emits RRULE for a weekly series', () => {
+    const ics = unfoldIcs(
+      buildEventIcs({
+        ...baseEventPost,
+        data: {
+          ...timedEventFields,
+          recurrence: { freq: 'WEEKLY', interval: 1, count: 4 },
+        },
+      } as PublicPost)!,
+    );
+    expect(ics).toContain('RRULE:FREQ=WEEKLY');
+    expect(ics).toContain('COUNT=4');
+  });
 });

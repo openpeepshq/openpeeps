@@ -16,10 +16,17 @@ export const jamHooks = (client: OpenpeepsClient) => ({
       refetchInterval: 10_000,
     }),
   closeJamAction: noPayloadMutation(client.jams.close, [['jams']]),
-  useJamToken: (id: string) =>
-    apiHook(client.jams.token, { pathParams: { id } }),
-  useJamState: (id: string) =>
-    apiHook(client.jams.state, { pathParams: { id }, refetchInterval: 5000 }),
+  useJamToken: (id: string, occurrence?: string) =>
+    apiHook(client.jams.token, {
+      pathParams: { id },
+      queryParams: occurrence ? { occurrence } : undefined,
+    }),
+  useJamState: (id: string, occurrence?: string) =>
+    apiHook(client.jams.state, {
+      pathParams: { id },
+      queryParams: occurrence ? { occurrence } : undefined,
+      refetchInterval: 5000,
+    }),
   muteJamParticipantAction: payloadMutation(client.jams.muteParticipant),
   useJamEvents: (id: string) =>
     apiHook(client.jams.events.list, { pathParams: { id } }),
@@ -31,14 +38,16 @@ export const jamHooks = (client: OpenpeepsClient) => ({
   createJamEventAction: payloadMutation(client.jams.events.create, [['jams']]),
   useJamAttendance: (id: string) =>
     apiHook(client.jams.events.attendance, { pathParams: { id } }),
-  useWaitingRoomStream: (id: string) =>
+  useWaitingRoomStream: (id: string, occurrence?: string) =>
     noPayloadStream(client.jams.waitingRoom.listen).last({
       pathParameters: { id },
+      queryParameters: occurrence ? { occurrence } : undefined,
     }),
   admitParticipantAction: noPayloadMutation(client.jams.waitingRoom.admit),
-  useJoinWaitingRoomStream: (id: string) =>
+  useJoinWaitingRoomStream: (id: string, occurrence?: string) =>
     noPayloadStream(client.jams.waitingRoom.join).last({
       pathParameters: { id },
+      queryParameters: occurrence ? { occurrence } : undefined,
     }),
   startRecordingAction: noPayloadMutation(client.jams.recordings.start, [
     ['jams'],
@@ -46,8 +55,11 @@ export const jamHooks = (client: OpenpeepsClient) => ({
   stopRecordingAction: noPayloadMutation(client.jams.recordings.stop, [
     ['jams'],
   ]),
-  useObserverLink: (id: string) =>
-    apiHook(client.jams.recordings.observerLink, { pathParams: { id } }),
+  useObserverLink: (id: string, occurrence?: string) =>
+    apiHook(client.jams.recordings.observerLink, {
+      pathParams: { id },
+      queryParams: occurrence ? { occurrence } : undefined,
+    }),
   useRtmpStream: (id: string) =>
     apiHook(client.jams.streams.get, { pathParams: { id } }),
   startRtmpStreamAction: payloadMutation(client.jams.streams.start, [['jams']]),

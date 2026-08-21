@@ -2,12 +2,18 @@ import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { successResponseSchema } from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
-import { forbidden, notFound, rethrowIfOpenpeepsError, unprocessableRequest } from '#lib/errors';
+import {
+  forbidden,
+  notFound,
+  rethrowIfOpenpeepsError,
+  unprocessableRequest,
+} from '#lib/errors';
 import { findPost, rsvpManageByOrganizer } from '@openpeepshq/core/posts';
 import { findProfile } from '@openpeepshq/core/profiles';
 
 export const Input = z.object({
   response: z.enum(['removed', 'yes']),
+  recurrenceId: z.string().optional(),
 });
 export const Output = successResponseSchema;
 export const Param = z.object({
@@ -40,6 +46,7 @@ export const apiEndpoint = endpoint({ Input, Param, Output, Error }).handle(
       targetProfile,
       mergedPost,
       params.response,
+      params.recurrenceId,
     ).catch(rethrowIfOpenpeepsError);
 
     return { success: true };

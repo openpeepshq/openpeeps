@@ -195,6 +195,9 @@ const basePostSchema = replyPostSchema.extend({
   accountInteractions: accountInteractionsSchema.optional(),
   rsvps: rsvpWithMetaSchema.array(),
   seen: z.boolean().optional(),
+  occurrenceRecurrenceId: z.string().datetime().optional(),
+  occurrenceStart: z.string().datetime().optional(),
+  occurrenceEnd: z.string().datetime().optional(),
 });
 export type BasePost = z.infer<typeof basePostSchema>;
 
@@ -214,6 +217,9 @@ export type PostWithMeta = BasePost & {
   inReplyToId?: string | null;
   replyTo?: ReplyPost | null;
   repost?: BasePost | null;
+  occurrenceRecurrenceId?: string;
+  occurrenceStart?: string;
+  occurrenceEnd?: string;
 };
 
 export interface ExpandedNotification {

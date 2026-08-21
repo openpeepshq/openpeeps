@@ -29,7 +29,12 @@ import {
   notificationQueue,
   notificationWorker,
 } from '@openpeepshq/core/notifications';
-import { registerRsvpConfirmationEmail } from '@openpeepshq/core/posts';
+import {
+  eventOccurrenceQueue,
+  eventOccurrenceWorker,
+  ensureEventOccurrenceSchedule,
+  registerRsvpConfirmationEmail,
+} from '@openpeepshq/core/posts';
 import { refreshConfig, defaultConfig } from '@openpeepshq/core/config';
 import { initSentry } from '@openpeepshq/core/sentry';
 
@@ -50,6 +55,8 @@ const startWorkers = () => {
   jamRecordingStopWorker();
   console.log('Starting analytics compile worker ...');
   analyticsCompileWorker();
+  console.log('Starting event occurrence worker ...');
+  eventOccurrenceWorker();
 };
 
 const setupQueues = async () => {
@@ -61,10 +68,12 @@ const setupQueues = async () => {
   mediaStreamingCleanupQueue();
   jamRecordingStopQueue();
   analyticsCompileQueue();
+  eventOccurrenceQueue();
   // Register the daily cron schedule. Idempotent under upsertJobScheduler so
   // it's safe to call on every worker boot.
   await ensureStreamingCleanupSchedule();
   await ensureAnalyticsSchedules();
+  await ensureEventOccurrenceSchedule();
 };
 
 const logJobStats = async () => {

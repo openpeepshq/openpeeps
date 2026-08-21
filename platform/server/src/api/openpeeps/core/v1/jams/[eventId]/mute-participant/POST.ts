@@ -1,3 +1,4 @@
+import { parseOccurrenceQuery } from '@openpeepshq/common/lib';
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden } from '#lib/errors';
 import {
@@ -14,17 +15,26 @@ export const Param = z.object({
   eventId: z.string(),
 });
 
+export const Query = z.object({
+  occurrence: z.string().optional(),
+});
+
 export const Error = {
   403: forbidden(),
 };
 
-export const apiEndpoint = endpoint({ Input, Output, Error, Param }).handle(
-  async (input, event: RequestEvent) => {
-    await ensureLocalProfile(event);
+export const apiEndpoint = endpoint({
+  Input,
+  Output,
+  Error,
+  Param,
+  Query,
+}).handle(async (input, event: RequestEvent) => {
+  await ensureLocalProfile(event);
 
-    return await muteParticipant(
-      input.eventId,
-      muteParticipantRequestSchema.parse({ ...input, jamId: input.eventId }),
-    );
-  },
-);
+  return await muteParticipant(
+    input.eventId,
+    muteParticipantRequestSchema.parse({ ...input, jamId: input.eventId }),
+    parseOccurrenceQuery(input.occurrence),
+  );
+});

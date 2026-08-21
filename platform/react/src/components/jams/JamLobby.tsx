@@ -60,9 +60,9 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
   const t = useT();
   const navigate = useNavigate();
   const me = useCurrentProfile();
-  const { jamPost, jamEvent } = useJamContext();
+  const { jamPost, jamEvent, occurrence } = useJamContext();
   const { client, openpeepsApi } = useOpenpeeps();
-  const jamStateQuery = openpeepsApi.useJamState(jamPost.id);
+  const jamStateQuery = openpeepsApi.useJamState(jamPost.id, occurrence);
   const jamActive = !!jamStateQuery.data?.active;
 
   const [settings, updateSettings] = useJamLocalSettings();
@@ -148,6 +148,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
     try {
       const res = await client.jams.token({
         pathParameters: { id: jamPost.id },
+        queryParameters: occurrence ? { occurrence } : undefined,
       });
       if ('error' in res) {
         setError(

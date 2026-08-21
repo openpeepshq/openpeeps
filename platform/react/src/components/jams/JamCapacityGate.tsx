@@ -8,12 +8,14 @@ export interface JamCapacityGateProps {
   jamPost: PublicPost;
   reason: 'full' | 'rsvp-required' | 'removed';
   eventName?: string;
+  occurrence?: string;
 }
 
 export const JamCapacityGate = ({
   jamPost,
   reason,
   eventName,
+  occurrence,
 }: JamCapacityGateProps) => {
   const t = useT();
   const me = useCurrentProfile();
@@ -43,7 +45,7 @@ export const JamCapacityGate = ({
           <p className="text-sm">{message}</p>
           {showRsvp ? (
             <div className="w-full px-2">
-              <EventRsvpButton post={jamPost} />
+              <EventRsvpButton post={jamPost} recurrenceId={occurrence} />
             </div>
           ) : null}
           <a

@@ -3,6 +3,7 @@ import { forbidden, authNeeded } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { findJamEvent, getJamObserverPath } from '@openpeepshq/core/jams';
+import { parseOccurrenceQuery } from '@openpeepshq/common/lib';
 import { jamObserverResponseSchema } from '@openpeepshq/common/types';
 import { notFound } from '#lib/helpers';
 
@@ -10,12 +11,15 @@ export const Output = jamObserverResponseSchema.optional();
 export const Param = z.object({
   eventId: z.string(),
 });
+export const Query = z.object({
+  occurrence: z.string().optional(),
+});
 export const Error = {
   401: authNeeded(),
   403: forbidden(),
 };
 
-export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
+export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
   async (input, event: RequestEvent) => {
     const jamEvent = await findJamEvent(input.eventId);
     if (!jamEvent) {
@@ -26,10 +30,11 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
 
     ensurePostCapabilities(event, jamEvent, ['core-posts-jam-moderate']);
 
-    const path = await getJamObserverPath(input.eventId);
+    const path = await getJamObserverPath(
+      input.eventId,
+      parseOccurrenceQuery(input.occurrence),
+    );
 
     return { path };
-
-
-  }
+  },
 );

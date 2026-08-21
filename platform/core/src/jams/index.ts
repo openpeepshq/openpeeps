@@ -4,6 +4,7 @@ import {
   type PostWithMeta,
   type Profile,
 } from '@openpeepshq/common/types';
+import { jamRoomName, postIdFromJamRoomName } from '@openpeepshq/common/lib';
 import {
   listParticipantIds,
   reclaimOrphanJamRoom,
@@ -87,9 +88,10 @@ const fetchLiveJamPosts = async (): Promise<PostWithMeta[]> => {
         return undefined;
       }
 
+      const postId = postIdFromJamRoomName(room.name);
       // Fast path: Room.numParticipants includes hidden egress — 0 means truly empty.
       if (!room.numParticipants) {
-        const post = await findPost(room.name);
+        const post = await findPost(postId);
         if (post) {
           reclaimLocalOrphan(post);
         } else if (!roomDomain || roomDomain === localDomain) {
@@ -102,7 +104,7 @@ const fetchLiveJamPosts = async (): Promise<PostWithMeta[]> => {
       // egress-only ghosts from real live jams.
       const humans = await listParticipantIds(room.name);
       if (humans.length === 0) {
-        const post = await findPost(room.name);
+        const post = await findPost(postId);
         if (post) {
           reclaimLocalOrphan(post);
         } else if (!roomDomain || roomDomain === localDomain) {
@@ -111,7 +113,7 @@ const fetchLiveJamPosts = async (): Promise<PostWithMeta[]> => {
         return undefined;
       }
 
-      return findPost(room.name);
+      return findPost(postId);
     }),
   );
 
@@ -135,39 +137,47 @@ export const findJamEvent = async (
     post?.data?.type === 'event' && post.data?.jam ? post : undefined,
   );
 
-export const closeJam = async (profile: Profile, jamEvent: PostWithMeta) => {
+export const closeJam = async (
+  profile: Profile,
+  jamEvent: PostWithMeta,
+  recurrenceId?: string,
+) => {
   const rs = await roomService();
   if (rs === undefined) {
     return undefined;
   }
 
-  await stopRecording(jamEvent);
+  await stopRecording(jamEvent, recurrenceId);
   await stopRtmpStream(jamEvent);
 
-  return rs.deleteRoom(jamEvent.id).then(async () => {
-    await Promise.all([
-      invalidateJamCaches(jamEvent.id),
-      clearJamAdmittance(jamEvent).catch(() => undefined),
-    ]);
-    return createJamEvent({
-      id: uuidv7(),
-      jamId: jamEvent.id,
-      type: 'close',
-      profileId: profile.id,
+  return rs
+    .deleteRoom(jamRoomName(jamEvent.id, recurrenceId))
+    .then(async () => {
+      await Promise.all([
+        invalidateJamCaches(jamRoomName(jamEvent.id, recurrenceId)),
+        clearJamAdmittance(jamEvent, recurrenceId).catch(() => undefined),
+      ]);
+      return createJamEvent({
+        id: uuidv7(),
+        jamId: jamEvent.id,
+        type: 'close',
+        profileId: profile.id,
+        recurrenceId,
+      });
     });
-  });
 };
 
 export const muteParticipant = async (
   jamId: string,
   data: MuteParticipantRequest,
+  recurrenceId?: string,
 ) => {
   const rs = await roomService();
   if (rs === undefined) {
     return { success: false };
   }
   const result = await rs.mutePublishedTrack(
-    jamId,
+    jamRoomName(jamId, recurrenceId),
     data.identity,
     data.trackSid,
     true,

@@ -22,16 +22,13 @@ import {
 } from './mapping';
 import {
   audienceConnectionFinder,
-  currentEventsFilter,
-  jamFilter,
   localFeedFilter,
   mentionsConnectionFinder,
-  myEventsFilter,
   myFeedFilter,
+  myFeedGroupMembershipFilter,
   pastEventsFilter,
   toFilteredPostsList,
   transformPost,
-  upcomingEventsFilter,
 } from './helpers';
 import type { Mapping, ObjectSort, PgFilter } from '../db/pg/map';
 import { addQuerySort, addStart, sortOldestFirst } from '../db/helpers';
@@ -45,6 +42,7 @@ import { withSpan } from '../performance';
 import { queryUnseenPostCounts } from './unseenCounts';
 import { getConversationThread } from './conversationQueries';
 import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';
+import { listEventAgenda } from './eventAgenda';
 
 /**
  * Throws if the given `authData` does not include a profile.
@@ -370,9 +368,7 @@ export const listLocalFeed = async (
 ) =>
   withSpan('feed.local', () =>
     toFilteredPostsList(
-      baseFeed({ start, profile: authData.profile }).filter(
-        localFeedFilter(),
-      ),
+      baseFeed({ start, profile: authData.profile }).filter(localFeedFilter()),
       { authData, limit },
     ),
   );
@@ -385,7 +381,7 @@ export const listMyFeed = async (
   return withSpan('feed.my', () =>
     toFilteredPostsList(
       baseFeed({ start, profile }).filter(myFeedFilter(profile)),
-      { authData, limit },
+      { authData, limit, filters: [myFeedGroupMembershipFilter(profile)] },
     ),
   );
 };
@@ -395,52 +391,36 @@ export const listUpcomingEventsFeed = async (
   {
     offset,
     limit = 100,
-    filter,
-  }: { offset?: number; limit?: number; filter?: PgFilter<DbBasePost> } = {
+    jamOnly,
+    mine,
+  }: { offset?: number; limit?: number; jamOnly?: boolean; mine?: boolean } = {
     limit: 100,
   },
-) =>
-  toFilteredPostsList(
-    baseEventsFeed(authData.profile)
-      .filter(upcomingEventsFilter())
-      .filter(filter),
-    { authData, limit, offset },
-  );
+) => listEventAgenda(authData, 'upcoming', { offset, limit, jamOnly, mine });
 
 export const listCurrentEventsFeed = async (
   authData: AuthorizationData,
   {
     offset,
     limit = 100,
-    filter,
-  }: { offset?: number; limit?: number; filter?: PgFilter<DbBasePost> } = {
+    jamOnly,
+    mine,
+  }: { offset?: number; limit?: number; jamOnly?: boolean; mine?: boolean } = {
     limit: 100,
   },
-) =>
-  toFilteredPostsList(
-    baseEventsFeed(authData.profile)
-      .filter(currentEventsFilter())
-      .filter(filter),
-    { authData, limit, offset },
-  );
+) => listEventAgenda(authData, 'current', { offset, limit, jamOnly, mine });
 
 export const listPastEventsFeed = async (
   authData: AuthorizationData,
   {
     offset,
     limit = 100,
-    filter,
-  }: { offset?: number; limit?: number; filter?: PgFilter<DbBasePost> } = {
+    jamOnly,
+    mine,
+  }: { offset?: number; limit?: number; jamOnly?: boolean; mine?: boolean } = {
     limit: 100,
   },
-) =>
-  toFilteredPostsList(
-    baseEventsFeed(authData.profile)
-      .sort(sorts.eventStartDesc)
-      .filter(pastEventsFilter())
-      .filter(filter),
-    { authData, limit, offset },
-  );
+) => listEventAgenda(authData, 'past', { offset, limit, jamOnly, mine });
 
 export const listMyUpcomingEventsFeed = async (
   authData: AuthorizationData,
@@ -448,7 +428,7 @@ export const listMyUpcomingEventsFeed = async (
 ) =>
   listUpcomingEventsFeed(authData, {
     offset,
-    filter: myEventsFilter(requireProfile(authData)),
+    mine: true,
     limit,
   });
 
@@ -458,7 +438,7 @@ export const listMyCurrentEventsFeed = async (
 ) =>
   listCurrentEventsFeed(authData, {
     offset,
-    filter: myEventsFilter(requireProfile(authData)),
+    mine: true,
     limit,
   });
 
@@ -468,19 +448,19 @@ export const listMyPastEventsFeed = async (
 ) =>
   listPastEventsFeed(authData, {
     offset,
-    filter: myEventsFilter(requireProfile(authData)),
+    mine: true,
     limit,
   });
 
 export const listUpcomingJamsFeed = async (
   authData: AuthorizationData,
   { offset, limit = 100 }: { offset?: number; limit?: number } = { limit: 100 },
-) => listUpcomingEventsFeed(authData, { offset, filter: jamFilter, limit });
+) => listUpcomingEventsFeed(authData, { offset, jamOnly: true, limit });
 
 export const listPastJamsFeed = async (
   authData: AuthorizationData,
   { offset, limit = 100 }: { offset?: number; limit?: number } = { limit: 100 },
-) => listPastEventsFeed(authData, { offset, filter: jamFilter, limit });
+) => listPastEventsFeed(authData, { offset, jamOnly: true, limit });
 
 export const listMyPastJamsFeed = async (
   authData: AuthorizationData,
@@ -488,10 +468,8 @@ export const listMyPastJamsFeed = async (
 ) =>
   listPastEventsFeed(authData, {
     offset,
-    filter: {
-      operator: '&&',
-      predicates: [myEventsFilter(requireProfile(authData)), jamFilter],
-    },
+    jamOnly: true,
+    mine: true,
     limit,
   });
 
@@ -501,57 +479,34 @@ export const listMyUpcomingJamsFeed = async (
 ) =>
   listUpcomingEventsFeed(authData, {
     offset,
-    filter: {
-      operator: '&&',
-      predicates: [myEventsFilter(requireProfile(authData)), jamFilter],
-    },
+    jamOnly: true,
+    mine: true,
     limit,
   });
-
-const baseGroupEventsFeed = async (
-  authData: AuthorizationData,
-  groupId: string,
-  { filter, sort }: { filter?: PgFilter<DbBasePost>; sort?: ObjectSort } = {},
-) => {
-  const group = await findGroup(groupId);
-  if (!group) {
-    throw new Error(`Group ${groupId} not found`);
-  }
-  const profile = authData.profile;
-  return groupsMapping.relationsFrom(group, {
-    alias: 'posts',
-    edgeCollection: collectionInfos.postGroupsCollection.name,
-    direction: 'INBOUND',
-    skipEdge: true,
-    cardinality: 'many',
-    mapping: baseEventsFeed(profile).filter(filter).sort(sort).data(),
-  });
-};
 
 export const listUpcomingGroupEventsFeed = async (
   authData: AuthorizationData,
   groupId: string,
   { offset, limit = 100 }: { offset?: number; limit?: number } = { limit: 100 },
-) =>
-  toFilteredPostsList(
-    await baseGroupEventsFeed(authData, groupId, {
-      filter: upcomingEventsFilter(),
-    }),
-    { authData, limit, offset },
-  );
+) => {
+  const group = await findGroup(groupId);
+  if (!group) {
+    throw new Error(`Group ${groupId} not found`);
+  }
+  return listEventAgenda(authData, 'upcoming', { offset, limit, groupId });
+};
 
 export const listPastGroupEventsFeed = async (
   authData: AuthorizationData,
   groupId: string,
   { offset, limit = 100 }: { offset?: number; limit?: number } = { limit: 100 },
-) =>
-  toFilteredPostsList(
-    await baseGroupEventsFeed(authData, groupId, {
-      filter: pastEventsFilter(),
-      sort: sorts.eventStartDesc,
-    }),
-    { authData, limit, offset },
-  );
+) => {
+  const group = await findGroup(groupId);
+  if (!group) {
+    throw new Error(`Group ${groupId} not found`);
+  }
+  return listEventAgenda(authData, 'past', { offset, limit, groupId });
+};
 
 export const reposts = async (
   post: PostWithMeta,
