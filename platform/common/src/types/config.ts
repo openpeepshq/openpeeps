@@ -174,8 +174,13 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
       }),
     }),
     sso: z.object({
+      onlySSO: z.boolean().optional(),
       generic: z
         .object({
+          id: z.string().default('example-generic'),
+          name: z.string().default('Generic SSO'),
+          /** URL or path shown on the login page to start this provider's flow. */
+          loginLink: z.string().optional(),
           userProfileRequest: z.object({
             url: z.string(),
             authHeader: z.string().optional(),
@@ -190,6 +195,9 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
           createProfiles: z.boolean().optional(),
         })
         .default({
+          id: 'example-generic',
+          name: 'Generic SSO',
+          loginLink: '',
           userProfileRequest: {
             url: 'https://example.com/profile',
             authHeader: 'Bearer ${token}',
