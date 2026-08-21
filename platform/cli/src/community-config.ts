@@ -4,6 +4,7 @@ import { updateConfigValues } from '@openpeepshq/core/config';
 type CommunityConfigOptions = {
   object?: boolean;
   number?: boolean;
+  namespace?: string;
 };
 
 type ConfigPatch = {
@@ -18,6 +19,11 @@ export const registerCommunityConfigCommand = (program: Command) => {
     .argument('<value>', 'Config value')
     .option('-o, --object', 'Parse value as a JSON object')
     .option('-n, --number', 'Parse value as a number')
+    .option(
+      '--namespace <namespace>',
+      'Config namespace to write to (openpeeps-community by default). Core config, e.g. for sso.oidc, lives in the "core" namespace.',
+      'community',
+    )
     .action(
       async (key: string, value: string, options: CommunityConfigOptions) => {
         if (options.object && options.number) {
@@ -30,9 +36,13 @@ export const registerCommunityConfigCommand = (program: Command) => {
           const parsedValue = parseConfigValue(value, options);
           const configValues = buildConfigPatch(key, parsedValue);
 
-          await updateConfigValues(configValues, 'openpeeps', 'community');
+          await updateConfigValues(
+            configValues,
+            'openpeeps',
+            options.namespace,
+          );
 
-          console.log(`Updated community config ${key}.`);
+          console.log(`Updated ${options.namespace} config ${key}.`);
           process.exit(0);
         } catch (error) {
           console.error(error instanceof Error ? error.message : String(error));
