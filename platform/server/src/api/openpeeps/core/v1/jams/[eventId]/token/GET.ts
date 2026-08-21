@@ -39,7 +39,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
       serviceScopeMatches({
         authorization: event.context.authorization,
         scopeLevel: undefined,
-        resource: { type: 'jam', id: param.eventId },
+        resource: { type: 'jams', id: param.eventId },
       })
     ) {
       return {
@@ -60,7 +60,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     }
 
     const currentProfile = await ensureProfileOrGuest(event, 'read', {
-      type: 'jam',
+      type: 'jams',
       id: jamEvent.id,
     });
 

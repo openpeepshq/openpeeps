@@ -41,6 +41,23 @@ describe('scopeMatches', () => {
       }),
     ).toBe(true);
   });
+
+  it('matches jams resource scopes', () => {
+    expect(
+      scopeMatches({
+        scopes: [
+          {
+            scopeLevel: 'read',
+            resource: { type: 'jams', id: 'event-1' },
+          },
+        ],
+        requiredScope: {
+          scopeLevel: 'read',
+          resource: { type: 'jams', id: 'event-1' },
+        },
+      }),
+    ).toBe(true);
+  });
 });
 
 describe('withPublicPostReadScopes', () => {

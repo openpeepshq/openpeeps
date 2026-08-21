@@ -24,7 +24,7 @@ export const apiEndpoint = endpoint({ Input, Param, Output, Error }).handle(
     }
 
     const profile = await ensureProfileOrGuest(event, 'read', {
-      type: 'jam',
+      type: 'jams',
       id: jamEvent?.id ?? '',
     });
 
