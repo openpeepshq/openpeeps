@@ -1,11 +1,9 @@
 import {
   AuthorizationData,
-  ProfileResourceType,
   PublicPost,
   Resource,
   Scope,
   ScopeLevel,
-  ServiceResourceType,
 } from '../types';
 
 const includesScopeLevel = (

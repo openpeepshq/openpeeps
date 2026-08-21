@@ -10,6 +10,69 @@ const livekitConfigured = () => {
   return true;
 };
 
+test.describe('Public jam guests', () => {
+  test('guest pass is not rejected as unauthenticated on jam token', async ({
+    request,
+  }) => {
+    const { token } = await loginUser(
+      request,
+      'jams-owner@openpeeps.test',
+      'testtesttest',
+    );
+    const me = await request.get('/api/openpeeps/core/v1/profiles/current', {
+      headers: apiHeaders(token),
+    });
+    expect(me.ok()).toBeTruthy();
+    const profile = await me.json();
+
+    const create = await request.post('/api/openpeeps/core/v1/posts', {
+      headers: apiHeaders(token),
+      data: {
+        type: 'event',
+        visibility: 'public',
+        data: {
+          type: 'event',
+          name: `Public jam ${Date.now()}`,
+          content: 'Public jam',
+          start: new Date(Date.now() + 60_000).toISOString(),
+          end: new Date(Date.now() + 3_600_000).toISOString(),
+          wholeDay: false,
+          jam: {
+            type: 'video-call',
+            videoEnabled: true,
+            moderators: [profile.id],
+            waitingRoom: false,
+          },
+        },
+      },
+    });
+    expect(create.ok(), await create.text()).toBeTruthy();
+    const event = await create.json();
+
+    const guestPass = await request.post(
+      '/api/openpeeps/core/v1/auth/guest-pass',
+      {
+        data: {
+          displayName: 'Jam Guest',
+          email: `guest-${Date.now()}@openpeeps.test`,
+          resource: { type: 'jams', id: event.id },
+        },
+      },
+    );
+    expect(guestPass.ok(), await guestPass.text()).toBeTruthy();
+    const guest = await guestPass.json();
+
+    const tokenResponse = await request.get(
+      `/api/openpeeps/core/v1/jams/${event.id}/token`,
+      { headers: apiHeaders(guest.token) },
+    );
+    expect(
+      tokenResponse.status(),
+      await tokenResponse.text(),
+    ).not.toBe(401);
+  });
+});
+
 test.describe('LiveKit jams', () => {
   test.beforeEach(() => {
     test.skip(

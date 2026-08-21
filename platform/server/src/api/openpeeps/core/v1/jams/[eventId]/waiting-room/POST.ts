@@ -25,7 +25,7 @@ export const Error = {
 export const apiEndpoint = endpoint({ Param, Stream, Error }).handle(
   async (input, event: RequestEvent) => {
     const profile = await ensureProfileOrGuest(event, 'read', {
-      type: 'jam',
+      type: 'jams',
       id: input.eventId,
     });
 

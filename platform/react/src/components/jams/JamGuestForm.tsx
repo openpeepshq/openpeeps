@@ -33,7 +33,6 @@ export function JamGuestForm() {
         ...guestData,
         resource: { type: 'jams', id: jamPost.id },
       });
-      window.location.reload();
     } catch (err) {
       setError((err as Error).message);
     } finally {

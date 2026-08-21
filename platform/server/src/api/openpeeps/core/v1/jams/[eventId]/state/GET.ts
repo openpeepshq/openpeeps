@@ -30,14 +30,14 @@ export const apiEndpoint = endpoint({ Output, Param, Error }).handle(
     const isServiceAuthorized = scopeMatches({
       authorization: event.context.authorization,
       scope: undefined,
-      resource: { type: 'jam', id: input.eventId },
+      resource: { type: 'jams', id: input.eventId },
     });
 
     const profile =
       isPublic(jamEvent) || isServiceAuthorized
         ? event.context.currentProfile
         : await ensureProfileOrGuest(event, 'read', {
-            type: 'jam',
+            type: 'jams',
             id: input.eventId,
           });
 

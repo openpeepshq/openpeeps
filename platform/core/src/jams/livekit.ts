@@ -58,7 +58,7 @@ const getJamEgressToken = async (jamId: string) =>
   createSignedServiceToken({
     scopes: [
       {
-        resource: { type: 'jam', id: jamId },
+        resource: { type: 'jams', id: jamId },
       },
     ],
     name: 'jam-egress',

@@ -26,7 +26,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     const isServiceAuthorized = scopeMatches({
       authorization: event.context.authorization,
       scope: undefined,
-      resource: { type: 'jam', id: param.postId },
+      resource: { type: 'jams', id: param.postId },
     });
 
     if (!isServiceAuthorized) {
