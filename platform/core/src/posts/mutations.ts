@@ -44,8 +44,13 @@ import {
   getEffectiveRsvp,
   normalizeEventDataForSave,
   passThroughUndefined,
+  sameRecurrenceId,
 } from '@openpeepshq/common/lib';
 import { forbidden, unprocessableRequest } from '../errors';
+import {
+  rebuildEventOccurrences,
+  clearEventOccurrences,
+} from './eventOccurrences';
 
 export const createPost = async (
   data: PostDataUnion,
@@ -137,6 +142,10 @@ export const createPost = async (
   const newPost = await postsMapping.find(db, post.id);
   const transformedPost = await transformPost(newPost!);
 
+  if (data.type === 'event') {
+    await rebuildEventOccurrences(transformedPost.id, data);
+  }
+
   hub.emit('postCreated', transformedPost);
 
   return transformedPost;
@@ -182,6 +191,10 @@ export const updatePost = async (
   const newPost = await postsMapping
     .find(db, post.id)
     .then(passThroughUndefined(transformPost));
+
+  if (normalized.type === 'event') {
+    await rebuildEventOccurrences(post.id, normalized);
+  }
 
   hub.emit('postUpdated', newPost);
 
@@ -276,6 +289,10 @@ export const deletePost = async (post: PostWithMeta, profile: Profile) => {
 
   await postsMapping.delete(db, post.id);
 
+  if (post.type === 'event') {
+    await clearEventOccurrences(post.id);
+  }
+
   return postsMapping.find(db, post.id);
 };
 
@@ -320,10 +337,10 @@ export const rsvpRespond = async (
       });
     }
     if (data.response === 'yes') {
-      const currentRsvp = getEffectiveRsvp(post, profile.id);
+      const currentRsvp = getEffectiveRsvp(post, profile.id, data.recurrenceId);
       if (
         currentRsvp?.response !== 'yes' &&
-        countYesRsvps(post) >= maxAttendees
+        countYesRsvps(post, data.recurrenceId) >= maxAttendees
       ) {
         throw unprocessableRequest({ errorKey: 'error.eventAtCapacity' });
       }
@@ -334,6 +351,12 @@ export const rsvpRespond = async (
 
   const previousResponse = [...(post.rsvps ?? [])]
     .filter((rsvp) => rsvp.profile.id === profile.id)
+    .filter((rsvp) =>
+      data.recurrenceId
+        ? sameRecurrenceId(rsvp.recurrenceId, data.recurrenceId) ||
+          !rsvp.recurrenceId
+        : !rsvp.recurrenceId,
+    )
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))[0]?.response;
 
   await entryConnector(db, profile, post, {
@@ -353,6 +376,7 @@ export const rsvpManageByOrganizer = async (
   targetProfile: Profile,
   post: PostWithMeta,
   response: Extract<RsvpResponse, 'removed' | 'yes'>,
+  recurrenceId?: string,
 ) => {
   if (!canManageEventRsvps(actingProfile, post)) {
     throw forbidden({ errorKey: 'forbidden' });
@@ -366,11 +390,17 @@ export const rsvpManageByOrganizer = async (
     throw unprocessableRequest({ errorKey: 'error.unprocessableRequest' });
   }
 
-  const data: RSVP = { response };
+  const data: RSVP = { response, recurrenceId };
   const { db } = await allpeepDb();
 
   const previousResponse = [...(post.rsvps ?? [])]
     .filter((rsvp) => rsvp.profile.id === targetProfile.id)
+    .filter((rsvp) =>
+      recurrenceId
+        ? sameRecurrenceId(rsvp.recurrenceId, recurrenceId) ||
+          !rsvp.recurrenceId
+        : !rsvp.recurrenceId,
+    )
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))[0]?.response;
 
   await entryConnector(db, targetProfile, post, {

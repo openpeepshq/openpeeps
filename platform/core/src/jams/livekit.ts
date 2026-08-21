@@ -5,6 +5,7 @@ import {
   PostWithMeta,
   ProfileWithMeta,
 } from '@openpeepshq/common/types';
+import { jamRoomName } from '@openpeepshq/common/lib';
 import { config } from '../config';
 import {
   DataPacket_Kind,
@@ -90,13 +91,21 @@ const assertEgressCanReachRecordingHost = async (recordingUrl: string) => {
  * Relative path for the observer view (full jam UI). Used for human
  * moderator observer links, jam recording web egress, and RTMP web egress.
  */
-export const getJamObserverPath = async (jamId: string) => {
+export const getJamObserverPath = async (
+  jamId: string,
+  recurrenceId?: string,
+) => {
   const jamEgressToken = await getJamEgressToken(jamId);
-  return `/events/${jamId}/jam?observer=true&token=${jamEgressToken}`;
+  const occurrence = recurrenceId
+    ? `&occurrence=${encodeURIComponent(recurrenceId)}`
+    : '';
+  return `/events/${jamId}/jam?observer=true&token=${jamEgressToken}${occurrence}`;
 };
 
-export const getJamRecordingUrl = async (jamId: string) =>
-  `${await serverRootUrl()}${await getJamObserverPath(jamId)}`;
+export const getJamRecordingUrl = async (
+  jamId: string,
+  recurrenceId?: string,
+) => `${await serverRootUrl()}${await getJamObserverPath(jamId, recurrenceId)}`;
 
 const getEgressClient = async () => {
   const { url, apiKey, apiSecret } = (await config()).jams.livekit;
@@ -106,8 +115,10 @@ const getEgressClient = async () => {
 export const startRecording = async (
   profile: ProfileWithMeta,
   jamPost: PostWithMeta,
+  recurrenceId?: string,
 ): Promise<JamRecording> => {
   const jamId = jamPost.id;
+  const roomName = jamRoomName(jamPost.id, recurrenceId);
   const recordingId = uuidv7();
 
   // Clear any recording left `active` by a previous failed egress so the new
@@ -129,7 +140,7 @@ export const startRecording = async (
 
   const egressClient = await getEgressClient();
   const outputFilename = `${persistedRecordingId}.mp4`;
-  const recordingUrl = await getJamRecordingUrl(jamId);
+  const recordingUrl = await getJamRecordingUrl(jamId, recurrenceId);
   await assertEgressCanReachRecordingHost(recordingUrl);
 
   const uploadSecret = await jamRecordingUploadSecret(persistedRecordingId);
@@ -165,11 +176,12 @@ export const startRecording = async (
     jamId,
     type: 'recordStart',
     profileId: profile.id,
+    recurrenceId,
   });
 
   await roomService().then(async (rs) =>
     rs?.sendData(
-      jamId,
+      roomName,
       encoder.encode(JSON.stringify(jamEvent)),
       DataPacket_Kind.LOSSY,
       {},
@@ -297,7 +309,10 @@ export const stopEgress = async (egressId: string) => {
   }
 };
 
-export const stopRecording = async (jamPost: PostWithMeta) => {
+export const stopRecording = async (
+  jamPost: PostWithMeta,
+  recurrenceId?: string,
+) => {
   const jamRecording = await findActiveRecording(jamPost);
   if (!jamRecording) {
     return undefined;
@@ -318,11 +333,12 @@ export const stopRecording = async (jamPost: PostWithMeta) => {
     jamId: jamPost.id,
     type: 'recordStop',
     profileId: jamRecording.profile.id,
+    recurrenceId,
   });
 
   await roomService().then(async (rs) =>
     rs?.sendData(
-      jamPost.id,
+      jamRoomName(jamPost.id, recurrenceId),
       encoder.encode(JSON.stringify(jamEvent)),
       DataPacket_Kind.LOSSY,
       {},
@@ -336,7 +352,10 @@ export const stopRecording = async (jamPost: PostWithMeta) => {
  * Stops leftover egress and deletes a LiveKit room that has no human
  * participants (egress-only / orphan rooms). Safe to call repeatedly.
  */
-export const reclaimOrphanJamRoom = async (jam: PostWithMeta) => {
+export const reclaimOrphanJamRoom = async (
+  jam: PostWithMeta,
+  roomName = jam.id,
+) => {
   try {
     await stopRecording(jam);
   } catch (e) {
@@ -353,10 +372,10 @@ export const reclaimOrphanJamRoom = async (jam: PostWithMeta) => {
   }
   try {
     const rs = await roomService();
-    await rs?.deleteRoom(jam.id);
+    await rs?.deleteRoom(roomName);
   } catch (e) {
     log.warn(
-      `Failed to delete orphan jam room ${jam.id}: ${(e as Error).message}`,
+      `Failed to delete orphan jam room ${roomName}: ${(e as Error).message}`,
     );
   }
 };
@@ -371,7 +390,7 @@ export const finishRecording = async (jamRecording: JamRecordingWithMeta) => {
 
   await roomService().then(async (rs) =>
     rs?.sendData(
-      jamRecording.post.id,
+      jamRoomName(jamRecording.post.id),
       encoder.encode(JSON.stringify(jamEvent)),
       DataPacket_Kind.LOSSY,
       {},
@@ -382,8 +401,10 @@ export const finishRecording = async (jamRecording: JamRecordingWithMeta) => {
 export const jamState = async (
   jam: PostWithMeta,
   hideParticipants?: boolean,
+  recurrenceId?: string,
 ): Promise<JamState> => {
   const rs = await roomService();
+  const roomName = jamRoomName(jam.id, recurrenceId);
   if (rs === undefined) {
     return {
       participants: [],
@@ -391,19 +412,19 @@ export const jamState = async (
     };
   }
   const room = await rs
-    .listRooms([jam.id])
-    .then((rooms) => rooms.find((r) => r.name === jam.id));
+    .listRooms([roomName])
+    .then((rooms) => rooms.find((r) => r.name === roomName));
   if (!room) {
     return {
       participants: [],
       active: false,
     };
   }
-  const participants = await listParticipantIds(jam.id);
+  const participants = await listParticipantIds(roomName);
   if (participants.length === 0) {
     // Room exists only for egress ghosts / empty leftovers — reclaim so it
     // stops appearing under Live jams.
-    void reclaimOrphanJamRoom(jam);
+    void reclaimOrphanJamRoom(jam, roomName);
     return {
       participants: [],
       active: false,

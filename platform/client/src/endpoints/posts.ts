@@ -246,7 +246,7 @@ const mutators = (rawClient: FetchClient) => ({
   ),
   rsvpManage: allpeepPayloadEndpoint<
     SuccessResponse,
-    { response: 'removed' | 'yes' },
+    { response: 'removed' | 'yes'; recurrenceId?: string },
     { id: string; profileId: string }
   >(rawClient, '/posts/:id/rsvp/:profileId', 'post'),
 });

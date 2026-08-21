@@ -6,6 +6,7 @@ import {
   useCredentialsStore,
   useSetPageHeader,
 } from '../../index';
+import { parseOccurrenceQuery } from '@openpeepshq/common/lib';
 import { JamRoom, useCurrentProfile } from '../../components';
 
 /**
@@ -24,6 +25,7 @@ export function JamEvent() {
   const { credentialsStore } = useCredentialsStore();
   const me = useCurrentProfile();
 
+  const occurrence = parseOccurrenceQuery(searchParams.get('occurrence'));
   const observer =
     searchParams.get('observer') === '1' ||
     searchParams.get('observer') === 'true';
@@ -82,7 +84,11 @@ export function JamEvent() {
           {t('jams.room.notFound', { defaultValue: 'Jam not found' })}
         </div>
       ) : (
-        <JamRoom jamPost={postQuery.data} observer={observer} />
+        <JamRoom
+          jamPost={postQuery.data}
+          observer={observer}
+          occurrence={occurrence}
+        />
       )}
     </main>
   );

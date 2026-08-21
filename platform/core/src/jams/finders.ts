@@ -44,8 +44,9 @@ export const listAttendance = (
 export const findJamState = async (
   jam: PostWithMeta,
   hideParticipants?: boolean,
+  recurrenceId?: string,
 ) => {
-  const state = await getJamState(jam);
+  const state = await getJamState(jam, recurrenceId);
   return {
     ...state,
     participants: hideParticipants ? [] : state.participants,

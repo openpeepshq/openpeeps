@@ -1,5 +1,6 @@
 import { Download, MoreHorizontal, Share, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type {
   Event,
   JamRecording,
@@ -13,8 +14,11 @@ import {
   canManageEventRsvps,
   canModerateJam,
   countYesRsvps,
+  effectiveEventTimes,
+  getJamUrl,
   groupName,
   isCapacityEvent,
+  parseOccurrenceQuery,
   profileName,
 } from '@openpeepshq/common/lib';
 import {
@@ -64,6 +68,8 @@ type EventTab =
 export function FullEvent({ post }: FullEventProps) {
   const t = useT();
   const profile = useCurrentProfile();
+  const [searchParams] = useSearchParams();
+  const occurrenceId = parseOccurrenceQuery(searchParams.get('occurrence'));
   const { openCreateConversation } = useCreateNewConversation();
   const postViewRef = usePostViewRef(post.id);
   const { openpeepsApi } = useOpenpeeps();
@@ -83,11 +89,16 @@ export function FullEvent({ post }: FullEventProps) {
   const myEvent = post.profile?.id === profile?.id;
   const iAmModerator = canModerateJam(profile, post);
   const canManageRsvps = canManageEventRsvps(profile, post);
-  const rsvps = useMemo(() => calculateEffectiveRsvps(post), [post]);
+  const rsvps = useMemo(
+    () => calculateEffectiveRsvps(post, occurrenceId),
+    [post, occurrenceId],
+  );
   const slotsLeft =
     isCapacityEvent(event) && event.maxAttendees !== undefined
-      ? event.maxAttendees - countYesRsvps(post)
+      ? event.maxAttendees - countYesRsvps(post, occurrenceId)
       : null;
+  const times = effectiveEventTimes(event, occurrenceId);
+  const jamLink = getJamUrl(post.id, undefined, occurrenceId);
   const rsvpManage = openpeepsApi.rsvpManageAction();
 
   const descendentThreads = useMemo(
@@ -159,6 +170,7 @@ export function FullEvent({ post }: FullEventProps) {
           {myEvent ? (
             <EventMenu
               post={post}
+              occurrence={occurrenceId}
               menuButton={
                 <span className="border-input flex size-10 items-center justify-center rounded-md border">
                   <MoreHorizontal className="size-4" />
@@ -181,16 +193,16 @@ export function FullEvent({ post }: FullEventProps) {
         </span>
       </div>
 
-      {event.start ? (
+      {times.start ? (
         <div className="mt-4 flex gap-x-4">
           <div className="border-foreground/20 rounded-md border px-4 py-1">
             <p className="text-center text-sm">
-              {new Date(event.start).toLocaleString(undefined, {
+              {new Date(times.start).toLocaleString(undefined, {
                 month: 'short',
               })}
             </p>
             <p className="text-center text-lg font-semibold">
-              {new Date(event.start).getDate()}
+              {new Date(times.start).getDate()}
             </p>
           </div>
           <div>
@@ -198,7 +210,7 @@ export function FullEvent({ post }: FullEventProps) {
               {t('events.startDate', { defaultValue: 'Starts' })}
             </span>
             <p>
-              {new Date(event.start).toLocaleDateString(undefined, {
+              {new Date(times.start).toLocaleDateString(undefined, {
                 weekday: 'long',
                 month: 'long',
                 day: 'numeric',
@@ -206,7 +218,7 @@ export function FullEvent({ post }: FullEventProps) {
               })}
             </p>
             <p className="text-muted-foreground mt-2 text-sm">
-              {new Date(event.start).toLocaleTimeString(undefined, {
+              {new Date(times.start).toLocaleTimeString(undefined, {
                 hour: '2-digit',
                 minute: '2-digit',
               })}
@@ -215,16 +227,16 @@ export function FullEvent({ post }: FullEventProps) {
         </div>
       ) : null}
 
-      {event.end ? (
+      {times.end ? (
         <div className="mt-4 flex gap-x-4">
           <div className="border-foreground/20 rounded-md border px-4 py-1">
             <p className="text-center text-sm">
-              {new Date(event.end).toLocaleString(undefined, {
+              {new Date(times.end).toLocaleString(undefined, {
                 month: 'short',
               })}
             </p>
             <p className="text-center text-lg font-semibold">
-              {new Date(event.end).getDate()}
+              {new Date(times.end).getDate()}
             </p>
           </div>
           <div>
@@ -232,7 +244,7 @@ export function FullEvent({ post }: FullEventProps) {
               {t('events.endDate', { defaultValue: 'Ends' })}
             </span>
             <p>
-              {new Date(event.end).toLocaleDateString(undefined, {
+              {new Date(times.end).toLocaleDateString(undefined, {
                 weekday: 'long',
                 month: 'long',
                 day: 'numeric',
@@ -240,7 +252,7 @@ export function FullEvent({ post }: FullEventProps) {
               })}
             </p>
             <p className="text-muted-foreground mt-2 text-sm">
-              {new Date(event.end).toLocaleTimeString(undefined, {
+              {new Date(times.end).toLocaleTimeString(undefined, {
                 hour: '2-digit',
                 minute: '2-digit',
               })}
@@ -249,15 +261,18 @@ export function FullEvent({ post }: FullEventProps) {
         </div>
       ) : null}
 
-      <EventLocation post={post} preview={false} />
-      <EventRsvpButton post={post} />
+      <EventLocation post={post} preview={false} occurrence={occurrenceId} />
+      {event.recurrence && !occurrenceId ? (
+        <p className="text-muted-foreground text-sm">
+          {t('events.occurrence.seriesRsvpNote', {
+            defaultValue: 'Your RSVP applies to every date in this series.',
+          })}
+        </p>
+      ) : null}
+      <EventRsvpButton post={post} recurrenceId={occurrenceId} />
 
       {event.jam && (myEvent || iAmModerator) ? (
-        <Button
-          variant="default"
-          className="mt-2 w-full"
-          action={`/events/${post.id}/jam`}
-        >
+        <Button variant="default" className="mt-2 w-full" action={jamLink}>
           {t('events.jam.start', { defaultValue: 'Start jam' })}
         </Button>
       ) : null}
@@ -357,7 +372,10 @@ export function FullEvent({ post }: FullEventProps) {
                     variant="outline"
                     action={() =>
                       rsvpManage(
-                        { response: 'yes' },
+                        {
+                          response: 'yes',
+                          recurrenceId: occurrenceId,
+                        },
                         { id: post.id, profileId: rsvp.profile.id },
                       )
                     }
@@ -371,7 +389,10 @@ export function FullEvent({ post }: FullEventProps) {
                     variant="outline"
                     action={() =>
                       rsvpManage(
-                        { response: 'removed' },
+                        {
+                          response: 'removed',
+                          recurrenceId: occurrenceId,
+                        },
                         { id: post.id, profileId: rsvp.profile.id },
                       )
                     }

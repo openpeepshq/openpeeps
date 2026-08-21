@@ -34,7 +34,15 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { ThemedText } from '~/components/ui/themed-text';
 import { Image, View } from 'react-native';
-import { Event, PublicPost, Profile, PublicRsvp, Group, GroupData, buildThreads } from '@openpeepshq/common';
+import {
+  Event,
+  PublicPost,
+  Profile,
+  PublicRsvp,
+  Group,
+  GroupData,
+  buildThreads,
+} from '@openpeepshq/common';
 import { ProfileAvatar } from '~/components/custom/profile/profile-avatar';
 import { profileName, truncateText } from '~/lib/utils';
 import { useNavigation } from '@react-navigation/native';
@@ -56,13 +64,18 @@ import {
   countYesRsvps,
   isCapacityEvent,
 } from '~/lib/utils';
+import {
+  effectiveEventTimes,
+  upsertEventException,
+} from '@openpeepshq/common/lib';
 import { ThemedView } from '~/components/ui/themed-view';
 
 interface FullEventProps {
   post: PublicPost;
+  occurrence?: string;
 }
 
-export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
+export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
   const { t } = useTranslation();
   const { currentProfile, openpeepsApi } = useOpenpeeps();
   const navigation =
@@ -75,17 +88,20 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
   const event = useMemo(() => post?.data as Event, [post]);
 
   const rsvps = useMemo<PublicRsvp[]>(() => {
-    return calculateEffectiveRsvps(post) || [];
-  }, [post]);
+    return calculateEffectiveRsvps(post, occurrence) || [];
+  }, [post, occurrence]);
 
   const canManageRsvps = canManageEventRsvps(currentProfile, post);
   const slotsLeft =
     isCapacityEvent(event) && event.maxAttendees !== undefined
-      ? event.maxAttendees - countYesRsvps(post)
+      ? event.maxAttendees - countYesRsvps(post, occurrence)
       : null;
   const rsvpManage = openpeepsApi.rsvpManageAction();
+  const times = effectiveEventTimes(event, occurrence);
 
-  const jamLink = `${BASE_URL}/events/${post?.id}/jam`;
+  const jamLink = occurrence
+    ? `${BASE_URL}/events/${post?.id}/jam?occurrence=${encodeURIComponent(occurrence)}`
+    : `${BASE_URL}/events/${post?.id}/jam`;
 
   const onRepostToFeed = () => {
     setPostData({
@@ -113,18 +129,22 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
 
   let postContextQuery = openpeepsApi.usePostContext(post.id);
 
-  let descendentThreads = useMemo(() =>
-    (postContextQuery.data && buildThreads(postContextQuery.data.descendants)) || [],
-    [postContextQuery.data]);
+  let descendentThreads = useMemo(
+    () =>
+      (postContextQuery.data &&
+        buildThreads(postContextQuery.data.descendants)) ||
+      [],
+    [postContextQuery.data]
+  );
 
   const eventScope = useMemo(() => {
     if (post?.visibility === 'public') {
-			return t('events.public');
-		}
+      return t('events.public');
+    }
     if (post?.groupId) {
       return t('events.group');
     }
-		if (post?.visibility === 'direct') {
+    if (post?.visibility === 'direct') {
       return t('events.private');
     }
     return t('events.community');
@@ -148,9 +168,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
         <View className="flex-1">
           <View className="flex flex-row gap-x-4">
             <View className="px-3 py-1 bg-surface rounded-lg mb-3">
-              <ThemedText>
-                {eventScope}
-              </ThemedText>
+              <ThemedText>{eventScope}</ThemedText>
             </View>
             {slotsLeft !== null ? (
               <View className="px-3 py-1 bg-surface rounded-lg mb-3">
@@ -179,13 +197,15 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
               <DropdownMenuGroup>
                 <DropdownMenuItem
                   className="flex-row gap-x-2 items-center"
-                  onPress={onRepostToFeed}>
+                  onPress={onRepostToFeed}
+                >
                   <PencilIcon className="text-muted-foreground" size={18} />
                   <ThemedText>Repost to feed</ThemedText>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="flex-row gap-x-2 items-center"
-                  onPress={onSendToMessage}>
+                  onPress={onSendToMessage}
+                >
                   <SendIcon className="text-muted-foreground" size={18} />
                   <ThemedText>Send in a message</ThemedText>
                 </DropdownMenuItem>
@@ -197,7 +217,8 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
                       type: 'success',
                       text1: 'Link copied to clipboard',
                     });
-                  }}>
+                  }}
+                >
                   <Link2Icon className="text-muted-foreground" size={18} />
                   <ThemedText>Copy link</ThemedText>
                 </DropdownMenuItem>
@@ -210,10 +231,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
         {event?.name || 'Untitled Event'}
       </ThemedText>
       <View className="flex-row items-center gap-x-2 mt-2">
-        <ProfileAvatar
-          profile={post?.profile as Profile}
-          className="size-6"
-        />
+        <ProfileAvatar profile={post?.profile as Profile} className="size-6" />
         <ThemedText className="text-muted-foreground">
           Hosted by
           {currentProfile?.id === post?.profile?.id
@@ -221,35 +239,35 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
             : ` ${profileName(post?.profile)}`}
         </ThemedText>
       </View>
-      {event?.start && (
+      {times.start && (
         <View className="mt-8 flex-row gap-x-4">
           <View className="border-foreground/20 border-[0.5px] rounded-md px-3 py-1">
             <ThemedText className="text-center">
-              {new Date(event?.start || '').toLocaleString('en-US', {
+              {new Date(times.start).toLocaleString('en-US', {
                 month: 'short',
               })}
             </ThemedText>
             <ThemedText className="text-center ">
-              {new Date(event?.start || '').getDate()}
+              {new Date(times.start).getDate()}
             </ThemedText>
           </View>
           <View>
             <ThemedText className="text-xl">
-              {new Date(event?.start || '').toLocaleDateString('en-US', {
+              {new Date(times.start).toLocaleDateString('en-US', {
                 weekday: 'long',
                 month: 'long',
                 day: 'numeric',
               })}
             </ThemedText>
             <ThemedText className="text-muted-foreground mt-2">
-              {new Date(event?.start || '').toLocaleTimeString('en-US', {
+              {new Date(times.start).toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit',
-                timeZoneName: event?.end ? undefined : 'short',
+                timeZoneName: times.end ? undefined : 'short',
               })}
-              {`${event?.end ? ' - ' : ''}`}
-              {event?.end &&
-                new Date(event?.end || '').toLocaleTimeString('en-US', {
+              {`${times.end ? ' - ' : ''}`}
+              {times.end &&
+                new Date(times.end).toLocaleTimeString('en-US', {
                   hour: '2-digit',
                   minute: '2-digit',
                   timeZoneName: 'short',
@@ -301,44 +319,53 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
           ) : null}
         </View>
       </View>
-      <RegistrationButtion post={post as PublicPost} />
+      {event?.recurrence && !occurrence ? (
+        <ThemedText className="text-muted-foreground mt-4">
+          {t('events.occurrence.seriesRsvpNote')}
+        </ThemedText>
+      ) : null}
+      <RegistrationButtion
+        post={post as PublicPost}
+        recurrenceId={occurrence}
+      />
       <Tabs
         onValueChange={setTabValue}
         value={tabValue}
-        className="w-full mx-auto flex-col gap-1.5 mt-5">
+        className="w-full mx-auto flex-col gap-1.5 mt-5"
+      >
         <TabsList className="flex-row w-full bg-transparent border-muted rounded-none border-b p-0 px-3">
           <TabsTrigger
             value="description"
             onPress={() => {
               setTabValue('description');
             }}
-            className={`${tabValue === 'description'
-              ? 'border-b-2 border-foreground'
-              : ''
-              }`}>
+            className={`${
+              tabValue === 'description' ? 'border-b-2 border-foreground' : ''
+            }`}
+          >
             <ThemedText>Description</ThemedText>
           </TabsTrigger>
           <TabsTrigger
             value="discussions"
-            className={`${tabValue === 'discussions'
-              ? 'border-b-2 border-foreground'
-              : ''
-              }`}
+            className={`${
+              tabValue === 'discussions' ? 'border-b-2 border-foreground' : ''
+            }`}
             onPress={() => {
               setTabValue('discussions');
-            }}>
+            }}
+          >
             <ThemedText>Discussions</ThemedText>
           </TabsTrigger>
           {shouldShowAttendees && (
             <TabsTrigger
               value="attendees"
-              className={`${tabValue === 'attendees'
-                ? 'border-b-2 border-foreground'
-                : ''
-                }`}
+              className={`${
+                tabValue === 'attendees' ? 'border-b-2 border-foreground' : ''
+              }`}
               onPress={() => {
                 setTabValue('attendees');
-              }}>
+              }}
+            >
               <ThemedText>Attendees</ThemedText>
             </TabsTrigger>
           )}
@@ -352,9 +379,9 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
         </TabsContent>
         <TabsContent value="discussions" className="flex-1 p-0">
           <ReplyButton post={post} />
-          {descendentThreads.map(thread =>
+          {descendentThreads.map((thread) => (
             <ThreadedFeed key={thread.id} thread={thread} />
-          )}
+          ))}
         </TabsContent>
         {shouldShowAttendees && (
           <TabsContent value="attendees" className="px-0 py-4">
@@ -371,17 +398,20 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
                       <ThemedText className="text-muted-foreground">
                         {rsvp.response}
                       </ThemedText>
-                      {canManageRsvps &&
-                      rsvp.profile.id !== post.profile.id ? (
+                      {canManageRsvps && rsvp.profile.id !== post.profile.id ? (
                         rsvp.response === 'removed' ? (
                           <Button
                             variant="outline"
                             onPress={() =>
                               rsvpManage(
-                                { response: 'yes' },
-                                { id: post.id, profileId: rsvp.profile.id },
+                                {
+                                  response: 'yes',
+                                  recurrenceId: occurrence,
+                                },
+                                { id: post.id, profileId: rsvp.profile.id }
                               )
-                            }>
+                            }
+                          >
                             <ThemedText>
                               {t('events.rsvp.restoreAttendee')}
                             </ThemedText>
@@ -391,10 +421,14 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
                             variant="outline"
                             onPress={() =>
                               rsvpManage(
-                                { response: 'removed' },
-                                { id: post.id, profileId: rsvp.profile.id },
+                                {
+                                  response: 'removed',
+                                  recurrenceId: occurrence,
+                                },
+                                { id: post.id, profileId: rsvp.profile.id }
                               )
-                            }>
+                            }
+                          >
                             <ThemedText className="text-destructive">
                               {t('events.rsvp.removeAttendee')}
                             </ThemedText>
@@ -414,7 +448,8 @@ export const FullEvent: React.FC<FullEventProps> = ({ post }) => {
 
 const RegistrationButtion: React.FC<{
   post: PublicPost;
-}> = ({ post }) => {
+  recurrenceId?: string;
+}> = ({ post, recurrenceId }) => {
   const { t } = useTranslation();
 
   const { currentProfile, openpeepsApi } = useOpenpeeps();
@@ -424,18 +459,20 @@ const RegistrationButtion: React.FC<{
   const atCapacity =
     capacityEvent &&
     eventData?.maxAttendees !== undefined &&
-    countYesRsvps(post) >= eventData.maxAttendees;
+    countYesRsvps(post, recurrenceId) >= eventData.maxAttendees;
 
   const myRsvp =
     post &&
-    calculateEffectiveRsvps(post).find(
-      r => r.profile.id === currentProfile?.id,
+    calculateEffectiveRsvps(post, recurrenceId).find(
+      (r) => r.profile.id === currentProfile?.id
     );
 
   const myEvent = post?.profile?.id === currentProfile?.id;
   const full = atCapacity && myRsvp?.response !== 'yes';
 
-  const rsvpToEvent = openpeepsApi.rsvpToEventAction({ id: post?.id as string });
+  const rsvpToEvent = openpeepsApi.rsvpToEventAction({
+    id: post?.id as string,
+  });
 
   const showRsvpError = (error: unknown) => {
     const errorKey =
@@ -450,7 +487,10 @@ const RegistrationButtion: React.FC<{
   const handleRegisterForEvent = async () => {
     try {
       setIsRegistering(true);
-      const response = await rsvpToEvent({ response: 'yes' });
+      const response = await rsvpToEvent({
+        response: 'yes',
+        recurrenceId,
+      });
       if (response) {
         Toast.show({
           type: 'success',
@@ -470,8 +510,8 @@ const RegistrationButtion: React.FC<{
   };
   const handleMaybeForEvent = () => {
     setIsRegistering(true);
-    rsvpToEvent({ response: 'tentative' })
-      .then(res => {
+    rsvpToEvent({ response: 'tentative', recurrenceId })
+      .then((res) => {
         if (res) {
           Toast.show({
             type: 'success',
@@ -492,8 +532,8 @@ const RegistrationButtion: React.FC<{
 
   const handleNoForEvent = () => {
     setIsRegistering(true);
-    rsvpToEvent({ response: 'no' })
-      .then(res => {
+    rsvpToEvent({ response: 'no', recurrenceId })
+      .then((res) => {
         if (res) {
           Toast.show({
             type: 'success',
@@ -532,7 +572,8 @@ const RegistrationButtion: React.FC<{
         <Button
           onPress={handleNoForEvent}
           disabled={isRegistering}
-          variant={'outline'}>
+          variant={'outline'}
+        >
           <ThemedText className="text-destructive">
             {isRegistering
               ? t('common.form.loading')
@@ -542,9 +583,10 @@ const RegistrationButtion: React.FC<{
       ) : (
         <View className="flex-row items-center w-full gap-x-4">
           <Button
-            onPress={async () => handleRegisterForEvent().catch(() => { })}
+            onPress={async () => handleRegisterForEvent().catch(() => {})}
             className="w-[60%]"
-            disabled={full || isRegistering}>
+            disabled={full || isRegistering}
+          >
             <ThemedText>
               {isRegistering
                 ? t('common.form.loading')
@@ -557,7 +599,8 @@ const RegistrationButtion: React.FC<{
             <Button
               onPress={handleMaybeForEvent}
               variant={'ghost'}
-              className="bg-muted-foreground/20">
+              className="bg-muted-foreground/20"
+            >
               <ThemedText className="text-muted-foreground">
                 {isRegistering
                   ? t('common.form.loading')
@@ -578,7 +621,8 @@ const RegistrationButtion: React.FC<{
 
 export const FullEventActions: React.FC<{
   post: PublicPost;
-}> = ({ post }) => {
+  occurrence?: string;
+}> = ({ post, occurrence }) => {
   const { openpeepsApi, currentProfile } = useOpenpeeps();
   const cancelEventRef = useRef<BottomSheetModal>(null);
   const deleteEventRef = useRef<BottomSheetModal>(null);
@@ -587,12 +631,25 @@ export const FullEventActions: React.FC<{
   const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+  const updatePost = openpeepsApi.updatePostAction({ id: post?.id });
   const deletePost = openpeepsApi.deletePostAction({
     id: post?.id,
   });
+  const thisOccurrence = !!event?.recurrence && !!occurrence;
+
+  const handleDeleteThis = async () => {
+    if (!occurrence) return;
+    await updatePost(
+      upsertEventException(event, {
+        recurrenceId: occurrence,
+        cancelled: true,
+      })
+    );
+    navigation.goBack();
+  };
 
   const handleDelete = async () => {
-    deletePost().then(res => {
+    deletePost().then((res) => {
       if (res) {
         Toast.show({
           type: 'success',
@@ -626,27 +683,56 @@ export const FullEventActions: React.FC<{
           {currentProfile?.id === post?.profile?.id ? (
             <>
               <DropdownMenuGroup>
+                {thisOccurrence ? (
+                  <DropdownMenuItem
+                    className="flex-row gap-x-2 items-center"
+                    onPress={() => {
+                      navigation.navigate('EditEvent', {
+                        id: post?.id,
+                        occurrence,
+                      });
+                    }}
+                  >
+                    <PencilLineIcon className="text-foreground" size={18} />
+                    <ThemedText>{t('events.menu.editThis')}</ThemedText>
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem
                   className="flex-row gap-x-2 items-center"
                   onPress={() => {
                     navigation.navigate('EditEvent', {
                       id: post?.id,
                     });
-                  }}>
+                  }}
+                >
                   <PencilLineIcon className="text-foreground" size={18} />
-                  <ThemedText>Edit</ThemedText>
+                  <ThemedText>
+                    {thisOccurrence
+                      ? t('events.menu.editAll')
+                      : t('common.actions.edit')}
+                  </ThemedText>
                 </DropdownMenuItem>
-                {/* <DropdownMenuItem
-                  className="flex-row gap-x-2 items-center"
-                  onPress={handleCancelModalPress}>
-                  <CalendarXIcon className="text-foreground" size={18} />
-                  <ThemedText>Cancel</ThemedText>
-                </DropdownMenuItem> */}
+                {thisOccurrence ? (
+                  <DropdownMenuItem
+                    className="flex-row gap-x-2 items-center"
+                    onPress={() => void handleDeleteThis()}
+                  >
+                    <Trash2Icon className="text-destructive" size={18} />
+                    <ThemedText className="text-destructive">
+                      {t('events.menu.deleteThis')}
+                    </ThemedText>
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem
                   className="flex-row gap-x-2 items-center"
-                  onPress={handleDeleteModalPress}>
+                  onPress={handleDeleteModalPress}
+                >
                   <Trash2Icon className="text-destructive" size={18} />
-                  <ThemedText className="text-destructive">Delete</ThemedText>
+                  <ThemedText className="text-destructive">
+                    {thisOccurrence
+                      ? t('events.menu.deleteAll')
+                      : t('common.actions.delete')}
+                  </ThemedText>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </>
@@ -655,14 +741,16 @@ export const FullEventActions: React.FC<{
               {event?.moderators?.includes(currentProfile?.id as string) && (
                 <DropdownMenuItem
                   className="flex-row gap-x-2 items-center"
-                  onPress={() => { }}>
+                  onPress={() => {}}
+                >
                   <PencilLineIcon className="text-foreground" size={18} />
                   <ThemedText>Edit</ThemedText>
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem
                 className="flex-row gap-x-2 items-center"
-                onPress={handleReportPostModalPress}>
+                onPress={handleReportPostModalPress}
+              >
                 <FlagIcon className="text-destructive" size={18} />
                 <ThemedText className="text-destructive">Report</ThemedText>
               </DropdownMenuItem>
@@ -670,7 +758,7 @@ export const FullEventActions: React.FC<{
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-      <CancelEventSheet ref={cancelEventRef} onCancel={async () => { }} />
+      <CancelEventSheet ref={cancelEventRef} onCancel={async () => {}} />
       <DeleteEventSheet ref={deleteEventRef} onDelete={handleDelete} />
       <ReportProfileOrPostSheet
         ref={reportPostModalRef}

@@ -8,6 +8,7 @@ import {
   canModerateJam,
   countYesRsvps,
   getEffectiveRsvp,
+  jamRoomName,
 } from '@openpeepshq/common/lib';
 import { authNeeded, forbidden, notFound } from '../errors';
 import { config } from '../config';
@@ -40,6 +41,7 @@ const calculateSources = (jam: Jam, profile: PublicProfile) => {
 export const assertJamRsvpAllowed = (
   event: PostWithMeta,
   profile: PublicProfile,
+  recurrenceId?: string,
 ) => {
   const eventData = event.data?.type === 'event' ? event.data : undefined;
   if (!eventData?.maxAttendees) {
@@ -50,19 +52,23 @@ export const assertJamRsvpAllowed = (
     return;
   }
 
-  if (getEffectiveRsvp(event, profile.id)?.response === 'yes') {
+  if (getEffectiveRsvp(event, profile.id, recurrenceId)?.response === 'yes') {
     return;
   }
 
-  if (countYesRsvps(event) >= eventData.maxAttendees) {
+  if (countYesRsvps(event, recurrenceId) >= eventData.maxAttendees) {
     throw forbidden({ errorKey: 'error.eventAtCapacity' });
   }
 
   throw forbidden({ errorKey: 'error.jamRsvpRequired' });
 };
 
-export const createJamEgressToken = async (event: PostWithMeta) => {
+export const createJamEgressToken = async (
+  event: PostWithMeta,
+  recurrenceId?: string,
+) => {
   const jamId = event.id;
+  const roomName = jamRoomName(event.id, recurrenceId);
   const jam = event.data?.type === 'event' && event.data?.jam;
   if (!jam) {
     throw notFound({ errorKey: 'error.jamNotFound', parameters: { jamId } });
@@ -75,7 +81,7 @@ export const createJamEgressToken = async (event: PostWithMeta) => {
     }),
   });
   accessToken.addGrant({
-    room: jamId,
+    room: roomName,
     hidden: true,
     roomJoin: true,
     roomRecord: true,
@@ -89,17 +95,19 @@ export const createJamToken = async (
   event: PostWithMeta,
   profile: PublicProfile,
   external: boolean = false,
+  recurrenceId?: string,
 ) => {
   if (!profile.id) throw authNeeded({ errorKey: 'error.profileRequired' });
 
   const jamId = event.id;
+  const roomName = jamRoomName(event.id, recurrenceId);
   const jam = event.data?.type === 'event' && event.data?.jam;
 
   if (!jam) {
     throw notFound({ errorKey: 'error.jamNotFound', parameters: { jamId } });
   }
 
-  assertJamRsvpAllowed(event, profile);
+  assertJamRsvpAllowed(event, profile, recurrenceId);
 
   const rs = await roomService();
 
@@ -107,7 +115,7 @@ export const createJamToken = async (
     throw forbidden({ errorKey: 'error.jamNotOpen' });
   }
 
-  const rooms = await rs.listRooms([jamId]);
+  const rooms = await rs.listRooms([roomName]);
   const jamOpen = rooms.length === 1;
 
   if (!jamOpen && !jam?.moderators.includes(profile.id)) {
@@ -120,7 +128,7 @@ export const createJamToken = async (
     if (instanceDomain) {
       try {
         await rs.createRoom({
-          name: jamId,
+          name: roomName,
           metadata: JSON.stringify({ instanceDomain }),
           emptyTimeout: JAM_ROOM_EMPTY_TIMEOUT_SEC,
           departureTimeout: JAM_ROOM_DEPARTURE_TIMEOUT_SEC,
@@ -134,6 +142,7 @@ export const createJamToken = async (
       jamId,
       type: 'start',
       profileId: profile.id,
+      recurrenceId,
     });
   }
 
@@ -148,7 +157,7 @@ export const createJamToken = async (
     }),
   });
   accessToken.addGrant({
-    room: jamId,
+    room: roomName,
     roomJoin: true,
     roomAdmin: jam?.moderators.includes(profile.id),
     roomRecord: jam?.moderators.includes(profile.id),

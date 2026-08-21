@@ -13,3 +13,14 @@ export {
 } from './conversationQueries';
 export * from './helpers';
 export { registerRsvpConfirmationEmail } from './rsvpConfirmationEmail';
+export {
+  rebuildEventOccurrences,
+  clearEventOccurrences,
+  rebuildRecurringEventOccurrences,
+} from './eventOccurrences';
+export { listEventAgenda } from './eventAgenda';
+export {
+  eventOccurrenceQueue,
+  eventOccurrenceWorker,
+  ensureEventOccurrenceSchedule,
+} from './eventOccurrenceJobs';

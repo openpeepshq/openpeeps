@@ -16,6 +16,8 @@ import type {
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 import { noPayloadEventSource } from '@openpeepshq/fetch-client';
 
+type OccurrenceQuery = { occurrence?: string };
+
 export const jams = (
   rawClient: FetchClient,
   eventSource: ReturnType<typeof noPayloadEventSource>,
@@ -25,35 +27,40 @@ export const jams = (
       rawClient,
       '/jams',
     ),
-    state: allpeepNoPayloadEndpoint<JamState, { id: string }>(
+    state: allpeepNoPayloadEndpoint<JamState, { id: string }, OccurrenceQuery>(
       rawClient,
       '/jams/:id/state',
     ),
-    close: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
-      rawClient,
-      '/jams/:id/close',
-      'put',
-    ),
-    token: allpeepNoPayloadEndpoint<JamTokenResponse, { id: string }>(
-      rawClient,
-      '/jams/:id/token',
-    ),
+    close: allpeepNoPayloadEndpoint<
+      SuccessResponse,
+      { id: string },
+      OccurrenceQuery
+    >(rawClient, '/jams/:id/close', 'put'),
+    token: allpeepNoPayloadEndpoint<
+      JamTokenResponse,
+      { id: string },
+      OccurrenceQuery
+    >(rawClient, '/jams/:id/token'),
     muteParticipant: allpeepPayloadEndpoint<
       SuccessResponse,
       MuteParticipantRequest,
-      { id: string }
+      { id: string },
+      OccurrenceQuery
     >(rawClient, '/jams/:id/mute-participant'),
     waitingRoom: {
-      listen: eventSource<Record<string, PublicProfile>, { id: string }>(
-        '/jams/:id/waiting-room',
-      ),
-      join: eventSource<JamTokenResponse, { id: string }>(
+      listen: eventSource<
+        Record<string, PublicProfile>,
+        { id: string },
+        OccurrenceQuery
+      >('/jams/:id/waiting-room'),
+      join: eventSource<JamTokenResponse, { id: string }, OccurrenceQuery>(
         '/jams/:id/waiting-room',
         'post',
       ),
       admit: allpeepNoPayloadEndpoint<
         SuccessResponse,
-        { id: string; profileId: string }
+        { id: string; profileId: string },
+        OccurrenceQuery
       >(rawClient, '/jams/:id/waiting-room/:profileId/admit', 'post'),
     },
     events: {
@@ -72,19 +79,20 @@ export const jams = (
       ),
     },
     recordings: {
-      start: allpeepNoPayloadEndpoint<JamRecording, { id: string }>(
-        rawClient,
-        '/jams/:id/recordings',
-        'post',
-      ),
-      stop: allpeepNoPayloadEndpoint<JamRecording, { id: string }>(
-        rawClient,
-        '/jams/:id/recordings/stop',
-        'put',
-      ),
+      start: allpeepNoPayloadEndpoint<
+        JamRecording,
+        { id: string },
+        OccurrenceQuery
+      >(rawClient, '/jams/:id/recordings', 'post'),
+      stop: allpeepNoPayloadEndpoint<
+        JamRecording,
+        { id: string },
+        OccurrenceQuery
+      >(rawClient, '/jams/:id/recordings/stop', 'put'),
       observerLink: allpeepNoPayloadEndpoint<
         JamObserverResponseData,
-        { id: string }
+        { id: string },
+        OccurrenceQuery
       >(rawClient, '/jams/:id/recordings/observer-link', 'get'),
     },
     streams: {

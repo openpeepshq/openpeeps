@@ -219,6 +219,9 @@ const basePublicPostSchema = publicReplyPostSchema.extend({
   accountInteractions: accountInteractionsSchema.optional(),
   rsvps: publicRsvpSchema.array(),
   seen: z.boolean().optional(),
+  occurrenceRecurrenceId: z.string().datetime().optional(),
+  occurrenceStart: z.string().datetime().optional(),
+  occurrenceEnd: z.string().datetime().optional(),
 });
 
 const withReplyPostSchema = basePublicPostSchema.extend({

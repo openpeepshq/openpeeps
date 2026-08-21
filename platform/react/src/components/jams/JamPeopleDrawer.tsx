@@ -87,7 +87,7 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   const t = useT();
   const room = useRoomContext();
   const me = useCurrentProfile();
-  const { jamPost, jam } = useJamContext();
+  const { jamPost, jam, occurrence } = useJamContext();
   const { openpeepsApi } = useOpenpeeps();
   const participants = useParticipants();
   const raisedHands = useRaisedHands(room);
@@ -97,6 +97,7 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
 
   const waitingRoom = openpeepsApi.useWaitingRoomStream(
     isModerator && hasWaitingRoom ? jamPost.id : '',
+    occurrence,
   );
   const admitParticipant = openpeepsApi.admitParticipantAction();
 
@@ -129,7 +130,10 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   const admit = async (profile: PublicProfile) => {
     setAdmittingId(profile.id);
     try {
-      await admitParticipant({ id: jamPost.id, profileId: profile.id });
+      await admitParticipant(
+        { id: jamPost.id, profileId: profile.id },
+        occurrence ? { occurrence } : undefined,
+      );
     } finally {
       setAdmittingId(null);
     }

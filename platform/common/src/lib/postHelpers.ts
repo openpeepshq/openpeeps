@@ -17,6 +17,7 @@ import {
   visibilityTypeValues,
 } from '../types';
 import { canModerateJam } from './jamHelpers';
+import { sameRecurrenceId } from './eventRecurrence';
 import {
   checkGroupCapabilities,
   checkPostCapabilities,
@@ -105,22 +106,52 @@ export const collectVotes = (
   };
 };
 
-const latestRsvpPerProfile = (rsvps: PublicRsvp[]) => {
-  const rsvpsByProfile = groupBy(rsvps, (r) => r.profile.id);
+const latestRsvpPerProfile = (rsvps: PublicRsvp[], recurrenceId?: string) => {
+  const scoped = rsvps.filter((rsvp) => {
+    if (recurrenceId) {
+      if (rsvp.recurrenceId) {
+        return sameRecurrenceId(rsvp.recurrenceId, recurrenceId);
+      }
+      return true;
+    }
+    return !rsvp.recurrenceId;
+  });
+  const rsvpsByProfile = groupBy(scoped, (r) => r.profile.id);
   return Object.values(rsvpsByProfile).map((profileRsvps) => {
-    const sorted = profileRsvps.sort(dateSorter<PublicRsvp>());
+    const instanceRsvps = recurrenceId
+      ? profileRsvps.filter((rsvp) =>
+          sameRecurrenceId(rsvp.recurrenceId, recurrenceId),
+        )
+      : [];
+    const seriesRsvps = profileRsvps.filter((rsvp) => !rsvp.recurrenceId);
+    const pool =
+      recurrenceId && instanceRsvps.length > 0 ? instanceRsvps : seriesRsvps;
+    const sorted = pool.sort(dateSorter<PublicRsvp>());
     return sorted[sorted.length - 1];
   });
 };
 
-export const calculateEffectiveRsvps = (post: PublicPost) =>
-  latestRsvpPerProfile(post.rsvps || []);
+export const calculateEffectiveRsvps = (
+  post: PublicPost,
+  recurrenceId?: string,
+) =>
+  latestRsvpPerProfile(post.rsvps || [], recurrenceId).filter(
+    (rsvp): rsvp is PublicRsvp => !!rsvp,
+  );
 
-export const getEffectiveRsvp = (post: PublicPost, profileId: string) =>
-  calculateEffectiveRsvps(post).find((r) => r.profile.id === profileId);
+export const getEffectiveRsvp = (
+  post: PublicPost,
+  profileId: string,
+  recurrenceId?: string,
+) =>
+  calculateEffectiveRsvps(post, recurrenceId).find(
+    (r) => r.profile.id === profileId,
+  );
 
-export const countYesRsvps = (post: PublicPost) =>
-  calculateEffectiveRsvps(post).filter((r) => r.response === 'yes').length;
+export const countYesRsvps = (post: PublicPost, recurrenceId?: string) =>
+  calculateEffectiveRsvps(post, recurrenceId).filter(
+    (r) => r.response === 'yes',
+  ).length;
 
 export const isCapacityEvent = (event: Event) => !!event.maxAttendees;
 
@@ -192,6 +223,7 @@ export type JamCapacityJoinBlock =
 export const getJamCapacityJoinBlock = (
   post: PublicPost,
   profile: Pick<PublicProfile, 'id'> | undefined,
+  recurrenceId?: string,
 ): JamCapacityJoinBlock => {
   const event = post.data?.type === 'event' ? post.data : undefined;
   if (!event?.maxAttendees || !profile?.id) {
@@ -202,14 +234,14 @@ export const getJamCapacityJoinBlock = (
     return { blocked: false };
   }
 
-  const myRsvp = getEffectiveRsvp(post, profile.id);
+  const myRsvp = getEffectiveRsvp(post, profile.id, recurrenceId);
   if (myRsvp?.response === 'yes') {
     return { blocked: false };
   }
   if (myRsvp?.response === 'removed') {
     return { blocked: true, reason: 'removed' };
   }
-  if (countYesRsvps(post) >= event.maxAttendees) {
+  if (countYesRsvps(post, recurrenceId) >= event.maxAttendees) {
     return { blocked: true, reason: 'full' };
   }
   return { blocked: true, reason: 'rsvp-required' };

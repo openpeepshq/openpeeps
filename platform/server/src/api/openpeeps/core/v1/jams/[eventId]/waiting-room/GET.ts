@@ -1,12 +1,16 @@
 import { endpoint, z } from '#lib/endpoint';
 import { notFound, forbidden } from '#lib/errors';
-import { canModerateJam } from '@openpeepshq/common/lib';
+import { canModerateJam, parseOccurrenceQuery } from '@openpeepshq/common/lib';
 import { currentWaitingRoomWatch, findJamEvent } from '@openpeepshq/core/jams';
 import { ensureLocalProfile } from '#lib/auth';
 import { produceStream } from '#lib/sse';
 
 export const Param = z.object({
   eventId: z.string(),
+});
+
+export const Query = z.object({
+  occurrence: z.string().optional(),
 });
 
 export const Stream = z.record(
@@ -19,7 +23,7 @@ export const Error = {
   403: forbidden(),
 };
 
-export const apiEndpoint = endpoint({ Param, Stream, Error }).handle(
+export const apiEndpoint = endpoint({ Param, Query, Stream, Error }).handle(
   async (param, event) => {
     const jamEvent = await findJamEvent(param.eventId);
 
@@ -40,6 +44,7 @@ export const apiEndpoint = endpoint({ Param, Stream, Error }).handle(
           (waitingRoom: Record<string, { displayName?: string }>) => {
             emit(waitingRoom);
           },
+          parseOccurrenceQuery(param.occurrence),
         ),
     });
   },

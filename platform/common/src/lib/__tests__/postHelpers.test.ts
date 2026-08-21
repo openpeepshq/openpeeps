@@ -18,7 +18,12 @@ import {
   getPostActionAvailability,
 } from '../postHelpers';
 import { groupCapabilityTemplates } from '../groupHelpers';
-import { getJamUrl, jamFromEvent } from '../jamHelpers';
+import {
+  getJamUrl,
+  jamFromEvent,
+  jamRoomName,
+  postIdFromJamRoomName,
+} from '../jamHelpers';
 import type {
   Event,
   PublicPost,
@@ -246,9 +251,35 @@ describe('postHelpers', () => {
       expect(result).toBe('/events/jam1/jam');
     });
 
+    it('appends occurrence query when provided', () => {
+      const result = getJamUrl(
+        'jam1',
+        'https://example.com',
+        '2026-09-08T16:00:00.000Z',
+      );
+      expect(result).toBe(
+        'https://example.com/events/jam1/jam?occurrence=2026-09-08T16%3A00%3A00.000Z',
+      );
+    });
+
     it('should return empty string for empty id', () => {
       const result = getJamUrl('', 'https://example.com');
       expect(result).toBe('');
+    });
+  });
+
+  describe('jamRoomName', () => {
+    it('builds a room name from the occurrence', () => {
+      expect(jamRoomName('abc', '2026-09-08T16:00:00.000Z')).toBe(
+        'abc_2026-09-08T16-00-00-000Z',
+      );
+    });
+
+    it('extracts the post id from an occurrence room name', () => {
+      const postId = '11111111-1111-1111-1111-111111111111';
+      expect(
+        postIdFromJamRoomName(jamRoomName(postId, '2026-09-08T16:00:00.000Z')),
+      ).toBe(postId);
     });
   });
 
@@ -445,6 +476,30 @@ describe('postHelpers', () => {
         ] as PublicRsvp[],
       };
       expect(countYesRsvps(postWithRsvps)).toBe(1);
+    });
+
+    it('does not let one occurrence fill capacity for another', () => {
+      const occurrenceA = '2026-09-08T16:00:00.000Z';
+      const occurrenceB = '2026-09-15T16:00:00.000Z';
+      const postWithRsvps = {
+        ...mockPost,
+        data: {
+          type: 'event' as const,
+          start: occurrenceA,
+          wholeDay: false,
+          maxAttendees: 1,
+        },
+        rsvps: [
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'yes' as const,
+            recurrenceId: occurrenceA,
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+        ] as PublicRsvp[],
+      };
+      expect(countYesRsvps(postWithRsvps, occurrenceA)).toBe(1);
+      expect(countYesRsvps(postWithRsvps, occurrenceB)).toBe(0);
     });
 
     it('should get effective RSVP for a profile', () => {

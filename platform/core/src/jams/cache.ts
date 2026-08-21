@@ -1,4 +1,5 @@
 import { createCache } from 'cache-manager';
+import { jamRoomName } from '@openpeepshq/common/lib';
 import { jamState } from './livekit';
 import { PostWithMeta } from '@openpeepshq/common/types';
 
@@ -7,8 +8,10 @@ export const jamStateCache = createCache({
   refreshThreshold: 5 * 1000,
 });
 
-export const getJamState = async (jam: PostWithMeta) =>
-  jamStateCache.wrap(jam.id, () => jamState(jam));
+export const getJamState = async (jam: PostWithMeta, recurrenceId?: string) =>
+  jamStateCache.wrap(jamRoomName(jam.id, recurrenceId), () =>
+    jamState(jam, undefined, recurrenceId),
+  );
 
 /** Caches the LiveKit scan for live jam posts (before auth filtering). */
 export const LIVE_JAMS_CACHE_KEY = 'live-jams';

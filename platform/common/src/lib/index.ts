@@ -9,6 +9,7 @@ export * from './colors';
 export * from './markdownHelpers';
 export * from './attachmentHelpers';
 export * from './eventIcs';
+export * from './eventRecurrence';
 export * from './tokenHelpers';
 export * from './jamHelpers';
 export * from './scopeHelpers';
