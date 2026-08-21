@@ -304,9 +304,11 @@ const runCase = async (page: Page, uiCase: UiCase) => {
       const groupHandle = `dup${handleSuffix().slice(-12)}`;
       await createGroupViaUi(page, { handle: groupHandle });
       await page.goto('/groups/new');
+      // Keep ≤ GROUP_DISPLAY_NAME_MAX_LENGTH (30) so client validation
+      // does not block before the duplicate-handle API conflict.
       await page
         .getByTestId(testIds.groups.nameInput)
-        .fill(`Duplicate UI ${uniqueSuffix()}`);
+        .fill(`Dup ${uniqueSuffix().slice(-12)}`);
       await page.getByTestId(testIds.groups.handleInput).fill(groupHandle);
       await page.getByTestId(testIds.groups.createSubmit).click();
       await expect(

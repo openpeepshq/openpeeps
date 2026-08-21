@@ -4,6 +4,12 @@ import type { GroupData } from '@openpeepshq/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
 import { GroupForm } from '../../components';
 import { Button, LoadingSpinner, Toast } from '@openpeepshq/react-ui';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
+import {
+  groupFormFieldErrors,
+  hasGroupFormFieldErrors,
+  type GroupFormFieldErrors,
+} from '../../lib/groupFormErrors';
 import { routeHandleParam } from '../../lib/routeHandles';
 
 export function EditGroup() {
@@ -20,6 +26,7 @@ export function EditGroup() {
   const [groupData, setGroupData] = useState<GroupData | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<GroupFormFieldErrors>({});
 
   useEffect(() => {
     if (groupQuery.data) {
@@ -61,6 +68,14 @@ export function EditGroup() {
 
   const submit = async () => {
     setError(null);
+    const nextFieldErrors = groupFormFieldErrors(groupData, t, {
+      skipHandle: true,
+    });
+    if (hasGroupFormFieldErrors(nextFieldErrors)) {
+      setFieldErrors(nextFieldErrors);
+      return;
+    }
+    setFieldErrors({});
     setSubmitting(true);
     try {
       const updated = (await updateGroup(
@@ -69,7 +84,7 @@ export function EditGroup() {
       )) as { handle: string };
       navigate(`/groups/@${updated.handle}`);
     } catch (err) {
-      setError((err as Error).message);
+      setError(apiErrorMessage(err, t));
     } finally {
       setSubmitting(false);
     }
@@ -77,7 +92,12 @@ export function EditGroup() {
 
   return (
     <div className="space-y-4 p-4 pb-12">
-      <GroupForm groupData={groupData} onChange={setGroupData} isEdit />
+      <GroupForm
+        groupData={groupData}
+        fieldErrors={fieldErrors}
+        isEdit
+        onChange={setGroupData}
+      />
 
       {error && (
         <Toast variant="error" onDismiss={() => setError(null)}>

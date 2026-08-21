@@ -726,11 +726,18 @@ export const profileStatsSchema = z.object({
 });
 export type ProfileStats = z.infer<typeof profileStatsSchema>;
 
+export const GROUP_DISPLAY_NAME_MAX_LENGTH = 30;
+
 export const groupDataSchema = z.object({
   handle: accountNameSchema,
   avatar: z.string().url().nullable().optional(),
   header: z.string().url().nullable().optional(),
-  displayName: z.string().max(30).optional(),
+  displayName: z
+    .string()
+    .max(GROUP_DISPLAY_NAME_MAX_LENGTH, {
+      message: `Group name should be ${GROUP_DISPLAY_NAME_MAX_LENGTH} characters or fewer`,
+    })
+    .optional(),
   description: z.string().optional(),
   rules: z.string().optional(),
   pinnedPostId: z.string().optional(),
