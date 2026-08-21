@@ -1,5 +1,8 @@
 import { useMemo, useState } from 'react';
-import { resolvePollOptionContents } from '@openpeepshq/common';
+import {
+  pollOptionsWithinLimit,
+  resolvePollOptionContents,
+} from '@openpeepshq/common';
 import type {
   MediaAttachmentData,
   PostDataUnion,
@@ -53,6 +56,9 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
   const resolvedPollOptions = resolvePollOptionContents(pollOptions, (index) =>
     pollOptionLabel(index, t),
   );
+  const pollOptionsValid =
+    resolvedPollOptions.length >= 2 &&
+    pollOptionsWithinLimit(resolvedPollOptions);
 
   const publish = async () => {
     setError(null);
@@ -91,13 +97,13 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
 
   const canSave = useMemo(() => {
     if (data.type === 'question') {
-      return content.trim().length > 0 && resolvedPollOptions.length >= 2;
+      return content.trim().length > 0 && pollOptionsValid;
     }
     if (data.type === 'note') {
       return content.trim().length > 0 || (data.attachments?.length ?? 0) > 0;
     }
     return true;
-  }, [content, data, resolvedPollOptions.length]);
+  }, [content, data, pollOptionsValid]);
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>

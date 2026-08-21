@@ -6,6 +6,7 @@ import {
   EntryWithPublicProfile,
   Event,
   GroupWithMeta,
+  POLL_OPTION_MAX_LENGTH,
   PostType,
   PostDataUnion,
   PublicPost,
@@ -63,6 +64,10 @@ export const resolvePollOptionContents = (
     const trimmed = text.trim();
     return trimmed.length > 0 ? trimmed : fallbackLabel(index);
   });
+
+/** Longer choices are rejected by `questionSchema`, so block submit instead. */
+export const pollOptionsWithinLimit = (options: readonly string[]): boolean =>
+  options.every((text) => text.trim().length <= POLL_OPTION_MAX_LENGTH);
 
 export const collectVotes = (
   post: PublicPost,

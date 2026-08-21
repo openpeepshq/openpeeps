@@ -356,7 +356,8 @@
         "seeWhoVotedTitle": "See who voted",
         "multipleAnswersDescription": "Allow people to choose multiple answers",
         "votersVisibleDescription": "Allow everyone to see who voted and what option they voted for",
-        "question": "Poll question…"
+        "question": "Poll question…",
+        "expiresAt": "Expires at"
       },
       "changeAudience": "Change audience",
       "remainingCharacters": "Remaining characters",

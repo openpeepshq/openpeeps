@@ -7,7 +7,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { PlusIcon, MinusIcon } from '~/components/icons';
 import { formatDateTime } from '~/lib/utils';
 import { useTranslation } from 'react-i18next';
-import { PostCreationData } from '@openpeepshq/common';
+import { POLL_OPTION_MAX_LENGTH, PostCreationData } from '@openpeepshq/common';
 import { DateSheet } from '../../modals/post/date-sheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
@@ -41,6 +41,7 @@ export const PollForm: React.FC<PollFormProps> = ({
               <FormInput
                 containerClassName="flex-grow"
                 className="px-4 py-2 w-full rounded-lg"
+                maxLength={POLL_OPTION_MAX_LENGTH}
                 placeholder={t('posts.form.poll.option', { number: index + 1 })}
                 {...field}
               />

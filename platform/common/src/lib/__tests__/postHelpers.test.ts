@@ -5,6 +5,7 @@ import {
   countVotes,
   collectVotes,
   resolvePollOptionContents,
+  pollOptionsWithinLimit,
   calculateEffectiveRsvps,
   countYesRsvps,
   getEffectiveRsvp,
@@ -341,6 +342,16 @@ describe('postHelpers', () => {
         'Option 2',
         'No',
       ]);
+    });
+  });
+
+  describe('pollOptionsWithinLimit', () => {
+    it('accepts choices at the schema cap', () => {
+      expect(pollOptionsWithinLimit(['Yes', 'a'.repeat(30)])).toBe(true);
+    });
+
+    it('rejects choices over the schema cap', () => {
+      expect(pollOptionsWithinLimit(['Yes', 'a'.repeat(31)])).toBe(false);
     });
   });
 

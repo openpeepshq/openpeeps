@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next';
+import { POLL_OPTION_MAX_LENGTH } from '@openpeepshq/common';
 import { Button, Input, Label } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 
@@ -36,11 +37,13 @@ export function PollComposerFields({
     <div className="space-y-2">
       {options.map((opt, index) => {
         const label = pollOptionLabel(index, t);
+        const overLimit = opt.trim().length > POLL_OPTION_MAX_LENGTH;
         return (
           <Label key={index} title={label} htmlFor={`poll-option-${index + 1}`}>
             <Input
               id={`poll-option-${index + 1}`}
               value={opt}
+              maxLength={POLL_OPTION_MAX_LENGTH}
               placeholder={label}
               data-testid={`posts-poll-option-${index + 1}`}
               onChange={(e) => {
@@ -49,6 +52,12 @@ export function PollComposerFields({
                 onOptionsChange(next);
               }}
             />
+            <span className="text-muted-foreground w-full px-2 text-right text-sm">
+              <span className={overLimit ? 'text-error' : undefined}>
+                {opt.length}
+              </span>{' '}
+              / {POLL_OPTION_MAX_LENGTH}
+            </span>
           </Label>
         );
       })}

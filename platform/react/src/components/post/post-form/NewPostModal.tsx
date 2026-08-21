@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, Image, Megaphone, Paperclip } from 'lucide-react';
 import {
   checkRoleCapabilities,
+  pollOptionsWithinLimit,
   resolvePollOptionContents,
   type GroupWithMeta,
   type MediaAttachmentData,
@@ -209,6 +210,9 @@ export function NewPostModal({
   const resolvedPollOptions = resolvePollOptionContents(pollOptions, (index) =>
     pollOptionLabel(index, t),
   );
+  const pollOptionsValid =
+    resolvedPollOptions.length >= 2 &&
+    pollOptionsWithinLimit(resolvedPollOptions);
 
   // Mirrors the Svelte `isPostFormSubmittable`: block while uploading, and
   // require enough content for the active composer type.
@@ -217,7 +221,7 @@ export function NewPostModal({
     if (visibility === 'direct' && audience.length === 0) return false;
     if (visibility === 'group' && !group?.id && !groupId) return false;
     if (composerType === 'question') {
-      return trimmedContent.length > 0 && resolvedPollOptions.length >= 2;
+      return trimmedContent.length > 0 && pollOptionsValid;
     }
     return (
       (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
@@ -232,7 +236,7 @@ export function NewPostModal({
     groupId,
     composerType,
     trimmedContent,
-    resolvedPollOptions.length,
+    pollOptionsValid,
     attachments.length,
   ]);
 
@@ -300,7 +304,9 @@ export function NewPostModal({
           defaultValue: 'Post created successfully',
         }),
       });
+      onClose();
     } catch {
+      // Keep the modal open on failure so the draft stays visible and editable.
       onToast({
         type: 'error',
         message: t('posts.create.errorGeneric', {
@@ -309,7 +315,6 @@ export function NewPostModal({
       });
     } finally {
       setSubmitting(false);
-      onClose();
     }
   };
 

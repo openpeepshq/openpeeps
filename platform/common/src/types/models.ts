@@ -459,12 +459,15 @@ export const noteSchema = z
   .openapi('Note');
 export type Note = z.infer<typeof noteSchema>;
 
+/** Poll choices are stored short so they fit the vote UI on small screens. */
+export const POLL_OPTION_MAX_LENGTH = 30;
+
 export const questionSchema = noteSchema
   .extend({
     type: z.literal('question'),
     options: z
       .object({
-        content: z.string().max(30),
+        content: z.string().max(POLL_OPTION_MAX_LENGTH),
         type: z.literal('note'),
       })
       .array(),

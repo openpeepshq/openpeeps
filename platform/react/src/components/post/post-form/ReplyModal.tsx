@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Paperclip } from 'lucide-react';
-import { resolvePollOptionContents } from '@openpeepshq/common';
+import {
+  pollOptionsWithinLimit,
+  resolvePollOptionContents,
+} from '@openpeepshq/common';
 import type { PostCreationData, PublicPost } from '@openpeepshq/common/types';
 import {
   Button,
@@ -113,11 +116,14 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
   const resolvedPollOptions = resolvePollOptionContents(pollOptions, (index) =>
     pollOptionLabel(index, t),
   );
+  const pollOptionsValid =
+    resolvedPollOptions.length >= 2 &&
+    pollOptionsWithinLimit(resolvedPollOptions);
 
   const canSubmit = useMemo(() => {
     if (submitting || composeAttachments.pending) return false;
     if (composerType === 'question') {
-      return trimmedContent.length > 0 && resolvedPollOptions.length >= 2;
+      return trimmedContent.length > 0 && pollOptionsValid;
     }
     return (
       (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
@@ -128,7 +134,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
     composeAttachments.pending,
     composerType,
     trimmedContent,
-    resolvedPollOptions.length,
+    pollOptionsValid,
     attachments.length,
   ]);
 
