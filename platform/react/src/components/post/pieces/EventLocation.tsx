@@ -5,7 +5,11 @@ import {
   PhoneCall,
 } from 'lucide-react';
 import type { Event, PublicPost } from '@openpeepshq/common/types';
-import { getJamUrl, truncateText } from '@openpeepshq/common/lib';
+import {
+  getJamUrl,
+  sameRecurrenceId,
+  truncateText,
+} from '@openpeepshq/common/lib';
 import { useT } from '../../../i18n';
 import { useStaticRender } from '../../markdown/staticRender';
 
@@ -13,34 +17,43 @@ export interface EventLocationProps {
   post: PublicPost;
   preview?: boolean;
   truncate?: boolean;
+  occurrence?: string;
 }
 
 export function EventLocation({
   post,
   preview = true,
   truncate = false,
+  occurrence,
 }: EventLocationProps) {
   const t = useT();
   const { enabled: staticRender, baseUrl } = useStaticRender();
   if (post.data?.type !== 'event') return null;
   const event = post.data as Event;
+  const exception = occurrence
+    ? event.exceptions?.find((item) =>
+        sameRecurrenceId(item.recurrenceId, occurrence),
+      )
+    : undefined;
+  const physicalLocation =
+    exception?.physicalLocation ?? event.physicalLocation;
   const origin = staticRender
     ? baseUrl
     : typeof window !== 'undefined'
       ? window.location.origin
       : undefined;
-  const jamLink = getJamUrl(post.id, origin);
+  const jamLink = getJamUrl(post.id, origin, occurrence);
 
   if (preview) {
     return (
       <div className="flex items-center gap-1 text-sm">
-        {event.physicalLocation ? (
+        {physicalLocation ? (
           <>
             <MapPin className="h-4 w-4 shrink-0" />
             <span>
               {truncate
-                ? truncateText(event.physicalLocation.text)
-                : event.physicalLocation.text}
+                ? truncateText(physicalLocation.text)
+                : physicalLocation.text}
             </span>
           </>
         ) : event.jam ? (
@@ -76,7 +89,7 @@ export function EventLocation({
   return (
     <div className="mt-4 flex gap-x-4">
       <div className="border-foreground/20 flex items-center justify-center rounded-md border px-4 py-1">
-        {event.physicalLocation ? (
+        {physicalLocation ? (
           <MapPin className="text-muted-foreground my-3" size={24} />
         ) : event.jam ? (
           <PhoneCall className="text-muted-foreground my-3" size={24} />
@@ -85,11 +98,11 @@ export function EventLocation({
         ) : null}
       </div>
       <div>
-        {event.physicalLocation ? (
+        {physicalLocation ? (
           <p>
             {truncate
-              ? truncateText(event.physicalLocation.text)
-              : event.physicalLocation.text}
+              ? truncateText(physicalLocation.text)
+              : physicalLocation.text}
           </p>
         ) : event.jam ? (
           <>

@@ -6,6 +6,7 @@ import { useCurrentProfile } from '../../components/layout/IdentityContext';
 export type UseLeaveCloseJamArgs = {
   jamPostId: string;
   moderatorIds: string[];
+  occurrence?: string;
   /** Host supplies room disconnect (LiveKit / native). */
   disconnect: () => Promise<void> | void;
   markIntentionalLeave: () => void;
@@ -18,6 +19,7 @@ export type UseLeaveCloseJamArgs = {
 export const useLeaveCloseJam = ({
   jamPostId,
   moderatorIds,
+  occurrence,
   disconnect,
   markIntentionalLeave,
 }: UseLeaveCloseJamArgs) => {
@@ -49,7 +51,7 @@ export const useLeaveCloseJam = ({
     setBusy(true);
     try {
       markIntentionalLeave();
-      await closeJam();
+      await closeJam(undefined, occurrence ? { occurrence } : undefined);
       navigate({ type: 'jams' });
     } finally {
       setBusy(false);

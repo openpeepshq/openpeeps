@@ -299,6 +299,7 @@ export const transformPost = async (
       .map((entry) => ({
         profile: entry.profile,
         response: entry.data.response,
+        recurrenceId: entry.data.recurrenceId,
         createdAt: entry.createdAt,
       })),
     audience,

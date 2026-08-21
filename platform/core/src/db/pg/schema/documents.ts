@@ -6,6 +6,7 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  uuid,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { idColumn, modelTimestamps, tsvector } from './base';
@@ -205,4 +206,33 @@ export const profileSettings = pgTable(
     ...modelTimestamps,
   },
   (t) => [uniqueIndex('profile_settings_profile_unique').on(t.profileId)],
+);
+
+export const eventOccurrences = pgTable(
+  'event_occurrences',
+  {
+    id: idColumn(),
+    postId: uuid('post_id').notNull(),
+    recurrenceId: timestamp('recurrence_id', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    start: timestamp('start', { withTimezone: true, mode: 'string' }).notNull(),
+    end: timestamp('end', { withTimezone: true, mode: 'string' }),
+    cancelled: boolean('cancelled').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .notNull()
+      .default(sql`now()`),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => [
+    uniqueIndex('event_occurrences_post_recurrence').on(
+      t.postId,
+      t.recurrenceId,
+    ),
+    index('event_occurrences_start_idx').on(t.start),
+    index('event_occurrences_post_idx').on(t.postId),
+  ],
 );

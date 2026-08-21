@@ -5,7 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Toast from 'react-native-toast-message';
 import { useForm } from 'react-hook-form';
 import { PostCreationData, postCreationDataSchema } from '@openpeepshq/common';
-import { normalizeEventDataForSave } from '@openpeepshq/common/lib';
+import type { Event } from '@openpeepshq/common';
+import {
+  normalizeEventDataForSave,
+  upsertEventException,
+} from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { MainScreenProps } from '~/components/navigation/types';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
@@ -14,7 +18,7 @@ import { EventForm } from '~/components/custom/post';
 type EditEventProps = MainScreenProps<'EditEvent'>;
 
 export const EditEvent = ({ route, navigation }: EditEventProps) => {
-  const { id } = route.params;
+  const { id, occurrence } = route.params;
   const { openpeepsApi } = useOpenpeeps();
   const { data: post, isLoading: isPostLoading } = openpeepsApi.usePost(id);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -25,10 +29,10 @@ export const EditEvent = ({ route, navigation }: EditEventProps) => {
     resolver: zodResolver(postCreationDataSchema),
     defaultValues: post
       ? {
-        ...post,
-        groupId: post.groupId ?? undefined,
-        inReplyToId: post.inReplyToId ?? undefined,
-      }
+          ...post,
+          groupId: post.groupId ?? undefined,
+          inReplyToId: post.inReplyToId ?? undefined,
+        }
       : undefined,
   });
 
@@ -36,10 +40,18 @@ export const EditEvent = ({ route, navigation }: EditEventProps) => {
     try {
       setIsLoading(true);
       const data = form.getValues('data');
+      const series = post?.data as Event | undefined;
+      const toSave =
+        data.type === 'event' && occurrence && series?.recurrence
+          ? upsertEventException(series, {
+              recurrenceId: occurrence,
+              start: data.start,
+              end: data.end,
+              physicalLocation: data.physicalLocation,
+            })
+          : data;
       const response = await updatePost(
-        data.type === 'event'
-          ? normalizeEventDataForSave(data)
-          : data,
+        toSave.type === 'event' ? normalizeEventDataForSave(toSave) : toSave
       );
       Toast.show({
         type: 'success',
@@ -49,6 +61,7 @@ export const EditEvent = ({ route, navigation }: EditEventProps) => {
       navigation.pop();
       navigation.navigate('EventPage', {
         id: response.id,
+        occurrence,
       });
     } catch (err) {
       console.error('Submit error:', err);

@@ -5,12 +5,17 @@ import {
 } from '#lib/auth';
 import { endpoint, z } from '#lib/endpoint';
 import { jamStateSchema } from '@openpeepshq/common';
+import { parseOccurrenceQuery } from '@openpeepshq/common/lib';
 import { findPostsForAuth, isPublic } from '@openpeepshq/core/posts';
 import { notFound, forbidden } from '#lib/errors';
 import { findJamState } from '@openpeepshq/core/jams';
 
 export const Param = z.object({
   eventId: z.string(),
+});
+
+export const Query = z.object({
+  occurrence: z.string().optional(),
 });
 
 export const Output = jamStateSchema;
@@ -20,7 +25,7 @@ export const Error = {
   403: forbidden(),
 };
 
-export const apiEndpoint = endpoint({ Output, Param, Error }).handle(
+export const apiEndpoint = endpoint({ Output, Param, Query, Error }).handle(
   async (input, event) => {
     const [jamEvent] = await findPostsForAuth([input.eventId]);
     if (!jamEvent) {
@@ -48,6 +53,7 @@ export const apiEndpoint = endpoint({ Output, Param, Error }).handle(
     const state = await findJamState(
       jamEvent,
       !(profile || isServiceAuthorized),
+      parseOccurrenceQuery(input.occurrence),
     );
 
     return state;

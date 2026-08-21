@@ -12,18 +12,22 @@ import {
 } from '@openpeepshq/core/jams';
 import { produceStream } from '#lib/sse';
 import { ensureProfileOrGuest } from '#lib/auth';
-import { jamFromEvent } from '@openpeepshq/common/lib';
+import { jamFromEvent, parseOccurrenceQuery } from '@openpeepshq/common/lib';
 export const Stream = jamTokenResponseSchema;
 export const Param = z.object({
   eventId: z.string(),
+});
+export const Query = z.object({
+  occurrence: z.string().optional(),
 });
 
 export const Error = {
   403: forbidden(),
 };
 
-export const apiEndpoint = endpoint({ Param, Stream, Error }).handle(
+export const apiEndpoint = endpoint({ Param, Query, Stream, Error }).handle(
   async (input, event: RequestEvent) => {
+    const recurrenceId = parseOccurrenceQuery(input.occurrence);
     const profile = await ensureProfileOrGuest(event, 'read', {
       type: 'jams',
       id: input.eventId,
@@ -47,12 +51,15 @@ export const apiEndpoint = endpoint({ Param, Stream, Error }).handle(
 
     // Already admitted (e.g. mobile idle reconnect): mint a fresh token and
     // skip the waiting-room queue entirely.
-    if (await isAdmittedToJam(jamEvent, profile.id)) {
-      const token = await createJamToken(jamEvent, profile).catch(
-        rethrowIfOpenpeepsError,
-      );
+    if (await isAdmittedToJam(jamEvent, profile.id, recurrenceId)) {
+      const token = await createJamToken(
+        jamEvent,
+        profile,
+        false,
+        recurrenceId,
+      ).catch(rethrowIfOpenpeepsError);
       return produceStream<z.infer<typeof Stream>>({
-        start: ({ emit, stop }) => {
+        start: async ({ emit, stop }) => {
           emit({
             success: true,
             token,
@@ -63,18 +70,25 @@ export const apiEndpoint = endpoint({ Param, Stream, Error }).handle(
       });
     }
 
-    await joinWaitingRoom(jamEvent, profile).catch(rethrowIfOpenpeepsError);
+    await joinWaitingRoom(jamEvent, profile, recurrenceId).catch(
+      rethrowIfOpenpeepsError,
+    );
 
     return produceStream<z.infer<typeof Stream>>({
       start: ({ emit, stop }) =>
-        admittanceWatch(jamEvent, profile.id, (token) => {
-          emit({
-            success: true,
-            token,
-            livekitUrl: jams.livekit.url,
-          });
-          stop();
-        }),
+        admittanceWatch(
+          jamEvent,
+          profile.id,
+          (token) => {
+            emit({
+              success: true,
+              token,
+              livekitUrl: jams.livekit.url,
+            });
+            stop();
+          },
+          recurrenceId,
+        ),
     });
   },
 );

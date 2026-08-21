@@ -60,7 +60,7 @@ const useFooterControls = () => {
   const room = useRoomContext();
   const me = useCurrentProfile();
   const serverInfo = useServerInfo();
-  const { jam, jamPost } = useJamContext();
+  const { jam, jamPost, occurrence } = useJamContext();
   const { openpeepsApi, client } = useOpenpeeps();
   const { sendReactionEmoji } = useJamEventsContext();
   const participants = useParticipants();
@@ -84,6 +84,7 @@ const useFooterControls = () => {
   const stopRecording = openpeepsApi.stopRecordingAction({ id: jamPost.id });
   const waitingRoom = openpeepsApi.useWaitingRoomStream(
     isModerator && jam.waitingRoom ? jamPost.id : '',
+    occurrence,
   );
 
   const [busy, setBusy] = useState(false);
@@ -97,10 +98,16 @@ const useFooterControls = () => {
     setBusy(true);
     try {
       if (isRecording) {
-        const recording = await stopRecording();
+        const recording = await stopRecording(
+          undefined,
+          occurrence ? { occurrence } : undefined,
+        );
         toastSuccess(t('jams.recording.stopped', { id: recording.id }));
       } else {
-        const recording = await startRecording();
+        const recording = await startRecording(
+          undefined,
+          occurrence ? { occurrence } : undefined,
+        );
         toastSuccess(t('jams.recording.started', { id: recording.id }));
       }
     } catch {

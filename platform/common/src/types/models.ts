@@ -489,14 +489,61 @@ export const articleSchema = noteSchema
 
 export type Article = z.infer<typeof articleSchema>;
 
+export const eventIsoDatetimeSchema = z.iso.datetime({
+  offset: true,
+  precision: 3,
+});
+
+export const recurrenceFreqSchema = z.enum(['DAILY', 'WEEKLY', 'MONTHLY']);
+export type RecurrenceFreq = z.infer<typeof recurrenceFreqSchema>;
+
+export const recurrenceWeekdaySchema = z.enum([
+  'MO',
+  'TU',
+  'WE',
+  'TH',
+  'FR',
+  'SA',
+  'SU',
+]);
+export type RecurrenceWeekday = z.infer<typeof recurrenceWeekdaySchema>;
+
+export const eventRecurrenceSchema = z
+  .object({
+    freq: recurrenceFreqSchema,
+    interval: z.number().int().positive().optional(),
+    byDay: recurrenceWeekdaySchema.array().optional(),
+    until: eventIsoDatetimeSchema.optional(),
+    count: z.number().int().positive().optional(),
+  })
+  .refine((value) => !(value.until && value.count), {
+    message: 'until and count are mutually exclusive',
+    path: ['until'],
+  })
+  .openapi('EventRecurrence');
+export type EventRecurrence = z.infer<typeof eventRecurrenceSchema>;
+
+export const eventOccurrenceExceptionSchema = z
+  .object({
+    recurrenceId: eventIsoDatetimeSchema,
+    cancelled: z.boolean().optional(),
+    start: eventIsoDatetimeSchema.optional(),
+    end: eventIsoDatetimeSchema.optional(),
+    physicalLocation: locationSchema.optional(),
+  })
+  .openapi('EventOccurrenceException');
+export type EventOccurrenceException = z.infer<
+  typeof eventOccurrenceExceptionSchema
+>;
+
 export const eventSchema = noteSchema
   .extend({
     type: z.literal('event'),
     name: z.string().optional(),
     timeZone: z.string().optional(),
     image: z.url().optional(),
-    start: z.iso.datetime({ offset: true, precision: 3 }),
-    end: z.iso.datetime({ offset: true, precision: 3 }).optional(),
+    start: eventIsoDatetimeSchema,
+    end: eventIsoDatetimeSchema.optional(),
     wholeDay: z.boolean(),
     maxAttendees: z.number().int().positive().optional(),
     attendeeListPublic: z.boolean().optional(),
@@ -504,6 +551,8 @@ export const eventSchema = noteSchema
     jam: jamSchema.optional(),
     physicalLocation: locationSchema.optional(),
     url: z.url().optional(),
+    recurrence: eventRecurrenceSchema.optional(),
+    exceptions: eventOccurrenceExceptionSchema.array().optional(),
   })
   .openapi('Event');
 
@@ -543,6 +592,7 @@ export type RsvpResponse = z.infer<typeof rsvpResponseSchema>;
 
 export const rsvpSchema = z.object({
   response: rsvpResponseSchema,
+  recurrenceId: eventIsoDatetimeSchema.optional(),
 });
 export type RSVP = z.infer<typeof rsvpSchema>;
 
@@ -784,6 +834,7 @@ export const jamEventDataSchema = z.object({
   profileId: z.string(),
   content: z.string().optional(),
   reaction: reactionTypeSchema.optional(),
+  recurrenceId: eventIsoDatetimeSchema.optional(),
 });
 
 export type JamEventData = z.infer<typeof jamEventDataSchema>;

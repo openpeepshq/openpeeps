@@ -330,7 +330,7 @@ test.describe('user actions (API)', () => {
       '/api/openpeeps/core/v1/posts/feeds/events/upcoming',
       { headers: apiHeaders(token) },
     );
-    expect(upcoming.ok()).toBeTruthy();
+    expect(upcoming.ok(), await upcoming.text()).toBeTruthy();
     const list = await upcoming.json();
     expect(
       (list as Array<{ id: string }>).some((post) => post.id === event.id),

@@ -18,9 +18,12 @@ function JamWaitingRoomListener({
 }: {
   onJoin: JamRequestJoinProps['onJoin'];
 }) {
-  const { jamPost } = useJamContext();
+  const { jamPost, occurrence } = useJamContext();
   const { openpeepsApi } = useOpenpeeps();
-  const tokenResponse = openpeepsApi.useJoinWaitingRoomStream(jamPost.id);
+  const tokenResponse = openpeepsApi.useJoinWaitingRoomStream(
+    jamPost.id,
+    occurrence,
+  );
 
   useEffect(() => {
     if (tokenResponse?.token && tokenResponse.livekitUrl) {

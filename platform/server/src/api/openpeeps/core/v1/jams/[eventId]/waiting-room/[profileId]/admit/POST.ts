@@ -1,6 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
 import { notFound, forbidden } from '#lib/errors';
-import { canModerateJam } from '@openpeepshq/common/lib';
+import { canModerateJam, parseOccurrenceQuery } from '@openpeepshq/common/lib';
 import { acceptFromWaitingRoom, findJamEvent } from '@openpeepshq/core/jams';
 import { ensureLocalProfile } from '#lib/auth';
 import { successResponseSchema } from '@openpeepshq/common/types';
@@ -10,6 +10,10 @@ export const Param = z.object({
   profileId: z.string(),
 });
 
+export const Query = z.object({
+  occurrence: z.string().optional(),
+});
+
 export const Output = successResponseSchema;
 
 export const Error = {
@@ -17,7 +21,7 @@ export const Error = {
   403: forbidden(),
 };
 
-export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
+export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
   async (param, event) => {
     const jamEvent = await findJamEvent(param.eventId);
 
@@ -30,7 +34,11 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
       throw forbidden();
     }
 
-    await acceptFromWaitingRoom(jamEvent, param.profileId);
+    await acceptFromWaitingRoom(
+      jamEvent,
+      param.profileId,
+      parseOccurrenceQuery(param.occurrence),
+    );
     return { success: true };
   },
 );

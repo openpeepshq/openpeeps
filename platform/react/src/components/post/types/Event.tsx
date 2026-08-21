@@ -1,4 +1,5 @@
-import type { PublicPost } from '@openpeepshq/common/types';
+import type { Event, PublicPost } from '@openpeepshq/common/types';
+import { formatEventRecurrence } from '@openpeepshq/common/lib';
 import { useT } from '../../../i18n';
 import { resolveStaticUrl, useStaticRender } from '../../markdown/staticRender';
 import { EventLocation } from '../pieces/EventLocation';
@@ -26,12 +27,9 @@ export function FeedEvent({ post }: FeedEventProps) {
     );
   }
 
-  const event = post.data as {
-    name?: string;
-    image?: string;
-    start: string;
-    end?: string;
-  };
+  const event = post.data as Event;
+  const start = post.occurrenceStart ?? event.start;
+  const end = post.occurrenceEnd ?? event.end;
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -46,7 +44,7 @@ export function FeedEvent({ post }: FeedEventProps) {
       )}
       <div className="flex w-full items-center justify-between">
         <span className="text-destructive text-sm">
-          {fmtRange(event.start, event.end)}{' '}
+          {fmtRange(start, end)}{' '}
           <span className="text-muted-foreground">(your local time)</span>
         </span>
         <a
@@ -60,6 +58,11 @@ export function FeedEvent({ post }: FeedEventProps) {
         </a>
       </div>
       <div className="text-lg font-medium">{event.name}</div>
+      {event.recurrence ? (
+        <p className="text-muted-foreground text-sm">
+          {formatEventRecurrence(event.recurrence, t, event.start)}
+        </p>
+      ) : null}
       <EventLocation post={post} />
     </div>
   );

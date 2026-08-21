@@ -2493,7 +2493,30 @@
       "jamModeratorsDescription": "Click to select Jam moderators",
       "externalEventUrlPlaceholder": "https://example.com/event",
       "imageDescription": "Upload an image for your event",
-      "imageSpecs": "Your image should be at least 800 pixels wide with a 16x9 aspect ratio."
+      "imageSpecs": "Your image should be at least 800 pixels wide with a 16x9 aspect ratio.",
+      "repeat": {
+        "title": "Repeat",
+        "none": "Does not repeat",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "weekdays": "Repeat on",
+        "end": "Ends",
+        "never": "Never",
+        "onDate": "On date",
+        "after": "After a number of events",
+        "count": "Number of events",
+        "preview": "Next dates: {{dates}}",
+        "day": {
+          "MO": "Mon",
+          "TU": "Tue",
+          "WE": "Wed",
+          "TH": "Thu",
+          "FR": "Fri",
+          "SA": "Sat",
+          "SU": "Sun"
+        }
+      }
     },
     "feed": {
       "label": "Event timeframe",
@@ -2559,6 +2582,30 @@
       "restoreAttendee": "Restore",
       "removedMessage": "The organizer has removed you from this event.",
       "full": "Event is full"
+    },
+    "repeat": {
+      "badge": "Repeats",
+      "label": "Repeats",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "everyNDays": "Every {{count}} days",
+      "everyNWeeks": "Every {{count}} weeks",
+      "everyNMonths": "Every {{count}} months",
+      "weeklyOn": "Weekly on {{days}}",
+      "everyNWeeksOn": "Every {{count}} weeks on {{days}}",
+      "until": "until {{date}}",
+      "times": "{{count}} times"
+    },
+    "occurrence": {
+      "seriesRsvpNote": "Your RSVP applies to every date in this series."
+    },
+    "menu": {
+      "title": "Event options",
+      "editThis": "Edit this event",
+      "editAll": "Edit all events",
+      "deleteThis": "Delete this event",
+      "deleteAll": "Delete all events"
     }
   },
   "reports": {

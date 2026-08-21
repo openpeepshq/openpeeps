@@ -21,9 +21,12 @@ export interface JamDetailsDrawerProps {
 export const JamDetailsDrawer = ({ open, onClose }: JamDetailsDrawerProps) => {
   const t = useT();
   const me = useCurrentProfile();
-  const { jamPost } = useJamContext();
+  const { jamPost, occurrence } = useJamContext();
   const { openpeepsApi } = useOpenpeeps();
-  const observerLinkQuery = openpeepsApi.useObserverLink(jamPost.id);
+  const observerLinkQuery = openpeepsApi.useObserverLink(
+    jamPost.id,
+    occurrence,
+  );
   const isModerator = canModerateJam(me, jamPost);
 
   const [copied, setCopied] = useState(false);

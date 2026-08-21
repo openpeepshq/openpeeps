@@ -19,7 +19,7 @@ import { useJamContext } from './JamContext';
 export const LeaveCloseButton = () => {
   const t = useT();
   const room = useRoomContext();
-  const { jam, jamPost, markIntentionalLeave } = useJamContext();
+  const { jam, jamPost, occurrence, markIntentionalLeave } = useJamContext();
   const {
     busy,
     confirmOpen,
@@ -30,6 +30,7 @@ export const LeaveCloseButton = () => {
   } = useLeaveCloseJam({
     jamPostId: jamPost.id,
     moderatorIds: jam.moderators,
+    occurrence,
     disconnect: () => room.disconnect(),
     markIntentionalLeave,
   });
