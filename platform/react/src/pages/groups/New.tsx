@@ -10,6 +10,14 @@ import {
   useServerInfo,
 } from '../../components';
 import { Button, Label, Toast } from '@openpeepshq/react-ui';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
+import {
+  duplicateHandleMessage,
+  groupFormFieldErrors,
+  hasGroupFormFieldErrors,
+  isDuplicateHandleError,
+  type GroupFormFieldErrors,
+} from '../../lib/groupFormErrors';
 
 export function NewGroup() {
   const t = useT();
@@ -37,19 +45,18 @@ export function NewGroup() {
   }));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<GroupFormFieldErrors>({});
 
   const submit = async () => {
     setError(null);
+    const nextFieldErrors = groupFormFieldErrors(groupData, t);
+    if (hasGroupFormFieldErrors(nextFieldErrors)) {
+      setFieldErrors(nextFieldErrors);
+      return;
+    }
+    setFieldErrors({});
     let data = groupData;
     if (data.handle.length === 0) {
-      if (!data.displayName) {
-        setError(
-          t('handle.validation.error', {
-            defaultValue: 'A handle or display name is required',
-          }),
-        );
-        return;
-      }
       data = {
         ...data,
         handle: data
@@ -68,7 +75,19 @@ export function NewGroup() {
       })) as { handle: string };
       navigate(`/groups/@${group.handle}`);
     } catch (err) {
-      setError((err as Error).message);
+      if (isDuplicateHandleError(err)) {
+        const msg = duplicateHandleMessage(t);
+        setFieldErrors({ handle: msg });
+        setError(msg);
+        return;
+      }
+      setError(
+        apiErrorMessage(
+          err,
+          t,
+          t('groups.create.error', { defaultValue: 'Failed to create group' }),
+        ),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -76,7 +95,11 @@ export function NewGroup() {
 
   return (
     <div className="space-y-4 p-4 pb-12">
-      <GroupForm groupData={groupData} onChange={setGroupData} />
+      <GroupForm
+        groupData={groupData}
+        fieldErrors={fieldErrors}
+        onChange={setGroupData}
+      />
 
       <div className="space-y-2 px-1">
         <Label htmlFor="group-members">

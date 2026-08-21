@@ -1,6 +1,7 @@
 import type { GroupData } from '@openpeepshq/common/types';
 import { Input, Label, RadioSelect, Textarea } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
+import type { GroupFormFieldErrors } from '../../lib/groupFormErrors';
 import { useServerInfo } from '../server-data/context';
 import { HeaderAvatarInput } from '../form/HeaderAvatarInput';
 import {
@@ -17,29 +18,37 @@ import {
   setGroupWhoCanPostEvents,
 } from '../../lib/groupCapabilityHelpers';
 
+export type { GroupFormFieldErrors };
+
 export interface GroupFormProps {
   groupData: GroupData;
   onChange: (data: GroupData) => void;
+  fieldErrors?: GroupFormFieldErrors;
   isEdit?: boolean;
 }
 
-export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProps) {
+export function GroupForm({
+  groupData,
+  onChange,
+  fieldErrors,
+  isEdit = false,
+}: GroupFormProps) {
   const t = useT();
   const { publicContent } = useServerInfo();
 
   const patch = (partial: Partial<GroupData>) =>
     onChange({ ...groupData, ...partial });
 
-  const patchCapabilities = (
-    updater: (draft: GroupData) => void,
-  ) => {
+  const patchCapabilities = (updater: (draft: GroupData) => void) => {
     const draft = structuredClone(groupData);
     updater(draft);
     onChange(draft);
   };
 
   const visibilityValue = getGroupVisibilityValue(groupData.capabilities);
-  const postsVisibilityValue = getGroupPostsVisibilityValue(groupData.capabilities);
+  const postsVisibilityValue = getGroupPostsVisibilityValue(
+    groupData.capabilities,
+  );
   const whoCanJoinValue = getGroupWhoCanJoinValue(groupData.capabilities);
   const whoCanPostValue = getGroupWhoCanPostValue(groupData.capabilities);
   const whoCanPostEventsValue = getGroupWhoCanPostEventsValue(
@@ -60,7 +69,9 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
     .filter((v) => (publicContent ? true : v !== 'public'))
     .map((value) => ({
       value,
-      title: t(`groups.postsVisibility.${value}.title`, { defaultValue: value }),
+      title: t(`groups.postsVisibility.${value}.title`, {
+        defaultValue: value,
+      }),
       description: t(`groups.postsVisibility.${value}.description`, {
         defaultValue: '',
       }),
@@ -106,9 +117,24 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
         <Input
           id="displayName"
           value={groupData.displayName ?? ''}
+          error={Boolean(fieldErrors?.displayName)}
+          aria-invalid={Boolean(fieldErrors?.displayName)}
+          aria-describedby={
+            fieldErrors?.displayName ? 'displayName-error' : undefined
+          }
           onChange={(e) => patch({ displayName: e.target.value })}
           data-testid="groups-name-input"
         />
+        {fieldErrors?.displayName ? (
+          <p
+            id="displayName-error"
+            role="alert"
+            className="text-error text-sm"
+            data-testid="groups-name-error"
+          >
+            {fieldErrors.displayName}
+          </p>
+        ) : null}
       </div>
 
       {!isEdit ? (
@@ -119,12 +145,25 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
           <Input
             id="handle"
             value={groupData.handle ?? ''}
+            error={Boolean(fieldErrors?.handle)}
+            aria-invalid={Boolean(fieldErrors?.handle)}
+            aria-describedby={fieldErrors?.handle ? 'handle-error' : undefined}
             placeholder={t('groups.handle.placeholder', {
               defaultValue: 'my_group',
             })}
             onChange={(e) => patch({ handle: e.target.value })}
             data-testid="groups-handle-input"
           />
+          {fieldErrors?.handle ? (
+            <p
+              id="handle-error"
+              role="alert"
+              className="text-error text-sm"
+              data-testid="groups-handle-error"
+            >
+              {fieldErrors.handle}
+            </p>
+          ) : null}
         </div>
       ) : null}
 
@@ -136,7 +175,9 @@ export function GroupForm({ groupData, onChange, isEdit = false }: GroupFormProp
           id="description"
           rows={4}
           value={groupData.description ?? ''}
-          placeholder={t('groups.description.placeholder', { defaultValue: '' })}
+          placeholder={t('groups.description.placeholder', {
+            defaultValue: '',
+          })}
           onChange={(e) => patch({ description: e.target.value })}
           data-testid="groups-description-input"
         />

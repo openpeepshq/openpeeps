@@ -712,6 +712,7 @@
     },
     "form": {
       "groupName": "Group Name",
+      "displayNameMaxLength": "Group name should be {{max}} characters or fewer",
       "members": "Members",
       "membersPlaceholder": "Add members to this group"
     },
