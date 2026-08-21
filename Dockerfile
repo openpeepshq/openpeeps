@@ -28,9 +28,7 @@ ENV ENVIRONMENT=$ENVIRONMENT
 
 WORKDIR /apat
 
-# Pin pnpm: floating latest broke `workspace:^` resolution in filtered
-# frozen-lockfile installs ("11 dependencies were added" false positive).
-RUN npm i -g pnpm@10.11.0
+RUN npm i -g pnpm
 
 COPY . .
 
