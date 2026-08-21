@@ -17,7 +17,10 @@
             "logIn": "Anmelden",
             "joinCommunity": "Community beitreten",
             "seeCommunityFeed": "Community-Feed ansehen",
-            "loginWith": "Mit {{provider}} anmelden"
+            "loginWith": "Mit {{provider}} anmelden",
+            "loginLink": "Weiter zur Anmeldung",
+            "redirectingToSso": "Sie werden zur Anmeldung weitergeleitet…",
+            "adminLogin": "Administratoranmeldung"
         },
         "register": {
             "title": "Registrieren",

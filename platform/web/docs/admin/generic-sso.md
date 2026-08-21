@@ -22,6 +22,24 @@ The generic SSO flow works as follows:
 
 <div style="height:20px"></div>
 
+## Directing members to SSO login
+
+When members follow a community link (for example from an email) and are not signed in, they land on `/auth/login`. Each generic SSO provider can expose its own login entry:
+
+1. Set **Id** and **Name** on the provider (the name appears on the login button).
+2. Set **LoginLink** to your identity provider's login page (a full `https://` address, or a path on this community).
+3. Optionally check **OnlySSO** under **Sso** to hide the password form.
+
+Every configured SSO destination is listed on the login page: each generic provider with a valid **LoginLink**, and each OIDC provider. If **OnlySSO** is on and there is exactly one destination, members are redirected there automatically.
+
+Administrators with a password account can still sign in through a visually hidden **Administrator login** control on that page, or by opening:
+
+```
+https://your-community.com/auth/login?local=1
+```
+
+<div style="height:20px"></div>
+
 ## Configuration Structure
 
 Generic SSO is configured in your core configuration file under the `sso.generic` array. Each entry in the array represents a separate SSO provider.
@@ -31,8 +49,12 @@ Generic SSO is configured in your core configuration file under the `sso.generic
 ```typescript
 {
   sso: {
+    onlySSO?: boolean,           // Optional. Hide the password form; send members to SSO.
     generic: [
       {
+        id: string,                 // Short id for the provider (used in UI test ids)
+        name: string,               // Label on the login button (“Login with …”)
+        loginLink?: string,         // Optional. SSO login URL shown on /auth/login
         userProfileRequest: {
           url: string,              // URL to fetch user profile (supports template interpolation)
           authHeader?: string       // Authorization header value (supports template interpolation)
@@ -115,6 +137,9 @@ This example shows a basic OAuth provider that returns user information in a sta
   "sso": {
     "generic": [
       {
+        "id": "provider",
+        "name": "Provider",
+        "loginLink": "https://api.provider.com/oauth/authorize",
         "userProfileRequest": {
           "url": "https://api.provider.com/userinfo",
           "authHeader": "Bearer ${access_token}"
@@ -153,6 +178,9 @@ This example shows a provider with a more complex nested response structure:
   "sso": {
     "generic": [
       {
+        "id": "example-api",
+        "name": "Example API",
+        "loginLink": "https://api.example.com/login",
         "userProfileRequest": {
           "url": "https://api.example.com/v1/users/${userId}",
           "authHeader": "Authorization: Bearer ${apiKey}"
@@ -199,6 +227,9 @@ You can configure multiple SSO providers. The system will try each one in order 
   "sso": {
     "generic": [
       {
+        "id": "provider1",
+        "name": "Provider One",
+        "loginLink": "https://provider1.com/login",
         "userProfileRequest": {
           "url": "https://provider1.com/api/user",
           "authHeader": "Bearer ${token1}"
@@ -208,6 +239,9 @@ You can configure multiple SSO providers. The system will try each one in order 
         }
       },
       {
+        "id": "provider2",
+        "name": "Provider Two",
+        "loginLink": "https://provider2.com/login",
         "userProfileRequest": {
           "url": "https://provider2.com/users/me",
           "authHeader": "Token ${token2}"

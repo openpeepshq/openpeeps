@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { ServerInfo } from '@openpeepshq/common/types';
+import { publicSsoInfo } from '@openpeepshq/common/lib';
 import { communityConfig, config } from '../config';
 import { database } from '../db';
 import { normalizeComputedDatetime } from '../db/pg/mappers';
@@ -93,16 +94,6 @@ export const serverInfo = () =>
           },
         },
       },
-      sso:
-        coreConfig.sso.oidc.length > 0
-          ? {
-              oidc: coreConfig.sso.oidc.map(
-                (p: { id: string; name: string }) => ({
-                  id: p.id,
-                  name: p.name,
-                }),
-              ),
-            }
-          : undefined,
+      sso: publicSsoInfo(coreConfig.sso),
     }),
   );

@@ -337,6 +337,14 @@ export const serverInfoSchema = z.object({
   }),
   sso: z
     .object({
+      onlySSO: z.boolean().optional(),
+      generic: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          loginLink: z.string(),
+        }),
+      ),
       oidc: z.array(
         z.object({
           id: z.string(),
