@@ -10,17 +10,37 @@ calls a custom profile API instead of a standard OIDC provider.
 
 ## Where members find it
 
-When at least one OIDC provider is configured, the login page shows a
-**Login with {provider name}** button for each provider. Members click that
-button to start sign-in with the external provider.
+When any SSO providers are configured, the login page shows a button for
+each of them:
 
-The authorize URL is:
+- Every **Oidc** provider → **Login with {provider name}**
+- Every **Generic** provider with a valid **LoginLink** → **Login with
+  {provider name}**
+
+Members click a button to start sign-in with that provider.
+
+The OIDC authorize URL is:
 
 ```
 /api/openpeeps/core/v1/sso/oidc/{providerId}/authorize
 ```
 
 You can also link directly to that path if you want a custom entry point.
+
+### Sending members straight to SSO
+
+Check **OnlySSO** under **Sso** on the Server Settings page if members
+should not see the community password form (for example because they
+arrive from email links).
+
+- One SSO destination: `/auth/login` redirects to that provider.
+- Several destinations (multiple OIDC providers and/or generic providers
+  with **LoginLink**): the login page lists a link for each option.
+- Generic **LoginLink** is the URL for a custom SSO portal. Set it on each
+  generic provider entry when members should leave OpenPeeps to sign in.
+
+Administrators with a password account can use the visually hidden
+**Administrator login** control, or open `/auth/login?local=1`.
 
 <div style="height:20px"></div>
 
@@ -85,6 +105,10 @@ Each **Oidc** entry has the following fields:
 | **JwksUri**          | Your provider's JWKS URL. Strongly recommended in production so OpenPeep can verify `id_token` signatures.                                                        |
 | **Scope**            | Space-separated scopes to request. Defaults to `openid email profile` if left empty.                                                                              |
 | **ApprovalRequired** | Check this to require administrator approval before new accounts are created. Existing accounts with a matching email still log in normally.                      |
+
+Above the provider list, **OnlySSO** hides the password form. For custom
+(non-OIDC) portals, set **LoginLink** on each **Generic** SSO entry — those
+links appear alongside OIDC buttons on the login page.
 
 ### Claim mapping
 
