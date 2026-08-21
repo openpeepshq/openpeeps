@@ -48,7 +48,7 @@ export const createGroup = async (
   const { db } = await allpeepDb();
   const emptyGroup = await groupsMapping.create(db, groupData);
   await addMember(db, profile as PublicProfile, emptyGroup, {
-    roles: ['admin'],
+    roles: ['owner'],
   });
   profilesCache.del(profile.id);
 

@@ -1,10 +1,11 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden, notFound } from '#lib/errors';
+import { conflict, forbidden, notFound } from '#lib/errors';
 import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { findGroup, removeMembersFromGroup } from '@openpeepshq/core/groups';
 import { successResponseSchema } from '@openpeepshq/common/types';
 import { hub } from '@openpeepshq/core/events';
+import { ensureGroupOwnerRemovable } from '#lib/groupOwnerGuards';
 
 export const Output = successResponseSchema;
 export const Param = z.object({
@@ -14,6 +15,7 @@ export const Param = z.object({
 export const Error = {
   403: forbidden(),
   404: notFound(),
+  409: conflict(),
 };
 
 export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
@@ -25,6 +27,8 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     if (!group) {
       throw notFound();
     }
+
+    await ensureGroupOwnerRemovable(group, profile);
 
     await removeMembersFromGroup(group, [profile]);
 

@@ -10,7 +10,11 @@ export type NavTarget =
   | { type: 'profile'; handle: string; tab?: 'followers' | 'following' }
   | { type: 'post'; id: string }
   | { type: 'postNew' }
-  | { type: 'group'; handle?: string; view?: 'info' | 'edit' | 'members' }
+  | {
+      type: 'group';
+      handle?: string;
+      view?: 'info' | 'edit' | 'edit-info' | 'edit-roles' | 'members';
+    }
   | { type: 'groups'; view?: 'new' }
   | { type: 'conversation'; id?: string; view?: 'info' | 'new' }
   | { type: 'jam'; id?: string; view?: 'event' }

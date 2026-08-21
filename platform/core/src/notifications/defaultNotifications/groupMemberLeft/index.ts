@@ -5,7 +5,6 @@ import type {
 } from '@openpeepshq/common/types';
 import { maybeCreateNotification } from '@openpeepshq/core/notifications';
 import {
-  checkCapabilities,
   getProfileAvatar,
   groupName,
   profileName,
@@ -21,7 +20,9 @@ export default {
     const [group, profile] = args as [GroupWithMeta, Profile];
 
     for (const groupAdmin of await listGroupMembers(group).then((members) =>
-      members.filter((m) => m.roles?.includes('admin')).map((m) => m.profile),
+      members
+        .filter((m) => m.roles?.includes('owner') || m.roles?.includes('admin'))
+        .map((m) => m.profile),
     )) {
       await maybeCreateNotification(groupAdmin, {
         type: 'groupMemberLeft',

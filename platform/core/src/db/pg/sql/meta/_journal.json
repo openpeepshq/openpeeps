@@ -50,6 +50,13 @@
       "when": 1787042540973,
       "tag": "0006_fine_trish_tilby",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787112000000,
+      "tag": "0007_group_owner_roles",
+      "breakpoints": true
     }
   ]
 }

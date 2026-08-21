@@ -2,6 +2,7 @@ import { access } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { join } from 'node:path';
 import { groupCapabilityTemplates } from '@openpeepshq/common/lib';
+import { defaultGroupAdminCapabilityAdds } from '@openpeepshq/common/types';
 import {
   documentRegistry,
   edgeRegistry,
@@ -129,6 +130,25 @@ export const capabilitiesFromLegacyGroupFlags = (
   return template.capabilities as Record<string, unknown>;
 };
 
+export const normalizeGroupMembershipRoles = (roles: unknown): unknown => {
+  if (!Array.isArray(roles)) return roles;
+  return [...new Set(roles.map((role) => (role === 'admin' ? 'owner' : role)))];
+};
+
+export const normalizeGroupCapabilityMap = (
+  capabilities: Record<string, unknown>,
+): Record<string, unknown> => {
+  const next = { ...capabilities };
+  if (next.admin && !next.owner) {
+    next.owner = next.admin;
+    delete next.admin;
+  }
+  if (!next.admin) {
+    next.admin = { add: [...defaultGroupAdminCapabilityAdds] };
+  }
+  return next;
+};
+
 export const arangoDocToDocumentRow = (
   collection: string,
   doc: Record<string, unknown>,
@@ -237,6 +257,10 @@ export const arangoDocToDocumentRow = (
     const capabilities = capabilitiesFromLegacyGroupFlags(data);
     if (capabilities) {
       body.capabilities = capabilities;
+    } else if (body.capabilities && typeof body.capabilities === 'object') {
+      body.capabilities = normalizeGroupCapabilityMap(
+        body.capabilities as Record<string, unknown>,
+      );
     }
   }
 
@@ -270,6 +294,9 @@ export const arangoDocToEdgeRow = (
   const model = arangoDocToModel(doc);
   const { createdAt, updatedAt } = timestampsFromModel(model);
   const { createdAt: _c, updatedAt: _u, id: _id, ...body } = model;
+  if (collection === 'userGroups' && 'roles' in body) {
+    body.roles = normalizeGroupMembershipRoles(body.roles);
+  }
 
   return {
     id: normalizeImportId(doc._key ?? doc.id) ?? String(doc._key ?? doc.id),

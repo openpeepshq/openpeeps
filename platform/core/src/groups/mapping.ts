@@ -1,5 +1,9 @@
 import { map, Relation } from '../db/pg/map';
-import { AdminGroup, GroupData, GroupWithMeta } from '@openpeepshq/common/types';
+import {
+  AdminGroup,
+  GroupData,
+  GroupWithMeta,
+} from '@openpeepshq/common/types';
 import { computedFields } from '../db/pg/queries';
 import { edgeFilters } from '../db/pg/filters';
 
@@ -35,12 +39,12 @@ export const adminGroupsMapping = map<GroupData, AdminGroup>({
   relations: [
     ...groupRelations,
     {
-      alias: 'admins',
+      alias: 'owners',
       edgeCollection: 'userGroups',
       direction: 'INBOUND',
       skipEdge: true,
       cardinality: 'many',
-      edgeFilter: edgeFilters.groupAdminRole(),
+      edgeFilter: edgeFilters.groupOwnerRole(),
       mapping: {
         collection: 'profiles',
         softDelete: true,

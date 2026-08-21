@@ -16,6 +16,6 @@ export const edgeFilters = {
     value: string,
   ): SqlFilter => pgSql(eq(sql`${table.body}->>${field}`, value)),
 
-  groupAdminRole: (): SqlFilter =>
-    pgSql(sql`${userGroups.body}->'roles' ? 'admin'`),
+  groupOwnerRole: (): SqlFilter =>
+    pgSql(sql`${userGroups.body}->'roles' ? 'owner'`),
 };
