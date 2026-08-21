@@ -5,17 +5,35 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **server**: expose lastAccessed from latest post view
+- **ui**: standardise dialog cancel and action footer
+- **plugins**: theme contract, live reload, and admin install for plugins
+- **ui**: show signed-in status on auth layout pages
 - **jams**: stream jam A/V to StreamYard over RTMP
 - **archive**: introduce ArangoDB cutover tooling and update documentation
 
 ### Bug Fixes
 
+- **core**: rewrite post and group media hosts on backup restore
+- **posts**: preserve group visibility when switching to article
+- **jams**: do not rejoin after an intentional leave
+- **ui**: link profiles in the post reactions popup
+- **ui**: grey out post actions the viewer cannot use
 - **i18n**: add missing DE translations for #1240
 - **deps**: pin RN host versions and bump react 0.2.5 / rn-components 0.3.1
+
+### Performance
+
+- **posts**: filter my feed before hydration
 
 ### Refactoring
 
 - **BREAKING**: **rn-components**: publish as @openpeepshq/rn-components
+
+### Documentation
+
+- **releases**: add narrative notes and static nginx publish flow
+- **privacy**: retain analytics and post-seen data
 
 ## 2026-08-19
 
