@@ -5,6 +5,9 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **polls**: implement poll option length validation and UI feedback
+- **groups**: enhance group form validation and error handling
+- **core**: record createdAt in backup metadata
 - **server**: expose lastAccessed from latest post view
 - **ui**: standardise dialog cancel and action footer
 - **plugins**: theme contract, live reload, and admin install for plugins
@@ -14,6 +17,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **analytics**: improve error handling and type safety in cache functions
+- **jams**: use plural jams resource type in auth scopes
 - **core**: rewrite post and group media hosts on backup restore
 - **posts**: preserve group visibility when switching to article
 - **jams**: do not rejoin after an intentional leave
