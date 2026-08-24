@@ -31,7 +31,8 @@ export const reactions = edgeTable('reactions', true);
 export const replyTo = edgeTable('reply_to', true);
 export const repost = edgeTable('repost', true);
 export const bookmarks = edgeTable('bookmarks');
-export const postSeen = edgeTable('post_seen', true);
+/** Not unique: each view is an impression; unread uses EXISTS on any row. */
+export const postSeen = edgeTable('post_seen');
 export const hasSeen = edgeTable('has_seen');
 export const hasRead = edgeTable('has_read');
 export const userGroups = edgeTable('user_groups');

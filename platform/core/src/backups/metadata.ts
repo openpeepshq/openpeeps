@@ -6,7 +6,7 @@ export type BackupMetadata = {
   createdAt?: string;
   /**
    * Drizzle journal tag the database was on when the backup was created
-   * (e.g. `0006_fine_trish_tilby`). Omitted on legacy Arango archives.
+   * (e.g. `0007_shallow_oracle`). Omitted on legacy Arango archives.
    */
   schemaVersion?: string;
   config?: {

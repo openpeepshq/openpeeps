@@ -219,21 +219,16 @@ export const markPostsSeen = async (
   if (posts.length === 0) return;
   const { db } = await allpeepDb();
   const ts = nowIso();
-  await db
-    .insert(postSeen)
-    .values(
-      posts.map((post) => ({
-        id: uuidv7(),
-        fromId: profile.id,
-        toId: post.id,
-        body: {},
-        createdAt: ts,
-        updatedAt: ts,
-      })),
-    )
-    .onConflictDoNothing({
-      target: [postSeen.fromId, postSeen.toId],
-    });
+  await db.insert(postSeen).values(
+    posts.map((post) => ({
+      id: uuidv7(),
+      fromId: profile.id,
+      toId: post.id,
+      body: {},
+      createdAt: ts,
+      updatedAt: ts,
+    })),
+  );
 };
 
 export const markGroupPostsSeen = async (

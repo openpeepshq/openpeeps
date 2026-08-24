@@ -363,6 +363,12 @@ const prepareSchemaForRestore = async (
   );
   log.info('Preparing %s restore at schema %s', databaseType, schemaVersion);
   await resetAndMigrateToSchemaVersion(schemaVersion);
+  // 0006 added a unique (from_id, to_id) on post_seen; that was wrong for
+  // impressions. Drop it before import so pre-0007 backups with duplicate
+  // view rows can restore. 0007 (and later) drop it permanently.
+  await pgDb().execute(
+    sql.raw('DROP INDEX IF EXISTS "post_seen_from_to_unique"'),
+  );
   await truncateAllTables();
 };
 

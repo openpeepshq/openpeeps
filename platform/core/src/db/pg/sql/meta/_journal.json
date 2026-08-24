@@ -50,6 +50,13 @@
       "when": 1787042540973,
       "tag": "0006_fine_trish_tilby",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787554098682,
+      "tag": "0007_shallow_oracle",
+      "breakpoints": true
     }
   ]
 }
