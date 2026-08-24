@@ -29,6 +29,7 @@ describe('resolveBackupDatabaseType', () => {
     const metadata: BackupMetadata = {
       databaseType: 'postgres',
       createdAt: '2026-08-20T12:00:00.000Z',
+      schemaVersion: '0006_fine_trish_tilby',
     };
     expect(resolveBackupDatabaseType(metadata)).toBe('postgres');
   });

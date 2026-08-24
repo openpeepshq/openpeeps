@@ -69,11 +69,14 @@ newline-delimited JSON (JSONL), one file per collection or table.
 
 ## metadata.json
 
-`metadata.json` describes the backup and the hostname it was taken from.
+`metadata.json` describes the backup, the hostname it was taken from, and the
+Postgres schema version at export time.
 
 ```json
 {
   "databaseType": "postgres",
+  "createdAt": "2026-08-23T12:00:00.000Z",
+  "schemaVersion": "0006_fine_trish_tilby",
   "config": {
     "hostname": "community.example.com"
   }
@@ -83,6 +86,8 @@ newline-delimited JSON (JSONL), one file per collection or table.
 | Field                    | Description                                                                                                                                 |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `databaseType`           | `"postgres"` for backups created on a PostgreSQL instance. Omitted or any other value means **Arango** JSONL (legacy instances).              |
+| `createdAt`              | ISO-8601 timestamp when the archive was created.                                                                                            |
+| `schemaVersion`          | Drizzle migration journal tag the database was on when the backup was created (Postgres backups only).                                      |
 | `config.hostname`        | Public hostname of the community when the backup was created. On restore, absolute URLs in stored data are rewritten from this host to the current server host. |
 
 <div style="height:20px"></div>
@@ -142,12 +147,19 @@ from the archive.
 1. Extract the ZIP to a temporary directory.
 2. Validate `metadata.json` and at least one `collections/*.jsonl` file.
 3. Replace media and logs on disk.
-4. Truncate application tables and import all JSONL files:
+4. Reset the Postgres schemas and migrate to the restore target schema:
+   - **Arango** backups → first Drizzle journal tag (baseline schema).
+   - **Postgres** with `schemaVersion` → that journal tag.
+   - **Postgres** without `schemaVersion` → `0006_fine_trish_tilby`
+     (`meta/0006_snapshot.json`), the last schema before version stamping.
+5. Import all JSONL files:
    - **Arango** lines → transformed into Postgres rows.
    - **Postgres** lines → inserted directly.
-5. Rewrite hostnames in stored URLs when `config.hostname` differs from the
+6. Run remaining Drizzle migrations forward to the latest schema shipped with
+   the server (SQL data migrations therefore see the restored rows).
+7. Rewrite hostnames in stored URLs when `config.hostname` differs from the
    current server.
-6. Re-apply default role capabilities.
+8. Re-apply default role capabilities.
 
 Restore fails if the archive has no database rows, is missing required paths,
 or uses the unsupported legacy `database.dump` (pg_dump) format.

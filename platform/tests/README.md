@@ -60,7 +60,11 @@ Env of note:
   must be real credentials (not `APIxxxxxxxxxxxx` placeholders) for the jams
   suite
 
-## API performance harness (manual / scheduled)
+## API performance harness
+
+CI runs this as the `perf` cell of the `test-integration` matrix in
+`.forgejo/workflows/build.yaml` (restores `fixtures/backups/perf-scale.zip`,
+then `test:integration:perf`).
 
 Measures p50/p95/p99 for feed, conversation, search, and unseen-count endpoints
 against a running API. Writes JSON to `platform/tests/.perf-results/`
@@ -111,10 +115,13 @@ Chat/reactions mirror the app: REST persist then lossy `publishData`.
 
 ## Fixtures
 
-Synthetic backups are derived from `platform/web/public/template/test-backup.zip`
-(Arango JSONL, restorable into Postgres):
+Synthetic backups are converted from `platform/web/public/template/test-backup.zip`
+into the current Postgres backup format (`databaseType: "postgres"` +
+`schemaVersion`). Core must be built first so the converter can reuse its Arango
+→ row mappers:
 
 ```bash
+pnpm --filter @openpeepshq/core build
 pnpm --filter @openpeepshq/tests run fixtures:generate-backups
 pnpm --filter @openpeepshq/tests run fixtures:generate-perf   # larger perf-scale.zip
 ```
@@ -132,6 +139,8 @@ platform/tests/
   suites/*/seed.setup.ts        # Playwright setup project (runs before suite)
   scripts/jam-loadtest.mjs      # manual jam SFU + chat load harness
   scripts/api-perf.mjs          # API latency harness
+  scripts/arango-fixture-to-postgres.mjs
+  scripts/generate-synthetic-backups.mjs
   scripts/generate-perf-fixture.mjs
 ```
 

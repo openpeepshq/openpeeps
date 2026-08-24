@@ -1,14 +1,17 @@
 /**
  * Regenerates fixtures/backups/{default-install,public-community}.zip from
- * platform/web/public/template/test-backup.zip.
+ * platform/web/public/template/test-backup.zip, converted to the current
+ * Postgres backup format (databaseType + schemaVersion).
  *
  * Run from platform/tests: `pnpm run fixtures:generate-backups`
+ * Requires `@openpeepshq/core` to be built (`pnpm --filter @openpeepshq/core build`).
  */
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { convertArangoBackupDirToPostgres } from './arango-fixture-to-postgres.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = path.resolve(root, '../..');
@@ -17,11 +20,6 @@ const templateZip = path.join(
   'platform/web/public/template/test-backup.zip',
 );
 const outDir = path.join(root, 'fixtures/backups');
-
-/** Legacy Arango JSONL template; omit databaseType so restore treats it as Arango. */
-const fixtureMetadata = {
-  config: { hostname: 'magicfactory.ap.social' },
-};
 
 const publicCaps = {
   none: { add: ['core-groups-read', 'core-posts-read'] },
@@ -95,23 +93,22 @@ const applyGroupCapabilities = async (dir) => {
   );
 };
 
-const writeZipFromDir = (dir, outZip) => {
+const writeZipFromDir = async (dir, outZip) => {
+  // `zip -q` updates an existing archive and keeps deleted members.
+  await rm(outZip, { force: true });
   execFileSync('zip', ['-qr', outZip, '.'], { cwd: dir });
 };
 
 const unpackTemplate = async (dir) => {
   execFileSync('unzip', ['-q', templateZip, '-d', dir]);
-  await writeFile(
-    path.join(dir, 'metadata.json'),
-    `${JSON.stringify(fixtureMetadata, null, 2)}\n`,
-  );
 };
 
 const defaultTmp = await mkdtemp(path.join(tmpdir(), 'op-default-backup-'));
 try {
   await unpackTemplate(defaultTmp);
   await applyGroupCapabilities(defaultTmp);
-  writeZipFromDir(defaultTmp, path.join(outDir, 'default-install.zip'));
+  await convertArangoBackupDirToPostgres(defaultTmp);
+  await writeZipFromDir(defaultTmp, path.join(outDir, 'default-install.zip'));
 } finally {
   await rm(defaultTmp, { recursive: true, force: true });
 }
@@ -128,6 +125,7 @@ try {
     .map((line) => JSON.parse(line))
     .map((row) => {
       // Runtime loaders use openpeeps-* keys (legacy Arango used allpeep-*).
+      // Conversion to Postgres happens after this pass.
       const key =
         typeof row._key === 'string' && row._key.startsWith('allpeep-')
           ? `openpeeps-${row._key.slice('allpeep-'.length)}`
@@ -172,7 +170,8 @@ try {
     `${configs.map((row) => JSON.stringify(row)).join('\n')}\n`,
   );
 
-  writeZipFromDir(publicTmp, path.join(outDir, 'public-community.zip'));
+  await convertArangoBackupDirToPostgres(publicTmp);
+  await writeZipFromDir(publicTmp, path.join(outDir, 'public-community.zip'));
 } finally {
   await rm(publicTmp, { recursive: true, force: true });
 }

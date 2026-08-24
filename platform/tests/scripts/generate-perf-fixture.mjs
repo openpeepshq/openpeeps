@@ -2,6 +2,8 @@
  * Builds fixtures/backups/perf-scale.zip by cloning posts (+ edges) from
  * default-install.zip so offline perf runs exercise larger edge scans.
  *
+ * Expects default-install.zip in the current Postgres backup format.
+ *
  *   pnpm --filter @openpeepshq/tests run fixtures:generate-perf
  */
 import {
@@ -9,7 +11,6 @@ import {
   readFile,
   rm,
   writeFile,
-  copyFile,
   mkdir,
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -49,11 +50,12 @@ const writeJsonl = async (filePath, rows) => {
 
 const remapId = (value, idMap) => {
   if (typeof value !== 'string') return value;
+  let next = value;
   for (const [from, to] of idMap) {
-    if (value === from) return to;
-    if (value.includes(from)) return value.split(from).join(to);
+    if (next === from) return to;
+    if (next.includes(from)) next = next.split(from).join(to);
   }
-  return value;
+  return next;
 };
 
 const cloneRow = (row, idMap) => {
@@ -85,6 +87,11 @@ try {
   if (!posts.length) {
     throw new Error('Source fixture has no posts');
   }
+  if (posts.some((post) => !post.id)) {
+    throw new Error(
+      'Source fixture posts are not Postgres-shaped (missing id); regenerate default-install.zip first',
+    );
+  }
 
   const edgeFiles = [
     'entries.jsonl',
@@ -103,26 +110,30 @@ try {
     edgesByFile[file] = await readJsonl(path.join(collectionsDir, file));
   }
 
-  // The source backup predates `posts.data` (content used to live only on the
-  // `create` entry). Restores no longer run the Arango-era backfill migration,
-  // so without this every post fails `postWithMetaSchema` and no feed can
-  // return it — the harness would then time an empty feed.
+  // Ensure note bodies exist under body (Postgres row shape). Converter already
+  // backfills from create entries; keep this for hand-edited sources.
   const createEntryByPost = new Map(
     edgesByFile['entries.jsonl']
-      .filter((edge) => edge.type === 'create')
-      .map((edge) => [String(edge._to), edge]),
+      .filter((edge) => edge.body?.type === 'create' || edge.type === 'create')
+      .map((edge) => [String(edge.toId), edge]),
   );
-  const postsMissingData = posts.filter((post) => !post.data);
-  for (const post of postsMissingData) {
-    const data = createEntryByPost.get(`posts/${post._key}`)?.data;
+  const postsMissingBody = posts.filter(
+    (post) =>
+      !post.body ||
+      typeof post.body !== 'object' ||
+      Object.keys(post.body).length === 0,
+  );
+  for (const post of postsMissingBody) {
+    const entry = createEntryByPost.get(String(post.id));
+    const data = entry?.body?.data ?? entry?.data;
     if (!data?.type) {
-      throw new Error(`Post ${post._key} has no create entry data to backfill`);
+      throw new Error(`Post ${post.id} has no create entry data to backfill`);
     }
-    post.data = data;
-    post.type = data.type;
+    post.body = { ...data };
+    if (!post.type) post.type = data.type;
   }
-  if (postsMissingData.length) {
-    console.log(`Backfilled data on ${postsMissingData.length} post(s)`);
+  if (postsMissingBody.length) {
+    console.log(`Backfilled body on ${postsMissingBody.length} post(s)`);
   }
 
   const notePosts = posts.filter((p) => p.type === 'note' || !p.type);
@@ -132,14 +143,12 @@ try {
   let i = 0;
   while (outPosts.length < TARGET_POSTS) {
     const seed = seedPosts[i % seedPosts.length];
-    const oldKey = seed._key;
-    const newKey = randomUUID();
-    const idMap = new Map([
-      [oldKey, newKey],
-      [`posts/${oldKey}`, `posts/${newKey}`],
-    ]);
+    const oldId = seed.id;
+    const newId = randomUUID();
+    const idMap = new Map([[oldId, newId]]);
 
     const cloned = cloneRow(seed, idMap);
+    cloned.id = newId;
     cloned.createdAt = new Date(
       Date.now() - (TARGET_POSTS - outPosts.length) * 60_000,
     ).toISOString();
@@ -148,30 +157,17 @@ try {
 
     for (const file of edgeFiles) {
       const related = edgesByFile[file].filter((edge) => {
-        const from = String(edge._from ?? '');
-        const to = String(edge._to ?? '');
-        return from.includes(oldKey) || to.includes(oldKey);
+        const from = String(edge.fromId ?? '');
+        const to = String(edge.toId ?? '');
+        return from === oldId || to === oldId;
       });
       for (const edge of related) {
-        const edgeKey = randomUUID();
-        const edgeMap = new Map([
-          ...idMap,
-          [edge._key, edgeKey],
-          [
-            `${file.replace('.jsonl', '')}/${edge._key}`,
-            `${file.replace('.jsonl', '')}/${edgeKey}`,
-          ],
-        ]);
-        // Collection names in _id use camelCase without .jsonl
-        const collection = file.replace(/\.jsonl$/, '');
-        edgeMap.set(`${collection}/${edge._key}`, `${collection}/${edgeKey}`);
+        const edgeId = randomUUID();
+        const edgeMap = new Map([...idMap, [edge.id, edgeId]]);
         const clonedEdge = cloneRow(edge, edgeMap);
-        clonedEdge._key = edgeKey;
-        if (clonedEdge._id) {
-          clonedEdge._id = `${collection}/${edgeKey}`;
-        }
-        clonedEdge._from = remapId(clonedEdge._from, idMap);
-        clonedEdge._to = remapId(clonedEdge._to, idMap);
+        clonedEdge.id = edgeId;
+        clonedEdge.fromId = remapId(clonedEdge.fromId, idMap);
+        clonedEdge.toId = remapId(clonedEdge.toId, idMap);
         edgesByFile[file].push(clonedEdge);
       }
     }
@@ -184,15 +180,18 @@ try {
   }
 
   const metaPath = path.join(tmp, 'metadata.json');
-  try {
-    const meta = JSON.parse(await readFile(metaPath, 'utf8'));
-    meta.perfScale = { targetPosts: TARGET_POSTS, source: 'default-install' };
-    await writeFile(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
-  } catch {
-    /* optional */
+  const meta = JSON.parse(await readFile(metaPath, 'utf8'));
+  if (meta.databaseType !== 'postgres' || !meta.schemaVersion) {
+    throw new Error(
+      'Source fixture metadata must include databaseType=postgres and schemaVersion',
+    );
   }
+  meta.perfScale = { targetPosts: TARGET_POSTS, source: 'default-install' };
+  meta.createdAt = new Date().toISOString();
+  await writeFile(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
 
   await mkdir(path.dirname(outZip), { recursive: true });
+  await rm(outZip, { force: true });
   execFileSync('zip', ['-qr', outZip, '.'], { cwd: tmp });
   console.log(
     `Wrote ${outZip} with ${outPosts.length} posts (target ${TARGET_POSTS})`,

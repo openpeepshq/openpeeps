@@ -22,6 +22,7 @@ import {
   importAllArangoCollections,
   importAllPostgresCollections,
 } from '../db/migration/importCollections';
+import { getLatestSchemaVersion } from '../db/pg/migrate';
 import { replaceOrigin } from '../db/replaceOrigin';
 import { logger } from '../log';
 import { setDefaultRoles } from '../roles';
@@ -223,12 +224,13 @@ const assertBackupExtracted = async (tempDir: string) => {
 const restoreDatabaseFromBackup = async (
   collectionsDir: string,
   databaseType: BackupDatabaseType,
+  schemaVersion?: string,
 ) => {
   log.info('Restoring %s database from JSONL collections', databaseType);
 
   const { total } =
     databaseType === 'postgres'
-      ? await importAllPostgresCollections(collectionsDir)
+      ? await importAllPostgresCollections(collectionsDir, schemaVersion)
       : await importAllArangoCollections(collectionsDir);
 
   if (total === 0) {
@@ -278,10 +280,11 @@ export const createBackup = async () => {
         {
           databaseType: 'postgres',
           createdAt: new Date().toISOString(),
+          schemaVersion: getLatestSchemaVersion(),
           config: {
             hostname: hostnameFromServerHost(coreConfig.server.host),
           },
-        },
+        } satisfies BackupMetadata,
         null,
         2,
       ),
@@ -372,7 +375,11 @@ export const restoreBackups = async (zipFilePath: string) => {
     recursive: true,
   });
 
-  await restoreDatabaseFromBackup(collectionsDir, databaseType);
+  await restoreDatabaseFromBackup(
+    collectionsDir,
+    databaseType,
+    backupMetadata?.schemaVersion,
+  );
 
   // Repoint the backup's absolute URLs at this server's full origin (scheme +
   // host + port). Matching by the backup hostname means a prod backup on

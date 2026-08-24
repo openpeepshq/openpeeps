@@ -187,7 +187,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [empty, default, public, sso]
+        suite: [empty, default, public, sso, perf]
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     services:
@@ -285,7 +285,7 @@ jobs:
           echo "Web service did not become ready in time" >&2
           exit 1
       - name: Restore backup fixture
-        if: matrix.suite == 'default' || matrix.suite == 'public'
+        if: matrix.suite == 'default' || matrix.suite == 'public' || matrix.suite == 'perf'
         env:
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
           AUTO_MIGRATE_FROM_ARANGO: "false"
@@ -296,9 +296,12 @@ jobs:
           fixture=default-install.zip
           if [ "${{ matrix.suite }}" = "public" ]; then
             fixture=public-community.zip
+          elif [ "${{ matrix.suite }}" = "perf" ]; then
+            fixture=perf-scale.zip
           fi
           node platform/tests/scripts/restore-fixture.mjs "fixtures/backups/${fixture}"
       - name: Run integration suite
+        if: matrix.suite != 'perf'
         env:
           CI: "true"
           PLAYWRIGHT_BASE_URL: http://web:8080
@@ -310,6 +313,19 @@ jobs:
           INTEGRATION_SKIP_RESTORE: "true"
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
         run: pnpm --filter @openpeepshq/tests run "test:integration:${{ matrix.suite }}"
+      - name: Run API performance suite
+        if: matrix.suite == 'perf'
+        env:
+          CI: "true"
+          PERF_BASE_URL: http://web:8080
+          PERF_EMAIL: trinay+0@allpeep.com
+          PERF_PASSWORD: perf-password-1
+          PERF_ENFORCE: "1"
+          PERF_ITERATIONS: "5"
+          PERF_WARMUP: "1"
+          PERF_REQUIRE_PROFILE_GRAPH: "1"
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+        run: pnpm --filter @openpeepshq/tests run test:integration:perf
 
   test-integration-jams:
     runs-on: docker

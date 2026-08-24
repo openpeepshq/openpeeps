@@ -1,4 +1,6 @@
-import { existsSync } from 'node:fs';
+import { copyFileSync, existsSync, readFileSync } from 'node:fs';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getTableName, sql, type Table } from 'drizzle-orm';
@@ -21,6 +23,126 @@ const resolveMigrationsFolder = () => {
 };
 
 const migrationsFolder = resolveMigrationsFolder();
+
+type JournalEntry = {
+  idx: number;
+  version: string;
+  when: number;
+  tag: string;
+  breakpoints: boolean;
+};
+
+type MigrationJournal = {
+  version: string;
+  dialect: string;
+  entries: JournalEntry[];
+};
+
+const readMigrationJournal = (): MigrationJournal => {
+  const journalPath = join(migrationsFolder, 'meta', '_journal.json');
+  return JSON.parse(readFileSync(journalPath, 'utf8')) as MigrationJournal;
+};
+
+/** Drizzle journal tags in apply order (e.g. `0000_bizarre_chat`). */
+export const listSchemaVersions = (): string[] =>
+  readMigrationJournal().entries.map((entry) => entry.tag);
+
+export const getFirstSchemaVersion = (): string => {
+  const tags = listSchemaVersions();
+  const first = tags[0];
+  if (!first) {
+    throw new Error('No Postgres schema migrations found');
+  }
+  return first;
+};
+
+export const getLatestSchemaVersion = (): string => {
+  const tags = listSchemaVersions();
+  const latest = tags[tags.length - 1];
+  if (!latest) {
+    throw new Error('No Postgres schema migrations found');
+  }
+  return latest;
+};
+
+/**
+ * Postgres backups created before `schemaVersion` was stamped assumed this
+ * journal tag (see `sql/meta/0006_snapshot.json`).
+ */
+export const LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION = '0006_fine_trish_tilby';
+
+const assertKnownSchemaVersion = (tag: string): string => {
+  if (!listSchemaVersions().includes(tag)) {
+    throw new Error(
+      `Unknown Postgres schema version "${tag}"; known: ${listSchemaVersions().join(', ')}`,
+    );
+  }
+  return tag;
+};
+
+/**
+ * Schema to apply before JSONL import on restore.
+ * - Arango → first journal tag so later SQL data migrations see restored rows.
+ * - Postgres with `schemaVersion` → that tag (must still exist in this binary).
+ * - Postgres without → `0006_fine_trish_tilby` (pre-stamping baseline).
+ */
+export const resolveRestoreSchemaVersion = (
+  databaseType: 'arango' | 'postgres',
+  schemaVersion?: string,
+): string => {
+  if (databaseType === 'arango') {
+    return getFirstSchemaVersion();
+  }
+  if (schemaVersion) {
+    return assertKnownSchemaVersion(schemaVersion);
+  }
+  return assertKnownSchemaVersion(LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION);
+};
+
+const buildMigrationsFolderUpTo = async (tag: string): Promise<string> => {
+  const journal = readMigrationJournal();
+  const endIdx = journal.entries.findIndex((entry) => entry.tag === tag);
+  if (endIdx < 0) {
+    throw new Error(`Unknown Postgres schema version: ${tag}`);
+  }
+
+  const entries = journal.entries.slice(0, endIdx + 1);
+  const folder = await mkdtemp(join(tmpdir(), 'op-migrate-'));
+  await mkdir(join(folder, 'meta'), { recursive: true });
+  await writeFile(
+    join(folder, 'meta', '_journal.json'),
+    `${JSON.stringify({ ...journal, entries }, null, 2)}\n`,
+  );
+  for (const entry of entries) {
+    copyFileSync(
+      join(migrationsFolder, `${entry.tag}.sql`),
+      join(folder, `${entry.tag}.sql`),
+    );
+  }
+  return folder;
+};
+
+/** Apply Drizzle migrations only through `tag` (inclusive). */
+export const migrateToSchemaVersion = async (tag: string) => {
+  const folder = await buildMigrationsFolderUpTo(tag);
+  try {
+    await ensurePublicSchema();
+    await migrate(pgDb(), { migrationsFolder: folder });
+  } finally {
+    await rm(folder, { recursive: true, force: true });
+  }
+};
+
+/**
+ * Wipe public + drizzle schemas, then migrate through `tag`.
+ * Used by backup restore so import lands on a known schema version.
+ */
+export const resetAndMigrateToSchemaVersion = async (tag: string) => {
+  log.info('Resetting Postgres schemas and migrating to %s', tag);
+  await resetPostgresSchemas();
+  await migrateToSchemaVersion(tag);
+  log.info('Postgres schema ready at %s', tag);
+};
 
 const APP_TABLE_NAMES = [
   ...DOCUMENT_IMPORT_ORDER.map((collection) =>

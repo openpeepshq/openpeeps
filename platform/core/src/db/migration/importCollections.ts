@@ -5,7 +5,11 @@ import { join } from 'node:path';
 import { getTableName, sql, type Table } from 'drizzle-orm';
 import { logger } from '../../log';
 import { pgDb } from '../pg/client';
-import { runMigrations } from '../pg/migrate';
+import {
+  resetAndMigrateToSchemaVersion,
+  resolveRestoreSchemaVersion,
+  runMigrations,
+} from '../pg/migrate';
 import {
   documentRegistry,
   edgeRegistry,
@@ -349,9 +353,21 @@ export const importPostgresRowCollection = async (
 const sumImported = (imported: Record<string, number>) =>
   Object.values(imported).reduce((sum, count) => sum + count, 0);
 
-export const importAllArangoCollections = async (collectionsDir: string) => {
-  await runMigrations();
+const prepareSchemaForRestore = async (
+  databaseType: 'arango' | 'postgres',
+  schemaVersionFromBackup?: string,
+) => {
+  const schemaVersion = resolveRestoreSchemaVersion(
+    databaseType,
+    schemaVersionFromBackup,
+  );
+  log.info('Preparing %s restore at schema %s', databaseType, schemaVersion);
+  await resetAndMigrateToSchemaVersion(schemaVersion);
   await truncateAllTables();
+};
+
+export const importAllArangoCollections = async (collectionsDir: string) => {
+  await prepareSchemaForRestore('arango');
 
   const imported: Record<string, number> = {};
   const context: ImportContext = {
@@ -359,7 +375,11 @@ export const importAllArangoCollections = async (collectionsDir: string) => {
     hashtagIdRemap: new Map(),
   };
 
+  // Skip dataMigrations — Arango-era migration ledger is unused on Postgres.
   for (const collection of DOCUMENT_IMPORT_ORDER) {
+    if (collection === 'dataMigrations') {
+      continue;
+    }
     imported[collection] = await importArangoCollection(
       collection,
       collectionsDir,
@@ -374,6 +394,9 @@ export const importAllArangoCollections = async (collectionsDir: string) => {
       context,
     );
   }
+
+  log.info('Arango rows loaded; migrating schema forward to latest');
+  await runMigrations();
 
   const total = sumImported(imported);
   log.info(
@@ -385,9 +408,11 @@ export const importAllArangoCollections = async (collectionsDir: string) => {
   return { imported, total };
 };
 
-export const importAllPostgresCollections = async (collectionsDir: string) => {
-  await runMigrations();
-  await truncateAllTables();
+export const importAllPostgresCollections = async (
+  collectionsDir: string,
+  schemaVersionFromBackup?: string,
+) => {
+  await prepareSchemaForRestore('postgres', schemaVersionFromBackup);
 
   const imported: Record<string, number> = {};
 
@@ -404,6 +429,9 @@ export const importAllPostgresCollections = async (collectionsDir: string) => {
       collectionsDir,
     );
   }
+
+  log.info('Postgres rows loaded; ensuring schema is at latest');
+  await runMigrations();
 
   const total = sumImported(imported);
   log.info(

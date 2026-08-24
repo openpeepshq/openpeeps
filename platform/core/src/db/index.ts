@@ -26,12 +26,18 @@ export {
 } from './pg/filters';
 export { computedFields, sorts } from './pg/queries';
 
-let dbPromise: Promise<OpenpeepsDatabase>;
+let dbPromise: Promise<OpenpeepsDatabase> | undefined;
+
 export const allpeepDb = () => {
   if (!dbPromise) {
     dbPromise = initDb();
   }
   return dbPromise;
+};
+
+/** Clear the cached DB after `closePostgres()` so the next call re-inits. */
+export const resetAllpeepDb = () => {
+  dbPromise = undefined;
 };
 
 export const database = (): Promise<PgDb> => allpeepDb().then(({ db }) => db);

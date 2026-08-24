@@ -14,6 +14,7 @@
     "test:integration:public": "unset FORCE_COLOR; INTEGRATION_SUITE=public playwright test --project=public",
     "test:integration:sso": "unset FORCE_COLOR; INTEGRATION_SUITE=sso playwright test --project=sso",
     "test:integration:jams": "unset FORCE_COLOR; INTEGRATION_SUITE=jams playwright test --project=jams",
+    "test:integration:perf": "node scripts/api-perf.mjs",
     "loadtest:jam": "node scripts/jam-loadtest.mjs",
     "perf:api": "node scripts/api-perf.mjs",
     "fixtures:generate-perf": "node scripts/generate-perf-fixture.mjs",
