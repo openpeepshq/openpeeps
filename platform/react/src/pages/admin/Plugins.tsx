@@ -172,8 +172,16 @@ export const AdminPlugins = () => {
     try {
       const source =
         installType === 'npm'
-          ? { type: 'npm' as const, package: installSource, version: installVersion || undefined }
-          : { type: 'git' as const, url: installSource, ref: installVersion || undefined };
+          ? {
+              type: 'npm' as const,
+              package: installSource,
+              version: installVersion || undefined,
+            }
+          : {
+              type: 'git' as const,
+              url: installSource,
+              ref: installVersion || undefined,
+            };
       await installPlugin(source);
       setInstallSource('');
       setInstallVersion('');
@@ -195,8 +203,9 @@ export const AdminPlugins = () => {
     setReloading(true);
     try {
       await reloadPluginsAction();
-      setChangedKeys(new Set());
-      void pluginsQuery.refetch();
+      // The client-side plugin registry loaded its manifest and script tags
+      // at mount time; only a full page reload picks up the new state.
+      window.location.reload();
     } finally {
       setReloading(false);
     }
@@ -245,9 +254,9 @@ export const AdminPlugins = () => {
       </div>
 
       {showInstallForm && (
-        <div className="rounded-md border p-3 space-y-3">
+        <div className="space-y-3 rounded-md border p-3">
           <div className="flex items-center justify-between">
-            <p className="font-semibold text-sm">
+            <p className="text-sm font-semibold">
               {t('admin.plugins.installTitle', {
                 defaultValue: 'Install Plugin',
               })}
@@ -342,7 +351,9 @@ export const AdminPlugins = () => {
               showReloadHint={changedKeys.has(plugin.key)}
               pending={pendingKeys.has(plugin.key)}
               onToggle={(enabled) => void toggle(plugin, enabled)}
-              onUninstall={plugin.installed ? () => void uninstall(plugin) : undefined}
+              onUninstall={
+                plugin.installed ? () => void uninstall(plugin) : undefined
+              }
             />
           ))}
         </>
