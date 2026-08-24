@@ -91,8 +91,8 @@ export const AnalyticsOverviewPage = () => {
     t(`admin.analytics.info.${key}`, { defaultValue });
 
   return (
-    <div className="space-y-5">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="min-w-0 space-y-5">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           label={t('admin.analytics.metrics.totalPosts', {
             defaultValue: 'Total posts',
@@ -151,7 +151,7 @@ export const AnalyticsOverviewPage = () => {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-3">
         <AnalyticsSection
           className="lg:col-span-2"
           title={t('admin.analytics.postsOverTime', {
@@ -229,7 +229,7 @@ export const AnalyticsOverviewPage = () => {
         <AnalyticsLineChart data={activeUsersChart} />
       </AnalyticsSection>
 
-      <div className="space-y-4">
+      <div className="min-w-0 space-y-4">
         <AnalyticsSection
           collapsible
           title={t('admin.analytics.topMembers', {
