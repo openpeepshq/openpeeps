@@ -117,6 +117,10 @@ export const closePostgres = async () => {
   await pool?.end();
   pool = undefined;
   dbInstance = undefined;
+  // DROP SCHEMA / pool.end leaves allpeepDb() holding a dead Pool; next caller
+  // must re-run initDb() (e.g. setDefaultRoles after backup restore).
+  const { resetAllpeepDb } = await import('../index.js');
+  resetAllpeepDb();
 };
 
 /**

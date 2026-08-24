@@ -16,7 +16,15 @@ vi.mock('drizzle-orm/node-postgres/migrator', () => ({
   migrate: (...args: unknown[]) => migrate(...args),
 }));
 
-const { assertSchemaReady, runMigrations } = await import('./migrate');
+const {
+  assertSchemaReady,
+  getFirstSchemaVersion,
+  getLatestSchemaVersion,
+  LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION,
+  listSchemaVersions,
+  resolveRestoreSchemaVersion,
+  runMigrations,
+} = await import('./migrate');
 
 const sqlText = (statement: unknown): string => {
   if (!statement || typeof statement !== 'object') {
@@ -31,6 +39,32 @@ const sqlText = (statement: unknown): string => {
     .map((chunk) => (Array.isArray(chunk.value) ? chunk.value.join('') : ''))
     .join('');
 };
+
+describe('schema version helpers', () => {
+  it('lists journal tags in order', () => {
+    const tags = listSchemaVersions();
+    expect(tags.length).toBeGreaterThan(0);
+    expect(tags[0]).toMatch(/^0000_/);
+    expect(getFirstSchemaVersion()).toBe(tags[0]);
+    expect(getLatestSchemaVersion()).toBe(tags[tags.length - 1]);
+  });
+
+  it('resolves restore targets for arango vs postgres', () => {
+    expect(resolveRestoreSchemaVersion('arango')).toBe(getFirstSchemaVersion());
+    expect(resolveRestoreSchemaVersion('postgres')).toBe(
+      LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION,
+    );
+    expect(resolveRestoreSchemaVersion('postgres', getLatestSchemaVersion())).toBe(
+      getLatestSchemaVersion(),
+    );
+  });
+
+  it('rejects unknown postgres schemaVersion tags', () => {
+    expect(() =>
+      resolveRestoreSchemaVersion('postgres', '9999_does_not_exist'),
+    ).toThrow(/Unknown Postgres schema version/);
+  });
+});
 
 describe('assertSchemaReady', () => {
   beforeEach(() => {
