@@ -76,7 +76,7 @@ Postgres schema version at export time.
 {
   "databaseType": "postgres",
   "createdAt": "2026-08-23T12:00:00.000Z",
-  "schemaVersion": "0006_fine_trish_tilby",
+  "schemaVersion": "0007_shallow_oracle",
   "config": {
     "hostname": "community.example.com"
   }
@@ -150,8 +150,8 @@ from the archive.
 4. Reset the Postgres schemas and migrate to the restore target schema:
    - **Arango** backups → first Drizzle journal tag (baseline schema).
    - **Postgres** with `schemaVersion` → that journal tag.
-   - **Postgres** without `schemaVersion` → `0006_fine_trish_tilby`
-     (`meta/0006_snapshot.json`), the last schema before version stamping.
+   - **Postgres** without `schemaVersion` → `0007_shallow_oracle`
+     (`meta/0007_snapshot.json`), the last schema before version stamping.
 5. Import all JSONL files:
    - **Arango** lines → transformed into Postgres rows.
    - **Postgres** lines → inserted directly.

@@ -67,9 +67,9 @@ export const getLatestSchemaVersion = (): string => {
 
 /**
  * Postgres backups created before `schemaVersion` was stamped assumed this
- * journal tag (see `sql/meta/0006_snapshot.json`).
+ * journal tag (see `sql/meta/0007_snapshot.json`).
  */
-export const LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION = '0006_fine_trish_tilby';
+export const LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION = '0007_shallow_oracle';
 
 const assertKnownSchemaVersion = (tag: string): string => {
   if (!listSchemaVersions().includes(tag)) {
@@ -84,7 +84,7 @@ const assertKnownSchemaVersion = (tag: string): string => {
  * Schema to apply before JSONL import on restore.
  * - Arango → first journal tag so later SQL data migrations see restored rows.
  * - Postgres with `schemaVersion` → that tag (must still exist in this binary).
- * - Postgres without → `0006_fine_trish_tilby` (pre-stamping baseline).
+ * - Postgres without → `0007_shallow_oracle` (pre-stamping baseline).
  */
 export const resolveRestoreSchemaVersion = (
   databaseType: 'arango' | 'postgres',

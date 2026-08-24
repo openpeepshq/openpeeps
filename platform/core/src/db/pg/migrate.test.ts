@@ -54,6 +54,7 @@ describe('schema version helpers', () => {
     expect(resolveRestoreSchemaVersion('postgres')).toBe(
       LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION,
     );
+    expect(LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION).toBe('0007_shallow_oracle');
     expect(resolveRestoreSchemaVersion('postgres', getLatestSchemaVersion())).toBe(
       getLatestSchemaVersion(),
     );
