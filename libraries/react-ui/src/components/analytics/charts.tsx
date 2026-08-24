@@ -53,7 +53,7 @@ export const AnalyticsBarChart = ({
   integerTicks = true,
   compact = false,
 }: BaseChartProps) => (
-  <div className={cn('w-full', className)} style={{ height }}>
+  <div className={cn('w-full min-w-0', className)} style={{ height }}>
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
         data={data}
@@ -85,7 +85,7 @@ export const AnalyticsLineChart = ({
   integerTicks = true,
   compact = false,
 }: BaseChartProps) => (
-  <div className={cn('w-full', className)} style={{ height }}>
+  <div className={cn('w-full min-w-0', className)} style={{ height }}>
     <ResponsiveContainer width="100%" height="100%">
       <LineChart
         data={data}
@@ -123,7 +123,7 @@ export const AnalyticsAreaChart = ({
   integerTicks = true,
   compact = false,
 }: BaseChartProps) => (
-  <div className={cn('w-full', className)} style={{ height }}>
+  <div className={cn('w-full min-w-0', className)} style={{ height }}>
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart
         data={data}
@@ -172,7 +172,7 @@ export const AnalyticsStackedBarChart = ({
   height?: number;
   integerTicks?: boolean;
 }) => (
-  <div className={cn('w-full', className)} style={{ height }}>
+  <div className={cn('w-full min-w-0', className)} style={{ height }}>
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -211,7 +211,7 @@ export const AnalyticsMultiLineChart = ({
   height?: number;
   integerTicks?: boolean;
 }) => (
-  <div className={cn('w-full', className)} style={{ height }}>
+  <div className={cn('w-full min-w-0', className)} style={{ height }}>
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -251,7 +251,7 @@ export const AnalyticsStackedAreaChart = ({
   height?: number;
   integerTicks?: boolean;
 }) => (
-  <div className={cn('w-full', className)} style={{ height }}>
+  <div className={cn('w-full min-w-0', className)} style={{ height }}>
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -293,7 +293,7 @@ export const AnalyticsDonutChart = ({
 }) => {
   const colors = ['#2563eb', '#16a34a', '#ea580c', '#9333ea', '#0891b2'];
   return (
-    <div className={cn('w-full', className)} style={{ height }}>
+    <div className={cn('w-full min-w-0', className)} style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -430,7 +430,7 @@ export const AnalyticsDayHeatmap = ({
   const weekdayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn('w-full min-w-0', className)}>
       <div className="flex h-28 gap-1 sm:h-32">
         <div className="text-muted-foreground flex w-3 shrink-0 flex-col justify-between py-0.5 text-[9px] leading-none">
           {weekdayLabels.map((label, i) => (
@@ -445,9 +445,7 @@ export const AnalyticsDayHeatmap = ({
               {week.map((cell, di) => (
                 <div
                   key={cell.day ?? `pad-${wi}-${di}`}
-                  title={
-                    cell.day ? `${cell.day} — ${cell.value}` : undefined
-                  }
+                  title={cell.day ? `${cell.day} — ${cell.value}` : undefined}
                   className={cn(
                     'min-h-0 flex-1 rounded-[2px]',
                     !cell.inRange && 'opacity-0',

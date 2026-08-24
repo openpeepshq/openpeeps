@@ -110,7 +110,7 @@ export const AnalyticsLayout = () => {
 
   return (
     <AnalyticsRangeContext.Provider value={{ range, setRange, queryParams }}>
-      <div className="bg-background min-h-full space-y-5 p-4 sm:p-6">
+      <div className="bg-background min-h-full min-w-0 space-y-5 p-4 sm:p-6">
         <nav
           aria-label={t('admin.analytics.tabsLabel', {
             defaultValue: 'Analytics sections',
@@ -201,26 +201,25 @@ export const AnalyticsSection = ({
     </div>
   );
 
+  // min-w-0 lets grid/flex parents shrink the card; overflow-x-auto keeps
+  // wide tables and charts inside the rounded border on narrow viewports.
+  const shellClass = `bg-background relative min-w-0 overflow-hidden rounded-xl border p-4 shadow-sm ${className ?? ''}`;
+
   if (!collapsible) {
     return (
-      <section
-        className={`bg-background relative rounded-xl border p-4 shadow-sm ${className ?? ''}`}
-      >
+      <section className={shellClass}>
         <div className="mb-4">{titleRow}</div>
-        {children}
+        <div className="min-w-0 overflow-x-auto">{children}</div>
       </section>
     );
   }
 
   return (
-    <details
-      open={defaultOpen}
-      className={`bg-background group relative rounded-xl border p-4 shadow-sm ${className ?? ''}`}
-    >
+    <details open={defaultOpen} className={`group ${shellClass}`}>
       <summary className="cursor-pointer list-none marker:content-none [&::-webkit-details-marker]:hidden">
         {titleRow}
       </summary>
-      <div className="mt-4">{children}</div>
+      <div className="mt-4 min-w-0 overflow-x-auto">{children}</div>
     </details>
   );
 };
