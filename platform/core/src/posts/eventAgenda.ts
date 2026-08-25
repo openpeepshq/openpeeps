@@ -14,11 +14,12 @@ import {
 } from 'drizzle-orm';
 import type {
   AuthorizationData,
+  DbPost,
   PostWithMeta,
 } from '@openpeepshq/common/types';
 import { canReadPost } from './helpers/filters';
 import { transformPost } from './helpers';
-import { allpeepDb } from '../db';
+import { allpeepDb, type PgDb } from '../db';
 import { capabilitiesConfig } from '../config';
 import { normalizeComputedDatetime } from '../db/pg/mappers';
 import { eventOccurrences, posts } from '../db/pg/schema';
@@ -27,7 +28,6 @@ import { postHasYesOrMaybeRsvpExpr } from '../db/pg/queries';
 import { postFilters } from '../db/pg/filters';
 import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';
 import { postsMappingForProfile } from './mapping';
-import type { DbPost } from '@openpeepshq/common/types';
 
 export type EventAgendaWindow = 'upcoming' | 'current' | 'past';
 
@@ -37,6 +37,17 @@ export type EventAgendaOptions = {
   jamOnly?: boolean;
   mine?: boolean;
   groupId?: string;
+};
+
+export type EventAgendaQueryArgs = {
+  window: EventAgendaWindow;
+  now: string;
+  offset: number;
+  limit: number;
+  jamOnly?: boolean;
+  mine?: boolean;
+  groupId?: string;
+  profileId?: string;
 };
 
 const occurrenceTimeFilter = (window: EventAgendaWindow, now: string): SQL => {
@@ -49,6 +60,78 @@ const occurrenceTimeFilter = (window: EventAgendaWindow, now: string): SQL => {
     return and(lte(start, now), or(isNull(end), gte(end, now)))!;
   }
   return sql`COALESCE(${end}, ${start}) < ${now}`;
+};
+
+const eventAgendaConditions = ({
+  window,
+  now,
+  jamOnly,
+  mine,
+  groupId,
+  profileId,
+}: EventAgendaQueryArgs): SQL[] => {
+  const conditions: SQL[] = [
+    isNull(posts.deletedAt),
+    eq(posts.type, 'event'),
+    eq(eventOccurrences.cancelled, false),
+    occurrenceTimeFilter(window, now),
+  ];
+  if (jamOnly) {
+    conditions.push(isNotNull(sql`${posts.body}->'jam'`));
+  }
+  if (mine && profileId) {
+    conditions.push(
+      or(
+        eq(posts.creatorId, profileId),
+        postFilters.isJamModerator(profileId).where,
+        postHasYesOrMaybeRsvpExpr(posts, profileId),
+      )!,
+    );
+  }
+  if (groupId) {
+    conditions.push(
+      sql`EXISTS (SELECT 1 FROM ${postGroups} WHERE ${postGroups.fromId} = ${posts.id}::text AND ${postGroups.toId} = ${groupId})`,
+    );
+  }
+  return conditions;
+};
+
+// One row per event: a daily series would otherwise fill the first page.
+export const eventAgendaOccurrenceQuery = (
+  db: Pick<PgDb, 'select' | 'selectDistinctOn'>,
+  args: EventAgendaQueryArgs,
+) => {
+  const pickOrder =
+    args.window === 'past'
+      ? desc(eventOccurrences.start)
+      : asc(eventOccurrences.start);
+  const distinctOccurrences = db
+    .selectDistinctOn([eventOccurrences.postId], {
+      postId: eventOccurrences.postId,
+      recurrenceId: eventOccurrences.recurrenceId,
+      start: eventOccurrences.start,
+      end: eventOccurrences.end,
+    })
+    .from(eventOccurrences)
+    .innerJoin(posts, eq(posts.id, eventOccurrences.postId))
+    .where(and(...eventAgendaConditions(args)))
+    .orderBy(eventOccurrences.postId, pickOrder)
+    .as('event_agenda');
+  return db
+    .select({
+      postId: distinctOccurrences.postId,
+      recurrenceId: distinctOccurrences.recurrenceId,
+      start: distinctOccurrences.start,
+      end: distinctOccurrences.end,
+    })
+    .from(distinctOccurrences)
+    .orderBy(
+      args.window === 'past'
+        ? desc(distinctOccurrences.start)
+        : asc(distinctOccurrences.start),
+    )
+    .limit(args.limit)
+    .offset(args.offset);
 };
 
 const loadPostsByIds = async (
@@ -98,54 +181,16 @@ export const listEventAgenda = async (
 ): Promise<PostWithMeta[]> => {
   const { db } = await allpeepDb();
   const now = new Date().toISOString();
-  const conditions: SQL[] = [
-    isNull(posts.deletedAt),
-    eq(posts.type, 'event'),
-    eq(eventOccurrences.cancelled, false),
-    occurrenceTimeFilter(window, now),
-  ];
-  if (jamOnly) {
-    conditions.push(isNotNull(sql`${posts.body}->'jam'`));
-  }
-  if (mine && authData.profile) {
-    const profileId = authData.profile.id;
-    conditions.push(
-      or(
-        eq(posts.creatorId, profileId),
-        postFilters.isJamModerator(profileId).where,
-        postHasYesOrMaybeRsvpExpr(posts, profileId),
-      )!,
-    );
-  }
-
-  const order =
-    window === 'past'
-      ? desc(eventOccurrences.start)
-      : asc(eventOccurrences.start);
-
-  const baseQuery = db
-    .select({
-      postId: eventOccurrences.postId,
-      recurrenceId: eventOccurrences.recurrenceId,
-      start: eventOccurrences.start,
-      end: eventOccurrences.end,
-    })
-    .from(eventOccurrences)
-    .innerJoin(posts, eq(posts.id, eventOccurrences.postId));
-
-  const filtered = groupId
-    ? baseQuery
-        .innerJoin(
-          postGroups,
-          and(
-            eq(postGroups.fromId, sql`${posts.id}::text`),
-            eq(postGroups.toId, groupId),
-          ),
-        )
-        .where(and(...conditions))
-    : baseQuery.where(and(...conditions));
-
-  const rows = await filtered.orderBy(order).limit(limit).offset(offset);
+  const rows = await eventAgendaOccurrenceQuery(db, {
+    window,
+    now,
+    offset,
+    limit,
+    jamOnly,
+    mine,
+    groupId,
+    profileId: authData.profile?.id,
+  });
   const postsById = await loadPostsByIds(
     [...new Set(rows.map((row) => row.postId))],
     authData,

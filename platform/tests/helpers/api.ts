@@ -215,9 +215,14 @@ export const createEvent = async (
   request: APIRequestContext,
   token: string,
   name: string,
+  extras?: {
+    start?: string;
+    end?: string;
+    recurrence?: { freq: 'DAILY' | 'WEEKLY' | 'MONTHLY' };
+  },
 ) => {
-  const start = new Date(Date.now() + 60_000).toISOString();
-  const end = new Date(Date.now() + 3_600_000).toISOString();
+  const start = extras?.start ?? new Date(Date.now() + 60_000).toISOString();
+  const end = extras?.end ?? new Date(Date.now() + 3_600_000).toISOString();
   const response = await request.post('/api/openpeeps/core/v1/posts', {
     headers: apiHeaders(token),
     data: {
@@ -230,6 +235,7 @@ export const createEvent = async (
         start,
         end,
         wholeDay: false,
+        ...(extras?.recurrence ? { recurrence: extras.recurrence } : {}),
       },
     },
   });
