@@ -1,6 +1,7 @@
 # Local / CI reproduction of multi-suite Postgres integration tests.
 #
 # From platform/tests:
+#   pnpm run integration:empty
 #   INTEGRATION_SUITE=empty pnpm run integration
 #   INTEGRATION_SUITE=default pnpm run integration
 #   INTEGRATION_SUITE=public pnpm run integration
@@ -27,6 +28,7 @@ x-openpeeps-env: &openpeeps-env
   JAMS_LIVEKIT_API_SECRET: ${JAMS_LIVEKIT_API_SECRET:-}
   SERVER_HOST: web:8080
   SERVER_PROTOCOL: http
+  COMMUNITY_ONBOARDING_GUIDE_ENABLED: ${COMMUNITY_ONBOARDING_GUIDE_ENABLED:-false}
 
 services:
   postgres:

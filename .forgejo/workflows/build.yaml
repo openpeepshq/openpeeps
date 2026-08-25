@@ -240,6 +240,7 @@ jobs:
           SERVER_PROTOCOL: http
           JAMS_LIVEKIT_API_KEY: APIxxxxxxxxxxxx
           JAMS_LIVEKIT_API_SECRET: xxxxxxxxxxxxx
+          COMMUNITY_ONBOARDING_GUIDE_ENABLED: ${{ matrix.suite == 'empty' && 'false' || 'true' }}
       worker:
         image:
           ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
@@ -260,6 +261,7 @@ jobs:
           EMAIL_DEFAULT_FROM: test@openpeeps.test
           SERVER_HOST: web:8080
           SERVER_PROTOCOL: http
+          COMMUNITY_ONBOARDING_GUIDE_ENABLED: ${{ matrix.suite == 'empty' && 'false' || 'true' }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:

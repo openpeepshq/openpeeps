@@ -13,6 +13,7 @@ import { useDefaultVisibility } from '../post/visibility';
 import { useCurrentProfile } from './IdentityContext';
 import { useRouter } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
+import { OnboardingGuideProvider, OnboardingHost } from '../../onboarding';
 
 export interface RootLayoutProps {
   children?: ReactNode;
@@ -76,7 +77,10 @@ export function RootLayout({ children, sideBar }: RootLayoutProps) {
                   <ContentHeader />
                   <Breadcrumbs />
                   <Infos />
-                  {children}
+                  <OnboardingGuideProvider>
+                    {children}
+                    <OnboardingHost />
+                  </OnboardingGuideProvider>
                 </main>
                 <PlusButton />
               </div>
