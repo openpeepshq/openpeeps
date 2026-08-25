@@ -38,7 +38,19 @@ const memberCaps = {
     remove: ['core-posts-create-event'],
   },
   moderator: { add: ['core-posts-*'] },
-  admin: { add: ['core-posts-*', 'core-groups-*'] },
+  admin: {
+    add: [
+      'core-posts-*',
+      'core-groups-read',
+      'core-groups-update',
+      'core-groups-join',
+      'core-groups-leave',
+      'core-groups-addMember',
+      'core-groups-removeMember',
+      'core-groups-changeMemberRole',
+    ],
+  },
+  owner: { add: ['core-posts-*', 'core-groups-*'] },
 };
 
 type ApiRequest = Parameters<typeof registerUser>[0];

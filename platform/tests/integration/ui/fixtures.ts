@@ -233,15 +233,8 @@ export const createGroupViaUi = async (
     await page.getByTestId(testIds.groups.rulesInput).fill(options.rules);
   }
 
-  const whoCanPostEventsMembers = page.getByTestId(
-    testIds.groups.whoCanPostEventsMembers,
-  );
-  if (await whoCanPostEventsMembers.isVisible()) {
-    if (options.adminsOnlyEvents) {
-      await page.getByTestId(testIds.groups.whoCanPostEventsAdmin).check();
-    } else {
-      await whoCanPostEventsMembers.check();
-    }
+  if (options.adminsOnlyEvents) {
+    await page.getByTestId(testIds.groups.template('announcementGroup')).check();
   }
 
   await page.getByTestId(testIds.groups.createSubmit).click();

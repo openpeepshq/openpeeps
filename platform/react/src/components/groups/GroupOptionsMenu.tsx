@@ -8,7 +8,11 @@ import {
   UserPlus,
 } from 'lucide-react';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
-import { checkGroupCapabilities } from '@openpeepshq/common/lib';
+import {
+  checkGroupCapabilities,
+  countGroupOwners,
+  groupMembershipHasRole,
+} from '@openpeepshq/common/lib';
 import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
@@ -45,6 +49,12 @@ export function GroupOptionsMenu({ group }: GroupOptionsMenuProps) {
     ['core-groups-update'],
     group,
   ).success;
+  const canEditCapabilities = checkGroupCapabilities(
+    authData,
+    ['core-groups-updateCapabilities'],
+    group,
+  ).success;
+  const canOpenEdit = canEdit || canEditCapabilities;
   const canAddMembers = checkGroupCapabilities(
     authData,
     ['core-groups-addMember'],
@@ -56,21 +66,20 @@ export function GroupOptionsMenu({ group }: GroupOptionsMenuProps) {
     group,
   ).success;
 
-  const isLastAdmin = useMemo(() => {
+  const isLastOwner = useMemo(() => {
     const membership = me?.memberships?.find((m) => m.group.id === group.id);
-    const isAdmin = membership?.roles?.includes('admin');
-    const adminCount = (membersQuery.data ?? []).filter((m) =>
-      m.roles?.includes('admin'),
-    ).length;
-    return !!isAdmin && adminCount <= 1;
+    return (
+      groupMembershipHasRole(membership?.roles, 'owner') &&
+      countGroupOwners(membersQuery.data ?? []) <= 1
+    );
   }, [me?.memberships, group.id, membersQuery.data]);
 
   const handleLeave = () => {
-    if (isLastAdmin) {
+    if (isLastOwner) {
       window.alert(
-        t('groups.leave.lastAdminError', {
+        t('groups.leave.lastOwnerError', {
           defaultValue:
-            'You are the last admin. Assign another admin before leaving.',
+            'You are the last owner. Assign another owner before leaving.',
         }),
       );
       return;
@@ -110,12 +119,14 @@ export function GroupOptionsMenu({ group }: GroupOptionsMenuProps) {
             action={() => void handleMarkAllRead()}
           />
         ) : null}
-        {canEdit ? (
+        {canOpenEdit ? (
           <PopupMenuButton
             title={t('groups.actions.editGroup', {
               defaultValue: 'Edit group',
             })}
-            text={t('groups.actions.editGroup', { defaultValue: 'Edit group' })}
+            text={t('groups.actions.editGroup', {
+              defaultValue: 'Edit group',
+            })}
             icon={Pencil}
             action={() =>
               navigate({ type: 'group', handle: group.handle, view: 'edit' })

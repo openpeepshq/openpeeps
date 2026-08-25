@@ -111,17 +111,15 @@ export const getGroupRelationships = (
   authData: AuthorizationData,
   group: GroupWithMeta,
 ): [GroupRelationship, ...GroupRelationship[]] => {
-  const { profile } = authData;
-  if (profile) {
-    return [
-      'local',
-      'none',
-      ...(profile.memberships.find((m) => m.group.id === group.id)?.roles ??
-        []),
+  const membershipRoles =
+    authData.profile?.memberships.find((m) => m.group.id === group.id)?.roles ??
+    [];
+
+  if (authData.profile || authData.service) {
+    return [...localOrNone(authData), ...membershipRoles] as [
+      GroupRelationship,
+      ...GroupRelationship[],
     ];
-  }
-  if (authData.service) {
-    return ['local', 'none'];
   }
   return ['none'];
 };

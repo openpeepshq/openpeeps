@@ -540,6 +540,18 @@
       "error": "Failed to create group",
       "success": "Group created"
     },
+    "edit": {
+      "title": "Edit group",
+      "info": {
+        "title": "Group information",
+        "description": "Avatar, banner, name, description, and group rules"
+      },
+      "roles": {
+        "title": "Roles & capabilities",
+        "description": "Who can join, post, and manage this group"
+      },
+      "rolesForbidden": "You do not have permission to edit roles and capabilities."
+    },
     "join": {
       "submit": "Join Group",
       "error": "Failed to join group",
@@ -550,6 +562,7 @@
       "error": "Failed to leave group",
       "success": "Left group",
       "lastAdminError": "You are the last admin in this group. Please assign a new admin before leaving.",
+      "lastOwnerError": "You are the last owner in this group. Please assign a new owner before leaving.",
       "removedToast": "You have been successfully removed.",
       "removeErrorToast": "An error occurred while removing."
     },
@@ -657,8 +670,8 @@
         "description": "All group members can add content"
       },
       "admin": {
-        "title": "Admins only",
-        "description": "Only group admins can post content"
+        "title": "Owners and admins",
+        "description": "Only group owners and admins can post content"
       }
     },
     "whoCanPostEvents": {
@@ -669,8 +682,37 @@
         "description": "All members can add events to the calendar"
       },
       "admin": {
-        "title": "Admins only",
-        "description": "Only group admins can add events to the calendar"
+        "title": "Owners and admins",
+        "description": "Only group owners and admins can add events to the calendar"
+      }
+    },
+    "templates": {
+      "title": "Group type",
+      "description": "Pick a preset, or edit the capability matrix below. The type switches to Custom when the matrix no longer matches a preset.",
+      "descriptionCreate": "Pick a preset for your group, or choose Custom to fine-tune capabilities.",
+      "publicGroup": {
+        "title": "Public group",
+        "description": "Anyone can discover the group, join, read, and react. Members can post."
+      },
+      "localGroup": {
+        "title": "Local group",
+        "description": "Signed-in community members can discover, join, read, and react. Members can post."
+      },
+      "privateGroup": {
+        "title": "Private group",
+        "description": "Only members can see the group and posts. Members can read and post."
+      },
+      "announcementGroup": {
+        "title": "Announcement group",
+        "description": "Only members see the group. Owners and admins post; members can read, react, and reply."
+      },
+      "lockedGroup": {
+        "title": "Locked group",
+        "description": "Anyone can read and react, but cannot join. Members can reply, RSVP, and vote."
+      },
+      "custom": {
+        "title": "Custom group",
+        "description": "Capabilities do not match a standard template."
       }
     },
     "handle": {
@@ -682,9 +724,12 @@
       "placeholder": "Type your group description here"
     },
     "roles": {
+      "none": "None",
+      "local": "Local",
       "member": "Member",
+      "moderator": "Moderator",
       "admin": "Admin",
-      "moderator": "Moderator"
+      "owner": "Owner"
     },
     "rules": {
       "title": "Group Rules",
@@ -694,7 +739,27 @@
       "title": "Change Roles",
       "description": "Change roles for this group",
       "confirm": "Update Roles",
-      "successMessage": "Roles Updated"
+      "successMessage": "Roles Updated",
+      "ownerForbidden": "Only a group owner can grant or revoke the owner role."
+    },
+    "capabilities": {
+      "title": "Role capabilities",
+      "description": "Choose what each relationship can do. “None” applies to everyone (including signed-in users). “Local” applies only to profiles with the core-local community role. Owner is omitted because owners always have full access.",
+      "capability": "Capability",
+      "allowAll": "All",
+      "coveredByWildcard": "Granted by allow-all; uncheck to exclude",
+      "stateHint": "Click a cell to cycle: empty → allow (+) → deny (−). ~ = allowed by “All” or by the none column (applies to everyone). × = denied by a wildcard and cannot be changed.",
+      "state": {
+        "none": "Not set",
+        "implicit-remove": "Denied by wildcard (locked)",
+        "implicit-add": "Allowed by wildcard",
+        "specific-add": "Explicitly allowed",
+        "specific-remove": "Explicitly denied"
+      },
+      "mode": {
+        "simple": "Simple",
+        "advanced": "Advanced"
+      }
     },
     "new": "New Group",
     "goto": "Go to group",

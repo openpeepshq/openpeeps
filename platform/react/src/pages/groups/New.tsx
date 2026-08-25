@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { GroupData, PublicProfile } from '@openpeepshq/common/types';
-import { groupCapabilityTemplates } from '@openpeepshq/common/lib';
+import {
+  applySimpleGroupTemplate,
+  defaultSimpleGroupTemplate,
+} from '@openpeepshq/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
 import {
   GroupForm,
@@ -39,9 +42,9 @@ export function NewGroup() {
     handle: '',
     description: '',
     rules: '',
-    capabilities: publicContent
-      ? groupCapabilityTemplates.defaultGroup.capabilities
-      : groupCapabilityTemplates.defaultGroupClosedCommunity.capabilities,
+    capabilities: applySimpleGroupTemplate(
+      defaultSimpleGroupTemplate(publicContent),
+    ),
   }));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

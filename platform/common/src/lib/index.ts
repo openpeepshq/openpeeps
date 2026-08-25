@@ -5,6 +5,7 @@ export * from './postHelpers';
 export * from './capabilitiesHelpers';
 export * from './adminSections';
 export * from './groupHelpers';
+export * from './groupTemplateHelpers';
 export * from './colors';
 export * from './markdownHelpers';
 export * from './attachmentHelpers';

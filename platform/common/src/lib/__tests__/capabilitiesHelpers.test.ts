@@ -397,9 +397,9 @@ describe('capabilitiesHelpers', () => {
   });
 
   describe('getGroupRelationships', () => {
-    it('should return relationships for profile and group', () => {
+    it('should return none for profile without core-local', () => {
       const result = getGroupRelationships(authData(), mockGroup);
-      expect(result).toContain('none');
+      expect(result).toEqual(['none']);
     });
 
     it('should include local relationship for local profile', () => {
@@ -437,6 +437,18 @@ describe('capabilitiesHelpers', () => {
     it('should include membership edge roles for the group', () => {
       const memberProfile = {
         ...mockProfile,
+        roles: [
+          {
+            id: 'local-role',
+            key: 'local',
+            capabilities: { add: ['core-local'], remove: [] },
+            createdAt: '2021-01-01',
+            updatedAt: '2021-01-01',
+            default: true,
+            displayName: 'Local',
+            description: 'Local role',
+          },
+        ],
         memberships: [
           {
             group: { id: 'group1' },
@@ -451,6 +463,24 @@ describe('capabilitiesHelpers', () => {
       expect(result).toEqual(
         expect.arrayContaining(['local', 'none', 'member', 'moderator']),
       );
+    });
+
+    it('should include membership roles without local when profile lacks core-local', () => {
+      const memberProfile = {
+        ...mockProfile,
+        memberships: [
+          {
+            group: { id: 'group1' },
+            roles: ['member'],
+          },
+        ],
+      } as ProfileWithMeta;
+      const result = getGroupRelationships(
+        authData({ profile: memberProfile }),
+        mockGroup,
+      );
+      expect(result).toEqual(['none', 'member']);
+      expect(result).not.toContain('local');
     });
   });
 

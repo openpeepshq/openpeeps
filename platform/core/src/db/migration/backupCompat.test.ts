@@ -389,3 +389,43 @@ describe('expectedCollectionCount', () => {
     expect(expectedCollectionCount('hashtags', manifest, null)).toBe(12);
   });
 });
+
+describe('group owner role import normalize', () => {
+  it('renames capabilities.admin to owner and inserts admin defaults', () => {
+    const row = arangoDocToDocumentRow('groups', {
+      _key: '01961271-0702-7389-8793-dd0478331a8a',
+      handle: 'testers',
+      displayName: 'Testers',
+      capabilities: {
+        member: { add: ['core-posts-read'] },
+        admin: { add: ['core-posts-*', 'core-groups-*'] },
+      },
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    });
+    const body = row.body as {
+      capabilities: Record<string, { add?: string[] }>;
+    };
+    expect(body.capabilities.owner?.add).toEqual([
+      'core-posts-*',
+      'core-groups-*',
+    ]);
+    expect(body.capabilities.admin?.add).toContain('core-groups-update');
+    expect(body.capabilities.admin?.add).not.toContain('core-groups-*');
+  });
+
+  it('renames userGroups admin membership to owner', () => {
+    const row = arangoDocToEdgeRow('userGroups', {
+      _key: '01961271-0702-7389-8793-dd0478331a8b',
+      _from: 'profiles/01961271-0702-7389-8793-dd0478331a8c',
+      _to: 'groups/01961271-0702-7389-8793-dd0478331a8a',
+      roles: ['member', 'admin'],
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    });
+    expect((row.body as { roles: string[] }).roles).toEqual([
+      'member',
+      'owner',
+    ]);
+  });
+});

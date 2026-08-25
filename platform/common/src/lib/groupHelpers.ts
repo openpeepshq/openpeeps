@@ -1,9 +1,35 @@
-import type { GroupData, GroupMember, GroupWithMeta, ProfileWithMeta } from '../types';
+import type {
+  GroupData,
+  GroupMember,
+  GroupRelationship,
+  GroupWithMeta,
+  ProfileWithMeta,
+} from '../types';
+import {
+  defaultGroupAdminCapabilityAdds,
+  defaultGroupOwnerCapabilityAdds,
+  defaultGroupRoles,
+} from '../types/capabilities';
 import {
   checkCapabilities,
   getGroupCapabilitiesByRoles,
 } from './capabilitiesHelpers';
 import { profileName } from './profileHelpers';
+
+type CapabilitySet = { add?: string[]; remove?: string[] };
+
+const withModerator = (member: CapabilitySet): CapabilitySet => ({
+  add: [...(member.add ?? []), 'core-posts-delete'],
+  ...(member.remove?.length ? { remove: member.remove } : {}),
+});
+
+const ownerCapabilities: CapabilitySet = {
+  add: [...defaultGroupOwnerCapabilityAdds],
+};
+
+const adminCapabilities: CapabilitySet = {
+  add: [...defaultGroupAdminCapabilityAdds],
+};
 
 const containsIgnoreCase = (candidate: string, query: string) =>
   candidate.toLowerCase().indexOf(query.toLowerCase()) > -1;
@@ -31,25 +57,97 @@ export const sortGroupMembers = (members: GroupMember[]): GroupMember[] =>
     ),
   ) ?? [];
 
+type RoleList = readonly string[] | null | undefined;
+
+export const groupMembershipHasRole = (roles: RoleList, role: string) =>
+  (roles ?? []).includes(role);
+
+export const actorIsGroupOwner = (
+  profile: {
+    memberships?: { group: { id: string }; roles?: RoleList }[];
+  },
+  groupId: string,
+) =>
+  groupMembershipHasRole(
+    profile.memberships?.find((m) => m.group.id === groupId)?.roles,
+    'owner',
+  );
+
+export const countGroupOwners = (members: { roles?: RoleList }[]) =>
+  members.filter((m) => groupMembershipHasRole(m.roles, 'owner')).length;
+
+export type GroupRoleChangeBlock = 'last-owner' | 'owner-assignment';
+
+export const groupRoleChangeBlocked = ({
+  actorIsOwner,
+  currentRoles,
+  nextRoles,
+  ownerCount,
+}: {
+  actorIsOwner: boolean;
+  currentRoles?: RoleList;
+  nextRoles?: RoleList;
+  ownerCount: number;
+}): GroupRoleChangeBlock | undefined => {
+  const wasOwner = groupMembershipHasRole(currentRoles, 'owner');
+  const willBeOwner = groupMembershipHasRole(nextRoles, 'owner');
+  if (wasOwner !== willBeOwner && !actorIsOwner) {
+    return 'owner-assignment';
+  }
+  if (wasOwner && !willBeOwner && ownerCount <= 1) {
+    return 'last-owner';
+  }
+  return undefined;
+};
+
+export const groupOwnerRemovalBlocked = ({
+  targetRoles,
+  ownerCount,
+}: {
+  targetRoles?: RoleList;
+  ownerCount: number;
+}) => groupMembershipHasRole(targetRoles, 'owner') && ownerCount <= 1;
+
+export const assignableGroupRoles = (actorIsOwner: boolean) =>
+  actorIsOwner
+    ? [...defaultGroupRoles]
+    : defaultGroupRoles.filter((role) => role !== 'owner');
+
+export const groupRolesForAssignment = (
+  role: (typeof defaultGroupRoles)[number],
+): GroupRelationship[] => (role === 'member' ? ['member'] : ['member', role]);
+
 export const canChangeMemberRole = (
   profile: ProfileWithMeta,
   group: GroupWithMeta,
 ) =>
   checkCapabilities(
     ['core-groups-changeMemberRole'],
-    getGroupCapabilitiesByRoles(profile.memberships?.find((m) => m.group.id === group.id)?.roles ?? [], group),
+    getGroupCapabilitiesByRoles(
+      profile.memberships?.find((m) => m.group.id === group.id)?.roles ?? [],
+      group,
+    ),
   ).success;
 
 export const canAddMember = (profile: ProfileWithMeta, group: GroupWithMeta) =>
   checkCapabilities(
     ['core-groups-addMember'],
-    getGroupCapabilitiesByRoles(profile.memberships?.find((m) => m.group.id === group.id)?.roles ?? [], group),
+    getGroupCapabilitiesByRoles(
+      profile.memberships?.find((m) => m.group.id === group.id)?.roles ?? [],
+      group,
+    ),
   ).success;
 
-export const canRemoveMember = (profile: ProfileWithMeta, group: GroupWithMeta) =>
+export const canRemoveMember = (
+  profile: ProfileWithMeta,
+  group: GroupWithMeta,
+) =>
   checkCapabilities(
     ['core-groups-removeMember'],
-    getGroupCapabilitiesByRoles(profile.memberships?.find((m) => m.group.id === group.id)?.roles ?? [], group),
+    getGroupCapabilitiesByRoles(
+      profile.memberships?.find((m) => m.group.id === group.id)?.roles ?? [],
+      group,
+    ),
   ).success;
 
 export const isGroupDiscoverable = (group: GroupWithMeta) =>
@@ -70,10 +168,7 @@ export const groupCapabilityTemplates = {
     name: 'defaultGroup',
     capabilities: {
       none: {
-        add: [
-          'core-groups-read',
-          'core-posts-read',
-        ],
+        add: ['core-groups-read', 'core-posts-read'],
       },
       local: {
         add: [
@@ -86,19 +181,28 @@ export const groupCapabilityTemplates = {
       },
       member: {
         add: [
+          'core-groups-join',
           'core-posts-create-*',
+          'core-posts-react',
           'core-posts-reply',
           'core-posts-rsvp',
           'core-posts-vote',
         ],
         remove: ['core-posts-create-event'],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
-      admin: {
-        add: ['core-posts-*', 'core-groups-*'],
-      },
+      moderator: withModerator({
+        add: [
+          'core-groups-join',
+          'core-posts-create-*',
+          'core-posts-react',
+          'core-posts-reply',
+          'core-posts-rsvp',
+          'core-posts-vote',
+        ],
+        remove: ['core-posts-create-event'],
+      }),
+      admin: adminCapabilities,
+      owner: ownerCapabilities,
     },
   },
   defaultGroupClosedCommunity: {
@@ -117,19 +221,32 @@ export const groupCapabilityTemplates = {
       },
       member: {
         add: [
+          'core-groups-read',
+          'core-posts-read',
+          'core-groups-join',
           'core-posts-create-*',
+          'core-posts-react',
           'core-posts-reply',
           'core-posts-rsvp',
           'core-posts-vote',
         ],
         remove: ['core-posts-create-event'],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
-      admin: {
-        add: ['core-posts-*', 'core-groups-*'],
-      },
+      moderator: withModerator({
+        add: [
+          'core-groups-read',
+          'core-posts-read',
+          'core-groups-join',
+          'core-posts-create-*',
+          'core-posts-react',
+          'core-posts-reply',
+          'core-posts-rsvp',
+          'core-posts-vote',
+        ],
+        remove: ['core-posts-create-event'],
+      }),
+      admin: adminCapabilities,
+      owner: ownerCapabilities,
     },
   },
   publicGroup: {
@@ -151,12 +268,16 @@ export const groupCapabilityTemplates = {
           'core-posts-vote',
         ],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
-      admin: {
-        add: ['core-posts-*', 'core-groups-*'],
-      },
+      moderator: withModerator({
+        add: [
+          'core-posts-create-*',
+          'core-posts-reply',
+          'core-posts-rsvp',
+          'core-posts-vote',
+        ],
+      }),
+      admin: adminCapabilities,
+      owner: ownerCapabilities,
     },
   },
   localGroup: {
@@ -172,18 +293,30 @@ export const groupCapabilityTemplates = {
       },
       member: {
         add: [
+          'core-groups-read',
+          'core-groups-join',
+          'core-posts-read',
           'core-posts-create-*',
+          'core-posts-react',
           'core-posts-reply',
           'core-posts-rsvp',
           'core-posts-vote',
         ],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
-      admin: {
-        add: ['core-posts-*', 'core-groups-*'],
-      },
+      moderator: withModerator({
+        add: [
+          'core-groups-read',
+          'core-groups-join',
+          'core-posts-read',
+          'core-posts-create-*',
+          'core-posts-react',
+          'core-posts-reply',
+          'core-posts-rsvp',
+          'core-posts-vote',
+        ],
+      }),
+      admin: adminCapabilities,
+      owner: ownerCapabilities,
     },
   },
   privateGroup: {
@@ -200,12 +333,19 @@ export const groupCapabilityTemplates = {
           'core-posts-vote',
         ],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
-      admin: {
-        add: ['core-posts-*', 'core-groups-*'],
-      },
+      moderator: withModerator({
+        add: [
+          'core-groups-read',
+          'core-posts-read',
+          'core-posts-create-*',
+          'core-posts-react',
+          'core-posts-reply',
+          'core-posts-rsvp',
+          'core-posts-vote',
+        ],
+      }),
+      admin: adminCapabilities,
+      owner: ownerCapabilities,
     },
   },
   limitedPostingGroup: {
@@ -221,12 +361,45 @@ export const groupCapabilityTemplates = {
           'core-posts-vote',
         ],
       },
-      moderator: {
-        add: ['core-posts-*'],
+      moderator: withModerator({
+        add: [
+          'core-groups-read',
+          'core-posts-read',
+          'core-posts-react',
+          'core-posts-reply',
+          'core-posts-rsvp',
+          'core-posts-vote',
+        ],
+      }),
+      admin: adminCapabilities,
+      owner: ownerCapabilities,
+    },
+  },
+  announcementGroup: {
+    name: 'announcementGroup',
+    capabilities: {
+      member: {
+        add: [
+          'core-groups-read',
+          'core-posts-read',
+          'core-posts-react',
+          'core-posts-reply',
+          'core-posts-rsvp',
+          'core-posts-vote',
+        ],
       },
-      admin: {
-        add: ['core-posts-*', 'core-groups-*'],
-      },
+      moderator: withModerator({
+        add: [
+          'core-groups-read',
+          'core-posts-read',
+          'core-posts-react',
+          'core-posts-reply',
+          'core-posts-rsvp',
+          'core-posts-vote',
+        ],
+      }),
+      admin: adminCapabilities,
+      owner: ownerCapabilities,
     },
   },
   lockedGroup: {
@@ -238,12 +411,11 @@ export const groupCapabilityTemplates = {
       member: {
         add: ['core-posts-reply', 'core-posts-rsvp', 'core-posts-vote'],
       },
-      moderator: {
-        add: ['core-posts-*'],
-      },
-      admin: {
-        add: ['core-posts-*', 'core-groups-*'],
-      },
+      moderator: withModerator({
+        add: ['core-posts-reply', 'core-posts-rsvp', 'core-posts-vote'],
+      }),
+      admin: adminCapabilities,
+      owner: ownerCapabilities,
     },
   },
 };
