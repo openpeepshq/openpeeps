@@ -45,11 +45,22 @@ const yAxisProps = (integerTicks: boolean) =>
       }
     : {};
 
+/** Theme tokens store RGB channels (`12 144 167`), not full colors. */
+const chartMuted = 'rgb(var(--color-muted) / 1)';
+
+/** Theme chart palette (`--color-chart-1` … `5`). Index wraps. */
+export const analyticsChartColor = (index: number) =>
+  `rgb(var(--color-chart-${(index % 5) + 1}) / 1)`;
+
+export const ANALYTICS_CHART_COLORS = [0, 1, 2, 3, 4].map(analyticsChartColor);
+
+const chartDefault = analyticsChartColor(0);
+
 export const AnalyticsBarChart = ({
   data,
   className,
   height = 240,
-  color = 'var(--color-primary, #2563eb)',
+  color = chartDefault,
   integerTicks = true,
   compact = false,
 }: BaseChartProps) => (
@@ -81,7 +92,7 @@ export const AnalyticsLineChart = ({
   data,
   className,
   height = 240,
-  color = 'var(--color-primary, #2563eb)',
+  color = chartDefault,
   integerTicks = true,
   compact = false,
 }: BaseChartProps) => (
@@ -119,7 +130,7 @@ export const AnalyticsAreaChart = ({
   data,
   className,
   height = 240,
-  color = 'var(--color-primary, #2563eb)',
+  color = chartDefault,
   integerTicks = true,
   compact = false,
 }: BaseChartProps) => (
@@ -290,32 +301,29 @@ export const AnalyticsDonutChart = ({
   data: DonutSlice[];
   className?: string;
   height?: number;
-}) => {
-  const colors = ['#2563eb', '#16a34a', '#ea580c', '#9333ea', '#0891b2'];
-  return (
-    <div className={cn('w-full min-w-0', className)} style={{ height }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            nameKey="label"
-            innerRadius="55%"
-            outerRadius="80%"
-          >
-            {data.map((entry, i) => (
-              <Cell
-                key={entry.label}
-                fill={entry.color ?? colors[i % colors.length]}
-              />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
+}) => (
+  <div className={cn('w-full min-w-0', className)} style={{ height }}>
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={data}
+          dataKey="value"
+          nameKey="label"
+          innerRadius="55%"
+          outerRadius="80%"
+        >
+          {data.map((entry, i) => (
+            <Cell
+              key={entry.label}
+              fill={entry.color ?? analyticsChartColor(i)}
+            />
+          ))}
+        </Pie>
+        <Tooltip />
+      </PieChart>
+    </ResponsiveContainer>
+  </div>
+);
 
 export type HeatmapCell = { dow: number; hour: number; value: number };
 
@@ -358,7 +366,7 @@ export const AnalyticsHeatmap = ({
                 title={`${dayLabels[dow]} ${hour}:00 — ${value}`}
                 className="h-4 w-4 rounded-sm"
                 style={{
-                  backgroundColor: `color-mix(in srgb, var(--color-primary, #2563eb) ${Math.round((value / max) * 100)}%, transparent)`,
+                  backgroundColor: `color-mix(in srgb, ${chartDefault} ${Math.round((value / max) * 100)}%, transparent)`,
                 }}
               />
             ))}
@@ -372,9 +380,9 @@ export const AnalyticsHeatmap = ({
 export type DayHeatmapCell = { day: string; value: number };
 
 const dayHeatColor = (value: number, max: number) => {
-  if (value <= 0) return 'var(--color-muted, #e5e7eb)';
+  if (value <= 0) return chartMuted;
   const pct = Math.max(18, Math.round((value / max) * 100));
-  return `color-mix(in srgb, var(--color-primary, #2563eb) ${pct}%, transparent)`;
+  return `color-mix(in srgb, ${chartDefault} ${pct}%, transparent)`;
 };
 
 /** Calendar heatmap of days in a range; weeks as columns, scaled to width. */

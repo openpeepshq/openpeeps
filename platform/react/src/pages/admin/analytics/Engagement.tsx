@@ -4,6 +4,7 @@ import {
   AnalyticsMultiLineChart,
   AnalyticsStackedAreaChart,
   MetricCard,
+  analyticsChartColor,
   type StackedSeries,
 } from '@openpeepshq/react-ui';
 import { useOpenpeeps, useT } from '../../../index';
@@ -19,11 +20,11 @@ type OverTimeMetric =
   | 'dms';
 
 const OVER_TIME_SERIES: StackedSeries[] = [
-  { key: 'likes', label: 'Likes', color: '#111827' },
-  { key: 'reposts', label: 'Shares', color: '#4b5563' },
-  { key: 'bookmarks', label: 'Bookmarks', color: '#6b7280' },
-  { key: 'comments', label: 'Replies', color: '#9ca3af' },
-  { key: 'dms', label: 'DMs', color: '#d97706' },
+  { key: 'likes', label: 'Likes', color: analyticsChartColor(0) },
+  { key: 'reposts', label: 'Shares', color: analyticsChartColor(1) },
+  { key: 'bookmarks', label: 'Bookmarks', color: analyticsChartColor(2) },
+  { key: 'comments', label: 'Replies', color: analyticsChartColor(3) },
+  { key: 'dms', label: 'DMs', color: analyticsChartColor(4) },
 ];
 
 const ratePct = (numerator: number, denominator: number) =>
@@ -52,13 +53,13 @@ const EngagementRateBreakdown = ({
       key: 'like',
       label: t('admin.analytics.rates.like', { defaultValue: 'Like rate' }),
       pct: ratePct(likes, views),
-      color: '#111827',
+      color: analyticsChartColor(0),
     },
     {
       key: 'share',
       label: t('admin.analytics.rates.share', { defaultValue: 'Share rate' }),
       pct: ratePct(shares, views),
-      color: '#4b5563',
+      color: analyticsChartColor(1),
     },
     {
       key: 'bookmark',
@@ -66,7 +67,7 @@ const EngagementRateBreakdown = ({
         defaultValue: 'Bookmark rate',
       }),
       pct: ratePct(bookmarks, views),
-      color: '#6b7280',
+      color: analyticsChartColor(2),
     },
     {
       key: 'comment',
@@ -74,7 +75,7 @@ const EngagementRateBreakdown = ({
         defaultValue: 'Comment rate',
       }),
       pct: ratePct(comments, views),
-      color: '#9ca3af',
+      color: analyticsChartColor(3),
     },
   ];
   const overall = ratePct(likes + shares + bookmarks + comments, views);

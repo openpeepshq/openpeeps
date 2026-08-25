@@ -1,4 +1,9 @@
-import { AnalyticsBarChart, MetricCard, Table } from '@openpeepshq/react-ui';
+import {
+  AnalyticsBarChart,
+  MetricCard,
+  Table,
+  analyticsChartColor,
+} from '@openpeepshq/react-ui';
 import type {
   AnalyticsClickRow,
   AnalyticsPostTypeKey,
@@ -13,11 +18,11 @@ const POST_TYPE_META: Array<{
   label: string;
   color: string;
 }> = [
-  { key: 'event', label: 'Events', color: '#6b7280' },
-  { key: 'jam', label: 'Jams', color: '#111827' },
-  { key: 'article', label: 'Articles', color: '#4b5563' },
-  { key: 'note', label: 'Notes', color: '#9ca3af' },
-  { key: 'poll', label: 'Polls', color: '#d1d5db' },
+  { key: 'event', label: 'Events', color: analyticsChartColor(4) },
+  { key: 'jam', label: 'Jams', color: analyticsChartColor(0) },
+  { key: 'article', label: 'Articles', color: analyticsChartColor(1) },
+  { key: 'note', label: 'Notes', color: analyticsChartColor(2) },
+  { key: 'poll', label: 'Polls', color: analyticsChartColor(3) },
 ];
 
 const utcDayCount = (from: string, to: string) => {
