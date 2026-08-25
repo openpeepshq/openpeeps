@@ -10,6 +10,7 @@ import type {
   SuccessFailureResponse,
   TokenResponse,
 } from '@openpeepshq/common/types';
+import { isAccountlessJwt } from '@openpeepshq/common';
 import type {
   BodyType,
   EventSourceOptions,
@@ -100,6 +101,10 @@ export const updateCredentialsWrapper =
             });
             const profile = await retrieveProfile();
             setCurrentProfile(profile);
+            if (isAccountlessJwt(tr.token)) {
+              setCurrentAccount(undefined);
+              return;
+            }
             const account = await retrieveAccount();
             setCurrentAccount(account);
           },
