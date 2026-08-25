@@ -49,15 +49,35 @@ describe('schema version helpers', () => {
     expect(getLatestSchemaVersion()).toBe(tags[tags.length - 1]);
   });
 
+  it('keeps journal when timestamps strictly increasing', () => {
+    // drizzle-orm migrate() applies a file only when its `when` is greater
+    // than the latest row in drizzle.__drizzle_migrations.created_at.
+    const journalPath = join(
+      dirname(fileURLToPath(import.meta.url)),
+      'sql/meta/_journal.json',
+    );
+    const journal = JSON.parse(readFileSync(journalPath, 'utf8')) as {
+      entries: { tag: string; when: number }[];
+    };
+    for (let i = 1; i < journal.entries.length; i++) {
+      const prev = journal.entries[i - 1]!;
+      const next = journal.entries[i]!;
+      expect(
+        next.when,
+        `${next.tag} when (${next.when}) must be > ${prev.tag} (${prev.when})`,
+      ).toBeGreaterThan(prev.when);
+    }
+  });
+
   it('resolves restore targets for arango vs postgres', () => {
     expect(resolveRestoreSchemaVersion('arango')).toBe(getFirstSchemaVersion());
     expect(resolveRestoreSchemaVersion('postgres')).toBe(
       LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION,
     );
     expect(LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION).toBe('0007_shallow_oracle');
-    expect(resolveRestoreSchemaVersion('postgres', getLatestSchemaVersion())).toBe(
-      getLatestSchemaVersion(),
-    );
+    expect(
+      resolveRestoreSchemaVersion('postgres', getLatestSchemaVersion()),
+    ).toBe(getLatestSchemaVersion());
   });
 
   it('rejects unknown postgres schemaVersion tags', () => {
