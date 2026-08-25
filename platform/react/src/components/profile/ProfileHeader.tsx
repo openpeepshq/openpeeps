@@ -7,6 +7,7 @@ import { Avatar } from './Avatar';
 import { PostMarkdown } from '../post/Markdown';
 import { ProfilePageAction } from './ProfilePageAction';
 import { ProfileStats } from './ProfileStats';
+import { profileFieldLink } from './profileFieldDisplay';
 
 export interface ProfileHeaderProps {
   profile: PublicProfile;
@@ -75,14 +76,35 @@ export function ProfileHeader({
 
           <ProfileStats profile={profile} />
 
-          {(profile.fields ?? []).map((field) => (
-            <div key={field.name} className="mt-4 flex items-center gap-2">
-              <span className="text-muted-foreground text-sm">
-                {field.name}
-              </span>
-              <PostMarkdown source={field.value} className="pt-1 text-sm" />
-            </div>
-          ))}
+          {(profile.fields ?? []).map((field) => {
+            const link = profileFieldLink(field.value);
+            return (
+              <div
+                key={field.name}
+                className="mt-4 flex min-w-0 items-center gap-2"
+              >
+                <span className="text-muted-foreground shrink-0 text-sm">
+                  {field.name}
+                </span>
+                {link ? (
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={link.href}
+                    className="text-primary min-w-0 flex-1 truncate text-sm hover:underline"
+                  >
+                    {link.display}
+                  </a>
+                ) : (
+                  <PostMarkdown
+                    source={field.value}
+                    className="min-w-0 flex-1 pt-1 text-sm"
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
