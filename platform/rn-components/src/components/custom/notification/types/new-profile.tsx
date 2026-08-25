@@ -35,7 +35,7 @@ export const NewProfile: React.FC<NotificationTypeProps> = ({ notification }) =>
             }>
             <ThemedText className="flex items-center gap-2 text-base">
               {t('notification.newProfile.text', {
-                profileName: profileName(profile),
+                profileName: profileName(profile) || profile.handle,
               })}
             </ThemedText>
           </Pressable>
