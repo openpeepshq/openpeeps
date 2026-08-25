@@ -12,7 +12,7 @@ import { apiHook, payloadMutation, noPayloadMutation } from '../helpers';
 type Query<T> = UseQueryResult<T, SuccessFailureResponse>;
 
 export type ConversationHooks = {
-  useConversations: () => Query<PublicPost[][]>;
+  useConversations: (options?: { enabled?: boolean }) => Query<PublicPost[][]>;
   useArchivedConversations: () => Query<PublicPost[][]>;
   useConversation: (id: string, messageId?: string) => Query<PublicPost[]>;
   useSearchDirectMessages: (
@@ -30,7 +30,10 @@ export type ConversationHooks = {
 export const conversationHooks = (
   client: OpenpeepsClient,
 ): ConversationHooks => ({
-  useConversations: () => apiHook(client.conversations.list),
+  useConversations: (options?: { enabled?: boolean }) =>
+    apiHook(client.conversations.list, {
+      enabled: options?.enabled ?? true,
+    }),
   useArchivedConversations: () =>
     client.conversations.archived
       ? apiHook(client.conversations.archived)

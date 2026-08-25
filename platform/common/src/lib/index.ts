@@ -29,3 +29,4 @@ export * from './ssoLoginUrl';
 export * from './ssoProviders';
 export * from './federationHosts';
 export * from './reactions';
+export * from './onboardingGuide';

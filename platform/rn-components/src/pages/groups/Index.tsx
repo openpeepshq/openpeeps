@@ -111,6 +111,8 @@ export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
                 ? 'groups.noGroupsYet'
                 : 'groups.noGroupsFound'
             }
+            inviteLabel="Ask PeePs"
+            onInvite={() => navigation.navigate('Messages')}
           />
         )}
         {!isLoading &&

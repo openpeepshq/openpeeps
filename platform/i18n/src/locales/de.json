@@ -2010,88 +2010,6 @@
       "levelColumn": "Stufe",
       "namespaceColumn": "Namensbereich",
       "messageColumn": "Nachricht"
-    }
-  },
-  "diagnostics": {
-    "title": "Diagnose",
-    "description": "Laufzeitsysteme überprüfen und prüfen, ob sie funktionsfähig sind.",
-    "performance": {
-      "title": "Leistung",
-      "description": "Aktuelle langsame HTTP-Anfragen aus diesem Prozess (In-Memory-Ringpuffer). Schwellenwert wird über PERF_SLOW_REQUEST_MS gesteuert.",
-      "threshold": "Langsamer Schwellenwert",
-      "dbTiming": "DB-Zeitmessung",
-      "on": "an",
-      "off": "aus",
-      "refresh": "Aktualisieren",
-      "loadError": "Leistungsstatistiken konnten nicht geladen werden.",
-      "empty": "Noch keine langsamen Anfragen aufgezeichnet.",
-      "when": "Wann",
-      "hostname": "Hostname",
-      "method": "Methode",
-      "path": "Pfad",
-      "status": "Status",
-      "duration": "Dauer"
-    },
-    "email": {
-      "title": "E-Mail",
-      "description": "Postausgangs-Warteschlange überprüfen und eine Test-E-Mail über den regulären Zustellungsprozess in die Warteschlange setzen.",
-      "testTitle": "Test-E-Mail in Warteschlange setzen",
-      "testHint": "Fügt eine Test-E-Mail an die Warteschlange, genau wie der CLI-Befehl.",
-      "testRecipient": "Test senden an",
-      "testRecipientPlaceholder": "sie@beispiel.de",
-      "queueTest": "Test-E-Mail in Warteschlange setzen",
-      "recipientRequired": "Geben Sie eine E-Mail-Adresse für den Test ein.",
-      "queueSuccess": "Test-E-Mail in Warteschlange gesetzt. Beobachten Sie die Warteschlangenzähler, um zu sehen, wann sie verarbeitet wird.",
-      "queueFailed": "Test-E-Mail konnte nicht in die Warteschlange gesetzt werden",
-      "queueTitle": "Postausgangs-Warteschlange",
-      "refresh": "Aktualisieren",
-      "countsHint": "Jobs in Redis für den E-Mail-Worker. Abgeschlossene Jobs werden nach ca. 24 Stunden entfernt; fehlgeschlagene Jobs werden länger aufbewahrt, damit Sie Probleme diagnostizieren können.",
-      "statsError": "Warteschlangenstatistiken konnten nicht geladen werden. Läuft Redis und ist es erreichbar?",
-      "waiting": "Wartend",
-      "active": "In Bearbeitung",
-      "completed": "Abgeschlossen",
-      "failed": "Fehlgeschlagen",
-      "delayed": "Verzögert",
-      "prioritized": "Priorisiert",
-      "recentFailures": "Aktuelle Sendefehler",
-      "bounceNote": "Diese Zahlen zeigen an, ob Ihr Server die E-Mail an Ihren SMTP-Anbieter übergeben konnte. Sie enthalten keine Bounce-Rückmeldungen, Spam-Ordner-Zustellungen oder ungültige Adressen nach der Übergabe."
-    },
-    "jobs": {
-      "title": "Warteschlangen-Job",
-      "viewLogs": "Job-Protokolle anzeigen",
-      "notFound": "Job nicht gefunden. Er wurde möglicherweise aus der Warteschlange entfernt.",
-      "details": "Job-Details",
-      "refresh": "Aktualisieren",
-      "queue": "Warteschlange",
-      "id": "Job-ID",
-      "name": "Job-Name",
-      "state": "Status",
-      "queuedAt": "In Warteschlange gesetzt am",
-      "finishedAt": "Beendet am",
-      "failedReason": "Fehlergrund",
-      "payload": "Job-Nutzdaten",
-      "logs": "Job-Protokolle",
-      "logsHint": "{{count}} Protokollzeile(n) für diesen Job gespeichert.",
-      "logsEmpty": "Noch keine Protokollzeilen für diesen Job aufgezeichnet."
-    },
-    "logs": {
-      "title": "Protokolle",
-      "description": "Server-Protokolleinträge nach Tag durchsuchen, nach Stufe oder Text filtern und den heutigen Protokollstrom live beobachten.",
-      "hint": "Protokolle werden in täglichen Dateien auf dem Server gespeichert. Wählen Sie ein Datum aus, um vergangene Einträge anzuzeigen.",
-      "date": "Datum",
-      "level": "Stufe",
-      "allLevels": "Alle Stufen",
-      "filter": "Filter",
-      "filterPlaceholder": "Suchen…",
-      "refresh": "Aktualisieren",
-      "autoRefresh": "Automatische Aktualisierung alle 5 Sekunden",
-      "showing": "{{count}} von {{total}} Einträgen angezeigt",
-      "loadError": "Protokolle konnten nicht geladen werden.",
-      "empty": "Keine Protokolleinträge entsprechen den aktuellen Filtern.",
-      "timestamp": "Zeit (UTC)",
-      "levelColumn": "Stufe",
-      "namespaceColumn": "Namensbereich",
-      "messageColumn": "Nachricht"
     },
     "livekit": {
       "title": "LiveKit",
@@ -2280,6 +2198,42 @@
         "description": "Legen Sie fest, wie Antworten in Community-Feeds erscheinen",
         "feedDescription": "Wählen Sie das Standard-Layout für Community-Feeds. Mitglieder können dies in ihren Einstellungen überschreiben. Verschachtelt hält Antworten unter dem Originalbeitrag; Linear listet jede Antwort als eigenen Eintrag.",
         "updateSuccess": "Standard-Feed-Layout aktualisiert."
+      },
+      "onboardingGuide": {
+        "title": "Onboarding-Guide",
+        "description": "Steuern Sie, wie PeePs neue Mitglieder begrüßt: Ton, Ruhezeiten, Häufigkeit und welche sozialen Schritte vorgeschlagen werden.",
+        "enabled": "PeePs-Onboarding-Einladungen aktivieren",
+        "enabledDescription": "Wenn aktiv, sehen neue Mitglieder in den ersten zwei Wochen ein Willkommens-Dock, Einladungen in leeren Ansichten und einen ruhigen Guide-Button.",
+        "displayName": "Anzeigename des Guides",
+        "subtitle": "Untertitel",
+        "tone": "Ton",
+        "toneWarm": "Warm",
+        "toneNeutral": "Neutral",
+        "toneFormal": "Formell",
+        "quietHoursStart": "Ruhezeiten Beginn (Stunde 0–23)",
+        "quietHoursEnd": "Ruhezeiten Ende (Stunde 0–23)",
+        "quietHoursDescription": "Kein automatisches Dock und keine proaktiven Hinweise in diesem Fenster, nach der lokalen Uhr des Mitglieds.",
+        "windowDays": "Onboarding-Fenster (Tage)",
+        "maxPerDay": "Max. proaktive DMs pro Tag",
+        "maxInWindow": "Max. proaktive DMs im Fenster",
+        "pushOnFirstIntro": "Push für die erste Intro-Nachricht senden",
+        "primaryInvite": "Primäre Einladung",
+        "primaryDock": "Nur Willkommens-Dock",
+        "primaryDm": "Nur Direktnachricht",
+        "primaryBoth": "Dock und Direktnachricht",
+        "customHostBlurb": "Eigene Host-Notiz",
+        "customHostBlurbDescription": "Optionale 1–2 Sätze, die an die erste Begrüßung angehängt werden.",
+        "enabledRungs": "Zugehörigkeitsschritte vorschlagen",
+        "rungs": {
+          "orient": "Orientierung finden",
+          "join_group": "Einer Gruppe beitreten",
+          "profile_face": "Avatar und Bio hinzufügen",
+          "first_reply": "Erste Antwort hinterlassen",
+          "say_hello": "Hallo sagen",
+          "join_jam": "An einem Jam teilnehmen",
+          "reciprocate_follow": "Jemandem zurückfolgen",
+          "deeper_share": "Etwas Nützliches teilen"
+        }
       },
       "privacyPolicy": "URL der Datenschutzerklärung",
       "termsAndConditions": "URL der AGB",
@@ -3728,8 +3682,7 @@
       "noResults": "Keine Ressourcen für die aktuellen Filter.",
       "saved": "Gespeichert",
       "showHiddenTags": "+ {{count}}",
-      "hideTags": "Ausblenden",
-      "saved": "Gespeichert"
+      "hideTags": "Ausblenden"
     },
     "actions": {
       "watch": "Ansehen",
@@ -3885,6 +3838,64 @@
         "title": "Zugriffstoken",
         "description": "Wer ein Dienstzugriffstoken verwalten kann, abhängig von der Beziehung zum Besitzer des Tokens."
       }
+    }
+  },
+  "onboardingGuide": {
+    "conversations": {
+      "badge": "Guide",
+      "subtitle": "Dein Community-Guide"
+    },
+    "dock": {
+      "body": "Willkommen bei {{community}}. Ich bin {{guide}} — soll ich dir kurz vorstellen, wer hier ist?",
+      "explore": "Ich schaue mich um",
+      "showAround": "Führ mich herum"
+    },
+    "emptyFeed": {
+      "body": "Soll ich ein paar Leute oder Beiträge raussuchen, mit denen du anfangen kannst?",
+      "cta": "{{guide}} fragen"
+    },
+    "emptyGroups": {
+      "body": "Ich kann dir eine Gruppe vorschlagen, die zu deinen Themen passt.",
+      "cta": "Gruppe vorschlagen"
+    },
+    "emptyJams": {
+      "body": "Diese Woche ist ein Jam — soll ich kurz in einfachen Worten erklären, was und warum?",
+      "cta": "Erzähl mir mehr"
+    },
+    "fab": {
+      "label": "{{guide}} fragen",
+      "pause": "Tipps pausieren",
+      "hide": "Jetzt ausblenden"
+    },
+    "guide": {
+      "composerPlaceholder": "Nachricht an {{guide}} …",
+      "introduce": "Stell mich vor",
+      "sayHi": "Hilf mir, ein lockeres Hallo zu sagen",
+      "suggestGroup": "Gruppe vorschlagen",
+      "imGood": "Mir geht’s gut, danke",
+      "unavailable": "{{guide}} ist noch nicht erreichbar. Du kannst in der Zwischenzeit auf eigene Faust stöbern."
+    },
+    "intents": {
+      "orient": "Ich hätte gern eine sanfte Vorstellung von den Leuten hier.",
+      "suggest_people_or_posts": "Kannst du ein paar Leute oder Beiträge finden, mit denen ich anfangen kann?",
+      "suggest_groups": "Kannst du mir eine Gruppe vorschlagen, die zu meinen Themen passt?",
+      "suggest_jam": "Kannst du mir einen anstehenden Jam in einfachen Worten erklären?",
+      "next_step": "Was wäre ein guter nächster Schritt, um mich hier einzuleben?",
+      "say_hello": "Kannst du mir helfen, ein lockeres Hallo zu formulieren?",
+      "im_good": "Mir geht’s gut — bitte nicht weiter antippen."
+    },
+    "messages": {
+      "intro": "Hey {{name}} — willkommen bei {{community}}. Ich bin {{guide}}; ich helfe Leuten, sich hier zurechtzufinden.\n\nKein Checklisten-Stress: reinhören ist völlig okay. Wenn du magst, zeige ich dir eine Ecke der Community, die zu deinen Themen passt — oder helfe dir, wenn du bereit bist, ein lockeres Hallo zu sagen.",
+      "introFormal": "Guten Tag {{name}} — willkommen bei {{community}}. Ich bin {{guide}}. Ich kann Ihnen gerne passende Gruppen und Mitglieder vorstellen.",
+      "softDoor": "Du bist noch dabei, dich einzuleben — das ist völlig normal. Ich lasse diesen Thread hier, falls du Hilfe brauchst, Leute, eine Gruppe oder ein erstes Hallo zu finden.\n\nWenn ich besser still sein soll, sag einfach „Mir geht’s gut“ und ich störe dich nicht mehr.",
+      "stalledPost": "Eine einfache Möglichkeit, dazuzugehören: Antworte auf einen neueren Beitrag im Feed. Soll ich einen kurzen Antwortvorschlag machen? (Du schickst ihn — ich poste nichts für dich.)",
+      "stalledGroup": "Falls es hilft: Viele neue Leute fangen in einer einladenden Gruppe an. Soll ich dir einen Einzeiler zur Vorstellung vorschlagen, den du dort posten kannst — oder soll ich dir einfach eine Gruppe zeigen?",
+      "stalledJam": "Demnächst steht ein Jam an. Reinzuschauen ist eine lockere Art, Leute live kennenzulernen. Soll ich kurz in einfachen Worten erklären, was und warum?"
+    },
+    "toast": {
+      "body": "Schön — du bist dabei. Lust auf eine nächste Idee von {{guide}}?",
+      "sure": "Klar",
+      "noThanks": "Nein, danke"
     }
   }
 }

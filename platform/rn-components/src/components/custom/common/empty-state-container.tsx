@@ -2,6 +2,8 @@ import { View } from 'react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ThemedText } from '../../ui/themed-text';
+import { Button } from '../../ui/button';
+import { Text } from '../../ui/text';
 import {
   BellOffIcon,
   MessageSquareOffIcon,
@@ -16,12 +18,16 @@ interface EmptyStateContainerProps {
   type: EmptyStateContainerType;
   copyKey: string;
   defaultValue?: string;
+  inviteLabel?: string;
+  onInvite?: () => void;
 }
 
 export const EmptyStateContainer = ({
   type,
   copyKey,
   defaultValue,
+  inviteLabel,
+  onInvite,
 }: EmptyStateContainerProps) => {
   const { t } = useTranslation();
   const iconClass = 'text-muted-foreground';
@@ -53,6 +59,13 @@ export const EmptyStateContainer = ({
       <ThemedText className="text-xl">
         {t(copyKey, defaultValue ? { defaultValue } : undefined)}
       </ThemedText>
+      {type === 'posts' || type === 'groups' ? (
+        inviteLabel && onInvite ? (
+          <Button className="mt-4" onPress={onInvite}>
+            <Text>{inviteLabel}</Text>
+          </Button>
+        ) : null
+      ) : null}
     </View>
   );
 };

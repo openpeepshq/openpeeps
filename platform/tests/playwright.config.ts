@@ -82,6 +82,11 @@ const config: PlaywrightTestConfig = {
             process.env.EMAIL_DEFAULT_FROM ?? 'test@openpeeps.test',
           FORCE_COLOR: '0',
           NO_COLOR: '1',
+          COMMUNITY_ONBOARDING_GUIDE_ENABLED:
+            process.env.COMMUNITY_ONBOARDING_GUIDE_ENABLED ??
+            (selectedSuites.some((entry) => entry.name === 'empty')
+              ? 'false'
+              : 'true'),
         },
       },
   projects,

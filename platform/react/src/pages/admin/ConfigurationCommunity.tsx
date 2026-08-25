@@ -67,6 +67,10 @@ export function AdminConfigurationCommunity() {
         translationPrefix="configuration.community.feed"
         action="/admin/configuration/community/feed"
       />
+      <ConfigMenuButton
+        translationPrefix="configuration.community.onboardingGuide"
+        action="/admin/configuration/community/onboarding-guide"
+      />
     </div>
   );
 }

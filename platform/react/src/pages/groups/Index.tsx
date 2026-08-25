@@ -10,6 +10,7 @@ import {
 } from '../../index';
 import { GroupCard, useCurrentProfile } from '../../components';
 import { Input } from '@openpeepshq/react-ui';
+import { EmptyStateInvite } from '../../onboarding';
 
 type GroupsTab = 'mine' | 'all';
 
@@ -108,15 +109,18 @@ export function GroupsIndex() {
           <div className="flex h-[60vh] w-full flex-col items-center justify-center gap-y-6">
             <Users size={60} />
             {search === '' ? (
-              <p>
-                {tab === 'mine'
-                  ? t('groups.noGroupsYet', {
-                      defaultValue: 'You have no groups yet',
-                    })
-                  : t('groups.noGroupsFound', {
-                      defaultValue: 'No groups found',
-                    })}
-              </p>
+              <>
+                <p>
+                  {tab === 'mine'
+                    ? t('groups.noGroupsYet', {
+                        defaultValue: 'You have no groups yet',
+                      })
+                    : t('groups.noGroupsFound', {
+                        defaultValue: 'No groups found',
+                      })}
+                </p>
+                {tab === 'mine' ? <EmptyStateInvite surface="groups" /> : null}
+              </>
             ) : (
               <p>
                 {t('groups.noGroupsFound', { defaultValue: 'No groups found' })}

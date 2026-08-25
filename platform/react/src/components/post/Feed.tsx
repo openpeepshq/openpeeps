@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, type ReactNode } from 'react';
 import { Rss } from 'lucide-react';
 import type {
   PublicPost,
@@ -29,6 +29,8 @@ export interface FeedProps {
   pinnedPostId?: string;
   /** Hide the linear/threaded switch (event and jam lists). */
   formatSwitch?: boolean;
+  /** Extra content shown in the empty state (e.g. onboarding invite). */
+  emptySlot?: ReactNode;
 }
 
 /**
@@ -45,6 +47,7 @@ export function Feed({
   inGroup = false,
   pinnedPostId,
   formatSwitch = true,
+  emptySlot,
 }: FeedProps) {
   const t = useT();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -108,6 +111,7 @@ export function Feed({
           <p className="text-xl">
             {t('feed.empty', { defaultValue: 'No posts yet.' })}
           </p>
+          {emptySlot}
         </div>
       </div>
     );

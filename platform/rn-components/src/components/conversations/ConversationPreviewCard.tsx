@@ -3,6 +3,8 @@ import React, { useCallback, useRef, useState } from 'react';
 import { UpdatingDate } from '../custom/date/updating-date';
 import { OpenpeepsMarkdown } from '../markdown/OpenpeepsMarkdown';
 import {
+  audienceIncludesHandle,
+  DEFAULT_CHATBOT_HANDLE,
   formatBadgeCount,
   truncateText,
   type PublicPost,
@@ -50,6 +52,11 @@ export const ConversationPreviewCard = ({
     (p) => p.id !== currentProfile?.id
   );
 
+  const isGuide = audienceIncludesHandle(
+    otherParticipants,
+    DEFAULT_CHATBOT_HANDLE
+  );
+
   const otherNames = otherParticipants
     .map((p) => p.displayName || `@${p.handle}`)
     .join(', ');
@@ -86,6 +93,13 @@ export const ConversationPreviewCard = ({
               <Text className="truncate font-bold">
                 {truncateText(title, 20)}
               </Text>
+              {isGuide ? (
+                <Text className="text-primary font-semibold ml-2 text-xs">
+                  {t('onboardingGuide.conversations.badge', {
+                    defaultValue: 'Guide',
+                  })}
+                </Text>
+              ) : null}
               {unreadCount > 0 ? (
                 <View className="bg-destructive size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1">
                   <Text className="text-xs font-semibold text-destructive-foreground">
@@ -96,10 +110,22 @@ export const ConversationPreviewCard = ({
             </View>
           </View>
 
-          <UpdatingDate
-            date={lastMessage.createdAt}
-            className="text-muted-foreground"
-          />
+          <View className="flex flex-row items-center">
+            {isGuide ? (
+              <Text className="text-muted-foreground text-xs">
+                {t('onboardingGuide.conversations.subtitle', {
+                  defaultValue: 'Your community guide',
+                })}
+              </Text>
+            ) : null}
+            {isGuide ? (
+              <Text className="text-muted-foreground mx-1 text-xs">·</Text>
+            ) : null}
+            <UpdatingDate
+              date={lastMessage.createdAt}
+              className="text-muted-foreground"
+            />
+          </View>
 
           <View className="mt-2 flex flex-row items-start gap-x-2">
             <View className="flex flex-row items-center">

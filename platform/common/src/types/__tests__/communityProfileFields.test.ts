@@ -106,4 +106,25 @@ describe('communityConfigSchema profiles.additionalFields', () => {
       }).theme.primaryHex,
     ).toBe('#15678a');
   });
+
+  it('accepts an optional onboardingGuide block', () => {
+    expect(
+      communityConfigSchema.parse({
+        ...base,
+        onboardingGuide: {
+          enabled: true,
+          displayName: 'PeePs',
+          subtitle: 'Community guide',
+          tone: 'warm',
+          quietHours: { startHour: 21, endHour: 8 },
+          windowDays: 14,
+          maxProactiveDmsPerDay: 1,
+          maxProactiveDmsInWindow: 4,
+          pushOnFirstIntro: false,
+          enabledRungs: ['orient', 'join_group'],
+          primaryInvite: 'both',
+        },
+      }).onboardingGuide?.displayName,
+    ).toBe('PeePs');
+  });
 });

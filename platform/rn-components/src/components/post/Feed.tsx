@@ -18,6 +18,8 @@ interface Props {
   type?: EmptyStateContainerType;
   inGroup?: boolean;
   formatSwitch?: boolean;
+  inviteLabel?: string;
+  onInvite?: () => void;
 }
 
 export const Feed = ({
@@ -28,6 +30,8 @@ export const Feed = ({
   type = 'posts',
   inGroup = false,
   formatSwitch = true,
+  inviteLabel,
+  onInvite,
 }: Props) => {
   const [refreshing, setRefreshing] = React.useState(false);
   const refetchRef = React.useRef(query.refetch);
@@ -83,7 +87,12 @@ export const Feed = ({
             })}
           </View>
           {allPosts.length === 0 && !pinnedPostId && (
-            <EmptyStateContainer type={type} copyKey="feed.empty" />
+            <EmptyStateContainer
+              type={type}
+              copyKey="feed.empty"
+              inviteLabel={inviteLabel}
+              onInvite={onInvite}
+            />
           )}
           {query.isFetchingNextPage && <CustomLoader page="community" />}
         </>

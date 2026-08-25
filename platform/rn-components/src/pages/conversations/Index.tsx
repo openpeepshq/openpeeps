@@ -22,7 +22,11 @@ import {
   TabStackParamList,
   MainStackParamList,
 } from '../../components/navigation/types/index';
-import { canCreatePost } from '@openpeepshq/common';
+import {
+  audienceIncludesHandle,
+  canCreatePost,
+  DEFAULT_CHATBOT_HANDLE,
+} from '@openpeepshq/common';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   ConversationPreviewCard,
@@ -57,10 +61,24 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
   const unseenByConversation = unseenCountsQuery.data?.direct ?? {};
 
   const activeQuery = tab === 'active' ? query : archivedQuery;
-  const conversations = useMemo(
-    () => activeQuery.data ?? [],
-    [activeQuery.data]
-  );
+  const conversations = useMemo(() => {
+    const list = activeQuery.data ?? [];
+    if (tab !== 'active') return list;
+    return [...list].sort((a, b) => {
+      const lastA = a[a.length - 1] ?? a[0];
+      const lastB = b[b.length - 1] ?? b[0];
+      const aGuide = audienceIncludesHandle(
+        lastA?.audience,
+        DEFAULT_CHATBOT_HANDLE
+      );
+      const bGuide = audienceIncludesHandle(
+        lastB?.audience,
+        DEFAULT_CHATBOT_HANDLE
+      );
+      if (aGuide === bGuide) return 0;
+      return aGuide ? -1 : 1;
+    });
+  }, [activeQuery.data, tab]);
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);

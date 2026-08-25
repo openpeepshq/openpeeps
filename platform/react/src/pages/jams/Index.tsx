@@ -15,6 +15,7 @@ import {
   useServerInfo,
 } from '../../components';
 import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
+import { EmptyStateInvite } from '../../onboarding';
 
 interface Props {
   /** When true, scope to the current user's jams (`/jams/my`). */
@@ -96,7 +97,14 @@ export function JamsIndex({ my = false }: Props) {
           {t('jams.feed.past', { defaultValue: 'Past' })}
         </TabButton>
       </nav>
-      <EventsFeed query={activeQuery} />
+      <EventsFeed
+        query={activeQuery}
+        emptySlot={
+          !my && tab === 'upcoming' ? (
+            <EmptyStateInvite surface="jams" />
+          ) : undefined
+        }
+      />
     </div>
   );
 }

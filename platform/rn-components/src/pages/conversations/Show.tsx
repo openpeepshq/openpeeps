@@ -17,7 +17,12 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { InfoIcon, SearchIcon } from '../../components/icons/index';
-import { MediaAttachmentData, type PublicPost } from '@openpeepshq/common';
+import {
+  audienceIncludesHandle,
+  MediaAttachmentData,
+  DEFAULT_CHATBOT_HANDLE,
+  type PublicPost,
+} from '@openpeepshq/common';
 import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
 import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
 import { maxContentLength } from '../../lib/utils';
@@ -102,6 +107,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   const participants =
     lastMessage?.audience?.filter((a) => a.id !== currentProfile?.id) ?? [];
   const multipleParticipants = participants.length > 1;
+  const isGuide = audienceIncludesHandle(participants, DEFAULT_CHATBOT_HANDLE);
 
   const participantNames =
     participants.length > 0
@@ -175,12 +181,21 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
 
   useSetPageHeader(
     isLoading ? undefined : (
-      <ConversationProfileHeader
-        participants={participants}
-        onPress={
-          multipleParticipants ? () => setParticipantsOpen(true) : undefined
-        }
-      />
+      <View className="flex-col">
+        {isGuide ? (
+          <ThemedText className="text-muted-foreground mt-1 text-sm">
+            {t('onboardingGuide.conversations.subtitle', {
+              defaultValue: 'Your community guide',
+            })}
+          </ThemedText>
+        ) : null}
+        <ConversationProfileHeader
+          participants={participants}
+          onPress={
+            multipleParticipants ? () => setParticipantsOpen(true) : undefined
+          }
+        />
+      </View>
     ),
     isLoading ? undefined : (
       <View className="flex-row items-center">

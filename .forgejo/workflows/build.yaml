@@ -356,6 +356,7 @@ jobs:
           SERVER_PROTOCOL: http
           JAMS_LIVEKIT_API_KEY: APIxxxxxxxxxxxx
           JAMS_LIVEKIT_API_SECRET: xxxxxxxxxxxxx
+          COMMUNITY_ONBOARDING_GUIDE_ENABLED: ${{ matrix.suite == 'empty' && 'false' || 'true' }}
       worker:
         image:
           ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
@@ -375,6 +376,7 @@ jobs:
           EMAIL_DEFAULT_FROM: test@openpeeps.test
           SERVER_HOST: web:8080
           SERVER_PROTOCOL: http
+          COMMUNITY_ONBOARDING_GUIDE_ENABLED: ${{ matrix.suite == 'empty' && 'false' || 'true' }}
     steps:
       - name: Wait for web service
         run: |
