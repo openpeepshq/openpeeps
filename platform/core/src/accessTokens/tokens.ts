@@ -127,6 +127,20 @@ export const createSignedGuestPass = async (
   if (!profile.guestData?.resource) {
     throw new Error('Guest pass requires a resource');
   }
+  const resource = profile.guestData.resource;
+  // Jam chat resolves message authors via profile GET; guests need a profiles
+  // read scope so ensureProfileCapabilities succeeds after ensureAccess.
+  const scopes =
+    resource.type === 'jams'
+      ? [
+          { scopeLevel: 'read' as const, resource },
+          {
+            scopeLevel: 'read' as const,
+            resource: { type: 'profiles' as const, id: '*' },
+          },
+        ]
+      : [{ scopeLevel: 'read' as const, resource }];
+
   return createSignedAccessToken({
     profile,
     name: profile.handle,
@@ -134,12 +148,7 @@ export const createSignedGuestPass = async (
       identities: {
         profile: profile.id,
       },
-      scopes: [
-        {
-          scopeLevel: 'read',
-          resource: profile.guestData?.resource,
-        },
-      ],
+      scopes,
     },
     expirationTime,
   });
