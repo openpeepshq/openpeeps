@@ -20,8 +20,11 @@ export const profileHooks = (
   useProfiles: () => apiHook(client.profiles.list),
   useProfile: (id: string) =>
     apiHook(client.profiles.findById, { pathParams: { id } }),
-  useProfileByHandle: (handle: string) =>
-    apiHook(client.profiles.findByHandle, { pathParams: { handle } }),
+  useProfileByHandle: (handle: string, options?: { enabled?: boolean }) =>
+    apiHook(client.profiles.findByHandle, {
+      pathParams: { handle },
+      enabled: (options?.enabled ?? true) && !!handle,
+    }),
   useProfileFollowers: (id: string) =>
     apiHook(client.profiles.followers, { pathParams: { id } }),
   useProfileFollowing: (id: string) =>

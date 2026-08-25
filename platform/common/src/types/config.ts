@@ -297,6 +297,58 @@ export type CommunityProfileAdditionalField = z.infer<
   typeof communityProfileAdditionalFieldSchema
 >;
 
+export const ONBOARDING_RUNGS = [
+  'orient',
+  'join_group',
+  'profile_face',
+  'first_reply',
+  'say_hello',
+  'join_jam',
+  'reciprocate_follow',
+  'deeper_share',
+] as const;
+export const onboardingRungSchema = z.enum(ONBOARDING_RUNGS);
+export type OnboardingRung = z.infer<typeof onboardingRungSchema>;
+
+export const onboardingGuideConfigSchema = z.object({
+  enabled: z.boolean(),
+  displayName: z.string().min(1),
+  subtitle: z.string(),
+  tone: z.enum(['warm', 'neutral', 'formal']),
+  quietHours: z.object({
+    startHour: z.number().int().min(0).max(23),
+    endHour: z.number().int().min(0).max(23),
+  }),
+  windowDays: z.number().int().min(1).max(90),
+  maxProactiveDmsPerDay: z.number().int().min(0).max(10),
+  maxProactiveDmsInWindow: z.number().int().min(0).max(20),
+  pushOnFirstIntro: z.boolean(),
+  enabledRungs: z.array(onboardingRungSchema),
+  primaryInvite: z.enum(['dock', 'dm_only', 'both']),
+  customHostBlurb: z.string().optional(),
+});
+export type OnboardingGuideConfig = z.infer<typeof onboardingGuideConfigSchema>;
+
+export const onboardingInvitationDismissalSchema = z.object({
+  surface: z.string(),
+  at: z.string(),
+  forever: z.boolean().optional(),
+});
+
+export const onboardingGuideStateSchema = z.object({
+  status: z.enum(['active', 'quiet', 'muted']).optional(),
+  proactive: z.boolean().optional(),
+  snoozedUntil: z.string().optional(),
+  lastProactiveAt: z.string().optional(),
+  proactiveCount: z.number().int().nonnegative().optional(),
+  completedRungs: z.array(onboardingRungSchema).optional(),
+  invitationDismissals: z.array(onboardingInvitationDismissalSchema).optional(),
+  dockShownAt: z.string().optional(),
+  guideOpenedAt: z.string().optional(),
+  lastMilestoneToastRung: z.string().optional(),
+});
+export type OnboardingGuideState = z.infer<typeof onboardingGuideStateSchema>;
+
 export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
   z.object({
     theme: z.object({
@@ -363,6 +415,7 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
         remove: z.string().array(),
       }),
     }),
+    onboardingGuide: onboardingGuideConfigSchema.optional(),
   });
 export const communityConfigSchema = communityConfigSchemaFactory(false);
 export const communityConfigSanitizedSchema =

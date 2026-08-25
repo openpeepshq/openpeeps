@@ -34,9 +34,7 @@ const allSuites: SuiteDef[] = [
 
 const selectedSuites = suite
   ? allSuites.filter((entry) => entry.name === suite)
-  : allSuites.filter(
-      (entry) => entry.name !== 'jams' || livekitConfigured(),
-    );
+  : allSuites.filter((entry) => entry.name !== 'jams' || livekitConfigured());
 
 /** Playwright ignores per-project globalSetup; use setup projects instead. */
 const projects: Project[] = selectedSuites.flatMap((entry) => {
@@ -85,6 +83,11 @@ const config: PlaywrightTestConfig = {
             process.env.EMAIL_DEFAULT_FROM ?? 'test@openpeeps.test',
           FORCE_COLOR: '0',
           NO_COLOR: '1',
+          COMMUNITY_ONBOARDING_GUIDE_ENABLED:
+            process.env.COMMUNITY_ONBOARDING_GUIDE_ENABLED ??
+            (selectedSuites.some((entry) => entry.name === 'empty')
+              ? 'false'
+              : 'true'),
         },
       },
   projects,

@@ -23,7 +23,11 @@ import {
   TabStackParamList,
   MainStackParamList,
 } from '~/components/navigation/types';
-import { PublicPost } from '@openpeepshq/common';
+import {
+  audienceIncludesHandle,
+  DEFAULT_CHATBOT_HANDLE,
+  type PublicPost,
+} from '@openpeepshq/common';
 import { useNewConversationStore } from '~/stores/useNewConversationStore';
 import { Input } from '~/components/ui/input';
 import { ThemedText } from '~/components/ui/themed-text';
@@ -75,7 +79,21 @@ export const Messages: React.FC<MessagesProps> = ({ navigation }) => {
             profileMatchesQuery(message.profile, searchQuery),
         ),
       );
-      setFilteredConversations(filtered);
+      const sorted = [...filtered].sort((a, b) => {
+        const lastA = a[a.length - 1] ?? a[0];
+        const lastB = b[b.length - 1] ?? b[0];
+        const aGuide = audienceIncludesHandle(
+          lastA?.audience,
+          DEFAULT_CHATBOT_HANDLE,
+        );
+        const bGuide = audienceIncludesHandle(
+          lastB?.audience,
+          DEFAULT_CHATBOT_HANDLE,
+        );
+        if (aGuide === bGuide) return 0;
+        return aGuide ? -1 : 1;
+      });
+      setFilteredConversations(sorted);
     }
   }, [conversations, searchQuery]);
 

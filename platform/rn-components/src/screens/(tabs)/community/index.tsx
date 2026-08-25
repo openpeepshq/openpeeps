@@ -16,7 +16,7 @@ type HomeScreenProps = CompositeScreenProps<
   NativeStackScreenProps<MainStackParamList>
 >;
 
-export const Home: React.FC<HomeScreenProps> = () => {
+export const Home: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
   const { data: serverInfo, refetch: refetchServerInfo } =
@@ -42,6 +42,8 @@ export const Home: React.FC<HomeScreenProps> = () => {
         query={query}
         pinnedPostId={pinnedPostId}
         refetchServerInfo={refetchServerInfo}
+        inviteLabel="Ask PeePs"
+        onInvite={() => navigation.navigate('Messages')}
       />
     </>
   );

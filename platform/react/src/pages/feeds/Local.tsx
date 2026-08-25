@@ -6,6 +6,7 @@ import {
   useServerInfo,
   PluginSlot,
 } from '../../components';
+import { EmptyStateInvite } from '../../onboarding';
 
 export function FeedsLocal() {
   const t = useT();
@@ -27,7 +28,11 @@ export function FeedsLocal() {
   return (
     <>
       <PluginSlot name="plugins.header" className="p-4 pb-0" />
-      <Feed query={query} pinnedPostId={pinnedPostId ?? undefined} />
+      <Feed
+        query={query}
+        pinnedPostId={pinnedPostId ?? undefined}
+        emptySlot={<EmptyStateInvite surface="feed" />}
+      />
     </>
   );
 }
