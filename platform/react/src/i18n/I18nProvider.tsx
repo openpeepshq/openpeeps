@@ -25,28 +25,37 @@ export function I18nProvider({
   fallback = null,
   lang,
 }: I18nProviderProps) {
-  const [ready, setReady] = useState(() => (instance ?? i18next).isInitialized);
+  const i18n = instance ?? i18next;
+  const [ready, setReady] = useState(() => i18n.isInitialized);
+  // Bump when language changes so context consumers get a fresh `t`.
+  const [lng, setLng] = useState(() => i18n.language);
 
   useEffect(() => {
-    const i18n = instance ?? i18next;
-    if (lang && i18n.isInitialized) {
+    if (lang && i18n.isInitialized && i18n.language !== lang) {
       void i18n.changeLanguage(lang);
     }
-    if (!i18n.isInitialized) {
-      const onInitialized = () => setReady(true);
-      i18n.on('initialized', onInitialized);
-      return () => {
-        i18n.off('initialized', onInitialized);
-      };
-    }
-    setReady(true);
-    return undefined;
-  }, [instance, lang]);
+    const onReady = () => {
+      setReady(true);
+      setLng(i18n.language);
+    };
+    const onLanguageChanged = (next: string) => setLng(next);
 
-  const value = useMemo(() => {
-    const i18n = instance ?? i18next;
-    return { i18n, t: i18n.t.bind(i18n) };
-  }, [instance]);
+    if (!i18n.isInitialized) {
+      i18n.on('initialized', onReady);
+    } else {
+      setReady(true);
+    }
+    i18n.on('languageChanged', onLanguageChanged);
+    return () => {
+      i18n.off('initialized', onReady);
+      i18n.off('languageChanged', onLanguageChanged);
+    };
+  }, [i18n, lang]);
+
+  const value = useMemo(
+    () => ({ i18n, t: i18n.t.bind(i18n) }),
+    [i18n, lng],
+  );
 
   if (!ready) return <>{fallback}</>;
 

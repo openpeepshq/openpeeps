@@ -12,11 +12,13 @@ import {
 import {
   I18nProvider,
   initI18N,
+  resolveInitialLanguage,
   OpenpeepsProvider,
   pwa,
   RouterProvider,
   credentialsStore,
   useOpenpeeps,
+  useServerInfo,
   type RouterAdapter,
 } from '@openpeepshq/react';
 import type { i18n as I18nInstance } from 'i18next';
@@ -197,19 +199,18 @@ function BootSplash() {
 }
 
 /**
- * Async i18n boot. Initialises the global i18next instance against the
- * server's `/api/openpeeps/core/v1/i18n/{{lng}}` backend before mounting
- * the rest of the tree.
+ * Async i18n boot after server info is available. Starts with the community
+ * default (or browser); ProfileProvider applies profileSettings.language.
  */
 function I18nBoot({ children }: { children: ReactNode }) {
+  const serverInfo = useServerInfo();
+  const communityDefault =
+    serverInfo.communityConfig?.settings?.defaultLanguage;
   const [i18n, setI18n] = useState<I18nInstance | null>(null);
 
   useEffect(() => {
-    const lang =
-      (typeof navigator !== 'undefined' && navigator.language?.slice(0, 2)) ||
-      'en';
-    initI18N(lang, baseUrl).then(setI18n);
-  }, []);
+    initI18N(resolveInitialLanguage(communityDefault), baseUrl).then(setI18n);
+  }, [communityDefault]);
 
   if (!i18n) return <BootSplash />;
 
@@ -818,21 +819,21 @@ export function App() {
   return (
     <BrowserRouter>
       <ReactRouterAdapter>
-        <I18nBoot>
-          <OpenpeepsProvider
-            credentialsStore={credentialsStore}
-            baseUrl={baseUrl}
-          >
-            <ServerData>
+        <OpenpeepsProvider
+          credentialsStore={credentialsStore}
+          baseUrl={baseUrl}
+        >
+          <ServerData>
+            <I18nBoot>
               <PluginRegistryProvider>
                 <PluginLoader />
                 <ProfileProvider>
                   <AppShell />
                 </ProfileProvider>
               </PluginRegistryProvider>
-            </ServerData>
-          </OpenpeepsProvider>
-        </I18nBoot>
+            </I18nBoot>
+          </ServerData>
+        </OpenpeepsProvider>
       </ReactRouterAdapter>
     </BrowserRouter>
   );
