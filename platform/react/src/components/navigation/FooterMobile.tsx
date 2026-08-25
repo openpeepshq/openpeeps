@@ -1,6 +1,7 @@
 import { Bell, Home, Newspaper, PlusSquare, Users } from 'lucide-react';
 import { MobileMenuItem } from './MobileMenuItem';
 import { useHrefOf } from '../../contexts/router';
+import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 
 export interface FooterMobileProps {
@@ -11,6 +12,9 @@ export interface FooterMobileProps {
 export function FooterMobile({ onNewPost }: FooterMobileProps = {}) {
   const t = useT();
   const hrefOf = useHrefOf();
+  const { openpeepsApi } = useOpenpeeps();
+  const notificationStats = openpeepsApi.useCurrentProfileNotificationStats();
+
   return (
     <nav
       aria-label={t('navigation.primaryMobile', {
@@ -42,6 +46,7 @@ export function FooterMobile({ onNewPost }: FooterMobileProps = {}) {
         title={t('navigation.notifications')}
         icon={Bell}
         action={hrefOf({ type: 'notifications' })}
+        badge={notificationStats.data?.unseen}
       />
     </nav>
   );
