@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **sso**: add SSO login URL handling and related utilities
+- **backups**: restore into a schema version then migrate forward
 - **polls**: implement poll option length validation and UI feedback
 - **groups**: enhance group form validation and error handling
 - **core**: record createdAt in backup metadata
@@ -17,6 +19,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **admin**: reload page after plugin reload
+- **posts**: allow repeated post_seen impression rows
 - **analytics**: improve error handling and type safety in cache functions
 - **jams**: use plural jams resource type in auth scopes
 - **core**: rewrite post and group media hosts on backup restore
@@ -33,6 +37,7 @@ Changelog for OpenPeeps
 
 ### Refactoring
 
+- **analytics**: enhance chart and table components for better responsiveness
 - **BREAKING**: **rn-components**: publish as @openpeepshq/rn-components
 
 ### Documentation
