@@ -6,6 +6,7 @@ import { successResponseSchema } from '@openpeepshq/common/types';
 import { findProfile } from '@openpeepshq/core/profiles';
 import { conflict, forbidden, notFound } from '#lib/errors';
 import { hub } from '@openpeepshq/core/events';
+import { ensureGroupOwnerRemovable } from '#lib/groupOwnerGuards';
 
 export const Output = successResponseSchema;
 export const Param = z.object({
@@ -39,6 +40,8 @@ export const apiEndpoint = endpoint({ Param, Output }).handle(
     }
 
     await ensureGroupCapabilities(event, ['core-groups-removeMember'], group);
+
+    await ensureGroupOwnerRemovable(group, profileToDelete);
 
     await removeMembersFromGroup(group, [profileToDelete]);
 

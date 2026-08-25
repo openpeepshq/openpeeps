@@ -15,7 +15,12 @@ export const postRelationships = [
   'collaborator',
 ] as const;
 
-export const defaultGroupRoles = ['member', 'admin', 'moderator'] as const;
+export const defaultGroupRoles = [
+  'member',
+  'moderator',
+  'admin',
+  'owner',
+] as const;
 
 export const groupRelationships = [
   ...defaultGroupRoles,
@@ -66,6 +71,7 @@ export const postCapabilities = [
 export const groupCapabilities = [
   'core-groups-read',
   'core-groups-update',
+  'core-groups-updateCapabilities',
   'core-groups-delete',
   'core-groups-join',
   'core-groups-leave',
@@ -76,6 +82,46 @@ export const groupCapabilities = [
   'core-posts-create-event',
   'core-posts-create-poll',
   'core-posts-create-article',
+] as const;
+
+/** Caps an owner can toggle per relationship in the group editor. */
+export const groupCapabilityEditorKeys = [
+  ...groupCapabilities,
+  'core-posts-read',
+  'core-posts-delete',
+  'core-posts-react',
+  'core-posts-reply',
+  'core-posts-rsvp',
+  'core-posts-vote',
+  'core-posts-create-*',
+  'core-posts-*',
+  'core-groups-*',
+] as const;
+
+/** Owner is omitted — `*` / `core-groups-*` already grants every editor cap. */
+export const groupCapabilityEditorRelationships = [
+  'none',
+  'local',
+  'member',
+  'moderator',
+  'admin',
+] as const;
+
+/** Explicit admin list — `core-groups-*` would also grant delete and cap edits. */
+export const defaultGroupAdminCapabilityAdds = [
+  'core-posts-*',
+  'core-groups-read',
+  'core-groups-update',
+  'core-groups-join',
+  'core-groups-leave',
+  'core-groups-addMember',
+  'core-groups-removeMember',
+  'core-groups-changeMemberRole',
+] as const;
+
+export const defaultGroupOwnerCapabilityAdds = [
+  'core-posts-*',
+  'core-groups-*',
 ] as const;
 
 export const profileCapabilities = [

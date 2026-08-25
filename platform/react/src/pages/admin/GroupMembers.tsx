@@ -7,15 +7,11 @@ import {
   Trash2,
 } from 'lucide-react';
 import { groupName, truncateText } from '@openpeepshq/common/lib';
-import { defaultGroupRoles } from '@openpeepshq/common/types';
-import type {
-  GroupMember,
-  GroupRelationship,
-  GroupWithMeta,
-} from '@openpeepshq/common/types';
+import type { GroupMember, GroupWithMeta } from '@openpeepshq/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
 import {
   Avatar,
+  ChangeGroupRolesModal,
   useCreateNewConversation,
   useCurrentProfile,
 } from '../../components';
@@ -25,7 +21,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  Label,
   LoadingSpinner,
   PopupMenu,
   PopupMenuButton,
@@ -168,7 +163,7 @@ function MemberRowActions({
       </PopupMenu>
 
       {activeModal === 'roles' ? (
-        <ChangeRolesModal
+        <ChangeGroupRolesModal
           group={group}
           member={member}
           onClose={() => setActiveModal(null)}
@@ -182,98 +177,6 @@ function MemberRowActions({
         />
       ) : null}
     </>
-  );
-}
-
-function ChangeRolesModal({
-  group,
-  member,
-  onClose,
-}: {
-  group: GroupWithMeta;
-  member: GroupMember;
-  onClose: () => void;
-}) {
-  const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
-  const setMemberRoles = openpeepsApi.setGroupMemberRolesAction();
-
-  const [selected, setSelected] = useState<Set<GroupRelationship>>(
-    () => new Set((member.roles ?? []) as GroupRelationship[]),
-  );
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const toggle = (role: GroupRelationship, checked: boolean) =>
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (checked) next.add(role);
-      else next.delete(role);
-      return next;
-    });
-
-  const submit = async () => {
-    setError(null);
-    setSubmitting(true);
-    try {
-      await setMemberRoles(
-        { roles: Array.from(selected) },
-        { id: group.id, memberId: member.profile.id },
-      );
-      onClose();
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle>
-            {t('groups.changeRoles.title', { defaultValue: 'Change Roles' })}
-          </DialogTitle>
-        </DialogHeader>
-        <p className="px-1 text-sm">
-          {t('groups.changeRoles.description', {
-            defaultValue: 'Change roles for this group',
-            handle: member.profile.handle,
-          })}
-        </p>
-        <div className="space-y-3 px-1">
-          {defaultGroupRoles.map((role) => (
-            <div key={role} className="flex items-center justify-between gap-4">
-              <Label htmlFor={`group-role-${role}`} classes="text-base">
-                {t(`groups.roles.${role}`, { defaultValue: role })}
-              </Label>
-              <input
-                id={`group-role-${role}`}
-                type="checkbox"
-                className="size-4"
-                checked={selected.has(role)}
-                onChange={(e) => toggle(role, e.target.checked)}
-              />
-            </div>
-          ))}
-        </div>
-        {error ? (
-          <p className="border-error/40 text-error rounded-md border p-2 text-sm">
-            {error}
-          </p>
-        ) : null}
-        <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
-          onCancel={onClose}
-          actionLabel={t('groups.changeRoles.confirm', {
-            defaultValue: 'Update Roles',
-          })}
-          onAction={submit}
-          disabled={submitting}
-        />
-      </DialogContent>
-    </Dialog>
   );
 }
 

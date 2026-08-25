@@ -223,8 +223,8 @@ const RadioSelectShowcase = (): ReactElement => {
           value: 'members',
         },
         {
-          title: 'Admins only',
-          description: 'Only group admins can create events.',
+          title: 'Owners and admins',
+          description: 'Only group owners and admins can create events.',
           value: 'admins',
         },
       ]}

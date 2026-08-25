@@ -1,7 +1,13 @@
 import { View, Pressable } from 'react-native';
 import React, { useCallback, useRef } from 'react';
 import { MainScreenProps } from '~/components/navigation/types';
-import { GroupWithMeta, PublicProfile } from '@openpeepshq/common';
+import {
+  actorIsGroupOwner,
+  countGroupOwners,
+  GroupWithMeta,
+  groupMembershipHasRole,
+  PublicProfile,
+} from '@openpeepshq/common';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,11 +64,18 @@ export const GroupPageActions = ({
   const markGroupPostsSeen = openpeepsApi.markGroupPostsSeenAction();
   const { data: groupMembers } = openpeepsApi.useGroupMembers(groupData.id);
   const isGroupMember = currentProfile?.memberships
-    ?.map(m => m.group.id)
+    ?.map((m) => m.group.id)
     .includes(groupData.id);
 
-  const groupMembership = currentProfile?.memberships?.find(m => m.group.id === groupData.id);
-  const isGroupAdmin = groupMembership?.roles?.includes('admin');
+  const groupMembership = currentProfile?.memberships?.find(
+    (m) => m.group.id === groupData.id
+  );
+  const isGroupOwner = currentProfile
+    ? actorIsGroupOwner(currentProfile, groupData.id)
+    : false;
+  const isGroupStaff =
+    groupMembershipHasRole(groupMembership?.roles, 'owner') ||
+    groupMembershipHasRole(groupMembership?.roles, 'admin');
 
   const handleDeleteGroupModalPress = useCallback(() => {
     deleteGroupModalRef.current?.present();
@@ -84,13 +97,11 @@ export const GroupPageActions = ({
       ...(currentProfile as PublicProfile),
     })
       .then(() => {
-
         if (currentProfile && currentProfile.memberships) {
           currentProfile.memberships.push({
             group: groupData,
             roles: ['member'],
           });
-
         }
 
         Toast.show({
@@ -111,16 +122,14 @@ export const GroupPageActions = ({
       });
   };
 
-
   const onLeave = async () => {
-    if (
-      isGroupAdmin &&
-      groupMembers?.filter(m => m.roles?.includes('admin')).length === 1
-    ) {
+    if (isGroupOwner && countGroupOwners(groupMembers ?? []) <= 1) {
       Toast.show({
         type: 'error',
-        text1: 'Cannot leave group',
-        text2: 'You are the only admin in the group',
+        text1: t('groups.leave.lastOwnerError', {
+          defaultValue:
+            'You are the last owner. Assign another owner before leaving.',
+        }),
       });
       return;
     }
@@ -155,7 +164,7 @@ export const GroupPageActions = ({
   };
   const onSendToMessage = () => {
     setContt(
-      `Join our group for exclusive updates and great conversations! ${BASE_URL}/groups/@${groupData.handle}`,
+      `Join our group for exclusive updates and great conversations! ${BASE_URL}/groups/@${groupData.handle}`
     );
     navigation.navigate('SelectPrivateMessageMembers');
   };
@@ -182,7 +191,8 @@ export const GroupPageActions = ({
           <Button
             variant={'outline'}
             className="flex-row"
-            onPress={handleJoinGroup}>
+            onPress={handleJoinGroup}
+          >
             {isLoading && (
               <LoaderIcon size={10} className="animate-spin text-white" />
             )}
@@ -202,13 +212,15 @@ export const GroupPageActions = ({
               <DropdownMenuGroup>
                 <DropdownMenuItem
                   onPress={onRepostToFeed}
-                  className=" flex-row gap-x-2 items-center">
+                  className=" flex-row gap-x-2 items-center"
+                >
                   <PencilIcon size={16} className="text-foreground" />
                   <ThemedText>Repost to feed</ThemedText>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onPress={onSendToMessage}
-                  className=" flex-row gap-x-2 items-center">
+                  className=" flex-row gap-x-2 items-center"
+                >
                   <SendIcon size={16} className="text-foreground" />
                   <ThemedText>Send in a message</ThemedText>
                 </DropdownMenuItem>
@@ -216,16 +228,17 @@ export const GroupPageActions = ({
                   onPress={() => {
                     try {
                       Clipboard.setString(
-                        `${BASE_URL}/groups/@${groupData.handle}`,
+                        `${BASE_URL}/groups/@${groupData.handle}`
                       );
                       Toast.show({
                         type: 'success',
                         text1: 'Link copied',
                         text2: 'Group link copied to clipboard',
                       });
-                    } catch (e) { }
+                    } catch (e) {}
                   }}
-                  className=" flex-row gap-x-2 items-center">
+                  className=" flex-row gap-x-2 items-center"
+                >
                   <LinkIcon size={16} className="text-foreground" />
                   <ThemedText>Copy link</ThemedText>
                 </DropdownMenuItem>
@@ -242,7 +255,8 @@ export const GroupPageActions = ({
               <DropdownMenuGroup>
                 <DropdownMenuItem
                   onPress={() => void onMarkAllRead()}
-                  className=" flex-row gap-x-2 items-center">
+                  className=" flex-row gap-x-2 items-center"
+                >
                   <CheckIcon size={16} className="text-foreground" />
                   <ThemedText>
                     {t('groups.actions.markAllRead', {
@@ -252,11 +266,12 @@ export const GroupPageActions = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onPress={onLeave}
-                  className=" flex-row gap-x-2 items-center">
+                  className=" flex-row gap-x-2 items-center"
+                >
                   <LogOutIcon size={16} className="text-foreground" />
                   <ThemedText>Leave group</ThemedText>
                 </DropdownMenuItem>
-                {!isGroupAdmin && (
+                {!isGroupStaff && (
                   <DropdownMenuItem className=" flex-row gap-x-2 items-center">
                     <FlagIcon size={16} className="text-destructive" />
                     <ThemedText className="text-destructive">
@@ -264,10 +279,11 @@ export const GroupPageActions = ({
                     </ThemedText>
                   </DropdownMenuItem>
                 )}
-                {isGroupAdmin && (
+                {isGroupOwner && (
                   <DropdownMenuItem
                     onPress={handleDeleteGroupModalPress}
-                    className=" flex-row gap-x-2 items-center">
+                    className=" flex-row gap-x-2 items-center"
+                  >
                     <TrashIcon size={16} className="text-destructive" />
                     <ThemedText className="text-destructive">Delete</ThemedText>
                   </DropdownMenuItem>

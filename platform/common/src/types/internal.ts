@@ -51,7 +51,7 @@ export const groupWithMetaSchema = groupDataSchema.extend({
 
 export const adminGroupSchema = groupWithMetaSchema.extend({
   postsCount: z.number(),
-  admins: profileSchema.array(),
+  owners: profileSchema.array(),
 });
 
 export const membershipSchema = groupRoleSchema.extend({

@@ -20,7 +20,9 @@ export default {
     const [group, profile] = args as [GroupWithMeta, ProfileWithMeta];
 
     for (const groupAdmin of await listGroupMembers(group).then((members) =>
-      members.filter((m) => m.roles?.includes('admin')).map((m) => m.profile),
+      members
+        .filter((m) => m.roles?.includes('owner') || m.roles?.includes('admin'))
+        .map((m) => m.profile),
     )) {
       await maybeCreateNotification(groupAdmin, {
         type: 'groupMemberJoined',

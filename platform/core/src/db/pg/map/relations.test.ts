@@ -110,7 +110,7 @@ describe('map relations', () => {
           id: 'e2',
           fromId: 'p1',
           toId: 'g2',
-          body: { roles: ['admin'] },
+          body: { roles: ['owner'] },
           ...stamp,
         },
       ],

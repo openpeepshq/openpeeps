@@ -108,16 +108,16 @@ export function AdminGroupCard({ group, onDelete }: AdminGroupCardProps) {
         </p>
       </div>
 
-      {group.admins.length > 0 ? (
+      {group.owners.length > 0 ? (
         <div className="flex flex-wrap gap-2 p-2 pt-0">
-          {group.admins.map((admin) => (
+          {group.owners.map((owner) => (
             <Link
-              key={admin.id}
-              to={`/@${admin.handle}`}
+              key={owner.id}
+              to={`/@${owner.handle}`}
               className="bg-surface hover:bg-surface flex items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-2 text-xs"
             >
-              <Avatar profile={admin as PublicProfile} size={1.5} />
-              <span>{admin.displayName || `@${admin.handle}`}</span>
+              <Avatar profile={owner as PublicProfile} size={1.5} />
+              <span>{owner.displayName || `@${owner.handle}`}</span>
             </Link>
           ))}
         </div>

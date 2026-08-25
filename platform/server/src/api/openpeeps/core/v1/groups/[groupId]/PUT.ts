@@ -3,7 +3,11 @@ import { groupDataSchema } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import { ensureGroupCapabilities } from '#lib/auth';
 import { conflict, forbidden, notFound } from '#lib/errors';
-import { findGroup, findGroupByHandle, updateGroup } from '@openpeepshq/core/groups';
+import {
+  findGroup,
+  findGroupByHandle,
+  updateGroup,
+} from '@openpeepshq/core/groups';
 import { groupWithMetaSchema } from '@openpeepshq/common/types';
 import { findProfileByHandle } from '@openpeepshq/core/profiles';
 
@@ -18,6 +22,9 @@ export const Error = {
   404: notFound(),
 };
 
+const capabilitiesChanged = (current: unknown, next: unknown) =>
+  JSON.stringify(current ?? {}) !== JSON.stringify(next ?? {});
+
 export const apiEndpoint = endpoint({ Param, Input, Output }).handle(
   async (params, event: RequestEvent) => {
     const group = await findGroup(params.groupId);
@@ -26,11 +33,23 @@ export const apiEndpoint = endpoint({ Param, Input, Output }).handle(
       throw notFound();
     }
 
-    ensureGroupCapabilities(event, ['core-groups-update'], group);
+    await ensureGroupCapabilities(event, ['core-groups-update'], group);
 
     const groupData = groupDataSchema.parse(params);
 
-    if (group.handle !== groupData.handle && (await findGroupByHandle(groupData.handle) || await findProfileByHandle(groupData.handle))) {
+    if (capabilitiesChanged(group.capabilities, groupData.capabilities)) {
+      await ensureGroupCapabilities(
+        event,
+        ['core-groups-updateCapabilities'],
+        group,
+      );
+    }
+
+    if (
+      group.handle !== groupData.handle &&
+      ((await findGroupByHandle(groupData.handle)) ||
+        (await findProfileByHandle(groupData.handle)))
+    ) {
       throw conflict('groups.handleExists');
     }
 

@@ -63,6 +63,8 @@ export { PluginsIndex } from './plugins/Index';
 export { EditArticle } from './articles/Edit';
 export { EditEvent } from './events/Edit';
 export { EditGroup } from './groups/Edit';
+export { EditGroupInfo } from './groups/EditInfo';
+export { EditGroupRoles } from './groups/EditRoles';
 export { AdminConfiguration } from './admin/Configuration';
 export { AdminConfigurationCommunity } from './admin/ConfigurationCommunity';
 export { AdminConfigEditor } from './admin/ConfigEditor';

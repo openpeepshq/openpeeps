@@ -4,16 +4,22 @@ import { useOpenpeeps } from '@openpeepshq/react';
 import {
   GenericHeader,
   GroupMemberCard,
-  MakeGroupMemberAdminConfirmationSheet,
   ProfilePickerSheet,
-  RemoveAdminPrivilegesFromMemberConfirmationSheet,
   RemoveGroupMemberConfirmationSheet,
 } from '~/components/custom';
 import { profileMatchesQuery, truncateText } from '~/lib/utils';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { PlusIcon, SearchIcon, XIcon } from '~/components/icons';
 import { Input } from '~/components/ui/input';
-import { GroupMember, Profile, PublicProfile } from '@openpeepshq/common';
+import {
+  actorIsGroupOwner,
+  canAddMember,
+  canChangeMemberRole,
+  type GroupMember,
+  groupRolesForAssignment,
+  type Profile,
+  type PublicProfile,
+} from '@openpeepshq/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import { ActivityIndicator, Pressable } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -35,11 +41,6 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
     useState<GroupMember[]>();
   const profilePickerModalRef = useRef<BottomSheetModal>(null);
   const removeMemberModalRef = useRef<BottomSheetModal>(null);
-  const makeMemberAdminModalRef = useRef<BottomSheetModal>(null);
-  const removeAdminPrvilegesModalRef = useRef<BottomSheetModal>(null);
-  const [memberToBeAdmin, setMemberToBeAdmin] = React.useState<Profile>();
-  const [memberToLoseAdminPrivileges, setMemberToLoseAdminPrivileges] =
-    React.useState<Profile>();
   const [memberToDelete, setMemberToDelete] = React.useState<Profile>();
   const { setMember, clearMembers } = useNewConversationStore();
 
@@ -52,16 +53,7 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
     id: id,
   });
 
-  const makeMemberAdmin = openpeepsApi.setGroupMemberRolesAction({
-    id: id,
-    memberId: memberToBeAdmin?.id || '',
-  });
-
-  const removeMemberAdminPrivileges =
-    openpeepsApi.setGroupMemberRolesAction({
-      id: id,
-      memberId: memberToLoseAdminPrivileges?.id || '',
-    });
+  const setMemberRoles = openpeepsApi.setGroupMemberRolesAction();
 
   const handleProfileModalPress = useCallback(() => {
     profilePickerModalRef.current?.present();
@@ -71,16 +63,8 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
     removeMemberModalRef.current?.present();
   }, []);
 
-  const handleMakeMemberAdminModalPress = useCallback(() => {
-    makeMemberAdminModalRef.current?.present();
-  }, []);
-
-  const handleRemoveAdminPrvilegesModalPress = useCallback(() => {
-    removeAdminPrvilegesModalRef.current?.present();
-  }, []);
-
   const toggleSearchEnabler = () =>
-    setIsSearchEnabled(prev => {
+    setIsSearchEnabled((prev) => {
       setSearchQuery('');
       return !prev;
     });
@@ -88,16 +72,25 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
   useEffect(() => {
     if (searchQuery) {
       setFilteredGroupMembers(
-        groupMembers?.filter(m => profileMatchesQuery(m.profile, searchQuery)),
+        groupMembers?.filter((m) => profileMatchesQuery(m.profile, searchQuery))
       );
     } else {
       setFilteredGroupMembers(groupMembers);
     }
   }, [searchQuery, groupMembers, currentProfile]);
 
-  const isGroupAdmin = currentProfile?.memberships
-    .find(g => g.group.id === groupData?.id)
-    ?.roles?.includes('admin');
+  const isGroupOwner =
+    !!currentProfile && actorIsGroupOwner(currentProfile, id);
+  const canChangeRoles = !!(
+    currentProfile &&
+    groupData &&
+    canChangeMemberRole(currentProfile, groupData)
+  );
+  const canAdd = !!(
+    currentProfile &&
+    groupData &&
+    canAddMember(currentProfile, groupData)
+  );
 
   const onRemoveMember = async () => {
     removeMemberFromGroup()
@@ -122,7 +115,7 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
       return;
     }
     Promise.all(
-      profiles.map(profile =>
+      profiles.map((profile) =>
         addMembersToGroup({
           ...profile,
           memberships: [],
@@ -130,8 +123,8 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
             followersCount: 0,
             followingCount: 0,
           },
-        } satisfies PublicProfile),
-      ),
+        } satisfies PublicProfile)
+      )
     )
       .then(() => {
         Toast.show({
@@ -140,7 +133,7 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
           position: 'bottom',
         });
 
-        refetch().then(() => { });
+        refetch().then(() => {});
       })
       .catch(() => {
         Toast.show({
@@ -151,42 +144,28 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
       });
   };
 
-  const onMakeAdmin = async () => {
-    makeMemberAdmin({roles: ['admin']})
-      .then(() => {
-        Toast.show({
-          type: 'success',
-          text1: 'Member is now an admin',
-          position: 'bottom',
-        });
-        refetch().then(() => { });
-      })
-      .catch(() => {
-        Toast.show({
-          type: 'error',
-          text1: 'Failed to make member an admin',
-          position: 'bottom',
-        });
+  const onSetRole = async (
+    profileId: string,
+    role: 'member' | 'moderator' | 'admin' | 'owner'
+  ) => {
+    try {
+      await setMemberRoles(
+        { roles: groupRolesForAssignment(role) },
+        { id, memberId: profileId }
+      );
+      Toast.show({
+        type: 'success',
+        text1: 'Roles updated',
+        position: 'bottom',
       });
-  };
-
-  const onRemoveAdminPrivileges = async () => {
-    removeMemberAdminPrivileges({roles: ['member']})
-      .then(() => {
-        Toast.show({
-          type: 'success',
-          text1: 'Admin privileges removed',
-          position: 'bottom',
-        });
-        refetch().then(() => { });
-      })
-      .catch(() => {
-        Toast.show({
-          type: 'error',
-          text1: 'Failed to remove admin privileges',
-          position: 'bottom',
-        });
+      await refetch();
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to update roles',
+        position: 'bottom',
       });
+    }
   };
 
   return (
@@ -216,7 +195,8 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
       />
       <KeyboardAwareScrollView
         contentContainerStyle={{ flexGrow: 1 }}
-        className="w-full flex bg-background relative">
+        className="w-full flex bg-background relative"
+      >
         {(isLoading || isGroupMembersLoading) && (
           <ActivityIndicator size={'small'} />
         )}
@@ -225,24 +205,24 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
             <ThemedText className="text-lg my-10 pl-4">
               {filteredGroupMembers?.length} Member
               {filteredGroupMembers?.length &&
-                filteredGroupMembers?.length === 1
+              filteredGroupMembers?.length === 1
                 ? 's'
                 : ''}
             </ThemedText>
             {filteredGroupMembers?.find(
-              m => m.profile.id === currentProfile?.id,
+              (m) => m.profile.id === currentProfile?.id
             ) && (
-                <GroupMemberCard
-                  member={
-                    filteredGroupMembers?.find(
-                      m => m.profile.id === currentProfile?.id,
-                    ) as GroupMember
-                  }
-                  showActions={false}
-                />
-              )}
+              <GroupMemberCard
+                member={
+                  filteredGroupMembers?.find(
+                    (m) => m.profile.id === currentProfile?.id
+                  ) as GroupMember
+                }
+                showActions={false}
+              />
+            )}
             {filteredGroupMembers
-              ?.filter(m => m.profile.id !== currentProfile?.id)
+              ?.filter((m) => m.profile.id !== currentProfile?.id)
               ?.map((member, idx) => {
                 return (
                   <GroupMemberCard
@@ -253,19 +233,13 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
                       setMember(member.profile);
                       navigation.navigate('DraftMessage');
                     }}
-                    handleMakeAdmin={() => {
-                      setMemberToBeAdmin(member.profile);
-                      handleMakeMemberAdminModalPress();
-                    }}
-                    handleRemovePrivilegesAdmin={() => {
-                      setMemberToLoseAdminPrivileges(member.profile);
-                      handleRemoveAdminPrvilegesModalPress();
-                    }}
+                    handleSetRole={(role) => onSetRole(member.profile.id, role)}
                     handleRemoveMember={() => {
                       setMemberToDelete(member.profile);
                       handleRemoveMemberModalPress();
                     }}
-                    isCurrentProfileAdmin={isGroupAdmin}
+                    canChangeRoles={canChangeRoles}
+                    isCurrentProfileOwner={isGroupOwner}
                   />
                 );
               })}
@@ -276,27 +250,16 @@ export const GroupMembers = ({ route, navigation }: GroupMembersProps) => {
         ref={profilePickerModalRef}
         selectType="async"
         asynOnSelect={onAddMembers}
-        profilesToExclude={groupMembers?.map(m => m.profile)}
+        profilesToExclude={groupMembers?.map((m) => m.profile)}
       />
-      {isGroupAdmin && (
+      {canAdd && (
         <Pressable
           onPress={handleProfileModalPress}
-          className="z-20 absolute bottom-10 right-6 size-16 flex items-center justify-center bg-foreground rounded-full">
+          className="z-20 absolute bottom-10 right-6 size-16 flex items-center justify-center bg-foreground rounded-full"
+        >
           <PlusIcon size={24} className="text-background" />
         </Pressable>
       )}
-
-      <MakeGroupMemberAdminConfirmationSheet
-        ref={makeMemberAdminModalRef}
-        onMakeAdmin={onMakeAdmin}
-        profile={memberToBeAdmin as Profile}
-      />
-
-      <RemoveAdminPrivilegesFromMemberConfirmationSheet
-        ref={removeAdminPrvilegesModalRef}
-        onRemovePrivileges={onRemoveAdminPrivileges}
-        profile={memberToLoseAdminPrivileges as Profile}
-      />
 
       <RemoveGroupMemberConfirmationSheet
         ref={removeMemberModalRef}

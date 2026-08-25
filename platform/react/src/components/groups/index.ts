@@ -9,7 +9,13 @@ export type { JoinGroupButtonProps } from './JoinGroupButton';
 export { GroupFeed } from './GroupFeed';
 export type { GroupFeedProps } from './GroupFeed';
 export { GroupForm } from './GroupForm';
-export type { GroupFormProps, GroupFormFieldErrors } from './GroupForm';
+export type {
+  GroupFormProps,
+  GroupFormFieldErrors,
+  GroupFormSection,
+} from './GroupForm';
+export { GroupCapabilityMatrix } from './GroupCapabilityMatrix';
+export type { GroupCapabilityMatrixProps } from './GroupCapabilityMatrix';
 export { GroupOptionsMenu } from './GroupOptionsMenu';
 export type { GroupOptionsMenuProps } from './GroupOptionsMenu';
 export { GroupShareMenu } from './GroupShareMenu';

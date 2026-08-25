@@ -4,7 +4,10 @@ import type {
   GroupRelationship,
   GroupWithMeta,
 } from '@openpeepshq/common/types';
-import { defaultGroupRoles } from '@openpeepshq/common/types';
+import {
+  actorIsGroupOwner,
+  assignableGroupRoles,
+} from '@openpeepshq/common/lib';
 import {
   Dialog,
   DialogActions,
@@ -15,6 +18,7 @@ import {
 } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
+import { useCurrentProfile } from '../layout/IdentityContext';
 
 export interface ChangeGroupRolesModalProps {
   group: GroupWithMeta;
@@ -28,11 +32,15 @@ export function ChangeGroupRolesModal({
   onClose,
 }: ChangeGroupRolesModalProps) {
   const t = useT();
+  const me = useCurrentProfile();
   const { openpeepsApi } = useOpenpeeps();
   const setMemberRoles = openpeepsApi.setGroupMemberRolesAction({
     id: group.id,
     memberId: member.profile.id,
   });
+  const actorIsOwner = me ? actorIsGroupOwner(me, group.id) : false;
+  const visibleRoles = assignableGroupRoles(actorIsOwner);
+  const memberIsOwner = (member.roles ?? []).includes('owner');
 
   const [roles, setRoles] = useState<Set<GroupRelationship>>(
     () => new Set(member.roles ?? []),
@@ -53,7 +61,11 @@ export function ChangeGroupRolesModal({
     setError(null);
     setSubmitting(true);
     try {
-      await setMemberRoles({ roles: [...roles] });
+      const nextRoles = [...roles];
+      if (memberIsOwner && !actorIsOwner && !nextRoles.includes('owner')) {
+        nextRoles.push('owner');
+      }
+      await setMemberRoles({ roles: nextRoles });
       onClose();
     } catch (err) {
       setError((err as Error).message);
@@ -77,7 +89,7 @@ export function ChangeGroupRolesModal({
           })}
         </p>
         <div className="space-y-3 px-1">
-          {defaultGroupRoles.map((role) => (
+          {visibleRoles.map((role) => (
             <div key={role} className="flex items-center justify-between gap-4">
               <Label htmlFor={`role-${role}`} classes="text-base font-medium">
                 {t(`groups.roles.${role}`, { defaultValue: role })}

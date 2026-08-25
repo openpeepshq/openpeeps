@@ -42,7 +42,19 @@ const publicCaps = {
     remove: ['core-posts-create-event'],
   },
   moderator: { add: ['core-posts-*'] },
-  admin: { add: ['core-posts-*', 'core-groups-*'] },
+  admin: {
+    add: [
+      'core-posts-*',
+      'core-groups-read',
+      'core-groups-update',
+      'core-groups-join',
+      'core-groups-leave',
+      'core-groups-addMember',
+      'core-groups-removeMember',
+      'core-groups-changeMemberRole',
+    ],
+  },
+  owner: { add: ['core-posts-*', 'core-groups-*'] },
 };
 
 const privateCaps = {
@@ -58,14 +70,38 @@ const privateCaps = {
     ],
   },
   moderator: { add: ['core-posts-*'] },
-  admin: { add: ['core-posts-*', 'core-groups-*'] },
+  admin: {
+    add: [
+      'core-posts-*',
+      'core-groups-read',
+      'core-groups-update',
+      'core-groups-join',
+      'core-groups-leave',
+      'core-groups-addMember',
+      'core-groups-removeMember',
+      'core-groups-changeMemberRole',
+    ],
+  },
+  owner: { add: ['core-posts-*', 'core-groups-*'] },
 };
 
 const lockedCaps = {
   none: { add: ['core-groups-read', 'core-posts-read', 'core-posts-react'] },
   member: { add: ['core-posts-reply', 'core-posts-rsvp', 'core-posts-vote'] },
   moderator: { add: ['core-posts-*'] },
-  admin: { add: ['core-posts-*', 'core-groups-*'] },
+  admin: {
+    add: [
+      'core-posts-*',
+      'core-groups-read',
+      'core-groups-update',
+      'core-groups-join',
+      'core-groups-leave',
+      'core-groups-addMember',
+      'core-groups-removeMember',
+      'core-groups-changeMemberRole',
+    ],
+  },
+  owner: { add: ['core-posts-*', 'core-groups-*'] },
 };
 
 const capabilitiesForGroup = (group) => {

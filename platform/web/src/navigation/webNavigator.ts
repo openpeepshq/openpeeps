@@ -38,6 +38,8 @@ export const createWebNavigator = (): Navigator => ({
         const base = groupPath(target.handle);
         if (target.view === 'info') return `${base}/info`;
         if (target.view === 'edit') return `${base}/edit`;
+        if (target.view === 'edit-info') return `${base}/edit/info`;
+        if (target.view === 'edit-roles') return `${base}/edit/roles`;
         if (target.view === 'members') return `${base}/members`;
         return base;
       }

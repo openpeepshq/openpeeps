@@ -94,6 +94,8 @@ import {
   EditArticle,
   EditEvent,
   EditGroup,
+  EditGroupInfo,
+  EditGroupRoles,
   AdminConfiguration,
   AdminConfigurationCommunity,
   AdminConfigEditor,
@@ -261,6 +263,8 @@ const Groups = {
   Show: GroupShow,
   Info: GroupInfo,
   Edit: EditGroup,
+  EditInfo: EditGroupInfo,
+  EditRoles: EditGroupRoles,
   Members: GroupMembers,
 };
 
@@ -522,6 +526,14 @@ function AppShell() {
                     <Route
                       path="/groups/:handle/edit"
                       element={<Groups.Edit />}
+                    />
+                    <Route
+                      path="/groups/:handle/edit/info"
+                      element={<Groups.EditInfo />}
+                    />
+                    <Route
+                      path="/groups/:handle/edit/roles"
+                      element={<Groups.EditRoles />}
                     />
                     <Route
                       path="/groups/:handle/members"
