@@ -96,3 +96,4 @@ export { AdminDb } from './admin/Db';
 export { AdminDiagnosticsJob } from './admin/DiagnosticsJob';
 export { AdminDiagnosticsPerformance } from './admin/DiagnosticsPerformance';
 export { AdminConfigurationCommunityLanguage } from './admin/ConfigurationCommunityLanguage';
+export { AdminConfigurationCommunityOnboardingGuide } from './admin/community/CommunityOnboardingGuide';

@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 import { MessageCircleOff, Calendar, MessageSquarePlus } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
-import { canCreatePost, truncateText } from '@openpeepshq/common';
+import {
+  audienceIncludesHandle,
+  canCreatePost,
+  DEFAULT_CHATBOT_HANDLE,
+  truncateText,
+} from '@openpeepshq/common';
 import {
   useT,
   useOpenpeeps,
@@ -17,13 +22,16 @@ import {
   AccessDeniedLoader,
 } from '../../components';
 import { UpdatingDate } from '@openpeepshq/react-ui';
+import { useOnboardingGuide } from '../../onboarding';
 
 function ChatPreview({
   conversation,
   unreadCount = 0,
+  isGuide = false,
 }: {
   conversation: PublicPost[];
   unreadCount?: number;
+  isGuide?: boolean;
 }) {
   const t = useT();
   const me = useCurrentProfile();
@@ -52,6 +60,13 @@ function ChatPreview({
         </div>
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <span className="truncate font-bold">{truncateText(title, 20)}</span>
+          {isGuide ? (
+            <span className="bg-primary/15 text-primary shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold">
+              {t('onboardingGuide.conversations.badge', {
+                defaultValue: 'Guide',
+              })}
+            </span>
+          ) : null}
           {unreadCount > 0 ? (
             <span
               className="bg-destructive text-destructive-foreground flex size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold"
@@ -63,6 +78,12 @@ function ChatPreview({
         </div>
       </div>
       <span className="text-muted-foreground text-sm">
+        {isGuide
+          ? t('onboardingGuide.conversations.subtitle', {
+              defaultValue: 'Your community guide',
+            })
+          : null}
+        {isGuide ? ' · ' : null}
         <UpdatingDate date={lastMessage.createdAt} />
       </span>
 
@@ -101,6 +122,7 @@ export function ConversationsIndex() {
   const query = openpeepsApi.useConversations();
   const unseenCountsQuery = openpeepsApi.useUnseenPostCounts();
   const unseenByConversation = unseenCountsQuery.data?.direct ?? {};
+  const guide = useOnboardingGuide();
 
   const canCreate = canCreatePost(authData, 'note', 'direct');
   const plusButton = useMemo(
@@ -124,7 +146,24 @@ export function ConversationsIndex() {
     'conversations-page-heading',
   );
 
-  const conversations = query.data ?? [];
+  const conversations = useMemo(() => {
+    const list = [...(query.data ?? [])];
+    if (!guide.enabled) return list;
+    return list.sort((a, b) => {
+      const lastA = a[a.length - 1] ?? a[0];
+      const lastB = b[b.length - 1] ?? b[0];
+      const aGuide = audienceIncludesHandle(
+        lastA?.audience,
+        DEFAULT_CHATBOT_HANDLE,
+      );
+      const bGuide = audienceIncludesHandle(
+        lastB?.audience,
+        DEFAULT_CHATBOT_HANDLE,
+      );
+      if (aGuide === bGuide) return 0;
+      return aGuide ? -1 : 1;
+    });
+  }, [query.data, guide.enabled]);
 
   return (
     <AccessDeniedLoader queries={[query]}>
@@ -142,6 +181,11 @@ export function ConversationsIndex() {
           {conversations.map((conversation) => {
             const first = conversation[0];
             if (!first) return null;
+            const last = conversation[conversation.length - 1] ?? first;
+            const isGuide = audienceIncludesHandle(
+              last.audience,
+              DEFAULT_CHATBOT_HANDLE,
+            );
             return (
               <a
                 key={first.id}
@@ -154,6 +198,7 @@ export function ConversationsIndex() {
                 <ChatPreview
                   conversation={conversation}
                   unreadCount={unseenByConversation[first.id] ?? 0}
+                  isGuide={isGuide}
                 />
               </a>
             );

@@ -16,6 +16,8 @@ interface Props {
     isPostFeed?: boolean;
     type?: EmptyStateContainerType;
     inGroup?: boolean;
+    inviteLabel?: string;
+    onInvite?: () => void;
 }
 
 export const Feed = ({
@@ -25,6 +27,8 @@ export const Feed = ({
     isPostFeed = true,
     type = "posts",
     inGroup = false,
+    inviteLabel,
+    onInvite,
 }: Props) => {
     const [refreshing, setRefreshing] = React.useState(false);
     const refetchRef = React.useRef(query.refetch);
@@ -73,7 +77,11 @@ export const Feed = ({
                     </View>
                     {
                         allPosts.length === 0 && (
-                            <EmptyStateContainer type={type}/>
+                            <EmptyStateContainer
+                              type={type}
+                              inviteLabel={inviteLabel}
+                              onInvite={onInvite}
+                            />
                         )
                     }
                     {query.isFetchingNextPage && <CustomLoader page="community" />}

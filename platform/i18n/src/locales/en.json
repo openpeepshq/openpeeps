@@ -1822,6 +1822,42 @@
         "languageDescription": "Choose the default language for the community. Users who haven't set a personal language preference will see the interface in this language.",
         "updateSuccess": "Default language updated successfully."
       },
+      "onboardingGuide": {
+        "title": "Onboarding guide",
+        "description": "Tune how PeePs welcomes new members: tone, quiet hours, cadence, and which social steps to suggest.",
+        "enabled": "Enable PeePs onboarding invitations",
+        "enabledDescription": "When on, new members see a welcome dock, empty-state invites, and a quiet guide button during their first two weeks.",
+        "displayName": "Guide display name",
+        "subtitle": "Subtitle",
+        "tone": "Tone",
+        "toneWarm": "Warm",
+        "toneNeutral": "Neutral",
+        "toneFormal": "Formal",
+        "quietHoursStart": "Quiet hours start (hour 0–23)",
+        "quietHoursEnd": "Quiet hours end (hour 0–23)",
+        "quietHoursDescription": "No auto-open dock or proactive pings during this window, using each member's local clock.",
+        "windowDays": "Onboarding window (days)",
+        "maxPerDay": "Max proactive DMs per day",
+        "maxInWindow": "Max proactive DMs in the window",
+        "pushOnFirstIntro": "Send a push for the first intro DM",
+        "primaryInvite": "Primary invitation",
+        "primaryDock": "Welcome dock only",
+        "primaryDm": "Direct message only",
+        "primaryBoth": "Dock and direct message",
+        "customHostBlurb": "Custom host note",
+        "customHostBlurbDescription": "Optional 1–2 sentences appended to the first welcome. Lurking is welcome, this community is slow, etc.",
+        "enabledRungs": "Belonging steps to suggest",
+        "rungs": {
+          "orient": "Find your footing",
+          "join_group": "Join a group",
+          "profile_face": "Add avatar and bio",
+          "first_reply": "Leave a first reply",
+          "say_hello": "Say hello",
+          "join_jam": "Join a jam",
+          "reciprocate_follow": "Follow someone back",
+          "deeper_share": "Share something useful"
+        }
+      },
       "privacyPolicy": "Privacy Policy URL",
       "termsAndConditions": "Terms & Conditions URL",
       "lightTheme": {
@@ -2970,6 +3006,64 @@
     "validationEmailFailed": "Failed to send validation email",
     "validationEmailSent": "Validation email sent",
     "verifyEmail": "Verify your email address"
+  },
+  "onboardingGuide": {
+    "dock": {
+      "body": "Welcome to {{community}}. I'm {{guide}}—want a gentle intro to who's here?",
+      "showAround": "Show me around",
+      "explore": "I'll explore"
+    },
+    "emptyFeed": {
+      "body": "Want me to find a few people or posts to start with?",
+      "cta": "Ask {{guide}}"
+    },
+    "emptyGroups": {
+      "body": "I can suggest a group that fits what you care about.",
+      "cta": "Suggest a group"
+    },
+    "emptyJams": {
+      "body": "There's a jam this week—want a plain-language what/why?",
+      "cta": "Tell me about it"
+    },
+    "toast": {
+      "body": "Nice—you're in. Want a next idea from {{guide}}?",
+      "sure": "Sure",
+      "noThanks": "No thanks"
+    },
+    "fab": {
+      "label": "Ask {{guide}}",
+      "pause": "Pause tips",
+      "hide": "Hide for now"
+    },
+    "guide": {
+      "composerPlaceholder": "Message {{guide}}…",
+      "introduce": "Introduce me",
+      "suggestGroup": "Suggest a group",
+      "sayHi": "Help me say hi",
+      "imGood": "I'm good for now",
+      "unavailable": "{{guide}} isn't available to message yet. You can still explore on your own."
+    },
+    "conversations": {
+      "badge": "Guide",
+      "subtitle": "Your community guide"
+    },
+    "intents": {
+      "orient": "I'd like a gentle intro to who's around.",
+      "suggest_people_or_posts": "Can you find a few people or posts I could start with?",
+      "suggest_groups": "Can you suggest a group that fits what I care about?",
+      "suggest_jam": "Can you tell me about an upcoming jam in plain language?",
+      "next_step": "What's a good next step for settling in?",
+      "say_hello": "Can you help me word a low-key hello?",
+      "im_good": "I'm good for now — please don't nudge me."
+    },
+    "messages": {
+      "intro": "Hey {{name}} — welcome to {{community}}. I'm {{guide}}; I help people find their footing here.\n\nNo checklist energy: lurking is fine. If you want, I can point you to a corner of the community that fits what you care about—or help you say a low-key hello when you're ready.",
+      "introFormal": "Hello {{name}} — welcome to {{community}}. I'm {{guide}}. I can introduce you to relevant groups and members when you like.",
+      "softDoor": "Still settling in—totally normal. I'll keep this thread here if you want a hand finding people, a group, or wording a first hello.\n\nIf you'd rather I stay quiet, say \"I'm good\" and I won't nudge you.",
+      "stalledGroup": "If it's helpful: a lot of new folks start in a welcoming group. Want a one-line intro you could post there, or should I just show you a group?",
+      "stalledPost": "One easy way in: reply to a recent post in the feed. Want me to suggest a short reply (you send it—I won't post for you)?",
+      "stalledJam": "There's a jam coming up. Dropping in is a low-pressure way to meet people live. Want the plain-language what/why?"
+    }
   },
   "plugins": {
     "pageTitle": "Plugins",

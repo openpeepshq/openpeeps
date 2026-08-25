@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, type ReactNode } from 'react';
 import { Rss } from 'lucide-react';
 import type {
   PublicPost,
@@ -25,6 +25,8 @@ export interface FeedProps {
   inGroup?: boolean;
   /** When set, the post with this id is rendered first (pinned). */
   pinnedPostId?: string;
+  /** Extra content shown in the empty state (e.g. onboarding invite). */
+  emptySlot?: ReactNode;
 }
 
 /**
@@ -36,7 +38,12 @@ export interface FeedProps {
  * pinned post by id; here we filter it out of the chronological list and
  * leave the actual pinned rendering to a future port.
  */
-export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
+export function Feed({
+  query,
+  inGroup = false,
+  pinnedPostId,
+  emptySlot,
+}: FeedProps) {
   const t = useT();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -91,6 +98,7 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
         <p className="text-xl">
           {t('feed.empty', { defaultValue: 'No posts yet.' })}
         </p>
+        {emptySlot}
       </div>
     );
   }

@@ -8,7 +8,11 @@ import {
   usePostViewFlush,
   adjustUnseenCounts,
 } from '../../index';
-import { canCreatePost } from '@openpeepshq/common';
+import {
+  audienceIncludesHandle,
+  canCreatePost,
+  DEFAULT_CHATBOT_HANDLE,
+} from '@openpeepshq/common';
 import {
   Avatar,
   MessageInThread,
@@ -111,10 +115,21 @@ export function ConversationShow() {
   }
 
   const overLimit = text.length > MAX_LENGTH;
+  const isGuide = audienceIncludesHandle(
+    lastMessage?.audience,
+    DEFAULT_CHATBOT_HANDLE,
+  );
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
       <header className="border-b">
+        {isGuide ? (
+          <p className="text-muted-foreground px-3 pt-3 text-xs font-medium">
+            {t('onboardingGuide.conversations.subtitle', {
+              defaultValue: 'Your community guide',
+            })}
+          </p>
+        ) : null}
         {participants.length === 1 && participants[0] ? (
           <ProfileCard profile={participants[0]} showAction={false} />
         ) : (

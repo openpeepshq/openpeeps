@@ -2,7 +2,11 @@ import { View, TouchableOpacity } from 'react-native';
 import React, { useCallback, useRef } from 'react';
 import { UpdatingDate } from '../date/updating-date';
 import { OpenPeepsMarkdown } from '../markdown/OpenPeepsMarkdown';
-import { PublicPost } from '@openpeepshq/common';
+import {
+  audienceIncludesHandle,
+  DEFAULT_CHATBOT_HANDLE,
+  type PublicPost,
+} from '@openpeepshq/common';
 import { Text } from '~/components/ui/text';
 import { Button } from '~/components/ui/button';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -42,6 +46,10 @@ export const ConversationPreviewCard = ({
   const otherParticipants = participants.filter(
     p => p.id !== currentProfile?.id,
   );
+  const isGuide = audienceIncludesHandle(
+    otherParticipants,
+    DEFAULT_CHATBOT_HANDLE,
+  );
 
   const handleProfilePress = useCallback(() => {
     profileSheetRef.current?.present();
@@ -74,6 +82,11 @@ export const ConversationPreviewCard = ({
                     : participants
                 }
               />
+              {isGuide ? (
+                <Text className="text-xs text-primary font-semibold ml-2">
+                  Guide
+                </Text>
+              ) : null}
               {unreadCount > 0 ? (
                 <View className="bg-destructive size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 ml-2">
                   <Text className="text-xs font-semibold text-destructive-foreground">
@@ -83,7 +96,13 @@ export const ConversationPreviewCard = ({
               ) : null}
             </View>
             <View className="flex-row gap-1">
-              <Text className="">{lastMessage.profile.handle}</Text>
+              {isGuide ? (
+                <Text className="text-muted-foreground text-xs">
+                  Your community guide
+                </Text>
+              ) : (
+                <Text className="">{lastMessage.profile.handle}</Text>
+              )}
               <UpdatingDate date={lastMessage.createdAt} />
             </View>
           </View>

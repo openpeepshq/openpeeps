@@ -19,3 +19,4 @@ export * from './mediaDimensions';
 export * from './csvHelpers';
 export * from './reportHelpers';
 export * from './ssoLoginUrl';
+export * from './onboardingGuide';

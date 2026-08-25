@@ -1899,6 +1899,42 @@
                 "languageDescription": "Wählen Sie die Standardsprache für die Community. Benutzer, die keine persönliche Spracheinstellung festgelegt haben, sehen die Oberfläche in dieser Sprache.",
                 "updateSuccess": "Standardsprache erfolgreich aktualisiert."
             },
+            "onboardingGuide": {
+                "title": "Onboarding-Guide",
+                "description": "Steuern Sie, wie PeePs neue Mitglieder begrüßt: Ton, Ruhezeiten, Häufigkeit und welche sozialen Schritte vorgeschlagen werden.",
+                "enabled": "PeePs-Onboarding-Einladungen aktivieren",
+                "enabledDescription": "Wenn aktiv, sehen neue Mitglieder in den ersten zwei Wochen ein Willkommens-Dock, Einladungen in leeren Ansichten und einen ruhigen Guide-Button.",
+                "displayName": "Anzeigename des Guides",
+                "subtitle": "Untertitel",
+                "tone": "Ton",
+                "toneWarm": "Warm",
+                "toneNeutral": "Neutral",
+                "toneFormal": "Formell",
+                "quietHoursStart": "Ruhezeiten Beginn (Stunde 0–23)",
+                "quietHoursEnd": "Ruhezeiten Ende (Stunde 0–23)",
+                "quietHoursDescription": "Kein automatisches Dock und keine proaktiven Hinweise in diesem Fenster, nach der lokalen Uhr des Mitglieds.",
+                "windowDays": "Onboarding-Fenster (Tage)",
+                "maxPerDay": "Max. proaktive DMs pro Tag",
+                "maxInWindow": "Max. proaktive DMs im Fenster",
+                "pushOnFirstIntro": "Push für die erste Intro-Nachricht senden",
+                "primaryInvite": "Primäre Einladung",
+                "primaryDock": "Nur Willkommens-Dock",
+                "primaryDm": "Nur Direktnachricht",
+                "primaryBoth": "Dock und Direktnachricht",
+                "customHostBlurb": "Eigene Host-Notiz",
+                "customHostBlurbDescription": "Optionale 1–2 Sätze, die an die erste Begrüßung angehängt werden.",
+                "enabledRungs": "Zugehörigkeitsschritte vorschlagen",
+                "rungs": {
+                    "orient": "Orientierung finden",
+                    "join_group": "Einer Gruppe beitreten",
+                    "profile_face": "Avatar und Bio hinzufügen",
+                    "first_reply": "Erste Antwort hinterlassen",
+                    "say_hello": "Hallo sagen",
+                    "join_jam": "An einem Jam teilnehmen",
+                    "reciprocate_follow": "Jemandem zurückfolgen",
+                    "deeper_share": "Etwas Nützliches teilen"
+                }
+            },
             "privacyPolicy": "URL der Datenschutzerklärung",
             "termsAndConditions": "URL der AGB",
             "lightTheme": {
@@ -2907,6 +2943,64 @@
         "validationEmailFailed": "Validierungs-E-Mail konnte nicht gesendet werden",
         "validationEmailSent": "Validierungs-E-Mail gesendet",
         "verifyEmail": "E-Mail-Adresse verifizieren"
+    },
+    "onboardingGuide": {
+        "dock": {
+            "body": "Willkommen bei {{community}}. Ich bin {{guide}} — soll ich dir kurz zeigen, wer hier ist?",
+            "showAround": "Zeig mir die Runde",
+            "explore": "Ich schaue selbst"
+        },
+        "emptyFeed": {
+            "body": "Soll ich ein paar Leute oder Beiträge zum Einstieg suchen?",
+            "cta": "{{guide}} fragen"
+        },
+        "emptyGroups": {
+            "body": "Ich kann eine Gruppe vorschlagen, die zu dem passt, was dir wichtig ist.",
+            "cta": "Gruppe vorschlagen"
+        },
+        "emptyJams": {
+            "body": "Diese Woche gibt es einen Jam — soll ich dir in einfachen Worten sagen, worum es geht?",
+            "cta": "Erzähl mir davon"
+        },
+        "toast": {
+            "body": "Schön, dass du dabei bist. Magst du eine nächste Idee von {{guide}}?",
+            "sure": "Gern",
+            "noThanks": "Nein danke"
+        },
+        "fab": {
+            "label": "{{guide}} fragen",
+            "pause": "Tipps pausieren",
+            "hide": "Vorerst ausblenden"
+        },
+        "guide": {
+            "composerPlaceholder": "Nachricht an {{guide}}…",
+            "introduce": "Stell mich vor",
+            "suggestGroup": "Gruppe vorschlagen",
+            "sayHi": "Hilf mir, Hallo zu sagen",
+            "imGood": "Passt erstmal",
+            "unavailable": "{{guide}} ist noch nicht erreichbar. Du kannst trotzdem selbst erkunden."
+        },
+        "conversations": {
+            "badge": "Guide",
+            "subtitle": "Dein Community-Guide"
+        },
+        "intents": {
+            "orient": "Ich hätte gern eine sanfte Einführung, wer hier so ist.",
+            "suggest_people_or_posts": "Kannst du ein paar Leute oder Beiträge zum Einstieg finden?",
+            "suggest_groups": "Kannst du eine Gruppe vorschlagen, die zu dem passt, was mir wichtig ist?",
+            "suggest_jam": "Kannst du mir einen kommenden Jam in einfachen Worten erklären?",
+            "next_step": "Was wäre ein guter nächster Schritt zum Ankommen?",
+            "say_hello": "Kannst du mir helfen, ein lockeres Hallo zu formulieren?",
+            "im_good": "Passt erstmal — bitte nicht nachhaken."
+        },
+        "messages": {
+            "intro": "Hey {{name}} — willkommen bei {{community}}. Ich bin {{guide}} und helfe Leuten, hier Fuß zu fassen.\n\nKein Checklisten-Druck: Zuschauen ist völlig okay. Wenn du magst, zeige ich dir eine Ecke der Community, die zu dem passt, was dir wichtig ist — oder helfe dir, ein lockeres Hallo zu sagen, wenn du soweit bist.",
+            "introFormal": "Hallo {{name}} — willkommen bei {{community}}. Ich bin {{guide}}. Ich kann dich bei Bedarf mit passenden Gruppen und Mitgliedern bekannt machen.",
+            "softDoor": "Ankommen braucht Zeit — das ist ganz normal. Dieser Verlauf bleibt hier, falls du Hilfe suchst: Leute, eine Gruppe, oder die Worte für ein erstes Hallo.\n\nWenn ich still bleiben soll, schreib „Passt erstmal“ und ich hak nicht nach.",
+            "stalledGroup": "Falls es hilft: Viele Neue starten in einer einladenden Gruppe. Soll ich dir eine Einzeiler-Vorstellung schreiben, oder einfach eine Gruppe zeigen?",
+            "stalledPost": "Ein leichter Einstieg: Antworte auf einen aktuellen Beitrag im Feed. Soll ich eine kurze Antwort vorschlagen (du sendest sie — ich poste nicht für dich)?",
+            "stalledJam": "Es steht ein Jam an. Reinzuschauen ist ein entspannter Weg, Leute live zu treffen. Soll ich dir in einfachen Worten sagen, worum es geht?"
+        }
     },
     "members": {
         "empty": "Keine Profile gefunden",

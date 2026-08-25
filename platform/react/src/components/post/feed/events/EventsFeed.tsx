@@ -11,6 +11,7 @@ import type {
 import { useT } from '../../../../i18n';
 import { CardEvent } from '../../types/event/CardEvent';
 import { LoadingSpinner } from '@openpeepshq/react-ui';
+import type { ReactNode } from 'react';
 
 export type EventsFeedQuery = UseInfiniteQueryResult<
   InfiniteData<PublicPost[], unknown>,
@@ -19,9 +20,10 @@ export type EventsFeedQuery = UseInfiniteQueryResult<
 
 export interface EventsFeedProps {
   query: EventsFeedQuery;
+  emptySlot?: ReactNode;
 }
 
-export function EventsFeed({ query }: EventsFeedProps) {
+export function EventsFeed({ query, emptySlot }: EventsFeedProps) {
   const t = useT();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -68,6 +70,7 @@ export function EventsFeed({ query }: EventsFeedProps) {
         <p className="text-xl">
           {t('feed.empty', { defaultValue: 'No events yet.' })}
         </p>
+        {emptySlot}
       </div>
     );
   }

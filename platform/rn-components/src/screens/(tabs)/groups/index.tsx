@@ -143,7 +143,11 @@ export const Groups: React.FC<GroupsProps> = ({ navigation }) => {
         className="w-full flex bg-background relative pt-2 px-4">
         {isLoading && <ActivityIndicator size={'small'} />}
         {!isLoading && visibleGroups.length === 0 && (
-          <EmptyStateContainer type="groups" />
+          <EmptyStateContainer
+            type="groups"
+            inviteLabel="Ask PeePs"
+            onInvite={() => navigation.navigate('Messages')}
+          />
         )}
         {!isLoading &&
           visibleGroups.map(group => (

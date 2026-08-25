@@ -3,7 +3,7 @@ import validator from 'validator';
 import ISO6391 from 'iso-639-1';
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 import { groupRelationships } from './capabilities';
-import { capabilitiesSchema } from './config';
+import { capabilitiesSchema, onboardingGuideStateSchema } from './config';
 
 extendZodWithOpenApi(z);
 
@@ -180,6 +180,7 @@ export const profileSettingsDataSchema = z.object({
     })
     .default({ communityFeed: { showGroupPosts: true } })
     .optional(),
+  onboardingGuide: onboardingGuideStateSchema.optional(),
 });
 export type ProfileSettingsData = z.infer<typeof profileSettingsDataSchema>;
 

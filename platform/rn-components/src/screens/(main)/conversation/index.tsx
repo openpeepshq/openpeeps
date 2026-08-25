@@ -26,13 +26,18 @@ import {
   SendHorizonalIcon,
 } from '~/components/icons';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { MediaAttachmentData } from '@openpeepshq/common';
+import {
+  audienceIncludesHandle,
+  DEFAULT_CHATBOT_HANDLE,
+  type MediaAttachmentData,
+} from '@openpeepshq/common';
 import { MediaPreview } from '~/components/custom/post/post-form/MediaPreview';
 import { DropdownMenu } from '~/components/ui/dropdown-menu';
 import {
   ConversationProfileHeader,
   MessageCard,
 } from '~/components/custom/conversations';
+import { ThemedText } from '~/components/ui/themed-text';
 
 type ConversationProps = MainScreenProps<'Conversation'>;
 
@@ -48,6 +53,10 @@ export const Conversation = ({ route, navigation }: ConversationProps) => {
   const scrollViewRef = useRef<ScrollView>(null);
 
   const sendMessage = openpeepsApi.createConversationPostAction({ id });
+  const isGuide = audienceIncludesHandle(
+    messages?.[0]?.audience,
+    DEFAULT_CHATBOT_HANDLE,
+  );
 
   const resetForm = useCallback(() => {
     setContent('');
@@ -150,13 +159,19 @@ export const Conversation = ({ route, navigation }: ConversationProps) => {
                         ) || []
                       }
                     />
-                    <ProfileHandle
-                      profile={
-                        messages?.[0].audience.filter(
-                          p => p.id !== currentProfile?.id,
-                        ) || []
-                      }
-                    />
+                    {isGuide ? (
+                      <ThemedText className="text-muted-foreground mt-1 text-sm">
+                        Your community guide
+                      </ThemedText>
+                    ) : (
+                      <ProfileHandle
+                        profile={
+                          messages?.[0].audience.filter(
+                            p => p.id !== currentProfile?.id,
+                          ) || []
+                        }
+                      />
+                    )}
                     <ProfileBio
                       profile={
                         messages?.[0].audience.filter(
