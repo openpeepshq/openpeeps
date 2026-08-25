@@ -1,5 +1,6 @@
 import type { Event, PublicPost } from '@openpeepshq/common/types';
 import { formatEventRecurrence } from '@openpeepshq/common/lib';
+import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { resolveStaticUrl, useStaticRender } from '../../markdown/staticRender';
 import { EventLocation } from '../pieces/EventLocation';
@@ -47,15 +48,17 @@ export function FeedEvent({ post }: FeedEventProps) {
           {fmtRange(start, end)}{' '}
           <span className="text-muted-foreground">(your local time)</span>
         </span>
-        <a
-          href={resolveStaticUrl(
+        <Button
+          action={resolveStaticUrl(
             `/posts/${post.id}`,
             staticRender ? baseUrl : undefined,
           )}
-          className="border-primary text-primary hover:bg-primary/10 rounded-button border px-3 py-1 text-sm"
+          variant="outline"
+          compact
+          className="shrink-0"
         >
           {t('posts.event.viewEvent', { defaultValue: 'View Event' })}
-        </a>
+        </Button>
       </div>
       <div className="text-lg font-medium">{event.name}</div>
       {event.recurrence ? (
