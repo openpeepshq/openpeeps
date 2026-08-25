@@ -2,10 +2,7 @@ import { endpoint, z } from '#lib/endpoint';
 import { findProfileByHandle } from '@openpeepshq/core/profiles';
 import type { RequestEvent } from '@riddl/core';
 import { publicProfileSchema } from '@openpeepshq/common/types';
-import {
-  ensureProfileCapabilities,
-  ensureProfileOrPublicCommunity,
-} from '#lib/auth';
+import { ensureAccess, ensureProfileCapabilities } from '#lib/auth';
 import { notFound } from '#lib/errors';
 
 export const Output = publicProfileSchema;
@@ -19,7 +16,7 @@ export const Error = {
 
 export const apiEndpoint = endpoint({ Output, Param }).handle(
   async (param, event: RequestEvent) => {
-    await ensureProfileOrPublicCommunity(event);
+    await ensureAccess(event);
 
     const requestedProfile = await findProfileByHandle(param.handle);
 
@@ -27,9 +24,9 @@ export const apiEndpoint = endpoint({ Output, Param }).handle(
       throw notFound(`Profile with id ${param.handle}`);
     }
 
-      await ensureProfileCapabilities(event, requestedProfile, [
-        'core-profiles-read',
-      ]);
+    await ensureProfileCapabilities(event, requestedProfile, [
+      'core-profiles-read',
+    ]);
 
     return publicProfileSchema.parse(requestedProfile);
   },

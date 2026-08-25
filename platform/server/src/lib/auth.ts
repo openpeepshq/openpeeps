@@ -228,6 +228,11 @@ export const ensureAccess = async (
   event: RequestEvent,
   subscriptionRequired: boolean = true,
 ) => {
+  // Jam (and other) guests are authenticated profiles; endpoint scopes still
+  // gate what they can do after this identity check.
+  if (event.context.currentProfile?.type === 'guest') {
+    return event.context.currentProfile;
+  }
   const coreConfig = await config();
   return ensureProfileMaybe(event, {
     publiclyAccessible: coreConfig.server.publicContent,
