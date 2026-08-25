@@ -346,6 +346,43 @@ test.describe('user actions (API)', () => {
     expect(rsvp.ok(), await rsvp.text()).toBeTruthy();
   });
 
+  test('upcoming feed returns one row per recurring event', async ({
+    request,
+  }) => {
+    const { token } = await loginUser(request, owner.email, owner.password);
+    const soon = Date.now() + 60_000;
+    const recurring = await createEvent(
+      request,
+      token,
+      `Daily Series ${uniqueHandle('daily')}`,
+      {
+        start: new Date(soon).toISOString(),
+        end: new Date(soon + 3_600_000).toISOString(),
+        recurrence: { freq: 'DAILY' },
+      },
+    );
+    const later = await createEvent(
+      request,
+      token,
+      `Later One-off ${uniqueHandle('later')}`,
+      {
+        start: new Date(soon + 20 * 24 * 60 * 60 * 1000).toISOString(),
+        end: new Date(
+          soon + 20 * 24 * 60 * 60 * 1000 + 3_600_000,
+        ).toISOString(),
+      },
+    );
+
+    const upcoming = await request.get(
+      '/api/openpeeps/core/v1/posts/feeds/events/upcoming?limit=15',
+      { headers: apiHeaders(token) },
+    );
+    expect(upcoming.ok(), await upcoming.text()).toBeTruthy();
+    const list = (await upcoming.json()) as Array<{ id: string }>;
+    expect(list.filter((post) => post.id === recurring.id)).toHaveLength(1);
+    expect(list.some((post) => post.id === later.id)).toBe(true);
+  });
+
   test('direct message create and reply', async ({ request }) => {
     const { token: ownerToken } = await loginUser(
       request,
