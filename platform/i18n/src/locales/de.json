@@ -2315,7 +2315,7 @@
             "description": "Wählen Sie Ihre bevorzugte Sprache für die Benutzeroberfläche",
             "languageDescription": "Wählen Sie die Sprache, die Sie auf der gesamten Plattform verwenden möchten. Dies ändert alle Oberflächentexte in die gewählte Sprache.",
             "default": "(Standard)",
-            "updateSuccess": "Spracheinstellungen aktualisiert. Die Seite wird jetzt neu geladen."
+            "updateSuccess": "Spracheinstellungen aktualisiert."
         },
         "accessTokens": {
             "title": "Zugriffstoken",

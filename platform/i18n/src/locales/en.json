@@ -2313,7 +2313,7 @@
       "description": "Choose your preferred language for the interface",
       "languageDescription": "Select the language you want to use across the platform. This changes all interface text to your chosen language.",
       "default": "(Default)",
-      "updateSuccess": "Language settings updated. The page will now reload."
+      "updateSuccess": "Language settings updated."
     },
     "accessTokens": {
       "title": "Access tokens",

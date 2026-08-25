@@ -1,15 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useT, useOpenpeeps } from '../../index';
+import {
+  useT,
+  useI18n,
+  useOpenpeeps,
+  AVAILABLE_UI_LANGUAGES,
+} from '../../index';
 import { useCurrentProfile, useServerInfo } from '../../components';
 import { Button, Toast } from '@openpeepshq/react-ui';
 
-const AVAILABLE_LANGUAGES = [
-  { code: 'en', name: 'English' },
-  { code: 'de', name: 'Deutsch' },
-] as const;
+const LANGUAGE_LABELS: Record<(typeof AVAILABLE_UI_LANGUAGES)[number], string> =
+  {
+    en: 'English',
+    de: 'Deutsch',
+  };
 
 export function LanguageSettings() {
   const t = useT();
+  const { i18n } = useI18n();
   const profile = useCurrentProfile();
   const serverInfo = useServerInfo();
   const { openpeepsApi } = useOpenpeeps();
@@ -39,16 +46,18 @@ export function LanguageSettings() {
     setSaving(true);
     try {
       await updateSettings({ id: profile.id, language });
-      localStorage.setItem('openpeeps-language', language);
+      await i18n.changeLanguage(language);
       setStatus({
         type: 'success',
         message: t('settings.language.updateSuccess', {
-          defaultValue: 'Language updated. Reloading…',
+          defaultValue: 'Language updated.',
         }),
       });
-      window.setTimeout(() => window.location.reload(), 500);
     } catch (err) {
-      setStatus({ type: 'error', message: (err as Error).message });
+      setStatus({
+        type: 'error',
+        message: (err as Error).message,
+      });
     } finally {
       setSaving(false);
     }
@@ -66,17 +75,17 @@ export function LanguageSettings() {
           })}
         </span>
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-          {AVAILABLE_LANGUAGES.map((lang) => (
-            <label key={lang.code} className="flex items-center gap-2">
+          {AVAILABLE_UI_LANGUAGES.map((code) => (
+            <label key={code} className="flex items-center gap-2">
               <input
                 type="radio"
                 className="h-4 w-4"
-                checked={language === lang.code}
-                onChange={() => setLanguage(lang.code)}
+                checked={language === code}
+                onChange={() => setLanguage(code)}
               />
               <span>
-                {lang.name}
-                {lang.code === communityDefaultLanguage ? (
+                {LANGUAGE_LABELS[code]}
+                {code === communityDefaultLanguage ? (
                   <span className="ml-1 text-sm opacity-60">
                     {t('settings.language.default', {
                       defaultValue: '(community default)',
