@@ -22,6 +22,7 @@ import { CredentialsStoreProvider } from '../credentialsStore';
 
 export { useHasAuthToken } from './hooks/useHasAuthToken';
 import {
+  isAccountlessJwt,
   isServiceOnlyJwt,
   jwtHasRemainingValidityAtLeast,
   type ProfileWithMeta,
@@ -71,7 +72,8 @@ export const useOpenpeeps = () => {
 const SessionEventsMount = () => {
   const { client, currentProfile } = useOpenpeeps();
   useNotificationBadgeSync();
-  useSessionEvents(client, Boolean(currentProfile));
+  // Session SSE requires a local profile; guests get 401 from ensureLocalProfile.
+  useSessionEvents(client, currentProfile?.type === 'local');
   return null;
 };
 
@@ -191,8 +193,9 @@ export const OpenpeepsProvider: React.FC<{
     const refreshIfExpiringSoon = async () => {
       const token = (await credentialsStore.get())?.token;
       if (!token?.trim()) return;
-      // Observer/egress service JWTs are not refreshed via /auth/refresh.
-      if (isServiceOnlyJwt(token)) {
+      // Observer/egress service JWTs and guest passes are not refreshed via
+      // /auth/refresh (guest TTL is 1d; the 24h login window would fire immediately).
+      if (isServiceOnlyJwt(token) || isAccountlessJwt(token)) {
         if (!jwtHasRemainingValidityAtLeast(token, 1)) {
           await endSession();
         }
@@ -220,10 +223,12 @@ export const OpenpeepsProvider: React.FC<{
         .read()
         .then((r) => ('data' in r ? r.data : undefined));
       setCurrentProfile(profile);
-      const account = await client.accounts.current
-        .read()
-        .then((r) => ('data' in r ? r.data : undefined));
-      setCurrentAccount(account);
+      if (!isAccountlessJwt(res.data.token)) {
+        const account = await client.accounts.current
+          .read()
+          .then((r) => ('data' in r ? r.data : undefined));
+        setCurrentAccount(account);
+      }
     };
 
     void refreshIfExpiringSoon();

@@ -48,6 +48,24 @@ export const isServiceOnlyJwt = (token: string | undefined | null): boolean => {
 };
 
 /**
+ * True for guest-pass JWTs: a profile identity with no account (1d TTL).
+ * These must not use the login JWT refresh path or `/accounts/current`.
+ */
+export const isAccountlessJwt = (token: string | undefined | null): boolean => {
+  if (!token?.trim()) {
+    return false;
+  }
+  try {
+    const parsed = authorizationSchema.safeParse(decodeJwt(token));
+    if (!parsed.success) return false;
+    const { profile, account, service } = parsed.data.identities;
+    return !!profile && !account && !service;
+  } catch {
+    return false;
+  }
+};
+
+/**
  * True when the token has a numeric `exp`, is not expired yet, and seconds until expiry is at least
  * `minRemainingSeconds`. Non-finite or negative `minRemainingSeconds` yields false. Invalid or undecodable
  * tokens return false.

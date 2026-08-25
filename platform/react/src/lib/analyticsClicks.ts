@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { isExternalLink } from '../components/markdown/linkTargets';
-import { useHasAuthToken } from '../contexts/openpeeps/hooks/useHasAuthToken';
 import { useOpenpeeps } from '../contexts/openpeeps';
 import { useOptionalPathname } from '../contexts/router';
 
@@ -50,27 +49,22 @@ export const recordOutboundClick = (href: string, origin?: string) => {
   ingest?.([{ kind: 'link', target: href }]);
 };
 
-/** Configures ingest and records signed-in in-app page views. */
+/** Configures ingest and records in-app page views (anonymous + signed-in). */
 export const AnalyticsClickTracker = () => {
   const { client } = useOpenpeeps();
-  const hasToken = useHasAuthToken();
   const pathname = useOptionalPathname();
 
   useEffect(() => {
-    if (!hasToken) {
-      configureClickIngest(undefined);
-      return;
-    }
     configureClickIngest((events) => {
       void client.analytics.recordClicks({ events });
     });
     return () => configureClickIngest(undefined);
-  }, [client, hasToken]);
+  }, [client]);
 
   useEffect(() => {
-    if (!hasToken || !pathname) return;
+    if (!pathname) return;
     recordPageView(pathname);
-  }, [hasToken, pathname]);
+  }, [pathname]);
 
   return null;
 };
