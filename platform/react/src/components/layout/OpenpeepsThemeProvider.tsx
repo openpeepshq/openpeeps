@@ -84,8 +84,7 @@ export function OpenpeepsThemeProvider({
         document.head.appendChild(meta);
         return meta;
       })();
-    themeColorMeta.content =
-      serverInfo.communityConfig?.theme?.primaryHex || '#000000';
+    themeColorMeta.content = userTheme.primaryHex || '#000000';
 
     return () => {
       styleEl.remove();

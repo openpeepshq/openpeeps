@@ -2,6 +2,7 @@ import {useOpenpeeps} from '@openpeepshq/react';
 import React from 'react';
 import {Image, View} from 'react-native';
 import {Avatar, AvatarImage} from '~/components/ui/avatar';
+import {getTheme} from '@openpeepshq/common';
 
 interface GroupHeaderProps {
   headerUri?: string;
@@ -14,6 +15,9 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
 }) => {
   const {openpeepsApi} = useOpenpeeps();
   const {data: server} = openpeepsApi.useServerInfo();
+  const defaultGroupAvatar = server
+    ? getTheme(server.communityConfig).defaultGroupAvatar
+    : undefined;
 
   return (
     <View className="w-full p-2 relative rounded-md aspect-[3/1] bg-surface">
@@ -37,7 +41,7 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
           ) : (
             <AvatarImage
               source={{
-                uri: server?.communityConfig.theme.defaultGroupAvatar,
+                uri: defaultGroupAvatar,
               }}
             />
           )}

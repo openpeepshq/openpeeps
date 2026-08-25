@@ -1,5 +1,5 @@
 import React from 'react';
-import { Group } from '@openpeepshq/common';
+import { getGroupAvatar, type Group } from '@openpeepshq/common';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';
 import { cn } from '~/lib/utils';
 import { useOpenpeeps } from '@openpeepshq/react';
@@ -19,7 +19,9 @@ export const GroupAvatar = ({
   const roundedClass = 'rounded-full';
 
   const avatarSource = {
-    uri: group.avatar || server?.communityConfig.theme.defaultGroupAvatar,
+    uri: server
+      ? getGroupAvatar(group, server.communityConfig)
+      : group.avatar,
   };
 
   return (

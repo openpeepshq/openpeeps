@@ -156,7 +156,7 @@ export const buildPwaManifest = (config: CommunityConfig, origin: string) => ({
   ],
   start_url: origin,
   display: 'standalone',
-  theme_color: config.theme?.primaryHex || '#000000',
+  theme_color: config.theme?.light?.primaryHex || '#000000',
   prefer_related_applications: false,
 });
 

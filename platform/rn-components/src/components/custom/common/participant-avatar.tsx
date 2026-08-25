@@ -1,6 +1,7 @@
 import React from 'react';
 import {useOpenpeeps} from '@openpeepshq/react';
 import {Avatar, AvatarImage} from '~/components/ui/avatar';
+import {getProfileAvatar} from '@openpeepshq/common';
 
 interface ParticipantAvatarProps {
   profileId: string;
@@ -17,19 +18,13 @@ export const ParticipantAvatar = ({profileId}: ParticipantAvatarProps) => {
         <Avatar
           alt={profile?.displayName || profile?.handle}
           className="w-8 h-8">
-          {profile?.avatar ? (
-            <AvatarImage
-              source={{
-                uri: profile?.avatar,
-              }}
-            />
-          ) : (
-            <AvatarImage
-              source={{
-                uri: server?.communityConfig.theme.defaultProfileAvatar,
-              }}
-            />
-          )}
+          <AvatarImage
+            source={{
+              uri: server
+                ? getProfileAvatar(profile, server.communityConfig)
+                : profile.avatar,
+            }}
+          />
         </Avatar>
       )}
     </React.Fragment>

@@ -34,8 +34,12 @@ export const spaHtmlContextFromConfig = (
     config.info.tagLine?.trim() ||
     config.info.name?.trim() ||
     'OpenPeeps community';
+  // Prefer light.logoSmall (admin uploads); fall back to dark / favicon.
   const image =
-    config.theme.logoFull ?? config.theme.logoSmall ?? config.theme.icon ?? '';
+    config.theme.light?.logoSmall ??
+    config.theme.dark?.logoSmall ??
+    config.theme.icon ??
+    '';
   let path = '/';
   try {
     path = new URL(pageUrl).pathname || '/';
@@ -47,7 +51,7 @@ export const spaHtmlContextFromConfig = (
     description,
     imageUrl: image ? absoluteUrl(origin, image) : '',
     pageUrl,
-    themeColor: config.theme.primaryHex || '#0f172a',
+    themeColor: config.theme.light?.primaryHex || '#0f172a',
     path,
   };
 };

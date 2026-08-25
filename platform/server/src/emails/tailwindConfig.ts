@@ -96,9 +96,7 @@ const LIGHT_PALETTE = {
 export const buildEmailTailwindConfig = (
   communityConfig?: CommunityConfig,
 ) => {
-  const primaryHex =
-    communityConfig?.theme?.light?.primaryHex ??
-    communityConfig?.theme?.primaryHex;
+  const primaryHex = communityConfig?.theme?.light?.primaryHex;
 
   const colors = primaryHex
     ? {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { assignableGroupRoles, type GroupMember } from '@openpeepshq/common';
+import { assignableGroupRoles, getProfileAvatar, type GroupMember } from '@openpeepshq/common';
 import { View, Pressable } from 'react-native';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';
 import {
@@ -63,19 +63,13 @@ export const GroupMemberCard = ({
         className="flex flex-row items-center gap-x-2"
       >
         <Avatar alt="profile" className="size-16">
-          {member.profile.avatar ? (
-            <AvatarImage
-              source={{
-                uri: member.profile.avatar,
-              }}
-            />
-          ) : (
-            <AvatarImage
-              source={{
-                uri: server?.communityConfig.theme.defaultProfileAvatar,
-              }}
-            />
-          )}
+          <AvatarImage
+            source={{
+              uri: server
+                ? getProfileAvatar(member.profile, server.communityConfig)
+                : member.profile.avatar,
+            }}
+          />
         </Avatar>
         <View className="">
           <ThemedText className="text-lg font-semibold">

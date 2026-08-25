@@ -1683,7 +1683,6 @@
     "community": {
       "icon": "Community Icon",
       "logo": "Community Logo",
-      "logoFull": "Community Logo Full",
       "backgroundAuth": "Background Auth",
       "background": "Background",
       "updateSuccess": "Community settings updated",
@@ -1696,7 +1695,6 @@
       "currentLogo": "Current logo",
       "uploadLogo": "Browse and upload a logo",
       "logoRequirements": "Submit an image (PNG, JPG, SVG, ICO…) with an aspect ratio of 4x1.",
-      "logoFullRequirements": "Submit an image (PNG, JPG, SVG, ICO…).",
       "theme": {
         "title": "Theme",
         "description": "Customize the look and feel of your community, including logo, dark and light mode, and brand colors"

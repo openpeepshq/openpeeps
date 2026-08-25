@@ -12,7 +12,7 @@ import {
 } from '@livekit/react-native';
 import { View } from 'react-native';
 import { ThemedText } from '~/components/ui/themed-text';
-import { ProfileData } from '@openpeepshq/common';
+import { ProfileData, getProfileAvatar } from '@openpeepshq/common';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';
 import {
   AudioLinesIcon,
@@ -76,15 +76,13 @@ const AvatarView: React.FC<{
         fullScreen ? 'h-full w-full bg-secondary/50' : 'm-1 h-56 w-[175px] bg-background',
       )}>
       <Avatar alt="profile" className="h-16 w-16">
-        {profile?.avatar ? (
-          <AvatarImage source={{ uri: profile.avatar }} />
-        ) : (
-          <AvatarImage
-            source={{
-              uri: server?.communityConfig.theme.defaultProfileAvatar,
-            }}
-          />
-        )}
+        <AvatarImage
+          source={{
+            uri: server
+              ? getProfileAvatar(profile, server.communityConfig)
+              : profile?.avatar,
+          }}
+        />
       </Avatar>
     </View>
   );

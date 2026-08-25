@@ -42,7 +42,6 @@ describe('communityConfigSchema profiles.additionalFields', () => {
   const base = {
     theme: {
       base: 'OpenpeepsLight',
-      primaryHex: '#15678a',
       light: { primaryHex: '#15678a' },
       dark: { primaryHex: '#15678a' },
     },

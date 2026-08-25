@@ -43,14 +43,9 @@ const AuthImage = ({ children }: { children?: React.ReactNode }) => {
   const resolvedTheme = serverInfo
     ? getTheme(serverInfo.communityConfig)
     : undefined;
-  const authBackgroundUri =
-    resolvedTheme?.backgroundAuth ||
-    serverInfo?.communityConfig?.theme?.backgroundAuth;
+  const authBackgroundUri = resolvedTheme?.backgroundAuth;
   const resolvedAuthBackgroundUri = toAbsoluteMediaUrl(authBackgroundUri);
-  const resolvedLogoUri = toAbsoluteMediaUrl(
-    resolvedTheme?.logoSmall ||
-    serverInfo?.communityConfig?.theme?.logoSmall,
-  );
+  const resolvedLogoUri = toAbsoluteMediaUrl(resolvedTheme?.logoSmall);
 
   const content = (
     <>

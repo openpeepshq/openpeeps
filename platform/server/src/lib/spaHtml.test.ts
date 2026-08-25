@@ -8,10 +8,15 @@ const baseConfig = {
     tagLine: 'A place for echoes',
   },
   theme: {
-    primaryHex: '#112233',
-    logoFull: '/img/logo-full.png',
-    logoSmall: '/img/logo-small.png',
     icon: '/img/icon.svg',
+    light: {
+      primaryHex: '#112233',
+      logoSmall: '/img/logo-small.png',
+    },
+    dark: {
+      primaryHex: '#112233',
+      logoSmall: '/img/logo-small-white.png',
+    },
   },
 } as CommunityConfig;
 
@@ -22,9 +27,28 @@ const context = spaHtmlContextFromConfig(
 );
 assert.equal(context.name, 'Echo Community');
 assert.equal(context.description, 'A place for echoes');
-assert.equal(context.imageUrl, 'https://echo.example/img/logo-full.png');
+assert.equal(context.imageUrl, 'https://echo.example/img/logo-small.png');
 assert.equal(context.themeColor, '#112233');
 assert.equal(context.path, '/feeds/local');
+
+const preferenceLogo = spaHtmlContextFromConfig(
+  {
+    ...baseConfig,
+    theme: {
+      ...baseConfig.theme,
+      light: {
+        primaryHex: '#112233',
+        logoSmall: 'https://cdn.example/storage/allpeep/1/community-logo.png',
+      },
+    },
+  } as CommunityConfig,
+  'https://echo.example',
+  'https://echo.example/posts/abc',
+);
+assert.equal(
+  preferenceLogo.imageUrl,
+  'https://cdn.example/storage/allpeep/1/community-logo.png',
+);
 
 const template = `<!doctype html><html><head>
 <meta name="theme-color" content="{{themeColor}}" />
@@ -52,7 +76,7 @@ assert.match(out, /property="og:description" content="A place for echoes"/);
 // Mustache escapes `/` as &#x2F; in attributes.
 assert.match(
   out,
-  /property="og:image" content="https:&#x2F;&#x2F;echo\.example&#x2F;img&#x2F;logo-full\.png"/,
+  /property="og:image" content="https:&#x2F;&#x2F;echo\.example&#x2F;img&#x2F;logo-small\.png"/,
 );
 assert.match(out, /name="twitter:title" content="Echo Community"/);
 assert.match(out, /name="theme-color" content="#112233"/);
