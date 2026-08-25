@@ -818,7 +818,7 @@ export const getAnalyticsGrowth = async (
   query: AnalyticsDateQuery = {},
 ): Promise<AnalyticsGrowth> => {
   const range = await resolveQueryRange(query);
-  return withCache('growth-v6', range.from, range.to, async () => {
+  return withCache('growth-v7', range.from, range.to, async () => {
     const db = await database();
     const mauFrom = rollingMauFrom(range.to);
     const prevMauFrom = rollingMauFrom(range.previousTo);
@@ -845,6 +845,7 @@ export const getAnalyticsGrowth = async (
         from profiles p
         left join invite_link_redeemers r on r.to_id = p.id::text
         where p.deleted_at is null
+          and p.type <> 'guest'
           and p.created_at >= ${`${range.from}T00:00:00.000Z`}
           and p.created_at <= ${`${range.to}T23:59:59.999Z`}
         order by p.created_at desc

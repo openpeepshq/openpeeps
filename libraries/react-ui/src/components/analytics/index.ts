@@ -19,6 +19,8 @@ export {
   AnalyticsDonutChart,
   AnalyticsHeatmap,
   AnalyticsDayHeatmap,
+  analyticsChartColor,
+  ANALYTICS_CHART_COLORS,
 } from './charts';
 export type {
   ChartPoint,

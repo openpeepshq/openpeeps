@@ -1,6 +1,7 @@
 import {
   AnalyticsMultiLineChart,
   Table,
+  analyticsChartColor,
   type ChartPoint,
   type StackedSeries,
 } from '@openpeepshq/react-ui';
@@ -10,20 +11,11 @@ import { AnalyticsLoading, AnalyticsSection } from './AnalyticsLayout';
 import { useAnalyticsRangeContext } from './AnalyticsRangeContext';
 import { columnHeader } from './analyticsInfo';
 
-const GROWTH_COLORS = [
-  '#2563eb',
-  '#059669',
-  '#d97706',
-  '#dc2626',
-  '#0891b2',
-  '#7c3aed',
-];
-
 const EngagementCell = ({ rate }: { rate: number }) => (
   <div className="flex min-w-[7rem] items-center gap-2">
     <div className="bg-surface h-2 flex-1 overflow-hidden rounded-full">
       <div
-        className="bg-foreground h-full rounded-full"
+        className="bg-chart-1 h-full rounded-full"
         style={{ width: `${Math.min(100, rate)}%` }}
       />
     </div>
@@ -105,7 +97,7 @@ export const AnalyticsGroupsPage = () => {
   const growthSeries: StackedSeries[] = data.groupGrowthSeries.map((s, i) => ({
     key: s.key,
     label: s.name,
-    color: GROWTH_COLORS[i % GROWTH_COLORS.length]!,
+    color: analyticsChartColor(i),
   }));
   const growthChartData = cumulativeGrowthPoints(
     data.groupGrowthOverTime,
