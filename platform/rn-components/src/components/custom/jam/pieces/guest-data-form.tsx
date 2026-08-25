@@ -1,13 +1,13 @@
-import { ActivityIndicator, Dimensions, Linking, View } from 'react-native';
-import React from 'react';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { Event, PublicPost, getTheme } from '@openpeepshq/common';
 import { CachedImage } from '~/components/custom/common';
 import { useForm } from 'react-hook-form';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Form, FormField, FormInput } from '~/components/ui/form';
 import { ThemedText } from '~/components/ui/themed-text';
 import { Button } from '~/components/ui/button';
-import { Event, PublicPost } from '@openpeepshq/common';
+import { ActivityIndicator, Dimensions, Linking, View } from 'react-native';
+import React from 'react';
+import { useOpenpeeps } from '@openpeepshq/react';
 
 interface GuestDataFormProps {
   jamPost: PublicPost;
@@ -19,6 +19,9 @@ export const GuestDataForm: React.FC<GuestDataFormProps> = ({ jamPost }) => {
   const { data: server, isLoading } = openpeepsApi.useServerInfo();
   const { width } = Dimensions.get('window');
   const getGuestPass = openpeepsApi.guestPassAction();
+  const logoSmall = server
+    ? getTheme(server.communityConfig).logoSmall
+    : undefined;
 
   const form = useForm({
     defaultValues: {
@@ -39,9 +42,9 @@ export const GuestDataForm: React.FC<GuestDataFormProps> = ({ jamPost }) => {
     <KeyboardAwareScrollView className="flex h-full w-full">
       {isLoading && <ActivityIndicator size={'small'} />}
       <Form {...form}>
-        {server?.communityConfig.theme.logoSmall ? (
+        {logoSmall ? (
           <CachedImage
-            url={server.communityConfig.theme.logoSmall}
+            url={logoSmall}
             style={{ width, height: width * 0.6 }}
             resizeMode="cover"
           />

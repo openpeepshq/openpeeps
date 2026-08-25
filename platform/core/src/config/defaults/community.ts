@@ -6,12 +6,6 @@ dotenv.config();
 export const defaultCommunityConfig: CommunityConfig = {
   theme: {
     base: 'OpenpeepsLight',
-    primaryHex: '#15678a',
-    logoFull: '/img/logo-full.png',
-    logoSmall: '/img/logo-small.png',
-    defaultProfileAvatar: '/img/default-avatar.png',
-    defaultGroupAvatar: '/img/default-group-avatar.svg',
-    backgroundAuth: '/img/background-auth.png',
     icon: '/img/icon.svg',
     light: {
       primaryHex: '#15678a',

@@ -193,7 +193,6 @@ export const fixtureServerInfo: ServerInfo = {
   communityConfig: {
     theme: {
       base: 'OpenpeepsLight',
-      primaryHex: '#4f46e5',
       light: { primaryHex: '#4f46e5' },
       dark: { primaryHex: '#818cf8' },
     },

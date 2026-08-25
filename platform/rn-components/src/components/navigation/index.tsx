@@ -75,9 +75,7 @@ export const Navigation = () => {
     }
 
     const resolvedTheme = getTheme(serverInfo.communityConfig);
-    const authBackgroundUrl = toAbsoluteMediaUrl(
-      resolvedTheme.backgroundAuth || serverInfo.communityConfig?.theme?.backgroundAuth,
-    );
+    const authBackgroundUrl = toAbsoluteMediaUrl(resolvedTheme.backgroundAuth);
 
     if (!authBackgroundUrl) {
       setAuthBrandingReady(true);

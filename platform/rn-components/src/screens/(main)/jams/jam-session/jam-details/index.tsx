@@ -17,7 +17,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { ThemedText } from '~/components/ui/themed-text';
-import { AudienceSetting, Event, Profile } from '@openpeepshq/common';
+import { AudienceSetting, Event, Profile, getProfileAvatar } from '@openpeepshq/common';
 import { Input } from '~/components/ui/input';
 import { useParticipants, useRoomContext } from '@livekit/react-native';
 import { profileMatchesQuery, truncateText } from '~/lib/utils';
@@ -231,19 +231,16 @@ const ParticipantCard: React.FC<ParticipantCardProps> = ({ participant }) => {
       <View className="flex-row justify-between items-center mb-4">
         <View className="flex-row gap-x-2 items-center">
           <Avatar alt="profile" className="size-14">
-            {participant && getProfile(participant)?.avatar !== undefined ? (
-              <AvatarImage
-                source={{
-                  uri: getProfile(participant)?.avatar!,
-                }}
-              />
-            ) : (
-              <AvatarImage
-                source={{
-                  uri: server?.communityConfig.theme.defaultProfileAvatar,
-                }}
-              />
-            )}
+            <AvatarImage
+              source={{
+                uri: server
+                  ? getProfileAvatar(
+                      getProfile(participant),
+                      server.communityConfig,
+                    )
+                  : getProfile(participant)?.avatar,
+              }}
+            />
           </Avatar>
           <ThemedText className="text-lg font-semibold text-foreground">
             {currentProfile?.id === getProfile(participant)?.id

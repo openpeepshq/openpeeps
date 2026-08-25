@@ -14,6 +14,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 import { useTranslation } from 'react-i18next';
+import { getGroupAvatar } from '@openpeepshq/common';
 
 type GroupInfoProps = MainScreenProps<'GroupInfo'>;
 
@@ -29,15 +30,14 @@ export const GroupInfo = ({ route }: GroupInfoProps) => {
         title={
           <View className="flex-row gap-x-2 items-center">
             <Avatar alt={groupData?.displayName as string} className=" size-14">
-              {groupData?.avatar ? (
-                <AvatarImage source={{ uri: groupData?.avatar }} />
-              ) : (
-                <AvatarImage
-                  source={{
-                    uri: server?.communityConfig.theme.defaultGroupAvatar,
-                  }}
-                />
-              )}
+              <AvatarImage
+                source={{
+                  uri:
+                    groupData && server
+                      ? getGroupAvatar(groupData, server.communityConfig)
+                      : groupData?.avatar,
+                }}
+              />
             </Avatar>
             <ThemedText className="text-lg">
               {truncateText(groupData?.displayName, 30)}

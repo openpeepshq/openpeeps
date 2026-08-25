@@ -1,5 +1,5 @@
 import React from 'react';
-import { Profile } from '@openpeepshq/common';
+import { Profile, getProfileAvatar } from '@openpeepshq/common';
 import { truncateText } from '~/lib/utils';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { Pressable, View } from 'react-native';
@@ -170,7 +170,9 @@ export const ProfileImages = ({ profile, avatarSize }: ProfileProps) => {
                   ) : (
                     <AvatarImage
                       source={{
-                        uri: server?.communityConfig.theme.defaultProfileAvatar,
+                        uri: server
+                          ? getProfileAvatar(null, server.communityConfig)
+                          : undefined,
                       }}
                     />
                   )}

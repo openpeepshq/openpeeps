@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { type GroupWithMeta } from '@openpeepshq/common';
+import { type GroupWithMeta, getGroupAvatar } from '@openpeepshq/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
@@ -44,8 +44,9 @@ export const GroupSelectionSheet = forwardRef<
             <View className="flex-row items-center flex-1">
               <Image
                 source={
-                  (group.avatar as ImageSourcePropType) ??
-                  server?.communityConfig.theme.defaultGroupAvatar
+                  (server
+                    ? getGroupAvatar(group, server.communityConfig)
+                    : group.avatar) as ImageSourcePropType
                 }
                 className="w-12 h-12 rounded-full mr-3"
               />

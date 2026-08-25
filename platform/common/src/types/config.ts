@@ -303,13 +303,6 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       base: z.string(),
       icon: z.string().optional(),
       mobileIcon: z.string().optional(),
-      primaryHex: z.string(),
-      logoFull: z.string().optional(),
-      logoSmall: z.string().optional(),
-      defaultProfileAvatar: z.string().optional(),
-      defaultGroupAvatar: z.string().optional(),
-      backgroundAuth: z.string().optional(),
-      background: z.string().optional(),
       light: z.object({
         primaryHex: z.string(),
         secondaryHex: z.string().optional(),

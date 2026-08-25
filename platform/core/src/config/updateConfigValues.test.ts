@@ -24,8 +24,10 @@ describe('updateConfigValues', () => {
     loadConfig.mockResolvedValue({
       config: {
         theme: {
-          logoSmall: 'https://example.com/logo.png',
-          primaryHex: '#31b28c',
+          light: {
+            logoSmall: 'https://example.com/logo.png',
+            primaryHex: '#31b28c',
+          },
         },
         info: { name: 'Inside AllPeeP', tagLine: 'old' },
       },
@@ -42,8 +44,10 @@ describe('updateConfigValues', () => {
     expect(storeConfig).toHaveBeenCalledWith('openpeeps-community', {
       config: {
         theme: {
-          logoSmall: 'https://example.com/logo.png',
-          primaryHex: '#31b28c',
+          light: {
+            logoSmall: 'https://example.com/logo.png',
+            primaryHex: '#31b28c',
+          },
         },
         info: { name: 'Inside AllPeeP', tagLine: 'new tagline' },
       },

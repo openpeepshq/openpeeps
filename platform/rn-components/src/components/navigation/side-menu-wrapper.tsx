@@ -52,9 +52,7 @@ export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
   const resolvedTheme = serverInfo
     ? getTheme(serverInfo.communityConfig)
     : undefined;
-  const backgroundUri =
-    resolvedTheme?.background ||
-    serverInfo?.communityConfig?.theme?.background;
+  const backgroundUri = resolvedTheme?.background;
   const resolvedBackgroundUri = toAbsoluteMediaUrl(backgroundUri);
 
   const content = (

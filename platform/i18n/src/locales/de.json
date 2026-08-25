@@ -1768,7 +1768,6 @@
         "community": {
             "icon": "Community-Symbol",
             "logo": "Community-Logo",
-            "logoFull": "Community-Logo (vollständig)",
             "backgroundAuth": "Hintergrund Anmeldung",
             "background": "Hintergrund",
             "updateSuccess": "Community-Einstellungen aktualisiert",
@@ -1781,7 +1780,6 @@
             "currentLogo": "Aktuelles Logo",
             "uploadLogo": "Logo durchsuchen und hochladen",
             "logoRequirements": "Laden Sie ein Bild hoch (PNG, JPG, SVG, ICO…) mit einem Seitenverhältnis von 16:9.",
-            "logoFullRequirements": "Laden Sie ein Bild hoch (PNG, JPG, SVG, ICO…).",
             "theme": {
                 "title": "Design",
                 "description": "Passen Sie das Erscheinungsbild Ihrer Community an, einschließlich Logo, hellem und dunklem Modus sowie Markenfarben"

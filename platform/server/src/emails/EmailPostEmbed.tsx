@@ -31,9 +31,7 @@ export const EmailPostEmbed = ({ post, globals }: EmailPostEmbedProps) => {
   const config = buildEmailTailwindConfig(globals.communityConfig);
   const baseUrl = globals.serverData.rootUrl;
   const primaryColor =
-    globals.communityConfig.theme?.light?.primaryHex ??
-    globals.communityConfig.theme?.primaryHex ??
-    '#55acba';
+    globals.communityConfig.theme?.light?.primaryHex ?? '#55acba';
 
   // Providers must wrap <Tailwind>: the Tailwind compiler walks the element
   // tree and may invoke component render functions outside a provider subtree.
