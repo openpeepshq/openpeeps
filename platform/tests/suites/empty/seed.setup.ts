@@ -5,6 +5,8 @@ import { waitForBaseUrl } from './wait-for-base-url';
 // account in the test database. The first account becomes the community
 // `owner` (see platform/core/src/accounts/mutations.ts), which is what every
 // auth-required UI test relies on (it needs `core-groups-create` etc.).
+// Welcome-guide overlays are off here: COMMUNITY_ONBOARDING_GUIDE_ENABLED=false
+// on the web process (CI, Compose, and local Playwright webServer).
 setup('seed UI owner', async ({ request, baseURL }) => {
   await waitForBaseUrl(baseURL ?? 'http://127.0.0.1:8080');
 

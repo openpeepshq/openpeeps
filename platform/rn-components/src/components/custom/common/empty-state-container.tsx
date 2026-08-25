@@ -1,6 +1,8 @@
 import {View} from 'react-native';
 import React from 'react';
 import {ThemedText} from '~/components/ui/themed-text';
+import { Button } from '~/components/ui/button';
+import { Text } from '~/components/ui/text';
 import {
   BellOffIcon,
   MessageSquareOffIcon,
@@ -11,15 +13,26 @@ import {
 } from '~/components/icons';
 import { EmptyStateContainerType } from '~/types';
 interface EmptyStateContainerProps {
-  type : EmptyStateContainerType
+  type: EmptyStateContainerType;
+  inviteLabel?: string;
+  onInvite?: () => void;
 }
-export const EmptyStateContainer = ({type}: EmptyStateContainerProps) => {
+export const EmptyStateContainer = ({
+  type,
+  inviteLabel,
+  onInvite,
+}: EmptyStateContainerProps) => {
   switch (type) {
     case 'posts':
       return (
         <View className="flex flex-1 h-64 items-center justify-center">
           <RssIcon size={64} className="text-foreground" />
           <ThemedText className="mt-6">No posts yet</ThemedText>
+          {inviteLabel && onInvite ? (
+            <Button className="mt-4" onPress={onInvite}>
+              <Text>{inviteLabel}</Text>
+            </Button>
+          ) : null}
         </View>
       );
     case 'reply':
@@ -41,6 +54,11 @@ export const EmptyStateContainer = ({type}: EmptyStateContainerProps) => {
         <View className="flex flex-1 h-64 items-center justify-center">
           <UserRoundXIcon size={64} className="text-foreground" />
           <ThemedText className="mt-6">No Groups Found</ThemedText>
+          {inviteLabel && onInvite ? (
+            <Button className="mt-4" onPress={onInvite}>
+              <Text>{inviteLabel}</Text>
+            </Button>
+          ) : null}
         </View>
       );
     case 'profiles':

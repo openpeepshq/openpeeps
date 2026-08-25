@@ -131,6 +131,7 @@ import {
   AdminDiagnosticsJob,
   AdminDiagnosticsPerformance,
   AdminConfigurationCommunityLanguage,
+  AdminConfigurationCommunityOnboardingGuide,
 } from '@openpeepshq/react/pages';
 
 import { DocsLayout } from './pages/docs/DocsLayout';
@@ -370,6 +371,7 @@ const Admin = {
         descriptionKey="configuration.community.codeOfConduct.description"
       />
     ),
+    CommunityOnboardingGuide: AdminConfigurationCommunityOnboardingGuide,
     Email: AdminConfigurationEmail,
   },
 };
@@ -774,6 +776,10 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/community/code-of-conduct"
                         element={<Admin.Config.CommunityCodeOfConduct />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/onboarding-guide"
+                        element={<Admin.Config.CommunityOnboardingGuide />}
                       />
                       <Route
                         path="/admin/configuration/email"
