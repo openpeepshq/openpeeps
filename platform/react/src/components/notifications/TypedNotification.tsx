@@ -420,6 +420,7 @@ function NewProfileNotification({
   if (!profile) {
     return <GenericNotification notification={notification} />;
   }
+  const name = profileName(profile) || profile.handle;
   return (
     <NotificationWrapper profile={profile} seen={notification.seen}>
       <a href={`/@${profile.handle}`} className="block w-full px-4">
@@ -427,7 +428,7 @@ function NewProfileNotification({
           <p className="text-base">
             {t('notification.newProfile.text', {
               defaultValue: '{{profileName}} joined the community',
-              profileName: profileName(profile),
+              profileName: name,
             })}
           </p>
           <span className="text-muted-foreground ml-1 text-sm">
@@ -516,15 +517,17 @@ function GenericNotification({
   const t = useT();
   const sender = notification.senderProfile;
   if (!sender) {
+    // Avoid `notification.*.text` here — those strings include {{profileName}}
+    // and i18next leaves the placeholder when the var is omitted (#1245).
     return (
       <div className="text-muted-foreground border-b px-4 py-5 text-sm">
-        {t(`notification.${notification.type}.text`, {
+        {t(`settings.notifications.types.${notification.type}.label`, {
           defaultValue: notification.type,
         })}
       </div>
     );
   }
-  const name = profileName(sender);
+  const name = profileName(sender) || sender.handle;
   const message = t(`notification.${notification.type}.text`, {
     defaultValue: `${name} — ${notification.type}`,
     profileName: name,

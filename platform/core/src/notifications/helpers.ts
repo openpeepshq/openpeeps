@@ -39,8 +39,13 @@ export const expandNotification = async (
 ): Promise<ExpandedNotification> => {
   const intermediateNotification = {
     ...notification,
+    // Include soft-deleted senders so anonymizeProfileIfDeleted can tombstone
+    // them; otherwise fromProfileId resolves to undefined and the UI falls
+    // back to an uninterpolated "{{profileName}} …" string.
     senderProfile: notification.fromProfileId
-      ? anonymizeProfileIfDeleted(await getProfile(notification.fromProfileId))
+      ? anonymizeProfileIfDeleted(
+          await getProfile(notification.fromProfileId, true),
+        )
       : undefined,
     post: notification.post
       ? await transformPost(notification.post)
