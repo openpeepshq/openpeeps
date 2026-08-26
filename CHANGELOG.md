@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **events**: add CalDAV-shaped recurring events
+- **groups**: add owner role and template-based capability presets
 - **sso**: add SSO login URL handling and related utilities
 - **backups**: restore into a schema version then migrate forward
 - **polls**: implement poll option length validation and UI feedback
@@ -19,6 +21,17 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **profile**: enhance profile field rendering with links
+- **events**: show one upcoming row per recurring event
+- **migrate**: enhance migration tests and ensure journal integrity
+- **i18n**: use profile settings as language source of truth
+- **notifications**: interpolate profile name on new-profile notices
+- **ui**: center wrapping button labels on mobile
+- **ui**: show notification unread badge in mobile nav
+- **web**: prefer light logo for OG and drop unused theme fields
+- **jams**: stop guest sessions from refreshing and noisy HTTP calls
+- **analytics**: exclude guests from recent signups and use theme chart colors
+- **jams**: let guests read profiles for public jam chat
 - **admin**: reload page after plugin reload
 - **posts**: allow repeated post_seen impression rows
 - **analytics**: improve error handling and type safety in cache functions
