@@ -127,3 +127,29 @@ steps — follow that skill.
 - Only commit when explicitly asked.
 - Don't force-push shared branches or amend pushed commits unless asked.
 - Before opening a PR, follow the `check-openpeeps-pr-readiness` skill.
+
+### Commit workflow
+
+When finalizing a branch for PR:
+
+1. **Rebase** onto latest `main`:
+   ```bash
+   rtk git fetch origin main && rtk git rebase origin/main
+   ```
+2. **Squash** all branch commits into one using the squash script:
+   ```bash
+   bash scripts/squash-branch.sh --ci -m "feat(scope): description"
+   ```
+   Requires a clean working tree. Commit or stash changes first.
+3. **Sign** the commit with the author email:
+   ```bash
+   rtk git commit --amend --author="Philipp Haussleiter <philipp@allpeep.com>" \
+     -m "feat(scope): description
+
+   Signed-off-by: Philipp Haussleiter <philipp@allpeep.com>"
+   ```
+4. **Push** with force-with-lease:
+   ```bash
+   rtk git fetch origin <branch> && rtk git push --force-with-lease origin <branch>
+   ```
+   Always fetch before pushing to avoid stale ref errors.

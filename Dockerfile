@@ -78,7 +78,7 @@ RUN apk add --no-cache \
     unzip
 
 # Runtime image is also used by CI `publish-packages` (pnpm publish from /apat).
-RUN npm i -g pnpm
+RUN npm i -g pnpm@10.11.0
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
