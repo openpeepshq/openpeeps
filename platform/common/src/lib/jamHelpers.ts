@@ -1,10 +1,7 @@
 import { Jam, JamRecording, PublicPost, PublicProfile } from '../types';
 import { normalizeRecurrenceId } from './eventRecurrence';
 
-export const jamRoomName = (postId: string, recurrenceId?: string) => {
-  if (!recurrenceId) return postId;
-  return `${postId}_${normalizeRecurrenceId(recurrenceId).replace(/[^a-zA-Z0-9-]/g, '-')}`;
-};
+export const jamRoomName = (postId: string, _recurrenceId?: string) => postId;
 
 const UUID_PREFIX =
   /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:_.*)?$/i;
@@ -12,6 +9,20 @@ const UUID_PREFIX =
 export const postIdFromJamRoomName = (roomName: string): string => {
   const match = roomName.match(UUID_PREFIX);
   return match?.[1] ?? roomName;
+};
+
+/** Recurring jams use one LiveKit room per event; leftover occurrence rooms still collapse. */
+export const uniquePostsById = <T extends { id: string }>(
+  posts: (T | undefined)[],
+): T[] => {
+  const seen = new Set<string>();
+  const unique: T[] = [];
+  for (const post of posts) {
+    if (!post || seen.has(post.id)) continue;
+    seen.add(post.id);
+    unique.push(post);
+  }
+  return unique;
 };
 
 export const getJamUrl = (

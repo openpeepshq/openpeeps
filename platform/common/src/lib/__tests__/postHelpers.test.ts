@@ -24,6 +24,7 @@ import {
   jamFromEvent,
   jamRoomName,
   postIdFromJamRoomName,
+  uniquePostsById,
 } from '../jamHelpers';
 import type {
   Event,
@@ -270,17 +271,27 @@ describe('postHelpers', () => {
   });
 
   describe('jamRoomName', () => {
-    it('builds a room name from the occurrence', () => {
-      expect(jamRoomName('abc', '2026-09-08T16:00:00.000Z')).toBe(
-        'abc_2026-09-08T16-00-00-000Z',
-      );
+    it('uses the event id for every occurrence', () => {
+      expect(jamRoomName('abc', '2026-09-08T16:00:00.000Z')).toBe('abc');
+      expect(jamRoomName('abc')).toBe('abc');
     });
 
-    it('extracts the post id from an occurrence room name', () => {
+    it('extracts the post id from a leftover occurrence room name', () => {
       const postId = '11111111-1111-1111-1111-111111111111';
-      expect(
-        postIdFromJamRoomName(jamRoomName(postId, '2026-09-08T16:00:00.000Z')),
-      ).toBe(postId);
+      expect(postIdFromJamRoomName(`${postId}_2026-09-08T16-00-00-000Z`)).toBe(
+        postId,
+      );
+    });
+  });
+
+  describe('uniquePostsById', () => {
+    it('keeps one post when two occurrence rooms map to the same jam', () => {
+      const standup = { id: 'standup' };
+      const other = { id: 'other' };
+      expect(uniquePostsById([standup, standup, undefined, other])).toEqual([
+        standup,
+        other,
+      ]);
     });
   });
 
