@@ -4,7 +4,11 @@ import {
   type PostWithMeta,
   type Profile,
 } from '@openpeepshq/common/types';
-import { jamRoomName, postIdFromJamRoomName } from '@openpeepshq/common/lib';
+import {
+  jamRoomName,
+  postIdFromJamRoomName,
+  uniquePostsById,
+} from '@openpeepshq/common/lib';
 import {
   listParticipantIds,
   reclaimOrphanJamRoom,
@@ -117,7 +121,7 @@ const fetchLiveJamPosts = async (): Promise<PostWithMeta[]> => {
     }),
   );
 
-  return posts.filter(Boolean) as PostWithMeta[];
+  return uniquePostsById(posts);
 };
 
 export const listLiveJams = async (
