@@ -2552,7 +2552,7 @@
       "external": "External Event",
       "physical": "Physical Location"
     },
-    "hostedBy": "Organizer",
+    "hostedBy": "Organizer {{profileName}}",
     "group": "Group Event In:",
     "startDate": "Start Date",
     "endDate": "End Date",
