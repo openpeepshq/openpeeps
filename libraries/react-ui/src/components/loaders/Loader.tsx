@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { LoadingIcon } from './LoadingIcon';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { WaitForQueries } from './WaitForQueries';
 import type { PartialQueryObserverResult } from '@/types';
 
@@ -45,7 +45,7 @@ export function Loader({
         <div className={overlayClass}>
           {loading ?? (
             <>
-              <LoadingIcon />
+              <LoadingSpinner />
               {loadingMessage && <p className="mt-3">{loadingMessage}</p>}
             </>
           )}

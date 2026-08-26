@@ -15,7 +15,7 @@ OpenPeeps React UI library. A 1:1 React + shadcn/Tailwind translation of
 | `icons/`                 | `Blur`                                                                                                                     |
 | `infinite-scrolling/`    | `InfiniteScrollContainer`, `ScrollObserver`                                                                                |
 | `link/`                  | `Link`                                                                                                                     |
-| `loaders/`               | `Loader`, `LoadingIcon`, `WaitForQueries`                                                                                  |
+| `loaders/`               | `Loader`, `WaitForQueries` (`LoadingIcon` is deprecated — use `LoadingSpinner`)                                            |
 | `modal/`                 | `Modal`, `ModalWrapper`, `ModalHeader`, `ModalFooter` (alias of `DialogFooter`), `getModalManager`, `useModalManager` |
 | `popup-menu/`            | `PopupMenu`, `PopupMenuButton`, `PopupSection`, `PopupSeparator`                                                           |
 | `search/`                | `SearchAndFilterBar`                                                                                                       |
@@ -26,7 +26,7 @@ OpenPeeps React UI library. A 1:1 React + shadcn/Tailwind translation of
 
 In addition the package exposes shadcn primitives directly (`Input`,
 `Textarea`, `Dialog*` (including `DialogActions`), `DropdownMenu*`, `Popover*`, `RadioGroup`, `Tooltip*`,
-`Table*`, `ScrollArea`, `Separator`, `Skeleton`, `ShadcnBadge`, …).
+`Table*`, `ScrollArea`, `Separator`, `Skeleton`, `LoadingSpinner`, `ShadcnBadge`, …).
 
 ## Install
 
