@@ -1,18 +1,15 @@
-import { cn } from '@/lib/utils';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
+/**
+ * @deprecated Use {@link LoadingSpinner} instead.
+ */
 export interface LoadingIconProps {
   className?: string;
 }
 
-export function LoadingIcon({ className }: LoadingIconProps) {
-  return (
-    <div
-      role="status"
-      aria-label="Loading"
-      className={cn(
-        'border-border-2 border-t-background block h-10 w-10 animate-spin rounded-full border-4',
-        className,
-      )}
-    />
-  );
-}
+/**
+ * @deprecated Use {@link LoadingSpinner} instead.
+ */
+export const LoadingIcon = ({ className }: LoadingIconProps) => (
+  <LoadingSpinner className={className} />
+);

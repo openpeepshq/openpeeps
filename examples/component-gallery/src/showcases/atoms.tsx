@@ -8,7 +8,6 @@ import {
   Input,
   Label,
   Link,
-  LoadingIcon,
   LoadingSpinner,
   RadioGroup,
   RadioGroupItem,
@@ -285,13 +284,9 @@ export const atomShowcases = [
     </ShowcaseSection>
   )),
   showcase('atoms', 'loaders', 'Loaders', () => (
-    <ShowcaseSection
-      title="Loaders"
-      description="LoadingSpinner (shadcn) and LoadingIcon (OpenPeeps)."
-    >
+    <ShowcaseSection title="Loaders">
       <div className="flex items-center gap-6">
         <LoadingSpinner />
-        <LoadingIcon />
       </div>
     </ShowcaseSection>
   )),

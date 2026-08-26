@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapPin } from 'lucide-react';
-import { Button, Input, Label, LoadingIcon, cn } from '@openpeepshq/react-ui';
+import { Button, Input, Label, LoadingSpinner, cn } from '@openpeepshq/react-ui';
 import type { GeocodingResult, Location } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
@@ -113,7 +113,7 @@ export function LocationInput({
           {pending ? (
             <div className="flex w-full flex-col items-center justify-center gap-2 p-4">
               <span>{t('location.lookup', { name })}</span>
-              <LoadingIcon />
+              <LoadingSpinner />
             </div>
           ) : (
             <>
