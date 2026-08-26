@@ -193,12 +193,15 @@ export function FullEvent({ post }: FullEventProps) {
 
       <div className="mt-2 flex items-center gap-x-2">
         <Avatar profile={post.profile as PublicProfile} size={2} />
-        <span className="text-sm">
+        <a
+          href={`/profiles/@${post.profile.handle}`}
+          className="text-sm hover:underline hover:text-primary"
+        >
           {t('events.hostedBy', {
             defaultValue: 'Hosted by {{profileName}}',
             profileName: `${profileName(post.profile)}${myEvent ? ' · You' : ''}`,
           })}
-        </span>
+        </a>
       </div>
 
       {times.start ? (

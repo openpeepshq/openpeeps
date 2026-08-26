@@ -2526,7 +2526,7 @@
             "attendee": "Teilnehmer",
             "attendees": "Teilnehmer"
         },
-        "hostedBy": "Veranstalter",
+        "hostedBy": "Veranstalter {{profileName}}",
         "group": "Gruppenveranstaltung in:",
         "startDate": "Startdatum",
         "endDate": "Enddatum",
