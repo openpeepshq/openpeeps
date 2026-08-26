@@ -27,5 +27,15 @@ node_modules
 .idea
 .DS_Store
 
+# Runtime deployment artifacts on prod hosts. Deployed plugin sources are
+# volume-mounted at /apat/plugins and must never be baked in: as untracked
+# workspace importers (glob `plugins/*/*`) they break --frozen-lockfile
+# installs with "dependencies were added".
+plugins
+
+# Server-only deploy files
+compose*.yml
+.env*
+
 # Local scratch / large backups (never needed in images)
 stuff
