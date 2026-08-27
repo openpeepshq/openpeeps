@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenPeeps release · 19 Aug 2026</title>
+    <style>
+      :root {
+        --bg: #fafafa;
+        --text: #171717;
+        --text-2: #404040;
+        --text-3: #737373;
+        --text-4: #a3a3a3;
+        --line: #d4d4d4;
+        --line-strong: #525252;
+        --accent: #2563eb;
+        --surface: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          'Segoe UI',
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+      }
+
+      .page {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 24px;
+        line-height: 30px;
+        font-weight: 600;
+      }
+
+      .subtitle {
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+        white-space: nowrap;
+      }
+
+      .lede {
+        margin: 0 0 20px;
+        padding: 14px 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-top: 2px solid var(--accent);
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--text-2);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      section {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: 16px 18px 18px;
+      }
+
+      section h2 {
+        margin: 0 0 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      section .kicker {
+        margin: 0 0 12px;
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+      }
+
+      section h3 {
+        margin: 14px 0 6px;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 18px;
+        color: var(--text);
+      }
+
+      section p,
+      section li {
+        font-size: 13px;
+        line-height: 18px;
+        color: var(--text-2);
+      }
+
+      section p {
+        margin: 0 0 8px;
+      }
+
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      li {
+        display: flex;
+        gap: 8px;
+        margin: 0 0 8px;
+      }
+
+      li::before {
+        content: '';
+        margin-top: 7px;
+        width: 3px;
+        height: 3px;
+        border-radius: 9999px;
+        background: var(--text-4);
+        flex-shrink: 0;
+      }
+
+      .notes {
+        margin-top: 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: 14px 16px;
+      }
+
+      .notes h2 {
+        margin: 0 0 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-2);
+      }
+
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        margin-top: 16px;
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-3);
+      }
+
+      footer a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      footer .source {
+        color: var(--text-4);
+        white-space: nowrap;
+      }
+
+      @media (max-width: 720px) {
+        header,
+        footer {
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .subtitle,
+        footer .source {
+          white-space: normal;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media print {
+        @page {
+          size: landscape;
+          margin: 12mm;
+        }
+
+        body {
+          padding: 0;
+          background: #fff;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <h1>OpenPeeps release · 19 Aug 2026</h1>
+        <div class="subtitle">2026-08-19-973b9d23-RELEASE</div>
+      </header>
+
+      <p class="lede">
+        Unread and repost counts tell the truth, admin analytics can be
+        exported, and communities pick their own theme fonts. Posts stay
+        readable when authors or parents are gone, and operators get MCP
+        endpoints plus a one-command local stack.
+      </p>
+
+      <div class="grid">
+        <section>
+          <h2>In the product</h2>
+          <p class="kicker">What members, moderators, and admins see</p>
+
+          <h3>Feeds, unread, and reposts</h3>
+          <ul>
+            <li>
+              Posts show a capped list of who reposted them, instead of
+              leaving that trail hidden.
+            </li>
+            <li>
+              Unseen badges follow the wrapper row for a repost, so a share
+              counts as new even when the original was already read.
+            </li>
+            <li>
+              Group unread uses the same SQL as the badge. Deleted authors
+              no longer inflate unseen counts.
+            </li>
+            <li>
+              Deleted authors and parent posts show a tombstone instead of a
+              broken card.
+            </li>
+          </ul>
+
+          <h3>Composer, polls, and media</h3>
+          <ul>
+            <li>
+              The visibility you picked keeps a primary border. Polls mark
+              the option you just clicked, and option copy is resolved in
+              the form before save.
+            </li>
+            <li>
+              Closing the media gallery no longer jumps you onto the post
+              page. Direct jam replies stay visible in DMs.
+            </li>
+          </ul>
+
+          <h3>Analytics and theme</h3>
+          <ul>
+            <li>
+              Each analytics graph can export CSV. DAU/MAU and anonymous
+              click tracking are on the admin rollup.
+            </li>
+            <li>
+              PDF exports use the community name. Metric values stay inside
+              the card. DMs and private-group posts are out of top posts.
+            </li>
+            <li>
+              Community theme settings offer selectable OFL fonts. Save
+              buttons and notification settings use the shared control
+              variants.
+            </li>
+          </ul>
+
+          <h3>Jams, groups, and mobile</h3>
+          <ul>
+            <li>
+              Jam layout is tighter on small screens. Fullscreen hides when
+              the browser API is missing.
+            </li>
+            <li>
+              Group-card hover covers the whole row. SVG avatars fill the
+              circular crop. Following/followers pages drop the duplicate
+              heading.
+            </li>
+            <li>
+              The React Native app caches hashed media images and cleans up
+              the footer.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>In the platform</h2>
+          <p class="kicker">APIs, runtime, plugins, and operations</p>
+
+          <h3>MCP and session</h3>
+          <ul>
+            <li>
+              Community and ops MCP endpoints are in the tree for agent
+              tooling against a live instance.
+            </li>
+            <li>
+              The profiles API fans session events; SSE fan-out and presence
+              have tests.
+            </li>
+          </ul>
+
+          <h3>Moderation, roles, and config</h3>
+          <ul>
+            <li>
+              Reports stay usable when the reporter is deleted or the viewer
+              is an owner.
+            </li>
+            <li>
+              Saving a role returns the updated record so the capability UI
+              can show success. Empty community profile field keys are
+              rejected.
+            </li>
+          </ul>
+
+          <h3>Inbox speed and restore</h3>
+          <ul>
+            <li>
+              Unseen inbox counts and conversation APIs are cheaper on the
+              hot path.
+            </li>
+            <li>
+              Restored backups rewrite media URLs to the full server origin,
+              not a relative host that breaks after cutover.
+            </li>
+          </ul>
+
+          <h3>Local and CI</h3>
+          <ul>
+            <li>
+              One-command local stack includes Mailpit for mail capture.
+            </li>
+            <li>
+              The API performance fixture runs daily, with Redis and
+              JWT_SECRET so the fixture process can start and stay up
+              across workflow steps.
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="notes">
+        <h2>Also in this tag</h2>
+        <ul>
+          <li>
+            Multi-version component gallery site, with the React UI
+            framework straightened against Figma tokens.
+          </li>
+          <li>
+            Roadmap timeline snapshot refreshed. <code>actions/checkout</code>
+            pinned to the v6.1.0 SHA.
+          </li>
+        </ul>
+      </div>
+
+      <footer>
+        <div>
+          Range
+          <code>2026-08-12-855c41aa-RELEASE</code>
+          →
+          <code>2026-08-19-973b9d23-RELEASE</code>.
+          Previous notes:
+          <a href="./2026-08-12-855c41aa.html">12 Aug 2026</a>.
+        </div>
+        <div class="source">
+          Source: code.openpeeps.org/openpeeps/openpeeps · tag
+          2026-08-19-973b9d23-RELEASE
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
