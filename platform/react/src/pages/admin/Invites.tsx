@@ -1,8 +1,13 @@
 import { useMemo, useState } from 'react';
-import { CheckCheck, Copy, MoreVertical, Users, X } from 'lucide-react';
+import { CheckCheck, Copy, MoreVertical, QrCode, Users, X } from 'lucide-react';
 import { inviteLinkMatchesQuery } from '@openpeepshq/common/lib';
 import type { InviteLinkWithMeta } from '@openpeepshq/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
+import {
+  useT,
+  useOpenpeeps,
+  useServerInfo,
+  useSetPageHeader,
+} from '../../index';
 import { Avatar } from '../../components';
 import { UpdatingDate } from '@openpeepshq/react-ui';
 import {
@@ -15,7 +20,11 @@ import {
   PopupMenuButton,
 } from '@openpeepshq/react-ui';
 import { AdminInviteActions } from './components/AdminInviteActions';
-import { inviteUrl } from './components/InviteWithLinkModal';
+import {
+  communityQrLogoSrc,
+  downloadInviteQr,
+  inviteUrl,
+} from './components/inviteQr';
 
 export function AdminInvites() {
   const t = useT();
@@ -140,6 +149,7 @@ export function AdminInvites() {
 function InvitesTablePopup({ invite }: { invite: InviteLinkWithMeta }) {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
+  const logoSrc = communityQrLogoSrc(useServerInfo().communityConfig);
   const activate = openpeepsApi.admin.activateInviteAction();
   const deactivate = openpeepsApi.admin.deactivateInviteAction();
   const [showInvited, setShowInvited] = useState(false);
@@ -171,6 +181,16 @@ function InvitesTablePopup({ invite }: { invite: InviteLinkWithMeta }) {
               action={() =>
                 void navigator.clipboard.writeText(inviteUrl(invite.slug))
               }
+            />
+            <PopupMenuButton
+              icon={QrCode}
+              title={t('admin.invites.saveAsQrCode', {
+                defaultValue: 'Save as QR code',
+              })}
+              text={t('admin.invites.saveAsQrCode', {
+                defaultValue: 'Save as QR code',
+              })}
+              action={() => downloadInviteQr(invite.slug, logoSrc)}
             />
             <PopupMenuButton
               icon={X}

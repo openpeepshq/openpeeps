@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Copy } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Copy, Download } from 'lucide-react';
 import { randomString } from '@openpeepshq/common/lib';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
-import { useT, useOpenpeeps } from '../../../index';
+import { useT, useOpenpeeps, useServerInfo } from '../../../index';
 import {
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -12,6 +13,12 @@ import {
   Input,
   Label,
 } from '@openpeepshq/react-ui';
+import {
+  communityQrLogoSrc,
+  downloadInviteQr,
+  inviteQrDataUrl,
+  inviteUrl,
+} from './inviteQr';
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 export const EXPIRY_OPTIONS = [
@@ -24,10 +31,61 @@ export const EXPIRY_OPTIONS = [
 
 export const UNLIMITED_USES = 1000;
 
-export function inviteUrl(slug: string) {
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  return `${origin}/auth/register/invitation?inviteCode=${slug}`;
-}
+const InviteQrPreview = ({ slug }: { slug: string }) => {
+  const t = useT();
+  const logoSrc = communityQrLogoSrc(useServerInfo().communityConfig);
+  const [src, setSrc] = useState<string | null>(null);
+  const [qrError, setQrError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setQrError(false);
+    void inviteQrDataUrl(inviteUrl(slug), logoSrc)
+      .then((url) => {
+        if (!cancelled) setSrc(url);
+      })
+      .catch(() => {
+        if (!cancelled) setQrError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, logoSrc]);
+
+  if (qrError) {
+    return (
+      <p className="text-error text-xs">
+        {t('admin.inviteLink.qrError', {
+          defaultValue: 'Could not generate QR code',
+        })}
+      </p>
+    );
+  }
+
+  if (!src) return null;
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <img
+        src={src}
+        alt={t('admin.inviteLink.qrCodeAlt', {
+          defaultValue: 'QR code for this invite link',
+        })}
+        className="size-48 rounded-md border bg-white p-2"
+      />
+      <Button
+        variant="outline"
+        compact
+        action={() => downloadInviteQr(slug, logoSrc)}
+      >
+        <Download size={16} />
+        {t('admin.inviteLink.saveAsQrCode', {
+          defaultValue: 'Save as QR code',
+        })}
+      </Button>
+    </div>
+  );
+};
 
 export function InviteWithLinkModal({ onClose }: { onClose: () => void }) {
   const t = useT();
@@ -120,6 +178,7 @@ export function InviteWithLinkModal({ onClose }: { onClose: () => void }) {
                 })}
               </p>
             ) : null}
+            <InviteQrPreview slug={createdSlug} />
           </div>
         ) : (
           <div className="space-y-4 px-1">
