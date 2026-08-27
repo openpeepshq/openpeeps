@@ -3,8 +3,13 @@ Changelog for OpenPeeps
 
 ## Current
 
+- No changes
+
+## 2026-08-26
+
 ### Features
 
+- **cli**: add namespace option to config command
 - **events**: add CalDAV-shaped recurring events
 - **groups**: add owner role and template-based capability presets
 - **sso**: add SSO login URL handling and related utilities
@@ -21,6 +26,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **jams**: use one LiveKit room per event
 - **profile**: enhance profile field rendering with links
 - **events**: show one upcoming row per recurring event
 - **migrate**: enhance migration tests and ensure journal integrity
