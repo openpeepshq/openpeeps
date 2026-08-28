@@ -18,3 +18,10 @@ at [allpeep.com](https://allpeep.com/docs/own-your-data)
 <li>Video and Audio Jams</li>
 <li>Direct Messages</li>
 </ul>
+
+<div style="height:20px"></div>
+
+## Writing and formatting
+
+You can format posts, articles, and descriptions with
+[Markdown](/docs/user/markdown).
