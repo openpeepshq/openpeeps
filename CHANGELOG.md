@@ -3,7 +3,9 @@ Changelog for OpenPeeps
 
 ## Current
 
-- No changes
+### Documentation
+
+- **releases**: add 19 Aug and 26 Aug narrative notes
 
 ## 2026-08-26
 
