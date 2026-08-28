@@ -111,13 +111,21 @@ export function OpenpeepsMarkdownInput({
         </div>
       ) : null}
 
-      {previewButton ? (
-        <div className="w-full pb-2">
+      <div className="flex w-full items-center gap-3 pb-2">
+        {previewButton ? (
           <Button compact variant="outline" action={() => setShowPreview(true)}>
             {t('form.preview', { defaultValue: 'Preview' })}
           </Button>
-        </div>
-      ) : null}
+        ) : null}
+        <a
+          href="/docs/user/markdown"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="op-anchor text-sm"
+        >
+          {t('form.markdownHelp', { defaultValue: 'Formatting help' })}
+        </a>
+      </div>
 
       <Popover open={showMentions} modal={false}>
         <PopoverAnchor asChild>

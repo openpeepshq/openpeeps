@@ -2380,6 +2380,7 @@
             "processing": "Verarbeiten"
         },
         "preview": "Vorschau",
+        "markdownHelp": "Formatierungshilfe",
         "edit": "Zurück zur Bearbeitung",
         "uploadEditModal": {
             "description": {
