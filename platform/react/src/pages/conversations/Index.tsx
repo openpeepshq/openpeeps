@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import { MessageCircleOff, Calendar, MessageSquarePlus } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
-import { canCreatePost, truncateText } from '@openpeepshq/common';
+import {
+  canCreatePost,
+  formatBadgeCount,
+  truncateText,
+} from '@openpeepshq/common';
 import {
   useT,
   useOpenpeeps,
@@ -57,7 +61,7 @@ function ChatPreview({
               className="bg-destructive text-destructive-foreground flex size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold"
               aria-label={`${unreadCount} unread messages`}
             >
-              {unreadCount > 99 ? '99+' : unreadCount}
+              {formatBadgeCount(unreadCount)}
             </span>
           ) : null}
         </div>

@@ -43,6 +43,7 @@ import {
   useSidebarNavClose,
 } from '@openpeepshq/react/components';
 import {
+  formatBadgeCount,
   getVisibleAdminSections,
   type AdminSectionKey,
 } from '@openpeepshq/common/lib';
@@ -103,7 +104,7 @@ function NavItem({
       <span className="min-w-0 flex-1 truncate">{children}</span>
       {pill != null && pill > 0 ? (
         <span className="bg-destructive text-destructive-foreground flex size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold">
-          {pill > 99 ? '99+' : pill}
+          {formatBadgeCount(pill)}
         </span>
       ) : null}
     </NavLink>
@@ -336,8 +337,11 @@ export function AppSideBarProfileMenu() {
         >
           <Bell className="size-6" />
           {(notificationStats.data?.unseen ?? 0) > 0 ? (
-            <span className="bg-destructive text-destructive-foreground absolute -right-0.5 -top-0.5 flex size-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-semibold">
-              {notificationStats.data?.unseen}
+            <span
+              className="bg-destructive text-destructive-foreground absolute -right-0.5 -top-0.5 flex size-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-semibold"
+              aria-label={`${notificationStats.data?.unseen} unread notifications`}
+            >
+              {formatBadgeCount(notificationStats.data?.unseen ?? 0)}
             </span>
           ) : null}
         </button>

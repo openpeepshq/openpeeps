@@ -2,7 +2,7 @@ import { View, TouchableOpacity } from 'react-native';
 import React, { useCallback, useRef } from 'react';
 import { UpdatingDate } from '../date/updating-date';
 import { OpenPeepsMarkdown } from '../markdown/OpenPeepsMarkdown';
-import { PublicPost } from '@openpeepshq/common';
+import { formatBadgeCount, PublicPost } from '@openpeepshq/common';
 import { Text } from '~/components/ui/text';
 import { Button } from '~/components/ui/button';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -77,7 +77,7 @@ export const ConversationPreviewCard = ({
               {unreadCount > 0 ? (
                 <View className="bg-destructive size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 ml-2">
                   <Text className="text-xs font-semibold text-destructive-foreground">
-                    {unreadCount > 99 ? '99+' : unreadCount}
+                    {formatBadgeCount(unreadCount)}
                   </Text>
                 </View>
               ) : null}

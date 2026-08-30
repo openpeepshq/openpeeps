@@ -1,3 +1,7 @@
+/** Compact unread badge label. 3+ digits overflow a 20px circle; ∞ fits. */
+export const formatBadgeCount = (count: number): string =>
+  count > 99 ? '∞' : String(count);
+
 export const truncateText = (text?: string | null, maxLength: number = 15) => {
   if (!text) return '';
   if (text.length <= maxLength) return text;
