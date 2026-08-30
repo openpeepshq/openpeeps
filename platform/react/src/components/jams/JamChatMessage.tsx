@@ -1,4 +1,9 @@
-import { truncateText, type JamEvent } from '@openpeepshq/common';
+import { useMemo } from 'react';
+import {
+  truncateText,
+  type JamEvent,
+  type PublicProfile,
+} from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { OpenpeepsMarkdown } from '../markdown/OpenpeepsMarkdown';
 import { Avatar } from '../profile/Avatar';
@@ -15,12 +20,22 @@ const attendanceMap = {
 
 export interface JamChatMessageProps {
   message: JamEvent;
+  mentionProfiles?: PublicProfile[];
 }
 
-export function JamChatMessage({ message }: JamChatMessageProps) {
+export function JamChatMessage({
+  message,
+  mentionProfiles = [],
+}: JamChatMessageProps) {
   const { openpeepsApi } = useOpenpeeps();
   const profileQuery = openpeepsApi.useProfile(message.profileId || 'unknown');
   const profile = profileQuery.data;
+  const mentions = useMemo(() => {
+    const items = mentionProfiles.map((item) => ({ profile: item }));
+    if (!profile) return items;
+    if (items.some((item) => item.profile.id === profile.id)) return items;
+    return [{ profile }, ...items];
+  }, [mentionProfiles, profile]);
 
   if (!message.profileId) {
     return null;
@@ -55,6 +70,7 @@ export function JamChatMessage({ message }: JamChatMessageProps) {
             </div>
             <OpenpeepsMarkdown
               source={message.content ?? ''}
+              mentions={mentions}
               linkPreviewMode="none"
             />
           </div>

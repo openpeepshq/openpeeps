@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Loader, SendHorizontal, X } from 'lucide-react';
 import { dateSorter, type JamEvent } from '@openpeepshq/common';
+import { useParticipants } from '@livekit/components-react';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useJamContext } from './JamContext';
 import { useJamEventsContext } from './JamEventsContext';
+import { mentionProfilesFromParticipants } from './jamEventActions';
 import { JamChatMessage } from './JamChatMessage';
 
 export interface JamChatDrawerProps {
@@ -39,6 +41,11 @@ export function JamChatDrawer({
   const { sessionEvents, sendMessage } = useJamEventsContext();
   const { openpeepsApi } = useOpenpeeps();
   const eventsQuery = openpeepsApi.useInfiniteJamEvents(jamPost.id, 100);
+  const participants = useParticipants();
+  const mentionProfiles = useMemo(
+    () => mentionProfilesFromParticipants(participants),
+    [participants],
+  );
 
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -131,7 +138,11 @@ export function JamChatDrawer({
             </p>
           ) : (
             messages.map((message) => (
-              <JamChatMessage key={message.id} message={message} />
+              <JamChatMessage
+                key={message.id}
+                message={message}
+                mentionProfiles={mentionProfiles}
+              />
             ))
           )}
         </div>
