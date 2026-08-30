@@ -11,6 +11,9 @@ export const handleRegexBase = '[a-zA-Z0-9_-]{1,16}';
 
 export const handleRegex = new RegExp(`^${handleRegexBase}$`);
 
+/** `@handle` using the allowed handle charset. No `\\b` — hyphens are not word chars. */
+export const mentionHandleRegexBase = `(^|[\\s(>])@(${handleRegexBase})(?=\\s|$|[.,!?;:])`;
+
 export const forbiddenHandles = [
   'admin',
   'allpeep',

@@ -30,6 +30,19 @@ export function parseParticipantMetadata(
   }
 }
 
+export const mentionProfilesFromParticipants = (
+  participants: { metadata?: string }[],
+): PublicProfile[] => {
+  const byId = new Map<string, PublicProfile>();
+  for (const participant of participants) {
+    const profile = parseParticipantMetadata(participant.metadata).profile;
+    if (profile?.id && profile.handle) {
+      byId.set(profile.id, profile);
+    }
+  }
+  return [...byId.values()];
+};
+
 /**
  * Toggle the local participant's raised-hand flag via participant metadata,
  * mirroring the Svelte `toggleHand` action.

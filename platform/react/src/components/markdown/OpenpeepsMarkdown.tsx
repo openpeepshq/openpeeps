@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { handleRegexBase } from '@openpeepshq/common/types';
+import { linkProfileMentions } from '@openpeepshq/common/lib';
 import { extractUrlsFromText, isEmail } from '../preview-link/helpers';
 import { PreviewLink } from '../preview-link/PreviewLink';
 import {
@@ -23,29 +23,13 @@ export interface OpenpeepsMarkdownProps {
   newTab?: boolean;
 }
 
-const mentionPattern = new RegExp(
-  `(^|[\\s(>])@(${handleRegexBase})(?=\\s|$|[.,!?;:])`,
-  'g',
-);
 const hashtagPattern = /(^|[\s(>])#([a-z0-9_]+)(?=\s|$|[.,!?;:])/gi;
 
 function preprocessSource(
   source: string,
   mentions: MarkdownMention[] = [],
 ): string {
-  let text = source;
-  for (const mention of mentions) {
-    const handle = mention.profile.handle;
-    const pattern = new RegExp(
-      `@${handle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`,
-      'g',
-    );
-    text = text.replace(pattern, `[@${handle}](/@${handle})`);
-  }
-  text = text.replace(
-    mentionPattern,
-    (_, prefix: string, handle: string) => `${prefix}[@${handle}](/@${handle})`,
-  );
+  let text = linkProfileMentions(source, mentions);
   text = text.replace(
     hashtagPattern,
     (_, prefix: string, tag: string) =>

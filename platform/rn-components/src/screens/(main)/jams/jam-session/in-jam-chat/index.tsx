@@ -25,7 +25,7 @@ import { MainStackParamList } from '~/components/navigation/types';
 import { JamEvent, PublicProfile } from '@openpeepshq/common';
 import { ThemedText } from '~/components/ui/themed-text';
 import { truncateText } from '~/lib/utils';
-import { useChat, useLocalParticipant } from '@livekit/react-native';
+import { useChat, useLocalParticipant, useParticipants } from '@livekit/react-native';
 import { MetadataType } from '~/types';
 import uuid from 'react-native-uuid';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
@@ -45,6 +45,23 @@ export const InJamChat = ({
   const [jamEvents, setJamEvents] = useState<JamEvent[]>();
   const { send } = useChat();
   const localParticipant = useLocalParticipant();
+  const participants = useParticipants();
+  const mentionProfiles = React.useMemo(() => {
+    const byId = new Map<string, PublicProfile>();
+    for (const participant of participants) {
+      try {
+        const profile = (
+          JSON.parse(participant.metadata || '{}') as MetadataType
+        ).profile as PublicProfile | undefined;
+        if (profile?.id && profile.handle) {
+          byId.set(profile.id, profile);
+        }
+      } catch {
+        // ignore malformed participant metadata
+      }
+    }
+    return [...byId.values()];
+  }, [participants]);
   const localParticipantProfile = (
     JSON.parse(
       localParticipant.localParticipant.metadata || '{}',
@@ -122,7 +139,11 @@ export const InJamChat = ({
             scrollViewRef.current?.scrollToEnd({ animated: true })
           }>
           {jamEvents?.map((message, idx) => (
-            <JamMessageCard key={idx} jamEvent={message} />
+            <JamMessageCard
+              key={idx}
+              jamEvent={message}
+              mentionProfiles={mentionProfiles}
+            />
           ))}
         </ScrollView>
         <ThemedView className="flex-row items-center p-2 border-t border-border bg-background">
@@ -153,9 +174,13 @@ export const InJamChat = ({
 
 interface JamMessageCardProps {
   jamEvent: JamEvent;
+  mentionProfiles: PublicProfile[];
 }
 
-const JamMessageCard: React.FC<JamMessageCardProps> = ({ jamEvent }) => {
+const JamMessageCard: React.FC<JamMessageCardProps> = ({
+  jamEvent,
+  mentionProfiles,
+}) => {
   const { currentProfile, openpeepsApi } = useOpenpeeps();
 
   const { data: profile, isLoading } = openpeepsApi.useProfile(jamEvent.profileId);
@@ -207,7 +232,10 @@ const JamMessageCard: React.FC<JamMessageCardProps> = ({ jamEvent }) => {
           <MoreHorizontalIcon className="text-foreground" />
         </View>
         <View className="ml-4">
-          <OpenPeepsMarkdown source={jamEvent?.content || ''} />
+          <OpenPeepsMarkdown
+            source={jamEvent?.content || ''}
+            mentions={mentionProfiles.map(item => ({ profile: item }))}
+          />
         </View>
       </View>
     );

@@ -21,7 +21,6 @@ import {
   DbEntry,
   DbMention,
   DbReaction,
-  handleRegex,
 } from '@openpeepshq/common/types';
 import { findProfileByHandle } from '../../profiles/finders';
 import { getPublicProfile } from '../../profiles/cache';
@@ -37,6 +36,7 @@ import type { PgQueryResult } from '../../db/pg/map/types';
 import { capabilitiesConfig } from '../../config';
 import { canReadPost } from './filters';
 import {
+  matchMentionHandles,
   normalizePostDataFromDb,
   tombstoneProfileWithMetaIfDeleted,
 } from '@openpeepshq/common/lib';
@@ -67,27 +67,8 @@ export const extractHashtags = (data: PostDataUnion) => {
   }
 };
 
-export const extractMentionHandles = (text?: string): string[] => {
-  if (!text) {
-    return [];
-  }
-
-  const handles = new Set<string>();
-
-  for (const word of text.split(/\s+/)) {
-    if (!word.startsWith('@')) {
-      continue;
-    }
-
-    const handle = word.slice(1);
-
-    if (handleRegex.test(handle)) {
-      handles.add(handle);
-    }
-  }
-
-  return [...handles];
-};
+export const extractMentionHandles = (text?: string): string[] =>
+  matchMentionHandles(text);
 
 export const resolveMentionsForPost = async (
   data: PostDataUnion,

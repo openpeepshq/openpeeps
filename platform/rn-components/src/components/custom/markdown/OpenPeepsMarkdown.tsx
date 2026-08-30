@@ -1,6 +1,7 @@
 import {
-  MentionWithProfile,
-} from '@openpeepshq/common';
+  linkProfileMentions,
+  type MentionProfileRef,
+} from '@openpeepshq/common/lib';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { ReactNode, useMemo } from 'react';
@@ -22,7 +23,7 @@ import { recordOutboundClick } from '@openpeepshq/react';
 
 interface OpenPeepsMarkdownProps {
   source: string;
-  mentions?: MentionWithProfile[];
+  mentions?: MentionProfileRef[];
   linkPreviewMode?: 'prepend' | 'append' | 'inline' | 'none';
   /** When true, same-origin links open in the system browser instead of in-app navigation. */
   newTab?: boolean | ((link: string) => boolean);
@@ -67,7 +68,10 @@ export const OpenPeepsMarkdown = ({
     handleInternalURLNavigation(toGotoUrl(url, origin), goto);
   };
 
-  const tokens = useMemo(() => stringToTokens(source, markdownit), [source, markdownit]);
+  const tokens = useMemo(
+    () => stringToTokens(linkProfileMentions(source, mentions), markdownit),
+    [source, mentions, markdownit],
+  );
   const links = useMemo(() => tokens.flatMap(extractLinks).filter((link) => !isEmail(link)), [tokens]);
   const ast = useMemo(() => tokensToAST(tokens), [tokens]);
 
