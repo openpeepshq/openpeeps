@@ -1,5 +1,5 @@
 import type { GroupWithMeta } from '@openpeepshq/common/types';
-import { groupName } from '@openpeepshq/common/lib';
+import { formatBadgeCount, groupName } from '@openpeepshq/common/lib';
 import { GroupAvatar } from './GroupAvatar';
 import { JoinGroupButton } from './JoinGroupButton';
 
@@ -49,7 +49,7 @@ export function GroupCard({
               className="bg-destructive text-destructive-foreground flex size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold"
               aria-label={`${unreadCount} unread posts`}
             >
-              {unreadCount > 99 ? '99+' : unreadCount}
+              {formatBadgeCount(unreadCount)}
             </span>
           ) : null}
         </span>

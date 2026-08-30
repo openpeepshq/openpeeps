@@ -23,6 +23,7 @@ import {
 import { ThemedText } from '~/components/ui/themed-text';
 import { useWindowSize } from '~/hooks/helper';
 import { useAppImagesStore } from '~/stores/useAppImagesStore';
+import { formatBadgeCount } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { LucideProps, SquarePenIcon } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -222,9 +223,7 @@ export const SideMenu = ({
                     {(menuUnreadCounts[item.target] ?? 0) > 0 ? (
                       <View className="bg-destructive size-5 min-w-5 items-center justify-center rounded-full px-1">
                         <ThemedText className="text-xs font-semibold text-destructive-foreground">
-                          {(menuUnreadCounts[item.target] ?? 0) > 99
-                            ? '99+'
-                            : menuUnreadCounts[item.target]}
+                          {formatBadgeCount(menuUnreadCounts[item.target] ?? 0)}
                         </ThemedText>
                       </View>
                     ) : null}

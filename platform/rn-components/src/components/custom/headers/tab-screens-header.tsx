@@ -7,6 +7,7 @@ import {Button} from '~/components/ui/button';
 import {BellIcon} from '~/components/icons';
 import {User} from 'lucide-react-native';
 import {useDrawer} from '~/contexts/drawer-context';
+import {formatBadgeCount} from '@openpeepshq/common';
 import {useOpenpeeps} from '@openpeepshq/react';
 import {useNavigation, useFocusEffect, useNavigationState} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -135,9 +136,9 @@ export const TabScreensHeader = ({
                 {isSuccess &&
                   !isOnNotificationsScreen &&
                   notificationsStats.unseen > 0 && (
-                  <View className="absolute -top-3 -right-2 h-6 w-6 items-center rounded-full bg-foreground">
+                  <View className="absolute -top-3 -right-2 h-6 w-6 items-center justify-center rounded-full bg-foreground">
                     <ThemedText className="text-background text-xs">
-                      {notificationsStats.unseen}
+                      {formatBadgeCount(notificationsStats.unseen)}
                     </ThemedText>
                   </View>
                 )}

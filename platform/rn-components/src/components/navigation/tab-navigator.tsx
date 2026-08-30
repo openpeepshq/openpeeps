@@ -29,6 +29,7 @@ import {
 } from '../icons';
 import { cn } from '../../lib/utils';
 import { useWindowSize } from '../../hooks';
+import { formatBadgeCount } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
 
@@ -113,7 +114,10 @@ export const TabNavigator = () => {
         name={TAB_ROUTES.GROUPS}
         component={Groups}
         options={{
-          tabBarBadge: unreadGroupPosts > 0 ? unreadGroupPosts : undefined,
+          tabBarBadge:
+            unreadGroupPosts > 0
+              ? formatBadgeCount(unreadGroupPosts)
+              : undefined,
         }}
       />
       <Tab.Screen
@@ -122,7 +126,7 @@ export const TabNavigator = () => {
         options={{
           tabBarBadge:
             unreadConversationThreads > 0
-              ? unreadConversationThreads
+              ? formatBadgeCount(unreadConversationThreads)
               : undefined,
         }}
       />

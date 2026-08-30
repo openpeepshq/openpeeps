@@ -1,7 +1,25 @@
 import { describe, it, expect } from 'vitest';
-import { truncateText, randomString, capitalizeFirstLetter } from '../text';
+import {
+  formatBadgeCount,
+  truncateText,
+  randomString,
+  capitalizeFirstLetter,
+} from '../text';
 
 describe('text', () => {
+  describe('formatBadgeCount', () => {
+    it('returns the count as a string when 99 or below', () => {
+      expect(formatBadgeCount(1)).toBe('1');
+      expect(formatBadgeCount(10)).toBe('10');
+      expect(formatBadgeCount(99)).toBe('99');
+    });
+
+    it('returns infinity for counts above 99', () => {
+      expect(formatBadgeCount(100)).toBe('∞');
+      expect(formatBadgeCount(102)).toBe('∞');
+    });
+  });
+
   describe('truncateText', () => {
     it('should truncate text longer than maxLength', () => {
       expect(truncateText('Hello World', 5)).toBe('Hello...');

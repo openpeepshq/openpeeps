@@ -2,6 +2,7 @@ import { Pressable, View } from 'react-native';
 import React from 'react';
 import {
   checkGroupCapabilities,
+  formatBadgeCount,
   GroupWithMeta,
   PublicProfile,
 } from '@openpeepshq/common';
@@ -89,7 +90,7 @@ export const GroupCard = ({
             {unreadCount > 0 ? (
               <View className="bg-destructive size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1">
                 <ThemedText className="text-xs font-semibold text-destructive-foreground">
-                  {unreadCount > 99 ? '99+' : unreadCount}
+                  {formatBadgeCount(unreadCount)}
                 </ThemedText>
               </View>
             ) : null}
