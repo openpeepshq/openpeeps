@@ -3,6 +3,7 @@ declare module 'virtual:openpeeps-docs' {
     slug: string;
     html: string;
     title: string;
+    text: string;
   };
 
   export const docsManifest: DocEntry[];
