@@ -2982,5 +2982,12 @@
     "error": "Failed to load plugins",
     "errorBoundary": "Plugin error: component failed to render.",
     "configTitle": "Plugin config (sensitive values are masked)"
+  },
+  "docs": {
+    "search": {
+      "placeholder": "Search docs…",
+      "ariaLabel": "Search documentation",
+      "noResults": "No matching pages"
+    }
   }
 }

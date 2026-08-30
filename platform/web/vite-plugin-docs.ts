@@ -9,6 +9,8 @@ export type DocEntry = {
   slug: string;
   html: string;
   title: string;
+  /** Plain text excerpt for search */
+  text: string;
 };
 
 const mdLinkPattern = /\]\(([^)]+)\)/g;
@@ -51,6 +53,12 @@ const fileToSlug = (relativePath: string): string => {
   return normalized.replace(/\.md$/, '');
 };
 
+const stripHtml = (html: string): string =>
+  html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
 const collectMarkdownFiles = (docsRoot: string): string[] => {
   const files: string[] = [];
   const walk = (dir: string) => {
@@ -70,10 +78,12 @@ const buildManifest = (docsRoot: string): DocEntry[] =>
     const source = fs.readFileSync(filePath, 'utf8');
     warnRelativeLinks(relativePath, source);
     const slug = fileToSlug(relativePath);
+    const html = compileMarkdownToHtml(source);
     return {
       slug,
-      html: compileMarkdownToHtml(source),
+      html,
       title: extractTitle(source, slug),
+      text: stripHtml(html).slice(0, 4000),
     };
   });
 

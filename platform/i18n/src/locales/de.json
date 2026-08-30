@@ -2938,5 +2938,12 @@
     },
     "tags": {
         "title": "#{{hashtag}}"
+    },
+    "docs": {
+        "search": {
+            "placeholder": "Doku durchsuchen…",
+            "ariaLabel": "Dokumentation durchsuchen",
+            "noResults": "Keine passenden Seiten"
+        }
     }
 }
