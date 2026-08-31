@@ -26,9 +26,7 @@ export const profileHooks = (
     apiHook(client.profiles.followers, { pathParams: { id } }),
   useProfileFollowing: (id: string) =>
     apiHook(client.profiles.following, { pathParams: { id } }),
-  followProfileAction: payloadMutation(client.profiles.follow, [
-    ['profiles'],
-  ]),
+  followProfileAction: payloadMutation(client.profiles.follow, [['profiles']]),
   unfollowProfileAction: noPayloadMutation(client.profiles.unfollow, [
     ['profiles'],
   ]),
@@ -39,17 +37,17 @@ export const profileHooks = (
       onSuccess: setCurrentProfile,
     });
   },
-  updateCurrentProfileAction: payloadMutation(
-    client.profiles.current.update,
-    [['profiles', 'current']],
-  ),
+  updateCurrentProfileAction: payloadMutation(client.profiles.current.update, [
+    ['profiles', 'current'],
+  ]),
   useCurrentProfileNotifications: (props: ChronologicalInfiniteQueryParams) =>
     infiniteChronologicalQueryApiHook(client.profiles.current.notifications, {
       queryParams: props,
     }),
   markAllNotificationsAsSeenAction: () =>
     noPayloadMutation(client.profiles.current.markAllNotificationsAsSeen, [
-      ['profiles', 'current', 'notifications'],
+      // Stats only — invalidating the feed refetches every loaded page and
+      // races with infinite-scroll `fetchNextPage`, which resets the list.
       ['profiles', 'current', 'notifications', 'stats'],
     ]),
   useCurrentProfileNotificationStats: () =>

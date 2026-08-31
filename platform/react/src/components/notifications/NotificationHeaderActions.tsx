@@ -2,6 +2,7 @@ import { CheckCheck, Settings2 } from 'lucide-react';
 import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
+import { markCachedNotificationsSeen } from '../../lib/notificationBadge';
 import { useToast } from '../layout/ToastProvider';
 
 /**
@@ -11,7 +12,7 @@ import { useToast } from '../layout/ToastProvider';
  */
 export function NotificationHeaderActions() {
   const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi, queryClient } = useOpenpeeps();
   const toast = useToast();
   const markAllNotificationsAsSeen =
     openpeepsApi.markAllNotificationsAsSeenAction()();
@@ -19,6 +20,7 @@ export function NotificationHeaderActions() {
   const markAllRead = async () => {
     try {
       await markAllNotificationsAsSeen();
+      markCachedNotificationsSeen(queryClient);
       toast.success(
         t('settings.notifications.markAllReadSuccess', {
           defaultValue: 'All notifications marked as read',
