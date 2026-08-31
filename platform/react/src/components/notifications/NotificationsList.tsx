@@ -6,7 +6,10 @@ import type {
 
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
-import { syncAppBadgeCount } from '../../lib/notificationBadge';
+import {
+  markCachedNotificationsSeen,
+  syncAppBadgeCount,
+} from '../../lib/notificationBadge';
 import { NotificationItem } from './NotificationItem';
 import { LoadingSpinner } from '@openpeepshq/react-ui';
 
@@ -34,17 +37,21 @@ export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
   const markAllNotificationsAsSeen =
     openpeepsApi.markAllNotificationsAsSeenAction()();
   const statsQueryKey = client.profiles.current.notificationStats.queryKey({});
+  const markedSeenRef = useRef(false);
 
   const resetNotificationsView = useCallback(async () => {
+    if (markedSeenRef.current) return;
+    markedSeenRef.current = true;
     try {
       await markAllNotificationsAsSeen();
+      markCachedNotificationsSeen(queryClient);
       queryClient.setQueryData<NotificationStats>(statsQueryKey, (current) => ({
         unread: current?.unread ?? 0,
         unseen: 0,
       }));
       await syncAppBadgeCount(0);
     } catch {
-      // A failed mark-seen should not block rendering the feed.
+      markedSeenRef.current = false;
     }
   }, [markAllNotificationsAsSeen, queryClient, statsQueryKey]);
 
@@ -52,17 +59,18 @@ export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
     void resetNotificationsView();
   }, [resetNotificationsView]);
 
+  const refetch = query.refetch;
   useEffect(() => {
     if (typeof document === 'undefined') return;
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        void query.refetch();
+        void refetch();
       }
     };
     document.addEventListener('visibilitychange', onVisibilityChange);
     return () =>
       document.removeEventListener('visibilitychange', onVisibilityChange);
-  }, [query]);
+  }, [refetch]);
 
   const notifications = useMemo(() => {
     const flat: PublicNotification[] = (query.data?.pages ?? []).flat();
@@ -76,25 +84,34 @@ export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
     return out;
   }, [query.data]);
 
+  const hasItems = notifications.length > 0;
+  const hasNextPage = query.hasNextPage;
+  const isFetchingNextPage = query.isFetchingNextPage;
+  const fetchNextPage = query.fetchNextPage;
+  const loadMoreRef = useRef(() => {});
+  loadMoreRef.current = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      void fetchNextPage();
+    }
+  };
+
+  // Re-bind when the sentinel mounts or pagination ends — not on every page.
   useEffect(() => {
     const el = sentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver((entries) => {
-      const entry = entries[0];
-      if (!entry) return;
-      if (
-        entry.isIntersecting &&
-        query.hasNextPage &&
-        !query.isFetchingNextPage
-      ) {
-        void query.fetchNextPage();
-      }
-    });
+    if (!el || !hasNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadMoreRef.current();
+        }
+      },
+      { rootMargin: '100px' },
+    );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [query]);
+  }, [hasNextPage, hasItems]);
 
-  if (query.isLoading) {
+  if (query.isLoading && notifications.length === 0) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
         <LoadingSpinner />
@@ -114,17 +131,17 @@ export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
     <div
       role="feed"
       aria-busy={query.isFetchingNextPage || undefined}
-      className="relative overflow-hidden"
+      className="relative"
     >
       {notifications.map((n) => (
         <NotificationItem key={n.id} notification={n} />
       ))}
       <div ref={sentinelRef} aria-hidden="true" className="h-8" />
-      {query.isFetchingNextPage && (
-        <div className="text-muted-foreground flex justify-center py-4 text-sm">
-          <LoadingSpinner />
+      {query.hasNextPage ? (
+        <div className="text-muted-foreground flex h-12 items-center justify-center text-sm">
+          {query.isFetchingNextPage ? <LoadingSpinner /> : null}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
