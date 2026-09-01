@@ -3,6 +3,10 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Features
+
+- **notifications**: integrate cached notifications marking functionality
+
 ### Documentation
 
 - **releases**: add 19 Aug and 26 Aug narrative notes
