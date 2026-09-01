@@ -4,7 +4,6 @@ import { ThemedText as Text } from '~/components/ui/themed-text';
 import { hasValue, type PublicPost } from '@openpeepshq/common';
 import { collectVotes } from '@openpeepshq/common';
 import { formatDistanceToNow, isPast } from 'date-fns';
-import { Progress } from '~/components/ui/progress';
 import { useOpenpeeps } from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
 import { Button } from '~/components/ui/button';
@@ -103,73 +102,74 @@ export const PollContent = ({ post }: Props) => {
     <View className="bg-surface rounded-lg px-4 py-4">
       <View className="gap-4">
         {post?.data?.type === 'question' &&
-          post.data.options.map((option, index) => (
-            <View
-              key={`${option.content}-${index}`}
-              className="flex-row items-center gap-2 py-2">
-              {canVote && (
-                <>
-                  {post?.data?.type === 'question' && post.data.multiple ? (
-                    <Checkbox
-                      checked={selectedPollOptions.includes(index)}
-                      onCheckedChange={() => {
-                        setSelectedPollOptions(prev => {
-                          if (prev.includes(index)) {
-                            return prev.filter(i => i !== index);
-                          }
-                          return [...prev, index];
-                        });
-                      }}
-                    />
-                  ) : (
-                    <TouchableOpacity
-                      onPress={() => setSelectedPollOption(index)}
-                      className="flex-row items-center gap-2">
-                      <View className="h-5 w-5 rounded-full border border-muted-foreground justify-center items-center">
-                        {selectedPollOption === index && (
-                          <View className="h-3 w-3 rounded-full bg-primary" />
-                        )}
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                </>
-              )}
-              <View className="flex-1">
-                <View className="flex-row justify-between items-center">
-                  <Text className="text-base">{option.content}</Text>
-                  <View className="flex-row items-center gap-2">
-                    {post?.data?.type === 'question' &&
-                      post.data.votersVisible && (
-                        <View className="flex-row">
-                          {votes
-                            .filter(v => v.selection.includes(index))
-                            .slice(0, 2)
-                            .map(vote => (
-                              <View
-                                key={`${vote.profile.displayName}-${vote.profile.id}`}
-                                className="-ml-4">
-                                <ProfileAvatar
-                                  profile={vote.profile}
-                                  className="size-6"
-                                />
-                              </View>
-                            ))}
+          post.data.options.map((option, index) => {
+            const voteCount = voteCounts[index] ?? 0;
+            const votePercent = (voteCount / (votes.length || 1)) * 100;
+
+            return (
+              <View
+                key={`${option.content}-${index}`}
+                className="flex-row items-center gap-2 py-2">
+                {canVote && (
+                  <>
+                    {post?.data?.type === 'question' && post.data.multiple ? (
+                      <Checkbox
+                        checked={selectedPollOptions.includes(index)}
+                        onCheckedChange={() => {
+                          setSelectedPollOptions(prev => {
+                            if (prev.includes(index)) {
+                              return prev.filter(i => i !== index);
+                            }
+                            return [...prev, index];
+                          });
+                        }}
+                      />
+                    ) : (
+                      <TouchableOpacity
+                        onPress={() => setSelectedPollOption(index)}
+                        className="flex-row items-center gap-2">
+                        <View className="h-5 w-5 rounded-full border border-muted-foreground justify-center items-center">
+                          {selectedPollOption === index && (
+                            <View className="h-3 w-3 rounded-full bg-primary" />
+                          )}
                         </View>
-                      )}
-                    <Text>{voteCounts?.[index] ?? 0}</Text>
-                  </View>
+                      </TouchableOpacity>
+                    )}
+                  </>
+                )}
+                <Text className="text-base">{option.content}</Text>
+                <View className="bg-border h-2 min-w-8 flex-1 overflow-hidden rounded-full">
+                  <View
+                    className="bg-primary h-full rounded-full"
+                    style={{
+                      width: votePercent === 0 ? 8 : `${votePercent}%`,
+                    }}
+                  />
                 </View>
-                <Progress
-                  value={
-                    ((voteCounts[index] ?? 0) /
-                      (votes.length || 1)) *
-                    100
-                  }
-                  className="mt-2"
-                />
+                <View className="flex-row items-center gap-2">
+                  {post?.data?.type === 'question' &&
+                    post.data.votersVisible && (
+                      <View className="flex-row">
+                        {votes
+                          .filter(v => v.selection.includes(index))
+                          .slice(0, 2)
+                          .map(vote => (
+                            <View
+                              key={`${vote.profile.displayName}-${vote.profile.id}`}
+                              className="-ml-4">
+                              <ProfileAvatar
+                                profile={vote.profile}
+                                className="size-6"
+                              />
+                            </View>
+                          ))}
+                      </View>
+                    )}
+                  <Text>{voteCount}</Text>
+                </View>
               </View>
-            </View>
-          ))}
+            );
+          })}
       </View>
 
       {canVote && (
