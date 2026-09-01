@@ -146,10 +146,13 @@ export function PollContent({ post }: PollContentProps) {
           // own selection stays readable while the results show.
           const hasControl = canVote || hasVoted;
           const labelClass = cn(
-            'text-base',
+            'min-w-0 text-base',
             isOwnChoice && 'font-medium',
             canVote && 'cursor-pointer',
           );
+
+          const voteCount = voteCounts[index] ?? 0;
+          const votePercent = (voteCount / totalVotes) * 100;
 
           return (
             <div
@@ -188,41 +191,39 @@ export function PollContent({ post }: PollContentProps) {
                   />
                 )
               ) : null}
-              <div className="flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  {hasControl ? (
-                    <label htmlFor={optionId} className={labelClass}>
-                      {option.content}
-                    </label>
-                  ) : (
-                    <span className={labelClass}>{option.content}</span>
-                  )}
-                  <div className="flex items-center gap-2">
-                    {pollData.votersVisible ? (
-                      <div className="flex -space-x-2">
-                        {votes
-                          .filter((v) => v.selection.includes(index))
-                          .slice(0, 2)
-                          .map((vote) => (
-                            <Avatar
-                              key={vote.profile.id}
-                              profile={vote.profile}
-                              size={1.5}
-                            />
-                          ))}
-                      </div>
-                    ) : null}
-                    <span>{voteCounts?.[index] ?? 0}</span>
+              {hasControl ? (
+                <label htmlFor={optionId} className={labelClass}>
+                  {option.content}
+                </label>
+              ) : (
+                <span className={labelClass}>{option.content}</span>
+              )}
+              <div className="bg-surface-2 h-2 min-w-8 flex-1 overflow-hidden rounded-full">
+                <div
+                  className="bg-primary h-full rounded-full transition-all"
+                  style={{
+                    // 0% would be invisible; 8px matches h-2 so a 0-vote
+                    // fill is a circle at the start of the track.
+                    width: votePercent === 0 ? 8 : `${votePercent}%`,
+                  }}
+                />
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {pollData.votersVisible ? (
+                  <div className="flex -space-x-2">
+                    {votes
+                      .filter((v) => v.selection.includes(index))
+                      .slice(0, 2)
+                      .map((vote) => (
+                        <Avatar
+                          key={vote.profile.id}
+                          profile={vote.profile}
+                          size={1.5}
+                        />
+                      ))}
                   </div>
-                </div>
-                <div className="bg-surface mt-2 h-2 overflow-hidden rounded-full">
-                  <div
-                    className="bg-primary h-full rounded-full transition-all"
-                    style={{
-                      width: `${((voteCounts[index] ?? 0) / totalVotes) * 100}%`,
-                    }}
-                  />
-                </div>
+                ) : null}
+                <span>{voteCount}</span>
               </div>
             </div>
           );
