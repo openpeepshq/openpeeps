@@ -154,3 +154,31 @@ export const emailStyles: Record<string, CSSProperties> = {
     marginBottom: '6px',
   },
 };
+
+export const emailMarkdownCss = `
+.email-markdown p,
+.email-markdown li {
+  font-family: ${fontFamily};
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.5%;
+  color: #383E42;
+}
+.email-markdown p {
+  margin: 0 0 24px 0;
+}
+.email-markdown a {
+  color: #0C889D;
+  text-decoration: underline;
+}
+.email-markdown ul,
+.email-markdown ol {
+  font-family: ${fontFamily};
+  font-size: 16px;
+  line-height: 1.5;
+  color: #383E42;
+  padding-left: 1.5em;
+  margin: 0 0 24px 0;
+}
+`;
