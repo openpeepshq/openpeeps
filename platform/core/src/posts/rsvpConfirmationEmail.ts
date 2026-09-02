@@ -90,6 +90,7 @@ const handleRsvpCreated = async (
           end: event.end ?? null,
           location: event.physicalLocation?.text ?? null,
           allDay: event.wholeDay ?? false,
+          timeZone: event.timeZone ?? null,
         },
         attachments: [
           {

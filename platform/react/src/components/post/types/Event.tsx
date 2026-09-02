@@ -1,5 +1,8 @@
 import type { Event, PublicPost } from '@openpeepshq/common/types';
-import { formatEventRecurrence } from '@openpeepshq/common/lib';
+import {
+  formatEventRecurrence,
+  formatEventWhen,
+} from '@openpeepshq/common/lib';
 import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { resolveStaticUrl, useStaticRender } from '../../markdown/staticRender';
@@ -31,6 +34,9 @@ export function FeedEvent({ post }: FeedEventProps) {
   const event = post.data as Event;
   const start = post.occurrenceStart ?? event.start;
   const end = post.occurrenceEnd ?? event.end;
+  const when = staticRender
+    ? formatEventWhen(start, { end, timeZone: event.timeZone })
+    : fmtRange(start, end);
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -45,8 +51,10 @@ export function FeedEvent({ post }: FeedEventProps) {
       )}
       <div className="flex w-full items-center justify-between">
         <span className="text-destructive text-sm">
-          {fmtRange(start, end)}{' '}
-          <span className="text-muted-foreground">(your local time)</span>
+          {when}{' '}
+          {staticRender ? null : (
+            <span className="text-muted-foreground">(your local time)</span>
+          )}
         </span>
         <Button
           action={resolveStaticUrl(

@@ -10,17 +10,30 @@ import DateTimePicker, {
 import { Button } from '~/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
+import {
+  utcIsoToWallClockDate,
+  wallClockDateToUtcIso,
+} from '@openpeepshq/common/lib';
 
 interface DateSheetProps {
   value?: string;
+  timeZone?: string;
   onChange: (date: string) => void;
   onClose: () => void;
 }
 
+const pickerDate = (value: string | undefined, timeZone?: string): Date => {
+  if (!value) return new Date();
+  return timeZone ? utcIsoToWallClockDate(value, timeZone) : new Date(value);
+};
+
+const emitIso = (date: Date, timeZone?: string): string =>
+  timeZone ? wallClockDateToUtcIso(date, timeZone) : date.toISOString();
+
 export const DateSheet = forwardRef<BottomSheetModal, DateSheetProps>(
-  ({ value, onChange, onClose }, ref) => {
-    const [selectedDate, setSelectedDate] = useState<Date>(
-      value ? new Date(value) : new Date(),
+  ({ value, timeZone, onChange, onClose }, ref) => {
+    const [selectedDate, setSelectedDate] = useState<Date>(() =>
+      pickerDate(value, timeZone)
     );
     const [mode, setMode] = useState<'date' | 'time'>('date');
     const [showTimePicker, setShowTimePicker] = useState(false);
@@ -35,7 +48,7 @@ export const DateSheet = forwardRef<BottomSheetModal, DateSheetProps>(
         newDateTime.setHours(time.getHours());
         newDateTime.setMinutes(time.getMinutes());
         setSelectedDate(newDateTime);
-        onChange(newDateTime.toISOString());
+        onChange(emitIso(newDateTime, timeZone));
         onClose();
       }
     };
@@ -62,7 +75,8 @@ export const DateSheet = forwardRef<BottomSheetModal, DateSheetProps>(
         <View className="mt-4">
           <Button variant="outline" onPress={() => setShowTimePicker(true)}>
             <ThemedText>
-              {t('common.form.time')}: {selectedDate.toLocaleTimeString().slice(0, -3)}
+              {t('common.form.time')}:{' '}
+              {selectedDate.toLocaleTimeString().slice(0, -3)}
             </ThemedText>
           </Button>
         </View>
@@ -100,17 +114,20 @@ export const DateSheet = forwardRef<BottomSheetModal, DateSheetProps>(
           <Button
             variant="outline"
             className="flex-1"
-            onPress={() => setMode(mode === 'date' ? 'time' : 'date')}>
+            onPress={() => setMode(mode === 'date' ? 'time' : 'date')}
+          >
             <ThemedText>
-              {t('common.form.switchTo')} {mode === 'date' ? t('common.form.time') : t('common.form.date')}
+              {t('common.form.switchTo')}{' '}
+              {mode === 'date' ? t('common.form.time') : t('common.form.date')}
             </ThemedText>
           </Button>
           <Button
             className="flex-1"
             onPress={() => {
-              onChange(selectedDate.toISOString());
+              onChange(emitIso(selectedDate, timeZone));
               onClose();
-            }}>
+            }}
+          >
             <ThemedText>{t('common.done')}</ThemedText>
           </Button>
         </View>
@@ -133,5 +150,5 @@ export const DateSheet = forwardRef<BottomSheetModal, DateSheetProps>(
         </View>
       </BaseSheet>
     );
-  },
+  }
 );

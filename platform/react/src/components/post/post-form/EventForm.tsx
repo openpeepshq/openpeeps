@@ -12,8 +12,11 @@ import {
   EVENT_HEADER_ASPECT_RATIO,
   parseEventMaxAttendeesInput,
   previewUpcomingOccurrences,
+  reinterpretIsoInTimeZone,
+  utcIsoToZonedDateTime,
   weekdayFromDate,
   withoutEventMaxAttendees,
+  zonedDateTimeToUtcIso,
 } from '@openpeepshq/common/lib';
 import { Input, Label } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
@@ -32,19 +35,11 @@ export interface EventFormProps {
   occurrenceEdit?: boolean;
 }
 
-const dateToInputValue = (value: string | undefined) => {
-  if (!value) return '';
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return '';
-  const tz = d.getTimezoneOffset() * 60_000;
-  return new Date(d.getTime() - tz).toISOString().slice(0, 16);
-};
+const dateToInputValue = (value: string | undefined, timeZone: string) =>
+  value ? utcIsoToZonedDateTime(value, timeZone) : '';
 
-const toIso = (value: string) => {
-  if (!value) return undefined;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
-};
+const toIso = (value: string, timeZone: string) =>
+  zonedDateTimeToUtcIso(value, timeZone);
 
 const TIMEZONES =
   typeof Intl !== 'undefined' && 'supportedValuesOf' in Intl
@@ -71,6 +66,8 @@ export const EventForm = ({
   const me = useCurrentProfile();
 
   const event = postData.data as Event;
+  const eventTimeZone =
+    event.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [showEndDate, setShowEndDate] = useState(event.end !== undefined);
   const [audienceOpen, setAudienceOpen] = useState(false);
 
@@ -201,9 +198,9 @@ export const EventForm = ({
             id="event-start"
             type="datetime-local"
             step={60}
-            value={dateToInputValue(event.start)}
+            value={dateToInputValue(event.start, eventTimeZone)}
             onChange={(e) => {
-              const start = toIso(e.target.value);
+              const start = toIso(e.target.value, eventTimeZone);
               if (start) patchEvent({ start });
             }}
             data-testid="events-start-input"
@@ -242,8 +239,10 @@ export const EventForm = ({
               id="event-end"
               type="datetime-local"
               step={60}
-              value={dateToInputValue(event.end)}
-              onChange={(e) => patchEvent({ end: toIso(e.target.value) })}
+              value={dateToInputValue(event.end, eventTimeZone)}
+              onChange={(e) =>
+                patchEvent({ end: toIso(e.target.value, eventTimeZone) })
+              }
             />
           </Label>
         ) : null}
@@ -255,8 +254,36 @@ export const EventForm = ({
           <select
             id="event-timezone"
             className="bg-background w-full rounded-md border px-3 py-2 text-sm"
-            value={event.timeZone ?? TIMEZONES[0]}
-            onChange={(e) => patchEvent({ timeZone: e.target.value })}
+            value={eventTimeZone}
+            onChange={(e) => {
+              const timeZone = e.target.value;
+              patchEvent({
+                timeZone,
+                start:
+                  reinterpretIsoInTimeZone(
+                    event.start,
+                    eventTimeZone,
+                    timeZone,
+                  ) ?? event.start,
+                end: reinterpretIsoInTimeZone(
+                  event.end,
+                  eventTimeZone,
+                  timeZone,
+                ),
+                ...(event.recurrence?.until
+                  ? {
+                      recurrence: {
+                        ...event.recurrence,
+                        until: reinterpretIsoInTimeZone(
+                          event.recurrence.until,
+                          eventTimeZone,
+                          timeZone,
+                        ),
+                      },
+                    }
+                  : {}),
+              });
+            }}
           >
             {TIMEZONES.map((tz) => (
               <option key={tz} value={tz}>
@@ -406,11 +433,14 @@ export const EventForm = ({
                       id="event-repeat-until"
                       type="datetime-local"
                       step={60}
-                      value={dateToInputValue(event.recurrence.until)}
+                      value={dateToInputValue(
+                        event.recurrence.until,
+                        eventTimeZone,
+                      )}
                       onChange={(e) =>
                         setRecurrence({
                           ...event.recurrence!,
-                          until: toIso(e.target.value),
+                          until: toIso(e.target.value, eventTimeZone),
                           count: undefined,
                         })
                       }

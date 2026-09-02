@@ -30,6 +30,7 @@ export const NewEvent: React.FC<NewEventProps> = ({ navigation }) => {
         name: '',
         start: new Date().toISOString(),
         wholeDay: false,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         content: '',
         attendeeListPublic: false,
         jam: {
