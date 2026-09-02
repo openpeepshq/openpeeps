@@ -1,4 +1,4 @@
-import { ProfileWithMeta } from '@openpeepshq/common/types';
+import { Profile, ProfileWithMeta } from '@openpeepshq/common/types';
 import { createCache } from 'cache-manager';
 import { allpeepDb } from '../db';
 import { profilesMapping, publicProfilesMapping } from './mapping';
@@ -8,10 +8,21 @@ export const profilesCache = createCache({
   refreshThreshold: 60 * 1000,
 });
 
-const publicProfilesCache = createCache({
+export const publicProfilesCache = createCache({
   ttl: 60 * 60 * 1000,
   refreshThreshold: 60 * 1000,
 });
+
+export const clearProfileCache = async (
+  profile: Pick<Profile, 'id' | 'handle'>,
+): Promise<void> => {
+  await Promise.all([
+    profilesCache.del(profile.id),
+    profilesCache.del(profile.handle),
+    publicProfilesCache.del(profile.id),
+    publicProfilesCache.del(`all:${profile.id}`),
+  ]);
+};
 
 const withEmptyFollowGraphs = (profile: ProfileWithMeta): ProfileWithMeta => ({
   ...profile,

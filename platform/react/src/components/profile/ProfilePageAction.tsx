@@ -6,6 +6,7 @@ import { Button, PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useAuthData, useCurrentProfile } from '../layout/IdentityContext';
 import { useCreateNewConversation } from '../conversations/CreateNewConversationContext';
+import { useOpenpeeps } from '../../contexts/openpeeps';
 import { FollowUnfollowButton } from './FollowUnfollowButton';
 import { ReportProfileOrPostModal } from './ReportProfileOrPostModal';
 
@@ -21,8 +22,10 @@ export function ProfilePageAction({
   const t = useT();
   const me = useCurrentProfile();
   const authData = useAuthData();
+  const { openpeepsApi } = useOpenpeeps();
   const { openCreateConversation } = useCreateNewConversation();
   const [reportOpen, setReportOpen] = useState(false);
+  const profileQuery = openpeepsApi.useProfileByHandle(profile.handle);
 
   return (
     <>
@@ -88,7 +91,10 @@ export function ProfilePageAction({
               </Button>
             ) : null}
 
-            <FollowUnfollowButton profile={profile} />
+            <FollowUnfollowButton
+              profile={profile}
+              onSuccess={() => void profileQuery.refetch()}
+            />
           </>
         ) : null}
       </div>

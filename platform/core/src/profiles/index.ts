@@ -6,7 +6,12 @@ export * from './mapping';
 export * from './mutations';
 export * from './finders';
 export * from './export';
-export { getProfile, getPublicProfile, getProfiles } from './cache';
+export {
+  getProfile,
+  getPublicProfile,
+  getProfiles,
+  clearProfileCache,
+} from './cache';
 
 const sanitizeHandle = (name: string) => name.replace(/[^a-zA-Z0-9]/g, '-');
 
