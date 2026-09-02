@@ -23,6 +23,8 @@ export const JamActionsFooter = ({ jamPost }: JamActionsFooterProps) => {
   const { openpeepsApi } = useOpenpeeps();
 
   const { data: jamState } = openpeepsApi.useJamState(jamPost.id);
+  const { data: serverInfo } = openpeepsApi.useServerInfo();
+  const livekitEnabled = serverInfo?.jams.livekit.enabled;
 
   const { currentProfile } = useOpenpeeps();
   const jamEvent = jamPost.data as Event;
@@ -47,7 +49,8 @@ export const JamActionsFooter = ({ jamPost }: JamActionsFooterProps) => {
                 message: t('posts.actions.shareMessage'),
                 url: `${BASE_URL}/events/${jamPost.id}/jam`,
               });
-            }}>
+            }}
+          >
             <ShareIcon className="text-foreground" size={18} />
           </Button>
           {jamPost.profile.id === currentProfile?.id && (
@@ -59,13 +62,18 @@ export const JamActionsFooter = ({ jamPost }: JamActionsFooterProps) => {
               <Button
                 variant={'ghost'}
                 size={'icon'}
-                onPress={handleDeletePress}>
+                onPress={handleDeletePress}
+              >
                 <Trash2Icon className="text-foreground" size={18} />
               </Button>
             </>
           )}
         </View>
-        {(jamState?.active || isModerator) && (
+        {livekitEnabled === false ? (
+          <ThemedText className="text-destructive text-sm flex-1">
+            {t('jams.unavailable.message')}
+          </ThemedText>
+        ) : livekitEnabled && (jamState?.active || isModerator) ? (
           <Button
             variant={'outline'}
             onPress={() => {
@@ -73,14 +81,15 @@ export const JamActionsFooter = ({ jamPost }: JamActionsFooterProps) => {
                 jamId: jamPost.id,
               });
             }}
-            className={`${isModerator ? 'flex-1' : ''}`}>
+            className={`${isModerator ? 'flex-1' : ''}`}
+          >
             <ThemedText>
               {!jamState?.active
                 ? t('jams.start.submit')
                 : t('jams.join.submit')}
             </ThemedText>
           </Button>
-        )}
+        ) : null}
       </View>
 
       <DeleteJamSheet ref={deleteJamSheetRef} />

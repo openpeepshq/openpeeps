@@ -1,9 +1,14 @@
 import type { Event, PublicPost } from '@openpeepshq/common/types';
-import { getJamUrl, truncateText, formatEventRecurrence } from '@openpeepshq/common/lib';
+import {
+  getJamUrl,
+  truncateText,
+  formatEventRecurrence,
+} from '@openpeepshq/common/lib';
 import { Button } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
+import { useServerInfo } from '../../../server-data';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
 import { EventLocation } from '../../pieces/EventLocation';
 import { ParticipantsCard } from '../../pieces/ParticipantsCard';
@@ -37,6 +42,7 @@ function formatEventTimespan(event: Event, startIso?: string, endIso?: string) {
 export function CardEvent({ post }: CardEventProps) {
   const t = useT();
   const me = useCurrentProfile();
+  const livekitEnabled = useServerInfo().jams.livekit.enabled;
   const postViewRef = usePostViewRef(post.id);
   const { openpeepsApi } = useOpenpeeps();
   const event = post.data as Event;
@@ -92,7 +98,7 @@ export function CardEvent({ post }: CardEventProps) {
           <EventLocation post={post} truncate occurrence={occurrenceId} />
           <ProfileEventRelationship post={post} />
         </div>
-        {jam && me ? (
+        {jam && me && livekitEnabled ? (
           jamState?.active ? (
             <div className="text-muted-foreground flex items-center justify-start gap-2 text-xs">
               <span className="w-12">

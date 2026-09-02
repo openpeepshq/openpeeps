@@ -110,18 +110,21 @@ export function EventTypeSwitcher({
   const serverInfo = useServerInfo();
   const { openpeepsApi } = useOpenpeeps();
   const profilesQuery = openpeepsApi.useProfiles();
+  const livekitEnabled = serverInfo.jams.livekit.enabled;
+  const showJamFormat = livekitEnabled || (isEdit && !!event.jam);
 
-  const initialFormat: EventFormat = event.jam
-    ? 'jam'
-    : event.physicalLocation
-      ? 'in-person'
-      : 'external';
+  const initialFormat: EventFormat =
+    event.jam && showJamFormat
+      ? 'jam'
+      : event.physicalLocation
+        ? 'in-person'
+        : 'external';
 
   const [eventFormat, setEventFormat] = useState<EventFormat>(initialFormat);
 
   const formats = useMemo(() => {
     const items: Array<{ value: EventFormat; label: string }> = [];
-    if (serverInfo.jams.livekit.enabled) {
+    if (showJamFormat) {
       items.push({
         value: 'jam',
         label: t('events.form.jamFormatLabel', { defaultValue: 'Jam session' }),
@@ -142,10 +145,11 @@ export function EventTypeSwitcher({
       },
     );
     return items;
-  }, [serverInfo.jams.livekit.enabled, t]);
+  }, [showJamFormat, t]);
 
   const switchFormat = (value: EventFormat) => {
     if (eventFormat === value) return;
+    if (value === 'jam' && !livekitEnabled) return;
     setEventFormat(value);
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     if (value === 'jam') {
@@ -222,6 +226,7 @@ export function EventTypeSwitcher({
                 type="radio"
                 name="eventFormat"
                 checked={eventFormat === format.value}
+                disabled={format.value === 'jam' && !livekitEnabled}
                 onChange={() => switchFormat(format.value)}
               />
               <span>{format.label}</span>
@@ -261,8 +266,16 @@ export function EventTypeSwitcher({
         </div>
       ) : null}
 
-      {eventFormat === 'jam' && serverInfo.jams.livekit.enabled ? (
+      {eventFormat === 'jam' ? (
         <>
+          {!livekitEnabled ? (
+            <p role="status" className="text-destructive text-sm">
+              {t('jams.unavailable.message', {
+                defaultValue:
+                  'Jams are unavailable because LiveKit is not connected.',
+              })}
+            </p>
+          ) : null}
           <div className="space-y-2">
             <Label>
               {t('events.form.jamModerators', {
@@ -272,6 +285,7 @@ export function EventTypeSwitcher({
             <ProfilesInput
               value={moderatorProfiles}
               onChange={handleModeratorsChange}
+              disabled={!livekitEnabled}
               placeholder={t('events.form.jamModeratorsDescription', {
                 defaultValue: 'Click to select jam moderators',
               })}
@@ -281,6 +295,7 @@ export function EventTypeSwitcher({
             <input
               type="checkbox"
               checked={event.jam?.waitingRoom ?? false}
+              disabled={!livekitEnabled}
               onChange={(e) =>
                 event.jam &&
                 onChange({

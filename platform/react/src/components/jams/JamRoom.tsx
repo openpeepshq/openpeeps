@@ -56,14 +56,8 @@ export function JamRoom({
 
 function JamRoomInner() {
   const t = useT();
-  const {
-    jamPost,
-    jam,
-    jamEvent,
-    observer,
-    occurrence,
-    isIntentionalLeave,
-  } = useJamContext();
+  const { jamPost, jam, jamEvent, observer, occurrence, isIntentionalLeave } =
+    useJamContext();
   const { openpeepsApi, client } = useOpenpeeps();
   const serverInfo = useServerInfo();
   const me = useCurrentProfile();
@@ -287,6 +281,30 @@ function JamRoomInner() {
       cancelled = true;
     };
   }, [shouldAutoRsvp, postQuery, rsvpToEvent, t]);
+
+  if (!serverInfo.jams.livekit.enabled) {
+    return (
+      <div className="mx-auto flex h-full w-full items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-5 text-center">
+          <h3 className="text-lg">{jamEvent.name}</h3>
+          <div className="bg-surface flex w-full flex-col items-center justify-center space-y-3 rounded border p-4">
+            <p role="status">
+              {t('jams.unavailable.message', {
+                defaultValue:
+                  'Jams are unavailable because LiveKit is not connected.',
+              })}
+            </p>
+            <a
+              href={`/posts/${jamPost.id}`}
+              className="text-primary text-sm underline"
+            >
+              {t('jams.room.viewEvent', { defaultValue: 'View event' })}
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (connection) {
     return (

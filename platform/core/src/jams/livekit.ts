@@ -197,14 +197,14 @@ export const startRecording = async (
 const assertLivekitConfigured = async () => {
   const { url, apiKey, apiSecret } = (await config()).jams.livekit;
   if (!url || !apiKey || !apiSecret) {
-    throw unprocessableRequest({ errorKey: 'error.jamNotOpen' });
+    throw unprocessableRequest({ errorKey: 'error.jamsUnavailable' });
   }
 };
 
 const assertJamRoomOpen = async (jamId: string) => {
   const rs = await roomService();
   if (rs === undefined) {
-    throw unprocessableRequest({ errorKey: 'error.jamNotOpen' });
+    throw unprocessableRequest({ errorKey: 'error.jamsUnavailable' });
   }
   const rooms = await rs.listRooms([jamId]);
   if (rooms.length !== 1) {
