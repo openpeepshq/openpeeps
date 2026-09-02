@@ -18,6 +18,7 @@ import {
 import {
   parseEventMaxAttendeesInput,
   previewUpcomingOccurrences,
+  reinterpretIsoInTimeZone,
   weekdayFromDate,
 } from '@openpeepshq/common/lib';
 import { UseFormReturn } from 'react-hook-form';
@@ -690,6 +691,7 @@ export const EventForm = ({
       <DateSheet
         ref={startDateSheetModalRef}
         value={form.getValues('data.start')}
+        timeZone={timeZone}
         onChange={(v) => {
           form.setValue('data.start', v);
         }}
@@ -698,6 +700,7 @@ export const EventForm = ({
       <DateSheet
         ref={endDateSheetModalRef}
         value={form.getValues('data.end')}
+        timeZone={timeZone}
         onChange={(v) => {
           form.setValue('data.end', v);
         }}
@@ -707,6 +710,33 @@ export const EventForm = ({
         ref={timezoneSheetModalRef}
         initialTimeZone={timeZone}
         onDone={(v) => {
+          const previous =
+            timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const next = v ?? previous;
+          if (next && previous !== next) {
+            if (start) {
+              form.setValue(
+                'data.start',
+                reinterpretIsoInTimeZone(start, previous, next) ?? start
+              );
+            }
+            if (end) {
+              form.setValue(
+                'data.end',
+                reinterpretIsoInTimeZone(end, previous, next)
+              );
+            }
+            if (recurrence?.until) {
+              form.setValue('data.recurrence', {
+                ...recurrence,
+                until: reinterpretIsoInTimeZone(
+                  recurrence.until,
+                  previous,
+                  next
+                ),
+              });
+            }
+          }
           form.setValue('data.timeZone', v);
         }}
       />

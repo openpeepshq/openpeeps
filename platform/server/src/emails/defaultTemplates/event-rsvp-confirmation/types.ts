@@ -6,4 +6,5 @@ export interface EventRsvpConfirmationLocals {
   end?: string | null;
   location?: string | null;
   allDay?: boolean;
+  timeZone?: string | null;
 }
