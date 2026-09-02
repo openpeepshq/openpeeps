@@ -24,9 +24,11 @@ export const Welcome = ({ globals }: Props) => {
         {t('emails.welcome.header')} {globals.communityConfig.info.name}!
       </Heading>
 
-      <Text style={emailStyles.paragraph}>
-        <span dangerouslySetInnerHTML={{ __html: welcomeHtml }} />
-      </Text>
+      <div
+        className="email-markdown"
+        style={emailStyles.paragraph}
+        dangerouslySetInnerHTML={{ __html: welcomeHtml }}
+      />
 
       <Text style={emailStyles.paragraph}>
         {t('emails.welcome.description')}:

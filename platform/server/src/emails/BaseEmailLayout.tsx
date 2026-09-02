@@ -1,6 +1,7 @@
 import {
   Body,
   Container,
+  Head,
   Heading,
   Html,
   Img,
@@ -12,7 +13,7 @@ import {
 import type { ReactNode } from 'react';
 import type { EmailGlobals, PublicProfile } from '@openpeepshq/common/types';
 
-import { emailStyles } from './styles';
+import { emailMarkdownCss, emailStyles } from './styles';
 
 export interface BaseEmailLayoutProps {
   globals: EmailGlobals;
@@ -47,6 +48,9 @@ export const BaseEmailLayout = ({
 
   return (
     <Html lang="en">
+      <Head>
+        <style>{emailMarkdownCss}</style>
+      </Head>
       <Preview>{preview}</Preview>
       <Body style={emailStyles.main}>
         <Container style={emailStyles.container}>
