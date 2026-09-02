@@ -139,7 +139,8 @@
     "conversations": "Messages",
     "primaryMobile": "Primary",
     "breadcrumbs": "Breadcrumbs",
-    "primary": "Primary"
+    "primary": "Primary",
+    "about": "About"
   },
   "profile": {
     "noBio": "No bio yet",

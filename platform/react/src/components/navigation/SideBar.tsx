@@ -40,6 +40,7 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
   const homeHref = hrefOf({ type: 'home' });
   const registerHref = hrefOf({ type: 'auth', mode: 'register' });
   const loginHref = hrefOf({ type: 'auth', mode: 'login' });
+  const aboutHref = hrefOf({ type: 'about' });
 
   return (
     <div className="bg-background text-foreground relative h-screen w-full pt-3 md:h-full">
@@ -76,6 +77,16 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
                 </p>
               )}
               {tagLine && <p className="px-2 text-center text-sm">{tagLine}</p>}
+              {serverInfo.publicContent && (
+                <span>
+                  <Link action={aboutHref} className="op-anchor text-sm">
+                    {t('navigation.about', {
+                      defaultValue: 'Learn more about {{communityName}}',
+                      communityName: name,
+                    })}
+                  </Link>
+                </span>
+              )}
               <Button
                 title={t('navigation.joinCommunity')}
                 variant="default"
