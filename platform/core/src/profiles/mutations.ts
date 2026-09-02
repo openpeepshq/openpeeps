@@ -18,7 +18,7 @@ import {
 import { hub } from '../events';
 import { randomString } from '@openpeepshq/common/lib';
 import { deleteAccessTokensForProfile } from '../accessTokens/helpers';
-import { profilesCache, getProfile } from './cache';
+import { profilesCache, getProfile, clearProfileCache } from './cache';
 import { accountsCache } from '../accounts/cache';
 import { assertProfileCapacity } from './capacity';
 
@@ -98,22 +98,18 @@ export const follow = async (
   follower: Profile,
   followed: Profile,
   followData: FollowData,
-) =>
-  allpeepDb()
-    .then(({ db }) => followConnector(db, follower, followed, followData))
-    .then(() => {
-      profilesCache.del(follower.id);
-      profilesCache.del(followed.id);
-    })
-    .then(() => hub.emit('followCreated', follower, followed));
+) => {
+  const { db } = await allpeepDb();
+  await followConnector(db, follower, followed, followData);
+  await Promise.all([clearProfileCache(follower), clearProfileCache(followed)]);
+  await hub.emit('followCreated', follower, followed);
+};
 
-export const unfollow = async (follower: Profile, followed: Profile) =>
-  allpeepDb()
-    .then(({ db }) => followDisconnector(db, follower, followed))
-    .then(() => {
-      profilesCache.del(follower.id);
-      profilesCache.del(followed.id);
-    });
+export const unfollow = async (follower: Profile, followed: Profile) => {
+  const { db } = await allpeepDb();
+  await followDisconnector(db, follower, followed);
+  await Promise.all([clearProfileCache(follower), clearProfileCache(followed)]);
+};
 
 export const assignRole = (profile: Profile, role: Role) =>
   allpeepDb()
