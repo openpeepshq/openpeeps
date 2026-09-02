@@ -5,7 +5,17 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **invites**: add QR codes with community logo for invite links
+- **i18n**: add Markdown help text and update documentation
 - **notifications**: integrate cached notifications marking functionality
+
+### Bug Fixes
+
+- **i18n**: interpolate profile name in hostedBy field
+
+### Refactoring
+
+- **poll**: improve poll option rendering and voting display
 
 ### Documentation
 
