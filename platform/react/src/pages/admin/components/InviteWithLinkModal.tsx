@@ -93,7 +93,7 @@ export function InviteWithLinkModal({ onClose }: { onClose: () => void }) {
   const createInvite = openpeepsApi.admin.createInviteAction();
   const groupsQuery = openpeepsApi.useGroups();
 
-  const [slug, setSlug] = useState('');
+  const [slug, setSlug] = useState(() => randomString(8));
   const [maxUses, setMaxUses] = useState('1');
   const [expiry, setExpiry] = useState<string>('P1D');
   const [selectedGroups, setSelectedGroups] = useState<Set<string>>(
