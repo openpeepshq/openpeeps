@@ -975,6 +975,9 @@
         },
         "liveJams": "Live-Jams",
         "noLiveJams": "Keine Live-Jams zum Beitreten",
+        "unavailable": {
+            "message": "Jams sind nicht verfügbar, weil LiveKit nicht verbunden ist."
+        },
         "room": {
             "pageTitle": "Jam-Raum - {{name}}",
             "observerConnecting": "Verbindung zum Jam wird hergestellt",
@@ -2926,6 +2929,8 @@
     "error": {
         "eventAtCapacity": "Diese Veranstaltung ist voll.",
         "eventTentativeNotAllowed": "Diese Veranstaltung akzeptiert nur Ja- oder Nein-Antworten.",
+        "jamNotOpen": "Dieser Jam ist nicht geöffnet.",
+        "jamsUnavailable": "Jams sind nicht verfügbar, weil LiveKit nicht verbunden ist.",
         "jamRsvpRequired": "Sie müssen mit Ja antworten, um an dieser Veranstaltung teilzunehmen.",
         "rsvpRemoved": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
         "rsvpRemovedForbidden": "Nur der Organisator kann Teilnehmer entfernen.",

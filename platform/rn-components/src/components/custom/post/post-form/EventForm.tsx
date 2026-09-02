@@ -124,6 +124,9 @@ export const EventForm = ({
     if (eventFormat === value) {
       return;
     }
+    if (value === 'jam' && !serverInfo?.jams.livekit.enabled) {
+      return;
+    }
     setEventFormat(value);
     if (eventFormat === 'jam') {
       form.setValue('data.jam.type', 'video-call');
@@ -145,17 +148,21 @@ export const EventForm = ({
   };
 
   useEffect(() => {
-    if (serverInfo?.jams.livekit.enabled) {
-      setEventFormats([
-        { value: 'jam', label: t('events.form.jamFormatLabel') },
-        { value: 'external', label: t('events.form.externalFormatLabel') },
-        { value: 'in-person', label: t('events.form.inPersonFormatLabel') },
-      ]);
+    const jamOption = {
+      value: 'jam',
+      label: t('events.form.jamFormatLabel'),
+    };
+    const otherOptions = [
+      { value: 'external', label: t('events.form.externalFormatLabel') },
+      { value: 'in-person', label: t('events.form.inPersonFormatLabel') },
+    ];
+    if (
+      serverInfo?.jams.livekit.enabled ||
+      (isEdit && form.getValues('data.jam'))
+    ) {
+      setEventFormats([jamOption, ...otherOptions]);
     } else {
-      setEventFormats([
-        { value: 'external', label: t('events.form.externalFormatLabel') },
-        { value: 'in-person', label: t('events.form.inPersonFormatLabel') },
-      ]);
+      setEventFormats(otherOptions);
     }
     form.setValue(
       'data.jam.moderators',
@@ -167,12 +174,15 @@ export const EventForm = ({
 
     if (form.getValues('data.physicalLocation')) {
       setEventFormat('in-person');
-    } else if (form.getValues('data.jam')) {
+    } else if (
+      form.getValues('data.jam') &&
+      (serverInfo?.jams.livekit.enabled || isEdit)
+    ) {
       setEventFormat('jam');
     } else if (form.getValues('data.url')) {
       setEventFormat('external');
     }
-  }, [moderators, form, serverInfo, t]);
+  }, [moderators, form, serverInfo, t, isEdit]);
 
   return (
     <Form {...form}>
@@ -511,8 +521,13 @@ export const EventForm = ({
           </View>
         </RadioGroup>
       </ThemedView>
-      {serverInfo?.jams.livekit.enabled && eventFormat === 'jam' ? (
+      {eventFormat === 'jam' ? (
         <>
+          {!serverInfo?.jams.livekit.enabled ? (
+            <ThemedText className="text-destructive mt-4">
+              {t('jams.unavailable.message')}
+            </ThemedText>
+          ) : null}
           <ThemedView className="relative w-full mt-4">
             <ThemedText className="">
               {t('events.form.jamWaitingRoom')}
@@ -526,6 +541,7 @@ export const EventForm = ({
                   label={t('events.form.jamWaitingRoomDescription')}
                   {...field}
                   checked={field.value ?? false}
+                  disabled={!serverInfo?.jams.livekit.enabled}
                   className="rounded-md w-full mt-2"
                   onCheckedChange={field.onChange}
                   handleOnLabelPress={() => {}}

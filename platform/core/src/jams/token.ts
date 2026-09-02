@@ -112,7 +112,7 @@ export const createJamToken = async (
   const rs = await roomService();
 
   if (rs === undefined) {
-    throw forbidden({ errorKey: 'error.jamNotOpen' });
+    throw forbidden({ errorKey: 'error.jamsUnavailable' });
   }
 
   const rooms = await rs.listRooms([roomName]);

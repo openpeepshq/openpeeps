@@ -50,6 +50,7 @@ import {
 import { OpenpeepsMarkdown } from '../../../markdown/OpenpeepsMarkdown';
 import { ThreadedFeed } from '../../feed/threaded/ThreadedFeed';
 import { ReplyBox } from '../../ReplyBox';
+import { useServerInfo } from '../../../server-data';
 import { EventLocation } from '../../pieces/EventLocation';
 import { EventMenu } from '../../pieces/EventMenu';
 import { EventRsvpButton } from '../../pieces/EventRsvpButton';
@@ -70,6 +71,8 @@ type EventTab =
 export function FullEvent({ post }: FullEventProps) {
   const t = useT();
   const profile = useCurrentProfile();
+  const serverInfo = useServerInfo();
+  const livekitEnabled = serverInfo.jams.livekit.enabled;
   const [searchParams] = useSearchParams();
   const occurrenceId = parseOccurrenceQuery(searchParams.get('occurrence'));
   const { openCreateConversation } = useCreateNewConversation();
@@ -306,9 +309,18 @@ export function FullEvent({ post }: FullEventProps) {
       <EventRsvpButton post={post} recurrenceId={occurrenceId} />
 
       {event.jam && (myEvent || iAmModerator) ? (
-        <Button variant="default" className="mt-2 w-full" action={jamLink}>
-          {t('events.jam.start', { defaultValue: 'Start jam' })}
-        </Button>
+        livekitEnabled ? (
+          <Button variant="default" className="mt-2 w-full" action={jamLink}>
+            {t('events.jam.start', { defaultValue: 'Start jam' })}
+          </Button>
+        ) : (
+          <p role="status" className="text-destructive mt-2 text-sm">
+            {t('jams.unavailable.message', {
+              defaultValue:
+                'Jams are unavailable because LiveKit is not connected.',
+            })}
+          </p>
+        )
       ) : null}
 
       <nav
