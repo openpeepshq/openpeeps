@@ -5,16 +5,26 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **events**: add time zone support to event handling
+- **emails**: enhance email layout with markdown support
+- **sidebar**: add About link for public communities
+- **cache**: add clearProfileCache function and update follow/unfollow logic
+- **i18n**: add documentation search localization and enhance DocEntry structure
+- **markdown**: enhance mention handling in markdown processing
+- **badge**: introduce formatBadgeCount function for consistent unread count display
 - **invites**: add QR codes with community logo for invite links
 - **i18n**: add Markdown help text and update documentation
 - **notifications**: integrate cached notifications marking functionality
 
 ### Bug Fixes
 
+- **jams**: update error handling and localization for unavailable jams
+- **invites**: initialize slug state with random string for unique invite links
 - **i18n**: interpolate profile name in hostedBy field
 
 ### Refactoring
 
+- **loaders**: replace LoadingIcon with LoadingSpinner and update documentation
 - **poll**: improve poll option rendering and voting display
 
 ### Documentation
