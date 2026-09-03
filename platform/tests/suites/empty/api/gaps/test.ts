@@ -441,6 +441,30 @@ test.describe('API coverage gaps', () => {
     }
   });
 
+  test('duplicate profile handle returns conflict', async ({ request }) => {
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const ownerProfile = await currentProfile(request, ownerToken);
+    const { token: memberToken } = await registerMember(request);
+
+    const duplicate = await request.patch(
+      '/api/openpeeps/core/v1/profiles/current',
+      {
+        headers: apiHeaders(memberToken),
+        data: {
+          handle: ownerProfile.handle,
+          type: 'local',
+        },
+      },
+    );
+    expect(duplicate.status()).toBe(409);
+    const body = (await duplicate.json()) as { message?: string };
+    expect(body.message).toBe('profiles.handleExists');
+  });
+
   test('duplicate group handle returns conflict', async ({ request }) => {
     const { token } = await loginUser(request, owner.email, owner.password);
     const handle = uniqueHandle('dup');

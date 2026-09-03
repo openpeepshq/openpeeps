@@ -72,6 +72,13 @@ describe('isDuplicateHandleError', () => {
     );
   });
 
+  it('detects the profiles.handleExists conflict key', () => {
+    expect(isDuplicateHandleError({ message: 'profiles.handleExists' })).toBe(
+      true,
+    );
+    expect(isDuplicateHandleError({ key: 'profiles.handleExists' })).toBe(true);
+  });
+
   it('ignores unrelated API errors', () => {
     expect(
       isDuplicateHandleError({

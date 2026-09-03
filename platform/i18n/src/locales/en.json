@@ -2954,7 +2954,7 @@
     }
   },
   "profiles": {
-    "handleExists": "This handle already exists, please pick a different one.",
+    "handleExists": "This handle is already in use by someone else.",
     "notFound": "Profile not found"
   },
   "members": {
