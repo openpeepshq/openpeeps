@@ -141,12 +141,13 @@ When finalizing a branch for PR:
    bash scripts/squash-branch.sh --ci -m "feat(scope): description"
    ```
    Requires a clean working tree. Commit or stash changes first.
-3. **Sign** the commit with the author email:
+3. **Sign** the commit with your configured git author (from `git config
+   user.name`/`user.email`; do not hardcode an author here):
    ```bash
-   rtk git commit --amend --author="Philipp Haussleiter <philipp@allpeep.com>" \
+   rtk git commit --amend \
      -m "feat(scope): description
 
-   Signed-off-by: Philipp Haussleiter <philipp@allpeep.com>"
+   Signed-off-by: Your Name <you@example.com>"
    ```
 4. **Push** with force-with-lease:
    ```bash
