@@ -14,6 +14,7 @@ import {
 } from '../../components';
 import { Button, Input, Label, Textarea } from '@openpeepshq/react-ui';
 import { ZodError } from 'zod';
+import { isDuplicateHandleError } from '../../lib/groupFormErrors';
 
 const firstZodMessage = (err: ZodError): string | undefined =>
   err.issues[0]?.message;
@@ -126,6 +127,14 @@ export function PublicProfileSettings() {
           );
           return;
         }
+      }
+      if (isDuplicateHandleError(err)) {
+        const msg = t('profiles.handleExists', {
+          defaultValue: 'This handle is already in use by someone else.',
+        });
+        setHandleError(msg);
+        toastError(msg);
+        return;
       }
       toastError(
         t('settings.profile.updateError', {

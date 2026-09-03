@@ -8,7 +8,7 @@ import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { updateProfile, findProfileByHandle } from '@openpeepshq/core/profiles';
 import { findGroupByHandle } from '@openpeepshq/core/groups';
-import { conflict } from '#lib/helpers';
+import { conflict } from '#lib/errors';
 
 export const updateCurrentProfileHandler = async (
   updateCurrentProfileRequest: UpdateProfileRequest,
@@ -16,7 +16,12 @@ export const updateCurrentProfileHandler = async (
 ): Promise<ProfileWithMeta> => {
   const profile = await ensureLocalProfile(event);
 
-  if (updateCurrentProfileRequest.handle && profile.handle !== updateCurrentProfileRequest.handle && (await findProfileByHandle(updateCurrentProfileRequest.handle) || await findGroupByHandle(updateCurrentProfileRequest.handle))) {
+  if (
+    updateCurrentProfileRequest.handle &&
+    profile.handle !== updateCurrentProfileRequest.handle &&
+    ((await findProfileByHandle(updateCurrentProfileRequest.handle)) ||
+      (await findGroupByHandle(updateCurrentProfileRequest.handle)))
+  ) {
     throw conflict('profiles.handleExists');
   }
 

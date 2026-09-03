@@ -114,11 +114,15 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
         await refetch();
       })
       .catch((err) => {
-        console.log('response', err);
+        const message = typeof err?.message === 'string' ? err.message : '';
         Toast.show({
           type: 'error',
           text1: t('common.errors.error'),
-          text2: err.message,
+          text2: message.endsWith('.handleExists')
+            ? t('profiles.handleExists', {
+                defaultValue: 'This handle is already in use by someone else.',
+              })
+            : err.message,
         });
       })
       .finally(() => {
