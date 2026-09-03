@@ -181,6 +181,7 @@ export const Group = ({ route, navigation }: GroupProps) => {
                   pinnedPostId={groupData?.pinnedPostId}
                   inGroup
                   isPostFeed={false}
+                  hideReplies
                 />
               </TabsContent>
               <TabsContent value="events" className="p-2">

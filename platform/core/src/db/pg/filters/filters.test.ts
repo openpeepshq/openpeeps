@@ -51,7 +51,15 @@ describe('pg filters', () => {
     expect(edgeFilters.entryType('create').kind).toBe('sql');
     expect(eventTimeFilters.upcoming().kind).toBe('sql');
     expect(postFilters.replyCountZero().kind).toBe('sql');
+    expect(postFilters.notReply().kind).toBe('sql');
     expect(postFilters.creatorId('profile-id').kind).toBe('sql');
+  });
+
+  it('excludes replies with a NOT EXISTS on reply_to', () => {
+    const rendered = flattenSql(postFilters.notReply().where);
+    expect(rendered).toContain('NOT EXISTS');
+    expect(rendered).toContain('"reply_to"');
+    expect(rendered).toContain('"from_id"');
   });
 
   it('builds my-feed membership and following checks entirely in SQL', () => {

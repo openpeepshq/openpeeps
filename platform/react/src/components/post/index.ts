@@ -69,6 +69,8 @@ export { useReplyModal } from './post-form/ReplyModalContext';
 export { PostInfoHeader } from './pieces/PostInfoHeader';
 export { PostReactionHeader } from './pieces/PostReactionHeader';
 export { FeedPostStats } from './pieces/FeedPostStats';
+export { FeedThreadPreview } from './pieces/FeedThreadPreview';
+export type { FeedThreadPreviewProps } from './pieces/FeedThreadPreview';
 export { PostActions } from './pieces/PostActions';
 export { Attachments } from './pieces/Attachments';
 

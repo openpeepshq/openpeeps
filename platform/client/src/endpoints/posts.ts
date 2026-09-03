@@ -14,12 +14,74 @@ import {
   type UnseenPostCounts,
 } from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
+import type {
+  OpenpeepsNoPayloadEndpoint,
+  OpenpeepsPayloadEndpoint,
+} from '../types';
 
 type PostsSeenRequest = {
   postIds: string[];
 };
 
-const finders = (rawClient: FetchClient) => ({
+type ChronologicalPosts = OpenpeepsNoPayloadEndpoint<
+  PublicPost[],
+  undefined,
+  ChronologicalInfiniteQueryParams
+>;
+
+type OffsetPosts = OpenpeepsNoPayloadEndpoint<
+  PublicPost[],
+  undefined,
+  OffsetInfiniteQueryParams
+>;
+
+type GroupOffsetPosts = OpenpeepsNoPayloadEndpoint<
+  PublicPost[],
+  { groupId: string },
+  OffsetInfiniteQueryParams
+>;
+
+type Finders = {
+  list: ChronologicalPosts;
+  listByType: OpenpeepsNoPayloadEndpoint<
+    PublicPost[],
+    { type: PostType },
+    ChronologicalInfiniteQueryParams
+  >;
+  listByHashtag: OpenpeepsNoPayloadEndpoint<
+    PublicPost[],
+    { hashtag: string },
+    ChronologicalInfiniteQueryParams
+  >;
+  listByGroup: OpenpeepsNoPayloadEndpoint<
+    PublicPost[],
+    { id: string },
+    ChronologicalInfiniteQueryParams
+  >;
+  listByProfile: OpenpeepsNoPayloadEndpoint<
+    PublicPost[],
+    { id: string },
+    ChronologicalInfiniteQueryParams
+  >;
+  listBookmarks: ChronologicalPosts;
+  findById: OpenpeepsNoPayloadEndpoint<PublicPost, { id: string }>;
+  context: OpenpeepsNoPayloadEndpoint<PostContext, { id: string }>;
+  reposts: OpenpeepsNoPayloadEndpoint<PublicPost[], { id: string }>;
+  recordings: OpenpeepsNoPayloadEndpoint<JamRecording[], { id: string }>;
+  publishRecordingReply: OpenpeepsNoPayloadEndpoint<
+    JamRecording,
+    { id: string; recordingId: string }
+  >;
+  deleteRecording: OpenpeepsNoPayloadEndpoint<
+    SuccessResponse,
+    { id: string; recordingId: string }
+  >;
+  unseenCounts: OpenpeepsNoPayloadEndpoint<UnseenPostCounts>;
+};
+
+// Explicit return types keep `tsc` from serializing the expanded PublicPost
+// endpoint shape into `.d.ts` (TS7056 otherwise).
+const finders = (rawClient: FetchClient): Finders => ({
   list: allpeepNoPayloadEndpoint<
     PublicPost[],
     undefined,
@@ -80,7 +142,7 @@ const finders = (rawClient: FetchClient) => ({
   ),
 });
 
-const eventFeeds = (rawClient: FetchClient) => ({
+const eventFeeds = (rawClient: FetchClient): EventFeeds => ({
   events: {
     my: {
       upcoming: allpeepNoPayloadEndpoint<
@@ -129,9 +191,24 @@ const eventFeeds = (rawClient: FetchClient) => ({
   },
 });
 
-type EventFeeds = ReturnType<typeof eventFeeds>;
+type EventFeeds = {
+  events: {
+    my: {
+      upcoming: OffsetPosts;
+      current: OffsetPosts;
+      past: OffsetPosts;
+    };
+    upcoming: OffsetPosts;
+    current: OffsetPosts;
+    past: OffsetPosts;
+    group: {
+      upcoming: GroupOffsetPosts;
+      past: GroupOffsetPosts;
+    };
+  };
+};
 
-const jamFeeds = (rawClient: FetchClient) => ({
+const jamFeeds = (rawClient: FetchClient): JamFeeds => ({
   jams: {
     upcoming: allpeepNoPayloadEndpoint<
       PublicPost[],
@@ -158,9 +235,18 @@ const jamFeeds = (rawClient: FetchClient) => ({
   },
 });
 
-type JamFeeds = ReturnType<typeof jamFeeds>;
+type JamFeeds = {
+  jams: {
+    upcoming: OffsetPosts;
+    past: OffsetPosts;
+    my: {
+      upcoming: OffsetPosts;
+      past: OffsetPosts;
+    };
+  };
+};
 
-const postFeeds = (rawClient: FetchClient) => ({
+const postFeeds = (rawClient: FetchClient): PostFeeds => ({
   my: allpeepNoPayloadEndpoint<
     PublicPost[],
     undefined,
@@ -173,7 +259,10 @@ const postFeeds = (rawClient: FetchClient) => ({
   >(rawClient, '/posts/feeds/local'),
 });
 
-type PostFeeds = ReturnType<typeof postFeeds>;
+type PostFeeds = {
+  my: ChronologicalPosts;
+  local: ChronologicalPosts;
+};
 
 type Feeds = { feeds: PostFeeds & EventFeeds & JamFeeds };
 
@@ -185,7 +274,35 @@ const feeds = (rawClient: FetchClient): Feeds => ({
   },
 });
 
-const mutators = (rawClient: FetchClient) => ({
+type Mutators = {
+  create: OpenpeepsPayloadEndpoint<PublicPost, PostCreationData>;
+  update: OpenpeepsPayloadEndpoint<PublicPost, PostDataUnion, { id: string }>;
+  delete: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  react: OpenpeepsPayloadEndpoint<
+    SuccessResponse,
+    ReactionData,
+    { id: string }
+  >;
+  retractReaction: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  bookmark: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  unbookmark: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  seen: OpenpeepsPayloadEndpoint<SuccessResponse, PostsSeenRequest>;
+  seenByGroup: OpenpeepsNoPayloadEndpoint<SuccessResponse, { groupId: string }>;
+  repost: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  vote: OpenpeepsPayloadEndpoint<
+    SuccessResponse,
+    { selection: number[] },
+    { id: string }
+  >;
+  rsvp: OpenpeepsPayloadEndpoint<SuccessResponse, RSVP, { id: string }>;
+  rsvpManage: OpenpeepsPayloadEndpoint<
+    SuccessResponse,
+    { response: 'removed' | 'yes'; recurrenceId?: string },
+    { id: string; profileId: string }
+  >;
+};
+
+const mutators = (rawClient: FetchClient): Mutators => ({
   create: allpeepPayloadEndpoint<PublicPost, PostCreationData>(
     rawClient,
     '/posts',
@@ -251,9 +368,7 @@ const mutators = (rawClient: FetchClient) => ({
   >(rawClient, '/posts/:id/rsvp/:profileId', 'post'),
 });
 
-type PostsEndpoints = ReturnType<typeof finders> &
-  ReturnType<typeof mutators> &
-  ReturnType<typeof feeds>;
+type PostsEndpoints = Finders & Mutators & Feeds;
 
 export const posts = (rawClient: FetchClient): PostsEndpoints => ({
   ...finders(rawClient),

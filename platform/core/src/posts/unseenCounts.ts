@@ -4,10 +4,15 @@ import type { PgDb } from '../db/pg/client';
 
 type ExecuteResult = { rows: Record<string, unknown>[] };
 
-/** Shared predicates for group unseen count and mark-all-read. */
+/** Shared predicates for group unseen count and mark-all-read.
+ * Matches the group timeline: original posts only, not replies.
+ */
 const unseenGroupPostMatch = (profileId: string) => sql`
   p.visibility <> 'direct'
   AND p.creator_id <> ${profileId}
+  AND NOT EXISTS (
+    SELECT 1 FROM reply_to rt WHERE rt.from_id = p.id::text
+  )
   AND NOT EXISTS (
     SELECT 1
     FROM post_seen ps

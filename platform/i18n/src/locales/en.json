@@ -460,7 +460,10 @@
       "viewReactions": "View reactions",
       "viewReposts": "View reposts",
       "repliesCount": "{{count}} replies",
-      "repostsCount": "{{count}} reposts"
+      "repostsCount": "{{count}} reposts",
+      "viewConversation": "View conversation",
+      "moreReplies": "{{count}} more replies",
+      "newReplies": "New replies"
     },
     "visibility": {
       "title": "Post visibility",

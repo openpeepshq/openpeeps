@@ -210,4 +210,50 @@ describe('transformPost deleted authors', () => {
       '2024-05-01T00:00:00.000Z',
     ]);
   });
+
+  it('maps lean inbound replies to latestReplies with profiles', async () => {
+    const replies = [
+      {
+        ...basePost,
+        id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1',
+        creatorId: activeAuthor.id,
+        createdAt: '2024-05-03T00:00:00.000Z',
+        data: { type: 'note', content: 'later' },
+        entries: [
+          {
+            ...basePost.entries![0],
+            id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1',
+            profile: { id: activeAuthor.id },
+          },
+        ],
+      },
+      {
+        ...basePost,
+        id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa0',
+        creatorId: activeAuthor.id,
+        createdAt: '2024-05-02T00:00:00.000Z',
+        data: { type: 'note', content: 'earlier' },
+        entries: [
+          {
+            ...basePost.entries![0],
+            id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb0',
+            profile: { id: activeAuthor.id },
+          },
+        ],
+      },
+    ];
+
+    const result = await transformPost({
+      ...basePost,
+      replyCount: 2,
+      latestReplies: replies,
+    } as unknown as DbPost);
+
+    expect(result.latestReplies).toHaveLength(2);
+    expect(result.latestReplies?.map((reply) => reply.data)).toEqual([
+      { type: 'note', content: 'later' },
+      { type: 'note', content: 'earlier' },
+    ]);
+    expect(result.latestReplies?.[0]?.profile.handle).toBe('active');
+  });
 });

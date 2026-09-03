@@ -78,6 +78,9 @@ const reactionsRelation: Relation = {
 /** Cap for embedded who-reposted lists on feed/detail posts. */
 export const EMBEDDED_REPOSTS_LIMIT = 50;
 
+/** Newest direct replies shown under a feed original. Keep this small. */
+export const EMBEDDED_LATEST_REPLIES_LIMIT = 2;
+
 /**
  * Lean inbound wrappers for the embedded `reposts` preview. Only loads create
  * entries (for the reposter profile) — not the full post graph used by
@@ -186,6 +189,24 @@ const replyToRelation: Relation<DbBasePost> = {
   mapping: replyPostMapData,
 };
 
+const latestRepliesRelation = (profile?: { id: string }): Relation => ({
+  alias: 'latestReplies',
+  edgeCollection: 'replyTo',
+  direction: 'INBOUND',
+  skipEdge: true,
+  cardinality: 'many',
+  mapping: {
+    collection: 'posts',
+    softDelete: true,
+    limit: EMBEDDED_LATEST_REPLIES_LIMIT,
+    sort: [['createdAt', 'DESC']],
+    postFilterRelations: [entriesRelation],
+    postFilterDerivedProperties: profile
+      ? [seenBatchByCurrentProfileDerivedProperty(profile)]
+      : [],
+  },
+});
+
 export const repostRelation: RelationWithMapping<DbBasePost> = {
   alias: 'repost',
   edgeCollection: 'repost',
@@ -194,7 +215,11 @@ export const repostRelation: RelationWithMapping<DbBasePost> = {
   cardinality: 'one',
   mapping: {
     ...basePostMapData,
-    postFilterRelations: [...basePostFilterRelations, replyToRelation],
+    postFilterRelations: [
+      ...basePostFilterRelations,
+      replyToRelation,
+      latestRepliesRelation(),
+    ],
   },
 };
 
@@ -204,7 +229,11 @@ export const repostRelationForProfile = (profile?: {
   ...repostRelation,
   mapping: {
     ...basePostMapDataForProfile(profile),
-    postFilterRelations: [...basePostFilterRelations, replyToRelation],
+    postFilterRelations: [
+      ...basePostFilterRelations,
+      replyToRelation,
+      latestRepliesRelation(profile),
+    ],
   },
 });
 
@@ -269,6 +298,7 @@ export const postsMapping = map<PostData, DbPost>({
     ...basePostFilterRelations,
     repostRelation,
     replyToRelation,
+    latestRepliesRelation(),
   ],
 });
 
@@ -285,6 +315,7 @@ export const postsMappingForProfile = (profile?: { id: string }) =>
       ...basePostFilterRelations,
       repostRelationForProfile(profile),
       replyToRelation,
+      latestRepliesRelation(profile),
     ],
   });
 

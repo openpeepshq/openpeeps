@@ -25,6 +25,8 @@ export interface FeedProps {
   inGroup?: boolean;
   /** When set, the post with this id is rendered first (pinned). */
   pinnedPostId?: string;
+  /** Timeline feeds omit replies; they belong in the original post's thread. */
+  hideReplies?: boolean;
 }
 
 /**
@@ -36,7 +38,12 @@ export interface FeedProps {
  * pinned post by id; here we filter it out of the chronological list and
  * leave the actual pinned rendering to a future port.
  */
-export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
+export function Feed({
+  query,
+  inGroup = false,
+  pinnedPostId,
+  hideReplies = false,
+}: FeedProps) {
   const t = useT();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -47,11 +54,12 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
     for (const p of flat) {
       if (seen.has(p.id)) continue;
       if (pinnedPostId && p.id === pinnedPostId) continue;
+      if (hideReplies && p.inReplyToId) continue;
       seen.add(p.id);
       out.push(p);
     }
     return out;
-  }, [query.data, pinnedPostId]);
+  }, [query.data, pinnedPostId, hideReplies]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -114,7 +122,7 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
           <FeedPost
             post={post}
             inGroup={inGroup}
-            showReplyTo
+            showReplyTo={!hideReplies}
             className="border-b-0"
           />
         </a>

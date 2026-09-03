@@ -42,6 +42,7 @@ export const Home: React.FC<HomeScreenProps> = () => {
         query={query}
         pinnedPostId={pinnedPostId}
         refetchServerInfo={refetchServerInfo}
+        hideReplies
       />
     </>
   );

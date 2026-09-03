@@ -189,6 +189,7 @@ export const publicReplyPostSchema = z.object({
   visibility: visibilityTypeSchema,
   group: groupWithMetaSchema.optional().nullable(),
   audience: z.array(publicProfileSchema).optional().nullable(),
+  seen: z.boolean().optional(),
 });
 export type PublicReplyPost = z.infer<typeof publicReplyPostSchema>;
 
@@ -210,6 +211,8 @@ const basePublicPostSchema = publicReplyPostSchema.extend({
   reactions: reactionWithPublicProfileSchema.array(),
   /** Capped lean list of who reposted (most recent). Count stays in repostCount. */
   reposts: repostWithPublicProfileSchema.array(),
+  /** Newest direct replies for a nested timeline preview. */
+  latestReplies: publicReplyPostSchema.array().optional(),
   application: publicApplicationSchema.optional(),
   mentions: z.array(mentionWithPublicProfileSchema),
   tags: z.array(hashtagSchema),

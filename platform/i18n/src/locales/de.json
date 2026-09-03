@@ -454,7 +454,10 @@
             "viewReactions": "Reaktionen anzeigen",
             "viewReposts": "Geteilte Beiträge anzeigen",
             "repliesCount": "{{count}} Antworten",
-            "repostsCount": "{{count}} geteilte Beiträge"
+            "repostsCount": "{{count}} geteilte Beiträge",
+            "viewConversation": "Unterhaltung anzeigen",
+            "moreReplies": "{{count}} weitere Antworten",
+            "newReplies": "Neue Antworten"
         },
         "visibility": {
             "title": "Beitragssichtbarkeit",

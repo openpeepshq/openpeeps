@@ -28,7 +28,7 @@ export const MyFeed: React.FC<HomeScreenProps> = () => {
           <ThemedText className="text-xl font-bold">My feed</ThemedText>
         }
       />
-      <Feed query={query} />
+      <Feed query={query} hideReplies />
     </>
   );
 };

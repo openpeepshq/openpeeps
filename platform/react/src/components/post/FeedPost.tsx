@@ -12,6 +12,7 @@ import { FeedPostStats } from './pieces/FeedPostStats';
 import { PostActions } from './pieces/PostActions';
 import { ThreadPost } from './feed/threaded/ThreadPost';
 import { UnreadPostIndicator } from './pieces/UnreadPostIndicator';
+import { FeedThreadPreview } from './pieces/FeedThreadPreview';
 
 export interface FeedPostProps {
   post: PublicPost;
@@ -50,6 +51,11 @@ export function FeedPost({
     (!!post.repost || !!post.inReplyToId || (!!post.groupId && !inGroup));
 
   const showsReplyTo = !!(showReplyTo && displayedPost.replyTo);
+  const showThreadPreview =
+    !showsReplyTo &&
+    !displayedPost.inReplyToId &&
+    ((displayedPost.latestReplies?.length ?? 0) > 0 ||
+      (displayedPost.replyCount ?? 0) > 0);
 
   const hasStats = !!(
     displayedPost?.repostCount ||
@@ -105,6 +111,7 @@ export function FeedPost({
       </div>
 
       <PostActions post={displayedPost} />
+      {showThreadPreview ? <FeedThreadPreview post={displayedPost} /> : null}
     </article>
   );
 }

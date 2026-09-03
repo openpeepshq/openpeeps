@@ -167,6 +167,15 @@ test.describe('user actions (API)', () => {
       },
     });
     expect(reply.ok(), await reply.text()).toBeTruthy();
+    const replyPost = (await reply.json()) as { id: string };
+
+    const feed = await request.get('/api/openpeeps/core/v1/posts/feeds/local', {
+      headers: apiHeaders(token),
+    });
+    expect(feed.ok(), await feed.text()).toBeTruthy();
+    const feedPosts = (await feed.json()) as Array<{ id: string }>;
+    expect(feedPosts.some((post) => post.id === note.id)).toBe(true);
+    expect(feedPosts.some((post) => post.id === replyPost.id)).toBe(false);
 
     const replies = await request.get(
       `/api/openpeeps/core/v1/posts/${note.id}/replies`,

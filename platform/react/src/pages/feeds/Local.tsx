@@ -27,7 +27,11 @@ export function FeedsLocal() {
   return (
     <>
       <PluginSlot name="plugins.header" className="p-4 pb-0" />
-      <Feed query={query} pinnedPostId={pinnedPostId ?? undefined} />
+      <Feed
+        query={query}
+        pinnedPostId={pinnedPostId ?? undefined}
+        hideReplies
+      />
     </>
   );
 }
