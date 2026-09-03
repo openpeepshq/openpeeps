@@ -1,6 +1,6 @@
 import { and, eq, inArray, isNotNull, ne, or, sql } from 'drizzle-orm';
 import { posts } from '../schema/documents';
-import { postGroups } from '../schema/edges';
+import { postGroups, replyTo } from '../schema/edges';
 import {
   postHasYesOrMaybeRsvpExpr,
   postReplyCountExpr,
@@ -17,6 +17,12 @@ export const postFilters = {
   notDirect: (): SqlFilter => pgSql(ne(posts.visibility, 'direct')),
 
   isDirect: (): SqlFilter => pgSql(eq(posts.visibility, 'direct')),
+
+  /** Original posts only — replies belong in the parent thread, not the feed. */
+  notReply: (): SqlFilter =>
+    pgSql(
+      sql`NOT EXISTS (SELECT 1 FROM ${replyTo} WHERE ${replyTo.fromId} = ${posts.id}::text)`,
+    ),
 
   hasJam: (): SqlFilter => pgSql(isNotNull(sql`${posts.body}->'jam'`)),
 

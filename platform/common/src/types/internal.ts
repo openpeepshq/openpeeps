@@ -177,6 +177,7 @@ export const replyPostSchema = z.object({
   visibility: visibilityTypeSchema,
   group: groupWithMetaSchema.optional().nullable(),
   audience: z.array(profileWithMetaSchema).optional().nullable(),
+  seen: z.boolean().optional(),
 });
 export type ReplyPost = z.infer<typeof replyPostSchema>;
 
@@ -199,7 +200,9 @@ const basePostSchema = replyPostSchema.extend({
   occurrenceStart: z.string().datetime().optional(),
   occurrenceEnd: z.string().datetime().optional(),
 });
-export type BasePost = z.infer<typeof basePostSchema>;
+export type BasePost = z.infer<typeof basePostSchema> & {
+  latestReplies?: ReplyPost[];
+};
 
 const withReplyPostSchema = basePostSchema.extend({
   inReplyToId: z.string().optional().nullable(),

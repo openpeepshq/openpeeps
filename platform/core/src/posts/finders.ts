@@ -160,6 +160,21 @@ export const baseFeed = ({
     sort,
   );
 
+/**
+ * Community / my / group timelines: original posts (and reposts) only.
+ * Replies stay nested on the post detail thread so the same conversation is
+ * not repeated as standalone feed items.
+ */
+const timelineFeed = ({
+  start,
+  sort,
+  profile,
+}: {
+  start?: string;
+  sort?: ObjectSort;
+  profile?: ProfileWithMeta;
+}) => baseFeed({ start, sort, profile }).filter(postFilters.notReply());
+
 export const baseEventsFeed = (profile?: ProfileWithMeta) => {
   const mapping = postsMappingForProfile(profile)
     .sort(sorts.eventStartAsc)
@@ -354,7 +369,7 @@ export const listPostsByGroup = async (
         direction: 'INBOUND',
         skipEdge: true,
         cardinality: 'many',
-        mapping: baseFeed({ start, profile: authData.profile })
+        mapping: timelineFeed({ start, profile: authData.profile })
           .filter(filter)
           .data(),
       }),
@@ -368,7 +383,9 @@ export const listLocalFeed = async (
 ) =>
   withSpan('feed.local', () =>
     toFilteredPostsList(
-      baseFeed({ start, profile: authData.profile }).filter(localFeedFilter()),
+      timelineFeed({ start, profile: authData.profile }).filter(
+        localFeedFilter(),
+      ),
       { authData, limit },
     ),
   );
@@ -380,7 +397,7 @@ export const listMyFeed = async (
   const profile = requireProfile(authData);
   return withSpan('feed.my', () =>
     toFilteredPostsList(
-      baseFeed({ start, profile }).filter(myFeedFilter(profile)),
+      timelineFeed({ start, profile }).filter(myFeedFilter(profile)),
       { authData, limit, filters: [myFeedGroupMembershipFilter(profile)] },
     ),
   );

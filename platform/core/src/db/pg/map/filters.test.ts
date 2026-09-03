@@ -110,6 +110,17 @@ describe('map filters evaluation', () => {
     expect(remaining).toEqual([]);
   });
 
+  it('keeps timeline not-reply filtering in SQL so limits apply before hydration', () => {
+    const { sqlWhere, postFilters: remaining } = partitionFilters(
+      'posts',
+      postsTable,
+      [postFilters.notReply()],
+    );
+
+    expect(flattenSql(sqlWhere)).toContain('NOT EXISTS');
+    expect(remaining).toEqual([]);
+  });
+
   it('evaluates string filters with DATE_TIMESTAMP, LENGTH, and capabilities', () => {
     const start = Date.parse('2026-01-01T00:00:00.000Z');
     const doc = {

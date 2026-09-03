@@ -12,6 +12,7 @@ import {
   FeedPostContent,
   PostReactionHeader,
   UnreadPostIndicator,
+  FeedThreadPreview,
 } from '../../pieces';
 import React from 'react';
 import { ThreadPost } from '../threaded/ThreadPost';
@@ -101,6 +102,11 @@ export const FeedPost = ({
         previewMode={previewMode}
         onPostPress={handlePostPress}
       />
+      {!displayedPost.inReplyToId &&
+        ((displayedPost.latestReplies?.length ?? 0) > 0 ||
+          (displayedPost.replyCount ?? 0) > 0) ? (
+        <FeedThreadPreview post={displayedPost} />
+      ) : null}
     </ThemedView>
   );
 };

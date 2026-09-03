@@ -16,6 +16,7 @@ interface Props {
     isPostFeed?: boolean;
     type?: EmptyStateContainerType;
     inGroup?: boolean;
+    hideReplies?: boolean;
 }
 
 export const Feed = ({
@@ -25,6 +26,7 @@ export const Feed = ({
     isPostFeed = true,
     type = "posts",
     inGroup = false,
+    hideReplies = false,
 }: Props) => {
     const [refreshing, setRefreshing] = React.useState(false);
     const refetchRef = React.useRef(query.refetch);
@@ -32,8 +34,8 @@ export const Feed = ({
 
     const allPosts: PublicPost[] = React.useMemo(() => {
         if (!query.data?.pages) { return []; }
-        return query.data.pages.flat().filter(p => p.id !== pinnedPostId);
-    }, [query.data?.pages, pinnedPostId]);
+        return query.data.pages.flat().filter(p => p.id !== pinnedPostId && !(hideReplies && p.inReplyToId));
+    }, [query.data?.pages, pinnedPostId, hideReplies]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -65,7 +67,7 @@ export const Feed = ({
                                 <FeedPost
                                     key={p.id}
                                     post={p as PublicPost}
-                                    showReplyTo={true}
+                                    showReplyTo={!hideReplies}
                                     inGroup={inGroup}
                                 />
                             );
