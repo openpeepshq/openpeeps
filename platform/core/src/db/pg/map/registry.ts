@@ -2,6 +2,7 @@ import * as documents from '../schema/documents';
 import * as edges from '../schema/edges';
 import {
   modelTimestampsFromRow,
+  normalizeIsoDatetime,
   rowToModel,
   type RowTimestamps,
 } from '../mappers';
@@ -50,17 +51,26 @@ const withScalars =
   };
 
 const postsSplit = (data: Record<string, unknown>) => {
-  const { type, visibility, creatorId, data: postBody, ...rest } = data;
+  const {
+    type,
+    visibility,
+    creatorId,
+    lastActivityAt,
+    data: postBody,
+    ...rest
+  } = data;
   const scalars: Record<string, unknown> = {};
   if (type !== undefined) scalars.type = type;
   if (visibility !== undefined) scalars.visibility = visibility;
   if (creatorId !== undefined) scalars.creatorId = creatorId;
+  if (lastActivityAt !== undefined) scalars.lastActivityAt = lastActivityAt;
   const body =
     postBody !== undefined ? { ...(postBody as object) } : { ...rest };
   if (postBody === undefined) {
     delete (body as Record<string, unknown>).type;
     delete (body as Record<string, unknown>).visibility;
     delete (body as Record<string, unknown>).creatorId;
+    delete (body as Record<string, unknown>).lastActivityAt;
   }
   return { scalars, body };
 };
@@ -439,17 +449,24 @@ export const rowToDocument = (
         },
         timestamps,
       );
-    case 'posts':
-      return rowToModel(
-        row.id as string,
-        {
-          type: row.type,
-          visibility: row.visibility,
-          creatorId: row.creatorId,
-          data: row.body ?? {},
-        },
-        timestamps,
-      );
+    case 'posts': {
+      const lastActivityAt = row.lastActivityAt
+        ? normalizeIsoDatetime(row.lastActivityAt as string)
+        : timestamps.createdAt;
+      return {
+        ...rowToModel(
+          row.id as string,
+          {
+            type: row.type,
+            visibility: row.visibility,
+            creatorId: row.creatorId,
+            data: row.body ?? {},
+          },
+          timestamps,
+        ),
+        lastActivityAt,
+      };
+    }
     case 'groups':
       return rowToModel(
         row.id as string,

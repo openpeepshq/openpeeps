@@ -256,4 +256,37 @@ describe('transformPost deleted authors', () => {
     ]);
     expect(result.latestReplies?.[0]?.profile.handle).toBe('active');
   });
+
+  it('drops nested replies that are not direct children of the root', async () => {
+    const direct = {
+      ...basePost,
+      id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1',
+      inReplyToId: basePost.id,
+      creatorId: activeAuthor.id,
+      createdAt: '2024-05-03T00:00:00.000Z',
+      data: { type: 'note', content: 'direct' },
+      entries: [
+        {
+          ...basePost.entries![0],
+          id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1',
+          profile: { id: activeAuthor.id },
+        },
+      ],
+    };
+    const nested = {
+      ...direct,
+      id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2',
+      inReplyToId: direct.id,
+      createdAt: '2024-05-04T00:00:00.000Z',
+      data: { type: 'note', content: 'nested' },
+    };
+
+    const result = await transformPost({
+      ...basePost,
+      replyCount: 1,
+      latestReplies: [nested, direct],
+    } as unknown as DbPost);
+
+    expect(result.latestReplies?.map((reply) => reply.id)).toEqual([direct.id]);
+  });
 });

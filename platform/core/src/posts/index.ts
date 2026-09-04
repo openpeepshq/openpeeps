@@ -12,6 +12,7 @@ export {
   findLatestThreadPostId,
 } from './conversationQueries';
 export * from './helpers';
+export { bumpConversationActivity, findReplyRootId } from './activity';
 export { registerRsvpConfirmationEmail } from './rsvpConfirmationEmail';
 export {
   rebuildEventOccurrences,

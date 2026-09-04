@@ -31,7 +31,12 @@ import {
   transformPost,
 } from './helpers';
 import type { Mapping, ObjectSort, PgFilter } from '../db/pg/map';
-import { addQuerySort, addStart, sortOldestFirst } from '../db/helpers';
+import {
+  addActivityStart,
+  addQuerySort,
+  addStart,
+  sortOldestFirst,
+} from '../db/helpers';
 import { sorts } from '../db/pg/queries';
 import { findHashtagByTag, hashtagsMapping } from '../hashtags';
 import { findGroup } from '../groups/finders';
@@ -161,9 +166,10 @@ export const baseFeed = ({
   );
 
 /**
- * Community / my / group timelines: original posts (and reposts) only.
- * Replies stay nested on the post detail thread so the same conversation is
- * not repeated as standalone feed items.
+ * Community / my / group timelines: original posts (and reposts) only,
+ * ordered by last conversation activity. Replies stay nested on the post
+ * detail thread so the same conversation is not repeated as standalone
+ * feed items.
  */
 const timelineFeed = ({
   start,
@@ -173,7 +179,16 @@ const timelineFeed = ({
   start?: string;
   sort?: ObjectSort;
   profile?: ProfileWithMeta;
-}) => baseFeed({ start, sort, profile }).filter(postFilters.notReply());
+}) =>
+  addQuerySort(
+    addActivityStart<DbPost>(
+      postsMappingForProfile(profile)
+        .filter(postFilters.notDirect())
+        .filter(postFilters.notReply()),
+      start,
+    ),
+    sort,
+  );
 
 export const baseEventsFeed = (profile?: ProfileWithMeta) => {
   const mapping = postsMappingForProfile(profile)

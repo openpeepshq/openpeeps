@@ -202,6 +202,7 @@ const basePostSchema = replyPostSchema.extend({
 });
 export type BasePost = z.infer<typeof basePostSchema> & {
   latestReplies?: ReplyPost[];
+  lastActivityAt?: string;
 };
 
 const withReplyPostSchema = basePostSchema.extend({
