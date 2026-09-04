@@ -24,13 +24,13 @@ import {
 import './push-notifications-background';
 
 const messageToPushNotification = (
-  message: FirebaseMessagingTypes.RemoteMessage,
+  message: FirebaseMessagingTypes.RemoteMessage
 ): PushMessage | false =>
   !!message.data?.payload &&
   (JSON.parse(message.data.payload as string) as PushMessage);
 
 export const getDefaultActionFromRemoteMessage = (
-  remoteMessage: FirebaseMessagingTypes.RemoteMessage,
+  remoteMessage: FirebaseMessagingTypes.RemoteMessage
 ): string | undefined => {
   const pushNotification = messageToPushNotification(remoteMessage);
   const action = pushNotification?.notification?.options?.actions?.[0]?.action;
@@ -38,7 +38,7 @@ export const getDefaultActionFromRemoteMessage = (
 };
 
 const updateBadgeFromRemoteMessage = async (
-  remoteMessage: FirebaseMessagingTypes.RemoteMessage,
+  remoteMessage: FirebaseMessagingTypes.RemoteMessage
 ) => {
   const pushNotification = messageToPushNotification(remoteMessage);
   if (!pushNotification) {
@@ -47,7 +47,7 @@ const updateBadgeFromRemoteMessage = async (
 
   const { notificationStats } = pushNotification;
   const handledOnNotificationsScreen = await handlePushOnNotificationsScreen(
-    notificationStats.unseen,
+    notificationStats.unseen
   );
   if (!handledOnNotificationsScreen) {
     setAppBadgeCount(notificationStats.unseen);
@@ -55,7 +55,7 @@ const updateBadgeFromRemoteMessage = async (
 };
 
 const displayRemoteMessageNotification = async (
-  remoteMessage: FirebaseMessagingTypes.RemoteMessage,
+  remoteMessage: FirebaseMessagingTypes.RemoteMessage
 ) => {
   const pushNotification = messageToPushNotification(remoteMessage);
   if (!pushNotification?.notification) {
@@ -80,7 +80,7 @@ const displayRemoteMessageNotification = async (
 };
 
 const handleRemoteMessage = async (
-  remoteMessage: FirebaseMessagingTypes.RemoteMessage,
+  remoteMessage: FirebaseMessagingTypes.RemoteMessage
 ) => {
   await updateBadgeFromRemoteMessage(remoteMessage);
   await displayRemoteMessageNotification(remoteMessage);
@@ -88,14 +88,14 @@ const handleRemoteMessage = async (
 
 const navigateFromPushAction = (
   defaultAction: string,
-  goto: ReturnType<typeof buildGoto>,
+  goto: ReturnType<typeof buildGoto>
 ) => {
   handleInternalURLNavigation(defaultAction, goto);
 };
 
 const handleNotificationOpen = (
   remoteMessage: FirebaseMessagingTypes.RemoteMessage,
-  goto?: ReturnType<typeof buildGoto>,
+  goto?: ReturnType<typeof buildGoto>
 ) => {
   const defaultAction = getDefaultActionFromRemoteMessage(remoteMessage);
   if (!defaultAction) {
@@ -111,7 +111,7 @@ const handleNotificationOpen = (
 };
 
 export const registerMessageHandler = async (
-  navigation: NativeStackNavigationProp<MainStackParamList>,
+  navigation: NativeStackNavigationProp<MainStackParamList>
 ) => {
   const goto = buildGoto(navigation);
 
@@ -151,24 +151,38 @@ export const registerMessageHandler = async (
     }
   }
 
-  onMessage(app.messaging(), async remoteMessage => {
-    await handleRemoteMessage(remoteMessage);
-  });
-  onNotificationOpenedApp(app.messaging(), async remoteMessage => {
-    await updateBadgeFromRemoteMessage(remoteMessage);
-    handleNotificationOpen(remoteMessage, goto);
-  });
-  setBackgroundMessageHandler(app.messaging(), async remoteMessage => {
+  const unsubscribeOnMessage = onMessage(
+    app.messaging(),
+    async (remoteMessage) => {
+      await handleRemoteMessage(remoteMessage);
+    }
+  );
+  const unsubscribeOpened = onNotificationOpenedApp(
+    app.messaging(),
+    async (remoteMessage) => {
+      await updateBadgeFromRemoteMessage(remoteMessage);
+      handleNotificationOpen(remoteMessage, goto);
+    }
+  );
+  setBackgroundMessageHandler(app.messaging(), async (remoteMessage) => {
     await handleRemoteMessage(remoteMessage);
   });
 
-  notifee.onForegroundEvent(async event => {
+  const unsubscribeForeground = notifee.onForegroundEvent(async (event) => {
     await handleNotificationEvent(event);
   });
+
+  return () => {
+    unsubscribeOnMessage();
+    unsubscribeOpened();
+    unsubscribeForeground();
+  };
 };
 
-export const initializePushNotifications = async (
-  pushSubscriptions: PushSubscriptionData[],
+let fcmRegistration: Promise<PushSubscriptionData | undefined> | undefined;
+
+const registerFcmToken = async (
+  pushSubscriptions: PushSubscriptionData[]
 ): Promise<PushSubscriptionData | undefined> => {
   const app = getApp();
 
@@ -182,8 +196,8 @@ export const initializePushNotifications = async (
       const token = await getToken(app.messaging());
       if (
         pushSubscriptions.find(
-          subscription =>
-            subscription.type === 'fcm' && subscription.fcmToken === token,
+          (subscription) =>
+            subscription.type === 'fcm' && subscription.fcmToken === token
         )
       ) {
         return;
@@ -197,4 +211,15 @@ export const initializePushNotifications = async (
   } catch (_error) {
     console.info('Error initializing push notifications');
   }
+};
+
+export const initializePushNotifications = async (
+  pushSubscriptions: PushSubscriptionData[]
+): Promise<PushSubscriptionData | undefined> => {
+  if (!fcmRegistration) {
+    fcmRegistration = registerFcmToken(pushSubscriptions).finally(() => {
+      fcmRegistration = undefined;
+    });
+  }
+  return fcmRegistration;
 };

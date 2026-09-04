@@ -20,9 +20,20 @@ export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
   const goto = buildGoto(navigation);
 
   React.useEffect(() => {
-    registerMessageHandler(navigation);
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+    void registerMessageHandler(navigation).then((unsub) => {
+      if (cancelled) {
+        unsub();
+        return;
+      }
+      unsubscribe = unsub;
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, [navigation]);
-
 
   const handleNavigation = ({
     target,
@@ -73,7 +84,8 @@ export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
     return (
       <ImageBackground
         source={{ uri: resolvedBackgroundUri }}
-        className="w-screen h-screen flex justify-center items-center">
+        className="w-screen h-screen flex justify-center items-center"
+      >
         {content}
       </ImageBackground>
     );

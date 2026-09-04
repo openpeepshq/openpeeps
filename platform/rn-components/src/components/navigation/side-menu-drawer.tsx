@@ -23,9 +23,20 @@ export const SideMenuDrawer = ({ children }: SideMenuDrawerProps) => {
   const goto = buildGoto(navigation);
 
   React.useEffect(() => {
-    registerMessageHandler(navigation);
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+    void registerMessageHandler(navigation).then((unsub) => {
+      if (cancelled) {
+        unsub();
+        return;
+      }
+      unsubscribe = unsub;
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, [navigation]);
-
 
   const handleNavigation = ({
     target,
@@ -71,7 +82,8 @@ export const SideMenuDrawer = ({ children }: SideMenuDrawerProps) => {
             onProfilePress={onProfilePress}
           />
         );
-      }}>
+      }}
+    >
       {children}
     </Drawer>
   );
