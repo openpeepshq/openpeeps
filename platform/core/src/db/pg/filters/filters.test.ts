@@ -62,6 +62,27 @@ describe('pg filters', () => {
     expect(rendered).toContain('"from_id"');
   });
 
+  it('pages activity feeds with last_activity_at then id', () => {
+    const rendered = flattenSql(
+      postFilters.afterActivity({
+        id: '11111111-1111-4111-8111-111111111111',
+        lastActivityAt: '2026-09-01T12:00:00.000Z',
+      }).where,
+    );
+    expect(rendered).toContain('last_activity_at');
+    expect(rendered).toContain('2026-09-01T12:00:00.000Z');
+    expect(rendered).toContain('11111111-1111-4111-8111-111111111111');
+  });
+
+  it('looks up last_activity_at when the cursor is id-only', () => {
+    const rendered = flattenSql(
+      postFilters.afterActivity({
+        id: '11111111-1111-4111-8111-111111111111',
+      }).where,
+    );
+    expect(rendered).toContain('SELECT p2.last_activity_at');
+  });
+
   it('builds my-feed membership and following checks entirely in SQL', () => {
     const rendered = flattenSql(
       postFilters.myFeed(

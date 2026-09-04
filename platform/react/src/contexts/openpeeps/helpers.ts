@@ -10,7 +10,7 @@ import type {
   SuccessFailureResponse,
   TokenResponse,
 } from '@openpeepshq/common/types';
-import { isAccountlessJwt } from '@openpeepshq/common';
+import { encodeFeedCursor, isAccountlessJwt } from '@openpeepshq/common';
 import type {
   BodyType,
   EventSourceOptions,
@@ -224,7 +224,7 @@ export const infiniteChronologicalQueryApiHook = <
         (options?.queryParams as { limit?: number } | undefined)?.limit ?? 0,
       );
       if (limit > 0 && last.length < limit) return undefined;
-      return last[last.length - 1]?.id;
+      return encodeFeedCursor(last[last.length - 1] ?? {});
     },
     retry: false,
     refetchInterval: options?.refetchInterval,

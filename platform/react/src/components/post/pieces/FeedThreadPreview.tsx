@@ -57,14 +57,6 @@ export const FeedThreadPreview = ({ post }: FeedThreadPreviewProps) => {
             })}
           </span>
         )}
-        {hiddenCount > 0 ? (
-          <span className="text-muted-foreground">
-            {t('posts.stats.moreReplies', {
-              defaultValue: `${hiddenCount} more replies`,
-              count: hiddenCount,
-            })}
-          </span>
-        ) : null}
       </div>
       {replies.length > 0 ? (
         <div className="border-border ml-2 space-y-2.5 border-l-2 pl-3">
@@ -96,6 +88,14 @@ export const FeedThreadPreview = ({ post }: FeedThreadPreviewProps) => {
                 </div>
               </div>
             );
+          })}
+        </div>
+      ) : null}
+      {hiddenCount > 0 ? (
+        <div className="text-muted-foreground ml-2 mt-2 pl-3 text-xs">
+          {t('posts.stats.moreReplies', {
+            defaultValue: `${hiddenCount} more replies`,
+            count: hiddenCount,
           })}
         </div>
       ) : null}

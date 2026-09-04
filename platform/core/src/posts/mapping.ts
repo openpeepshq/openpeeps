@@ -194,6 +194,8 @@ const latestRepliesRelation = (profile?: { id: string }): Relation => ({
   edgeCollection: 'replyTo',
   direction: 'INBOUND',
   skipEdge: true,
+  // Direct children of this post only — nested replies stay in the thread.
+  maxDepth: 1,
   cardinality: 'many',
   mapping: {
     collection: 'posts',

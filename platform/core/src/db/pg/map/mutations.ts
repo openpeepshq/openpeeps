@@ -54,6 +54,9 @@ export const createDocument = async <O extends { id: string }>(
     createdAt: ts,
     updatedAt: ts,
     deletedAt: null,
+    ...(collection === 'posts' && scalars.lastActivityAt === undefined
+      ? { lastActivityAt: ts }
+      : {}),
   } as never);
 
   const created = await executeFind(db, collection, mapData, id, true);
@@ -131,6 +134,7 @@ const rowToPatchInput = (
         type: row.type,
         visibility: row.visibility,
         creatorId: row.creatorId,
+        lastActivityAt: row.lastActivityAt,
         data: row.body,
       };
     case 'profiles':

@@ -115,6 +115,12 @@ export const posts = pgTable(
     creatorId: text('creator_id').notNull(),
     body: jsonb('body').notNull().default({}),
     searchVector: tsvector('search_vector'),
+    lastActivityAt: timestamp('last_activity_at', {
+      withTimezone: true,
+      mode: 'string',
+    })
+      .notNull()
+      .default(sql`now()`),
     ...modelTimestamps,
   },
   (t) => [
@@ -122,6 +128,7 @@ export const posts = pgTable(
     index('posts_visibility_idx').on(t.visibility),
     index('posts_creator_idx').on(t.creatorId),
     index('posts_search_vector_idx').using('gin', t.searchVector),
+    index('posts_last_activity_id_idx').on(t.lastActivityAt, t.id),
   ],
 );
 

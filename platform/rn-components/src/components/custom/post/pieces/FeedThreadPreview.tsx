@@ -24,11 +24,11 @@ export const FeedThreadPreview = ({ post }: { post: PublicPost }) => {
   const { t } = useTranslation();
   const { currentProfile } = useOpenpeeps();
   const replies = [...(post.latestReplies ?? [])].sort((a, b) =>
-    a.createdAt.localeCompare(b.createdAt),
+    a.createdAt.localeCompare(b.createdAt)
   );
   const hiddenCount = Math.max(0, (post.replyCount ?? 0) - replies.length);
   const hasNew = replies.some(
-    (reply) => reply.seen === false && reply.profile.id !== currentProfile?.id,
+    (reply) => reply.seen === false && reply.profile.id !== currentProfile?.id
   );
 
   if (!replies.length && !post.replyCount) {
@@ -43,16 +43,14 @@ export const FeedThreadPreview = ({ post }: { post: PublicPost }) => {
             ? t('posts.stats.newReplies')
             : t('posts.stats.viewConversation')}
         </ThemedText>
-        {hiddenCount > 0 ? (
-          <ThemedText className="text-muted-foreground text-sm">
-            {t('posts.stats.moreReplies', { count: hiddenCount })}
-          </ThemedText>
-        ) : null}
       </ThemedView>
       {replies.map((reply) => {
         const text = previewText(reply);
         return (
-          <ThemedView key={reply.id} className="flex-row gap-2 mb-2 ml-2 border-l-2 border-border pl-3">
+          <ThemedView
+            key={reply.id}
+            className="flex-row gap-2 mb-2 ml-2 border-l-2 border-border pl-3"
+          >
             <ProfileAvatar profile={reply.profile} className="size-8" />
             <ThemedView className="flex-1">
               <ThemedView className="flex-row items-baseline gap-2">
@@ -62,7 +60,10 @@ export const FeedThreadPreview = ({ post }: { post: PublicPost }) => {
                 <UpdatingDate date={reply.createdAt} />
               </ThemedView>
               {text ? (
-                <ThemedText className="text-muted-foreground text-sm" numberOfLines={2}>
+                <ThemedText
+                  className="text-muted-foreground text-sm"
+                  numberOfLines={2}
+                >
                   {text}
                 </ThemedText>
               ) : null}
@@ -70,6 +71,11 @@ export const FeedThreadPreview = ({ post }: { post: PublicPost }) => {
           </ThemedView>
         );
       })}
+      {hiddenCount > 0 ? (
+        <ThemedText className="text-muted-foreground text-xs ml-2 pl-3">
+          {t('posts.stats.moreReplies', { count: hiddenCount })}
+        </ThemedText>
+      ) : null}
     </ThemedView>
   );
 };

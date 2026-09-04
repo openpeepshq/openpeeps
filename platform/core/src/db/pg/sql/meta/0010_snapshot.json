@@ -1,6 +1,6 @@
 {
-  "id": "891cba5b-0d56-4393-9674-376cacf83ea6",
-  "prevId": "8fc6aeab-cf72-40e8-809c-72f1f4433a5d",
+  "id": "5ad30744-b3f4-412b-a67e-9f413081ce6f",
+  "prevId": "891cba5b-0d56-4393-9674-376cacf83ea6",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -837,6 +837,13 @@
           "primaryKey": false,
           "notNull": false
         },
+        "last_activity_at": {
+          "name": "last_activity_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -917,6 +924,27 @@
           "isUnique": false,
           "concurrently": false,
           "method": "gin",
+          "with": {}
+        },
+        "posts_last_activity_id_idx": {
+          "name": "posts_last_activity_id_idx",
+          "columns": [
+            {
+              "expression": "last_activity_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
           "with": {}
         }
       },

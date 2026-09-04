@@ -40,7 +40,7 @@ import {
 const SCALAR_COLUMNS: Record<string, string[]> = {
   accounts: ['email', 'passwordHash', 'emailValidated', 'guest'],
   profiles: ['handle', 'type', 'activityPubDomain'],
-  posts: ['type', 'visibility', 'creatorId'],
+  posts: ['type', 'visibility', 'creatorId', 'lastActivityAt'],
   groups: ['handle'],
   hashtags: ['name'],
   roles: ['key', 'isDefault'],
@@ -143,6 +143,9 @@ const docFieldSql = (
   if (fieldPath === '_key' || fieldPath === 'id') return sql`${t.id}`;
   if (fieldPath === 'createdAt' && t.createdAt) return sql`${t.createdAt}`;
   if (fieldPath === 'updatedAt' && t.updatedAt) return sql`${t.updatedAt}`;
+  if (fieldPath === 'lastActivityAt' && t.lastActivityAt) {
+    return sql`${t.lastActivityAt}`;
+  }
   if (fieldPath === '_from' && t.fromId) return sql`${t.fromId}`;
   if (fieldPath === '_to' && t.toId) return sql`${t.toId}`;
 

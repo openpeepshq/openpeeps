@@ -33,6 +33,7 @@ import {
   transformPost,
 } from './helpers';
 import { postsMapping, repostRelation } from './mapping';
+import { bumpConversationActivity } from './activity';
 import { findGroup } from '../groups/finders';
 import { findOrCreateHashtag } from '../hashtags';
 import { hub } from '../events';
@@ -101,6 +102,7 @@ export const createPost = async (
 
   if (repliedToPost) {
     await replyConnector(db, post, repliedToPost);
+    await bumpConversationActivity(db, post.id);
   }
 
   if (group) {
@@ -207,9 +209,14 @@ export const reactToPost = async (
   data: ReactionData,
 ) =>
   allpeepDb().then(({ db }) =>
-    reactionConnector(db, profile, post, data).then(() =>
-      hub.emit('reactionCreated', profile, post, { type: 'reaction', ...data }),
-    ),
+    reactionConnector(db, profile, post, data)
+      .then(() => bumpConversationActivity(db, post.id))
+      .then(() =>
+        hub.emit('reactionCreated', profile, post, {
+          type: 'reaction',
+          ...data,
+        }),
+      ),
   );
 
 export const retractReaction = async (post: PostWithMeta, profile: Profile) =>

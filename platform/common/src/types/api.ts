@@ -213,6 +213,8 @@ const basePublicPostSchema = publicReplyPostSchema.extend({
   reposts: repostWithPublicProfileSchema.array(),
   /** Newest direct replies for a nested timeline preview. */
   latestReplies: publicReplyPostSchema.array().optional(),
+  /** Last reply or reaction on the conversation root; feeds sort by this. */
+  lastActivityAt: z.string().datetime().optional(),
   application: publicApplicationSchema.optional(),
   mentions: z.array(mentionWithPublicProfileSchema),
   tags: z.array(hashtagSchema),

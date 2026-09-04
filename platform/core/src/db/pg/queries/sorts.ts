@@ -8,4 +8,8 @@ export const sorts = {
   eventStartDesc: [['data.start', 'DESC']] as ObjectSort,
   activityScoreDesc: [['activityScore', 'DESC']] as ObjectSort,
   lastPostAtDesc: [['lastPostAt', 'DESC']] as ObjectSort,
+  lastActivityDesc: [
+    ['lastActivityAt', 'DESC'],
+    ['id', 'DESC'],
+  ] as ObjectSort,
 };

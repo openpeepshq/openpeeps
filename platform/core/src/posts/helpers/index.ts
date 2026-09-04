@@ -278,7 +278,11 @@ export const transformPost = async (
           transformPost(reply, currentProfile),
         ),
       )
-    ).filter((reply) => !!reply.profile),
+    ).filter(
+      (reply) =>
+        !!reply.profile &&
+        (!reply.inReplyToId || reply.inReplyToId === post.id),
+    ),
     repost: post.repost
       ? await transformPost(post.repost, currentProfile)
       : undefined,

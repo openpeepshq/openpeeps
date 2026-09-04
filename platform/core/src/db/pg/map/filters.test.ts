@@ -277,6 +277,16 @@ describe('map filters sql conversion', () => {
     ]);
     expect(groupOrder).toHaveLength(1);
   });
+
+  it('orders posts by lastActivityAt then id', () => {
+    const order = sortToSqlOrderBy('posts', postsTable, [
+      ['lastActivityAt', 'DESC'],
+      ['id', 'DESC'],
+    ]);
+    expect(order).toHaveLength(2);
+    expect(flattenSql(order?.[0])).toContain('last_activity_at');
+    expect(flattenSql(order?.[1])).toContain('"id"');
+  });
 });
 
 describe('map post-filter sort and limit', () => {
@@ -302,6 +312,20 @@ describe('map post-filter sort and limit', () => {
     ).toEqual(['b', 'c', 'a']);
     expect(applyLimit(docs, 2).map((d) => d.id)).toEqual(['a', 'b']);
     expect(applyLimit(docs, [1, 1]).map((d) => d.id)).toEqual(['b']);
+  });
+
+  it('ties activity sort with id when timestamps match', () => {
+    const tied = [
+      { id: 'c', lastActivityAt: '2026-01-01T00:00:00.000Z' },
+      { id: 'a', lastActivityAt: '2026-01-01T00:00:00.000Z' },
+      { id: 'b', lastActivityAt: '2026-01-01T00:00:00.000Z' },
+    ];
+    expect(
+      applySort(tied, [
+        ['lastActivityAt', 'DESC'],
+        ['id', 'DESC'],
+      ]).map((d) => d.id),
+    ).toEqual(['c', 'b', 'a']);
   });
 
   it('addFilter appends only when a filter is provided', () => {
