@@ -191,39 +191,43 @@ export function PollContent({ post }: PollContentProps) {
                   />
                 )
               ) : null}
-              {hasControl ? (
-                <label htmlFor={optionId} className={labelClass}>
-                  {option.content}
-                </label>
-              ) : (
-                <span className={labelClass}>{option.content}</span>
-              )}
-              <div className="bg-surface-2 h-2 min-w-8 flex-1 overflow-hidden rounded-full">
-                <div
-                  className="bg-primary h-full rounded-full transition-all"
-                  style={{
-                    // 0% would be invisible; 8px matches h-2 so a 0-vote
-                    // fill is a circle at the start of the track.
-                    width: votePercent === 0 ? 8 : `${votePercent}%`,
-                  }}
-                />
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                {pollData.votersVisible ? (
-                  <div className="flex -space-x-2">
-                    {votes
-                      .filter((v) => v.selection.includes(index))
-                      .slice(0, 2)
-                      .map((vote) => (
-                        <Avatar
-                          key={vote.profile.id}
-                          profile={vote.profile}
-                          size={1.5}
-                        />
-                      ))}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  {hasControl ? (
+                    <label htmlFor={optionId} className={labelClass}>
+                      {option.content}
+                    </label>
+                  ) : (
+                    <span className={labelClass}>{option.content}</span>
+                  )}
+                  <div className="flex shrink-0 items-center gap-2">
+                    {pollData.votersVisible ? (
+                      <div className="flex -space-x-2">
+                        {votes
+                          .filter((v) => v.selection.includes(index))
+                          .slice(0, 2)
+                          .map((vote) => (
+                            <Avatar
+                              key={vote.profile.id}
+                              profile={vote.profile}
+                              size={1.5}
+                            />
+                          ))}
+                      </div>
+                    ) : null}
+                    <span>{voteCount}</span>
                   </div>
-                ) : null}
-                <span>{voteCount}</span>
+                </div>
+                <div className="bg-surface-2 mt-2 h-2 overflow-hidden rounded-full">
+                  <div
+                    className="bg-primary h-full rounded-full transition-all"
+                    style={{
+                      // 0% would be invisible; 8px matches h-2 so a 0-vote
+                      // fill is a circle at the start of the track.
+                      width: votePercent === 0 ? 8 : `${votePercent}%`,
+                    }}
+                  />
+                </div>
               </div>
             </div>
           );

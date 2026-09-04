@@ -34,7 +34,7 @@ export const PollContent = ({ post }: Props) => {
 
   let hasVoted: boolean = !!(
     currentProfile &&
-    (votes.find(v => v?.profile?.id === currentProfile.id)?.selection
+    (votes.find((v) => v?.profile?.id === currentProfile.id)?.selection
       ?.length ?? 0) > 0
   );
 
@@ -45,11 +45,13 @@ export const PollContent = ({ post }: Props) => {
       return;
     }
 
-    const selection = (post?.data.multiple
-      ? selectedPollOptions
-      : hasValue(selectedPollOption)
-        ? [selectedPollOption]
-        : undefined) as number[];
+    const selection = (
+      post?.data.multiple
+        ? selectedPollOptions
+        : hasValue(selectedPollOption)
+          ? [selectedPollOption]
+          : undefined
+    ) as number[];
     if (selection && selection.length > 0) {
       try {
         await votePoll({
@@ -109,16 +111,17 @@ export const PollContent = ({ post }: Props) => {
             return (
               <View
                 key={`${option.content}-${index}`}
-                className="flex-row items-center gap-2 py-2">
+                className="flex-row items-center gap-2 py-2"
+              >
                 {canVote && (
                   <>
                     {post?.data?.type === 'question' && post.data.multiple ? (
                       <Checkbox
                         checked={selectedPollOptions.includes(index)}
                         onCheckedChange={() => {
-                          setSelectedPollOptions(prev => {
+                          setSelectedPollOptions((prev) => {
                             if (prev.includes(index)) {
-                              return prev.filter(i => i !== index);
+                              return prev.filter((i) => i !== index);
                             }
                             return [...prev, index];
                           });
@@ -127,7 +130,8 @@ export const PollContent = ({ post }: Props) => {
                     ) : (
                       <TouchableOpacity
                         onPress={() => setSelectedPollOption(index)}
-                        className="flex-row items-center gap-2">
+                        className="flex-row items-center gap-2"
+                      >
                         <View className="h-5 w-5 rounded-full border border-muted-foreground justify-center items-center">
                           {selectedPollOption === index && (
                             <View className="h-3 w-3 rounded-full bg-primary" />
@@ -137,35 +141,40 @@ export const PollContent = ({ post }: Props) => {
                     )}
                   </>
                 )}
-                <Text className="text-base">{option.content}</Text>
-                <View className="bg-border h-2 min-w-8 flex-1 overflow-hidden rounded-full">
-                  <View
-                    className="bg-primary h-full rounded-full"
-                    style={{
-                      width: votePercent === 0 ? 8 : `${votePercent}%`,
-                    }}
-                  />
-                </View>
-                <View className="flex-row items-center gap-2">
-                  {post?.data?.type === 'question' &&
-                    post.data.votersVisible && (
-                      <View className="flex-row">
-                        {votes
-                          .filter(v => v.selection.includes(index))
-                          .slice(0, 2)
-                          .map(vote => (
-                            <View
-                              key={`${vote.profile.displayName}-${vote.profile.id}`}
-                              className="-ml-4">
-                              <ProfileAvatar
-                                profile={vote.profile}
-                                className="size-6"
-                              />
-                            </View>
-                          ))}
-                      </View>
-                    )}
-                  <Text>{voteCount}</Text>
+                <View className="flex-1">
+                  <View className="flex-row items-center justify-between gap-2">
+                    <Text className="flex-1 text-base">{option.content}</Text>
+                    <View className="flex-row items-center gap-2">
+                      {post?.data?.type === 'question' &&
+                        post.data.votersVisible && (
+                          <View className="flex-row">
+                            {votes
+                              .filter((v) => v.selection.includes(index))
+                              .slice(0, 2)
+                              .map((vote) => (
+                                <View
+                                  key={`${vote.profile.displayName}-${vote.profile.id}`}
+                                  className="-ml-4"
+                                >
+                                  <ProfileAvatar
+                                    profile={vote.profile}
+                                    className="size-6"
+                                  />
+                                </View>
+                              ))}
+                          </View>
+                        )}
+                      <Text>{voteCount}</Text>
+                    </View>
+                  </View>
+                  <View className="bg-border mt-2 h-2 overflow-hidden rounded-full">
+                    <View
+                      className="bg-primary h-full rounded-full"
+                      style={{
+                        width: votePercent === 0 ? 8 : `${votePercent}%`,
+                      }}
+                    />
+                  </View>
                 </View>
               </View>
             );
@@ -187,8 +196,8 @@ export const PollContent = ({ post }: Props) => {
             {hasPollEnded
               ? t('posts.poll.ended')
               : `${formatDistanceToNow(post.data.expiresAt)} ${t(
-                'posts.poll.timeLeft',
-              )}`}
+                  'posts.poll.timeLeft'
+                )}`}
           </Text>
         )}
         {hasVoted && !hasPollEnded && (
