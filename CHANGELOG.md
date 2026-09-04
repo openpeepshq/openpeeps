@@ -29,6 +29,7 @@ Changelog for OpenPeeps
 
 ### Documentation
 
+- **agents**: stop hardcoding author in commit workflow
 - **releases**: add 19 Aug and 26 Aug narrative notes
 
 ## 2026-08-26
