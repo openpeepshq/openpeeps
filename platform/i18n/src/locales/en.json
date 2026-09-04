@@ -528,6 +528,14 @@
       "title": "New post"
     }
   },
+  "post": {
+    "detail": {
+      "title": "{{author}}'s post",
+      "eventTitle": "{{author}}'s event",
+      "fallbackTitle": "Post",
+      "inGroup": "in"
+    }
+  },
   "groups": {
     "type": {
       "public": "Public",

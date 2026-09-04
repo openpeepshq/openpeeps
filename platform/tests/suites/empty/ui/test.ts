@@ -259,7 +259,7 @@ const runCase = async (page: Page, uiCase: UiCase) => {
         name: `New UI Group Event ${uniqueSuffix()}`,
       });
       await expect(
-        page.getByRole('link', { name: groupName, exact: true }),
+        page.getByRole('link', { name: groupName, exact: true }).first(),
       ).toBeVisible();
       break;
     }
