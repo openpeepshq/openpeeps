@@ -5,6 +5,24 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **post**: add group link on post detail Show the group name as a link in the post detail header so a single post includes a path back to its group. Update i18n and the UI test to target the first matching group link.
+
+### Bug Fixes
+
+- **profile**: update handle conflict message and enhance error handling
+
+### Refactoring
+
+- **poll**: improve layout and structure of PollContent component
+
+### Documentation
+
+- **agents**: stop hardcoding author in commit workflow
+
+## 2026-09-04
+
+### Features
+
 - **events**: add time zone support to event handling
 - **emails**: enhance email layout with markdown support
 - **sidebar**: add About link for public communities
@@ -29,7 +47,6 @@ Changelog for OpenPeeps
 
 ### Documentation
 
-- **agents**: stop hardcoding author in commit workflow
 - **releases**: add 19 Aug and 26 Aug narrative notes
 
 ## 2026-08-26
