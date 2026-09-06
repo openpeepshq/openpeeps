@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MainStackParamList } from './types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { buildGoto } from './helpers';
-import { registerMessageHandler } from '~/lib/push-notifications';
+import { useRegisterPushMessageHandler } from '~/lib/push-notifications';
 import type { GotoHandlerParams } from '~/types/goto';
 import { getTheme } from '@openpeepshq/common';
 import { toAbsoluteMediaUrl } from '~/lib/media-url';
@@ -18,11 +18,7 @@ export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 
   const goto = buildGoto(navigation);
-
-  React.useEffect(() => {
-    registerMessageHandler(navigation);
-  }, [navigation]);
-
+  useRegisterPushMessageHandler(navigation);
 
   const handleNavigation = ({
     target,
@@ -73,7 +69,8 @@ export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
     return (
       <ImageBackground
         source={{ uri: resolvedBackgroundUri }}
-        className="w-screen h-screen flex justify-center items-center">
+        className="w-screen h-screen flex justify-center items-center"
+      >
         {content}
       </ImageBackground>
     );
