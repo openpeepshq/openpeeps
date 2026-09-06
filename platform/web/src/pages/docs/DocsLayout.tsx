@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { getTheme } from '@openpeepshq/common';
-import { useServerInfo } from '@openpeepshq/react/components';
+import {
+  useCurrentProfileSettings,
+  useServerInfo,
+} from '@openpeepshq/react/components';
 import { DocSearch } from './DocSearch';
 
 const navSeparator = (
@@ -14,8 +17,9 @@ const navSeparator = (
 
 export const DocsLayout = ({ children }: { children: ReactNode }) => {
   const serverInfo = useServerInfo();
+  const profileSettings = useCurrentProfileSettings();
   const logoSmall = serverInfo.communityConfig
-    ? getTheme(serverInfo.communityConfig).logoSmall
+    ? getTheme(serverInfo.communityConfig, profileSettings).logoSmall
     : undefined;
 
   return (
