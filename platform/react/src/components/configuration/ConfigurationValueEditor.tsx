@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { z, type ZodType } from 'zod';
 import { Input, Textarea } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
-import { unwrap } from '../../lib/configuration/helpers';
+import { configurationLabelKey, unwrap } from '../../lib/configuration/helpers';
 
 export interface ConfigurationValueEditorProps {
   schema: ZodType;
@@ -38,7 +38,7 @@ export function ConfigurationValueEditor({
   };
 
   const dirty = value !== config;
-  const label = t(String(path.at(-1)), {
+  const label = t(configurationLabelKey(path), {
     defaultValue: String(path.at(-1)),
   });
   const password = schema.description === 'password';
@@ -87,7 +87,9 @@ export function ConfigurationValueEditor({
             placeholder={String(defaults ?? '')}
             disabled={disabled}
             onChange={(e) =>
-              setAndNotify(e.target.value === '' ? undefined : Number(e.target.value))
+              setAndNotify(
+                e.target.value === '' ? undefined : Number(e.target.value),
+              )
             }
           />
         </label>

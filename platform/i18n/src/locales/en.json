@@ -1643,6 +1643,24 @@
   },
   "configuration": {
     "title": "Configuration",
+    "sso": {
+      "generic": {
+        "userProfilePaths": {
+          "email": "Email path",
+          "handle": "Handle path",
+          "displayName": "Display name path",
+          "avatar": "Avatar path"
+        }
+      },
+      "oidc": {
+        "claimMapping": {
+          "email": "Email claim",
+          "handle": "Handle claim",
+          "displayName": "Display name claim",
+          "avatar": "Avatar claim"
+        }
+      }
+    },
     "email": {
       "title": "Email",
       "description": "Configure SMTP transport and test deliverability with your draft settings.",
