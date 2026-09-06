@@ -48,27 +48,40 @@ export const MainNavigator = () => {
     queries: {
       experimental_prefetchInRender: true,
     },
-  },
-  );
+  });
   const createPushSubscription = openpeepsApi.createPushSubscriptionAction();
   const pushSubscriptionsQuery = openpeepsApi.usePushSubscriptions();
 
+  // Register once per mount. Running this in render created a new FCM
+  // subscription on every re-render, and each row gets its own push.
+  React.useEffect(() => {
+    let cancelled = false;
 
-  pushSubscriptionsQuery.promise.then((data) => initializePushNotifications(data)).then((newPushSubscription) => {
-    if (newPushSubscription) {
-      createPushSubscription(newPushSubscription);
-    }
-  }).catch(console.error);
+    void pushSubscriptionsQuery.promise
+      .then((data) => initializePushNotifications(data))
+      .then((newPushSubscription) => {
+        if (cancelled || !newPushSubscription) {
+          return;
+        }
+        return createPushSubscription(newPushSubscription);
+      })
+      .catch(console.error);
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { isMediumScreenOrLarger } = useWindowSize();
 
   const Wrapper = isMediumScreenOrLarger ? MenuWrapper : SideMenuDrawer;
 
-
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false, animation: 'fade' }}
-      screenLayout={({ children }) => <Wrapper>{children}</Wrapper>}>
+      screenLayout={({ children }) => <Wrapper>{children}</Wrapper>}
+    >
       <Stack.Screen name="TabNavigator" component={TabNavigator} />
       <Stack.Screen name="Profile" component={Profile} />
       <Stack.Screen name="ProfileFollowers" component={ProfileFollowers} />

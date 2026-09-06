@@ -6,6 +6,10 @@ import {
   PushNotification,
   PushSubscription,
 } from '@openpeepshq/common/types';
+import {
+  getUniqueBy,
+  pushSubscriptionDeliveryKey,
+} from '@openpeepshq/common/lib';
 import { communityConfig, config } from '../config';
 import webPush from 'web-push';
 import { logger } from '../log';
@@ -293,14 +297,48 @@ export const doPush = async (
   };
 
   const subscriptions = await listPushSubscriptionsByAccount(account);
+  const uniqueSubscriptions = getUniqueBy(
+    subscriptions,
+    pushSubscriptionDeliveryKey,
+  );
+  const duplicateSubscriptions = subscriptions.filter(
+    (subscription) =>
+      !uniqueSubscriptions.some((unique) => unique.id === subscription.id),
+  );
 
-  const webSubscriptions = subscriptions.filter((sub) => sub.type === 'web');
-  const webhookSubscriptions = subscriptions.filter(
+  if (duplicateSubscriptions.length > 0) {
+    await logStep(
+      jobLog,
+      log,
+      `Removing ${duplicateSubscriptions.length} duplicate push subscription(s) for account ${account.id}`,
+    );
+    await Promise.all(
+      duplicateSubscriptions.map((subscription) =>
+        deletePushSubscription(subscription.id).catch((error) =>
+          logFailure(
+            jobLog,
+            log,
+            `failed to remove duplicate subscription ${subscription.id}`,
+            error,
+          ),
+        ),
+      ),
+    );
+  }
+
+  const webSubscriptions = uniqueSubscriptions.filter(
+    (sub) => sub.type === 'web',
+  );
+  const webhookSubscriptions = uniqueSubscriptions.filter(
     (sub): sub is Extract<PushSubscription, { type: 'webhook' }> =>
       sub.type === 'webhook',
   );
-  const apnSubscriptions = subscriptions.filter((sub) => sub.type === 'apn');
-  const fcmSubscriptions = subscriptions.filter((sub) => sub.type === 'fcm');
+  const apnSubscriptions = uniqueSubscriptions.filter(
+    (sub) => sub.type === 'apn',
+  );
+  const fcmSubscriptions = uniqueSubscriptions.filter(
+    (sub) => sub.type === 'fcm',
+  );
 
   await logStep(
     jobLog,

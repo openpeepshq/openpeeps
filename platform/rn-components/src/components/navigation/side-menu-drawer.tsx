@@ -7,7 +7,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from './types';
 import { SideMenu } from '../custom/navigation/side-menu';
 import { buildGoto } from './helpers';
-import { registerMessageHandler } from '~/lib/push-notifications';
+import { useRegisterPushMessageHandler } from '~/lib/push-notifications';
 import type { GotoHandlerParams } from '~/types/goto';
 
 interface SideMenuDrawerProps {
@@ -21,11 +21,7 @@ export const SideMenuDrawer = ({ children }: SideMenuDrawerProps) => {
   const { currentProfile } = useOpenpeeps();
 
   const goto = buildGoto(navigation);
-
-  React.useEffect(() => {
-    registerMessageHandler(navigation);
-  }, [navigation]);
-
+  useRegisterPushMessageHandler(navigation);
 
   const handleNavigation = ({
     target,
@@ -71,7 +67,8 @@ export const SideMenuDrawer = ({ children }: SideMenuDrawerProps) => {
             onProfilePress={onProfilePress}
           />
         );
-      }}>
+      }}
+    >
       {children}
     </Drawer>
   );
