@@ -3,9 +3,13 @@ import type { VersionEntry, VersionsFile } from '@/types';
 
 type Props = {
   currentId: string;
+  currentLabel: string;
 };
 
-export const VersionSwitcher = ({ currentId }: Props): ReactElement | null => {
+export const VersionSwitcher = ({
+  currentId,
+  currentLabel,
+}: Props): ReactElement => {
   const [versions, setVersions] = useState<VersionEntry[]>([]);
 
   useEffect(() => {
@@ -21,7 +25,12 @@ export const VersionSwitcher = ({ currentId }: Props): ReactElement | null => {
     };
   }, []);
 
-  if (versions.length <= 1) return null;
+  if (versions.length <= 1)
+    return (
+      <span className="text-muted-foreground hidden text-xs sm:inline">
+        {currentLabel}
+      </span>
+    );
 
   const onChange = (id: string) => {
     const next = versions.find((v) => v.id === id);
