@@ -176,39 +176,39 @@ export function Welcome() {
       </h2>
       <ul>
         <li>
-          <a className="anchor" href="/feeds/local">
+          <a className="op-anchor" href="/feeds/local">
             See community content
           </a>
         </li>
         <li>
-          <a className="anchor" href="/settings">
+          <a className="op-anchor" href="/settings">
             Change your name, photo and bio
           </a>
         </li>
         <li>
-          <a className="anchor" href="/docs">
+          <a className="op-anchor" href="/docs">
             View documentation
           </a>
         </li>
         <li>
-          <a className="anchor" href="/members">
+          <a className="op-anchor" href="/members">
             See all community members
           </a>
         </li>
         <li>
-          <a className="anchor" href={privacyPolicyLink}>
+          <a className="op-anchor" href={privacyPolicyLink}>
             Privacy policy
           </a>
         </li>
         {termsAndConditionsLink && (
           <li>
-            <a className="anchor" href={termsAndConditionsLink}>
+            <a className="op-anchor" href={termsAndConditionsLink}>
               Terms and conditions
             </a>
           </li>
         )}
         <li>
-          <a className="anchor" href="/code-of-conduct">
+          <a className="op-anchor" href="/code-of-conduct">
             Code of conduct
           </a>
         </li>
