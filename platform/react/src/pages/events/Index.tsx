@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronRight, MoreHorizontal } from 'lucide-react';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
 import {
   EventsFeed,
@@ -7,6 +8,7 @@ import {
   useCurrentProfile,
   useDefaultVisibility,
 } from '../../components';
+import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 
 export function EventsIndex() {
   const t = useT();
@@ -21,9 +23,23 @@ export function EventsIndex() {
 
   const activeQuery = tab === 'upcoming' ? upcomingQuery : pastQuery;
 
+  const headerActions = useMemo(
+    () => (
+      <PopupMenu icon={MoreHorizontal} compact>
+        <PopupMenuButton
+          icon={ChevronRight}
+          title={t('navigation.myEvents', { defaultValue: 'My events' })}
+          text={t('navigation.myEvents', { defaultValue: 'My events' })}
+          action="/events/my"
+        />
+      </PopupMenu>
+    ),
+    [t],
+  );
+
   useSetPageHeader(
     t('navigation.events', { defaultValue: 'Events' }),
-    undefined,
+    headerActions,
     'events-page-heading',
   );
 
