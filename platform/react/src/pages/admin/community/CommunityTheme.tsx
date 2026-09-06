@@ -155,7 +155,7 @@ export function AdminConfigurationCommunityTheme() {
           {(['light', 'dark'] as Mode[]).map((mode) => (
             <div key={mode} className="space-y-3">
               <div className="font-medium">
-                {t(`configuration.community.${mode}Theme.color`)}
+                {t(`configuration.community.${mode}Theme.mode`)}
               </div>
               <label className="block text-sm">
                 {t('configuration.community.fontFamily')}
