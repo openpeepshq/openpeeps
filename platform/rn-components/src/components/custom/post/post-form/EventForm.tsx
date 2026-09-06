@@ -605,6 +605,7 @@ export const EventForm = ({
         disabled={isEdit}
         audienceSetting={form.getValues()}
         type="event"
+        showDirect
         onChange={(audienceSetting) => {
           form.setValue('visibility', audienceSetting.visibility);
           form.setValue('groupId', audienceSetting.groupId);
