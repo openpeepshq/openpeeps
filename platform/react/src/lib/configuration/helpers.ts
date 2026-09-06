@@ -104,6 +104,16 @@ export const diffConfigElements = (lhs: ConfigElement, rhs: ConfigElement) => {
 export const equal = (lhs: ConfigTree, rhs: ConfigTree) =>
   Object.keys(diffConfigTrees(lhs, rhs)).length === 0;
 
+/**
+ * Translation key for a configuration field label. Array indices are
+ * positional, so every entry of a list shares its siblings' labels.
+ */
+export const configurationLabelKey = (path: (string | number)[]) =>
+  [
+    'configuration',
+    ...path.filter((segment) => !/^\d+$/.test(String(segment))),
+  ].join('.');
+
 export const isFieldHidden = (schema: ZodType) => {
   const description = schema.description;
   if (description === 'fixed' || description === 'hidden') return true;
