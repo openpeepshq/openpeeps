@@ -149,7 +149,7 @@ export const acceptFromWaitingRoom = async (
 
   const aKey = admittanceKey(event, recurrenceId);
   await conn.hSet(aKey, {
-    [profile.id]: await createJamToken(event, profile, false, recurrenceId),
+    [profile.id]: await createJamToken(event, profile, { recurrenceId }),
   });
   await conn.expire(aKey, ADMITTANCE_TTL_SEC);
 };

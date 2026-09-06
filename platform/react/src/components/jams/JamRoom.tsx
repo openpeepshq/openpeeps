@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import '@livekit/components-styles';
 import './livekit-light-theme.css';
 import type { LocalUserChoices } from '@livekit/components-react';
+import type { DisconnectReason } from 'livekit-client';
 import type { Event, PublicPost } from '@openpeepshq/common/types';
 import { jamFromEvent, getJamCapacityJoinBlock } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
@@ -13,6 +14,7 @@ import { JamLobby } from './JamLobby';
 import { JamCapacityGate } from './JamCapacityGate';
 import { JamRequestJoin } from './JamRequestJoin';
 import { JamVideoCall } from './JamVideoCall';
+import { shouldReconnectAfterDisconnect } from './disconnectReason';
 import { apiErrorMessage } from '../../lib/apiErrorMessage';
 
 export interface JamRoomProps {
@@ -119,7 +121,10 @@ function JamRoomInner() {
       try {
         const res = await client.jams.token({
           pathParameters: { id: jamPost.id },
-          queryParameters: occurrence ? { occurrence } : undefined,
+          queryParameters: {
+            reconnect: 'true',
+            ...(occurrence && { occurrence }),
+          },
         });
         if (!mounted.current || isIntentionalLeave()) {
           setReconnectPrefs(undefined);
@@ -155,21 +160,24 @@ function JamRoomInner() {
     [client, isIntentionalLeave, jamPost.id, livekitUrl, occurrence, t],
   );
 
-  const handleDisconnected = useCallback(() => {
-    if (isIntentionalLeave()) {
-      setConnection(undefined);
-      setReconnectPrefs(undefined);
-      setReconnectError(undefined);
-      return;
-    }
-    setConnection((current) => {
-      if (!current) return undefined;
-      const prefs = { audio: current.audio, video: current.video };
-      setReconnectPrefs(prefs);
-      queueMicrotask(() => void tryReconnect(prefs));
-      return undefined;
-    });
-  }, [isIntentionalLeave, tryReconnect]);
+  const handleDisconnected = useCallback(
+    (reason?: DisconnectReason) => {
+      if (isIntentionalLeave() || !shouldReconnectAfterDisconnect(reason)) {
+        setConnection(undefined);
+        setReconnectPrefs(undefined);
+        setReconnectError(undefined);
+        return;
+      }
+      setConnection((current) => {
+        if (!current) return undefined;
+        const prefs = { audio: current.audio, video: current.video };
+        setReconnectPrefs(prefs);
+        queueMicrotask(() => void tryReconnect(prefs));
+        return undefined;
+      });
+    },
+    [isIntentionalLeave, tryReconnect],
+  );
 
   // Retry when the page becomes visible again (mobile idle / tab freeze).
   useEffect(() => {

@@ -91,11 +91,27 @@ export const createJamEgressToken = async (
   return accessToken.toJwt();
 };
 
+export type CreateJamTokenOptions = {
+  /** Participant is joining from another instance. */
+  external?: boolean;
+  recurrenceId?: string;
+  /**
+   * Automatic re-join after a dropped connection, as opposed to a participant
+   * deliberately joining. A reconnect must never open the room: a moderator
+   * whose client re-tokens into an ended jam would put it back on the live
+   * list and notify the community all over again.
+   */
+  reconnect?: boolean;
+};
+
 export const createJamToken = async (
   event: PostWithMeta,
   profile: PublicProfile,
-  external: boolean = false,
-  recurrenceId?: string,
+  {
+    external = false,
+    recurrenceId,
+    reconnect = false,
+  }: CreateJamTokenOptions = {},
 ) => {
   if (!profile.id) throw authNeeded({ errorKey: 'error.profileRequired' });
 
@@ -118,7 +134,7 @@ export const createJamToken = async (
   const rooms = await rs.listRooms([roomName]);
   const jamOpen = rooms.length === 1;
 
-  if (!jamOpen && !jam?.moderators.includes(profile.id)) {
+  if (!jamOpen && (reconnect || !jam?.moderators.includes(profile.id))) {
     throw forbidden({ errorKey: 'error.jamNotOpen' });
   }
 

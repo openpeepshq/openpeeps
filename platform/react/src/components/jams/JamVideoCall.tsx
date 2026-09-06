@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { LiveKitRoom } from '@livekit/components-react';
+import type { DisconnectReason } from 'livekit-client';
 import { getTheme } from '@openpeepshq/common/lib';
 import { defaultRoomOptions } from './constants';
 import { useJamContext } from './JamContext';
@@ -13,8 +14,8 @@ export interface JamVideoCallProps {
   /** Initial audio/video defaults. Useful for hand-off from `<JamLobby>`. */
   audio?: boolean;
   video?: boolean;
-  /** Fired when the participant leaves the room. */
-  onDisconnected?: () => void;
+  /** Fired when the participant leaves the room, with LiveKit's reason. */
+  onDisconnected?: (reason?: DisconnectReason) => void;
 }
 
 /**
