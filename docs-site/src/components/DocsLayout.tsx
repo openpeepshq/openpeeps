@@ -33,10 +33,7 @@ export const DocsLayout = ({
           <img src={`${import.meta.env.BASE_URL}logo-small.png`} alt="" className="h-6" />
           <span className="text-foreground font-semibold">OpenPeeps Docs</span>
         </Link>
-        <VersionSwitcher currentId={versionId} />
-        <span className="text-muted-foreground hidden text-xs sm:inline">
-          {versionLabel}
-        </span>
+        <VersionSwitcher currentId={versionId} currentLabel={versionLabel} />
         <div className="ml-auto w-full sm:w-auto sm:min-w-[14rem]">
           <DocSearch docs={docs} />
         </div>
@@ -70,7 +67,7 @@ export const DocsLayout = ({
                   <li key={item.slug || 'home'}>
                     <NavLink
                       to={slugToPath(item.slug)}
-                      end={item.slug === ''}
+                      end
                       className={linkClass}
                     >
                       {item.label}
