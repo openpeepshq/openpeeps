@@ -123,7 +123,7 @@ export const ProfilePickerSheet = forwardRef<
     };
 
     return (
-      <BaseSheet ref={ref}>
+      <BaseSheet ref={ref} stackBehavior="push">
         <View className="flex-1 p-4 relative">
           {isLoading && <ActivityIndicator size={'small'} />}
 

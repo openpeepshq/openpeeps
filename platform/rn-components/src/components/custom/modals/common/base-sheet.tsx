@@ -4,6 +4,7 @@ import {
   BottomSheetModal,
   BottomSheetView,
   BottomSheetScrollView,
+  type BottomSheetModalProps,
 } from '@gorhom/bottom-sheet';
 import { SheetBackdrop } from './sheet-backdrop';
 import { useWindowSize } from '~/hooks';
@@ -18,6 +19,7 @@ interface BaseSheetProps {
   index?: number;
   scrollable?: boolean;
   onDismiss?: () => void;
+  stackBehavior?: BottomSheetModalProps['stackBehavior'];
 }
 
 export const BaseSheet = forwardRef<BottomSheetModal, BaseSheetProps>(
@@ -30,6 +32,7 @@ export const BaseSheet = forwardRef<BottomSheetModal, BaseSheetProps>(
       index = 0,
       scrollable = false,
       onDismiss,
+      stackBehavior,
     },
     ref,
   ) => {
@@ -72,6 +75,7 @@ export const BaseSheet = forwardRef<BottomSheetModal, BaseSheetProps>(
         enableOverDrag={enableOverDrag}
         backdropComponent={SheetBackdrop}
         onDismiss={onDismiss}
+        stackBehavior={stackBehavior}
         backgroundStyle={{
           backgroundColor: colors.background,
         }}>
