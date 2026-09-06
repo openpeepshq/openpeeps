@@ -52,12 +52,10 @@ export const apiEndpoint = endpoint({ Param, Query, Stream, Error }).handle(
     // Already admitted (e.g. mobile idle reconnect): mint a fresh token and
     // skip the waiting-room queue entirely.
     if (await isAdmittedToJam(jamEvent, profile.id, recurrenceId)) {
-      const token = await createJamToken(
-        jamEvent,
-        profile,
-        false,
+      const token = await createJamToken(jamEvent, profile, {
         recurrenceId,
-      ).catch(rethrowIfOpenpeepsError);
+        reconnect: true,
+      }).catch(rethrowIfOpenpeepsError);
       return produceStream<z.infer<typeof Stream>>({
         start: async ({ emit, stop }) => {
           emit({

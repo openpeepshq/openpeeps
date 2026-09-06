@@ -22,6 +22,8 @@ export const Param = z.object({
 
 export const Query = z.object({
   occurrence: z.string().optional(),
+  /** Automatic re-join; never opens a room that has since been closed. */
+  reconnect: z.enum(['true', 'false']).optional(),
 });
 
 export const Output = jamTokenResponseSchema;
@@ -83,12 +85,10 @@ export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
       }
     }
 
-    const token = await createJamToken(
-      jamEvent,
-      currentProfile,
-      false,
+    const token = await createJamToken(jamEvent, currentProfile, {
       recurrenceId,
-    ).catch(rethrowIfOpenpeepsError);
+      reconnect: param.reconnect === 'true',
+    }).catch(rethrowIfOpenpeepsError);
 
     return { success: true, token, livekitUrl: jams.livekit.url };
   },

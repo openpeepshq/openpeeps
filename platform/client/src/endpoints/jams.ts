@@ -39,7 +39,7 @@ export const jams = (
     token: allpeepNoPayloadEndpoint<
       JamTokenResponse,
       { id: string },
-      OccurrenceQuery
+      OccurrenceQuery & { reconnect?: 'true' }
     >(rawClient, '/jams/:id/token'),
     muteParticipant: allpeepPayloadEndpoint<
       SuccessResponse,
