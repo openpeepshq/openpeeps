@@ -412,6 +412,27 @@ const dropPlaceholderColumns = async (columns: PlaceholderColumn[]) => {
   }
 };
 
+const migrateArangoSchemaForward = async () => {
+  const db = pgDb();
+  // 0006 briefly treated post_seen as a unique relationship and deletes
+  // repeated pairs. 0007 corrects that model, but cannot restore rows already
+  // deleted. Preserve the imported impression events while replaying both.
+  await db.execute(
+    sql.raw(
+      'CREATE UNLOGGED TABLE "_arango_restore_post_seen" AS TABLE "post_seen"',
+    ),
+  );
+  await runMigrations();
+  await db.execute(
+    sql.raw(`INSERT INTO "post_seen"
+      ("id", "from_id", "to_id", "body", "created_at", "updated_at")
+      SELECT "id", "from_id", "to_id", "body", "created_at", "updated_at"
+      FROM "_arango_restore_post_seen"
+      ON CONFLICT ("id") DO NOTHING`),
+  );
+  await db.execute(sql.raw('DROP TABLE "_arango_restore_post_seen"'));
+};
+
 const prepareSchemaForRestore = async (
   databaseType: 'arango' | 'postgres',
   schemaVersionFromBackup?: string,
@@ -463,7 +484,7 @@ export const importAllArangoCollections = async (collectionsDir: string) => {
 
   log.info('Arango rows loaded; migrating schema forward to latest');
   await dropPlaceholderColumns(placeholders);
-  await runMigrations();
+  await migrateArangoSchemaForward();
 
   const total = sumImported(imported);
   log.info(
