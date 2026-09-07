@@ -9,6 +9,7 @@ import {
   shouldShowFab,
   withDismissal,
   withMute,
+  withSnooze,
 } from '../onboardingGuide';
 
 const noon = (isoDate: string) => new Date(`${isoDate}T12:00:00`);
@@ -113,6 +114,92 @@ describe('canSendProactiveDm', () => {
         now: noon('2026-08-25'),
       }),
     ).toBe(false);
+  });
+
+  it('suppresses another DM in the same virtual day bucket', () => {
+    const virtualConfig = resolveOnboardingGuideConfig({
+      virtualDayDurationMs: 300_000,
+    });
+    expect(
+      canSendProactiveDm({
+        config: virtualConfig,
+        state: {
+          status: 'active',
+          proactive: true,
+          lastProactiveAt: '2026-08-25T12:06:00.000Z',
+          proactiveCount: 1,
+        },
+        createdAt: '2026-08-25T12:00:00.000Z',
+        now: new Date('2026-08-25T12:09:00.000Z'),
+      }),
+    ).toBe(false);
+  });
+
+  it('allows an intro during the first virtual day', () => {
+    const virtualConfig = resolveOnboardingGuideConfig({
+      virtualDayDurationMs: 300_000,
+    });
+    const input = {
+      config: virtualConfig,
+      state: { status: 'active' as const, proactive: true },
+      createdAt: '2026-08-25T12:00:00.000Z',
+    };
+    expect(
+      canSendProactiveDm({
+        ...input,
+        now: new Date('2026-08-25T12:04:59.999Z'),
+      }),
+    ).toBe(true);
+    expect(
+      canSendProactiveDm({
+        ...input,
+        now: new Date('2026-08-25T12:05:00.000Z'),
+      }),
+    ).toBe(true);
+  });
+
+  it('keeps immediate calendar-day eligibility when virtual days are absent', () => {
+    expect(
+      canSendProactiveDm({
+        config,
+        state: { status: 'active', proactive: true },
+        createdAt: '2026-08-25T11:59:59.000Z',
+        now: new Date('2026-08-25T12:00:00.000Z'),
+      }),
+    ).toBe(true);
+  });
+});
+
+describe('withSnooze', () => {
+  it('turns a seven-day demo snooze into 35 minutes', () => {
+    const now = new Date('2026-08-25T12:00:00.000Z');
+    const state = withSnooze({}, now, 7, 300_000);
+    expect(state.snoozedUntil).toBe('2026-08-25T12:35:00.000Z');
+    const config = resolveOnboardingGuideConfig({
+      quietHours: { startHour: 0, endHour: 0 },
+      virtualDayDurationMs: 300_000,
+    });
+    expect(
+      canSendProactiveDm({
+        config,
+        state,
+        createdAt: '2026-08-25T12:00:00.000Z',
+        now: new Date('2026-08-25T12:34:59.999Z'),
+      }),
+    ).toBe(false);
+    expect(
+      canSendProactiveDm({
+        config,
+        state,
+        createdAt: '2026-08-25T12:00:00.000Z',
+        now: new Date('2026-08-25T12:35:00.000Z'),
+      }),
+    ).toBe(true);
+  });
+
+  it('keeps seven calendar days when virtual days are absent', () => {
+    const now = new Date('2026-08-25T12:00:00.000Z');
+    expect(withSnooze({}, now).snoozedUntil).toBe('2026-09-01T12:00:00.000Z');
   });
 });
 

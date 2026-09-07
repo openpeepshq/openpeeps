@@ -5,6 +5,7 @@ import {
   ProfileWithMeta,
   PushNotification,
   PushSubscription,
+  NotificationContext,
 } from '@openpeepshq/common/types';
 import {
   getUniqueBy,
@@ -23,6 +24,7 @@ import { ApnsClient, Notification as IOSPushNotification } from 'apns2';
 import firebase from 'firebase-admin';
 import { jwtUtil } from '../jwt';
 import { uuidv7 } from 'uuidv7';
+import type { NotificationContextBuilder } from './context';
 
 const log = logger('core:notifications:push');
 
@@ -87,12 +89,14 @@ const sendWebPushNotification = (
 const sendWebhookPushNotification = async (
   subscription: Extract<PushSubscription, { type: 'webhook' }>,
   payload: PushPayload,
+  notificationContext?: NotificationContext,
 ) => {
   const jwt = await jwtUtil();
   const token = await jwt.sign({
     payload: {
       type: 'pushNotification',
       payload,
+      ...(notificationContext ? { notificationContext } : {}),
     },
     expirationTime: '5m',
     id: uuidv7(),
@@ -281,6 +285,7 @@ export const doPush = async (
   notificationStats: NotificationStats,
   account: Account,
   jobLog?: JobLog,
+  notificationContextBuilder?: NotificationContextBuilder,
 ) => {
   if (!notification) {
     await logStep(
@@ -405,13 +410,18 @@ export const doPush = async (
       });
   }
 
+  const webhookContext =
+    webhookSubscriptions.length > 0
+      ? await notificationContextBuilder?.()
+      : undefined;
+
   for (const subscription of webhookSubscriptions) {
     await logStep(
       jobLog,
       log,
       `Sending webhook push to ${describeSubscription(subscription)}`,
     );
-    await sendWebhookPushNotification(subscription, payloadData)
+    await sendWebhookPushNotification(subscription, payloadData, webhookContext)
       .then(() =>
         logStep(
           jobLog,

@@ -1,4 +1,7 @@
-import type { FetchClient, noPayloadEventSource } from '@openpeepshq/fetch-client';
+import type {
+  FetchClient,
+  noPayloadEventSource,
+} from '@openpeepshq/fetch-client';
 import type {
   AccessTokenCreationData,
   AccessTokenWithMeta,
@@ -14,13 +17,41 @@ import type {
   SuccessResponse,
   NotificationType,
   PublicNotification,
+  PluginSettingsEnvelope,
+  PluginSettingsPatch,
   ProfileSettings,
-  ProfileSettingsData,
+  ProfileSettingsUpdateData,
   PublicAccessToken,
   SessionEvent,
   SessionPlatform,
 } from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
+
+type PluginSettingsPath = { namespace: string; name: string };
+
+const createUpdatePluginSettings = (rawClient: FetchClient) => {
+  const endpoint = allpeepPayloadEndpoint<
+    PluginSettingsEnvelope,
+    string,
+    PluginSettingsPath
+  >(rawClient, '/profiles/current/pluginSettings/:namespace/:name', 'patch');
+
+  const update = (
+    patch: PluginSettingsPatch,
+    options?: Parameters<typeof endpoint>[1],
+  ) =>
+    endpoint(JSON.stringify(patch), {
+      ...options,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+    });
+
+  update.queryKey = endpoint.queryKey;
+  return update;
+};
 
 export const profiles = (
   rawClient: FetchClient,
@@ -66,11 +97,15 @@ export const profiles = (
       rawClient,
       '/profiles/current/settings',
     ),
-    updateSettings: allpeepPayloadEndpoint<ProfileSettings, ProfileSettingsData>(
-      rawClient,
-      '/profiles/current/settings',
-      'put',
-    ),
+    updateSettings: allpeepPayloadEndpoint<
+      ProfileSettings,
+      ProfileSettingsUpdateData
+    >(rawClient, '/profiles/current/settings', 'put'),
+    readPluginSettings: allpeepNoPayloadEndpoint<
+      PluginSettingsEnvelope,
+      PluginSettingsPath
+    >(rawClient, '/profiles/current/pluginSettings/:namespace/:name'),
+    updatePluginSettings: createUpdatePluginSettings(rawClient),
     accessTokens: allpeepNoPayloadEndpoint<PublicAccessToken[]>(
       rawClient,
       '/profiles/current/access-tokens',
@@ -78,19 +113,11 @@ export const profiles = (
     createAccessToken: allpeepPayloadEndpoint<
       AccessTokenWithMeta,
       AccessTokenCreationData
-    >(
-      rawClient,
-      '/profiles/current/access-tokens',
-      'post',
-    ),
+    >(rawClient, '/profiles/current/access-tokens', 'post'),
     revokeAccessToken: allpeepNoPayloadEndpoint<
       SuccessResponse,
       { accessTokenId: string }
-    >(
-      rawClient,
-      '/profiles/current/access-tokens/:accessTokenId',
-      'delete',
-    ),
+    >(rawClient, '/profiles/current/access-tokens/:accessTokenId', 'delete'),
     sessionEvents: {
       listen: eventSource<
         SessionEvent,
@@ -100,18 +127,15 @@ export const profiles = (
     },
   },
 
-  list: allpeepNoPayloadEndpoint<PublicProfile[]>(
+  list: allpeepNoPayloadEndpoint<PublicProfile[]>(rawClient, '/profiles'),
+  findById: allpeepNoPayloadEndpoint<PublicProfile, { id: string }>(
     rawClient,
-    '/profiles',
+    '/profiles/:id',
   ),
-  findById: allpeepNoPayloadEndpoint<
-    PublicProfile,
-    { id: string }
-  >(rawClient, '/profiles/:id'),
-  findByHandle: allpeepNoPayloadEndpoint<
-    PublicProfile,
-    { handle: string }
-  >(rawClient, '/profiles/by-handle/:handle'),
+  findByHandle: allpeepNoPayloadEndpoint<PublicProfile, { handle: string }>(
+    rawClient,
+    '/profiles/by-handle/:handle',
+  ),
   follow: allpeepPayloadEndpoint<SuccessResponse, FollowData, { id: string }>(
     rawClient,
     '/profiles/:id/follow',

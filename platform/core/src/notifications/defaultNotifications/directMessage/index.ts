@@ -30,16 +30,17 @@ const eventHandler = async (data: unknown) => {
 };
 
 const pushRenderer = async (notification: ExpandedNotification) => {
-  const path = `/conversations/${(notification.data as { conversationStart: PostWithMeta }).conversationStart?.id}`;
+  const conversationId = (
+    notification.data as { conversationStart: PostWithMeta }
+  ).conversationStart?.id;
+  const path = `/conversations/${conversationId}`;
+  const config = await communityConfig();
 
   return {
     title: `${profileName(notification.senderProfile!)} sent you a direct message`,
     options: {
       body: notification.post?.data?.content,
-      icon: getProfileAvatar(
-        notification.senderProfile,
-        await communityConfig(),
-      ),
+      icon: getProfileAvatar(notification.senderProfile, config),
       data: {
         url: path,
       },

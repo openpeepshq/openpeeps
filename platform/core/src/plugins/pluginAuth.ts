@@ -1,15 +1,15 @@
 import type { NextFunction, Request, Response } from 'express';
-import type { JWTPayload } from 'jose';
 
-import { jwtUtil } from '../jwt';
+import { findAccount } from '../accounts';
+import { verifySignedAccessToken } from '../accessTokens';
+import { findProfile } from '../profiles';
+import { checkSubscription } from '../stripe';
 
 type PluginProfile = { id: string };
 
-type AuthorizationPayload = JWTPayload & {
-  identities?: { profile?: string; service?: string };
-};
-
 declare global {
+  // Express request augmentation requires TypeScript declaration merging.
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       pluginProfile?: PluginProfile;
@@ -26,18 +26,13 @@ declare global {
  * router.get('/secure', ensurePluginAuth(), handler);
  * ```
  *
- * If no valid token is present, the middleware returns 401 JSON. Plugin authors
- * can use `req.pluginProfile` to identify the caller.
- *
- * Note: this helper validates the JWT signature and the presence of a profile
- * identity only. It does not expose the profile handle, check token revocation,
- * or verify whether the profile/account still exists. Plugin authors that need
- * stronger guarantees or the handle should perform their own lookup.
+ * Invalid or revoked tokens return 401. The current local profile/account and
+ * subscription are revalidated before plugin code receives the profile ID.
  */
 export const ensurePluginAuth =
   () => async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader || !authHeader.toLowerCase().startsWith('bearer ')) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 
@@ -46,18 +41,42 @@ export const ensurePluginAuth =
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 
+    let payload;
     try {
-      const jwt = await jwtUtil();
-      const verified = await jwt.verify(token);
-      const payload = verified?.payload as AuthorizationPayload | undefined;
-      if (!payload?.identities?.profile) {
-        return res
-          .status(401)
-          .json({ success: false, message: 'Invalid token' });
-      }
-      req.pluginProfile = { id: payload.identities.profile };
-      next();
+      payload = await verifySignedAccessToken(token);
     } catch {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    const profileId = payload?.identities?.profile;
+    if (!payload || !profileId) {
+      return res.status(401).json({ success: false, message: 'Invalid token' });
+    }
+
+    try {
+      const [profile, account] = await Promise.all([
+        findProfile(profileId),
+        payload.identities.account
+          ? findAccount(payload.identities.account)
+          : Promise.resolve(undefined),
+      ]);
+      if (payload.identities.account && (!account || account.deletedAt)) {
+        return res
+          .status(401)
+          .json({ success: false, message: 'Invalid account' });
+      }
+      if (!profile || profile.deletedAt || profile.type !== 'local') {
+        return res
+          .status(401)
+          .json({ success: false, message: 'Invalid profile' });
+      }
+      if (!(await checkSubscription(profile, account))) {
+        return res
+          .status(403)
+          .json({ success: false, message: 'Subscription needed' });
+      }
+      req.pluginProfile = { id: profile.id };
+      next();
+    } catch (error) {
+      next(error);
     }
   };

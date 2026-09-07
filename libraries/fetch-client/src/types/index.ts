@@ -68,6 +68,7 @@ export interface TypedEndpointOptions<PathParameters, QueryParameters> {
   headers?: Record<string, string>;
   fetchClient?: FetchClient;
   signal?: AbortSignal;
+  onResponseStatus?: (status: number) => void;
 }
 
 export interface UploadProgressEvent {

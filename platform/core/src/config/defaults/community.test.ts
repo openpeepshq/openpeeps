@@ -14,6 +14,8 @@ const KEYS = [
   'COMMUNITY_ONBOARDING_GUIDE_PRIMARY_INVITE',
   'COMMUNITY_ONBOARDING_GUIDE_ENABLED_RUNGS',
   'COMMUNITY_ONBOARDING_GUIDE_CUSTOM_HOST_BLURB',
+  'COMMUNITY_ONBOARDING_GUIDE_VIRTUAL_DAY_DURATION_MS',
+  'COMMUNITY_ONBOARDING_GUIDE_CHATBOT_HANDLE',
 ] as const;
 
 const original = Object.fromEntries(KEYS.map((key) => [key, process.env[key]]));
@@ -54,6 +56,8 @@ describe('onboardingGuideConfigFromEnv', () => {
     process.env.COMMUNITY_ONBOARDING_GUIDE_PUSH_ON_FIRST_INTRO = 'true';
     process.env.COMMUNITY_ONBOARDING_GUIDE_ENABLED_RUNGS = 'orient,join_group';
     process.env.COMMUNITY_ONBOARDING_GUIDE_CUSTOM_HOST_BLURB = 'Hello';
+    process.env.COMMUNITY_ONBOARDING_GUIDE_VIRTUAL_DAY_DURATION_MS = '300000';
+    process.env.COMMUNITY_ONBOARDING_GUIDE_CHATBOT_HANDLE = 'guide';
     const { onboardingGuideConfigFromEnv } = await import('./community');
     expect(onboardingGuideConfigFromEnv()).toMatchObject({
       displayName: 'Host',
@@ -64,6 +68,8 @@ describe('onboardingGuideConfigFromEnv', () => {
       pushOnFirstIntro: true,
       enabledRungs: ['orient', 'join_group'],
       customHostBlurb: 'Hello',
+      virtualDayDurationMs: 300000,
+      chatbotHandle: 'guide',
     });
   });
 

@@ -32,6 +32,7 @@ export const DEFAULT_ONBOARDING_GUIDE_STATE: OnboardingGuideState = {
   status: 'active',
   proactive: true,
   completedRungs: [],
+  completedProactiveMessageKinds: [],
   invitationDismissals: [],
 };
 
@@ -59,18 +60,39 @@ export const resolveOnboardingGuideState = (
   proactive: partial?.proactive ?? DEFAULT_ONBOARDING_GUIDE_STATE.proactive,
   completedRungs:
     partial?.completedRungs ?? DEFAULT_ONBOARDING_GUIDE_STATE.completedRungs,
+  completedProactiveMessageKinds:
+    partial?.completedProactiveMessageKinds ??
+    DEFAULT_ONBOARDING_GUIDE_STATE.completedProactiveMessageKinds,
   invitationDismissals:
     partial?.invitationDismissals ??
     DEFAULT_ONBOARDING_GUIDE_STATE.invitationDismissals,
 });
 
-export const daysBetween = (iso: string, now: Date): number =>
-  (now.getTime() - new Date(iso).getTime()) / MS_PER_DAY;
+export const dayDurationMs = (virtualDayDurationMs?: number): number =>
+  virtualDayDurationMs ?? MS_PER_DAY;
+
+export const daysBetween = (
+  iso: string,
+  now: Date,
+  virtualDayDurationMs?: number,
+): number =>
+  (now.getTime() - new Date(iso).getTime()) /
+  dayDurationMs(virtualDayDurationMs);
 
 export const isSameLocalDay = (a: Date, b: Date): boolean =>
   a.getFullYear() === b.getFullYear() &&
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate();
+
+export const isSameOnboardingDay = (
+  a: Date,
+  b: Date,
+  virtualDayDurationMs?: number,
+): boolean =>
+  virtualDayDurationMs
+    ? Math.floor(a.getTime() / virtualDayDurationMs) ===
+      Math.floor(b.getTime() / virtualDayDurationMs)
+    : isSameLocalDay(a, b);
 
 export const isQuietHour = (
   now: Date,
@@ -87,9 +109,10 @@ export const isWithinOnboardingWindow = (
   createdAt: string | undefined,
   windowDays: number,
   now: Date,
+  virtualDayDurationMs?: number,
 ): boolean => {
   if (!createdAt) return true;
-  return daysBetween(createdAt, now) < windowDays;
+  return daysBetween(createdAt, now, virtualDayDurationMs) < windowDays;
 };
 
 export const isSnoozed = (state: OnboardingGuideState, now: Date): boolean =>
@@ -101,13 +124,14 @@ export const isInvitationSuppressed = (
   surface: string,
   now: Date,
   suppressDays = INVITATION_SUPPRESS_DAYS,
+  virtualDayDurationMs?: number,
 ): boolean => {
   const last = [...(state.invitationDismissals ?? [])]
     .reverse()
     .find((dismissal) => dismissal.surface === surface);
   if (!last) return false;
   if (last.forever) return true;
-  return daysBetween(last.at, now) < suppressDays;
+  return daysBetween(last.at, now, virtualDayDurationMs) < suppressDays;
 };
 
 export const isProactiveAllowed = ({
@@ -122,10 +146,21 @@ export const isProactiveAllowed = ({
   now: Date;
 }): boolean => {
   if (!config.enabled) return false;
-  if (!state.proactive) return false;
-  if (state.status === 'muted' || state.status === 'quiet') return false;
+  const snoozeExpired =
+    !!state.snoozedUntil &&
+    new Date(state.snoozedUntil).getTime() <= now.getTime();
+  if (!state.proactive && !snoozeExpired) return false;
+  if (state.status === 'muted') return false;
+  if (state.status === 'quiet' && !snoozeExpired) return false;
   if (isSnoozed(state, now)) return false;
-  if (!isWithinOnboardingWindow(createdAt, config.windowDays, now)) {
+  if (
+    !isWithinOnboardingWindow(
+      createdAt,
+      config.windowDays,
+      now,
+      config.virtualDayDurationMs,
+    )
+  ) {
     return false;
   }
   return true;
@@ -151,7 +186,12 @@ export const canSendProactiveDm = ({
   }
   if (
     state.lastProactiveAt &&
-    isSameLocalDay(new Date(state.lastProactiveAt), now)
+    isSameOnboardingDay(
+      new Date(state.lastProactiveAt),
+      now,
+      config.virtualDayDurationMs,
+    ) &&
+    (state.proactiveDayCount ?? 1) >= config.maxProactiveDmsPerDay
   ) {
     return false;
   }
@@ -173,7 +213,17 @@ export const shouldAutoOpenDock = ({
   if (config.primaryInvite === 'dm_only') return false;
   if (isQuietHour(now, config.quietHours)) return false;
   if (state.dockShownAt) return false;
-  if (isInvitationSuppressed(state, 'dock', now)) return false;
+  if (
+    isInvitationSuppressed(
+      state,
+      'dock',
+      now,
+      INVITATION_SUPPRESS_DAYS,
+      config.virtualDayDurationMs,
+    )
+  ) {
+    return false;
+  }
   return true;
 };
 
@@ -190,10 +240,27 @@ export const shouldShowFab = ({
 }): boolean => {
   if (!config.enabled) return false;
   if (state.status === 'muted') return false;
-  if (!isWithinOnboardingWindow(createdAt, config.windowDays, now)) {
+  if (
+    !isWithinOnboardingWindow(
+      createdAt,
+      config.windowDays,
+      now,
+      config.virtualDayDurationMs,
+    )
+  ) {
     return false;
   }
-  if (isInvitationSuppressed(state, 'fab', now)) return false;
+  if (
+    isInvitationSuppressed(
+      state,
+      'fab',
+      now,
+      INVITATION_SUPPRESS_DAYS,
+      config.virtualDayDurationMs,
+    )
+  ) {
+    return false;
+  }
   return true;
 };
 
@@ -212,10 +279,27 @@ export const shouldShowEmptyInvite = ({
 }): boolean => {
   if (!config.enabled) return false;
   if (state.status === 'muted') return false;
-  if (!isWithinOnboardingWindow(createdAt, config.windowDays, now)) {
+  if (
+    !isWithinOnboardingWindow(
+      createdAt,
+      config.windowDays,
+      now,
+      config.virtualDayDurationMs,
+    )
+  ) {
     return false;
   }
-  if (isInvitationSuppressed(state, surface, now)) return false;
+  if (
+    isInvitationSuppressed(
+      state,
+      surface,
+      now,
+      INVITATION_SUPPRESS_DAYS,
+      config.virtualDayDurationMs,
+    )
+  ) {
+    return false;
+  }
   return true;
 };
 
@@ -242,11 +326,14 @@ export const withSnooze = (
   state: OnboardingGuideState,
   now: Date,
   days = SNOOZE_DAYS,
+  virtualDayDurationMs?: number,
 ): OnboardingGuideState => ({
   ...state,
   proactive: false,
   status: 'quiet',
-  snoozedUntil: new Date(now.getTime() + days * MS_PER_DAY).toISOString(),
+  snoozedUntil: new Date(
+    now.getTime() + days * dayDurationMs(virtualDayDurationMs),
+  ).toISOString(),
 });
 
 export const withMute = (state: OnboardingGuideState, now: Date) =>

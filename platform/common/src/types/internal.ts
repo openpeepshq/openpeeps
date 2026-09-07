@@ -132,30 +132,35 @@ export type RSVPWithMeta = z.infer<typeof rsvpWithMetaSchema>;
 
 export const entryWithProfileSchema = z.discriminatedUnion('type', [
   z.object({
+    id: z.string(),
     type: z.literal('create'),
     data: postDataUnionSchema,
     profile: profileWithMetaSchema,
     createdAt: z.string().datetime(),
   }),
   z.object({
+    id: z.string(),
     type: z.literal('edit'),
     data: postDataUnionSchema,
     profile: profileWithMetaSchema,
     createdAt: z.string().datetime(),
   }),
   z.object({
+    id: z.string(),
     type: z.literal('delete'),
     data: z.any(),
     profile: profileWithMetaSchema,
     createdAt: z.string().datetime(),
   }),
   z.object({
+    id: z.string(),
     type: z.literal('answer'),
     data: answerSchema,
     profile: profileWithMetaSchema,
     createdAt: z.string().datetime(),
   }),
   z.object({
+    id: z.string(),
     type: z.literal('rsvp'),
     data: rsvpSchema,
     profile: profileWithMetaSchema,

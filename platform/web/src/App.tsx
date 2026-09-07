@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   BrowserRouter,
   Navigate,
@@ -27,9 +34,13 @@ import {
   OpenpeepsThemeProvider,
   PluginLoader,
   PluginRegistryProvider,
+  PluginSlot,
   ProfileProvider,
   RootLayout,
   ServerDataProvider,
+  createPluginMemberCapabilities,
+  useCurrentProfile,
+  type PluginRouteTransport,
 } from '@openpeepshq/react/components';
 
 import {
@@ -383,7 +394,129 @@ const MiscPages = {
   TestError: () => <TestError />,
 };
 
+type PluginRouteResult = { data: unknown } | { error: unknown };
+
+const statusAwarePluginRoute = async (
+  request: (
+    onResponseStatus: (status: number) => void,
+  ) => Promise<PluginRouteResult>,
+): Promise<PluginRouteResult> => {
+  let status: number | undefined;
+  const response = await request((responseStatus) => {
+    status = responseStatus;
+  });
+  if (!('error' in response)) return response;
+  const failure =
+    response.error instanceof Error
+      ? Object.assign(new Error(response.error.message), { status })
+      : typeof response.error === 'string'
+        ? { message: response.error, status }
+        : typeof response.error === 'object' && response.error !== null
+          ? { ...response.error, status }
+          : { status };
+  return { error: failure };
+};
+
+const AuthenticatedPluginRegistry = ({ children }: { children: ReactNode }) => {
+  const { client, currentProfile, queryClient } = useOpenpeeps();
+  const navigate = useReactRouterNavigate();
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
+  const stableNavigate = useCallback(
+    (target: Parameters<typeof webNavigator.hrefOf>[0]) =>
+      void navigateRef.current(webNavigator.hrefOf(target)),
+    [],
+  );
+  const memberCapabilities = useMemo(
+    () => createPluginMemberCapabilities(client, stableNavigate, queryClient),
+    [client, stableNavigate, queryClient],
+  );
+  const routeTransport = useMemo<PluginRouteTransport>(
+    () => ({
+      read: ({ namespace, name, pathSegments }, queryParameters = {}) =>
+        statusAwarePluginRoute((onResponseStatus) =>
+          client.plugins.readRoute<unknown>(
+            namespace,
+            name,
+            pathSegments,
+            queryParameters,
+            { onResponseStatus },
+          ),
+        ),
+      write: (
+        { namespace, name, pathSegments },
+        payload,
+        queryParameters = {},
+      ) =>
+        statusAwarePluginRoute((onResponseStatus) =>
+          client.plugins.writeRoute<unknown, typeof payload>(
+            namespace,
+            name,
+            pathSegments,
+            payload,
+            queryParameters,
+            { onResponseStatus },
+          ),
+        ),
+      update: (
+        { namespace, name, pathSegments },
+        payload,
+        queryParameters = {},
+      ) =>
+        statusAwarePluginRoute((onResponseStatus) =>
+          client.plugins.updateRoute<unknown, typeof payload>(
+            namespace,
+            name,
+            pathSegments,
+            payload,
+            queryParameters,
+            { onResponseStatus },
+          ),
+        ),
+      remove: (
+        { namespace, name, pathSegments },
+        payload,
+        queryParameters = {},
+      ) =>
+        statusAwarePluginRoute((onResponseStatus) =>
+          client.plugins.removeRoute<unknown, typeof payload>(
+            namespace,
+            name,
+            pathSegments,
+            payload,
+            queryParameters,
+            { onResponseStatus },
+          ),
+        ),
+    }),
+    [client],
+  );
+
+  return (
+    <PluginRegistryProvider
+      key={currentProfile?.id ?? 'anonymous'}
+      routeTransport={routeTransport}
+      memberCapabilities={memberCapabilities}
+    >
+      {children}
+    </PluginRegistryProvider>
+  );
+};
+
 function AppShell() {
+  const currentProfile = useCurrentProfile();
+  const shellOverlay = currentProfile ? (
+    <div
+      className="pointer-events-none fixed inset-0 z-40"
+      data-plugin-layer="plugins.shell.authenticated-overlay"
+    >
+      <PluginSlot
+        name="plugins.shell.authenticated-overlay"
+        className="pointer-events-auto contents"
+      />
+    </div>
+  ) : null;
+
   return (
     <OpenpeepsContextProvider>
       <OpenpeepsThemeProvider>
@@ -447,6 +580,7 @@ function AppShell() {
               path="/*"
               element={
                 <RootLayout
+                  shellOverlay={shellOverlay}
                   sideBar={{
                     mainMenu: () => <AppSideBarMainMenu />,
                     profileMenu: () => <AppSideBarProfileMenu />,
@@ -843,12 +977,12 @@ export function App() {
         >
           <ServerData>
             <I18nBoot>
-              <PluginRegistryProvider>
+              <AuthenticatedPluginRegistry>
                 <PluginLoader />
                 <ProfileProvider>
                   <AppShell />
                 </ProfileProvider>
-              </PluginRegistryProvider>
+              </AuthenticatedPluginRegistry>
             </I18nBoot>
           </ServerData>
         </OpenpeepsProvider>

@@ -90,6 +90,19 @@ export const onboardingGuideConfigFromEnv = (): OnboardingGuideConfig => {
       ? (primaryInvite as OnboardingGuideConfig['primaryInvite'])
       : defaults.primaryInvite,
     ...(customHostBlurb ? { customHostBlurb } : {}),
+    ...(process.env.COMMUNITY_ONBOARDING_GUIDE_VIRTUAL_DAY_DURATION_MS
+      ? {
+          virtualDayDurationMs: readEnvInteger(
+            'COMMUNITY_ONBOARDING_GUIDE_VIRTUAL_DAY_DURATION_MS',
+            defaults.virtualDayDurationMs ?? 0,
+          ),
+        }
+      : {}),
+    ...(process.env.COMMUNITY_ONBOARDING_GUIDE_CHATBOT_HANDLE
+      ? {
+          chatbotHandle: process.env.COMMUNITY_ONBOARDING_GUIDE_CHATBOT_HANDLE,
+        }
+      : {}),
   };
 };
 

@@ -43,7 +43,8 @@ export const PluginSlot: FC<PluginSlotProps> = ({
   props = {},
   className,
 }) => {
-  const { getComponentsForSlot } = usePluginRegistry();
+  const { getComponentsForSlot, routeTransport, memberCapabilities } =
+    usePluginRegistry();
   const t = useT();
   const entries = getComponentsForSlot(name);
 
@@ -56,7 +57,12 @@ export const PluginSlot: FC<PluginSlotProps> = ({
       {entries.map(({ key, component: Component }) => (
         <div key={key} data-plugin-component={key}>
           <ErrorBoundary fallbackText={t('plugins.errorBoundary')}>
-            <Component {...props} translate={t} />
+            <Component
+              {...props}
+              pluginRouteTransport={routeTransport}
+              memberCapabilities={memberCapabilities}
+              translate={t}
+            />
           </ErrorBoundary>
         </div>
       ))}

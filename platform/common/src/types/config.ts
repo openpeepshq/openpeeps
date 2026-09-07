@@ -310,6 +310,18 @@ export const ONBOARDING_RUNGS = [
 export const onboardingRungSchema = z.enum(ONBOARDING_RUNGS);
 export type OnboardingRung = z.infer<typeof onboardingRungSchema>;
 
+export const ONBOARDING_PROACTIVE_MESSAGE_KINDS = [
+  'intro',
+  'soft-door',
+  'stalled-suggestion',
+] as const;
+export const onboardingProactiveMessageKindSchema = z.enum(
+  ONBOARDING_PROACTIVE_MESSAGE_KINDS,
+);
+export type OnboardingProactiveMessageKind = z.infer<
+  typeof onboardingProactiveMessageKindSchema
+>;
+
 export const onboardingGuideConfigSchema = z.object({
   enabled: z.boolean(),
   displayName: z.string().min(1),
@@ -326,6 +338,8 @@ export const onboardingGuideConfigSchema = z.object({
   enabledRungs: z.array(onboardingRungSchema),
   primaryInvite: z.enum(['dock', 'dm_only', 'both']),
   customHostBlurb: z.string().optional(),
+  virtualDayDurationMs: z.number().int().positive().optional(),
+  chatbotHandle: z.string().min(1).optional(),
 });
 export type OnboardingGuideConfig = z.infer<typeof onboardingGuideConfigSchema>;
 
@@ -341,6 +355,13 @@ export const onboardingGuideStateSchema = z.object({
   snoozedUntil: z.string().optional(),
   lastProactiveAt: z.string().optional(),
   proactiveCount: z.number().int().nonnegative().optional(),
+  proactiveDayCount: z.number().int().nonnegative().optional(),
+  proactiveDayKey: z.string().optional(),
+  completedProactiveMessageKinds: z
+    .array(onboardingProactiveMessageKindSchema)
+    .optional(),
+  guideConversationId: z.string().optional(),
+  lastProactivePostId: z.string().optional(),
   completedRungs: z.array(onboardingRungSchema).optional(),
   invitationDismissals: z.array(onboardingInvitationDismissalSchema).optional(),
   dockShownAt: z.string().optional(),

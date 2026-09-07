@@ -35,13 +35,14 @@ A plugin is a folder with a `package.json` and a backend entry point `src/index.
 
 ### Backend Exports
 
-| Export         | Required | Purpose                                                                                       |
-| -------------- | -------- | --------------------------------------------------------------------------------------------- |
-| `interceptors` | No       | Map of `CoreEvents` handlers (`postCreated`, `profileCreated`, `jamRecordingCompleted`, etc.) |
-| `routes`       | No       | Express `Router` factory — receives a fresh `Router` instance                                 |
-| `configSchema` | No       | `{ schema: () => ZodSchema, defaults: object }` for admin config UI                           |
-| `locales`      | No       | i18next resource packs (`{ en, de, … }`) merged into host translations                        |
-| `manifest`     | No       | Frontend component manifest (see §4)                                                          |
+| Export                  | Required | Purpose                                                                                       |
+| ----------------------- | -------- | --------------------------------------------------------------------------------------------- |
+| `interceptors`          | No       | Map of `CoreEvents` handlers (`postCreated`, `profileCreated`, `jamRecordingCompleted`, etc.) |
+| `routes`                | No       | Express `Router` factory — receives a fresh `Router` instance                                 |
+| `configSchema`          | No       | `{ schema: () => ZodSchema, defaults: object }` for admin config UI                           |
+| `locales`               | No       | i18next resource packs (`{ en, de, … }`) merged into host translations                        |
+| `profileSettingsSchema` | No       | `{ schema: () => ZodSchema, defaults: object }` for plugin-owned member settings              |
+| `manifest`              | No       | Frontend component manifest (see §4)                                                          |
 
 ### Backend Loading
 
@@ -53,7 +54,8 @@ A plugin is a folder with a `package.json` and a backend entry point `src/index.
 6. **Hook:** If the module exports `interceptors()`, handlers are registered on the core event `hub`.
 7. **Config:** If the module exports `configSchema`, it is registered via `registerConfigSchema(namespace, name, …)`.
 8. **Locales:** If the module exports `locales` (`{ en, de, … }`, same nested-object shape as host locale files), they are merged into the host i18n catalog. Prefer namespaced keys (`plugins.peepsAi.knowledgeBase.title`). Configuration menu chrome can ship `configuration.plugins.<slug>.title` / `.description`. Host keys stay available through the same `t()` that `PluginSlot` already passes as `translate`.
-9. **Manifest:** If the module exports `manifest`, it is stored and exposed by `GET /api/openpeeps/core/v1/plugins/manifest`.
+9. **Profile settings:** If the module exports `profileSettingsSchema`, it is registered under the plugin key.
+10. **Manifest:** If the module exports `manifest`, it is stored and exposed by `GET /api/openpeeps/core/v1/plugins/manifest`.
 
 ```mermaid
 sequenceDiagram
@@ -73,7 +75,7 @@ sequenceDiagram
   L->>L: sortByDependencies()
   loop each plugin, in order
     L->>P: import(dist/index.js)
-    P-->>L: {interceptors?, routes?, configSchema?, locales?, manifest?}
+    P-->>L: {interceptors?, routes?, configSchema?, locales?, profileSettingsSchema?, manifest?}
     L->>H: register interceptors()
     L->>CFG: registerConfigSchema(namespace, name, configSchema)
     L->>L: register plugin locales
@@ -86,6 +88,7 @@ sequenceDiagram
 - **Event interceptors** — `profileCreated`, `postCreated`, `jamRecordingCompleted`, `followCreated`, `notificationCreated`, `reactionCreated`, `entryCreated`, `rsvpCreated`, `postAnnounced`, `configUpdated`.
 - **Config schema registration** — plugins declare Zod schemas and defaults for their own settings, edited via the same admin UI as core configs.
 - **Locales** — plugins export i18next resource packs. The host merges them into `GET /i18n/:lang` so plugin UI and host chrome share one `t()`. Host strings win on key conflicts; Custom Text overrides still win last.
+- **Profile settings** — plugins declare a Zod schema and defaults for member-owned data in a host-managed revision/context envelope.
 - **API routes** — plugins export `routes(router)` and receive an Express `Router` mounted under `/api/openpeeps/core/v1/plugins/<namespace>/<name>`.
 - **Frontend manifest** — plugins declare components that target named slots in the React UI.
 
@@ -103,13 +106,15 @@ sequenceDiagram
 
 Core endpoints exposed for plugin discovery:
 
-| Method | Path                                                  | Description                                                                      | Auth                  |
-| ------ | ----------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------- |
-| `GET`  | `/api/openpeeps/core/v1/plugins`                      | Loaded plugin metadata (key, namespace, name, version, displayName, description) | None                  |
-| `GET`  | `/api/openpeeps/core/v1/plugins/config`               | Merged plugin config tree                                                        | Auth required         |
-| `GET`  | `/api/openpeeps/core/v1/plugins/manifest`             | Frontend component manifests per plugin                                          | None                  |
-| `any`  | `/api/openpeeps/core/v1/plugins/<namespace>/<name>/*` | Plugin-defined Express routes                                                    | _See §3_              |
-| `POST` | `/api/openpeeps/core/v1/admin/plugins/install`        | Install a plugin from npm or git                                                 | `core-plugins-manage` |
+| Method  | Path                                                                        | Description                                                                      | Auth                  |
+| ------- | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------- |
+| `GET`   | `/api/openpeeps/core/v1/plugins`                                            | Loaded plugin metadata (key, namespace, name, version, displayName, description) | None                  |
+| `GET`   | `/api/openpeeps/core/v1/plugins/config`                                     | Merged plugin config tree                                                        | Auth required         |
+| `GET`   | `/api/openpeeps/core/v1/plugins/manifest`                                   | Frontend component manifests per plugin                                          | None                  |
+| `GET`   | `/api/openpeeps/core/v1/profiles/current/pluginSettings/<namespace>/<name>` | Read current member plugin settings and revision                                 | Auth required         |
+| `PATCH` | `/api/openpeeps/core/v1/profiles/current/pluginSettings/<namespace>/<name>` | Atomically replace settings when `expectedRevision` matches                      | Auth required         |
+| `any`   | `/api/openpeeps/core/v1/plugins/<namespace>/<name>/*`                       | Plugin-defined Express routes                                                    | _See §3_              |
+| `POST`  | `/api/openpeeps/core/v1/admin/plugins/install`                              | Install a plugin from npm or git                                                 | `core-plugins-manage` |
 
 The plugin's `routes(router)` function receives a fresh Express `Router` already scoped to `/api/openpeeps/core/v1/plugins/<namespace>/<name>`, so routes inside the plugin should use relative paths.
 
@@ -163,6 +168,43 @@ export const routes = async (router: Router) => {
 1. **Default to authenticated:** If your plugin serves sensitive data, always require auth.
 2. **Minimize exposed endpoints:** Only expose what plugins/app needs.
 3. **Validate input:** Use Zod schemas in plugin route handlers.
+
+### Browser host capabilities
+
+Authenticated `PluginSlot` components receive two product-neutral props:
+
+- `pluginRouteTransport` sends authenticated `read`, `write`, `update`, and
+  `remove` requests to the plugin's scoped routes without exposing bearer
+  credentials.
+- `memberCapabilities` provides current/profile reads, conversation
+  list/read/create/reply/change notifications, atomic plugin-settings
+  read/compare-and-set, native message rendering, and navigation to supported
+  host resources.
+
+Plugins remain responsible for authorization in raw Express routes. The route
+target identifies only the plugin namespace, name, and encoded path segments.
+
+The onboarding-compatible host slots are:
+
+- `plugins.shell.authenticated-overlay`
+- `plugins.feeds.local.empty`
+- `plugins.groups.mine.empty`
+- `plugins.jams.index.empty`
+- `plugins.conversations.empty`
+- `plugins.conversations.detail.header`
+- `plugins.conversations.row.adornment`
+
+### Direct-message contexts
+
+Signed webhook claims include `activePluginContexts` derived from enabled
+plugin keys and the sender's validated plugin-settings envelopes. A plugin opts
+in by setting `contexts.directMessage` through the compare-and-set endpoint.
+Lookup or validation failures produce an empty context list.
+
+The ordinary `profileSettings.onboardingGuide` member state is transitional:
+it remains authoritative only for the service-authenticated proactive welcome
+candidate/claim scheduler until that route can use plugin-owned settings.
+Presentation and reconciliation belong to the external onboarding plugin.
 
 ---
 

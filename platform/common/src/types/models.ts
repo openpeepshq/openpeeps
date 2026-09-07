@@ -161,6 +161,42 @@ export const ThemeOptionsSchema = z.enum(THEME_OPTIONS);
 export type ThemeOptions = z.infer<typeof ThemeOptionsSchema>;
 
 export type JamSettings = z.infer<typeof jamSettingsSchema>;
+
+export const pluginSettingsContextsSchema = z
+  .object({
+    directMessage: z.boolean().default(false),
+  })
+  .strict();
+export type PluginSettingsContexts = z.infer<
+  typeof pluginSettingsContextsSchema
+>;
+
+export const pluginSettingsEnvelopeSchema = z
+  .object({
+    revision: z.number().int().nonnegative(),
+    contexts: pluginSettingsContextsSchema,
+    data: z.unknown(),
+  })
+  .strict();
+export type PluginSettingsEnvelope = z.infer<
+  typeof pluginSettingsEnvelopeSchema
+>;
+
+export const pluginSettingsMapSchema = z.record(
+  z.string(),
+  pluginSettingsEnvelopeSchema,
+);
+export type PluginSettingsMap = z.infer<typeof pluginSettingsMapSchema>;
+
+export const pluginSettingsPatchSchema = z
+  .object({
+    expectedRevision: z.number().int().nonnegative(),
+    contexts: pluginSettingsContextsSchema,
+    data: z.unknown(),
+  })
+  .strict();
+export type PluginSettingsPatch = z.infer<typeof pluginSettingsPatchSchema>;
+
 export const profileSettingsDataSchema = z.object({
   id: z.string(),
   language: z.string().optional(),
@@ -183,12 +219,29 @@ export const profileSettingsDataSchema = z.object({
     })
     .default({ communityFeed: { showGroupPosts: true } })
     .optional(),
+  pluginSettings: pluginSettingsMapSchema.optional(),
+  // Transitional scheduler state. The external onboarding plugin owns member
+  // presentation state; Peeps-AI still claims proactive deliveries here.
   onboardingGuide: onboardingGuideStateSchema.optional(),
 });
 export type ProfileSettingsData = z.infer<typeof profileSettingsDataSchema>;
 
-export const profileSettingsSchema = modelSchema(profileSettingsDataSchema);
-export type ProfileSettings = Model<ProfileSettingsData>;
+export const profileSettingsUpdateDataSchema = profileSettingsDataSchema.omit({
+  pluginSettings: true,
+});
+export type ProfileSettingsUpdateData = z.infer<
+  typeof profileSettingsUpdateDataSchema
+>;
+const profileSettingsResponseDataSchema = profileSettingsDataSchema.omit({
+  pluginSettings: true,
+});
+export const profileSettingsSchema = modelSchema(
+  profileSettingsResponseDataSchema,
+);
+export type ProfileSettings = Model<
+  z.infer<typeof profileSettingsResponseDataSchema>
+>;
+export type StoredProfileSettings = Model<ProfileSettingsData>;
 
 export const accountNameSchema = z
   .string()

@@ -5,6 +5,7 @@ import { findProfile } from '../profiles';
 import { notificationSettings } from './helpers';
 import { notificationHandlers } from './handlers';
 import { doPush } from './push';
+import { buildNotificationContext } from './context';
 import { findByProfile } from '../accounts';
 import { updateNotification } from './mutations';
 import { getNotificationStats } from './finders';
@@ -125,6 +126,7 @@ const [notificationQueue, notificationWorker] = queueAndWorker<
             notificationStats,
             account,
             jobLog,
+            () => buildNotificationContext(notification),
           );
         } catch (error) {
           await logFailure(
