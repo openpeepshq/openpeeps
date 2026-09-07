@@ -5,10 +5,16 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **push-notifications**: enhance push subscription handling and deduplication
 - **post**: add group link on post detail Show the group name as a link in the post detail header so a single post includes a path back to its group. Update i18n and the UI test to target the first matching group link.
 
 ### Bug Fixes
 
+- **ui**: style welcome page links
+- **docs**: use active theme logo
+- **admin**: label typography theme modes
+- **events**: surface My Events in header
+- **ui**: show date icons in dark mode
 - **profile**: update handle conflict message and enhance error handling
 
 ### Refactoring
