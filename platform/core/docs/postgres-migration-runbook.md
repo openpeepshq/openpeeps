@@ -4,7 +4,9 @@ One-time offline cutover per OpenPeeps instance that still has data in Arango.
 
 Arango is **not** part of the default runtime (Compose, `.env.dev.example`).
 Startup no longer auto-migrates; set `AUTO_MIGRATE_FROM_ARANGO=false` (the
-default). Use the archive CLI below.
+default). Use the archive CLI below, or the dedicated cutover image plus
+`migrate-arango-volume.sh` on an APAT host. Do not add this CLI to the
+stable runtime image.
 
 ## Manual cutover
 
@@ -107,6 +109,21 @@ pnpm --filter @openpeepshq/arango-migrate validate
 
 Build first with `pnpm --filter @openpeepshq/arango-migrate... build`.
 Source: `archive/arango-migrate`.
+
+## Hosted APAT (separate image)
+
+Hosted instances stay on the **stable** APAT runtime. Cutover uses a
+separate image built from `archive/arango-migrate/Dockerfile` and published
+as `code.openpeeps.org/openpeeps/openpeeps-arango-migrate:<tag>` (or built
+locally). On the Docker host:
+
+```bash
+/allpeep/common/migrate-arango-volume.sh <domain> <arango-docker-volume>
+```
+
+Override `ARANGO_MIGRATE_IMAGE` if the image is not the default `latest`
+tag. The script backs up Postgres, clones the Arango volume, exports,
+imports, validates, then restarts the instance.
 
 ## Notes
 

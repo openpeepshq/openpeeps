@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { appendFile, access } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { join } from 'node:path';
-import { getTableName, sql, type Table } from 'drizzle-orm';
+import { getTableColumns, getTableName, sql, type Table } from 'drizzle-orm';
 import { logger } from '../../log';
 import { pgDb } from '../pg/client';
 import {
@@ -353,10 +353,69 @@ export const importPostgresRowCollection = async (
 const sumImported = (imported: Record<string, number>) =>
   Object.values(imported).reduce((sum, count) => sum + count, 0);
 
+export type PlaceholderColumn = { table: string; column: string };
+
+const liveColumnNames = async (table: string): Promise<Set<string>> => {
+  const result = await pgDb().execute<{ column_name: string }>(
+    sql`SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = ${table}`,
+  );
+  return new Set(result.rows.map((row) => row.column_name));
+};
+
+/**
+ * A restore loads rows at an older schema version, but Drizzle names every
+ * column of the current table objects in its INSERT, so a column a later
+ * migration adds (e.g. `search_vector` in 0001) breaks the load. Add those as
+ * nullable placeholders and drop them again before migrating forward, so the
+ * migration still creates them itself and runs its backfill.
+ */
+const addPlaceholderColumns = async (): Promise<PlaceholderColumn[]> => {
+  const db = pgDb();
+  const added: PlaceholderColumn[] = [];
+
+  for (const collection of [...DOCUMENT_IMPORT_ORDER, ...EDGE_IMPORT_ORDER]) {
+    const table = getTableForCollection(collection) as Table;
+    const tableName = getTableName(table);
+    const live = await liveColumnNames(tableName);
+    if (live.size === 0) {
+      continue;
+    }
+    for (const column of Object.values(getTableColumns(table))) {
+      if (live.has(column.name)) {
+        continue;
+      }
+      await db.execute(
+        sql.raw(
+          `ALTER TABLE "${tableName}" ADD COLUMN "${column.name}" ${column.getSQLType()}`,
+        ),
+      );
+      added.push({ table: tableName, column: column.name });
+    }
+  }
+
+  if (added.length > 0) {
+    log.info(
+      'Added %d placeholder column(s) for the restore: %s',
+      added.length,
+      added.map(({ table, column }) => `${table}.${column}`).join(', '),
+    );
+  }
+  return added;
+};
+
+const dropPlaceholderColumns = async (columns: PlaceholderColumn[]) => {
+  for (const { table, column } of columns) {
+    await pgDb().execute(
+      sql.raw(`ALTER TABLE "${table}" DROP COLUMN IF EXISTS "${column}"`),
+    );
+  }
+};
+
 const prepareSchemaForRestore = async (
   databaseType: 'arango' | 'postgres',
   schemaVersionFromBackup?: string,
-) => {
+): Promise<PlaceholderColumn[]> => {
   const schemaVersion = resolveRestoreSchemaVersion(
     databaseType,
     schemaVersionFromBackup,
@@ -370,10 +429,11 @@ const prepareSchemaForRestore = async (
     sql.raw('DROP INDEX IF EXISTS "post_seen_from_to_unique"'),
   );
   await truncateAllTables();
+  return addPlaceholderColumns();
 };
 
 export const importAllArangoCollections = async (collectionsDir: string) => {
-  await prepareSchemaForRestore('arango');
+  const placeholders = await prepareSchemaForRestore('arango');
 
   const imported: Record<string, number> = {};
   const context: ImportContext = {
@@ -402,6 +462,7 @@ export const importAllArangoCollections = async (collectionsDir: string) => {
   }
 
   log.info('Arango rows loaded; migrating schema forward to latest');
+  await dropPlaceholderColumns(placeholders);
   await runMigrations();
 
   const total = sumImported(imported);
@@ -418,7 +479,10 @@ export const importAllPostgresCollections = async (
   collectionsDir: string,
   schemaVersionFromBackup?: string,
 ) => {
-  await prepareSchemaForRestore('postgres', schemaVersionFromBackup);
+  const placeholders = await prepareSchemaForRestore(
+    'postgres',
+    schemaVersionFromBackup,
+  );
 
   const imported: Record<string, number> = {};
 
@@ -437,6 +501,7 @@ export const importAllPostgresCollections = async (
   }
 
   log.info('Postgres rows loaded; ensuring schema is at latest');
+  await dropPlaceholderColumns(placeholders);
   await runMigrations();
 
   const total = sumImported(imported);

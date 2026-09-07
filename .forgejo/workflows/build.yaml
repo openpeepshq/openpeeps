@@ -154,6 +154,18 @@ jobs:
               --build-arg "ENVIRONMENT=${{ needs.set-variables.outputs.environment }}" \
               -t "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}" --push .
           fi
+      - name: Build and push Arango cutover image
+        run: |
+          migrate_image="${{ needs.set-variables.outputs.registry_image_base }}-arango-migrate"
+          if docker manifest inspect "${migrate_image}:${{ needs.set-variables.outputs.short_sha }}" >/dev/null 2>&1; then
+            echo "Image ${migrate_image}:${{ needs.set-variables.outputs.short_sha }} already exists; skipping build."
+          else
+            docker buildx build \
+              -f archive/arango-migrate/Dockerfile \
+              -t "${migrate_image}:${{ needs.set-variables.outputs.short_sha }}" \
+              -t "${migrate_image}:${{ needs.set-variables.outputs.tag }}" \
+              --push .
+          fi
 
   test-unit:
     runs-on: docker

@@ -18,6 +18,17 @@ docker compose -f docker-compose.yml -f docker-compose.arango.yml up -d
 pnpm --filter @openpeepshq/arango-migrate... build
 ```
 
+For hosted APAT instances, build this package into a **separate** image so
+the stable runtime is unchanged:
+
+```bash
+docker build -f archive/arango-migrate/Dockerfile \
+  -t code.openpeeps.org/openpeeps/openpeeps-arango-migrate:latest .
+```
+
+Host cutover: `devops/hosting/common/migrate-arango-volume.sh` in the `code`
+repo. Override the image with `ARANGO_MIGRATE_IMAGE`.
+
 Set `DB_URL`, `DB_NAME`, `DATABASE_URL`, and optionally `MIGRATION_EXPORT_DIR`.
 
 ## Commands
