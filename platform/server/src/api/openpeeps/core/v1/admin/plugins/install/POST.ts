@@ -1,24 +1,14 @@
 import { endpoint, z } from '#lib/endpoint';
-import { successResponseSchema } from '@openpeepshq/common/types';
+import {
+  pluginInstallSourceSchema,
+  successResponseSchema,
+} from '@openpeepshq/common/types';
 import { badRequest, forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
 import { installPlugin } from '@openpeepshq/core/plugins';
 import { reloadPlugins } from '#lib/pluginReload';
 
-const installSourceSchema = z.union([
-  z.object({
-    type: z.literal('npm'),
-    package: z.string().min(1),
-    version: z.string().optional(),
-  }),
-  z.object({
-    type: z.literal('git'),
-    url: z.string().url(),
-    ref: z.string().optional(),
-  }),
-]);
-
-export const Input = installSourceSchema;
+export const Input = pluginInstallSourceSchema;
 
 export const Output = successResponseSchema.extend({
   pluginKey: z.string().optional(),

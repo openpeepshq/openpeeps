@@ -99,14 +99,34 @@ sequenceDiagram
 
 Core endpoints exposed for plugin discovery:
 
-| Method | Path                                                  | Description                                                                      | Auth          |
-| ------ | ----------------------------------------------------- | -------------------------------------------------------------------------------- | ------------- |
-| `GET`  | `/api/openpeeps/core/v1/plugins`                      | Loaded plugin metadata (key, namespace, name, version, displayName, description) | None          |
-| `GET`  | `/api/openpeeps/core/v1/plugins/config`               | Merged plugin config tree                                                        | Auth required |
-| `GET`  | `/api/openpeeps/core/v1/plugins/manifest`             | Frontend component manifests per plugin                                          | None          |
-| `any`  | `/api/openpeeps/core/v1/plugins/<namespace>/<name>/*` | Plugin-defined Express routes                                                    | _See §3_      |
+| Method | Path                                                  | Description                                                                      | Auth                  |
+| ------ | ----------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------- |
+| `GET`  | `/api/openpeeps/core/v1/plugins`                      | Loaded plugin metadata (key, namespace, name, version, displayName, description) | None                  |
+| `GET`  | `/api/openpeeps/core/v1/plugins/config`               | Merged plugin config tree                                                        | Auth required         |
+| `GET`  | `/api/openpeeps/core/v1/plugins/manifest`             | Frontend component manifests per plugin                                          | None                  |
+| `any`  | `/api/openpeeps/core/v1/plugins/<namespace>/<name>/*` | Plugin-defined Express routes                                                    | _See §3_              |
+| `POST` | `/api/openpeeps/core/v1/admin/plugins/install`        | Install a plugin from npm or git                                                 | `core-plugins-manage` |
 
 The plugin's `routes(router)` function receives a fresh Express `Router` already scoped to `/api/openpeeps/core/v1/plugins/<namespace>/<name>`, so routes inside the plugin should use relative paths.
+
+### Installing from private sources
+
+The admin Plugins page accepts one-shot credentials for private sources:
+
+- npm packages use an access token and an optional HTTPS registry URL.
+- HTTPS git repositories use a username and access token.
+- SSH git repositories use an `ssh://` URL and an unencrypted deploy key.
+
+Credentials are passed only to the install subprocess and are never stored in
+the installed-plugin record. Temporary npm configuration, askpass helpers, SSH
+keys, and known-hosts files are removed after every attempt. Do not put
+credentials in a repository URL; HTTPS URLs containing user information are
+rejected. SSH URLs may contain the required git username.
+
+SSH host keys use trust on first use for each installation. This keeps deploy
+keys portable across git providers, but an intercepted first connection could
+be trusted. Prefer HTTPS token authentication when host identity cannot be
+verified independently.
 
 ---
 
@@ -346,7 +366,7 @@ The `Dockerfile` builds plugins via the `plugins/*/*` glob rather than a hardcod
 
 1. **No sandboxing.** Plugins run in the same Node process with full access to `@openpeepshq/core` and the Express app. Plugin installation = server code execution.
 2. **No signing/validating manifests.** `pluginManifestSchema.parse()` validates structure; semantic trust of manifest content is the server operator's responsibility.
-3. **No npm registry.** Plugins are installed manually as subdirectories.
+3. **No plugin registry.** Admins install plugins directly from npm or git.
 4. **Plugin distribution format:** Currently plain folders with compiled `dist/index.js`. npm packages remain possible.
 5. **Plugin versioning & updates:** Use `package.json` dependencies/peerDependencies. Core API changes are not version-gated yet.
 6. **Frontend module loading:** Implemented as simple `<script>` injection of plugin bundles. Native ESM / import maps may replace this in the future.
