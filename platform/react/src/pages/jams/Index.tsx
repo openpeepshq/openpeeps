@@ -11,10 +11,10 @@ import {
   EventsFeed,
   LiveJamsSection,
   useCreateNewJam,
+  PluginSlot,
   useServerInfo,
 } from '../../components';
 import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
-import { EmptyStateInvite } from '../../onboarding';
 
 interface Props {
   /** When true, scope to the current user's jams (`/jams/my`). */
@@ -74,6 +74,7 @@ export function JamsIndex({ my = false }: Props) {
     : openpeepsApi.usePastJamsFeed();
 
   const activeQuery = tab === 'upcoming' ? upcoming : past;
+  const isEmpty = activeQuery.data?.pages.every((page) => page.length === 0);
 
   return (
     <div className="p-4">
@@ -101,14 +102,13 @@ export function JamsIndex({ my = false }: Props) {
           {t('jams.feed.past', { defaultValue: 'Past' })}
         </TabButton>
       </nav>
-      <EventsFeed
-        query={activeQuery}
-        emptySlot={
-          !my && tab === 'upcoming' ? (
-            <EmptyStateInvite surface="jams" />
-          ) : undefined
-        }
-      />
+      {!my && tab === 'upcoming' && isEmpty ? (
+        <PluginSlot
+          name="plugins.jams.index.empty"
+          props={{ locus: 'plugins.jams.index.empty' }}
+        />
+      ) : null}
+      <EventsFeed query={activeQuery} />
     </div>
   );
 }

@@ -44,5 +44,11 @@ export {
   PluginSlot,
   usePluginRegistry,
 };
+export { createPluginMemberCapabilities } from './PluginMemberCapabilities';
+export type { PluginMemberCapabilities } from './PluginMemberCapabilities';
 export type { ErrorComponentProps } from './ErrorComponent';
 export type { PluginSlotProps } from './PluginSlot';
+export type {
+  PluginRouteTarget,
+  PluginRouteTransport,
+} from './PluginRegistryProvider';

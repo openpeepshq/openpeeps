@@ -13,7 +13,6 @@ import { useDefaultVisibility } from '../post/visibility';
 import { useCurrentProfile } from './IdentityContext';
 import { useRouter } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
-import { OnboardingGuideProvider, OnboardingHost } from '../../onboarding';
 
 export interface RootLayoutProps {
   children?: ReactNode;
@@ -22,6 +21,8 @@ export interface RootLayoutProps {
     mainMenu?: () => ReactNode;
     profileMenu?: () => ReactNode;
   };
+  /** Authenticated plugin content rendered outside the page layout. */
+  shellOverlay?: ReactNode;
 }
 
 function MobileFooter() {
@@ -58,39 +59,43 @@ function MobileFooter() {
  * inside the centered max-width band (`md:flex-row`); mobile header / footer,
  * plus button, and breadcrumbs / content header wrap `children`.
  */
-export function RootLayout({ children, sideBar }: RootLayoutProps) {
+export function RootLayout({
+  children,
+  sideBar,
+  shellOverlay,
+}: RootLayoutProps) {
   return (
-    <div className="flex h-full w-full flex-col overflow-x-hidden">
-      <div className="min-w-0 flex-grow">
-        <div className="flex min-h-full w-full flex-col overflow-y-auto overflow-x-hidden">
-          <div className="mx-auto h-1 w-full min-w-0 flex-grow md:max-w-[950px]">
-            <div className="flex w-full min-w-0 flex-col md:flex-row">
-              <aside className="w-70 hidden shrink-0 border-r md:sticky md:top-0 md:flex md:h-screen md:self-start">
-                <SideBar
-                  mainMenu={sideBar?.mainMenu?.()}
-                  profileMenu={sideBar?.profileMenu?.()}
-                />
-              </aside>
-              <div className="bg-background flex min-h-screen min-w-0 flex-1 flex-col border-r">
-                <HeaderMobile sideBar={sideBar} />
-                <main className="flex min-w-0 flex-1 flex-col">
-                  <ContentHeader />
-                  <Breadcrumbs />
-                  <Infos />
-                  <OnboardingGuideProvider>
+    <>
+      <div className="flex h-full w-full flex-col overflow-x-hidden">
+        <div className="min-w-0 flex-grow">
+          <div className="flex min-h-full w-full flex-col overflow-y-auto overflow-x-hidden">
+            <div className="mx-auto h-1 w-full min-w-0 flex-grow md:max-w-[950px]">
+              <div className="flex w-full min-w-0 flex-col md:flex-row">
+                <aside className="w-70 hidden shrink-0 border-r md:sticky md:top-0 md:flex md:h-screen md:self-start">
+                  <SideBar
+                    mainMenu={sideBar?.mainMenu?.()}
+                    profileMenu={sideBar?.profileMenu?.()}
+                  />
+                </aside>
+                <div className="bg-background flex min-h-screen min-w-0 flex-1 flex-col border-r">
+                  <HeaderMobile sideBar={sideBar} />
+                  <main className="flex min-w-0 flex-1 flex-col">
+                    <ContentHeader />
+                    <Breadcrumbs />
+                    <Infos />
                     {children}
-                    <OnboardingHost />
-                  </OnboardingGuideProvider>
-                </main>
-                <PlusButton />
+                  </main>
+                  <PlusButton />
+                </div>
               </div>
             </div>
           </div>
         </div>
+        <div className="bottom-0 w-full flex-grow-0 md:hidden">
+          <MobileFooter />
+        </div>
       </div>
-      <div className="bottom-0 w-full flex-grow-0 md:hidden">
-        <MobileFooter />
-      </div>
-    </div>
+      {shellOverlay}
+    </>
   );
 }

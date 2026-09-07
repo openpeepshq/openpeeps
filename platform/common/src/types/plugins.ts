@@ -1,5 +1,12 @@
 import { z } from 'zod';
 import { PackageJson } from 'type-fest';
+import type { PostCreationData, PublicPost, PublicProfile } from './api';
+import type { PluginSettingsEnvelope, PluginSettingsPatch } from './models';
+
+export interface ProfileSettingsSchemaExport {
+  schema: () => z.ZodType;
+  defaults: unknown;
+}
 
 export interface Plugin {
   key: string;
@@ -148,3 +155,37 @@ export const pluginConfigResponseSchema = z.record(
 );
 
 export type PluginConfigResponse = z.infer<typeof pluginConfigResponseSchema>;
+
+export type PluginMemberResourceKind = 'profile' | 'group' | 'jam' | 'post';
+
+export interface PluginMemberCapabilities<Rendered = unknown> {
+  profiles: {
+    read: (id: string) => Promise<PublicProfile>;
+    readCurrent: () => Promise<PublicProfile>;
+  };
+  conversations: {
+    list: () => Promise<readonly (readonly PublicPost[])[]>;
+    read: (rootId: string) => Promise<readonly PublicPost[]>;
+    create: (payload: PostCreationData) => Promise<PublicPost>;
+    reply: (rootId: string, payload: PostCreationData) => Promise<PublicPost>;
+    onChanged: (listener: () => void) => () => void;
+  };
+  settings: {
+    read: (namespace: string, name: string) => Promise<PluginSettingsEnvelope>;
+    compareAndSet: (
+      namespace: string,
+      name: string,
+      patch: PluginSettingsPatch,
+    ) => Promise<PluginSettingsEnvelope>;
+  };
+  renderMessage: (props: {
+    message: PublicPost;
+    previous: PublicPost | undefined;
+    conversationRootId: string;
+    multipleParticipants?: boolean;
+  }) => Rendered;
+  openResource: (
+    kind: PluginMemberResourceKind,
+    id: string,
+  ) => void | Promise<void>;
+}

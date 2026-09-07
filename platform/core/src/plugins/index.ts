@@ -2,8 +2,15 @@ import { CoreEventKey, CoreEvents, hub, VALID_EVENT_KEYS } from '../events';
 import { defaultConfig, registerConfigSchema } from '../config';
 
 import type { PackageJson } from 'type-fest';
-import type { Plugin, PluginManifest } from '@openpeepshq/common';
-import { i18nResourceSchema, pluginManifestSchema } from '@openpeepshq/common';
+import type {
+  Plugin,
+  PluginManifest,
+  ProfileSettingsSchemaExport,
+} from '@openpeepshq/common';
+import {
+  i18nResourceSchema,
+  pluginManifestSchema,
+} from '@openpeepshq/common';
 import {
   enumeratePluginInfos,
   enumerateReferencedPluginInfos,
@@ -28,7 +35,21 @@ let initialized = false;
 const loadedPlugins = new Map<string, Plugin>();
 const loadedModules = new Map<string, unknown>();
 const pluginManifests = new Map<string, PluginManifest>();
+const profileSettingsSchemas = new Map<string, ProfileSettingsSchemaExport>();
 const pluginUnsubscribers = new Map<string, (() => void)[]>();
+
+export const registerProfileSettingsSchema = (
+  key: string,
+  profileSettingsSchema: ProfileSettingsSchemaExport,
+) => {
+  profileSettingsSchemas.set(key, profileSettingsSchema);
+};
+
+export const getProfileSettingsSchema = (key: string) =>
+  profileSettingsSchemas.get(key);
+
+export const getProfileSettingsSchemaKeys = () =>
+  Array.from(profileSettingsSchemas.keys());
 
 export const getPlugins = (): Plugin[] => Array.from(loadedPlugins.values());
 
@@ -47,6 +68,7 @@ const clearPluginState = () => {
   loadedPlugins.clear();
   loadedModules.clear();
   pluginManifests.clear();
+  profileSettingsSchemas.clear();
   pluginUnsubscribers.clear();
   clearPluginLocales();
   initialized = false;
@@ -102,6 +124,9 @@ export const initializePlugins = async () => {
         /* @vite-ignore */ `${pluginPath}/dist/index.js`
       );
       loadedModules.set(key, pluginModule);
+      const profileSettingsSchema = (
+        pluginModule as { profileSettingsSchema?: unknown }
+      ).profileSettingsSchema;
 
       if ('interceptors' in pluginModule) {
         const interceptors: Partial<CoreEvents> =
@@ -153,6 +178,18 @@ export const initializePlugins = async () => {
           );
         }
       }
+      if (
+        profileSettingsSchema &&
+        typeof profileSettingsSchema === 'object' &&
+        'schema' in profileSettingsSchema &&
+        typeof profileSettingsSchema.schema === 'function' &&
+        'defaults' in profileSettingsSchema
+      ) {
+        registerProfileSettingsSchema(
+          key,
+          profileSettingsSchema as ProfileSettingsSchemaExport,
+        );
+      }
 
       plugin.status = 'loaded';
     } catch (e) {
@@ -188,6 +225,32 @@ export const sortedPluginInfos = async () => {
     ...(await enumeratePluginInfos(pluginsPath)),
     ...enumerateReferencedPluginInfos(rootPackageJsonPath),
   ]);
+};
+
+/** Reads package and persisted plugin state without loading plugin code. */
+export const getEnabledPluginKeys = async (): Promise<string[]> => {
+  try {
+    const {
+      plugins: { path: pluginsPath, rootPackageJsonPath },
+    } = defaultConfig;
+    const [stateOverrides, pluginInfos] = await Promise.all([
+      getPluginStateOverrides(),
+      Promise.all([
+        enumeratePluginInfos(pluginsPath),
+        Promise.resolve(enumerateReferencedPluginInfos(rootPackageJsonPath)),
+      ]).then(([installed, referenced]) => [...installed, ...referenced]),
+    ]);
+    const sortedInfos = sortByDependencies(pluginInfos);
+    if (sortedInfos.length !== pluginInfos.length) {
+      throw new Error('Enabled plugin dependency graph is incomplete');
+    }
+    return sortedInfos
+      .filter(([key, info]) => stateOverrides[key] ?? isPluginEnabled(info))
+      .map(([key]) => key);
+  } catch (error) {
+    log.error(error, 'Unable to initialize enabled plugin-key registry.');
+    return [];
+  }
 };
 
 export const reloadPlugins = async () => {

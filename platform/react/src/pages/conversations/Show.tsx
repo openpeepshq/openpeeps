@@ -8,11 +8,7 @@ import {
   usePostViewFlush,
   adjustUnseenCounts,
 } from '../../index';
-import {
-  audienceIncludesHandle,
-  canCreatePost,
-  DEFAULT_CHATBOT_HANDLE,
-} from '@openpeepshq/common';
+import { canCreatePost } from '@openpeepshq/common';
 import {
   Avatar,
   MessageInThread,
@@ -20,6 +16,7 @@ import {
   useAuthData,
   useCurrentProfile,
   useToast,
+  PluginSlot,
 } from '../../components';
 import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
 
@@ -115,21 +112,9 @@ export function ConversationShow() {
   }
 
   const overLimit = text.length > MAX_LENGTH;
-  const isGuide = audienceIncludesHandle(
-    lastMessage?.audience,
-    DEFAULT_CHATBOT_HANDLE,
-  );
-
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
       <header className="border-b">
-        {isGuide ? (
-          <p className="text-muted-foreground px-3 pt-3 text-xs font-medium">
-            {t('onboardingGuide.conversations.subtitle', {
-              defaultValue: 'Your community guide',
-            })}
-          </p>
-        ) : null}
         {participants.length === 1 && participants[0] ? (
           <ProfileCard profile={participants[0]} showAction={false} />
         ) : (
@@ -146,6 +131,13 @@ export function ConversationShow() {
             </div>
           </div>
         )}
+        <PluginSlot
+          name="plugins.conversations.detail.header"
+          props={{
+            locus: 'plugins.conversations.detail.header',
+            conversationId: id,
+          }}
+        />
       </header>
 
       <div

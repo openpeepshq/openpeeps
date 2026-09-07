@@ -7,6 +7,8 @@ import React, {
   type ComponentType,
   type ReactNode,
 } from 'react';
+import type { OpenpeepsClient } from '@openpeepshq/client';
+import type { PluginMemberCapabilities } from './PluginMemberCapabilities';
 
 type PluginComponentEntry = {
   key: string;
@@ -14,6 +16,37 @@ type PluginComponentEntry = {
 };
 
 type PluginRegistryMap = Record<string, PluginComponentEntry[]>;
+export type PluginRouteTarget = Readonly<{
+  namespace: string;
+  name: string;
+  pathSegments: readonly [string, ...string[]];
+}>;
+
+type PluginRoutePayload = Parameters<
+  OpenpeepsClient['plugins']['writeRoute']
+>[3];
+
+export type PluginRouteTransport = Readonly<{
+  read: (
+    target: PluginRouteTarget,
+    queryParameters?: Record<string, string>,
+  ) => Promise<unknown>;
+  write: (
+    target: PluginRouteTarget,
+    payload: PluginRoutePayload,
+    queryParameters?: Record<string, string>,
+  ) => Promise<unknown>;
+  update: (
+    target: PluginRouteTarget,
+    payload: PluginRoutePayload,
+    queryParameters?: Record<string, string>,
+  ) => Promise<unknown>;
+  remove: (
+    target: PluginRouteTarget,
+    payload: PluginRoutePayload,
+    queryParameters?: Record<string, string>,
+  ) => Promise<unknown>;
+}>;
 
 type RegistryApi = {
   registerComponent: (
@@ -27,6 +60,8 @@ type PluginRegistryContextValue = {
   registerComponent: RegistryApi['registerComponent'];
   getComponentsForSlot: (slot: string) => PluginComponentEntry[];
   listSlots: (prefix?: string) => string[];
+  routeTransport: PluginRouteTransport;
+  memberCapabilities: PluginMemberCapabilities;
 };
 
 const PLUGIN_REGISTRY_GLOBAL_KEY = '__OPENPEEPS_PLUGINS__';
@@ -71,8 +106,12 @@ const PluginRegistryContext = createContext<PluginRegistryContextValue | null>(
 
 export const PluginRegistryProvider = ({
   children,
+  routeTransport,
+  memberCapabilities,
 }: {
   children: ReactNode;
+  routeTransport: PluginRouteTransport;
+  memberCapabilities: PluginMemberCapabilities;
 }) => {
   const [components, setComponents] = useState<PluginRegistryMap>({});
 
@@ -127,7 +166,13 @@ export const PluginRegistryProvider = ({
 
   return (
     <PluginRegistryContext.Provider
-      value={{ registerComponent, getComponentsForSlot, listSlots }}
+      value={{
+        registerComponent,
+        getComponentsForSlot,
+        listSlots,
+        routeTransport,
+        memberCapabilities,
+      }}
     >
       {children}
     </PluginRegistryContext.Provider>

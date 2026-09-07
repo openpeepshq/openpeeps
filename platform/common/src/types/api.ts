@@ -27,6 +27,9 @@ import {
   mentionDataSchema,
   postDataUnionSchema,
   postTypeSchema,
+  pluginSettingsEnvelopeSchema,
+  pluginSettingsPatchSchema,
+  type PluginSettingsEnvelope,
   profileDataSchema,
   profileStatsSchema,
   reactionDataSchema,
@@ -367,6 +370,20 @@ export const unseenPostCountsSchema = z.object({
 });
 export type UnseenPostCounts = z.infer<typeof unseenPostCountsSchema>;
 
+export const pluginSettingsResponseSchema = pluginSettingsEnvelopeSchema;
+export type PluginSettingsResponse = PluginSettingsEnvelope;
+export const pluginSettingsRequestSchema = pluginSettingsPatchSchema;
+
+export const notificationContextSchema = z.object({
+  schema: z.literal('openpeeps.direct-message/v1'),
+  triggerPostId: z.string(),
+  senderProfileId: z.string(),
+  recipientProfileId: z.string(),
+  conversationId: z.string(),
+  activePluginContexts: z.array(z.string()),
+});
+export type NotificationContext = z.infer<typeof notificationContextSchema>;
+
 export const pushPayloadSchema = z.object({
   notification: pushNotificationSchema,
   notificationStats: notificationStatsSchema,
@@ -376,6 +393,7 @@ export type PushPayload = z.infer<typeof pushPayloadSchema>;
 export const webhookDataSchema = z.object({
   type: z.literal('pushNotification'),
   payload: pushPayloadSchema,
+  notificationContext: notificationContextSchema.optional(),
 });
 export type WebhookData = z.infer<typeof webhookDataSchema>;
 

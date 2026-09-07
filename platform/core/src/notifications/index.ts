@@ -9,11 +9,10 @@ export {
   registerDefaultNotifications,
   defaultNotificationTypes,
 } from './defaultNotifications';
-export {
-  registerNotificationHandler,
-  notificationHandlers,
-} from './handlers';
+export { registerNotificationHandler, notificationHandlers } from './handlers';
 export { notificationSettings } from './helpers';
+export { buildNotificationContext } from './context';
+export type { NotificationContextBuilder } from './context';
 export { sendTestPushNotification } from './push';
 export { notificationQueue, notificationWorker } from './jobs';
 

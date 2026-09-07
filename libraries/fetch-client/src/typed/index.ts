@@ -13,7 +13,11 @@ import {
   Verb,
 } from '../types';
 import { fetchClient } from '../base';
-import { convertToFormData, replacePathParams, stringifyValues } from '../utils';
+import {
+  convertToFormData,
+  replacePathParams,
+  stringifyValues,
+} from '../utils';
 
 export interface BaseEndpointDefinition {
   path: string;
@@ -30,17 +34,17 @@ export interface FormDataEndpointDefinition extends BaseEndpointDefinition {
 
 const createQueryKeyFn =
   (endpointDefinition: FormDataEndpointDefinition | EndpointDefinition) =>
-    ({
-      pathParameters,
+  ({
+    pathParameters,
+    queryParameters,
+  }: {
+    pathParameters?: ParametersType;
+    queryParameters?: ParametersType;
+  }) =>
+    [
+      ...replacePathParams(endpointDefinition.path, pathParameters).split('/'),
       queryParameters,
-    }: {
-      pathParameters?: ParametersType;
-      queryParameters?: ParametersType;
-    }) =>
-      [
-        ...replacePathParams(endpointDefinition.path, pathParameters).split('/'),
-        queryParameters,
-      ].filter(Boolean) as QueryKey;
+    ].filter(Boolean) as QueryKey;
 
 const createCallableFn =
   <
@@ -55,43 +59,47 @@ const createCallableFn =
       : EndpointDefinition,
     defaultFetchClient: FetchClient,
   ) =>
-    async (
-      input: Input,
-      options?: TypedEndpointOptions<PathParameters, QueryParameters>,
-    ): Promise<{ data: Output } | { error: Error }> => {
-      const bodyObject = endpointDefinition.convertToFormData
-        ? {
+  async (
+    input: Input,
+    options?: TypedEndpointOptions<PathParameters, QueryParameters>,
+  ): Promise<{ data: Output } | { error: Error }> => {
+    const bodyObject = endpointDefinition.convertToFormData
+      ? {
           body: convertToFormData(input as FormDataSource),
         }
-        : input instanceof File ||
+      : input instanceof File ||
           input instanceof FormData ||
           input instanceof Blob ||
           input instanceof URLSearchParams ||
           input instanceof ArrayBuffer ||
           typeof input === 'string'
-          ? { body: input }
-          : { json: input };
-      return (options?.fetchClient ?? defaultFetchClient)
-        .request(endpointDefinition.method)(
-          replacePathParams(endpointDefinition.path, options?.pathParameters) +
+        ? { body: input }
+        : { json: input };
+    return (options?.fetchClient ?? defaultFetchClient)
+      .request(endpointDefinition.method)(
+        replacePathParams(endpointDefinition.path, options?.pathParameters) +
           (options?.queryParameters
-            ? '?' + new URLSearchParams(stringifyValues(options?.queryParameters)).toString()
+            ? '?' +
+              new URLSearchParams(
+                stringifyValues(options?.queryParameters),
+              ).toString()
             : ''),
-          {
-            ...bodyObject,
-            headers: options?.headers,
-            signal: options?.signal,
-          },
-        )
-        .then(async (result) => {
-          const parsed = await result.json();
-          return result.ok
-            ? {
+        {
+          ...bodyObject,
+          headers: options?.headers,
+          signal: options?.signal,
+        },
+      )
+      .then(async (result) => {
+        options?.onResponseStatus?.(result.status);
+        const parsed = await result.json();
+        return result.ok
+          ? {
               data: parsed as Output,
             }
-            : { error: parsed as Error };
-        });
-    };
+          : { error: parsed as Error };
+      });
+  };
 
 export const typedPayloadEndpoint = <
   Output,
@@ -341,15 +349,17 @@ export const typedPayloadProgressObserverEndpoint = <
     });
   };
 
-  (callable as Partial<
-    TypedPayloadProgressObserverEndpoint<
-      Output,
-      Input,
-      Error,
-      PathParameters,
-      QueryParameters
+  (
+    callable as Partial<
+      TypedPayloadProgressObserverEndpoint<
+        Output,
+        Input,
+        Error,
+        PathParameters,
+        QueryParameters
+      >
     >
-  >).queryKey = createQueryKeyFn(endpointDefinition);
+  ).queryKey = createQueryKeyFn(endpointDefinition);
 
   return callable as TypedPayloadProgressObserverEndpoint<
     Output,
