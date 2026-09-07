@@ -88,10 +88,8 @@ export function AdminConfigEditor({
     setSaving(true);
     try {
       await updateConfig({ config: parsed });
-      setStatus({
-        type: 'success',
-        message: t('admin.config.saved', { defaultValue: 'Saved.' }),
-      });
+      // serverInfo (LiveKit enabled, etc.) is loaded once at boot
+      window.location.reload();
     } catch (err) {
       setStatus({ type: 'error', message: (err as Error).message });
     } finally {
@@ -104,10 +102,8 @@ export function AdminConfigEditor({
     setSaving(true);
     try {
       await updateConfig({ config: patch });
-      setStatus({
-        type: 'success',
-        message: t('admin.config.saved', { defaultValue: 'Saved.' }),
-      });
+      // serverInfo (LiveKit enabled, etc.) is loaded once at boot
+      window.location.reload();
     } catch (err) {
       setStatus({ type: 'error', message: (err as Error).message });
     } finally {
