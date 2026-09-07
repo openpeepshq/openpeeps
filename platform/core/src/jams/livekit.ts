@@ -403,35 +403,34 @@ export const jamState = async (
   hideParticipants?: boolean,
   recurrenceId?: string,
 ): Promise<JamState> => {
+  const inactive: JamState = { participants: [], active: false };
   const rs = await roomService();
   const roomName = jamRoomName(jam.id, recurrenceId);
   if (rs === undefined) {
-    return {
-      participants: [],
-      active: false,
-    };
+    return inactive;
   }
-  const room = await rs
-    .listRooms([roomName])
-    .then((rooms) => rooms.find((r) => r.name === roomName));
-  if (!room) {
+  try {
+    const room = await rs
+      .listRooms([roomName])
+      .then((rooms) => rooms.find((r) => r.name === roomName));
+    if (!room) {
+      return inactive;
+    }
+    const participants = await listParticipantIds(roomName);
+    if (participants.length === 0) {
+      // Room exists only for egress ghosts / empty leftovers — reclaim so it
+      // stops appearing under Live jams.
+      void reclaimOrphanJamRoom(jam, roomName);
+      return inactive;
+    }
     return {
-      participants: [],
-      active: false,
+      participants: hideParticipants ? [] : participants,
+      active: true,
     };
+  } catch (e) {
+    log.warn(
+      `Failed to read jam state for ${roomName}: ${(e as Error).message}`,
+    );
+    return inactive;
   }
-  const participants = await listParticipantIds(roomName);
-  if (participants.length === 0) {
-    // Room exists only for egress ghosts / empty leftovers — reclaim so it
-    // stops appearing under Live jams.
-    void reclaimOrphanJamRoom(jam, roomName);
-    return {
-      participants: [],
-      active: false,
-    };
-  }
-  return {
-    participants: hideParticipants ? [] : participants,
-    active: true,
-  };
 };

@@ -131,7 +131,12 @@ export const createJamToken = async (
     throw forbidden({ errorKey: 'error.jamsUnavailable' });
   }
 
-  const rooms = await rs.listRooms([roomName]);
+  let rooms;
+  try {
+    rooms = await rs.listRooms([roomName]);
+  } catch {
+    throw forbidden({ errorKey: 'error.jamsUnavailable' });
+  }
   const jamOpen = rooms.length === 1;
 
   if (!jamOpen && (reconnect || !jam?.moderators.includes(profile.id))) {

@@ -24,8 +24,10 @@ import { clearJamAdmittance } from './waitingRoom';
 import { uuidv7 } from 'uuidv7';
 import { canReadPost } from '../posts/helpers';
 import { capabilitiesConfig } from '../config';
+import { logger } from '../log';
 
 export { createJamToken, createJamEgressToken } from './token';
+export { isLivekitConnected } from './health';
 export {
   startRecording,
   stopRecording,
@@ -57,6 +59,8 @@ export {
   jamRecordingUploadSecret,
 } from './recordingUploadAuth';
 
+const log = logger('app:jams:livekit');
+
 const invalidateJamCaches = async (jamId: string) => {
   await Promise.all([
     jamStateCache.del(jamId).catch(() => undefined),
@@ -78,10 +82,17 @@ const fetchLiveJamPosts = async (): Promise<PostWithMeta[]> => {
     return [];
   }
 
-  const [rooms, localDomain] = await Promise.all([
-    rs.listRooms(),
-    localInstanceDomain(),
-  ]);
+  let rooms;
+  let localDomain;
+  try {
+    [rooms, localDomain] = await Promise.all([
+      rs.listRooms(),
+      localInstanceDomain(),
+    ]);
+  } catch (e) {
+    log.warn(`Failed to list live jam rooms: ${(e as Error).message}`);
+    return [];
+  }
 
   const posts = await Promise.all(
     rooms.map(async (room) => {
