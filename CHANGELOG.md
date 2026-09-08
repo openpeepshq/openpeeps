@@ -5,11 +5,19 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **jams**: enhance error handling and logging for LiveKit interactions
+- **arango-migrate**: ship a cutover image and fix baseline restore
 - **push-notifications**: enhance push subscription handling and deduplication
 - **post**: add group link on post detail Show the group name as a link in the post detail header so a single post includes a path back to its group. Update i18n and the UI test to target the first matching group link.
 
 ### Bug Fixes
 
+- **arango-migrate**: preserve repeated post impressions
+- **ui**: restore LoadingSpinner rotation accent
+- **jams**: stop reconnects from restarting an ended jam
+- **admin**: restore SSO configuration field labels
+- **docs**: clarify navigation and version
+- **react-native**: keep event audience picker open
 - **ui**: style welcome page links
 - **docs**: use active theme logo
 - **admin**: label typography theme modes
@@ -19,6 +27,7 @@ Changelog for OpenPeeps
 
 ### Refactoring
 
+- **ConfigEditor**: reload page after successful config update
 - **poll**: improve layout and structure of PollContent component
 
 ### Documentation
