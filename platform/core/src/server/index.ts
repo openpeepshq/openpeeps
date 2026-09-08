@@ -6,6 +6,8 @@ import { database } from '../db';
 import { normalizeComputedDatetime } from '../db/pg/mappers';
 import { postSeen } from '../db/pg/schema';
 
+export { adminServerStatus } from './status';
+
 export type DurationType =
   | 'yesterday'
   | 'today'

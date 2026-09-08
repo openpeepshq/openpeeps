@@ -120,6 +120,7 @@ test.describe('API coverage gaps', () => {
       '/api/openpeeps/core/v1/posts/feeds/my',
       '/api/openpeeps/core/v1/conversations',
       '/api/openpeeps/core/v1/admin/stats',
+      '/api/openpeeps/core/v1/admin/server/status',
       '/api/openpeeps/core/v1/search/posts?q=test',
     ];
 
@@ -144,6 +145,12 @@ test.describe('API coverage gaps', () => {
       headers: apiHeaders(token),
     });
     expect(response.status()).toBe(403);
+
+    const status = await request.get(
+      '/api/openpeeps/core/v1/admin/server/status',
+      { headers: apiHeaders(token) },
+    );
+    expect(status.status()).toBe(403);
   });
 
   test('bad login credentials fail', async ({ request }) => {
@@ -276,6 +283,21 @@ test.describe('API coverage gaps', () => {
       headers: apiHeaders(token),
     });
     expect(stats.ok(), await stats.text()).toBeTruthy();
+
+    const status = await request.get(
+      '/api/openpeeps/core/v1/admin/server/status',
+      { headers: apiHeaders(token) },
+    );
+    expect(status.ok(), await status.text()).toBeTruthy();
+    const body = (await status.json()) as {
+      version?: string;
+      uptimeSeconds?: number;
+      subscription?: { accountCount?: number; profileCount?: number };
+    };
+    expect(typeof body.version).toBe('string');
+    expect(typeof body.uptimeSeconds).toBe('number');
+    expect(typeof body.subscription?.accountCount).toBe('number');
+    expect(typeof body.subscription?.profileCount).toBe('number');
 
     const groups = await request.get('/api/openpeeps/core/v1/admin/groups', {
       headers: apiHeaders(token),

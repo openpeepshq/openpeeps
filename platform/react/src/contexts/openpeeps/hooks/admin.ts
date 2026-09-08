@@ -2,6 +2,7 @@ import { apiHook, noPayloadMutation, payloadMutation } from '../helpers';
 import type { openpeepsClient } from '@openpeepshq/client';
 import type {
   AdminServerStats,
+  AdminServerStatus,
   AnalyticsClicks,
   AnalyticsEngagement,
   AnalyticsGrowth,
@@ -132,6 +133,7 @@ type AdminPeopleContent = ReturnType<typeof adminPeopleContent>;
 
 type AdminAnalytics = {
   useGeneralStats: () => Query<AdminServerStats>;
+  useServerStatus: () => Query<AdminServerStatus>;
   useAnalyticsOverview: (
     query?: Record<string, string>,
   ) => Query<AnalyticsOverview>;
@@ -157,6 +159,8 @@ type AdminAnalytics = {
 
 const adminAnalytics = (client: OpenpeepsClientInstance): AdminAnalytics => ({
   useGeneralStats: () => apiHook(client.admin.stats.general),
+  useServerStatus: () =>
+    apiHook(client.admin.server.status, { refetchInterval: 30_000 }),
   useAnalyticsOverview: (query?: Record<string, string>) =>
     apiHook(client.admin.analytics.overview, { queryParams: query }),
   useAnalyticsGrowth: (query?: Record<string, string>) =>

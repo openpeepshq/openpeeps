@@ -21,6 +21,7 @@ export const COMMUNITY_TOOL_NAMES = [
 
 export const OPS_TOOL_NAMES = [
   'admin_server_stats',
+  'admin_server_status',
   'admin_list_logs',
   'admin_config_read',
   'admin_config_update',

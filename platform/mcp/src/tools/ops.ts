@@ -25,6 +25,16 @@ export const registerOpsTools = (
   );
 
   server.registerTool(
+    'admin_server_status',
+    {
+      description:
+        'Read admin server status (version, subscription, users, uptime, resources).',
+      inputSchema: z.object({}),
+    },
+    async () => runTool(() => unwrap(client.admin.server.status())),
+  );
+
+  server.registerTool(
     'admin_list_logs',
     {
       description: 'List server log rows for a date (YYYY-MM-DD).',
