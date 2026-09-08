@@ -3,7 +3,7 @@ import { defaultConfig, registerConfigSchema } from '../config';
 
 import type { PackageJson } from 'type-fest';
 import type { Plugin, PluginManifest } from '@openpeepshq/common';
-import { pluginManifestSchema } from '@openpeepshq/common';
+import { i18nResourceSchema, pluginManifestSchema } from '@openpeepshq/common';
 import {
   enumeratePluginInfos,
   enumerateReferencedPluginInfos,
@@ -12,6 +12,7 @@ import {
 } from './helpers';
 import { getPluginStateOverrides } from './state';
 import { logger } from '../log';
+import { clearPluginLocales, registerPluginLocales } from '../i18n';
 
 export * from './pluginAuth';
 export * from './state';
@@ -47,6 +48,7 @@ const clearPluginState = () => {
   loadedModules.clear();
   pluginManifests.clear();
   pluginUnsubscribers.clear();
+  clearPluginLocales();
   initialized = false;
 };
 
@@ -140,6 +142,16 @@ export const initializePlugins = async () => {
           key,
           pluginManifestSchema.parse(pluginModule.manifest),
         );
+      }
+      if ('locales' in pluginModule) {
+        const parsed = i18nResourceSchema.safeParse(pluginModule.locales);
+        if (parsed.success) {
+          registerPluginLocales(key, parsed.data);
+        } else {
+          log.warn(
+            `${plugin.key} locales export is invalid. Skipping translations.`,
+          );
+        }
       }
 
       plugin.status = 'loaded';

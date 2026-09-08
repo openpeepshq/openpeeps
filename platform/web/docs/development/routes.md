@@ -80,6 +80,7 @@ Routes that are only accessible to authenticated users and are never publicly vi
     - `/admin/moderation/reports/@[handle]` - Report details
   - `/admin/backups` - Backup management
   - `/admin/configuration` - Server configuration
+    - `/admin/configuration/<plugin-slug>` - Plugin configuration pages
     - `/admin/configuration/community` - Community settings
       - `/admin/configuration/community/info` - Community information
       - `/admin/configuration/community/about-page` - About page editor
