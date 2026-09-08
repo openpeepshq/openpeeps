@@ -8,11 +8,24 @@ import {
   LoadingSpinner,
   type DateRangeValue,
 } from '@openpeepshq/react-ui';
+import { usePluginRegistry } from '../../../components';
 import { useOpenpeeps, useSetPageHeader, useT } from '../../../index';
+import {
+  ANALYTICS_PLUGIN_SLOT_PREFIX,
+  analyticsPluginTabSlug,
+  humanizeAnalyticsPluginSlug,
+} from './analyticsPluginTabs';
 import { AnalyticsRangeContext } from './AnalyticsRangeContext';
 import { downloadCsv } from './downloadCsv';
 
-const tabs = [
+type AnalyticsTab = {
+  to: string;
+  labelKey: string;
+  fallback: string;
+  end?: boolean;
+};
+
+const coreTabs: readonly AnalyticsTab[] = [
   {
     to: '/admin/analytics',
     end: true,
@@ -44,12 +57,33 @@ const tabs = [
     labelKey: 'reports',
     fallback: 'Reports',
   },
-] as const;
+];
 
 export const AnalyticsLayout = () => {
   const t = useT();
   const location = useLocation();
   const { client } = useOpenpeeps();
+  const { listSlots } = usePluginRegistry();
+  const tabs = useMemo(() => {
+    const pluginTabs = listSlots(ANALYTICS_PLUGIN_SLOT_PREFIX).flatMap(
+      (slot) => {
+        const slug = analyticsPluginTabSlug(slot);
+        if (!slug) return [];
+        return [
+          {
+            to: `/admin/analytics/${slug}`,
+            labelKey: slug,
+            fallback: humanizeAnalyticsPluginSlug(slug),
+          },
+        ];
+      },
+    );
+    return [
+      ...coreTabs.filter((tab) => tab.labelKey !== 'reports'),
+      ...pluginTabs,
+      ...coreTabs.filter((tab) => tab.labelKey === 'reports'),
+    ];
+  }, [listSlots]);
   const [range, setRange] = useState<DateRangeValue>({ preset: '30d' });
   const queryParams = useMemo(() => {
     const params: Record<string, string> = {};

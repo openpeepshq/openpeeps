@@ -183,7 +183,7 @@ graph LR
 | `PluginRegistryProvider` | `@openpeepshq/react/components` | Context owning slot/component state; exposes `window.__OPENPEEPS_PLUGINS__`                       |
 | `PluginLoader`           | `@openpeepshq/react/components` | Fetches manifest, injects `<script>` tags for each declared asset                                 |
 | `PluginSlot`             | `@openpeepshq/react/components` | Renders all components registered for a named slot (function component, no class `ErrorBoundary`) |
-| `usePluginRegistry`      | `@openpeepshq/react/components` | Direct access to `registerComponent` and `getComponentsForSlot`                                   |
+| `usePluginRegistry`      | `@openpeepshq/react/components` | Direct access to `registerComponent`, `getComponentsForSlot`, and `listSlots`                     |
 
 ### Usage example
 
@@ -200,6 +200,12 @@ function SomePage() {
   );
 }
 ```
+
+Analytics tabs are not a fixed host list. Register
+`plugins.admin.analytics.<slug>` (one kebab-case segment, not a core
+analytics path such as `members` or `reports`). The host adds a tab and
+renders that slot at `/admin/analytics/<slug>`, passing `analyticsRange`
+and `analyticsGroups`.
 
 ### Manifest Schema (Zod)
 

@@ -50,6 +50,7 @@ export { AnalyticsMembersPage } from './admin/Analytics';
 export { AnalyticsContentPage } from './admin/Analytics';
 export { AnalyticsEngagementPage } from './admin/Analytics';
 export { AnalyticsGroupsPage } from './admin/Analytics';
+export { AnalyticsPluginPage } from './admin/Analytics';
 export { AnalyticsReportSettingsPage } from './admin/Analytics';
 export { AdminBackups } from './admin/Backups';
 export { AdminGroups } from './admin/Groups';
