@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { buttonVariants, type StyledButtonVariant } from '@/lib/buttonVariants';
 import type { ButtonAction, IconType } from '@/types';
 import type { PopupPlacement } from './PopupMenu';
+import { AccessibleButtonLabel } from '@/components/button/AccessibleButtonLabel';
 
 export interface SplitButtonMenuProps {
   /** Variant applied to the primary (circular) button. */
@@ -53,6 +54,7 @@ export function SplitButtonMenu({
   disabled = false,
 }: SplitButtonMenuProps) {
   const [side, align] = parsePlacement(placement);
+  const primaryName = title || undefined;
 
   const runAction = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -65,7 +67,8 @@ export function SplitButtonMenu({
     <div className={cn('flex items-center', className)}>
       <button
         type="button"
-        title={title}
+        title={primaryName}
+        aria-label={primaryName}
         disabled={disabled}
         onClick={runAction}
         className={cn(
@@ -74,6 +77,9 @@ export function SplitButtonMenu({
         )}
       >
         {children}
+        {primaryName ? (
+          <AccessibleButtonLabel>{primaryName}</AccessibleButtonLabel>
+        ) : null}
       </button>
 
       <DropdownMenu>
@@ -81,10 +87,14 @@ export function SplitButtonMenu({
           <button
             type="button"
             title={menuTitle}
+            aria-label={menuTitle}
             className="hover:bg-surface rounded-r-button text-foreground -ml-1 flex h-10 items-center justify-center pl-0.5 pr-1.5 transition-colors"
             onClick={(e) => e.stopPropagation()}
           >
-            <ChevronIcon size={chevronSize} />
+            <span aria-hidden="true">
+              <ChevronIcon size={chevronSize} />
+            </span>
+            <AccessibleButtonLabel>{menuTitle}</AccessibleButtonLabel>
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

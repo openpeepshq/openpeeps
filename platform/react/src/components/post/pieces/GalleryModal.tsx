@@ -34,6 +34,10 @@ export function GalleryModal({
 
   if (!attachment) return null;
 
+  const prevLabel = t('posts.gallery.previous', { defaultValue: 'Previous' });
+  const nextLabel = t('posts.gallery.next', { defaultValue: 'Next' });
+  const closeLabel = t('posts.gallery.close', { defaultValue: 'Close' });
+
   const prev = (e: MouseEvent) => {
     stop(e);
     setIndex((i) => (i === 0 ? attachments.length - 1 : i - 1));
@@ -56,11 +60,13 @@ export function GalleryModal({
       {attachments.length > 1 ? (
         <button
           type="button"
-          title={t('posts.gallery.previous', { defaultValue: 'Previous' })}
+          title={prevLabel}
+          aria-label={prevLabel}
           className="rounded-button absolute left-2 top-1/2 z-50 -translate-y-1/2 bg-white/15 p-4 text-xl font-bold shadow-xl md:left-4"
           onClick={prev}
         >
-          ←
+          <span aria-hidden="true">←</span>
+          <span className="sr-only">{prevLabel}</span>
         </button>
       ) : null}
 
@@ -113,24 +119,28 @@ export function GalleryModal({
       {attachments.length > 1 ? (
         <button
           type="button"
-          title={t('posts.gallery.next', { defaultValue: 'Next' })}
+          title={nextLabel}
+          aria-label={nextLabel}
           className="rounded-button absolute right-2 top-1/2 z-50 -translate-y-1/2 bg-white/15 p-4 text-xl font-bold shadow-xl md:right-4"
           onClick={next}
         >
-          →
+          <span aria-hidden="true">→</span>
+          <span className="sr-only">{nextLabel}</span>
         </button>
       ) : null}
 
       <button
         type="button"
-        title={t('posts.gallery.close', { defaultValue: 'Close' })}
+        title={closeLabel}
+        aria-label={closeLabel}
         className="rounded-button bg-primary text-primary-foreground fixed right-4 top-4 z-50 px-3 py-2 text-lg font-bold shadow-xl"
         onClick={(e) => {
           stop(e);
           onClose();
         }}
       >
-        ×
+        <span aria-hidden="true">×</span>
+        <span className="sr-only">{closeLabel}</span>
       </button>
     </div>
   );

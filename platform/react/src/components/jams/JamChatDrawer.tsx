@@ -114,10 +114,14 @@ export function JamChatDrawer({
         <button
           type="button"
           title={t('jams.drawer.close', { defaultValue: 'Close' })}
+          aria-label={t('jams.drawer.close', { defaultValue: 'Close' })}
           className="text-neutral-400"
           onClick={onClose}
         >
-          <X />
+          <X aria-hidden="true" />
+          <span className="sr-only">
+            {t('jams.drawer.close', { defaultValue: 'Close' })}
+          </span>
         </button>
       </div>
 

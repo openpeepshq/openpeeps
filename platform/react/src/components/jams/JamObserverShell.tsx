@@ -21,10 +21,14 @@ export function JamObserverShell({ children }: JamObserverShellProps) {
         <button
           type="button"
           title={t('jams.drawer.chatTitle', { defaultValue: 'Chat' })}
+          aria-label={t('jams.drawer.chatTitle', { defaultValue: 'Chat' })}
           className={`lk-button ${chatOpen ? 'lk-button-active' : ''}`}
           onClick={() => setChatOpen((open) => !open)}
         >
-          <MessageSquare className="size-5" />
+          <MessageSquare className="size-5" aria-hidden="true" />
+          <span className="sr-only">
+            {t('jams.drawer.chatTitle', { defaultValue: 'Chat' })}
+          </span>
         </button>
       </div>
       <JamChatDrawer

@@ -69,10 +69,12 @@ export function Toast({
       <button
         type="button"
         aria-label="Dismiss"
+        title="Dismiss"
         onClick={dismiss}
         className="-mr-1 -mt-0.5 shrink-0 opacity-80 hover:opacity-100"
       >
-        <X className="size-4" />
+        <X className="size-4" aria-hidden="true" />
+        <span className="sr-only">Dismiss</span>
       </button>
     </div>
   );

@@ -8,6 +8,7 @@ import {
 import { cn } from '@/lib/utils';
 import { buttonVariants, type StyledButtonVariant } from '@/lib/buttonVariants';
 import type { IconType } from '@/types';
+import { AccessibleButtonLabel } from '@/components/button/AccessibleButtonLabel';
 
 export type PopupPlacement =
   | 'top'
@@ -57,6 +58,7 @@ export function PopupMenu({
   text,
 }: PopupMenuProps) {
   const [side, align] = parsePlacement(placement);
+  const actionName = title || text;
 
   return (
     <DropdownMenu>
@@ -64,6 +66,7 @@ export function PopupMenu({
         <button
           type="button"
           title={title}
+          aria-label={actionName || undefined}
           className={cn(
             'rounded-button inline-flex items-center justify-center gap-1',
             variant && buttonVariants({ variant }),
@@ -74,8 +77,15 @@ export function PopupMenu({
             e.preventDefault();
           }}
         >
-          {menuButton ?? <Icon size={iconSize} />}
+          {menuButton ?? (
+            <span aria-hidden="true">
+              <Icon size={iconSize} />
+            </span>
+          )}
           {text && <span className="text-sm">{text}</span>}
+          {actionName && !text ? (
+            <AccessibleButtonLabel>{actionName}</AccessibleButtonLabel>
+          ) : null}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

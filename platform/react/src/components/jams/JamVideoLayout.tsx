@@ -151,10 +151,14 @@ function ScreenSharingLayout({
                 <button
                   type="button"
                   title={t('jams.screenShare.startStopTitle')}
+                  aria-label={t('jams.screenShare.startStopTitle')}
                   className="bg-foreground/60 text-on-primary-token hover:bg-foreground/80 absolute bottom-3 right-3 rounded-full p-2 transition-colors"
                   onClick={toggleFullscreen}
                 >
-                  <Maximize2 className="size-5" />
+                  <Maximize2 className="size-5" aria-hidden="true" />
+                  <span className="sr-only">
+                    {t('jams.screenShare.startStopTitle')}
+                  </span>
                 </button>
               ) : null}
             </>
