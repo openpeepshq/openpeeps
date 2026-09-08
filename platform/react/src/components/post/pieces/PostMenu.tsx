@@ -61,6 +61,7 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
     id: post.group?.id ?? '',
   });
   const pinGloballyMutation = openpeepsApi.admin.pinPostGloballyAction();
+  const pinOnProfileMutation = openpeepsApi.pinPostOnProfileAction();
 
   const postProfile = post.profile;
   const isFollowing = me?.following?.some((f) => f.id === postProfile.id);
@@ -68,6 +69,7 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
   const pinnedGlobally =
     serverInfo.communityConfig?.content?.pinnedPost === post.id;
   const pinnedInGroup = post.group?.pinnedPostId === post.id;
+  const pinnedOnProfile = me?.pinnedPostId === post.id;
 
   const canPinToGroup = useMemo(
     () =>
@@ -225,6 +227,32 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
         {isPostOwner ? (
           <>
             <PopupSeparator />
+            <PopupMenuButton
+              title={
+                pinnedOnProfile
+                  ? t('posts.unpinOnProfile.title', {
+                      defaultValue: 'Unpin from profile',
+                    })
+                  : t('posts.pinOnProfile.title', {
+                      defaultValue: 'Pin to profile',
+                    })
+              }
+              text={
+                pinnedOnProfile
+                  ? t('posts.unpinOnProfile.title', {
+                      defaultValue: 'Unpin from profile',
+                    })
+                  : t('posts.pinOnProfile.title', {
+                      defaultValue: 'Pin to profile',
+                    })
+              }
+              icon={Pin}
+              action={() =>
+                pinOnProfileMutation({
+                  postId: pinnedOnProfile ? '' : post.id,
+                })
+              }
+            />
             <PopupMenuButton
               title={t('common.actions.edit', { defaultValue: 'Edit' })}
               text={t('common.actions.edit', { defaultValue: 'Edit' })}

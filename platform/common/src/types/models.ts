@@ -317,6 +317,7 @@ export const profileDataSchema = z.object({
       resource: resourceSchema.optional(),
     })
     .optional(),
+  pinnedPostId: z.string().optional(),
 });
 
 export type ProfileData = z.infer<typeof profileDataSchema>;

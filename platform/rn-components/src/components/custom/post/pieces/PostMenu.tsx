@@ -57,6 +57,7 @@ export const PostMenu = ({ post }: PostMenuProps) => {
   const canPinToGroup = post.group &&
     checkGroupCapabilities({ profile: currentProfile, scopes: [] }, ['core-groups-pin'], post.group).success
   const pinnedInGroup: boolean = post.group?.pinnedPostId === post.id
+  const pinnedOnProfile: boolean = currentProfile?.pinnedPostId === post.id
   const canPinGlobally: boolean = ['public', 'local'].includes(post.visibility) &&
       currentProfile &&
       checkRoleCapabilities(currentProfile?.roles, ['core-config-update']).success || false
@@ -77,6 +78,7 @@ export const PostMenu = ({ post }: PostMenuProps) => {
 
   const updateGroup = openpeepsApi.updateGroupAction({ id: post.group?.id as string });
   const pinGloballyMutation = openpeepsApi.admin.pinPostGloballyAction();
+  const pinOnProfileMutation = openpeepsApi.pinPostOnProfileAction();
 
   const followProfile = openpeepsApi.followProfileAction({ id: post.profile.id });
   const unfollowProfile = openpeepsApi.unfollowProfileAction({
@@ -184,6 +186,29 @@ export const PostMenu = ({ post }: PostMenuProps) => {
     }
   };
 
+  const handlePinOnProfile = async () => {
+    try {
+      await pinOnProfileMutation({
+        postId: pinnedOnProfile ? '' : post.id,
+      });
+      await refetchCurrentProfile();
+      Toast.show({
+        type: 'success',
+        text1: pinnedOnProfile
+          ? t('posts.unpinOnProfile.success')
+          : t('posts.pinOnProfile.success'),
+      });
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: pinnedOnProfile
+          ? t('posts.unpinOnProfile.error')
+          : t('posts.pinOnProfile.error'),
+        autoHide: false,
+      });
+    }
+  };
+
   const handleBookmarkMenuPress = useCallback(async () => {
     if (bookmarkActionInFlight.current) {
       return;
@@ -273,6 +298,16 @@ export const PostMenu = ({ post }: PostMenuProps) => {
 
             {currentProfile?.id === post.profile.id && !post.repost && (
               <>
+                <DropdownMenuItem
+                  onPress={handlePinOnProfile}
+                  className=" flex-row gap-x-2 items-center">
+                  <PinIcon size={16} className="text-foreground" />
+                  <ThemedText>
+                    {pinnedOnProfile
+                      ? t('posts.unpinOnProfile.title')
+                      : t('posts.pinOnProfile.title')}
+                  </ThemedText>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onPress={() => {
                     navigation.navigate('EditPost', {

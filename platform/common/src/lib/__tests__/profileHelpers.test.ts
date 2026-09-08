@@ -75,6 +75,7 @@ describe('profileHelpers', () => {
       expect(result.header).toBeNull();
       expect(result.bio).toBeUndefined();
       expect(result.memberships).toEqual([]);
+      expect(result.pinnedPostId).toBeUndefined();
       expect(publicProfileSchema.parse(result)).toMatchObject({
         handle: DELETED_AUTHOR_HANDLE,
         displayName: DELETED_AUTHOR_DISPLAY_NAME,

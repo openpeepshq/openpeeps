@@ -428,7 +428,8 @@
       "errorToast": "An error occurred while creating the reply"
     },
     "feed": {
-      "empty": "No posts yet."
+      "empty": "No posts yet.",
+      "pinned": "Pinned post"
     },
     "chronologicalFeed": {
       "modalTitle": "Community feed preferences",
@@ -523,6 +524,16 @@
     "unpinGlobally": {
       "title": "Unpin from feed",
       "success": "Post is no longer pinned"
+    },
+    "pinOnProfile": {
+      "title": "Pin to profile",
+      "success": "This post will be pinned at the top of your profile",
+      "error": "An error occurred while pinning this post to your profile"
+    },
+    "unpinOnProfile": {
+      "title": "Unpin from profile",
+      "success": "The post is no longer pinned to your profile",
+      "error": "An error occurred while unpinning this post"
     },
     "newPost": {
       "title": "New post"
