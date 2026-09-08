@@ -36,6 +36,11 @@ export const profiles = (
       '/profiles/current',
       'patch',
     ),
+    pinPost: allpeepPayloadEndpoint<SuccessResponse, { postId: string }>(
+      rawClient,
+      '/profiles/current/pinned-post',
+      'patch',
+    ),
     notifications: allpeepNoPayloadEndpoint<
       PublicNotification[],
       undefined,

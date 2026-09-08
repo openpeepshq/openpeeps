@@ -22,7 +22,7 @@ export function PinnedPost({ pinnedPostId, inGroup = false }: PinnedPostProps) {
     <a href={href} className="bg-surface block">
       <div className="px-5 pt-3 text-sm">
         <Pin className="mr-1 inline-block size-4" />
-        {t('feed.pinned', { defaultValue: 'Pinned post' })}
+        {t('posts.feed.pinned', { defaultValue: 'Pinned post' })}
       </div>
       <FeedPost
         post={post}

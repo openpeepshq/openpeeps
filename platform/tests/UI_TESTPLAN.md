@@ -131,6 +131,8 @@ Existing suite folders (for gap awareness only): `suites/empty/ui`,
 | UI-POST-32 | Articles list → create → edit                        | article caps            | CRUD via article pages               |                  |
 | UI-POST-33 | Infinite scroll / load more feed                     | many posts              | Older posts load                     |                  |
 | UI-POST-34 | Mark posts seen (unseen counts)                      | unread posts            | Unseen badge decreases               |                  |
+| UI-POST-35 | Pin own post to profile                              | owner of post           | Pinned at top of profile feed        |                  |
+| UI-POST-36 | Unpin profile pin                                    | own pinned post         | Pin cleared from profile             |                  |
 
 ---
 

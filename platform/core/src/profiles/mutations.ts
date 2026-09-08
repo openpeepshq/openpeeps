@@ -62,6 +62,15 @@ export const updateProfile = async (
   return profilesMapping.update(db, profileId, data);
 };
 
+export const pinPostOnProfile = async (
+  profile: Pick<Profile, 'id' | 'handle'>,
+  pinnedPostId: string,
+) => {
+  const updated = await updateProfile(profile.id, { pinnedPostId });
+  await clearProfileCache(profile);
+  return updated;
+};
+
 export const deleteProfile = async (profileId: string) => {
   const db = await allpeepDb().then((db) => db.db);
   const profileToDelete = await getProfile(profileId);

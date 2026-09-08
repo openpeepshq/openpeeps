@@ -120,6 +120,7 @@ Existing helpers: `platform/tests/helpers/api.ts`. Suites:
 | API-PROF-22 | `GET /profiles/:id/followers` | readable | list | |
 | API-PROF-23 | `GET /profiles/:id/following` | readable | list | |
 | API-PROF-24 | `GET /profiles/:id/common-groups` | readable | list | |
+| API-PROF-25 | `PATCH /profiles/current/pinned-post` | own post | `pinnedPostId` set / cleared | empty `postId` unpins; not author → `403` |
 
 ---
 

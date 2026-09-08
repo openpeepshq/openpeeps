@@ -315,6 +315,91 @@ test.describe('API coverage gaps', () => {
     expect(unpin.ok(), await unpin.text()).toBeTruthy();
   });
 
+  test('pin own post on profile then replace then unpin', async ({
+    request,
+  }) => {
+    const { token, handle } = await registerMember(request);
+    const first = await createNote(
+      request,
+      token,
+      `Profile pin ${uniqueHandle('pp1')}`,
+    );
+    const second = await createNote(
+      request,
+      token,
+      `Profile pin ${uniqueHandle('pp2')}`,
+    );
+
+    const { token: otherToken } = await registerMember(request);
+    const otherNote = await createNote(
+      request,
+      otherToken,
+      `Other ${uniqueHandle('ppx')}`,
+    );
+
+    const pinOther = await request.patch(
+      '/api/openpeeps/core/v1/profiles/current/pinned-post',
+      {
+        headers: apiHeaders(token),
+        data: { postId: otherNote.id },
+      },
+    );
+    expect(pinOther.status()).toBe(403);
+
+    const pinFirst = await request.patch(
+      '/api/openpeeps/core/v1/profiles/current/pinned-post',
+      {
+        headers: apiHeaders(token),
+        data: { postId: first.id },
+      },
+    );
+    expect(pinFirst.ok(), await pinFirst.text()).toBeTruthy();
+
+    const afterFirst = await request.get(
+      `/api/openpeeps/core/v1/profiles/by-handle/${handle}`,
+      { headers: apiHeaders(token) },
+    );
+    expect(afterFirst.ok(), await afterFirst.text()).toBeTruthy();
+    expect(
+      (await afterFirst.json()) as { pinnedPostId?: string },
+    ).toMatchObject({ pinnedPostId: first.id });
+
+    const pinSecond = await request.patch(
+      '/api/openpeeps/core/v1/profiles/current/pinned-post',
+      {
+        headers: apiHeaders(token),
+        data: { postId: second.id },
+      },
+    );
+    expect(pinSecond.ok(), await pinSecond.text()).toBeTruthy();
+
+    const afterSecond = await request.get(
+      '/api/openpeeps/core/v1/profiles/current',
+      { headers: apiHeaders(token) },
+    );
+    expect(afterSecond.ok(), await afterSecond.text()).toBeTruthy();
+    expect(
+      (await afterSecond.json()) as { pinnedPostId?: string },
+    ).toMatchObject({ pinnedPostId: second.id });
+
+    const unpin = await request.patch(
+      '/api/openpeeps/core/v1/profiles/current/pinned-post',
+      {
+        headers: apiHeaders(token),
+        data: { postId: '' },
+      },
+    );
+    expect(unpin.ok(), await unpin.text()).toBeTruthy();
+
+    const afterUnpin = await request.get(
+      `/api/openpeeps/core/v1/profiles/by-handle/${handle}`,
+      { headers: apiHeaders(token) },
+    );
+    expect(afterUnpin.ok(), await afterUnpin.text()).toBeTruthy();
+    const unpinned = (await afterUnpin.json()) as { pinnedPostId?: string };
+    expect(unpinned.pinnedPostId || '').toBe('');
+  });
+
   test('announce a local post', async ({ request }) => {
     const { token } = await loginUser(request, owner.email, owner.password);
     const note = await createNote(

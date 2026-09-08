@@ -422,7 +422,8 @@
             "errorToast": "Beim Erstellen der Antwort ist ein Fehler aufgetreten"
         },
         "feed": {
-            "empty": "Noch keine Beiträge."
+            "empty": "Noch keine Beiträge.",
+            "pinned": "Angepinnt"
         },
         "chronologicalFeed": {
             "modalTitle": "Community-Feed-Einstellungen",
@@ -517,6 +518,16 @@
         "unpinGlobally": {
             "title": "Vom Feed lösen",
             "success": "Beitrag ist nicht mehr angepinnt"
+        },
+        "pinOnProfile": {
+            "title": "An Profil anpinnen",
+            "success": "Dieser Beitrag wird oben auf Ihrem Profil angepinnt",
+            "error": "Beim Anpinnen dieses Beitrags an Ihr Profil ist ein Fehler aufgetreten"
+        },
+        "unpinOnProfile": {
+            "title": "Vom Profil lösen",
+            "success": "Der Beitrag ist nicht mehr an Ihrem Profil angepinnt",
+            "error": "Beim Lösen dieses Beitrags von Ihrem Profil ist ein Fehler aufgetreten"
         },
         "repostModal": {
             "title": "Geteilt von",
