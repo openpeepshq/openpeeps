@@ -1,5 +1,6 @@
 import type {
   Profile,
+  PublicProfile,
   EntryData,
   PostWithMeta,
   Notification,
@@ -18,6 +19,7 @@ const log = logger('app:events');
 export type CoreEvents = {
   profileCreated: (profile: Profile) => void;
   postCreated: (post: PostWithMeta) => void;
+  jamStarted: (profile: PublicProfile, event: PostWithMeta) => void;
   jamRecordingCompleted: (recording: JamRecordingWithMeta) => void;
   followCreated: (follower: Profile, followed: Profile) => void;
   notificationCreated: (notification: Notification) => void;
@@ -45,6 +47,7 @@ export type CoreEventKey = keyof CoreEvents;
 const validEventKeyMap = {
   profileCreated: true,
   postCreated: true,
+  jamStarted: true,
   jamRecordingCompleted: true,
   followCreated: true,
   notificationCreated: true,
