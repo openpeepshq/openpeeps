@@ -6,7 +6,11 @@ import os from 'node:os';
 import path from 'node:path';
 import express from 'express';
 import { PLUGIN_ASSETS_PREFIX } from '@openpeepshq/common';
-import { pluginAssetsMiddleware } from '../plugins';
+import {
+  buildPluginRouters,
+  pluginAssetsMiddleware,
+  pluginRootRouter,
+} from '../plugins';
 
 let registeredPlugins: Array<{
   key: string;
@@ -15,10 +19,11 @@ let registeredPlugins: Array<{
   path: string;
   status: 'loaded' | 'failed';
 }> = [];
+let pluginModules: Record<string, unknown> = {};
 
 vi.mock('@openpeepshq/core/plugins', () => ({
   getPlugins: () => registeredPlugins,
-  getPluginModule: () => undefined,
+  getPluginModule: (key: string) => pluginModules[key],
 }));
 
 const makeRequest = (
@@ -75,6 +80,7 @@ describe('pluginAssetsMiddleware', () => {
   afterEach(() => {
     fs.rmSync(tempDir, { recursive: true, force: true });
     registeredPlugins = [];
+    pluginModules = {};
   });
 
   const createAsset = (relativePath: string, content: string) => {
@@ -168,5 +174,99 @@ describe('pluginAssetsMiddleware', () => {
       '/plugin-assets/openpeeps/greeting/web/widget.js',
     );
     expect(response.status).toBe(404);
+  });
+});
+
+describe('buildPluginRouters', () => {
+  const pluginPath = '/api/openpeeps/core/v1/plugins/allpeep/peeps-onboarding';
+
+  const mountApp = () => {
+    const app = express();
+    app.use('/api/openpeeps/core/v1/plugins', pluginRootRouter);
+    app.use((req, res, next) => {
+      if (req.originalUrl.startsWith('/api/')) {
+        return res.status(404).json({ message: 'Route not found' });
+      }
+      next();
+    });
+    return app;
+  };
+
+  beforeEach(() => {
+    registeredPlugins = [
+      {
+        key: 'allpeep/peeps-onboarding',
+        namespace: 'allpeep',
+        name: 'peeps-onboarding',
+        path: '/tmp/peeps-onboarding',
+        status: 'loaded',
+      },
+    ];
+  });
+
+  afterEach(async () => {
+    registeredPlugins = [];
+    pluginModules = {};
+    await buildPluginRouters();
+  });
+
+  it('serves plugin routes mounted before the API catch-all', async () => {
+    pluginModules['allpeep/peeps-onboarding'] = {
+      routes: (router: express.Router) => {
+        router.get('/presentation', (_req, res) => {
+          res.send('guide');
+        });
+      },
+    };
+    await buildPluginRouters();
+    const response = await makeRequest(
+      mountApp(),
+      `${pluginPath}/presentation`,
+    );
+    expect(response.status).toBe(200);
+    expect(response.body).toBe('guide');
+  });
+
+  it('keeps remounted plugin routes in front of the API catch-all', async () => {
+    pluginModules['allpeep/peeps-onboarding'] = {
+      routes: (router: express.Router) => {
+        router.get('/presentation', (_req, res) => {
+          res.send('v1');
+        });
+      },
+    };
+    await buildPluginRouters();
+    const app = mountApp();
+
+    pluginModules['allpeep/peeps-onboarding'] = {
+      routes: (router: express.Router) => {
+        router.get('/presentation', (_req, res) => {
+          res.send('v2');
+        });
+      },
+    };
+    await buildPluginRouters();
+    const response = await makeRequest(app, `${pluginPath}/presentation`);
+    expect(response.status).toBe(200);
+    expect(response.body).toBe('v2');
+  });
+
+  it('reads routes from a default export', async () => {
+    pluginModules['allpeep/peeps-onboarding'] = {
+      default: {
+        routes: (router: express.Router) => {
+          router.get('/presentation', (_req, res) => {
+            res.send('nested');
+          });
+        },
+      },
+    };
+    await buildPluginRouters();
+    const response = await makeRequest(
+      mountApp(),
+      `${pluginPath}/presentation`,
+    );
+    expect(response.status).toBe(200);
+    expect(response.body).toBe('nested');
   });
 });
