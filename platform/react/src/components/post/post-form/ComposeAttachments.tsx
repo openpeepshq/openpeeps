@@ -243,26 +243,35 @@ export function ComposeAttachments(props: ComposeAttachmentsProps) {
   const { openImagePicker, openDocumentPicker, previews, inputs } =
     useComposeAttachments(props);
 
+  const addImageLabel = t('posts.form.addImage', {
+    defaultValue: 'Add image or video',
+  });
+  const addDocumentLabel = t('posts.form.addDocument', {
+    defaultValue: 'Add document',
+  });
+
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <button
           type="button"
-          title={t('posts.form.addImage', {
-            defaultValue: 'Add image or video',
-          })}
+          title={addImageLabel}
+          aria-label={addImageLabel}
           onClick={openImagePicker}
           className="hover:bg-surface rounded-button p-2"
         >
-          <Image className="size-5" />
+          <Image className="size-5" aria-hidden="true" />
+          <span className="sr-only">{addImageLabel}</span>
         </button>
         <button
           type="button"
-          title={t('posts.form.addDocument', { defaultValue: 'Add document' })}
+          title={addDocumentLabel}
+          aria-label={addDocumentLabel}
           onClick={openDocumentPicker}
           className="hover:bg-surface rounded-button p-2"
         >
-          <Paperclip className="size-5" />
+          <Paperclip className="size-5" aria-hidden="true" />
+          <span className="sr-only">{addDocumentLabel}</span>
         </button>
       </div>
 

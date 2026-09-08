@@ -25,7 +25,8 @@ export const AnalyticsInfoBadge = ({
         aria-label={`About ${label}`}
         onClick={(e) => e.stopPropagation()}
       >
-        i
+        <span aria-hidden="true">i</span>
+        <span className="sr-only">{`About ${label}`}</span>
       </button>
     </PopoverTrigger>
     <PopoverContent

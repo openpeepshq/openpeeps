@@ -149,6 +149,12 @@ export function AttachmentCard({
   const isVideo =
     (att?.type ?? (item.file?.type.startsWith('video/') ? 'video' : '')) ===
     'video';
+  const editLabel = t('posts.attachments.editTitle', {
+    defaultValue: 'Edit description',
+  });
+  const deleteLabel = t('posts.attachments.deleteTitle', {
+    defaultValue: 'Delete attachment',
+  });
 
   return (
     <div className="relative aspect-square w-full overflow-hidden rounded-md border">
@@ -157,24 +163,24 @@ export function AttachmentCard({
           {showEdit ? (
             <button
               type="button"
-              title={t('posts.attachments.editTitle', {
-                defaultValue: 'Edit description',
-              })}
+              title={editLabel}
+              aria-label={editLabel}
               onClick={() => setEditing(true)}
               className="bg-background/80 rounded-full p-1"
             >
-              <Pencil className="size-4" />
+              <Pencil className="size-4" aria-hidden="true" />
+              <span className="sr-only">{editLabel}</span>
             </button>
           ) : null}
           <button
             type="button"
-            title={t('posts.attachments.deleteTitle', {
-              defaultValue: 'Delete attachment',
-            })}
+            title={deleteLabel}
+            aria-label={deleteLabel}
             onClick={remove}
             className="bg-background/80 rounded-full p-1"
           >
-            <X className="size-4" />
+            <X className="size-4" aria-hidden="true" />
+            <span className="sr-only">{deleteLabel}</span>
           </button>
         </div>
       ) : null}

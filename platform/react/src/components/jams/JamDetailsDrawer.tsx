@@ -50,10 +50,12 @@ export const JamDetailsDrawer = ({ open, onClose }: JamDetailsDrawerProps) => {
         <button
           type="button"
           title={t('jams.details.closePanel')}
+          aria-label={t('jams.details.closePanel')}
           className="text-neutral-400"
           onClick={onClose}
         >
-          <X />
+          <X aria-hidden="true" />
+          <span className="sr-only">{t('jams.details.closePanel')}</span>
         </button>
       </div>
 

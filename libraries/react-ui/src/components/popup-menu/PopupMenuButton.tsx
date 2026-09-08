@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Loader } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ButtonAction, IconType } from '@/types';
+import { AccessibleButtonLabel } from '@/components/button/AccessibleButtonLabel';
 
 export interface PopupMenuButtonProps {
   action: ButtonAction;
@@ -28,23 +29,35 @@ export function PopupMenuButton({
   textSlot,
 }: PopupMenuButtonProps) {
   const [isLoading, setIsLoading] = React.useState(false);
+  const actionName = title || text;
 
   const content = isLoading ? (
     <>
-      <Loader size={16} className="shrink-0" />
+      <Loader size={16} className="shrink-0" aria-hidden="true" />
       {!compact && <span>{loadingText || text}</span>}
+      {compact && actionName ? (
+        <AccessibleButtonLabel>{actionName}</AccessibleButtonLabel>
+      ) : null}
     </>
   ) : (
     <>
-      {Icon && <Icon size={16} className="shrink-0" />}
+      {Icon && (
+        <span aria-hidden="true">
+          <Icon size={16} className="shrink-0" />
+        </span>
+      )}
       {!compact && (textSlot ?? <span className="text-left">{text}</span>)}
+      {compact && actionName ? (
+        <AccessibleButtonLabel>{actionName}</AccessibleButtonLabel>
+      ) : null}
     </>
   );
 
   if (typeof action === 'string') {
     return (
       <a
-        title={title}
+        title={title || undefined}
+        aria-label={compact ? actionName || undefined : undefined}
         href={action}
         className={cn(
           baseClass,
@@ -64,7 +77,8 @@ export function PopupMenuButton({
   return (
     <button
       type="button"
-      title={title}
+      title={title || undefined}
+      aria-label={compact ? actionName || undefined : undefined}
       disabled={isLoading}
       className={cn(
         baseClass,

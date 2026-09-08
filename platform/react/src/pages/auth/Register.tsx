@@ -254,7 +254,20 @@ export function Register({ invite = false }: RegisterProps) {
                       }
                       className="absolute right-2 top-1/2 -translate-y-1/2"
                     >
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      {showPassword ? (
+                        <EyeOff size={20} aria-hidden="true" />
+                      ) : (
+                        <Eye size={20} aria-hidden="true" />
+                      )}
+                      <span className="sr-only">
+                        {showPassword
+                          ? t('auth.register.hidePassword', {
+                              defaultValue: 'Hide password',
+                            })
+                          : t('auth.register.showPassword', {
+                              defaultValue: 'Show password',
+                            })}
+                      </span>
                     </button>
                   </div>
                 </FormControl>

@@ -43,7 +43,7 @@ export function FooterMobile({ onNewPost }: FooterMobileProps = {}) {
         action={hrefOf({ type: 'groups' })}
       />
       <MobileMenuItem
-        title={t('navigation.notifications')}
+        title={t('navigation.openNotifications')}
         icon={Bell}
         action={hrefOf({ type: 'notifications' })}
         badge={notificationStats.data?.unseen}

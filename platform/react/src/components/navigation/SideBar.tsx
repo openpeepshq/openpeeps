@@ -55,10 +55,12 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
             <button
               type="button"
               title={t('common.close')}
+              aria-label={t('common.close')}
               className="flex md:hidden"
               onClick={onClose}
             >
-              <X />
+              <X aria-hidden="true" />
+              <span className="sr-only">{t('common.close')}</span>
             </button>
           )}
         </div>

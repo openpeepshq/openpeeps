@@ -25,6 +25,7 @@ export function MobileMenuItem({
     <button
       type="button"
       title={title}
+      aria-label={title}
       className="relative"
       onClick={() => {
         if (typeof action === 'function') action();
@@ -37,7 +38,10 @@ export function MobileMenuItem({
           active ? 'text-primary font-bold' : 'text-foreground/70',
         )}
       >
-        <Icon className="h-5 w-5" />
+        <span aria-hidden="true">
+          <Icon className="h-5 w-5" />
+        </span>
+        {title ? <span className="sr-only">{title}</span> : null}
         {showBadge ? (
           <span
             className="bg-destructive text-destructive-foreground absolute -right-2.5 -top-2 flex size-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-semibold leading-none"

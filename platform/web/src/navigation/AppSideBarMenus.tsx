@@ -332,10 +332,12 @@ export function AppSideBarProfileMenu() {
         <button
           type="button"
           title={t('navigation.openNotifications')}
+          aria-label={t('navigation.openNotifications')}
           className="text-foreground hover:bg-surface relative shrink-0 rounded-md p-2"
           onClick={() => void openNotifications()}
         >
-          <Bell className="size-6" />
+          <Bell className="size-6" aria-hidden="true" />
+          <span className="sr-only">{t('navigation.openNotifications')}</span>
           {(notificationStats.data?.unseen ?? 0) > 0 ? (
             <span
               className="bg-destructive text-destructive-foreground absolute -right-0.5 -top-0.5 flex size-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-semibold"
