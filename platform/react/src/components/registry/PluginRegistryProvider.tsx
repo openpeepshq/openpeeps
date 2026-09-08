@@ -26,6 +26,7 @@ type RegistryApi = {
 type PluginRegistryContextValue = {
   registerComponent: RegistryApi['registerComponent'];
   getComponentsForSlot: (slot: string) => PluginComponentEntry[];
+  listSlots: (prefix?: string) => string[];
 };
 
 const PLUGIN_REGISTRY_GLOBAL_KEY = '__OPENPEEPS_PLUGINS__';
@@ -94,6 +95,19 @@ export const PluginRegistryProvider = ({
     [components],
   );
 
+  const listSlots = useCallback(
+    (prefix?: string) =>
+      Object.entries(components)
+        .filter(
+          ([slot, entries]) =>
+            entries.length > 0 &&
+            (prefix === undefined || slot.startsWith(prefix)),
+        )
+        .map(([slot]) => slot)
+        .sort(),
+    [components],
+  );
+
   useEffect(() => {
     if (typeof window === 'undefined') {
       return;
@@ -113,7 +127,7 @@ export const PluginRegistryProvider = ({
 
   return (
     <PluginRegistryContext.Provider
-      value={{ registerComponent, getComponentsForSlot }}
+      value={{ registerComponent, getComponentsForSlot, listSlots }}
     >
       {children}
     </PluginRegistryContext.Provider>

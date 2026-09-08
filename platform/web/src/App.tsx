@@ -83,6 +83,7 @@ import {
   AnalyticsContentPage,
   AnalyticsEngagementPage,
   AnalyticsGroupsPage,
+  AnalyticsPluginPage,
   AnalyticsReportSettingsPage,
   AdminBackups,
   AdminGroups,
@@ -315,6 +316,7 @@ const Admin = {
   AnalyticsContent: AnalyticsContentPage,
   AnalyticsEngagement: AnalyticsEngagementPage,
   AnalyticsGroups: AnalyticsGroupsPage,
+  AnalyticsPlugin: AnalyticsPluginPage,
   AnalyticsReports: AnalyticsReportSettingsPage,
   Moderation: AdminModeration,
   ModerationReports: AdminReports,
@@ -678,6 +680,10 @@ function AppShell() {
                         <Route
                           path="retention"
                           element={<Admin.AnalyticsMembers />}
+                        />
+                        <Route
+                          path=":pluginTab"
+                          element={<Admin.AnalyticsPlugin />}
                         />
                       </Route>
                     </Route>
