@@ -7,6 +7,11 @@ import {
   type ButtonVariant,
 } from '@/lib/buttonVariants';
 import type { ButtonAction } from '@/types';
+import {
+  AccessibleButtonLabel,
+  accessibleNameFrom,
+  childrenIncludeName,
+} from './AccessibleButtonLabel';
 
 export interface ButtonProps
   extends Omit<
@@ -37,6 +42,8 @@ export interface ButtonProps
  * — When `action` is a string we render an `<a>`.
  * — When `action` is a function we render a `<button>` and toggle internal
  *   loading state for its duration.
+ * — Icon-only controls must pass `title` or `aria-label` (the action word)
+ *   so Narrator and Read Mode both get a name.
  */
 export const Button = React.forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
@@ -59,12 +66,14 @@ export const Button = React.forwardRef<
       type = 'button',
       newTab = false,
       onClick,
+      'aria-label': ariaLabelProp,
       ...rest
     },
     ref,
   ) => {
     const [internalLoading, setInternalLoading] = React.useState(false);
     const loading = loadingProp || internalLoading;
+    const accessibleName = accessibleNameFrom(ariaLabelProp, title);
 
     const resolvedSize: ButtonSize = size ?? (compact ? 'sm' : 'default');
 
@@ -81,15 +90,28 @@ export const Button = React.forwardRef<
 
     const loadingLabel = loadingText ?? loadingContent ?? children;
     const showLabel = !loading || !spinnerOnlyOnLoading;
+    const labeledContent = showLabel
+      ? loading
+        ? loadingLabel
+        : children
+      : null;
+    const readModeName =
+      accessibleName && !childrenIncludeName(labeledContent, accessibleName)
+        ? accessibleName
+        : undefined;
 
     const content = (
       <>
         {loading && (
           <Loader2
             className={cn('h-4 w-4 animate-spin', showLabel && 'mr-2')}
+            aria-hidden="true"
           />
         )}
-        {showLabel && (loading ? loadingLabel : children)}
+        {labeledContent}
+        {readModeName ? (
+          <AccessibleButtonLabel>{readModeName}</AccessibleButtonLabel>
+        ) : null}
       </>
     );
 
@@ -99,7 +121,8 @@ export const Button = React.forwardRef<
       return (
         <a
           ref={ref as React.Ref<HTMLAnchorElement>}
-          title={title}
+          title={title || undefined}
+          aria-label={accessibleName}
           href={action}
           target={newTab ? '_blank' : undefined}
           rel={newTab ? 'noopener noreferrer' : undefined}
@@ -123,7 +146,8 @@ export const Button = React.forwardRef<
       <button
         ref={ref as React.Ref<HTMLButtonElement>}
         type={type}
-        title={title}
+        title={title || undefined}
+        aria-label={accessibleName}
         disabled={disabled || loading}
         className={buttonClasses}
         onClick={async (event) => {

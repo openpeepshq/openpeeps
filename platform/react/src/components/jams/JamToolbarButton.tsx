@@ -49,6 +49,7 @@ export const JamToolbarButton = ({
     <button
       type="button"
       title={title}
+      aria-label={title}
       disabled={disabled}
       onClick={action}
       className={cn(
@@ -58,6 +59,7 @@ export const JamToolbarButton = ({
       )}
     >
       {children}
+      <span className="sr-only">{title}</span>
     </button>
   );
 
@@ -76,9 +78,11 @@ export const JamToolbarButton = ({
           <button
             type="button"
             title={menuTitle}
+            aria-label={menuTitle}
             className="text-foreground hover:bg-surface-2 -ml-1 flex h-10 items-center justify-center rounded-r-full pl-0.5 pr-1.5 transition-colors"
           >
-            <ChevronUp size={20} />
+            <ChevronUp size={20} aria-hidden="true" />
+            {menuTitle ? <span className="sr-only">{menuTitle}</span> : null}
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

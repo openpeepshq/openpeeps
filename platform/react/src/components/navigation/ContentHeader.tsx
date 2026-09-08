@@ -27,9 +27,11 @@ export function ContentHeader() {
         <button
           type="button"
           title={t('navigation.back')}
+          aria-label={t('navigation.back')}
           onClick={() => router.back()}
         >
-          <ChevronLeft />
+          <ChevronLeft aria-hidden="true" />
+          <span className="sr-only">{t('navigation.back')}</span>
         </button>
         {titleNode ?? (
           <h1

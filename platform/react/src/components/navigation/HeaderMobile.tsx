@@ -36,6 +36,10 @@ export function HeaderMobile({ avatar, sideBar }: HeaderMobileProps = {}) {
   const router = useRouter();
   const t = useT();
   const [open, setOpen] = useState(false);
+  const menuLabel = t('navigation.openMenu', { defaultValue: 'Open menu' });
+  const messagesLabel = t('navigation.openMessages', {
+    defaultValue: 'Open messages',
+  });
 
   const logoSmall = getTheme(
     serverInfo.communityConfig,
@@ -46,15 +50,20 @@ export function HeaderMobile({ avatar, sideBar }: HeaderMobileProps = {}) {
   // users; guests fall back to a generic menu icon.
   const trigger =
     avatar ??
-    (profile ? <Avatar profile={profile} size={2.5} borderless /> : <Menu />);
+    (profile ? (
+      <Avatar profile={profile} size={2.5} borderless />
+    ) : (
+      <Menu aria-hidden="true" />
+    ));
 
   return (
     <header className="bg-background sticky top-0 z-10 flex px-4 py-2 md:hidden">
       <div className="flex w-full items-center justify-between">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <button type="button" title={t('navigation.profile')}>
+            <button type="button" title={menuLabel} aria-label={menuLabel}>
               {trigger}
+              <span className="sr-only">{menuLabel}</span>
             </button>
           </DialogTrigger>
           <DialogPortal>
@@ -84,10 +93,12 @@ export function HeaderMobile({ avatar, sideBar }: HeaderMobileProps = {}) {
 
         <button
           type="button"
-          title={t('navigation.messages')}
+          title={messagesLabel}
+          aria-label={messagesLabel}
           onClick={() => router.navigate({ type: 'conversation' })}
         >
-          <MessageSquareText />
+          <MessageSquareText aria-hidden="true" />
+          <span className="sr-only">{messagesLabel}</span>
         </button>
       </div>
     </header>

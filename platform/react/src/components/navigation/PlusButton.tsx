@@ -11,7 +11,7 @@ export function PlusButton() {
     <div className="sticky bottom-1 flex w-full justify-end sm:bottom-4">
       <Button
         compact
-        title={plusButton.title ?? ''}
+        title={plusButton.title || undefined}
         variant="default"
         action={plusButton.action}
         className="z-10 mr-4 size-16 rounded-full sm:mb-4"

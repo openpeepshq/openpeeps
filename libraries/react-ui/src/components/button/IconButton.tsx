@@ -6,10 +6,16 @@ export interface IconButtonProps extends ButtonProps {
   iconSize?: number;
 }
 
-export function IconButton({ icon: Icon, iconSize, ...props }: IconButtonProps) {
+export function IconButton({
+  icon: Icon,
+  iconSize,
+  ...props
+}: IconButtonProps) {
   return (
     <Button {...props}>
-      <Icon size={iconSize} />
+      <span aria-hidden="true">
+        <Icon size={iconSize} />
+      </span>
     </Button>
   );
 }
