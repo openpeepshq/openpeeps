@@ -29,7 +29,7 @@ import { sendSpaHtml } from './lib/spaHtml';
 import {
   buildPluginRouters,
   pluginAssetsMiddleware,
-  unmountAllPluginRouters,
+  pluginRootRouter,
 } from './lib/plugins';
 import { setAppInstance, reloadPlugins } from './lib/pluginReload';
 
@@ -194,10 +194,8 @@ const startServer = async () => {
     express.urlencoded({ extended: true }),
   );
 
-  const pluginRouters = await buildPluginRouters(app);
-  for (const [pluginKey, router] of Object.entries(pluginRouters)) {
-    app.use(`/api/openpeeps/core/v1/plugins/${pluginKey}`, router);
-  }
+  await buildPluginRouters();
+  app.use('/api/openpeeps/core/v1/plugins', pluginRootRouter);
 
   // Mount Riddl at root, but only delegate `/api/*` requests to it so that
   // non-API URLs fall through to the SPA fallback below. Route-folder layout:
