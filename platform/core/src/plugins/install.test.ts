@@ -352,5 +352,21 @@ describe('installPlugin credentials', () => {
       'common',
     );
     expect((await fs.lstat(linked)).isSymbolicLink()).toBe(true);
+    const buildCall = testState.spawnCalls.find(
+      ({ command, args }) =>
+        command === 'npm' && args[0] === 'run' && args[1] === 'build',
+    );
+    expect(buildCall?.options.env).toMatchObject({ CI: 'true' });
+    expect(
+      await fs.readFile(
+        path.join(
+          testState.pluginsDir,
+          'acme',
+          'private-plugin',
+          'pnpm-workspace.yaml',
+        ),
+        'utf8',
+      ),
+    ).toContain("packages:\n  - '.'");
   });
 });

@@ -437,8 +437,16 @@ export const installPlugin = async (
         );
         return linked;
       }
+      // The plugin temp dir sits under the host tree. A plugin script that
+      // invokes pnpm would otherwise adopt the host workspace.
+      await fs.writeFile(
+        path.join(installDir, 'pnpm-workspace.yaml'),
+        "packages:\n  - '.'\n",
+      );
       await removeNpmConfig(tempDir);
-      const build = await runCommand('npm', ['run', 'build'], installDir);
+      const build = await runCommand('npm', ['run', 'build'], installDir, {
+        CI: 'true',
+      });
       if (build.exitCode !== 0) {
         const error = commandFailure('Build', build, secrets);
         log.error(new Error(error), `Plugin ${pluginKey} build failed.`);
