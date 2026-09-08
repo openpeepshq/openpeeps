@@ -6,6 +6,7 @@ import { ThemedText } from '~/components/ui/themed-text';
 import { PostMenu } from '../../pieces';
 import { FeedPost } from './FeedPost';
 import { useOpenpeeps } from '@openpeepshq/react';
+import { useTranslation } from 'react-i18next';
 
 
 interface PinnedPostProps {
@@ -17,6 +18,7 @@ export const PinnedPost = ({
     postId,
     inGroup = false,
 }: PinnedPostProps) => {
+    const { t } = useTranslation();
     const { openpeepsApi } = useOpenpeeps();
     const postQuery = openpeepsApi.usePost(postId);
 
@@ -32,7 +34,7 @@ export const PinnedPost = ({
                     <View className="flex-row gap-x-2 ">
                         <PinIcon className="text-muted-foreground" size={20} />
                         <ThemedText className="text-sm font-semibold text-foreground">
-                            Pinned post
+                            {t('posts.feed.pinned')}
                         </ThemedText>
                     </View>
                     <PostMenu post={post} />

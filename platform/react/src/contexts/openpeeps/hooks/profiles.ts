@@ -40,6 +40,10 @@ export const profileHooks = (
   updateCurrentProfileAction: payloadMutation(client.profiles.current.update, [
     ['profiles', 'current'],
   ]),
+  pinPostOnProfileAction: payloadMutation(client.profiles.current.pinPost, [
+    ['profiles'],
+    ['posts'],
+  ]),
   useCurrentProfileNotifications: (props: ChronologicalInfiniteQueryParams) =>
     infiniteChronologicalQueryApiHook(client.profiles.current.notifications, {
       queryParams: props,

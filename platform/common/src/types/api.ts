@@ -98,6 +98,7 @@ export const publicProfileSchema = z.object({
     .max(4)
     .optional(),
   profileStats: profileStatsSchema.optional(),
+  pinnedPostId: z.string().optional(),
 });
 
 export type PublicProfile = z.infer<typeof publicProfileSchema>;
@@ -616,9 +617,11 @@ export const mediaStreamRequestSchema = z
   .openapi('MediaStreamRequest');
 export type MediaStreamRequest = z.infer<typeof mediaStreamRequestSchema>;
 
-export const updateProfileRequestSchema = profileDataSchema.partial({
-  handle: true,
-});
+export const updateProfileRequestSchema = profileDataSchema
+  .omit({ pinnedPostId: true })
+  .partial({
+    handle: true,
+  });
 export type UpdateProfileRequest = z.infer<typeof updateProfileRequestSchema>;
 
 export const updateAccountPasswordRequestSchema = z.object({

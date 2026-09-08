@@ -51,7 +51,7 @@ export function ProfilePostsAndReplies({
       </nav>
 
       {tab === 'posts' ? (
-        <Feed query={postsQuery} />
+        <Feed query={postsQuery} pinnedPostId={profile.pinnedPostId} />
       ) : (
         <AccessDeniedLoader queries={[commonGroupsQuery]}>
           {(commonGroupsQuery.data ?? []).map((group) => (

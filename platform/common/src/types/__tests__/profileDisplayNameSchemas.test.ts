@@ -51,4 +51,17 @@ describe('profile displayName input schemas', () => {
 
     expect(result.success).toBe(false);
   });
+
+  it('strips pinnedPostId from generic profile updates', () => {
+    const result = updateProfileRequestSchema.safeParse({
+      type: 'local',
+      handle: 'niko',
+      pinnedPostId: 'post-1',
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect('pinnedPostId' in result.data).toBe(false);
+    }
+  });
 });

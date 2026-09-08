@@ -203,7 +203,7 @@ export const Profile: React.FC<ProfileProps> = ({ navigation, route }) => {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="posts" className="p-0">
-                <Feed query={query} />
+                <Feed query={query} pinnedPostId={profileData?.pinnedPostId} />
               </TabsContent>
               <TabsContent value="groups">
                 {isGroupsLoading && <ActivityIndicator size={'small'} />}

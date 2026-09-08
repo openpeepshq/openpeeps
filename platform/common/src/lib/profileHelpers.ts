@@ -49,6 +49,7 @@ export const toPublicDeletedProfile = <T extends PublicProfile>(
     memberships: [],
     fields: undefined,
     profileStats: undefined,
+    pinnedPostId: undefined,
   }) as T;
 
 export const anonymizeProfileIfDeleted = <T extends PublicProfile>(
