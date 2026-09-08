@@ -64,20 +64,20 @@ export const AnalyticsLayout = () => {
   const location = useLocation();
   const { client } = useOpenpeeps();
   const { listSlots } = usePluginRegistry();
-  const tabs = useMemo(() => {
-    const pluginTabs = listSlots(ANALYTICS_PLUGIN_SLOT_PREFIX).flatMap(
-      (slot) => {
-        const slug = analyticsPluginTabSlug(slot);
-        if (!slug) return [];
-        return [
-          {
-            to: `/admin/analytics/${slug}`,
-            labelKey: slug,
-            fallback: humanizeAnalyticsPluginSlug(slug),
-          },
-        ];
-      },
-    );
+  const tabs = useMemo((): AnalyticsTab[] => {
+    const pluginTabs: AnalyticsTab[] = listSlots(
+      ANALYTICS_PLUGIN_SLOT_PREFIX,
+    ).flatMap((slot) => {
+      const slug = analyticsPluginTabSlug(slot);
+      if (!slug) return [];
+      return [
+        {
+          to: `/admin/analytics/${slug}`,
+          labelKey: slug,
+          fallback: humanizeAnalyticsPluginSlug(slug),
+        },
+      ];
+    });
     return [
       ...coreTabs.filter((tab) => tab.labelKey !== 'reports'),
       ...pluginTabs,
@@ -155,7 +155,7 @@ export const AnalyticsLayout = () => {
             <NavLink
               key={tab.to}
               to={tab.to}
-              end={'end' in tab ? tab.end : false}
+              end={tab.end === true}
               className={({ isActive }) =>
                 `-mb-px border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
                   isActive
