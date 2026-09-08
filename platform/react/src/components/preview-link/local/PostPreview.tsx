@@ -1,4 +1,5 @@
 import { FeedPostContent } from '../../post/FeedPostContent';
+import { PostInfoHeader } from '../../post/pieces/PostInfoHeader';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { LoadingSpinner } from '@openpeepshq/react-ui';
 
@@ -21,5 +22,10 @@ export function PostPreview({ path }: PostPreviewProps) {
 
   if (!postQuery.data) return null;
 
-  return <FeedPostContent post={postQuery.data} />;
+  return (
+    <>
+      <PostInfoHeader post={postQuery.data} />
+      <FeedPostContent post={postQuery.data} />
+    </>
+  );
 }
