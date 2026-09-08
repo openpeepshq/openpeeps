@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { createRequire } from 'node:module';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { PluginInstallSource } from '@openpeepshq/common/types';
@@ -11,6 +12,10 @@ import { eq } from 'drizzle-orm';
 import { setPluginEnabledOverride } from './state';
 
 const log = logger('core:plugins:install');
+const requireFromHost = createRequire(
+  new URL('../../package.json', import.meta.url),
+);
+const MAX_COMMAND_OUTPUT = 16_000;
 
 const INSTALLED_PLUGINS_KEY = 'openpeeps-installed-plugins';
 
@@ -147,12 +152,78 @@ const redactSecrets = (value: string, secrets: string[]): string =>
     value,
   );
 
+const trimCommandOutput = (value: string): string =>
+  value.length <= MAX_COMMAND_OUTPUT
+    ? value
+    : `${value.slice(0, MAX_COMMAND_OUTPUT)}\n… truncated`;
+
 const commandFailure = (
   operation: string,
-  result: { stderr: string },
+  result: { stdout: string; stderr: string },
   secrets: string[],
-): string =>
-  `${operation} failed: ${redactSecrets(result.stderr, secrets)}`.trim();
+): string => {
+  const output = [result.stderr, result.stdout]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join('\n');
+  return redactSecrets(
+    `${operation} failed: ${trimCommandOutput(output)}`,
+    secrets,
+  ).trim();
+};
+
+const peerDependencyNames = (pkgJson: {
+  peerDependencies?: unknown;
+}): string[] => {
+  const peers = pkgJson.peerDependencies;
+  if (!peers || typeof peers !== 'object' || Array.isArray(peers)) {
+    return [];
+  }
+  return Object.keys(peers);
+};
+
+const resolveHostPackage = async (name: string): Promise<string> => {
+  let current = path.dirname(requireFromHost.resolve(name));
+  while (true) {
+    try {
+      const pkg = JSON.parse(
+        await fs.readFile(path.join(current, 'package.json'), 'utf8'),
+      ) as { name?: string };
+      if (pkg.name === name) {
+        return current;
+      }
+    } catch {
+      // Keep walking toward the filesystem root.
+    }
+    const parent = path.dirname(current);
+    if (parent === current) {
+      throw new Error(`Could not locate package root for "${name}".`);
+    }
+    current = parent;
+  }
+};
+
+const linkHostPeerDependencies = async (
+  installDir: string,
+  names: string[],
+): Promise<{ success: true } | { success: false; error: string }> => {
+  for (const name of names) {
+    let resolved: string;
+    try {
+      resolved = await resolveHostPackage(name);
+    } catch {
+      return {
+        success: false,
+        error: `Host does not provide peer dependency "${name}".`,
+      };
+    }
+    const destination = path.join(installDir, 'node_modules', name);
+    await fs.mkdir(path.dirname(destination), { recursive: true });
+    await fs.rm(destination, { recursive: true, force: true });
+    await fs.symlink(resolved, destination);
+  }
+  return { success: true };
+};
 
 const writeNpmConfig = async (
   tempDir: string,
@@ -262,23 +333,21 @@ export const installPlugin = async (
       log.info(`Installing npm package ${pkg} to temp dir ${tempDir}`);
       const init = await runCommand('npm', ['init', '-y'], tempDir);
       if (init.exitCode !== 0) {
-        return {
-          success: false,
-          error: commandFailure('npm init', init, secrets),
-        };
+        const error = commandFailure('npm init', init, secrets);
+        log.error(new Error(error), `npm init failed for ${label}.`);
+        return { success: false, error };
       }
       npmEnvironment = await writeNpmConfig(tempDir, source.auth);
       const install = await runCommand(
         'npm',
-        ['install', pkg],
+        ['install', '--omit=peer', pkg],
         tempDir,
         npmEnvironment,
       );
       if (install.exitCode !== 0) {
-        return {
-          success: false,
-          error: commandFailure('npm install', install, secrets),
-        };
+        const error = commandFailure('npm install', install, secrets);
+        log.error(new Error(error), `npm install failed for ${label}.`);
+        return { success: false, error };
       }
 
       installDir = path.join(tempDir, 'node_modules', source.package);
@@ -293,10 +362,9 @@ export const installPlugin = async (
       const gitEnvironment = await writeGitAuth(tempDir, source.auth);
       const clone = await runCommand('git', cloneArgs, tempDir, gitEnvironment);
       if (clone.exitCode !== 0) {
-        return {
-          success: false,
-          error: commandFailure('git clone', clone, secrets),
-        };
+        const error = commandFailure('git clone', clone, secrets);
+        log.error(new Error(error), `git clone failed for ${label}.`);
+        return { success: false, error };
       }
       installDir = path.join(tempDir, 'repo');
     }
@@ -346,23 +414,35 @@ export const installPlugin = async (
       log.info(`Building plugin ${pluginKey}...`);
       const buildDeps = await runCommand(
         'npm',
-        ['install'],
+        ['install', '--omit=peer'],
         installDir,
         npmEnvironment,
       );
       if (buildDeps.exitCode !== 0) {
-        return {
-          success: false,
-          error: commandFailure('Dependency install', buildDeps, secrets),
-        };
+        const error = commandFailure('Dependency install', buildDeps, secrets);
+        log.error(
+          new Error(error),
+          `Plugin ${pluginKey} dependency install failed.`,
+        );
+        return { success: false, error };
+      }
+      const linked = await linkHostPeerDependencies(
+        installDir,
+        peerDependencyNames(pkgJson),
+      );
+      if (!linked.success) {
+        log.error(
+          new Error(linked.error),
+          `Plugin ${pluginKey} peer link failed.`,
+        );
+        return linked;
       }
       await removeNpmConfig(tempDir);
       const build = await runCommand('npm', ['run', 'build'], installDir);
       if (build.exitCode !== 0) {
-        return {
-          success: false,
-          error: commandFailure('Build', build, secrets),
-        };
+        const error = commandFailure('Build', build, secrets);
+        log.error(new Error(error), `Plugin ${pluginKey} build failed.`);
+        return { success: false, error };
       }
     }
 

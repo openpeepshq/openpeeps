@@ -26,7 +26,15 @@ const testState = vi.hoisted(() => ({
   sshKeyMode: 0,
   pluginBuild: false,
   buildSawNpmConfig: false,
-  failure: undefined as { command: string; stderr: string } | undefined,
+  peerDependencies: undefined as Record<string, string> | undefined,
+  failure: undefined as
+    | {
+        command: string;
+        args?: string[];
+        stdout?: string;
+        stderr: string;
+      }
+    | undefined,
 }));
 
 vi.mock('node:child_process', () => ({
@@ -65,7 +73,14 @@ vi.mock('node:child_process', () => ({
               .catch(() => false);
           }
 
-          if (testState.failure?.command === command) {
+          if (
+            testState.failure?.command === command &&
+            (!testState.failure.args ||
+              testState.failure.args.every((arg, index) => args[index] === arg))
+          ) {
+            if (testState.failure.stdout) {
+              child.stdout.emit('data', Buffer.from(testState.failure.stdout));
+            }
             child.stderr.emit('data', Buffer.from(testState.failure.stderr));
             child.emit('close', 1);
             return;
@@ -77,9 +92,9 @@ vi.mock('node:child_process', () => ({
               await writePlugin(destination);
             }
           }
-          if (command === 'npm' && args[0] === 'install' && args.length === 2) {
+          if (command === 'npm' && args[0] === 'install' && args.length === 3) {
             await writePlugin(
-              path.join(String(options.cwd), 'node_modules', String(args[1])),
+              path.join(String(options.cwd), 'node_modules', String(args[2])),
             );
           }
           child.emit('close', 0);
@@ -137,6 +152,7 @@ const writePlugin = async (directory: string) => {
     JSON.stringify({
       name: '@acme/private-plugin',
       scripts: testState.pluginBuild ? { build: 'build' } : undefined,
+      peerDependencies: testState.peerDependencies,
     }),
   );
 };
@@ -157,6 +173,7 @@ beforeEach(async () => {
   testState.sshKeyMode = 0;
   testState.pluginBuild = false;
   testState.buildSawNpmConfig = false;
+  testState.peerDependencies = undefined;
   testState.failure = undefined;
 });
 
@@ -184,7 +201,11 @@ describe('installPlugin credentials', () => {
     const installCall = testState.spawnCalls.find(
       ({ command, args }) => command === 'npm' && args[0] === 'install',
     );
-    expect(installCall?.args[1]).toBe('private-plugin;echo unsafe');
+    expect(installCall?.args).toEqual([
+      'install',
+      '--omit=peer',
+      'private-plugin;echo unsafe',
+    ]);
     expect(installCall?.options.shell).toBe(false);
     expect(testState.npmConfig).toContain(
       '//npm.example.com/packages/:_authToken=npm-secret-token',
@@ -196,6 +217,13 @@ describe('installPlugin credentials', () => {
     );
     expect(buildCall?.options.env).not.toHaveProperty('NPM_CONFIG_USERCONFIG');
     expect(testState.buildSawNpmConfig).toBe(false);
+    expect(
+      testState.spawnCalls
+        .filter(
+          ({ command, args }) => command === 'npm' && args[0] === 'install',
+        )
+        .every(({ args }) => args.includes('--omit=peer')),
+    ).toBe(true);
     expect(
       JSON.stringify([testState.persistedValues, testState.logs]),
     ).not.toContain(token);
@@ -278,5 +306,51 @@ describe('installPlugin credentials', () => {
     expect(result.error).toContain('[REDACTED]');
     expect(result.error).not.toContain(token);
     expect(await fs.readdir(testState.pluginsDir)).toEqual([]);
+  });
+
+  it('returns and logs build stdout when tsc writes errors there', async () => {
+    testState.pluginBuild = true;
+    testState.failure = {
+      command: 'npm',
+      args: ['run', 'build'],
+      stdout: "error TS2307: Cannot find module '@openpeepshq/core'",
+      stderr: '$ tsc',
+    };
+
+    const result = await installPlugin({
+      type: 'git',
+      url: 'https://git.example.com/acme/private-plugin.git',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('$ tsc');
+    expect(result.error).toContain("Cannot find module '@openpeepshq/core'");
+    expect(JSON.stringify(testState.logs)).toContain(
+      'Plugin acme/private-plugin build failed.',
+    );
+  });
+
+  it('links declared peer dependencies to the host packages before build', async () => {
+    testState.pluginBuild = true;
+    testState.peerDependencies = { '@openpeepshq/common': '^0.1.45' };
+
+    const result = await installPlugin({
+      type: 'git',
+      url: 'https://git.example.com/acme/private-plugin.git',
+    });
+
+    expect(result).toEqual({
+      success: true,
+      pluginKey: 'acme/private-plugin',
+    });
+    const linked = path.join(
+      testState.pluginsDir,
+      'acme',
+      'private-plugin',
+      'node_modules',
+      '@openpeepshq',
+      'common',
+    );
+    expect((await fs.lstat(linked)).isSymbolicLink()).toBe(true);
   });
 });
