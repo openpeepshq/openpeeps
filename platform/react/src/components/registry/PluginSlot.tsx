@@ -56,7 +56,7 @@ export const PluginSlot: FC<PluginSlotProps> = ({
       {entries.map(({ key, component: Component }) => (
         <div key={key} data-plugin-component={key}>
           <ErrorBoundary fallbackText={t('plugins.errorBoundary')}>
-            <Component {...props} />
+            <Component {...props} translate={t} />
           </ErrorBoundary>
         </div>
       ))}
