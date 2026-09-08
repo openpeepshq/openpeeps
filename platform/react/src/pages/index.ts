@@ -67,6 +67,7 @@ export { EditGroup } from './groups/Edit';
 export { EditGroupInfo } from './groups/EditInfo';
 export { EditGroupRoles } from './groups/EditRoles';
 export { AdminConfiguration } from './admin/Configuration';
+export { ConfigurationPluginPage } from './admin/ConfigurationPluginPage';
 export { AdminConfigurationCommunity } from './admin/ConfigurationCommunity';
 export { AdminConfigEditor } from './admin/ConfigEditor';
 export { AdminConfigurationI18n } from './admin/ConfigurationI18n';

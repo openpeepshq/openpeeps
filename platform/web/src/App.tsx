@@ -100,6 +100,7 @@ import {
   EditGroupInfo,
   EditGroupRoles,
   AdminConfiguration,
+  ConfigurationPluginPage,
   AdminConfigurationCommunity,
   AdminConfigEditor,
   AdminConfigurationI18n,
@@ -324,6 +325,7 @@ const Admin = {
   GroupMembers: AdminGroupMembers,
   Config: {
     Index: AdminConfiguration,
+    Plugin: ConfigurationPluginPage,
     ServerSettings: () => (
       <AdminConfigEditor
         title="Server settings"
@@ -776,6 +778,10 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/email"
                         element={<Admin.Config.Email />}
+                      />
+                      <Route
+                        path="/admin/configuration/:pluginPage"
+                        element={<Admin.Config.Plugin />}
                       />
                     </Route>
 

@@ -1916,6 +1916,9 @@
       "description": "Change the text throughout the community",
       "pageTitle": "Translations",
       "save": "Save"
+    },
+    "pluginPage": {
+      "description": "Configure this plugin."
     }
   },
   "diagnostics": {

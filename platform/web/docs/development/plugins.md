@@ -40,6 +40,7 @@ A plugin is a folder with a `package.json` and a backend entry point `src/index.
 | `interceptors` | No       | Map of `CoreEvents` handlers (`postCreated`, `profileCreated`, `jamRecordingCompleted`, etc.) |
 | `routes`       | No       | Express `Router` factory — receives a fresh `Router` instance                                 |
 | `configSchema` | No       | `{ schema: () => ZodSchema, defaults: object }` for admin config UI                           |
+| `locales`      | No       | i18next resource packs (`{ en, de, … }`) merged into host translations                        |
 | `manifest`     | No       | Frontend component manifest (see §4)                                                          |
 
 ### Backend Loading
@@ -51,7 +52,8 @@ A plugin is a folder with a `package.json` and a backend entry point `src/index.
 5. **Load:** Each plugin is dynamically imported via `import(\`${pluginPath}/dist/index.js\`)`.
 6. **Hook:** If the module exports `interceptors()`, handlers are registered on the core event `hub`.
 7. **Config:** If the module exports `configSchema`, it is registered via `registerConfigSchema(namespace, name, …)`.
-8. **Manifest:** If the module exports `manifest`, it is stored and exposed by `GET /api/openpeeps/core/v1/plugins/manifest`.
+8. **Locales:** If the module exports `locales` (`{ en, de, … }`, same nested-object shape as host locale files), they are merged into the host i18n catalog. Prefer namespaced keys (`plugins.peepsAi.knowledgeBase.title`). Configuration menu chrome can ship `configuration.plugins.<slug>.title` / `.description`. Host keys stay available through the same `t()` that `PluginSlot` already passes as `translate`.
+9. **Manifest:** If the module exports `manifest`, it is stored and exposed by `GET /api/openpeeps/core/v1/plugins/manifest`.
 
 ```mermaid
 sequenceDiagram
@@ -71,9 +73,10 @@ sequenceDiagram
   L->>L: sortByDependencies()
   loop each plugin, in order
     L->>P: import(dist/index.js)
-    P-->>L: {interceptors?, routes?, configSchema?, manifest?}
+    P-->>L: {interceptors?, routes?, configSchema?, locales?, manifest?}
     L->>H: register interceptors()
     L->>CFG: registerConfigSchema(namespace, name, configSchema)
+    L->>L: register plugin locales
     L->>L: store manifest for /plugins/manifest
   end
 ```
@@ -82,6 +85,7 @@ sequenceDiagram
 
 - **Event interceptors** — `profileCreated`, `postCreated`, `jamRecordingCompleted`, `followCreated`, `notificationCreated`, `reactionCreated`, `entryCreated`, `rsvpCreated`, `postAnnounced`, `configUpdated`.
 - **Config schema registration** — plugins declare Zod schemas and defaults for their own settings, edited via the same admin UI as core configs.
+- **Locales** — plugins export i18next resource packs. The host merges them into `GET /i18n/:lang` so plugin UI and host chrome share one `t()`. Host strings win on key conflicts; Custom Text overrides still win last.
 - **API routes** — plugins export `routes(router)` and receive an Express `Router` mounted under `/api/openpeeps/core/v1/plugins/<namespace>/<name>`.
 - **Frontend manifest** — plugins declare components that target named slots in the React UI.
 
@@ -206,6 +210,12 @@ Analytics tabs are not a fixed host list. Register
 analytics path such as `members` or `reports`). The host adds a tab and
 renders that slot at `/admin/analytics/<slug>`, passing `analyticsRange`
 and `analyticsGroups`.
+
+Configuration pages work the same way. Register
+`plugins.admin.configuration.<slug>` (one kebab-case segment, not a core
+configuration path such as `community`, `email`, `i18n`, or
+`server-settings`). The host adds a row on `/admin/configuration` and
+renders that slot at `/admin/configuration/<slug>`.
 
 ### Manifest Schema (Zod)
 

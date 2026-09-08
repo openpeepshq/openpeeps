@@ -8,6 +8,16 @@ import { uuidv7 } from 'uuidv7';
 import i18next from 'i18next';
 import type { i18n } from 'i18next';
 import Backend from 'i18next-fs-backend';
+import {
+  mergeHostAndPluginLocales,
+  registeredPluginLocales,
+} from './pluginLocales';
+
+export {
+  clearPluginLocales,
+  mergeHostAndPluginLocales,
+  registerPluginLocales,
+} from './pluginLocales';
 
 interface I18nContext {
   i18n: i18n;
@@ -25,7 +35,7 @@ export const i18nOverrides = () =>
   });
 
 export const i18nWithPlugins: () => Promise<Resource> = async () =>
-  i18nextResources;
+  mergeHostAndPluginLocales(i18nextResources, registeredPluginLocales());
 
 export const i18nComplete: () => Promise<Resource> = async () =>
   deepmerge(await i18nWithPlugins(), await i18nOverrides());
