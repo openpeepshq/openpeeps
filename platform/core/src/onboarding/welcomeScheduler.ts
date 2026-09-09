@@ -18,7 +18,7 @@ import {
   type ProfileWithMeta,
   type PublicProfile,
 } from '@openpeepshq/common/types';
-import { and, asc, eq, isNull } from 'drizzle-orm';
+import { and, asc, eq, isNull, sql } from 'drizzle-orm';
 import { database, type PgDb } from '../db';
 import { profileSettings, profiles } from '../db/pg/schema';
 import { findProfileByHandle, getPublicProfile } from '../profiles';
@@ -279,6 +279,10 @@ export const resolveWelcomeCandidate = ({
   };
 };
 
+// profile_settings.profile_id is text; profiles.id is uuid.
+const settingsBelongToProfile = () =>
+  eq(sql`${profiles.id}::text`, profileSettings.profileId);
+
 const candidateRows = (db: PgDb) =>
   db
     .select({
@@ -295,7 +299,7 @@ const candidateRows = (db: PgDb) =>
       },
     })
     .from(profiles)
-    .innerJoin(profileSettings, eq(profileSettings.profileId, profiles.id))
+    .innerJoin(profileSettings, settingsBelongToProfile())
     .where(and(eq(profiles.type, 'local'), isNull(profiles.deletedAt)))
     .orderBy(asc(profiles.createdAt), asc(profiles.id));
 
@@ -473,7 +477,7 @@ export const claimWelcomeDelivery = async ({
         },
       })
       .from(profiles)
-      .innerJoin(profileSettings, eq(profileSettings.profileId, profiles.id))
+      .innerJoin(profileSettings, settingsBelongToProfile())
       .where(
         and(
           eq(profiles.id, profileId),
