@@ -83,7 +83,12 @@ const [notificationQueue, notificationWorker] = queueAndWorker<
           await mailer.send({
             template: `notification-${notification.type}`,
             to: account.email,
-            locals: notification as unknown as Record<string, Json>,
+            locals: {
+              ...(notification as unknown as Record<string, Json>),
+              ...(profileSettings.timeZone
+                ? { timeZone: profileSettings.timeZone }
+                : {}),
+            },
           });
           await logStep(
             jobLog,
@@ -120,12 +125,7 @@ const [notificationQueue, notificationWorker] = queueAndWorker<
               ),
             );
           }
-          await doPush(
-            pushNotification,
-            notificationStats,
-            account,
-            jobLog,
-          );
+          await doPush(pushNotification, notificationStats, account, jobLog);
         } catch (error) {
           await logFailure(
             jobLog,

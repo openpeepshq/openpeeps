@@ -50,6 +50,11 @@ export function Settings() {
         translationPrefix="settings.language"
         action="/settings/language"
       />
+      <ConfigMenuButton
+        translationPrefix="settings.timezone"
+        action="/settings/timezone"
+        testId="settings-link-timezone"
+      />
       {stripeMembershipEnabled && (
         <ConfigMenuButton
           translationPrefix="settings.billing"

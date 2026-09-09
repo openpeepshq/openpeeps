@@ -72,4 +72,61 @@ describe('email render globals.rootUrl', () => {
 
     expect(captured?.serverData.rootUrl).toBe('http://localhost:5174');
   });
+
+  it('uses the recipient timezone from locals', async () => {
+    vi.mocked(config).mockResolvedValue({
+      server: { host: 'community.example.com' },
+      email: {},
+      apps: {
+        ios: { url: undefined },
+        android: { url: undefined },
+      },
+    } as never);
+    vi.mocked(communityConfig).mockResolvedValue({
+      info: { name: 'Test Community' },
+      settings: { openRegistrations: true, defaultTimeZone: 'UTC' },
+    } as never);
+
+    let captured: EmailGlobals | undefined;
+    registerEmailRenderer('tz-probe', async (opts) => {
+      captured = opts.globals;
+      return { subject: 'probe', html: '<p>probe</p>' };
+    });
+
+    await render({
+      to: 'user@example.com',
+      template: 'tz-probe',
+      locals: { timeZone: 'America/New_York' },
+    });
+
+    expect(captured?.timeZone).toBe('America/New_York');
+  });
+
+  it('falls back to the community timezone when the recipient has none', async () => {
+    vi.mocked(config).mockResolvedValue({
+      server: { host: 'community.example.com' },
+      email: {},
+      apps: {
+        ios: { url: undefined },
+        android: { url: undefined },
+      },
+    } as never);
+    vi.mocked(communityConfig).mockResolvedValue({
+      info: { name: 'Test Community' },
+      settings: {
+        openRegistrations: true,
+        defaultTimeZone: 'Europe/Berlin',
+      },
+    } as never);
+
+    let captured: EmailGlobals | undefined;
+    registerEmailRenderer('tz-probe', async (opts) => {
+      captured = opts.globals;
+      return { subject: 'probe', html: '<p>probe</p>' };
+    });
+
+    await render({ to: 'user@example.com', template: 'tz-probe' });
+
+    expect(captured?.timeZone).toBe('Europe/Berlin');
+  });
 });

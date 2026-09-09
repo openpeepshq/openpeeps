@@ -6,3 +6,5 @@ export { ImageInput } from './ImageInput';
 export type { ImageInputProps } from './ImageInput';
 export { HeaderAvatarInput } from './HeaderAvatarInput';
 export type { HeaderAvatarInputProps } from './HeaderAvatarInput';
+export { TimeZoneSelect } from './TimeZoneSelect';
+export type { TimeZoneSelectProps } from './TimeZoneSelect';

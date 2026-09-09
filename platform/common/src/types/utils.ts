@@ -14,11 +14,9 @@ export const jsonSchema = z
   .any()
   .openapi('JsonValue', { type: 'object' }) as unknown as z.ZodType<Json>;
 
-export const i18nResourceKeySchema = z
-  .any()
-  .openapi('I18nResourceKey', {
-    type: 'object',
-  }) as unknown as z.ZodType<ResourceKey>;
+export const i18nResourceKeySchema = z.any().openapi('I18nResourceKey', {
+  type: 'object',
+}) as unknown as z.ZodType<ResourceKey>;
 export const i18nResourceLanguageSchema = z.record(
   z.string(),
   i18nResourceKeySchema,
@@ -72,6 +70,8 @@ export interface EmailGlobals {
     i18n: i18n;
     t: i18n['t'];
   };
+  /** Recipient display timezone: profile setting, else community, else UTC. */
+  timeZone: string;
 }
 
 export interface EmailOptionsWithGlobals extends EmailOptions {

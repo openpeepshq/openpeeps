@@ -20,7 +20,7 @@ const fmtRange = (start: string, end?: string): string => {
 
 export function FeedEvent({ post }: FeedEventProps) {
   const t = useT();
-  const { enabled: staticRender, baseUrl } = useStaticRender();
+  const { enabled: staticRender, baseUrl, timeZone } = useStaticRender();
 
   if (post?.data?.type !== 'event') {
     return (
@@ -35,7 +35,11 @@ export function FeedEvent({ post }: FeedEventProps) {
   const start = post.occurrenceStart ?? event.start;
   const end = post.occurrenceEnd ?? event.end;
   const when = staticRender
-    ? formatEventWhen(start, { end, timeZone: event.timeZone })
+    ? formatEventWhen(start, {
+        end,
+        timeZone,
+        allDay: event.wholeDay,
+      })
     : fmtRange(start, end);
 
   return (

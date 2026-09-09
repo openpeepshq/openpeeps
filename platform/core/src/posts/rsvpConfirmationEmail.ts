@@ -10,6 +10,7 @@ import { buildEventIcs } from '@openpeepshq/common/lib';
 import { hub } from '../events';
 import { emailService } from '../email';
 import { findByProfile } from '../accounts';
+import { findProfileSettings } from '../profileSettings';
 import { serverRootUrl } from '../server';
 import { logger } from '../log';
 
@@ -72,6 +73,7 @@ const handleRsvpCreated = async (
 
   const event = post.data as Event;
   const mailer = await emailService();
+  const profileSettings = await findProfileSettings(profile.id);
 
   for (const account of accounts) {
     if (!account.email) {
@@ -90,7 +92,9 @@ const handleRsvpCreated = async (
           end: event.end ?? null,
           location: event.physicalLocation?.text ?? null,
           allDay: event.wholeDay ?? false,
-          timeZone: event.timeZone ?? null,
+          ...(profileSettings?.timeZone
+            ? { timeZone: profileSettings.timeZone }
+            : {}),
         },
         attachments: [
           {
