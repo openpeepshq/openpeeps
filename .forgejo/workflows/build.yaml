@@ -178,6 +178,8 @@ jobs:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install dependencies
         run: |
+          # bcrypt prebuilds live on GitHub; a 500 falls back to node-gyp.
+          apk add --no-cache python3 make g++
           corepack enable
           pnpm install
       - name: Build packages needed by unit tests
@@ -278,7 +280,9 @@ jobs:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install pnpm and dependencies
         run: |
-          apt-get update -qq && apt-get install -y -qq unzip
+          # unzip: fixture restore. build-essential: bcrypt/sharp node-gyp
+          # fallback when GitHub prebuild downloads fail (500/timeout).
+          apt-get update -qq && apt-get install -y -qq unzip build-essential
           corepack enable
           pnpm install
           pnpm --filter @openpeepshq/core... build
@@ -414,6 +418,7 @@ jobs:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install pnpm and dependencies
         run: |
+          apt-get update -qq && apt-get install -y -qq build-essential
           corepack enable
           pnpm install
           cd platform/tests
