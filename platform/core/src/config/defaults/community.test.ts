@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { onboardingGuideConfigFromEnv } from './community';
 
 const KEYS = [
   'COMMUNITY_ONBOARDING_GUIDE_ENABLED',
@@ -29,9 +30,8 @@ afterEach(() => {
 });
 
 describe('onboardingGuideConfigFromEnv', () => {
-  it('keeps the built-in defaults when env is unset', async () => {
+  it('keeps the built-in defaults when env is unset', () => {
     for (const key of KEYS) delete process.env[key];
-    const { onboardingGuideConfigFromEnv } = await import('./community');
     expect(onboardingGuideConfigFromEnv()).toMatchObject({
       enabled: true,
       displayName: 'PeePs',
@@ -41,13 +41,12 @@ describe('onboardingGuideConfigFromEnv', () => {
     });
   });
 
-  it('disables the guide when ENABLED=false', async () => {
+  it('disables the guide when ENABLED=false', () => {
     process.env.COMMUNITY_ONBOARDING_GUIDE_ENABLED = 'false';
-    const { onboardingGuideConfigFromEnv } = await import('./community');
     expect(onboardingGuideConfigFromEnv().enabled).toBe(false);
   });
 
-  it('applies name, tone, cadence, and rungs from env', async () => {
+  it('applies name, tone, cadence, and rungs from env', () => {
     process.env.COMMUNITY_ONBOARDING_GUIDE_DISPLAY_NAME = 'Host';
     process.env.COMMUNITY_ONBOARDING_GUIDE_TONE = 'formal';
     process.env.COMMUNITY_ONBOARDING_GUIDE_WINDOW_DAYS = '7';
@@ -58,7 +57,6 @@ describe('onboardingGuideConfigFromEnv', () => {
     process.env.COMMUNITY_ONBOARDING_GUIDE_CUSTOM_HOST_BLURB = 'Hello';
     process.env.COMMUNITY_ONBOARDING_GUIDE_VIRTUAL_DAY_DURATION_MS = '300000';
     process.env.COMMUNITY_ONBOARDING_GUIDE_CHATBOT_HANDLE = 'guide';
-    const { onboardingGuideConfigFromEnv } = await import('./community');
     expect(onboardingGuideConfigFromEnv()).toMatchObject({
       displayName: 'Host',
       tone: 'formal',
@@ -73,11 +71,10 @@ describe('onboardingGuideConfigFromEnv', () => {
     });
   });
 
-  it('ignores invalid tone, invite, and rungs', async () => {
+  it('ignores invalid tone, invite, and rungs', () => {
     process.env.COMMUNITY_ONBOARDING_GUIDE_TONE = 'sassy';
     process.env.COMMUNITY_ONBOARDING_GUIDE_PRIMARY_INVITE = 'carrier-pigeon';
     process.env.COMMUNITY_ONBOARDING_GUIDE_ENABLED_RUNGS = 'nope,also-no';
-    const { onboardingGuideConfigFromEnv } = await import('./community');
     const config = onboardingGuideConfigFromEnv();
     expect(config.tone).toBe('warm');
     expect(config.primaryInvite).toBe('both');
