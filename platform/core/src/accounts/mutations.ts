@@ -89,12 +89,13 @@ export const createAccount = async (
   let profile: ProfileWithMeta | undefined;
   if (accountCreationData.profile) {
     await assertProfileCapacity();
-    const { handle, displayName, avatar } = accountCreationData.profile;
+    const { handle, displayName, avatar, bot } = accountCreationData.profile;
 
     profile = await profilesMapping.create(db, {
       handle,
       displayName,
       avatar,
+      ...(bot === true ? { bot: true } : {}),
       activityPub: {
         domain: coreConfig.activityPub.defaultDomain,
       },
