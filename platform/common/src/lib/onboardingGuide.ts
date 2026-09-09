@@ -22,7 +22,7 @@ export const DEFAULT_ONBOARDING_GUIDE_CONFIG: OnboardingGuideConfig = {
   quietHours: { startHour: 21, endHour: 8 },
   windowDays: 14,
   maxProactiveDmsPerDay: 1,
-  maxProactiveDmsInWindow: 4,
+  maxProactiveDmsInWindow: 5,
   pushOnFirstIntro: false,
   enabledRungs: DEFAULT_ENABLED_RUNGS,
   primaryInvite: 'both',

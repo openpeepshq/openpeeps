@@ -68,13 +68,38 @@ const stateFromSettings = (body: unknown): OnboardingGuideState | undefined => {
   return result.success ? resolveOnboardingGuideState(result.data) : undefined;
 };
 
+type CheckpointPolicy = {
+  progress: boolean;
+  openDoor: boolean;
+};
+
 type OnboardingPluginSettings = {
   data: Record<string, unknown> & {
     optedOut: boolean;
     pausedUntil: string | null;
+    checkpointPolicy: CheckpointPolicy;
   };
   envelope: PluginSettingsEnvelope;
   pluginSettings: Record<string, unknown>;
+};
+
+const DEFAULT_CHECKPOINT_POLICY: CheckpointPolicy = {
+  progress: true,
+  openDoor: true,
+};
+
+const checkpointPolicyFromData = (
+  data: Record<string, unknown>,
+): CheckpointPolicy => {
+  const raw = data.checkpointPolicy;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return DEFAULT_CHECKPOINT_POLICY;
+  }
+  const policy = raw as Record<string, unknown>;
+  return {
+    progress: policy.progress !== false,
+    openDoor: policy.openDoor !== false,
+  };
 };
 
 const onboardingPluginSettingsFromBody = (
@@ -122,7 +147,12 @@ const onboardingPluginSettingsFromBody = (
     return undefined;
   }
   return {
-    data: { ...data, optedOut, pausedUntil },
+    data: {
+      ...data,
+      optedOut,
+      pausedUntil,
+      checkpointPolicy: checkpointPolicyFromData(data),
+    },
     envelope:
       rawEnvelope === undefined
         ? { ...envelopeResult.data, data: dataResult.data }
@@ -151,12 +181,19 @@ export const onboardingDayKey = (
 const nextMessageKind = (
   state: OnboardingGuideState,
   ageDays: number,
+  policy: CheckpointPolicy,
 ): OnboardingProactiveMessageKind | undefined => {
   const completed = state.completedProactiveMessageKinds ?? [];
   if (!completed.includes('intro') && ageDays >= 0) return 'intro';
   if (!completed.includes('soft-door') && ageDays >= 1) return 'soft-door';
   if (!completed.includes('stalled-suggestion') && ageDays >= 3) {
     return 'stalled-suggestion';
+  }
+  if (policy.progress && !completed.includes('progress') && ageDays >= 5) {
+    return 'progress';
+  }
+  if (policy.openDoor && !completed.includes('open-door') && ageDays >= 7) {
+    return 'open-door';
   }
   return undefined;
 };
@@ -207,7 +244,11 @@ export const resolveWelcomeCandidate = ({
     now,
     resolvedConfig.virtualDayDurationMs,
   );
-  const messageKind = nextMessageKind(state, ageDays);
+  const messageKind = nextMessageKind(
+    state,
+    ageDays,
+    pluginSettings.data.checkpointPolicy,
+  );
   if (!messageKind) return undefined;
   const suggestedRung = nextMissingRung(
     state.completedRungs ?? [],
