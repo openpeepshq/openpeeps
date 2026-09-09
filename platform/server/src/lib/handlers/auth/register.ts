@@ -5,7 +5,10 @@ import type {
 } from '@openpeepshq/common/types';
 import { checkAccountCreateAuthorization } from '@openpeepshq/common/lib';
 import { conflict, forbidden } from '#lib/errors';
-import { createAccount, existsAccountByEmail } from '@openpeepshq/core/accounts';
+import {
+  createAccount,
+  existsAccountByEmail,
+} from '@openpeepshq/core/accounts';
 import { existsProfileByHandle } from '@openpeepshq/core/profiles';
 import { existsGroupByHandle } from '@openpeepshq/core/groups';
 import { config } from '@openpeepshq/core/config';
@@ -16,7 +19,8 @@ export const registerHandler = async (
   registerRequest: RegisterRequest,
   authData: AuthorizationData = { scopes: [] },
 ): Promise<TokenResponse> => {
-  const { handle, password, email, displayName, inviteCode } = registerRequest;
+  const { handle, password, email, displayName, inviteCode, bot } =
+    registerRequest;
 
   if (
     (await existsProfileByHandle(handle)) ||
@@ -58,8 +62,8 @@ export const registerHandler = async (
   }
 
   let authorizedCreate = false;
+  const authResult = checkAccountCreateAuthorization(authData);
   if (!signUpsOpen && !inviteCode) {
-    const authResult = checkAccountCreateAuthorization(authData);
     if (authResult.success) {
       authorizedCreate = true;
     } else if (authData.service || authData.profile) {
@@ -73,6 +77,8 @@ export const registerHandler = async (
     }
   }
 
+  const markAsBot = bot === true && authResult.success;
+
   const { account, profile } = await createAccount({
     email,
     password,
@@ -80,6 +86,7 @@ export const registerHandler = async (
     profile: {
       handle,
       displayName,
+      ...(markAsBot ? { bot: true } : {}),
     },
     inviteCode,
   });
