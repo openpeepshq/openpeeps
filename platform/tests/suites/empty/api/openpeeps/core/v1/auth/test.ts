@@ -86,7 +86,7 @@ const expectSuccessfulRegister = async (
   request: APIRequestContext,
   response: Awaited<ReturnType<APIRequestContext['post']>>,
   body: ReturnType<typeof registrationBody>,
-  options: { emailValidated?: boolean } = {},
+  options: { emailValidated?: boolean; roleKeys?: string[] } = {},
 ) => {
   const responseJson = await response.json();
   expect(
@@ -106,6 +106,11 @@ const expectSuccessfulRegister = async (
   if (options.emailValidated !== undefined) {
     expect(account?.emailValidated).toBe(options.emailValidated);
   }
+  if (options.roleKeys !== undefined) {
+    expect((storedProfile?.roles ?? []).map((role) => role.key).sort()).toEqual(
+      [...options.roleKeys].sort(),
+    );
+  }
 };
 
 test.describe('auth register flows', () => {
@@ -117,6 +122,7 @@ test.describe('auth register flows', () => {
     );
     await expectSuccessfulRegister(request, response, body, {
       emailValidated: false,
+      roleKeys: ['pendingmember'],
     });
   });
 
@@ -166,6 +172,7 @@ test.describe('auth register flows', () => {
       );
       await expectSuccessfulRegister(request, response, body, {
         emailValidated: true,
+        roleKeys: ['member'],
       });
     });
   });
@@ -188,6 +195,7 @@ test.describe('auth register flows', () => {
       );
       await expectSuccessfulRegister(request, response, body, {
         emailValidated: true,
+        roleKeys: ['member'],
       });
     });
   });
