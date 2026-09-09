@@ -81,4 +81,16 @@ describe('communityConfigSchema profiles.additionalFields', () => {
       }).profiles?.additionalFields,
     ).toEqual([{ key: 'company', label: 'Company' }]);
   });
+
+  it('accepts an optional defaultTimeZone', () => {
+    expect(
+      communityConfigSchema.parse({
+        ...base,
+        settings: {
+          openRegistrations: true,
+          defaultTimeZone: 'Europe/Berlin',
+        },
+      }).settings.defaultTimeZone,
+    ).toBe('Europe/Berlin');
+  });
 });

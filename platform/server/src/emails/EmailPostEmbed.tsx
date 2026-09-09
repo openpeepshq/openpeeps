@@ -38,7 +38,9 @@ export const EmailPostEmbed = ({ post, globals }: EmailPostEmbedProps) => {
   // <Head> is required so non-inlinable utilities (e.g. hover:) have a place
   // for their <style> rules — without it, event embeds render empty.
   return (
-    <StaticRenderContext.Provider value={{ enabled: true, baseUrl }}>
+    <StaticRenderContext.Provider
+      value={{ enabled: true, baseUrl, timeZone: globals.timeZone }}
+    >
       <I18nContext.Provider
         value={globals.i18nContext as unknown as I18nContextValue}
       >

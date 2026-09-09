@@ -119,6 +119,7 @@ import {
   AdminConfigurationEmail,
   AccessTokensSettings,
   LanguageSettings,
+  TimezoneSettings,
   NotificationPreferences,
   PushEnabledDevices,
   ConversationInfo,
@@ -129,6 +130,7 @@ import {
   AdminDiagnosticsJob,
   AdminDiagnosticsPerformance,
   AdminConfigurationCommunityLanguage,
+  AdminConfigurationCommunityTimezone,
 } from '@openpeepshq/react/pages';
 
 import { DocsLayout } from './pages/docs/DocsLayout';
@@ -292,6 +294,7 @@ const SettingsPages = {
   NotificationPreferences,
   PushEnabledDevices,
   Language: LanguageSettings,
+  Timezone: TimezoneSettings,
   Billing: BillingSettings,
   AccessTokens: AccessTokensSettings,
 };
@@ -333,6 +336,7 @@ const Admin = {
     Community: AdminConfigurationCommunity,
     CommunityInfo: AdminConfigurationCommunityInfo,
     CommunityLanguage: AdminConfigurationCommunityLanguage,
+    CommunityTimezone: AdminConfigurationCommunityTimezone,
     CommunityFavicons: AdminConfigurationCommunityFavicons,
     CommunityProfileFields: AdminConfigurationCommunityProfileFields,
     CommunityAboutPage: () => (
@@ -595,6 +599,10 @@ function AppShell() {
                       element={<SettingsPages.Language />}
                     />
                     <Route
+                      path="/settings/timezone"
+                      element={<SettingsPages.Timezone />}
+                    />
+                    <Route
                       path="/settings/billing"
                       element={<SettingsPages.Billing />}
                     />
@@ -730,6 +738,10 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/community/language"
                         element={<Admin.Config.CommunityLanguage />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/timezone"
+                        element={<Admin.Config.CommunityTimezone />}
                       />
                       <Route
                         path="/admin/configuration/community/favicons"

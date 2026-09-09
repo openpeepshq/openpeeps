@@ -164,6 +164,7 @@ export type JamSettings = z.infer<typeof jamSettingsSchema>;
 export const profileSettingsDataSchema = z.object({
   id: z.string(),
   language: z.string().optional(),
+  timeZone: z.string().optional(),
   theme: ThemeOptionsSchema.optional(),
   defaults: profileSettingsDefaultsSchema.optional(),
   notifications: z.record(z.string(), profileNotificationSettings).optional(),

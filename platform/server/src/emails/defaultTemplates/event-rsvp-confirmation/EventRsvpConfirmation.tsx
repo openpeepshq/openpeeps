@@ -19,7 +19,7 @@ export const EventRsvpConfirmation = ({ globals, locals }: Props) => {
       : t('emails.eventRsvp.headingMaybe', { eventName: locals.eventName });
   const when = formatEventWhen(locals.start, {
     end: locals.end,
-    timeZone: locals.timeZone,
+    timeZone: globals.timeZone,
     allDay: locals.allDay,
     locale: i18n.language,
   });
