@@ -126,6 +126,28 @@ test.describe('auth register flows', () => {
     });
   });
 
+  test('1b. open / service token -> member', async ({ request }) => {
+    const { token: ownerToken } = await loginUser(
+      request,
+      OWNER_EMAIL,
+      OWNER_PASSWORD,
+    );
+    const serviceToken = await createServiceToken(request, ownerToken, 'write');
+    const body = registrationBody('osvc');
+
+    const response = await request.post(
+      '/api/openpeeps/core/v1/auth/register',
+      {
+        headers: apiHeaders(serviceToken),
+        data: body,
+      },
+    );
+    await expectSuccessfulRegister(request, response, body, {
+      emailValidated: true,
+      roleKeys: ['member'],
+    });
+  });
+
   test('2. closed / no token -> fail', async ({ request }) => {
     const { token: ownerToken } = await loginUser(
       request,

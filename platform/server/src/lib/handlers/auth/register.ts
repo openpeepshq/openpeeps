@@ -61,20 +61,19 @@ export const registerHandler = async (
     );
   }
 
-  let authorizedCreate = false;
   const authResult = checkAccountCreateAuthorization(authData);
-  if (!signUpsOpen && !inviteCode) {
-    if (authResult.success) {
-      authorizedCreate = true;
-    } else if (authData.service || authData.profile) {
+  // Service/owner tokens skip the validation email whether or not public
+  // sign-ups are open. Closed sign-up still requires that authorization.
+  const authorizedCreate = authResult.success;
+  if (!signUpsOpen && !inviteCode && !authorizedCreate) {
+    if (authData.service || authData.profile) {
       throw forbidden(
         authResult.missingScope
           ? 'auth.scope.not-authorized'
           : `Missing capabilities: ${authResult.missingCapabilities.join(', ')}`,
       );
-    } else {
-      throw forbidden('Sign-ups are closed and no valid invite code provided');
     }
+    throw forbidden('Sign-ups are closed and no valid invite code provided');
   }
 
   const markAsBot = bot === true && authResult.success;
