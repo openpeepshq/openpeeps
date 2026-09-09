@@ -21,6 +21,13 @@ const pluginDataSchema = z
     pausedUntil: z.string().datetime({ offset: true }).nullable().default(null),
     optedOut: z.boolean().default(false),
     dockDismissed: z.boolean().default(false),
+    checkpointPolicy: z
+      .object({
+        progress: z.boolean().default(true),
+        openDoor: z.boolean().default(true),
+      })
+      .strict()
+      .default({ progress: true, openDoor: true }),
   })
   .strict();
 const pluginDefaults = pluginDataSchema.parse({});
@@ -220,6 +227,129 @@ describe('resolveWelcomeCandidate', () => {
         productionConfig,
       )?.intent.messageKind,
     ).toBe('stalled-suggestion');
+    expect(
+      resolve(
+        '2026-08-30T12:00:00.000Z',
+        {
+          completedProactiveMessageKinds: [
+            'intro',
+            'soft-door',
+            'stalled-suggestion',
+          ],
+        },
+        productionConfig,
+      )?.intent.messageKind,
+    ).toBe('progress');
+    expect(
+      resolve(
+        '2026-09-01T12:00:00.000Z',
+        {
+          completedProactiveMessageKinds: [
+            'intro',
+            'soft-door',
+            'stalled-suggestion',
+            'progress',
+          ],
+        },
+        productionConfig,
+      )?.intent.messageKind,
+    ).toBe('open-door');
+  });
+
+  it('returns progress at virtual day five when the member is stalled', () => {
+    expect(
+      resolve('2026-08-25T12:25:00.000Z', {
+        completedProactiveMessageKinds: [
+          'intro',
+          'soft-door',
+          'stalled-suggestion',
+        ],
+        lastProactiveAt: '2026-08-25T12:15:00.000Z',
+        proactiveDayCount: 1,
+      })?.intent,
+    ).toMatchObject({
+      id: `${profile.id}:progress`,
+      messageKind: 'progress',
+      dayKey: '5',
+    });
+  });
+
+  it('returns open-door at virtual day seven after the progress nudge', () => {
+    expect(
+      resolve('2026-08-25T12:35:00.000Z', {
+        completedProactiveMessageKinds: [
+          'intro',
+          'soft-door',
+          'stalled-suggestion',
+          'progress',
+        ],
+        lastProactiveAt: '2026-08-25T12:25:00.000Z',
+        proactiveDayCount: 1,
+      })?.intent,
+    ).toMatchObject({
+      id: `${profile.id}:open-door`,
+      messageKind: 'open-door',
+      dayKey: '7',
+    });
+  });
+
+  it('skips progress when plugin checkpoint policy disables it', () => {
+    expect(
+      resolve(
+        '2026-08-25T12:25:00.000Z',
+        {
+          completedProactiveMessageKinds: [
+            'intro',
+            'soft-door',
+            'stalled-suggestion',
+          ],
+          lastProactiveAt: '2026-08-25T12:15:00.000Z',
+          proactiveDayCount: 1,
+        },
+        config,
+        {
+          ...settings.body,
+          pluginSettings: {
+            [pluginKey]: {
+              revision: 2,
+              contexts: { directMessage: false },
+              data: {
+                ...pluginDefaults,
+                checkpointPolicy: { progress: false, openDoor: true },
+              },
+            },
+          },
+        },
+      ),
+    ).toBeUndefined();
+    expect(
+      resolve(
+        '2026-08-25T12:35:00.000Z',
+        {
+          completedProactiveMessageKinds: [
+            'intro',
+            'soft-door',
+            'stalled-suggestion',
+          ],
+          lastProactiveAt: '2026-08-25T12:15:00.000Z',
+          proactiveDayCount: 1,
+        },
+        config,
+        {
+          ...settings.body,
+          pluginSettings: {
+            [pluginKey]: {
+              revision: 2,
+              contexts: { directMessage: false },
+              data: {
+                ...pluginDefaults,
+                checkpointPolicy: { progress: false, openDoor: true },
+              },
+            },
+          },
+        },
+      )?.intent.messageKind,
+    ).toBe('open-door');
   });
 
   it('records post-success state and rejects the completed intent on restart', () => {

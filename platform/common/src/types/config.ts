@@ -314,6 +314,8 @@ export const ONBOARDING_PROACTIVE_MESSAGE_KINDS = [
   'intro',
   'soft-door',
   'stalled-suggestion',
+  'progress',
+  'open-door',
 ] as const;
 export const onboardingProactiveMessageKindSchema = z.enum(
   ONBOARDING_PROACTIVE_MESSAGE_KINDS,

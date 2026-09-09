@@ -97,7 +97,7 @@ describe('canSendProactiveDm', () => {
         state: {
           status: 'active',
           proactive: true,
-          proactiveCount: 4,
+          proactiveCount: 5,
         },
         createdAt: '2026-08-20T10:00:00.000Z',
         now: noon('2026-08-25'),
