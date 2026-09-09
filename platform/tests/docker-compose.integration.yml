@@ -113,7 +113,7 @@ services:
           fixture="public-community.zip"
         fi
         corepack enable
-        apt-get update -qq && apt-get install -y -qq unzip
+        apt-get update -qq && apt-get install -y -qq unzip build-essential
         pnpm install --filter @openpeepshq/tests...
         pnpm --filter @openpeepshq/core... build
         node platform/tests/scripts/restore-fixture.mjs "fixtures/backups/$$fixture"
@@ -206,6 +206,7 @@ services:
       - |
         set -euo pipefail
         corepack enable
+        apt-get update -qq && apt-get install -y -qq build-essential
         pnpm install
         cd platform/tests
         pnpm exec playwright install chromium chromium-headless-shell
