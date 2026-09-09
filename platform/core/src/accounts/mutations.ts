@@ -3,6 +3,7 @@ import {
   AccountCreationData,
   AccountUpdateData,
   AccountWithMeta,
+  Profile,
   ProfileWithMeta,
 } from '@openpeepshq/common/types';
 import { createSignedProfileAccessToken } from '../accessTokens/tokens';
@@ -34,6 +35,28 @@ import {
   deletePushSubscription,
   listPushSubscriptionsByAccount,
 } from '../pushSubscriptions';
+
+const applyCommunityRoleChanges = async (
+  profile: Profile,
+  changes: { add: string[]; remove: string[] },
+) => {
+  for (const roleKey of changes.add) {
+    const role = await findRoleByKey(roleKey);
+    if (role) {
+      await assignRole(profile, role);
+    } else {
+      log.error(`Role ${roleKey} missing`);
+    }
+  }
+  for (const roleKey of changes.remove) {
+    const role = await findRoleByKey(roleKey);
+    if (role) {
+      await unassignRole(profile, role);
+    } else {
+      log.error(`Role ${roleKey} missing`);
+    }
+  }
+};
 
 export const createAccount = async (
   accountCreationData: AccountCreationData,
@@ -111,15 +134,17 @@ export const createAccount = async (
       }
     } else {
       await hub.emit('profileCreated', profile);
-      const registrationRoleKeys = communityConf.roles.onRegistration.add;
-
-      for (const roleKey of registrationRoleKeys) {
-        const role = await findRoleByKey(roleKey);
-        if (role) {
-          await assignRole(profile, role);
-        } else {
-          log.error(`Role ${roleKey} missing`);
-        }
+      await applyCommunityRoleChanges(
+        profile,
+        communityConf.roles.onRegistration,
+      );
+      // Authorized/SSO creates skip the validation email, so apply the
+      // same promotion humans get after confirming.
+      if (emailValidated) {
+        await applyCommunityRoleChanges(
+          profile,
+          communityConf.roles.onEmailValidation,
+        );
       }
     }
 
@@ -231,22 +256,10 @@ export const validateEmail = async (token: string) => {
       await accountsCache.del(account.id);
       await accountsCache.del(account.email);
 
-      for (const roleKey of communityConf.roles.onEmailValidation.add) {
-        const role = await findRoleByKey(roleKey);
-        if (role) {
-          await assignRole(account.profiles[0], role);
-        } else {
-          log.error(`Role ${roleKey} missing`);
-        }
-      }
-      for (const roleKey of communityConf.roles.onEmailValidation.remove) {
-        const role = await findRoleByKey(roleKey);
-        if (role) {
-          await unassignRole(account.profiles[0], role);
-        } else {
-          log.error(`Role ${roleKey} missing`);
-        }
-      }
+      await applyCommunityRoleChanges(
+        account.profiles[0],
+        communityConf.roles.onEmailValidation,
+      );
       return true;
     }
   } catch (e) {
