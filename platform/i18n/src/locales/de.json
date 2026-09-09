@@ -1915,6 +1915,13 @@
                 "languageDescription": "Wählen Sie die Standardsprache für die Community. Benutzer, die keine persönliche Spracheinstellung festgelegt haben, sehen die Oberfläche in dieser Sprache.",
                 "updateSuccess": "Standardsprache erfolgreich aktualisiert."
             },
+            "timezone": {
+                "title": "Standardzeitzone",
+                "description": "Legen Sie die Standardzeitzone für diese Community fest",
+                "timezoneDescription": "Wählen Sie die Standardzeitzone für die Community. Mitglieder ohne persönliche Zeitzone verwenden diese. Ist keine gesetzt, wird die Browser-Zeitzone jedes Mitglieds verwendet.",
+                "browser": "(Browser)",
+                "updateSuccess": "Standardzeitzone erfolgreich aktualisiert."
+            },
             "privacyPolicy": "URL der Datenschutzerklärung",
             "termsAndConditions": "URL der AGB",
             "lightTheme": {
@@ -2332,6 +2339,13 @@
             "languageDescription": "Wählen Sie die Sprache, die Sie auf der gesamten Plattform verwenden möchten. Dies ändert alle Oberflächentexte in die gewählte Sprache.",
             "default": "(Standard)",
             "updateSuccess": "Spracheinstellungen aktualisiert."
+        },
+        "timezone": {
+            "title": "Zeitzone",
+            "description": "Wählen Sie Ihre Zeitzone. Standard ist die Community-Zeitzone",
+            "timezoneDescription": "Wählen Sie die Zeitzone, die Sie verwenden möchten. Ist keine gesetzt, gilt die Community-Zeitzone.",
+            "communityDefault": "(Community-Standard)",
+            "updateSuccess": "Zeitzone aktualisiert."
         },
         "accessTokens": {
             "title": "Zugriffstoken",

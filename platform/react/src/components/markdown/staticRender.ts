@@ -4,6 +4,8 @@ export interface StaticRenderContextValue {
   enabled: boolean;
   /** When set, relative `href`/`src` values are rewritten for email links. */
   baseUrl?: string;
+  /** IANA timezone for date labels in static/email renders. */
+  timeZone?: string;
 }
 
 const defaultValue: StaticRenderContextValue = { enabled: false };
@@ -22,10 +24,7 @@ export const useStaticRender = (): StaticRenderContextValue =>
   useContext(StaticRenderContext);
 
 /** Prefix a path with `baseUrl` when rendering for email. */
-export const resolveStaticUrl = (
-  path: string,
-  baseUrl?: string,
-): string => {
+export const resolveStaticUrl = (path: string, baseUrl?: string): string => {
   if (!baseUrl || !path.startsWith('/')) return path;
   return `${baseUrl.replace(/\/$/, '')}${path}`;
 };

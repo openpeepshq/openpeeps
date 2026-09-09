@@ -1,10 +1,4 @@
-import {
-  Button,
-  Container,
-  Img,
-  Section,
-  Text,
-} from '@react-email/components';
+import { Button, Container, Img, Section, Text } from '@react-email/components';
 import { User } from 'lucide-react';
 import type {
   EmailGlobals,
@@ -12,7 +6,11 @@ import type {
   PublicPost,
   PublicProfile,
 } from '@openpeepshq/common/types';
-import { getProfileAvatar, profileName } from '@openpeepshq/common/lib';
+import {
+  getProfileAvatar,
+  profileName,
+  formatEventWhen,
+} from '@openpeepshq/common/lib';
 
 import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { emailStyles } from '../../styles';
@@ -22,27 +20,6 @@ interface Locals {
   senderProfile: PublicProfile;
   post: PublicPost;
 }
-
-const formatJamWhen = (event: Event, locale?: string): string => {
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    ...(event.timeZone ? { timeZone: event.timeZone } : {}),
-  };
-
-  if (event.wholeDay) {
-    return new Date(event.start).toLocaleDateString(locale, options);
-  }
-
-  return new Date(event.start).toLocaleString(locale, {
-    ...options,
-    hour: 'numeric',
-    minute: '2-digit',
-    timeZoneName: 'short',
-  });
-};
 
 export const JamModeratorEmail = ({
   globals,
@@ -54,6 +31,14 @@ export const JamModeratorEmail = ({
   const { t, i18n } = globals.i18nContext;
   const event = locals.post.data as Event;
   const eventUrl = `${globals.serverData.rootUrl}/posts/${locals.post.id}`;
+  const when = event.start
+    ? formatEventWhen(event.start, {
+        end: event.end,
+        timeZone: globals.timeZone,
+        allDay: event.wholeDay,
+        locale: i18n.language,
+      })
+    : null;
 
   return (
     <BaseEmailLayout
@@ -84,11 +69,9 @@ export const JamModeratorEmail = ({
             profileName: profileName(locals.senderProfile),
           })}
         </Text>
-        {event.start ? (
+        {when ? (
           <Text style={emailStyles.paragraph}>
-            {t('emails.jamModerator.scheduledFor', {
-              when: formatJamWhen(event, i18n.language),
-            })}
+            {t('emails.jamModerator.scheduledFor', { when })}
           </Text>
         ) : null}
       </Container>

@@ -1856,6 +1856,13 @@
         "languageDescription": "Choose the default language for the community. Users who haven't set a personal language preference will see the interface in this language.",
         "updateSuccess": "Default language updated successfully."
       },
+      "timezone": {
+        "title": "Default Timezone",
+        "description": "Set the default timezone for this community",
+        "timezoneDescription": "Choose the default timezone for the community. Members who have not set a personal timezone will use this. If unset, each member's browser timezone is used.",
+        "browser": "(browser)",
+        "updateSuccess": "Default timezone updated successfully."
+      },
       "privacyPolicy": "Privacy Policy URL",
       "termsAndConditions": "Terms & Conditions URL",
       "lightTheme": {
@@ -2348,6 +2355,13 @@
       "languageDescription": "Select the language you want to use across the platform. This changes all interface text to your chosen language.",
       "default": "(Default)",
       "updateSuccess": "Language settings updated."
+    },
+    "timezone": {
+      "title": "Timezone",
+      "description": "Choose your timezone. Defaults to the community timezone",
+      "timezoneDescription": "Select the timezone you want to use. If unset, the community timezone is used.",
+      "communityDefault": "(community default)",
+      "updateSuccess": "Timezone updated."
     },
     "accessTokens": {
       "title": "Access tokens",

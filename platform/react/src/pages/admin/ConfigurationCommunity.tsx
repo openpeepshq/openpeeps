@@ -50,6 +50,10 @@ export function AdminConfigurationCommunity() {
         translationPrefix="configuration.community.language"
         action="/admin/configuration/community/language"
       />
+      <ConfigMenuButton
+        translationPrefix="configuration.community.timezone"
+        action="/admin/configuration/community/timezone"
+      />
     </div>
   );
 }
