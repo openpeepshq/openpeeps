@@ -148,6 +148,25 @@
     "tabs": {
       "label": "Profile sections"
     },
+    "activity": {
+      "tab": "Activity",
+      "yourContent": "Your posts",
+      "yourActions": "Your actions",
+      "received": "Received",
+      "postsCount": "Posts",
+      "repliesCount": "Replies",
+      "eventsCount": "Events",
+      "reactionsGiven": "Reactions",
+      "reactionsReceived": "Reactions",
+      "repostsCount": "Reposts",
+      "repostsReceived": "Reposts",
+      "repliesReceived": "Replies",
+      "rsvpsCount": "RSVPs",
+      "bookmarksCount": "Bookmarks",
+      "groupsCount": "Groups",
+      "topPosts": "Top posts",
+      "emptyTopPosts": "No posts to rank yet."
+    },
     "edit": {
       "title": "Edit Profile",
       "save": "Save Changes",

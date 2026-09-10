@@ -6,6 +6,7 @@ export * from './mapping';
 export * from './mutations';
 export * from './finders';
 export * from './export';
+export { getProfileActivitySummary } from './activitySummary';
 export {
   getProfile,
   getPublicProfile,

@@ -12,6 +12,8 @@ export { ProfilePageAction } from './ProfilePageAction';
 export type { ProfilePageActionProps } from './ProfilePageAction';
 export { ProfilePostsAndReplies } from './ProfilePostsAndReplies';
 export type { ProfilePostsAndRepliesProps } from './ProfilePostsAndReplies';
+export { ProfileActivitySummary } from './ProfileActivitySummary';
+export type { ProfileActivitySummaryProps } from './ProfileActivitySummary';
 export { FollowUnfollowButton } from './FollowUnfollowButton';
 export type { FollowUnfollowButtonProps } from './FollowUnfollowButton';
 export { ProfileWithActionCard } from './ProfileWithActionCard';
