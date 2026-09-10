@@ -32,4 +32,9 @@ body {
     overflow-x: auto;
     max-width: 100%;
   }
+
+  /* prose-sm tables are ~12px; keep them at body size (16px). */
+  .allpeep-markdown table {
+    font-size: 1rem;
+  }
 }
