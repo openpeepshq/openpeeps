@@ -46,7 +46,10 @@ export function Profile() {
             profile={profile}
             isCurrentProfile={me?.handle === profile.handle}
           />
-          <ProfilePostsAndReplies profile={profile} />
+          <ProfilePostsAndReplies
+            profile={profile}
+            isCurrentProfile={me?.id === profile.id}
+          />
         </div>
       ) : (
         notFound
