@@ -32,4 +32,14 @@ body {
     overflow-x: auto;
     max-width: 100%;
   }
+
+  .allpeep-markdown .doc-mermaid {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+
+  .allpeep-markdown .doc-mermaid svg {
+    max-width: 100%;
+    height: auto;
+  }
 }

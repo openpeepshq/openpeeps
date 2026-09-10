@@ -5,50 +5,36 @@ Express API server, shared libraries, and background workers.
 
 ## System Overview
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Frontend Layer                        │
-│  ┌──────────┐  ┌──────────────┐                         │
-│  │  React   │  │ React Native │                         │
-│  │  (Web)   │  │  (Mobile)    │                         │
-│  └──────────┘  └──────────────┘                         │
-└─────────────────────────────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                    Application Layer                     │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐             │
-│  │  Server  │  │  Worker  │  │   CLI    │             │
-│  │ (API)    │  │ (Jobs)   │  │ (Admin)  │             │
-│  └──────────┘  └──────────┘  └──────────┘             │
-└─────────────────────────────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                    Business Logic Layer                  │
-│  ┌──────────────────────────────────────────┐           │
-│  │              Core Package                │           │
-│  │  (Posts, Profiles, Groups, Jams, etc.)  │           │
-│  └──────────────────────────────────────────┘           │
-└─────────────────────────────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                    Shared Layer                          │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐             │
-│  │  Client  │  │  Common  │  │ Libraries│             │
-│  │  (API)   │  │  (Types) │  │  (Utils) │             │
-│  └──────────┘  └──────────┘  └──────────┘             │
-└─────────────────────────────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                    Data Layer                            │
-│  ┌──────────┐  ┌──────────┐                             │
-│  │PostgreSQL│  │  Redis   │                             │
-│  │ (primary)│  │  (Cache) │                             │
-│  └──────────┘  └──────────┘                             │
-└─────────────────────────────────────────────────────────┘
+Runtime processes, request path, and package graph:
+[Architecture Diagram](/docs/development/architecture/diagram).
+
+```mermaid
+flowchart TB
+  subgraph frontend [Frontend]
+    web[React Web]
+    rn[React Native]
+  end
+  subgraph application [Application]
+    server[API Server]
+    worker[Worker]
+    cli[CLI]
+  end
+  subgraph logic [Business logic]
+    core[Core package]
+  end
+  subgraph shared [Shared]
+    clientLib[Client]
+    common[Common]
+    libs[Libraries]
+  end
+  subgraph data [Data]
+    pg[PostgreSQL]
+    redis[Redis]
+  end
+  frontend --> application
+  application --> logic
+  logic --> shared
+  logic --> data
 ```
 
 ## Package Structure
@@ -97,6 +83,8 @@ Archive (cutover only, not runtime):
 
 ## Architecture components
 
+- **[Architecture Diagram](/docs/development/architecture/diagram)** — Runtime
+  processes, request path, and package graph
 - **[Frontend Architecture](/docs/development/architecture/frontend)** — React
   web client and React Native mobile
 - **[Backend Architecture](/docs/development/architecture/backend)** — Core,

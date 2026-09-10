@@ -46,6 +46,16 @@ body {
     max-width: 100%;
   }
 
+  .docs-markdown .doc-mermaid {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+
+  .docs-markdown .doc-mermaid svg {
+    max-width: 100%;
+    height: auto;
+  }
+
   .docs-markdown a {
     color: rgb(var(--color-primary));
     text-decoration: underline;
