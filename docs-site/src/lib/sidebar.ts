@@ -47,6 +47,10 @@ export const SIDEBAR: NavSection[] = [
       { label: 'Plugins', slug: 'development/plugins' },
       { label: 'Routes', slug: 'development/routes' },
       { label: 'Architecture', slug: 'development/architecture' },
+      {
+        label: 'Architecture diagram',
+        slug: 'development/architecture/diagram',
+      },
       { label: 'Backend', slug: 'development/architecture/backend' },
       { label: 'Frontend', slug: 'development/architecture/frontend' },
       {

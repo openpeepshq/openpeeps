@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactElement } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { renderMermaidBlocks } from '@/lib/renderMermaid';
 
 type Props = {
   html: string;
@@ -11,10 +12,7 @@ type Props = {
  * Links are version-absolute (e.g. /main/admin) so new tabs and raw .md work;
  * the basename is stripped before navigate().
  */
-export const CompiledMarkdown = ({
-  html,
-  className,
-}: Props): ReactElement => {
+export const CompiledMarkdown = ({ html, className }: Props): ReactElement => {
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -46,6 +44,7 @@ export const CompiledMarkdown = ({
     };
 
     root.addEventListener('click', onClick);
+    void renderMermaidBlocks(root);
     return () => root.removeEventListener('click', onClick);
   }, [navigate, html]);
 

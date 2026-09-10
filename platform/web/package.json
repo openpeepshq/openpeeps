@@ -25,6 +25,7 @@
     "i18next": "^24.2.3",
     "lucide-react": "^0.469.0",
     "marked": "^15.0.6",
+    "mermaid": "^11.17.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.73.1",
