@@ -18,7 +18,7 @@ export interface UseServiceWorkerResult {
 export interface UseServiceWorkerOptions extends RegisterServiceWorkerOptions {
   /** Disable registration (e.g. dev mode). */
   enabled?: boolean;
-  /** Reload the page automatically when a new SW takes control. Defaults to true. */
+  /** Activate a waiting SW and reload. Defaults to true. */
   autoReload?: boolean;
 }
 
@@ -48,6 +48,12 @@ export function useServiceWorker({
         if (cancelled) return;
         setIsUpdateAvailable(true);
         onUpdateAvailable?.(reg);
+        // Reload now: this SW never clients.claim(), so controllerchange
+        // will not fire until the next navigation.
+        if (autoReload) {
+          reg.waiting?.postMessage({ type: 'SKIP_WAITING' });
+          window.location.reload();
+        }
       },
       onControllerChange: () => {
         onControllerChange?.();
@@ -60,8 +66,15 @@ export function useServiceWorker({
       if (!cancelled) setRegistration(handle.registration);
     });
 
+    const checkForSwUpdate = () => {
+      if (document.visibilityState === 'hidden') return;
+      void handleRef.current?.update();
+    };
+    document.addEventListener('visibilitychange', checkForSwUpdate);
+
     return () => {
       cancelled = true;
+      document.removeEventListener('visibilitychange', checkForSwUpdate);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
