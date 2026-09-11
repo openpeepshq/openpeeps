@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { applyNotificationStatsToCache } from '../lib/notificationBadge';
 import {
@@ -9,6 +9,7 @@ import { useNavigate } from '../contexts/router';
 import { toRouterPath } from './navigationUrl';
 import { normalizePushInvalidateMessage } from './pushInvalidate';
 import { useNotificationBadgeSync } from './useNotificationBadgeSync';
+import { startStaleAppReload } from './staleAppReload';
 
 export interface PwaProviderProps
   extends Omit<UseServiceWorkerOptions, 'onNavigate' | 'onInvalidateQueries'> {
@@ -21,6 +22,7 @@ export interface PwaProviderProps
  * High-level wrapper that registers the service worker and connects:
  *   - SW NAVIGATE_TO → router.navigate
  *   - SW INVALIDATE_QUERIES → react-query.invalidateQueries
+ *   - stale production builds → full page reload
  *
  * Mount this once near the top of your app (inside QueryClientProvider and
  * RouterProvider).
@@ -28,6 +30,8 @@ export interface PwaProviderProps
 export function PwaProvider({
   children,
   onNavigate,
+  enabled = true,
+  autoReload = true,
   ...options
 }: PwaProviderProps) {
   let navigate: ((url: string) => void) | undefined;
@@ -48,8 +52,15 @@ export function PwaProvider({
       else if (typeof window !== 'undefined') window.location.assign(url);
     });
 
+  useEffect(() => {
+    if (!enabled || !autoReload) return;
+    return startStaleAppReload();
+  }, [enabled, autoReload]);
+
   useServiceWorker({
     ...options,
+    enabled,
+    autoReload,
     onNavigate: handleNavigate,
     onInvalidateQueries: (message) => {
       const { keys, notificationStats } =

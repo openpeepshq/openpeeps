@@ -61,6 +61,9 @@ export const registerServiceWorker = async (
       registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
 
     if (options.onUpdateAvailable) {
+      if (registration.waiting && navigator.serviceWorker.controller) {
+        options.onUpdateAvailable(registration);
+      }
       registration.addEventListener('updatefound', () => {
         const installing = registration.installing;
         installing?.addEventListener('statechange', () => {
