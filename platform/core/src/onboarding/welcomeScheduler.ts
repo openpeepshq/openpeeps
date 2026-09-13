@@ -223,7 +223,9 @@ export const resolveWelcomeCandidate = ({
     !pluginSettings ||
     pluginSettings.data.optedOut ||
     (pluginSettings.data.pausedUntil !== null &&
-      new Date(pluginSettings.data.pausedUntil) > now)
+      new Date(pluginSettings.data.pausedUntil) > now) ||
+    (resolvedConfig.requiredIntake === true &&
+      pluginSettings.data.requiredIntakeCompleted !== true)
   ) {
     return undefined;
   }

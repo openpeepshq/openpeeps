@@ -216,6 +216,17 @@ export function AdminConfigurationCommunityOnboardingGuide() {
         </select>
       </Label>
       <Label
+        title={t('configuration.community.onboardingGuide.requiredIntake')}
+        description={t(
+          'configuration.community.onboardingGuide.requiredIntakeDescription',
+        )}
+      >
+        <Switch
+          checked={form.requiredIntake === true}
+          onCheckedChange={(checked) => patch({ requiredIntake: checked })}
+        />
+      </Label>
+      <Label
         title={t('configuration.community.onboardingGuide.customHostBlurb')}
         description={t(
           'configuration.community.onboardingGuide.customHostBlurbDescription',

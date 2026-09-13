@@ -340,6 +340,7 @@ export const onboardingGuideConfigSchema = z.object({
   enabledRungs: z.array(onboardingRungSchema),
   primaryInvite: z.enum(['dock', 'dm_only', 'both']),
   customHostBlurb: z.string().optional(),
+  requiredIntake: z.boolean().optional(),
   virtualDayDurationMs: z.number().int().positive().optional(),
   chatbotHandle: z.string().min(1).optional(),
 });

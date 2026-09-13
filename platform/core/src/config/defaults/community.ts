@@ -103,6 +103,8 @@ export const onboardingGuideConfigFromEnv = (): OnboardingGuideConfig => {
           chatbotHandle: process.env.COMMUNITY_ONBOARDING_GUIDE_CHATBOT_HANDLE,
         }
       : {}),
+    requiredIntake:
+      process.env.COMMUNITY_ONBOARDING_GUIDE_REQUIRED_INTAKE === 'true',
   };
 };
 

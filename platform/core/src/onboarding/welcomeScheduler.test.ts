@@ -21,6 +21,7 @@ const pluginDataSchema = z
     pausedUntil: z.string().datetime({ offset: true }).nullable().default(null),
     optedOut: z.boolean().default(false),
     dockDismissed: z.boolean().default(false),
+    requiredIntakeCompleted: z.boolean().default(false),
     checkpointPolicy: z
       .object({
         progress: z.boolean().default(true),
@@ -118,6 +119,32 @@ describe('resolveWelcomeCandidate', () => {
         },
       }),
     ).toBeUndefined();
+  });
+
+  it('holds proactive DMs until required intake is complete', () => {
+    expect(
+      resolve(
+        '2026-08-25T12:00:30.000Z',
+        {},
+        { ...config, requiredIntake: true },
+      ),
+    ).toBeUndefined();
+    expect(
+      resolve(
+        '2026-08-25T12:00:30.000Z',
+        {},
+        { ...config, requiredIntake: true },
+        {
+          pluginSettings: {
+            [pluginKey]: {
+              revision: 1,
+              contexts: { directMessage: false },
+              data: { ...pluginDefaults, requiredIntakeCompleted: true },
+            },
+          },
+        },
+      )?.intent.messageKind,
+    ).toBe('intro');
   });
 
   it('suppresses members who opted out through plugin settings', () => {

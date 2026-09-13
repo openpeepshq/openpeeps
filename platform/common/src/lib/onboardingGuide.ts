@@ -26,6 +26,7 @@ export const DEFAULT_ONBOARDING_GUIDE_CONFIG: OnboardingGuideConfig = {
   pushOnFirstIntro: false,
   enabledRungs: DEFAULT_ENABLED_RUNGS,
   primaryInvite: 'both',
+  requiredIntake: false,
 };
 
 export const DEFAULT_ONBOARDING_GUIDE_STATE: OnboardingGuideState = {

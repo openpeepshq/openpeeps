@@ -1897,6 +1897,8 @@
         "primaryDock": "Welcome dock only",
         "primaryDm": "Direct message only",
         "primaryBoth": "Dock and direct message",
+        "requiredIntake": "Require Guide on first visit",
+        "requiredIntakeDescription": "New members stay in Guide until they review setup recommendations. Packed or existing members are not gated.",
         "customHostBlurb": "Custom host note",
         "customHostBlurbDescription": "Optional 1–2 sentences appended to the first welcome. Lurking is welcome, this community is slow, etc.",
         "enabledRungs": "Belonging steps to suggest",

@@ -1937,6 +1937,8 @@
                 "primaryDock": "Nur Willkommens-Dock",
                 "primaryDm": "Nur Direktnachricht",
                 "primaryBoth": "Dock und Direktnachricht",
+                "requiredIntake": "Guide beim ersten Besuch verlangen",
+                "requiredIntakeDescription": "Neue Mitglieder bleiben im Guide, bis sie die Einrichtungsempfehlungen geprüft haben.",
                 "customHostBlurb": "Eigene Host-Notiz",
                 "customHostBlurbDescription": "Optionale 1–2 Sätze, die an die erste Begrüßung angehängt werden.",
                 "enabledRungs": "Zugehörigkeitsschritte vorschlagen",
