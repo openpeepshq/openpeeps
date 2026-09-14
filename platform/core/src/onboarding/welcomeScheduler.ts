@@ -15,6 +15,7 @@ import {
   type OnboardingGuideState,
   type OnboardingRung,
   type PluginSettingsEnvelope,
+  type PostWithMeta,
   type ProfileWithMeta,
   type PublicProfile,
 } from '@openpeepshq/common/types';
@@ -22,7 +23,11 @@ import { and, asc, eq, isNull, sql } from 'drizzle-orm';
 import { database, type PgDb } from '../db';
 import { profileSettings, profiles } from '../db/pg/schema';
 import { findProfileByHandle, getPublicProfile } from '../profiles';
-import { findPost, getConversationByEnd } from '../posts';
+import {
+  findPost,
+  getConversationByEnd,
+  listConversationLeaves,
+} from '../posts';
 import { getProfileSettingsSchema } from '../plugins';
 
 const ONBOARDING_PLUGIN_KEY = 'allpeep/peeps-onboarding';
@@ -305,6 +310,48 @@ const candidateRows = (db: PgDb) =>
     .where(and(eq(profiles.type, 'local'), isNull(profiles.deletedAt)))
     .orderBy(asc(profiles.createdAt), asc(profiles.id));
 
+const existingDirectConversationIds = async (
+  chatbot: ProfileWithMeta,
+): Promise<Map<string, string>> => {
+  const leaves = await listConversationLeaves({
+    profile: chatbot,
+    scopes: [],
+  });
+  const conversations = await Promise.all(
+    leaves.map((post) =>
+      getConversationByEnd(post, { profile: chatbot, scopes: [] }),
+    ),
+  );
+  const byOther = new Map<string, { id: string; createdAt: string }>();
+  for (const conversation of conversations) {
+    const root = conversation[0] as PostWithMeta | undefined;
+    if (!root || root.visibility !== 'direct') continue;
+    const ids = (root.audience ?? []).map((profile) => profile.id).sort();
+    if (ids.length !== 2 || !ids.includes(chatbot.id)) continue;
+    const otherId = ids.find((id) => id !== chatbot.id);
+    if (!otherId) continue;
+    const current = byOther.get(otherId);
+    if (
+      !current ||
+      root.createdAt < current.createdAt ||
+      (root.createdAt === current.createdAt && root.id < current.id)
+    ) {
+      byOther.set(otherId, { id: root.id, createdAt: root.createdAt });
+    }
+  }
+  return new Map(
+    [...byOther.entries()].map(([profileId, value]) => [profileId, value.id]),
+  );
+};
+
+const attachExistingConversation = (
+  candidate: WelcomeCandidate,
+  existingConversations: Map<string, string>,
+): WelcomeCandidate => {
+  const conversationId = existingConversations.get(candidate.profileId);
+  return conversationId ? { ...candidate, conversationId } : candidate;
+};
+
 export const listWelcomeCandidates = async (
   config: OnboardingGuideConfig,
   defaultLocale: string,
@@ -321,6 +368,8 @@ export const listWelcomeCandidates = async (
     return [];
   }
   const chatbot = publicProfileSchema.parse(chatbotProfile) as PublicProfile;
+  const existingConversations =
+    await existingDirectConversationIds(chatbotProfile);
   const rows = await candidateRows(await database());
   const candidates = await Promise.all(
     rows
@@ -328,7 +377,7 @@ export const listWelcomeCandidates = async (
       .map(async ({ profile, settings }) => {
         const target = await getPublicProfile(profile.id);
         if (!target) return undefined;
-        return resolveWelcomeCandidate({
+        const candidate = resolveWelcomeCandidate({
           profile,
           publicProfile: publicProfileSchema.parse(target) as PublicProfile,
           chatbot,
@@ -337,6 +386,9 @@ export const listWelcomeCandidates = async (
           defaultLocale,
           now,
         });
+        return candidate
+          ? attachExistingConversation(candidate, existingConversations)
+          : candidate;
       }),
   );
   return candidates.filter(
@@ -463,6 +515,8 @@ export const claimWelcomeDelivery = async ({
   }
   const publicTarget = publicProfileSchema.parse(target) as PublicProfile;
   const chatbot = publicProfileSchema.parse(chatbotProfile) as PublicProfile;
+  const existingConversations =
+    await existingDirectConversationIds(chatbotProfile);
   return (await database()).transaction(async (tx) => {
     const [row] = await tx
       .select({
@@ -497,15 +551,24 @@ export const claimWelcomeDelivery = async ({
       defaultLocale,
       now,
     });
+    const attached = candidate
+      ? attachExistingConversation(candidate, existingConversations)
+      : undefined;
+    const allowedConversationIds = new Set(
+      [attached?.conversationId, candidate?.conversationId].filter(
+        (id): id is string => !!id,
+      ),
+    );
     if (
-      !candidate ||
-      candidate.intent.id !== intentId ||
-      (candidate.conversationId && candidate.conversationId !== conversationId)
+      !attached ||
+      attached.intent.id !== intentId ||
+      (allowedConversationIds.size > 0 &&
+        !allowedConversationIds.has(conversationId))
     ) {
       return undefined;
     }
 
-    const body = recordClaimedWelcomeDelivery(row.settings.body, candidate, {
+    const body = recordClaimedWelcomeDelivery(row.settings.body, attached, {
       postId,
       conversationId,
       now,
@@ -518,6 +581,6 @@ export const claimWelcomeDelivery = async ({
         updatedAt: now.toISOString(),
       })
       .where(eq(profileSettings.id, row.settings.id));
-    return candidate;
+    return attached;
   });
 };
