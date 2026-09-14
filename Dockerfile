@@ -68,6 +68,7 @@ RUN pnpm -r \
 FROM node:24-alpine
 
 ARG VERSION
+ARG BUILD
 ARG ENVIRONMENT
 
 RUN apk add --no-cache \
@@ -84,7 +85,7 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV NODE_OPTIONS="--max-old-space-size=8192"
 ENV PROTOCOL_HEADER=x-forwarded-proto HOST_HEADER=x-forwarded-host
-ENV HOST=0.0.0.0 PORT=8080 NODE_ENV=production BODY_SIZE_LIMIT=540e9 VERSION=$VERSION ENVIRONMENT=$ENVIRONMENT
+ENV HOST=0.0.0.0 PORT=8080 NODE_ENV=production BODY_SIZE_LIMIT=540e9 VERSION=$VERSION ENVIRONMENT=$ENVIRONMENT BUILD=$BUILD
 # Disable Node's 5-minute server.requestTimeout so slow media uploads aren't
 # cut off mid-transfer. Override at deploy time if you want a finite cap.
 ENV REQUEST_TIMEOUT=0

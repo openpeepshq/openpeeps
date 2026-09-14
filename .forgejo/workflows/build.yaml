@@ -151,6 +151,7 @@ jobs:
           else
             docker buildx build \
               --build-arg "VERSION=${{ needs.set-variables.outputs.version }}" \
+              --build-arg "BUILD=${{ needs.set-variables.outputs.full_sha }}" \
               --build-arg "ENVIRONMENT=${{ needs.set-variables.outputs.environment }}" \
               -t "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}" --push .
           fi

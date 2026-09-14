@@ -109,9 +109,16 @@ test.describe('API coverage gaps', () => {
     const body = (await info.json()) as {
       communityConfig?: { info?: { name?: string } };
       publicContent?: boolean;
+      version?: string;
+      uptimeSeconds?: number;
+      subscription?: { accountCount?: number; profileCount?: number };
     };
     expect(body.communityConfig?.info?.name).toBeTruthy();
     expect(typeof body.publicContent).toBe('boolean');
+    expect(typeof body.version).toBe('string');
+    expect(typeof body.uptimeSeconds).toBe('number');
+    expect(typeof body.subscription?.accountCount).toBe('number');
+    expect(typeof body.subscription?.profileCount).toBe('number');
   });
 
   test('protected routes reject missing Bearer', async ({ request }) => {

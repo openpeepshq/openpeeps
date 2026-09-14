@@ -374,7 +374,8 @@ export const admin = (rawClient: FetchClient) => ({
     ),
     install: allpeepPayloadEndpoint<
       SuccessResponse & { pluginKey?: string },
-      { type: 'npm'; package: string; version?: string } | { type: 'git'; url: string; ref?: string }
+      | { type: 'npm'; package: string; version?: string }
+      | { type: 'git'; url: string; ref?: string }
     >(rawClient, '/admin/plugins/install', 'post'),
     uninstall: allpeepNoPayloadEndpoint<
       SuccessResponse,

@@ -187,9 +187,19 @@ export const fixtureAnnouncementNotification = {
 
 export const fixtureServerInfo: ServerInfo = {
   version: 'gallery',
+  build: null,
   environment: 'gallery',
+  startedAt: now,
+  uptimeSeconds: 0,
   publicContent: true,
   lastAccessed: null,
+  subscription: { plan: null, profileCount: 0, accountCount: 0 },
+  resources: {
+    processMemory: { rssBytes: 1, heapUsedBytes: 1, heapTotalBytes: 1 },
+    systemMemory: { totalBytes: 1, freeBytes: 1 },
+    loadAverage: [0, 0, 0],
+    disk: null,
+  },
   communityConfig: {
     theme: {
       base: 'OpenpeepsLight',
