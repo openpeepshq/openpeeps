@@ -195,7 +195,8 @@
       "following": "Following",
       "posts": "Posts",
       "joined": "Joined {{date}}",
-      "avatarAlt": "Profile picture"
+      "avatarAlt": "Profile picture",
+      "roles": "Roles"
     },
     "actions": {
       "edit": "Edit Profile",

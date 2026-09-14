@@ -30,6 +30,7 @@ import {
   profileDataSchema,
   profileStatsSchema,
   reactionDataSchema,
+  roleDataSchema,
   Report,
   reportDataSchema,
   reportSchema,
@@ -61,6 +62,13 @@ export const publicAccountSchema = z
   .openapi('Account', { type: 'object' });
 export type PublicAccount = z.infer<typeof publicAccountSchema>;
 
+/** Role identity on public profiles — capabilities stay internal. */
+export const publicRoleSchema = roleDataSchema.pick({
+  key: true,
+  displayName: true,
+});
+export type PublicRole = z.infer<typeof publicRoleSchema>;
+
 export const publicProfileSchema = z.object({
   id: z.string().uuid(),
   type: z.enum(['local', 'guest', 'federated']),
@@ -76,6 +84,7 @@ export const publicProfileSchema = z.object({
   locked: z.boolean().optional(),
   bot: z.boolean().optional(),
   discoverable: z.boolean().optional(),
+  roles: publicRoleSchema.array().optional(),
   memberships: z
     .array(
       groupRoleSchema.extend({

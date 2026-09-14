@@ -1,6 +1,7 @@
 import { MapPin } from 'lucide-react';
 import type { PublicProfile } from '@openpeepshq/common/types';
 import { truncateText } from '@openpeepshq/common/lib';
+import { Badge } from '@openpeepshq/react-ui';
 
 import { useT } from '../../i18n';
 import { Avatar } from './Avatar';
@@ -23,6 +24,7 @@ export function ProfileHeader({
   isCurrentProfile = false,
 }: ProfileHeaderProps) {
   const t = useT();
+  const roles = profile.roles ?? [];
   return (
     <div className="relative">
       <div className="mb-8">
@@ -60,6 +62,22 @@ export function ProfileHeader({
           <span className="text-muted-foreground my-1 text-sm font-normal">
             @{profile.handle}
           </span>
+
+          {roles.length > 0 ? (
+            <div
+              className="mt-2 flex flex-wrap gap-1"
+              data-testid="profile-header-roles"
+              aria-label={t('profile.header.roles', { defaultValue: 'Roles' })}
+            >
+              {roles.map((role) => (
+                <Badge
+                  key={role.key}
+                  status={role.displayName || role.key}
+                  variant="secondary"
+                />
+              ))}
+            </div>
+          ) : null}
 
           <PostMarkdown
             source={profile.bio || t('profile.noBio', { defaultValue: '' })}
