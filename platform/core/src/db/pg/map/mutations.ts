@@ -135,12 +135,21 @@ const rowToPatchInput = (
         visibility: row.visibility,
         creatorId: row.creatorId,
         lastActivityAt: row.lastActivityAt,
+        uri: row.uri,
+        inReplyToUri: row.inReplyToUri,
         data: row.body,
       };
     case 'profiles':
       return {
         handle: row.handle,
         type: row.type,
+        uri: row.uri,
+        inboxUrl: row.inboxUrl,
+        sharedInboxUrl: row.sharedInboxUrl,
+        publicKeyPem: row.publicKeyPem,
+        privateKeyPem: row.privateKeyPem,
+        keyId: row.keyId,
+        fetchedAt: row.fetchedAt,
         ...(row.activityPubDomain
           ? { activityPub: { domain: row.activityPubDomain } }
           : {}),

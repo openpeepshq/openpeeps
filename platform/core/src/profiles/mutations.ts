@@ -33,6 +33,8 @@ import {
   insertBlock,
   listBlockingIds,
 } from './blocks';
+import { localActorScalars } from '../federation/identity';
+import { uuidv7 } from 'uuidv7';
 
 export const createProfile = async (
   data: ProfileData,
@@ -40,7 +42,11 @@ export const createProfile = async (
 ) => {
   await assertProfileCapacity();
   const db = await allpeepDb().then((db) => db.db);
-  const profile = await profilesMapping.create(db, data);
+  const id = uuidv7();
+  const domain = data.activityPub?.domain;
+  const actor =
+    data.type === 'local' && domain ? localActorScalars(id, domain) : {};
+  const profile = await profilesMapping.create(db, { ...data, id, ...actor });
   if (controllingAccount) {
     await giveControl(db, controllingAccount, profile);
     await accountsCache.del(controllingAccount.id);

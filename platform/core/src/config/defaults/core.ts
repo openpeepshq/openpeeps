@@ -75,6 +75,7 @@ export const defaultConfig: CoreConfig = {
   },
   federation: {
     active: false,
+    allowedHosts: [],
   },
   activityPub: {
     defaultDomain: process.env.ACTIVITY_PUB_DEFAULT_DOMAIN || 'localhost',

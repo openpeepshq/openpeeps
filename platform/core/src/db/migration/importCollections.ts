@@ -176,6 +176,67 @@ export const importPostgresRowCollection = async (
   return imported;
 };
 
+/** Legacy reactions rows become append-only reaction entries. */
+export const wrapReactionEntryBody = (
+  body: Record<string, unknown> | null | undefined,
+): { type: 'reaction'; data: { reaction: string } } => {
+  if (body?.type === 'reaction') {
+    const reaction =
+      typeof (body.data as { reaction?: unknown } | undefined)?.reaction ===
+      'string'
+        ? (body.data as { reaction: string }).reaction
+        : typeof body.reaction === 'string'
+          ? body.reaction
+          : '👍';
+    return { type: 'reaction', data: { reaction } };
+  }
+  const reaction = typeof body?.reaction === 'string' ? body.reaction : '👍';
+  return { type: 'reaction', data: { reaction } };
+};
+
+const insertEntryRows = async (rows: Record<string, unknown>[]) => {
+  if (rows.length === 0) return 0;
+  const table = getTableForCollection('entries');
+  const db = pgDb();
+  let imported = 0;
+  for (let offset = 0; offset < rows.length; offset += BATCH_SIZE) {
+    const batch = rows.slice(offset, offset + BATCH_SIZE);
+    await db.insert(table as never).values(batch as never);
+    imported += batch.length;
+  }
+  return imported;
+};
+
+/** Older dumps may still have reactions.jsonl; store them as entries. */
+export const importLegacyReactionsAsEntries = async (
+  collectionsDir: string,
+): Promise<number> => {
+  const filePath = collectionJsonlPath(collectionsDir, 'reactions');
+  try {
+    await access(filePath, constants.F_OK);
+  } catch {
+    return 0;
+  }
+
+  const docs = await readJsonl(filePath);
+  if (docs.length === 0) {
+    return 0;
+  }
+
+  const mapped = docs.map((doc) =>
+    ensureEdgeUuidId('entries', {
+      ...doc,
+      body: wrapReactionEntryBody(
+        (doc.body as Record<string, unknown> | undefined) ?? doc,
+      ),
+    }),
+  );
+  const rows = dedupeRowsById(mapped);
+  const imported = await insertEntryRows(rows);
+  log.info('Imported %d legacy reactions as entries', imported);
+  return imported;
+};
+
 const sumImported = (imported: Record<string, number>) =>
   Object.values(imported).reduce((sum, count) => sum + count, 0);
 
@@ -238,6 +299,13 @@ const dropPlaceholderColumns = async (columns: PlaceholderColumn[]) => {
   }
 };
 
+const backfillFederationIdentities = async () => {
+  const { backfillLocalFederationIdentities } = await import(
+    '../../federation/identity'
+  );
+  await backfillLocalFederationIdentities();
+};
+
 const prepareSchemaForRestore = async (
   schemaVersionFromBackup?: string,
 ): Promise<PlaceholderColumn[]> => {
@@ -275,10 +343,12 @@ export const importAllPostgresCollections = async (
       collectionsDir,
     );
   }
+  imported.reactions = await importLegacyReactionsAsEntries(collectionsDir);
 
   log.info('Postgres rows loaded; ensuring schema is at latest');
   await dropPlaceholderColumns(placeholders);
   await runMigrations();
+  await backfillFederationIdentities();
 
   const total = sumImported(imported);
   log.info(

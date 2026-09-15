@@ -118,8 +118,10 @@ steps — follow that skill.
   `0011_drop_data_migrations.sql`). Always pass `--name`. Do not commit
   drizzle-kit’s default Marvel-style tags (`silly_mariko_yashida`,
   `bizarre_chat`). If generate produced one, rename the SQL file and the
-  matching `_journal.json` `tag` before committing. One-off PG data backfills
-  belong in an intentional SQL migration or a documented one-shot script.
+  matching `_journal.json` `tag` before committing. Keep only the latest
+  `meta/NNNN_snapshot.json` — drizzle-kit does not prune older snapshots, so
+  delete stale ones in the same commit. One-off PG data backfills belong in an
+  intentional SQL migration or a documented one-shot script.
 - **Queries:** keep `platform/core/src/db/pg/map/` for existing document/edge
   call sites, but **new features and hot-path work** should prefer Drizzle /
   SQL-native queries (typed repositories under domain modules or
