@@ -5,6 +5,7 @@ import { communityConfig, config } from '../config';
 import { database } from '../db';
 import { normalizeComputedDatetime } from '../db/pg/mappers';
 import { postSeen } from '../db/pg/schema';
+import { diskUsage, processStartedAt } from './status';
 
 export type DurationType =
   | 'yesterday'
@@ -51,12 +52,20 @@ const lastAccessedFromPostViews = async (): Promise<string | null> => {
 };
 
 export const serverInfo = () =>
-  config().then(
-    async (coreConfig): Promise<ServerInfo> => ({
+  config().then(async (coreConfig): Promise<ServerInfo> => {
+    const [lastAccessed, disk] = await Promise.all([
+      lastAccessedFromPostViews(),
+      diskUsage(coreConfig.media.storage.params.path),
+    ]);
+    return {
       version: coreConfig.version,
+      build: process.env.BUILD?.trim() || undefined,
       environment: coreConfig.environment,
       publicContent: coreConfig.server.publicContent,
-      lastAccessed: await lastAccessedFromPostViews(),
+      startedAt: processStartedAt,
+      uptimeSeconds: Math.floor(process.uptime()),
+      disk,
+      lastAccessed,
       maxProfiles: coreConfig.server.maxProfiles || undefined,
       communityConfig: {
         ...(await communityConfig()),
@@ -95,5 +104,5 @@ export const serverInfo = () =>
         },
       },
       sso: publicSsoInfo(coreConfig.sso),
-    }),
-  );
+    };
+  });

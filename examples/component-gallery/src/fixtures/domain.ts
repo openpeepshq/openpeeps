@@ -189,6 +189,9 @@ export const fixtureServerInfo: ServerInfo = {
   version: 'gallery',
   environment: 'gallery',
   publicContent: true,
+  startedAt: now,
+  uptimeSeconds: 0,
+  disk: null,
   lastAccessed: null,
   communityConfig: {
     theme: {
