@@ -5,6 +5,14 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **profiles**: add roles support to public profiles and enhance profile display
+- **markdown**: enhance table styling for better readability
+- **pwa**: enhance PwaProvider and service worker registration
+- **docs**: integrate Mermaid for architecture diagrams and enhance styling
+- **timezone**: add timezone support across various components and configurations
+- **profiles**: add functionality to pin and unpin posts on user profiles
+- **accessibility**: enhance button and component accessibility
+- **PostPreview**: add PostInfoHeader to enhance post preview display
 - **jams**: enhance error handling and logging for LiveKit interactions
 - **arango-migrate**: ship a cutover image and fix baseline restore
 
