@@ -49,6 +49,13 @@ export const profiles = pgTable(
     handle: text('handle').notNull(),
     activityPubDomain: text('activity_pub_domain'),
     type: text('type').notNull(),
+    uri: text('uri'),
+    inboxUrl: text('inbox_url'),
+    sharedInboxUrl: text('shared_inbox_url'),
+    publicKeyPem: text('public_key_pem'),
+    privateKeyPem: text('private_key_pem'),
+    keyId: text('key_id'),
+    fetchedAt: timestamp('fetched_at', { withTimezone: true, mode: 'string' }),
     body: jsonb('body').notNull().default({}),
     searchVector: tsvector('search_vector'),
     ...modelTimestamps,
@@ -58,6 +65,7 @@ export const profiles = pgTable(
       t.handle,
       t.activityPubDomain,
     ),
+    uniqueIndex('profiles_uri_unique').on(t.uri),
     index('profiles_search_vector_idx').using('gin', t.searchVector),
   ],
 );
@@ -106,6 +114,8 @@ export const posts = pgTable(
     type: text('type').notNull(),
     visibility: text('visibility').notNull(),
     creatorId: text('creator_id').notNull(),
+    uri: text('uri'),
+    inReplyToUri: text('in_reply_to_uri'),
     body: jsonb('body').notNull().default({}),
     searchVector: tsvector('search_vector'),
     lastActivityAt: timestamp('last_activity_at', {
@@ -120,6 +130,8 @@ export const posts = pgTable(
     index('posts_type_idx').on(t.type),
     index('posts_visibility_idx').on(t.visibility),
     index('posts_creator_idx').on(t.creatorId),
+    uniqueIndex('posts_uri_unique').on(t.uri),
+    index('posts_in_reply_to_uri_idx').on(t.inReplyToUri),
     index('posts_search_vector_idx').using('gin', t.searchVector),
     index('posts_last_activity_id_idx').on(t.lastActivityAt, t.id),
   ],
@@ -236,3 +248,14 @@ export const eventOccurrences = pgTable(
     index('event_occurrences_post_idx').on(t.postId),
   ],
 );
+
+export const apActivities = pgTable('ap_activities', {
+  uri: text('uri').primaryKey(),
+  type: text('type').notNull(),
+  actorUri: text('actor_uri').notNull(),
+  objectUri: text('object_uri'),
+  direction: text('direction').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+    .notNull()
+    .default(sql`now()`),
+});

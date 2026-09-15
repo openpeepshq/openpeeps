@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **federation**: add public ActivityPub data model
 - **profiles**: add directed profile blocking
 - **groups**: enhance member search functionality and localization
 - **posts**: show newest descendants in threaded feed preview

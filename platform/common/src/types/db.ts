@@ -60,6 +60,20 @@ const entryWithProfileSchema = z.discriminatedUnion('type', [
     profile: profileSchema,
     createdAt: z.string().datetime(),
   }),
+  z.object({
+    type: z.literal('reaction'),
+    data: z.object({ reaction: z.string().min(1) }),
+    uri: z.string().url().optional(),
+    profile: profileSchema,
+    createdAt: z.string().datetime(),
+  }),
+  z.object({
+    type: z.literal('unreaction'),
+    data: z.object({ reaction: z.string().min(1) }),
+    uri: z.string().url().optional(),
+    profile: profileSchema,
+    createdAt: z.string().datetime(),
+  }),
 ]);
 export type DbEntry = Entry & { profile: Profile };
 
