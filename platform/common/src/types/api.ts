@@ -320,8 +320,20 @@ export interface OpenpeepsError extends OpenpeepsErrorData {
 
 export const serverInfoSchema = z.object({
   version: z.string(),
+  /** Optional CI/image build identifier (`BUILD`). */
+  build: z.string().optional(),
   environment: z.string(),
   publicContent: z.boolean(),
+  /** Process start time (ISO). */
+  startedAt: z.iso.datetime(),
+  uptimeSeconds: z.number().nonnegative(),
+  /** Media-folder filesystem usage; null when the path is unreadable. */
+  disk: z
+    .object({
+      totalBytes: z.number().nonnegative(),
+      freeBytes: z.number().nonnegative(),
+    })
+    .nullable(),
   /** Latest post view (`post_seen.created_at`); null if none yet. */
   lastAccessed: z.iso.datetime().nullable(),
   maxProfiles: z.number().int().nonnegative().optional(),
