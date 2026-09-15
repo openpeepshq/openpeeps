@@ -24,6 +24,7 @@ If you're trying to access the Release Notes, you may visit the [Release Notes](
 ## Operations
 
 - [Backups](/docs/admin/backups) - Backup archive format, restore, and migration from ArangoDB
+- [MCP for operators](/docs/admin/mcp) - Enable or disable MCP, ops tools, tokens, and reverse proxies
 
 <div style="height:20px"></div>
 

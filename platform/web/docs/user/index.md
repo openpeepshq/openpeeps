@@ -25,3 +25,11 @@ at [allpeep.com](https://allpeep.com/docs/own-your-data)
 
 You can format posts, articles, and descriptions with
 [Markdown](/docs/user/markdown).
+
+<div style="height:20px"></div>
+
+## AI assistants
+
+You can connect Cursor, Claude, ChatGPT, OpenCode, OpenClaw, or Hermes so an
+assistant can search and read the community as you. See
+[Connect an AI assistant (MCP)](/docs/user/mcp).

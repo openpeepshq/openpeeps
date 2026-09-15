@@ -23,6 +23,7 @@ export const SIDEBAR: NavSection[] = [
     items: [
       { label: 'Overview', slug: 'user' },
       { label: 'Markdown', slug: 'user/markdown' },
+      { label: 'AI assistants (MCP)', slug: 'user/mcp' },
     ],
   },
   {
@@ -30,6 +31,7 @@ export const SIDEBAR: NavSection[] = [
     items: [
       { label: 'Overview', slug: 'admin' },
       { label: 'Backups', slug: 'admin/backups' },
+      { label: 'MCP', slug: 'admin/mcp' },
       { label: 'OIDC SSO', slug: 'admin/oidc-sso' },
       { label: 'Generic SSO', slug: 'admin/generic-sso' },
       { label: 'Subscriptions', slug: 'admin/payments/subscriptions' },
