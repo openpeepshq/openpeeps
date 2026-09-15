@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **federation**: serve ActivityPub with Fedify
 - **federation**: add public ActivityPub data model
 - **admin**: add uptime, media disk, and analytics cards to overview
 - **profiles**: add roles support to public profiles and enhance profile display

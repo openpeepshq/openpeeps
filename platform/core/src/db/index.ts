@@ -9,6 +9,7 @@ export { collectionInfos } from './pg/collections';
 export type { CollectionInfoKey } from './pg/collections';
 
 export type { PgDb } from './pg/client';
+export { closePostgres, pgConnectionString } from './pg/client';
 export type { PgFilter, SqlFilter } from './pg/map/queryTypes';
 export {
   combine,
