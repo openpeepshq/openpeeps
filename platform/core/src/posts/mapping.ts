@@ -63,18 +63,6 @@ const repostCountRelation: Relation = {
   },
 };
 
-const reactionsRelation: Relation = {
-  alias: 'reactions',
-  vertexAlias: 'profile',
-  edgeCollection: 'reactions',
-  direction: 'INBOUND',
-  cardinality: 'many',
-  mapping: {
-    collection: 'profiles',
-    softDelete: true,
-  },
-};
-
 /** Cap for embedded who-reposted lists on feed/detail posts. */
 export const EMBEDDED_REPOSTS_LIMIT = 50;
 
@@ -136,7 +124,6 @@ const basePostFilterRelations: Relation[] = [
   groupRelation,
   replyCountRelation,
   repostCountRelation,
-  reactionsRelation,
   leanRepostsRelation,
   tagsRelation,
   mentionsRelation,
@@ -296,7 +283,6 @@ const contextPostFilterRelations: Relation[] = [
   groupRelation,
   replyCountRelation,
   repostCountRelation,
-  reactionsRelation,
   leanRepostsRelation,
   tagsRelation,
   mentionsRelation,

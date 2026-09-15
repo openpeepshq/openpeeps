@@ -3,6 +3,7 @@ import {
   arangoDocToDocumentRow,
   arangoDocToEdgeRow,
   normalizeImportId,
+  wrapReactionEntryBody,
 } from './transform';
 import {
   dedupeRowsById,
@@ -67,6 +68,23 @@ describe('arango backup document transform', () => {
       id: '01JEDGE00000000000000000001',
       fromId: 'alice',
       toId: 'bob',
+    });
+  });
+
+  it('wraps legacy reaction bodies as reaction entries', () => {
+    expect(wrapReactionEntryBody({ reaction: '👍' })).toEqual({
+      type: 'reaction',
+      data: { reaction: '👍' },
+    });
+    expect(wrapReactionEntryBody({})).toEqual({
+      type: 'reaction',
+      data: { reaction: '👍' },
+    });
+    expect(
+      wrapReactionEntryBody({ type: 'reaction', data: { reaction: '👎' } }),
+    ).toEqual({
+      type: 'reaction',
+      data: { reaction: '👎' },
     });
   });
 

@@ -308,5 +308,23 @@ export const arangoDocToEdgeRow = (
   };
 };
 
+/** Legacy reactions rows become append-only reaction entries. */
+export const wrapReactionEntryBody = (
+  body: Record<string, unknown> | null | undefined,
+): { type: 'reaction'; data: { reaction: string } } => {
+  if (body?.type === 'reaction') {
+    const reaction =
+      typeof (body.data as { reaction?: unknown } | undefined)?.reaction ===
+      'string'
+        ? (body.data as { reaction: string }).reaction
+        : typeof body.reaction === 'string'
+          ? body.reaction
+          : '👍';
+    return { type: 'reaction', data: { reaction } };
+  }
+  const reaction = typeof body?.reaction === 'string' ? body.reaction : '👍';
+  return { type: 'reaction', data: { reaction } };
+};
+
 export const isEdgeCollection = (collection: string): boolean =>
   collection in edgeRegistry;

@@ -50,8 +50,9 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
 
   const likes = await countScalar(
     db,
-    sql`select count(*)::int as c from reactions
-        where created_at >= ${start} and created_at < ${end}`,
+    sql`select count(*)::int as c from entries
+        where body->>'type' = 'reaction'
+          and created_at >= ${start} and created_at < ${end}`,
   );
 
   const reposts = await countScalar(
@@ -108,8 +109,9 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
             where deleted_at is null
               and created_at >= ${start} and created_at < ${end}
           union
-          select from_id from reactions
-            where created_at >= ${start} and created_at < ${end}
+          select from_id from entries
+            where body->>'type' in ('reaction', 'unreaction')
+              and created_at >= ${start} and created_at < ${end}
           union
           select from_id from repost
             where created_at >= ${start} and created_at < ${end}
@@ -188,10 +190,11 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
     update analytics_daily_by_group g
     set
       likes = coalesce((
-        select count(*)::int from reactions r
-        join post_groups pg on pg.from_id = r.to_id
+        select count(*)::int from entries e
+        join post_groups pg on pg.from_id = e.to_id
         where pg.to_id = g.group_id
-          and r.created_at >= ${start} and r.created_at < ${end}
+          and e.body->>'type' = 'reaction'
+          and e.created_at >= ${start} and e.created_at < ${end}
       ), 0),
       comments = coalesce((
         select count(*)::int from reply_to rt
@@ -226,8 +229,9 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
       select created_at from posts
         where deleted_at is null and created_at >= ${start} and created_at < ${end}
       union all
-      select created_at from reactions
-        where created_at >= ${start} and created_at < ${end}
+      select created_at from entries
+        where body->>'type' in ('reaction', 'unreaction')
+          and created_at >= ${start} and created_at < ${end}
       union all
       select created_at from reply_to
         where created_at >= ${start} and created_at < ${end}
@@ -314,7 +318,8 @@ export const compileRetentionCohorts = async (): Promise<void> => {
         from (
           select creator_id as profile_id, created_at from posts where deleted_at is null
           union all
-          select from_id, created_at from reactions
+          select from_id, created_at from entries
+            where body->>'type' in ('reaction', 'unreaction')
           union all
           select from_id, created_at from reply_to
           union all

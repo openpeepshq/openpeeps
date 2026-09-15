@@ -25,8 +25,6 @@ import {
   hashtagConnector,
   hashtagDisconnector,
   mentionConnector,
-  reactionConnector,
-  reactionDisconnector,
   replyConnector,
   repostConnector,
   resolveMentionsForPost,
@@ -38,6 +36,7 @@ import { findOrCreateHashtag } from '../hashtags';
 import { hub } from '../events';
 import { listUnseenGroupPostIds } from './unseenCounts';
 import {
+  AP_LIKE_REACTION,
   canManageEventRsvps,
   countYesRsvps,
   eventDataForDbUpdate,
@@ -51,6 +50,8 @@ import {
   rebuildEventOccurrences,
   clearEventOccurrences,
 } from './eventOccurrences';
+import { config } from '../config';
+import { localObjectScalars } from '../federation/identity';
 
 export const createPost = async (
   data: PostDataUnion,
@@ -89,10 +90,18 @@ export const createPost = async (
     postData = { ...postData, visibility: 'group' };
   }
   const hashtags = extractHashtags(data);
+  const id = uuidv7();
+  const domain = (await config()).activityPub.defaultDomain;
+  const object = localObjectScalars(id, domain, relations.inReplyToId);
 
-  const post = await postsMapping
-    .removeDefaultFilter()
-    .create(db, { ...postData, data, type: data.type, creatorId: profile.id });
+  const post = await postsMapping.removeDefaultFilter().create(db, {
+    id,
+    ...postData,
+    ...object,
+    data,
+    type: data.type,
+    creatorId: profile.id,
+  });
 
   await entryConnector(db, profile, post, {
     type: 'create',
@@ -207,13 +216,21 @@ export const reactToPost = async (
   data: ReactionData,
 ) =>
   allpeepDb().then(({ db }) =>
-    reactionConnector(db, profile, post, data).then(() =>
+    entryConnector(db, profile, post, {
+      type: 'reaction',
+      data: { reaction: data.reaction },
+    }).then(() =>
       hub.emit('reactionCreated', profile, post, { type: 'reaction', ...data }),
     ),
   );
 
 export const retractReaction = async (post: PostWithMeta, profile: Profile) =>
-  allpeepDb().then(({ db }) => reactionDisconnector(db, profile, post));
+  allpeepDb().then(({ db }) =>
+    entryConnector(db, profile, post, {
+      type: 'unreaction',
+      data: { reaction: AP_LIKE_REACTION },
+    }),
+  );
 
 export const bookmarkPost = async (post: PostWithMeta, profile: Profile) =>
   allpeepDb().then(({ db }) =>
@@ -270,12 +287,6 @@ export const deletePost = async (post: PostWithMeta, profile: Profile) => {
       type: 'tombstone',
     },
   });
-
-  await Promise.all(
-    post.reactions.map(async (reaction) => {
-      await reactionDisconnector(db, reaction.profile, post);
-    }),
-  );
 
   await postsMapping.deleteRelations(db, post.id, {
     ...repostRelation,

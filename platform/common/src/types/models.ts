@@ -284,8 +284,17 @@ export const locationSchema = z.object({
 });
 
 export type Location = z.infer<typeof locationSchema>;
+export const federatedHandleSchema = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(/^[a-zA-Z0-9_.-]+$/, {
+    message:
+      'Federated handle: 1–64 letters, numbers, underscores, dots, or hyphens',
+  });
+
 export const profileDataSchema = z.object({
-  handle: accountNameSchema,
+  handle: federatedHandleSchema,
   deletedHandle: accountNameSchema.optional(),
   avatar: z.url().nullable().optional(),
   header: z.url().nullable().optional(),
@@ -355,6 +364,8 @@ export type JamData = z.infer<typeof jamDataSchema>;
 export type Jam = JamData;
 
 export const followDataSchema = z.object({
+  /** ActivityPub Follow activity id when federated. */
+  uri: z.string().url().optional(),
   reblogs: z.boolean().optional(),
   notify: z.boolean().optional(),
   languages: z
@@ -601,6 +612,10 @@ export const rsvpSchema = z.object({
 });
 export type RSVP = z.infer<typeof rsvpSchema>;
 
+export const entryReactionDataSchema = z.object({
+  reaction: z.string().min(1),
+});
+
 export const entryDataSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('create'),
@@ -621,6 +636,16 @@ export const entryDataSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('rsvp'),
     data: rsvpSchema,
+  }),
+  z.object({
+    type: z.literal('reaction'),
+    data: entryReactionDataSchema,
+    uri: z.string().url().optional(),
+  }),
+  z.object({
+    type: z.literal('unreaction'),
+    data: entryReactionDataSchema,
+    uri: z.string().url().optional(),
   }),
 ]);
 

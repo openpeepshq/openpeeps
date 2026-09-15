@@ -71,6 +71,13 @@
       "when": 1787640000000,
       "tag": "0009_event_occurrences",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789468614689,
+      "tag": "0010_federation_datamodel",
+      "breakpoints": true
     }
   ]
 }

@@ -30,7 +30,6 @@ export const collectionInfos = {
   isReportedProfileCollection: edge('isReportedProfile'),
   isReportedObjectCollection: edge('isReportedObject'),
   entriesCollection: edge('entries'),
-  reactionsCollection: edge('reactions'),
   repliesCollection: edge('replyTo'),
   repostCollection: edge('repost'),
   mediaAttachmentsCollection: document('mediaAttachments'),

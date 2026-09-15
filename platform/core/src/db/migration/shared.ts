@@ -60,7 +60,6 @@ export const EDGE_IMPORT_ORDER = [
   'audience',
   'postHashtags',
   'entries',
-  'reactions',
   'replyTo',
   'repost',
   'bookmarks',

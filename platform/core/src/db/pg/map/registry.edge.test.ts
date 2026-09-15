@@ -22,3 +22,37 @@ describe('rowToDocument for edges', () => {
     expect(doc._to).toBe('posts/post-1');
   });
 });
+
+describe('rowToDocument for profiles', () => {
+  it('maps actor scalar columns and omits the private key', () => {
+    const doc = rowToDocument('profiles', {
+      id: 'profile-1',
+      handle: 'alice',
+      type: 'local',
+      activityPubDomain: 'example.com',
+      uri: 'https://example.com/ap/users/profile-1',
+      inboxUrl: 'https://example.com/ap/users/profile-1/inbox',
+      sharedInboxUrl: 'https://example.com/ap/inbox',
+      publicKeyPem: 'PUBLIC',
+      privateKeyPem: 'SECRET',
+      keyId: 'https://example.com/ap/users/profile-1#main-key',
+      fetchedAt: '2026-01-01T00:00:00.000Z',
+      body: { displayName: 'Alice' },
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:01.000Z',
+    });
+
+    expect(doc).toMatchObject({
+      id: 'profile-1',
+      handle: 'alice',
+      type: 'local',
+      displayName: 'Alice',
+      uri: 'https://example.com/ap/users/profile-1',
+      inboxUrl: 'https://example.com/ap/users/profile-1/inbox',
+      publicKeyPem: 'PUBLIC',
+      keyId: 'https://example.com/ap/users/profile-1#main-key',
+      activityPub: { domain: 'example.com' },
+    });
+    expect(doc).not.toHaveProperty('privateKeyPem');
+  });
+});
