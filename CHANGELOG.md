@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **federation**: add public ActivityPub data model
 - **cleanup**: remove unused Mastodon API compatibility types
 - **admin**: add uptime, media disk, and analytics cards to overview
 - **profiles**: add roles support to public profiles and enhance profile display

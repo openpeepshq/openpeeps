@@ -27,7 +27,6 @@ export const mentions = edgeTable('mentions');
 export const audience = edgeTable('audience');
 export const postHashtags = edgeTable('post_hashtags');
 export const entries = edgeTable('entries');
-export const reactions = edgeTable('reactions', true);
 export const replyTo = edgeTable('reply_to', true);
 export const repost = edgeTable('repost', true);
 export const bookmarks = edgeTable('bookmarks');

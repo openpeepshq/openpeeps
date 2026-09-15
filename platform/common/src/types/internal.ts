@@ -75,14 +75,25 @@ export const profileWithMetaSchema = profileDataSchema.extend({
   profileStats: profileStatsSchema,
 });
 
-export type ProfileWithMeta = Model<ProfileData> & {
-  roles: Role[];
-  followers: Profile[];
-  following: Profile[];
-  controllers: Account[];
-  memberships: Membership[];
-  profileStats: ProfileStats;
+/** Actor/object columns used internally; omitted from public profile JSON. */
+export type ProfileActorFields = {
+  uri?: string | null;
+  inboxUrl?: string | null;
+  sharedInboxUrl?: string | null;
+  publicKeyPem?: string | null;
+  keyId?: string | null;
+  fetchedAt?: string | null;
 };
+
+export type ProfileWithMeta = Model<ProfileData> &
+  ProfileActorFields & {
+    roles: Role[];
+    followers: Profile[];
+    following: Profile[];
+    controllers: Account[];
+    memberships: Membership[];
+    profileStats: ProfileStats;
+  };
 
 export const memberExportStatsSchema = z.object({
   postsCount: z.number(),
@@ -214,6 +225,8 @@ export const postWithMetaSchema = withReplyPostSchema
 
 export type PostWithMetaInput = z.input<typeof postWithMetaSchema>;
 export type PostWithMeta = BasePost & {
+  uri?: string | null;
+  inReplyToUri?: string | null;
   inReplyToId?: string | null;
   replyTo?: ReplyPost | null;
   repost?: BasePost | null;

@@ -29,6 +29,11 @@ export const findProfile = (
 export const findProfileByHandle = (
   handle: string,
 ): Promise<ProfileWithMeta | undefined> => getProfileByHandle(handle);
+
+export {
+  findProfileByHandleAndDomain,
+  findProfileByUri,
+} from '../federation/profiles';
 export const existsProfileByHandle = (handle: string) =>
   getProfileByHandle(handle, true).then(Boolean);
 
@@ -81,10 +86,12 @@ export const listGroupMembers = (
       Promise.all(
         members
           .filter((m) => m.profile?.id)
-          .map(async (m): Promise<GroupMember> => ({
-            ...m,
-            profile: (await getProfile(m.profile.id))!,
-          })),
+          .map(
+            async (m): Promise<GroupMember> => ({
+              ...m,
+              profile: (await getProfile(m.profile.id))!,
+            }),
+          ),
       ),
     )
     .then((members) => members.filter((m) => !!m.profile));

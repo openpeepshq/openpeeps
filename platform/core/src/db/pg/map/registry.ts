@@ -2,6 +2,7 @@ import * as documents from '../schema/documents';
 import * as edges from '../schema/edges';
 import {
   modelTimestampsFromRow,
+  normalizeIsoDatetime,
   rowToModel,
   type RowTimestamps,
 } from '../mappers';
@@ -50,20 +51,42 @@ const withScalars =
   };
 
 const postsSplit = (data: Record<string, unknown>) => {
-  const { type, visibility, creatorId, data: postBody, ...rest } = data;
+  const {
+    type,
+    visibility,
+    creatorId,
+    data: postBody,
+    uri,
+    inReplyToUri,
+    ...rest
+  } = data;
   const scalars: Record<string, unknown> = {};
   if (type !== undefined) scalars.type = type;
   if (visibility !== undefined) scalars.visibility = visibility;
   if (creatorId !== undefined) scalars.creatorId = creatorId;
+  if (uri !== undefined) scalars.uri = uri;
+  if (inReplyToUri !== undefined) scalars.inReplyToUri = inReplyToUri;
   const body =
     postBody !== undefined ? { ...(postBody as object) } : { ...rest };
   if (postBody === undefined) {
     delete (body as Record<string, unknown>).type;
     delete (body as Record<string, unknown>).visibility;
     delete (body as Record<string, unknown>).creatorId;
+    delete (body as Record<string, unknown>).uri;
+    delete (body as Record<string, unknown>).inReplyToUri;
   }
   return { scalars, body };
 };
+
+const ACTOR_SCALAR_KEYS = [
+  'uri',
+  'inboxUrl',
+  'sharedInboxUrl',
+  'publicKeyPem',
+  'privateKeyPem',
+  'keyId',
+  'fetchedAt',
+] as const;
 
 const profilesSplit = (data: Record<string, unknown>) => {
   const { handle, type, activityPub, ...rest } = data;
@@ -74,7 +97,14 @@ const profilesSplit = (data: Record<string, unknown>) => {
     const domain = (activityPub as { domain?: string }).domain;
     if (domain !== undefined) scalars.activityPubDomain = domain;
   }
-  return { scalars, body: { ...rest } };
+  const body: Record<string, unknown> = { ...rest };
+  for (const key of ACTOR_SCALAR_KEYS) {
+    if (key in body) {
+      scalars[key] = body[key];
+      delete body[key];
+    }
+  }
+  return { scalars, body };
 };
 
 /** App model uses `tag`; Postgres column is `name`. */
@@ -245,12 +275,6 @@ export const edgeRegistry: Record<string, EdgeConfig> = {
   entries: {
     kind: 'edge',
     table: edges.entries,
-    fromCollection: 'profiles',
-    toCollection: 'posts',
-  },
-  reactions: {
-    kind: 'edge',
-    table: edges.reactions,
     fromCollection: 'profiles',
     toCollection: 'posts',
   },
@@ -436,6 +460,21 @@ export const rowToDocument = (
             ? { activityPub: { domain: row.activityPubDomain } }
             : {}),
           ...((row.body ?? {}) as Record<string, unknown>),
+          ...(typeof row.uri === 'string' ? { uri: row.uri } : {}),
+          ...(typeof row.inboxUrl === 'string'
+            ? { inboxUrl: row.inboxUrl }
+            : {}),
+          ...(typeof row.sharedInboxUrl === 'string'
+            ? { sharedInboxUrl: row.sharedInboxUrl }
+            : {}),
+          ...(typeof row.publicKeyPem === 'string'
+            ? { publicKeyPem: row.publicKeyPem }
+            : {}),
+          // privateKeyPem stays on the column and is never hydrated here.
+          ...(typeof row.keyId === 'string' ? { keyId: row.keyId } : {}),
+          ...(typeof row.fetchedAt === 'string'
+            ? { fetchedAt: normalizeIsoDatetime(row.fetchedAt) }
+            : {}),
         },
         timestamps,
       );
@@ -446,6 +485,10 @@ export const rowToDocument = (
           type: row.type,
           visibility: row.visibility,
           creatorId: row.creatorId,
+          ...(typeof row.uri === 'string' ? { uri: row.uri } : {}),
+          ...(typeof row.inReplyToUri === 'string'
+            ? { inReplyToUri: row.inReplyToUri }
+            : {}),
           data: row.body ?? {},
         },
         timestamps,

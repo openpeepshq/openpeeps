@@ -20,9 +20,6 @@ export const postsWithActivityScoreMapping = map<
   computedFields: [computedFields.postActivityScore()],
 });
 
-export const reactionsMapping = map({
-  collection: collectionInfos.reactionsCollection.name,
-});
 export const followsMapping = map({
   collection: collectionInfos.followsCollection.name,
 });

@@ -17,6 +17,8 @@ import { assignRole, unassignRole } from '../profiles/mutations';
 import { hash } from 'bcrypt';
 import { profilesMapping } from '../profiles/mapping';
 import { assertProfileCapacity } from '../profiles/capacity';
+import { localActorScalars } from '../federation/identity';
+import { uuidv7 } from 'uuidv7';
 import { findRoleByKey } from '../roles';
 import {
   log,
@@ -90,8 +92,10 @@ export const createAccount = async (
   if (accountCreationData.profile) {
     await assertProfileCapacity();
     const { handle, displayName, avatar } = accountCreationData.profile;
+    const profileId = uuidv7();
 
     profile = await profilesMapping.create(db, {
+      id: profileId,
       handle,
       displayName,
       avatar,
@@ -99,6 +103,7 @@ export const createAccount = async (
         domain: coreConfig.activityPub.defaultDomain,
       },
       type: 'local',
+      ...localActorScalars(profileId, coreConfig.activityPub.defaultDomain),
     });
 
     if (firstAccount && profile) {

@@ -59,8 +59,9 @@ const countDistinctActives = async (
         where deleted_at is null
           and created_at >= ${start} and created_at < ${end}
       union
-      select from_id from reactions
-        where created_at >= ${start} and created_at < ${end}
+      select from_id from entries
+        where body->>'type' in ('reaction', 'unreaction')
+        and created_at >= ${start} and created_at < ${end}
       union
       select from_id from repost
         where created_at >= ${start} and created_at < ${end}
@@ -500,8 +501,9 @@ const topMembers = async (from: string, to: string, limit = 10) => {
           and visibility <> 'direct'
           and created_at >= ${start} and created_at <= ${end}
       union all
-      select from_id from reactions
-        where created_at >= ${start} and created_at <= ${end}
+      select from_id from entries
+        where body->>'type' in ('reaction', 'unreaction')
+        and created_at >= ${start} and created_at <= ${end}
       union all
       select from_id from reply_to
         where created_at >= ${start} and created_at <= ${end}

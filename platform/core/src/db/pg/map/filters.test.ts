@@ -165,6 +165,19 @@ describe('map filters sql conversion', () => {
     expect(flattenSql(edgeBody)).toContain('jam1');
   });
 
+  it('matches federated profiles by uri and activityPub domain', () => {
+    const profilesTable = getTableForCollection('profiles');
+    const byUri = filterToSql('profiles', profilesTable, {
+      matches: { uri: 'https://example.com/ap/users/a' },
+    });
+    const byDomain = filterToSql('profiles', profilesTable, {
+      matches: { handle: 'alice', activityPub: { domain: 'other.social' } },
+    });
+    expect(flattenSql(byUri)).toContain('uri');
+    expect(flattenSql(byDomain)).toContain('activity_pub_domain');
+    expect(flattenSql(byDomain)).toContain('other.social');
+  });
+
   it('converts replyCount comparisons via postReplyCountExpr with uuid text cast', () => {
     const filter = stringFilterToSql(
       'posts',

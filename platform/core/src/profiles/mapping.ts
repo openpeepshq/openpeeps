@@ -8,14 +8,16 @@ import {
 } from '@openpeepshq/common/types';
 import { groupsMapping } from '../groups/mapping';
 import { profileDerived } from '../db/pg/queries';
+import { edgeFilters } from '../db/pg/filters';
 
 const membersExportStatsRelations: Relation[] = [
   {
     alias: 'reactionsCount',
-    edgeCollection: 'reactions',
+    edgeCollection: 'entries',
     direction: 'OUTBOUND',
     count: true,
     cardinality: 'one',
+    edgeFilter: edgeFilters.entryType('reaction'),
   },
 ];
 

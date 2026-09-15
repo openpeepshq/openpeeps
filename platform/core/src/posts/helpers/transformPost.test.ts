@@ -210,4 +210,37 @@ describe('transformPost deleted authors', () => {
       '2024-05-01T00:00:00.000Z',
     ]);
   });
+
+  it('hydrates 👍 reactions from entries and hides reaction history', async () => {
+    const post = {
+      ...basePost,
+      entries: [
+        ...basePost.entries!,
+        {
+          id: '55555555-5555-4555-8555-555555555555',
+          type: 'reaction',
+          createdAt: '2024-05-01T01:00:00.000Z',
+          updatedAt: '2024-05-01T01:00:00.000Z',
+          data: { reaction: '👍' },
+          profile: { id: activeAuthor.id },
+        },
+        {
+          id: '66666666-6666-4666-8666-666666666666',
+          type: 'reaction',
+          createdAt: '2024-05-01T01:01:00.000Z',
+          updatedAt: '2024-05-01T01:01:00.000Z',
+          data: { reaction: '👎' },
+          profile: { id: activeAuthor.id },
+        },
+      ],
+    } as unknown as DbPost;
+
+    const result = await transformPost(post);
+    expect(result.entries.every((entry) => entry.type !== 'reaction')).toBe(
+      true,
+    );
+    expect(result.reactions).toEqual([
+      { reaction: '👍', profile: activeAuthor },
+    ]);
+  });
 });

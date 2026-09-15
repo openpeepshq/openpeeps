@@ -22,6 +22,7 @@ import {
   type ImportContext,
   isEdgeCollection,
   normalizeImportId,
+  wrapReactionEntryBody,
 } from './transform';
 import {
   BATCH_SIZE,
@@ -350,6 +351,52 @@ export const importPostgresRowCollection = async (
   return imported;
 };
 
+const insertEntryRows = async (rows: Record<string, unknown>[]) => {
+  if (rows.length === 0) return 0;
+  const table = getTableForCollection('entries');
+  const db = pgDb();
+  let imported = 0;
+  for (let offset = 0; offset < rows.length; offset += BATCH_SIZE) {
+    const batch = rows.slice(offset, offset + BATCH_SIZE);
+    await db.insert(table as never).values(batch as never);
+    imported += batch.length;
+  }
+  return imported;
+};
+
+/** Arango/Postgres dumps may still have reactions.jsonl; store them as entries. */
+export const importLegacyReactionsAsEntries = async (
+  collectionsDir: string,
+  source: 'arango' | 'postgres',
+): Promise<number> => {
+  const filePath = collectionJsonlPath(collectionsDir, 'reactions');
+  try {
+    await access(filePath, constants.F_OK);
+  } catch {
+    return 0;
+  }
+
+  const docs = await readJsonl(filePath);
+  if (docs.length === 0) {
+    return 0;
+  }
+
+  const mapped = docs.map((doc) => {
+    const row =
+      source === 'arango' ? arangoDocToEdgeRow('entries', doc) : { ...doc };
+    return ensureEdgeUuidId('entries', {
+      ...row,
+      body: wrapReactionEntryBody(
+        (row.body as Record<string, unknown> | undefined) ?? doc,
+      ),
+    });
+  });
+  const rows = dedupeRowsById(mapped);
+  const imported = await insertEntryRows(rows);
+  log.info('Imported %d legacy reactions as entries', imported);
+  return imported;
+};
+
 const sumImported = (imported: Record<string, number>) =>
   Object.values(imported).reduce((sum, count) => sum + count, 0);
 
@@ -412,6 +459,13 @@ const dropPlaceholderColumns = async (columns: PlaceholderColumn[]) => {
   }
 };
 
+const backfillFederationIdentities = async () => {
+  const { backfillLocalFederationIdentities } = await import(
+    '../../federation/identity'
+  );
+  await backfillLocalFederationIdentities();
+};
+
 const migrateArangoSchemaForward = async () => {
   const db = pgDb();
   // 0006 briefly treated post_seen as a unique relationship and deletes
@@ -431,6 +485,7 @@ const migrateArangoSchemaForward = async () => {
       ON CONFLICT ("id") DO NOTHING`),
   );
   await db.execute(sql.raw('DROP TABLE "_arango_restore_post_seen"'));
+  await backfillFederationIdentities();
 };
 
 const prepareSchemaForRestore = async (
@@ -481,6 +536,10 @@ export const importAllArangoCollections = async (collectionsDir: string) => {
       context,
     );
   }
+  imported.reactions = await importLegacyReactionsAsEntries(
+    collectionsDir,
+    'arango',
+  );
 
   log.info('Arango rows loaded; migrating schema forward to latest');
   await dropPlaceholderColumns(placeholders);
@@ -520,10 +579,15 @@ export const importAllPostgresCollections = async (
       collectionsDir,
     );
   }
+  imported.reactions = await importLegacyReactionsAsEntries(
+    collectionsDir,
+    'postgres',
+  );
 
   log.info('Postgres rows loaded; ensuring schema is at latest');
   await dropPlaceholderColumns(placeholders);
   await runMigrations();
+  await backfillFederationIdentities();
 
   const total = sumImported(imported);
   log.info(
