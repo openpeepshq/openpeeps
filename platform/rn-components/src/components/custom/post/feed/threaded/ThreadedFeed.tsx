@@ -12,14 +12,12 @@ type ThreadedFeedProps = {
     thread: Thread;
     pathSelector?: (thread: Thread) => Thread;
     isAncestors?: boolean;
-    isDescendants?: boolean;
 };
 
 export const ThreadedFeed: React.FC<ThreadedFeedProps> = ({
     thread,
     pathSelector = lastLongestPathSelector,
     isAncestors = false,
-    isDescendants = false,
 }: ThreadedFeedProps) => {
     const navigation =
         useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -34,7 +32,7 @@ export const ThreadedFeed: React.FC<ThreadedFeedProps> = ({
                     <ThreadPost
                         post={post}
                         isParent={index !== postList.length - 1 || isAncestors}
-                        isChild={index !== 0 || isDescendants}
+                        isChild={index !== 0}
                     />
                 </Pressable>)
             )}

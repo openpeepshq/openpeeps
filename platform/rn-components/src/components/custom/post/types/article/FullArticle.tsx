@@ -47,7 +47,7 @@ export const FullArticle: React.FC<FullArticleProps> = ({ post }) => {
                 </View>
             </View>
             <PostActions post={post} />
-            {isLoadingContext ? <ActivityIndicator /> : descendentThreads.map(thread => <ThreadedFeed key={thread.id} thread={thread} isDescendants />)}
+            {isLoadingContext ? <ActivityIndicator /> : descendentThreads.map(thread => <ThreadedFeed key={thread.id} thread={thread} />)}
         </>
     );
 };

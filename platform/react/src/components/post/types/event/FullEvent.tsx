@@ -372,7 +372,7 @@ export function FullEvent({ post }: FullEventProps) {
             </div>
           ) : (
             descendentThreads.map((thread) => (
-              <ThreadedFeed key={thread.id} thread={thread} isDescendants />
+              <ThreadedFeed key={thread.id} thread={thread} />
             ))
           )}
         </>

@@ -26,7 +26,7 @@ export const FullNote: React.FC<FullNoteProps> = ({ post }) => {
         <>
             {isLoadingContext ? <ActivityIndicator /> : ancestryThread && < ThreadedFeed thread={ancestryThread} isAncestors />}
             <FeedPost post={post} hideReply />
-            {isLoadingContext ? <ActivityIndicator /> : descendentThreads.map(thread => <ThreadedFeed key={thread.id} thread={thread} isDescendants />)}
+            {isLoadingContext ? <ActivityIndicator /> : descendentThreads.map(thread => <ThreadedFeed key={thread.id} thread={thread} />)}
         </>
     );
 };
