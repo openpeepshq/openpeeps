@@ -26,3 +26,4 @@ Here you should find everything useful to work on the AllPeep Community Server.
 ## Extensibility
 
 - [Plugins](/docs/development/plugins) - Plugin system documentation
+- [MCP for operators](/docs/admin/mcp) - Community and ops MCP endpoints (member guide: [Connect an AI assistant](/docs/user/mcp))

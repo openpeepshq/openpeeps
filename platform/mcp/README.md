@@ -4,6 +4,9 @@ Thin Model Context Protocol (MCP) servers for OpenPeeps. Tools call the
 existing HTTP API with the caller’s Bearer token — there is no second
 `@openpeepshq/core` bootstrap path.
 
+Product docs: [community MCP](../web/docs/user/mcp.md) (members) and
+[ops MCP](../web/docs/admin/mcp.md) (operators).
+
 ## Endpoints
 
 Mounted on the API process when `OPENPEEPS_MCP` is not `0`:

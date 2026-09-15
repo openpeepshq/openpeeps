@@ -61,6 +61,7 @@ Routes that are only accessible to authenticated users and are never publicly vi
   - `/settings/account` - Account settings
   - `/settings/public-profile` - Public profile settings
   - `/settings/notifications` - Notification preferences
+  - `/settings/access-tokens` - Personal access tokens (API and MCP)
   - `/settings/billing` - Billing and subscriptions
   - `/settings/theme` - Theme preferences
 - `/conversations` - Direct messages/conversations list
@@ -197,6 +198,17 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
 ```
 
 See `platform/server/README.md` for layout and middleware details.
+
+### MCP
+
+Streamable HTTP MCP is mounted on the API process (not under
+`/api/openpeeps/core/v1/`):
+
+- `/mcp/community` — member tools
+- `/mcp/ops` — admin tools
+
+Disable with `OPENPEEPS_MCP=0`. See [Connect an AI assistant
+(MCP)](/docs/user/mcp) and [MCP for operators](/docs/admin/mcp).
 ### Key API Endpoints
 
 #### Authentication

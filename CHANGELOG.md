@@ -20,6 +20,11 @@ Changelog for OpenPeeps
 
 - **arango-migrate**: preserve repeated post impressions
 
+### Documentation
+
+- **mcp**: document community and ops MCP usage
+- **mcp**: document Claude, ChatGPT, OpenCode, OpenClaw, and Hermes clients
+
 ### Refactoring
 
 - **ConfigEditor**: reload page after successful config update
