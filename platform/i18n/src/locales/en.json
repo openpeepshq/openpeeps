@@ -430,6 +430,13 @@
       "successToast": "Reply created successfully",
       "errorToast": "An error occurred while creating the reply"
     },
+    "compact": {
+      "deleted": "This post has been deleted.",
+      "pollOptions": "{{count}} options",
+      "document": "Document",
+      "imageAlt": "Attachment",
+      "viewOriginal": "View original post"
+    },
     "feed": {
       "empty": "No posts yet.",
       "pinned": "Pinned post"

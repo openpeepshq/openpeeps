@@ -422,6 +422,13 @@
       "successToast": "Antwort erfolgreich erstellt",
       "errorToast": "Beim Erstellen der Antwort ist ein Fehler aufgetreten"
     },
+    "compact": {
+      "deleted": "Dieser Beitrag wurde gelöscht.",
+      "pollOptions": "{{count}} Optionen",
+      "document": "Dokument",
+      "imageAlt": "Anhang",
+      "viewOriginal": "Originalbeitrag anzeigen"
+    },
     "feed": {
       "empty": "Noch keine Beiträge.",
       "pinned": "Angepinnt"

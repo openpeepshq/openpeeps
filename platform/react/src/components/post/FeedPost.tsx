@@ -10,7 +10,7 @@ import { PostInfoHeader } from './pieces/PostInfoHeader';
 import { PostReactionHeader } from './pieces/PostReactionHeader';
 import { FeedPostStats } from './pieces/FeedPostStats';
 import { PostActions } from './pieces/PostActions';
-import { ThreadPost } from './feed/threaded/ThreadPost';
+import { CompactReplyParent } from './CompactReplyParent';
 import { UnreadPostIndicator } from './pieces/UnreadPostIndicator';
 
 export interface FeedPostProps {
@@ -75,16 +75,10 @@ export function FeedPost({
       )}
 
       {showsReplyTo && displayedPost.replyTo && (
-        // ThreadPost carries its own `p-2`, so pull it back to line its avatar
-        // and rail up with this post's avatar.
-        <a href={`/posts/${displayedPost.replyTo.id}`} className="-ml-2 block">
-          <ThreadPost
-            post={displayedPost.replyTo as PublicPost}
-            isParent
-            noActions
-            noMenu
-          />
-        </a>
+        <CompactReplyParent
+          post={displayedPost.replyTo as PublicPost}
+          showRail
+        />
       )}
 
       <div className="relative">
