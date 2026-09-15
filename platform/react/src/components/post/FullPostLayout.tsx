@@ -78,13 +78,9 @@ export function FullPostLayout({
         ) : null}
       </div>
       <ReplyBox post={post} />
-      {descendentThreads.map((thread, index) => (
+      {descendentThreads.map((thread) => (
         <div key={thread.id} className={threadIndent}>
-          <ThreadedFeed
-            thread={thread}
-            isDescendants
-            continuesBelow={index < descendentThreads.length - 1}
-          />
+          <ThreadedFeed thread={thread} />
         </div>
       ))}
       <div className="h-[70vh]" />

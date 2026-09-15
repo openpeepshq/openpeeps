@@ -18,6 +18,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **posts**: break thread rail between top-level replies
 - **arango-migrate**: preserve repeated post impressions
 
 ### Documentation
