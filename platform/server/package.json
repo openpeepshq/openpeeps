@@ -20,6 +20,10 @@
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
+    "@fedify/express": "^2.3.6",
+    "@fedify/fedify": "^2.3.6",
+    "@fedify/postgres": "^2.3.6",
+    "@js-temporal/polyfill": "^0.5.1",
     "@openpeepshq/cli": "workspace:^",
     "@openpeepshq/common": "workspace:^",
     "@openpeepshq/core": "workspace:^",
@@ -38,6 +42,7 @@
     "lucide-react": "^0.469.0",
     "marked": "^15.0.6",
     "mustache": "^4.2.0",
+    "postgres": "^3.4.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sharp": "^0.33.5",

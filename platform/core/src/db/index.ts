@@ -8,7 +8,7 @@ export { map } from './pg/map';
 export { collectionInfos } from './pg/collections';
 export type { CollectionInfoKey } from './pg/collections';
 
-export { closePostgres, type PgDb } from './pg/client';
+export { closePostgres, pgConnectionString, type PgDb } from './pg/client';
 export type { PgFilter, SqlFilter } from './pg/map/queryTypes';
 export {
   combine,
