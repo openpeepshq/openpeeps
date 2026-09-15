@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **admin**: add uptime, media disk, and analytics cards to overview
 - **profiles**: add roles support to public profiles and enhance profile display
 - **markdown**: enhance table styling for better readability
 - **pwa**: enhance PwaProvider and service worker registration
@@ -18,17 +19,18 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **cli**: close Postgres so backup restore can exit
 - **posts**: break thread rail between top-level replies
 - **arango-migrate**: preserve repeated post impressions
-
-### Documentation
-
-- **mcp**: document community and ops MCP usage
-- **mcp**: document Claude, ChatGPT, OpenCode, OpenClaw, and Hermes clients
 
 ### Refactoring
 
 - **ConfigEditor**: reload page after successful config update
+
+### Documentation
+
+- **mcp**: document community and ops MCP usage
+- **admin**: add theming and messaging sections
 
 ## 2026-09-10
 

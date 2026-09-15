@@ -6,6 +6,7 @@
 import 'dotenv/config';
 
 import { Command } from 'commander';
+import { closePostgres } from '@openpeepshq/core/db';
 import { closeQueues } from '@openpeepshq/core/jobs';
 import { registerAccountsCommand } from './accounts';
 import { registerSecretsCommand } from './secrets';
@@ -41,6 +42,11 @@ export const cli = async () => {
   } finally {
     await closeQueues().catch((error: unknown) => {
       console.error('Failed to close queue connections:', error);
+    });
+    // opc backups restore opens a Pool via allpeepDb(); leaving it open keeps
+    // the CLI process alive so instance-create restore never returns.
+    await closePostgres().catch((error: unknown) => {
+      console.error('Failed to close Postgres connections:', error);
     });
   }
 };
