@@ -12,14 +12,7 @@ import {
 } from 'drizzle-orm';
 import { alias, QueryBuilder } from 'drizzle-orm/pg-core';
 import { posts } from '../schema/documents';
-import {
-  entries,
-  follows,
-  postGroups,
-  reactions,
-  repost,
-  replyTo,
-} from '../schema/edges';
+import { entries, follows, postGroups, repost, replyTo } from '../schema/edges';
 import type { ActivityWindow } from '../map/queryTypes';
 import { asTable, type PgTable } from '../map/registry';
 
@@ -49,11 +42,11 @@ export const profileActivityScoreExpr = (
   outerTable: PgTable,
   window?: ActivityWindow,
 ): SQL =>
-  sql`COALESCE(${edgeOutboundCount(entries, outerTable, window)}, 0) + COALESCE(${edgeOutboundCount(reactions, outerTable, window)}, 0) + COALESCE(${edgeOutboundCount(follows, outerTable, window)}, 0)`;
+  sql`COALESCE(${edgeOutboundCount(entries, outerTable, window)}, 0) + COALESCE(${edgeOutboundCount(follows, outerTable, window)}, 0)`;
 
 export const postActivityScoreExpr = (outerTable: PgTable): SQL => {
   const postId = outerIdText(outerTable);
-  return sql`(SELECT count(*)::int FROM ${reactions} WHERE ${reactions.toId} = ${postId}) + (SELECT count(*)::int FROM ${entries} WHERE ${entries.toId} = ${postId}) + (SELECT count(*)::int FROM ${replyTo} rt INNER JOIN ${posts} p ON p.id::text = rt.from_id WHERE rt.to_id = ${postId} AND p.deleted_at IS NULL) + (SELECT count(*)::int FROM ${repost} WHERE ${repost.toId} = ${postId})`;
+  return sql`(SELECT count(*)::int FROM ${entries} WHERE ${entries.toId} = ${postId}) + (SELECT count(*)::int FROM ${replyTo} rt INNER JOIN ${posts} p ON p.id::text = rt.from_id WHERE rt.to_id = ${postId} AND p.deleted_at IS NULL) + (SELECT count(*)::int FROM ${repost} WHERE ${repost.toId} = ${postId})`;
 };
 
 export const postReplyCountExpr = (outerTable: PgTable): SQL<number> => {

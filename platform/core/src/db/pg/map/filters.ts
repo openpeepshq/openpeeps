@@ -39,8 +39,24 @@ import {
 
 const SCALAR_COLUMNS: Record<string, string[]> = {
   accounts: ['email', 'passwordHash', 'emailValidated', 'guest'],
-  profiles: ['handle', 'type', 'activityPubDomain'],
-  posts: ['type', 'visibility', 'creatorId', 'lastActivityAt'],
+  profiles: [
+    'handle',
+    'type',
+    'activityPubDomain',
+    'uri',
+    'inboxUrl',
+    'sharedInboxUrl',
+    'keyId',
+    'fetchedAt',
+  ],
+  posts: [
+    'type',
+    'visibility',
+    'creatorId',
+    'lastActivityAt',
+    'uri',
+    'inReplyToUri',
+  ],
   groups: ['handle'],
   hashtags: ['name'],
   roles: ['key', 'isDefault'],
@@ -529,6 +545,20 @@ const matchToSql = (
 
     const config = getCollectionConfig(collection);
     if (!config) continue;
+
+    if (
+      collection === 'profiles' &&
+      key === 'activityPub' &&
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value)
+    ) {
+      const domain = (value as { domain?: unknown }).domain;
+      if (typeof domain === 'string') {
+        conditions.push(eq(t.activityPubDomain as never, domain));
+      }
+      continue;
+    }
 
     if (config.kind === 'document') {
       const scalars = SCALAR_COLUMNS[collection];

@@ -658,6 +658,17 @@ export const updateProfileRequestSchema = profileDataSchema
   .omit({ pinnedPostId: true })
   .partial({
     handle: true,
+  })
+  .superRefine((value, ctx) => {
+    if (value.handle === undefined || value.type === 'federated') return;
+    if (!accountNameSchema.safeParse(value.handle).success) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['handle'],
+        message:
+          'Handle must be 1–16 characters: letters, numbers, underscores, or hyphens (no spaces or punctuation)',
+      });
+    }
   });
 export type UpdateProfileRequest = z.infer<typeof updateProfileRequestSchema>;
 

@@ -8,7 +8,6 @@ import {
   GroupWithMeta,
   Hashtag,
   MentionData,
-  ReactionData,
   ProfileWithMeta,
   hashtagRegex,
   normalizeHashtagTag,
@@ -20,7 +19,6 @@ import {
   DbPost,
   DbEntry,
   DbMention,
-  DbReaction,
 } from '@openpeepshq/common/types';
 import { findProfileByHandle } from '../../profiles/finders';
 import { getPublicProfile } from '../../profiles/cache';
@@ -36,7 +34,10 @@ import type { PgQueryResult } from '../../db/pg/map/types';
 import { capabilitiesConfig } from '../../config';
 import { canReadPost } from './filters';
 import {
+  AP_LIKE_REACTION,
+  currentReactionsFromEntries,
   isBlockedPair,
+  isReactionHistoryEntry,
   matchMentionHandles,
   normalizePostDataFromDb,
   toHiddenPost,
@@ -155,18 +156,6 @@ export const repostConnector = connector<Post, Post>(
   collectionInfos.repostCollection,
 );
 
-export const reactionConnector = connector<Profile, Post, ReactionData>(
-  collectionInfos.profilesCollection,
-  collectionInfos.postsCollection,
-  collectionInfos.reactionsCollection,
-);
-
-export const reactionDisconnector = disconnector<Profile, Post>(
-  collectionInfos.profilesCollection,
-  collectionInfos.postsCollection,
-  collectionInfos.reactionsCollection,
-);
-
 export const bookmarkConnector = connector<Profile, Post>(
   collectionInfos.profilesCollection,
   collectionInfos.postsCollection,
@@ -192,17 +181,10 @@ const loadPublicProfile = async (profileId: string, ignoreSoftDelete = false) =>
 
 const addProfileForEntry = async (
   rawEntry: DbEntry,
-): Promise<EntryWithProfile> => ({
+): Promise<DbEntry & { profile: ProfileWithMeta }> => ({
   ...rawEntry,
   // ignoreSoftDelete: authorship must survive account removal
   profile: (await loadPublicProfile(rawEntry.profile.id, true))!,
-});
-
-const addProfileForReaction = async (
-  rawReaction: DbReaction,
-): Promise<ReactionProfile> => ({
-  ...rawReaction,
-  profile: (await loadPublicProfile(rawReaction.profile.id, true))!,
 });
 
 const addProfileForMention = async (
@@ -248,12 +230,18 @@ export const transformPost = async (
 ): Promise<PostWithMeta> => {
   const embedThreadPreview = options.embedThreadPreview ?? true;
   const nested = { embedThreadPreview: false };
-  const entries = post.entries
+  const allEntries = post.entries
     ? await Promise.all(post.entries.map(addProfileForEntry))
     : [];
-  const reactions = post.reactions
-    ? await Promise.all(post.reactions.map(addProfileForReaction))
-    : [];
+  const entries = allEntries.filter(
+    (entry) => !isReactionHistoryEntry(entry.type),
+  ) as EntryWithProfile[];
+  const reactions: ReactionProfile[] = currentReactionsFromEntries(allEntries)
+    .filter((item) => item.reaction === AP_LIKE_REACTION)
+    .map((item) => ({
+      reaction: AP_LIKE_REACTION,
+      profile: item.profile as ProfileWithMeta,
+    }));
   const reposts = await leanRepostsFromWrappers(post.reposts);
   const audience = post.audience
     ? (
