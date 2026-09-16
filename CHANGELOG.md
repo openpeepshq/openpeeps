@@ -19,6 +19,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **cli**: close Redis so backup create and restore can exit
 - **cli**: close Postgres so backup restore can exit
 - **posts**: break thread rail between top-level replies
 - **arango-migrate**: preserve repeated post impressions

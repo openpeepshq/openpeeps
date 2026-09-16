@@ -8,6 +8,7 @@ import 'dotenv/config';
 import { Command } from 'commander';
 import { closePostgres } from '@openpeepshq/core/db';
 import { closeQueues } from '@openpeepshq/core/jobs';
+import { closeRedisConnections } from '@openpeepshq/core/redis';
 import { registerAccountsCommand } from './accounts';
 import { registerSecretsCommand } from './secrets';
 import { registerEmailCommand } from './email';
@@ -42,6 +43,12 @@ export const cli = async () => {
   } finally {
     await closeQueues().catch((error: unknown) => {
       console.error('Failed to close queue connections:', error);
+    });
+    // Registering CLI commands imports modules that call hub.on() at load
+    // time (e.g. profileSettings cache), which opens a node-redis subscriber
+    // and keeps the process alive after backups create/restore finish.
+    await closeRedisConnections().catch((error: unknown) => {
+      console.error('Failed to close Redis connections:', error);
     });
     // opc backups restore opens a Pool via allpeepDb(); leaving it open keeps
     // the CLI process alive so instance-create restore never returns.
