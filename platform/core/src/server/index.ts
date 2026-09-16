@@ -1,10 +1,19 @@
 import { sql } from 'drizzle-orm';
 import type { ServerInfo } from '@openpeepshq/common/types';
 import { publicSsoInfo } from '@openpeepshq/common/lib';
+import { accountsMapping } from '../accounts/mapping';
 import { communityConfig, config } from '../config';
-import { database } from '../db';
+import { allpeepDb, database } from '../db';
 import { normalizeComputedDatetime } from '../db/pg/mappers';
 import { postSeen } from '../db/pg/schema';
+import { baseProfilesMapping } from '../profiles/mapping';
+import {
+  diskUsage,
+  processStartedAt,
+  profileLimit,
+  resourceSnapshot,
+  trimToNull,
+} from './status';
 
 export type DurationType =
   | 'yesterday'
@@ -51,17 +60,38 @@ const lastAccessedFromPostViews = async (): Promise<string | null> => {
 };
 
 export const serverInfo = () =>
-  config().then(
-    async (coreConfig): Promise<ServerInfo> => ({
+  config().then(async (coreConfig): Promise<ServerInfo> => {
+    const { db } = await allpeepDb();
+    const [lastAccessed, community, profileCount, accountCount, disk] =
+      await Promise.all([
+        lastAccessedFromPostViews(),
+        communityConfig(),
+        baseProfilesMapping.count(db),
+        accountsMapping.count(db),
+        diskUsage(coreConfig.media.storage.params.path),
+      ]);
+
+    return {
       version: coreConfig.version,
+      build: trimToNull(process.env.BUILD),
       environment: coreConfig.environment,
+      startedAt: processStartedAt,
+      uptimeSeconds: process.uptime(),
       publicContent: coreConfig.server.publicContent,
-      lastAccessed: await lastAccessedFromPostViews(),
-      maxProfiles: coreConfig.server.maxProfiles || undefined,
+      lastAccessed,
+      maxProfiles: profileLimit(coreConfig.server.maxProfiles) ?? undefined,
+      users: {
+        accountCount,
+        profileCount,
+      },
+      resources: {
+        ...resourceSnapshot(),
+        disk,
+      },
       communityConfig: {
-        ...(await communityConfig()),
+        ...community,
         settings: {
-          ...(await communityConfig()).settings,
+          ...community.settings,
           openRegistrations: !!coreConfig.server.signUpsOpen,
         },
       },
@@ -95,5 +125,5 @@ export const serverInfo = () =>
         },
       },
       sso: publicSsoInfo(coreConfig.sso),
-    }),
-  );
+    };
+  });

@@ -308,13 +308,43 @@ export interface OpenpeepsError extends OpenpeepsErrorData {
   __allPeepError__: true;
 }
 
+const serverResourceBytesSchema = z.number().nonnegative();
+
+export const serverInfoResourcesSchema = z.object({
+  processMemory: z.object({
+    rssBytes: serverResourceBytesSchema,
+    heapUsedBytes: serverResourceBytesSchema,
+    heapTotalBytes: serverResourceBytesSchema,
+  }),
+  systemMemory: z.object({
+    totalBytes: serverResourceBytesSchema,
+    freeBytes: serverResourceBytesSchema,
+  }),
+  loadAverage: z.tuple([z.number(), z.number(), z.number()]),
+  disk: z
+    .object({
+      path: z.string(),
+      totalBytes: serverResourceBytesSchema,
+      freeBytes: serverResourceBytesSchema,
+    })
+    .nullable(),
+});
+
 export const serverInfoSchema = z.object({
   version: z.string(),
+  build: z.string().nullable(),
   environment: z.string(),
+  startedAt: z.iso.datetime(),
+  uptimeSeconds: z.number().nonnegative(),
   publicContent: z.boolean(),
   /** Latest post view (`post_seen.created_at`); null if none yet. */
   lastAccessed: z.iso.datetime().nullable(),
   maxProfiles: z.number().int().nonnegative().optional(),
+  users: z.object({
+    accountCount: z.number().int().nonnegative(),
+    profileCount: z.number().int().nonnegative(),
+  }),
+  resources: serverInfoResourcesSchema,
   communityConfig: communityConfigSchema,
   jams: z.object({
     livekit: z.object({

@@ -38,6 +38,14 @@ const overviewFixture: AnalyticsOverview = {
     totalMembers: metric(120, 100),
     activeMembers: metric(45, 40),
     totalGroups: metric(8, 7),
+    jamSessions: metric(3, 2),
+    jamParticipants: metric(10, 8),
+    replies: metric(15, 12),
+    interactions: metric(80, 70),
+    allTimeJamSessions: metric(30, 27),
+    allTimeJamParticipants: metric(90, 80),
+    allTimeReplies: metric(200, 185),
+    allTimeInteractions: metric(900, 820),
   },
   postsOverTime: [
     {

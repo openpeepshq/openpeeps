@@ -176,10 +176,13 @@ function SomePage() {
       <PluginSlot name="plugins.header" />
       <main>core content</main>
       <PluginSlot name="plugins.footer" />
+      <PluginSlot name="admin.overview.metrics" />
     </>
   );
 }
 ```
+
+`admin.overview.metrics` is the admin overview grid. Hosted billing/subscription UI belongs in a plugin that registers here — core does not show an AllPeep plan.
 
 ### Manifest Schema (Zod)
 

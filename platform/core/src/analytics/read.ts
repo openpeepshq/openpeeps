@@ -106,20 +106,25 @@ const seriesFromTotals = (
   return days.map((day) => ({ day, value: map.get(day) ?? 0 }));
 };
 
+type DailyTotalColumn =
+  | 'newMembers'
+  | 'activeMembers'
+  | 'posts'
+  | 'likes'
+  | 'comments'
+  | 'reposts'
+  | 'bookmarks'
+  | 'dms'
+  | 'uniqueViewers'
+  | 'viewEvents'
+  | 'jamSessions'
+  | 'jamParticipants'
+  | 'replies';
+
 const loadTotalsSeries = async (
   from: string,
   to: string,
-  column:
-    | 'newMembers'
-    | 'activeMembers'
-    | 'posts'
-    | 'likes'
-    | 'comments'
-    | 'reposts'
-    | 'bookmarks'
-    | 'dms'
-    | 'uniqueViewers'
-    | 'viewEvents',
+  column: DailyTotalColumn,
 ): Promise<AnalyticsSeriesPoint[]> => {
   const db = await database();
   const days = eachUtcDay(from, to);
@@ -140,21 +145,8 @@ const loadTotalsSeries = async (
   );
 };
 
-const sumColumn = async (
-  from: string,
-  to: string,
-  column:
-    | 'newMembers'
-    | 'activeMembers'
-    | 'posts'
-    | 'likes'
-    | 'comments'
-    | 'reposts'
-    | 'bookmarks'
-    | 'dms'
-    | 'uniqueViewers'
-    | 'viewEvents',
-) => sumSeries(await loadTotalsSeries(from, to, column));
+const sumColumn = async (from: string, to: string, column: DailyTotalColumn) =>
+  sumSeries(await loadTotalsSeries(from, to, column));
 
 const totalMembersAt = async (day: string): Promise<number> => {
   const db = await database();
@@ -671,12 +663,16 @@ export const getAnalyticsOverview = async (
   query: AnalyticsDateQuery = {},
 ): Promise<AnalyticsOverview> => {
   const range = await resolveQueryRange(query);
-  return withCache('overview-v6', range.from, range.to, async () => {
+  return withCache('overview-v7', range.from, range.to, async () => {
     const [
       activeMembersSeries,
       postsSeries,
       likesSeries,
       commentsSeries,
+      repostsSeries,
+      bookmarksSeries,
+      jamSessionsSeries,
+      jamParticipantsSeries,
       postsByTypeDaily,
       topGroupRows,
       groupGrowth,
@@ -691,11 +687,22 @@ export const getAnalyticsOverview = async (
       prevTotalMembers,
       prevTotalGroups,
       prevAllTimePosts,
+      earliest,
+      prevJamSessions,
+      prevJamParticipants,
+      prevReplies,
+      prevLikes,
+      prevReposts,
+      prevBookmarks,
     ] = await Promise.all([
       loadTotalsSeries(range.from, range.to, 'activeMembers'),
       loadTotalsSeries(range.from, range.to, 'posts'),
       loadTotalsSeries(range.from, range.to, 'likes'),
       loadTotalsSeries(range.from, range.to, 'comments'),
+      loadTotalsSeries(range.from, range.to, 'reposts'),
+      loadTotalsSeries(range.from, range.to, 'bookmarks'),
+      loadTotalsSeries(range.from, range.to, 'jamSessions'),
+      loadTotalsSeries(range.from, range.to, 'jamParticipants'),
       loadPostsByTypeDaily(range.from, range.to),
       topGroups(range.from, range.to),
       groupGrowthOverTime(range.from, range.to),
@@ -710,10 +717,62 @@ export const getAnalyticsOverview = async (
       totalMembersAt(range.previousTo),
       totalGroupsAt(range.previousTo),
       totalPostsAt(range.previousTo),
+      earliestAnalyticsDay(),
+      sumColumn(range.previousFrom, range.previousTo, 'jamSessions'),
+      sumColumn(range.previousFrom, range.previousTo, 'jamParticipants'),
+      sumColumn(range.previousFrom, range.previousTo, 'comments'),
+      sumColumn(range.previousFrom, range.previousTo, 'likes'),
+      sumColumn(range.previousFrom, range.previousTo, 'reposts'),
+      sumColumn(range.previousFrom, range.previousTo, 'bookmarks'),
     ]);
 
     const activeMembers = sumSeries(activeMembersSeries);
     const totalPosts = sumSeries(postsSeries);
+    const replies = sumSeries(commentsSeries);
+    const interactions =
+      sumSeries(likesSeries) +
+      replies +
+      sumSeries(repostsSeries) +
+      sumSeries(bookmarksSeries);
+    const jamSessions = sumSeries(jamSessionsSeries);
+    const jamParticipants = sumSeries(jamParticipantsSeries);
+    const allTimeFrom = earliest ?? range.from;
+    const [
+      allTimeJamSessions,
+      allTimeJamParticipants,
+      allTimeReplies,
+      allTimeLikes,
+      allTimeReposts,
+      allTimeBookmarks,
+      prevAllTimeJamSessions,
+      prevAllTimeJamParticipants,
+      prevAllTimeReplies,
+      prevAllTimeLikes,
+      prevAllTimeReposts,
+      prevAllTimeBookmarks,
+    ] = await Promise.all([
+      sumColumn(allTimeFrom, range.to, 'jamSessions'),
+      sumColumn(allTimeFrom, range.to, 'jamParticipants'),
+      sumColumn(allTimeFrom, range.to, 'comments'),
+      sumColumn(allTimeFrom, range.to, 'likes'),
+      sumColumn(allTimeFrom, range.to, 'reposts'),
+      sumColumn(allTimeFrom, range.to, 'bookmarks'),
+      sumColumn(allTimeFrom, range.previousTo, 'jamSessions'),
+      sumColumn(allTimeFrom, range.previousTo, 'jamParticipants'),
+      sumColumn(allTimeFrom, range.previousTo, 'comments'),
+      sumColumn(allTimeFrom, range.previousTo, 'likes'),
+      sumColumn(allTimeFrom, range.previousTo, 'reposts'),
+      sumColumn(allTimeFrom, range.previousTo, 'bookmarks'),
+    ]);
+    const allTimeInteractions =
+      allTimeLikes + allTimeReplies + allTimeReposts + allTimeBookmarks;
+    const prevAllTimeInteractions =
+      prevAllTimeLikes +
+      prevAllTimeReplies +
+      prevAllTimeReposts +
+      prevAllTimeBookmarks;
+    const prevInteractions =
+      prevLikes + prevReplies + prevReposts + prevBookmarks;
     const { buckets } = selectChartBuckets(range.from, range.to);
 
     const typeTotals = Object.fromEntries(
@@ -799,6 +858,44 @@ export const getAnalyticsOverview = async (
           activeMembersSeries,
         ),
         totalGroups: metricCard('totalGroups', totalGroups, prevTotalGroups),
+        jamSessions: metricCard(
+          'jamSessions',
+          jamSessions,
+          prevJamSessions,
+          jamSessionsSeries,
+        ),
+        jamParticipants: metricCard(
+          'jamParticipants',
+          jamParticipants,
+          prevJamParticipants,
+          jamParticipantsSeries,
+        ),
+        replies: metricCard('replies', replies, prevReplies, commentsSeries),
+        interactions: metricCard(
+          'interactions',
+          interactions,
+          prevInteractions,
+        ),
+        allTimeJamSessions: metricCard(
+          'allTimeJamSessions',
+          allTimeJamSessions,
+          prevAllTimeJamSessions,
+        ),
+        allTimeJamParticipants: metricCard(
+          'allTimeJamParticipants',
+          allTimeJamParticipants,
+          prevAllTimeJamParticipants,
+        ),
+        allTimeReplies: metricCard(
+          'allTimeReplies',
+          allTimeReplies,
+          prevAllTimeReplies,
+        ),
+        allTimeInteractions: metricCard(
+          'allTimeInteractions',
+          allTimeInteractions,
+          prevAllTimeInteractions,
+        ),
       },
       postsOverTime,
       postTypes,
