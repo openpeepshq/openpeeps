@@ -12,7 +12,6 @@ const edge = (name: keyof typeof edgeRegistry): CollectionInfo => ({
 
 /** Named collection/edge refs aligned with `documentRegistry` and `edgeRegistry`. */
 export const collectionInfos = {
-  dataMigrationsCollection: document('dataMigrations'),
   i18nCollection: document('i18n'),
   configCollection: document('configs'),
   accountsCollection: document('accounts'),

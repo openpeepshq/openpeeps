@@ -19,7 +19,6 @@ import { collectionInfos } from '../db';
 import { communityConfig, config } from '../config';
 import {
   exportAllPostgresCollections,
-  importAllArangoCollections,
   importAllPostgresCollections,
 } from '../db/migration/importCollections';
 import { getLatestSchemaVersion } from '../db/pg/migrate';
@@ -27,11 +26,7 @@ import { replaceOrigin } from '../db/replaceOrigin';
 import { logger } from '../log';
 import { setDefaultRoles } from '../roles';
 import { serverRootUrl } from '../server';
-import {
-  resolveBackupDatabaseType,
-  type BackupDatabaseType,
-  type BackupMetadata,
-} from './metadata';
+import { resolveBackupDatabaseType, type BackupMetadata } from './metadata';
 
 export { resolveBackupDatabaseType } from './metadata';
 
@@ -196,9 +191,8 @@ const assertBackupExtracted = async (tempDir: string) => {
   try {
     await access(metadataPath, constants.F_OK);
   } catch {
-    // Legacy Arango JSONL templates (e.g. test-backup.zip) omit metadata.json.
-    log.warn(
-      `Backup has no metadata.json under ${tempDir}; treating as legacy Arango JSONL`,
+    throw new Error(
+      'Backup invalid: missing metadata.json (Postgres JSONL archives only)',
     );
   }
 
@@ -223,15 +217,14 @@ const assertBackupExtracted = async (tempDir: string) => {
 
 const restoreDatabaseFromBackup = async (
   collectionsDir: string,
-  databaseType: BackupDatabaseType,
   schemaVersion?: string,
 ) => {
-  log.info('Restoring %s database from JSONL collections', databaseType);
+  log.info('Restoring postgres database from JSONL collections');
 
-  const { total } =
-    databaseType === 'postgres'
-      ? await importAllPostgresCollections(collectionsDir, schemaVersion)
-      : await importAllArangoCollections(collectionsDir);
+  const { total } = await importAllPostgresCollections(
+    collectionsDir,
+    schemaVersion,
+  );
 
   if (total === 0) {
     throw new Error(
@@ -357,7 +350,7 @@ export const restoreBackups = async (zipFilePath: string) => {
   )
     .then(JSON.parse)
     .catch(() => undefined);
-  const databaseType = resolveBackupDatabaseType(backupMetadata);
+  resolveBackupDatabaseType(backupMetadata);
 
   log.info(`Emptying media directory ${coreConfig.media.storage.params.path}`);
   await emptyDir(coreConfig.media.storage.params.path);
@@ -377,7 +370,6 @@ export const restoreBackups = async (zipFilePath: string) => {
 
   await restoreDatabaseFromBackup(
     collectionsDir,
-    databaseType,
     backupMetadata?.schemaVersion,
   );
 
@@ -388,7 +380,7 @@ export const restoreBackups = async (zipFilePath: string) => {
   await replaceOrigin(backupMetadata?.config?.hostname, await serverRootUrl());
 
   log.info(
-    `Restored ${databaseType} backup (hostname was ${backupMetadata?.config?.hostname ?? 'unknown'})`,
+    `Restored postgres backup (hostname was ${backupMetadata?.config?.hostname ?? 'unknown'})`,
   );
 
   await setDefaultRoles();

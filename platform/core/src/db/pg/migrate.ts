@@ -82,17 +82,10 @@ const assertKnownSchemaVersion = (tag: string): string => {
 
 /**
  * Schema to apply before JSONL import on restore.
- * - Arango → first journal tag so later SQL data migrations see restored rows.
  * - Postgres with `schemaVersion` → that tag (must still exist in this binary).
  * - Postgres without → `0007_shallow_oracle` (pre-stamping baseline).
  */
-export const resolveRestoreSchemaVersion = (
-  databaseType: 'arango' | 'postgres',
-  schemaVersion?: string,
-): string => {
-  if (databaseType === 'arango') {
-    return getFirstSchemaVersion();
-  }
+export const resolveRestoreSchemaVersion = (schemaVersion?: string): string => {
   if (schemaVersion) {
     return assertKnownSchemaVersion(schemaVersion);
   }

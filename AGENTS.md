@@ -75,7 +75,7 @@ accompanied by a written outline of exactly what changed and why.**
 ## Repository layout
 
 - pnpm workspace monorepo. Packages live under `platform/*`, `libraries/*`,
-  `plugins/*/*`, and `archive/*` (Arango cutover tooling only — not runtime).
+  and `plugins/*/*`.
 - `platform/common` — shared types and utilities (Zod schemas live here).
 - `platform/core` — backend logic: DB, notifications, email, jobs, roles, plugin loader.
 - `platform/server` — API server (Riddl); add new API endpoints here.
@@ -102,16 +102,14 @@ steps — follow that skill.
 
 - **i18n:** never hardcode user-facing copy. Add a key to `locales/en.json` and
   reference it via the `t()` function.
-- **Schema migrations:** changes to stored data shape go through **Drizzle SQL**,
-  not Arango-era TypeScript migrations. Update tables under
+- **Schema migrations:** changes to stored data shape go through **Drizzle SQL**.
+  Update tables under
   `platform/core/src/db/pg/schema/`, then
   `pnpm --filter @openpeepshq/core db:generate` (SQL lands in
   `platform/core/src/db/pg/sql/`) and apply with `db:migrate` (also runs on
-  server start). See `platform/core/docs/postgres-schema-adr.md` and
-  `platform/core/docs/postgres-migration-runbook.md`.
-  `platform/core/src/db/dataMigrations/` is **Arango cutover history only** —
-  do not add new migrations there for Postgres. One-off PG data backfills
-  belong in an intentional SQL migration or a documented one-shot script.
+  server start). See `platform/core/docs/postgres-schema-adr.md`.
+  One-off PG data backfills belong in an intentional SQL migration or a
+  documented one-shot script.
 - **Queries:** keep `platform/core/src/db/pg/map/` for existing document/edge
   call sites, but **new features and hot-path work** should prefer Drizzle /
   SQL-native queries (typed repositories under domain modules or

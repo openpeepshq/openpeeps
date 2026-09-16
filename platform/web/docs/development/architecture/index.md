@@ -59,11 +59,6 @@ flowchart TB
 - **`@openpeepshq/greenscreen`** — Background processing for video
 - **`@openpeepshq/react-ui`** — Shared React UI components
 
-Archive (cutover only, not runtime):
-
-- **`@openpeepshq/arango-migrate`** — Arango → Postgres export/import/validate
-- **`@openpeepshq/arango-querybuilder`** — Historical Arango query builder
-
 ### Dependency graph
 
 ```

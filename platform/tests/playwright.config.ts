@@ -70,7 +70,6 @@ const config: PlaywrightTestConfig = {
         reuseExistingServer: true,
         timeout: 180 * 1000,
         env: {
-          AUTO_MIGRATE_FROM_ARANGO: 'false',
           DISABLE_CONFIG_CACHE: 'true',
           DB_NAME: process.env.DB_NAME ?? 'test',
           DATABASE_URL:

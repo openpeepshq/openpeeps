@@ -50,17 +50,13 @@ Schema (and most stored-shape) changes go through **Drizzle SQL**:
 3. Apply: `pnpm --filter @openpeepshq/core db:migrate` (also runs automatically
    when the server starts).
 
-Rationale and cutover notes: `platform/core/docs/postgres-schema-adr.md` and
-`platform/core/docs/postgres-migration-runbook.md`.
-`platform/core/src/db/dataMigrations/` is **Arango-era history** used for
-cutover export shapes; it is **not** replayed on Postgres and must not receive
-new migrations. One-off PG data backfills belong in an intentional SQL
-migration or a documented one-shot script. Remaining Arango cutover CLI
-lives in `archive/arango-migrate` (not the default runtime).
+Rationale: `platform/core/docs/postgres-schema-adr.md`.
+One-off PG data backfills belong in an intentional SQL migration or a
+documented one-shot script.
 
 ### Query style
 
-The `pg/map` layer preserves Arango-era document/edge semantics on Postgres
+The `pg/map` layer preserves document/edge semantics on Postgres
 (`filters.ts`, `relations.ts`, `registry.ts`). Keep using it for existing
 mappings and call sites.
 
@@ -74,8 +70,7 @@ do not already fit a mapping — prefer:
 3. Expanding the map DSL only when an existing `map()` call site truly needs
    a new filter/relation primitive.
 
-Carving large existing hotspots off `pg/map` is a separate follow-up once
-Arango types are gone (see issue #1023).
+Carving large existing hotspots off `pg/map` is a separate follow-up.
 
 ### Mappings
 
@@ -114,7 +109,7 @@ const filteredPosts = await postsMapping
 
 ### Relations
 
-Relations load linked entities via edge tables (formerly Arango edge collections):
+Relations load linked entities via edge tables:
 
 ```typescript
 const reactionsRelation = {

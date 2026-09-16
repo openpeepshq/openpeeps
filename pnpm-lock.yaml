@@ -33,80 +33,6 @@ importers:
         specifier: ^0.6.13
         version: 0.6.13(prettier@3.4.2)
 
-  archive/arango-migrate:
-    dependencies:
-      '@openpeepshq/core':
-        specifier: workspace:*
-        version: link:../../platform/core
-      arangojs:
-        specifier: 10.0.0
-        version: 10.0.0(undici@7.10.0)
-      dotenv:
-        specifier: ^16.4.7
-        version: 16.4.7
-    devDependencies:
-      '@types/node':
-        specifier: ^22.19.17
-        version: 22.19.17
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.19.1
-        version: 8.59.0(@typescript-eslint/parser@8.59.0(eslint@9.19.0(jiti@1.21.6))(typescript@5.8.3))(eslint@9.19.0(jiti@1.21.6))(typescript@5.8.3)
-      '@typescript-eslint/parser':
-        specifier: ^8.19.1
-        version: 8.59.0(eslint@9.19.0(jiti@1.21.6))(typescript@5.8.3)
-      eslint:
-        specifier: ^9.17.0
-        version: 9.19.0(jiti@1.21.6)
-      eslint-config-prettier:
-        specifier: ^9.1.0
-        version: 9.1.0(eslint@9.19.0(jiti@1.21.6))
-      prettier:
-        specifier: ^3.4.2
-        version: 3.8.3
-      typescript:
-        specifier: ^5.7.2
-        version: 5.8.3
-
-  archive/arango-querybuilder:
-    dependencies:
-      arangojs:
-        specifier: 10.0.0
-        version: 10.0.0(undici@7.10.0)
-      debug:
-        specifier: ^4.4.0
-        version: 4.4.3
-      uuidv7:
-        specifier: ^1.0.2
-        version: 1.0.2
-    devDependencies:
-      '@types/debug':
-        specifier: ^4.1.12
-        version: 4.1.12
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.19.1
-        version: 8.59.0(@typescript-eslint/parser@8.59.0(eslint@9.19.0(jiti@1.21.6))(typescript@5.8.3))(eslint@9.19.0(jiti@1.21.6))(typescript@5.8.3)
-      '@typescript-eslint/parser':
-        specifier: ^8.19.1
-        version: 8.59.0(eslint@9.19.0(jiti@1.21.6))(typescript@5.8.3)
-      concurrently:
-        specifier: ^9.1.2
-        version: 9.2.1
-      eslint:
-        specifier: ^9.17.0
-        version: 9.19.0(jiti@1.21.6)
-      eslint-config-prettier:
-        specifier: ^9.1.0
-        version: 9.1.0(eslint@9.19.0(jiti@1.21.6))
-      prettier:
-        specifier: ^3.4.2
-        version: 3.8.3
-      tsc-alias:
-        specifier: ^1.8.10
-        version: 1.8.16
-      typescript:
-        specifier: ^5.7.2
-        version: 5.8.3
-
   docs-site:
     dependencies:
       '@openpeepshq/react-ui':
@@ -7773,9 +7699,6 @@ packages:
   '@types/d3@7.4.3':
     resolution: {integrity: sha512-lZXZ9ckh5R8uiFVt8ogUNf+pIrK4EsWrx2Np75WvF/eTpJ0FMHNhjXk8CKEx/+gpHbNQyJWehbFaTvqmHWB3ww==}
 
-  '@types/debug@4.1.12':
-    resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
-
   '@types/dom-mediacapture-record@1.0.22':
     resolution: {integrity: sha512-mUMZLK3NvwRLcAAT9qmcK+9p7tpU2FHdDsntR3YI4+GY88XrgG4XiE7u1Q2LAN2/FZOz/tdMDC3GQCR4T8nFuw==}
 
@@ -7871,9 +7794,6 @@ packages:
 
   '@types/mysql@2.15.26':
     resolution: {integrity: sha512-DSLCOXhkvfS5WNNPbfn2KdICAmk8lLc+/PNvnPnF7gOdMZCxopXduqv0OQ13y/yA/zXTSikZZqVgybUxOEg6YQ==}
-
-  '@types/node@20.17.12':
-    resolution: {integrity: sha512-vo/wmBgMIiEA23A/knMfn/cf37VnuF52nZh5ZoW0GWt4e4sxNquibrMRJ7UQsA06+MBx9r/H1jsI9grYjQCQlw==}
 
   '@types/node@20.5.1':
     resolution: {integrity: sha512-4tT2UrL5LBqDwoed9wZ6N3umC4Yhz3W3FloMmiiG4JwmUJWpie0c7lcnUNd4gtMKuDEO4wRVS8B6Xa0uMRsMKg==}
@@ -8480,15 +8400,6 @@ packages:
 
   aproba@2.0.0:
     resolution: {integrity: sha512-lYe4Gx7QT+MKGbDsA+Z+he/Wtef0BiwDOlK/XkBrdfsh9J/jPPXbX0tE9x9cl27Tmu5gg3QUbUrQYa/y+KOHPQ==}
-
-  arangojs@10.0.0:
-    resolution: {integrity: sha512-CQE9ayDp8f12R+uDIGW9Xrh2bnCA71/lQ2htMItrTJaO0cNNIrfwjRwFvJuqG1gC1JqqBZAEpVyg1vNTXXAVaw==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      undici: '>=5.21.0'
-    peerDependenciesMeta:
-      undici:
-        optional: true
 
   archiver-utils@5.0.2:
     resolution: {integrity: sha512-wuLJMmIBQYCsGZgYLTy5FIB2pF6Lfb6cXMSF8Qywwk3t20zWnAi7zLcQFdKQmIB8wyZpY5ER38x08GbwtR2cLA==}
@@ -15137,9 +15048,6 @@ packages:
   underscore@1.12.1:
     resolution: {integrity: sha512-hEQt0+ZLDVUMhebKxL4x1BTtDY7bavVofhZ9KZ4aI26X9SRaE+Y3m83XUL1UP2jn8ynjndwCCpEHdUG+9pP1Tw==}
 
-  undici-types@6.19.8:
-    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
-
   undici-types@6.20.0:
     resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
 
@@ -17539,7 +17447,7 @@ snapshots:
       '@types/node': 20.5.1
       chalk: 4.1.2
       cosmiconfig: 8.3.6(typescript@5.8.3)
-      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@22.19.17)(typescript@5.8.3))(typescript@5.8.3)
+      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.8.3))(typescript@5.8.3)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -22220,10 +22128,6 @@ snapshots:
       '@types/d3-transition': 3.0.9
       '@types/d3-zoom': 3.0.8
 
-  '@types/debug@4.1.12':
-    dependencies:
-      '@types/ms': 0.7.34
-
   '@types/dom-mediacapture-record@1.0.22': {}
 
   '@types/esrecurse@4.3.1': {}
@@ -22332,10 +22236,6 @@ snapshots:
   '@types/mysql@2.15.26':
     dependencies:
       '@types/node': 22.19.17
-
-  '@types/node@20.17.12':
-    dependencies:
-      undici-types: 6.19.8
 
   '@types/node@20.5.1': {}
 
@@ -23314,12 +23214,6 @@ snapshots:
   appdirsjs@1.2.7: {}
 
   aproba@2.0.0: {}
-
-  arangojs@10.0.0(undici@7.10.0):
-    dependencies:
-      '@types/node': 20.17.12
-    optionalDependencies:
-      undici: 7.10.0
 
   archiver-utils@5.0.2:
     dependencies:
@@ -24304,7 +24198,7 @@ snapshots:
     dependencies:
       layout-base: 2.0.1
 
-  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@22.19.17)(typescript@5.8.3))(typescript@5.8.3):
+  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.8.3))(typescript@5.8.3):
     dependencies:
       '@types/node': 20.5.1
       cosmiconfig: 8.3.6(typescript@5.8.3)
@@ -31327,8 +31221,6 @@ snapshots:
   unc-path-regex@0.1.2: {}
 
   underscore@1.12.1: {}
-
-  undici-types@6.19.8: {}
 
   undici-types@6.20.0: {}
 

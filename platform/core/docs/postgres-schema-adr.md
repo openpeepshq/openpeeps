@@ -6,19 +6,16 @@ Accepted — replaces ArangoDB as the primary data store.
 
 ## Context
 
-OpenPeeps stores application state in ArangoDB as documents and edges, queried via
-`@openpeepshq/arango-querybuilder`. We migrate to PostgreSQL with Drizzle ORM and a
-one-time offline cutover per instance.
-
-Redis remains unchanged (queues, pub/sub, cache).
+OpenPeeps stores application state in PostgreSQL with Drizzle ORM. Redis remains
+unchanged (queues, pub/sub, cache).
 
 ## Decision
 
 ### IDs and timestamps
 
-- Primary keys: UUIDv7 strings (same values as Arango `_key` for migration parity)
+- Primary keys: UUIDv7 strings
 - All entities: `created_at`, `updated_at` (timestamptz, ISO strings in app layer)
-- Soft delete: nullable `deleted_at` where Arango mappings used `softDelete: true`
+- Soft delete: nullable `deleted_at`
 
 ### Document tables
 
@@ -41,13 +38,11 @@ Redis remains unchanged (queues, pub/sub, cache).
 | `media_attachments`  | —                                                 | attachment metadata                             |
 | `processing_stats`   | `filetype`, `filesize`                            | stats                                           |
 | `profile_settings`   | `profile_id` (unique)                             | settings blob                                   |
-| `data_migrations`    | `id` (UUIDv7)                                     | applied_at                                      |
 
 ### Edge tables (join tables)
 
-Each former Arango edge collection becomes a table with `from_id`, `to_id`, optional
-`data` JSONB, timestamps, and composite unique indexes mirroring Arango persistent
-indices:
+Each relationship table has `from_id`, `to_id`, optional `data` JSONB, timestamps,
+and composite unique indexes:
 
 `follows`, `requests_follow`, `controls`, `mentions`, `audience`, `post_hashtags`,
 `entries`, `reactions`, `reply_to`, `repost`, `bookmarks`, `post_seen`, `has_seen`,
@@ -57,8 +52,7 @@ indices:
 
 ### Full-text search
 
-Arango inverted indices + search-alias views become generated `tsvector` columns with
-GIN indexes (`english` config):
+Generated `tsvector` columns with GIN indexes (`english` config):
 
 - `profiles.search_vector` — handle, displayName, bio, location, custom fields
 - `posts.search_vector` — content, titles, attachment descriptions
@@ -68,21 +62,13 @@ Queries use `plainto_tsquery('english', …)` and `ts_rank`.
 
 ### Foreign keys
 
-Edge `from_id` / `to_id` reference document PKs with `ON DELETE CASCADE` where Arango
-cascade-delete behavior applied (e.g. profile → controls edges).
-
-### Migration from Arango
-
-Historical TypeScript data migrations under `db/dataMigrations/` are **not replayed**
-on Postgres. The offline export transform applies final document shapes; SQL schema
-is the baseline.
+Edge `from_id` / `to_id` reference document PKs with `ON DELETE CASCADE` where
+cascade-delete behavior applies (e.g. profile → controls edges).
 
 ## Consequences
 
-- `@openpeepshq/arango-querybuilder` and `arangojs` live in `archive/` (cutover
-  CLI only; not a runtime dependency)
 - Feed/search queries rewritten as explicit SQL in repositories (no generic graph builder)
 - `db/pg/map` remains for existing document/edge call sites; **new features
   prefer Drizzle / SQL-native queries** over deepening that compatibility DSL
-- Backups use `pg_dump` / `pg_restore` instead of collection zip export
-- Admin DB browser (Aardvark) replaced by Drizzle Studio / `psql` documentation
+- Backups are JSONL collection ZIP archives, not `pg_dump`
+- Inspect tables with Drizzle Studio / `psql`
