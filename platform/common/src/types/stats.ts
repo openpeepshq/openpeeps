@@ -134,13 +134,29 @@ export const serverCountsSchema = z.object({
 
 export type ServerCounts = z.infer<typeof serverCountsSchema>;
 
-export const adminServerStatsSchema: ZodObject<{ profiles: typeof profilesStatsSchema; posts: typeof postsStatsSchema; interactions: typeof interactionsStatsSchema; jams: typeof jamsStatsSchema; topLists: typeof topListsStatsSchema; timelines: typeof timelinesStatsSchema }> = z.object({
+export const jobsActivityStatsSchema = z.object({
+  completedLast24h: z.number().nonnegative(),
+  emailsSentLast24h: z.number().nonnegative(),
+});
+
+export type JobsActivityStats = z.infer<typeof jobsActivityStatsSchema>;
+
+export const adminServerStatsSchema: ZodObject<{
+  profiles: typeof profilesStatsSchema;
+  posts: typeof postsStatsSchema;
+  interactions: typeof interactionsStatsSchema;
+  jams: typeof jamsStatsSchema;
+  topLists: typeof topListsStatsSchema;
+  timelines: typeof timelinesStatsSchema;
+  jobs: typeof jobsActivityStatsSchema;
+}> = z.object({
   profiles: profilesStatsSchema,
   posts: postsStatsSchema,
   interactions: interactionsStatsSchema,
   jams: jamsStatsSchema,
   topLists: topListsStatsSchema,
   timelines: timelinesStatsSchema,
+  jobs: jobsActivityStatsSchema,
 });
 
 export type AdminServerStats = z.infer<typeof adminServerStatsSchema>;

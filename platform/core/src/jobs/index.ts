@@ -1,4 +1,4 @@
-import { Processor, Queue, QueueOptions, Worker } from 'bullmq';
+import { MetricsTime, Processor, Queue, QueueOptions, Worker } from 'bullmq';
 
 export const connection = {
   host: process.env.REDIS_HOST || 'localhost',
@@ -76,10 +76,16 @@ export const queueAndWorker = <Input, Output = undefined>(
     new Worker<Input, Output>(queueName, processor, {
       connection,
       concurrency: 5,
+      metrics: { maxDataPoints: MetricsTime.ONE_WEEK },
     }),
 ];
 
+export const getOrCreateQueue = (queueName: string): Queue =>
+  queues[queueName] ??
+  (queues[queueName] = new Queue(queueName, { connection }));
+
 export { getJobDetail } from './jobDetail';
+export { jobActivityLast24h } from './activity';
 export {
   jobLogger,
   logStep,

@@ -1,10 +1,5 @@
 import type { AdminJobDetail } from '@openpeepshq/common/types';
-import { Queue } from 'bullmq';
-import { connection, queues } from './index';
-
-const getOrCreateQueue = (queueName: string): Queue =>
-  queues[queueName] ??
-  (queues[queueName] = new Queue(queueName, { connection }));
+import { getOrCreateQueue } from './index';
 
 export const getJobDetail = async (
   queueName: string,

@@ -1,15 +1,66 @@
-import { statfs } from 'node:fs/promises';
+import { readdir, stat, statfs } from 'node:fs/promises';
+import path from 'node:path';
 
 export const processStartedAt = new Date(
   Date.now() - process.uptime() * 1000,
 ).toISOString();
 
 export type MediaDiskUsage = {
+  folderBytes: number;
   totalBytes: number;
   freeBytes: number;
 };
 
-/** Filesystem usage for the media storage directory. Null if unreadable. */
+const FOLDER_SIZE_CACHE_MS = 30_000;
+
+let folderSizeCache: {
+  mediaPath: string;
+  at: number;
+  bytes: number;
+} | null = null;
+
+/** Sum of regular files under dir. Skips unreadable entries. */
+export const folderSize = async (dir: string): Promise<number> => {
+  let total = 0;
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return 0;
+  }
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name);
+    try {
+      if (entry.isSymbolicLink()) continue;
+      if (entry.isDirectory()) {
+        total += await folderSize(full);
+        continue;
+      }
+      if (entry.isFile()) {
+        total += (await stat(full)).size;
+      }
+    } catch {
+      // Skip entries we cannot stat (permissions, races).
+    }
+  }
+  return total;
+};
+
+const cachedFolderSize = async (mediaPath: string): Promise<number> => {
+  const now = Date.now();
+  if (
+    folderSizeCache &&
+    folderSizeCache.mediaPath === mediaPath &&
+    now - folderSizeCache.at < FOLDER_SIZE_CACHE_MS
+  ) {
+    return folderSizeCache.bytes;
+  }
+  const bytes = await folderSize(mediaPath);
+  folderSizeCache = { mediaPath, at: now, bytes };
+  return bytes;
+};
+
+/** Media-folder byte size plus free space on that volume. Null if unreadable. */
 export const diskUsage = async (
   mediaPath: string,
 ): Promise<MediaDiskUsage | null> => {
@@ -19,7 +70,8 @@ export const diskUsage = async (
     const totalBytes = Number(stats.blocks) * blockSize;
     const freeBytes = Number(stats.bavail) * blockSize;
     if (!Number.isFinite(totalBytes) || totalBytes <= 0) return null;
-    return { totalBytes, freeBytes };
+    const folderBytes = await cachedFolderSize(mediaPath);
+    return { folderBytes, totalBytes, freeBytes };
   } catch {
     return null;
   }

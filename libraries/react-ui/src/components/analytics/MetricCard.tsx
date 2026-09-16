@@ -66,7 +66,12 @@ export const MetricCard = ({
       <div className="mt-2 min-w-0">
         <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <div
-            className="min-w-0 truncate text-3xl font-semibold tabular-nums tracking-tight"
+            className={cn(
+              'min-w-0 font-semibold tracking-tight',
+              typeof value === 'number'
+                ? 'truncate text-3xl tabular-nums'
+                : 'break-words text-2xl leading-tight',
+            )}
             title={typeof value === 'number' ? value.toLocaleString() : value}
           >
             {typeof value === 'number' ? compact.format(value) : value}
