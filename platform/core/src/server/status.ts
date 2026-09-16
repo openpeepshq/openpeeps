@@ -1,5 +1,7 @@
 import { readdir, stat, statfs } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
+import type { HostResourceStats } from '@openpeepshq/common/types';
 
 export const processStartedAt = new Date(
   Date.now() - process.uptime() * 1000,
@@ -75,4 +77,58 @@ export const diskUsage = async (
   } catch {
     return null;
   }
+};
+
+export type CpuTimes = {
+  idle: number;
+  total: number;
+};
+
+export const cpuTimes = (
+  cpus: Array<{ times: os.CpuInfo['times'] }> = os.cpus(),
+): CpuTimes => {
+  let idle = 0;
+  let total = 0;
+  for (const cpu of cpus) {
+    const times = cpu.times;
+    idle += times.idle;
+    total += times.user + times.nice + times.sys + times.idle + times.irq;
+  }
+  return { idle, total };
+};
+
+export const cpuUsedPercent = (previous: CpuTimes, next: CpuTimes): number => {
+  const idleDelta = next.idle - previous.idle;
+  const totalDelta = next.total - previous.total;
+  if (totalDelta <= 0) return 0;
+  return Math.min(100, Math.max(0, (1 - idleDelta / totalDelta) * 100));
+};
+
+export const memoryUsage = (
+  totalBytes = os.totalmem(),
+  freeBytes = os.freemem(),
+): { usedBytes: number; totalBytes: number } | null => {
+  if (!Number.isFinite(totalBytes) || totalBytes <= 0) return null;
+  const usedBytes = Math.max(
+    0,
+    Math.min(totalBytes, totalBytes - Math.max(0, freeBytes)),
+  );
+  return { usedBytes, totalBytes };
+};
+
+const CPU_SAMPLE_MS = 50;
+
+export const hostResources = async (
+  wait = (ms: number) =>
+    new Promise<void>((resolve) => setTimeout(resolve, ms)),
+): Promise<HostResourceStats> => {
+  const memory = memoryUsage();
+  const previous = cpuTimes();
+  await wait(CPU_SAMPLE_MS);
+  const cpuPercent = Math.round(cpuUsedPercent(previous, cpuTimes()) * 10) / 10;
+  return {
+    memoryUsedBytes: memory?.usedBytes ?? 0,
+    memoryTotalBytes: memory?.totalBytes ?? 0,
+    cpuUsedPercent: cpuPercent,
+  };
 };
