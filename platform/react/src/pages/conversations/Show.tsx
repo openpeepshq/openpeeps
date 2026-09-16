@@ -12,12 +12,13 @@ import { canCreatePost } from '@openpeepshq/common';
 import {
   Avatar,
   MessageInThread,
+  OpenpeepsMarkdownInput,
   ProfileCard,
   useAuthData,
   useCurrentProfile,
   useToast,
 } from '../../components';
-import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
+import { Button, LoadingSpinner } from '@openpeepshq/react-ui';
 
 const MAX_LENGTH = 500;
 
@@ -155,38 +156,26 @@ export function ConversationShow() {
 
       {canCreate && (
         <footer className="space-y-2 border-t p-3">
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <Input
-                className="flex-1"
-                placeholder={t('conversations.placeholder', {
-                  defaultValue: 'Write a message…',
-                })}
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-              />
-              <Button
-                title="Send"
-                variant="default"
-                action={send}
-                disabled={sending || !text.trim() || overLimit}
-              >
-                {sending
-                  ? t('common.sending', { defaultValue: 'Sending…' })
-                  : t('common.send', { defaultValue: 'Send' })}
-              </Button>
-            </div>
-            <span
-              className={`pt-1 text-right text-[10px] ${overLimit ? 'text-error' : 'text-muted-foreground'}`}
+          <OpenpeepsMarkdownInput
+            rows={3}
+            value={text}
+            onChange={setText}
+            maxLength={MAX_LENGTH}
+            placeholder={t('conversations.placeholder', {
+              defaultValue: 'Write a message…',
+            })}
+          />
+          <div className="flex justify-end">
+            <Button
+              title="Send"
+              variant="default"
+              action={send}
+              disabled={sending || !text.trim() || overLimit}
             >
-              {text.length} / {MAX_LENGTH}
-            </span>
+              {sending
+                ? t('common.sending', { defaultValue: 'Sending…' })
+                : t('common.send', { defaultValue: 'Send' })}
+            </Button>
           </div>
         </footer>
       )}
