@@ -167,6 +167,15 @@ test.describe('user actions (API)', () => {
       },
     });
     expect(reply.ok(), await reply.text()).toBeTruthy();
+    const replyPost = (await reply.json()) as { id: string };
+
+    const feed = await request.get('/api/openpeeps/core/v1/posts/feeds/local', {
+      headers: apiHeaders(token),
+    });
+    expect(feed.ok(), await feed.text()).toBeTruthy();
+    const feedPosts = (await feed.json()) as Array<{ id: string }>;
+    expect(feedPosts.some((post) => post.id === note.id)).toBe(true);
+    expect(feedPosts.some((post) => post.id === replyPost.id)).toBe(false);
 
     const replies = await request.get(
       `/api/openpeeps/core/v1/posts/${note.id}/replies`,
@@ -219,6 +228,141 @@ test.describe('user actions (API)', () => {
       { headers: apiHeaders(token) },
     );
     expect(del.ok(), await del.text()).toBeTruthy();
+  });
+
+  test('reply activity bumps the original and latestReplies stay direct', async ({
+    request,
+  }) => {
+    const { token } = await loginUser(request, owner.email, owner.password);
+    type FeedPost = {
+      id: string;
+      createdAt: string;
+      lastActivityAt?: string;
+      latestReplies?: { id: string }[];
+      replyCount?: number;
+    };
+
+    const older = (await createNote(
+      request,
+      token,
+      `Older note ${uniqueHandle('o')}`,
+    )) as FeedPost;
+    const newer = (await createNote(
+      request,
+      token,
+      `Newer note ${uniqueHandle('n')}`,
+    )) as FeedPost;
+    const createdAt = older.createdAt;
+
+    const reply = await request.post('/api/openpeeps/core/v1/posts', {
+      headers: apiHeaders(token),
+      data: {
+        type: 'note',
+        visibility: 'local',
+        inReplyToId: older.id,
+        data: { type: 'note', content: `Direct ${uniqueHandle('d')}` },
+      },
+    });
+    expect(reply.ok(), await reply.text()).toBeTruthy();
+    const directReply = (await reply.json()) as { id: string };
+
+    const nested = await request.post('/api/openpeeps/core/v1/posts', {
+      headers: apiHeaders(token),
+      data: {
+        type: 'note',
+        visibility: 'local',
+        inReplyToId: directReply.id,
+        data: { type: 'note', content: `Nested ${uniqueHandle('x')}` },
+      },
+    });
+    expect(nested.ok(), await nested.text()).toBeTruthy();
+    const nestedReply = (await nested.json()) as { id: string };
+
+    const feed = await request.get('/api/openpeeps/core/v1/posts/feeds/local', {
+      headers: apiHeaders(token),
+    });
+    expect(feed.ok(), await feed.text()).toBeTruthy();
+    const feedPosts = (await feed.json()) as FeedPost[];
+    const olderIdx = feedPosts.findIndex((post) => post.id === older.id);
+    const newerIdx = feedPosts.findIndex((post) => post.id === newer.id);
+    expect(olderIdx).toBeGreaterThanOrEqual(0);
+    expect(newerIdx).toBeGreaterThanOrEqual(0);
+    expect(olderIdx).toBeLessThan(newerIdx);
+    expect(feedPosts.some((post) => post.id === directReply.id)).toBe(false);
+    expect(feedPosts.some((post) => post.id === nestedReply.id)).toBe(false);
+
+    const bumped = feedPosts[olderIdx]!;
+    expect(bumped.createdAt).toBe(createdAt);
+    expect(bumped.latestReplies?.map((item) => item.id)).toContain(
+      directReply.id,
+    );
+    expect(bumped.latestReplies?.map((item) => item.id)).not.toContain(
+      nestedReply.id,
+    );
+
+    const myFeed = await request.get('/api/openpeeps/core/v1/posts/feeds/my', {
+      headers: apiHeaders(token),
+    });
+    expect(myFeed.ok(), await myFeed.text()).toBeTruthy();
+    const myPosts = (await myFeed.json()) as FeedPost[];
+    expect(myPosts.findIndex((post) => post.id === older.id)).toBeLessThan(
+      myPosts.findIndex((post) => post.id === newer.id),
+    );
+
+    const page1 = await request.get(
+      '/api/openpeeps/core/v1/posts/feeds/local?limit=1',
+      { headers: apiHeaders(token) },
+    );
+    expect(page1.ok(), await page1.text()).toBeTruthy();
+    const firstPage = (await page1.json()) as FeedPost[];
+    expect(firstPage).toHaveLength(1);
+    const cursorPost = firstPage[0]!;
+    const start = cursorPost.lastActivityAt
+      ? `${cursorPost.lastActivityAt}|${cursorPost.id}`
+      : cursorPost.id;
+    const page2 = await request.get(
+      `/api/openpeeps/core/v1/posts/feeds/local?limit=1&start=${encodeURIComponent(start)}`,
+      { headers: apiHeaders(token) },
+    );
+    expect(page2.ok(), await page2.text()).toBeTruthy();
+    const secondPage = (await page2.json()) as FeedPost[];
+    expect(secondPage[0]?.id).not.toBe(cursorPost.id);
+
+    const beforeReact = bumped.lastActivityAt;
+    const react = await request.post(
+      `/api/openpeeps/core/v1/posts/${older.id}/react`,
+      {
+        headers: apiHeaders(token),
+        data: { reaction: '👍' },
+      },
+    );
+    expect(react.ok(), await react.text()).toBeTruthy();
+    const afterReactFeed = await request.get(
+      '/api/openpeeps/core/v1/posts/feeds/local?limit=1',
+      { headers: apiHeaders(token) },
+    );
+    const afterReact = ((await afterReactFeed.json()) as FeedPost[])[0];
+    expect(afterReact?.id).toBe(older.id);
+    expect(afterReact?.createdAt).toBe(createdAt);
+    if (beforeReact && afterReact?.lastActivityAt) {
+      expect(afterReact.lastActivityAt >= beforeReact).toBe(true);
+    }
+
+    const linearFeed = await request.get(
+      '/api/openpeeps/core/v1/posts/feeds/local?format=linear',
+      { headers: apiHeaders(token) },
+    );
+    expect(linearFeed.ok(), await linearFeed.text()).toBeTruthy();
+    const linearPosts = (await linearFeed.json()) as FeedPost[];
+    expect(linearPosts.some((post) => post.id === directReply.id)).toBe(true);
+
+    const linearMyFeed = await request.get(
+      '/api/openpeeps/core/v1/posts/feeds/my?format=linear',
+      { headers: apiHeaders(token) },
+    );
+    expect(linearMyFeed.ok(), await linearMyFeed.text()).toBeTruthy();
+    const linearMyPosts = (await linearMyFeed.json()) as FeedPost[];
+    expect(linearMyPosts.some((post) => post.id === directReply.id)).toBe(true);
   });
 
   test('follow and unfollow another profile', async ({ request }) => {

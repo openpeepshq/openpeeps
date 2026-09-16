@@ -13,6 +13,7 @@ export const Param = z.object({
 export const Query = z.object({
   start: z.string().optional(),
   limit: z.coerce.number().optional(),
+  format: z.enum(['threaded', 'linear']).optional(),
 });
 export const Error = {
   404: notFound(),

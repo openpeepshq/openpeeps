@@ -55,6 +55,11 @@ export function Settings() {
         action="/settings/timezone"
         testId="settings-link-timezone"
       />
+      <ConfigMenuButton
+        translationPrefix="settings.feed"
+        action="/settings/feed"
+        testId="settings-link-feed"
+      />
       {stripeMembershipEnabled && (
         <ConfigMenuButton
           translationPrefix="settings.billing"

@@ -84,6 +84,18 @@ describe('schema version helpers', () => {
       /Unknown Postgres schema version/,
     );
   });
+
+  it('makes last_activity_at schema changes retry-safe', () => {
+    const sqlPath = join(
+      dirname(fileURLToPath(import.meta.url)),
+      'sql/0012_posts_last_activity_at.sql',
+    );
+    const sql = readFileSync(sqlPath, 'utf8');
+    expect(sql).toContain('ADD COLUMN IF NOT EXISTS "last_activity_at"');
+    expect(sql).toContain(
+      'CREATE INDEX IF NOT EXISTS "posts_last_activity_id_idx"',
+    );
+  });
 });
 
 describe('assertSchemaReady', () => {
@@ -183,6 +195,25 @@ describe('runMigrations', () => {
 
     await expect(runMigrations()).resolves.toBeUndefined();
     expect(resetPostgresSchemas).toHaveBeenCalledOnce();
+  });
+
+  it('continues when duplicate_column fires but app tables exist', async () => {
+    migrate.mockRejectedValue(
+      Object.assign(new Error('column already exists'), {
+        cause: { code: '42701' },
+      }),
+    );
+    execute.mockImplementation(async (statement: unknown) => {
+      const text = sqlText(statement);
+      if (text.includes('to_regclass')) {
+        const table = /public\.(\w+)/.exec(text)?.[1] ?? 'unknown';
+        return { rows: [{ regclass: `public.${table}` }] };
+      }
+      return { rows: [] };
+    });
+
+    await expect(runMigrations()).resolves.toBeUndefined();
+    expect(resetPostgresSchemas).not.toHaveBeenCalled();
   });
 });
 

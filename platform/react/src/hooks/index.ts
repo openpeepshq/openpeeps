@@ -4,3 +4,7 @@ export type { UseCreateConversationArgs } from './conversations/useCreateConvers
 export { useLeaveCloseJam } from './jams/useLeaveCloseJam';
 export type { UseLeaveCloseJamArgs } from './jams/useLeaveCloseJam';
 export { useFeedPostActions } from './posts/useFeedPostActions';
+export {
+  useResolvedFeedFormat,
+  useFeedListParams,
+} from './useResolvedFeedFormat';

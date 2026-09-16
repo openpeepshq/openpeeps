@@ -105,11 +105,15 @@ steps — follow that skill.
 - **Schema migrations:** changes to stored data shape go through **Drizzle SQL**.
   Update tables under
   `platform/core/src/db/pg/schema/`, then
-  `pnpm --filter @openpeepshq/core db:generate` (SQL lands in
-  `platform/core/src/db/pg/sql/`) and apply with `db:migrate` (also runs on
-  server start). See `platform/core/docs/postgres-schema-adr.md`.
-  One-off PG data backfills belong in an intentional SQL migration or a
-  documented one-shot script.
+  `pnpm --filter @openpeepshq/core db:generate -- --name snake_case_what_it_does`
+  (SQL lands in `platform/core/src/db/pg/sql/`) and apply with `db:migrate`
+  (also runs on server start). See `platform/core/docs/postgres-schema-adr.md`.
+  Filenames must describe the change (`NNNN_snake_case_what_it_does.sql`, e.g.
+  `0011_drop_data_migrations.sql`). Always pass `--name`. Do not commit
+  drizzle-kit’s default Marvel-style tags (`silly_mariko_yashida`,
+  `bizarre_chat`). If generate produced one, rename the SQL file and the
+  matching `_journal.json` `tag` before committing. One-off PG data backfills
+  belong in an intentional SQL migration or a documented one-shot script.
 - **Queries:** keep `platform/core/src/db/pg/map/` for existing document/edge
   call sites, but **new features and hot-path work** should prefer Drizzle /
   SQL-native queries (typed repositories under domain modules or

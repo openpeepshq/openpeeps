@@ -30,6 +30,7 @@ import {
   NotificationsSettings,
   AccountSettings,
   ThemeSettings,
+  FeedSettings,
   VideoPlayer,
 } from '../../screens';
 import { MenuWrapper } from '~/components/navigation/side-menu-wrapper';
@@ -117,6 +118,7 @@ export const MainNavigator = () => {
       />
       <Stack.Screen name="AccountSettings" component={AccountSettings} />
       <Stack.Screen name="ThemeSettings" component={ThemeSettings} />
+      <Stack.Screen name="FeedSettings" component={FeedSettings} />
       <Stack.Screen name="VideoPlayer" component={VideoPlayer} />
     </Stack.Navigator>
   );

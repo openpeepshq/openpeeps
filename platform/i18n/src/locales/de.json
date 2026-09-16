@@ -422,6 +422,13 @@
       "successToast": "Antwort erfolgreich erstellt",
       "errorToast": "Beim Erstellen der Antwort ist ein Fehler aufgetreten"
     },
+    "compact": {
+      "deleted": "Dieser Beitrag wurde gelöscht.",
+      "pollOptions": "{{count}} Optionen",
+      "document": "Dokument",
+      "imageAlt": "Anhang",
+      "viewOriginal": "Originalbeitrag anzeigen"
+    },
     "feed": {
       "empty": "Noch keine Beiträge.",
       "pinned": "Angepinnt"
@@ -456,7 +463,10 @@
       "viewReactions": "Reaktionen anzeigen",
       "viewReposts": "Geteilte Beiträge anzeigen",
       "repliesCount": "{{count}} Antworten",
-      "repostsCount": "{{count}} geteilte Beiträge"
+      "repostsCount": "{{count}} geteilte Beiträge",
+      "viewConversation": "Unterhaltung anzeigen",
+      "moreReplies": "{{count}} weitere Antworten",
+      "newReplies": "Neue Antworten"
     },
     "visibility": {
       "title": "Beitragssichtbarkeit",
@@ -1967,6 +1977,12 @@
         "browser": "(Browser)",
         "updateSuccess": "Standardzeitzone erfolgreich aktualisiert."
       },
+      "feed": {
+        "title": "Standard-Feed-Layout",
+        "description": "Legen Sie fest, wie Antworten in Community-Feeds erscheinen",
+        "feedDescription": "Wählen Sie das Standard-Layout für Community-Feeds. Mitglieder können dies in ihren Einstellungen überschreiben. Verschachtelt hält Antworten unter dem Originalbeitrag; Linear listet jede Antwort als eigenen Eintrag.",
+        "updateSuccess": "Standard-Feed-Layout aktualisiert."
+      },
       "privacyPolicy": "URL der Datenschutzerklärung",
       "termsAndConditions": "URL der AGB",
       "lightTheme": {
@@ -2391,6 +2407,13 @@
       "timezoneDescription": "Wählen Sie die Zeitzone, die Sie verwenden möchten. Ist keine gesetzt, gilt die Community-Zeitzone.",
       "communityDefault": "(Community-Standard)",
       "updateSuccess": "Zeitzone aktualisiert."
+    },
+    "feed": {
+      "title": "Feed",
+      "description": "Wählen Sie, wie Antworten in Ihren Feeds erscheinen",
+      "feedDescription": "Verschachtelt hält Antworten unter dem Originalbeitrag. Linear listet jede Antwort als eigenen Eintrag mit kompakter Elternvorschau.",
+      "updateSuccess": "Feed-Layout aktualisiert.",
+      "updateError": "Feed-Layout konnte nicht aktualisiert werden."
     },
     "accessTokens": {
       "title": "Zugriffstoken",
@@ -3011,6 +3034,14 @@
   },
   "tags": {
     "title": "#{{hashtag}}"
+  },
+  "feed": {
+    "empty": "Noch keine Beiträge.",
+    "format": {
+      "switchLabel": "Feed-Layout",
+      "threaded": "Verschachtelt",
+      "linear": "Linear"
+    }
   },
   "docs": {
     "search": {

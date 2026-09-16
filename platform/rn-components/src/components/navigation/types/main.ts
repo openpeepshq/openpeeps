@@ -80,6 +80,7 @@ export type MainStackParamList = {
   NotificationsSettings: undefined;
   AccountSettings: undefined;
   ThemeSettings: undefined;
+  FeedSettings: undefined;
   Events: undefined;
   VideoPlayer: {
     url: string;
@@ -120,6 +121,7 @@ export const MAIN_ROUTES = {
   NOTIFICATIONS_SETTINGS: 'NotificationsSettings',
   ACCOUNT_SETTINGS: 'AccountSettings',
   THEME_SETTINGS: 'ThemeSettings',
+  FEED_SETTINGS: 'FeedSettings',
   EVENT_PAGE: 'EventPage',
   VIDEO_PLAYER: 'VideoPlayer',
 } as const;

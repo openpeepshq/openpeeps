@@ -46,6 +46,9 @@ export { ThreadedFeed } from './feed/threaded/ThreadedFeed';
 export type { ThreadedFeedProps } from './feed/threaded/ThreadedFeed';
 export { ThreadPost } from './feed/threaded/ThreadPost';
 export type { ThreadPostProps } from './feed/threaded/ThreadPost';
+export { CompactReplyParent } from './CompactReplyParent';
+export type { CompactReplyParentProps } from './CompactReplyParent';
+export { FeedFormatSwitch } from './FeedFormatSwitch';
 export { CardEvent } from './types/event/CardEvent';
 export type { CardEventProps } from './types/event/CardEvent';
 export { ProfileEventRelationship } from './types/event/ProfileEventRelationship';
@@ -69,6 +72,8 @@ export { useReplyModal } from './post-form/ReplyModalContext';
 export { PostInfoHeader } from './pieces/PostInfoHeader';
 export { PostReactionHeader } from './pieces/PostReactionHeader';
 export { FeedPostStats } from './pieces/FeedPostStats';
+export { FeedThreadPreview } from './pieces/FeedThreadPreview';
+export type { FeedThreadPreviewProps } from './pieces/FeedThreadPreview';
 export { PostActions } from './pieces/PostActions';
 export { Attachments } from './pieces/Attachments';
 

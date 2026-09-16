@@ -54,6 +54,10 @@ export function AdminConfigurationCommunity() {
         translationPrefix="configuration.community.timezone"
         action="/admin/configuration/community/timezone"
       />
+      <ConfigMenuButton
+        translationPrefix="configuration.community.feed"
+        action="/admin/configuration/community/feed"
+      />
     </div>
   );
 }

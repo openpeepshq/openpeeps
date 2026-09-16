@@ -38,7 +38,7 @@ import Footer from '~/components/custom/post/post-form/Footer';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {hasProcessingAttachments, toArticle, toNote, toQuestion} from '~/lib/post';
-import {FeedPost} from '~/components/custom/post/feed/chronological/FeedPost';
+import {CompactReplyParent} from '~/components/custom/post/feed/chronological/CompactReplyParent';
 
 type PostProps = MainScreenProps<'ReplyPost'>;
 
@@ -315,12 +315,7 @@ export const ReplyPost = ({route, navigation}: PostProps) => {
           <ActivityIndicator />
         ) : (
           <>
-            <FeedPost
-              post={post as PublicPost}
-              showReplyTo={false}
-              showMenu={false}
-              showReactionHeader={false}
-            />
+            <CompactReplyParent post={post as PublicPost} />
             <Button
               variant={'link'}
               onPress={handleReplyModalPress}

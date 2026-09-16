@@ -6,6 +6,7 @@ import {
   useServerInfo,
   PluginSlot,
 } from '../../components';
+import { useFeedListParams } from '../../hooks';
 
 export function FeedsLocal() {
   const t = useT();
@@ -15,7 +16,7 @@ export function FeedsLocal() {
 
   useNewNotePlusButton({ visibility });
 
-  const query = openpeepsApi.useLocalFeed();
+  const query = openpeepsApi.useLocalFeed(useFeedListParams());
   const pinnedPostId = serverInfo.communityConfig?.content?.pinnedPost;
 
   useSetPageHeader(

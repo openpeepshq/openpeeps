@@ -156,6 +156,7 @@ export function GroupShow() {
           </nav>
           <Feed
             query={eventsTab === 'upcoming' ? upcomingEvents : pastEvents}
+            formatSwitch={false}
           />
         </div>
       )}

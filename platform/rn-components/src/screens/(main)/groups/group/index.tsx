@@ -9,7 +9,7 @@ import {
   MainStackParamList,
   TabStackParamList,
 } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
 import {
   Feed,
   GenericHeader,
@@ -49,7 +49,10 @@ export const Group = ({ route, navigation }: GroupProps) => {
   const isLoading = id ? groupById.isLoading : groupByHandle.isLoading;
   const refetchGroup = id ? groupById.refetch : groupByHandle.refetch;
 
-  const postsQuery = openpeepsApi.usePostsByGroup(groupData?.id || "", { limit: 15 });
+  const postsQuery = openpeepsApi.usePostsByGroup(
+    groupData?.id || '',
+    useFeedListParams({ limit: 15 }),
+  );
   const eventsQuery = openpeepsApi.useGroupUpcomingEventsFeed(groupData?.id || "");
 
   const {

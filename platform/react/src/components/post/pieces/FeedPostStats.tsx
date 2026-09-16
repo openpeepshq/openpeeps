@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { MessageCircle } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { useT } from '../../../i18n';
 import { postReactionStats } from '../helpers';
@@ -39,7 +40,8 @@ export function FeedPostStats({ post }: FeedPostStatsProps) {
         </div>
         <div className="flex w-fit items-center gap-1">
           {post?.replyCount ? (
-            <span>
+            <span className="text-primary inline-flex items-center gap-1 font-medium">
+              <MessageCircle className="size-3.5" />
               {t('posts.stats.repliesCount', {
                 defaultValue: `${post.replyCount} replies`,
                 count: post.replyCount,

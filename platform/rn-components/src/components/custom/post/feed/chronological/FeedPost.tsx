@@ -12,9 +12,10 @@ import {
   FeedPostContent,
   PostReactionHeader,
   UnreadPostIndicator,
+  FeedThreadPreview,
 } from '../../pieces';
 import React from 'react';
-import { ThreadPost } from '../threaded/ThreadPost';
+import { CompactReplyParent } from './CompactReplyParent';
 import { ThemedView } from '~/components/ui/themed-view';
 import { usePostViewRef } from '~/hooks/use-post-view-ref';
 
@@ -79,13 +80,7 @@ export const FeedPost = ({
         />
       )}
       {post.replyTo && showReplyTo ? (
-        <ThreadPost
-          post={post.replyTo as PublicPost}
-          isParent={true}
-          isChild={false}
-          noActions={true}
-          noMenu={true}
-        />
+        <CompactReplyParent post={post.replyTo as PublicPost} />
       ) : null}
 
       <PostHeader
@@ -101,6 +96,12 @@ export const FeedPost = ({
         previewMode={previewMode}
         onPostPress={handlePostPress}
       />
+      {!hideReply &&
+      !displayedPost.inReplyToId &&
+      ((displayedPost.latestReplies?.length ?? 0) > 0 ||
+        (displayedPost.replyCount ?? 0) > 0) ? (
+        <FeedThreadPreview post={displayedPost} />
+      ) : null}
     </ThemedView>
   );
 };

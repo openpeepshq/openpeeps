@@ -12,6 +12,7 @@ export const Output = publicPostSchema.array();
 export const Query = z.object({
   start: z.string().optional(),
   limit: z.coerce.number().optional(),
+  format: z.enum(['threaded', 'linear']).optional(),
 });
 
 export const Error = {

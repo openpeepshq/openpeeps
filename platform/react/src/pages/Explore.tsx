@@ -259,7 +259,7 @@ export function Explore() {
           <div role="feed">
             {postItems.map((post) => (
               <a key={post.id} href={`/posts/${post.id}`}>
-                <FeedPost post={post} />
+                <FeedPost post={post} showReplyTo />
               </a>
             ))}
             {postItems.length === 0 ? (

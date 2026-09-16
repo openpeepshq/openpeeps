@@ -1,10 +1,12 @@
 import { View, ScrollView, RefreshControl } from 'react-native';
 import React from 'react';
 import type { PublicPost } from '@openpeepshq/common';
+import { useResolvedFeedFormat } from '@openpeepshq/react';
 import { useFocusEffect } from '@react-navigation/native';
 import { handleScroll } from '~/lib/utils';
 import { PinnedPost } from './PinnedPost';
 import { FeedPost } from './FeedPost';
+import { FeedFormatSwitch } from './FeedFormatSwitch';
 import { EmptyStateContainerType, InfiniteQueryResult } from '~/types';
 import { CustomLoader, EmptyStateContainer } from '~/components/custom';
 
@@ -16,6 +18,7 @@ interface Props {
     isPostFeed?: boolean;
     type?: EmptyStateContainerType;
     inGroup?: boolean;
+    formatSwitch?: boolean;
 }
 
 export const Feed = ({
@@ -25,15 +28,18 @@ export const Feed = ({
     isPostFeed = true,
     type = "posts",
     inGroup = false,
+    formatSwitch = true,
 }: Props) => {
     const [refreshing, setRefreshing] = React.useState(false);
     const refetchRef = React.useRef(query.refetch);
     refetchRef.current = query.refetch;
+    const { format } = useResolvedFeedFormat();
+    const hideReplies = formatSwitch && format === 'threaded';
 
     const allPosts: PublicPost[] = React.useMemo(() => {
         if (!query.data?.pages) { return []; }
-        return query.data.pages.flat().filter(p => p.id !== pinnedPostId);
-    }, [query.data?.pages, pinnedPostId]);
+        return query.data.pages.flat().filter(p => p.id !== pinnedPostId && !(hideReplies && p.inReplyToId));
+    }, [query.data?.pages, pinnedPostId, hideReplies]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -50,12 +56,14 @@ export const Feed = ({
 
     const content = (
         <>
+            {formatSwitch && query.isLoading ? <FeedFormatSwitch /> : null}
             {query.isLoading &&
                 Array.from({ length: 5 }).map((_, index) => {
                     return <CustomLoader key={`skeleton-${index}`} page="community" />;
                 })}
             {!query.isLoading && query.isFetched && (
                 <>
+                    {formatSwitch ? <FeedFormatSwitch /> : null}
                     {pinnedPostId && (
                         <PinnedPost postId={pinnedPostId} inGroup={inGroup} />
                     )}
@@ -65,7 +73,7 @@ export const Feed = ({
                                 <FeedPost
                                     key={p.id}
                                     post={p as PublicPost}
-                                    showReplyTo={true}
+                                    showReplyTo={!hideReplies}
                                     inGroup={inGroup}
                                 />
                             );

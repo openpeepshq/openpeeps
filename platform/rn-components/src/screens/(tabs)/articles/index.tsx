@@ -1,5 +1,5 @@
 import React from 'react';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
 import {
   Feed,
   TabScreensHeader,
@@ -9,7 +9,10 @@ import { ThemedText } from '~/components/ui/themed-text';
 export const Articles = () => {
   const { openpeepsApi } = useOpenpeeps();
 
-  const articlesQuery = openpeepsApi.usePostsByType('article', { limit: 15 });
+  const articlesQuery = openpeepsApi.usePostsByType(
+    'article',
+    useFeedListParams({ limit: 15 }),
+  );
 
   return (
     <>

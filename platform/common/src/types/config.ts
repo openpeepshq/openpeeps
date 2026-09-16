@@ -353,6 +353,7 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       openRegistrations: z.boolean(),
       defaultLanguage: z.string().optional(),
       defaultTimeZone: z.string().optional(),
+      defaultFeedFormat: z.enum(['threaded', 'linear']).optional(),
     }),
     roles: z.object({
       onRegistration: z.object({

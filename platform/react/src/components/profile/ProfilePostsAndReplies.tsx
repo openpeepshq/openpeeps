@@ -6,6 +6,7 @@ import { useT } from '../../i18n';
 import { useNavigate } from '../../contexts/router';
 import { AccessDeniedLoader } from '../layout/AccessDeniedLoader';
 import { Feed } from '../post/Feed';
+import { useFeedListParams } from '../../hooks';
 import { GroupCard } from '../groups/GroupCard';
 
 export interface ProfilePostsAndRepliesProps {
@@ -22,7 +23,10 @@ export function ProfilePostsAndReplies({
   const t = useT();
   const navigate = useNavigate();
   const { openpeepsApi } = useOpenpeeps();
-  const postsQuery = openpeepsApi.usePostsByProfile(profile.id);
+  const postsQuery = openpeepsApi.usePostsByProfile(
+    profile.id,
+    useFeedListParams(),
+  );
   const commonGroupsQuery = openpeepsApi.useCommonGroups(profile.id);
   const [tab, setTab] = useState<'posts' | 'groups'>('posts');
 

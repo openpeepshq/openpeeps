@@ -272,6 +272,17 @@ export const transformPost = async (
     replyTo: post.replyTo
       ? await transformPost(post.replyTo, currentProfile)
       : undefined,
+    latestReplies: (
+      await Promise.all(
+        (post.latestReplies ?? []).map((reply) =>
+          transformPost(reply, currentProfile),
+        ),
+      )
+    ).filter(
+      (reply) =>
+        !!reply.profile &&
+        (!reply.inReplyToId || reply.inReplyToId === post.id),
+    ),
     repost: post.repost
       ? await transformPost(post.repost, currentProfile)
       : undefined,

@@ -10,8 +10,9 @@ import { PostInfoHeader } from './pieces/PostInfoHeader';
 import { PostReactionHeader } from './pieces/PostReactionHeader';
 import { FeedPostStats } from './pieces/FeedPostStats';
 import { PostActions } from './pieces/PostActions';
-import { ThreadPost } from './feed/threaded/ThreadPost';
+import { CompactReplyParent } from './CompactReplyParent';
 import { UnreadPostIndicator } from './pieces/UnreadPostIndicator';
+import { FeedThreadPreview } from './pieces/FeedThreadPreview';
 
 export interface FeedPostProps {
   post: PublicPost;
@@ -50,6 +51,12 @@ export function FeedPost({
     (!!post.repost || !!post.inReplyToId || (!!post.groupId && !inGroup));
 
   const showsReplyTo = !!(showReplyTo && displayedPost.replyTo);
+  const showThreadPreview =
+    !noReactionHeader &&
+    !showsReplyTo &&
+    !displayedPost.inReplyToId &&
+    ((displayedPost.latestReplies?.length ?? 0) > 0 ||
+      (displayedPost.replyCount ?? 0) > 0);
 
   const hasStats = !!(
     displayedPost?.repostCount ||
@@ -75,24 +82,10 @@ export function FeedPost({
       )}
 
       {showsReplyTo && displayedPost.replyTo && (
-        // ThreadPost carries its own `p-2`, so pull it back to line its avatar
-        // and rail up with this post's avatar.
-        <a href={`/posts/${displayedPost.replyTo.id}`} className="-ml-2 block">
-          <ThreadPost
-            post={displayedPost.replyTo as PublicPost}
-            isParent
-            noActions
-            noMenu
-          />
-        </a>
+        <CompactReplyParent post={displayedPost.replyTo as PublicPost} />
       )}
 
       <div className="relative">
-        {/* Carries the reply preview's rail across the header's `py-2` down to
-            this post's avatar. */}
-        {showsReplyTo && (
-          <div className="bg-border-2 pointer-events-none absolute left-6 top-0 h-2 w-px" />
-        )}
         <PostInfoHeader
           post={displayedPost}
           showMenu={!hasReactionHeader}
@@ -105,6 +98,7 @@ export function FeedPost({
       </div>
 
       <PostActions post={displayedPost} />
+      {showThreadPreview ? <FeedThreadPreview post={displayedPost} /> : null}
     </article>
   );
 }
