@@ -1939,7 +1939,7 @@
         "color": "Dark Theme Highlight Color",
         "mode": "Dark",
         "uploadAuthBackground": "Click to upload a new signup page image for Dark Theme",
-        "uploadLogo": "Click to upload a new community background image for Dark Theme",
+        "uploadLogo": "Click to upload a logo to use for Dark Theme",
         "uploadBackground": "Click to upload a new community background image for Dark Theme"
       },
       "authBackgroundRequirements": "This image fits vertically on these pages, so use a vertical aspect ratio for best results.  Images less than 2MB are encouraged.",
