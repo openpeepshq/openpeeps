@@ -10,6 +10,7 @@ import {
 } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useCreateConversation } from '../../hooks/conversations/useCreateConversation';
+import { OpenpeepsMarkdownInput } from '../post';
 import { ProfilesInput } from '../profile';
 
 const MAX_MESSAGE_LENGTH = 500;
@@ -91,15 +92,17 @@ export const CreateNewConversation = ({
               </DialogTitle>
             </DialogHeader>
 
-            <textarea
-              className="bg-surface min-h-32 w-full rounded-lg border p-3 text-sm outline-none"
-              placeholder={t('conversations.createNew.messagePlaceholder', {
-                defaultValue: 'Write a message…',
-              })}
-              value={message}
-              maxLength={MAX_MESSAGE_LENGTH}
-              onChange={(e) => setMessage(e.target.value)}
-            />
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <OpenpeepsMarkdownInput
+                rows={5}
+                value={message}
+                onChange={setMessage}
+                maxLength={MAX_MESSAGE_LENGTH}
+                placeholder={t('conversations.createNew.messagePlaceholder', {
+                  defaultValue: 'Write a message…',
+                })}
+              />
+            </div>
 
             {error ? <p className="text-error text-sm">{error}</p> : null}
 
@@ -113,9 +116,6 @@ export const CreateNewConversation = ({
                   {t('common.cancel', { defaultValue: 'Cancel' })}
                 </Button>
               )}
-              <span className="text-muted-foreground flex-1 text-right text-sm">
-                {MAX_MESSAGE_LENGTH - message.length}
-              </span>
               <Button
                 variant="default"
                 disabled={submitting || selectedProfiles.length === 0}
