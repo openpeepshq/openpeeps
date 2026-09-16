@@ -327,11 +327,12 @@ export const serverInfoSchema = z.object({
   /** Process start time (ISO). */
   startedAt: z.iso.datetime(),
   uptimeSeconds: z.number().nonnegative(),
-  /** Media-folder filesystem usage; null when the path is unreadable. */
+  /** Local media-folder size and volume free space; null when unreadable. */
   disk: z
     .object({
-      totalBytes: z.number().nonnegative(),
+      folderBytes: z.number().nonnegative(),
       freeBytes: z.number().nonnegative(),
+      totalBytes: z.number().nonnegative(),
     })
     .nullable(),
   /** Latest post view (`post_seen.created_at`); null if none yet. */

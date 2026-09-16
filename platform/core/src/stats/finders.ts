@@ -9,6 +9,7 @@ import {
 } from '@openpeepshq/common/types';
 import { sub } from 'date-fns';
 import type { PgDb } from '../db/pg/client';
+import { jobActivityLast24h } from '../jobs';
 import { baseProfilesMapping } from '../profiles';
 import { allpeepDb } from '../db';
 import {
@@ -265,4 +266,5 @@ export const serverStats = async (): Promise<AdminServerStats> => ({
       fourMonths: await signupsTimeline('P120D'),
     },
   },
+  jobs: await jobActivityLast24h(),
 });

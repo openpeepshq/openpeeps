@@ -1,21 +1,26 @@
 import { MetricCard } from '@openpeepshq/react-ui';
 import type { ServerInfo } from '@openpeepshq/common/types';
 import { useT } from '../../../index';
-import { formatBytes, formatUptime, usagePercent } from './serverStatusFormat';
+import { formatBytes, formatUptime } from './serverStatusFormat';
 
-export const ServerStatusSection = ({ status }: { status: ServerInfo }) => {
+export const ServerStatusSection = ({
+  status,
+  jobsLast24h,
+  emailsLast24h,
+}: {
+  status: ServerInfo;
+  jobsLast24h: number;
+  emailsLast24h: number;
+}) => {
   const t = useT();
   const info = (key: string, defaultValue: string) =>
     t(`admin.overview.info.${key}`, { defaultValue });
   const startedAt = status.startedAt
     ? new Date(status.startedAt).toLocaleString()
     : '';
-  const diskUsed = status.disk
-    ? status.disk.totalBytes - status.disk.freeBytes
-    : 0;
-  const diskPct = status.disk
-    ? usagePercent(diskUsed, status.disk.totalBytes)
-    : 0;
+  const last24h = t('admin.overview.last24h', {
+    defaultValue: 'Last 24 hours',
+  });
   const versionSubtitle = [
     status.build
       ? t('admin.overview.build', {
@@ -35,6 +40,7 @@ export const ServerStatusSection = ({ status }: { status: ServerInfo }) => {
       </h2>
       <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
+          className="overflow-visible sm:col-span-2"
           label={t('admin.overview.communityName', {
             defaultValue: 'Community Name',
           })}
@@ -42,6 +48,7 @@ export const ServerStatusSection = ({ status }: { status: ServerInfo }) => {
           info={info('communityName', 'Display name from community settings.')}
         />
         <MetricCard
+          className="overflow-visible sm:col-span-2"
           label={t('admin.overview.serverVersion', {
             defaultValue: 'Server Version',
           })}
@@ -67,28 +74,50 @@ export const ServerStatusSection = ({ status }: { status: ServerInfo }) => {
         />
         <MetricCard
           label={t('admin.overview.mediaDisk', {
-            defaultValue: 'Media disk',
+            defaultValue: 'Media storage',
           })}
           value={
             status.disk
-              ? `${formatBytes(diskUsed)} / ${formatBytes(status.disk.totalBytes)}`
+              ? formatBytes(status.disk.folderBytes)
               : t('admin.overview.mediaDiskUnavailable', {
                   defaultValue: 'Unavailable',
                 })
           }
           subtitle={
             status.disk
-              ? t('admin.overview.mediaDiskUsed', {
-                  defaultValue: '{{percent}}% used',
-                  percent: Math.round(diskPct),
+              ? t('admin.overview.mediaDiskFree', {
+                  defaultValue: '{{free}} free on disk',
+                  free: formatBytes(status.disk.freeBytes),
                 })
               : undefined
           }
           info={info(
             status.disk ? 'mediaDisk' : 'mediaDiskUnavailable',
             status.disk
-              ? 'Filesystem usage of the folder that stores uploaded media.'
+              ? 'Size of files in the local media folder, and remaining space on that disk.'
               : 'Media storage path could not be read (missing folder or remote storage).',
+          )}
+        />
+        <MetricCard
+          label={t('admin.overview.jobsLast24h', {
+            defaultValue: 'Jobs',
+          })}
+          value={jobsLast24h}
+          subtitle={last24h}
+          info={info(
+            'jobsLast24h',
+            'BullMQ jobs completed in the last 24 hours across all queues.',
+          )}
+        />
+        <MetricCard
+          label={t('admin.overview.emailsLast24h', {
+            defaultValue: 'Emails sent',
+          })}
+          value={emailsLast24h}
+          subtitle={last24h}
+          info={info(
+            'emailsLast24h',
+            'Emails successfully sent by the send-email queue in the last 24 hours.',
           )}
         />
       </div>
