@@ -154,18 +154,6 @@ jobs:
               --build-arg "ENVIRONMENT=${{ needs.set-variables.outputs.environment }}" \
               -t "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}" --push .
           fi
-      - name: Build and push Arango cutover image
-        run: |
-          migrate_image="${{ needs.set-variables.outputs.registry_image_base }}-arango-migrate"
-          if docker manifest inspect "${migrate_image}:${{ needs.set-variables.outputs.short_sha }}" >/dev/null 2>&1; then
-            echo "Image ${migrate_image}:${{ needs.set-variables.outputs.short_sha }} already exists; skipping build."
-          else
-            docker buildx build \
-              -f archive/arango-migrate/Dockerfile \
-              -t "${migrate_image}:${{ needs.set-variables.outputs.short_sha }}" \
-              -t "${migrate_image}:${{ needs.set-variables.outputs.tag }}" \
-              --push .
-          fi
 
   test-unit:
     runs-on: docker
@@ -240,7 +228,6 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
         env:
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
-          AUTO_MIGRATE_FROM_ARANGO: "false"
           DISABLE_CONFIG_CACHE: "true"
           REDIS_HOST: "redis"
           JWT_SECRET: xxx
@@ -262,7 +249,6 @@ jobs:
         env:
           OPENPEEPS_COMMAND: worker
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
-          AUTO_MIGRATE_FROM_ARANGO: "false"
           DISABLE_CONFIG_CACHE: "true"
           REDIS_HOST: "redis"
           JWT_SECRET: xxx
@@ -300,7 +286,6 @@ jobs:
         if: matrix.suite == 'default' || matrix.suite == 'public' || matrix.suite == 'perf'
         env:
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
-          AUTO_MIGRATE_FROM_ARANGO: "false"
           JWT_SECRET: xxx
           MEDIA_STORAGE_PARAMS_PATH: /tmp/openpeeps-media
           LOGS_LOCAL_PATH: /tmp/openpeeps-logs
@@ -372,7 +357,6 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
         env:
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
-          AUTO_MIGRATE_FROM_ARANGO: "false"
           DISABLE_CONFIG_CACHE: "true"
           REDIS_HOST: "redis"
           JWT_SECRET: xxx
@@ -395,7 +379,6 @@ jobs:
         env:
           OPENPEEPS_COMMAND: worker
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
-          AUTO_MIGRATE_FROM_ARANGO: "false"
           DISABLE_CONFIG_CACHE: "true"
           REDIS_HOST: "redis"
           JWT_SECRET: xxx

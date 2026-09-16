@@ -562,7 +562,7 @@ describe('postHelpers', () => {
       ).toEqual(base);
     });
 
-    it('should use null maxAttendees for Arango when clearing capacity', () => {
+    it('should use null maxAttendees when clearing capacity', () => {
       const base = {
         type: 'event',
         start: '2023-01-01T00:00:00.000Z',

@@ -87,7 +87,6 @@
     "build:watch": "tsc && tsc-alias && (concurrently \"tsc -w\" \"tsc-alias -w\")",
     "prepublishOnly": "pnpm build",
     "uuidv7": "node -e 'import(\"uuidv7\").then(u => console.log(u.uuidv7()))'",
-    "create-migration": "node create-migration.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"

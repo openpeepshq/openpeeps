@@ -35,7 +35,6 @@ if (!fixturePath) {
   process.exit(1);
 }
 
-process.env.AUTO_MIGRATE_FROM_ARANGO = 'false';
 process.env.MEDIA_STORAGE_PARAMS_PATH =
   process.env.MEDIA_STORAGE_PARAMS_PATH || path.join(repoRoot, '.media-test');
 process.env.LOGS_LOCAL_PATH =

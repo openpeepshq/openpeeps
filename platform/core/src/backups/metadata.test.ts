@@ -13,4 +13,13 @@ describe('BackupMetadata', () => {
     expect(metadata.createdAt).toBe('2026-08-20T15:00:00.000Z');
     expect(metadata.schemaVersion).toBe('0006_fine_trish_tilby');
   });
+
+  it('rejects archives that are not postgres JSONL', () => {
+    expect(() => resolveBackupDatabaseType(undefined)).toThrow(
+      /not a Postgres JSONL archive/,
+    );
+    expect(() => resolveBackupDatabaseType({})).toThrow(
+      /not a Postgres JSONL archive/,
+    );
+  });
 });

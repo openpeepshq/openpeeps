@@ -11,7 +11,6 @@
 
 x-openpeeps-env: &openpeeps-env
   DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
-  AUTO_MIGRATE_FROM_ARANGO: "false"
   DISABLE_CONFIG_CACHE: "true"
   REDIS_HOST: redis
   HOST: "0.0.0.0"
@@ -90,7 +89,6 @@ services:
       - ../..:/workspace
     environment:
       DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
-      AUTO_MIGRATE_FROM_ARANGO: "false"
       JWT_SECRET: xxx
       MEDIA_STORAGE_PARAMS_PATH: /tmp/openpeeps-media
       LOGS_LOCAL_PATH: /tmp/openpeeps-logs

@@ -302,7 +302,7 @@ Email sending via SMTP:
 2. Authentication Check → await ensureLocalProfile()
 3. Authorization Check → await ensurePostCapabilities()
 4. Business Logic → @openpeepshq/core domain functions
-5. Database Access → Postgres (and legacy Arango mappings where present)
+5. Database Access → Postgres
 6. Response → JSON (SPA HTML is served by the static catch-all)
 ```
 

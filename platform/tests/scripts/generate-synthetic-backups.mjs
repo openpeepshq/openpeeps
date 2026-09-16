@@ -1,17 +1,14 @@
 /**
  * Regenerates fixtures/backups/{default-install,public-community}.zip from
- * platform/web/public/template/test-backup.zip, converted to the current
- * Postgres backup format (databaseType + schemaVersion).
+ * platform/web/public/template/test-backup.zip (Postgres JSONL).
  *
  * Run from platform/tests: `pnpm run fixtures:generate-backups`
- * Requires `@openpeepshq/core` to be built (`pnpm --filter @openpeepshq/core build`).
  */
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { convertArangoBackupDirToPostgres } from './arango-fixture-to-postgres.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = path.resolve(root, '../..');
@@ -106,8 +103,10 @@ const lockedCaps = {
 
 const capabilitiesForGroup = (group) => {
   if (group.capabilities) return group.capabilities;
-  if (group.discoverable) {
-    return group.locked ? lockedCaps : publicCaps;
+  const body = group.body && typeof group.body === 'object' ? group.body : {};
+  if (body.capabilities) return undefined;
+  if (group.discoverable ?? body.discoverable) {
+    return group.locked ?? body.locked ? lockedCaps : publicCaps;
   }
   return privateCaps;
 };
@@ -118,11 +117,31 @@ const applyGroupCapabilities = async (dir) => {
     .split('\n')
     .filter(Boolean)
     .map((line) => JSON.parse(line))
-    .map((group) => ({
-      ...group,
-      capabilities: capabilitiesForGroup(group),
-      displayName: String(group.displayName || group.handle).slice(0, 30),
-    }));
+    .map((group) => {
+      const capabilities = capabilitiesForGroup(group);
+      const displayName = String(
+        group.displayName || group.body?.displayName || group.handle || '',
+      ).slice(0, 30);
+      if (!capabilities) {
+        return displayName
+          ? {
+              ...group,
+              displayName: group.displayName || displayName,
+              body: { ...group.body, displayName },
+            }
+          : group;
+      }
+      return {
+        ...group,
+        capabilities,
+        displayName: group.displayName || displayName,
+        body: {
+          ...group.body,
+          capabilities,
+          displayName,
+        },
+      };
+    });
   await writeFile(
     groupsPath,
     `${groups.map((row) => JSON.stringify(row)).join('\n')}\n`,
@@ -130,7 +149,6 @@ const applyGroupCapabilities = async (dir) => {
 };
 
 const writeZipFromDir = async (dir, outZip) => {
-  // `zip -q` updates an existing archive and keeps deleted members.
   await rm(outZip, { force: true });
   execFileSync('zip', ['-qr', outZip, '.'], { cwd: dir });
 };
@@ -143,7 +161,6 @@ const defaultTmp = await mkdtemp(path.join(tmpdir(), 'op-default-backup-'));
 try {
   await unpackTemplate(defaultTmp);
   await applyGroupCapabilities(defaultTmp);
-  await convertArangoBackupDirToPostgres(defaultTmp);
   await writeZipFromDir(defaultTmp, path.join(outDir, 'default-install.zip'));
 } finally {
   await rm(defaultTmp, { recursive: true, force: true });
@@ -160,53 +177,39 @@ try {
     .filter(Boolean)
     .map((line) => JSON.parse(line))
     .map((row) => {
-      // Runtime loaders use openpeeps-* keys (legacy Arango used allpeep-*).
-      // Conversion to Postgres happens after this pass.
-      const key =
-        typeof row._key === 'string' && row._key.startsWith('allpeep-')
-          ? `openpeeps-${row._key.slice('allpeep-'.length)}`
-          : row._key;
-      const base = {
-        ...row,
-        _key: key,
-        ...(typeof row._id === 'string' && row._id.startsWith('configs/')
-          ? { _id: `configs/${key}` }
-          : {}),
-      };
-      if (key === 'openpeeps-community' || row._key === 'allpeep-community') {
+      if (row.key === 'openpeeps-community') {
         return {
-          ...base,
-          config: {
-            ...row.config,
+          ...row,
+          body: {
+            ...row.body,
             info: {
-              ...row.config?.info,
+              ...row.body?.info,
               name: 'Public Test Community',
               tagLine: 'Public community fixture',
             },
           },
         };
       }
-      if (key === 'openpeeps-core' || row._key === 'allpeep-core') {
+      if (row.key === 'openpeeps-core') {
         return {
-          ...base,
-          config: {
-            ...row.config,
+          ...row,
+          body: {
+            ...row.body,
             server: {
-              ...row.config?.server,
+              ...row.body?.server,
               publicContent: true,
               signUpsOpen: true,
             },
           },
         };
       }
-      return base;
+      return row;
     });
   await writeFile(
     configsPath,
     `${configs.map((row) => JSON.stringify(row)).join('\n')}\n`,
   );
 
-  await convertArangoBackupDirToPostgres(publicTmp);
   await writeZipFromDir(publicTmp, path.join(outDir, 'public-community.zip'));
 } finally {
   await rm(publicTmp, { recursive: true, force: true });

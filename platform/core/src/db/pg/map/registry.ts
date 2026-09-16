@@ -90,7 +90,7 @@ const hashtagsSplit = (data: Record<string, unknown>) => {
   return withScalars('name')(normalized);
 };
 
-/** Arango jam events use jamId; Postgres column is post_id. */
+/** Older jam events stored jamId; the column is post_id. */
 const jamEventsSplit = (data: Record<string, unknown>) => {
   const { postId, jamId, ...rest } = data;
   const scalars: Record<string, unknown> = {};
@@ -197,11 +197,6 @@ export const documentRegistry: Record<string, DocumentConfig> = {
     kind: 'document',
     table: documents.i18nEntries,
     splitPatch: withScalars('locale', 'namespace'),
-  },
-  dataMigrations: {
-    kind: 'document',
-    table: documents.dataMigrations,
-    splitPatch: bodyOnly,
   },
 };
 

@@ -109,7 +109,7 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
     }),
     db: fixed(
       z.object({
-        // Optional leftovers so Arango-era stored configs still parse.
+        // Optional legacy fields so older stored configs still parse.
         url: z.string().url().optional(),
         databaseName: z.string().optional(),
         databaseUrl: z.string(),

@@ -115,10 +115,8 @@ Chat/reactions mirror the app: REST persist then lossy `publishData`.
 
 ## Fixtures
 
-Synthetic backups are converted from `platform/web/public/template/test-backup.zip`
-into the current Postgres backup format (`databaseType: "postgres"` +
-`schemaVersion`). Core must be built first so the converter can reuse its Arango
-→ row mappers:
+Synthetic backups are copied from `platform/web/public/template/test-backup.zip`
+(Postgres JSONL with `databaseType: "postgres"` + `schemaVersion`):
 
 ```bash
 pnpm --filter @openpeepshq/core build
@@ -139,7 +137,6 @@ platform/tests/
   suites/*/seed.setup.ts        # Playwright setup project (runs before suite)
   scripts/jam-loadtest.mjs      # manual jam SFU + chat load harness
   scripts/api-perf.mjs          # API latency harness
-  scripts/arango-fixture-to-postgres.mjs
   scripts/generate-synthetic-backups.mjs
   scripts/generate-perf-fixture.mjs
 ```

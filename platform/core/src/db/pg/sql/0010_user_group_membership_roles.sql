@@ -1,4 +1,4 @@
--- Backfill user_groups.roles from pre-roles `capabilities` (Arango-era edges).
+-- Backfill user_groups.roles from pre-roles `capabilities` on membership edges.
 -- Memberships without roles fail private-group canReadPost while unseen SQL
 -- still counts them by edge existence.
 UPDATE "user_groups"

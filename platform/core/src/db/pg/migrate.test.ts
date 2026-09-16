@@ -69,21 +69,20 @@ describe('schema version helpers', () => {
     }
   });
 
-  it('resolves restore targets for arango vs postgres', () => {
-    expect(resolveRestoreSchemaVersion('arango')).toBe(getFirstSchemaVersion());
-    expect(resolveRestoreSchemaVersion('postgres')).toBe(
+  it('resolves restore targets for postgres backups', () => {
+    expect(resolveRestoreSchemaVersion()).toBe(
       LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION,
     );
     expect(LEGACY_POSTGRES_BACKUP_SCHEMA_VERSION).toBe('0007_shallow_oracle');
-    expect(
-      resolveRestoreSchemaVersion('postgres', getLatestSchemaVersion()),
-    ).toBe(getLatestSchemaVersion());
+    expect(resolveRestoreSchemaVersion(getLatestSchemaVersion())).toBe(
+      getLatestSchemaVersion(),
+    );
   });
 
   it('rejects unknown postgres schemaVersion tags', () => {
-    expect(() =>
-      resolveRestoreSchemaVersion('postgres', '9999_does_not_exist'),
-    ).toThrow(/Unknown Postgres schema version/);
+    expect(() => resolveRestoreSchemaVersion('9999_does_not_exist')).toThrow(
+      /Unknown Postgres schema version/,
+    );
   });
 });
 

@@ -186,7 +186,7 @@ export const normalizeEventDataForSave = <T extends Event>(event: T): T => {
   return { ...event, maxAttendees: Math.trunc(maxAttendees) };
 };
 
-/** ArangoDB may store null when capacity was cleared; strip for validation/output. */
+/** Null capacity means it was cleared; strip for validation/output. */
 export const normalizeEventDataFromDb = <T extends Event>(event: T): T => {
   if (event.maxAttendees != null) {
     return event;
@@ -197,7 +197,7 @@ export const normalizeEventDataFromDb = <T extends Event>(event: T): T => {
 export const normalizePostDataFromDb = (data: PostDataUnion): PostDataUnion =>
   data.type === 'event' ? normalizeEventDataFromDb(data) : data;
 
-/** ArangoDB update deep-merges nested `data`; null removes maxAttendees. */
+/** Nested `data` updates send null to remove maxAttendees. */
 export type EventDbUpdate = Omit<Event, 'maxAttendees'> & {
   maxAttendees?: number | null;
 };
