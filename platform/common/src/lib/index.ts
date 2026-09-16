@@ -2,6 +2,7 @@ export * from './utils';
 export * from './profileHelpers';
 export * from './text';
 export * from './postHelpers';
+export * from './feedCursor';
 export * from './capabilitiesHelpers';
 export * from './adminSections';
 export * from './groupHelpers';

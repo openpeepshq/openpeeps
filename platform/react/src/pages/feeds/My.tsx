@@ -16,5 +16,5 @@ export function FeedsMy() {
 
   useSetPageHeader(t('navigation.myFeed', { defaultValue: 'My feed' }));
 
-  return <Feed query={query} />;
+  return <Feed query={query} hideReplies />;
 }

@@ -85,6 +85,13 @@
       "when": 1789538000000,
       "tag": "0011_drop_data_migrations",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1789540000000,
+      "tag": "0012_silly_mariko_yashida",
+      "breakpoints": true
     }
   ]
 }

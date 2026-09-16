@@ -31,7 +31,12 @@ import {
   transformPost,
 } from './helpers';
 import type { Mapping, ObjectSort, PgFilter } from '../db/pg/map';
-import { addQuerySort, addStart, sortOldestFirst } from '../db/helpers';
+import {
+  addActivityStart,
+  addQuerySort,
+  addStart,
+  sortOldestFirst,
+} from '../db/helpers';
 import { sorts } from '../db/pg/queries';
 import { findHashtagByTag, hashtagsMapping } from '../hashtags';
 import { findGroup } from '../groups/finders';
@@ -157,6 +162,31 @@ export const baseFeed = ({
 }) =>
   addQuerySort(
     baseListPosts({ start, profile }).filter(postFilters.notDirect()),
+    sort,
+  );
+
+/**
+ * Community / my / group timelines: original posts (and reposts) only,
+ * ordered by last conversation activity. Replies stay nested on the post
+ * detail thread so the same conversation is not repeated as standalone
+ * feed items.
+ */
+const timelineFeed = ({
+  start,
+  sort,
+  profile,
+}: {
+  start?: string;
+  sort?: ObjectSort;
+  profile?: ProfileWithMeta;
+}) =>
+  addQuerySort(
+    addActivityStart<DbPost>(
+      postsMappingForProfile(profile)
+        .filter(postFilters.notDirect())
+        .filter(postFilters.notReply()),
+      start,
+    ),
     sort,
   );
 
@@ -354,7 +384,7 @@ export const listPostsByGroup = async (
         direction: 'INBOUND',
         skipEdge: true,
         cardinality: 'many',
-        mapping: baseFeed({ start, profile: authData.profile })
+        mapping: timelineFeed({ start, profile: authData.profile })
           .filter(filter)
           .data(),
       }),
@@ -368,7 +398,9 @@ export const listLocalFeed = async (
 ) =>
   withSpan('feed.local', () =>
     toFilteredPostsList(
-      baseFeed({ start, profile: authData.profile }).filter(localFeedFilter()),
+      timelineFeed({ start, profile: authData.profile }).filter(
+        localFeedFilter(),
+      ),
       { authData, limit },
     ),
   );
@@ -380,7 +412,7 @@ export const listMyFeed = async (
   const profile = requireProfile(authData);
   return withSpan('feed.my', () =>
     toFilteredPostsList(
-      baseFeed({ start, profile }).filter(myFeedFilter(profile)),
+      timelineFeed({ start, profile }).filter(myFeedFilter(profile)),
       { authData, limit, filters: [myFeedGroupMembershipFilter(profile)] },
     ),
   );
