@@ -428,4 +428,30 @@ describe('group owner role import normalize', () => {
       'owner',
     ]);
   });
+
+  it('maps legacy userGroups capabilities * to owner', () => {
+    const row = arangoDocToEdgeRow('userGroups', {
+      _key: '01961271-0702-7389-8793-dd0478331a8d',
+      _from: 'profiles/01961271-0702-7389-8793-dd0478331a8c',
+      _to: 'groups/01961271-0702-7389-8793-dd0478331a8a',
+      capabilities: ['*'],
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    });
+    const body = row.body as { roles: string[]; capabilities?: unknown };
+    expect(body.roles).toEqual(['owner']);
+    expect(body.capabilities).toBeUndefined();
+  });
+
+  it('maps a userGroups edge without roles to member', () => {
+    const row = arangoDocToEdgeRow('userGroups', {
+      _key: '01961271-0702-7389-8793-dd0478331a8e',
+      _from: 'profiles/01961271-0702-7389-8793-dd0478331a8c',
+      _to: 'groups/01961271-0702-7389-8793-dd0478331a8a',
+      capabilities: ['allpeep-core-groups-member'],
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    });
+    expect((row.body as { roles: string[] }).roles).toEqual(['member']);
+  });
 });

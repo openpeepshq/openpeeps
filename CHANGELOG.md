@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **cleanup**: remove unused Mastodon API compatibility types
 - **admin**: add uptime, media disk, and analytics cards to overview
 - **profiles**: add roles support to public profiles and enhance profile display
 - **markdown**: enhance table styling for better readability
@@ -19,6 +20,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **groups**: backfill membership roles on legacy user_groups edges
 - **cli**: close Redis so backup create and restore can exit
 - **cli**: close Postgres so backup restore can exit
 - **posts**: break thread rail between top-level replies
