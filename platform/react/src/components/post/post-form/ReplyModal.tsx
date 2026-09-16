@@ -24,7 +24,7 @@ import {
   useReplyStore,
 } from '../../../stores/newPosts';
 import { useServerInfo } from '../../server-data';
-import { ThreadPost } from '../feed/threaded/ThreadPost';
+import { CompactReplyParent } from '../CompactReplyParent';
 import { Avatar } from '../../profile';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
@@ -200,7 +200,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
                 {t('posts.replyModal.title', { defaultValue: 'Reply' })}
               </DialogTitle>
             </DialogHeader>
-            <ThreadPost post={post} noActions noMenu />
+            <CompactReplyParent post={post} />
             <div className="m-4 flex gap-2">
               {me ? <Avatar profile={me} size={3} /> : null}
               <div className="w-full space-y-2">
