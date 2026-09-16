@@ -10,6 +10,7 @@ export {
   useBreadcrumbs,
 } from './breadcrumbs';
 export { pageHeaderStore, usePageHeader, useSetPageHeader } from './pageHeader';
+export { feedFormatSessionStore, useFeedFormatSession } from './feedFormat';
 export {
   plusButtonStore,
   usePlusButton,

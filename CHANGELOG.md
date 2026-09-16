@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **posts**: switchable threaded and linear feeds
 - **admin**: show host memory and CPU on overview
 - **admin**: show media folder size and 24h job counts on overview
 - **cleanup**: remove unused Mastodon API compatibility types

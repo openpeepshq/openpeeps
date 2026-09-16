@@ -1,6 +1,7 @@
+import type { FeedCursor } from '@openpeepshq/common';
 import { and, eq, inArray, isNotNull, ne, or, sql } from 'drizzle-orm';
 import { posts } from '../schema/documents';
-import { postGroups } from '../schema/edges';
+import { postGroups, replyTo } from '../schema/edges';
 import {
   postHasYesOrMaybeRsvpExpr,
   postReplyCountExpr,
@@ -17,6 +18,31 @@ export const postFilters = {
   notDirect: (): SqlFilter => pgSql(ne(posts.visibility, 'direct')),
 
   isDirect: (): SqlFilter => pgSql(eq(posts.visibility, 'direct')),
+
+  /** Original posts only — replies belong in the parent thread, not the feed. */
+  notReply: (): SqlFilter =>
+    pgSql(
+      sql`NOT EXISTS (SELECT 1 FROM ${replyTo} WHERE ${replyTo.fromId} = ${posts.id}::text)`,
+    ),
+
+  /**
+   * Keyset for `ORDER BY last_activity_at DESC, id DESC`. A uuid-only cursor
+   * looks up the referenced row so older clients keep paginating.
+   */
+  afterActivity: (cursor: FeedCursor): SqlFilter => {
+    const activity = cursor.lastActivityAt
+      ? sql`${cursor.lastActivityAt}::timestamptz`
+      : sql`(SELECT p2.last_activity_at FROM posts p2 WHERE p2.id = ${cursor.id}::uuid)`;
+    return pgSql(
+      sql`(
+        ${posts.lastActivityAt} < ${activity}
+        OR (
+          ${posts.lastActivityAt} = ${activity}
+          AND ${posts.id} < ${cursor.id}::uuid
+        )
+      )`,
+    );
+  },
 
   hasJam: (): SqlFilter => pgSql(isNotNull(sql`${posts.body}->'jam'`)),
 

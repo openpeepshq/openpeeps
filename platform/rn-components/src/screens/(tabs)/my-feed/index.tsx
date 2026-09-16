@@ -4,7 +4,7 @@ import {
   TabStackParamList,
   MainStackParamList,
 } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { Feed, TabScreensHeader } from '~/components/custom';
 import { ThemedText } from '~/components/ui/themed-text';
@@ -17,9 +17,7 @@ type HomeScreenProps = CompositeScreenProps<
 export const MyFeed: React.FC<HomeScreenProps> = () => {
   const { openpeepsApi } = useOpenpeeps();
 
-  const query = openpeepsApi.useMyFeed({
-    limit: 15,
-  });
+  const query = openpeepsApi.useMyFeed(useFeedListParams({ limit: 15 }));
 
   return (
     <>

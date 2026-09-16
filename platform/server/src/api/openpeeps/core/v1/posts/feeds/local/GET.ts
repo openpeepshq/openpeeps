@@ -8,11 +8,12 @@ export const Output = publicPostSchema.array();
 export const Query = z.object({
   start: z.string().optional(),
   limit: z.coerce.number().optional(),
+  format: z.enum(['threaded', 'linear']).optional(),
 });
 
 export const apiEndpoint = endpoint({ Output, Query }).handle(
   async (params, event: RequestEvent) => {
     await ensureProfileOrPublicCommunity(event);
     return listLocalFeed(event.context.authData, Query.parse(params));
-  }
+  },
 );

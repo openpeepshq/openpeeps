@@ -1,3 +1,4 @@
+import { parseFeedFormat } from '@openpeepshq/common';
 import {
   AuthorizationData,
   PostWithMeta,
@@ -26,12 +27,16 @@ import {
   mentionsConnectionFinder,
   myFeedFilter,
   myFeedGroupMembershipFilter,
-  pastEventsFilter,
   toFilteredPostsList,
   transformPost,
 } from './helpers';
 import type { Mapping, ObjectSort, PgFilter } from '../db/pg/map';
-import { addQuerySort, addStart, sortOldestFirst } from '../db/helpers';
+import {
+  addActivityStart,
+  addQuerySort,
+  addStart,
+  sortOldestFirst,
+} from '../db/helpers';
 import { sorts } from '../db/pg/queries';
 import { findHashtagByTag, hashtagsMapping } from '../hashtags';
 import { findGroup } from '../groups/finders';
@@ -160,6 +165,46 @@ export const baseFeed = ({
     sort,
   );
 
+/**
+ * Community / my / group timelines: original posts (and reposts) only,
+ * ordered by last conversation activity. Replies stay nested on the post
+ * detail thread so the same conversation is not repeated as standalone
+ * feed items.
+ */
+const timelineFeed = ({
+  start,
+  sort,
+  profile,
+}: {
+  start?: string;
+  sort?: ObjectSort;
+  profile?: ProfileWithMeta;
+}) =>
+  addQuerySort(
+    addActivityStart<DbPost>(
+      postsMappingForProfile(profile)
+        .filter(postFilters.notDirect())
+        .filter(postFilters.notReply()),
+      start,
+    ),
+    sort,
+  );
+
+const conversationFeed = ({
+  start,
+  sort,
+  profile,
+  format,
+}: {
+  start?: string;
+  sort?: ObjectSort;
+  profile?: ProfileWithMeta;
+  format?: string | null;
+}) =>
+  parseFeedFormat(format) === 'linear'
+    ? baseFeed({ start, sort, profile })
+    : timelineFeed({ start, sort, profile });
+
 export const baseEventsFeed = (profile?: ProfileWithMeta) => {
   const mapping = postsMappingForProfile(profile)
     .sort(sorts.eventStartAsc)
@@ -206,7 +251,13 @@ export const listPostsByProfile = async (
     start,
     limit = 100,
     filter,
-  }: { start?: string; limit?: number; filter?: PgFilter<DbBasePost> } = {
+    format,
+  }: {
+    start?: string;
+    limit?: number;
+    filter?: PgFilter<DbBasePost>;
+    format?: string | null;
+  } = {
     limit: 100,
   },
 ) =>
@@ -218,7 +269,11 @@ export const listPostsByProfile = async (
       edgeFilter: edgeFilters.entryType('create'),
       skipEdge: true,
       cardinality: 'many',
-      mapping: baseFeed({ start, profile: authData.profile })
+      mapping: conversationFeed({
+        start,
+        profile: authData.profile,
+        format,
+      })
         .filter(filter)
         .data(),
     }),
@@ -232,7 +287,13 @@ export const listBookmarkedPosts = async (
     start,
     limit = 100,
     filter,
-  }: { start?: string; limit?: number; filter?: PgFilter<DbBasePost> } = {
+    format,
+  }: {
+    start?: string;
+    limit?: number;
+    filter?: PgFilter<DbBasePost>;
+    format?: string | null;
+  } = {
     limit: 100,
   },
 ) =>
@@ -243,7 +304,11 @@ export const listBookmarkedPosts = async (
       direction: 'OUTBOUND',
       skipEdge: true,
       cardinality: 'many',
-      mapping: baseFeed({ start, profile: authData.profile })
+      mapping: conversationFeed({
+        start,
+        profile: authData.profile,
+        format,
+      })
         .filter(filter)
         .data(),
     }),
@@ -286,12 +351,18 @@ export const listPostsByType = async (
     start,
     limit = 100,
     filter,
-  }: { start?: string; limit?: number; filter?: PgFilter<DbBasePost> } = {
+    format,
+  }: {
+    start?: string;
+    limit?: number;
+    filter?: PgFilter<DbBasePost>;
+    format?: string | null;
+  } = {
     limit: 100,
   },
 ) =>
   toFilteredPostsList(
-    baseFeed({ start, profile: authData.profile })
+    conversationFeed({ start, profile: authData.profile, format })
       .filter(filter)
       .filter({ matches: { type } }),
     { authData, limit },
@@ -304,7 +375,13 @@ export const listPostsByTag = async (
     start,
     limit = 100,
     filter,
-  }: { start?: string; limit?: number; filter?: PgFilter<DbBasePost> } = {
+    format,
+  }: {
+    start?: string;
+    limit?: number;
+    filter?: PgFilter<DbBasePost>;
+    format?: string | null;
+  } = {
     limit: 100,
   },
 ) => {
@@ -319,7 +396,11 @@ export const listPostsByTag = async (
       direction: 'INBOUND',
       cardinality: 'many',
       skipEdge: true,
-      mapping: baseFeed({ start, profile: authData.profile })
+      mapping: conversationFeed({
+        start,
+        profile: authData.profile,
+        format,
+      })
         .filter(filter)
         .data(),
     }),
@@ -334,12 +415,14 @@ export const listPostsByGroup = async (
     start,
     limit = 100,
     filter,
-    sort: _sort,
+    sort,
+    format,
   }: {
     start?: string;
     limit?: number;
     filter?: PgFilter<DbBasePost>;
     sort?: ObjectSort;
+    format?: string | null;
   } = { limit: 100 },
 ) =>
   withSpan('feed.group', async () => {
@@ -354,7 +437,12 @@ export const listPostsByGroup = async (
         direction: 'INBOUND',
         skipEdge: true,
         cardinality: 'many',
-        mapping: baseFeed({ start, profile: authData.profile })
+        mapping: conversationFeed({
+          start,
+          profile: authData.profile,
+          format,
+          sort,
+        })
           .filter(filter)
           .data(),
       }),
@@ -364,23 +452,41 @@ export const listPostsByGroup = async (
 
 export const listLocalFeed = async (
   authData: AuthorizationData,
-  { start, limit = 100 }: { start?: string; limit?: number } = { limit: 100 },
+  {
+    start,
+    limit = 100,
+    format,
+  }: { start?: string; limit?: number; format?: string | null } = {
+    limit: 100,
+  },
 ) =>
   withSpan('feed.local', () =>
     toFilteredPostsList(
-      baseFeed({ start, profile: authData.profile }).filter(localFeedFilter()),
+      conversationFeed({
+        start,
+        profile: authData.profile,
+        format,
+      }).filter(localFeedFilter()),
       { authData, limit },
     ),
   );
 
 export const listMyFeed = async (
   authData: AuthorizationData,
-  { start, limit = 100 }: { start?: string; limit?: number } = { limit: 100 },
+  {
+    start,
+    limit = 100,
+    format,
+  }: { start?: string; limit?: number; format?: string | null } = {
+    limit: 100,
+  },
 ) => {
   const profile = requireProfile(authData);
   return withSpan('feed.my', () =>
     toFilteredPostsList(
-      baseFeed({ start, profile }).filter(myFeedFilter(profile)),
+      conversationFeed({ start, profile, format }).filter(
+        myFeedFilter(profile),
+      ),
       { authData, limit, filters: [myFeedGroupMembershipFilter(profile)] },
     ),
   );

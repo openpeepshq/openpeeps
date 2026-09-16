@@ -2,6 +2,7 @@ import type { GroupWithMeta } from '@openpeepshq/common/types';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useNewNotePlusButton } from '../post/NewNoteButton';
 import { Feed } from '../post/Feed';
+import { useFeedListParams } from '../../hooks';
 
 export interface GroupFeedProps {
   group: GroupWithMeta;
@@ -16,7 +17,7 @@ export function GroupFeed({ group }: GroupFeedProps) {
 
   useNewNotePlusButton({ visibility: 'group', group });
 
-  const query = openpeepsApi.usePostsByGroup(group.id);
+  const query = openpeepsApi.usePostsByGroup(group.id, useFeedListParams());
 
   return <Feed query={query} inGroup pinnedPostId={group.pinnedPostId} />;
 }

@@ -187,8 +187,14 @@ const isSchemaConflictError = (err: unknown): boolean => {
     const code = (candidate as { code?: unknown }).code;
     // 23505 unique_violation (e.g. orphan composite type in pg_type)
     // 42P07 duplicate_table
+    // 42701 duplicate_column (partial migrate left a column, journal did not)
     // 3F000 invalid_schema_name (stale search_path after DROP public)
-    return code === '23505' || code === '42P07' || code === '3F000';
+    return (
+      code === '23505' ||
+      code === '42P07' ||
+      code === '42701' ||
+      code === '3F000'
+    );
   });
 };
 

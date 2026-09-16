@@ -430,6 +430,13 @@
       "successToast": "Reply created successfully",
       "errorToast": "An error occurred while creating the reply"
     },
+    "compact": {
+      "deleted": "This post has been deleted.",
+      "pollOptions": "{{count}} options",
+      "document": "Document",
+      "imageAlt": "Attachment",
+      "viewOriginal": "View original post"
+    },
     "feed": {
       "empty": "No posts yet.",
       "pinned": "Pinned post"
@@ -464,7 +471,10 @@
       "viewReactions": "View reactions",
       "viewReposts": "View reposts",
       "repliesCount": "{{count}} replies",
-      "repostsCount": "{{count}} reposts"
+      "repostsCount": "{{count}} reposts",
+      "viewConversation": "View conversation",
+      "moreReplies": "{{count}} more replies",
+      "newReplies": "New replies"
     },
     "visibility": {
       "title": "Post visibility",
@@ -1910,6 +1920,12 @@
         "browser": "(browser)",
         "updateSuccess": "Default timezone updated successfully."
       },
+      "feed": {
+        "title": "Default feed layout",
+        "description": "Set how replies appear in community feeds",
+        "feedDescription": "Choose the default layout for community feeds. Members can override this in their settings. Threaded keeps replies under the original post; linear lists each reply as its own item.",
+        "updateSuccess": "Default feed layout updated."
+      },
       "privacyPolicy": "Privacy Policy URL",
       "termsAndConditions": "Terms & Conditions URL",
       "lightTheme": {
@@ -2409,6 +2425,13 @@
       "timezoneDescription": "Select the timezone you want to use. If unset, the community timezone is used.",
       "communityDefault": "(community default)",
       "updateSuccess": "Timezone updated."
+    },
+    "feed": {
+      "title": "Feed",
+      "description": "Choose how replies appear in your feeds",
+      "feedDescription": "Threaded keeps replies under the original post. Linear lists each reply as its own item with a compact parent preview.",
+      "updateSuccess": "Feed layout updated.",
+      "updateError": "Failed to update feed layout."
     },
     "accessTokens": {
       "title": "Access tokens",
@@ -3057,6 +3080,14 @@
   },
   "tags": {
     "title": "#{{hashtag}}"
+  },
+  "feed": {
+    "empty": "No posts yet.",
+    "format": {
+      "switchLabel": "Feed layout",
+      "threaded": "Threaded",
+      "linear": "Linear"
+    }
   },
   "welcome": {
     "addProfileDetails": "Add profile details",

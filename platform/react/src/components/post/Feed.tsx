@@ -10,7 +10,9 @@ import type {
 } from '@tanstack/react-query';
 
 import { useT } from '../../i18n';
+import { useResolvedFeedFormat } from '../../hooks/useResolvedFeedFormat';
 import { FeedPost } from './FeedPost';
+import { FeedFormatSwitch } from './FeedFormatSwitch';
 import { PinnedPost } from './PinnedPost';
 import { LoadingSpinner } from '@openpeepshq/react-ui';
 
@@ -25,6 +27,8 @@ export interface FeedProps {
   inGroup?: boolean;
   /** When set, the post with this id is rendered first (pinned). */
   pinnedPostId?: string;
+  /** Hide the linear/threaded switch (event and jam lists). */
+  formatSwitch?: boolean;
 }
 
 /**
@@ -36,9 +40,16 @@ export interface FeedProps {
  * pinned post by id; here we filter it out of the chronological list and
  * leave the actual pinned rendering to a future port.
  */
-export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
+export function Feed({
+  query,
+  inGroup = false,
+  pinnedPostId,
+  formatSwitch = true,
+}: FeedProps) {
   const t = useT();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const { format } = useResolvedFeedFormat();
+  const hideReplies = formatSwitch && format === 'threaded';
 
   const posts = useMemo(() => {
     const flat = (query.data?.pages ?? []).flat();
@@ -47,11 +58,12 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
     for (const p of flat) {
       if (seen.has(p.id)) continue;
       if (pinnedPostId && p.id === pinnedPostId) continue;
+      if (hideReplies && p.inReplyToId) continue;
       seen.add(p.id);
       out.push(p);
     }
     return out;
-  }, [query.data, pinnedPostId]);
+  }, [query.data, pinnedPostId, hideReplies]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -78,19 +90,25 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
 
   if (query.isLoading) {
     return (
-      <div className="bg-surface text-muted-foreground flex h-32 items-center justify-center text-sm">
-        <LoadingSpinner />
+      <div>
+        {formatSwitch ? <FeedFormatSwitch /> : null}
+        <div className="bg-surface text-muted-foreground flex h-32 items-center justify-center text-sm">
+          <LoadingSpinner />
+        </div>
       </div>
     );
   }
 
   if (posts.length === 0 && !pinnedPostId) {
     return (
-      <div className="bg-surface flex h-96 w-full flex-col items-center justify-center gap-y-4">
-        <Rss className="text-muted-foreground size-20" />
-        <p className="text-xl">
-          {t('feed.empty', { defaultValue: 'No posts yet.' })}
-        </p>
+      <div>
+        {formatSwitch ? <FeedFormatSwitch /> : null}
+        <div className="bg-surface flex h-96 w-full flex-col items-center justify-center gap-y-4">
+          <Rss className="text-muted-foreground size-20" />
+          <p className="text-xl">
+            {t('feed.empty', { defaultValue: 'No posts yet.' })}
+          </p>
+        </div>
       </div>
     );
   }
@@ -101,6 +119,7 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
       aria-busy={query.isFetchingNextPage || undefined}
       className="bg-surface relative flex min-h-full flex-col gap-0.5"
     >
+      {formatSwitch ? <FeedFormatSwitch /> : null}
       {pinnedPostId ? (
         <PinnedPost pinnedPostId={pinnedPostId} inGroup={inGroup} />
       ) : null}
@@ -114,7 +133,7 @@ export function Feed({ query, inGroup = false, pinnedPostId }: FeedProps) {
           <FeedPost
             post={post}
             inGroup={inGroup}
-            showReplyTo
+            showReplyTo={!hideReplies}
             className="border-b-0"
           />
         </a>

@@ -46,8 +46,8 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
 
   const isMember = useCallback(
     (groupId: string) =>
-      currentProfile?.memberships?.some(m => m.group.id === groupId) || false,
-    [currentProfile],
+      currentProfile?.memberships?.some((m) => m.group.id === groupId) || false,
+    [currentProfile]
   );
 
   return (
@@ -55,7 +55,8 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
       <Tabs
         value={tabValue}
         onValueChange={setTabValue}
-        className="w-full mx-auto flex-col gap-1.5">
+        className="w-full mx-auto flex-col gap-1.5"
+      >
         <TabScreensHeader
           children={
             <View className="flex-row items-center justify-between p-2">
@@ -65,10 +66,12 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
                 </ThemedText>
               )}
               <View
-                className={`${isSearchToggled
-                  ? 'flex justify-end '
-                  : 'flex-row items-center gap-x-6'
-                  }`}>
+                className={`${
+                  isSearchToggled
+                    ? 'flex justify-end '
+                    : 'flex-row items-center gap-x-6'
+                }`}
+              >
                 {isSearchToggled ? (
                   <>
                     <View className=" w-full flex-row flex justify-end">
@@ -84,13 +87,15 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
                           setSearchQuery('');
                           setIsSearchToggled(false);
                           setTabValue('landing');
-                        }}>
+                        }}
+                      >
                         <XIcon size={24} className="text-foreground" />
                       </TouchableOpacity>
                     </View>
                     <ScrollView
                       horizontal
-                      showsHorizontalScrollIndicator={false}>
+                      showsHorizontalScrollIndicator={false}
+                    >
                       <TabsList className="flex-row w-full bg-transparent border-muted rounded-none border-b p-0">
                         <TabsTrigger
                           value="landing"
@@ -101,57 +106,67 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
                         />
                         <TabsTrigger
                           value="members"
-                          className={`${tabValue === 'members'
-                            ? 'border-b-2 border-foreground'
-                            : ''
-                            }`}
+                          className={`${
+                            tabValue === 'members'
+                              ? 'border-b-2 border-foreground'
+                              : ''
+                          }`}
                           onPress={() => {
                             setTabValue('members');
-                          }}>
+                          }}
+                        >
                           <ThemedText>Members</ThemedText>
                         </TabsTrigger>
                         <TabsTrigger
                           value="posts"
-                          className={`${tabValue === 'posts'
-                            ? 'border-b-2 border-foreground'
-                            : ''
-                            }`}
+                          className={`${
+                            tabValue === 'posts'
+                              ? 'border-b-2 border-foreground'
+                              : ''
+                          }`}
                           onPress={() => {
                             setTabValue('posts');
-                          }}>
+                          }}
+                        >
                           <ThemedText>Posts</ThemedText>
                         </TabsTrigger>
                         <TabsTrigger
                           value="jams"
-                          className={`${tabValue === 'jams'
-                            ? 'border-b-2 border-foreground'
-                            : ''
-                            }`}
+                          className={`${
+                            tabValue === 'jams'
+                              ? 'border-b-2 border-foreground'
+                              : ''
+                          }`}
                           onPress={() => {
                             setTabValue('jams');
-                          }}>
+                          }}
+                        >
                           <ThemedText>Jams</ThemedText>
                         </TabsTrigger>
                         <TabsTrigger
                           value="events"
-                          className={`${tabValue === 'events'
-                            ? 'border-b-2 border-foreground'
-                            : ''
-                            }`}
+                          className={`${
+                            tabValue === 'events'
+                              ? 'border-b-2 border-foreground'
+                              : ''
+                          }`}
                           onPress={() => {
                             setTabValue('events');
-                          }}>
+                          }}
+                        >
                           <ThemedText>Events</ThemedText>
                         </TabsTrigger>
                         <TabsTrigger
                           value="groups"
-                          className={`${tabValue === 'groups'
-                            ? 'border-b-2 border-foreground'
-                            : ''
-                            }`}
+                          className={`${
+                            tabValue === 'groups'
+                              ? 'border-b-2 border-foreground'
+                              : ''
+                          }`}
                           onPress={() => {
                             setTabValue('groups');
-                          }}>
+                          }}
+                        >
                           <ThemedText>Groups</ThemedText>
                         </TabsTrigger>
                       </TabsList>
@@ -170,7 +185,8 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
         />
         <TabsContent
           value="landing"
-          className="w-full flex h-64 items-center justify-center">
+          className="w-full flex h-64 items-center justify-center"
+        >
           <SearchIcon size={64} className="text-foreground" />
           {searchQuery !== '' ? (
             <ThemedText className=" mt-6">{t('explore.selectTab')}</ThemedText>
@@ -201,7 +217,8 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
                           setContt('');
                           setMember(item.data);
                           navigation.navigate('DraftMessage');
-                        }}>
+                        }}
+                      >
                         <MessageSquareTextIcon className="size-10 text-foreground" />
                       </Pressable>
                       <FollowUnfollowButton
@@ -213,7 +230,7 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
                 }
               />
             )}
-            uniqueBy={item => String(item?.data?.id)}
+            uniqueBy={(item) => String(item?.data?.id)}
             ListEmptyComponent={<EmptyStateContainer type="profiles" />}
           />
         </TabsContent>
@@ -226,12 +243,9 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
           <InfiniteScrollContainer
             query={searchPostsQuery}
             renderItem={({ item }) => (
-              <FeedPost
-                key={item.data.id}
-                post={item.data}
-              />
+              <FeedPost key={item.data.id} post={item.data} showReplyTo />
             )}
-            uniqueBy={item => String(item?.data?.id)}
+            uniqueBy={(item) => String(item?.data?.id)}
             ListEmptyComponent={<EmptyStateContainer type="posts" />}
           />
         </TabsContent>
@@ -244,12 +258,9 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
           <InfiniteScrollContainer
             query={searchJamsQuery}
             renderItem={({ item }) => (
-              <CardEvent
-                key={item.data.id}
-                post={item.data}
-              />
+              <CardEvent key={item.data.id} post={item.data} />
             )}
-            uniqueBy={item => String(item?.data?.id)}
+            uniqueBy={(item) => String(item?.data?.id)}
             ListEmptyComponent={<EmptyStateContainer type="my-jams" />}
           />
         </TabsContent>
@@ -262,12 +273,9 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
           <InfiniteScrollContainer
             query={searchEventQuery}
             renderItem={({ item }) => (
-              <CardEvent
-                key={item.data.id}
-                post={item.data}
-              />
+              <CardEvent key={item.data.id} post={item.data} />
             )}
-            uniqueBy={item => String(item?.data?.id)}
+            uniqueBy={(item) => String(item?.data?.id)}
             ListEmptyComponent={<EmptyStateContainer type="events" />}
           />
         </TabsContent>
@@ -289,7 +297,7 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
                 }
               />
             )}
-            uniqueBy={item => String(item?.data?.id)}
+            uniqueBy={(item) => String(item?.data?.id)}
             ListEmptyComponent={<EmptyStateContainer type="groups" />}
           />
         </TabsContent>

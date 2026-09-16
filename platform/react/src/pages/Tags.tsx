@@ -5,6 +5,7 @@ import {
   useDefaultVisibility,
   useNewNotePlusButton,
 } from '../components';
+import { useFeedListParams } from '../hooks';
 
 export function Tags() {
   const t = useT();
@@ -14,9 +15,13 @@ export function Tags() {
 
   useNewNotePlusButton({ visibility });
 
-  const query = openpeepsApi.usePostsByHashtag(hashtag);
+  // Hashtag hits can be replies; threaded would hide them.
+  const query = openpeepsApi.usePostsByHashtag(
+    hashtag,
+    useFeedListParams({ format: 'linear' }),
+  );
 
   useSetPageHeader(t('tags.title', { defaultValue: '#{{hashtag}}', hashtag }));
 
-  return <Feed query={query} />;
+  return <Feed query={query} formatSwitch={false} />;
 }

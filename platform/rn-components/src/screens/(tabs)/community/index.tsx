@@ -4,7 +4,7 @@ import {
   TabStackParamList,
   MainStackParamList,
 } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { TabScreensHeader } from '~/components/custom';
 import { ThemedText } from '~/components/ui/themed-text';
@@ -24,9 +24,7 @@ export const Home: React.FC<HomeScreenProps> = () => {
 
   const pinnedPostId = serverInfo?.communityConfig?.content?.pinnedPost;
 
-  const query = openpeepsApi.useLocalFeed({
-    limit: 15,
-  });
+  const query = openpeepsApi.useLocalFeed(useFeedListParams({ limit: 15 }));
 
   return (
     <>

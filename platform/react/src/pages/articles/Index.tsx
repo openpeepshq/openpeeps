@@ -7,11 +7,12 @@ import {
   useSetPlusButtonActions,
 } from '../../index';
 import { Feed } from '../../components';
+import { useFeedListParams } from '../../hooks';
 
 export function ArticlesIndex() {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
-  const query = openpeepsApi.usePostsByType('article');
+  const query = openpeepsApi.usePostsByType('article', useFeedListParams());
 
   useSetPageHeader(t('navigation.articles', { defaultValue: 'Articles' }));
 

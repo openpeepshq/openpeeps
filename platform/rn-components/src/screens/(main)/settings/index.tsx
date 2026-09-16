@@ -55,6 +55,11 @@ export const Settings = ({ }: NativeStackScreenProps<
       route: 'NotificationsSettings',
     },
     {
+      title: t('settings.feed.title'),
+      description: t('settings.feed.description'),
+      route: 'FeedSettings',
+    },
+    {
       title: 'Theme',
       description: t('settings.theme.description'),
       route: 'ThemeSettings',
@@ -81,6 +86,9 @@ export const Settings = ({ }: NativeStackScreenProps<
         break;
       case 'ThemeSettings':
         navigation.navigate('ThemeSettings');
+        break;
+      case 'FeedSettings':
+        navigation.navigate('FeedSettings');
         break;
       default:
         break;

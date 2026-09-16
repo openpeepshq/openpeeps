@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { MainScreenProps } from '~/components/navigation/types';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '~/components/ui/themed-text';
 import {
   ActivityIndicator,
@@ -53,9 +53,10 @@ export const Profile: React.FC<ProfileProps> = ({ navigation, route }) => {
     refetch: currentProfileRefetch,
   } = openpeepsApi.useCurrentProfile();
 
-  const query = openpeepsApi.usePostsByProfile(profileData?.id || '', {
-    limit: 15,
-  });
+  const query = openpeepsApi.usePostsByProfile(
+    profileData?.id || '',
+    useFeedListParams({ limit: 15 }),
+  );
   const { data: groups, isLoading: isGroupsLoading } = openpeepsApi.useCommonGroups(
     profileData?.id || '',
   );

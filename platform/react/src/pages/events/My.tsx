@@ -41,7 +41,7 @@ export function EventsMy() {
           {t('events.feed.past', { defaultValue: 'Past' })}
         </TabButton>
       </nav>
-      <Feed query={activeQuery} />
+      <Feed query={activeQuery} formatSwitch={false} />
     </div>
   );
 }

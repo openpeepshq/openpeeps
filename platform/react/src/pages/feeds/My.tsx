@@ -4,6 +4,7 @@ import {
   useDefaultVisibility,
   useNewNotePlusButton,
 } from '../../components';
+import { useFeedListParams } from '../../hooks';
 
 export function FeedsMy() {
   const t = useT();
@@ -12,7 +13,7 @@ export function FeedsMy() {
 
   useNewNotePlusButton({ visibility });
 
-  const query = openpeepsApi.useMyFeed();
+  const query = openpeepsApi.useMyFeed(useFeedListParams());
 
   useSetPageHeader(t('navigation.myFeed', { defaultValue: 'My feed' }));
 

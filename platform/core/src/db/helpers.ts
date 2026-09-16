@@ -1,3 +1,5 @@
+import { parseFeedCursor } from '@openpeepshq/common';
+import { and, eq } from 'drizzle-orm';
 import type { FilterAndTransformOptions, ObjectFilter } from './types';
 import type { CollectionInfo } from './pg/map/queryTypes';
 import type { Limit, Mapping, ObjectSort, WithId } from './pg/map';
@@ -6,8 +8,7 @@ import type { PgDb } from './pg/client';
 import { deleteEdge as deletePgEdge, insertEdge } from './pg/helpers';
 import { asTable, edgeRegistry } from './pg/map/registry';
 import { nowIso } from './pg/mappers';
-import { and, eq } from 'drizzle-orm';
-import { documentKeyAfter, documentKeyBefore } from './pg/filters';
+import { documentKeyAfter, documentKeyBefore, postFilters } from './pg/filters';
 import { sorts } from './pg/queries';
 
 const getPgEdge = async <C extends Record<string, unknown>>(
@@ -167,7 +168,18 @@ export const addStartLimit = <T extends object>(
 export const addStart = <T extends object>(
   mapping: Mapping<T>,
   start?: string,
-): Mapping<T> => filterBefore(sortNewestFirst(mapping), start);
+): Mapping<T> =>
+  filterBefore(sortNewestFirst(mapping), parseFeedCursor(start)?.id);
+
+export const addActivityStart = <T extends object>(
+  mapping: Mapping<T>,
+  start?: string,
+): Mapping<T> => {
+  const sorted = mapping.sort(sorts.lastActivityDesc);
+  const cursor = parseFeedCursor(start);
+  if (!cursor) return sorted;
+  return sorted.filter(postFilters.afterActivity(cursor));
+};
 
 const buildLimit = (limit: number, offset: number): Limit =>
   limit && offset ? [offset, limit] : limit;

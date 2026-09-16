@@ -120,6 +120,7 @@ import {
   AccessTokensSettings,
   LanguageSettings,
   TimezoneSettings,
+  FeedSettings,
   NotificationPreferences,
   PushEnabledDevices,
   ConversationInfo,
@@ -131,6 +132,7 @@ import {
   AdminDiagnosticsPerformance,
   AdminConfigurationCommunityLanguage,
   AdminConfigurationCommunityTimezone,
+  AdminConfigurationCommunityFeed,
 } from '@openpeepshq/react/pages';
 
 import { DocsLayout } from './pages/docs/DocsLayout';
@@ -295,6 +297,7 @@ const SettingsPages = {
   PushEnabledDevices,
   Language: LanguageSettings,
   Timezone: TimezoneSettings,
+  Feed: FeedSettings,
   Billing: BillingSettings,
   AccessTokens: AccessTokensSettings,
 };
@@ -337,6 +340,7 @@ const Admin = {
     CommunityInfo: AdminConfigurationCommunityInfo,
     CommunityLanguage: AdminConfigurationCommunityLanguage,
     CommunityTimezone: AdminConfigurationCommunityTimezone,
+    CommunityFeed: AdminConfigurationCommunityFeed,
     CommunityFavicons: AdminConfigurationCommunityFavicons,
     CommunityProfileFields: AdminConfigurationCommunityProfileFields,
     CommunityAboutPage: () => (
@@ -603,6 +607,10 @@ function AppShell() {
                       element={<SettingsPages.Timezone />}
                     />
                     <Route
+                      path="/settings/feed"
+                      element={<SettingsPages.Feed />}
+                    />
+                    <Route
                       path="/settings/billing"
                       element={<SettingsPages.Billing />}
                     />
@@ -742,6 +750,10 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/community/timezone"
                         element={<Admin.Config.CommunityTimezone />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/feed"
+                        element={<Admin.Config.CommunityFeed />}
                       />
                       <Route
                         path="/admin/configuration/community/favicons"

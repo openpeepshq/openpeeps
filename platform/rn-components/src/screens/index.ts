@@ -43,6 +43,7 @@ export { EditPost } from './(main)/post/edit';
 export { NotificationsSettings } from './(main)/settings/notifications';
 export { AccountSettings } from './(main)/settings/account';
 export { ThemeSettings } from './(main)/settings/theme';
+export { FeedSettings } from './(main)/settings/feed';
 export { Notifications } from './(tabs)/notification';
 export { HashtagPosts } from './(main)/tags';
 export { Explore } from './(tabs)/explore';

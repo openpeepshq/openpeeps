@@ -176,6 +176,7 @@ export const profileSettingsDataSchema = z.object({
     .optional(),
   feedSettings: z
     .object({
+      format: z.enum(['threaded', 'linear']).optional(),
       communityFeed: z
         .object({
           showGroupPosts: z.boolean().optional(),
