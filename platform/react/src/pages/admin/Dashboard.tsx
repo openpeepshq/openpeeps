@@ -85,11 +85,7 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6 p-4">
-      <ServerStatusSection
-        status={serverInfo}
-        jobsLast24h={stats.jobs.completedLast24h}
-        emailsLast24h={stats.jobs.emailsSentLast24h}
-      />
+      <ServerStatusSection status={serverInfo} host={stats.host} />
 
       <section>
         <h2 className="mb-3 text-lg font-medium">

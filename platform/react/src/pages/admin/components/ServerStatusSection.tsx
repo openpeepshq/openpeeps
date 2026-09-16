@@ -1,16 +1,14 @@
 import { MetricCard } from '@openpeepshq/react-ui';
-import type { ServerInfo } from '@openpeepshq/common/types';
+import type { HostResourceStats, ServerInfo } from '@openpeepshq/common/types';
 import { useT } from '../../../index';
-import { formatBytes, formatUptime } from './serverStatusFormat';
+import { formatBytes, formatUptime, usagePercent } from './serverStatusFormat';
 
 export const ServerStatusSection = ({
   status,
-  jobsLast24h,
-  emailsLast24h,
+  host,
 }: {
   status: ServerInfo;
-  jobsLast24h: number;
-  emailsLast24h: number;
+  host: HostResourceStats;
 }) => {
   const t = useT();
   const info = (key: string, defaultValue: string) =>
@@ -18,9 +16,12 @@ export const ServerStatusSection = ({
   const startedAt = status.startedAt
     ? new Date(status.startedAt).toLocaleString()
     : '';
-  const last24h = t('admin.overview.last24h', {
-    defaultValue: 'Last 24 hours',
-  });
+  const percentFilled = (percent: number) =>
+    t('admin.overview.percentFilled', {
+      defaultValue: '{{percent}}%',
+      percent: Math.round(percent),
+    });
+  const memoryAvailable = host.memoryTotalBytes > 0;
   const versionSubtitle = [
     status.build
       ? t('admin.overview.build', {
@@ -99,26 +100,33 @@ export const ServerStatusSection = ({
           )}
         />
         <MetricCard
-          label={t('admin.overview.jobsLast24h', {
-            defaultValue: 'Jobs',
+          label={t('admin.overview.memoryUsed', {
+            defaultValue: 'Memory',
           })}
-          value={jobsLast24h}
-          subtitle={last24h}
-          info={info(
-            'jobsLast24h',
-            'BullMQ jobs completed in the last 24 hours across all queues.',
-          )}
+          value={
+            memoryAvailable
+              ? percentFilled(
+                  usagePercent(host.memoryUsedBytes, host.memoryTotalBytes),
+                )
+              : t('admin.overview.mediaDiskUnavailable', {
+                  defaultValue: 'Unavailable',
+                })
+          }
+          subtitle={
+            memoryAvailable
+              ? t('admin.overview.memoryUsedOf', {
+                  defaultValue: '{{used}} of {{total}}',
+                  used: formatBytes(host.memoryUsedBytes),
+                  total: formatBytes(host.memoryTotalBytes),
+                })
+              : undefined
+          }
+          info={info('memoryUsed', 'Share of host RAM currently in use.')}
         />
         <MetricCard
-          label={t('admin.overview.emailsLast24h', {
-            defaultValue: 'Emails sent',
-          })}
-          value={emailsLast24h}
-          subtitle={last24h}
-          info={info(
-            'emailsLast24h',
-            'Emails successfully sent by the send-email queue in the last 24 hours.',
-          )}
+          label={t('admin.overview.cpuUsed', { defaultValue: 'CPU' })}
+          value={percentFilled(host.cpuUsedPercent)}
+          info={info('cpuUsed', 'Share of host CPU currently in use.')}
         />
       </div>
     </section>

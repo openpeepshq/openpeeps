@@ -85,7 +85,6 @@ export const getOrCreateQueue = (queueName: string): Queue =>
   (queues[queueName] = new Queue(queueName, { connection }));
 
 export { getJobDetail } from './jobDetail';
-export { jobActivityLast24h } from './activity';
 export {
   jobLogger,
   logStep,
