@@ -135,6 +135,21 @@ export const normalizeGroupMembershipRoles = (roles: unknown): unknown => {
   return [...new Set(roles.map((role) => (role === 'admin' ? 'owner' : role)))];
 };
 
+/** Pre-roles user_groups edges stored `capabilities` instead of `roles`. */
+export const rolesFromUserGroupBody = (
+  body: Record<string, unknown>,
+): string[] => {
+  const normalized = normalizeGroupMembershipRoles(body.roles);
+  if (Array.isArray(normalized) && normalized.length > 0) {
+    return normalized as string[];
+  }
+  const capabilities = body.capabilities;
+  if (Array.isArray(capabilities) && capabilities.includes('*')) {
+    return ['owner'];
+  }
+  return ['member'];
+};
+
 export const normalizeGroupCapabilityMap = (
   capabilities: Record<string, unknown>,
 ): Record<string, unknown> => {
@@ -294,8 +309,9 @@ export const arangoDocToEdgeRow = (
   const model = arangoDocToModel(doc);
   const { createdAt, updatedAt } = timestampsFromModel(model);
   const { createdAt: _c, updatedAt: _u, id: _id, ...body } = model;
-  if (collection === 'userGroups' && 'roles' in body) {
-    body.roles = normalizeGroupMembershipRoles(body.roles);
+  if (collection === 'userGroups') {
+    body.roles = rolesFromUserGroupBody(body);
+    delete body.capabilities;
   }
 
   return {
