@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **admin**: show host memory and CPU on overview
+- **admin**: show media folder size and 24h job counts on overview
 - **cleanup**: remove unused Mastodon API compatibility types
 - **admin**: add uptime, media disk, and analytics cards to overview
 - **profiles**: add roles support to public profiles and enhance profile display
@@ -34,6 +36,10 @@ Changelog for OpenPeeps
 
 - **mcp**: document community and ops MCP usage
 - **admin**: add theming and messaging sections
+
+### Chores
+
+- **db**: remove leftover ArangoDB cutover tooling
 
 ## 2026-09-10
 
