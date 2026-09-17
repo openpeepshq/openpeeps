@@ -307,6 +307,24 @@ describe('capabilitiesHelpers', () => {
       const result = checkRoleCapabilities([], ['any-capability']);
       expect(result.success).toBe(false);
     });
+
+    it('matches core-profiles-roles-update on both owner * and admin core-profiles-*', () => {
+      const cap = ['core-profiles-roles-update'];
+      expect(
+        checkRoleCapabilities(
+          [{ capabilities: { add: ['*'], remove: [] } }] as Role[],
+          cap,
+        ).success,
+      ).toBe(true);
+      expect(
+        checkRoleCapabilities(
+          [
+            { capabilities: { add: ['core-profiles-*'], remove: [] } },
+          ] as Role[],
+          cap,
+        ).success,
+      ).toBe(true);
+    });
   });
 
   describe('hasAdminSidebarAccess', () => {

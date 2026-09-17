@@ -14,6 +14,7 @@ import {
 } from './mapping';
 import { allpeepDb } from '../db';
 import { profileFilters } from '../db/pg/filters';
+import { getUniqueBy } from '@openpeepshq/common/lib';
 import { rolesMapping } from '../roles/mapping';
 import { findRolesByCapabilities } from '../roles/finders';
 import { expandProfiles, followFinder } from './helpers';
@@ -60,7 +61,7 @@ export const listProfilesWithCapabilities = async (
 ): Promise<ProfileWithMeta[]> =>
   findRolesByCapabilities(capabilities)
     .then((roles) => Promise.all(roles.map((role) => listProfilesByRole(role))))
-    .then((pp) => pp.flat());
+    .then((pp) => getUniqueBy(pp.flat(), (p) => p.id));
 
 export const follows = (
   follower: Profile,
@@ -81,10 +82,12 @@ export const listGroupMembers = (
       Promise.all(
         members
           .filter((m) => m.profile?.id)
-          .map(async (m): Promise<GroupMember> => ({
-            ...m,
-            profile: (await getProfile(m.profile.id))!,
-          })),
+          .map(
+            async (m): Promise<GroupMember> => ({
+              ...m,
+              profile: (await getProfile(m.profile.id))!,
+            }),
+          ),
       ),
     )
     .then((members) => members.filter((m) => !!m.profile));
