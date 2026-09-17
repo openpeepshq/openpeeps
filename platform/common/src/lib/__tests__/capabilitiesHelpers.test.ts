@@ -185,6 +185,8 @@ const mockCapabilitiesConfig: CapabilitiesConfig = {
     self: { add: ['profile-self'], remove: [] },
     'followed-by': { add: ['profile-followed-by'], remove: [] },
     following: { add: ['profile-following'], remove: [] },
+    blocked: { add: [], remove: ['core-posts-*', 'profile-none'] },
+    'blocked-by': { add: [], remove: ['*'] },
   },
   report: {
     local: { add: ['report-local'], remove: [] },
@@ -546,6 +548,34 @@ describe('capabilitiesHelpers', () => {
         expect.arrayContaining(['following', 'followed-by', 'none']),
       );
     });
+
+    it('emits blocked when the viewer blocked the target', () => {
+      const blocker = {
+        ...mockProfile,
+        blockingIds: ['public-profile1'],
+        blockedByIds: [],
+      } as ProfileWithMeta;
+      const result = getProfileRelationships(
+        authData({ profile: blocker }),
+        mockPublicProfile,
+      );
+      expect(result).toContain('blocked');
+      expect(result).not.toContain('blocked-by');
+    });
+
+    it('emits blocked-by when the target blocked the viewer', () => {
+      const blocked = {
+        ...mockProfile,
+        blockingIds: [],
+        blockedByIds: ['public-profile1'],
+      } as ProfileWithMeta;
+      const result = getProfileRelationships(
+        authData({ profile: blocked }),
+        mockPublicProfile,
+      );
+      expect(result).toContain('blocked-by');
+      expect(result).not.toContain('blocked');
+    });
   });
 
   describe('getPostRelationships', () => {
@@ -694,6 +724,36 @@ describe('capabilitiesHelpers', () => {
       );
       expect(result).toBeDefined();
     });
+
+    it('strips profile read when the viewer blocked the target', () => {
+      const blocker = {
+        ...mockProfile,
+        blockingIds: ['public-profile1'],
+        blockedByIds: [],
+      } as ProfileWithMeta;
+      const result = getProfileCapabilities(
+        authData({ profile: blocker }),
+        mockPublicProfile,
+        mockCapabilitiesConfig,
+      );
+      expect(result.remove).toEqual(
+        expect.arrayContaining(['core-posts-*', 'profile-none']),
+      );
+    });
+
+    it('strips all capabilities when the target blocked the viewer', () => {
+      const blocked = {
+        ...mockProfile,
+        blockingIds: [],
+        blockedByIds: ['public-profile1'],
+      } as ProfileWithMeta;
+      const result = getProfileCapabilities(
+        authData({ profile: blocked }),
+        mockPublicProfile,
+        mockCapabilitiesConfig,
+      );
+      expect(result.remove).toContain('*');
+    });
   });
 
   describe('checkGroupCapabilities', () => {
@@ -806,6 +866,21 @@ describe('capabilitiesHelpers', () => {
       );
       expect(result.success).toBe(true);
       expect(result.missingScope).toBeUndefined();
+    });
+
+    it('hides posts when the viewer and author are a blocked pair', () => {
+      const blocker = {
+        ...mockProfile,
+        blockingIds: ['public-profile1'],
+        blockedByIds: [],
+      } as ProfileWithMeta;
+      const result = checkPostCapabilities(
+        authData({ profile: blocker }),
+        ['core-posts-read'],
+        { ...mockPost, visibility: 'public', group: null },
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(false);
     });
 
     it('should not throw when a group has no capabilities map', () => {

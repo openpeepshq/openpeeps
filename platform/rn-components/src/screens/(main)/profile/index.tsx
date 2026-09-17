@@ -48,23 +48,20 @@ export const Profile: React.FC<ProfileProps> = ({ navigation, route }) => {
   } = openpeepsApi.useProfileByHandle(handle);
   const { data: serverInfo } = openpeepsApi.useServerInfo();
   const { t } = useTranslation();
-  const {
-    data: currentProfile,
-    refetch: currentProfileRefetch,
-  } = openpeepsApi.useCurrentProfile();
+  const { data: currentProfile, refetch: currentProfileRefetch } =
+    openpeepsApi.useCurrentProfile();
 
   const query = openpeepsApi.usePostsByProfile(
     profileData?.id || '',
-    useFeedListParams({ limit: 15 }),
+    useFeedListParams({ limit: 15 })
   );
-  const { data: groups, isLoading: isGroupsLoading } = openpeepsApi.useCommonGroups(
-    profileData?.id || '',
-  );
+  const { data: groups, isLoading: isGroupsLoading } =
+    openpeepsApi.useCommonGroups(profileData?.id || '');
   const [tabValue, setTabValue] = useState('posts');
   useFocusEffect(
     React.useCallback(() => {
       currentProfileRefetch();
-    }, [currentProfileRefetch]),
+    }, [currentProfileRefetch])
   );
   return (
     <ThemedSafeAreaView className="flex-1">
@@ -72,13 +69,11 @@ export const Profile: React.FC<ProfileProps> = ({ navigation, route }) => {
       <KeyboardAwareScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         className="w-full flex bg-background relative"
-        onScroll={({ nativeEvent }) =>
-          handleScroll(nativeEvent, query)
-        }
+        onScroll={({ nativeEvent }) => handleScroll(nativeEvent, query)}
         scrollEventThrottle={16}
         enableOnAndroid={true}
         extraScrollHeight={20}
-        >
+      >
         {isLoading && <ActivityIndicator size={'small'} />}
         {!isLoading && !isError && (
           <View className="w-full" collapsable={false}>
@@ -91,141 +86,173 @@ export const Profile: React.FC<ProfileProps> = ({ navigation, route }) => {
                 isCurrentProfile={currentProfile?.id === profileData.id}
               />
             )}
-            <View className="px-4 pt-2 w-full flex-1 gap-y-2 relative">
-              <View className="gap-1 mt-5">
-                <ThemedText className="text-lg font-semibold">
-                  {profileData?.displayName || profileData?.handle}
+            {profileData?.blockedByMe ? (
+              <View className="px-4 pt-8 items-center">
+                <ThemedText className="text-lg font-semibold text-center">
+                  {t('profile.block.blockedTitle')}
                 </ThemedText>
-                <ThemedText className="text-muted-foreground">
-                  {`@${profileData?.handle}`}
-                </ThemedText>
-                <OpenPeepsMarkdown source={profileData?.bio || 'No bio yet'} />
-              </View>
-              <View className="flex flex-row my-2 gap-x-6 gap-y-2 flex-wrap">
-                {(profileData as ProfileData)?.location && (
-                  <ProfileLinks
-                    Icon={MapPinIcon}
-                    title={(profileData as ProfileData)?.location?.text || '-'}
-                    disabled={true}
-                  />
-                )}
-                {serverInfo &&
-                  (serverInfo.communityConfig.profiles?.additionalFields
-                    ?.length || 0) > 0 && (
-                    <>
-                      {serverInfo.communityConfig.profiles?.additionalFields?.map(
-                        (field, index) => {
-                          const currentField = profileData?.fields?.find(
-                            f => f.name === field.label,
-                          );
-                          const isLink = isValidUrl(currentField?.value);
-
-                          return (
-                            <ProfileLinks
-                              key={index}
-                              url={isLink ? currentField?.value : undefined}
-                              disabled={!isLink}
-                              Icon={
-                                currentField?.name.toLowerCase() === 'company'
-                                  ? Building2Icon
-                                  : currentField?.name.toLowerCase() ===
-                                    'website'
-                                    ? Link2Icon
-                                    : currentField?.name.toLowerCase() === 'role'
-                                      ? BriefcaseIcon
-                                      : currentField?.name.toLowerCase() ===
-                                        'linkedin'
-                                        ? LinkedinIcon
-                                        : currentField?.name.toLowerCase() ===
-                                          'instagram'
-                                          ? InstagramIcon
-                                          : null
-                              }
-                              title={currentField?.value || '-'}
-                            />
-                          );
-                        },
-                      )}
-                    </>
-                  )}
-              </View>
-              <View className="flex flex-row my-2 gap-x-4">
-                <TouchableWithoutFeedback
-                  onPress={() => {
-                    navigation.navigate('ProfileFollowers', {
-                      id: profileData?.id || '',
-                    });
-                  }}>
-                  <View className="flex flex-row gap-x-2 underline">
-                    <ThemedText className="font-semibold">
-                      {profileData?.profileStats?.followersCount}
-                    </ThemedText>
-                    <ThemedText className="text-muted-foreground">
-                      {t('profile.followers.title')}
-                    </ThemedText>
-                  </View>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback
-                  onPress={() => {
-                    navigation.navigate('ProfileFollowing', {
-                      id: profileData?.id || '',
-                    });
-                  }}>
-                  <View className="flex flex-row gap-x-2 underline">
-                    <ThemedText className=" font-semibold">
-                      {profileData?.profileStats?.followingCount}
-                    </ThemedText>
-                    <ThemedText className=" text-muted-foreground">
-                      {t('profile.following.title')}
-                    </ThemedText>
-                  </View>
-                </TouchableWithoutFeedback>
-              </View>
-            </View>
-            <Tabs
-              value={tabValue}
-              onValueChange={setTabValue}
-              className="w-full mx-auto flex-col gap-1.5">
-              <TabsList className="flex-row w-full bg-transparent border-muted rounded-none border-b p-0 px-3">
-                <TabsTrigger
-                  value="posts"
-                  className={`${tabValue === 'posts' ? 'border-b-2 border-foreground' : ''
-                    }`}>
-                  <ThemedText>Posts</ThemedText>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="groups"
-                  className={`${tabValue === 'groups' ? 'border-b-2 border-foreground' : ''
-                    }`}
-                  onPress={() => {
-                    setTabValue('groups');
-                  }}>
-                  <ThemedText>Groups</ThemedText>
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="posts" className="p-0">
-                <Feed query={query} pinnedPostId={profileData?.pinnedPostId} />
-              </TabsContent>
-              <TabsContent value="groups">
-                {isGroupsLoading && <ActivityIndicator size={'small'} />}
-                {!isGroupsLoading && groups?.length === 0 && (
-                  <EmptyStateContainer type="groups" />
-                )}
-                {!isGroupsLoading &&
-                  groups?.map((group, index) => {
-                    return (
-                      <GroupCard
-                        key={index}
-                        group={group}
-                        isGroupMember={true}
-                        handleViewGroup={() =>
-                          navigation.navigate('Group', { id: group.id })
-                        }
-                      />
-                    );
+                <ThemedText className="text-muted-foreground text-center mt-2">
+                  {t('profile.block.blockedDescription', {
+                    handle: profileData.handle,
                   })}
-              </TabsContent>
-            </Tabs>
+                </ThemedText>
+              </View>
+            ) : (
+              <View className="px-4 pt-2 w-full flex-1 gap-y-2 relative">
+                <View className="gap-1 mt-5">
+                  <ThemedText className="text-lg font-semibold">
+                    {profileData?.displayName || profileData?.handle}
+                  </ThemedText>
+                  <ThemedText className="text-muted-foreground">
+                    {`@${profileData?.handle}`}
+                  </ThemedText>
+                  <OpenPeepsMarkdown
+                    source={profileData?.bio || 'No bio yet'}
+                  />
+                </View>
+                <View className="flex flex-row my-2 gap-x-6 gap-y-2 flex-wrap">
+                  {(profileData as ProfileData)?.location && (
+                    <ProfileLinks
+                      Icon={MapPinIcon}
+                      title={
+                        (profileData as ProfileData)?.location?.text || '-'
+                      }
+                      disabled={true}
+                    />
+                  )}
+                  {serverInfo &&
+                    (serverInfo.communityConfig.profiles?.additionalFields
+                      ?.length || 0) > 0 && (
+                      <>
+                        {serverInfo.communityConfig.profiles?.additionalFields?.map(
+                          (field, index) => {
+                            const currentField = profileData?.fields?.find(
+                              (f) => f.name === field.label
+                            );
+                            const isLink = isValidUrl(currentField?.value);
+
+                            return (
+                              <ProfileLinks
+                                key={index}
+                                url={isLink ? currentField?.value : undefined}
+                                disabled={!isLink}
+                                Icon={
+                                  currentField?.name.toLowerCase() === 'company'
+                                    ? Building2Icon
+                                    : currentField?.name.toLowerCase() ===
+                                        'website'
+                                      ? Link2Icon
+                                      : currentField?.name.toLowerCase() ===
+                                          'role'
+                                        ? BriefcaseIcon
+                                        : currentField?.name.toLowerCase() ===
+                                            'linkedin'
+                                          ? LinkedinIcon
+                                          : currentField?.name.toLowerCase() ===
+                                              'instagram'
+                                            ? InstagramIcon
+                                            : null
+                                }
+                                title={currentField?.value || '-'}
+                              />
+                            );
+                          }
+                        )}
+                      </>
+                    )}
+                </View>
+                <View className="flex flex-row my-2 gap-x-4">
+                  <TouchableWithoutFeedback
+                    onPress={() => {
+                      navigation.navigate('ProfileFollowers', {
+                        id: profileData?.id || '',
+                      });
+                    }}
+                  >
+                    <View className="flex flex-row gap-x-2 underline">
+                      <ThemedText className="font-semibold">
+                        {profileData?.profileStats?.followersCount}
+                      </ThemedText>
+                      <ThemedText className="text-muted-foreground">
+                        {t('profile.followers.title')}
+                      </ThemedText>
+                    </View>
+                  </TouchableWithoutFeedback>
+                  <TouchableWithoutFeedback
+                    onPress={() => {
+                      navigation.navigate('ProfileFollowing', {
+                        id: profileData?.id || '',
+                      });
+                    }}
+                  >
+                    <View className="flex flex-row gap-x-2 underline">
+                      <ThemedText className=" font-semibold">
+                        {profileData?.profileStats?.followingCount}
+                      </ThemedText>
+                      <ThemedText className=" text-muted-foreground">
+                        {t('profile.following.title')}
+                      </ThemedText>
+                    </View>
+                  </TouchableWithoutFeedback>
+                </View>
+                <Tabs
+                  value={tabValue}
+                  onValueChange={setTabValue}
+                  className="w-full mx-auto flex-col gap-1.5"
+                >
+                  <TabsList className="flex-row w-full bg-transparent border-muted rounded-none border-b p-0 px-3">
+                    <TabsTrigger
+                      value="posts"
+                      className={`${
+                        tabValue === 'posts'
+                          ? 'border-b-2 border-foreground'
+                          : ''
+                      }`}
+                    >
+                      <ThemedText>Posts</ThemedText>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="groups"
+                      className={`${
+                        tabValue === 'groups'
+                          ? 'border-b-2 border-foreground'
+                          : ''
+                      }`}
+                      onPress={() => {
+                        setTabValue('groups');
+                      }}
+                    >
+                      <ThemedText>Groups</ThemedText>
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="posts" className="p-0">
+                    <Feed
+                      query={query}
+                      pinnedPostId={profileData?.pinnedPostId}
+                    />
+                  </TabsContent>
+                  <TabsContent value="groups">
+                    {isGroupsLoading && <ActivityIndicator size={'small'} />}
+                    {!isGroupsLoading && groups?.length === 0 && (
+                      <EmptyStateContainer type="groups" />
+                    )}
+                    {!isGroupsLoading &&
+                      groups?.map((group, index) => {
+                        return (
+                          <GroupCard
+                            key={index}
+                            group={group}
+                            isGroupMember={true}
+                            handleViewGroup={() =>
+                              navigation.navigate('Group', { id: group.id })
+                            }
+                          />
+                        );
+                      })}
+                  </TabsContent>
+                </Tabs>
+              </View>
+            )}
           </View>
         )}
         {!isLoading && isError && (
@@ -253,7 +280,12 @@ interface ProfileLinksProps {
   disabled?: boolean;
 }
 
-const ProfileLinks: React.FC<ProfileLinksProps> = ({ Icon, title, url, disabled = false }) => {
+const ProfileLinks: React.FC<ProfileLinksProps> = ({
+  Icon,
+  title,
+  url,
+  disabled = false,
+}) => {
   return (
     <TouchableOpacity
       className="flex flex-row gap-x-1 items-center"
@@ -264,7 +296,8 @@ const ProfileLinks: React.FC<ProfileLinksProps> = ({ Icon, title, url, disabled 
     >
       {Icon && <Icon size={16} className="text-foreground" />}
       <ThemedText
-        className={`${url ? 'text-blue-400' : 'text-gray-400'} text-base`}>
+        className={`${url ? 'text-blue-400' : 'text-gray-400'} text-base`}
+      >
         {title}
       </ThemedText>
     </TouchableOpacity>

@@ -35,6 +35,7 @@ export const profileRelationships = [
   'self',
   'following',
   'followed-by',
+  'blocked',
   'blocked-by',
   'muted-by',
 ] as const;

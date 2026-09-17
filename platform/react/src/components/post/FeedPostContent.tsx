@@ -1,4 +1,5 @@
 import type { PublicPost } from '@openpeepshq/common/types';
+import { useT } from '../../i18n';
 
 import { FeedArticle } from './types/Article';
 import { FeedEvent } from './types/Event';
@@ -10,6 +11,14 @@ export interface FeedPostContentProps {
 }
 
 export function FeedPostContent({ post }: FeedPostContentProps) {
+  const t = useT();
+  if (post.hidden) {
+    return (
+      <div className="text-muted-foreground text-sm">
+        {t('posts.hiddenMessage', { defaultValue: 'Hidden message' })}
+      </div>
+    );
+  }
   if (post.deletedAt) {
     return (
       <div className="text-muted-foreground text-sm">

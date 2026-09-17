@@ -9,6 +9,7 @@ import type { RequestEvent } from '@riddl/core';
 import { endpoint, z } from '#lib/endpoint';
 import { notFound } from '#lib/helpers';
 import { findProfile, follow, unfollow } from '@openpeepshq/core/profiles';
+import { isBlockedPair } from '@openpeepshq/common/lib';
 
 export const followParamsSchema = z.object({
   profileId: z.string(),
@@ -28,7 +29,13 @@ export const followProfileHandler = async (
     throw notFound(`profile with id ${profileId}`);
   }
 
-  await ensureProfileCapabilities(event, profileToFollow, ['core-profiles-follow']);
+  if (isBlockedPair(profile, profileToFollow.id)) {
+    throw notFound(`profile with id ${profileId}`);
+  }
+
+  await ensureProfileCapabilities(event, profileToFollow, [
+    'core-profiles-follow',
+  ]);
 
   await follow(profile, profileToFollow, followDataSchema.parse(followInput));
 

@@ -98,6 +98,11 @@ export const profileHooks = (
   unfollowProfileAction: noPayloadMutation(client.profiles.unfollow, [
     ['profiles'],
   ]),
+  blockProfileAction: noPayloadMutation(client.profiles.block, [['profiles']]),
+  unblockProfileAction: noPayloadMutation(client.profiles.unblock, [
+    ['profiles'],
+  ]),
+  useBlockedProfiles: () => apiHook(client.profiles.current.blocked),
   useCurrentProfile: () => {
     const hasToken = useHasAuthToken();
     return apiHook(client.profiles.current.read, {

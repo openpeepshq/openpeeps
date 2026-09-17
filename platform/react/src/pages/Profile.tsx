@@ -41,13 +41,33 @@ export function Profile() {
   return (
     <AccessDeniedLoader queries={[profileQuery]} fallbackError={notFound}>
       {profile ? (
-        <div>
-          <ProfileHeader
-            profile={profile}
-            isCurrentProfile={me?.handle === profile.handle}
-          />
-          <ProfilePostsAndReplies profile={profile} />
-        </div>
+        profile.blockedByMe ? (
+          <div>
+            <ProfileHeader profile={profile} isCurrentProfile={false} />
+            <div className="flex flex-col items-center px-4 pb-8">
+              <p className="text-lg font-medium">
+                {t('profile.block.blockedTitle', {
+                  defaultValue: 'You have blocked this profile',
+                })}
+              </p>
+              <p className="text-muted-foreground mt-2 text-center text-sm">
+                {t('profile.block.blockedDescription', {
+                  defaultValue:
+                    'Unblock @{{handle}} to see their profile and posts again.',
+                  handle: profile.handle,
+                })}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <ProfileHeader
+              profile={profile}
+              isCurrentProfile={me?.handle === profile.handle}
+            />
+            <ProfilePostsAndReplies profile={profile} />
+          </div>
+        )
       ) : (
         notFound
       )}

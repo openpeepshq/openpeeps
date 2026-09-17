@@ -1,4 +1,4 @@
-import { View, Share as ShareApi } from 'react-native';
+import { View, Share as ShareApi, Alert } from 'react-native';
 import React, { useCallback, useRef } from 'react';
 import { PublicProfile } from '@openpeepshq/common';
 import { Button } from '~/components/ui/button';
@@ -28,6 +28,7 @@ import { useNewConversationStore } from '~/stores/useNewConversationStore';
 import { useTranslation } from 'react-i18next';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ReportProfileOrPostSheet } from '../common/report-profile-or-post-sheet';
+import { useOpenpeeps } from '@openpeepshq/react';
 
 interface ProfileActionsProps extends MainScreenProps<'Profile'> {
   profile: PublicProfile;
@@ -44,6 +45,33 @@ export const ProfileActions = ({
   const { clearMembers, setContt, setMember } = useNewConversationStore();
   const reportProfileModalRef = useRef<BottomSheetModal>(null);
   const { t } = useTranslation();
+  const { openpeepsApi } = useOpenpeeps();
+  const blockProfile = openpeepsApi.blockProfileAction({ id: profile.id });
+  const unblockProfile = openpeepsApi.unblockProfileAction({ id: profile.id });
+  const currentQuery = openpeepsApi.useCurrentProfile();
+  const profileQuery = openpeepsApi.useProfileByHandle(profile.handle);
+
+  const refresh = () => {
+    void currentQuery.refetch();
+    void profileQuery.refetch();
+  };
+
+  const confirmBlock = () => {
+    Alert.alert(
+      t('profile.block.title', { handle: profile.handle }),
+      t('profile.block.description', { handle: profile.handle }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('profile.block.confirm'),
+          style: 'destructive',
+          onPress: () => {
+            void blockProfile(undefined).then(refresh);
+          },
+        },
+      ]
+    );
+  };
 
   const shareContent = async () => {
     try {
@@ -64,7 +92,17 @@ export const ProfileActions = ({
   }, []);
   return (
     <View className="flex flex-row justify-end gap-x-3 mt-2 pr-2">
-      {!isCurrentProfile && (
+      {profile.blockedByMe && !isCurrentProfile ? (
+        <Button
+          variant={'outline'}
+          onPress={() => {
+            void unblockProfile(undefined).then(refresh);
+          }}
+        >
+          <ThemedText>{t('profile.block.unblock')}</ThemedText>
+        </Button>
+      ) : null}
+      {!isCurrentProfile && !profile.blockedByMe && (
         <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -78,7 +116,8 @@ export const ProfileActions = ({
                   onPress={() => {
                     Clipboard.setString(`${BASE_URL}@${profile.handle}`);
                   }}
-                  className=" flex-row gap-x-2 items-center">
+                  className=" flex-row gap-x-2 items-center"
+                >
                   <LinkIcon className="text-foreground" />
                   <ThemedText>
                     {t('profile.actions.copyProfileLink')}
@@ -86,19 +125,26 @@ export const ProfileActions = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className=" flex-row gap-x-2 items-center"
-                  onPress={shareContent}>
+                  onPress={shareContent}
+                >
                   <ShareIcon className="text-foreground" />
                   <ThemedText>{t('common.actions.shareProfile')}</ThemedText>
                 </DropdownMenuItem>
-                <DropdownMenuItem className=" flex-row gap-x-2 items-center">
+                <DropdownMenuItem
+                  className=" flex-row gap-x-2 items-center"
+                  onPress={confirmBlock}
+                >
                   <BanIcon className="text-foreground" />
                   <ThemedText>
-                    {t('common.actions.blockProfile', { handle: profile.handle })}
+                    {t('common.actions.blockProfile', {
+                      handle: profile.handle,
+                    })}
                   </ThemedText>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onPress={handleReportProfileModalPress}
-                  className=" flex-row gap-x-2 items-center text-destructive">
+                  className=" flex-row gap-x-2 items-center text-destructive"
+                >
                   <FlagIcon className="text-destructive" />
                   <ThemedText className="text-destructive">
                     {t('common.actions.reportProfile', {
@@ -120,7 +166,8 @@ export const ProfileActions = ({
               navigation.navigate('DraftMessage');
             }}
             size={'icon'}
-            variant={'outline'}>
+            variant={'outline'}
+          >
             <MessageSquareIcon size={16} className="text-foreground" />
           </Button>
           <FollowUnfollowButton profile={profile} />
@@ -153,7 +200,8 @@ export const ProfileActions = ({
               navigation.navigate('EditProfile', {
                 handle: profile.handle,
               });
-            }}>
+            }}
+          >
             <ThemedText>{t('profile.actions.edit')}</ThemedText>
           </Button>
         </>

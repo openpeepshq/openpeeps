@@ -8,6 +8,7 @@ import {
   canModerateJam,
   countYesRsvps,
   getEffectiveRsvp,
+  isBlockedPair,
   jamRoomName,
 } from '@openpeepshq/common/lib';
 import { authNeeded, forbidden, notFound } from '../errors';
@@ -22,6 +23,7 @@ import {
 import { localInstanceDomain } from './helpers';
 import { createJamEvent } from './mutations';
 import { uuidv7 } from 'uuidv7';
+import { findProfile } from '../profiles';
 
 const calculateSources = (jam: Jam, profile: PublicProfile) => {
   const sources: TrackSource[] = [TrackSource.MICROPHONE];
@@ -120,6 +122,11 @@ export const createJamToken = async (
   const jam = event.data?.type === 'event' && event.data?.jam;
 
   if (!jam) {
+    throw notFound({ errorKey: 'error.jamNotFound', parameters: { jamId } });
+  }
+
+  const joiner = await findProfile(profile.id);
+  if (joiner && isBlockedPair(joiner, event.profile?.id)) {
     throw notFound({ errorKey: 'error.jamNotFound', parameters: { jamId } });
   }
 

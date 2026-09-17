@@ -1,4 +1,5 @@
 import type { PublicProfile } from '@openpeepshq/common/types';
+import { blockedPairIds } from '@openpeepshq/common/lib';
 import {
   Button,
   Dialog,
@@ -64,7 +65,7 @@ export const CreateNewConversation = ({
               <ProfilesInput
                 value={selectedProfiles}
                 onChange={setSelectedProfiles}
-                banlist={me ? [me] : []}
+                banlist={me ? [me.id, ...blockedPairIds(me)] : []}
                 placeholder={t('conversations.createNew.searchPlaceholder', {
                   defaultValue: 'Search members…',
                 })}

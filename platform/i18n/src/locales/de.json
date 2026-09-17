@@ -266,6 +266,15 @@
       "title": "Profil nicht gefunden",
       "description": "Dieses Profil existiert nicht. Sie können versuchen, die Person in der Mitgliederliste zu finden."
     },
+    "block": {
+      "title": "@{{handle}} blockieren",
+      "description": "Möchten Sie @{{handle}} wirklich blockieren? Ihr seht euch und eure Beiträge dann gegenseitig nicht mehr.",
+      "confirm": "Blockieren",
+      "unblock": "Blockierung aufheben",
+      "blockedTitle": "Sie haben dieses Profil blockiert",
+      "blockedDescription": "Heben Sie die Blockierung von @{{handle}} auf, um das Profil und die Beiträge wieder zu sehen.",
+      "cannotBlockManaged": "Sie können ein Profil, das Sie selbst verwalten, nicht blockieren."
+    },
     "tabs": {
       "label": "Profilbereiche"
     },
@@ -433,6 +442,7 @@
       "empty": "Noch keine Beiträge.",
       "pinned": "Angepinnt"
     },
+    "hiddenMessage": "Ausgeblendete Nachricht",
     "chronologicalFeed": {
       "modalTitle": "Community-Feed-Einstellungen",
       "subtitle": "Verwalten Sie die Inhalte, die Sie in Ihrem Community-Feed sehen",
@@ -2217,6 +2227,11 @@
       "updateSuccess": "Ihr Profil wurde aktualisiert",
       "updateHandleExists": "Benutzername bereits vergeben"
     },
+    "blocked": {
+      "title": "Blockiert",
+      "description": "Personen, die Sie blockiert haben",
+      "empty": "Sie haben niemanden blockiert"
+    },
     "account": {
       "description": "Ändern Sie Ihre Kontoinformationen",
       "oldPassword": "Aktuelles Passwort",
@@ -3031,6 +3046,7 @@
     "jamRsvpRequired": "Sie müssen mit Ja antworten, um an dieser Veranstaltung teilzunehmen.",
     "rsvpRemoved": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
     "rsvpRemovedForbidden": "Nur der Organisator kann Teilnehmer entfernen.",
+    "cannotInteractBlocked": "Sie können mit diesem Profil nicht interagieren.",
     "unprocessableRequest": "Ungültige Anfrage"
   },
   "payment": {

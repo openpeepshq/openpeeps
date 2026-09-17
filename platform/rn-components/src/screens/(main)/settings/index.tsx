@@ -26,7 +26,7 @@ type SettingsItem = {
     id?: string;
   };
 };
-export const Settings = ({ }: NativeStackScreenProps<
+export const Settings = ({}: NativeStackScreenProps<
   TabStackParamList,
   'Settings'
 >) => {
@@ -60,6 +60,11 @@ export const Settings = ({ }: NativeStackScreenProps<
       route: 'FeedSettings',
     },
     {
+      title: t('settings.blocked.title'),
+      description: t('settings.blocked.description'),
+      route: 'BlockedSettings',
+    },
+    {
       title: 'Theme',
       description: t('settings.theme.description'),
       route: 'ThemeSettings',
@@ -90,6 +95,9 @@ export const Settings = ({ }: NativeStackScreenProps<
       case 'FeedSettings':
         navigation.navigate('FeedSettings');
         break;
+      case 'BlockedSettings':
+        navigation.navigate('BlockedSettings');
+        break;
       default:
         break;
     }
@@ -118,7 +126,8 @@ export const Settings = ({ }: NativeStackScreenProps<
                 params: item.params,
               });
             }}
-            className="py-2 mb-2 flex-row justify-between items-center gap-x-4">
+            className="py-2 mb-2 flex-row justify-between items-center gap-x-4"
+          >
             <View className="flex-1">
               <ThemedText className="text-lg font-semibold">
                 {item.title}

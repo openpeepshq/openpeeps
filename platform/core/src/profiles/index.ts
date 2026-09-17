@@ -12,6 +12,12 @@ export {
   getProfiles,
   clearProfileCache,
 } from './cache';
+export {
+  areBlocked,
+  hasBlockAmong,
+  loadBlockIds,
+  listBlockingIds,
+} from './blocks';
 
 const sanitizeHandle = (name: string) => name.replace(/[^a-zA-Z0-9]/g, '-');
 

@@ -24,6 +24,7 @@ export const DOCUMENT_IMPORT_ORDER = [
 export const EDGE_IMPORT_ORDER = [
   'controls',
   'follows',
+  'blocks',
   'requestsFollow',
   'mentions',
   'audience',

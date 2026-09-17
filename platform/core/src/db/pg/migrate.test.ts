@@ -96,6 +96,16 @@ describe('schema version helpers', () => {
       'CREATE INDEX IF NOT EXISTS "posts_last_activity_id_idx"',
     );
   });
+
+  it('creates the unique directed blocks edge', () => {
+    const sqlPath = join(
+      dirname(fileURLToPath(import.meta.url)),
+      'sql/0013_add_blocks_edge.sql',
+    );
+    const sql = readFileSync(sqlPath, 'utf8');
+    expect(sql).toContain('CREATE TABLE "blocks"');
+    expect(sql).toContain('CREATE UNIQUE INDEX "blocks_from_to_unique"');
+  });
 });
 
 describe('assertSchemaReady', () => {

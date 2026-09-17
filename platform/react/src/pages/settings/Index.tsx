@@ -28,9 +28,9 @@ export function Settings() {
         testId="settings-link-public-profile"
       />
       <ConfigMenuButton
-        translationPrefix="settings.account"
-        action="/settings/account"
-        testId="settings-link-account"
+        translationPrefix="settings.blocked"
+        action="/settings/blocked"
+        testId="settings-link-blocked"
       />
       <ConfigMenuButton
         translationPrefix="settings.notifications"

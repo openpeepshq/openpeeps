@@ -21,6 +21,7 @@ const edgeTable = (name: string, uniqueFromTo = false) =>
   );
 
 export const follows = edgeTable('follows', true);
+export const blocks = edgeTable('blocks', true); // fromId blocker, toId blocked
 export const requestsFollow = edgeTable('requests_follow');
 export const controls = edgeTable('controls');
 export const mentions = edgeTable('mentions');

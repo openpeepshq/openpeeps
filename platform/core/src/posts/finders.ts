@@ -10,6 +10,7 @@ import {
   UnseenPostCounts,
 } from '@openpeepshq/common/types';
 import { ProfileWithMeta } from '@openpeepshq/common/types';
+import { blockedPairIds, isBlockedPair } from '@openpeepshq/common/lib';
 import { allpeepDb, collectionInfos } from '../db';
 import { edgeFilters, postFilters } from '../db/pg/filters';
 import {
@@ -63,6 +64,15 @@ const requireProfile = (authData: AuthorizationData): ProfileWithMeta => {
   return authData.profile;
 };
 
+const hideBlockedAuthorPost = (
+  post: PostWithMeta | undefined,
+  profile?: ProfileWithMeta,
+): PostWithMeta | undefined => {
+  if (!post) return undefined;
+  const creatorId = post.creatorId ?? post.profile?.id;
+  return isBlockedPair(profile, creatorId) ? undefined : post;
+};
+
 export const findPost = async (
   id: string,
   authData?: AuthorizationData,
@@ -70,7 +80,8 @@ export const findPost = async (
   const profile = authData?.profile;
   return allpeepDb()
     .then(({ db }) => postsMappingForProfile(profile).find(db, id))
-    .then((post) => (post ? transformPost(post, profile) : undefined));
+    .then((post) => (post ? transformPost(post, profile) : undefined))
+    .then((post) => hideBlockedAuthorPost(post, profile));
 };
 
 /** Lean post load for capability checks (no nested reply/repost). */
@@ -102,7 +113,7 @@ export const findPostsForAuth = async (
     ),
   );
   return ids
-    .map((id) => byId.get(id))
+    .map((id) => hideBlockedAuthorPost(byId.get(id), profile))
     .filter((post): post is PostWithMeta => !!post);
 };
 
@@ -149,7 +160,10 @@ export const baseListPosts = ({
 }: {
   start?: string;
   profile?: ProfileWithMeta;
-}) => addStart<DbPost>(postsMappingForProfile(profile), start);
+}) =>
+  addStart<DbPost>(postsMappingForProfile(profile), start).filter(
+    postFilters.notCreatorIn(blockedPairIds(profile)),
+  );
 
 export const baseFeed = ({
   start,
@@ -184,7 +198,8 @@ const timelineFeed = ({
     addActivityStart<DbPost>(
       postsMappingForProfile(profile)
         .filter(postFilters.notDirect())
-        .filter(postFilters.notReply()),
+        .filter(postFilters.notReply())
+        .filter(postFilters.notCreatorIn(blockedPairIds(profile))),
       start,
     ),
     sort,
@@ -208,7 +223,8 @@ const conversationFeed = ({
 export const baseEventsFeed = (profile?: ProfileWithMeta) => {
   const mapping = postsMappingForProfile(profile)
     .sort(sorts.eventStartAsc)
-    .filter({ matches: { type: 'event' } });
+    .filter({ matches: { type: 'event' } })
+    .filter(postFilters.notCreatorIn(blockedPairIds(profile)));
   return mapping;
 };
 

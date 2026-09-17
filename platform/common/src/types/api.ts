@@ -108,6 +108,7 @@ export const publicProfileSchema = z.object({
     .optional(),
   profileStats: profileStatsSchema.optional(),
   pinnedPostId: z.string().optional(),
+  blockedByMe: z.boolean().optional(),
 });
 
 export type PublicProfile = z.infer<typeof publicProfileSchema>;
@@ -201,6 +202,7 @@ const publicReplyPostObject = z.object({
   audience: z.array(publicProfileSchema).optional().nullable(),
   seen: z.boolean().optional(),
   inReplyToId: z.string().optional().nullable(),
+  hidden: z.boolean().optional(),
 });
 export const publicReplyPostSchema = publicReplyPostObject.extend({
   replyTo: publicReplyPostObject.optional().nullable(),

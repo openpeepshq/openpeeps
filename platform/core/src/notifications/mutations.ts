@@ -15,6 +15,7 @@ import {
 } from './helpers';
 import { hub } from '../events';
 import { findProfile } from '../profiles';
+import { isBlockedPair } from '@openpeepshq/common/lib';
 import { logger } from '../log';
 import { findProfileSettings } from '../profileSettings';
 
@@ -56,6 +57,9 @@ export const maybeCreateNotification = async (
 
   if (!fullProfile) {
     log.error(`Profile ${profile.id} not found`);
+    return;
+  }
+  if (data.fromProfileId && isBlockedPair(fullProfile, data.fromProfileId)) {
     return;
   }
   const profileSettings = await findProfileSettings(profile.id);

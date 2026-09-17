@@ -36,8 +36,10 @@ import type { PgQueryResult } from '../../db/pg/map/types';
 import { capabilitiesConfig } from '../../config';
 import { canReadPost } from './filters';
 import {
+  isBlockedPair,
   matchMentionHandles,
   normalizePostDataFromDb,
+  toHiddenPost,
   tombstoneProfileWithMetaIfDeleted,
 } from '@openpeepshq/common/lib';
 import { ObjectFilter } from '../../db/types';
@@ -241,7 +243,7 @@ const leanRepostsFromWrappers = async (
 
 export const transformPost = async (
   post: DbPost,
-  currentProfile?: { id: string },
+  currentProfile?: ProfileWithMeta,
   options: { embedThreadPreview?: boolean } = {},
 ): Promise<PostWithMeta> => {
   const embedThreadPreview = options.embedThreadPreview ?? true;
@@ -287,9 +289,14 @@ export const transformPost = async (
     data: post.data ? normalizePostDataFromDb(post.data) : post.data,
     seen: currentProfile ? post.seen : undefined,
     replyTo: post.replyTo
-      ? await transformPost(post.replyTo, currentProfile, nested)
+      ? withBlockTombstone(
+          await transformPost(post.replyTo, currentProfile, nested),
+          currentProfile,
+        )
       : undefined,
-    latestReplies,
+    latestReplies: latestReplies.map((reply) =>
+      withBlockTombstone(reply, currentProfile),
+    ),
     latestRepliesHasMore: preview.hasMore,
     repost: post.repost
       ? await transformPost(post.repost, currentProfile, {
@@ -311,6 +318,16 @@ export const transformPost = async (
     reactions,
     reposts,
   };
+};
+
+const withBlockTombstone = <T extends PostWithMeta>(
+  post: T,
+  currentProfile?: ProfileWithMeta,
+): T => {
+  const creatorId = post.creatorId ?? post.profile?.id;
+  return creatorId && isBlockedPair(currentProfile, creatorId)
+    ? (toHiddenPost(post) as T)
+    : post;
 };
 
 export const toFilteredPostsList = async (

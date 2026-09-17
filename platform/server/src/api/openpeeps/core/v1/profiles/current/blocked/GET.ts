@@ -1,19 +1,17 @@
 import { endpoint } from '#lib/endpoint';
 import { publicProfileSchema } from '@openpeepshq/common/types';
-import { forbidden } from '#lib/errors';
 import type { RequestEvent } from '@riddl/core';
-import { listProfiles } from '@openpeepshq/core/profiles';
-import { ensureProfileOrPublicCommunity } from '#lib/auth';
+import { authNeeded, forbidden } from '#lib/errors';
+import { listBlockedProfilesHandler } from '#lib/handlers/profile/block';
 
 export const Output = publicProfileSchema.array();
 
 export const Error = {
+  401: authNeeded(),
   403: forbidden(),
 };
 
 export const apiEndpoint = endpoint({ Output, Error }).handle(
-  async (_, event: RequestEvent) =>
-    ensureProfileOrPublicCommunity(event).then((profile) =>
-      listProfiles(profile),
-    ),
+  async (_: unknown, event: RequestEvent) =>
+    listBlockedProfilesHandler(_, event),
 );

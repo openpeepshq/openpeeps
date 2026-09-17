@@ -231,7 +231,11 @@ export const CompactReplyParent = ({
       )}
     >
       <Avatar profile={post.profile} size={2} borderless />
-      {post.deletedAt ? (
+      {post.hidden ? (
+        <p className="text-muted-foreground line-clamp-2 min-w-0 flex-1 text-sm">
+          {t('posts.hiddenMessage', { defaultValue: 'Hidden message' })}
+        </p>
+      ) : post.deletedAt ? (
         <p className="text-muted-foreground line-clamp-2 min-w-0 flex-1 text-sm">
           {t('posts.compact.deleted', {
             defaultValue: 'This post has been deleted.',

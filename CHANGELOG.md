@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **profiles**: add directed profile blocking
 - **groups**: enhance member search functionality and localization
 - **posts**: show newest descendants in threaded feed preview
 - **attendance**: add export functionality for jam attendees

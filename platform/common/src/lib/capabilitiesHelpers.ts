@@ -25,6 +25,7 @@ import {
   withPublicPostReadScopes,
   withPublicGroupReadScopes,
 } from './scopeHelpers';
+import { viewerBlockedTarget, targetBlockedViewer } from './profileHelpers';
 
 export const checkCapabilities = (
   neededCapabilities: string[],
@@ -138,6 +139,12 @@ export const getProfileRelationships = (
   }
   if (profile?.following.map((f) => f.id).includes(otherProfile?.id)) {
     relationships.push('following');
+  }
+  if (viewerBlockedTarget(profile, otherProfile?.id)) {
+    relationships.push('blocked');
+  }
+  if (targetBlockedViewer(profile, otherProfile?.id)) {
+    relationships.push('blocked-by');
   }
   return relationships;
 };
