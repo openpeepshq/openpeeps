@@ -2700,6 +2700,8 @@
     "community": "Community Event",
     "noRsvps": "No RSVPs yet",
     "noAttendees": "No attendees yet",
+    "exportAttendees": "Export attendees",
+    "exportAttendeesError": "Failed to export attendees",
     "noRecordings": "No recordings yet.",
     "downloadRecording": "Download recording",
     "recordingInProgress": "Recording in progress…",

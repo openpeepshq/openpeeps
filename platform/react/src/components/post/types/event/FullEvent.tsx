@@ -1,5 +1,5 @@
 import { Download, MoreHorizontal, Share, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type {
   Event,
@@ -13,6 +13,7 @@ import {
   canAccessJamRecordings,
   canManageEventRsvps,
   canModerateJam,
+  canViewJamAttendees,
   countYesRsvps,
   effectiveEventTimes,
   eventTimeZoneOptions,
@@ -79,7 +80,8 @@ export function FullEvent({ post }: FullEventProps) {
   const occurrenceId = parseOccurrenceQuery(searchParams.get('occurrence'));
   const { openCreateConversation } = useCreateNewConversation();
   const postViewRef = usePostViewRef(post.id);
-  const { openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi, client } = useOpenpeeps();
+  const { error: toastError } = useToast();
   const event = post.data as Event;
   const contextQuery = openpeepsApi.usePostContext(post.id);
   const jamAttendeesQuery = openpeepsApi.useJamAttendance(post.id);
@@ -113,6 +115,20 @@ export function FullEvent({ post }: FullEventProps) {
     : [];
   const jamLink = getJamUrl(post.id, undefined, occurrenceId);
   const rsvpManage = openpeepsApi.rsvpManageAction();
+  const canExportAttendees = canViewJamAttendees(profile, post);
+
+  const exportAttendees = useCallback(async () => {
+    try {
+      const csv = await client.jams.events.exportAttendance({ id: post.id });
+      downloadCsv(csv, 'jam-attendees.csv');
+    } catch {
+      toastError(
+        t('events.exportAttendeesError', {
+          defaultValue: 'Failed to export attendees',
+        }),
+      );
+    }
+  }, [client, post.id, t, toastError]);
 
   const descendentThreads = useMemo(
     () =>
@@ -131,7 +147,7 @@ export function FullEvent({ post }: FullEventProps) {
   }, [post, t]);
 
   const showJamAttendeesTab =
-    !!event.jam && (myEvent || iAmModerator) && jamAttendeesQuery.isSuccess;
+    !!event.jam && canExportAttendees && jamAttendeesQuery.isSuccess;
 
   return (
     <article ref={postViewRef} className="flex w-full flex-col gap-2 p-3">
@@ -410,19 +426,29 @@ export function FullEvent({ post }: FullEventProps) {
       ) : null}
 
       {tab === 'attendees' && showJamAttendeesTab ? (
-        jamAttendeesQuery.data?.length ? (
-          jamAttendeesQuery.data.map((attendee) => (
-            <ProfileFromId
-              key={attendee.id}
-              profileId={attendee.profileId}
-              action={<UpdatingDate date={attendee.createdAt} />}
-            />
-          ))
-        ) : (
-          <p className="text-muted-foreground py-4 text-sm">
-            {t('events.noAttendees', { defaultValue: 'No attendees yet.' })}
-          </p>
-        )
+        <>
+          <div className="flex justify-end py-2">
+            <Button variant="outline" compact action={exportAttendees}>
+              <Download className="mr-1 h-4 w-4" />
+              {t('events.exportAttendees', {
+                defaultValue: 'Export attendees',
+              })}
+            </Button>
+          </div>
+          {jamAttendeesQuery.data?.length ? (
+            jamAttendeesQuery.data.map((attendee) => (
+              <ProfileFromId
+                key={attendee.id}
+                profileId={attendee.profileId}
+                action={<UpdatingDate date={attendee.createdAt} />}
+              />
+            ))
+          ) : (
+            <p className="text-muted-foreground py-4 text-sm">
+              {t('events.noAttendees', { defaultValue: 'No attendees yet.' })}
+            </p>
+          )}
+        </>
       ) : null}
 
       {tab === 'recordings' && event.jam && canViewRecordings ? (
@@ -672,3 +698,13 @@ function TabButton({
     </button>
   );
 }
+
+const downloadCsv = (csv: string, filename: string) => {
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+};

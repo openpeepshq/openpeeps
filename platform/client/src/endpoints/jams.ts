@@ -77,6 +77,17 @@ export const jams = (
         rawClient,
         '/jams/:id/events/attendance',
       ),
+      exportAttendance: async ({ id }: { id: string }) => {
+        const response = await rawClient.get(
+          `/jams/${id}/events/attendance/export`,
+        );
+
+        if (!response.ok) {
+          throw { ...(await response.json()), status: response.status };
+        }
+
+        return response.text();
+      },
     },
     recordings: {
       start: allpeepNoPayloadEndpoint<
