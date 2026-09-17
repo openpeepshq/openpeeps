@@ -20,7 +20,7 @@ import {
   groupName,
   isCapacityEvent,
   parseOccurrenceQuery,
-  previewUpcomingOccurrences,
+  listRsvpOccurrences,
   profileName,
 } from '@openpeepshq/common/lib';
 import {
@@ -53,6 +53,7 @@ import { ReplyBox } from '../../ReplyBox';
 import { useServerInfo } from '../../../server-data';
 import { EventLocation } from '../../pieces/EventLocation';
 import { EventMenu } from '../../pieces/EventMenu';
+import { EventOccurrenceList } from '../../pieces/EventOccurrenceList';
 import { EventRsvpButton } from '../../pieces/EventRsvpButton';
 import { ShareMenu } from '../../pieces/ShareMenu';
 import { VideoPlayer } from '../../pieces/VideoPlayer';
@@ -107,7 +108,7 @@ export function FullEvent({ post }: FullEventProps) {
     ? formatEventRecurrence(event.recurrence, t, event.start)
     : '';
   const upcomingOccurrences = event.recurrence
-    ? previewUpcomingOccurrences(event, 3)
+    ? listRsvpOccurrences(event)
     : [];
   const jamLink = getJamUrl(post.id, undefined, occurrenceId);
   const rsvpManage = openpeepsApi.rsvpManageAction();
@@ -198,7 +199,7 @@ export function FullEvent({ post }: FullEventProps) {
         <Avatar profile={post.profile as PublicProfile} size={2} />
         <a
           href={`/profiles/@${post.profile.handle}`}
-          className="text-sm hover:underline hover:text-primary"
+          className="hover:text-primary text-sm hover:underline"
         >
           {t('events.hostedBy', {
             defaultValue: 'Hosted by {{profileName}}',
@@ -277,34 +278,12 @@ export function FullEvent({ post }: FullEventProps) {
 
       <EventLocation post={post} preview={false} occurrence={occurrenceId} />
       {event.recurrence ? (
-        <div className="mt-4">
-          <span className="text-muted-foreground text-sm">
-            {t('events.repeat.label', { defaultValue: 'Repeats' })}
-          </span>
-          <p className="text-sm">{recurrenceLabel}</p>
-          {!occurrenceId && upcomingOccurrences.length > 0 ? (
-            <p className="text-muted-foreground mt-1 text-sm">
-              {t('events.form.repeat.preview', {
-                defaultValue: 'Next dates: {{dates}}',
-                dates: upcomingOccurrences
-                  .map((occurrence) =>
-                    new Date(occurrence.start).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                    }),
-                  )
-                  .join(', '),
-              })}
-            </p>
-          ) : null}
-        </div>
-      ) : null}
-      {event.recurrence && !occurrenceId ? (
-        <p className="text-muted-foreground text-sm">
-          {t('events.occurrence.seriesRsvpNote', {
-            defaultValue: 'Your RSVP applies to every date in this series.',
-          })}
-        </p>
+        <EventOccurrenceList
+          postId={post.id}
+          occurrences={upcomingOccurrences}
+          currentOccurrenceId={occurrenceId}
+          recurrenceLabel={recurrenceLabel}
+        />
       ) : null}
       <EventRsvpButton post={post} recurrenceId={occurrenceId} />
 

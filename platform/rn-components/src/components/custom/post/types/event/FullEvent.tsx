@@ -5,6 +5,7 @@ import {
   CancelEventSheet,
   DeleteEventSheet,
   EmptyStateContainer,
+  EventRsvpScopeSheet,
   GenericHeader,
   ProfileCard,
   ReportProfileOrPostSheet,
@@ -64,13 +65,17 @@ import {
   countYesRsvps,
   isCapacityEvent,
 } from '~/lib/utils';
+import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
 import {
+  defaultRsvpRecurrenceId,
   effectiveEventTimes,
   formatEventRecurrence,
-  previewUpcomingOccurrences,
+  isRecurringEvent,
+  listRsvpOccurrences,
   upsertEventException,
 } from '@openpeepshq/common/lib';
 import { ThemedView } from '~/components/ui/themed-view';
+import { EventOccurrenceList } from './EventOccurrenceList';
 
 interface FullEventProps {
   post: PublicPost;
@@ -104,7 +109,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
     ? formatEventRecurrence(event.recurrence, t, event.start)
     : '';
   const upcomingOccurrences = event?.recurrence
-    ? previewUpcomingOccurrences(event, 3)
+    ? listRsvpOccurrences(event)
     : [];
 
   const jamLink = occurrence
@@ -328,35 +333,12 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
         </View>
       </View>
       {event?.recurrence ? (
-        <View className="mt-4">
-          <ThemedText className="text-muted-foreground text-sm">
-            {t('events.repeat.label', { defaultValue: 'Repeats' })}
-          </ThemedText>
-          <ThemedText className="text-sm">{recurrenceLabel}</ThemedText>
-          {!occurrence && upcomingOccurrences.length > 0 ? (
-            <ThemedText className="text-muted-foreground mt-1 text-sm">
-              {t('events.form.repeat.preview', {
-                defaultValue: 'Next dates: {{dates}}',
-                dates: upcomingOccurrences
-                  .map((occurrenceItem) =>
-                    new Date(occurrenceItem.start).toLocaleDateString(
-                      undefined,
-                      {
-                        month: 'short',
-                        day: 'numeric',
-                      },
-                    ),
-                  )
-                  .join(', '),
-              })}
-            </ThemedText>
-          ) : null}
-        </View>
-      ) : null}
-      {event?.recurrence && !occurrence ? (
-        <ThemedText className="text-muted-foreground mt-4">
-          {t('events.occurrence.seriesRsvpNote')}
-        </ThemedText>
+        <EventOccurrenceList
+          postId={post.id}
+          occurrences={upcomingOccurrences}
+          currentOccurrenceId={occurrence}
+          recurrenceLabel={recurrenceLabel}
+        />
       ) : null}
       <RegistrationButtion
         post={post as PublicPost}
@@ -485,15 +467,25 @@ const RegistrationButtion: React.FC<{
   recurrenceId?: string;
 }> = ({ post, recurrenceId }) => {
   const { t } = useTranslation();
-
   const { currentProfile, openpeepsApi } = useOpenpeeps();
   const [isRegistering, setIsRegistering] = React.useState(false);
+  const [pending, setPending] = React.useState<
+    'yes' | 'tentative' | 'no' | null
+  >(null);
+  const [scopeError, setScopeError] = React.useState<string | null>(null);
+  const scopeSheetRef = useRef<BottomSheetModal>(null);
   const eventData = post.data?.type === 'event' ? post.data : undefined;
+  const recurring = eventData ? isRecurringEvent(eventData) : false;
+  const defaultId = eventData
+    ? defaultRsvpRecurrenceId(eventData, recurrenceId)
+    : undefined;
+  const occurrences =
+    eventData && recurring ? listRsvpOccurrences(eventData) : [];
   const capacityEvent = eventData ? isCapacityEvent(eventData) : false;
   const atCapacity =
     capacityEvent &&
     eventData?.maxAttendees !== undefined &&
-    countYesRsvps(post, recurrenceId) >= eventData.maxAttendees;
+    countYesRsvps(post, defaultId) >= eventData.maxAttendees;
 
   const myRsvp =
     post &&
@@ -512,78 +504,80 @@ const RegistrationButtion: React.FC<{
     const errorKey =
       (error as { errorKey?: string })?.errorKey ??
       (error as { key?: string })?.key;
+    const message = errorKey ? t(errorKey) : t('posts.rsvp.error');
+    setScopeError(message);
     Toast.show({
       type: 'error',
-      text1: errorKey ? t(errorKey) : t('posts.rsvp.error'),
+      text1: message,
     });
   };
 
-  const handleRegisterForEvent = async () => {
+  const writeRsvp = async (
+    response: 'yes' | 'tentative' | 'no',
+    recurrenceIds?: string[]
+  ) => {
+    setIsRegistering(true);
+    setScopeError(null);
     try {
-      setIsRegistering(true);
-      const response = await rsvpToEvent({
-        response: 'yes',
-        recurrenceId,
-      });
-      if (response) {
-        Toast.show({
-          type: 'success',
-          text1: t('posts.rsvp.success'),
-        });
+      if (recurrenceIds) {
+        for (const id of recurrenceIds) {
+          const result = await rsvpToEvent({
+            response,
+            recurrenceId: id,
+          });
+          if (!result) {
+            throw new Error(t('posts.rsvp.error'));
+          }
+        }
       } else {
-        Toast.show({
-          type: 'error',
-          text1: t('posts.rsvp.error'),
-        });
+        const result = await rsvpToEvent({ response });
+        if (!result) {
+          throw new Error(t('posts.rsvp.error'));
+        }
       }
+      Toast.show({
+        type: 'success',
+        text1: t('posts.rsvp.success'),
+      });
     } catch (error) {
       showRsvpError(error);
+      throw error;
     } finally {
       setIsRegistering(false);
     }
   };
-  const handleMaybeForEvent = () => {
-    setIsRegistering(true);
-    rsvpToEvent({ response: 'tentative', recurrenceId })
-      .then((res) => {
-        if (res) {
-          Toast.show({
-            type: 'success',
-            text1: t('posts.rsvp.success'),
-          });
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: t('posts.rsvp.error'),
-          });
-        }
-      })
-      .catch(showRsvpError)
-      .finally(() => {
-        setIsRegistering(false);
-      });
+
+  const requestRespond = (response: 'yes' | 'tentative' | 'no') => {
+    if (!recurring) {
+      return writeRsvp(
+        response,
+        recurrenceId ? [recurrenceId] : undefined
+      ).catch(() => undefined);
+    }
+    setPending(response);
+    setScopeError(null);
+    bottomSheetPresent(scopeSheetRef);
   };
 
-  const handleNoForEvent = () => {
-    setIsRegistering(true);
-    rsvpToEvent({ response: 'no', recurrenceId })
-      .then((res) => {
-        if (res) {
-          Toast.show({
-            type: 'success',
-            text1: t('posts.rsvp.success'),
-          });
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: t('posts.rsvp.error'),
-          });
-        }
-      })
-      .catch(showRsvpError)
-      .finally(() => {
-        setIsRegistering(false);
-      });
+  const confirmScope = async (scope: {
+    kind: 'this' | 'selected' | 'series';
+    recurrenceId?: string;
+    recurrenceIds?: string[];
+  }) => {
+    if (!pending) return;
+    try {
+      if (scope.kind === 'series') {
+        await writeRsvp(pending);
+      } else if (scope.kind === 'this' && scope.recurrenceId) {
+        await writeRsvp(pending, [scope.recurrenceId]);
+      } else if (scope.kind === 'selected' && scope.recurrenceIds) {
+        await writeRsvp(pending, scope.recurrenceIds);
+      }
+      setPending(null);
+      scopeSheetRef.current?.close();
+    } catch {
+      // error already set
+    }
   };
 
   if (myEvent) {
@@ -604,7 +598,7 @@ const RegistrationButtion: React.FC<{
     <View className="mt-5 w-full">
       {myRsvp && myRsvp.response !== 'no' ? (
         <Button
-          onPress={handleNoForEvent}
+          onPress={() => requestRespond('no')}
           disabled={isRegistering}
           variant={'outline'}
         >
@@ -617,7 +611,7 @@ const RegistrationButtion: React.FC<{
       ) : (
         <View className="flex-row items-center w-full gap-x-4">
           <Button
-            onPress={async () => handleRegisterForEvent().catch(() => {})}
+            onPress={() => requestRespond('yes')}
             className="w-[60%]"
             disabled={full || isRegistering}
           >
@@ -631,7 +625,7 @@ const RegistrationButtion: React.FC<{
           </Button>
           {!capacityEvent ? (
             <Button
-              onPress={handleMaybeForEvent}
+              onPress={() => requestRespond('tentative')}
               variant={'ghost'}
               className="bg-muted-foreground/20"
             >
@@ -642,13 +636,23 @@ const RegistrationButtion: React.FC<{
               </ThemedText>
             </Button>
           ) : null}
-          <Button onPress={handleNoForEvent} variant={'outline'}>
+          <Button onPress={() => requestRespond('no')} variant={'outline'}>
             <ThemedText className="text-destructive">
               {isRegistering ? t('common.form.loading') : t('posts.rsvp.no')}
             </ThemedText>
           </Button>
         </View>
       )}
+      <EventRsvpScopeSheet
+        ref={scopeSheetRef}
+        post={post}
+        response={pending ?? 'yes'}
+        defaultRecurrenceId={defaultId}
+        occurrences={occurrences}
+        error={scopeError}
+        isLoading={isRegistering}
+        onConfirm={confirmScope}
+      />
     </View>
   );
 };

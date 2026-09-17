@@ -13,12 +13,17 @@ import {
   PublicProfile,
   PublicRsvp,
   Question,
+  RSVP,
   Thread,
   VisibilityType,
   visibilityTypeValues,
 } from '../types';
 import { canModerateJam } from './jamHelpers';
-import { sameRecurrenceId } from './eventRecurrence';
+import {
+  listRsvpOccurrences,
+  normalizeRecurrenceId,
+  sameRecurrenceId,
+} from './eventRecurrence';
 import {
   checkGroupCapabilities,
   checkPostCapabilities,
@@ -157,6 +162,41 @@ export const countYesRsvps = (post: PublicPost, recurrenceId?: string) =>
   calculateEffectiveRsvps(post, recurrenceId).filter(
     (r) => r.response === 'yes',
   ).length;
+
+export const instanceRsvpIdsForProfile = (
+  post: PublicPost,
+  profileId: string,
+): string[] => {
+  const ids = new Set<string>();
+  for (const rsvp of post.rsvps ?? []) {
+    if (rsvp.profile.id !== profileId || !rsvp.recurrenceId) continue;
+    ids.add(normalizeRecurrenceId(rsvp.recurrenceId));
+  }
+  return [...ids];
+};
+
+export const overlaySeriesRsvpEntries = (
+  response: RSVP['response'],
+  instanceIds: string[],
+): RSVP[] => [
+  { response },
+  ...instanceIds.map((recurrenceId) => ({ response, recurrenceId })),
+];
+
+export const seriesYesBlockedByCapacity = (
+  post: PublicPost,
+  profileId: string,
+  now = new Date(),
+): boolean => {
+  const event = post.data?.type === 'event' ? post.data : undefined;
+  const maxAttendees = event?.maxAttendees;
+  if (!event || !maxAttendees || !event.recurrence) return false;
+  return listRsvpOccurrences(event, now).some((occurrence) => {
+    const current = getEffectiveRsvp(post, profileId, occurrence.recurrenceId);
+    if (current?.response === 'yes') return false;
+    return countYesRsvps(post, occurrence.recurrenceId) >= maxAttendees;
+  });
+};
 
 export const isCapacityEvent = (event: Event) => !!event.maxAttendees;
 

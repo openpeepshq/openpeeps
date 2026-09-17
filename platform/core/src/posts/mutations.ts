@@ -43,9 +43,12 @@ import {
   countYesRsvps,
   eventDataForDbUpdate,
   getEffectiveRsvp,
+  instanceRsvpIdsForProfile,
+  overlaySeriesRsvpEntries,
   normalizeEventDataForSave,
   passThroughUndefined,
   sameRecurrenceId,
+  seriesYesBlockedByCapacity,
 } from '@openpeepshq/common/lib';
 import { forbidden, unprocessableRequest } from '../errors';
 import {
@@ -339,12 +342,22 @@ export const rsvpRespond = async (
       });
     }
     if (data.response === 'yes') {
-      const currentRsvp = getEffectiveRsvp(post, profile.id, data.recurrenceId);
-      if (
-        currentRsvp?.response !== 'yes' &&
-        countYesRsvps(post, data.recurrenceId) >= maxAttendees
-      ) {
-        throw unprocessableRequest({ errorKey: 'error.eventAtCapacity' });
+      if (!data.recurrenceId && post.data.recurrence) {
+        if (seriesYesBlockedByCapacity(post, profile.id)) {
+          throw unprocessableRequest({ errorKey: 'error.eventAtCapacity' });
+        }
+      } else {
+        const currentRsvp = getEffectiveRsvp(
+          post,
+          profile.id,
+          data.recurrenceId,
+        );
+        if (
+          currentRsvp?.response !== 'yes' &&
+          countYesRsvps(post, data.recurrenceId) >= maxAttendees
+        ) {
+          throw unprocessableRequest({ errorKey: 'error.eventAtCapacity' });
+        }
       }
     }
   }
@@ -361,10 +374,19 @@ export const rsvpRespond = async (
     )
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))[0]?.response;
 
-  await entryConnector(db, profile, post, {
-    type: 'rsvp',
-    data,
-  });
+  const overlayIds = data.recurrenceId
+    ? []
+    : instanceRsvpIdsForProfile(post, profile.id);
+  const writes = data.recurrenceId
+    ? [data]
+    : overlaySeriesRsvpEntries(data.response, overlayIds);
+
+  for (const entry of writes) {
+    await entryConnector(db, profile, post, {
+      type: 'rsvp',
+      data: entry,
+    });
+  }
 
   hub.emit('rsvpCreated', profile, post, {
     type: 'rsvp',
