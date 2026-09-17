@@ -15,6 +15,8 @@ import {
   canModerateJam,
   countYesRsvps,
   effectiveEventTimes,
+  eventTimeZoneOptions,
+  formatEventClockTime,
   formatEventRecurrence,
   getJamUrl,
   groupName,
@@ -198,7 +200,7 @@ export function FullEvent({ post }: FullEventProps) {
         <Avatar profile={post.profile as PublicProfile} size={2} />
         <a
           href={`/profiles/@${post.profile.handle}`}
-          className="text-sm hover:underline hover:text-primary"
+          className="hover:text-primary text-sm hover:underline"
         >
           {t('events.hostedBy', {
             defaultValue: 'Hosted by {{profileName}}',
@@ -208,71 +210,19 @@ export function FullEvent({ post }: FullEventProps) {
       </div>
 
       {times.start ? (
-        <div className="mt-4 flex gap-x-4">
-          <div className="border-foreground/20 rounded-md border px-4 py-1">
-            <p className="text-center text-sm">
-              {new Date(times.start).toLocaleString(undefined, {
-                month: 'short',
-              })}
-            </p>
-            <p className="text-center text-lg font-semibold">
-              {new Date(times.start).getDate()}
-            </p>
-          </div>
-          <div>
-            <span className="text-muted-foreground text-sm">
-              {t('events.startDate', { defaultValue: 'Starts' })}
-            </span>
-            <p>
-              {new Date(times.start).toLocaleDateString(undefined, {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-            </p>
-            <p className="text-muted-foreground mt-2 text-sm">
-              {new Date(times.start).toLocaleTimeString(undefined, {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </p>
-          </div>
-        </div>
+        <EventWhenBlock
+          iso={times.start}
+          label={t('events.startDate', { defaultValue: 'Starts' })}
+          timeZone={event.timeZone}
+        />
       ) : null}
 
       {times.end ? (
-        <div className="mt-4 flex gap-x-4">
-          <div className="border-foreground/20 rounded-md border px-4 py-1">
-            <p className="text-center text-sm">
-              {new Date(times.end).toLocaleString(undefined, {
-                month: 'short',
-              })}
-            </p>
-            <p className="text-center text-lg font-semibold">
-              {new Date(times.end).getDate()}
-            </p>
-          </div>
-          <div>
-            <span className="text-muted-foreground text-sm">
-              {t('events.endDate', { defaultValue: 'Ends' })}
-            </span>
-            <p>
-              {new Date(times.end).toLocaleDateString(undefined, {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-            </p>
-            <p className="text-muted-foreground mt-2 text-sm">
-              {new Date(times.end).toLocaleTimeString(undefined, {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </p>
-          </div>
-        </div>
+        <EventWhenBlock
+          iso={times.end}
+          label={t('events.endDate', { defaultValue: 'Ends' })}
+          timeZone={event.timeZone}
+        />
       ) : null}
 
       <EventLocation post={post} preview={false} occurrence={occurrenceId} />
@@ -291,6 +241,7 @@ export function FullEvent({ post }: FullEventProps) {
                     new Date(occurrence.start).toLocaleDateString(undefined, {
                       month: 'short',
                       day: 'numeric',
+                      ...eventTimeZoneOptions(event.timeZone),
                     }),
                   )
                   .join(', '),
@@ -656,6 +607,47 @@ function JamRecordingItem({
             </Dialog>
           </>
         ) : null}
+      </div>
+    </div>
+  );
+}
+
+function EventWhenBlock({
+  iso,
+  label,
+  timeZone,
+}: {
+  iso: string;
+  label: string;
+  timeZone?: string;
+}) {
+  const date = new Date(iso);
+  const tz = eventTimeZoneOptions(timeZone);
+  return (
+    <div className="mt-4 flex gap-x-4">
+      <div className="border-foreground/20 rounded-md border px-4 py-1">
+        <p className="text-center text-sm">
+          {date.toLocaleString(undefined, { month: 'short', ...tz })}
+        </p>
+        <p className="text-center text-lg font-semibold">
+          {date.toLocaleString(undefined, { day: 'numeric', ...tz })}
+        </p>
+      </div>
+      <div>
+        <span className="text-muted-foreground text-sm">{label}</span>
+        <p>
+          {date.toLocaleDateString(undefined, {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            ...tz,
+          })}
+        </p>
+        <p className="text-muted-foreground mt-2 text-sm">
+          {formatEventClockTime(iso, { timeZone })}
+          {tz.timeZone ? ` (${tz.timeZone})` : ''}
+        </p>
       </div>
     </div>
   );
