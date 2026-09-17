@@ -73,6 +73,8 @@ export const profileWithMetaSchema = profileDataSchema.extend({
   controllers: accountSchema.array(),
   memberships: membershipSchema.array(),
   profileStats: profileStatsSchema,
+  blockingIds: z.array(z.string()).default([]),
+  blockedByIds: z.array(z.string()).default([]),
 });
 
 export type ProfileWithMeta = Model<ProfileData> & {
@@ -82,6 +84,8 @@ export type ProfileWithMeta = Model<ProfileData> & {
   controllers: Account[];
   memberships: Membership[];
   profileStats: ProfileStats;
+  blockingIds: string[];
+  blockedByIds: string[];
 };
 
 export const memberExportStatsSchema = z.object({
@@ -179,6 +183,7 @@ export const replyPostSchema = z.object({
   audience: z.array(profileWithMetaSchema).optional().nullable(),
   seen: z.boolean().optional(),
   inReplyToId: z.string().optional().nullable(),
+  hidden: z.boolean().optional(),
 });
 export type ReplyPost = z.infer<typeof replyPostSchema> & {
   replyTo?: ReplyPost | null;

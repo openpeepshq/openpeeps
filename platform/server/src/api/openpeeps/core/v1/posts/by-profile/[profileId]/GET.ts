@@ -5,6 +5,10 @@ import { ensureProfileOrPublicCommunity } from '#lib/auth';
 import { notFound } from '#lib/errors';
 import { findProfile } from '@openpeepshq/core/profiles';
 import { listPostsByProfile } from '@openpeepshq/core/posts';
+import {
+  targetBlockedViewer,
+  viewerBlockedTarget,
+} from '@openpeepshq/common/lib';
 
 export const Output = publicPostSchema.array();
 export const Param = z.object({
@@ -27,6 +31,14 @@ export const apiEndpoint = endpoint({ Output, Param, Query }).handle(
 
     if (!requestedProfile) {
       throw notFound(`Profile with id ${params.profileId}`);
+    }
+
+    const viewer = event.context.currentProfile;
+    if (targetBlockedViewer(viewer, requestedProfile.id)) {
+      throw notFound(`Profile with id ${params.profileId}`);
+    }
+    if (viewerBlockedTarget(viewer, requestedProfile.id)) {
+      return [];
     }
 
     return listPostsByProfile(

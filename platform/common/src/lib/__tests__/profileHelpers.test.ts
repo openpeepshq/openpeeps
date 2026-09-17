@@ -12,6 +12,12 @@ import {
   anonymizeProfileIfDeleted,
   DELETED_AUTHOR_DISPLAY_NAME,
   DELETED_AUTHOR_HANDLE,
+  blockedPairIds,
+  isBlockedPair,
+  viewerBlockedTarget,
+  targetBlockedViewer,
+  sharesControllingAccount,
+  toBlockedProfileStub,
 } from '../profileHelpers';
 import {
   profileWithMetaSchema,
@@ -373,6 +379,55 @@ describe('profileHelpers', () => {
       expect(result[0].displayName || result[0].handle).toBe('Alice');
       expect(result[1].handle).toBe('bob');
       expect(result[2].displayName).toBe('Charlie');
+    });
+  });
+
+  describe('block helpers', () => {
+    it('unions blocking and blocked-by ids', () => {
+      expect(
+        blockedPairIds({
+          blockingIds: ['a', 'b'],
+          blockedByIds: ['b', 'c'],
+        }),
+      ).toEqual(['a', 'b', 'c']);
+    });
+
+    it('detects directed and mutual block pairs', () => {
+      const profile = { blockingIds: ['b'], blockedByIds: ['c'] };
+      expect(viewerBlockedTarget(profile, 'b')).toBe(true);
+      expect(targetBlockedViewer(profile, 'c')).toBe(true);
+      expect(isBlockedPair(profile, 'b')).toBe(true);
+      expect(isBlockedPair(profile, 'c')).toBe(true);
+      expect(isBlockedPair(profile, 'd')).toBe(false);
+    });
+
+    it('detects shared controlling accounts', () => {
+      expect(
+        sharesControllingAccount(
+          { controllers: [{ id: 'acct-1' }] } as ProfileWithMeta,
+          { controllers: [{ id: 'acct-1' }] } as ProfileWithMeta,
+        ),
+      ).toBe(true);
+      expect(
+        sharesControllingAccount(
+          { controllers: [{ id: 'acct-1' }] } as ProfileWithMeta,
+          { controllers: [{ id: 'acct-2' }] } as ProfileWithMeta,
+        ),
+      ).toBe(false);
+    });
+
+    it('builds a blocked profile stub', () => {
+      const stub = toBlockedProfileStub({
+        id: deletedProfile.id,
+        type: 'local',
+        createdAt: deletedProfile.createdAt,
+        updatedAt: deletedProfile.updatedAt,
+        handle: 'alice',
+        displayName: 'Alice',
+      });
+      expect(stub.blockedByMe).toBe(true);
+      expect(stub.handle).toBe('alice');
+      expect(stub.bio).toBeUndefined();
     });
   });
 });

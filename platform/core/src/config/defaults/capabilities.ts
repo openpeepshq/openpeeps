@@ -39,8 +39,19 @@ export const defaultCapabilitiesConfig: CapabilitiesConfigInput = {
       ],
     },
     self: { add: ['core-profiles-update', ...postCapabilities] },
-    blocked: { remove: ['*'] },
-    blockedBy: { remove: ['*'] },
+    blocked: {
+      remove: [
+        'core-posts-*',
+        'core-profiles-read',
+        'core-profiles-follow',
+        'core-profiles-unfollow',
+        'core-profiles-requestFollow',
+        'core-profiles-block',
+        'core-profiles-mute',
+        'core-profiles-unmute',
+      ],
+    },
+    'blocked-by': { remove: ['*'] },
   },
   report: {
     reporter: { add: ['core-reports-read'] },

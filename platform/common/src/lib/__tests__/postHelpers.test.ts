@@ -18,6 +18,10 @@ import {
   getJamCapacityJoinBlock,
   canDeletePost,
   getPostActionAvailability,
+  toHiddenPost,
+  isHiddenPost,
+  isOneToOneWithBlocked,
+  HIDDEN_AUTHOR_HANDLE,
 } from '../postHelpers';
 import { groupCapabilityTemplates } from '../groupHelpers';
 import {
@@ -886,6 +890,39 @@ describe('postHelpers', () => {
       );
       expect(result.canReply).toBe(true);
       expect(result.canRepost).toBe(true);
+    });
+  });
+
+  describe('hidden block tombstones', () => {
+    it('clears content and author identity', () => {
+      const hidden = toHiddenPost({
+        ...mockPost,
+        data: { type: 'note', content: 'secret' },
+        profile: mockPublicProfile,
+      });
+      expect(isHiddenPost(hidden)).toBe(true);
+      expect(hidden.profile.handle).toBe(HIDDEN_AUTHOR_HANDLE);
+      expect(
+        hidden.data.type === 'note' ? hidden.data.content : 'missing',
+      ).toBe('');
+    });
+
+    it('detects 1:1 DMs with a blocked participant', () => {
+      const dm = {
+        ...mockPost,
+        visibility: 'direct' as const,
+        profile: { id: 'profile1' } as PublicProfile,
+        audience: [
+          { id: 'profile1' } as PublicProfile,
+          { id: 'blocked' } as PublicProfile,
+        ],
+      };
+      expect(
+        isOneToOneWithBlocked(dm, { id: 'profile1' }, new Set(['blocked'])),
+      ).toBe(true);
+      expect(
+        isOneToOneWithBlocked(dm, { id: 'profile1' }, new Set(['other'])),
+      ).toBe(false);
     });
   });
 });

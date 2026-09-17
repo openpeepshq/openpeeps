@@ -13,5 +13,7 @@ export const Error = {
 
 export const apiEndpoint = endpoint({ Output, Error }).handle(
   async (_, event: RequestEvent) =>
-    ensureProfileOrPublicCommunity(event).then(() => listProfiles())
+    ensureProfileOrPublicCommunity(event).then((profile) =>
+      listProfiles(profile),
+    ),
 );

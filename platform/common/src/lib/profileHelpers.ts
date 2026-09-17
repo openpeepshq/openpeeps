@@ -86,6 +86,8 @@ export const toDeletedProfileWithMeta = (
   controllers: [],
   memberships: [],
   profileStats: { followersCount: 0, followingCount: 0 },
+  blockingIds: [],
+  blockedByIds: [],
 });
 
 /** Tombstone a `ProfileWithMeta` only when it is soft-deleted. */
@@ -164,3 +166,54 @@ export const getStripeCustomerId = (profileSettings: ProfileSettings) =>
 export const isOwnerProfile = (profile: ProfileWithMeta) => {
   return profile?.roles.some((role) => role.key === 'owner');
 };
+
+type BlockIdProfile = {
+  blockingIds?: string[] | null;
+  blockedByIds?: string[] | null;
+};
+
+export const blockedPairIds = (profile?: BlockIdProfile | null): string[] => [
+  ...new Set([
+    ...(profile?.blockingIds ?? []),
+    ...(profile?.blockedByIds ?? []),
+  ]),
+];
+
+export const isBlockedPair = (
+  profile: BlockIdProfile | undefined | null,
+  otherId: string | undefined | null,
+): boolean => !!otherId && blockedPairIds(profile).includes(otherId);
+
+export const viewerBlockedTarget = (
+  profile: BlockIdProfile | undefined | null,
+  otherId: string | undefined | null,
+): boolean => !!otherId && (profile?.blockingIds ?? []).includes(otherId);
+
+export const targetBlockedViewer = (
+  profile: BlockIdProfile | undefined | null,
+  otherId: string | undefined | null,
+): boolean => !!otherId && (profile?.blockedByIds ?? []).includes(otherId);
+
+export const sharesControllingAccount = (
+  a: Pick<ProfileWithMeta, 'controllers'>,
+  b: Pick<ProfileWithMeta, 'controllers'>,
+): boolean => {
+  const otherIds = new Set((b.controllers ?? []).map((account) => account.id));
+  return (a.controllers ?? []).some((account) => otherIds.has(account.id));
+};
+
+export const toBlockedProfileStub = (
+  profile: Pick<
+    ProfileWithMeta,
+    'id' | 'type' | 'createdAt' | 'updatedAt' | 'handle' | 'displayName'
+  >,
+): PublicProfile =>
+  ({
+    id: profile.id,
+    type: profile.type,
+    createdAt: profile.createdAt,
+    updatedAt: profile.updatedAt,
+    handle: profile.handle,
+    displayName: profile.displayName,
+    blockedByMe: true,
+  }) as PublicProfile;

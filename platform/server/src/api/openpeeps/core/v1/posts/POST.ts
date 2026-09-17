@@ -1,5 +1,5 @@
 import { endpoint } from '#lib/endpoint';
-import { forbidden, notFound } from '#lib/errors';
+import { forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
 import {
   publicPostSchema,
   postDataUnionSchema,
@@ -48,6 +48,6 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
       mentions,
       groupId,
       audience,
-    });
+    }).catch(rethrowIfOpenpeepsError);
   },
 );

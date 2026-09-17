@@ -48,6 +48,7 @@ import {
   sameRecurrenceId,
 } from '@openpeepshq/common/lib';
 import { forbidden, unprocessableRequest } from '../errors';
+import { areBlocked, hasBlockAmong } from '../profiles/blocks';
 import {
   rebuildEventOccurrences,
   clearEventOccurrences,
@@ -80,6 +81,21 @@ export const createPost = async (
 
   if (repliedToPost) {
     postData.visibility = repliedToPost.visibility;
+  }
+
+  if (
+    repliedToPost &&
+    (await areBlocked(db, profile.id, repliedToPost.creatorId))
+  ) {
+    throw forbidden({ errorKey: 'error.cannotInteractBlocked' });
+  }
+
+  const audienceIds = [
+    profile.id,
+    ...(relations.audience ?? []).map((member) => member.id),
+  ];
+  if (await hasBlockAmong(db, audienceIds)) {
+    throw forbidden({ errorKey: 'error.cannotInteractBlocked' });
   }
 
   const group = await (repliedToPost?.group ||

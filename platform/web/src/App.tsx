@@ -120,6 +120,7 @@ import {
   AdminDiagnosticsLogs,
   AdminConfigurationEmail,
   AccessTokensSettings,
+  BlockedSettings,
   LanguageSettings,
   TimezoneSettings,
   FeedSettings,
@@ -302,6 +303,7 @@ const SettingsPages = {
   Feed: FeedSettings,
   Billing: BillingSettings,
   AccessTokens: AccessTokensSettings,
+  Blocked: BlockedSettings,
 };
 
 const Admin = {
@@ -621,6 +623,10 @@ function AppShell() {
                     <Route
                       path="/settings/access-tokens"
                       element={<SettingsPages.AccessTokens />}
+                    />
+                    <Route
+                      path="/settings/blocked"
+                      element={<SettingsPages.Blocked />}
                     />
 
                     {/* Admin landing: any visible section grants access */}

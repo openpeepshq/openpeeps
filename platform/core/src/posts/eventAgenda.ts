@@ -1,4 +1,5 @@
 import {
+  notInArray,
   and,
   asc,
   desc,
@@ -28,6 +29,7 @@ import { postHasYesOrMaybeRsvpExpr } from '../db/pg/queries';
 import { postFilters } from '../db/pg/filters';
 import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';
 import { postsMappingForProfile } from './mapping';
+import { blockedPairIds } from '@openpeepshq/common/lib';
 
 export type EventAgendaWindow = 'upcoming' | 'current' | 'past';
 
@@ -48,6 +50,7 @@ export type EventAgendaQueryArgs = {
   mine?: boolean;
   groupId?: string;
   profileId?: string;
+  excludeCreatorIds?: string[];
 };
 
 const occurrenceTimeFilter = (window: EventAgendaWindow, now: string): SQL => {
@@ -69,6 +72,7 @@ const eventAgendaConditions = ({
   mine,
   groupId,
   profileId,
+  excludeCreatorIds,
 }: EventAgendaQueryArgs): SQL[] => {
   const conditions: SQL[] = [
     isNull(posts.deletedAt),
@@ -92,6 +96,9 @@ const eventAgendaConditions = ({
     conditions.push(
       sql`EXISTS (SELECT 1 FROM ${postGroups} WHERE ${postGroups.fromId} = ${posts.id}::text AND ${postGroups.toId} = ${groupId})`,
     );
+  }
+  if (excludeCreatorIds?.length) {
+    conditions.push(notInArray(posts.creatorId, excludeCreatorIds));
   }
   return conditions;
 };
@@ -190,6 +197,7 @@ export const listEventAgenda = async (
     mine,
     groupId,
     profileId: authData.profile?.id,
+    excludeCreatorIds: blockedPairIds(authData.profile),
   });
   const postsById = await loadPostsByIds(
     [...new Set(rows.map((row) => row.postId))],

@@ -2,8 +2,9 @@ import { endpoint, z } from '#lib/endpoint';
 import { findProfileByHandle } from '@openpeepshq/core/profiles';
 import type { RequestEvent } from '@riddl/core';
 import { publicProfileSchema } from '@openpeepshq/common/types';
-import { ensureAccess, ensureProfileCapabilities } from '#lib/auth';
+import { ensureAccess } from '#lib/auth';
 import { notFound } from '#lib/errors';
+import { publicProfileForViewer } from '#lib/handlers/profile/block';
 
 export const Output = publicProfileSchema;
 export const Param = z.object({
@@ -24,10 +25,10 @@ export const apiEndpoint = endpoint({ Output, Param }).handle(
       throw notFound(`Profile with id ${param.handle}`);
     }
 
-    await ensureProfileCapabilities(event, requestedProfile, [
-      'core-profiles-read',
-    ]);
-
-    return publicProfileSchema.parse(requestedProfile);
+    return publicProfileForViewer(
+      event,
+      requestedProfile,
+      `Profile with id ${param.handle}`,
+    );
   },
 );

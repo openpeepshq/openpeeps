@@ -17,6 +17,7 @@ export const collectionInfos = {
   accountsCollection: document('accounts'),
   profilesCollection: document('profiles'),
   followsCollection: edge('follows'),
+  blocksCollection: edge('blocks'),
   requestsFollowCollection: edge('requestsFollow'),
   controlsCollection: edge('controls'),
   postsCollection: document('posts'),

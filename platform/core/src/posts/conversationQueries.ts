@@ -4,7 +4,12 @@ import type {
   DbPost,
   PostWithMeta,
 } from '@openpeepshq/common/types';
-import { getUniqueBy } from '@openpeepshq/common/lib';
+import {
+  blockedPairIds,
+  getUniqueBy,
+  isOneToOneWithBlocked,
+  toHiddenPost,
+} from '@openpeepshq/common/lib';
 import { allpeepDb } from '../db';
 import type { PgDb } from '../db/pg/client';
 import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';
@@ -114,11 +119,17 @@ const hydrateLeanPostsByIds = async (
   )) as unknown as DbPost[];
   const config = await capabilitiesConfig();
   const readable = canReadPost(config, authData);
+  const pair = new Set(blockedPairIds(authData.profile));
   const byId = new Map<string, PostWithMeta>();
   for (const post of hydrated) {
     const transformed = await transformPost(post, authData.profile, {
       embedThreadPreview: false,
     });
+    const creatorId = transformed.creatorId ?? transformed.profile?.id;
+    if (creatorId && pair.has(creatorId)) {
+      byId.set(transformed.id, toHiddenPost(transformed));
+      continue;
+    }
     if (readable(transformed)) byId.set(transformed.id, transformed);
   }
   return byId;
@@ -139,12 +150,14 @@ export const listConversationPreviews = async (
   const pairs = await listConversationRootLeafPairs(db, profile.id);
   const ids = [...new Set(pairs.flatMap((pair) => [pair.rootId, pair.leafId]))];
   const byId = await hydrateLeanPostsByIds(authData, ids);
+  const blocked = new Set(blockedPairIds(profile));
   return getUniqueBy(
     pairs
       .map(({ rootId, leafId }) => {
         const root = byId.get(rootId);
         const leaf = byId.get(leafId);
         if (!root || !leaf) return null;
+        if (isOneToOneWithBlocked(root, profile, blocked)) return null;
         return rootId === leafId ? [root] : [root, leaf];
       })
       .filter((conversation): conversation is PostWithMeta[] => !!conversation),

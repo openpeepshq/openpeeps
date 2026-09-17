@@ -4,6 +4,7 @@ import {
   GuestPassRequest,
   Profile,
   ProfileData,
+  ProfileWithMeta,
   Role,
 } from '@openpeepshq/common/types';
 import { profilesMapping } from './mapping';
@@ -18,9 +19,20 @@ import {
 import { hub } from '../events';
 import { randomString } from '@openpeepshq/common/lib';
 import { deleteAccessTokensForProfile } from '../accessTokens/helpers';
-import { profilesCache, getProfile, clearProfileCache } from './cache';
+import {
+  profilesCache,
+  getProfile,
+  getPublicProfile,
+  clearProfileCache,
+} from './cache';
 import { accountsCache } from '../accounts/cache';
 import { assertProfileCapacity } from './capacity';
+import {
+  deleteBlock,
+  dropFollowsBetween,
+  insertBlock,
+  listBlockingIds,
+} from './blocks';
 
 export const createProfile = async (
   data: ProfileData,
@@ -118,6 +130,28 @@ export const unfollow = async (follower: Profile, followed: Profile) => {
   const { db } = await allpeepDb();
   await followDisconnector(db, follower, followed);
   await Promise.all([clearProfileCache(follower), clearProfileCache(followed)]);
+};
+
+export const blockProfile = async (blocker: Profile, blocked: Profile) => {
+  const { db } = await allpeepDb();
+  await insertBlock(db, blocker.id, blocked.id);
+  await dropFollowsBetween(db, blocker.id, blocked.id);
+  await Promise.all([clearProfileCache(blocker), clearProfileCache(blocked)]);
+};
+
+export const unblockProfile = async (blocker: Profile, blocked: Profile) => {
+  const { db } = await allpeepDb();
+  await deleteBlock(db, blocker.id, blocked.id);
+  await Promise.all([clearProfileCache(blocker), clearProfileCache(blocked)]);
+};
+
+export const listBlockedProfiles = async (
+  profile: Profile,
+): Promise<ProfileWithMeta[]> => {
+  const { db } = await allpeepDb();
+  const ids = await listBlockingIds(db, profile.id);
+  const profiles = await Promise.all(ids.map((id) => getPublicProfile(id)));
+  return profiles.filter((item): item is ProfileWithMeta => !!item);
 };
 
 export const assignRole = (profile: Profile, role: Role) =>

@@ -1,5 +1,14 @@
 import type { FeedCursor } from '@openpeepshq/common';
-import { and, eq, inArray, isNotNull, ne, or, sql } from 'drizzle-orm';
+import {
+  and,
+  eq,
+  inArray,
+  isNotNull,
+  ne,
+  notInArray,
+  or,
+  sql,
+} from 'drizzle-orm';
 import { posts } from '../schema/documents';
 import { postGroups, replyTo } from '../schema/edges';
 import {
@@ -47,6 +56,9 @@ export const postFilters = {
   hasJam: (): SqlFilter => pgSql(isNotNull(sql`${posts.body}->'jam'`)),
 
   creatorId: (id: string): SqlFilter => pgSql(eq(posts.creatorId, id)),
+
+  notCreatorIn: (ids: string[]): SqlFilter | undefined =>
+    ids.length ? pgSql(notInArray(posts.creatorId, ids)) : undefined,
 
   myFeed: (
     profileId: string,

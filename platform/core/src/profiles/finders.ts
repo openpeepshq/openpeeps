@@ -14,7 +14,7 @@ import {
 } from './mapping';
 import { allpeepDb } from '../db';
 import { profileFilters } from '../db/pg/filters';
-import { getUniqueBy } from '@openpeepshq/common/lib';
+import { blockedPairIds, getUniqueBy } from '@openpeepshq/common/lib';
 import { rolesMapping } from '../roles/mapping';
 import { findRolesByCapabilities } from '../roles/finders';
 import { expandProfiles, followFinder } from './helpers';
@@ -33,10 +33,15 @@ export const findProfileByHandle = (
 export const existsProfileByHandle = (handle: string) =>
   getProfileByHandle(handle, true).then(Boolean);
 
-export const listProfiles = (): Promise<ProfileWithMeta[]> =>
+export const listProfiles = (
+  viewer?: ProfileWithMeta,
+): Promise<ProfileWithMeta[]> =>
   allpeepDb()
     .then(({ db }) =>
-      baseProfilesMapping.filter(profileFilters.notGuest()).all(db),
+      baseProfilesMapping
+        .filter(profileFilters.notGuest())
+        .filter(profileFilters.notIdIn(blockedPairIds(viewer)))
+        .all(db),
     )
     .then(expandProfiles);
 

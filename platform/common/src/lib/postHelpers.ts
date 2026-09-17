@@ -459,3 +459,58 @@ export const getPostActionAvailability = (
 
   return { canReply, canRepost, canReact };
 };
+
+/** Sentinel handle for block-hidden reply tombstones (no name/handle leak). */
+export const HIDDEN_AUTHOR_HANDLE = 'hidden';
+
+export const toHiddenPost = <
+  T extends { data: PostDataUnion; profile: PublicProfile },
+>(
+  post: T,
+): T & { hidden: true } =>
+  ({
+    ...post,
+    hidden: true,
+    data: {
+      ...post.data,
+      ...('content' in post.data ? { content: '' } : {}),
+    },
+    profile: {
+      ...post.profile,
+      displayName: undefined,
+      handle: HIDDEN_AUTHOR_HANDLE,
+      avatar: null,
+      header: null,
+      bio: undefined,
+    },
+  }) as T & { hidden: true };
+
+export const isHiddenPost = (post: { hidden?: boolean }): boolean =>
+  !!post.hidden;
+
+const participantIds = (
+  post: Pick<PublicPost, 'audience' | 'profile'> & { creatorId?: string },
+): Set<string> => {
+  const ids = new Set(
+    (post.audience ?? []).map((member) => member.id).filter(Boolean),
+  );
+  const creatorId = post.creatorId ?? post.profile?.id;
+  if (creatorId) ids.add(creatorId);
+  return ids;
+};
+
+export const isOneToOneWithBlocked = (
+  post: Pick<PublicPost, 'visibility' | 'audience' | 'profile'> & {
+    creatorId?: string;
+  },
+  viewer: { id: string } | undefined | null,
+  blockedIds?: Set<string> | string[],
+): boolean => {
+  if (!viewer || post.visibility !== 'direct') return false;
+  const blocked =
+    blockedIds instanceof Set ? blockedIds : new Set(blockedIds ?? []);
+  if (!blocked.size) return false;
+  const others = participantIds(post);
+  others.delete(viewer.id);
+  return others.size === 1 && blocked.has([...others][0]!);
+};

@@ -3,6 +3,7 @@ import type {
   DbPost,
   PostWithMeta,
 } from '@openpeepshq/common/types';
+import { blockedPairIds, toHiddenPost } from '@openpeepshq/common/lib';
 import { allpeepDb } from '../db';
 import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';
 import { applySort } from '../db/pg/map/filters';
@@ -49,11 +50,19 @@ export const loadReplyContextPosts = async (
 
   const config = await capabilitiesConfig();
   const readable = canReadPost(config, authData);
+  const pair = new Set(blockedPairIds(authData.profile));
   const posts: PostWithMeta[] = [];
   for (const post of sorted) {
     const transformed = await transformPost(post, authData.profile, {
       embedThreadPreview: false,
     });
+    const creatorId = transformed.creatorId ?? transformed.profile?.id;
+    if (creatorId && pair.has(creatorId)) {
+      if (direction === 'descendents') {
+        posts.push(toHiddenPost(transformed));
+      }
+      continue;
+    }
     if (readable(transformed)) posts.push(transformed);
   }
   return posts;

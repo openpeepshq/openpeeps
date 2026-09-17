@@ -281,6 +281,15 @@
     "notFound": {
       "title": "Profile not found",
       "description": "This profile does not exist.  You may try to find them in the Members list."
+    },
+    "block": {
+      "title": "Block @{{handle}}",
+      "description": "Are you sure you want to block @{{handle}}? You will no longer see each other or each other’s posts.",
+      "confirm": "Block",
+      "unblock": "Unblock",
+      "blockedTitle": "You have blocked this profile",
+      "blockedDescription": "Unblock @{{handle}} to see their profile and posts again.",
+      "cannotBlockManaged": "You cannot block a profile you control."
     }
   },
   "posts": {
@@ -441,6 +450,7 @@
       "empty": "No posts yet.",
       "pinned": "Pinned post"
     },
+    "hiddenMessage": "Hidden message",
     "chronologicalFeed": {
       "modalTitle": "Community feed preferences",
       "subtitle": "Manage the content you see on your Community feed",
@@ -2254,6 +2264,11 @@
       "updateSuccess": "Your profile has been updated",
       "updateHandleExists": "Handle already taken"
     },
+    "blocked": {
+      "title": "Blocked",
+      "description": "People you have blocked",
+      "empty": "You haven't blocked anyone"
+    },
     "account": {
       "description": "Make changes to your account information",
       "oldPassword": "Current Password",
@@ -3082,6 +3097,7 @@
     "jamRsvpRequired": "You must RSVP yes to join this event.",
     "rsvpRemoved": "The organizer has removed you from this event.",
     "rsvpRemovedForbidden": "Only the event organizer can remove attendees.",
+    "cannotInteractBlocked": "You cannot interact with this profile.",
     "unprocessableRequest": "Invalid request"
   },
   "infos": {

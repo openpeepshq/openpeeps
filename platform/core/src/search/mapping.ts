@@ -1,9 +1,10 @@
 import { ProfileWithMeta } from '@openpeepshq/common/types';
+import { blockedPairIds } from '@openpeepshq/common/lib';
 import { groupsMapping } from '../groups';
 import { canSeeGroupFilter } from '../groups/helpers';
 import { publicProfilesSearchMapping } from '../profiles/mapping';
 import { baseListPosts } from '../posts/finders';
-import { postFilters } from '../db/pg/filters';
+import { postFilters, profileFilters } from '../db/pg/filters';
 
 export const groupSearchMapping = (profile: ProfileWithMeta, query: string) =>
   groupsMapping.filter(canSeeGroupFilter(profile)).fulltextSearch({
@@ -13,16 +14,15 @@ export const groupSearchMapping = (profile: ProfileWithMeta, query: string) =>
     query,
   });
 
-export const profileSearchMapping = (
-  _profile: ProfileWithMeta,
-  query: string,
-) =>
-  publicProfilesSearchMapping.fulltextSearch({
-    view: 'profileSearch',
-    analyzer: 'text_en',
-    fields: ['handle', 'displayName', 'bio', 'location.text', 'fields.value'],
-    query,
-  });
+export const profileSearchMapping = (profile: ProfileWithMeta, query: string) =>
+  publicProfilesSearchMapping
+    .filter(profileFilters.notIdIn(blockedPairIds(profile)))
+    .fulltextSearch({
+      view: 'profileSearch',
+      analyzer: 'text_en',
+      fields: ['handle', 'displayName', 'bio', 'location.text', 'fields.value'],
+      query,
+    });
 
 // Poll/attachment arrays are indexed with searchField on the parent in
 // search-posts. SEARCH uses expanded paths without an array index.

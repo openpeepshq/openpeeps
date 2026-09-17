@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import { ThemedView } from '~/components/ui/themed-view';
-import {
-  ProfileCard,
-} from '~/components/custom/profile';
+import { ProfileCard } from '~/components/custom/profile';
 import { GenericHeader } from '~/components/custom/headers';
 import { EmptyStateContainer } from '~/components/custom/common';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -15,6 +13,7 @@ import { useNewConversationStore } from '~/stores/useNewConversationStore';
 import { Input } from '~/components/ui/input';
 import { profileMatchesQuery } from '~/lib/utils';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { blockedPairIds } from '@openpeepshq/common/lib';
 
 type SelectPrivateMessageMembersProps =
   MainScreenProps<'SelectPrivateMessageMembers'>;
@@ -29,14 +28,19 @@ export const SelectPrivateMessageMembers = ({
   const { members, setMember, removeMember } = useNewConversationStore();
 
   useEffect(() => {
+    const excluded = new Set([
+      ...(currentProfile ? [currentProfile.id] : []),
+      ...blockedPairIds(currentProfile),
+    ]);
+    const visible = (allProfiles || []).filter(
+      (profile) => !excluded.has(profile.id)
+    );
     if (searchQuery) {
       setFilteredProfiles(
-        (allProfiles || [])
-          ?.filter(profile => profile.id !== currentProfile?.id)
-          ?.filter(profile => profileMatchesQuery(profile, searchQuery)),
+        visible.filter((profile) => profileMatchesQuery(profile, searchQuery))
       );
     } else {
-      setFilteredProfiles(allProfiles);
+      setFilteredProfiles(visible);
     }
   }, [currentProfile, allProfiles, searchQuery]);
 

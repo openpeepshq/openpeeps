@@ -55,6 +55,17 @@ describe('pg filters', () => {
     expect(postFilters.creatorId('profile-id').kind).toBe('sql');
   });
 
+  it('excludes blocked creators and profile ids', () => {
+    const creatorFilter = postFilters.notCreatorIn(['blocked-1', 'blocked-2']);
+    expect(creatorFilter).toBeDefined();
+    const rendered = flattenSql(creatorFilter!.where);
+    expect(rendered).toContain('creator_id');
+    expect(rendered).toContain('blocked-1');
+    expect(postFilters.notCreatorIn([])).toBeUndefined();
+    expect(profileFilters.notIdIn([])).toBeUndefined();
+    expect(profileFilters.notIdIn(['p1'])?.kind).toBe('sql');
+  });
+
   it('excludes replies with a NOT EXISTS on reply_to', () => {
     const rendered = flattenSql(postFilters.notReply().where);
     expect(rendered).toContain('NOT EXISTS');

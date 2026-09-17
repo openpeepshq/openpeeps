@@ -705,4 +705,237 @@ test.describe('user actions (API)', () => {
     );
     expect(resolve.ok(), await resolve.text()).toBeTruthy();
   });
+
+  test('block hides profiles, posts, DMs, and jam tokens', async ({
+    request,
+  }) => {
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const ownerProfile = await currentProfile(request, ownerToken);
+
+    const registerMember = async (prefix: string) => {
+      const handle = uniqueHandle(prefix);
+      const email = `${handle}@openpeeps.test`;
+      const { token } = await registerUser(request, {
+        handle,
+        email,
+        password: 'testtest12',
+      });
+      await promoteToMemberViaEmail(request, token, email);
+      const profile = await currentProfile(request, token);
+      return { token, profile, handle };
+    };
+
+    const a = await registerMember('ba');
+    const b = await registerMember('bb');
+    const c = await registerMember('bc');
+
+    const note = await createNote(
+      request,
+      b.token,
+      `visible-then-blocked ${b.handle}`,
+    );
+
+    const ownerPublic = await request.get(
+      `/api/openpeeps/core/v1/profiles/${ownerProfile.id}`,
+      { headers: apiHeaders(ownerToken) },
+    );
+    const aPublic = await request.get(
+      `/api/openpeeps/core/v1/profiles/${a.profile.id}`,
+      { headers: apiHeaders(a.token) },
+    );
+    const bPublic = await request.get(
+      `/api/openpeeps/core/v1/profiles/${b.profile.id}`,
+      { headers: apiHeaders(b.token) },
+    );
+    expect(ownerPublic.ok() && aPublic.ok() && bPublic.ok()).toBeTruthy();
+    const aBody = await aPublic.json();
+    const bBody = await bPublic.json();
+
+    const dm = await request.post('/api/openpeeps/core/v1/posts', {
+      headers: apiHeaders(a.token),
+      data: {
+        type: 'note',
+        visibility: 'direct',
+        audience: [aBody, bBody],
+        data: { type: 'note', content: `block-dm ${a.handle}` },
+      },
+    });
+    expect(dm.ok(), await dm.text()).toBeTruthy();
+
+    const follow = await request.post(
+      `/api/openpeeps/core/v1/profiles/${b.profile.id}/follow`,
+      {
+        headers: apiHeaders(a.token),
+        data: {},
+      },
+    );
+    expect(follow.ok(), await follow.text()).toBeTruthy();
+
+    const jam = await request.post('/api/openpeeps/core/v1/posts', {
+      headers: apiHeaders(b.token),
+      data: {
+        type: 'event',
+        visibility: 'public',
+        data: {
+          type: 'event',
+          name: `Jam ${b.handle}`,
+          content: 'Jam',
+          start: new Date(Date.now() + 60_000).toISOString(),
+          end: new Date(Date.now() + 3_600_000).toISOString(),
+          wholeDay: false,
+          jam: {
+            type: 'video-call',
+            videoEnabled: true,
+            moderators: [b.profile.id],
+            waitingRoom: false,
+          },
+        },
+      },
+    });
+    expect(jam.ok(), await jam.text()).toBeTruthy();
+    const jamEvent = await jam.json();
+
+    const selfBlock = await request.post(
+      `/api/openpeeps/core/v1/profiles/${a.profile.id}/block`,
+      { headers: apiHeaders(a.token) },
+    );
+    expect(selfBlock.status()).toBe(403);
+
+    const block = await request.post(
+      `/api/openpeeps/core/v1/profiles/${b.profile.id}/block`,
+      { headers: apiHeaders(a.token) },
+    );
+    expect(block.ok(), await block.text()).toBeTruthy();
+
+    const again = await request.post(
+      `/api/openpeeps/core/v1/profiles/${b.profile.id}/block`,
+      { headers: apiHeaders(a.token) },
+    );
+    expect(again.ok(), await again.text()).toBeTruthy();
+
+    const stub = await request.get(
+      `/api/openpeeps/core/v1/profiles/${b.profile.id}`,
+      { headers: apiHeaders(a.token) },
+    );
+    expect(stub.ok(), await stub.text()).toBeTruthy();
+    const stubBody = await stub.json();
+    expect(stubBody.blockedByMe).toBe(true);
+    expect(stubBody.bio).toBeUndefined();
+
+    const missing = await request.get(
+      `/api/openpeeps/core/v1/profiles/${a.profile.id}`,
+      { headers: apiHeaders(b.token) },
+    );
+    expect(missing.status()).toBe(404);
+
+    const byHandle = await request.get(
+      `/api/openpeeps/core/v1/profiles/by-handle/${a.handle}`,
+      { headers: apiHeaders(b.token) },
+    );
+    expect(byHandle.status()).toBe(404);
+
+    const blockedList = await request.get(
+      '/api/openpeeps/core/v1/profiles/current/blocked',
+      { headers: apiHeaders(a.token) },
+    );
+    expect(blockedList.ok(), await blockedList.text()).toBeTruthy();
+    const blockedProfiles = (await blockedList.json()) as Array<{ id: string }>;
+    expect(blockedProfiles.some((profile) => profile.id === b.profile.id)).toBe(
+      true,
+    );
+
+    const directory = await request.get('/api/openpeeps/core/v1/profiles', {
+      headers: apiHeaders(a.token),
+    });
+    expect(directory.ok()).toBeTruthy();
+    const directoryList = (await directory.json()) as Array<{ id: string }>;
+    expect(directoryList.some((profile) => profile.id === b.profile.id)).toBe(
+      false,
+    );
+
+    const search = await request.get(
+      `/api/openpeeps/core/v1/search/profiles?q=${encodeURIComponent(b.handle)}`,
+      { headers: apiHeaders(a.token) },
+    );
+    expect(search.ok()).toBeTruthy();
+    const searchHits = (await search.json()) as Array<{
+      id?: string;
+      data?: { id: string };
+    }>;
+    expect(
+      searchHits.some((hit) => (hit.data?.id ?? hit.id) === b.profile.id),
+    ).toBe(false);
+
+    const feed = await request.get('/api/openpeeps/core/v1/posts/feeds/local', {
+      headers: apiHeaders(a.token),
+    });
+    expect(feed.ok()).toBeTruthy();
+    const feedPosts = (await feed.json()) as Array<{ id: string }>;
+    expect(feedPosts.some((post) => post.id === note.id)).toBe(false);
+
+    const myFeed = await request.get('/api/openpeeps/core/v1/posts/feeds/my', {
+      headers: apiHeaders(a.token),
+    });
+    expect(myFeed.ok()).toBeTruthy();
+    const myFeedPosts = (await myFeed.json()) as Array<{ id: string }>;
+    expect(myFeedPosts.some((post) => post.id === note.id)).toBe(false);
+
+    const following = await request.get(
+      `/api/openpeeps/core/v1/profiles/${a.profile.id}/following`,
+      { headers: apiHeaders(a.token) },
+    );
+    expect(following.ok()).toBeTruthy();
+    const followingList = (await following.json()) as Array<{ id: string }>;
+    expect(followingList.some((profile) => profile.id === b.profile.id)).toBe(
+      false,
+    );
+
+    const conversations = await request.get(
+      '/api/openpeeps/core/v1/conversations',
+      { headers: apiHeaders(a.token) },
+    );
+    expect(conversations.ok()).toBeTruthy();
+    const threads = (await conversations.json()) as Array<
+      Array<{ id: string }>
+    >;
+    const dmBody = await dm.json();
+    expect(
+      threads.some((thread) => thread.some((post) => post.id === dmBody.id)),
+    ).toBe(false);
+
+    const audienceBoth = await request.post('/api/openpeeps/core/v1/posts', {
+      headers: apiHeaders(c.token),
+      data: {
+        type: 'note',
+        visibility: 'direct',
+        audience: [aBody, bBody],
+        data: { type: 'note', content: `cannot-pair ${c.handle}` },
+      },
+    });
+    expect(audienceBoth.ok()).toBeFalsy();
+
+    const jamToken = await request.get(
+      `/api/openpeeps/core/v1/jams/${jamEvent.id}/token`,
+      { headers: apiHeaders(a.token) },
+    );
+    expect(jamToken.status()).toBe(404);
+
+    const unblock = await request.delete(
+      `/api/openpeeps/core/v1/profiles/${b.profile.id}/block`,
+      { headers: apiHeaders(a.token) },
+    );
+    expect(unblock.ok(), await unblock.text()).toBeTruthy();
+
+    const restored = await request.get(
+      `/api/openpeeps/core/v1/profiles/${b.profile.id}`,
+      { headers: apiHeaders(a.token) },
+    );
+    expect(restored.ok(), await restored.text()).toBeTruthy();
+    const restoredBody = await restored.json();
+    expect(restoredBody.blockedByMe).toBeFalsy();
+  });
 });
