@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   assembleRtmpUrl,
   canModerateJam,
+  canViewJamAttendees,
   isFileJamRecording,
   pickActiveFileRecording,
   pickActiveRtmpStream,
@@ -84,6 +85,16 @@ describe('canModerateJam', () => {
     expect(canModerateJam({ id: 'mod-1' }, post)).toBe(true);
     expect(canModerateJam({ id: 'other' }, post)).toBe(false);
     expect(canModerateJam(undefined, post)).toBe(false);
+  });
+});
+
+describe('canViewJamAttendees', () => {
+  it('allows the host and jam moderators', () => {
+    const post = jamPost(['mod-1']);
+    expect(canViewJamAttendees({ id: 'author' }, post)).toBe(true);
+    expect(canViewJamAttendees({ id: 'mod-1' }, post)).toBe(true);
+    expect(canViewJamAttendees({ id: 'other' }, post)).toBe(false);
+    expect(canViewJamAttendees(undefined, post)).toBe(false);
   });
 });
 

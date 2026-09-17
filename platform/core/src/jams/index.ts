@@ -53,6 +53,7 @@ export {
 export * from './waitingRoom';
 export * from './mutations';
 export * from './finders';
+export * from './export';
 export * from './recording';
 export {
   deriveJamRecordingUploadSecret,

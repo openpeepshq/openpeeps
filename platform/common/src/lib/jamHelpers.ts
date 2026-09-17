@@ -52,6 +52,16 @@ export const canModerateJam = (
   post: PublicPost,
 ) => !!(profile && jamFromEvent(post)?.moderators?.includes(profile.id));
 
+/** Host or jam moderator — same gate as the event Attendees tab. */
+export const canViewJamAttendees = (
+  profile: Pick<PublicProfile, 'id'> | undefined,
+  post: PublicPost,
+) =>
+  !!(
+    profile &&
+    (post.profile.id === profile.id || canModerateJam(profile, post))
+  );
+
 export const canAccessJamRecordings = (
   profile: PublicProfile | undefined,
   post: PublicPost,
