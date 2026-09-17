@@ -3,7 +3,6 @@ import {
   type Request,
   type Response,
   type NextFunction,
-  type Express,
 } from 'express';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -12,6 +11,7 @@ import { logger } from '@openpeepshq/core/log';
 import { PLUGIN_ASSETS_PREFIX } from '@openpeepshq/common';
 
 const NAMESPACE_RE = /^[a-z0-9-]+$/;
+const PLUGIN_API_PREFIX = '/api/openpeeps/core/v1/plugins';
 
 export const isValidNamespace = (s: string) => NAMESPACE_RE.test(s);
 
@@ -19,12 +19,10 @@ const log = logger('server:plugins');
 
 export type PluginRouterFactory = (router: Router) => void | Promise<void>;
 
-interface PluginModule {
-  routes?: PluginRouterFactory;
-  interceptors?: () => Promise<Record<string, (...args: unknown[]) => void>>;
-  configSchema?: { schema: () => unknown; defaults: unknown };
-  manifest?: Record<string, unknown>;
-}
+// Express 5 dropped `app._router`. Reloading via `app.use` would append
+// plugin routers after the Riddl `/api/` catch-all, which never calls
+// next(). Keep one root router mounted before Riddl and swap its stack.
+export const pluginRootRouter = Router();
 
 const mountedRouters = new Map<string, { path: string; router: Router }>();
 
@@ -33,46 +31,55 @@ export const getMountedPluginRouters = () =>
     Array.from(mountedRouters.entries()).map(([k, v]) => [k, v]),
   );
 
-const unmountRouter = (app: Express, pluginKey: string) => {
-  const mounted = mountedRouters.get(pluginKey);
-  if (!mounted || !app._router) return;
-  const stack = app._router.stack;
-  const idx = stack.findIndex(
-    (layer: { name?: string; handle?: { _router?: unknown } }) =>
-      layer.name === 'router' && layer.handle?._router === mounted.router,
-  );
-  if (idx !== -1) {
-    stack.splice(idx, 1);
-    mountedRouters.delete(pluginKey);
-    log.info(`Unmounted routes for plugin ${pluginKey}.`);
-  }
+const clearPluginRootRouter = () => {
+  const stack = (pluginRootRouter as unknown as { stack: unknown[] }).stack;
+  stack.length = 0;
+  mountedRouters.clear();
 };
 
-export const unmountAllPluginRouters = (app: Express) => {
-  for (const key of mountedRouters.keys()) {
-    unmountRouter(app, key);
+const resolvePluginRoutes = (
+  module: unknown,
+): PluginRouterFactory | undefined => {
+  if (!module || typeof module !== 'object') {
+    return undefined;
   }
+  const record = module as Record<string, unknown>;
+  const nested =
+    record.default && typeof record.default === 'object'
+      ? (record.default as Record<string, unknown>).routes
+      : undefined;
+  const routes = record.routes ?? nested;
+  return typeof routes === 'function'
+    ? (routes as PluginRouterFactory)
+    : undefined;
 };
 
-export const buildPluginRouters = async (app?: Express) => {
-  const routers: Record<string, Router> = {};
+export const buildPluginRouters = async () => {
+  clearPluginRootRouter();
 
   for (const plugin of getPlugins()) {
     if (plugin.status !== 'loaded') {
       continue;
     }
 
-    const module = getPluginModule(plugin.key) as PluginModule | undefined;
-    if (!module?.routes) {
+    const module = getPluginModule(plugin.key);
+    const routes = resolvePluginRoutes(module);
+    if (!routes) {
+      const keys =
+        module && typeof module === 'object' ? Object.keys(module) : [];
+      log.info(
+        `Skipping routes for plugin ${plugin.key}: no routes export ` +
+          `(keys: ${keys.join(', ') || 'none'}).`,
+      );
       continue;
     }
 
     const router = Router();
     try {
-      await module.routes(router);
-      routers[plugin.key] = router;
+      await routes(router);
+      pluginRootRouter.use(`/${plugin.key}`, router);
       mountedRouters.set(plugin.key, {
-        path: `/api/openpeeps/core/v1/plugins/${plugin.key}`,
+        path: `${PLUGIN_API_PREFIX}/${plugin.key}`,
         router,
       });
       log.info(`Registered routes for plugin ${plugin.key}.`);
@@ -80,8 +87,6 @@ export const buildPluginRouters = async (app?: Express) => {
       log.error(e, `Failed to register routes for plugin ${plugin.key}.`);
     }
   }
-
-  return routers;
 };
 
 const ASSET_BASE = `${PLUGIN_ASSETS_PREFIX}/`;

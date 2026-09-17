@@ -40,6 +40,7 @@ A plugin is a folder with a `package.json` and a backend entry point `src/index.
 | `interceptors` | No       | Map of `CoreEvents` handlers (`postCreated`, `profileCreated`, `jamRecordingCompleted`, etc.) |
 | `routes`       | No       | Express `Router` factory — receives a fresh `Router` instance                                 |
 | `configSchema` | No       | `{ schema: () => ZodSchema, defaults: object }` for admin config UI                           |
+| `locales`      | No       | i18next resource packs (`{ en, de, … }`) merged into host translations                        |
 | `manifest`     | No       | Frontend component manifest (see §4)                                                          |
 
 ### Backend Loading
@@ -51,7 +52,8 @@ A plugin is a folder with a `package.json` and a backend entry point `src/index.
 5. **Load:** Each plugin is dynamically imported via `import(\`${pluginPath}/dist/index.js\`)`.
 6. **Hook:** If the module exports `interceptors()`, handlers are registered on the core event `hub`.
 7. **Config:** If the module exports `configSchema`, it is registered via `registerConfigSchema(namespace, name, …)`.
-8. **Manifest:** If the module exports `manifest`, it is stored and exposed by `GET /api/openpeeps/core/v1/plugins/manifest`.
+8. **Locales:** If the module exports `locales` (`{ en, de, … }`, same nested-object shape as host locale files), they are merged into the host i18n catalog. Prefer namespaced keys (`plugins.peepsAi.knowledgeBase.title`). Configuration menu chrome can ship `configuration.plugins.<slug>.title` / `.description`. Host keys stay available through the same `t()` that `PluginSlot` already passes as `translate`.
+9. **Manifest:** If the module exports `manifest`, it is stored and exposed by `GET /api/openpeeps/core/v1/plugins/manifest`.
 
 ```mermaid
 sequenceDiagram
@@ -71,9 +73,10 @@ sequenceDiagram
   L->>L: sortByDependencies()
   loop each plugin, in order
     L->>P: import(dist/index.js)
-    P-->>L: {interceptors?, routes?, configSchema?, manifest?}
+    P-->>L: {interceptors?, routes?, configSchema?, locales?, manifest?}
     L->>H: register interceptors()
     L->>CFG: registerConfigSchema(namespace, name, configSchema)
+    L->>L: register plugin locales
     L->>L: store manifest for /plugins/manifest
   end
 ```
@@ -82,6 +85,7 @@ sequenceDiagram
 
 - **Event interceptors** — `profileCreated`, `postCreated`, `jamRecordingCompleted`, `followCreated`, `notificationCreated`, `reactionCreated`, `entryCreated`, `rsvpCreated`, `postAnnounced`, `configUpdated`.
 - **Config schema registration** — plugins declare Zod schemas and defaults for their own settings, edited via the same admin UI as core configs.
+- **Locales** — plugins export i18next resource packs. The host merges them into `GET /i18n/:lang` so plugin UI and host chrome share one `t()`. Host strings win on key conflicts; Custom Text overrides still win last.
 - **API routes** — plugins export `routes(router)` and receive an Express `Router` mounted under `/api/openpeeps/core/v1/plugins/<namespace>/<name>`.
 - **Frontend manifest** — plugins declare components that target named slots in the React UI.
 
@@ -99,14 +103,34 @@ sequenceDiagram
 
 Core endpoints exposed for plugin discovery:
 
-| Method | Path                                                  | Description                                                                      | Auth          |
-| ------ | ----------------------------------------------------- | -------------------------------------------------------------------------------- | ------------- |
-| `GET`  | `/api/openpeeps/core/v1/plugins`                      | Loaded plugin metadata (key, namespace, name, version, displayName, description) | None          |
-| `GET`  | `/api/openpeeps/core/v1/plugins/config`               | Merged plugin config tree                                                        | Auth required |
-| `GET`  | `/api/openpeeps/core/v1/plugins/manifest`             | Frontend component manifests per plugin                                          | None          |
-| `any`  | `/api/openpeeps/core/v1/plugins/<namespace>/<name>/*` | Plugin-defined Express routes                                                    | _See §3_      |
+| Method | Path                                                  | Description                                                                      | Auth                  |
+| ------ | ----------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------- |
+| `GET`  | `/api/openpeeps/core/v1/plugins`                      | Loaded plugin metadata (key, namespace, name, version, displayName, description) | None                  |
+| `GET`  | `/api/openpeeps/core/v1/plugins/config`               | Merged plugin config tree                                                        | Auth required         |
+| `GET`  | `/api/openpeeps/core/v1/plugins/manifest`             | Frontend component manifests per plugin                                          | None                  |
+| `any`  | `/api/openpeeps/core/v1/plugins/<namespace>/<name>/*` | Plugin-defined Express routes                                                    | _See §3_              |
+| `POST` | `/api/openpeeps/core/v1/admin/plugins/install`        | Install a plugin from npm or git                                                 | `core-plugins-manage` |
 
 The plugin's `routes(router)` function receives a fresh Express `Router` already scoped to `/api/openpeeps/core/v1/plugins/<namespace>/<name>`, so routes inside the plugin should use relative paths.
+
+### Installing from private sources
+
+The admin Plugins page accepts one-shot credentials for private sources:
+
+- npm packages use an access token and an optional HTTPS registry URL.
+- HTTPS git repositories use a username and access token.
+- SSH git repositories use an `ssh://` URL and an unencrypted deploy key.
+
+Credentials are passed only to the install subprocess and are never stored in
+the installed-plugin record. Temporary npm configuration, askpass helpers, SSH
+keys, and known-hosts files are removed after every attempt. Do not put
+credentials in a repository URL; HTTPS URLs containing user information are
+rejected. SSH URLs may contain the required git username.
+
+SSH host keys use trust on first use for each installation. This keeps deploy
+keys portable across git providers, but an intercepted first connection could
+be trusted. Prefer HTTPS token authentication when host identity cannot be
+verified independently.
 
 ---
 
@@ -163,7 +187,7 @@ graph LR
 | `PluginRegistryProvider` | `@openpeepshq/react/components` | Context owning slot/component state; exposes `window.__OPENPEEPS_PLUGINS__`                       |
 | `PluginLoader`           | `@openpeepshq/react/components` | Fetches manifest, injects `<script>` tags for each declared asset                                 |
 | `PluginSlot`             | `@openpeepshq/react/components` | Renders all components registered for a named slot (function component, no class `ErrorBoundary`) |
-| `usePluginRegistry`      | `@openpeepshq/react/components` | Direct access to `registerComponent` and `getComponentsForSlot`                                   |
+| `usePluginRegistry`      | `@openpeepshq/react/components` | Direct access to `registerComponent`, `getComponentsForSlot`, and `listSlots`                     |
 
 ### Usage example
 
@@ -180,6 +204,18 @@ function SomePage() {
   );
 }
 ```
+
+Analytics tabs are not a fixed host list. Register
+`plugins.admin.analytics.<slug>` (one kebab-case segment, not a core
+analytics path such as `members` or `reports`). The host adds a tab and
+renders that slot at `/admin/analytics/<slug>`, passing `analyticsRange`
+and `analyticsGroups`.
+
+Configuration pages work the same way. Register
+`plugins.admin.configuration.<slug>` (one kebab-case segment, not a core
+configuration path such as `community`, `email`, `i18n`, or
+`server-settings`). The host adds a row on `/admin/configuration` and
+renders that slot at `/admin/configuration/<slug>`.
 
 ### Manifest Schema (Zod)
 
@@ -346,7 +382,7 @@ The `Dockerfile` builds plugins via the `plugins/*/*` glob rather than a hardcod
 
 1. **No sandboxing.** Plugins run in the same Node process with full access to `@openpeepshq/core` and the Express app. Plugin installation = server code execution.
 2. **No signing/validating manifests.** `pluginManifestSchema.parse()` validates structure; semantic trust of manifest content is the server operator's responsibility.
-3. **No npm registry.** Plugins are installed manually as subdirectories.
+3. **No plugin registry.** Admins install plugins directly from npm or git.
 4. **Plugin distribution format:** Currently plain folders with compiled `dist/index.js`. npm packages remain possible.
 5. **Plugin versioning & updates:** Use `package.json` dependencies/peerDependencies. Core API changes are not version-gated yet.
 6. **Frontend module loading:** Implemented as simple `<script>` injection of plugin bundles. Native ESM / import maps may replace this in the future.

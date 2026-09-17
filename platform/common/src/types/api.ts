@@ -299,6 +299,7 @@ export const accountCreationDataSchema = z.object({
     handle: z.string().min(4).max(255),
     avatar: z.string().url().optional(),
     displayName: profileDataSchema.shape.displayName,
+    bot: profileDataSchema.shape.bot,
   }),
 });
 
@@ -512,6 +513,7 @@ export const registerRequestSchema = z.object({
   confirmPassword: z.string().optional(),
   privacyPolicyAccepted: z.boolean(),
   inviteCode: z.string().optional(),
+  bot: profileDataSchema.shape.bot,
 });
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 
