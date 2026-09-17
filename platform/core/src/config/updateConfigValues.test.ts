@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { updateConfigValues } from './index';
 
-const loadConfig = vi.fn();
-const storeConfig = vi.fn();
+const { loadConfig, storeConfig } = vi.hoisted(() => ({
+  loadConfig: vi.fn(),
+  storeConfig: vi.fn(),
+}));
 
 vi.mock('./db', () => ({
   loadConfig: (...args: unknown[]) => loadConfig(...args),
@@ -17,7 +20,6 @@ describe('updateConfigValues', () => {
     loadConfig.mockReset();
     storeConfig.mockReset();
     storeConfig.mockResolvedValue({ config: {} });
-    vi.resetModules();
   });
 
   it('merges a sparse patch into existing stored overrides', async () => {
@@ -33,7 +35,6 @@ describe('updateConfigValues', () => {
       },
     });
 
-    const { updateConfigValues } = await import('./index');
     await updateConfigValues(
       { info: { tagLine: 'new tagline' } },
       'openpeeps',
@@ -57,7 +58,6 @@ describe('updateConfigValues', () => {
   it('does not wipe theme when only info is patched onto an empty store', async () => {
     loadConfig.mockResolvedValue(undefined);
 
-    const { updateConfigValues } = await import('./index');
     await updateConfigValues(
       { info: { tagLine: 'only this' } },
       'openpeeps',

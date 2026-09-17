@@ -2032,6 +2032,9 @@
       "description": "Texte in der gesamten Community ändern",
       "pageTitle": "Übersetzungen",
       "save": "Speichern"
+    },
+    "pluginPage": {
+      "description": "Dieses Plugin konfigurieren."
     }
   },
   "common": {

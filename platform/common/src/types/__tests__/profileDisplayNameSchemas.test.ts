@@ -31,6 +31,18 @@ describe('profile displayName input schemas', () => {
     expect(result.success).toBe(true);
   });
 
+  it('accepts optional bot on registration', () => {
+    const result = registerRequestSchema.safeParse({
+      ...validRegister,
+      bot: true,
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.bot).toBe(true);
+    }
+  });
+
   it('rejects account creation display names longer than 30 characters', () => {
     const result = accountCreationDataSchema.safeParse({
       email: 'niko@example.com',

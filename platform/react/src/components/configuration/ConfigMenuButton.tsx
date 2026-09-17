@@ -6,6 +6,8 @@ export interface ConfigMenuButtonProps {
   translationPrefix: string;
   action: string;
   testId?: string;
+  titleFallback?: string;
+  descriptionFallback?: string;
 }
 
 /**
@@ -16,6 +18,8 @@ export function ConfigMenuButton({
   translationPrefix,
   action,
   testId,
+  titleFallback,
+  descriptionFallback,
 }: ConfigMenuButtonProps) {
   const t = useT();
   return (
@@ -25,9 +29,17 @@ export function ConfigMenuButton({
       className="hover:bg-surface flex w-full items-center justify-between px-4 py-3 text-start"
     >
       <div>
-        <div className="font-medium">{t(`${translationPrefix}.title`)}</div>
+        <div className="font-medium">
+          {t(
+            `${translationPrefix}.title`,
+            titleFallback ? { defaultValue: titleFallback } : {},
+          )}
+        </div>
         <div className="text-muted-foreground text-xs">
-          {t(`${translationPrefix}.description`)}
+          {t(
+            `${translationPrefix}.description`,
+            descriptionFallback ? { defaultValue: descriptionFallback } : {},
+          )}
         </div>
       </div>
       <span aria-hidden="true">

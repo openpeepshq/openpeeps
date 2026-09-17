@@ -1,10 +1,17 @@
 import { useState } from 'react';
 import { ExternalLink, RefreshCw, Upload, X } from 'lucide-react';
-import type { AdminPluginInfo } from '@openpeepshq/common';
+import type { AdminPluginInfo, PluginInstallSource } from '@openpeepshq/common';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
-import { LoadingSpinner, Switch, Button, Input } from '@openpeepshq/react-ui';
+import {
+  LoadingSpinner,
+  Switch,
+  Button,
+  Input,
+  Textarea,
+} from '@openpeepshq/react-ui';
 
 type PluginStatus = NonNullable<AdminPluginInfo['status']>;
+type InstallAuthType = 'none' | 'token' | 'ssh';
 
 const PluginCard = ({
   plugin,
@@ -115,6 +122,12 @@ export const AdminPlugins = () => {
   const [installType, setInstallType] = useState<'npm' | 'git'>('npm');
   const [installSource, setInstallSource] = useState('');
   const [installVersion, setInstallVersion] = useState('');
+  const [installAuthType, setInstallAuthType] =
+    useState<InstallAuthType>('none');
+  const [installRegistry, setInstallRegistry] = useState('');
+  const [installUsername, setInstallUsername] = useState('');
+  const [installToken, setInstallToken] = useState('');
+  const [installPrivateKey, setInstallPrivateKey] = useState('');
   const [installing, setInstalling] = useState(false);
   const [installError, setInstallError] = useState<string | null>(null);
 
@@ -145,6 +158,25 @@ export const AdminPlugins = () => {
 
   const [uninstallError, setUninstallError] = useState<string | null>(null);
 
+  const clearInstallCredentials = () => {
+    setInstallAuthType('none');
+    setInstallRegistry('');
+    setInstallUsername('');
+    setInstallToken('');
+    setInstallPrivateKey('');
+  };
+
+  const closeInstallForm = () => {
+    clearInstallCredentials();
+    setInstallError(null);
+    setShowInstallForm(false);
+  };
+
+  const selectInstallType = (type: 'npm' | 'git') => {
+    clearInstallCredentials();
+    setInstallType(type);
+  };
+
   const uninstall = async (plugin: AdminPluginInfo) => {
     setPendingKeys((prev) => new Set(prev).add(plugin.key));
     setUninstallError(null);
@@ -170,22 +202,42 @@ export const AdminPlugins = () => {
     setInstalling(true);
     setInstallError(null);
     try {
-      const source =
+      const source: PluginInstallSource =
         installType === 'npm'
           ? {
               type: 'npm' as const,
               package: installSource,
               version: installVersion || undefined,
+              auth:
+                installAuthType === 'token'
+                  ? {
+                      token: installToken,
+                      registry: installRegistry || undefined,
+                    }
+                  : undefined,
             }
           : {
               type: 'git' as const,
               url: installSource,
               ref: installVersion || undefined,
+              auth:
+                installAuthType === 'token'
+                  ? {
+                      type: 'token',
+                      username: installUsername,
+                      token: installToken,
+                    }
+                  : installAuthType === 'ssh'
+                    ? {
+                        type: 'ssh',
+                        privateKey: installPrivateKey,
+                      }
+                    : undefined,
             };
       await installPlugin(source);
       setInstallSource('');
       setInstallVersion('');
-      setShowInstallForm(false);
+      closeInstallForm();
       setChangedKeys(new Set());
       void pluginsQuery.refetch();
     } catch (e) {
@@ -195,6 +247,8 @@ export const AdminPlugins = () => {
           : String(e);
       setInstallError(msg);
     } finally {
+      setInstallToken('');
+      setInstallPrivateKey('');
       setInstalling(false);
     }
   };
@@ -221,6 +275,13 @@ export const AdminPlugins = () => {
     );
   }
 
+  const credentialsComplete =
+    installAuthType === 'none' ||
+    (installAuthType === 'token' &&
+      Boolean(installToken) &&
+      (installType === 'npm' || Boolean(installUsername))) ||
+    (installAuthType === 'ssh' && Boolean(installPrivateKey));
+
   return (
     <div className="space-y-3 p-4">
       <div className="flex items-center justify-between">
@@ -234,7 +295,9 @@ export const AdminPlugins = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setShowInstallForm(!showInstallForm)}
+            onClick={() =>
+              showInstallForm ? closeInstallForm() : setShowInstallForm(true)
+            }
           >
             <Upload className="mr-2 size-4" />
             {t('admin.plugins.install', { defaultValue: 'Install' })}
@@ -261,11 +324,7 @@ export const AdminPlugins = () => {
                 defaultValue: 'Install Plugin',
               })}
             </p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowInstallForm(false)}
-            >
+            <Button variant="ghost" size="sm" onClick={closeInstallForm}>
               <X className="size-4" />
             </Button>
           </div>
@@ -273,14 +332,14 @@ export const AdminPlugins = () => {
             <Button
               variant={installType === 'npm' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setInstallType('npm')}
+              onClick={() => selectInstallType('npm')}
             >
               npm
             </Button>
             <Button
               variant={installType === 'git' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setInstallType('git')}
+              onClick={() => selectInstallType('git')}
             >
               Git
             </Button>
@@ -311,12 +370,100 @@ export const AdminPlugins = () => {
             value={installVersion}
             onChange={(e) => setInstallVersion(e.target.value)}
           />
+          <div className="flex gap-2">
+            <Button
+              variant={installAuthType === 'none' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => clearInstallCredentials()}
+            >
+              {t('admin.plugins.publicSource', {
+                defaultValue: 'Public source',
+              })}
+            </Button>
+            <Button
+              variant={installAuthType === 'token' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setInstallAuthType('token')}
+            >
+              {t('admin.plugins.tokenAuth', {
+                defaultValue: 'Access token',
+              })}
+            </Button>
+            {installType === 'git' ? (
+              <Button
+                variant={installAuthType === 'ssh' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setInstallAuthType('ssh')}
+              >
+                {t('admin.plugins.sshAuth', {
+                  defaultValue: 'SSH deploy key',
+                })}
+              </Button>
+            ) : null}
+          </div>
+          {installAuthType === 'token' ? (
+            <div className="space-y-2">
+              {installType === 'npm' ? (
+                <Input
+                  placeholder={t('admin.plugins.registryPlaceholder', {
+                    defaultValue:
+                      'Registry URL (optional, defaults to npmjs.org)',
+                  })}
+                  value={installRegistry}
+                  onChange={(e) => setInstallRegistry(e.target.value)}
+                />
+              ) : (
+                <Input
+                  placeholder={t('admin.plugins.usernamePlaceholder', {
+                    defaultValue: 'Git username',
+                  })}
+                  value={installUsername}
+                  onChange={(e) => setInstallUsername(e.target.value)}
+                />
+              )}
+              <Input
+                type="password"
+                autoComplete="off"
+                placeholder={t('admin.plugins.tokenPlaceholder', {
+                  defaultValue: 'Access token',
+                })}
+                value={installToken}
+                onChange={(e) => setInstallToken(e.target.value)}
+              />
+            </div>
+          ) : null}
+          {installAuthType === 'ssh' ? (
+            <div className="space-y-2">
+              <Textarea
+                autoComplete="off"
+                placeholder={t('admin.plugins.privateKeyPlaceholder', {
+                  defaultValue: 'Unencrypted SSH private key',
+                })}
+                value={installPrivateKey}
+                onChange={(e) => setInstallPrivateKey(e.target.value)}
+              />
+              <p className="text-muted-foreground text-xs">
+                {t('admin.plugins.sshTrustHint', {
+                  defaultValue:
+                    'The repository host key is trusted on first use for this installation.',
+                })}
+              </p>
+            </div>
+          ) : null}
+          {installAuthType !== 'none' ? (
+            <p className="text-muted-foreground text-xs">
+              {t('admin.plugins.credentialsHint', {
+                defaultValue:
+                  'Credentials are used only for this installation and are not stored.',
+              })}
+            </p>
+          ) : null}
           {installError ? (
             <p className="text-error text-xs">{installError}</p>
           ) : null}
           <Button
             size="sm"
-            disabled={!installSource || installing}
+            disabled={!installSource || !credentialsComplete || installing}
             onClick={() => void handleInstall()}
           >
             {installing

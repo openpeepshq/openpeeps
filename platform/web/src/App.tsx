@@ -83,6 +83,7 @@ import {
   AnalyticsContentPage,
   AnalyticsEngagementPage,
   AnalyticsGroupsPage,
+  AnalyticsPluginPage,
   AnalyticsReportSettingsPage,
   AdminBackups,
   AdminGroups,
@@ -99,6 +100,7 @@ import {
   EditGroupInfo,
   EditGroupRoles,
   AdminConfiguration,
+  ConfigurationPluginPage,
   AdminConfigurationCommunity,
   AdminConfigEditor,
   AdminConfigurationI18n,
@@ -321,6 +323,7 @@ const Admin = {
   AnalyticsContent: AnalyticsContentPage,
   AnalyticsEngagement: AnalyticsEngagementPage,
   AnalyticsGroups: AnalyticsGroupsPage,
+  AnalyticsPlugin: AnalyticsPluginPage,
   AnalyticsReports: AnalyticsReportSettingsPage,
   Moderation: AdminModeration,
   ModerationReports: AdminReports,
@@ -328,6 +331,7 @@ const Admin = {
   GroupMembers: AdminGroupMembers,
   Config: {
     Index: AdminConfiguration,
+    Plugin: ConfigurationPluginPage,
     ServerSettings: () => (
       <AdminConfigEditor
         title="Server settings"
@@ -695,6 +699,10 @@ function AppShell() {
                           path="retention"
                           element={<Admin.AnalyticsMembers />}
                         />
+                        <Route
+                          path=":pluginTab"
+                          element={<Admin.AnalyticsPlugin />}
+                        />
                       </Route>
                     </Route>
 
@@ -794,6 +802,10 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/email"
                         element={<Admin.Config.Email />}
+                      />
+                      <Route
+                        path="/admin/configuration/:pluginPage"
+                        element={<Admin.Config.Plugin />}
                       />
                     </Route>
 

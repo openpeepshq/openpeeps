@@ -1,6 +1,8 @@
 import { spawn } from 'node:child_process';
+import { createRequire } from 'node:module';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import type { PluginInstallSource } from '@openpeepshq/common/types';
 import { defaultConfig } from '../config';
 import { logger } from '../log';
 import { allpeepDb } from '../db';
@@ -10,6 +12,10 @@ import { eq } from 'drizzle-orm';
 import { setPluginEnabledOverride } from './state';
 
 const log = logger('core:plugins:install');
+const requireFromHost = createRequire(
+  new URL('../../package.json', import.meta.url),
+);
+const MAX_COMMAND_OUTPUT = 16_000;
 
 const INSTALLED_PLUGINS_KEY = 'openpeeps-installed-plugins';
 
@@ -17,10 +23,6 @@ type InstalledPluginsBody = Record<
   string,
   { source: string; installedAt: string; installedBy?: string }
 >;
-
-type InstallSource =
-  | { type: 'npm'; package: string; version?: string }
-  | { type: 'git'; url: string; ref?: string };
 
 const getInstalledPlugins = async (): Promise<InstalledPluginsBody> => {
   const { db } = await allpeepDb();
@@ -55,7 +57,9 @@ const setInstalledPlugin = async (
 
 const removeInstalledPlugin = async (pluginKey: string): Promise<void> => {
   const installed = await getInstalledPlugins();
-  const { [pluginKey]: _removed, ...rest } = installed;
+  const rest = Object.fromEntries(
+    Object.entries(installed).filter(([key]) => key !== pluginKey),
+  );
   const ts = nowIso();
   const { db } = await allpeepDb();
   await db
@@ -76,9 +80,24 @@ const runCommand = (
   command: string,
   args: string[],
   cwd: string,
+  environment: NodeJS.ProcessEnv = {},
 ): Promise<{ exitCode: number; stdout: string; stderr: string }> =>
   new Promise((resolve) => {
-    const child = spawn(command, args, { cwd, shell: true });
+    const child = spawn(command, args, {
+      cwd,
+      env: {
+        HOME: process.env.HOME,
+        LANG: process.env.LANG,
+        LC_ALL: process.env.LC_ALL,
+        NODE_EXTRA_CA_CERTS: process.env.NODE_EXTRA_CA_CERTS,
+        PATH: process.env.PATH,
+        SSL_CERT_DIR: process.env.SSL_CERT_DIR,
+        SSL_CERT_FILE: process.env.SSL_CERT_FILE,
+        TMPDIR: process.env.TMPDIR,
+        ...environment,
+      },
+      shell: false,
+    });
     let stdout = '';
     let stderr = '';
     child.stdout.on('data', (chunk: Buffer) => {
@@ -100,13 +119,190 @@ const getPluginDir = async () => {
   return plugins.path;
 };
 
-const sourceLabel = (source: InstallSource): string =>
+const redactUrl = (url: string): string => {
+  const parsed = new URL(url);
+  if (parsed.protocol !== 'ssh:') {
+    parsed.username = '';
+  }
+  parsed.password = '';
+  return parsed.toString();
+};
+
+const sourceLabel = (source: PluginInstallSource): string =>
   source.type === 'npm'
     ? `npm:${source.package}${source.version ? `@${source.version}` : ''}`
-    : `git:${source.url}${source.ref ? `#${source.ref}` : ''}`;
+    : `git:${redactUrl(source.url)}${source.ref ? `#${source.ref}` : ''}`;
+
+const sourceSecrets = (source: PluginInstallSource): string[] => {
+  if (source.type === 'npm') {
+    return source.auth ? [source.auth.token] : [];
+  }
+  if (!source.auth) {
+    return [];
+  }
+  if (source.auth.type === 'token') {
+    return [source.auth.token];
+  }
+  return [source.auth.privateKey];
+};
+
+const redactSecrets = (value: string, secrets: string[]): string =>
+  secrets.reduce(
+    (redacted, secret) => redacted.split(secret).join('[REDACTED]'),
+    value,
+  );
+
+const trimCommandOutput = (value: string): string =>
+  value.length <= MAX_COMMAND_OUTPUT
+    ? value
+    : `${value.slice(0, MAX_COMMAND_OUTPUT)}\n… truncated`;
+
+const commandFailure = (
+  operation: string,
+  result: { stdout: string; stderr: string },
+  secrets: string[],
+): string => {
+  const output = [result.stderr, result.stdout]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join('\n');
+  return redactSecrets(
+    `${operation} failed: ${trimCommandOutput(output)}`,
+    secrets,
+  ).trim();
+};
+
+const peerDependencyNames = (pkgJson: {
+  peerDependencies?: unknown;
+}): string[] => {
+  const peers = pkgJson.peerDependencies;
+  if (!peers || typeof peers !== 'object' || Array.isArray(peers)) {
+    return [];
+  }
+  return Object.keys(peers);
+};
+
+const resolveHostPackage = async (name: string): Promise<string> => {
+  let current = path.dirname(requireFromHost.resolve(name));
+  while (true) {
+    try {
+      const pkg = JSON.parse(
+        await fs.readFile(path.join(current, 'package.json'), 'utf8'),
+      ) as { name?: string };
+      if (pkg.name === name) {
+        return current;
+      }
+    } catch {
+      // Keep walking toward the filesystem root.
+    }
+    const parent = path.dirname(current);
+    if (parent === current) {
+      throw new Error(`Could not locate package root for "${name}".`);
+    }
+    current = parent;
+  }
+};
+
+const linkHostPeerDependencies = async (
+  installDir: string,
+  names: string[],
+): Promise<{ success: true } | { success: false; error: string }> => {
+  for (const name of names) {
+    let resolved: string;
+    try {
+      resolved = await resolveHostPackage(name);
+    } catch {
+      return {
+        success: false,
+        error: `Host does not provide peer dependency "${name}".`,
+      };
+    }
+    const destination = path.join(installDir, 'node_modules', name);
+    await fs.mkdir(path.dirname(destination), { recursive: true });
+    await fs.rm(destination, { recursive: true, force: true });
+    await fs.symlink(resolved, destination);
+  }
+  return { success: true };
+};
+
+const writeNpmConfig = async (
+  tempDir: string,
+  auth: Extract<PluginInstallSource, { type: 'npm' }>['auth'],
+): Promise<NodeJS.ProcessEnv> => {
+  if (!auth) {
+    return {};
+  }
+  const registry = new URL(auth.registry ?? 'https://registry.npmjs.org/');
+  const registryUrl = registry.toString().replace(/\/?$/, '/');
+  const authPath = registry.pathname.replace(/\/?$/, '/');
+  const configPath = path.join(tempDir, '.npmrc');
+  await fs.writeFile(
+    configPath,
+    [
+      `registry=${registryUrl}`,
+      `//${registry.host}${authPath}:_authToken=${auth.token}`,
+      'always-auth=true',
+      '',
+    ].join('\n'),
+    { mode: 0o600 },
+  );
+  return { NPM_CONFIG_USERCONFIG: configPath };
+};
+
+const removeNpmConfig = (tempDir: string): Promise<void> =>
+  fs.rm(path.join(tempDir, '.npmrc'), { force: true });
+
+const writeGitAuth = async (
+  tempDir: string,
+  auth: Extract<PluginInstallSource, { type: 'git' }>['auth'],
+): Promise<NodeJS.ProcessEnv> => {
+  if (!auth) {
+    return { GIT_TERMINAL_PROMPT: '0' };
+  }
+  if (auth.type === 'token') {
+    const askpassPath = path.join(tempDir, 'git-askpass');
+    await fs.writeFile(
+      askpassPath,
+      [
+        '#!/bin/sh',
+        'case "$1" in',
+        '  *Username*) printf "%s\\n" "$OPENPEEPS_GIT_USERNAME" ;;',
+        '  *) printf "%s\\n" "$OPENPEEPS_GIT_TOKEN" ;;',
+        'esac',
+        '',
+      ].join('\n'),
+      { mode: 0o700 },
+    );
+    return {
+      GIT_ASKPASS: askpassPath,
+      GIT_ASKPASS_REQUIRE: 'force',
+      GIT_TERMINAL_PROMPT: '0',
+      OPENPEEPS_GIT_TOKEN: auth.token,
+      OPENPEEPS_GIT_USERNAME: auth.username,
+    };
+  }
+
+  const keyPath = path.join(tempDir, 'git-deploy-key');
+  const knownHostsPath = path.join(tempDir, 'known_hosts');
+  await fs.writeFile(keyPath, `${auth.privateKey.trim()}\n`, { mode: 0o600 });
+  await fs.writeFile(knownHostsPath, '', { mode: 0o600 });
+  return {
+    GIT_SSH_COMMAND: [
+      'ssh',
+      '-F /dev/null',
+      `-i "${keyPath}"`,
+      '-o BatchMode=yes',
+      '-o IdentitiesOnly=yes',
+      '-o StrictHostKeyChecking=accept-new',
+      `-o UserKnownHostsFile="${knownHostsPath}"`,
+    ].join(' '),
+    GIT_SSH_VARIANT: 'ssh',
+    GIT_TERMINAL_PROMPT: '0',
+  };
+};
 
 export const installPlugin = async (
-  source: InstallSource,
+  source: PluginInstallSource,
   installedBy?: string,
 ): Promise<{
   success: boolean;
@@ -115,6 +311,7 @@ export const installPlugin = async (
 }> => {
   const pluginsDir = await getPluginDir();
   const label = sourceLabel(source);
+  const secrets = sourceSecrets(source);
 
   let tempDir: string;
   try {
@@ -126,6 +323,7 @@ export const installPlugin = async (
 
   try {
     let installDir: string;
+    let npmEnvironment: NodeJS.ProcessEnv | undefined;
 
     if (source.type === 'npm') {
       const pkg = source.version
@@ -135,27 +333,38 @@ export const installPlugin = async (
       log.info(`Installing npm package ${pkg} to temp dir ${tempDir}`);
       const init = await runCommand('npm', ['init', '-y'], tempDir);
       if (init.exitCode !== 0) {
-        return { success: false, error: `npm init failed: ${init.stderr}` };
+        const error = commandFailure('npm init', init, secrets);
+        log.error(new Error(error), `npm init failed for ${label}.`);
+        return { success: false, error };
       }
-      const install = await runCommand('npm', ['install', pkg], tempDir);
+      npmEnvironment = await writeNpmConfig(tempDir, source.auth);
+      const install = await runCommand(
+        'npm',
+        ['install', '--omit=peer', pkg],
+        tempDir,
+        npmEnvironment,
+      );
       if (install.exitCode !== 0) {
-        return {
-          success: false,
-          error: `npm install failed: ${install.stderr}`,
-        };
+        const error = commandFailure('npm install', install, secrets);
+        log.error(new Error(error), `npm install failed for ${label}.`);
+        return { success: false, error };
       }
 
       installDir = path.join(tempDir, 'node_modules', source.package);
     } else {
-      log.info(`Cloning git repo ${source.url} to temp dir ${tempDir}`);
+      const repositoryUrl = redactUrl(source.url);
+      log.info(`Cloning git repo ${repositoryUrl} to temp dir ${tempDir}`);
       const cloneArgs = ['clone', '--depth', '1'];
       if (source.ref) {
         cloneArgs.push('--branch', source.ref);
       }
-      cloneArgs.push(source.url, path.join(tempDir, 'repo'));
-      const clone = await runCommand('git', cloneArgs, tempDir);
+      cloneArgs.push(repositoryUrl, path.join(tempDir, 'repo'));
+      const gitEnvironment = await writeGitAuth(tempDir, source.auth);
+      const clone = await runCommand('git', cloneArgs, tempDir, gitEnvironment);
       if (clone.exitCode !== 0) {
-        return { success: false, error: `git clone failed: ${clone.stderr}` };
+        const error = commandFailure('git clone', clone, secrets);
+        log.error(new Error(error), `git clone failed for ${label}.`);
+        return { success: false, error };
       }
       installDir = path.join(tempDir, 'repo');
     }
@@ -203,28 +412,53 @@ export const installPlugin = async (
     // Build the plugin if it has a build script
     if (pkgJson.scripts?.build) {
       log.info(`Building plugin ${pluginKey}...`);
-      const buildDeps = await runCommand('npm', ['install'], installDir);
+      const buildDeps = await runCommand(
+        'npm',
+        ['install', '--omit=peer'],
+        installDir,
+        npmEnvironment,
+      );
       if (buildDeps.exitCode !== 0) {
-        return {
-          success: false,
-          error: `Dependency install failed: ${buildDeps.stderr}`,
-        };
+        const error = commandFailure('Dependency install', buildDeps, secrets);
+        log.error(
+          new Error(error),
+          `Plugin ${pluginKey} dependency install failed.`,
+        );
+        return { success: false, error };
       }
-      const build = await runCommand('npm', ['run', 'build'], installDir);
+      const linked = await linkHostPeerDependencies(
+        installDir,
+        peerDependencyNames(pkgJson),
+      );
+      if (!linked.success) {
+        log.error(
+          new Error(linked.error),
+          `Plugin ${pluginKey} peer link failed.`,
+        );
+        return linked;
+      }
+      // The plugin temp dir sits under the host tree. A plugin script that
+      // invokes pnpm would otherwise adopt the host workspace.
+      await fs.writeFile(
+        path.join(installDir, 'pnpm-workspace.yaml'),
+        "packages:\n  - '.'\n",
+      );
+      await removeNpmConfig(tempDir);
+      const build = await runCommand('npm', ['run', 'build'], installDir, {
+        CI: 'true',
+      });
       if (build.exitCode !== 0) {
-        return {
-          success: false,
-          error: `Build failed: ${build.stderr}`,
-        };
+        const error = commandFailure('Build', build, secrets);
+        log.error(new Error(error), `Plugin ${pluginKey} build failed.`);
+        return { success: false, error };
       }
     }
 
     // Move to final location
+    await removeNpmConfig(tempDir);
     await fs.mkdir(path.join(pluginsDir, namespace), { recursive: true });
     await fs.rm(destDir, { recursive: true, force: true });
     await fs.cp(installDir, destDir, { recursive: true });
-    await fs.rm(tempDir, { recursive: true, force: true });
-
     await setInstalledPlugin(pluginKey, label, installedBy);
     // Installed plugins never auto-enable — an admin must explicitly
     // activate them via the enable toggle (Phase B) after reviewing them.
@@ -237,11 +471,12 @@ export const installPlugin = async (
 
     return { success: true, pluginKey };
   } catch (e) {
-    // Cleanup on any error
-    await fs.rm(tempDir, { recursive: true, force: true }).catch(() => {});
-    const message = e instanceof Error ? e.message : String(e);
-    log.error(e, `Failed to install plugin from ${label}.`);
+    const rawMessage = e instanceof Error ? e.message : String(e);
+    const message = redactSecrets(rawMessage, secrets);
+    log.error(new Error(message), `Failed to install plugin from ${label}.`);
     return { success: false, error: message };
+  } finally {
+    await fs.rm(tempDir, { recursive: true, force: true }).catch(() => {});
   }
 };
 

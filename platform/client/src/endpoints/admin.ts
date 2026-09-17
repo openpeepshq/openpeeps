@@ -52,6 +52,7 @@ import {
   AccountData,
   PublicAccount,
   AdminPluginInfo,
+  PluginInstallSource,
 } from '@openpeepshq/common';
 import { FetchClient } from '@openpeepshq/fetch-client';
 import { allpeepNoPayloadEndpoint } from './helpers';
@@ -374,7 +375,7 @@ export const admin = (rawClient: FetchClient) => ({
     ),
     install: allpeepPayloadEndpoint<
       SuccessResponse & { pluginKey?: string },
-      { type: 'npm'; package: string; version?: string } | { type: 'git'; url: string; ref?: string }
+      PluginInstallSource
     >(rawClient, '/admin/plugins/install', 'post'),
     uninstall: allpeepNoPayloadEndpoint<
       SuccessResponse,
