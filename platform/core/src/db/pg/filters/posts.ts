@@ -100,8 +100,9 @@ export const eventTimeFilters = {
   current: (now = new Date().toISOString()): SqlFilter =>
     pgSql(
       and(
+        sql`${posts.body}->'end' IS NOT NULL`,
         sql`${eventStart} <= ${now}`,
-        or(sql`${posts.body}->'end' IS NULL`, sql`${eventEnd} >= ${now}`),
+        sql`${eventEnd} >= ${now}`,
       )!,
     ),
 

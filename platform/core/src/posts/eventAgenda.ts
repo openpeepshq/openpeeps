@@ -57,7 +57,9 @@ const occurrenceTimeFilter = (window: EventAgendaWindow, now: string): SQL => {
     return or(gt(start, now), and(isNotNull(end), gt(end, now)))!;
   }
   if (window === 'current') {
-    return and(lte(start, now), or(isNull(end), gte(end, now)))!;
+    // A missing end is not an infinite duration — only bounded
+    // occurrences can be "happening now".
+    return and(isNotNull(end), lte(start, now), gte(end, now))!;
   }
   return sql`COALESCE(${end}, ${start}) < ${now}`;
 };

@@ -30,6 +30,14 @@ describe('eventAgendaOccurrenceQuery', () => {
     expect(query.params).toContain(15);
   });
 
+  it('requires a bounded end for currently happening events', () => {
+    const query = toSql('current');
+
+    expect(query.sql).toMatch(/"event_occurrences"\."end" is not null/i);
+    expect(query.sql).toMatch(/"event_occurrences"\."end" >=/i);
+    expect(query.sql).not.toMatch(/"event_occurrences"\."end" is null/i);
+  });
+
   it('uses the latest past occurrence when ranking past events', () => {
     const query = toSql('past');
 
