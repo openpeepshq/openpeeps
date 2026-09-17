@@ -1,3 +1,5 @@
+import { isIanaTimeZone } from './timeZone';
+
 const DATETIME_LOCAL_RE =
   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/;
 
@@ -128,6 +130,31 @@ export const wallClockDateToUtcIso = (date: Date, timeZone: string): string => {
     date.getDate(),
   )}T${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
   return zonedDateTimeToUtcIso(local, timeZone) ?? date.toISOString();
+};
+
+/** Intl `timeZone` option when `timeZone` is a valid IANA identifier. */
+export const eventTimeZoneOptions = (
+  timeZone?: string | null,
+): Pick<Intl.DateTimeFormatOptions, 'timeZone'> => {
+  const resolved = isIanaTimeZone(timeZone) ? timeZone : undefined;
+  return resolved ? { timeZone: resolved } : {};
+};
+
+/** Clock time in the event timezone, always including a short zone name. */
+export const formatEventClockTime = (
+  iso: string,
+  options?: {
+    timeZone?: string | null;
+    locale?: string;
+  },
+): string => {
+  const timeZone = eventTimeZoneOptions(options?.timeZone).timeZone;
+  return new Date(iso).toLocaleTimeString(options?.locale, {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZoneName: 'short',
+    ...(timeZone ? { timeZone } : {}),
+  });
 };
 
 export const formatEventWhen = (

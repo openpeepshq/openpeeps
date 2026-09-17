@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  eventTimeZoneOptions,
+  formatEventClockTime,
   formatEventWhen,
   reinterpretIsoInTimeZone,
   utcIsoToZonedDateTime,
@@ -80,5 +82,29 @@ describe('formatEventWhen', () => {
     });
     expect(label).toMatch(/5:00\sPM/);
     expect(label).toMatch(/6:00\sPM/);
+  });
+});
+
+describe('eventTimeZoneOptions', () => {
+  it('passes through a valid IANA zone', () => {
+    expect(eventTimeZoneOptions('America/New_York')).toEqual({
+      timeZone: 'America/New_York',
+    });
+  });
+
+  it('omits invalid or missing zones', () => {
+    expect(eventTimeZoneOptions(undefined)).toEqual({});
+    expect(eventTimeZoneOptions('Not/A_Zone')).toEqual({});
+  });
+});
+
+describe('formatEventClockTime', () => {
+  it('formats in the event timezone and includes a short zone name', () => {
+    const label = formatEventClockTime('2026-07-07T21:00:00.000Z', {
+      timeZone: 'America/New_York',
+      locale: 'en-US',
+    });
+    expect(label).toMatch(/5:00\sPM/);
+    expect(label).toMatch(/EDT/);
   });
 });

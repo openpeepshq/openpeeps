@@ -66,6 +66,8 @@ import {
 } from '~/lib/utils';
 import {
   effectiveEventTimes,
+  eventTimeZoneOptions,
+  formatEventClockTime,
   formatEventRecurrence,
   previewUpcomingOccurrences,
   upsertEventException,
@@ -100,6 +102,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
       : null;
   const rsvpManage = openpeepsApi.rsvpManageAction();
   const times = effectiveEventTimes(event, occurrence);
+  const tz = eventTimeZoneOptions(event?.timeZone);
   const recurrenceLabel = event?.recurrence
     ? formatEventRecurrence(event.recurrence, t, event.start)
     : '';
@@ -253,10 +256,14 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
             <ThemedText className="text-center">
               {new Date(times.start).toLocaleString('en-US', {
                 month: 'short',
+                ...tz,
               })}
             </ThemedText>
             <ThemedText className="text-center ">
-              {new Date(times.start).getDate()}
+              {new Date(times.start).toLocaleString('en-US', {
+                day: 'numeric',
+                ...tz,
+              })}
             </ThemedText>
           </View>
           <View>
@@ -265,21 +272,21 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
                 weekday: 'long',
                 month: 'long',
                 day: 'numeric',
+                ...tz,
               })}
             </ThemedText>
             <ThemedText className="text-muted-foreground mt-2">
-              {new Date(times.start).toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                timeZoneName: times.end ? undefined : 'short',
+              {formatEventClockTime(times.start, {
+                timeZone: event?.timeZone,
+                locale: 'en-US',
               })}
-              {`${times.end ? ' - ' : ''}`}
-              {times.end &&
-                new Date(times.end).toLocaleTimeString('en-US', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZoneName: 'short',
-                })}
+              {times.end
+                ? ` - ${formatEventClockTime(times.end, {
+                    timeZone: event?.timeZone,
+                    locale: 'en-US',
+                  })}`
+                : ''}
+              {tz.timeZone ? ` (${tz.timeZone})` : ''}
             </ThemedText>
           </View>
         </View>
@@ -344,8 +351,9 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
                       {
                         month: 'short',
                         day: 'numeric',
-                      },
-                    ),
+                        ...tz,
+                      }
+                    )
                   )
                   .join(', '),
               })}
