@@ -9,7 +9,17 @@ vi.mock('../../profiles/cache', () => ({
   getPublicProfile: vi.fn(),
 }));
 
+vi.mock('../threadPreview', () => ({
+  loadThreadPreviewReplies: vi.fn(
+    async (_rootId: string, _profile?: unknown) => ({
+      replies: [],
+      hasMore: false,
+    }),
+  ),
+}));
+
 import { getPublicProfile } from '../../profiles/cache';
+import { loadThreadPreviewReplies } from '../threadPreview';
 import { transformPost } from './index';
 
 const deletedAuthor = {
@@ -72,6 +82,11 @@ describe('transformPost deleted authors', () => {
       if (id === deletedAuthor.id) return deletedAuthor;
       if (id === activeAuthor.id) return activeAuthor;
       return undefined;
+    });
+    vi.mocked(loadThreadPreviewReplies).mockReset();
+    vi.mocked(loadThreadPreviewReplies).mockResolvedValue({
+      replies: [],
+      hasMore: false,
     });
   });
 
@@ -242,11 +257,14 @@ describe('transformPost deleted authors', () => {
         ],
       },
     ];
+    vi.mocked(loadThreadPreviewReplies).mockResolvedValueOnce({
+      replies: replies as unknown as DbPost[],
+      hasMore: false,
+    });
 
     const result = await transformPost({
       ...basePost,
       replyCount: 2,
-      latestReplies: replies,
     } as unknown as DbPost);
 
     expect(result.latestReplies).toHaveLength(2);
@@ -257,7 +275,7 @@ describe('transformPost deleted authors', () => {
     expect(result.latestReplies?.[0]?.profile.handle).toBe('active');
   });
 
-  it('drops nested replies that are not direct children of the root', async () => {
+  it('keeps nested conversation descendants in latestReplies', async () => {
     const direct = {
       ...basePost,
       id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1',
@@ -280,13 +298,20 @@ describe('transformPost deleted authors', () => {
       createdAt: '2024-05-04T00:00:00.000Z',
       data: { type: 'note', content: 'nested' },
     };
+    vi.mocked(loadThreadPreviewReplies).mockResolvedValueOnce({
+      replies: [nested, direct] as unknown as DbPost[],
+      hasMore: true,
+    });
 
     const result = await transformPost({
       ...basePost,
       replyCount: 1,
-      latestReplies: [nested, direct],
     } as unknown as DbPost);
 
-    expect(result.latestReplies?.map((reply) => reply.id)).toEqual([direct.id]);
+    expect(result.latestReplies?.map((reply) => reply.id)).toEqual([
+      nested.id,
+      direct.id,
+    ]);
+    expect(result.latestRepliesHasMore).toBe(true);
   });
 });

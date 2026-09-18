@@ -230,7 +230,7 @@ test.describe('user actions (API)', () => {
     expect(del.ok(), await del.text()).toBeTruthy();
   });
 
-  test('reply activity bumps the original and latestReplies stay direct', async ({
+  test('reply activity bumps the original and latestReplies include nested descendants', async ({
     request,
   }) => {
     const { token } = await loginUser(request, owner.email, owner.password);
@@ -296,7 +296,7 @@ test.describe('user actions (API)', () => {
     expect(bumped.latestReplies?.map((item) => item.id)).toContain(
       directReply.id,
     );
-    expect(bumped.latestReplies?.map((item) => item.id)).not.toContain(
+    expect(bumped.latestReplies?.map((item) => item.id)).toContain(
       nestedReply.id,
     );
 

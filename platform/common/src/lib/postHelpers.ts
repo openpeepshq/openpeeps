@@ -40,6 +40,101 @@ export const buildThreads = (posts: PublicPost[]) =>
     .map((post) => buildThread(post, posts))
     .sort(dateSorter());
 
+export type ThreadPreviewPost = {
+  id: string;
+  createdAt: string;
+  inReplyToId?: string | null;
+  replyTo?: ThreadPreviewPost | null;
+};
+
+export type ThreadPreviewGroup = {
+  skippedAncestor: boolean;
+  ancestor?: ThreadPreviewPost;
+  posts: ThreadPreviewPost[];
+};
+
+const parentIdOf = (post: ThreadPreviewPost) =>
+  post.inReplyToId ?? post.replyTo?.id;
+
+export const buildThreadPreview = (
+  rootId: string,
+  replies: ThreadPreviewPost[],
+): ThreadPreviewGroup[] => {
+  const sorted = [...replies].sort(
+    (a, b) =>
+      a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id),
+  );
+  if (!sorted.length) return [];
+
+  const ids = new Set(sorted.map((post) => post.id));
+  const parent = new Map(sorted.map((post) => [post.id, post.id]));
+  const find = (id: string): string => {
+    const current = parent.get(id) ?? id;
+    if (current !== id) {
+      const root = find(current);
+      parent.set(id, root);
+      return root;
+    }
+    return id;
+  };
+  const union = (a: string, b: string) => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent.set(ra, rb);
+  };
+  for (const post of sorted) {
+    const parentId = parentIdOf(post);
+    if (parentId && ids.has(parentId)) union(post.id, parentId);
+  }
+
+  const grouped = new Map<string, ThreadPreviewPost[]>();
+  for (const post of sorted) {
+    const key = find(post.id);
+    const list = grouped.get(key) ?? [];
+    list.push(post);
+    grouped.set(key, list);
+  }
+
+  return [...grouped.values()]
+    .map((posts) => {
+      const start =
+        posts.find((post) => {
+          const parentId = parentIdOf(post);
+          return !parentId || !ids.has(parentId);
+        }) ?? posts[0]!;
+      const ordered: ThreadPreviewPost[] = [];
+      const used = new Set<string>();
+      let current: ThreadPreviewPost | undefined = start;
+      while (current && !used.has(current.id)) {
+        ordered.push(current);
+        used.add(current.id);
+        current = posts.find(
+          (post) => parentIdOf(post) === current?.id && !used.has(post.id),
+        );
+      }
+      for (const post of posts) {
+        if (!used.has(post.id)) ordered.push(post);
+      }
+
+      const startParentId = parentIdOf(start);
+      const ancestor =
+        startParentId && startParentId !== rootId
+          ? (start.replyTo ?? undefined)
+          : undefined;
+      const skippedAncestor = !!(
+        ancestor &&
+        ancestor.inReplyToId &&
+        ancestor.inReplyToId !== rootId
+      );
+      return { skippedAncestor, ancestor, posts: ordered };
+    })
+    .sort((a, b) => {
+      const aKey = a.ancestor?.createdAt ?? a.posts[0]?.createdAt ?? '';
+      const bKey = b.ancestor?.createdAt ?? b.posts[0]?.createdAt ?? '';
+      return aKey.localeCompare(bKey);
+    });
+};
+
 export const getReactionCount = (post: PublicPost) => {
   return countBy(post.reactions, (r) => r.reaction);
 };

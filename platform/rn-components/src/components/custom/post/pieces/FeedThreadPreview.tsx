@@ -1,4 +1,5 @@
 import { type PublicPost, type PublicReplyPost } from '@openpeepshq/common';
+import { buildThreadPreview } from '@openpeepshq/common/lib';
 import { firstNWords, useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 import { ThemedView } from '~/components/ui/themed-view';
@@ -6,7 +7,7 @@ import { ThemedText } from '~/components/ui/themed-text';
 import { ProfileAvatar } from '../../profile/profile-avatar';
 import { UpdatingDate } from '../../date/updating-date';
 
-const previewText = (reply: PublicReplyPost): string => {
+const previewText = (reply: PublicReplyPost, words = 28): string => {
   const data = reply.data;
   if ('name' in data && typeof data.name === 'string' && data.name.trim()) {
     return data.name;
@@ -15,23 +16,65 @@ const previewText = (reply: PublicReplyPost): string => {
     return data.title;
   }
   if ('content' in data && typeof data.content === 'string') {
-    return firstNWords(data.content, 28);
+    return firstNWords(data.content, words);
   }
   return '';
+};
+
+const ThreadReplyRow = ({
+  reply,
+  indent,
+  muted,
+}: {
+  reply: PublicReplyPost;
+  indent: number;
+  muted?: boolean;
+}) => {
+  const text = previewText(reply, muted ? 12 : 28);
+  return (
+    <ThemedView
+      className="flex-row gap-2 mb-2"
+      style={{ paddingLeft: Math.min(indent, 3) * 12 }}
+    >
+      <ProfileAvatar
+        profile={reply.profile}
+        className={muted ? 'size-6' : 'size-8'}
+      />
+      <ThemedView className="flex-1">
+        <ThemedView className="flex-row items-baseline gap-2">
+          <ThemedText
+            className={
+              muted ? 'font-semibold text-xs' : 'font-semibold text-sm'
+            }
+            numberOfLines={1}
+          >
+            {reply.profile.displayName || `@${reply.profile.handle}`}
+          </ThemedText>
+          <UpdatingDate date={reply.createdAt} />
+        </ThemedView>
+        {text ? (
+          <ThemedText
+            className="text-muted-foreground text-sm"
+            numberOfLines={muted ? 1 : 2}
+          >
+            {text}
+          </ThemedText>
+        ) : null}
+      </ThemedView>
+    </ThemedView>
+  );
 };
 
 export const FeedThreadPreview = ({ post }: { post: PublicPost }) => {
   const { t } = useTranslation();
   const { currentProfile } = useOpenpeeps();
-  const replies = [...(post.latestReplies ?? [])].sort((a, b) =>
-    a.createdAt.localeCompare(b.createdAt)
-  );
-  const hiddenCount = Math.max(0, (post.replyCount ?? 0) - replies.length);
+  const replies = post.latestReplies ?? [];
+  const groups = buildThreadPreview(post.id, replies);
   const hasNew = replies.some(
     (reply) => reply.seen === false && reply.profile.id !== currentProfile?.id
   );
 
-  if (!replies.length && !post.replyCount) {
+  if (!replies.length && !post.replyCount && !post.latestRepliesHasMore) {
     return null;
   }
 
@@ -44,36 +87,39 @@ export const FeedThreadPreview = ({ post }: { post: PublicPost }) => {
             : t('posts.stats.viewConversation')}
         </ThemedText>
       </ThemedView>
-      {replies.map((reply) => {
-        const text = previewText(reply);
-        return (
-          <ThemedView
-            key={reply.id}
-            className="flex-row gap-2 mb-2 ml-2 border-l-2 border-border pl-3"
-          >
-            <ProfileAvatar profile={reply.profile} className="size-8" />
-            <ThemedView className="flex-1">
-              <ThemedView className="flex-row items-baseline gap-2">
-                <ThemedText className="font-semibold text-sm" numberOfLines={1}>
-                  {reply.profile.displayName || `@${reply.profile.handle}`}
-                </ThemedText>
-                <UpdatingDate date={reply.createdAt} />
-              </ThemedView>
-              {text ? (
+      {groups.length > 0 ? (
+        <ThemedView className="ml-2 border-l-2 border-border pl-3">
+          {groups.map((group, groupIndex) => (
+            <ThemedView key={group.posts[0]?.id ?? groupIndex}>
+              {group.skippedAncestor ? (
                 <ThemedText
-                  className="text-muted-foreground text-sm"
-                  numberOfLines={2}
+                  className="text-muted-foreground text-xs mb-2 tracking-widest"
+                  accessibilityLabel={t('posts.stats.earlierInThread')}
                 >
-                  {text}
+                  · · ·
                 </ThemedText>
               ) : null}
+              {group.ancestor ? (
+                <ThreadReplyRow
+                  reply={group.ancestor as PublicReplyPost}
+                  indent={0}
+                  muted
+                />
+              ) : null}
+              {group.posts.map((reply, index) => (
+                <ThreadReplyRow
+                  key={reply.id}
+                  reply={reply as PublicReplyPost}
+                  indent={group.ancestor ? Math.min(index + 1, 3) : index}
+                />
+              ))}
             </ThemedView>
-          </ThemedView>
-        );
-      })}
-      {hiddenCount > 0 ? (
+          ))}
+        </ThemedView>
+      ) : null}
+      {post.latestRepliesHasMore ? (
         <ThemedText className="text-muted-foreground text-xs ml-2 pl-3">
-          {t('posts.stats.moreReplies', { count: hiddenCount })}
+          {t('posts.stats.moreInConversation')}
         </ThemedText>
       ) : null}
     </ThemedView>

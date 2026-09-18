@@ -1,9 +1,35 @@
 import type { OpenpeepsClient } from '@openpeepshq/client';
+import type {
+  GroupWithMeta,
+  PublicPost,
+  PublicProfile,
+  SearchResult,
+  SearchResultCounts,
+  SuccessFailureResponse,
+} from '@openpeepshq/common';
+import type {
+  InfiniteData,
+  UseInfiniteQueryResult,
+  UseQueryResult,
+} from '@tanstack/react-query';
 import { infiniteOffsetQueryApiHook, apiHook } from '../helpers';
 
-export type SearchHooks = ReturnType<typeof searchHooks>;
+type Query<T> = UseQueryResult<T, SuccessFailureResponse>;
+type OffsetSearch<T> = UseInfiniteQueryResult<
+  InfiniteData<SearchResult<T>>,
+  SuccessFailureResponse
+>;
 
-export const searchHooks = (client: OpenpeepsClient) => ({
+export type SearchHooks = {
+  useSearchGroups: (q: string, limit?: number) => OffsetSearch<GroupWithMeta>;
+  useSearchPosts: (q: string, limit?: number) => OffsetSearch<PublicPost>;
+  useSearchJams: (q: string, limit?: number) => OffsetSearch<PublicPost>;
+  useSearchProfiles: (q: string, limit?: number) => OffsetSearch<PublicProfile>;
+  useSearchEvents: (q: string, limit?: number) => OffsetSearch<PublicPost>;
+  useSearchCounts: (q: string) => Query<SearchResultCounts>;
+};
+
+export const searchHooks = (client: OpenpeepsClient): SearchHooks => ({
   useSearchGroups: (q: string, limit = 15) =>
     infiniteOffsetQueryApiHook(client.search.groups, {
       queryParams: { q, limit: limit },

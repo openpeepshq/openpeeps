@@ -7,6 +7,10 @@ export {
   loadReplyContextPosts,
 } from './contextClosure';
 export {
+  loadThreadPreviewReplies,
+  THREAD_PREVIEW_LIMIT,
+} from './threadPreview';
+export {
   listConversationPreviews,
   getConversationThread,
   findLatestThreadPostId,

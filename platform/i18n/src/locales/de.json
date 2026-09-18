@@ -466,6 +466,8 @@
       "repostsCount": "{{count}} geteilte Beiträge",
       "viewConversation": "Unterhaltung anzeigen",
       "moreReplies": "{{count}} weitere Antworten",
+      "moreInConversation": "Mehr in der Unterhaltung",
+      "earlierInThread": "Früher im Thread",
       "newReplies": "Neue Antworten"
     },
     "visibility": {

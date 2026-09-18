@@ -178,8 +178,11 @@ export const replyPostSchema = z.object({
   group: groupWithMetaSchema.optional().nullable(),
   audience: z.array(profileWithMetaSchema).optional().nullable(),
   seen: z.boolean().optional(),
+  inReplyToId: z.string().optional().nullable(),
 });
-export type ReplyPost = z.infer<typeof replyPostSchema>;
+export type ReplyPost = z.infer<typeof replyPostSchema> & {
+  replyTo?: ReplyPost | null;
+};
 
 const basePostSchema = replyPostSchema.extend({
   repostCount: z.number(),
@@ -202,6 +205,7 @@ const basePostSchema = replyPostSchema.extend({
 });
 export type BasePost = z.infer<typeof basePostSchema> & {
   latestReplies?: ReplyPost[];
+  latestRepliesHasMore?: boolean;
   lastActivityAt?: string;
 };
 
