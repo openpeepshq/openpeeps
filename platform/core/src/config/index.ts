@@ -12,6 +12,7 @@ import {
 } from '@openpeepshq/common/types';
 
 import { zodDeepPartialSchema } from '../lib/zodDeepPartial';
+import { restorePasswordPlaceholders } from './restorePasswordPlaceholders';
 
 import { defaultConfig } from './defaults/core';
 import { defaultCommunityConfig } from './defaults/community';
@@ -118,13 +119,22 @@ export const updateConfigValues = (
   namespace = 'openpeeps',
   name = 'core',
 ) =>
-  loadConfig(configKey(namespace, name)).then((configDocument) =>
-    replaceStoredConfig(
-      deepmerge(configDocument?.config ?? {}, configValues),
-      namespace,
-      name,
-    ),
-  );
+  loadConfig(configKey(namespace, name)).then((configDocument) => {
+    const existing = configDocument?.config ?? {};
+    const { factory } = configSchemaRegistry.get(configKey(namespace, name)) ?? {};
+    // The admin UI submits a form pre-filled from the sanitized GET response,
+    // so unmodified password fields still hold the placeholder string.
+    // Restore the real stored value for those before merging, or every save
+    // that touches an array containing a password field (arrays are
+    // replaced wholesale, see `mergeArrays` above) would overwrite the
+    // secret with the placeholder itself.
+    const sanitizedSchema = factory?.(true);
+    const patch = sanitizedSchema
+      ? restorePasswordPlaceholders(sanitizedSchema, existing, configValues)
+      : configValues;
+
+    return replaceStoredConfig(deepmerge(existing, patch), namespace, name);
+  });
 
 export const config = <T = CoreConfig>(
   namespace = 'openpeeps',

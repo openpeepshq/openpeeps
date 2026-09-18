@@ -3,10 +3,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCredentialsStore, useT } from '../../index';
 
 /**
- * Lands the browser after the server's OIDC callback has exchanged the code.
- * The server redirects here with either `?token=` (success) or `?error=`.
+ * Lands the browser after the server's OIDC/GitHub/GitLab callback has
+ * exchanged the code. The server redirects here with either `?token=`
+ * (success) or `?error=`.
  */
-export function OidcCallback() {
+export function SsoTokenCallback() {
   const t = useT();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

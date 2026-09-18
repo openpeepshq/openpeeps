@@ -247,6 +247,46 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
           approvalRequired: false,
         })
         .array(),
+      // GitHub/GitLab OAuth2 (not OIDC: neither issues an id_token). Leave
+      // `instanceUrl` empty to use the public github.com/gitlab.com
+      // endpoints; set it to point at a GitHub Enterprise or self-hosted
+      // GitLab instance (e.g. https://git-lab.de).
+      github: z
+        .object({
+          id: z.string().default('github'),
+          name: z.string().default('GitHub'),
+          instanceUrl: z.string().optional(),
+          clientId: z.string(),
+          clientSecret: password(sanitize).optional(),
+          scope: z.string().optional(),
+          approvalRequired: z.boolean().optional(),
+        })
+        .default({
+          id: 'github',
+          name: 'GitHub',
+          clientId: '',
+          scope: 'read:user user:email',
+          approvalRequired: false,
+        })
+        .array(),
+      gitlab: z
+        .object({
+          id: z.string().default('gitlab'),
+          name: z.string().default('GitLab'),
+          instanceUrl: z.string().optional(),
+          clientId: z.string(),
+          clientSecret: password(sanitize).optional(),
+          scope: z.string().optional(),
+          approvalRequired: z.boolean().optional(),
+        })
+        .default({
+          id: 'gitlab',
+          name: 'GitLab',
+          clientId: '',
+          scope: 'read_user',
+          approvalRequired: false,
+        })
+        .array(),
     }),
     services: z.object({
       sentry: z.object({

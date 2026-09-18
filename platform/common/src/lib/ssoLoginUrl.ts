@@ -7,6 +7,7 @@ export type SsoLoginDestination = {
   href: string;
   name?: string;
   testId: string;
+  kind: 'generic' | 'oidc' | 'github' | 'gitlab';
 };
 
 export const isAllowedSsoLoginUrl = (url: string): boolean => {
@@ -24,8 +25,19 @@ export const isAllowedSsoLoginUrl = (url: string): boolean => {
 export const oidcAuthorizePath = (id: string): string =>
   `/api/openpeeps/core/v1/sso/oidc/${encodeURIComponent(id)}/authorize`;
 
+export const oauth2AuthorizePath = (
+  kind: 'github' | 'gitlab',
+  id: string,
+): string =>
+  `/api/openpeeps/core/v1/sso/${kind}/${encodeURIComponent(id)}/authorize`;
+
 export const ssoLoginDestinations = (
-  sso: Pick<NonNullable<ServerInfo['sso']>, 'generic' | 'oidc'> | undefined,
+  sso:
+    | Pick<
+        NonNullable<ServerInfo['sso']>,
+        'generic' | 'oidc' | 'github' | 'gitlab'
+      >
+    | undefined,
 ): SsoLoginDestination[] => {
   const destinations: SsoLoginDestination[] = [];
   for (const provider of sso?.generic ?? []) {
@@ -33,6 +45,7 @@ export const ssoLoginDestinations = (
       href: provider.loginLink,
       name: provider.name,
       testId: `auth-login-generic-${provider.id}`,
+      kind: 'generic',
     });
   }
   for (const provider of sso?.oidc ?? []) {
@@ -40,6 +53,23 @@ export const ssoLoginDestinations = (
       href: oidcAuthorizePath(provider.id),
       name: provider.name,
       testId: `auth-login-oidc-${provider.id}`,
+      kind: 'oidc',
+    });
+  }
+  for (const provider of sso?.github ?? []) {
+    destinations.push({
+      href: oauth2AuthorizePath('github', provider.id),
+      name: provider.name,
+      testId: `auth-login-github-${provider.id}`,
+      kind: 'github',
+    });
+  }
+  for (const provider of sso?.gitlab ?? []) {
+    destinations.push({
+      href: oauth2AuthorizePath('gitlab', provider.id),
+      name: provider.name,
+      testId: `auth-login-gitlab-${provider.id}`,
+      kind: 'gitlab',
     });
   }
   return destinations;
@@ -70,6 +100,14 @@ export const publicSsoInfo = (sso: CoreConfig['sso']): ServerInfo['sso'] => {
     id: provider.id,
     name: provider.name,
   }));
+  const github = sso.github.map((provider) => ({
+    id: provider.id,
+    name: provider.name,
+  }));
+  const gitlab = sso.gitlab.map((provider) => ({
+    id: provider.id,
+    name: provider.name,
+  }));
   const generic = sso.generic.flatMap((provider) => {
     const loginLink = provider.loginLink?.trim();
     if (!loginLink || !isAllowedSsoLoginUrl(loginLink)) return [];
@@ -82,12 +120,20 @@ export const publicSsoInfo = (sso: CoreConfig['sso']): ServerInfo['sso'] => {
     ];
   });
   const onlySSO = !!sso.onlySSO;
-  if (oidc.length === 0 && generic.length === 0 && !onlySSO) {
+  if (
+    oidc.length === 0 &&
+    generic.length === 0 &&
+    github.length === 0 &&
+    gitlab.length === 0 &&
+    !onlySSO
+  ) {
     return undefined;
   }
   return {
     oidc,
     generic,
+    github,
+    gitlab,
     ...(onlySSO ? { onlySSO: true } : {}),
   };
 };

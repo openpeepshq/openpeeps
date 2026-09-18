@@ -2029,6 +2029,14 @@
       "title": "Servereinstellungen",
       "description": "Konfigurieren Sie den Server Ihrer Community. Hier können Sie LiveKit, SMTP, Sentry und andere wichtige Dienste verbinden sowie Apple- und Google Play Store-Links und Push-Benachrichtigungskonfigurationen hinzufügen."
     },
+    "sso": {
+      "github": {
+        "instanceUrl": "GitHub-Enterprise-URL (leer lassen für github.com)"
+      },
+      "gitlab": {
+        "instanceUrl": "GitLab-Instanz-URL (leer lassen für gitlab.com)"
+      }
+    },
     "i18n": {
       "title": "Benutzerdefinierter Text",
       "description": "Texte in der gesamten Community ändern",

@@ -87,7 +87,7 @@ export const defaultConfig: CoreConfig = {
       ),
     },
   },
-  sso: { generic: [], oidc: [] },
+  sso: { generic: [], oidc: [], github: [], gitlab: [] },
   services: {
     sentry: {
       // Opt-in only — no shared default DSN (privacy for self-hosted deploys).

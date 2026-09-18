@@ -94,7 +94,7 @@ export { NotificationPreferences } from './settings/NotificationPreferences';
 export { PushEnabledDevices } from './settings/PushEnabledDevices';
 export { ConversationInfo } from './conversations/Info';
 export { SsoCallback } from './auth/SsoCallback';
-export { OidcCallback } from './auth/OidcCallback';
+export { SsoTokenCallback } from './auth/SsoTokenCallback';
 export { OidcPending } from './auth/OidcPending';
 export { AdminDb } from './admin/Db';
 export { AdminDiagnosticsJob } from './admin/DiagnosticsJob';

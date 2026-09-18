@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Github, Gitlab } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -124,9 +124,15 @@ export function Login() {
             key={destination.testId}
             variant="outline"
             action={destination.href}
-            className="w-full justify-center"
+            className="w-full justify-center gap-2"
             data-testid={destination.testId}
           >
+            {destination.kind === 'github' && (
+              <Github size={18} aria-hidden="true" />
+            )}
+            {destination.kind === 'gitlab' && (
+              <Gitlab size={18} aria-hidden="true" />
+            )}
             {destination.name
               ? t('auth.login.loginWith', {
                   defaultValue: 'Login with {{provider}}',

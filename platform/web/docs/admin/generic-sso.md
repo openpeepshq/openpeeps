@@ -392,3 +392,7 @@ If authentication fails:
 
 - [JSONPath Documentation](https://goessner.net/articles/JsonPath/)
 - [Template String Interpolation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)
+- [Setting Up OIDC SSO](/docs/admin/oidc-sso) — spec-compliant OIDC providers
+- [Setting Up GitHub / GitLab SSO](/docs/admin/github-gitlab-sso) — dedicated
+  OAuth2 flow for github.com/gitlab.com and private instances
+

@@ -127,7 +127,7 @@ import {
   PushEnabledDevices,
   ConversationInfo,
   SsoCallback,
-  OidcCallback,
+  SsoTokenCallback,
   OidcPending,
   AdminDb,
   AdminDiagnosticsJob,
@@ -415,8 +415,8 @@ function AppShell() {
             />
             <Route path="/auth/sso/oidc/pending" element={<OidcPending />} />
             <Route
-              path="/auth/sso/oidc/:id/callback"
-              element={<OidcCallback />}
+              path="/auth/sso/:kind/:id/callback"
+              element={<SsoTokenCallback />}
             />
 
             {/* Jam room: full-screen, outside the sidebar RootLayout */}

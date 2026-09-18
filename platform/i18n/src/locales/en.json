@@ -1737,6 +1737,12 @@
           "displayName": "Display name claim",
           "avatar": "Avatar claim"
         }
+      },
+      "github": {
+        "instanceUrl": "GitHub Enterprise URL (leave blank for github.com)"
+      },
+      "gitlab": {
+        "instanceUrl": "GitLab instance URL (leave blank for gitlab.com)"
       }
     },
     "email": {

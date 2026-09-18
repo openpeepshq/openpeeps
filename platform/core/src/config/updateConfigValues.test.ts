@@ -68,4 +68,52 @@ describe('updateConfigValues', () => {
       config: { info: { tagLine: 'only this' } },
     });
   });
+
+  it('restores a real secret when the admin form echoes back the placeholder', async () => {
+    loadConfig.mockResolvedValue({
+      config: {
+        sso: {
+          github: [
+            {
+              id: 'github',
+              name: 'GitHub',
+              clientId: 'existing-client-id',
+              clientSecret: 'real-secret-value',
+            },
+          ],
+        },
+      },
+    });
+
+    // Admin form adds a second (gitlab) entry but echoes back the
+    // sanitized placeholder for the github entry's untouched secret.
+    await updateConfigValues(
+      {
+        sso: {
+          github: [
+            {
+              id: 'github',
+              name: 'GitHub',
+              clientId: 'existing-client-id',
+              clientSecret: '*********',
+            },
+          ],
+          gitlab: [
+            {
+              id: 'gitlab',
+              name: 'GitLab',
+              clientId: 'new-gitlab-id',
+              clientSecret: 'new-gitlab-secret',
+            },
+          ],
+        },
+      },
+      'openpeeps',
+      'core',
+    );
+
+    const [, stored] = storeConfig.mock.calls[0] as [string, { config: never }];
+    expect(stored.config.sso.github[0].clientSecret).toBe('real-secret-value');
+    expect(stored.config.sso.gitlab[0].clientSecret).toBe('new-gitlab-secret');
+  });
 });

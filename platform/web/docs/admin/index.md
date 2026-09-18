@@ -17,6 +17,7 @@ If you're trying to access the Release Notes, you may visit the [Release Notes](
 
 - [Setting Up OIDC SSO](/docs/admin/oidc-sso) - Configure OpenID Connect sign-in with external identity providers
 - [Setting Up Generic SSO](/docs/admin/generic-sso) - Configure single sign-on authentication with external providers
+- [Setting Up GitHub / GitLab SSO](/docs/admin/github-gitlab-sso) - Configure sign-in with github.com, gitlab.com, or a private instance
 
 
 <div style="height:20px"></div>

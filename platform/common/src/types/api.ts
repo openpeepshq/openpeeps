@@ -388,6 +388,18 @@ export const serverInfoSchema = z.object({
           name: z.string(),
         }),
       ),
+      github: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+        }),
+      ),
+      gitlab: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+        }),
+      ),
     })
     .optional(),
 });

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   isAllowedSsoLoginUrl,
   LOCAL_LOGIN_PARAM,
+  oauth2AuthorizePath,
   oidcAuthorizePath,
   publicSsoInfo,
   resolveOnlySsoView,
@@ -12,6 +13,8 @@ import type { CoreConfig } from '../../types';
 const emptySso = {
   generic: [],
   oidc: [],
+  github: [],
+  gitlab: [],
 } as CoreConfig['sso'];
 
 const mockOidc = {
@@ -67,17 +70,33 @@ describe('ssoLoginDestinations', () => {
           },
         ],
         oidc: [{ id: 'mock', name: 'Mock' }],
+        github: [{ id: 'github', name: 'GitHub' }],
+        gitlab: [{ id: 'gitlab', name: 'GitLab' }],
       }),
     ).toEqual([
       {
         href: 'https://idp.example.com/login',
         name: 'WordPress',
         testId: 'auth-login-generic-wp',
+        kind: 'generic',
       },
       {
         href: oidcAuthorizePath('mock'),
         name: 'Mock',
         testId: 'auth-login-oidc-mock',
+        kind: 'oidc',
+      },
+      {
+        href: oauth2AuthorizePath('github', 'github'),
+        name: 'GitHub',
+        testId: 'auth-login-github-github',
+        kind: 'github',
+      },
+      {
+        href: oauth2AuthorizePath('gitlab', 'gitlab'),
+        name: 'GitLab',
+        testId: 'auth-login-gitlab-gitlab',
+        kind: 'gitlab',
       },
     ]);
   });
@@ -87,7 +106,12 @@ describe('resolveOnlySsoView', () => {
   it('keeps the password form when onlySSO is off', () => {
     expect(
       resolveOnlySsoView(
-        { generic: [], oidc: [{ id: 'mock', name: 'Mock' }] },
+        {
+          generic: [],
+          oidc: [{ id: 'mock', name: 'Mock' }],
+          github: [],
+          gitlab: [],
+        },
         new URLSearchParams(),
       ),
     ).toEqual({ mode: 'form' });
@@ -100,6 +124,8 @@ describe('resolveOnlySsoView', () => {
           onlySSO: true,
           generic: [],
           oidc: [{ id: 'mock', name: 'Mock' }],
+          github: [],
+          gitlab: [],
         },
         new URLSearchParams(),
       ),
@@ -122,6 +148,8 @@ describe('resolveOnlySsoView', () => {
             },
           ],
           oidc: [],
+          github: [],
+          gitlab: [],
         },
         new URLSearchParams(),
       ),
@@ -143,6 +171,8 @@ describe('resolveOnlySsoView', () => {
           },
         ],
         oidc: [{ id: 'mock', name: 'Mock' }],
+        github: [],
+        gitlab: [],
       },
       new URLSearchParams(),
     );
@@ -159,6 +189,8 @@ describe('resolveOnlySsoView', () => {
           onlySSO: true,
           generic: [],
           oidc: [{ id: 'mock', name: 'Mock' }],
+          github: [],
+          gitlab: [],
         },
         new URLSearchParams(`${LOCAL_LOGIN_PARAM}=1`),
       ),
@@ -189,6 +221,8 @@ describe('publicSsoInfo', () => {
         },
       ],
       oidc: [{ id: 'mock', name: 'Mock' }],
+      github: [],
+      gitlab: [],
     });
   });
 
@@ -202,10 +236,14 @@ describe('publicSsoInfo', () => {
           },
         ],
         oidc: [mockOidc],
+        github: [],
+        gitlab: [],
       }),
     ).toEqual({
       generic: [],
       oidc: [{ id: 'mock', name: 'Mock' }],
+      github: [],
+      gitlab: [],
     });
   });
 
@@ -214,6 +252,8 @@ describe('publicSsoInfo', () => {
       publicSsoInfo({
         generic: [mockGeneric],
         oidc: [],
+        github: [],
+        gitlab: [],
       }),
     ).toEqual({
       generic: [
@@ -224,6 +264,8 @@ describe('publicSsoInfo', () => {
         },
       ],
       oidc: [],
+      github: [],
+      gitlab: [],
     });
   });
 });

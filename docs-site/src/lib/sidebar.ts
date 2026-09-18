@@ -34,6 +34,7 @@ export const SIDEBAR: NavSection[] = [
       { label: 'MCP', slug: 'admin/mcp' },
       { label: 'OIDC SSO', slug: 'admin/oidc-sso' },
       { label: 'Generic SSO', slug: 'admin/generic-sso' },
+      { label: 'GitHub / GitLab SSO', slug: 'admin/github-gitlab-sso' },
       { label: 'Subscriptions', slug: 'admin/payments/subscriptions' },
       { label: 'Release notes', slug: 'admin/release-notes' },
     ],

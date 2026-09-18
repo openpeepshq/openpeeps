@@ -219,3 +219,6 @@ including scheme, host, port, and path.
 
 - [Setting Up Generic SSO](/docs/admin/generic-sso) — custom profile API
   integration (non-OIDC providers)
+- [Setting Up GitHub / GitLab SSO](/docs/admin/github-gitlab-sso) — dedicated
+  OAuth2 flow for github.com/gitlab.com and private instances
+

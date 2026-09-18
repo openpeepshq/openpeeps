@@ -156,3 +156,106 @@ When finalizing a branch for PR:
    rtk git fetch origin <branch> && rtk git push --force-with-lease origin <branch>
    ```
    Always fetch before pushing to avoid stale ref errors.
+
+## Deployment (community.consolving.de)
+
+### Target
+
+- Instance: LXC 101 (Debian 13) on host1
+- Domain: `https://community.consolving.de` (proxied via host1 Traefik)
+- `publicContent: false` — API/anonymous viewing requires auth
+- Author: `philipp` = account `philipp@consolving.de`, profile id `019feb77-aa7e-79eb-ae99-8e837732bc8f`
+
+### SSH + DB access
+
+```bash
+# SSH to host1
+ssh -p 24 root@host1.consolving.net
+
+# Push files to LXC
+pct push 101 <local> <remote>
+
+# psql via docker compose
+pct exec 101 -- bash -lc \
+  'cd /opt/openpeeps && docker compose -f compose.prod.yml --env-file .env.production exec -T postgres psql -U openpeeps -d openpeeps -v ON_ERROR_STOP=1'
+```
+
+### Publishing: direct Postgres insert (backdating)
+
+API sets `created_at=now()`. To backdate: INSERT into `posts` + `entries` tables directly.
+
+**Critical safety rules:**
+
+- ALWAYS take a pg_dump backup before inserting (pre_<label>_<YYYYMMDD_HHMMSS>.sql)
+- Run in BEGIN/COMMIT (never uncommitted in prod)
+- Dry-run: BEGIN → inserts → ROLLBACK, verify → then real apply
+- Single-quote escape inside SQL: `'` → `''`
+
+**Post body JSON for articles:**
+
+```json
+{
+  "type": "article",
+  "content": "<markdown content>",
+  "language": "en",
+  "image": "https://...optional-banner-url..."
+}
+```
+
+**Entry body JSON:**
+
+```json
+{
+  "data": { "type": "create", "data": { "type": "article", "content": "...", "language": "en" } },
+  "type": "create"
+}
+```
+
+**UUIDs:** `uuid5(NAMESPACE_URL, "openpeeps-article-" + filename)` for post; `"entry-" + filename` for entry.
+
+### Banner images: upload via API + link to existing posts (verified workflow)
+
+Bearer token lives in the shared Enpass vault, entry **"API Token for
+philipp@community.consolving.de"**, field `password` (long-lived JWT, scope
+`write` on `posts`). Retrieve via the `enpass-vault` skill (`vault-cache`).
+
+```bash
+TOKEN=$(cat token-file-or-var)
+
+# 1. Upload image (multipart) — no login step needed, token is long-lived
+curl -s -X POST "https://community.consolving.de/api/openpeeps/core/v1/media" \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "file=@/path/to/banner.jpg;type=image/jpeg" \
+  -F "usage=post"
+# Returns: { id, url, meta, status, ... }
+# url = "https://community.consolving.de/storage/allpeep/<key>/<filename>"
+
+# 2. Link to an EXISTING post (already-published article) via direct DB update —
+#    there is no need to touch `data.attachments` on POST /posts for this;
+#    articles read their banner from body.image directly:
+UPDATE posts SET body = jsonb_set(body, '{image}', '"<uploaded-url>"') WHERE id = '<post-uuid>';
+```
+
+Always wrap multi-post updates in a single `BEGIN; ... COMMIT;` transaction,
+verify with a `SELECT ... WHERE id IN (...)` afterward, and check
+`docker logs openpeeps-app-1 --since <N>m | grep -i error` for regressions.
+
+**Banner file → article mapping**: read `banner_foto:` (or an inline
+`![...](images/...)` / `![[images/...]]`) from each article's frontmatter —
+don't guess from the `images/` folder listing alone, filenames don't always
+match the article title. If `banner_foto` is only a text description (an
+unused AI-image-generation prompt, no real path), no banner has been
+generated yet for that article — skip it, don't invent one.
+
+### Markdown cleanup before posting (strip Obsidian artifacts)
+
+- YAML frontmatter (`---` block at top)
+- `→ [[...]]` nav lines
+- `![[...]]` wiki image embeds
+- `[[slug|label]]` → `label`
+- Trailing `## Related Topics` internal-link footers
+
+### Existing DB backups
+
+- `/opt/openpeeps/.backups/pre_articles_20260901_095608.sql` (before 19-article batch)
+- `/opt/openpeeps/.backups/pre_3articles_20260901_080528.sql` (before 3-article batch)
