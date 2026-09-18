@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { ServerInfo } from '@openpeepshq/common/types';
-import { publicSsoInfo } from '@openpeepshq/common/lib';
+import { publicSsoInfo, withLegacyThemeRoot } from '@openpeepshq/common/lib';
 import { communityConfig, config } from '../config';
 import { database } from '../db';
 import { normalizeComputedDatetime } from '../db/pg/mappers';
@@ -53,9 +53,10 @@ const lastAccessedFromPostViews = async (): Promise<string | null> => {
 
 export const serverInfo = () =>
   config().then(async (coreConfig): Promise<ServerInfo> => {
-    const [lastAccessed, disk] = await Promise.all([
+    const [lastAccessed, disk, community] = await Promise.all([
       lastAccessedFromPostViews(),
       diskUsage(coreConfig.media.storage.params.path),
+      communityConfig(),
     ]);
     return {
       version: coreConfig.version,
@@ -68,9 +69,10 @@ export const serverInfo = () =>
       lastAccessed,
       maxProfiles: coreConfig.server.maxProfiles || undefined,
       communityConfig: {
-        ...(await communityConfig()),
+        ...community,
+        theme: withLegacyThemeRoot(community.theme),
         settings: {
-          ...(await communityConfig()).settings,
+          ...community.settings,
           openRegistrations: !!coreConfig.server.signUpsOpen,
         },
       },

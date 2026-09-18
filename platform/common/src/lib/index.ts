@@ -1,4 +1,5 @@
 export * from './utils';
+export * from './legacyThemeRoot';
 export * from './profileHelpers';
 export * from './text';
 export * from './postHelpers';
