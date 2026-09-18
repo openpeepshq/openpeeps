@@ -56,6 +56,7 @@ export function FeedPost({
     !showsReplyTo &&
     !displayedPost.inReplyToId &&
     ((displayedPost.latestReplies?.length ?? 0) > 0 ||
+      displayedPost.latestRepliesHasMore ||
       (displayedPost.replyCount ?? 0) > 0);
 
   const hasStats = !!(

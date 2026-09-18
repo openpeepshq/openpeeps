@@ -99,6 +99,7 @@ export const FeedPost = ({
       {!hideReply &&
       !displayedPost.inReplyToId &&
       ((displayedPost.latestReplies?.length ?? 0) > 0 ||
+        displayedPost.latestRepliesHasMore ||
         (displayedPost.replyCount ?? 0) > 0) ? (
         <FeedThreadPreview post={displayedPost} />
       ) : null}

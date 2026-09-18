@@ -188,7 +188,7 @@ export type RepostWithPublicProfile = z.infer<
   typeof repostWithPublicProfileSchema
 >;
 
-export const publicReplyPostSchema = z.object({
+const publicReplyPostObject = z.object({
   id: z.string(),
   type: postTypeSchema,
   profile: publicProfileSchema,
@@ -200,6 +200,10 @@ export const publicReplyPostSchema = z.object({
   group: groupWithMetaSchema.optional().nullable(),
   audience: z.array(publicProfileSchema).optional().nullable(),
   seen: z.boolean().optional(),
+  inReplyToId: z.string().optional().nullable(),
+});
+export const publicReplyPostSchema = publicReplyPostObject.extend({
+  replyTo: publicReplyPostObject.optional().nullable(),
 });
 export type PublicReplyPost = z.infer<typeof publicReplyPostSchema>;
 
@@ -221,8 +225,9 @@ const basePublicPostSchema = publicReplyPostSchema.extend({
   reactions: reactionWithPublicProfileSchema.array(),
   /** Capped lean list of who reposted (most recent). Count stays in repostCount. */
   reposts: repostWithPublicProfileSchema.array(),
-  /** Newest direct replies for a nested timeline preview. */
+  /** Newest conversation descendants for a nested timeline preview. */
   latestReplies: publicReplyPostSchema.array().optional(),
+  latestRepliesHasMore: z.boolean().optional(),
   /** Last reply or reaction on the conversation root; feeds sort by this. */
   lastActivityAt: z.string().datetime().optional(),
   application: publicApplicationSchema.optional(),

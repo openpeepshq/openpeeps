@@ -98,8 +98,9 @@ export interface DbBasePost extends Post {
   reactions: DbReaction[];
   /** Inbound repost wrappers (lean mapping: entries only) before transform. */
   reposts?: DbBasePost[];
-  /** Newest inbound replies (lean mapping: entries only) before transform. */
+  /** Newest conversation descendants (lean mapping: entries only) before transform. */
   latestReplies?: DbBasePost[];
+  latestRepliesHasMore?: boolean;
   lastActivityAt?: string;
   tags: Hashtag[];
   profile: Profile;

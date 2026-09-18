@@ -116,7 +116,9 @@ const hydrateLeanPostsByIds = async (
   const readable = canReadPost(config, authData);
   const byId = new Map<string, PostWithMeta>();
   for (const post of hydrated) {
-    const transformed = await transformPost(post, authData.profile);
+    const transformed = await transformPost(post, authData.profile, {
+      embedThreadPreview: false,
+    });
     if (readable(transformed)) byId.set(transformed.id, transformed);
   }
   return byId;

@@ -56,10 +56,216 @@ import {
 } from '@openpeepshq/common';
 import { FetchClient } from '@openpeepshq/fetch-client';
 import { allpeepNoPayloadEndpoint } from './helpers';
+import type {
+  OpenpeepsNoPayloadEndpoint,
+  OpenpeepsPayloadEndpoint,
+} from '../types';
 
 export type ExplorerRowsQuery = Record<string, string>;
 
-export const admin = (rawClient: FetchClient) => ({
+type AdminI18nBundle = {
+  defaults: Resource;
+  merged: Resource;
+  overrides: Resource;
+};
+
+type AnalyticsExport = {
+  filename: string;
+  contentType: string;
+  content: string;
+  encoding: 'utf8' | 'base64';
+};
+
+// Explicit return type keeps `tsc` from serializing the expanded endpoint
+// graph into `.d.ts` (TS7056 otherwise once PublicPost grows).
+export type Admin = {
+  accounts: {
+    list: OpenpeepsNoPayloadEndpoint<PublicAccount[]>;
+    findById: OpenpeepsNoPayloadEndpoint<PublicAccount, { id: string }>;
+    update: OpenpeepsPayloadEndpoint<
+      PublicAccount,
+      Partial<AccountData>,
+      { id: string }
+    >;
+    delete: OpenpeepsNoPayloadEndpoint<PublicAccount, { id: string }>;
+  };
+  backups: {
+    list: OpenpeepsNoPayloadEndpoint<string[]>;
+    create: OpenpeepsNoPayloadEndpoint<SuccessResponse>;
+    restore: OpenpeepsPayloadEndpoint<SuccessResponse, File>;
+  };
+  config: {
+    read: OpenpeepsNoPayloadEndpoint<
+      ConfigDataWithDefaults,
+      { namespace: string; name: string }
+    >;
+    update: OpenpeepsPayloadEndpoint<
+      SuccessResponse,
+      Partial<ConfigData>,
+      { namespace: string; name: string }
+    >;
+  };
+  configuration: {
+    email: {
+      sendTest: OpenpeepsPayloadEndpoint<SuccessResponse, AdminEmailTestInput>;
+    };
+  };
+  diagnostics: {
+    email: {
+      queueStats: OpenpeepsNoPayloadEndpoint<AdminEmailQueueStats>;
+      queueTest: OpenpeepsPayloadEndpoint<
+        SuccessResponse,
+        AdminEmailQueueTestInput
+      >;
+    };
+    jobs: {
+      jobDetail: OpenpeepsNoPayloadEndpoint<
+        AdminJobDetail,
+        { queue: string; jobId: string }
+      >;
+    };
+    performance: OpenpeepsNoPayloadEndpoint<AdminPerformanceStats>;
+  };
+  db: {
+    token: OpenpeepsNoPayloadEndpoint<TokenResponse>;
+    tables: OpenpeepsNoPayloadEndpoint<ExplorerTablesResponse>;
+    rows: OpenpeepsNoPayloadEndpoint<
+      ExplorerRowsResponse,
+      { table: string },
+      ExplorerRowsQuery
+    >;
+    updateRow: OpenpeepsPayloadEndpoint<
+      ExplorerUpdateRowResponse,
+      ExplorerUpdateRowInput,
+      { table: string }
+    >;
+    exportCsv: (table: string, query?: ExplorerRowsQuery) => Promise<string>;
+    runSql: OpenpeepsPayloadEndpoint<ExplorerSqlResponse, ExplorerSqlInput>;
+  };
+  i18n: {
+    read: OpenpeepsNoPayloadEndpoint<AdminI18nBundle>;
+    update: OpenpeepsPayloadEndpoint<SuccessResponse, Resource>;
+  };
+  invites: {
+    create: OpenpeepsPayloadEndpoint<InviteLinkWithMeta, InviteLinkData>;
+    list: OpenpeepsNoPayloadEndpoint<InviteLinkWithMeta[]>;
+    activate: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+    deactivate: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  };
+  logs: {
+    list: OpenpeepsNoPayloadEndpoint<LogRow[], undefined, { date?: string }>;
+  };
+  posts: {
+    pinGlobally: OpenpeepsPayloadEndpoint<SuccessResponse, { postId: string }>;
+    announce: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  };
+  profiles: {
+    list: OpenpeepsNoPayloadEndpoint<ProfileWithMeta[]>;
+    exportCsv: () => Promise<string>;
+    listByAccount: OpenpeepsNoPayloadEndpoint<
+      ProfileWithMeta[],
+      { id: string }
+    >;
+    delete: OpenpeepsNoPayloadEndpoint<ProfileWithMeta, { id: string }>;
+    listRoles: OpenpeepsNoPayloadEndpoint<Role[], { id: string }>;
+    updateRoles: OpenpeepsPayloadEndpoint<
+      Role[],
+      { roles: Role[] },
+      { id: string }
+    >;
+  };
+  roles: {
+    list: OpenpeepsNoPayloadEndpoint<Role[]>;
+    update: OpenpeepsPayloadEndpoint<Role, RoleData, { roleId: string }>;
+  };
+  stats: {
+    general: OpenpeepsNoPayloadEndpoint<AdminServerStats>;
+  };
+  analytics: {
+    overview: OpenpeepsNoPayloadEndpoint<
+      AnalyticsOverview,
+      undefined,
+      AnalyticsDateQuery
+    >;
+    growth: OpenpeepsNoPayloadEndpoint<
+      AnalyticsGrowth,
+      undefined,
+      AnalyticsDateQuery
+    >;
+    engagement: OpenpeepsNoPayloadEndpoint<
+      AnalyticsEngagement,
+      undefined,
+      AnalyticsDateQuery
+    >;
+    retention: OpenpeepsNoPayloadEndpoint<
+      AnalyticsRetention,
+      undefined,
+      AnalyticsDateQuery
+    >;
+    clicks: OpenpeepsNoPayloadEndpoint<
+      AnalyticsClicks,
+      undefined,
+      AnalyticsDateQuery
+    >;
+    reportSettings: {
+      read: OpenpeepsNoPayloadEndpoint<AnalyticsReportSettings>;
+      update: OpenpeepsPayloadEndpoint<
+        AnalyticsReportSettings,
+        AnalyticsReportSettings
+      >;
+    };
+    export: OpenpeepsNoPayloadEndpoint<
+      AnalyticsExport,
+      undefined,
+      AnalyticsDateQuery & { format?: 'csv' | 'pdf' }
+    >;
+    backfill: OpenpeepsPayloadEndpoint<
+      AnalyticsBackfillResponse,
+      AnalyticsBackfillInput
+    >;
+  };
+  reports: {
+    list: OpenpeepsNoPayloadEndpoint<ReportWithMeta[]>;
+    findById: OpenpeepsNoPayloadEndpoint<ReportWithMeta, { reportId: string }>;
+    resolve: OpenpeepsPayloadEndpoint<
+      SuccessResponse,
+      { resolution: ReportResolution },
+      { reportId: string }
+    >;
+    reopen: OpenpeepsNoPayloadEndpoint<SuccessResponse, { reportId: string }>;
+  };
+  groups: {
+    list: OpenpeepsNoPayloadEndpoint<AdminGroup[]>;
+    delete: OpenpeepsNoPayloadEndpoint<SuccessResponse, { groupId: string }>;
+  };
+  serviceAccessTokens: {
+    list: OpenpeepsNoPayloadEndpoint<PublicAccessToken[]>;
+    create: OpenpeepsPayloadEndpoint<AccessToken, AccessTokenCreationData>;
+    revoke: OpenpeepsNoPayloadEndpoint<
+      SuccessResponse,
+      { accessTokenId: string }
+    >;
+  };
+  plugins: {
+    list: OpenpeepsNoPayloadEndpoint<AdminPluginInfo[]>;
+    install: OpenpeepsPayloadEndpoint<
+      SuccessResponse & { pluginKey?: string },
+      PluginInstallSource
+    >;
+    uninstall: OpenpeepsNoPayloadEndpoint<
+      SuccessResponse,
+      { namespace: string; name: string }
+    >;
+    update: OpenpeepsPayloadEndpoint<
+      SuccessResponse,
+      { enabled: boolean },
+      { namespace: string; name: string }
+    >;
+    reload: OpenpeepsNoPayloadEndpoint<SuccessResponse>;
+  };
+};
+
+export const admin = (rawClient: FetchClient): Admin => ({
   accounts: {
     list: allpeepNoPayloadEndpoint<PublicAccount[]>(
       rawClient,

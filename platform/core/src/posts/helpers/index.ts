@@ -42,6 +42,7 @@ import {
 } from '@openpeepshq/common/lib';
 import { ObjectFilter } from '../../db/types';
 import { EMBEDDED_REPOSTS_LIMIT } from '../mapping';
+import { loadThreadPreviewReplies } from '../threadPreview';
 
 export const isDirect = (post: PostWithMeta) => post.visibility === 'direct';
 export const isPrivate = (post: PostWithMeta) => post.visibility === 'private';
@@ -241,7 +242,10 @@ const leanRepostsFromWrappers = async (
 export const transformPost = async (
   post: DbPost,
   currentProfile?: { id: string },
+  options: { embedThreadPreview?: boolean } = {},
 ): Promise<PostWithMeta> => {
+  const embedThreadPreview = options.embedThreadPreview ?? true;
+  const nested = { embedThreadPreview: false };
   const entries = post.entries
     ? await Promise.all(post.entries.map(addProfileForEntry))
     : [];
@@ -265,26 +269,32 @@ export const transformPost = async (
     (post.creatorId
       ? await loadPublicProfile(post.creatorId, true)
       : undefined);
+  const preview = embedThreadPreview
+    ? await loadThreadPreviewReplies(post.id, currentProfile)
+    : {
+        replies: (post.latestReplies ?? []) as DbPost[],
+        hasMore: !!post.latestRepliesHasMore,
+      };
+  const latestReplies = (
+    await Promise.all(
+      preview.replies.map((reply) =>
+        transformPost(reply, currentProfile, nested),
+      ),
+    )
+  ).filter((reply) => !!reply.profile);
   return {
     ...post,
     data: post.data ? normalizePostDataFromDb(post.data) : post.data,
     seen: currentProfile ? post.seen : undefined,
     replyTo: post.replyTo
-      ? await transformPost(post.replyTo, currentProfile)
+      ? await transformPost(post.replyTo, currentProfile, nested)
       : undefined,
-    latestReplies: (
-      await Promise.all(
-        (post.latestReplies ?? []).map((reply) =>
-          transformPost(reply, currentProfile),
-        ),
-      )
-    ).filter(
-      (reply) =>
-        !!reply.profile &&
-        (!reply.inReplyToId || reply.inReplyToId === post.id),
-    ),
+    latestReplies,
+    latestRepliesHasMore: preview.hasMore,
     repost: post.repost
-      ? await transformPost(post.repost, currentProfile)
+      ? await transformPost(post.repost, currentProfile, {
+          embedThreadPreview,
+        })
       : undefined,
     rsvps: entries
       .filter((entry) => entry.type === 'rsvp')

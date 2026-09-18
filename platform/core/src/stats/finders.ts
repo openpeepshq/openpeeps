@@ -172,7 +172,7 @@ const topProfiles = (
         .map((result) => result.data),
     );
 
-export const topListsStats = () =>
+export const topListsStats = (): Promise<AdminServerStats['topLists']> =>
   allpeepDb().then(async ({ db }) => ({
     posts: {
       day: await topPosts(db, sub(new Date(), { days: 1 })),

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildThreads,
+  buildThreadPreview,
   getReactionCount,
   countVotes,
   collectVotes,
@@ -239,6 +240,93 @@ describe('postHelpers', () => {
       const result = buildThreads(posts);
       expect(result[0].id).toBe('root1');
       expect(result[1].id).toBe('root2');
+    });
+  });
+
+  describe('buildThreadPreview', () => {
+    it('keeps sibling direct replies as separate leaves', () => {
+      const groups = buildThreadPreview('root', [
+        { id: 'c', createdAt: '2024-01-03T00:00:00Z', inReplyToId: 'root' },
+        { id: 'a', createdAt: '2024-01-01T00:00:00Z', inReplyToId: 'root' },
+        { id: 'b', createdAt: '2024-01-02T00:00:00Z', inReplyToId: 'root' },
+      ]);
+      expect(groups).toHaveLength(3);
+      expect(groups.map((group) => group.posts.map((post) => post.id))).toEqual(
+        [['a'], ['b'], ['c']],
+      );
+      expect(groups.every((group) => !group.ancestor)).toBe(true);
+    });
+
+    it('collapses a single reply chain', () => {
+      const groups = buildThreadPreview('root', [
+        { id: 'c', createdAt: '2024-01-03T00:00:00Z', inReplyToId: 'b' },
+        { id: 'a', createdAt: '2024-01-01T00:00:00Z', inReplyToId: 'root' },
+        { id: 'b', createdAt: '2024-01-02T00:00:00Z', inReplyToId: 'a' },
+      ]);
+      expect(groups).toHaveLength(1);
+      expect(groups[0]?.posts.map((post) => post.id)).toEqual(['a', 'b', 'c']);
+      expect(groups[0]?.ancestor).toBeUndefined();
+      expect(groups[0]?.skippedAncestor).toBe(false);
+    });
+
+    it('shows a skipped ancestor when the chain starts below a nested parent', () => {
+      const ancestor = {
+        id: 'pat',
+        createdAt: '2024-01-01T00:00:00Z',
+        inReplyToId: 'nested',
+      };
+      const groups = buildThreadPreview('root', [
+        {
+          id: 'c',
+          createdAt: '2024-01-02T00:00:00Z',
+          inReplyToId: 'pat',
+          replyTo: ancestor,
+        },
+        {
+          id: 'd',
+          createdAt: '2024-01-03T00:00:00Z',
+          inReplyToId: 'c',
+        },
+        {
+          id: 'e',
+          createdAt: '2024-01-04T00:00:00Z',
+          inReplyToId: 'd',
+        },
+      ]);
+      expect(groups).toHaveLength(1);
+      expect(groups[0]?.ancestor?.id).toBe('pat');
+      expect(groups[0]?.skippedAncestor).toBe(true);
+      expect(groups[0]?.posts.map((post) => post.id)).toEqual(['c', 'd', 'e']);
+    });
+
+    it('splits a sibling leaf from a nested chain', () => {
+      const ancestor = {
+        id: 'sam',
+        createdAt: '2024-01-02T00:00:00Z',
+        inReplyToId: 'nested',
+      };
+      const groups = buildThreadPreview('root', [
+        { id: 'alex', createdAt: '2024-01-01T00:00:00Z', inReplyToId: 'root' },
+        {
+          id: 'riley',
+          createdAt: '2024-01-03T00:00:00Z',
+          inReplyToId: 'sam',
+          replyTo: ancestor,
+        },
+        {
+          id: 'jordan',
+          createdAt: '2024-01-04T00:00:00Z',
+          inReplyToId: 'riley',
+        },
+      ]);
+      expect(groups).toHaveLength(2);
+      expect(groups[0]?.posts.map((post) => post.id)).toEqual(['alex']);
+      expect(groups[1]?.ancestor?.id).toBe('sam');
+      expect(groups[1]?.skippedAncestor).toBe(true);
+      expect(groups[1]?.posts.map((post) => post.id)).toEqual([
+        'riley',
+        'jordan',
+      ]);
     });
   });
 

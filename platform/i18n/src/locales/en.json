@@ -474,6 +474,8 @@
       "repostsCount": "{{count}} reposts",
       "viewConversation": "View conversation",
       "moreReplies": "{{count}} more replies",
+      "moreInConversation": "More in conversation",
+      "earlierInThread": "Earlier in thread",
       "newReplies": "New replies"
     },
     "visibility": {
