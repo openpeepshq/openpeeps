@@ -792,7 +792,9 @@
       "error": "Gruppenbeiträge konnten nicht als gelesen markiert werden"
     },
     "members": {
-      "title": "Mitglieder"
+      "title": "Mitglieder",
+      "searchPlaceholder": "Mitglieder nach Name oder Handle suchen",
+      "empty": "Keine Mitglieder gefunden"
     },
     "notFound": "Gruppe nicht gefunden"
   },

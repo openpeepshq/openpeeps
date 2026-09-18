@@ -812,7 +812,9 @@
     "searchPlaceholder": "Search by group name",
     "openGroup": "Open group",
     "members": {
-      "title": "Members"
+      "title": "Members",
+      "searchPlaceholder": "Search members by name or handle",
+      "empty": "No members found"
     },
     "form": {
       "groupName": "Group Name",

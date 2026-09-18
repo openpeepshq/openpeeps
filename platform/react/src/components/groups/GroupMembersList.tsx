@@ -9,10 +9,11 @@ import type { GroupMember, GroupWithMeta } from '@openpeepshq/common/types';
 import {
   canChangeMemberRole,
   canRemoveMember,
+  matchesQuery,
   sortGroupMembers,
   truncateText,
 } from '@openpeepshq/common/lib';
-import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
+import { Input, PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { AccessDeniedLoader } from '../layout/AccessDeniedLoader';
@@ -37,17 +38,41 @@ export function GroupMembersList({ group }: GroupMembersListProps) {
   const { openpeepsApi } = useOpenpeeps();
   const { openCreateConversation } = useCreateNewConversation();
   const membersQuery = openpeepsApi.useGroupMembers(group.id);
+  const [search, setSearch] = useState('');
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
   const members = useMemo(
     () => sortGroupMembers(membersQuery.data ?? []),
     [membersQuery.data],
   );
+  const filtered = useMemo(
+    () =>
+      members.filter(
+        (member) => !search || matchesQuery(member.profile, search),
+      ),
+    [members, search],
+  );
 
   return (
     <AccessDeniedLoader queries={[membersQuery]}>
       <div className="flex flex-col">
-        {members.map((member) => (
+        <form
+          role="search"
+          className="p-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <Input
+            placeholder={t('groups.members.searchPlaceholder', {
+              defaultValue: 'Search members by name or handle',
+            })}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            data-testid="groups-members-search-input"
+          />
+        </form>
+        {filtered.map((member) => (
           <div
             key={member.profile.id}
             className="flex items-center justify-between gap-3 border-b p-4"
@@ -124,6 +149,15 @@ export function GroupMembersList({ group }: GroupMembersListProps) {
             ) : null}
           </div>
         ))}
+        {filtered.length === 0 ? (
+          <div className="flex w-full items-center justify-center p-4">
+            <p className="text-muted-foreground text-sm">
+              {t('groups.members.empty', {
+                defaultValue: 'No members found',
+              })}
+            </p>
+          </div>
+        ) : null}
       </div>
 
       {activeModal?.type === 'roles' ? (
