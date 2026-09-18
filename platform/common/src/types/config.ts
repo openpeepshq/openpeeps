@@ -303,6 +303,15 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       base: z.string(),
       icon: z.string().optional(),
       mobileIcon: z.string().optional(),
+      // Kept so /server/info still satisfies common 0.1.44 (required
+      // theme.primaryHex) and RN 0.3.1 root-theme reads.
+      primaryHex: z.string().optional(),
+      logoFull: z.string().optional(),
+      logoSmall: z.string().optional(),
+      defaultProfileAvatar: z.string().optional(),
+      defaultGroupAvatar: z.string().optional(),
+      backgroundAuth: z.string().optional(),
+      background: z.string().optional(),
       light: z.object({
         primaryHex: z.string(),
         secondaryHex: z.string().optional(),
