@@ -23,6 +23,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **jams**: keep recording parts on upload failure
 - **groups**: backfill membership roles on legacy user_groups edges
 - **cli**: close Redis so backup create and restore can exit
 - **cli**: close Postgres so backup restore can exit

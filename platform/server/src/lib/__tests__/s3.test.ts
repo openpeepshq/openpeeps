@@ -1,6 +1,9 @@
 import { createHash, createHmac } from 'node:crypto';
+import { existsSync } from 'node:fs';
+import { rm } from 'node:fs/promises';
 import http from 'node:http';
 import net from 'node:net';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import express from 'express';
 import { installS3Endpoint, _s3Test } from '../s3';
@@ -18,8 +21,10 @@ const deriveSecret = (apiSecret: string, recordingId: string) =>
 const {
   findJamRecording,
   completeJamRecording,
+  failJamRecording,
   finishRecording,
   jamRecordingUploadSecret,
+  storeFromPath,
 } = vi.hoisted(() => {
   const apiSecret = 'test-livekit-api-secret';
   const derive = (recordingId: string) =>
@@ -29,8 +34,13 @@ const {
   return {
     findJamRecording: vi.fn(),
     completeJamRecording: vi.fn(),
+    failJamRecording: vi.fn(),
     finishRecording: vi.fn(),
     jamRecordingUploadSecret: vi.fn(async (id: string) => derive(id)),
+    storeFromPath: vi.fn(async (_filePath: string) => ({
+      key: 'stored-key',
+      size: 5,
+    })),
   };
 });
 
@@ -38,6 +48,7 @@ vi.mock('@openpeepshq/core/jams', () => ({
   findJamRecording: (id: string) => findJamRecording(id),
   completeJamRecording: (id: string, attachment: unknown) =>
     completeJamRecording(id, attachment),
+  failJamRecording: (id: string) => failJamRecording(id),
   finishRecording: (recording: unknown) => finishRecording(recording),
   jamRecordingUploadSecret: (id: string) => jamRecordingUploadSecret(id),
 }));
@@ -47,6 +58,7 @@ vi.mock('@openpeepshq/core/media', () => ({
     store: async () => 'stored-key',
     getPath: (key: string, name: string) => `/media/${key}/${name}`,
   }),
+  storeFromPath: (filePath: string) => storeFromPath(filePath),
 }));
 
 vi.mock('@openpeepshq/core/mediaAttachments', () => ({
@@ -132,7 +144,7 @@ const signHeaders = (opts: {
 const request = (
   app: express.Express,
   opts: {
-    method: 'PUT' | 'POST';
+    method: 'PUT' | 'POST' | 'DELETE';
     path: string;
     headers?: Record<string, string>;
     body?: Buffer;
@@ -174,16 +186,28 @@ const request = (
     server.on('error', reject);
   });
 
+const activeRecording = () => ({
+  id: RECORDING_ID,
+  status: 'active',
+  post: { id: 'post1', data: { name: 'Jam' } },
+  profile: { id: 'p1' },
+});
+
 describe('installS3Endpoint', () => {
   let app: express.Express;
+  const leakedDirs: string[] = [];
 
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(Date.UTC(2026, 7, 9, 12, 0, 0)));
     findJamRecording.mockReset();
     completeJamRecording.mockReset();
+    failJamRecording.mockReset();
     finishRecording.mockReset();
+    storeFromPath.mockReset();
+    storeFromPath.mockResolvedValue({ key: 'stored-key', size: 5 });
     jamRecordingUploadSecret.mockClear();
+    _s3Test.resetCaps();
     app = express();
     installS3Endpoint(app);
   });
@@ -192,8 +216,44 @@ describe('installS3Endpoint', () => {
     for (const uploadId of [..._s3Test.multipartUploads.keys()]) {
       await _s3Test.cleanupMultipartUpload(uploadId);
     }
+    for (const dir of leakedDirs.splice(0)) {
+      await rm(dir, { recursive: true, force: true });
+    }
     vi.useRealTimers();
   });
+
+  const initiateMultipart = async () => {
+    findJamRecording.mockResolvedValue(activeRecording());
+    const headers = signHeaders({
+      method: 'POST',
+      path: PATH,
+      query: { uploads: '' },
+    });
+    const result = await request(app, {
+      method: 'POST',
+      path: `${PATH}?uploads`,
+      headers,
+    });
+    expect(result.status).toBe(200);
+    const uploadId = result.body.match(/<UploadId>([^<]+)<\/UploadId>/)?.[1];
+    expect(uploadId).toBeTruthy();
+    return uploadId as string;
+  };
+
+  const putPart = async (
+    uploadId: string,
+    partNumber: number,
+    body: Buffer,
+  ) => {
+    const query = { partNumber: String(partNumber), uploadId };
+    const headers = signHeaders({ method: 'PUT', path: PATH, query });
+    return request(app, {
+      method: 'PUT',
+      path: `${PATH}?partNumber=${partNumber}&uploadId=${uploadId}`,
+      headers,
+      body,
+    });
+  };
 
   it('rejects unsigned PUT', async () => {
     findJamRecording.mockResolvedValue({
@@ -291,5 +351,140 @@ describe('installS3Endpoint', () => {
       body: Buffer.from('part'),
     });
     expect(result.status).toBe(404);
+  });
+
+  it('streams a completed multipart upload from disk', async () => {
+    const uploadId = await initiateMultipart();
+    expect(await putPart(uploadId, 1, Buffer.from('hello'))).toMatchObject({
+      status: 200,
+    });
+    expect(await putPart(uploadId, 2, Buffer.from('world'))).toMatchObject({
+      status: 200,
+    });
+    completeJamRecording.mockResolvedValue(activeRecording());
+    const headers = signHeaders({
+      method: 'POST',
+      path: PATH,
+      query: { uploadId },
+    });
+
+    const result = await request(app, {
+      method: 'POST',
+      path: `${PATH}?uploadId=${uploadId}`,
+      headers,
+    });
+    expect(result.status).toBe(200);
+    expect(storeFromPath).toHaveBeenCalledOnce();
+    expect(completeJamRecording).toHaveBeenCalledOnce();
+    expect(failJamRecording).not.toHaveBeenCalled();
+    expect(_s3Test.multipartUploads.size).toBe(0);
+  });
+
+  it('marks the recording failed and keeps parts when complete fails', async () => {
+    storeFromPath.mockRejectedValue(new Error('disk full'));
+    const uploadId = await initiateMultipart();
+    const tempDir = _s3Test.multipartUploads.get(uploadId)?.tempDir;
+    expect(tempDir).toBeTruthy();
+    leakedDirs.push(tempDir as string);
+    expect(await putPart(uploadId, 1, Buffer.from('hello'))).toMatchObject({
+      status: 200,
+    });
+    const headers = signHeaders({
+      method: 'POST',
+      path: PATH,
+      query: { uploadId },
+    });
+
+    const result = await request(app, {
+      method: 'POST',
+      path: `${PATH}?uploadId=${uploadId}`,
+      headers,
+    });
+    expect(result.status).toBe(500);
+    expect(failJamRecording).toHaveBeenCalledWith(RECORDING_ID);
+    expect(completeJamRecording).not.toHaveBeenCalled();
+    expect(_s3Test.multipartUploads.size).toBe(0);
+    expect(existsSync(join(tempDir as string, 'part-1'))).toBe(true);
+  });
+
+  it('marks the recording failed and keeps parts when the upload exceeds the cap', async () => {
+    const uploadId = await initiateMultipart();
+    const tempDir = _s3Test.multipartUploads.get(uploadId)?.tempDir;
+    expect(tempDir).toBeTruthy();
+    leakedDirs.push(tempDir as string);
+    expect(await putPart(uploadId, 1, Buffer.from('hello'))).toMatchObject({
+      status: 200,
+    });
+    _s3Test.setMaxUploadBytes(8);
+
+    const result = await putPart(uploadId, 2, Buffer.from('world!!!'));
+    expect(result.status).toBe(413);
+    expect(failJamRecording).toHaveBeenCalledWith(RECORDING_ID);
+    expect(_s3Test.multipartUploads.size).toBe(0);
+    expect(existsSync(join(tempDir as string, 'part-1'))).toBe(true);
+  });
+
+  it('does not fail the recording when concurrent upload data is over cap', async () => {
+    const uploadId = await initiateMultipart();
+    expect(await putPart(uploadId, 1, Buffer.from('hello'))).toMatchObject({
+      status: 200,
+    });
+    _s3Test.setMaxConcurrentMultipartBytes(6);
+
+    const result = await putPart(uploadId, 2, Buffer.from('world'));
+    expect(result.status).toBe(413);
+    expect(result.body).toMatch(/concurrent/i);
+    expect(failJamRecording).not.toHaveBeenCalled();
+    expect(_s3Test.multipartUploads.size).toBe(1);
+  });
+
+  it('keeps parts and fails the recording on abort', async () => {
+    const uploadId = await initiateMultipart();
+    const tempDir = _s3Test.multipartUploads.get(uploadId)?.tempDir;
+    expect(tempDir).toBeTruthy();
+    leakedDirs.push(tempDir as string);
+    expect(await putPart(uploadId, 1, Buffer.from('hello'))).toMatchObject({
+      status: 200,
+    });
+    const headers = signHeaders({
+      method: 'DELETE',
+      path: PATH,
+      query: { uploadId },
+    });
+
+    const result = await request(app, {
+      method: 'DELETE',
+      path: `${PATH}?uploadId=${uploadId}`,
+      headers,
+    });
+    expect(result.status).toBe(204);
+    expect(failJamRecording).toHaveBeenCalledWith(RECORDING_ID);
+    expect(_s3Test.multipartUploads.size).toBe(0);
+    expect(existsSync(join(tempDir as string, 'part-1'))).toBe(true);
+  });
+
+  it('marks the recording failed when a single PUT cannot be stored', async () => {
+    storeFromPath.mockImplementation(async (filePath: string) => {
+      leakedDirs.push(filePath);
+      throw new Error('disk full');
+    });
+    findJamRecording.mockResolvedValue(activeRecording());
+    const headers = signHeaders({ method: 'PUT', path: PATH, query: {} });
+
+    const result = await request(app, {
+      method: 'PUT',
+      path: PATH,
+      headers,
+      body: Buffer.from('video'),
+    });
+    expect(result.status).toBe(500);
+    expect(failJamRecording).toHaveBeenCalledWith(RECORDING_ID);
+    expect(completeJamRecording).not.toHaveBeenCalled();
+  });
+
+  it('caps a single recording at 1.5GiB', () => {
+    expect(_s3Test.DEFAULT_MAX_UPLOAD_BYTES).toBe(
+      Math.floor(1.5 * 1024 * 1024 * 1024),
+    );
   });
 });

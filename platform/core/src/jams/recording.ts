@@ -10,6 +10,7 @@ import { hub } from '../events';
 import { createPost } from '../posts';
 import { allpeepDb } from '../db';
 import { findJamRecording } from './finders';
+import { cancelRecordingAutoStop } from './jobs';
 import { jamRecordingsMapping } from './mapping';
 import { updateJamRecording } from './mutations';
 
@@ -32,6 +33,23 @@ export const completeJamRecording = async (
   }
 
   return recording;
+};
+
+/**
+ * Marks an in-progress recording failed so a later start is not blocked by a
+ * leftover `active` row. Completed and already-failed recordings are left
+ * unchanged. Multipart temp files are the S3 layer's responsibility.
+ */
+export const failJamRecording = async (recordingId: string): Promise<void> => {
+  const recording = await findJamRecording(recordingId);
+  if (!recording) {
+    return;
+  }
+  if (recording.status !== 'requested' && recording.status !== 'active') {
+    return;
+  }
+  await cancelRecordingAutoStop(recordingId);
+  await updateJamRecording(recordingId, { status: 'failed' });
 };
 
 export const publishJamRecordingReply = async (
