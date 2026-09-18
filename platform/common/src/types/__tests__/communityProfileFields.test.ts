@@ -93,4 +93,17 @@ describe('communityConfigSchema profiles.additionalFields', () => {
       }).settings.defaultTimeZone,
     ).toBe('Europe/Berlin');
   });
+
+  it('keeps optional root theme.primaryHex for old clients', () => {
+    expect(
+      communityConfigSchema.parse({
+        ...base,
+        theme: {
+          ...base.theme,
+          primaryHex: '#15678a',
+          logoSmall: '/img/logo-small.png',
+        },
+      }).theme.primaryHex,
+    ).toBe('#15678a');
+  });
 });
