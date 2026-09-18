@@ -6,6 +6,13 @@ import { database } from '../db';
 import { normalizeComputedDatetime } from '../db/pg/mappers';
 import { postSeen } from '../db/pg/schema';
 import { diskUsage, processStartedAt } from './status';
+import { roundDownUptimeSeconds } from './stablePublicServerInfo';
+
+export {
+  SERVER_INFO_BUCKET_MS,
+  roundDownUptimeSeconds,
+  stablePublicServerInfo,
+} from './stablePublicServerInfo';
 
 export type DurationType =
   | 'yesterday'
@@ -64,7 +71,7 @@ export const serverInfo = () =>
       environment: coreConfig.environment,
       publicContent: coreConfig.server.publicContent,
       startedAt: processStartedAt,
-      uptimeSeconds: Math.floor(process.uptime()),
+      uptimeSeconds: roundDownUptimeSeconds(Math.floor(process.uptime())),
       disk,
       lastAccessed,
       maxProfiles: coreConfig.server.maxProfiles || undefined,
