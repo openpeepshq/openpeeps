@@ -1,24 +1,20 @@
 import { createHash, randomUUID } from 'node:crypto';
-import {
-  mkdir,
-  readdir,
-  readFile,
-  rmdir,
-  unlink,
-  writeFile,
-} from 'node:fs/promises';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { mkdir, readdir, rmdir, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { pipeline } from 'node:stream/promises';
 import express, { type Express, type Request, type Response } from 'express';
 import type { Event, JamRecordingWithMeta } from '@openpeepshq/common';
 import {
   completeJamRecording,
+  failJamRecording,
   findJamRecording,
   finishRecording,
   jamRecordingUploadSecret,
 } from '@openpeepshq/core/jams';
 import { logger } from '@openpeepshq/core/log';
-import { mediaStorage } from '@openpeepshq/core/media';
+import { mediaStorage, storeFromPath } from '@openpeepshq/core/media';
 import { createMediaAttachment } from '@openpeepshq/core/mediaAttachments';
 import { serverRootUrl } from '@openpeepshq/core/server';
 import { verifyAwsSigV4 } from './s3SigV4';
@@ -29,10 +25,13 @@ const log = logger('server:s3');
 // just enough of the S3 multipart protocol for the egress uploader.
 
 const RECORDINGS_BUCKET = 'allpeep-recordings';
-/** Cap for one multipart upload (matches express.raw limit). */
-const MAX_UPLOAD_BYTES = 1024 * 1024 * 1024;
+/** Assembled recording cap. Per-part bodies are still bounded by express.raw. */
+const DEFAULT_MAX_UPLOAD_BYTES = Math.floor(1.5 * 1024 * 1024 * 1024);
 /** Cap for all in-flight multipart temp data combined. */
-const MAX_CONCURRENT_MULTIPART_BYTES = 2 * 1024 * 1024 * 1024;
+const DEFAULT_MAX_CONCURRENT_MULTIPART_BYTES = 2 * 1024 * 1024 * 1024;
+
+let maxUploadBytes = DEFAULT_MAX_UPLOAD_BYTES;
+let maxConcurrentMultipartBytes = DEFAULT_MAX_CONCURRENT_MULTIPART_BYTES;
 
 interface MultipartUploadState {
   uploadId: string;
@@ -60,6 +59,20 @@ const getMultipartTempDir = async () => {
 
 const generateETag = (data: ArrayBuffer): string =>
   `"${createHash('md5').update(new Uint8Array(data)).digest('hex')}"`;
+
+// Concatenate on-disk parts into `dest` without buffering the assembled file.
+const concatFiles = async (paths: string[], dest: string) => {
+  const out = createWriteStream(dest);
+  try {
+    for (const filePath of paths) {
+      await pipeline(createReadStream(filePath), out, { end: false });
+    }
+  } finally {
+    await new Promise<void>((resolve, reject) => {
+      out.end((err?: Error | null) => (err ? reject(err) : resolve()));
+    });
+  }
+};
 
 // AWS streaming uploads wrap the payload in `<hex-size>\r\n<bytes>\r\n` frames.
 // Strip those frames to recover the original object bytes.
@@ -202,8 +215,8 @@ const loadAcceptableRecording = async (
   return { ok: true, recording };
 };
 
-const processCompleteFile = async (
-  blob: Blob,
+const processCompleteFileFromPath = async (
+  filePath: string,
   recordingId: string,
   recording: JamRecordingWithMeta,
 ) => {
@@ -216,9 +229,8 @@ const processCompleteFile = async (
 
   const event = recording.post.data as Event;
   const newFilename = `${encodeURIComponent(event.name || 'jam-recording')}.mp4`;
-  const file = new File([blob], newFilename, { type: 'video/mp4' });
+  const { key: fileStorageKey } = await storeFromPath(filePath);
   const storage = await mediaStorage();
-  const fileStorageKey = await file.arrayBuffer().then(storage.store);
   const mediaAttachment = await createMediaAttachment({
     url: storage.getPath(fileStorageKey, newFilename),
     previewUrl: event.image ?? `${await serverRootUrl()}/img/event-default.png`,
@@ -247,11 +259,31 @@ const cleanupMultipartUpload = async (uploadId: string) => {
   multipartUploads.delete(uploadId);
 };
 
+// Drop the in-memory upload so concurrent caps free up, but leave the part
+// files on disk for later recovery.
+const abandonMultipartUpload = (uploadId: string, reason: string) => {
+  const state = multipartUploads.get(uploadId);
+  if (!state) return;
+  log.error(
+    `s3: abandoning multipart ${uploadId} (${reason}); keeping parts at ${state.tempDir}`,
+  );
+  multipartUploads.delete(uploadId);
+};
+
 const sendXml = (res: Response, status: number, xml: string) =>
   res.status(status).type('application/xml').send(xml);
 
 const reject = (res: Response, status: number, message: string) => {
   res.status(status).send(message);
+};
+
+const failAndAbandon = async (
+  uploadId: string,
+  recordingId: string,
+  reason: string,
+) => {
+  await failJamRecording(recordingId);
+  abandonMultipartUpload(uploadId, reason);
 };
 
 // Upload a single part (multipart) or a complete small object.
@@ -299,14 +331,14 @@ const handlePut = async (req: Request, res: Response) => {
     const blob = readObjectBody(req);
     const chunkData = await blob.arrayBuffer();
     const nextUploadBytes = state.totalBytes + chunkData.byteLength;
-    if (nextUploadBytes > MAX_UPLOAD_BYTES) {
-      await cleanupMultipartUpload(uploadId);
+    if (nextUploadBytes > maxUploadBytes) {
+      await failAndAbandon(uploadId, recordingId, 'upload too large');
       reject(res, 413, 'Upload too large');
       return;
     }
     if (
       concurrentMultipartBytes() - state.totalBytes + nextUploadBytes >
-      MAX_CONCURRENT_MULTIPART_BYTES
+      maxConcurrentMultipartBytes
     ) {
       reject(res, 413, 'Too much concurrent upload data');
       return;
@@ -338,17 +370,27 @@ const handlePut = async (req: Request, res: Response) => {
       reject(res, gate.status, gate.message);
       return;
     }
+    const tempPath = join(
+      await getMultipartTempDir(),
+      `put-${randomUUID()}.mp4`,
+    );
     try {
-      await processCompleteFile(
-        readObjectBody(req),
-        recordingId,
-        gate.recording,
-      );
+      const blob = readObjectBody(req);
+      if (blob.size > maxUploadBytes) {
+        await failJamRecording(recordingId);
+        reject(res, 413, 'Upload too large');
+        return;
+      }
+      await writeFile(tempPath, Buffer.from(await blob.arrayBuffer()));
+      await processCompleteFileFromPath(tempPath, recordingId, gate.recording);
     } catch (err) {
+      await failJamRecording(recordingId);
+      log.error(`s3: put failed for ${recordingId}; keeping ${tempPath}`, err);
       const status = (err as { status?: number }).status ?? 500;
       reject(res, status, (err as Error).message);
       return;
     }
+    await unlink(tempPath).catch(() => undefined);
     res.json({ success: true });
     return;
   }
@@ -389,7 +431,7 @@ const handlePost = async (req: Request, res: Response) => {
       return;
     }
 
-    if (concurrentMultipartBytes() >= MAX_CONCURRENT_MULTIPART_BYTES) {
+    if (concurrentMultipartBytes() >= maxConcurrentMultipartBytes) {
       reject(res, 413, 'Too much concurrent upload data');
       return;
     }
@@ -438,7 +480,7 @@ const handlePost = async (req: Request, res: Response) => {
 
     const gate = await loadAcceptableRecording(recordingId);
     if (!gate.ok) {
-      await cleanupMultipartUpload(uploadId);
+      abandonMultipartUpload(uploadId, gate.message);
       reject(res, gate.status, gate.message);
       return;
     }
@@ -446,21 +488,24 @@ const handlePost = async (req: Request, res: Response) => {
     const partNumbers = Array.from(state.parts.keys()).sort((a, b) => a - b);
     const hasAllParts = partNumbers.every((num, i) => num === i + 1);
     if (!hasAllParts) {
+      await failAndAbandon(uploadId, recordingId, 'missing parts');
       reject(res, 400, 'Missing parts');
       return;
     }
 
-    const chunks: Uint8Array[] = [];
-    for (const partNum of partNumbers) {
-      const data = await readFile(join(state.tempDir, `part-${partNum}`));
-      chunks.push(new Uint8Array(data));
-    }
-    const finalBlob = new Blob(chunks);
-
+    const assembledPath = join(state.tempDir, 'assembled.mp4');
     try {
-      await processCompleteFile(finalBlob, recordingId, gate.recording);
+      await concatFiles(
+        partNumbers.map((partNum) => join(state.tempDir, `part-${partNum}`)),
+        assembledPath,
+      );
+      await processCompleteFileFromPath(
+        assembledPath,
+        recordingId,
+        gate.recording,
+      );
     } catch (err) {
-      await cleanupMultipartUpload(uploadId);
+      await failAndAbandon(uploadId, recordingId, 'complete failed');
       const status = (err as { status?: number }).status ?? 500;
       reject(res, status, (err as Error).message);
       return;
@@ -484,6 +529,45 @@ const handlePost = async (req: Request, res: Response) => {
   reject(res, 400, 'Invalid request');
 };
 
+// AbortMultipartUpload. LiveKit sends this after a failed part; keep the
+// parts so the recording can still be recovered from disk.
+const handleDelete = async (req: Request, res: Response) => {
+  const { bucket, filename } = req.params as {
+    bucket: string;
+    filename: string;
+  };
+  const uploadId = req.query.uploadId as string | undefined;
+  const recordingId = recordingIdFromFilename(filename);
+
+  if (!recordingId || bucket !== RECORDINGS_BUCKET || !uploadId) {
+    reject(res, 404, 'Not found');
+    return;
+  }
+
+  const auth = await authorizeRecordingRequest(req, recordingId);
+  if (!auth.ok) {
+    reject(res, auth.status, auth.message);
+    return;
+  }
+
+  const state = multipartUploads.get(uploadId);
+  if (!state) {
+    reject(res, 404, 'UploadId not found');
+    return;
+  }
+  if (
+    state.bucket !== bucket ||
+    state.filename !== filename ||
+    state.recordingId !== recordingId
+  ) {
+    reject(res, 403, 'Forbidden');
+    return;
+  }
+
+  await failAndAbandon(uploadId, recordingId, 'client abort');
+  res.status(204).send();
+};
+
 export const installS3Endpoint = (app: Express) => {
   const raw = express.raw({ type: () => true, limit: '1024mb' });
   const wrap =
@@ -497,12 +581,29 @@ export const installS3Endpoint = (app: Express) => {
 
   app.put('/s3/:bucket/:filename', raw, wrap(handlePut));
   app.post('/s3/:bucket/:filename', raw, wrap(handlePost));
+  app.delete('/s3/:bucket/:filename', raw, wrap(handleDelete));
 };
 
 /** Test helpers */
 export const _s3Test = {
-  MAX_UPLOAD_BYTES,
-  MAX_CONCURRENT_MULTIPART_BYTES,
+  DEFAULT_MAX_UPLOAD_BYTES,
+  DEFAULT_MAX_CONCURRENT_MULTIPART_BYTES,
+  get MAX_UPLOAD_BYTES() {
+    return maxUploadBytes;
+  },
+  get MAX_CONCURRENT_MULTIPART_BYTES() {
+    return maxConcurrentMultipartBytes;
+  },
+  setMaxUploadBytes: (value: number) => {
+    maxUploadBytes = value;
+  },
+  setMaxConcurrentMultipartBytes: (value: number) => {
+    maxConcurrentMultipartBytes = value;
+  },
+  resetCaps: () => {
+    maxUploadBytes = DEFAULT_MAX_UPLOAD_BYTES;
+    maxConcurrentMultipartBytes = DEFAULT_MAX_CONCURRENT_MULTIPART_BYTES;
+  },
   multipartUploads,
   concurrentMultipartBytes,
   cleanupMultipartUpload,
