@@ -5,7 +5,38 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **groups**: enhance member search functionality and localization
+- **posts**: show newest descendants in threaded feed preview
+- **attendance**: add export functionality for jam attendees
+- **event-time**: add timezone handling and formatting utilities
+- **plugins**: support private install credentials
+- **conversations**: replace text area with OpenpeepsMarkdownInput for message input
 - **posts**: switchable threaded and linear feeds
+
+### Bug Fixes
+
+- **jams**: keep recording parts on upload failure
+- **api**: stabilize /server/info on a 10-minute bucket
+- **api**: restore theme root fields for old mobile clients
+- **notifications**: unique newProfile recipients by profile id
+- **i18n**: update logo upload text for dark theme in German and English locales
+
+## 2026-09-18
+
+### Bug Fixes
+
+- **api**: stabilize /server/info on a 10-minute bucket
+
+## 2026-09-18
+
+### Bug Fixes
+
+- **api**: restore theme root fields for old mobile clients
+
+## 2026-09-17
+
+### Features
+
 - **admin**: show host memory and CPU on overview
 - **admin**: show media folder size and 24h job counts on overview
 - **cleanup**: remove unused Mastodon API compatibility types
@@ -23,7 +54,6 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
-- **jams**: keep recording parts on upload failure
 - **groups**: backfill membership roles on legacy user_groups edges
 - **cli**: close Redis so backup create and restore can exit
 - **cli**: close Postgres so backup restore can exit
