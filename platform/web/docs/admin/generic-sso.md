@@ -26,9 +26,11 @@ The generic SSO flow works as follows:
 
 When members follow a community link (for example from an email) and are not signed in, they land on `/auth/login`. Each generic SSO provider can expose its own login entry:
 
-1. Set **Id** and **Name** on the provider (the name appears on the login button).
-2. Set **LoginLink** to your identity provider's login page (a full `https://` address, or a path on this community).
-3. Optionally check **OnlySSO** under **Sso** to hide the password form.
+1. Open **Administration → Configuration → SSO**.
+2. Under **Add provider**, choose **Generic**.
+3. Set **Id** and **Name** (the name appears on the login button).
+4. Set **Login link** to your identity provider's login page (a full `https://` address, or a path on this community).
+5. Optionally check **Only SSO** to hide the password form.
 
 Every configured SSO destination is listed on the login page: each generic provider with a valid **LoginLink**, and each OIDC provider. If **OnlySSO** is on and there is exactly one destination, members are redirected there automatically.
 

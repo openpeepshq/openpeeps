@@ -1734,6 +1734,137 @@
   "configuration": {
     "title": "Configuration",
     "sso": {
+      "title": "SSO",
+      "description": "Configure single sign-on providers so members can sign in with GitLab, GitHub, or another identity provider.",
+      "intro": "Add a provider, fill in the fields for that type, and save. Built-in types store endpoint URLs and claim mapping from templates.",
+      "onlySSO": "Only SSO",
+      "onlySSODescription": "Hide the password form and send members to the configured SSO provider(s).",
+      "providers": "Providers",
+      "empty": "No SSO providers are configured yet.",
+      "addTitle": "Add provider",
+      "typeLabel": "Provider type",
+      "saveProvider": "Save provider",
+      "removeProvider": "Remove",
+      "editProvider": "Edit",
+      "cancelEdit": "Cancel",
+      "updateSuccess": "SSO configuration updated.",
+      "duplicateId": "A provider with this id already exists.",
+      "idRequired": "Enter a short, URL-safe id.",
+      "callbackUrl": "Redirect URI",
+      "kind": {
+        "gitlab": "GitLab",
+        "gitlab-selfhosted": "GitLab",
+        "github": "GitHub",
+        "google": "Google",
+        "entra": "Microsoft",
+        "discord": "Discord",
+        "auth0": "Auth0",
+        "okta": "Okta",
+        "keycloak": "Keycloak",
+        "authentik": "Authentik",
+        "pocketid": "Pocket ID",
+        "oidc": "OIDC",
+        "generic": "Generic"
+      },
+      "types": {
+        "gitlab": {
+          "title": "GitLab",
+          "description": "GitLab.com using OpenID Connect."
+        },
+        "gitlab-selfhosted": {
+          "title": "GitLab (self-hosted)",
+          "description": "A self-hosted GitLab instance using OpenID Connect."
+        },
+        "github": {
+          "title": "GitHub",
+          "description": "GitHub.com or GitHub Enterprise. Uses OAuth and the emails API when the profile has no public email."
+        },
+        "google": {
+          "title": "Google",
+          "description": "Google accounts via OpenID Connect."
+        },
+        "entra": {
+          "title": "Microsoft Entra ID",
+          "description": "Microsoft work or school accounts. Optional tenant ID; defaults to common."
+        },
+        "discord": {
+          "title": "Discord",
+          "description": "Discord OAuth. Uses /users/@me for email and builds the avatar CDN URL."
+        },
+        "auth0": {
+          "title": "Auth0",
+          "description": "An Auth0 tenant (your-app.auth0.com)."
+        },
+        "okta": {
+          "title": "Okta",
+          "description": "An Okta org. Uses the default authorization server unless you set another ID."
+        },
+        "keycloak": {
+          "title": "Keycloak",
+          "description": "A Keycloak realm. Needs the server URL and realm name."
+        },
+        "authentik": {
+          "title": "Authentik",
+          "description": "An Authentik instance. Needs the server URL and application slug for JWKS."
+        },
+        "pocketid": {
+          "title": "Pocket ID",
+          "description": "A self-hosted Pocket ID OpenID Connect server."
+        },
+        "oidc": {
+          "title": "OIDC Generic",
+          "description": "Any other OpenID Connect provider. Enter the endpoint URLs yourself."
+        },
+        "generic": {
+          "title": "Generic",
+          "description": "A custom profile API with JSONPath extraction."
+        }
+      },
+      "fields": {
+        "id": "Id",
+        "idHint": "Used in the callback URL. Set this before registering the redirect URI.",
+        "name": "Name",
+        "nameHint": "Shown on the login button.",
+        "instanceUrl": "Instance URL",
+        "instanceUrlHint": {
+          "default": "Base URL of the identity provider.",
+          "github": "Leave empty for github.com, or set your GitHub Enterprise URL.",
+          "gitlab-selfhosted": "Your GitLab host, for example https://gitlab.example.com.",
+          "auth0": "Your Auth0 tenant URL, for example https://your-app.auth0.com.",
+          "okta": "Your Okta org URL, for example https://dev-123.okta.com.",
+          "keycloak": "Your Keycloak server URL, without the realm path.",
+          "authentik": "Your Authentik URL, for example https://auth.example.com.",
+          "pocketid": "Your Pocket ID URL, for example https://id.example.com."
+        },
+        "tenant": "Tenant",
+        "tenantHint": {
+          "default": "Directory, realm, or application identifier.",
+          "entra": "Directory tenant ID, or common / organizations / consumers. Leave empty for common.",
+          "okta": "Authorization server ID. Leave empty for default.",
+          "keycloak": "Keycloak realm name.",
+          "authentik": "Authentik application slug. Used for the JWKS URL."
+        },
+        "tenantLabel": {
+          "entra": "Tenant ID",
+          "okta": "Authorization server",
+          "keycloak": "Realm",
+          "authentik": "Application slug"
+        },
+        "clientId": "Client ID",
+        "clientSecret": "Client secret",
+        "clientSecretHint": "Leave placeholder characters unchanged to keep the saved secret.",
+        "scope": "Scope",
+        "approvalRequired": "Require approval for new accounts",
+        "authorizationUrl": "Authorization URL",
+        "tokenUrl": "Token URL",
+        "userinfoUrl": "Userinfo URL",
+        "jwksUri": "JWKS URI",
+        "loginLink": "Login link",
+        "profileUrl": "Profile request URL",
+        "authHeader": "Authorization header",
+        "createAccounts": "Create accounts",
+        "createProfiles": "Create profiles"
+      },
       "generic": {
         "userProfilePaths": {
           "email": "Email path",

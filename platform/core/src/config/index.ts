@@ -10,6 +10,7 @@ import {
   CapabilitiesConfig,
   capabilitiesConfigSchemaFactory,
 } from '@openpeepshq/common/types';
+import { restorePasswordPlaceholders } from '@openpeepshq/common/lib';
 
 import { zodDeepPartialSchema } from '../lib/zodDeepPartial';
 
@@ -118,13 +119,14 @@ export const updateConfigValues = (
   namespace = 'openpeeps',
   name = 'core',
 ) =>
-  loadConfig(configKey(namespace, name)).then((configDocument) =>
-    replaceStoredConfig(
-      deepmerge(configDocument?.config ?? {}, configValues),
+  loadConfig(configKey(namespace, name)).then((configDocument) => {
+    const stored = configDocument?.config ?? {};
+    return replaceStoredConfig(
+      deepmerge(stored, restorePasswordPlaceholders(configValues, stored)),
       namespace,
       name,
-    ),
-  );
+    );
+  });
 
 export const config = <T = CoreConfig>(
   namespace = 'openpeeps',
