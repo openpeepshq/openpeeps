@@ -4,6 +4,7 @@ import {
   type Event,
   type MediaAttachmentData,
   type PublicPost,
+  type PublicReplyPost,
   type Question,
 } from '@openpeepshq/common';
 import { useNavigation } from '@react-navigation/native';
@@ -17,11 +18,18 @@ import { MainStackParamList } from '~/components/navigation/types';
 import { ThemedText } from '~/components/ui/themed-text';
 import { ThemedView } from '~/components/ui/themed-view';
 
+type CompactPost = Pick<
+  PublicReplyPost,
+  'id' | 'type' | 'profile' | 'data' | 'deletedAt'
+> &
+  Partial<Pick<PublicPost, 'occurrenceStart' | 'occurrenceEnd'>>;
+
 interface CompactReplyParentProps {
-  post: PublicPost;
+  post: CompactPost;
+  className?: string;
 }
 
-const attachmentsOf = (post: PublicPost): MediaAttachmentData[] => {
+const attachmentsOf = (post: CompactPost): MediaAttachmentData[] => {
   const data = post.data as { attachments?: MediaAttachmentData[] } | undefined;
   return data?.attachments ?? [];
 };
@@ -44,7 +52,7 @@ const plainPreview = (markdown?: string): string => {
 
 const visualAttachment = (attachments: MediaAttachmentData[]) =>
   attachments.find(
-    (att) => (isImage(att) || isVideo(att)) && (att.previewUrl || att.url),
+    (att) => (isImage(att) || isVideo(att)) && (att.previewUrl || att.url)
   );
 
 const CompactThumb = ({
@@ -73,7 +81,7 @@ const CompactThumb = ({
   </View>
 );
 
-const compactThumb = (post: PublicPost) => {
+const compactThumb = (post: CompactPost) => {
   switch (post.data?.type) {
     case 'note':
     case 'question': {
@@ -109,13 +117,13 @@ const compactThumb = (post: PublicPost) => {
   }
 };
 
-const CompactTypeBody = ({ post }: { post: PublicPost }) => {
+const CompactTypeBody = ({ post }: { post: CompactPost }) => {
   const { t } = useTranslation();
   switch (post.type) {
     case 'note': {
       const attachments = attachmentsOf(post);
       const text = plainPreview(
-        post.data?.type === 'note' ? post.data.content : '',
+        post.data?.type === 'note' ? post.data.content : ''
       );
       const hasVisual = !!visualAttachment(attachments);
       const docName =
@@ -205,7 +213,10 @@ const CompactTypeBody = ({ post }: { post: PublicPost }) => {
   }
 };
 
-export const CompactReplyParent = ({ post }: CompactReplyParentProps) => {
+export const CompactReplyParent = ({
+  post,
+  className,
+}: CompactReplyParentProps) => {
   const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -214,9 +225,11 @@ export const CompactReplyParent = ({ post }: CompactReplyParentProps) => {
 
   return (
     <Pressable
-      accessibilityLabel={t('posts.compact.viewOriginal')}
+      accessibilityLabel={t('posts.compact.viewPost', {
+        defaultValue: 'View post',
+      })}
       onPress={() => navigation.navigate('Post', { id: post.id })}
-      className="bg-muted mx-2 mb-2 max-h-20 flex-row items-center gap-2 overflow-hidden rounded-lg px-2 py-1.5"
+      className={`bg-muted mx-2 mb-2 max-h-20 flex-row items-center gap-2 overflow-hidden rounded-lg px-2 py-1.5 ${className ?? ''}`}
     >
       <ProfileAvatar profile={post.profile} className="size-8" />
       {post.deletedAt ? (

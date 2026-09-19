@@ -5,6 +5,7 @@ import type {
   Event,
   MediaAttachmentData,
   PublicPost,
+  PublicReplyPost,
   Question,
 } from '@openpeepshq/common/types';
 import { formatEventWhen } from '@openpeepshq/common/lib';
@@ -13,12 +14,18 @@ import { cn } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { Avatar } from '../profile';
 
+export type CompactPost = Pick<
+  PublicReplyPost,
+  'id' | 'type' | 'profile' | 'data' | 'deletedAt'
+> &
+  Partial<Pick<PublicPost, 'occurrenceStart' | 'occurrenceEnd'>>;
+
 export interface CompactReplyParentProps {
-  post: PublicPost;
+  post: CompactPost;
   className?: string;
 }
 
-const attachmentsOf = (post: PublicPost): MediaAttachmentData[] => {
+const attachmentsOf = (post: CompactPost): MediaAttachmentData[] => {
   const data = post.data as { attachments?: MediaAttachmentData[] } | undefined;
   return data?.attachments ?? [];
 };
@@ -90,7 +97,7 @@ const attachmentThumb = (
   );
 };
 
-const compactThumb = (post: PublicPost, t: TFunction): ReactNode => {
+const compactThumb = (post: CompactPost, t: TFunction): ReactNode => {
   const alt = t('posts.compact.imageAlt', { defaultValue: 'Attachment' });
   switch (post.data?.type) {
     case 'note':
@@ -113,7 +120,7 @@ const compactThumb = (post: PublicPost, t: TFunction): ReactNode => {
   }
 };
 
-const CompactNoteBody = ({ post, t }: { post: PublicPost; t: TFunction }) => {
+const CompactNoteBody = ({ post, t }: { post: CompactPost; t: TFunction }) => {
   if (post.data?.type !== 'note') return null;
   const attachments = attachmentsOf(post);
   const text = plainPreview(post.data.content);
@@ -141,7 +148,7 @@ const CompactQuestionBody = ({
   post,
   t,
 }: {
-  post: PublicPost;
+  post: CompactPost;
   t: TFunction;
 }) => {
   if (post.data?.type !== 'question') return null;
@@ -163,7 +170,7 @@ const CompactQuestionBody = ({
   );
 };
 
-const CompactEventBody = ({ post }: { post: PublicPost }) => {
+const CompactEventBody = ({ post }: { post: CompactPost }) => {
   if (post.data?.type !== 'event') return null;
   const event = post.data as Event;
   const start = post.occurrenceStart ?? event.start;
@@ -184,14 +191,14 @@ const CompactEventBody = ({ post }: { post: PublicPost }) => {
   );
 };
 
-const CompactArticleBody = ({ post }: { post: PublicPost }) => {
+const CompactArticleBody = ({ post }: { post: CompactPost }) => {
   if (post.data?.type !== 'article') return null;
   const title = (post.data as Article).title?.trim();
   if (!title) return null;
   return <p className="line-clamp-2 text-sm font-medium">{title}</p>;
 };
 
-const CompactTypeBody = ({ post, t }: { post: PublicPost; t: TFunction }) => {
+const CompactTypeBody = ({ post, t }: { post: CompactPost; t: TFunction }) => {
   switch (post.type) {
     case 'note':
       return <CompactNoteBody post={post} t={t} />;
@@ -222,8 +229,8 @@ export const CompactReplyParent = ({
     <a
       href={`/posts/${post.id}`}
       onClick={stopNestedNav}
-      aria-label={t('posts.compact.viewOriginal', {
-        defaultValue: 'View original post',
+      aria-label={t('posts.compact.viewPost', {
+        defaultValue: 'View post',
       })}
       className={cn(
         'bg-muted mx-0.5 mb-2 flex max-h-20 items-center gap-2 overflow-hidden rounded-lg px-2 py-1.5',
