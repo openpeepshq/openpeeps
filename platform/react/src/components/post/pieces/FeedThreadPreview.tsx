@@ -1,30 +1,15 @@
 import type { PublicPost, PublicReplyPost } from '@openpeepshq/common/types';
 import { buildThreadPreview } from '@openpeepshq/common/lib';
-import { UpdatingDate, cn } from '@openpeepshq/react-ui';
+import { cn } from '@openpeepshq/react-ui';
 import { MessageCircle } from 'lucide-react';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
-import { Avatar } from '../../profile';
-import { firstNWords } from '../helpers';
+import { CompactReplyParent } from '../CompactReplyParent';
 import { UnreadPostIndicator } from './UnreadPostIndicator';
 
 export interface FeedThreadPreviewProps {
   post: PublicPost;
 }
-
-const previewText = (reply: PublicReplyPost, words = 28): string => {
-  const data = reply.data;
-  if ('name' in data && typeof data.name === 'string' && data.name.trim()) {
-    return data.name;
-  }
-  if ('title' in data && typeof data.title === 'string' && data.title.trim()) {
-    return data.title;
-  }
-  if ('content' in data && typeof data.content === 'string') {
-    return firstNWords(data.content, words);
-  }
-  return '';
-};
 
 const indentClass = ['', 'pl-3', 'pl-6', 'pl-9'] as const;
 
@@ -38,45 +23,20 @@ const ThreadReplyRow = ({
   indent: number;
   muted?: boolean;
   isUnread?: boolean;
-}) => {
-  const text = previewText(reply, muted ? 12 : 28);
-  return (
-    <div
-      className={cn(
-        'relative flex min-w-0 gap-2',
-        indentClass[Math.min(indent, indentClass.length - 1)],
-      )}
-    >
-      <UnreadPostIndicator show={!!isUnread} className="-left-3.5 top-3" />
-      <Avatar profile={reply.profile} size={muted ? 1.5 : 2} borderless />
-      <div className="min-w-0 flex-1">
-        <div className="flex min-w-0 items-baseline gap-1.5">
-          <span
-            className={cn(
-              'truncate font-semibold',
-              muted ? 'text-muted-foreground text-xs' : 'text-sm',
-            )}
-          >
-            {reply.profile.displayName || `@${reply.profile.handle}`}
-          </span>
-          <span className="text-muted-foreground shrink-0 text-xs">
-            <UpdatingDate date={reply.createdAt} />
-          </span>
-        </div>
-        {text ? (
-          <p
-            className={cn(
-              'text-muted-foreground text-sm',
-              muted ? 'line-clamp-1' : 'line-clamp-2',
-            )}
-          >
-            {text}
-          </p>
-        ) : null}
-      </div>
-    </div>
-  );
-};
+}) => (
+  <div
+    className={cn(
+      'relative min-w-0',
+      indentClass[Math.min(indent, indentClass.length - 1)],
+    )}
+  >
+    <UnreadPostIndicator show={!!isUnread} className="-left-3.5 top-3" />
+    <CompactReplyParent
+      post={reply}
+      className={cn('mx-0 mb-0', muted && 'opacity-70')}
+    />
+  </div>
+);
 
 /**
  * Nested conversation under a timeline original: newest descendants stay in

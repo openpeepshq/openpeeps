@@ -47,7 +47,10 @@ export type { ThreadedFeedProps } from './feed/threaded/ThreadedFeed';
 export { ThreadPost } from './feed/threaded/ThreadPost';
 export type { ThreadPostProps } from './feed/threaded/ThreadPost';
 export { CompactReplyParent } from './CompactReplyParent';
-export type { CompactReplyParentProps } from './CompactReplyParent';
+export type {
+  CompactPost,
+  CompactReplyParentProps,
+} from './CompactReplyParent';
 export { FeedFormatSwitch } from './FeedFormatSwitch';
 export { CardEvent } from './types/event/CardEvent';
 export type { CardEventProps } from './types/event/CardEvent';
