@@ -21,6 +21,9 @@ describe('configurationPluginPageSlug', () => {
         'plugins.admin.configuration.server-settings',
       ),
     ).toBe(null);
+    expect(configurationPluginPageSlug('plugins.admin.configuration.sso')).toBe(
+      null,
+    );
   });
 
   it('rejects nested or unknown prefixes', () => {

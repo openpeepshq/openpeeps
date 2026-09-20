@@ -173,81 +173,103 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
         requestTimeout: z.number(),
       }),
     }),
-    sso: z.object({
-      onlySSO: z.boolean().optional(),
-      generic: z
-        .object({
-          id: z.string().default('example-generic'),
-          name: z.string().default('Generic SSO'),
-          /** URL or path shown on the login page to start this provider's flow. */
-          loginLink: z.string().optional(),
-          userProfileRequest: z.object({
-            url: z.string(),
-            authHeader: z.string().optional(),
-          }),
-          userProfilePaths: z.object({
-            email: z.string(),
-            handle: z.string().optional(),
-            avatar: z.string().optional(),
-            displayName: z.string().optional(),
-          }),
-          createAccounts: z.boolean().optional(),
-          createProfiles: z.boolean().optional(),
-        })
-        .default({
-          id: 'example-generic',
-          name: 'Generic SSO',
-          loginLink: '',
-          userProfileRequest: {
-            url: 'https://example.com/profile',
-            authHeader: 'Bearer ${token}',
-          },
-          userProfilePaths: {
-            email: '$.data.account.email',
-          },
-          createAccounts: true,
-          createProfiles: true,
-        })
-        .array(),
-      oidc: z
-        .object({
-          id: z.string(),
-          name: z.string(),
-          authorizationUrl: z.string(),
-          tokenUrl: z.string(),
-          userinfoUrl: z.string(),
-          jwksUri: z.string().optional(),
-          clientId: z.string(),
-          clientSecret: password(sanitize).optional(),
-          scope: z.string().optional(),
-          claimMapping: z
-            .object({
-              email: z.string().optional(),
+    sso: z
+      .object({
+        onlySSO: z.boolean().optional(),
+        generic: z
+          .object({
+            id: z.string().default('example-generic'),
+            name: z.string().default('Generic SSO'),
+            /** URL or path shown on the login page to start this provider's flow. */
+            loginLink: z.string().optional(),
+            userProfileRequest: z.object({
+              url: z.string(),
+              authHeader: z.string().optional(),
+            }),
+            userProfilePaths: z.object({
+              email: z.string(),
               handle: z.string().optional(),
-              displayName: z.string().optional(),
               avatar: z.string().optional(),
-            })
-            .optional(),
-          approvalRequired: z.boolean().optional(),
-        })
-        .default({
-          id: 'example-oidc',
-          name: 'OIDC Provider',
-          authorizationUrl: 'https://example.com/authorize',
-          tokenUrl: 'https://example.com/token',
-          userinfoUrl: 'https://example.com/userinfo',
-          clientId: '',
-          scope: 'openid email profile',
-          claimMapping: {
-            email: 'email',
-            handle: 'preferred_username',
-            displayName: 'name',
-            avatar: 'picture',
-          },
-          approvalRequired: false,
-        })
-        .array(),
-    }),
+              displayName: z.string().optional(),
+            }),
+            createAccounts: z.boolean().optional(),
+            createProfiles: z.boolean().optional(),
+          })
+          .default({
+            id: 'example-generic',
+            name: 'Generic SSO',
+            loginLink: '',
+            userProfileRequest: {
+              url: 'https://example.com/profile',
+              authHeader: 'Bearer ${token}',
+            },
+            userProfilePaths: {
+              email: '$.data.account.email',
+            },
+            createAccounts: true,
+            createProfiles: true,
+          })
+          .array(),
+        oidc: z
+          .object({
+            id: z.string(),
+            name: z.string(),
+            kind: z
+              .enum([
+                'oidc',
+                'github',
+                'gitlab',
+                'gitlab-selfhosted',
+                'google',
+                'entra',
+                'auth0',
+                'keycloak',
+                'authentik',
+                'okta',
+                'discord',
+                'pocketid',
+              ])
+              .optional(),
+            instanceUrl: z.string().optional(),
+            tenant: z.string().optional(),
+            authorizationUrl: z.string(),
+            tokenUrl: z.string(),
+            userinfoUrl: z.string(),
+            emailsUrl: z.string().optional(),
+            jwksUri: z.string().optional(),
+            clientId: z.string(),
+            clientSecret: password(sanitize).optional(),
+            scope: z.string().optional(),
+            claimMapping: z
+              .object({
+                email: z.string().optional(),
+                handle: z.string().optional(),
+                displayName: z.string().optional(),
+                avatar: z.string().optional(),
+              })
+              .optional(),
+            approvalRequired: z.boolean().optional(),
+          })
+          .default({
+            id: 'example-oidc',
+            name: 'OIDC Provider',
+            kind: 'oidc',
+            authorizationUrl: 'https://example.com/authorize',
+            tokenUrl: 'https://example.com/token',
+            userinfoUrl: 'https://example.com/userinfo',
+            clientId: '',
+            scope: 'openid email profile',
+            claimMapping: {
+              email: 'email',
+              handle: 'preferred_username',
+              displayName: 'name',
+              avatar: 'picture',
+            },
+            approvalRequired: false,
+          })
+          .array(),
+      })
+      .describe('hidden'),
     services: z.object({
       sentry: z.object({
         enabled: z.boolean(),

@@ -1,6 +1,13 @@
 import { createHash, randomBytes } from 'node:crypto';
 
-import { clampProfileDisplayName } from '@openpeepshq/common/lib';
+import {
+  clampProfileDisplayName,
+  discordAvatarUrl,
+  githubEmailsUrl,
+  parseOAuthTokenBody,
+  pickOAuthEmail,
+  ssoOidcKind,
+} from '@openpeepshq/common/lib';
 import { z } from '#lib/endpoint';
 import {
   findNewFreeHandle,
@@ -59,9 +66,13 @@ const extractProfileDataFromOidc = async (
 
   const handle = await findNewFreeHandle(handleSeed);
 
-  const avatar = oidcConfig.claimMapping?.avatar
+  const mappedAvatar = oidcConfig.claimMapping?.avatar
     ? (claims[oidcConfig.claimMapping.avatar] as string | undefined)
     : undefined;
+  const avatar =
+    ssoOidcKind(oidcConfig) === 'discord'
+      ? discordAvatarUrl(claims)
+      : mappedAvatar;
 
   const displayNameKey = oidcConfig.claimMapping?.displayName || 'name';
   let displayName = claims[displayNameKey] as string | undefined;
@@ -105,22 +116,29 @@ const fetchToken = async (
 
   const tokenResponse = await fetch(oidcConfig.tokenUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'User-Agent': 'OpenPeeps',
+    },
     body: body.toString(),
   });
 
+  const responseBody = await tokenResponse.text();
   if (!tokenResponse.ok) {
-    const errorBody = await tokenResponse.text();
     log.error(
-      { status: tokenResponse.status, body: errorBody },
+      { status: tokenResponse.status, body: responseBody },
       'OIDC token exchange failed',
     );
     throw new Error(
-      `OIDC token exchange failed: ${tokenResponse.status} ${errorBody}`,
+      `OIDC token exchange failed: ${tokenResponse.status} ${responseBody}`,
     );
   }
 
-  return (await tokenResponse.json()) as Record<string, unknown>;
+  return parseOAuthTokenBody(
+    responseBody,
+    tokenResponse.headers.get('content-type'),
+  );
 };
 
 const verifyAndDecodeToken = async (
@@ -143,7 +161,11 @@ const fetchUserinfo = async (
   accessToken: string,
 ): Promise<Record<string, unknown>> => {
   const response = await fetch(oidcConfig.userinfoUrl, {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      'User-Agent': 'OpenPeeps',
+    },
   });
 
   if (!response.ok) {
@@ -152,6 +174,24 @@ const fetchUserinfo = async (
   }
 
   return (await response.json()) as Record<string, unknown>;
+};
+
+const fetchEmails = async (
+  emailsUrl: string,
+  accessToken: string,
+): Promise<unknown> => {
+  const response = await fetch(emailsUrl, {
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      'User-Agent': 'OpenPeeps',
+    },
+  });
+  if (!response.ok) {
+    log.warn({ status: response.status }, 'SSO emails endpoint failed');
+    return undefined;
+  }
+  return response.json();
 };
 
 const getRedirectUri = async (providerId: string): Promise<string> => {
@@ -278,22 +318,25 @@ export const callback = async (
   );
 
   const idToken = tokenData.id_token as string | undefined;
-  if (!idToken) {
-    throw new Error('No id_token received from OIDC provider');
-  }
-
-  let claims: Record<string, unknown>;
-  try {
-    claims = await verifyAndDecodeToken(provider, idToken);
-  } catch (err) {
-    log.error({ error: err }, 'JWT verification failed, using raw token claims');
-    const { decodeJwt } = await import('jose');
-    claims = decodeJwt(idToken) as Record<string, unknown>;
+  let claims: Record<string, unknown> = {};
+  if (idToken) {
+    try {
+      claims = await verifyAndDecodeToken(provider, idToken);
+    } catch (err) {
+      log.error(
+        { error: err },
+        'JWT verification failed, using raw token claims',
+      );
+      const { decodeJwt } = await import('jose');
+      claims = decodeJwt(idToken) as Record<string, unknown>;
+    }
   }
 
   const accessToken = tokenData.access_token as string | undefined;
-  if (!claims || Object.keys(claims).length === 0) {
-    claims = accessToken ? await fetchUserinfo(provider, accessToken) : {};
+  if (accessToken && provider.userinfoUrl) {
+    const userinfoData = await fetchUserinfo(provider, accessToken);
+    log.info({ userinfo: JSON.stringify(userinfoData) }, 'OIDC userinfo');
+    claims = { ...claims, ...userinfoData };
   }
 
   log.info(
@@ -304,14 +347,22 @@ export const callback = async (
     'OIDC resolved claims',
   );
 
-  // If claims lack email, try userinfo endpoint as fallback
-  if (!claims.email && accessToken && provider.userinfoUrl) {
-    const userinfoData = await fetchUserinfo(provider, accessToken);
-    log.info({ userinfo: JSON.stringify(userinfoData) }, 'OIDC userinfo fallback');
-    claims = { ...claims, ...userinfoData };
-  }
-
   let email = extractEmail(claims, provider);
+  const emailsUrl = githubEmailsUrl(provider);
+  if (
+    (!email || !z.string().email().safeParse(email).success) &&
+    accessToken &&
+    emailsUrl
+  ) {
+    const fromEmails = pickOAuthEmail(
+      await fetchEmails(emailsUrl, accessToken),
+    );
+    if (fromEmails) {
+      const emailKey = provider.claimMapping?.email || 'email';
+      claims = { ...claims, [emailKey]: fromEmails };
+      email = fromEmails;
+    }
+  }
 
   // Fallback: construct email from username/sub + issuer domain if no email claim
   if (!email || !z.string().email().safeParse(email).success) {
@@ -385,7 +436,11 @@ export const callback = async (
     email: normalizedEmail,
     password: uuidv4(),
     emailValidated: true,
-    profile: await extractProfileDataFromOidc(claims, provider, normalizedEmail),
+    profile: await extractProfileDataFromOidc(
+      claims,
+      provider,
+      normalizedEmail,
+    ),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
 

@@ -1009,6 +1009,9 @@ importers:
       react-i18next:
         specifier: ^15.4.1
         version: 15.4.1(i18next@24.2.3(typescript@5.7.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      simple-icons:
+        specifier: ^16.31.0
+        version: 16.31.0
       uuidv7:
         specifier: ^1.0.2
         version: 1.0.2
@@ -14262,6 +14265,10 @@ packages:
 
   signal-polyfill@0.2.2:
     resolution: {integrity: sha512-p63Y4Er5/eMQ9RHg0M0Y64NlsQKpiu6MDdhBXpyywRuWiPywhJTpKJ1iB5K2hJEbFZ0BnDS7ZkJ+0AfTuL37Rg==}
+
+  simple-icons@16.31.0:
+    resolution: {integrity: sha512-dDEqvQrmxL7ZnqQtGHGjCNW6CfiwzAif+83Hol9JXAnAB6wh2zsZD7Sc1kWT0O/RRAKt7xfG8W6UZhYBPD+GAA==}
+    engines: {node: '>=0.12.18'}
 
   simple-swizzle@0.2.2:
     resolution: {integrity: sha512-JA//kQgZtbuY83m+xT+tXJkmJncGMTFT+C+g2h2R9uxkYIrE2yy9sgmcLhCnw57/WSD+Eh3J97FPEDFnbXnDUg==}
@@ -30383,6 +30390,8 @@ snapshots:
   signal-exit@4.1.0: {}
 
   signal-polyfill@0.2.2: {}
+
+  simple-icons@16.31.0: {}
 
   simple-swizzle@0.2.2:
     dependencies:

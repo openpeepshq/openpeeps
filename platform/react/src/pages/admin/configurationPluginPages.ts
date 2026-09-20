@@ -4,6 +4,7 @@ const RESERVED_CONFIGURATION_SLUGS = new Set([
   'community',
   'email',
   'i18n',
+  'sso',
   'server',
   'server-settings',
 ]);

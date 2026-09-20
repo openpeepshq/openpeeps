@@ -15,7 +15,7 @@ If you're trying to access the Release Notes, you may visit the [Release Notes](
 - [Theming](/docs/admin/theming) - Personalize your community's look and feel with images, colors, and fonts.
 - [Content](/docs/admin/messaging) - Learn how to customize the content that appears to your members, such as the welcome page, about page tagline, and other text.
 
-- [Setting Up OIDC SSO](/docs/admin/oidc-sso) - Configure OpenID Connect sign-in with external identity providers
+- [Setting Up OIDC SSO](/docs/admin/oidc-sso) - Configure OpenID Connect, GitLab, and GitHub sign-in on the SSO page
 - [Setting Up Generic SSO](/docs/admin/generic-sso) - Configure single sign-on authentication with external providers
 
 

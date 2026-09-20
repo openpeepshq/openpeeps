@@ -87,6 +87,8 @@ export { AdminDiagnostics } from './admin/Diagnostics';
 export { AdminDiagnosticsEmail } from './admin/DiagnosticsEmail';
 export { AdminDiagnosticsLogs } from './admin/DiagnosticsLogs';
 export { AdminConfigurationEmail } from './admin/ConfigurationEmail';
+export { AdminConfigurationSso } from './admin/ConfigurationSso';
+export { AdminConfigurationSsoNew } from './admin/ConfigurationSsoNew';
 export { AccessTokensSettings } from './settings/AccessTokens';
 export { BlockedSettings } from './settings/Blocked';
 export { LanguageSettings } from './settings/Language';
