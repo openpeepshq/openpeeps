@@ -61,6 +61,30 @@ export function Login() {
   const ssoRedirect =
     onlySsoView.mode === 'redirect' ? onlySsoView.href : undefined;
 
+  // #region agent log
+  fetch('http://127.0.0.1:7499/ingest/27c2d08d-4470-4015-abd2-33d1e0e3ecd8', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Debug-Session-Id': 'a0a46a',
+    },
+    body: JSON.stringify({
+      sessionId: 'a0a46a',
+      hypothesisId: 'A',
+      location: 'Login.tsx:render',
+      message: 'login render',
+      data: {
+        onlySSO: !!serverInfo.sso?.onlySSO,
+        oidc: (serverInfo.sso?.oidc ?? []).map((provider) => provider.id),
+        mode: onlySsoView.mode,
+        destinations: destinations.length,
+        ssoRedirect: ssoRedirect ?? null,
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
+
   useEffect(() => {
     if (!ssoRedirect) return;
     window.location.replace(ssoRedirect);

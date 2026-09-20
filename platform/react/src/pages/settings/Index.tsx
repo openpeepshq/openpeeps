@@ -28,6 +28,11 @@ export function Settings() {
         testId="settings-link-public-profile"
       />
       <ConfigMenuButton
+        translationPrefix="settings.account"
+        action="/settings/account"
+        testId="settings-link-account"
+      />
+      <ConfigMenuButton
         translationPrefix="settings.blocked"
         action="/settings/blocked"
         testId="settings-link-blocked"

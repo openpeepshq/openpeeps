@@ -801,19 +801,19 @@ test.describe('user actions (API)', () => {
 
     const selfBlock = await request.post(
       `/api/openpeeps/core/v1/profiles/${a.profile.id}/block`,
-      { headers: apiHeaders(a.token) },
+      { headers: apiHeaders(a.token), data: {} },
     );
-    expect(selfBlock.status()).toBe(403);
+    expect(selfBlock.status(), await selfBlock.text()).toBe(403);
 
     const block = await request.post(
       `/api/openpeeps/core/v1/profiles/${b.profile.id}/block`,
-      { headers: apiHeaders(a.token) },
+      { headers: apiHeaders(a.token), data: {} },
     );
     expect(block.ok(), await block.text()).toBeTruthy();
 
     const again = await request.post(
       `/api/openpeeps/core/v1/profiles/${b.profile.id}/block`,
-      { headers: apiHeaders(a.token) },
+      { headers: apiHeaders(a.token), data: {} },
     );
     expect(again.ok(), await again.text()).toBeTruthy();
 

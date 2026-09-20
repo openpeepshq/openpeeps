@@ -52,6 +52,13 @@ export type ProfileHooks = {
   unfollowProfileAction: (defaultPathParams?: {
     id: string;
   }) => (pathParams?: { id: string }) => Promise<SuccessResponse>;
+  blockProfileAction: (defaultPathParams?: {
+    id: string;
+  }) => (pathParams?: { id: string }) => Promise<SuccessResponse>;
+  unblockProfileAction: (defaultPathParams?: {
+    id: string;
+  }) => (pathParams?: { id: string }) => Promise<SuccessResponse>;
+  useBlockedProfiles: () => Query<PublicProfile[]>;
   useCurrentProfile: () => Query<ProfileWithMeta>;
   updateCurrentProfileAction: (
     defaultPathParams?: undefined,

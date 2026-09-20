@@ -216,7 +216,73 @@ function I18nBoot({ children }: { children: ReactNode }) {
   const [i18n, setI18n] = useState<I18nInstance | null>(null);
 
   useEffect(() => {
-    initI18N(resolveInitialLanguage(communityDefault), baseUrl).then(setI18n);
+    const lang = resolveInitialLanguage(communityDefault);
+    // #region agent log
+    fetch('http://127.0.0.1:7499/ingest/27c2d08d-4470-4015-abd2-33d1e0e3ecd8', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Debug-Session-Id': 'a0a46a',
+      },
+      body: JSON.stringify({
+        sessionId: 'a0a46a',
+        hypothesisId: 'C',
+        location: 'App.tsx:I18nBoot',
+        message: 'i18n init start',
+        data: { lang, baseUrl, communityDefault: communityDefault ?? null },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+    initI18N(lang, baseUrl)
+      .then((instance) => {
+        // #region agent log
+        fetch(
+          'http://127.0.0.1:7499/ingest/27c2d08d-4470-4015-abd2-33d1e0e3ecd8',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Debug-Session-Id': 'a0a46a',
+            },
+            body: JSON.stringify({
+              sessionId: 'a0a46a',
+              hypothesisId: 'C',
+              location: 'App.tsx:I18nBoot',
+              message: 'i18n init resolved',
+              data: { lang },
+              timestamp: Date.now(),
+            }),
+          },
+        ).catch(() => {});
+        // #endregion
+        setI18n(instance);
+      })
+      .catch((error: unknown) => {
+        // #region agent log
+        fetch(
+          'http://127.0.0.1:7499/ingest/27c2d08d-4470-4015-abd2-33d1e0e3ecd8',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Debug-Session-Id': 'a0a46a',
+            },
+            body: JSON.stringify({
+              sessionId: 'a0a46a',
+              hypothesisId: 'C',
+              location: 'App.tsx:I18nBoot',
+              message: 'i18n init rejected',
+              data: {
+                lang,
+                error: error instanceof Error ? error.message : String(error),
+              },
+              timestamp: Date.now(),
+            }),
+          },
+        ).catch(() => {});
+        // #endregion
+      });
   }, [communityDefault]);
 
   if (!i18n) return <BootSplash />;

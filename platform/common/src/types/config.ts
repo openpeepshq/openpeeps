@@ -402,7 +402,7 @@ const addWildCardOptions = (
     [...firstLevelCategories].map((flc) => `${flc}-${wildCard}`),
     [...secondLevelCategories].flatMap((slc) => [
       ...slc,
-      `${slc.keys().next().value}-${wildCard}`,
+      ...[...slc].map((key) => `${key}-${wildCard}`),
     ]),
   ].flat() as [string, ...string[]];
 };

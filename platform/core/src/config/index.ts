@@ -18,6 +18,7 @@ import { defaultCommunityConfig } from './defaults/community';
 import { default as logsConfig } from './defaults/logs';
 import { default as dbConfig } from './defaults/db';
 import { hub } from '../events';
+import { stablePublicServerInfo } from '../server/stablePublicServerInfo';
 import { loadConfig, storeConfig } from './db';
 import { defaultCapabilitiesConfig } from './defaults/capabilities';
 import { pruneEmptyConfigStrings } from './pruneEmptyConfigStrings';
@@ -94,6 +95,9 @@ const initConfig = async <T = CoreConfig>(
 
 export const refreshConfig = (namespace = 'openpeeps', name = 'core') => {
   configPromises.set(configKey(namespace, name), initConfig(namespace, name));
+  // /server/info is bucket-cached so RN clients do not remount. Drop that
+  // snapshot when config changes or SSO/theme patches stay invisible.
+  stablePublicServerInfo.reset();
 };
 
 /** Full-document write. Prefer `updateConfigValues` for patches. */

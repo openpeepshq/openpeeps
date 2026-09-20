@@ -17,7 +17,9 @@ export function Profile() {
   const { openpeepsApi } = useOpenpeeps();
 
   const profileQuery = openpeepsApi.useProfileByHandle(handle);
-  const profile = me?.handle === handle ? me : (profileQuery.data ?? undefined);
+  const isOwnProfile = me?.handle === handle;
+  const profile = isOwnProfile ? me : (profileQuery.data ?? undefined);
+  const blockedByMe = !isOwnProfile && !!profileQuery.data?.blockedByMe;
 
   useSetPageHeader(profile?.displayName || `@${handle}`);
 
@@ -41,7 +43,7 @@ export function Profile() {
   return (
     <AccessDeniedLoader queries={[profileQuery]} fallbackError={notFound}>
       {profile ? (
-        profile.blockedByMe ? (
+        blockedByMe ? (
           <div>
             <ProfileHeader profile={profile} isCurrentProfile={false} />
             <div className="flex flex-col items-center px-4 pb-8">

@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { updateConfigValues } from './index';
 
-const { loadConfig, storeConfig } = vi.hoisted(() => ({
+const { loadConfig, storeConfig, resetServerInfo } = vi.hoisted(() => ({
   loadConfig: vi.fn(),
   storeConfig: vi.fn(),
+  resetServerInfo: vi.fn(),
 }));
 
 vi.mock('./db', () => ({
@@ -15,10 +16,15 @@ vi.mock('../events', () => ({
   hub: { emit: vi.fn() },
 }));
 
+vi.mock('../server/stablePublicServerInfo', () => ({
+  stablePublicServerInfo: { reset: resetServerInfo },
+}));
+
 describe('updateConfigValues', () => {
   beforeEach(() => {
     loadConfig.mockReset();
     storeConfig.mockReset();
+    resetServerInfo.mockReset();
     storeConfig.mockResolvedValue({ config: {} });
   });
 
@@ -53,6 +59,7 @@ describe('updateConfigValues', () => {
         info: { name: 'Inside AllPeeP', tagLine: 'new tagline' },
       },
     });
+    expect(resetServerInfo).toHaveBeenCalledOnce();
   });
 
   it('does not wipe theme when only info is patched onto an empty store', async () => {

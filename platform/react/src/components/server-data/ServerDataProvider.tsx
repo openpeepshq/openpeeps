@@ -36,6 +36,63 @@ export function ServerDataProvider({
     !capabilitiesQuery.data ||
     !serverInfoQuery.data
   ) {
+    // #region agent log
+    fetch('http://127.0.0.1:7499/ingest/27c2d08d-4470-4015-abd2-33d1e0e3ecd8', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Debug-Session-Id': 'a0a46a',
+      },
+      body: JSON.stringify({
+        sessionId: 'a0a46a',
+        hypothesisId: 'B',
+        location: 'ServerDataProvider.tsx:fallback',
+        message: 'server data still blocked',
+        data: {
+          capLoading: capabilitiesQuery.isLoading,
+          infoLoading: serverInfoQuery.isLoading,
+          capHasData: !!capabilitiesQuery.data,
+          infoHasData: !!serverInfoQuery.data,
+          capStatus: capabilitiesQuery.status,
+          infoStatus: serverInfoQuery.status,
+          capError:
+            capabilitiesQuery.error instanceof Error
+              ? capabilitiesQuery.error.message
+              : capabilitiesQuery.error
+                ? String(capabilitiesQuery.error)
+                : null,
+          infoError:
+            serverInfoQuery.error instanceof Error
+              ? serverInfoQuery.error.message
+              : serverInfoQuery.error
+                ? String(serverInfoQuery.error)
+                : null,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    console.warn(
+      '[dbg-B] server data blocked',
+      JSON.stringify({
+        capStatus: capabilitiesQuery.status,
+        infoStatus: serverInfoQuery.status,
+        capHasData: !!capabilitiesQuery.data,
+        infoHasData: !!serverInfoQuery.data,
+        capError:
+          capabilitiesQuery.error instanceof Error
+            ? capabilitiesQuery.error.message
+            : capabilitiesQuery.error
+              ? String(capabilitiesQuery.error)
+              : null,
+        infoError:
+          serverInfoQuery.error instanceof Error
+            ? serverInfoQuery.error.message
+            : serverInfoQuery.error
+              ? String(serverInfoQuery.error)
+              : null,
+      }),
+    );
+    // #endregion
     return <>{fallback}</>;
   }
 
