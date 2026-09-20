@@ -53,6 +53,20 @@ describe('createStableLoader', () => {
     expect(calls).toBe(2);
   });
 
+  it('reloads after reset in the same bucket', async () => {
+    const loader = createStableLoader<number>(tenMin);
+    let calls = 0;
+    const load = async () => {
+      calls += 1;
+      return calls;
+    };
+
+    expect(await loader.get(load, 0)).toBe(1);
+    loader.reset();
+    expect(await loader.get(load, 0)).toBe(2);
+    expect(calls).toBe(2);
+  });
+
   it('coalesces concurrent misses into one load', async () => {
     const loader = createStableLoader<number>(tenMin);
     let calls = 0;
