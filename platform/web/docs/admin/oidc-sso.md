@@ -29,9 +29,9 @@ You can also link directly to that path if you want a custom entry point.
 
 ### Sending members straight to SSO
 
-Check **OnlySSO** under **Sso** on the Server Settings page if members
-should not see the community password form (for example because they
-arrive from email links).
+Check **Only SSO** on the SSO configuration page if members should not
+see the community password form (for example because they arrive from
+email links).
 
 - One SSO destination: `/auth/login` redirects to that provider.
 - Several destinations (multiple OIDC providers and/or generic providers
@@ -68,26 +68,53 @@ Administrators with a password account can use the visually hidden
 
 ## Configuration
 
-OIDC providers are configured on the **Server Settings** page in the admin
-area. The form is generated from the server configuration schema — you do not
-need to edit JSON directly.
+OIDC, GitLab, and GitHub providers are configured on the **SSO** page in the
+admin area.
 
-### Open server settings
+### Open SSO settings
 
 1. Log in as a community owner.
 2. Open **Administration → Configuration**.
-3. Choose **Server Settings** (or go directly to
-   `/admin/configuration/server-settings`).
+3. Choose **SSO** (or go directly to `/admin/configuration/sso`).
 
-### Add an OIDC provider
+### Add a provider
 
-1. Scroll to the **Sso** section.
-2. Under **Oidc**, click **+** (Add) to create a new provider entry.
-3. Fill in the fields for that entry (see below).
-4. Click **Submit** at the bottom of the page to save.
+1. Under **Add provider**, click a provider type.
+2. On the next page, fill in the fields for that type. The **Id** is
+   prefilled (for example `github`, or `github-2` if that id is taken).
+   Built-in types fill endpoint URLs, scopes, and claim mapping from
+   templates when you save.
+3. Click **Save provider**.
 
-You can add multiple providers by clicking **+** again. Use **−** (Remove) to
-delete an entry you no longer need.
+Use **Edit** or **Remove** on an existing entry to change or delete it.
+
+Built-in OpenID Connect presets: **GitLab**, **GitLab (self-hosted)**,
+**Google**, **Microsoft Entra ID**, **Auth0**, **Okta**, **Keycloak**,
+**Authentik**, and **Pocket ID**. **GitHub** and **Discord** use the same
+OIDC routes with OAuth-only accommodations (no `id_token`).
+
+### GitHub
+
+GitHub user login is OAuth 2.0, not a full OpenID Connect IdP: it does not
+return an `id_token`. OpenPeep still stores GitHub under `sso.oidc` and uses
+the same `/sso/oidc/{id}` authorize/callback routes. After the token
+exchange it reads `/user` and, when email is missing, `/user/emails`
+(requires the `user:email` scope).
+
+Register the OIDC callback URL below with the GitHub OAuth App. For GitHub
+Enterprise, set **Instance URL** to your host; public GitHub can leave that
+field empty.
+
+### GitLab
+
+**GitLab** is GitLab.com. **GitLab (self-hosted)** needs your GitLab host;
+saving writes the authorize, token, userinfo, and JWKS URLs for that host.
+
+### Discord
+
+Discord is OAuth 2.0, not a full OpenID Connect IdP. OpenPeep stores it under
+`sso.oidc` and reads `/users/@me` after the token exchange (`identify email`).
+Avatar hashes are turned into `cdn.discordapp.com` URLs.
 
 ### Provider fields
 
@@ -106,9 +133,9 @@ Each **Oidc** entry has the following fields:
 | **Scope**            | Space-separated scopes to request. Defaults to `openid email profile` if left empty.                                                                              |
 | **ApprovalRequired** | Check this to require administrator approval before new accounts are created. Existing accounts with a matching email still log in normally.                      |
 
-Above the provider list, **OnlySSO** hides the password form. For custom
-(non-OIDC) portals, set **LoginLink** on each **Generic** SSO entry — those
-links appear alongside OIDC buttons on the login page.
+Above the provider list, **Only SSO** hides the password form. For custom
+(non-OIDC) portals, add a **Generic** provider on the same page and set
+**Login link** — those links appear alongside OIDC buttons on the login page.
 
 ### Claim mapping
 
@@ -127,16 +154,16 @@ claim names.
 
 ### Server host
 
-The callback URL is built from **Server → Host** on the same page (also set
-via the `SERVER_HOST` environment variable). Make sure **Host** matches your
-community's public URL before testing sign-in.
+The callback URL is built from **Server → Host** on the Server Settings page
+(also set via the `SERVER_HOST` environment variable). Make sure **Host**
+matches your community's public URL before testing sign-in.
 
 <div style="height:20px"></div>
 
 ## Redirect URI
 
 Register this callback URL with your identity provider for each configured
-provider. Use the **Id** you entered in server settings and your **Server →
+provider. Use the **Id** you entered on the SSO page and your **Server →
 Host** value:
 
 ```
@@ -154,16 +181,17 @@ including scheme, host, port, and path.
 ## Provider setup checklist
 
 1. Create an OAuth/OIDC client at your identity provider.
-2. In server settings, set **Server → Host** and add an **Oidc** entry with an **Id**.
-3. Register the redirect URI at your provider:
+2. Confirm **Server → Host** on server settings matches your public URL.
+3. On the SSO page, add a provider with an **Id**.
+4. Register the redirect URI at your provider:
    `https://<host>/api/openpeeps/core/v1/sso/oidc/<Id>/callback`.
-4. Enable the authorization code grant (with PKCE / S256).
-5. Copy the client ID, client secret (if any), and endpoint URLs into the
-   matching fields on the server settings page.
-6. Set **Scope** to include email (default `openid email profile` is fine for
-   most providers).
-7. Click **Submit** on the server settings page.
-8. Visit the login page and verify the **Login with {Name}** button appears
+5. Enable the authorization code grant (with PKCE / S256).
+6. Copy the client ID, client secret (if any), and (for OIDC Generic)
+   endpoint URLs into the matching fields.
+7. Set **Scope** to include email. GitLab/OIDC default to
+   `openid email profile`; GitHub defaults to `read:user user:email`.
+8. Click **Save provider**.
+9. Visit the login page and verify the **Login with {Name}** button appears
    and completes sign-in.
 
 <div style="height:20px"></div>
@@ -172,8 +200,8 @@ including scheme, host, port, and path.
 
 ### Button does not appear on the login page
 
-- Confirm at least one **Oidc** entry exists on the server settings page and
-  you clicked **Submit** to save.
+- Confirm at least one provider exists on the SSO page and you clicked
+  **Save provider**.
 - Reload the login page; provider names are loaded from server info at page
   load.
 
@@ -207,8 +235,8 @@ including scheme, host, port, and path.
 ## Security notes
 
 - Set **JwksUri** in production so `id_token` signatures are verified.
-- Keep **ClientSecret** confidential; it is stored as a masked password field
-  on the server settings page.
+- Keep **Client secret** confidential; it is stored as a masked password field
+  on the SSO page.
 - Prefer HTTPS for all provider endpoints and for your community's public
   URL.
 - Redis must be available; PKCE state is not persisted elsewhere.

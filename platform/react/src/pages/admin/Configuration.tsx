@@ -46,6 +46,10 @@ export function AdminConfiguration() {
         action="/admin/configuration/email"
       />
       <ConfigMenuButton
+        translationPrefix="configuration.sso"
+        action="/admin/configuration/sso"
+      />
+      <ConfigMenuButton
         translationPrefix="configuration.i18n"
         action="/admin/configuration/i18n"
       />

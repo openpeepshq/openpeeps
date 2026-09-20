@@ -62,6 +62,36 @@ describe('updateConfigValues', () => {
     expect(resetServerInfo).toHaveBeenCalledOnce();
   });
 
+  it('restores stored secrets when a sanitized array patch uses the placeholder', async () => {
+    const storedProvider = {
+      id: 'gh',
+      name: 'GitHub',
+      kind: 'github',
+      clientId: 'abc',
+      clientSecret: 'stored-secret',
+      authorizationUrl: 'https://github.com/login/oauth/authorize',
+      tokenUrl: 'https://github.com/login/oauth/access_token',
+      userinfoUrl: 'https://api.github.com/user',
+    };
+    loadConfig.mockResolvedValue({
+      config: { sso: { oidc: [storedProvider] } },
+    });
+
+    await updateConfigValues(
+      {
+        sso: {
+          oidc: [{ ...storedProvider, clientSecret: '*********' }],
+        },
+      },
+      'openpeeps',
+      'core',
+    );
+
+    expect(storeConfig).toHaveBeenCalledWith('openpeeps-core', {
+      config: { sso: { oidc: [storedProvider] } },
+    });
+  });
+
   it('does not wipe theme when only info is patched onto an empty store', async () => {
     loadConfig.mockResolvedValue(undefined);
 

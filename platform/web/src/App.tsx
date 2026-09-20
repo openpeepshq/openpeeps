@@ -119,6 +119,8 @@ import {
   AdminDiagnosticsEmail,
   AdminDiagnosticsLogs,
   AdminConfigurationEmail,
+  AdminConfigurationSso,
+  AdminConfigurationSsoNew,
   AccessTokensSettings,
   BlockedSettings,
   LanguageSettings,
@@ -381,6 +383,8 @@ const Admin = {
       />
     ),
     Email: AdminConfigurationEmail,
+    Sso: AdminConfigurationSso,
+    SsoNew: AdminConfigurationSsoNew,
   },
 };
 
@@ -808,6 +812,14 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/email"
                         element={<Admin.Config.Email />}
+                      />
+                      <Route
+                        path="/admin/configuration/sso/new/:kind"
+                        element={<Admin.Config.SsoNew />}
+                      />
+                      <Route
+                        path="/admin/configuration/sso"
+                        element={<Admin.Config.Sso />}
                       />
                       <Route
                         path="/admin/configuration/:pluginPage"

@@ -147,4 +147,38 @@ test.describe('forms', () => {
     await host.fill(original);
     await expect(submit).toBeDisabled();
   });
+
+  test('sso config page shows type-specific provider forms', async ({
+    page,
+    request,
+  }) => {
+    await signInAsUiUser(page, request);
+    await page.goto('/admin/configuration/sso');
+    await expect(page.getByTestId(testIds.admin.ssoTypeGrid)).toBeVisible();
+    await expect(page.getByTestId(testIds.admin.ssoTypeGitlab)).toBeVisible();
+    await expect(page.getByTestId(testIds.admin.ssoTypeGithub)).toBeVisible();
+    await expect(
+      page.getByTestId(testIds.admin.ssoTypeGitlabSelfhosted),
+    ).toBeVisible();
+    await expect(page.getByTestId(testIds.admin.ssoTypeGoogle)).toBeVisible();
+    await expect(page.getByTestId(testIds.admin.ssoTypePocketid)).toBeVisible();
+    await expect(page.getByTestId(testIds.admin.ssoTypeOidc)).toBeVisible();
+    await expect(page.getByTestId(testIds.admin.ssoTypeGeneric)).toBeVisible();
+    await page.getByTestId(testIds.admin.ssoTypeGoogle).click();
+    await expect(page).toHaveURL(/\/admin\/configuration\/sso\/new\/google/);
+    await expect(page.getByTestId(testIds.admin.ssoId)).toHaveValue('google');
+    await expect(page.getByTestId(testIds.admin.ssoInstanceUrl)).toHaveCount(0);
+    await expect(page.getByTestId(testIds.admin.ssoClientId)).toBeVisible();
+    await page.goto('/admin/configuration/sso');
+    await page.getByTestId(testIds.admin.ssoTypePocketid).click();
+    await expect(page).toHaveURL(/\/admin\/configuration\/sso\/new\/pocketid/);
+    await expect(page.getByTestId(testIds.admin.ssoId)).toHaveValue('pocketid');
+    await expect(page.getByTestId(testIds.admin.ssoInstanceUrl)).toBeVisible();
+    await page.goto('/admin/configuration/sso');
+    await page.getByTestId(testIds.admin.ssoTypeGeneric).click();
+    await expect(page).toHaveURL(/\/admin\/configuration\/sso\/new\/generic/);
+    await expect(page.getByTestId(testIds.admin.ssoId)).toHaveValue('generic');
+    await expect(page.getByTestId(testIds.admin.ssoLoginLink)).toBeVisible();
+    await expect(page.getByTestId(testIds.admin.ssoSave)).toBeVisible();
+  });
 });
