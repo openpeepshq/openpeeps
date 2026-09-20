@@ -444,7 +444,8 @@
       "pollOptions": "{{count}} options",
       "document": "Document",
       "imageAlt": "Attachment",
-      "viewOriginal": "View original post"
+      "viewOriginal": "View original post",
+      "viewPost": "View post"
     },
     "feed": {
       "empty": "No posts yet.",
