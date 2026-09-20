@@ -62,6 +62,8 @@ export const fixtureMe = {
   controllers: [],
   memberships: [],
   profileStats: fixtureProfile.profileStats!,
+  blockingIds: [],
+  blockedByIds: [],
 } as ProfileWithMeta;
 
 export const fixtureGroup = {

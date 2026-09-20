@@ -19,6 +19,7 @@
 - **api**: drop the /server/info snapshot when config changes
 - **api**: accept every second-level capability wildcard on profile maps
 - **react**: keep Account settings when adding the Blocked list
+- **gallery**: include block id lists on ProfileWithMeta fixtures
 - **jams**: keep recording parts on upload failure
 - **api**: stabilize /server/info on a 10-minute bucket
 - **api**: restore theme root fields for old mobile clients
