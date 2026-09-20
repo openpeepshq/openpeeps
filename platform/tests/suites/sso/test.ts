@@ -24,61 +24,7 @@ test.describe('OIDC SSO', () => {
       `OIDC mock missing from /server/info: ${JSON.stringify(info.sso)}`,
     ).toBe(true);
 
-    const pageErrors: string[] = [];
-    const consoleErrors: string[] = [];
-    page.on('pageerror', (error) => pageErrors.push(error.message));
-    page.on('console', (msg) => {
-      if (msg.type() === 'error') consoleErrors.push(msg.text());
-    });
-
-    const capabilities = await request.get(
-      '/api/openpeeps/core/v1/server/config/capabilities',
-    );
-    const capabilitiesDump = {
-      status: capabilities.status(),
-      body: (await capabilities.text()).slice(0, 400),
-    };
-
     await page.goto('/auth/login');
-    await page
-      .getByTestId('auth-login-title')
-      .waitFor({ state: 'visible', timeout: 20_000 })
-      .catch(() => undefined);
-    const snapshot = {
-      url: page.url(),
-      titleCount: await page.getByTestId('auth-login-title').count(),
-      buttonCount: await page.getByTestId('auth-login-oidc-mock').count(),
-      redirectCount: await page.getByTestId('auth-login-sso-redirect').count(),
-      html: (await page.content()).slice(0, 2500),
-      pageErrors,
-      consoleErrors,
-      sso: info.sso,
-      capabilitiesDump,
-    };
-    // #region agent log
-    await fetch(
-      'http://127.0.0.1:7499/ingest/27c2d08d-4470-4015-abd2-33d1e0e3ecd8',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Debug-Session-Id': 'a0a46a',
-        },
-        body: JSON.stringify({
-          sessionId: 'a0a46a',
-          hypothesisId: 'E',
-          location: 'suites/sso/test.ts:login',
-          message: 'login page snapshot',
-          data: snapshot,
-          timestamp: Date.now(),
-        }),
-      },
-    ).catch(() => undefined);
-    // #endregion
-    expect(
-      snapshot.titleCount,
-      `login title missing. url=${snapshot.url} redirect=${snapshot.redirectCount} cap=${JSON.stringify(capabilitiesDump)} pageErrors=${JSON.stringify(pageErrors)} consoleErrors=${JSON.stringify(consoleErrors)} html=${snapshot.html}`,
-    ).toBeGreaterThan(0);
     await expect(page.getByTestId('auth-login-title')).toBeVisible();
     await expect(page).toHaveURL(/\/auth\/login/);
     await expect(page.getByTestId('auth-login-oidc-mock')).toBeVisible();
