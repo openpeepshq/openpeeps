@@ -2895,7 +2895,18 @@
       "removeAttendee": "Remove",
       "restoreAttendee": "Restore",
       "removedMessage": "The organizer has removed you from this event.",
-      "full": "Event is full"
+      "full": "Event is full",
+      "scope": {
+        "title": "Which dates?",
+        "thisDate": "This date",
+        "thisDateWith": "This date ({{date}})",
+        "selectedDates": "Selected dates",
+        "wholeSeries": "All dates in the series",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "seriesFull": "Some dates in this series are full.",
+        "selectAtLeastOne": "Select at least one date."
+      }
     },
     "repeat": {
       "badge": "Repeats",
@@ -2912,7 +2923,12 @@
       "times": "{{count}} times"
     },
     "occurrence": {
-      "seriesRsvpNote": "Your RSVP applies to every date in this series."
+      "showDates": "Show upcoming dates",
+      "hideDates": "Hide upcoming dates",
+      "viewSeries": "All dates",
+      "current": "This date",
+      "capacity": "({{filled}}/{{max}})",
+      "rsvpCount": "({{count}})"
     },
     "menu": {
       "title": "Event options",
@@ -3126,6 +3142,7 @@
       "headingMaybe": "You replied maybe to {{eventName}}",
       "intro": "We've attached a calendar file (.ics) so you can add this event to your calendar.",
       "when": "When",
+      "whenDates": "{{count}} dates",
       "where": "Where",
       "cta": "View event"
     },

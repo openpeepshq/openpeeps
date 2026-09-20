@@ -3,6 +3,8 @@ import type { Event } from '../../types';
 import {
   expandEventOccurrences,
   formatEventRecurrence,
+  defaultRsvpRecurrenceId,
+  listRsvpOccurrences,
   occurrencesForIndex,
   previewUpcomingOccurrences,
   sameRecurrenceId,
@@ -190,6 +192,48 @@ describe('previewUpcomingOccurrences', () => {
       new Date('2026-09-08T16:00:00.000Z'),
     );
     expect(preview).toHaveLength(3);
+  });
+});
+
+describe('listRsvpOccurrences', () => {
+  it('returns uncancelled upcoming dates in the horizon', () => {
+    const now = new Date('2026-09-08T16:00:00.000Z');
+    const rows = listRsvpOccurrences(
+      baseEvent({
+        recurrence: { freq: 'WEEKLY', count: 4 },
+        exceptions: [
+          { recurrenceId: '2026-09-15T16:00:00.000Z', cancelled: true },
+        ],
+      }),
+      now,
+    );
+    expect(rows.map((row) => row.recurrenceId)).toEqual([
+      '2026-09-08T16:00:00.000Z',
+      '2026-09-22T16:00:00.000Z',
+      '2026-09-29T16:00:00.000Z',
+    ]);
+  });
+});
+
+describe('defaultRsvpRecurrenceId', () => {
+  it('uses the occurrence query when present', () => {
+    expect(
+      defaultRsvpRecurrenceId(
+        baseEvent({ recurrence: { freq: 'WEEKLY' } }),
+        '2026-09-22T16:00:00.000Z',
+        new Date('2026-09-08T16:00:00.000Z'),
+      ),
+    ).toBe('2026-09-22T16:00:00.000Z');
+  });
+
+  it('falls back to the next upcoming date', () => {
+    expect(
+      defaultRsvpRecurrenceId(
+        baseEvent({ recurrence: { freq: 'WEEKLY' } }),
+        undefined,
+        new Date('2026-09-16T00:00:00.000Z'),
+      ),
+    ).toBe('2026-09-22T16:00:00.000Z');
   });
 });
 

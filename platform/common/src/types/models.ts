@@ -602,6 +602,11 @@ export const rsvpSchema = z.object({
 });
 export type RSVP = z.infer<typeof rsvpSchema>;
 
+export const rsvpRequestSchema = rsvpSchema.extend({
+  recurrenceIds: z.array(eventIsoDatetimeSchema).min(1).optional(),
+});
+export type RsvpRequest = z.infer<typeof rsvpRequestSchema>;
+
 export const entryDataSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('create'),

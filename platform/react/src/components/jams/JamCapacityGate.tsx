@@ -45,7 +45,11 @@ export const JamCapacityGate = ({
           <p className="text-sm">{message}</p>
           {showRsvp ? (
             <div className="w-full px-2">
-              <EventRsvpButton post={jamPost} recurrenceId={occurrence} />
+              <EventRsvpButton
+                post={jamPost}
+                recurrenceId={occurrence}
+                lockToOccurrence
+              />
             </div>
           ) : null}
           <a

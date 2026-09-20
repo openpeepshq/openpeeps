@@ -6,3 +6,4 @@ export * from './cancel-event-sheet';
 export * from './delete-event-sheet';
 export * from './event-description-sheet';
 export * from './timezone-selector-sheet';
+export * from './event-rsvp-scope-sheet';

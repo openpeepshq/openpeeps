@@ -9,8 +9,13 @@ import {
   pollOptionsWithinLimit,
   calculateEffectiveRsvps,
   countYesRsvps,
+  displayRsvpForProfile,
   getEffectiveRsvp,
+  instanceRsvpIdsForProfile,
   isCapacityEvent,
+  recurringEventHasOpenOccurrence,
+  overlaySeriesRsvpEntries,
+  seriesYesBlockedByCapacity,
   normalizeEventDataForSave,
   normalizeEventDataFromDb,
   normalizePostDataFromDb,
@@ -614,6 +619,251 @@ describe('postHelpers', () => {
       };
       expect(countYesRsvps(postWithRsvps, occurrenceA)).toBe(1);
       expect(countYesRsvps(postWithRsvps, occurrenceB)).toBe(0);
+    });
+
+    it('collects distinct instance RSVP ids for a profile', () => {
+      const occurrenceA = '2026-09-08T16:00:00.000Z';
+      const occurrenceB = '2026-09-15T16:00:00.000Z';
+      const postWithRsvps = {
+        ...mockPost,
+        rsvps: [
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'no' as const,
+            recurrenceId: occurrenceA,
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'yes' as const,
+            recurrenceId: occurrenceA,
+            createdAt: '2023-01-02T00:00:00Z',
+          },
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'no' as const,
+            recurrenceId: occurrenceB,
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'yes' as const,
+            createdAt: '2023-01-03T00:00:00Z',
+          },
+          {
+            profile: { ...mockPublicProfile, id: 'profile2' },
+            response: 'yes' as const,
+            recurrenceId: occurrenceA,
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+        ] as PublicRsvp[],
+      };
+      expect(instanceRsvpIdsForProfile(postWithRsvps, 'profile1')).toEqual([
+        occurrenceA,
+        occurrenceB,
+      ]);
+    });
+
+    it('overlays instance rows when writing a series RSVP', () => {
+      expect(
+        overlaySeriesRsvpEntries('yes', [
+          '2026-09-08T16:00:00.000Z',
+          '2026-09-15T16:00:00.000Z',
+        ]),
+      ).toEqual([
+        { response: 'yes' },
+        { response: 'yes', recurrenceId: '2026-09-08T16:00:00.000Z' },
+        { response: 'yes', recurrenceId: '2026-09-15T16:00:00.000Z' },
+      ]);
+    });
+
+    it('blocks series yes when an upcoming occurrence is full', () => {
+      const occurrenceA = '2026-09-08T16:00:00.000Z';
+      const occurrenceB = '2026-09-15T16:00:00.000Z';
+      const postWithRsvps = {
+        ...mockPost,
+        type: 'event' as const,
+        data: {
+          type: 'event' as const,
+          start: occurrenceA,
+          wholeDay: false,
+          maxAttendees: 1,
+          recurrence: { freq: 'WEEKLY' as const, count: 3 },
+        },
+        rsvps: [
+          {
+            profile: { ...mockPublicProfile, id: 'profile2' },
+            response: 'yes' as const,
+            recurrenceId: occurrenceB,
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+        ] as PublicRsvp[],
+      };
+      expect(
+        seriesYesBlockedByCapacity(
+          postWithRsvps,
+          'profile1',
+          new Date(occurrenceA),
+        ),
+      ).toBe(true);
+    });
+
+    it('keeps Register open when the next date is full but a later date is not', () => {
+      const occurrenceA = '2026-09-08T16:00:00.000Z';
+      const occurrenceB = '2026-09-15T16:00:00.000Z';
+      const postWithRsvps = {
+        ...mockPost,
+        type: 'event' as const,
+        data: {
+          type: 'event' as const,
+          start: occurrenceA,
+          wholeDay: false,
+          maxAttendees: 1,
+          recurrence: { freq: 'WEEKLY' as const, count: 3 },
+        },
+        rsvps: [
+          {
+            profile: { ...mockPublicProfile, id: 'profile2' },
+            response: 'yes' as const,
+            recurrenceId: occurrenceA,
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+        ] as PublicRsvp[],
+      };
+      expect(countYesRsvps(postWithRsvps, occurrenceA)).toBe(1);
+      expect(countYesRsvps(postWithRsvps, occurrenceB)).toBe(0);
+      expect(
+        recurringEventHasOpenOccurrence(
+          postWithRsvps,
+          'profile1',
+          new Date(occurrenceA),
+        ),
+      ).toBe(true);
+    });
+
+    it('treats the series as full only when no upcoming date has a seat', () => {
+      const occurrenceA = '2026-09-08T16:00:00.000Z';
+      const occurrenceB = '2026-09-15T16:00:00.000Z';
+      const postWithRsvps = {
+        ...mockPost,
+        type: 'event' as const,
+        data: {
+          type: 'event' as const,
+          start: occurrenceA,
+          wholeDay: false,
+          maxAttendees: 1,
+          recurrence: { freq: 'WEEKLY' as const, count: 2 },
+        },
+        rsvps: [
+          {
+            profile: { ...mockPublicProfile, id: 'profile2' },
+            response: 'yes' as const,
+            recurrenceId: occurrenceA,
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+          {
+            profile: { ...mockPublicProfile, id: 'other' },
+            response: 'yes' as const,
+            recurrenceId: occurrenceB,
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+        ] as PublicRsvp[],
+      };
+      expect(
+        recurringEventHasOpenOccurrence(
+          postWithRsvps,
+          'profile1',
+          new Date(occurrenceA),
+        ),
+      ).toBe(false);
+    });
+
+    it('surfaces an instance RSVP on the series page after a partial RSVP', () => {
+      const occurrenceA = '2026-09-08T16:00:00.000Z';
+      const occurrenceB = '2026-09-15T16:00:00.000Z';
+      const postWithRsvps = {
+        ...mockPost,
+        type: 'event' as const,
+        data: {
+          type: 'event' as const,
+          start: occurrenceA,
+          wholeDay: false,
+          recurrence: { freq: 'WEEKLY' as const, count: 3 },
+        },
+        rsvps: [
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'yes' as const,
+            recurrenceId: occurrenceB,
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+        ] as PublicRsvp[],
+      };
+      expect(
+        displayRsvpForProfile(postWithRsvps, 'profile1', {
+          now: new Date(occurrenceA),
+        })?.response,
+      ).toBe('yes');
+    });
+
+    it('does not use another date when lockToOccurrence is set', () => {
+      const occurrenceA = '2026-09-08T16:00:00.000Z';
+      const occurrenceB = '2026-09-15T16:00:00.000Z';
+      const postWithRsvps = {
+        ...mockPost,
+        type: 'event' as const,
+        data: {
+          type: 'event' as const,
+          start: occurrenceA,
+          wholeDay: false,
+          recurrence: { freq: 'WEEKLY' as const, count: 3 },
+        },
+        rsvps: [
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'yes' as const,
+            recurrenceId: occurrenceB,
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+        ] as PublicRsvp[],
+      };
+      expect(
+        displayRsvpForProfile(postWithRsvps, 'profile1', {
+          recurrenceId: occurrenceA,
+          lockToOccurrence: true,
+          now: new Date(occurrenceA),
+        }),
+      ).toBeUndefined();
+    });
+
+    it('allows series yes when the member already occupies the full date', () => {
+      const occurrenceA = '2026-09-08T16:00:00.000Z';
+      const postWithRsvps = {
+        ...mockPost,
+        type: 'event' as const,
+        data: {
+          type: 'event' as const,
+          start: occurrenceA,
+          wholeDay: false,
+          maxAttendees: 1,
+          recurrence: { freq: 'WEEKLY' as const, count: 2 },
+        },
+        rsvps: [
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'yes' as const,
+            recurrenceId: occurrenceA,
+            createdAt: '2023-01-01T00:00:00Z',
+          },
+        ] as PublicRsvp[],
+      };
+      expect(
+        seriesYesBlockedByCapacity(
+          postWithRsvps,
+          'profile1',
+          new Date(occurrenceA),
+        ),
+      ).toBe(false);
     });
 
     it('should get effective RSVP for a profile', () => {

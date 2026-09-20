@@ -7,6 +7,7 @@ import {
   Profile,
   ReactionData,
   RSVP,
+  RsvpRequest,
   RsvpResponse,
 } from '@openpeepshq/common/types';
 
@@ -43,9 +44,12 @@ import {
   countYesRsvps,
   eventDataForDbUpdate,
   getEffectiveRsvp,
+  instanceRsvpIdsForProfile,
+  overlaySeriesRsvpEntries,
   normalizeEventDataForSave,
   passThroughUndefined,
   sameRecurrenceId,
+  seriesYesBlockedByCapacity,
 } from '@openpeepshq/common/lib';
 import { forbidden, unprocessableRequest } from '../errors';
 import { areBlocked, hasBlockAmong } from '../profiles/blocks';
@@ -324,10 +328,19 @@ export const vote = (profile: Profile, post: PostWithMeta, data: Answer) =>
     ),
   );
 
+const attendingRsvp = (response?: RsvpResponse) =>
+  response === 'yes' || response === 'tentative';
+
+const rsvpOccurrenceIds = (data: RsvpRequest): string[] | undefined => {
+  if (data.recurrenceIds?.length) return data.recurrenceIds;
+  if (data.recurrenceId) return [data.recurrenceId];
+  return undefined;
+};
+
 export const rsvpRespond = async (
   profile: Profile,
   post: PostWithMeta,
-  data: RSVP,
+  data: RsvpRequest,
 ) => {
   if (profile.id === post.profile.id) {
     return;
@@ -347,6 +360,7 @@ export const rsvpRespond = async (
     throw forbidden({ errorKey: 'error.rsvpRemoved' });
   }
 
+  const occurrenceIds = rsvpOccurrenceIds(data);
   const maxAttendees = post.data.maxAttendees;
   if (maxAttendees) {
     if (data.response === 'tentative') {
@@ -355,36 +369,67 @@ export const rsvpRespond = async (
       });
     }
     if (data.response === 'yes') {
-      const currentRsvp = getEffectiveRsvp(post, profile.id, data.recurrenceId);
-      if (
-        currentRsvp?.response !== 'yes' &&
-        countYesRsvps(post, data.recurrenceId) >= maxAttendees
-      ) {
-        throw unprocessableRequest({ errorKey: 'error.eventAtCapacity' });
+      if (!occurrenceIds && post.data.recurrence) {
+        if (seriesYesBlockedByCapacity(post, profile.id)) {
+          throw unprocessableRequest({ errorKey: 'error.eventAtCapacity' });
+        }
+      } else {
+        const ids = occurrenceIds ?? [undefined];
+        for (const recurrenceId of ids) {
+          const currentRsvp = getEffectiveRsvp(post, profile.id, recurrenceId);
+          if (
+            currentRsvp?.response !== 'yes' &&
+            countYesRsvps(post, recurrenceId) >= maxAttendees
+          ) {
+            throw unprocessableRequest({ errorKey: 'error.eventAtCapacity' });
+          }
+        }
       }
     }
   }
 
   const { db } = await allpeepDb();
 
-  const previousResponse = [...(post.rsvps ?? [])]
-    .filter((rsvp) => rsvp.profile.id === profile.id)
-    .filter((rsvp) =>
-      data.recurrenceId
-        ? sameRecurrenceId(rsvp.recurrenceId, data.recurrenceId) ||
-          !rsvp.recurrenceId
-        : !rsvp.recurrenceId,
-    )
-    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))[0]?.response;
+  const previousResponses = occurrenceIds
+    ? occurrenceIds.map(
+        (id) => getEffectiveRsvp(post, profile.id, id)?.response,
+      )
+    : undefined;
+  const previousResponse = previousResponses
+    ? previousResponses.every(attendingRsvp)
+      ? previousResponses[0]
+      : previousResponses.find((response) => !attendingRsvp(response))
+    : [...(post.rsvps ?? [])]
+        .filter((rsvp) => rsvp.profile.id === profile.id)
+        .filter((rsvp) => !rsvp.recurrenceId)
+        .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))[0]?.response;
 
-  await entryConnector(db, profile, post, {
-    type: 'rsvp',
-    data,
-  });
+  const writes: RSVP[] = occurrenceIds
+    ? occurrenceIds.map((recurrenceId) => ({
+        response: data.response,
+        recurrenceId,
+      }))
+    : overlaySeriesRsvpEntries(
+        data.response,
+        instanceRsvpIdsForProfile(post, profile.id),
+      );
+
+  for (const entry of writes) {
+    await entryConnector(db, profile, post, {
+      type: 'rsvp',
+      data: entry,
+    });
+  }
 
   hub.emit('rsvpCreated', profile, post, {
     type: 'rsvp',
-    data,
+    data: {
+      response: data.response,
+      ...(occurrenceIds?.length === 1
+        ? { recurrenceId: occurrenceIds[0] }
+        : {}),
+    },
+    occurrenceIds,
     previousResponse,
   });
 };

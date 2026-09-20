@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import type { PublicPost, PublicProfile } from '../../types';
-import { buildEventIcs } from '../eventIcs';
+import {
+  buildEventIcs,
+  buildRsvpIcs,
+  rsvpConfirmationContent,
+} from '../eventIcs';
 
 /** ICS folds long lines with CRLF + space; unwrap for assertions. */
 const unfoldIcs = (ics: string): string => ics.replace(/\r?\n[ \t]/g, '');
@@ -137,5 +141,90 @@ describe('buildEventIcs', () => {
     );
     expect(ics).toContain('RRULE:FREQ=WEEKLY');
     expect(ics).toContain('COUNT=4');
+  });
+});
+
+describe('buildRsvpIcs', () => {
+  const recurringFields = {
+    ...timedEventFields,
+    recurrence: { freq: 'WEEKLY' as const, interval: 1, count: 4 },
+  };
+
+  it('keeps the series RRULE when no occurrence ids are booked', () => {
+    const ics = unfoldIcs(
+      buildRsvpIcs({
+        ...baseEventPost,
+        data: recurringFields,
+      } as PublicPost)!,
+    );
+    expect(ics).toContain('RRULE:FREQ=WEEKLY');
+    expect(ics).toContain('DTSTART:20260707T210000Z');
+  });
+
+  it('emits only the booked occurrence start and end times', () => {
+    const ics = unfoldIcs(
+      buildRsvpIcs(
+        {
+          ...baseEventPost,
+          data: recurringFields,
+        } as PublicPost,
+        {
+          occurrenceIds: [
+            '2026-07-14T21:00:00.000Z',
+            '2026-07-28T21:00:00.000Z',
+          ],
+        },
+      )!,
+    );
+    expect(ics).toContain('DTSTART:20260714T210000Z');
+    expect(ics).toContain('DTEND:20260714T220000Z');
+    expect(ics).toContain('DTSTART:20260728T210000Z');
+    expect(ics).toContain('DTEND:20260728T220000Z');
+    expect(ics).not.toContain('DTSTART:20260707T210000Z');
+    expect(ics).not.toContain('RRULE');
+    expect(ics).toContain(
+      'UID:openpeeps-event-019f3e5e-b11f-7e8a-b3ca-a9cc0c77a5e7-2026-07-14T21:00:00.000Z@openpeepshq',
+    );
+  });
+});
+
+describe('rsvpConfirmationContent', () => {
+  it('uses occurrence times instead of the series start', () => {
+    const content = rsvpConfirmationContent(
+      {
+        ...baseEventPost,
+        data: {
+          ...timedEventFields,
+          recurrence: { freq: 'WEEKLY', interval: 1, count: 4 },
+        },
+      } as PublicPost,
+      {
+        postUrl: 'https://example.com/posts/event1',
+        occurrenceIds: ['2026-07-14T21:00:00.000Z'],
+      },
+    );
+    expect(content?.start).toBe('2026-07-14T21:00:00.000Z');
+    expect(content?.end).toBe('2026-07-14T22:00:00.000Z');
+    expect(content?.occurrenceCount).toBe(1);
+    expect(unfoldIcs(content!.ics)).toContain('DTSTART:20260714T210000Z');
+    expect(unfoldIcs(content!.ics)).not.toContain('RRULE');
+  });
+
+  it('counts multiple booked dates for the confirmation copy', () => {
+    const content = rsvpConfirmationContent(
+      {
+        ...baseEventPost,
+        data: {
+          ...timedEventFields,
+          recurrence: { freq: 'WEEKLY', interval: 1, count: 4 },
+        },
+      } as PublicPost,
+      {
+        postUrl: 'https://example.com/posts/event1',
+        occurrenceIds: ['2026-07-14T21:00:00.000Z', '2026-07-21T21:00:00.000Z'],
+      },
+    );
+    expect(content?.occurrenceCount).toBe(2);
+    expect(content?.start).toBe('2026-07-14T21:00:00.000Z');
   });
 });

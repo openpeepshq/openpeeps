@@ -68,6 +68,10 @@ export { EventLocation } from './pieces/EventLocation';
 export type { EventLocationProps } from './pieces/EventLocation';
 export { EventRsvpButton } from './pieces/EventRsvpButton';
 export type { EventRsvpButtonProps } from './pieces/EventRsvpButton';
+export { EventRsvpList } from './pieces/EventRsvpList';
+export type { EventRsvpListProps } from './pieces/EventRsvpList';
+export { EventOccurrenceList } from './pieces/EventOccurrenceList';
+export type { EventOccurrenceListProps } from './pieces/EventOccurrenceList';
 export { useNewPostModal } from './post-form/NewPostModalContext';
 export { useReplyModal } from './post-form/ReplyModalContext';
 

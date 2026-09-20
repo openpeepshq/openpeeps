@@ -9,7 +9,6 @@ import type {
 } from '@openpeepshq/common/types';
 import {
   buildThreads,
-  calculateEffectiveRsvps,
   canAccessJamRecordings,
   canManageEventRsvps,
   canModerateJam,
@@ -23,7 +22,7 @@ import {
   groupName,
   isCapacityEvent,
   parseOccurrenceQuery,
-  previewUpcomingOccurrences,
+  listRsvpOccurrences,
   profileName,
 } from '@openpeepshq/common/lib';
 import {
@@ -34,8 +33,6 @@ import {
   DialogHeader,
   DialogTitle,
   LoadingSpinner,
-  PopupMenu,
-  PopupMenuButton,
   UpdatingDate,
 } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
@@ -44,19 +41,16 @@ import { useCurrentProfile } from '../../../layout/IdentityContext';
 import { useToast } from '../../../layout/ToastProvider';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
 import { useCreateNewConversation } from '../../../conversations';
-import {
-  Avatar,
-  FollowUnfollowButton,
-  ProfileCard,
-  ProfileFromId,
-} from '../../../profile';
+import { Avatar, ProfileFromId } from '../../../profile';
 import { OpenpeepsMarkdown } from '../../../markdown/OpenpeepsMarkdown';
 import { ThreadedFeed } from '../../feed/threaded/ThreadedFeed';
 import { ReplyBox } from '../../ReplyBox';
 import { useServerInfo } from '../../../server-data';
 import { EventLocation } from '../../pieces/EventLocation';
 import { EventMenu } from '../../pieces/EventMenu';
+import { EventOccurrenceList } from '../../pieces/EventOccurrenceList';
 import { EventRsvpButton } from '../../pieces/EventRsvpButton';
+import { EventRsvpList } from '../../pieces/EventRsvpList';
 import { ShareMenu } from '../../pieces/ShareMenu';
 import { VideoPlayer } from '../../pieces/VideoPlayer';
 
@@ -98,12 +92,10 @@ export function FullEvent({ post }: FullEventProps) {
   const myEvent = post.profile?.id === profile?.id;
   const iAmModerator = canModerateJam(profile, post);
   const canManageRsvps = canManageEventRsvps(profile, post);
-  const rsvps = useMemo(
-    () => calculateEffectiveRsvps(post, occurrenceId),
-    [post, occurrenceId],
-  );
   const slotsLeft =
-    isCapacityEvent(event) && event.maxAttendees !== undefined
+    isCapacityEvent(event) &&
+    event.maxAttendees !== undefined &&
+    (!event.recurrence || occurrenceId)
       ? event.maxAttendees - countYesRsvps(post, occurrenceId)
       : null;
   const times = effectiveEventTimes(event, occurrenceId);
@@ -111,7 +103,7 @@ export function FullEvent({ post }: FullEventProps) {
     ? formatEventRecurrence(event.recurrence, t, event.start)
     : '';
   const upcomingOccurrences = event.recurrence
-    ? previewUpcomingOccurrences(event, 3)
+    ? listRsvpOccurrences(event)
     : [];
   const jamLink = getJamUrl(post.id, undefined, occurrenceId);
   const rsvpManage = openpeepsApi.rsvpManageAction();
@@ -243,35 +235,13 @@ export function FullEvent({ post }: FullEventProps) {
 
       <EventLocation post={post} preview={false} occurrence={occurrenceId} />
       {event.recurrence ? (
-        <div className="mt-4">
-          <span className="text-muted-foreground text-sm">
-            {t('events.repeat.label', { defaultValue: 'Repeats' })}
-          </span>
-          <p className="text-sm">{recurrenceLabel}</p>
-          {!occurrenceId && upcomingOccurrences.length > 0 ? (
-            <p className="text-muted-foreground mt-1 text-sm">
-              {t('events.form.repeat.preview', {
-                defaultValue: 'Next dates: {{dates}}',
-                dates: upcomingOccurrences
-                  .map((occurrence) =>
-                    new Date(occurrence.start).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                      ...eventTimeZoneOptions(event.timeZone),
-                    }),
-                  )
-                  .join(', '),
-              })}
-            </p>
-          ) : null}
-        </div>
-      ) : null}
-      {event.recurrence && !occurrenceId ? (
-        <p className="text-muted-foreground text-sm">
-          {t('events.occurrence.seriesRsvpNote', {
-            defaultValue: 'Your RSVP applies to every date in this series.',
-          })}
-        </p>
+        <EventOccurrenceList
+          post={post}
+          postId={post.id}
+          occurrences={upcomingOccurrences}
+          currentOccurrenceId={occurrenceId}
+          recurrenceLabel={recurrenceLabel}
+        />
       ) : null}
       <EventRsvpButton post={post} recurrenceId={occurrenceId} />
 
@@ -346,83 +316,22 @@ export function FullEvent({ post }: FullEventProps) {
       ) : null}
 
       {tab === 'rsvps' ? (
-        rsvps.length ? (
-          rsvps.map((rsvp) => (
-            <div key={rsvp.profile.id} className="flex items-center gap-2">
-              <div className="min-w-0 flex-1">
-                <ProfileCard
-                  profile={rsvp.profile}
-                  action={
-                    profile && profile.id !== rsvp.profile.id ? (
-                      <PopupMenu>
-                        {profile.following?.some(
-                          (f) => f.id === rsvp.profile.id,
-                        ) ? (
-                          <PopupMenuButton
-                            title={t('profile.actions.message', {
-                              defaultValue: 'Message',
-                            })}
-                            text={t('profile.actions.message', {
-                              defaultValue: 'Message',
-                            })}
-                            action={() =>
-                              openCreateConversation({
-                                profiles: [rsvp.profile],
-                                skipProfileSelection: true,
-                              })
-                            }
-                          />
-                        ) : null}
-                        <FollowUnfollowButton profile={rsvp.profile} popup />
-                      </PopupMenu>
-                    ) : undefined
-                  }
-                />
-              </div>
-              {canManageRsvps && rsvp.profile.id !== post.profile.id ? (
-                rsvp.response === 'removed' ? (
-                  <Button
-                    variant="outline"
-                    action={() =>
-                      rsvpManage(
-                        {
-                          response: 'yes',
-                          recurrenceId: occurrenceId,
-                        },
-                        { id: post.id, profileId: rsvp.profile.id },
-                      )
-                    }
-                  >
-                    {t('events.rsvp.restoreAttendee', {
-                      defaultValue: 'Restore',
-                    })}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    action={() =>
-                      rsvpManage(
-                        {
-                          response: 'removed',
-                          recurrenceId: occurrenceId,
-                        },
-                        { id: post.id, profileId: rsvp.profile.id },
-                      )
-                    }
-                  >
-                    {t('events.rsvp.removeAttendee', {
-                      defaultValue: 'Remove',
-                    })}
-                  </Button>
-                )
-              ) : null}
-            </div>
-          ))
-        ) : (
-          <p className="text-muted-foreground py-4 text-sm">
-            {t('events.noRsvps', { defaultValue: 'No RSVPs yet.' })}
-          </p>
-        )
+        <EventRsvpList
+          post={post}
+          occurrenceId={occurrenceId}
+          occurrences={upcomingOccurrences}
+          currentProfile={profile}
+          canManageRsvps={canManageRsvps}
+          onMessage={(target) =>
+            openCreateConversation({
+              profiles: [target],
+              skipProfileSelection: true,
+            })
+          }
+          onManage={(response, profileId, recurrenceId) =>
+            rsvpManage({ response, recurrenceId }, { id: post.id, profileId })
+          }
+        />
       ) : null}
 
       {tab === 'attendees' && showJamAttendeesTab ? (
