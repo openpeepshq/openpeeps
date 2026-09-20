@@ -20,6 +20,8 @@ import { pgSql, type SqlFilter } from './types';
 
 const eventStart = sql`${posts.body}->>'start'`;
 const eventEnd = sql`${posts.body}->>'end'`;
+// Open-ended events count as one hour long when they are current or past.
+const eventEffectiveEnd = sql`COALESCE(NULLIF(${eventEnd}, '')::timestamptz, ${eventStart}::timestamptz + interval '1 hour')`;
 
 const postsReplyCountExpr = postReplyCountExpr(posts);
 
@@ -112,11 +114,11 @@ export const eventTimeFilters = {
   current: (now = new Date().toISOString()): SqlFilter =>
     pgSql(
       and(
-        sql`${eventStart} <= ${now}`,
-        or(sql`${posts.body}->'end' IS NULL`, sql`${eventEnd} >= ${now}`),
+        sql`${eventStart}::timestamptz <= ${now}::timestamptz`,
+        sql`${eventEffectiveEnd} >= ${now}::timestamptz`,
       )!,
     ),
 
   past: (now = new Date().toISOString()): SqlFilter =>
-    pgSql(sql`COALESCE(${eventEnd}, ${eventStart}) < ${now}`),
+    pgSql(sql`${eventEffectiveEnd} < ${now}::timestamptz`),
 };
