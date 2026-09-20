@@ -45,6 +45,14 @@ describe('pg filters', () => {
     expect(filter?.where).toBeDefined();
   });
 
+  it('treats a missing end as one hour after start for current events', () => {
+    const now = '2026-08-25T12:00:00.000Z';
+    const rendered = flattenSql(eventTimeFilters.current(now).where);
+    expect(rendered).toContain("interval '1 hour'");
+    expect(rendered).toContain(now);
+    expect(rendered).not.toMatch(/->'end' IS NULL/);
+  });
+
   it('exposes domain-specific helpers', () => {
     expect(profileFilters.notGuest().kind).toBe('sql');
     expect(notificationFilters.unseen().kind).toBe('sql');

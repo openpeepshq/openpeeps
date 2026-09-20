@@ -30,6 +30,15 @@ describe('eventAgendaOccurrenceQuery', () => {
     expect(query.params).toContain(15);
   });
 
+  it('treats a missing end as one hour after start for current events', () => {
+    const query = toSql('current');
+
+    expect(query.sql).toMatch(/interval '1 hour'/i);
+    expect(query.sql).toMatch(
+      /coalesce\("event_occurrences"\."end", "event_occurrences"\."start" \+ interval '1 hour'\)/i,
+    );
+  });
+
   it('uses the latest past occurrence when ranking past events', () => {
     const query = toSql('past');
 
