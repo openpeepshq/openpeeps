@@ -236,17 +236,29 @@ export const occurrencesForIndex = (
   });
 };
 
-export const previewUpcomingOccurrences = (
+export const listRsvpOccurrences = (
   event: Event,
-  count = 3,
   now = new Date(),
 ): ExpandedOccurrence[] =>
   expandEventOccurrences(event, {
     from: now,
     to: new Date(now.getTime() + OCCURRENCE_HORIZON_MS),
-  })
-    .filter((occurrence) => !occurrence.cancelled)
-    .slice(0, count);
+  }).filter((occurrence) => !occurrence.cancelled);
+
+export const defaultRsvpRecurrenceId = (
+  event: Event,
+  queryId?: string,
+  now = new Date(),
+): string | undefined => {
+  if (queryId) return normalizeRecurrenceId(queryId);
+  return listRsvpOccurrences(event, now)[0]?.recurrenceId;
+};
+
+export const previewUpcomingOccurrences = (
+  event: Event,
+  count = 3,
+  now = new Date(),
+): ExpandedOccurrence[] => listRsvpOccurrences(event, now).slice(0, count);
 
 export const effectiveEventTimes = (
   event: Event,

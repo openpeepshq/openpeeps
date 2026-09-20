@@ -1,14 +1,19 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import {
-  rsvpSchema,
+  rsvpRequestSchema,
   successFailureResponseSchema,
 } from '@openpeepshq/common/types';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
-import { forbidden, notFound, rethrowIfOpenpeepsError, unprocessableRequest } from '#lib/errors';
+import {
+  forbidden,
+  notFound,
+  rethrowIfOpenpeepsError,
+  unprocessableRequest,
+} from '#lib/errors';
 import { findPost, rsvpRespond } from '@openpeepshq/core/posts';
 
-export const Input = rsvpSchema;
+export const Input = rsvpRequestSchema;
 export const Output = successFailureResponseSchema;
 export const Param = z.object({
   postId: z.string(),
@@ -31,9 +36,11 @@ export const apiEndpoint = endpoint({ Input, Output, Param }).handle(
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-rsvp']);
 
-    await rsvpRespond(profile, mergedPost, rsvpSchema.parse(params)).catch(
-      rethrowIfOpenpeepsError,
-    );
+    await rsvpRespond(
+      profile,
+      mergedPost,
+      rsvpRequestSchema.parse(params),
+    ).catch(rethrowIfOpenpeepsError);
     return { success: true };
   },
 );

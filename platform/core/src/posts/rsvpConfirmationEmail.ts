@@ -1,12 +1,11 @@
 import type {
-  Event,
   PostWithMeta,
   Profile,
   PublicPost,
   RSVP,
   RsvpResponse,
 } from '@openpeepshq/common/types';
-import { buildEventIcs } from '@openpeepshq/common/lib';
+import { rsvpConfirmationContent } from '@openpeepshq/common/lib';
 import { hub } from '../events';
 import { emailService } from '../email';
 import { findByProfile } from '../accounts';
@@ -21,6 +20,7 @@ const attendingResponses: RsvpResponse[] = ['yes', 'tentative'];
 type RsvpEventPayload = {
   type: 'rsvp';
   data: RSVP;
+  occurrenceIds?: string[];
   previousResponse?: RsvpResponse;
 };
 
@@ -61,8 +61,14 @@ const handleRsvpCreated = async (
 
   const rootUrl = await serverRootUrl();
   const postUrl = `${rootUrl}/posts/${post.id}`;
-  const ics = buildEventIcs(post as unknown as PublicPost, { postUrl });
-  if (!ics) {
+  const occurrenceIds =
+    payload.occurrenceIds ??
+    (payload.data.recurrenceId ? [payload.data.recurrenceId] : undefined);
+  const confirmation = rsvpConfirmationContent(post as unknown as PublicPost, {
+    postUrl,
+    occurrenceIds,
+  });
+  if (!confirmation) {
     return;
   }
 
@@ -71,7 +77,6 @@ const handleRsvpCreated = async (
     return;
   }
 
-  const event = post.data as Event;
   const mailer = await emailService();
   const profileSettings = await findProfileSettings(profile.id);
 
@@ -85,13 +90,14 @@ const handleRsvpCreated = async (
         to: account.email,
         template: 'eventRsvpConfirmation',
         locals: {
-          eventName: event.name?.trim() || 'Event',
+          eventName: confirmation.eventName,
           eventUrl: postUrl,
           response,
-          start: event.start,
-          end: event.end ?? null,
-          location: event.physicalLocation?.text ?? null,
-          allDay: event.wholeDay ?? false,
+          start: confirmation.start,
+          end: confirmation.end,
+          location: confirmation.location,
+          allDay: confirmation.allDay,
+          occurrenceCount: confirmation.occurrenceCount,
           ...(profileSettings?.timeZone
             ? { timeZone: profileSettings.timeZone }
             : {}),
@@ -99,7 +105,7 @@ const handleRsvpCreated = async (
         attachments: [
           {
             filename: 'event.ics',
-            content: ics,
+            content: confirmation.ics,
             contentType: 'text/calendar; method=PUBLISH; charset=utf-8',
           },
         ],

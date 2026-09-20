@@ -4,6 +4,7 @@ import ical, {
   ICalWeekday,
 } from 'ical-generator';
 import type { Event, PublicPost, RecurrenceWeekday } from '../types';
+import { effectiveEventTimes } from './eventRecurrence';
 import { getJamUrl } from './jamHelpers';
 
 const utcDateFromYmd = (yyyyMmDd: string): Date => {
@@ -155,4 +156,110 @@ export const buildEventIcs = (
   }
 
   return calendar.toString() + '\r\n';
+};
+
+const addOccurrenceEvent = (
+  calendar: ReturnType<typeof ical>,
+  post: PublicPost,
+  event: Event,
+  recurrenceId: string,
+  options?: { postUrl?: string },
+) => {
+  const link = event.url ?? options?.postUrl;
+  const summary = event.name?.trim() || 'Event';
+  const description = event.content?.trim();
+  const location = eventLocation(post, event, options?.postUrl);
+  const times = effectiveEventTimes(event, recurrenceId);
+  const id = `openpeeps-event-${post.id}-${recurrenceId}@openpeepshq`;
+
+  if (event.wholeDay) {
+    const startYmd = times.start.slice(0, 10);
+    const lastInclusiveYmd = times.end?.slice(0, 10) ?? startYmd;
+    calendar.createEvent({
+      id,
+      allDay: true,
+      start: utcDateFromYmd(startYmd),
+      end: exclusiveEndAfterInclusiveDay(lastInclusiveYmd),
+      summary,
+      ...(description ? { description } : {}),
+      ...(location ? { location } : {}),
+      ...(link ? { url: link } : {}),
+    });
+    return;
+  }
+
+  const start = new Date(times.start);
+  const end = times.end
+    ? new Date(times.end)
+    : new Date(start.getTime() + 60 * 60 * 1000);
+  calendar.createEvent({
+    id,
+    start,
+    end,
+    summary,
+    ...(description ? { description } : {}),
+    ...(location ? { location } : {}),
+    ...(link ? { url: link } : {}),
+  });
+};
+
+/** Attendance ICS: discrete booked dates, or the series definition when none. */
+export const buildRsvpIcs = (
+  post: PublicPost,
+  options?: { postUrl?: string; occurrenceIds?: string[] },
+): string | null => {
+  const occurrenceIds = options?.occurrenceIds?.filter(Boolean) ?? [];
+  if (!occurrenceIds.length) {
+    return buildEventIcs(post, { postUrl: options?.postUrl });
+  }
+  if (post.type !== 'event' || post.data?.type !== 'event') {
+    return null;
+  }
+
+  const event = post.data as Event;
+  const calendar = ical({
+    prodId: '//OpenPeeps//Event//EN',
+    method: ICalCalendarMethod.PUBLISH,
+    scale: 'GREGORIAN',
+  });
+
+  for (const recurrenceId of occurrenceIds) {
+    addOccurrenceEvent(calendar, post, event, recurrenceId, options);
+  }
+
+  return calendar.toString() + '\r\n';
+};
+
+export const rsvpConfirmationContent = (
+  post: PublicPost,
+  options: { postUrl: string; occurrenceIds?: string[] },
+): {
+  ics: string;
+  eventName: string;
+  start: string;
+  end: string | null;
+  location: string | null;
+  allDay: boolean;
+  occurrenceCount: number;
+} | null => {
+  if (post.type !== 'event' || post.data?.type !== 'event') {
+    return null;
+  }
+  const ics = buildRsvpIcs(post, options);
+  if (!ics) return null;
+  const event = post.data as Event;
+  const occurrenceIds = options.occurrenceIds?.filter(Boolean) ?? [];
+  const times =
+    occurrenceIds.length > 0
+      ? effectiveEventTimes(event, occurrenceIds[0])
+      : { start: event.start, end: event.end };
+  return {
+    ics,
+    eventName: event.name?.trim() || 'Event',
+    start: times.start,
+    end: times.end ?? null,
+    location: event.physicalLocation?.text ?? null,
+    allDay: event.wholeDay ?? false,
+    occurrenceCount: occurrenceIds.length,
+  };
 };

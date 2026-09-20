@@ -17,12 +17,15 @@ export const EventRsvpConfirmation = ({ globals, locals }: Props) => {
     locals.response === 'yes'
       ? t('emails.eventRsvp.headingYes', { eventName: locals.eventName })
       : t('emails.eventRsvp.headingMaybe', { eventName: locals.eventName });
-  const when = formatEventWhen(locals.start, {
-    end: locals.end,
-    timeZone: globals.timeZone,
-    allDay: locals.allDay,
-    locale: i18n.language,
-  });
+  const when =
+    locals.occurrenceCount && locals.occurrenceCount > 1
+      ? t('emails.eventRsvp.whenDates', { count: locals.occurrenceCount })
+      : formatEventWhen(locals.start, {
+          end: locals.end,
+          timeZone: globals.timeZone,
+          allDay: locals.allDay,
+          locale: i18n.language,
+        });
 
   return (
     <BaseEmailLayout

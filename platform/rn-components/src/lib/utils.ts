@@ -50,7 +50,9 @@ export const sortBy =
           : 0;
 
 export const truncateText = (text?: string, maxLength: number = 15) => {
-  if (!text) { return ''; }
+  if (!text) {
+    return '';
+  }
   return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
 };
 
@@ -125,7 +127,7 @@ export const hasValue = (v: unknown): boolean => v === 0 || !!v;
 
 export const handleScroll = (
   event: NativeScrollEvent,
-  query: UseInfiniteQueryResult<unknown, SuccessFailureResponse>,
+  query: UseInfiniteQueryResult<unknown, SuccessFailureResponse>
 ) => {
   const { layoutMeasurement, contentOffset, contentSize } = event;
   const isCloseToBottom =
@@ -138,7 +140,7 @@ export const handleScroll = (
 
 export const handleInternalURLNavigation = (
   defaultAction: string,
-  goto: ReturnType<typeof buildGoto>,
+  goto: ReturnType<typeof buildGoto>
 ) => {
   const navigatePath = (path: string) => {
     if (isGroupPath(path)) {
@@ -185,7 +187,10 @@ export const handleInternalURLNavigation = (
   const actionList = defaultAction.replace('goto:/', '').split('/');
 
   if (actionList[0].startsWith('@')) {
-    goto({ target: 'profile', params: { handle: actionList[0].replace('@', '') } });
+    goto({
+      target: 'profile',
+      params: { handle: actionList[0].replace('@', '') },
+    });
     return;
   }
 
@@ -239,5 +244,7 @@ export {
   calculateEffectiveRsvps,
   countYesRsvps,
   canManageEventRsvps,
+  displayRsvpForProfile,
   isCapacityEvent,
+  recurringEventHasOpenOccurrence,
 } from '@openpeepshq/common/lib';

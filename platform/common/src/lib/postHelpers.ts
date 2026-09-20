@@ -13,12 +13,18 @@ import {
   PublicProfile,
   PublicRsvp,
   Question,
+  RSVP,
   Thread,
   VisibilityType,
   visibilityTypeValues,
 } from '../types';
 import { canModerateJam } from './jamHelpers';
-import { sameRecurrenceId } from './eventRecurrence';
+import {
+  defaultRsvpRecurrenceId,
+  listRsvpOccurrences,
+  normalizeRecurrenceId,
+  sameRecurrenceId,
+} from './eventRecurrence';
 import {
   checkGroupCapabilities,
   checkPostCapabilities,
@@ -252,6 +258,106 @@ export const countYesRsvps = (post: PublicPost, recurrenceId?: string) =>
   calculateEffectiveRsvps(post, recurrenceId).filter(
     (r) => r.response === 'yes',
   ).length;
+
+export const instanceRsvpIdsForProfile = (
+  post: PublicPost,
+  profileId: string,
+): string[] => {
+  const ids = new Set<string>();
+  for (const rsvp of post.rsvps ?? []) {
+    if (rsvp.profile.id !== profileId || !rsvp.recurrenceId) continue;
+    ids.add(normalizeRecurrenceId(rsvp.recurrenceId));
+  }
+  return [...ids];
+};
+
+export const overlaySeriesRsvpEntries = (
+  response: RSVP['response'],
+  instanceIds: string[],
+): RSVP[] => [
+  { response },
+  ...instanceIds.map((recurrenceId) => ({ response, recurrenceId })),
+];
+
+export const seriesYesBlockedByCapacity = (
+  post: PublicPost,
+  profileId: string,
+  now = new Date(),
+): boolean => {
+  const event = post.data?.type === 'event' ? post.data : undefined;
+  const maxAttendees = event?.maxAttendees;
+  if (!event || !maxAttendees || !event.recurrence) return false;
+  return listRsvpOccurrences(event, now).some((occurrence) => {
+    const current = getEffectiveRsvp(post, profileId, occurrence.recurrenceId);
+    if (current?.response === 'yes') return false;
+    return countYesRsvps(post, occurrence.recurrenceId) >= maxAttendees;
+  });
+};
+
+export const occurrenceHasCapacity = (
+  post: PublicPost,
+  recurrenceId?: string,
+  profileId?: string,
+): boolean => {
+  const event = post.data?.type === 'event' ? post.data : undefined;
+  if (!event?.maxAttendees) return true;
+  if (profileId) {
+    const current = getEffectiveRsvp(post, profileId, recurrenceId);
+    if (current?.response === 'yes') return true;
+  }
+  return countYesRsvps(post, recurrenceId) < event.maxAttendees;
+};
+
+/** Series Register stays enabled while any upcoming date still has a seat. */
+export const recurringEventHasOpenOccurrence = (
+  post: PublicPost,
+  profileId?: string,
+  now = new Date(),
+): boolean => {
+  const event = post.data?.type === 'event' ? post.data : undefined;
+  if (!event) return false;
+  if (!event.recurrence) {
+    return occurrenceHasCapacity(post, undefined, profileId);
+  }
+  return listRsvpOccurrences(event, now).some((occurrence) =>
+    occurrenceHasCapacity(post, occurrence.recurrenceId, profileId),
+  );
+};
+
+/**
+ * Series-page RSVP for the Register/Cancel CTA: prefer the default/next date,
+ * then any attending instance so a partial RSVP still shows Cancel.
+ */
+export const displayRsvpForProfile = (
+  post: PublicPost,
+  profileId: string,
+  options?: {
+    recurrenceId?: string;
+    lockToOccurrence?: boolean;
+    now?: Date;
+  },
+): PublicRsvp | undefined => {
+  const event = post.data?.type === 'event' ? post.data : undefined;
+  const scopedId = options?.lockToOccurrence
+    ? options.recurrenceId
+    : event
+      ? defaultRsvpRecurrenceId(event, options?.recurrenceId, options?.now)
+      : options?.recurrenceId;
+  const scoped = getEffectiveRsvp(post, profileId, scopedId);
+  if (options?.lockToOccurrence) return scoped;
+  if (scoped && scoped.response !== 'no') return scoped;
+  if (event?.recurrence) {
+    for (const occurrence of listRsvpOccurrences(event, options?.now)) {
+      const instance = getEffectiveRsvp(
+        post,
+        profileId,
+        occurrence.recurrenceId,
+      );
+      if (instance && instance.response !== 'no') return instance;
+    }
+  }
+  return scoped;
+};
 
 export const isCapacityEvent = (event: Event) => !!event.maxAttendees;
 

@@ -2699,7 +2699,26 @@
       "removeAttendee": "Entfernen",
       "restoreAttendee": "Wiederherstellen",
       "removedMessage": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
-      "full": "Veranstaltung ist ausgebucht"
+      "full": "Veranstaltung ist ausgebucht",
+      "scope": {
+        "title": "Für welche Termine?",
+        "thisDate": "Diesen Termin",
+        "thisDateWith": "Diesen Termin ({{date}})",
+        "selectedDates": "Ausgewählte Termine",
+        "wholeSeries": "Alle Termine der Serie",
+        "confirm": "Bestätigen",
+        "cancel": "Abbrechen",
+        "seriesFull": "Einige Termine dieser Serie sind ausgebucht.",
+        "selectAtLeastOne": "Wählen Sie mindestens einen Termin."
+      }
+    },
+    "occurrence": {
+      "showDates": "Kommende Termine anzeigen",
+      "hideDates": "Kommende Termine ausblenden",
+      "viewSeries": "Alle Termine",
+      "current": "Dieser Termin",
+      "capacity": "({{filled}}/{{max}})",
+      "rsvpCount": "({{count}})"
     }
   },
   "reports": {
@@ -2959,6 +2978,7 @@
       "headingMaybe": "Sie haben mit Vielleicht auf {{eventName}} geantwortet",
       "intro": "Wir haben eine Kalenderdatei (.ics) angehängt, damit Sie diese Veranstaltung zu Ihrem Kalender hinzufügen können.",
       "when": "Wann",
+      "whenDates": "{{count}} Termine",
       "where": "Wo",
       "cta": "Veranstaltung ansehen"
     },

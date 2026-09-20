@@ -1,7 +1,7 @@
 import type { FetchClient } from '@openpeepshq/fetch-client';
 import {
   type JamRecording,
-  type RSVP,
+  type RsvpRequest,
   type ChronologicalInfiniteQueryParams,
   type PostContext,
   type PostCreationData,
@@ -294,7 +294,7 @@ type Mutators = {
     { selection: number[] },
     { id: string }
   >;
-  rsvp: OpenpeepsPayloadEndpoint<SuccessResponse, RSVP, { id: string }>;
+  rsvp: OpenpeepsPayloadEndpoint<SuccessResponse, RsvpRequest, { id: string }>;
   rsvpManage: OpenpeepsPayloadEndpoint<
     SuccessResponse,
     { response: 'removed' | 'yes'; recurrenceId?: string },
@@ -356,7 +356,7 @@ const mutators = (rawClient: FetchClient): Mutators => ({
     { selection: number[] },
     { id: string }
   >(rawClient, '/posts/:id/vote'),
-  rsvp: allpeepPayloadEndpoint<SuccessResponse, RSVP, { id: string }>(
+  rsvp: allpeepPayloadEndpoint<SuccessResponse, RsvpRequest, { id: string }>(
     rawClient,
     '/posts/:id/rsvp',
     'post',
