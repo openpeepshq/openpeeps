@@ -17,6 +17,7 @@ import type {
   SuccessResponse,
   NotificationType,
   PublicNotification,
+  ProfileActivitySummary,
   ProfileSettings,
   ProfileSettingsData,
   PublicAccessToken,
@@ -144,4 +145,8 @@ export const profiles = (
     GroupWithMeta[],
     { profileId: string }
   >(rawClient, '/profiles/:profileId/common-groups'),
+  activitySummary: allpeepNoPayloadEndpoint<
+    ProfileActivitySummary,
+    { profileId: string }
+  >(rawClient, '/profiles/:profileId/activity-summary'),
 });
