@@ -14,6 +14,7 @@ import type {
   GroupWithMeta,
   NotificationStats,
   NotificationType,
+  ProfileActivitySummary,
   ProfileData,
   ProfileSettings,
   ProfileSettingsData,
@@ -75,6 +76,9 @@ export type ProfileHooks = {
   useCurrentProfileReposts: () => Query<PublicPost[]>;
   useCurrentProfileBookmarkedIds: () => Query<string[]>;
   useCommonGroups: (profileId: string) => Query<GroupWithMeta[]>;
+  useProfileActivitySummary: (
+    profileId: string,
+  ) => Query<ProfileActivitySummary>;
   useCurrentProfileSettings: () => Query<ProfileSettings>;
   updateCurrentProfileSettingsAction: (
     defaultPathParams?: undefined,
@@ -143,6 +147,8 @@ export const profileHooks = (
     apiHook(client.profiles.current.bookmarkedIds),
   useCommonGroups: (profileId: string) =>
     apiHook(client.profiles.commonGroups, { pathParams: { profileId } }),
+  useProfileActivitySummary: (profileId: string) =>
+    apiHook(client.profiles.activitySummary, { pathParams: { profileId } }),
   useCurrentProfileSettings: () => {
     const hasToken = useHasAuthToken();
     return apiHook(client.profiles.current.readSettings, { enabled: hasToken });

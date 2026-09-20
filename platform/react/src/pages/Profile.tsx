@@ -63,11 +63,11 @@ export function Profile() {
           </div>
         ) : (
           <div>
-            <ProfileHeader
+            <ProfileHeader profile={profile} isCurrentProfile={isOwnProfile} />
+            <ProfilePostsAndReplies
               profile={profile}
-              isCurrentProfile={me?.handle === profile.handle}
+              isCurrentProfile={isOwnProfile}
             />
-            <ProfilePostsAndReplies profile={profile} />
           </div>
         )
       ) : (

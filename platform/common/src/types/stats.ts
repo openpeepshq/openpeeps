@@ -161,3 +161,22 @@ export const adminServerStatsSchema: ZodObject<{
 });
 
 export type AdminServerStats = z.infer<typeof adminServerStatsSchema>;
+
+export const profileActivitySummarySchema = z.object({
+  postsCount: z.number().int().nonnegative(),
+  repliesCount: z.number().int().nonnegative(),
+  eventsCount: z.number().int().nonnegative(),
+  reactionsGiven: z.number().int().nonnegative(),
+  reactionsReceived: z.number().int().nonnegative(),
+  repostsCount: z.number().int().nonnegative(),
+  repostsReceived: z.number().int().nonnegative(),
+  repliesReceived: z.number().int().nonnegative(),
+  rsvpsCount: z.number().int().nonnegative(),
+  bookmarksCount: z.number().int().nonnegative(),
+  groupsCount: z.number().int().nonnegative(),
+  topPosts: publicPostWithActivityScoreSchema.array().max(5),
+});
+
+export type ProfileActivitySummary = z.infer<
+  typeof profileActivitySummarySchema
+>;
