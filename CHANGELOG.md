@@ -1,5 +1,4 @@
-Changelog for OpenPeeps
-=======================
+# Changelog for OpenPeeps
 
 ## Current
 
@@ -37,6 +36,7 @@ Changelog for OpenPeeps
 - **admin**: add outline to theme color swatches
 - **jams**: raise recording S3 upload cap to 20GiB
 - **jams**: keep stopped recordings uploadable after a new start
+- **ui**: stretch the desktop sidebar to the full content height
 - **conversations**: open a participant list modal from abbreviated handles
 - **profiles**: allow guest profile pages when publicContent is enabled
 - **gallery**: type ProfileWithMeta block id lists
@@ -414,7 +414,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
-- **post**: fixed  pinned post refetch
+- **post**: fixed pinned post refetch
 - **cleanup**: removed old skeleton theme files
 - **HeaderAvatarInput**: add specsText for cover image description
 - **form**: enhance FormInput checkbox to support children rendering
@@ -611,7 +611,7 @@ Changelog for OpenPeeps
 - **notifications**: moving push notifications into a worker thread
 - **search**: index array fields for post and profile search-alias views
 - **Auth**: update layout structure
-- **capabilities**: standardize backup capabilities on plural core-backups-*
+- **capabilities**: standardize backup capabilities on plural core-backups-\*
 - **repo**: remove accidental .worktrees submodule from git index
 - **core**: fix anonymous community feed when publicContent is enabled
 - **react**: fix refresh logic for react native
@@ -653,7 +653,7 @@ Changelog for OpenPeeps
 - **api-keys**: Implement the possibility for personal and service access total
 - **event**: implement dynamic event visibility labels in FullEvent component for React Native and Svelte
 - **image-input**: enhance ImageInput component with aspect ratio cropping functionality
-- **media**: implement upload progress tracking for media attachment              implement streaming API for video on demand
+- **media**: implement upload progress tracking for media attachment implement streaming API for video on demand
 - **PostMenu**: implement bookmark functionality with loading state and dropdown menu integration
 
 ### Bug Fixes
@@ -811,4 +811,3 @@ Changelog for OpenPeeps
 - **ci**: Update actions/checkout to v6 and fix changelog generation condition
 - **ci**: Enhance build workflow with concurrency and release branch checks
 - **ci**: Fix ci build workflow
-
