@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { PostCreationData } from '@openpeepshq/common/types';
 import {
@@ -11,6 +11,7 @@ import {
 import { canCreatePost } from '@openpeepshq/common';
 import {
   Avatar,
+  ConversationParticipantsModal,
   MessageInThread,
   OpenpeepsMarkdownInput,
   ProfileCard,
@@ -43,12 +44,31 @@ export function ConversationShow() {
     lastMessage?.audience?.filter((a) => a.id !== me?.id) ?? [];
 
   const multipleParticipants = participants.length > 1;
+  const [participantsOpen, setParticipantsOpen] = useState(false);
 
-  const title =
+  const participantNames =
     participants.length > 0
       ? participants.map((p) => p.displayName || `@${p.handle}`).join(', ')
       : t('conversations.title', { defaultValue: 'Conversation' });
-  useSetPageHeader(title);
+  const openParticipantsLabel = t('conversations.participants.openList', {
+    defaultValue: 'View participants',
+  });
+  const headerTitle = useMemo(() => {
+    if (!multipleParticipants) return participantNames;
+    return (
+      <button
+        type="button"
+        className="min-w-0 truncate text-left text-xl font-semibold"
+        onClick={() => setParticipantsOpen(true)}
+        title={openParticipantsLabel}
+        aria-haspopup="dialog"
+        data-testid="conversation-participants-open"
+      >
+        {participantNames}
+      </button>
+    );
+  }, [multipleParticipants, participantNames, openParticipantsLabel]);
+  useSetPageHeader(headerTitle);
 
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -118,21 +138,30 @@ export function ConversationShow() {
       <header className="border-b">
         {participants.length === 1 && participants[0] ? (
           <ProfileCard profile={participants[0]} showAction={false} />
-        ) : (
-          <div className="flex items-center gap-2 p-3">
-            <div className="flex -space-x-2">
+        ) : multipleParticipants ? (
+          <button
+            type="button"
+            className="flex w-full min-w-0 items-center gap-2 p-3 text-left"
+            onClick={() => setParticipantsOpen(true)}
+            title={openParticipantsLabel}
+            aria-haspopup="dialog"
+          >
+            <div className="flex shrink-0 -space-x-2">
               {participants.slice(0, 4).map((p) => (
                 <Avatar key={p.id} profile={p} size={2.25} borderless />
               ))}
             </div>
-            <div className="text-sm font-medium">
-              {participants
-                .map((p) => p.displayName || `@${p.handle}`)
-                .join(', ')}
+            <div className="min-w-0 truncate text-sm font-medium">
+              {participantNames}
             </div>
-          </div>
-        )}
+          </button>
+        ) : null}
       </header>
+      <ConversationParticipantsModal
+        open={participantsOpen}
+        onOpenChange={setParticipantsOpen}
+        participants={participants}
+      />
 
       <div
         role="log"

@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **conversations**: integrate OpenpeepsMarkdownInput for message composition
 - **events**: add RSVP scope chooser for recurring dates
 - **profile**: add activity summary feature to profiles
 - **filters**: treat open-ended events as one hour when current
@@ -21,6 +22,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **conversations**: open a participant list modal from abbreviated handles
 - **profiles**: allow guest profile pages when publicContent is enabled
 - **gallery**: type ProfileWithMeta block id lists
 - **react**: type profile block hooks

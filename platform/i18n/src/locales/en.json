@@ -2407,7 +2407,11 @@
     "open": "Open conversation",
     "placeholder": "Write a message…",
     "title": "Conversation",
-    "titleWithYou": "{{names}} and You"
+    "titleWithYou": "{{names}} and You",
+    "participants": {
+      "title": "Participants",
+      "openList": "View participants"
+    }
   },
   "settings": {
     "description": "Manage all settings relating to your acccount here:",
