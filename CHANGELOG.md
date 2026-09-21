@@ -1,10 +1,14 @@
-# Changelog for OpenPeeps
+Changelog for OpenPeeps
+=======================
 
 ## Current
 
 ### Features
 
-- **sso**: dedicated admin page with a provider picker and create form
+- **profile**: add activity summary feature to profiles
+- **filters**: treat open-ended events as one hour when current
+- **sso**: add GitHub OIDC extensions and dedicated admin page
+- **posts**: use compact strips for threaded feed replies
 - **profiles**: add directed profile blocking
 - **groups**: enhance member search functionality and localization
 - **posts**: show newest descendants in threaded feed preview
@@ -16,11 +20,8 @@
 
 ### Bug Fixes
 
-- **react**: type profile block hooks so the web client builds
-- **api**: drop the /server/info snapshot when config changes
-- **api**: accept every second-level capability wildcard on profile maps
-- **react**: keep Account settings when adding the Blocked list
-- **gallery**: include block id lists on ProfileWithMeta fixtures
+- **gallery**: type ProfileWithMeta block id lists
+- **react**: type profile block hooks
 - **jams**: keep recording parts on upload failure
 - **api**: stabilize /server/info on a 10-minute bucket
 - **api**: restore theme root fields for old mobile clients
@@ -394,7 +395,7 @@
 
 ### Bug Fixes
 
-- **post**: fixed pinned post refetch
+- **post**: fixed  pinned post refetch
 - **cleanup**: removed old skeleton theme files
 - **HeaderAvatarInput**: add specsText for cover image description
 - **form**: enhance FormInput checkbox to support children rendering
@@ -591,7 +592,7 @@
 - **notifications**: moving push notifications into a worker thread
 - **search**: index array fields for post and profile search-alias views
 - **Auth**: update layout structure
-- **capabilities**: standardize backup capabilities on plural core-backups-\*
+- **capabilities**: standardize backup capabilities on plural core-backups-*
 - **repo**: remove accidental .worktrees submodule from git index
 - **core**: fix anonymous community feed when publicContent is enabled
 - **react**: fix refresh logic for react native
@@ -633,7 +634,7 @@
 - **api-keys**: Implement the possibility for personal and service access total
 - **event**: implement dynamic event visibility labels in FullEvent component for React Native and Svelte
 - **image-input**: enhance ImageInput component with aspect ratio cropping functionality
-- **media**: implement upload progress tracking for media attachment implement streaming API for video on demand
+- **media**: implement upload progress tracking for media attachment              implement streaming API for video on demand
 - **PostMenu**: implement bookmark functionality with loading state and dropdown menu integration
 
 ### Bug Fixes
@@ -791,3 +792,4 @@
 - **ci**: Update actions/checkout to v6 and fix changelog generation condition
 - **ci**: Enhance build workflow with concurrency and release branch checks
 - **ci**: Fix ci build workflow
+
