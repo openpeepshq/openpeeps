@@ -28,7 +28,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     const profile = await ensureLocalProfile(event);
 
     if (!canAccessJamRecordings(profile, post)) {
-      throw forbidden();
+      throw forbidden('error.jamRecordingForbidden');
     }
 
     const recordings = await listPostRecordings(post.id);

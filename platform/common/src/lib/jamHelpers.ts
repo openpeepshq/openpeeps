@@ -63,7 +63,7 @@ export const canViewJamAttendees = (
   );
 
 export const canAccessJamRecordings = (
-  profile: PublicProfile | undefined,
+  profile: Pick<PublicProfile, 'id'> | undefined,
   post: PublicPost,
 ) => {
   if (!profile) {

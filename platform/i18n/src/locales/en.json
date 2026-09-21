@@ -3284,6 +3284,7 @@
     "jamNotOpen": "This jam is not open.",
     "jamsUnavailable": "Jams are unavailable because LiveKit is not connected.",
     "jamRsvpRequired": "You must RSVP yes to join this event.",
+    "jamRecordingForbidden": "You don't have permission to view recordings for this jam.",
     "rsvpRemoved": "The organizer has removed you from this event.",
     "rsvpRemovedForbidden": "Only the event organizer can remove attendees.",
     "cannotInteractBlocked": "You cannot interact with this profile.",
