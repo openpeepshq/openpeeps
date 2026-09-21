@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   assembleRtmpUrl,
+  canAccessJamRecordings,
   canModerateJam,
   canViewJamAttendees,
   isFileJamRecording,
@@ -95,6 +96,30 @@ describe('canViewJamAttendees', () => {
     expect(canViewJamAttendees({ id: 'mod-1' }, post)).toBe(true);
     expect(canViewJamAttendees({ id: 'other' }, post)).toBe(false);
     expect(canViewJamAttendees(undefined, post)).toBe(false);
+  });
+});
+
+describe('canAccessJamRecordings', () => {
+  it('allows the host, event moderators, and jam moderators', () => {
+    const post = jamPost(['mod-1']);
+    expect(canAccessJamRecordings({ id: 'author' }, post)).toBe(true);
+    expect(canAccessJamRecordings({ id: 'mod-1' }, post)).toBe(true);
+    expect(canAccessJamRecordings({ id: 'other' }, post)).toBe(false);
+    expect(canAccessJamRecordings(undefined, post)).toBe(false);
+  });
+
+  it('allows event moderators who are not jam moderators', () => {
+    const base = jamPost([]);
+    const post = {
+      ...base,
+      data: {
+        ...base.data,
+        type: 'event',
+        moderators: ['event-mod'],
+        jam: { moderators: [], videoEnabled: true, type: 'video-call' },
+      },
+    } as PublicPost;
+    expect(canAccessJamRecordings({ id: 'event-mod' }, post)).toBe(true);
   });
 });
 

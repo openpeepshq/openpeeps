@@ -3097,6 +3097,7 @@
     "jamNotOpen": "Dieser Jam ist nicht geöffnet.",
     "jamsUnavailable": "Jams sind nicht verfügbar, weil LiveKit nicht verbunden ist.",
     "jamRsvpRequired": "Sie müssen mit Ja antworten, um an dieser Veranstaltung teilzunehmen.",
+    "jamRecordingForbidden": "Sie haben keine Berechtigung, die Aufzeichnungen für diesen Jam anzusehen.",
     "rsvpRemoved": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
     "rsvpRemovedForbidden": "Nur der Organisator kann Teilnehmer entfernen.",
     "cannotInteractBlocked": "Sie können mit diesem Profil nicht interagieren.",

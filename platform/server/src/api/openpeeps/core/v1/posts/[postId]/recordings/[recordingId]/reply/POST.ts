@@ -31,7 +31,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     }
 
     if (!canAccessJamRecordings(profile, post)) {
-      throw forbidden();
+      throw forbidden('error.jamRecordingForbidden');
     }
 
     try {

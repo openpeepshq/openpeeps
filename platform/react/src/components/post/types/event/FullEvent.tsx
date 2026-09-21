@@ -1,4 +1,4 @@
-import { Download, MoreHorizontal, Share, Trash2 } from 'lucide-react';
+import { Download, EyeOff, MoreHorizontal, Share, Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type {
@@ -37,6 +37,7 @@ import {
 } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../../contexts/openpeeps';
 import { useT } from '../../../../i18n';
+import { AccessDenied } from '../../../layout/AccessDenied';
 import { useCurrentProfile } from '../../../layout/IdentityContext';
 import { useToast } from '../../../layout/ToastProvider';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
@@ -84,6 +85,9 @@ export function FullEvent({ post }: FullEventProps) {
     post.id,
     !!event.jam && canViewRecordings,
   );
+  const recordingsForbiddenMessage = t('error.jamRecordingForbidden', {
+    defaultValue: "You don't have permission to view recordings for this jam.",
+  });
   const [tab, setTab] = useState<EventTab>(
     event.content ? 'description' : 'replies',
   );
@@ -286,7 +290,7 @@ export function FullEvent({ post }: FullEventProps) {
             {t('events.tabs.jamAttendees', { defaultValue: 'Jam attendees' })}
           </TabButton>
         ) : null}
-        {event.jam && canViewRecordings ? (
+        {event.jam ? (
           <TabButton
             active={tab === 'recordings'}
             onClick={() => setTab('recordings')}
@@ -360,11 +364,24 @@ export function FullEvent({ post }: FullEventProps) {
         </>
       ) : null}
 
-      {tab === 'recordings' && event.jam && canViewRecordings ? (
-        recordingsQuery.isLoading ? (
+      {tab === 'recordings' && event.jam ? (
+        !canViewRecordings ? (
+          <div
+            role="status"
+            className="flex flex-col items-center justify-center gap-2 py-6"
+          >
+            <EyeOff className="size-12" />
+            <p className="text-center text-sm">{recordingsForbiddenMessage}</p>
+          </div>
+        ) : recordingsQuery.isLoading ? (
           <div className="text-muted-foreground py-4 text-sm">
             <LoadingSpinner />
           </div>
+        ) : recordingsQuery.isError ? (
+          <AccessDenied
+            queries={[recordingsQuery]}
+            message={recordingsForbiddenMessage}
+          />
         ) : recordingsQuery.data?.length ? (
           recordingsQuery.data.map((recording) => (
             <JamRecordingItem
