@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **events**: add RSVP scope chooser for recurring dates
 - **profile**: add activity summary feature to profiles
 - **filters**: treat open-ended events as one hour when current
 - **sso**: add GitHub OIDC extensions and dedicated admin page
@@ -20,6 +21,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **profiles**: allow guest profile pages when publicContent is enabled
 - **gallery**: type ProfileWithMeta block id lists
 - **react**: type profile block hooks
 - **jams**: keep recording parts on upload failure

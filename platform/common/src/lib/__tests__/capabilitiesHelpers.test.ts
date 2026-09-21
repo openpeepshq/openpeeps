@@ -1000,6 +1000,54 @@ describe('capabilitiesHelpers', () => {
       );
       expect(caps.add).toContain('profile-following');
     });
+
+    it('allows anonymous reads when none grants core-profiles-read', () => {
+      const config = {
+        ...mockCapabilitiesConfig,
+        profile: {
+          ...mockCapabilitiesConfig.profile,
+          none: { add: ['core-profiles-read'], remove: [] },
+        },
+      };
+      const result = checkProfileCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-profiles-read'],
+        mockPublicProfile,
+        config,
+      );
+      expect(result.success).toBe(true);
+      expect(result.missingScope).toBeUndefined();
+    });
+
+    it('denies anonymous reads when none does not grant core-profiles-read', () => {
+      const result = checkProfileCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-profiles-read'],
+        mockPublicProfile,
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(false);
+    });
+
+    it('does not grant anonymous follow via public profile read scope', () => {
+      const config = {
+        ...mockCapabilitiesConfig,
+        profile: {
+          ...mockCapabilitiesConfig.profile,
+          none: {
+            add: ['core-profiles-read', 'core-profiles-follow'],
+            remove: [],
+          },
+        },
+      };
+      const result = checkProfileCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-profiles-follow'],
+        mockPublicProfile,
+        config,
+      );
+      expect(result.success).toBe(false);
+    });
   });
 
   describe('checkReportCapabilities', () => {
