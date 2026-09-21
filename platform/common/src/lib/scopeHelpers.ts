@@ -130,3 +130,35 @@ export const withPublicGroupReadScopes = (
   }
   return { ...authData, scopes: [...scopes, publicReadScope] };
 };
+
+export const getPublicProfileReadScope = (profileId: string): Scope => ({
+  scopeLevel: 'read',
+  resource: { type: 'profiles', id: profileId },
+});
+
+/**
+ * Profiles whose capabilities config grants the needed *-read caps to
+ * relationship `none` are readable without auth (same pattern as
+ * {@link withPublicGroupReadScopes}). Community-wide `publicContent` is
+ * still enforced by `ensureAccess` on the profile endpoints.
+ */
+export const withPublicProfileReadScopes = (
+  authData: AuthorizationData,
+  profile: { id: string },
+  neededCapabilities: string[],
+  config: { profile?: { none?: { add?: string[] } } | null },
+): AuthorizationData => {
+  if (!neededCapabilities.every((c) => c.endsWith('-read'))) {
+    return authData;
+  }
+  const noneAdd = config.profile?.none?.add ?? [];
+  if (!neededCapabilities.every((c) => noneAdd.includes(c))) {
+    return authData;
+  }
+  const publicReadScope = getPublicProfileReadScope(profile.id);
+  const scopes = authData.scopes ?? [];
+  if (scopeMatches({ scopes, requiredScope: publicReadScope })) {
+    return authData;
+  }
+  return { ...authData, scopes: [...scopes, publicReadScope] };
+};

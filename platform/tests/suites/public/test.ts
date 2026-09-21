@@ -60,4 +60,40 @@ test.describe('public community backup', () => {
       expect(Array.isArray(results)).toBe(true);
     }
   });
+
+  test('profile by handle is readable without auth', async ({ request }) => {
+    const profiles = await request.get('/api/openpeeps/core/v1/profiles');
+    expect(profiles.ok(), await profiles.text()).toBeTruthy();
+    const list = (await profiles.json()) as Array<{
+      id: string;
+      handle: string;
+    }>;
+    expect(list.length).toBeGreaterThan(0);
+    const profile = list[0];
+
+    const byHandle = await request.get(
+      `/api/openpeeps/core/v1/profiles/by-handle/${profile.handle}`,
+    );
+    expect(byHandle.ok(), await byHandle.text()).toBeTruthy();
+
+    const posts = await request.get(
+      `/api/openpeeps/core/v1/posts/by-profile/${profile.id}`,
+    );
+    expect(posts.ok(), await posts.text()).toBeTruthy();
+    const postList = (await posts.json()) as Array<{ visibility?: string }>;
+    expect(Array.isArray(postList)).toBe(true);
+    for (const post of postList) {
+      expect(['public', 'group']).toContain(post.visibility);
+    }
+  });
+
+  test('profile page loads without auth', async ({ page, request }) => {
+    const profiles = await request.get('/api/openpeeps/core/v1/profiles');
+    expect(profiles.ok(), await profiles.text()).toBeTruthy();
+    const list = (await profiles.json()) as Array<{ handle: string }>;
+    expect(list.length).toBeGreaterThan(0);
+
+    await page.goto(`/@${list[0].handle}`);
+    await expect(page.getByTestId('profile-header-title')).toBeVisible();
+  });
 });

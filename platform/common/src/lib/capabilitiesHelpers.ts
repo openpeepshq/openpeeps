@@ -24,6 +24,7 @@ import {
   scopeMatches,
   withPublicPostReadScopes,
   withPublicGroupReadScopes,
+  withPublicProfileReadScopes,
 } from './scopeHelpers';
 import { viewerBlockedTarget, targetBlockedViewer } from './profileHelpers';
 
@@ -448,7 +449,12 @@ export const checkProfileCapabilities = (
 ) =>
   checkCapabilitiesWithCalculatedScope(
     getProfileCapabilities(authData, targetProfile, config),
-    authData,
+    withPublicProfileReadScopes(
+      authData,
+      targetProfile,
+      neededCapabilities,
+      config,
+    ),
     neededCapabilities,
     { type: 'profiles', id: targetProfile.id },
   );

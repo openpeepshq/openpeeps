@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   getPublicGroupReadScope,
   getPublicPostReadScope,
+  getPublicProfileReadScope,
   scopeMatches,
   withPublicGroupReadScopes,
   withPublicPostReadScopes,
+  withPublicProfileReadScopes,
 } from '../scopeHelpers';
 
 describe('scopeMatches', () => {
@@ -110,6 +112,54 @@ describe('withPublicGroupReadScopes', () => {
     };
     expect(
       withPublicGroupReadScopes(authData, group, ['core-groups-read']),
+    ).toBe(authData);
+  });
+});
+
+describe('withPublicProfileReadScopes', () => {
+  it('adds read scope when none grants the needed read caps', () => {
+    const authData = { scopes: [] as const };
+    const config = {
+      profile: { none: { add: ['core-profiles-read'] } },
+    };
+    const augmented = withPublicProfileReadScopes(
+      authData,
+      { id: 'profile-1' },
+      ['core-profiles-read'],
+      config,
+    );
+    expect(augmented.scopes).toEqual([getPublicProfileReadScope('profile-1')]);
+  });
+
+  it('does not add scope when none does not grant read', () => {
+    const authData = { scopes: [] as const };
+    const config = {
+      profile: { none: { add: [] as string[] } },
+    };
+    expect(
+      withPublicProfileReadScopes(
+        authData,
+        { id: 'profile-1' },
+        ['core-profiles-read'],
+        config,
+      ),
+    ).toBe(authData);
+  });
+
+  it('does not add scope for non-read capabilities', () => {
+    const authData = { scopes: [] as const };
+    const config = {
+      profile: {
+        none: { add: ['core-profiles-read', 'core-profiles-follow'] },
+      },
+    };
+    expect(
+      withPublicProfileReadScopes(
+        authData,
+        { id: 'profile-1' },
+        ['core-profiles-follow'],
+        config,
+      ),
     ).toBe(authData);
   });
 });
