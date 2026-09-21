@@ -15,12 +15,13 @@ import { ProfileAvatar } from '../../profile/profile-avatar';
 
 interface ParticipantsSheetProps {
   participants: PublicProfile[];
+  title?: string;
 }
 
 export const ParticipantsSheet = forwardRef<
   BottomSheetModal,
   ParticipantsSheetProps
->(({ participants }, ref) => {
+>(({ participants, title }, ref) => {
   const { currentProfile } = useOpenpeeps();
   const { t } = useTranslation();
 
@@ -29,22 +30,21 @@ export const ParticipantsSheet = forwardRef<
 
   const renderParticipant = ({ item }: { item: PublicProfile }) => (
     <View className="flex-row items-center justify-between px-4 py-3 hover:bg-surface/50">
-      <View className="flex-row items-center gap-x-3">
-        <TouchableOpacity
-          onPress={() => {
-            // @ts-ignore
-            ref?.current?.close();
-            navigation.navigate('Profile', {
-              handle: item.handle,
-            });
-          }}>
-          <ProfileAvatar profile={item} />
-        </TouchableOpacity>
+      <TouchableOpacity
+        className="flex-1 flex-row items-center gap-x-3"
+        onPress={() => {
+          // @ts-ignore
+          ref?.current?.close();
+          navigation.navigate('Profile', {
+            handle: item.handle,
+          });
+        }}>
+        <ProfileAvatar profile={item} />
         <View>
           <Text className="font-medium text-base">{item.displayName}</Text>
           <Text className="text-sm text-muted-foreground">@{item.handle}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
       {item.id !== currentProfile?.id && (
         <FollowUnfollowButton profile={item} useDifferentVariant={true} />
       )}
@@ -56,7 +56,8 @@ export const ParticipantsSheet = forwardRef<
       <View className="flex-1">
         <View className="px-4 py-3 border-b border-border">
           <Text className="text-lg text-center font-semibold">
-            {t('jam.participants.title', { count: participants.length })}
+            {title ??
+              t('jam.participants.title', { count: participants.length })}
           </Text>
         </View>
         <FlatList

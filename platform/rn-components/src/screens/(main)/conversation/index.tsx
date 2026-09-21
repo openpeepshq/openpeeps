@@ -5,6 +5,7 @@ import {
   useOpenpeeps,
   usePostViewFlush,
 } from '@openpeepshq/react';
+import { useTranslation } from 'react-i18next';
 import {
   GenericHeader,
   ProfileBio,
@@ -27,11 +28,12 @@ import { MediaPreview } from '~/components/custom/post/post-form/MediaPreview';
 import { OpenpeepsMarkdownInput } from '~/components/custom/post/post-form/OpenpeepsMarkdownInput';
 import { maxContentLength } from '~/lib/utils';
 import { DropdownMenu } from '~/components/ui/dropdown-menu';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   ConversationProfileHeader,
   MessageCard,
 } from '~/components/custom/conversations';
-import { useTranslation } from 'react-i18next';
+import { ParticipantsSheet } from '~/components/custom/modals';
 
 type ConversationProps = MainScreenProps<'Conversation'>;
 
@@ -46,8 +48,15 @@ export const Conversation = ({ route, navigation }: ConversationProps) => {
   const [attachments, setAttachments] = useState<MediaAttachmentData[]>([]);
   const [content, setContent] = useState('');
   const scrollViewRef = useRef<ScrollView>(null);
+  const participantsSheetRef = useRef<BottomSheetModal>(null);
 
   const sendMessage = openpeepsApi.createConversationPostAction({ id });
+  const audience = messages?.[0]?.audience || [];
+  const headerParticipants =
+    audience.length === 2
+      ? audience.filter(p => p.id !== currentProfile?.id)
+      : audience;
+  const isGroupChat = audience.length > 2;
 
   const resetForm = useCallback(() => {
     setContent('');
@@ -105,12 +114,11 @@ export const Conversation = ({ route, navigation }: ConversationProps) => {
           <GenericHeader
             title={
               <ConversationProfileHeader
-                participants={
-                  messages?.[0]?.audience?.length === 2
-                    ? messages?.[0]?.audience?.filter(
-                        (p) => p.id !== currentProfile?.id
-                      ) || []
-                    : messages?.[0]?.audience || []
+                participants={headerParticipants}
+                onPress={
+                  isGroupChat
+                    ? () => participantsSheetRef.current?.present()
+                    : undefined
                 }
               />
             }
@@ -224,6 +232,15 @@ export const Conversation = ({ route, navigation }: ConversationProps) => {
             </View>
           </KeyboardAvoidingView>
         </DropdownMenu>
+        {isGroupChat ? (
+          <ParticipantsSheet
+            ref={participantsSheetRef}
+            participants={audience}
+            title={t('conversations.participants.title', {
+              defaultValue: 'Participants',
+            })}
+          />
+        ) : null}
       </View>
     </ThemedSafeAreaView>
   );

@@ -6,6 +6,8 @@ export {
 } from './CreateNewConversationContext';
 export type { CreateConversationOptions } from './CreateNewConversationContext';
 export { DirectMessagesHeaderActions } from './DirectMessagesHeaderActions';
+export { ConversationParticipantsModal } from './ConversationParticipantsModal';
+export type { ConversationParticipantsModalProps } from './ConversationParticipantsModal';
 export { ConversationMessageBubble } from './ConversationMessageBubble';
 export { MessageInThread } from './MessageInThread';
 export type { MessageInThreadProps } from './MessageInThread';
