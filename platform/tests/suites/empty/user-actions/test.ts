@@ -661,6 +661,51 @@ test.describe('user actions (API)', () => {
     expect(registered.token).toBeTruthy();
   });
 
+  test('used-up invite link is rejected as inactive', async ({ request }) => {
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const slug = uniqueHandle('inv1');
+    const expiresAt = new Date(Date.now() + 7 * 24 * 3_600_000).toISOString();
+    const create = await request.post('/api/openpeeps/core/v1/invite-links', {
+      headers: apiHeaders(ownerToken),
+      data: {
+        slug,
+        active: true,
+        maxUses: 1,
+        expiresAt,
+      },
+    });
+    expect(create.ok(), await create.text()).toBeTruthy();
+
+    const firstHandle = uniqueHandle('ir1');
+    const first = await registerUser(request, {
+      handle: firstHandle,
+      email: `${firstHandle}@openpeeps.test`,
+      password: 'testtest12',
+      inviteCode: slug,
+    });
+    expect(first.token).toBeTruthy();
+
+    const secondHandle = uniqueHandle('ir2');
+    const second = await request.post('/api/openpeeps/core/v1/auth/register', {
+      data: {
+        handle: secondHandle,
+        displayName: secondHandle,
+        email: `${secondHandle}@openpeeps.test`,
+        password: 'testtest12',
+        privacyPolicyAccepted: true,
+        inviteCode: slug,
+      },
+    });
+    expect(second.status()).toBe(403);
+    expect(await second.json()).toMatchObject({
+      message: 'auth.register.inviteInactive',
+    });
+  });
+
   test('report create and admin resolve', async ({ request }) => {
     const { token: ownerToken } = await loginUser(
       request,

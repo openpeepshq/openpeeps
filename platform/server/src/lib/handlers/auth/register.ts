@@ -40,25 +40,15 @@ export const registerHandler = async (
   const inviteLinkDetails =
     inviteCode && (await findInviteLinkBySlug(inviteCode));
 
-  const inviteLinkValid =
-    (inviteLinkDetails && inviteLinkDetails?.active) || false;
-
   const inviteLinkUsable =
-    inviteLinkDetails &&
+    !!inviteLinkDetails &&
+    inviteLinkDetails.active &&
+    new Date(inviteLinkDetails.expiresAt) > new Date() &&
     inviteLinkDetails.maxUses > 0 &&
-    (inviteLinkDetails?.redemptions?.length || 0) < inviteLinkDetails.maxUses;
+    (inviteLinkDetails.redemptions?.length || 0) < inviteLinkDetails.maxUses;
 
-  if (
-    inviteCode &&
-    (!inviteLinkDetails || !inviteLinkValid || !inviteLinkUsable)
-  ) {
-    throw forbidden(
-      inviteLinkDetails
-        ? !inviteLinkValid
-          ? 'Invalid Invite Code'
-          : 'Max Uses Reached'
-        : 'Invalid Invite Code',
-    );
+  if (inviteCode && !inviteLinkUsable) {
+    throw forbidden('auth.register.inviteInactive');
   }
 
   const authResult = checkAccountCreateAuthorization(authData);

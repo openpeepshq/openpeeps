@@ -10,6 +10,7 @@ export const testIds = {
     registerPrivacyCheckbox: 'auth-register-privacy-checkbox',
     registerPrivacyError: 'auth-register-privacy-error',
     registerSubmit: 'auth-register-submit',
+    registerError: 'auth-register-error',
     loginEmail: 'auth-login-email',
     loginPassword: 'auth-login-password',
     loginSubmit: 'auth-login-submit',
