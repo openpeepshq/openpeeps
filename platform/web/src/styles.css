@@ -14,7 +14,9 @@ html,
 body,
 #root {
   height: 100%;
-  overflow-x: hidden;
+  /* clip does not create a scroll container the way hidden does, so
+     position:sticky still works in Firefox. */
+  overflow-x: clip;
 }
 
 body {
