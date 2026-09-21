@@ -47,7 +47,8 @@
       "signUp": "Sign Up",
       "alreadyHaveAccount": "Already have an account?",
       "signIn": "Sign In",
-      "seeCommunityFeed": "See community feed"
+      "seeCommunityFeed": "See community feed",
+      "inviteInactive": "This invite link is expired or no longer active."
     },
     "resetPassword": {
       "title": "Reset Password",

@@ -37,6 +37,12 @@ export interface RegisterProps {
   invite?: boolean;
 }
 
+const INVITE_INACTIVE_MESSAGES = new Set([
+  'auth.register.inviteInactive',
+  'Max Uses Reached',
+  'Invalid Invite Code',
+]);
+
 const buildRegisterFormSchema = (t: TFunction) =>
   registerRequestSchema
     .refine((d) => d.password === d.confirmPassword, {
@@ -51,6 +57,13 @@ const buildRegisterFormSchema = (t: TFunction) =>
       }),
       path: ['privacyPolicyAccepted'],
     });
+
+const registerErrorCopy = (raw: string, t: TFunction) =>
+  INVITE_INACTIVE_MESSAGES.has(raw)
+    ? t('auth.register.inviteInactive', {
+        defaultValue: 'This invite link is expired or no longer active.',
+      })
+    : t(raw);
 
 export function Register({ invite = false }: RegisterProps) {
   const t = useT();
@@ -128,7 +141,7 @@ export function Register({ invite = false }: RegisterProps) {
       }
       navigate('/welcome');
     } catch (err) {
-      setError(t((err as Error).message));
+      setError(registerErrorCopy((err as Error).message, t));
     }
   });
 
@@ -343,6 +356,7 @@ export function Register({ invite = false }: RegisterProps) {
           {error && (
             <Toast
               variant="error"
+              duration={0}
               testId="auth-register-error"
               onDismiss={() => setError(null)}
             >

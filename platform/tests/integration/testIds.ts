@@ -8,6 +8,7 @@ export const testIds = {
     registerConfirmPassword: 'auth-register-confirm-password',
     registerPrivacyCheckbox: 'auth-register-privacy-checkbox',
     registerSubmit: 'auth-register-submit',
+    registerError: 'auth-register-error',
     loginEmail: 'auth-login-email',
     loginPassword: 'auth-login-password',
   },

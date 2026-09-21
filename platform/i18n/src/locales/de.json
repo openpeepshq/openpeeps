@@ -47,7 +47,8 @@
       "signUp": "Registrieren",
       "alreadyHaveAccount": "Bereits ein Konto?",
       "signIn": "Anmelden",
-      "seeCommunityFeed": "Community-Feed ansehen"
+      "seeCommunityFeed": "Community-Feed ansehen",
+      "inviteInactive": "Dieser Einladungslink ist abgelaufen oder nicht mehr aktiv."
     },
     "resetPassword": {
       "title": "Passwort zurücksetzen",
