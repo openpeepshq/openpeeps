@@ -36,6 +36,7 @@ export type CoreEvents = {
   configUpdated: (namespace: string, name: string) => void;
   /** Profile settings changed — clear in-process caches in all services. */
   profileSettingsUpdated: (profileId: string) => void;
+  pollEnded: (post: PostWithMeta) => void;
 };
 
 export type CoreEventKey = keyof CoreEvents;
@@ -54,6 +55,7 @@ const validEventKeyMap = {
   postAnnounced: true,
   configUpdated: true,
   profileSettingsUpdated: true,
+  pollEnded: true,
 } satisfies Record<CoreEventKey, true>;
 
 export const VALID_EVENT_KEYS = Object.keys(validEventKeyMap) as CoreEventKey[];

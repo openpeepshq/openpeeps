@@ -1,5 +1,6 @@
 import {
   AtSign,
+  ChartColumnBig,
   Megaphone,
   MessageSquare,
   Repeat,
@@ -264,6 +265,38 @@ function PollVoteNotification({
           {t('notification.pollVote.text', {
             defaultValue: '{{profileName}} voted on your poll',
             profileName: profileName(profile),
+          })}
+        </p>
+        {notification.post ? <FeedPost post={notification.post} /> : null}
+      </a>
+    </NotificationWrapper>
+  );
+}
+
+function PollEndedNotification({
+  notification,
+}: {
+  notification: PublicNotification;
+}) {
+  const t = useT();
+  const profile = notification.senderProfile ?? notification.post?.profile;
+  if (!profile) {
+    return <GenericNotification notification={notification} />;
+  }
+  return (
+    <NotificationWrapper
+      profile={profile}
+      seen={notification.seen}
+      showProfile={false}
+    >
+      <a
+        href={`/posts/${notification.post?.id}`}
+        className="block w-full px-4 py-2"
+      >
+        <p className="mb-2 flex items-center gap-2 text-sm font-semibold">
+          <ChartColumnBig className="size-4" />
+          {t('notification.pollEnded.text', {
+            defaultValue: 'A poll has ended. See the results.',
           })}
         </p>
         {notification.post ? <FeedPost post={notification.post} /> : null}
@@ -566,6 +599,7 @@ const TYPED: Partial<
   directMessage: DirectMessageNotification,
   announcement: AnnouncementNotification,
   pollVote: PollVoteNotification,
+  pollEnded: PollEndedNotification,
   rsvp: RsvpNotification,
   groupAdded: NewGroupInvitationNotification,
   groupMemberJoined: NewGroupMemberNotification,

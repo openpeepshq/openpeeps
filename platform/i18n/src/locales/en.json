@@ -2524,6 +2524,10 @@
           "label": "Poll Vote",
           "description": "Manage notifications for when a poll is voted on"
         },
+        "pollEnded": {
+          "label": "Poll Ended",
+          "description": "Manage notifications for when a poll you started or voted on ends"
+        },
         "rsvp": {
           "label": "RSVP",
           "description": "Manage notifications for when someone rsvps to your event"
@@ -3017,6 +3021,9 @@
     "pollVote": {
       "text": "{{profileName}} has voted on your poll"
     },
+    "pollEnded": {
+      "text": "A poll has ended. See the results."
+    },
     "rsvp": {
       "text": "{{profileName}} RSVP'd to your event"
     },
@@ -3127,6 +3134,12 @@
       "title": "A new poll vote has been recorded in {{communityName}}",
       "subject": "A new poll vote has been recorded in {{communityName}}",
       "body": "{{profileName}} has voted on your poll:",
+      "cta": "to visit the poll and see the results, click here."
+    },
+    "pollEnded": {
+      "title": "A poll has ended in {{communityName}}",
+      "subject": "A poll has ended in {{communityName}}",
+      "body": "A poll has ended. See the results.",
       "cta": "to visit the poll and see the results, click here."
     },
     "rsvp": {

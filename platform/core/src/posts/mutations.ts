@@ -57,6 +57,7 @@ import {
   rebuildEventOccurrences,
   clearEventOccurrences,
 } from './eventOccurrences';
+import { cancelPollEnd, schedulePollEnd } from './pollEndJobs';
 
 export const createPost = async (
   data: PostDataUnion,
@@ -168,6 +169,10 @@ export const createPost = async (
     await rebuildEventOccurrences(transformedPost.id, data);
   }
 
+  if (data.type === 'question') {
+    await schedulePollEnd(transformedPost.id, data.expiresAt);
+  }
+
   hub.emit('postCreated', transformedPost);
 
   return transformedPost;
@@ -216,6 +221,12 @@ export const updatePost = async (
 
   if (normalized.type === 'event') {
     await rebuildEventOccurrences(post.id, normalized);
+  }
+
+  if (normalized.type === 'question') {
+    await schedulePollEnd(post.id, normalized.expiresAt);
+  } else {
+    await cancelPollEnd(post.id);
   }
 
   hub.emit('postUpdated', newPost);
@@ -313,6 +324,10 @@ export const deletePost = async (post: PostWithMeta, profile: Profile) => {
 
   if (post.type === 'event') {
     await clearEventOccurrences(post.id);
+  }
+
+  if (post.type === 'question') {
+    await cancelPollEnd(post.id);
   }
 
   return postsMapping.find(db, post.id);
