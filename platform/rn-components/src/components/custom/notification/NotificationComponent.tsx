@@ -13,6 +13,7 @@ import {
   NewGroupMember,
   NewProfile,
   PollVote,
+  PollEnded,
   Reply,
   Mention,
   Repost,
@@ -26,7 +27,10 @@ interface NotificationComponentProps {
   notification: PublicNotification;
 }
 
-const notificationComponentMap: Record<PublicNotification['type'], React.ComponentType<{ notification: PublicNotification }>> = {
+const notificationComponentMap: Record<
+  PublicNotification['type'],
+  React.ComponentType<{ notification: PublicNotification }>
+> = {
   announcement: Announcement,
   directMessage: DirectMessage,
   follow: Follow,
@@ -39,6 +43,7 @@ const notificationComponentMap: Record<PublicNotification['type'], React.Compone
   newGroupPost: NewGroupPost,
   newProfile: NewProfile,
   pollVote: PollVote,
+  pollEnded: PollEnded,
   reply: Reply,
   mention: Mention,
   repost: Repost,
@@ -49,7 +54,9 @@ const notificationComponentMap: Record<PublicNotification['type'], React.Compone
 export const NotificationComponent: React.FC<NotificationComponentProps> = ({
   notification,
 }) => {
-  const NotificationToRender: React.ComponentType<{ notification: PublicNotification }> = notificationComponentMap[notification.type];
+  const NotificationToRender: React.ComponentType<{
+    notification: PublicNotification;
+  }> = notificationComponentMap[notification.type];
 
   if (!NotificationToRender) {
     return (

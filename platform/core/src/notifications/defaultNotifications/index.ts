@@ -15,6 +15,7 @@ import { default as groupAdded } from './groupAdded';
 import { default as groupMemberJoined } from './groupMemberJoined';
 import { default as groupMemberLeft } from './groupMemberLeft';
 import { default as pollVote } from './pollVote';
+import { default as pollEnded } from './pollEnded';
 import { default as newGroupPost } from './newGroupPost';
 import { default as rsvp } from './rsvp';
 import type {
@@ -38,6 +39,7 @@ const defaultNotificationsHandlers: NotificationHandler[] = [
   groupMemberJoined,
   groupMemberLeft,
   pollVote,
+  pollEnded,
   newGroupPost,
   rsvp,
 ];

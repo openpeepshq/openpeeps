@@ -2352,6 +2352,10 @@
           "label": "Umfrage-Abstimmung",
           "description": "Benachrichtigungen verwalten, wenn über eine Umfrage abgestimmt wird"
         },
+        "pollEnded": {
+          "label": "Umfrage beendet",
+          "description": "Benachrichtigungen verwalten, wenn eine Umfrage endet, die Sie gestartet oder an der Sie teilgenommen haben"
+        },
         "rsvp": {
           "label": "RSVP",
           "description": "Benachrichtigungen verwalten, wenn jemand an Ihrer Veranstaltung teilnimmt"
@@ -2800,6 +2804,9 @@
     "pollVote": {
       "text": "{{profileName}} hat an Ihrer Umfrage teilgenommen"
     },
+    "pollEnded": {
+      "text": "Eine Umfrage ist beendet. Sehen Sie sich die Ergebnisse an."
+    },
     "rsvp": {
       "text": "{{profileName}} hat sich für Ihre Veranstaltung angemeldet"
     },
@@ -2910,6 +2917,12 @@
       "title": "Eine neue Abstimmung wurde in {{communityName}} aufgezeichnet",
       "subject": "Eine neue Abstimmung wurde in {{communityName}} aufgezeichnet",
       "body": "{{profileName}} hat an Ihrer Umfrage teilgenommen:",
+      "cta": "Klicken Sie hier, um die Umfrage zu besuchen und die Ergebnisse zu sehen."
+    },
+    "pollEnded": {
+      "title": "Eine Umfrage ist in {{communityName}} beendet",
+      "subject": "Eine Umfrage ist in {{communityName}} beendet",
+      "body": "Eine Umfrage ist beendet. Sehen Sie sich die Ergebnisse an.",
       "cta": "Klicken Sie hier, um die Umfrage zu besuchen und die Ergebnisse zu sehen."
     },
     "rsvp": {

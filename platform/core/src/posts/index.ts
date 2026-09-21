@@ -29,3 +29,9 @@ export {
   eventOccurrenceWorker,
   ensureEventOccurrenceSchedule,
 } from './eventOccurrenceJobs';
+export {
+  pollEndQueue,
+  pollEndWorker,
+  schedulePollEnd,
+  cancelPollEnd,
+} from './pollEndJobs';
