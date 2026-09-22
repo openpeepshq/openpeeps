@@ -1676,7 +1676,7 @@
       "info": {
         "totalMembers": "Count of non-deleted member profiles created on or before the end of the selected range (all-time cumulative).",
         "newMembers": "Profiles created during the selected range. Delta compares to the previous period of the same length.",
-        "activeMembers": "Sum of daily active-member rollups in the range. A member active on multiple days is counted once per day.",
+        "activeMembers": "Distinct members who posted, liked, replied, reposted, or bookmarked at least once in the selected range. A member active on multiple days is counted once.",
         "dau": "Average daily active members in the selected range. Active means posted, liked, replied, reposted, or bookmarked that day.",
         "mau": "Distinct members who posted, liked, replied, reposted, or bookmarked in the 30 days ending at the range end.",
         "dauMau": "Stickiness: average DAU divided by MAU for the range, as a percentage.",

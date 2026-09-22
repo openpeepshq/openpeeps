@@ -1575,7 +1575,7 @@
       "info": {
         "totalMembers": "Anzahl nicht gelöschter Mitgliedsprofile, die am oder vor dem Ende des ausgewählten Zeitraums erstellt wurden (kumulativ, gesamter Zeitraum).",
         "newMembers": "Profile, die im ausgewählten Zeitraum erstellt wurden. Die Differenz vergleicht mit dem vorherigen Zeitraum gleicher Länge.",
-        "activeMembers": "Summe der täglichen Zusammenfassungen aktiver Mitglieder im Zeitraum. Ein an mehreren Tagen aktives Mitglied wird pro Tag einmal gezählt.",
+        "activeMembers": "Eindeutige Mitglieder, die im ausgewählten Zeitraum mindestens einmal gepostet, geliked, geantwortet, geteilt oder mit Lesezeichen versehen haben. Ein an mehreren Tagen aktives Mitglied wird nur einmal gezählt.",
         "dau": "Durchschnittlich aktive Mitglieder pro Tag im ausgewählten Zeitraum. Aktiv bedeutet: an diesem Tag gepostet, geliked, geantwortet, geteilt oder mit Lesezeichen versehen.",
         "mau": "Eindeutige Mitglieder, die in den 30 Tagen bis zum Ende des Zeitraums gepostet, geliked, geantwortet, geteilt oder mit Lesezeichen versehen haben.",
         "dauMau": "Bindung (Stickiness): durchschnittliche DAU geteilt durch MAU für den Zeitraum, in Prozent.",
