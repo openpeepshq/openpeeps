@@ -890,8 +890,17 @@ export type JamRecordingType = z.infer<typeof jamRecordingTypeSchema>;
 export const jamRecordingKindSchema = z.enum(['file', 'rtmp']);
 export type JamRecordingKind = z.infer<typeof jamRecordingKindSchema>;
 
+export const jamRecordingStatusSchema = z.enum([
+  'requested',
+  'active',
+  'finalizing',
+  'completed',
+  'failed',
+]);
+export type JamRecordingStatus = z.infer<typeof jamRecordingStatusSchema>;
+
 export const jamRecordingDataSchema = z.object({
-  status: z.enum(['requested', 'active', 'completed', 'failed']),
+  status: jamRecordingStatusSchema,
   kind: jamRecordingKindSchema.optional(),
   destinationHost: z.string().optional(),
   egressId: z.string().optional(),

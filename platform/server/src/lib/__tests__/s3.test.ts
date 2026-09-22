@@ -272,6 +272,35 @@ describe('installS3Endpoint', () => {
     expect(completeJamRecording).not.toHaveBeenCalled();
   });
 
+  it('accepts multipart complete after the recording is finalizing', async () => {
+    const uploadId = await initiateMultipart();
+    expect(await putPart(uploadId, 1, Buffer.from('hello'))).toMatchObject({
+      status: 200,
+    });
+    findJamRecording.mockResolvedValue({
+      ...activeRecording(),
+      status: 'finalizing',
+    });
+    completeJamRecording.mockResolvedValue({
+      ...activeRecording(),
+      status: 'completed',
+    });
+    const headers = signHeaders({
+      method: 'POST',
+      path: PATH,
+      query: { uploadId },
+    });
+
+    const result = await request(app, {
+      method: 'POST',
+      path: `${PATH}?uploadId=${uploadId}`,
+      headers,
+    });
+    expect(result.status).toBe(200);
+    expect(completeJamRecording).toHaveBeenCalledOnce();
+    expect(failJamRecording).not.toHaveBeenCalled();
+  });
+
   it('rejects overwrite of completed recordings', async () => {
     findJamRecording.mockResolvedValue({
       id: RECORDING_ID,
