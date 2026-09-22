@@ -25,6 +25,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **jams**: raise recording S3 upload cap to 20GiB
 - **jams**: keep stopped recordings uploadable after a new start
 - **conversations**: open a participant list modal from abbreviated handles
 - **profiles**: allow guest profile pages when publicContent is enabled

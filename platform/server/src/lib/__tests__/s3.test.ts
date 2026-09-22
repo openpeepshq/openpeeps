@@ -511,9 +511,10 @@ describe('installS3Endpoint', () => {
     expect(completeJamRecording).not.toHaveBeenCalled();
   });
 
-  it('caps a single recording at 1.5GiB', () => {
-    expect(_s3Test.DEFAULT_MAX_UPLOAD_BYTES).toBe(
-      Math.floor(1.5 * 1024 * 1024 * 1024),
+  it('caps a single recording at 20GiB', () => {
+    expect(_s3Test.DEFAULT_MAX_UPLOAD_BYTES).toBe(20 * 1024 * 1024 * 1024);
+    expect(_s3Test.DEFAULT_MAX_CONCURRENT_MULTIPART_BYTES).toBe(
+      24 * 1024 * 1024 * 1024,
     );
   });
 });
