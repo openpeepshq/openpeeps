@@ -100,6 +100,12 @@ steps — follow that skill.
 
 ## Conventions to respect
 
+- **No PR labels or milestones.** When opening pull requests, do not add labels
+  or milestones. Let maintainers apply those manually.
+- **Theme colors only.** Components must use semantic theme colors (CSS-variable-
+  b based tokens like `border-border`, `text-muted-foreground`) instead of
+  direct Tailwind color values (like `gray-300`, `blue-500`). Theme tokens are
+  defined in the Tailwind preset at `libraries/react-ui/tailwind.preset.cjs`.
 - **i18n:** never hardcode user-facing copy. Add a key to `locales/en.json` and
   reference it via the `t()` function.
 - **Schema migrations:** changes to stored data shape go through **Drizzle SQL**.
@@ -144,13 +150,15 @@ When finalizing a branch for PR:
    ```
    Requires a clean working tree. Commit or stash changes first.
 3. **Sign** the commit with your configured git author (from `git config
-   user.name`/`user.email`; do not hardcode an author here):
+user.name`/`user.email`; do not hardcode an author here):
+
    ```bash
    rtk git commit --amend \
      -m "feat(scope): description
 
    Signed-off-by: Your Name <you@example.com>"
    ```
+
 4. **Push** with force-with-lease:
    ```bash
    rtk git fetch origin <branch> && rtk git push --force-with-lease origin <branch>
