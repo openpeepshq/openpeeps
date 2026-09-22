@@ -127,7 +127,7 @@ export function AdminConfigurationCommunityTheme() {
                 {t(`configuration.community.${mode}Theme.color`)}
               </span>
               <input
-                className="!size-8 !rounded-full"
+                className="border-border !size-8 !rounded-full border"
                 type="color"
                 value={cfg.theme[mode].primaryHex}
                 onChange={(e) =>
