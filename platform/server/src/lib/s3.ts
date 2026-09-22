@@ -30,9 +30,9 @@ const log = logger('server:s3');
 
 const RECORDINGS_BUCKET = 'allpeep-recordings';
 /** Assembled recording cap. Per-part bodies are still bounded by express.raw. */
-const DEFAULT_MAX_UPLOAD_BYTES = Math.floor(1.5 * 1024 * 1024 * 1024);
+const DEFAULT_MAX_UPLOAD_BYTES = 20 * 1024 * 1024 * 1024;
 /** Cap for all in-flight multipart temp data combined. */
-const DEFAULT_MAX_CONCURRENT_MULTIPART_BYTES = 2 * 1024 * 1024 * 1024;
+const DEFAULT_MAX_CONCURRENT_MULTIPART_BYTES = 24 * 1024 * 1024 * 1024;
 
 let maxUploadBytes = DEFAULT_MAX_UPLOAD_BYTES;
 let maxConcurrentMultipartBytes = DEFAULT_MAX_CONCURRENT_MULTIPART_BYTES;
