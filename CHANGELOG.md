@@ -5,6 +5,9 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **recordings**: enhance access control and user feedback for jam recordings
+- **auth**: add invite link expiration handling and error messaging
+- **polls**: add poll end functionality and notifications
 - **conversations**: integrate OpenpeepsMarkdownInput for message composition
 - **events**: add RSVP scope chooser for recurring dates
 - **profile**: add activity summary feature to profiles
