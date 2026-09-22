@@ -22,6 +22,7 @@ import { uuidv7 } from 'uuidv7';
 import { createJamEvent, updateJamRecording } from './mutations';
 import { findActiveRecording, findActiveRtmpStream } from './finders';
 import { cancelRecordingAutoStop, scheduleRecordingAutoStop } from './jobs';
+import { finalizeJamRecording } from './recording';
 import { jamRecordingUploadSecret } from './recordingUploadAuth';
 import { createSignedServiceToken } from '../accessTokens/tokens';
 import { unprocessableRequest } from '../errors';
@@ -112,6 +113,16 @@ const getEgressClient = async () => {
   return new EgressClient(url, apiKey, apiSecret);
 };
 
+export const stopEgress = async (egressId: string) => {
+  const egressClient = await getEgressClient();
+  try {
+    await egressClient.stopEgress(egressId);
+  } catch {
+    // LiveKit egress can time out or already be stopped/failed; the user-facing
+    // stop action should not fail because of that.
+  }
+};
+
 export const startRecording = async (
   profile: ProfileWithMeta,
   jamPost: PostWithMeta,
@@ -121,12 +132,16 @@ export const startRecording = async (
   const roomName = jamRoomName(jamPost.id, recurrenceId);
   const recordingId = uuidv7();
 
-  // Clear any recording left `active` by a previous failed egress so the new
-  // one is the sole active recording for this jam.
+  // A leftover `active` row may still be uploading after stop. Finalize it so
+  // Complete can succeed, and stop its egress so this start is the only live
+  // take.
   const staleRecording = await findActiveRecording(jamPost);
   if (staleRecording) {
     await cancelRecordingAutoStop(staleRecording.id);
-    await updateJamRecording(staleRecording.id, { status: 'failed' });
+    if (staleRecording.egressId) {
+      void stopEgress(staleRecording.egressId);
+    }
+    await finalizeJamRecording(staleRecording.id);
   }
 
   let recording = (await allpeepDb().then(({ db }) =>
@@ -299,16 +314,6 @@ export const stopRtmpStream = async (jamPost: PostWithMeta) => {
   return { ...stream, status: 'completed' as const };
 };
 
-export const stopEgress = async (egressId: string) => {
-  const egressClient = await getEgressClient();
-  try {
-    await egressClient.stopEgress(egressId);
-  } catch {
-    // LiveKit egress can time out or already be stopped/failed; the user-facing
-    // stop action should not fail because of that.
-  }
-};
-
 export const stopRecording = async (
   jamPost: PostWithMeta,
   recurrenceId?: string,
@@ -345,7 +350,8 @@ export const stopRecording = async (
     ),
   );
 
-  return jamRecording;
+  await finalizeJamRecording(jamRecording.id);
+  return { ...jamRecording, status: 'finalizing' as const };
 };
 
 /**

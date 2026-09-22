@@ -5,6 +5,7 @@ import {
   canModerateJam,
   canViewJamAttendees,
   isFileJamRecording,
+  jamRecordingAcceptsUpload,
   pickActiveFileRecording,
   pickActiveRtmpStream,
   rtmpDestinationHost,
@@ -55,6 +56,16 @@ describe('rtmpDestinationHost', () => {
     expect(
       rtmpDestinationHost('rtmps://live.streamyard.com/x/secret-key'),
     ).toBe('live.streamyard.com');
+  });
+});
+
+describe('jamRecordingAcceptsUpload', () => {
+  it('accepts requested, active, and finalizing takes', () => {
+    expect(jamRecordingAcceptsUpload('requested')).toBe(true);
+    expect(jamRecordingAcceptsUpload('active')).toBe(true);
+    expect(jamRecordingAcceptsUpload('finalizing')).toBe(true);
+    expect(jamRecordingAcceptsUpload('completed')).toBe(false);
+    expect(jamRecordingAcceptsUpload('failed')).toBe(false);
   });
 });
 

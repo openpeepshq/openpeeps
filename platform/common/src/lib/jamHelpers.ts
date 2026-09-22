@@ -82,6 +82,9 @@ export const canAccessJamRecordings = (
   return !!event.jam?.moderators?.includes(profile.id);
 };
 
+export const jamRecordingAcceptsUpload = (status: string | undefined) =>
+  status === 'requested' || status === 'active' || status === 'finalizing';
+
 export const isRtmpJamRecording = (recording: { kind?: string | null }) =>
   recording.kind === 'rtmp';
 

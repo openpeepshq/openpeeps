@@ -5,7 +5,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import express, { type Express, type Request, type Response } from 'express';
-import type { Event, JamRecordingWithMeta } from '@openpeepshq/common';
+import {
+  jamRecordingAcceptsUpload,
+  type Event,
+  type JamRecordingWithMeta,
+} from '@openpeepshq/common';
 import {
   completeJamRecording,
   failJamRecording,
@@ -205,7 +209,7 @@ const loadAcceptableRecording = async (
       message: `Recording with id ${recordingId} not found`,
     };
   }
-  if (recording.status !== 'requested' && recording.status !== 'active') {
+  if (!jamRecordingAcceptsUpload(recording.status)) {
     return {
       ok: false,
       status: 409,

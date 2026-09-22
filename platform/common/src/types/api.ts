@@ -20,6 +20,7 @@ import {
   hashtagSchema,
   InviteLink,
   inviteLinkSchema,
+  jamRecordingStatusSchema,
   latLngSchema,
   locationSchema,
   type MediaAttachment,
@@ -842,7 +843,7 @@ export type JamRtmpStreamRequest = z.infer<typeof jamRtmpStreamRequestSchema>;
 
 export const jamRtmpStreamResponseSchema = z.object({
   id: z.string(),
-  status: z.enum(['requested', 'active', 'completed', 'failed']),
+  status: jamRecordingStatusSchema,
   destinationHost: z.string().optional(),
   egressId: z.string().optional(),
 });

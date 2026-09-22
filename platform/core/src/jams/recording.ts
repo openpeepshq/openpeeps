@@ -6,6 +6,7 @@ import type {
   PostWithMeta,
 } from '@openpeepshq/common/types';
 import { jamRecordingSchema } from '@openpeepshq/common/types';
+import { jamRecordingAcceptsUpload } from '@openpeepshq/common/lib';
 import { hub } from '../events';
 import { createPost } from '../posts';
 import { allpeepDb } from '../db';
@@ -36,16 +37,33 @@ export const completeJamRecording = async (
 };
 
 /**
- * Marks an in-progress recording failed so a later start is not blocked by a
- * leftover `active` row. Completed and already-failed recordings are left
- * unchanged. Multipart temp files are the S3 layer's responsibility.
+ * Marks a stopped recording as still accepting its multipart complete. Used
+ * after egress stop so a later start does not fail the in-flight upload.
+ */
+export const finalizeJamRecording = async (
+  recordingId: string,
+): Promise<void> => {
+  const recording = await findJamRecording(recordingId);
+  if (!recording) {
+    return;
+  }
+  if (recording.status !== 'requested' && recording.status !== 'active') {
+    return;
+  }
+  await cancelRecordingAutoStop(recordingId);
+  await updateJamRecording(recordingId, { status: 'finalizing' });
+};
+
+/**
+ * Marks an in-progress or finalizing recording failed. Completed recordings
+ * are left unchanged. Multipart temp files are the S3 layer's responsibility.
  */
 export const failJamRecording = async (recordingId: string): Promise<void> => {
   const recording = await findJamRecording(recordingId);
   if (!recording) {
     return;
   }
-  if (recording.status !== 'requested' && recording.status !== 'active') {
+  if (!jamRecordingAcceptsUpload(recording.status)) {
     return;
   }
   await cancelRecordingAutoStop(recordingId);
