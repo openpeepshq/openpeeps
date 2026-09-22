@@ -671,7 +671,9 @@ export const getAnalyticsOverview = async (
   query: AnalyticsDateQuery = {},
 ): Promise<AnalyticsOverview> => {
   const range = await resolveQueryRange(query);
-  return withCache('overview-v6', range.from, range.to, async () => {
+  // Unique people in the window — summing daily rollups would count a
+  // member once per day they were active.
+  return withCache('overview-v7', range.from, range.to, async () => {
     const [
       activeMembersSeries,
       postsSeries,
@@ -686,6 +688,7 @@ export const getAnalyticsOverview = async (
       totalMembers,
       totalGroups,
       allTimePosts,
+      activeMembers,
       prevActive,
       prevPosts,
       prevTotalMembers,
@@ -705,14 +708,14 @@ export const getAnalyticsOverview = async (
       totalMembersAt(range.to),
       totalGroupsAt(range.to),
       totalPostsAt(range.to),
-      sumColumn(range.previousFrom, range.previousTo, 'activeMembers'),
+      countDistinctActives(range.from, range.to),
+      countDistinctActives(range.previousFrom, range.previousTo),
       sumColumn(range.previousFrom, range.previousTo, 'posts'),
       totalMembersAt(range.previousTo),
       totalGroupsAt(range.previousTo),
       totalPostsAt(range.previousTo),
     ]);
 
-    const activeMembers = sumSeries(activeMembersSeries);
     const totalPosts = sumSeries(postsSeries);
     const { buckets } = selectChartBuckets(range.from, range.to);
 

@@ -133,7 +133,7 @@ export const AnalyticsOverviewPage = () => {
           })}
           info={info(
             'activeMembers',
-            'Distinct members who were active on at least one day in the range, summed from daily active-member rollups.',
+            'Distinct members who posted, liked, replied, reposted, or bookmarked at least once in the selected range. A member active on multiple days is counted once.',
           )}
         />
         <MetricCard
