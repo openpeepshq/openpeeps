@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
-import { Feed } from '../../components';
+import { EventsView, Feed } from '../../components';
 
 export function EventsMy() {
   const t = useT();
@@ -41,7 +41,11 @@ export function EventsMy() {
           {t('events.feed.past', { defaultValue: 'Past' })}
         </TabButton>
       </nav>
-      <Feed query={activeQuery} formatSwitch={false} />
+      <EventsView
+        query={activeQuery}
+        agenda={tab}
+        list={<Feed query={activeQuery} formatSwitch={false} />}
+      />
     </div>
   );
 }

@@ -2844,7 +2844,20 @@
       "label": "Event timeframe",
       "past": "Past",
       "upcoming": "Upcoming",
-      "empty": "No {{type}}s"
+      "empty": "No {{type}}s",
+      "view": {
+        "switchLabel": "Event layout",
+        "list": "List",
+        "calendar": "Calendar"
+      }
+    },
+    "calendar": {
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "today": "Today",
+      "allDay": "All day",
+      "more": "+{{count}} more",
+      "emptyDay": "No events"
     },
     "create": {
       "title": "Create Event"
