@@ -9,7 +9,7 @@ import {
 } from '@livekit/react-native';
 import { ThemedText } from '~/components/ui/themed-text';
 import { Track } from 'livekit-client';
-import { Profile } from '@openpeepshq/common';
+import { Profile, sortByRaisedHand } from '@openpeepshq/common';
 import { MetadataType } from '~/types';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { truncateText } from '~/lib/utils';
@@ -36,8 +36,11 @@ export const ScreenSharing: React.FC<ScreenSharingProps> = ({
   );
 
   // Filter out the screen share track from the participant list
-  const participantTracks = stableTracks.filter(
-    track => track !== screenShareTrack && track.source === 'camera',
+  const participantTracks = sortByRaisedHand(
+    stableTracks.filter(
+      track => track !== screenShareTrack && track.source === 'camera',
+    ),
+    track => track.participant.metadata,
   );
 
   // Ensure totalPages calculation is accurate

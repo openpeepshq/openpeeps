@@ -10,7 +10,11 @@ import {
   X,
 } from 'lucide-react';
 import type { PublicProfile } from '@openpeepshq/common/types';
-import { matchesQuery, profileName } from '@openpeepshq/common/lib';
+import {
+  matchesQuery,
+  profileName,
+  sortByRaisedHand,
+} from '@openpeepshq/common/lib';
 import { useParticipants, useRoomContext } from '@livekit/components-react';
 import type { Participant } from 'livekit-client';
 import { Button, Input } from '@openpeepshq/react-ui';
@@ -104,15 +108,14 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   const [query, setQuery] = useState('');
   const [admittingId, setAdmittingId] = useState<string | null>(null);
 
-  const listedParticipants = useMemo(
-    () =>
-      participants.filter((participant) => {
-        const metadata = parseParticipantMetadata(participant.metadata);
-        if (metadata.observer) return false;
-        return !query || matchesQuery(metadata.profile, query);
-      }),
-    [participants, query],
-  );
+  const listedParticipants = useMemo(() => {
+    const visible = participants.filter((participant) => {
+      const metadata = parseParticipantMetadata(participant.metadata);
+      if (metadata.observer) return false;
+      return !query || matchesQuery(metadata.profile, query);
+    });
+    return sortByRaisedHand(visible, (participant) => participant.metadata);
+  }, [participants, query, raisedHands]);
 
   const waitingProfiles = useMemo(() => {
     if (!waitingRoom) return [] as PublicProfile[];

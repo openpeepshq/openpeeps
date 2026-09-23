@@ -128,3 +128,37 @@ export const toRtmpStreamResponse = (recording: JamRecording) => ({
   destinationHost: recording.destinationHost,
   egressId: recording.egressId,
 });
+
+/** Epoch ms from participant metadata when their hand is up. */
+const raisedHandTimestamp = (metadata?: string): number | undefined => {
+  if (!metadata) return undefined;
+  try {
+    const handRaised = (JSON.parse(metadata) as { handRaised?: unknown })
+      .handRaised;
+    if (typeof handRaised !== 'string' || handRaised.length === 0) {
+      return undefined;
+    }
+    const timestamp = Date.parse(handRaised);
+    return Number.isNaN(timestamp) ? undefined : timestamp;
+  } catch {
+    return undefined;
+  }
+};
+
+/**
+ * Raised hands first, most recent raise first, so the person who just raised
+ * moves to the top of the people list and the top-left of the video grid.
+ * Everyone else keeps their relative order.
+ */
+export const sortByRaisedHand = <T>(
+  items: readonly T[],
+  metadataOf: (item: T) => string | undefined,
+): T[] =>
+  [...items].sort((a, b) => {
+    const aRaised = raisedHandTimestamp(metadataOf(a));
+    const bRaised = raisedHandTimestamp(metadataOf(b));
+    if (aRaised === undefined && bRaised === undefined) return 0;
+    if (aRaised === undefined) return 1;
+    if (bRaised === undefined) return -1;
+    return bRaised - aRaised;
+  });
