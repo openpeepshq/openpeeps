@@ -6,7 +6,7 @@ import {
   useRoomContext,
 } from '@livekit/components-react';
 import { Maximize2, ScreenShare } from 'lucide-react';
-import { profileName } from '@openpeepshq/common/lib';
+import { profileName, sortByRaisedHand } from '@openpeepshq/common/lib';
 import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { AvatarWithName } from '../profile';
@@ -188,28 +188,36 @@ export function JamVideoLayout({
   screenShareTracks,
   observer,
 }: JamVideoLayoutProps) {
+  const orderedCameraTracks = sortByRaisedHand(
+    cameraTracks,
+    (track) => track.participant.metadata,
+  );
   const [screenShareTrack] = screenShareTracks;
   if (screenShareTrack) {
     return (
       <ScreenSharingLayout
-        cameraTracks={cameraTracks}
+        cameraTracks={orderedCameraTracks}
         screenShareTrack={screenShareTrack}
       />
     );
   }
 
-  const [firstTrack] = cameraTracks;
-  if (!observer && cameraTracks.length === 1 && firstTrack) {
+  const [firstTrack] = orderedCameraTracks;
+  if (!observer && orderedCameraTracks.length === 1 && firstTrack) {
     return <AloneLayout track={firstTrack} />;
   }
 
-  if (!observer && cameraTracks.length === 2) {
-    const local = cameraTracks.find((track) => track.participant.isLocal);
-    const remote = cameraTracks.find((track) => !track.participant.isLocal);
+  if (!observer && orderedCameraTracks.length === 2) {
+    const local = orderedCameraTracks.find(
+      (track) => track.participant.isLocal,
+    );
+    const remote = orderedCameraTracks.find(
+      (track) => !track.participant.isLocal,
+    );
     if (local && remote) {
       return <OneOnOneLayout local={local} remote={remote} />;
     }
   }
 
-  return <DefaultGrid cameraTracks={cameraTracks} />;
+  return <DefaultGrid cameraTracks={orderedCameraTracks} />;
 }

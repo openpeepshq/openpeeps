@@ -17,11 +17,21 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '~/components/navigation/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { ThemedText } from '~/components/ui/themed-text';
-import { AudienceSetting, Event, Profile, getProfileAvatar } from '@openpeepshq/common';
+import {
+  AudienceSetting,
+  Event,
+  Profile,
+  getProfileAvatar,
+  sortByRaisedHand,
+} from '@openpeepshq/common';
 import { Input } from '~/components/ui/input';
 import { useParticipants, useRoomContext } from '@livekit/react-native';
 import { profileMatchesQuery, truncateText } from '~/lib/utils';
-import { LocalParticipant, RemoteParticipant } from 'livekit-client';
+import {
+  LocalParticipant,
+  RemoteParticipant,
+  RoomEvent,
+} from 'livekit-client';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';
 import { Button } from '~/components/ui/button';
 import { BASE_URL } from '~/lib/constants';
@@ -39,6 +49,8 @@ export const JamDetails = ({
 }: NativeStackScreenProps<MainStackParamList, 'JamDetails'>) => {
   const { id, tabOption } = route.params;
   const participants = useParticipants();
+  const room = useRoomContext();
+  const [metadataVersion, setMetadataVersion] = useState(0);
   const { openpeepsApi } = useOpenpeeps();
   const { data: jamPost, isLoading } = openpeepsApi.usePost(id as string);
   const jamEvent = jamPost?.data as Event;
@@ -48,18 +60,27 @@ export const JamDetails = ({
   const [filteredJamParticipants, setFilteredJamParticipants] =
     useState<(RemoteParticipant | LocalParticipant)[]>();
 
+  // Local hand raises update metadata in place and do not always replace
+  // the participants array from useParticipants.
   useEffect(() => {
-    if (searchQuery) {
-      setFilteredJamParticipants(
-        participants.filter(participant => {
+    const bump = () => setMetadataVersion(version => version + 1);
+    room.on(RoomEvent.ParticipantMetadataChanged, bump);
+    return () => {
+      room.off(RoomEvent.ParticipantMetadataChanged, bump);
+    };
+  }, [room]);
+
+  useEffect(() => {
+    const visible = searchQuery
+      ? participants.filter(participant => {
           const p = JSON.parse(participant.metadata || '{}');
           return profileMatchesQuery(p.profile, searchQuery);
-        }),
-      );
-    } else {
-      setFilteredJamParticipants(participants);
-    }
-  }, [searchQuery, participants]);
+        })
+      : participants;
+    setFilteredJamParticipants(
+      sortByRaisedHand(visible, participant => participant.metadata),
+    );
+  }, [searchQuery, participants, metadataVersion]);
 
   const jamLink = `${BASE_URL}/events/${id}/jam`;
 
