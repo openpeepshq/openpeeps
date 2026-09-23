@@ -978,7 +978,8 @@
       "stopped": "Recording stopped: {{id}}",
       "started": "Recording started: {{id}}",
       "stopError": "Failed to stop recording",
-      "startError": "Failed to start recording"
+      "startError": "Failed to start recording",
+      "stopConfirm": "Do you really want to stop recording?"
     },
     "lobby": {
       "readyTitle": "Ready to start?",

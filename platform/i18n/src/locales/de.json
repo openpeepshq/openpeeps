@@ -903,7 +903,8 @@
       "stopped": "Aufnahme gestoppt: {{id}}",
       "started": "Aufnahme gestartet: {{id}}",
       "stopError": "Aufnahme konnte nicht gestoppt werden",
-      "startError": "Aufnahme konnte nicht gestartet werden"
+      "startError": "Aufnahme konnte nicht gestartet werden",
+      "stopConfirm": "Wollen Sie die Aufnahme wirklich stoppen?"
     },
     "lobby": {
       "readyTitle": "Bereit zum Starten?",

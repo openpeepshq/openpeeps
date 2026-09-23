@@ -95,6 +95,9 @@ const useFooterControls = () => {
       : 0;
 
   const toggleRecording = async () => {
+    if (isRecording && !window.confirm(t('jams.recording.stopConfirm'))) {
+      return;
+    }
     setBusy(true);
     try {
       if (isRecording) {
