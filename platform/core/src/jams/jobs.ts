@@ -6,7 +6,7 @@ import { findActiveRecording } from './finders';
 
 const log = logger('app:jams:jobs');
 
-export const JAM_RECORDING_MAX_DURATION_MS = 30 * 60 * 1000;
+export const JAM_RECORDING_MAX_DURATION_MS = 2 * 60 * 60 * 1000;
 
 export interface JamRecordingStopJobData {
   jamPostId: string;

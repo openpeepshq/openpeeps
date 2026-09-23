@@ -25,7 +25,7 @@ export const calculateRecordingState = (
     (!lastRecordingStop ||
       lastRecordingStart.createdAt > lastRecordingStop.createdAt) &&
     (Date.now() - new Date(lastRecordingStart.createdAt).getTime()) / 60_000 <
-      60;
+      120;
   const recordingStart = isRecording ? lastRecordingStart.createdAt : undefined;
   return { isRecording, recordingStart };
 };
