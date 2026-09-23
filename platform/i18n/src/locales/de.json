@@ -2951,7 +2951,20 @@
       "past": "Vergangene",
       "upcoming": "Kommende",
       "empty": "Keine Ergebnisse",
-      "label": "Veranstaltungszeitraum"
+      "label": "Veranstaltungszeitraum",
+      "view": {
+        "switchLabel": "Veranstaltungsansicht",
+        "list": "Liste",
+        "calendar": "Kalender"
+      }
+    },
+    "calendar": {
+      "previousMonth": "Vorheriger Monat",
+      "nextMonth": "Nächster Monat",
+      "today": "Heute",
+      "allDay": "Ganztägig",
+      "more": "+{{count}} weitere",
+      "emptyDay": "Keine Veranstaltungen"
     },
     "create": {
       "title": "Veranstaltung erstellen"
