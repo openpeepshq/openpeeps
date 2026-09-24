@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRoomContext } from '@livekit/react-native';
 import { JamEvent, jamEventSchema } from '@openpeepshq/common';
 import { RoomEvent } from 'livekit-client';
 import { AnimatedEmoji } from './animated-emoji';
 import { Buffer } from 'react-native-buffer';
 
+const REACTION_DURATION_MS = 5000;
 
 interface RemoteReactionsProps {
   participantId: string;
@@ -15,37 +16,61 @@ export const RemoteReactions: React.FC<RemoteReactionsProps> = ({
 }) => {
   const room = useRoomContext();
   const [participantReactions, setParticipantReactions] = useState<JamEvent[]>(
-    [],
+    []
   );
 
-  room.on(RoomEvent.DataReceived, payload => {
-    try {
-      const receivedPacketString = Buffer.from(payload).toString('utf8');
-      const jamEvent: JamEvent = jamEventSchema.parse(
-        JSON.parse(receivedPacketString),
-      ) as JamEvent;
-      if (
-        jamEvent.type === 'reaction' &&
-        jamEvent.profileId === participantId
-      ) {
-        setParticipantReactions(prev => [...prev, jamEvent]);
-        setTimeout(() => {
-          const newReactions = participantReactions.filter(
-            r => r.id !== jamEvent.id,
+  useEffect(() => {
+    const timeoutIds = new Map<string, ReturnType<typeof setTimeout>>();
+
+    const onDataReceived = (payload: Uint8Array) => {
+      try {
+        const receivedPacketString = Buffer.from(payload).toString('utf8');
+        const jamEvent = jamEventSchema.parse(
+          JSON.parse(receivedPacketString)
+        ) as JamEvent;
+        if (
+          jamEvent.type !== 'reaction' ||
+          jamEvent.profileId !== participantId
+        ) {
+          return;
+        }
+
+        setParticipantReactions((prev) => {
+          if (prev.some((reaction) => reaction.id === jamEvent.id)) {
+            return prev;
+          }
+          return [...prev, jamEvent];
+        });
+
+        const existing = timeoutIds.get(jamEvent.id);
+        if (existing) clearTimeout(existing);
+
+        const timeoutId = setTimeout(() => {
+          setParticipantReactions((prev) =>
+            prev.filter((reaction) => reaction.id !== jamEvent.id)
           );
-          setParticipantReactions(newReactions);
-        }, 5000);
+          timeoutIds.delete(jamEvent.id);
+        }, REACTION_DURATION_MS);
+        timeoutIds.set(jamEvent.id, timeoutId);
+      } catch (err) {
+        console.log('Error parsing payload', err);
       }
-    } catch (err) {
-      console.log('Error parsing payload', err);
-      return;
-    }
-  });
+    };
+
+    room.on(RoomEvent.DataReceived, onDataReceived);
+    return () => {
+      room.off(RoomEvent.DataReceived, onDataReceived);
+      for (const timeoutId of timeoutIds.values()) {
+        clearTimeout(timeoutId);
+      }
+      setParticipantReactions([]);
+    };
+  }, [participantId, room]);
 
   return (
     <>
-      {participantReactions.map((reaction, idx) => (
-        <AnimatedEmoji key={idx} emoji={reaction.content ?? ''} />
+      {participantReactions.map((reaction) => (
+        <AnimatedEmoji key={reaction.id} emoji={reaction.content ?? ''} />
       ))}
     </>
   );
