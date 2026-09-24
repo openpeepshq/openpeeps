@@ -9,6 +9,10 @@ import {
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { profileName, groupName } from '@openpeepshq/common';
+import {
+  isRsvpCancelNotice,
+  rsvpCancelWhenLabels,
+} from '@openpeepshq/common/lib';
 import type {
   GroupWithMeta,
   PublicNotification,
@@ -334,6 +338,56 @@ function RsvpNotification({
   );
 }
 
+function RsvpCanceledNotification({
+  notification,
+}: {
+  notification: PublicNotification;
+}) {
+  const t = useT();
+  const profile = notification.senderProfile!;
+  const post = notification.post;
+  const event =
+    post?.data?.type === 'event' ? post.data.name?.trim() : undefined;
+  const notice = isRsvpCancelNotice(notification.data)
+    ? notification.data
+    : { occurrenceIds: [], series: false };
+  const when = post ? rsvpCancelWhenLabels(post, notice) : undefined;
+  const whenLabel = when?.series
+    ? t('notification.rsvpCanceled.series', {
+        defaultValue: 'All dates in the series',
+      })
+    : when?.labels.join(', ');
+  return (
+    <NotificationWrapper
+      profile={profile}
+      seen={notification.seen}
+      showProfile={false}
+    >
+      <a href={`/posts/${post?.id}`} className="block w-full px-4 py-2">
+        <p className="mb-1 text-sm font-semibold">
+          {t('notification.rsvpCanceled.text', {
+            defaultValue:
+              '{{profileName}} canceled their RSVP to {{eventName}}',
+            profileName: profileName(profile),
+            eventName:
+              event ||
+              t('notification.rsvpCanceled.eventFallback', {
+                defaultValue: 'your event',
+              }),
+          })}
+        </p>
+        {whenLabel ? (
+          <p className="text-muted-foreground mb-1 text-sm">{whenLabel}</p>
+        ) : null}
+        <p className="text-muted-foreground mb-2 text-xs">
+          <UpdatingDate date={notification.createdAt} />
+        </p>
+        {post ? <FeedPost post={post} /> : null}
+      </a>
+    </NotificationWrapper>
+  );
+}
+
 function GroupAvatarThumb({ group }: { group: GroupWithMeta }) {
   return <GroupAvatar group={group} size={2.5} borderless />;
 }
@@ -601,6 +655,7 @@ const TYPED: Partial<
   pollVote: PollVoteNotification,
   pollEnded: PollEndedNotification,
   rsvp: RsvpNotification,
+  rsvpCanceled: RsvpCanceledNotification,
   groupAdded: NewGroupInvitationNotification,
   groupMemberJoined: NewGroupMemberNotification,
   groupMemberLeft: GroupMemberExitNotification,

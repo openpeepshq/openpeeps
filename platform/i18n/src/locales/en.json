@@ -2538,6 +2538,10 @@
           "label": "RSVP",
           "description": "Manage notifications for when someone rsvps to your event"
         },
+        "rsvpCanceled": {
+          "label": "RSVP canceled",
+          "description": "Manage notifications for when someone cancels an RSVP to your event"
+        },
         "mention": {
           "label": "Mentions",
           "description": "Receive a notification when someone mentions you in a post"
@@ -2904,6 +2908,9 @@
     "rsvp": {
       "removeAttendee": "Remove",
       "restoreAttendee": "Restore",
+      "historyTitle": "RSVP history",
+      "canceled": "canceled their RSVP",
+      "canceledSeries": "All dates in the series",
       "removedMessage": "The organizer has removed you from this event.",
       "full": "Event is full",
       "scope": {
@@ -3032,6 +3039,11 @@
     },
     "rsvp": {
       "text": "{{profileName}} RSVP'd to your event"
+    },
+    "rsvpCanceled": {
+      "text": "{{profileName}} canceled their RSVP to {{eventName}}",
+      "series": "All dates in the series",
+      "eventFallback": "your event"
     },
     "reaction": {
       "text": "{{profileName}} reacted"

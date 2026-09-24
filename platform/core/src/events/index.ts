@@ -1,3 +1,4 @@
+import type { RsvpCancelNotice } from '@openpeepshq/common/lib';
 import type {
   Profile,
   EntryData,
@@ -30,7 +31,13 @@ export type CoreEvents = {
   rsvpCreated: (
     profile: Profile,
     post: PostWithMeta,
-    data: { type: 'rsvp'; data: RSVP; previousResponse?: RsvpResponse },
+    data: {
+      type: 'rsvp';
+      data: RSVP;
+      occurrenceIds?: string[];
+      previousResponse?: RsvpResponse;
+      cancel?: RsvpCancelNotice;
+    },
   ) => void;
   postAnnounced: (post: PostWithMeta) => void;
   configUpdated: (namespace: string, name: string) => void;

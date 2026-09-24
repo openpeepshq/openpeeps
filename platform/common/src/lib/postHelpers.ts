@@ -21,10 +21,13 @@ import {
 import { canModerateJam } from './jamHelpers';
 import {
   defaultRsvpRecurrenceId,
+  effectiveEventTimes,
+  isRecurringEvent,
   listRsvpOccurrences,
   normalizeRecurrenceId,
   sameRecurrenceId,
 } from './eventRecurrence';
+import { formatEventWhen } from './eventTime';
 import {
   checkGroupCapabilities,
   checkPostCapabilities,
@@ -258,6 +261,145 @@ export const countYesRsvps = (post: PublicPost, recurrenceId?: string) =>
   calculateEffectiveRsvps(post, recurrenceId).filter(
     (r) => r.response === 'yes',
   ).length;
+
+const attendingResponse = (response?: PublicRsvp['response']) =>
+  response === 'yes' || response === 'tentative';
+
+/** Current roster: attending guests, plus organizer removals that can be restored. */
+export const listedRsvps = (rsvps: PublicRsvp[]) =>
+  rsvps.filter(
+    (rsvp) =>
+      rsvp.response === 'yes' ||
+      rsvp.response === 'tentative' ||
+      rsvp.response === 'removed',
+  );
+
+/** Set only when a member leaves an attending RSVP. A second "no" stays unset. */
+export type RsvpCancelNotice = {
+  occurrenceIds: string[];
+  series: boolean;
+};
+
+export const isRsvpCancelNotice = (data: unknown): data is RsvpCancelNotice => {
+  if (!data || typeof data !== 'object') return false;
+  const notice = data as RsvpCancelNotice;
+  return (
+    typeof notice.series === 'boolean' &&
+    Array.isArray(notice.occurrenceIds) &&
+    notice.occurrenceIds.every((id) => typeof id === 'string')
+  );
+};
+
+export const rsvpCancelNotice = (
+  post: PublicPost,
+  profileId: string,
+  response: PublicRsvp['response'],
+  occurrenceIds?: string[],
+): RsvpCancelNotice | undefined => {
+  if (response !== 'no') return undefined;
+  const event = post.data?.type === 'event' ? post.data : undefined;
+  if (!event) return undefined;
+
+  if (occurrenceIds?.length) {
+    const canceled = occurrenceIds.filter((id) =>
+      attendingResponse(getEffectiveRsvp(post, profileId, id)?.response),
+    );
+    if (!canceled.length) return undefined;
+    return { occurrenceIds: canceled, series: false };
+  }
+
+  if (attendingResponse(getEffectiveRsvp(post, profileId)?.response)) {
+    return { occurrenceIds: [], series: isRecurringEvent(event) };
+  }
+
+  if (!event.recurrence) return undefined;
+
+  const canceled = instanceRsvpIdsForProfile(post, profileId).filter((id) =>
+    attendingResponse(getEffectiveRsvp(post, profileId, id)?.response),
+  );
+  if (!canceled.length) return undefined;
+  return { occurrenceIds: canceled, series: false };
+};
+
+export type RsvpCancellation = {
+  profile: PublicRsvp['profile'];
+  recurrenceId?: string;
+  canceledAt: string;
+  series: boolean;
+};
+
+const instanceRsvpKey = (profileId: string, recurrenceId: string) =>
+  `${profileId}|${normalizeRecurrenceId(recurrenceId)}`;
+
+/** Attending → no transitions, newest first. Later re-RSVPs do not erase them. */
+export const listRsvpCancellations = (post: PublicPost): RsvpCancellation[] => {
+  const event = post.data?.type === 'event' ? post.data : undefined;
+  const recurring = event ? isRecurringEvent(event) : false;
+  const seriesResponse = new Map<string, PublicRsvp['response']>();
+  const instanceResponse = new Map<string, PublicRsvp['response']>();
+  const records: RsvpCancellation[] = [];
+
+  for (const rsvp of [...(post.rsvps ?? [])].sort(dateSorter())) {
+    const profileId = rsvp.profile.id;
+    if (rsvp.response === 'no') {
+      if (rsvp.recurrenceId) {
+        const key = instanceRsvpKey(profileId, rsvp.recurrenceId);
+        const previous = instanceResponse.has(key)
+          ? instanceResponse.get(key)
+          : seriesResponse.get(profileId);
+        if (attendingResponse(previous)) {
+          records.push({
+            profile: rsvp.profile,
+            recurrenceId: rsvp.recurrenceId,
+            canceledAt: rsvp.createdAt,
+            series: false,
+          });
+        }
+      } else if (attendingResponse(seriesResponse.get(profileId))) {
+        records.push({
+          profile: rsvp.profile,
+          canceledAt: rsvp.createdAt,
+          series: recurring,
+        });
+      }
+    }
+
+    if (rsvp.recurrenceId) {
+      instanceResponse.set(
+        instanceRsvpKey(profileId, rsvp.recurrenceId),
+        rsvp.response,
+      );
+    } else {
+      seriesResponse.set(profileId, rsvp.response);
+    }
+  }
+
+  return records.reverse();
+};
+
+export const rsvpCancelWhenLabels = (
+  post: PublicPost,
+  notice: RsvpCancelNotice,
+): { series: boolean; labels: string[] } => {
+  const event = post.data?.type === 'event' ? post.data : undefined;
+  if (!event || notice.series) return { series: notice.series, labels: [] };
+  const format = (start: string, end?: string) =>
+    formatEventWhen(start, {
+      end,
+      timeZone: event.timeZone,
+      allDay: event.wholeDay,
+    });
+  if (!notice.occurrenceIds.length) {
+    return { series: false, labels: [format(event.start, event.end)] };
+  }
+  return {
+    series: false,
+    labels: notice.occurrenceIds.map((id) => {
+      const times = effectiveEventTimes(event, id);
+      return format(times.start, times.end);
+    }),
+  };
+};
 
 export const instanceRsvpIdsForProfile = (
   post: PublicPost,

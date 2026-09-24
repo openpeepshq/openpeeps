@@ -23,6 +23,12 @@ const eventHandler = async (
     return;
   }
 
+  // Cancellations use rsvpCanceled. A plain "no" or organizer removal is not an RSVP.
+  const response = entryData.data.response;
+  if (response !== 'yes' && response !== 'tentative') {
+    return;
+  }
+
   await maybeCreateNotification(mergedPost.profile, {
     type: 'rsvp',
     postId: mergedPost.id,
