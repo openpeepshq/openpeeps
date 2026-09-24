@@ -1,15 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Text, StyleSheet, Dimensions } from 'react-native';
-
-const { width: screenWidth } = Dimensions.get('window');
+import { Animated, StyleSheet, Text } from 'react-native';
 
 interface AnimatedEmojiProps {
   emoji: string;
 }
 
-const tmax = 5000;
 const g = -0.4e-4;
 const G = Math.abs(g);
+const tmax = 5000;
 const Rx = 2 * G;
 const Fx = 4 * G;
 const vx0 = 0.1 * tmax * G;
@@ -34,50 +32,41 @@ export const AnimatedEmoji: React.FC<AnimatedEmojiProps> = ({ emoji }) => {
   useEffect(() => {
     const t0 = Date.now();
     const tend = t0 + tmax;
-    const vx00 = vx0 * randn();
-
     let t = t0;
-    let x = 0,
-      vx = vx00;
-    let y = 0,
-      vy = vy0;
-    let a = 0,
-      va = 0;
+    let x = 0;
+    let vx = vx0 * randn();
+    let y = 0;
+    let vy = vy0;
+    let a = 0;
+    let va = 0;
+    let frame = 0;
 
-    function step() {
-      const now = Date.now();
-      const dt = now - t;
-      if (now > tend) { return; }
+    const step = () => {
+      if (t > tend) return;
 
-      t = now;
-
-      // integrate positions
+      const dt = Date.now() - t;
+      t += dt;
       x += dt * vx;
       y += dt * vy;
       a += dt * va;
-
-      // integrate velocities
       vx += dt * (Rx * randn() - Fx * vx);
       vy += dt * (g - Fy * vy);
       va += dt * (-Sa * a + Ra * randn() - Fa * va);
 
       const timeFraction = (t - t0) / (tend - t0);
-      const s = 1 - 0.75 * timeFraction;
-      const o = 1 - timeFraction ** 2;
-
-      // apply to Animated.Values
-      translateX.setValue(x);
-      translateY.setValue(-y); // up is negative in React Native
+      const nextScale = 1 - 0.75 * timeFraction;
+      scale.setValue(nextScale);
+      translateX.setValue(x / nextScale);
+      translateY.setValue(-y / nextScale);
       rotate.setValue(a);
-      scale.setValue(s);
-      opacity.setValue(o);
+      opacity.setValue(1 - timeFraction ** 2);
 
-      requestAnimationFrame(step);
-    }
+      frame = requestAnimationFrame(step);
+    };
 
-    requestAnimationFrame(step);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [opacity, rotate, scale, translateX, translateY]);
 
   const rotateInterpolate = rotate.interpolate({
     inputRange: [-360, 360],
@@ -86,35 +75,38 @@ export const AnimatedEmoji: React.FC<AnimatedEmojiProps> = ({ emoji }) => {
 
   return (
     <Animated.View
+      pointerEvents="none"
       style={[
-        styles.emojiContainer,
+        styles.emoji,
         {
+          opacity,
           transform: [
+            { scale },
             { translateX },
             { translateY },
-            { scale },
             { rotate: rotateInterpolate },
           ],
-          opacity,
         },
-      ]}>
+      ]}
+    >
       <Text style={styles.emojiText}>{emoji}</Text>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
-  emojiContainer: {
+  emoji: {
     position: 'absolute',
     bottom: 0,
-    left: screenWidth / 3,
+    right: '33.333333%',
     width: 64,
-    height: 200,
+    height: 64,
+    paddingTop: 12,
     alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
+    backgroundColor: 'transparent',
   },
   emojiText: {
-    fontSize: 48,
+    fontSize: 36,
+    textAlign: 'center',
   },
 });
