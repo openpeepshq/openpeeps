@@ -19,6 +19,7 @@ import {
   Repost,
   Reaction,
   Rsvp,
+  RsvpCanceled,
 } from './types';
 import { ThemedText } from '~/components/ui/themed-text';
 import { NewGroupPost } from './types/NewGroupPost';
@@ -49,6 +50,7 @@ const notificationComponentMap: Record<
   repost: Repost,
   reaction: Reaction,
   rsvp: Rsvp,
+  rsvpCanceled: RsvpCanceled,
 };
 
 export const NotificationComponent: React.FC<NotificationComponentProps> = ({

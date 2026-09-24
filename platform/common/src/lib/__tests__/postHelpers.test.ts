@@ -11,6 +11,10 @@ import {
   countYesRsvps,
   displayRsvpForProfile,
   getEffectiveRsvp,
+  listRsvpCancellations,
+  listedRsvps,
+  rsvpCancelNotice,
+  rsvpCancelWhenLabels,
   instanceRsvpIdsForProfile,
   isCapacityEvent,
   recurringEventHasOpenOccurrence,
@@ -1004,6 +1008,133 @@ describe('postHelpers', () => {
       expect(getJamCapacityJoinBlock(post, { id: 'mod1' })).toEqual({
         blocked: false,
       });
+    });
+  });
+
+  describe('rsvp cancellations', () => {
+    const guest = { ...mockPublicProfile, id: 'guest' };
+    const dateA = '2026-09-08T16:00:00.000Z';
+    const dateB = '2026-09-15T16:00:00.000Z';
+    const rsvp = (
+      response: PublicRsvp['response'],
+      createdAt: string,
+      recurrenceId?: string,
+    ): PublicRsvp =>
+      ({
+        profile: guest,
+        response,
+        createdAt,
+        ...(recurrenceId ? { recurrenceId } : {}),
+      }) as PublicRsvp;
+
+    const singleEvent = (rsvps: PublicRsvp[]) =>
+      ({
+        ...mockEventPost,
+        rsvps,
+      }) as PublicPost;
+
+    const seriesEvent = (rsvps: PublicRsvp[]) =>
+      ({
+        ...mockEventPost,
+        data: {
+          ...mockEventPost.data,
+          type: 'event',
+          start: dateA,
+          recurrence: { freq: 'WEEKLY', count: 2 },
+        },
+        rsvps,
+      }) as PublicPost;
+
+    it('notifies once when a guest leaves a single event', () => {
+      const attending = singleEvent([rsvp('yes', '2026-09-01T00:00:00.000Z')]);
+      expect(rsvpCancelNotice(attending, 'guest', 'no')).toEqual({
+        occurrenceIds: [],
+        series: false,
+      });
+      expect(rsvpCancelNotice(attending, 'guest', 'yes')).toBeUndefined();
+    });
+
+    it('does not notify a second cancellation or a decline', () => {
+      const declined = singleEvent([rsvp('no', '2026-09-01T00:00:00.000Z')]);
+      const canceled = singleEvent([
+        rsvp('yes', '2026-09-01T00:00:00.000Z'),
+        rsvp('no', '2026-09-02T00:00:00.000Z'),
+      ]);
+      expect(rsvpCancelNotice(declined, 'guest', 'no')).toBeUndefined();
+      expect(rsvpCancelNotice(canceled, 'guest', 'no')).toBeUndefined();
+    });
+
+    it('covers one date, several dates, and a whole series', () => {
+      const seriesYes = seriesEvent([rsvp('yes', '2026-09-01T00:00:00.000Z')]);
+      expect(rsvpCancelNotice(seriesYes, 'guest', 'no', [dateA])).toEqual({
+        occurrenceIds: [dateA],
+        series: false,
+      });
+      expect(
+        rsvpCancelNotice(seriesYes, 'guest', 'no', [dateA, dateB]),
+      ).toEqual({
+        occurrenceIds: [dateA, dateB],
+        series: false,
+      });
+      expect(rsvpCancelNotice(seriesYes, 'guest', 'no')).toEqual({
+        occurrenceIds: [],
+        series: true,
+      });
+    });
+
+    it('cancels only the instance dates a guest was attending', () => {
+      const instances = seriesEvent([
+        rsvp('yes', '2026-09-01T00:00:00.000Z', dateA),
+        rsvp('no', '2026-09-01T00:00:00.000Z', dateB),
+      ]);
+      expect(rsvpCancelNotice(instances, 'guest', 'no')).toEqual({
+        occurrenceIds: [dateA],
+        series: false,
+      });
+    });
+
+    it('keeps the cancellation in history after the guest RSVPs again', () => {
+      const post = singleEvent([
+        rsvp('yes', '2026-09-01T00:00:00.000Z'),
+        rsvp('no', '2026-09-02T00:00:00.000Z'),
+        rsvp('yes', '2026-09-03T00:00:00.000Z'),
+      ]);
+      const history = listRsvpCancellations(post);
+      expect(history).toHaveLength(1);
+      expect(history[0]?.canceledAt).toBe('2026-09-02T00:00:00.000Z');
+      expect(history[0]?.series).toBe(false);
+      expect(listedRsvps(calculateEffectiveRsvps(post))).toHaveLength(1);
+      expect(countYesRsvps(post)).toBe(1);
+    });
+
+    it('records a series cancellation without a row per overlaid date', () => {
+      const post = seriesEvent([
+        rsvp('yes', '2026-09-01T00:00:00.000Z'),
+        rsvp('no', '2026-09-02T00:00:00.000Z'),
+        rsvp('no', '2026-09-02T00:00:01.000Z', dateA),
+      ]);
+      const history = listRsvpCancellations(post);
+      expect(history).toEqual([
+        expect.objectContaining({
+          canceledAt: '2026-09-02T00:00:00.000Z',
+          series: true,
+        }),
+      ]);
+    });
+
+    it('labels a single event with its start and a series as all dates', () => {
+      const single = rsvpCancelWhenLabels(singleEvent([]), {
+        occurrenceIds: [],
+        series: false,
+      });
+      expect(single.series).toBe(false);
+      expect(single.labels).toHaveLength(1);
+      expect(
+        rsvpCancelWhenLabels(seriesEvent([]), {
+          occurrenceIds: [],
+          series: true,
+        }).series,
+      ).toBe(true);
     });
   });
 

@@ -52,6 +52,7 @@ import {
   overlaySeriesRsvpEntries,
   normalizeEventDataForSave,
   passThroughUndefined,
+  rsvpCancelNotice,
   sameRecurrenceId,
   seriesYesBlockedByCapacity,
 } from '@openpeepshq/common/lib';
@@ -452,6 +453,13 @@ export const rsvpRespond = async (
     });
   }
 
+  const cancel = rsvpCancelNotice(
+    post,
+    profile.id,
+    data.response,
+    occurrenceIds,
+  );
+
   hub.emit('rsvpCreated', profile, post, {
     type: 'rsvp',
     data: {
@@ -462,6 +470,7 @@ export const rsvpRespond = async (
     },
     occurrenceIds,
     previousResponse,
+    ...(cancel ? { cancel } : {}),
   });
 };
 

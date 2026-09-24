@@ -2654,6 +2654,10 @@
           "label": "RSVP",
           "description": "Benachrichtigungen verwalten, wenn jemand an Ihrer Veranstaltung teilnimmt"
         },
+        "rsvpCanceled": {
+          "label": "RSVP-Stornierung",
+          "description": "Benachrichtigungen verwalten, wenn jemand sein RSVP für Ihre Veranstaltung zurücknimmt"
+        },
         "mention": {
           "label": "Erwähnungen",
           "description": "Benachrichtigung erhalten, wenn Sie in einem Beitrag erwähnt werden"
@@ -3019,6 +3023,9 @@
     "rsvp": {
       "removeAttendee": "Entfernen",
       "restoreAttendee": "Wiederherstellen",
+      "historyTitle": "RSVP-Verlauf",
+      "canceled": "hat sein RSVP zurückgenommen",
+      "canceledSeries": "Alle Termine der Serie",
       "removedMessage": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
       "full": "Veranstaltung ist ausgebucht",
       "scope": {
@@ -3149,6 +3156,11 @@
     },
     "rsvp": {
       "text": "{{profileName}} hat sich für Ihre Veranstaltung angemeldet"
+    },
+    "rsvpCanceled": {
+      "text": "{{profileName}} hat sein RSVP für {{eventName}} zurückgenommen",
+      "series": "Alle Termine der Serie",
+      "eventFallback": "Ihre Veranstaltung"
     },
     "reaction": {
       "text": "{{profileName}} hat reagiert"
