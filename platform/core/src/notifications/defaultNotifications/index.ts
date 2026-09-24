@@ -18,6 +18,7 @@ import { default as pollVote } from './pollVote';
 import { default as pollEnded } from './pollEnded';
 import { default as newGroupPost } from './newGroupPost';
 import { default as rsvp } from './rsvp';
+import { default as rsvpCanceled } from './rsvpCanceled';
 import type {
   NotificationHandler,
   NotificationType,
@@ -42,6 +43,7 @@ const defaultNotificationsHandlers: NotificationHandler[] = [
   pollEnded,
   newGroupPost,
   rsvp,
+  rsvpCanceled,
 ];
 
 export const defaultNotificationTypes: NotificationType[] =

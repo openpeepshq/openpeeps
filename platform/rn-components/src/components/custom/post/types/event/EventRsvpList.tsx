@@ -8,6 +8,10 @@ import {
   countYesRsvps,
   isCapacityEvent,
   isRecurringEvent,
+  listedRsvps,
+  listRsvpCancellations,
+  profileName,
+  rsvpCancelWhenLabels,
   sameRecurrenceId,
 } from '@openpeepshq/common/lib';
 import { ChevronDownIcon, ChevronRightIcon } from '~/components/icons';
@@ -90,15 +94,22 @@ export const EventRsvpList: React.FC<EventRsvpListProps> = ({
     });
   };
 
+  const history = canManageRsvps ? (
+    <RsvpCancellationHistory post={post} />
+  ) : null;
+
   if (!recurring) {
     return (
-      <RsvpGroup
-        rsvps={calculateEffectiveRsvps(post, occurrenceId)}
-        post={post}
-        canManageRsvps={canManageRsvps}
-        recurrenceId={occurrenceId}
-        onManage={onManage}
-      />
+      <View>
+        <RsvpGroup
+          rsvps={listedRsvps(calculateEffectiveRsvps(post, occurrenceId))}
+          post={post}
+          canManageRsvps={canManageRsvps}
+          recurrenceId={occurrenceId}
+          onManage={onManage}
+        />
+        {history}
+      </View>
     );
   }
 
@@ -110,7 +121,7 @@ export const EventRsvpList: React.FC<EventRsvpListProps> = ({
         onToggle={() => toggle(seriesKey)}
       >
         <RsvpGroup
-          rsvps={calculateEffectiveRsvps(post)}
+          rsvps={listedRsvps(calculateEffectiveRsvps(post))}
           post={post}
           canManageRsvps={canManageRsvps}
           onManage={onManage}
@@ -127,13 +138,46 @@ export const EventRsvpList: React.FC<EventRsvpListProps> = ({
             current={sameRecurrenceId(key, occurrenceId)}
           >
             <RsvpGroup
-              rsvps={calculateEffectiveRsvps(post, key)}
+              rsvps={listedRsvps(calculateEffectiveRsvps(post, key))}
               post={post}
               canManageRsvps={canManageRsvps}
               recurrenceId={key}
               onManage={onManage}
             />
           </RsvpPanel>
+        );
+      })}
+      {history}
+    </View>
+  );
+};
+
+const RsvpCancellationHistory: React.FC<{ post: PublicPost }> = ({ post }) => {
+  const { t } = useTranslation();
+  const cancellations = listRsvpCancellations(post);
+  if (!cancellations.length) return null;
+  return (
+    <View className="mt-4 border-t border-border pt-3">
+      <ThemedText className="mb-2 text-sm font-semibold">
+        {t('events.rsvp.historyTitle')}
+      </ThemedText>
+      {cancellations.map((record) => {
+        const when = rsvpCancelWhenLabels(post, {
+          occurrenceIds: record.recurrenceId ? [record.recurrenceId] : [],
+          series: record.series,
+        });
+        const whenLabel = when.series
+          ? t('events.rsvp.canceledSeries')
+          : when.labels.join(', ');
+        return (
+          <ThemedText
+            key={`${record.profile.id}-${record.canceledAt}-${record.recurrenceId ?? 'event'}`}
+            className="text-sm"
+          >
+            {profileName(record.profile)} {t('events.rsvp.canceled')}
+            {whenLabel ? ` — ${whenLabel}` : ''}{' '}
+            {new Date(record.canceledAt).toLocaleString()}
+          </ThemedText>
         );
       })}
     </View>

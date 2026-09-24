@@ -12,9 +12,18 @@ import {
   countYesRsvps,
   isCapacityEvent,
   isRecurringEvent,
+  listedRsvps,
+  listRsvpCancellations,
+  profileName,
+  rsvpCancelWhenLabels,
   sameRecurrenceId,
 } from '@openpeepshq/common/lib';
-import { Button, PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
+import {
+  Button,
+  PopupMenu,
+  PopupMenuButton,
+  UpdatingDate,
+} from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { FollowUnfollowButton, ProfileCard } from '../../profile';
 
@@ -101,17 +110,24 @@ export const EventRsvpList = ({
     });
   };
 
+  const history = canManageRsvps ? (
+    <RsvpCancellationHistory post={post} />
+  ) : null;
+
   if (!recurring) {
     return (
-      <RsvpGroup
-        rsvps={calculateEffectiveRsvps(post, occurrenceId)}
-        post={post}
-        currentProfile={currentProfile}
-        canManageRsvps={canManageRsvps}
-        recurrenceId={occurrenceId}
-        onMessage={onMessage}
-        onManage={onManage}
-      />
+      <>
+        <RsvpGroup
+          rsvps={listedRsvps(calculateEffectiveRsvps(post, occurrenceId))}
+          post={post}
+          currentProfile={currentProfile}
+          canManageRsvps={canManageRsvps}
+          recurrenceId={occurrenceId}
+          onMessage={onMessage}
+          onManage={onManage}
+        />
+        {history}
+      </>
     );
   }
 
@@ -125,7 +141,7 @@ export const EventRsvpList = ({
         onToggle={() => toggle(seriesKey)}
       >
         <RsvpGroup
-          rsvps={calculateEffectiveRsvps(post)}
+          rsvps={listedRsvps(calculateEffectiveRsvps(post))}
           post={post}
           currentProfile={currentProfile}
           canManageRsvps={canManageRsvps}
@@ -144,7 +160,7 @@ export const EventRsvpList = ({
             current={sameRecurrenceId(key, occurrenceId)}
           >
             <RsvpGroup
-              rsvps={calculateEffectiveRsvps(post, key)}
+              rsvps={listedRsvps(calculateEffectiveRsvps(post, key))}
               post={post}
               currentProfile={currentProfile}
               canManageRsvps={canManageRsvps}
@@ -155,6 +171,50 @@ export const EventRsvpList = ({
           </RsvpPanel>
         );
       })}
+      {history}
+    </div>
+  );
+};
+
+const RsvpCancellationHistory = ({ post }: { post: PublicPost }) => {
+  const t = useT();
+  const cancellations = listRsvpCancellations(post);
+  if (!cancellations.length) return null;
+  return (
+    <div className="mt-4 border-t pt-3">
+      <h3 className="mb-2 text-sm font-semibold">
+        {t('events.rsvp.historyTitle', { defaultValue: 'RSVP history' })}
+      </h3>
+      <ul className="flex flex-col gap-2">
+        {cancellations.map((record) => {
+          const when = rsvpCancelWhenLabels(post, {
+            occurrenceIds: record.recurrenceId ? [record.recurrenceId] : [],
+            series: record.series,
+          });
+          const whenLabel = when.series
+            ? t('events.rsvp.canceledSeries', {
+                defaultValue: 'All dates in the series',
+              })
+            : when.labels.join(', ');
+          return (
+            <li
+              key={`${record.profile.id}-${record.canceledAt}-${record.recurrenceId ?? 'event'}`}
+              className="text-sm"
+            >
+              <span className="font-medium">{profileName(record.profile)}</span>{' '}
+              {t('events.rsvp.canceled', {
+                defaultValue: 'canceled their RSVP',
+              })}
+              {whenLabel ? (
+                <span className="text-muted-foreground"> — {whenLabel}</span>
+              ) : null}{' '}
+              <span className="text-muted-foreground">
+                <UpdatingDate date={record.canceledAt} />
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 };
