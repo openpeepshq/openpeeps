@@ -3,8 +3,13 @@ Changelog for OpenPeeps
 
 ## Current
 
+- No changes
+
+## 2026-09-23
+
 ### Features
 
+- **jams**: extend max recording duration to 2 hours
 - **recordings**: enhance access control and user feedback for jam recordings
 - **auth**: add invite link expiration handling and error messaging
 - **polls**: add poll end functionality and notifications
@@ -25,6 +30,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **core**: include replies in group unread post count
+- **jams**: add confirmation prompt before stopping recording
 - **admin**: add outline to theme color swatches
 - **jams**: raise recording S3 upload cap to 20GiB
 - **jams**: keep stopped recordings uploadable after a new start
