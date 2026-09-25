@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { PostCreationData } from '@openpeepshq/common/types';
+import { Info } from 'lucide-react';
 import {
   useT,
   useOpenpeeps,
   useSetPageHeader,
   usePostViewFlush,
   adjustUnseenCounts,
+  useNavigate,
 } from '../../index';
 import { canCreatePost } from '@openpeepshq/common';
 import {
@@ -30,7 +32,6 @@ export function ConversationShow() {
   const me = useCurrentProfile();
   const authData = useAuthData();
   const toast = useToast();
-  const canCreate = canCreatePost(authData, 'note', 'direct');
   const endRef = useRef<HTMLDivElement | null>(null);
 
   const conversationQuery = openpeepsApi.useConversation(id);
@@ -43,6 +44,10 @@ export function ConversationShow() {
   const participants =
     lastMessage?.audience?.filter((a) => a.id !== me?.id) ?? [];
 
+  const hasLeft =
+    lastMessage?.profile?.id === me?.id &&
+    !lastMessage?.audience?.some((p) => p.id === me?.id);
+  const canCreate = canCreatePost(authData, 'note', 'direct') && !hasLeft;
   const multipleParticipants = participants.length > 1;
   const [participantsOpen, setParticipantsOpen] = useState(false);
 
@@ -53,6 +58,7 @@ export function ConversationShow() {
   const openParticipantsLabel = t('conversations.participants.openList', {
     defaultValue: 'View participants',
   });
+
   const headerTitle = useMemo(() => {
     if (!multipleParticipants) return participantNames;
     return (
@@ -68,7 +74,26 @@ export function ConversationShow() {
       </button>
     );
   }, [multipleParticipants, participantNames, openParticipantsLabel]);
-  useSetPageHeader(headerTitle);
+
+  const navigate = useNavigate();
+
+  const headerActions = useMemo(
+    () => (
+      <button
+        type="button"
+        onClick={() => navigate({ type: 'conversation', id, view: 'info' })}
+        title={t('conversations.info.title', {
+          defaultValue: 'Conversation info',
+        })}
+        className="text-muted-foreground hover:text-foreground rounded-md p-1.5"
+      >
+        <Info size={18} />
+      </button>
+    ),
+    [id, navigate, t],
+  );
+
+  useSetPageHeader(headerTitle, headerActions);
 
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);

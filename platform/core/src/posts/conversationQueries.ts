@@ -166,6 +166,76 @@ export const listConversationPreviews = async (
 };
 
 /**
+ * Archived conversations: threads the profile has left — detected by posts
+ * they authored but are no longer in the audience of. Returns
+ * [root, lastReadablePost] per conversation so the user can still find and
+ * view the conversation history after leaving.
+ */
+export const listLeftConversations = async (
+  authData: AuthorizationData,
+): Promise<PostWithMeta[][]> => {
+  const profile = authData.profile;
+  if (!profile) {
+    throw new Error('AuthorizationData.profile is required');
+  }
+  const { db } = await allpeepDb();
+  type RootLeafPair = { rootId: string; leafId: string };
+  const result = (await db.execute(sql`
+    WITH left_posts AS (
+      SELECT p.id AS left_id, rt.to_id AS parent_id
+      FROM posts p
+      INNER JOIN reply_to rt ON rt.from_id = p.id
+      WHERE p.creator_id = ${profile.id}
+        AND p.deleted_at IS NULL
+        AND NOT EXISTS (
+          SELECT 1 FROM audience a
+          WHERE a.from_id = p.id AND a.to_id = p.creator_id
+        )
+    ),
+    walk AS (
+      SELECT lp.left_id AS conv_id, lp.parent_id AS leaf_id,
+             lp.parent_id AS node_id, 0 AS depth
+      FROM left_posts lp
+      UNION ALL
+      SELECT walk.conv_id, walk.leaf_id, rt.to_id, walk.depth + 1
+      FROM reply_to rt
+      INNER JOIN walk ON rt.from_id = walk.node_id
+      WHERE walk.depth < 9999
+    ),
+    roots AS (
+      SELECT DISTINCT ON (conv_id) conv_id, node_id AS root_id, leaf_id
+      FROM walk
+      ORDER BY conv_id, depth DESC
+    )
+    SELECT root_id, leaf_id FROM roots ORDER BY leaf_id DESC
+  `)) as unknown as { rows: Record<string, unknown>[] };
+
+  const pairs: RootLeafPair[] = result.rows.map((row) => ({
+    rootId: row.root_id as string,
+    leafId: row.leaf_id as string,
+  }));
+
+  if (pairs.length === 0) return [];
+
+  const ids = [...new Set(pairs.flatMap((pair) => [pair.rootId, pair.leafId]))];
+  const byId = await hydrateLeanPostsByIds(authData, ids);
+  const blocked = new Set(blockedPairIds(profile));
+
+  return getUniqueBy(
+    pairs
+      .map(({ rootId, leafId }) => {
+        const root = byId.get(rootId);
+        const leaf = byId.get(leafId);
+        if (!root || !leaf) return null;
+        if (isOneToOneWithBlocked(root, profile, blocked)) return null;
+        return rootId === leafId ? [root] : [root, leaf];
+      })
+      .filter((conversation): conversation is PostWithMeta[] => !!conversation),
+    (conversation) => conversation[0]!.id,
+  );
+};
+
+/**
  * Conversation detail: root plus newest capped descendants (lean mapping +
  * seenBatch). Prefer newest messages so long DMs stay usable.
  */

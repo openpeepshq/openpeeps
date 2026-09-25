@@ -2494,7 +2494,8 @@
     "leaveConversation": {
       "title": "Unterhaltung verlassen",
       "description": "Möchten Sie diese Unterhaltung wirklich verlassen?",
-      "leave": "Verlassen"
+      "leave": "Verlassen",
+      "left": "Unterhaltung verlassen"
     },
     "blockAccount": {
       "title": "{{handle}} blockieren",
@@ -2524,6 +2525,11 @@
     "participants": {
       "title": "Teilnehmende",
       "openList": "Teilnehmende anzeigen"
+    },
+    "tabs": {
+      "label": "Unterhaltungslisten",
+      "active": "Aktiv",
+      "archived": "Archiviert"
     }
   },
   "settings": {
