@@ -1059,6 +1059,15 @@
       "turnOffCamera": "Video ausschalten",
       "muteParticipant": "Teilnehmer stummschalten"
     },
+    "speakerView": {
+      "enlarge": "{{name}} vergrößern",
+      "showGrid": "Alle anzeigen",
+      "speaking": "Spricht",
+      "spotlight": "Für alle hervorheben",
+      "removeSpotlight": "Hervorhebung aufheben",
+      "spotlighted": "Hervorgehoben",
+      "cameraOff": "Kamera ist aus"
+    },
     "feed": {
       "label": "Jam-Zeitraum",
       "past": "Vergangen",

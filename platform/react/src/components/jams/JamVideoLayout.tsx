@@ -1,17 +1,20 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   type TrackReferenceOrPlaceholder,
   VideoTrack,
   isTrackReference,
+  useParticipants,
   useRoomContext,
 } from '@livekit/components-react';
-import { Maximize2, ScreenShare } from 'lucide-react';
+import { LayoutGrid, Maximize2, Pin, ScreenShare } from 'lucide-react';
 import { profileName } from '@openpeepshq/common/lib';
 import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { AvatarWithName } from '../profile';
 import { JamCallParticipant } from './JamCallParticipant';
 import { parseParticipantMetadata } from './jamEventActions';
+import { enlargedIdentity, type LocalSpeakerFocus } from './speakerLayout';
+import { useJamSpotlight } from './useJamSpotlight';
 
 export interface JamVideoLayoutProps {
   /** One camera track reference (or placeholder) per participant. */
@@ -21,21 +24,43 @@ export interface JamVideoLayoutProps {
   observer: boolean;
 }
 
+const cameraPublishing = (track: TrackReferenceOrPlaceholder) =>
+  isTrackReference(track) && !track.publication.isMuted;
+
 /** Responsive grid for 1 (observer) or 3+ participants (Svelte `Default`). */
 function DefaultGrid({
   cameraTracks,
+  spotlightIdentity,
+  onEnlarge,
+  onToggleSpotlight,
 }: {
   cameraTracks: TrackReferenceOrPlaceholder[];
+  spotlightIdentity: string | null;
+  onEnlarge: (identity: string) => void;
+  onToggleSpotlight?: (identity: string | null) => void;
 }) {
   return (
     <div className="grid h-full w-full auto-rows-min grid-cols-2 place-items-center content-start justify-items-center gap-2 overflow-auto p-2 md:mb-32 md:flex md:flex-grow md:flex-wrap md:content-center md:items-center md:justify-center">
-      {cameraTracks.map((track) => (
-        <JamCallParticipant
-          key={track.participant.identity}
-          trackRef={track}
-          size="size-40 md:size-52"
-        />
-      ))}
+      {cameraTracks.map((track) => {
+        const identity = track.participant.identity;
+        const spotlighted = identity === spotlightIdentity;
+        return (
+          <JamCallParticipant
+            key={identity}
+            trackRef={track}
+            size="size-40 md:size-52"
+            onEnlarge={
+              cameraPublishing(track) ? () => onEnlarge(identity) : undefined
+            }
+            spotlighted={spotlighted}
+            onToggleSpotlight={
+              onToggleSpotlight
+                ? () => onToggleSpotlight(spotlighted ? null : identity)
+                : undefined
+            }
+          />
+        );
+      })}
     </div>
   );
 }
@@ -72,9 +97,13 @@ function OneOnOneLayout({
 function ScreenSharingLayout({
   cameraTracks,
   screenShareTrack,
+  spotlightIdentity,
+  onToggleSpotlight,
 }: {
   cameraTracks: TrackReferenceOrPlaceholder[];
   screenShareTrack: TrackReferenceOrPlaceholder;
+  spotlightIdentity: string | null;
+  onToggleSpotlight?: (identity: string | null) => void;
 }) {
   const t = useT();
   const room = useRoomContext();
@@ -166,34 +195,192 @@ function ScreenSharingLayout({
         </div>
       </div>
       <div className={participantStripClass}>
-        {cameraTracks.map((track) => (
-          <JamCallParticipant
-            key={track.participant.identity}
-            trackRef={track}
-            size="size-24 flex-shrink-0"
-            compact
-          />
-        ))}
+        {cameraTracks.map((track) => {
+          const identity = track.participant.identity;
+          const spotlighted = identity === spotlightIdentity;
+          return (
+            <JamCallParticipant
+              key={identity}
+              trackRef={track}
+              size="size-24 flex-shrink-0"
+              compact
+              spotlighted={spotlighted}
+              onToggleSpotlight={
+                onToggleSpotlight
+                  ? () => onToggleSpotlight(spotlighted ? null : identity)
+                  : undefined
+              }
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** Large stage plus a filmstrip of everyone else. */
+function SpeakerLayout({
+  stage,
+  cameraTracks,
+  spotlightIdentity,
+  onEnlarge,
+  onShowGrid,
+  onToggleSpotlight,
+}: {
+  stage: TrackReferenceOrPlaceholder;
+  cameraTracks: TrackReferenceOrPlaceholder[];
+  spotlightIdentity: string | null;
+  onEnlarge: (identity: string) => void;
+  onShowGrid: () => void;
+  onToggleSpotlight?: (identity: string | null) => void;
+}) {
+  const t = useT();
+  const stageIdentity = stage.participant.identity;
+  const spotlighted = stageIdentity === spotlightIdentity;
+  const others = cameraTracks.filter(
+    (track) => track.participant.identity !== stageIdentity,
+  );
+
+  return (
+    <div className="flex h-full min-h-0 w-full flex-col gap-2 p-2 md:flex-row max-md:landscape:flex-row">
+      <div className="relative min-h-0 min-w-0 flex-1">
+        <JamCallParticipant
+          trackRef={stage}
+          size="size-full"
+          spotlighted={spotlighted}
+          onToggleSpotlight={
+            onToggleSpotlight
+              ? () => onToggleSpotlight(spotlighted ? null : stageIdentity)
+              : undefined
+          }
+        />
+        {cameraPublishing(stage) ? null : (
+          <div className="pointer-events-none absolute inset-x-0 top-1/2 z-20 flex justify-center px-4">
+            <p className="bg-surface text-foreground rounded-lg px-3 py-2 text-sm">
+              {t('jams.speakerView.cameraOff')}
+            </p>
+          </div>
+        )}
+        <div className="absolute left-3 top-3 z-20 flex max-w-[calc(100%-4.5rem)] flex-wrap gap-2">
+          <button
+            type="button"
+            className="bg-surface text-foreground border-border flex items-center gap-2 rounded-full border px-3 py-2 text-sm"
+            onClick={onShowGrid}
+          >
+            <LayoutGrid className="size-4" aria-hidden="true" />
+            {t('jams.speakerView.showGrid')}
+          </button>
+          {onToggleSpotlight ? (
+            <button
+              type="button"
+              className="bg-surface text-foreground border-border flex items-center gap-2 rounded-full border px-3 py-2 text-sm"
+              onClick={() =>
+                onToggleSpotlight(spotlighted ? null : stageIdentity)
+              }
+            >
+              <Pin className="size-4" aria-hidden="true" />
+              {spotlighted
+                ? t('jams.speakerView.removeSpotlight')
+                : t('jams.speakerView.spotlight')}
+            </button>
+          ) : null}
+          {spotlighted ? (
+            <span className="bg-primary text-on-primary-token rounded-full px-3 py-2 text-sm">
+              {t('jams.speakerView.spotlighted')}
+            </span>
+          ) : null}
+        </div>
+      </div>
+      <div className="flex max-h-32 w-full flex-shrink-0 flex-row gap-2 overflow-x-auto md:h-full md:max-h-full md:w-36 md:flex-col md:overflow-y-auto md:overflow-x-hidden max-md:landscape:h-full max-md:landscape:max-h-full max-md:landscape:w-28 max-md:landscape:flex-col max-md:landscape:overflow-y-auto max-md:landscape:overflow-x-hidden">
+        {others.map((track) => {
+          const identity = track.participant.identity;
+          const tileSpotlighted = identity === spotlightIdentity;
+          return (
+            <JamCallParticipant
+              key={identity}
+              trackRef={track}
+              size="size-24 flex-shrink-0"
+              compact
+              spotlighted={tileSpotlighted}
+              onEnlarge={
+                cameraPublishing(track) ? () => onEnlarge(identity) : undefined
+              }
+              onToggleSpotlight={
+                onToggleSpotlight
+                  ? () => onToggleSpotlight(tileSpotlighted ? null : identity)
+                  : undefined
+              }
+            />
+          );
+        })}
       </div>
     </div>
   );
 }
 
 /**
- * Picks the in-call layout to match the Svelte `VideoCall` mode selection:
- * screen-sharing > observer/default grid > alone (1) > one-on-one (2) > grid.
+ * Picks the in-call layout. Screen sharing stays in front. A personal pin or
+ * host spotlight then fills the stage. Otherwise: alone, one-on-one, or grid.
  */
 export function JamVideoLayout({
   cameraTracks,
   screenShareTracks,
   observer,
 }: JamVideoLayoutProps) {
+  const participants = useParticipants();
+  const { spotlightIdentity, setSpotlight, canSpotlight } = useJamSpotlight();
+  const [focus, setFocus] = useState<LocalSpeakerFocus>({ mode: 'follow' });
+  const seenSpotlight = useRef(spotlightIdentity);
+
+  useEffect(() => {
+    if (seenSpotlight.current === spotlightIdentity) return;
+    seenSpotlight.current = spotlightIdentity;
+    setFocus({ mode: 'follow' });
+  }, [spotlightIdentity]);
+
+  const presentIds = new Set(
+    participants.map((participant) => participant.identity),
+  );
+  const stageIdentity = enlargedIdentity(focus, spotlightIdentity, presentIds);
+
+  useEffect(() => {
+    if (focus.mode !== 'pin') return;
+    const stillThere = participants.some(
+      (participant) => participant.identity === focus.identity,
+    );
+    if (stillThere) return;
+    setFocus({ mode: 'grid' });
+  }, [participants, focus]);
+
+  const onEnlarge = (identity: string) => setFocus({ mode: 'pin', identity });
+  const onToggleSpotlight = canSpotlight
+    ? (identity: string | null) => setSpotlight(identity)
+    : undefined;
+
   const [screenShareTrack] = screenShareTracks;
   if (screenShareTrack) {
     return (
       <ScreenSharingLayout
         cameraTracks={cameraTracks}
         screenShareTrack={screenShareTrack}
+        spotlightIdentity={spotlightIdentity}
+        onToggleSpotlight={onToggleSpotlight}
+      />
+    );
+  }
+
+  const stage = cameraTracks.find(
+    (track) => track.participant.identity === stageIdentity,
+  );
+  if (stage) {
+    return (
+      <SpeakerLayout
+        stage={stage}
+        cameraTracks={cameraTracks}
+        spotlightIdentity={spotlightIdentity}
+        onEnlarge={onEnlarge}
+        onShowGrid={() => setFocus({ mode: 'grid' })}
+        onToggleSpotlight={onToggleSpotlight}
       />
     );
   }
@@ -211,5 +398,12 @@ export function JamVideoLayout({
     }
   }
 
-  return <DefaultGrid cameraTracks={cameraTracks} />;
+  return (
+    <DefaultGrid
+      cameraTracks={cameraTracks}
+      spotlightIdentity={spotlightIdentity}
+      onEnlarge={onEnlarge}
+      onToggleSpotlight={onToggleSpotlight}
+    />
+  );
 }

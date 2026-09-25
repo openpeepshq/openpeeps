@@ -1149,6 +1149,15 @@
       "showEveryone": "Show everyone",
       "turnOffCamera": "Turn off Video",
       "muteParticipant": "Mute Participant"
+    },
+    "speakerView": {
+      "enlarge": "Enlarge {{name}}",
+      "showGrid": "Show everyone",
+      "speaking": "Speaking",
+      "spotlight": "Spotlight for everyone",
+      "removeSpotlight": "Remove spotlight",
+      "spotlighted": "Spotlighted",
+      "cameraOff": "Camera is off"
     }
   },
   "admin": {
