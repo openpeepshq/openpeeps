@@ -7,7 +7,15 @@ import {
   useIsSpeaking,
   useRoomContext,
 } from '@livekit/components-react';
-import { AudioLines, Ellipsis, Hand, Mic, MicOff, WifiOff } from 'lucide-react';
+import {
+  AudioLines,
+  Ellipsis,
+  Hand,
+  Mic,
+  MicOff,
+  Pin,
+  WifiOff,
+} from 'lucide-react';
 import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
@@ -27,6 +35,12 @@ export interface JamCallParticipantProps {
   /** Tailwind size classes for the tile (e.g. `size-full`, `size-40 md:size-52`). */
   size: string;
   compact?: boolean;
+  /** Enlarge this camera. Only offered while the camera is publishing. */
+  onEnlarge?: () => void;
+  /** Host spotlight currently points at this participant. */
+  spotlighted?: boolean;
+  /** Host-only toggle for the room-wide spotlight. */
+  onToggleSpotlight?: () => void;
 }
 
 function JamParticipantReactions({
@@ -51,8 +65,12 @@ function JamParticipantReactions({
  * `CallParticipant` mute control and the React Native action sheet. */
 function JamParticipantModeratorMenu({
   trackRef,
+  spotlighted,
+  onToggleSpotlight,
 }: {
   trackRef: TrackReferenceOrPlaceholder;
+  spotlighted: boolean;
+  onToggleSpotlight?: () => void;
 }) {
   const t = useT();
   const { jamPost } = useJamContext();
@@ -104,6 +122,22 @@ function JamParticipantModeratorMenu({
         icon={MicOff}
         action={handleMute}
       />
+      {onToggleSpotlight ? (
+        <PopupMenuButton
+          title={
+            spotlighted
+              ? t('jams.speakerView.removeSpotlight')
+              : t('jams.speakerView.spotlight')
+          }
+          text={
+            spotlighted
+              ? t('jams.speakerView.removeSpotlight')
+              : t('jams.speakerView.spotlight')
+          }
+          icon={Pin}
+          action={onToggleSpotlight}
+        />
+      ) : null}
     </PopupMenu>
   );
 }
@@ -113,9 +147,13 @@ function JamParticipantModeratorMenu({
 function JamParticipantOverlay({
   trackRef,
   compact,
+  spotlighted,
+  onToggleSpotlight,
 }: {
   trackRef: TrackReferenceOrPlaceholder;
   compact: boolean;
+  spotlighted: boolean;
+  onToggleSpotlight?: () => void;
 }) {
   const t = useT();
   const participant = trackRef.participant;
@@ -151,9 +189,9 @@ function JamParticipantOverlay({
 
   return (
     <div
-      className={`absolute right-0 top-0 flex h-full w-full flex-col justify-between ${compact ? '' : 'md:p-3'}`}
+      className={`pointer-events-none absolute right-0 top-0 z-10 flex h-full w-full flex-col justify-between ${compact ? '' : 'md:p-3'}`}
     >
-      <div className="flex w-full items-start justify-between">
+      <div className="pointer-events-auto flex w-full items-start justify-between">
         <div className="flex items-center gap-1">
           {handUp ? (
             <div className="bg-background/70 rounded-full p-2">
@@ -161,7 +199,33 @@ function JamParticipantOverlay({
             </div>
           ) : null}
           {viewerIsModerator && !participant.isLocal ? (
-            <JamParticipantModeratorMenu trackRef={trackRef} />
+            <JamParticipantModeratorMenu
+              trackRef={trackRef}
+              spotlighted={spotlighted}
+              onToggleSpotlight={onToggleSpotlight}
+            />
+          ) : onToggleSpotlight && !participant.isLocal ? (
+            <PopupMenu
+              icon={Ellipsis}
+              className="bg-surface text-foreground"
+              iconSize={16}
+              title={t('jams.speakerView.spotlight')}
+            >
+              <PopupMenuButton
+                title={
+                  spotlighted
+                    ? t('jams.speakerView.removeSpotlight')
+                    : t('jams.speakerView.spotlight')
+                }
+                text={
+                  spotlighted
+                    ? t('jams.speakerView.removeSpotlight')
+                    : t('jams.speakerView.spotlight')
+                }
+                icon={Pin}
+                action={onToggleSpotlight}
+              />
+            </PopupMenu>
           ) : null}
         </div>
         <div
@@ -218,18 +282,29 @@ export function JamCallParticipant({
   trackRef,
   size,
   compact = false,
+  onEnlarge,
+  spotlighted = false,
+  onToggleSpotlight,
 }: JamCallParticipantProps) {
+  const t = useT();
   const participant = trackRef.participant;
   const profile = parseParticipantMetadata(participant.metadata).profile;
   const connectionLost = useConnectionLost(participant);
+  const speaking = useIsSpeaking(participant);
+  const cameraOn = isTrackReference(trackRef) && !trackRef.publication.isMuted;
+  const displayName =
+    profile?.displayName || (profile?.handle ? `@${profile.handle}` : '');
 
   return (
-    <div className={`${size} bg-background relative rounded-xl border`}>
+    <div
+      className={`${size} bg-background relative rounded-xl border ${speaking ? 'ring-primary ring-offset-background ring-2 ring-offset-2' : ''}`}
+      title={speaking ? t('jams.speakerView.speaking') : undefined}
+    >
       <TrackRefContext.Provider value={trackRef}>
         <div
           className={`size-full overflow-hidden rounded-xl ${connectionLost ? 'opacity-40 grayscale' : ''}`}
         >
-          {isTrackReference(trackRef) && !trackRef.publication.isMuted ? (
+          {cameraOn ? (
             <VideoTrack
               trackRef={trackRef}
               className="size-full object-cover"
@@ -240,7 +315,20 @@ export function JamCallParticipant({
             </div>
           )}
         </div>
-        <JamParticipantOverlay trackRef={trackRef} compact={compact} />
+        {onEnlarge && cameraOn ? (
+          <button
+            type="button"
+            className="absolute inset-0 z-0 cursor-pointer rounded-xl"
+            aria-label={t('jams.speakerView.enlarge', { name: displayName })}
+            onClick={onEnlarge}
+          />
+        ) : null}
+        <JamParticipantOverlay
+          trackRef={trackRef}
+          compact={compact}
+          spotlighted={spotlighted}
+          onToggleSpotlight={onToggleSpotlight}
+        />
         <JamParticipantReactions
           identity={participant.identity}
           isLocal={participant.isLocal}
