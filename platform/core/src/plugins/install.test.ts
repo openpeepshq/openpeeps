@@ -17,6 +17,7 @@ const testState = vi.hoisted(() => ({
   pluginsDir: `/tmp/openpeeps-plugin-install-${process.pid}`,
   spawnCalls: [] as SpawnCall[],
   persistedValues: [] as unknown[],
+  storedConfigRows: [] as Array<{ key: string; body: unknown }>,
   logs: [] as unknown[],
   npmConfig: '',
   npmConfigMode: 0,
@@ -118,7 +119,7 @@ vi.mock('../db', () => ({
       select: () => ({
         from: () => ({
           where: () => ({
-            limit: async () => [],
+            limit: async () => testState.storedConfigRows,
           }),
         }),
       }),
@@ -157,13 +158,16 @@ const writePlugin = async (directory: string) => {
   );
 };
 
-const { installPlugin } = await import('./install');
+const { installPlugin, selfHealInstalledPlugins } = await import('./install');
+const { setPluginEnabledOverride } = await import('./state');
 
 beforeEach(async () => {
   await fs.rm(testState.pluginsDir, { recursive: true, force: true });
   await fs.mkdir(testState.pluginsDir, { recursive: true });
   testState.spawnCalls.length = 0;
   testState.persistedValues.length = 0;
+  testState.storedConfigRows.length = 0;
+  vi.mocked(setPluginEnabledOverride).mockClear();
   testState.logs.length = 0;
   testState.npmConfig = '';
   testState.npmConfigMode = 0;
@@ -368,5 +372,138 @@ describe('installPlugin credentials', () => {
         'utf8',
       ),
     ).toContain("packages:\n  - '.'");
+  });
+});
+
+describe('installPlugin record persistence', () => {
+  const storedInstallRecord = async () => {
+    for (const value of testState.persistedValues) {
+      const record = value as {
+        key: string;
+        body: Record<string, Record<string, unknown>>;
+      };
+      if (record.key === 'openpeeps-installed-plugins') {
+        return record.body['acme/private-plugin'];
+      }
+    }
+    return undefined;
+  };
+
+  it('marks a credential-backed install as requiring auth without storing the secret', async () => {
+    const result = await installPlugin({
+      type: 'npm',
+      package: '@acme/private-plugin',
+      auth: { token: 'persisted-secret-token' },
+    });
+
+    expect(result).toEqual({ success: true, pluginKey: 'acme/private-plugin' });
+    const record = await storedInstallRecord();
+    expect(record?.requiresAuth).toBe(true);
+    expect(record?.source).toBe('npm:@acme/private-plugin');
+    expect(JSON.stringify(testState.persistedValues)).not.toContain(
+      'persisted-secret-token',
+    );
+  });
+
+  it('marks an unauthenticated install as not requiring auth', async () => {
+    await installPlugin({
+      type: 'git',
+      url: 'https://git.example.com/acme/private-plugin.git',
+    });
+
+    const record = await storedInstallRecord();
+    expect(record?.requiresAuth).toBe(false);
+    expect(record?.source).toBe(
+      'git:https://git.example.com/acme/private-plugin.git',
+    );
+  });
+});
+
+describe('selfHealInstalledPlugins', () => {
+  const seedInstalledRecord = (record: {
+    source: string;
+    requiresAuth: boolean;
+    installedBy?: string;
+  }) => {
+    testState.storedConfigRows.push({
+      key: 'openpeeps-installed-plugins',
+      body: {
+        'acme/private-plugin': {
+          ...record,
+          installedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    });
+  };
+
+  it('re-downloads a missing public plugin without touching its enabled state', async () => {
+    seedInstalledRecord({
+      source: 'git:https://git.example.com/acme/private-plugin.git',
+      requiresAuth: false,
+      installedBy: 'admin@example.com',
+    });
+
+    const failures = await selfHealInstalledPlugins();
+
+    expect(failures).toEqual({});
+    await expect(
+      fs.access(
+        path.join(testState.pluginsDir, 'acme/private-plugin/package.json'),
+      ),
+    ).resolves.toBeUndefined();
+    expect(setPluginEnabledOverride).not.toHaveBeenCalled();
+    expect(testState.spawnCalls.some(({ command }) => command === 'npm')).toBe(
+      false,
+    );
+  });
+
+  it('does not re-download private plugins and reports them for re-install', async () => {
+    seedInstalledRecord({
+      source: 'git:https://git.example.com/acme/private-plugin.git#main',
+      requiresAuth: true,
+    });
+
+    const failures = await selfHealInstalledPlugins();
+
+    expect(Object.keys(failures)).toEqual(['acme/private-plugin']);
+    expect(failures['acme/private-plugin']).toContain('private source');
+    expect(testState.spawnCalls).toEqual([]);
+    expect(await fs.readdir(testState.pluginsDir)).toEqual([]);
+  });
+
+  it('leaves healthy plugins alone', async () => {
+    await fs.mkdir(path.join(testState.pluginsDir, 'acme/private-plugin'), {
+      recursive: true,
+    });
+    await fs.writeFile(
+      path.join(testState.pluginsDir, 'acme/private-plugin/package.json'),
+      '{}',
+    );
+    seedInstalledRecord({
+      source: 'npm:@acme/private-plugin',
+      requiresAuth: true,
+    });
+
+    const failures = await selfHealInstalledPlugins();
+
+    expect(failures).toEqual({});
+    expect(testState.spawnCalls).toEqual([]);
+  });
+
+  it('records the error when a public re-download fails', async () => {
+    testState.failure = {
+      command: 'npm',
+      args: ['install', '--omit=peer', '@acme/private-plugin'],
+      stderr: 'npm ERR! 404 Not Found',
+    };
+    seedInstalledRecord({
+      source: 'npm:@acme/private-plugin',
+      requiresAuth: false,
+    });
+
+    const failures = await selfHealInstalledPlugins();
+
+    expect(failures['acme/private-plugin']).toContain('404 Not Found');
+    expect(await fs.readdir(testState.pluginsDir)).toEqual([]);
   });
 });

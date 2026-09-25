@@ -3,7 +3,9 @@ Changelog for OpenPeeps
 
 ## Current
 
-- No changes
+### Features
+
+- **plugins**: persist installed plugins via self-heal and backups
 
 ## 2026-09-23
 

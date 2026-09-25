@@ -1,8 +1,8 @@
 # Backups
 
 OpenPeeps backups are ZIP archives that capture the community database,
-uploaded media, and server logs. Use them to migrate instances or recover from
-mistakes.
+uploaded media, server logs, and installed plugins. Use them to migrate
+instances or recover from mistakes.
 
 <div style="height:20px"></div>
 
@@ -11,16 +11,17 @@ mistakes.
 Owners and moderators with the appropriate capabilities can manage backups at
 **Administration → Backups** (`/admin/backups`).
 
-| Action   | Capability               |
-| -------- | ------------------------ |
-| List     | `core-backups-read`      |
-| Create   | `core-backups-create`    |
-| Download | `core-backups-download`  |
-| Restore  | `core-backups-restore`   |
+| Action   | Capability              |
+| -------- | ----------------------- |
+| List     | `core-backups-read`     |
+| Create   | `core-backups-create`   |
+| Download | `core-backups-download` |
+| Restore  | `core-backups-restore`  |
 
 **Create backup** builds a new archive on the server. **Restore** replaces the
-current database, media files, and logs with the contents of an uploaded archive.
-Restore is destructive: take a fresh backup first if you might need to roll back.
+current database, media files, logs, and plugins with the contents of an
+uploaded archive. Restore is destructive: take a fresh backup first if you
+might need to roll back.
 
 Completed archives are downloaded from `/backups/{name}.zip` (authenticated).
 
@@ -58,8 +59,10 @@ Each backup is a ZIP file with this structure:
 │   └── … (one file per collection / edge table)
 ├── media/
 │   └── … (uploaded files)
-└── logs/
-    └── … (server log files)
+├── logs/
+│   └── … (server log files)
+└── plugins/
+    └── … (admin-installed plugin trees; absent in older backups)
 ```
 
 There is **no** `pg_dump` / `database.dump` file. Database content is stored as
@@ -83,16 +86,16 @@ Postgres schema version at export time.
 }
 ```
 
-| Field                    | Description                                                                                                                                 |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `databaseType`           | Always `"postgres"`. Archives without this field are rejected.                                                                              |
-| `createdAt`              | ISO-8601 timestamp when the archive was created.                                                                                            |
-| `schemaVersion`          | Drizzle migration journal tag the database was on when the backup was created (Postgres backups only).                                      |
-| `config.hostname`        | Public hostname of the community when the backup was created. On restore, absolute URLs in stored data are rewritten from this host to the current server host. |
+| Field             | Description                                                                                                                                                     |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `databaseType`    | Always `"postgres"`. Archives without this field are rejected.                                                                                                  |
+| `createdAt`       | ISO-8601 timestamp when the archive was created.                                                                                                                |
+| `schemaVersion`   | Drizzle migration journal tag the database was on when the backup was created (Postgres backups only).                                                          |
+| `config.hostname` | Public hostname of the community when the backup was created. On restore, absolute URLs in stored data are rewritten from this host to the current server host. |
 
 <div style="height:20px"></div>
 
-## collections/*.jsonl
+## collections/\*.jsonl
 
 Each file in `collections/` holds one JSON object per line (JSONL). The file
 name (without `.jsonl`) is the collection name, for example `accounts.jsonl`,
@@ -113,14 +116,20 @@ and inspection.
 
 <div style="height:20px"></div>
 
-## media/ and logs/
+## media/, logs/ and plugins/
 
 - **media/** — contents of the configured media storage directory (local disk
   or equivalent path on the server).
 - **logs/** — local server log files from the configured logs path.
+- **plugins/** — the plugin directory (`PLUGINS_PATH`), so admin-installed
+  plugins travel with the instance. Absent from backups created by older
+  images, and omitted when the directory does not exist.
 
 On restore, existing media and logs directories are emptied, then repopulated
-from the archive.
+from the archive. The plugins directory is replaced only when the archive
+contains one — restoring an older backup leaves the live plugin tree untouched.
+Restored plugin peer-dependency links are re-anchored to the current host
+packages, so they keep resolving after an image update.
 
 <div style="height:20px"></div>
 
@@ -128,7 +137,7 @@ from the archive.
 
 1. Extract the ZIP to a temporary directory.
 2. Validate `metadata.json` and at least one `collections/*.jsonl` file.
-3. Replace media and logs on disk.
+3. Replace media, logs, and (when present in the archive) plugins on disk.
 4. Reset the Postgres schemas and migrate to the restore target schema:
    - with `schemaVersion` → that journal tag.
    - without `schemaVersion` → `0007_shallow_oracle`

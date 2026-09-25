@@ -4,6 +4,7 @@ import { defaultConfig, registerConfigSchema } from '../config';
 import type { PackageJson } from 'type-fest';
 import type { Plugin, PluginManifest } from '@openpeepshq/common';
 import { i18nResourceSchema, pluginManifestSchema } from '@openpeepshq/common';
+import path from 'node:path';
 import {
   enumeratePluginInfos,
   enumerateReferencedPluginInfos,
@@ -11,6 +12,7 @@ import {
   sortByDependencies,
 } from './helpers';
 import { getPluginStateOverrides } from './state';
+import { selfHealInstalledPlugins } from './install';
 import { logger } from '../log';
 import { clearPluginLocales, registerPluginLocales } from '../i18n';
 
@@ -61,6 +63,17 @@ export const initializePlugins = async () => {
     plugins: { path: pluginsPath, rootPackageJsonPath },
   } = await defaultConfig;
   const stateOverrides = await getPluginStateOverrides();
+
+  // Re-fetch admin-installed plugins whose files are missing (e.g. the
+  // plugins path is not a persistent volume and the container was recreated).
+  // Never let a failed heal take the boot down — the plugin is surfaced as a
+  // failed entry below so an admin can see why and re-install it.
+  let healFailures: Record<string, string> = {};
+  try {
+    healFailures = await selfHealInstalledPlugins();
+  } catch (e) {
+    log.error(e, 'Plugin self-heal failed; continuing without it.');
+  }
 
   const loadPlugin = async (
     key: string,
@@ -172,6 +185,19 @@ export const initializePlugins = async () => {
 
   for (const [key, info, pluginPath] of sortedInfos) {
     await loadPlugin(key, info, pluginPath);
+  }
+
+  for (const [key, reason] of Object.entries(healFailures)) {
+    const [namespace, name] = key.split('/');
+    loadedPlugins.set(key, {
+      key,
+      namespace,
+      name,
+      info: { name: key },
+      path: path.join(pluginsPath, key),
+      status: 'failed',
+      error: reason,
+    });
   }
 
   initialized = true;
