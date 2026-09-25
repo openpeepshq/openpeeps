@@ -13,3 +13,11 @@ export * from './jams';
 export * from './preview-link';
 export * from './conversations';
 export * from './configuration';
+export { CapabilityMatrix } from './CapabilityMatrix';
+export type {
+  CapabilityMatrixColumn,
+  CapabilityMatrixProps,
+} from './CapabilityMatrix';
+export { RoleCapabilityMatrix } from './RoleCapabilityMatrix';
+export type { RoleCapabilityMatrixProps } from './RoleCapabilityMatrix';
+export { RelationCapabilitiesEditor } from './RelationCapabilitiesEditor';

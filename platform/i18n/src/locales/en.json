@@ -1528,7 +1528,11 @@
       "unnamedSection": "Configuration",
       "community": {
         "capabilities": {
-          "title": "Roles and Capabilities"
+          "title": "Roles and Capabilities",
+          "rolesTitle": "Instance roles",
+          "rolesDescription": "Set the capabilities granted by each instance role. Mirrors the group roles matrix: click a cell to cycle empty -> allow (+) -> deny (-); ~ is inherited from a wildcard and x is locked.",
+          "relationsTitle": "Relationship capabilities",
+          "relationsDescription": "Set the capabilities each relationship holds for posts, profiles, reports, and access tokens. Click a cell to cycle: empty -> allow (+) -> deny (-); ~ is inherited from a wildcard and x is locked."
         },
         "defaultRoles": {
           "title": "Default Role",
@@ -3347,6 +3351,36 @@
       "placeholder": "Search docs…",
       "ariaLabel": "Search documentation",
       "noResults": "No matching pages"
+    }
+  },
+  "capabilities": {
+    "roles": {
+      "capability": "Capability",
+      "allowAll": "All",
+      "saveSuccess": "Role capabilities updated",
+      "noUpdateCapability": "You can view but not edit role capabilities without core-roles-update."
+    },
+    "relations": {
+      "capability": "Capability",
+      "allowAll": "All",
+      "saveSuccess": "Relationship capabilities updated",
+      "noUpdateCapability": "You can view but not edit relationship capabilities without core-config-update.",
+      "post": {
+        "title": "Posts",
+        "description": "Who can read, react to, and otherwise interact with posts depending on their relationship to the post author."
+      },
+      "profile": {
+        "title": "Profiles",
+        "description": "Who can read and edit profiles depending on their relationship to the profile."
+      },
+      "report": {
+        "title": "Reports",
+        "description": "Who can create and read reports depending on their relationship to the report."
+      },
+      "accessToken": {
+        "title": "Access tokens",
+        "description": "Who can manage a service token depending on their relationship to the token owner."
+      }
     }
   }
 }

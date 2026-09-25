@@ -223,3 +223,58 @@ export const roleCapabilities = [
 ] as const;
 
 export type RoleCapability = (typeof roleCapabilities)[number];
+
+/**
+ * Capability keys an instance admin can toggle for each role (leaves) plus the
+ * wildcard allow-all keys an editor exposes. `*` covers capabilities that do not
+ * fall under a `core-<domain>-*` category (e.g. `core-local`).
+ */
+export const roleCapabilityEditorKeys = [
+  ...roleCapabilities,
+  '*',
+  'core-accounts-*',
+  'core-analytics-*',
+  'core-backups-*',
+  'core-capabilities-*',
+  'core-config-*',
+  'core-customization-*',
+  'core-db-*',
+  'core-groups-*',
+  'core-i18n-*',
+  'core-inviteLinks-*',
+  'core-logs-*',
+  'core-maintenance-*',
+  'core-plugins-*',
+  'core-profiles-*',
+  'core-posts-create-*',
+  'core-posts-*',
+  'core-reports-*',
+  'core-roles-*',
+  'core-serviceTokens-*',
+] as const;
+
+/** Capability keys an admin can toggle per relationship for posts. */
+export const postCapabilityEditorKeys = [
+  ...postCapabilities,
+  'core-posts-*',
+] as const;
+
+/** Capability keys an admin can toggle per relationship for profiles. */
+export const profileCapabilityEditorKeys = [
+  ...profileCapabilities,
+  ...postCapabilities,
+  'core-profiles-*',
+  'core-posts-*',
+] as const;
+
+/** Capability keys an admin can toggle per relationship for reports. */
+export const reportCapabilityEditorKeys = [
+  ...reportCapabilities,
+  'core-reports-*',
+] as const;
+
+/** Capability keys an admin can toggle per relationship for access tokens. */
+export const accessTokenCapabilityEditorKeys = [
+  ...accessTokenCapabilities,
+  'core-serviceTokens-*',
+] as const;
