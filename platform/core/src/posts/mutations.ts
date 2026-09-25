@@ -5,6 +5,7 @@ import {
   PostWithMeta,
   PostData,
   Profile,
+  ProfileWithMeta,
   ReactionData,
   RSVP,
   RsvpRequest,
@@ -12,6 +13,7 @@ import {
 } from '@openpeepshq/common/types';
 
 import { PostDataUnion } from '@openpeepshq/common/types';
+import { sql } from 'drizzle-orm';
 import { allpeepDb } from '../db';
 import { uuidv7 } from 'uuidv7';
 import { nowIso } from '../db/pg/mappers';
@@ -36,6 +38,9 @@ import {
 import { postsMapping, repostRelation } from './mapping';
 import { bumpConversationActivity } from './activity';
 import { findGroup } from '../groups/finders';
+import { findLatestThreadPostId } from './conversationQueries';
+import { findPostsForAuth } from './finders';
+import { profilesCache } from '../profiles/cache';
 import { findOrCreateHashtag } from '../hashtags';
 import { hub } from '../events';
 import { listUnseenGroupPostIds } from './unseenCounts';
@@ -491,4 +496,69 @@ export const rsvpManageByOrganizer = async (
     data,
     previousResponse,
   });
+};
+
+/**
+ * Remove a profile from a direct-message conversation thread.
+ *
+ * - Creates a system "X left" post (empty content) with the *remaining*
+ *   participants as audience. The leaving user is excluded so future
+ *   replies (which inherit the audience) won't notify them, and the thread
+ *   disappears from their inbox.
+ * - MessageInThread detects the leave via the audience diff: the leaving
+ *   user was in the previous post's audience but not in the left-post's.
+ * - The conversation post-creation endpoint detects leavers (author not in
+ *   their own post's audience) to block further posting and exclude them
+ *   from future replies' audience.
+ * - For 1:1 DMs (no remaining participants), removes the user from every
+ *   post's audience so the thread vanishes from their inbox.
+ * - The leaving user can still find the thread in the "Archived" conversations
+ *   tab, detected by posts they authored but are not in.
+ */
+export const leaveConversation = async (
+  rootPost: PostWithMeta,
+  profile: ProfileWithMeta,
+): Promise<void> => {
+  const { db } = await allpeepDb();
+
+  const lastPostId = await findLatestThreadPostId(rootPost.id);
+  const [lastPost] =
+    lastPostId === rootPost.id
+      ? [rootPost]
+      : await findPostsForAuth([lastPostId]);
+
+  if (!lastPost) return;
+
+  const remainingAudience =
+    lastPost.audience?.filter((p) => p.id !== profile.id) ?? [];
+
+  if (remainingAudience.length > 0) {
+    await createPost(
+      { type: 'note', content: '' },
+      profile,
+      { type: 'note', visibility: 'direct', creatorId: profile.id },
+      {
+        inReplyToId: lastPost.id,
+        audience: remainingAudience as unknown as Profile[],
+      },
+    );
+  } else {
+    // 1:1 DM — remove the user from every post's audience so the
+    // thread no longer appears in their inbox.
+    await db.execute(sql`
+      WITH RECURSIVE t AS (
+        SELECT ${rootPost.id}::text AS id, 0 AS depth
+        UNION ALL
+        SELECT rt.from_id::text, t.depth + 1
+        FROM reply_to rt
+        INNER JOIN t ON rt.to_id = t.id
+        WHERE t.depth < 9999
+      )
+      DELETE FROM audience
+      WHERE from_id IN (SELECT id FROM t)
+      AND to_id = ${profile.id}
+    `);
+  }
+
+  await profilesCache.del(profile.id);
 };

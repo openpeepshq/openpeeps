@@ -2212,7 +2212,8 @@
     "leaveConversation": {
       "title": "Unterhaltung verlassen",
       "description": "Möchten Sie diese Unterhaltung wirklich verlassen?",
-      "leave": "Verlassen"
+      "leave": "Verlassen",
+      "left": "Unterhaltung verlassen"
     },
     "blockAccount": {
       "title": "{{handle}} blockieren",
@@ -2238,7 +2239,12 @@
     "open": "Unterhaltung öffnen",
     "placeholder": "Nachricht schreiben…",
     "title": "Unterhaltung",
-    "titleWithYou": "{{names}} und Sie"
+    "titleWithYou": "{{names}} und Sie",
+    "tabs": {
+      "label": "Unterhaltungslisten",
+      "active": "Aktiv",
+      "archived": "Archiviert"
+    }
   },
   "settings": {
     "description": "Verwalten Sie hier alle Einstellungen zu Ihrem Konto:",

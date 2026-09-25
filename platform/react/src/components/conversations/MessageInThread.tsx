@@ -49,6 +49,9 @@ export function MessageInThread({
     adjustUnread: isUnread,
   });
   const { added, removed } = audienceDiff(previous, message);
+  // The author leaving their own conversation is shown via the "left" label
+  // below, so exclude them from the "removedBy" avatars to avoid redundancy.
+  const removedOthers = removed.filter((p) => p.id !== message.profile.id);
   const name = profileName(message.profile);
   const isMe = message.profile.id === me?.id;
 
@@ -82,10 +85,10 @@ export function MessageInThread({
         </div>
       )}
 
-      {removed.length > 0 && (
+      {removedOthers.length > 0 && (
         <div className="flex items-center gap-2">
           <div className="flex -space-x-2">
-            {removed.map((p) => (
+            {removedOthers.map((p) => (
               <Avatar key={p.id} profile={p} size={2.5} borderless navigate />
             ))}
           </div>

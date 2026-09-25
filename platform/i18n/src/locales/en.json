@@ -2384,7 +2384,8 @@
     "leaveConversation": {
       "title": "Leave Conversation",
       "description": "Are you sure you want to leave this conversation?",
-      "leave": "Leave"
+      "leave": "Leave",
+      "left": "Left conversation"
     },
     "blockAccount": {
       "title": "Block {{handle}}",
@@ -2413,6 +2414,11 @@
     "participants": {
       "title": "Participants",
       "openList": "View participants"
+    },
+    "tabs": {
+      "label": "Conversation lists",
+      "active": "Active",
+      "archived": "Archived"
     }
   },
   "settings": {
