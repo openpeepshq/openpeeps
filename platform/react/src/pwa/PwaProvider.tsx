@@ -5,8 +5,9 @@ import {
   useServiceWorker,
   type UseServiceWorkerOptions,
 } from './useServiceWorker';
-import { useNavigate } from '../contexts/router';
+import { useNavigate, useOptionalPathname } from '../contexts/router';
 import { toRouterPath } from './navigationUrl';
+import { flushDeferredPageReload } from './pageReload';
 import { normalizePushInvalidateMessage } from './pushInvalidate';
 import { useNotificationBadgeSync } from './useNotificationBadgeSync';
 import { startStaleAppReload } from './staleAppReload';
@@ -22,7 +23,7 @@ export interface PwaProviderProps
  * High-level wrapper that registers the service worker and connects:
  *   - SW NAVIGATE_TO → router.navigate
  *   - SW INVALIDATE_QUERIES → react-query.invalidateQueries
- *   - stale production builds → full page reload
+ *   - stale production builds → full page reload, except while a jam is open
  *
  * Mount this once near the top of your app (inside QueryClientProvider and
  * RouterProvider).
@@ -41,7 +42,13 @@ export function PwaProvider({
     navigate = undefined;
   }
   const queryClient = useQueryClient();
+  const pathname = useOptionalPathname();
   useNotificationBadgeSync();
+
+  useEffect(() => {
+    if (!autoReload) return;
+    flushDeferredPageReload(() => window.location.reload());
+  }, [autoReload, pathname]);
 
   const handleNavigate =
     onNavigate ??

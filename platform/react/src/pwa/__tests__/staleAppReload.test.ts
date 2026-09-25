@@ -135,6 +135,23 @@ describe('forceReloadOnce', () => {
     expect(forceReloadOnce(reloadIo)).toBe(false);
     expect(reloads).toBe(1);
   });
+
+  it('does not reload or start the cooldown while a jam is open', () => {
+    const storage = memoryStorage();
+    let reloads = 0;
+    const reloadIo = {
+      storage,
+      canReload: () => false,
+      reload: () => {
+        reloads += 1;
+      },
+      now: () => 5_000,
+    };
+    expect(forceReloadOnce(reloadIo)).toBe(false);
+    expect(reloads).toBe(0);
+    expect(forceReloadOnce({ ...reloadIo, canReload: () => true })).toBe(true);
+    expect(reloads).toBe(1);
+  });
 });
 
 describe('startStaleAppReload', () => {

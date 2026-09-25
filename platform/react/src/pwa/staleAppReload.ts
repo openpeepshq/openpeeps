@@ -1,4 +1,5 @@
 import { logger } from '../log';
+import { deferPageReload, inJamRoom } from './pageReload';
 
 const log = logger('pwa');
 
@@ -18,6 +19,8 @@ export type StaleAppReloadIo = {
   currentSignature: () => string | null;
   storage: StaleAppReloadStorage;
   reload: () => void;
+  /** When false, skip this attempt without starting the cooldown. */
+  canReload?: () => boolean;
   now?: () => number;
 };
 
@@ -58,16 +61,22 @@ export const createBrowserStaleAppReloadIo = (): StaleAppReloadIo | null => {
     },
     currentSignature: () => buildSignatureFromDocument(document),
     storage: window.sessionStorage,
+    canReload: () => {
+      if (!inJamRoom()) return true;
+      deferPageReload();
+      return false;
+    },
     reload: () => window.location.reload(),
   };
 };
 
 export const forceReloadOnce = (
-  io: Pick<StaleAppReloadIo, 'storage' | 'reload'> & {
+  io: Pick<StaleAppReloadIo, 'storage' | 'reload' | 'canReload'> & {
     now?: () => number;
   },
   cooldownMs = RELOAD_COOLDOWN_MS,
 ): boolean => {
+  if (io.canReload && !io.canReload()) return false;
   const now = io.now?.() ?? Date.now();
   const raw = io.storage.getItem(STORAGE_RELOAD_AT_KEY);
   if (raw) {
