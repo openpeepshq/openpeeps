@@ -415,6 +415,24 @@ The `Dockerfile` also sets `ROOT_PACKAGE_JSON_PATH=/apat/package.json` alongside
 this image without extra configuration — the loader reads the same root
 `package.json` that was baked into the image at build time.
 
+### Persistence, self-healing, and backups
+
+Plugins installed via the admin UI are written to `PLUGINS_PATH` **inside the
+container**. Point `PLUGINS_PATH` at a named volume or bind mount (as the
+example stack does) — `docker compose up` with a new image discards the
+container's writable layer, so a plugin tree that is not volume-mounted is
+lost with it.
+
+As a safety net, on boot the server re-downloads admin-installed plugins whose
+files are missing: public npm/git sources are re-fetched automatically. Private
+sources cannot be re-fetched because credentials are never stored, so they
+appear as failed plugins ("reinstall it with its credentials") until an admin
+reinstalls them.
+
+Backups (`opc backups create`) include the plugins directory, so restores and
+instance moves carry installed plugins with the instance; restored plugin peer
+links are re-anchored to the current host packages.
+
 ### Troubleshooting: a removed/renamed plugin keeps loading
 
 `plugins/<namespace>/<name>/` is scanned from the **host** directory bind-mounted

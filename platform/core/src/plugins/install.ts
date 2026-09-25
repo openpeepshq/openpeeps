@@ -19,12 +19,18 @@ const MAX_COMMAND_OUTPUT = 16_000;
 
 const INSTALLED_PLUGINS_KEY = 'openpeeps-installed-plugins';
 
-type InstalledPluginsBody = Record<
-  string,
-  { source: string; installedAt: string; installedBy?: string }
->;
+type InstalledPluginRecord = {
+  /** Redacted source label (npm:pkg@ver or git:url#ref); never the credentials. */
+  source: string;
+  /** True when the install required credentials that are not stored. */
+  requiresAuth: boolean;
+  installedAt: string;
+  installedBy?: string;
+};
 
-const getInstalledPlugins = async (): Promise<InstalledPluginsBody> => {
+type InstalledPluginsBody = Record<string, InstalledPluginRecord>;
+
+export const getInstalledPlugins = async (): Promise<InstalledPluginsBody> => {
   const { db } = await allpeepDb();
   const rows = await db
     .select()
@@ -37,12 +43,13 @@ const getInstalledPlugins = async (): Promise<InstalledPluginsBody> => {
 const setInstalledPlugin = async (
   pluginKey: string,
   source: string,
+  requiresAuth: boolean,
   installedBy?: string,
 ): Promise<void> => {
   const installed = await getInstalledPlugins();
   const body: InstalledPluginsBody = {
     ...installed,
-    [pluginKey]: { source, installedAt: nowIso(), installedBy },
+    [pluginKey]: { source, requiresAuth, installedAt: nowIso(), installedBy },
   };
   const ts = nowIso();
   const { db } = await allpeepDb();
@@ -133,6 +140,35 @@ const sourceLabel = (source: PluginInstallSource): string =>
     ? `npm:${source.package}${source.version ? `@${source.version}` : ''}`
     : `git:${redactUrl(source.url)}${source.ref ? `#${source.ref}` : ''}`;
 
+/**
+ * Inverse of sourceLabel for credentials-free sources; undefined when the
+ * stored label is not a label this version produced.
+ */
+const parseInstallSource = (label: string): PluginInstallSource | undefined => {
+  if (label.startsWith('npm:')) {
+    const spec = label.slice('npm:'.length);
+    const at = spec.lastIndexOf('@');
+    // A leading '@' is the scope prefix, not a version separator.
+    if (at <= 0) {
+      return { type: 'npm', package: spec };
+    }
+    return {
+      type: 'npm',
+      package: spec.slice(0, at),
+      version: spec.slice(at + 1),
+    };
+  }
+  if (label.startsWith('git:')) {
+    const spec = label.slice('git:'.length);
+    const hash = spec.indexOf('#');
+    if (hash === -1) {
+      return { type: 'git', url: spec };
+    }
+    return { type: 'git', url: spec.slice(0, hash), ref: spec.slice(hash + 1) };
+  }
+  return undefined;
+};
+
 const sourceSecrets = (source: PluginInstallSource): string[] => {
   if (source.type === 'npm') {
     return source.auth ? [source.auth.token] : [];
@@ -203,7 +239,7 @@ const resolveHostPackage = async (name: string): Promise<string> => {
   }
 };
 
-const linkHostPeerDependencies = async (
+export const linkHostPeerDependencies = async (
   installDir: string,
   names: string[],
 ): Promise<{ success: true } | { success: false; error: string }> => {
@@ -304,6 +340,7 @@ const writeGitAuth = async (
 export const installPlugin = async (
   source: PluginInstallSource,
   installedBy?: string,
+  options?: { selfHeal?: boolean },
 ): Promise<{
   success: boolean;
   pluginKey?: string;
@@ -459,15 +496,22 @@ export const installPlugin = async (
     await fs.mkdir(path.join(pluginsDir, namespace), { recursive: true });
     await fs.rm(destDir, { recursive: true, force: true });
     await fs.cp(installDir, destDir, { recursive: true });
-    await setInstalledPlugin(pluginKey, label, installedBy);
-    // Installed plugins never auto-enable — an admin must explicitly
-    // activate them via the enable toggle (Phase B) after reviewing them.
-    await setPluginEnabledOverride(pluginKey, false);
-    log.info(
-      `Plugin ${pluginKey} installed successfully from ${label}${
-        installedBy ? ` by ${installedBy}` : ''
-      }. Disabled by default — activate it explicitly to load it.`,
-    );
+    await setInstalledPlugin(pluginKey, label, secrets.length > 0, installedBy);
+    if (options?.selfHeal) {
+      // Re-downloading an already-reviewed plugin keeps its enabled state.
+      log.info(
+        `Self-healed plugin ${pluginKey} (re-downloaded from ${label}).`,
+      );
+    } else {
+      // Installed plugins never auto-enable — an admin must explicitly
+      // activate them via the enable toggle (Phase B) after reviewing them.
+      await setPluginEnabledOverride(pluginKey, false);
+      log.info(
+        `Plugin ${pluginKey} installed successfully from ${label}${
+          installedBy ? ` by ${installedBy}` : ''
+        }. Disabled by default — activate it explicitly to load it.`,
+      );
+    }
 
     return { success: true, pluginKey };
   } catch (e) {
@@ -509,6 +553,69 @@ export const uninstallPlugin = async (
     log.error(e, `Failed to uninstall plugin ${pluginKey}.`);
     return { success: false, error: message };
   }
+};
+
+/**
+ * Re-downloads admin-installed plugins whose files are missing from the
+ * plugins directory (e.g. after a container recreate whose plugins path was
+ * not a persistent volume). Credentials are not stored, so plugins installed
+ * from private sources cannot be re-fetched — they are reported for manual
+ * re-install instead. Returns pluginKey -> reason for every plugin that is
+ * still unavailable after the attempt.
+ */
+export const selfHealInstalledPlugins = async (): Promise<
+  Record<string, string>
+> => {
+  const installed = await getInstalledPlugins();
+  const pluginsDir = await getPluginDir();
+  const failures: Record<string, string> = {};
+
+  for (const [pluginKey, record] of Object.entries(installed)) {
+    const healthy = await fs
+      .access(path.join(pluginsDir, pluginKey, 'package.json'))
+      .then(() => true)
+      .catch(() => false);
+    if (healthy) continue;
+
+    if (record.requiresAuth) {
+      log.error(
+        `Plugin ${pluginKey} files are missing and it was installed from a private source; re-install it with credentials.`,
+      );
+      failures[pluginKey] =
+        'Plugin files are missing. It was installed from a private source, which cannot be re-downloaded automatically — reinstall it with its credentials.';
+      continue;
+    }
+
+    const source = parseInstallSource(record.source);
+    if (!source) {
+      log.error(
+        `Plugin ${pluginKey} files are missing and its recorded source "${record.source}" could not be parsed.`,
+      );
+      failures[pluginKey] =
+        'Plugin files are missing and its recorded install source is no longer recognizable — reinstall it.';
+      continue;
+    }
+
+    try {
+      const result = await installPlugin(source, record.installedBy, {
+        selfHeal: true,
+      });
+      if (!result.success) {
+        log.error(
+          new Error(result.error ?? 'unknown error'),
+          `Self-heal failed for plugin ${pluginKey}.`,
+        );
+        failures[pluginKey] = `Automatic re-download failed: ${result.error}`;
+      }
+    } catch (e) {
+      log.error(e, `Self-heal failed for plugin ${pluginKey}.`);
+      failures[pluginKey] = `Automatic re-download failed: ${
+        e instanceof Error ? e.message : String(e)
+      }`;
+    }
+  }
+
+  return failures;
 };
 
 export const getInstalledPluginKeys = async (): Promise<string[]> => {

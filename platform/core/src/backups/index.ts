@@ -7,6 +7,7 @@ import {
   rm,
   writeFile,
   readFile,
+  stat,
 } from 'node:fs/promises';
 import { constants, createWriteStream } from 'node:fs';
 import { spawn } from 'node:child_process';
@@ -16,7 +17,7 @@ import { tmpdir } from 'node:os';
 import archiver from 'archiver';
 import extract from 'extract-zip';
 import { collectionInfos } from '../db';
-import { communityConfig, config } from '../config';
+import { communityConfig, config, defaultConfig } from '../config';
 import {
   exportAllPostgresCollections,
   importAllPostgresCollections,
@@ -26,11 +27,17 @@ import { replaceOrigin } from '../db/replaceOrigin';
 import { logger } from '../log';
 import { setDefaultRoles } from '../roles';
 import { serverRootUrl } from '../server';
+import { linkHostPeerDependencies } from '../plugins';
 import { resolveBackupDatabaseType, type BackupMetadata } from './metadata';
 
 export { resolveBackupDatabaseType } from './metadata';
 
 const log = logger('core:backups');
+
+const pathExists = (p: string) =>
+  access(p)
+    .then(() => true)
+    .catch(() => false);
 
 /** Safety net if extraction stalls (normal 1 GiB restore finishes in a few minutes). */
 const EXTRACT_TIMEOUT_MS = 30 * 60 * 1000;
@@ -146,6 +153,45 @@ const zipDirectory = (sourceDir: string, zipPath: string) =>
     archive.directory(sourceDir, false);
     void archive.finalize();
   });
+
+/**
+ * Peer-dependency symlinks in a restored plugin were created against the host
+ * packages of the image the backup came from. Re-anchor them to the current
+ * host tree so restored plugins resolve even after an image update.
+ */
+const relinkRestoredPlugins = async (pluginsPath: string) => {
+  const namespaces = await readdir(pluginsPath).catch(() => [] as string[]);
+  for (const namespace of namespaces) {
+    const namespaceDir = join(pluginsPath, namespace);
+    if (
+      !(await stat(namespaceDir)
+        .then((s) => s.isDirectory())
+        .catch(() => false))
+    ) {
+      continue;
+    }
+    const names = await readdir(namespaceDir).catch(() => [] as string[]);
+    for (const name of names) {
+      const pluginDir = join(namespaceDir, name);
+      let pkg: { name?: string; peerDependencies?: Record<string, string> };
+      try {
+        pkg = JSON.parse(
+          await readFile(join(pluginDir, 'package.json'), 'utf8'),
+        );
+      } catch {
+        continue;
+      }
+      const peers = Object.keys(pkg.peerDependencies ?? {});
+      if (peers.length === 0) continue;
+      const linked = await linkHostPeerDependencies(pluginDir, peers);
+      if (!linked.success) {
+        log.warn(
+          `Restored plugin ${pkg.name ?? pluginDir} peer re-link failed: ${linked.error}`,
+        );
+      }
+    }
+  }
+};
 
 const withTimeout = <T>(
   promise: Promise<T>,
@@ -263,6 +309,15 @@ export const createBackup = async () => {
       recursive: true,
     });
 
+    // Admin-installed plugins, so restores and moves carry them with the
+    // instance. Missing (e.g. fresh installs) is not an error.
+    const pluginsPath = defaultConfig.plugins.path;
+    if (await pathExists(pluginsPath)) {
+      const backupPluginsDir = join(backupDir, 'plugins');
+      await mkdir(backupPluginsDir);
+      await cp(pluginsPath, backupPluginsDir, { recursive: true });
+    }
+
     await writeFile(
       join(metaDir, 'collectionInfos.json'),
       JSON.stringify(collectionInfos, null, 2),
@@ -367,6 +422,20 @@ export const restoreBackups = async (zipFilePath: string) => {
   await cp(join(tempDir, 'logs'), coreConfig.logs.local.path, {
     recursive: true,
   });
+
+  // Older images never archived plugins; never wipe a live plugins tree for
+  // such a backup.
+  const pluginsPath = defaultConfig.plugins.path;
+  const backupPluginsDir = join(tempDir, 'plugins');
+  if (await pathExists(backupPluginsDir)) {
+    log.info(`Emptying plugins directory ${pluginsPath}`);
+    await emptyDir(pluginsPath);
+    log.info(`Copying plugins from backup to ${pluginsPath}`);
+    await cp(backupPluginsDir, pluginsPath, { recursive: true });
+    await relinkRestoredPlugins(pluginsPath);
+  } else {
+    log.info('Backup contains no plugins; leaving existing plugins in place.');
+  }
 
   await restoreDatabaseFromBackup(
     collectionsDir,
