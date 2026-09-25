@@ -211,7 +211,7 @@ export function FullEvent({ post }: FullEventProps) {
       <div className="mt-2 flex items-center gap-x-2">
         <Avatar profile={post.profile as PublicProfile} size={2} />
         <a
-          href={`/profiles/@${post.profile.handle}`}
+          href={`/@${post.profile.handle}`}
           className="hover:text-primary text-sm hover:underline"
         >
           {t('events.hostedBy', {
