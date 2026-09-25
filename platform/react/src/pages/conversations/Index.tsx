@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { MessageCircleOff, Calendar, MessageSquarePlus } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import {
@@ -97,16 +97,44 @@ function ChatPreview({
   );
 }
 
+type ConversationsTab = 'active' | 'archived';
+
+function TabButton({
+  onClick,
+  className,
+  children,
+}: {
+  onClick: () => void;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-4 py-2 text-sm ${className ?? ''}`}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function ConversationsIndex() {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const { openCreateConversation } = useCreateNewConversation();
   const authData = useAuthData();
   const query = openpeepsApi.useConversations();
+  const archivedQuery = openpeepsApi.useArchivedConversations();
   const unseenCountsQuery = openpeepsApi.useUnseenPostCounts();
   const unseenByConversation = unseenCountsQuery.data?.direct ?? {};
 
   const canCreate = canCreatePost(authData, 'note', 'direct');
+  const [tab, setTab] = useState<ConversationsTab>('active');
+
+  const conversations =
+    (tab === 'active' ? query.data : archivedQuery.data) ?? [];
+
   const plusButton = useMemo(
     () =>
       canCreate
@@ -122,16 +150,49 @@ export function ConversationsIndex() {
   );
   useSetPlusButtonActions(plusButton);
 
+  const activeQuery = tab === 'active' ? query : archivedQuery;
+
+  const headerActions = useMemo(
+    () => (
+      <nav
+        aria-label={t('conversations.tabs.label', {
+          defaultValue: 'Conversation lists',
+        })}
+        className="border-border flex border-b"
+      >
+        <TabButton
+          onClick={() => setTab('active')}
+          className={
+            tab === 'active'
+              ? 'border-primary border-b-2 font-semibold'
+              : 'text-muted-foreground hover:text-foreground'
+          }
+        >
+          {t('conversations.tabs.active', { defaultValue: 'Active' })}
+        </TabButton>
+        <TabButton
+          onClick={() => setTab('archived')}
+          className={
+            tab === 'archived'
+              ? 'border-primary border-b-2 font-semibold'
+              : 'text-muted-foreground hover:text-foreground'
+          }
+        >
+          {t('conversations.tabs.archived', { defaultValue: 'Archived' })}
+        </TabButton>
+      </nav>
+    ),
+    [tab, t],
+  );
+
   useSetPageHeader(
     t('navigation.messages', { defaultValue: 'Messages' }),
-    undefined,
+    headerActions,
     'conversations-page-heading',
   );
 
-  const conversations = query.data ?? [];
-
   return (
-    <AccessDeniedLoader queries={[query]}>
+    <AccessDeniedLoader queries={[activeQuery]}>
       {conversations.length === 0 ? (
         <div className="flex h-[80vh] items-center justify-center gap-2">
           <MessageCircleOff size={40} />

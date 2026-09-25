@@ -14,6 +14,7 @@ export {
   listConversationPreviews,
   getConversationThread,
   findLatestThreadPostId,
+  listLeftConversations,
 } from './conversationQueries';
 export * from './helpers';
 export { bumpConversationActivity, findReplyRootId } from './activity';

@@ -48,6 +48,25 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
       throw forbidden();
     }
 
+    // Detect users who have left: the last post's author is not in that
+    // post's own audience. Block them from posting and exclude them from
+    // the inherited audience so future replies don't notify them.
+    const lastPostAuthorId = lastPost?.profile?.id;
+    const lastPostAuthorLeft =
+      !!lastPostAuthorId &&
+      (lastPost.audience?.every((p) => p.id !== lastPostAuthorId) ?? false);
+
+    if (lastPostAuthorLeft && lastPostAuthorId === profile.id) {
+      throw forbidden();
+    }
+
+    const baseAudience: { id: string }[] =
+      input?.audience ?? lastPost?.audience ?? [];
+    const audience =
+      lastPostAuthorLeft && baseAudience.length
+        ? baseAudience.filter((p) => p.id !== lastPostAuthorId)
+        : baseAudience;
+
     const postData = postDataUnionSchema.parse(input.data);
     const object: PostData = postDataSchema.parse({
       ...input,
@@ -57,7 +76,7 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
 
     return await createPost(postData, profile, object, {
       inReplyToId: lastPost.id,
-      audience: input?.audience || undefined,
+      audience: (audience.length ? audience : null) as never,
     });
   },
 );
