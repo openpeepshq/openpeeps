@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { PublicProfile } from '@openpeepshq/common/types';
+import { markdownPlainText } from '@openpeepshq/common/lib';
 import { Avatar } from './Avatar';
 import { FollowUnfollowButton } from './FollowUnfollowButton';
 
@@ -31,6 +32,7 @@ export function ProfileCard({
   showAction = true,
   action,
 }: ProfileCardProps) {
+  const bio = markdownPlainText(profile.bio);
   const details = (
     <>
       <Avatar profile={profile} size={3} />
@@ -41,11 +43,11 @@ export function ProfileCard({
         <span className="text-muted-foreground truncate text-xs">
           @{profile.handle}
         </span>
-        {profile.bio && (
+        {bio ? (
           <span className="text-muted-foreground mt-1 line-clamp-2 text-sm">
-            {profile.bio}
+            {bio}
           </span>
-        )}
+        ) : null}
       </div>
     </>
   );
