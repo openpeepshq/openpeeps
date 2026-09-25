@@ -1,6 +1,7 @@
 /// <reference lib="dom" />
 
 import { useEffect, useRef, useState } from 'react';
+import { requestPageReload } from './pageReload';
 import {
   registerServiceWorker,
   type RegisterServiceWorkerOptions,
@@ -52,13 +53,13 @@ export function useServiceWorker({
         // will not fire until the next navigation.
         if (autoReload) {
           reg.waiting?.postMessage({ type: 'SKIP_WAITING' });
-          window.location.reload();
+          requestPageReload(() => window.location.reload());
         }
       },
       onControllerChange: () => {
         onControllerChange?.();
         if (autoReload && typeof window !== 'undefined') {
-          window.location.reload();
+          requestPageReload(() => window.location.reload());
         }
       },
     }).then((handle) => {
