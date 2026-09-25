@@ -3,6 +3,7 @@ import { handleRegex } from '../../types';
 import {
   firstNWords,
   linkProfileMentions,
+  markdownPlainText,
   matchMentionHandles,
 } from '../markdownHelpers';
 
@@ -151,6 +152,28 @@ describe('linkProfileMentions', () => {
     expect(linkProfileMentions('[@alice](/@alice)', mentions)).toBe(
       '[@alice](/@alice)',
     );
+  });
+});
+
+describe('markdownPlainText', () => {
+  it('drops heading marks, emphasis, and inline code', () => {
+    expect(
+      markdownPlainText(
+        "Usually I'm also @anca. # This is a headline ## Markdown in bio `leet`",
+      ),
+    ).toBe("Usually I'm also @anca. This is a headline Markdown in bio leet");
+  });
+
+  it('keeps link text and collapses fenced code', () => {
+    expect(
+      markdownPlainText('see [docs](https://example.com)\n```\ncode\n```'),
+    ).toBe('see docs');
+  });
+
+  it('returns an empty string for blank input', () => {
+    expect(markdownPlainText(undefined)).toBe('');
+    expect(markdownPlainText(null)).toBe('');
+    expect(markdownPlainText('')).toBe('');
   });
 });
 
