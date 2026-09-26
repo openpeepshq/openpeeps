@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { DownloadIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon, DownloadIcon } from 'lucide-react';
 import { matchesQuery } from '@openpeepshq/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
 import { Avatar } from '../../components';
@@ -22,6 +22,25 @@ export function AdminMembers() {
   const { openpeepsApi, client } = useOpenpeeps();
   const profilesQuery = openpeepsApi.admin.useProfilesList();
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<{
+    column: 'handle' | 'createdAt';
+    direction: 'asc' | 'desc';
+  }>({
+    column: 'createdAt',
+    direction: 'desc',
+  });
+
+  const toggleSort = useCallback((column: 'handle' | 'createdAt') => {
+    setSort((prev) => {
+      if (prev.column === column) {
+        return {
+          column,
+          direction: prev.direction === 'asc' ? 'desc' : 'asc',
+        };
+      }
+      return { column, direction: 'asc' };
+    });
+  }, []);
 
   const handleDownload = useCallback(async () => {
     const csv = await client.admin.profiles.exportCsv();
@@ -46,11 +65,20 @@ export function AdminMembers() {
     headerActions,
   );
 
-  const filtered = useMemo(() => {
+  const sorted = useMemo(() => {
     const profiles = profilesQuery.data ?? [];
-    if (!search) return profiles;
-    return profiles.filter((p) => matchesQuery(p, search));
-  }, [profilesQuery.data, search]);
+    const searched = search
+      ? profiles.filter((p) => matchesQuery(p, search))
+      : profiles;
+    const multiplier = sort.direction === 'asc' ? 1 : -1;
+    return [...searched].sort((a, b) => {
+      const aVal = sort.column === 'handle' ? (a.handle ?? '') : a.createdAt;
+      const bVal = sort.column === 'handle' ? (b.handle ?? '') : b.createdAt;
+      if (aVal < bVal) return -multiplier;
+      if (aVal > bVal) return multiplier;
+      return 0;
+    });
+  }, [profilesQuery.data, search, sort]);
 
   return (
     <div className="p-4">
@@ -70,7 +98,7 @@ export function AdminMembers() {
         />
       </form>
 
-      {filtered.length === 0 ? (
+      {sorted.length === 0 ? (
         <div className="flex w-full items-center justify-center p-4">
           <h2 className="text-lg">
             {t('admin.members.noUsersFound', {
@@ -88,22 +116,42 @@ export function AdminMembers() {
                     defaultValue: 'Profile',
                   })}
                 </th>
-                <th className="p-2 text-left">
-                  {t('admin.members.handleColumn', { defaultValue: 'Handle' })}
+                <th
+                  className="cursor-pointer select-none p-2 text-left"
+                  onClick={() => toggleSort('handle')}
+                >
+                  {t('admin.members.handleColumn', {
+                    defaultValue: 'Handle',
+                  })}
+                  {sort.column === 'handle' &&
+                    (sort.direction === 'asc' ? (
+                      <ChevronUpIcon className="ml-1 inline h-3 w-3" />
+                    ) : (
+                      <ChevronDownIcon className="ml-1 inline h-3 w-3" />
+                    ))}
                 </th>
                 <th className="p-2 text-left">
                   {t('admin.members.rolesColumn', { defaultValue: 'Roles' })}
                 </th>
-                <th className="p-2 text-left">
+                <th
+                  className="cursor-pointer select-none p-2 text-left"
+                  onClick={() => toggleSort('createdAt')}
+                >
                   {t('admin.members.createdColumn', {
                     defaultValue: 'Created',
                   })}
+                  {sort.column === 'createdAt' &&
+                    (sort.direction === 'asc' ? (
+                      <ChevronUpIcon className="ml-1 inline h-3 w-3" />
+                    ) : (
+                      <ChevronDownIcon className="ml-1 inline h-3 w-3" />
+                    ))}
                 </th>
                 <th className="p-2"></th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p) => (
+              {sorted.map((p) => (
                 <tr key={p.id} className="border-t">
                   <td className="p-2">
                     <div className="flex items-center gap-2">
