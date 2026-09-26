@@ -87,10 +87,15 @@
     --theme-font-color-base: 255 255 255;
     --theme-font-color-dark: 0 0 0;
 
-    --on-tertiary: 255 255 255;
+    --on-tertiary: 0 0 0;
     --on-success: 0 0 0;
     --on-warning: 0 0 0;
-    --on-error: 255 255 255;
+    --on-error: 0 0 0;
+
+    /* Legacy flat anchors — lighter than light mode so they remain readable
+       against the near-black (--color-background) dark background. */
+    --color-tertiary: 168 85 247;
+    --color-error: 248 91 91;
 
     /* Figma "AllPeep UI 2026" Styles page — Dark Mode comparison (node 14184:2) */
     --color-background: 9 9 11;
