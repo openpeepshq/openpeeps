@@ -100,3 +100,23 @@ export const firstNWords = (markdown: string | undefined, n: number) => {
 
   return firstTwelveWords.join(' ');
 };
+
+/** Average adult reading speed (words per minute). */
+const DEFAULT_WORDS_PER_MINUTE = 210;
+
+/**
+ * Estimate reading time for a markdown article. Strips markdown syntax
+ * before counting words, then divides by the words-per-minute rate.
+ * Always returns at least 1 for non-empty content.
+ */
+export const minutesToRead = (
+  markdown: string | undefined,
+  wordsPerMinute = DEFAULT_WORDS_PER_MINUTE,
+): number => {
+  if (!markdown) return 0;
+  const plainText = markdownPlainText(markdown);
+  const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+  return wordCount === 0
+    ? 0
+    : Math.max(1, Math.ceil(wordCount / wordsPerMinute));
+};

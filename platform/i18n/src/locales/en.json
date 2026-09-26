@@ -549,7 +549,8 @@
       "title": "Delete this event?"
     },
     "article": {
-      "readMore": "Read More…"
+      "readMore": "Read More…",
+      "minutesToRead": "{{count}} min read"
     },
     "bookmark": {
       "success": "Bookmark Saved",
