@@ -2063,6 +2063,10 @@
         "title": "Basic Info",
         "description": "Give your community a name, a tagline, and contact email"
       },
+      "openRegistrations": {
+        "title": "Open Signups",
+        "description": "Allow visitors to sign up for the community"
+      },
       "favicons": {
         "title": "Icons",
         "description": "Add your own browser and mobile icons"

@@ -15,6 +15,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  Switch,
   Textarea,
   Toast,
 } from '@openpeepshq/react-ui';
@@ -107,6 +108,87 @@ export function AdminConfigurationCommunityInfo() {
                     type="email"
                     value={field.value ?? ''}
                     data-testid="admin-community-info-email"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="settings.openRegistrations"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between">
+                <FormLabel>
+                  {t('configuration.community.openRegistrations.title', {
+                    defaultValue: 'Open Signups',
+                  })}
+                </FormLabel>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  data-testid="admin-community-open-signups"
+                />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="content.aboutPage"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t('configuration.community.aboutPage.title', {
+                    defaultValue: 'About Page',
+                  })}
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    value={field.value ?? ''}
+                    data-testid="admin-community-about-page"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="content.welcomePage"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t('configuration.community.welcomePage.title', {
+                    defaultValue: 'Welcome Page',
+                  })}
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    value={field.value ?? ''}
+                    data-testid="admin-community-welcome-page"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="content.codeOfConduct"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t('configuration.community.codeOfConduct.title', {
+                    defaultValue: 'Code of Conduct',
+                  })}
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    value={field.value ?? ''}
+                    data-testid="admin-community-code-of-conduct"
                   />
                 </FormControl>
                 <FormMessage />
