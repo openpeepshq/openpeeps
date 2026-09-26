@@ -5,6 +5,7 @@ import {
   linkProfileMentions,
   markdownPlainText,
   matchMentionHandles,
+  minutesToRead,
 } from '../markdownHelpers';
 
 const allowedHandles = [
@@ -180,5 +181,35 @@ describe('markdownPlainText', () => {
 describe('firstNWords', () => {
   it('returns the first n words', () => {
     expect(firstNWords('one two three four', 2)).toBe('one two');
+  });
+});
+
+describe('minutesToRead', () => {
+  const words = (n: number) =>
+    Array.from({ length: n }, () => 'word').join(' ');
+
+  it('returns 0 for empty or undefined content', () => {
+    expect(minutesToRead(undefined)).toBe(0);
+    expect(minutesToRead('')).toBe(0);
+    expect(minutesToRead('   ')).toBe(0);
+  });
+
+  it('returns at least 1 for non-empty content', () => {
+    expect(minutesToRead('hello')).toBe(1);
+  });
+
+  it('estimates 1 minute for a short article', () => {
+    expect(minutesToRead(words(100))).toBe(1);
+  });
+
+  it('estimates ~3 minutes for a 500-word article', () => {
+    expect(minutesToRead(words(500))).toBe(3);
+  });
+
+  it('strips markdown before counting words', () => {
+    const markdown =
+      '# Title\n\nThis is [a link](http://x.com) with `code` and **bold**.';
+    // markdownPlainText gives: "Title This is a link with code and bold." (9 words)
+    expect(minutesToRead(markdown, 3)).toBe(3);
   });
 });

@@ -5,6 +5,7 @@ import { resolveStaticUrl, useStaticRender } from '../../markdown/staticRender';
 import { PostMarkdown } from '../Markdown';
 import { OPENPEEPS_POST_CAPTION_CLASS } from '../../markdown/classes';
 import { firstNWords } from '../helpers';
+import { minutesToRead } from '@openpeepshq/common/lib';
 
 export interface FeedArticleProps {
   post: PublicPost;
@@ -19,6 +20,7 @@ export function FeedArticle({ post }: FeedArticleProps) {
     content?: string;
   };
   const previewContent = firstNWords(article.content, 50);
+  const minutes = minutesToRead(article.content);
   const showReadMore =
     !!article.content && previewContent.length < article.content.length;
 
@@ -33,6 +35,11 @@ export function FeedArticle({ post }: FeedArticleProps) {
       )}
       <div className="prose-sm">
         <h3>{article.title}</h3>
+        {minutes > 0 && (
+          <p className="text-muted-foreground text-xs">
+            {t('posts.article.minutesToRead', { count: minutes })}
+          </p>
+        )}
       </div>
       <PostMarkdown
         source={`${previewContent}${showReadMore ? '...' : ''}`}
