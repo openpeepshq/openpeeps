@@ -169,6 +169,38 @@ const totalMembersAt = async (day: string): Promise<number> => {
   return Number(rows[0]?.c ?? 0);
 };
 
+const verifiedMembersAt = async (day: string): Promise<number> => {
+  const db = await database();
+  const end = `${day}T23:59:59.999Z`;
+  const result = await db.execute(sql`
+    select count(*)::int as c from profiles p
+    join controls c on c.to_id = p.id::text
+    join accounts a on a.id::text = c.from_id
+    where p.deleted_at is null and p.type = 'local'
+      and a.deleted_at is null
+      and a.email_validated = true
+      and p.created_at <= ${end}
+  `);
+  const rows = result.rows as Array<{ c?: number }>;
+  return Number(rows[0]?.c ?? 0);
+};
+
+const unverifiedMembersAt = async (day: string): Promise<number> => {
+  const db = await database();
+  const end = `${day}T23:59:59.999Z`;
+  const result = await db.execute(sql`
+    select count(*)::int as c from profiles p
+    join controls c on c.to_id = p.id::text
+    join accounts a on a.id::text = c.from_id
+    where p.deleted_at is null and p.type = 'local'
+      and a.deleted_at is null
+      and a.email_validated = false
+      and p.created_at <= ${end}
+  `);
+  const rows = result.rows as Array<{ c?: number }>;
+  return Number(rows[0]?.c ?? 0);
+};
+
 const totalPostsAt = async (day: string): Promise<number> => {
   const db = await database();
   const end = `${day}T23:59:59.999Z`;
@@ -697,6 +729,10 @@ export const getAnalyticsOverview = async (
       prevTotalMembers,
       prevTotalGroups,
       prevAllTimePosts,
+      verifiedMembers,
+      unverifiedMembers,
+      prevVerifiedMembers,
+      prevUnverifiedMembers,
     ] = await Promise.all([
       loadTotalsSeries(range.from, range.to, 'activeMembers'),
       loadTotalsSeries(range.from, range.to, 'posts'),
@@ -717,6 +753,10 @@ export const getAnalyticsOverview = async (
       totalMembersAt(range.previousTo),
       totalGroupsAt(range.previousTo),
       totalPostsAt(range.previousTo),
+      verifiedMembersAt(range.to),
+      unverifiedMembersAt(range.to),
+      verifiedMembersAt(range.previousTo),
+      unverifiedMembersAt(range.previousTo),
     ]);
 
     const totalPosts = sumSeries(postsSeries);
@@ -797,6 +837,16 @@ export const getAnalyticsOverview = async (
           'totalMembers',
           totalMembers,
           prevTotalMembers,
+        ),
+        verifiedMembers: metricCard(
+          'verifiedMembers',
+          verifiedMembers,
+          prevVerifiedMembers,
+        ),
+        unverifiedMembers: metricCard(
+          'unverifiedMembers',
+          unverifiedMembers,
+          prevUnverifiedMembers,
         ),
         activeMembers: metricCard(
           'activeMembers',
