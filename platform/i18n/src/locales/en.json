@@ -2339,7 +2339,8 @@
     "saving": "Saving…",
     "send": "Send",
     "sending": "Sending…",
-    "submitting": "Submitting…"
+    "submitting": "Submitting…",
+    "downloading": "Downloading…"
   },
   "conversations": {
     "newMessage": "New Message",
@@ -2447,6 +2448,10 @@
       "updateError": "Update failed: {{error}}",
       "samePasswordError": "New password cannot be the same as the current password",
       "updateFailed": "Password update failed: {{error}}",
+      "exportData": "Export your data",
+      "exportDataDescription": "Download a copy of your account and profile data.",
+      "downloadData": "Download my data",
+      "exportFailed": "Export failed: {{error}}",
       "title": "Account Settings"
     },
     "billing": {
