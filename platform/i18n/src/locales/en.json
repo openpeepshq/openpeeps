@@ -1652,6 +1652,8 @@
       },
       "metrics": {
         "totalMembers": "Total members",
+        "verifiedMembers": "Verified members",
+        "unverifiedMembers": "Unverified members",
         "newMembers": "New members",
         "activeMembers": "Active members",
         "dau": "DAU",
@@ -2062,6 +2064,10 @@
       "info": {
         "title": "Basic Info",
         "description": "Give your community a name, a tagline, and contact email"
+      },
+      "openRegistrations": {
+        "title": "Open Signups",
+        "description": "Allow visitors to sign up for the community"
       },
       "favicons": {
         "title": "Icons",

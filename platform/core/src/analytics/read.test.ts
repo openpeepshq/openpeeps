@@ -71,16 +71,22 @@ const seed = async () => {
 
   // profiles: 3 on Jul 20, 4 on Jul 28, 3 on Aug 3 — all local
   // plus 2 guest profiles on Jul 25 (should be excluded from member counts)
+  // plus accounts linked via controls edge: first 7 verified, last 3 unverified
   // totalMembers@07-31 = 7 (3+4), totalMembers@08-07 = 10 (3+4+3)
+  // verifiedMembers@07-31 = 7, verifiedMembers@08-07 = 7
+  // unverifiedMembers@07-31 = 0, unverifiedMembers@08-07 = 3
   const profileDates = ['2026-07-20', '2026-07-28', '2026-08-03'];
   const profileCounts = [3, 4, 3];
+  const createdProfileIds: string[] = [];
   for (let d = 0; d < profileDates.length; d++) {
     for (let i = 0; i < profileCounts[d]; i++) {
-      await pool.query(
+      const res = await pool.query(
         `INSERT INTO profiles (id, handle, type, created_at, updated_at)
-         VALUES (gen_random_uuid(), $1, 'local', $2, $2)`,
+         VALUES (gen_random_uuid(), $1, 'local', $2, $2)
+         RETURNING id`,
         [`seed-profile-${d}-${i}`, `${profileDates[d]}T00:00:00.000Z`],
       );
+      createdProfileIds.push(...res.rows.map((r: { id: string }) => r.id));
     }
   }
 
@@ -95,6 +101,25 @@ const seed = async () => {
      VALUES (gen_random_uuid(), 'guest-2', 'guest', $1, $1)`,
     ['2026-07-25T00:00:00.000Z'],
   );
+
+  // Link an account (verified or unverified) to each local profile via controls edge
+  for (let i = 0; i < createdProfileIds.length; i++) {
+    const profileId = createdProfileIds[i];
+    const emailValidated = i < 7;
+    const dateIdx = i < 3 ? 0 : i < 7 ? 1 : 2;
+    const accountRes = await pool.query(
+      `INSERT INTO accounts (id, email, password_hash, email_validated, created_at, updated_at)
+       VALUES (gen_random_uuid(), $1, 'hash', $2, $3, $3)
+       RETURNING id`,
+      [`user${i}@example.com`, emailValidated, profileDates[dateIdx]],
+    );
+    const accountId = accountRes.rows[0].id;
+    await pool.query(
+      `INSERT INTO controls (id, from_id, to_id, created_at, updated_at)
+       VALUES (gen_random_uuid(), $1, $2, $3, $3)`,
+      [accountId, profileId, profileDates[dateIdx]],
+    );
+  }
 
   // groups: 2 on Jul 20, 3 on Aug 3
   // totalGroups@07-31 = 2, totalGroups@08-07 = 5
@@ -199,6 +224,20 @@ maybe('getAnalyticsOverview', () => {
     const card = overview.metrics.totalMembers;
     expect(card.value).toBe(10);
     expect(card.previousValue).toBe(7);
+  });
+
+  it('returns verified members as all verified profiles through range end', () => {
+    const card = overview.metrics.verifiedMembers;
+    expect(card.value).toBe(7);
+    expect(card.previousValue).toBe(7);
+    expect(card.deltaPct).toBe(0);
+  });
+
+  it('returns unverified members as all unverified profiles through range end', () => {
+    const card = overview.metrics.unverifiedMembers;
+    expect(card.value).toBe(3);
+    expect(card.previousValue).toBe(0);
+    expect(card.deltaPct).toBeNull();
   });
 
   it('returns totalGroups as cumulative count through range end', () => {
