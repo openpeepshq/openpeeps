@@ -2450,7 +2450,8 @@
     "saving": "Wird gespeichert…",
     "send": "Senden",
     "sending": "Wird gesendet…",
-    "submitting": "Wird übermittelt…"
+    "submitting": "Wird übermittelt…",
+    "downloading": "Wird heruntergeladen…"
   },
   "conversations": {
     "newMessage": "Neue Nachricht",
@@ -2563,6 +2564,10 @@
       "updateError": "Aktualisierung fehlgeschlagen: {{error}}",
       "samePasswordError": "Das neue Passwort darf nicht mit dem aktuellen Passwort übereinstimmen",
       "updateFailed": "Passwortaktualisierung fehlgeschlagen: {{error}}",
+      "exportData": "Exportieren Sie Ihre Daten",
+      "exportDataDescription": "Laden Sie eine Kopie Ihrer Konto- und Profildaten herunter.",
+      "downloadData": "Meine Daten herunterladen",
+      "exportFailed": "Export fehlgeschlagen: {{error}}",
       "title": "Kontoeinstellungen"
     },
     "billing": {
