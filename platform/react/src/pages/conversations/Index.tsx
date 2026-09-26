@@ -135,7 +135,7 @@ export function ConversationsIndex() {
       {conversations.length === 0 ? (
         <div className="flex h-[80vh] items-center justify-center gap-2">
           <MessageCircleOff size={40} />
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             {t('conversations.empty', {
               defaultValue: 'No direct messages here',
             })}

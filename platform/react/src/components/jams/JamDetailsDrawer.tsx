@@ -51,7 +51,7 @@ export const JamDetailsDrawer = ({ open, onClose }: JamDetailsDrawerProps) => {
           type="button"
           title={t('jams.details.closePanel')}
           aria-label={t('jams.details.closePanel')}
-          className="text-neutral-400"
+          className="text-muted-foreground"
           onClick={onClose}
         >
           <X aria-hidden="true" />

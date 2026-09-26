@@ -44,7 +44,7 @@ export function GroupAvatar({
 
   const borderClass = borderless
     ? ''
-    : 'border-4 border-border hover:border-neutral-500';
+    : 'border-4 border-border hover:border-border-2';
 
   return (
     <div

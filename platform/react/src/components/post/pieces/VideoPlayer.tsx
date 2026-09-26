@@ -160,7 +160,7 @@ export function VideoPlayer({
     return (
       <div
         role="alert"
-        className={`flex flex-col items-center justify-center gap-3 rounded-md bg-black/50 p-6 text-center text-red-300 ${className}`}
+        className={`text-error/70 flex flex-col items-center justify-center gap-3 rounded-md bg-black/50 p-6 text-center ${className}`}
       >
         <CircleAlert className="h-10 w-10" />
         <span>

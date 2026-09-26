@@ -24,11 +24,11 @@ export function PaymentSuccess() {
   }, [verified, params, navigate]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-4 text-center">
+    <div className="from-success/10 via-success/5 to-surface flex min-h-screen flex-col items-center justify-center bg-gradient-to-br p-4 text-center">
       {verified ? (
         <>
-          <CheckCircle size={60} className="text-green-500" />
-          <p className="mt-4 max-w-sm text-lg text-gray-700">
+          <CheckCircle size={60} className="text-success" />
+          <p className="text-foreground mt-4 max-w-sm text-lg">
             {t('payment.success.message', {
               defaultValue: 'Payment received. Redirecting…',
             })}
@@ -36,8 +36,8 @@ export function PaymentSuccess() {
         </>
       ) : (
         <>
-          <Loader2 size={48} className="animate-spin text-emerald-500" />
-          <p className="mt-6 max-w-sm text-lg text-gray-600">
+          <Loader2 size={48} className="text-success animate-spin" />
+          <p className="text-muted-foreground mt-6 max-w-sm text-lg">
             {t('payment.success.verifying', {
               defaultValue: 'Verifying your payment…',
             })}

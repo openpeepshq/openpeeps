@@ -64,7 +64,7 @@ export function JamChatMessage({
               <h4 className="flex md:hidden">
                 {truncateText(profile.displayName || `@${profile.handle}`, 10)}
               </h4>
-              <p className="break-words text-sm text-neutral-500">
+              <p className="text-muted-foreground break-words text-sm">
                 <UpdatingDate date={message.createdAt} />
               </p>
             </div>
@@ -84,7 +84,7 @@ export function JamChatMessage({
       attendanceMap[message.type as keyof typeof attendanceMap] ?? message.type;
     return (
       <div className="flex items-center justify-center">
-        <span className="text-center text-sm text-neutral-500">
+        <span className="text-muted-foreground text-center text-sm">
           {profile.displayName || `@${profile.handle}`} {label} the jam{' '}
           <UpdatingDate date={message.createdAt} />
         </span>
