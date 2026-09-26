@@ -69,7 +69,8 @@ const seed = async () => {
     );
   }
 
-  // profiles: 3 on Jul 20, 4 on Jul 28, 3 on Aug 3
+  // profiles: 3 on Jul 20, 4 on Jul 28, 3 on Aug 3 — all local
+  // plus 2 guest profiles on Jul 25 (should be excluded from member counts)
   // totalMembers@07-31 = 7 (3+4), totalMembers@08-07 = 10 (3+4+3)
   const profileDates = ['2026-07-20', '2026-07-28', '2026-08-03'];
   const profileCounts = [3, 4, 3];
@@ -82,6 +83,18 @@ const seed = async () => {
       );
     }
   }
+
+  // Guest profiles must not be counted in member totals
+  await pool.query(
+    `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+     VALUES (gen_random_uuid(), 'guest-1', 'guest', $1, $1)`,
+    ['2026-07-25T00:00:00.000Z'],
+  );
+  await pool.query(
+    `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+     VALUES (gen_random_uuid(), 'guest-2', 'guest', $1, $1)`,
+    ['2026-07-25T00:00:00.000Z'],
+  );
 
   // groups: 2 on Jul 20, 3 on Aug 3
   // totalGroups@07-31 = 2, totalGroups@08-07 = 5
@@ -178,6 +191,14 @@ maybe('getAnalyticsOverview', () => {
     expect(card.value).toBe(10);
     expect(card.previousValue).toBe(7);
     expect(card.deltaPct).toBe(42.9);
+  });
+
+  it('excludes guest profiles from totalMembers', () => {
+    // 2 guest profiles were seeded on Jul 25; they must not inflate the count.
+    // totalMembers@08-07 = 10 (local only), previous@07-31 = 7 (local only)
+    const card = overview.metrics.totalMembers;
+    expect(card.value).toBe(10);
+    expect(card.previousValue).toBe(7);
   });
 
   it('returns totalGroups as cumulative count through range end', () => {

@@ -32,6 +32,7 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
     db,
     sql`select count(*)::int as c from profiles
         where deleted_at is null
+          and type = 'local'
           and created_at >= ${start} and created_at < ${end}`,
   );
 

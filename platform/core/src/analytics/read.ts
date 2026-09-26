@@ -162,7 +162,8 @@ const totalMembersAt = async (day: string): Promise<number> => {
   const end = `${day}T23:59:59.999Z`;
   const result = await db.execute(sql`
     select count(*)::int as c from profiles
-    where deleted_at is null and created_at <= ${end}
+    where deleted_at is null and type = 'local'
+      and created_at <= ${end}
   `);
   const rows = result.rows as Array<{ c?: number }>;
   return Number(rows[0]?.c ?? 0);
