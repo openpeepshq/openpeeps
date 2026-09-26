@@ -27,7 +27,8 @@ This skill opens a pull request on `code.openpeeps.org/openpeeps/openpeeps` usin
    tea logins default code.openpeeps.org
    ```
 
-   You'll need a Gitea access token (*Settings → Access Tokens → Tokens*).
+   You'll need a Gitea access token (_Settings → Access Tokens → Tokens_).
+
 3. **SSH remote** — `git remote -v` should show `ssh://git@code.openpeeps.org/openpeeps/openpeeps.git`.
 
 ## Step 1 — Align local `main` with remote
@@ -95,13 +96,21 @@ git push --force-with-lease origin HEAD
 
 ## Step 7 — Open the PR with tea
 
+**Run from inside the repo directory** so `tea` can auto-discover the remote.
+Do **not** pass `--repo openpeeps/openpeeps` — the CLI interprets the slug as a
+local path and fails with "local repository required".
+
+**Do not** use shell substitutions (`$(...)`) for `--head`, `--title`, or
+`--description` if your shell tool restricts them. Instead, pass literal
+values or write the description to a temp file first.
+
 ```bash
+# From inside the repo root:
 tea pr create \
   --base "main" \
-  --head "$(git rev-parse --abbrev-ref HEAD)" \
-  --title "$(git log -1 --pretty=format:%s)" \
-  --description "$(git log -1 --pretty=format:%b)" \
-  --repo openpeeps/openpeeps
+  --head "feat/your-branch" \
+  --title "feat(scope): your conventional subject" \
+  --description "Brief description. References #N"
 ```
 
 > **No `--labels` and no `--milestone`** — AGENTS.md says maintainers apply those
@@ -116,7 +125,7 @@ tea pr create \
 ## Step 8 — Verify the PR
 
 ```bash
-tea pr ls --repo openpeeps/openpeeps --state open
+tea pr ls --state open
 ```
 
 Confirm:
@@ -128,11 +137,13 @@ Confirm:
 
 ## Common Failures
 
-| Symptom | Fix |
-|---------|-----|
-| `tea pr create` → "not logged in" | `tea login --base-url https://code.openpeeps.org` |
-| `check-branch.mjs` → "could not compare to main" | `git fetch origin && git branch -f main origin/main` |
-| Multiple commits ahead of main | `./scripts/squash-branch.sh --ci -m "type(scope): desc"` |
-| `--force-with-lease` rejected (stale) | `git fetch origin` then retry |
-| PR title doesn't match commit subject | Edit the PR title in the browser to match `git log -1 --pretty=%s` |
-| Sign-off trailer missing | `git commit --amend --signoff` (unpushed only) |
+| Symptom                                          | Fix                                                                |
+| ------------------------------------------------ | ------------------------------------------------------------------ |
+| `tea pr create` → "not logged in"                | `tea login --base-url https://code.openpeeps.org`                  |
+| `check-branch.mjs` → "could not compare to main" | `git fetch origin && git branch -f main origin/main`               |
+| Multiple commits ahead of main                   | `./scripts/squash-branch.sh --ci -m "type(scope): desc"`           |
+| `--force-with-lease` rejected (stale)            | `git fetch origin` then retry                                      |
+| PR title doesn't match commit subject            | Edit the PR title in the browser to match `git log -1 --pretty=%s` |
+| Sign-off trailer missing                         | `git commit --amend --signoff` (unpushed only)                     |
+| `tea pr create` → "local repository required"    | Omit `--repo openpeeps/openpeeps`; run from inside the repo dir    |
+| Shell substitution not allowed (sandboxed tool)  | Pass literal values for `--head`/`--title`/`--description`         |
