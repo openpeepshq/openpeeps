@@ -5,7 +5,7 @@ import { Button, Input, Label, Toast } from '@openpeepshq/react-ui';
 
 export function AccountSettings() {
   const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi, client } = useOpenpeeps();
   const account = useCurrentAccount();
   const updateAccount = openpeepsApi.updateCurrentAccountAction();
 
@@ -16,6 +16,7 @@ export function AccountSettings() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [status, setStatus] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -61,6 +62,35 @@ export function AccountSettings() {
       });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const exportAccount = async () => {
+    setExporting(true);
+    try {
+      const response = await client.accounts.current.export();
+      if (!('data' in response)) {
+        throw new Error('Export failed');
+      }
+      const data = response.data;
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'openpeeps-account-export.json';
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setStatus({
+        type: 'error',
+        message: t('settings.account.exportFailed', {
+          defaultValue: `Failed: ${(err as Error).message}`,
+        }),
+      });
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -159,6 +189,35 @@ export function AccountSettings() {
           ? t('common.submitting', { defaultValue: 'Submitting…' })
           : t('common.submit', { defaultValue: 'Submit' })}
       </Button>
+
+      <div className="border-border mt-6 border-t pt-4">
+        <h3 className="text-sm font-medium">
+          {t('settings.account.exportData', {
+            defaultValue: 'Export your data',
+          })}
+        </h3>
+        <p className="text-muted-foreground mt-1 text-sm">
+          {t('settings.account.exportDataDescription', {
+            defaultValue: 'Download a copy of your account and profile data.',
+          })}
+        </p>
+        <Button
+          title={t('settings.account.downloadData', {
+            defaultValue: 'Download my data',
+          })}
+          variant="outline"
+          action={exportAccount}
+          loading={exporting}
+          className="mt-2"
+          data-testid="settings-account-export"
+        >
+          {exporting
+            ? t('common.downloading', { defaultValue: 'Downloading…' })
+            : t('settings.account.downloadData', {
+                defaultValue: 'Download my data',
+              })}
+        </Button>
+      </div>
     </div>
   );
 }

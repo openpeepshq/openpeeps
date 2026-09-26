@@ -1,5 +1,6 @@
 import type { FetchClient } from '@openpeepshq/fetch-client';
 import type {
+  AccountExport,
   PublicAccount,
   PushSubscription,
   PushSubscriptionData,
@@ -18,6 +19,10 @@ export const accounts = (rawClient: FetchClient) => ({
       rawClient,
       '/accounts/current',
     ),
+    export: allpeepNoPayloadEndpoint<AccountExport>(
+      rawClient,
+      '/accounts/current/export',
+    ),
     createPushSubscription: allpeepPayloadEndpoint<
       PushSubscription,
       PushSubscriptionData
@@ -35,7 +40,10 @@ export const accounts = (rawClient: FetchClient) => ({
       '/accounts/current/validation-email',
       'post',
     ),
-    deletePushSubcription: allpeepNoPayloadEndpoint<SuccessResponse, { pushSubscriptionId: string }>(
+    deletePushSubcription: allpeepNoPayloadEndpoint<
+      SuccessResponse,
+      { pushSubscriptionId: string }
+    >(
       rawClient,
       '/accounts/current/push-subscriptions/:pushSubscriptionId',
       'delete',
