@@ -1,10 +1,33 @@
-# Changelog for OpenPeeps
+Changelog for OpenPeeps
+=======================
 
 ## Current
 
 ### Features
 
+- **pwa**: enhance stale app reload behavior and integrate jam room checks
+- **markdown**: add markdownPlainText utility function and integrate into various components
 - **plugins**: persist installed plugins via self-heal and backups
+- **jams**: implement sorting of participants by raised hand timestamp
+- **skill**: add openpeeps-pr-tea skill for tea CLI PR workflow
+
+### Bug Fixes
+
+- **ui**: stretch the desktop sidebar to the full content height
+- **event**: update profile link format in FullEvent component
+
+### Refactoring
+
+- **animations**: optimize animated emoji behavior and cleanup
+- **analytics**: update active members calculation and descriptions
+
+### Documentation
+
+- **agents**: add agent working rules and changelog convention
+
+### Tests
+
+- **analytics**: add integration test for getAnalyticsOverview
 
 ## 2026-09-23
 
@@ -36,7 +59,6 @@
 - **admin**: add outline to theme color swatches
 - **jams**: raise recording S3 upload cap to 20GiB
 - **jams**: keep stopped recordings uploadable after a new start
-- **ui**: stretch the desktop sidebar to the full content height
 - **conversations**: open a participant list modal from abbreviated handles
 - **profiles**: allow guest profile pages when publicContent is enabled
 - **gallery**: type ProfileWithMeta block id lists
@@ -414,7 +436,7 @@
 
 ### Bug Fixes
 
-- **post**: fixed pinned post refetch
+- **post**: fixed  pinned post refetch
 - **cleanup**: removed old skeleton theme files
 - **HeaderAvatarInput**: add specsText for cover image description
 - **form**: enhance FormInput checkbox to support children rendering
@@ -611,7 +633,7 @@
 - **notifications**: moving push notifications into a worker thread
 - **search**: index array fields for post and profile search-alias views
 - **Auth**: update layout structure
-- **capabilities**: standardize backup capabilities on plural core-backups-\*
+- **capabilities**: standardize backup capabilities on plural core-backups-*
 - **repo**: remove accidental .worktrees submodule from git index
 - **core**: fix anonymous community feed when publicContent is enabled
 - **react**: fix refresh logic for react native
@@ -653,7 +675,7 @@
 - **api-keys**: Implement the possibility for personal and service access total
 - **event**: implement dynamic event visibility labels in FullEvent component for React Native and Svelte
 - **image-input**: enhance ImageInput component with aspect ratio cropping functionality
-- **media**: implement upload progress tracking for media attachment implement streaming API for video on demand
+- **media**: implement upload progress tracking for media attachment              implement streaming API for video on demand
 - **PostMenu**: implement bookmark functionality with loading state and dropdown menu integration
 
 ### Bug Fixes
@@ -811,3 +833,4 @@
 - **ci**: Update actions/checkout to v6 and fix changelog generation condition
 - **ci**: Enhance build workflow with concurrency and release branch checks
 - **ci**: Fix ci build workflow
+
