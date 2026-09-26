@@ -152,7 +152,7 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
           type="button"
           title={t('jams.drawer.close', { defaultValue: 'Close' })}
           aria-label={t('jams.drawer.close', { defaultValue: 'Close' })}
-          className="text-neutral-400"
+          className="text-muted-foreground"
           onClick={onClose}
         >
           <X aria-hidden="true" />

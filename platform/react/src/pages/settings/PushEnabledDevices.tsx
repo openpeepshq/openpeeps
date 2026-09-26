@@ -147,7 +147,7 @@ export function PushEnabledDevices() {
                   ) : (
                     <button
                       type="button"
-                      className="text-muted-foreground p-2 transition-colors hover:text-red-600"
+                      className="text-muted-foreground hover:text-error p-2 transition-colors"
                       title={t('common.actions.delete', {
                         defaultValue: 'Delete',
                       })}

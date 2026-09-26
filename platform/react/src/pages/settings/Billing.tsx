@@ -9,23 +9,27 @@ import { Button, LoadingSpinner } from '@openpeepshq/react-ui';
 function statusInfo(status: string) {
   switch (status) {
     case 'active':
-      return { color: 'text-green-600', Icon: CheckCircle, label: 'Active' };
+      return { color: 'text-success', Icon: CheckCircle, label: 'Active' };
     case 'trialing':
       return { color: 'text-blue-600', Icon: CheckCircle, label: 'Trial' };
     case 'past_due':
-      return { color: 'text-yellow-600', Icon: AlertCircle, label: 'Past Due' };
+      return { color: 'text-warning', Icon: AlertCircle, label: 'Past Due' };
     case 'canceled':
-      return { color: 'text-red-600', Icon: AlertCircle, label: 'Canceled' };
+      return { color: 'text-error', Icon: AlertCircle, label: 'Canceled' };
     case 'unpaid':
-      return { color: 'text-red-600', Icon: AlertCircle, label: 'Unpaid' };
+      return { color: 'text-error', Icon: AlertCircle, label: 'Unpaid' };
     case 'none':
       return {
-        color: 'text-gray-600',
+        color: 'text-muted-foreground',
         Icon: AlertCircle,
         label: 'No Subscription',
       };
     default:
-      return { color: 'text-gray-600', Icon: AlertCircle, label: status };
+      return {
+        color: 'text-muted-foreground',
+        Icon: AlertCircle,
+        label: status,
+      };
   }
 }
 
@@ -136,7 +140,7 @@ export function BillingSettings() {
                 })}
               </span>
               <span
-                className={`text-sm font-medium ${subscription.cancelAtPeriodEnd ? 'text-yellow-600' : 'text-green-600'}`}
+                className={`text-sm font-medium ${subscription.cancelAtPeriodEnd ? 'text-warning' : 'text-success'}`}
               >
                 {subscription.cancelAtPeriodEnd
                   ? t('settings.billing.autoRenewalCanceled', {

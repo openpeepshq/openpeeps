@@ -27,7 +27,7 @@ const GrowthBadge = ({ growth }: { growth: number }) => (
   <span
     className={
       growth > 0
-        ? 'rounded-md bg-emerald-50 px-2 py-0.5 text-sm tabular-nums text-emerald-700'
+        ? 'bg-success/10 text-success rounded-md px-2 py-0.5 text-sm tabular-nums'
         : 'text-muted-foreground text-sm tabular-nums'
     }
   >
@@ -46,7 +46,7 @@ const VisibilityBadge = ({
     <span
       className={
         isPublic
-          ? 'inline-flex rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700'
+          ? 'bg-success/10 text-success inline-flex rounded-md px-2 py-0.5 text-xs font-medium'
           : 'bg-surface text-muted-foreground inline-flex rounded-md px-2 py-0.5 text-xs font-medium'
       }
     >
