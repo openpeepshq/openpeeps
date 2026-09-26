@@ -16,6 +16,7 @@ export const groupSearchMapping = (profile: ProfileWithMeta, query: string) =>
 
 export const profileSearchMapping = (profile: ProfileWithMeta, query: string) =>
   publicProfilesSearchMapping
+    .filter(profileFilters.notGuest())
     .filter(profileFilters.notIdIn(blockedPairIds(profile)))
     .fulltextSearch({
       view: 'profileSearch',
