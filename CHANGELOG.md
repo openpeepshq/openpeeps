@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **admin**: add sorting to members screen
+- **federation**: add public ActivityPub data model
 - **pwa**: enhance stale app reload behavior and integrate jam room checks
 - **markdown**: add markdownPlainText utility function and integrate into various components
 - **plugins**: persist installed plugins via self-heal and backups
@@ -13,6 +15,10 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **search**: exclude guest profiles from profile search results
+- **theme**: replace direct Tailwind colors with semantic theme tokens
+- **analytics**: exclude guest profiles from total member counts
+- **theme**: improve dark mode contrast for tertiary and error colors
 - **ui**: stretch the desktop sidebar to the full content height
 - **event**: update profile link format in FullEvent component
 
@@ -23,6 +29,7 @@ Changelog for OpenPeeps
 
 ### Documentation
 
+- **agents**: improve PR creation skill with tea CLI fixes
 - **agents**: add agent working rules and changelog convention
 
 ### Tests
