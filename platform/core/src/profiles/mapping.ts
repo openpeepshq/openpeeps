@@ -78,6 +78,16 @@ export const profileRelations: Relation[] = [
       relations: baseProfileRelations,
     },
   },
+  {
+    alias: 'followedHashtags',
+    edgeCollection: 'profileHashtags',
+    direction: 'OUTBOUND',
+    skipEdge: true,
+    cardinality: 'many',
+    mapping: {
+      collection: 'hashtags',
+    },
+  },
 ];
 
 export const baseProfilesMapping = map<ProfileData, Profile>({

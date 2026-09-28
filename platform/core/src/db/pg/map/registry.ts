@@ -384,6 +384,12 @@ export const edgeRegistry: Record<string, EdgeConfig> = {
     fromCollection: 'profiles',
     toCollection: 'posts',
   },
+  profileHashtags: {
+    kind: 'edge',
+    table: edges.profileHashtags,
+    fromCollection: 'profiles',
+    toCollection: 'hashtags',
+  },
 };
 
 export const getCollectionConfig = (

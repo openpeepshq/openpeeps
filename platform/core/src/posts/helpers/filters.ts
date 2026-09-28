@@ -37,14 +37,20 @@ export const followFilter = (
 
 export const myFeedFilter = (
   profile: ProfileWithMeta,
-): PgFilter<DbBasePost> => ({
-  operator: '||',
-  predicates: [
-    ownPostsFilter(profile),
-    groupPostVisibilityQueryFilter,
-    followFilter(profile),
-  ],
-});
+): PgFilter<DbBasePost> => {
+  const hashtagFilterResult = postFilters.hasAnyHashtag(
+    profile.followedHashtags?.map((h) => h.id) ?? [],
+  );
+  return {
+    operator: '||',
+    predicates: [
+      ownPostsFilter(profile),
+      groupPostVisibilityQueryFilter,
+      followFilter(profile),
+      ...(hashtagFilterResult ? [hashtagFilterResult] : []),
+    ],
+  };
+};
 
 export const myFeedGroupMembershipFilter =
   (profile: ProfileWithMeta): ObjectFilter<PostWithMeta> =>

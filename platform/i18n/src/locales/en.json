@@ -3342,7 +3342,11 @@
     }
   },
   "tags": {
-    "title": "#{{hashtag}}"
+    "title": "#{{hashtag}}",
+    "follow": "Follow hashtag",
+    "unfollow": "Unfollow hashtag",
+    "followed": "You're following this hashtag",
+    "notFollowing": "Follow this hashtag to see posts with it in your feed"
   },
   "feed": {
     "empty": "No posts yet.",

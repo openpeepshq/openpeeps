@@ -3442,7 +3442,11 @@
     }
   },
   "tags": {
-    "title": "#{{hashtag}}"
+    "title": "#{{hashtag}}",
+    "follow": "Hashtag folgen",
+    "unfollow": "Nicht mehr folgen",
+    "followed": "Sie folgen diesem Hashtag",
+    "notFollowing": "Folgen Sie diesem Hashtag, um Beiträge mit diesem Hashtag in Ihrem Feed zu sehen"
   },
   "feed": {
     "empty": "Noch keine Beiträge.",

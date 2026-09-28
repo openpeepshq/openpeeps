@@ -47,6 +47,7 @@ export const EDGE_IMPORT_ORDER = [
   'inviteLinkCreators',
   'inviteLinkRedeemers',
   'jamRecordings',
+  'profileHashtags',
 ] as const;
 
 export const readJsonl = async (
