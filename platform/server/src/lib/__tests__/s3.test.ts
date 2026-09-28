@@ -1,5 +1,5 @@
 import { createHash, createHmac } from 'node:crypto';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import http from 'node:http';
 import net from 'node:net';
@@ -12,6 +12,8 @@ const API_SECRET = 'test-livekit-api-secret';
 const RECORDING_ID = '019aaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const FILENAME = `${RECORDING_ID}.mp4`;
 const PATH = `/s3/allpeep-recordings/${FILENAME}`;
+const VIDEO_PATH = join(import.meta.dirname, 'fixtures', 'Fireplace.mp4');
+const VIDEO_CONTENT = readFileSync(VIDEO_PATH);
 
 const deriveSecret = (apiSecret: string, recordingId: string) =>
   createHmac('sha256', apiSecret)
@@ -266,7 +268,7 @@ describe('installS3Endpoint', () => {
     const result = await request(app, {
       method: 'PUT',
       path: PATH,
-      body: Buffer.from('video'),
+      body: VIDEO_CONTENT,
     });
     expect(result.status).toBe(403);
     expect(completeJamRecording).not.toHaveBeenCalled();
@@ -314,7 +316,7 @@ describe('installS3Endpoint', () => {
       method: 'PUT',
       path: PATH,
       headers,
-      body: Buffer.from('video'),
+      body: VIDEO_CONTENT,
     });
     expect(result.status).toBe(409);
     expect(completeJamRecording).not.toHaveBeenCalled();
@@ -336,7 +338,7 @@ describe('installS3Endpoint', () => {
       method: 'PUT',
       path: PATH,
       headers,
-      body: Buffer.from('video'),
+      body: VIDEO_CONTENT,
     });
     expect(result.status).toBe(200);
     expect(completeJamRecording).toHaveBeenCalledOnce();
@@ -504,7 +506,7 @@ describe('installS3Endpoint', () => {
       method: 'PUT',
       path: PATH,
       headers,
-      body: Buffer.from('video'),
+      body: VIDEO_CONTENT,
     });
     expect(result.status).toBe(500);
     expect(failJamRecording).toHaveBeenCalledWith(RECORDING_ID);
