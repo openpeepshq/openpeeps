@@ -57,6 +57,7 @@ export { AdminBackups } from './admin/Backups';
 export { AdminGroups } from './admin/Groups';
 export { AdminInvites } from './admin/Invites';
 export { AdminMembers } from './admin/Members';
+export { AdminMemberDetail } from './admin/MemberDetail';
 export { AdminModeration } from './admin/Moderation';
 export { PaymentSuccess } from './payment/Success';
 export { TestMarkdown } from './test/Markdown';

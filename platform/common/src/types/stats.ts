@@ -180,3 +180,16 @@ export const profileActivitySummarySchema = z.object({
 export type ProfileActivitySummary = z.infer<
   typeof profileActivitySummarySchema
 >;
+
+export const adminProfileSummarySchema = z.object({
+  profile: publicProfileSchema,
+  activity: profileActivitySummarySchema,
+  createdAt: z.string().datetime(),
+  email: z.string().optional(),
+  followersCount: z.number().int().nonnegative(),
+  followingCount: z.number().int().nonnegative(),
+  reportsCount: z.number().int().nonnegative(),
+  blockedByCount: z.number().int().nonnegative(),
+});
+
+export type AdminProfileSummary = z.infer<typeof adminProfileSummarySchema>;

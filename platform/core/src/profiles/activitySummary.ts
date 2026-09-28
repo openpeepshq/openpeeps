@@ -1,10 +1,13 @@
 import {
+  adminProfileSummarySchema,
   AuthorizationData,
   DbPost,
   PostWithMeta,
   ProfileActivitySummary,
   profileActivitySummarySchema,
   publicPostWithActivityScoreSchema,
+  publicProfileSchema,
+  type AdminProfileSummary,
 } from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import type { PgDb } from '../db/pg/client';
@@ -12,6 +15,9 @@ import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';
 import { capabilitiesConfig } from '../config';
 import { canReadPost, transformPost } from '../posts/helpers';
 import { postsMappingForProfile } from '../posts/mapping';
+import { listBlockedByIds } from './blocks';
+import { findProfile } from './finders';
+import { listReportsByReportedProfile } from '../reports/finders';
 import {
   profileActivityCountsSql,
   profileTopPostScoresSql,
@@ -100,5 +106,34 @@ export const getProfileActivitySummary = async (
     bookmarksCount: Number(countRow?.bookmarks_count ?? 0),
     groupsCount: Number(countRow?.groups_count ?? 0),
     topPosts,
+  });
+};
+
+export const getAdminProfileSummary = async (
+  authData: AuthorizationData,
+  profileId: string,
+): Promise<AdminProfileSummary> => {
+  const profile = await findProfile(profileId);
+  if (!profile) {
+    throw new Error(`Profile with id ${profileId} not found`);
+  }
+
+  const activity = await getProfileActivitySummary(authData, profileId);
+
+  const { db } = await allpeepDb();
+  const [blockedByIds, reports] = await Promise.all([
+    listBlockedByIds(db, profileId),
+    listReportsByReportedProfile(profile),
+  ]);
+
+  return adminProfileSummarySchema.parse({
+    profile: publicProfileSchema.parse(profile),
+    activity,
+    createdAt: profile.createdAt,
+    email: profile.controllers?.[0]?.email,
+    followersCount: profile.profileStats?.followersCount ?? 0,
+    followingCount: profile.profileStats?.followingCount ?? 0,
+    reportsCount: reports.length,
+    blockedByCount: blockedByIds.length,
   });
 };

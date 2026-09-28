@@ -257,6 +257,7 @@
       "actions": "Actions",
       "editEmail": "Edit Email",
       "editRoles": "Edit Roles",
+      "viewDetails": "View Details",
       "deleteMember": "Delete Member",
       "delete": "Delete"
     },
@@ -1389,7 +1390,24 @@
       "rolesColumn": "Roles",
       "createdColumn": "Created",
       "handleColumn": "Handle",
-      "downloadCsv": "Download CSV"
+      "downloadCsv": "Download CSV",
+      "profileInfo": "Profile Information",
+      "dateJoined": "Date joined",
+      "emailAddress": "Email address",
+      "profileId": "Profile ID",
+      "activity": "Activity",
+      "followers": "Followers",
+      "following": "Following",
+      "posts": "Posts",
+      "replies": "Replies",
+      "events": "Events",
+      "reports": "Reports",
+      "blockedBy": "Blocked by",
+      "groups": "Groups",
+      "rsvps": "RSVPs",
+      "bookmarks": "Bookmarks",
+      "backToMembers": "Back to members",
+      "notFound": "Profile not found"
     },
     "groups": {
       "title": "Groups",
