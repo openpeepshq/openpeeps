@@ -10,7 +10,7 @@ import {
   sql,
 } from 'drizzle-orm';
 import { posts } from '../schema/documents';
-import { postGroups, replyTo } from '../schema/edges';
+import { postGroups, postHashtags, replyTo } from '../schema/edges';
 import {
   postHasYesOrMaybeRsvpExpr,
   postReplyCountExpr,
@@ -100,6 +100,16 @@ export const postFilters = {
 
   hasYesOrMaybeRsvp: (profileId: string): SqlFilter =>
     pgSql(postHasYesOrMaybeRsvpExpr(posts, profileId)),
+
+  hasAnyHashtag: (hashtagIds: string[]): SqlFilter | undefined =>
+    hashtagIds.length
+      ? pgSql(
+          sql`EXISTS (SELECT 1 FROM ${postHashtags} WHERE ${postHashtags.fromId} = ${posts.id}::text AND ${inArray(
+            postHashtags.toId,
+            hashtagIds,
+          )})`,
+        )
+      : undefined,
 };
 
 export const eventTimeFilters = {

@@ -25,6 +25,7 @@ import type {
   PublicProfile,
   SuccessFailureResponse,
   SuccessResponse,
+  Hashtag,
 } from '@openpeepshq/common';
 import type {
   InfiniteData,
@@ -60,6 +61,13 @@ export type ProfileHooks = {
     id: string;
   }) => (pathParams?: { id: string }) => Promise<SuccessResponse>;
   useBlockedProfiles: () => Query<PublicProfile[]>;
+  useCurrentProfileFollowedHashtags: () => Query<Hashtag[]>;
+  followHashtagAction: (defaultPathParams?: {
+    tag: string;
+  }) => () => Promise<SuccessResponse>;
+  unfollowHashtagAction: (defaultPathParams?: {
+    tag: string;
+  }) => () => Promise<SuccessResponse>;
   useCurrentProfile: () => Query<ProfileWithMeta>;
   updateCurrentProfileAction: (
     defaultPathParams?: undefined,
@@ -114,6 +122,22 @@ export const profileHooks = (
     ['profiles'],
   ]),
   useBlockedProfiles: () => apiHook(client.profiles.current.blocked),
+  useCurrentProfileFollowedHashtags: () =>
+    apiHook(client.profiles.current.followedHashtags),
+  followHashtagAction: noPayloadMutation(
+    client.profiles.current.followHashtag,
+    [
+      ['profiles', 'current', 'hashtags'],
+      ['profiles', 'current'],
+    ],
+  ),
+  unfollowHashtagAction: noPayloadMutation(
+    client.profiles.current.unfollowHashtag,
+    [
+      ['profiles', 'current', 'hashtags'],
+      ['profiles', 'current'],
+    ],
+  ),
   useCurrentProfile: () => {
     const hasToken = useHasAuthToken();
     return apiHook(client.profiles.current.read, {

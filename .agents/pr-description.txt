@@ -1,0 +1,37 @@
+Follow hashtags to see posts containing them in your personal feed.
+
+References #198
+
+This implements the "Follow a Hashtag" feature. When a user follows a hashtag,
+posts tagged with it appear in their My Feed alongside posts from followed profiles
+and group memberships.
+
+## Changes
+
+### DB schema
+- Added `profile_hashtags` edge table (profiles → hashtags, unique per pair)
+- Registered `profileHashtagsCollection` in collection infos
+- Registered `profileHashtags` edge in the map registry
+- Added `profileHashtags` to `EDGE_IMPORT_ORDER` for backups
+- Drizzle migration `0015_profile_hashtags` with journal/snapshot
+
+### Core
+- Added `followedHashtags` relation to profile mapping, schema, and type
+- Added `followedHashtags: []` to `toDeletedProfileWithMeta`
+- Created `hashtags/helpers.ts` with connector/disconnector edge helpers
+- Added `followHashtag`/`unfollowHashtag` mutations (clears profile cache)
+- Added `listFollowedHashtags`/`isFollowingHashtag` finders
+- Added `postFilters.hasAnyHashtag` SQL filter (EXISTS on post_hashtags)
+- Updated `myFeedFilter` to include followed-hashtag posts as an OR predicate
+
+### Server
+- Created `hashtags/hashtagFollows.ts` handler (follow uses findOrCreateHashtag)
+- Added API endpoints: GET /profiles/current/hashtags, POST/DELETE :tag/follow
+
+### Client
+- Added `followedHashtags`, `followHashtag`, `unfollowHashtag` client endpoints
+
+### React
+- Added `useCurrentProfileFollowedHashtags`, `followHashtagAction`,
+  `unfollowHashtagAction` hooks
+- Added Follow/Unfollow button on /tags/:hashtag page with query invalidation

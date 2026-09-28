@@ -48,3 +48,4 @@ export const isReportedObject = edgeTable('is_reported_object');
 export const inviteLinkCreators = edgeTable('invite_link_creators');
 export const inviteLinkRedeemers = edgeTable('invite_link_redeemers');
 export const jamRecordings = edgeTable('jam_recordings');
+export const profileHashtags = edgeTable('profile_hashtags', true);

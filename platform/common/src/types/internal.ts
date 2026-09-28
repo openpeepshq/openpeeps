@@ -23,6 +23,7 @@ import {
   visibilityTypeSchema,
   applicationDataSchema,
   hashtagSchema,
+  Hashtag,
   accountInteractionsSchema,
   GroupRoleData,
   inviteLinkSchema,
@@ -75,6 +76,7 @@ export const profileWithMetaSchema = profileDataSchema.extend({
   profileStats: profileStatsSchema,
   blockingIds: z.array(z.string()).default([]),
   blockedByIds: z.array(z.string()).default([]),
+  followedHashtags: hashtagSchema.array().default([]),
 });
 
 /** Actor/object columns used internally; omitted from public profile JSON. */
@@ -97,6 +99,7 @@ export type ProfileWithMeta = Model<ProfileData> &
     profileStats: ProfileStats;
     blockingIds: string[];
     blockedByIds: string[];
+    followedHashtags: Hashtag[];
   };
 
 export const memberExportStatsSchema = z.object({

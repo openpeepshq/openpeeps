@@ -54,6 +54,7 @@ export const collectionInfos = {
   postSeenCollection: edge('postSeen'),
   profileSettingsCollection: document('profileSettings'),
   jamRecordingsCollection: edge('jamRecordings'),
+  profileHashtagsCollection: edge('profileHashtags'),
 } as const satisfies Record<string, CollectionInfo>;
 
 export type CollectionInfoKey = keyof typeof collectionInfos;

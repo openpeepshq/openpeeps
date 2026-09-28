@@ -88,6 +88,7 @@ export const toDeletedProfileWithMeta = (
   profileStats: { followersCount: 0, followingCount: 0 },
   blockingIds: [],
   blockedByIds: [],
+  followedHashtags: [],
 });
 
 /** Tombstone a `ProfileWithMeta` only when it is soft-deleted. */

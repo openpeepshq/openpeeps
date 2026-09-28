@@ -23,6 +23,7 @@ import type {
   PublicAccessToken,
   SessionEvent,
   SessionPlatform,
+  Hashtag,
 } from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 
@@ -101,6 +102,20 @@ export const profiles = (
     blocked: allpeepNoPayloadEndpoint<PublicProfile[]>(
       rawClient,
       '/profiles/current/blocked',
+    ),
+    followedHashtags: allpeepNoPayloadEndpoint<Hashtag[]>(
+      rawClient,
+      '/profiles/current/hashtags',
+    ),
+    followHashtag: allpeepNoPayloadEndpoint<SuccessResponse, { tag: string }>(
+      rawClient,
+      '/profiles/current/hashtags/:tag/follow',
+      'post',
+    ),
+    unfollowHashtag: allpeepNoPayloadEndpoint<SuccessResponse, { tag: string }>(
+      rawClient,
+      '/profiles/current/hashtags/:tag/follow',
+      'delete',
     ),
   },
 

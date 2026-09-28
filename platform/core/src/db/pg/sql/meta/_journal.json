@@ -106,6 +106,13 @@
       "when": 1789542000000,
       "tag": "0014_federation_datamodel",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1790593758508,
+      "tag": "0015_profile_hashtags",
+      "breakpoints": true
     }
   ]
 }

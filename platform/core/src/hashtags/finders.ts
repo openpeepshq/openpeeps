@@ -1,4 +1,5 @@
 import { normalizeHashtagTag } from '@openpeepshq/common/types';
+import type { Hashtag, ProfileWithMeta } from '@openpeepshq/common/types';
 
 import { allpeepDb } from '../db';
 import { hashtagsMapping } from './mapping';
@@ -27,3 +28,11 @@ export const findOrCreateHashtag = async (tag: string) => {
 
   return hashtagsMapping.create(db, { tag: normalizedTag });
 };
+
+export const listFollowedHashtags = (profile: ProfileWithMeta) =>
+  profile.followedHashtags ?? [];
+
+export const isFollowingHashtag = (
+  profile: ProfileWithMeta,
+  hashtag: Pick<Hashtag, 'id'>,
+) => profile.followedHashtags?.some((h) => h.id === hashtag.id) ?? false;
