@@ -94,6 +94,8 @@ export const createWebNavigator = (): Navigator => ({
         if (!target.section) return '/admin';
         if (target.section === 'groups' && target.handle)
           return `/admin/groups/@${target.handle.replace(/^@/, '')}/members`;
+        if (target.section === 'members' && target.handle)
+          return `/admin/members/${target.handle}`;
         return `/admin/${target.section}`;
       }
       case 'settings':

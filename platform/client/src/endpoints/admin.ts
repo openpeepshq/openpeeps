@@ -1,6 +1,7 @@
 import {
   AccessToken,
   AdminGroup,
+  AdminProfileSummary,
   ReportResolution,
   ReportWithMeta,
   RoleData,
@@ -171,6 +172,10 @@ export type Admin = {
     updateRoles: OpenpeepsPayloadEndpoint<
       Role[],
       { roles: Role[] },
+      { id: string }
+    >;
+    activitySummary: OpenpeepsNoPayloadEndpoint<
+      AdminProfileSummary,
       { id: string }
     >;
   };
@@ -465,6 +470,10 @@ export const admin = (rawClient: FetchClient): Admin => ({
       { roles: Role[] },
       { id: string }
     >(rawClient, '/admin/profiles/:id/roles', 'put'),
+    activitySummary: allpeepNoPayloadEndpoint<
+      AdminProfileSummary,
+      { id: string }
+    >(rawClient, '/admin/profiles/:id/activity-summary'),
   },
   roles: {
     list: allpeepNoPayloadEndpoint<Role[]>(rawClient, '/admin/roles'),

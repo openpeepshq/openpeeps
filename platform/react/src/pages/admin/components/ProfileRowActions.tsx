@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { MailIcon, PencilIcon, Trash2 } from 'lucide-react';
+import { EyeIcon, MailIcon, PencilIcon, Trash2 } from 'lucide-react';
 import type { ProfileWithMeta, Role } from '@openpeepshq/common/types';
-import { useT, useOpenpeeps } from '../../../index';
+import { useT, useOpenpeeps, useNavigate } from '../../../index';
 import {
   Dialog,
   DialogActions,
@@ -26,6 +26,10 @@ export function ProfileRowActions({ profile }: ProfileRowActionsProps) {
   const t = useT();
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const account = profile.controllers?.[0];
+  const navigate = useNavigate();
+
+  const viewDetails = () =>
+    navigate({ type: 'admin', section: 'members', handle: profile.id });
 
   return (
     <>
@@ -49,6 +53,16 @@ export function ProfileRowActions({ profile }: ProfileRowActionsProps) {
         <PopupSeparator />
         <PopupSection
           title={t('profile.table.actions', { defaultValue: 'Actions' })}
+        />
+        <PopupMenuButton
+          icon={EyeIcon}
+          title={t('profile.table.viewDetails', {
+            defaultValue: 'View Details',
+          })}
+          text={t('profile.table.viewDetails', {
+            defaultValue: 'View Details',
+          })}
+          action={viewDetails}
         />
         <PopupMenuButton
           icon={MailIcon}

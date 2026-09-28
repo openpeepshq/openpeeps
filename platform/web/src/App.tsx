@@ -89,6 +89,7 @@ import {
   AdminGroups,
   AdminInvites,
   AdminMembers,
+  AdminMemberDetail,
   AdminModeration,
   PaymentSuccess,
   TestMarkdown,
@@ -319,6 +320,7 @@ const Admin = {
   Plugins: AdminPlugins,
   Db: AdminDb,
   Members: AdminMembers,
+  MemberDetail: AdminMemberDetail,
   Invites: AdminInvites,
   Backups: AdminBackups,
   Analytics: AdminAnalytics,
@@ -642,6 +644,10 @@ function AppShell() {
                       <Route
                         path="/admin/members"
                         element={<Admin.Members />}
+                      />
+                      <Route
+                        path="/admin/members/:profileId"
+                        element={<Admin.MemberDetail />}
                       />
                     </Route>
 
