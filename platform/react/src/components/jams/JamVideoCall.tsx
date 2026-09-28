@@ -48,7 +48,7 @@ export function JamVideoCall({
       video={video}
       options={roomOptions}
       data-lk-theme={lkTheme}
-      style={{ height: '100dvh', width: '100vw' }}
+      style={{ height: '100%', width: '100%' }}
       onDisconnected={onDisconnected}
     >
       <JamConference />

@@ -143,8 +143,8 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   };
 
   return (
-    <div className="bg-surface text-foreground absolute right-0 top-0 flex h-full w-full flex-col gap-3 overflow-hidden rounded md:relative md:w-80">
-      <div className="flex w-full flex-none items-center justify-between border-b p-2">
+    <div className="bg-surface text-foreground absolute right-0 top-0 z-30 flex h-full w-full flex-col gap-3 overflow-hidden rounded md:relative md:z-auto md:w-80">
+      <div className="bg-surface relative z-20 flex w-full flex-none items-center justify-between gap-2 border-b pb-2 pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] pt-[max(0.5rem,env(safe-area-inset-top))]">
         <h3 className="text-lg">
           {t('jams.drawer.peopleTitle', { defaultValue: 'People' })}
         </h3>
@@ -152,10 +152,10 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
           type="button"
           title={t('jams.drawer.close', { defaultValue: 'Close' })}
           aria-label={t('jams.drawer.close', { defaultValue: 'Close' })}
-          className="text-muted-foreground"
+          className="text-foreground flex size-10 shrink-0 items-center justify-center"
           onClick={onClose}
         >
-          <X aria-hidden="true" />
+          <X className="size-5" aria-hidden="true" />
           <span className="sr-only">
             {t('jams.drawer.close', { defaultValue: 'Close' })}
           </span>
