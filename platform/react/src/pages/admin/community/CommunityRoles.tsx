@@ -1,7 +1,17 @@
-import { useEffect, useState } from 'react';
-import type { CommunityConfig, Role } from '@openpeepshq/common/types';
+import { useState } from 'react';
+import type { CommunityConfig } from '@openpeepshq/common/types';
 import { useT, useSetPageHeader, useOpenpeeps } from '../../../index';
 import { Button, Label, Toast } from '@openpeepshq/react-ui';
+import {
+  RoleCapabilityMatrix,
+  RelationCapabilitiesEditor,
+} from '../../../components';
+
+const TAB_DEFAULT_ROLE = 'default-role';
+const TAB_ROLES = 'roles';
+const TAB_RELATIONS = 'relations';
+const TAB_LIST = [TAB_DEFAULT_ROLE, TAB_ROLES, TAB_RELATIONS] as const;
+type TabKey = (typeof TAB_LIST)[number];
 
 function DefaultRoles({ base }: { base: CommunityConfig }) {
   const t = useT();
@@ -33,160 +43,63 @@ function DefaultRoles({ base }: { base: CommunityConfig }) {
     }
   };
 
+  const handleRestoreDefaults = async () => {
+    const defaultValue = 'pendingmember';
+    if (roleOnRegistration === defaultValue) return;
+    setRoleOnRegistration(defaultValue);
+    await handleSubmit();
+  };
+
+  const isDefault = roleOnRegistration === 'pendingmember';
+
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="p-4">
       <h3 className="text-xl font-bold">
         {t('admin.configuration.community.defaultRoles.title')}
       </h3>
-      <Label
-        title={t(
-          'admin.configuration.community.defaultRoles.roleOnRegistration',
-        )}
-        description={t(
-          'admin.configuration.community.defaultRoles.roleOnRegistrationDescription',
-        )}
-      >
-        <select
-          className="op-input"
-          value={roleOnRegistration}
-          onChange={(e) => setRoleOnRegistration(e.target.value)}
+      <div className="flex flex-col gap-4">
+        <Label
+          title={t(
+            'admin.configuration.community.defaultRoles.roleOnRegistration',
+          )}
+          description={t(
+            'admin.configuration.community.defaultRoles.roleOnRegistrationDescription',
+          )}
         >
-          <option value="pendingmember">Pending Member</option>
-          <option value="member">Member</option>
-        </select>
-      </Label>
-      <Button variant="ghost" action={handleSubmit} title="Save">
-        Save
-      </Button>
-      {status ? (
-        <Toast variant={status.type} onDismiss={() => setStatus(null)}>
-          {status.message}
-        </Toast>
-      ) : null}
-    </div>
-  );
-}
-
-const EVENT_CAPABILITY = 'core-posts-create-*';
-const NOTE_CAPABILITIES = [
-  'core-posts-create-note-*',
-  'core-posts-create-question-*',
-  'core-posts-create-article-*',
-];
-const GROUP_CAPABILITY = 'core-groups-create';
-
-function RolesSimple({ roles }: { roles: Role[] }) {
-  const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
-  const updateRole = openpeepsApi.admin.updateRoleAction();
-  const memberRole = roles.find((role) => role.key === 'member');
-  const [canCreateEvents, setCanCreateEvents] = useState(false);
-  const [canCreateGroups, setCanCreateGroups] = useState(false);
-  const [status, setStatus] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
-
-  useEffect(() => {
-    setCanCreateEvents(
-      !!memberRole?.capabilities?.add?.includes(EVENT_CAPABILITY),
-    );
-    setCanCreateGroups(
-      !!memberRole?.capabilities?.add?.includes(GROUP_CAPABILITY),
-    );
-  }, [memberRole]);
-
-  const adjustCapabilities = (capabilities: string[]) => {
-    let result = [...capabilities];
-    if (canCreateGroups && !result.includes(GROUP_CAPABILITY)) {
-      result = [...result, GROUP_CAPABILITY];
-    }
-    if (!canCreateGroups) {
-      result = result.filter((c) => c !== GROUP_CAPABILITY);
-    }
-    if (canCreateEvents) {
-      result = result.filter((c) => !NOTE_CAPABILITIES.includes(c));
-      if (!result.includes(EVENT_CAPABILITY))
-        result = [...result, EVENT_CAPABILITY];
-    } else {
-      result = result.filter((c) => c !== EVENT_CAPABILITY);
-      for (const cap of NOTE_CAPABILITIES) {
-        if (!result.includes(cap)) result = [...result, cap];
-      }
-    }
-    return result;
-  };
-
-  const handleSubmit = async () => {
-    if (!memberRole) return;
-    setStatus(null);
-    try {
-      await updateRole(
-        {
-          ...memberRole,
-          default: false,
-          capabilities: {
-            add: adjustCapabilities(memberRole.capabilities?.add ?? []),
-          },
-        },
-        { roleId: memberRole.id },
-      );
-      setStatus({
-        type: 'success',
-        message: t(
-          'admin.configuration.community.roleConfigurationSimple.success',
-        ),
-      });
-    } catch (err) {
-      setStatus({ type: 'error', message: (err as Error).message });
-    }
-  };
-
-  return (
-    <div className="flex flex-col gap-4 p-4">
-      <h3 className="text-xl font-bold">
-        {t('admin.configuration.community.roleConfigurationSimple.title')}
-      </h3>
-      <Label
-        title={t(
-          'admin.configuration.community.roleConfigurationSimple.membersCanCreateEvents.title',
-        )}
-        description={t(
-          'admin.configuration.community.roleConfigurationSimple.membersCanCreateEvents.description',
-        )}
-        forCheckbox
-      >
-        <input
-          type="checkbox"
-          className="h-5 w-9"
-          checked={canCreateEvents}
-          onChange={(e) => setCanCreateEvents(e.target.checked)}
-        />
-      </Label>
-      <Label
-        title={t(
-          'admin.configuration.community.roleConfigurationSimple.membersCanCreateGroups.title',
-        )}
-        description={t(
-          'admin.configuration.community.roleConfigurationSimple.membersCanCreateGroups.description',
-        )}
-        forCheckbox
-      >
-        <input
-          type="checkbox"
-          className="h-5 w-9"
-          checked={canCreateGroups}
-          onChange={(e) => setCanCreateGroups(e.target.checked)}
-        />
-      </Label>
-      <Button variant="ghost" action={handleSubmit} title="Save">
-        Save
-      </Button>
-      {status ? (
-        <Toast variant={status.type} onDismiss={() => setStatus(null)}>
-          {status.message}
-        </Toast>
-      ) : null}
+          <select
+            className="op-input"
+            value={roleOnRegistration}
+            onChange={(e) => setRoleOnRegistration(e.target.value)}
+          >
+            <option value="pendingmember">Pending Member</option>
+            <option value="member">Member</option>
+          </select>
+        </Label>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="default"
+            action={handleSubmit}
+            title={t('common.save', { defaultValue: 'Save' })}
+          >
+            {t('common.save', { defaultValue: 'Save' })}
+          </Button>
+          <Button
+            variant="outline"
+            action={handleRestoreDefaults}
+            disabled={isDefault}
+            title={t('common.restoreDefaults', {
+              defaultValue: 'Restore defaults',
+            })}
+          >
+            {t('common.restoreDefaults', { defaultValue: 'Restore defaults' })}
+          </Button>
+        </div>
+        {status ? (
+          <Toast variant={status.type} onDismiss={() => setStatus(null)}>
+            {status.message}
+          </Toast>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -204,12 +117,12 @@ export function AdminConfigurationCommunityRoles() {
 
   const base = configQuery.data?.config as CommunityConfig | undefined;
 
-  if (
-    configQuery.isLoading ||
-    rolesQuery.isLoading ||
-    !base ||
-    !rolesQuery.data
-  ) {
+  const loading =
+    configQuery.isLoading || rolesQuery.isLoading || !base || !rolesQuery.data;
+
+  const [activeTab, setActiveTab] = useState<TabKey>(TAB_DEFAULT_ROLE);
+
+  if (loading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
         {t('common.form.loading', { defaultValue: 'Loading…' })}
@@ -217,10 +130,77 @@ export function AdminConfigurationCommunityRoles() {
     );
   }
 
+  const tabs: { key: TabKey; label: string }[] = [
+    {
+      key: TAB_DEFAULT_ROLE,
+      label: t('admin.configuration.community.defaultRoles.title'),
+    },
+    {
+      key: TAB_ROLES,
+      label: t('admin.configuration.community.capabilities.rolesTitle', {
+        defaultValue: 'Instance roles',
+      }),
+    },
+    {
+      key: TAB_RELATIONS,
+      label: t('admin.configuration.community.capabilities.relationsTitle', {
+        defaultValue: 'Relationship capabilities',
+      }),
+    },
+  ];
+
   return (
-    <div className="flex flex-col gap-4">
-      <DefaultRoles base={base} />
-      <RolesSimple roles={rolesQuery.data} />
+    <div>
+      <div className="border-border flex gap-1 border-b">
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            className={`px-4 py-2 text-sm font-medium ${
+              activeTab === tab.key
+                ? 'border-primary text-foreground border-b-2'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      <div className="p-4">
+        {activeTab === TAB_DEFAULT_ROLE && <DefaultRoles base={base} />}
+        {activeTab === TAB_ROLES && (
+          <section>
+            <p className="text-muted-foreground text-sm">
+              {t(
+                'admin.configuration.community.capabilities.rolesDescription',
+                {
+                  defaultValue:
+                    'Set the capabilities granted by each instance role. The matrix mirrors group roles: click a cell to cycle empty -> allow (+) -> deny (-); ~ is inherited from a wildcard and x is locked.',
+                },
+              )}
+            </p>
+            <div className="mt-4">
+              <RoleCapabilityMatrix roles={rolesQuery.data} />
+            </div>
+          </section>
+        )}
+        {activeTab === TAB_RELATIONS && (
+          <section>
+            <p className="text-muted-foreground text-sm">
+              {t(
+                'admin.configuration.community.capabilities.relationsDescription',
+                {
+                  defaultValue:
+                    'Set the capabilities each relationship holds for posts, profiles, reports, and access tokens.',
+                },
+              )}
+            </p>
+            <div className="mt-4">
+              <RelationCapabilitiesEditor />
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   );
 }
