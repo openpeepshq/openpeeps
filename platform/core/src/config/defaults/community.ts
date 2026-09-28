@@ -10,14 +10,18 @@ export const defaultCommunityConfig: CommunityConfig = {
     light: {
       primaryHex: '#15678a',
       logoSmall: '/img/logo-small.png',
-      defaultProfileAvatar: '/img/default-avatar.png',
+      // No defaultProfileAvatar — profiles without a custom avatar fall back
+      // to letter initials in the Avatar component.
       defaultGroupAvatar: '/img/default-group-avatar.svg',
       backgroundAuth: '/img/background-auth.png',
     },
     dark: {
-      primaryHex: '#15678a',
+      // Lighter than the light-mode primary so it stays readable on the
+      // near-black dark background.
+      primaryHex: '#38aee1',
       logoSmall: '/img/logo-small-white.png',
-      defaultProfileAvatar: '/img/default-avatar.png',
+      // No defaultProfileAvatar — profiles without a custom avatar fall back
+      // to letter initials in the Avatar component.
       defaultGroupAvatar: '/img/default-group-avatar.svg',
       backgroundAuth: '/img/background-auth.png',
     },
