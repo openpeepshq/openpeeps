@@ -118,8 +118,10 @@ steps — follow that skill.
   `0011_drop_data_migrations.sql`). Always pass `--name`. Do not commit
   drizzle-kit’s default Marvel-style tags (`silly_mariko_yashida`,
   `bizarre_chat`). If generate produced one, rename the SQL file and the
-  matching `_journal.json` `tag` before committing. One-off PG data backfills
-  belong in an intentional SQL migration or a documented one-shot script.
+  matching `_journal.json` `tag` before committing. Keep only the latest
+  `meta/NNNN_snapshot.json` — drizzle-kit does not prune older snapshots, so
+  delete stale ones in the same commit. One-off PG data backfills belong in an
+  intentional SQL migration or a documented one-shot script.
 - **Queries:** keep `platform/core/src/db/pg/map/` for existing document/edge
   call sites, but **new features and hot-path work** should prefer Drizzle /
   SQL-native queries (typed repositories under domain modules or
@@ -129,6 +131,9 @@ steps — follow that skill.
 - **Capabilities:** gate features by role capabilities (`core-*`) rather than
   hardcoded role checks.
 - **Async work** belongs in a BullMQ queue/worker, not inline in request paths.
+- **CHANGELOG.md:** do not touch or regenerate manually. It is generated
+  automatically from conventional commits by the nightly build via
+  `scripts/generate-changelog.mjs`.
 
 ## Git & PRs
 
@@ -164,3 +169,40 @@ user.name`/`user.email`; do not hardcode an author here):
    rtk git fetch origin <branch> && rtk git push --force-with-lease origin <branch>
    ```
    Always fetch before pushing to avoid stale ref errors.
+
+## Agent Working Rules
+
+### Path Discipline
+
+- Copy file paths and directory names VERBATIM from tool results in context.
+  Never abbreviate, pluralize, hyphenate, or reconstruct paths from memory.
+- Before any edit to a file, read the file (or at minimum its directory
+  listing) in the current session. Do not edit paths you haven't seen in
+  tool output.
+- If a path is not in context, find it with search/listing tools first.
+  Guessing is never acceptable.
+- On any tool error indicating a missing file or path, STOP and re-locate
+  the correct path. Never retry the same path unmodified.
+
+### Context Economy
+
+- Truncate verbose command output. For test suites, builds, and logs,
+  report only the summary and relevant excerpts, not full output.
+- Never paste an entire file into your response. Reference the path and
+  line range instead.
+- Prefer targeted searches over reading whole files when locating code.
+
+### Working Style
+
+- Before a cross-cutting change, state the full list of affected files and
+  get confirmation, then work through the list systematically, verifying
+  each edit succeeded before proceeding.
+- Prefer the smallest diff that accomplishes the task.
+- One concern per edit. Never bundle unrelated changes.
+
+### Verification
+
+- After each edit to a file in a series of related edits, verify the edit
+  landed (read the modified region back) before moving to the next file.
+- Run the project's checks/tests before declaring a task complete.
+  Report which checks passed and which failed.

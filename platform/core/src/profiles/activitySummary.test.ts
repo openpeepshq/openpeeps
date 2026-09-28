@@ -34,7 +34,7 @@ describe('profile activity summary SQL', () => {
     expect(query.sql).toContain('INNER JOIN "posts" reposted_posts');
     expect(query.sql).toContain('INNER JOIN "posts" reply_child_posts');
     expect(query.sql).toContain('INNER JOIN "posts" parent_posts');
-    expect(query.sql).toContain('FROM "reactions"');
+    expect(query.sql).toContain('FROM "entries"');
     expect(query.sql).toContain('FROM "bookmarks"');
     expect(query.sql).toContain('FROM "user_groups"');
     expect(query.params).toContain('profile-id');
@@ -43,7 +43,7 @@ describe('profile activity summary SQL', () => {
   it('ranks non-reply posts by activity score', () => {
     const query = toSql(profileTopPostScoresSql('profile-id'));
 
-    expect(query.sql).toContain('FROM "reactions"');
+    expect(query.sql).toContain('FROM "entries"');
     expect(query.sql).toContain('FROM "repost"');
     expect(query.sql).toContain('ORDER BY activity_score DESC');
     expect(query.sql).toContain('NOT EXISTS (');

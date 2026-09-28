@@ -76,4 +76,20 @@ describe('profile displayName input schemas', () => {
       expect('pinnedPostId' in result.data).toBe(false);
     }
   });
+
+  it('rejects local profile handle updates longer than 16 characters', () => {
+    const result = updateProfileRequestSchema.safeParse({
+      type: 'local',
+      handle: 'a'.repeat(17),
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts federated profile handle updates longer than 16 characters', () => {
+    const result = updateProfileRequestSchema.safeParse({
+      type: 'federated',
+      handle: 'a'.repeat(32),
+    });
+    expect(result.success).toBe(true);
+  });
 });

@@ -61,29 +61,42 @@ export const matchMentionHandles = (text?: string | null): string[] => {
   return [...handles];
 };
 
+/** Readable text for a shortened preview. Drops markdown marks, keeps words. */
+export const markdownPlainText = (markdown?: string | null): string => {
+  if (!markdown) return '';
+  return markdown
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[#>*_~`]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 export const firstNWords = (markdown: string | undefined, n: number) => {
-    if (!markdown) return '';
-    // Regular expression to match words and markdown links.
-    const regex = /\[.*?\]\(.*?\)|(\w+)/g;
+  if (!markdown) return '';
+  // Regular expression to match words and markdown links.
+  const regex = /\[.*?\]\(.*?\)|(\w+)/g;
 
-    let wordCount = 0;
-    const firstTwelveWords = [];
-    let match;
+  let wordCount = 0;
+  const firstTwelveWords = [];
+  let match;
 
-    while ((match = regex.exec(markdown)) !== null) {
-        // Check if the match is a link or a regular word.
-        if (match[1]) { // It's a regular word
-            firstTwelveWords.push(match[1]);
-            wordCount++;
-        } else { // It's a markdown link - treat it as one word
-            firstTwelveWords.push(match[0]);  // Add the entire link string
-            wordCount++;
-        }
-
-        if (wordCount >= n) {
-            break;
-        }
+  while ((match = regex.exec(markdown)) !== null) {
+    // Check if the match is a link or a regular word.
+    if (match[1]) {
+      // It's a regular word
+      firstTwelveWords.push(match[1]);
+      wordCount++;
+    } else {
+      // It's a markdown link - treat it as one word
+      firstTwelveWords.push(match[0]); // Add the entire link string
+      wordCount++;
     }
 
-    return firstTwelveWords.join(" ");
-}
+    if (wordCount >= n) {
+      break;
+    }
+  }
+
+  return firstTwelveWords.join(' ');
+};

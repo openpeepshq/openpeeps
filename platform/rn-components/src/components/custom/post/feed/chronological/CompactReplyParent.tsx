@@ -1,5 +1,6 @@
 import {
   formatEventWhen,
+  markdownPlainText,
   type Article,
   type Event,
   type MediaAttachmentData,
@@ -39,16 +40,6 @@ const isImage = (att: MediaAttachmentData) =>
 
 const isVideo = (att: MediaAttachmentData) =>
   att.type === 'video' || att.meta?.mimetype?.startsWith('video/');
-
-const plainPreview = (markdown?: string): string => {
-  if (!markdown) return '';
-  return markdown
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/[#>*_~`]+/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-};
 
 const visualAttachment = (attachments: MediaAttachmentData[]) =>
   attachments.find(
@@ -122,7 +113,7 @@ const CompactTypeBody = ({ post }: { post: CompactPost }) => {
   switch (post.type) {
     case 'note': {
       const attachments = attachmentsOf(post);
-      const text = plainPreview(
+      const text = markdownPlainText(
         post.data?.type === 'note' ? post.data.content : ''
       );
       const hasVisual = !!visualAttachment(attachments);
@@ -153,7 +144,7 @@ const CompactTypeBody = ({ post }: { post: CompactPost }) => {
     }
     case 'question': {
       const data = post.data as Question;
-      const text = plainPreview(data.content);
+      const text = markdownPlainText(data.content);
       const optionCount = data.options?.length ?? 0;
       return (
         <>

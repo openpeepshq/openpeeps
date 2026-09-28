@@ -30,6 +30,11 @@ export const findProfile = (
 export const findProfileByHandle = (
   handle: string,
 ): Promise<ProfileWithMeta | undefined> => getProfileByHandle(handle);
+
+export {
+  findProfileByHandleAndDomain,
+  findProfileByUri,
+} from '../federation/profiles';
 export const existsProfileByHandle = (handle: string) =>
   getProfileByHandle(handle, true).then(Boolean);
 

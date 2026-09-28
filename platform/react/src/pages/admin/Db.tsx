@@ -378,7 +378,7 @@ export function AdminDb() {
                       })}
                     </p>
                   ) : rowsQuery.isError ? (
-                    <p className="p-3 text-sm text-red-600">
+                    <p className="text-error p-3 text-sm">
                       {t('admin.database.loadError', {
                         defaultValue: 'Failed to load rows.',
                       })}
@@ -508,7 +508,7 @@ export function AdminDb() {
             {pageSizeSelect(sqlPageSize, setSqlPageSize)}
           </div>
           {sqlError ? (
-            <pre className="overflow-auto rounded border border-red-300 bg-red-50 p-2 text-xs text-red-800">
+            <pre className="border-error/30 bg-error/10 text-error overflow-auto rounded border p-2 text-xs">
               {sqlError}
             </pre>
           ) : null}

@@ -59,8 +59,9 @@ const countDistinctActives = async (
         where deleted_at is null
           and created_at >= ${start} and created_at < ${end}
       union
-      select from_id from reactions
-        where created_at >= ${start} and created_at < ${end}
+      select from_id from entries
+        where body->>'type' in ('reaction', 'unreaction')
+        and created_at >= ${start} and created_at < ${end}
       union
       select from_id from repost
         where created_at >= ${start} and created_at < ${end}
@@ -161,7 +162,40 @@ const totalMembersAt = async (day: string): Promise<number> => {
   const end = `${day}T23:59:59.999Z`;
   const result = await db.execute(sql`
     select count(*)::int as c from profiles
-    where deleted_at is null and created_at <= ${end}
+    where deleted_at is null and type = 'local'
+      and created_at <= ${end}
+  `);
+  const rows = result.rows as Array<{ c?: number }>;
+  return Number(rows[0]?.c ?? 0);
+};
+
+const verifiedMembersAt = async (day: string): Promise<number> => {
+  const db = await database();
+  const end = `${day}T23:59:59.999Z`;
+  const result = await db.execute(sql`
+    select count(*)::int as c from profiles p
+    join controls c on c.to_id = p.id::text
+    join accounts a on a.id::text = c.from_id
+    where p.deleted_at is null and p.type = 'local'
+      and a.deleted_at is null
+      and a.email_validated = true
+      and p.created_at <= ${end}
+  `);
+  const rows = result.rows as Array<{ c?: number }>;
+  return Number(rows[0]?.c ?? 0);
+};
+
+const unverifiedMembersAt = async (day: string): Promise<number> => {
+  const db = await database();
+  const end = `${day}T23:59:59.999Z`;
+  const result = await db.execute(sql`
+    select count(*)::int as c from profiles p
+    join controls c on c.to_id = p.id::text
+    join accounts a on a.id::text = c.from_id
+    where p.deleted_at is null and p.type = 'local'
+      and a.deleted_at is null
+      and a.email_validated = false
+      and p.created_at <= ${end}
   `);
   const rows = result.rows as Array<{ c?: number }>;
   return Number(rows[0]?.c ?? 0);
@@ -500,8 +534,9 @@ const topMembers = async (from: string, to: string, limit = 10) => {
           and visibility <> 'direct'
           and created_at >= ${start} and created_at <= ${end}
       union all
-      select from_id from reactions
-        where created_at >= ${start} and created_at <= ${end}
+      select from_id from entries
+        where body->>'type' in ('reaction', 'unreaction')
+        and created_at >= ${start} and created_at <= ${end}
       union all
       select from_id from reply_to
         where created_at >= ${start} and created_at <= ${end}
@@ -671,7 +706,9 @@ export const getAnalyticsOverview = async (
   query: AnalyticsDateQuery = {},
 ): Promise<AnalyticsOverview> => {
   const range = await resolveQueryRange(query);
-  return withCache('overview-v6', range.from, range.to, async () => {
+  // Unique people in the window — summing daily rollups would count a
+  // member once per day they were active.
+  return withCache('overview-v7', range.from, range.to, async () => {
     const [
       activeMembersSeries,
       postsSeries,
@@ -686,11 +723,16 @@ export const getAnalyticsOverview = async (
       totalMembers,
       totalGroups,
       allTimePosts,
+      activeMembers,
       prevActive,
       prevPosts,
       prevTotalMembers,
       prevTotalGroups,
       prevAllTimePosts,
+      verifiedMembers,
+      unverifiedMembers,
+      prevVerifiedMembers,
+      prevUnverifiedMembers,
     ] = await Promise.all([
       loadTotalsSeries(range.from, range.to, 'activeMembers'),
       loadTotalsSeries(range.from, range.to, 'posts'),
@@ -705,14 +747,18 @@ export const getAnalyticsOverview = async (
       totalMembersAt(range.to),
       totalGroupsAt(range.to),
       totalPostsAt(range.to),
-      sumColumn(range.previousFrom, range.previousTo, 'activeMembers'),
+      countDistinctActives(range.from, range.to),
+      countDistinctActives(range.previousFrom, range.previousTo),
       sumColumn(range.previousFrom, range.previousTo, 'posts'),
       totalMembersAt(range.previousTo),
       totalGroupsAt(range.previousTo),
       totalPostsAt(range.previousTo),
+      verifiedMembersAt(range.to),
+      unverifiedMembersAt(range.to),
+      verifiedMembersAt(range.previousTo),
+      unverifiedMembersAt(range.previousTo),
     ]);
 
-    const activeMembers = sumSeries(activeMembersSeries);
     const totalPosts = sumSeries(postsSeries);
     const { buckets } = selectChartBuckets(range.from, range.to);
 
@@ -791,6 +837,16 @@ export const getAnalyticsOverview = async (
           'totalMembers',
           totalMembers,
           prevTotalMembers,
+        ),
+        verifiedMembers: metricCard(
+          'verifiedMembers',
+          verifiedMembers,
+          prevVerifiedMembers,
+        ),
+        unverifiedMembers: metricCard(
+          'unverifiedMembers',
+          unverifiedMembers,
+          prevUnverifiedMembers,
         ),
         activeMembers: metricCard(
           'activeMembers',

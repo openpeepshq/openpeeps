@@ -8,7 +8,11 @@ import type {
   PublicReplyPost,
   Question,
 } from '@openpeepshq/common/types';
-import { formatEventWhen, isHiddenPost } from '@openpeepshq/common/lib';
+import {
+  formatEventWhen,
+  isHiddenPost,
+  markdownPlainText,
+} from '@openpeepshq/common/lib';
 import { Calendar, CirclePlay, Paperclip } from 'lucide-react';
 import { cn } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
@@ -35,17 +39,6 @@ const isImage = (att: MediaAttachmentData) =>
 
 const isVideo = (att: MediaAttachmentData) =>
   att.type === 'video' || att.meta?.mimetype?.startsWith('video/');
-
-/** Strip markdown so a 5rem preview never renders headings or blocks. */
-const plainPreview = (markdown?: string): string => {
-  if (!markdown) return '';
-  return markdown
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/[#>*_~`]+/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-};
 
 const visualAttachment = (attachments: MediaAttachmentData[]) =>
   attachments.find(
@@ -123,7 +116,7 @@ const compactThumb = (post: CompactPost, t: TFunction): ReactNode => {
 const CompactNoteBody = ({ post, t }: { post: CompactPost; t: TFunction }) => {
   if (post.data?.type !== 'note') return null;
   const attachments = attachmentsOf(post);
-  const text = plainPreview(post.data.content);
+  const text = markdownPlainText(post.data.content);
   const hasVisual = !!visualAttachment(attachments);
   const docName =
     !hasVisual && attachments[0]
@@ -153,7 +146,7 @@ const CompactQuestionBody = ({
 }) => {
   if (post.data?.type !== 'question') return null;
   const data = post.data as Question;
-  const text = plainPreview(data.content);
+  const text = markdownPlainText(data.content);
   const optionCount = data.options?.length ?? 0;
   return (
     <>

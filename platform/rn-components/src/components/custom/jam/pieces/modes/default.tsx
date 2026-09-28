@@ -1,5 +1,6 @@
 import { View, ScrollView, TouchableOpacity, Text } from 'react-native';
 import React, { useState } from 'react';
+import { sortByRaisedHand } from '@openpeepshq/common';
 import { ParticipantView } from '../participant-view';
 import { TrackReferenceOrPlaceholder } from '@livekit/react-native';
 
@@ -13,9 +14,10 @@ export const Default: React.FC<DefaultProps> = ({
   stableTracks,
 }) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const filteredTracks = stableTracks.filter(track => {
-    return track.source === 'camera';
-  });
+  const filteredTracks = sortByRaisedHand(
+    stableTracks.filter(track => track.source === 'camera'),
+    track => track.participant.metadata,
+  );
   const totalPages = Math.ceil(filteredTracks.length / ITEMS_PER_PAGE);
 
   const paginatedTracks = filteredTracks.slice(

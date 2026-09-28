@@ -4,7 +4,6 @@ import { posts } from '../db/pg/schema/documents';
 import {
   bookmarks,
   entries,
-  reactions,
   replyTo,
   repost,
   userGroups,
@@ -25,17 +24,19 @@ export const profileActivityCountsSql = (profileId: string) => sql`
       WHERE ${posts.type} = 'event' AND NOT ${isReplySql}
     )::int AS events_count,
     (
-      SELECT COUNT(*)::int FROM ${reactions}
-      WHERE ${reactions.fromId} = ${profileId}
+      SELECT COUNT(*)::int FROM ${entries}
+      WHERE ${entries.fromId} = ${profileId}
+        AND ${entries.body}->>'type' = 'reaction'
     ) AS reactions_given,
     (
       SELECT COUNT(*)::int
-      FROM ${reactions}
+      FROM ${entries}
       INNER JOIN ${posts} received_posts
-        ON received_posts.id::text = ${reactions.toId}
+        ON received_posts.id::text = ${entries.toId}
       WHERE received_posts.creator_id = ${profileId}
         AND received_posts.deleted_at IS NULL
         AND received_posts.visibility <> 'direct'
+        AND ${entries.body}->>'type' = 'reaction'
     ) AS reactions_received,
     (
       SELECT COUNT(*)::int FROM ${repost}

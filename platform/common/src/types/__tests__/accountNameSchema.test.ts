@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { accountNameSchema } from '../models';
+import { accountNameSchema, profileDataSchema } from '../models';
 
 describe('accountNameSchema', () => {
   it('accepts alphanumeric handles with underscores and hyphens', () => {
@@ -26,5 +26,27 @@ describe('accountNameSchema', () => {
     if (!result.success) {
       expect(result.error.issues[0]?.message).toBe('Handle is reserved');
     }
+  });
+});
+
+describe('profileDataSchema handle rules', () => {
+  const localBase = {
+    displayName: 'Ada',
+    type: 'local' as const,
+    activityPub: { domain: 'example.com' },
+  };
+
+  it('stores local and federated handles up to 64 characters', () => {
+    expect(
+      profileDataSchema.safeParse({ ...localBase, handle: 'a'.repeat(16) })
+        .success,
+    ).toBe(true);
+    expect(
+      profileDataSchema.safeParse({
+        handle: 'a'.repeat(32),
+        type: 'federated',
+        activityPub: { domain: 'mastodon.social' },
+      }).success,
+    ).toBe(true);
   });
 });

@@ -7,7 +7,7 @@ import {
   useRoomContext,
 } from '@livekit/components-react';
 import { LayoutGrid, Maximize2, Pin, ScreenShare } from 'lucide-react';
-import { profileName } from '@openpeepshq/common/lib';
+import { profileName, sortByRaisedHand } from '@openpeepshq/common/lib';
 import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { AvatarWithName } from '../profile';
@@ -331,6 +331,10 @@ export function JamVideoLayout({
   const { spotlightIdentity, setSpotlight, canSpotlight } = useJamSpotlight();
   const [focus, setFocus] = useState<LocalSpeakerFocus>({ mode: 'follow' });
   const seenSpotlight = useRef(spotlightIdentity);
+  const orderedCameraTracks = sortByRaisedHand(
+    cameraTracks,
+    (track) => track.participant.metadata,
+  );
 
   useEffect(() => {
     if (seenSpotlight.current === spotlightIdentity) return;
@@ -361,7 +365,7 @@ export function JamVideoLayout({
   if (screenShareTrack) {
     return (
       <ScreenSharingLayout
-        cameraTracks={cameraTracks}
+        cameraTracks={orderedCameraTracks}
         screenShareTrack={screenShareTrack}
         spotlightIdentity={spotlightIdentity}
         onToggleSpotlight={onToggleSpotlight}
@@ -369,14 +373,14 @@ export function JamVideoLayout({
     );
   }
 
-  const stage = cameraTracks.find(
+  const stage = orderedCameraTracks.find(
     (track) => track.participant.identity === stageIdentity,
   );
   if (stage) {
     return (
       <SpeakerLayout
         stage={stage}
-        cameraTracks={cameraTracks}
+        cameraTracks={orderedCameraTracks}
         spotlightIdentity={spotlightIdentity}
         onEnlarge={onEnlarge}
         onShowGrid={() => setFocus({ mode: 'grid' })}
@@ -385,14 +389,18 @@ export function JamVideoLayout({
     );
   }
 
-  const [firstTrack] = cameraTracks;
-  if (!observer && cameraTracks.length === 1 && firstTrack) {
+  const [firstTrack] = orderedCameraTracks;
+  if (!observer && orderedCameraTracks.length === 1 && firstTrack) {
     return <AloneLayout track={firstTrack} />;
   }
 
-  if (!observer && cameraTracks.length === 2) {
-    const local = cameraTracks.find((track) => track.participant.isLocal);
-    const remote = cameraTracks.find((track) => !track.participant.isLocal);
+  if (!observer && orderedCameraTracks.length === 2) {
+    const local = orderedCameraTracks.find(
+      (track) => track.participant.isLocal,
+    );
+    const remote = orderedCameraTracks.find(
+      (track) => !track.participant.isLocal,
+    );
     if (local && remote) {
       return <OneOnOneLayout local={local} remote={remote} />;
     }
@@ -400,7 +408,7 @@ export function JamVideoLayout({
 
   return (
     <DefaultGrid
-      cameraTracks={cameraTracks}
+      cameraTracks={orderedCameraTracks}
       spotlightIdentity={spotlightIdentity}
       onEnlarge={onEnlarge}
       onToggleSpotlight={onToggleSpotlight}

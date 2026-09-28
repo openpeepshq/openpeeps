@@ -181,6 +181,10 @@ export const analyticsOverviewSchema = z.object({
     /** Cumulative posts created on or before the range end. */
     allTimePosts: analyticsMetricCardSchema,
     totalMembers: analyticsMetricCardSchema,
+    /** Cumulative local members with a verified email, on or before the range end. */
+    verifiedMembers: analyticsMetricCardSchema,
+    /** Cumulative local members with an unverified email, on or before the range end. */
+    unverifiedMembers: analyticsMetricCardSchema,
     activeMembers: analyticsMetricCardSchema,
     totalGroups: analyticsMetricCardSchema,
   }),

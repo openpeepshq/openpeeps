@@ -1,5 +1,5 @@
 import React from 'react';
-import { Profile, getProfileAvatar } from '@openpeepshq/common';
+import { Profile, getProfileAvatar, markdownPlainText } from '@openpeepshq/common';
 import { truncateText } from '~/lib/utils';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { Pressable, View } from 'react-native';
@@ -66,9 +66,11 @@ export const ProfileBio = ({ profile, defaultTitle }: ProfileProps) => {
   return (
     <ThemedText className="">
       {truncateText(
-        otherProfiles.length === 1
-          ? otherProfiles[0].bio
-          : profile.map(p => p.bio).join(', '),
+        markdownPlainText(
+          otherProfiles.length === 1
+            ? otherProfiles[0].bio
+            : profile.map(p => p.bio).join(', '),
+        ),
         20,
       )}
     </ThemedText>

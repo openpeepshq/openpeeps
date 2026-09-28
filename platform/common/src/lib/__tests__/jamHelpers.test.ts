@@ -9,6 +9,7 @@ import {
   pickActiveFileRecording,
   pickActiveRtmpStream,
   rtmpDestinationHost,
+  sortByRaisedHand,
   toRtmpStreamResponse,
 } from '../jamHelpers';
 import type { JamRecording, PublicPost } from '../../types';
@@ -152,5 +153,37 @@ describe('toRtmpStreamResponse', () => {
     expect(JSON.stringify(toRtmpStreamResponse(recording))).not.toMatch(
       /streamKey|secret/i,
     );
+  });
+});
+
+const hand = (handRaised?: string) =>
+  JSON.stringify(handRaised ? { handRaised } : {});
+
+describe('sortByRaisedHand', () => {
+  it('puts the newest raised hand first', () => {
+    const people = [
+      { id: 'a', metadata: hand() },
+      { id: 'b', metadata: hand('2026-09-23T10:00:00.000Z') },
+      { id: 'c', metadata: hand('2026-09-23T10:05:00.000Z') },
+      { id: 'd', metadata: hand() },
+    ];
+    expect(
+      sortByRaisedHand(people, (person) => person.metadata).map(
+        (person) => person.id,
+      ),
+    ).toEqual(['c', 'b', 'a', 'd']);
+  });
+
+  it('leaves the list unchanged when no hands are raised', () => {
+    const people = [
+      { id: 'a', metadata: hand() },
+      { id: 'b', metadata: 'not-json' },
+      { id: 'c' },
+    ];
+    expect(
+      sortByRaisedHand(people, (person) => person.metadata).map(
+        (person) => person.id,
+      ),
+    ).toEqual(['a', 'b', 'c']);
   });
 });

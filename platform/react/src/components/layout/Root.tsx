@@ -59,16 +59,21 @@ function MobileFooter() {
  */
 export function RootLayout({ children, sideBar }: RootLayoutProps) {
   return (
-    <div className="flex h-full w-full flex-col overflow-x-hidden">
+    <div className="flex h-full w-full flex-col overflow-x-clip">
       <div className="min-w-0 flex-grow">
-        <div className="flex min-h-full w-full flex-col overflow-y-auto overflow-x-hidden">
+        <div className="flex min-h-full w-full flex-col overflow-y-auto overflow-x-clip">
           <div className="mx-auto h-1 w-full min-w-0 flex-grow md:max-w-[950px]">
             <div className="flex w-full min-w-0 flex-col md:flex-row">
-              <aside className="w-70 hidden shrink-0 border-r md:sticky md:top-0 md:flex md:h-screen md:self-start">
-                <SideBar
-                  mainMenu={sideBar?.mainMenu?.()}
-                  profileMenu={sideBar?.profileMenu?.()}
-                />
+              {/* Stretch the rail to the main column so it continues past
+                  the viewport. Keep the nav viewport-tall and sticky.
+                  overflow-x: clip (not hidden) so Firefox still honors sticky. */}
+              <aside className="bg-background w-70 hidden shrink-0 border-r md:flex md:min-h-screen">
+                <div className="w-full md:sticky md:top-0 md:h-screen">
+                  <SideBar
+                    mainMenu={sideBar?.mainMenu?.()}
+                    profileMenu={sideBar?.profileMenu?.()}
+                  />
+                </div>
               </aside>
               <div className="bg-background flex min-h-screen min-w-0 flex-1 flex-col border-r">
                 <HeaderMobile sideBar={sideBar} />

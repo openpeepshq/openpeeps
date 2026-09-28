@@ -115,7 +115,7 @@ export function JamChatDrawer({
           type="button"
           title={t('jams.drawer.close', { defaultValue: 'Close' })}
           aria-label={t('jams.drawer.close', { defaultValue: 'Close' })}
-          className="text-neutral-400"
+          className="text-muted-foreground"
           onClick={onClose}
         >
           <X aria-hidden="true" />
@@ -137,7 +137,7 @@ export function JamChatDrawer({
             </div>
           )}
           {messages.length === 0 && !eventsQuery.isLoading ? (
-            <p className="mt-4 text-center text-neutral-400">
+            <p className="text-muted-foreground mt-4 text-center">
               {t('jams.chat.noMessages', { defaultValue: 'No messages yet' })}
             </p>
           ) : (

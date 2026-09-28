@@ -80,6 +80,7 @@ export const getPublicProfile = async (
   return profile ? withEmptyFollowGraphs(profile) : undefined;
 };
 
+/** Local handle lookup only — federated paths must use uri or (handle, domain). */
 export const getProfileByHandle = async (
   handle: string,
   ignoreSoftDelete = false,

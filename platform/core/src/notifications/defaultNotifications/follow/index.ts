@@ -7,6 +7,7 @@ import {
 import { maybeCreateNotification } from '@openpeepshq/core/notifications';
 import {
   getProfileAvatar,
+  markdownPlainText,
   profileName,
   truncateText,
 } from '@openpeepshq/common/lib';
@@ -25,7 +26,7 @@ export default {
   pushRenderer: async (notification: ExpandedNotification) => ({
     title: `${profileName(notification.senderProfile!)} followed you`,
     options: {
-      body: truncateText(notification.senderProfile?.bio),
+      body: truncateText(markdownPlainText(notification.senderProfile?.bio)),
       icon: getProfileAvatar(
         notification.senderProfile,
         await communityConfig(),

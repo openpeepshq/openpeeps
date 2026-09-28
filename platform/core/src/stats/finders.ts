@@ -23,7 +23,6 @@ import {
   followsMapping,
   postsWithActivityScoreMapping,
   profileWithActivityScoreMapping,
-  reactionsMapping,
   repostsMapping,
 } from './mapping';
 import { compileStatsWithAll, createdAtFilter } from './helpers';
@@ -33,7 +32,7 @@ import {
 } from '../jams/mapping';
 import { edgeFilters, postFilters, profileFilters } from '../db/pg/filters';
 import { sorts } from '../db/pg/queries';
-import { entries, follows, reactions, repost } from '../db/pg/schema/edges';
+import { entries, follows, repost } from '../db/pg/schema/edges';
 import { jamEvents, posts, profiles } from '../db/pg/schema/documents';
 
 export const activeProfilesCount = (db: PgDb, start?: Date, end?: Date) =>
@@ -84,7 +83,10 @@ export const postsRepliesStats = (): Promise<ObjectStatsWithAll> =>
   compileStatsWithAll(postsRepliesCount);
 
 const reactionCount = (db: PgDb, start?: Date, end?: Date) =>
-  reactionsMapping.filter(createdAtFilter(reactions, start, end)).count(db);
+  entriesMapping
+    .filter(createdAtFilter(entries, start, end))
+    .filter(edgeFilters.entryType('reaction'))
+    .count(db);
 const rsvpCount = (db: PgDb, start?: Date, end?: Date) =>
   entriesMapping
     .filter(createdAtFilter(entries, start, end))
@@ -98,7 +100,6 @@ const repostCount = (db: PgDb, start?: Date, end?: Date) =>
   repostsMapping.filter(createdAtFilter(repost, start, end)).count(db);
 
 const interactionsCount = async (db: PgDb, start?: Date, end?: Date) =>
-  (await reactionCount(db, start, end)) +
   (await followCount(db, start, end)) +
   (await entryCount(db, start, end)) +
   (await repostCount(db, start, end));

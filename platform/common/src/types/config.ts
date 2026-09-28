@@ -164,6 +164,8 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
     }),
     federation: z.object({
       active: z.boolean(),
+      /** Host patterns (`mastodon.social`, `*.example.com`). Empty = fail closed. */
+      allowedHosts: z.array(z.string()).default([]),
     }),
     activityPub: z.object({
       defaultDomain: z.string(),

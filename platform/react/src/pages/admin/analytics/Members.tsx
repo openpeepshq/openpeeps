@@ -67,6 +67,34 @@ export const AnalyticsMembersPage = () => {
           )}
         />
         <MetricCard
+          label={t('admin.analytics.metrics.verifiedMembers', {
+            defaultValue: 'Verified members',
+          })}
+          value={overviewData.metrics.verifiedMembers.value}
+          deltaPct={overviewData.metrics.verifiedMembers.deltaPct}
+          subtitle={t('admin.analytics.period.allTime', {
+            defaultValue: 'All-time',
+          })}
+          info={info(
+            'verifiedMembers',
+            'All-time members with a verified email, as of the range end.',
+          )}
+        />
+        <MetricCard
+          label={t('admin.analytics.metrics.unverifiedMembers', {
+            defaultValue: 'Unverified members',
+          })}
+          value={overviewData.metrics.unverifiedMembers.value}
+          deltaPct={overviewData.metrics.unverifiedMembers.deltaPct}
+          subtitle={t('admin.analytics.period.allTime', {
+            defaultValue: 'All-time',
+          })}
+          info={info(
+            'unverifiedMembers',
+            'All-time members with an unverified email, as of the range end.',
+          )}
+        />
+        <MetricCard
           label={t('admin.analytics.metrics.newMembers', {
             defaultValue: 'New members',
           })}
@@ -87,7 +115,7 @@ export const AnalyticsMembersPage = () => {
           subtitle={thisPeriod}
           info={info(
             'activeMembers',
-            'Sum of daily active-member rollups in the range. A member active on multiple days is counted once per day.',
+            'Distinct members who posted, liked, replied, reposted, or bookmarked at least once in the selected range. A member active on multiple days is counted once.',
           )}
         />
         <MetricCard
