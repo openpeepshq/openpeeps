@@ -3,6 +3,11 @@ import { getTheme } from '@openpeepshq/common';
 
 import { useServerInfo } from '../server-data';
 import { useCurrentProfileSettings } from '../layout/IdentityContext';
+import {
+  getInitials,
+  hueFromHandle,
+  initialsBackground,
+} from '../../lib/initialsAvatar';
 import { svgCoverSrc } from '../../lib/svgCover';
 
 export interface GroupAvatarProps {
@@ -13,19 +18,11 @@ export interface GroupAvatarProps {
   containerClassName?: string;
 }
 
-const initials = (group?: GroupData | GroupWithMeta): string => {
-  const name = group?.displayName || group?.handle || '?';
-  const parts = name.split(' ');
-  return [parts.at(0), parts.at(-1)]
-    .filter(Boolean)
-    .map((part) => part?.substring(0, 1).toUpperCase())
-    .join('');
-};
-
 /**
  * Translation of `@openpeepshq/svelte/components/core/groups/GroupAvatar.svelte`.
  * Renders a circular group avatar with the group picture, falling back to the
- * community's `defaultGroupAvatar` and finally to letter initials.
+ * community's `defaultGroupAvatar` and finally to letter initials on a
+ * handle-hashed background.
  */
 export function GroupAvatar({
   group,
@@ -35,16 +32,17 @@ export function GroupAvatar({
 }: GroupAvatarProps) {
   const serverInfo = useServerInfo();
   const profileSettings = useCurrentProfileSettings();
-  const defaultAvatar = getTheme(
-    serverInfo.communityConfig,
-    profileSettings,
-  ).defaultGroupAvatar;
+  const theme = getTheme(serverInfo.communityConfig, profileSettings);
+  const defaultAvatar = theme.defaultGroupAvatar;
 
   const src = group?.avatar || defaultAvatar;
 
   const borderClass = borderless
     ? ''
     : 'border-4 border-border hover:border-border-2';
+
+  const hue = hueFromHandle(group?.handle ?? '');
+  const backgroundColor = src ? undefined : initialsBackground(hue, theme.dark);
 
   return (
     <div
@@ -57,6 +55,7 @@ export function GroupAvatar({
     >
       <div
         className={`bg-surface-2 relative inline-flex h-full w-full items-center justify-center overflow-hidden rounded-full ${borderClass}`}
+        style={{ backgroundColor }}
       >
         {src ? (
           <img
@@ -65,8 +64,11 @@ export function GroupAvatar({
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="text-foreground/80 text-sm font-medium">
-            {initials(group)}
+          <span
+            className="text-primary font-medium"
+            style={{ fontSize: `${size / 4}rem` }}
+          >
+            {getInitials(group?.displayName, group?.handle)}
           </span>
         )}
       </div>

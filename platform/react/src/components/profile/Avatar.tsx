@@ -4,6 +4,11 @@ import { UserX } from 'lucide-react';
 
 import { useServerInfo } from '../server-data';
 import { useCurrentProfileSettings } from '../layout/IdentityContext';
+import {
+  getInitials,
+  hueFromHandle,
+  initialsBackground,
+} from '../../lib/initialsAvatar';
 import { svgCoverSrc } from '../../lib/svgCover';
 
 export interface AvatarProps {
@@ -16,20 +21,11 @@ export interface AvatarProps {
   navigate?: boolean;
 }
 
-const initials = (profile?: PublicProfile): string => {
-  const name = profile?.displayName || profile?.handle || '?';
-  const parts = name.split(' ');
-  return [parts.at(0), parts.at(-1)]
-    .filter(Boolean)
-    .map((part) => part?.substring(0, 1).toUpperCase())
-    .join('');
-};
-
 /**
  * Translation of `@openpeepshq/svelte/components/core/profile/Avatar.svelte`.
- * Renders a circular avatar with the profile picture, falling back to the
- * community's `defaultProfileAvatar` and finally to letter initials.
- * Soft-deleted profiles use a dedicated glyph and never link to a profile page.
+ * Renders a circular avatar with the profile picture, falling back to
+ * letter initials on a handle-hashed background. Soft-deleted profiles use a
+ * dedicated glyph and never link to a profile page.
  */
 export function Avatar({
   profile,
@@ -40,23 +36,29 @@ export function Avatar({
 }: AvatarProps) {
   const serverInfo = useServerInfo();
   const profileSettings = useCurrentProfileSettings();
-  const defaultAvatar = getTheme(
-    serverInfo.communityConfig,
-    profileSettings,
-  ).defaultProfileAvatar;
+  const theme = getTheme(serverInfo.communityConfig, profileSettings);
   const deleted = isDeletedProfile(profile);
 
-  const src = deleted ? null : profile?.avatar || defaultAvatar;
+  // Use initials when no avatar is set, regardless of community config.
+  const src = deleted ? null : profile?.avatar;
   const iconSize = Math.max(12, size * 8);
 
   const borderClass = borderless
     ? ''
     : 'border-4 border-border hover:border-border-2';
 
+  const hue = hueFromHandle(profile?.handle ?? '');
+  const backgroundColor =
+    src || deleted ? undefined : initialsBackground(hue, theme.dark);
+
   const inner = (
     <div
       className={`bg-surface-2 relative inline-flex items-center justify-center overflow-hidden rounded-full ${borderClass}`}
-      style={{ width: `${size}rem`, height: `${size}rem` }}
+      style={{
+        width: `${size}rem`,
+        height: `${size}rem`,
+        backgroundColor,
+      }}
     >
       {deleted ? (
         <UserX
@@ -71,8 +73,11 @@ export function Avatar({
           className="h-full w-full rounded-full object-cover"
         />
       ) : (
-        <span className="text-foreground/80 text-sm font-medium">
-          {initials(profile)}
+        <span
+          className="text-primary font-medium"
+          style={{ fontSize: `${size / 4}rem` }}
+        >
+          {getInitials(profile?.displayName, profile?.handle)}
         </span>
       )}
     </div>
