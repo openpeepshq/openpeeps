@@ -141,7 +141,9 @@
     "primaryMobile": "Primär",
     "breadcrumbs": "Breadcrumbs",
     "primary": "Primär",
-    "about": "Über"
+    "about": "Über",
+    "openMenu": "Menü öffnen",
+    "openMessages": "Nachrichten öffnen"
   },
   "profile": {
     "noBio": "Noch keine Biografie",
@@ -234,7 +236,8 @@
       "editEmail": "E-Mail bearbeiten",
       "editRoles": "Rollen bearbeiten",
       "deleteMember": "Mitglied löschen",
-      "delete": "Löschen"
+      "delete": "Löschen",
+      "viewDetails": "Details anzeigen"
     },
     "followers": {
       "title": "Follower",
@@ -385,7 +388,8 @@
         "seeWhoVotedTitle": "Sehen, wer abgestimmt hat",
         "multipleAnswersDescription": "Erlauben Sie den Teilnehmenden, mehrere Antworten auszuwählen",
         "votersVisibleDescription": "Erlauben Sie allen zu sehen, wer abgestimmt hat und welche Option gewählt wurde",
-        "question": "Umfragefrage…"
+        "question": "Umfragefrage…",
+        "expiresAt": "Läuft ab am"
       },
       "changeAudience": "Zielgruppe ändern",
       "remainingCharacters": "Verbleibende Zeichen",
@@ -456,7 +460,8 @@
       "pollOptions": "{{count}} Optionen",
       "document": "Dokument",
       "imageAlt": "Anhang",
-      "viewOriginal": "Originalbeitrag anzeigen"
+      "viewOriginal": "Originalbeitrag anzeigen",
+      "viewPost": "Beitrag anzeigen"
     },
     "feed": {
       "empty": "Noch keine Beiträge.",
@@ -540,7 +545,8 @@
       "title": "Diese Veranstaltung löschen?"
     },
     "article": {
-      "readMore": "Weiterlesen…"
+      "readMore": "Weiterlesen…",
+      "minutesToRead": "{{count}} Min. Lesezeit"
     },
     "bookmark": {
       "success": "Lesezeichen gespeichert",
@@ -613,7 +619,8 @@
       "success": "Gruppe verlassen",
       "lastAdminError": "Sie sind der letzte Administrator dieser Gruppe. Bitte weisen Sie einen neuen Administrator zu, bevor Sie die Gruppe verlassen.",
       "removedToast": "Sie wurden erfolgreich entfernt.",
-      "removeErrorToast": "Beim Entfernen ist ein Fehler aufgetreten."
+      "removeErrorToast": "Beim Entfernen ist ein Fehler aufgetreten.",
+      "lastOwnerError": "Sie sind der letzte Besitzer dieser Gruppe. Bitte weisen Sie vor dem Verlassen eine neue Besitzerin bzw. einen neuen Besitzer zu."
     },
     "delete": {
       "title": "Gruppe löschen",
@@ -743,7 +750,10 @@
     "roles": {
       "member": "Mitglied",
       "admin": "Administrator",
-      "moderator": "Moderator"
+      "moderator": "Moderator",
+      "none": "Keine",
+      "local": "Lokal",
+      "owner": "Besitzer"
     },
     "rules": {
       "title": "Gruppenregeln",
@@ -753,7 +763,8 @@
       "title": "Rollen ändern",
       "description": "Rollen für diese Gruppe ändern",
       "confirm": "Rollen aktualisieren",
-      "successMessage": "Rollen aktualisiert"
+      "successMessage": "Rollen aktualisiert",
+      "ownerForbidden": "Nur eine Besitzerin bzw. ein Besitzer der Gruppe kann die Besitzerrolle erteilen oder entziehen."
     },
     "new": "Neue Gruppe",
     "goto": "Zur Gruppe",
@@ -765,7 +776,8 @@
     "form": {
       "groupName": "Gruppenname",
       "members": "Mitglieder",
-      "membersPlaceholder": "Mitglieder zu dieser Gruppe hinzufügen"
+      "membersPlaceholder": "Mitglieder zu dieser Gruppe hinzufügen",
+      "displayNameMaxLength": "Der Gruppenname sollte höchstens {{max}} Zeichen lang sein"
     },
     "actions": {
       "editGroup": "Gruppe bearbeiten",
@@ -826,7 +838,67 @@
       "searchPlaceholder": "Mitglieder nach Name oder Handle suchen",
       "empty": "Keine Mitglieder gefunden"
     },
-    "notFound": "Gruppe nicht gefunden"
+    "notFound": "Gruppe nicht gefunden",
+    "edit": {
+      "title": "Gruppe bearbeiten",
+      "info": {
+        "title": "Gruppeninformationen",
+        "description": "Avatar, Banner, Name, Beschreibung und Gruppenregeln"
+      },
+      "roles": {
+        "title": "Rollen und Berechtigungen",
+        "description": "Wer der Gruppe beitreten, Beiträge verfassen und die Gruppe verwalten kann"
+      },
+      "rolesForbidden": "Sie haben keine Berechtigung, Rollen und Berechtigungen zu bearbeiten."
+    },
+    "templates": {
+      "title": "Gruppentyp",
+      "description": "Wählen Sie eine Vorlage, oder bearbeiten Sie die Berechtigungsmatrix unten. Der Typ wechselt zu „Benutzerdefiniert“, sobald die Matrix nicht mehr mit einer Vorlage übereinstimmt.",
+      "descriptionCreate": "Wählen Sie eine Vorlage für Ihre Gruppe, oder wählen Sie „Benutzerdefiniert“, um Berechtigungen anzupassen.",
+      "publicGroup": {
+        "title": "Öffentliche Gruppe",
+        "description": "Alle können die Gruppe finden, beitreten, lesen und reagieren. Mitglieder können Beiträge verfassen."
+      },
+      "localGroup": {
+        "title": "Lokale Gruppe",
+        "description": "Angemeldete Community-Mitglieder können die Gruppe finden, beitreten, lesen und reagieren. Mitglieder können Beiträge verfassen."
+      },
+      "privateGroup": {
+        "title": "Private Gruppe",
+        "description": "Nur Mitglieder können die Gruppe und Beiträge sehen. Mitglieder können lesen und Beiträge verfassen."
+      },
+      "announcementGroup": {
+        "title": "Ankündigungsgruppe",
+        "description": "Nur Mitglieder sehen die Gruppe. Besitzerinnen und Besitzer sowie Administratoren verfassen Beiträge; Mitglieder können lesen, reagieren und antworten."
+      },
+      "lockedGroup": {
+        "title": "Gesperrte Gruppe",
+        "description": "Alle können lesen und reagieren, aber nicht beitreten. Mitglieder können antworten, zu- oder absagen und abstimmen."
+      },
+      "custom": {
+        "title": "Benutzerdefinierte Gruppe",
+        "description": "Die Berechtigungen stimmen mit keiner Standardvorlage überein."
+      }
+    },
+    "capabilities": {
+      "title": "Rollenberechtigungen",
+      "description": "Legen Sie fest, was die jeweilige Beziehung tun darf. „Keine“ gilt für alle (einschließlich angemeldeter Nutzerinnen und Nutzer). „Lokal“ gilt nur für Profile mit der Community-Rolle „core-local“. Der Besitzer wird nicht angezeigt, weil Besitzer immer vollständigen Zugriff haben.",
+      "capability": "Berechtigung",
+      "allowAll": "Alle",
+      "coveredByWildcard": "Durch „Alle erlauben“ gewährt; zum Ausschließen deaktivieren",
+      "stateHint": "Klicken Sie auf eine Zelle, um zu wechseln: leer → erlaubt (+) → verboten (−). ~ = erlaubt durch „Alle“ oder durch die Spalte „Keine“ (gilt für alle). × = durch einen Platzhalter verboten und nicht änderbar.",
+      "state": {
+        "none": "Nicht festgelegt",
+        "implicit-remove": "Durch Platzhalter verboten (gesperrt)",
+        "implicit-add": "Durch Platzhalter erlaubt",
+        "specific-add": "Ausdrücklich erlaubt",
+        "specific-remove": "Ausdrücklich verboten"
+      },
+      "mode": {
+        "simple": "Einfach",
+        "advanced": "Erweitert"
+      }
+    }
   },
   "jams": {
     "form": {
@@ -999,7 +1071,19 @@
       "copyObserverLink": "Beobachterlink kopieren",
       "copiedObserverLink": "Beobachterlink kopiert",
       "copyObserverLinkButtonTitle": "Beobachterlink kopieren",
-      "copiedObserverLinkButtonTitle": "Beobachterlink kopiert"
+      "copiedObserverLinkButtonTitle": "Beobachterlink kopiert",
+      "rtmpHeading": "Live-Stream",
+      "rtmpHelp": "Fügen Sie die RTMP-URL und den Stream-Key aus StreamYard ein, um diesen Jam live zu übertragen.",
+      "rtmpUrlLabel": "RTMP-URL",
+      "rtmpUrlPlaceholder": "rtmps://…",
+      "rtmpStreamKeyLabel": "Stream-Key",
+      "rtmpStart": "Stream starten",
+      "rtmpStop": "Stream beenden",
+      "rtmpLive": "Stream wird zu {{host}} übertragen",
+      "rtmpStarted": "Live-Stream gestartet",
+      "rtmpStopped": "Live-Stream beendet",
+      "rtmpStartError": "Live-Stream konnte nicht gestartet werden",
+      "rtmpStopError": "Live-Stream konnte nicht beendet werden"
     },
     "hand": {
       "raiseTitle": "Hand heben",
@@ -1083,7 +1167,25 @@
         "loaded": "Geladen",
         "disabled": "Deaktiviert",
         "failed": "Fehlgeschlagen"
-      }
+      },
+      "install": "Installieren",
+      "installTitle": "Plugin installieren",
+      "installing": "Wird installiert…",
+      "installConfirm": "Installieren",
+      "uninstall": "Deinstallieren",
+      "npmPlaceholder": "Paketname (z. B. @namespace/plugin-name)",
+      "gitPlaceholder": "Repository-URL",
+      "versionPlaceholder": "Version (optional, standardmäßig die neueste)",
+      "refPlaceholder": "Branch oder Tag (optional, standardmäßig main)",
+      "publicSource": "Öffentliche Quelle",
+      "tokenAuth": "Zugriffstoken",
+      "sshAuth": "SSH-Deploy-Key",
+      "registryPlaceholder": "Registry-URL (optional, standardmäßig npmjs.org)",
+      "usernamePlaceholder": "Git-Benutzername",
+      "tokenPlaceholder": "Zugriffstoken",
+      "privateKeyPlaceholder": "Unverschlüsselter privater SSH-Key",
+      "sshTrustHint": "Der Host-Key des Repositories wird für diese Installation beim ersten Gebrauch vertraut.",
+      "credentialsHint": "Zugangsdaten werden nur für diese Installation verwendet und nicht gespeichert."
     },
     "inviteLink": {
       "unlimited": "Unbegrenzt",
@@ -1226,7 +1328,24 @@
       "rolesColumn": "Rollen",
       "createdColumn": "Erstellt",
       "handleColumn": "Benutzername",
-      "downloadCsv": "CSV herunterladen"
+      "downloadCsv": "CSV herunterladen",
+      "profileInfo": "Profilinformationen",
+      "dateJoined": "Beitrittsdatum",
+      "emailAddress": "E-Mail-Adresse",
+      "profileId": "Profil-ID",
+      "activity": "Aktivität",
+      "followers": "Follower",
+      "following": "Folgt",
+      "posts": "Beiträge",
+      "replies": "Antworten",
+      "events": "Veranstaltungen",
+      "reports": "Meldungen",
+      "blockedBy": "Blockiert von",
+      "groups": "Gruppen",
+      "rsvps": "Zusagen",
+      "bookmarks": "Lesezeichen",
+      "backToMembers": "Zurück zur Mitgliederliste",
+      "notFound": "Profil nicht gefunden"
     },
     "community": {
       "totalProfiles": "Profile gesamt",
@@ -1461,7 +1580,8 @@
         "groups": "Gruppen",
         "reports": "Berichte",
         "growth": "Wachstum",
-        "retention": "Bindung"
+        "retention": "Bindung",
+        "ai-insights": "KI-Erkenntnisse"
       },
       "export": "Exportieren",
       "exportCsv": "CSV exportieren",
@@ -1570,7 +1690,9 @@
         "impressions": "Impressionen",
         "day1": "Tag-1-Bindung %",
         "day7": "Tag-7-Bindung %",
-        "day30": "Tag-30-Bindung %"
+        "day30": "Tag-30-Bindung %",
+        "verifiedMembers": "Verifizierte Mitglieder",
+        "unverifiedMembers": "Nicht verifizierte Mitglieder"
       },
       "info": {
         "totalMembers": "Anzahl nicht gelöschter Mitgliedsprofile, die am oder vor dem Ende des ausgewählten Zeitraums erstellt wurden (kumulativ, gesamter Zeitraum).",
@@ -2043,6 +2165,10 @@
       "codeOfConduct": {
         "title": "Verhaltenskodex",
         "description": "Legen Sie die Regeln und Erwartungen für Ihre Community fest. Die Seite ist öffentlich unter /code-of-conduct für alle sichtbar, auch für nicht angemeldete Besucher. <br/> Sie können Markdown verwenden, um den Inhalt dieser Seite zu formatieren; siehe https://www.markdownguide.org/"
+      },
+      "openRegistrations": {
+        "title": "Offene Registrierung",
+        "description": "Besuchern die Registrierung in der Community erlauben"
       }
     },
     "server": {
@@ -2070,6 +2196,158 @@
     },
     "pluginPage": {
       "description": "Dieses Plugin konfigurieren."
+    },
+    "sso": {
+      "title": "SSO",
+      "description": "Konfigurieren Sie Single-Sign-on-Anbieter, damit sich Mitglieder mit GitLab, GitHub oder einem anderen Identitätsanbieter anmelden können.",
+      "intro": "Wählen Sie einen Anbietertyp zum Hinzufügen und füllen Sie das zugehörige Formular aus. Integrierte Typen speichern Endpoint-URLs und Claim-Zuordnung anhand von Vorlagen.",
+      "onlySSO": "Nur SSO",
+      "onlySSODescription": "Blenden Sie das Passwortformular aus und leiten Sie Mitglieder zu den konfigurierten SSO-Anbietern weiter.",
+      "providers": "Anbieter",
+      "empty": "Es sind noch keine SSO-Anbieter konfiguriert.",
+      "addTitle": "Anbieter hinzufügen",
+      "addChooseType": "Wählen Sie einen Anbietertyp.",
+      "addPageTitle": "{{name}} hinzufügen",
+      "backToList": "Zurück zu SSO",
+      "typeLabel": "Anbietertyp",
+      "saveProvider": "Anbieter speichern",
+      "removeProvider": "Entfernen",
+      "editProvider": "Bearbeiten",
+      "cancelEdit": "Abbrechen",
+      "updateSuccess": "SSO-Konfiguration aktualisiert.",
+      "duplicateId": "Ein Anbieter mit dieser ID existiert bereits.",
+      "idRequired": "Geben Sie eine kurze, URL-sichere ID ein.",
+      "callbackUrl": "Weiterleitungs-URI",
+      "kind": {
+        "gitlab": "GitLab",
+        "gitlab-selfhosted": "GitLab",
+        "github": "GitHub",
+        "google": "Google",
+        "entra": "Microsoft",
+        "discord": "Discord",
+        "auth0": "Auth0",
+        "okta": "Okta",
+        "keycloak": "Keycloak",
+        "authentik": "Authentik",
+        "pocketid": "Pocket ID",
+        "oidc": "OIDC",
+        "generic": "Generisch"
+      },
+      "types": {
+        "gitlab": {
+          "title": "GitLab",
+          "description": "GitLab.com mit OpenID Connect."
+        },
+        "gitlab-selfhosted": {
+          "title": "GitLab (selbst gehostet)",
+          "description": "Eine selbst gehostete GitLab-Instanz mit OpenID Connect."
+        },
+        "github": {
+          "title": "GitHub",
+          "description": "GitHub.com oder GitHub Enterprise. Nutzt OAuth und die Emails-API, wenn das Profil keine öffentliche E-Mail-Adresse enthält."
+        },
+        "google": {
+          "title": "Google",
+          "description": "Google-Konten über OpenID Connect."
+        },
+        "entra": {
+          "title": "Microsoft Entra ID",
+          "description": "Microsoft Arbeits- oder Schulkonten. Optionale Tenant-ID; standardmäßig common."
+        },
+        "discord": {
+          "title": "Discord",
+          "description": "Discord-OAuth. Nutzt /users/@me für die E-Mail-Adresse und erzeugt die Avatar-CDN-URL."
+        },
+        "auth0": {
+          "title": "Auth0",
+          "description": "Ein Auth0-Tenant (your-app.auth0.com)."
+        },
+        "okta": {
+          "title": "Okta",
+          "description": "Eine Okta-Organisation. Nutzt den Standard-Autorisierungsserver, sofern Sie keine andere ID festlegen."
+        },
+        "keycloak": {
+          "title": "Keycloak",
+          "description": "Ein Keycloak-Realm. Erfordert Server-URL und Realm-Name."
+        },
+        "authentik": {
+          "title": "Authentik",
+          "description": "Eine Authentik-Instanz. Erfordert Server-URL und Application-Slug für JWKS."
+        },
+        "pocketid": {
+          "title": "Pocket ID",
+          "description": "Ein selbst gehosteter Pocket-ID-OpenID-Connect-Server."
+        },
+        "oidc": {
+          "title": "OIDC (generisch)",
+          "description": "Ein beliebiger anderer OpenID-Connect-Anbieter. Geben Sie die Endpoint-URLs selbst ein."
+        },
+        "generic": {
+          "title": "Generisch",
+          "description": "Eine eigene Profil-API mit JSONPath-Extraktion."
+        }
+      },
+      "fields": {
+        "id": "ID",
+        "idHint": "Wird in der Callback-URL verwendet. Legen Sie diesen Wert fest, bevor Sie die Weiterleitungs-URI registrieren.",
+        "name": "Name",
+        "nameHint": "Wird auf der Anmelde-Schaltfläche angezeigt.",
+        "instanceUrl": "Instanz-URL",
+        "instanceUrlHint": {
+          "default": "Basis-URL des Identitätsanbieters.",
+          "github": "Lassen Sie das Feld für github.com leer, oder geben Sie Ihre GitHub-Enterprise-URL an.",
+          "gitlab-selfhosted": "Ihr GitLab-Host, beispielsweise https://gitlab.example.com.",
+          "auth0": "Ihre Auth0-Tenant-URL, beispielsweise https://your-app.auth0.com.",
+          "okta": "Ihre Okta-Organisations-URL, beispielsweise https://dev-123.okta.com.",
+          "keycloak": "Ihre Keycloak-Server-URL ohne den Realm-Pfad.",
+          "authentik": "Ihre Authentik-URL, beispielsweise https://auth.example.com.",
+          "pocketid": "Ihre Pocket-ID-URL, beispielsweise https://id.example.com."
+        },
+        "tenant": "Tenant",
+        "tenantHint": {
+          "default": "Verzeichnis-, Realm- oder Anwendungsbezeichner.",
+          "entra": "Verzeichnis-Tenant-ID oder common / organizations / consumers. Leer lassen für common.",
+          "okta": "ID des Autorisierungsservers. Leer lassen für den Standardwert.",
+          "keycloak": "Name des Keycloak-Realms.",
+          "authentik": "Authentik-Application-Slug. Wird für die JWKS-URL verwendet."
+        },
+        "tenantLabel": {
+          "entra": "Tenant-ID",
+          "okta": "Autorisierungsserver",
+          "keycloak": "Realm",
+          "authentik": "Application-Slug"
+        },
+        "clientId": "Client-ID",
+        "clientSecret": "Client-Secret",
+        "clientSecretHint": "Lassen Sie die Platzhalterzeichen unverändert, um das gespeicherte Secret beizubehalten.",
+        "scope": "Scope",
+        "approvalRequired": "Genehmigung für neue Konten erforderlich",
+        "authorizationUrl": "Autorisierungs-URL",
+        "tokenUrl": "Token-URL",
+        "userinfoUrl": "Userinfo-URL",
+        "jwksUri": "JWKS-URI",
+        "loginLink": "Anmelde-Link",
+        "profileUrl": "URL der Profilabfrage",
+        "authHeader": "Authorization-Header",
+        "createAccounts": "Konten erstellen",
+        "createProfiles": "Profile erstellen"
+      },
+      "generic": {
+        "userProfilePaths": {
+          "email": "Pfad für E-Mail-Adresse",
+          "handle": "Pfad für Handle",
+          "displayName": "Pfad für Anzeigename",
+          "avatar": "Pfad für Avatar"
+        }
+      },
+      "oidc": {
+        "claimMapping": {
+          "email": "E-Mail-Claim",
+          "handle": "Handle-Claim",
+          "displayName": "Anzeigename-Claim",
+          "avatar": "Avatar-Claim"
+        }
+      }
     }
   },
   "common": {
@@ -2238,13 +2516,17 @@
     "open": "Unterhaltung öffnen",
     "placeholder": "Nachricht schreiben…",
     "title": "Unterhaltung",
-    "titleWithYou": "{{names}} und Sie"
+    "titleWithYou": "{{names}} und Sie",
+    "participants": {
+      "title": "Teilnehmende",
+      "openList": "Teilnehmende anzeigen"
+    }
   },
   "settings": {
     "description": "Verwalten Sie hier alle Einstellungen zu Ihrem Konto:",
     "profile": {
       "description": "Ändern Sie Ihre Profildetails",
-      "updateError": "Beim Aktualisieren Ihres Profils ist ein Fehler aufgetreten.",
+      "updateError": "Beim Aktualisieren Ihres Profils ist ein Fehler aufgetreten: {{error}}",
       "updateSuccess": "Ihr Profil wurde aktualisiert",
       "updateHandleExists": "Benutzername bereits vergeben"
     },
@@ -2640,7 +2922,30 @@
       "maxAttendeesDescription": "Begrenzen Sie, wie viele Personen mit Ja für diese Veranstaltung zusagen können. Leer lassen für keine Begrenzung.",
       "clearMaxAttendees": "Teilnehmerbegrenzung entfernen",
       "imageDescription": "Laden Sie ein Bild für Ihre Veranstaltung hoch",
-      "imageSpecs": "Ihr Bild sollte mindestens 800 Pixel breit sein, im Seitenverhältnis 16:9."
+      "imageSpecs": "Ihr Bild sollte mindestens 800 Pixel breit sein, im Seitenverhältnis 16:9.",
+      "repeat": {
+        "title": "Wiederholung",
+        "none": "Keine Wiederholung",
+        "daily": "Täglich",
+        "weekly": "Wöchentlich",
+        "monthly": "Monatlich",
+        "weekdays": "Wiederholen am",
+        "end": "Endet",
+        "never": "Nie",
+        "onDate": "Zu einem Datum",
+        "after": "Nach einer Anzahl von Veranstaltungen",
+        "count": "Anzahl der Veranstaltungen",
+        "preview": "Nächste Termine: {{dates}}",
+        "day": {
+          "MO": "Mo",
+          "TU": "Di",
+          "WE": "Mi",
+          "TH": "Do",
+          "FR": "Fr",
+          "SA": "Sa",
+          "SU": "So"
+        }
+      }
     },
     "feed": {
       "past": "Vergangene",
@@ -2725,6 +3030,29 @@
       "current": "Dieser Termin",
       "capacity": "({{filled}}/{{max}})",
       "rsvpCount": "({{count}})"
+    },
+    "exportAttendees": "Teilnehmende exportieren",
+    "exportAttendeesError": "Export der Teilnehmenden fehlgeschlagen",
+    "repeat": {
+      "badge": "Wiederholung",
+      "label": "Wiederholung",
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "monthly": "Monatlich",
+      "everyNDays": "Alle {{count}} Tage",
+      "everyNWeeks": "Alle {{count}} Wochen",
+      "everyNMonths": "Alle {{count}} Monate",
+      "weeklyOn": "Wöchentlich am {{days}}",
+      "everyNWeeksOn": "Alle {{count}} Wochen am {{days}}",
+      "until": "bis {{date}}",
+      "times": "{{count}} Mal"
+    },
+    "menu": {
+      "title": "Veranstaltungsoptionen",
+      "editThis": "Diese Veranstaltung bearbeiten",
+      "editAll": "Alle Veranstaltungen bearbeiten",
+      "deleteThis": "Diese Veranstaltung löschen",
+      "deleteAll": "Alle Veranstaltungen löschen"
     }
   },
   "reports": {

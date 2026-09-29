@@ -430,6 +430,24 @@ jobs:
           JAMS_LIVEKIT_API_SECRET: ${{ secrets.JAMS_LIVEKIT_API_SECRET }}
         run: pnpm --filter @openpeepshq/tests run test:integration:jams
 
+  i18n-check:
+    runs-on: docker
+    needs: [set-variables]
+    # Advisory: flags missing translations without holding up the pipeline.
+    continue-on-error: true
+    container:
+      image: node:24-alpine
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ needs.set-variables.outputs.full_sha }}
+      - name: Locale parity (report only outside release branches)
+        if: needs.set-variables.outputs.is_release_branch == 'false'
+        run: node scripts/check-i18n-parity.mjs
+      - name: Locale parity (required on release branches)
+        if: needs.set-variables.outputs.is_release_branch == 'true'
+        run: node scripts/check-i18n-parity.mjs --strict
+
   commit-check:
     runs-on: docker
     needs: [deploy-docker, set-variables]
