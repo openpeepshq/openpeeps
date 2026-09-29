@@ -27,4 +27,5 @@ Here you should find everything useful to work on the AllPeep Community Server.
 
 - [Plugins](/docs/development/plugins) - Plugin system documentation
   - [Front end](/docs/development/plugins/frontend) - Slots, bundles, and theming
+  - [Back end](/docs/development/plugins/backend) - Server module: events, routes, config, and locales
 - [MCP for operators](/docs/admin/mcp) - Community and ops MCP endpoints (member guide: [Connect an AI assistant](/docs/user/mcp))

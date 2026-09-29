@@ -2,7 +2,7 @@
 
 > Implementation guide and contract for OpenPeeps plugins.
 
-Authoring guide: [Front end](/docs/development/plugins/frontend) (slots and bundles).
+Authoring guides: [Front end](/docs/development/plugins/frontend) (slots and bundles) and [Back end](/docs/development/plugins/backend) (server module: events, routes, config, locales).
 
 > **⚠️ Important — plugin removal in git does not remove it from a deployment.** > `plugins/<namespace>/<name>/` plugins are scanned from the **host**
 > directory bind-mounted at `PLUGINS_PATH` in production, not from the git
