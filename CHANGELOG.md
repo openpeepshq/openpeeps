@@ -5,6 +5,9 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **admin**: add user activity summary detail view for members
+- **article**: add minutes-to-read estimate for articles
+- **analytics**: add verified vs unverified member metrics
 - **admin**: add sorting to members screen
 - **federation**: add public ActivityPub data model
 - **pwa**: enhance stale app reload behavior and integrate jam room checks
@@ -34,6 +37,7 @@ Changelog for OpenPeeps
 
 ### Tests
 
+- **s3**: add jam recording upload verification test with Fireplace.mp4 fixture
 - **analytics**: add integration test for getAnalyticsOverview
 
 ## 2026-09-23
