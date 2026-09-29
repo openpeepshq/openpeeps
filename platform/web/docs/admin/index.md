@@ -10,6 +10,12 @@ If you're trying to access the Release Notes, you may visit the [Release Notes](
 
 <div style="height:20px"></div>
 
+## Setup
+
+- [Administration Guide](/docs/admin/administration-guide) - Set up the server and administer the community.
+
+<div style="height:20px"></div>
+
 ## Configuration
 
 - [Theming](/docs/admin/theming) - Personalize your community's look and feel with images, colors, and fonts.
@@ -25,9 +31,3 @@ If you're trying to access the Release Notes, you may visit the [Release Notes](
 
 - [Backups](/docs/admin/backups) - Backup archive format and restore
 - [MCP for operators](/docs/admin/mcp) - Enable or disable MCP, ops tools, tokens, and reverse proxies
-
-<div style="height:20px"></div>
-
-<div style="height:20px"></div>
-
-## Accessing the Community Administration interface

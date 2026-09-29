@@ -30,6 +30,7 @@ export const SIDEBAR: NavSection[] = [
     title: 'Administration',
     items: [
       { label: 'Overview', slug: 'admin' },
+      { label: 'Administration guide', slug: 'admin/administration-guide' },
       { label: 'Backups', slug: 'admin/backups' },
       { label: 'MCP', slug: 'admin/mcp' },
       { label: 'OIDC SSO', slug: 'admin/oidc-sso' },
