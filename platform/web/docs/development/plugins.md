@@ -2,6 +2,8 @@
 
 > Implementation guide and contract for OpenPeeps plugins.
 
+Authoring guide: [Front end](/docs/development/plugins/frontend) (slots and bundles).
+
 > **⚠️ Important — plugin removal in git does not remove it from a deployment.** > `plugins/<namespace>/<name>/` plugins are scanned from the **host**
 > directory bind-mounted at `PLUGINS_PATH` in production, not from the git
 > repo or the built image. Renaming, moving, or deleting a plugin in git
@@ -168,6 +170,8 @@ export const routes = async (router: Router) => {
 
 ## 4. Frontend Plugin System
 
+Step-by-step authoring, the slots the app actually renders, and theming: [Plugin Development Guide (Front-end)](/docs/development/plugins/frontend).
+
 The frontend uses a **slot-based registry**. Plugins ship plain JavaScript IIFE bundles that call `window.__OPENPEEPS_PLUGINS__.registerComponent(slot, key, Component)`.
 
 ```mermaid
@@ -308,29 +312,11 @@ window.__OPENPEEPS_PLUGINS__.registerComponent(
 ### Build Contract (IMPORTANT)
 
 1. **React must be external.** Plugin builds must declare `react` and `react-dom` as `peerDependencies` or `external`. Bundling your own React instance causes "Invalid Hook Call" errors.
-2. **Target `esm` or `iife` for `web/` bundles.** The `dist/index.js` backend entry uses ESM; frontend bundles use IIFE.
-3. **Asset naming must match manifest.** The `asset` field in the manifest must exactly match the filename in your `web/` directory.
-4. **Do not rely on the host Tailwind classes.** The host app's Tailwind build only scans its own source tree, so utility classes used exclusively inside a plugin bundle (e.g. `bg-primary/10`) are not guaranteed to exist in the final CSS. Ship your own stylesheet or use inline styles for reliable styling.
+2. **Ship an IIFE for `web/` bundles.** The loader injects a classic `<script>` (`async`, no `type="module"`). ESM `import` in that file does not run. The `dist/index.js` server entry stays ESM.
+3. **Asset naming must match manifest.** The `asset` field in the manifest must exactly match the path under the plugin root, and the file must sit inside `web/`.
+4. **Do not rely on the host Tailwind classes.** The host app's Tailwind build only scans its own source tree, so utility classes used exclusively inside a plugin bundle (e.g. `bg-primary/10`) are not guaranteed to exist in the final CSS. Use inline styles, or attach your own stylesheet from the IIFE. The loader does not inject `<link>` tags.
 
-### Example Plugin Build (Vite)
-
-```ts
-// plugins/my-ns/my-plugin/vite.config.ts
-import { defineConfig } from 'vite';
-
-export default defineConfig({
-  build: {
-    lib: {
-      entry: 'src/index.ts',
-      formats: ['es'],
-      fileName: 'index',
-    },
-    rollupOptions: {
-      external: ['react', 'react-dom', '@openpeepshq/core'],
-    },
-  },
-});
-```
+The greeter ships `web/greeter.js` as a hand-written IIFE. A JSX build, when you need one, is described in the [front-end guide](/docs/development/plugins/frontend).
 
 ---
 
