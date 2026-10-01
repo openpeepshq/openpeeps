@@ -61,6 +61,7 @@ export const testIds = {
   },
   explore: {
     searchInput: 'explore-search-input',
+    results: 'explore-results',
     noProfilesFound: 'explore-no-profiles-found',
   },
   settings: {

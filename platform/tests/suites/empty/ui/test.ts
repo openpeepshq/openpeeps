@@ -6,6 +6,7 @@ import {
   assertBillingPage,
   assertExploreFindsPost,
   assertExploreNoResults,
+  assertExploreSearchTabs,
   assertProfileRoutes,
   assertJamsPage,
   assertLoggedIn,
@@ -58,6 +59,7 @@ type UiCaseKind =
   | 'repost'
   | 'searchNoResults'
   | 'searchPosts'
+  | 'searchTabs'
   | 'settings'
   | 'signup'
   | 'siteAvailable';
@@ -198,6 +200,10 @@ const cases: UiCase[] = [
   { name: 'Log in and Create a Group (Simple)', kind: 'createGroupSimple' },
   { name: 'Group Visibility Test', kind: 'groupVisibility' },
   { name: 'Search: A search with some results in posts', kind: 'searchPosts' },
+  {
+    name: 'Search: each explore tab shows only matching results',
+    kind: 'searchTabs',
+  },
   {
     name: 'Profile: view profile, followers, and following',
     kind: 'profileRoutes',
@@ -403,6 +409,9 @@ const runCase = async (page: Page, uiCase: UiCase) => {
       break;
     case 'searchPosts':
       await assertExploreFindsPost(page);
+      break;
+    case 'searchTabs':
+      await assertExploreSearchTabs(page);
       break;
     case 'settings':
       await assertSettingsPages(page);

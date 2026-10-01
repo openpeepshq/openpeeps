@@ -257,8 +257,9 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 
 | Flow | Depth | Where |
 |------|-------|-------|
-| Explore: no results for nonsense query | UI | `ui/` (`searchNoResults`) |
+| Explore: no results on every tab | UI | `ui/` (`searchNoResults`) |
 | Explore: find a created post via search | UI | `ui/` (`searchPosts`) |
+| Explore: each tab shows only its own type | UI | `ui/` (`searchTabs`) |
 | Settings pages (profile, account, notifications, theme) | UI (smoke) | `ui/` (`settings`) |
 | Billing link / heading when present | UI (smoke) | `ui/` (`billing`) |
 | Login page available (unauthenticated) | UI (smoke) | `ui/` (`siteAvailable`) |
