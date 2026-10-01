@@ -227,6 +227,11 @@ Existing suite folders (for gap awareness only): `suites/empty/ui`,
 | UI-EVT-09 | RSVP no                        | member              | No state                 |          |
 | UI-EVT-10 | RSVP at capacity               | full event          | Capacity messaging       |          |
 | UI-EVT-11 | Join jam from event            | jam event + LiveKit | Navigates jam room       | jams     |
+| UI-EVT-12 | Member publishes jam to community feed | members can create events | Another member sees it on the community feed and Events | empty/ui/event-creation |
+| UI-EVT-13 | Community visibility blocked   | members cannot create events | Community option hidden, or create stays disabled / API error | empty/ui/event-creation |
+| UI-EVT-14 | Member adds jam to group calendar | group lets members create events | Event on the group Events tab | empty/ui/event-creation |
+| UI-EVT-15 | Admins-only group event create | regular member of that group | No New event button; group absent from visibility groups | empty/ui/event-creation |
+| UI-EVT-16 | Private jam for specific people | members can create events | Invitee sees Events and Messages; outsider cannot open it | empty/ui/event-creation |
 
 ---
 
