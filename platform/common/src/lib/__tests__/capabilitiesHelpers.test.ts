@@ -918,6 +918,65 @@ describe('capabilitiesHelpers', () => {
       expect(result.success).toBe(true);
     });
 
+    it('should allow anonymous reads of posts in public groups', () => {
+      const publicGroup = {
+        ...mockGroup,
+        capabilities: {
+          none: { add: ['core-posts-read'], remove: [] },
+        },
+      } as GroupWithMeta;
+      const result = checkPostCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-posts-read'],
+        { ...mockPost, visibility: 'group', group: publicGroup },
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(true);
+      expect(result.missingScope).toBeUndefined();
+    });
+
+    it('should not allow anonymous reads of posts in member-only groups', () => {
+      const result = checkPostCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-posts-read'],
+        { ...mockPost, visibility: 'group', group: mockGroup },
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(false);
+    });
+
+    it('should not grant non-read capabilities to anonymous on public group posts', () => {
+      const publicGroup = {
+        ...mockGroup,
+        capabilities: {
+          none: { add: ['core-posts-read'], remove: [] },
+        },
+      } as GroupWithMeta;
+      const result = checkPostCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-posts-reply'],
+        { ...mockPost, visibility: 'group', group: publicGroup },
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(false);
+    });
+
+    it('grants the public post relationships on posts in public groups', () => {
+      const publicGroup = {
+        ...mockGroup,
+        capabilities: {
+          none: { add: ['core-posts-read'], remove: [] },
+        },
+      } as GroupWithMeta;
+      const caps = getPostCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        { ...mockPost, visibility: 'group', group: publicGroup },
+        mockCapabilitiesConfig,
+      );
+      expect(caps.add).toContain('post-none');
+      expect(caps.add).toContain('core-posts-read');
+    });
+
     it('should not grant instance-role capabilities on group posts', () => {
       // Instance admin (`core-posts-*`) with no membership edge in the group
       // must not gain per-group post powers; group posts are edge-driven.

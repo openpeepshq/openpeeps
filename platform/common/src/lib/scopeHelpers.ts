@@ -82,7 +82,11 @@ export const getPublicPostReadScope = (postId: string): Scope => ({
   resource: { type: 'posts', id: postId },
 });
 
-/** Public posts are readable without auth; grant read scope for that post id. */
+/**
+ * Posts with `public` visibility are readable without auth; grant read scope
+ * for that post id. Callers pass posts already normalized, so posts in public
+ * groups arrive here as `public` (see `checkPostCapabilities`).
+ */
 export const withPublicPostReadScopes = (
   authData: AuthorizationData,
   post: Pick<PublicPost, 'id' | 'visibility'>,

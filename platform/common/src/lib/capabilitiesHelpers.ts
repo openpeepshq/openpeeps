@@ -150,6 +150,20 @@ export const getProfileRelationships = (
   return relationships;
 };
 
+/** Posts in public groups, where the `none` relationship grants `core-posts-read`. */
+export const isPublicGroupPost = (
+  post: Pick<PublicPost, 'visibility' | 'group'>,
+) =>
+  post.visibility === 'group' &&
+  !!post.group?.capabilities?.none?.add?.includes('core-posts-read');
+
+/**
+ * Posts in public groups are readable by everyone, so access checks treat
+ * them exactly like posts with `public` visibility.
+ */
+const asPublicPost = (post: PublicPost): PublicPost =>
+  isPublicGroupPost(post) ? { ...post, visibility: 'public' } : post;
+
 export const getPostRelationships = (
   authData: AuthorizationData,
   post: PublicPostInput,
@@ -323,10 +337,15 @@ export const getPostCapabilities = (
   authData: AuthorizationData,
   post: PublicPost,
   config: CapabilitiesConfig,
-): Capabilities =>
-  mergeCapabilities([
-    getPostVisibilityCapabilities(post, authData.profile),
-    getConfigCapabilities('post', getPostRelationships(authData, post), config),
+): Capabilities => {
+  const effectivePost = asPublicPost(post);
+  return mergeCapabilities([
+    getPostVisibilityCapabilities(effectivePost, authData.profile),
+    getConfigCapabilities(
+      'post',
+      getPostRelationships(authData, effectivePost),
+      config,
+    ),
     getConfigCapabilities(
       'profile',
       getProfileRelationships(authData, post.profile),
@@ -334,6 +353,7 @@ export const getPostCapabilities = (
     ),
     getGroupCapabilities(authData, post.group),
   ]);
+};
 
 const getReportCapabilities = (
   authData: AuthorizationData,
@@ -428,14 +448,15 @@ export const checkPostCapabilities = (
   post: PublicPost,
   config: CapabilitiesConfig,
 ) => {
+  const effectivePost = asPublicPost(post);
   const capabilities = mergeCapabilities([
-    getPostCapabilities(authData, post, config),
-    getScopedPostReadCapabilities(authData, neededCapabilities, post),
+    getPostCapabilities(authData, effectivePost, config),
+    getScopedPostReadCapabilities(authData, neededCapabilities, effectivePost),
   ]);
 
   return checkCapabilitiesWithCalculatedScope(
     capabilities,
-    withPublicPostReadScopes(authData, post, neededCapabilities),
+    withPublicPostReadScopes(authData, effectivePost, neededCapabilities),
     neededCapabilities,
     { type: 'posts', id: post.id },
   );
