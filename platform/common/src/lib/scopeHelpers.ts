@@ -82,16 +82,28 @@ export const getPublicPostReadScope = (postId: string): Scope => ({
   resource: { type: 'posts', id: postId },
 });
 
-/** Public posts are readable without auth; grant read scope for that post id. */
+/**
+ * Posts with `public` visibility — and posts in groups that grant the needed
+ * *-read caps to `none` — are readable without auth; grant read scope for
+ * that post id (same pattern as {@link withPublicGroupReadScopes}).
+ */
 export const withPublicPostReadScopes = (
   authData: AuthorizationData,
-  post: Pick<PublicPost, 'id' | 'visibility'>,
+  post: Pick<PublicPost, 'id' | 'visibility'> & {
+    /** Only the group's `none` capabilities matter for the public check. */
+    group?: { capabilities?: { none?: { add?: string[] } } | null } | null;
+  },
   neededCapabilities: string[],
 ): AuthorizationData => {
-  if (
-    post.visibility !== 'public' ||
-    !neededCapabilities.every((c) => c.endsWith('-read'))
-  ) {
+  if (!neededCapabilities.every((c) => c.endsWith('-read'))) {
+    return authData;
+  }
+  const publicGroupPost =
+    post.visibility === 'group' &&
+    neededCapabilities.every(
+      (c) => post.group?.capabilities?.none?.add?.includes(c) ?? false,
+    );
+  if (post.visibility !== 'public' && !publicGroupPost) {
     return authData;
   }
   const publicReadScope = getPublicPostReadScope(post.id);

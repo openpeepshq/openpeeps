@@ -918,6 +918,81 @@ describe('capabilitiesHelpers', () => {
       expect(result.success).toBe(true);
     });
 
+    it('should allow anonymous reads of posts in public groups', () => {
+      const publicGroup = {
+        ...mockGroup,
+        capabilities: {
+          none: { add: ['core-posts-read'], remove: [] },
+        },
+      } as GroupWithMeta;
+      const result = checkPostCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-posts-read'],
+        { ...mockPost, visibility: 'group', group: publicGroup },
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(true);
+      expect(result.missingScope).toBeUndefined();
+    });
+
+    it('should not allow anonymous reads of posts in member-only groups', () => {
+      const result = checkPostCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-posts-read'],
+        { ...mockPost, visibility: 'group', group: mockGroup },
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(false);
+    });
+
+    it('should not grant non-read capabilities to anonymous on public group posts', () => {
+      const publicGroup = {
+        ...mockGroup,
+        capabilities: {
+          none: { add: ['core-posts-read'], remove: [] },
+        },
+      } as GroupWithMeta;
+      const result = checkPostCapabilities(
+        authData({ profile: undefined, scopes: [] }),
+        ['core-posts-reply'],
+        { ...mockPost, visibility: 'group', group: publicGroup },
+        mockCapabilitiesConfig,
+      );
+      expect(result.success).toBe(false);
+    });
+
+    it('does not grant instance post relationship capabilities on group posts', () => {
+      // Group posts are governed by the group relationships only — the
+      // instance-level post config (post.local/post.none) stays out of them.
+      const publicGroup = {
+        ...mockGroup,
+        capabilities: {
+          none: { add: ['core-posts-read'], remove: [] },
+        },
+      } as GroupWithMeta;
+      const localUser = {
+        ...mockProfile,
+        roles: [
+          {
+            ...mockRoles[0],
+            capabilities: { add: ['core-local'], remove: [] },
+          },
+        ],
+      } as ProfileWithMeta;
+      const groupPostCaps = getPostCapabilities(
+        authData({ profile: localUser, scopes: [] }),
+        { ...mockPost, visibility: 'group', group: publicGroup },
+        mockCapabilitiesConfig,
+      );
+      expect(groupPostCaps.add).not.toContain('post-local');
+      const publicPostCaps = getPostCapabilities(
+        authData({ profile: localUser, scopes: [] }),
+        { ...mockPost, visibility: 'public', group: publicGroup },
+        mockCapabilitiesConfig,
+      );
+      expect(publicPostCaps.add).toContain('post-local');
+    });
+
     it('should not grant instance-role capabilities on group posts', () => {
       // Instance admin (`core-posts-*`) with no membership edge in the group
       // must not gain per-group post powers; group posts are edge-driven.
