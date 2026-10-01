@@ -139,6 +139,7 @@ steps — follow that skill.
 
 - Only commit when explicitly asked.
 - Don't force-push shared branches or amend pushed commits unless asked.
+- **One PR per fix.** Each pull request should address a single issue or concern. Do not combine multiple unrelated fixes in a single PR — open separate PRs instead.
 - Before opening a PR, follow the `check-openpeeps-pr-readiness` skill.
 
 ### Commit workflow
