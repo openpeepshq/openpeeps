@@ -68,6 +68,7 @@ Edit the commit message in your editor to conventional format, then re-run
 ### Git — before squash / push
 
 - [ ] Working tree clean (`git status`) before running `./scripts/squash-branch.sh`
+- [ ] Branch addresses **one** fix/issue — no unrelated changes bundled in
 
 ### Code quality
 
@@ -111,10 +112,11 @@ Run this for API, UI, or cross-cutting changes.
 
 - [ ] PR title matches the conventional commit subject
 - [ ] If the change touches **>3 files OR >6 lines**, the body includes the
-  change outline from `AGENTS.md` (Explaining your changes)
+      change outline from `AGENTS.md` (Explaining your changes)
 - [ ] Issue references use `References #N` — not `Fixes #`, `Closes #`, or
-  `Resolves #` (avoids auto-closing issues)
+      `Resolves #` (avoids auto-closing issues)
 - [ ] No merge conflicts with `main`
+- [ ] PR addresses a **single** issue/concern (if multiple fixes are needed, open separate PRs)
 
 ## Report Format
 
@@ -122,27 +124,30 @@ Run this for API, UI, or cross-cutting changes.
 ## PR readiness: [PASS | FAIL]
 
 ### Git checks
+
 - Local main aligned with origin: [yes/no]
 - Commits ahead of main: N (expected 1)
 - check-branch.mjs: [pass/fail]
 
 ### Packages checked
+
 - @openpeepshq/…: build [pass/fail], lint [pass/fail]
 
 ### Blockers
+
 - [list anything that must be fixed]
 ```
 
 ## Fixing Common Failures
 
-| Failure | Fix |
-|---------|-----|
-| `could not compare to main` | `git fetch origin && git branch -f main origin/main` |
-| N commits ahead of main (N ≠ 1) | `./scripts/squash-branch.sh` with clean tree |
-| Non-conventional commit subject | Re-squash or amend (unpushed only) with `type(scope): description` |
-| Lint errors | `pnpm --filter @openpeepshq/<pkg> format` then re-run lint |
-| Build errors after editing a library | Rebuild chain: `common` → `core` → dependents |
-| Branch behind main | `git fetch origin && git branch -f main origin/main && git rebase main` |
+| Failure                              | Fix                                                                     |
+| ------------------------------------ | ----------------------------------------------------------------------- |
+| `could not compare to main`          | `git fetch origin && git branch -f main origin/main`                    |
+| N commits ahead of main (N ≠ 1)      | `./scripts/squash-branch.sh` with clean tree                            |
+| Non-conventional commit subject      | Re-squash or amend (unpushed only) with `type(scope): description`      |
+| Lint errors                          | `pnpm --filter @openpeepshq/<pkg> format` then re-run lint              |
+| Build errors after editing a library | Rebuild chain: `common` → `core` → dependents                           |
+| Branch behind main                   | `git fetch origin && git branch -f main origin/main && git rebase main` |
 
 ## What CI Runs
 
