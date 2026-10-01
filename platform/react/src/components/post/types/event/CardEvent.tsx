@@ -78,13 +78,15 @@ export function CardEvent({ post }: CardEventProps) {
       </a>
       <div className="grid gap-y-4 p-4">
         <a href={postLink} className="block text-inherit no-underline">
-          <p className="text-muted-foreground text-sm">
-            {formatEventTimespan(
-              event,
-              post.occurrenceStart,
-              post.occurrenceEnd,
-            )}
-          </p>
+          {!jamState?.active ? (
+            <p className="text-muted-foreground text-sm">
+              {formatEventTimespan(
+                event,
+                post.occurrenceStart,
+                post.occurrenceEnd,
+              )}
+            </p>
+          ) : null}
           <h3 className="text-xl font-semibold">
             {truncateText(event.name, 100) || '-'}
           </h3>
