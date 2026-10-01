@@ -220,7 +220,7 @@ const latestRsvpPerProfile = (rsvps: PublicRsvp[], recurrenceId?: string) => {
       }
       return true;
     }
-    return !rsvp.recurrenceId;
+    return true;
   });
   const rsvpsByProfile = groupBy(scoped, (r) => r.profile.id);
   return Object.values(rsvpsByProfile).map((profileRsvps) => {
@@ -229,7 +229,9 @@ const latestRsvpPerProfile = (rsvps: PublicRsvp[], recurrenceId?: string) => {
           sameRecurrenceId(rsvp.recurrenceId, recurrenceId),
         )
       : [];
-    const seriesRsvps = profileRsvps.filter((rsvp) => !rsvp.recurrenceId);
+    const seriesRsvps = recurrenceId
+      ? profileRsvps.filter((rsvp) => !rsvp.recurrenceId)
+      : profileRsvps;
     const pool =
       recurrenceId && instanceRsvps.length > 0 ? instanceRsvps : seriesRsvps;
     const sorted = pool.sort(dateSorter<PublicRsvp>());
@@ -259,6 +261,10 @@ export const countYesRsvps = (post: PublicPost, recurrenceId?: string) =>
     (r) => r.response === 'yes',
   ).length;
 
+export const countSeriesYesRsvps = (post: PublicPost) =>
+  (post.rsvps ?? []).filter((r) => !r.recurrenceId && r.response === 'yes')
+    .length;
+
 export const instanceRsvpIdsForProfile = (
   post: PublicPost,
   profileId: string,
@@ -287,7 +293,20 @@ export const seriesYesBlockedByCapacity = (
   const event = post.data?.type === 'event' ? post.data : undefined;
   const maxAttendees = event?.maxAttendees;
   if (!event || !maxAttendees || !event.recurrence) return false;
-  return listRsvpOccurrences(event, now).some((occurrence) => {
+  const occurrences = listRsvpOccurrences(event, now);
+  // When there are no upcoming occurrences (e.g. a live jam whose current
+  // occurrence started before `now`), fall back to the series-level count.
+  if (occurrences.length === 0) {
+    const current = getEffectiveRsvp(post, profileId);
+    if (
+      current?.response !== 'yes' &&
+      countSeriesYesRsvps(post) >= maxAttendees
+    ) {
+      return true;
+    }
+    return false;
+  }
+  return occurrences.some((occurrence) => {
     const current = getEffectiveRsvp(post, profileId, occurrence.recurrenceId);
     if (current?.response === 'yes') return false;
     return countYesRsvps(post, occurrence.recurrenceId) >= maxAttendees;
