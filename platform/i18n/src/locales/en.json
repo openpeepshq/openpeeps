@@ -3150,7 +3150,10 @@
     "newGroupPost": {
       "title": "{{profileName}} made a new post in {{groupName}} in {{communityName}}",
       "subject": "{{profileName}} made a new post in {{groupName}} in {{communityName}}",
+      "repostTitle": "{{profileName}} reposted a post in {{groupName}} in {{communityName}}",
+      "repostSubject": "{{profileName}} reposted a post in {{groupName}} in {{communityName}}",
       "body": "{{profileName}} made a new post in the group {{groupName}}.",
+      "repostLabel": "Reposted",
       "profileCta": "View Profile",
       "postCta": "View post",
       "cta": "Click here to visit the group and manage your membership"
