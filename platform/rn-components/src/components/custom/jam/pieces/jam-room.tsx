@@ -1,5 +1,5 @@
-import React, { useRef, useState, type ComponentType } from 'react';
-import { ScreenCapturePickerView } from '@livekit/react-native-webrtc';
+import React, { useState, type ComponentType } from 'react';
+// import { ScreenCapturePickerView } from '@livekit/react-native-webrtc';
 import type { TrackReferenceOrPlaceholder } from '@livekit/react-native';
 import {
   useParticipants,
@@ -8,7 +8,7 @@ import {
 } from '@livekit/react-native';
 import { Participant, Track } from 'livekit-client';
 import { JamRoomMenu, JamHeader } from '~/components/custom';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 import { JamFooter } from './jam-footer';
 import { ScreenSharing } from './modes/screen-sharing';
 import { Alone } from './modes/alone';
@@ -51,8 +51,8 @@ export const JamRoom: React.FC<JamRoomProps> = ({
 
   const [jamMenuOpen, setJamMenuOpen] = useState(false);
 
-  const screenCaptureRef =
-    useRef<React.ComponentRef<typeof ScreenCapturePickerView> | null>(null);
+  // const screenCaptureRef =
+  //   useRef<React.ComponentRef<typeof ScreenCapturePickerView> | null>(null);
 
   const tracks = useTracks(
     [
@@ -70,13 +70,16 @@ export const JamRoom: React.FC<JamRoomProps> = ({
         ?.isSubscribed,
   ).length > 0;
 
-  const Component = getLayoutComponent(participants, isAnyParticipantSharingScreen);
+  const Component = getLayoutComponent(
+    participants,
+    isAnyParticipantSharingScreen,
+  );
 
 
   return <>
     {jamMenuOpen && (
       <JamRoomMenu
-        screenCaptureRef={screenCaptureRef}
+        // screenCaptureRef={screenCaptureRef}
         onInJamChat={onInJamChat}
         onHostControls={onHostControls}
         onOpenJamInfo={onOpenJamInfo}
@@ -91,12 +94,12 @@ export const JamRoom: React.FC<JamRoomProps> = ({
       />
       <JamFooter
         handleGoBack={handleGoBack}
-        screenCaptureRef={screenCaptureRef}
+        // screenCaptureRef={screenCaptureRef}
         toggleJamMenu={() => setJamMenuOpen(!jamMenuOpen)}
       />
-      {Platform.OS === 'ios' && (
+      {/* {Platform.OS === 'ios' && (
         <ScreenCapturePickerView ref={screenCaptureRef} />
-      )}
+      )} */}
 
     </View>
   </>;

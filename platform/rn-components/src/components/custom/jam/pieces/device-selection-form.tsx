@@ -1,11 +1,11 @@
-import { Platform, View, Dimensions } from 'react-native';
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { View, Dimensions } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
 import { ThemedText } from '~/components/ui/themed-text';
 import { CachedImage } from '~/components/custom/common';
 import {
   MediaStreamTrack,
   mediaDevices,
-  ScreenCapturePickerView,
+  // ScreenCapturePickerView,
   MediaStream,
   RTCView,
 } from '@livekit/react-native-webrtc';
@@ -22,7 +22,7 @@ import { useJamSettingsStore } from '~/stores/useJamStore';
 
 export const DeviceSelectionForm: React.FC = () => {
   // State and refs
-  const screenCaptureRef = useRef(null);
+  // const screenCaptureRef = useRef(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [localVideoTrack, setLocalVideoTrack] =
     useState<MediaStreamTrack | null>(null);
@@ -206,9 +206,10 @@ export const DeviceSelectionForm: React.FC = () => {
         </Button>
       </View>
 
+      {/* Screen capture picker (iOS screen-share permission) is disabled.
       {Platform.OS === 'ios' && (
         <ScreenCapturePickerView ref={screenCaptureRef} />
-      )}
+      )} */}
     </View>
   );
 };
