@@ -276,12 +276,12 @@ Existing suite folders (for gap awareness only): `suites/empty/ui`,
 | ID           | Interaction             | Preconditions    | Expected              | Notes    |
 | ------------ | ----------------------- | ---------------- | --------------------- | -------- |
 | UI-SEARCH-01 | Explore search hit      | matching content | Results in active tab | empty/ui |
-| UI-SEARCH-02 | Explore search miss     | no match         | Empty state           |          |
-| UI-SEARCH-03 | Tab: posts              | `q` set          | Posts results         |          |
-| UI-SEARCH-04 | Tab: members/profiles   | `q` set          | Profile cards         |          |
-| UI-SEARCH-05 | Tab: jams               | `q` set          | Jam results           |          |
-| UI-SEARCH-06 | Tab: events             | `q` set          | Event results         |          |
-| UI-SEARCH-07 | Tab: groups             | `q` set          | Group results         |          |
+| UI-SEARCH-02 | Explore search miss     | no match         | Empty state           | empty/ui |
+| UI-SEARCH-03 | Tab: posts              | `q` set          | Posts results         | empty/ui |
+| UI-SEARCH-04 | Tab: members/profiles   | `q` set          | Profile cards         | empty/ui |
+| UI-SEARCH-05 | Tab: jams               | `q` set          | Jam results           | empty/ui |
+| UI-SEARCH-06 | Tab: events             | `q` set          | Event results         | empty/ui |
+| UI-SEARCH-07 | Tab: groups             | `q` set          | Group results         | empty/ui |
 | UI-SEARCH-08 | Infinite scroll results | many hits        | More load             |          |
 | UI-SEARCH-09 | Click result cards      | results          | Navigate to entity    |          |
 | UI-SEARCH-10 | Hashtag page            | `/tags/:hashtag` | Tagged posts          |          |

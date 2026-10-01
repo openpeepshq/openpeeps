@@ -217,7 +217,7 @@ export function Explore() {
         </TabButton>
       </nav>
 
-      <div className="mt-2">
+      <div className="mt-2" data-testid="explore-results">
         {search.length <= 2 ? (
           <p className="text-muted-foreground p-6 text-sm">
             {t('explore.startTyping', {

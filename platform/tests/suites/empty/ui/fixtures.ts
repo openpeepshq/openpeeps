@@ -1,4 +1,18 @@
-import { expect, type APIRequestContext, type Page } from '@playwright/test';
+import {
+  expect,
+  test,
+  type APIRequestContext,
+  type Page,
+} from '@playwright/test';
+import {
+  apiHeaders,
+  createEvent,
+  createGroup,
+  createNote,
+  currentProfile as fetchCurrentProfile,
+  registerUser,
+  uniqueHandle,
+} from '../../../helpers/api';
 import { testIds } from '../testIds';
 
 /** Matches `@openpeepshq/react` `AUTH_CREDENTIALS_STORAGE_KEY`. */
@@ -257,7 +271,9 @@ export const createGroupViaUi = async (
   }
 
   if (options.adminsOnlyEvents) {
-    await page.getByTestId(testIds.groups.template('announcementGroup')).check();
+    await page
+      .getByTestId(testIds.groups.template('announcementGroup'))
+      .check();
   }
 
   await page.getByTestId(testIds.groups.createSubmit).click();
@@ -384,24 +400,279 @@ export const repostFirstPostViaUi = async (page: Page, content: string) => {
   expect(response.ok(), `repost failed: ${response.status()}`).toBe(true);
 };
 
+type ExploreTabId = 'members' | 'posts' | 'jams' | 'events' | 'groups';
+
+type SearchCounts = {
+  profiles: number;
+  posts: number;
+  jams: number;
+  events: number;
+  groups: number;
+};
+
+const exploreTabs: Array<{
+  id: ExploreTabId;
+  label: string;
+  empty: string;
+  countKey: keyof SearchCounts;
+}> = [
+  {
+    id: 'members',
+    label: 'Members',
+    empty: 'No profiles found',
+    countKey: 'profiles',
+  },
+  {
+    id: 'posts',
+    label: 'Posts',
+    empty: 'No posts found',
+    countKey: 'posts',
+  },
+  { id: 'jams', label: 'Jams', empty: 'No jams found', countKey: 'jams' },
+  {
+    id: 'events',
+    label: 'Events',
+    empty: 'No events found',
+    countKey: 'events',
+  },
+  {
+    id: 'groups',
+    label: 'Groups',
+    empty: 'No groups found',
+    countKey: 'groups',
+  },
+];
+
+/** One lexeme so English full-text search does not split the needle. */
+const uniqueSearchWord = (prefix: string) => {
+  const suffix = Array.from({ length: 8 }, () =>
+    String.fromCharCode(97 + Math.floor(Math.random() * 26)),
+  ).join('');
+  return `${prefix}${suffix}`;
+};
+
+const readAuthToken = async (page: Page) => {
+  const token = await page.evaluate(
+    ([key]) => {
+      const raw = window.localStorage.getItem(key);
+      return raw ? (JSON.parse(raw) as { token?: string }).token : undefined;
+    },
+    [credentialsStorageKey] as const,
+  );
+  if (!token) {
+    throw new Error('missing auth token');
+  }
+  return token;
+};
+
+const exploreNav = (page: Page) =>
+  page.getByRole('navigation', { name: 'Result types' });
+
+const expectExploreTab = async (
+  page: Page,
+  tab: (typeof exploreTabs)[number],
+  count: number,
+  visible: string | undefined,
+  hidden: string[],
+) => {
+  const button = exploreNav(page).getByRole('button', {
+    name: new RegExp(`^${tab.label}`),
+  });
+  await button.click();
+  await expect(button).toHaveText(new RegExp(`^${tab.label}\\s*${count}$`));
+
+  const results = page.getByTestId(testIds.explore.results);
+  if (tab.id === 'members') {
+    await expect(
+      results.getByTestId(testIds.explore.noProfilesFound),
+    ).toHaveCount(visible ? 0 : 1);
+  } else {
+    await expect(
+      results.getByRole('heading', { name: tab.empty, exact: true }),
+    ).toHaveCount(visible ? 0 : 1);
+  }
+
+  if (visible) {
+    await expect(
+      results.getByText(visible, { exact: true }).first(),
+    ).toBeVisible();
+  }
+  for (const word of hidden) {
+    await expect(results.getByText(word, { exact: true })).toHaveCount(0);
+  }
+};
+
 export const assertExploreNoResults = async (page: Page) => {
   const search = `noresults${handleSuffix()}`;
-  await page.goto(`/explore?q=${search}`);
-  await expect(page.getByTestId(testIds.explore.noProfilesFound)).toBeVisible();
+  await page.goto(`/explore?q=${encodeURIComponent(search)}`);
+  for (const tab of exploreTabs) {
+    await expectExploreTab(page, tab, 0, undefined, []);
+  }
+};
+
+type SearchNeedle = 'post' | 'event' | 'jam' | 'group' | 'member' | 'dm';
+
+/**
+ * Post search includes every non-direct post, so an event or jam title also
+ * appears on Posts. Direct messages are excluded. Jams are events that have
+ * a jam, so a plain event stays off the Jams tab.
+ */
+const tabsForNeedle: Record<SearchNeedle, ExploreTabId[]> = {
+  post: ['posts'],
+  event: ['posts', 'events'],
+  jam: ['posts', 'events', 'jams'],
+  group: ['groups'],
+  member: ['members'],
+  dm: [],
+};
+
+const countsForNeedle: Record<SearchNeedle, SearchCounts> = {
+  post: { profiles: 0, posts: 1, jams: 0, events: 0, groups: 0 },
+  event: { profiles: 0, posts: 1, jams: 0, events: 1, groups: 0 },
+  jam: { profiles: 0, posts: 1, jams: 1, events: 1, groups: 0 },
+  group: { profiles: 0, posts: 0, jams: 0, events: 0, groups: 1 },
+  member: { profiles: 1, posts: 0, jams: 0, events: 0, groups: 0 },
+  dm: { profiles: 0, posts: 0, jams: 0, events: 0, groups: 0 },
+};
+
+const fetchSearchCounts = async (page: Page, token: string, query: string) => {
+  const response = await page.request.get(
+    `/api/openpeeps/core/v1/search/counts?q=${encodeURIComponent(query)}`,
+    { headers: apiHeaders(token) },
+  );
+  if (!response.ok()) return undefined;
+  return response.json() as Promise<SearchCounts>;
+};
+
+export const assertExploreSearchTabs = async (page: Page) => {
+  test.setTimeout(180_000);
+  await page.goto('/feeds/local');
+  const token = await readAuthToken(page);
+
+  const words: Record<SearchNeedle, string> = {
+    post: uniqueSearchWord('muffin'),
+    event: uniqueSearchWord('coconut'),
+    jam: uniqueSearchWord('jam'),
+    group: uniqueSearchWord('grp'),
+    member: uniqueSearchWord('mem'),
+    dm: uniqueSearchWord('dm'),
+  };
+
+  const owner = await fetchCurrentProfile(page.request, token);
+  await createNote(page.request, token, words.post);
+  await createEvent(page.request, token, words.event);
+
+  const start = new Date(Date.now() + 60_000).toISOString();
+  const end = new Date(Date.now() + 3_600_000).toISOString();
+  const jam = await page.request.post('/api/openpeeps/core/v1/posts', {
+    headers: apiHeaders(token),
+    data: {
+      type: 'event',
+      visibility: 'local',
+      data: {
+        type: 'event',
+        name: words.jam,
+        content: words.jam,
+        start,
+        end,
+        wholeDay: false,
+        jam: {
+          type: 'video-call',
+          videoEnabled: true,
+          moderators: [owner.id],
+          waitingRoom: false,
+        },
+      },
+    },
+  });
+  expect(jam.ok(), await jam.text()).toBeTruthy();
+
+  const groupHandle = uniqueHandle('g');
+  await createGroup(page.request, token, {
+    handle: groupHandle,
+    displayName: words.group,
+    capabilities: {
+      local: { add: ['core-groups-read'] },
+    },
+  });
+
+  const memberHandle = uniqueHandle('m');
+  const member = await registerUser(page.request, {
+    handle: memberHandle,
+    displayName: words.member,
+    email: `${memberHandle}@openpeeps.test`,
+    password: 'testtest12',
+  });
+  const memberProfile = await fetchCurrentProfile(
+    page.request,
+    member.token,
+  );
+
+  const ownerPublic = await page.request.get(
+    `/api/openpeeps/core/v1/profiles/${owner.id}`,
+    { headers: apiHeaders(token) },
+  );
+  const memberPublic = await page.request.get(
+    `/api/openpeeps/core/v1/profiles/${memberProfile.id}`,
+    { headers: apiHeaders(token) },
+  );
+  expect(ownerPublic.ok() && memberPublic.ok()).toBeTruthy();
+
+  const dm = await page.request.post('/api/openpeeps/core/v1/posts', {
+    headers: apiHeaders(token),
+    data: {
+      type: 'note',
+      visibility: 'direct',
+      audience: [await ownerPublic.json(), await memberPublic.json()],
+      data: { type: 'note', content: words.dm },
+    },
+  });
+  expect(dm.ok(), await dm.text()).toBeTruthy();
+
+  const needles = Object.keys(words) as SearchNeedle[];
+  await expect
+    .poll(
+      async () => {
+        const counts = await Promise.all(
+          needles.map(async (needle) => ({
+            needle,
+            counts: await fetchSearchCounts(page, token, words[needle]),
+          })),
+        );
+        return Object.fromEntries(
+          counts.map((entry) => [entry.needle, entry.counts ?? null]),
+        );
+      },
+      { timeout: 45_000, intervals: [500, 1000, 2000] },
+    )
+    .toEqual(countsForNeedle);
+
+  for (const needle of needles) {
+    await page.goto(`/explore?q=${encodeURIComponent(words[needle])}#members`);
+    await expect(page.getByTestId(testIds.explore.searchInput)).toHaveValue(
+      words[needle],
+    );
+    for (const tab of exploreTabs) {
+      const shouldShow = tabsForNeedle[needle].includes(tab.id);
+      const hidden = needles
+        .filter((key) => !(key === needle && shouldShow))
+        .map((key) => words[key]);
+      await expectExploreTab(
+        page,
+        tab,
+        countsForNeedle[needle][tab.countKey],
+        shouldShow ? words[needle] : undefined,
+        hidden,
+      );
+    }
+  }
 };
 
 export const assertExploreFindsPost = async (page: Page) => {
   const content = `muffinsalt${handleSuffix()}`;
   await createPostViaUi(page, content);
 
-  const token = await page.evaluate(
-    ([key]) => {
-      const raw = window.localStorage.getItem(key);
-      return raw ? (JSON.parse(raw) as { token?: string }).token : undefined;
-    },
-    [credentialsStorageKey],
-  );
-  expect(token).toBeTruthy();
+  const token = await readAuthToken(page);
 
   await expect
     .poll(
