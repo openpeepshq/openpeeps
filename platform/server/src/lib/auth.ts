@@ -118,6 +118,14 @@ export const ensurePostCapabilities = async (
     return;
   }
 
+  // Posts in public groups are readable by anyone, including anonymous users.
+  if (
+    post.visibility === 'group' &&
+    post.group?.capabilities?.none?.add?.includes('core-posts-read')
+  ) {
+    return;
+  }
+
   await ensureAccess(event);
   const { success, missingCapabilities } = checkPostCapabilities(
     event.context.authData,

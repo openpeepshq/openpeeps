@@ -287,7 +287,17 @@ export const seriesYesBlockedByCapacity = (
   const event = post.data?.type === 'event' ? post.data : undefined;
   const maxAttendees = event?.maxAttendees;
   if (!event || !maxAttendees || !event.recurrence) return false;
-  return listRsvpOccurrences(event, now).some((occurrence) => {
+  const occurrences = listRsvpOccurrences(event, now);
+  // When there are no upcoming occurrences (e.g. a live jam whose current
+  // occurrence started before `now`), fall back to the series-level count.
+  if (occurrences.length === 0) {
+    const current = getEffectiveRsvp(post, profileId);
+    if (current?.response !== 'yes' && countYesRsvps(post) >= maxAttendees) {
+      return true;
+    }
+    return false;
+  }
+  return occurrences.some((occurrence) => {
     const current = getEffectiveRsvp(post, profileId, occurrence.recurrenceId);
     if (current?.response === 'yes') return false;
     return countYesRsvps(post, occurrence.recurrenceId) >= maxAttendees;
