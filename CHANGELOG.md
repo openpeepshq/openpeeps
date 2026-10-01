@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **docs**: add back-end plugin development guide and update sidebar
+- **docs**: add front-end plugin section to sidebar and documentation
 - **admin**: add user activity summary detail view for members
 - **article**: add minutes-to-read estimate for articles
 - **analytics**: add verified vs unverified member metrics
@@ -18,6 +20,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **i18n**: add 242 missing German translations and a CI parity gate
 - **search**: exclude guest profiles from profile search results
 - **theme**: replace direct Tailwind colors with semantic theme tokens
 - **analytics**: exclude guest profiles from total member counts
@@ -32,6 +35,7 @@ Changelog for OpenPeeps
 
 ### Documentation
 
+- **planning**: refresh the roadmap timeline
 - **agents**: improve PR creation skill with tea CLI fixes
 - **agents**: add agent working rules and changelog convention
 
