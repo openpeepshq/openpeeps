@@ -89,6 +89,35 @@ describe('withPublicPostReadScopes', () => {
       ),
     ).toBe(authData);
   });
+
+  it('adds read scope for a post in a public group', () => {
+    const authData = { scopes: [] as const };
+    const augmented = withPublicPostReadScopes(
+      authData,
+      {
+        id: 'post-1',
+        visibility: 'group',
+        group: { capabilities: { none: { add: ['core-posts-read'] } } },
+      },
+      ['core-posts-read'],
+    );
+    expect(augmented.scopes).toEqual([getPublicPostReadScope('post-1')]);
+  });
+
+  it('does not add scope for a post in a member-only group', () => {
+    const authData = { scopes: [] as const };
+    expect(
+      withPublicPostReadScopes(
+        authData,
+        {
+          id: 'post-1',
+          visibility: 'group',
+          group: { capabilities: { member: { add: ['core-posts-read'] } } },
+        },
+        ['core-posts-read'],
+      ),
+    ).toBe(authData);
+  });
 });
 
 describe('withPublicGroupReadScopes', () => {
