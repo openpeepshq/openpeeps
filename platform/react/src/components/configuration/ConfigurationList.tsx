@@ -2,7 +2,11 @@ import { useMemo, useState } from 'react';
 import { z, ZodArray, type ZodType, type ZodTypeAny } from 'zod';
 import { Minus, Plus } from 'lucide-react';
 import { useT } from '../../i18n';
-import { equal, unwrap } from '../../lib/configuration/helpers';
+import {
+  defaultFromSchema,
+  equal,
+  unwrap,
+} from '../../lib/configuration/helpers';
 import { ConfigurationCategory } from './ConfigurationCategory';
 import { ConfigurationValueEditor } from './ConfigurationValueEditor';
 
@@ -27,7 +31,10 @@ export function ConfigurationList({
   const disabled = disabledProp ?? schema.description === 'fixed';
   const elementSchema = (schema.element ?? schema._def.type) as ZodType;
   const unwrappedElementSchema = unwrap(elementSchema);
-  const defaults = useMemo(() => elementSchema.parse(undefined), [elementSchema]);
+  const defaults = useMemo(
+    () => defaultFromSchema(elementSchema),
+    [elementSchema],
+  );
   const [value, setValue] = useState<unknown[]>(valueProp ?? [...config]);
 
   const setAndNotify = (next: unknown[]) => {
@@ -40,7 +47,8 @@ export function ConfigurationList({
   return (
     <div className="mt-4 pl-4">
       <p className={dirty ? 'font-bold' : ''}>
-        {path.at(-1) || t('admin.configuration.unnamedSection', { defaultValue: 'Section' })}
+        {path.at(-1) ||
+          t('admin.configuration.unnamedSection', { defaultValue: 'Section' })}
       </p>
       {value.map((_, index) => (
         <div key={index}>
@@ -76,7 +84,9 @@ export function ConfigurationList({
           )}
           <button
             type="button"
-            title={t('common.listEditor.removeTitle', { defaultValue: 'Remove' })}
+            title={t('common.listEditor.removeTitle', {
+              defaultValue: 'Remove',
+            })}
             onClick={() => setAndNotify(value.toSpliced(index, 1))}
           >
             <Minus className="h-4 w-4" />

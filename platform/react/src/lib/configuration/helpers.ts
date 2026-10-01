@@ -30,10 +30,7 @@ export const unwrap = (schema: ZodType): ZodType => {
     ZodEffects?: typeof z.ZodOptional;
     ZodTransformer?: typeof z.ZodOptional;
   };
-  if (
-    zodClassic.ZodEffects &&
-    schema instanceof zodClassic.ZodEffects
-  ) {
+  if (zodClassic.ZodEffects && schema instanceof zodClassic.ZodEffects) {
     return unwrap(s.sourceType!());
   }
   if (
@@ -52,12 +49,40 @@ export const unwrap = (schema: ZodType): ZodType => {
   return schema;
 };
 
+/**
+ * Value cloned when a config list gains a row. `.parse(undefined)` only
+ * succeeds for schemas that accept undefined (`.default()`, `.optional()`).
+ * A bare `z.string()` — `federation.allowedHosts` on the server settings
+ * page — throws and takes down the editor.
+ */
+export const defaultFromSchema = (schema: ZodType): unknown => {
+  const parsed = schema.safeParse(undefined);
+  if (parsed.success) return parsed.data;
+
+  const inner = unwrap(schema);
+  if (inner instanceof z.ZodString) return '';
+  if (inner instanceof z.ZodNumber) return 0;
+  if (inner instanceof z.ZodBoolean) return false;
+  if (inner instanceof z.ZodArray) return [];
+  if (inner instanceof z.ZodEnum) return inner.options[0];
+  if (inner instanceof z.ZodObject) {
+    return Object.fromEntries(
+      Object.entries(inner.shape).map(([key, field]) => [
+        key,
+        defaultFromSchema(field as ZodType),
+      ]),
+    );
+  }
+  return undefined;
+};
+
 const isDate = (d: unknown) => d instanceof Date;
 const isEmpty = (o: ConfigTree) => Object.keys(o).length === 0;
 const isObject = (o: ConfigElement) => o != null && typeof o === 'object';
 const hasOwnProperty = (o: ConfigTree, key: string | number | symbol) =>
   Object.prototype.hasOwnProperty.call(o, key);
-const isEmptyObject = (o: ConfigElement) => isObject(o) && isEmpty(o as ConfigTree);
+const isEmptyObject = (o: ConfigElement) =>
+  isObject(o) && isEmpty(o as ConfigTree);
 const makeObjectWithoutPrototype = () => Object.create(null);
 
 export const diffConfigTrees = (lhs: ConfigTree, rhs: ConfigTree) => {
