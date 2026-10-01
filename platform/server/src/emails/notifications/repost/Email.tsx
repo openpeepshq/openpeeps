@@ -28,18 +28,20 @@ export const RepostEmail = ({
   return (
     <BaseEmailLayout
       globals={globals}
-      previewText={t('emails.reaction.body', {
+      previewText={t('emails.repost.body', {
         profileName: profileName(locals.senderProfile),
       })}
       showGreeting
       recipientProfile={locals.recipientProfile}
     >
       <Text style={emailStyles.heading}>
-        {t('emails.reaction.body', {
+        {t('emails.repost.body', {
           profileName: profileName(locals.senderProfile),
         })}
       </Text>
-      {locals.post ? <EmailPostEmbed post={locals.post} globals={globals} /> : null}
+      {locals.post ? (
+        <EmailPostEmbed post={locals.post} globals={globals} />
+      ) : null}
       <Section style={emailStyles.ctaContainer}>
         <Button
           href={`${globals.serverData.rootUrl}/posts/${locals.post.id}`}
