@@ -14,7 +14,7 @@ import { MetadataType } from '~/types';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { truncateText } from '~/lib/utils';
 import { ScreenShareIcon } from '~/components/icons';
-import { Button } from '~/components/ui/button';
+// import { Button } from '~/components/ui/button';
 import { ProfileAvatar } from '~/components/custom/profile/profile-avatar';
 
 const ITEMS_PER_PAGE = 4;
@@ -166,9 +166,10 @@ const ScreenShareComponent: React.FC<ScreenShareComponentProps> = ({ track }) =>
               {truncateText(profile?.displayName || `@${profile?.handle}`, 20)}{' '}
               (You are Presenting)
             </ThemedText>
+            {/* Stop Sharing is disabled: this client cannot publish a screen share.
             <Button>
               <ThemedText className="">Stop Sharing</ThemedText>
-            </Button>
+            </Button> */}
           </>
         ) : (
           <>

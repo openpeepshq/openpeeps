@@ -39,7 +39,7 @@ export function useStableLiveKitRoom(
     connect,
     audio,
     video,
-    screen,
+    // screen,
     connectOptions,
     onConnected,
     onDisconnected,
@@ -58,7 +58,8 @@ export function useStableLiveKitRoom(
       Promise.all([
         localP.setMicrophoneEnabled(!!audio, typeof audio !== 'boolean' ? audio : undefined),
         localP.setCameraEnabled(!!video, typeof video !== 'boolean' ? video : undefined),
-        localP.setScreenShareEnabled(!!screen, typeof screen !== 'boolean' ? screen : undefined),
+        // Screen share (and its capture permission) is disabled in React Native jams.
+        // localP.setScreenShareEnabled(!!screen, typeof screen !== 'boolean' ? screen : undefined),
       ]).catch((e: unknown) => {
         onError?.(e as Error);
       });
@@ -97,7 +98,7 @@ export function useStableLiveKitRoom(
     room,
     audio,
     video,
-    screen,
+    // screen,
     onError,
     onEncryptionError,
     onMediaDeviceFailure,

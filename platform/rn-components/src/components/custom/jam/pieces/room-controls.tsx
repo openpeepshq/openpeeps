@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { ScreenCapturePickerView } from '@livekit/react-native-webrtc';
+// import { ScreenCapturePickerView } from '@livekit/react-native-webrtc';
 import {
-  findNodeHandle,
-  NativeModules,
-  Platform,
+  // findNodeHandle,
+  // NativeModules,
+  // Platform,
   Pressable,
   ScrollView,
   TouchableOpacity,
@@ -23,7 +23,7 @@ import {
   UsersIcon,
   UserCogIcon,
   InfoIcon,
-  ScreenShareIcon,
+  // ScreenShareIcon,
   CircleIcon,
 } from '~/components/icons';
 import { useLocalParticipant, useRoomContext } from '@livekit/react-native';
@@ -36,16 +36,16 @@ import uuid from 'react-native-uuid';
 import { useJamStore, useOwnReactionsStore } from '~/stores/useJamStore';
 import { PublicProfile } from '@openpeepshq/common';
 import { Buffer } from 'react-native-buffer';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { useTranslation } from 'react-i18next';
+// import { Toast } from 'react-native-toast-message/lib/src/Toast';
+// import { useTranslation } from 'react-i18next';
 
 interface RoomControlsProps {
   toggleMic?: () => Promise<void>;
   toggleCamera?: () => Promise<void>;
   micEnabled?: boolean;
   cameraEnabled?: boolean;
-  screenShareEnabled?: boolean;
-  setScreenShareEnabled?: (enabled: boolean) => void;
+  // screenShareEnabled?: boolean;
+  // setScreenShareEnabled?: (enabled: boolean) => void;
   sendData?: (message: string) => void;
   onDisconnectClick: () => void;
   toggleJamMenu: () => void;
@@ -193,9 +193,9 @@ interface JamRoomMenuProps {
   onOpenJamInfo: () => void;
   onInJamChat: () => void;
   onHostControls: () => void;
-  screenCaptureRef: React.RefObject<
-    React.ComponentRef<typeof ScreenCapturePickerView> | null
-  >;
+  // screenCaptureRef: React.RefObject<
+  //   React.ComponentRef<typeof ScreenCapturePickerView> | null
+  // >;
   setJamMenuOpen: (open: boolean) => void;
 }
 export const JamRoomMenu: React.FC<JamRoomMenuProps> = ({
@@ -203,7 +203,7 @@ export const JamRoomMenu: React.FC<JamRoomMenuProps> = ({
   onOpenJamInfo,
   onInJamChat,
   onHostControls,
-  screenCaptureRef,
+  // screenCaptureRef,
   setJamMenuOpen,
 }) => {
   const { jamPost } = useJamStore();
@@ -212,7 +212,7 @@ export const JamRoomMenu: React.FC<JamRoomMenuProps> = ({
   const { localParticipant } = useLocalParticipant();
   const room = useRoomContext();
   const { addOwnReaction } = useOwnReactionsStore();
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const localParticipantProfile = (
     JSON.parse(
       localParticipant.metadata || '{}',
@@ -256,23 +256,24 @@ export const JamRoomMenu: React.FC<JamRoomMenuProps> = ({
       });
   };
 
-  const handleStartBroadcast = async () => {
-    console.log('handleStartBroadcast');
-    try {
-      if (Platform.OS === 'ios') {
-        const reactTag = findNodeHandle(screenCaptureRef.current);
-        await NativeModules.ScreenCapturePickerViewManager.show(reactTag);
-      }
-      await localParticipant.setScreenShareEnabled(true);
-    } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: t('common.errors.error'),
-      });
-      console.log('failed to broadcast', error);
-    }
-    console.log('handleStartBroadcast done');
-  };
+  // Screen share is disabled in React Native jams (menu trigger + capture permission).
+  // const handleStartBroadcast = async () => {
+  //   console.log('handleStartBroadcast');
+  //   try {
+  //     if (Platform.OS === 'ios') {
+  //       const reactTag = findNodeHandle(screenCaptureRef.current);
+  //       await NativeModules.ScreenCapturePickerViewManager.show(reactTag);
+  //     }
+  //     await localParticipant.setScreenShareEnabled(true);
+  //   } catch (error) {
+  //     Toast.show({
+  //       type: 'error',
+  //       text1: t('common.errors.error'),
+  //     });
+  //     console.log('failed to broadcast', error);
+  //   }
+  //   console.log('handleStartBroadcast done');
+  // };
 
   const onRecord = () => {
     try {
@@ -309,11 +310,11 @@ export const JamRoomMenu: React.FC<JamRoomMenuProps> = ({
               action: onInJamChat,
             },
             { icon: CircleIcon, label: 'Record', action: onRecord },
-            {
-              icon: ScreenShareIcon,
-              label: 'Screen Share',
-              action: handleStartBroadcast,
-            },
+            // {
+            //   icon: ScreenShareIcon,
+            //   label: 'Screen Share',
+            //   action: handleStartBroadcast,
+            // },
             { icon: InfoIcon, label: 'Jam info', action: onOpenJamInfo },
             { icon: UsersIcon, label: 'People', action: onOpenPeople },
             { icon: UserCogIcon, label: 'Host controls', action: onHostControls },
