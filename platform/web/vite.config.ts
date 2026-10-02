@@ -95,6 +95,13 @@ export default defineConfig({
         target: apiTarget,
         changeOrigin: true,
       },
+      // Plugin frontend assets (e.g. an admin config page's script) are
+      // served by the API server, not built by Vite — forward them so
+      // PluginLoader's injected <script> tags actually resolve in dev.
+      '/plugin-assets': {
+        target: apiTarget,
+        changeOrigin: true,
+      },
       '/pwa': {
         target: apiTarget,
         changeOrigin: true,
