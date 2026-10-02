@@ -147,14 +147,12 @@ for (const locale of locales) {
   if (!localeBlocking)
     console.log(`  ${locale} covers every ${SOURCE_LOCALE} key.`);
   else if (!strict)
-    console.log(
-      `  ${locale} is incomplete; not blocking outside release branches.`,
-    );
+    console.log(`  ${locale} is incomplete; pass --strict to enforce.`);
 }
 
 if (strict && blocking) {
   console.error(
-    `\ni18n parity: ${blocking} blocking defect(s). Translate them or land the translation before release.`,
+    `\ni18n parity: ${blocking} blocking defect(s). Add the translations before merging.`,
   );
   process.exit(1);
 }

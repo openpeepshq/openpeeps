@@ -3232,7 +3232,10 @@
     "newGroupPost": {
       "title": "{{profileName}} hat einen neuen Beitrag in {{groupName}} in {{communityName}} erstellt",
       "subject": "{{profileName}} hat einen neuen Beitrag in {{groupName}} in {{communityName}} erstellt",
+      "repostTitle": "{{profileName}} hat einen Beitrag in {{groupName}} in {{communityName}} geteilt",
+      "repostSubject": "{{profileName}} hat einen Beitrag in {{groupName}} in {{communityName}} geteilt",
       "body": "{{profileName}} hat einen neuen Beitrag in der Gruppe {{groupName}} erstellt.",
+      "repostLabel": "Geteilt",
       "profileCta": "Profil anzeigen",
       "postCta": "Beitrag anzeigen",
       "cta": "Klicken Sie hier, um die Gruppe zu besuchen und Ihre Mitgliedschaft zu verwalten"
