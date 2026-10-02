@@ -113,7 +113,7 @@ jobs:
 
   build:
     runs-on: docker
-    needs: [set-variables]
+    needs: [set-variables, i18n-check]
     container:
       image: node:24-alpine
     steps:
