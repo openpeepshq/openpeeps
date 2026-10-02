@@ -1960,6 +1960,9 @@
       "testFailed": "Test email failed. Check SMTP host, port, credentials, and the error details from your server logs.",
       "bounceNote": "Sending succeeds once your SMTP provider accepts the message. Recipient bounces, spam filtering, and invalid addresses happen after that and are not shown here."
     },
+    "media": {
+      "maxUploadMb": "Maximum upload size (MB)"
+    },
     "profileFields": {
       "title": "Profile Fields Configuration",
       "add": "Add Field",

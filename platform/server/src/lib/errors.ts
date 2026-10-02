@@ -33,6 +33,8 @@ export const forbidden = (message = 'Forbidden') => httpError(403, message);
 export const notFound = (target?: string) =>
   httpError(404, target ? `${target} not found` : 'Not found');
 export const conflict = (message = 'Conflict') => httpError(409, message);
+export const payloadTooLarge = (message = 'Payload too large') =>
+  httpError(413, message);
 export const unprocessableRequest = (message = 'Invalid request') =>
   httpError(422, message);
 export const internalError = (message = 'Internal error') =>

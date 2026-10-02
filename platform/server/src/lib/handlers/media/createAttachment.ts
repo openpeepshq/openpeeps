@@ -1,10 +1,13 @@
 import type { RequestEvent } from '@riddl/core';
 import { ensureLocalProfile } from '#lib/auth';
+import { payloadTooLarge } from '#lib/errors';
 import {
   type MediaAttachment,
   type MediaStorageRequest,
   getAttachmentType,
+  mediaUploadLimitBytes,
 } from '@openpeepshq/common';
+import { config } from '@openpeepshq/core/config';
 import {
   mediaProcessingQueue,
   mediaStorage,
@@ -21,6 +24,13 @@ export const createMediaAttachmentHandler = async (
   const storage = await mediaStorage();
 
   const { description, focus, file, thumbnail, usage } = mediaStorageRequest;
+  const { media } = await config();
+  const maxBytes = mediaUploadLimitBytes(media.maxUploadMb);
+  if (file.size > maxBytes || (thumbnail && thumbnail.size > maxBytes)) {
+    throw payloadTooLarge(
+      `File exceeds the maximum upload size of ${media.maxUploadMb} MB`,
+    );
+  }
 
   let focusMeta: { x: number; y: number } | undefined;
   if (focus) {

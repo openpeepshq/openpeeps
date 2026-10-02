@@ -36,6 +36,17 @@ export const mediaStorageParamsSchema = z.object({
 });
 export type MediaStorageParams = z.infer<typeof mediaStorageParamsSchema>;
 
+/** MiB. 1024 is 1 GiB — the default shown in the admin media section. */
+export const DEFAULT_MAX_MEDIA_UPLOAD_MB = 1024;
+
+export const mediaUploadLimitBytes = (maxUploadMb: number) => {
+  const mb =
+    Number.isInteger(maxUploadMb) && maxUploadMb >= 1
+      ? maxUploadMb
+      : DEFAULT_MAX_MEDIA_UPLOAD_MB;
+  return mb * 1024 * 1024;
+};
+
 export const stripePaymentConfigSchema = (sanitize?: boolean) =>
   z.object({
     paidMembership: z
@@ -135,6 +146,12 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
       sanitize,
     ),
     media: z.object({
+      maxUploadMb: z
+        .number()
+        .int()
+        .min(1)
+        .default(DEFAULT_MAX_MEDIA_UPLOAD_MB)
+        .catch(DEFAULT_MAX_MEDIA_UPLOAD_MB),
       storage: z.object({
         driver: z.enum(['openpeeps']),
         params: mediaStorageParamsSchema,

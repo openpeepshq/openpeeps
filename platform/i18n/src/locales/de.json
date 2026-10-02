@@ -1972,6 +1972,9 @@
       "testFailed": "Test-E-Mail fehlgeschlagen. Prüfen Sie SMTP-Host, Port, Anmeldedaten und die Fehlerdetails in Ihren Server-Logs.",
       "bounceNote": "Der Versand ist erfolgreich, sobald Ihr SMTP-Anbieter die Nachricht annimmt. Bounces, Spamfilterung und ungültige Adressen danach werden hier nicht angezeigt."
     },
+    "media": {
+      "maxUploadMb": "Maximale Uploadgröße (MB)"
+    },
     "profileFields": {
       "title": "Profilfelder-Konfiguration",
       "add": "Feld hinzufügen",

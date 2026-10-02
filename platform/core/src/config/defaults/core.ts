@@ -1,4 +1,7 @@
-import type { CoreConfig } from '@openpeepshq/common/types';
+import {
+  DEFAULT_MAX_MEDIA_UPLOAD_MB,
+  type CoreConfig,
+} from '@openpeepshq/common/types';
 import db from './db';
 import redis from './redis';
 import { readEnvInteger, resolveJwtSecret } from '../helpers';
@@ -39,6 +42,7 @@ export const defaultConfig: CoreConfig = {
   },
   logs,
   media: {
+    maxUploadMb: DEFAULT_MAX_MEDIA_UPLOAD_MB,
     storage: {
       driver: 'openpeeps',
       params: {
