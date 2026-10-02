@@ -590,6 +590,7 @@
   "post": {
     "detail": {
       "title": "Beitrag von {{author}}",
+      "repostTitle": "{{author}} hat einen Beitrag geteilt",
       "eventTitle": "Veranstaltung von {{author}}",
       "fallbackTitle": "Beitrag",
       "inGroup": "in"
@@ -3150,7 +3151,8 @@
       "text": "{{profileName}} hat geteilt"
     },
     "newGroupPost": {
-      "text": "Neuer Beitrag in {{groupName}}"
+      "text": "Neuer Beitrag in {{groupName}}",
+      "repostText": "{{profileName}} hat einen Beitrag in {{groupName}} geteilt"
     },
     "mention": {
       "text": "{{profileName}} hat Sie erwähnt"
@@ -3236,6 +3238,7 @@
       "repostSubject": "{{profileName}} hat einen Beitrag in {{groupName}} in {{communityName}} geteilt",
       "body": "{{profileName}} hat einen neuen Beitrag in der Gruppe {{groupName}} erstellt.",
       "repostLabel": "Geteilt",
+      "originalAuthor": "Von {{profileName}}",
       "profileCta": "Profil anzeigen",
       "postCta": "Beitrag anzeigen",
       "cta": "Klicken Sie hier, um die Gruppe zu besuchen und Ihre Mitgliedschaft zu verwalten"

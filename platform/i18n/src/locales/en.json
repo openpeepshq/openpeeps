@@ -590,6 +590,7 @@
   "post": {
     "detail": {
       "title": "{{author}}'s post",
+      "repostTitle": "{{author}} reposted a post",
       "eventTitle": "{{author}}'s event",
       "fallbackTitle": "Post",
       "inGroup": "in"
@@ -3068,7 +3069,8 @@
       "text": "{{profileName}} reposted"
     },
     "newGroupPost": {
-      "text": "New post in {{groupName}}"
+      "text": "New post in {{groupName}}",
+      "repostText": "{{profileName}} reposted a post in {{groupName}}"
     },
     "mention": {
       "text": "{{profileName}} mentioned you"
@@ -3154,6 +3156,7 @@
       "repostSubject": "{{profileName}} reposted a post in {{groupName}} in {{communityName}}",
       "body": "{{profileName}} made a new post in the group {{groupName}}.",
       "repostLabel": "Reposted",
+      "originalAuthor": "By {{profileName}}",
       "profileCta": "View Profile",
       "postCta": "View post",
       "cta": "Click here to visit the group and manage your membership"
