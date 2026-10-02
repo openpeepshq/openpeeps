@@ -12,6 +12,7 @@ export function PostDetail() {
   // Shares the react-query cache with the detail component below, so this does
   // not trigger an extra request.
   const post = openpeepsApi.usePost(postId).data;
+  const isRepost = !!post?.repost;
   const author = post?.profile ? profileName(post.profile) : undefined;
   const groupHandle = post?.group?.handle;
   const groupLabel = post?.group ? groupName(post.group) : '';
@@ -22,15 +23,20 @@ export function PostDetail() {
       return t('post.detail.fallbackTitle', { defaultValue: 'Post' });
     }
 
-    const kindTitle = isEvent
-      ? t('post.detail.eventTitle', {
-          defaultValue: "{{author}}'s event",
+    const kindTitle = isRepost
+      ? t('post.detail.repostTitle', {
+          defaultValue: '{{author}} reposted a post',
           author,
         })
-      : t('post.detail.title', {
-          defaultValue: "{{author}}'s post",
-          author,
-        });
+      : isEvent
+        ? t('post.detail.eventTitle', {
+            defaultValue: "{{author}}'s event",
+            author,
+          })
+        : t('post.detail.title', {
+            defaultValue: "{{author}}'s post",
+            author,
+          });
 
     if (!groupHandle || !groupLabel) return kindTitle;
 
@@ -48,7 +54,7 @@ export function PostDetail() {
         </Link>
       </h1>
     );
-  }, [author, groupHandle, groupLabel, isEvent, t]);
+  }, [author, groupHandle, groupLabel, isEvent, isRepost, t]);
 
   useSetPageHeader(title);
 
