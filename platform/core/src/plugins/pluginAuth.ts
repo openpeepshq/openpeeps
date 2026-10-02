@@ -36,14 +36,19 @@ declare global {
  */
 export const ensurePluginAuth =
   () => async (req: Request, res: Response, next: NextFunction) => {
+    // Express 5's RequestHandler type requires `void | Promise<void>` — never
+    // `return res...`, which types as `Promise<Response>` and fails overload
+    // resolution wherever this middleware is passed to router.post/get/etc.
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+      res.status(401).json({ success: false, message: 'Unauthorized' });
+      return;
     }
 
     const token = authHeader.slice(7);
     if (!token) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+      res.status(401).json({ success: false, message: 'Unauthorized' });
+      return;
     }
 
     try {
@@ -51,13 +56,12 @@ export const ensurePluginAuth =
       const verified = await jwt.verify(token);
       const payload = verified?.payload as AuthorizationPayload | undefined;
       if (!payload?.identities?.profile) {
-        return res
-          .status(401)
-          .json({ success: false, message: 'Invalid token' });
+        res.status(401).json({ success: false, message: 'Invalid token' });
+        return;
       }
       req.pluginProfile = { id: payload.identities.profile };
       next();
     } catch {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+      res.status(401).json({ success: false, message: 'Unauthorized' });
     }
   };
