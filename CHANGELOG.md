@@ -7,6 +7,31 @@ Changelog for OpenPeeps
 
 - **docs**: add back-end plugin development guide and update sidebar
 - **docs**: add front-end plugin section to sidebar and documentation
+
+### Bug Fixes
+
+- **email**: indicate repost in new group post notification
+- **i18n**: add 242 missing German translations and a CI parity gate
+
+### Refactoring
+
+- **jam**: disable screen sharing functionality across components
+- **configuration**: enhance default value handling in ConfigurationList
+
+### Documentation
+
+- **planning**: refresh the roadmap timeline
+
+## 2026-10-01
+
+- No changes
+
+## 2026-10-01
+
+### Features
+
+- **docs**: add back-end plugin development guide and update sidebar
+- **docs**: add front-end plugin section to sidebar and documentation
 - **admin**: add user activity summary detail view for members
 - **article**: add minutes-to-read estimate for articles
 - **analytics**: add verified vs unverified member metrics
@@ -30,6 +55,7 @@ Changelog for OpenPeeps
 
 ### Refactoring
 
+- **configuration**: enhance default value handling in ConfigurationList
 - **animations**: optimize animated emoji behavior and cleanup
 - **analytics**: update active members calculation and descriptions
 
