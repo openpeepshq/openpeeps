@@ -1,0 +1,20 @@
+# Traefik v3 Dynamic Configuration (file provider)
+#
+# TLS stores/options/certificates must live in the *dynamic* config in Traefik v3;
+# the top-level static `certificates`/`tls` keys are not parsed by v3.
+#
+# Default certificate (/certs/tls.crt) is produced by setup.sh:
+#   - local mode: self-signed CA + wildcard cert (containers trust ca.crt)
+#   - public mode: Let's Encrypt cert via certbot (system trust; ca.crt = OS bundle)
+# Routers carrying `traefik.http.routers.<name>.tls=true` (no certResolver)
+# use this default store.
+
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /certs/tls.crt
+        keyFile: /certs/tls.key
+  options:
+    default:
+      minVersion: VersionTLS12

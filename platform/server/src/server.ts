@@ -26,6 +26,7 @@ import { installS3Endpoint } from './lib/s3';
 import { installStreamingEndpoint } from './lib/streaming';
 import { installPwaEndpoint } from './lib/pwa';
 import { sendSpaHtml } from './lib/spaHtml';
+import { installFederation } from './federation';
 import {
   buildPluginRouters,
   pluginAssetsMiddleware,
@@ -97,6 +98,8 @@ const startServer = async () => {
   if (installMcpEndpoints(app)) {
     log.info('MCP endpoints mounted at /mcp/community and /mcp/ops');
   }
+
+  await installFederation(app);
 
   // Request-duration logger + slow-request ring buffer for admin diagnostics.
   app.use((req, _res, next) => {
