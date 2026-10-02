@@ -496,10 +496,18 @@ function NewGroupPostNotification({
       <a href={`/posts/${post.id}`} className="block w-full px-4 py-2">
         <p className="mb-2 flex items-center gap-2 text-sm font-semibold">
           <Users className="size-4" />
-          {t('notification.newGroupPost.text', {
-            defaultValue: 'New post in {{groupName}}',
-            groupName: groupName(group),
-          })}
+          {t(
+            post.repost
+              ? 'notification.newGroupPost.repostText'
+              : 'notification.newGroupPost.text',
+            {
+              defaultValue: post.repost
+                ? '{{profileName}} reposted a post in {{groupName}}'
+                : 'New post in {{groupName}}',
+              profileName: profileName(profile),
+              groupName: groupName(group),
+            },
+          )}
         </p>
         <FeedPost post={post} inGroup />
       </a>

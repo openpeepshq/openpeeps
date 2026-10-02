@@ -66,7 +66,10 @@ export function FullPostLayout({
           <FeedPost
             post={post}
             deleteCallback={deleteCallback}
-            noReactionHeader
+            // The page header already names the group. On a repost, keep the
+            // banner so it says who shared it instead of hiding that.
+            inGroup={!!post.group}
+            noReactionHeader={!post.repost}
           />
         )}
         {/* Continues the ancestors' thread line across the card padding down to
