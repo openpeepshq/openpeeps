@@ -5,11 +5,17 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **hashtags**: allow following hashtags for personal feed inclusion
+- **profile**: use initials as default avatar instead of PNG
+- **tests**: enhance Explore page tests and add data-testid for results
 - **docs**: add back-end plugin development guide and update sidebar
 - **docs**: add front-end plugin section to sidebar and documentation
 
 ### Bug Fixes
 
+- **email**: use repost-specific i18n key in email notification
+- **jams**: enforce RSVP capacity for live recurring events
+- **i18n**: complete German translations and always enforce locale parity gate
 - **email**: indicate repost in new group post notification
 - **i18n**: add 242 missing German translations and a CI parity gate
 
@@ -20,7 +26,12 @@ Changelog for OpenPeeps
 
 ### Documentation
 
+- add one-PR-per-fix requirement to AGENTS.md and PR readiness skill
 - **planning**: refresh the roadmap timeline
+
+### CI/CD
+
+- **build**: gate build job on i18n-check
 
 ## 2026-10-01
 
