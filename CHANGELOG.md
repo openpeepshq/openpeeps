@@ -13,6 +13,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **plugins**: fix auth response typing and dev asset proxy
 - **email**: use repost-specific i18n key in email notification
 - **jams**: enforce RSVP capacity for live recurring events
 - **i18n**: complete German translations and always enforce locale parity gate
