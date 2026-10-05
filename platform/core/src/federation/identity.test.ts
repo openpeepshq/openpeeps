@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ACTOR_INBOX_PATH,
+  ACTOR_PATH,
+  NOTE_PATH,
   actorUri,
+  federationOrigin,
   localActorScalars,
   localObjectScalars,
   objectUri,
 } from './identity';
+import { federatedHandleFrom } from './actors';
+import { hostnameOf } from './peers';
 
 describe('federation identity URLs', () => {
   it('mints stable actor and object URIs', () => {
@@ -37,5 +43,34 @@ describe('federation identity URLs', () => {
         inReplyToUri: 'https://community.example/ap/objects/post-1',
       },
     );
+  });
+
+  it('keeps Fedify path templates aligned with minted URIs', () => {
+    expect(ACTOR_PATH).toBe('/ap/users/{identifier}');
+    expect(ACTOR_INBOX_PATH).toBe('/ap/users/{identifier}/inbox');
+    expect(NOTE_PATH).toBe('/ap/objects/{id}');
+    expect(federationOrigin('community.example')).toBe(
+      'https://community.example',
+    );
+  });
+});
+
+describe('federatedHandleFrom', () => {
+  it('sanitizes preferred usernames and falls back to the actor URI', () => {
+    expect(federatedHandleFrom('Ada Lovelace!', 'https://ex/users/1')).toBe(
+      'AdaLovelace',
+    );
+    expect(federatedHandleFrom('', 'https://ex.example/users/ab')).toMatch(
+      /^actor-[a-z0-9]+$/,
+    );
+  });
+});
+
+describe('hostnameOf', () => {
+  it('parses hosts and rejects invalid URLs', () => {
+    expect(hostnameOf('https://Mastodon.Social/users/a')).toBe(
+      'mastodon.social',
+    );
+    expect(hostnameOf('not-a-url')).toBeNull();
   });
 });
