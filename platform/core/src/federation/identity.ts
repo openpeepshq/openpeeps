@@ -1,13 +1,30 @@
 import { generateKeyPairSync } from 'node:crypto';
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { pgDb } from '../db/pg/client';
-import { posts, profiles } from '../db/pg/schema/documents';
+import { profiles } from '../db/pg/schema/documents';
+
+/** Fedify URI templates; must stay aligned with `actorUri` / `objectUri`. */
+export const ACTOR_PATH = '/ap/users/{identifier}' as const;
+export const ACTOR_INBOX_PATH = '/ap/users/{identifier}/inbox' as const;
+export const SHARED_INBOX_PATH = '/ap/inbox' as const;
+export const FOLLOWERS_PATH = '/ap/users/{identifier}/followers' as const;
+export const NOTE_PATH = '/ap/objects/{id}' as const;
+export const CREATE_PATH = '/ap/create/{id}' as const;
+export const ACCEPT_PATH = '/ap/accept/{id}' as const;
+
+export const federationOrigin = (domain: string) => `https://${domain}`;
 
 export const actorUri = (domain: string, profileId: string) =>
   `https://${domain}/ap/users/${profileId}`;
 
 export const objectUri = (domain: string, postId: string) =>
   `https://${domain}/ap/objects/${postId}`;
+
+export const createActivityUri = (domain: string, activityId: string) =>
+  `https://${domain}/ap/create/${activityId}`;
+
+export const acceptActivityUri = (domain: string, activityId: string) =>
+  `https://${domain}/ap/accept/${activityId}`;
 
 export const generateActorKeyPair = () =>
   generateKeyPairSync('rsa', {

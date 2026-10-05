@@ -233,6 +233,11 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 | Upcoming events feed includes created event | API | `user-actions/` |
 | RSVP yes on event | API | `user-actions/` |
 | RSVP tentative → no → yes cycle | API | `api/gaps/` |
+| Member jam on community feed (toggle on) | UI | `ui/event-creation` |
+| Community visibility blocked (toggle off) | UI | `ui/event-creation` |
+| Member jam on a group calendar | UI | `ui/event-creation` |
+| Admins-only group hides New event and the group picker | UI | `ui/event-creation` |
+| Private jam for invitees (Events, Messages, outsider denied) | UI | `ui/event-creation` |
 
 #### Profiles & social graph
 

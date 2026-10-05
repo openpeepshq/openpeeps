@@ -265,24 +265,6 @@ export const serviceScopeMatches = ({
     },
   });
 
-/** Legacy scope check used by jam/post service authorization paths. */
-export const scopeMatches = ({
-  authorization,
-  scope,
-  resource,
-}: {
-  authorization?: Authorization | null;
-  scope?: string;
-  resource: Resource;
-}) =>
-  commonScopeMatches({
-    scopes: authorization?.scopes,
-    requiredScope: {
-      scopeLevel: scope as ScopeLevel | undefined,
-      resource,
-    },
-  });
-
 export const ensureProfileOrGuest = async (
   event: RequestEvent,
   scopeLevel?: ScopeLevel | string,

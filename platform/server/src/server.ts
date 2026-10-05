@@ -26,6 +26,7 @@ import { installS3Endpoint } from './lib/s3';
 import { installStreamingEndpoint } from './lib/streaming';
 import { installPwaEndpoint } from './lib/pwa';
 import { sendSpaHtml } from './lib/spaHtml';
+import { installFederation } from './federation';
 import {
   buildPluginRouters,
   pluginAssetsMiddleware,
@@ -97,6 +98,8 @@ const startServer = async () => {
   if (installMcpEndpoints(app)) {
     log.info('MCP endpoints mounted at /mcp/community and /mcp/ops');
   }
+
+  app.set('trust proxy', true);
 
   // Request-duration logger + slow-request ring buffer for admin diagnostics.
   app.use((req, _res, next) => {
@@ -208,6 +211,13 @@ const startServer = async () => {
     }
     next();
   });
+
+  // Install ActivityPub federation AFTER the Riddl handler so Riddl's body
+  // parser reads the request body before @fedify/express's integrateFederation
+  // middleware consumes it (it eagerly converts req to a Web Stream for all
+  // POST requests, which breaks Riddl's req.clone().json() when a Bearer token
+  // triggers Fedify's OAuth path).
+  await installFederation(app);
 
   // Legacy /_db URLs redirect to /admin/db (Postgres admin instructions).
   installDbBrowserProxy(app);

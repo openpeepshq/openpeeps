@@ -49,6 +49,7 @@ Changelog for OpenPeeps
 - **article**: add minutes-to-read estimate for articles
 - **analytics**: add verified vs unverified member metrics
 - **admin**: add sorting to members screen
+- **federation**: serve ActivityPub with Fedify
 - **federation**: add public ActivityPub data model
 - **pwa**: enhance stale app reload behavior and integrate jam room checks
 - **markdown**: add markdownPlainText utility function and integrate into various components
