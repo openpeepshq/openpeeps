@@ -91,21 +91,31 @@ const runProcessingBody = async ({
       previewMimetype = thumbnail.type;
       previewName = thumbnail.name;
     }
-    const preview = await createPreview(
-      previewInputPath,
-      previewMimetype,
-      previewName,
-    );
-    if (preview.path !== sourcePath && preview.path !== previewInputPath) {
-      temps.add(preview.path);
-    }
-    const { key: previewStorageKey } = await storeFromPath(preview.path);
-
     const normalizedFilename = encodeURIComponent(transcoded.filename);
-    const thumbnailFilename = `thumbnail-${normalizedFilename}${normalizedFilename.endsWith('.webp') ? '' : '.webp'}`;
-
     const url = storage.getPath(fileStorageKey, normalizedFilename);
-    const previewUrl = storage.getPath(previewStorageKey, thumbnailFilename);
+
+    // A waveform is a preview, not the audio itself. A missing or broken
+    // waveform tool must not leave the attachment stuck in `processing`.
+    let previewUrl: string | null = null;
+    try {
+      const preview = await createPreview(
+        previewInputPath,
+        previewMimetype,
+        previewName,
+      );
+      if (preview.path !== sourcePath && preview.path !== previewInputPath) {
+        temps.add(preview.path);
+      }
+      const { key: previewStorageKey } = await storeFromPath(preview.path);
+      const thumbnailFilename = `thumbnail-${normalizedFilename}${
+        normalizedFilename.endsWith('.webp') ? '' : '.webp'
+      }`;
+      previewUrl = storage.getPath(previewStorageKey, thumbnailFilename);
+    } catch (error) {
+      if (filetype !== 'audio') throw error;
+      const message = error instanceof Error ? error.message : String(error);
+      log.error(`Audio waveform skipped for ${mediaAttachmentId}: ${message}`);
+    }
 
     const updated = await updateMediaAttachment(mediaAttachmentId, {
       url,

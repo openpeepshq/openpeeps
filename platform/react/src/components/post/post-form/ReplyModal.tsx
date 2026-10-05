@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Image, Paperclip } from 'lucide-react';
+import { AudioLines, Image, Paperclip } from 'lucide-react';
 import {
   pollOptionsWithinLimit,
   resolvePollOptionContents,
@@ -292,6 +292,16 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
                       action={composeAttachments.openImagePicker}
                     >
                       <Image className="size-5" />
+                    </Button>
+                    <Button
+                      compact
+                      variant="ghost"
+                      title={t('posts.form.addAudio', {
+                        defaultValue: 'Add audio',
+                      })}
+                      action={composeAttachments.openAudioPicker}
+                    >
+                      <AudioLines className="size-5" />
                     </Button>
                     <Button
                       compact

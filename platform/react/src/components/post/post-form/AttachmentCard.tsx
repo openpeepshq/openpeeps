@@ -5,7 +5,8 @@ import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { DescriptionEditModal } from './DescriptionEditModal';
 import { VideoPlayOverlay } from '../VideoPlayOverlay';
-import { resolveAttachmentPreviewUrl } from '../attachmentPreview';
+import { isBlobUrl, resolveAttachmentPreviewUrl } from '../attachmentPreview';
+import { AudioAttachment } from '../pieces/AudioAttachment';
 
 export interface ComposeItem {
   key: string;
@@ -149,6 +150,11 @@ export function AttachmentCard({
   const isVideo =
     (att?.type ?? (item.file?.type.startsWith('video/') ? 'video' : '')) ===
     'video';
+  const isAudio =
+    att?.type === 'audio' ||
+    !!att?.meta?.mimetype?.startsWith('audio/') ||
+    !!item.file?.type.startsWith('audio/') ||
+    item.usage === 'post-audio';
   const editLabel = t('posts.attachments.editTitle', {
     defaultValue: 'Edit description',
   });
@@ -157,9 +163,23 @@ export function AttachmentCard({
   });
 
   return (
-    <div className="relative aspect-square w-full overflow-hidden rounded-md border">
+    <div
+      className={
+        isAudio
+          ? `relative col-span-2 w-full ${
+              showOverlay || failed ? 'min-h-24' : ''
+            }`
+          : 'relative aspect-square w-full overflow-hidden rounded-md border'
+      }
+    >
       {!failed ? (
-        <div className="absolute right-1 top-1 z-20 flex gap-1">
+        <div
+          className={
+            isAudio
+              ? 'absolute right-1.5 top-1.5 z-20 flex gap-1'
+              : 'absolute right-1 top-1 z-20 flex gap-1'
+          }
+        >
           {showEdit ? (
             <button
               type="button"
@@ -261,7 +281,9 @@ export function AttachmentCard({
       ) : null}
 
       {showOverlay || failed ? (
-        <div className="bg-surface-2 h-full w-full" />
+        <div
+          className={isAudio ? 'h-24 w-full' : 'bg-surface-2 h-full w-full'}
+        />
       ) : isImage || isVideo ? (
         <div className="relative h-full w-full">
           <img
@@ -271,6 +293,13 @@ export function AttachmentCard({
           />
           <VideoPlayOverlay video={isVideo} />
         </div>
+      ) : isAudio ? (
+        <AudioAttachment
+          src={isBlobUrl(item.previewUrl) ? item.previewUrl : att?.url}
+          label={att?.filename ?? item.file?.name ?? att?.description}
+          size={att?.meta?.size ?? item.file?.size}
+          reserveEnd
+        />
       ) : (
         <div className="flex h-full w-full items-center justify-center p-2">
           <p className="truncate text-xs">

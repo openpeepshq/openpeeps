@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, Image, Megaphone, Paperclip } from 'lucide-react';
+import {
+  AudioLines,
+  ChevronDown,
+  Image,
+  Megaphone,
+  Paperclip,
+} from 'lucide-react';
 import {
   checkRoleCapabilities,
   pollOptionsWithinLimit,
@@ -441,6 +447,16 @@ export function NewPostModal({
                   className="hover:bg-surface rounded-button p-2"
                 >
                   <Image className="size-5" />
+                </button>
+                <button
+                  type="button"
+                  title={t('posts.form.addAudio', {
+                    defaultValue: 'Add audio',
+                  })}
+                  onClick={composeAttachments.openAudioPicker}
+                  className="hover:bg-surface rounded-button p-2"
+                >
+                  <AudioLines className="size-5" />
                 </button>
                 <button
                   type="button"
