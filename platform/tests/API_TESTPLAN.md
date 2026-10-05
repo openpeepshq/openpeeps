@@ -320,6 +320,7 @@ Unless noted: Bearer + `ensureRoleCapabilities`. Matrix: unauth `401`, member
 | API-ADM-REP-05 | `GET/PUT /admin/reports…` | member JWT | `403` | `empty/moderation/` |
 | API-ADM-ROLE-01 | `GET /admin/roles` | `core-roles-read` | list |
 | API-ADM-ROLE-02 | `PUT /admin/roles/:roleId` | `core-roles-update` | updated |
+| API-ADM-ROLE-03 | `POST /admin/roles` | `core-roles-update` | created with `default: false`; `409` on duplicate key |
 
 ### 12.3 Config, i18n, posts ops
 

@@ -112,6 +112,9 @@ const adminPeopleContent = (client: OpenpeepsClientInstance) => ({
   useAdminProfileSummary: (id: string) =>
     apiHook(client.admin.profiles.activitySummary, { pathParams: { id } }),
   useRolesList: () => apiHook(client.admin.roles.list),
+  createRoleAction: payloadMutation(client.admin.roles.create, [
+    ['admin', 'roles'],
+  ]),
   updateRoleAction: payloadMutation(client.admin.roles.update, [
     ['admin', 'roles'],
   ]),

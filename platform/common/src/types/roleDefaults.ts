@@ -1,5 +1,9 @@
-import { RoleData } from '@openpeepshq/common/types';
+import type { RoleData } from './models';
 
+/**
+ * Built-in instance roles seeded on server start. Also the reference for
+ * "restore defaults" in the admin capability matrix.
+ */
 export const defaultRoles: RoleData[] = [
   {
     key: 'owner',

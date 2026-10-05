@@ -1,6 +1,5 @@
-import { Role, RoleData } from '@openpeepshq/common/types';
+import { Role, RoleData, defaultRoles } from '@openpeepshq/common/types';
 import { findRoleByKey } from './finders';
-import { defaultRoles } from './defaults';
 import { allpeepDb } from '../db';
 import { conflict } from '../errors';
 import { rolesMapping } from './mapping';

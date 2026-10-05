@@ -1,4 +1,5 @@
 export * from './models';
+export * from './roleDefaults';
 export * from './export';
 export * from './apple-app-site-association';
 export * from './capabilities';

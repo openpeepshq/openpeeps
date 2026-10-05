@@ -1483,7 +1483,11 @@
       "unnamedSection": "Konfiguration",
       "community": {
         "capabilities": {
-          "title": "Rollen und Berechtigungen"
+          "title": "Rollen und Berechtigungen",
+          "rolesTitle": "Instanzenrollen",
+          "rolesDescription": "Legen Sie die Berechtigungen fest, die jede Instanzenrolle gewährt. Entspricht der Matrix der Gruppenrollen: Klicken Sie auf eine Zelle, um zu wechseln: leer → erlaubt (+) → verboten (−). ~ = von einem Platzhalter geerbt und × = gesperrt.",
+          "relationsTitle": "Beziehungs-Berechtigungen",
+          "relationsDescription": "Legen Sie die Berechtigungen fest, die jede Beziehung für Beiträge, Profile, Meldungen und Zugriffstoken hat. Klicken Sie auf eine Zelle, um zu wechseln: leer → erlaubt (+) → verboten (−). ~ = von einem Platzhalter geerbt und × = gesperrt."
         },
         "defaultRoles": {
           "title": "Standardrolle",
@@ -2459,7 +2463,8 @@
     "send": "Senden",
     "sending": "Wird gesendet…",
     "submitting": "Wird übermittelt…",
-    "downloading": "Wird heruntergeladen…"
+    "downloading": "Wird heruntergeladen…",
+    "restoreDefaults": "Standardwerte wiederherstellen"
   },
   "conversations": {
     "newMessage": "Neue Nachricht",
@@ -3483,7 +3488,8 @@
     "rsvpRemoved": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
     "rsvpRemovedForbidden": "Nur der Organisator kann Teilnehmer entfernen.",
     "cannotInteractBlocked": "Sie können mit diesem Profil nicht interagieren.",
-    "unprocessableRequest": "Ungültige Anfrage"
+    "unprocessableRequest": "Ungültige Anfrage",
+    "roleExists": "Eine Rolle mit diesem Schlüssel existiert bereits."
   },
   "payment": {
     "cancelled": "Bezahlvorgang wurde abgebrochen.",
@@ -3511,6 +3517,47 @@
       "placeholder": "Doku durchsuchen…",
       "ariaLabel": "Dokumentation durchsuchen",
       "noResults": "Keine passenden Seiten"
+    }
+  },
+  "capabilities": {
+    "roles": {
+      "capability": "Berechtigung",
+      "allowAll": "Alle",
+      "saveSuccess": "Rollenberechtigungen aktualisiert",
+      "noUpdateCapability": "Ohne core-roles-update können Sie Rollenberechtigungen nur ansehen, aber nicht bearbeiten.",
+      "newRole": "Neue Rolle",
+      "create": "Erstellen",
+      "creating": "Wird erstellt…",
+      "name": "Name",
+      "description": "Beschreibung",
+      "key": "Schlüssel",
+      "createSuccess": "Rolle erstellt",
+      "defaultRoles": "Standardrollen",
+      "customRoles": "Benutzerdefinierte Rollen",
+      "filterPlaceholder": "Rollen filtern…",
+      "noRolesMatch": "Keine Rollen entsprechen dem Filter."
+    },
+    "relations": {
+      "capability": "Berechtigung",
+      "allowAll": "Alle",
+      "saveSuccess": "Beziehungs-Berechtigungen aktualisiert",
+      "noUpdateCapability": "Ohne core-config-update können Sie Beziehungs-Berechtigungen nur ansehen, aber nicht bearbeiten.",
+      "post": {
+        "title": "Beiträge",
+        "description": "Wer Beiträge lesen, darauf reagieren und auf andere Weise mit ihnen interagieren kann, abhängig von der Beziehung zur Autorin oder zum Autor des Beitrags."
+      },
+      "profile": {
+        "title": "Profile",
+        "description": "Wer Profile lesen und bearbeiten kann, abhängig von der Beziehung zu diesem Profil."
+      },
+      "report": {
+        "title": "Meldungen",
+        "description": "Wer Meldungen erstellen und lesen kann, abhängig von der Beziehung zur jeweiligen Meldung."
+      },
+      "accessToken": {
+        "title": "Zugriffstoken",
+        "description": "Wer ein Dienstzugriffstoken verwalten kann, abhängig von der Beziehung zum Besitzer des Tokens."
+      }
     }
   }
 }

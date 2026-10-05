@@ -181,6 +181,7 @@ export type Admin = {
   };
   roles: {
     list: OpenpeepsNoPayloadEndpoint<Role[]>;
+    create: OpenpeepsPayloadEndpoint<Role, Omit<RoleData, 'default'>>;
     update: OpenpeepsPayloadEndpoint<Role, RoleData, { roleId: string }>;
   };
   stats: {
@@ -477,6 +478,11 @@ export const admin = (rawClient: FetchClient): Admin => ({
   },
   roles: {
     list: allpeepNoPayloadEndpoint<Role[]>(rawClient, '/admin/roles'),
+    create: allpeepPayloadEndpoint<Role, Omit<RoleData, 'default'>>(
+      rawClient,
+      '/admin/roles',
+      'post',
+    ),
     update: allpeepPayloadEndpoint<Role, RoleData, { roleId: string }>(
       rawClient,
       '/admin/roles/:roleId',
