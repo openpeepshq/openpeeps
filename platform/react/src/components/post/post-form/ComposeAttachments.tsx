@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Image, Paperclip } from 'lucide-react';
+import { AudioLines, Image, Paperclip } from 'lucide-react';
 import type { MediaAttachment, MediaAttachmentData } from '@openpeepshq/common';
 import { useT } from '../../../i18n';
 import { ImageEditModal } from '../../form/ImageEditModal';
@@ -12,10 +12,16 @@ export interface ComposeAttachmentsProps {
   onChange: (attachments: MediaAttachmentData[]) => void;
 }
 
+const AUDIO_NAME = /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba)$/i;
+
+const isAudioFile = (file: File): boolean =>
+  file.type.startsWith('audio/') || AUDIO_NAME.test(file.name);
+
 function usageForFile(file: File): string {
   if (file.type.startsWith('image/')) return 'post-image';
   if (file.type.startsWith('video/') || file.name.endsWith('.mkv'))
     return 'post-video';
+  if (isAudioFile(file)) return 'post-audio';
   return 'post-document';
 }
 
@@ -33,6 +39,7 @@ const readyItem = (attachment: MediaAttachmentData): ComposeItem => ({
 
 export interface ComposeAttachmentsApi {
   openImagePicker: () => void;
+  openAudioPicker: () => void;
   openDocumentPicker: () => void;
   /** True while any attachment is still uploading or processing. */
   pending: boolean;
@@ -54,6 +61,7 @@ export function useComposeAttachments({
   onChange,
 }: ComposeAttachmentsProps): ComposeAttachmentsApi {
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
   const [pendingImage, setPendingImage] = useState<{
     file: File;
@@ -95,13 +103,17 @@ export function useComposeAttachments({
   const enqueueFile = (file: File) => {
     const usage = usageForFile(file);
     const previewUrl =
-      file.type.startsWith('image/') || file.type.startsWith('video/')
+      file.type.startsWith('image/') ||
+      file.type.startsWith('video/') ||
+      isAudioFile(file)
         ? URL.createObjectURL(file)
         : undefined;
     enqueue(
       file,
       usage,
-      usage === 'post-document' ? file.name : undefined,
+      usage === 'post-document' || usage === 'post-audio'
+        ? file.name
+        : undefined,
       previewUrl,
     );
   };
@@ -200,6 +212,20 @@ export function useComposeAttachments({
         }}
       />
       <input
+        ref={audioInputRef}
+        type="file"
+        accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.opus,.weba"
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          const files = e.target.files;
+          if (files) {
+            Array.from(files).forEach((file) => enqueueFile(file));
+          }
+          e.target.value = '';
+        }}
+      />
+      <input
         ref={documentInputRef}
         type="file"
         accept=".pdf,.doc,.docx,.txt,.md,.csv"
@@ -231,6 +257,7 @@ export function useComposeAttachments({
 
   return {
     openImagePicker: () => imageInputRef.current?.click(),
+    openAudioPicker: () => audioInputRef.current?.click(),
     openDocumentPicker: () => documentInputRef.current?.click(),
     pending,
     previews,
@@ -240,11 +267,19 @@ export function useComposeAttachments({
 
 export function ComposeAttachments(props: ComposeAttachmentsProps) {
   const t = useT();
-  const { openImagePicker, openDocumentPicker, previews, inputs } =
-    useComposeAttachments(props);
+  const {
+    openImagePicker,
+    openAudioPicker,
+    openDocumentPicker,
+    previews,
+    inputs,
+  } = useComposeAttachments(props);
 
   const addImageLabel = t('posts.form.addImage', {
     defaultValue: 'Add image or video',
+  });
+  const addAudioLabel = t('posts.form.addAudio', {
+    defaultValue: 'Add audio',
   });
   const addDocumentLabel = t('posts.form.addDocument', {
     defaultValue: 'Add document',
@@ -262,6 +297,16 @@ export function ComposeAttachments(props: ComposeAttachmentsProps) {
         >
           <Image className="size-5" aria-hidden="true" />
           <span className="sr-only">{addImageLabel}</span>
+        </button>
+        <button
+          type="button"
+          title={addAudioLabel}
+          aria-label={addAudioLabel}
+          onClick={openAudioPicker}
+          className="hover:bg-surface rounded-button p-2"
+        >
+          <AudioLines className="size-5" aria-hidden="true" />
+          <span className="sr-only">{addAudioLabel}</span>
         </button>
         <button
           type="button"

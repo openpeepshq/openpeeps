@@ -11,7 +11,6 @@ import { createReadStream, createWriteStream } from 'node:fs';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { getTheme, randomString } from '@openpeepshq/common/lib';
-import { execSync } from 'node:child_process';
 import { logger } from '../log';
 import { hub } from '../events';
 
@@ -58,7 +57,7 @@ const tempPathFor = (name: string): string =>
 
 /**
  * Stream a web `ReadableStream` to a temp file, preserving the original
- * extension so format-sniffing tools (audiowaveform, sharp) behave. Peak
+ * extension so format-sniffing tools (ffmpeg, sharp) behave. Peak
  * memory is bounded by the write stream's highWaterMark, not the file size.
  */
 export const writeStreamToTemp = async (
@@ -235,17 +234,41 @@ const getVideoStreamInfo = (filePath: string): Promise<VideoStreamInfo> =>
     });
   });
 
+const waveformColor = (hex: string): string => {
+  const bare = hex.replace('#', '');
+  return /^[0-9a-fA-F]{6}$/.test(bare) ? `0x${bare}` : '0x15678a';
+};
+
+/**
+ * Waveform still via ffmpeg. `audiowaveform` is not a project dependency and
+ * is often missing locally; ffmpeg already is, because video processing uses it.
+ */
+const renderWaveform = (
+  inputPath: string,
+  outputPath: string,
+  color: string,
+): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const size = `${previewMaxWidth}x${previewMaxWidth}`;
+    ffmpeg(inputPath)
+      .noVideo()
+      .outputOptions(
+        '-filter_complex',
+        `aformat=channel_layouts=mono,showwavespic=s=${size}:colors=${color}`,
+      )
+      .outputOptions('-frames:v', '1')
+      .outputOptions('-update', '1')
+      .output(outputPath)
+      .on('end', () => resolve())
+      .on('error', (error) => reject(error))
+      .run();
+  });
+
 const createAudioPreview = async (inputPath: string): Promise<MediaFile> => {
   const outputPath = join(tmpdir(), `preview-${randomString(16)}.png`);
+  const color = waveformColor(getTheme(await communityConfig()).primaryHex);
   try {
-    const duration = await getMediaDuration(inputPath);
-    const pixelsPerSecond = Math.floor(700 / duration);
-    execSync(
-      `audiowaveform -i ${inputPath} -o ${outputPath} \
-        --background-color ffffff88 --waveform-color ${getTheme(await communityConfig()).primaryHex.slice(1)} \
-        -w ${previewMaxWidth} -h ${previewMaxWidth} --pixels-per-second ${pixelsPerSecond} \
-        --no-axis-labels -q`,
-    );
+    await renderWaveform(inputPath, outputPath, color);
     return { path: outputPath, mimetype: 'image/png' };
   } catch (error) {
     await fs.unlink(outputPath).catch(() => {});

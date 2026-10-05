@@ -399,6 +399,7 @@
       "changeAudience": "Change audience",
       "remainingCharacters": "Remaining characters",
       "addImage": "Add Media",
+      "addAudio": "Add audio",
       "addDocument": "Add Document",
       "title": "New Post",
       "note": {
@@ -464,6 +465,7 @@
       "deleted": "This post has been deleted.",
       "pollOptions": "{{count}} options",
       "document": "Document",
+      "audio": "Audio",
       "imageAlt": "Attachment",
       "viewOriginal": "View original post",
       "viewPost": "View post"
@@ -493,6 +495,12 @@
       "deleteTitle": "Delete attachment",
       "failed": "Upload failed",
       "editTitle": "Edit description"
+    },
+    "audio": {
+      "play": "Play audio",
+      "pause": "Pause audio",
+      "seek": "Seek",
+      "length": "Length"
     },
     "deleteModal": {
       "deletePostTitle": "Delete post",

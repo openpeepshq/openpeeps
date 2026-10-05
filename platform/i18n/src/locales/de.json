@@ -394,6 +394,7 @@
       "changeAudience": "Zielgruppe ändern",
       "remainingCharacters": "Verbleibende Zeichen",
       "addImage": "Medien hinzufügen",
+      "addAudio": "Audio hinzufügen",
       "addDocument": "Dokument hinzufügen",
       "title": "Neuer Beitrag",
       "note": {
@@ -459,6 +460,7 @@
       "deleted": "Dieser Beitrag wurde gelöscht.",
       "pollOptions": "{{count}} Optionen",
       "document": "Dokument",
+      "audio": "Audio",
       "imageAlt": "Anhang",
       "viewOriginal": "Originalbeitrag anzeigen",
       "viewPost": "Beitrag anzeigen"
@@ -488,6 +490,12 @@
       "deleteTitle": "Anhang löschen",
       "failed": "Upload fehlgeschlagen",
       "editTitle": "Beschreibung bearbeiten"
+    },
+    "audio": {
+      "play": "Audio wiedergeben",
+      "pause": "Audio pausieren",
+      "seek": "Position",
+      "length": "Länge"
     },
     "deleteModal": {
       "deletePostTitle": "Beitrag löschen",

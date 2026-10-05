@@ -13,10 +13,11 @@ import {
   isHiddenPost,
   markdownPlainText,
 } from '@openpeepshq/common/lib';
-import { Calendar, CirclePlay, Paperclip } from 'lucide-react';
+import { AudioLines, Calendar, CirclePlay, Paperclip } from 'lucide-react';
 import { cn } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { Avatar } from '../profile';
+import { isAudioAttachment } from './pieces/AudioAttachment';
 
 export type CompactPost = Pick<
   PublicReplyPost,
@@ -118,18 +119,25 @@ const CompactNoteBody = ({ post, t }: { post: CompactPost; t: TFunction }) => {
   const attachments = attachmentsOf(post);
   const text = markdownPlainText(post.data.content);
   const hasVisual = !!visualAttachment(attachments);
-  const docName =
-    !hasVisual && attachments[0]
-      ? attachments[0].filename ||
-        t('posts.compact.document', { defaultValue: 'Document' })
-      : undefined;
+  const file = !hasVisual ? attachments[0] : undefined;
+  const audio = !!file && isAudioAttachment(file);
+  const docName = file
+    ? file.filename ||
+      (audio
+        ? t('posts.compact.audio', { defaultValue: 'Audio' })
+        : t('posts.compact.document', { defaultValue: 'Document' }))
+    : undefined;
   if (!text && !docName) return null;
   return (
     <>
       {text ? <p className="line-clamp-2 break-words text-sm">{text}</p> : null}
       {docName ? (
         <p className="text-muted-foreground flex items-center gap-1 text-xs">
-          <Paperclip className="size-3.5 shrink-0" aria-hidden />
+          {audio ? (
+            <AudioLines className="size-3.5 shrink-0" aria-hidden />
+          ) : (
+            <Paperclip className="size-3.5 shrink-0" aria-hidden />
+          )}
           <span className="truncate">{docName}</span>
         </p>
       ) : null}

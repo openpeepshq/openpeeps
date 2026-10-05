@@ -2,6 +2,7 @@ import { useEffect, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import type { MediaAttachmentData } from '@openpeepshq/common/types';
 import { useT } from '../../../i18n';
+import { AudioAttachment, isAudioAttachment } from './AudioAttachment';
 import { VideoPlayer } from './VideoPlayer';
 
 export interface GalleryModalProps {
@@ -81,12 +82,13 @@ export function GalleryModal({
             attachment={attachment}
             className="max-h-[85vh] max-w-full"
           />
-        ) : attachment.type === 'audio' ||
-          attachment.meta?.mimetype?.startsWith('audio/') ? (
-          <audio
+        ) : isAudioAttachment(attachment) ? (
+          <AudioAttachment
+            key={attachment.url}
             src={attachment.url}
-            controls
-            className="w-full min-w-[280px]"
+            label={attachment.filename ?? attachment.description}
+            size={attachment.meta?.size}
+            className="w-full min-w-[280px] max-w-lg"
           />
         ) : attachment.type === 'image' ||
           attachment.meta?.mimetype?.startsWith('image/') ? (

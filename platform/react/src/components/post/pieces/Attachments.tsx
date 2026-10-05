@@ -5,6 +5,7 @@ import type {
 } from '@openpeepshq/common/types';
 import { useStaticRender } from '../../markdown/staticRender';
 import { VideoPlayOverlay } from '../VideoPlayOverlay';
+import { AudioAttachment, isAudioAttachment } from './AudioAttachment';
 import { GalleryModal } from './GalleryModal';
 
 export interface AttachmentsProps {
@@ -28,10 +29,14 @@ export function Attachments({ post }: AttachmentsProps) {
 
   if (attachments.length === 0) return null;
 
-  const single = attachments.length === 1;
+  const indexed = attachments.map((att, idx) => ({ att, idx }));
+  const visual = indexed.filter(({ att }) => !isAudioAttachment(att));
+  const audio = indexed.filter(({ att }) => isAudioAttachment(att));
+
+  const single = visual.length === 1;
   const cols = single
     ? ''
-    : attachments.length === 2
+    : visual.length === 2
       ? 'grid grid-cols-2'
       : 'grid grid-cols-2 grid-rows-2';
   // With a single attachment the grid has no fixed height, so the children
@@ -46,66 +51,81 @@ export function Attachments({ post }: AttachmentsProps) {
 
   return (
     <>
-      <div
-        className={`mt-2 w-full gap-1 overflow-hidden rounded-md ${cols} ${height}`}
-      >
-        {attachments.map((att, idx) => {
-          const tile = (
-            <>
-              {isImage(att) && (att.previewUrl || att.url) ? (
-                <img
-                  src={att.previewUrl ?? att.url ?? ''}
-                  alt={att.description ?? `attachment ${idx + 1}`}
-                  className={mediaClass}
-                />
-              ) : isVideo(att) && (att.previewUrl || att.url) ? (
-                <div className="relative h-full w-full">
-                  <img
-                    src={att.previewUrl ?? att.url ?? ''}
-                    alt={att.description ?? `attachment ${idx + 1}`}
-                    className={mediaClass}
-                  />
-                  <VideoPlayOverlay video />
-                </div>
-              ) : (
-                <div className="text-muted-foreground flex min-h-24 w-full flex-col items-center justify-center gap-1 p-4 text-center text-xs">
-                  <span className="text-foreground break-all font-medium">
-                    {att.filename ?? att.description ?? `Attachment ${idx + 1}`}
-                  </span>
-                  {att.meta?.mimetype ? (
-                    <span className="uppercase">{att.meta.mimetype}</span>
-                  ) : null}
-                </div>
-              )}
-            </>
-          );
+      <div className="mt-2 flex w-full flex-col gap-2">
+        {visual.length > 0 ? (
+          <div
+            className={`w-full gap-1 overflow-hidden rounded-md ${cols} ${height}`}
+          >
+            {visual.map(({ att, idx }) => {
+              const tile = (
+                <>
+                  {isImage(att) && (att.previewUrl || att.url) ? (
+                    <img
+                      src={att.previewUrl ?? att.url ?? ''}
+                      alt={att.description ?? `attachment ${idx + 1}`}
+                      className={mediaClass}
+                    />
+                  ) : isVideo(att) && (att.previewUrl || att.url) ? (
+                    <div className="relative h-full w-full">
+                      <img
+                        src={att.previewUrl ?? att.url ?? ''}
+                        alt={att.description ?? `attachment ${idx + 1}`}
+                        className={mediaClass}
+                      />
+                      <VideoPlayOverlay video />
+                    </div>
+                  ) : (
+                    <div className="text-muted-foreground flex min-h-24 w-full flex-col items-center justify-center gap-1 p-4 text-center text-xs">
+                      <span className="text-foreground break-all font-medium">
+                        {att.filename ??
+                          att.description ??
+                          `Attachment ${idx + 1}`}
+                      </span>
+                      {att.meta?.mimetype ? (
+                        <span className="uppercase">{att.meta.mimetype}</span>
+                      ) : null}
+                    </div>
+                  )}
+                </>
+              );
 
-          if (staticRender) {
-            return (
-              <div
-                key={`${att.url ?? idx}-${idx}`}
-                className={`${tileClass} bg-surface overflow-hidden`}
-              >
-                {tile}
-              </div>
-            );
-          }
+              if (staticRender) {
+                return (
+                  <div
+                    key={`${att.url ?? idx}-${idx}`}
+                    className={`${tileClass} bg-surface overflow-hidden`}
+                  >
+                    {tile}
+                  </div>
+                );
+              }
 
-          return (
-            <button
-              key={`${att.url ?? idx}-${idx}`}
-              type="button"
-              className={`${tileClass} bg-surface overflow-hidden`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setGalleryIndex(idx);
-              }}
-            >
-              {tile}
-            </button>
-          );
-        })}
+              return (
+                <button
+                  key={`${att.url ?? idx}-${idx}`}
+                  type="button"
+                  className={`${tileClass} bg-surface overflow-hidden`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setGalleryIndex(idx);
+                  }}
+                >
+                  {tile}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+
+        {audio.map(({ att, idx }) => (
+          <AudioAttachment
+            key={`${att.url ?? idx}-${idx}`}
+            src={att.url}
+            label={att.filename ?? att.description}
+            size={att.meta?.size}
+          />
+        ))}
       </div>
 
       {galleryIndex !== null ? (
