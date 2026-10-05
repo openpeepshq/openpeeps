@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **notification**: enhance new group post notifications for reposts
 - **hashtags**: allow following hashtags for personal feed inclusion
 - **profile**: use initials as default avatar instead of PNG
 - **tests**: enhance Explore page tests and add data-testid for results
