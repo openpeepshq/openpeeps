@@ -323,6 +323,7 @@ Disable with `OPENPEEPS_MCP=0`. See [Connect an AI assistant
 - `GET /api/openpeeps/core/v1/admin/accounts/[accountId]` - Get account
 - `GET /api/openpeeps/core/v1/admin/accounts/[accountId]/profiles` - Get account profiles
 - `GET /api/openpeeps/core/v1/admin/roles` - List roles
+- `POST /api/openpeeps/core/v1/admin/roles` - Create custom role
 - `GET /api/openpeeps/core/v1/admin/roles/[roleId]` - Get role
 - `PUT /api/openpeeps/core/v1/admin/roles/[roleId]` - Update role
 - `PUT /api/openpeeps/core/v1/admin/profiles/[profileId]/roles` - Update profile roles

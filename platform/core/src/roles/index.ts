@@ -1,4 +1,4 @@
 export * from './finders';
 export * from './mutations';
-export * from './defaults';
+export { defaultRoles } from '@openpeepshq/common/types';
 export * from './mapping';
