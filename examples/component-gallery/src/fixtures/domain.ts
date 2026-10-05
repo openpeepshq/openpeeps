@@ -64,6 +64,7 @@ export const fixtureMe = {
   profileStats: fixtureProfile.profileStats!,
   blockingIds: [],
   blockedByIds: [],
+  followedHashtags: [],
 } as ProfileWithMeta;
 
 export const fixtureGroup = {
