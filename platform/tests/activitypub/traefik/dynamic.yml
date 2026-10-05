@@ -1,0 +1,59 @@
+# Traefik v3 Dynamic Configuration (file provider)
+#
+# TLS stores/options/certificates must live in the *dynamic* config in Traefik v3;
+# the top-level static `certificates`/`tls` keys are not parsed by v3.
+#
+# Default certificate (/certs/tls.crt) is produced by setup.sh:
+#   - local mode: self-signed CA + wildcard cert (containers trust ca.crt)
+#   - public mode: Traefik ACME (certResolver: le); ca.crt = OS bundle for outbound
+#
+# In local mode, routers use `tls: true` which serves the default store cert.
+# In public mode, setup.sh rewrites routers to use `tls: certResolver: le`
+# so Traefik auto-manages Let's Encrypt certificates (HTTP-01 on port 80).
+#
+# HTTP routers are defined statically here (not via Docker labels) because
+# Traefik v3.0's Docker provider hardcodes API version 1.24, which Docker 29.x
+# rejects. setup.sh regenerates this file with the actual DNS_SUFFIX before
+# starting Traefik.
+
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /certs/tls.crt
+        keyFile: /certs/tls.key
+  options:
+    default:
+      minVersion: VersionTLS12
+
+http:
+  routers:
+    alpha:
+      rule: 'Host(`alpha.activity-pub.test.ap.social`)'
+      entrypoints: websecure
+      tls: true
+      service: alpha
+    beta:
+      rule: 'Host(`beta.activity-pub.test.ap.social`)'
+      entrypoints: websecure
+      tls: true
+      service: beta
+    mastodon:
+      rule: 'Host(`mastodon.activity-pub.test.ap.social`)'
+      entrypoints: websecure
+      tls: true
+      service: mastodon
+
+  services:
+    alpha:
+      loadBalancer:
+        servers:
+          - url: 'http://172.50.0.40:8080'
+    beta:
+      loadBalancer:
+        servers:
+          - url: 'http://172.50.0.50:8080'
+    mastodon:
+      loadBalancer:
+        servers:
+          - url: 'http://172.50.0.60:3000'

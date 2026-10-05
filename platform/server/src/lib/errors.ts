@@ -13,7 +13,11 @@ import { isOpenpeepsError } from '@openpeepshq/core/errors';
  * `package.json#exports`.
  */
 const httpError = (status: number, message: string, key?: string) => {
-  const e: any = new Error();
+  const e = new Error() as Error & {
+    __HTTP_ERROR__: true;
+    status: number;
+    key?: string;
+  };
   e.__HTTP_ERROR__ = true;
   e.status = status;
   Object.defineProperty(e, 'message', {

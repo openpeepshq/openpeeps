@@ -30,7 +30,7 @@ export const apiEndpoint = endpoint({ Input, Error, Output }).handle(
     const destPath = join(tmpdir(), restoreFileName);
 
     const writeStream = createWriteStream(destPath);
-    await pipeline(event.request.body as any, writeStream);
+    await pipeline(event.request.body as ReadableStream, writeStream);
 
     await restoreBackups(restoreFileName);
 
