@@ -36,7 +36,7 @@ export function LiveJamsSection() {
               className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4"
             >
               {(liveJamsQuery.data ?? []).map((jam) => (
-                <CardEvent key={jam.id} post={jam} />
+                <CardEvent key={jam.id} post={jam} showEventDate={false} />
               ))}
             </div>
           ) : (

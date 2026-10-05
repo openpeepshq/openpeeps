@@ -16,6 +16,7 @@ import { ProfileEventRelationship } from './ProfileEventRelationship';
 
 export interface CardEventProps {
   post: PublicPost;
+  showEventDate?: boolean;
 }
 
 function formatEventTimespan(event: Event, startIso?: string, endIso?: string) {
@@ -39,7 +40,7 @@ function formatEventTimespan(event: Event, startIso?: string, endIso?: string) {
   return `${datePart} · ${timePart}`;
 }
 
-export function CardEvent({ post }: CardEventProps) {
+export function CardEvent({ post, showEventDate = true }: CardEventProps) {
   const t = useT();
   const me = useCurrentProfile();
   const livekitEnabled = useServerInfo().jams.livekit.enabled;
@@ -78,13 +79,15 @@ export function CardEvent({ post }: CardEventProps) {
       </a>
       <div className="grid gap-y-4 p-4">
         <a href={postLink} className="block text-inherit no-underline">
-          <p className="text-muted-foreground text-sm">
-            {formatEventTimespan(
-              event,
-              post.occurrenceStart,
-              post.occurrenceEnd,
-            )}
-          </p>
+          {showEventDate ? (
+            <p className="text-muted-foreground text-sm">
+              {formatEventTimespan(
+                event,
+                post.occurrenceStart,
+                post.occurrenceEnd,
+              )}
+            </p>
+          ) : null}
           <h3 className="text-xl font-semibold">
             {truncateText(event.name, 100) || '-'}
           </h3>
