@@ -2,7 +2,7 @@ import { endpoint, z } from '#lib/endpoint';
 import { findPost } from '@openpeepshq/core/posts';
 import { publicPostSchema } from '@openpeepshq/common/types';
 import { notFound, forbidden } from '#lib/errors';
-import { ensurePostCapabilities, scopeMatches } from '#lib/auth';
+import { ensurePostCapabilities, serviceScopeMatches } from '#lib/auth';
 
 export const Param = z.object({
   postId: z.string(),
@@ -23,9 +23,9 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
       throw notFound(`Object with id ${param.postId}`);
     }
 
-    const isServiceAuthorized = scopeMatches({
+    const isServiceAuthorized = serviceScopeMatches({
       authorization: event.context.authorization,
-      scope: undefined,
+      scopeLevel: undefined,
       resource: { type: 'jams', id: param.postId },
     });
 

@@ -1,7 +1,7 @@
 import {
   ensurePostCapabilities,
   ensureProfileOrGuest,
-  scopeMatches,
+  serviceScopeMatches,
 } from '#lib/auth';
 import { endpoint, z } from '#lib/endpoint';
 import { jamStateSchema } from '@openpeepshq/common';
@@ -32,9 +32,9 @@ export const apiEndpoint = endpoint({ Output, Param, Query, Error }).handle(
       throw notFound(`Jam with id ${input.eventId} not found`);
     }
 
-    const isServiceAuthorized = scopeMatches({
+    const isServiceAuthorized = serviceScopeMatches({
       authorization: event.context.authorization,
-      scope: undefined,
+      scopeLevel: undefined,
       resource: { type: 'jams', id: input.eventId },
     });
 
