@@ -26,6 +26,7 @@ import { getLatestSchemaVersion } from '../db/pg/migrate';
 import { replaceOrigin } from '../db/replaceOrigin';
 import { logger } from '../log';
 import { setDefaultRoles } from '../roles';
+import { backfillMissingEventOccurrences } from '../posts/eventOccurrences';
 import { serverRootUrl } from '../server';
 import { linkHostPeerDependencies } from '../plugins';
 import { resolveBackupDatabaseType, type BackupMetadata } from './metadata';
@@ -278,7 +279,12 @@ const restoreDatabaseFromBackup = async (
     );
   }
 
-  log.info('Restored %d database rows from backup', total);
+  const backfilled = await backfillMissingEventOccurrences();
+  log.info(
+    'Restored %d database rows from backup; indexed %d events',
+    total,
+    backfilled,
+  );
 };
 
 export const createBackup = async () => {

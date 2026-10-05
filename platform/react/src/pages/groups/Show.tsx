@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useT, useOpenpeeps } from '../../index';
 import {
+  EventsView,
   Feed,
   GroupFeed,
   GroupHeader,
@@ -154,9 +155,15 @@ export function GroupShow() {
               {t('events.feed.past', { defaultValue: 'Past' })}
             </TabButton>
           </nav>
-          <Feed
+          <EventsView
             query={eventsTab === 'upcoming' ? upcomingEvents : pastEvents}
-            formatSwitch={false}
+            agenda={eventsTab}
+            list={
+              <Feed
+                query={eventsTab === 'upcoming' ? upcomingEvents : pastEvents}
+                formatSwitch={false}
+              />
+            }
           />
         </div>
       )}

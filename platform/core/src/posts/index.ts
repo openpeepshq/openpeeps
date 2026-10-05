@@ -22,6 +22,7 @@ export { registerRsvpConfirmationEmail } from './rsvpConfirmationEmail';
 export {
   rebuildEventOccurrences,
   clearEventOccurrences,
+  backfillMissingEventOccurrences,
   rebuildRecurringEventOccurrences,
 } from './eventOccurrences';
 export { listEventAgenda } from './eventAgenda';

@@ -1,6 +1,9 @@
 import { queueAndWorker } from '../jobs';
 import { logger } from '../log';
-import { rebuildRecurringEventOccurrences } from './eventOccurrences';
+import {
+  backfillMissingEventOccurrences,
+  rebuildRecurringEventOccurrences,
+} from './eventOccurrences';
 
 const log = logger('app:posts:eventOccurrences');
 
@@ -15,8 +18,11 @@ const [eventOccurrenceQueue, eventOccurrenceWorker] = queueAndWorker<
 >(
   QUEUE_NAME,
   async () => {
+    const backfilled = await backfillMissingEventOccurrences();
     const rebuilt = await rebuildRecurringEventOccurrences();
-    log.info(`Rebuilt occurrence index for ${rebuilt} recurring events`);
+    log.info(
+      `Backfilled ${backfilled} events missing an occurrence index; rebuilt ${rebuilt} recurring events`,
+    );
   },
   {
     defaultJobOptions: {
@@ -36,6 +42,10 @@ export const ensureEventOccurrenceSchedule = async (): Promise<void> => {
   log.info(
     `Event occurrence schedule registered: cron="${EVENT_OCCURRENCE_CRON}"`,
   );
+  const backfilled = await backfillMissingEventOccurrences();
+  if (backfilled > 0) {
+    log.info(`Backfilled occurrence index for ${backfilled} events`);
+  }
 };
 
 export { eventOccurrenceQueue, eventOccurrenceWorker };
