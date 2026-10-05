@@ -30,6 +30,34 @@ export const clearEventOccurrences = async (postId: string): Promise<void> => {
   await db.delete(eventOccurrences).where(eq(eventOccurrences.postId, postId));
 };
 
+/**
+ * JSONL restores bring posts back without `event_occurrences`. The agenda
+ * reads only that index, so a restored community would show no events until
+ * each one is edited. Recurring series are rebuilt by the daily job.
+ */
+export const backfillMissingEventOccurrences = async (): Promise<number> => {
+  const db = await database();
+  const rows = await db
+    .select({ id: posts.id, body: posts.body })
+    .from(posts)
+    .where(
+      and(
+        eq(posts.type, 'event'),
+        isNull(posts.deletedAt),
+        sql`NOT EXISTS (SELECT 1 FROM ${eventOccurrences} WHERE ${eventOccurrences.postId} = ${posts.id})`,
+      ),
+    );
+
+  let rebuilt = 0;
+  for (const row of rows) {
+    const event = row.body as Event;
+    if (event?.type !== 'event' || !event.start) continue;
+    await rebuildEventOccurrences(row.id, event);
+    rebuilt += 1;
+  }
+  return rebuilt;
+};
+
 export const rebuildRecurringEventOccurrences = async (): Promise<number> => {
   const db = await database();
   const rows = await db

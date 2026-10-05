@@ -52,6 +52,10 @@ vi.mock('../db/replaceOrigin', () => ({
   replaceOrigin: vi.fn(async () => undefined),
 }));
 
+vi.mock('../posts/eventOccurrences', () => ({
+  backfillMissingEventOccurrences: vi.fn(async () => 0),
+}));
+
 vi.mock('../roles', () => ({
   setDefaultRoles: vi.fn(async () => undefined),
 }));

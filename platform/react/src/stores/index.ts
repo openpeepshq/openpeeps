@@ -11,6 +11,8 @@ export {
 } from './breadcrumbs';
 export { pageHeaderStore, usePageHeader, useSetPageHeader } from './pageHeader';
 export { feedFormatSessionStore, useFeedFormatSession } from './feedFormat';
+export { eventViewStore, useEventView } from './eventView';
+export type { EventView } from './eventView';
 export {
   plusButtonStore,
   usePlusButton,

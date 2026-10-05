@@ -4,6 +4,7 @@ import { ChevronRight, MoreHorizontal } from 'lucide-react';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
 import {
   EventsFeed,
+  EventsView,
   NewEventButton,
   useCurrentProfile,
   useDefaultVisibility,
@@ -67,7 +68,11 @@ export function EventsIndex() {
           {t('events.feed.past', { defaultValue: 'Past' })}
         </TabButton>
       </nav>
-      <EventsFeed query={activeQuery} />
+      <EventsView
+        query={activeQuery}
+        agenda={tab}
+        list={<EventsFeed query={activeQuery} />}
+      />
     </div>
   );
 }
