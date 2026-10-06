@@ -5,6 +5,13 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **capabilities**: add roles and relations capability matrices and custom role creation
+- **media**: enhance audio handling and waveform generation
+- **account**: add user-facing export of account data
+- **events**: introduce EventsView component for enhanced event display
+- **rsvp**: implement RSVP cancellation handling and notifications
+- **conversations**: allow leaving DM threads
+- **media**: implement media upload size configuration
 - **notification**: enhance new group post notifications for reposts
 - **hashtags**: allow following hashtags for personal feed inclusion
 - **profile**: use initials as default avatar instead of PNG
@@ -14,6 +21,10 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **authz**: require service identity for jam/post service checks
+- **jams**: hide event date line in live jams list
+- **gallery**: add followedHashtags to ProfileWithMeta fixture
+- **posts**: allow anonymous access to posts in public groups
 - **plugins**: fix auth response typing and dev asset proxy
 - **email**: use repost-specific i18n key in email notification
 - **jams**: enforce RSVP capacity for live recurring events
@@ -28,6 +39,8 @@ Changelog for OpenPeeps
 
 ### Documentation
 
+- **admin**: add roles and capabilities documentation
+- **tests**: update UI test plans and README with new event features
 - add one-PR-per-fix requirement to AGENTS.md and PR readiness skill
 - **planning**: refresh the roadmap timeline
 
