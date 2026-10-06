@@ -37,6 +37,18 @@ export const JAM_ROOM_EMPTY_TIMEOUT_SEC = 5 * 60;
 /** Seconds a room stays open after the last participant leaves. */
 export const JAM_ROOM_DEPARTURE_TIMEOUT_SEC = 60;
 
+/**
+ * LiveKit closes rooms with no participants via emptyTimeout (host still
+ * connecting after Start) and departureTimeout (reconnect). Those rooms must
+ * not be deleted here. Reclaim only when a non-human participant (egress) is
+ * holding the room open — they count toward `numParticipants`, so LiveKit
+ * will not time the room out.
+ */
+export const shouldReclaimJamRoom = (
+  numParticipants: number,
+  humanCount: number,
+) => humanCount === 0 && numParticipants > 0;
+
 export const roomService = async () => {
   const { url, apiKey, apiSecret } = (await config()).jams.livekit;
   if (!url || !apiKey || !apiSecret) {
@@ -355,8 +367,9 @@ export const stopRecording = async (
 };
 
 /**
- * Stops leftover egress and deletes a LiveKit room that has no human
- * participants (egress-only / orphan rooms). Safe to call repeatedly.
+ * Stops leftover egress and deletes an egress-only LiveKit room.
+ * Do not call this for a room with zero participants — that room is still
+ * inside emptyTimeout or departureTimeout. Safe to call repeatedly.
  */
 export const reclaimOrphanJamRoom = async (
   jam: PostWithMeta,
@@ -422,10 +435,14 @@ export const jamState = async (
     if (!room) {
       return inactive;
     }
+    // No one has joined yet, or the last person just left. Leave the room
+    // for LiveKit's empty/departure timeout so a host on "Connecting" is
+    // not kicked back to the lobby.
+    if (!room.numParticipants) {
+      return inactive;
+    }
     const participants = await listParticipantIds(roomName);
-    if (participants.length === 0) {
-      // Room exists only for egress ghosts / empty leftovers — reclaim so it
-      // stops appearing under Live jams.
+    if (shouldReclaimJamRoom(room.numParticipants, participants.length)) {
       void reclaimOrphanJamRoom(jam, roomName);
       return inactive;
     }

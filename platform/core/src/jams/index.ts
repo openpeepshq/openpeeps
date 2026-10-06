@@ -13,6 +13,7 @@ import {
   listParticipantIds,
   reclaimOrphanJamRoom,
   roomService,
+  shouldReclaimJamRoom,
   stopRecording,
   stopRtmpStream,
 } from './livekit';
@@ -105,21 +106,17 @@ const fetchLiveJamPosts = async (): Promise<PostWithMeta[]> => {
       }
 
       const postId = postIdFromJamRoomName(room.name);
-      // Fast path: Room.numParticipants includes hidden egress — 0 means truly empty.
+      // Zero participants: host may still be connecting after Start, or the
+      // room is inside departureTimeout. LiveKit closes these; deleting them
+      // drops the host back to the join screen.
       if (!room.numParticipants) {
-        const post = await findPost(postId);
-        if (post) {
-          reclaimLocalOrphan(post);
-        } else if (!roomDomain || roomDomain === localDomain) {
-          void rs.deleteRoom(room.name).catch(() => undefined);
-        }
         return undefined;
       }
 
-      // Slow path only when someone (human or egress) is connected — distinguish
-      // egress-only ghosts from real live jams.
+      // Someone is connected. Egress counts toward numParticipants, so an
+      // egress-only room never hits emptyTimeout and has to be reclaimed.
       const humans = await listParticipantIds(room.name);
-      if (humans.length === 0) {
+      if (shouldReclaimJamRoom(room.numParticipants, humans.length)) {
         const post = await findPost(postId);
         if (post) {
           reclaimLocalOrphan(post);
