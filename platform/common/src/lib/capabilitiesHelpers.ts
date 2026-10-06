@@ -62,6 +62,17 @@ export const mergeCapabilities = (
   };
 };
 
+/** Order-independent equality check for two capability add/remove lists. */
+export const capabilitySetsEqual = (
+  a: string[] | undefined,
+  b: string[] | undefined,
+) => {
+  const sa = new Set(a ?? []);
+  const sb = new Set(b ?? []);
+  if (sa.size !== sb.size) return false;
+  return [...sa].every((value) => sb.has(value));
+};
+
 export const checkRoleCapabilities = (
   roles: Role[] = [],
   neededCapabilities: string[],

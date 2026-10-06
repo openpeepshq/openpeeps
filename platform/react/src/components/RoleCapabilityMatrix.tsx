@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Role } from '@openpeepshq/common/types';
-import { roleCapabilityEditorKeys } from '@openpeepshq/common/types';
+import {
+  currentRoleDefaults,
+  defaultRoles,
+  roleCapabilityEditorKeys,
+} from '@openpeepshq/common/types';
 import { checkRoleCapabilities } from '@openpeepshq/common/lib';
 import { Button, Input, Switch, Toast } from '@openpeepshq/react-ui';
 import { useT } from '../i18n';
@@ -14,6 +18,8 @@ import { filterRoles, roleDefaultCapabilities } from '../lib/capabilityMatrix';
 export interface RoleCapabilityMatrixProps {
   roles: Role[];
 }
+
+const builtInRoleKeys = new Set(defaultRoles.map((role) => role.key));
 
 /**
  * Instance-admin matrix for the capabilities of every role. Columns are the
@@ -105,6 +111,12 @@ export function RoleCapabilityMatrix({ roles }: RoleCapabilityMatrixProps) {
                 displayName: role.displayName,
                 description: role.description,
                 capabilities: draft[role.key] ?? role.capabilities,
+                // Anchor built-in roles to the defaults version they are
+                // customized against, so later default changes can be merged
+                // back into the customization on server start.
+                ...(builtInRoleKeys.has(role.key)
+                  ? { baseVersion: currentRoleDefaults.version }
+                  : {}),
               },
               { roleId: role.id },
             ),
@@ -162,7 +174,7 @@ export function RoleCapabilityMatrix({ roles }: RoleCapabilityMatrixProps) {
           i18nPrefix="capabilities.roles"
           stateI18nPrefix="groups.capabilities.state"
           everyoneColumn={undefined}
-          defaultCapabilities={roleDefaults}
+          defaultCapabilities={loadedDraft}
         />
       )}
       <div className="flex items-center gap-3 px-1">
