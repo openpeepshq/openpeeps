@@ -14,16 +14,21 @@ A capability is a string of the form `core-<area>-<action>`, e.g.
 articles, events), and `*` (Owner only) grants every action in the system.
 
 Built-in role → capability mappings live in
-`platform/common/src/types/roleDefaults.ts` (`defaultRoles`).
+`platform/common/src/types/roleDefaults.ts`. That file keeps an immutable,
+dated history of the defaults (`roleDefaultsHistory`); `defaultRoles` is the
+last (current) entry. When the default capabilities change, append a new
+entry instead of editing an existing one.
 
 <div style="height:20px"></div>
 
 ## Instance roles and custom roles
 
-A role is a document with `key`, `default`, `displayName`, `description`, and
-`capabilities` (`add`/`remove` lists). `default: true` marks the built-in
-roles seeded from `defaultRoles` at server start; `default: false` marks
-custom roles created through the admin UI.
+A role is a document with `key`, `default`, `baseVersion`, `displayName`,
+`description`, and `capabilities` (`add`/`remove` lists). `default: true`
+marks the built-in roles seeded from `defaultRoles` at server start;
+`default: false` marks custom roles created through the admin UI.
+`baseVersion` records the defaults history version a built-in role's
+capabilities were based on.
 
 Admin API (under `/api/openpeeps/core/v1/admin`):
 
@@ -32,13 +37,22 @@ Admin API (under `/api/openpeeps/core/v1/admin`):
 - `POST /roles` — create a custom role (requires `core-roles-update`);
   always stores `default: false` and returns 409 if the key exists. Keys
   match `/^[a-z-]{1,32}$/`.
-- `PUT /roles/:roleId` — update a role's name, description, and capabilities
-  (requires `core-roles-update`)
+- `PUT /roles/:roleId` — update a role's name, description, capabilities,
+  and `baseVersion` (requires `core-roles-update`); storing capabilities
+  that exactly match the system defaults marks the role `default: true` and
+  re-anchors its `baseVersion` to the current version
 
 Note: `setDefaultRoles` (run on server start, see
-`platform/core/src/roles/mutations.ts`) resets every built-in role to its
-factory capabilities, so saved edits to built-in roles do not survive a
-restart. Custom roles are untouched.
+`platform/core/src/roles/mutations.ts`) creates missing built-in roles, keeps
+roles marked `default: true` in sync with the current factory capabilities
+(saved edits to such a role are overwritten on the next server start), and
+(re-)marks roles whose capabilities exactly match the system defaults as
+`default: true` (re-anchoring their `baseVersion` to the current version) —
+so a role restored to the defaults receives future default updates. Roles
+marked `default: false` keep their customizations; a built-in
+role that carries a `baseVersion` additionally gets the capabilities the
+system defaults gained (and lost) since that version merged in, and is
+re-anchored to the current version.
 
 The admin UI renders roles and relationships as capability matrices
 (`platform/react/src/components/RoleCapabilityMatrix.tsx` and

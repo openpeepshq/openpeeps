@@ -64,7 +64,7 @@ per capability, grouped by area. Click a cell to cycle: **empty → allowed
 (+) → denied (−)**. A tilde (`~`) means the capability is allowed through a
 wildcard entry (for example `core-posts-*`), and a cross (`×`) means it is
 denied through a wildcard and cannot be changed in that cell. Cells that
-differ from the role's default capabilities are highlighted.
+differ from the role's saved capabilities are highlighted.
 
 - **New role** — creates a custom role. Enter a name (up to 32 characters);
   the role key is derived from it automatically (lowercase letters and
@@ -76,11 +76,17 @@ differ from the role's default capabilities are highlighted.
   hidden roles still count for saving.
 - **Save** — persists the changed roles (available while a role differs
   from its saved capabilities).
-- **Restore defaults** — reverts the built-in roles to their factory
-  capabilities and custom roles to their last saved state; press **Save**
-  to make it stick. The former "Members can create events" and "All Members
-  can create groups" toggles are now part of the Member column
-  (`core-posts-create-*` and `core-groups-create`).
+- **Restore defaults** — loads the system default capabilities for the
+  built-in roles (custom roles reset to their last saved state) and
+  highlights what would change; press **Save** to apply, or keep editing on
+  top of it. A role saved with exactly the system defaults is treated as a
+  default role again and receives future default updates. The former "Members
+  can create events" and "All Members can create groups" toggles are now part
+  of the Member column (`core-posts-create-*` and `core-groups-create`).
+
+When an OpenPeeps update adds capabilities to the default roles, customized
+default roles receive the new capabilities automatically on the next server
+start — their other edits are kept.
 
 Editing the matrix requires the `core-roles-update` capability (Owner by
 default); other admin roles can view it.

@@ -105,6 +105,8 @@ export type Account = Model<AccountData>;
 export const roleDataSchema = z.object({
   key: z.string().regex(/^[a-z-]{1,32}$/),
   default: z.boolean(),
+  /** Defaults history version the role's capabilities were based on. */
+  baseVersion: z.string().optional(),
   displayName: z.string().max(32),
   description: z.string().optional(),
   capabilities: capabilitiesSchema,
