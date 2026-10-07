@@ -11,26 +11,33 @@ export const Error = {
   401: authNeeded(),
 };
 
-export const apiEndpoint = endpoint({ Output, Error }).handle(async () =>
+const loadServerInfo = async () => {
+  // `serverInfo` only checks that LiveKit credentials exist. Probe the SFU so
+  // broken keys/URLs disable jam start in the UI instead of failing on join.
+  const [info, livekitConnected] = await Promise.all([
+    serverInfo(),
+    isLivekitConnected(),
+  ]);
+  return {
+    ...info,
+    jams: {
+      ...info.jams,
+      livekit: {
+        ...info.jams.livekit,
+        enabled: livekitConnected,
+      },
+    },
+  };
+};
+
+export const apiEndpoint = endpoint({ Output, Error }).handle(async () => {
+  // Integration restores a new backup into this process. The 10-minute payload
+  // cache would keep the previous fixture's publicContent.
+  if (process.env.DISABLE_CONFIG_CACHE === 'true') {
+    return loadServerInfo();
+  }
   // Reuse one JSON payload per 10-minute wall-clock bucket. Shipped RN clients
   // remount auth whenever /server/info identity changes (uptime + disk.freeBytes
   // otherwise churn every request).
-  stablePublicServerInfo.get(async () => {
-    // `serverInfo` only checks that LiveKit credentials exist. Probe the SFU so
-    // broken keys/URLs disable jam start in the UI instead of failing on join.
-    const [info, livekitConnected] = await Promise.all([
-      serverInfo(),
-      isLivekitConnected(),
-    ]);
-    return {
-      ...info,
-      jams: {
-        ...info.jams,
-        livekit: {
-          ...info.jams.livekit,
-          enabled: livekitConnected,
-        },
-      },
-    };
-  }),
-);
+  return stablePublicServerInfo.get(loadServerInfo);
+});

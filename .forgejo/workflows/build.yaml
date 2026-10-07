@@ -32,13 +32,18 @@ jobs:
       - name: Checkout (resolve SHA for workflow_call when forgejo.sha is empty)
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           token: ${{ forgejo.token }}
           ref: ${{ inputs.override_sha != '' && inputs.override_sha || forgejo.sha || forgejo.ref }}
       - name: Set variables
         id: vars
+        env:
+          JAMS_LIVEKIT_URL: ${{ secrets.JAMS_LIVEKIT_URL }}
+          JAMS_LIVEKIT_API_KEY: ${{ secrets.JAMS_LIVEKIT_API_KEY }}
+          JAMS_LIVEKIT_API_SECRET: ${{ secrets.JAMS_LIVEKIT_API_SECRET }}
         run: |
           ref_name="${{ forgejo.ref_name }}"
+          jams_enabled=$(if [ -n "$JAMS_LIVEKIT_URL" ] && [ -n "$JAMS_LIVEKIT_API_KEY" ] && [ -n "$JAMS_LIVEKIT_API_SECRET" ]; then echo "true"; else echo "false"; fi)
           sha="$(git rev-parse HEAD)"
           if [ -z "$sha" ]; then
             echo "Could not resolve commit SHA after checkout." >&2
@@ -99,6 +104,7 @@ jobs:
           echo "is_release_branch=$is_release_branch" >> $FORGEJO_OUTPUT
           echo "registry_image_base=$registry_image_base" >> $FORGEJO_OUTPUT
           echo "image_repo=$image_repo" >> $FORGEJO_OUTPUT
+          echo "jams_enabled=$jams_enabled" >> $FORGEJO_OUTPUT
           echo "Sentry/runtime ENVIRONMENT=$environment (branch=$ref_name)"
     outputs:
       tag: ${{ steps.vars.outputs.tag }}
@@ -110,6 +116,7 @@ jobs:
       is_release_branch: ${{ steps.vars.outputs.is_release_branch }}
       registry_image_base: ${{ steps.vars.outputs.registry_image_base }}
       image_repo: ${{ steps.vars.outputs.image_repo }}
+      jams_enabled: ${{ steps.vars.outputs.jams_enabled }}
 
   build:
     runs-on: docker
@@ -122,7 +129,7 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
-          fetch-depth: 0
+          fetch-depth: 1
       - name: Set image and version
         run: |
           echo "REGISTRY_IMAGE_BASE=${{ needs.set-variables.outputs.registry_image_base }}" >> $GITHUB_ENV
@@ -149,10 +156,22 @@ jobs:
           if docker manifest inspect "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}" >/dev/null 2>&1; then
             echo "Image ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }} already exists; skipping build."
           else
+            # Every job runs on a throwaway VM, so the only cache that survives
+            # is in the registry. The docker-container driver is required to
+            # export intermediate layers (mode=max); the default driver cannot.
+            docker buildx create --name ci --driver docker-container --use
+            image="${{ needs.set-variables.outputs.registry_image_base }}"
+            cache="${image}:buildcache"
+            cache_from=""
+            if docker manifest inspect "${cache}" >/dev/null 2>&1; then
+              cache_from="--cache-from type=registry,ref=${cache}"
+            fi
             docker buildx build \
+              ${cache_from} \
+              --cache-to "type=registry,ref=${cache},mode=max" \
               --build-arg "VERSION=${{ needs.set-variables.outputs.version }}" \
               --build-arg "ENVIRONMENT=${{ needs.set-variables.outputs.environment }}" \
-              -t "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}" --push .
+              -t "${image}:${{ needs.set-variables.outputs.short_sha }}" --push .
           fi
 
   test-unit:
@@ -189,7 +208,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [empty, default, public, sso, perf]
+        # `empty` is the long suite and gets its own stack. `small` runs sso,
+        # default, public, and perf on one stack; each is seconds of tests
+        # and a separate VM plus service stack per suite dominated the cost.
+        suite: [empty, small]
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     services:
@@ -266,14 +288,12 @@ jobs:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install pnpm and dependencies
         run: |
-          # unzip: fixture restore. build-essential: bcrypt/sharp node-gyp
-          # fallback when GitHub prebuild downloads fail (500/timeout).
-          apt-get update -qq && apt-get install -y -qq unzip build-essential
+          # Browsers ship with the Playwright image; only the test package and
+          # core (fixture restore) are needed, not the whole workspace.
+          apt-get update -qq && apt-get install -y -qq unzip
           corepack enable
-          pnpm install
+          pnpm install --frozen-lockfile --filter "@openpeepshq/tests..."
           pnpm --filter @openpeepshq/core... build
-          cd platform/tests
-          pnpm exec playwright install chromium chromium-headless-shell
       - name: Wait for web service
         run: |
           for i in $(seq 1 60); do
@@ -286,23 +306,20 @@ jobs:
           done
           echo "Web service did not become ready in time" >&2
           exit 1
-      - name: Restore backup fixture
-        if: matrix.suite == 'default' || matrix.suite == 'public' || matrix.suite == 'perf'
+      - name: Run empty suite
+        if: matrix.suite == 'empty'
         env:
+          CI: "true"
+          PLAYWRIGHT_BASE_URL: http://web:8080
+          MAILPIT_URL: http://mailpit:8025
+          PUSH_CATCHER_URL: http://pushcatcher:8080
+          PUSH_CATCHER_ASSERT: delivery-only
+          INTEGRATION_SUITE: empty
+          INTEGRATION_SKIP_RESTORE: "true"
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
-          JWT_SECRET: xxx
-          MEDIA_STORAGE_PARAMS_PATH: /tmp/openpeeps-media
-          LOGS_LOCAL_PATH: /tmp/openpeeps-logs
-        run: |
-          fixture=default-install.zip
-          if [ "${{ matrix.suite }}" = "public" ]; then
-            fixture=public-community.zip
-          elif [ "${{ matrix.suite }}" = "perf" ]; then
-            fixture=perf-scale.zip
-          fi
-          node platform/tests/scripts/restore-fixture.mjs "fixtures/backups/${fixture}"
-      - name: Run integration suite
-        if: matrix.suite != 'perf'
+        run: pnpm --filter @openpeepshq/tests run test:integration:empty
+      - name: Run sso, default, public, and perf suites
+        if: matrix.suite == 'small'
         env:
           CI: "true"
           PLAYWRIGHT_BASE_URL: http://web:8080
@@ -310,14 +327,11 @@ jobs:
           PUSH_CATCHER_URL: http://pushcatcher:8080
           PUSH_CATCHER_ASSERT: delivery-only
           OAUTH_ISSUER_URL: http://oauth:8080/default
-          INTEGRATION_SUITE: ${{ matrix.suite }}
           INTEGRATION_SKIP_RESTORE: "true"
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
-        run: pnpm --filter @openpeepshq/tests run "test:integration:${{ matrix.suite }}"
-      - name: Run API performance suite
-        if: matrix.suite == 'perf'
-        env:
-          CI: "true"
+          JWT_SECRET: xxx
+          MEDIA_STORAGE_PARAMS_PATH: /tmp/openpeeps-media
+          LOGS_LOCAL_PATH: /tmp/openpeeps-logs
           PERF_BASE_URL: http://web:8080
           PERF_EMAIL: trinay+0@allpeep.com
           PERF_PASSWORD: perf-password-1
@@ -325,14 +339,22 @@ jobs:
           PERF_ITERATIONS: "5"
           PERF_WARMUP: "1"
           PERF_REQUIRE_PROFILE_GRAPH: "1"
-          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
-        run: pnpm --filter @openpeepshq/tests run test:integration:perf
+        run: |
+          set -e
+          # sso seeds the migrated empty database, so it runs before any
+          # fixture is restored. Each restore truncates and replaces the data.
+          pnpm --filter @openpeepshq/tests run test:integration:sso
+          for suite in default:default-install public:public-community perf:perf-scale; do
+            node platform/tests/scripts/restore-fixture.mjs "fixtures/backups/${suite#*:}.zip"
+            pnpm --filter @openpeepshq/tests run "test:integration:${suite%%:*}"
+          done
 
   test-integration-jams:
     runs-on: docker
     needs: [build, set-variables]
-    # Non-blocking when LiveKit secrets are absent; suite self-skips on placeholders.
-    continue-on-error: true
+    # Without LiveKit credentials the suite would only self-skip, so do not
+    # spend a VM and a service stack on it.
+    if: needs.set-variables.outputs.jams_enabled == 'true'
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
     services:
@@ -401,11 +423,8 @@ jobs:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install pnpm and dependencies
         run: |
-          apt-get update -qq && apt-get install -y -qq build-essential
           corepack enable
-          pnpm install
-          cd platform/tests
-          pnpm exec playwright install chromium chromium-headless-shell
+          pnpm install --frozen-lockfile --filter "@openpeepshq/tests..."
       - name: Wait for web service
         run: |
           for i in $(seq 1 60); do
