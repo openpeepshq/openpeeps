@@ -6,9 +6,12 @@ import {
 } from '@playwright/test';
 import {
   apiHeaders,
+  createEvent,
   createGroup,
   currentProfile,
+  getAdminConfig,
   loginUser,
+  patchAdminConfig,
   registerUser,
   uniqueHandle,
 } from '../../../helpers/api';
@@ -29,6 +32,7 @@ const noteCapabilities = [
   'core-posts-create-article-*',
 ];
 
+const publicVisibility = /Everyone on the internet can join/;
 const communityVisibility = /Everyone in the community can join/;
 const groupVisibility = /Only people in the selected group can see and join/;
 const directVisibility = /Only individuals you invite can see this event/;
@@ -212,6 +216,37 @@ const signIn = async (page: Page, token: string) => {
   await expect(page.getByTestId(testIds.feeds.communityHeading)).toBeVisible();
 };
 
+const signOut = async (page: Page) => {
+  await page.goto('/auth/login');
+  await page.evaluate(
+    (key) => window.localStorage.removeItem(key),
+    credentialsStorageKey,
+  );
+};
+
+/** Toggles `server.publicContent` so visitors may browse without signing in. */
+const withPublicContent = async (
+  request: APIRequestContext,
+  ownerToken: string,
+  run: () => Promise<void>,
+) => {
+  const { config } = await getAdminConfig(
+    request,
+    ownerToken,
+    'openpeeps',
+    'core',
+  );
+  try {
+    await patchAdminConfig(request, ownerToken, 'openpeeps', 'core', {
+      ...config,
+      server: { ...config.server, publicContent: true },
+    });
+    await run();
+  } finally {
+    await patchAdminConfig(request, ownerToken, 'openpeeps', 'core', config);
+  }
+};
+
 const openFreshEventForm = async (page: Page) => {
   // The composer keeps the last draft, including a group audience.
   await page.evaluate(() => window.localStorage.removeItem('new-event-state'));
@@ -324,7 +359,72 @@ const expectEventListed = async (page: Page, path: string, name: string) => {
   await expect(page.getByText(name).first()).toBeVisible();
 };
 
+/** Waits for the feed request behind `path` before asserting `name` is absent. */
+const expectEventMissing = async (
+  page: Page,
+  path: string,
+  feedPath: string,
+  name: string,
+) => {
+  const loaded = page.waitForResponse(
+    (response) => response.url().includes(feedPath) && response.ok(),
+  );
+  await page.goto(path);
+  await loaded;
+  await expect(page.getByText(name)).toHaveCount(0);
+};
+
+const expectEventPage = async (page: Page, event: CreatedEvent) => {
+  await page.goto(`/posts/${event.id}`);
+  await expect(
+    page.getByRole('heading', { name: event.data.name }),
+  ).toBeVisible();
+};
+
 test.describe('creating events', () => {
+  test('a public event is visible to visitors who are not signed in', async ({
+    page,
+    request,
+  }) => {
+    const owner = await loginUser(
+      request,
+      ownerLogin.email,
+      ownerLogin.password,
+    );
+    const previous = await memberRole(request, owner.token);
+
+    try {
+      await saveRole(
+        request,
+        owner.token,
+        withMemberEventCreation(previous, true),
+      );
+      await withPublicContent(request, owner.token, async () => {
+        const host = await createMember(request, owner.token, 'pu');
+        const eventName = `Public jam ${uniqueHandle('pe')}`;
+        const communityName = `Community only ${uniqueHandle('co')}`;
+        await createEvent(request, host.token, communityName);
+
+        await signIn(page, host.token);
+        await openFreshEventForm(page);
+        await fillJamEventDetails(page, eventName);
+        const dialog = await openAudience(page);
+        await dialog.getByRole('button', { name: publicVisibility }).click();
+        await confirmAudience(page);
+
+        const created = await publishEvent(page);
+        expect(created.visibility).toBe('public');
+
+        await signOut(page);
+        await expectEventPage(page, created);
+        await expectEventListed(page, '/events', eventName);
+        await expect(page.getByText(communityName)).toHaveCount(0);
+      });
+    } finally {
+      await saveRole(request, owner.token, previous);
+    }
+  });
+
   test('community members can publish a jam event to the community feed', async ({
     page,
     request,
@@ -428,7 +528,7 @@ test.describe('creating events', () => {
     }
   });
 
-  test('a member can add a jam event to a group calendar', async ({
+  test('a group jam event shows on the group calendar and in members’ my feed', async ({
     page,
     request,
   }) => {
@@ -438,6 +538,8 @@ test.describe('creating events', () => {
       ownerLogin.password,
     );
     const member = await createMember(request, owner.token, 'gm');
+    const fellowMember = await createMember(request, owner.token, 'gf');
+    const outsider = await createMember(request, owner.token, 'go');
     const groupName = `Calendar ${uniqueHandle('cal')}`;
     const group = await createGroup(request, owner.token, {
       handle: uniqueHandle('cal'),
@@ -445,6 +547,7 @@ test.describe('creating events', () => {
       capabilities: groupCapabilities(true),
     });
     await joinGroup(request, member.token, group.id);
+    await joinGroup(request, fellowMember.token, group.id);
     const eventName = `Group jam ${uniqueHandle('gj')}`;
 
     await signIn(page, member.token);
@@ -461,6 +564,12 @@ test.describe('creating events', () => {
     await page.goto(`/groups/@${group.handle}`);
     await page.getByTestId(testIds.groups.tabEvents).click();
     await expect(page.getByText(eventName).first()).toBeVisible();
+
+    await signIn(page, fellowMember.token);
+    await expectEventListed(page, '/feeds/my', eventName);
+
+    await signIn(page, outsider.token);
+    await expectEventMissing(page, '/feeds/my', '/posts/feeds/my', eventName);
   });
 
   test('admins-only groups hide event creation from regular members', async ({
@@ -556,26 +665,23 @@ test.describe('creating events', () => {
       expect(created.data.jam).toBeTruthy();
 
       await signIn(page, invited.token);
+      await expectEventPage(page, created);
       await expectEventListed(page, '/events', eventName);
       await expectEventListed(page, '/conversations', eventName);
 
       await signIn(page, outsider.token);
-      const upcoming = page.waitForResponse(
-        (response) =>
-          response.url().includes('/posts/feeds/events/upcoming') &&
-          response.ok(),
+      await expectEventMissing(
+        page,
+        '/events',
+        '/posts/feeds/events/upcoming',
+        eventName,
       );
-      await page.goto('/events');
-      await upcoming;
-      await expect(page.getByText(eventName)).toHaveCount(0);
-
-      const localFeed = page.waitForResponse(
-        (response) =>
-          response.url().includes('/posts/feeds/local') && response.ok(),
+      await expectEventMissing(
+        page,
+        '/feeds/local',
+        '/posts/feeds/local',
+        eventName,
       );
-      await page.goto('/feeds/local');
-      await localFeed;
-      await expect(page.getByText(eventName)).toHaveCount(0);
 
       await page.goto(`/posts/${created.id}`);
       await expect(

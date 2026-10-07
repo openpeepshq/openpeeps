@@ -230,9 +230,10 @@ Existing suite folders (for gap awareness only): `suites/empty/ui`,
 | UI-EVT-11 | Join jam from event            | jam event + LiveKit | Navigates jam room       | jams     |
 | UI-EVT-12 | Member publishes jam to community feed | members can create events | Another member sees it on the community feed and Events | empty/ui/event-creation |
 | UI-EVT-13 | Community visibility blocked   | members cannot create events | Community option hidden, or create stays disabled / API error | empty/ui/event-creation |
-| UI-EVT-14 | Member adds jam to group calendar | group lets members create events | Event on the group Events tab | empty/ui/event-creation |
+| UI-EVT-14 | Member adds jam to group calendar | group lets members create events | Event on the group Events tab and in group members' My feed; non-members' My feed omits it | empty/ui/event-creation |
 | UI-EVT-15 | Admins-only group event create | regular member of that group | No New event button; group absent from visibility groups | empty/ui/event-creation |
-| UI-EVT-16 | Private jam for specific people | members can create events | Invitee sees Events and Messages; outsider cannot open it | empty/ui/event-creation |
+| UI-EVT-16 | Private jam for specific people | members can create events | Invitee opens the event page, sees Events and Messages; outsider cannot open it | empty/ui/event-creation |
+| UI-EVT-17 | Public jam for visitors | members can create events, `publicContent` on | Signed-out visitor opens the event page and sees it on Events; community-only event stays hidden | empty/ui/event-creation |
 
 ---
 
