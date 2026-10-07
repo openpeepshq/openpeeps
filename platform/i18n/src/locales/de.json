@@ -1057,7 +1057,9 @@
       "startStopTitle": "Bildschirmfreigabe starten/beenden",
       "stopSharing": "Freigabe beenden",
       "youPresenting": "(Sie präsentieren)",
-      "presenting": "(präsentiert)"
+      "presenting": "(präsentiert)",
+      "showGrid": "Alle anzeigen",
+      "backToPresentation": "Zurück zur Präsentation"
     },
     "reactions": {
       "sendTitle": "Reaktion senden",
