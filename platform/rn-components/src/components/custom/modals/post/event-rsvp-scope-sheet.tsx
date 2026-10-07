@@ -67,17 +67,29 @@ export const EventRsvpScopeSheet = forwardRef<
       response === 'yes' &&
       !!currentProfile &&
       seriesYesBlockedByCapacity(post, currentProfile.id);
-    const [scope, setScope] = useState<ScopeKind>(
-      defaultRecurrenceId ? 'this' : 'series'
-    );
+    const occurrenceIsFull = (recurrenceId: string) =>
+      response === 'yes' &&
+      capacityEvent &&
+      event?.maxAttendees !== undefined &&
+      getEffectiveRsvp(post, currentProfile?.id ?? '', recurrenceId)
+        ?.response !== 'yes' &&
+      countYesRsvps(post, recurrenceId) >= event.maxAttendees;
+    const currentFull =
+      !!defaultRecurrenceId && occurrenceIsFull(defaultRecurrenceId);
+    const initialScope: ScopeKind = currentFull
+      ? 'selected'
+      : defaultRecurrenceId
+        ? 'this'
+        : 'series';
+    const [scope, setScope] = useState<ScopeKind>(initialScope);
     const [selected, setSelected] = useState<string[]>(
       defaultRecurrenceId ? [defaultRecurrenceId] : []
     );
 
     useEffect(() => {
-      setScope(defaultRecurrenceId ? 'this' : 'series');
+      setScope(initialScope);
       setSelected(defaultRecurrenceId ? [defaultRecurrenceId] : []);
-    }, [defaultRecurrenceId, response]);
+    }, [defaultRecurrenceId, response, initialScope]);
 
     const defaultLabel = defaultRecurrenceId
       ? formatOccurrenceStart(
@@ -87,10 +99,11 @@ export const EventRsvpScopeSheet = forwardRef<
         )
       : undefined;
 
+    const openSelected = selected.filter((id) => !occurrenceIsFull(id));
     const confirmDisabled =
       !!isLoading ||
       (scope === 'this' && !defaultRecurrenceId) ||
-      (scope === 'selected' && selected.length === 0) ||
+      (scope === 'selected' && openSelected.length === 0) ||
       (scope === 'series' && seriesFull);
 
     const toggleSelected = (recurrenceId: string, next: boolean) => {
@@ -107,7 +120,7 @@ export const EventRsvpScopeSheet = forwardRef<
         });
       }
       if (scope === 'selected') {
-        return onConfirm({ kind: 'selected', recurrenceIds: selected });
+        return onConfirm({ kind: 'selected', recurrenceIds: openSelected });
       }
       return onConfirm({ kind: 'series' });
     };
@@ -122,7 +135,7 @@ export const EventRsvpScopeSheet = forwardRef<
             value={scope}
             onValueChange={(value) => setScope(value as ScopeKind)}
           >
-            {defaultRecurrenceId ? (
+            {defaultRecurrenceId && !currentFull ? (
               <Pressable
                 onPress={() => setScope('this')}
                 className="py-3 flex-row items-center gap-x-3"
@@ -144,37 +157,31 @@ export const EventRsvpScopeSheet = forwardRef<
                 <ThemedText>{t('events.rsvp.scope.selectedDates')}</ThemedText>
               </Pressable>
             ) : null}
-            <Pressable
-              onPress={() => !seriesFull && setScope('series')}
-              className="py-3 flex-row items-start gap-x-3"
-            >
-              <RadioGroupItem value="series" disabled={seriesFull} />
-              <View className="flex-1">
-                <ThemedText>{t('events.rsvp.scope.wholeSeries')}</ThemedText>
-                {seriesFull ? (
-                  <ThemedText className="text-muted-foreground text-xs mt-1">
-                    {t('events.rsvp.scope.seriesFull')}
-                  </ThemedText>
-                ) : null}
-              </View>
-            </Pressable>
+            {currentFull ? null : (
+              <Pressable
+                onPress={() => !seriesFull && setScope('series')}
+                className="py-3 flex-row items-start gap-x-3"
+              >
+                <RadioGroupItem value="series" disabled={seriesFull} />
+                <View className="flex-1">
+                  <ThemedText>{t('events.rsvp.scope.wholeSeries')}</ThemedText>
+                  {seriesFull ? (
+                    <ThemedText className="text-muted-foreground text-xs mt-1">
+                      {t('events.rsvp.scope.seriesFull')}
+                    </ThemedText>
+                  ) : null}
+                </View>
+              </Pressable>
+            )}
           </RadioGroup>
           {scope === 'selected' ? (
             <View className="mt-2">
               {occurrences.map((occurrence) => {
-                const current = getEffectiveRsvp(
-                  post,
-                  currentProfile?.id ?? '',
-                  occurrence.recurrenceId
-                );
-                const full =
-                  response === 'yes' &&
-                  capacityEvent &&
-                  event?.maxAttendees !== undefined &&
-                  current?.response !== 'yes' &&
-                  countYesRsvps(post, occurrence.recurrenceId) >=
-                    event.maxAttendees;
-                const checked = selected.includes(occurrence.recurrenceId);
+                const full = occurrenceIsFull(occurrence.recurrenceId);
+                const lockedOn =
+                  full && occurrence.recurrenceId === defaultRecurrenceId;
+                const checked =
+                  lockedOn || selected.includes(occurrence.recurrenceId);
                 return (
                   <Pressable
                     key={occurrence.recurrenceId}
@@ -202,7 +209,7 @@ export const EventRsvpScopeSheet = forwardRef<
                   </Pressable>
                 );
               })}
-              {selected.length === 0 ? (
+              {openSelected.length === 0 ? (
                 <ThemedText className="text-muted-foreground text-sm">
                   {t('events.rsvp.scope.selectAtLeastOne')}
                 </ThemedText>
