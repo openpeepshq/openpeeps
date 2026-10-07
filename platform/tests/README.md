@@ -213,6 +213,7 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 | Create group with markdown description | UI | `ui/` (`createGroupWithMarkdown`) |
 | Duplicate group handle rejected | UI | `ui/` (`duplicateGroupHandle`) |
 | Group visibility / description tab | UI (smoke) | `ui/` (`groupVisibility`) |
+| Public + private memberships on profile Groups tab and `/groups` tabs | UI | `ui/group-visibility` |
 | Open created group by handle | UI | `ui/` (`groupSearch`) |
 | Create group → create event on group | UI | `ui/` (`createGroupAndEvent`) |
 | Join group → members list → leave | API | `user-actions/` |

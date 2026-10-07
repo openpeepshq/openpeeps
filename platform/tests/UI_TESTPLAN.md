@@ -209,6 +209,7 @@ Existing suite folders (for gap awareness only): `suites/empty/ui`,
 | UI-GRP-14 | Share group                      | group page             | Share/copy works                  |          |
 | UI-GRP-15 | Compose post from group page     | member allowed to post | Group audience preselected        |          |
 | UI-GRP-16 | Open group info / members routes | group                  | `/info`, `/members`               |          |
+| UI-GRP-17 | Public + private memberships listed | member of a public and a private group | Profile Groups tab and `/groups` My groups show both; All groups adds other public groups, never other private ones | empty/ui/group-visibility |
 
 ---
 
