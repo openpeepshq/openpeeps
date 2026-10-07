@@ -1,9 +1,10 @@
-import type {
-  ExpandedNotification,
-  NotificationHandler,
-  PostWithMeta,
-  Profile,
-  ProfileWithMeta,
+import {
+  notificationAll,
+  type ExpandedNotification,
+  type NotificationHandler,
+  type PostWithMeta,
+  type Profile,
+  type ProfileWithMeta,
 } from '@openpeepshq/common/types';
 import {
   getProfileAvatar,
@@ -109,6 +110,7 @@ const pushRenderer = async (notification: ExpandedNotification) => {
 export default {
   type: 'rsvpCanceled',
   event: 'rsvpCreated',
+  defaultSettings: notificationAll,
   eventHandler,
   pushRenderer,
 } satisfies NotificationHandler;
