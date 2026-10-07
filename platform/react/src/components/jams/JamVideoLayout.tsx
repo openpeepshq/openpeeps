@@ -33,14 +33,27 @@ function DefaultGrid({
   spotlightIdentity,
   onEnlarge,
   onToggleSpotlight,
+  onShowScreenShare,
 }: {
   cameraTracks: TrackReferenceOrPlaceholder[];
   spotlightIdentity: string | null;
   onEnlarge: (identity: string) => void;
   onToggleSpotlight?: (identity: string | null) => void;
+  onShowScreenShare?: () => void;
 }) {
+  const t = useT();
   return (
-    <div className="grid h-full min-h-0 w-full auto-rows-min grid-cols-2 content-start justify-items-center gap-2 overflow-y-auto overscroll-y-contain p-2 md:mb-32 md:flex md:flex-grow md:flex-wrap md:items-center md:justify-center md:content-[safe_center]">
+    <div className="relative grid h-full min-h-0 w-full auto-rows-min grid-cols-2 content-start justify-items-center gap-2 overflow-y-auto overscroll-y-contain p-2 md:mb-32 md:flex md:flex-grow md:flex-wrap md:items-center md:justify-center md:content-[safe_center]">
+      {onShowScreenShare ? (
+        <button
+          type="button"
+          className="bg-surface text-foreground border-border absolute left-3 top-3 z-20 flex items-center gap-2 rounded-full border px-3 py-2 text-sm"
+          onClick={onShowScreenShare}
+        >
+          <ScreenShare className="size-4" aria-hidden="true" />
+          {t('jams.screenShare.backToPresentation')}
+        </button>
+      ) : null}
       {cameraTracks.map((track) => {
         const identity = track.participant.identity;
         const spotlighted = identity === spotlightIdentity;
@@ -99,11 +112,13 @@ function ScreenSharingLayout({
   screenShareTrack,
   spotlightIdentity,
   onToggleSpotlight,
+  onShowGrid,
 }: {
   cameraTracks: TrackReferenceOrPlaceholder[];
   screenShareTrack: TrackReferenceOrPlaceholder;
   spotlightIdentity: string | null;
   onToggleSpotlight?: (identity: string | null) => void;
+  onShowGrid?: () => void;
 }) {
   const t = useT();
   const room = useRoomContext();
@@ -129,13 +144,17 @@ function ScreenSharingLayout({
   };
 
   const participantStripClass = [
-    'flex w-full min-h-0 flex-row flex-wrap content-start',
-    'justify-center gap-1 overflow-y-auto overscroll-y-contain',
-    'max-md:portrait:max-h-40 max-md:portrait:shrink',
-    'max-md:landscape:h-full max-md:landscape:w-28',
-    'max-md:landscape:flex-col max-md:landscape:flex-nowrap',
-    'max-md:landscape:justify-start',
-    'md:my-4 md:h-full',
+    // Mobile portrait: horizontal filmstrip with capped height so the
+    // shared screen keeps most of the viewport regardless of how many
+    // participants have joined.
+    'flex w-full flex-shrink-0 flex-row flex-nowrap gap-1',
+    'max-h-32 overflow-y-hidden overflow-x-auto',
+    // Mobile landscape: vertical strip beside the shared screen.
+    'max-md:landscape:h-full max-md:landscape:max-h-full max-md:landscape:w-28',
+    'max-md:landscape:flex-col',
+    'max-md:landscape:overflow-y-auto max-md:landscape:overflow-x-hidden',
+    // Desktop: full-height vertical filmstrip on the side.
+    'md:my-4 md:h-full md:max-h-full md:flex-row md:flex-wrap md:overflow-y-auto md:overflow-x-hidden md:justify-center',
     cameraTracks.length > 7 ? 'md:w-56' : 'md:w-28',
   ].join(' ');
 
@@ -192,6 +211,16 @@ function ScreenSharingLayout({
                   </span>
                 </button>
               ) : null}
+              {onShowGrid ? (
+                <button
+                  type="button"
+                  className="bg-surface text-foreground border-border absolute left-3 top-3 z-20 flex items-center gap-2 rounded-full border px-3 py-2 text-sm"
+                  onClick={onShowGrid}
+                >
+                  <LayoutGrid className="size-4" aria-hidden="true" />
+                  {t('jams.screenShare.showGrid')}
+                </button>
+              ) : null}
             </>
           ) : null}
         </div>
@@ -228,6 +257,7 @@ function SpeakerLayout({
   onEnlarge,
   onShowGrid,
   onToggleSpotlight,
+  onShowScreenShare,
 }: {
   stage: TrackReferenceOrPlaceholder;
   cameraTracks: TrackReferenceOrPlaceholder[];
@@ -235,6 +265,7 @@ function SpeakerLayout({
   onEnlarge: (identity: string) => void;
   onShowGrid: () => void;
   onToggleSpotlight?: (identity: string | null) => void;
+  onShowScreenShare?: () => void;
 }) {
   const t = useT();
   const stageIdentity = stage.participant.identity;
@@ -269,6 +300,17 @@ function SpeakerLayout({
           </div>
         )}
         <div className="absolute left-3 top-3 z-20 flex flex-wrap gap-2">
+          {onShowScreenShare ? (
+            <button
+              type="button"
+              className={stageIconButtonClass}
+              title={t('jams.screenShare.backToPresentation')}
+              aria-label={t('jams.screenShare.backToPresentation')}
+              onClick={onShowScreenShare}
+            >
+              <ScreenShare className="size-4" aria-hidden="true" />
+            </button>
+          ) : null}
           <button
             type="button"
             className={stageIconButtonClass}
@@ -377,14 +419,24 @@ export function JamVideoLayout({
     ? (identity: string | null) => setSpotlight(identity)
     : undefined;
 
+  // While someone is screen-sharing, allow switching to a full grid view.
+  const [showGridView, setShowGridView] = useState(false);
+  useEffect(() => {
+    if (!screenShareTracks.length) setShowGridView(false);
+  }, [screenShareTracks.length]);
+
   const [screenShareTrack] = screenShareTracks;
-  if (screenShareTrack) {
+  const onShowScreenShare =
+    screenShareTrack && showGridView ? () => setShowGridView(false) : undefined;
+
+  if (screenShareTrack && !showGridView) {
     return (
       <ScreenSharingLayout
         cameraTracks={orderedCameraTracks}
         screenShareTrack={screenShareTrack}
         spotlightIdentity={spotlightIdentity}
         onToggleSpotlight={onToggleSpotlight}
+        onShowGrid={() => setShowGridView(true)}
       />
     );
   }
@@ -401,24 +453,28 @@ export function JamVideoLayout({
         onEnlarge={onEnlarge}
         onShowGrid={() => setFocus({ mode: 'grid' })}
         onToggleSpotlight={onToggleSpotlight}
+        onShowScreenShare={onShowScreenShare}
       />
     );
   }
 
-  const [firstTrack] = orderedCameraTracks;
-  if (!observer && orderedCameraTracks.length === 1 && firstTrack) {
-    return <AloneLayout track={firstTrack} />;
-  }
+  // Skip alone / one-on-one when the user explicitly chose grid view.
+  if (!showGridView) {
+    const [firstTrack] = orderedCameraTracks;
+    if (!observer && orderedCameraTracks.length === 1 && firstTrack) {
+      return <AloneLayout track={firstTrack} />;
+    }
 
-  if (!observer && orderedCameraTracks.length === 2) {
-    const local = orderedCameraTracks.find(
-      (track) => track.participant.isLocal,
-    );
-    const remote = orderedCameraTracks.find(
-      (track) => !track.participant.isLocal,
-    );
-    if (local && remote) {
-      return <OneOnOneLayout local={local} remote={remote} />;
+    if (!observer && orderedCameraTracks.length === 2) {
+      const local = orderedCameraTracks.find(
+        (track) => track.participant.isLocal,
+      );
+      const remote = orderedCameraTracks.find(
+        (track) => !track.participant.isLocal,
+      );
+      if (local && remote) {
+        return <OneOnOneLayout local={local} remote={remote} />;
+      }
     }
   }
 
@@ -428,6 +484,7 @@ export function JamVideoLayout({
       spotlightIdentity={spotlightIdentity}
       onEnlarge={onEnlarge}
       onToggleSpotlight={onToggleSpotlight}
+      onShowScreenShare={onShowScreenShare}
     />
   );
 }

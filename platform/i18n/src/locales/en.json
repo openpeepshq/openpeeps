@@ -1062,7 +1062,9 @@
       "startStopTitle": "Start/Stop Screenshare",
       "stopSharing": "Stop sharing",
       "youPresenting": "(You presenting)",
-      "presenting": "(presenting)"
+      "presenting": "(presenting)",
+      "showGrid": "Show everyone",
+      "backToPresentation": "Back to presentation"
     },
     "reactions": {
       "sendTitle": "Send a reaction",
