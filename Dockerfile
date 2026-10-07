@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 FROM realies/audiowaveform AS audiowaveform
 
 #─────────────────────────────────────────────────────────────────────────────
@@ -30,9 +32,16 @@ WORKDIR /apat
 
 RUN npm i -g pnpm
 
-COPY . .
-
-RUN node scripts/generate-changelog.mjs
+# Manifests only, so a source-only commit reuses the install layer from the
+# registry build cache. The later COPY . . merges over these files and leaves
+# node_modules alone (.dockerignore excludes it from the context).
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY --parents \
+    libraries/*/package.json \
+    platform/*/package.json \
+    examples/*/package.json \
+    docs-site/package.json \
+    ./
 
 # Install workspace deps for the three runtime packages and all of their
 # transitive workspace dependencies. The `...` suffix on each filter expands
@@ -49,6 +58,10 @@ RUN pnpm \
     --filter "*plugins*" \
     --filter "./examples/greeter-plugin" \
     install --frozen-lockfile
+
+COPY . .
+
+RUN node scripts/generate-changelog.mjs
 
 # Build the dependency closure in topological order. `pnpm -r` walks the
 # workspace graph so libraries (common → core → react-ui → react → …) are
