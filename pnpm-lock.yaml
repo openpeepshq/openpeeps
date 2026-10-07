@@ -1040,6 +1040,9 @@ importers:
       eslint:
         specifier: ^9.19.0
         version: 9.19.0(jiti@1.21.6)
+      jsdom:
+        specifier: ^25.0.1
+        version: 25.0.1
       react-router-dom:
         specifier: ^7.0.0
         version: 7.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)

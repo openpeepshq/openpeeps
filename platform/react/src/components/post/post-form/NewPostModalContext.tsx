@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useMemo,
   useState,
   type ReactNode,
 } from 'react';
@@ -31,8 +32,13 @@ export function NewPostModalProvider({ children }: { children: ReactNode }) {
     setOptions(opts ?? {});
   }, []);
 
+  // Header updates re-render this provider. A fresh value object would
+  // re-render every consumer, including pages that write the header from
+  // a layout effect (hashtag follow button) and loop (React error 185).
+  const value = useMemo(() => ({ openNewPost }), [openNewPost]);
+
   return (
-    <NewPostModalContext.Provider value={{ openNewPost }}>
+    <NewPostModalContext.Provider value={value}>
       {children}
       {options !== undefined ? (
         <NewPostModal
