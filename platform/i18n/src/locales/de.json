@@ -3277,6 +3277,13 @@
       "body": "{{profileName}} hat sich für Ihre Veranstaltung angemeldet",
       "cta": "Klicken Sie hier, um die Veranstaltung zu besuchen und die Ergebnisse zu sehen."
     },
+    "rsvpCanceled": {
+      "subject": "{{profileName}} hat sein RSVP zurückgenommen",
+      "body": "{{profileName}} hat sein RSVP für {{eventName}} zurückgenommen",
+      "series": "Alle Termine der Serie",
+      "eventFallback": "Ihre Veranstaltung",
+      "cta": "Veranstaltung ansehen"
+    },
     "reaction": {
       "subject": "{{profileName}} hat auf Ihren Beitrag reagiert",
       "body": "{{profileName}} hat auf Ihren Beitrag reagiert",

@@ -1,9 +1,10 @@
-import type {
-  EntryData,
-  ExpandedNotification,
-  PostWithMeta,
-  NotificationHandler,
-  Profile,
+import {
+  notificationAll,
+  type EntryData,
+  type ExpandedNotification,
+  type PostWithMeta,
+  type NotificationHandler,
+  type Profile,
 } from '@openpeepshq/common/types';
 import { maybeCreateNotification } from '@openpeepshq/core/notifications';
 import { getProfileAvatar, profileName } from '@openpeepshq/common/lib';
@@ -54,6 +55,7 @@ const pushRenderer = async (notification: ExpandedNotification) => ({
 export default {
   type: 'rsvp',
   event: 'rsvpCreated',
+  defaultSettings: notificationAll,
   eventHandler,
   pushRenderer,
 } satisfies NotificationHandler;

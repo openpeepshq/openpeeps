@@ -3195,6 +3195,13 @@
       "body": "{{profileName}} has RSVP'd to your event",
       "cta": "to visit the event and see the results, click here."
     },
+    "rsvpCanceled": {
+      "subject": "{{profileName}} canceled their RSVP",
+      "body": "{{profileName}} canceled their RSVP to {{eventName}}",
+      "series": "All dates in the series",
+      "eventFallback": "your event",
+      "cta": "View event"
+    },
     "eventRsvp": {
       "subjectYes": "You're going: {{eventName}}",
       "subjectMaybe": "You might attend: {{eventName}}",
