@@ -1,5 +1,6 @@
 import type { PublicPost } from '@openpeepshq/common/types';
 import { useT } from '../../i18n';
+import { useStaticRender } from '../markdown/staticRender';
 
 import { FeedArticle } from './types/Article';
 import { FeedEvent } from './types/Event';
@@ -12,6 +13,7 @@ export interface FeedPostContentProps {
 
 export function FeedPostContent({ post }: FeedPostContentProps) {
   const t = useT();
+  const staticRender = useStaticRender();
   if (post.hidden) {
     return (
       <div className="text-muted-foreground text-sm">
@@ -31,7 +33,7 @@ export function FeedPostContent({ post }: FeedPostContentProps) {
     case 'note':
       return <FeedNote post={post} />;
     case 'question':
-      return <FeedPoll post={post} />;
+      return <FeedPoll post={post} interactive={!staticRender.enabled} />;
     case 'event':
       return <FeedEvent post={post} />;
     case 'article':
