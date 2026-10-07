@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@openpeepshq/react-ui';
 import { normalizeHashtagTag } from '@openpeepshq/common/types';
@@ -15,7 +15,7 @@ import {
 } from '../components';
 import { useFeedListParams } from '../hooks';
 
-export function Tags() {
+export const Tags = () => {
   const t = useT();
   const { hashtag = '' } = useParams<{ hashtag: string }>();
   const { openpeepsApi } = useOpenpeeps();
@@ -38,29 +38,31 @@ export function Tags() {
   const unfollowHashtag = openpeepsApi.unfollowHashtagAction({
     tag: hashtag,
   } as never);
+  const followHashtagRef = useRef(followHashtag);
+  const unfollowHashtagRef = useRef(unfollowHashtag);
+  followHashtagRef.current = followHashtag;
+  unfollowHashtagRef.current = unfollowHashtag;
 
   const normalizedTag = normalizeHashtagTag(hashtag);
   const isFollowing = !!me?.followedHashtags?.some(
     (h) => h.tag === normalizedTag,
   );
 
-  const toggleFollow = async () => {
-    if (!me) return;
-    setToggling(true);
-    try {
-      if (isFollowing) {
-        await unfollowHashtag();
-      } else {
-        await followHashtag();
+  const headerActions = useMemo(() => {
+    if (!me) return undefined;
+    const toggleFollow = async () => {
+      setToggling(true);
+      try {
+        if (isFollowing) {
+          await unfollowHashtagRef.current();
+        } else {
+          await followHashtagRef.current();
+        }
+      } finally {
+        setToggling(false);
       }
-    } finally {
-      setToggling(false);
-    }
-  };
-
-  useSetPageHeader(
-    t('tags.title', { defaultValue: '#{{hashtag}}', hashtag }),
-    me ? (
+    };
+    return (
       <Button
         compact
         variant={isFollowing ? 'outline' : 'default'}
@@ -77,8 +79,13 @@ export function Tags() {
           ? t('tags.following', { defaultValue: 'Following' })
           : t('tags.follow', { defaultValue: 'Follow hashtag' })}
       </Button>
-    ) : undefined,
+    );
+  }, [isFollowing, me, t, toggling]);
+
+  useSetPageHeader(
+    t('tags.title', { defaultValue: '#{{hashtag}}', hashtag }),
+    headerActions,
   );
 
   return <Feed query={query} formatSwitch={false} />;
-}
+};
