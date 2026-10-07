@@ -17,6 +17,8 @@ import jamModeratorTemplate from './notifications/jam-moderator';
 import jamSpeakerTemplate from './notifications/jam-speaker';
 import jamStartedTemplate from './notifications/jam-started';
 import newProfileTemplate from './notifications/new-profile';
+import pollEndedTemplate from './notifications/poll-ended';
+import pollVoteTemplate from './notifications/poll-vote';
 import reactionTemplate from './notifications/reaction';
 import replyTemplate from './notifications/reply';
 import repostTemplate from './notifications/repost';
@@ -53,6 +55,8 @@ export const registerDefaultEmailTemplates = () => {
   register('notification-jamSpeaker', jamSpeakerTemplate);
   register('notification-jamStarted', jamStartedTemplate);
   register('notification-newProfile', newProfileTemplate);
+  register('notification-pollEnded', pollEndedTemplate);
+  register('notification-pollVote', pollVoteTemplate);
   register('notification-reaction', reactionTemplate);
   register('notification-reply', replyTemplate);
   register('notification-repost', repostTemplate);
