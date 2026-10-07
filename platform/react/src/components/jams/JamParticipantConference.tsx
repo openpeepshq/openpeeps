@@ -88,7 +88,7 @@ function JamParticipantConferenceInner() {
     setDrawer((current) => (current === next ? null : next));
 
   return (
-    <div className="bg-background relative flex h-dvh w-screen flex-col overflow-hidden">
+    <div className="bg-background relative flex h-full min-h-0 w-full flex-col overflow-hidden overscroll-none">
       <JamNetworkQuality />
       <JamRecordingIndicator />
       <div className="relative flex min-h-0 w-full flex-1 overflow-hidden p-2">
@@ -98,15 +98,23 @@ function JamParticipantConferenceInner() {
               {truncateText(jamEvent.name, 40)}
             </h1>
           </div>
-          <div className="min-h-0 flex-1">
-            <JamVideoLayout
-              cameraTracks={cameraTracks}
-              screenShareTracks={screenShareTracks}
-              observer={false}
-            />
+          <div className="relative min-h-0 flex-1 overflow-hidden">
+            <div className="absolute inset-0">
+              <JamVideoLayout
+                cameraTracks={cameraTracks}
+                screenShareTracks={screenShareTracks}
+                observer={false}
+              />
+            </div>
           </div>
         </div>
-        <div className="max-h-full overflow-y-auto md:flex-shrink-0">
+        <div
+          className={
+            drawer
+              ? 'absolute inset-0 z-30 md:static md:inset-auto md:z-auto md:max-h-full md:flex-shrink-0 md:overflow-y-auto'
+              : 'max-h-full overflow-y-auto md:flex-shrink-0'
+          }
+        >
           <JamChatDrawer
             open={drawer === 'chat'}
             onClose={() => setDrawer(null)}

@@ -6,7 +6,7 @@ import {
   useParticipants,
   useRoomContext,
 } from '@livekit/components-react';
-import { LayoutGrid, Maximize2, Pin, ScreenShare } from 'lucide-react';
+import { LayoutGrid, Maximize2, Pin, PinOff, ScreenShare } from 'lucide-react';
 import { profileName, sortByRaisedHand } from '@openpeepshq/common/lib';
 import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
@@ -40,7 +40,7 @@ function DefaultGrid({
   onToggleSpotlight?: (identity: string | null) => void;
 }) {
   return (
-    <div className="grid h-full w-full auto-rows-min grid-cols-2 place-items-center content-start justify-items-center gap-2 overflow-auto p-2 md:mb-32 md:flex md:flex-grow md:flex-wrap md:content-center md:items-center md:justify-center">
+    <div className="grid h-full min-h-0 w-full auto-rows-min grid-cols-2 content-start justify-items-center gap-2 overflow-y-auto overscroll-y-contain p-2 md:mb-32 md:flex md:flex-grow md:flex-wrap md:items-center md:justify-center md:content-[safe_center]">
       {cameraTracks.map((track) => {
         const identity = track.participant.identity;
         const spotlighted = identity === spotlightIdentity;
@@ -129,16 +129,18 @@ function ScreenSharingLayout({
   };
 
   const participantStripClass = [
-    'flex w-full flex-shrink-0 flex-row flex-wrap content-start',
-    'justify-center gap-1 overflow-y-auto',
+    'flex w-full min-h-0 flex-row flex-wrap content-start',
+    'justify-center gap-1 overflow-y-auto overscroll-y-contain',
+    'max-md:portrait:max-h-40 max-md:portrait:shrink',
     'max-md:landscape:h-full max-md:landscape:w-28',
     'max-md:landscape:flex-col max-md:landscape:flex-nowrap',
+    'max-md:landscape:justify-start',
     'md:my-4 md:h-full',
     cameraTracks.length > 7 ? 'md:w-56' : 'md:w-28',
   ].join(' ');
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col gap-2 md:flex-row max-md:landscape:flex-row">
+    <div className="flex h-full min-h-0 w-full flex-col gap-2 overflow-hidden md:flex-row max-md:landscape:flex-row">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
         <div className="flex w-full flex-shrink-0 items-center justify-between">
           {isLocal ? (
@@ -237,12 +239,17 @@ function SpeakerLayout({
   const t = useT();
   const stageIdentity = stage.participant.identity;
   const spotlighted = stageIdentity === spotlightIdentity;
+  const spotlightLabel = spotlighted
+    ? t('jams.speakerView.removeSpotlight')
+    : t('jams.speakerView.spotlight');
   const others = cameraTracks.filter(
     (track) => track.participant.identity !== stageIdentity,
   );
+  const stageIconButtonClass =
+    'bg-surface text-foreground border-border flex size-10 shrink-0 items-center justify-center rounded-full border';
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col gap-2 p-2 md:flex-row max-md:landscape:flex-row">
+    <div className="flex h-full min-h-0 w-full flex-col gap-2 overflow-hidden p-2 md:flex-row max-md:landscape:flex-row">
       <div className="relative min-h-0 min-w-0 flex-1">
         <JamCallParticipant
           trackRef={stage}
@@ -261,37 +268,46 @@ function SpeakerLayout({
             </p>
           </div>
         )}
-        <div className="absolute left-3 top-3 z-20 flex max-w-[calc(100%-4.5rem)] flex-wrap gap-2">
+        <div className="absolute left-3 top-3 z-20 flex flex-wrap gap-2">
           <button
             type="button"
-            className="bg-surface text-foreground border-border flex items-center gap-2 rounded-full border px-3 py-2 text-sm"
+            className={stageIconButtonClass}
+            title={t('jams.speakerView.showGrid')}
+            aria-label={t('jams.speakerView.showGrid')}
             onClick={onShowGrid}
           >
             <LayoutGrid className="size-4" aria-hidden="true" />
-            {t('jams.speakerView.showGrid')}
           </button>
           {onToggleSpotlight ? (
             <button
               type="button"
-              className="bg-surface text-foreground border-border flex items-center gap-2 rounded-full border px-3 py-2 text-sm"
+              className={stageIconButtonClass}
+              title={spotlightLabel}
+              aria-label={spotlightLabel}
               onClick={() =>
                 onToggleSpotlight(spotlighted ? null : stageIdentity)
               }
             >
-              <Pin className="size-4" aria-hidden="true" />
-              {spotlighted
-                ? t('jams.speakerView.removeSpotlight')
-                : t('jams.speakerView.spotlight')}
+              {spotlighted ? (
+                <PinOff className="size-4" aria-hidden="true" />
+              ) : (
+                <Pin className="size-4" aria-hidden="true" />
+              )}
             </button>
           ) : null}
           {spotlighted ? (
-            <span className="bg-primary text-on-primary-token rounded-full px-3 py-2 text-sm">
-              {t('jams.speakerView.spotlighted')}
+            <span
+              role="img"
+              title={t('jams.speakerView.spotlighted')}
+              aria-label={t('jams.speakerView.spotlighted')}
+              className="bg-primary text-on-primary-token flex size-10 shrink-0 items-center justify-center rounded-full"
+            >
+              <Pin className="size-4" aria-hidden="true" />
             </span>
           ) : null}
         </div>
       </div>
-      <div className="flex max-h-32 w-full flex-shrink-0 flex-row gap-2 overflow-x-auto md:h-full md:max-h-full md:w-36 md:flex-col md:overflow-y-auto md:overflow-x-hidden max-md:landscape:h-full max-md:landscape:max-h-full max-md:landscape:w-28 max-md:landscape:flex-col max-md:landscape:overflow-y-auto max-md:landscape:overflow-x-hidden">
+      <div className="flex max-h-32 min-h-0 w-full flex-shrink-0 flex-row gap-2 overflow-x-auto overscroll-x-contain md:h-full md:max-h-full md:w-36 md:flex-col md:overflow-y-auto md:overflow-x-hidden md:overscroll-y-contain max-md:landscape:h-full max-md:landscape:max-h-full max-md:landscape:w-28 max-md:landscape:flex-col max-md:landscape:overflow-y-auto max-md:landscape:overflow-x-hidden">
         {others.map((track) => {
           const identity = track.participant.identity;
           const tileSpotlighted = identity === spotlightIdentity;
