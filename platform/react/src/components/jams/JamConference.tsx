@@ -34,12 +34,14 @@ function JamObserverConference() {
 
   return (
     <JamObserverShell>
-      <div className="h-full min-h-0 flex-1">
-        <JamVideoLayout
-          cameraTracks={cameraTracks}
-          screenShareTracks={screenShareTracks}
-          observer
-        />
+      <div className="relative h-full min-h-0 flex-1 overflow-hidden">
+        <div className="absolute inset-0">
+          <JamVideoLayout
+            cameraTracks={cameraTracks}
+            screenShareTracks={screenShareTracks}
+            observer
+          />
+        </div>
       </div>
     </JamObserverShell>
   );

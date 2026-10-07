@@ -13,7 +13,7 @@ export function JamObserverShell({ children }: JamObserverShellProps) {
   const [chatOpen, setChatOpen] = useState(false);
 
   return (
-    <div className="relative flex h-dvh w-screen flex-1 overflow-hidden">
+    <div className="relative flex h-full min-h-0 w-full flex-1 overflow-hidden overscroll-none">
       <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
         {children}
       </div>
