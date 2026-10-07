@@ -236,9 +236,10 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 | RSVP tentative → no → yes cycle | API | `api/gaps/` |
 | Member jam on community feed (toggle on) | UI | `ui/event-creation` |
 | Community visibility blocked (toggle off) | UI | `ui/event-creation` |
-| Member jam on a group calendar | UI | `ui/event-creation` |
+| Member jam on a group calendar and in members' My feed | UI | `ui/event-creation` |
 | Admins-only group hides New event and the group picker | UI | `ui/event-creation` |
-| Private jam for invitees (Events, Messages, outsider denied) | UI | `ui/event-creation` |
+| Private jam for invitees (event page, Events, Messages; outsider denied) | UI | `ui/event-creation` |
+| Public jam visible to signed-out visitors | UI | `ui/event-creation` |
 
 #### Profiles & social graph
 
