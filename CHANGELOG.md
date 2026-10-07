@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **roles**: default roles history, adoption and rebase for customized roles
 - **capabilities**: add roles and relations capability matrices and custom role creation
 - **media**: enhance audio handling and waveform generation
 - **account**: add user-facing export of account data
