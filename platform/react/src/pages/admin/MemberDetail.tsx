@@ -174,7 +174,7 @@ export function AdminMemberDetail() {
         <Button
           variant="outline"
           compact
-          action={() => navigate({ type: 'admin' })}
+          action={() => navigate({ type: 'admin', section: 'members' })}
           title={t('admin.members.backToMembers', {
             defaultValue: 'Back to members',
           })}
