@@ -174,6 +174,44 @@ jobs:
               -t "${image}:${{ needs.set-variables.outputs.short_sha }}" --push .
           fi
 
+  # Playwright + installed tests + built core, for this commit. Starts with
+  # set-variables so it overlaps the app image build. Unit tests stay on
+  # node:24-alpine and do not wait for this image.
+  build-test-image:
+    runs-on: docker
+    needs: [set-variables]
+    container:
+      image: node:24-alpine
+    steps:
+      - name: Install Docker CLI and git
+        run: apk add --no-cache docker-cli docker-cli-buildx git
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ needs.set-variables.outputs.full_sha }}
+          fetch-depth: 1
+      - name: Docker login
+        run: |
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "code.openpeeps.org"
+      - name: Build and push test image
+        run: |
+          image="${{ needs.set-variables.outputs.registry_image_base }}"
+          tag="test-${{ needs.set-variables.outputs.short_sha }}"
+          if docker manifest inspect "${image}:${tag}" >/dev/null 2>&1; then
+            echo "Image ${image}:${tag} already exists; skipping build."
+          else
+            docker buildx create --name ci --driver docker-container --use
+            cache="${image}:test-buildcache"
+            cache_from=""
+            if docker manifest inspect "${cache}" >/dev/null 2>&1; then
+              cache_from="--cache-from type=registry,ref=${cache}"
+            fi
+            docker buildx build \
+              ${cache_from} \
+              --cache-to "type=registry,ref=${cache},mode=max" \
+              -f Dockerfile.test \
+              -t "${image}:${tag}" --push .
+          fi
+
   test-unit:
     runs-on: docker
     needs: [set-variables]
@@ -204,7 +242,7 @@ jobs:
 
   test-integration:
     runs-on: docker
-    needs: [build, set-variables]
+    needs: [build, build-test-image, set-variables]
     strategy:
       fail-fast: false
       matrix:
@@ -212,8 +250,18 @@ jobs:
         # default, public, and perf on one stack; each is seconds of tests
         # and a separate VM plus service stack per suite dominated the cost.
         suite: [empty, small]
+    defaults:
+      run:
+        # Runner workspace is a mount that hides the image WORKDIR. The
+        # checkout for this SHA is already baked into the test image.
+        working-directory: /apat
     container:
-      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      image:
+        ${{ needs.set-variables.outputs.registry_image_base }}:test-${{ needs.set-variables.outputs.short_sha
+        }}
+      credentials:
+        username: ${{ vars.REGISTRY_USER }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
     services:
       postgres:
         image: postgres:16-alpine
@@ -283,17 +331,6 @@ jobs:
           SERVER_HOST: web:8080
           SERVER_PROTOCOL: http
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-        with:
-          ref: ${{ needs.set-variables.outputs.full_sha }}
-      - name: Install pnpm and dependencies
-        run: |
-          # Browsers ship with the Playwright image; only the test package and
-          # core (fixture restore) are needed, not the whole workspace.
-          apt-get update -qq && apt-get install -y -qq unzip
-          corepack enable
-          pnpm install --frozen-lockfile --filter "@openpeepshq/tests..."
-          pnpm --filter @openpeepshq/core... build
       - name: Wait for web service
         run: |
           for i in $(seq 1 60); do
@@ -351,12 +388,20 @@ jobs:
 
   test-integration-jams:
     runs-on: docker
-    needs: [build, set-variables]
+    needs: [build, build-test-image, set-variables]
     # Without LiveKit credentials the suite would only self-skip, so do not
     # spend a VM and a service stack on it.
     if: needs.set-variables.outputs.jams_enabled == 'true'
+    defaults:
+      run:
+        working-directory: /apat
     container:
-      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      image:
+        ${{ needs.set-variables.outputs.registry_image_base }}:test-${{ needs.set-variables.outputs.short_sha
+        }}
+      credentials:
+        username: ${{ vars.REGISTRY_USER }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
     services:
       postgres:
         image: postgres:16-alpine
@@ -418,13 +463,6 @@ jobs:
           JAMS_LIVEKIT_API_KEY: ${{ secrets.JAMS_LIVEKIT_API_KEY }}
           JAMS_LIVEKIT_API_SECRET: ${{ secrets.JAMS_LIVEKIT_API_SECRET }}
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-        with:
-          ref: ${{ needs.set-variables.outputs.full_sha }}
-      - name: Install pnpm and dependencies
-        run: |
-          corepack enable
-          pnpm install --frozen-lockfile --filter "@openpeepshq/tests..."
       - name: Wait for web service
         run: |
           for i in $(seq 1 60); do
