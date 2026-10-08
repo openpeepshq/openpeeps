@@ -9,14 +9,17 @@ import { CommunityConfig, getTheme } from '@openpeepshq/common';
 
 const OpenPeepsThemeContext = createContext<OpenPeepsTheme>(defaultTheme);
 
-export const OpenPeepsThemeProvider = ({ children }: { children: React.ReactNode }) => {
-
+export const OpenPeepsThemeProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const systemColorScheme = useRNColorScheme();
   const { openpeepsApi } = useOpenpeeps();
 
   const { data: serverInfo } = openpeepsApi.useServerInfo();
-  const profileSettingsQuery = openpeepsApi.useCurrentProfileSettings();
-  const { data: profileSettings } = profileSettingsQuery;
+  const { data: profileSettings, refetch: refetchProfileSettings } =
+    openpeepsApi.useCurrentProfileSettings();
 
   const theme = useMemo(() => {
     const schemeForTheme =
@@ -24,12 +27,20 @@ export const OpenPeepsThemeProvider = ({ children }: { children: React.ReactNode
         ? systemColorScheme
         : undefined;
     const userTheme = getTheme(
-      serverInfo?.communityConfig ?? { theme: { base: 'OpenpeepsDark' } } as CommunityConfig,
+      serverInfo?.communityConfig ??
+        ({ theme: { base: 'OpenpeepsDark' } } as CommunityConfig),
       profileSettings,
       schemeForTheme ?? 'light'
     );
-    return buildTheme(userTheme.dark, userTheme.primaryHex, () => { profileSettingsQuery.refetch() });
-  }, [profileSettings?.theme, serverInfo?.communityConfig, systemColorScheme]);
+    return buildTheme(userTheme.dark, userTheme.primaryHex, () => {
+      refetchProfileSettings();
+    });
+  }, [
+    profileSettings,
+    refetchProfileSettings,
+    serverInfo?.communityConfig,
+    systemColorScheme,
+  ]);
 
   const themeVars = useMemo(() => getThemeVars(theme.colors), [theme.colors]);
 
@@ -43,8 +54,7 @@ export const OpenPeepsThemeProvider = ({ children }: { children: React.ReactNode
   }, [theme.isDark]);
 
   return (
-    <OpenPeepsThemeContext.Provider
-      value={theme}>
+    <OpenPeepsThemeContext.Provider value={theme}>
       <View className="flex-1" style={themeVars}>
         {children}
       </View>
@@ -55,7 +65,9 @@ export const OpenPeepsThemeProvider = ({ children }: { children: React.ReactNode
 export const useOpenPeepsTheme = () => {
   const context = useContext(OpenPeepsThemeContext);
   if (!context) {
-    throw new Error('useOpenPeepsTheme must be used within an OpenPeepsThemeProvider');
+    throw new Error(
+      'useOpenPeepsTheme must be used within an OpenPeepsThemeProvider'
+    );
   }
   return context;
 };

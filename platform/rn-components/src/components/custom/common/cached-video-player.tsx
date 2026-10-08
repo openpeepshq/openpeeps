@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   ActivityIndicator,
+  StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
@@ -69,7 +70,6 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [hasEnded, setHasEnded] = useState<boolean>(false);
 
-
   const _bufferConfig: BufferConfig = {
     minBufferMs: 15000,
     maxBufferMs: 50000,
@@ -100,7 +100,7 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
      */
     const playFederated = async () => {
       try {
-        const cachedPath = await fetchCachedMedia(url, 'video', progress => {
+        const cachedPath = await fetchCachedMedia(url, 'video', (progress) => {
           if (!disposed) setDownloadProgress(progress);
         });
         if (disposed) return;
@@ -260,11 +260,11 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
   };
 
   const toggleMute = () => {
-    setIsMuted(prev => !prev);
+    setIsMuted((prev) => !prev);
   };
 
   const toggleViewRotation = () => {
-    setIsViewRotated(prev => !prev);
+    setIsViewRotated((prev) => !prev);
   };
 
   if (loading) {
@@ -303,7 +303,8 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
   return (
     <View
       className="flex-1 bg-black"
-      {...(isLandscape ? { edges: ['top', 'bottom'] } : {})}>
+      {...(isLandscape ? { edges: ['top', 'bottom'] } : {})}
+    >
       <View
         className="flex-1 relative"
         style={{
@@ -313,7 +314,8 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
             height: windowWidth,
             alignSelf: 'center',
           }),
-        }}>
+        }}
+      >
         <Video
           ref={videoRef}
           source={{
@@ -321,7 +323,7 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
             ...(isHls ? { type: 'm3u8' } : {}),
             bufferConfig: _bufferConfig,
           }}
-          style={{ width: '100%', height: '100%' }}
+          style={styles.video}
           resizeMode="contain"
           controls={true}
           paused={isPaused}
@@ -344,38 +346,16 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
         />
       </View>
 
-      <View
-        pointerEvents="box-none"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'transparent',
-        }}>
+      <View pointerEvents="box-none" style={styles.overlay}>
         <View
-          style={
-            isViewRotated
-              ? {
-                position: 'absolute',
-                top: 30,
-                right: 30,
-                zIndex: 20,
-                transform: [{ rotate: '90deg' }],
-              }
-              : {
-                position: 'absolute',
-                top: 50,
-                left: 20,
-                zIndex: 20,
-              }
-          }>
+          style={isViewRotated ? styles.backButtonRotated : styles.backButton}
+        >
           <Button
             variant="secondary"
             size="icon"
             onPress={() => navigation.goBack()}
-            className="mr-4">
+            className="mr-4"
+          >
             <ArrowLeftIcon className="text-foreground" size={24} />
           </Button>
         </View>
@@ -383,32 +363,29 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
         <View
           style={
             isViewRotated
-              ? {
-                position: 'absolute',
-                width: windowHeight,
-                height: windowWidth,
-                left: (windowWidth - windowHeight) / 2,
-                top: (windowHeight - windowWidth) / 2,
-                transform: [{ rotate: '90deg' }],
-                justifyContent: 'flex-end',
-                zIndex: 10,
-              }
-              : {
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 10,
-              }
-          }>
+              ? [
+                  styles.controlsRotated,
+                  {
+                    width: windowHeight,
+                    height: windowWidth,
+                    left: (windowWidth - windowHeight) / 2,
+                    top: (windowHeight - windowWidth) / 2,
+                  },
+                ]
+              : styles.controls
+          }
+        >
           <View
-            className={`flex-row bg-black/80 items-center ${isViewRotated ? 'px-10 py-2' : 'px-4 py-6'
-              }`}>
+            className={`flex-row bg-black/80 items-center ${
+              isViewRotated ? 'px-10 py-2' : 'px-4 py-6'
+            }`}
+          >
             <Button
               size="icon"
               variant="ghost"
               onPress={togglePlayPause}
-              className="mr-2">
+              className="mr-2"
+            >
               {isPaused ? (
                 <PlayIcon className="text-white" size={isLandscape ? 16 : 20} />
               ) : (
@@ -419,37 +396,46 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
               )}
             </Button>
             <Text
-              className={`text-white ${isLandscape ? 'text-xs' : 'text-xs'}`}>
+              className={`text-white ${isLandscape ? 'text-xs' : 'text-xs'}`}
+            >
               {`${formatTime(currentTime)} / ${formatTime(duration)}`}
             </Text>
 
             <TouchableOpacity
               className="flex-1 mx-4"
               activeOpacity={1}
-              onPress={e => {
+              onPress={(e) => {
                 const axisSize = isLandscape
                   ? progressBarHeight || progressBarWidth
                   : progressBarWidth;
-                if (!axisSize || duration <= 0) { return; }
+                if (!axisSize || duration <= 0) {
+                  return;
+                }
                 const pointer = isLandscape
-                  ? (e.nativeEvent as any).locationY ?? e.nativeEvent.locationX
+                  ? ((e.nativeEvent as any).locationY ??
+                    e.nativeEvent.locationX)
                   : e.nativeEvent.locationX;
                 const progress = Math.max(0, Math.min(1, pointer / axisSize));
                 handleSeek(progress);
               }}
-              onLayout={e => {
+              onLayout={(e) => {
                 setProgressBarWidth(e.nativeEvent.layout.width);
                 setProgressBarHeight(e.nativeEvent.layout.height);
-              }}>
+              }}
+            >
               <View
-                className={`${isLandscape ? 'h-0.5' : 'h-1'
-                  } bg-white/30 rounded`}>
+                className={`${
+                  isLandscape ? 'h-0.5' : 'h-1'
+                } bg-white/30 rounded`}
+              >
                 <View
-                  className={`${isLandscape ? 'h-0.5' : 'h-full'
-                    } bg-white rounded`}
+                  className={`${
+                    isLandscape ? 'h-0.5' : 'h-full'
+                  } bg-white rounded`}
                   style={{
-                    width: `${duration > 0 ? (currentTime / duration) * 100 : 0
-                      }%`,
+                    width: `${
+                      duration > 0 ? (currentTime / duration) * 100 : 0
+                    }%`,
                   }}
                 />
               </View>
@@ -478,3 +464,30 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  video: { width: '100%', height: '100%' },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'transparent',
+  },
+  backButton: { position: 'absolute', top: 50, left: 20, zIndex: 20 },
+  backButtonRotated: {
+    position: 'absolute',
+    top: 30,
+    right: 30,
+    zIndex: 20,
+    transform: [{ rotate: '90deg' }],
+  },
+  controls: { position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 10 },
+  controlsRotated: {
+    position: 'absolute',
+    transform: [{ rotate: '90deg' }],
+    justifyContent: 'flex-end',
+    zIndex: 10,
+  },
+});

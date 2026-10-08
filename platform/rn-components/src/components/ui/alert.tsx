@@ -1,10 +1,10 @@
-import {useTheme} from '@react-navigation/native';
-import {cva, type VariantProps} from 'class-variance-authority';
-import type {LucideIcon} from 'lucide-react-native';
+import { useTheme } from '@react-navigation/native';
+import { cva, type VariantProps } from 'class-variance-authority';
+import type { LucideIcon } from 'lucide-react-native';
 import * as React from 'react';
-import {View, type ViewProps} from 'react-native';
-import {cn} from '~/lib/utils';
-import {ThemedText} from '~/components/ui/themed-text';
+import { View, type ViewProps } from 'react-native';
+import { cn } from '~/lib/utils';
+import { ThemedText } from '~/components/ui/themed-text';
 
 const alertVariants = cva(
   'relative bg-background w-full rounded-lg border border-border p-4 shadow shadow-foreground/10',
@@ -18,7 +18,7 @@ const alertVariants = cva(
     defaultVariants: {
       variant: 'default',
     },
-  },
+  }
 );
 
 const Alert = React.forwardRef<
@@ -31,23 +31,17 @@ const Alert = React.forwardRef<
     }
 >(
   (
-    {
-      className,
-      variant,
-      children,
-      icon: Icon,
-      iconSize = 16,
-      ...props
-    },
-    ref,
+    { className, variant, children, icon: Icon, iconSize = 16, ...props },
+    ref
   ) => {
-    const {colors} = useTheme();
+    const { colors } = useTheme();
     return (
       <View
         ref={ref}
         role="alert"
-        className={alertVariants({variant, className})}
-        {...props}>
+        className={alertVariants({ variant, className })}
+        {...props}
+      >
         <View className="absolute left-3.5 top-4 -translate-y-0.5">
           <Icon
             size={iconSize}
@@ -59,19 +53,19 @@ const Alert = React.forwardRef<
         {children}
       </View>
     );
-  },
+  }
 );
 Alert.displayName = 'Alert';
 
 const AlertTitle = React.forwardRef<
   React.ElementRef<typeof ThemedText>,
   React.ComponentPropsWithoutRef<typeof ThemedText>
->(({className, ...props}, ref) => (
+>(({ className, ...props }, ref) => (
   <ThemedText
     ref={ref}
     className={cn(
       'pl-7 mb-1 font-medium text-base leading-none tracking-tight text-foreground',
-      className,
+      className
     )}
     {...props}
   />
@@ -81,7 +75,7 @@ AlertTitle.displayName = 'AlertTitle';
 const AlertDescription = React.forwardRef<
   React.ElementRef<typeof ThemedText>,
   React.ComponentPropsWithoutRef<typeof ThemedText>
->(({className, ...props}, ref) => (
+>(({ className, ...props }, ref) => (
   <ThemedText
     ref={ref}
     className={cn('pl-7 text-sm leading-relaxed text-foreground', className)}
@@ -90,4 +84,4 @@ const AlertDescription = React.forwardRef<
 ));
 AlertDescription.displayName = 'AlertDescription';
 
-export {Alert, AlertDescription, AlertTitle};
+export { Alert, AlertDescription, AlertTitle };

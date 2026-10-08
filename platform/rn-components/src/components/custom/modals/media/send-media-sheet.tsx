@@ -57,9 +57,9 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
     const { t } = useTranslation();
 
     const addImages = (uris: string[]) =>
-      setSelectedImages(prev => [
+      setSelectedImages((prev) => [
         ...prev,
-        ...uris.filter(uri => !prev.includes(uri)),
+        ...uris.filter((uri) => !prev.includes(uri)),
       ]);
 
     const handleLibrary = async () => {
@@ -73,8 +73,8 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
       }
       addImages(
         result.assets
-          .map(asset => asset.uri)
-          .filter((uri): uri is string => Boolean(uri)),
+          .map((asset) => asset.uri)
+          .filter((uri): uri is string => Boolean(uri))
       );
     };
 
@@ -117,12 +117,14 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
             onScroll={handleScroll}
             scrollEventThrottle={16}
             decelerationRate="fast"
-            snapToInterval={IMAGE_WIDTH}>
-            {selectedImages.map(uri => (
+            snapToInterval={IMAGE_WIDTH}
+          >
+            {selectedImages.map((uri) => (
               <View
                 key={uri}
                 style={{ width: Dimensions.get('window').width }}
-                className="relative items-center justify-center">
+                className="relative items-center justify-center"
+              >
                 <Image
                   source={{ uri }}
                   style={{
@@ -140,7 +142,7 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
                         uploadProgress[uri].estimatedRemainingMs
                       }
                       isUploading
-                      onFailed={reason =>
+                      onFailed={(reason) =>
                         Toast.show({
                           type: 'error',
                           text1: t('form.upload.failed'),
@@ -152,9 +154,12 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
                 )}
                 <TouchableOpacity
                   onPress={() =>
-                    setSelectedImages(prev => prev.filter(img => img !== uri))
+                    setSelectedImages((prev) =>
+                      prev.filter((img) => img !== uri)
+                    )
                   }
-                  className="absolute top-4 right-8 w-8 h-8 rounded-full bg-background/50 items-center justify-center">
+                  className="absolute top-4 right-8 w-8 h-8 rounded-full bg-background/50 items-center justify-center"
+                >
                   <ThemedText className="text-lg">×</ThemedText>
                 </TouchableOpacity>
               </View>
@@ -165,8 +170,9 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
               {selectedImages.map((_image, index) => (
                 <View
                   key={index}
-                  className={`w-2 h-2 rounded-full ${index === currentImageIndex ? 'bg-primary' : 'bg-surface'
-                    }`}
+                  className={`w-2 h-2 rounded-full ${
+                    index === currentImageIndex ? 'bg-primary' : 'bg-surface'
+                  }`}
                 />
               ))}
             </View>
@@ -179,7 +185,7 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
       try {
         setIsSending(true);
         const attachments = await Promise.all(
-          selectedImages.map(imageUri =>
+          selectedImages.map((imageUri) =>
             uploadMedia({
               mediaUri: imageUri,
               createAttachments,
@@ -187,19 +193,19 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
               usage: `${server?.communityConfig.content}:image`,
               alt: 'image',
               setUploadProgress,
-            }),
-          ),
+            })
+          )
         );
 
         const validAttachments = attachments.filter(
           (attachment): attachment is NonNullable<typeof attachment> =>
-            attachment !== null,
+            attachment !== null
         );
 
         await sendMessage({
           visibility: 'direct',
           type: 'note',
-          audience: conversationAudience?.map(profile => ({
+          audience: conversationAudience?.map((profile) => ({
             ...profile,
             memberships: [],
             profileStats: {
@@ -233,14 +239,16 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
               variant={'outline'}
               size={'icon'}
               className="rounded-full"
-              onPress={handleLibrary}>
+              onPress={handleLibrary}
+            >
               <ImageIcon size={16} className="text-foreground" />
             </Button>
             <Button
               variant={'outline'}
               size={'icon'}
               className="rounded-full"
-              onPress={handleCameraPress}>
+              onPress={handleCameraPress}
+            >
               <CameraIcon size={16} className="text-foreground" />
             </Button>
           </View>
@@ -263,5 +271,5 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
         </View>
       </BaseSheet>
     );
-  },
+  }
 );

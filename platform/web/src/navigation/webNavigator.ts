@@ -30,7 +30,9 @@ export const createWebNavigator = (): Navigator => ({
         return base;
       }
       case 'post':
-        return `/posts/${target.id}`;
+        return target.occurrence
+          ? `/posts/${target.id}?occurrence=${encodeURIComponent(target.occurrence)}`
+          : `/posts/${target.id}`;
       case 'postNew':
         return '/posts/new';
       case 'group': {

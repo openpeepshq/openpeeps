@@ -1,78 +1,20 @@
-import { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import type { PostCreationData } from '@openpeepshq/common/types';
-import {
-  useT,
-  useOpenpeeps,
-  eventSanitizer,
-  getNewPostStores,
-  useSetPageHeader,
-} from '../../index';
-import { EventForm, useServerInfo } from '../../components';
+import { useMemo } from 'react';
+import { useT, useSetPageHeader } from '../../index';
+import { useNewEvent } from '../../hooks/events/useEventComposer';
+import { EventForm } from '../../components';
 import { Button, Toast } from '@openpeepshq/react-ui';
-import { normalizeEventDataForSave } from '@openpeepshq/common/lib';
 
 export function NewEvent() {
   const t = useT();
-  const navigate = useNavigate();
-  const serverInfo = useServerInfo();
-  const { openpeepsApi } = useOpenpeeps();
-  const createPost = openpeepsApi.createPostAction();
-  const stores = getNewPostStores();
-  const sanitize = useMemo(
-    () => eventSanitizer(serverInfo.publicContent),
-    [serverInfo.publicContent],
-  );
-
-  const [postData, setPostData] = useState<PostCreationData>(() =>
-    sanitize(stores.event),
-  );
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const event = postData.data.type === 'event' ? postData.data : null;
-  const canSubmit =
-    !!event?.start &&
-    !!event?.name?.trim() &&
-    !(postData.visibility === 'direct' && !postData.audience?.length);
-
-  const submit = useCallback(async () => {
-    setError(null);
-    if (!event?.start) {
-      setError(
-        t('events.validation.startRequired', {
-          defaultValue: 'Start date is required',
-        }),
-      );
-      return;
-    }
-    if (!event.name?.trim()) {
-      setError(
-        t('events.validation.nameRequired', {
-          defaultValue: 'Event name is required',
-        }),
-      );
-      return;
-    }
-    if (postData.visibility === 'direct' && !postData.audience?.length) {
-      setError('Choose at least one recipient for a direct event.');
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const created = await createPost({
-        ...postData,
-        type: 'event',
-        data: normalizeEventDataForSave(event),
-      });
-      stores.resetNewEventState();
-      navigate(`/posts/${created.id}`);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [createPost, event, navigate, postData, stores, t]);
+  const {
+    postData,
+    setPostData,
+    canSubmit,
+    submitting,
+    error,
+    clearError,
+    submit,
+  } = useNewEvent();
 
   const headerActions = useMemo(
     () => (
@@ -98,17 +40,11 @@ export function NewEvent() {
 
   return (
     <div className="pb-12">
-      <EventForm
-        postData={postData}
-        onChange={(data) => {
-          setPostData(data);
-          stores.event = data;
-        }}
-      />
+      <EventForm postData={postData} onChange={setPostData} />
 
       {error ? (
         <div className="px-3">
-          <Toast variant="error" onDismiss={() => setError(null)}>
+          <Toast variant="error" onDismiss={clearError}>
             {error}
           </Toast>
         </div>

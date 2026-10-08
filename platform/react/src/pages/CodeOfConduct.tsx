@@ -1,19 +1,20 @@
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Link } from '@openpeepshq/react-ui';
 import { useT } from '../index';
-import { AuthLayout, useCurrentProfile, useServerInfo } from '../components';
+import { AuthLayout } from '../components';
+import { useCommunityInfoPages } from '../hooks';
 
 import { Markdown } from '../lib/Markdown';
 
 export function CodeOfConduct() {
   const t = useT();
   const navigate = useNavigate();
-  const serverInfo = useServerInfo();
-  const currentProfile = useCurrentProfile();
-
-  const source =
-    serverInfo.communityConfig?.content?.codeOfConduct ??
-    'This community has not published a code of conduct yet.';
+  const {
+    codeOfConduct: source,
+    showVisitorLinks,
+    openRegistrations,
+    publicContent,
+  } = useCommunityInfoPages();
 
   return (
     <AuthLayout noRedirect navigate={(url) => void navigate(url)}>
@@ -23,9 +24,9 @@ export function CodeOfConduct() {
 
       <Markdown source={source} />
 
-      {!currentProfile && (
+      {showVisitorLinks && (
         <div className="flex justify-between px-2 pt-4">
-          {serverInfo.communityConfig?.settings?.openRegistrations && (
+          {openRegistrations && (
             <span>
               Don't have an account?{' '}
               <Link action="/auth/register" className="text-sm">
@@ -33,7 +34,7 @@ export function CodeOfConduct() {
               </Link>
             </span>
           )}
-          {serverInfo.publicContent && (
+          {publicContent && (
             <span>
               <RouterLink to="/feeds/local" className="op-anchor text-sm">
                 See community feed

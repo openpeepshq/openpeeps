@@ -1,13 +1,6 @@
-import { useState } from 'react';
 import { Copy } from 'lucide-react';
-import type {
-  AccessTokenCreationData,
-  AccessTokenWithMeta,
-  PublicAccessToken,
-  Scope,
-  ScopeLevel,
-} from '@openpeepshq/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
+import type { ScopeLevel } from '@openpeepshq/common/types';
+import { useT, useSetPageHeader } from '../../index';
 import {
   Button,
   Input,
@@ -15,91 +8,35 @@ import {
   ShadcnBadge,
   Toast,
 } from '@openpeepshq/react-ui';
-
-const scopeLabel = (scope: Scope) =>
-  `${scope.scopeLevel ?? 'read'}:${scope.resource.type}:${scope.resource.id ?? '*'}`;
-
-const RESOURCE_TYPES = [
-  '*',
-  'posts',
-  'profiles',
-  'groups',
-  'jams',
-  'notifications',
-  'reports',
-  'webhooks',
-] as const;
-
-const SCOPE_LEVELS: ScopeLevel[] = ['read', 'write', 'admin'];
-
-const defaultForm: AccessTokenCreationData = {
-  name: '',
-  description: '',
-  expirationTime: '30d',
-  scopes: [{ scopeLevel: 'read', resource: { type: 'posts', id: '*' } }],
-};
+import {
+  ACCESS_TOKEN_EXPIRATION_OPTIONS,
+  ACCESS_TOKEN_RESOURCE_TYPES,
+  ACCESS_TOKEN_SCOPE_LEVELS,
+  accessTokenScopeLabel,
+  useAccessTokens,
+  type AccessTokenResourceType,
+} from '../../hooks';
 
 export function AccessTokensSettings() {
   const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
-  const tokensQuery = openpeepsApi.useCurrentProfileAccessTokens();
-  const createToken = openpeepsApi.createCurrentProfileAccessTokenAction();
-  const revokeToken = openpeepsApi.revokeCurrentProfileAccessTokenAction();
+  const {
+    tokens,
+    form,
+    setForm,
+    creating,
+    createdToken,
+    error,
+    clearError,
+    updateScope,
+    addScope,
+    removeScope,
+    create,
+    revoke,
+  } = useAccessTokens();
 
   useSetPageHeader(
     t('settings.accessTokens.title', { defaultValue: 'Access tokens' }),
   );
-
-  const [form, setForm] = useState<AccessTokenCreationData>(defaultForm);
-  const [creating, setCreating] = useState(false);
-  const [createdToken, setCreatedToken] = useState<string | undefined>();
-  const [error, setError] = useState<string | undefined>();
-
-  const tokens = (tokensQuery.data ?? []) as PublicAccessToken[];
-
-  const create = async () => {
-    setError(undefined);
-    if (!form.name?.trim()) {
-      setError(
-        t('settings.accessTokens.nameRequired', {
-          defaultValue: 'Name is required',
-        }),
-      );
-      return;
-    }
-    if (!(form.scopes?.length ?? 0)) {
-      setError(
-        t('settings.accessTokens.scopeRequired', {
-          defaultValue: 'At least one scope is required',
-        }),
-      );
-      return;
-    }
-
-    setCreating(true);
-    setCreatedToken(undefined);
-    try {
-      const created = (await createToken({
-        name: form.name.trim(),
-        description: form.description?.trim() || undefined,
-        expirationTime: form.expirationTime,
-        scopes: (form.scopes ?? []).map((scope) => ({
-          ...scope,
-          resource: { ...scope.resource, id: '*' },
-        })),
-      })) as AccessTokenWithMeta;
-      setCreatedToken(created.signedToken);
-      setForm(defaultForm);
-    } catch {
-      setError(
-        t('settings.accessTokens.createError', {
-          defaultValue: 'Failed to create token',
-        }),
-      );
-    } finally {
-      setCreating(false);
-    }
-  };
 
   return (
     <div className="space-y-6 p-4">
@@ -158,26 +95,11 @@ export function AccessTokensSettings() {
               setForm((f) => ({ ...f, expirationTime: e.target.value }))
             }
           >
-            <option value="7d">
-              {t('settings.accessTokens.expirationOptions.sevenDays', {
-                defaultValue: '7 days',
-              })}
-            </option>
-            <option value="30d">
-              {t('settings.accessTokens.expirationOptions.thirtyDays', {
-                defaultValue: '30 days',
-              })}
-            </option>
-            <option value="90d">
-              {t('settings.accessTokens.expirationOptions.ninetyDays', {
-                defaultValue: '90 days',
-              })}
-            </option>
-            <option value="1y">
-              {t('settings.accessTokens.expirationOptions.oneYear', {
-                defaultValue: '1 year',
-              })}
-            </option>
+            {ACCESS_TOKEN_EXPIRATION_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {t(option.labelKey)}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -191,17 +113,12 @@ export function AccessTokensSettings() {
               className="border-input bg-background rounded-md border px-2 py-2 text-sm"
               value={scope.scopeLevel ?? 'read'}
               onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  scopes: (f.scopes ?? []).map((s, i) =>
-                    i === index
-                      ? { ...s, scopeLevel: e.target.value as ScopeLevel }
-                      : s,
-                  ),
-                }))
+                updateScope(index, {
+                  scopeLevel: e.target.value as ScopeLevel,
+                })
               }
             >
-              {SCOPE_LEVELS.map((level) => (
+              {ACCESS_TOKEN_SCOPE_LEVELS.map((level) => (
                 <option key={level} value={level}>
                   {level}
                 </option>
@@ -211,24 +128,12 @@ export function AccessTokensSettings() {
               className="border-input bg-background rounded-md border px-2 py-2 text-sm"
               value={scope.resource.type}
               onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  scopes: (f.scopes ?? []).map((s, i) =>
-                    i === index
-                      ? {
-                          ...s,
-                          resource: {
-                            ...s.resource,
-                            type: e.target
-                              .value as (typeof RESOURCE_TYPES)[number],
-                          },
-                        }
-                      : s,
-                  ),
-                }))
+                updateScope(index, {
+                  resourceType: e.target.value as AccessTokenResourceType,
+                })
               }
             >
-              {RESOURCE_TYPES.map((type) => (
+              {ACCESS_TOKEN_RESOURCE_TYPES.map((type) => (
                 <option key={type} value={type}>
                   {type}
                 </option>
@@ -237,35 +142,19 @@ export function AccessTokensSettings() {
             <Button
               variant="outline"
               disabled={(form.scopes?.length ?? 0) === 1}
-              action={() =>
-                setForm((f) => ({
-                  ...f,
-                  scopes: (f.scopes ?? []).filter((_, i) => i !== index),
-                }))
-              }
+              action={() => removeScope(index)}
             >
               {t('common.remove', { defaultValue: 'Remove' })}
             </Button>
           </div>
         ))}
 
-        <Button
-          variant="outline"
-          action={() =>
-            setForm((f) => ({
-              ...f,
-              scopes: [
-                ...(f.scopes ?? []),
-                { scopeLevel: 'read', resource: { type: 'posts', id: '*' } },
-              ],
-            }))
-          }
-        >
+        <Button variant="outline" action={addScope}>
           {t('settings.accessTokens.addScope', { defaultValue: 'Add scope' })}
         </Button>
 
         {error ? (
-          <Toast variant="error" onDismiss={() => setError(undefined)}>
+          <Toast variant="error" onDismiss={clearError}>
             {error}
           </Toast>
         ) : null}
@@ -342,7 +231,7 @@ export function AccessTokensSettings() {
                 <Button
                   variant="outline"
                   disabled={!!token.revokedAt}
-                  action={() => revokeToken({ accessTokenId: token.id })}
+                  action={() => revoke(token.id)}
                 >
                   {token.revokedAt
                     ? t('settings.accessTokens.revoked', {
@@ -357,7 +246,7 @@ export function AccessTokensSettings() {
                 {(token.scopes ?? []).length ? (
                   (token.scopes ?? []).map((scope, scopeIndex) => (
                     <ShadcnBadge key={scopeIndex} variant="outline">
-                      {scopeLabel(scope)}
+                      {accessTokenScopeLabel(scope)}
                     </ShadcnBadge>
                   ))
                 ) : (

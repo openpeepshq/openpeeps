@@ -5,7 +5,7 @@ import { ThemedText } from '~/components/ui/themed-text';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
 import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
-import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
+import { bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
 
 interface AltSheetProps {
   onUpdate?: (altText: string) => Promise<void> | void;
@@ -69,8 +69,7 @@ export const AltSheet = forwardRef<BottomSheetModal, AltSheetProps>(
                 onChangeText={setAltText}
                 multiline
                 numberOfLines={4}
-                className="bg-input border border-border rounded-md p-3 text-foreground text-base h-24 ios:h-24"
-                style={{ textAlignVertical: 'top' }} // Ensures text starts from top in multiline
+                className="bg-input border border-border rounded-md p-3 text-foreground text-base h-24 ios:h-24 align-top"
               />
               <ThemedText className="text-xs text-muted-foreground mt-2">
                 {t('media.image.altTextDescription')}
@@ -87,5 +86,5 @@ export const AltSheet = forwardRef<BottomSheetModal, AltSheetProps>(
         </View>
       </BaseSheet>
     );
-  },
+  }
 );

@@ -17,8 +17,8 @@ import {
   WifiOff,
 } from 'lucide-react';
 import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
-import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
+import { useJamParticipantMute } from '../../hooks/jams/useJamParticipant';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { useToast } from '../layout/ToastProvider';
 import { Avatar } from '../profile';
@@ -73,37 +73,12 @@ function JamParticipantModeratorMenu({
   onToggleSpotlight?: () => void;
 }) {
   const t = useT();
-  const { jamPost } = useJamContext();
-  const { openpeepsApi } = useOpenpeeps();
   const { success, error } = useToast();
-  const muteParticipant = openpeepsApi.muteJamParticipantAction({
-    id: jamPost.id,
+  const handleMute = useJamParticipantMute({
+    participant: trackRef.participant,
+    onSuccess: success,
+    onError: error,
   });
-  const participant = trackRef.participant;
-
-  const handleMute = async () => {
-    const audioPublication = participant
-      .getTrackPublications()
-      .find((pub) => pub.track?.kind === 'audio');
-    if (!audioPublication) return;
-    try {
-      await muteParticipant({
-        identity: participant.identity,
-        trackSid: audioPublication.trackSid,
-      });
-      success(
-        t('jams.participants.muteSuccess', {
-          defaultValue: 'Participant muted successfully',
-        }),
-      );
-    } catch {
-      error(
-        t('jams.participants.muteError', {
-          defaultValue: 'Failed to mute participant',
-        }),
-      );
-    }
-  };
 
   return (
     <PopupMenu

@@ -34,16 +34,16 @@ export const VideoPickerSheet = forwardRef<
     setIsLoading(true);
     try {
       const videoAttachments = await Promise.all(
-        uris.map(uri =>
+        uris.map((uri) =>
           uploadMedia({
             mediaUri: uri,
             createAttachments: createAttachment,
             type: 'video',
             usage: 'post_media',
             alt: 'Video attachment',
-          }),
-        ),
-      ).then(attachments => attachments.filter(Boolean) as MediaAttachment[]);
+          })
+        )
+      ).then((attachments) => attachments.filter(Boolean) as MediaAttachment[]);
       await onSelect(videoAttachments);
     } finally {
       setIsLoading(false);
@@ -60,7 +60,7 @@ export const VideoPickerSheet = forwardRef<
       return;
     }
     const uris = result.assets
-      .map(asset => asset.uri)
+      .map((asset) => asset.uri)
       .filter((uri): uri is string => Boolean(uri));
     await finalize(uris);
   };
@@ -84,7 +84,8 @@ export const VideoPickerSheet = forwardRef<
           variant="outline"
           className="flex-row items-center justify-center gap-2"
           onPress={handleCamera}
-          disabled={isLoading}>
+          disabled={isLoading}
+        >
           <CameraIcon size={18} className="text-foreground" />
           <Text className="text-foreground text-base font-medium">
             {t('common.media.video.recordVideo')}
@@ -94,7 +95,8 @@ export const VideoPickerSheet = forwardRef<
           variant="outline"
           className="flex-row items-center justify-center gap-2"
           onPress={handleLibrary}
-          disabled={isLoading}>
+          disabled={isLoading}
+        >
           <FilmIcon size={18} className="text-foreground" />
           <Text className="text-foreground text-base font-medium">
             {t('common.media.video.chooseFromLibrary')}

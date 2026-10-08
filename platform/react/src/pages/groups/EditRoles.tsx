@@ -1,55 +1,29 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import type { GroupData } from '@openpeepshq/common/types';
-import { checkGroupCapabilities } from '@openpeepshq/common/lib';
-import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
-import { GroupForm, useAuthData } from '../../components';
+import { useParams } from 'react-router-dom';
+import { useT, useSetPageHeader } from '../../index';
+import { GroupForm } from '../../components';
+import { useEditGroup } from '../../hooks';
 import { Button, LoadingSpinner, Toast } from '@openpeepshq/react-ui';
-import { apiErrorMessage } from '../../lib/apiErrorMessage';
 import { routeHandleParam } from '../../lib/routeHandles';
 
 export function EditGroupRoles() {
   const t = useT();
-  const navigate = useNavigate();
   const { handle: handleParam = '' } = useParams<{ handle: string }>();
-  const handle = routeHandleParam(handleParam);
-  const { openpeepsApi } = useOpenpeeps();
-  const authData = useAuthData();
-  const groupQuery = openpeepsApi.useGroupByHandle(handle);
-  const updateGroup = openpeepsApi.updateGroupAction();
+  const {
+    groupQuery,
+    groupData,
+    setGroupData,
+    submitting,
+    error,
+    clearError,
+    canEditCapabilities,
+    submit,
+  } = useEditGroup(routeHandleParam(handleParam), { section: 'roles' });
 
   useSetPageHeader(
     t('groups.edit.roles.title', {
       defaultValue: 'Roles & capabilities',
     }),
   );
-
-  const [groupData, setGroupData] = useState<GroupData | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (groupQuery.data) {
-      const {
-        handle,
-        avatar,
-        header,
-        displayName,
-        description,
-        rules,
-        capabilities,
-      } = groupQuery.data;
-      setGroupData({
-        handle,
-        avatar,
-        header,
-        displayName,
-        description,
-        rules,
-        capabilities,
-      });
-    }
-  }, [groupQuery.data]);
 
   if (groupQuery.isLoading || !groupData) {
     return (
@@ -66,12 +40,6 @@ export function EditGroupRoles() {
     );
   }
 
-  const canEditCapabilities = checkGroupCapabilities(
-    authData,
-    ['core-groups-updateCapabilities'],
-    groupQuery.data,
-  ).success;
-
   if (!canEditCapabilities) {
     return (
       <div className="p-8 text-center text-sm">
@@ -83,22 +51,6 @@ export function EditGroupRoles() {
     );
   }
 
-  const submit = async () => {
-    setError(null);
-    setSubmitting(true);
-    try {
-      const updated = (await updateGroup(
-        { ...groupQuery.data!, ...groupData },
-        { id: groupQuery.data!.id },
-      )) as { handle: string };
-      navigate(`/groups/@${updated.handle}`);
-    } catch (err) {
-      setError(apiErrorMessage(err, t));
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <div className="space-y-4 p-4 pb-12">
       <GroupForm
@@ -109,7 +61,7 @@ export function EditGroupRoles() {
       />
 
       {error && (
-        <Toast variant="error" onDismiss={() => setError(null)}>
+        <Toast variant="error" onDismiss={clearError}>
           {error}
         </Toast>
       )}

@@ -1,26 +1,22 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import type {
-  AudienceSetting,
-  Event,
-  EventRecurrence,
   PostCreationData,
   RecurrenceFreq,
-  RecurrenceWeekday,
 } from '@openpeepshq/common/types';
 import {
   EVENT_HEADER_ASPECT_RATIO,
   parseEventMaxAttendeesInput,
-  previewUpcomingOccurrences,
-  reinterpretIsoInTimeZone,
   utcIsoToZonedDateTime,
-  weekdayFromDate,
-  withoutEventMaxAttendees,
   zonedDateTimeToUtcIso,
 } from '@openpeepshq/common/lib';
 import { Input, Label } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
-import { useCurrentProfile } from '../../layout/IdentityContext';
+import {
+  EVENT_WEEKDAYS,
+  useEventForm,
+  type RepeatEnd,
+} from '../../../hooks/events/useEventForm';
 import { ImageInput } from '../../form/ImageInput';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
@@ -46,16 +42,6 @@ const TIMEZONES =
     ? Intl.supportedValuesOf('timeZone')
     : [Intl.DateTimeFormat().resolvedOptions().timeZone];
 
-const WEEKDAYS: RecurrenceWeekday[] = [
-  'MO',
-  'TU',
-  'WE',
-  'TH',
-  'FR',
-  'SA',
-  'SU',
-];
-
 export const EventForm = ({
   postData,
   onChange,
@@ -63,73 +49,25 @@ export const EventForm = ({
   occurrenceEdit = false,
 }: EventFormProps) => {
   const t = useT();
-  const me = useCurrentProfile();
-
-  const event = postData.data as Event;
-  const eventTimeZone =
-    event.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const [showEndDate, setShowEndDate] = useState(event.end !== undefined);
   const [audienceOpen, setAudienceOpen] = useState(false);
-
-  const patchEvent = (patch: Partial<Event>) => {
-    let next: Event = { ...event, ...patch };
-    if ('maxAttendees' in patch && patch.maxAttendees === undefined) {
-      next = withoutEventMaxAttendees(next);
-    }
-    onChange({
-      ...postData,
-      data: next,
-    });
-  };
-
-  const setAudience = (settings: AudienceSetting) => {
-    const audience = settings.audience ?? undefined;
-    const includesMe = audience?.some((p) => p.id === me?.id);
-    onChange({
-      ...postData,
-      visibility: settings.visibility,
-      groupId: settings.groupId ?? undefined,
-      audience:
-        settings.visibility === 'direct'
-          ? includesMe
-            ? audience
-            : [...(audience ?? []), ...(me ? [me] : [])]
-          : undefined,
-    });
-  };
-
-  const setRecurrence = (recurrence: EventRecurrence | undefined) => {
-    patchEvent({ recurrence });
-  };
-
-  const repeatFreq: RecurrenceFreq | 'none' = event.recurrence?.freq ?? 'none';
-  const repeatEnd = event.recurrence?.until
-    ? 'until'
-    : event.recurrence?.count
-      ? 'count'
-      : 'never';
-  const preview = event.recurrence ? previewUpcomingOccurrences(event, 3) : [];
-
-  const applyFreq = (freq: RecurrenceFreq | 'none') => {
-    if (freq === 'none') {
-      setRecurrence(undefined);
-      return;
-    }
-    const next: EventRecurrence = {
-      freq,
-      interval: event.recurrence?.interval,
-      until: event.recurrence?.until,
-      count: event.recurrence?.count,
-    };
-    if (freq === 'WEEKLY') {
-      next.byDay = event.recurrence?.byDay?.length
-        ? event.recurrence.byDay
-        : event.start
-          ? [weekdayFromDate(new Date(event.start))]
-          : ['MO'];
-    }
-    setRecurrence(next);
-  };
+  const {
+    event,
+    eventTimeZone,
+    showEndDate,
+    repeatFreq,
+    repeatEnd,
+    preview,
+    patchEvent,
+    setEvent,
+    setAudience,
+    applyFreq,
+    toggleWeekday,
+    applyRepeatEnd,
+    setRepeatUntil,
+    setRepeatCount,
+    toggleEndDate,
+    setTimeZone,
+  } = useEventForm(postData, onChange);
 
   return (
     <div data-testid="events-form-basic-details">
@@ -216,17 +154,7 @@ export const EventForm = ({
           <input
             type="checkbox"
             checked={showEndDate}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              setShowEndDate(checked);
-              if (checked && event.start) {
-                const end = new Date(event.start);
-                end.setHours(end.getHours() + 1);
-                patchEvent({ end: end.toISOString() });
-              } else {
-                patchEvent({ end: undefined });
-              }
-            }}
+            onChange={(e) => toggleEndDate(e.target.checked)}
           />
         </Label>
 
@@ -255,35 +183,7 @@ export const EventForm = ({
             id="event-timezone"
             className="bg-background w-full rounded-md border px-3 py-2 text-sm"
             value={eventTimeZone}
-            onChange={(e) => {
-              const timeZone = e.target.value;
-              patchEvent({
-                timeZone,
-                start:
-                  reinterpretIsoInTimeZone(
-                    event.start,
-                    eventTimeZone,
-                    timeZone,
-                  ) ?? event.start,
-                end: reinterpretIsoInTimeZone(
-                  event.end,
-                  eventTimeZone,
-                  timeZone,
-                ),
-                ...(event.recurrence?.until
-                  ? {
-                      recurrence: {
-                        ...event.recurrence,
-                        until: reinterpretIsoInTimeZone(
-                          event.recurrence.until,
-                          eventTimeZone,
-                          timeZone,
-                        ),
-                      },
-                    }
-                  : {}),
-              });
-            }}
+            onChange={(e) => setTimeZone(e.target.value)}
           >
             {TIMEZONES.map((tz) => (
               <option key={tz} value={tz}>
@@ -333,7 +233,7 @@ export const EventForm = ({
                   })}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {WEEKDAYS.map((day) => {
+                  {EVENT_WEEKDAYS.map((day) => {
                     const selected = event.recurrence?.byDay?.includes(day);
                     return (
                       <button
@@ -344,19 +244,7 @@ export const EventForm = ({
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-background'
                         }`}
-                        onClick={() => {
-                          const current = event.recurrence?.byDay ?? [];
-                          const next = selected
-                            ? current.filter((value) => value !== day)
-                            : [...current, day];
-                          setRecurrence({
-                            ...event.recurrence!,
-                            byDay:
-                              next.length > 0
-                                ? next
-                                : [weekdayFromDate(new Date(event.start))],
-                          });
-                        }}
+                        onClick={() => toggleWeekday(day)}
                       >
                         {t(`events.form.repeat.day.${day}`, {
                           defaultValue: day,
@@ -380,32 +268,9 @@ export const EventForm = ({
                     id="event-repeat-end"
                     className="bg-background w-full rounded-md border px-3 py-2 text-sm"
                     value={repeatEnd}
-                    onChange={(e) => {
-                      const mode = e.target.value;
-                      if (mode === 'never') {
-                        setRecurrence({
-                          ...event.recurrence!,
-                          until: undefined,
-                          count: undefined,
-                        });
-                      } else if (mode === 'until') {
-                        setRecurrence({
-                          ...event.recurrence!,
-                          count: undefined,
-                          until:
-                            event.recurrence?.until ??
-                            new Date(
-                              Date.now() + 90 * 24 * 60 * 60 * 1000,
-                            ).toISOString(),
-                        });
-                      } else {
-                        setRecurrence({
-                          ...event.recurrence!,
-                          until: undefined,
-                          count: event.recurrence?.count ?? 10,
-                        });
-                      }
-                    }}
+                    onChange={(e) =>
+                      applyRepeatEnd(e.target.value as RepeatEnd)
+                    }
                   >
                     <option value="never">
                       {t('events.form.repeat.never', { defaultValue: 'Never' })}
@@ -438,11 +303,7 @@ export const EventForm = ({
                         eventTimeZone,
                       )}
                       onChange={(e) =>
-                        setRecurrence({
-                          ...event.recurrence!,
-                          until: toIso(e.target.value, eventTimeZone),
-                          count: undefined,
-                        })
+                        setRepeatUntil(toIso(e.target.value, eventTimeZone))
                       }
                     />
                   </Label>
@@ -459,13 +320,7 @@ export const EventForm = ({
                       type="number"
                       min={1}
                       value={event.recurrence.count ?? 10}
-                      onChange={(e) =>
-                        setRecurrence({
-                          ...event.recurrence!,
-                          count: Math.max(1, Number(e.target.value) || 1),
-                          until: undefined,
-                        })
-                      }
+                      onChange={(e) => setRepeatCount(e.target.value)}
                     />
                   </Label>
                 ) : null}
@@ -497,11 +352,7 @@ export const EventForm = ({
           {t('events.form.location', { defaultValue: 'Location' })}
         </h2>
 
-        <EventTypeSwitcher
-          event={event}
-          isEdit={isEdit}
-          onChange={(next) => onChange({ ...postData, data: next })}
-        />
+        <EventTypeSwitcher event={event} isEdit={isEdit} onChange={setEvent} />
 
         <h2 className="text-lg">
           {t('events.form.people', { defaultValue: 'People' })}

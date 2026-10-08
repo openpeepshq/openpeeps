@@ -12,5 +12,3 @@ export type PostBoxTriggeredFrom =
   | 'group'
   | 'my-feed'
   | undefined;
-
-export const jamEmojis = ['💖', '👍🏿', '🎉', '👏🏿', '😂', '😮', '😥', '🤔', '👎🏿'];

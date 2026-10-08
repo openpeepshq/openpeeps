@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react';
 import { Laptop, Smartphone, Trash2 } from 'lucide-react';
-import type { PushSubscription } from '@openpeepshq/common/types';
 import {
   pushSubscriptionDeviceName,
   pushSubscriptionEndpoint,
@@ -10,66 +8,34 @@ import {
   getPushSubscription,
   unsubscribePushNotifications,
   useT,
-  useOpenpeeps,
   useSetPageHeader,
 } from '../../index';
+import { usePushEnabledDevices } from '../../hooks';
 import { Button, Toast } from '@openpeepshq/react-ui';
 
 export function PushEnabledDevices() {
   const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
-  const subscriptionsQuery = openpeepsApi.usePushSubscriptions();
-  const deleteSubscription = openpeepsApi.deletePushSubscriptionAction();
+  const {
+    subscriptions,
+    isCurrentDevice,
+    deletingId,
+    confirmId,
+    setConfirmId,
+    status,
+    clearStatus,
+    remove,
+  } = usePushEnabledDevices({
+    getCurrentEndpoint: async () => (await getPushSubscription())?.endpoint,
+    unsubscribeCurrent: async () => {
+      await unsubscribePushNotifications();
+    },
+  });
 
   useSetPageHeader(
     t('settings.notifications.pushEnabledDevices.title', {
       defaultValue: 'Push-enabled devices',
     }),
   );
-
-  const [currentEndpoint, setCurrentEndpoint] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [confirmId, setConfirmId] = useState<string | null>(null);
-  const [status, setStatus] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
-
-  const subscriptions = subscriptionsQuery.data ?? [];
-
-  useEffect(() => {
-    void getPushSubscription().then((sub) => {
-      if (sub?.endpoint) setCurrentEndpoint(sub.endpoint);
-    });
-  }, []);
-
-  const isCurrentDevice = (endpoint: string | undefined) =>
-    !!endpoint && currentEndpoint === endpoint;
-
-  const remove = async (subscription: PushSubscription) => {
-    setStatus(null);
-    setDeletingId(subscription.id);
-    try {
-      await deleteSubscription({ pushSubscriptionId: subscription.id });
-      if (
-        isCurrentDevice(pushSubscriptionEndpoint(subscription) ?? undefined)
-      ) {
-        await unsubscribePushNotifications();
-      }
-      setConfirmId(null);
-      await subscriptionsQuery.refetch();
-      setStatus({
-        type: 'success',
-        message: t('settings.notifications.pushEnabledDevices.delete.success', {
-          defaultValue: 'Device removed.',
-        }),
-      });
-    } catch (err) {
-      setStatus({ type: 'error', message: (err as Error).message });
-    } finally {
-      setDeletingId(null);
-    }
-  };
 
   return (
     <div className="p-4">
@@ -164,7 +130,7 @@ export function PushEnabledDevices() {
       )}
 
       {status ? (
-        <Toast variant={status.type} onDismiss={() => setStatus(null)}>
+        <Toast variant={status.type} onDismiss={clearStatus}>
           {status.message}
         </Toast>
       ) : null}

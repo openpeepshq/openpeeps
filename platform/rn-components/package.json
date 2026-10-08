@@ -242,7 +242,7 @@
     "root": true,
     "extends": [
       "@react-native",
-      "prettier"
+      "plugin:prettier/recommended"
     ],
     "rules": {
       "react/react-in-jsx-scope": "off",
@@ -251,27 +251,26 @@
         {
           "patterns": [
             {
-              "regex": "^@openpeepshq/[^/]+/[^/]+/.+",
+              "group": [
+                "@openpeepshq/*/*/*"
+              ],
               "message": "Import from @openpeepshq/<pkg> or @openpeepshq/<pkg>/<segment> only (at most one subpath)."
             }
           ]
         }
       ],
-      "prettier/prettier": [
-        "error",
+      "no-void": "off",
+      "react/no-unstable-nested-components": [
+        "warn",
         {
-          "quoteProps": "consistent",
-          "singleQuote": true,
-          "tabWidth": 2,
-          "trailingComma": "es5",
-          "useTabs": false
+          "allowAsProps": true
         }
       ]
     }
   },
   "eslintIgnore": [
     "node_modules/",
-    "lib/"
+    "/lib/"
   ],
   "prettier": {
     "quoteProps": "consistent",

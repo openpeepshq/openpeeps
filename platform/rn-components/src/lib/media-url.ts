@@ -1,8 +1,6 @@
 import { BASE_URL } from './constants';
 
-export const toAbsoluteMediaUrl = (
-  url?: string,
-): string | undefined => {
+export const toAbsoluteMediaUrl = (url?: string): string | undefined => {
   if (!url) {
     return undefined;
   }

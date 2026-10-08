@@ -23,11 +23,12 @@ import { useOpenpeeps } from '../../contexts/openpeeps';
 import { subscribePushNotifications } from '../../push';
 import { useT } from '../../i18n';
 import { useServerInfo } from '../server-data';
-import { useCurrentProfile } from '../layout/IdentityContext';
 import { useToast } from '../layout/ToastProvider';
+import {
+  useJamChatUnread,
+  useJamFooterControls,
+} from '../../hooks/jams/useJamFooterControls';
 import { useJamContext } from './JamContext';
-import { useJamEventsContext } from './JamEventsContext';
-import { useJamRecordingState } from './jamRecordingState';
 import {
   JamAudioOutputSelector,
   JamCameraSelector,
@@ -36,8 +37,6 @@ import {
 import { JamReactionMenu } from './JamReactionMenu';
 import { JamToolbarButton } from './JamToolbarButton';
 import { LeaveCloseButton } from './LeaveCloseButton';
-import { toggleHand } from './jamEventActions';
-import { useRaisedHands } from './useJamHands';
 
 export interface JamFooterProps {
   chatOpen: boolean;
@@ -54,17 +53,14 @@ export interface JamFooterProps {
   onToggleBlur: () => void;
 }
 
-/** Shared business logic + data for both footer variants. */
+/** Web wrapper: push subscription + `window.confirm`, toasts via provider. */
 const useFooterControls = () => {
   const t = useT();
   const room = useRoomContext();
-  const me = useCurrentProfile();
   const serverInfo = useServerInfo();
-  const { jam, jamPost, occurrence } = useJamContext();
-  const { openpeepsApi, client } = useOpenpeeps();
-  const { sendReactionEmoji } = useJamEventsContext();
+  const { client } = useOpenpeeps();
   const participants = useParticipants();
-  const raisedHands = useRaisedHands(room);
+  const { success: toastSuccess, error: toastError } = useToast();
 
   // Entering the jam room is a strong signal the user wants live updates, so
   // opportunistically register push notifications, mirroring the Svelte
@@ -74,70 +70,15 @@ const useFooterControls = () => {
     void subscribePushNotifications({ client, applicationServerKey: vapidKey });
   }, [client, vapidKey]);
 
-  const { success: toastSuccess, error: toastError } = useToast();
-  const isModerator = !!me && jam.moderators.includes(me.id);
-  const { isRecording } = useJamRecordingState();
-  const handRaised = raisedHands.has(room.localParticipant.identity);
-  const recordingEnabled = serverInfo.jams.livekit.recordingEnabled;
-
-  const startRecording = openpeepsApi.startRecordingAction({ id: jamPost.id });
-  const stopRecording = openpeepsApi.stopRecordingAction({ id: jamPost.id });
-  const waitingRoom = openpeepsApi.useWaitingRoomStream(
-    isModerator && jam.waitingRoom ? jamPost.id : '',
-    occurrence,
-  );
-
-  const [busy, setBusy] = useState(false);
-
-  const waitingRoomCount =
-    isModerator && jam.waitingRoom && waitingRoom
-      ? Object.keys(waitingRoom).length
-      : 0;
-
-  const toggleRecording = async () => {
-    if (isRecording && !window.confirm(t('jams.recording.stopConfirm'))) {
-      return;
-    }
-    setBusy(true);
-    try {
-      if (isRecording) {
-        const recording = await stopRecording(
-          undefined,
-          occurrence ? { occurrence } : undefined,
-        );
-        toastSuccess(t('jams.recording.stopped', { id: recording.id }));
-      } else {
-        const recording = await startRecording(
-          undefined,
-          occurrence ? { occurrence } : undefined,
-        );
-        toastSuccess(t('jams.recording.started', { id: recording.id }));
-      }
-    } catch {
-      toastError(
-        isRecording
-          ? t('jams.recording.stopError')
-          : t('jams.recording.startError'),
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return {
-    t,
+  const controls = useJamFooterControls({
     room,
-    isModerator,
-    isRecording,
-    recordingEnabled,
-    handRaised,
-    busy,
     participantCount: participants.length,
-    waitingRoomCount,
-    sendReactionEmoji,
-    toggleRecording,
-    raiseHand: () => void toggleHand(room),
-  };
+    confirmStopRecording: () => window.confirm(t('jams.recording.stopConfirm')),
+    onSuccess: toastSuccess,
+    onError: toastError,
+  });
+
+  return { t, room, ...controls };
 };
 
 /** Record control mirroring `RecordSwitch.svelte` (always red, Disc / SquareStop). */
@@ -207,28 +148,7 @@ const ChatButton = ({
   onToggle: () => void;
   t: ReturnType<typeof useT>;
 }) => {
-  const { sessionEvents } = useJamEventsContext();
-  const [lastSeenMessageId, setLastSeenMessageId] = useState('');
-  const [hasNewMessages, setHasNewMessages] = useState(false);
-
-  useEffect(() => {
-    const lastMessage = [...sessionEvents]
-      .reverse()
-      .find((event) => event.type === 'message');
-    if (!lastMessage || lastMessage.type !== 'message') return;
-
-    if (active) {
-      setLastSeenMessageId(lastMessage.id);
-      setHasNewMessages(false);
-      return;
-    }
-
-    if (lastSeenMessageId && lastMessage.id > lastSeenMessageId) {
-      setHasNewMessages(true);
-    } else if (!lastSeenMessageId) {
-      setLastSeenMessageId(lastMessage.id);
-    }
-  }, [sessionEvents, active, lastSeenMessageId]);
+  const { hasNewMessages, clear } = useJamChatUnread(active);
 
   return (
     <JamToolbarButton
@@ -236,7 +156,7 @@ const ChatButton = ({
       tone={active ? 'active' : 'default'}
       action={() => {
         onToggle();
-        setHasNewMessages(false);
+        clear();
       }}
     >
       <MessageSquareText />

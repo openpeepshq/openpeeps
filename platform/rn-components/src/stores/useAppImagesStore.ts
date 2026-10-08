@@ -1,4 +1,4 @@
-import {create} from 'zustand';
+import { create } from 'zustand';
 
 interface AppImagesStore {
   background: string | null;
@@ -7,9 +7,9 @@ interface AppImagesStore {
   setLogoSmall: (logoSmall: string | null) => void;
 }
 
-export const useAppImagesStore = create<AppImagesStore>(set => ({
+export const useAppImagesStore = create<AppImagesStore>((set) => ({
   background: null,
-  setBackground: background => set({background}),
+  setBackground: (background) => set({ background }),
   logoSmall: null,
-  setLogoSmall: logoSmall => set({logoSmall}),
+  setLogoSmall: (logoSmall) => set({ logoSmall }),
 }));

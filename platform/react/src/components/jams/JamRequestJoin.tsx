@@ -1,16 +1,11 @@
-import { useEffect, useState } from 'react';
-import type { LocalUserChoices } from '@livekit/components-react';
+import { useState } from 'react';
 import { Button } from '@openpeepshq/react-ui';
-import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
-import { useJamContext } from './JamContext';
+import { useJoinWaitingRoomToken } from '../../hooks/jams/useJamParticipant';
+import type { JamJoinParams } from '../../hooks/jams/useJamRoom';
 
 export interface JamRequestJoinProps {
-  onJoin: (params: {
-    token: string;
-    livekitUrl: string;
-    choices: LocalUserChoices;
-  }) => void;
+  onJoin: (params: JamJoinParams) => void;
 }
 
 function JamWaitingRoomListener({
@@ -18,29 +13,7 @@ function JamWaitingRoomListener({
 }: {
   onJoin: JamRequestJoinProps['onJoin'];
 }) {
-  const { jamPost, occurrence } = useJamContext();
-  const { openpeepsApi } = useOpenpeeps();
-  const tokenResponse = openpeepsApi.useJoinWaitingRoomStream(
-    jamPost.id,
-    occurrence,
-  );
-
-  useEffect(() => {
-    if (tokenResponse?.token && tokenResponse.livekitUrl) {
-      onJoin({
-        token: tokenResponse.token,
-        livekitUrl: tokenResponse.livekitUrl,
-        choices: {
-          audioEnabled: true,
-          videoEnabled: true,
-          username: '',
-          audioDeviceId: '',
-          videoDeviceId: '',
-        },
-      });
-    }
-  }, [tokenResponse, onJoin]);
-
+  useJoinWaitingRoomToken(onJoin);
   return null;
 }
 

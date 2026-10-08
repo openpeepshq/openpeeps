@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
-  deepSet,
   type NotificationType,
   notificationDefaults,
   type ProfileNotificationSettings,
-  type ProfileSettings,
 } from '@openpeepshq/common';
 import {
   getPushSubscription,
@@ -16,8 +14,9 @@ import {
   useSetPageHeader,
   type PushSubscriptionError,
 } from '../../index';
-import { useCurrentProfile, useServerInfo } from '../../components';
+import { useServerInfo } from '../../components';
 import { Button, Toast } from '@openpeepshq/react-ui';
+import { useNotificationPreferences } from '../../hooks';
 
 interface NotificationSettingProps {
   notificationType: NotificationType;
@@ -223,14 +222,28 @@ function PushSettingsPanel() {
 
 export function NotificationPreferences() {
   const t = useT();
-  const { client, openpeepsApi } = useOpenpeeps();
+  const { client } = useOpenpeeps();
   const serverInfo = useServerInfo();
-  const me = useCurrentProfile();
-  const notificationTypesQuery =
-    openpeepsApi.useCurrentProfileNotificationTypes();
-  const settingsQuery = openpeepsApi.useCurrentProfileSettings();
-  const updateSettings = openpeepsApi.updateCurrentProfileSettingsAction();
   const vapidKey = serverInfo.vapid.publicKey;
+  const {
+    me,
+    types,
+    settings,
+    setTypeSettings,
+    save,
+    saving,
+    status,
+    clearStatus,
+  } = useNotificationPreferences({
+    ensurePush: vapidKey
+      ? async () => {
+          await subscribePushNotifications({
+            client,
+            applicationServerKey: vapidKey,
+          });
+        }
+      : undefined,
+  });
 
   useSetPageHeader(
     t('settings.notifications.preferences.title', {
@@ -238,72 +251,7 @@ export function NotificationPreferences() {
     }),
   );
 
-  const [settings, setSettings] = useState<ProfileSettings>(
-    () =>
-      ({
-        id: me?.id ?? '',
-        notifications: {},
-      }) as unknown as ProfileSettings,
-  );
-  const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
-
-  useEffect(() => {
-    if (settingsQuery.data) {
-      setSettings(settingsQuery.data);
-    }
-  }, [settingsQuery.data]);
-
   if (!me) return null;
-
-  const save = async () => {
-    setStatus(null);
-    setSaving(true);
-    try {
-      const wantsPush = Object.values(settings.notifications ?? {}).some(
-        (entry) => entry?.push,
-      );
-      // Push device registration is best-effort — preference saves must not
-      // fail when the browser already has a push subscription for another key.
-      let pushWarning: string | undefined;
-      if (wantsPush && vapidKey) {
-        try {
-          await subscribePushNotifications({
-            client,
-            applicationServerKey: vapidKey,
-          });
-        } catch (err) {
-          pushWarning =
-            err instanceof Error
-              ? err.message
-              : t('settings.notifications.pushSubscribeFailed', {
-                  defaultValue:
-                    'Could not enable push notifications on this device.',
-                });
-        }
-      }
-      await updateSettings(settings);
-      setStatus({
-        type: 'success',
-        message: pushWarning
-          ? t('settings.notifications.updateSuccessPushFailed', {
-              defaultValue:
-                'Notification settings updated, but push on this device failed: {{detail}}',
-              detail: pushWarning,
-            })
-          : t('settings.notifications.updateSuccess', {
-              defaultValue: 'Notification settings updated.',
-            }),
-      });
-    } catch (err) {
-      setStatus({ type: 'error', message: (err as Error).message });
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <section className="mr-4 mt-5 p-4">
@@ -319,21 +267,17 @@ export function NotificationPreferences() {
         })}
       </h2>
 
-      {(notificationTypesQuery.data ?? []).map((nt) => (
+      {types.map((nt) => (
         <NotificationSettingRow
           key={nt.type}
           notificationType={nt}
           settings={settings.notifications?.[nt.type]}
-          onChange={(s) => {
-            const next = { ...settings };
-            deepSet(next, `notifications.${nt.type}`, s);
-            setSettings(next);
-          }}
+          onChange={(next) => setTypeSettings(nt.type, next)}
         />
       ))}
 
       {status ? (
-        <Toast variant={status.type} onDismiss={() => setStatus(null)}>
+        <Toast variant={status.type} onDismiss={clearStatus}>
           {status.message}
         </Toast>
       ) : null}

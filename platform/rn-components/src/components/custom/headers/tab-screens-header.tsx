@@ -1,23 +1,34 @@
 import React from 'react';
-import {Image, View, ImageBackground, StatusBar, Platform} from 'react-native';
+import {
+  Image,
+  View,
+  ImageBackground,
+  StatusBar,
+  Platform,
+  StyleSheet,
+} from 'react-native';
 
-import {ThemedText} from '~/components/ui/themed-text';
-import {Avatar, AvatarImage, AvatarFallback} from '~/components/ui/avatar';
-import {Button} from '~/components/ui/button';
-import {BellIcon} from '~/components/icons';
-import {User} from 'lucide-react-native';
-import {useDrawer} from '~/contexts/drawer-context';
-import {formatBadgeCount} from '@openpeepshq/common';
-import {useOpenpeeps} from '@openpeepshq/react';
-import {useNavigation, useFocusEffect, useNavigationState} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useAppImagesStore} from '~/stores/useAppImagesStore';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {BASE_URL, isProduction} from '~/lib/constants';
-import {useWindowSize} from '~/hooks';
-import {ThemedSafeAreaView} from '~/components/ui/themed-safe-area-view';
-import {TabStackParamList, TAB_ROUTES} from '~/components/navigation/types';
-import {setAppBadgeCount} from '~/lib/notification-helpers';
+import { ThemedText } from '~/components/ui/themed-text';
+import { Avatar, AvatarImage, AvatarFallback } from '~/components/ui/avatar';
+import { Button } from '~/components/ui/button';
+import { BellIcon } from '~/components/icons';
+import { User } from 'lucide-react-native';
+import { useDrawer } from '~/contexts/drawer-context';
+import { formatBadgeCount } from '@openpeepshq/common';
+import { useOpenpeeps } from '@openpeepshq/react';
+import {
+  useNavigation,
+  useFocusEffect,
+  useNavigationState,
+} from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAppImagesStore } from '~/stores/useAppImagesStore';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { BASE_URL, isProduction } from '~/lib/constants';
+import { useWindowSize } from '~/hooks';
+import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { TabStackParamList, TAB_ROUTES } from '~/components/navigation/types';
+import { setAppBadgeCount } from '~/lib/notification-helpers';
 
 interface TabScreensHeaderProps {
   showIcons?: boolean;
@@ -30,11 +41,11 @@ export const TabScreensHeader = ({
   showVerification = false,
   children,
 }: TabScreensHeaderProps) => {
-  const {openDrawer} = useDrawer();
+  const { openDrawer } = useDrawer();
 
-  const {isMediumScreenOrLarger} = useWindowSize();
+  const { isMediumScreenOrLarger } = useWindowSize();
 
-  const {currentProfile, openpeepsApi} = useOpenpeeps();
+  const { currentProfile, openpeepsApi } = useOpenpeeps();
   const {
     data: notificationsStats,
     isSuccess,
@@ -42,10 +53,10 @@ export const TabScreensHeader = ({
   } = openpeepsApi.useCurrentProfileNotificationStats();
   const navigation =
     useNavigation<NativeStackNavigationProp<TabStackParamList>>();
-  const {background, logoSmall} = useAppImagesStore();
+  const { background, logoSmall } = useAppImagesStore();
   const lastFetchRef = React.useRef<number>(0);
   const isOnNotificationsScreen = useNavigationState(
-    state => state.routes[state.index]?.name === TAB_ROUTES.NOTIFICATIONS,
+    (state) => state.routes[state.index]?.name === TAB_ROUTES.NOTIFICATIONS
   );
 
   const onNotificationPress = () => {
@@ -64,7 +75,7 @@ export const TabScreensHeader = ({
         refetch();
       }
       return undefined;
-    }, [refetch, isOnNotificationsScreen]),
+    }, [refetch, isOnNotificationsScreen])
   );
 
   React.useEffect(() => {
@@ -87,10 +98,9 @@ export const TabScreensHeader = ({
         source={{
           uri: background!,
         }}
-        style={{
-          paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-        }}
-        className="pb-3 px-4">
+        style={styles.header}
+        className="pb-3 px-4"
+      >
         <SafeAreaView edges={['top']} className="">
           {!isProduction && (
             <View className="mb-2 w-full rounded-lg bg-white/50 p-2">
@@ -106,11 +116,13 @@ export const TabScreensHeader = ({
               onPress={() => {
                 openDrawer();
               }}
-              className="native:px-0 active:bg-none rounded-full bg-black">
+              className="native:px-0 active:bg-none rounded-full bg-black"
+            >
               <Avatar
-                alt={(currentProfile?.displayName as string) || 'Profile'}>
+                alt={(currentProfile?.displayName as string) || 'Profile'}
+              >
                 {currentProfile?.avatar ? (
-                  <AvatarImage source={{uri: currentProfile.avatar}} />
+                  <AvatarImage source={{ uri: currentProfile.avatar }} />
                 ) : (
                   <AvatarFallback className="h-6 w-6 -bottom-2 -right-2 bg-black">
                     <User size={20} color="#a3a5aaff" />
@@ -131,17 +143,18 @@ export const TabScreensHeader = ({
                 variant={'outline'}
                 size={'icon'}
                 onPress={onNotificationPress}
-                className="relative">
+                className="relative"
+              >
                 <BellIcon className="text-muted-foreground" size={18} />
                 {isSuccess &&
                   !isOnNotificationsScreen &&
                   notificationsStats.unseen > 0 && (
-                  <View className="absolute -top-3 -right-2 h-6 w-6 items-center justify-center rounded-full bg-foreground">
-                    <ThemedText className="text-background text-xs">
-                      {formatBadgeCount(notificationsStats.unseen)}
-                    </ThemedText>
-                  </View>
-                )}
+                    <View className="absolute -top-3 -right-2 h-6 w-6 items-center justify-center rounded-full bg-foreground">
+                      <ThemedText className="text-background text-xs">
+                        {formatBadgeCount(notificationsStats.unseen)}
+                      </ThemedText>
+                    </View>
+                  )}
               </Button>
             )}
           </View>
@@ -179,3 +192,9 @@ export const TabScreensHeader = ({
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  header: {
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+});

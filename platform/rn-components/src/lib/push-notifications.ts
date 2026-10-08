@@ -26,9 +26,10 @@ import './push-notifications-background';
 
 const messageToPushNotification = (
   message: FirebaseMessagingTypes.RemoteMessage
-): PushMessage | false =>
-  !!message.data?.payload &&
-  (JSON.parse(message.data.payload as string) as PushMessage);
+): PushMessage | undefined =>
+  message.data?.payload
+    ? (JSON.parse(message.data.payload as string) as PushMessage)
+    : undefined;
 
 export const getDefaultActionFromRemoteMessage = (
   remoteMessage: FirebaseMessagingTypes.RemoteMessage
@@ -229,7 +230,7 @@ const registerFcmToken = async (
         fcmToken: token,
       } as PushSubscriptionData;
     }
-  } catch (_error) {
+  } catch {
     console.info('Error initializing push notifications');
   }
 };

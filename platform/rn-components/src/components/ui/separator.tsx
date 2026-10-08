@@ -2,8 +2,14 @@ import * as SeparatorPrimitive from '@rn-primitives/separator';
 import * as React from 'react';
 import { cn } from '~/lib/utils';
 
-const Separator = React.forwardRef<SeparatorPrimitive.RootRef, SeparatorPrimitive.RootProps>(
-  ({ className, orientation = 'horizontal', decorative = true, ...props }, ref) => (
+const Separator = React.forwardRef<
+  SeparatorPrimitive.RootRef,
+  SeparatorPrimitive.RootProps
+>(
+  (
+    { className, orientation = 'horizontal', decorative = true, ...props },
+    ref
+  ) => (
     <SeparatorPrimitive.Root
       ref={ref}
       decorative={decorative}

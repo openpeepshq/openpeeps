@@ -20,7 +20,7 @@ type UseNotificationBadgeResetOptions = {
 };
 
 export const useNotificationBadgeReset = (
-  options?: UseNotificationBadgeResetOptions,
+  options?: UseNotificationBadgeResetOptions
 ) => {
   const { openpeepsApi, queryClient } = useOpenpeeps();
   const isFocused = useIsFocused();
@@ -33,6 +33,7 @@ export const useNotificationBadgeReset = (
   const { data: stats, refetch: refetchStats } =
     openpeepsApi.useCurrentProfileNotificationStats();
   const markingRef = useRef(false);
+  const refetchFeed = options?.refetchFeed;
 
   const resetBadge = useCallback(async () => {
     if (markingRef.current) {
@@ -46,20 +47,15 @@ export const useNotificationBadgeReset = (
         (current) => ({
           unread: current?.unread ?? 0,
           unseen: 0,
-        }),
+        })
       );
       await setAppBadgeCount(0);
       await refetchStats();
-      await options?.refetchFeed?.();
+      await refetchFeed?.();
     } finally {
       markingRef.current = false;
     }
-  }, [
-    markAllNotificationsAsSeen,
-    queryClient,
-    refetchStats,
-    options?.refetchFeed,
-  ]);
+  }, [markAllNotificationsAsSeen, queryClient, refetchStats, refetchFeed]);
 
   const handlePushWhileFocused = useCallback(
     async (unseen: number) => {
@@ -68,12 +64,12 @@ export const useNotificationBadgeReset = (
         (current) => ({
           unread: current?.unread ?? 0,
           unseen,
-        }),
+        })
       );
       await setAppBadgeCount(unseen);
       await resetBadge();
     },
-    [queryClient, resetBadge],
+    [queryClient, resetBadge]
   );
 
   useFocusEffect(
@@ -83,14 +79,15 @@ export const useNotificationBadgeReset = (
       return () => {
         clearNotificationsScreenPushHandler();
       };
-    }, [resetBadge, handlePushWhileFocused]),
+    }, [resetBadge, handlePushWhileFocused])
   );
 
+  const unseen = stats?.unseen ?? 0;
   useEffect(() => {
-    if (isFocused && stats && stats.unseen > 0) {
+    if (isFocused && unseen > 0) {
       void resetBadge();
     }
-  }, [isFocused, stats?.unseen, resetBadge]);
+  }, [isFocused, unseen, resetBadge]);
 
   return { resetBadge, handlePushWhileFocused };
 };

@@ -28,7 +28,9 @@ interface ComboboxOption {
 const Empty = ({ emptyText }: { emptyText: string }) => {
   return (
     <View className="items-center flex-row justify-center flex-1  px-3 py-5">
-      <Text className={'text-muted-foreground text-xl text-center'}>{emptyText}</Text>
+      <Text className={'text-muted-foreground text-xl text-center'}>
+        {emptyText}
+      </Text>
     </View>
   );
 };
@@ -59,7 +61,7 @@ const Combobox = React.forwardRef<
       onSelectedItemChange,
       ...props
     },
-    ref,
+    ref
   ) => {
     const insets = useSafeAreaInsets();
     const [search, setSearch] = React.useState('');
@@ -71,22 +73,25 @@ const Combobox = React.forwardRef<
 
     const listItems = React.useMemo(() => {
       return search
-        ? items.filter(item => {
-          return item.label
-            ?.toLocaleLowerCase()
-            .includes(search.toLocaleLowerCase());
-        })
+        ? items.filter((item) => {
+            return item.label
+              ?.toLocaleLowerCase()
+              .includes(search.toLocaleLowerCase());
+          })
         : items;
     }, [items, search]);
 
-    const onItemChange = React.useCallback((listItem: ComboboxOption) => {
-      if (selectedItemProp?.value === listItem.value) {
-        return null;
-      }
-      setSearch('');
-      bottomSheet.close();
-      return listItem;
-    }, [selectedItemProp?.value, bottomSheet]);
+    const onItemChange = React.useCallback(
+      (listItem: ComboboxOption) => {
+        if (selectedItemProp?.value === listItem.value) {
+          return null;
+        }
+        setSearch('');
+        bottomSheet.close();
+        return listItem;
+      },
+      [selectedItemProp?.value, bottomSheet]
+    );
 
     const renderItem = React.useCallback(
       ({ item }: ListRenderItemInfo<unknown>) => {
@@ -97,15 +102,15 @@ const Combobox = React.forwardRef<
         return (
           <Button
             variant="ghost"
-            className="items-center flex-row android:flex-1 justify-between px-3 py-4"
-            style={{ minHeight: 70 }}
+            className="min-h-[70px] items-center flex-row android:flex-1 justify-between px-3 py-4"
             onPress={() => {
               if (onSelectedItemChange) {
                 onSelectedItemChange(onItemChange(listItem));
                 return;
               }
               setSelectedItem(onItemChange(listItem));
-            }}>
+            }}
+          >
             <View className="flex-row flex-1">
               <Text className={'text-foreground text-lg'}>
                 {listItem.label}
@@ -117,12 +122,14 @@ const Combobox = React.forwardRef<
           </Button>
         );
       },
-      [selectedItem, selectedItemProp, onSelectedItemChange, onItemChange],
+      [selectedItem, selectedItemProp, onSelectedItemChange, onItemChange]
     );
 
     function onSubmitEditing() {
       const firstItem = listItems[0];
-      if (!firstItem) { return; }
+      if (!firstItem) {
+        return;
+      }
       if (onSelectedItemChange) {
         onSelectedItemChange(firstItem);
       } else {
@@ -132,7 +139,9 @@ const Combobox = React.forwardRef<
     }
 
     function onSearchIconPress() {
-      if (!inputRef.current) { return; }
+      if (!inputRef.current) {
+        return;
+      }
       const input = inputRef.current;
       if (input && 'focus' in input && typeof input.focus === 'function') {
         input.focus();
@@ -151,7 +160,8 @@ const Combobox = React.forwardRef<
             className: cn('flex-row w-full', className),
           })}
           role="combobox"
-          {...props}>
+          {...props}
+        >
           <View className="flex-1 flex-row justify-between ">
             <Text
               className={buttonTextVariants({
@@ -159,8 +169,9 @@ const Combobox = React.forwardRef<
                 size,
                 className: cn(!itemSelected && 'opacity-50'),
               })}
-              numberOfLines={1}>
-              {itemSelected ? itemSelected.label : placeholder ?? ''}
+              numberOfLines={1}
+            >
+              {itemSelected ? itemSelected.label : (placeholder ?? '')}
             </Text>
             <ChevronsUpDownIcon className="text-foreground ml-2 opacity-50" />
           </View>
@@ -169,7 +180,8 @@ const Combobox = React.forwardRef<
           ref={bottomSheet.ref}
           onDismiss={() => {
             setSearch('');
-          }}>
+          }}
+        >
           <BottomSheetHeader className="border-b-0">
             <Text className="text-foreground text-xl font-bold text-center px-0.5">
               {placeholder}
@@ -192,7 +204,8 @@ const Combobox = React.forwardRef<
               variant={'ghost'}
               size="sm"
               className="absolute left-4 top-2.5"
-              onPress={onSearchIconPress}>
+              onPress={onSearchIconPress}
+            >
               <SearchIcon size={16} className="text-foreground opacity-50" />
             </Button>
           </View>
@@ -212,7 +225,7 @@ const Combobox = React.forwardRef<
         </BottomSheetContent>
       </BottomSheet>
     );
-  },
+  }
 );
 
 Combobox.displayName = 'Combobox';

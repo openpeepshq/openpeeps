@@ -2,38 +2,46 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TabNavigator } from './tab-navigator';
 import {
-  CreateNewJam,
-  EditProfile,
-  JamSession,
+  NewJam,
+  PublicProfileSettings,
+  JamEvent,
   Profile,
-  ProfileFollowers,
-  ProfileFollowing,
-  UpcomingJams,
+  Followers,
+  Following,
   MyJams,
-  Conversation,
+  ConversationShow,
   ConversationInfo,
-  SelectPrivateMessageMembers,
+  NewConversation,
   DraftMessage,
-  CreateGroup,
-  Group,
+  NewGroup,
+  GroupShow,
   GroupMembers,
   GroupInfo,
-  EditGroupDetails,
+  EditGroup,
   NewEvent,
   EditEvent,
-  Post,
+  PostDetail,
   ReplyPost,
-  JamDetails,
-  JamHostControls,
-  InJamChat,
   EditPost,
-  NotificationsSettings,
+  NotificationPreferences,
   AccountSettings,
   ThemeSettings,
+  AccessTokensSettings,
   FeedSettings,
   BlockedSettings,
   VideoPlayer,
-} from '../../screens';
+  LanguageSettings,
+  TimezoneSettings,
+  NotificationSettings,
+  PushEnabledDevices,
+  EditGroupInfo,
+  EditGroupRoles,
+  NewArticle,
+  EditArticle,
+  EventsMy,
+  About,
+  CodeOfConduct,
+} from '../../pages';
 import { MenuWrapper } from '~/components/navigation/side-menu-wrapper';
 import { SideMenuDrawer } from './side-menu-drawer';
 
@@ -86,41 +94,55 @@ export const MainNavigator = () => {
     >
       <Stack.Screen name="TabNavigator" component={TabNavigator} />
       <Stack.Screen name="Profile" component={Profile} />
-      <Stack.Screen name="ProfileFollowers" component={ProfileFollowers} />
-      <Stack.Screen name="ProfileFollowing" component={ProfileFollowing} />
-      <Stack.Screen name="EditProfile" component={EditProfile} />
-      <Stack.Screen name="JamSession" component={JamSession} />
-      <Stack.Screen name="InJamChat" component={InJamChat} />
-      <Stack.Screen name="JamHostControls" component={JamHostControls} />
-      <Stack.Screen name="JamDetails" component={JamDetails} />
-      <Stack.Screen name="CreateNewJam" component={CreateNewJam} />
-      <Stack.Screen name="UpcomingJams" component={UpcomingJams} />
+      <Stack.Screen name="ProfileFollowers" component={Followers} />
+      <Stack.Screen name="ProfileFollowing" component={Following} />
+      <Stack.Screen name="EditProfile" component={PublicProfileSettings} />
+      <Stack.Screen name="JamSession" component={JamEvent} />
+      <Stack.Screen name="CreateNewJam" component={NewJam} />
       <Stack.Screen name="MyJams" component={MyJams} />
-      <Stack.Screen name="Conversation" component={Conversation} />
+      <Stack.Screen name="Conversation" component={ConversationShow} />
       <Stack.Screen name="ConversationInfo" component={ConversationInfo} />
       <Stack.Screen
         name="SelectPrivateMessageMembers"
-        component={SelectPrivateMessageMembers}
+        component={NewConversation}
       />
       <Stack.Screen name="DraftMessage" component={DraftMessage} />
-      <Stack.Screen name="CreateGroup" component={CreateGroup} />
-      <Stack.Screen name="Group" component={Group} />
+      <Stack.Screen name="CreateGroup" component={NewGroup} />
+      <Stack.Screen name="Group" component={GroupShow} />
       <Stack.Screen name="GroupMembers" component={GroupMembers} />
       <Stack.Screen name="GroupInfo" component={GroupInfo} />
-      <Stack.Screen name="EditGroupDetails" component={EditGroupDetails} />
+      <Stack.Screen name="EditGroupDetails" component={EditGroup} />
       <Stack.Screen name="NewEvent" component={NewEvent} />
       <Stack.Screen name="EditEvent" component={EditEvent} />
-      <Stack.Screen name="Post" component={Post} />
+      <Stack.Screen name="Post" component={PostDetail} />
       <Stack.Screen name="ReplyPost" component={ReplyPost} />
       <Stack.Screen name="EditPost" component={EditPost} />
       <Stack.Screen
         name="NotificationsSettings"
-        component={NotificationsSettings}
+        component={NotificationPreferences}
       />
       <Stack.Screen name="AccountSettings" component={AccountSettings} />
       <Stack.Screen name="ThemeSettings" component={ThemeSettings} />
       <Stack.Screen name="FeedSettings" component={FeedSettings} />
+      <Stack.Screen
+        name="AccessTokensSettings"
+        component={AccessTokensSettings}
+      />
       <Stack.Screen name="BlockedSettings" component={BlockedSettings} />
+      <Stack.Screen name="LanguageSettings" component={LanguageSettings} />
+      <Stack.Screen name="TimezoneSettings" component={TimezoneSettings} />
+      <Stack.Screen
+        name="NotificationSettings"
+        component={NotificationSettings}
+      />
+      <Stack.Screen name="PushEnabledDevices" component={PushEnabledDevices} />
+      <Stack.Screen name="EditGroupInfo" component={EditGroupInfo} />
+      <Stack.Screen name="EditGroupRoles" component={EditGroupRoles} />
+      <Stack.Screen name="NewArticle" component={NewArticle} />
+      <Stack.Screen name="EditArticle" component={EditArticle} />
+      <Stack.Screen name="MyEvents" component={EventsMy} />
+      <Stack.Screen name="About" component={About} />
+      <Stack.Screen name="CodeOfConduct" component={CodeOfConduct} />
       <Stack.Screen name="VideoPlayer" component={VideoPlayer} />
     </Stack.Navigator>
   );

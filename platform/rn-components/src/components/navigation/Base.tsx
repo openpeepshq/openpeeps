@@ -4,22 +4,18 @@ import { ThemedView } from '../ui/themed-view';
 import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
 
 export const Base: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { colors, isDark } = useOpenPeepsTheme();
 
-    const { colors, isDark } = useOpenPeepsTheme();
-
-    return (
-        <ThemedView
-            style={{
-                flex: 1,
-                backgroundColor: colors.background,
-            }}>
-            <StatusBar
-                translucent
-                barStyle={
-                    isDark ? 'light-content' : 'dark-content'
-                }
-            />
-            {children}
-        </ThemedView>
-    );
+  return (
+    <ThemedView
+      className="flex-1"
+      style={{ backgroundColor: colors.background }}
+    >
+      <StatusBar
+        translucent
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+      />
+      {children}
+    </ThemedView>
+  );
 };

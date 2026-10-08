@@ -1,6 +1,7 @@
 import {
   RoomAudioRenderer,
   isTrackReference,
+  useRoomContext,
   useTracks,
 } from '@livekit/components-react';
 import { Track } from 'livekit-client';
@@ -48,8 +49,9 @@ function JamObserverConference() {
 }
 
 function JamObserverRoom() {
+  const room = useRoomContext();
   return (
-    <JamEventsProvider>
+    <JamEventsProvider room={room}>
       <JamObserverConference />
       <RoomAudioRenderer />
     </JamEventsProvider>

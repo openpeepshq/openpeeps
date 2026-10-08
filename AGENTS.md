@@ -108,6 +108,13 @@ steps — follow that skill.
   defined in the Tailwind preset at `libraries/react-ui/tailwind.preset.cjs`.
 - **i18n:** never hardcode user-facing copy. Add a key to `locales/en.json` and
   reference it via the `t()` function.
+- **Web and native stay in sync.** `platform/rn-components` mirrors
+  `platform/react` component for component. Every UI change in
+  `platform/react` (new component, changed layout, behavior, or copy) must be
+  made in the matching `platform/rn-components` component in the same change.
+  Keep logic in shared hooks under `platform/react/src/hooks` (exported via
+  `react-native.ts`) so both sides consume the same behavior; only the
+  rendering layer differs.
 - **Schema migrations:** changes to stored data shape go through **Drizzle SQL**.
   Update tables under
   `platform/core/src/db/pg/schema/`, then

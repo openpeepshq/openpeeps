@@ -1,33 +1,23 @@
-import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { cn, LoadingSpinner } from '@openpeepshq/react-ui';
 import { useT } from '../../../../i18n';
+import {
+  dayNumber,
+  eventName,
+  useEventsCalendar,
+} from '../../../../hooks/events/useEventsCalendar';
 import type { EventsFeedQuery } from './EventsFeed';
 import {
-  endOfMonth,
   eventEndIso,
   eventStartIso,
-  groupPostsByDay,
-  localDateKey,
-  monthCells,
-  shouldFetchMoreAgenda,
-  startOfMonth,
-  uniquePosts,
   type EventsAgendaWindow,
 } from './eventCalendar';
-
-const WEEKDAY_START = new Date(2026, 0, 4);
 
 const eventHref = (post: PublicPost): string =>
   post.occurrenceRecurrenceId
     ? `/posts/${post.id}?occurrence=${encodeURIComponent(post.occurrenceRecurrenceId)}`
     : `/posts/${post.id}`;
-
-const eventName = (post: PublicPost): string =>
-  post.data.type === 'event' ? post.data.name?.trim() || '-' : '-';
-
-const dayNumber = (key: string): string => String(Number(key.slice(8, 10)));
 
 export interface EventsCalendarProps {
   query: EventsFeedQuery;
@@ -36,88 +26,21 @@ export interface EventsCalendarProps {
 
 export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
   const t = useT();
-  const initial = new Date();
-  const [cursor, setCursor] = useState({
-    year: initial.getFullYear(),
-    month: initial.getMonth(),
-  });
-  const [selectedKey, setSelectedKey] = useState(localDateKey(initial));
-
-  const posts = useMemo(
-    () => uniquePosts(query.data?.pages),
-    [query.data?.pages],
-  );
-  const byDay = useMemo(() => groupPostsByDay(posts), [posts]);
-  const cells = useMemo(
-    () => monthCells(cursor.year, cursor.month),
-    [cursor.year, cursor.month],
-  );
-  const inMonthKeys = cells
-    .filter((cell) => cell.inMonth)
-    .map((cell) => cell.key);
-  const todayKey = localDateKey(new Date());
-  const visible = cells.some((cell) => cell.key === selectedKey);
-  const selected = visible
-    ? selectedKey
-    : inMonthKeys.includes(todayKey)
-      ? todayKey
-      : (inMonthKeys[0] ?? todayKey);
-  const selectedEvents = byDay.get(selected) ?? [];
-  const monthLabel = new Date(cursor.year, cursor.month, 1).toLocaleDateString(
-    undefined,
-    { month: 'long', year: 'numeric' },
-  );
-  const weekdayLabels = Array.from({ length: 7 }, (_, index) =>
-    new Date(
-      WEEKDAY_START.getFullYear(),
-      WEEKDAY_START.getMonth(),
-      WEEKDAY_START.getDate() + index,
-    ).toLocaleDateString(undefined, { weekday: 'short' }),
-  );
-
   const {
-    hasNextPage,
+    cells,
+    byDay,
+    todayKey,
+    selected,
+    selectedEvents,
+    selectedLabel,
+    setSelectedKey,
+    monthLabel,
+    weekdayLabels,
     isLoading,
     isFetchingNextPage,
-    isError,
-    fetchNextPage,
-    data,
-  } = query;
-
-  useEffect(() => {
-    if (isLoading || isFetchingNextPage || isError) return;
-    const fetchMore = shouldFetchMoreAgenda({
-      window: agenda,
-      starts: posts.map(eventStartIso),
-      rangeStart: startOfMonth(cursor.year, cursor.month),
-      rangeEnd: endOfMonth(cursor.year, cursor.month),
-      hasNextPage: !!hasNextPage,
-      pagesLoaded: data?.pages.length ?? 0,
-    });
-    if (fetchMore) void fetchNextPage();
-  }, [
-    cursor.month,
-    cursor.year,
-    data?.pages.length,
-    fetchNextPage,
-    hasNextPage,
-    isError,
-    isFetchingNextPage,
-    isLoading,
-    agenda,
-    posts,
-  ]);
-
-  const shiftMonth = (delta: number) => {
-    const next = new Date(cursor.year, cursor.month + delta, 1);
-    setCursor({ year: next.getFullYear(), month: next.getMonth() });
-  };
-
-  const goToday = () => {
-    const now = new Date();
-    setCursor({ year: now.getFullYear(), month: now.getMonth() });
-    setSelectedKey(localDateKey(now));
-  };
+    shiftMonth,
+    goToday,
+  } = useEventsCalendar(query, agenda);
 
   if (isLoading) {
     return (
@@ -245,17 +168,7 @@ export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
       </div>
 
       <section className="mt-4" aria-live="polite">
-        <h3 className="mb-2 text-sm font-semibold">
-          {new Date(
-            Number(selected.slice(0, 4)),
-            Number(selected.slice(5, 7)) - 1,
-            Number(selected.slice(8, 10)),
-          ).toLocaleDateString(undefined, {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </h3>
+        <h3 className="mb-2 text-sm font-semibold">{selectedLabel}</h3>
         {selectedEvents.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             {t('events.calendar.emptyDay', { defaultValue: 'No events' })}

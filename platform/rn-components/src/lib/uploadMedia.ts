@@ -4,10 +4,7 @@ import { Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
 import type { MediaAttachment } from '@openpeepshq/common';
 import i18next from '~/i18n';
-import {
-  decodeFileUri,
-  resolveDocumentMime,
-} from '~/lib/mediaUriHelpers';
+import { decodeFileUri, resolveDocumentMime } from '~/lib/mediaUriHelpers';
 
 type UploadProgressInfo = {
   loaded: number;
@@ -85,7 +82,7 @@ export const uploadMedia = async ({
       try {
         await RNFS.copyAssetsFileIOS(mediaUri, destPath, 1024, 1024);
         finalUri = `file://${destPath}`;
-      } catch (copyError) {
+      } catch {
         const base64Data = await RNFS.readFile(mediaUri, 'base64');
         await RNFS.writeFile(destPath, base64Data, 'base64');
         finalUri = `file://${destPath}`;

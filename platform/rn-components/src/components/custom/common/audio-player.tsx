@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -21,13 +21,15 @@ interface AudioPlayerProps {
 }
 
 const formatTime = (seconds: number): string => {
-  if (isNaN(seconds) || seconds < 0) {return '0:00';}
+  if (isNaN(seconds) || seconds < 0) {
+    return '0:00';
+  }
   const minutes = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 };
 
-export const AudioPlayer: React.FC<AudioPlayerProps> = ({uri, isActive}) => {
+export const AudioPlayer: React.FC<AudioPlayerProps> = ({ uri, isActive }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -48,7 +50,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({uri, isActive}) => {
       return;
     }
 
-    const sound = new Sound(uri, '', err => {
+    const sound = new Sound(uri, '', (err) => {
       if (err) {
         console.error('Failed to load sound', err);
         setError('Failed to load audio.');
@@ -80,7 +82,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({uri, isActive}) => {
   useEffect(() => {
     if (isPlaying && !isSeekingRef.current) {
       progressIntervalRef.current = setInterval(() => {
-        soundRef.current?.getCurrentTime(seconds => {
+        soundRef.current?.getCurrentTime((seconds) => {
           setCurrentTime(seconds);
         });
       }, 1000);
@@ -92,9 +94,13 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({uri, isActive}) => {
   }, [isPlaying]);
 
   const togglePlayPause = () => {
-    if (error || isLoading) {return;}
+    if (error || isLoading) {
+      return;
+    }
     const sound = soundRef.current;
-    if (!sound) {return;}
+    if (!sound) {
+      return;
+    }
 
     if (isPlaying) {
       sound.pause();
@@ -104,7 +110,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({uri, isActive}) => {
         sound.setCurrentTime(0);
       }
 
-      sound.play(success => {
+      sound.play((success) => {
         if (success) {
           setIsPlaying(false);
           setCurrentTime(duration);
@@ -124,11 +130,13 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({uri, isActive}) => {
 
   const onSlidingComplete = (value: number) => {
     const sound = soundRef.current;
-    if (!sound) {return;}
+    if (!sound) {
+      return;
+    }
 
     sound.setCurrentTime(value);
     setTimeout(() => {
-      sound.getCurrentTime(seconds => {
+      sound.getCurrentTime((seconds) => {
         setCurrentTime(seconds);
       });
       isSeekingRef.current = false;
@@ -137,7 +145,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({uri, isActive}) => {
 
   const toggleMute = () => {
     const sound = soundRef.current;
-    if (!sound) {return;}
+    if (!sound) {
+      return;
+    }
 
     if (isMuted) {
       sound.setVolume(1);
@@ -169,7 +179,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({uri, isActive}) => {
     <ImageBackground
       source={require('~/assets/images/audio-container.png')}
       className="w-full h-full overflow-hidden self-center"
-      resizeMode="cover">
+      resizeMode="cover"
+    >
       <View className="absolute bottom-0 left-0 right-0 h-[60px] flex-row items-center px-2.5 bg-black/20">
         <TouchableOpacity onPress={togglePlayPause} className="p-2.5">
           {isPlaying ? (
@@ -184,7 +195,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({uri, isActive}) => {
         </Text>
 
         <Slider
-          style={{flex: 1, height: 40}}
+          className="h-10 flex-1"
           minimumValue={0}
           maximumValue={duration}
           value={currentTime}

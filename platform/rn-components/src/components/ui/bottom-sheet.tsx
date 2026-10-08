@@ -34,7 +34,7 @@ const BottomSheetContext = React.createContext({} as BottomSheetContext);
 const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
   ({ ...props }, ref) => {
     return <View ref={ref} {...props} />;
-  },
+  }
 );
 
 type BottomSheetContentRef = React.ElementRef<typeof BottomSheetModal>;
@@ -115,7 +115,8 @@ function BottomSheetView({
         style,
       ]}
       className={cn('px-4', className)}
-      {...props}>
+      {...props}
+    >
       {children}
     </GBottomSheetView>
   );
@@ -134,7 +135,7 @@ const BottomSheetTextInput = React.forwardRef<
       ref={ref}
       className={cn(
         'rounded-md border border-input bg-background px-3 text-xl h-14 leading-[1.25] text-foreground items-center  disabled:opacity-50',
-        className,
+        className
       )}
       placeholderClassName={cn('text-muted-foreground', placeholderClassName)}
       {...props}
@@ -180,9 +181,10 @@ const BottomSheetHeader = React.forwardRef<
       ref={ref}
       className={cn(
         'border-b border-border flex-row items-center justify-between pl-4',
-        className,
+        className
       )}
-      {...props}>
+      {...props}
+    >
       {children}
       <Button onPress={close} variant="ghost" className="pr-4">
         <XIcon className="text-muted-foreground" size={24} />
@@ -215,7 +217,8 @@ const BottomSheetFooter = React.forwardRef<
         ref={ref}
         style={[{ paddingBottom: insets.bottom + 6 }, style]}
         className={cn('px-4 pt-1.5', className)}
-        {...props}>
+        {...props}
+      >
         {children}
       </View>
     </GBottomSheetFooter>

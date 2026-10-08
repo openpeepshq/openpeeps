@@ -1,6 +1,6 @@
-import {View} from 'react-native';
+import { View } from 'react-native';
 import React from 'react';
-import {ThemedText} from '~/components/ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 import {
   BellOffIcon,
   MessageSquareOffIcon,
@@ -11,9 +11,9 @@ import {
 } from '~/components/icons';
 import { EmptyStateContainerType } from '~/types';
 interface EmptyStateContainerProps {
-  type : EmptyStateContainerType
+  type: EmptyStateContainerType;
 }
-export const EmptyStateContainer = ({type}: EmptyStateContainerProps) => {
+export const EmptyStateContainer = ({ type }: EmptyStateContainerProps) => {
   switch (type) {
     case 'posts':
       return (

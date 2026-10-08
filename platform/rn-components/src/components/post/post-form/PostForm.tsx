@@ -1,0 +1,183 @@
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { View } from 'react-native';
+import { UseFormReturn } from 'react-hook-form';
+import { ProfileAvatar } from '../../profile/Avatar';
+import { VisibilitySelector } from './VisibilitySelector';
+import { AudienceSetting, PublicProfile } from '@openpeepshq/common';
+import { PostCreationData } from '@openpeepshq/common';
+import { Form, FormTextarea, FormField } from '~/components/ui/form';
+import { ComposeAttachments } from './ComposeAttachments';
+import { cn, maxContentLength } from '~/lib/utils';
+import { PollComposerFields } from './PollComposerFields';
+import { useTranslation } from 'react-i18next';
+
+import { useOpenpeeps } from '@openpeepshq/react';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+
+import { ProfileSelector } from '~/components/profile';
+interface PostFormProps {
+  autoFocus?: boolean;
+  canEditVisibility?: boolean;
+  postData: PostCreationData;
+  setPostData: (postData: PostCreationData) => void;
+  form: UseFormReturn<PostCreationData>;
+}
+
+export const PostForm = ({
+  autoFocus = false,
+  canEditVisibility = false,
+  postData,
+  setPostData,
+  form,
+}: PostFormProps) => {
+  const { currentProfile } = useOpenpeeps();
+  const profileModalRef = useRef<BottomSheetModal>(null);
+
+  const { t } = useTranslation();
+
+  const { subscribe } = form;
+
+  useEffect(
+    () =>
+      subscribe({
+        formState: {
+          values: true,
+        },
+        callback: ({ values }: { values: PostCreationData }) => {
+          setPostData(values);
+        },
+      }),
+    [subscribe, setPostData]
+  );
+
+  const handleAudienceSelect = useCallback(
+    (audienceSetting: AudienceSetting) => {
+      const newPostData = { ...postData, ...audienceSetting };
+      form.reset(newPostData);
+      setPostData(newPostData);
+    },
+    [postData, form, setPostData]
+  );
+
+  const contentInputHeight = useMemo(
+    () => (postData.data.type === 'question' ? '' : 'h-64'),
+    [postData.data.type]
+  );
+
+  const handleProfileModalPress = useCallback(() => {
+    profileModalRef.current?.present();
+  }, []);
+
+  const handleProfileSelect = useCallback(
+    (profiles: PublicProfile[]) => {
+      const profile = profiles[0];
+      const handle = `@${profile.handle}`;
+
+      const currentContent = form.getValues('data.content') || '';
+      const newContent = currentContent.replace(/@[^\s@]*$/, `${handle} `);
+
+      const newPostData = {
+        ...postData,
+        data: {
+          ...postData.data,
+          content: newContent,
+        },
+      };
+
+      form.reset(newPostData);
+      setPostData(newPostData);
+    },
+    [form, postData, setPostData]
+  );
+
+  return (
+    <>
+      <Form {...form}>
+        <View className="flex-row items-center p-4">
+          <ProfileAvatar className="size-12" profile={currentProfile!} />
+          <VisibilitySelector
+            audienceSetting={{
+              visibility: postData.visibility,
+              groupId: postData.groupId || undefined,
+              audience: postData.audience || [],
+            }}
+            onChange={handleAudienceSelect}
+            type="post"
+            disabled={!canEditVisibility}
+          />
+        </View>
+
+        {postData.data?.attachments && postData.data.attachments.length > 0 && (
+          <ComposeAttachments
+            attachments={postData.data.attachments}
+            removeAttachment={(index) => {
+              const newPostData = {
+                ...postData,
+                data: {
+                  ...postData.data,
+                  attachments: postData.data.attachments?.filter(
+                    (_, i) => i !== index
+                  ),
+                },
+              };
+              form.reset(newPostData);
+              setPostData(newPostData);
+            }}
+            updateAttachment={(index, attachment) => {
+              const newPostData = {
+                ...postData,
+                data: {
+                  ...postData.data,
+                  attachments: postData.data.attachments?.map((a, i) =>
+                    i === index ? attachment : a
+                  ),
+                },
+              };
+              form.reset(newPostData);
+              setPostData(newPostData);
+            }}
+          />
+        )}
+
+        <FormField
+          control={form.control}
+          name={'data.content'}
+          render={({ field: { onChange, value, ...rest } }) => (
+            <FormTextarea
+              autoFocus={autoFocus}
+              containerClassName={'w-full'}
+              className={cn(
+                'px-4 py-2 border-0 text-foreground ',
+                contentInputHeight
+              )}
+              placeholder={t('posts.form.content')}
+              maxLength={maxContentLength}
+              value={value}
+              onChange={(text) => {
+                onChange(text);
+
+                // Check if the last character is "@"
+                const lastChar = text?.slice(-1);
+                if (lastChar === '@') {
+                  handleProfileModalPress(); // Show modal
+                }
+              }}
+              {...rest}
+            />
+          )}
+        />
+        {postData.data.type === 'question' && (
+          <PollComposerFields form={form} postData={postData} />
+        )}
+
+        <ProfileSelector
+          title="Select Mention"
+          ref={profileModalRef}
+          onSelect={handleProfileSelect}
+          selectType="sync"
+          single={true}
+        />
+      </Form>
+    </>
+  );
+};

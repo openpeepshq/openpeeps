@@ -1,5 +1,10 @@
 import React, { forwardRef, useEffect, useMemo, useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetView,
@@ -34,7 +39,7 @@ export const BaseSheet = forwardRef<BottomSheetModal, BaseSheetProps>(
       onDismiss,
       stackBehavior,
     },
-    ref,
+    ref
   ) => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
 
@@ -49,10 +54,10 @@ export const BaseSheet = forwardRef<BottomSheetModal, BaseSheetProps>(
 
     useEffect(() => {
       const showSub = Keyboard.addListener('keyboardDidShow', () =>
-        setKeyboardVisible(true),
+        setKeyboardVisible(true)
       );
       const hideSub = Keyboard.addListener('keyboardDidHide', () =>
-        setKeyboardVisible(false),
+        setKeyboardVisible(false)
       );
 
       return () => {
@@ -65,8 +70,8 @@ export const BaseSheet = forwardRef<BottomSheetModal, BaseSheetProps>(
       <BottomSheetModal
         containerStyle={
           isMediumScreenOrLarger
-            ? { width: 'auto', marginLeft: margin, marginRight: margin }
-            : {}
+            ? [styles.wideContainer, { marginHorizontal: margin }]
+            : undefined
         }
         ref={ref}
         index={index}
@@ -78,16 +83,22 @@ export const BaseSheet = forwardRef<BottomSheetModal, BaseSheetProps>(
         stackBehavior={stackBehavior}
         backgroundStyle={{
           backgroundColor: colors.background,
-        }}>
-        <ContentComponent style={[{ flex: 1 }, themeVars]}>
+        }}
+      >
+        <ContentComponent style={[styles.content, themeVars]}>
           <KeyboardAvoidingView
-            className={keyboardVisible ? 'h-[70vh]' : ''}
+            className={keyboardVisible ? 'h-[70vh] flex-1' : 'flex-1'}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}>
+          >
             {children}
           </KeyboardAvoidingView>
         </ContentComponent>
       </BottomSheetModal>
     );
-  },
+  }
 );
+
+const styles = StyleSheet.create({
+  wideContainer: { width: 'auto' },
+  content: { flex: 1 },
+});

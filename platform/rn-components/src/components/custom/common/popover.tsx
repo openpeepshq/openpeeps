@@ -27,9 +27,13 @@ interface LayoutPosition {
 interface PopoverContext {
   triggerRef: React.RefObject<View | null>;
   triggerPosition: LayoutPosition | null;
-  setTriggerPosition: React.Dispatch<React.SetStateAction<LayoutPosition | null>>;
+  setTriggerPosition: React.Dispatch<
+    React.SetStateAction<LayoutPosition | null>
+  >;
   contentLayout: LayoutRectangle | null;
-  setContentLayout: React.Dispatch<React.SetStateAction<LayoutRectangle | null>>;
+  setContentLayout: React.Dispatch<
+    React.SetStateAction<LayoutRectangle | null>
+  >;
 }
 
 const PopoverContext = React.createContext({} as PopoverContext);
@@ -39,8 +43,10 @@ const Popover = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof View>
 >((props, ref) => {
   const triggerRef = React.useRef<View>(null);
-  const [triggerPosition, setTriggerPosition] = React.useState<LayoutPosition | null>(null);
-  const [contentLayout, setContentLayout] = React.useState<LayoutRectangle | null>(null);
+  const [triggerPosition, setTriggerPosition] =
+    React.useState<LayoutPosition | null>(null);
+  const [contentLayout, setContentLayout] =
+    React.useState<LayoutRectangle | null>(null);
 
   return (
     <PopoverContext.Provider
@@ -62,7 +68,9 @@ Popover.displayName = 'Popover';
 function usePopoverContext() {
   const context = React.useContext(PopoverContext);
   if (!context) {
-    throw new Error('Popover compound components cannot be rendered outside the Popover component');
+    throw new Error(
+      'Popover compound components cannot be rendered outside the Popover component'
+    );
   }
   return context;
 }
@@ -70,9 +78,9 @@ function usePopoverContext() {
 const PopoverTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentPropsWithoutRef<typeof Button> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }
+    VariantProps<typeof buttonVariants> & {
+      asChild?: boolean;
+    }
 >(({ asChild, onPress, ...props }, ref) => {
   const { triggerRef, setTriggerPosition } = usePopoverContext();
 
@@ -83,16 +91,12 @@ const PopoverTrigger = React.forwardRef<
     onPress?.(event);
   }
 
-  useImperativeHandle(
-    ref,
-    () => {
-      if (!triggerRef.current) {
-        return new View({});
-      }
-      return triggerRef.current;
-    },
-    [triggerRef]
-  );
+  useImperativeHandle(ref, () => {
+    if (!triggerRef.current) {
+      return new View({});
+    }
+    return triggerRef.current;
+  }, [triggerRef]);
 
   const Trigger = asChild ? Slot.Pressable : Button;
   return <Trigger ref={triggerRef} onPress={handleOnPress} {...props} />;
@@ -103,9 +107,9 @@ PopoverTrigger.displayName = 'PopoverTrigger';
 const PopoverClose = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentPropsWithoutRef<typeof Button> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }
+    VariantProps<typeof buttonVariants> & {
+      asChild?: boolean;
+    }
 >(({ asChild, onPress, ...props }, ref) => {
   const { setTriggerPosition, setContentLayout } = usePopoverContext();
 
@@ -146,8 +150,12 @@ const PopoverContent = React.forwardRef<
     ref
   ) => {
     const insets = useSafeAreaInsets();
-    const { triggerPosition, setTriggerPosition, contentLayout, setContentLayout } =
-      usePopoverContext();
+    const {
+      triggerPosition,
+      setTriggerPosition,
+      contentLayout,
+      setContentLayout,
+    } = usePopoverContext();
 
     return (
       <Modal
@@ -232,7 +240,8 @@ function getContentPosition({
     triggerPosition?.width / 2 -
     (width === 'auto' ? triggerPosition?.width : width) / 2;
 
-  const maxLeft = windowWidth - (width === 'auto' ? triggerPosition.width : width);
+  const maxLeft =
+    windowWidth - (width === 'auto' ? triggerPosition.width : width);
 
   return {
     top:
@@ -251,8 +260,8 @@ function getContentPosition({
         : align === 'left'
           ? triggerPosition?.pageX
           : triggerPosition?.pageX +
-          triggerPosition?.width -
-          (width === 'auto' ? triggerPosition?.width : width),
+            triggerPosition?.width -
+            (width === 'auto' ? triggerPosition?.width : width),
     width: width === 'auto' ? triggerPosition?.width : width,
     maxWidth: width,
   };

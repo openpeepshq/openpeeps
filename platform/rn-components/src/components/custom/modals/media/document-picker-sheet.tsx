@@ -69,11 +69,7 @@ function isIgnoredSidecar(doc: DocumentPickerResponse): boolean {
   if (lower.endsWith('.icloud')) return true;
   if (lower.startsWith('._')) return true;
   const bytes = doc.size ?? 0;
-  if (
-    bytes > 0 &&
-    bytes < 512 &&
-    /(^image_\d+|metadata)/i.test(raw)
-  ) {
+  if (bytes > 0 && bytes < 512 && /(^image_\d+|metadata)/i.test(raw)) {
     return true;
   }
   return false;
@@ -81,11 +77,11 @@ function isIgnoredSidecar(doc: DocumentPickerResponse): boolean {
 
 const mergePickedDocs = (
   prev: DocumentPickerResponse[],
-  results: DocumentPickerResponse[],
+  results: DocumentPickerResponse[]
 ): DocumentPickerResponse[] => {
   const newDocs = results.filter(
-    newDoc =>
-      !isIgnoredSidecar(newDoc) && !prev.some(p => p.uri === newDoc.uri),
+    (newDoc) =>
+      !isIgnoredSidecar(newDoc) && !prev.some((p) => p.uri === newDoc.uri)
   );
   return [...prev, ...newDocs];
 };
@@ -98,7 +94,7 @@ export const DocumentPickerSheet = forwardRef<
   const descriptionSheetRef = useRef<BottomSheetModal>(null);
 
   const [selectedDocs, setSelectedDocs] = useState<DocumentPickerResponse[]>(
-    [],
+    []
   );
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [editingDocUri, setEditingDocUri] = useState<string | null>(null);
@@ -119,10 +115,10 @@ export const DocumentPickerSheet = forwardRef<
         mode: 'import',
       });
 
-      setSelectedDocs(prev => mergePickedDocs(prev, results));
+      setSelectedDocs((prev) => mergePickedDocs(prev, results));
       return results;
     },
-    [],
+    []
   );
 
   const open = useCallback(async () => {
@@ -180,15 +176,15 @@ export const DocumentPickerSheet = forwardRef<
 
   const handleDescriptionUpdate = (description: string) => {
     if (editingDocUri) {
-      setDescriptions(prev => ({ ...prev, [editingDocUri]: description }));
+      setDescriptions((prev) => ({ ...prev, [editingDocUri]: description }));
     }
     setEditingDocUri(null);
     descriptionSheetRef.current?.dismiss();
   };
 
   const removeDocument = (uri: string) => {
-    setSelectedDocs(prev => prev.filter(doc => doc.uri !== uri));
-    setDescriptions(prev => {
+    setSelectedDocs((prev) => prev.filter((doc) => doc.uri !== uri));
+    setDescriptions((prev) => {
       const next = { ...prev };
       delete next[uri];
       return next;
@@ -206,7 +202,7 @@ export const DocumentPickerSheet = forwardRef<
     setIsConfirmLoading(true);
     try {
       const documentAttachments = await Promise.all(
-        selectedDocs.map(async doc => {
+        selectedDocs.map(async (doc) => {
           const description =
             descriptions[doc.uri]?.trim() || doc.name || 'Document attachment';
           return uploadMedia({
@@ -218,8 +214,8 @@ export const DocumentPickerSheet = forwardRef<
             name: doc.name ?? undefined,
             mimeType: doc.type ?? undefined,
           });
-        }),
-      ).then(attachments => attachments.filter(Boolean) as MediaAttachment[]);
+        })
+      ).then((attachments) => attachments.filter(Boolean) as MediaAttachment[]);
 
       if (documentAttachments.length === 0 && selectedDocs.length > 0) {
         Toast.show({
@@ -242,7 +238,7 @@ export const DocumentPickerSheet = forwardRef<
     }
   };
 
-  const editingDoc = selectedDocs.find(doc => doc.uri === editingDocUri);
+  const editingDoc = selectedDocs.find((doc) => doc.uri === editingDocUri);
 
   const renderDocumentList = () => {
     if (selectedDocs.length === 0) {
@@ -267,11 +263,13 @@ export const DocumentPickerSheet = forwardRef<
         {selectedDocs.map((doc, index) => (
           <View
             key={`${doc.uri}-${index}`}
-            className="flex-row items-center justify-between bg-surface p-3 rounded-lg mb-2 border border-border">
+            className="flex-row items-center justify-between bg-surface p-3 rounded-lg mb-2 border border-border"
+          >
             <TouchableOpacity
               onPress={() => openDescriptionEditor(doc)}
               activeOpacity={0.7}
-              className="flex-row items-center flex-1 mr-2">
+              className="flex-row items-center flex-1 mr-2"
+            >
               <View className="bg-surface w-10 h-10 items-center justify-center rounded-md mr-3">
                 <FileIcon size={20} className="text-foreground" />
               </View>
@@ -279,7 +277,8 @@ export const DocumentPickerSheet = forwardRef<
                 <Text
                   className="text-foreground font-medium text-sm"
                   numberOfLines={1}
-                  ellipsizeMode="middle">
+                  ellipsizeMode="middle"
+                >
                   {doc.name ?? 'Untitled'}
                 </Text>
                 <View className="flex-row items-center mt-0.5">
@@ -300,7 +299,8 @@ export const DocumentPickerSheet = forwardRef<
                 onPress={() => handlePreview(doc)}
                 accessibilityRole="button"
                 accessibilityLabel={t('form.preview')}
-                className="p-2 bg-surface/50 rounded-full">
+                className="p-2 bg-surface/50 rounded-full"
+              >
                 <EyeOnIcon size={16} className="text-muted-foreground" />
               </TouchableOpacity>
               <TouchableOpacity
@@ -309,7 +309,8 @@ export const DocumentPickerSheet = forwardRef<
                 accessibilityLabel={t('posts.attachments.deleteTitle', {
                   defaultValue: 'Delete attachment',
                 })}
-                className="p-2 bg-surface/50 rounded-full">
+                className="p-2 bg-surface/50 rounded-full"
+              >
                 <XIcon size={16} className="text-muted-foreground" />
               </TouchableOpacity>
             </View>
@@ -319,7 +320,8 @@ export const DocumentPickerSheet = forwardRef<
         <Button
           variant="ghost"
           className="flex-row items-center justify-center mt-2 border border-dashed border-border"
-          onPress={handlePickDocument}>
+          onPress={handlePickDocument}
+        >
           <PlusIcon size={16} className="text-foreground mr-2" />
           <Text className="text-foreground font-medium">
             {t('form.documentInput.addMore', {
@@ -343,7 +345,9 @@ export const DocumentPickerSheet = forwardRef<
             </Text>
           </View>
 
-          <ScrollView className="flex-1 h-96">{renderDocumentList()}</ScrollView>
+          <ScrollView className="flex-1 h-96">
+            {renderDocumentList()}
+          </ScrollView>
 
           <SheetFooter
             onCancel={() => {
@@ -370,7 +374,7 @@ export const DocumentPickerSheet = forwardRef<
         variant="document"
         initialAltText={
           editingDoc
-            ? descriptions[editingDoc.uri] ?? editingDoc.name ?? ''
+            ? (descriptions[editingDoc.uri] ?? editingDoc.name ?? '')
             : ''
         }
         onUpdate={handleDescriptionUpdate}

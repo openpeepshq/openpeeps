@@ -1,8 +1,8 @@
 import React from 'react';
-import {ActivityIndicator, View} from 'react-native';
-import {Button} from '~/components/ui/button';
-import {ThemedText} from '~/components/ui/themed-text';
-import {useTranslation} from 'react-i18next';
+import { ActivityIndicator, View } from 'react-native';
+import { Button } from '~/components/ui/button';
+import { ThemedText } from '~/components/ui/themed-text';
+import { useTranslation } from 'react-i18next';
 
 type Variants =
   | 'outline'
@@ -34,7 +34,7 @@ export const SheetFooter: React.FC<SheetFooterProps> = ({
   confirmVariant = 'default',
   isLoading,
 }) => {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <View className="flex-row justify-between px-5 gap-4 mt-auto pt-4 mb-10">
@@ -47,7 +47,8 @@ export const SheetFooter: React.FC<SheetFooterProps> = ({
         variant={confirmVariant}
         className="flex-1 flex-row"
         onPress={onConfirm}
-        disabled={disabled}>
+        disabled={disabled}
+      >
         {isLoading && <ActivityIndicator className="mr-3" size={16} />}
         <ThemedText className="font-semibold">
           {confirmText || t('common.done')}

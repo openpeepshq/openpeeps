@@ -18,7 +18,7 @@ import {
   XIcon,
   SearchIcon,
   ScrollTextIcon,
-  BookmarkIcon
+  BookmarkIcon,
 } from '~/components/icons';
 import { ThemedText } from '~/components/ui/themed-text';
 import { useWindowSize } from '~/hooks/helper';
@@ -27,7 +27,7 @@ import { formatBadgeCount } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { LucideProps, SquarePenIcon } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { ProfileAvatar } from '../profile/profile-avatar';
+import { ProfileAvatar } from '../../profile/Avatar';
 import type { GotoHandlerParams } from '~/types/goto';
 
 type MenuItem = {
@@ -115,10 +115,10 @@ export const SideMenu = ({
   const unseenCounts = openpeepsApi.useUnseenPostCounts();
 
   const unreadGroupPosts = Object.values(
-    unseenCounts.data?.groups ?? {},
+    unseenCounts.data?.groups ?? {}
   ).reduce((sum, count) => sum + count, 0);
   const unreadConversationThreads = Object.keys(
-    unseenCounts.data?.direct ?? {},
+    unseenCounts.data?.direct ?? {}
   ).length;
 
   const menuUnreadCounts: Record<string, number> = {
@@ -129,11 +129,11 @@ export const SideMenu = ({
   const { t } = useTranslation();
 
   const [currentRoute, setCurrentRoute] = React.useState<string | undefined>(
-    'community',
+    'community'
   );
 
   return (
-    currentProfile && (
+    (currentProfile && (
       <View className="sm:w-56 md:w-80 bg-background flex-1">
         <TouchableOpacity onPress={onProfilePress} className="mt-12 mb-6 px-4">
           {/* Header: Logo + Avatar + Name */}
@@ -159,7 +159,8 @@ export const SideMenu = ({
                 <Button
                   variant={'outline'}
                   size={'icon'}
-                  onPress={onNotificationPress}>
+                  onPress={onNotificationPress}
+                >
                   <BellIcon className="text-foreground" size={20} />
                 </Button>
               )}
@@ -178,7 +179,8 @@ export const SideMenu = ({
         {isMediumScreenOrLarger && (
           <Button
             onPress={handleNewPost}
-            className="flex-row gap-4 items-center text-black  mb-4 justify-center px-4 w-full">
+            className="flex-row gap-4 items-center text-black  mb-4 justify-center px-4 w-full"
+          >
             <SquarePenIcon size={20} />
             <ThemedText>New Post</ThemedText>
           </Button>
@@ -188,9 +190,7 @@ export const SideMenu = ({
 
         {/* Scrollable Content */}
         <View className="flex-1">
-          <ScrollView
-            contentContainerStyle={{ flexGrow: 1 }}
-            className="mt-5 px-4">
+          <ScrollView contentContainerClassName="grow" className="mt-5 px-4">
             {menuItems.map((item, index) => {
               const isActive = currentRoute === item.target;
               const Icon = item.icon;
@@ -205,18 +205,21 @@ export const SideMenu = ({
                   onPress={() => {
                     setCurrentRoute(item.target);
                     handleNavigation({ target: item.target });
-                  }}>
+                  }}
+                >
                   <View className="flex-row items-center flex-1 justify-between">
                     <View className="flex-row items-center">
                       <Icon
                         size={20}
                         className={`
-                    ${isActive ? 'text-foreground' : 'text-muted-foreground'
-                        } mr-5`}
+                    ${
+                      isActive ? 'text-foreground' : 'text-muted-foreground'
+                    } mr-5`}
                       />
                       <ThemedText
                         className={`
-                    ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}
+                      >
                         {t(`navigation.${item.target}`)}
                       </ThemedText>
                     </View>
@@ -237,7 +240,8 @@ export const SideMenu = ({
               onPress={() => {
                 logout();
                 close?.();
-              }}>
+              }}
+            >
               <LogOutIcon size={20} className="text-red-700 mr-5" />
               <ThemedText className="text-red-700 native:text-lg tracking-wider -mt-1">
                 {t('navigation.logOut')}
@@ -254,6 +258,7 @@ export const SideMenu = ({
           </ThemedText>
         </View>
       </View>
-    )
-  ) || null;
+    )) ||
+    null
+  );
 };

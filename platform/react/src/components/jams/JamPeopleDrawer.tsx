@@ -1,4 +1,3 @@
-import { useMemo, useState } from 'react';
 import {
   AudioLines,
   Hand,
@@ -9,23 +8,15 @@ import {
   WifiOff,
   X,
 } from 'lucide-react';
-import type { PublicProfile } from '@openpeepshq/common/types';
-import {
-  matchesQuery,
-  profileName,
-  sortByRaisedHand,
-} from '@openpeepshq/common/lib';
+import { profileName } from '@openpeepshq/common/lib';
 import { useParticipants, useRoomContext } from '@livekit/components-react';
 import type { Participant } from 'livekit-client';
 import { Button, Input } from '@openpeepshq/react-ui';
-import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
-import { useCurrentProfile } from '../layout/IdentityContext';
+import { useJamPeople } from '../../hooks/jams/useJamPeople';
 import { Avatar } from '../profile';
-import { useJamContext } from './JamContext';
 import { parseParticipantMetadata } from './jamEventActions';
 import { useConnectionLost } from './useParticipantConnection';
-import { useRaisedHands } from './useJamHands';
 
 export interface JamPeopleDrawerProps {
   open: boolean;
@@ -90,57 +81,21 @@ function JamParticipantRow({
 export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   const t = useT();
   const room = useRoomContext();
-  const me = useCurrentProfile();
-  const { jamPost, jam, occurrence } = useJamContext();
-  const { openpeepsApi } = useOpenpeeps();
   const participants = useParticipants();
-  const raisedHands = useRaisedHands(room);
-
-  const isModerator = !!me && jam.moderators.includes(me.id);
-  const hasWaitingRoom = !!jam.waitingRoom;
-
-  const waitingRoom = openpeepsApi.useWaitingRoomStream(
-    isModerator && hasWaitingRoom ? jamPost.id : '',
-    occurrence,
-  );
-  const admitParticipant = openpeepsApi.admitParticipantAction();
-
-  const [query, setQuery] = useState('');
-  const [admittingId, setAdmittingId] = useState<string | null>(null);
-
-  const listedParticipants = useMemo(() => {
-    const visible = participants.filter((participant) => {
-      const metadata = parseParticipantMetadata(participant.metadata);
-      if (metadata.observer) return false;
-      return !query || matchesQuery(metadata.profile, query);
-    });
-    return sortByRaisedHand(visible, (participant) => participant.metadata);
-  }, [participants, query, raisedHands]);
-
-  const waitingProfiles = useMemo(() => {
-    if (!waitingRoom) return [] as PublicProfile[];
-    return Object.values(waitingRoom).filter(
-      (profile): profile is PublicProfile =>
-        !!profile &&
-        typeof profile === 'object' &&
-        'id' in profile &&
-        (!query || matchesQuery(profile, query)),
-    );
-  }, [waitingRoom, query]);
+  const {
+    isModerator,
+    hasWaitingRoom,
+    moderatorIds,
+    raisedHands,
+    query,
+    setQuery,
+    listedParticipants,
+    waitingProfiles,
+    admittingId,
+    admit,
+  } = useJamPeople({ room, participants });
 
   if (!open) return null;
-
-  const admit = async (profile: PublicProfile) => {
-    setAdmittingId(profile.id);
-    try {
-      await admitParticipant(
-        { id: jamPost.id, profileId: profile.id },
-        occurrence ? { occurrence } : undefined,
-      );
-    } finally {
-      setAdmittingId(null);
-    }
-  };
 
   return (
     <div className="bg-surface text-foreground absolute right-0 top-0 z-30 flex h-full w-full flex-col gap-3 overflow-hidden rounded md:relative md:z-auto md:w-80">
@@ -187,7 +142,7 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
                 key={participant.identity}
                 participant={participant}
                 handUp={raisedHands.has(participant.identity)}
-                isModerator={jam.moderators.includes(participant.identity)}
+                isModerator={moderatorIds.includes(participant.identity)}
               />
             ))}
             {listedParticipants.length === 0 ? (

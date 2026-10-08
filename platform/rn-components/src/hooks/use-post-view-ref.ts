@@ -1,9 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Dimensions, type View } from 'react-native';
-import {
-  useQueuePostView,
-  type PostViewContext,
-} from '@openpeepshq/react';
+import { useQueuePostView, type PostViewContext } from '@openpeepshq/react';
 
 const VIEW_DELAY_MS = 1_000;
 const POLL_INTERVAL_MS = 500;
@@ -14,7 +11,7 @@ const POLL_INTERVAL_MS = 500;
  */
 export const usePostViewRef = (
   postId: string | undefined,
-  viewContext?: PostViewContext,
+  viewContext?: PostViewContext
 ) => {
   const queuePostView = useQueuePostView();
   const ref = useRef<View | null>(null);

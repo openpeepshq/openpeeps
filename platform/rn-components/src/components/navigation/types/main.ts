@@ -20,20 +20,10 @@ export type MainStackParamList = {
   JamSession: {
     jamId: string;
     occurrence?: string;
-  };
-  JamHostControls: {
-    id: string;
-  };
-  InJamChat: {
-    id: string;
-  };
-  JamDetails: {
-    id: string;
-    tabOption: 'people' | 'info';
+    observer?: boolean;
   };
   CreateNewJam: undefined;
   Messages: undefined;
-  UpcomingJams: undefined;
   RecordedJams: undefined;
   MyJams: undefined;
   Conversation: {
@@ -56,7 +46,7 @@ export type MainStackParamList = {
     id: string;
   };
   EditGroupDetails: {
-    id: string;
+    handle: string;
   };
   NewEvent: undefined;
   EditEvent: {
@@ -77,11 +67,29 @@ export type MainStackParamList = {
   EditPost: {
     id: string;
   };
+  NotificationSettings: undefined;
   NotificationsSettings: undefined;
+  PushEnabledDevices: undefined;
   AccountSettings: undefined;
+  AccessTokensSettings: undefined;
   ThemeSettings: undefined;
   FeedSettings: undefined;
   BlockedSettings: undefined;
+  LanguageSettings: undefined;
+  TimezoneSettings: undefined;
+  EditGroupInfo: {
+    handle: string;
+  };
+  EditGroupRoles: {
+    handle: string;
+  };
+  NewArticle: undefined;
+  EditArticle: {
+    id: string;
+  };
+  MyEvents: undefined;
+  About: undefined;
+  CodeOfConduct: undefined;
   Events: undefined;
   VideoPlayer: {
     url: string;
@@ -97,12 +105,8 @@ export const MAIN_ROUTES = {
   EDIT_PROFILE: 'EditProfile',
   JAM: 'Jam',
   JAM_SESSION: 'JamSession',
-  JAM_HOST_CONTROLS: 'JamHostControls',
-  IN_JAM_CHAT: 'InJamChat',
-  JAM_DETAILS: 'JamDetails',
   CREATE_NEW_JAM: 'CreateNewJam',
   MESSAGES: 'Messages',
-  UPCOMING_JAMS: 'UpcomingJams',
   RECORDED_JAMS: 'RecordedJams',
   MY_JAMS: 'MyJams',
   CONVERSATION: 'Conversation',
@@ -119,11 +123,23 @@ export const MAIN_ROUTES = {
   POST: 'Post',
   REPLY_POST: 'ReplyPost',
   EDIT_POST: 'EditPost',
+  NOTIFICATION_SETTINGS: 'NotificationSettings',
   NOTIFICATIONS_SETTINGS: 'NotificationsSettings',
+  PUSH_ENABLED_DEVICES: 'PushEnabledDevices',
   ACCOUNT_SETTINGS: 'AccountSettings',
+  ACCESS_TOKENS_SETTINGS: 'AccessTokensSettings',
   THEME_SETTINGS: 'ThemeSettings',
   FEED_SETTINGS: 'FeedSettings',
   BLOCKED_SETTINGS: 'BlockedSettings',
+  LANGUAGE_SETTINGS: 'LanguageSettings',
+  TIMEZONE_SETTINGS: 'TimezoneSettings',
+  EDIT_GROUP_INFO: 'EditGroupInfo',
+  EDIT_GROUP_ROLES: 'EditGroupRoles',
+  NEW_ARTICLE: 'NewArticle',
+  EDIT_ARTICLE: 'EditArticle',
+  MY_EVENTS: 'MyEvents',
+  ABOUT: 'About',
+  CODE_OF_CONDUCT: 'CodeOfConduct',
   EVENT_PAGE: 'EventPage',
   VIDEO_PLAYER: 'VideoPlayer',
 } as const;

@@ -1,9 +1,9 @@
-import {View, Pressable, ActivityIndicator} from 'react-native';
+import { View, Pressable, ActivityIndicator } from 'react-native';
 import React from 'react';
-import {Button} from '~/components/ui/button';
-import {ArrowLeftIcon} from '~/components/icons';
-import {ThemedText} from '~/components/ui/themed-text';
-import {useNavigation} from '@react-navigation/native';
+import { Button } from '~/components/ui/button';
+import { ArrowLeftIcon } from '~/components/icons';
+import { ThemedText } from '~/components/ui/themed-text';
+import { useNavigation } from '@react-navigation/native';
 
 interface GenericHeaderProps {
   title?: string | React.ReactNode;
@@ -16,6 +16,8 @@ interface GenericHeaderProps {
   rightButtonIcon?: React.ReactNode;
   rightButtonVariant?: 'primary' | 'secondary' | 'outline';
   hideBackButton?: boolean;
+  /** Arbitrary right-side content, e.g. a page-specific action button. */
+  rightElement?: React.ReactNode;
 }
 export const GenericHeader = ({
   title,
@@ -27,6 +29,7 @@ export const GenericHeader = ({
   rightButtonIcon,
   handleGoBack,
   hideBackButton = false,
+  rightElement,
 }: GenericHeaderProps) => {
   const navigation = useNavigation();
   return (
@@ -39,7 +42,8 @@ export const GenericHeader = ({
               handleGoBack ? handleGoBack() : navigation.goBack()
             }
             variant="outline"
-            className="w-12 h-10">
+            className="w-12 h-10"
+          >
             <ArrowLeftIcon className="text-foreground" />
           </Button>
         )}
@@ -64,7 +68,8 @@ export const GenericHeader = ({
         <Pressable
           disabled={rightButtonDisabled}
           className="px-4 py-2 border rounded-lg"
-          onPress={onRightButtonPress}>
+          onPress={onRightButtonPress}
+        >
           {rightButtonLoading && <ActivityIndicator size={'small'} />}
           <ThemedText className="text-base font-semibold">
             {rightButtonTitle}
@@ -77,6 +82,7 @@ export const GenericHeader = ({
           {rightButtonIcon}
         </Pressable>
       )}
+      {rightElement}
     </View>
   );
 };

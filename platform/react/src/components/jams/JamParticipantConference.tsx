@@ -161,8 +161,9 @@ function JamParticipantConferenceInner() {
  * and the responsive footer toolbar.
  */
 export function JamParticipantConference() {
+  const room = useRoomContext();
   return (
-    <JamEventsProvider>
+    <JamEventsProvider room={room}>
       <JamParticipantConferenceInner />
       <RoomAudioRenderer />
     </JamEventsProvider>

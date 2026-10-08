@@ -9,9 +9,9 @@
  * that yields an object with a writable `type` field; it then mutates extra
  * properties (`readyState`, `responseCode`, etc.) onto the instance.
  */
-declare const globalThis: {CustomEvent?: unknown} & typeof global;
+declare const globalThis: { CustomEvent?: unknown } & typeof global;
 
-type CustomEventOptions = {detail?: unknown};
+type CustomEventOptions = { detail?: unknown };
 
 if (typeof globalThis.CustomEvent !== 'function') {
   class CustomEventPolyfill {

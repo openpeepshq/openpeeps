@@ -7,11 +7,17 @@ import {
   RefreshControl,
   ListRenderItem,
 } from 'react-native';
-import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
+import type {
+  InfiniteData,
+  UseInfiniteQueryResult,
+} from '@tanstack/react-query';
 import type { SuccessFailureResponse } from '@openpeepshq/common';
 
 interface InfiniteScrollContainerProps<D> {
-  query: UseInfiniteQueryResult<InfiniteData<D[], unknown>, SuccessFailureResponse>;
+  query: UseInfiniteQueryResult<
+    InfiniteData<D[], unknown>,
+    SuccessFailureResponse
+  >;
   renderItem: ListRenderItem<D>;
   uniqueBy: (item: D) => string;
   keyExtractor?: (item: D) => string;
@@ -33,9 +39,11 @@ export function InfiniteScrollContainer<D>({
     const pages = query.data?.pages ?? [];
     const flatData: D[] = pages.flat();
     const seen = new Set<string>();
-    return flatData.filter(item => {
+    return flatData.filter((item) => {
       const key = uniqueBy(item);
-      if (seen.has(key)) { return false; }
+      if (seen.has(key)) {
+        return false;
+      }
       seen.add(key);
       return true;
     });

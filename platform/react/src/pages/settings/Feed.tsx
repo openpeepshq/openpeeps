@@ -1,20 +1,12 @@
-import { useEffect, useState } from 'react';
-import { FEED_FORMAT_OPTIONS, type FeedFormat } from '@openpeepshq/common';
-import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
-import { useCurrentProfile } from '../../components';
+import { useState } from 'react';
+import { FEED_FORMAT_OPTIONS } from '@openpeepshq/common';
+import { useT, useSetPageHeader } from '../../index';
 import { Button, Toast } from '@openpeepshq/react-ui';
-import { useResolvedFeedFormat } from '../../hooks';
+import { useFeedFormatPreference } from '../../hooks';
 
 export function FeedSettings() {
   const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
-  const me = useCurrentProfile();
-  const settingsQuery = openpeepsApi.useCurrentProfileSettings();
-  const updateSettings = openpeepsApi.updateCurrentProfileSettingsAction();
-  const { persisted, clearSessionFormat } = useResolvedFeedFormat();
-
-  const [format, setFormat] = useState<FeedFormat>(persisted);
-  const [submitting, setSubmitting] = useState(false);
+  const { me, format, setFormat, submitting, save } = useFeedFormatPreference();
   const [status, setStatus] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -22,24 +14,12 @@ export function FeedSettings() {
 
   useSetPageHeader(t('settings.feed.title', { defaultValue: 'Feed' }));
 
-  useEffect(() => {
-    setFormat(persisted);
-  }, [persisted]);
-
   if (!me) return null;
 
-  const save = async () => {
+  const onSave = async () => {
     setStatus(null);
-    setSubmitting(true);
     try {
-      await updateSettings({
-        id: me.id,
-        feedSettings: {
-          ...settingsQuery.data?.feedSettings,
-          format,
-        },
-      });
-      clearSessionFormat();
+      await save();
       setStatus({
         type: 'success',
         message: t('settings.feed.updateSuccess', {
@@ -48,8 +28,6 @@ export function FeedSettings() {
       });
     } catch (err) {
       setStatus({ type: 'error', message: (err as Error).message });
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -90,7 +68,7 @@ export function FeedSettings() {
           {status.message}
         </Toast>
       ) : null}
-      <Button variant="default" action={save} disabled={submitting}>
+      <Button variant="default" action={onSave} disabled={submitting}>
         {submitting
           ? t('common.saving', { defaultValue: 'Saving…' })
           : t('common.save', { defaultValue: 'Save' })}

@@ -17,7 +17,7 @@ import { useOpenpeeps } from '@openpeepshq/react';
 import { uploadMedia } from '~/lib/uploadMedia';
 import { RecordAudioSheet } from './record-audio-sheet';
 import { pick } from '@react-native-documents/picker';
-import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -52,23 +52,25 @@ export const AudioPickerSheet = forwardRef<
 
   const onConfirm = async () => {
     const audioAttachments = await Promise.all(
-      selectedAudios.map(media =>
+      selectedAudios.map((media) =>
         uploadMedia({
           mediaUri: media,
           createAttachments: createAttachment,
           type: 'audio',
           usage: 'attachment',
           alt: 'audio',
-        }),
-      ),
-    ).then(attachments => attachments.filter(Boolean) as MediaAttachment[]);
+        })
+      )
+    ).then((attachments) => attachments.filter(Boolean) as MediaAttachment[]);
     onSelect(audioAttachments);
     resetStates();
     bottomSheetClose(ref);
   };
 
   const renderSelectedAudiosPreview = () => {
-    if (selectedAudios.length === 0) { return null; }
+    if (selectedAudios.length === 0) {
+      return null;
+    }
 
     const VIDEO_WIDTH = SCREEN_WIDTH;
 
@@ -82,12 +84,14 @@ export const AudioPickerSheet = forwardRef<
           onScroll={handleScroll}
           scrollEventThrottle={16}
           decelerationRate="fast"
-          snapToInterval={VIDEO_WIDTH}>
+          snapToInterval={VIDEO_WIDTH}
+        >
           {selectedAudios.map((uri) => (
             <View
               key={uri}
               style={{ width: VIDEO_WIDTH }}
-              className="items-center justify-center">
+              className="items-center justify-center"
+            >
               <MicIcon size={24} color="white" />
             </View>
           ))}
@@ -97,8 +101,9 @@ export const AudioPickerSheet = forwardRef<
             {selectedAudios.map((_, index) => (
               <View
                 key={index}
-                className={`w-2 h-2 rounded-full ${index === currentAudioIndex ? 'bg-white' : 'bg-white/50'
-                  }`}
+                className={`w-2 h-2 rounded-full ${
+                  index === currentAudioIndex ? 'bg-white' : 'bg-white/50'
+                }`}
               />
             ))}
           </View>
@@ -122,7 +127,8 @@ export const AudioPickerSheet = forwardRef<
             <Button
               variant={isMultipleSelect ? 'secondary' : 'ghost'}
               size={'sm'}
-              onPress={() => setIsMultipleSelect(!isMultipleSelect)}>
+              onPress={() => setIsMultipleSelect(!isMultipleSelect)}
+            >
               <Text className="text-foreground text-base font-medium">
                 {t('common.form.selectMultiple')}
               </Text>
@@ -145,9 +151,13 @@ export const AudioPickerSheet = forwardRef<
               multiple: isMultipleSelect,
             });
             if (result) {
-              setSelectedAudios([...selectedAudios, ...result.map(r => r.uri)]);
+              setSelectedAudios([
+                ...selectedAudios,
+                ...result.map((r) => r.uri),
+              ]);
             }
-          }}>
+          }}
+        >
           <AudioLinesIcon size={16} className="text-foreground" />
         </Button>
 

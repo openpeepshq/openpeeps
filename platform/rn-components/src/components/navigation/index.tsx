@@ -2,18 +2,27 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList, ROOT_ROUTES } from './types';
 import { AuthNavigator } from './auth-navigator';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useOpenpeeps, RouterProvider } from '@openpeepshq/react';
+import {
+  EditPostModalProvider,
+  NewPostModalProvider,
+  ReplyModalProvider,
+} from '~/components/post/post-form';
+import { CreateNewConversationProvider } from '~/components/conversations';
+import { CreateNewJamProvider } from '~/components/jams';
 import { MainNavigator } from './main-navigator';
 import { useAppImagesStore } from '../../stores/useAppImagesStore';
 import { fetchCachedMedia } from '../../utils/media-cache';
 import { getTheme } from '@openpeepshq/common';
 import { ActivityIndicator, Image, View } from 'react-native';
 import { toAbsoluteMediaUrl } from '../../lib/media-url';
+import { useNativeRouterAdapter } from './nativeRouter';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 export const Navigation = () => {
   const { openpeepsApi, currentProfile } = useOpenpeeps();
+  const router = useNativeRouterAdapter();
   const { setBackground, setLogoSmall } = useAppImagesStore();
   const [authBrandingReady, setAuthBrandingReady] = React.useState(false);
   const {
@@ -34,25 +43,19 @@ export const Navigation = () => {
     const logoSource = resolvedTheme.logoSmall;
 
     if (backgroundSource) {
-      const background = await fetchCachedMedia(
-        backgroundSource,
-        'image',
-      );
+      const background = await fetchCachedMedia(backgroundSource, 'image');
       if (background) {
         setBackground(background);
       }
     }
 
     if (logoSource) {
-      const logo = await fetchCachedMedia(
-        logoSource,
-        'image',
-      );
+      const logo = await fetchCachedMedia(logoSource, 'image');
       if (logo) {
         setLogoSmall(logo);
       }
     }
-  }, [serverInfo, setBackground, setLogoSmall]);
+  }, [serverInfo, profileSettings, setBackground, setLogoSmall]);
 
   React.useEffect(() => {
     if (!serverInfo?.communityConfig.theme) {
@@ -123,13 +126,32 @@ export const Navigation = () => {
   }
 
   return (
-    <RootStack.Navigator
-      screenOptions={{ headerShown: false, animation: 'fade' }}>
-      {currentProfile ? (
-        <RootStack.Screen name={ROOT_ROUTES.MAIN} component={MainNavigator} />
-      ) : (
-        <RootStack.Screen name={ROOT_ROUTES.AUTH} component={AuthNavigator} />
-      )}
-    </RootStack.Navigator>
+    <RouterProvider adapter={router}>
+      <ReplyModalProvider>
+        <NewPostModalProvider>
+          <EditPostModalProvider>
+            <CreateNewConversationProvider>
+              <CreateNewJamProvider>
+                <RootStack.Navigator
+                  screenOptions={{ headerShown: false, animation: 'fade' }}
+                >
+                  {currentProfile ? (
+                    <RootStack.Screen
+                      name={ROOT_ROUTES.MAIN}
+                      component={MainNavigator}
+                    />
+                  ) : (
+                    <RootStack.Screen
+                      name={ROOT_ROUTES.AUTH}
+                      component={AuthNavigator}
+                    />
+                  )}
+                </RootStack.Navigator>
+              </CreateNewJamProvider>
+            </CreateNewConversationProvider>
+          </EditPostModalProvider>
+        </NewPostModalProvider>
+      </ReplyModalProvider>
+    </RouterProvider>
   );
 };

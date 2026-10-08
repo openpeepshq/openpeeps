@@ -28,6 +28,7 @@ import {
 import { isSqlFilter } from '../filters';
 import {
   asTable,
+  documentIdColumn,
   edgeRegistry,
   getTableForCollection,
   rowToDocument,
@@ -96,7 +97,9 @@ export const fetchRowsByIds = async (
 ): Promise<Doc[]> => {
   if (!ids.length) return [];
   const table = asTable(getTableForCollection(collection));
-  const conditions = [inArray(table.id as never, ids)];
+  const conditions = [
+    inArray(documentIdColumn(collection, table) as never, ids),
+  ];
   if (softDelete !== false && table.deletedAt) {
     conditions.push(sql`${table.deletedAt} IS NULL`);
   }
@@ -132,7 +135,9 @@ export const fetchFilteredRowsByIds = async (
     mapData.defaultFilter,
     mapData.softDelete,
   );
-  const conditions = [inArray(table.id as never, ids)];
+  const conditions = [
+    inArray(documentIdColumn(mapData.collection, table) as never, ids),
+  ];
   if (sqlWhere) {
     conditions.push(sqlWhere);
   }
@@ -573,7 +578,7 @@ export const executeFind = async (
   const table = asTable(tableRef);
   const columns = getTableColumns(tableRef as Table);
   const computedSelect = buildComputedSelect(mapData, tableRef);
-  const conditions = [eq(table.id as never, id)];
+  const conditions = [eq(documentIdColumn(collection, table) as never, id)];
   if (!ignoreSoftDelete && mapData.softDelete !== false && table.deletedAt) {
     conditions.push(sql`${table.deletedAt} IS NULL`);
   }
@@ -758,7 +763,12 @@ export const deleteRelationsFor = async (
       const vertexTable = asTable(vertexTableRef);
       await db
         .delete(vertexTableRef as never)
-        .where(eq(vertexTable.id as never, vertexId));
+        .where(
+          eq(
+            documentIdColumn(relation.mapping.collection, vertexTable) as never,
+            vertexId,
+          ),
+        );
     }
     await db
       .delete(edgeTableRef as never)

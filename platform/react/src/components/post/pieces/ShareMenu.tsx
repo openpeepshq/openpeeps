@@ -1,15 +1,13 @@
 import { Calendar, Copy, Repeat2, Send, Share } from 'lucide-react';
-import type { Event, PublicPost } from '@openpeepshq/common/types';
-import { buildEventIcs } from '@openpeepshq/common/lib';
+import type { PublicPost } from '@openpeepshq/common/types';
 import {
   PopupMenu,
   PopupMenuButton,
   PopupSection,
   PopupSeparator,
 } from '@openpeepshq/react-ui';
-import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
-import { useCurrentProfile } from '../../layout/IdentityContext';
+import { useShareMenu } from '../../../hooks/posts/useShareMenu';
 import { useCreateNewConversation } from '../../conversations/CreateNewConversationContext';
 
 export interface ShareMenuProps {
@@ -19,27 +17,27 @@ export interface ShareMenuProps {
 
 export function ShareMenu({ post, menuButton }: ShareMenuProps) {
   const t = useT();
-  const me = useCurrentProfile();
   const { openCreateConversation } = useCreateNewConversation();
-  const { openpeepsApi } = useOpenpeeps();
-  const repostPost = openpeepsApi.repostPostAction({ id: post.id });
 
   const postUrl =
     typeof window !== 'undefined'
       ? `${window.location.origin}/posts/${post.id}`
       : `/posts/${post.id}`;
+  const { signedIn, isEvent, repost, eventIcsFile } = useShareMenu(
+    post,
+    postUrl,
+  );
 
   const downloadEventIcs = () => {
-    const ics = buildEventIcs(post, { postUrl });
-    if (!ics) return;
-    const event = post.data as Event;
-    const raw = event.name?.trim() || `event-${post.id}`;
-    const safe = raw.replace(/[/\\?%*:|"<>]/g, '-').slice(0, 100);
-    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const file = eventIcsFile();
+    if (!file) return;
+    const blob = new Blob([file.content], {
+      type: 'text/calendar;charset=utf-8',
+    });
     const href = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = href;
-    a.download = `${safe}.ics`;
+    a.download = file.filename;
     a.click();
     URL.revokeObjectURL(href);
   };
@@ -50,7 +48,7 @@ export function ShareMenu({ post, menuButton }: ShareMenuProps) {
       title={t('posts.shareMenu.title', { defaultValue: 'Share' })}
       variant="outline"
     >
-      {me ? (
+      {signedIn ? (
         <>
           <PopupSection
             title={t('posts.shareMenu.shareOnCommunity', {
@@ -63,7 +61,7 @@ export function ShareMenu({ post, menuButton }: ShareMenuProps) {
             })}
             text={t('posts.shareMenu.repostToFeed', { defaultValue: 'Repost' })}
             icon={Repeat2}
-            action={() => repostPost(undefined)}
+            action={repost}
           />
           <PopupMenuButton
             title={t('posts.shareMenu.sendInMessage', {
@@ -83,7 +81,7 @@ export function ShareMenu({ post, menuButton }: ShareMenuProps) {
           />
         </>
       ) : null}
-      {post.type === 'event' ? (
+      {isEvent ? (
         <PopupMenuButton
           title={t('posts.shareMenu.downloadCalendarIcsTitle', {
             defaultValue: 'Download calendar file',

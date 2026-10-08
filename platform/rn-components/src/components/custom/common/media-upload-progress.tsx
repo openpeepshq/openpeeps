@@ -36,7 +36,7 @@ export const MediaUploadProgress: React.FC<Props> = ({
 
   const processingPercent = Math.min(
     95,
-    Math.max(0, event?.progressPercent ?? 0),
+    Math.max(0, event?.progressPercent ?? 0)
   );
   const status: 'processing' | 'ready' | 'failed' | 'idle' =
     event?.mediaAttachment?.status ?? 'idle';

@@ -9,6 +9,10 @@ import {
   OpenpeepsProvider as BaseOpenpeepsProvider,
   PostViewCounterProvider,
   AnalyticsClickTracker,
+  I18nProvider,
+  IdentityContext,
+  ServerDataProvider,
+  useProfileIdentity,
   adjustUnseenCounts,
   invalidateUnseenCounts,
   useHasAuthToken,
@@ -23,7 +27,7 @@ const PostViewFlushOnBackground = () => {
   const flushPostViews = usePostViewFlush();
 
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', state => {
+    const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'background' || state === 'inactive') {
         void flushPostViews();
       }
@@ -55,7 +59,7 @@ const PostViewTracking = ({ children }: { children: ReactNode }) => {
         });
       }
     },
-    [client, queryClient],
+    [client, queryClient]
   );
 
   const handleFlushFailed = useCallback(() => {
@@ -65,15 +69,31 @@ const PostViewTracking = ({ children }: { children: ReactNode }) => {
   return (
     <PostViewCounterProvider
       hasAuthToken={hasToken}
-      markPostsSeen={async postIds => {
+      markPostsSeen={async (postIds) => {
         await markPostsSeenAction({ postIds });
       }}
       onPostQueued={handlePostQueued}
-      onFlushFailed={handleFlushFailed}>
+      onFlushFailed={handleFlushFailed}
+    >
       <PostViewFlushOnBackground />
       <AnalyticsClickTracker />
       {children}
     </PostViewCounterProvider>
+  );
+};
+
+const ServerDataGate = ({ children }: { children: ReactNode }) => {
+  const { client } = useOpenpeeps();
+  return <ServerDataProvider client={client}>{children}</ServerDataProvider>;
+};
+
+/** Native `ProfileProvider`: same identity queries, no blocking loader. */
+const IdentityProvider = ({ children }: { children: ReactNode }) => {
+  const { value } = useProfileIdentity();
+  return (
+    <IdentityContext.Provider value={value}>
+      {children}
+    </IdentityContext.Provider>
   );
 };
 
@@ -92,7 +112,7 @@ export const OpenpeepsProvider: React.FC<
   Omit<BaseProps, 'subscribeToForeground'>
 > = ({ children, ...props }) => {
   const subscribeToForeground = useCallback((onForeground: () => void) => {
-    const subscription = AppState.addEventListener('change', state => {
+    const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') onForeground();
     });
     return () => subscription.remove();
@@ -101,8 +121,15 @@ export const OpenpeepsProvider: React.FC<
   return (
     <BaseOpenpeepsProvider
       {...props}
-      subscribeToForeground={subscribeToForeground}>
-      <PostViewTracking>{children}</PostViewTracking>
+      subscribeToForeground={subscribeToForeground}
+    >
+      <I18nProvider>
+        <ServerDataGate>
+          <IdentityProvider>
+            <PostViewTracking>{children}</PostViewTracking>
+          </IdentityProvider>
+        </ServerDataGate>
+      </I18nProvider>
     </BaseOpenpeepsProvider>
   );
 };

@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input, Label, Toast } from '@openpeepshq/react-ui';
-import { useT, useOpenpeeps } from '../../index';
+import { useT } from '../../index';
 import { AuthLayout } from '../../components';
-
-import { performRequestResetPassword } from '../../lib/auth';
+import { useRequestPasswordReset } from '../../hooks';
 
 export function RequestResetPassword() {
   const t = useT();
   const navigate = useNavigate();
-  const { client } = useOpenpeeps();
+  const { requestReset } = useRequestPasswordReset();
 
   const [email, setEmail] = useState('');
   const [prompt, setPrompt] = useState(
@@ -25,7 +24,7 @@ export function RequestResetPassword() {
     setError(null);
     setNotice(null);
     try {
-      await performRequestResetPassword(client, { email });
+      await requestReset({ email });
       setPrompt(
         t('auth.requestResetPassword.successPrompt', {
           defaultValue:

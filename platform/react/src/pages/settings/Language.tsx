@@ -1,11 +1,5 @@
-import { useEffect, useState } from 'react';
-import {
-  useT,
-  useI18n,
-  useOpenpeeps,
-  AVAILABLE_UI_LANGUAGES,
-} from '../../index';
-import { useCurrentProfile, useServerInfo } from '../../components';
+import { useT, AVAILABLE_UI_LANGUAGES } from '../../index';
+import { useLanguagePreference } from '../../hooks';
 import { Button, Toast } from '@openpeepshq/react-ui';
 
 const LANGUAGE_LABELS: Record<(typeof AVAILABLE_UI_LANGUAGES)[number], string> =
@@ -16,52 +10,18 @@ const LANGUAGE_LABELS: Record<(typeof AVAILABLE_UI_LANGUAGES)[number], string> =
 
 export function LanguageSettings() {
   const t = useT();
-  const { i18n } = useI18n();
-  const profile = useCurrentProfile();
-  const serverInfo = useServerInfo();
-  const { openpeepsApi } = useOpenpeeps();
-  const settingsQuery = openpeepsApi.useCurrentProfileSettings();
-  const updateSettings = openpeepsApi.updateCurrentProfileSettingsAction();
-
-  const communityDefaultLanguage =
-    serverInfo.communityConfig?.settings?.defaultLanguage ?? 'en';
-
-  const [language, setLanguage] = useState(communityDefaultLanguage);
-  const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
-
-  useEffect(() => {
-    if (settingsQuery.data?.language) {
-      setLanguage(settingsQuery.data.language);
-    }
-  }, [settingsQuery.data?.language]);
+  const {
+    profile,
+    language,
+    setLanguage,
+    communityDefaultLanguage,
+    saving,
+    status,
+    clearStatus,
+    save,
+  } = useLanguagePreference();
 
   if (!profile) return null;
-
-  const save = async () => {
-    setStatus(null);
-    setSaving(true);
-    try {
-      await updateSettings({ id: profile.id, language });
-      await i18n.changeLanguage(language);
-      setStatus({
-        type: 'success',
-        message: t('settings.language.updateSuccess', {
-          defaultValue: 'Language updated.',
-        }),
-      });
-    } catch (err) {
-      setStatus({
-        type: 'error',
-        message: (err as Error).message,
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-4 p-3">
@@ -98,7 +58,7 @@ export function LanguageSettings() {
         </div>
       </div>
       {status ? (
-        <Toast variant={status.type} onDismiss={() => setStatus(null)}>
+        <Toast variant={status.type} onDismiss={clearStatus}>
           {status.message}
         </Toast>
       ) : null}

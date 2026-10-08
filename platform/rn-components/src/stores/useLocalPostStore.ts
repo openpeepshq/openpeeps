@@ -1,8 +1,4 @@
-import {
-  PostCreationData,
-  PostType,
-  PostDataUnion,
-} from '@openpeepshq/common';
+import { PostCreationData, PostType, PostDataUnion } from '@openpeepshq/common';
 import { create } from 'zustand';
 
 const defaultPostData = (type: PostType): PostDataUnion => {
@@ -13,7 +9,7 @@ const defaultPostData = (type: PostType): PostDataUnion => {
         content: '',
         options: [],
         expiresAt: new Date(
-          Date.now() + 1000 * 60 * 60 * 24 * 30,
+          Date.now() + 1000 * 60 * 60 * 24 * 30
         ).toISOString(),
       };
     case 'event':
@@ -26,7 +22,6 @@ const defaultPostData = (type: PostType): PostDataUnion => {
     case 'note':
     default:
       return { type: 'note', content: '' };
-
   }
 };
 
@@ -46,18 +41,20 @@ interface LocalPostStore {
   resetReplyData: (inReplyToId: string) => void;
 }
 
-export const useLocalPostStore = create<LocalPostStore>(set => ({
+export const useLocalPostStore = create<LocalPostStore>((set) => ({
   postData: postDataDefaults(),
   replyData: {},
 
-  setPostData: postData => set({ postData }),
+  setPostData: (postData) => set({ postData }),
   resetPostData: () => set({ postData: postDataDefaults() }),
 
   setReplyData: (inReplyToId, data) =>
-    set(state => ({ replyData: { ...state.replyData, [inReplyToId]: data } })),
+    set((state) => ({
+      replyData: { ...state.replyData, [inReplyToId]: data },
+    })),
 
-  resetReplyData: inReplyToId =>
-    set(state => {
+  resetReplyData: (inReplyToId) =>
+    set((state) => {
       const newReplyData = { ...state.replyData };
       newReplyData[inReplyToId] = postDataDefaults(inReplyToId);
       return { replyData: newReplyData };

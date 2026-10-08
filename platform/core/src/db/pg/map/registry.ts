@@ -13,6 +13,15 @@ export type PgTable = unknown;
 export const asTable = (table: PgTable): Record<string, unknown> =>
   table as Record<string, unknown>;
 
+/**
+ * Column the map layer treats as a document's id. Profile settings are
+ * addressed by profile id; legacy rows keep a different primary key.
+ */
+export const documentIdColumn = (
+  collection: string,
+  table: Record<string, unknown>,
+) => (collection === 'profileSettings' ? table.profileId : table.id);
+
 export type DocumentConfig = {
   kind: 'document';
   table: PgTable;

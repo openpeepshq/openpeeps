@@ -8,7 +8,7 @@ export type NavTarget =
   | { type: 'explore' }
   | { type: 'feed'; feed: 'local' | 'my' | 'bookmarks' }
   | { type: 'profile'; handle: string; tab?: 'followers' | 'following' }
-  | { type: 'post'; id: string }
+  | { type: 'post'; id: string; occurrence?: string }
   | { type: 'postNew' }
   | {
       type: 'group';

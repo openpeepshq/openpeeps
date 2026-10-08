@@ -9,8 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { JamEvent } from '@openpeepshq/common/types';
-import { useRoomContext } from '@livekit/components-react';
-import { RoomEvent, ConnectionState } from 'livekit-client';
+import { RoomEvent, ConnectionState, type Room } from 'livekit-client';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useJamContext, useJamObserver } from './JamContext';
 import {
@@ -32,8 +31,13 @@ const JamEventsContext = createContext<JamEventsContextValue | null>(null);
 
 const REACTION_DURATION_MS = 5000;
 
-export function JamEventsProvider({ children }: { children: ReactNode }) {
-  const room = useRoomContext();
+export function JamEventsProvider({
+  room,
+  children,
+}: {
+  room: Room;
+  children: ReactNode;
+}) {
   const { jamPost } = useJamContext();
   const observer = useJamObserver();
   const { openpeepsApi } = useOpenpeeps();
