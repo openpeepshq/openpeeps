@@ -14,15 +14,33 @@ hub.on('profileSettingsUpdated', (profileId: string) => {
   void profileSettingsCache.del(profileId);
 });
 
+const uniqueViolation = (error: unknown) => {
+  const current = error as { code?: string; cause?: { code?: string } };
+  return current.code === '23505' || current.cause?.code === '23505';
+};
+
+const readProfileSettings = async (
+  db: Awaited<ReturnType<typeof allpeepDb>>['db'],
+  id: string,
+) =>
+  // Include soft-deleted rows: the profile_id unique index still covers them,
+  // so a miss here would insert and fail with 23505.
+  profileSettingsMapping.find(db, id, { ignoreSoftDelete: true });
+
 export const getProfileSettings = async (id: string) =>
   profileSettingsCache.wrap(id, async () => {
     const { db } = await allpeepDb();
-    const foundSettings = await profileSettingsMapping.find(db, id);
+    const foundSettings = await readProfileSettings(db, id);
     if (foundSettings) {
       return foundSettings;
     }
-    const newSettings = await profileSettingsMapping.create(db, {
-      id,
-    });
-    return newSettings;
+    try {
+      return await profileSettingsMapping.create(db, { id });
+    } catch (error) {
+      // Another request created the row between the read and this insert.
+      if (!uniqueViolation(error)) throw error;
+      const raced = await readProfileSettings(db, id);
+      if (raced) return raced;
+      throw error;
+    }
   });

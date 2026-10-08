@@ -35,9 +35,8 @@
   --lk-connection-excellent: #06db4d;
   --lk-connection-good: #f9b11f;
   --lk-connection-poor: #f91f31;
-  --lk-font-family:
-    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji';
+  --lk-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   --lk-font-size: 16px;
   --lk-line-height: 1.5;
   --lk-border-radius: 0.5rem;

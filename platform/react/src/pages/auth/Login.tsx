@@ -24,34 +24,24 @@ import {
   Link,
   Toast,
 } from '@openpeepshq/react-ui';
-import {
-  useT,
-  useOpenpeeps,
-  useCredentialsStore,
-  useNavigate,
-  useSearchParams,
-  useHrefOf,
-} from '../../index';
+import { useT, useNavigate, useSearchParams, useHrefOf } from '../../index';
 import { AuthLayout, useServerInfo, useToast } from '../../components';
-
-import { performLogin } from '../../lib/auth';
+import { usePasswordLogin } from '../../hooks';
 
 export function Login() {
   const t = useT();
   const navigate = useNavigate();
   const searchParams = useSearchParams();
   const href = useHrefOf();
-  const { client } = useOpenpeeps();
-  const { credentialsStore } = useCredentialsStore();
   const serverInfo = useServerInfo();
   const { success, error: toastError } = useToast();
+  const { login, error, clearError } = usePasswordLogin();
 
   const form = useForm<LoginRequest>({
     resolver: zodResolver(loginRequestSchema),
     defaultValues: { email: '', password: '' },
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const redirectUrl =
     searchParams.get('redirect') ?? href({ type: 'feed', feed: 'local' });
@@ -81,16 +71,16 @@ export function Login() {
   }, [paymentParam, success, toastError, t]);
 
   const onSubmit = form.handleSubmit(async (data) => {
-    setError(null);
+    clearError();
     try {
-      const tr = await performLogin(client, credentialsStore, data);
+      const tr = await login(data);
       if (tr.checkoutUrl) {
         window.location.assign(tr.checkoutUrl);
       } else {
         navigate(redirectUrl);
       }
-    } catch (err) {
-      setError((err as Error).message);
+    } catch {
+      // error is stored on the hook
     }
   });
 
@@ -301,7 +291,7 @@ export function Login() {
             <Toast
               variant="error"
               testId="auth-login-error"
-              onDismiss={() => setError(null)}
+              onDismiss={clearError}
             >
               {error}
             </Toast>

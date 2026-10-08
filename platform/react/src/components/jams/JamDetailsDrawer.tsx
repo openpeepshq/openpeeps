@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Copy, CopyCheck, X } from 'lucide-react';
 import { truncateText } from '@openpeepshq/common';
-import { canModerateJam } from '@openpeepshq/common/lib';
-import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
-import { useCurrentProfile } from '../layout/IdentityContext';
 import { useToast } from '../layout/ToastProvider';
-import { useJamContext } from './JamContext';
-import { useJamRtmpStreamState } from './jamRecordingState';
+import {
+  useJamDetails,
+  useJamRtmpStream,
+} from '../../hooks/jams/useJamDetails';
 
 export interface JamDetailsDrawerProps {
   open: boolean;
@@ -20,14 +19,7 @@ export interface JamDetailsDrawerProps {
  */
 export const JamDetailsDrawer = ({ open, onClose }: JamDetailsDrawerProps) => {
   const t = useT();
-  const me = useCurrentProfile();
-  const { jamPost, occurrence } = useJamContext();
-  const { openpeepsApi } = useOpenpeeps();
-  const observerLinkQuery = openpeepsApi.useObserverLink(
-    jamPost.id,
-    occurrence,
-  );
-  const isModerator = canModerateJam(me, jamPost);
+  const { jamPost, isModerator, observerPath } = useJamDetails();
 
   const [copied, setCopied] = useState(false);
   const [observerCopied, setObserverCopied] = useState(false);
@@ -35,7 +27,6 @@ export const JamDetailsDrawer = ({ open, onClose }: JamDetailsDrawerProps) => {
   if (!open) return null;
 
   const href = typeof window !== 'undefined' ? window.location.href : '';
-  const observerPath = observerLinkQuery.data?.path;
   const observerUrl =
     typeof window !== 'undefined' && observerPath
       ? observerPath.startsWith('http')
@@ -124,48 +115,17 @@ export const JamDetailsDrawer = ({ open, onClose }: JamDetailsDrawerProps) => {
 
 const JamRtmpStreamForm = ({ jamId }: { jamId: string }) => {
   const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
   const { success: toastSuccess, error: toastError } = useToast();
-  const { isStreaming } = useJamRtmpStreamState();
-  const streamQuery = openpeepsApi.useRtmpStream(jamId);
-  const startStream = openpeepsApi.startRtmpStreamAction({ id: jamId });
-  const stopStream = openpeepsApi.stopRtmpStreamAction({ id: jamId });
-
-  const [url, setUrl] = useState('');
-  const [streamKey, setStreamKey] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  const live =
-    isStreaming ||
-    (streamQuery.isSuccess && streamQuery.data?.status === 'active');
-  const host = streamQuery.data?.destinationHost;
-
-  const onStart = async () => {
-    setBusy(true);
-    try {
-      await startStream({ url, streamKey });
-      setStreamKey('');
-      toastSuccess(t('jams.details.rtmpStarted'));
-      await streamQuery.refetch();
-    } catch {
-      toastError(t('jams.details.rtmpStartError'));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const onStop = async () => {
-    setBusy(true);
-    try {
-      await stopStream();
-      toastSuccess(t('jams.details.rtmpStopped'));
-      await streamQuery.refetch();
-    } catch {
-      toastError(t('jams.details.rtmpStopError'));
-    } finally {
-      setBusy(false);
-    }
-  };
+  const {
+    live,
+    host,
+    url,
+    setUrl,
+    streamKey,
+    setStreamKey,
+    canSubmit,
+    toggle,
+  } = useJamRtmpStream({ jamId, onSuccess: toastSuccess, onError: toastError });
 
   return (
     <div>
@@ -207,10 +167,8 @@ const JamRtmpStreamForm = ({ jamId }: { jamId: string }) => {
       <button
         type="button"
         className="mt-2 text-sm"
-        disabled={busy || (!live && (!url.trim() || !streamKey.trim()))}
-        onClick={() => {
-          void (live ? onStop() : onStart());
-        }}
+        disabled={!canSubmit}
+        onClick={toggle}
       >
         {live ? t('jams.details.rtmpStop') : t('jams.details.rtmpStart')}
       </button>

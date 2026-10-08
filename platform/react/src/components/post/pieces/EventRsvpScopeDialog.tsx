@@ -7,6 +7,7 @@ import {
   isCapacityEvent,
   seriesYesBlockedByCapacity,
 } from '@openpeepshq/common/lib';
+import type { RsvpScopeChoice } from '../../../hooks/events/useEventRsvp';
 import {
   Checkbox,
   Dialog,
@@ -21,10 +22,7 @@ import {
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
 
-export type RsvpScopeChoice =
-  | { kind: 'this'; recurrenceId: string }
-  | { kind: 'selected'; recurrenceIds: string[] }
-  | { kind: 'series' };
+export type { RsvpScopeChoice };
 
 export type EventRsvpScopeDialogProps = {
   open: boolean;

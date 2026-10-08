@@ -1,20 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input, Label, Toast } from '@openpeepshq/react-ui';
-import { useT, useOpenpeeps } from '../../index';
+import { useT } from '../../index';
 import { AuthLayout } from '../../components';
-
-import { performResetPassword } from '../../lib/auth';
+import { useResetPassword } from '../../hooks';
 
 export function ResetPassword() {
   const t = useT();
   const navigate = useNavigate();
-  const { client } = useOpenpeeps();
-
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [token, setToken] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const { resetPassword } = useResetPassword(token);
 
   useEffect(() => {
     // Token arrives as `#token=...` in the URL hash.
@@ -24,7 +22,7 @@ export function ResetPassword() {
   const handleSubmit = async () => {
     setError(null);
     try {
-      await performResetPassword(client, { password }, token);
+      await resetPassword({ password });
       navigate('/auth/login');
     } catch (err) {
       setError((err as Error).message);

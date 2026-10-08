@@ -1,13 +1,13 @@
 import * as Slot from '@rn-primitives/slot';
-import type {SlottableTextProps, TextRef} from '@rn-primitives/types';
+import type { SlottableTextProps, TextRef } from '@rn-primitives/types';
 import * as React from 'react';
-import {Text as RNText} from 'react-native';
-import {cn} from '~/lib/utils';
+import { Text as RNText } from 'react-native';
+import { cn } from '~/lib/utils';
 
 const TextClassContext = React.createContext<string | undefined>(undefined);
 
 const ThemedText = React.forwardRef<TextRef, SlottableTextProps>(
-  ({className, asChild = false, ...props}, ref) => {
+  ({ className, asChild = false, ...props }, ref) => {
     const textClass = React.useContext(TextClassContext);
     const Component = asChild ? Slot.Text : RNText;
     return (
@@ -15,14 +15,14 @@ const ThemedText = React.forwardRef<TextRef, SlottableTextProps>(
         className={cn(
           'text-base text-foreground web:select-text',
           textClass,
-          className,
+          className
         )}
         ref={ref}
         {...props}
       />
     );
-  },
+  }
 );
 ThemedText.displayName = 'ThemedText';
 
-export {ThemedText, TextClassContext};
+export { ThemedText, TextClassContext };

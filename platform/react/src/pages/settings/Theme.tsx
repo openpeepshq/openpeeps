@@ -1,35 +1,19 @@
-import { useEffect, useState } from 'react';
-import { THEME_OPTIONS, type ThemeOptions } from '@openpeepshq/common';
-import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
-import { useCurrentProfile } from '../../components';
+import { THEME_OPTIONS } from '@openpeepshq/common';
+import { useT, useSetPageHeader } from '../../index';
 import { Button } from '@openpeepshq/react-ui';
+import { useThemePreference } from '../../hooks';
 
 export function ThemeSettings() {
   const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
-  const me = useCurrentProfile();
-  const settingsQuery = openpeepsApi.useCurrentProfileSettings();
-  const updateSettings = openpeepsApi.updateCurrentProfileSettingsAction();
-
-  const [theme, setTheme] = useState<ThemeOptions | undefined>(undefined);
-  const [submitting, setSubmitting] = useState(false);
+  const { me, theme, setTheme, submitting, save } = useThemePreference();
 
   useSetPageHeader(t('settings.theme.title', { defaultValue: 'Theme' }));
-
-  useEffect(() => {
-    if (settingsQuery.data?.theme) setTheme(settingsQuery.data.theme);
-  }, [settingsQuery.data]);
 
   if (!me) return null;
 
   const submit = async () => {
-    setSubmitting(true);
-    try {
-      await updateSettings({ id: me.id, theme });
-      window.location.reload();
-    } finally {
-      setSubmitting(false);
-    }
+    await save();
+    window.location.reload();
   };
 
   return (

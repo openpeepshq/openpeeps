@@ -21,6 +21,8 @@ import {
 
 interface ImagePickerSheetProps {
   onSelect: (images: MediaAttachment[]) => void;
+  /** Media usage tag sent with the upload; defaults to post media. */
+  usage?: string;
 }
 
 // Media is selected via the Android system photo picker / iOS picker
@@ -29,7 +31,7 @@ interface ImagePickerSheetProps {
 export const ImagePickerSheet = forwardRef<
   BottomSheetModal,
   ImagePickerSheetProps
->(({ onSelect }, ref) => {
+>(({ onSelect, usage = 'post-media' }, ref) => {
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
@@ -50,7 +52,7 @@ export const ImagePickerSheet = forwardRef<
             mediaType: 'photo',
             cropperStatusBarLight: !isDark,
             cropperToolbarWidgetColor: colors.foreground,
-          },
+          }
     );
   };
 
@@ -61,16 +63,16 @@ export const ImagePickerSheet = forwardRef<
     setIsLoading(true);
     try {
       const attachments = await Promise.all(
-        uris.map(uri =>
+        uris.map((uri) =>
           uploadMedia({
             mediaUri: uri,
             createAttachments: createAttachment,
             type: 'image',
-            usage: 'post-media',
+            usage,
             alt: 'image file',
-          }),
-        ),
-      ).then(a => a.filter(Boolean) as MediaAttachment[]);
+          })
+        )
+      ).then((a) => a.filter(Boolean) as MediaAttachment[]);
       onSelect(attachments);
     } finally {
       setIsLoading(false);
@@ -111,7 +113,7 @@ export const ImagePickerSheet = forwardRef<
       return;
     }
     const uris = result.assets
-      .map(asset => asset.uri)
+      .map((asset) => asset.uri)
       .filter((uri): uri is string => Boolean(uri));
     if (uris.length === 1) {
       try {
@@ -173,7 +175,8 @@ export const ImagePickerSheet = forwardRef<
           variant="outline"
           className="flex-row items-center justify-center gap-2"
           onPress={handleCamera}
-          disabled={isLoading}>
+          disabled={isLoading}
+        >
           <CameraIcon size={18} className="text-foreground" />
           <Text className="text-foreground text-base font-medium">
             {t('common.media.image.takePhoto')}
@@ -183,7 +186,8 @@ export const ImagePickerSheet = forwardRef<
           variant="outline"
           className="flex-row items-center justify-center gap-2"
           onPress={handleLibrary}
-          disabled={isLoading}>
+          disabled={isLoading}
+        >
           <ImageIcon size={18} className="text-foreground" />
           <Text className="text-foreground text-base font-medium">
             {t('common.media.image.chooseFromLibrary')}

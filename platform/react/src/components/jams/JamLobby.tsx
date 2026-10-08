@@ -14,39 +14,20 @@ import {
   usePreviewTracks,
 } from '@livekit/components-react';
 import { type LocalVideoTrack, Track } from 'livekit-client';
-import { profileName } from '@openpeepshq/common/lib';
 import { Blur, Button } from '@openpeepshq/react-ui';
 import { useNavigate } from '../../contexts/router';
-import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
-import { useCurrentProfile } from '../layout/IdentityContext';
-import { useJamContext } from './JamContext';
+import { useJamLobby } from '../../hooks/jams/useJamLobby';
+import type { JamJoinParams } from '../../hooks/jams/useJamRoom';
 import { audioOutputSupported } from './constants';
 import { DeviceSelectorPill } from './JamDeviceSelectors';
 import { JamGuestForm } from './JamGuestForm';
 import { JamToolbarButton } from './JamToolbarButton';
 import { useJamLocalSettings } from './jamLocalSettings';
-import { apiErrorMessage } from '../../lib/apiErrorMessage';
 
 export interface JamLobbyProps {
   /** Called once the user has picked devices and the join token has been obtained. */
-  onJoin: (params: {
-    token: string;
-    livekitUrl: string;
-    choices: LocalUserChoices;
-  }) => void;
-}
-
-function canAccessJamLobby(
-  profile: ReturnType<typeof useCurrentProfile>,
-  jamPostId: string,
-) {
-  if (!profile) return false;
-  if (profile.type === 'local') return true;
-  return (
-    profile.guestData?.resource?.type === 'jams' &&
-    profile.guestData.resource.id === jamPostId
-  );
+  onJoin: (params: JamJoinParams) => void;
 }
 
 /**
@@ -59,11 +40,16 @@ function canAccessJamLobby(
 export function JamLobby({ onJoin }: JamLobbyProps) {
   const t = useT();
   const navigate = useNavigate();
-  const me = useCurrentProfile();
-  const { jamPost, jamEvent, occurrence } = useJamContext();
-  const { client, openpeepsApi } = useOpenpeeps();
-  const jamStateQuery = openpeepsApi.useJamState(jamPost.id, occurrence);
-  const jamActive = !!jamStateQuery.data?.active;
+  const {
+    username,
+    jamEvent,
+    jamActive,
+    canAccess,
+    error,
+    setError,
+    submitting,
+    join,
+  } = useJamLobby({ onJoin });
 
   const [settings, updateSettings] = useJamLocalSettings();
 
@@ -71,8 +57,6 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
   const [videoEnabled, setVideoEnabled] = useState(false);
   const [audioDeviceId, setAudioDeviceId] = useState('');
   const [videoDeviceId, setVideoDeviceId] = useState('');
-  const [error, setError] = useState<string | undefined>();
-  const [submitting, setSubmitting] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -94,9 +78,12 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
     [videoEnabled, videoDeviceId],
   );
 
-  const onPreviewError = useCallback((err: Error) => {
-    setError(err.message);
-  }, []);
+  const onPreviewError = useCallback(
+    (err: Error) => {
+      setError(err.message);
+    },
+    [setError],
+  );
 
   const tracks = usePreviewTracks(trackOptions, onPreviewError);
   const videoTrack = tracks?.find(
@@ -134,7 +121,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
 
   const showVideo = videoTrack?.mediaStreamTrack?.readyState === 'live';
 
-  if (!canAccessJamLobby(me, jamPost.id)) {
+  if (!canAccess) {
     return <JamGuestForm />;
   }
 
@@ -142,52 +129,14 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
     navigate({ type: 'jams' });
   };
 
-  const handleJoin = async () => {
-    setSubmitting(true);
-    setError(undefined);
-    try {
-      const res = await client.jams.token({
-        pathParameters: { id: jamPost.id },
-        queryParameters: occurrence ? { occurrence } : undefined,
-      });
-      if ('error' in res) {
-        setError(
-          apiErrorMessage(
-            res.error,
-            t,
-            t('jams.lobby.tokenError', {
-              defaultValue: 'Failed to get jam token',
-            }),
-          ),
-        );
-        return;
-      }
-      const { token, livekitUrl } = res.data;
-      onJoin({
-        token,
-        livekitUrl,
-        choices: {
-          username: (me ? profileName(me) : '') ?? '',
-          audioEnabled,
-          videoEnabled,
-          audioDeviceId,
-          videoDeviceId,
-        },
-      });
-    } catch (err) {
-      setError(
-        apiErrorMessage(
-          err,
-          t,
-          t('jams.lobby.tokenError', {
-            defaultValue: 'Failed to get jam token',
-          }),
-        ),
-      );
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const handleJoin = () =>
+    join<LocalUserChoices>({
+      username,
+      audioEnabled,
+      videoEnabled,
+      audioDeviceId,
+      videoDeviceId,
+    });
 
   return (
     <div className="mx-auto flex h-full w-full max-w-lg items-center justify-center p-4">

@@ -5,6 +5,7 @@ import type { PgDb } from '../client';
 import { nowIso } from '../mappers';
 import {
   asTable,
+  documentIdColumn,
   documentRegistry,
   getCollectionConfig,
   getTableForCollection,
@@ -82,7 +83,7 @@ export const updateDocument = async <O extends { id: string }>(
   const existing = await db
     .select()
     .from(config.table as never)
-    .where(eq(table.id as never, id))
+    .where(eq(documentIdColumn(collection, table) as never, id))
     .limit(1);
   const row = existing[0] as Record<string, unknown> | undefined;
   if (!row) {
@@ -99,7 +100,7 @@ export const updateDocument = async <O extends { id: string }>(
         body: { ...currentBody, ...edgeBodyPatch(patch) },
         updatedAt: nowIso(),
       } as never)
-      .where(eq(table.id as never, id));
+      .where(eq(documentIdColumn(collection, table) as never, id));
   } else {
     const merged = {
       ...rowToPatchInput(collection, row),
@@ -114,7 +115,7 @@ export const updateDocument = async <O extends { id: string }>(
         body,
         updatedAt: nowIso(),
       } as never)
-      .where(eq(table.id as never, id));
+      .where(eq(documentIdColumn(collection, table) as never, id));
   }
 
   const updated = await executeFind(db, collection, mapData, id, true);
@@ -201,10 +202,10 @@ export const deleteDocument = async (
     await db
       .update(getTableForCollection(mapData.collection) as never)
       .set({ deletedAt: nowIso(), updatedAt: nowIso() } as never)
-      .where(eq(table.id as never, id));
+      .where(eq(documentIdColumn(mapData.collection, table) as never, id));
     return;
   }
   await db
     .delete(getTableForCollection(mapData.collection) as never)
-    .where(eq(table.id as never, id));
+    .where(eq(documentIdColumn(mapData.collection, table) as never, id));
 };

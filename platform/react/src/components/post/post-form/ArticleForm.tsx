@@ -7,6 +7,7 @@ import type {
 import { Input, Label } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
+import { applyAudienceSetting } from '../../../lib/audienceSetting';
 import { ImageInput } from '../../form/ImageInput';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
@@ -37,21 +38,8 @@ export function ArticleForm({
     });
   };
 
-  const setAudience = (settings: AudienceSetting) => {
-    const audience = settings.audience ?? undefined;
-    const includesMe = audience?.some((p) => p.id === me?.id);
-    onChange({
-      ...postData,
-      visibility: settings.visibility,
-      groupId: settings.groupId ?? undefined,
-      audience:
-        settings.visibility === 'direct'
-          ? includesMe
-            ? audience
-            : [...(audience ?? []), ...(me ? [me] : [])]
-          : undefined,
-    });
-  };
+  const setAudience = (settings: AudienceSetting) =>
+    onChange(applyAudienceSetting(postData, settings, me));
 
   return (
     <div>

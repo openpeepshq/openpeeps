@@ -11,7 +11,7 @@ export const clearNotificationsScreenPushHandler = () => {
 };
 
 export const handlePushOnNotificationsScreen = async (
-  unseen: number,
+  unseen: number
 ): Promise<boolean> => {
   if (!pushHandler) {
     return false;

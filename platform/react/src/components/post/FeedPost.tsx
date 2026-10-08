@@ -2,8 +2,7 @@ import type { ReactNode } from 'react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { cn } from '@openpeepshq/react-ui';
 import { usePostViewRef } from '../../lib/postViewCounter';
-import { isUnreadFeedActivityForViewer } from '../../lib/postUnread';
-import { useCurrentProfile } from '../layout/IdentityContext';
+import { useFeedPostPresentation } from '../../hooks/posts/useFeedPostPresentation';
 
 import { FeedPostContent } from './FeedPostContent';
 import { PostInfoHeader } from './pieces/PostInfoHeader';
@@ -39,31 +38,20 @@ export function FeedPost({
   content,
   className,
 }: FeedPostProps) {
-  const me = useCurrentProfile();
-  const displayedPost: PublicPost = post.repost ?? post;
-  const isUnread = isUnreadFeedActivityForViewer(post, me?.id);
-  const postViewRef = usePostViewRef(post.id, {
-    groupId: post.groupId,
-    adjustUnread: isUnread,
+  const {
+    displayedPost,
+    isUnread,
+    hasReactionHeader,
+    showsReplyTo,
+    showThreadPreview,
+    hasStats,
+    viewContext,
+  } = useFeedPostPresentation(post, {
+    noReactionHeader,
+    inGroup,
+    showReplyTo,
   });
-  const hasReactionHeader =
-    !noReactionHeader &&
-    (!!post.repost || !!post.inReplyToId || (!!post.groupId && !inGroup));
-
-  const showsReplyTo = !!(showReplyTo && displayedPost.replyTo);
-  const showThreadPreview =
-    !noReactionHeader &&
-    !showsReplyTo &&
-    !displayedPost.inReplyToId &&
-    ((displayedPost.latestReplies?.length ?? 0) > 0 ||
-      displayedPost.latestRepliesHasMore ||
-      (displayedPost.replyCount ?? 0) > 0);
-
-  const hasStats = !!(
-    displayedPost?.repostCount ||
-    displayedPost?.reactions?.length ||
-    displayedPost?.replyCount
-  );
+  const postViewRef = usePostViewRef(post.id, viewContext);
 
   return (
     <article

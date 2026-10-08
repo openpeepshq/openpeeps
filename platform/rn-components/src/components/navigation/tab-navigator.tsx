@@ -3,22 +3,22 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TabStackParamList } from './types';
 import { TAB_ROUTES } from './types';
 import {
-  Home,
-  Jam,
-  MyFeed,
+  FeedsLocal,
+  JamsIndex,
+  FeedsMy,
   NewPost,
-  Messages,
-  Events,
-  Directory,
+  ConversationsIndex,
+  EventsIndex,
+  Members,
   Settings,
-  Groups,
-  Onboarding,
+  GroupsIndex,
+  Welcome,
   Notifications,
-  HashtagPosts,
+  Tags,
   Explore,
-  BookmarksFeed,
-  Articles,
-} from '../../screens';
+  FeedsBookmarks,
+  ArticlesIndex,
+} from '../../pages';
 import {
   HomeIcon,
   NewspaperIcon,
@@ -30,7 +30,11 @@ import {
 import { cn } from '../../lib/utils';
 import { useWindowSize } from '../../hooks';
 import { formatBadgeCount } from '@openpeepshq/common';
-import { useOpenpeeps } from '@openpeepshq/react';
+import {
+  buildMainNavItems,
+  useOpenpeeps,
+  useServerInfo,
+} from '@openpeepshq/react';
 import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
 
 const Tab = createBottomTabNavigator<TabStackParamList>();
@@ -66,16 +70,22 @@ const TabBarIcon = ({
 
 export const TabNavigator = () => {
   const { openpeepsApi } = useOpenpeeps();
-  const { colors: { background } } = useOpenPeepsTheme();
+  const {
+    colors: { background },
+  } = useOpenPeepsTheme();
   const { isMediumScreenOrLarger } = useWindowSize();
-  const { data: serverInfo } = openpeepsApi.useServerInfo();
+  const serverInfo = useServerInfo();
+  const jamsEnabled = buildMainNavItems({
+    jamsEnabled: !!serverInfo.jams.livekit.enabled,
+    showAdmin: false,
+  }).some((item) => item.id === 'jams');
   const unseenCounts = openpeepsApi.useUnseenPostCounts();
 
   const unreadGroupPosts = Object.values(
-    unseenCounts.data?.groups ?? {},
+    unseenCounts.data?.groups ?? {}
   ).reduce((sum, count) => sum + count, 0);
   const unreadConversationThreads = Object.keys(
-    unseenCounts.data?.direct ?? {},
+    unseenCounts.data?.direct ?? {}
   ).length;
 
   const display = isMediumScreenOrLarger ? 'none' : 'flex';
@@ -98,9 +108,10 @@ export const TabNavigator = () => {
           display,
         },
       })}
-      initialRouteName={TAB_ROUTES.HOME}>
-      <Tab.Screen name={TAB_ROUTES.HOME} component={Home} />
-      <Tab.Screen name={TAB_ROUTES.FEED} component={MyFeed} />
+      initialRouteName={TAB_ROUTES.HOME}
+    >
+      <Tab.Screen name={TAB_ROUTES.HOME} component={FeedsLocal} />
+      <Tab.Screen name={TAB_ROUTES.FEED} component={FeedsMy} />
       <Tab.Screen
         name={TAB_ROUTES.NEW_POST}
         component={NewPost}
@@ -112,7 +123,7 @@ export const TabNavigator = () => {
       />
       <Tab.Screen
         name={TAB_ROUTES.GROUPS}
-        component={Groups}
+        component={GroupsIndex}
         options={{
           tabBarBadge:
             unreadGroupPosts > 0
@@ -122,7 +133,7 @@ export const TabNavigator = () => {
       />
       <Tab.Screen
         name={TAB_ROUTES.MESSAGES}
-        component={Messages}
+        component={ConversationsIndex}
         options={{
           tabBarBadge:
             unreadConversationThreads > 0
@@ -130,10 +141,10 @@ export const TabNavigator = () => {
               : undefined,
         }}
       />
-      {serverInfo?.jams.livekit.enabled && (
+      {jamsEnabled && (
         <Tab.Screen
           name={TAB_ROUTES.JAM}
-          component={Jam}
+          component={JamsIndex}
           options={{
             tabBarItemStyle: {
               display: 'none',
@@ -143,7 +154,7 @@ export const TabNavigator = () => {
       )}
       <Tab.Screen
         name={TAB_ROUTES.EVENTS}
-        component={Events}
+        component={EventsIndex}
         options={{
           tabBarItemStyle: {
             display: 'none',
@@ -152,7 +163,7 @@ export const TabNavigator = () => {
       />
       <Tab.Screen
         name={TAB_ROUTES.ARTICLES}
-        component={Articles}
+        component={ArticlesIndex}
         options={{
           tabBarItemStyle: {
             display: 'none',
@@ -161,7 +172,7 @@ export const TabNavigator = () => {
       />
       <Tab.Screen
         name={TAB_ROUTES.DIRECTORY}
-        component={Directory}
+        component={Members}
         options={{
           tabBarItemStyle: {
             display: 'none',
@@ -180,7 +191,7 @@ export const TabNavigator = () => {
 
       <Tab.Screen
         name={TAB_ROUTES.ONBOARDING}
-        component={Onboarding}
+        component={Welcome}
         options={{
           tabBarItemStyle: {
             display: 'none',
@@ -198,7 +209,7 @@ export const TabNavigator = () => {
       />
       <Tab.Screen
         name={TAB_ROUTES.HASHTAG_POSTS}
-        component={HashtagPosts}
+        component={Tags}
         options={{
           tabBarItemStyle: {
             display: 'none',
@@ -214,16 +225,15 @@ export const TabNavigator = () => {
           },
         }}
       />
-      <Tab.Screen 
-      name={TAB_ROUTES.BOOKMARKS} 
-      component={BookmarksFeed} 
-      options={{
+      <Tab.Screen
+        name={TAB_ROUTES.BOOKMARKS}
+        component={FeedsBookmarks}
+        options={{
           tabBarItemStyle: {
             display: 'none',
           },
         }}
       />
-
     </Tab.Navigator>
   );
 };

@@ -16,6 +16,7 @@ import type { CredentialsStore } from '../../auth/credentials/types';
 import {
   AUTH_CREDENTIALS_STORAGE_KEY,
   OPENPEEPS_CREDENTIALS_CHANGED_EVENT,
+  subscribeCredentialsChanged,
 } from '../../auth/credentials';
 import { buildOpenpeepsApi } from './hooks';
 import { CredentialsStoreProvider } from '../credentialsStore';
@@ -177,8 +178,13 @@ export const OpenpeepsProvider: React.FC<{
       );
       window.addEventListener('storage', onStorage);
     }
+    // No window (React Native): the store notifies listeners directly.
+    const unsubscribe = hasWindow
+      ? undefined
+      : subscribeCredentialsChanged(onCredentialsChanged);
 
     return () => {
+      unsubscribe?.();
       if (hasWindow) {
         window.removeEventListener(
           OPENPEEPS_CREDENTIALS_CHANGED_EVENT,

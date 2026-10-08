@@ -22,13 +22,17 @@ export interface IdentityContextValue {
 export const IdentityContext = createContext<IdentityContextValue>({});
 
 export const useIdentity = () => useContext(IdentityContext);
+
 export const useCurrentProfile = () => useIdentity().profile;
+
 export const useCurrentAccount = () => useIdentity().account;
+
 export const useCurrentProfileSettings = () => useIdentity().profileSettings;
 
 /** Profile + account from context and scopes from the stored JWT (mirrors Svelte `getCurrentAuthData`). */
 export const useAuthData = (): AuthorizationData => {
-  const { profile, account } = useIdentity();
+  const profile = useCurrentProfile();
+  const account = useCurrentAccount();
   const { credentialsStore } = useCredentialsStore();
   const [scopes, setScopes] = useState<Scope[]>([]);
 
@@ -41,6 +45,12 @@ export const useAuthData = (): AuthorizationData => {
     };
 
     void refresh();
+
+    if (typeof window === 'undefined') {
+      return () => {
+        cancelled = true;
+      };
+    }
 
     const onCred = () => void refresh();
     const onStorage = (e: StorageEvent) => {

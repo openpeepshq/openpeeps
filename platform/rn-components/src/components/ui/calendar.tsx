@@ -1,19 +1,15 @@
-
 import * as React from 'react';
 import { LocaleConfig, Calendar as RNCalendar } from 'react-native-calendars';
 import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
 import { OpenPeepsTheme } from '~/theme/types';
 
-
-function Calendar({ theme, ...props }: React.ComponentProps<typeof RNCalendar>) {
+function Calendar({
+  theme,
+  ...props
+}: React.ComponentProps<typeof RNCalendar>) {
   const { colors } = useOpenPeepsTheme();
 
-  return (
-    <RNCalendar
-      theme={getTheme(colors, theme)}
-      {...props}
-    />
-  );
+  return <RNCalendar theme={getTheme(colors, theme)} {...props} />;
 }
 
 const getTheme = (
@@ -63,7 +59,15 @@ LocaleConfig.locales.en = {
     'Nov',
     'Dec',
   ],
-  dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  dayNames: [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ],
   dayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'],
   today: 'Today',
 };
@@ -97,7 +101,15 @@ LocaleConfig.locales.fr = {
     'Nov.',
     'Déc.',
   ],
-  dayNames: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+  dayNames: [
+    'Dimanche',
+    'Lundi',
+    'Mardi',
+    'Mercredi',
+    'Jeudi',
+    'Vendredi',
+    'Samedi',
+  ],
   dayNamesShort: ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'],
   today: "Aujourd'hui",
 };

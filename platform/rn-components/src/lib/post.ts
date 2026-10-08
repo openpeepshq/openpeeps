@@ -11,40 +11,39 @@ import { uploadMedia } from './uploadMedia';
 
 /** True if the attachment is still being processed server-side. */
 export const isAttachmentProcessing = (
-  attachment: MediaAttachmentData,
+  attachment: MediaAttachmentData
 ): boolean => attachment.status === 'processing';
 
 /** True if at least one of `postData.data.attachments` is still processing. */
 export const hasProcessingAttachments = (
-  postData: PostCreationData | undefined,
-): boolean =>
-  (postData?.data?.attachments ?? []).some(isAttachmentProcessing);
+  postData: PostCreationData | undefined
+): boolean => (postData?.data?.attachments ?? []).some(isAttachmentProcessing);
 
 export const handleMediaUpload = async (
   selectedMedia: { uri: string; type: 'video' | 'image'; alt?: string }[],
   createAttachments: any,
-  serverConfig: string,
+  serverConfig: string
 ) => {
   const attachments = await Promise.all(
-    selectedMedia.map(media =>
+    selectedMedia.map((media) =>
       uploadMedia({
         mediaUri: media.uri,
         createAttachments: createAttachments,
         type: media.type,
         usage: `${serverConfig}:${media.type}`,
         alt: media?.alt,
-      }),
-    ),
+      })
+    )
   );
 
   return attachments.filter(
     (attachment): attachment is NonNullable<typeof attachment> =>
-      attachment !== null,
+      attachment !== null
   );
 };
 
 export const validatePollData = (formData: PollChoiceForm): boolean => {
-  if (formData.choices.some(choice => !choice.text.trim())) {
+  if (formData.choices.some((choice) => !choice.text.trim())) {
     Toast.show({
       type: 'error',
       text1: 'Please fill in all poll choices',
@@ -63,7 +62,7 @@ export const validatePollData = (formData: PollChoiceForm): boolean => {
 };
 
 export const noteToQuestion = (
-  postData: PostCreationData,
+  postData: PostCreationData
 ): PostCreationData => ({
   ...postData,
   type: 'question',
@@ -83,9 +82,7 @@ export const noteToQuestion = (
     expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
   },
 });
-export const toQuestion = (
-  postData: PostCreationData,
-): PostCreationData => ({
+export const toQuestion = (postData: PostCreationData): PostCreationData => ({
   ...postData,
   type: 'question',
   data: {
@@ -105,9 +102,7 @@ export const toQuestion = (
   },
 });
 
-export const toArticle = (
-  postData: PostCreationData,
-): PostCreationData => ({
+export const toArticle = (postData: PostCreationData): PostCreationData => ({
   ...postData,
   type: 'article',
   data: {
@@ -117,10 +112,7 @@ export const toArticle = (
   },
 });
 
-
-export const toNote = (
-  postData: PostCreationData,
-): PostCreationData => ({
+export const toNote = (postData: PostCreationData): PostCreationData => ({
   ...postData,
   type: 'note',
   data: {
@@ -131,7 +123,7 @@ export const toNote = (
 });
 
 export const questionToNote = (
-  postData: PostCreationData,
+  postData: PostCreationData
 ): PostCreationData => ({
   ...postData,
   type: 'note',
@@ -153,7 +145,7 @@ export const questionToNote = (
 // };
 
 export const lastLongestPathSelector = (
-  thread: Thread,
+  thread: Thread
 ): Thread & { depth: number } => {
   const candidates = thread.children.map((t) => lastLongestPathSelector(t));
 
@@ -173,7 +165,7 @@ export const lastLongestPathSelector = (
 
 export const collectPath = (
   thread: Thread,
-  currentPath: PublicPost[] = [],
+  currentPath: PublicPost[] = []
 ): PublicPost[] => {
   if (thread) {
     return [...currentPath, thread, ...collectPath(thread.children[0])];

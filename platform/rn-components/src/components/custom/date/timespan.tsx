@@ -1,5 +1,5 @@
 import React from 'react';
-import {ThemedText} from '~/components/ui/themed-text';
+import { ThemedText } from '~/components/ui/themed-text';
 
 interface TimespanProps {
   start: string;
@@ -28,11 +28,11 @@ export const Timespan = ({
 
   const endDateString =
     endDate &&
-    endDate.toLocaleDateString(undefined, {timeZone, dateStyle: 'full'});
+    endDate.toLocaleDateString(undefined, { timeZone, dateStyle: 'full' });
 
   const endTimeString =
     endDate &&
-    endDate.toLocaleTimeString(undefined, {timeZone, timeStyle: 'short'});
+    endDate.toLocaleTimeString(undefined, { timeZone, timeStyle: 'short' });
 
   const isSameDay = startDateString === endDateString;
 

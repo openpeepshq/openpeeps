@@ -23,12 +23,12 @@ export type TabStackParamList = {
   [TAB_ROUTES.HOME]: undefined;
   [TAB_ROUTES.FEED]: undefined;
   [TAB_ROUTES.NEW_POST]:
-  | {
-    originatorId?: string | undefined;
-    triggeredFrom?: PostBoxTriggeredFrom | undefined;
-    withContent?: boolean | undefined;
-  }
-  | undefined;
+    | {
+        originatorId?: string | undefined;
+        triggeredFrom?: PostBoxTriggeredFrom | undefined;
+        withContent?: boolean | undefined;
+      }
+    | undefined;
   [TAB_ROUTES.JAM]: undefined;
   [TAB_ROUTES.MESSAGES]: undefined;
   [TAB_ROUTES.EVENTS]: undefined;

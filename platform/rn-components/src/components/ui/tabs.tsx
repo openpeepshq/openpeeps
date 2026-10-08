@@ -11,7 +11,10 @@ const TabsList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
-    className={cn('flex flex-row space-x-2 bg-surface p-1 rounded-lg', className)}
+    className={cn(
+      'flex flex-row space-x-2 bg-surface p-1 rounded-lg',
+      className
+    )}
     {...props}
   />
 ));
@@ -25,7 +28,7 @@ const TabsTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       'px-4 py-2 text-muted-foreground rounded-md data-[state=active]:bg-background data-[state=active]:text-foreground',
-      className,
+      className
     )}
     {...props}
   />
@@ -42,7 +45,9 @@ const TabsContent = React.forwardRef<
     {...props}
   />
 )) as React.ForwardRefExoticComponent<
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content> & { className?: string }
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content> & {
+    className?: string;
+  }
 >;
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 
@@ -51,23 +56,31 @@ export { Tabs, TabsList, TabsTrigger, TabsContent };
 export const TabbedView = ({ tabs }: { tabs: TabData[] }) => {
   const [activeTab, setActiveTab] = React.useState(tabs[0].value);
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mx-auto flex-col gap-1.5 mt-5">
+    <Tabs
+      value={activeTab}
+      onValueChange={setActiveTab}
+      className="w-full mx-auto flex-col gap-1.5 mt-5"
+    >
       <TabsList className="flex-row w-full bg-transparent border-muted rounded-none border-b p-0 px-3">
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.value} value={tab.value}
+          <TabsTrigger
+            key={tab.value}
+            value={tab.value}
             onPress={() => {
               setActiveTab(tab.value);
             }}
-            className={`${activeTab === tab.value
-              ? 'border-b-2 border-foreground'
-              : ''
-              }`}>
+            className={`${
+              activeTab === tab.value ? 'border-b-2 border-foreground' : ''
+            }`}
+          >
             <ThemedText>{tab.label}</ThemedText>
           </TabsTrigger>
         ))}
       </TabsList>
       {tabs.map((tab) => (
-        <TabsContent key={tab.value} value={tab.value} className="px-0 py-4">{tab.component}</TabsContent>
+        <TabsContent key={tab.value} value={tab.value} className="px-0 py-4">
+          {tab.component}
+        </TabsContent>
       ))}
     </Tabs>
   );
@@ -77,4 +90,4 @@ export type TabData = {
   label: string;
   value: string;
   component: React.ReactNode;
-}
+};

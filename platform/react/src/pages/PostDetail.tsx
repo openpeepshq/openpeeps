@@ -1,44 +1,17 @@
 import { useMemo, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { groupName, profileName } from '@openpeepshq/common';
-import { useT, useOpenpeeps, useSetPageHeader } from '../index';
+import { useT, useSetPageHeader } from '../index';
+import { usePostDetailTitle } from '../hooks/posts/usePostDetailTitle';
 import { PostDetail as PostDetailComponent } from '../components';
 
 export function PostDetail() {
   const t = useT();
   const { postId = '' } = useParams<{ postId: string }>();
-  const { openpeepsApi } = useOpenpeeps();
-
-  // Shares the react-query cache with the detail component below, so this does
-  // not trigger an extra request.
-  const post = openpeepsApi.usePost(postId).data;
-  const isRepost = !!post?.repost;
-  const author = post?.profile ? profileName(post.profile) : undefined;
-  const groupHandle = post?.group?.handle;
-  const groupLabel = post?.group ? groupName(post.group) : '';
-  const isEvent = post?.type === 'event';
+  const { kindTitle, groupHandle, groupLabel, inGroup } =
+    usePostDetailTitle(postId);
 
   const title = useMemo((): ReactNode => {
-    if (!author) {
-      return t('post.detail.fallbackTitle', { defaultValue: 'Post' });
-    }
-
-    const kindTitle = isRepost
-      ? t('post.detail.repostTitle', {
-          defaultValue: '{{author}} reposted a post',
-          author,
-        })
-      : isEvent
-        ? t('post.detail.eventTitle', {
-            defaultValue: "{{author}}'s event",
-            author,
-          })
-        : t('post.detail.title', {
-            defaultValue: "{{author}}'s post",
-            author,
-          });
-
-    if (!groupHandle || !groupLabel) return kindTitle;
+    if (!inGroup) return kindTitle;
 
     return (
       <h1 className="flex min-w-0 items-baseline gap-x-1 text-xl font-semibold">
@@ -54,7 +27,7 @@ export function PostDetail() {
         </Link>
       </h1>
     );
-  }, [author, groupHandle, groupLabel, isEvent, isRepost, t]);
+  }, [groupHandle, groupLabel, inGroup, kindTitle, t]);
 
   useSetPageHeader(title);
 

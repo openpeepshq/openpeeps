@@ -103,6 +103,7 @@
     "joinCommunity": "Community beitreten",
     "haveAccount": "Bereits ein Konto?",
     "logIn": "Anmelden",
+    "termsAndConditions": "Nutzungsbedingungen",
     "poweredBy": "Bereitgestellt von AllPeeP",
     "profile": "Profil",
     "messages": "Nachrichten",
@@ -204,7 +205,8 @@
       "copyProfileLink": "Profillink kopieren",
       "copyPostLink": "Beitragslink kopieren",
       "inviteViaEmail": "Per E-Mail einladen",
-      "inviteViaLink": "Per Link einladen"
+      "inviteViaLink": "Per Link einladen",
+      "menu": "Profilaktionen"
     },
     "modals": {
       "deleteProfile": {
@@ -363,6 +365,10 @@
       "reposts": "Geteilte Beiträge",
       "reactions": "Reaktionen"
     },
+    "reactionsModal": {
+      "title": "Reaktionen",
+      "empty": "Noch keine Reaktionen"
+    },
     "form": {
       "content": "Was beschäftigt Sie?",
       "changeGroup": "Gruppe ändern",
@@ -428,6 +434,7 @@
       "share": "Teilen"
     },
     "shareMenu": {
+      "title": "Teilen",
       "shareOnCommunity": "In der Community teilen",
       "repostToFeed": "Im Feed teilen",
       "reposting": "Wird geteilt…",
@@ -443,7 +450,8 @@
       "next": "Weiter",
       "close": "Schließen",
       "videoProcessing": "Video wird vorbereitet…",
-      "videoError": "Dieses Video konnte nicht für die Wiedergabe vorbereitet werden."
+      "videoError": "Dieses Video konnte nicht für die Wiedergabe vorbereitet werden.",
+      "openDocument": "Datei öffnen"
     },
     "replyBox": {
       "reply": "Antworten",
@@ -602,7 +610,8 @@
       "eventTitle": "Veranstaltung von {{author}}",
       "fallbackTitle": "Beitrag",
       "inGroup": "in"
-    }
+    },
+    "notFound": "Beitrag nicht gefunden"
   },
   "groups": {
     "type": {
@@ -801,7 +810,9 @@
       "shareToFeed": "Im Feed teilen",
       "shareInMessage": "In einer Nachricht teilen",
       "otherOptions": "Weitere Optionen",
-      "markAllRead": "Alle Beiträge als gelesen markieren"
+      "markAllRead": "Alle Beiträge als gelesen markieren",
+      "more": "Gruppenoptionen",
+      "view": "Anzeigen"
     },
     "modals": {
       "addMembers": {
@@ -1043,7 +1054,11 @@
     "mobileMenu": {
       "inJamMessage": "Nachricht im Jam",
       "jamDetails": "Jam-Details",
-      "people": "Personen"
+      "people": "Personen",
+      "info": "Info",
+      "hostControls": "Gastgebersteuerung",
+      "shareInvite": "Einladung teilen",
+      "visibility": "Jam-Sichtbarkeit"
     },
     "network": {
       "connectionStatus": "Verbindungsstatus",
@@ -2424,7 +2439,10 @@
     "sending": "Wird gesendet…",
     "submitting": "Wird übermittelt…",
     "downloading": "Wird heruntergeladen…",
-    "restoreDefaults": "Standardwerte wiederherstellen"
+    "restoreDefaults": "Standardwerte wiederherstellen",
+    "notFound": "Diese Seite wurde nicht gefunden.",
+    "backHome": "Zur Startseite",
+    "noAccount": "Noch kein Konto?"
   },
   "conversations": {
     "newMessage": "Neue Nachricht",
@@ -2492,6 +2510,14 @@
     },
     "sendError": "Nachricht konnte nicht gesendet werden",
     "messageLog": "Nachrichten",
+    "info": "Informationen zur Unterhaltung",
+    "draft": {
+      "title": "Nachrichtenentwurf",
+      "recipients": "Neue Nachricht an: {{names}}"
+    },
+    "search": {
+      "placeholder": "Unterhaltungen suchen…"
+    },
     "open": "Unterhaltung öffnen",
     "placeholder": "Nachricht schreiben…",
     "title": "Unterhaltung",
@@ -2790,7 +2816,8 @@
       "uploadTitle": "Bild hochladen",
       "replace": "Bild ersetzen",
       "remove": "Bild entfernen",
-      "aspectRatio": "Mindestens 800px breit."
+      "aspectRatio": "Mindestens 800px breit.",
+      "recommendedWidth": "Empfohlene Breite {{width}} Pixel"
     },
     "upload": {
       "failed": "Datei-Upload fehlgeschlagen",
@@ -2910,6 +2937,7 @@
       "visibilityNotChangeable": "Hinweis: Die Sichtbarkeit der Veranstaltung kann nach der Veröffentlichung nicht mehr geändert werden. Stellen Sie sicher, dass Sie die richtigen Personen oder die richtige Gruppe hinzufügen.",
       "jamModeratorsDescription": "Klicken Sie, um Jam-Moderatoren auszuwählen",
       "externalEventUrlPlaceholder": "https://example.com/event",
+      "locationPlaceholder": "Nach einem Ort suchen…",
       "maxAttendees": "Maximale Teilnehmerzahl",
       "maxAttendeesDescription": "Begrenzen Sie, wie viele Personen mit Ja für diese Veranstaltung zusagen können. Leer lassen für keine Begrenzung.",
       "clearMaxAttendees": "Teilnehmerbegrenzung entfernen",
@@ -2942,6 +2970,7 @@
     "feed": {
       "past": "Vergangene",
       "upcoming": "Kommende",
+      "current": "Aktuell",
       "empty": "Keine Ergebnisse",
       "label": "Veranstaltungszeitraum",
       "view": {
@@ -2960,6 +2989,15 @@
     },
     "create": {
       "title": "Veranstaltung erstellen"
+    },
+    "update": {
+      "title": "Veranstaltung aktualisieren"
+    },
+    "edit": "Veranstaltung bearbeiten",
+    "notFound": "Veranstaltung nicht gefunden",
+    "validation": {
+      "startRequired": "Startdatum ist erforderlich",
+      "nameRequired": "Veranstaltungsname ist erforderlich"
     },
     "tabs": {
       "rsvps": "RSVPs",
@@ -3357,6 +3395,11 @@
     }
   },
   "media": {
+    "permissions": {
+      "title": "Berechtigung erforderlich",
+      "message": "Bitte erlauben Sie in den Einstellungen den Zugriff auf Ihre Mediathek, um Dateien anzuhängen.",
+      "openSettings": "Einstellungen öffnen"
+    },
     "image": {
       "addAltText": "Alternativtext zu Ihrem Bild hinzufügen",
       "addAltTextLabel": "Alternativtext",
@@ -3400,8 +3443,12 @@
     "tabs": {
       "description": "Artikel"
     },
+    "new": "Neuer Artikel",
+    "edit": "Artikel bearbeiten",
+    "notFound": "Artikel nicht gefunden",
     "form": {
       "title": "Neuer Artikel",
+      "uploadCover": "Titelbild hochladen",
       "contentPlaceholder": "Schreiben Sie hier Ihren Inhalt. Verwenden Sie Markdown zur Formatierung",
       "visibility": "Wer kann das sehen (Erforderlich)",
       "visibilityNotChangeable": "Sobald Sie Ihren Artikel veröffentlicht haben, können Sie die Sichtbarkeit nicht mehr ändern",
@@ -3409,7 +3456,16 @@
     },
     "create": {
       "title": "Neuer Artikel"
+    },
+    "update": {
+      "title": "Artikel aktualisieren"
     }
+  },
+  "about": {
+    "welcomeTo": "Willkommen bei {{name}}"
+  },
+  "codeOfConduct": {
+    "title": "Verhaltenskodex"
   },
   "infos": {
     "emailNotVerified": {

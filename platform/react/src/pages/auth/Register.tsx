@@ -23,11 +23,11 @@ import {
   Link,
   Toast,
 } from '@openpeepshq/react-ui';
-import { useT, useOpenpeeps, useCredentialsStore } from '../../index';
+import { useT, useOpenpeeps } from '../../index';
 import { AuthLayout, useServerInfo, useToast } from '../../components';
 import type { TFunction } from 'i18next';
 
-import { performRegister } from '../../lib/auth';
+import { useRegisterAccount } from '../../hooks';
 import {
   calculatePasswordStrength,
   getStrengthMessage,
@@ -69,9 +69,9 @@ export function Register({ invite = false }: RegisterProps) {
   const t = useT();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { client, openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi } = useOpenpeeps();
   const createCheckout = openpeepsApi.createCheckoutAction();
-  const { credentialsStore } = useCredentialsStore();
+  const { register } = useRegisterAccount();
   const serverInfo = useServerInfo();
   const { success, error: toastError } = useToast();
 
@@ -131,7 +131,7 @@ export function Register({ invite = false }: RegisterProps) {
   const onSubmit = form.handleSubmit(async (data) => {
     setError(null);
     try {
-      await performRegister(client, credentialsStore, data);
+      await register(data);
       if (stripeMembershipEnabled) {
         const checkout = await createCheckout();
         if (checkout.url) {

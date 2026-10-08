@@ -1,20 +1,12 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import type { PublicPost } from '@openpeepshq/common/types';
+import {
+  ReplyOpenerProvider,
+  useReplyOpener,
+} from '../../../hooks/posts/replyOpener';
 import { ReplyModal } from './ReplyModal';
 
-interface ReplyModalContextValue {
-  openReply: (post: PublicPost) => void;
-}
-
-const ReplyModalContext = createContext<ReplyModalContextValue | null>(null);
-
-export function ReplyModalProvider({ children }: { children: ReactNode }) {
+export const ReplyModalProvider = ({ children }: { children: ReactNode }) => {
   const [replyTo, setReplyTo] = useState<PublicPost | undefined>();
 
   const openReply = useCallback((post: PublicPost) => {
@@ -22,19 +14,16 @@ export function ReplyModalProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <ReplyModalContext.Provider value={{ openReply }}>
+    <ReplyOpenerProvider openReply={openReply}>
       {children}
       {replyTo ? (
         <ReplyModal post={replyTo} onClose={() => setReplyTo(undefined)} />
       ) : null}
-    </ReplyModalContext.Provider>
+    </ReplyOpenerProvider>
   );
-}
+};
 
-export function useReplyModal() {
-  const ctx = useContext(ReplyModalContext);
-  if (!ctx) {
-    throw new Error('useReplyModal must be used within ReplyModalProvider');
-  }
-  return ctx;
-}
+export const useReplyModal = () => {
+  const openReply = useReplyOpener();
+  return { openReply };
+};

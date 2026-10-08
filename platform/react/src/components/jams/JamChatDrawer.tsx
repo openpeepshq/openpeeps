@@ -1,12 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Loader, SendHorizontal, X } from 'lucide-react';
-import { dateSorter, type JamEvent } from '@openpeepshq/common';
 import { useParticipants } from '@livekit/components-react';
-import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
-import { useJamContext } from './JamContext';
-import { useJamEventsContext } from './JamEventsContext';
-import { mentionProfilesFromParticipants } from './jamEventActions';
+import { useJamChat } from '../../hooks/jams/useJamChat';
 import { JamChatMessage } from './JamChatMessage';
 
 export interface JamChatDrawerProps {
@@ -15,49 +11,29 @@ export interface JamChatDrawerProps {
   readOnly?: boolean;
 }
 
-function mergeJamEvents(
-  persisted: JamEvent[],
-  sessionEvents: JamEvent[],
-): JamEvent[] {
-  const seen = new Set<string>();
-  const merged: JamEvent[] = [];
-  for (const event of [...persisted, ...sessionEvents]) {
-    if (seen.has(event.id)) continue;
-    seen.add(event.id);
-    merged.push(event);
-  }
-  return merged
-    .filter((event) => event.type !== 'reaction')
-    .sort(dateSorter<JamEvent>());
-}
-
 export function JamChatDrawer({
   open,
   onClose,
   readOnly = false,
 }: JamChatDrawerProps) {
   const t = useT();
-  const { jamPost } = useJamContext();
-  const { sessionEvents, sendMessage } = useJamEventsContext();
-  const { openpeepsApi } = useOpenpeeps();
-  const eventsQuery = openpeepsApi.useInfiniteJamEvents(jamPost.id, 100);
   const participants = useParticipants();
-  const mentionProfiles = useMemo(
-    () => mentionProfilesFromParticipants(participants),
-    [participants],
-  );
-
-  const [newMessage, setNewMessage] = useState('');
-  const [isSending, setIsSending] = useState(false);
+  const {
+    messages,
+    mentionProfiles,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    loadOlder,
+    newMessage,
+    setNewMessage,
+    isSending,
+    send,
+  } = useJamChat({ participants, readOnly });
   const endRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const messages = useMemo(() => {
-    const persisted = (eventsQuery.data?.pages ?? []).flat();
-    return mergeJamEvents(persisted, sessionEvents);
-  }, [eventsQuery.data, sessionEvents]);
 
   useEffect(() => {
     if (!open) return;
@@ -71,30 +47,16 @@ export function JamChatDrawer({
     const el = topSentinelRef.current;
     if (!el || !open) return;
     const observer = new IntersectionObserver((entries) => {
-      const entry = entries[0];
-      if (
-        entry?.isIntersecting &&
-        eventsQuery.hasNextPage &&
-        !eventsQuery.isFetchingNextPage
-      ) {
-        void eventsQuery.fetchNextPage();
-      }
+      if (entries[0]?.isIntersecting) loadOlder();
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [eventsQuery, open]);
+  }, [loadOlder, hasNextPage, isFetchingNextPage, open]);
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || readOnly) return;
-    setIsSending(true);
-    try {
-      await sendMessage(newMessage);
-      setNewMessage('');
-      endRef.current?.scrollIntoView({ behavior: 'smooth' });
-      window.setTimeout(() => textareaRef.current?.focus(), 25);
-    } finally {
-      setIsSending(false);
-    }
+    if (!(await send())) return;
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+    window.setTimeout(() => textareaRef.current?.focus(), 25);
   };
 
   if (!open) {
@@ -131,12 +93,12 @@ export function JamChatDrawer({
       >
         <div className="mb-0 flex-grow space-y-4 px-2 pb-4 md:mb-6">
           <div ref={topSentinelRef} className="h-1" />
-          {eventsQuery.isFetchingNextPage && (
+          {isFetchingNextPage && (
             <div className="flex justify-center py-2">
               <Loader className="size-4 animate-spin" />
             </div>
           )}
-          {messages.length === 0 && !eventsQuery.isLoading ? (
+          {messages.length === 0 && !isLoading ? (
             <p className="text-muted-foreground mt-4 text-center">
               {t('jams.chat.noMessages', { defaultValue: 'No messages yet' })}
             </p>

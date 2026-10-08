@@ -1,8 +1,7 @@
 import type { PublicProfile } from '@openpeepshq/common/types';
 import { Button, PopupMenuButton } from '@openpeepshq/react-ui';
-import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
-import { useCurrentProfile } from '../layout/IdentityContext';
+import { useFollowProfile } from '../../hooks/profile/useFollowProfile';
 
 export interface FollowUnfollowButtonProps {
   profile: PublicProfile;
@@ -19,25 +18,12 @@ export function FollowUnfollowButton({
   onSuccess,
 }: FollowUnfollowButtonProps) {
   const t = useT();
-  const me = useCurrentProfile();
-  const { openpeepsApi } = useOpenpeeps();
-  const followProfile = openpeepsApi.followProfileAction({ id: profile.id });
-  const unfollowProfile = openpeepsApi.unfollowProfileAction({
-    id: profile.id,
-  });
+  const { isSelf, isFollowing, follow, unfollow } = useFollowProfile(
+    profile,
+    onSuccess,
+  );
 
-  const follow = async () => {
-    await followProfile({ reblogs: true, notify: true });
-    onSuccess?.();
-  };
-  const unfollow = async () => {
-    await unfollowProfile(undefined);
-    onSuccess?.();
-  };
-
-  if (!me || me.id === profile.id) return null;
-
-  const isFollowing = me.following?.some((f) => f.id === profile.id);
+  if (isSelf) return null;
 
   if (popup) {
     if (isFollowing) {

@@ -1,5 +1,140 @@
 import { iconWithClassName } from './iconWithClassName';
-import { ArrowLeft, AtSign, Bell, Calendar, Check, ChevronDown, ChevronUp, ChevronsUpDown, EyeOff, Eye, Home, Newspaper, PhoneCall, PhoneOff, Search, SquarePlus, X, Ellipsis, Dot, CornerUpLeft, Repeat2, ThumbsUp, Upload, Loader2, CalendarDays, DoorOpen, Users, User, MessageSquareText, Settings, BookText, LogOut, Heart, MessageSquare, Play, Pause, Image, Mic, MicOff, Film, Plus, ChevronRight, ChartColumn, Camera, CameraOff, MoreVertical, Globe, Volume2, VolumeOff, Share, Hand, Copy, Clock, Pencil, Link, Trash2, Flag, BellOff, MessageCircleOff, CalendarX, Rss, UserRoundX, PencilLine, MoreHorizontal, UserCog, UserMinus, UserX, Trash, AudioLines, Ban, Mail, Lock, UserCheck, SendHorizonal, MailCheck, SquareUserRound, Briefcase, Building2, Instagram, Link2, Linkedin, MapPin, File, Circle, Settings2, MessageSquareOff, MessageSquarePlus, CircleSlash2, SquarePen, Megaphone, Reply, Pin, Square, Notebook, Minus, Minimize, Maximize, Download, UserPlus, Video, VideoOff, Info, Send, ScreenShare, FileQuestion, FileText, FileSpreadsheet, FileChartPie, ScrollText, Bookmark, BookmarkPlus, BookmarkMinus, Paperclip } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  AtSign,
+  Bell,
+  Calendar,
+  Check,
+  CheckCheck,
+  ChevronDown,
+  ChevronUp,
+  ChevronsUpDown,
+  EyeOff,
+  Eye,
+  Home,
+  Newspaper,
+  PhoneCall,
+  PhoneOff,
+  Search,
+  SquarePlus,
+  X,
+  Ellipsis,
+  Dot,
+  CornerUpLeft,
+  Repeat2,
+  ThumbsUp,
+  Upload,
+  Loader2,
+  CalendarDays,
+  DoorOpen,
+  Users,
+  User,
+  MessageSquareText,
+  Settings,
+  BookText,
+  LogOut,
+  Heart,
+  MessageSquare,
+  Play,
+  Pause,
+  Image,
+  Mic,
+  MicOff,
+  Film,
+  Plus,
+  ChevronRight,
+  ChartColumn,
+  ChartColumnBig,
+  Camera,
+  CameraOff,
+  MoreVertical,
+  Globe,
+  Volume2,
+  VolumeOff,
+  Share,
+  Hand,
+  Copy,
+  Clock,
+  Pencil,
+  CopyPlus,
+  Link,
+  Trash2,
+  Flag,
+  BellOff,
+  MessageCircle,
+  MessageCircleOff,
+  CalendarX,
+  Rss,
+  UserRoundX,
+  PencilLine,
+  MoreHorizontal,
+  UserCog,
+  UserMinus,
+  UserX,
+  Trash,
+  AudioLines,
+  Ban,
+  Mail,
+  Lock,
+  UserCheck,
+  SendHorizonal,
+  MailCheck,
+  SquareUserRound,
+  Briefcase,
+  Building2,
+  Instagram,
+  Link2,
+  Linkedin,
+  MapPin,
+  File,
+  Circle,
+  Settings2,
+  MessageSquareOff,
+  MessageSquarePlus,
+  CircleSlash2,
+  SquarePen,
+  Megaphone,
+  Reply,
+  Pin,
+  Square,
+  Notebook,
+  Minus,
+  Minimize,
+  Maximize,
+  Download,
+  UserPlus,
+  Video,
+  VideoOff,
+  Info,
+  Send,
+  ScreenShare,
+  FileQuestion,
+  FileText,
+  FileSpreadsheet,
+  FileChartPie,
+  ScrollText,
+  Bookmark,
+  BookmarkPlus,
+  BookmarkMinus,
+  Paperclip,
+  Laptop,
+  Smartphone,
+  ChevronLeft,
+  Laugh,
+  CircleEllipsis,
+  CircleStop,
+  Disc,
+  UsersRound,
+  Maximize2,
+  CopyCheck,
+  UserRoundCheck,
+  WifiOff,
+  VolumeX,
+  SendHorizontal,
+  SmilePlus,
+  LayoutGrid,
+  PinOff,
+} from 'lucide-react-native';
 
 export type { LucideIcon } from './types';
 
@@ -8,6 +143,7 @@ export const AtSignIcon = iconWithClassName(AtSign);
 export const BellIcon = iconWithClassName(Bell);
 export const CalendarIcon = iconWithClassName(Calendar);
 export const CheckIcon = iconWithClassName(Check);
+export const CheckCheckIcon = iconWithClassName(CheckCheck);
 export const ChevronDownIcon = iconWithClassName(ChevronDown);
 export const ChevronUpIcon = iconWithClassName(ChevronUp);
 export const ChevronsUpDownIcon = iconWithClassName(ChevronsUpDown);
@@ -50,6 +186,7 @@ export const FilmIcon = iconWithClassName(Film);
 export const PlusIcon = iconWithClassName(Plus);
 export const ChevronRightIcon = iconWithClassName(ChevronRight);
 export const ChartColumnIcon = iconWithClassName(ChartColumn);
+export const ChartColumnBigIcon = iconWithClassName(ChartColumnBig);
 export const CameraIcon = iconWithClassName(Camera);
 export const CameraOffIcon = iconWithClassName(CameraOff);
 export const MoreVerticalIcon = iconWithClassName(MoreVertical);
@@ -61,10 +198,12 @@ export const HandIcon = iconWithClassName(Hand);
 export const CopyIcon = iconWithClassName(Copy);
 export const ClockIcon = iconWithClassName(Clock);
 export const PencilIcon = iconWithClassName(Pencil);
+export const CopyPlusIcon = iconWithClassName(CopyPlus);
 export const LinkIcon = iconWithClassName(Link);
 export const Trash2Icon = iconWithClassName(Trash2);
 export const FlagIcon = iconWithClassName(Flag);
 export const BellOffIcon = iconWithClassName(BellOff);
+export const MessageCircleIcon = iconWithClassName(MessageCircle);
 export const MessageCircleOffIcon = iconWithClassName(MessageCircleOff);
 export const CalendarXIcon = iconWithClassName(CalendarX);
 export const RssIcon = iconWithClassName(Rss);
@@ -117,3 +256,20 @@ export const BookmarkIcon = iconWithClassName(Bookmark);
 export const BookmarkMinusIcon = iconWithClassName(BookmarkMinus);
 export const BookmarkPlusIcon = iconWithClassName(BookmarkPlus);
 export const PaperclipIcon = iconWithClassName(Paperclip);
+export const LaptopIcon = iconWithClassName(Laptop);
+export const SmartphoneIcon = iconWithClassName(Smartphone);
+export const ChevronLeftIcon = iconWithClassName(ChevronLeft);
+export const LaughIcon = iconWithClassName(Laugh);
+export const CircleEllipsisIcon = iconWithClassName(CircleEllipsis);
+export const CircleStopIcon = iconWithClassName(CircleStop);
+export const DiscIcon = iconWithClassName(Disc);
+export const UsersRoundIcon = iconWithClassName(UsersRound);
+export const Maximize2Icon = iconWithClassName(Maximize2);
+export const CopyCheckIcon = iconWithClassName(CopyCheck);
+export const UserRoundCheckIcon = iconWithClassName(UserRoundCheck);
+export const WifiOffIcon = iconWithClassName(WifiOff);
+export const VolumeXIcon = iconWithClassName(VolumeX);
+export const SendHorizontalIcon = iconWithClassName(SendHorizontal);
+export const LayoutGridIcon = iconWithClassName(LayoutGrid);
+export const PinOffIcon = iconWithClassName(PinOff);
+export const SmilePlusIcon = iconWithClassName(SmilePlus);

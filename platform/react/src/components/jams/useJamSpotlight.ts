@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useParticipants, useRoomContext } from '@livekit/components-react';
-import { RoomEvent, type Room } from 'livekit-client';
+import { RoomEvent, type Participant, type Room } from 'livekit-client';
 import { canViewJamAttendees } from '@openpeepshq/common/lib';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { useJamContext } from './JamContext';
@@ -16,13 +15,19 @@ const publishSpotlight = (room: Room, identity: string | null) =>
     { reliable: true, topic: SPOTLIGHT_TOPIC },
   );
 
+export type UseJamSpotlightArgs = {
+  room: Room;
+  participants: Participant[];
+};
+
 /**
  * Room-wide spotlight. Only the jam creator or a jam moderator can set or
  * clear it. Late joiners hear the current spotlight again from one of them.
  */
-export const useJamSpotlight = () => {
-  const room = useRoomContext();
-  const participants = useParticipants();
+export const useJamSpotlight = ({
+  room,
+  participants,
+}: UseJamSpotlightArgs) => {
   const { jam, jamPost } = useJamContext();
   const me = useCurrentProfile();
   const canSpotlight = canViewJamAttendees(me ?? undefined, jamPost);

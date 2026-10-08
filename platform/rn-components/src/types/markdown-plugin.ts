@@ -4,7 +4,11 @@
 export interface MarkdownInlineRulerState {
   pos: number;
   src: string;
-  push: (type: string, tag: string, nesting: number) => {
+  push: (
+    type: string,
+    tag: string,
+    nesting: number
+  ) => {
     content: string;
     markup: string;
     info: string;

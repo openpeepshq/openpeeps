@@ -8,15 +8,14 @@ import {
   type TextProps,
   View,
   type ViewStyle,
-  useColorScheme,
 } from 'react-native';
-import {Portal} from '@rn-primitives/portal';
-import {ThemedView} from './themed-view';
+import { Portal } from '@rn-primitives/portal';
+import { ThemedView } from './themed-view';
 
 interface DropdownContextType {
   open: boolean;
   setOpen: (open: boolean) => void;
-  triggerLayout: {x: number; y: number; width: number; height: number} | null;
+  triggerLayout: { x: number; y: number; width: number; height: number } | null;
   setTriggerLayout: (layout: {
     x: number;
     y: number;
@@ -44,7 +43,7 @@ const DropdownMenu = React.forwardRef<
     children: React.ReactNode;
     onOpenChange?: (open: boolean) => void;
   }
->(function DropdownMenu({children, onOpenChange}, ref) {
+>(function DropdownMenu({ children, onOpenChange }, ref) {
   const [open, setOpen] = React.useState(false);
   const [triggerLayout, setTriggerLayout] = React.useState<{
     x: number;
@@ -53,7 +52,7 @@ const DropdownMenu = React.forwardRef<
     height: number;
   } | null>(null);
   const portalName = React.useRef(
-    `dropdown-${Date.now()}-${Math.random()}`,
+    `dropdown-${Date.now()}-${Math.random()}`
   ).current;
 
   const handleSetOpen = React.useCallback(
@@ -61,7 +60,7 @@ const DropdownMenu = React.forwardRef<
       setOpen(value);
       onOpenChange?.(value);
     },
-    [onOpenChange],
+    [onOpenChange]
   );
 
   React.useImperativeHandle(
@@ -69,7 +68,7 @@ const DropdownMenu = React.forwardRef<
     () => ({
       close: () => handleSetOpen(false),
     }),
-    [handleSetOpen],
+    [handleSetOpen]
   );
 
   return (
@@ -80,7 +79,8 @@ const DropdownMenu = React.forwardRef<
         triggerLayout,
         setTriggerLayout,
         portalName,
-      }}>
+      }}
+    >
       {children}
     </DropdownContext.Provider>
   );
@@ -99,12 +99,12 @@ const DropdownMenuTrigger = ({
   style?: StyleProp<ViewStyle>;
   className?: string;
 }) => {
-  const {setOpen, open, setTriggerLayout} = React.useContext(DropdownContext);
+  const { setOpen, open, setTriggerLayout } = React.useContext(DropdownContext);
   const ref = React.useRef<View>(null);
 
   const handlePress = React.useCallback(() => {
     ref.current?.measureInWindow((x, y, width, height) => {
-      setTriggerLayout({x, y, width, height});
+      setTriggerLayout({ x, y, width, height });
       setOpen(!open);
     });
   }, [open, setOpen, setTriggerLayout]);
@@ -116,7 +116,7 @@ const DropdownMenuTrigger = ({
           children as React.ReactElement<Record<string, unknown>>,
           {
             onPress: handlePress,
-          },
+          }
         )
       ) : (
         <Pressable onPress={handlePress} className={className} style={style}>
@@ -132,17 +132,18 @@ const DropdownMenuContent = ({
   className,
   sideOffset = 4,
   align = 'end',
+  side = 'bottom',
 }: {
   children: React.ReactNode;
   className?: string;
   sideOffset?: number;
   align?: 'start' | 'end' | 'center';
+  /** `top` opens the menu above the trigger (drop-up for bottom toolbars). */
+  side?: 'top' | 'bottom';
 }) => {
-  const {open, setOpen, triggerLayout, portalName} =
+  const { open, setOpen, triggerLayout, portalName } =
     React.useContext(DropdownContext);
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const {width: screenWidth} = Dimensions.get('window');
+  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
   const menuWidth = 200;
 
@@ -157,7 +158,10 @@ const DropdownMenuContent = ({
     left = triggerLayout.x + triggerLayout.width / 2 - menuWidth / 2;
   }
   left = Math.max(8, Math.min(left, screenWidth - menuWidth - 8));
-  const top = triggerLayout.y + triggerLayout.height + sideOffset;
+  const vertical =
+    side === 'top'
+      ? { bottom: screenHeight - triggerLayout.y + sideOffset }
+      : { top: triggerLayout.y + triggerLayout.height + sideOffset };
 
   if (!triggerLayout && !open) return null;
 
@@ -173,9 +177,10 @@ const DropdownMenuContent = ({
         className={`p-4 ${className}`}
         style={[
           styles.content,
-          {top, left, width: menuWidth},
-          !open && {display: 'none'},
-        ]}>
+          { ...vertical, left, width: menuWidth },
+          !open && styles.hidden,
+        ]}
+      >
         {children}
       </ThemedView>
     </Portal>
@@ -205,7 +210,7 @@ const DropdownMenuItem = ({
   closeOnPress?: boolean;
   inset?: boolean;
 }) => {
-  const {setOpen} = React.useContext(DropdownContext);
+  const { setOpen } = React.useContext(DropdownContext);
 
   const handlePress = React.useCallback(() => {
     if (closeOnPress) {
@@ -218,7 +223,8 @@ const DropdownMenuItem = ({
     <Pressable
       className={`mb-2 ${className}`}
       onPress={handlePress}
-      disabled={disabled}>
+      disabled={disabled}
+    >
       {children}
     </Pressable>
   );
@@ -245,45 +251,55 @@ const DropdownMenuLabel = ({
   className?: string;
   inset?: boolean;
 }) => (
-  <Text style={[styles.label, inset && styles.itemInset, style]}>
+  <Text
+    style={[styles.label, inset && styles.itemInset, style]}
+    className={className}
+  >
     {children}
   </Text>
 );
 
-const DropdownMenuShortcut = ({className, ...props}: TextProps) => (
-  <Text className={className} {...props} />
-);
+const DropdownMenuShortcut = (props: TextProps) => <Text {...props} />;
 DropdownMenuShortcut.displayName = 'DropdownMenuShortcut';
 
-const DropdownMenuPortal = ({children}: {children: React.ReactNode}) => (
+const DropdownMenuPortal = ({ children }: { children: React.ReactNode }) => (
   <>{children}</>
 );
-const DropdownMenuSub = ({children}: {children: React.ReactNode}) => (
+const DropdownMenuSub = ({ children }: { children: React.ReactNode }) => (
   <>{children}</>
 );
-const DropdownMenuSubTrigger = ({children}: {children: React.ReactNode}) => (
+const DropdownMenuSubTrigger = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => <>{children}</>;
+const DropdownMenuSubContent = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => <>{children}</>;
+const DropdownMenuRadioGroup = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => <>{children}</>;
+const DropdownMenuRadioItem = ({ children }: { children: React.ReactNode }) => (
   <>{children}</>
 );
-const DropdownMenuSubContent = ({children}: {children: React.ReactNode}) => (
-  <>{children}</>
-);
-const DropdownMenuRadioGroup = ({children}: {children: React.ReactNode}) => (
-  <>{children}</>
-);
-const DropdownMenuRadioItem = ({children}: {children: React.ReactNode}) => (
-  <>{children}</>
-);
-const DropdownMenuCheckboxItem = ({children}: {children: React.ReactNode}) => (
-  <>{children}</>
-);
+const DropdownMenuCheckboxItem = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => <>{children}</>;
 
 const styles = StyleSheet.create({
+  hidden: { display: 'none' },
   content: {
     position: 'absolute',
     borderRadius: 8,
     borderWidth: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 8,

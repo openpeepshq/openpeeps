@@ -28,10 +28,13 @@ export function useStableLiveKitRoom(
     onConnected?: () => void;
     onDisconnected?: (reason?: DisconnectReason) => void;
     onError?: (error: Error) => void;
-    onMediaDeviceFailure?: (failure?: ReturnType<typeof MediaDeviceFailure.getFailure>, kind?: string) => void;
+    onMediaDeviceFailure?: (
+      failure?: ReturnType<typeof MediaDeviceFailure.getFailure>,
+      kind?: string
+    ) => void;
     onEncryptionError?: (error: Error) => void;
     simulateParticipants?: number;
-  },
+  }
 ): void {
   const {
     token,
@@ -50,14 +53,25 @@ export function useStableLiveKitRoom(
   } = params;
 
   const shouldConnect = React.useRef(connect);
+  // Reconnect only when the options' content changes, not their identity;
+  // callers typically pass a fresh object literal on every render.
+  const connectOptionsRef = React.useRef(connectOptions);
+  connectOptionsRef.current = connectOptions;
+  const connectOptionsKey = JSON.stringify(connectOptions);
 
   React.useEffect(() => {
     const onSignalConnected = () => {
       const localP = room.localParticipant;
 
       Promise.all([
-        localP.setMicrophoneEnabled(!!audio, typeof audio !== 'boolean' ? audio : undefined),
-        localP.setCameraEnabled(!!video, typeof video !== 'boolean' ? video : undefined),
+        localP.setMicrophoneEnabled(
+          !!audio,
+          typeof audio !== 'boolean' ? audio : undefined
+        ),
+        localP.setCameraEnabled(
+          !!video,
+          typeof video !== 'boolean' ? video : undefined
+        ),
         // Screen share (and its capture permission) is disabled in React Native jams.
         // localP.setScreenShareEnabled(!!screen, typeof screen !== 'boolean' ? screen : undefined),
       ]).catch((e: unknown) => {
@@ -129,16 +143,26 @@ export function useStableLiveKitRoom(
         onError?.(Error('no livekit url provided'));
         return;
       }
-      room.connect(serverUrl, token, connectOptions).catch((e: unknown) => {
-        if (shouldConnect.current === true) {
-          onError?.(e as Error);
-        }
-      });
+      room
+        .connect(serverUrl, token, connectOptionsRef.current)
+        .catch((e: unknown) => {
+          if (shouldConnect.current === true) {
+            onError?.(e as Error);
+          }
+        });
     } else {
       shouldConnect.current = false;
       room.disconnect();
     }
-  }, [connect, token, JSON.stringify(connectOptions), room, onError, serverUrl, simulateParticipants]);
+  }, [
+    connect,
+    token,
+    connectOptionsKey,
+    room,
+    onError,
+    serverUrl,
+    simulateParticipants,
+  ]);
 
   React.useEffect(() => {
     return () => {

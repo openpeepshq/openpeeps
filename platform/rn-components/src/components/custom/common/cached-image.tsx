@@ -11,12 +11,7 @@ export const CachedImage: React.FC<CachedImageProps> = ({ url, ...props }) => {
 
   if (!imagePath) {
     return (
-      <View
-        style={[
-          props.style,
-          { justifyContent: 'center', alignItems: 'center' },
-        ]}
-      >
+      <View style={props.style} className="items-center justify-center">
         <ActivityIndicator size="small" />
       </View>
     );

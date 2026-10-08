@@ -38,7 +38,7 @@ export const inferMimeFromFilename = (name: string): string | undefined => {
 
 export const resolveDocumentMime = (
   mimeType: string | null | undefined,
-  name: string | null | undefined,
+  name: string | null | undefined
 ): string => {
   if (mimeType?.includes('/')) {
     return mimeType;
@@ -75,10 +75,10 @@ type SheetRef =
 
 /** Bottom sheets block iOS QuickLook / cropper modals unless dismissed first. */
 export const dismissSheetForNativeModal = async (
-  ref: SheetRef,
+  ref: SheetRef
 ): Promise<void> => {
   bottomSheetClose(ref);
-  await new Promise<void>(resolve => {
+  await new Promise<void>((resolve) => {
     InteractionManager.runAfterInteractions(() => {
       setTimeout(resolve, Platform.OS === 'ios' ? 500 : 100);
     });

@@ -40,7 +40,9 @@ const SwitchNative = React.forwardRef<
   SwitchPrimitives.RootProps
 >(({ className, ...props }, ref) => {
   const translateX = useDerivedValue(() => (props.checked ? 18 : 0));
-  const { colors: { primary, background } } = useTheme();
+  const {
+    colors: { primary, background },
+  } = useTheme();
   const animatedRootStyle = useAnimatedStyle(() => {
     return {
       backgroundColor: interpolateColor(

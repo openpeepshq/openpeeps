@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import {
   type TrackReferenceOrPlaceholder,
   VideoTrack,
@@ -9,12 +9,11 @@ import {
 import { LayoutGrid, Maximize2, Pin, PinOff, ScreenShare } from 'lucide-react';
 import { profileName, sortByRaisedHand } from '@openpeepshq/common/lib';
 import { Button } from '@openpeepshq/react-ui';
+import { useJamStage } from '../../hooks/jams/useJamStage';
 import { useT } from '../../i18n';
 import { AvatarWithName } from '../profile';
 import { JamCallParticipant } from './JamCallParticipant';
 import { parseParticipantMetadata } from './jamEventActions';
-import { enlargedIdentity, type LocalSpeakerFocus } from './speakerLayout';
-import { useJamSpotlight } from './useJamSpotlight';
 
 export interface JamVideoLayoutProps {
   /** One camera track reference (or placeholder) per participant. */
@@ -389,43 +388,21 @@ export function JamVideoLayout({
     cameraTracks,
     (track) => track.participant.metadata,
   );
-  const participants = useParticipants();
-  const { spotlightIdentity, setSpotlight, canSpotlight } = useJamSpotlight();
-  const [focus, setFocus] = useState<LocalSpeakerFocus>({ mode: 'follow' });
-  const seenSpotlight = useRef(spotlightIdentity);
-
-  useEffect(() => {
-    if (seenSpotlight.current === spotlightIdentity) return;
-    seenSpotlight.current = spotlightIdentity;
-    setFocus({ mode: 'follow' });
-  }, [spotlightIdentity]);
-
-  const presentIds = new Set(
-    participants.map((participant) => participant.identity),
-  );
-  const stageIdentity = enlargedIdentity(focus, spotlightIdentity, presentIds);
-
-  useEffect(() => {
-    if (focus.mode !== 'pin') return;
-    const stillThere = participants.some(
-      (participant) => participant.identity === focus.identity,
-    );
-    if (stillThere) return;
-    setFocus({ mode: 'grid' });
-  }, [participants, focus]);
-
-  const onEnlarge = (identity: string) => setFocus({ mode: 'pin', identity });
-  const onToggleSpotlight = canSpotlight
-    ? (identity: string | null) => setSpotlight(identity)
-    : undefined;
-
-  // While someone is screen-sharing, allow switching to a full grid view.
-  const [showGridView, setShowGridView] = useState(false);
-  useEffect(() => {
-    if (!screenShareTracks.length) setShowGridView(false);
-  }, [screenShareTracks.length]);
-
   const [screenShareTrack] = screenShareTracks;
+  const {
+    stageIdentity,
+    spotlightIdentity,
+    enlarge: onEnlarge,
+    showGrid,
+    toggleSpotlight: onToggleSpotlight,
+    showGridView,
+    setShowGridView,
+  } = useJamStage({
+    room: useRoomContext(),
+    participants: useParticipants(),
+    screenSharing: !!screenShareTrack,
+  });
+
   const onShowScreenShare =
     screenShareTrack && showGridView ? () => setShowGridView(false) : undefined;
 
@@ -451,7 +428,7 @@ export function JamVideoLayout({
         cameraTracks={orderedCameraTracks}
         spotlightIdentity={spotlightIdentity}
         onEnlarge={onEnlarge}
-        onShowGrid={() => setFocus({ mode: 'grid' })}
+        onShowGrid={showGrid}
         onToggleSpotlight={onToggleSpotlight}
         onShowScreenShare={onShowScreenShare}
       />

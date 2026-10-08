@@ -103,6 +103,7 @@
     "joinCommunity": "Join Community",
     "haveAccount": "Already have an account?",
     "logIn": "Log In",
+    "termsAndConditions": "terms and conditions",
     "poweredBy": "Powered by AllPeeP",
     "profile": "Profile",
     "messages": "Messages",
@@ -211,6 +212,7 @@
       }
     },
     "header": {
+      "roles": "Roles",
       "followers": "Followers",
       "following": "Following",
       "posts": "Posts",
@@ -226,7 +228,8 @@
       "copyProfileLink": "Copy Profile Link",
       "copyPostLink": "Copy Post Link",
       "inviteViaEmail": "Invite via Email",
-      "inviteViaLink": "Invite via Link"
+      "inviteViaLink": "Invite via Link",
+      "menu": "Profile actions"
     },
     "modals": {
       "deleteProfile": {
@@ -363,6 +366,10 @@
       "reposts": "Reposts",
       "reactions": "Reactions"
     },
+    "reactionsModal": {
+      "title": "Reactions",
+      "empty": "No reactions yet"
+    },
     "repostModal": {
       "title": "Reposters",
       "empty": "No reposters yet",
@@ -433,6 +440,7 @@
       "share": "Share"
     },
     "shareMenu": {
+      "title": "Share",
       "shareOnCommunity": "Share on Community",
       "repostToFeed": "Repost to feed",
       "reposting": "Reposting…",
@@ -448,7 +456,8 @@
       "next": "Next",
       "close": "Close",
       "videoProcessing": "Preparing video…",
-      "videoError": "This video could not be prepared for playback."
+      "videoError": "This video could not be prepared for playback.",
+      "openDocument": "Open file"
     },
     "replyBox": {
       "reply": "Reply",
@@ -596,6 +605,7 @@
     }
   },
   "post": {
+    "notFound": "Post not found",
     "detail": {
       "title": "{{author}}'s post",
       "repostTitle": "{{author}} reposted a post",
@@ -877,7 +887,9 @@
       "shareToFeed": "Share to feed",
       "shareInMessage": "Share in a message",
       "markAllRead": "Mark all posts as read",
-      "otherOptions": "Other options"
+      "otherOptions": "Other options",
+      "more": "Group options",
+      "view": "View"
     },
     "modals": {
       "addMembers": {
@@ -1048,7 +1060,11 @@
     "mobileMenu": {
       "inJamMessage": "In-jam message",
       "jamDetails": "Jam Details",
-      "people": "People"
+      "people": "People",
+      "info": "Info",
+      "hostControls": "Host Controls",
+      "shareInvite": "Share invite",
+      "visibility": "Jam visibility"
     },
     "network": {
       "connectionStatus": "Connection Status",
@@ -2342,19 +2358,30 @@
     "sending": "Sending…",
     "submitting": "Submitting…",
     "downloading": "Downloading…",
-    "restoreDefaults": "Restore defaults"
+    "restoreDefaults": "Restore defaults",
+    "notFound": "We couldn't find that page.",
+    "backHome": "Back home",
+    "noAccount": "Don't have an account?"
   },
   "conversations": {
     "newMessage": "New Message",
     "noMessages": "No direct messages here",
     "sendError": "Failed to send message",
     "messageLog": "Messages",
+    "info": "Conversation info",
+    "draft": {
+      "title": "Draft message",
+      "recipients": "New message to: {{names}}"
+    },
     "createNew": {
       "title": "New Conversation",
       "searchPlaceholder": "Search for people",
       "sendMessage": "Send Message",
       "messagePlaceholder": "Type your message",
       "send": "Send"
+    },
+    "search": {
+      "placeholder": "Search conversations…"
     },
     "messageInThread": {
       "startedBy": "Started by {{name}}",
@@ -2708,7 +2735,8 @@
       "uploadTitle": "Upload Image",
       "replace": "Replace image",
       "remove": "Remove image",
-      "aspectRatio": "Minimum 800px wide."
+      "aspectRatio": "Minimum 800px wide.",
+      "recommendedWidth": "Recommended width {{width}} pixels"
     },
     "documentInput": {
       "uploadTitle": "Upload Files",
@@ -2831,6 +2859,7 @@
       "visibilityNotChangeable": "Note:  The event visibility cannot be changed once the event is published.  Make sure you're adding the right people or group.",
       "jamModeratorsDescription": "Click to select Jam moderators",
       "externalEventUrlPlaceholder": "https://example.com/event",
+      "locationPlaceholder": "Search for a place…",
       "imageDescription": "Upload an image for your event",
       "imageSpecs": "Your image should be at least 800 pixels wide with a 16x9 aspect ratio.",
       "repeat": {
@@ -2861,6 +2890,7 @@
       "label": "Event timeframe",
       "past": "Past",
       "upcoming": "Upcoming",
+      "current": "Now",
       "empty": "No {{type}}s",
       "view": {
         "switchLabel": "Event layout",
@@ -2878,6 +2908,15 @@
     },
     "create": {
       "title": "Create Event"
+    },
+    "update": {
+      "title": "Update event"
+    },
+    "edit": "Edit event",
+    "notFound": "Event not found",
+    "validation": {
+      "startRequired": "Start date is required",
+      "nameRequired": "Event name is required"
     },
     "tabs": {
       "label": "Event sections",
@@ -3275,6 +3314,11 @@
     }
   },
   "media": {
+    "permissions": {
+      "title": "Permission required",
+      "message": "Please allow access to your media library in settings to attach files.",
+      "openSettings": "Open settings"
+    },
     "image": {
       "addAltText": "Add alt text to your image",
       "addAltTextLabel": "Alt Text",
@@ -3318,8 +3362,12 @@
     "tabs": {
       "description": "Article"
     },
+    "new": "New article",
+    "edit": "Edit article",
+    "notFound": "Article not found",
     "form": {
       "title": "New Article",
+      "uploadCover": "Upload your cover image",
       "contentPlaceholder": "Write your content here.  User markdown for formatting",
       "visibility": "Who can see this (Required)",
       "visibilityNotChangeable": "Once you post your article, you can't change the visibility",
@@ -3327,7 +3375,16 @@
     },
     "create": {
       "title": "New Article"
+    },
+    "update": {
+      "title": "Update article"
     }
+  },
+  "about": {
+    "welcomeTo": "Welcome to {{name}}"
+  },
+  "codeOfConduct": {
+    "title": "Code of conduct"
   },
   "error": {
     "eventAtCapacity": "This event is full.",

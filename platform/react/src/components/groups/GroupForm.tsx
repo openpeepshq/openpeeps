@@ -1,15 +1,8 @@
 import type { GroupData } from '@openpeepshq/common/types';
-import {
-  applySimpleGroupTemplate,
-  matchSimpleGroupTemplate,
-  simpleGroupTemplateOptions,
-  type SimpleGroupTemplateId,
-} from '@openpeepshq/common/lib';
 import { Input, Label, RadioSelect, Textarea } from '@openpeepshq/react-ui';
-import { useState } from 'react';
 import { useT } from '../../i18n';
 import type { GroupFormFieldErrors } from '../../lib/groupFormErrors';
-import { useServerInfo } from '../server-data/context';
+import { useGroupTemplateSelection } from '../../hooks/groups/useGroupTemplateSelection';
 import { HeaderAvatarInput } from '../form/HeaderAvatarInput';
 import { GroupCapabilityMatrix } from './GroupCapabilityMatrix';
 
@@ -38,58 +31,18 @@ export function GroupForm({
   sections = ['info', 'roles'],
 }: GroupFormProps) {
   const t = useT();
-  const { publicContent } = useServerInfo();
   const showInfo = sections.includes('info');
   const showRoles = sections.includes('roles');
-  const [customMatrixOpen, setCustomMatrixOpen] = useState(false);
-  const showCapabilityMatrix = isEdit || customMatrixOpen;
+  const {
+    showCapabilityMatrix,
+    templateSelection,
+    templateOptions,
+    templateDescription,
+    onTemplateChange,
+  } = useGroupTemplateSelection({ groupData, onChange, isEdit });
 
   const patch = (partial: Partial<GroupData>) =>
     onChange({ ...groupData, ...partial });
-
-  // Keep the radio in sync with the matrix: custom when caps diverge, otherwise
-  // the matching template. On create, custom is also selected when the user
-  // explicitly opens the matrix.
-  const templateSelection =
-    !isEdit && customMatrixOpen
-      ? 'custom'
-      : matchSimpleGroupTemplate(groupData.capabilities);
-
-  const templateOptions = [
-    ...simpleGroupTemplateOptions(publicContent).map((templateId) => ({
-      value: templateId,
-      title: t(`groups.templates.${templateId}.title`, {
-        defaultValue: templateId,
-      }),
-      description: t(`groups.templates.${templateId}.description`, {
-        defaultValue: '',
-      }),
-    })),
-    {
-      value: 'custom',
-      title: t('groups.templates.custom.title', {
-        defaultValue: 'Custom group',
-      }),
-      description: t('groups.templates.custom.description', {
-        defaultValue: 'Capabilities do not match a standard template',
-      }),
-    },
-  ];
-
-  const onTemplateChange = (value: string) => {
-    if (value === 'custom') {
-      if (!isEdit) {
-        setCustomMatrixOpen(true);
-      }
-      return;
-    }
-    if (!isEdit) {
-      setCustomMatrixOpen(false);
-    }
-    patch({
-      capabilities: applySimpleGroupTemplate(value as SimpleGroupTemplateId),
-    });
-  };
 
   return (
     <div className="space-y-4">
@@ -199,17 +152,7 @@ export function GroupForm({
             title={t('groups.templates.title', {
               defaultValue: 'Group type',
             })}
-            description={
-              showCapabilityMatrix
-                ? t('groups.templates.description', {
-                    defaultValue:
-                      'Pick a preset, or edit the capability matrix below. The type switches to Custom when the matrix no longer matches a preset.',
-                  })
-                : t('groups.templates.descriptionCreate', {
-                    defaultValue:
-                      'Pick a preset for your group, or choose Custom to fine-tune capabilities.',
-                  })
-            }
+            description={templateDescription}
             value={templateSelection}
             options={templateOptions}
             optionTestId={(value) => `groups-template-${value}`}

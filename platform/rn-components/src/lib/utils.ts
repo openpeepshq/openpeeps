@@ -2,10 +2,8 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { lightFormat, parse, parseJSON } from 'date-fns';
 import {
-  groupBy,
   GroupData,
   Profile,
-  PublicPost,
   PublicProfile,
   SuccessFailureResponse,
 } from '@openpeepshq/common';
@@ -235,7 +233,7 @@ export const isValidUrl = (url?: string) => {
     // eslint-disable-next-line no-new
     new URL(url);
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 };

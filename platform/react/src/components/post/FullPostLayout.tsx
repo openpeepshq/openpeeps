@@ -1,7 +1,6 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import type { PublicPost } from '@openpeepshq/common/types';
-import { buildThreads } from '@openpeepshq/common/lib';
-import { useOpenpeeps } from '../../contexts/openpeeps';
+import { usePostThreads } from '../../hooks/posts/usePostThreads';
 import { useT } from '../../i18n';
 import { FeedPost } from './FeedPost';
 import { ThreadedFeed } from './feed/threaded/ThreadedFeed';
@@ -25,28 +24,16 @@ export function FullPostLayout({
   children,
 }: FullPostLayoutProps) {
   const t = useT();
-  const { openpeepsApi } = useOpenpeeps();
-  const contextQuery = openpeepsApi.usePostContext(post.id);
+  const { ancestryThread, descendentThreads, isLoading } = usePostThreads(
+    post.id,
+  );
   const postRef = useRef<HTMLDivElement | null>(null);
-
-  const ancestryThread = useMemo(
-    () =>
-      contextQuery.data
-        ? buildThreads(contextQuery.data.ancestors)[0]
-        : undefined,
-    [contextQuery.data],
-  );
-  const descendentThreads = useMemo(
-    () =>
-      (contextQuery.data && buildThreads(contextQuery.data.descendants)) || [],
-    [contextQuery.data],
-  );
 
   useEffect(() => {
     postRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [post.id]);
 
-  if (contextQuery.isLoading) {
+  if (isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
         {t('common.loading', { defaultValue: 'Loading…' })}

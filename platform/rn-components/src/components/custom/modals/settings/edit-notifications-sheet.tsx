@@ -1,19 +1,19 @@
-import {ActivityIndicator, View} from 'react-native';
-import React, {forwardRef, useEffect} from 'react';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {BaseSheet, SheetFooter} from '../common';
-import {ThemedText} from '~/components/ui/themed-text';
-import {Switch} from '~/components/ui/switch';
+import { ActivityIndicator, View } from 'react-native';
+import React, { forwardRef, useEffect } from 'react';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { BaseSheet, SheetFooter } from '../common';
+import { ThemedText } from '~/components/ui/themed-text';
+import { Switch } from '~/components/ui/switch';
 import {
   NotificationType,
   ProfileNotificationSettings,
   ProfileSettings,
 } from '@openpeepshq/common';
-import {useOpenpeeps} from '@openpeepshq/react';
+import { useOpenpeeps } from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
-import {useTranslation} from 'react-i18next';
-import {notificationDefaults} from '@openpeepshq/common';
-import { bottomSheetClose, bottomSheetDismiss } from '~/lib/bottom-sheet-ref';
+import { useTranslation } from 'react-i18next';
+import { notificationDefaults } from '@openpeepshq/common';
+import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
 
 interface EditNotificationsSheetProps {
   name: string;
@@ -25,8 +25,8 @@ interface EditNotificationsSheetProps {
 export const EditNotificationsSheet = forwardRef<
   BottomSheetModal,
   EditNotificationsSheetProps
->(({name, label, description, notificationType}, ref) => {
-  const {openpeepsApi} = useOpenpeeps();
+>(({ name, label, description, notificationType }, ref) => {
+  const { openpeepsApi } = useOpenpeeps();
   const {
     data: profileSettings,
     isLoading: isProfileSettingsLoading,
@@ -39,7 +39,7 @@ export const EditNotificationsSheet = forwardRef<
   const [isPushEnabled, setIsPushEnabled] = React.useState(false);
   const [isEmailEnabled, setIsEmailEnabled] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const defaults = {
@@ -78,7 +78,7 @@ export const EditNotificationsSheet = forwardRef<
     };
 
     await updateCurrentProfileSettings(tempSettings)
-      .then(async response => {
+      .then(async (response) => {
         if (response) {
           await refetchProfileSettings();
           Toast.show({
@@ -90,7 +90,7 @@ export const EditNotificationsSheet = forwardRef<
           });
         }
       })
-      .catch(err => {
+      .catch((err) => {
         Toast.show({
           type: 'error',
           text1: t('common.errors.error'),
@@ -126,7 +126,7 @@ export const EditNotificationsSheet = forwardRef<
             <Switch
               disabled={isProfileSettingsLoading}
               checked={isInAppEnabled}
-              onCheckedChange={checked => {
+              onCheckedChange={(checked) => {
                 setIsInAppEnabled(checked);
               }}
             />
@@ -144,7 +144,7 @@ export const EditNotificationsSheet = forwardRef<
             <Switch
               disabled={isProfileSettingsLoading}
               checked={isPushEnabled}
-              onCheckedChange={checked => {
+              onCheckedChange={(checked) => {
                 setIsPushEnabled(checked);
               }}
             />
@@ -162,7 +162,7 @@ export const EditNotificationsSheet = forwardRef<
             <Switch
               disabled={isProfileSettingsLoading}
               checked={isEmailEnabled}
-              onCheckedChange={checked => {
+              onCheckedChange={(checked) => {
                 setIsEmailEnabled(checked);
               }}
             />

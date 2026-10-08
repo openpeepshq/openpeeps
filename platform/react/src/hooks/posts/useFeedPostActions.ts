@@ -7,7 +7,7 @@ import {
   useCurrentProfile,
 } from '../../components/layout/IdentityContext';
 import { useCapabilities } from '../../components/server-data';
-import { useReplyModal } from '../../components/post/post-form/ReplyModalContext';
+import { useReplyOpener } from './replyOpener';
 
 /**
  * Non-DOM post footer actions (reply / repost / react) for FeedPost and RN.
@@ -17,7 +17,7 @@ export const useFeedPostActions = (post: PublicPost) => {
   const authData = useAuthData();
   const capabilities = useCapabilities();
   const { openpeepsApi } = useOpenpeeps();
-  const { openReply } = useReplyModal();
+  const openReply = useReplyOpener();
   const repostsQuery = openpeepsApi.useCurrentProfileReposts();
 
   const reactToPost = openpeepsApi.reactToPostAction({ id: post.id } as never);

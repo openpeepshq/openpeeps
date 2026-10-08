@@ -1,61 +1,24 @@
-import { useEffect, useState } from 'react';
-import { resolveTimeZone } from '@openpeepshq/common/lib';
-import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
-import {
-  TimeZoneSelect,
-  useCurrentProfile,
-  useServerInfo,
-} from '../../components';
+import { useT, useSetPageHeader } from '../../index';
+import { TimeZoneSelect } from '../../components';
+import { useTimezonePreference } from '../../hooks';
 import { Button, Toast } from '@openpeepshq/react-ui';
 
 export function TimezoneSettings() {
   const t = useT();
-  const profile = useCurrentProfile();
-  const serverInfo = useServerInfo();
-  const { openpeepsApi } = useOpenpeeps();
-  const settingsQuery = openpeepsApi.useCurrentProfileSettings();
-  const updateSettings = openpeepsApi.updateCurrentProfileSettingsAction();
-
-  const communityDefaultTimeZone = resolveTimeZone(
-    undefined,
-    serverInfo.communityConfig?.settings?.defaultTimeZone,
-  );
-
-  const [timeZone, setTimeZone] = useState(communityDefaultTimeZone);
-  const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
+  const {
+    profile,
+    timeZone,
+    setTimeZone,
+    communityDefaultTimeZone,
+    saving,
+    status,
+    clearStatus,
+    save,
+  } = useTimezonePreference();
 
   useSetPageHeader(t('settings.timezone.title', { defaultValue: 'Timezone' }));
 
-  useEffect(() => {
-    setTimeZone(settingsQuery.data?.timeZone ?? communityDefaultTimeZone);
-  }, [settingsQuery.data?.timeZone, communityDefaultTimeZone]);
-
   if (!profile) return null;
-
-  const save = async () => {
-    setStatus(null);
-    setSaving(true);
-    try {
-      await updateSettings({ id: profile.id, timeZone });
-      setStatus({
-        type: 'success',
-        message: t('settings.timezone.updateSuccess', {
-          defaultValue: 'Timezone updated.',
-        }),
-      });
-    } catch (err) {
-      setStatus({
-        type: 'error',
-        message: (err as Error).message,
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-4 p-3">
@@ -85,7 +48,7 @@ export function TimezoneSettings() {
         </div>
       </div>
       {status ? (
-        <Toast variant={status.type} onDismiss={() => setStatus(null)}>
+        <Toast variant={status.type} onDismiss={clearStatus}>
           {status.message}
         </Toast>
       ) : null}
