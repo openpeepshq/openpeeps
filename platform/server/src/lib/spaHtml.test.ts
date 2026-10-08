@@ -50,6 +50,45 @@ assert.equal(
   'https://cdn.example/storage/allpeep/1/community-logo.png',
 );
 
+// Content routes qualify the community name instead of replacing it, so a
+// shared post reads as belonging to this community.
+const withMeta = spaHtmlContextFromConfig(
+  baseConfig,
+  'https://echo.example',
+  'https://echo.example/posts/abc',
+  { title: 'On echoes', description: 'A reflection on sound.' },
+);
+assert.equal(withMeta.name, 'On echoes · Echo Community');
+assert.equal(withMeta.description, 'A reflection on sound.');
+// No title for the route => unchanged, so the homepage still identifies itself.
+const withoutMeta = spaHtmlContextFromConfig(
+  baseConfig,
+  'https://echo.example',
+  'https://echo.example/',
+  null,
+);
+assert.equal(withoutMeta.name, 'Echo Community');
+assert.equal(withoutMeta.description, 'A place for echoes');
+assert.match(withoutMeta.jsonLd, /"WebSite"/);
+
+// App routes without content metadata carry no structured data at all.
+assert.equal(context.jsonLd, '');
+
+const postContext = spaHtmlContextFromConfig(
+  baseConfig,
+  'https://echo.example',
+  'https://echo.example/posts/abc',
+  {
+    title: 'On echoes',
+    description: 'A reflection on sound.',
+    kind: 'post',
+    datePublished: '2026-03-04T05:06:07.000Z',
+    authorName: '@echoer',
+  },
+);
+assert.match(postContext.jsonLd, /"DiscussionForumPosting"/);
+assert.match(postContext.jsonLd, /@echoer/);
+
 const template = `<!doctype html><html><head>
 <meta name="theme-color" content="{{themeColor}}" />
 <title>{{name}}</title>
@@ -65,6 +104,9 @@ const template = `<!doctype html><html><head>
 {{#imageUrl}}
 <meta name="twitter:image" content="{{imageUrl}}" />
 {{/imageUrl}}
+{{#jsonLd}}
+<script type="application/ld+json">{{{jsonLd}}}</script>
+{{/jsonLd}}
 </head><body data-path="{{path}}"></body></html>`;
 
 const out = renderSpaHtmlTemplate(template, context);
@@ -81,6 +123,12 @@ assert.match(
 assert.match(out, /name="twitter:title" content="Echo Community"/);
 assert.match(out, /name="theme-color" content="#112233"/);
 assert.match(out, /data-path="&#x2F;feeds&#x2F;local"/);
+// The app route has no metadata: no structured data block at all.
+assert.doesNotMatch(out, /application\/ld\+json/);
+
+const postOut = renderSpaHtmlTemplate(template, postContext);
+assert.match(postOut, /<script type="application\/ld\+json">/);
+assert.match(postOut, /"DiscussionForumPosting"/);
 
 const escaped = renderSpaHtmlTemplate(
   '<html><head><title>{{name}}</title><meta content="{{description}}" /></head></html>',
@@ -91,6 +139,7 @@ const escaped = renderSpaHtmlTemplate(
     pageUrl: 'https://example.com/',
     themeColor: '#000',
     path: '/',
+    jsonLd: '',
   },
 );
 assert.match(escaped, /content="x &lt; y"/);

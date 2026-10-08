@@ -35,6 +35,7 @@ export const defaultCommunityConfig: CommunityConfig = {
   settings: {
     openRegistrations:
       process.env.COMMUNITY_SETTINGS_OPEN_REGISTRATIONS !== 'false',
+    indexProfiles: process.env.COMMUNITY_SETTINGS_INDEX_PROFILES === 'true',
   },
   content: {},
   roles: {
