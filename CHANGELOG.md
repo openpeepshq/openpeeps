@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **jams**: add speaker view and host spotlight
+- **jams**: implement room reclamation logic for egress-only rooms
 - **roles**: default roles history, adoption and rebase for customized roles
 - **capabilities**: add roles and relations capability matrices and custom role creation
 - **media**: enhance audio handling and waveform generation
@@ -22,6 +24,13 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **jams**: mobile screen-share layout keeps shared screen readable with many participants
+- **admin**: update navigation action in MemberDetail to include section parameter
+- **jams**: fix mobile scrolling, chat close button, and speaker-stage controls
+- **notifications**: add poll notification emails
+- **notifications**: add host rsvp notification emails
+- **hashtags**: stop the hashtag page update loop
+- **events**: hide full occurrence from rsvp scope choices
 - **authz**: require service identity for jam/post service checks
 - **jams**: hide event date line in live jams list
 - **gallery**: add followedHashtags to ProfileWithMeta fixture
@@ -35,6 +44,7 @@ Changelog for OpenPeeps
 
 ### Refactoring
 
+- **i18n**: remove light and dark theme options from community settings localization
 - **jam**: disable screen sharing functionality across components
 - **configuration**: enhance default value handling in ConfigurationList
 
@@ -44,6 +54,11 @@ Changelog for OpenPeeps
 - **tests**: update UI test plans and README with new event features
 - add one-PR-per-fix requirement to AGENTS.md and PR readiness skill
 - **planning**: refresh the roadmap timeline
+
+### Tests
+
+- **events**: cover public, group feed, and invitee event visibility
+- **groups**: cover public and private group membership listings
 
 ### CI/CD
 
