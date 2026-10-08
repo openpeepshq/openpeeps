@@ -21,6 +21,7 @@ export const EventRsvpButton = ({
     myEvent,
     myRsvp,
     canRsvp,
+    rsvpClosed,
     recurring,
     defaultId,
     occurrences,
@@ -44,6 +45,29 @@ export const EventRsvpButton = ({
           defaultValue: 'The organizer has removed you from this event.',
         })}
       </p>
+    );
+  }
+
+  if (rsvpClosed) {
+    return (
+      <div className="mt-4 w-full">
+        {myRsvp && myRsvp.response !== 'no' ? (
+          <p className="text-center text-sm">
+            {myRsvp.response === 'yes'
+              ? t('posts.rsvp.attendingMessage', {
+                  defaultValue: 'You are attending.',
+                })
+              : t('posts.rsvp.maybeMessage', {
+                  defaultValue: 'You responded maybe.',
+                })}
+          </p>
+        ) : null}
+        <p className="text-muted-foreground mt-2 text-center text-sm">
+          {t('events.rsvp.ended', {
+            defaultValue: 'This event has ended.',
+          })}
+        </p>
+      </div>
     );
   }
 

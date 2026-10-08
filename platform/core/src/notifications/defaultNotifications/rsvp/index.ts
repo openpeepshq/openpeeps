@@ -7,7 +7,11 @@ import {
   type Profile,
 } from '@openpeepshq/common/types';
 import { maybeCreateNotification } from '@openpeepshq/core/notifications';
-import { getProfileAvatar, profileName } from '@openpeepshq/common/lib';
+import {
+  getProfileAvatar,
+  profileName,
+  rsvpTargetsPastEvent,
+} from '@openpeepshq/common/lib';
 import { communityConfig } from '../../../config';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
 
@@ -27,6 +31,20 @@ const eventHandler = async (
   // Cancellations use rsvpCanceled. A plain "no" or organizer removal is not an RSVP.
   const response = entryData.data.response;
   if (response !== 'yes' && response !== 'tentative') {
+    return;
+  }
+
+  // RSVPs to a finished event are still stored; they just should not notify.
+  const payload = data as EntryData & {
+    occurrenceIds?: string[];
+  };
+  if (
+    mergedPost.data?.type === 'event' &&
+    rsvpTargetsPastEvent(mergedPost.data, {
+      occurrenceIds: payload.occurrenceIds,
+      recurrenceId: entryData.data.recurrenceId,
+    })
+  ) {
     return;
   }
 

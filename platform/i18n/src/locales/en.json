@@ -2977,6 +2977,7 @@
       "canceled": "canceled their RSVP",
       "canceledSeries": "All dates in the series",
       "removedMessage": "The organizer has removed you from this event.",
+      "ended": "This event has ended.",
       "full": "Event is full",
       "scope": {
         "title": "Which dates?",

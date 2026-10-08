@@ -245,6 +245,108 @@ export const listRsvpOccurrences = (
     to: new Date(now.getTime() + OCCURRENCE_HORIZON_MS),
   }).filter((occurrence) => !occurrence.cancelled);
 
+/** Matches the agenda: a missing end is one hour after start, not open forever. */
+const IMPLIED_EVENT_DURATION_MS = 60 * 60 * 1000;
+
+export const occurrenceHasEnded = (
+  start: string,
+  end?: string,
+  now = new Date(),
+): boolean => {
+  const startMs = new Date(start).getTime();
+  if (!Number.isFinite(startMs)) return false;
+  const explicitEnd = end ? new Date(end).getTime() : Number.NaN;
+  const endMs = Number.isFinite(explicitEnd)
+    ? explicitEnd
+    : startMs + IMPLIED_EVENT_DURATION_MS;
+  return endMs < now.getTime();
+};
+
+const findExpandedOccurrence = (
+  event: Event,
+  recurrenceId: string,
+): ExpandedOccurrence | undefined => {
+  const anchor = new Date(recurrenceId).getTime();
+  if (!Number.isFinite(anchor)) return undefined;
+  return expandEventOccurrences(event, {
+    from: new Date(anchor - OCCURRENCE_HORIZON_MS),
+    to: new Date(anchor + OCCURRENCE_HORIZON_MS),
+  }).find((occurrence) =>
+    sameRecurrenceId(occurrence.recurrenceId, recurrenceId),
+  );
+};
+
+const occurrenceClosed = (
+  event: Event,
+  recurrenceId: string,
+  now: Date,
+): boolean => {
+  if (!event.recurrence) {
+    return occurrenceHasEnded(event.start, event.end, now);
+  }
+  const match = findExpandedOccurrence(event, recurrenceId);
+  if (!match || match.cancelled) return true;
+  return occurrenceHasEnded(match.start, match.end, now);
+};
+
+export type EventRsvpOpenOptions = {
+  recurrenceId?: string;
+  lockToOccurrence?: boolean;
+  now?: Date;
+};
+
+/** False once the event, or the locked occurrence, is over. */
+export const eventRsvpOpen = (
+  event: Event,
+  options?: EventRsvpOpenOptions,
+): boolean => {
+  const now = options?.now ?? new Date();
+  if (options?.lockToOccurrence && options.recurrenceId) {
+    return !occurrenceClosed(event, options.recurrenceId, now);
+  }
+  if (!event.recurrence) {
+    return !occurrenceHasEnded(event.start, event.end, now);
+  }
+  return expandEventOccurrences(event, {
+    from: new Date(now.getTime() - OCCURRENCE_HORIZON_MS),
+    to: new Date(now.getTime() + OCCURRENCE_HORIZON_MS),
+  }).some(
+    (occurrence) =>
+      !occurrence.cancelled &&
+      !occurrenceHasEnded(occurrence.start, occurrence.end, now),
+  );
+};
+
+export type RsvpTimeTarget = {
+  occurrenceIds?: string[];
+  recurrenceId?: string;
+};
+
+/**
+ * True when every targeted time is already over. A series RSVP with no ids
+ * is past only when the series has nothing left open.
+ */
+export const rsvpTargetsPastEvent = (
+  event: Event,
+  target?: RsvpTimeTarget,
+  now = new Date(),
+): boolean => {
+  const ids = target?.occurrenceIds?.length
+    ? target.occurrenceIds
+    : target?.recurrenceId
+      ? [target.recurrenceId]
+      : undefined;
+  if (!ids) return !eventRsvpOpen(event, { now });
+  return ids.every(
+    (id) =>
+      !eventRsvpOpen(event, {
+        recurrenceId: id,
+        lockToOccurrence: true,
+        now,
+      }),
+  );
+};
+
 export const defaultRsvpRecurrenceId = (
   event: Event,
   queryId?: string,

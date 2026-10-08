@@ -6,6 +6,7 @@ import {
   countYesRsvps,
   defaultRsvpRecurrenceId,
   displayRsvpForProfile,
+  eventRsvpOpen,
   isCapacityEvent,
   isRecurringEvent,
   listRsvpOccurrences,
@@ -55,8 +56,18 @@ export const useEventRsvp = ({
 
   const eventData = post.data?.type === 'event' ? post.data : undefined;
   const recurring = eventData ? isRecurringEvent(eventData) : false;
+  const rsvpClosed = eventData
+    ? !eventRsvpOpen(eventData, { recurrenceId, lockToOccurrence })
+    : false;
+  const queriedOccurrenceClosed =
+    !!eventData &&
+    !!recurrenceId &&
+    !eventRsvpOpen(eventData, { recurrenceId, lockToOccurrence: true });
   const defaultId = eventData
-    ? defaultRsvpRecurrenceId(eventData, recurrenceId)
+    ? defaultRsvpRecurrenceId(
+        eventData,
+        queriedOccurrenceClosed ? undefined : recurrenceId,
+      )
     : undefined;
   const occurrences: ExpandedOccurrence[] =
     eventData && recurring ? listRsvpOccurrences(eventData) : [];
@@ -111,6 +122,7 @@ export const useEventRsvp = ({
   };
 
   const requestRespond = (response: RsvpChoice) => {
+    if (rsvpClosed) return;
     if (!recurring || lockToOccurrence) {
       writeRsvp(response, recurrenceId ? [recurrenceId] : undefined).catch(
         () => undefined,
@@ -143,6 +155,7 @@ export const useEventRsvp = ({
     myEvent,
     myRsvp,
     canRsvp,
+    rsvpClosed,
     recurring,
     defaultId,
     occurrences,
