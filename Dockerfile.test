@@ -1,0 +1,36 @@
+# syntax=docker/dockerfile:1
+# CI image for integration tests. The runtime image (Dockerfile) is Alpine,
+# production-only, and has no Playwright browsers, so the suites cannot use it.
+# Built in parallel with that image and tagged test-<short sha>.
+
+FROM mcr.microsoft.com/playwright:v1.56.1-noble
+
+# Fixture restore unpacks zip backups. Browsers already ship in the base image.
+RUN apt-get update -qq \
+ && apt-get install -y -qq unzip \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV NODE_OPTIONS="--max-old-space-size=8192"
+
+WORKDIR /apat
+
+# Manifests only, so a source-only commit reuses the install layer from the
+# registry build cache (mode=max). The later COPY . . merges over these files
+# and leaves node_modules alone (.dockerignore excludes it from the context).
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY --parents \
+    libraries/*/package.json \
+    platform/*/package.json \
+    examples/*/package.json \
+    docs-site/package.json \
+    ./
+
+RUN corepack enable \
+ && pnpm install --frozen-lockfile --filter "@openpeepshq/tests..."
+
+COPY . .
+
+# restore-fixture imports @openpeepshq/core/backups, which resolves to dist.
+RUN pnpm --filter @openpeepshq/core... build
