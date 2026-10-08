@@ -9,7 +9,7 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { TabScreensHeader } from '~/components/custom';
 import { ThemedText } from '~/components/ui/themed-text';
 import { useTranslation } from 'react-i18next';
-import { Feed } from '~/components/post/feed';
+import { Feed } from '~/components/post';
 
 type HomeScreenProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Home'>,
