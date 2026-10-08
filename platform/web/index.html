@@ -34,6 +34,7 @@
     <meta property="og:title" content="{{name}}" />
     <meta property="og:description" content="{{description}}" />
     <meta property="og:url" content="{{pageUrl}}" />
+    <link rel="canonical" href="{{pageUrl}}" />
     {{#imageUrl}}
     <meta property="og:image" content="{{imageUrl}}" />
     {{/imageUrl}}
@@ -42,7 +43,11 @@
     <meta name="twitter:description" content="{{description}}" />
     {{#imageUrl}}
     <meta name="twitter:image" content="{{imageUrl}}" />
-    {{/imageUrl}}
+    {{/imageUrl}} {{#jsonLd}}
+    <script type="application/ld+json">
+      {{{jsonLd}}}
+    </script>
+    {{/jsonLd}}
   </head>
   <body>
     <div id="root"></div>

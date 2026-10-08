@@ -404,6 +404,9 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       defaultLanguage: z.string().optional(),
       defaultTimeZone: z.string().optional(),
       defaultFeedFormat: z.enum(['threaded', 'linear']).optional(),
+      /** Adds member profile pages to the sitemap. Off by default: a crawled
+       *  profile is cached by search engines long after the member leaves. */
+      indexProfiles: z.boolean().optional(),
     }),
     roles: z.object({
       onRegistration: z.object({

@@ -25,7 +25,8 @@ import { installBackupsEndpoint } from './lib/backups';
 import { installS3Endpoint } from './lib/s3';
 import { installStreamingEndpoint } from './lib/streaming';
 import { installPwaEndpoint } from './lib/pwa';
-import { sendSpaHtml } from './lib/spaHtml';
+import { installSeoEndpoint, spaMetaForRequest } from './lib/seoEndpoint';
+import { decideSpaRequest, sendSpaHtml } from './lib/spaHtml';
 import {
   buildPluginRouters,
   pluginAssetsMiddleware,
@@ -37,6 +38,23 @@ export { reloadPlugins };
 
 const log = logger('server');
 const requestLog = logger('server:request');
+
+/**
+ * `ip | "user-agent"` suffix for request log lines so crawler fetches
+ * (Googlebot, Bingbot) are attributable from logs alone — the app sits
+ * behind a TLS proxy, so the real client is only ever in X-Forwarded-For.
+ * Both values are attacker-controlled: strip control characters (no log
+ * forging) and cap the user-agent length.
+ */
+const clientLabel = (req: express.Request): string => {
+  const fwd = req.headers['x-forwarded-for'];
+  const ip = (Array.isArray(fwd) ? fwd[0] : fwd)?.split(',')[0].trim() || '-';
+  const ua = (req.headers['user-agent'] ?? '-')
+    .replace(/[\r\n\t]+/g, ' ')
+    .trim()
+    .slice(0, 120);
+  return `${ip} | "${ua}"`;
+};
 
 const port = Number(process.env.PORT) || 5173;
 const host = process.env.HOST || '0.0.0.0';
@@ -105,7 +123,7 @@ const startServer = async () => {
       const durationMs = Date.now() - start;
       const path = req.originalUrl.split('?')[0] ?? req.originalUrl;
       requestLog.info(
-        `${req.method.padEnd(6)} | ${_res.statusCode.toString().padEnd(3)} | ${req.originalUrl} | ${durationMs}ms`,
+        `${req.method.padEnd(6)} | ${_res.statusCode.toString().padEnd(3)} | ${req.originalUrl} | ${durationMs}ms | ${clientLabel(req)}`,
       );
       if (durationMs >= slowRequestMs()) {
         requestLog.warn(
@@ -231,6 +249,11 @@ const startServer = async () => {
   // Must be registered before the SPA catch-all so browsers don't receive HTML.
   installPwaEndpoint(app);
 
+  // Crawler files (`/robots.txt`, `/sitemap.xml`). Must be registered before the
+  // SPA catch-all, which answers every unmatched GET with `index.html` and would
+  // otherwise hand search engines HTML with a 200.
+  installSeoEndpoint(app);
+
   // Serve plugin frontend assets (`/plugin-assets/<namespace>/<name>/...`).
   // Plugins ship their own UI bundles and reference them in their manifest.
   // Note: Express 5 / path-to-regexp v8 doesn't support `*` splats in the middle
@@ -278,6 +301,32 @@ const startServer = async () => {
   const webDist = resolveWebDist();
   if (webDist) {
     log.info(`Serving SPA from ${webDist}`);
+    // Registered before the static handler on purpose: static answers
+    // `/index.html` verbatim, which would leak the unrendered `{{name}}`
+    // placeholders, and scanner probes must not get a 200 community shell.
+    app.use((req, res, next) => {
+      if (req.method !== 'GET' && req.method !== 'HEAD') {
+        next();
+        return;
+      }
+      if (
+        isApiRequest(req.originalUrl) ||
+        isDbBrowserRequest(req.originalUrl)
+      ) {
+        next();
+        return;
+      }
+      const decision = decideSpaRequest(req.path);
+      if (decision.action === 'redirect') {
+        res.redirect(301, decision.to);
+        return;
+      }
+      if (decision.action === 'reject') {
+        res.status(404).type('text/plain').send('Not found');
+        return;
+      }
+      next();
+    });
     app.use(
       express.static(webDist, {
         index: false,
@@ -286,12 +335,19 @@ const startServer = async () => {
       }),
     );
     const indexHtml = path.join(webDist, 'index.html');
-    app.get(/.*/, (req, res, next) => {
+    app.get(/.*/, async (req, res, next) => {
       if (isApiRequest(req.originalUrl)) return next();
       if (isDbBrowserRequest(req.originalUrl)) return next();
       if (req.method !== 'GET') return next();
       // Render Mustache placeholders in index.html (community name, OG tags).
-      void sendSpaHtml(indexHtml, req, res);
+      // Per-page metadata is resolved outside the renderer, which stays free of
+      // any data-layer dependency.
+      const { meta, notFound } = await spaMetaForRequest(req);
+      // A content route that can never render for an anonymous visitor answers
+      // 404, but the shell still goes out so the client can show its own
+      // "not found" instead of a bare error page.
+      if (notFound) res.status(404);
+      void sendSpaHtml(indexHtml, req, res, meta);
     });
   } else {
     log.warn(
