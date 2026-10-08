@@ -31,6 +31,7 @@ export const EventRsvpButton = ({
     myEvent,
     myRsvp,
     canRsvp,
+    rsvpClosed,
     recurring,
     defaultId,
     occurrences,
@@ -68,6 +69,23 @@ export const EventRsvpButton = ({
       <ThemedText className="mt-4 text-center text-sm text-muted-foreground">
         {t('events.rsvp.removedMessage')}
       </ThemedText>
+    );
+  }
+
+  if (rsvpClosed) {
+    return (
+      <View className="mt-4 w-full">
+        {myRsvp && myRsvp.response !== 'no' ? (
+          <ThemedText className="text-center text-sm">
+            {myRsvp.response === 'yes'
+              ? t('posts.rsvp.attendingMessage')
+              : t('posts.rsvp.maybeMessage')}
+          </ThemedText>
+        ) : null}
+        <ThemedText className="mt-2 text-center text-sm text-muted-foreground">
+          {t('events.rsvp.ended')}
+        </ThemedText>
+      </View>
     );
   }
 

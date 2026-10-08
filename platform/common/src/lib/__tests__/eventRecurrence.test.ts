@@ -4,9 +4,12 @@ import {
   expandEventOccurrences,
   formatEventRecurrence,
   defaultRsvpRecurrenceId,
+  eventRsvpOpen,
   listRsvpOccurrences,
+  occurrenceHasEnded,
   occurrencesForIndex,
   previewUpcomingOccurrences,
+  rsvpTargetsPastEvent,
   sameRecurrenceId,
   upsertEventException,
   type EventRecurrenceTranslate,
@@ -234,6 +237,76 @@ describe('defaultRsvpRecurrenceId', () => {
         new Date('2026-09-16T00:00:00.000Z'),
       ),
     ).toBe('2026-09-22T16:00:00.000Z');
+  });
+});
+
+describe('event RSVP window', () => {
+  const now = new Date('2026-09-08T18:00:00.000Z');
+
+  it('keeps a one-off open until its end', () => {
+    const event = baseEvent({
+      start: '2026-09-08T16:00:00.000Z',
+      end: '2026-09-08T19:00:00.000Z',
+    });
+    expect(occurrenceHasEnded(event.start, event.end, now)).toBe(false);
+    expect(eventRsvpOpen(event, { now })).toBe(true);
+    expect(rsvpTargetsPastEvent(event, undefined, now)).toBe(false);
+  });
+
+  it('closes a one-off after it ends, including a missing end as one hour', () => {
+    const ended = baseEvent({
+      start: '2026-09-08T16:00:00.000Z',
+      end: '2026-09-08T17:00:00.000Z',
+    });
+    const implied = baseEvent({
+      start: '2026-09-08T16:00:00.000Z',
+      end: undefined,
+    });
+    expect(eventRsvpOpen(ended, { now })).toBe(false);
+    expect(eventRsvpOpen(implied, { now })).toBe(false);
+    expect(rsvpTargetsPastEvent(ended, undefined, now)).toBe(true);
+  });
+
+  it('keeps a series open when a later date remains', () => {
+    const event = baseEvent({ recurrence: { freq: 'WEEKLY', count: 3 } });
+    expect(eventRsvpOpen(event, { now })).toBe(true);
+    expect(
+      eventRsvpOpen(event, {
+        now,
+        recurrenceId: '2026-09-08T16:00:00.000Z',
+        lockToOccurrence: true,
+      }),
+    ).toBe(false);
+    expect(
+      rsvpTargetsPastEvent(
+        event,
+        { occurrenceIds: ['2026-09-08T16:00:00.000Z'] },
+        now,
+      ),
+    ).toBe(true);
+    expect(
+      rsvpTargetsPastEvent(
+        event,
+        {
+          occurrenceIds: [
+            '2026-09-08T16:00:00.000Z',
+            '2026-09-15T16:00:00.000Z',
+          ],
+        },
+        now,
+      ),
+    ).toBe(false);
+    expect(rsvpTargetsPastEvent(event, undefined, now)).toBe(false);
+  });
+
+  it('closes a series once every date is over', () => {
+    const event = baseEvent({
+      start: '2026-08-01T16:00:00.000Z',
+      end: '2026-08-01T17:00:00.000Z',
+      recurrence: { freq: 'WEEKLY', count: 2 },
+    });
+    expect(eventRsvpOpen(event, { now })).toBe(false);
+    expect(rsvpTargetsPastEvent(event, undefined, now)).toBe(true);
   });
 });
 

@@ -11,6 +11,7 @@ import {
   isRsvpCancelNotice,
   profileName,
   rsvpCancelWhenLabels,
+  rsvpTargetsPastEvent,
 } from '@openpeepshq/common/lib';
 import { maybeCreateNotification } from '@openpeepshq/core/notifications';
 import { findProfile, listGroupMembers } from '@openpeepshq/core/profiles';
@@ -45,6 +46,15 @@ const eventHandler = async (
   }
 
   const event = mergedPost.data;
+  if (
+    rsvpTargetsPastEvent(
+      event,
+      cancel.series ? undefined : { occurrenceIds: cancel.occurrenceIds },
+    )
+  ) {
+    return;
+  }
+
   const moderatorIds = [
     ...(event.moderators ?? []),
     ...(event.jam?.moderators ?? []),

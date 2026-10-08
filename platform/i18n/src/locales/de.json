@@ -3056,6 +3056,7 @@
       "canceled": "hat sein RSVP zurückgenommen",
       "canceledSeries": "Alle Termine der Serie",
       "removedMessage": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
+      "ended": "Diese Veranstaltung ist beendet.",
       "full": "Veranstaltung ist ausgebucht",
       "scope": {
         "title": "Für welche Termine?",
