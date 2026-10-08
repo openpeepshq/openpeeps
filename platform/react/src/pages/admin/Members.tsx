@@ -3,7 +3,7 @@ import { ChevronDownIcon, ChevronUpIcon, DownloadIcon } from 'lucide-react';
 import { matchesQuery } from '@openpeepshq/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
 import { Avatar } from '../../components';
-import { Button, Input } from '@openpeepshq/react-ui';
+import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
 import { AdminInviteActions } from './components/AdminInviteActions';
 import { ProfileRowActions } from './components/ProfileRowActions';
 
@@ -98,7 +98,11 @@ export function AdminMembers() {
         />
       </form>
 
-      {sorted.length === 0 ? (
+      {profilesQuery.isLoading ? (
+        <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
+          <LoadingSpinner />
+        </div>
+      ) : sorted.length === 0 ? (
         <div className="flex w-full items-center justify-center p-4">
           <h2 className="text-lg">
             {t('admin.members.noUsersFound', {
