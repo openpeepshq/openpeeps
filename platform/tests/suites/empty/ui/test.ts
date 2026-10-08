@@ -433,8 +433,30 @@ const testTitle = (name: string) => {
   return occurrence === 1 ? name : `${name} #${occurrence}`;
 };
 
+// CI starts one community per shard. This file is the long one, so each
+// community runs every Nth case. Unset means the local single-community run.
+const emptyShard = () => {
+  const spec = process.env.PLAYWRIGHT_SHARD ?? '';
+  if (!spec) return { index: 0, count: 1 };
+  const match = /^([1-9]\d*)\/([1-9]\d*)$/.exec(spec);
+  if (!match) {
+    throw new Error(`PLAYWRIGHT_SHARD must look like 1/4, got "${spec}"`);
+  }
+  const current = Number(match[1]);
+  const count = Number(match[2]);
+  if (current > count) {
+    throw new Error(`PLAYWRIGHT_SHARD ${spec} is out of range`);
+  }
+  return { index: current - 1, count };
+};
+
+const { index: uiShardIndex, count: uiShardCount } = emptyShard();
+const selectedCases = cases.filter(
+  (_, index) => index % uiShardCount === uiShardIndex,
+);
+
 test.describe('ui exported testcase suite', () => {
-  for (const uiCase of cases) {
+  for (const uiCase of selectedCases) {
     test(testTitle(uiCase.name), async ({ page, request }) => {
       if (uiCase.auth === 'regular') {
         await signInAsRegularUiUser(page, request);
