@@ -246,10 +246,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # `empty` is the long suite and gets its own stack. `small` runs sso,
-        # default, public, and perf on one stack; each is seconds of tests
-        # and a separate VM plus service stack per suite dominated the cost.
-        suite: [empty, small]
+        # `empty` is sharded across four stacks. Wall-clock time is the
+        # slowest shard. Each stack is its own community, so tests inside
+        # a shard stay on one worker. The file split lives in
+        # platform/tests/scripts/run-empty-shard.mjs.
+        # `small` runs sso, default, public, and perf on one stack.
+        include:
+          - suite: empty
+            shard: "1/4"
+          - suite: empty
+            shard: "2/4"
+          - suite: empty
+            shard: "3/4"
+          - suite: empty
+            shard: "4/4"
+          - suite: small
+            shard: ""
     defaults:
       run:
         # Runner workspace is a mount that hides the image WORKDIR. The
@@ -354,7 +366,13 @@ jobs:
           INTEGRATION_SUITE: empty
           INTEGRATION_SKIP_RESTORE: "true"
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
-        run: pnpm --filter @openpeepshq/tests run test:integration:empty
+          # Playwright imports @openpeepshq/core, which opens Redis and
+          # resolves JWT_SECRET at load. Match the web service or every
+          # reconnect to localhost:6379 is printed for the whole run.
+          REDIS_HOST: redis
+          JWT_SECRET: xxx
+          PLAYWRIGHT_SHARD: ${{ matrix.shard }}
+        run: node platform/tests/scripts/run-empty-shard.mjs
       - name: Run sso, default, public, and perf suites
         if: matrix.suite == 'small'
         env:
@@ -366,6 +384,7 @@ jobs:
           OAUTH_ISSUER_URL: http://oauth:8080/default
           INTEGRATION_SKIP_RESTORE: "true"
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          REDIS_HOST: redis
           JWT_SECRET: xxx
           MEDIA_STORAGE_PARAMS_PATH: /tmp/openpeeps-media
           LOGS_LOCAL_PATH: /tmp/openpeeps-logs
@@ -482,6 +501,8 @@ jobs:
           MAILPIT_URL: http://mailpit:8025
           INTEGRATION_SUITE: jams
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          REDIS_HOST: redis
+          JWT_SECRET: xxx
           JAMS_LIVEKIT_URL: ${{ secrets.JAMS_LIVEKIT_URL }}
           JAMS_LIVEKIT_API_KEY: ${{ secrets.JAMS_LIVEKIT_API_KEY }}
           JAMS_LIVEKIT_API_SECRET: ${{ secrets.JAMS_LIVEKIT_API_SECRET }}

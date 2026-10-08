@@ -178,6 +178,8 @@ services:
       MAILPIT_URL: http://mailpit:8025
       PUSH_CATCHER_URL: http://pushcatcher:8099
       DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
+      REDIS_HOST: redis
+      JWT_SECRET: xxx
       OAUTH_ISSUER_URL: http://oauth:8080/default
       FORCE_COLOR: "0"
       NO_COLOR: "1"
