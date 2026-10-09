@@ -22,6 +22,9 @@ describe('eventAgendaOccurrenceQuery', () => {
 
     expect(query.sql).toContain('distinct on ("event_occurrences"."post_id")');
     expect(query.sql).toMatch(
+      /coalesce\("event_occurrences"\."end", "event_occurrences"\."start" \+ interval '1 hour'\) >= /i,
+    );
+    expect(query.sql).toMatch(
       /order by "event_occurrences"."post_id", "event_occurrences"."start"/i,
     );
     expect(query.sql).toMatch(/order by "event_agenda"."start"/i);

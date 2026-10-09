@@ -13,6 +13,7 @@ import {
   canModerateJam,
   canViewJamAttendees,
   countYesRsvps,
+  defaultRsvpRecurrenceId,
   effectiveEventTimes,
   eventTimeZoneOptions,
   formatEventClockTime,
@@ -104,7 +105,11 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
     (!event.recurrence || occurrenceId)
       ? event.maxAttendees - countYesRsvps(post, occurrenceId)
       : null;
-  const times = effectiveEventTimes(event, occurrenceId);
+  const times = effectiveEventTimes(
+    event,
+    occurrenceId ??
+      (event.recurrence ? defaultRsvpRecurrenceId(event) : undefined),
+  );
   const recurrenceLabel = event.recurrence
     ? formatEventRecurrence(event.recurrence, t, event.start)
     : '';

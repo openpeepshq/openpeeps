@@ -238,6 +238,39 @@ describe('defaultRsvpRecurrenceId', () => {
       ),
     ).toBe('2026-09-22T16:00:00.000Z');
   });
+
+  it('keeps the occurrence that has started until its end', () => {
+    const event = baseEvent({ recurrence: { freq: 'WEEKLY' } });
+    const during = new Date('2026-09-08T16:02:00.000Z');
+    expect(listRsvpOccurrences(event, during)[0]?.recurrenceId).toBe(
+      '2026-09-08T16:00:00.000Z',
+    );
+    expect(defaultRsvpRecurrenceId(event, undefined, during)).toBe(
+      '2026-09-08T16:00:00.000Z',
+    );
+    expect(
+      defaultRsvpRecurrenceId(
+        event,
+        undefined,
+        new Date('2026-09-08T17:02:00.000Z'),
+      ),
+    ).toBe('2026-09-15T16:00:00.000Z');
+  });
+
+  it('keeps an open-ended occurrence for one hour after it starts', () => {
+    const event = baseEvent({
+      end: undefined,
+      recurrence: { freq: 'WEEKLY' },
+    });
+    expect(
+      listRsvpOccurrences(event, new Date('2026-09-08T16:02:00.000Z'))[0]
+        ?.recurrenceId,
+    ).toBe('2026-09-08T16:00:00.000Z');
+    expect(
+      listRsvpOccurrences(event, new Date('2026-09-08T17:02:00.000Z'))[0]
+        ?.recurrenceId,
+    ).toBe('2026-09-15T16:00:00.000Z');
+  });
 });
 
 describe('event RSVP window', () => {

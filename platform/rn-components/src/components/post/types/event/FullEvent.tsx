@@ -59,6 +59,7 @@ import {
   canAccessJamRecordings,
   canModerateJam,
   canViewJamAttendees,
+  defaultRsvpRecurrenceId,
   effectiveEventTimes,
   eventTimeZoneOptions,
   formatEventClockTime,
@@ -109,7 +110,11 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
       ? event.maxAttendees - countYesRsvps(post, occurrence)
       : null;
   const rsvpManage = openpeepsApi.rsvpManageAction();
-  const times = effectiveEventTimes(event, occurrence);
+  const times = effectiveEventTimes(
+    event,
+    occurrence ??
+      (event?.recurrence ? defaultRsvpRecurrenceId(event) : undefined)
+  );
   const tz = eventTimeZoneOptions(event?.timeZone);
   const recurrenceLabel = event?.recurrence
     ? formatEventRecurrence(event.recurrence, t, event.start)

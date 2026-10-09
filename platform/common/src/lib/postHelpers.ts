@@ -436,8 +436,7 @@ export const seriesYesBlockedByCapacity = (
   const maxAttendees = event?.maxAttendees;
   if (!event || !maxAttendees || !event.recurrence) return false;
   const occurrences = listRsvpOccurrences(event, now);
-  // When there are no upcoming occurrences (e.g. a live jam whose current
-  // occurrence started before `now`), fall back to the series-level count.
+  // No open date left (the current one has ended and nothing follows).
   if (occurrences.length === 0) {
     const current = getEffectiveRsvp(post, profileId);
     if (

@@ -124,12 +124,7 @@ export const postFilters = {
 
 export const eventTimeFilters = {
   upcoming: (now = new Date().toISOString()): SqlFilter =>
-    pgSql(
-      or(
-        sql`${eventStart} > ${now}`,
-        and(sql`${posts.body}->'end' IS NOT NULL`, sql`${eventEnd} > ${now}`),
-      )!,
-    ),
+    pgSql(sql`${eventEffectiveEnd} >= ${now}::timestamptz`),
 
   current: (now = new Date().toISOString()): SqlFilter =>
     pgSql(
