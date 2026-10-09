@@ -5,16 +5,16 @@ import { ProfileAvatar } from '../../profile/Avatar';
 import { VisibilitySelector } from './VisibilitySelector';
 import { AudienceSetting, PublicProfile } from '@openpeepshq/common';
 import { PostCreationData } from '@openpeepshq/common';
-import { Form, FormTextarea, FormField } from '~/components/ui/form';
+import { Form, FormTextarea, FormField } from '../../ui/form';
 import { ComposeAttachments } from './ComposeAttachments';
-import { cn, maxContentLength } from '~/lib/utils';
+import { cn, maxContentLength } from '../../../lib/utils';
 import { PollComposerFields } from './PollComposerFields';
 import { useTranslation } from 'react-i18next';
 
 import { useOpenpeeps } from '@openpeepshq/react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
-import { ProfileSelector } from '~/components/profile';
+import { ProfileSelector } from '../../profile/index';
 interface PostFormProps {
   autoFocus?: boolean;
   canEditVisibility?: boolean;

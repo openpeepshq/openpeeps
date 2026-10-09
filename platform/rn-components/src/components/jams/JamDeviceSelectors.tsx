@@ -14,10 +14,10 @@ import {
   VideoOffIcon,
   Volume2Icon,
   VolumeXIcon,
-} from '~/components/icons';
-import type { iconWithClassName } from '~/components/icons/iconWithClassName';
-import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../icons/index';
+import type { iconWithClassName } from '../icons/iconWithClassName';
+import { DropdownMenuItem } from '../ui/dropdown-menu';
+import { ThemedText } from '../ui/themed-text';
 import { JamToolbarButton, toneIconClass } from './JamToolbarButton';
 
 type DeviceType = 'mic' | 'camera' | 'speaker';

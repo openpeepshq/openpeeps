@@ -5,9 +5,9 @@ import Toast from 'react-native-toast-message';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { markCachedNotificationsSeen, useOpenpeeps } from '@openpeepshq/react';
-import { CheckCheckIcon, Settings2Icon } from '~/components/icons';
-import { MainStackParamList } from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
+import { CheckCheckIcon, Settings2Icon } from '../icons/index';
+import { MainStackParamList } from '../navigation/types/index';
+import { Button } from '../ui/button';
 
 export const NotificationHeaderActions = () => {
   const { t } = useTranslation();

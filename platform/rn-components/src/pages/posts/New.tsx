@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { checkMediaPermissions } from '~/lib/media-permissions';
+import { checkMediaPermissions } from '../../lib/media-permissions';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '~/components/navigation/types';
+} from '../../components/navigation/types/index';
 import { useOpenpeeps } from '@openpeepshq/react';
 import {
   AudioPickerSheet,
@@ -13,7 +13,7 @@ import {
   VideoPickerSheet,
   DocumentPickerSheet,
   type DocumentPickerSheetHandle,
-} from '~/components/custom';
+} from '../../components/custom/index';
 import {
   MediaAttachment,
   PostCreationData,
@@ -22,22 +22,22 @@ import {
 } from '@openpeepshq/common';
 import { CompositeScreenProps } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { useLocalPostStore } from '~/stores/useLocalPostStore';
-import { PostForm } from '~/components/post/post-form/PostForm';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { useLocalPostStore } from '../../stores/useLocalPostStore';
+import { PostForm } from '../../components/post/post-form/PostForm';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import Footer from '~/components/post/post-form/Footer';
+import Footer from '../../components/post/post-form/Footer';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   hasProcessingAttachments,
   toArticle,
   toNote,
   toQuestion,
-} from '~/lib/post';
+} from '../../lib/post';
 import { useForm } from 'react-hook-form';
 
-import { ArticleForm } from '~/components/post';
+import { ArticleForm } from '../../components/post/index';
 type PostProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'NewPost'>,
   NativeStackScreenProps<MainStackParamList>

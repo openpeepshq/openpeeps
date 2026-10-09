@@ -2,9 +2,9 @@ import { View } from 'react-native';
 import React, { forwardRef } from 'react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BaseSheet, SheetFooter } from '../../../custom/modals/common';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../ui/themed-text';
 import { useTranslation } from 'react-i18next';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose } from '../../../../lib/bottom-sheet-ref';
 
 interface DeleteEventSheettProps {
   onDelete: () => Promise<void>;

@@ -6,8 +6,8 @@ import React, {
   type ReactNode,
 } from 'react';
 import type { PublicProfile } from '@openpeepshq/common/types';
-import { navigationRef } from '~/components/navigation/nativeRouter';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
+import { navigationRef } from '../navigation/nativeRouter';
+import { useNewConversationStore } from '../../stores/useNewConversationStore';
 
 export interface CreateConversationOptions {
   profiles?: PublicProfile[];

@@ -3,8 +3,8 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { PublicPost } from '@openpeepshq/common';
 import { postReactionStats } from '@openpeepshq/react';
-import { MessageCircleIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
+import { MessageCircleIcon } from '../../icons/index';
+import { ThemedText } from '../../ui/themed-text';
 import { ReactionsModal } from './modals/ReactionsModal';
 import { RepostModal } from './modals/RepostModal';
 

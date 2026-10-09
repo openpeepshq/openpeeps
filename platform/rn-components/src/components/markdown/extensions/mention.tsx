@@ -5,8 +5,8 @@ import {
 } from 'react-native-markdown-display';
 import { handleRegexBase } from '@openpeepshq/common';
 import { type MentionProfileRef } from '@openpeepshq/common/lib';
-import { ThemedText } from '~/components/ui/themed-text';
-import type { MarkdownInlineRulerState } from '~/types/markdown-plugin';
+import { ThemedText } from '../../ui/themed-text';
+import type { MarkdownInlineRulerState } from '../../../types/markdown-plugin';
 
 /**
  * Creates a MarkdownIt plugin to create tokens for mentions

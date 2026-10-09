@@ -3,27 +3,36 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   TabStackParamList,
   MainStackParamList,
-} from '~/components/navigation/types';
+} from '../components/navigation/types/index';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { XIcon, SearchIcon, MessageSquareTextIcon } from '~/components/icons';
+import {
+  XIcon,
+  SearchIcon,
+  MessageSquareTextIcon,
+} from '../components/icons/index';
 import { CompositeScreenProps } from '@react-navigation/native';
 import {
   EmptyStateContainer,
   InfiniteScrollContainer,
   TabScreensHeader,
-} from '~/components/custom';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../components/custom/index';
+import { ThemedText } from '../components/ui/themed-text';
 import { useTranslation } from 'react-i18next';
 import { Pressable, TouchableOpacity, View, ScrollView } from 'react-native';
-import { Input } from '~/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { ThemedView } from '~/components/ui/themed-view';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
-import { CardEvent } from '~/components/post/types/event/CardEvent';
+import { Input } from '../components/ui/input';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '../components/ui/tabs';
+import { ThemedView } from '../components/ui/themed-view';
+import { useNewConversationStore } from '../stores/useNewConversationStore';
+import { CardEvent } from '../components/post/types/event/CardEvent';
 
-import { FeedPost } from '~/components/post';
-import { FollowUnfollowButton, ProfileCard } from '~/components/profile';
-import { GroupCard } from '~/components/groups';
+import { FeedPost } from '../components/post/index';
+import { FollowUnfollowButton, ProfileCard } from '../components/profile/index';
+import { GroupCard } from '../components/groups/index';
 type ExploreScreenProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Explore'>,
   NativeStackScreenProps<MainStackParamList>

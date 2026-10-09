@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { EmptyStateContainer } from '~/components/custom';
+import { EmptyStateContainer } from '../../../custom/index';
 import {
   MoreVerticalIcon,
   ShareIcon,
@@ -11,15 +11,15 @@ import {
   SendIcon,
   PencilIcon,
   FlagIcon,
-} from '~/components/icons';
+} from '../../../icons/index';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../../../ui/dropdown-menu';
+import { ThemedText } from '../../../ui/themed-text';
 import { Image, View } from 'react-native';
 import {
   Event,
@@ -29,25 +29,25 @@ import {
   GroupData,
   buildThreads,
 } from '@openpeepshq/common';
-import { ProfileAvatar } from '~/components/profile/Avatar';
-import { profileName, truncateText } from '~/lib/utils';
+import { ProfileAvatar } from '../../../profile/Avatar';
+import { profileName, truncateText } from '../../../../lib/utils';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
-import { groupName } from '~/lib/utils';
-import { BASE_URL } from '~/lib/constants';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import { MainStackParamList } from '../../../navigation/types/index';
+import { groupName } from '../../../../lib/utils';
+import { BASE_URL } from '../../../../lib/constants';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../ui/tabs';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Toast from 'react-native-toast-message';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
+import { useNewConversationStore } from '../../../../stores/useNewConversationStore';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import {
   canManageEventRsvps,
   countYesRsvps,
   isCapacityEvent,
-} from '~/lib/utils';
-import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
+} from '../../../../lib/utils';
+import { bottomSheetPresent } from '../../../../lib/bottom-sheet-ref';
 import {
   effectiveEventTimes,
   eventTimeZoneOptions,
@@ -55,7 +55,7 @@ import {
   formatEventRecurrence,
   listRsvpOccurrences,
 } from '@openpeepshq/common/lib';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedView } from '../../../ui/themed-view';
 import { EventOccurrenceList } from '../../pieces/EventOccurrenceList';
 import { EventRsvpList } from '../../pieces/EventRsvpList';
 
@@ -66,9 +66,9 @@ import {
   ShareMenu,
   ThreadedFeed,
   useNewPostModal,
-} from '~/components/post';
-import { ReportProfileOrPostModal } from '~/components/profile';
-import { OpenpeepsMarkdown } from '~/components/markdown';
+} from '../../index';
+import { ReportProfileOrPostModal } from '../../../profile/index';
+import { OpenpeepsMarkdown } from '../../../markdown/index';
 interface FullEventProps {
   post: PublicPost;
   occurrence?: string;
@@ -148,7 +148,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
           source={
             event?.image
               ? { uri: event?.image }
-              : require('~/assets/images/event-placeholder.png')
+              : require('../../../../assets/images/event-placeholder.png')
           }
           className="w-full h-full"
           resizeMode="cover"

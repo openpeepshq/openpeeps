@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { useEventRsvp } from '@openpeepshq/react';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
-import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
+import { Button } from '../../ui/button';
+import { ThemedText } from '../../ui/themed-text';
+import { bottomSheetPresent } from '../../../lib/bottom-sheet-ref';
 import {
   EventRsvpScopeDialog,
   type RsvpScopeChoice,

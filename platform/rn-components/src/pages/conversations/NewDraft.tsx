@@ -5,19 +5,19 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import React, { useEffect } from 'react';
-import { ThemedView } from '~/components/ui/themed-view';
-import { MainScreenProps } from '~/components/navigation/types';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
+import { ThemedView } from '../../components/ui/themed-view';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { useNewConversationStore } from '../../stores/useNewConversationStore';
 import { TouchableOpacity } from 'react-native';
-import { GenericHeader } from '~/components/custom/headers';
-import { SendHorizonalIcon } from '~/components/icons';
+import { GenericHeader } from '../../components/custom/headers/index';
+import { SendHorizonalIcon } from '../../components/icons/index';
 import { useCreateConversation, useOpenpeeps } from '@openpeepshq/react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../components/ui/themed-text';
 import { Profile, PublicProfile } from '@openpeepshq/common';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { OpenpeepsMarkdownInput } from '~/components/post/post-form/OpenpeepsMarkdownInput';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
 import { useTranslation } from 'react-i18next';
-import { maxContentLength } from '~/lib/utils';
+import { maxContentLength } from '../../lib/utils';
 
 type DraftMessageProps = MainScreenProps<'DraftMessage'>;
 

@@ -3,10 +3,10 @@ import React, { forwardRef } from 'react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { PublicPost } from '@openpeepshq/common';
 import { BaseSheet, SheetFooter } from '../../../custom/modals/common';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../ui/themed-text';
 import { useTranslation } from 'react-i18next';
 import { FeedPost } from '../..';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose } from '../../../../lib/bottom-sheet-ref';
 
 interface DeletePostSheeConfirmationSheetProps {
   onDelete: () => Promise<void>;

@@ -3,24 +3,24 @@ import React from 'react';
 import {
   MainScreenProps,
   MainStackParamList,
-} from '~/components/navigation/types';
+} from '../../components/navigation/types/index';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
-import { ThemedText } from '~/components/ui/themed-text';
-import { FollowUnfollowButton } from '~/components/profile/FollowUnfollowButton';
+import { ThemedText } from '../../components/ui/themed-text';
+import { FollowUnfollowButton } from '../../components/profile/FollowUnfollowButton';
 
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ProfileAvatar } from '~/components/profile/Avatar';
+import { ProfileAvatar } from '../../components/profile/Avatar';
 
-import { GenericHeader } from '~/components/custom/headers';
+import { GenericHeader } from '../../components/custom/headers/index';
 import {
   ProfileBio,
   ProfileHandle,
   ProfileImages,
   ProfileName,
-} from '~/components/profile';
+} from '../../components/profile/index';
 type ConversationInfoProps = MainScreenProps<'ConversationInfo'>;
 
 export const ConversationInfo = ({ route }: ConversationInfoProps) => {

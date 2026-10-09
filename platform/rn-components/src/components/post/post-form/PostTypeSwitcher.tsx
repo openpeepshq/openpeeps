@@ -10,9 +10,9 @@ import {
   ChartColumnBigIcon,
   NotebookIcon,
   ScrollTextIcon,
-} from '~/components/icons';
-import { MainStackParamList } from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
+} from '../../icons/index';
+import { MainStackParamList } from '../../navigation/types/index';
+import { Button } from '../../ui/button';
 
 export interface PostTypeSwitcherProps {
   type: PostType;

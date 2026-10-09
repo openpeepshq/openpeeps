@@ -10,8 +10,8 @@ import {
   type VisibilityType,
 } from '@openpeepshq/common';
 import { getNewPostStores, useAuthData } from '@openpeepshq/react';
-import { PlusIcon } from '~/components/icons';
-import { MainStackParamList } from '~/components/navigation/types';
+import { PlusIcon } from '../icons/index';
+import { MainStackParamList } from '../navigation/types/index';
 
 export interface NewEventButtonProps {
   visibility: VisibilityType;

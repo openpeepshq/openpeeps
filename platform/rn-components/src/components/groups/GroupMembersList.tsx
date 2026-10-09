@@ -12,24 +12,24 @@ import {
   truncateText,
 } from '@openpeepshq/common/lib';
 import { useCurrentProfile, useOpenpeeps } from '@openpeepshq/react';
-import { useCreateNewConversation } from '~/components/conversations/CreateNewConversationContext';
+import { useCreateNewConversation } from '../conversations/CreateNewConversationContext';
 import {
   MessageSquareTextIcon,
   MoreHorizontalIcon,
   UserCogIcon,
   UserMinusIcon,
-} from '~/components/icons';
-import { MainStackParamList } from '~/components/navigation/types';
-import { ProfileAvatar } from '~/components/profile/Avatar';
+} from '../icons/index';
+import { MainStackParamList } from '../navigation/types/index';
+import { ProfileAvatar } from '../profile/Avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { Input } from '~/components/ui/input';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../ui/dropdown-menu';
+import { Input } from '../ui/input';
+import { ThemedText } from '../ui/themed-text';
 import { ChangeGroupRolesModal } from './ChangeGroupRolesModal';
 import { ConfirmMemberRemovalModal } from './ConfirmMemberRemovalModal';
 

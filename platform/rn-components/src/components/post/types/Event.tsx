@@ -3,10 +3,10 @@ import { Event, PublicPost } from '@openpeepshq/common';
 import { formatEventRecurrence } from '@openpeepshq/common/lib';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { CachedImage } from '~/components/custom/common';
-import { ParticipantAvatar } from '~/components/custom/common/participant-avatar';
-import { ThemedText } from '~/components/ui/themed-text';
-import { formatEventDate } from '~/lib/utils';
+import { CachedImage } from '../../custom/common/index';
+import { ParticipantAvatar } from '../../custom/common/participant-avatar';
+import { ThemedText } from '../../ui/themed-text';
+import { formatEventDate } from '../../../lib/utils';
 
 export const FeedEvent = ({ post }: { post: PublicPost }) => {
   const { t } = useTranslation();

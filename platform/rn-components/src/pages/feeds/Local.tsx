@@ -3,13 +3,13 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   TabStackParamList,
   MainStackParamList,
-} from '~/components/navigation/types';
+} from '../../components/navigation/types/index';
 import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
 import { CompositeScreenProps } from '@react-navigation/native';
-import { TabScreensHeader } from '~/components/custom';
-import { ThemedText } from '~/components/ui/themed-text';
+import { TabScreensHeader } from '../../components/custom/index';
+import { ThemedText } from '../../components/ui/themed-text';
 import { useTranslation } from 'react-i18next';
-import { Feed } from '~/components/post';
+import { Feed } from '../../components/post/index';
 
 type HomeScreenProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Home'>,

@@ -10,11 +10,11 @@ import { useCurrentProfile } from '@openpeepshq/react';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '~/components/navigation/types';
-import { ConfigMenuButton } from '~/components/configuration';
-import { TabScreensHeader } from '~/components/custom';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
+} from '../../components/navigation/types/index';
+import { ConfigMenuButton } from '../../components/configuration/index';
+import { TabScreensHeader } from '../../components/custom/index';
+import { ThemedText } from '../../components/ui/themed-text';
+import { ThemedView } from '../../components/ui/themed-view';
 
 export const Settings = ({}: NativeStackScreenProps<
   TabStackParamList,

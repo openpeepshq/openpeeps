@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { PlusIcon } from '~/components/icons';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+import { PlusIcon } from '../icons/index';
+import { Button } from '../ui/button';
+import { ThemedText } from '../ui/themed-text';
 import { useCreateNewConversation } from './CreateNewConversationContext';
 
 export const DirectMessagesHeaderActions = () => {

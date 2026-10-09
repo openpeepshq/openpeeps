@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { PublicProfile } from '@openpeepshq/common';
-import { MainStackParamList } from '~/components/navigation/types';
-import { ThemedText } from '~/components/ui/themed-text';
+import { MainStackParamList } from '../navigation/types/index';
+import { ThemedText } from '../ui/themed-text';
 
 export interface ProfileStatsProps {
   profile: PublicProfile;

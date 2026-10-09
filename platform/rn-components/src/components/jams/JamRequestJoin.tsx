@@ -5,8 +5,8 @@ import {
   type JamJoinParams,
   useJoinWaitingRoomToken,
 } from '@openpeepshq/react';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+import { Button } from '../ui/button';
+import { ThemedText } from '../ui/themed-text';
 
 export interface JamRequestJoinProps {
   onJoin: (params: JamJoinParams) => void;

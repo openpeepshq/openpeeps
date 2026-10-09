@@ -13,26 +13,26 @@ import {
   useCurrentProfile,
   useOpenpeeps,
 } from '@openpeepshq/react';
-import { useCreateNewConversation } from '~/components/conversations/CreateNewConversationContext';
+import { useCreateNewConversation } from '../conversations/CreateNewConversationContext';
 import {
   BanIcon,
   CopyIcon,
   FlagIcon,
   MessageSquareTextIcon,
   MoreHorizontalIcon,
-} from '~/components/icons';
-import { MainStackParamList } from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
+} from '../icons/index';
+import { MainStackParamList } from '../navigation/types/index';
+import { Button } from '../ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
-import { BASE_URL } from '~/lib/constants';
-import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
+} from '../ui/dropdown-menu';
+import { ThemedText } from '../ui/themed-text';
+import { BASE_URL } from '../../lib/constants';
+import { bottomSheetPresent } from '../../lib/bottom-sheet-ref';
 import { FollowUnfollowButton } from './FollowUnfollowButton';
 import { ReportProfileOrPostModal } from './ReportProfileOrPostModal';
 

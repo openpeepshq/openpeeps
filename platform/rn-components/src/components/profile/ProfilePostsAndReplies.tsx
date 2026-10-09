@@ -5,13 +5,13 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { PublicProfile } from '@openpeepshq/common/types';
 import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
-import { GroupCard } from '~/components/groups/GroupCard';
-import { UsersIcon } from '~/components/icons';
-import { MainStackParamList } from '~/components/navigation/types';
-import { Feed } from '~/components/post/Feed';
-import { handleScroll } from '~/lib/utils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { ThemedText } from '~/components/ui/themed-text';
+import { GroupCard } from '../groups/GroupCard';
+import { UsersIcon } from '../icons/index';
+import { MainStackParamList } from '../navigation/types/index';
+import { Feed } from '../post/Feed';
+import { handleScroll } from '../../lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { ThemedText } from '../ui/themed-text';
 import { ProfileActivitySummary } from './ProfileActivitySummary';
 
 export interface ProfilePostsAndRepliesProps {

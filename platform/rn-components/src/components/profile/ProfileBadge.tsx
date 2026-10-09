@@ -3,9 +3,9 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { PublicProfile } from '@openpeepshq/common';
 import { profileName } from '@openpeepshq/common/lib';
-import { XIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
-import { cn } from '~/lib/utils';
+import { XIcon } from '../icons/index';
+import { ThemedText } from '../ui/themed-text';
+import { cn } from '../../lib/utils';
 import { ProfileAvatar } from './Avatar';
 
 export type ProfileBadgeProps = {

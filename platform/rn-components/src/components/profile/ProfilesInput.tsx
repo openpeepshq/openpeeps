@@ -3,10 +3,10 @@ import { Pressable, View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import { PublicProfile } from '@openpeepshq/common';
-import { UsersIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
-import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
-import { cn } from '~/lib/utils';
+import { UsersIcon } from '../icons/index';
+import { ThemedText } from '../ui/themed-text';
+import { bottomSheetPresent } from '../../lib/bottom-sheet-ref';
+import { cn } from '../../lib/utils';
 import { MiniProfileCard } from './ProfileCard';
 import { ProfileSelector } from './ProfileSelector';
 

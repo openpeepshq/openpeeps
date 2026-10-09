@@ -1,10 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { AgendaTabs, GenericHeader } from '~/components/custom';
-import { MainScreenProps } from '~/components/navigation/types';
-import { EventsView, Feed } from '~/components/post';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { AgendaTabs, GenericHeader } from '../../components/custom/index';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { EventsView, Feed } from '../../components/post/index';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 
 type Tab = 'upcoming' | 'current' | 'past';
 

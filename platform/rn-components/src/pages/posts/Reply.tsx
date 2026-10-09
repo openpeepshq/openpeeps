@@ -7,38 +7,38 @@ import {
   GenericHeader,
   ImagePickerSheet,
   VideoPickerSheet,
-} from '~/components/custom';
+} from '../../components/custom/index';
 import {
   MediaAttachment,
   PostCreationData,
   PublicPost,
 } from '@openpeepshq/common';
 import Toast from 'react-native-toast-message';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import {
   postDataDefaults,
   useLocalPostStore,
-} from '~/stores/useLocalPostStore';
-import { PostForm } from '~/components/post/post-form/PostForm';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../../stores/useLocalPostStore';
+import { PostForm } from '../../components/post/post-form/PostForm';
+import { ThemedText } from '../../components/ui/themed-text';
 import { ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
-import { checkMediaPermissions } from '~/lib/media-permissions';
-import { Button } from '~/components/ui/button';
-import { MainScreenProps } from '~/components/navigation/types';
+import { checkMediaPermissions } from '../../lib/media-permissions';
+import { Button } from '../../components/ui/button';
+import { MainScreenProps } from '../../components/navigation/types/index';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import Footer from '~/components/post/post-form/Footer';
+import Footer from '../../components/post/post-form/Footer';
 import { useForm } from 'react-hook-form';
 import {
   hasProcessingAttachments,
   toArticle,
   toNote,
   toQuestion,
-} from '~/lib/post';
-import { CompactReplyParent } from '~/components/post/CompactReplyParent';
+} from '../../lib/post';
+import { CompactReplyParent } from '../../components/post/CompactReplyParent';
 
-import { ReplyModal } from '~/components/post';
+import { ReplyModal } from '../../components/post/index';
 type PostProps = MainScreenProps<'ReplyPost'>;
 
 export const ReplyPost = ({ route, navigation }: PostProps) => {

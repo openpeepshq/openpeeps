@@ -12,9 +12,9 @@ import {
   type BottomSheetModalProps,
 } from '@gorhom/bottom-sheet';
 import { SheetBackdrop } from './sheet-backdrop';
-import { useWindowSize } from '~/hooks';
-import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
-import { getThemeVars } from '~/theme/utils';
+import { useWindowSize } from '../../../../hooks/index';
+import { useOpenPeepsTheme } from '../../../../theme/OpenPeepsThemeProvider';
+import { getThemeVars } from '../../../../theme/utils';
 
 interface BaseSheetProps {
   children: React.ReactNode;

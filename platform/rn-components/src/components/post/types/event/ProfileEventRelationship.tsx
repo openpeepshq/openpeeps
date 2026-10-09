@@ -6,7 +6,7 @@ import {
   PublicPost,
 } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../ui/themed-text';
 import { useTranslation } from 'react-i18next';
 
 interface ProfileEventRelationshipProps {

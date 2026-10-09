@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { toAbsoluteMediaUrl } from '~/lib/media-url';
-import { fetchCachedMedia } from '~/utils/media-cache';
+import { toAbsoluteMediaUrl } from '../lib/media-url';
+import { fetchCachedMedia } from '../utils/media-cache';
 
 const LOCAL_URI_PREFIXES = [
   'file://',

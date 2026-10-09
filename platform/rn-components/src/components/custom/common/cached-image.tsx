@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, ImageProps, ActivityIndicator, View } from 'react-native';
-import { useCachedMediaUri } from '~/hooks/use-cached-media-uri';
+import { useCachedMediaUri } from '../../../hooks/use-cached-media-uri';
 
 interface CachedImageProps extends Omit<ImageProps, 'source'> {
   url: string;

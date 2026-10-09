@@ -2,11 +2,11 @@ import React, { useRef } from 'react';
 import { Image, Pressable, View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import type { MediaAttachment } from '@openpeepshq/common';
-import { ImagePickerSheet } from '~/components/custom/modals/media';
-import { CameraIcon, XIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
-import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
-import { cn } from '~/lib/utils';
+import { ImagePickerSheet } from '../custom/modals/media/index';
+import { CameraIcon, XIcon } from '../icons/index';
+import { ThemedText } from '../ui/themed-text';
+import { bottomSheetPresent } from '../../lib/bottom-sheet-ref';
+import { cn } from '../../lib/utils';
 
 export interface ImageInputProps {
   usage: string;

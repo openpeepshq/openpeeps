@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
-import { XIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
+import { XIcon } from '../../icons/index';
+import { ThemedText } from '../../ui/themed-text';
 import { AltSheet } from '../../custom/modals/media/alt-text-sheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import { MediaAttachmentData } from '@openpeepshq/common';
-import { isImageAttachment } from '~/lib/attachmentHelpers';
+import { isImageAttachment } from '../../../lib/attachmentHelpers';
 import { AttachmentCard, attachmentId } from './AttachmentCard';
 
 interface MediaPreviewProps {

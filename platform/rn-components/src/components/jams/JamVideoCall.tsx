@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { AudioSession, useRoomContext } from '@livekit/react-native';
 import type { DisconnectReason } from 'livekit-client';
-import { useStableLiveKitRoom } from '~/lib/livekit/useStableLiveKitRoom';
+import { useStableLiveKitRoom } from '../../lib/livekit/useStableLiveKitRoom';
 import { JamConference } from './JamConference';
 
 export interface JamVideoCallProps {

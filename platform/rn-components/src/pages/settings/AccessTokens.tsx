@@ -12,20 +12,20 @@ import {
   useAccessTokens,
   type AccessTokenResourceType,
 } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { ChevronDownIcon, CopyIcon } from '~/components/icons';
-import { MainScreenProps } from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
+import { GenericHeader } from '../../components/custom/index';
+import { ChevronDownIcon, CopyIcon } from '../../components/icons/index';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { Button } from '../../components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../../components/ui/dropdown-menu';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
 
 type AccessTokensSettingsProps = MainScreenProps<'AccessTokensSettings'>;
 

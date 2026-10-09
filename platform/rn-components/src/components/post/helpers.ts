@@ -1,6 +1,6 @@
 import { type MediaAttachmentData } from '@openpeepshq/common';
 import { FileIcon } from 'lucide-react-native';
-import { FileChartPieIcon, FileTextIcon } from '~/components/icons';
+import { FileChartPieIcon, FileTextIcon } from '../icons/index';
 
 export const getFileType = (attachment: MediaAttachmentData) => {
   let name = attachment.description?.toLowerCase();

@@ -1,8 +1,11 @@
 import React from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AUTH_ROUTES, AuthStackParamList } from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+import {
+  AUTH_ROUTES,
+  AuthStackParamList,
+} from '../../components/navigation/types/index';
+import { Button } from '../../components/ui/button';
+import { ThemedText } from '../../components/ui/themed-text';
 import { TouchableWithoutFeedback } from 'react-native';
 import { View } from 'react-native';
 import { useOpenpeeps } from '@openpeepshq/react';

@@ -1,12 +1,12 @@
 import React, { type ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
-import { ChevronUpIcon } from '~/components/icons';
+import { ChevronUpIcon } from '../icons/index';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { cn } from '~/lib/utils';
+} from '../ui/dropdown-menu';
+import { cn } from '../../lib/utils';
 
 export type JamToolbarTone = 'default' | 'active' | 'danger';
 

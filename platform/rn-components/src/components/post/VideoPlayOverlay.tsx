@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { PlayIcon } from '~/components/icons';
+import { PlayIcon } from '../icons/index';
 
 export interface VideoPlayOverlayProps {
   video: boolean;

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
-import { Progress } from '~/components/ui/progress';
-import { ThemedText } from '~/components/ui/themed-text';
+import { Progress } from '../../ui/progress';
+import { ThemedText } from '../../ui/themed-text';
 import { useOpenpeeps } from '@openpeepshq/react';
 import type { MediaAttachment } from '@openpeepshq/common';
 

@@ -1,11 +1,11 @@
 import { TouchableWithoutFeedback, View } from 'react-native';
-import { MessageSquareIcon } from '~/components/icons';
+import { MessageSquareIcon } from '../../icons/index';
 import { type PublicPost } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../ui/themed-text';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { profileName, truncateText } from '~/lib/utils';
+import { profileName, truncateText } from '../../../lib/utils';
 import { ProfileAvatar } from '../../profile/Avatar';
 import { PostMenu } from './PostMenu';
 

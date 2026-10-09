@@ -6,9 +6,9 @@ import {
   type PublicProfile,
 } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { UpdatingDate } from '~/components/custom/date/updating-date';
-import { OpenpeepsMarkdown } from '~/components/markdown';
-import { ThemedText } from '~/components/ui/themed-text';
+import { UpdatingDate } from '../custom/date/updating-date';
+import { OpenpeepsMarkdown } from '../markdown/index';
+import { ThemedText } from '../ui/themed-text';
 import { ProfileAvatar } from '../profile/Avatar';
 
 const attendance = ['join', 'leave', 'start', 'close'] as const;

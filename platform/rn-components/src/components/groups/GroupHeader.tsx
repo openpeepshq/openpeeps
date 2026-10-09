@@ -6,8 +6,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
 import { groupName } from '@openpeepshq/common/lib';
 import { useCurrentProfile } from '@openpeepshq/react';
-import { MainStackParamList } from '~/components/navigation/types';
-import { ThemedText } from '~/components/ui/themed-text';
+import { MainStackParamList } from '../navigation/types/index';
+import { ThemedText } from '../ui/themed-text';
 import { GroupAvatar } from './GroupAvatar';
 import { GroupOptionsMenu } from './GroupOptionsMenu';
 import { GroupShareMenu } from './GroupShareMenu';
@@ -31,7 +31,7 @@ export const GroupHeader = ({ group }: GroupHeaderProps) => {
           source={
             group.header
               ? { uri: group.header }
-              : require('~/assets/images/group-header-placeholder.png')
+              : require('../../assets/images/group-header-placeholder.png')
           }
           className="h-full w-full"
           resizeMode="cover"

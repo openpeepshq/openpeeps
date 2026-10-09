@@ -1,13 +1,13 @@
 import { Pressable, View } from 'react-native';
 import React from 'react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../ui/themed-text';
 import { NotificationWrapper } from '../NotificationWrapper';
 import { PublicNotification, PublicPost } from '@openpeepshq/common';
-import { MessageSquareIcon } from '~/components/icons';
-import { profileName } from '~/lib/utils';
+import { MessageSquareIcon } from '../../icons/index';
+import { profileName } from '../../../lib/utils';
 import { ConversationMessageBubble } from '../../conversations/ConversationMessageBubble';
 import { useTranslation } from 'react-i18next';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../navigation/types/index';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 

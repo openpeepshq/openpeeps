@@ -6,9 +6,9 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   PhoneOffIcon,
-} from '~/components/icons';
-import { CardEvent } from '~/components/post/types/event/CardEvent';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../icons/index';
+import { CardEvent } from '../post/types/event/CardEvent';
+import { ThemedText } from '../ui/themed-text';
 
 export const LiveJamsSection = () => {
   const { t } = useTranslation();

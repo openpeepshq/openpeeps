@@ -4,21 +4,24 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useOpenpeeps, useServerInfo } from '@openpeepshq/react';
-import { GenericHeader, TabScreensHeader } from '~/components/custom';
-import { ChevronRightIcon, MoreHorizontalIcon } from '~/components/icons';
-import { CreateNewJam, LiveJamsSection } from '~/components/jams';
-import { MainStackParamList } from '~/components/navigation/types';
-import { EventsFeed } from '~/components/post/feed/events/EventsFeed';
-import { Button } from '~/components/ui/button';
+import { GenericHeader, TabScreensHeader } from '../../components/custom/index';
+import {
+  ChevronRightIcon,
+  MoreHorizontalIcon,
+} from '../../components/icons/index';
+import { CreateNewJam, LiveJamsSection } from '../../components/jams/index';
+import { MainStackParamList } from '../../components/navigation/types/index';
+import { EventsFeed } from '../../components/post/feed/events/EventsFeed';
+import { Button } from '../../components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../../components/ui/dropdown-menu';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
 
 interface Props {
   /** When true, scope to the current user's jams. */

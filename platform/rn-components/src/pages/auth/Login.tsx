@@ -1,9 +1,12 @@
 import React from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AuthStackParamList, AUTH_ROUTES } from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
-import { Form, FormField, FormInput } from '~/components/ui/form';
+import {
+  AuthStackParamList,
+  AUTH_ROUTES,
+} from '../../components/navigation/types/index';
+import { Button } from '../../components/ui/button';
+import { ThemedText } from '../../components/ui/themed-text';
+import { Form, FormField, FormInput } from '../../components/ui/form';
 import { loginRequestSchema, type LoginRequest } from '@openpeepshq/common';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,7 +22,7 @@ import {
 } from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
-import { LOGIN_EMAIL, LOGIN_PASSWORD } from '~/lib/constants';
+import { LOGIN_EMAIL, LOGIN_PASSWORD } from '../../lib/constants';
 
 export const Login = ({
   navigation: { navigate },

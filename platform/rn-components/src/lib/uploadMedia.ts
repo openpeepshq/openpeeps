@@ -3,8 +3,8 @@ import RNConvertPhAsset from 'react-native-convert-ph-asset';
 import { Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
 import type { MediaAttachment } from '@openpeepshq/common';
-import i18next from '~/i18n';
-import { decodeFileUri, resolveDocumentMime } from '~/lib/mediaUriHelpers';
+import i18next from '../i18n/index';
+import { decodeFileUri, resolveDocumentMime } from './mediaUriHelpers';
 
 type UploadProgressInfo = {
   loaded: number;

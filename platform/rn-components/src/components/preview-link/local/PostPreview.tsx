@@ -5,7 +5,7 @@ import type { QueryObserverResult } from '@tanstack/react-query';
 
 import { AccessDenied } from '../AccessDenied';
 
-import { FeedPostContent } from '~/components/post';
+import { FeedPostContent } from '../../post/index';
 interface PostPreviewProps {
   path: string;
 }

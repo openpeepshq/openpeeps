@@ -2,7 +2,7 @@ import { type PublicPost } from '@openpeepshq/common';
 import { useFeedPostPresentation } from '@openpeepshq/react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../navigation/types/index';
 import {
   PostInfoHeader,
   PostActions,
@@ -13,10 +13,10 @@ import {
 } from './pieces';
 import React, { type ReactNode } from 'react';
 import { CompactReplyParent } from './CompactReplyParent';
-import { ThemedView } from '~/components/ui/themed-view';
-import { usePostViewRef } from '~/hooks/use-post-view-ref';
+import { ThemedView } from '../ui/themed-view';
+import { usePostViewRef } from '../../hooks/use-post-view-ref';
 
-import { FeedPostContent } from '~/components/post';
+import { FeedPostContent } from './index';
 export interface FeedPostProps {
   post: PublicPost;
   deleteCallback?: () => void;

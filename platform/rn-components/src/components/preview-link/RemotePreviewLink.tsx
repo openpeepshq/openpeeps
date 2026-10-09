@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, TouchableOpacity, Linking } from 'react-native';
-import { ThemedText as Text } from '~/components/ui/themed-text';
+import { ThemedText as Text } from '../ui/themed-text';
 import { useOpenpeeps, recordOutboundClick } from '@openpeepshq/react';
 import { ActivityIndicator } from 'react-native';
-import { CachedImage } from '~/components/custom/common';
+import { CachedImage } from '../custom/common/index';
 
 interface RemotePreviewLinkProps {
   url: string;

@@ -5,29 +5,32 @@ import {
   View,
 } from 'react-native';
 import React, { useEffect, useRef } from 'react';
-import { TabScreensHeader, EmptyStateContainer } from '~/components/custom';
+import {
+  TabScreensHeader,
+  EmptyStateContainer,
+} from '../../components/custom/index';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { XIcon, SearchIcon } from '~/components/icons';
+import { XIcon, SearchIcon } from '../../components/icons/index';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   TabStackParamList,
   MainStackParamList,
-} from '~/components/navigation/types';
+} from '../../components/navigation/types/index';
 import { PublicPost } from '@openpeepshq/common';
-import { Input } from '~/components/ui/input';
-import { ThemedText } from '~/components/ui/themed-text';
-import { profileMatchesQuery } from '~/lib/utils';
+import { Input } from '../../components/ui/input';
+import { ThemedText } from '../../components/ui/themed-text';
+import { profileMatchesQuery } from '../../lib/utils';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 import {
   ConversationPreviewCard,
   DirectMessagesHeaderActions,
-} from '~/components/conversations';
+} from '../../components/conversations/index';
 import { useTranslation } from 'react-i18next';
 
-import { ConversationSettingsSheet } from '~/components/conversations';
+import { ConversationSettingsSheet } from '../../components/conversations/index';
 type MessagesProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Messages'>,
   NativeStackScreenProps<MainStackParamList>

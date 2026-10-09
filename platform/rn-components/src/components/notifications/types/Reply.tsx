@@ -1,12 +1,12 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../ui/themed-text';
 import { PublicNotification, PublicPost } from '@openpeepshq/common';
 import { NotificationWrapper } from '../NotificationWrapper';
-import { ReplyIcon } from '~/components/icons';
-import { profileName } from '~/lib/utils';
+import { ReplyIcon } from '../../icons/index';
+import { profileName } from '../../../lib/utils';
 import { useTranslation } from 'react-i18next';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../navigation/types/index';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { FeedPost } from '../../post/FeedPost';

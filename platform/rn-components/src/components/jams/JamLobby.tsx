@@ -17,9 +17,9 @@ import {
   Volume2Icon,
   VolumeXIcon,
   XIcon,
-} from '~/components/icons';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../icons/index';
+import { Button } from '../ui/button';
+import { ThemedText } from '../ui/themed-text';
 import {
   DeviceSelectorPill,
   useAudioOutputs,

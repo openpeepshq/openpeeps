@@ -14,7 +14,7 @@ import {
   useJamContext,
   useJamLocalSettings,
 } from '@openpeepshq/react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../ui/themed-text';
 import { JamChatDrawer } from './JamChatDrawer';
 import { JamDetailsDrawer } from './JamDetailsDrawer';
 import { JamFooter } from './JamFooter';

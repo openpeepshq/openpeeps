@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable } from 'react-native';
 import { PublicNotification } from '@openpeepshq/common';
 import { NotificationWrapper } from '../NotificationWrapper';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../navigation/types/index';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { FeedPost } from '../../post/FeedPost';

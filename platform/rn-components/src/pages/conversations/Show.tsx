@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { MainScreenProps } from '~/components/navigation/types';
+import { MainScreenProps } from '../../components/navigation/types/index';
 import {
   adjustUnseenCounts,
   useOpenpeeps,
   usePostViewFlush,
 } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
-import { GenericHeader } from '~/components/custom';
+import { GenericHeader } from '../../components/custom/index';
 import {
   KeyboardAvoidingView,
   ScrollView,
@@ -15,25 +15,25 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import { InfoIcon, SendHorizonalIcon } from '~/components/icons';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { InfoIcon, SendHorizonalIcon } from '../../components/icons/index';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { MediaAttachmentData } from '@openpeepshq/common';
-import { ComposeAttachments } from '~/components/post/post-form/ComposeAttachments';
-import { OpenpeepsMarkdownInput } from '~/components/post/post-form/OpenpeepsMarkdownInput';
-import { maxContentLength } from '~/lib/utils';
-import { DropdownMenu } from '~/components/ui/dropdown-menu';
+import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
+import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
+import { maxContentLength } from '../../lib/utils';
+import { DropdownMenu } from '../../components/ui/dropdown-menu';
 import {
   ConversationParticipantsModal,
   ConversationProfileHeader,
   MessageInThread,
-} from '~/components/conversations';
+} from '../../components/conversations/index';
 
 import {
   ProfileBio,
   ProfileHandle,
   ProfileImages,
   ProfileName,
-} from '~/components/profile';
+} from '../../components/profile/index';
 type ConversationProps = MainScreenProps<'Conversation'>;
 
 export const ConversationShow = ({ route, navigation }: ConversationProps) => {

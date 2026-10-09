@@ -1,15 +1,15 @@
 import React, { forwardRef, useState } from 'react';
 import { View, Platform } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../ui/themed-text';
 import { BaseSheet } from '../../custom/modals/common';
-import { Calendar } from '~/components/ui/calendar';
+import { Calendar } from '../../ui/calendar';
 import DateTimePicker, {
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { Button } from '~/components/ui/button';
+import { Button } from '../../ui/button';
 import { useTranslation } from 'react-i18next';
-import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
+import { useOpenPeepsTheme } from '../../../theme/OpenPeepsThemeProvider';
 import {
   utcIsoToWallClockDate,
   wallClockDateToUtcIso,

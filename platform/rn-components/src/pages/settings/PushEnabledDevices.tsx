@@ -9,13 +9,17 @@ import {
   pushSubscriptionIsMobile,
 } from '@openpeepshq/common/lib';
 import { usePushEnabledDevices } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { LaptopIcon, SmartphoneIcon, Trash2Icon } from '~/components/icons';
-import { MainScreenProps } from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
-import { Text } from '~/components/ui/text';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
+import { GenericHeader } from '../../components/custom/index';
+import {
+  LaptopIcon,
+  SmartphoneIcon,
+  Trash2Icon,
+} from '../../components/icons/index';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { Button } from '../../components/ui/button';
+import { Text } from '../../components/ui/text';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
 
 type PushEnabledDevicesProps = MainScreenProps<'PushEnabledDevices'>;
 

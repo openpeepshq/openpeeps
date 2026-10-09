@@ -1,8 +1,8 @@
 import React, { useState, type ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { MessageSquareIcon } from '~/components/icons';
-import { cn } from '~/lib/utils';
+import { MessageSquareIcon } from '../icons/index';
+import { cn } from '../../lib/utils';
 import { JamChatDrawer } from './JamChatDrawer';
 
 export interface JamObserverShellProps {

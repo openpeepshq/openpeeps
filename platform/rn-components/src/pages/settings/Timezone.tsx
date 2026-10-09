@@ -4,14 +4,14 @@ import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTimezonePreference } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { TimeZoneSelect } from '~/components/form';
-import { MainScreenProps } from '~/components/navigation/types';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
-import { ChevronRightIcon } from '~/components/icons';
-import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
+import { GenericHeader } from '../../components/custom/index';
+import { TimeZoneSelect } from '../../components/form/index';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
+import { ThemedView } from '../../components/ui/themed-view';
+import { ChevronRightIcon } from '../../components/icons/index';
+import { bottomSheetPresent } from '../../lib/bottom-sheet-ref';
 
 type TimezoneSettingsProps = MainScreenProps<'TimezoneSettings'>;
 

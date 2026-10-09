@@ -23,15 +23,15 @@ import {
   PencilIcon,
   TrashIcon,
   UsersPlusIcon,
-} from '~/components/icons';
+} from '../icons/index';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../ui/dropdown-menu';
+import { ThemedText } from '../ui/themed-text';
 import { AddGroupMemberModal } from './AddGroupMemberModal';
 import { ConfirmGroupExitModal } from './ConfirmGroupExitModal';
 import { DeleteGroupModal } from './DeleteGroupModal';

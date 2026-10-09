@@ -4,12 +4,12 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { useCurrentProfile, useNewGroup } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { GroupForm } from '~/components/groups';
-import { MainScreenProps } from '~/components/navigation/types';
-import { ProfilesInput } from '~/components/profile';
-import { Label } from '~/components/ui/label';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { GenericHeader } from '../../components/custom/index';
+import { GroupForm } from '../../components/groups/index';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { ProfilesInput } from '../../components/profile/index';
+import { Label } from '../../components/ui/label';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 
 type NewGroupProps = MainScreenProps<'CreateGroup'>;
 

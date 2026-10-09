@@ -2,11 +2,11 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useOpenpeeps } from '@openpeepshq/react';
 import type { NotificationStats } from '@openpeepshq/common';
-import { setAppBadgeCount } from '~/lib/notification-helpers';
+import { setAppBadgeCount } from '../lib/notification-helpers';
 import {
   clearNotificationsScreenPushHandler,
   setNotificationsScreenPushHandler,
-} from '~/lib/notifications-screen-state';
+} from '../lib/notifications-screen-state';
 
 export const NOTIFICATION_STATS_QUERY_KEY = [
   'profiles',

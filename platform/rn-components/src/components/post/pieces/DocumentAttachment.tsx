@@ -1,10 +1,10 @@
 import React from 'react';
 import { formatSize, type MediaAttachmentData } from '@openpeepshq/common';
-import { getFileIcon, getFileType } from '~/components/post/helpers';
-import { FileQuestionIcon } from '~/components/icons';
+import { getFileIcon, getFileType } from '../helpers';
+import { FileQuestionIcon } from '../../icons/index';
 import { useMemo } from 'react';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedText } from '../../ui/themed-text';
+import { ThemedView } from '../../ui/themed-view';
 
 interface DocumentAttachmentProps {
   attachment: MediaAttachmentData;

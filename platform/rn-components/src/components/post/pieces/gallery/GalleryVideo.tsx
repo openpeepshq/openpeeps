@@ -3,8 +3,8 @@ import { MediaAttachmentData, PublicProfile } from '@openpeepshq/common';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Pressable } from 'react-native';
-import { CachedImage } from '~/components/custom/common';
-import { MainStackParamList } from '~/components/navigation/types';
+import { CachedImage } from '../../../custom/common/index';
+import { MainStackParamList } from '../../../navigation/types/index';
 import { VideoPlayOverlay } from '../../VideoPlayOverlay';
 
 interface GalleryVideoProps {

@@ -1,8 +1,8 @@
 import React from 'react';
 import { View } from 'react-native';
 import type { MediaAttachmentData } from '@openpeepshq/common/types';
-import { CachedVideoPlayer } from '~/components/custom/common/cached-video-player';
-import { cn } from '~/lib/utils';
+import { CachedVideoPlayer } from '../../custom/common/cached-video-player';
+import { cn } from '../../../lib/utils';
 
 export interface VideoPlayerProps {
   attachment: MediaAttachmentData;

@@ -9,10 +9,10 @@ import {
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { type GroupWithMeta, getGroupAvatar } from '@openpeepshq/common';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../ui/themed-text';
 import { BaseSheet, SheetFooter } from '../../custom/modals/common';
 import { useTranslation } from 'react-i18next';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose } from '../../../lib/bottom-sheet-ref';
 
 interface GroupSelectionSheetProps {
   onSelect: (group: GroupWithMeta) => void;

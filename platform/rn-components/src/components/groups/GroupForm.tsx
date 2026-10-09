@@ -6,11 +6,11 @@ import {
   useGroupTemplateSelection,
   type GroupFormFieldErrors,
 } from '@openpeepshq/react';
-import { HeaderAvatarInput, RadioSelect } from '~/components/form';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { Textarea } from '~/components/ui/textarea';
-import { ThemedText } from '~/components/ui/themed-text';
+import { HeaderAvatarInput, RadioSelect } from '../form/index';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import { ThemedText } from '../ui/themed-text';
 import { GroupCapabilityMatrix } from './GroupCapabilityMatrix';
 
 export type { GroupFormFieldErrors };

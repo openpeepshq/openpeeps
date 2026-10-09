@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { PhoneCallIcon } from '~/components/icons';
+import { PhoneCallIcon } from '../icons/index';
 import { useCreateNewJam } from './CreateNewJamContext';
 
 export const CreateNewJam = () => {

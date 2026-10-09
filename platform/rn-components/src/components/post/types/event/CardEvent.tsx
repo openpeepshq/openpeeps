@@ -1,21 +1,21 @@
 import { View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import React, { useMemo } from 'react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../../ui/themed-text';
 import { Event, PublicPost, PublicRsvp } from '@openpeepshq/common';
-import { truncateText } from '~/lib/utils';
+import { truncateText } from '../../../../lib/utils';
 import { formatEventRecurrence } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
-import { calculateEffectiveRsvps } from '~/lib/utils';
-import { Timespan } from '~/components/custom/date';
-import { EventLocation } from '~/components/post/pieces/EventLocation';
-import { ProfileEventRelationship } from '~/components/post/types/event/ProfileEventRelationship';
+import { MainStackParamList } from '../../../navigation/types/index';
+import { calculateEffectiveRsvps } from '../../../../lib/utils';
+import { Timespan } from '../../../custom/date/index';
+import { EventLocation } from '../../pieces/EventLocation';
+import { ProfileEventRelationship } from './ProfileEventRelationship';
 
 import { useTranslation } from 'react-i18next';
 
-import { ParticipantsCard } from '~/components/post';
+import { ParticipantsCard } from '../../index';
 interface CardEventProps {
   post: PublicPost;
   showEventDate?: boolean;
@@ -53,7 +53,7 @@ export const CardEvent = ({ post, showEventDate = true }: CardEventProps) => {
           source={
             event.image
               ? { uri: event.image }
-              : require('~/assets/images/event-placeholder.png')
+              : require('../../../../assets/images/event-placeholder.png')
           }
           className="w-full h-full"
           resizeMode="cover"

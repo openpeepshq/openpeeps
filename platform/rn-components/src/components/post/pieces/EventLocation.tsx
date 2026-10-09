@@ -2,8 +2,8 @@ import { View } from 'react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Event, PublicPost, truncateText } from '@openpeepshq/common';
-import { ThemedText } from '~/components/ui/themed-text';
-import { MapPinIcon, LinkIcon, PhoneCallIcon } from '~/components/icons';
+import { ThemedText } from '../../ui/themed-text';
+import { MapPinIcon, LinkIcon, PhoneCallIcon } from '../../icons/index';
 interface EventLocationProps {
   post: PublicPost;
   truncate?: boolean;

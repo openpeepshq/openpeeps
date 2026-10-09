@@ -4,9 +4,9 @@ import { useParticipants } from '@livekit/react-native';
 import { useTranslation } from 'react-i18next';
 import { useJamChat } from '@openpeepshq/react';
 import type { JamEvent } from '@openpeepshq/common';
-import { SendHorizontalIcon } from '~/components/icons';
-import { Textarea } from '~/components/ui/textarea';
-import { ThemedText } from '~/components/ui/themed-text';
+import { SendHorizontalIcon } from '../icons/index';
+import { Textarea } from '../ui/textarea';
+import { ThemedText } from '../ui/themed-text';
 import { JamChatMessage } from './JamChatMessage';
 import { JamDrawer } from './JamDrawer';
 

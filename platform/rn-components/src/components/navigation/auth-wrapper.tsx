@@ -4,11 +4,11 @@ import React from 'react';
 import { Image, ImageBackground, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { ThemedText } from '../ui/themed-text';
-import { isProduction } from '~/lib/constants';
-import { BASE_URL } from '~/lib/constants';
-import { useWindowSize } from '~/hooks';
+import { isProduction } from '../../lib/constants';
+import { BASE_URL } from '../../lib/constants';
+import { useWindowSize } from '../../hooks/index';
 import { getTheme } from '@openpeepshq/common';
-import { toAbsoluteMediaUrl } from '~/lib/media-url';
+import { toAbsoluteMediaUrl } from '../../lib/media-url';
 
 const DevBanner = () =>
   (!isProduction && (

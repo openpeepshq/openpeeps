@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCurrentProfile, useOpenpeeps, useRouter } from '@openpeepshq/react';
-import { JamRoom } from '~/components/jams';
-import type { MainScreenProps } from '~/components/navigation/types';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
+import { JamRoom } from '../../components/jams/index';
+import type { MainScreenProps } from '../../components/navigation/types/index';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
 
 /**
  * `JamSession` screen — loads the jam post and hands it off to `<JamRoom>`.

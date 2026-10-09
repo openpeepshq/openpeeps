@@ -3,11 +3,11 @@ import { Image, Pressable, View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import { MediaAttachment } from '@openpeepshq/common';
-import { ImagePickerSheet } from '~/components/custom/modals/media';
-import { CameraIcon, XIcon } from '~/components/icons';
-import { Avatar, AvatarImage } from '~/components/ui/avatar';
-import { ThemedText } from '~/components/ui/themed-text';
-import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
+import { ImagePickerSheet } from '../custom/modals/media/index';
+import { CameraIcon, XIcon } from '../icons/index';
+import { Avatar, AvatarImage } from '../ui/avatar';
+import { ThemedText } from '../ui/themed-text';
+import { bottomSheetPresent } from '../../lib/bottom-sheet-ref';
 
 export interface HeaderAvatarInputProps {
   header?: string;

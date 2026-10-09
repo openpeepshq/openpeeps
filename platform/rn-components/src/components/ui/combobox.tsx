@@ -9,14 +9,10 @@ import {
   BottomSheetOpenTrigger,
   BottomSheetTextInput,
   useBottomSheet,
-} from '~/components/ui/bottom-sheet';
-import {
-  Button,
-  buttonTextVariants,
-  buttonVariants,
-} from '~/components/ui/button';
-import { CheckIcon, ChevronsUpDownIcon, SearchIcon } from '~/components/icons';
-import { cn } from '~/lib/utils';
+} from './bottom-sheet';
+import { Button, buttonTextVariants, buttonVariants } from './button';
+import { CheckIcon, ChevronsUpDownIcon, SearchIcon } from '../icons/index';
+import { cn } from '../../lib/utils';
 
 const HEADER_HEIGHT = 130;
 

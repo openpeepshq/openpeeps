@@ -42,12 +42,12 @@ import {
   About,
   CodeOfConduct,
 } from '../../pages';
-import { MenuWrapper } from '~/components/navigation/side-menu-wrapper';
+import { MenuWrapper } from './side-menu-wrapper';
 import { SideMenuDrawer } from './side-menu-drawer';
 
 import { MainStackParamList } from './types';
-import { useWindowSize } from '~/hooks';
-import { initializePushNotifications } from '~/lib/push-notifications';
+import { useWindowSize } from '../../hooks/index';
+import { initializePushNotifications } from '../../lib/push-notifications';
 import { useOpenpeeps } from '@openpeepshq/react';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();

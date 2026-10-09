@@ -15,8 +15,8 @@ import {
   PinIcon,
   PinOffIcon,
   ScreenShareIcon,
-} from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../icons/index';
+import { ThemedText } from '../ui/themed-text';
 import { AvatarWithName } from '../profile/AvatarWithName';
 import { JamCallParticipant } from './JamCallParticipant';
 

@@ -3,8 +3,8 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { GroupWithMeta, PublicProfile } from '@openpeepshq/common/types';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { ThemedText } from '~/components/ui/themed-text';
-import { useControlledSheet } from '~/hooks/use-controlled-sheet';
+import { ThemedText } from '../ui/themed-text';
+import { useControlledSheet } from '../../hooks/use-controlled-sheet';
 import { BaseSheet, SheetFooter } from '../custom/modals/common';
 
 export interface ConfirmMemberRemovalModalProps {

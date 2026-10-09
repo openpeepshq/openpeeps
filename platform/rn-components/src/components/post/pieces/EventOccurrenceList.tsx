@@ -10,9 +10,9 @@ import {
   sameRecurrenceId,
 } from '@openpeepshq/common/lib';
 import type { PublicPost } from '@openpeepshq/common/types';
-import { ChevronDownIcon, ChevronRightIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
-import { MainStackParamList } from '~/components/navigation/types';
+import { ChevronDownIcon, ChevronRightIcon } from '../../icons/index';
+import { ThemedText } from '../../ui/themed-text';
+import { MainStackParamList } from '../../navigation/types/index';
 
 export interface EventOccurrenceListProps {
   post: PublicPost;

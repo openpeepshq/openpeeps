@@ -1,18 +1,18 @@
 import { Share, View } from 'react-native';
 import React, { useRef } from 'react';
-import { Trash2Icon, ShareIcon } from '~/components/icons';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+import { Trash2Icon, ShareIcon } from '../icons/index';
+import { Button } from '../ui/button';
+import { ThemedText } from '../ui/themed-text';
 
 import { Event, PublicPost } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
-import { BASE_URL } from '~/lib/constants';
-import { MainStackParamList } from '~/components/navigation/types';
+import { BASE_URL } from '../../lib/constants';
+import { MainStackParamList } from '../navigation/types/index';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 
-import { DeleteJamModal, DeleteJamModalRef } from '~/components/jams';
+import { DeleteJamModal, DeleteJamModalRef } from './index';
 interface JamActionsFooterProps {
   handleOpenJam?: () => void;
   jamPost: PublicPost;

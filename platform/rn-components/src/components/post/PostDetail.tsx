@@ -2,7 +2,7 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../ui/themed-text';
 import { FullNote } from './types/note/FullNote';
 import { FullArticle } from './types/article/FullArticle';
 import { FullPoll } from './types/poll/FullPoll';

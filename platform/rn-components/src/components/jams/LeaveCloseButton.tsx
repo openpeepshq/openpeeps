@@ -3,8 +3,8 @@ import { Alert } from 'react-native';
 import { useRoomContext } from '@livekit/react-native';
 import { useTranslation } from 'react-i18next';
 import { useJamContext, useLeaveCloseJam } from '@openpeepshq/react';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+import { Button } from '../ui/button';
+import { ThemedText } from '../ui/themed-text';
 
 /**
  * Leave / close control. Moderators are offered a choice between leaving

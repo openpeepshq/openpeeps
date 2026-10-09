@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { ThemedText as Text } from '~/components/ui/themed-text';
+import { ThemedText as Text } from '../../ui/themed-text';
 import { hasValue, type PublicPost } from '@openpeepshq/common';
 import { collectVotes } from '@openpeepshq/common';
 import { formatDistanceToNow, isPast } from 'date-fns';
 import { useOpenpeeps } from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
-import { Button } from '~/components/ui/button';
-import { Checkbox } from '~/components/ui/checkbox';
+import { Button } from '../../ui/button';
+import { Checkbox } from '../../ui/checkbox';
 import { useTranslation } from 'react-i18next';
-import { ProfileAvatar } from '~/components/profile/Avatar';
+import { ProfileAvatar } from '../../profile/Avatar';
 
 interface Props {
   post: PublicPost;

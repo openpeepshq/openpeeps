@@ -6,10 +6,10 @@ import { useNavigation } from '@react-navigation/native';
 import { MainStackParamList } from './types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { buildGoto } from './helpers';
-import { useRegisterPushMessageHandler } from '~/lib/push-notifications';
-import type { GotoHandlerParams } from '~/types/goto';
+import { useRegisterPushMessageHandler } from '../../lib/push-notifications';
+import type { GotoHandlerParams } from '../../types/goto';
 import { getTheme } from '@openpeepshq/common';
-import { toAbsoluteMediaUrl } from '~/lib/media-url';
+import { toAbsoluteMediaUrl } from '../../lib/media-url';
 
 export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
   const { openpeepsApi, currentProfile } = useOpenpeeps();

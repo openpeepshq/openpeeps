@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
 import { useJoinGroup } from '@openpeepshq/react';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+import { Button } from '../ui/button';
+import { ThemedText } from '../ui/themed-text';
 
 export interface JoinGroupButtonProps {
   group: GroupWithMeta;

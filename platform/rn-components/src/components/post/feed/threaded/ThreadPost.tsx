@@ -5,15 +5,15 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Pressable } from 'react-native';
 
-import { UpdatingDate } from '~/components/custom/date';
-import { ProfileAvatar } from '~/components/profile';
-import { MainStackParamList } from '~/components/navigation/types';
+import { UpdatingDate } from '../../../custom/date/index';
+import { ProfileAvatar } from '../../../profile/index';
+import { MainStackParamList } from '../../../navigation/types/index';
 import { PostActions, PostMenu, UnreadPostIndicator } from '../../pieces';
-import { ThemedView } from '~/components/ui/themed-view';
-import { usePostViewRef } from '~/hooks/use-post-view-ref';
+import { ThemedView } from '../../../ui/themed-view';
+import { usePostViewRef } from '../../../../hooks/use-post-view-ref';
 
-import { ProfileHandle, ProfileName } from '~/components/profile';
-import { FeedPostContent } from '~/components/post';
+import { ProfileHandle, ProfileName } from '../../../profile/index';
+import { FeedPostContent } from '../../index';
 interface ThreadPostProps {
   post: PublicPost;
   isParent?: boolean;

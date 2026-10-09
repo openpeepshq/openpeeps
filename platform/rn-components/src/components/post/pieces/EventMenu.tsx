@@ -11,17 +11,17 @@ import {
   MoreVerticalIcon,
   PencilLineIcon,
   Trash2Icon,
-} from '~/components/icons';
+} from '../../icons/index';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
-import { MainStackParamList } from '~/components/navigation/types';
-import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
+} from '../../ui/dropdown-menu';
+import { ThemedText } from '../../ui/themed-text';
+import { MainStackParamList } from '../../navigation/types/index';
+import { bottomSheetPresent } from '../../../lib/bottom-sheet-ref';
 import { DeleteEventModal } from './modals/DeleteEventModal';
 
 export interface EventMenuProps {

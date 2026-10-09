@@ -2,10 +2,10 @@ import { ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import React from 'react';
 import type { PublicNotification } from '@openpeepshq/common';
 import { useFocusEffect } from '@react-navigation/native';
-import { handleScroll } from '~/lib/utils';
+import { handleScroll } from '../../lib/utils';
 import { EmptyStateContainer } from '../custom/common/empty-state-container';
 import { NotificationItem } from './NotificationItem';
-import { InfiniteQueryResult } from '~/types';
+import { InfiniteQueryResult } from '../../types';
 
 interface Props {
   query: InfiniteQueryResult<PublicNotification>;

@@ -9,8 +9,8 @@ import {
   type CapabilityMatrixOptions,
   type MatrixCapabilities,
 } from '@openpeepshq/react';
-import { ThemedText } from '~/components/ui/themed-text';
-import { cn } from '~/lib/utils';
+import { ThemedText } from './ui/themed-text';
+import { cn } from '../lib/utils';
 
 export interface CapabilityMatrixColumn {
   key: string;

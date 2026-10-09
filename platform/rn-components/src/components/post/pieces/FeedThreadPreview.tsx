@@ -2,8 +2,8 @@ import { type PublicPost, type PublicReplyPost } from '@openpeepshq/common';
 import { buildThreadPreview } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
-import { ThemedView } from '~/components/ui/themed-view';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedView } from '../../ui/themed-view';
+import { ThemedText } from '../../ui/themed-text';
 import { CompactReplyParent } from '../CompactReplyParent';
 
 const ThreadReplyRow = ({

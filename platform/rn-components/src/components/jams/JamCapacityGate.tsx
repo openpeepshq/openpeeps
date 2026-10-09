@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { isCapacityEvent } from '@openpeepshq/common/lib';
 import { useCurrentProfile, useRouter } from '@openpeepshq/react';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+import { Button } from '../ui/button';
+import { ThemedText } from '../ui/themed-text';
 import { EventRsvpButton } from '../post/pieces/EventRsvpButton';
 import { JamRoomPanel, JamRoomPanelLink } from './JamRoomPanel';
 

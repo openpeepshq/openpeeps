@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { PublicProfile } from '@openpeepshq/common';
 import { isDeletedProfile } from '@openpeepshq/common';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../navigation/types/index';
 
 export interface ProfileLinkProps {
   profile?: PublicProfile;

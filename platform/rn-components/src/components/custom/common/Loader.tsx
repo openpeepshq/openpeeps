@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { ThemedView } from '../../ui/themed-view';
-import { Skeleton } from '~/components/ui/skeleton';
+import { Skeleton } from '../../ui/skeleton';
 
 interface LoaderProps {
   page: 'community' | 'jams' | 'large';

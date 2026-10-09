@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type { GroupWithMeta, PublicProfile } from '@openpeepshq/common/types';
 import { groupName } from '@openpeepshq/common/lib';
 import { useCurrentProfile, useOpenpeeps } from '@openpeepshq/react';
-import { ProfileSelector } from '~/components/profile';
-import { useControlledSheet } from '~/hooks/use-controlled-sheet';
+import { ProfileSelector } from '../profile/index';
+import { useControlledSheet } from '../../hooks/use-controlled-sheet';
 
 export interface AddGroupMemberModalProps {
   group: GroupWithMeta;

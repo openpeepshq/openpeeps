@@ -13,11 +13,11 @@ import {
   SearchIcon,
   UserRoundCheckIcon,
   WifiOffIcon,
-} from '~/components/icons';
-import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
-import { ThemedText } from '~/components/ui/themed-text';
-import { cn } from '~/lib/utils';
+} from '../icons/index';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { ThemedText } from '../ui/themed-text';
+import { cn } from '../../lib/utils';
 import { ProfileAvatar } from '../profile/Avatar';
 import { JamDrawer } from './JamDrawer';
 import { useConnectionLost } from './useParticipantConnection';

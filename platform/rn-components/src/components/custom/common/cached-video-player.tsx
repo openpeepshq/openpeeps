@@ -25,14 +25,14 @@ import {
   PauseIcon,
   Repeat2Icon,
   InfoIcon,
-} from '~/components/icons';
-import { fetchCachedMedia } from '~/utils/media-cache';
+} from '../../icons/index';
+import { fetchCachedMedia } from '../../../utils/media-cache';
 import {
   getServerOrigin,
   isLocalMediaUrl,
   toAbsoluteMediaUrl,
-} from '~/lib/media-url';
-import { Button } from '~/components/ui/button';
+} from '../../../lib/media-url';
+import { Button } from '../../ui/button';
 
 interface CachedVideoPlayerProps {
   url: string;

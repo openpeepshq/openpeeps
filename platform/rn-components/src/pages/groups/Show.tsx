@@ -6,17 +6,26 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { groupName } from '@openpeepshq/common/lib';
 import { useCurrentProfile, useOpenpeeps } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { GroupFeed, GroupHeader } from '~/components/groups';
+import { GenericHeader } from '../../components/custom/index';
+import { GroupFeed, GroupHeader } from '../../components/groups/index';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '~/components/navigation/types';
-import { EventsFeed, NewEventButton, NewNoteButton } from '~/components/post';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
-import { truncateText } from '~/lib/utils';
+} from '../../components/navigation/types/index';
+import {
+  EventsFeed,
+  NewEventButton,
+  NewNoteButton,
+} from '../../components/post/index';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '../../components/ui/tabs';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
+import { truncateText } from '../../lib/utils';
 import { GroupInfoAsComponent } from './Info';
 
 type GroupProps = CompositeScreenProps<
