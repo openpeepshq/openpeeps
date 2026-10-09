@@ -2058,6 +2058,8 @@
       "nameDescription": "This appears in the browser title bar and in email subjects and represents the name of your community.",
       "tagline": "Community Tagline",
       "taglineDescription": "This appears on the sign up page and provides a brief description of your community.",
+      "robotsDisallow": "Blocked paths for search engines",
+      "robotsDisallowDescription": "One path per line. Leave empty for the standard block list of logged-out surfaces.",
       "save": "Save Changes",
       "themeDescription": "Choose the default theme shown to people when they visit your community.",
       "authBackground": "Signup Page Image",

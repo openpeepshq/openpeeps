@@ -407,6 +407,10 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       /** Adds member profile pages to the sitemap. Off by default: a crawled
        *  profile is cached by search engines long after the member leaves. */
       indexProfiles: z.boolean().optional(),
+      /** robots.txt Disallow list for public communities. Unset keeps the
+       *  server default (logged-out surfaces only — public feeds stay
+       *  indexable); an explicit list replaces the default entirely. */
+      robotsDisallow: z.string().array().optional(),
     }),
     roles: z.object({
       onRegistration: z.object({
