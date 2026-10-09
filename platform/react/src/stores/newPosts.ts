@@ -56,6 +56,21 @@ export const defaultNewArticle = (publicContent = false): PostCreationData => ({
   data: { type: 'article', content: '' },
 });
 
+export const defaultNewResource = (
+  publicContent = false,
+): PostCreationData => ({
+  type: 'resource',
+  visibility: defaultVisibility(publicContent),
+  data: {
+    type: 'resource',
+    title: '',
+    content: '',
+    resourceKind: 'link',
+    tags: [],
+    categoryPath: [],
+  },
+});
+
 export const eventSanitizer = (publicContent = false) => {
   const def = defaultNewEvent(publicContent);
   return (event: PostCreationData): PostCreationData => {
@@ -102,6 +117,10 @@ const ensureInitialized = (publicContent = false): NewPostsState => {
     'new-article-state',
     defaultNewArticle(publicContent),
   );
+  const resource = persistedStore(
+    'new-resource-state',
+    defaultNewResource(publicContent),
+  );
   const note = persistedStore('new-note-state', defaultNewNote(publicContent));
   const question = persistedStore(
     'new-question-state',
@@ -130,6 +149,13 @@ const ensureInitialized = (publicContent = false): NewPostsState => {
       article.set(v);
     },
     resetNewArticleState: () => article.reset(),
+    get resource() {
+      return resource.get();
+    },
+    set resource(v: PostCreationData) {
+      resource.set(v);
+    },
+    resetNewResourceState: () => resource.reset(),
     get note() {
       return note.get();
     },
@@ -147,7 +173,7 @@ const ensureInitialized = (publicContent = false): NewPostsState => {
   };
 
   // wire subscribe so React `useNewPostStores` can re-render on writes
-  internalStores = { jam, event, article, note, question };
+  internalStores = { jam, event, article, resource, note, question };
   return initialized;
 };
 
@@ -156,6 +182,7 @@ let internalStores:
       jam: ReturnType<typeof persistedStore<PostCreationData>>;
       event: ReturnType<typeof persistedStore<PostCreationData>>;
       article: ReturnType<typeof persistedStore<PostCreationData>>;
+      resource: ReturnType<typeof persistedStore<PostCreationData>>;
       note: ReturnType<typeof persistedStore<PostCreationData>>;
       question: ReturnType<typeof persistedStore<PostCreationData>>;
     }
@@ -169,13 +196,14 @@ export const getNewPostStores = (): NewPostsState => ensureInitialized();
 
 export const useNewPostStores = (): NewPostsState => {
   ensureInitialized();
-  // Subscribe to all five sub-stores so any write triggers a re-render.
+  // Subscribe to all composer sub-stores so any write triggers a re-render.
   useSyncExternalStore(
     (l) => {
       const subs = [
         internalStores!.jam.subscribe(l),
         internalStores!.event.subscribe(l),
         internalStores!.article.subscribe(l),
+        internalStores!.resource.subscribe(l),
         internalStores!.note.subscribe(l),
         internalStores!.question.subscribe(l),
       ];
@@ -234,6 +262,9 @@ export const resetStore = (type: PostType) => {
       return;
     case 'article':
       stores.resetNewArticleState();
+      return;
+    case 'resource':
+      stores.resetNewResourceState();
       return;
     default:
       return;

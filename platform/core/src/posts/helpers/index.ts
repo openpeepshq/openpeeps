@@ -65,10 +65,12 @@ const getTags = (text?: string) => {
 };
 
 export const extractHashtags = (data: PostDataUnion) => {
-  switch (data.type) {
-    default:
-      return getTags(data?.content);
-  }
+  const fromContent = getTags(data?.content);
+  if (data.type !== 'resource') return fromContent;
+  const fromTags = (data.tags ?? []).map((tag) =>
+    normalizeHashtagTag(tag.replace(/^#/, '')),
+  );
+  return [...new Set([...fromContent, ...fromTags])];
 };
 
 export const extractMentionHandles = (text?: string): string[] =>

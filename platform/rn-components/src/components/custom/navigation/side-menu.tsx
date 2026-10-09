@@ -19,6 +19,7 @@ import {
   SettingsIcon,
   UsersIcon,
   XIcon,
+  LibraryIcon,
 } from '../../icons/index';
 import { ThemedText } from '../../ui/themed-text';
 import { useWindowSize } from '../../../hooks/helper';
@@ -43,8 +44,8 @@ const menuIcons: Record<string, React.ComponentType<LucideProps>> = {
   members: BookUserIcon,
   bookmarks: BookmarkIcon,
   settings: SettingsIcon,
+  resources: LibraryIcon,
 };
-
 interface SideMenuProps {
   handleNavigation: ({
     target,

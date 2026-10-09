@@ -7,11 +7,13 @@ import {
   GroupFeed,
   GroupHeader,
   NewEventButton,
+  NewResourceButton,
   PostMarkdown,
   useCurrentProfile,
 } from '../../components';
 import { routeHandleParam } from '../../lib/routeHandles';
 import { LoadingSpinner } from '@openpeepshq/react-ui';
+import { ResourceLibrary } from '../../components/resources/ResourceLibrary';
 
 export function GroupShow() {
   const t = useT();
@@ -23,7 +25,9 @@ export function GroupShow() {
   const groupQuery = openpeepsApi.useGroupByHandle(handle);
   const group = groupQuery.data;
   const currentProfile = useCurrentProfile();
-  const [tab, setTab] = useState<'posts' | 'events' | 'description'>('posts');
+  const [tab, setTab] = useState<
+    'posts' | 'events' | 'resources' | 'description'
+  >('posts');
 
   const upcomingEvents = openpeepsApi.useGroupUpcomingEventsFeed(
     group?.id ?? '',
@@ -111,6 +115,20 @@ export function GroupShow() {
           {t('groups.sections.events', { defaultValue: 'Events' })}
         </TabButton>
         <TabButton
+          active={tab === 'resources'}
+          onClick={() => {
+            setTab('resources');
+            window.history.replaceState(
+              null,
+              '',
+              `${window.location.pathname}#resources`,
+            );
+          }}
+          testId="groups-tab-resources"
+        >
+          {t('groups.sections.resources', { defaultValue: 'Resources' })}
+        </TabButton>
+        <TabButton
           active={tab === 'description'}
           onClick={() => {
             setTab('description');
@@ -165,6 +183,17 @@ export function GroupShow() {
               />
             }
           />
+        </div>
+      )}
+
+      {tab === 'resources' && (
+        <div>
+          <NewResourceButton
+            visibility="group"
+            currentProfile={currentProfile}
+            group={group}
+          />
+          <ResourceLibrary groupId={group.id} />
         </div>
       )}
 

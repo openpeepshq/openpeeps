@@ -18,6 +18,7 @@ import {
   Explore,
   FeedsBookmarks,
   ArticlesIndex,
+  ResourcesIndex,
 } from '../../pages';
 import {
   HomeIcon,
@@ -27,6 +28,7 @@ import {
   UsersIcon,
   ScrollTextIcon,
   BellIcon,
+  LibraryIcon,
 } from '../icons';
 import { cn } from '../../lib/utils';
 import { useWindowSize } from '../../hooks';
@@ -65,6 +67,8 @@ const TabBarIcon = ({
       return <BellIcon className={iconClass} size={iconSize} />;
     case TAB_ROUTES.ARTICLES:
       return <ScrollTextIcon className={iconClass} size={iconSize} />;
+    case TAB_ROUTES.RESOURCES:
+      return <LibraryIcon className={iconClass} size={iconSize} />;
     default:
       return null;
   }
@@ -87,9 +91,6 @@ export const TabNavigator = () => {
   const unreadGroupPosts = Object.values(
     unseenCounts.data?.groups ?? {}
   ).reduce((sum, count) => sum + count, 0);
-  const unreadConversationThreads = Object.keys(
-    unseenCounts.data?.direct ?? {}
-  ).length;
   const unreadNotifications = notificationStats.data?.unseen ?? 0;
 
   const display = isMediumScreenOrLarger ? 'none' : 'flex';
@@ -168,6 +169,15 @@ export const TabNavigator = () => {
       <Tab.Screen
         name={TAB_ROUTES.ARTICLES}
         component={ArticlesIndex}
+        options={{
+          tabBarItemStyle: {
+            display: 'none',
+          },
+        }}
+      />
+      <Tab.Screen
+        name={TAB_ROUTES.RESOURCES}
+        component={ResourcesIndex}
         options={{
           tabBarItemStyle: {
             display: 'none',

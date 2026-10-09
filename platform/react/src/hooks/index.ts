@@ -80,6 +80,8 @@ export { useNewGroup } from './groups/useNewGroup';
 export { useGroupTemplateSelection } from './groups/useGroupTemplateSelection';
 export type { UseGroupTemplateSelectionArgs } from './groups/useGroupTemplateSelection';
 export { useNewArticle, useEditArticle } from './posts/useArticleComposer';
+export { useNewResource, useEditResource } from './posts/useResourceComposer';
+export { useResourceLibrary } from './resources/useResourceLibrary';
 export {
   useEventsCalendar,
   eventName as calendarEventName,

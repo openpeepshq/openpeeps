@@ -368,21 +368,33 @@ export const listPostsByType = async (
     limit = 100,
     filter,
     format,
+    groupId,
+    ungrouped,
   }: {
     start?: string;
     limit?: number;
     filter?: PgFilter<DbBasePost>;
     format?: string | null;
+    groupId?: string;
+    ungrouped?: boolean;
   } = {
     limit: 100,
   },
-) =>
-  toFilteredPostsList(
-    conversationFeed({ start, profile: authData.profile, format })
-      .filter(filter)
-      .filter({ matches: { type } }),
-    { authData, limit },
-  );
+) => {
+  let mapping = conversationFeed({
+    start,
+    profile: authData.profile,
+    format,
+  })
+    .filter(filter)
+    .filter({ matches: { type } });
+  if (groupId) {
+    mapping = mapping.filter(postFilters.inGroup(groupId));
+  } else if (ungrouped) {
+    mapping = mapping.filter(postFilters.notInAnyGroup());
+  }
+  return toFilteredPostsList(mapping, { authData, limit });
+};
 
 export const listPostsByTag = async (
   authData: AuthorizationData,

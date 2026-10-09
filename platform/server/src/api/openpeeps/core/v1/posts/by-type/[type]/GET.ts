@@ -12,6 +12,8 @@ export const Query = z.object({
   start: z.string().optional(),
   limit: z.coerce.number().optional(),
   format: z.enum(['threaded', 'linear']).optional(),
+  groupId: z.string().optional(),
+  ungrouped: z.coerce.boolean().optional(),
 });
 
 export const apiEndpoint = endpoint({ Output, Param, Query }).handle(

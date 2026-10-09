@@ -32,6 +32,9 @@ export const buildGoto =
       case 'articles':
         tabs('Articles');
         break;
+      case 'resources':
+        tabs('Resources');
+        break;
       case 'explore':
         tabs('Explore');
         break;

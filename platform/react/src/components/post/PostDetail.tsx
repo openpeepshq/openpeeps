@@ -4,6 +4,7 @@ import { FullNote } from './types/note/FullNote';
 import { FullArticle } from './types/article/FullArticle';
 import { FullPoll } from './types/poll/FullPoll';
 import { FullEvent } from './types/event/FullEvent';
+import { FullResource } from './types/resource/FullResource';
 import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export interface PostDetailProps {
@@ -38,6 +39,8 @@ export function PostDetail({ postId, occurrence }: PostDetailProps) {
   switch (post.type) {
     case 'article':
       return <FullArticle post={post} />;
+    case 'resource':
+      return <FullResource post={post} />;
     case 'event':
       return <FullEvent post={post} occurrence={occurrence} />;
     case 'question':

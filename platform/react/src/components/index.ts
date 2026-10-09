@@ -6,6 +6,7 @@ export * from './registry';
 export * from './form';
 export * from './profile';
 export * from './post';
+export * from './resources';
 export * from './markdown';
 export * from './notifications';
 export * from './groups';

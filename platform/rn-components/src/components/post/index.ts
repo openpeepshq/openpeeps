@@ -10,6 +10,7 @@ export * from './FullPostLayout';
 export * from './helpers';
 export * from './Markdown';
 export * from './NewEventButton';
+export * from './NewResourceButton';
 export * from './NewNoteButton';
 export * from './pieces';
 export * from './PinnedPost';

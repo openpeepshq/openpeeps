@@ -48,6 +48,7 @@ const overviewFixture: AnalyticsOverview = {
       note: 5,
       poll: 0,
       event: 1,
+      resource: 0,
     },
     {
       day: '2026-07-08',
@@ -57,6 +58,7 @@ const overviewFixture: AnalyticsOverview = {
       note: 8,
       poll: 1,
       event: 0,
+      resource: 0,
     },
   ],
   postTypes: [
@@ -65,6 +67,7 @@ const overviewFixture: AnalyticsOverview = {
     { type: 'jam', count: 5 },
     { type: 'poll', count: 3 },
     { type: 'event', count: 2 },
+    { type: 'resource', count: 0 },
   ],
   activeUsersSeries: [
     { day: '2026-07-01', label: 'W27', value: 20 },

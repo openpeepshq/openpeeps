@@ -117,6 +117,48 @@ export const firstNWords = (markdown: string | undefined, n: number) => {
   return firstTwelveWords.join(' ');
 };
 
+/**
+ * Truncates markdown to at most `maxBlocks` block-level regions, then to
+ * `maxChars` characters at a word boundary. Preserves punctuation and inline
+ * markdown formatting (links, bold, etc.). An ellipsis is appended only when
+ * the content was actually shortened.
+ */
+export const truncateMarkdown = (
+  markdown: string | undefined,
+  maxBlocks: number,
+  maxChars: number,
+): string => {
+  if (!markdown) return '';
+
+  const blocks = markdown
+    .replace(/\r\n/g, '\n')
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+
+  if (blocks.length === 0) return '';
+
+  const hadMoreBlocks = blocks.length > maxBlocks;
+  const content = blocks.slice(0, maxBlocks).join('\n\n');
+
+  if (content.length <= maxChars) {
+    return hadMoreBlocks ? `${content}…` : content;
+  }
+
+  const candidate = content.slice(0, maxChars);
+  const lastBreak = Math.max(
+    candidate.lastIndexOf(' '),
+    candidate.lastIndexOf('\n'),
+    candidate.lastIndexOf('\t'),
+  );
+
+  if (lastBreak > 0) {
+    return `${content.slice(0, lastBreak).trimEnd()}…`;
+  }
+
+  return `${candidate}…`;
+};
+
 /** Average adult reading speed (words per minute). */
 const DEFAULT_WORDS_PER_MINUTE = 210;
 

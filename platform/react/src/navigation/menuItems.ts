@@ -61,6 +61,12 @@ export const buildMainNavItems = (caps: MainMenuCapabilities): NavItemDef[] => {
       icon: 'ScrollText',
     },
     {
+      id: 'resources',
+      target: { type: 'resources' },
+      labelKey: 'navigation.resources',
+      icon: 'Library',
+    },
+    {
       id: 'messages',
       target: { type: 'conversation' },
       labelKey: 'navigation.messages',

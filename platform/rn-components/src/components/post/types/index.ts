@@ -6,3 +6,4 @@ export * from './note';
 export * from './Note';
 export * from './poll';
 export * from './Poll';
+export * from './resource/FullResource';

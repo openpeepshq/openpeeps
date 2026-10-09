@@ -45,6 +45,7 @@ const POST_TYPE_META = [
   { key: 'note' as const, label: 'Notes', color: '#9ca3af' },
   { key: 'poll' as const, label: 'Polls', color: '#d1d5db' },
   { key: 'event' as const, label: 'Events', color: '#6b7280' },
+  { key: 'resource' as const, label: 'Resources', color: '#374151' },
 ];
 
 const ENGAGEMENT_SERIES = [
@@ -343,6 +344,7 @@ const drawStackedBarChart = (
     note: number;
     poll: number;
     event: number;
+    resource: number;
   }>,
   height = 170,
 ) => {
@@ -351,7 +353,7 @@ const drawStackedBarChart = (
   const plotW = frame.w - pad.l - pad.r;
   const plotH = frame.h - pad.t - pad.b;
   const totals = points.map(
-    (p) => p.jam + p.article + p.note + p.poll + p.event,
+    (p) => p.jam + p.article + p.note + p.poll + p.event + p.resource,
   );
   const max = Math.max(1, ...totals);
   const barGap = 4;
@@ -884,7 +886,7 @@ const drawContentPage = (layout: Layout, overview: AnalyticsOverview) => {
     layout,
     overview.postsOverTime.map((p) => ({
       label: p.label,
-      value: p.jam + p.article + p.note + p.poll + p.event,
+      value: p.jam + p.article + p.note + p.poll + p.event + p.resource,
     })),
   );
 

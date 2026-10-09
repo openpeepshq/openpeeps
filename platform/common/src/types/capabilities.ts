@@ -83,6 +83,7 @@ export const groupCapabilities = [
   'core-posts-create-event',
   'core-posts-create-poll',
   'core-posts-create-article',
+  'core-posts-create-resource',
 ] as const;
 
 /** Caps an owner can toggle per relationship in the group editor. */
@@ -185,6 +186,10 @@ export const roleCapabilities = [
   'core-posts-create-article-public',
   'core-posts-create-article-direct',
   'core-posts-create-article-private',
+  'core-posts-create-resource-local',
+  'core-posts-create-resource-public',
+  'core-posts-create-resource-direct',
+  'core-posts-create-resource-private',
   'core-posts-read-local',
   'core-posts-announce',
   'core-posts-delete',

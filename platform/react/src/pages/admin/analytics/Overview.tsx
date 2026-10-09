@@ -25,6 +25,7 @@ const POST_TYPE_SERIES: Array<{
   { key: 'note', label: 'Notes', color: analyticsChartColor(2) },
   { key: 'poll', label: 'Polls', color: analyticsChartColor(3) },
   { key: 'event', label: 'Events', color: analyticsChartColor(4) },
+  { key: 'resource', label: 'Resources', color: analyticsChartColor(5) },
 ];
 
 const PostTypesList = ({
@@ -75,12 +76,13 @@ export const AnalyticsOverviewPage = () => {
 
   const stackedData = data.postsOverTime.map((p) => ({
     label: p.label,
-    value: p.jam + p.article + p.note + p.poll + p.event,
+    value: p.jam + p.article + p.note + p.poll + p.event + p.resource,
     jam: p.jam,
     article: p.article,
     note: p.note,
     poll: p.poll,
     event: p.event,
+    resource: p.resource,
   }));
 
   const activeUsersChart = data.activeUsersSeries.map((p) => ({
@@ -160,11 +162,20 @@ export const AnalyticsOverviewPage = () => {
           })}
           info={info(
             'postsOverTime',
-            'Posts created in each time bucket of the range, stacked by type (jams, articles, notes, polls, events).',
+            'Posts created in each time bucket of the range, stacked by type (jams, articles, notes, polls, events, resources).',
           )}
           csvFilename="posts-over-time.csv"
           csvRows={[
-            ['bucket', 'label', 'jam', 'article', 'note', 'poll', 'event'],
+            [
+              'bucket',
+              'label',
+              'jam',
+              'article',
+              'note',
+              'poll',
+              'event',
+              'resource',
+            ],
             ...data.postsOverTime.map((p) => [
               p.day,
               p.label,
@@ -173,6 +184,7 @@ export const AnalyticsOverviewPage = () => {
               p.note,
               p.poll,
               p.event,
+              p.resource,
             ]),
           ]}
         >

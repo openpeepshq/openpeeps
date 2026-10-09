@@ -6,6 +6,7 @@ import { FeedArticle } from './types/Article';
 import { FeedEvent } from './types/Event';
 import { FeedNote } from './types/Note';
 import { FeedPoll } from './types/Poll';
+import { ResourceCard } from '../resources/ResourceCard';
 
 export interface FeedPostContentProps {
   post: PublicPost;
@@ -38,6 +39,8 @@ export function FeedPostContent({ post }: FeedPostContentProps) {
       return <FeedEvent post={post} />;
     case 'article':
       return <FeedArticle post={post} />;
+    case 'resource':
+      return <ResourceCard post={post} />;
     default:
       return null;
   }
