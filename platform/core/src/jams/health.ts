@@ -8,7 +8,8 @@ const log = logger('app:jams:livekit');
 const LIVEKIT_HEALTH_ROOM = '__openpeeps_livekit_health__';
 const LIVEKIT_HEALTH_CACHE_KEY = 'livekit-health';
 
-export const LIVEKIT_HEALTH_TIMEOUT_MS = 1500;
+export const LIVEKIT_HEALTH_TIMEOUT_MS = 5000;
+export const LIVEKIT_HEALTH_MAX_ATTEMPTS = 3;
 
 const livekitHealthCache = createCache({
   ttl: 20 * 1000,
@@ -33,20 +34,26 @@ const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> =>
   });
 
 /**
- * True when a LiveKit RoomService call succeeds. Credentials in config are not
- * enough — invalid keys still construct a client, then fail on first RPC.
+ * True when a LiveKit RoomService call succeeds within maxAttempts. Retries so a
+ * single transient failure does not disable jams for a full /server/info bucket.
+ * Credentials in config are not enough — invalid keys fail on first RPC.
  */
 export const probeLivekitConnection = async (
   listRooms: () => Promise<unknown>,
   timeoutMs = LIVEKIT_HEALTH_TIMEOUT_MS,
+  maxAttempts = LIVEKIT_HEALTH_MAX_ATTEMPTS,
 ): Promise<boolean> => {
-  try {
-    await withTimeout(listRooms(), timeoutMs);
-    return true;
-  } catch (e) {
-    log.warn(`LiveKit health check failed: ${(e as Error).message}`);
-    return false;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      await withTimeout(listRooms(), timeoutMs);
+      return true;
+    } catch (e) {
+      log.warn(
+        `LiveKit health check failed (attempt ${attempt}/${maxAttempts}): ${(e as Error).message}`,
+      );
+    }
   }
+  return false;
 };
 
 /** Cached LiveKit reachability. False when unset, unauthorized, or unreachable. */
