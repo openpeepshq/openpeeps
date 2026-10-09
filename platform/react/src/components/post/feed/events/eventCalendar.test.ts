@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import type { PublicPost } from '@openpeepshq/common/types';
+import type {
+  EventOccurrenceException,
+  PublicPost,
+} from '@openpeepshq/common/types';
 import {
   agendaCoversRange,
   eventDayKeys,
+  expandRecurringAgendaPosts,
+  groupPostsByDay,
   monthCells,
   shouldFetchMoreAgenda,
 } from './eventCalendar';
@@ -64,6 +69,109 @@ describe('eventDayKeys', () => {
         eventPost('2026-09-23T00:00:00.000Z', '2026-09-25T00:00:00.000Z', true),
       ),
     ).toEqual(['2026-09-23', '2026-09-24', '2026-09-25']);
+  });
+});
+
+const weeklySeries = (exceptions?: EventOccurrenceException[]): PublicPost => {
+  const start = new Date(2026, 8, 8, 16, 0, 0, 0);
+  const end = new Date(2026, 8, 8, 17, 0, 0, 0);
+  return {
+    id: 'series',
+    data: {
+      type: 'event',
+      name: 'test test',
+      start: start.toISOString(),
+      end: end.toISOString(),
+      wholeDay: false,
+      recurrence: { freq: 'WEEKLY', count: 3 },
+      ...(exceptions ? { exceptions } : {}),
+    },
+    occurrenceRecurrenceId: start.toISOString(),
+    occurrenceStart: start.toISOString(),
+    occurrenceEnd: end.toISOString(),
+  } as PublicPost;
+};
+
+const dayKeys = (posts: PublicPost[]): string[] => [
+  ...groupPostsByDay(posts).keys(),
+];
+
+describe('expandRecurringAgendaPosts', () => {
+  const beforeSeries = new Date(2026, 8, 1, 12, 0, 0, 0);
+
+  it('places each weekly occurrence on its own date', () => {
+    const posts = expandRecurringAgendaPosts(
+      [weeklySeries()],
+      'upcoming',
+      beforeSeries,
+    );
+    expect(dayKeys(posts)).toEqual(['2026-09-08', '2026-09-15', '2026-09-22']);
+    expect(posts.map((post) => post.occurrenceRecurrenceId)).toEqual(
+      posts.map((post) => post.occurrenceStart),
+    );
+  });
+
+  it('keeps a one-off event on the agenda row', () => {
+    const start = new Date(2026, 8, 8, 16, 0, 0, 0);
+    const post = eventPost(start.toISOString(), undefined);
+    expect(
+      expandRecurringAgendaPosts([post], 'upcoming', beforeSeries),
+    ).toEqual([post]);
+  });
+
+  it('drops cancelled and out-of-window occurrences', () => {
+    const second = new Date(2026, 8, 15, 16, 0, 0, 0);
+    const posts = expandRecurringAgendaPosts(
+      [
+        weeklySeries([
+          {
+            recurrenceId: second.toISOString(),
+            cancelled: true,
+          },
+        ]),
+      ],
+      'upcoming',
+      new Date(2026, 8, 10, 12, 0, 0, 0),
+    );
+    expect(dayKeys(posts)).toEqual(['2026-09-22']);
+  });
+
+  it('shows only occurrences that have ended on the past calendar', () => {
+    const posts = expandRecurringAgendaPosts(
+      [weeklySeries()],
+      'past',
+      new Date(2026, 8, 16, 12, 0, 0, 0),
+    );
+    expect(dayKeys(posts)).toEqual(['2026-09-08', '2026-09-15']);
+  });
+
+  it('shows the occurrence in progress on the current calendar', () => {
+    const posts = expandRecurringAgendaPosts(
+      [weeklySeries()],
+      'current',
+      new Date(2026, 8, 15, 16, 30, 0, 0),
+    );
+    expect(dayKeys(posts)).toEqual(['2026-09-15']);
+  });
+
+  it('uses a moved occurrence date', () => {
+    const second = new Date(2026, 8, 15, 16, 0, 0, 0);
+    const movedStart = new Date(2026, 8, 16, 18, 0, 0, 0);
+    const movedEnd = new Date(2026, 8, 16, 19, 0, 0, 0);
+    const posts = expandRecurringAgendaPosts(
+      [
+        weeklySeries([
+          {
+            recurrenceId: second.toISOString(),
+            start: movedStart.toISOString(),
+            end: movedEnd.toISOString(),
+          },
+        ]),
+      ],
+      'upcoming',
+      beforeSeries,
+    );
+    expect(dayKeys(posts)).toEqual(['2026-09-08', '2026-09-16', '2026-09-22']);
   });
 });
 
