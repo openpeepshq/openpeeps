@@ -11,6 +11,7 @@ import {
   minutesToRead,
   preprocessMarkdownSource,
   toGotoUrl,
+  truncateMarkdown,
 } from '../markdownHelpers';
 
 const allowedHandles = [
@@ -199,6 +200,49 @@ describe('markdownPlainText', () => {
 describe('firstNWords', () => {
   it('returns the first n words', () => {
     expect(firstNWords('one two three four', 2)).toBe('one two');
+  });
+});
+
+describe('truncateMarkdown', () => {
+  it('preserves punctuation and inline markdown', () => {
+    const result = truncateMarkdown(
+      'Hello, world! This is a [link](http://x.com) test.',
+      1,
+      30,
+    );
+    expect(result).toBe('Hello, world! This is a…');
+  });
+
+  it('truncates to first N blocks with ellipsis when more exist', () => {
+    const md = 'First paragraph.\n\nSecond paragraph.\n\nThird paragraph.';
+    expect(truncateMarkdown(md, 2, 1000)).toBe(
+      'First paragraph.\n\nSecond paragraph.…',
+    );
+  });
+
+  it('returns content unchanged when within budget and no extra blocks', () => {
+    expect(truncateMarkdown('Short content here.', 2, 200)).toBe(
+      'Short content here.',
+    );
+  });
+
+  it('cuts at a word boundary within the character budget', () => {
+    const result = truncateMarkdown(
+      'This is a very long sentence that exceeds the limit',
+      1,
+      20,
+    );
+    expect(result).toBe('This is a very long…');
+  });
+
+  it('returns empty string for undefined or empty input', () => {
+    expect(truncateMarkdown(undefined, 1, 100)).toBe('');
+    expect(truncateMarkdown('', 1, 100)).toBe('');
+  });
+
+  it('handles content shorter than maxChars with extra blocks', () => {
+    const md = 'Keep this.\n\nAnd this too.';
+    expect(truncateMarkdown(md, 1, 200)).toBe('Keep this.…');
   });
 });
 

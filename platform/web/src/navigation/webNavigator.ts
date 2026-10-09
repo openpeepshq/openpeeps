@@ -70,6 +70,11 @@ export const createWebNavigator = (): Navigator => ({
         if (target.articleId) return `/articles/${target.articleId}/edit`;
         return '/articles';
       }
+      case 'resources': {
+        if (target.view === 'new') return '/resources/new';
+        if (target.resourceId) return `/resources/${target.resourceId}/edit`;
+        return '/resources';
+      }
       case 'members':
         return '/members';
       case 'notifications':
@@ -139,6 +144,9 @@ export const createWebNavigator = (): Navigator => ({
     if (pathname === '/events/new') return { type: 'events', view: 'new' };
     if (pathname === '/articles') return { type: 'articles' };
     if (pathname === '/articles/new') return { type: 'articles', view: 'new' };
+    if (pathname === '/resources') return { type: 'resources' };
+    if (pathname === '/resources/new')
+      return { type: 'resources', view: 'new' };
     if (pathname === '/conversations') return { type: 'conversation' };
     if (pathname === '/conversations/new')
       return { type: 'conversation', view: 'new' };
@@ -176,6 +184,7 @@ export const createWebNavigator = (): Navigator => ({
           'jams',
           'events',
           'articles',
+          'resources',
           'groups',
           'conversations',
           'settings',

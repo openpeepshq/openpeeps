@@ -16,6 +16,7 @@ import {
   Home,
   KeyRound,
   LayoutDashboard,
+  Library,
   LogOut,
   MailOpen,
   MessageSquareText,
@@ -202,6 +203,9 @@ export function AppSideBarMainMenu() {
       </NavItem>
       <NavItem to={href({ type: 'articles' })} icon={ScrollText}>
         {t('navigation.articles')}
+      </NavItem>
+      <NavItem to={href({ type: 'resources' })} icon={Library}>
+        {t('navigation.resources')}
       </NavItem>
       <NavItem
         to={href({ type: 'conversation' })}

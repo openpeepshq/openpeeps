@@ -21,6 +21,7 @@ export type NavTarget =
   | { type: 'jams'; view?: 'my' }
   | { type: 'events'; view?: 'my' | 'new'; eventId?: string }
   | { type: 'articles'; view?: 'new'; articleId?: string }
+  | { type: 'resources'; view?: 'new'; resourceId?: string }
   | { type: 'members' }
   | { type: 'notifications' }
   | { type: 'tags'; hashtag: string }

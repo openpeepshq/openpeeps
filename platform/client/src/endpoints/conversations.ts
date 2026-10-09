@@ -5,8 +5,24 @@ import type {
   SuccessResponse,
 } from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
+import type {
+  OpenpeepsNoPayloadEndpoint,
+  OpenpeepsPayloadEndpoint,
+} from '../types';
 
-export const conversations = (rawClient: FetchClient) => ({
+type Conversations = {
+  list: OpenpeepsNoPayloadEndpoint<PublicPost[][]>;
+  findById: OpenpeepsNoPayloadEndpoint<PublicPost[], { id: string }>;
+  newPost: OpenpeepsPayloadEndpoint<
+    PublicPost,
+    PostCreationData,
+    { id: string }
+  >;
+  leave: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  archived: OpenpeepsNoPayloadEndpoint<PublicPost[][]>;
+};
+
+export const conversations = (rawClient: FetchClient): Conversations => ({
   list: allpeepNoPayloadEndpoint<PublicPost[][]>(rawClient, '/conversations'),
   findById: allpeepNoPayloadEndpoint<PublicPost[], { id: string }>(
     rawClient,

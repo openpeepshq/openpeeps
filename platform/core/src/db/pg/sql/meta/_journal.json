@@ -113,6 +113,13 @@
       "when": 1790593758508,
       "tag": "0015_profile_hashtags",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1791620000000,
+      "tag": "0016_posts_search_vector_title_tags_path",
+      "breakpoints": true
     }
   ]
 }

@@ -7,6 +7,7 @@ import { FullNote } from './types/note/FullNote';
 import { FullArticle } from './types/article/FullArticle';
 import { FullPoll } from './types/poll/FullPoll';
 import { FullEvent } from './types/event/FullEvent';
+import { FullResource } from './types/resource/FullResource';
 
 export interface PostDetailProps {
   postId: string;
@@ -41,6 +42,8 @@ export const PostDetail = ({ postId, occurrence }: PostDetailProps) => {
   switch (post.type) {
     case 'article':
       return <FullArticle post={post} />;
+    case 'resource':
+      return <FullResource post={post} />;
     case 'event':
       return <FullEvent post={post} occurrence={occurrence} />;
     case 'question':

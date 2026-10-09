@@ -11,6 +11,7 @@ import {
   ChevronsUpDown,
   EyeOff,
   Eye,
+  ImageOff,
   Home,
   Newspaper,
   PhoneCall,
@@ -116,6 +117,7 @@ import {
   FileSpreadsheet,
   FileChartPie,
   ScrollText,
+  Library,
   Bookmark,
   BookmarkPlus,
   BookmarkMinus,
@@ -136,6 +138,8 @@ import {
   SendHorizontal,
   SmilePlus,
   LayoutGrid,
+  LayoutList,
+  ExternalLink,
   PinOff,
 } from 'lucide-react-native';
 
@@ -152,6 +156,7 @@ export const ChevronUpIcon = iconWithClassName(ChevronUp);
 export const ChevronsUpDownIcon = iconWithClassName(ChevronsUpDown);
 export const EyeOffIcon = iconWithClassName(EyeOff);
 export const EyeOnIcon = iconWithClassName(Eye);
+export const ImageOffIcon = iconWithClassName(ImageOff);
 export const HomeIcon = iconWithClassName(Home);
 export const NewspaperIcon = iconWithClassName(Newspaper);
 export const PhoneCallIcon = iconWithClassName(PhoneCall);
@@ -258,6 +263,7 @@ export const FileSpreadsheetIcon = iconWithClassName(FileSpreadsheet);
 export const FileChartPieIcon = iconWithClassName(FileChartPie);
 export const GlobeIcon = iconWithClassName(Globe);
 export const ScrollTextIcon = iconWithClassName(ScrollText);
+export const LibraryIcon = iconWithClassName(Library);
 export const BookmarkIcon = iconWithClassName(Bookmark);
 export const BookmarkMinusIcon = iconWithClassName(BookmarkMinus);
 export const BookmarkPlusIcon = iconWithClassName(BookmarkPlus);
@@ -277,5 +283,7 @@ export const WifiOffIcon = iconWithClassName(WifiOff);
 export const VolumeXIcon = iconWithClassName(VolumeX);
 export const SendHorizontalIcon = iconWithClassName(SendHorizontal);
 export const LayoutGridIcon = iconWithClassName(LayoutGrid);
+export const LayoutListIcon = iconWithClassName(LayoutList);
+export const ExternalLinkIcon = iconWithClassName(ExternalLink);
 export const PinOffIcon = iconWithClassName(PinOff);
 export const SmilePlusIcon = iconWithClassName(SmilePlus);

@@ -86,6 +86,16 @@ export const postFilters = {
 
   type: (type: string): SqlFilter => pgSql(eq(posts.type, type)),
 
+  inGroup: (groupId: string): SqlFilter =>
+    pgSql(
+      sql`EXISTS (SELECT 1 FROM ${postGroups} WHERE ${postGroups.fromId} = ${posts.id}::text AND ${postGroups.toId} = ${groupId})`,
+    ),
+
+  notInAnyGroup: (): SqlFilter =>
+    pgSql(
+      sql`NOT EXISTS (SELECT 1 FROM ${postGroups} WHERE ${postGroups.fromId} = ${posts.id}::text)`,
+    ),
+
   replyCount: (
     op: '==' | '!=' | '>' | '>=' | '<' | '<=',
     count: number,

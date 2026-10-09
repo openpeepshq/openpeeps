@@ -745,6 +745,9 @@ export const chronologicalInfiniteQueryParamsSchema = z.object({
   start: z.string().optional(),
   limit: z.coerce.number().optional(),
   format: z.enum(['threaded', 'linear']).optional(),
+  groupId: z.string().optional(),
+  /** Query-string flag; fetch params only allow string | number. */
+  ungrouped: z.literal('true').optional(),
 });
 export type ChronologicalInfiniteQueryParams =
   | z.infer<typeof chronologicalInfiniteQueryParamsSchema>

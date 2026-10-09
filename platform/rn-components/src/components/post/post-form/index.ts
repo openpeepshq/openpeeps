@@ -1,4 +1,5 @@
 export * from './ArticleForm';
+export * from './ResourceForm';
 export * from './ArticlePreviewSheet';
 export * from './AttachmentCard';
 export * from './ComposeAttachments';

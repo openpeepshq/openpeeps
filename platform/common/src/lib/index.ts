@@ -12,6 +12,7 @@ export * from './groupTemplateHelpers';
 export * from './colors';
 export * from './markdownHelpers';
 export * from './attachmentHelpers';
+export * from './resources';
 export * from './eventIcs';
 export * from './eventTime';
 export * from './timeZone';

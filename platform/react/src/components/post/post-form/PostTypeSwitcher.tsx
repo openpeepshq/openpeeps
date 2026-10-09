@@ -1,6 +1,7 @@
 import {
   CalendarDays,
   ChartColumnBig,
+  Library,
   Notebook,
   ScrollText,
 } from 'lucide-react';
@@ -43,13 +44,20 @@ export function PostTypeSwitcher({
   const me = useCurrentProfile();
   const isOwner = Boolean(me?.roles?.some((role) => role.key === 'owner'));
 
-  const goto = (path: '/articles/new' | '/events/new') => {
+  const goto = (path: '/articles/new' | '/events/new' | '/resources/new') => {
     const stores = getNewPostStores();
     if (path === '/articles/new') {
       stores.article = {
         ...stores.article,
         type: 'article',
         visibility: visibility ?? stores.article.visibility,
+        groupId,
+      };
+    } else if (path === '/resources/new') {
+      stores.resource = {
+        ...stores.resource,
+        type: 'resource',
+        visibility: visibility ?? stores.resource.visibility,
         groupId,
       };
     } else {
@@ -107,6 +115,16 @@ export function PostTypeSwitcher({
           <ScrollText className="size-5" />
         </Button>
       ) : null}
+      <Button
+        compact
+        variant="ghost"
+        title={t('posts.switcher.resource', {
+          defaultValue: 'Add a resource',
+        })}
+        action={() => goto('/resources/new')}
+      >
+        <Library className="size-5" />
+      </Button>
     </div>
   );
 }

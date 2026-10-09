@@ -404,8 +404,23 @@ export const visibilityTypeSchema = z.enum(visibilityTypeValues);
 
 export type VisibilityType = z.infer<typeof visibilityTypeSchema>;
 
-export const postTypeSchema = z.enum(['note', 'question', 'event', 'article']);
+export const postTypeSchema = z.enum([
+  'note',
+  'question',
+  'event',
+  'article',
+  'resource',
+]);
 export type PostType = z.infer<typeof postTypeSchema>;
+
+export const resourceKindSchema = z.enum([
+  'video',
+  'file',
+  'gallery',
+  'audio',
+  'link',
+]);
+export type ResourceKind = z.infer<typeof resourceKindSchema>;
 
 export const mediaAttachmentStatusSchema = z.enum([
   'processing',
@@ -508,6 +523,18 @@ export const articleSchema = noteSchema
 
 export type Article = z.infer<typeof articleSchema>;
 
+export const resourcePostSchema = noteSchema
+  .extend({
+    type: z.literal('resource'),
+    title: z.string(),
+    tags: z.array(z.string().min(1)).optional(),
+    categoryPath: z.array(z.string().min(1)).optional(),
+    resourceKind: resourceKindSchema,
+    url: z.url().optional(),
+  })
+  .openapi('ResourcePost');
+export type ResourcePost = z.infer<typeof resourcePostSchema>;
+
 export const eventIsoDatetimeSchema = z.iso.datetime({
   offset: true,
   precision: 3,
@@ -583,6 +610,7 @@ export const postDataUnionSchema = z.discriminatedUnion('type', [
   questionSchema,
   eventSchema,
   articleSchema,
+  resourcePostSchema,
 ]);
 
 export type PostDataUnion = z.infer<typeof postDataUnionSchema>;

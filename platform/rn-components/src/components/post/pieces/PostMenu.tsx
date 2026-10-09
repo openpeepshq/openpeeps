@@ -14,12 +14,12 @@ import {
 } from '../../icons/index';
 import { PopupMenu, PopupMenuButton, PopupSeparator } from '../../ui';
 import { useOpenpeeps } from '@openpeepshq/react';
-import {
-  checkGroupCapabilities,
-  checkPostCapabilities,
-} from '@openpeepshq/common';
+import { checkGroupCapabilities } from '@openpeepshq/common';
 import { checkRoleCapabilities } from '@openpeepshq/common/lib';
 import type { PublicPost } from '@openpeepshq/common/types';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { MainStackParamList } from '../../navigation/types';
 import { useEditPostModal } from '../post-form/EditPostModalContext';
 import { useTranslation } from 'react-i18next';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -27,8 +27,6 @@ import { DeletePostModal } from './modals/DeletePostModal';
 import { ReportProfileOrPostModal } from '../../profile/ReportProfileOrPostModal';
 import { RepostModal } from './modals/RepostModal';
 import { ReactionsModal } from './modals/ReactionsModal';
-import { BASE_URL } from '../../../lib/constants';
-import { truncateText } from '../../../lib/utils';
 import Toast from 'react-native-toast-message';
 
 export interface PostMenuProps {
@@ -38,11 +36,13 @@ export interface PostMenuProps {
 
 export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
   const { t } = useTranslation();
-  const { openpeepsApi, queryClient } = useOpenpeeps();
+  const { openpeepsApi } = useOpenpeeps();
   const { data: currentProfile, refetch: refetchCurrentProfile } =
     openpeepsApi.useCurrentProfile();
   const deleteMessageModalRef = useRef<BottomSheetModal>(null);
   const { openEditPost } = useEditPostModal();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const reportProfileModalRef = useRef<BottomSheetModal>(null);
   const reportPostModalRef = useRef<BottomSheetModal>(null);
 
@@ -253,7 +253,7 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
   useEffect(() => {
     setIsFollowing(isCurrentProfileFollowing || false);
     refetchBookmarkedIds();
-  }, [currentProfile, post, refetchBookmarkedIds]);
+  }, [currentProfile, isCurrentProfileFollowing, post, refetchBookmarkedIds]);
 
   return (
     <View key={post.id}>
@@ -347,7 +347,13 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
               title={t('common.actions.edit', { defaultValue: 'Edit' })}
               text={t('common.actions.edit', { defaultValue: 'Edit' })}
               icon={PencilIcon}
-              action={() => openEditPost(post)}
+              action={() => {
+                if (post.data?.type === 'resource') {
+                  navigation.navigate('EditResource', { id: post.id });
+                  return;
+                }
+                openEditPost(post);
+              }}
             />
           </>
         ) : null}

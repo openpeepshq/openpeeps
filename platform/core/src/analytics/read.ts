@@ -31,7 +31,14 @@ import {
 import { metricCard, sumSeries, averageSeries } from './metrics';
 import { isPublicAnalyticsGroup } from './privacy';
 
-const POST_TYPE_KEYS = ['jam', 'article', 'note', 'poll', 'event'] as const;
+const POST_TYPE_KEYS = [
+  'jam',
+  'article',
+  'note',
+  'poll',
+  'event',
+  'resource',
+] as const;
 
 const todayString = () =>
   formatISO(startOfDay(new Date()), { representation: 'date' });
@@ -492,6 +499,7 @@ const loadPostsByTypeDaily = async (from: string, to: string) => {
         when type = 'question' then 'poll'
         when type = 'article' then 'article'
         when type = 'event' then 'event'
+        when type = 'resource' then 'resource'
         else 'note'
       end as kind,
       count(*)::int as c
@@ -667,7 +675,9 @@ const topPostsByViews = async (from: string, to: string, limit = 10) => {
         ? 'jam'
         : r.type === 'question'
           ? 'poll'
-          : (r.type ?? 'note');
+          : r.type === 'resource'
+            ? 'resource'
+            : (r.type ?? 'note');
     const profileBody = (r.profileBody ?? {}) as {
       displayName?: string;
       name?: string;
@@ -785,6 +795,7 @@ export const getAnalyticsOverview = async (
         note: 0,
         poll: 0,
         event: 0,
+        resource: 0,
       };
       for (const day of eachUtcDay(bucket.from, bucket.to)) {
         const dayMap = dailyByType.get(day);
@@ -1126,11 +1137,16 @@ export const exportAnalyticsCsv = async (
 ): Promise<string> => {
   const overview = await getAnalyticsOverview(query);
   const lines = [
-    'bucket,label,active_members,posts,jams,articles,notes,polls,events',
+    'bucket,label,active_members,posts,jams,articles,notes,polls,events,resources',
     ...overview.activeUsersSeries.map((p, i) => {
       const posts = overview.postsOverTime[i];
       const postTotal = posts
-        ? posts.jam + posts.article + posts.note + posts.poll + posts.event
+        ? posts.jam +
+          posts.article +
+          posts.note +
+          posts.poll +
+          posts.event +
+          posts.resource
         : 0;
       return [
         p.day,
@@ -1142,6 +1158,7 @@ export const exportAnalyticsCsv = async (
         posts?.note ?? 0,
         posts?.poll ?? 0,
         posts?.event ?? 0,
+        posts?.resource ?? 0,
       ].join(',');
     }),
   ];
