@@ -109,6 +109,8 @@ const compactThumb = (post: CompactPost, t: TFunction): ReactNode => {
       if (!article.image) return null;
       return <CompactThumb src={article.image} alt={article.title ?? alt} />;
     }
+    case 'resource':
+      return attachmentThumb(attachmentsOf(post), alt);
     default:
       return null;
   }
@@ -209,6 +211,12 @@ const CompactTypeBody = ({ post, t }: { post: CompactPost; t: TFunction }) => {
       return <CompactEventBody post={post} />;
     case 'article':
       return <CompactArticleBody post={post} />;
+    case 'resource': {
+      const title =
+        post.data?.type === 'resource' ? post.data.title.trim() : '';
+      if (!title) return null;
+      return <p className="line-clamp-2 text-sm font-medium">{title}</p>;
+    }
     default:
       return null;
   }

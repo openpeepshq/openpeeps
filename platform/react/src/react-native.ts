@@ -75,6 +75,7 @@ export {
   useNewPostStores,
   resetStore,
   defaultNewArticle,
+  defaultNewResource,
   defaultNewEvent,
   defaultNewNote,
   defaultNewQuestion,

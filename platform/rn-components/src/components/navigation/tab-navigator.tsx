@@ -18,6 +18,7 @@ import {
   Explore,
   FeedsBookmarks,
   ArticlesIndex,
+  ResourcesIndex,
 } from '../../pages';
 import {
   HomeIcon,
@@ -26,6 +27,7 @@ import {
   MessageSquareTextIcon,
   UsersIcon,
   ScrollTextIcon,
+  LibraryIcon,
 } from '../icons';
 import { cn } from '../../lib/utils';
 import { useWindowSize } from '../../hooks';
@@ -63,6 +65,8 @@ const TabBarIcon = ({
       return <MessageSquareTextIcon className={iconClass} size={iconSize} />;
     case TAB_ROUTES.ARTICLES:
       return <ScrollTextIcon className={iconClass} size={iconSize} />;
+    case TAB_ROUTES.RESOURCES:
+      return <LibraryIcon className={iconClass} size={iconSize} />;
     default:
       return null;
   }
@@ -164,6 +168,15 @@ export const TabNavigator = () => {
       <Tab.Screen
         name={TAB_ROUTES.ARTICLES}
         component={ArticlesIndex}
+        options={{
+          tabBarItemStyle: {
+            display: 'none',
+          },
+        }}
+      />
+      <Tab.Screen
+        name={TAB_ROUTES.RESOURCES}
+        component={ResourcesIndex}
         options={{
           tabBarItemStyle: {
             display: 'none',

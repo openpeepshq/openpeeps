@@ -137,6 +137,7 @@
     "myEvents": "My Events",
     "explore": "Explore",
     "articles": "Articles",
+    "resources": "Resources",
     "bookmarks": "Bookmarks",
     "conversations": "Messages",
     "primaryMobile": "Primary",
@@ -584,7 +585,8 @@
       "note": "Write Note",
       "event": "Create an Event",
       "poll": "Add Poll",
-      "article": "Write Article"
+      "article": "Write Article",
+      "resource": "Add a resource"
     },
     "unpinGlobally": {
       "title": "Unpin from feed",
@@ -700,6 +702,7 @@
       "label": "Group sections",
       "posts": "Posts",
       "events": "Events",
+      "resources": "Resources",
       "description": "Description"
     },
     "eventsTabs": {
@@ -1754,7 +1757,7 @@
         "dms": "Direct-message posts created during the selected range.",
         "uniqueViewers": "Sum of daily unique post viewers across the range (a person viewing on multiple days can count more than once).",
         "impressions": "Total post view events (impressions) during the selected range.",
-        "postsOverTime": "Posts created in each time bucket of the range, stacked by type (jams, articles, notes, polls, events).",
+        "postsOverTime": "Posts created in each time bucket of the range, stacked by type (jams, articles, notes, polls, events, resources).",
         "postTypes": "Total posts in the range broken down by type.",
         "activeUsers": "Active members per time bucket in the selected range.",
         "topMembers": "Members ranked by contributions in the range: posts created plus reactions and replies given.",
@@ -1764,7 +1767,7 @@
         "signupsByDay": "New member profiles created on each calendar day in the selected range. Darker cells mean more signups.",
         "recentSignups": "Most recent member profiles created in the selected range, with signup channel when known.",
         "postsByPeriod": "Total posts created in each time bucket of the selected range.",
-        "contentDistribution": "Share of posts in the range by type (events, jams, articles, notes, polls).",
+        "contentDistribution": "Share of posts in the range by type (events, jams, articles, notes, polls, resources).",
         "engagementOverTime": "Likes, shares (reposts), bookmarks, replies, and direct messages aggregated into each time bucket. \"All metrics\" stacks them together.",
         "viewsByPeriod": "Post view events (impressions) summed into each time bucket of the range.",
         "engagementRateBreakdown": "Per-action rates for the range: each action count divided by impressions, as a percentage. Overall = (likes + shares + bookmarks + comments) / impressions.",
@@ -3379,6 +3382,53 @@
     },
     "update": {
       "title": "Update article"
+    }
+  },
+  "resources": {
+    "new": "New resource",
+    "edit": "Edit resource",
+    "notFound": "Resource not found",
+    "kinds": {
+      "video": "Video",
+      "file": "File",
+      "gallery": "Gallery",
+      "audio": "Audio",
+      "link": "Link"
+    },
+    "form": {
+      "title": "New resource",
+      "name": "Title",
+      "kind": "Type",
+      "url": "URL",
+      "addMedia": "Add files",
+      "descriptionPlaceholder": "Describe this resource",
+      "tags": "Tags",
+      "tagsPlaceholder": "Add tags, then press Enter",
+      "hierarchy": "Place in the library",
+      "uncategorized": "Uncategorized",
+      "addLevel": "Add a folder",
+      "addLevelAction": "Add",
+      "clearPath": "Clear",
+      "visibility": "Who can see this (Required)",
+      "visibilityNotChangeable": "Once you post your resource, you can't change the visibility"
+    },
+    "create": {
+      "title": "Create resource"
+    },
+    "update": {
+      "title": "Update resource"
+    },
+    "library": {
+      "search": "Search resources",
+      "allKinds": "All",
+      "hierarchy": "Hierarchy",
+      "allFolders": "All folders",
+      "empty": "No resources yet."
+    },
+    "validation": {
+      "titleRequired": "Title is required",
+      "mediaRequired": "Add the media or link this resource needs",
+      "directAudience": "Choose at least one recipient for a direct resource."
     }
   },
   "about": {

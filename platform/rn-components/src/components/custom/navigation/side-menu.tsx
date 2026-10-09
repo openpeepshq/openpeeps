@@ -18,6 +18,7 @@ import {
   XIcon,
   SearchIcon,
   ScrollTextIcon,
+  LibraryIcon,
   BookmarkIcon,
 } from '~/components/icons';
 import { ThemedText } from '~/components/ui/themed-text';
@@ -67,6 +68,10 @@ const menuItems: MenuItem[] = [
   {
     icon: ScrollTextIcon,
     target: 'articles',
+  },
+  {
+    icon: LibraryIcon,
+    target: 'resources',
   },
   {
     icon: MessageSquareTextIcon,

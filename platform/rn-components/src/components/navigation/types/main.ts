@@ -87,6 +87,10 @@ export type MainStackParamList = {
   EditArticle: {
     id: string;
   };
+  NewResource: undefined;
+  EditResource: {
+    id: string;
+  };
   MyEvents: undefined;
   About: undefined;
   CodeOfConduct: undefined;
@@ -137,6 +141,8 @@ export const MAIN_ROUTES = {
   EDIT_GROUP_ROLES: 'EditGroupRoles',
   NEW_ARTICLE: 'NewArticle',
   EDIT_ARTICLE: 'EditArticle',
+  NEW_RESOURCE: 'NewResource',
+  EDIT_RESOURCE: 'EditResource',
   MY_EVENTS: 'MyEvents',
   ABOUT: 'About',
   CODE_OF_CONDUCT: 'CodeOfConduct',

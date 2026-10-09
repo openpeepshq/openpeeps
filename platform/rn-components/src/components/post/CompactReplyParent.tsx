@@ -103,6 +103,18 @@ const compactThumb = (post: CompactPost) => {
       if (!article.image) return null;
       return <CompactThumb src={article.image} />;
     }
+    case 'resource': {
+      const attachments = attachmentsOf(post);
+      const visual = visualAttachment(attachments);
+      if (!visual) return null;
+      return (
+        <CompactThumb
+          src={visual.previewUrl ?? visual.url}
+          video={isVideo(visual)}
+          extra={Math.max(0, attachments.length - 1)}
+        />
+      );
+    }
     default:
       return null;
   }
@@ -192,6 +204,16 @@ const CompactTypeBody = ({ post }: { post: CompactPost }) => {
     }
     case 'article': {
       const title = (post.data as Article).title?.trim();
+      if (!title) return null;
+      return (
+        <ThemedText className="text-sm font-medium" numberOfLines={2}>
+          {title}
+        </ThemedText>
+      );
+    }
+    case 'resource': {
+      const title =
+        post.data?.type === 'resource' ? post.data.title.trim() : '';
       if (!title) return null;
       return (
         <ThemedText className="text-sm font-medium" numberOfLines={2}>

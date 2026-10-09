@@ -135,6 +135,7 @@
     "myEvents": "Meine Veranstaltungen",
     "explore": "Entdecken",
     "articles": "Artikel",
+    "resources": "Ressourcen",
     "bookmarks": "Lesezeichen",
     "apiKeys": "API-Schlüssel",
     "database": "Datenbank",
@@ -578,7 +579,8 @@
       "note": "Notiz schreiben",
       "event": "Veranstaltung erstellen",
       "poll": "Umfrage hinzufügen",
-      "article": "Artikel schreiben"
+      "article": "Artikel schreiben",
+      "resource": "Ressource hinzufügen"
     },
     "unpinGlobally": {
       "title": "Vom Feed lösen",
@@ -686,6 +688,7 @@
     "sections": {
       "posts": "Beiträge",
       "events": "Veranstaltungen",
+      "resources": "Ressourcen",
       "description": "Beschreibung",
       "label": "Gruppenbereiche"
     },
@@ -3460,6 +3463,53 @@
     },
     "update": {
       "title": "Artikel aktualisieren"
+    }
+  },
+  "resources": {
+    "new": "Neue Ressource",
+    "edit": "Ressource bearbeiten",
+    "notFound": "Ressource nicht gefunden",
+    "kinds": {
+      "video": "Video",
+      "file": "Datei",
+      "gallery": "Galerie",
+      "audio": "Audio",
+      "link": "Link"
+    },
+    "form": {
+      "title": "Neue Ressource",
+      "name": "Titel",
+      "kind": "Typ",
+      "url": "URL",
+      "addMedia": "Dateien hinzufügen",
+      "descriptionPlaceholder": "Beschreiben Sie diese Ressource",
+      "tags": "Schlagwörter",
+      "tagsPlaceholder": "Schlagwörter hinzufügen, dann Enter drücken",
+      "hierarchy": "In der Bibliothek ablegen",
+      "uncategorized": "Ohne Kategorie",
+      "addLevel": "Ordner hinzufügen",
+      "addLevelAction": "Hinzufügen",
+      "clearPath": "Zurücksetzen",
+      "visibility": "Wer kann das sehen (Erforderlich)",
+      "visibilityNotChangeable": "Sobald Sie Ihre Ressource veröffentlicht haben, können Sie die Sichtbarkeit nicht mehr ändern"
+    },
+    "create": {
+      "title": "Ressource erstellen"
+    },
+    "update": {
+      "title": "Ressource aktualisieren"
+    },
+    "library": {
+      "search": "Ressourcen durchsuchen",
+      "allKinds": "Alle",
+      "hierarchy": "Hierarchie",
+      "allFolders": "Alle Ordner",
+      "empty": "Noch keine Ressourcen."
+    },
+    "validation": {
+      "titleRequired": "Titel ist erforderlich",
+      "mediaRequired": "Fügen Sie die Medien oder den Link hinzu, die diese Ressource braucht",
+      "directAudience": "Wählen Sie mindestens eine Empfängerin bzw. einen Empfänger für eine direkte Ressource."
     }
   },
   "about": {

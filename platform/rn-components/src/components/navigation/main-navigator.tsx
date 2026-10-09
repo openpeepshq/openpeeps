@@ -38,6 +38,8 @@ import {
   EditGroupRoles,
   NewArticle,
   EditArticle,
+  NewResource,
+  EditResource,
   EventsMy,
   About,
   CodeOfConduct,
@@ -140,6 +142,8 @@ export const MainNavigator = () => {
       <Stack.Screen name="EditGroupRoles" component={EditGroupRoles} />
       <Stack.Screen name="NewArticle" component={NewArticle} />
       <Stack.Screen name="EditArticle" component={EditArticle} />
+      <Stack.Screen name="NewResource" component={NewResource} />
+      <Stack.Screen name="EditResource" component={EditResource} />
       <Stack.Screen name="MyEvents" component={EventsMy} />
       <Stack.Screen name="About" component={About} />
       <Stack.Screen name="CodeOfConduct" component={CodeOfConduct} />

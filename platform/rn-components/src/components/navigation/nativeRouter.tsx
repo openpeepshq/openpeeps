@@ -144,6 +144,17 @@ export const navigateToTarget = (target: NavTarget) => {
         go('Main', { screen: 'TabNavigator', params: { screen: 'Articles' } });
       }
       break;
+    case 'resources':
+      if (target.view === 'new') go('Main', { screen: 'NewResource' });
+      else if (target.resourceId) {
+        go('Main', {
+          screen: 'EditResource',
+          params: { id: target.resourceId },
+        });
+      } else {
+        go('Main', { screen: 'TabNavigator', params: { screen: 'Resources' } });
+      }
+      break;
     case 'about':
       go('Main', { screen: 'About' });
       break;

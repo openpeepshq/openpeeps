@@ -47,6 +47,7 @@ export const testIds = {
     addMembersButton: 'groups-add-members-button',
     tabGroup: 'tab-group',
     tabEvents: 'groups-tab-events',
+    tabResources: 'groups-tab-resources',
     tabDescription: 'groups-tab-description',
     searchInput: 'groups-search-input',
   },
@@ -58,6 +59,15 @@ export const testIds = {
     createSubmit: 'events-create-submit',
     newEventButton: 'events-new-event-button',
     pageHeading: 'events-page-heading',
+  },
+  resources: {
+    pageHeading: 'resources-page-heading',
+    titleInput: 'resources-title',
+    urlInput: 'resources-url',
+    createSubmit: 'resources-submit',
+    searchInput: 'resources-search',
+    newButton: 'resources-new',
+    newResourceButton: 'resources-new-resource-button',
   },
   explore: {
     searchInput: 'explore-search-input',

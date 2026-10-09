@@ -24,7 +24,12 @@ const shardGroups = [
     'ui/group-visibility.test.ts',
     'ui/test.ts',
   ],
-  ['email-push/session-sse.test.ts', 'email-push/test.ts', 'ui/test.ts'],
+  [
+    'email-push/session-sse.test.ts',
+    'email-push/test.ts',
+    'ui/resource-creation.test.ts',
+    'ui/test.ts',
+  ],
   ['api/gaps/test.ts', 'ui/test.ts', 'user-actions/test.ts'],
 ];
 

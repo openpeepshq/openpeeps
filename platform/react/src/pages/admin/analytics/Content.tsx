@@ -23,6 +23,7 @@ const POST_TYPE_META: Array<{
   { key: 'article', label: 'Articles', color: analyticsChartColor(1) },
   { key: 'note', label: 'Notes', color: analyticsChartColor(2) },
   { key: 'poll', label: 'Polls', color: analyticsChartColor(3) },
+  { key: 'resource', label: 'Resources', color: analyticsChartColor(5) },
 ];
 
 const utcDayCount = (from: string, to: string) => {
@@ -121,7 +122,7 @@ export const AnalyticsContentPage = () => {
 
   const postsByPeriod = data.postsOverTime.map((p) => ({
     label: p.label,
-    value: p.jam + p.article + p.note + p.poll + p.event,
+    value: p.jam + p.article + p.note + p.poll + p.event + p.resource,
   }));
   const info = (key: string, defaultValue: string) =>
     t(`admin.analytics.info.${key}`, { defaultValue });

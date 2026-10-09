@@ -36,6 +36,8 @@ export interface NewPostsState {
   resetNewEventState: () => void;
   article: PostCreationData;
   resetNewArticleState: () => void;
+  resource: PostCreationData;
+  resetNewResourceState: () => void;
   note: PostCreationData;
   resetNewNoteState: () => void;
   question: PostCreationData;

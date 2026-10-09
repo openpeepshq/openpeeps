@@ -8,6 +8,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   CalendarDaysIcon,
   ChartColumnBigIcon,
+  LibraryIcon,
   NotebookIcon,
   ScrollTextIcon,
 } from '~/components/icons';
@@ -39,13 +40,20 @@ export const PostTypeSwitcher = ({
   const me = useCurrentProfile();
   const isOwner = Boolean(me?.roles?.some((role) => role.key === 'owner'));
 
-  const goto = (route: 'NewArticle' | 'NewEvent') => {
+  const goto = (route: 'NewArticle' | 'NewEvent' | 'NewResource') => {
     const stores = getNewPostStores();
     if (route === 'NewArticle') {
       stores.article = {
         ...stores.article,
         type: 'article',
         visibility: visibility ?? stores.article.visibility,
+        groupId,
+      };
+    } else if (route === 'NewResource') {
+      stores.resource = {
+        ...stores.resource,
+        type: 'resource',
+        visibility: visibility ?? stores.resource.visibility,
         groupId,
       };
     } else {
@@ -100,6 +108,16 @@ export const PostTypeSwitcher = ({
           onPress={() => goto('NewArticle')}
         >
           <ScrollTextIcon className="text-foreground" size={20} />
+        </Button>
+      ) : null}
+      {type !== 'resource' ? (
+        <Button
+          size="icon"
+          variant="ghost"
+          accessibilityLabel={t('posts.switcher.resource')}
+          onPress={() => goto('NewResource')}
+        >
+          <LibraryIcon className="text-foreground" size={20} />
         </Button>
       ) : null}
     </View>

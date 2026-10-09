@@ -67,6 +67,9 @@ import {
   JamsIndex,
   JamEvent,
   ArticlesIndex,
+  ResourcesIndex,
+  NewResource,
+  EditResource,
   ProfileFollowers,
   PublicProfileSettings,
   ThemeSettings,
@@ -253,6 +256,12 @@ const Articles = {
   Index: ArticlesIndex,
   New: NewArticle,
   Edit: EditArticle,
+};
+
+const Resources = {
+  Index: ResourcesIndex,
+  New: NewResource,
+  Edit: EditResource,
 };
 
 const Jams = {
@@ -506,6 +515,14 @@ function AppShell() {
                     <Route
                       path="/articles/:articleId/edit"
                       element={<Articles.Edit />}
+                    />
+
+                    {/* Resources */}
+                    <Route path="/resources" element={<Resources.Index />} />
+                    <Route path="/resources/new" element={<Resources.New />} />
+                    <Route
+                      path="/resources/:resourceId/edit"
+                      element={<Resources.Edit />}
                     />
 
                     {/* Profile (`@handle`) — React Router v7 cannot do

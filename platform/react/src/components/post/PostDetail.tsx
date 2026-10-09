@@ -4,6 +4,7 @@ import { FullNote } from './types/note/FullNote';
 import { FullArticle } from './types/article/FullArticle';
 import { FullPoll } from './types/poll/FullPoll';
 import { FullEvent } from './types/event/FullEvent';
+import { FullResource } from './types/resource/FullResource';
 import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export interface PostDetailProps {
@@ -18,9 +19,9 @@ export function PostDetail({ postId }: PostDetailProps) {
 
   if (postQuery.isLoading) {
     return (
-      <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
         <LoadingSpinner />
-        </div>
+      </div>
     );
   }
 
@@ -37,6 +38,8 @@ export function PostDetail({ postId }: PostDetailProps) {
   switch (post.type) {
     case 'article':
       return <FullArticle post={post} />;
+    case 'resource':
+      return <FullResource post={post} />;
     case 'event':
       return <FullEvent post={post} />;
     case 'question':

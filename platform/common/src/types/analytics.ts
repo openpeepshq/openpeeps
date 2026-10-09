@@ -117,6 +117,7 @@ export const analyticsPostTypeKeySchema = z.enum([
   'note',
   'poll',
   'event',
+  'resource',
 ]);
 export type AnalyticsPostTypeKey = z.infer<typeof analyticsPostTypeKeySchema>;
 
@@ -136,6 +137,7 @@ export const analyticsStackedPointSchema = z.object({
   note: z.number(),
   poll: z.number(),
   event: z.number(),
+  resource: z.number(),
 });
 export type AnalyticsStackedPoint = z.infer<typeof analyticsStackedPointSchema>;
 

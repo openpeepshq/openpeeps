@@ -88,7 +88,14 @@ type EventFeeds = ReturnType<typeof eventFeeds>;
  */
 const DEFAULT_FEED_LIMIT = 15;
 
-const jamFeeds = (client: OpenpeepsClient) => ({
+const jamFeeds = (
+  client: OpenpeepsClient,
+): {
+  useUpcomingJamsFeed: (pageSize?: number) => EventFeedHook;
+  usePastJamsFeed: (pageSize?: number) => EventFeedHook;
+  useMyUpcomingJamsFeed: (pageSize?: number) => EventFeedHook;
+  useMyPastJamsFeed: (pageSize?: number) => EventFeedHook;
+} => ({
   useUpcomingJamsFeed: (pageSize: number | undefined = DEFAULT_FEED_LIMIT) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.jams.upcoming, { pageSize }),
   usePastJamsFeed: (pageSize: number | undefined = DEFAULT_FEED_LIMIT) =>
@@ -235,7 +242,9 @@ const postMutators = (client: OpenpeepsClient) => ({
     ['profiles', 'current', 'bookmarkedIds'],
   ]),
   markPostsSeenAction: payloadPostsReadMutation(client.posts.seen),
-  markGroupPostsSeenAction: noPayloadPostsReadMutation(client.posts.seenByGroup),
+  markGroupPostsSeenAction: noPayloadPostsReadMutation(
+    client.posts.seenByGroup,
+  ),
   repostPostAction: noPayloadMutation(client.posts.repost, [['posts']]),
   voteOnPostAction: payloadMutation(client.posts.vote, [['posts']]),
   rsvpToEventAction: payloadMutation(client.posts.rsvp, [['posts'], ['rsvp']]),

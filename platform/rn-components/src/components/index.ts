@@ -6,5 +6,6 @@ export * from './jams';
 export * from './markdown';
 export * from './notifications';
 export * from './post';
+export * from './resources';
 export * from './preview-link';
 export * from './profile';

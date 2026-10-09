@@ -114,6 +114,10 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
       window.location.assign(`/articles/${post.id}/edit`);
       return;
     }
+    if (post.data?.type === 'resource') {
+      window.location.assign(`/resources/${post.id}/edit`);
+      return;
+    }
     openEditPost(post);
   };
 

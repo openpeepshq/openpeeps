@@ -16,6 +16,7 @@ export const TAB_ROUTES = {
   HASHTAG_POSTS: 'HashtagPosts',
   EXPLORE: 'Explore',
   ARTICLES: 'Articles',
+  RESOURCES: 'Resources',
   BOOKMARKS: 'Bookmarks',
 } as const;
 
@@ -33,6 +34,7 @@ export type TabStackParamList = {
   [TAB_ROUTES.MESSAGES]: undefined;
   [TAB_ROUTES.EVENTS]: undefined;
   [TAB_ROUTES.ARTICLES]: undefined;
+  [TAB_ROUTES.RESOURCES]: undefined;
   [TAB_ROUTES.DIRECTORY]: undefined;
   [TAB_ROUTES.SETTINGS]: undefined;
   [TAB_ROUTES.GROUPS]: undefined;

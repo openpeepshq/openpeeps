@@ -31,7 +31,10 @@ import {
 } from '@openpeepshq/common';
 import { truncateText } from '~/lib/utils';
 import { useOpenpeeps } from '@openpeepshq/react';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { MainStackParamList } from '~/components/navigation/types';
 import { DeletePostModal } from './modals/DeletePostModal';
 import { useEditPostModal } from '../post-form/EditPostModalContext';
 import { useTranslation } from 'react-i18next';
@@ -48,6 +51,8 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
     openpeepsApi.useCurrentProfile();
   const deleteMessageModalRef = useRef<BottomSheetModal>(null);
   const { openEditPost } = useEditPostModal();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const reportProfileModalRef = useRef<BottomSheetModal>(null);
   const reportPostModalRef = useRef<BottomSheetModal>(null);
   const dropdownMenuRef = useRef<DropdownMenuRef>(null);
@@ -326,7 +331,13 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
                   </ThemedText>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onPress={() => openEditPost(post)}
+                  onPress={() => {
+                    if (post.data?.type === 'resource') {
+                      navigation.navigate('EditResource', { id: post.id });
+                      return;
+                    }
+                    openEditPost(post);
+                  }}
                   className=" flex-row gap-x-2 items-center"
                 >
                   <PencilIcon size={16} className="text-foreground" />

@@ -12,7 +12,13 @@ import {
   MainStackParamList,
   TabStackParamList,
 } from '~/components/navigation/types';
-import { EventsFeed, NewEventButton, NewNoteButton } from '~/components/post';
+import {
+  EventsFeed,
+  NewEventButton,
+  NewNoteButton,
+  NewResourceButton,
+} from '~/components/post';
+import { ResourceLibrary } from '~/components/resources';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
 import { ThemedText } from '~/components/ui/themed-text';
@@ -24,7 +30,7 @@ type GroupProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList>
 >;
 
-type Tab = 'posts' | 'events' | 'description';
+type Tab = 'posts' | 'events' | 'resources' | 'description';
 
 export const GroupShow = ({ route, navigation }: GroupProps) => {
   const { openpeepsApi } = useOpenpeeps();
@@ -98,6 +104,12 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
                   <ThemedText>{t('groups.sections.events')}</ThemedText>
                 </TabsTrigger>
                 <TabsTrigger
+                  value="resources"
+                  className={tabClass('resources')}
+                >
+                  <ThemedText>{t('groups.sections.resources')}</ThemedText>
+                </TabsTrigger>
+                <TabsTrigger
                   value="description"
                   className={tabClass('description')}
                 >
@@ -109,6 +121,9 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
               </TabsContent>
               <TabsContent value="events" className="p-2">
                 <EventsFeed query={upcomingEvents} />
+              </TabsContent>
+              <TabsContent value="resources" className="p-0">
+                <ResourceLibrary groupId={group.id} />
               </TabsContent>
               <TabsContent value="description" className="p-2">
                 <GroupInfoAsComponent id={group.id} />
@@ -126,6 +141,13 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
       ) : null}
       {group && tab === 'events' ? (
         <NewEventButton
+          visibility="group"
+          currentProfile={currentProfile}
+          group={group}
+        />
+      ) : null}
+      {group && tab === 'resources' ? (
+        <NewResourceButton
           visibility="group"
           currentProfile={currentProfile}
           group={group}

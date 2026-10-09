@@ -167,7 +167,7 @@ export const createPreview = async (
       if (originalName.endsWith('.mkv')) {
         return createVideoPreview(inputPath);
       }
-      return { path: inputPath, mimetype };
+      return createFilePreview(inputPath, mimetype, originalName);
   }
 };
 
@@ -190,6 +190,63 @@ const createImagePreview = async (
     .webp()
     .toFile(outputPath);
   return { path: outputPath, mimetype: 'image/webp' };
+};
+
+const escapeXml = (value: string): string =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+const createPdfPreview = (inputPath: string): Promise<MediaFile> => {
+  const outputPath = join(tmpdir(), `preview-${randomString(16)}.webp`);
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .frames(1)
+      .outputOptions(['-c:v libwebp', '-lossless 0', '-q:v 80'])
+      .output(outputPath)
+      .on('end', () => resolve({ path: outputPath, mimetype: 'image/webp' }))
+      .on('error', reject)
+      .run();
+  });
+};
+
+const createDocumentCardPreview = async (
+  originalName: string,
+): Promise<MediaFile> => {
+  const ext = (path.extname(originalName).replace('.', '') || 'FILE')
+    .slice(0, 8)
+    .toUpperCase();
+  const base = path.parse(originalName).name.slice(0, 28);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="700" height="700">
+  <rect width="700" height="700" fill="#f4f4f5"/>
+  <rect x="160" y="80" width="380" height="480" rx="16" fill="#ffffff" stroke="#d4d4d8" stroke-width="4"/>
+  <rect x="210" y="140" width="180" height="72" rx="8" fill="#18181b"/>
+  <text x="300" y="188" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="700" fill="#ffffff">${escapeXml(ext)}</text>
+  <text x="350" y="420" text-anchor="middle" font-family="sans-serif" font-size="28" fill="#18181b">${escapeXml(base)}</text>
+</svg>`;
+  const outputPath = join(tmpdir(), `preview-${randomString(16)}.webp`);
+  await sharp(Buffer.from(svg)).webp({ quality: 80 }).toFile(outputPath);
+  return { path: outputPath, mimetype: 'image/webp' };
+};
+
+const createFilePreview = async (
+  inputPath: string,
+  mimetype: string,
+  originalName: string,
+): Promise<MediaFile> => {
+  const isPdf =
+    mimetype === 'application/pdf' ||
+    originalName.toLowerCase().endsWith('.pdf');
+  if (isPdf) {
+    try {
+      return await createPdfPreview(inputPath);
+    } catch {
+      // Some ffmpeg builds cannot rasterize PDFs.
+    }
+  }
+  return createDocumentCardPreview(originalName);
 };
 
 const getMediaDuration = (filePath: string): Promise<number> =>

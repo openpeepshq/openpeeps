@@ -113,6 +113,7 @@ import {
   FileSpreadsheet,
   FileChartPie,
   ScrollText,
+  Library,
   Bookmark,
   BookmarkPlus,
   BookmarkMinus,
@@ -252,6 +253,7 @@ export const FileSpreadsheetIcon = iconWithClassName(FileSpreadsheet);
 export const FileChartPieIcon = iconWithClassName(FileChartPie);
 export const GlobeIcon = iconWithClassName(Globe);
 export const ScrollTextIcon = iconWithClassName(ScrollText);
+export const LibraryIcon = iconWithClassName(Library);
 export const BookmarkIcon = iconWithClassName(Bookmark);
 export const BookmarkMinusIcon = iconWithClassName(BookmarkMinus);
 export const BookmarkPlusIcon = iconWithClassName(BookmarkPlus);

@@ -4,6 +4,7 @@ import { FeedNote } from './types/Note';
 import { FeedPoll } from './types/Poll';
 import { FeedEvent } from './types/Event';
 import { FeedArticle } from './types/Article';
+import { ResourceCard } from '~/components/resources/ResourceCard';
 import { View } from 'react-native';
 import { ThemedText } from '~/components/ui/themed-text';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +40,9 @@ export const FeedPostContent = ({ post }: FeedPostContentProps) => {
   }
   if (post.type === 'article') {
     return <FeedArticle {...{ post }} />;
+  }
+  if (post.type === 'resource') {
+    return <ResourceCard post={post} />;
   }
   return (
     <View>
