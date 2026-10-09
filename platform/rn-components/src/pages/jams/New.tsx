@@ -3,17 +3,17 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useCreateNewJamForm } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { EyeOnIcon } from '~/components/icons';
-import { MainScreenProps } from '~/components/navigation/types';
-import { VisibilitySelector } from '~/components/post/post-form/VisibilitySelector';
-import { ProfilesInput } from '~/components/profile/ProfilesInput';
-import { Button } from '~/components/ui/button';
-import { Checkbox } from '~/components/ui/checkbox';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
+import { GenericHeader } from '../../components/custom/index';
+import { EyeOnIcon } from '../../components/icons/index';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { VisibilitySelector } from '../../components/post/post-form/VisibilitySelector';
+import { ProfilesInput } from '../../components/profile/ProfilesInput';
+import { Button } from '../../components/ui/button';
+import { Checkbox } from '../../components/ui/checkbox';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
 
 type NewJamProps = MainScreenProps<'CreateNewJam'>;
 

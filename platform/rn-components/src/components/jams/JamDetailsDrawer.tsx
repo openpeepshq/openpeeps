@@ -5,12 +5,12 @@ import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import { truncateText } from '@openpeepshq/common';
 import { useJamDetails, useJamRtmpStream } from '@openpeepshq/react';
-import { CopyCheckIcon, CopyIcon } from '~/components/icons';
-import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { ThemedText } from '~/components/ui/themed-text';
-import { BASE_URL } from '~/lib/constants';
+import { CopyCheckIcon, CopyIcon } from '../icons/index';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { ThemedText } from '../ui/themed-text';
+import { BASE_URL } from '../../lib/constants';
 import { JamDrawer } from './JamDrawer';
 
 export interface JamDetailsDrawerProps {

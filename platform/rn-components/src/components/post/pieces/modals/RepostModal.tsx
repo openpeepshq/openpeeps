@@ -2,9 +2,9 @@ import React from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { RepostWithPublicProfile } from '@openpeepshq/common';
-import { BaseSheet } from '~/components/custom/modals/common';
-import { ThemedText } from '~/components/ui/themed-text';
-import { useControlledSheet } from '~/hooks/use-controlled-sheet';
+import { BaseSheet } from '../../../custom/modals/common/index';
+import { ThemedText } from '../../../ui/themed-text';
+import { useControlledSheet } from '../../../../hooks/use-controlled-sheet';
 import { ProfileWithActionCard } from '../../../profile/ProfileWithActionCard';
 
 export interface RepostModalProps {

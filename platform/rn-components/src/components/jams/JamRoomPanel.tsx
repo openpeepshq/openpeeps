@@ -1,6 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../ui/themed-text';
 
 /** Centered card used by the non-call jam screens (unavailable, gated, inactive). */
 export const JamRoomPanel = ({

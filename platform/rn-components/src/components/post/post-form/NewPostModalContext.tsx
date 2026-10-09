@@ -6,11 +6,11 @@ import React, {
   type ReactNode,
 } from 'react';
 import type { GroupWithMeta, VisibilityType } from '@openpeepshq/common';
-import { navigationRef } from '~/components/navigation/nativeRouter';
+import { navigationRef } from '../../navigation/nativeRouter';
 import {
   postDataDefaults,
   useLocalPostStore,
-} from '~/stores/useLocalPostStore';
+} from '../../../stores/useLocalPostStore';
 
 export interface NewPostOptions {
   visibility?: VisibilityType;

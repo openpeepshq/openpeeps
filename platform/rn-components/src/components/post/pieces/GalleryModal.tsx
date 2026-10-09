@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Modal, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { MediaAttachmentData } from '@openpeepshq/common/types';
-import { CachedImage } from '~/components/custom/common/cached-image';
-import { ChevronLeftIcon, ChevronRightIcon, XIcon } from '~/components/icons';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
-import { downloadDocument } from '~/lib/downloadFile';
+import { CachedImage } from '../../custom/common/cached-image';
+import { ChevronLeftIcon, ChevronRightIcon, XIcon } from '../../icons/index';
+import { Button } from '../../ui/button';
+import { ThemedText } from '../../ui/themed-text';
+import { downloadDocument } from '../../../lib/downloadFile';
 import { AudioAttachment, isAudioAttachment } from './AudioAttachment';
 import { VideoPlayer } from './VideoPlayer';
 

@@ -8,7 +8,7 @@ import {
 import {
   CapabilityMatrix,
   type CapabilityMatrixColumn,
-} from '~/components/CapabilityMatrix';
+} from '../CapabilityMatrix';
 
 export interface GroupCapabilityMatrixProps {
   capabilities: GroupData['capabilities'];

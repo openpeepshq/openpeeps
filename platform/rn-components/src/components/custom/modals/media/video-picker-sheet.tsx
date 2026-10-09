@@ -1,15 +1,15 @@
 import React, { forwardRef, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Button } from '~/components/ui/button';
-import { CameraIcon, FilmIcon } from '~/components/icons';
+import { Button } from '../../../ui/button';
+import { CameraIcon, FilmIcon } from '../../../icons/index';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { BaseSheet } from '../common';
 import { useTranslation } from 'react-i18next';
 import { MediaAttachment } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { uploadMedia } from '~/lib/uploadMedia';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import { uploadMedia } from '../../../../lib/uploadMedia';
+import { bottomSheetClose } from '../../../../lib/bottom-sheet-ref';
 
 interface VideoPickerSheetProps {
   onSelect: (videoAttachments: MediaAttachment[]) => void | Promise<void>;

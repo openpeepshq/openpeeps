@@ -6,7 +6,7 @@ import { BaseSheet } from '../custom/modals/common';
 
 import { ProfileHandle, ProfileImages, ProfileName } from './ProfilePieces';
 import { useNavigation } from '@react-navigation/native';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../navigation/types/index';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FollowUnfollowButton } from './';
 

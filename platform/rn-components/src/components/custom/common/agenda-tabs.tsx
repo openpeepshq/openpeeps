@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { ThemedText } from '~/components/ui/themed-text';
-import { cn } from '~/lib/utils';
+import { ThemedText } from '../../ui/themed-text';
+import { cn } from '../../../lib/utils';
 
 export type AgendaTab<T extends string> = { value: T; label: string };
 

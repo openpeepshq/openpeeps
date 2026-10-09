@@ -1,10 +1,10 @@
 import React from 'react';
 import { Profile, isDeletedProfile } from '@openpeepshq/common';
-import { Avatar, AvatarImage } from '~/components/ui/avatar';
+import { Avatar, AvatarImage } from '../ui/avatar';
 import { useTranslation } from 'react-i18next';
 import { View, Text } from 'react-native';
-import { cn, getInitials } from '~/lib/utils';
-import { UserXIcon } from '~/components/icons';
+import { cn, getInitials } from '../../lib/utils';
+import { UserXIcon } from '../icons/index';
 
 export const ProfileAvatar = ({
   profile,

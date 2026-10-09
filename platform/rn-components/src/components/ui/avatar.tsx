@@ -1,8 +1,8 @@
 import * as AvatarPrimitive from '@rn-primitives/avatar';
 import * as React from 'react';
 import type { ImageSourcePropType, ImageURISource } from 'react-native';
-import { useCachedMediaUri } from '~/hooks/use-cached-media-uri';
-import { cn } from '~/lib/utils';
+import { useCachedMediaUri } from '../../hooks/use-cached-media-uri';
+import { cn } from '../../lib/utils';
 
 const remoteUriFromSource = (
   source: ImageSourcePropType | undefined

@@ -1,9 +1,9 @@
 import React from 'react';
 import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
-import { TabScreensHeader } from '~/components/custom';
-import { ThemedText } from '~/components/ui/themed-text';
+import { TabScreensHeader } from '../../components/custom/index';
+import { ThemedText } from '../../components/ui/themed-text';
 
-import { Feed } from '~/components/post';
+import { Feed } from '../../components/post/index';
 export const ArticlesIndex = () => {
   const { openpeepsApi } = useOpenpeeps();
 

@@ -3,11 +3,11 @@ import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { checkGroupCapabilities } from '@openpeepshq/common';
 import { useAuthData, useOpenpeeps } from '@openpeepshq/react';
-import { ConfigMenuButton } from '~/components/configuration';
-import { GenericHeader } from '~/components/custom';
-import { MainScreenProps } from '~/components/navigation/types';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ConfigMenuButton } from '../../components/configuration/index';
+import { GenericHeader } from '../../components/custom/index';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
 
 type EditGroupProps = MainScreenProps<'EditGroupDetails'>;
 

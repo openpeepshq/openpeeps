@@ -1,15 +1,15 @@
 import React from 'react';
-import { TabScreensHeader } from '~/components/custom';
-import { ThemedView } from '~/components/ui/themed-view';
-import { ThemedText } from '~/components/ui/themed-text';
+import { TabScreensHeader } from '../components/custom/index';
+import { ThemedView } from '../components/ui/themed-view';
+import { ThemedText } from '../components/ui/themed-text';
 import { View } from 'react-native';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 import {
   NotificationHeaderActions,
   NotificationsList,
-} from '~/components/notifications';
-import { useNotificationBadgeReset } from '~/hooks/use-notification-badge-reset';
+} from '../components/notifications/index';
+import { useNotificationBadgeReset } from '../hooks/use-notification-badge-reset';
 
 export const Notifications = () => {
   const { openpeepsApi } = useOpenpeeps();

@@ -1,13 +1,13 @@
 import { Pressable, View } from 'react-native';
 import React from 'react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../ui/themed-text';
 import { NotificationWrapper } from '../NotificationWrapper';
 import { PublicNotification } from '@openpeepshq/common';
-import { MegaphoneIcon } from '~/components/icons';
-import { profileName } from '~/lib/utils';
+import { MegaphoneIcon } from '../../icons/index';
+import { profileName } from '../../../lib/utils';
 import { UpdatingDate } from '../../custom/date/updating-date';
 import { useTranslation } from 'react-i18next';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../navigation/types/index';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 

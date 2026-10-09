@@ -7,9 +7,9 @@ import {
   EditPostModalProvider,
   NewPostModalProvider,
   ReplyModalProvider,
-} from '~/components/post/post-form';
-import { CreateNewConversationProvider } from '~/components/conversations';
-import { CreateNewJamProvider } from '~/components/jams';
+} from '../post/post-form/index';
+import { CreateNewConversationProvider } from '../conversations/index';
+import { CreateNewJamProvider } from '../jams/index';
 import { MainNavigator } from './main-navigator';
 import { useAppImagesStore } from '../../stores/useAppImagesStore';
 import { fetchCachedMedia } from '../../utils/media-cache';

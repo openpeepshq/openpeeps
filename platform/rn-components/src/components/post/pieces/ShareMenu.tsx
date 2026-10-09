@@ -14,7 +14,7 @@ import {
   Repeat2Icon,
   SendIcon,
   ShareIcon,
-} from '~/components/icons';
+} from '../../icons/index';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,11 +23,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
-import { MainStackParamList } from '~/components/navigation/types';
-import { BASE_URL } from '~/lib/constants';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
+} from '../../ui/dropdown-menu';
+import { ThemedText } from '../../ui/themed-text';
+import { MainStackParamList } from '../../navigation/types/index';
+import { BASE_URL } from '../../../lib/constants';
+import { useNewConversationStore } from '../../../stores/useNewConversationStore';
 
 export interface ShareMenuProps {
   post: PublicPost;

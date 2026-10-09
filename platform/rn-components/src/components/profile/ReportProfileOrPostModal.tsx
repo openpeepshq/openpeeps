@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import React, { forwardRef, useState } from 'react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../ui/themed-text';
 import {
   PublicPost,
   Profile,
@@ -11,16 +11,16 @@ import {
 import { useTranslation } from 'react-i18next';
 import { BaseSheet, SheetFooter } from '../custom/modals';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormField, FormRadioGroup } from '~/components/ui/form';
+import { Form, FormField, FormRadioGroup } from '../ui/form';
 import Toast from 'react-native-toast-message';
 import { useForm } from 'react-hook-form';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { ThemedView } from '~/components/ui/themed-view';
-import { RadioGroupItem } from '~/components/ui/radio-group';
+import { ThemedView } from '../ui/themed-view';
+import { RadioGroupItem } from '../ui/radio-group';
 import { TextInput } from 'react-native';
-import { cn } from '~/lib/utils';
-import { Label } from '~/components/ui/label';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import { cn } from '../../lib/utils';
+import { Label } from '../ui/label';
+import { bottomSheetClose } from '../../lib/bottom-sheet-ref';
 
 interface ReportProfileOrPostSheetProps {
   reportCallback?: () => void | undefined;

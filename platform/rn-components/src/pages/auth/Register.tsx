@@ -15,12 +15,15 @@ import {
   useRegisterAccount,
   useServerInfo,
 } from '@openpeepshq/react';
-import { EyeOffIcon, EyeOnIcon } from '~/components/icons';
-import { AUTH_ROUTES, AuthStackParamList } from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
-import { Checkbox } from '~/components/ui/checkbox';
-import { Form, FormField, FormInput } from '~/components/ui/form';
-import { ThemedText } from '~/components/ui/themed-text';
+import { EyeOffIcon, EyeOnIcon } from '../../components/icons/index';
+import {
+  AUTH_ROUTES,
+  AuthStackParamList,
+} from '../../components/navigation/types/index';
+import { Button } from '../../components/ui/button';
+import { Checkbox } from '../../components/ui/checkbox';
+import { Form, FormField, FormInput } from '../../components/ui/form';
+import { ThemedText } from '../../components/ui/themed-text';
 
 const INVITE_INACTIVE_MESSAGES = new Set([
   'auth.register.inviteInactive',

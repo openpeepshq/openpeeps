@@ -8,7 +8,7 @@ import {
   type VisibilityType,
 } from '@openpeepshq/common';
 import { useAuthData } from '@openpeepshq/react';
-import { PencilLineIcon } from '~/components/icons';
+import { PencilLineIcon } from '../icons/index';
 import { useNewPostModal } from './post-form/NewPostModalContext';
 
 export interface NewNoteButtonProps {

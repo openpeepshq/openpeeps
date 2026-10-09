@@ -6,9 +6,9 @@ import { GalleryVideo } from './gallery/GalleryVideo';
 import { GalleryAudio } from './gallery/GalleryAudio';
 import { GalleryDocument } from './gallery/GalleryDocument';
 import { GalleryModal } from './GalleryModal';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
-import { isImageAttachment } from '~/lib/attachmentHelpers';
+import { ThemedText } from '../../ui/themed-text';
+import { ThemedView } from '../../ui/themed-view';
+import { isImageAttachment } from '../../../lib/attachmentHelpers';
 
 export const Attachments = ({ post }: { post: PublicPost }) => {
   const attachments = post?.data?.attachments || [];

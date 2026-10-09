@@ -2,16 +2,16 @@ import React from 'react';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '~/components/navigation/types';
+} from '../../components/navigation/types/index';
 import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
-import { TabScreensHeader } from '~/components/custom';
-import { ThemedText } from '~/components/ui/themed-text';
+import { TabScreensHeader } from '../../components/custom/index';
+import { ThemedText } from '../../components/ui/themed-text';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RefreshControl, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { Feed } from '~/components/post';
+import { Feed } from '../../components/post/index';
 type HomeScreenProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Bookmarks'>,
   NativeStackScreenProps<MainStackParamList>

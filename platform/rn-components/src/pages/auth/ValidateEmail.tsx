@@ -4,8 +4,11 @@ import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { AUTH_ROUTES, AuthStackParamList } from '~/components/navigation/types';
-import { ThemedText } from '~/components/ui/themed-text';
+import {
+  AUTH_ROUTES,
+  AuthStackParamList,
+} from '../../components/navigation/types/index';
+import { ThemedText } from '../../components/ui/themed-text';
 
 /**
  * Handles the `validate-email?token=...` email link. Calls the backend

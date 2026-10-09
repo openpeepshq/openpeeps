@@ -1,11 +1,11 @@
 import React from 'react';
 import { PublicProfile } from '@openpeepshq/common';
 import { useFollowProfile, useOpenpeeps } from '@openpeepshq/react';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
+import { Button } from '../ui/button';
+import { ThemedText } from '../ui/themed-text';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
-import { cn } from '~/lib/utils';
+import { cn } from '../../lib/utils';
 
 export interface FollowUnfollowButtonProps {
   profile: PublicProfile;

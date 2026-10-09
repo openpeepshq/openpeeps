@@ -4,8 +4,8 @@ import { useLocalParticipant } from '@livekit/react-native';
 import { ConnectionQuality } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
 import { useJamRecordingState } from '@openpeepshq/react';
-import { CircleIcon, XIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
+import { CircleIcon, XIcon } from '../icons/index';
+import { ThemedText } from '../ui/themed-text';
 import { useConnectionQuality } from './useParticipantConnection';
 
 /** Red "recording" pill shown to every participant while egress is active. */

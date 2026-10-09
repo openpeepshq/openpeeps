@@ -1,8 +1,8 @@
 import React, { type ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { XIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
+import { XIcon } from '../icons/index';
+import { ThemedText } from '../ui/themed-text';
 
 /**
  * Full-overlay side panel used by the chat, people and details drawers —

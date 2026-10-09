@@ -64,7 +64,7 @@
     "lint": "eslint \"src/**/*.{js,ts,tsx}\"",
     "clean": "del-cli lib",
     "build": "bob build",
-    "prepublishOnly": "pnpm --filter @openpeepshq/rn-components... build",
+    "prepublishOnly": "pnpm run typecheck && pnpm --filter @openpeepshq/rn-components... build && node scripts/check-publish.mjs",
     "release": "release-it"
   },
   "packageManager": "pnpm@11.1.3",

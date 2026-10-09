@@ -5,12 +5,12 @@ import { Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { GenericHeader } from '~/components/custom';
-import { MainScreenProps } from '~/components/navigation/types';
-import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
+import { GenericHeader } from '../../components/custom/index';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
+import { ThemedView } from '../../components/ui/themed-view';
 
 type FeedSettingsProps = MainScreenProps<'FeedSettings'>;
 

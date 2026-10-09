@@ -5,10 +5,10 @@ import { PostMenu } from './PostMenu';
 import { type PublicPost } from '@openpeepshq/common';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '~/components/navigation/types';
+import { MainStackParamList } from '../../navigation/types/index';
 import { ProfileAvatar } from '../../profile/Avatar';
 import { ProfileHandle, ProfileName } from '../../profile/ProfilePieces';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedView } from '../../ui/themed-view';
 
 interface PostHeaderProps {
   post: PublicPost;

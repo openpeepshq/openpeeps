@@ -8,16 +8,16 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Button } from '~/components/ui/button';
-import { AudioLinesIcon, MicIcon } from '~/components/icons';
+import { Button } from '../../../ui/button';
+import { AudioLinesIcon, MicIcon } from '../../../icons/index';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
 import { MediaAttachment } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { uploadMedia } from '~/lib/uploadMedia';
+import { uploadMedia } from '../../../../lib/uploadMedia';
 import { RecordAudioSheet } from './record-audio-sheet';
 import { pick } from '@react-native-documents/picker';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose } from '../../../../lib/bottom-sheet-ref';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

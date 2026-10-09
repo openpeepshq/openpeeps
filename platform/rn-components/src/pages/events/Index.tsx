@@ -7,19 +7,26 @@ import {
   useDefaultVisibility,
   useOpenpeeps,
 } from '@openpeepshq/react';
-import { AgendaTabs, TabScreensHeader } from '~/components/custom';
-import { ChevronRightIcon, MoreHorizontalIcon } from '~/components/icons';
-import { MainStackParamList } from '~/components/navigation/types';
-import { EventsFeed, EventsView, NewEventButton } from '~/components/post';
+import { AgendaTabs, TabScreensHeader } from '../../components/custom/index';
+import {
+  ChevronRightIcon,
+  MoreHorizontalIcon,
+} from '../../components/icons/index';
+import { MainStackParamList } from '../../components/navigation/types/index';
+import {
+  EventsFeed,
+  EventsView,
+  NewEventButton,
+} from '../../components/post/index';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
+} from '../../components/ui/dropdown-menu';
+import { ThemedText } from '../../components/ui/themed-text';
+import { ThemedView } from '../../components/ui/themed-view';
 
 type Tab = 'upcoming' | 'past';
 

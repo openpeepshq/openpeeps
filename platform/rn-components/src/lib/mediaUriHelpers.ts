@@ -2,7 +2,7 @@ import { InteractionManager, Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import type { ForwardedRef, RefObject } from 'react';
 import type { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose } from './bottom-sheet-ref';
 
 const EXTENSION_MIME: Record<string, string> = {
   jpg: 'image/jpeg',

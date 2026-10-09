@@ -3,12 +3,12 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useOpenpeeps } from '@openpeepshq/react';
 import type { PublicProfile } from '@openpeepshq/common';
-import { MainScreenProps } from '~/components/navigation/types';
-import { GenericHeader } from '~/components/custom';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { Button } from '~/components/ui/button';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { GenericHeader } from '../../components/custom/index';
+import { ThemedText } from '../../components/ui/themed-text';
+import { ThemedView } from '../../components/ui/themed-view';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { Button } from '../../components/ui/button';
 
 type BlockedSettingsProps = MainScreenProps<'BlockedSettings'>;
 

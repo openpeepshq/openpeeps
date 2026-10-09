@@ -1,9 +1,9 @@
 import React from 'react';
 import { View } from 'react-native';
 import type { MediaAttachmentData } from '@openpeepshq/common/types';
-import { AudioPlayer } from '~/components/custom/common/audio-player';
-import { ThemedText } from '~/components/ui/themed-text';
-import { cn } from '~/lib/utils';
+import { AudioPlayer } from '../../custom/common/audio-player';
+import { ThemedText } from '../../ui/themed-text';
+import { cn } from '../../../lib/utils';
 
 export const isAudioAttachment = (
   att: Pick<MediaAttachmentData, 'type' | 'meta'>

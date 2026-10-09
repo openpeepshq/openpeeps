@@ -1,18 +1,18 @@
 import React from 'react';
-import { MainScreenProps } from '~/components/navigation/types';
+import { MainScreenProps } from '../../components/navigation/types/index';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { ThemedView } from '~/components/ui/themed-view';
-import { GenericHeader, UpdatingDate } from '~/components/custom';
-import { truncateText } from '~/lib/utils';
+import { ThemedView } from '../../components/ui/themed-view';
+import { GenericHeader, UpdatingDate } from '../../components/custom/index';
+import { truncateText } from '../../lib/utils';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../../components/ui/themed-text';
 import { ActivityIndicator, View } from 'react-native';
-import { Avatar, AvatarImage } from '~/components/ui/avatar';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { Avatar, AvatarImage } from '../../components/ui/avatar';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { useTranslation } from 'react-i18next';
 import { getGroupAvatar } from '@openpeepshq/common';
 
-import { OpenpeepsMarkdown } from '~/components/markdown';
+import { OpenpeepsMarkdown } from '../../components/markdown/index';
 type GroupInfoProps = MainScreenProps<'GroupInfo'>;
 
 export const GroupInfo = ({ route }: GroupInfoProps) => {

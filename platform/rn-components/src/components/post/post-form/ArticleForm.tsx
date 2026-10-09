@@ -8,9 +8,9 @@ import type {
 } from '@openpeepshq/common';
 import { HEADER_IMAGE_MAX_WIDTH } from '@openpeepshq/common/lib';
 import { applyAudienceSetting, useCurrentProfile } from '@openpeepshq/react';
-import { ImageInput } from '~/components/form/ImageInput';
-import { Input } from '~/components/ui/input';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ImageInput } from '../../form/ImageInput';
+import { Input } from '../../ui/input';
+import { ThemedText } from '../../ui/themed-text';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { VisibilitySelector } from './VisibilitySelector';
 

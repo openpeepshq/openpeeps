@@ -2,10 +2,6 @@
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
     "types": ["nativewind/types", "node", "jest"],
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./src/*"]
-    },
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "jsx": "react-jsx",
     "noEmit": true,

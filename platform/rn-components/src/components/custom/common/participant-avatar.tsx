@@ -1,6 +1,6 @@
 import React from 'react';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { Avatar, AvatarImage } from '~/components/ui/avatar';
+import { Avatar, AvatarImage } from '../../ui/avatar';
 import { getProfileAvatar } from '@openpeepshq/common';
 
 interface ParticipantAvatarProps {

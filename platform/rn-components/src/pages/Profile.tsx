@@ -2,12 +2,15 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useCurrentProfile, useOpenpeeps } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { RssIcon } from '~/components/icons';
-import { MainScreenProps } from '~/components/navigation/types';
-import { ProfileHeader, ProfilePostsAndReplies } from '~/components/profile';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
+import { GenericHeader } from '../components/custom/index';
+import { RssIcon } from '../components/icons/index';
+import { MainScreenProps } from '../components/navigation/types/index';
+import {
+  ProfileHeader,
+  ProfilePostsAndReplies,
+} from '../components/profile/index';
+import { ThemedSafeAreaView } from '../components/ui/themed-safe-area-view';
+import { ThemedText } from '../components/ui/themed-text';
 
 type ProfileProps = MainScreenProps<'Profile'>;
 

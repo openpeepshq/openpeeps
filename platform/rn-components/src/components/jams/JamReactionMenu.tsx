@@ -10,8 +10,8 @@ import {
   isDefaultEmoji,
   useJamReactionPreferences,
 } from '@openpeepshq/react';
-import { ThemedText } from '~/components/ui/themed-text';
-import { cn } from '~/lib/utils';
+import { ThemedText } from '../ui/themed-text';
+import { cn } from '../../lib/utils';
 
 export interface JamReactionMenuProps {
   onSelect: (emoji: string) => void | Promise<void>;

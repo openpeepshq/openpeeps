@@ -10,19 +10,22 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Button } from '~/components/ui/button';
-import { CameraIcon, ImageIcon } from '~/components/icons';
+import { Button } from '../../../ui/button';
+import { CameraIcon, ImageIcon } from '../../../icons/index';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { ThemedText } from '~/components/ui/themed-text';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
+import { ThemedText } from '../../../ui/themed-text';
+import { useNewConversationStore } from '../../../../stores/useNewConversationStore';
 import { useOpenpeeps } from '@openpeepshq/react';
 import type { MediaAttachment, PostCreationData } from '@openpeepshq/common';
-import { uploadMedia, type UploadProgressMap } from '~/lib/uploadMedia';
-import { MediaUploadProgress } from '~/components/custom/common';
+import {
+  uploadMedia,
+  type UploadProgressMap,
+} from '../../../../lib/uploadMedia';
+import { MediaUploadProgress } from '../../common/index';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose } from '../../../../lib/bottom-sheet-ref';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

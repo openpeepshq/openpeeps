@@ -3,20 +3,20 @@ import React, { useCallback, useRef, useState } from 'react';
 import { UpdatingDate } from '../custom/date/updating-date';
 import { OpenpeepsMarkdown } from '../markdown/OpenpeepsMarkdown';
 import { formatBadgeCount, PublicPost } from '@openpeepshq/common';
-import { Text } from '~/components/ui/text';
-import { Button } from '~/components/ui/button';
+import { Text } from '../ui/text';
+import { Button } from '../ui/button';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-} from '~/components/ui/dropdown-menu';
-import { BellOffIcon, FlagIcon, Trash2Icon } from '~/components/icons';
+} from '../ui/dropdown-menu';
+import { BellOffIcon, FlagIcon, Trash2Icon } from '../icons/index';
 import { useOpenpeeps } from '@openpeepshq/react';
 
 import { ProfileImages, ProfileName } from '../profile/ProfilePieces';
-import { truncateText } from '~/lib/utils';
-import { ProfileSheet } from '~/components/profile';
+import { truncateText } from '../../lib/utils';
+import { ProfileSheet } from '../profile/index';
 import { ConversationParticipantsModal } from './ConversationParticipantsModal';
 interface ConversationPreviewCardProps {
   conversation: PublicPost[];

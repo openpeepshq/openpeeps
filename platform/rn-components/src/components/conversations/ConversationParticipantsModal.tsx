@@ -2,9 +2,9 @@ import React from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { PublicProfile } from '@openpeepshq/common/types';
-import { ProfileCard } from '~/components/profile/ProfileCard';
-import { ThemedText } from '~/components/ui/themed-text';
-import { useControlledSheet } from '~/hooks/use-controlled-sheet';
+import { ProfileCard } from '../profile/ProfileCard';
+import { ThemedText } from '../ui/themed-text';
+import { useControlledSheet } from '../../hooks/use-controlled-sheet';
 import { BaseSheet } from '../custom/modals/common';
 
 export interface ConversationParticipantsModalProps {

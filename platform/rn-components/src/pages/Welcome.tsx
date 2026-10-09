@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedView } from '../components/ui/themed-view';
 import { ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { TabScreensHeader } from '~/components/custom';
+import { TabScreensHeader } from '../components/custom/index';
 import {
   UserCheckIcon,
   MailCheckIcon,
@@ -12,12 +12,12 @@ import {
   CheckIcon,
   LucideIcon,
 } from 'lucide-react-native';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../components/ui/themed-text';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '~/components/navigation/types';
+} from '../components/navigation/types/index';
 import {
   useNavigation,
   type NavigatorScreenParams,
@@ -25,7 +25,7 @@ import {
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 
-import { OpenpeepsMarkdown } from '~/components/markdown';
+import { OpenpeepsMarkdown } from '../components/markdown/index';
 type AccountSetupChecklistItem = {
   Icon: LucideIcon;
   key: string;

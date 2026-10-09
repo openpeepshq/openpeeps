@@ -1,9 +1,12 @@
 import React from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AUTH_ROUTES, AuthStackParamList } from '~/components/navigation/types';
-import { Button } from '~/components/ui/button';
-import { ThemedText } from '~/components/ui/themed-text';
-import { Form, FormField, FormInput } from '~/components/ui/form';
+import {
+  AUTH_ROUTES,
+  AuthStackParamList,
+} from '../../components/navigation/types/index';
+import { Button } from '../../components/ui/button';
+import { ThemedText } from '../../components/ui/themed-text';
+import { Form, FormField, FormInput } from '../../components/ui/form';
 import {
   requestResetPasswordRequestSchema,
   type RequestResetPasswordRequest,
@@ -11,7 +14,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ActivityIndicator, View } from 'react-native';
-import { ArrowLeftIcon } from '~/components/icons';
+import { ArrowLeftIcon } from '../../components/icons/index';
 import { useOpenpeeps } from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
 

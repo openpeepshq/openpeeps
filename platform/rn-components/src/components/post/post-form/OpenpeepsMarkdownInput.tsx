@@ -10,13 +10,13 @@ import {
 import type { PublicProfile } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
-import { OpenpeepsMarkdown } from '~/components/markdown';
-import { ProfileAvatar } from '~/components/profile/Avatar';
-import { Button } from '~/components/ui/button';
-import { Textarea } from '~/components/ui/textarea';
-import { ThemedText } from '~/components/ui/themed-text';
-import { toAbsoluteMediaUrl } from '~/lib/media-url';
-import { cn, maxContentLength } from '~/lib/utils';
+import { OpenpeepsMarkdown } from '../../markdown/index';
+import { ProfileAvatar } from '../../profile/Avatar';
+import { Button } from '../../ui/button';
+import { Textarea } from '../../ui/textarea';
+import { ThemedText } from '../../ui/themed-text';
+import { toAbsoluteMediaUrl } from '../../../lib/media-url';
+import { cn, maxContentLength } from '../../../lib/utils';
 
 export interface OpenpeepsMarkdownInputProps {
   value: string;

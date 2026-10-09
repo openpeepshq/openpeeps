@@ -11,11 +11,11 @@ import {
   seriesYesBlockedByCapacity,
 } from '@openpeepshq/common/lib';
 import { BaseSheet, SheetFooter } from '../../custom/modals/common';
-import { Checkbox } from '~/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
-import { ThemedText } from '~/components/ui/themed-text';
+import { Checkbox } from '../../ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '../../ui/radio-group';
+import { ThemedText } from '../../ui/themed-text';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose } from '../../../lib/bottom-sheet-ref';
 
 export type RsvpScopeChoice =
   | { kind: 'this'; recurrenceId: string }

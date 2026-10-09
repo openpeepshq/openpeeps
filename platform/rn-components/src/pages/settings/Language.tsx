@@ -6,12 +6,12 @@ import {
   AVAILABLE_UI_LANGUAGES,
   useLanguagePreference,
 } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { MainScreenProps } from '~/components/navigation/types';
-import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
+import { GenericHeader } from '../../components/custom/index';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
+import { ThemedView } from '../../components/ui/themed-view';
 
 const LANGUAGE_LABELS: Record<(typeof AVAILABLE_UI_LANGUAGES)[number], string> =
   {

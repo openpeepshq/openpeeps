@@ -3,9 +3,9 @@ import { Pressable, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { MainStackParamList } from '~/components/navigation/types';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
+import { MainStackParamList } from '../components/navigation/types/index';
+import { ThemedSafeAreaView } from '../components/ui/themed-safe-area-view';
+import { ThemedText } from '../components/ui/themed-text';
 
 /** Fallback for unresolved deep links; web renders this for unknown routes. */
 export const NotFound = () => {

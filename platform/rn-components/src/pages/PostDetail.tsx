@@ -3,11 +3,11 @@ import { RefreshControl } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useTranslation } from 'react-i18next';
 import { useOpenpeeps, usePostDetailTitle } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { MainScreenProps } from '~/components/navigation/types';
-import { PostDetail as PostDetailComponent } from '~/components/post';
-import { FullEventActions } from '~/components/post/types/event/FullEvent';
+import { GenericHeader } from '../components/custom/index';
+import { ThemedSafeAreaView } from '../components/ui/themed-safe-area-view';
+import { MainScreenProps } from '../components/navigation/types/index';
+import { PostDetail as PostDetailComponent } from '../components/post/index';
+import { FullEventActions } from '../components/post/types/event/FullEvent';
 
 type PostProps = MainScreenProps<'Post'>;
 

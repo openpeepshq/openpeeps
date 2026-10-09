@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ThemedView } from '../ui/themed-view';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../ui/themed-text';
 import { useForm } from 'react-hook-form';
 import {
   getTheme,
@@ -13,16 +13,16 @@ import {
 } from '@openpeepshq/common';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ActivityIndicator, Pressable, View } from 'react-native';
-import { Avatar, AvatarImage } from '~/components/ui/avatar';
-import { CachedImage } from '~/components/custom/common';
-import { Form, FormField, FormInput, FormTextarea } from '~/components/ui/form';
+import { Avatar, AvatarImage } from '../ui/avatar';
+import { CachedImage } from '../custom/common/index';
+import { Form, FormField, FormInput, FormTextarea } from '../ui/form';
 import Toast from 'react-native-toast-message';
-import { ImagePickerSheet } from '~/components/custom';
-import { CameraIcon, XIcon } from '~/components/icons';
+import { ImagePickerSheet } from '../custom/index';
+import { CameraIcon, XIcon } from '../icons/index';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Button } from '~/components/ui/button';
+import { Button } from '../ui/button';
 import { useTranslation } from 'react-i18next';
-import { toAbsoluteMediaUrl } from '~/lib/media-url';
+import { toAbsoluteMediaUrl } from '../../lib/media-url';
 
 type EditProfileFormProps = {
   handle: string;

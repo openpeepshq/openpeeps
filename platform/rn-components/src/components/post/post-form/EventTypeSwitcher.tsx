@@ -3,12 +3,12 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Event, Location } from '@openpeepshq/common';
 import { useEventTypeSwitcher, useLocationSearch } from '@openpeepshq/react';
-import { Checkbox } from '~/components/ui/checkbox';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
-import { ThemedText } from '~/components/ui/themed-text';
-import { BASE_URL } from '~/lib/constants';
+import { Checkbox } from '../../ui/checkbox';
+import { Input } from '../../ui/input';
+import { Label } from '../../ui/label';
+import { RadioGroup, RadioGroupItem } from '../../ui/radio-group';
+import { ThemedText } from '../../ui/themed-text';
+import { BASE_URL } from '../../../lib/constants';
 import { ProfilesInput } from '../../profile/ProfilesInput';
 
 export type { EventFormat } from '@openpeepshq/react';

@@ -5,7 +5,7 @@ import { FeedPoll } from './types/Poll';
 import { FeedEvent } from './types/Event';
 import { FeedArticle } from './types/Article';
 import { View } from 'react-native';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../ui/themed-text';
 import { useTranslation } from 'react-i18next';
 
 interface FeedPostContentProps {

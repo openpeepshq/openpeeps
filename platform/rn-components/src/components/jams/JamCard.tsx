@@ -1,7 +1,7 @@
 import { Image, View } from 'react-native';
 import React from 'react';
 import { Event, PublicPost } from '@openpeepshq/common';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../ui/themed-text';
 import { UpdatingDate } from '../custom/date/updating-date';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { ParticipantAvatar } from '../custom/common/participant-avatar';
@@ -23,7 +23,7 @@ export const JamCard = ({ jamPost, type = 'upcoming' }: JamCardProps) => {
           <View className="flex flex-row gap-x-4 mb-4 w-full">
             <View className="size-24">
               <Image
-                source={require('~/assets/images/jam-placeholder.png')}
+                source={require('../../assets/images/jam-placeholder.png')}
                 className="w-full h-full rounded-md"
               />
             </View>

@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import type { PublicPost } from '@openpeepshq/common';
 import { useCurrentProfile, useReplyOpener } from '@openpeepshq/react';
 import { ProfileAvatar } from '../profile/Avatar';
-import { ImageIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ImageIcon } from '../icons/index';
+import { ThemedText } from '../ui/themed-text';
 
 export interface ReplyBoxProps {
   post: PublicPost;

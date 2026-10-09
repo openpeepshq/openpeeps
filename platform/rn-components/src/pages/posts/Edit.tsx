@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
+import { GenericHeader } from '../../components/custom/index';
 import Toast from 'react-native-toast-message';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { PostForm } from '~/components/post/post-form/PostForm';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { PostForm } from '../../components/post/post-form/PostForm';
 import { useTranslation } from 'react-i18next';
-import { MainScreenProps } from '~/components/navigation/types';
+import { MainScreenProps } from '../../components/navigation/types/index';
 import { PostCreationData, postCreationDataSchema } from '@openpeepshq/common';
 import { ActivityIndicator } from 'react-native';
 import { useForm } from 'react-hook-form';
-import { hasProcessingAttachments } from '~/lib/post';
+import { hasProcessingAttachments } from '../../lib/post';
 
-import { ArticleForm } from '~/components/post';
+import { ArticleForm } from '../../components/post/index';
 type PostProps = MainScreenProps<'EditPost'>;
 
 export const EditPost = ({ route, navigation }: PostProps) => {

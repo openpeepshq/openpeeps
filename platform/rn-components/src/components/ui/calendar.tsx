@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { LocaleConfig, Calendar as RNCalendar } from 'react-native-calendars';
-import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
-import { OpenPeepsTheme } from '~/theme/types';
+import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
+import { OpenPeepsTheme } from '../../theme/types';
 
 function Calendar({
   theme,

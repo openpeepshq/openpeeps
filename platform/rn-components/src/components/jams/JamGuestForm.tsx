@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import type { GuestData } from '@openpeepshq/common/types';
 import { profileName } from '@openpeepshq/common/lib';
 import { useJamContext, useOpenpeeps, useServerInfo } from '@openpeepshq/react';
-import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { ThemedText } from '~/components/ui/themed-text';
-import { BASE_URL } from '~/lib/constants';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { ThemedText } from '../ui/themed-text';
+import { BASE_URL } from '../../lib/constants';
 
 export const JamGuestForm = () => {
   const { t } = useTranslation();

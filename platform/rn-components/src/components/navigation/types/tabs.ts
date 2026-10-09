@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { PostBoxTriggeredFrom } from '~/lib/constants';
+import { PostBoxTriggeredFrom } from '../../../lib/constants';
 
 export const TAB_ROUTES = {
   HOME: 'Home',

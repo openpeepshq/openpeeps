@@ -25,17 +25,17 @@ import {
   MicOffIcon,
   PinIcon,
   WifiOffIcon,
-} from '~/components/icons';
+} from '../icons/index';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
-import { Button } from '~/components/ui/button';
-import { cn } from '~/lib/utils';
+} from '../ui/dropdown-menu';
+import { ThemedText } from '../ui/themed-text';
+import { Button } from '../ui/button';
+import { cn } from '../../lib/utils';
 import { ProfileAvatar } from '../profile/Avatar';
 import { JamAnimatedEmoji } from './JamAnimatedEmoji';
 import { useConnectionLost } from './useParticipantConnection';

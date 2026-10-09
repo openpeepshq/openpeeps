@@ -1,8 +1,8 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
-import { ThemedText } from '~/components/ui/themed-text';
-import { cn } from '~/lib/utils';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { ThemedText } from '../ui/themed-text';
+import { cn } from '../../lib/utils';
 
 export interface RadioSelectOption {
   title: string;

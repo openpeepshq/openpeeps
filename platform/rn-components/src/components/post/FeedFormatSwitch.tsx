@@ -3,8 +3,8 @@ import { useResolvedFeedFormat } from '@openpeepshq/react';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ThemedText } from '~/components/ui/themed-text';
-import { cn } from '~/lib/utils';
+import { ThemedText } from '../ui/themed-text';
+import { cn } from '../../lib/utils';
 
 export const FeedFormatSwitch = () => {
   const { t } = useTranslation();

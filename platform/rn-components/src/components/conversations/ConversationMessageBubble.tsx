@@ -2,9 +2,9 @@ import React from 'react';
 import { View } from 'react-native';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { useCurrentProfile } from '@openpeepshq/react';
-import { FeedPostContent } from '~/components/post/FeedPostContent';
-import { UnreadPostIndicator } from '~/components/post/pieces/UnreadPostIndicator';
-import { ThemedView } from '~/components/ui/themed-view';
+import { FeedPostContent } from '../post/FeedPostContent';
+import { UnreadPostIndicator } from '../post/pieces/UnreadPostIndicator';
+import { ThemedView } from '../ui/themed-view';
 
 export interface ConversationMessageBubbleProps {
   message: PublicPost;

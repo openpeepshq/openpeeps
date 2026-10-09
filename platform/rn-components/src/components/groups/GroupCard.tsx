@@ -2,11 +2,11 @@ import { Pressable, View } from 'react-native';
 import React from 'react';
 import { formatBadgeCount, GroupWithMeta } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { ThemedText } from '~/components/ui/themed-text';
-import { truncateText } from '~/lib/utils';
-import { Button } from '~/components/ui/button';
-import { UsersIcon } from '~/components/icons';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { ThemedText } from '../ui/themed-text';
+import { truncateText } from '../../lib/utils';
+import { Button } from '../ui/button';
+import { UsersIcon } from '../icons/index';
 import { useTranslation } from 'react-i18next';
 import { JoinGroupButton } from './JoinGroupButton';
 

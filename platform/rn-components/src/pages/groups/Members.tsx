@@ -4,12 +4,15 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useTranslation } from 'react-i18next';
 import { groupName } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { AddGroupMembersButton, GroupMembersList } from '~/components/groups';
-import { MainScreenProps } from '~/components/navigation/types';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
-import { truncateText } from '~/lib/utils';
+import { GenericHeader } from '../../components/custom/index';
+import {
+  AddGroupMembersButton,
+  GroupMembersList,
+} from '../../components/groups/index';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
+import { truncateText } from '../../lib/utils';
 
 type GroupMembersProps = MainScreenProps<'GroupMembers'>;
 

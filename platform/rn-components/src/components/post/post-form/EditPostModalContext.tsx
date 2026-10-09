@@ -6,7 +6,7 @@ import React, {
   type ReactNode,
 } from 'react';
 import type { PublicPost } from '@openpeepshq/common/types';
-import { navigationRef } from '~/components/navigation/nativeRouter';
+import { navigationRef } from '../../navigation/nativeRouter';
 
 interface EditPostModalContextValue {
   openEditPost: (post: PublicPost) => void;

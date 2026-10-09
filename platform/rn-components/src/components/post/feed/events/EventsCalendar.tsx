@@ -13,10 +13,10 @@ import {
   type EventsAgendaWindow,
   type EventsCalendarQuery,
 } from '@openpeepshq/react';
-import { ChevronLeftIcon, ChevronRightIcon } from '~/components/icons';
-import { MainStackParamList } from '~/components/navigation/types';
-import { ThemedText } from '~/components/ui/themed-text';
-import { cn } from '~/lib/utils';
+import { ChevronLeftIcon, ChevronRightIcon } from '../../../icons/index';
+import { MainStackParamList } from '../../../navigation/types/index';
+import { ThemedText } from '../../../ui/themed-text';
+import { cn } from '../../../../lib/utils';
 
 export interface EventsCalendarProps {
   query: EventsCalendarQuery;

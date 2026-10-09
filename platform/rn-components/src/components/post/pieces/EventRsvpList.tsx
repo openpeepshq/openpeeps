@@ -14,10 +14,10 @@ import {
   rsvpCancelWhenLabels,
   sameRecurrenceId,
 } from '@openpeepshq/common/lib';
-import { ChevronDownIcon, ChevronRightIcon } from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
-import { Button } from '~/components/ui/button';
-import { ProfileCard } from '~/components/profile/ProfileCard';
+import { ChevronDownIcon, ChevronRightIcon } from '../../icons/index';
+import { ThemedText } from '../../ui/themed-text';
+import { Button } from '../../ui/button';
+import { ProfileCard } from '../../profile/ProfileCard';
 
 const seriesKey = 'series';
 

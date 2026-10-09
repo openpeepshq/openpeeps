@@ -11,15 +11,18 @@ import {
   type RepeatEnd,
   type RepeatFreq,
 } from '@openpeepshq/react';
-import { CalendarIcon, ChevronDownIcon, XIcon } from '~/components/icons';
-import { ImageInput } from '~/components/form/ImageInput';
-import { TimeZoneSelect } from '~/components/form/TimeZoneSelect';
-import { Checkbox } from '~/components/ui/checkbox';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
-import { ThemedText } from '~/components/ui/themed-text';
-import { bottomSheetClose, bottomSheetPresent } from '~/lib/bottom-sheet-ref';
+import { CalendarIcon, ChevronDownIcon, XIcon } from '../../icons/index';
+import { ImageInput } from '../../form/ImageInput';
+import { TimeZoneSelect } from '../../form/TimeZoneSelect';
+import { Checkbox } from '../../ui/checkbox';
+import { Input } from '../../ui/input';
+import { Label } from '../../ui/label';
+import { RadioGroup, RadioGroupItem } from '../../ui/radio-group';
+import { ThemedText } from '../../ui/themed-text';
+import {
+  bottomSheetClose,
+  bottomSheetPresent,
+} from '../../../lib/bottom-sheet-ref';
 import { DateSheet } from './DateSheet';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { EventTypeSwitcher } from './EventTypeSwitcher';

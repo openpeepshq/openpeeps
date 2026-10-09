@@ -14,25 +14,28 @@ import {
   MoreVerticalIcon,
   SearchIcon,
   XIcon,
-} from '~/components/icons';
-import { EmptyStateContainer, TabScreensHeader } from '~/components/custom';
-import { ThemedView } from '~/components/ui/themed-view';
-import { ThemedText } from '~/components/ui/themed-text';
-import { Input } from '~/components/ui/input';
+} from '../../components/icons/index';
+import {
+  EmptyStateContainer,
+  TabScreensHeader,
+} from '../../components/custom/index';
+import { ThemedView } from '../../components/ui/themed-view';
+import { ThemedText } from '../../components/ui/themed-text';
+import { Input } from '../../components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '../../components/ui/dropdown-menu';
 import { useOpenpeeps } from '@openpeepshq/react';
 import {
   MainStackParamList,
   TabStackParamList,
-} from '~/components/navigation/types';
+} from '../../components/navigation/types/index';
 
-import { GroupCard } from '~/components/groups';
+import { GroupCard } from '../../components/groups/index';
 type GroupsProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Groups'>,
   NativeStackScreenProps<MainStackParamList>

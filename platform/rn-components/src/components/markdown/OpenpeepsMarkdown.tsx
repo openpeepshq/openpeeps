@@ -11,10 +11,10 @@ import Markdown, {
   tokensToAST,
   stringToTokens,
 } from 'react-native-markdown-display';
-import { buildGoto } from '~/components/navigation/helpers';
-import { MainStackParamList } from '~/components/navigation/types';
-import { BASE_URL } from '~/lib/constants';
-import { handleInternalURLNavigation } from '~/lib/utils';
+import { buildGoto } from '../navigation/helpers';
+import { MainStackParamList } from '../navigation/types/index';
+import { BASE_URL } from '../../lib/constants';
+import { handleInternalURLNavigation } from '../../lib/utils';
 import { hashtagPlugin, hashtagRenderer } from './extensions/hashtag';
 import { mentionPlugin, mentionRenderer } from './extensions/mention';
 import { codeBlockRenderer, fenceRenderer } from './extensions/codeBlock';
@@ -22,7 +22,7 @@ import { codeInlineRenderer } from './extensions/codeInline';
 import { markdownTheme } from './theme';
 import { extractLinks, isEmail, isInternalLink, toGotoUrl } from './utils';
 import { PreviewLink } from '../preview-link';
-import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
+import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
 import { recordOutboundClick } from '@openpeepshq/react';
 
 export interface OpenpeepsMarkdownProps {

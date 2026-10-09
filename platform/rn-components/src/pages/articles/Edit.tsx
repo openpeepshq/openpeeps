@@ -5,11 +5,11 @@ import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { truncateText } from '@openpeepshq/common/lib';
 import { useEditArticle } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { MainScreenProps } from '~/components/navigation/types';
-import { ArticleForm } from '~/components/post';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
-import { ThemedText } from '~/components/ui/themed-text';
+import { GenericHeader } from '../../components/custom/index';
+import { MainScreenProps } from '../../components/navigation/types/index';
+import { ArticleForm } from '../../components/post/index';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedText } from '../../components/ui/themed-text';
 
 type EditArticleProps = MainScreenProps<'EditArticle'>;
 

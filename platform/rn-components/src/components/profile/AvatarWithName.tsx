@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import type { PublicProfile } from '@openpeepshq/common';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../ui/themed-text';
 import { ProfileAvatar } from './Avatar';
 
 export interface AvatarWithNameProps {

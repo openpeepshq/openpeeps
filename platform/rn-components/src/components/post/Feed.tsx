@@ -3,12 +3,12 @@ import React from 'react';
 import type { PublicPost } from '@openpeepshq/common';
 import { useResolvedFeedFormat } from '@openpeepshq/react';
 import { useFocusEffect } from '@react-navigation/native';
-import { handleScroll } from '~/lib/utils';
+import { handleScroll } from '../../lib/utils';
 import { PinnedPost } from './PinnedPost';
 import { FeedPost } from './FeedPost';
 import { FeedFormatSwitch } from './FeedFormatSwitch';
-import { EmptyStateContainerType, InfiniteQueryResult } from '~/types';
-import { CustomLoader, EmptyStateContainer } from '~/components/custom';
+import { EmptyStateContainerType, InfiniteQueryResult } from '../../types';
+import { CustomLoader, EmptyStateContainer } from '../custom/index';
 
 interface Props {
   query: InfiniteQueryResult<PublicPost>;

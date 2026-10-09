@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import type { PublicPost, PublicProfile } from '@openpeepshq/common/types';
 import { profileName } from '@openpeepshq/common';
 import { isUnreadPostForViewer, useCurrentProfile } from '@openpeepshq/react';
-import { UpdatingDate } from '~/components/custom/date/updating-date';
-import { ProfileAvatar } from '~/components/profile/Avatar';
-import { ThemedText } from '~/components/ui/themed-text';
-import { usePostViewRef } from '~/hooks/use-post-view-ref';
+import { UpdatingDate } from '../custom/date/updating-date';
+import { ProfileAvatar } from '../profile/Avatar';
+import { ThemedText } from '../ui/themed-text';
+import { usePostViewRef } from '../../hooks/use-post-view-ref';
 import { ConversationMessageBubble } from './ConversationMessageBubble';
 
 const inAudience = (post: PublicPost, profile: PublicProfile) =>

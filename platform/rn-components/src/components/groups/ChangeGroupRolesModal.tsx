@@ -11,10 +11,10 @@ import {
   assignableGroupRoles,
 } from '@openpeepshq/common/lib';
 import { useCurrentProfile, useOpenpeeps } from '@openpeepshq/react';
-import { Checkbox } from '~/components/ui/checkbox';
-import { Label } from '~/components/ui/label';
-import { ThemedText } from '~/components/ui/themed-text';
-import { useControlledSheet } from '~/hooks/use-controlled-sheet';
+import { Checkbox } from '../ui/checkbox';
+import { Label } from '../ui/label';
+import { ThemedText } from '../ui/themed-text';
+import { useControlledSheet } from '../../hooks/use-controlled-sheet';
 import { BaseSheet, SheetFooter } from '../custom/modals/common';
 
 export interface ChangeGroupRolesModalProps {

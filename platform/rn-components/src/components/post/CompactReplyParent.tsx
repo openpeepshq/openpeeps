@@ -13,11 +13,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 import { Image, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ProfileAvatar } from '~/components/profile';
-import { CalendarIcon, PaperclipIcon, PlayIcon } from '~/components/icons';
-import { MainStackParamList } from '~/components/navigation/types';
-import { ThemedText } from '~/components/ui/themed-text';
-import { ThemedView } from '~/components/ui/themed-view';
+import { ProfileAvatar } from '../profile/index';
+import { CalendarIcon, PaperclipIcon, PlayIcon } from '../icons/index';
+import { MainStackParamList } from '../navigation/types/index';
+import { ThemedText } from '../ui/themed-text';
+import { ThemedView } from '../ui/themed-view';
 
 type CompactPost = Pick<
   PublicReplyPost,

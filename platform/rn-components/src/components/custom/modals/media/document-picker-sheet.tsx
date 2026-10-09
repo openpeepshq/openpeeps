@@ -16,26 +16,26 @@ import {
 import { viewDocument } from '@react-native-documents/viewer';
 import { formatSize, MediaAttachment } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { Button } from '~/components/ui/button';
+import { Button } from '../../../ui/button';
 import {
   EyeOnIcon,
   FileIcon,
   XIcon,
   PlusIcon,
   FileTextIcon,
-} from '~/components/icons';
+} from '../../../icons/index';
 import Toast from 'react-native-toast-message';
-import { uploadMedia } from '~/lib/uploadMedia';
+import { uploadMedia } from '../../../../lib/uploadMedia';
 import { AltSheet } from './alt-text-sheet';
 import { BaseSheet, SheetFooter } from '../common';
-import { ThemedText } from '~/components/ui/themed-text';
-import { bottomSheetPresent } from '~/lib/bottom-sheet-ref';
+import { ThemedText } from '../../../ui/themed-text';
+import { bottomSheetPresent } from '../../../../lib/bottom-sheet-ref';
 import {
   decodeFileUri,
   dismissSheetForNativeModal,
   isPickerCancelled,
   resolveDocumentMime,
-} from '~/lib/mediaUriHelpers';
+} from '../../../../lib/mediaUriHelpers';
 
 interface DocumentPickerSheetProps {
   onSelect: (documentAttachments: MediaAttachment[]) => void | Promise<void>;

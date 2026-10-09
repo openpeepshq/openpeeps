@@ -2,10 +2,10 @@ import React from 'react';
 import { ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useCommunityInfoPages } from '@openpeepshq/react';
-import { GenericHeader } from '~/components/custom';
-import { OpenpeepsMarkdown } from '~/components/markdown';
-import { MainScreenProps } from '~/components/navigation/types';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { GenericHeader } from '../components/custom/index';
+import { OpenpeepsMarkdown } from '../components/markdown/index';
+import { MainScreenProps } from '../components/navigation/types/index';
+import { ThemedSafeAreaView } from '../components/ui/themed-safe-area-view';
 
 export const CodeOfConduct: React.FC<MainScreenProps<'CodeOfConduct'>> = () => {
   const { t } = useTranslation();

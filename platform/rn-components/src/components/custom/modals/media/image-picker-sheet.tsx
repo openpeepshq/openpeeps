@@ -1,23 +1,23 @@
 import React, { forwardRef, useState } from 'react';
 import { View, Text, ActivityIndicator, Platform } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Button } from '~/components/ui/button';
-import { CameraIcon, ImageIcon } from '~/components/icons';
+import { Button } from '../../../ui/button';
+import { CameraIcon, ImageIcon } from '../../../icons/index';
 import ImagePicker from 'react-native-image-crop-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useTranslation } from 'react-i18next';
 import { MediaAttachment } from '@openpeepshq/common';
-import { uploadMedia } from '~/lib/uploadMedia';
+import { uploadMedia } from '../../../../lib/uploadMedia';
 import { useOpenpeeps } from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
-import { useOpenPeepsTheme } from '~/theme/OpenPeepsThemeProvider';
+import { useOpenPeepsTheme } from '../../../../theme/OpenPeepsThemeProvider';
 import { BaseSheet } from '../common';
-import { bottomSheetClose } from '~/lib/bottom-sheet-ref';
+import { bottomSheetClose } from '../../../../lib/bottom-sheet-ref';
 import {
   dismissSheetForNativeModal,
   isPickerCancelled,
   toCropperPath,
-} from '~/lib/mediaUriHelpers';
+} from '../../../../lib/mediaUriHelpers';
 
 interface ImagePickerSheetProps {
   onSelect: (images: MediaAttachment[]) => void;

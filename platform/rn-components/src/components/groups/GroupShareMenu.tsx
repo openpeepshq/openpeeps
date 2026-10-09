@@ -6,9 +6,9 @@ import Toast from 'react-native-toast-message';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
-import { LinkIcon, PencilIcon, SendIcon, ShareIcon } from '~/components/icons';
-import { MainStackParamList } from '~/components/navigation/types';
-import { useNewPostModal } from '~/components/post/post-form';
+import { LinkIcon, PencilIcon, SendIcon, ShareIcon } from '../icons/index';
+import { MainStackParamList } from '../navigation/types/index';
+import { useNewPostModal } from '../post/post-form/index';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,10 +17,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
-import { BASE_URL } from '~/lib/constants';
-import { useNewConversationStore } from '~/stores/useNewConversationStore';
+} from '../ui/dropdown-menu';
+import { ThemedText } from '../ui/themed-text';
+import { BASE_URL } from '../../lib/constants';
+import { useNewConversationStore } from '../../stores/useNewConversationStore';
 
 export interface GroupShareMenuProps {
   group: GroupWithMeta;

@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import React from 'react';
 import { Profile } from '@openpeepshq/common';
-import { ThemedText } from '~/components/ui/themed-text';
+import { ThemedText } from '../ui/themed-text';
 import { ProfileImages, ProfileName } from '../profile/ProfilePieces';
 
 export const ConversationProfileHeader = ({

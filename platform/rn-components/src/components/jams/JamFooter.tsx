@@ -13,8 +13,8 @@ import {
   LaughIcon,
   MessageSquareTextIcon,
   UsersRoundIcon,
-} from '~/components/icons';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../icons/index';
+import { ThemedText } from '../ui/themed-text';
 import {
   JamAudioOutputSelector,
   JamCameraSelector,

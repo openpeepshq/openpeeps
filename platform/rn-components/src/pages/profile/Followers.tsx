@@ -1,12 +1,15 @@
 import React from 'react';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { MainScreenProps } from '~/components/navigation/types';
+import { MainScreenProps } from '../../components/navigation/types/index';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { EmptyStateContainer, GenericHeader } from '~/components/custom';
+import {
+  EmptyStateContainer,
+  GenericHeader,
+} from '../../components/custom/index';
 import { ActivityIndicator } from 'react-native';
-import { ThemedSafeAreaView } from '~/components/ui/themed-safe-area-view';
+import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 
-import { ProfileCard } from '~/components/profile';
+import { ProfileCard } from '../../components/profile/index';
 type ProfileFollowersProps = MainScreenProps<'ProfileFollowers'>;
 
 export const Followers: React.FC<ProfileFollowersProps> = ({ route }) => {

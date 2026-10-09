@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext } from 'react';
-import { navigationRef } from '~/components/navigation/nativeRouter';
+import { navigationRef } from '../navigation/nativeRouter';
 
 interface CreateNewJamContextValue {
   openCreateJam: () => void;

@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import type { PublicProfile } from '@openpeepshq/common/types';
 import { truncateText } from '@openpeepshq/common/lib';
 import { profileFieldLink } from '@openpeepshq/react';
-import { MapPinIcon } from '~/components/icons';
-import { PostMarkdown } from '~/components/post/Markdown';
-import { ThemedText } from '~/components/ui/themed-text';
+import { MapPinIcon } from '../icons/index';
+import { PostMarkdown } from '../post/Markdown';
+import { ThemedText } from '../ui/themed-text';
 import { ProfileAvatar } from './Avatar';
 import { ProfilePageAction } from './ProfilePageAction';
 import { ProfileStats } from './ProfileStats';
@@ -29,7 +29,7 @@ export const ProfileHeader = ({
           source={
             profile.header
               ? { uri: profile.header }
-              : require('~/assets/images/profile-background-placeholder.png')
+              : require('../../assets/images/profile-background-placeholder.png')
           }
           className="h-full w-full"
           resizeMode="cover"

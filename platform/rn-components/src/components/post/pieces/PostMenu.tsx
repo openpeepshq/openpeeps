@@ -11,7 +11,7 @@ import {
   PinIcon,
   BookmarkPlusIcon,
   BookmarkMinusIcon,
-} from '~/components/icons';
+} from '../../icons/index';
 import {
   DropdownMenu,
   type DropdownMenuRef,
@@ -19,24 +19,24 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { ThemedText } from '~/components/ui/themed-text';
+} from '../../ui/dropdown-menu';
+import { ThemedText } from '../../ui/themed-text';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Toast from 'react-native-toast-message';
-import { BASE_URL } from '~/lib/constants';
+import { BASE_URL } from '../../../lib/constants';
 import {
   checkGroupCapabilities,
   checkRoleCapabilities,
   PublicPost,
 } from '@openpeepshq/common';
-import { truncateText } from '~/lib/utils';
+import { truncateText } from '../../../lib/utils';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { DeletePostModal } from './modals/DeletePostModal';
 import { useEditPostModal } from '../post-form/EditPostModalContext';
 import { useTranslation } from 'react-i18next';
 import { ReportProfileOrPostModal } from '../../profile/ReportProfileOrPostModal';
-import { UploadIcon } from '~/components/icons';
+import { UploadIcon } from '../../icons/index';
 interface PostMenuProps {
   post: PublicPost;
   deleteCallback?: () => void;

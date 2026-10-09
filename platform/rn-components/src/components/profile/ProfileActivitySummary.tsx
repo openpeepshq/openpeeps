@@ -6,9 +6,9 @@ import type {
   PublicProfile,
 } from '@openpeepshq/common/types';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { RssIcon } from '~/components/icons';
-import { FeedPost } from '~/components/post/FeedPost';
-import { ThemedText } from '~/components/ui/themed-text';
+import { RssIcon } from '../icons/index';
+import { FeedPost } from '../post/FeedPost';
+import { ThemedText } from '../ui/themed-text';
 
 export interface ProfileActivitySummaryProps {
   profile: PublicProfile;
