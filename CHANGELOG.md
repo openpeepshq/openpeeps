@@ -5,6 +5,32 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **event**: enhance RSVP functionality with new occurrence handling
+- **seo**: make public communities discoverable to search crawlers
+- **rn**: mirror the web UI in the native component library
+
+### Bug Fixes
+
+- **rn-components**: import Feed from barrel to match siblings
+- **admin**: make theme color swatch chip circular
+- **admin**: add loading spinner to Members page while fetching profiles
+
+### CI/CD
+
+- **build**: give app and test builds distinct BuildKit builders
+- **tests**: warm host images and skip unused empty-suite services
+- **tests**: shard the empty suite across four communities
+- **tests**: build a shared integration image beside the app image
+- **build**: cache image layers and share short integration jobs
+
+### Chores
+
+- **packages**: bump versions for unpublished package changes
+
+## 2026-10-08
+
+### Features
+
 - **jams**: add speaker view and host spotlight
 - **jams**: implement room reclamation logic for egress-only rooms
 - **roles**: default roles history, adoption and rebase for customized roles
