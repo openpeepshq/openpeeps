@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 import {
   buttonVariants,
   type ButtonSize,
   type ButtonVariant,
-} from '@/lib/buttonVariants';
-import type { ButtonAction } from '@/types';
+} from '../../lib/buttonVariants';
+import type { ButtonAction } from '../../types';
 import {
   AccessibleButtonLabel,
   accessibleNameFrom,

@@ -1,3 +1,5 @@
+import * as pwa from './pwa';
+
 export * from './auth/credentials';
 export * from './contexts';
 export * from './i18n';
@@ -14,4 +16,4 @@ export * from './navigation';
 export * from './hooks';
 export { resolveAdminConfigSchema } from './lib/configuration/resolveSchema';
 export { diffConfigTrees, equal } from './lib/configuration/helpers';
-export * as pwa from './pwa';
+export { pwa };

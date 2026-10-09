@@ -13,7 +13,7 @@ import {
   useToast,
 } from '../../components';
 import { Button, Input, Label, Textarea } from '@openpeepshq/react-ui';
-import { ZodError } from 'zod';
+import { ZodError } from '@openpeepshq/common/zod';
 import { isDuplicateHandleError } from '../../lib/groupFormErrors';
 
 const firstZodMessage = (err: ZodError): string | undefined =>

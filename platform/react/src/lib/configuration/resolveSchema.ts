@@ -1,4 +1,4 @@
-import type { ZodObject, ZodRawShape } from 'zod';
+import type { ZodObject, ZodRawShape } from '@openpeepshq/common/zod';
 import {
   capabilitiesConfigSchema,
   communityConfigSanitizedSchema,

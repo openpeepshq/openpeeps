@@ -22,7 +22,7 @@
     "@modelcontextprotocol/node": "^2.0.0",
     "@modelcontextprotocol/server": "^2.0.0",
     "@openpeepshq/client": "workspace:^",
-    "zod": "^4.4.3"
+    "@openpeepshq/common": "workspace:^"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

@@ -4,7 +4,7 @@ import {
   TooltipProvider,
   TooltipRoot,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '../ui/tooltip';
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
 

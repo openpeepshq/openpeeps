@@ -1,4 +1,4 @@
-import { z, type ZodType } from 'zod';
+import { z, type ZodType } from '@openpeepshq/common/zod';
 import type { ConfigElement, ConfigTree } from '@openpeepshq/common/types';
 
 type SchemaWithDef = ZodType & {

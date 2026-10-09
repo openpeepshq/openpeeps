@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Loader } from '@/components/loaders/Loader';
-import { getUniqueBy } from '@/lib/utils';
+import { Loader } from '../loaders/Loader';
+import { getUniqueBy } from '../../lib/utils';
 import { ScrollObserver, type InfiniteQueryLike } from './ScrollObserver';
 
 export interface InfiniteScrollContainerQueryResult<D> extends InfiniteQueryLike {

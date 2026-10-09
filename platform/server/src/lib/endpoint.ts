@@ -1,6 +1,6 @@
 import { endpoint as riddlEndpoint } from '@riddl/core';
 import type { RequestEvent } from '@riddl/core';
-import { z } from 'zod';
+import { z } from '@openpeepshq/common/zod';
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 
 // Augment zod with `.openapi(...)` so endpoints can attach OpenAPI metadata

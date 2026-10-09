@@ -1,12 +1,13 @@
 // styles
 import './styles/globals.css';
+import * as primitives from './components/ui';
 
 // utilities + types
 export * from './lib';
 export * from './types';
 
 // shadcn primitives (low level)
-export * as primitives from './components/ui';
+export { primitives };
 export {
   ShadcnBadge,
   badgeVariants,

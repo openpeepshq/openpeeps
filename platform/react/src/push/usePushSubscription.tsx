@@ -5,7 +5,7 @@ import {
   getPushSubscription,
   subscribePushNotifications,
   unsubscribePushNotifications,
-} from './index';
+} from './webPush';
 
 export type PushSubscriptionError =
   | 'unsupported'

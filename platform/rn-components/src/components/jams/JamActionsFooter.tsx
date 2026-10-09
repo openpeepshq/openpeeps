@@ -12,7 +12,7 @@ import { MainStackParamList } from '../navigation/types/index';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 
-import { DeleteJamModal, DeleteJamModalRef } from './index';
+import { DeleteJamModal, type DeleteJamModalRef } from './DeleteJamModal';
 interface JamActionsFooterProps {
   handleOpenJam?: () => void;
   jamPost: PublicPost;

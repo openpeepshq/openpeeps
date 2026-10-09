@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Info } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 import type { FormMessage } from './types';
 
 export interface LabelProps {

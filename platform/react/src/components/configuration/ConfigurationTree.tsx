@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ZodObject, type ZodRawShape } from 'zod';
+import { ZodObject, type ZodRawShape } from '@openpeepshq/common/zod';
 import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import type { ConfigTree } from '@openpeepshq/common/types';

@@ -19,6 +19,7 @@
     "gallery:dev": "pnpm --filter @openpeepshq/component-gallery dev",
     "check-circular-deps": "ds",
     "check-branch": "node scripts/check-branch.mjs",
+    "check-publish-gate": "node scripts/check-publish-gate.mjs",
     "squash-branch": "scripts/squash-branch.sh",
     "dev:infra": "docker compose up -d postgres redis mailpit",
     "dev": "pnpm run dev:infra && concurrently -k --names api,worker,web -c blue,magenta,green \"pnpm --filter @openpeepshq/server dev\" \"pnpm --filter @openpeepshq/server dev:worker\" \"pnpm --filter @openpeepshq/web dev\""

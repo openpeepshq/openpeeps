@@ -1,4 +1,4 @@
-import { z, type ZodTypeAny } from 'zod';
+import { z, type ZodTypeAny } from '@openpeepshq/common/zod';
 
 const ZodObjectCtor = z.object({}).constructor as abstract new (
   ...args: never[]

@@ -4,12 +4,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
-import { buttonVariants, type StyledButtonVariant } from '@/lib/buttonVariants';
-import type { ButtonAction, IconType } from '@/types';
+} from '../ui/dropdown-menu';
+import { cn } from '../../lib/utils';
+import { buttonVariants, type StyledButtonVariant } from '../../lib/buttonVariants';
+import type { ButtonAction, IconType } from '../../types';
 import type { PopupPlacement } from './PopupMenu';
-import { AccessibleButtonLabel } from '@/components/button/AccessibleButtonLabel';
+import { AccessibleButtonLabel } from '../button/AccessibleButtonLabel';
 
 export interface SplitButtonMenuProps {
   /** Variant applied to the primary (circular) button. */

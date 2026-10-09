@@ -12,11 +12,6 @@ export default defineConfig({
       tsconfigPath: './tsconfig.json',
     }),
   ],
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
-    },
-  },
   experimental: {
     renderBuiltUrl(filename, { hostType }) {
       if (hostType === 'css') {

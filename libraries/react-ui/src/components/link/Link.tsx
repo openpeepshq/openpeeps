@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { ButtonAction } from '@/types';
+import { cn } from '../../lib/utils';
+import type { ButtonAction } from '../../types';
 
 export interface LinkProps {
   loading?: boolean;
