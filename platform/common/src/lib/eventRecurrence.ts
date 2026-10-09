@@ -236,15 +236,6 @@ export const occurrencesForIndex = (
   });
 };
 
-export const listRsvpOccurrences = (
-  event: Event,
-  now = new Date(),
-): ExpandedOccurrence[] =>
-  expandEventOccurrences(event, {
-    from: now,
-    to: new Date(now.getTime() + OCCURRENCE_HORIZON_MS),
-  }).filter((occurrence) => !occurrence.cancelled);
-
 /** Matches the agenda: a missing end is one hour after start, not open forever. */
 const IMPLIED_EVENT_DURATION_MS = 60 * 60 * 1000;
 
@@ -261,6 +252,20 @@ export const occurrenceHasEnded = (
     : startMs + IMPLIED_EVENT_DURATION_MS;
   return endMs < now.getTime();
 };
+
+/** Occurrences that have not ended, including one that is already underway. */
+export const listRsvpOccurrences = (
+  event: Event,
+  now = new Date(),
+): ExpandedOccurrence[] =>
+  expandEventOccurrences(event, {
+    from: new Date(now.getTime() - OCCURRENCE_HORIZON_MS),
+    to: new Date(now.getTime() + OCCURRENCE_HORIZON_MS),
+  }).filter(
+    (occurrence) =>
+      !occurrence.cancelled &&
+      !occurrenceHasEnded(occurrence.start, occurrence.end, now),
+  );
 
 const findExpandedOccurrence = (
   event: Event,
