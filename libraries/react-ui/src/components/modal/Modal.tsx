@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogPortal,
   DialogOverlay,
-} from '@/components/ui/dialog';
+} from '../ui/dialog';
 import { modalStore, type ModalEntry } from './store';
 
 /**

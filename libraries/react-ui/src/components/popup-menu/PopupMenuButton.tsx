@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Loader } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { ButtonAction, IconType } from '@/types';
-import { AccessibleButtonLabel } from '@/components/button/AccessibleButtonLabel';
+import { cn } from '../../lib/utils';
+import type { ButtonAction, IconType } from '../../types';
+import { AccessibleButtonLabel } from '../button/AccessibleButtonLabel';
 
 export interface PopupMenuButtonProps {
   action: ButtonAction;

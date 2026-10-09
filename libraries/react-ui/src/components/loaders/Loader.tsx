@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { cn } from '@/lib/utils';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { cn } from '../../lib/utils';
+import { LoadingSpinner } from '../ui/loading-spinner';
 import { WaitForQueries } from './WaitForQueries';
-import type { PartialQueryObserverResult } from '@/types';
+import type { PartialQueryObserverResult } from '../../types';
 
 export interface LoaderProps {
   fullScreen?: boolean;

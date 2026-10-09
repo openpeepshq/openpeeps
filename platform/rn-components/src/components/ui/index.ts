@@ -26,7 +26,7 @@ export * from './skeleton';
 export * from './switch';
 export * from './tabs';
 
-// @rn-primitives select — renamed to avoid clashing with `~/components/custom/common/select`
+// @rn-primitives select — renamed to avoid clashing with custom/common/select
 export {
   Select as SelectPrimitive,
   SelectContent,

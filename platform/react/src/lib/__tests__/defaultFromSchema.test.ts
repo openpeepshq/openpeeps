@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { z, type ZodType } from 'zod';
+import { z, type ZodType } from '@openpeepshq/common/zod';
 import { coreConfigSanitizedSchema } from '@openpeepshq/common/types';
 import { defaultFromSchema, unwrap } from '../configuration/helpers';
 

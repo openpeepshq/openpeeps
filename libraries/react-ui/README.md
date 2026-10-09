@@ -88,7 +88,7 @@ import {
   Input,
   Button,
 } from '@openpeepshq/react-ui';
-import { z } from 'zod';
+import { z } from '@openpeepshq/common/zod';
 
 const schema = z.object({ email: z.string().email() });
 const form = useForm({ resolver: zodResolver(schema), defaultValues: { email: '' } });

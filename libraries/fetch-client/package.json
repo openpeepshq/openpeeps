@@ -1,19 +1,39 @@
 {
   "name": "@openpeepshq/fetch-client",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "license": "MIT",
   "type": "module",
+  "sideEffects": false,
   "dependencies": {
     "sse.js": "^2.5.0"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*/index.js"
+    ".": {
+      "react-native": {
+        "types": "./dist/index.d.ts",
+        "default": "./src/index.ts"
+      },
+      "types": "./dist/index.d.ts",
+      "node": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "react-native": {
+        "types": "./dist/*/index.d.ts",
+        "default": "./src/*/index.ts"
+      },
+      "types": "./dist/*/index.d.ts",
+      "node": "./dist/*/index.js",
+      "default": "./dist/*/index.js"
+    }
   },
   "files": [
-    "/dist"
+    "src",
+    "dist",
+    "!**/__tests__",
+    "!**/*.test.ts"
   ],
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.19.0",
@@ -29,8 +49,9 @@
     "lint": "prettier --check . && ESLINT_USE_FLAT_CONFIG=false eslint .",
     "format": "prettier --write .",
     "clean": "rm -rf tsconfig.tsbuildinfo dist",
+    "typecheck": "tsc --noEmit",
     "build": "tsc && tsc-alias",
     "build:watch": "tsc && tsc-alias && (concurrently \"tsc -w\" \"tsc-alias -w\")",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm typecheck && pnpm build && node ../../scripts/check-publish-gate.mjs --package fetch-client"
   }
 }

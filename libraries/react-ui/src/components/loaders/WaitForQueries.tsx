@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { PartialQueryObserverResult } from '@/types';
+import type { PartialQueryObserverResult } from '../../types';
 
 export interface WaitForQueriesProps {
   queries?: PartialQueryObserverResult<unknown>[];

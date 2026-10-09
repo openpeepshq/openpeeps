@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import { openpeepsClient } from '@openpeepshq/client';
-import * as z from 'zod';
+import * as z from '@openpeepshq/common/zod';
 import { runTool, unwrap } from '../result.js';
 
 const limitSchema = z.number().int().positive().max(100).optional();

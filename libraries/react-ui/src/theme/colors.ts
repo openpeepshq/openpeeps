@@ -7,6 +7,7 @@ export const hexToRgb = (hex: string): Rgb | null => {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sanitized);
   if (!m) return null;
   const [, r, g, b] = m;
+  if (r === undefined || g === undefined || b === undefined) return null;
   return { r: parseInt(r, 16), g: parseInt(g, 16), b: parseInt(b, 16) };
 };
 
@@ -15,6 +16,7 @@ export const hexToTailwindRgbString = (hex: string): string => {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sanitized);
   if (!m) return '(invalid)';
   const [, r, g, b] = m;
+  if (r === undefined || g === undefined || b === undefined) return '(invalid)';
   return `${parseInt(r, 16)} ${parseInt(g, 16)} ${parseInt(b, 16)}`;
 };
 
@@ -23,7 +25,7 @@ export const getLuminance = (rgb: Rgb): number => {
     const v = vRaw / 255;
     return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
   });
-  return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+  return (a[0] ?? 0) * 0.2126 + (a[1] ?? 0) * 0.7152 + (a[2] ?? 0) * 0.0722;
 };
 
 const calculateRatio = (luminance1: string, luminance2: string): number => {

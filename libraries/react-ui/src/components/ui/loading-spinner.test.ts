@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 
 describe('LoadingSpinner border merge', () => {
   it('keeps the primary accent after a transparent after-border', () => {

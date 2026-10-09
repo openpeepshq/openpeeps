@@ -1,8 +1,9 @@
 {
   "name": "@openpeepshq/common",
-  "version": "0.1.46",
+  "version": "0.2.0",
   "license": "MIT",
   "type": "module",
+  "sideEffects": false,
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
     "date-fns": "^4.1.0",
@@ -13,14 +14,42 @@
     "validator": "^13.15.35",
     "zod": "^4.4.3"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*/index.js"
+    ".": {
+      "react-native": {
+        "types": "./dist/index.d.ts",
+        "default": "./src/index.ts"
+      },
+      "types": "./dist/index.d.ts",
+      "node": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./zod": {
+      "react-native": {
+        "types": "./dist/zod.d.ts",
+        "default": "./src/zod.ts"
+      },
+      "types": "./dist/zod.d.ts",
+      "node": "./dist/zod.js",
+      "default": "./dist/zod.js"
+    },
+    "./*": {
+      "react-native": {
+        "types": "./dist/*/index.d.ts",
+        "default": "./src/*/index.ts"
+      },
+      "types": "./dist/*/index.d.ts",
+      "node": "./dist/*/index.js",
+      "default": "./dist/*/index.js"
+    }
   },
   "files": [
-    "/dist"
+    "src",
+    "dist",
+    "!**/__tests__",
+    "!**/*.test.ts"
   ],
   "devDependencies": {
     "@types/node": "^24.1.12",
@@ -44,9 +73,10 @@
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
     "clean": "rm -rf tsconfig.tsbuildinfo dist",
+    "typecheck": "tsc --noEmit",
     "build": "tsc && tsc-alias",
     "build:watch": "tsc && tsc-alias && (concurrently \"tsc -w\" \"tsc-alias -w\")",
-    "prepublishOnly": "pnpm build",
+    "prepublishOnly": "pnpm typecheck && pnpm build && node ../../scripts/check-publish-gate.mjs --package common",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",

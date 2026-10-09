@@ -1,6 +1,6 @@
 import * as React from 'react';
-import type { ColumnDefinition } from '@/types';
-import { deepGet } from '@/lib/utils';
+import type { ColumnDefinition } from '../../types';
+import { deepGet } from '../../lib/utils';
 
 export interface TableProps<D> {
   data?: D[];

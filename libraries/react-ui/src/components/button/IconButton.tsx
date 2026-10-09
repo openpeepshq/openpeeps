@@ -1,5 +1,5 @@
 import { Button, type ButtonProps } from './Button';
-import type { IconType } from '@/types';
+import type { IconType } from '../../types';
 
 export interface IconButtonProps extends ButtonProps {
   icon: IconType;

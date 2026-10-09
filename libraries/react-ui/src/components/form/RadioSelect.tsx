@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { uuidv4 } from 'uuidv7';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 import { Label } from './Label';
 
 export interface RadioSelectOption {

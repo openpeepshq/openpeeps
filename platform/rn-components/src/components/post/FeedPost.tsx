@@ -16,7 +16,7 @@ import { CompactReplyParent } from './CompactReplyParent';
 import { ThemedView } from '../ui/themed-view';
 import { usePostViewRef } from '../../hooks/use-post-view-ref';
 
-import { FeedPostContent } from './index';
+import { FeedPostContent } from './FeedPostContent';
 export interface FeedPostProps {
   post: PublicPost;
   deleteCallback?: () => void;

@@ -1,4 +1,4 @@
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { LoadingSpinner } from '../ui/loading-spinner';
 
 /**
  * @deprecated Use {@link LoadingSpinner} instead.

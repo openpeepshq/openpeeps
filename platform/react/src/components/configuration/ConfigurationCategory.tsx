@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ZodObject, type ZodRawShape, ZodArray, type ZodType } from 'zod';
+import { ZodObject, type ZodRawShape, ZodArray, type ZodType } from '@openpeepshq/common/zod';
 import type { ConfigTree } from '@openpeepshq/common/types';
 import { capitalizeFirstLetter } from '@openpeepshq/common';
 import { ExpandableBox } from '@openpeepshq/react-ui';

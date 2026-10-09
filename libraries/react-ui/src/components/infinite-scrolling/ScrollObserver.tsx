@@ -1,4 +1,4 @@
-import { useInfiniteScroll } from '@/lib/scrolling';
+import { useInfiniteScroll } from '../../lib/scrolling';
 
 export interface InfiniteQueryLike {
   hasNextPage?: boolean;
