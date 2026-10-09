@@ -10,6 +10,7 @@ import type {
 import {
   endOfMonth,
   eventStartIso,
+  expandRecurringAgendaPosts,
   groupPostsByDay,
   localDateKey,
   monthCells,
@@ -58,7 +59,11 @@ export const useEventsCalendar = (
     () => uniquePosts(query.data?.pages),
     [query.data?.pages],
   );
-  const byDay = useMemo(() => groupPostsByDay(posts), [posts]);
+  const calendarPosts = useMemo(
+    () => expandRecurringAgendaPosts(posts, agenda),
+    [agenda, posts],
+  );
+  const byDay = useMemo(() => groupPostsByDay(calendarPosts), [calendarPosts]);
   const cells = useMemo(
     () => monthCells(cursor.year, cursor.month),
     [cursor.year, cursor.month],

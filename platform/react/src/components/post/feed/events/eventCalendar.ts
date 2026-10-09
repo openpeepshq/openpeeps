@@ -1,3 +1,7 @@
+import {
+  occurrencesForIndex,
+  type ExpandedOccurrence,
+} from '@openpeepshq/common/lib';
 import type { PublicPost } from '@openpeepshq/common/types';
 
 export type EventsAgendaWindow = 'upcoming' | 'past' | 'current';
@@ -8,6 +12,8 @@ export type MonthCell = {
 };
 
 const MAX_SPAN_DAYS = 370;
+/** Matches the agenda: a missing end is one hour after start. */
+const IMPLIED_EVENT_DURATION_MS = 60 * 60 * 1000;
 
 export const localDateKey = (date: Date): string => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -78,11 +84,7 @@ export const eventEndIso = (post: PublicPost): string | undefined => {
   return post.occurrenceEnd ?? post.data.end;
 };
 
-/**
- * Local calendar days an agenda row occupies.
- * Agenda feeds return one occurrence per event, so a series shows on that
- * occurrence only.
- */
+/** Local calendar days one occurrence occupies. */
 export const eventDayKeys = (post: PublicPost): string[] => {
   if (post.data.type !== 'event') return [];
   const startIso = eventStartIso(post);
@@ -129,6 +131,62 @@ export const uniquePosts = (
     out.push(post);
   }
   return out;
+};
+
+const occurrenceMatchesAgenda = (
+  occurrence: Pick<ExpandedOccurrence, 'start' | 'end'>,
+  window: EventsAgendaWindow,
+  now: Date,
+): boolean => {
+  const startMs = new Date(occurrence.start).getTime();
+  if (!Number.isFinite(startMs)) return false;
+  const explicitEndMs = occurrence.end
+    ? new Date(occurrence.end).getTime()
+    : Number.NaN;
+  const endMs = Number.isFinite(explicitEndMs)
+    ? explicitEndMs
+    : startMs + IMPLIED_EVENT_DURATION_MS;
+  const nowMs = now.getTime();
+  if (window === 'past') return endMs < nowMs;
+  if (window === 'current') return startMs <= nowMs && endMs >= nowMs;
+  return (
+    startMs > nowMs || (Number.isFinite(explicitEndMs) && explicitEndMs > nowMs)
+  );
+};
+
+const postForOccurrence = (
+  post: PublicPost,
+  occurrence: ExpandedOccurrence,
+): PublicPost => {
+  const { occurrenceEnd: _previousEnd, ...rest } = post;
+  return {
+    ...rest,
+    occurrenceRecurrenceId: occurrence.recurrenceId,
+    occurrenceStart: occurrence.start,
+    ...(occurrence.end ? { occurrenceEnd: occurrence.end } : {}),
+  };
+};
+
+/**
+ * Agenda feeds return one row per series. Place every occurrence that belongs
+ * in this window on its own date. Paging still uses the original rows.
+ */
+export const expandRecurringAgendaPosts = (
+  posts: PublicPost[],
+  window: EventsAgendaWindow,
+  now = new Date(),
+): PublicPost[] => {
+  const rows = posts.flatMap((post) => {
+    if (post.data.type !== 'event' || !post.data.recurrence) return [post];
+    const occurrences = occurrencesForIndex(post.data, now).filter(
+      (occurrence) =>
+        !occurrence.cancelled &&
+        occurrenceMatchesAgenda(occurrence, window, now),
+    );
+    if (occurrences.length === 0) return [post];
+    return occurrences.map((occurrence) => postForOccurrence(post, occurrence));
+  });
+  return uniquePosts([rows]);
 };
 
 export const groupPostsByDay = (
