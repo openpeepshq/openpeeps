@@ -136,7 +136,6 @@ Thanks @${fixtureNeighbor.handle} for organizing the cleanup.
 - #cleanup`}
           mentions={[
             {
-              text: `@${fixtureNeighbor.handle}`,
               profile: fixtureNeighbor,
             },
           ]}
