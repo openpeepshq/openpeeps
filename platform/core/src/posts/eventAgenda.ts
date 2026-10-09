@@ -4,7 +4,6 @@ import {
   asc,
   desc,
   eq,
-  gt,
   isNotNull,
   isNull,
   lte,
@@ -56,7 +55,9 @@ const occurrenceTimeFilter = (window: EventAgendaWindow, now: string): SQL => {
   const start = eventOccurrences.start;
   const end = eventOccurrences.end;
   if (window === 'upcoming') {
-    return or(gt(start, now), and(isNotNull(end), gt(end, now)))!;
+    // Still this occurrence until it ends. A missing end counts as one hour,
+    // same as the current and past windows.
+    return sql`COALESCE(${end}, ${start} + interval '1 hour') >= ${now}`;
   }
   if (window === 'current') {
     // A missing end is treated as a one-hour event, not an infinite one.
