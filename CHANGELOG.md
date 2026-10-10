@@ -5,12 +5,17 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **eventCalendar**: implement recurring event handling in agenda
+- **libraries**: ship packages as standard RN and web libraries
 - **event**: enhance RSVP functionality with new occurrence handling
 - **seo**: make public communities discoverable to search crawlers
 - **rn**: mirror the web UI in the native component library
 
 ### Bug Fixes
 
+- **ci**: do not cancel in-progress workflows on main
+- **rn-components**: rewrite ~/ imports to relative paths and gate publishes
+- **jams**: retry livekit health probe before disabling jams
 - **rn-components**: import Feed from barrel to match siblings
 - **admin**: make theme color swatch chip circular
 - **admin**: add loading spinner to Members page while fetching profiles
