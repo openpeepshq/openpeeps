@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useOpenpeeps } from '@openpeepshq/react';
 import {
   AudioPickerSheet,
@@ -6,12 +12,13 @@ import {
   type DocumentPickerSheetHandle,
   GenericHeader,
   ImagePickerSheet,
-  VideoPickerSheet,
 } from '../../components/custom/index';
 import {
   MediaAttachment,
+  pollOptionsWithinLimit,
   PostCreationData,
   PublicPost,
+  resolvePollOptionContents,
 } from '@openpeepshq/common';
 import Toast from 'react-native-toast-message';
 import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
@@ -28,14 +35,10 @@ import { MainScreenProps } from '../../components/navigation/types/index';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import Footer from '../../components/post/post-form/Footer';
+import { Footer } from '../../components/post/post-form/Footer';
+import { PostTypeSwitcher } from '../../components/post/post-form/PostTypeSwitcher';
 import { useForm } from 'react-hook-form';
-import {
-  hasProcessingAttachments,
-  toArticle,
-  toNote,
-  toQuestion,
-} from '../../lib/post';
+import { hasProcessingAttachments, toNote, toQuestion } from '../../lib/post';
 import { CompactReplyParent } from '../../components/post/CompactReplyParent';
 
 import { ReplyModal } from '../../components/post/index';
@@ -114,9 +117,40 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
     scrollRef.current?.scrollToEnd(false);
   }, [isPostLoading, post, postData]);
 
+  const trimmedContent = (postData?.data.content ?? '').trim();
+  const pollOptions =
+    postData?.data.type === 'question'
+      ? postData.data.options.map((option) => option.content)
+      : [];
+  const resolvedPollOptions = resolvePollOptionContents(pollOptions, (index) =>
+    t('posts.form.poll.option', { number: index + 1 })
+  );
+  const pollOptionsValid =
+    resolvedPollOptions.length >= 2 &&
+    pollOptionsWithinLimit(resolvedPollOptions);
+
+  const canSubmit = useMemo(() => {
+    if (!post || !postData || isPosting || attachmentsProcessing) {
+      return false;
+    }
+    if (postData.data.type === 'question') {
+      return trimmedContent.length > 0 && pollOptionsValid;
+    }
+    return (
+      (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
+      (postData.data.attachments?.length ?? 0) > 0
+    );
+  }, [
+    attachmentsProcessing,
+    isPosting,
+    pollOptionsValid,
+    post,
+    postData,
+    trimmedContent.length,
+  ]);
+
   const handlePostCreation = async () => {
-    if (!post) {
-      Toast.show({ type: 'error', text1: t('posts.create.error') });
+    if (!post || !canSubmit) {
       return;
     }
 
@@ -132,14 +166,14 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
 
       handlePostSuccess();
     } catch {
-      Toast.show({ type: 'error', text1: t('posts.create.error') });
+      Toast.show({ type: 'error', text1: t('posts.replyModal.errorToast') });
     } finally {
       setIsPosting(false);
     }
   };
 
   const handlePostSuccess = async () => {
-    Toast.show({ type: 'success', text1: t('posts.create.success') });
+    Toast.show({ type: 'success', text1: t('posts.replyModal.successToast') });
     resetReplyData(id);
     navigation.navigate('TabNavigator', {
       screen: 'Feed',
@@ -147,7 +181,6 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
   };
 
   const imagePickerModalRef = useRef<BottomSheetModal>(null);
-  const videoPickerModalRef = useRef<BottomSheetModal>(null);
   const audioPickerModalRef = useRef<BottomSheetModal>(null);
   const documentPickerModalRef = useRef<DocumentPickerSheetHandle>(null);
 
@@ -155,13 +188,6 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
     const hasPermission = await checkMediaPermissions(t, 'photo');
     if (hasPermission) {
       imagePickerModalRef.current?.present();
-    }
-  }, [t]);
-
-  const handleVideoModalPress = useCallback(async () => {
-    const hasPermission = await checkMediaPermissions(t, 'video');
-    if (hasPermission) {
-      videoPickerModalRef.current?.present();
     }
   }, [t]);
 
@@ -187,21 +213,18 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
     [postData, form, setPostData]
   );
 
-  const handleSwitchPollPress = useCallback(() => {
-    const newPostData =
-      postData.data.type === 'question'
-        ? toNote(postData)
-        : toQuestion(postData);
-    form.reset(newPostData);
-    setPostData(newPostData);
-  }, [postData, form, setPostData]);
-
-  const handleSwithToArticlePress = useCallback(() => {
-    const newPostData =
-      postData.type === 'article' ? toNote(postData) : toArticle(postData);
-    form.reset(newPostData);
-    setPostData(newPostData);
-  }, [postData, form, setPostData]);
+  const handleSelectComposerType = useCallback(
+    (next: 'note' | 'question') => {
+      if (!postData || postData.data.type === next) {
+        return;
+      }
+      const newPostData =
+        next === 'question' ? toQuestion(postData) : toNote(postData);
+      form.reset(newPostData);
+      setPostData(newPostData);
+    },
+    [postData, form, setPostData]
+  );
 
   const handleDocumentModalPress = useCallback(async () => {
     const hasPermission = await checkMediaPermissions(t, 'file');
@@ -222,7 +245,7 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
               : t('posts.create.submit')
         }
         onRightButtonPress={handlePostCreation}
-        rightButtonDisabled={isPosting || attachmentsProcessing}
+        rightButtonDisabled={!canSubmit}
       />
       <KeyboardAwareScrollView
         ref={scrollRef}
@@ -254,7 +277,7 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
                 onPress={() => {}}
                 className="inline-flex items-center "
               >
-                <ThemedText className="text-lg text-blue-600">
+                <ThemedText className="text-lg text-primary">
                   {`@${post?.profile.handle}`}
                 </ThemedText>
               </TouchableWithoutFeedback>
@@ -266,7 +289,7 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
                     onPress={() => {}}
                     className="inline-flex items-center "
                   >
-                    <ThemedText className="text-lg text-blue-600">
+                    <ThemedText className="text-lg text-primary">
                       {post.group.displayName}
                     </ThemedText>
                   </TouchableWithoutFeedback>
@@ -289,21 +312,26 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
         <ReplyModal ref={replyModalRef} onSelect={() => {}} id={id} />
       </KeyboardAwareScrollView>
       <Footer
-        content={postData}
-        postType={postData?.data?.type}
+        hideMedia={postData?.data.type === 'question'}
         onImagePress={handleImageModalPress}
-        onMicPress={handleAudioModalPress}
-        onVideoPress={handleVideoModalPress}
-        onPollPress={handleSwitchPollPress}
+        onAudioPress={handleAudioModalPress}
         onDocumentPress={handleDocumentModalPress}
-        onArticlePress={handleSwithToArticlePress}
+        typeSwitcher={
+          postData ? (
+            <PostTypeSwitcher
+              type={postData.data.type === 'question' ? 'question' : 'note'}
+              onSelect={handleSelectComposerType}
+              onClose={() => undefined}
+              showEventType={false}
+              showArticleType={false}
+              visibility={postData.visibility}
+              groupId={postData.groupId ?? undefined}
+            />
+          ) : undefined
+        }
       />
       <ImagePickerSheet
         ref={imagePickerModalRef}
-        onSelect={handleAddAttachments}
-      />
-      <VideoPickerSheet
-        ref={videoPickerModalRef}
         onSelect={handleAddAttachments}
       />
       <AudioPickerSheet

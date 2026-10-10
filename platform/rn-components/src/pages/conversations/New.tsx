@@ -118,7 +118,14 @@ export const NewConversation = ({
 
         {!isLoading && filteredProfiles?.length === 0 && (
           <View className="flex-1 items-center justify-center mt-4 pb-12">
-            <EmptyStateContainer type="profiles" />
+            <EmptyStateContainer
+              type="profiles"
+              copyKey={
+                searchQuery
+                  ? 'profile.selector.emptySearch'
+                  : 'profile.selector.empty'
+              }
+            />
           </View>
         )}
       </KeyboardAwareScrollView>

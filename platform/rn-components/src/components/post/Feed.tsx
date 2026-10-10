@@ -82,7 +82,9 @@ export const Feed = ({
               );
             })}
           </View>
-          {allPosts.length === 0 && <EmptyStateContainer type={type} />}
+          {allPosts.length === 0 && !pinnedPostId && (
+            <EmptyStateContainer type={type} copyKey="feed.empty" />
+          )}
           {query.isFetchingNextPage && <CustomLoader page="community" />}
         </>
       )}

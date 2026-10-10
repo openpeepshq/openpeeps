@@ -25,7 +25,11 @@ export const FeedPostContent = ({ post }: FeedPostContentProps) => {
   }
   if (post.deletedAt) {
     return (
-      <View className="text-sm text-gray-500">This post has been deleted.</View>
+      <View>
+        <ThemedText className="text-sm text-muted-foreground">
+          {t('posts.compact.deleted')}
+        </ThemedText>
+      </View>
     );
   }
   if (post.type === 'note') {
@@ -40,11 +44,5 @@ export const FeedPostContent = ({ post }: FeedPostContentProps) => {
   if (post.type === 'article') {
     return <FeedArticle {...{ post }} />;
   }
-  return (
-    <View>
-      <ThemedText className="text-red-500">
-        This post type is not supported.
-      </ThemedText>
-    </View>
-  );
+  return null;
 };

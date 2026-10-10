@@ -46,7 +46,7 @@ export const CardEvent = ({ post, showEventDate = true }: CardEventProps) => {
           occurrence: occurrenceId,
         });
       }}
-      className="flex mb-6 w-full border-[0.5px] border-gray-100/50 rounded-lg"
+      className="mb-6 w-full rounded-lg border border-border"
     >
       <View className="w-full aspect-video overflow-hidden rounded-t-md">
         <Image

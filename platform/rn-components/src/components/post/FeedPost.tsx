@@ -2,6 +2,7 @@ import { type PublicPost } from '@openpeepshq/common';
 import { useFeedPostPresentation } from '@openpeepshq/react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Pressable } from 'react-native';
 import { MainStackParamList } from '../navigation/types/index';
 import {
   PostInfoHeader,
@@ -73,45 +74,39 @@ export const FeedPost = ({
   }
 
   return (
-    <ThemedView
-      ref={postViewRef}
-      className="relative py-5 border-b border-border"
-    >
-      <UnreadPostIndicator show={isUnread} />
-      {hasReactionHeader && (
-        <PostReactionHeader
-          post={post}
-          inGroup={inGroup}
-          hideReply={hideReply}
-          previewMode={previewMode}
+    <Pressable disabled={previewMode} onPress={handlePostPress}>
+      <ThemedView
+        ref={postViewRef}
+        className="relative border-b border-border p-4"
+      >
+        <UnreadPostIndicator show={isUnread} />
+        {hasReactionHeader && (
+          <PostReactionHeader
+            post={post}
+            inGroup={inGroup}
+            hideReply={hideReply}
+            previewMode={previewMode}
+          />
+        )}
+        {showsReplyTo && displayedPost.replyTo ? (
+          <CompactReplyParent post={displayedPost.replyTo as PublicPost} />
+        ) : null}
+
+        <PostInfoHeader
+          post={displayedPost}
+          showMenu={!hasReactionHeader && !previewMode && showMenu}
+          deleteCallback={deleteCallback}
         />
-      )}
-      {showsReplyTo && displayedPost.replyTo ? (
-        <CompactReplyParent post={displayedPost.replyTo as PublicPost} />
-      ) : null}
 
-      <PostInfoHeader
-        post={displayedPost}
-        showMenu={!post.repost && !post.inReplyToId && !previewMode && showMenu}
-        deleteCallback={deleteCallback}
-      />
-
-      <ThemedView className="px-5">
-        {content ?? <FeedPostContent post={displayedPost} />}
-      </ThemedView>
-      {hasStats && (
-        <ThemedView className="px-5">
-          <FeedPostStats post={displayedPost} />
+        <ThemedView>
+          {content ?? <FeedPostContent post={displayedPost} />}
         </ThemedView>
-      )}
-      <PostActions
-        post={displayedPost}
-        previewMode={previewMode}
-        onPostPress={handlePostPress}
-      />
-      {!hideReply && showThreadPreview ? (
-        <FeedThreadPreview post={displayedPost} />
-      ) : null}
-    </ThemedView>
+        {hasStats && <FeedPostStats post={displayedPost} />}
+        <PostActions post={displayedPost} previewMode={previewMode} />
+        {!hideReply && showThreadPreview ? (
+          <FeedThreadPreview post={displayedPost} />
+        ) : null}
+      </ThemedView>
+    </Pressable>
   );
 };

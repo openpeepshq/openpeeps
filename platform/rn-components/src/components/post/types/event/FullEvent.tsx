@@ -1,6 +1,5 @@
 import React, { useMemo, useRef } from 'react';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { EmptyStateContainer } from '../../../custom/index';
 import {
   MoreVerticalIcon,
   ShareIcon,
@@ -80,7 +79,9 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const { openNewPost } = useNewPostModal();
-  const [tabValue, setTabValue] = React.useState('description');
+  const [tabValue, setTabValue] = React.useState(
+    (post?.data as Event)?.content ? 'description' : 'discussions'
+  );
   const { setContt } = useNewConversationStore();
 
   const group = useMemo(() => post?.group as Group, [post]);
@@ -330,17 +331,19 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
         className="w-full mx-auto flex-col gap-1.5 mt-5"
       >
         <TabsList className="flex-row w-full bg-transparent border-muted rounded-none border-b p-0 px-3">
-          <TabsTrigger
-            value="description"
-            onPress={() => {
-              setTabValue('description');
-            }}
-            className={`${
-              tabValue === 'description' ? 'border-b-2 border-foreground' : ''
-            }`}
-          >
-            <ThemedText>Description</ThemedText>
-          </TabsTrigger>
+          {event?.content ? (
+            <TabsTrigger
+              value="description"
+              onPress={() => {
+                setTabValue('description');
+              }}
+              className={`${
+                tabValue === 'description' ? 'border-b-2 border-foreground' : ''
+              }`}
+            >
+              <ThemedText>Description</ThemedText>
+            </TabsTrigger>
+          ) : null}
           <TabsTrigger
             value="discussions"
             className={`${
@@ -366,13 +369,11 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
             </TabsTrigger>
           )}
         </TabsList>
-        <TabsContent value="description" className="p-0">
-          {event?.content ? (
-            <OpenpeepsMarkdown source={event?.content} linkPreviewMode="none" />
-          ) : (
-            <EmptyStateContainer type="event-description" />
-          )}
-        </TabsContent>
+        {event?.content ? (
+          <TabsContent value="description" className="p-0">
+            <OpenpeepsMarkdown source={event.content} linkPreviewMode="none" />
+          </TabsContent>
+        ) : null}
         <TabsContent value="discussions" className="flex-1 p-0">
           <ReplyBox post={post} />
           {descendentThreads.map((thread) => (

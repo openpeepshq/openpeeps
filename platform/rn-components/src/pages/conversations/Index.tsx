@@ -136,7 +136,7 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
       >
         {isLoading && <ActivityIndicator size={'small'} />}
         {!isLoading && filteredConversations?.length === 0 && (
-          <EmptyStateContainer type="messages" />
+          <EmptyStateContainer type="messages" copyKey="conversations.empty" />
         )}
         {!isLoading &&
           filteredConversations?.map((conversation, idx) => (

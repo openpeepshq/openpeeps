@@ -51,13 +51,13 @@ export const GroupInfo = ({ route }: GroupInfoProps) => {
           <>
             <ThemedText className="text-2xl">About Group</ThemedText>
 
-            <View className="py-4 my-4 border-b-2 border-b-gray-500">
+            <View className="my-4 border-b border-border py-4">
               <ThemedText className="text-lg font-semibold">
                 Description
               </ThemedText>
               <OpenpeepsMarkdown source={groupData?.description || ''} />
             </View>
-            <View className="py-4 my-4 border-b-2 border-b-gray-500 space-y-6">
+            <View className="my-4 space-y-6 border-b border-border py-4">
               <ThemedText className="text-lg font-semibold">Details</ThemedText>
 
               <ThemedText className="">
@@ -130,7 +130,7 @@ export const GroupInfoAsComponent: React.FC<GroupInfoAsComponentProps> = ({
         {isLoading && <ActivityIndicator size={'small'} />}
         {!isLoading && (
           <>
-            <View className="border-b-2 border-b-gray-500">
+            <View className="border-b border-border">
               <ThemedText className="text-lg font-semibold">
                 Description
               </ThemedText>
@@ -140,7 +140,7 @@ export const GroupInfoAsComponent: React.FC<GroupInfoAsComponentProps> = ({
                 }
               />
             </View>
-            <View className="py-4 my-2 border-b-2 border-b-gray-500 flex gap-y-2">
+            <View className="my-2 flex gap-y-2 border-b border-border py-4">
               <ThemedText className="text-lg font-semibold">Details</ThemedText>
               <View>
                 <ThemedText className="font-semibold">Created</ThemedText>

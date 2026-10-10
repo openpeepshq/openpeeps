@@ -242,8 +242,8 @@ export const SideMenu = ({
                 close?.();
               }}
             >
-              <LogOutIcon size={20} className="text-red-700 mr-5" />
-              <ThemedText className="text-red-700 native:text-lg tracking-wider -mt-1">
+              <LogOutIcon size={20} className="mr-5 text-destructive" />
+              <ThemedText className="-mt-1 tracking-wider text-destructive native:text-lg">
                 {t('navigation.logOut')}
               </ThemedText>
             </Button>

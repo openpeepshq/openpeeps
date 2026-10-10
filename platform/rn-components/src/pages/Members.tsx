@@ -88,7 +88,7 @@ export const Members: React.FC<DirectoryProps> = ({ navigation }) => {
           </>
         }
       />
-      <KeyboardAwareScrollView className="w-full grow flex bg-background relative p-2 gap-y-4 border-t-2 border-gray-700">
+      <KeyboardAwareScrollView className="relative w-full grow flex bg-background gap-y-4 border-t border-border p-2">
         {isLoading && <ActivityIndicator size={'small'} />}
         {filteredProfiles?.map((profile, index) => {
           return (
@@ -117,7 +117,7 @@ export const Members: React.FC<DirectoryProps> = ({ navigation }) => {
         })}
 
         {filteredProfiles?.length === 0 && (
-          <EmptyStateContainer type="profiles" />
+          <EmptyStateContainer type="profiles" copyKey="members.empty" />
         )}
         <View className="mb-36" />
       </KeyboardAwareScrollView>

@@ -151,7 +151,14 @@ export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
       >
         {isLoading && <ActivityIndicator size={'small'} />}
         {!isLoading && visibleGroups.length === 0 && (
-          <EmptyStateContainer type="groups" />
+          <EmptyStateContainer
+            type="groups"
+            copyKey={
+              !searchQuery && filterBy === 'my-groups'
+                ? 'groups.noGroupsYet'
+                : 'groups.noGroupsFound'
+            }
+          />
         )}
         {!isLoading &&
           visibleGroups.map((group) => (

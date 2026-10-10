@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ThemedText } from '../../ui/themed-text';
 import {
   BellOffIcon,
@@ -10,121 +11,48 @@ import {
   UserRoundXIcon,
 } from '../../icons/index';
 import { EmptyStateContainerType } from '../../../types';
+
 interface EmptyStateContainerProps {
   type: EmptyStateContainerType;
+  copyKey: string;
+  defaultValue?: string;
 }
-export const EmptyStateContainer = ({ type }: EmptyStateContainerProps) => {
-  switch (type) {
-    case 'posts':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <RssIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No posts yet</ThemedText>
-        </View>
-      );
-    case 'reply':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <RssIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No replies yet</ThemedText>
-        </View>
-      );
-    case 'events':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <CalendarXIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No events yet</ThemedText>
-        </View>
-      );
-    case 'groups':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <UserRoundXIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No Groups Found</ThemedText>
-        </View>
-      );
-    case 'profiles':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <UserRoundXIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No Profile Found</ThemedText>
-        </View>
-      );
-    case 'followers':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <UserRoundXIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No followers yet</ThemedText>
-        </View>
-      );
-    case 'following':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <UserRoundXIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No followings yet</ThemedText>
-        </View>
-      );
-    case 'messages':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <MessageSquareOffIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No conversations here</ThemedText>
-        </View>
-      );
-    case 'notifications':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <BellOffIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No Notifications yet</ThemedText>
-        </View>
-      );
-    case 'live-jams':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <PhoneOffIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No live jam to join yet</ThemedText>
-        </View>
-      );
-    case 'upcoming-jams':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <PhoneOffIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No upcoming jams yet</ThemedText>
-        </View>
-      );
-    case 'my-jams':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <PhoneOffIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No jams yet</ThemedText>
-        </View>
-      );
-    case 'recorded-jams':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <PhoneOffIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No jams yet</ThemedText>
-        </View>
-      );
-    case 'event-attendees':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <UserRoundXIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No attendees yet</ThemedText>
-        </View>
-      );
-    case 'event-description':
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <RssIcon size={64} className="text-foreground" />
-          <ThemedText className="mt-6">No description added</ThemedText>
-        </View>
-      );
-    default:
-      return (
-        <View className="flex flex-1 h-64 items-center justify-center">
-          <ThemedText className="mt-6">Empty State Container</ThemedText>
-        </View>
-      );
-  }
+
+export const EmptyStateContainer = ({
+  type,
+  copyKey,
+  defaultValue,
+}: EmptyStateContainerProps) => {
+  const { t } = useTranslation();
+  const iconClass = 'text-muted-foreground';
+  const icon =
+    type === 'events' ? (
+      <CalendarXIcon size={80} className={iconClass} />
+    ) : type === 'messages' ? (
+      <MessageSquareOffIcon size={80} className={iconClass} />
+    ) : type === 'notifications' ? (
+      <BellOffIcon size={80} className={iconClass} />
+    ) : type === 'live-jams' ||
+      type === 'upcoming-jams' ||
+      type === 'my-jams' ||
+      type === 'recorded-jams' ? (
+      <PhoneOffIcon size={80} className={iconClass} />
+    ) : type === 'groups' ||
+      type === 'profiles' ||
+      type === 'followers' ||
+      type === 'following' ||
+      type === 'event-attendees' ? (
+      <UserRoundXIcon size={80} className={iconClass} />
+    ) : (
+      <RssIcon size={80} className={iconClass} />
+    );
+
+  return (
+    <View className="h-96 w-full flex-col items-center justify-center gap-y-4 bg-surface">
+      {icon}
+      <ThemedText className="text-xl">
+        {t(copyKey, defaultValue ? { defaultValue } : undefined)}
+      </ThemedText>
+    </View>
+  );
 };

@@ -13,7 +13,7 @@ import { toAbsoluteMediaUrl } from '../../lib/media-url';
 const DevBanner = () =>
   (!isProduction && (
     <View className="absolute bg-white/80 z-10 ml-8 mr-8 w-auto top-64 p-4 rounded-lg">
-      <ThemedText className="text-red-800 text-center">
+      <ThemedText className="text-center text-destructive">
         Test Backend ({BASE_URL})
       </ThemedText>
     </View>

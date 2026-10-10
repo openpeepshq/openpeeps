@@ -236,7 +236,12 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
               />
             )}
             uniqueBy={(item) => String(item?.data?.id)}
-            ListEmptyComponent={<EmptyStateContainer type="profiles" />}
+            ListEmptyComponent={
+              <EmptyStateContainer
+                type="profiles"
+                copyKey="explore.noProfilesFound"
+              />
+            }
           />
         </TabsContent>
         <TabsContent value="posts" className="w-full  p-0">
@@ -251,7 +256,12 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
               <FeedPost key={item.data.id} post={item.data} showReplyTo />
             )}
             uniqueBy={(item) => String(item?.data?.id)}
-            ListEmptyComponent={<EmptyStateContainer type="posts" />}
+            ListEmptyComponent={
+              <EmptyStateContainer
+                type="posts"
+                copyKey="explore.noPostsFound"
+              />
+            }
           />
         </TabsContent>
         <TabsContent value="jams" className="w-full  p-2">
@@ -266,7 +276,12 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
               <CardEvent key={item.data.id} post={item.data} />
             )}
             uniqueBy={(item) => String(item?.data?.id)}
-            ListEmptyComponent={<EmptyStateContainer type="my-jams" />}
+            ListEmptyComponent={
+              <EmptyStateContainer
+                type="my-jams"
+                copyKey="explore.noJamsFound"
+              />
+            }
           />
         </TabsContent>
         <TabsContent value="events" className="w-full  p-2">
@@ -281,7 +296,12 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
               <CardEvent key={item.data.id} post={item.data} />
             )}
             uniqueBy={(item) => String(item?.data?.id)}
-            ListEmptyComponent={<EmptyStateContainer type="events" />}
+            ListEmptyComponent={
+              <EmptyStateContainer
+                type="events"
+                copyKey="explore.noEventsFound"
+              />
+            }
           />
         </TabsContent>
         <TabsContent value="groups" className="w-full  p-2">
@@ -303,7 +323,12 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
               />
             )}
             uniqueBy={(item) => String(item?.data?.id)}
-            ListEmptyComponent={<EmptyStateContainer type="groups" />}
+            ListEmptyComponent={
+              <EmptyStateContainer
+                type="groups"
+                copyKey="explore.noGroupsFound"
+              />
+            }
           />
         </TabsContent>
       </Tabs>
