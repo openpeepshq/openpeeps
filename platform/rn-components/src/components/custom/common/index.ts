@@ -8,5 +8,6 @@ export * from './infinite-scroll-container';
 export * from './Loader';
 export * from './media-upload-progress';
 export * from './participant-avatar';
+export * from './plus-fab';
 export * from './popover';
 export * from './select';

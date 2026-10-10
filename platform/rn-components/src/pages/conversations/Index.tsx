@@ -8,17 +8,22 @@ import React, { useEffect, useRef } from 'react';
 import {
   TabScreensHeader,
   EmptyStateContainer,
+  PlusFab,
 } from '../../components/custom/index';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useOpenpeeps } from '@openpeepshq/react';
-import { XIcon, SearchIcon } from '../../components/icons/index';
+import { useAuthData, useOpenpeeps } from '@openpeepshq/react';
+import {
+  MessageSquarePlusIcon,
+  SearchIcon,
+  XIcon,
+} from '../../components/icons/index';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   TabStackParamList,
   MainStackParamList,
 } from '../../components/navigation/types/index';
-import { PublicPost } from '@openpeepshq/common';
+import { canCreatePost, PublicPost } from '@openpeepshq/common';
 import { Input } from '../../components/ui/input';
 import { ThemedText } from '../../components/ui/themed-text';
 import { profileMatchesQuery } from '../../lib/utils';
@@ -27,6 +32,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   ConversationPreviewCard,
   DirectMessagesHeaderActions,
+  useCreateNewConversation,
 } from '../../components/conversations/index';
 import { useTranslation } from 'react-i18next';
 
@@ -39,6 +45,9 @@ type MessagesProps = CompositeScreenProps<
 export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
   const { openpeepsApi } = useOpenpeeps();
   const { t } = useTranslation();
+  const authData = useAuthData();
+  const canCreate = canCreatePost(authData, 'note', 'direct');
+  const { openCreateConversation } = useCreateNewConversation();
   const settingsRef = useRef<BottomSheetModal>(null);
   const [refreshing, setRefreshing] = React.useState(false);
   const [filteredConversations, setFilteredConversations] = React.useState<
@@ -156,6 +165,14 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
             />
           ))}
       </KeyboardAwareScrollView>
+      {canCreate ? (
+        <PlusFab
+          accessibilityLabel={t('conversations.newMessage')}
+          onPress={() => openCreateConversation()}
+        >
+          <MessageSquarePlusIcon size={24} className="text-background" />
+        </PlusFab>
+      ) : null}
       <ConversationSettingsSheet
         ref={settingsRef}
         onMessageRequestChange={(value) => {

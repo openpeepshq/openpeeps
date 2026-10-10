@@ -31,7 +31,10 @@ import {
   User,
   MessageSquareText,
   Settings,
+  BookCheck,
   BookText,
+  BookUser,
+  FilePlus,
   LogOut,
   Heart,
   MessageSquare,
@@ -158,7 +161,10 @@ export const SquarePlusIcon = iconWithClassName(SquarePlus);
 export const XIcon = iconWithClassName(X);
 export const EllipsisIcon = iconWithClassName(Ellipsis);
 export const DotIcon = iconWithClassName(Dot);
+export const BookCheckIcon = iconWithClassName(BookCheck);
 export const BookTextIcon = iconWithClassName(BookText);
+export const BookUserIcon = iconWithClassName(BookUser);
+export const FilePlusIcon = iconWithClassName(FilePlus);
 export const LogOutIcon = iconWithClassName(LogOut);
 export const HeartIcon = iconWithClassName(Heart);
 export const CornerUpLeftIcon = iconWithClassName(CornerUpLeft);
