@@ -4,12 +4,16 @@ import {
   TabStackParamList,
   MainStackParamList,
 } from '../../components/navigation/types/index';
-import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
+import {
+  useDefaultVisibility,
+  useFeedListParams,
+  useOpenpeeps,
+} from '@openpeepshq/react';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { TabScreensHeader } from '../../components/custom/index';
 import { ThemedText } from '../../components/ui/themed-text';
 import { useTranslation } from 'react-i18next';
-import { Feed } from '../../components/post/index';
+import { Feed, NewNoteButton } from '../../components/post/index';
 
 type HomeScreenProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Home'>,
@@ -23,6 +27,7 @@ export const FeedsLocal: React.FC<HomeScreenProps> = () => {
     openpeepsApi.useServerInfo();
 
   const pinnedPostId = serverInfo?.communityConfig?.content?.pinnedPost;
+  const visibility = useDefaultVisibility();
 
   const query = openpeepsApi.useLocalFeed(useFeedListParams({ limit: 15 }));
 
@@ -41,6 +46,7 @@ export const FeedsLocal: React.FC<HomeScreenProps> = () => {
         pinnedPostId={pinnedPostId}
         refetchServerInfo={refetchServerInfo}
       />
+      <NewNoteButton visibility={visibility} />
     </>
   );
 };

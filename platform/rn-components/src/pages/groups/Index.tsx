@@ -9,14 +9,17 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+import { checkRoleCapabilities } from '@openpeepshq/common';
 import {
   CheckIcon,
   MoreVerticalIcon,
+  PlusIcon,
   SearchIcon,
   XIcon,
 } from '../../components/icons/index';
 import {
   EmptyStateContainer,
+  PlusFab,
   TabScreensHeader,
 } from '../../components/custom/index';
 import { ThemedView } from '../../components/ui/themed-view';
@@ -29,6 +32,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../../components/ui/dropdown-menu';
+import { useTranslation } from 'react-i18next';
 import { useOpenpeeps } from '@openpeepshq/react';
 import {
   MainStackParamList,
@@ -42,6 +46,7 @@ type GroupsProps = CompositeScreenProps<
 >;
 
 export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
+  const { t } = useTranslation();
   const { openpeepsApi, currentProfile } = useOpenpeeps();
   const { data: groups, refetch, isLoading } = openpeepsApi.useGroups();
   const unseenCountsQuery = openpeepsApi.useUnseenPostCounts();
@@ -176,6 +181,16 @@ export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
           ))}
         <View className="mb-24" />
       </KeyboardAwareScrollView>
+      {checkRoleCapabilities(currentProfile?.roles ?? [], [
+        'core-groups-create',
+      ]).success ? (
+        <PlusFab
+          accessibilityLabel={t('groups.new')}
+          onPress={() => navigation.navigate('CreateGroup')}
+        >
+          <PlusIcon size={24} className="text-background" />
+        </PlusFab>
+      ) : null}
     </ThemedView>
   );
 };

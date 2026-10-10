@@ -1,5 +1,4 @@
 import React from 'react';
-import { Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -10,6 +9,7 @@ import {
   type VisibilityType,
 } from '@openpeepshq/common';
 import { getNewPostStores, useAuthData } from '@openpeepshq/react';
+import { PlusFab } from '../custom/common/plus-fab';
 import { PlusIcon } from '../icons/index';
 import { MainStackParamList } from '../navigation/types/index';
 
@@ -43,13 +43,8 @@ export const NewEventButton = ({
   };
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={t('events.form.title')}
-      onPress={openNewEvent}
-      className="absolute bottom-10 right-6 z-20 size-16 items-center justify-center rounded-full bg-foreground"
-    >
+    <PlusFab accessibilityLabel={t('events.form.title')} onPress={openNewEvent}>
       <PlusIcon size={24} className="text-background" />
-    </Pressable>
+    </PlusFab>
   );
 };

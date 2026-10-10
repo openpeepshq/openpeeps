@@ -5,86 +5,46 @@ import { Image, TouchableOpacity, View } from 'react-native';
 import { Button } from '../../ui/button';
 import {
   BellIcon,
-  BookTextIcon,
-  CalendarIcon,
-  DoorOpenIcon,
+  BookCheckIcon,
+  BookmarkIcon,
+  BookUserIcon,
+  CalendarDaysIcon,
   HomeIcon,
   LogOutIcon,
   MessageSquareTextIcon,
   NewspaperIcon,
   PhoneCallIcon,
+  ScrollTextIcon,
+  SearchIcon,
   SettingsIcon,
+  SquarePenIcon,
   UsersIcon,
   XIcon,
-  SearchIcon,
-  ScrollTextIcon,
-  BookmarkIcon,
 } from '../../icons/index';
 import { ThemedText } from '../../ui/themed-text';
 import { useWindowSize } from '../../../hooks/helper';
 import { useAppImagesStore } from '../../../stores/useAppImagesStore';
 import { formatBadgeCount } from '@openpeepshq/common';
-import { useOpenpeeps } from '@openpeepshq/react';
-import { LucideProps, SquarePenIcon } from 'lucide-react-native';
+import { buildMainNavItems, useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 import { ProfileAvatar } from '../../profile/Avatar';
 import type { GotoHandlerParams } from '../../../types/goto';
+import type { LucideProps } from 'lucide-react-native';
 
-type MenuItem = {
-  icon: React.ComponentType<LucideProps>;
-  target: string;
+const menuIcons: Record<string, React.ComponentType<LucideProps>> = {
+  community: HomeIcon,
+  welcome: BookCheckIcon,
+  explore: SearchIcon,
+  myFeed: NewspaperIcon,
+  jams: PhoneCallIcon,
+  groups: UsersIcon,
+  events: CalendarDaysIcon,
+  articles: ScrollTextIcon,
+  messages: MessageSquareTextIcon,
+  members: BookUserIcon,
+  bookmarks: BookmarkIcon,
+  settings: SettingsIcon,
 };
-
-const menuItems: MenuItem[] = [
-  {
-    icon: HomeIcon,
-    target: 'community',
-  },
-  {
-    icon: SearchIcon,
-    target: 'explore',
-  },
-  {
-    icon: NewspaperIcon,
-    target: 'myFeed',
-  },
-  {
-    icon: DoorOpenIcon,
-    target: 'welcome',
-  },
-  {
-    icon: PhoneCallIcon,
-    target: 'jams',
-  },
-  {
-    icon: UsersIcon,
-    target: 'groups',
-  },
-  {
-    icon: CalendarIcon,
-    target: 'events',
-  },
-  {
-    icon: ScrollTextIcon,
-    target: 'articles',
-  },
-  {
-    icon: MessageSquareTextIcon,
-    target: 'messages',
-  },
-  {
-    icon: BookmarkIcon,
-    target: 'bookmarks',
-  },
-  {
-    icon: BookTextIcon,
-    target: 'members',
-  },
-  {
-    icon: SettingsIcon,
-    target: 'settings',
-  },
-];
 
 interface SideMenuProps {
   handleNavigation: ({
@@ -126,6 +86,11 @@ export const SideMenu = ({
     messages: unreadConversationThreads,
   };
 
+  const menuItems = buildMainNavItems({
+    jamsEnabled: !!serverInfo?.jams.livekit.enabled,
+    showAdmin: false,
+  });
+
   const { t } = useTranslation();
 
   const [currentRoute, setCurrentRoute] = React.useState<string | undefined>(
@@ -136,7 +101,6 @@ export const SideMenu = ({
     (currentProfile && (
       <View className="sm:w-56 md:w-80 bg-background flex-1">
         <TouchableOpacity onPress={onProfilePress} className="mt-12 mb-6 px-4">
-          {/* Header: Logo + Avatar + Name */}
           <View className="w-full flex-row items-center justify-between">
             <Image
               source={{ uri: logoSmall! }}
@@ -182,29 +146,28 @@ export const SideMenu = ({
             className="flex-row gap-4 items-center text-black  mb-4 justify-center px-4 w-full"
           >
             <SquarePenIcon size={20} />
-            <ThemedText>New Post</ThemedText>
+            <ThemedText>{t('posts.form.title')}</ThemedText>
           </Button>
         )}
 
         <Separator />
 
-        {/* Scrollable Content */}
         <View className="flex-1">
           <ScrollView contentContainerClassName="grow" className="mt-5 px-4">
-            {menuItems.map((item, index) => {
-              const isActive = currentRoute === item.target;
-              const Icon = item.icon;
-              if (!serverInfo?.jams.livekit.enabled && item.target === 'jams') {
+            {menuItems.map((item) => {
+              const isActive = currentRoute === item.id;
+              const Icon = menuIcons[item.id];
+              if (!Icon) {
                 return null;
               }
               return (
                 <Button
-                  key={`drawer-${index}`}
+                  key={item.id}
                   variant="ghost"
                   className="flex-row items-center w-full mb-4 justify-start p-4"
                   onPress={() => {
-                    setCurrentRoute(item.target);
-                    handleNavigation({ target: item.target });
+                    setCurrentRoute(item.id);
+                    handleNavigation({ target: item.id });
                   }}
                 >
                   <View className="flex-row items-center flex-1 justify-between">
@@ -220,13 +183,13 @@ export const SideMenu = ({
                         className={`
                     ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}
                       >
-                        {t(`navigation.${item.target}`)}
+                        {t(item.labelKey)}
                       </ThemedText>
                     </View>
-                    {(menuUnreadCounts[item.target] ?? 0) > 0 ? (
+                    {(menuUnreadCounts[item.id] ?? 0) > 0 ? (
                       <View className="bg-destructive size-5 min-w-5 items-center justify-center rounded-full px-1">
                         <ThemedText className="text-xs font-semibold text-destructive-foreground">
-                          {formatBadgeCount(menuUnreadCounts[item.target] ?? 0)}
+                          {formatBadgeCount(menuUnreadCounts[item.id] ?? 0)}
                         </ThemedText>
                       </View>
                     ) : null}
@@ -250,7 +213,6 @@ export const SideMenu = ({
           </ScrollView>
         </View>
 
-        {/* Footer */}
         <Separator />
         <View className="pl-6 pr-4 pt-4 pb-12">
           <ThemedText className="text-muted-foreground text-base tracking-wider">

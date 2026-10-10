@@ -1,5 +1,4 @@
 import React from 'react';
-import { Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
   canCreatePost,
@@ -8,6 +7,7 @@ import {
   type VisibilityType,
 } from '@openpeepshq/common';
 import { useAuthData } from '@openpeepshq/react';
+import { PlusFab } from '../custom/common/plus-fab';
 import { PencilLineIcon } from '../icons/index';
 import { useNewPostModal } from './post-form/NewPostModalContext';
 
@@ -34,13 +34,11 @@ export const NewNoteButton = ({
   if (!canPost) return null;
 
   return (
-    <Pressable
-      accessibilityRole="button"
+    <PlusFab
       accessibilityLabel={t('posts.form.title')}
       onPress={() => openNewPost({ visibility, group })}
-      className="absolute bottom-10 right-6 z-20 size-16 items-center justify-center rounded-full bg-foreground"
     >
       <PencilLineIcon size={24} className="text-background" />
-    </Pressable>
+    </PlusFab>
   );
 };
