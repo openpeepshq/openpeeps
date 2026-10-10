@@ -34,11 +34,6 @@ export const SideMenuDrawer = ({ children }: SideMenuDrawerProps) => {
     goto({ target, params });
   };
 
-  const handleNewPost = () => {
-    closeDrawer();
-    goto({ target: 'newPost' });
-  };
-
   const onNotificationPress = () => {
     closeDrawer();
     goto({ target: 'notifications' });
@@ -63,7 +58,6 @@ export const SideMenuDrawer = ({ children }: SideMenuDrawerProps) => {
             handleNavigation={handleNavigation}
             onNotificationPress={onNotificationPress}
             close={closeDrawer}
-            handleNewPost={handleNewPost}
             onProfilePress={onProfilePress}
           />
         );

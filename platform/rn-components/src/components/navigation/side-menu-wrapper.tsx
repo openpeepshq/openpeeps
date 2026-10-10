@@ -30,10 +30,6 @@ export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
     goto({ target, params });
   };
 
-  const handleNewPost = () => {
-    goto({ target: 'newPost' });
-  };
-
   const onNotificationPress = () => {
     goto({ target: 'notifications' });
   };
@@ -58,7 +54,6 @@ export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
           handleNavigation={handleNavigation}
           onNotificationPress={onNotificationPress}
           onProfilePress={onProfilePress}
-          handleNewPost={handleNewPost}
         />
       </View>
       <View className="flex-grow flex-1">{children}</View>
