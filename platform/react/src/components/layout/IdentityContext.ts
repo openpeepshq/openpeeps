@@ -10,6 +10,7 @@ import { parseScopesFromJwt } from '@openpeepshq/common';
 import {
   AUTH_CREDENTIALS_STORAGE_KEY,
   OPENPEEPS_CREDENTIALS_CHANGED_EVENT,
+  subscribeCredentialsChanged,
 } from '../../auth/credentials';
 import { useCredentialsStore } from '../../contexts/credentialsStore';
 
@@ -46,23 +47,32 @@ export const useAuthData = (): AuthorizationData => {
 
     void refresh();
 
-    if (typeof window === 'undefined') {
-      return () => {
-        cancelled = true;
-      };
-    }
-
     const onCred = () => void refresh();
     const onStorage = (e: StorageEvent) => {
       if (e.key === AUTH_CREDENTIALS_STORAGE_KEY || e.key === null)
         void refresh();
     };
-    window.addEventListener(OPENPEEPS_CREDENTIALS_CHANGED_EVENT, onCred);
-    window.addEventListener('storage', onStorage);
+
+    const hasWindow =
+      typeof window !== 'undefined' &&
+      typeof window.addEventListener === 'function';
+
+    if (hasWindow) {
+      window.addEventListener(OPENPEEPS_CREDENTIALS_CHANGED_EVENT, onCred);
+      window.addEventListener('storage', onStorage);
+    }
+    // No window (React Native): the store notifies listeners directly.
+    const unsubscribe = hasWindow
+      ? undefined
+      : subscribeCredentialsChanged(onCred);
+
     return () => {
       cancelled = true;
-      window.removeEventListener(OPENPEEPS_CREDENTIALS_CHANGED_EVENT, onCred);
-      window.removeEventListener('storage', onStorage);
+      unsubscribe?.();
+      if (hasWindow) {
+        window.removeEventListener(OPENPEEPS_CREDENTIALS_CHANGED_EVENT, onCred);
+        window.removeEventListener('storage', onStorage);
+      }
     };
   }, [credentialsStore]);
 
