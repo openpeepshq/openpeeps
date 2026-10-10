@@ -17,7 +17,6 @@ import {
   ScrollTextIcon,
   SearchIcon,
   SettingsIcon,
-  SquarePenIcon,
   UsersIcon,
   XIcon,
 } from '../../icons/index';
@@ -57,14 +56,12 @@ interface SideMenuProps {
   onNotificationPress: () => void;
   onProfilePress: () => void;
   close?: () => void;
-  handleNewPost: () => void;
 }
 
 export const SideMenu = ({
   handleNavigation,
   onNotificationPress,
   close,
-  handleNewPost,
   onProfilePress,
 }: SideMenuProps) => {
   const { openpeepsApi, currentProfile } = useOpenpeeps();
@@ -139,16 +136,6 @@ export const SideMenu = ({
             </View>
           </View>
         </TouchableOpacity>
-
-        {isMediumScreenOrLarger && (
-          <Button
-            onPress={handleNewPost}
-            className="flex-row gap-4 items-center text-black  mb-4 justify-center px-4 w-full"
-          >
-            <SquarePenIcon size={20} />
-            <ThemedText>{t('posts.form.title')}</ThemedText>
-          </Button>
-        )}
 
         <Separator />
 
