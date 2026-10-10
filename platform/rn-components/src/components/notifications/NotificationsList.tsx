@@ -61,7 +61,11 @@ export const NotificationsList = ({
               {query.isFetchingNextPage && <ActivityIndicator size={'small'} />}
             </>
           ) : (
-            <EmptyStateContainer type="notifications" />
+            <EmptyStateContainer
+              type="notifications"
+              copyKey="notification.empty"
+              defaultValue="No notifications"
+            />
           )}
         </>
       )}

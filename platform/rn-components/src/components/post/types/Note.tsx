@@ -22,7 +22,7 @@ export const FeedNote = ({ post }: Props) =>
     </View>
   ) : (
     <View>
-      <ThemedText className="text-red-500">
+      <ThemedText className="text-destructive">
         This Feed-Note Component was used but the post type on the server is not
         of type "note". Please report this to the Developers
       </ThemedText>

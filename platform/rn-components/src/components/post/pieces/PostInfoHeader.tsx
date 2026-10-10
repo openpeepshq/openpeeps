@@ -8,6 +8,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../navigation/types/index';
 import { ProfileAvatar } from '../../profile/Avatar';
 import { ProfileHandle, ProfileName } from '../../profile/ProfilePieces';
+import { ThemedText } from '../../ui/themed-text';
 import { ThemedView } from '../../ui/themed-view';
 
 interface PostHeaderProps {
@@ -25,8 +26,8 @@ export const PostInfoHeader = ({
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 
   return (
-    <ThemedView className="flex-row mt-3 mb-5 px-5 justify-between items-center">
-      <ThemedView className="flex-row gap-3">
+    <ThemedView className="flex-row items-center justify-between py-2">
+      <ThemedView className="flex-row gap-2">
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('Profile', {
@@ -34,12 +35,15 @@ export const PostInfoHeader = ({
             })
           }
         >
-          <ProfileAvatar profile={post.profile} className="size-14" />
+          <ProfileAvatar profile={post.profile} className="size-10" />
         </TouchableOpacity>
         <ThemedView>
           <ProfileName profile={[post.profile]} />
-          <ProfileHandle profile={[post.profile]} />
-          <UpdatingDate date={post.createdAt as string} />
+          <ThemedView className="flex-row items-center gap-1">
+            <ProfileHandle profile={[post.profile]} />
+            <ThemedText className="text-xs text-muted-foreground">·</ThemedText>
+            <UpdatingDate date={post.createdAt as string} />
+          </ThemedView>
         </ThemedView>
       </ThemedView>
       {showMenu && <PostMenu post={post} deleteCallback={deleteCallback} />}

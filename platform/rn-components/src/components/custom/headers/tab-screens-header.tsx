@@ -11,8 +11,7 @@ import {
 import { ThemedText } from '../../ui/themed-text';
 import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar';
 import { Button } from '../../ui/button';
-import { BellIcon } from '../../icons/index';
-import { User } from 'lucide-react-native';
+import { BellIcon, UserIcon } from '../../icons/index';
 import { useDrawer } from '../../../contexts/drawer-context';
 import { formatBadgeCount } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
@@ -104,7 +103,7 @@ export const TabScreensHeader = ({
         <SafeAreaView edges={['top']} className="">
           {!isProduction && (
             <View className="mb-2 w-full rounded-lg bg-white/50 p-2">
-              <ThemedText className="text-center text-red-500">
+              <ThemedText className="text-center text-destructive">
                 Test Backend ({BASE_URL})
               </ThemedText>
             </View>
@@ -125,7 +124,7 @@ export const TabScreensHeader = ({
                   <AvatarImage source={{ uri: currentProfile.avatar }} />
                 ) : (
                   <AvatarFallback className="h-6 w-6 -bottom-2 -right-2 bg-black">
-                    <User size={20} color="#a3a5aaff" />
+                    <UserIcon size={20} className="text-muted-foreground" />
                   </AvatarFallback>
                 )}
               </Avatar>

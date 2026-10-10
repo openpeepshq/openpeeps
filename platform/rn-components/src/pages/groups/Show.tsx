@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, RefreshControl, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  View,
+} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useTranslation } from 'react-i18next';
 import { CompositeScreenProps } from '@react-navigation/native';
@@ -52,6 +57,8 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
   const upcomingEvents = openpeepsApi.useGroupUpcomingEventsFeed(
     group?.id ?? ''
   );
+  const pastEvents = openpeepsApi.useGroupPastEventsFeed(group?.id ?? '');
+  const [eventsTab, setEventsTab] = useState<'upcoming' | 'past'>('upcoming');
 
   useEffect(
     () =>
@@ -68,7 +75,7 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
   };
 
   const tabClass = (value: Tab) =>
-    tab === value ? 'border-b-2 border-foreground' : '';
+    tab === value ? 'border-b-2 border-primary font-semibold' : '';
 
   return (
     <ThemedSafeAreaView className="relative flex-1">
@@ -117,7 +124,39 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
                 <GroupFeed group={group} />
               </TabsContent>
               <TabsContent value="events" className="p-2">
-                <EventsFeed query={upcomingEvents} />
+                <View className="mb-2 flex-row border-b border-border">
+                  <Pressable
+                    className={`px-4 py-2 ${
+                      eventsTab === 'upcoming'
+                        ? 'border-b-2 border-primary'
+                        : ''
+                    }`}
+                    onPress={() => setEventsTab('upcoming')}
+                  >
+                    <ThemedText
+                      className={
+                        eventsTab === 'upcoming' ? 'font-semibold' : ''
+                      }
+                    >
+                      {t('events.feed.upcoming')}
+                    </ThemedText>
+                  </Pressable>
+                  <Pressable
+                    className={`px-4 py-2 ${
+                      eventsTab === 'past' ? 'border-b-2 border-primary' : ''
+                    }`}
+                    onPress={() => setEventsTab('past')}
+                  >
+                    <ThemedText
+                      className={eventsTab === 'past' ? 'font-semibold' : ''}
+                    >
+                      {t('events.feed.past')}
+                    </ThemedText>
+                  </Pressable>
+                </View>
+                <EventsFeed
+                  query={eventsTab === 'upcoming' ? upcomingEvents : pastEvents}
+                />
               </TabsContent>
               <TabsContent value="description" className="p-2">
                 <GroupInfoAsComponent id={group.id} />

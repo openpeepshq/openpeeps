@@ -35,7 +35,10 @@ export const Followers: React.FC<ProfileFollowersProps> = ({ route }) => {
           return <ProfileCard key={index} profile={follower} />;
         })}
         {profileFollowers?.length === 0 && (
-          <EmptyStateContainer type="followers" />
+          <EmptyStateContainer
+            type="followers"
+            copyKey="profile.followers.noFollowing"
+          />
         )}
       </KeyboardAwareScrollView>
     </ThemedSafeAreaView>

@@ -1,78 +1,61 @@
 import { View } from 'react-native';
-import React from 'react';
-import { ThemedText } from '../../ui/themed-text';
+import React, { type ReactNode } from 'react';
 import { Button } from '../../ui/button';
-import {
-  ImageIcon,
-  FilmIcon,
-  ChartColumnIcon,
-  NotebookIcon,
-  PaperclipIcon,
-  NewspaperIcon,
-} from '../../icons/index';
-import { PostCreationData, PostType } from '@openpeepshq/common';
-import { maxContentLength, maxArticleContentLength } from '../../../lib/utils';
+import { ImageIcon, AudioLinesIcon, PaperclipIcon } from '../../icons/index';
+import { useTranslation } from 'react-i18next';
 
 interface FooterProps {
-  content: PostCreationData;
   onImagePress: () => void;
-  onMicPress: () => void;
-  onVideoPress: () => void;
-  onPollPress: () => void;
+  onAudioPress: () => void;
   onDocumentPress: () => void;
-  onArticlePress: () => void;
-  postType?: PostType | undefined;
+  typeSwitcher?: ReactNode;
+  hideMedia?: boolean;
 }
 
-export default function Footer({
-  content,
+export const Footer = ({
   onImagePress,
-  onVideoPress,
-  onPollPress,
+  onAudioPress,
   onDocumentPress,
-  onArticlePress,
-  postType = 'note',
-}: FooterProps) {
+  typeSwitcher,
+  hideMedia = false,
+}: FooterProps) => {
+  const { t } = useTranslation();
+
   return (
-    <View className="absolute bottom-2 w-full">
-      <View className="flex-row justify-between items-center p-4">
-        <ThemedText className="text-muted-foreground">
-          {String(
-            (postType === 'note' || postType === 'question'
-              ? maxContentLength
-              : maxArticleContentLength) - (content?.data.content ?? '').length
-          )}
-        </ThemedText>
-        <View className="flex-row gap-8">
-          {postType !== 'article' && (
-            <>
-              <Button size={'icon'} variant={'ghost'} onPress={onImagePress}>
-                <ImageIcon size={24} className="text-foreground" />
-              </Button>
-              <Button size={'icon'} variant={'ghost'} onPress={onDocumentPress}>
-                <PaperclipIcon size={24} className="text-foreground" />
-              </Button>
-              <Button size={'icon'} variant={'ghost'} onPress={onVideoPress}>
-                <FilmIcon size={24} className="text-foreground" />
-              </Button>
-            </>
-          )}
-          <Button size={'icon'} variant={'ghost'} onPress={onPollPress}>
-            {postType === 'question' ? (
-              <NotebookIcon size={24} className="text-foreground" />
-            ) : (
-              <ChartColumnIcon size={24} className="text-foreground" />
-            )}
-          </Button>
-          <Button size={'icon'} variant={'ghost'} onPress={onArticlePress}>
-            {postType === 'article' ? (
-              <NotebookIcon size={24} className="text-foreground" />
-            ) : (
-              <NewspaperIcon size={24} className="text-foreground" />
-            )}
-          </Button>
-        </View>
+    <View className="border-t border-border bg-background px-4 py-3">
+      <View className="flex-row items-center justify-between">
+        {hideMedia ? (
+          <View />
+        ) : (
+          <View className="flex-row items-center gap-2">
+            <Button
+              size="icon"
+              variant="ghost"
+              accessibilityLabel={t('posts.form.addImage')}
+              onPress={onImagePress}
+            >
+              <ImageIcon size={20} className="text-foreground" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              accessibilityLabel={t('posts.form.addAudio')}
+              onPress={onAudioPress}
+            >
+              <AudioLinesIcon size={20} className="text-foreground" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              accessibilityLabel={t('posts.form.addDocument')}
+              onPress={onDocumentPress}
+            >
+              <PaperclipIcon size={20} className="text-foreground" />
+            </Button>
+          </View>
+        )}
+        {typeSwitcher}
       </View>
     </View>
   );
-}
+};

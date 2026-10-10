@@ -64,7 +64,7 @@ export const NotificationItem: React.FC<NotificationComponentProps> = ({
   if (!NotificationToRender) {
     return (
       <View className="p-4">
-        <ThemedText className="text-red-500 font-bold">
+        <ThemedText className="font-bold text-destructive">
           Unknown notification type: {notification.type}
         </ThemedText>
       </View>

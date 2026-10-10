@@ -31,7 +31,7 @@ export const PollComposerFields: React.FC<PollFormProps> = ({
   };
 
   return (
-    <View className="px-4 pt-4 w-full flex flex-col gap-4">
+    <View className="pt-4 w-full flex flex-col gap-4">
       {options?.map((_, index) => (
         <View key={index} className="flex-row gap-x-1 items-center w-full">
           <FormField
@@ -92,7 +92,7 @@ export const PollComposerFields: React.FC<PollFormProps> = ({
           <ThemedText className="text-muted-foreground">
             {expiresAt
               ? formatDateTime(new Date(expiresAt))
-              : '03/15/2025, 02:50 PM'}
+              : t('posts.form.poll.expiresAt')}
           </ThemedText>
         </TouchableOpacity>
       </View>

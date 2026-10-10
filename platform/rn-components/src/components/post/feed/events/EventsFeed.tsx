@@ -67,6 +67,7 @@ export const EventsFeed = ({ query, searchQuery, type = 'event' }: Props) => {
           ) : (
             <EmptyStateContainer
               type={type === 'event' ? 'events' : 'my-jams'}
+              copyKey="feed.empty"
             />
           )}
         </>

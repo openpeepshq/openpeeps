@@ -30,6 +30,7 @@ export interface OpenpeepsMarkdownInputProps {
   /** Extra classes for the textarea. */
   className?: string;
   testId?: string;
+  autoFocus?: boolean;
 }
 
 const mentionQueryFrom = (text: string, cursor: number) => {
@@ -51,6 +52,7 @@ export const OpenpeepsMarkdownInput = ({
   previewButton = true,
   className,
   testId,
+  autoFocus = false,
 }: OpenpeepsMarkdownInputProps) => {
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
@@ -191,6 +193,7 @@ export const OpenpeepsMarkdownInput = ({
           ) : null}
 
           <Textarea
+            autoFocus={autoFocus}
             numberOfLines={rows}
             value={value}
             maxLength={maxLength}

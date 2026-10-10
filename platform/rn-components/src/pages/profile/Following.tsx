@@ -34,7 +34,10 @@ export const Following: React.FC<ProfileFollowingProps> = ({ route }) => {
           return <ProfileCard key={index} profile={following} />;
         })}
         {profileFollowing?.length === 0 && (
-          <EmptyStateContainer type="following" />
+          <EmptyStateContainer
+            type="following"
+            copyKey="profile.following.noFollowers"
+          />
         )}
       </KeyboardAwareScrollView>
     </ThemedSafeAreaView>

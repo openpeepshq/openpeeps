@@ -24,7 +24,7 @@ export const ArticleCard = ({ post }: CardArticleProps) => {
           id: post.id,
         });
       }}
-      className="flex mb-6 w-full border-[0.5px] border-gray-100/50 rounded-lg"
+      className="mb-6 w-full rounded-lg border border-border"
     >
       {article.image && (
         <View className="w-full h-[200px]">

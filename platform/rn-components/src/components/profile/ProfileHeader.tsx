@@ -24,16 +24,14 @@ export const ProfileHeader = ({
   const roles = profile.roles ?? [];
   return (
     <View className="relative mb-8">
-      <View className="relative aspect-[3/1] w-full bg-muted">
-        <Image
-          source={
-            profile.header
-              ? { uri: profile.header }
-              : require('../../assets/images/profile-background-placeholder.png')
-          }
-          className="h-full w-full"
-          resizeMode="cover"
-        />
+      <View className="relative aspect-[3/1] w-full bg-surface-2">
+        {profile.header ? (
+          <Image
+            source={{ uri: profile.header }}
+            className="h-full w-full"
+            resizeMode="cover"
+          />
+        ) : null}
         <View className="absolute -bottom-12 left-4 z-10">
           <ProfileAvatar profile={profile} className="size-24" />
         </View>

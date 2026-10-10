@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { GenericHeader } from '../../components/custom/index';
 import Toast from 'react-native-toast-message';
@@ -6,7 +6,12 @@ import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { PostForm } from '../../components/post/post-form/PostForm';
 import { useTranslation } from 'react-i18next';
 import { MainScreenProps } from '../../components/navigation/types/index';
-import { PostCreationData, postCreationDataSchema } from '@openpeepshq/common';
+import {
+  PostCreationData,
+  pollOptionsWithinLimit,
+  postCreationDataSchema,
+  resolvePollOptionContents,
+} from '@openpeepshq/common';
 import { ActivityIndicator } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { hasProcessingAttachments } from '../../lib/post';
@@ -41,9 +46,42 @@ export const EditPost = ({ route, navigation }: PostProps) => {
   const [isPosting, setIsPosting] = useState(false);
   const attachmentsProcessing = hasProcessingAttachments(postData);
 
+  const trimmedContent = (postData?.data.content ?? '').trim();
+  const pollOptions =
+    postData?.data.type === 'question'
+      ? postData.data.options.map((option) => option.content)
+      : [];
+  const resolvedPollOptions = resolvePollOptionContents(pollOptions, (index) =>
+    t('posts.form.poll.option', { number: index + 1 })
+  );
+  const pollOptionsValid =
+    resolvedPollOptions.length >= 2 &&
+    pollOptionsWithinLimit(resolvedPollOptions);
+
+  const canSubmit = useMemo(() => {
+    if (!postData || isPosting || attachmentsProcessing) {
+      return false;
+    }
+    if (postData.data.type === 'question') {
+      return trimmedContent.length > 0 && pollOptionsValid;
+    }
+    if (postData.type === 'article') {
+      return trimmedContent.length > 0;
+    }
+    return (
+      (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
+      (postData.data.attachments?.length ?? 0) > 0
+    );
+  }, [
+    attachmentsProcessing,
+    isPosting,
+    pollOptionsValid,
+    postData,
+    trimmedContent.length,
+  ]);
+
   const handlePostUpdate = async () => {
-    if (!postData || !post?.data) {
-      Toast.show({ type: 'error', text1: t('posts.create.error') });
+    if (!postData || !post?.data || !canSubmit) {
       return;
     }
 
@@ -89,7 +127,7 @@ export const EditPost = ({ route, navigation }: PostProps) => {
                   : t('posts.edit.submit')
             }
             onRightButtonPress={handlePostUpdate}
-            rightButtonDisabled={isPosting || attachmentsProcessing}
+            rightButtonDisabled={!canSubmit}
           />
           {postData && (
             <>

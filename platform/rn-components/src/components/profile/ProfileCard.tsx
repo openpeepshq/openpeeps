@@ -70,7 +70,7 @@ export const MiniProfileCard = ({
   showAction = true,
 }: MiniProfileCardProps) => {
   return (
-    <View className="flex flex-row gap-x-2 items-center px-2 py-2 border rounded-md border-gray-600">
+    <View className="flex flex-row items-center gap-x-2 rounded-md border border-border px-2 py-2">
       <ProfileAvatar profile={profile} className="size-8" />
       <ThemedText>
         {truncateText(profile.displayName, 10) || `@${profile.handle}`}
