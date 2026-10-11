@@ -1,19 +1,20 @@
-import React from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PlusFab } from '../custom/common/plus-fab';
-import { PhoneCallIcon } from '../icons/index';
+import { useSetPlusButtonActions } from '../layout';
 import { useCreateNewJam } from './CreateNewJamContext';
 
 export const CreateNewJam = () => {
   const { t } = useTranslation();
   const { openCreateJam } = useCreateNewJam();
 
-  return (
-    <PlusFab
-      accessibilityLabel={t('jams.create.title')}
-      onPress={openCreateJam}
-    >
-      <PhoneCallIcon size={24} className="text-background" />
-    </PlusFab>
+  const plusActions = useMemo(
+    () => ({
+      title: t('jams.create.title'),
+      action: openCreateJam,
+    }),
+    [openCreateJam, t]
   );
+
+  useSetPlusButtonActions(plusActions);
+  return null;
 };

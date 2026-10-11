@@ -4,13 +4,13 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useTranslation } from 'react-i18next';
 import { groupName } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import {
   AddGroupMembersButton,
   GroupMembersList,
 } from '../../components/groups/index';
 import { MainScreenProps } from '../../components/navigation/types/index';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
 import { truncateText } from '../../lib/utils';
 
@@ -27,12 +27,13 @@ export const GroupMembers = ({ route }: GroupMembersProps) => {
     ? `${truncateText(groupName(group), 20)} - ${t('groups.members.title')}`
     : t('groups.members.title');
 
+  useSetPageHeader(
+    title,
+    group ? <AddGroupMembersButton group={group} /> : undefined
+  );
+
   return (
-    <ThemedSafeAreaView className="relative flex-1">
-      <GenericHeader
-        title={title}
-        rightElement={group ? <AddGroupMembersButton group={group} /> : null}
-      />
+    <ThemedView className="relative flex-1">
       <KeyboardAwareScrollView
         contentContainerClassName="grow"
         className="relative flex w-full bg-background"
@@ -49,6 +50,6 @@ export const GroupMembers = ({ route }: GroupMembersProps) => {
           <GroupMembersList group={group} />
         )}
       </KeyboardAwareScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

@@ -4,10 +4,10 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { useEditGroup } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { GroupForm } from '../../components/groups/index';
 import { MainScreenProps } from '../../components/navigation/types/index';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
 
 type EditGroupInfoProps = MainScreenProps<'EditGroupInfo'>;
@@ -32,21 +32,24 @@ export const EditGroupInfo = ({ route }: EditGroupInfoProps) => {
     clearError();
   }, [error, clearError]);
 
+  useSetPageHeader(
+    t('groups.edit.info.title', {
+      defaultValue: 'Group information',
+    }),
+    <HeaderActionButton
+      title={
+        submitting
+          ? t('common.saving', { defaultValue: 'Saving…' })
+          : t('common.save', { defaultValue: 'Save' })
+      }
+      onPress={() => void submit()}
+      disabled={submitting || !groupData}
+      loading={submitting}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('groups.edit.info.title', {
-          defaultValue: 'Group information',
-        })}
-        rightButtonTitle={
-          submitting
-            ? t('common.saving', { defaultValue: 'Saving…' })
-            : t('common.save', { defaultValue: 'Save' })
-        }
-        onRightButtonPress={() => void submit()}
-        rightButtonDisabled={submitting || !groupData}
-        rightType="button"
-      />
+    <ThemedView className="flex-1">
       {groupQuery.isLoading || !groupData ? (
         groupQuery.isLoading ? (
           <ActivityIndicator size="small" />
@@ -71,6 +74,6 @@ export const EditGroupInfo = ({ route }: EditGroupInfoProps) => {
           </View>
         </KeyboardAwareScrollView>
       )}
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

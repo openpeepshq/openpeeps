@@ -3,10 +3,11 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
-import { PlusFab, TabScreensHeader } from '../../components/custom/index';
-import { FilePlusIcon } from '../../components/icons/index';
+import {
+  useSetPageHeader,
+  useSetPlusButtonActions,
+} from '../../components/layout';
 import { MainStackParamList } from '../../components/navigation/types/index';
-import { ThemedText } from '../../components/ui/themed-text';
 
 import { Feed } from '../../components/post/index';
 export const ArticlesIndex = () => {
@@ -20,22 +21,11 @@ export const ArticlesIndex = () => {
     useFeedListParams({ limit: 15 })
   );
 
-  return (
-    <>
-      <TabScreensHeader
-        children={
-          <ThemedText className="text-xl font-bold">
-            {t('navigation.articles')}
-          </ThemedText>
-        }
-      />
-      <Feed query={articlesQuery} />
-      <PlusFab
-        accessibilityLabel={t('articles.new')}
-        onPress={() => navigation.navigate('NewArticle')}
-      >
-        <FilePlusIcon size={24} className="text-background" />
-      </PlusFab>
-    </>
-  );
+  useSetPageHeader(t('navigation.articles'));
+  useSetPlusButtonActions({
+    title: t('articles.new'),
+    action: () => navigation.navigate('NewArticle'),
+  });
+
+  return <Feed query={articlesQuery} />;
 };

@@ -1,6 +1,6 @@
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
 import React, { useEffect, useState } from 'react';
 import { ThemedText } from '../../components/ui/themed-text';
 import { ThemedView } from '../../components/ui/themed-view';
@@ -12,7 +12,6 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Account } from '@openpeepshq/common';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 
 type AccountSettingsProps = MainScreenProps<'AccountSettings'>;
 
@@ -126,16 +125,18 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({}) => {
     form.setValue('email', (currentAccount as Account)?.email ?? '');
   }, [currentAccount, form]);
 
+  useSetPageHeader(
+    t('settings.account.title', { defaultValue: 'Account' }),
+    <HeaderActionButton
+      title={isSubmitting ? t('common.form.loading') : t('common.form.save')}
+      onPress={() => void handleSubmit()}
+      disabled={isSubmitting}
+      loading={isSubmitting}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title="Account"
-        rightButtonTitle={
-          isSubmitting ? t('common.form.loading') : t('common.form.save')
-        }
-        onRightButtonPress={handleSubmit}
-        rightButtonDisabled={isSubmitting}
-      />
+    <ThemedView className="flex-1">
       <ThemedView className="flex-1">
         <KeyboardAwareScrollView
           contentContainerClassName="grow"
@@ -266,6 +267,6 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({}) => {
           </Form>
         </KeyboardAwareScrollView>
       </ThemedView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

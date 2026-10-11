@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   NativeStackNavigationProp,
@@ -12,9 +12,7 @@ import {
   TabStackParamList,
 } from '../../components/navigation/types/index';
 import { ConfigMenuButton } from '../../components/configuration/index';
-import { TabScreensHeader } from '../../components/custom/index';
-import { ChevronLeftIcon } from '../../components/icons/index';
-import { ThemedText } from '../../components/ui/themed-text';
+import { useSetPageHeader } from '../../components/layout';
 import { ThemedView } from '../../components/ui/themed-view';
 
 export const Settings = ({}: NativeStackScreenProps<
@@ -26,28 +24,10 @@ export const Settings = ({}: NativeStackScreenProps<
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 
+  useSetPageHeader(t('settings.menu'));
+
   return (
     <ThemedView className="flex-1 relative">
-      <TabScreensHeader
-        children={
-          <View className="flex-row items-center p-2">
-            {profile ? (
-              <Pressable
-                accessibilityRole="button"
-                onPress={() =>
-                  navigation.navigate('Profile', { handle: profile.handle })
-                }
-                className="mr-1 p-1"
-              >
-                <ChevronLeftIcon size={28} className="text-foreground" />
-              </Pressable>
-            ) : null}
-            <ThemedText className="text-2xl font-semibold">
-              {t('settings.menu')}
-            </ThemedText>
-          </View>
-        }
-      />
       <View className="grow p-4">
         {profile ? (
           <ConfigMenuButton

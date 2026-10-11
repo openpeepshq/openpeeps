@@ -3,10 +3,10 @@ import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { useEditGroup } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { GroupForm } from '../../components/groups/index';
 import { MainScreenProps } from '../../components/navigation/types/index';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
 
 type EditGroupRolesProps = MainScreenProps<'EditGroupRoles'>;
@@ -64,22 +64,21 @@ export const EditGroupRoles = ({ route }: EditGroupRolesProps) => {
     );
   };
 
-  return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('groups.edit.roles.title', {
-          defaultValue: 'Roles & capabilities',
-        })}
-        rightButtonTitle={
-          submitting
-            ? t('common.saving', { defaultValue: 'Saving…' })
-            : t('common.save', { defaultValue: 'Save' })
-        }
-        onRightButtonPress={() => void submit()}
-        rightButtonDisabled={submitting || !groupData || !canEditCapabilities}
-        rightType="button"
-      />
-      {body()}
-    </ThemedSafeAreaView>
+  useSetPageHeader(
+    t('groups.edit.roles.title', {
+      defaultValue: 'Roles & capabilities',
+    }),
+    <HeaderActionButton
+      title={
+        submitting
+          ? t('common.saving', { defaultValue: 'Saving…' })
+          : t('common.save', { defaultValue: 'Save' })
+      }
+      onPress={() => void submit()}
+      disabled={submitting || !groupData || !canEditCapabilities}
+      loading={submitting}
+    />
   );
+
+  return <ThemedView className="flex-1">{body()}</ThemedView>;
 };

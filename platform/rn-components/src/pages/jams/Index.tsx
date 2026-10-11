@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useOpenpeeps, useServerInfo } from '@openpeepshq/react';
-import { GenericHeader, TabScreensHeader } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import {
   ChevronRightIcon,
   MoreHorizontalIcon,
@@ -20,7 +21,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../../components/ui/dropdown-menu';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
 
 interface Props {
@@ -123,33 +123,15 @@ export const JamsIndex = ({ my = false }: Props) => {
     </ScrollView>
   );
 
-  if (my) {
-    return (
-      <ThemedSafeAreaView className="relative flex-1">
-        <GenericHeader
-          title={t('navigation.myJams')}
-          rightElement={headerActions}
-        />
-        {livekitEnabled ? <CreateNewJam /> : null}
-        {body}
-      </ThemedSafeAreaView>
-    );
-  }
+  useSetPageHeader(
+    my ? t('navigation.myJams') : t('navigation.jams'),
+    headerActions
+  );
 
   return (
-    <View className="relative flex-1">
-      <TabScreensHeader
-        children={
-          <View className="flex-row items-center justify-between p-2">
-            <ThemedText className="text-2xl font-semibold">
-              {t('navigation.jams')}
-            </ThemedText>
-            {headerActions}
-          </View>
-        }
-      />
+    <ThemedView className="relative flex-1">
       {livekitEnabled ? <CreateNewJam /> : null}
       {body}
-    </View>
+    </ThemedView>
   );
 };

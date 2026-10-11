@@ -5,10 +5,10 @@ import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { truncateText } from '@openpeepshq/common/lib';
 import { useEditEvent } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { EventForm } from '../../components/post/index';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
 
 type EditEventProps = MainScreenProps<'EditEvent'>;
@@ -38,17 +38,18 @@ export const EditEvent = ({ route }: EditEventProps) => {
     ? `${t('events.edit')} ${truncateText(eventName)}`
     : t('events.edit');
 
+  useSetPageHeader(
+    title,
+    <HeaderActionButton
+      title={submitting ? t('common.saving') : t('events.update.title')}
+      onPress={() => void submit()}
+      disabled={submitting || !canSubmit}
+      loading={submitting}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={title}
-        rightButtonTitle={
-          submitting ? t('common.saving') : t('events.update.title')
-        }
-        onRightButtonPress={() => void submit()}
-        rightButtonDisabled={submitting || !canSubmit}
-        rightType="button"
-      />
+    <ThemedView className="flex-1">
       {postQuery.isLoading ? (
         <ActivityIndicator size="small" />
       ) : !postQuery.data || !postData ? (
@@ -68,6 +69,6 @@ export const EditEvent = ({ route }: EditEventProps) => {
           />
         </KeyboardAwareScrollView>
       )}
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

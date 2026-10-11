@@ -9,12 +9,12 @@ import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from '../../components/ui/themed-text';
 import { FollowUnfollowButton } from '../../components/profile/FollowUnfollowButton';
 
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileAvatar } from '../../components/profile/Avatar';
 
-import { GenericHeader } from '../../components/custom/headers/index';
+import { useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import {
   ProfileBio,
   ProfileHandle,
@@ -35,9 +35,10 @@ export const ConversationInfo = ({ route }: ConversationInfoProps) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 
+  useSetPageHeader(t('conversations.info'));
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader title={t('conversations.info')} />
+    <ThemedView className="flex-1">
       <ScrollView className="flex-1">
         {isGroupChat ? (
           <>
@@ -93,6 +94,6 @@ export const ConversationInfo = ({ route }: ConversationInfoProps) => {
           </View>
         )}
       </ScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

@@ -14,8 +14,8 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import {
   EmptyStateContainer,
   InfiniteScrollContainer,
-  TabScreensHeader,
 } from '../components/custom/index';
+import { useSetPageHeader } from '../components/layout';
 import { ThemedText } from '../components/ui/themed-text';
 import { useTranslation } from 'react-i18next';
 import { Pressable, TouchableOpacity, View, ScrollView } from 'react-native';
@@ -58,139 +58,99 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
     [currentProfile]
   );
 
+  useSetPageHeader(
+    t('navigation.explore'),
+    isSearchToggled ? (
+      <View className="max-w-[200px] flex-row items-center">
+        <Input
+          className="flex-1"
+          placeholder={t('explore.searchPlaceholder', {
+            defaultValue: 'Search',
+          })}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        <TouchableOpacity
+          className="items-center justify-center px-2"
+          onPress={() => {
+            setSearchQuery('');
+            setIsSearchToggled(false);
+            setTabValue('landing');
+          }}
+        >
+          <XIcon size={20} className="text-foreground" />
+        </TouchableOpacity>
+      </View>
+    ) : (
+      <TouchableOpacity onPress={() => setIsSearchToggled(true)}>
+        <SearchIcon size={20} className="text-foreground" />
+      </TouchableOpacity>
+    )
+  );
+
   return (
     <ThemedView className="grow">
       <Tabs
         value={tabValue}
         onValueChange={setTabValue}
-        className="w-full mx-auto flex-col gap-1.5"
+        className="mx-auto w-full flex-col gap-1.5"
       >
-        <TabScreensHeader
-          children={
-            <View className="flex-row items-center justify-between p-2">
-              {!isSearchToggled && (
-                <ThemedText className="text-2xl font-semibold">
-                  {t('navigation.explore')}
-                </ThemedText>
-              )}
-              <View
-                className={`${
-                  isSearchToggled
-                    ? 'flex justify-end '
-                    : 'flex-row items-center gap-x-6'
-                }`}
+        {isSearchToggled ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <TabsList className="flex-row w-full bg-transparent border-muted rounded-none border-b p-0">
+              <TabsTrigger
+                value="landing"
+                className="hidden"
+                onPress={() => setTabValue('hidden')}
+              />
+              <TabsTrigger
+                value="members"
+                className={
+                  tabValue === 'members' ? 'border-b-2 border-foreground' : ''
+                }
+                onPress={() => setTabValue('members')}
               >
-                {isSearchToggled ? (
-                  <>
-                    <View className=" w-full flex-row flex justify-end">
-                      <Input
-                        className="flex-1"
-                        placeholder="Search for members, posts, groups, jams, events"
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                      />
-                      <TouchableOpacity
-                        className="items-center justify-center px-4"
-                        onPress={() => {
-                          setSearchQuery('');
-                          setIsSearchToggled(false);
-                          setTabValue('landing');
-                        }}
-                      >
-                        <XIcon size={24} className="text-foreground" />
-                      </TouchableOpacity>
-                    </View>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                    >
-                      <TabsList className="flex-row w-full bg-transparent border-muted rounded-none border-b p-0">
-                        <TabsTrigger
-                          value="landing"
-                          className={'hidden'}
-                          onPress={() => {
-                            setTabValue('hidden');
-                          }}
-                        />
-                        <TabsTrigger
-                          value="members"
-                          className={`${
-                            tabValue === 'members'
-                              ? 'border-b-2 border-foreground'
-                              : ''
-                          }`}
-                          onPress={() => {
-                            setTabValue('members');
-                          }}
-                        >
-                          <ThemedText>Members</ThemedText>
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="posts"
-                          className={`${
-                            tabValue === 'posts'
-                              ? 'border-b-2 border-foreground'
-                              : ''
-                          }`}
-                          onPress={() => {
-                            setTabValue('posts');
-                          }}
-                        >
-                          <ThemedText>Posts</ThemedText>
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="jams"
-                          className={`${
-                            tabValue === 'jams'
-                              ? 'border-b-2 border-foreground'
-                              : ''
-                          }`}
-                          onPress={() => {
-                            setTabValue('jams');
-                          }}
-                        >
-                          <ThemedText>Jams</ThemedText>
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="events"
-                          className={`${
-                            tabValue === 'events'
-                              ? 'border-b-2 border-foreground'
-                              : ''
-                          }`}
-                          onPress={() => {
-                            setTabValue('events');
-                          }}
-                        >
-                          <ThemedText>Events</ThemedText>
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="groups"
-                          className={`${
-                            tabValue === 'groups'
-                              ? 'border-b-2 border-foreground'
-                              : ''
-                          }`}
-                          onPress={() => {
-                            setTabValue('groups');
-                          }}
-                        >
-                          <ThemedText>Groups</ThemedText>
-                        </TabsTrigger>
-                      </TabsList>
-                    </ScrollView>
-                  </>
-                ) : (
-                  <>
-                    <TouchableOpacity onPress={() => setIsSearchToggled(true)}>
-                      <SearchIcon size={20} className="text-foreground" />
-                    </TouchableOpacity>
-                  </>
-                )}
-              </View>
-            </View>
-          }
-        />
+                <ThemedText>Members</ThemedText>
+              </TabsTrigger>
+              <TabsTrigger
+                value="posts"
+                className={
+                  tabValue === 'posts' ? 'border-b-2 border-foreground' : ''
+                }
+                onPress={() => setTabValue('posts')}
+              >
+                <ThemedText>Posts</ThemedText>
+              </TabsTrigger>
+              <TabsTrigger
+                value="jams"
+                className={
+                  tabValue === 'jams' ? 'border-b-2 border-foreground' : ''
+                }
+                onPress={() => setTabValue('jams')}
+              >
+                <ThemedText>Jams</ThemedText>
+              </TabsTrigger>
+              <TabsTrigger
+                value="events"
+                className={
+                  tabValue === 'events' ? 'border-b-2 border-foreground' : ''
+                }
+                onPress={() => setTabValue('events')}
+              >
+                <ThemedText>Events</ThemedText>
+              </TabsTrigger>
+              <TabsTrigger
+                value="groups"
+                className={
+                  tabValue === 'groups' ? 'border-b-2 border-foreground' : ''
+                }
+                onPress={() => setTabValue('groups')}
+              >
+                <ThemedText>Groups</ThemedText>
+              </TabsTrigger>
+            </TabsList>
+          </ScrollView>
+        ) : null}
         <TabsContent
           value="landing"
           className="w-full flex h-64 items-center justify-center"

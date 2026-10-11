@@ -1,10 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { AgendaTabs, GenericHeader } from '../../components/custom/index';
+import { AgendaTabs } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { EventsView, Feed } from '../../components/post/index';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 
 type Tab = 'upcoming' | 'current' | 'past';
 
@@ -24,11 +25,10 @@ export const EventsMy: React.FC<MainScreenProps<'MyEvents'>> = () => {
         ? currentQuery
         : pastQuery;
 
+  useSetPageHeader(t('navigation.myEvents', { defaultValue: 'My events' }));
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('navigation.myEvents', { defaultValue: 'My events' })}
-      />
+    <ThemedView className="flex-1">
       <AgendaTabs<Tab>
         accessibilityLabel={t('events.feed.label', {
           defaultValue: 'Event timeframe',
@@ -55,6 +55,6 @@ export const EventsMy: React.FC<MainScreenProps<'MyEvents'>> = () => {
         agenda={tab}
         list={<Feed query={activeQuery} formatSwitch={false} />}
       />
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

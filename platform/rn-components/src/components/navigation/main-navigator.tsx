@@ -44,6 +44,7 @@ import {
 } from '../../pages';
 import { MenuWrapper } from './side-menu-wrapper';
 import { SideMenuDrawer } from './side-menu-drawer';
+import { RootLayout } from '../layout';
 
 import { MainStackParamList } from './types';
 import { useWindowSize } from '../../hooks/index';
@@ -51,6 +52,14 @@ import { initializePushNotifications } from '../../lib/push-notifications';
 import { useOpenpeeps } from '@openpeepshq/react';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
+
+const NO_ROOT_LAYOUT = new Set([
+  'TabNavigator',
+  'JamSession',
+  'VideoPlayer',
+  'About',
+  'CodeOfConduct',
+]);
 
 export const MainNavigator = () => {
   const { openpeepsApi, queryClient } = useOpenpeeps();
@@ -90,7 +99,14 @@ export const MainNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false, animation: 'fade' }}
-      screenLayout={({ children }) => <Wrapper>{children}</Wrapper>}
+      screenLayout={({ children, route }) => {
+        const body = NO_ROOT_LAYOUT.has(route.name) ? (
+          children
+        ) : (
+          <RootLayout>{children}</RootLayout>
+        );
+        return <Wrapper>{body}</Wrapper>;
+      }}
     >
       <Stack.Screen name="TabNavigator" component={TabNavigator} />
       <Stack.Screen name="Profile" component={Profile} />

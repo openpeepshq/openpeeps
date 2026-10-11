@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { ThemedView } from '../components/ui/themed-view';
 import { ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { TabScreensHeader } from '../components/custom/index';
+import { useSetPageHeader } from '../components/layout';
 import {
   UserCheckIcon,
   MailCheckIcon,
@@ -122,15 +122,10 @@ export const Welcome = () => {
     ]
   );
 
+  useSetPageHeader(t('navigation.welcome'));
+
   return (
     <ThemedView className="flex-1">
-      <TabScreensHeader
-        children={
-          <ThemedText className="text-2xl font-semibold">
-            {t('navigation.welcome')}
-          </ThemedText>
-        }
-      />
       <ScrollView className="p-4 w-full">
         {isLoading && <ActivityIndicator size={'small'} />}
         <ThemedView className="w-full mt-2">

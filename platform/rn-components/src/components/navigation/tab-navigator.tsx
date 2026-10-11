@@ -36,6 +36,7 @@ import {
   useServerInfo,
 } from '@openpeepshq/react';
 import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
+import { RootLayout } from '../layout';
 
 const Tab = createBottomTabNavigator<TabStackParamList>();
 
@@ -91,6 +92,7 @@ export const TabNavigator = () => {
   const display = isMediumScreenOrLarger ? 'none' : 'flex';
   return (
     <Tab.Navigator
+      screenLayout={({ children }) => <RootLayout>{children}</RootLayout>}
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarShowLabel: false,

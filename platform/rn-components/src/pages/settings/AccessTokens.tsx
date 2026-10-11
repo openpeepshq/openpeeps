@@ -12,7 +12,7 @@ import {
   useAccessTokens,
   type AccessTokenResourceType,
 } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
 import { ChevronDownIcon, CopyIcon } from '../../components/icons/index';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { Button } from '../../components/ui/button';
@@ -24,8 +24,8 @@ import {
 } from '../../components/ui/dropdown-menu';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
+import { ThemedView } from '../../components/ui/themed-view';
 
 type AccessTokensSettingsProps = MainScreenProps<'AccessTokensSettings'>;
 
@@ -93,9 +93,10 @@ export const AccessTokensSettings: React.FC<AccessTokensSettingsProps> = () => {
         ?.labelKey ?? value
     );
 
+  useSetPageHeader(t('settings.accessTokens.title'));
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader title={t('settings.accessTokens.title')} />
+    <ThemedView className="flex-1">
       <ScrollView contentContainerClassName="gap-6 p-4">
         <View className="gap-3 rounded-md border border-border p-4">
           <ThemedText className="text-lg font-medium">
@@ -270,6 +271,6 @@ export const AccessTokensSettings: React.FC<AccessTokensSettingsProps> = () => {
           )}
         </View>
       </ScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

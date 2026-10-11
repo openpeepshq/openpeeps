@@ -10,9 +10,10 @@ import {
   AudioPickerSheet,
   DocumentPickerSheet,
   type DocumentPickerSheetHandle,
-  GenericHeader,
   ImagePickerSheet,
 } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import {
   MediaAttachment,
   pollOptionsWithinLimit,
@@ -21,7 +22,6 @@ import {
   resolvePollOptionContents,
 } from '@openpeepshq/common';
 import Toast from 'react-native-toast-message';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import {
   postDataDefaults,
   useLocalPostStore,
@@ -233,20 +233,24 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
     }
   }, [t]);
 
+  useSetPageHeader(
+    t('posts.reply.title', { defaultValue: 'Reply' }),
+    <HeaderActionButton
+      title={
+        isPosting
+          ? t('posts.create.loading')
+          : attachmentsProcessing
+            ? t('posts.create.processing', 'Processing…')
+            : t('posts.create.submit')
+      }
+      onPress={() => void handlePostCreation()}
+      disabled={!canSubmit}
+      loading={isPosting}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1 bg-background">
-      <GenericHeader
-        rightType="button"
-        rightButtonTitle={
-          isPosting
-            ? t('posts.create.loading')
-            : attachmentsProcessing
-              ? t('posts.create.processing', 'Processing…')
-              : t('posts.create.submit')
-        }
-        onRightButtonPress={handlePostCreation}
-        rightButtonDisabled={!canSubmit}
-      />
+    <ThemedView className="flex-1 bg-background">
       <KeyboardAwareScrollView
         ref={scrollRef}
         className="flex-1"
@@ -342,6 +346,6 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
         ref={documentPickerModalRef}
         onSelect={handleAddAttachments}
       />
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

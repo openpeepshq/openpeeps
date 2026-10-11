@@ -5,10 +5,10 @@ import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { truncateText } from '@openpeepshq/common/lib';
 import { useEditArticle } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { ArticleForm } from '../../components/post/index';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
 
 type EditArticleProps = MainScreenProps<'EditArticle'>;
@@ -37,19 +37,22 @@ export const EditArticle: React.FC<EditArticleProps> = ({ route }) => {
     ? `${t('articles.edit', { defaultValue: 'Edit article' })} ${truncateText(articleTitle)}`
     : t('articles.edit', { defaultValue: 'Edit article' });
 
+  useSetPageHeader(
+    title,
+    <HeaderActionButton
+      title={
+        submitting
+          ? t('common.saving', { defaultValue: 'Saving…' })
+          : t('articles.update.title', { defaultValue: 'Update article' })
+      }
+      onPress={() => void submit()}
+      disabled={submitting || !postData}
+      loading={submitting}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={title}
-        rightButtonTitle={
-          submitting
-            ? t('common.saving', { defaultValue: 'Saving…' })
-            : t('articles.update.title', { defaultValue: 'Update article' })
-        }
-        onRightButtonPress={() => void submit()}
-        rightButtonDisabled={submitting || !postData}
-        rightType="button"
-      />
+    <ThemedView className="flex-1">
       {postQuery.isLoading ? (
         <ActivityIndicator size="small" />
       ) : !postQuery.data || !postData ? (
@@ -64,6 +67,6 @@ export const EditArticle: React.FC<EditArticleProps> = ({ route }) => {
           <ArticleForm postData={postData} onChange={setPostData} isEdit />
         </KeyboardAwareScrollView>
       )}
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

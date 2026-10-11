@@ -9,12 +9,11 @@ import { ThemedView } from '../../components/ui/themed-view';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { useNewConversationStore } from '../../stores/useNewConversationStore';
 import { TouchableOpacity } from 'react-native';
-import { GenericHeader } from '../../components/custom/headers/index';
+import { useSetPageHeader } from '../../components/layout';
 import { SendHorizonalIcon } from '../../components/icons/index';
 import { useCreateConversation, useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '../../components/ui/themed-text';
 import { Profile, PublicProfile } from '@openpeepshq/common';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
 import { useTranslation } from 'react-i18next';
 import { maxContentLength } from '../../lib/utils';
@@ -42,9 +41,10 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
     if (contnt) setMessage(contnt);
   }, [contnt, setMessage]);
 
+  useSetPageHeader(t('conversations.draft.title'));
+
   return (
-    <ThemedSafeAreaView className="flex-1 relative">
-      <GenericHeader title={t('conversations.draft.title')} />
+    <ThemedView className="flex-1 relative">
       <KeyboardAvoidingView className="flex-1" behavior="padding">
         <ScrollView
           ref={scrollViewRef}
@@ -97,6 +97,6 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
           </View>
         </ThemedView>
       </KeyboardAvoidingView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

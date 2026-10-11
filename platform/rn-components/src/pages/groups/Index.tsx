@@ -1,45 +1,32 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Pressable,
   RefreshControl,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-
 import { checkRoleCapabilities } from '@openpeepshq/common';
-import {
-  CheckIcon,
-  MoreVerticalIcon,
-  PlusIcon,
-  SearchIcon,
-  XIcon,
-} from '../../components/icons/index';
-import {
-  EmptyStateContainer,
-  PlusFab,
-  TabScreensHeader,
-} from '../../components/custom/index';
-import { ThemedView } from '../../components/ui/themed-view';
-import { ThemedText } from '../../components/ui/themed-text';
-import { Input } from '../../components/ui/input';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../../components/ui/dropdown-menu';
-import { useTranslation } from 'react-i18next';
 import { useOpenpeeps } from '@openpeepshq/react';
+import { useTranslation } from 'react-i18next';
+import {
+  useSetPageHeader,
+  useSetPlusButtonActions,
+} from '../../components/layout';
+import { EmptyStateContainer } from '../../components/custom/index';
+import { GroupCard } from '../../components/groups/index';
 import {
   MainStackParamList,
   TabStackParamList,
 } from '../../components/navigation/types/index';
+import { Input } from '../../components/ui/input';
+import { ThemedText } from '../../components/ui/themed-text';
+import { ThemedView } from '../../components/ui/themed-view';
 
-import { GroupCard } from '../../components/groups/index';
+type GroupsTab = 'mine' | 'all';
+
 type GroupsProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Groups'>,
   NativeStackScreenProps<MainStackParamList>
@@ -52,11 +39,8 @@ export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
   const unseenCountsQuery = openpeepsApi.useUnseenPostCounts();
   const unseenByGroup = unseenCountsQuery.data?.groups ?? {};
 
-  const [filterBy, setFilterBy] = useState<'all-groups' | 'my-groups'>(
-    'all-groups'
-  );
-  const [isSearchToggled, setIsSearchToggled] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [tab, setTab] = useState<GroupsTab>('mine');
+  const [search, setSearch] = useState('');
 
   const isMember = useCallback(
     (groupId: string) =>
@@ -67,99 +51,64 @@ export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
   const visibleGroups = useMemo(
     () =>
       (groups ?? [])
+        .filter((g) => (tab === 'mine' ? isMember(g.id) : true))
         .filter((g) =>
-          searchQuery
-            ? g.displayName?.toLowerCase().includes(searchQuery.toLowerCase())
+          search
+            ? g.displayName?.toLowerCase().includes(search.toLowerCase())
             : true
-        )
-        .filter((g) => (filterBy === 'my-groups' ? isMember(g.id) : true)),
-    [groups, searchQuery, filterBy, isMember]
+        ),
+    [groups, isMember, search, tab]
+  );
+
+  const canCreate = checkRoleCapabilities(currentProfile?.roles ?? [], [
+    'core-groups-create',
+  ]).success;
+
+  useSetPageHeader(t('navigation.groups', { defaultValue: 'Groups' }));
+  useSetPlusButtonActions(
+    canCreate
+      ? {
+          title: t('groups.new'),
+          action: () => navigation.navigate('CreateGroup'),
+        }
+      : undefined
   );
 
   return (
     <ThemedView className="flex-1">
-      <TabScreensHeader
-        children={
-          <View className="flex-row items-center justify-between p-4">
-            {!isSearchToggled && (
-              <ThemedText className="text-2xl font-semibold">Groups</ThemedText>
-            )}
-            <View
-              className={
-                isSearchToggled
-                  ? 'flex justify-end'
-                  : 'flex-row items-center gap-x-6'
-              }
-            >
-              {isSearchToggled ? (
-                <View className="ml-4 w-full flex-row justify-end">
-                  <Input
-                    className="flex-1"
-                    placeholder="Enter Group Name"
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                  />
-                  <TouchableOpacity
-                    className="items-center justify-center px-4"
-                    onPress={() => {
-                      setSearchQuery('');
-                      setIsSearchToggled(false);
-                    }}
-                  >
-                    <XIcon size={24} className="text-foreground" />
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <>
-                  <TouchableOpacity onPress={() => setIsSearchToggled(true)}>
-                    <SearchIcon size={24} className="text-foreground" />
-                  </TouchableOpacity>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <MoreVerticalIcon className="text-foreground" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="mt-1">
-                      <DropdownMenuGroup>
-                        <DropdownMenuItem
-                          className="flex-row gap-x-2 items-center"
-                          onPress={() => setFilterBy('all-groups')}
-                        >
-                          <ThemedText>All Groups</ThemedText>
-                          {filterBy === 'all-groups' && (
-                            <CheckIcon size={12} className="text-foreground" />
-                          )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="flex-row gap-x-2 items-center"
-                          onPress={() => setFilterBy('my-groups')}
-                        >
-                          <ThemedText>My Groups</ThemedText>
-                          {filterBy === 'my-groups' && (
-                            <CheckIcon size={12} className="text-foreground" />
-                          )}
-                        </DropdownMenuItem>
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              )}
-            </View>
-          </View>
-        }
-      />
+      <View
+        accessibilityRole="tablist"
+        className="border-border mb-4 flex-row border-b px-4"
+      >
+        <TabButton active={tab === 'mine'} onPress={() => setTab('mine')}>
+          {t('groups.tabs.myGroups', { defaultValue: 'My groups' })}
+        </TabButton>
+        <TabButton active={tab === 'all'} onPress={() => setTab('all')}>
+          {t('groups.tabs.allGroups', { defaultValue: 'All groups' })}
+        </TabButton>
+      </View>
+      <View className="px-4">
+        <Input
+          placeholder={t('groups.searchPlaceholder', {
+            defaultValue: 'Search by group name',
+          })}
+          value={search}
+          onChangeText={setSearch}
+        />
+      </View>
       <KeyboardAwareScrollView
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={refetch} />
         }
         contentContainerClassName="grow"
-        className="w-full flex bg-background relative pt-2 px-4"
+        className="relative flex w-full bg-background px-4 pt-2"
       >
-        {isLoading && <ActivityIndicator size={'small'} />}
+        {isLoading && <ActivityIndicator size="small" />}
         {!isLoading && visibleGroups.length === 0 && (
           <EmptyStateContainer
             type="groups"
             copyKey={
-              !searchQuery && filterBy === 'my-groups'
+              !search && tab === 'mine'
                 ? 'groups.noGroupsYet'
                 : 'groups.noGroupsFound'
             }
@@ -172,7 +121,9 @@ export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
               group={group}
               isGroupMember={isMember(group.id)}
               unreadCount={
-                isMember(group.id) ? (unseenByGroup[group.id] ?? 0) : 0
+                tab === 'mine' && isMember(group.id)
+                  ? (unseenByGroup[group.id] ?? 0)
+                  : 0
               }
               handleViewGroup={() =>
                 navigation.navigate('Group', { id: group.id })
@@ -181,16 +132,28 @@ export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
           ))}
         <View className="mb-24" />
       </KeyboardAwareScrollView>
-      {checkRoleCapabilities(currentProfile?.roles ?? [], [
-        'core-groups-create',
-      ]).success ? (
-        <PlusFab
-          accessibilityLabel={t('groups.new')}
-          onPress={() => navigation.navigate('CreateGroup')}
-        >
-          <PlusIcon size={24} className="text-background" />
-        </PlusFab>
-      ) : null}
     </ThemedView>
   );
 };
+
+const TabButton = ({
+  active,
+  onPress,
+  children,
+}: {
+  active: boolean;
+  onPress: () => void;
+  children: React.ReactNode;
+}) => (
+  <Pressable
+    accessibilityRole="tab"
+    onPress={onPress}
+    className={`px-4 py-2 ${active ? 'border-primary border-b-2' : ''}`}
+  >
+    <ThemedText
+      className={`text-sm ${active ? 'font-semibold' : 'text-muted-foreground'}`}
+    >
+      {children}
+    </ThemedText>
+  </Pressable>
+);

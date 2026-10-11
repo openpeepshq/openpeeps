@@ -83,7 +83,11 @@ export {
   resetReplyData,
   useReplyStore,
 } from './stores/newPosts';
-export type { NewPostsState } from './stores/types';
+export type {
+  NewPostsState,
+  PlusButtonAction,
+  PlusButtonActions,
+} from './stores/types';
 export {
   extractUrlsFromText,
   isValidUrl,

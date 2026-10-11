@@ -1,10 +1,10 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { GenericHeader } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
 import { ConfigMenuButton } from '../../components/configuration/index';
 import { MainScreenProps } from '../../components/navigation/types/index';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
+import { ThemedView } from '../../components/ui/themed-view';
 
 type NotificationSettingsProps = MainScreenProps<'NotificationSettings'>;
 
@@ -13,13 +13,14 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  useSetPageHeader(
+    t('settings.notifications.title', {
+      defaultValue: 'Notifications',
+    })
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('settings.notifications.title', {
-          defaultValue: 'Notifications',
-        })}
-      />
+    <ThemedView className="flex-1">
       <View className="p-4">
         <ConfigMenuButton
           translationPrefix="settings.notifications.preferences"
@@ -30,6 +31,6 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
           onPress={() => navigation.navigate('PushEnabledDevices')}
         />
       </View>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

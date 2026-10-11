@@ -3,10 +3,10 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { useNewArticle } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { ArticleForm } from '../../components/post/index';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 
 type NewArticleProps = MainScreenProps<'NewArticle'>;
 
@@ -28,25 +28,28 @@ export const NewArticle: React.FC<NewArticleProps> = () => {
     clearError();
   }, [error, clearError]);
 
+  useSetPageHeader(
+    t('articles.new', { defaultValue: 'New article' }),
+    <HeaderActionButton
+      title={
+        submitting
+          ? t('common.submitting', { defaultValue: 'Publishing…' })
+          : t('articles.create.title', { defaultValue: 'Create article' })
+      }
+      onPress={() => void submit()}
+      disabled={submitting || !canSubmit}
+      loading={submitting}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('articles.new', { defaultValue: 'New article' })}
-        rightButtonTitle={
-          submitting
-            ? t('common.submitting', { defaultValue: 'Publishing…' })
-            : t('articles.create.title', { defaultValue: 'Create article' })
-        }
-        onRightButtonPress={() => void submit()}
-        rightButtonDisabled={submitting || !canSubmit}
-        rightType="button"
-      />
+    <ThemedView className="flex-1">
       <KeyboardAwareScrollView
         contentContainerClassName="grow"
         className="pb-12"
       >
         <ArticleForm postData={postData} onChange={setPostData} />
       </KeyboardAwareScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };
