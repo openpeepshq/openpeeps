@@ -857,7 +857,8 @@
       "allGroups": "All groups"
     },
     "markAllRead": {
-      "error": "Failed to mark group posts as read"
+      "error": "Failed to mark group posts as read",
+      "success": "Group posts marked as read"
     },
     "noGroupsYet": "You have no groups yet",
     "noGroupsFound": "No groups found",

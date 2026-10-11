@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { MainStackParamList } from '../../navigation/types/index';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import { FeedPost } from '../../post/FeedPost';
+import { FeedPostContent } from '../../post/FeedPostContent';
 
 interface NotificationTypeProps {
   notification: PublicNotification;
@@ -25,7 +25,7 @@ export const Reply: React.FC<NotificationTypeProps> = ({ notification }) => {
     <NotificationWrapper
       profile={profile}
       seen={notification.seen}
-      showProfile={false}
+      showProfile
     >
       <Pressable
         onPress={() => navigation.navigate('Post', { id: replyPost.id })}
@@ -41,14 +41,11 @@ export const Reply: React.FC<NotificationTypeProps> = ({ notification }) => {
             </ThemedText>
           </View>
         </View>
-        {replyPost && (
-          <FeedPost
-            post={replyPost}
-            showReplyTo={false}
-            showMenu={false}
-            noReactionHeader
-          />
-        )}
+        {replyPost ? (
+          <View className="min-w-0">
+            <FeedPostContent post={replyPost} />
+          </View>
+        ) : null}
       </Pressable>
     </NotificationWrapper>
   );

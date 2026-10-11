@@ -47,6 +47,12 @@ export default {
       borderWidth: {
         hairline: hairlineWidth(),
       },
+      borderRadius: {
+        button: 'var(--theme-rounded-base)',
+        lg: 'var(--theme-rounded-container, 0.5rem)',
+        md: 'calc(var(--theme-rounded-container, 0.5rem) - 2px)',
+        sm: 'calc(var(--theme-rounded-container, 0.5rem) - 4px)',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

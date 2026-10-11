@@ -16,7 +16,7 @@ export const ProfileFromId = ({ id }: AvatarFromIdProps) => {
     <View>
       {isLoading && <ActivityIndicator size={'small'} />}
       {!isLoading && (
-        <ProfileAvatar className="ml-2 w-8 h-8" profile={profile as Profile} />
+        <ProfileAvatar className="-mr-2 size-8" profile={profile as Profile} />
       )}
     </View>
   );

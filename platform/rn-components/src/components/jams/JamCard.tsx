@@ -20,15 +20,15 @@ export const JamCard = ({ jamPost, type = 'upcoming' }: JamCardProps) => {
     jamEvent && (
       <>
         {jamPost.data?.type === 'event' && (
-          <View className="flex flex-row gap-x-4 mb-4 w-full">
-            <View className="size-24">
+          <View className="mb-4 w-full flex-row gap-x-4">
+            <View className="size-24 shrink-0">
               <Image
                 source={require('../../assets/images/jam-placeholder.png')}
-                className="w-full h-full rounded-md"
+                className="h-full w-full rounded-md"
               />
             </View>
-            <View className=" flex flex-col gap-y-3 h-full">
-              <View className="flex flex-row gap-x-1 items-center">
+            <View className="min-w-0 flex-1 flex-col gap-y-3">
+              <View className="flex-row flex-wrap items-center gap-x-1">
                 <ThemedText>Happening</ThemedText>
                 <UpdatingDate date={jamEvent?.start} />
               </View>

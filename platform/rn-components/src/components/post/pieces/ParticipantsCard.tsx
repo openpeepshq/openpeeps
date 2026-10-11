@@ -11,26 +11,10 @@ export const ParticipantsCard: React.FC<ParticipantsCardProps> = ({
   jamState,
 }) => {
   return (
-    <View className="flex w-full justify-between gap-4 p-5">
-      <View className="flex items-center">
-        {jamState.participants.length > 2 ? (
-          <>
-            {jamState.participants.slice(0, 2).map((participant) => (
-              <>
-                <ProfileFromId id={participant} />
-              </>
-            ))}
-          </>
-        ) : (
-          <>
-            {jamState.participants.map((participant) => (
-              <>
-                <ProfileFromId id={participant} />
-              </>
-            ))}
-          </>
-        )}
-      </View>
+    <View className="flex-row items-center">
+      {jamState.participants.slice(0, 2).map((participant) => (
+        <ProfileFromId key={participant} id={participant} />
+      ))}
     </View>
   );
 };

@@ -6,12 +6,13 @@ import { useOpenpeeps, usePostDetailTitle } from '@openpeepshq/react';
 import { GenericHeader } from '../components/custom/index';
 import { ThemedSafeAreaView } from '../components/ui/themed-safe-area-view';
 import { MainScreenProps } from '../components/navigation/types/index';
+import { goToParentOrBack } from '../components/navigation/parent-back';
 import { PostDetail as PostDetailComponent } from '../components/post/index';
 import { FullEventActions } from '../components/post/types/event/FullEvent';
 
 type PostProps = MainScreenProps<'Post'>;
 
-export const PostDetail = ({ route }: PostProps) => {
+export const PostDetail = ({ route, navigation }: PostProps) => {
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
   const { id, occurrence } = route.params;
@@ -29,18 +30,27 @@ export const PostDetail = ({ route }: PostProps) => {
     ? `${kindTitle} ${t('post.detail.inGroup')} ${groupLabel}`
     : kindTitle;
 
+  const handleGoBack = () =>
+    goToParentOrBack({
+      navigation,
+      routeName: 'Post',
+      params: route.params,
+      post,
+    });
+
   return (
     <ThemedSafeAreaView className="flex-1">
       {post?.type === 'event' ? (
         <GenericHeader
           title={title}
+          handleGoBack={handleGoBack}
           rightType="icon"
           rightButtonIcon={
             <FullEventActions post={post} occurrence={occurrence} />
           }
         />
       ) : (
-        <GenericHeader title={title} />
+        <GenericHeader title={title} handleGoBack={handleGoBack} />
       )}
       <KeyboardAwareScrollView
         className="w-full flex bg-background relative"

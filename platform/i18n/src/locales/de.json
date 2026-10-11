@@ -851,7 +851,8 @@
       "allGroups": "Alle Gruppen"
     },
     "markAllRead": {
-      "error": "Gruppenbeiträge konnten nicht als gelesen markiert werden"
+      "error": "Gruppenbeiträge konnten nicht als gelesen markiert werden",
+      "success": "Gruppenbeiträge als gelesen markiert"
     },
     "members": {
       "title": "Mitglieder",

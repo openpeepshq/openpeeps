@@ -95,7 +95,7 @@ export const CardEvent = ({ post, showEventDate = true }: CardEventProps) => {
               >
                 <View className="flex flex-row items-center gap-x-2">
                   {jamState?.participants?.length > 0 && (
-                    <View className="-ml-5 w-12">
+                    <View className="flex-row items-center">
                       <ParticipantsCard jamState={jamState} />
                     </View>
                   )}

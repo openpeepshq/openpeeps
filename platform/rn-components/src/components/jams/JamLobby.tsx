@@ -183,10 +183,11 @@ export const JamLobby = ({ onJoin }: JamLobbyProps) => {
         <View className="w-full items-center px-5 pb-4">
           <Button
             accessibilityLabel={t('jams.join.submit')}
+            className="min-w-[10rem]"
             disabled={submitting}
             onPress={handleJoin}
           >
-            <ThemedText className="text-primary-foreground">
+            <ThemedText numberOfLines={1} className="text-primary-foreground">
               {jamActive ? t('jams.join.ctaJoin') : t('jams.join.ctaStart')}
             </ThemedText>
           </Button>

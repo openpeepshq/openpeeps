@@ -42,29 +42,64 @@ export const unseenCountsQueryKey = (
   client: ReturnType<typeof openpeepsClient>,
 ): QueryKey => client.posts.unseenCounts.queryKey({});
 
-export const isUnseenCountsQueryKey = (queryKey: readonly unknown[]): boolean =>
-  queryKey[0] === 'posts' &&
-  queryKey[1] === 'unseen' &&
-  queryKey[2] === 'counts';
+export const isUnseenCountsQueryKey = (
+  queryKey: readonly unknown[],
+): boolean => {
+  const parts = queryKey.filter(
+    (part): part is string => typeof part === 'string' && part.length > 0,
+  );
+  const posts = parts.indexOf('posts');
+  return (
+    posts !== -1 &&
+    parts[posts + 1] === 'unseen' &&
+    parts[posts + 2] === 'counts'
+  );
+};
+
+const unseenCountsQueryFilter = {
+  predicate: (query: { queryKey: readonly unknown[] }) =>
+    isUnseenCountsQueryKey(query.queryKey),
+};
 
 export const adjustUnseenCounts = (
   queryClient: QueryClient,
   client: ReturnType<typeof openpeepsClient>,
   adjustment: UnseenCountsAdjustment,
 ): void => {
-  queryClient.setQueryData<UnseenPostCounts>(
-    unseenCountsQueryKey(client),
-    (current) => applyUnseenCountsAdjustment(current, adjustment),
-  );
+  const next = (current: UnseenPostCounts | undefined) =>
+    applyUnseenCountsAdjustment(current, adjustment);
+
+  // Menu pills subscribe to whatever key apiHook built; update every match.
+  queryClient.setQueriesData<UnseenPostCounts>(unseenCountsQueryFilter, next);
+  const key = unseenCountsQueryKey(client);
+  if (queryClient.getQueryData(key) === undefined) {
+    queryClient.setQueryData<UnseenPostCounts>(key, next(undefined));
+  }
 };
 
 export const invalidateUnseenCounts = async (
   queryClient: QueryClient,
-  client: ReturnType<typeof openpeepsClient>,
+  _client: ReturnType<typeof openpeepsClient>,
 ): Promise<void> => {
-  await queryClient.invalidateQueries({
-    queryKey: unseenCountsQueryKey(client),
-  });
+  await queryClient.invalidateQueries(unseenCountsQueryFilter);
+};
+
+export const markGroupPostsRead = async (
+  queryClient: QueryClient,
+  client: ReturnType<typeof openpeepsClient>,
+  groupId: string,
+  markGroupPostsSeen: (params: { groupId: string }) => Promise<unknown>,
+): Promise<void> => {
+  await queryClient.cancelQueries(unseenCountsQueryFilter);
+  adjustUnseenCounts(queryClient, client, { clearGroup: groupId });
+  try {
+    await markGroupPostsSeen({ groupId });
+    // Re-apply in case a late refetch won the race during the request.
+    adjustUnseenCounts(queryClient, client, { clearGroup: groupId });
+  } catch (error) {
+    await invalidateUnseenCounts(queryClient, client);
+    throw error;
+  }
 };
 
 export const invalidatePostsExceptUnseenCounts = async (

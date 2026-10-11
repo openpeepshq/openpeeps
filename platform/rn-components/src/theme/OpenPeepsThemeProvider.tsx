@@ -21,28 +21,39 @@ export const OpenPeepsThemeProvider = ({
   const { data: profileSettings, refetch: refetchProfileSettings } =
     openpeepsApi.useCurrentProfileSettings();
 
-  const theme = useMemo(() => {
+  const resolvedTheme = useMemo(() => {
     const schemeForTheme =
       systemColorScheme === 'dark' || systemColorScheme === 'light'
         ? systemColorScheme
         : undefined;
-    const userTheme = getTheme(
+    return getTheme(
       serverInfo?.communityConfig ??
         ({ theme: { base: 'OpenpeepsDark' } } as CommunityConfig),
       profileSettings,
       schemeForTheme ?? 'light'
     );
-    return buildTheme(userTheme.dark, userTheme.primaryHex, () => {
-      refetchProfileSettings();
-    });
-  }, [
-    profileSettings,
-    refetchProfileSettings,
-    serverInfo?.communityConfig,
-    systemColorScheme,
-  ]);
+  }, [profileSettings, serverInfo?.communityConfig, systemColorScheme]);
 
-  const themeVars = useMemo(() => getThemeVars(theme.colors), [theme.colors]);
+  const theme = useMemo(
+    () =>
+      buildTheme(resolvedTheme.dark, resolvedTheme.primaryHex, () => {
+        refetchProfileSettings();
+      }),
+    [refetchProfileSettings, resolvedTheme.dark, resolvedTheme.primaryHex]
+  );
+
+  const themeVars = useMemo(
+    () =>
+      getThemeVars(theme.colors, {
+        buttonRadius: resolvedTheme.buttonRadius,
+        radius: resolvedTheme.radius,
+      }),
+    [
+      resolvedTheme.buttonRadius,
+      resolvedTheme.radius,
+      theme.colors,
+    ]
+  );
 
   useEffect(() => {
     // nativewind maps colorScheme.set('system') to Appearance.setColorScheme(null),

@@ -85,6 +85,13 @@ export const TabScreensHeader = ({
   if (isMediumScreenOrLarger) {
     return (
       <ThemedSafeAreaView className="p-4 pb-6 pl-1">
+        <View className="mb-4 flex-row items-center">
+          <Image
+            source={{ uri: logoSmall! }}
+            resizeMode="contain"
+            className="h-12 w-48"
+          />
+        </View>
         {children}
       </ThemedSafeAreaView>
     );

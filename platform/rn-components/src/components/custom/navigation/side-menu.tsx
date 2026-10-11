@@ -101,8 +101,8 @@ export const SideMenu = ({
           <View className="w-full flex-row items-center justify-between">
             <Image
               source={{ uri: logoSmall! }}
-              className="-mt-2"
-              resizeMode="cover"
+              className="-mt-2 h-12 w-48"
+              resizeMode="contain"
             />
             {!isMediumScreenOrLarger && (
               <View className="md:hidden">

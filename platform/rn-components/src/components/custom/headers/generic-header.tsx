@@ -1,9 +1,13 @@
 import { View, Pressable, ActivityIndicator } from 'react-native';
 import React from 'react';
 import { Button } from '../../ui/button';
-import { ArrowLeftIcon } from '../../icons/index';
+import { ChevronLeftIcon } from '../../icons/index';
 import { ThemedText } from '../../ui/themed-text';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useCurrentProfile } from '@openpeepshq/react';
+import { goToParentOrBack } from '../../navigation/parent-back';
+import type { MainStackParamList } from '../../navigation/types';
 
 interface GenericHeaderProps {
   title?: string | React.ReactNode;
@@ -31,21 +35,32 @@ export const GenericHeader = ({
   hideBackButton = false,
   rightElement,
 }: GenericHeaderProps) => {
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+  const route = useRoute();
+  const me = useCurrentProfile();
   return (
     <View className="sticky top-0 z-20 w-full px-4 py-2 flex flex-row justify-between items-center">
       <View className="flex gap-4 mb-2 flex-row items-center">
         {!hideBackButton && (
-          <Button
-            size="icon"
-            onPress={() =>
-              handleGoBack ? handleGoBack() : navigation.goBack()
-            }
-            variant="outline"
-            className="w-12 h-10"
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => {
+              if (handleGoBack) {
+                handleGoBack();
+                return;
+              }
+              goToParentOrBack({
+                navigation,
+                routeName: route.name,
+                params: route.params as Record<string, unknown> | undefined,
+                profileHandle: me?.handle,
+              });
+            }}
+            className="items-center justify-center p-2"
           >
-            <ArrowLeftIcon className="text-foreground" />
-          </Button>
+            <ChevronLeftIcon size={28} className="text-foreground" />
+          </Pressable>
         )}
         {typeof title === 'string' ? (
           <ThemedText className="text-xl tracking-wider font-semibold">
