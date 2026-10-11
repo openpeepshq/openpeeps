@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **rn-components**: match web side menu and plus buttons
+- **rn-components**: align native compose and feed with web
 - **eventCalendar**: implement recurring event handling in agenda
 - **libraries**: ship packages as standard RN and web libraries
 - **event**: enhance RSVP functionality with new occurrence handling
@@ -13,6 +15,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **rn-components**: remove create post from side menu
+- **react**: refresh auth scopes on React Native
 - **ci**: do not cancel in-progress workflows on main
 - **rn-components**: rewrite ~/ imports to relative paths and gate publishes
 - **jams**: retry livekit health probe before disabling jams
