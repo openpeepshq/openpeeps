@@ -2,13 +2,13 @@ import React from 'react';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { ThemedView } from '../../components/ui/themed-view';
-import { GenericHeader, UpdatingDate } from '../../components/custom/index';
+import { UpdatingDate } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
 import { truncateText } from '../../lib/utils';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { ThemedText } from '../../components/ui/themed-text';
 import { ActivityIndicator, View } from 'react-native';
 import { Avatar, AvatarImage } from '../../components/ui/avatar';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { useTranslation } from 'react-i18next';
 import { getGroupAvatar } from '@openpeepshq/common';
 
@@ -21,27 +21,26 @@ export const GroupInfo = ({ route }: GroupInfoProps) => {
   const { data: groupData, isLoading } = openpeepsApi.useGroup(id);
   const { data: server } = openpeepsApi.useServerInfo();
 
+  useSetPageHeader(
+    <View className="flex-row items-center gap-x-2">
+      <Avatar alt={groupData?.displayName as string} className="size-8">
+        <AvatarImage
+          source={{
+            uri:
+              (groupData && server
+                ? getGroupAvatar(groupData, server.communityConfig)
+                : groupData?.avatar) ?? undefined,
+          }}
+        />
+      </Avatar>
+      <ThemedText className="text-lg">
+        {truncateText(groupData?.displayName, 30)}
+      </ThemedText>
+    </View>
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1 relative">
-      <GenericHeader
-        title={
-          <View className="flex-row gap-x-2 items-center">
-            <Avatar alt={groupData?.displayName as string} className=" size-14">
-              <AvatarImage
-                source={{
-                  uri:
-                    (groupData && server
-                      ? getGroupAvatar(groupData, server.communityConfig)
-                      : groupData?.avatar) ?? undefined,
-                }}
-              />
-            </Avatar>
-            <ThemedText className="text-lg">
-              {truncateText(groupData?.displayName, 30)}
-            </ThemedText>
-          </View>
-        }
-      />
+    <ThemedView className="relative flex-1">
       <KeyboardAwareScrollView
         contentContainerClassName="grow"
         className="w-full flex bg-background relative p-4"
@@ -74,7 +73,7 @@ export const GroupInfo = ({ route }: GroupInfoProps) => {
           </>
         )}
       </KeyboardAwareScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };
 

@@ -14,11 +14,12 @@ import {
 import { useOpenpeeps } from '@openpeepshq/react';
 import {
   AudioPickerSheet,
-  GenericHeader,
   ImagePickerSheet,
   DocumentPickerSheet,
   type DocumentPickerSheetHandle,
 } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import {
   checkRoleCapabilities,
   MediaAttachment,
@@ -29,7 +30,6 @@ import {
 } from '@openpeepshq/common';
 import { CompositeScreenProps } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { useLocalPostStore } from '../../stores/useLocalPostStore';
 import { PostForm } from '../../components/post/post-form/PostForm';
 import { useTranslation } from 'react-i18next';
@@ -259,33 +259,34 @@ export const NewPost = ({ route, navigation }: PostProps) => {
   const isArticle = postData.type === 'article';
   const composerType = postData.data.type === 'question' ? 'question' : 'note';
 
+  useSetPageHeader(
+    isArticle ? t('articles.create.title') : t('posts.newPost.title'),
+    <HeaderActionButton
+      title={
+        isPosting
+          ? t('posts.create.loading')
+          : attachmentsProcessing
+            ? t('posts.create.processing', 'Processing…')
+            : t('posts.create.submit')
+      }
+      onPress={() => void handlePostCreation()}
+      disabled={!canSubmit}
+      loading={isPosting}
+    />,
+    () => {
+      if (route.params?.triggeredFrom === 'group') {
+        navigation.pop();
+        navigation.navigate('Group', {
+          id: route.params?.originatorId!,
+        });
+      } else {
+        navigation.goBack();
+      }
+    }
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1 bg-background">
-      <GenericHeader
-        title={
-          isArticle ? t('articles.create.title') : t('posts.newPost.title')
-        }
-        rightType="button"
-        rightButtonTitle={
-          isPosting
-            ? t('posts.create.loading')
-            : attachmentsProcessing
-              ? t('posts.create.processing', 'Processing…')
-              : t('posts.create.submit')
-        }
-        handleGoBack={() => {
-          if (route.params?.triggeredFrom === 'group') {
-            navigation.pop();
-            navigation.navigate('Group', {
-              id: route.params?.originatorId!,
-            });
-          } else {
-            navigation.goBack();
-          }
-        }}
-        rightButtonDisabled={!canSubmit}
-        onRightButtonPress={handlePostCreation}
-      />
+    <ThemedView className="flex-1 bg-background">
       <KeyboardAwareScrollView className="flex-1">
         {isArticle ? (
           <ArticleForm postData={postData} onChange={setPostData} />
@@ -328,6 +329,6 @@ export const NewPost = ({ route, navigation }: PostProps) => {
         ref={documentPickerModalRef}
         onSelect={handleAddAttachments}
       />
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

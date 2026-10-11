@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import Toast from 'react-native-toast-message';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { PostForm } from '../../components/post/post-form/PostForm';
 import { useTranslation } from 'react-i18next';
 import { MainScreenProps } from '../../components/navigation/types/index';
@@ -110,25 +110,28 @@ export const EditPost = ({ route, navigation }: PostProps) => {
     });
   };
 
+  useSetPageHeader(
+    t('posts.edit.title'),
+    <HeaderActionButton
+      title={
+        isPosting
+          ? t('posts.edit.loading')
+          : attachmentsProcessing
+            ? t('posts.create.processing', 'Processing…')
+            : t('posts.edit.submit')
+      }
+      onPress={() => void handlePostUpdate()}
+      disabled={!canSubmit}
+      loading={isPosting}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1 bg-background">
+    <ThemedView className="flex-1 bg-background">
       {isLoading && !postData ? (
         <ActivityIndicator />
       ) : (
         <>
-          <GenericHeader
-            title={t('posts.edit.title')}
-            rightType="button"
-            rightButtonTitle={
-              isPosting
-                ? t('posts.edit.loading')
-                : attachmentsProcessing
-                  ? t('posts.create.processing', 'Processing…')
-                  : t('posts.edit.submit')
-            }
-            onRightButtonPress={handlePostUpdate}
-            rightButtonDisabled={!canSubmit}
-          />
           {postData && (
             <>
               {postData.type === 'article' && (
@@ -149,6 +152,6 @@ export const EditPost = ({ route, navigation }: PostProps) => {
           )}
         </>
       )}
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

@@ -1,9 +1,7 @@
 import React from 'react';
-import { TabScreensHeader } from '../components/custom/index';
 import { ThemedView } from '../components/ui/themed-view';
-import { ThemedText } from '../components/ui/themed-text';
-import { View } from 'react-native';
 import { useOpenpeeps } from '@openpeepshq/react';
+import { useSetPageHeader } from '../components/layout';
 import { useTranslation } from 'react-i18next';
 import {
   NotificationHeaderActions,
@@ -23,18 +21,13 @@ export const Notifications = () => {
     refetchFeed: () => query.refetch(),
   });
 
+  useSetPageHeader(
+    t('navigation.notifications'),
+    <NotificationHeaderActions />
+  );
+
   return (
     <ThemedView className="grow">
-      <TabScreensHeader
-        children={
-          <View className="flex-row items-center justify-between">
-            <ThemedText className="text-xl font-bold">
-              {t('navigation.notifications')}
-            </ThemedText>
-            <NotificationHeaderActions />
-          </View>
-        }
-      />
       <NotificationsList
         query={query}
         onRefresh={async () => {

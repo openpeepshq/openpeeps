@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useCreateNewJamForm } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { EyeOnIcon } from '../../components/icons/index';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { VisibilitySelector } from '../../components/post/post-form/VisibilitySelector';
@@ -12,7 +13,6 @@ import { Button } from '../../components/ui/button';
 import { Checkbox } from '../../components/ui/checkbox';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
 
 type NewJamProps = MainScreenProps<'CreateNewJam'>;
@@ -34,15 +34,18 @@ export const NewJam: React.FC<NewJamProps> = ({ navigation }) => {
     handleSchedule,
   } = useCreateNewJamForm({ onClose: () => navigation.goBack() });
 
+  useSetPageHeader(
+    t('jams.create.title'),
+    <HeaderActionButton
+      title={t('jams.start.submit')}
+      onPress={() => void handleCreate()}
+      disabled={submitting}
+      loading={submitting}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="grow">
-      <GenericHeader
-        title={t('jams.create.title')}
-        rightButtonTitle={t('jams.start.submit')}
-        onRightButtonPress={() => void handleCreate()}
-        rightButtonDisabled={submitting}
-        rightType="button"
-      />
+    <ThemedView className="grow">
       <KeyboardAwareScrollView
         className="w-full bg-background p-4"
         contentContainerClassName="gap-4"
@@ -113,6 +116,6 @@ export const NewJam: React.FC<NewJamProps> = ({ navigation }) => {
           </Button>
         ) : null}
       </KeyboardAwareScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

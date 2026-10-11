@@ -1,6 +1,6 @@
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { useServerInfo, useThemePreference } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
 import React from 'react';
 import { ThemedText } from '../../components/ui/themed-text';
 import { ThemedView } from '../../components/ui/themed-view';
@@ -8,7 +8,6 @@ import Toast from 'react-native-toast-message';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group';
 import { getTheme, THEME_OPTIONS } from '@openpeepshq/common';
 import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
@@ -56,16 +55,18 @@ export const ThemeSettings: React.FC<ThemeSettingsProps> = ({}) => {
     }
   };
 
+  useSetPageHeader(
+    t('settings.theme.title'),
+    <HeaderActionButton
+      title={submitting ? t('common.form.loading') : t('common.form.save')}
+      onPress={() => void handleSubmit()}
+      disabled={submitting}
+      loading={submitting}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('settings.theme.title')}
-        rightButtonTitle={
-          submitting ? t('common.form.loading') : t('common.form.save')
-        }
-        onRightButtonPress={handleSubmit}
-        rightButtonDisabled={submitting}
-      />
+    <ThemedView className="flex-1">
       <ThemedView className="flex-1">
         <KeyboardAwareScrollView
           contentContainerClassName="grow"
@@ -96,6 +97,6 @@ export const ThemeSettings: React.FC<ThemeSettingsProps> = ({}) => {
           </ThemedView>
         </KeyboardAwareScrollView>
       </ThemedView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

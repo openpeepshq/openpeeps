@@ -3,10 +3,10 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { useNewEvent } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { EventForm } from '../../components/post/index';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 
 type NewEventProps = MainScreenProps<'NewEvent'>;
 
@@ -28,23 +28,24 @@ export const NewEvent = (_props: NewEventProps) => {
     clearError();
   }, [error, clearError]);
 
+  useSetPageHeader(
+    t('events.create.title'),
+    <HeaderActionButton
+      title={submitting ? t('common.submitting') : t('events.create.title')}
+      onPress={() => void submit()}
+      disabled={submitting || !canSubmit}
+      loading={submitting}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('events.create.title')}
-        rightButtonTitle={
-          submitting ? t('common.submitting') : t('events.create.title')
-        }
-        onRightButtonPress={() => void submit()}
-        rightButtonDisabled={submitting || !canSubmit}
-        rightType="button"
-      />
+    <ThemedView className="flex-1">
       <KeyboardAwareScrollView
         contentContainerClassName="grow"
         className="pb-12"
       >
         <EventForm postData={postData} onChange={setPostData} />
       </KeyboardAwareScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

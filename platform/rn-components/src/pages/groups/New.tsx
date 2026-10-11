@@ -4,12 +4,12 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { useCurrentProfile, useNewGroup } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { GroupForm } from '../../components/groups/index';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { ProfilesInput } from '../../components/profile/index';
 import { Label } from '../../components/ui/label';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 
 type NewGroupProps = MainScreenProps<'CreateGroup'>;
 
@@ -34,19 +34,22 @@ export const NewGroup: React.FC<NewGroupProps> = () => {
     clearError();
   }, [error, clearError]);
 
+  useSetPageHeader(
+    t('groups.new.title', { defaultValue: 'Create group' }),
+    <HeaderActionButton
+      title={
+        submitting
+          ? t('common.submitting', { defaultValue: 'Creating…' })
+          : t('common.submit', { defaultValue: 'Create group' })
+      }
+      onPress={() => void submit()}
+      disabled={submitting}
+      loading={submitting}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('groups.new.title', { defaultValue: 'Create group' })}
-        rightButtonTitle={
-          submitting
-            ? t('common.submitting', { defaultValue: 'Creating…' })
-            : t('common.submit', { defaultValue: 'Create group' })
-        }
-        onRightButtonPress={() => void submit()}
-        rightButtonDisabled={submitting}
-        rightType="button"
-      />
+    <ThemedView className="flex-1">
       <KeyboardAwareScrollView
         contentContainerClassName="grow"
         className="w-full p-4"
@@ -72,6 +75,6 @@ export const NewGroup: React.FC<NewGroupProps> = () => {
           </View>
         </View>
       </KeyboardAwareScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

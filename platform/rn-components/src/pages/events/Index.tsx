@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import {
@@ -7,7 +7,8 @@ import {
   useDefaultVisibility,
   useOpenpeeps,
 } from '@openpeepshq/react';
-import { AgendaTabs, TabScreensHeader } from '../../components/custom/index';
+import { AgendaTabs } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
 import {
   ChevronRightIcon,
   MoreHorizontalIcon,
@@ -44,37 +45,32 @@ export const EventsIndex = ({
 
   const visibility = useDefaultVisibility();
 
-  return (
-    <ThemedView className="flex-1 relative">
-      <TabScreensHeader
-        children={
-          <View className="w-full flex-row justify-between items-center p-4">
-            <ThemedText className="text-2xl font-semibold">
-              {t('navigation.events', { defaultValue: 'Events' })}
+  useSetPageHeader(
+    t('navigation.events', { defaultValue: 'Events' }),
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild className="px-2">
+        <Pressable>
+          <MoreHorizontalIcon className="text-foreground" />
+        </Pressable>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="mt-1">
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            className="flex-row items-center gap-x-2"
+            onPress={() => navigation.navigate('MyEvents')}
+          >
+            <ChevronRightIcon size={16} className="text-foreground" />
+            <ThemedText>
+              {t('navigation.myEvents', { defaultValue: 'My events' })}
             </ThemedText>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild className="px-2">
-                <Pressable>
-                  <MoreHorizontalIcon className="text-foreground" />
-                </Pressable>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="mt-1">
-                <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    className="flex-row gap-x-2 items-center"
-                    onPress={() => navigation.navigate('MyEvents')}
-                  >
-                    <ChevronRightIcon size={16} className="text-foreground" />
-                    <ThemedText>
-                      {t('navigation.myEvents', { defaultValue: 'My events' })}
-                    </ThemedText>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </View>
-        }
-      />
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  return (
+    <ThemedView className="relative flex-1">
       <AgendaTabs<Tab>
         accessibilityLabel={t('events.feed.label', {
           defaultValue: 'Event timeframe',

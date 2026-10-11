@@ -6,7 +6,8 @@ import {
   usePostViewFlush,
 } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
-import { GenericHeader } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import {
   KeyboardAvoidingView,
   ScrollView,
@@ -16,7 +17,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { InfoIcon, SendHorizonalIcon } from '../../components/icons/index';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { MediaAttachmentData } from '@openpeepshq/common';
 import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
 import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
@@ -106,26 +106,22 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
     void markPostsSeen({ postIds: unseenIds });
   }, [id, currentProfile, messages, isLoading, markPostsSeen]);
 
+  useSetPageHeader(
+    <ConversationProfileHeader
+      participants={headerParticipants}
+      onPress={isGroupChat ? () => setParticipantsOpen(true) : undefined}
+    />,
+    <TouchableOpacity
+      onPress={() => navigation.navigate('ConversationInfo', { id })}
+    >
+      <InfoIcon size={20} className="text-foreground" />
+    </TouchableOpacity>
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
+    <ThemedView className="flex-1">
       <View className="flex-1">
         <DropdownMenu>
-          <GenericHeader
-            title={
-              <ConversationProfileHeader
-                participants={headerParticipants}
-                onPress={
-                  isGroupChat ? () => setParticipantsOpen(true) : undefined
-                }
-              />
-            }
-            rightType="icon"
-            rightButtonIcon={<InfoIcon size={20} className="text-foreground" />}
-            onRightButtonPress={() =>
-              navigation.navigate('ConversationInfo', { id: id })
-            }
-          />
-
           <KeyboardAvoidingView
             className="flex-1"
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -248,6 +244,6 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
           />
         ) : null}
       </View>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

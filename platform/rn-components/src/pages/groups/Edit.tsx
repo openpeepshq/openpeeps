@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { checkGroupCapabilities } from '@openpeepshq/common';
 import { useAuthData, useOpenpeeps } from '@openpeepshq/react';
 import { ConfigMenuButton } from '../../components/configuration/index';
-import { GenericHeader } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { MainScreenProps } from '../../components/navigation/types/index';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
 
 type EditGroupProps = MainScreenProps<'EditGroupDetails'>;
@@ -27,11 +27,10 @@ export const EditGroup = ({ route, navigation }: EditGroupProps) => {
     checkGroupCapabilities(authData, ['core-groups-updateCapabilities'], group)
       .success;
 
+  useSetPageHeader(t('groups.edit.title', { defaultValue: 'Edit group' }));
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('groups.edit.title', { defaultValue: 'Edit group' })}
-      />
+    <ThemedView className="flex-1">
       {groupQuery.isLoading ? (
         <ActivityIndicator size="small" />
       ) : !group ? (
@@ -54,6 +53,6 @@ export const EditGroup = ({ route, navigation }: EditGroupProps) => {
           ) : null}
         </View>
       )}
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

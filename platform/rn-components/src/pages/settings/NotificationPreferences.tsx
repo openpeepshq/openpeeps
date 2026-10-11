@@ -1,12 +1,9 @@
 import { MainScreenProps } from '../../components/navigation/types/index';
-import {
-  EditNotificationsSheet,
-  GenericHeader,
-} from '../../components/custom/index';
+import { EditNotificationsSheet } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import React, { useCallback, useRef } from 'react';
 import { ThemedText } from '../../components/ui/themed-text';
 import { ThemedView } from '../../components/ui/themed-view';
@@ -37,13 +34,14 @@ export const NotificationPreferences: React.FC<
   const { t } = useTranslation();
   const { types } = useNotificationPreferences();
 
+  useSetPageHeader(
+    t('settings.notifications.title', {
+      defaultValue: 'Notification Settings',
+    })
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('settings.notifications.title', {
-          defaultValue: 'Notification Settings',
-        })}
-      />
+    <ThemedView className="flex-1">
       <KeyboardAwareScrollView
         contentContainerClassName="grow"
         className="w-full flex py-3 px-5"
@@ -82,7 +80,7 @@ export const NotificationPreferences: React.FC<
           </KeyboardAwareScrollView>
         </ThemedView>
       </KeyboardAwareScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };
 

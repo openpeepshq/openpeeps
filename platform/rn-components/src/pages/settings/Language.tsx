@@ -6,10 +6,9 @@ import {
   AVAILABLE_UI_LANGUAGES,
   useLanguagePreference,
 } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
 import { ThemedView } from '../../components/ui/themed-view';
 
@@ -40,43 +39,43 @@ export const LanguageSettings: React.FC<LanguageSettingsProps> = () => {
     clearStatus();
   }, [status, clearStatus]);
 
+  useSetPageHeader(
+    t('settings.language.title'),
+    <HeaderActionButton
+      title={saving ? t('common.form.loading') : t('common.form.save')}
+      onPress={() => void save()}
+      disabled={saving}
+      loading={saving}
+    />
+  );
+
   if (!profile) return null;
 
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('settings.language.title')}
-        rightButtonTitle={
-          saving ? t('common.form.loading') : t('common.form.save')
-        }
-        onRightButtonPress={() => void save()}
-        rightButtonDisabled={saving}
-      />
-      <ThemedView className="flex-1 p-4">
-        <ThemedText className="text-lg text-muted-foreground mb-4">
-          {t('settings.language.languageDescription')}
-        </ThemedText>
-        <RadioGroup value={language} onValueChange={setLanguage}>
-          {AVAILABLE_UI_LANGUAGES.map((code) => (
-            <Pressable
-              key={code}
-              onPress={() => setLanguage(code)}
-              className="py-3 mb-2 flex-row items-center gap-x-3"
-            >
-              <RadioGroupItem value={code} />
-              <ThemedText className="text-lg">
-                {LANGUAGE_LABELS[code]}
-                {code === communityDefaultLanguage ? (
-                  <ThemedText className="text-sm text-muted-foreground">
-                    {' '}
-                    {t('settings.language.default')}
-                  </ThemedText>
-                ) : null}
-              </ThemedText>
-            </Pressable>
-          ))}
-        </RadioGroup>
-      </ThemedView>
-    </ThemedSafeAreaView>
+    <ThemedView className="flex-1 p-4">
+      <ThemedText className="text-lg text-muted-foreground mb-4">
+        {t('settings.language.languageDescription')}
+      </ThemedText>
+      <RadioGroup value={language} onValueChange={setLanguage}>
+        {AVAILABLE_UI_LANGUAGES.map((code) => (
+          <Pressable
+            key={code}
+            onPress={() => setLanguage(code)}
+            className="mb-2 flex-row items-center gap-x-3 py-3"
+          >
+            <RadioGroupItem value={code} />
+            <ThemedText className="text-lg">
+              {LANGUAGE_LABELS[code]}
+              {code === communityDefaultLanguage ? (
+                <ThemedText className="text-sm text-muted-foreground">
+                  {' '}
+                  {t('settings.language.default')}
+                </ThemedText>
+              ) : null}
+            </ThemedText>
+          </Pressable>
+        ))}
+      </RadioGroup>
+    </ThemedView>
   );
 };

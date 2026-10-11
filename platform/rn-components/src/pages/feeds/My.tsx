@@ -10,8 +10,7 @@ import {
   useOpenpeeps,
 } from '@openpeepshq/react';
 import { CompositeScreenProps } from '@react-navigation/native';
-import { TabScreensHeader } from '../../components/custom/index';
-import { ThemedText } from '../../components/ui/themed-text';
+import { useSetPageHeader } from '../../components/layout';
 
 import { useTranslation } from 'react-i18next';
 import { Feed, NewNoteButton } from '../../components/post/index';
@@ -27,15 +26,10 @@ export const FeedsMy: React.FC<HomeScreenProps> = () => {
   const query = openpeepsApi.useMyFeed(useFeedListParams({ limit: 15 }));
   const visibility = useDefaultVisibility();
 
+  useSetPageHeader(t('navigation.myFeed'));
+
   return (
     <>
-      <TabScreensHeader
-        children={
-          <ThemedText className="text-xl font-bold">
-            {t('navigation.myFeed')}
-          </ThemedText>
-        }
-      />
       <Feed query={query} />
       <NewNoteButton visibility={visibility} />
     </>

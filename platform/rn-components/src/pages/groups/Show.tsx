@@ -11,7 +11,8 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { groupName } from '@openpeepshq/common/lib';
 import { useCurrentProfile, useOpenpeeps } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { GroupFeed, GroupHeader } from '../../components/groups/index';
 import {
   MainStackParamList,
@@ -28,7 +29,6 @@ import {
   TabsList,
   TabsTrigger,
 } from '../../components/ui/tabs';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
 import { truncateText } from '../../lib/utils';
 import { GroupInfoAsComponent } from './Info';
@@ -77,9 +77,10 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
   const tabClass = (value: Tab) =>
     tab === value ? 'border-b-2 border-primary font-semibold' : '';
 
+  useSetPageHeader(truncateText(group ? groupName(group) : '', 30));
+
   return (
-    <ThemedSafeAreaView className="relative flex-1">
-      <GenericHeader title={truncateText(group ? groupName(group) : '', 30)} />
+    <ThemedView className="relative flex-1">
       <KeyboardAwareScrollView
         refreshControl={
           <RefreshControl
@@ -179,6 +180,6 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
           group={group}
         />
       ) : null}
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

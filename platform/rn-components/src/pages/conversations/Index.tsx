@@ -5,18 +5,14 @@ import {
   View,
 } from 'react-native';
 import React, { useEffect, useRef } from 'react';
+import { EmptyStateContainer } from '../../components/custom/index';
 import {
-  TabScreensHeader,
-  EmptyStateContainer,
-  PlusFab,
-} from '../../components/custom/index';
+  useSetPageHeader,
+  useSetPlusButtonActions,
+} from '../../components/layout';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useAuthData, useOpenpeeps } from '@openpeepshq/react';
-import {
-  MessageSquarePlusIcon,
-  SearchIcon,
-  XIcon,
-} from '../../components/icons/index';
+import { SearchIcon, XIcon } from '../../components/icons/index';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
@@ -25,7 +21,6 @@ import {
 } from '../../components/navigation/types/index';
 import { canCreatePost, PublicPost } from '@openpeepshq/common';
 import { Input } from '../../components/ui/input';
-import { ThemedText } from '../../components/ui/themed-text';
 import { profileMatchesQuery } from '../../lib/utils';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
@@ -85,57 +80,46 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
     }
   }, [conversations, searchQuery]);
 
-  return (
-    <View className="flex-1 relative">
-      <TabScreensHeader
-        children={
-          <View className="flex-row items-center justify-between p-4">
-            {!isSearchToggled && (
-              <ThemedText className="text-2xl font-semibold">
-                {t('navigation.messages')}
-              </ThemedText>
-            )}
-            <View
-              className={`${
-                isSearchToggled
-                  ? 'flex justify-end '
-                  : 'flex-row items-center gap-x-6'
-              }`}
-            >
-              {isSearchToggled ? (
-                <View className="ml-4 w-full flex-row flex justify-end">
-                  <Input
-                    className="flex-1"
-                    placeholder={t('conversations.search.placeholder')}
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                  />
-                  <TouchableOpacity
-                    className="items-center justify-center px-4"
-                    onPress={() => {
-                      setSearchQuery('');
-                      setIsSearchToggled(false);
-                    }}
-                  >
-                    <XIcon size={24} className="text-foreground" />
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <>
-                  <TouchableOpacity onPress={() => setIsSearchToggled(true)}>
-                    <SearchIcon size={20} className="text-foreground" />
-                  </TouchableOpacity>
-                  <DirectMessagesHeaderActions />
-                  {/* TODO Uncomment when conversation settings are implemented */}
-                  {/* <TouchableOpacity onPress={handleSettingsPress}>
-                    <Settings2Icon size={20} className="text-foreground" />
-                  </TouchableOpacity> */}
-                </>
-              )}
-            </View>
-          </View>
+  useSetPageHeader(
+    t('navigation.messages'),
+    <View className="flex-row items-center gap-x-3">
+      {isSearchToggled ? (
+        <View className="max-w-[180px] flex-row items-center">
+          <Input
+            className="flex-1"
+            placeholder={t('conversations.search.placeholder')}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <TouchableOpacity
+            className="items-center justify-center px-2"
+            onPress={() => {
+              setSearchQuery('');
+              setIsSearchToggled(false);
+            }}
+          >
+            <XIcon size={20} className="text-foreground" />
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <TouchableOpacity onPress={() => setIsSearchToggled(true)}>
+          <SearchIcon size={20} className="text-foreground" />
+        </TouchableOpacity>
+      )}
+      <DirectMessagesHeaderActions />
+    </View>
+  );
+  useSetPlusButtonActions(
+    canCreate
+      ? {
+          title: t('conversations.newMessage'),
+          action: () => openCreateConversation(),
         }
-      />
+      : undefined
+  );
+
+  return (
+    <View className="relative flex-1">
       <KeyboardAwareScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -165,14 +149,6 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
             />
           ))}
       </KeyboardAwareScrollView>
-      {canCreate ? (
-        <PlusFab
-          accessibilityLabel={t('conversations.newMessage')}
-          onPress={() => openCreateConversation()}
-        >
-          <MessageSquarePlusIcon size={24} className="text-background" />
-        </PlusFab>
-      ) : null}
       <ConversationSettingsSheet
         ref={settingsRef}
         onMessageRequestChange={(value) => {

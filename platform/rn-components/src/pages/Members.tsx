@@ -2,11 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { View, Pressable, ActivityIndicator } from 'react-native';
 import React, { useEffect } from 'react';
 import { ThemedView } from '../components/ui/themed-view';
-import {
-  EmptyStateContainer,
-  TabScreensHeader,
-} from '../components/custom/index';
-import { ThemedText } from '../components/ui/themed-text';
+import { EmptyStateContainer } from '../components/custom/index';
+import { useSetPageHeader } from '../components/layout';
 import {
   XIcon,
   SearchIcon,
@@ -52,42 +49,37 @@ export const Members: React.FC<DirectoryProps> = ({ navigation }) => {
     }
   }, [searchQuery, profiles, currentProfile]);
 
+  useSetPageHeader(
+    t('navigation.members'),
+    isSearchButtonClicked ? (
+      <View className="max-w-[200px] flex-row items-center">
+        <Input
+          className="flex-1"
+          placeholder={t('members.searchPlaceholder', {
+            defaultValue: 'Enter name or handle',
+          })}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        <Pressable
+          className="items-center justify-center px-2"
+          onPress={() => {
+            setIsSearchButtonClicked(false);
+            setSearchQuery('');
+          }}
+        >
+          <XIcon className="text-foreground" />
+        </Pressable>
+      </View>
+    ) : (
+      <Pressable onPress={() => setIsSearchButtonClicked(true)}>
+        <SearchIcon className="text-foreground" />
+      </Pressable>
+    )
+  );
+
   return (
     <ThemedView className="grow">
-      <TabScreensHeader
-        children={
-          <>
-            {!isSearchButtonClicked ? (
-              <View className="w-full flex flex-row justify-between items-center p-4">
-                <ThemedText className="text-xl">
-                  {t('navigation.members')}
-                </ThemedText>
-                <Pressable onPress={() => setIsSearchButtonClicked(true)}>
-                  <SearchIcon className="text-foreground" />
-                </Pressable>
-              </View>
-            ) : (
-              <View className="w-full flex flex-row justify-between items-center p-4">
-                <Input
-                  className="flex-1"
-                  placeholder="Enter name or handle"
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
-                <Pressable
-                  className=" w-[10%] flex justify-center items-center"
-                  onPress={() => {
-                    setIsSearchButtonClicked(false);
-                    setSearchQuery('');
-                  }}
-                >
-                  <XIcon className="text-foreground" />
-                </Pressable>
-              </View>
-            )}
-          </>
-        }
-      />
       <KeyboardAwareScrollView className="relative w-full grow flex bg-background gap-y-4 border-t border-border p-2">
         {isLoading && <ActivityIndicator size={'small'} />}
         {filteredProfiles?.map((profile, index) => {

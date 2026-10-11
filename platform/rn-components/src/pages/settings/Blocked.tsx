@@ -4,10 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useOpenpeeps } from '@openpeepshq/react';
 import type { PublicProfile } from '@openpeepshq/common';
 import { MainScreenProps } from '../../components/navigation/types/index';
-import { GenericHeader } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
 import { ThemedText } from '../../components/ui/themed-text';
 import { ThemedView } from '../../components/ui/themed-view';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { Button } from '../../components/ui/button';
 
 type BlockedSettingsProps = MainScreenProps<'BlockedSettings'>;
@@ -19,9 +18,10 @@ export const BlockedSettings: React.FC<BlockedSettingsProps> = () => {
   const currentQuery = openpeepsApi.useCurrentProfile();
   const profiles = blockedQuery.data ?? [];
 
+  useSetPageHeader(t('settings.blocked.title'));
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader title={t('settings.blocked.title')} />
+    <ThemedView className="flex-1">
       <ThemedView className="flex-1 p-4">
         <ThemedText className="text-muted-foreground mb-4">
           {t('settings.blocked.description')}
@@ -43,7 +43,7 @@ export const BlockedSettings: React.FC<BlockedSettingsProps> = () => {
           ))
         )}
       </ThemedView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };
 

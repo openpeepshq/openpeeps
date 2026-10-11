@@ -1,4 +1,4 @@
-import React from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -9,8 +9,7 @@ import {
   type VisibilityType,
 } from '@openpeepshq/common';
 import { getNewPostStores, useAuthData } from '@openpeepshq/react';
-import { PlusFab } from '../custom/common/plus-fab';
-import { PlusIcon } from '../icons/index';
+import { useSetPlusButtonActions } from '../layout';
 import { MainStackParamList } from '../navigation/types/index';
 
 export interface NewEventButtonProps {
@@ -19,7 +18,7 @@ export interface NewEventButtonProps {
   group?: GroupWithMeta;
 }
 
-/** Floating action button — the native stand-in for the web layout plus button. */
+/** Registers the RootLayout plus button for creating an event. */
 export const NewEventButton = ({
   visibility,
   currentProfile,
@@ -34,17 +33,25 @@ export const NewEventButton = ({
   const canPost =
     !!profile && canCreatePost(authData, 'event', visibility, group);
 
-  if (!canPost) return null;
-
-  const openNewEvent = () => {
-    const stores = getNewPostStores();
-    stores.event = { ...stores.event, visibility, groupId: group?.id };
-    navigation.navigate('NewEvent');
-  };
-
-  return (
-    <PlusFab accessibilityLabel={t('events.form.title')} onPress={openNewEvent}>
-      <PlusIcon size={24} className="text-background" />
-    </PlusFab>
+  const plusActions = useMemo(
+    () =>
+      canPost
+        ? {
+            title: t('events.form.title'),
+            action: () => {
+              const stores = getNewPostStores();
+              stores.event = {
+                ...stores.event,
+                visibility,
+                groupId: group?.id,
+              };
+              navigation.navigate('NewEvent');
+            },
+          }
+        : undefined,
+    [canPost, group?.id, navigation, t, visibility]
   );
+
+  useSetPlusButtonActions(plusActions);
+  return null;
 };

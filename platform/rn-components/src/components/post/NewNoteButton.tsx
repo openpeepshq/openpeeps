@@ -1,4 +1,4 @@
-import React from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   canCreatePost,
@@ -7,8 +7,7 @@ import {
   type VisibilityType,
 } from '@openpeepshq/common';
 import { useAuthData } from '@openpeepshq/react';
-import { PlusFab } from '../custom/common/plus-fab';
-import { PencilLineIcon } from '../icons/index';
+import { useSetPlusButtonActions } from '../layout';
 import { useNewPostModal } from './post-form/NewPostModalContext';
 
 export interface NewNoteButtonProps {
@@ -17,7 +16,7 @@ export interface NewNoteButtonProps {
   group?: GroupWithMeta;
 }
 
-/** Floating action button — the native stand-in for the web layout plus button. */
+/** Registers the RootLayout plus button for creating a note. */
 export const NewNoteButton = ({
   visibility,
   currentProfile,
@@ -31,14 +30,17 @@ export const NewNoteButton = ({
   const canPost =
     !!profile && canCreatePost(authData, 'note', visibility, group);
 
-  if (!canPost) return null;
-
-  return (
-    <PlusFab
-      accessibilityLabel={t('posts.form.title')}
-      onPress={() => openNewPost({ visibility, group })}
-    >
-      <PencilLineIcon size={24} className="text-background" />
-    </PlusFab>
+  const plusActions = useMemo(
+    () =>
+      canPost
+        ? {
+            title: t('posts.form.title'),
+            action: () => openNewPost({ visibility, group }),
+          }
+        : undefined,
+    [canPost, group, openNewPost, t, visibility]
   );
+
+  useSetPlusButtonActions(plusActions);
+  return null;
 };

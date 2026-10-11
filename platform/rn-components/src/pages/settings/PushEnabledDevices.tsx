@@ -9,7 +9,7 @@ import {
   pushSubscriptionIsMobile,
 } from '@openpeepshq/common/lib';
 import { usePushEnabledDevices } from '@openpeepshq/react';
-import { GenericHeader } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
 import {
   LaptopIcon,
   SmartphoneIcon,
@@ -18,8 +18,8 @@ import {
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { Button } from '../../components/ui/button';
 import { Text } from '../../components/ui/text';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { ThemedText } from '../../components/ui/themed-text';
+import { ThemedView } from '../../components/ui/themed-view';
 
 type PushEnabledDevicesProps = MainScreenProps<'PushEnabledDevices'>;
 
@@ -45,13 +45,14 @@ export const PushEnabledDevices: React.FC<PushEnabledDevicesProps> = () => {
     clearStatus();
   }, [status, clearStatus]);
 
+  useSetPageHeader(
+    t('settings.notifications.pushEnabledDevices.title', {
+      defaultValue: 'Push-enabled devices',
+    })
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={t('settings.notifications.pushEnabledDevices.title', {
-          defaultValue: 'Push-enabled devices',
-        })}
-      />
+    <ThemedView className="flex-1">
       <ScrollView contentContainerClassName="p-4">
         {subscriptions.length === 0 ? (
           <View className="w-full items-center justify-center p-4">
@@ -145,6 +146,6 @@ export const PushEnabledDevices: React.FC<PushEnabledDevicesProps> = () => {
           </View>
         )}
       </ScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

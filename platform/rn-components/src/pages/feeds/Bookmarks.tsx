@@ -4,8 +4,7 @@ import {
   TabStackParamList,
 } from '../../components/navigation/types/index';
 import { useFeedListParams, useOpenpeeps } from '@openpeepshq/react';
-import { TabScreensHeader } from '../../components/custom/index';
-import { ThemedText } from '../../components/ui/themed-text';
+import { useSetPageHeader } from '../../components/layout';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RefreshControl, ScrollView } from 'react-native';
@@ -31,15 +30,10 @@ export const FeedsBookmarks: React.FC<HomeScreenProps> = ({}) => {
     setRefreshing(false);
   }, [query]);
 
+  useSetPageHeader(t('navigation.bookmarks'));
+
   return (
     <>
-      <TabScreensHeader
-        children={
-          <ThemedText className="text-xl font-bold">
-            {t('navigation.bookmarks')}
-          </ThemedText>
-        }
-      />
       <ScrollView
         className="bg-background"
         refreshControl={

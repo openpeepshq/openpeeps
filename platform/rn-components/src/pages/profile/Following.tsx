@@ -2,12 +2,10 @@ import React from 'react';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {
-  EmptyStateContainer,
-  GenericHeader,
-} from '../../components/custom/index';
+import { EmptyStateContainer } from '../../components/custom/index';
+import { useSetPageHeader } from '../../components/layout';
+import { ThemedView } from '../../components/ui/themed-view';
 import { ActivityIndicator } from 'react-native';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 
 import { ProfileCard } from '../../components/profile/index';
 type ProfileFollowingProps = MainScreenProps<'ProfileFollowing'>;
@@ -20,11 +18,12 @@ export const Following: React.FC<ProfileFollowingProps> = ({ route }) => {
     openpeepsApi.useProfileFollowing(id);
   const { data: profile, isLoading: isProfileFetching } =
     openpeepsApi.useProfile(id);
+  useSetPageHeader(
+    `${!isProfileFetching ? `@${profile?.handle}` : ''} Following`
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      <GenericHeader
-        title={`${!isProfileFetching ? `@${profile?.handle}` : ''} Followers`}
-      />
+    <ThemedView className="flex-1">
       <KeyboardAwareScrollView
         contentContainerClassName="grow"
         className="w-full flex bg-background"
@@ -40,6 +39,6 @@ export const Following: React.FC<ProfileFollowingProps> = ({ route }) => {
           />
         )}
       </KeyboardAwareScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

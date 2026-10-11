@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { ThemedView } from '../../components/ui/themed-view';
 import { ProfileCard } from '../../components/profile/index';
-import { GenericHeader } from '../../components/custom/headers/index';
+import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
 import { EmptyStateContainer } from '../../components/custom/common/index';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useOpenpeeps } from '@openpeepshq/react';
@@ -12,8 +12,8 @@ import { MainScreenProps } from '../../components/navigation/types/index';
 import { useNewConversationStore } from '../../stores/useNewConversationStore';
 import { Input } from '../../components/ui/input';
 import { profileMatchesQuery } from '../../lib/utils';
-import { ThemedSafeAreaView } from '../../components/ui/themed-safe-area-view';
 import { blockedPairIds } from '@openpeepshq/common/lib';
+import { useTranslation } from 'react-i18next';
 
 type SelectPrivateMessageMembersProps =
   MainScreenProps<'SelectPrivateMessageMembers'>;
@@ -21,6 +21,7 @@ type SelectPrivateMessageMembersProps =
 export const NewConversation = ({
   navigation,
 }: SelectPrivateMessageMembersProps) => {
+  const { t } = useTranslation();
   const { openpeepsApi, currentProfile } = useOpenpeeps();
   const { data: allProfiles, isLoading } = openpeepsApi.useProfiles();
   const [filteredProfiles, setFilteredProfiles] = React.useState(allProfiles);
@@ -44,17 +45,17 @@ export const NewConversation = ({
     }
   }, [currentProfile, allProfiles, searchQuery]);
 
+  useSetPageHeader(
+    t('conversations.selectMembers', { defaultValue: 'Select Members' }),
+    <HeaderActionButton
+      title={t('common.next', { defaultValue: 'Next' })}
+      onPress={() => navigation.navigate('DraftMessage')}
+      disabled={members.length === 0}
+    />
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1 relative">
-      <GenericHeader
-        title={'Select Members'}
-        rightButtonTitle="Next"
-        rightType="button"
-        rightButtonDisabled={members.length === 0}
-        onRightButtonPress={() => {
-          navigation.navigate('DraftMessage');
-        }}
-      />
+    <ThemedView className="flex-1 relative">
       <View className="w-full flex flex-row justify-between items-center p-4">
         <Input
           className="flex-1"
@@ -129,6 +130,6 @@ export const NewConversation = ({
           </View>
         )}
       </KeyboardAwareScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

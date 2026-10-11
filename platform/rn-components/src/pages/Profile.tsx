@@ -2,7 +2,7 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useCurrentProfile, useOpenpeeps } from '@openpeepshq/react';
-import { GenericHeader } from '../components/custom/index';
+import { useSetPageHeader } from '../components/layout';
 import { RssIcon } from '../components/icons/index';
 import { MainScreenProps } from '../components/navigation/types/index';
 import {
@@ -36,9 +36,10 @@ export const Profile = ({ route }: ProfileProps) => {
     </View>
   );
 
+  useSetPageHeader(profile?.displayName || `@${handle}`);
+
   return (
     <ThemedSafeAreaView className="flex-1">
-      <GenericHeader title={profile?.displayName || `@${handle}`} />
       {profileQuery.isLoading && !profile ? (
         <ActivityIndicator size="small" />
       ) : profile ? (

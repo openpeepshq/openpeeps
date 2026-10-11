@@ -3,8 +3,8 @@ import { RefreshControl } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useTranslation } from 'react-i18next';
 import { useOpenpeeps, usePostDetailTitle } from '@openpeepshq/react';
-import { GenericHeader } from '../components/custom/index';
-import { ThemedSafeAreaView } from '../components/ui/themed-safe-area-view';
+import { useSetPageHeader } from '../components/layout';
+import { ThemedView } from '../components/ui/themed-view';
 import { MainScreenProps } from '../components/navigation/types/index';
 import { goToParentOrBack } from '../components/navigation/parent-back';
 import { PostDetail as PostDetailComponent } from '../components/post/index';
@@ -38,20 +38,16 @@ export const PostDetail = ({ route, navigation }: PostProps) => {
       post,
     });
 
+  useSetPageHeader(
+    title,
+    post?.type === 'event' ? (
+      <FullEventActions post={post} occurrence={occurrence} />
+    ) : undefined,
+    handleGoBack
+  );
+
   return (
-    <ThemedSafeAreaView className="flex-1">
-      {post?.type === 'event' ? (
-        <GenericHeader
-          title={title}
-          handleGoBack={handleGoBack}
-          rightType="icon"
-          rightButtonIcon={
-            <FullEventActions post={post} occurrence={occurrence} />
-          }
-        />
-      ) : (
-        <GenericHeader title={title} handleGoBack={handleGoBack} />
-      )}
+    <ThemedView className="flex-1">
       <KeyboardAwareScrollView
         className="w-full flex bg-background relative"
         refreshControl={
@@ -60,6 +56,6 @@ export const PostDetail = ({ route, navigation }: PostProps) => {
       >
         <PostDetailComponent postId={id} occurrence={occurrence} />
       </KeyboardAwareScrollView>
-    </ThemedSafeAreaView>
+    </ThemedView>
   );
 };

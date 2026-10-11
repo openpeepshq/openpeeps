@@ -12,7 +12,7 @@ import {
   ResetPassword,
 } from '../../pages';
 import { AUTH_ROUTES } from './types';
-import { AuthWrapper } from './auth-wrapper';
+import { AuthLayout } from '../layout';
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
@@ -20,7 +20,7 @@ export const AuthNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false, animation: 'fade' }}
-      screenLayout={({ children }) => <AuthWrapper>{children}</AuthWrapper>}
+      screenLayout={({ children }) => <AuthLayout>{children}</AuthLayout>}
     >
       <Stack.Screen name={AUTH_ROUTES.WELCOME} component={AuthWelcome} />
       <Stack.Screen name={AUTH_ROUTES.LOGIN} component={Login} />
