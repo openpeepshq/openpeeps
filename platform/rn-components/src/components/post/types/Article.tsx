@@ -37,7 +37,9 @@ export const FeedArticle = ({ post }: Props) => {
           resizeMode="cover"
         />
       )}
-      <ThemedText className="text-xl font-bold">{article.title}</ThemedText>
+      <ThemedText className="text-xl font-bold text-foreground">
+        {article.title}
+      </ThemedText>
       <OpenpeepsMarkdown source={previewContent} linkPreviewMode="none" />
       <View className="w-full flex flex-row justify-end">
         <Button

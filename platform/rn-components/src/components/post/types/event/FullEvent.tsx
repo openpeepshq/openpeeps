@@ -27,8 +27,13 @@ import {
   Group,
   GroupData,
   buildThreads,
+  type JamRecording,
 } from '@openpeepshq/common';
 import { ProfileAvatar } from '../../../profile/Avatar';
+import { ProfileFromId } from '../../../profile/ProfileFromId';
+import { Button } from '../../../ui/button';
+import { UpdatingDate } from '../../../custom/date/updating-date';
+import { VideoPlayer } from '../../pieces/VideoPlayer';
 import { profileName, truncateText } from '../../../../lib/utils';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -48,6 +53,9 @@ import {
 } from '../../../../lib/utils';
 import { bottomSheetPresent } from '../../../../lib/bottom-sheet-ref';
 import {
+  canAccessJamRecordings,
+  canModerateJam,
+  canViewJamAttendees,
   effectiveEventTimes,
   eventTimeZoneOptions,
   formatEventClockTime,
@@ -117,7 +125,19 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
     navigation.navigate('SelectPrivateMessageMembers');
   };
 
-  const shouldShowAttendees = post?.type === 'event';
+  const { data: serverInfo } = openpeepsApi.useServerInfo();
+  const livekitEnabled = !!serverInfo?.jams.livekit.enabled;
+  const myEvent = currentProfile?.id === post?.profile?.id;
+  const iAmModerator = canModerateJam(currentProfile, post);
+  const canExportAttendees = canViewJamAttendees(currentProfile, post);
+  const canViewRecordings = canAccessJamRecordings(currentProfile, post);
+  const jamAttendeesQuery = openpeepsApi.useJamAttendance(post.id);
+  const recordingsQuery = openpeepsApi.usePostRecordings(
+    post.id,
+    !!event.jam && canViewRecordings
+  );
+  const showJamAttendeesTab =
+    !!event.jam && canExportAttendees && jamAttendeesQuery.isSuccess;
 
   let postContextQuery = openpeepsApi.usePostContext(post.id);
 
@@ -325,49 +345,93 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
         />
       ) : null}
       <EventRsvpButton post={post as PublicPost} recurrenceId={occurrence} />
+      {event.jam && (myEvent || iAmModerator) ? (
+        livekitEnabled ? (
+          <Button
+            className="mt-2 w-full"
+            onPress={() =>
+              navigation.navigate('JamSession', { jamId: post.id })
+            }
+          >
+            <ThemedText numberOfLines={1}>
+              {t('events.jam.start', { defaultValue: 'Start jam' })}
+            </ThemedText>
+          </Button>
+        ) : (
+          <ThemedText className="mt-2 text-sm text-destructive">
+            {t('jams.unavailable.message')}
+          </ThemedText>
+        )
+      ) : null}
       <Tabs
         onValueChange={setTabValue}
         value={tabValue}
-        className="w-full mx-auto flex-col gap-1.5 mt-5"
+        className="mx-auto mt-5 w-full flex-col gap-1.5"
       >
-        <TabsList className="flex-row w-full bg-transparent border-muted rounded-none border-b p-0 px-3">
+        <TabsList className="w-full flex-row flex-wrap rounded-none border-b border-muted bg-transparent p-0 px-1">
           {event?.content ? (
             <TabsTrigger
               value="description"
-              onPress={() => {
-                setTabValue('description');
-              }}
-              className={`${
+              onPress={() => setTabValue('description')}
+              className={
                 tabValue === 'description' ? 'border-b-2 border-foreground' : ''
-              }`}
+              }
             >
-              <ThemedText>Description</ThemedText>
+              <ThemedText>
+                {t('events.tabs.description', { defaultValue: 'Description' })}
+              </ThemedText>
             </TabsTrigger>
           ) : null}
           <TabsTrigger
             value="discussions"
-            className={`${
+            className={
               tabValue === 'discussions' ? 'border-b-2 border-foreground' : ''
-            }`}
-            onPress={() => {
-              setTabValue('discussions');
-            }}
+            }
+            onPress={() => setTabValue('discussions')}
           >
-            <ThemedText>Discussions</ThemedText>
+            <ThemedText>
+              {t('events.tabs.discussion', { defaultValue: 'Discussion' })}
+            </ThemedText>
           </TabsTrigger>
-          {shouldShowAttendees && (
+          <TabsTrigger
+            value="rsvps"
+            className={
+              tabValue === 'rsvps' ? 'border-b-2 border-foreground' : ''
+            }
+            onPress={() => setTabValue('rsvps')}
+          >
+            <ThemedText>
+              {t('events.tabs.rsvps', { defaultValue: 'RSVPs' })}
+            </ThemedText>
+          </TabsTrigger>
+          {showJamAttendeesTab ? (
             <TabsTrigger
               value="attendees"
-              className={`${
+              className={
                 tabValue === 'attendees' ? 'border-b-2 border-foreground' : ''
-              }`}
-              onPress={() => {
-                setTabValue('attendees');
-              }}
+              }
+              onPress={() => setTabValue('attendees')}
             >
-              <ThemedText>Attendees</ThemedText>
+              <ThemedText>
+                {t('events.tabs.jamAttendees', {
+                  defaultValue: 'Jam attendees',
+                })}
+              </ThemedText>
             </TabsTrigger>
-          )}
+          ) : null}
+          {event.jam ? (
+            <TabsTrigger
+              value="recordings"
+              className={
+                tabValue === 'recordings' ? 'border-b-2 border-foreground' : ''
+              }
+              onPress={() => setTabValue('recordings')}
+            >
+              <ThemedText>
+                {t('events.tabs.recordings', { defaultValue: 'Recordings' })}
+              </ThemedText>
+            </TabsTrigger>
+          ) : null}
         </TabsList>
         {event?.content ? (
           <TabsContent value="description" className="p-0">
@@ -380,22 +444,77 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
             <ThreadedFeed key={thread.id} thread={thread} />
           ))}
         </TabsContent>
-        {shouldShowAttendees && (
+        <TabsContent value="rsvps" className="px-0 py-4">
+          <EventRsvpList
+            post={post as PublicPost}
+            occurrenceId={occurrence}
+            occurrences={upcomingOccurrences}
+            canManageRsvps={canManageRsvps}
+            onManage={(response, profileId, recurrenceId) =>
+              rsvpManage({ response, recurrenceId }, { id: post.id, profileId })
+            }
+          />
+        </TabsContent>
+        {showJamAttendeesTab ? (
           <TabsContent value="attendees" className="px-0 py-4">
-            <EventRsvpList
-              post={post as PublicPost}
-              occurrenceId={occurrence}
-              occurrences={upcomingOccurrences}
-              canManageRsvps={canManageRsvps}
-              onManage={(response, profileId, recurrenceId) =>
-                rsvpManage(
-                  { response, recurrenceId },
-                  { id: post.id, profileId }
-                )
-              }
-            />
+            {jamAttendeesQuery.data?.length ? (
+              jamAttendeesQuery.data.map((attendee) => (
+                <View
+                  key={attendee.id}
+                  className="flex-row items-center justify-between py-2"
+                >
+                  <ProfileFromId id={attendee.profileId} />
+                  <UpdatingDate date={attendee.createdAt} />
+                </View>
+              ))
+            ) : (
+              <ThemedText className="py-4 text-sm text-muted-foreground">
+                {t('events.noAttendees', { defaultValue: 'No attendees yet.' })}
+              </ThemedText>
+            )}
           </TabsContent>
-        )}
+        ) : null}
+        {event.jam ? (
+          <TabsContent value="recordings" className="px-0 py-4">
+            {!canViewRecordings ? (
+              <ThemedText className="py-4 text-center text-sm text-muted-foreground">
+                {t('error.jamRecordingForbidden', {
+                  defaultValue:
+                    "You don't have permission to view recordings for this jam.",
+                })}
+              </ThemedText>
+            ) : recordingsQuery.isLoading ? (
+              <ThemedText className="py-4 text-sm text-muted-foreground">
+                {t('common.loading', { defaultValue: 'Loading…' })}
+              </ThemedText>
+            ) : recordingsQuery.data?.length ? (
+              recordingsQuery.data.map((recording: JamRecording) => (
+                <View key={recording.id} className="gap-y-2 py-4">
+                  <UpdatingDate date={recording.createdAt} />
+                  {recording.status === 'completed' && recording.attachment ? (
+                    <VideoPlayer attachment={recording.attachment} />
+                  ) : (
+                    <ThemedText className="text-sm text-muted-foreground">
+                      {recording.status === 'active'
+                        ? t('events.recordingInProgress', {
+                            defaultValue: 'Recording in progress…',
+                          })
+                        : t('events.recordingProcessing', {
+                            defaultValue: 'Processing recording…',
+                          })}
+                    </ThemedText>
+                  )}
+                </View>
+              ))
+            ) : (
+              <ThemedText className="py-4 text-sm text-muted-foreground">
+                {t('events.noRecordings', {
+                  defaultValue: 'No recordings yet.',
+                })}
+              </ThemedText>
+            )}
+          </TabsContent>
+        ) : null}
       </Tabs>
     </ThemedView>
   );

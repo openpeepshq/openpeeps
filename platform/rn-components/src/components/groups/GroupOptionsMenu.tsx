@@ -9,8 +9,7 @@ import {
   groupMembershipHasRole,
 } from '@openpeepshq/common/lib';
 import {
-  adjustUnseenCounts,
-  invalidateUnseenCounts,
+  markGroupPostsRead,
   useAuthData,
   useCurrentProfile,
   useNavigate,
@@ -79,11 +78,20 @@ export const GroupOptionsMenu = ({ group }: GroupOptionsMenuProps) => {
   };
 
   const handleMarkAllRead = async () => {
-    adjustUnseenCounts(queryClient, client, { clearGroup: group.id });
     try {
-      await markGroupPostsSeen({ groupId: group.id });
+      await markGroupPostsRead(
+        queryClient,
+        client,
+        group.id,
+        markGroupPostsSeen
+      );
+      Toast.show({
+        type: 'success',
+        text1: t('groups.markAllRead.success', {
+          defaultValue: 'Group posts marked as read',
+        }),
+      });
     } catch {
-      await invalidateUnseenCounts(queryClient, client);
       Toast.show({ type: 'error', text1: t('groups.markAllRead.error') });
     }
   };

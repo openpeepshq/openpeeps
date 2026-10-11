@@ -16,12 +16,10 @@ import {
 import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
-import {
-  adjustUnseenCounts,
-  invalidateUnseenCounts,
-} from '../../lib/unseenCountsOptimistic';
+import { markGroupPostsRead } from '../../lib/unseenCountsOptimistic';
 import { useT } from '../../i18n';
 import { useAuthData, useCurrentProfile } from '../layout/IdentityContext';
+import { useToast } from '../layout/ToastProvider';
 import { AddGroupMemberModal } from './AddGroupMemberModal';
 import { ConfirmGroupExitModal } from './ConfirmGroupExitModal';
 import { DeleteGroupModal } from './DeleteGroupModal';
@@ -38,6 +36,7 @@ export function GroupOptionsMenu({ group }: GroupOptionsMenuProps) {
   const authData = useAuthData();
   const me = useCurrentProfile();
   const { openpeepsApi, queryClient, client } = useOpenpeeps();
+  const { success, error: toastError } = useToast();
   const membersQuery = openpeepsApi.useGroupMembers(group.id);
   const markGroupPostsSeen = openpeepsApi.markGroupPostsSeenAction();
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
@@ -88,12 +87,20 @@ export function GroupOptionsMenu({ group }: GroupOptionsMenuProps) {
   };
 
   const handleMarkAllRead = async () => {
-    adjustUnseenCounts(queryClient, client, { clearGroup: group.id });
     try {
-      await markGroupPostsSeen({ groupId: group.id });
+      await markGroupPostsRead(
+        queryClient,
+        client,
+        group.id,
+        markGroupPostsSeen,
+      );
+      success(
+        t('groups.markAllRead.success', {
+          defaultValue: 'Group posts marked as read',
+        }),
+      );
     } catch {
-      await invalidateUnseenCounts(queryClient, client);
-      window.alert(
+      toastError(
         t('groups.markAllRead.error', {
           defaultValue: 'Failed to mark group posts as read',
         }),

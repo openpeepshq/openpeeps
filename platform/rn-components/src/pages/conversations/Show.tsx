@@ -133,7 +133,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
           >
             <ScrollView
               ref={scrollViewRef}
-              className="flex-1 pb-44"
+              className="flex-1 pb-8"
               onContentSizeChange={() =>
                 scrollViewRef.current?.scrollToEnd({ animated: true })
               }
@@ -226,7 +226,13 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
                     {isSending ? (
                       <ActivityIndicator size="small" />
                     ) : (
-                      <SendHorizonalIcon />
+                      <SendHorizonalIcon
+                        className={
+                          content.trim() && content.length <= maxContentLength
+                            ? 'text-primary-foreground'
+                            : 'text-muted-foreground'
+                        }
+                      />
                     )}
                   </TouchableOpacity>
                 </View>

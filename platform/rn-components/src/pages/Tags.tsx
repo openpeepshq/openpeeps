@@ -8,18 +8,18 @@ import {
   useFeedListParams,
   useOpenpeeps,
 } from '@openpeepshq/react';
-import { TabScreensHeader } from '../components/custom/index';
-import { ThemedText } from '../components/ui/themed-text';
+import { GenericHeader } from '../components/custom/index';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RefreshControl, ScrollView } from 'react-native';
 
 import { Feed, NewNoteButton } from '../components/post/index';
+import { TAB_ROUTES } from '../components/navigation/types/index';
 type HomeScreenProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'HashtagPosts'>,
   NativeStackScreenProps<MainStackParamList>
 >;
-export const Tags: React.FC<HomeScreenProps> = ({ route }) => {
+export const Tags: React.FC<HomeScreenProps> = ({ route, navigation }) => {
   const { openpeepsApi } = useOpenpeeps();
   const { tag } = route.params;
   const visibility = useDefaultVisibility();
@@ -38,8 +38,9 @@ export const Tags: React.FC<HomeScreenProps> = ({ route }) => {
 
   return (
     <>
-      <TabScreensHeader
-        children={<ThemedText className="text-xl font-bold">#{tag}</ThemedText>}
+      <GenericHeader
+        title={`#${tag}`}
+        handleGoBack={() => navigation.navigate(TAB_ROUTES.HOME)}
       />
       <ScrollView
         className="bg-background"

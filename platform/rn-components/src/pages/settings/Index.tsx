@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   NativeStackNavigationProp,
@@ -13,6 +13,7 @@ import {
 } from '../../components/navigation/types/index';
 import { ConfigMenuButton } from '../../components/configuration/index';
 import { TabScreensHeader } from '../../components/custom/index';
+import { ChevronLeftIcon } from '../../components/icons/index';
 import { ThemedText } from '../../components/ui/themed-text';
 import { ThemedView } from '../../components/ui/themed-view';
 
@@ -29,7 +30,18 @@ export const Settings = ({}: NativeStackScreenProps<
     <ThemedView className="flex-1 relative">
       <TabScreensHeader
         children={
-          <View className="p-2">
+          <View className="flex-row items-center p-2">
+            {profile ? (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() =>
+                  navigation.navigate('Profile', { handle: profile.handle })
+                }
+                className="mr-1 p-1"
+              >
+                <ChevronLeftIcon size={28} className="text-foreground" />
+              </Pressable>
+            ) : null}
             <ThemedText className="text-2xl font-semibold">
               {t('settings.menu')}
             </ThemedText>

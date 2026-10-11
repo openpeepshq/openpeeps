@@ -135,36 +135,40 @@ export const EventRsvpButton = ({
 
   return (
     <View className="mt-4 w-full">
-      <View className="w-full flex-row gap-x-2">
+      <View className="w-full flex-col gap-2">
         <Button
-          className="w-[70%]"
+          className="w-full"
           disabled={full || submitting}
           onPress={() => requestRespond('yes')}
         >
-          <ThemedText>
+          <ThemedText numberOfLines={1}>
             {full ? t('events.rsvp.full') : t('posts.rsvp.register')}
           </ThemedText>
         </Button>
-        {!capacityEvent ? (
+        <View className="w-full flex-row gap-x-2">
+          {!capacityEvent ? (
+            <Button
+              variant="ghost"
+              className="flex-1"
+              disabled={submitting}
+              onPress={() => requestRespond('tentative')}
+            >
+              <ThemedText numberOfLines={1} className="text-muted-foreground">
+                {t('posts.rsvp.maybe')}
+              </ThemedText>
+            </Button>
+          ) : null}
           <Button
-            variant="ghost"
+            variant="outline"
+            className="flex-1"
             disabled={submitting}
-            onPress={() => requestRespond('tentative')}
+            onPress={() => requestRespond('no')}
           >
-            <ThemedText className="text-muted-foreground">
-              {t('posts.rsvp.maybe')}
+            <ThemedText numberOfLines={1} className="text-destructive">
+              {t('posts.rsvp.no')}
             </ThemedText>
           </Button>
-        ) : null}
-        <Button
-          variant="outline"
-          disabled={submitting}
-          onPress={() => requestRespond('no')}
-        >
-          <ThemedText className="text-destructive">
-            {t('posts.rsvp.no')}
-          </ThemedText>
-        </Button>
+        </View>
       </View>
       {errorText}
       {scopeDialog}

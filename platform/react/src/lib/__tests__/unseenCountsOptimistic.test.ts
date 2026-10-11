@@ -1,5 +1,21 @@
-import { describe, expect, it } from 'vitest';
-import { applyUnseenCountsAdjustment } from '../unseenCountsOptimistic';
+import { QueryClient } from '@tanstack/react-query';
+import { describe, expect, it, vi } from 'vitest';
+import type { openpeepsClient } from '@openpeepshq/client';
+import type { UnseenPostCounts } from '@openpeepshq/common/types';
+import {
+  adjustUnseenCounts,
+  applyUnseenCountsAdjustment,
+  isUnseenCountsQueryKey,
+  markGroupPostsRead,
+} from '../unseenCountsOptimistic';
+
+const mockClient = {
+  posts: {
+    unseenCounts: {
+      queryKey: () => ['posts', 'unseen', 'counts'],
+    },
+  },
+} as unknown as ReturnType<typeof openpeepsClient>;
 
 describe('applyUnseenCountsAdjustment', () => {
   const base = {
@@ -51,5 +67,76 @@ describe('applyUnseenCountsAdjustment', () => {
       groups: { g1: 0 },
       direct: {},
     });
+  });
+});
+
+describe('isUnseenCountsQueryKey', () => {
+  it('matches the canonical key and prefixed variants', () => {
+    expect(isUnseenCountsQueryKey(['posts', 'unseen', 'counts'])).toBe(true);
+    expect(
+      isUnseenCountsQueryKey(['', 'posts', 'unseen', 'counts', undefined]),
+    ).toBe(true);
+    expect(isUnseenCountsQueryKey(['posts', 'list'])).toBe(false);
+  });
+});
+
+describe('adjustUnseenCounts', () => {
+  it('clears the group on every matching unseen-counts query', () => {
+    const queryClient = new QueryClient();
+    const counts: UnseenPostCounts = {
+      groups: { g1: 4, g2: 1 },
+      direct: {},
+    };
+    queryClient.setQueryData(['posts', 'unseen', 'counts'], counts);
+    queryClient.setQueryData(['', 'posts', 'unseen', 'counts'], counts);
+
+    adjustUnseenCounts(queryClient, mockClient, { clearGroup: 'g1' });
+
+    expect(
+      queryClient.getQueryData<UnseenPostCounts>(['posts', 'unseen', 'counts'])
+        ?.groups,
+    ).toEqual({ g1: 0, g2: 1 });
+    expect(
+      queryClient.getQueryData<UnseenPostCounts>([
+        '',
+        'posts',
+        'unseen',
+        'counts',
+      ])?.groups,
+    ).toEqual({ g1: 0, g2: 1 });
+  });
+
+  it('decrements a group once even when the canonical key is also cached', () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(['posts', 'unseen', 'counts'], {
+      groups: { g1: 4 },
+      direct: {},
+    });
+
+    adjustUnseenCounts(queryClient, mockClient, { groupId: 'g1' });
+
+    expect(
+      queryClient.getQueryData<UnseenPostCounts>(['posts', 'unseen', 'counts'])
+        ?.groups.g1,
+    ).toBe(3);
+  });
+});
+
+describe('markGroupPostsRead', () => {
+  it('keeps the group cleared after a successful mark', async () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(['posts', 'unseen', 'counts'], {
+      groups: { g1: 3 },
+      direct: {},
+    });
+    const mark = vi.fn().mockResolvedValue({ success: true });
+
+    await markGroupPostsRead(queryClient, mockClient, 'g1', mark);
+
+    expect(mark).toHaveBeenCalledWith({ groupId: 'g1' });
+    expect(
+      queryClient.getQueryData<UnseenPostCounts>(['posts', 'unseen', 'counts'])
+        ?.groups.g1,
+    ).toBe(0);
   });
 });

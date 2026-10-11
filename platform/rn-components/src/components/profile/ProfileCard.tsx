@@ -32,7 +32,11 @@ export const ProfileCard = ({
   };
 
   return (
-    <View className="flex flex-row justify-between w-full px-4 mb-8">
+    <View
+      className={`w-full flex-row items-center justify-between px-4 ${
+        actionType === 'select' ? 'mb-1 py-1' : 'mb-8'
+      }`}
+    >
       <TouchableWithoutFeedback
         onPress={() => {
           if (actionType === 'select' && handleSelectProfile) {
@@ -44,7 +48,10 @@ export const ProfileCard = ({
         }}
       >
         <View className="flex flex-row items-center gap-x-2">
-          <ProfileAvatar profile={profile} className="size-16" />
+          <ProfileAvatar
+            profile={profile}
+            className={actionType === 'select' ? 'size-10' : 'size-16'}
+          />
           <View className="">
             <ThemedText className="text-lg font-semibold">
               {truncateText(profile.displayName, 18) || profile.handle}

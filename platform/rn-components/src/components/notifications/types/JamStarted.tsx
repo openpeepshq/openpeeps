@@ -20,17 +20,19 @@ export const JamStarted: React.FC<NotificationTypeProps> = ({
   return (
     <NotificationWrapper profile={profile} seen={notification.seen}>
       <View className="w-full">
-        <View className="mb-2 flex flex-row items-center gap-2 font-semibold text-wrap flex-wrap">
-          <ThemedText>
+        <View className="mb-2 min-w-0 flex-row flex-wrap items-center gap-2">
+          <ThemedText className="shrink">
             {t('notification.jamStarted.text', {
               profileName: profileName(profile),
-            })}{' '}
+            })}
           </ThemedText>
           <UpdatingDate date={notification.createdAt} />
         </View>
-        {notification.post?.type === 'event' && (
-          <JamCard jamPost={notification.post!} />
-        )}
+        {notification.post?.type === 'event' ? (
+          <View className="min-w-0">
+            <JamCard jamPost={notification.post} />
+          </View>
+        ) : null}
       </View>
     </NotificationWrapper>
   );

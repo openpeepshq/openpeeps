@@ -20,7 +20,7 @@ export const ConversationMessageBubble = ({
 
   return (
     <View
-      className={`mt-4 w-full flex-row items-center gap-2 ${
+      className={`mt-2 w-full flex-row items-center gap-2 ${
         mine ? 'justify-end' : 'justify-start'
       }`}
     >
