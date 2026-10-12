@@ -9,6 +9,25 @@ import { BaseEmailLayout } from '../../BaseEmailLayout';
 import { EmailPostEmbed } from '../../EmailPostEmbed';
 import { emailStyles } from '../../styles';
 
+export const newGroupPostCopyKeys = (post: ExpandedNotification['post']) => {
+  if (post?.repost) {
+    return {
+      title: 'emails.newGroupPost.repostTitle',
+      subject: 'emails.newGroupPost.repostSubject',
+    };
+  }
+  if (post?.type === 'event') {
+    return {
+      title: 'emails.newGroupPost.eventTitle',
+      subject: 'emails.newGroupPost.eventSubject',
+    };
+  }
+  return {
+    title: 'emails.newGroupPost.title',
+    subject: 'emails.newGroupPost.subject',
+  };
+};
+
 export const NewGroupPostEmail = ({
   globals,
   locals,
@@ -22,12 +41,7 @@ export const NewGroupPostEmail = ({
   const original = post?.repost ?? undefined;
   const isRepost = !!original;
   const previewPost = original ?? post;
-  const titleKey = isRepost
-    ? 'emails.newGroupPost.repostTitle'
-    : 'emails.newGroupPost.title';
-  const subjectKey = isRepost
-    ? 'emails.newGroupPost.repostSubject'
-    : 'emails.newGroupPost.subject';
+  const { title: titleKey, subject: subjectKey } = newGroupPostCopyKeys(post);
 
   const profileNameValue = profileName(locals.senderProfile ?? undefined);
   const groupNameValue = groupName(locals.group ?? undefined);
