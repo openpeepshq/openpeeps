@@ -13,11 +13,11 @@ import { MainStackParamList } from '../../navigation/types/index';
 import { useTranslation } from 'react-i18next';
 import { CachedImage } from '../../custom/common/index';
 
-interface Props {
+export interface FeedArticleProps {
   post: PublicPost;
 }
 
-export const FeedArticle = ({ post }: Props) => {
+export const FeedArticle = ({ post }: FeedArticleProps) => {
   const article = useMemo(() => post.data as Article, [post]);
 
   const previewContent = useMemo(

@@ -585,8 +585,8 @@ function JamNotification({
   return (
     <NotificationWrapper
       profile={profile}
+      group={notification.group}
       seen={notification.seen}
-      isGroup={!!notification.group}
     >
       <a
         href={`/posts/${notification.post?.id}`}
@@ -631,8 +631,8 @@ function GenericNotification({
   return (
     <NotificationWrapper
       profile={sender}
+      group={notification.group}
       seen={notification.seen}
-      isGroup={!!notification.group}
     >
       {notification.post ? (
         <a

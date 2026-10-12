@@ -1,20 +1,21 @@
 import type { ReactNode } from 'react';
 import { Dot, User, Users } from 'lucide-react';
-import type { PublicProfile } from '@openpeepshq/common/types';
+import type { Group, PublicProfile } from '@openpeepshq/common/types';
 import { Avatar, ProfileLink } from '../profile';
+import { GroupAvatar } from '../groups/GroupAvatar';
 
 export interface NotificationWrapperProps {
   profile: PublicProfile;
   seen?: boolean;
-  isGroup?: boolean;
+  group?: Group | null;
   showProfile?: boolean;
   children: ReactNode;
 }
 
 export function NotificationWrapper({
   profile,
+  group,
   seen = true,
-  isGroup = false,
   showProfile = true,
   children,
 }: NotificationWrapperProps) {
@@ -26,14 +27,19 @@ export function NotificationWrapper({
 
       {showProfile ? (
         <div className="flex items-center gap-4 px-6">
-          {isGroup ? (
-            <Users className="text-muted-foreground h-8 w-8" />
+          {group ? (
+            <>
+              <Users className="text-muted-foreground h-8 w-8" />
+              <GroupAvatar group={group} size={3.5} borderless />
+            </>
           ) : (
-            <User className="text-muted-foreground h-8 w-8" />
+            <>
+              <User className="text-muted-foreground h-8 w-8" />
+              <ProfileLink profile={profile}>
+                <Avatar profile={profile} size={3.5} />
+              </ProfileLink>
+            </>
           )}
-          <ProfileLink profile={profile}>
-            <Avatar profile={profile} size={3.5} />
-          </ProfileLink>
         </div>
       ) : null}
       <div className="flex flex-1 flex-col">{children}</div>

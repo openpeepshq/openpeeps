@@ -7,11 +7,11 @@ import { View } from 'react-native';
 import { ThemedText } from '../../ui/themed-text';
 import { OpenpeepsMarkdown } from '../../markdown/index';
 
-interface Props {
+export interface FeedNoteProps {
   post: PublicPost;
 }
 
-export const FeedNote = ({ post }: Props) =>
+export const FeedNote = ({ post }: FeedNoteProps) =>
   post?.data?.type === 'note' ? (
     <View>
       <Attachments {...{ post }} />

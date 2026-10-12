@@ -57,6 +57,8 @@ import { VideoPlayer } from '../../pieces/VideoPlayer';
 
 export interface FullEventProps {
   post: PublicPost;
+  /** Specific occurrence of a recurring event. */
+  occurrence?: string;
 }
 
 type EventTab =

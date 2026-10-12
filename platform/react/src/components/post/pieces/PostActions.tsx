@@ -8,9 +8,15 @@ import { postReactionStats } from '../helpers';
 export interface PostActionsProps {
   post: PublicPost;
   compact?: boolean;
+  /** When true, disables interactive actions (used in previews). */
+  previewMode?: boolean;
 }
 
-export function PostActions({ post, compact = false }: PostActionsProps) {
+export function PostActions({
+  post,
+  compact = false,
+  previewMode = false,
+}: PostActionsProps) {
   const t = useT();
   const {
     me,
@@ -48,7 +54,7 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
         className={`${actionClass} justify-self-start`}
         title={t('posts.actions.reply', { defaultValue: 'Reply' })}
         action={reply}
-        disabled={!canReply}
+        disabled={previewMode || !canReply}
       >
         <Reply className="h-4 w-4" />
         {compact ? post.replyCount || null : replyLabel}
@@ -58,7 +64,7 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
         className={`${actionClass} justify-self-center ${myRepost ? 'text-primary' : ''}`}
         title={t('posts.actions.repost', { defaultValue: 'Repost' })}
         action={toggleRepost}
-        disabled={!canRepost}
+        disabled={previewMode || !canRepost}
         spinnerOnlyOnLoading
         data-testid="posts-repost-button"
       >
@@ -70,7 +76,7 @@ export function PostActions({ post, compact = false }: PostActionsProps) {
         className={`${actionClass} justify-self-end ${iReacted ? 'text-primary' : ''}`}
         title={t('posts.actions.react', { defaultValue: 'React' })}
         action={toggleReaction}
-        disabled={!canReact}
+        disabled={previewMode || !canReact}
         spinnerOnlyOnLoading
       >
         <ThumbsUp className="h-4 w-4" />

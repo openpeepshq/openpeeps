@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Linking } from 'react-native';
 import {
   CommonActions,
   createNavigationContainerRef,
@@ -186,6 +187,35 @@ export const navigateToTarget = (target: NavTarget) => {
         go('Auth', { screen: 'ValidateEmail' });
       } else {
         go('Auth', { screen: 'Login' });
+      }
+      break;
+    case 'admin':
+      // RN has no admin screens — fall back to settings tab.
+      go('Main', { screen: 'TabNavigator', params: { screen: 'Settings' } });
+      break;
+    case 'docs':
+      // Docs are web-only; open in the system browser.
+      if (target.path) {
+        Linking.openURL(
+          target.path.startsWith('/') ? `${target.path}` : target.path
+        );
+      }
+      break;
+    case 'paymentSuccess':
+      go('Main', { screen: 'TabNavigator', params: { screen: 'Onboarding' } });
+      break;
+    case 'external':
+      Linking.openURL(target.href);
+      break;
+    case 'path':
+      // Try to open as a URL; if it's a local path, fall back to home.
+      if (
+        target.path.startsWith('http://') ||
+        target.path.startsWith('https://')
+      ) {
+        Linking.openURL(target.path);
+      } else {
+        go('Main', { screen: 'TabNavigator', params: { screen: 'Home' } });
       }
       break;
     default:

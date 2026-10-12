@@ -8,11 +8,13 @@ import { OpenpeepsMarkdown } from '../../markdown/index';
 import { ThemedText } from '../../ui/themed-text';
 import { PollContent } from '../pieces/PollContent';
 
-interface Props {
+export interface FeedPollProps {
   post: PublicPost;
+  /** When false, show static options only (no voting). */
+  interactive?: boolean;
 }
 
-export const FeedPoll = ({ post }: Props) =>
+export const FeedPoll = ({ post, interactive = true }: FeedPollProps) =>
   post?.data?.type === 'question' ? (
     <View>
       <Attachments {...{ post }} />
