@@ -4,6 +4,7 @@ import { groupName } from '@openpeepshq/common/lib';
 import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { JoinGroupButton } from './JoinGroupButton';
+import { GroupNotificationButton } from './GroupNotificationSettingsModal';
 import { GroupOptionsMenu } from './GroupOptionsMenu';
 import { GroupShareMenu } from './GroupShareMenu';
 import { GroupAvatar } from './GroupAvatar';
@@ -42,6 +43,7 @@ export function GroupHeader({ group }: GroupHeaderProps) {
         ) : (
           <>
             <GroupShareMenu group={group} />
+            <GroupNotificationButton group={group} />
             <GroupOptionsMenu group={group} />
           </>
         )}

@@ -832,10 +832,14 @@
         "description": "Benachrichtigungen über {{groupName}} verwalten.",
         "options": {
           "all": "Alle",
+          "allDescription": "Jeder Beitrag und jede Mitgliedschaftsänderung, entsprechend Ihren Kontoeinstellungen.",
           "mostRelevant": "Am relevantesten",
-          "mostRelevantDescription": "Personalisiert basierend auf Ihrer Aktivität",
-          "off": "Aus"
-        }
+          "mostRelevantDescription": "Beiträge von Personen, denen Sie folgen.",
+          "off": "Aus",
+          "offDescription": "Keine Beiträge oder Mitgliedschaftsänderungen aus dieser Gruppe."
+        },
+        "saved": "Gruppenbenachrichtigungen wurden aktualisiert.",
+        "loadError": "Benachrichtigungseinstellungen konnten nicht geladen werden."
       }
     },
     "share": {

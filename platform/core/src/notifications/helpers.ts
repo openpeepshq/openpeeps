@@ -7,6 +7,7 @@ import {
   Notification,
   DbNotification,
   ProfileSettings,
+  GroupNotificationLevel,
 } from '@openpeepshq/common/types';
 import { anonymizeProfileIfDeleted } from '@openpeepshq/common/lib';
 import { allpeepDb } from '../db';
@@ -33,6 +34,44 @@ export const notificationSettings = (
   profileSettings?.notifications?.[type] ??
   defaultNotificationTypes.find((t) => t.type === type)?.defaultSettings ??
   notificationDefaults;
+
+/** Group events a member can quiet without changing account-wide settings. */
+const groupScopedNotificationTypes = [
+  'newGroupPost',
+  'groupMemberJoined',
+  'groupMemberLeft',
+] as const;
+
+export const groupNotificationLevelFor = (
+  profileSettings: ProfileSettings | undefined,
+  groupId?: string | null,
+): GroupNotificationLevel => {
+  if (!groupId) return 'all';
+  return profileSettings?.groupNotificationLevels?.[groupId] ?? 'all';
+};
+
+/**
+ * `mostRelevant` keeps posts from people the member follows. Membership
+ * changes are only included at `all` — there is no separate relevance rank.
+ */
+export const allowsGroupNotification = ({
+  level,
+  type,
+  followsAuthor,
+}: {
+  level: GroupNotificationLevel;
+  type: string;
+  followsAuthor: boolean;
+}): boolean => {
+  if (!(groupScopedNotificationTypes as readonly string[]).includes(type)) {
+    return true;
+  }
+  if (level === 'off') return false;
+  if (level === 'mostRelevant') {
+    return type === 'newGroupPost' && followsAuthor;
+  }
+  return true;
+};
 
 export const expandNotification = async (
   notification: DbNotification,

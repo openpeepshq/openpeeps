@@ -9,8 +9,10 @@ import {
   PublicProfile,
 } from '@openpeepshq/common/types';
 import {
+  allowsGroupNotification,
   baseListNotifications,
   expandNotification,
+  groupNotificationLevelFor,
   notificationSettings,
 } from './helpers';
 import { hub } from '../events';
@@ -65,6 +67,18 @@ export const maybeCreateNotification = async (
   const profileSettings = await findProfileSettings(profile.id);
   if (!profileSettings) {
     log.error(`profileSettings ${profile.id} not found`);
+    return;
+  }
+  const followsAuthor = (fullProfile.following ?? []).some(
+    (followed) => followed.id === data.fromProfileId,
+  );
+  if (
+    !allowsGroupNotification({
+      level: groupNotificationLevelFor(profileSettings, data.groupId),
+      type,
+      followsAuthor,
+    })
+  ) {
     return;
   }
   const settings = notificationSettings(profileSettings, type);

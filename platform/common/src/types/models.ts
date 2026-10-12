@@ -137,6 +137,19 @@ export const profileNotificationSettings = z.object({
 export type ProfileNotificationSettings = z.infer<
   typeof profileNotificationSettings
 >;
+
+/** Per-group activity level. Unset means `all`, matching account settings. */
+export const groupNotificationLevelOptions = [
+  'all',
+  'mostRelevant',
+  'off',
+] as const;
+export const groupNotificationLevelSchema = z.enum(
+  groupNotificationLevelOptions,
+);
+export type GroupNotificationLevel = z.infer<
+  typeof groupNotificationLevelSchema
+>;
 export const jamSettingsSchema = z.object({
   backgroundObfuscation: z
     .discriminatedUnion('type', [
@@ -170,6 +183,10 @@ export const profileSettingsDataSchema = z.object({
   theme: ThemeOptionsSchema.optional(),
   defaults: profileSettingsDefaultsSchema.optional(),
   notifications: z.record(z.string(), profileNotificationSettings).optional(),
+  /** Per-group level. A missing group id means all activity for that group. */
+  groupNotificationLevels: z
+    .record(z.string(), groupNotificationLevelSchema)
+    .optional(),
   jamSettings: jamSettingsSchema.optional(),
   stripeSettings: z
     .object({
