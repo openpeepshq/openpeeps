@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/rn-components",
-  "version": "0.3.12",
+  "version": "0.3.13",
   "description": "React Native community screens and shared UI (extracted from the Black Ambition app) for the OpenPeeps stack.",
   "source": "./src/index.ts",
   "main": "./src/index.ts",
@@ -191,13 +191,6 @@
     "ts-jest": "^29.3.4",
     "turbo": "^1.10.7",
     "typescript": "~5.8.3"
-  },
-  "jest": {
-    "preset": "react-native",
-    "modulePathIgnorePatterns": [
-      "<rootDir>/example/node_modules",
-      "<rootDir>/lib/"
-    ]
   },
   "commitlint": {
     "extends": [
