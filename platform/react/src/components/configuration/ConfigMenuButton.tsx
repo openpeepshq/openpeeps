@@ -4,7 +4,10 @@ import { useT } from '../../i18n';
 
 export interface ConfigMenuButtonProps {
   translationPrefix: string;
-  action: string;
+  /** URL path for navigation (web). */
+  action?: string;
+  /** Click handler — renders a button instead of a Link when provided. */
+  onPress?: () => void;
   testId?: string;
   titleFallback?: string;
   descriptionFallback?: string;
@@ -17,17 +20,14 @@ export interface ConfigMenuButtonProps {
 export function ConfigMenuButton({
   translationPrefix,
   action,
+  onPress,
   testId,
   titleFallback,
   descriptionFallback,
 }: ConfigMenuButtonProps) {
   const t = useT();
-  return (
-    <Link
-      to={action}
-      data-testid={testId}
-      className="hover:bg-surface flex w-full items-center justify-between px-4 py-3 text-start"
-    >
+  const content = (
+    <>
       <div>
         <div className="font-medium">
           {t(
@@ -45,6 +45,28 @@ export function ConfigMenuButton({
       <span aria-hidden="true">
         <ChevronRight className="h-4 w-4" />
       </span>
+    </>
+  );
+
+  if (onPress) {
+    return (
+      <button
+        data-testid={testId}
+        onClick={onPress}
+        className="hover:bg-surface flex w-full items-center justify-between px-4 py-3 text-start"
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <Link
+      to={action ?? ''}
+      data-testid={testId}
+      className="hover:bg-surface flex w-full items-center justify-between px-4 py-3 text-start"
+    >
+      {content}
     </Link>
   );
 }

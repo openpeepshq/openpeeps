@@ -10,6 +10,8 @@ import { cn } from '../../lib/utils';
 export interface FollowUnfollowButtonProps {
   profile: PublicProfile;
   compact?: boolean;
+  /** Popup mode is a no-op on RN (web-only PopupMenuButton rendering). */
+  popup?: boolean;
   onSuccess?: () => void;
 }
 

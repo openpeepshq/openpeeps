@@ -8,6 +8,8 @@ export interface PostReactionHeaderProps {
   post: PublicPost;
   inGroup?: boolean;
   deleteCallback?: () => void;
+  hideReply?: boolean;
+  previewMode?: boolean;
 }
 
 /**
@@ -19,6 +21,8 @@ export function PostReactionHeader({
   post,
   inGroup = false,
   deleteCallback,
+  hideReply: _hideReply = false,
+  previewMode = false,
 }: PostReactionHeaderProps) {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
@@ -103,7 +107,9 @@ export function PostReactionHeader({
           </>
         ) : null}
       </div>
-      <PostMenu post={menuPost} deleteCallback={deleteCallback} />
+      {!previewMode ? (
+        <PostMenu post={menuPost} deleteCallback={deleteCallback} />
+      ) : null}
     </div>
   );
 }

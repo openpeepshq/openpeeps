@@ -76,7 +76,7 @@ import {
 } from '../../index';
 import { ReportProfileOrPostModal } from '../../../profile/index';
 import { OpenpeepsMarkdown } from '../../../markdown/index';
-interface FullEventProps {
+export interface FullEventProps {
   post: PublicPost;
   occurrence?: string;
 }

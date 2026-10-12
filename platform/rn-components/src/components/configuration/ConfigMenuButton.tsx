@@ -6,7 +6,10 @@ import { ChevronRightIcon } from '../icons/index';
 
 export interface ConfigMenuButtonProps {
   translationPrefix: string;
-  onPress: () => void;
+  /** URL path (web). On RN, use onPress instead — URL navigation is not supported. */
+  action?: string;
+  /** Click handler. */
+  onPress?: () => void;
   titleFallback?: string;
   descriptionFallback?: string;
 }
@@ -19,9 +22,10 @@ export const ConfigMenuButton = ({
   descriptionFallback,
 }: ConfigMenuButtonProps) => {
   const { t } = useTranslation();
+  const handlePress = onPress ?? (() => {});
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       className="py-2 mb-2 flex-row justify-between items-center gap-x-4"
     >
       <View className="flex-1">

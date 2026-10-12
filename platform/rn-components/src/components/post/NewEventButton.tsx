@@ -16,6 +16,10 @@ export interface NewEventButtonProps {
   visibility: VisibilityType;
   currentProfile?: ProfileWithMeta;
   group?: GroupWithMeta;
+  /** When false, only registers the floating plus button (no inline button). */
+  showButton?: boolean;
+  /** Optional custom navigation callback (replaces default screen navigation). */
+  onNavigate?: () => void;
 }
 
 /** Registers the RootLayout plus button for creating an event. */
