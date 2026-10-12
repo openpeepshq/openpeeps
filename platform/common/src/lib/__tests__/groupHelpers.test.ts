@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   groupName,
+  groupSectionFromHash,
+  groupSectionPath,
   matchesGroupQuery,
   sortGroupMembers,
   canChangeMemberRole,
@@ -501,6 +503,34 @@ describe('groupHelpers', () => {
         'admin',
       ]);
       expect(assignableGroupRoles(true)).toContain('owner');
+    });
+  });
+
+  describe('group section links', () => {
+    it('maps hashes onto posts, events, resources, and description', () => {
+      expect(groupSectionFromHash('')).toBe('posts');
+      expect(groupSectionFromHash('#posts')).toBe('posts');
+      expect(groupSectionFromHash('#events')).toBe('events');
+      expect(groupSectionFromHash('#resources')).toBe('resources');
+      expect(groupSectionFromHash('#description')).toBe('description');
+      expect(groupSectionFromHash('#nope')).toBe('posts');
+    });
+
+    it('builds a path that round-trips to the same section', () => {
+      expect(groupSectionPath('band')).toBe('/groups/@band');
+      expect(groupSectionPath('@band', 'posts')).toBe('/groups/@band');
+      expect(groupSectionPath('band', 'events')).toBe('/groups/@band#events');
+      expect(groupSectionPath('band', 'resources')).toBe(
+        '/groups/@band#resources',
+      );
+      expect(groupSectionPath('band', 'description')).toBe(
+        '/groups/@band#description',
+      );
+      expect(
+        groupSectionFromHash(
+          `#${groupSectionPath('band', 'events').split('#')[1]}`,
+        ),
+      ).toBe('events');
     });
   });
 });

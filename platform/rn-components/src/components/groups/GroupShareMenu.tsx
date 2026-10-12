@@ -5,6 +5,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import Toast from 'react-native-toast-message';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { groupSectionPath, type GroupSection } from '@openpeepshq/common/lib';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
 import { LinkIcon, PencilIcon, SendIcon, ShareIcon } from '../icons/index';
 import { MainStackParamList } from '../navigation/types/index';
@@ -33,8 +34,17 @@ export const GroupShareMenu = ({ group }: GroupShareMenuProps) => {
   const { openNewPost } = useNewPostModal();
   const { setContt } = useNewConversationStore();
 
-  const groupUrl = `${BASE_URL}/groups/@${group.handle}`;
+  const groupUrl = `${BASE_URL}${groupSectionPath(group.handle)}`;
   const inviteBlurb = t('groups.share.inviteBlurb', { url: groupUrl });
+  const copySectionLink = (section: GroupSection, copiedKey: string) => {
+    Clipboard.setString(
+      `${BASE_URL}${groupSectionPath(group.handle, section)}`
+    );
+    Toast.show({
+      type: 'success',
+      text1: t(copiedKey),
+    });
+  };
 
   return (
     <DropdownMenu>
@@ -78,16 +88,40 @@ export const GroupShareMenu = ({ group }: GroupShareMenuProps) => {
           </DropdownMenuLabel>
           <DropdownMenuItem
             className="flex-row items-center gap-x-2"
-            onPress={() => {
-              Clipboard.setString(groupUrl);
-              Toast.show({
-                type: 'success',
-                text1: t('groups.share.linkCopied'),
-              });
-            }}
+            onPress={() => copySectionLink('posts', 'groups.share.linkCopied')}
           >
             <LinkIcon size={16} className="text-foreground" />
             <ThemedText>{t('groups.share.copyLink')}</ThemedText>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="flex-row items-center gap-x-2"
+            onPress={() =>
+              copySectionLink('events', 'groups.share.eventsLinkCopied')
+            }
+          >
+            <LinkIcon size={16} className="text-foreground" />
+            <ThemedText>{t('groups.share.copyEventsLink')}</ThemedText>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="flex-row items-center gap-x-2"
+            onPress={() =>
+              copySectionLink('resources', 'groups.share.resourcesLinkCopied')
+            }
+          >
+            <LinkIcon size={16} className="text-foreground" />
+            <ThemedText>{t('groups.share.copyResourcesLink')}</ThemedText>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="flex-row items-center gap-x-2"
+            onPress={() =>
+              copySectionLink(
+                'description',
+                'groups.share.descriptionLinkCopied'
+              )
+            }
+          >
+            <LinkIcon size={16} className="text-foreground" />
+            <ThemedText>{t('groups.share.copyDescriptionLink')}</ThemedText>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

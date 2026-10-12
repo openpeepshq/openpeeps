@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { groupSectionFromHash } from '@openpeepshq/common/lib';
 import { useT, useOpenpeeps } from '../../index';
 import {
   EventsView,
@@ -18,6 +19,7 @@ import { ResourceLibrary } from '../../components/resources/ResourceLibrary';
 export function GroupShow() {
   const t = useT();
   const navigate = useNavigate();
+  const location = useLocation();
   const { handle: handleParam = '' } = useParams<{ handle: string }>();
   const handle = routeHandleParam(handleParam);
   const { openpeepsApi } = useOpenpeeps();
@@ -25,9 +27,21 @@ export function GroupShow() {
   const groupQuery = openpeepsApi.useGroupByHandle(handle);
   const group = groupQuery.data;
   const currentProfile = useCurrentProfile();
-  const [tab, setTab] = useState<
-    'posts' | 'events' | 'resources' | 'description'
-  >('posts');
+  const tab = groupSectionFromHash(location.hash);
+
+  // Raw anchors (shared links, markdown) change the hash without going
+  // through the router. Mirror that into the location so the tab follows.
+  useEffect(() => {
+    const syncHash = () => {
+      if (window.location.hash === location.hash) return;
+      navigate(
+        { pathname: location.pathname, hash: window.location.hash },
+        { replace: true },
+      );
+    };
+    window.addEventListener('hashchange', syncHash);
+    return () => window.removeEventListener('hashchange', syncHash);
+  }, [location.hash, location.pathname, navigate]);
 
   const upcomingEvents = openpeepsApi.useGroupUpcomingEventsFeed(
     group?.id ?? '',
@@ -91,57 +105,30 @@ export function GroupShow() {
         className="border-border flex border-b"
         data-testid="tab-group"
       >
-        <TabButton
-          active={tab === 'posts'}
-          onClick={() => {
-            setTab('posts');
-            window.history.replaceState(null, '', window.location.pathname);
-          }}
-        >
+        <TabLink active={tab === 'posts'} hash="">
           {t('groups.sections.posts', { defaultValue: 'Posts' })}
-        </TabButton>
-        <TabButton
+        </TabLink>
+        <TabLink
           active={tab === 'events'}
-          onClick={() => {
-            setTab('events');
-            window.history.replaceState(
-              null,
-              '',
-              `${window.location.pathname}#events`,
-            );
-          }}
+          hash="#events"
           testId="groups-tab-events"
         >
           {t('groups.sections.events', { defaultValue: 'Events' })}
-        </TabButton>
-        <TabButton
+        </TabLink>
+        <TabLink
           active={tab === 'resources'}
-          onClick={() => {
-            setTab('resources');
-            window.history.replaceState(
-              null,
-              '',
-              `${window.location.pathname}#resources`,
-            );
-          }}
+          hash="#resources"
           testId="groups-tab-resources"
         >
           {t('groups.sections.resources', { defaultValue: 'Resources' })}
-        </TabButton>
-        <TabButton
+        </TabLink>
+        <TabLink
           active={tab === 'description'}
-          onClick={() => {
-            setTab('description');
-            window.history.replaceState(
-              null,
-              '',
-              `${window.location.pathname}#description`,
-            );
-          }}
+          hash="#description"
           testId="groups-tab-description"
         >
           {t('groups.sections.description', { defaultValue: 'Description' })}
-        </TabButton>
+        </TabLink>
       </nav>
 
       {tab === 'posts' && <GroupFeed group={group} />}
@@ -247,25 +234,45 @@ export function GroupShow() {
   );
 }
 
-function TabButton({
+const TabLink = ({
   active,
-  onClick,
+  hash,
   children,
   testId,
 }: {
   active: boolean;
-  onClick: () => void;
+  hash: string;
   children: React.ReactNode;
   testId?: string;
-}) {
+}) => {
+  const location = useLocation();
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <Link
+      replace
+      to={{ pathname: location.pathname, hash }}
       data-testid={testId}
-      className={`px-4 py-2 text-sm ${active ? 'border-primary border-b-2 font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
+      aria-current={active ? 'page' : undefined}
+      className={`px-4 py-2 text-sm no-underline ${active ? 'border-primary border-b-2 font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
     >
       {children}
-    </button>
+    </Link>
   );
-}
+};
+
+const TabButton = ({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`px-4 py-2 text-sm ${active ? 'border-primary border-b-2 font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
+  >
+    {children}
+  </button>
+);

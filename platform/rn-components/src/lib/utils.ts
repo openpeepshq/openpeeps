@@ -6,6 +6,7 @@ import {
   Profile,
   PublicProfile,
   SuccessFailureResponse,
+  groupSectionFromHash,
 } from '@openpeepshq/common';
 import { NativeScrollEvent } from 'react-native';
 import { buildGoto } from '../components/navigation/helpers';
@@ -125,25 +126,36 @@ export const handleInternalURLNavigation = (
   goto: ReturnType<typeof buildGoto>
 ) => {
   const navigatePath = (path: string) => {
-    if (isGroupPath(path)) {
+    const hashStart = path.indexOf('#');
+    const hash = hashStart === -1 ? '' : path.slice(hashStart);
+    const pathWithoutHash = hashStart === -1 ? path : path.slice(0, hashStart);
+
+    if (isGroupPath(pathWithoutHash)) {
+      const pathname = pathWithoutHash.split('?')[0] ?? pathWithoutHash;
       goto({
         target: 'group',
-        params: { handle: path.slice('/groups/@'.length).split('/')[0] },
+        params: {
+          handle: pathname.slice('/groups/@'.length).split('/')[0],
+          tab: groupSectionFromHash(hash),
+        },
       });
       return true;
     }
-    if (isJamPath(path)) {
-      goto({ target: 'event', params: { id: path.split('/')[2] } });
+    if (isJamPath(pathWithoutHash)) {
+      goto({ target: 'event', params: { id: pathWithoutHash.split('/')[2] } });
       return true;
     }
-    if (isPostPath(path)) {
-      goto({ target: 'posts', params: { id: path.split('/')[2] } });
+    if (isPostPath(pathWithoutHash)) {
+      goto({
+        target: 'posts',
+        params: { id: pathWithoutHash.split('/')[2] },
+      });
       return true;
     }
-    if (isProfilePath(path)) {
+    if (isProfilePath(pathWithoutHash)) {
       goto({
         target: 'profile',
-        params: { handle: path.slice(2).split('/')[0] },
+        params: { handle: pathWithoutHash.slice(2).split('/')[0] },
       });
       return true;
     }
@@ -158,12 +170,11 @@ export const handleInternalURLNavigation = (
     }
   }
 
-  const path = isLocalLink(defaultAction, BASE_URL as string)
-    ? new URL(defaultAction).pathname
-    : null;
-
-  if (path && navigatePath(path)) {
-    return;
+  if (isLocalLink(defaultAction, BASE_URL as string)) {
+    const url = new URL(defaultAction);
+    if (navigatePath(`${url.pathname}${url.hash}`)) {
+      return;
+    }
   }
 
   const actionList = defaultAction.replace('goto:/', '').split('/');
