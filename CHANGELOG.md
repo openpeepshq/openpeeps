@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **rn-components**: unify native pages onto RootLayout and AuthLayout
+- **rn-components**: match native look and feel to web
 - **rn-components**: match web side menu and plus buttons
 - **rn-components**: align native compose and feed with web
 - **eventCalendar**: implement recurring event handling in agenda
