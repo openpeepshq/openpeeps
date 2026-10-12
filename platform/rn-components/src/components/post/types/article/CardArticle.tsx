@@ -8,7 +8,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../../navigation/types/index';
 import { CachedImage } from '../../../custom/common/index';
 
-interface CardArticleProps {
+export interface CardArticleProps {
   post: PublicPost;
 }
 

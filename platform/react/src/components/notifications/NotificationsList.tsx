@@ -2,7 +2,12 @@ import { useCallback, useEffect, useRef, useMemo } from 'react';
 import type {
   NotificationStats,
   PublicNotification,
+  SuccessFailureResponse,
 } from '@openpeepshq/common/types';
+import type {
+  InfiniteData,
+  UseInfiniteQueryResult,
+} from '@tanstack/react-query';
 
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
@@ -13,8 +18,18 @@ import {
 import { NotificationItem } from './NotificationItem';
 import { LoadingSpinner } from '@openpeepshq/react-ui';
 
+export type NotificationsFeedQuery = UseInfiniteQueryResult<
+  InfiniteData<PublicNotification[]>,
+  SuccessFailureResponse
+>;
+
 export interface NotificationsListProps {
+  /** Supply your own query to control fetching externally. When omitted, the
+   * component fetches `useCurrentProfileNotifications` internally. */
+  query?: NotificationsFeedQuery;
   pageSize?: number;
+  isNotificationFeed?: boolean;
+  onRefresh?: () => Promise<unknown>;
 }
 
 /**
@@ -25,14 +40,20 @@ export interface NotificationsListProps {
  * Also marks all notifications as seen on mount and clears the PWA app badge
  * — matching the Svelte version's `onMount`.
  */
-export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
+export function NotificationsList({
+  query: externalQuery,
+  pageSize = 15,
+  onRefresh,
+}: NotificationsListProps) {
   const t = useT();
   const { openpeepsApi, queryClient, client } = useOpenpeeps();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  const query = openpeepsApi.useCurrentProfileNotifications({
-    limit: pageSize,
-  });
+  const query =
+    externalQuery ??
+    openpeepsApi.useCurrentProfileNotifications({
+      limit: pageSize,
+    });
 
   const markAllNotificationsAsSeen =
     openpeepsApi.markAllNotificationsAsSeenAction()();
@@ -64,13 +85,13 @@ export function NotificationsList({ pageSize = 15 }: NotificationsListProps) {
     if (typeof document === 'undefined') return;
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        void refetch();
+        void (onRefresh ? onRefresh() : refetch());
       }
     };
     document.addEventListener('visibilitychange', onVisibilityChange);
     return () =>
       document.removeEventListener('visibilitychange', onVisibilityChange);
-  }, [refetch]);
+  }, [refetch, onRefresh]);
 
   const notifications = useMemo(() => {
     const flat: PublicNotification[] = (query.data?.pages ?? []).flat();

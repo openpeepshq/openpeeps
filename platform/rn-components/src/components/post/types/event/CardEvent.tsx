@@ -16,7 +16,7 @@ import { ProfileEventRelationship } from './ProfileEventRelationship';
 import { useTranslation } from 'react-i18next';
 
 import { ParticipantsCard } from '../../index';
-interface CardEventProps {
+export interface CardEventProps {
   post: PublicPost;
   showEventDate?: boolean;
 }

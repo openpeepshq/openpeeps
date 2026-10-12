@@ -22,6 +22,12 @@ export interface FeedPostProps {
   /** Optional override for the body (used when threading). */
   content?: ReactNode;
   className?: string;
+  /** When true, collapses the reply preview/thread rail. */
+  hideReply?: boolean;
+  /** When true, disables interactive actions (used in previews). */
+  previewMode?: boolean;
+  /** Override whether the post menu (⋯) is shown. */
+  showMenu?: boolean;
 }
 
 /**
@@ -37,6 +43,9 @@ export function FeedPost({
   showReplyTo = false,
   content,
   className,
+  hideReply = false,
+  previewMode = false,
+  showMenu,
 }: FeedPostProps) {
   const {
     displayedPost,
@@ -67,6 +76,8 @@ export function FeedPost({
           post={post}
           inGroup={inGroup}
           deleteCallback={deleteCallback}
+          hideReply={hideReply}
+          previewMode={previewMode}
         />
       )}
 
@@ -77,7 +88,7 @@ export function FeedPost({
       <div className="relative">
         <PostInfoHeader
           post={displayedPost}
-          showMenu={!hasReactionHeader}
+          showMenu={showMenu ?? !hasReactionHeader}
           deleteCallback={deleteCallback}
         />
         <div className="min-w-0 pb-2">
@@ -86,8 +97,10 @@ export function FeedPost({
         {hasStats && <FeedPostStats post={displayedPost} />}
       </div>
 
-      <PostActions post={displayedPost} />
-      {showThreadPreview ? <FeedThreadPreview post={displayedPost} /> : null}
+      <PostActions post={displayedPost} previewMode={previewMode} />
+      {!hideReply && showThreadPreview ? (
+        <FeedThreadPreview post={displayedPost} />
+      ) : null}
     </article>
   );
 }

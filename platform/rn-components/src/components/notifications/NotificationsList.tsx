@@ -2,22 +2,33 @@ import { ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import React from 'react';
 import type { PublicNotification } from '@openpeepshq/common';
 import { useFocusEffect } from '@react-navigation/native';
+import { useOpenpeeps } from '@openpeepshq/react';
 import { handleScroll } from '../../lib/utils';
 import { EmptyStateContainer } from '../custom/common/empty-state-container';
 import { NotificationItem } from './NotificationItem';
 import { InfiniteQueryResult } from '../../types';
 
-interface Props {
-  query: InfiniteQueryResult<PublicNotification>;
+export interface NotificationsListProps {
+  /** Supply your own query to control fetching externally. When omitted, the
+   * component fetches `useCurrentProfileNotifications` internally. */
+  query?: InfiniteQueryResult<PublicNotification>;
+  pageSize?: number;
   isNotificationFeed?: boolean;
   onRefresh?: () => Promise<unknown>;
 }
 
 export const NotificationsList = ({
-  query,
+  query: externalQuery,
+  pageSize = 15,
   isNotificationFeed = true,
   onRefresh,
-}: Props) => {
+}: NotificationsListProps) => {
+  const { openpeepsApi } = useOpenpeeps();
+  const internalQuery = openpeepsApi.useCurrentProfileNotifications({
+    limit: pageSize,
+  });
+  const query = externalQuery ?? internalQuery;
+
   const [refreshing, setRefreshing] = React.useState(false);
   const refetchRef = React.useRef(query.refetch);
   refetchRef.current = query.refetch;

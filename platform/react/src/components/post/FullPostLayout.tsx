@@ -53,6 +53,7 @@ export function FullPostLayout({
           <FeedPost
             post={post}
             deleteCallback={deleteCallback}
+            hideReply
             // The page header already names the group. On a repost, keep the
             // banner so it says who shared it instead of hiding that.
             inGroup={!!post.group}

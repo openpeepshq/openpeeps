@@ -9,7 +9,7 @@ import { useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '../../../ui/themed-text';
 import { useTranslation } from 'react-i18next';
 
-interface ProfileEventRelationshipProps {
+export interface ProfileEventRelationshipProps {
   post: PublicPost;
 }
 

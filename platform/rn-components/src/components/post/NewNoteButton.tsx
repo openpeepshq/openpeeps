@@ -14,6 +14,8 @@ export interface NewNoteButtonProps {
   visibility: VisibilityType;
   currentProfile?: ProfileWithMeta;
   group?: GroupWithMeta;
+  /** When false, only registers the floating plus button (no inline feed button). */
+  inline?: boolean;
 }
 
 /** Registers the RootLayout plus button for creating a note. */

@@ -3,6 +3,7 @@ import { useFeedPostPresentation } from '@openpeepshq/react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Pressable } from 'react-native';
+import { cn } from '../../lib/utils';
 import { MainStackParamList } from '../navigation/types/index';
 import {
   PostInfoHeader,
@@ -29,6 +30,7 @@ export interface FeedPostProps {
   hideReply?: boolean;
   previewMode?: boolean;
   showMenu?: boolean;
+  className?: string;
 }
 
 export const FeedPost = ({
@@ -41,6 +43,7 @@ export const FeedPost = ({
   hideReply,
   previewMode = false,
   showMenu = true,
+  className,
 }: FeedPostProps) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -77,7 +80,7 @@ export const FeedPost = ({
     <Pressable disabled={previewMode} onPress={handlePostPress}>
       <ThemedView
         ref={postViewRef}
-        className="relative border-b border-border p-4"
+        className={cn('relative border-b border-border p-4', className)}
       >
         <UnreadPostIndicator show={isUnread} />
         {hasReactionHeader && (
