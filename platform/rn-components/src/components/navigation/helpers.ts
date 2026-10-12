@@ -45,6 +45,7 @@ export const buildGoto =
         navigation.navigate('Group', {
           id: params?.id,
           handle: params?.handle,
+          ...(params?.tab ? { tab: params.tab } : {}),
         });
         break;
       case 'messages':

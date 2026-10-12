@@ -9,7 +9,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useTranslation } from 'react-i18next';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { groupName } from '@openpeepshq/common/lib';
+import {
+  groupName,
+  groupSectionFromHash,
+  type GroupSection,
+} from '@openpeepshq/common/lib';
 import { useCurrentProfile, useOpenpeeps } from '@openpeepshq/react';
 import { useSetPageHeader } from '../../components/layout';
 import { ThemedView } from '../../components/ui/themed-view';
@@ -40,15 +44,20 @@ type GroupProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList>
 >;
 
-type Tab = 'posts' | 'events' | 'resources' | 'description';
-
 export const GroupShow = ({ route, navigation }: GroupProps) => {
   const { openpeepsApi } = useOpenpeeps();
   const { t } = useTranslation();
   const currentProfile = useCurrentProfile();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { id, handle } = route.params;
-  const [tab, setTab] = useState<Tab>('posts');
+  const { id, handle, tab: tabParam } = route.params;
+  const [tab, setTab] = useState<GroupSection>(() =>
+    groupSectionFromHash(tabParam ? `#${tabParam}` : '')
+  );
+
+  useEffect(() => {
+    if (!tabParam) return;
+    setTab(groupSectionFromHash(`#${tabParam}`));
+  }, [tabParam]);
   const groupById = openpeepsApi.useGroup(id || '');
   const groupByHandle = openpeepsApi.useGroupByHandle(handle || '');
 
@@ -76,7 +85,7 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
     setIsRefreshing(false);
   };
 
-  const tabClass = (value: Tab) =>
+  const tabClass = (value: GroupSection) =>
     tab === value ? 'border-b-2 border-primary font-semibold' : '';
 
   useSetPageHeader(truncateText(group ? groupName(group) : '', 30));
@@ -106,7 +115,7 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
             <GroupHeader group={group} />
             <Tabs
               value={tab}
-              onValueChange={(value) => setTab(value as Tab)}
+              onValueChange={(value) => setTab(value as GroupSection)}
               className="mx-auto w-full flex-col gap-1.5"
             >
               <TabsList className="w-full flex-row rounded-none border-b border-muted bg-transparent p-0 px-3">

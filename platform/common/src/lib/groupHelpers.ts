@@ -37,6 +37,31 @@ const containsIgnoreCase = (candidate: string, query: string) =>
 export const groupName = (group?: GroupData) =>
   group?.displayName || group?.handle || '';
 
+export type GroupSection = 'posts' | 'events' | 'resources' | 'description';
+
+/** `#events` selects that tab. Missing or unknown hashes stay on posts. */
+export const groupSectionFromHash = (hash: string): GroupSection => {
+  const name = hash.replace(/^#/, '').split(/[/?&]/)[0];
+  if (
+    name === 'events' ||
+    name === 'resources' ||
+    name === 'description' ||
+    name === 'posts'
+  ) {
+    return name;
+  }
+  return 'posts';
+};
+
+/** Shareable group path. Posts is the canonical URL, without a hash. */
+export const groupSectionPath = (
+  handle: string,
+  section: GroupSection = 'posts',
+): string => {
+  const base = `/groups/@${handle.replace(/^@/, '')}`;
+  return section === 'posts' ? base : `${base}#${section}`;
+};
+
 export const matchesGroupQuery = (
   group: GroupData,
   query: string,

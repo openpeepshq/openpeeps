@@ -843,7 +843,13 @@
       "postToFeed": "Im Feed posten",
       "sendInMessage": "In einer Nachricht senden",
       "copyLink": "Link kopieren",
-      "linkCopied": "Gruppenlink kopiert"
+      "copyEventsLink": "Link zu Veranstaltungen kopieren",
+      "copyResourcesLink": "Link zu Ressourcen kopieren",
+      "copyDescriptionLink": "Link zur Beschreibung kopieren",
+      "linkCopied": "Gruppenlink kopiert",
+      "eventsLinkCopied": "Link zu Veranstaltungen kopiert",
+      "resourcesLinkCopied": "Link zu Ressourcen kopiert",
+      "descriptionLinkCopied": "Link zur Beschreibung kopiert"
     },
     "eventsTabs": {
       "label": "Veranstaltungszeitraum"

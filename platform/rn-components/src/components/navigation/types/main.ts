@@ -1,4 +1,5 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
+import type { GroupSection } from '@openpeepshq/common/lib';
 import { TabStackParamList } from './tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -38,6 +39,7 @@ export type MainStackParamList = {
   Group: {
     id?: string;
     handle?: string;
+    tab?: GroupSection;
   };
   GroupMembers: {
     id: string;

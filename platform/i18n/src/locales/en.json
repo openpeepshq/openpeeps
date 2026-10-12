@@ -921,7 +921,13 @@
       "postToFeed": "Post to feed",
       "sendInMessage": "Send in a message",
       "copyLink": "Copy link",
-      "linkCopied": "Group link copied"
+      "copyEventsLink": "Copy events link",
+      "copyResourcesLink": "Copy resources link",
+      "copyDescriptionLink": "Copy description link",
+      "linkCopied": "Group link copied",
+      "eventsLinkCopied": "Events link copied",
+      "resourcesLinkCopied": "Resources link copied",
+      "descriptionLinkCopied": "Description link copied"
     },
     "notFound": "Group not found"
   },

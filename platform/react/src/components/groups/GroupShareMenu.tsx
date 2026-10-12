@@ -1,4 +1,5 @@
 import { Link, Pencil, Share } from 'lucide-react';
+import { groupSectionPath, type GroupSection } from '@openpeepshq/common/lib';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
 import {
   PopupMenu,
@@ -20,11 +21,22 @@ export function GroupShareMenu({ group }: GroupShareMenuProps) {
   const { openNewPost } = useNewPostModal();
   const { openCreateConversation } = useCreateNewConversation();
 
-  const groupUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/groups/@${group.handle}`
-      : `/groups/@${group.handle}`;
+  const sectionUrl = (section: GroupSection = 'posts') => {
+    const path = groupSectionPath(group.handle, section);
+    return typeof window !== 'undefined'
+      ? `${window.location.origin}${path}`
+      : path;
+  };
+  const groupUrl = sectionUrl();
   const inviteBlurb = t('groups.share.inviteBlurb', { url: groupUrl });
+  const copySectionLink = (
+    section: GroupSection,
+    copiedKey: string,
+    copiedDefault: string,
+  ) => {
+    void navigator.clipboard.writeText(sectionUrl(section));
+    success(t(copiedKey, { defaultValue: copiedDefault }));
+  };
 
   return (
     <PopupMenu
@@ -39,7 +51,9 @@ export function GroupShareMenu({ group }: GroupShareMenuProps) {
         })}
       />
       <PopupMenuButton
-        title={t('groups.actions.shareToFeed', { defaultValue: 'Share to feed' })}
+        title={t('groups.actions.shareToFeed', {
+          defaultValue: 'Share to feed',
+        })}
         text={t('groups.share.postToFeed', { defaultValue: 'Post to feed' })}
         icon={Pencil}
         action={() =>
@@ -57,18 +71,69 @@ export function GroupShareMenu({ group }: GroupShareMenuProps) {
         action={() => openCreateConversation({ message: inviteBlurb })}
       />
       <PopupSection
-        title={t('groups.actions.otherOptions', { defaultValue: 'Other options' })}
+        title={t('groups.actions.otherOptions', {
+          defaultValue: 'Other options',
+        })}
       />
       <PopupMenuButton
         title={t('groups.share.copyLink', { defaultValue: 'Copy link' })}
         text={t('groups.share.copyLink', { defaultValue: 'Copy link' })}
         icon={Link}
-        action={() => {
-          void navigator.clipboard.writeText(groupUrl);
-          success(
-            t('groups.share.linkCopied', { defaultValue: 'Group link copied' }),
-          );
-        }}
+        action={() =>
+          copySectionLink(
+            'posts',
+            'groups.share.linkCopied',
+            'Group link copied',
+          )
+        }
+      />
+      <PopupMenuButton
+        title={t('groups.share.copyEventsLink', {
+          defaultValue: 'Copy events link',
+        })}
+        text={t('groups.share.copyEventsLink', {
+          defaultValue: 'Copy events link',
+        })}
+        icon={Link}
+        action={() =>
+          copySectionLink(
+            'events',
+            'groups.share.eventsLinkCopied',
+            'Events link copied',
+          )
+        }
+      />
+      <PopupMenuButton
+        title={t('groups.share.copyResourcesLink', {
+          defaultValue: 'Copy resources link',
+        })}
+        text={t('groups.share.copyResourcesLink', {
+          defaultValue: 'Copy resources link',
+        })}
+        icon={Link}
+        action={() =>
+          copySectionLink(
+            'resources',
+            'groups.share.resourcesLinkCopied',
+            'Resources link copied',
+          )
+        }
+      />
+      <PopupMenuButton
+        title={t('groups.share.copyDescriptionLink', {
+          defaultValue: 'Copy description link',
+        })}
+        text={t('groups.share.copyDescriptionLink', {
+          defaultValue: 'Copy description link',
+        })}
+        icon={Link}
+        action={() =>
+          copySectionLink(
+            'description',
+            'groups.share.descriptionLinkCopied',
+            'Description link copied',
+          )
+        }
       />
     </PopupMenu>
   );
