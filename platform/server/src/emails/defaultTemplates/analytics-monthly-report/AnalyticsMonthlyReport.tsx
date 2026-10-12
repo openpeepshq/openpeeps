@@ -6,26 +6,23 @@ import { emailStyles } from '../../styles';
 
 interface Props {
   globals: EmailGlobals;
-  periodFrom: string;
-  periodTo: string;
-  reportText: string;
+  locals: {
+    periodFrom: string;
+    periodTo: string;
+    reportText: string;
+  };
 }
 
-export const AnalyticsMonthlyReport = ({
-  globals,
-  periodFrom,
-  periodTo,
-  reportText,
-}: Props) => (
+export const AnalyticsMonthlyReport = ({ globals, locals }: Props) => (
   <BaseEmailLayout
     globals={globals}
-    previewText={`Monthly analytics ${periodFrom}–${periodTo}`}
+    previewText={`Monthly analytics ${locals.periodFrom}–${locals.periodTo}`}
   >
     <Heading style={emailStyles.heading}>
       Monthly analytics — {globals.communityConfig.info.name}
     </Heading>
     <Text style={emailStyles.paragraph}>
-      Period: {periodFrom} → {periodTo}
+      Period: {locals.periodFrom} → {locals.periodTo}
     </Text>
     <Text
       style={{
@@ -35,7 +32,7 @@ export const AnalyticsMonthlyReport = ({
         fontSize: '13px',
       }}
     >
-      {reportText}
+      {locals.reportText}
     </Text>
   </BaseEmailLayout>
 );
