@@ -3216,6 +3216,8 @@
     "newGroupPost": {
       "title": "{{profileName}} made a new post in {{groupName}} in {{communityName}}",
       "subject": "{{profileName}} made a new post in {{groupName}} in {{communityName}}",
+      "eventTitle": "{{profileName}} added a new event to {{groupName}} in {{communityName}}",
+      "eventSubject": "{{profileName}} added a new event to {{groupName}} in {{communityName}}",
       "repostTitle": "{{profileName}} reposted a post in {{groupName}} in {{communityName}}",
       "repostSubject": "{{profileName}} reposted a post in {{groupName}} in {{communityName}}",
       "body": "{{profileName}} made a new post in the group {{groupName}}.",

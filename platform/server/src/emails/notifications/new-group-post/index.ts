@@ -5,16 +5,13 @@ import type {
 import { groupName, profileName } from '@openpeepshq/common/lib';
 
 import type { ReactEmailTemplate } from '../../types';
-import { NewGroupPostEmail } from './Email';
+import { NewGroupPostEmail, newGroupPostCopyKeys } from './Email';
 
 const renderSubject = async (
   props: EmailOptionsWithGlobals & { locals: ExpandedNotification },
 ): Promise<string> => {
   const { t } = props.globals.i18nContext;
-  const subjectKey = props.locals.post?.repost
-    ? 'emails.newGroupPost.repostSubject'
-    : 'emails.newGroupPost.subject';
-  return t(subjectKey, {
+  return t(newGroupPostCopyKeys(props.locals.post).subject, {
     profileName: profileName(props.locals.senderProfile ?? undefined),
     groupName: groupName(props.locals.group ?? undefined),
     communityName: props.globals.communityConfig.info.name,
