@@ -10,6 +10,7 @@ import { maybeCreateNotification } from '@openpeepshq/core/notifications';
 import { getGroupAvatar, profileName } from '@openpeepshq/common/lib';
 import { communityConfig } from '../../../config';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
+import { newGroupPostRecipients } from './recipients';
 
 const eventHandler = async (data: unknown) => {
   const post = data as PostWithMeta;
@@ -19,12 +20,9 @@ const eventHandler = async (data: unknown) => {
   }
 
   const group = post.group;
+  const members = (await listGroupMembers(group)).map((m) => m.profile);
 
-  for (const groupMember of await listGroupMembers(group).then((members) =>
-    members
-      .map((m) => m.profile)
-      .filter((profile) => post.profile.id !== profile.id),
-  )) {
+  for (const groupMember of newGroupPostRecipients(post, members)) {
     await maybeCreateNotification(groupMember, {
       type: 'newGroupPost',
       fromProfileId: post.profile.id,
