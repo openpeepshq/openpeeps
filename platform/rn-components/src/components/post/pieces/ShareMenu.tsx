@@ -16,15 +16,11 @@ import {
   ShareIcon,
 } from '../../icons/index';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '../../ui/dropdown-menu';
-import { ThemedText } from '../../ui/themed-text';
+  PopupMenu,
+  PopupMenuButton,
+  PopupSeparator,
+  PopupSection,
+} from '../../ui';
 import { MainStackParamList } from '../../navigation/types/index';
 import { BASE_URL } from '../../../lib/constants';
 import { useNewConversationStore } from '../../../stores/useNewConversationStore';
@@ -64,63 +60,68 @@ export const ShareMenu = ({ post, menuButton }: ShareMenuProps) => {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild className="px-2">
-        {menuButton ?? <ShareIcon size={18} className="text-foreground" />}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="mt-1">
-        <DropdownMenuLabel>{t('posts.shareMenu.title')}</DropdownMenuLabel>
-        {signedIn ? (
-          <>
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-muted-foreground">
-                {t('posts.shareMenu.shareOnCommunity')}
-              </DropdownMenuLabel>
-              <DropdownMenuItem
-                className="flex-row gap-x-2 items-center"
-                onPress={() => void repost()}
-              >
-                <Repeat2Icon size={16} className="text-foreground" />
-                <ThemedText>{t('posts.shareMenu.repostToFeed')}</ThemedText>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="flex-row gap-x-2 items-center"
-                onPress={() => {
-                  setDraftMessage(postUrl);
-                  navigation.navigate('SelectPrivateMessageMembers');
-                }}
-              >
-                <SendIcon size={16} className="text-foreground" />
-                <ThemedText>{t('posts.shareMenu.sendInMessage')}</ThemedText>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-muted-foreground">
-              {t('posts.shareMenu.otherOptions')}
-            </DropdownMenuLabel>
-          </>
-        ) : null}
-        <DropdownMenuGroup>
-          {isEvent ? (
-            <DropdownMenuItem
-              className="flex-row gap-x-2 items-center"
-              onPress={() => void shareEventIcs()}
-            >
-              <CalendarIcon size={16} className="text-foreground" />
-              <ThemedText>
-                {t('posts.shareMenu.downloadCalendarIcs')}
-              </ThemedText>
-            </DropdownMenuItem>
-          ) : null}
-          <DropdownMenuItem
-            className="flex-row gap-x-2 items-center"
-            onPress={copyLink}
-          >
-            <CopyIcon size={16} className="text-foreground" />
-            <ThemedText>{t('posts.shareMenu.copyLink')}</ThemedText>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <PopupMenu
+      menuButton={
+        menuButton ?? <ShareIcon size={18} className="text-foreground" />
+      }
+      title={t('posts.shareMenu.title', { defaultValue: 'Share' })}
+    >
+      {signedIn ? (
+        <>
+          <PopupSection
+            title={t('posts.shareMenu.shareOnCommunity', {
+              defaultValue: 'Share on community',
+            })}
+          />
+          <PopupMenuButton
+            title={t('posts.shareMenu.repostToFeed', {
+              defaultValue: 'Repost',
+            })}
+            text={t('posts.shareMenu.repostToFeed', {
+              defaultValue: 'Repost',
+            })}
+            icon={Repeat2Icon as any}
+            action={repost}
+          />
+          <PopupMenuButton
+            title={t('posts.shareMenu.sendInMessage', {
+              defaultValue: 'Send in message',
+            })}
+            text={t('posts.shareMenu.sendInMessage', {
+              defaultValue: 'Send in message',
+            })}
+            icon={SendIcon as any}
+            action={() => {
+              setDraftMessage(postUrl);
+              navigation.navigate('SelectPrivateMessageMembers');
+            }}
+          />
+          <PopupSeparator />
+          <PopupSection
+            title={t('posts.shareMenu.otherOptions', {
+              defaultValue: 'Other options',
+            })}
+          />
+        </>
+      ) : null}
+      {isEvent ? (
+        <PopupMenuButton
+          title={t('posts.shareMenu.downloadCalendarIcsTitle', {
+            defaultValue: 'Download calendar file',
+          })}
+          text={t('posts.shareMenu.downloadCalendarIcs', {
+            defaultValue: 'Add to calendar (.ics)',
+          })}
+          icon={CalendarIcon as any}
+          action={shareEventIcs}
+        />
+      ) : null}
+      <PopupMenuButton
+        title={t('posts.shareMenu.copyLink', { defaultValue: 'Copy link' })}
+        text={t('posts.shareMenu.copyLink', { defaultValue: 'Copy link' })}
+        icon={CopyIcon as any}
+        action={copyLink}
+      />
+    </PopupMenu>
   );
 };

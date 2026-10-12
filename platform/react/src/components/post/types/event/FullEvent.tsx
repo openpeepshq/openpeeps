@@ -1,6 +1,5 @@
 import { Download, EyeOff, MoreHorizontal, Share, Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import type {
   Event,
   JamRecording,
@@ -68,13 +67,12 @@ type EventTab =
   | 'attendees'
   | 'recordings';
 
-export function FullEvent({ post }: FullEventProps) {
+export function FullEvent({ post, occurrence }: FullEventProps) {
   const t = useT();
   const profile = useCurrentProfile();
   const serverInfo = useServerInfo();
   const livekitEnabled = serverInfo.jams.livekit.enabled;
-  const [searchParams] = useSearchParams();
-  const occurrenceId = parseOccurrenceQuery(searchParams.get('occurrence'));
+  const occurrenceId = parseOccurrenceQuery(occurrence);
   const { openCreateConversation } = useCreateNewConversation();
   const postViewRef = usePostViewRef(post.id);
   const { openpeepsApi, client } = useOpenpeeps();

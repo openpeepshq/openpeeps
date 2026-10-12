@@ -26,6 +26,7 @@ import {
   MessageSquareTextIcon,
   UsersIcon,
   ScrollTextIcon,
+  BellIcon,
 } from '../icons';
 import { cn } from '../../lib/utils';
 import { useWindowSize } from '../../hooks';
@@ -61,7 +62,7 @@ const TabBarIcon = ({
     case TAB_ROUTES.MESSAGES:
       return <MessageSquareTextIcon className={iconClass} size={iconSize} />;
     case TAB_ROUTES.NOTIFICATIONS:
-      return <MessageSquareTextIcon className={iconClass} size={iconSize} />;
+      return <BellIcon className={iconClass} size={iconSize} />;
     case TAB_ROUTES.ARTICLES:
       return <ScrollTextIcon className={iconClass} size={iconSize} />;
     default:
@@ -81,6 +82,7 @@ export const TabNavigator = () => {
     showAdmin: false,
   }).some((item) => item.id === 'jams');
   const unseenCounts = openpeepsApi.useUnseenPostCounts();
+  const notificationStats = openpeepsApi.useCurrentProfileNotificationStats();
 
   const unreadGroupPosts = Object.values(
     unseenCounts.data?.groups ?? {}
@@ -88,6 +90,7 @@ export const TabNavigator = () => {
   const unreadConversationThreads = Object.keys(
     unseenCounts.data?.direct ?? {}
   ).length;
+  const unreadNotifications = notificationStats.data?.unseen ?? 0;
 
   const display = isMediumScreenOrLarger ? 'none' : 'flex';
   return (
@@ -137,10 +140,9 @@ export const TabNavigator = () => {
         name={TAB_ROUTES.MESSAGES}
         component={ConversationsIndex}
         options={{
-          tabBarBadge:
-            unreadConversationThreads > 0
-              ? formatBadgeCount(unreadConversationThreads)
-              : undefined,
+          tabBarItemStyle: {
+            display: 'none',
+          },
         }}
       />
       {jamsEnabled && (
@@ -204,9 +206,10 @@ export const TabNavigator = () => {
         name={TAB_ROUTES.NOTIFICATIONS}
         component={Notifications}
         options={{
-          tabBarItemStyle: {
-            display: 'none',
-          },
+          tabBarBadge:
+            unreadNotifications > 0
+              ? formatBadgeCount(unreadNotifications)
+              : undefined,
         }}
       />
       <Tab.Screen

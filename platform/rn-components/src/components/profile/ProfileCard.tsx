@@ -1,6 +1,7 @@
-import { View, TouchableWithoutFeedback, Pressable } from 'react-native';
 import React from 'react';
-import { Profile } from '@openpeepshq/common';
+import { View, TouchableWithoutFeedback, Pressable } from 'react-native';
+import type { PublicProfile, Profile } from '@openpeepshq/common/types';
+import { markdownPlainText } from '@openpeepshq/common/lib';
 import { XIcon } from '../icons/index';
 import { ThemedText } from '../ui/themed-text';
 import { truncateText } from '../../lib/utils';
@@ -8,18 +9,28 @@ import { useNavigation } from '@react-navigation/native';
 import { MainStackParamList } from '../navigation/types/index';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileAvatar } from './Avatar';
+import { FollowUnfollowButton } from './FollowUnfollowButton';
 
-interface ProfileCardProps {
-  profile: Profile;
+export interface ProfileCardProps {
+  profile: PublicProfile | Profile;
+  /** When provided, clicking the card calls this instead of navigating. */
+  onSelect?: (profile: PublicProfile | Profile) => void;
+  showAction?: boolean;
+  /** Custom action node rendered on the right of the card. */
+  action?: React.ReactNode;
   hasAction?: boolean;
   actionType?: 'follow' | 'message' | 'unfollow' | 'link' | 'select';
   handleSelectProfile?: () => void;
   rightComponent?: React.ReactNode;
 }
+
 export const ProfileCard = ({
+  profile,
+  onSelect,
+  showAction = true,
+  action,
   actionType = 'link',
   handleSelectProfile,
-  profile,
   rightComponent,
 }: ProfileCardProps) => {
   const navigation =
@@ -31,22 +42,28 @@ export const ProfileCard = ({
     });
   };
 
+  const onPress = () => {
+    if (actionType === 'select' && handleSelectProfile) {
+      handleSelectProfile();
+    }
+    if (actionType !== 'select') {
+      if (onSelect) {
+        onSelect(profile);
+      } else {
+        handleGoToProfile();
+      }
+    }
+  };
+
+  const bio = markdownPlainText(profile.bio);
+
   return (
     <View
       className={`w-full flex-row items-center justify-between px-4 ${
         actionType === 'select' ? 'mb-1 py-1' : 'mb-8'
       }`}
     >
-      <TouchableWithoutFeedback
-        onPress={() => {
-          if (actionType === 'select' && handleSelectProfile) {
-            handleSelectProfile();
-          }
-          if (actionType !== 'select') {
-            handleGoToProfile();
-          }
-        }}
-      >
+      <TouchableWithoutFeedback onPress={onPress}>
         <View className="flex flex-row items-center gap-x-2">
           <ProfileAvatar
             profile={profile}
@@ -57,17 +74,30 @@ export const ProfileCard = ({
               {truncateText(profile.displayName, 18) || profile.handle}
             </ThemedText>
             <ThemedText className="">@{profile.handle}</ThemedText>
+            {bio ? (
+              <ThemedText className="text-muted-foreground mt-1 text-sm">
+                {truncateText(bio, 100)}
+              </ThemedText>
+            ) : null}
           </View>
         </View>
       </TouchableWithoutFeedback>
-      {rightComponent}
+      {action ? (
+        <View className="flex-shrink-0">{action}</View>
+      ) : rightComponent ? (
+        <View className="flex-shrink-0">{rightComponent}</View>
+      ) : showAction ? (
+        <View className="flex-shrink-0">
+          <FollowUnfollowButton profile={profile} compact />
+        </View>
+      ) : null}
     </View>
   );
 };
 
 interface MiniProfileCardProps {
-  profile: Profile;
-  onPress?: (profile: Profile) => void;
+  profile: PublicProfile;
+  onPress?: (profile: PublicProfile) => void;
   showAction?: boolean;
 }
 

@@ -1,9 +1,9 @@
-import type { PublicProfile } from '@openpeepshq/common/types';
+import type { PublicProfile, Profile } from '@openpeepshq/common/types';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../../components/layout/IdentityContext';
 
 export const useFollowProfile = (
-  profile: PublicProfile,
+  profile: PublicProfile | Profile,
   onSuccess?: () => void,
 ) => {
   const me = useCurrentProfile();
