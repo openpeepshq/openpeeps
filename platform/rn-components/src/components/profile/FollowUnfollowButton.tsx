@@ -1,5 +1,5 @@
 import React from 'react';
-import { PublicProfile } from '@openpeepshq/common';
+import type { PublicProfile, Profile } from '@openpeepshq/common';
 import { useFollowProfile, useOpenpeeps } from '@openpeepshq/react';
 import { Button } from '../ui/button';
 import { ThemedText } from '../ui/themed-text';
@@ -8,8 +8,10 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 
 export interface FollowUnfollowButtonProps {
-  profile: PublicProfile;
+  profile: PublicProfile | Profile;
   compact?: boolean;
+  /** Popup mode is a no-op on RN (web-only PopupMenuButton rendering). */
+  popup?: boolean;
   onSuccess?: () => void;
 }
 

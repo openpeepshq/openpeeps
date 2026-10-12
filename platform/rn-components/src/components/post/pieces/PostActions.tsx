@@ -10,11 +10,13 @@ import { useFeedPostActions } from '@openpeepshq/react';
 interface PostActionsProps {
   post: PublicPost;
   previewMode?: boolean;
+  compact?: boolean;
 }
 
 export const PostActions = ({
   post,
   previewMode = false,
+  compact = false,
 }: PostActionsProps) => {
   const { t } = useTranslation();
   const {

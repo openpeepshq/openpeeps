@@ -10,6 +10,12 @@ export * from './lib/analyticsClicks';
 export * from './lib/unseenCountsOptimistic';
 export * from './lib/postUnread';
 export * from './lib/notificationBadge';
+export {
+  getInitials,
+  hueFromHandle,
+  initialsBackground,
+} from './lib/initialsAvatar';
+export { svgCoverSrc } from './lib/svgCover';
 export * from './lib/capabilityMatrix';
 export * from './lib/groupFormErrors';
 export * from './lib/passwordStrength';

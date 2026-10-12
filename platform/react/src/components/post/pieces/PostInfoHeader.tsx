@@ -11,7 +11,7 @@ export interface PostInfoHeaderProps {
 
 export function PostInfoHeader({
   post,
-  showMenu = false,
+  showMenu = true,
   deleteCallback,
 }: PostInfoHeaderProps) {
   const { profile } = post;

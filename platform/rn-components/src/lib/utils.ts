@@ -72,22 +72,6 @@ export const formatEventDate = (dateString: string) => {
   });
 };
 
-export const getInitials = (profile?: Profile) => {
-  if (!profile?.displayName) {
-    return profile?.handle?.charAt(0)?.toUpperCase();
-  }
-  let initials = '';
-  const [first, last] = profile?.displayName.split(' ');
-  if (first) {
-    initials += first.charAt(0).toUpperCase();
-  }
-  if (last) {
-    initials += last.charAt(0).toUpperCase();
-  }
-
-  return initials;
-};
-
 export const ChatDateFormatter = (date: string) => {
   const options: Intl.DateTimeFormatOptions = {
     weekday: 'long',
@@ -216,13 +200,17 @@ export const isPostPath = (path: string) =>
   path.startsWith('/posts/') && path.substring(7);
 
 export const isLocalLink = (url: string, origin: string) => {
-  const urlObj = new URL(url);
-  return (
-    urlObj.origin === origin &&
-    (isPostPath(urlObj.pathname) ||
-      isJamPath(urlObj.pathname) ||
-      isGroupPath(urlObj.pathname))
-  );
+  try {
+    const urlObj = new URL(url);
+    return (
+      urlObj.origin === origin &&
+      (isPostPath(urlObj.pathname) ||
+        isJamPath(urlObj.pathname) ||
+        isGroupPath(urlObj.pathname))
+    );
+  } catch {
+    return false;
+  }
 };
 
 export const isValidUrl = (url?: string) => {

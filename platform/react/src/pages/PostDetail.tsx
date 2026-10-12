@@ -1,5 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useSearchParams, useParams } from 'react-router-dom';
+import { parseOccurrenceQuery } from '@openpeepshq/common/lib';
 import { useT, useSetPageHeader } from '../index';
 import { usePostDetailTitle } from '../hooks/posts/usePostDetailTitle';
 import { PostDetail as PostDetailComponent } from '../components';
@@ -7,6 +8,8 @@ import { PostDetail as PostDetailComponent } from '../components';
 export function PostDetail() {
   const t = useT();
   const { postId = '' } = useParams<{ postId: string }>();
+  const [searchParams] = useSearchParams();
+  const occurrence = parseOccurrenceQuery(searchParams.get('occurrence'));
   const { kindTitle, groupHandle, groupLabel, inGroup } =
     usePostDetailTitle(postId);
 
@@ -31,5 +34,5 @@ export function PostDetail() {
 
   useSetPageHeader(title);
 
-  return <PostDetailComponent postId={postId} />;
+  return <PostDetailComponent postId={postId} occurrence={occurrence} />;
 }

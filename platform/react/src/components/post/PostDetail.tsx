@@ -8,9 +8,10 @@ import { LoadingSpinner } from '@openpeepshq/react-ui';
 
 export interface PostDetailProps {
   postId: string;
+  occurrence?: string;
 }
 
-export function PostDetail({ postId }: PostDetailProps) {
+export function PostDetail({ postId, occurrence }: PostDetailProps) {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const postQuery = openpeepsApi.usePost(postId);
@@ -18,9 +19,9 @@ export function PostDetail({ postId }: PostDetailProps) {
 
   if (postQuery.isLoading) {
     return (
-      <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
         <LoadingSpinner />
-        </div>
+      </div>
     );
   }
 
@@ -38,7 +39,7 @@ export function PostDetail({ postId }: PostDetailProps) {
     case 'article':
       return <FullArticle post={post} />;
     case 'event':
-      return <FullEvent post={post} />;
+      return <FullEvent post={post} occurrence={occurrence} />;
     case 'question':
       return <FullPoll post={post} />;
     case 'note':

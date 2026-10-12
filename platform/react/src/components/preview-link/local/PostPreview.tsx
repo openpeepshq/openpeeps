@@ -24,7 +24,7 @@ export function PostPreview({ path }: PostPreviewProps) {
 
   return (
     <>
-      <PostInfoHeader post={postQuery.data} />
+      <PostInfoHeader post={postQuery.data} showMenu={false} />
       <FeedPostContent post={postQuery.data} />
     </>
   );

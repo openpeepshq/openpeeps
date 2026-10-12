@@ -100,7 +100,7 @@ export const Members: React.FC<DirectoryProps> = ({ navigation }) => {
                     >
                       <MessageSquareTextIcon className="size-10 text-foreground" />
                     </Pressable>
-                    <FollowUnfollowButton profile={profile} />
+                    <FollowUnfollowButton profile={profile} compact />
                   </View>
                 ) : null
               }
