@@ -23,35 +23,70 @@ export type PageHeaderValue = {
   onBack?: () => void;
 };
 
-type PageChromeContextValue = {
-  header: PageHeaderValue | undefined;
+type PageChromeSetters = {
   setHeader: (header: PageHeaderValue | undefined) => void;
-  plus: PlusButtonActions;
   setPlus: (plus: PlusButtonActions) => void;
 };
 
-const PageChromeContext = createContext<PageChromeContextValue | null>(null);
+type PageChromeValues = {
+  header: PageHeaderValue | undefined;
+  plus: PlusButtonActions;
+};
+
+/**
+ * Stable setters context. Its value never changes, so components that call
+ * `useSetPageHeader` / `useSetPlusButtonActions` are not re-rendered when
+ * the chrome values change. Keeping the setters out of the value context is
+ * what prevents infinite update loops ("Maximum update depth exceeded") for
+ * pages that register a fresh, non-memoized header element or plus-actions
+ * object on every render.
+ */
+const PageChromeSettersContext = createContext<PageChromeSetters | null>(null);
+
+/**
+ * Chrome values context. Its value changes whenever the header or plus
+ * actions change, so it must only be consumed by display components
+ * (header/plus button) — never by a component that registers the values.
+ */
+const PageChromeValuesContext = createContext<PageChromeValues | null>(null);
+
+const MISSING_CHROME_ERROR = 'Page chrome hooks must be used within RootLayout';
 
 export const PageChromeProvider = ({ children }: { children: ReactNode }) => {
   const [header, setHeader] = useState<PageHeaderValue | undefined>();
   const [plus, setPlus] = useState<PlusButtonActions>(undefined);
-  const value = useMemo(
-    () => ({ header, setHeader, plus, setPlus }),
-    [header, plus]
-  );
+  // useState setters are stable, so this value is created exactly once.
+  const setters = useMemo(() => ({ setHeader, setPlus }), [setHeader, setPlus]);
+  const values = useMemo(() => ({ header, plus }), [header, plus]);
   return (
-    <PageChromeContext.Provider value={value}>
-      {children}
-    </PageChromeContext.Provider>
+    <PageChromeSettersContext.Provider value={setters}>
+      <PageChromeValuesContext.Provider value={values}>
+        {children}
+      </PageChromeValuesContext.Provider>
+    </PageChromeSettersContext.Provider>
   );
 };
 
-export const usePageChrome = () => {
-  const ctx = useContext(PageChromeContext);
+const useSetters = () => {
+  const ctx = useContext(PageChromeSettersContext);
   if (!ctx) {
-    throw new Error('usePageChrome must be used within RootLayout');
+    throw new Error(MISSING_CHROME_ERROR);
   }
   return ctx;
+};
+
+const useValues = () => {
+  const ctx = useContext(PageChromeValuesContext);
+  if (!ctx) {
+    throw new Error(MISSING_CHROME_ERROR);
+  }
+  return ctx;
+};
+
+export const usePageChrome = () => {
+  const values = useValues();
+  const setters = useSetters();
+  return { ...values, ...setters };
 };
 
 export const useSetPageHeader = (
@@ -59,7 +94,7 @@ export const useSetPageHeader = (
   actions?: ReactNode,
   onBack?: () => void
 ) => {
-  const { setHeader } = usePageChrome();
+  const { setHeader } = useSetters();
   useLayoutEffect(() => {
     setHeader({ title, actions, onBack });
     return () => setHeader(undefined);
@@ -67,7 +102,7 @@ export const useSetPageHeader = (
 };
 
 export const useSetPlusButtonActions = (actions: PlusButtonActions) => {
-  const { setPlus } = usePageChrome();
+  const { setPlus } = useSetters();
   useLayoutEffect(() => {
     setPlus(actions);
     return () => setPlus(undefined);
