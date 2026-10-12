@@ -13,5 +13,6 @@ export * from './GroupHeader';
 export * from './GroupMembersList';
 export * from './GroupNameFromId';
 export * from './GroupOptionsMenu';
+export * from './GroupNotificationSettingsModal';
 export * from './GroupShareMenu';
 export * from './JoinGroupButton';

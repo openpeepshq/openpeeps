@@ -910,10 +910,14 @@
         "description": "Manage notifications about {{groupName}}.",
         "options": {
           "all": "All",
+          "allDescription": "Every post and membership change, using your account notification settings.",
           "mostRelevant": "Most relevant",
-          "mostRelevantDescription": "Personalized based on your activity",
-          "off": "Off"
-        }
+          "mostRelevantDescription": "Posts from people you follow.",
+          "off": "Off",
+          "offDescription": "No posts or membership changes from this group."
+        },
+        "saved": "Group notification settings updated.",
+        "loadError": "Could not load notification settings."
       }
     },
     "share": {

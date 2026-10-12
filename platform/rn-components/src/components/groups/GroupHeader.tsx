@@ -9,6 +9,7 @@ import { useCurrentProfile } from '@openpeepshq/react';
 import { MainStackParamList } from '../navigation/types/index';
 import { ThemedText } from '../ui/themed-text';
 import { GroupAvatar } from './GroupAvatar';
+import { GroupNotificationButton } from './GroupNotificationSettingsModal';
 import { GroupOptionsMenu } from './GroupOptionsMenu';
 import { GroupShareMenu } from './GroupShareMenu';
 import { JoinGroupButton } from './JoinGroupButton';
@@ -46,6 +47,7 @@ export const GroupHeader = ({ group }: GroupHeaderProps) => {
         ) : (
           <>
             <GroupShareMenu group={group} />
+            <GroupNotificationButton group={group} />
             <GroupOptionsMenu group={group} />
           </>
         )}

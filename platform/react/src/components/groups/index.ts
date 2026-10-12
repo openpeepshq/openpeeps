@@ -18,6 +18,11 @@ export { GroupCapabilityMatrix } from './GroupCapabilityMatrix';
 export type { GroupCapabilityMatrixProps } from './GroupCapabilityMatrix';
 export { GroupOptionsMenu } from './GroupOptionsMenu';
 export type { GroupOptionsMenuProps } from './GroupOptionsMenu';
+export {
+  GroupNotificationButton,
+  GroupNotificationSettingsModal,
+} from './GroupNotificationSettingsModal';
+export type { GroupNotificationSettingsModalProps } from './GroupNotificationSettingsModal';
 export { GroupShareMenu } from './GroupShareMenu';
 export type { GroupShareMenuProps } from './GroupShareMenu';
 export { AddGroupMemberModal } from './AddGroupMemberModal';

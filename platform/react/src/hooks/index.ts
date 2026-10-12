@@ -1,4 +1,5 @@
 export { useJoinGroup } from './groups/useJoinGroup';
+export { useGroupNotificationLevel } from './groups/useGroupNotificationLevel';
 export { useCreateConversation } from './conversations/useCreateConversation';
 export type { UseCreateConversationArgs } from './conversations/useCreateConversation';
 export { useLeaveCloseJam } from './jams/useLeaveCloseJam';
