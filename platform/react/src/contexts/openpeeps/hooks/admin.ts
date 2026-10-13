@@ -39,6 +39,10 @@ const adminBackupsConfig = (client: OpenpeepsClientInstance) => ({
   restoreBackupAction: payloadMutation(client.admin.backups.restore, [
     ['admin', 'backups'],
   ]),
+  useMediaList: () => apiHook(client.admin.media.list),
+  deleteMediaAction: noPayloadMutation(client.admin.media.delete, [
+    ['admin', 'media'],
+  ]),
   useConfigRead: (namespace: string, name: string) =>
     apiHook(client.admin.config.read, { pathParams: { namespace, name } }),
   updateConfigAction: payloadMutation(client.admin.config.update, [

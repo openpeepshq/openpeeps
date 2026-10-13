@@ -227,6 +227,14 @@ export const getStreamLastAccess = async (
   return typeof score === 'number' ? score : null;
 };
 
+/** Drop the playback record for a source file that no longer exists. */
+export const forgetStreamAccess = async (storageId: string): Promise<void> => {
+  lastAccessWriteCache.delete(storageId);
+  if (!isValidStorageId(storageId)) return;
+  const conn = await getSharedConnection();
+  await conn.zRem(STREAM_ACCESS_KEY, storageId);
+};
+
 export interface CleanupResult {
   deleted: string[];
   kept: number;
