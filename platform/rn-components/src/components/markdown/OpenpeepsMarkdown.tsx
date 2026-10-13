@@ -1,6 +1,6 @@
 import {
-  linkProfileMentions,
-  type MentionProfileRef,
+  preprocessMarkdownSource,
+  type MarkdownRenderProps,
 } from '@openpeepshq/common/lib';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,19 +19,14 @@ import { hashtagPlugin, hashtagRenderer } from './extensions/hashtag';
 import { mentionPlugin, mentionRenderer } from './extensions/mention';
 import { codeBlockRenderer, fenceRenderer } from './extensions/codeBlock';
 import { codeInlineRenderer } from './extensions/codeInline';
+import { htmlBlockRenderer, htmlInlineRenderer } from './extensions/html';
 import { markdownTheme } from './theme';
 import { extractLinks, isEmail, isInternalLink, toGotoUrl } from './utils';
 import { PreviewLink } from '../preview-link';
 import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
 import { recordOutboundClick } from '@openpeepshq/react';
 
-export interface OpenpeepsMarkdownProps {
-  source: string;
-  mentions?: MentionProfileRef[];
-  linkPreviewMode?: 'prepend' | 'append' | 'inline' | 'none';
-  /** When true, same-origin links open in the system browser instead of in-app navigation. */
-  newTab?: boolean | ((link: string) => boolean);
-}
+export interface OpenpeepsMarkdownProps extends MarkdownRenderProps {}
 
 export const OpenpeepsMarkdown = ({
   source,
@@ -46,7 +41,9 @@ export const OpenpeepsMarkdown = ({
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 
   const markdownit = useMemo(() => {
-    const md = MarkdownIt({ linkify: true, typographer: true });
+    // html: true so inline HTML (iframes, etc.) is tokenized and passed
+    // to custom renderers that apply the same allowlist as the web side.
+    const md = MarkdownIt({ linkify: true, typographer: true, html: true });
     md.use(hashtagPlugin);
     md.use(mentionPlugin(mentions));
     return md;
@@ -62,6 +59,12 @@ export const OpenpeepsMarkdown = ({
     return typeof newTab === 'function' ? newTab(url) : newTab;
   };
 
+  const handleIframePress = (url: string) => {
+    const origin = BASE_URL as string;
+    recordOutboundClick(url, origin);
+    Linking.openURL(url);
+  };
+
   const handleLinkPress = (url: string) => {
     const origin = BASE_URL as string;
     if (shouldOpenExternally(url)) {
@@ -73,7 +76,11 @@ export const OpenpeepsMarkdown = ({
   };
 
   const tokens = useMemo(
-    () => stringToTokens(linkProfileMentions(source, mentions), markdownit),
+    () =>
+      stringToTokens(
+        preprocessMarkdownSource(source ?? '', mentions),
+        markdownit
+      ),
     [source, mentions, markdownit]
   );
   const links = useMemo(
@@ -104,6 +111,8 @@ export const OpenpeepsMarkdown = ({
           code_block: codeBlockRenderer(colors),
           fence: fenceRenderer(colors),
           code_inline: codeInlineRenderer(colors),
+          html_block: htmlBlockRenderer(handleIframePress),
+          html_inline: htmlInlineRenderer(handleIframePress),
         }}
       >
         {ast as unknown as ReactNode[]}

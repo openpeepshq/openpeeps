@@ -1,6 +1,9 @@
 import { stringToTokens } from 'react-native-markdown-display';
+import { toGotoUrl } from '@openpeepshq/common/lib';
 
 type Token = ReturnType<typeof stringToTokens>[number];
+
+export { toGotoUrl };
 
 export const isInternalLink = (href: string, origin: string): boolean => {
   if (!href || href.includes('goto:/')) {
@@ -14,24 +17,6 @@ export const isInternalLink = (href: string, origin: string): boolean => {
   } catch {
     return false;
   }
-};
-
-export const toGotoUrl = (url: string, origin: string): string => {
-  if (url.includes('goto:/')) {
-    return url;
-  }
-  if (url.startsWith('/') && !url.startsWith('//')) {
-    return `goto:${url}`;
-  }
-  try {
-    const urlObj = new URL(url);
-    if (urlObj.origin === origin) {
-      return `goto:${urlObj.pathname}${urlObj.search}${urlObj.hash}`;
-    }
-  } catch {
-    // fall through
-  }
-  return url;
 };
 
 export const extractLinks = (token: Token): string[] => {

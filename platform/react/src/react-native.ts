@@ -27,6 +27,17 @@ export {
   performResetPassword,
   performLogout,
 } from './lib/auth';
+export type {
+  MarkdownRenderProps,
+  MentionProfileRef,
+} from '@openpeepshq/common/lib';
+export {
+  preprocessMarkdownSource,
+  linkProfileMentions,
+  isExternalLink,
+  toGotoUrl,
+} from '@openpeepshq/common/lib';
+
 export * from './hooks';
 export { useDefaultVisibility } from './components/post/visibility';
 export {

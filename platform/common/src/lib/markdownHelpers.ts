@@ -1,5 +1,13 @@
 import { mentionHandleRegexBase } from '../types';
 
+export interface MarkdownRenderProps {
+  source?: string;
+  mentions?: MentionProfileRef[];
+  linkPreviewMode?: 'prepend' | 'append' | 'inline' | 'none';
+  /** When true, all links open in a new tab (web) / system browser (RN). */
+  newTab?: boolean | ((link: string) => boolean);
+}
+
 const escapeRegExp = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -50,6 +58,14 @@ export const linkProfileMentions = (
       `${prefix}[@${handle}](/@${handle})`,
   );
 };
+
+/**
+ * Pre-process markdown source: convert `@handle` mentions into markdown
+ * profile links. Hashtag conversion is handled per-platform (web regex vs.
+ * markdown-it plugin) because the resulting URL schemes differ.
+ * Shared by web and RN renderers so both start from the same text.
+ */
+export const preprocessMarkdownSource = linkProfileMentions;
 
 export const matchMentionHandles = (text?: string | null): string[] => {
   if (!text) return [];
@@ -119,4 +135,156 @@ export const minutesToRead = (
   return wordCount === 0
     ? 0
     : Math.max(1, Math.ceil(wordCount / wordsPerMinute));
+};
+
+/* ------------------------------------------------------------------ */
+/* Shared link utilities                                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * True when `href` points to a different origin than `origin`.
+ * Same logic as the web `linkTargets.isExternalLink`.
+ */
+export const isExternalLink = (href: string, origin?: string): boolean => {
+  if (!href || /^(mailto:|tel:|#)/.test(href)) {
+    return false;
+  }
+  if (href.startsWith('/') && !href.startsWith('//')) {
+    return false;
+  }
+  if (!origin) {
+    return !href.startsWith('/');
+  }
+  try {
+    return new URL(href, origin).origin !== origin;
+  } catch {
+    return !href.startsWith('/');
+  }
+};
+
+/** Convert a same-origin path or URL to a `goto:` deep-link for RN navigation. */
+export const toGotoUrl = (url: string, origin: string): string => {
+  if (url.includes('goto:/')) {
+    return url;
+  }
+  if (url.startsWith('/') && !url.startsWith('//')) {
+    return `goto:${url}`;
+  }
+  try {
+    const urlObj = new URL(url);
+    if (urlObj.origin === origin) {
+      return `goto:${urlObj.pathname}${urlObj.search}${urlObj.hash}`;
+    }
+  } catch {
+    // fall through
+  }
+  return url;
+};
+
+/* ------------------------------------------------------------------ */
+/* HTML sanitization helpers (shared allowlist + iframe safety)       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Tags, attrs and forbits shared by both the web (DOMPurify config) and
+ * RN (custom HTML token renderers) so both platforms apply the same policy.
+ */
+export const MARKDOWN_HTML_ALLOWED_TAGS = [
+  'b',
+  'i',
+  'em',
+  'strong',
+  'a',
+  'p',
+  'br',
+  'ul',
+  'ol',
+  'li',
+  'blockquote',
+  'code',
+  'pre',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'hr',
+  'img',
+  'iframe',
+  'video',
+  'source',
+  'picture',
+  'figcaption',
+] as const;
+
+export const MARKDOWN_HTML_ALLOWED_ATTRS = [
+  'href',
+  'src',
+  'title',
+  'alt',
+  'target',
+  'rel',
+  'width',
+  'height',
+  'loading',
+  'sandbox',
+  'frameborder',
+  'allowfullscreen',
+  'referrerpolicy',
+  'style',
+] as const;
+
+export const MARKDOWN_HTML_FORBIDDEN_TAGS = [
+  'script',
+  'style',
+  'form',
+  'object',
+  'embed',
+] as const;
+
+export const MARKDOWN_HTML_FORBIDDEN_ATTRS = [
+  'onload',
+  'onerror',
+  'onclick',
+  'onmouseover',
+] as const;
+
+/** Simple `<iframe>` tag detector for extracting embed URLs from raw HTML. */
+const IFRAME_SRC_RE =
+  /<iframe\b[^>]*?\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)')[^>]*>/gi;
+
+/** Extract all iframe `src` URLs found in an HTML string. */
+export const extractIframeSrcs = (html: string): string[] => {
+  const srcs: string[] = [];
+  let match: RegExpExecArray | null;
+  while ((match = IFRAME_SRC_RE.exec(html)) !== null) {
+    srcs.push(match[1] ?? match[2] ?? '');
+  }
+  return srcs;
+};
+
+/**
+ * Inject safety attributes onto `<iframe>` tags so they can't break out of
+ * their container or execute script navigation. Runs after sanitization
+ * (so attackers can't smuggle attributes through), before DOM injection.
+ */
+export const injectIframeSafetyAttrs = (html: string): string => {
+  return html.replace(/<iframe([^>]*?)>/gi, (match, attrs: string) => {
+    let safeAttrs = attrs;
+    if (!/loading\s*=/.test(safeAttrs)) {
+      safeAttrs += ' loading="lazy"';
+    }
+    if (!/sandbox\s*=/.test(safeAttrs)) {
+      safeAttrs +=
+        ' sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"';
+    }
+    if (!/referrerpolicy\s*=/.test(safeAttrs)) {
+      safeAttrs += ' referrerpolicy="no-referrer"';
+    }
+    if (!/style\s*=/.test(safeAttrs)) {
+      safeAttrs += ' style="max-width:100%;width:100%;border:0;display:block;"';
+    }
+    return `<iframe${safeAttrs}>`;
+  });
 };
