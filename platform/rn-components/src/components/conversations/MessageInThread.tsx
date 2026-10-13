@@ -28,7 +28,7 @@ const audienceDiff = (
 const AvatarRow = ({ profiles }: { profiles: PublicProfile[] }) => (
   <View className="flex-row -space-x-2">
     {profiles.map((p) => (
-      <ProfileAvatar key={p.id} profile={p} className="size-10" />
+      <ProfileAvatar key={p.id} profile={p} className="size-10 border-0" />
     ))}
   </View>
 );
@@ -74,7 +74,10 @@ export const MessageInThread = ({
       inAudience(previous, message.profile) &&
       !inAudience(message, message.profile) ? (
         <View className="flex-row items-center gap-2">
-          <ProfileAvatar profile={message.profile} className="size-10" />
+          <ProfileAvatar
+            profile={message.profile}
+            className="size-10 border-0"
+          />
           <ThemedText>
             {t('conversations.messageInThread.left', { name })}
           </ThemedText>
@@ -102,7 +105,10 @@ export const MessageInThread = ({
       <View ref={postViewRef} className="flex-row">
         {!isMe && multipleParticipants ? (
           <View className="mr-2 mt-6">
-            <ProfileAvatar profile={message.profile} className="size-10" />
+            <ProfileAvatar
+              profile={message.profile}
+              className="size-10 border-0"
+            />
           </View>
         ) : null}
         <View className="min-w-0 flex-1">

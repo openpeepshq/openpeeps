@@ -2,22 +2,29 @@ import { View, TouchableOpacity } from 'react-native';
 import React, { useCallback, useRef, useState } from 'react';
 import { UpdatingDate } from '../custom/date/updating-date';
 import { OpenpeepsMarkdown } from '../markdown/OpenpeepsMarkdown';
-import { formatBadgeCount, PublicPost } from '@openpeepshq/common';
+import {
+  formatBadgeCount,
+  truncateText,
+  type PublicPost,
+} from '@openpeepshq/common';
 import { Text } from '../ui/text';
-import { Button } from '../ui/button';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
 } from '../ui/dropdown-menu';
-import { BellOffIcon, FlagIcon, Trash2Icon } from '../icons/index';
+import {
+  BellOffIcon,
+  FlagIcon,
+  Trash2Icon,
+  CalendarIcon,
+} from '../icons/index';
 import { useOpenpeeps } from '@openpeepshq/react';
-
-import { ProfileImages, ProfileName } from '../profile/ProfilePieces';
-import { truncateText } from '../../lib/utils';
-import { ProfileSheet } from '../profile/index';
+import { ProfileAvatar } from '../profile/Avatar';
 import { ConversationParticipantsModal } from './ConversationParticipantsModal';
+import { useTranslation } from 'react-i18next';
+
 interface ConversationPreviewCardProps {
   conversation: PublicPost[];
   onPress: () => void;
@@ -31,7 +38,7 @@ export const ConversationPreviewCard = ({
   onLongPress,
   unreadCount = 0,
 }: ConversationPreviewCardProps) => {
-  const profileSheetRef = useRef<BottomSheetModal>(null);
+  const { t } = useTranslation();
   const deleteMessageModalRef = useRef<BottomSheetModal>(null);
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const { currentProfile } = useOpenpeeps();
@@ -43,10 +50,15 @@ export const ConversationPreviewCard = ({
     (p) => p.id !== currentProfile?.id
   );
 
-  const handleProfilePress = useCallback(() => {
-    if (participants.length > 2) setParticipantsOpen(true);
-    else profileSheetRef.current?.present();
-  }, [participants.length]);
+  const otherNames = otherParticipants
+    .map((p) => p.displayName || `@${p.handle}`)
+    .join(', ');
+  const title = otherNames
+    ? t('conversations.titleWithYou', {
+        defaultValue: '{{names}} and You',
+        names: otherNames,
+      })
+    : t('common.you', { defaultValue: 'You' });
 
   const handleDeleteGroupModalPress = useCallback(() => {
     deleteMessageModalRef.current?.present();
@@ -59,43 +71,60 @@ export const ConversationPreviewCard = ({
         onLongPress={onLongPress}
         className="w-full mb-3"
       >
-        <View className="flex w-full flex-row items-center justify-between p-4">
-          <Button
-            variant={'ghost'}
-            size={'icon'}
-            className="rounded-full -mt-4"
-            onPress={handleProfilePress}
-          >
-            <ProfileImages profile={participants} />
-          </Button>
-          <View className="flex-1 ml-5">
-            <View className="flex-row justify-between items-center">
-              <ProfileName
-                profile={
-                  participants.length === 2
-                    ? participants.filter((p) => p.id !== currentProfile?.id)
-                    : participants
-                }
-              />
+        <View className="flex w-full flex-col gap-x-1 border-b p-3 text-left">
+          <View className="flex flex-row items-center gap-4">
+            <View className="flex -space-x-2">
+              {participants.slice(0, 3).map((p) => (
+                <ProfileAvatar
+                  key={p.id}
+                  profile={p}
+                  className="size-10 border-0"
+                />
+              ))}
+            </View>
+            <View className="flex min-w-0 flex-1 flex-row items-center gap-2">
+              <Text className="truncate font-bold">
+                {truncateText(title, 20)}
+              </Text>
               {unreadCount > 0 ? (
-                <View className="bg-destructive size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 ml-2">
+                <View className="bg-destructive size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1">
                   <Text className="text-xs font-semibold text-destructive-foreground">
                     {formatBadgeCount(unreadCount)}
                   </Text>
                 </View>
               ) : null}
             </View>
-            <View className="flex-row gap-1">
-              <Text className="">{lastMessage.profile.handle}</Text>
-              <UpdatingDate date={lastMessage.createdAt} />
-            </View>
           </View>
-        </View>
-        <View className="px-4">
-          <OpenpeepsMarkdown
-            source={truncateText(lastMessage.data?.content, 70) || ''}
-            linkPreviewMode="none"
+
+          <UpdatingDate
+            date={lastMessage.createdAt}
+            className="text-muted-foreground"
           />
+
+          <View className="mt-2 flex flex-row items-start gap-x-2">
+            <View className="flex flex-row items-center">
+              <Text>~</Text>
+              {currentProfile?.id === lastMessage.profile.id ? (
+                <Text className="ml-1">Me</Text>
+              ) : (
+                <Text className="ml-1">
+                  @{truncateText(lastMessage.profile.handle, 8)}
+                </Text>
+              )}
+              <Text className="mx-1">:</Text>
+            </View>
+            {lastMessage.data?.type === 'event' ? (
+              <View className="flex flex-row items-center gap-1">
+                <CalendarIcon size={16} className="text-muted-foreground" />
+                <Text>{(lastMessage.data as { name?: string }).name}</Text>
+              </View>
+            ) : (
+              <OpenpeepsMarkdown
+                source={lastMessage.data?.content || ''}
+                linkPreviewMode="none"
+              />
+            )}
+          </View>
         </View>
       </TouchableOpacity>
       <DropdownMenuContent>
@@ -117,16 +146,6 @@ export const ConversationPreviewCard = ({
           <Text className="text-destructive">Delete conversation</Text>
         </DropdownMenuItem>
       </DropdownMenuContent>
-      {participants.length === 2 && otherParticipants.length > 0 && (
-        <ProfileSheet
-          ref={profileSheetRef}
-          profile={otherParticipants}
-          onConnect={() => {
-            console.log('Connect pressed');
-            profileSheetRef.current?.dismiss();
-          }}
-        />
-      )}
       {participants.length > 2 && (
         <ConversationParticipantsModal
           open={participantsOpen}

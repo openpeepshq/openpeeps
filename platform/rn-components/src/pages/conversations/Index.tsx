@@ -4,8 +4,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useRef } from 'react';
-import { EmptyStateContainer } from '../../components/custom/index';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { MessageCircleOffIcon } from '../../components/icons/index';
+import { ThemedText } from '../../components/ui/themed-text';
 import {
   useSetPageHeader,
   useSetPlusButtonActions,
@@ -23,19 +24,20 @@ import { canCreatePost, PublicPost } from '@openpeepshq/common';
 import { Input } from '../../components/ui/input';
 import { profileMatchesQuery } from '../../lib/utils';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-
 import {
   ConversationPreviewCard,
   DirectMessagesHeaderActions,
   useCreateNewConversation,
 } from '../../components/conversations/index';
 import { useTranslation } from 'react-i18next';
-
 import { ConversationSettingsSheet } from '../../components/conversations/index';
+
 type MessagesProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Messages'>,
   NativeStackScreenProps<MainStackParamList>
 >;
+
+type ConversationsTab = 'active' | 'archived';
 
 export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
   const { openpeepsApi } = useOpenpeeps();
@@ -44,40 +46,42 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
   const canCreate = canCreatePost(authData, 'note', 'direct');
   const { openCreateConversation } = useCreateNewConversation();
   const settingsRef = useRef<BottomSheetModal>(null);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [filteredConversations, setFilteredConversations] = React.useState<
+  const [refreshing, setRefreshing] = useState(false);
+  const [filteredConversations, setFilteredConversations] = useState<
     PublicPost[][]
   >([]);
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [isSearchToggled, setIsSearchToggled] = React.useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchToggled, setIsSearchToggled] = useState(false);
+  const [tab, setTab] = useState<ConversationsTab>('active');
 
-  const {
-    data: conversations,
-    isLoading,
-    refetch,
-  } = openpeepsApi.useConversations();
+  const query = openpeepsApi.useConversations();
+  const archivedQuery = openpeepsApi.useArchivedConversations();
   const unseenCountsQuery = openpeepsApi.useUnseenPostCounts();
   const unseenByConversation = unseenCountsQuery.data?.direct ?? {};
 
+  const activeQuery = tab === 'active' ? query : archivedQuery;
+  const conversations = useMemo(
+    () => activeQuery.data ?? [],
+    [activeQuery.data]
+  );
+
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    refetch().then(() => {});
+    await activeQuery.refetch();
     setRefreshing(false);
-  }, [refetch]);
+  }, [activeQuery]);
 
   useEffect(() => {
-    if (conversations) {
-      const filtered = conversations.filter((conversation) =>
-        conversation.some(
-          (message) =>
-            message?.data?.content
-              ?.toLowerCase()
-              .includes(searchQuery.toLowerCase()) ||
-            profileMatchesQuery(message.profile, searchQuery)
-        )
-      );
-      setFilteredConversations(filtered);
-    }
+    const filtered = conversations.filter((conversation) =>
+      conversation.some(
+        (message) =>
+          message?.data?.content
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          profileMatchesQuery(message.profile, searchQuery)
+      )
+    );
+    setFilteredConversations(filtered);
   }, [conversations, searchQuery]);
 
   useSetPageHeader(
@@ -109,6 +113,44 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
       <DirectMessagesHeaderActions />
     </View>
   );
+
+  const headerTabs = (
+    <View className="flex-row border-b border-border">
+      <TouchableOpacity
+        onPress={() => setTab('active')}
+        className={`px-4 py-2 text-sm ${
+          tab === 'active'
+            ? 'border-primary border-b-2 font-semibold'
+            : 'text-muted-foreground'
+        }`}
+      >
+        <ThemedText
+          className={
+            tab === 'active' ? 'font-semibold' : 'text-muted-foreground'
+          }
+        >
+          {t('conversations.tabs.active', { defaultValue: 'Active' })}
+        </ThemedText>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => setTab('archived')}
+        className={`px-4 py-2 text-sm ${
+          tab === 'archived'
+            ? 'border-primary border-b-2 font-semibold'
+            : 'text-muted-foreground'
+        }`}
+      >
+        <ThemedText
+          className={
+            tab === 'archived' ? 'font-semibold' : 'text-muted-foreground'
+          }
+        >
+          {t('conversations.tabs.archived', { defaultValue: 'Archived' })}
+        </ThemedText>
+      </TouchableOpacity>
+    </View>
+  );
+
   useSetPlusButtonActions(
     canCreate
       ? {
@@ -118,8 +160,11 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
       : undefined
   );
 
+  const isLoading = activeQuery.isLoading;
+
   return (
-    <View className="relative flex-1">
+    <View className="flex-1">
+      {headerTabs}
       <KeyboardAwareScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -129,7 +174,14 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
       >
         {isLoading && <ActivityIndicator size={'small'} />}
         {!isLoading && filteredConversations?.length === 0 && (
-          <EmptyStateContainer type="messages" copyKey="conversations.empty" />
+          <View className="flex h-[80vh] items-center justify-center gap-2">
+            <MessageCircleOffIcon size={40} className="text-muted-foreground" />
+            <ThemedText className="text-muted-foreground">
+              {t('conversations.empty', {
+                defaultValue: 'No direct messages here',
+              })}
+            </ThemedText>
+          </View>
         )}
         {!isLoading &&
           filteredConversations?.map((conversation, idx) => (

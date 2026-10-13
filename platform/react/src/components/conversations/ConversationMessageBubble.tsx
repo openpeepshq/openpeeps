@@ -18,7 +18,7 @@ export function ConversationMessageBubble({
       className={`mt-4 flex w-full items-center gap-2 ${mine ? 'justify-end' : 'justify-start'}`}
     >
       <div
-        className={`w-[80%] rounded-t-xl p-3 md:w-[60%] ${
+        className={`w-[80%] rounded-t-xl p-3 ${
           mine ? 'bg-primary/10 rounded-bl-xl' : 'bg-surface-2 rounded-br-xl'
         }`}
       >

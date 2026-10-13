@@ -16,24 +16,20 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import { InfoIcon, SendHorizonalIcon } from '../../components/icons/index';
+import { InfoIcon } from '../../components/icons/index';
 import { MediaAttachmentData } from '@openpeepshq/common';
 import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
 import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
 import { maxContentLength } from '../../lib/utils';
 import { DropdownMenu } from '../../components/ui/dropdown-menu';
+import { Button } from '../../components/ui/button';
+import { ThemedText } from '../../components/ui/themed-text';
 import {
   ConversationParticipantsModal,
   ConversationProfileHeader,
   MessageInThread,
 } from '../../components/conversations/index';
 
-import {
-  ProfileBio,
-  ProfileHandle,
-  ProfileImages,
-  ProfileName,
-} from '../../components/profile/index';
 type ConversationProps = MainScreenProps<'Conversation'>;
 
 export const ConversationShow = ({ route, navigation }: ConversationProps) => {
@@ -106,6 +102,14 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
     void markPostsSeen({ postIds: unseenIds });
   }, [id, currentProfile, messages, isLoading, markPostsSeen]);
 
+  if (isLoading) {
+    return (
+      <ThemedView className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </ThemedView>
+    );
+  }
+
   useSetPageHeader(
     <ConversationProfileHeader
       participants={headerParticipants}
@@ -114,7 +118,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
     <TouchableOpacity
       onPress={() => navigation.navigate('ConversationInfo', { id })}
     >
-      <InfoIcon size={20} className="text-foreground" />
+      <InfoIcon size={18} className="text-foreground" />
     </TouchableOpacity>
   );
 
@@ -134,41 +138,6 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
                 scrollViewRef.current?.scrollToEnd({ animated: true })
               }
             >
-              {messages?.[0]?.audience?.length === 2 && (
-                <View className="bg-background border-b border-border">
-                  <View className="flex items-center justify-center py-6">
-                    <ProfileImages
-                      profile={
-                        messages?.[0].audience.filter(
-                          (p) => p.id !== currentProfile?.id
-                        ) || []
-                      }
-                    />
-                    <ProfileName
-                      profile={
-                        messages?.[0].audience.filter(
-                          (p) => p.id !== currentProfile?.id
-                        ) || []
-                      }
-                    />
-                    <ProfileHandle
-                      profile={
-                        messages?.[0].audience.filter(
-                          (p) => p.id !== currentProfile?.id
-                        ) || []
-                      }
-                    />
-                    <ProfileBio
-                      profile={
-                        messages?.[0].audience.filter(
-                          (p) => p.id !== currentProfile?.id
-                        ) || []
-                      }
-                    />
-                  </View>
-                </View>
-              )}
-
               {messages?.map((message, idx) => (
                 <View key={message.id} className="px-2">
                   <MessageInThread
@@ -206,31 +175,28 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
                   })}
                 />
                 <View className="flex-row justify-end">
-                  <TouchableOpacity
+                  <Button
+                    variant="default"
                     onPress={handleSendMessage}
                     disabled={
                       isSending ||
                       !content.trim() ||
                       content.length > maxContentLength
                     }
-                    className={`p-2 rounded-full ${
-                      content.trim() && content.length <= maxContentLength
-                        ? 'bg-primary'
-                        : 'bg-surface'
-                    }`}
                   >
                     {isSending ? (
-                      <ActivityIndicator size="small" />
+                      <View className="flex-row items-center">
+                        <ActivityIndicator size="small" />
+                        <ThemedText className="ml-2">
+                          {t('common.sending', { defaultValue: 'Sending…' })}
+                        </ThemedText>
+                      </View>
                     ) : (
-                      <SendHorizonalIcon
-                        className={
-                          content.trim() && content.length <= maxContentLength
-                            ? 'text-primary-foreground'
-                            : 'text-muted-foreground'
-                        }
-                      />
+                      <ThemedText>
+                        {t('common.send', { defaultValue: 'Send' })}
+                      </ThemedText>
                     )}
-                  </TouchableOpacity>
+                  </Button>
                 </View>
               </View>
             </View>
