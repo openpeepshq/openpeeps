@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Sound from 'react-native-sound';
 import {
   isTrackReference,
   type TrackReferenceOrPlaceholder,
@@ -175,12 +176,35 @@ const JamParticipantOverlay = ({
 
   const micOn = participant.isMicrophoneEnabled;
   const handUp = raisedHands.has(participant.identity);
+  const handRaiseSound = useRef<Sound | null>(null);
   const profile = parseParticipantMetadata(participant.metadata).profile;
   const isModerator = jam.moderators.includes(participant.identity);
   const viewerIsModerator = !!me && jam.moderators.includes(me.id);
   const iconSize = compact ? 12 : 16;
   const micIconClass =
     micOn && speaking && !connectionLost ? 'text-primary' : 'text-foreground';
+
+  useEffect(() => {
+    const sound = new Sound(
+      require('../../assets/audio/click-notification.wav'),
+      (err) => {
+        if (!err) {
+          sound.setVolume(0.5);
+          handRaiseSound.current = sound;
+        }
+      }
+    );
+    return () => {
+      sound.release();
+      handRaiseSound.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (handUp) {
+      handRaiseSound.current?.play();
+    }
+  }, [handUp]);
 
   return (
     <View

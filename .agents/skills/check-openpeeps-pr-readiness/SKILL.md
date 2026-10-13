@@ -77,6 +77,7 @@ For each `@openpeepshq/<pkg>` you touched under `platform/` or `libraries/`:
 - [ ] `pnpm --filter @openpeepshq/<pkg> build` — succeeds
 - [ ] `pnpm --filter @openpeepshq/<pkg> lint` — succeeds
 - [ ] `pnpm --filter @openpeepshq/<pkg> test` — if the package has tests
+- [ ] `package.json` version bumped for each touched `@openpeepshq/<pkg>` (patch for `fix:`, minor for `feat:`)
 
 Discover touched paths from the diff:
 
@@ -131,7 +132,7 @@ Run this for API, UI, or cross-cutting changes.
 
 ### Packages checked
 
-- @openpeepshq/…: build [pass/fail], lint [pass/fail]
+- @openpeepshq/…: build [pass/fail], lint [pass/fail], version bumped [yes/no]
 
 ### Blockers
 
@@ -140,14 +141,15 @@ Run this for API, UI, or cross-cutting changes.
 
 ## Fixing Common Failures
 
-| Failure                              | Fix                                                                     |
-| ------------------------------------ | ----------------------------------------------------------------------- |
-| `could not compare to main`          | `git fetch origin && git branch -f main origin/main`                    |
-| N commits ahead of main (N ≠ 1)      | `./scripts/squash-branch.sh` with clean tree                            |
-| Non-conventional commit subject      | Re-squash or amend (unpushed only) with `type(scope): description`      |
-| Lint errors                          | `pnpm --filter @openpeepshq/<pkg> format` then re-run lint              |
-| Build errors after editing a library | Rebuild chain: `common` → `core` → dependents                           |
-| Branch behind main                   | `git fetch origin && git branch -f main origin/main && git rebase main` |
+| Failure                              | Fix                                                                                 |
+| ------------------------------------ | ----------------------------------------------------------------------------------- |
+| `could not compare to main`          | `git fetch origin && git branch -f main origin/main`                                |
+| N commits ahead of main (N ≠ 1)      | `./scripts/squash-branch.sh` with clean tree                                        |
+| Non-conventional commit subject      | Re-squash or amend (unpushed only) with `type(scope): description`                  |
+| Lint errors                          | `pnpm --filter @openpeepshq/<pkg> format` then re-run lint                          |
+| Missing version bump                 | Bump `version` in each touched `package.json` (patch for `fix:`, minor for `feat:`) |
+| Build errors after editing a library | Rebuild chain: `common` → `core` → dependents                                       |
+| Branch behind main                   | `git fetch origin && git branch -f main origin/main && git rebase main`             |
 
 ## What CI Runs
 
