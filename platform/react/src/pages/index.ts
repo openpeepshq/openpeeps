@@ -54,6 +54,7 @@ export { AnalyticsGroupsPage } from './admin/Analytics';
 export { AnalyticsPluginPage } from './admin/Analytics';
 export { AnalyticsReportSettingsPage } from './admin/Analytics';
 export { AdminBackups } from './admin/Backups';
+export { AdminMedia } from './admin/Media';
 export { AdminGroups } from './admin/Groups';
 export { AdminInvites } from './admin/Invites';
 export { AdminMembers } from './admin/Members';

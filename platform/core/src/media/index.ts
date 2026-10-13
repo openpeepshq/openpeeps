@@ -355,3 +355,5 @@ export * from './streaming';
 export * from './streamingJobs';
 export * from './streamingCleanupJobs';
 export * from './streamingPrewarm';
+export * from './garbageCollection';
+export * from './garbageCollectionJobs';

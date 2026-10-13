@@ -4,7 +4,10 @@ import { queues } from '@openpeepshq/core/jobs';
 import { sendEmailQueue } from '@openpeepshq/core/email';
 import { onceQueue } from '@openpeepshq/core/events';
 import {
+  ensureMediaGarbageCollectionSchedule,
   ensureStreamingCleanupSchedule,
+  mediaGarbageCollectionQueue,
+  mediaGarbageCollectionWorker,
   mediaProcessingQueue,
   mediaProcessingWorker,
   mediaStreamingCleanupQueue,
@@ -53,6 +56,8 @@ const startWorkers = () => {
   mediaStreamingWorker();
   console.log('Starting media streaming cleanup worker ...');
   mediaStreamingCleanupWorker();
+  console.log('Starting media garbage collection worker ...');
+  mediaGarbageCollectionWorker();
   console.log('Starting jam recording stop worker ...');
   jamRecordingStopWorker();
   console.log('Starting analytics compile worker ...');
@@ -70,6 +75,7 @@ const setupQueues = async () => {
   mediaProcessingQueue();
   mediaStreamingQueue();
   mediaStreamingCleanupQueue();
+  mediaGarbageCollectionQueue();
   jamRecordingStopQueue();
   analyticsCompileQueue();
   eventOccurrenceQueue();
@@ -77,6 +83,7 @@ const setupQueues = async () => {
   // Register the daily cron schedule. Idempotent under upsertJobScheduler so
   // it's safe to call on every worker boot.
   await ensureStreamingCleanupSchedule();
+  await ensureMediaGarbageCollectionSchedule();
   await ensureAnalyticsSchedules();
   await ensureEventOccurrenceSchedule();
 };

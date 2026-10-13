@@ -33,6 +33,11 @@ export const adminSections = [
     capabilities: ['core-backups-read'],
   },
   {
+    key: 'media',
+    path: '/admin/media',
+    capabilities: ['core-media-read'],
+  },
+  {
     key: 'analytics',
     path: '/admin/analytics',
     capabilities: ['core-analytics-read'],

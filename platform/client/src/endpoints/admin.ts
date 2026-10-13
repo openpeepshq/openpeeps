@@ -43,6 +43,7 @@ import {
   ProfileWithMeta,
   PublicAccessToken,
   Resource,
+  StoredMediaList,
   SuccessResponse,
   TokenResponse,
 } from '@openpeepshq/common';
@@ -94,6 +95,10 @@ export type Admin = {
     list: OpenpeepsNoPayloadEndpoint<string[]>;
     create: OpenpeepsNoPayloadEndpoint<SuccessResponse>;
     restore: OpenpeepsPayloadEndpoint<SuccessResponse, File>;
+  };
+  media: {
+    list: OpenpeepsNoPayloadEndpoint<StoredMediaList>;
+    delete: OpenpeepsNoPayloadEndpoint<SuccessResponse, { storageId: string }>;
   };
   config: {
     read: OpenpeepsNoPayloadEndpoint<
@@ -303,6 +308,14 @@ export const admin = (rawClient: FetchClient): Admin => ({
       rawClient,
       '/admin/backups/restore',
       'post',
+    ),
+  },
+  media: {
+    list: allpeepNoPayloadEndpoint<StoredMediaList>(rawClient, '/admin/media'),
+    delete: allpeepNoPayloadEndpoint<SuccessResponse, { storageId: string }>(
+      rawClient,
+      '/admin/media/:storageId',
+      'delete',
     ),
   },
   config: {
