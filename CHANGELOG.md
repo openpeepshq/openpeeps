@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **react**: harmonize web and rn-components component APIs
 - **rn-components**: unify native pages onto RootLayout and AuthLayout
 - **rn-components**: match native look and feel to web
 - **rn-components**: match web side menu and plus buttons
@@ -17,6 +18,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **rn-components**: stop page-chrome infinite update loops
 - **rn-components**: remove create post from side menu
 - **react**: refresh auth scopes on React Native
 - **ci**: do not cancel in-progress workflows on main
