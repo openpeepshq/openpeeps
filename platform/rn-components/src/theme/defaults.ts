@@ -101,6 +101,11 @@ export const DEFAULT_COLORS: ColorValue[] = [
     light: '#fafafa',
     dark: '#18181b',
   },
+  {
+    name: 'surface-2',
+    light: '#e4e4e7',
+    dark: '#3f3f46',
+  },
 ];
 
 export const mapColors = (isDark: boolean) =>

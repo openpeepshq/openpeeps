@@ -1,11 +1,9 @@
 import React from 'react';
-import type { PublicPost } from '@openpeepshq/common/types';
-
-import { Attachments } from '../pieces/Attachments';
-
 import { View } from 'react-native';
+import type { PublicPost } from '@openpeepshq/common/types';
 import { ThemedText } from '../../ui/themed-text';
 import { OpenpeepsMarkdown } from '../../markdown/index';
+import { Attachments } from '../pieces/Attachments';
 
 export interface FeedNoteProps {
   post: PublicPost;
@@ -14,11 +12,12 @@ export interface FeedNoteProps {
 export const FeedNote = ({ post }: FeedNoteProps) =>
   post?.data?.type === 'note' ? (
     <View>
-      <Attachments {...{ post }} />
       <OpenpeepsMarkdown
         source={post?.data?.content || ''}
+        mentions={post.mentions}
         linkPreviewMode={post?.data?.attachments?.length ? 'none' : 'append'}
       />
+      <Attachments {...{ post }} />
     </View>
   ) : (
     <View>

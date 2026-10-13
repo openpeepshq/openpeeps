@@ -18,7 +18,8 @@ export type ColorName =
   | 'border'
   | 'input'
   | 'ring'
-  | 'alpha';
+  | 'alpha'
+  | 'surface-2';
 
 export type ColorValue = {
   name: ColorName;

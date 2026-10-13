@@ -4,7 +4,6 @@ import type { PublicPost } from '@openpeepshq/common/types';
 import { useCurrentProfile } from '@openpeepshq/react';
 import { FeedPostContent } from '../post/FeedPostContent';
 import { UnreadPostIndicator } from '../post/pieces/UnreadPostIndicator';
-import { ThemedView } from '../ui/themed-view';
 
 export interface ConversationMessageBubbleProps {
   message: PublicPost;
@@ -20,18 +19,23 @@ export const ConversationMessageBubble = ({
 
   return (
     <View
-      className={`mt-2 w-full flex-row items-center gap-2 ${
+      className={`mt-4 w-full flex-row items-center gap-2 ${
         mine ? 'justify-end' : 'justify-start'
       }`}
     >
-      <ThemedView
+      <View
         className={`w-[80%] rounded-t-xl p-3 ${
-          mine ? 'rounded-bl-xl bg-primary/10' : 'rounded-br-xl bg-secondary/20'
+          mine ? 'rounded-bl-xl bg-primary/10' : 'rounded-br-xl bg-surface-2'
         }`}
       >
         <FeedPostContent post={message} />
-      </ThemedView>
-      {!mine ? <UnreadPostIndicator show={unread} /> : null}
+      </View>
+      {!mine ? (
+        <UnreadPostIndicator
+          show={unread}
+          className="relative inset-auto shrink-0 translate-y-0"
+        />
+      ) : null}
     </View>
   );
 };

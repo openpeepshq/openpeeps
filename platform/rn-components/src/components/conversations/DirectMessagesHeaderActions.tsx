@@ -11,7 +11,6 @@ export const DirectMessagesHeaderActions = () => {
 
   return (
     <Button
-      size="sm"
       className="flex-row items-center gap-x-1"
       accessibilityLabel={t('conversations.newMessage')}
       onPress={() => openCreateConversation()}

@@ -101,6 +101,8 @@ export function MessageInThread({
           <Avatar
             containerClassName="mt-6 mr-2"
             profile={message.profile}
+            size={2.5}
+            borderless
             navigate
           />
         )}
