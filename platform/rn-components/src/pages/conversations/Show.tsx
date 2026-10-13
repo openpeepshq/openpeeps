@@ -102,6 +102,22 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
     void markPostsSeen({ postIds: unseenIds });
   }, [id, currentProfile, messages, isLoading, markPostsSeen]);
 
+  useSetPageHeader(
+    isLoading ? undefined : (
+      <ConversationProfileHeader
+        participants={headerParticipants}
+        onPress={isGroupChat ? () => setParticipantsOpen(true) : undefined}
+      />
+    ),
+    isLoading ? undefined : (
+      <TouchableOpacity
+        onPress={() => navigation.navigate('ConversationInfo', { id })}
+      >
+        <InfoIcon size={18} className="text-foreground" />
+      </TouchableOpacity>
+    )
+  );
+
   if (isLoading) {
     return (
       <ThemedView className="flex-1 items-center justify-center">
@@ -109,18 +125,6 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
       </ThemedView>
     );
   }
-
-  useSetPageHeader(
-    <ConversationProfileHeader
-      participants={headerParticipants}
-      onPress={isGroupChat ? () => setParticipantsOpen(true) : undefined}
-    />,
-    <TouchableOpacity
-      onPress={() => navigation.navigate('ConversationInfo', { id })}
-    >
-      <InfoIcon size={18} className="text-foreground" />
-    </TouchableOpacity>
-  );
 
   return (
     <ThemedView className="flex-1">
