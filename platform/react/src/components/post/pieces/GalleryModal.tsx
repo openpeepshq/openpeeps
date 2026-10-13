@@ -1,5 +1,6 @@
 import { useEffect, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { FlagIcon } from 'lucide-react';
 import type { MediaAttachmentData } from '@openpeepshq/common/types';
 import { useT } from '../../../i18n';
 import { AudioAttachment, isAudioAttachment } from './AudioAttachment';
@@ -9,6 +10,7 @@ export interface GalleryModalProps {
   attachments: MediaAttachmentData[];
   initialIndex?: number;
   onClose: () => void;
+  onReport?: (attachment: MediaAttachmentData) => void;
 }
 
 const stop = (e: MouseEvent) => {
@@ -20,6 +22,7 @@ export function GalleryModal({
   attachments,
   initialIndex = 0,
   onClose,
+  onReport,
 }: GalleryModalProps) {
   const t = useT();
   const [index, setIndex] = useState(initialIndex);
@@ -38,6 +41,9 @@ export function GalleryModal({
   const prevLabel = t('posts.gallery.previous', { defaultValue: 'Previous' });
   const nextLabel = t('posts.gallery.next', { defaultValue: 'Next' });
   const closeLabel = t('posts.gallery.close', { defaultValue: 'Close' });
+  const reportLabel = t('common.actions.reportMedia', {
+    defaultValue: 'Report file',
+  });
 
   const prev = (e: MouseEvent) => {
     stop(e);
@@ -128,6 +134,22 @@ export function GalleryModal({
         >
           <span aria-hidden="true">→</span>
           <span className="sr-only">{nextLabel}</span>
+        </button>
+      ) : null}
+
+      {onReport ? (
+        <button
+          type="button"
+          title={reportLabel}
+          aria-label={reportLabel}
+          className="rounded-button bg-destructive text-destructive-foreground fixed left-4 top-4 z-50 flex items-center gap-2 px-3 py-2 text-sm font-medium shadow-xl"
+          onClick={(e) => {
+            stop(e);
+            onReport(attachment);
+          }}
+        >
+          <FlagIcon className="size-4" aria-hidden="true" />
+          {reportLabel}
         </button>
       ) : null}
 

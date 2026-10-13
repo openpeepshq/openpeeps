@@ -1499,6 +1499,7 @@
         "allResolvedBadge": "Alle Meldungen gelöst",
         "seeReports": "Meldungen anzeigen",
         "postHeading": "Beitrag",
+        "reportedFile": "Gemeldete Datei",
         "unresolvedBadge": "Nicht gelöst",
         "goToPost": "Zum Beitrag",
         "closeReport": "Schließen"
@@ -2385,6 +2386,7 @@
       "reportProfile": "@{{handle}} melden",
       "blockProfile": "@{{handle}} blockieren",
       "reportPost": "Beitrag melden",
+      "reportMedia": "Datei melden",
       "shareProfile": "Profil teilen",
       "add": "Hinzufügen",
       "success": "Erfolgreich!",
@@ -3125,6 +3127,13 @@
         "continue": "Weiter",
         "confirmMessageHeading": "Möchten Sie @{{handle}} wirklich melden?",
         "confirmMessageDescription": "Ihre Meldung wird an den Community-Moderator gesendet. @{{handle}} wird nicht über Ihre Meldung informiert."
+      },
+      "media": {
+        "title": "Datei melden",
+        "description": "Helfen Sie uns, das Problem zu verstehen. Was stimmt mit dieser Datei nicht?",
+        "anythingElse": "Möchten Sie noch etwas hinzufügen?",
+        "continue": "Weiter",
+        "confirmMessageHeading": "Möchten Sie diese Datei wirklich melden?"
       },
       "sendReport": "Meldung senden",
       "reportSuccess": "Vielen Dank für Ihre Mitteilung. Ihr Feedback hilft uns, die {{name}}-Community für alle besser zu machen!",

@@ -1575,6 +1575,7 @@
         "allResolvedBadge": "All reports resolved",
         "seeReports": "See reports",
         "postHeading": "Post",
+        "reportedFile": "Reported file",
         "unresolvedBadge": "Not resolved",
         "goToPost": "Go to post",
         "closeReport": "Close"
@@ -2304,6 +2305,7 @@
       "reportProfile": "Report @{{handle}}",
       "blockProfile": "Block @{{handle}}",
       "reportPost": "Report Post",
+      "reportMedia": "Report file",
       "shareProfile": "Share Profile",
       "add": "Add",
       "success": "Success!",
@@ -3044,6 +3046,13 @@
         "continue": "Continue",
         "confirmMessageHeading": "Are you sure you want to report @{{handle}}",
         "confirmMessageDescription": "Your report will be sent to the community moderator.   @{{handle}} won't be notified of your report."
+      },
+      "media": {
+        "title": "Report file",
+        "description": "Help us understand the issue, what’s the problem with this file?",
+        "anythingElse": "Anything else?",
+        "continue": "Continue",
+        "confirmMessageHeading": "Are you sure you want to report this file?"
       },
       "sendReport": "Send Report",
       "reportSuccess": "Thank you for letting us know. Your feedback help us make the {{name}} community better for everyone!",

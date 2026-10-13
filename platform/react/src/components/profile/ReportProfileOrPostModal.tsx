@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import type { PublicPost, PublicProfile } from '@openpeepshq/common/types';
+import type {
+  PublicPost,
+  PublicProfile,
+  ReportedMedia,
+} from '@openpeepshq/common/types';
 import {
   Dialog,
   DialogActions,
@@ -13,9 +17,10 @@ import { useT } from '../../i18n';
 import { useServerInfo } from '../server-data';
 
 export interface ReportProfileOrPostModalProps {
-  reportType: 'profile' | 'post';
+  reportType: 'profile' | 'post' | 'media';
   profile?: PublicProfile;
   post?: PublicPost;
+  media?: ReportedMedia;
   open: boolean;
   onClose: () => void;
 }
@@ -26,6 +31,7 @@ export function ReportProfileOrPostModal({
   reportType,
   profile,
   post,
+  media,
   open,
   onClose,
 }: ReportProfileOrPostModalProps) {
@@ -65,7 +71,12 @@ export function ReportProfileOrPostModal({
       await createReport({
         postIds: post ? [post.id] : [],
         profileId: profile?.id ?? post?.profile.id ?? '',
-        report: { comment, category, forward: false },
+        report: {
+          comment,
+          category,
+          forward: false,
+          ...(media ? { media: [media] } : {}),
+        },
       });
       onClose();
     } finally {
@@ -93,7 +104,13 @@ export function ReportProfileOrPostModal({
                   defaultValue: 'Report @{{handle}}',
                   handle: profile?.handle,
                 })
-              : t('reports.create.post.title', { defaultValue: 'Report post' })}
+              : reportType === 'media'
+                ? t('reports.create.media.title', {
+                    defaultValue: 'Report file',
+                  })
+                : t('reports.create.post.title', {
+                    defaultValue: 'Report post',
+                  })}
           </DialogTitle>
         </DialogHeader>
 

@@ -1,8 +1,16 @@
 import { useState } from 'react';
+import {
+  canReportAuthor,
+  reportedMediaFromAttachment,
+} from '@openpeepshq/common/lib';
 import type {
   MediaAttachmentData,
   PublicPost,
+  ReportedMedia,
 } from '@openpeepshq/common/types';
+import { useT } from '../../../i18n';
+import { useCurrentProfile } from '../../layout/IdentityContext';
+import { ReportProfileOrPostModal } from '../../profile/ReportProfileOrPostModal';
 import { useStaticRender } from '../../markdown/staticRender';
 import { VideoPlayOverlay } from '../VideoPlayOverlay';
 import { AudioAttachment, isAudioAttachment } from './AudioAttachment';
@@ -23,9 +31,21 @@ const isVideo = (att: MediaAttachmentData) =>
   att.type === 'video' || att.meta?.mimetype?.startsWith('video/');
 
 export function Attachments({ post }: AttachmentsProps) {
+  const t = useT();
+  const me = useCurrentProfile();
   const { enabled: staticRender } = useStaticRender();
   const attachments = attachmentsOf(post);
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
+  const [reporting, setReporting] = useState<ReportedMedia | null>(null);
+  const canReport =
+    !staticRender && canReportAuthor(me?.id, me?.roles, post.profile?.id);
+
+  const reportAttachment = (attachment: MediaAttachmentData) => {
+    const media = reportedMediaFromAttachment(attachment);
+    if (!media) return;
+    setGalleryIndex(null);
+    setReporting(media);
+  };
 
   if (attachments.length === 0) return null;
 
@@ -119,12 +139,28 @@ export function Attachments({ post }: AttachmentsProps) {
         ) : null}
 
         {audio.map(({ att, idx }) => (
-          <AudioAttachment
-            key={`${att.url ?? idx}-${idx}`}
-            src={att.url}
-            label={att.filename ?? att.description}
-            size={att.meta?.size}
-          />
+          <div key={`${att.url ?? idx}-${idx}`} className="flex flex-col gap-1">
+            <AudioAttachment
+              src={att.url}
+              label={att.filename ?? att.description}
+              size={att.meta?.size}
+            />
+            {canReport && reportedMediaFromAttachment(att) ? (
+              <button
+                type="button"
+                className="text-destructive self-end text-xs font-medium"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  reportAttachment(att);
+                }}
+              >
+                {t('common.actions.reportMedia', {
+                  defaultValue: 'Report file',
+                })}
+              </button>
+            ) : null}
+          </div>
         ))}
       </div>
 
@@ -133,6 +169,17 @@ export function Attachments({ post }: AttachmentsProps) {
           attachments={attachments}
           initialIndex={galleryIndex}
           onClose={() => setGalleryIndex(null)}
+          onReport={canReport ? reportAttachment : undefined}
+        />
+      ) : null}
+
+      {reporting ? (
+        <ReportProfileOrPostModal
+          reportType="media"
+          post={post}
+          media={reporting}
+          open
+          onClose={() => setReporting(null)}
         />
       ) : null}
     </>

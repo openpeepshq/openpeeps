@@ -4,6 +4,7 @@ import {
   reportDataSchema,
   publicReportSchema,
   isSelfReport,
+  reportedMediaOnPosts,
   type PostWithMeta,
 } from '@openpeepshq/common';
 import { findPost } from '@openpeepshq/core/posts';
@@ -44,6 +45,14 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
     if (isSelfReport(profile.id, reportedProfile.id, postAuthorIds)) {
       throw forbidden();
     }
-    return createReport(input.report, profile, reportedProfile, posts);
+    const requestedMedia = input.report.media;
+    let report = input.report;
+    if (requestedMedia?.length) {
+      // Persist the attachment stored on the post, not the client snapshot.
+      const media = reportedMediaOnPosts(requestedMedia, posts);
+      if (!media) throw notFound();
+      report = { ...input.report, media };
+    }
+    return createReport(report, profile, reportedProfile, posts);
   },
 );

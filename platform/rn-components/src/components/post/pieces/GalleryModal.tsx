@@ -3,7 +3,12 @@ import { Modal, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { MediaAttachmentData } from '@openpeepshq/common/types';
 import { CachedImage } from '../../custom/common/cached-image';
-import { ChevronLeftIcon, ChevronRightIcon, XIcon } from '../../icons/index';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  FlagIcon,
+  XIcon,
+} from '../../icons/index';
 import { Button } from '../../ui/button';
 import { ThemedText } from '../../ui/themed-text';
 import { downloadDocument } from '../../../lib/downloadFile';
@@ -14,6 +19,7 @@ export interface GalleryModalProps {
   attachments: MediaAttachmentData[];
   initialIndex?: number;
   onClose: () => void;
+  onReport?: (attachment: MediaAttachmentData) => void;
 }
 
 const isVideo = (att: MediaAttachmentData) =>
@@ -25,6 +31,7 @@ export const GalleryModal = ({
   attachments,
   initialIndex = 0,
   onClose,
+  onReport,
 }: GalleryModalProps) => {
   const { t } = useTranslation();
   const [index, setIndex] = useState(initialIndex);
@@ -45,6 +52,20 @@ export const GalleryModal = ({
       statusBarTranslucent
     >
       <View className="flex-1 items-center justify-center bg-black/80">
+        {onReport ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('common.actions.reportMedia')}
+            className="absolute left-4 top-12 z-50 flex-row items-center gap-1 rounded-full bg-destructive px-3 py-2"
+            onPress={() => onReport(attachment)}
+          >
+            <FlagIcon className="text-destructive-foreground" size={16} />
+            <ThemedText className="text-destructive-foreground text-sm">
+              {t('common.actions.reportMedia')}
+            </ThemedText>
+          </Pressable>
+        ) : null}
+
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('posts.gallery.close')}
