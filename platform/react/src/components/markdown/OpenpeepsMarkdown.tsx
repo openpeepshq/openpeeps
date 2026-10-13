@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { linkProfileMentions } from '@openpeepshq/common/lib';
+import { preprocessMarkdownSource } from '@openpeepshq/common/lib';
+import type { MarkdownRenderProps } from '@openpeepshq/common/lib';
 import { extractUrlsFromText, isEmail } from '../preview-link/helpers';
 import { PreviewLink } from '../preview-link/PreviewLink';
 import {
@@ -9,34 +10,29 @@ import {
 import { compileMarkdownToHtml } from './compileMarkdown';
 import { resolveStaticUrl, useStaticRender } from './staticRender';
 
+/** @deprecated Use {@link MentionProfileRef} from @openpeepshq/common. */
 export type MarkdownMention = {
-  text?: string;
   profile: { handle: string; displayName?: string | null };
 };
 
-export interface OpenpeepsMarkdownProps {
-  source?: string;
-  mentions?: MarkdownMention[];
+export interface OpenpeepsMarkdownProps extends MarkdownRenderProps {
   className?: string;
-  linkPreviewMode?: 'prepend' | 'append' | 'none';
-  /** When true, all links open in a new tab. External links always do. */
-  newTab?: boolean;
 }
 
-const hashtagPattern = /(^|[\s(>])#([a-z0-9_]+)(?=\s|$|[.,!?;:])/gi;
+const hashtagPattern = /(^|[\s(>])#([a-z0-9_]+)(?=\s|$|[.,!?;:])$/gi;
 
-function preprocessSource(
+const preprocessWithHashtags = (
   source: string,
-  mentions: MarkdownMention[] = [],
-): string {
-  let text = linkProfileMentions(source, mentions);
+  mentions: MarkdownRenderProps['mentions'] = [],
+): string => {
+  let text = preprocessMarkdownSource(source, mentions);
   text = text.replace(
     hashtagPattern,
     (_, prefix: string, tag: string) =>
       `${prefix}[#${tag}](/tags/${encodeURIComponent(tag)})`,
   );
   return text;
-}
+};
 
 const markdownOrigin = (
   staticRender: boolean,
@@ -75,8 +71,12 @@ export function OpenpeepsMarkdown({
   }, [source]);
 
   const html = useMemo(() => {
-    const processed = preprocessSource(source ?? '', mentions);
-    let out = compileMarkdownToHtml(processed, { origin, newTab });
+    const processed = preprocessWithHashtags(source ?? '', mentions);
+    let out = compileMarkdownToHtml(processed, {
+      origin,
+      newTab,
+      sanitize: true,
+    });
     if (staticRender && baseUrl) {
       out = out.replace(/href="(\/[^"]*)"/g, (_, path: string) => {
         return `href="${resolveStaticUrl(path, baseUrl)}"`;

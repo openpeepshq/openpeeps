@@ -159,5 +159,25 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Constrain iframes rendered inside markdown prose so they can't
+    // break through scroll/overflow boundaries (Safari doesn't clip iframes
+    // via overflow:hidden alone).
+    function ({ addComponents }) {
+      addComponents({
+        '.allpeep-markdown iframe': {
+          maxWidth: '100% !important',
+          width: '100% !important',
+          border: '0',
+          display: 'block',
+        },
+        '.allpeep-markdown iframe[style]': {
+          // Override inline styles set by markdown source so iframes
+          // can never exceed the container bounds.
+          maxWidth: '100% !important',
+          width: '100% !important',
+        },
+      });
+    },
+  ],
 };

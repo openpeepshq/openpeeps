@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { handleRegex } from '../../types';
 import {
+  extractIframeSrcs,
   firstNWords,
+  injectIframeSafetyAttrs,
+  isExternalLink,
   linkProfileMentions,
   markdownPlainText,
   matchMentionHandles,
   minutesToRead,
+  preprocessMarkdownSource,
+  toGotoUrl,
 } from '../markdownHelpers';
 
 const allowedHandles = [
@@ -156,6 +161,19 @@ describe('linkProfileMentions', () => {
   });
 });
 
+describe('preprocessMarkdownSource', () => {
+  it('links mentions the same as linkProfileMentions', () => {
+    expect(
+      preprocessMarkdownSource('hi @alice', [{ profile: { handle: 'alice' } }]),
+    ).toBe('hi [@alice](/@alice)');
+  });
+
+  it('handles empty source', () => {
+    expect(preprocessMarkdownSource('')).toBe('');
+    expect(preprocessMarkdownSource('', [])).toBe('');
+  });
+});
+
 describe('markdownPlainText', () => {
   it('drops heading marks, emphasis, and inline code', () => {
     expect(
@@ -211,5 +229,102 @@ describe('minutesToRead', () => {
       '# Title\n\nThis is [a link](http://x.com) with `code` and **bold**.';
     // markdownPlainText gives: "Title This is a link with code and bold." (9 words)
     expect(minutesToRead(markdown, 3)).toBe(3);
+  });
+});
+
+describe('isExternalLink', () => {
+  const origin = 'https://app.example';
+
+  it('treats same-origin and relative hrefs as internal', () => {
+    expect(isExternalLink('/@alice', origin)).toBe(false);
+    expect(isExternalLink('/posts/abc', origin)).toBe(false);
+    expect(isExternalLink('https://app.example/groups/x', origin)).toBe(false);
+  });
+
+  it('treats other origins as external', () => {
+    expect(isExternalLink('https://news.example/story', origin)).toBe(true);
+    expect(isExternalLink('http://example.com', origin)).toBe(true);
+  });
+
+  it('ignores mailto, tel, and hash', () => {
+    expect(isExternalLink('mailto:a@b.c', origin)).toBe(false);
+    expect(isExternalLink('tel:+1555', origin)).toBe(false);
+    expect(isExternalLink('#section', origin)).toBe(false);
+  });
+});
+
+describe('toGotoUrl', () => {
+  const origin = 'https://app.example';
+
+  it('wraps root-relative paths in goto:', () => {
+    expect(toGotoUrl('/@alice', origin)).toBe('goto:/@alice');
+  });
+
+  it('passes through existing goto: URLs', () => {
+    expect(toGotoUrl('goto:/@alice', origin)).toBe('goto:/@alice');
+  });
+
+  it('converts same-origin absolute URLs to goto: paths', () => {
+    expect(toGotoUrl('https://app.example/groups/x', origin)).toBe(
+      'goto:/groups/x',
+    );
+  });
+
+  it('leaves external URLs unchanged', () => {
+    expect(toGotoUrl('https://example.com', origin)).toBe(
+      'https://example.com',
+    );
+  });
+});
+
+describe('extractIframeSrcs', () => {
+  it('extracts src from a single iframe', () => {
+    expect(
+      extractIframeSrcs('<iframe src="https://x.com/embed/1"></iframe>'),
+    ).toEqual(['https://x.com/embed/1']);
+  });
+
+  it('extracts src from multiple iframes', () => {
+    const html =
+      '<iframe src="https://a.com"></iframe><iframe src="https://b.com"></iframe>';
+    expect(extractIframeSrcs(html)).toEqual(['https://a.com', 'https://b.com']);
+  });
+
+  it('handles single-quoted attrs', () => {
+    expect(extractIframeSrcs("<iframe src='https://x.com'></iframe>")).toEqual([
+      'https://x.com',
+    ]);
+  });
+
+  it('returns empty for no iframes', () => {
+    expect(extractIframeSrcs('<p>no iframes here</p>')).toEqual([]);
+  });
+});
+
+describe('injectIframeSafetyAttrs', () => {
+  it('adds loading, sandbox, referrerpolicy, and style to a bare iframe', () => {
+    const result = injectIframeSafetyAttrs(
+      '<iframe src="https://x.com"></iframe>',
+    );
+    expect(result).toContain('loading="lazy"');
+    expect(result).toContain('sandbox="allow-scripts');
+    expect(result).toContain('referrerpolicy');
+    expect(result).toContain('max-width:100%');
+  });
+
+  it('does not duplicate attributes that already exist', () => {
+    const result = injectIframeSafetyAttrs(
+      '<iframe src="https://x.com" loading="eager" sandbox="allow-scripts"></iframe>',
+    );
+    // Should not add a second loading attribute
+    const loadingCount = (result.match(/loading=/g) || []).length;
+    expect(loadingCount).toBe(1);
+  });
+
+  it('preserves existing src attribute', () => {
+    const result = injectIframeSafetyAttrs(
+      '<iframe src="https://example.com/embed"></iframe>',
+    );
+    expect(result).toContain('src="https://example.com/embed"');
   });
 });

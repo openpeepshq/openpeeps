@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { isExternalLink } from '../components/markdown/linkTargets';
+import { isExternalLink } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../contexts/openpeeps';
 import { useOptionalPathname } from '../contexts/router';
 
