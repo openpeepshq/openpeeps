@@ -19,12 +19,12 @@ If you're trying to access the Release Notes, you may visit the [Release Notes](
 - [Setting Up OIDC SSO](/docs/admin/oidc-sso) - Configure OpenID Connect, GitLab, and GitHub sign-in on the SSO page
 - [Setting Up Generic SSO](/docs/admin/generic-sso) - Configure single sign-on authentication with external providers
 
-
 <div style="height:20px"></div>
 
 ## Operations
 
 - [Backups](/docs/admin/backups) - Backup archive format and restore
+- [Media Management](/docs/admin/media) - List, delete, and garbage-collect uploaded media files
 - [MCP for operators](/docs/admin/mcp) - Enable or disable MCP, ops tools, tokens, and reverse proxies
 
 <div style="height:20px"></div>

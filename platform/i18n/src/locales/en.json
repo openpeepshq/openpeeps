@@ -125,6 +125,7 @@
     "diagnostics": "Diagnostics",
     "moderation": "Moderation",
     "backups": "Backups",
+    "media": "Media",
     "analytics": "Analytics",
     "openNotifications": "Open Notifications",
     "goToWelcomePage": "Welcome Page",
@@ -1347,6 +1348,41 @@
         "confirm": "Confirm"
       },
       "create": "Create backup"
+    },
+    "media": {
+      "title": "Media",
+      "description": "Removing a post or jam recording leaves the file on the server, because another post, the welcome page, the about page, the code of conduct, a profile, or a custom field may still link to it. Garbage collection deletes a file {{days}} days after it first has no live link. Delete now removes a file immediately.",
+      "counts": "{{total}} files · {{unused}} unused · {{inUse}} in use",
+      "search": "Search by file id",
+      "loading": "Loading…",
+      "error": "Could not load media files",
+      "empty": "No media files",
+      "open": "Open",
+      "delete": "Delete now",
+      "filter": {
+        "all": "All",
+        "unused": "Unused",
+        "inUse": "In use"
+      },
+      "status": {
+        "referenced": "In use",
+        "pending": "Unused",
+        "due": "Ready to collect",
+        "unseen": "Unused"
+      },
+      "collects": {
+        "referenced": "Kept — still linked",
+        "pending": "Deletes {{date}}",
+        "due": "Deletes on the next run",
+        "unseen": "Recorded on the next run"
+      },
+      "confirm": {
+        "title": "Delete this file?",
+        "unused": "This file is unused. Deleting it now removes it from the server instead of waiting for garbage collection.",
+        "referenced": "This file is still linked from a post, page, or profile. Deleting it now removes it from the server, and those links will stop working.",
+        "action": "Delete file",
+        "cancel": "Cancel"
+      }
     },
     "database": {
       "title": "Database",

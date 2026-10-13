@@ -209,7 +209,7 @@ describe('setDefaultRoles rebase', () => {
     await setDefaultRoles();
     const member = testState.roles.find((r) => r.key === 'member');
     expect(member?.default).toBe(false);
-    expect(member?.baseVersion).toBe('2026-10-06');
+    expect(member?.baseVersion).toBe('2026-10-13');
     // Custom cap kept, cap dropped by the defaults removed, caps gained by
     // the defaults appended.
     expect(member?.capabilities).toEqual({
@@ -268,7 +268,7 @@ describe('setDefaultRoles rebase', () => {
     await setDefaultRoles();
     const member = testState.roles.find((r) => r.key === 'member');
     expect(member?.default).toBe(true);
-    expect(member?.baseVersion).toBe('2026-10-06');
+    expect(member?.baseVersion).toBe('2026-10-13');
   });
 
   it('keeps managed default-flagged roles in sync instead of rebasing them', async () => {
@@ -282,7 +282,7 @@ describe('setDefaultRoles rebase', () => {
     await setDefaultRoles();
     const member = testState.roles.find((r) => r.key === 'member');
     expect(member?.default).toBe(true);
-    expect(member?.baseVersion).toBe('2026-10-06');
+    expect(member?.baseVersion).toBe('2026-10-13');
     expect(member?.capabilities).toEqual(factoryRole('member').capabilities);
   });
 });
@@ -317,7 +317,7 @@ describe('updateRole default adoption', () => {
     expect(result.default).toBe(true);
     expect(result.displayName).toBe('Members');
     expect(result.capabilities).toEqual(factoryRole('member').capabilities);
-    expect(result.baseVersion).toBe('2026-10-06');
+    expect(result.baseVersion).toBe('2026-10-13');
   });
 
   it('keeps an explicit default: true on a built-in role', async () => {

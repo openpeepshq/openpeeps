@@ -89,6 +89,7 @@ import {
   AnalyticsPluginPage,
   AnalyticsReportSettingsPage,
   AdminBackups,
+  AdminMedia,
   AdminGroups,
   AdminInvites,
   AdminMembers,
@@ -332,6 +333,7 @@ const Admin = {
   MemberDetail: AdminMemberDetail,
   Invites: AdminInvites,
   Backups: AdminBackups,
+  Media: AdminMedia,
   Analytics: AdminAnalytics,
   AnalyticsOverview: AnalyticsOverviewPage,
   AnalyticsMembers: AnalyticsMembersPage,
@@ -694,6 +696,10 @@ function AppShell() {
                         path="/admin/backups"
                         element={<Admin.Backups />}
                       />
+                    </Route>
+
+                    <Route element={<RequireAdminSection section="media" />}>
+                      <Route path="/admin/media" element={<Admin.Media />} />
                     </Route>
 
                     <Route

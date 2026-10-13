@@ -126,6 +126,7 @@
     "plugins": "Plugins",
     "moderation": "Moderation",
     "backups": "Sicherungen",
+    "media": "Medien",
     "analytics": "Statistiken",
     "openNotifications": "Benachrichtigungen öffnen",
     "goToWelcomePage": "Zur Willkommensseite",
@@ -1310,6 +1311,41 @@
         "confirm": "Bestätigen"
       },
       "create": "Backup erstellen"
+    },
+    "media": {
+      "title": "Medien",
+      "description": "Wenn ein Beitrag oder eine Jam-Aufnahme gelöscht wird, bleibt die Datei auf dem Server, weil ein anderer Beitrag, die Willkommensseite, die Über-Seite, der Verhaltenskodex, ein Profil oder ein eigenes Feld noch darauf verlinken kann. Die Speicherbereinigung löscht eine Datei {{days}} Tage, nachdem sie zum ersten Mal keine aktive Verlinkung mehr hat. Mit „Jetzt löschen“ wird die Datei sofort entfernt.",
+      "counts": "{{total}} Dateien · {{unused}} unbenutzt · {{inUse}} in Verwendung",
+      "search": "Nach Datei-ID suchen",
+      "loading": "Wird geladen…",
+      "error": "Mediendateien konnten nicht geladen werden",
+      "empty": "Keine Mediendateien",
+      "open": "Öffnen",
+      "delete": "Jetzt löschen",
+      "filter": {
+        "all": "Alle",
+        "unused": "Unbenutzt",
+        "inUse": "In Verwendung"
+      },
+      "status": {
+        "referenced": "In Verwendung",
+        "pending": "Unbenutzt",
+        "due": "Bereit zum Entfernen",
+        "unseen": "Unbenutzt"
+      },
+      "collects": {
+        "referenced": "Behalten — noch verlinkt",
+        "pending": "Wird am {{date}} gelöscht",
+        "due": "Wird beim nächsten Lauf gelöscht",
+        "unseen": "Wird beim nächsten Lauf erfasst"
+      },
+      "confirm": {
+        "title": "Diese Datei löschen?",
+        "unused": "Diese Datei wird nicht verwendet. Wenn du sie jetzt löschst, wird sie sofort vom Server entfernt, statt auf die Speicherbereinigung zu warten.",
+        "referenced": "Diese Datei ist noch von einem Beitrag, einer Seite oder einem Profil verlinkt. Wenn du sie jetzt löschst, wird sie vom Server entfernt und diese Links funktionieren nicht mehr.",
+        "action": "Datei löschen",
+        "cancel": "Abbrechen"
+      }
     },
     "invites": {
       "inviteWithLinkTitle": "Mitglied per Link einladen",

@@ -50,6 +50,7 @@ describe('adminSections', () => {
       ]),
     );
     expect(keys).not.toContain('backups');
+    expect(keys).not.toContain('media');
     expect(keys).not.toContain('configuration');
     expect(keys).not.toContain('diagnostics');
   });
@@ -68,9 +69,14 @@ describe('adminSections', () => {
     );
   });
 
+  it('shows media when the profile can read stored files', () => {
+    const roles = [roleWith(['core-media-read'])];
+    expect(getVisibleAdminSections(roles).map((s) => s.key)).toEqual(['media']);
+  });
+
   it('shows all sections for the owner wildcard', () => {
     const roles = [roleWith(['*'])];
-    expect(getVisibleAdminSections(roles).length).toBe(11);
+    expect(getVisibleAdminSections(roles).length).toBe(12);
   });
 
   it('shows database when the profile has core-db-access', () => {
