@@ -37,6 +37,7 @@ import { Button } from '../../ui/button';
 interface CachedVideoPlayerProps {
   url: string;
   title?: string;
+  autoPlay?: boolean;
 }
 
 const HLS_POLL_INTERVAL_MS = 5_000;
@@ -45,6 +46,7 @@ type LocalStreamState = 'loading' | 'processing' | 'ready' | 'error';
 
 export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
   url,
+  autoPlay = true,
 }) => {
   const navigation = useNavigation();
   const { t: tr } = useTranslation();
@@ -227,7 +229,9 @@ export const CachedVideoPlayer: React.FC<CachedVideoPlayerProps> = ({
   const onLoad = (data: OnLoadData) => {
     setDuration(data.duration || 0);
     setHasEnded(false);
-    setIsPaused(false);
+    if (autoPlay) {
+      setIsPaused(false);
+    }
   };
 
   const onProgress = (data: OnProgressData) => {

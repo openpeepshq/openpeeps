@@ -7,18 +7,24 @@ import { cn } from '../../../lib/utils';
 export interface VideoPlayerProps {
   attachment: MediaAttachmentData;
   title?: string;
+  autoPlay?: boolean;
   className?: string;
 }
 
 export const VideoPlayer = ({
   attachment,
   title,
+  autoPlay,
   className,
 }: VideoPlayerProps) => {
   if (!attachment.url) return null;
   return (
     <View className={cn('w-full', className)}>
-      <CachedVideoPlayer url={attachment.url} title={title} />
+      <CachedVideoPlayer
+        url={attachment.url}
+        title={title}
+        autoPlay={autoPlay}
+      />
     </View>
   );
 };
