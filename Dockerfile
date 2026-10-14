@@ -8,10 +8,10 @@ FROM realies/audiowaveform AS audiowaveform
 #─────────────────────────────────────────────────────────────────────────────
 FROM node:24-alpine AS builder
 
-ARG VERSION
-# Set by CI from git branch: main|prod/* → production, else development.
-# Unset locally → runtime defaults to local (see resolveSentryEnvironment).
-ARG ENVIRONMENT
+# VERSION and ENVIRONMENT are runtime-only inputs (core config reads
+# process.env at startup; nothing in the build bakes them into artifacts).
+# They live in the runtime stage (below), not here, so a per-commit VERSION
+# (date–short_sha) cannot pin an ENV layer and bust the install/build cache.
 
 # `git`            → consumed by scripts/generate-changelog.mjs
 # `python3 make g++` → required to compile native node addons (bcrypt, sharp)
@@ -25,8 +25,6 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV NODE_OPTIONS="--max-old-space-size=8192"
 ENV NODE_ENV=production
-ENV VERSION=$VERSION
-ENV ENVIRONMENT=$ENVIRONMENT
 
 WORKDIR /apat
 

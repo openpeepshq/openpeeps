@@ -169,19 +169,26 @@ jobs:
             trap 'docker buildx rm -f ci-app' EXIT
             image="${{ needs.set-variables.outputs.registry_image_base }}"
             cache="${image}:buildcache"
-            cache_from=""
-            if docker manifest inspect "${cache}" >/dev/null 2>&1; then
-              cache_from="--cache-from type=registry,ref=${cache}"
-            fi
             # Transient Docker errors (layer blob, network) cause build failures;
             # retry up to 3 times with cache reuse for faster recovery.
             for attempt in 1 2 3; do
+              # Re-derive cache_from each attempt: a parallel run or an earlier
+              # retry may have just republished a fresh :buildcache that this
+              # attempt can reuse. Computing it once before the loop left later
+              # attempts reading a stale or absent cache.
+              cache_from=""
+              if docker manifest inspect "${cache}" >/dev/null 2>&1; then
+                cache_from="--cache-from type=registry,ref=${cache}"
+              fi
               if docker buildx build \
                 ${cache_from} \
                 --cache-to "type=registry,ref=${cache},mode=max" \
                 --build-arg "VERSION=${{ needs.set-variables.outputs.version }}" \
                 --build-arg "ENVIRONMENT=${{ needs.set-variables.outputs.environment }}" \
                 -t "${image}:${{ needs.set-variables.outputs.short_sha }}" --push .; then
+                break
+              elif docker manifest inspect "${image}:${{ needs.set-variables.outputs.short_sha }}" >/dev/null 2>&1; then
+                echo "Image ${image}:${{ needs.set-variables.outputs.short_sha }} pushed; buildx failure was a transient cache export."
                 break
               elif [ "$attempt" -eq 3 ]; then
                 echo "Image build failed after 3 attempts"
@@ -229,18 +236,23 @@ jobs:
             docker buildx create --name ci-test --driver docker-container --use
             trap 'docker buildx rm -f ci-test' EXIT
             cache="${image}:test-buildcache"
-            cache_from=""
-            if docker manifest inspect "${cache}" >/dev/null 2>&1; then
-              cache_from="--cache-from type=registry,ref=${cache}"
-            fi
             # Transient Docker errors (layer blob, network) cause build failures;
             # retry up to 3 times with cache reuse for faster recovery.
             for attempt in 1 2 3; do
+              # Re-derive cache_from each attempt: a parallel run or earlier
+              # retry may have just republished a fresh :test-buildcache.
+              cache_from=""
+              if docker manifest inspect "${cache}" >/dev/null 2>&1; then
+                cache_from="--cache-from type=registry,ref=${cache}"
+              fi
               if docker buildx build \
                 ${cache_from} \
                 --cache-to "type=registry,ref=${cache},mode=max" \
                 -f Dockerfile.test \
                 -t "${image}:${tag}" --push .; then
+                break
+              elif docker manifest inspect "${image}:${tag}" >/dev/null 2>&1; then
+                echo "Image ${image}:${tag} pushed; buildx failure was a transient cache export."
                 break
               elif [ "$attempt" -eq 3 ]; then
                 echo "Test image build failed after 3 attempts"
