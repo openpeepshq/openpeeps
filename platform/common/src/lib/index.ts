@@ -17,6 +17,7 @@ export * from './eventIcs';
 export * from './eventTime';
 export * from './timeZone';
 export * from './eventRecurrence';
+export * from './eventWaitlist';
 export * from './tokenHelpers';
 export * from './jamHelpers';
 export * from './scopeHelpers';

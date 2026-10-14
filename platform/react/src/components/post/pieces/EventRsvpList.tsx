@@ -14,6 +14,8 @@ import {
   isRecurringEvent,
   listedRsvps,
   listRsvpCancellations,
+  offerStillOpen,
+  orderedWaitlist,
   profileName,
   rsvpCancelWhenLabels,
   sameRecurrenceId,
@@ -126,6 +128,9 @@ export const EventRsvpList = ({
           onMessage={onMessage}
           onManage={onManage}
         />
+        {canManageRsvps ? (
+          <WaitlistSection post={post} recurrenceId={occurrenceId} />
+        ) : null}
         {history}
       </>
     );
@@ -168,10 +173,69 @@ export const EventRsvpList = ({
               onMessage={onMessage}
               onManage={onManage}
             />
+            {canManageRsvps ? (
+              <WaitlistSection post={post} recurrenceId={key} />
+            ) : null}
           </RsvpPanel>
         );
       })}
       {history}
+    </div>
+  );
+};
+
+const WaitlistSection = ({
+  post,
+  recurrenceId,
+}: {
+  post: PublicPost;
+  recurrenceId?: string;
+}) => {
+  const t = useT();
+  const waiting = orderedWaitlist(post, recurrenceId);
+  if (!waiting.length) return null;
+  const profiles = new Map(
+    (post.rsvps ?? []).map((rsvp) => [rsvp.profile.id, rsvp.profile]),
+  );
+  return (
+    <div className="mt-4 border-t pt-3">
+      <h3 className="mb-2 text-sm font-semibold">
+        {t('events.rsvp.waitlistTitle', { defaultValue: 'Waitlist' })}
+      </h3>
+      <ol className="flex flex-col gap-2">
+        {waiting.map((member, index) => {
+          const profile = profiles.get(member.profileId);
+          if (!profile) return null;
+          const until = member.offerExpiresAt;
+          const offered = !!until && offerStillOpen({ offerExpiresAt: until });
+          return (
+            <li key={member.profileId} className="text-sm">
+              <span className="text-muted-foreground">{index + 1}. </span>
+              <span className="font-medium">{profileName(profile)}</span>
+              {offered ? (
+                <span className="text-muted-foreground">
+                  {' '}
+                  —{' '}
+                  {t('events.rsvp.waitlistOffered', {
+                    defaultValue: 'offered until {{until}}',
+                    until: new Date(until ?? '').toLocaleString(),
+                  })}
+                </span>
+              ) : null}
+              {profile.type === 'federated' ? (
+                <span className="text-muted-foreground">
+                  {' '}
+                  —{' '}
+                  {t('events.rsvp.waitlistRemote', {
+                    defaultValue:
+                      'Remote member, not offered a spot automatically',
+                  })}
+                </span>
+              ) : null}
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 };

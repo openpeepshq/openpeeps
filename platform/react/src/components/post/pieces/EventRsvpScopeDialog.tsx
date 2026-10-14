@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import type { ExpandedOccurrence } from '@openpeepshq/common/lib';
 import {
-  countYesRsvps,
-  getEffectiveRsvp,
-  isCapacityEvent,
-  seriesYesBlockedByCapacity,
+  canClaimYesRsvp,
+  canJoinWaitlist,
+  seriesClaimBlocked,
 } from '@openpeepshq/common/lib';
 import type { RsvpScopeChoice } from '../../../hooks/events/useEventRsvp';
 import {
@@ -27,7 +26,7 @@ export type { RsvpScopeChoice };
 export type EventRsvpScopeDialogProps = {
   open: boolean;
   post: PublicPost;
-  response: 'yes' | 'tentative' | 'no';
+  response: 'yes' | 'tentative' | 'no' | 'waitlist';
   defaultRecurrenceId?: string;
   occurrences: ExpandedOccurrence[];
   error?: string | null;
@@ -60,19 +59,16 @@ export const EventRsvpScopeDialog = ({
 }: EventRsvpScopeDialogProps) => {
   const t = useT();
   const profile = useCurrentProfile();
-  const event = post.data?.type === 'event' ? post.data : undefined;
-  const capacityEvent = event ? isCapacityEvent(event) : false;
+  const joiningWaitlist = response === 'waitlist';
   const seriesFull =
-    response === 'yes' &&
-    !!profile &&
-    seriesYesBlockedByCapacity(post, profile.id);
-  const occurrenceIsFull = (recurrenceId: string) =>
-    response === 'yes' &&
-    capacityEvent &&
-    event?.maxAttendees !== undefined &&
-    getEffectiveRsvp(post, profile?.id ?? '', recurrenceId)?.response !==
-      'yes' &&
-    countYesRsvps(post, recurrenceId) >= event.maxAttendees;
+    response === 'yes' && !!profile && seriesClaimBlocked(post, profile.id);
+  const occurrenceIsFull = (recurrenceId: string) => {
+    if (!profile) return false;
+    if (joiningWaitlist)
+      return !canJoinWaitlist(post, profile.id, recurrenceId);
+    if (response !== 'yes') return false;
+    return !canClaimYesRsvp(post, profile.id, recurrenceId);
+  };
   const currentFull =
     !!defaultRecurrenceId && occurrenceIsFull(defaultRecurrenceId);
   const initialScope: ScopeKind = currentFull
@@ -130,9 +126,13 @@ export const EventRsvpScopeDialog = ({
       <DialogContent className="max-h-[85vh] max-w-md overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {t('events.rsvp.scope.title', {
-              defaultValue: 'Which dates?',
-            })}
+            {joiningWaitlist
+              ? t('events.rsvp.scope.waitlistTitle', {
+                  defaultValue: 'Join the waitlist for which dates?',
+                })
+              : t('events.rsvp.scope.title', {
+                  defaultValue: 'Which dates?',
+                })}
           </DialogTitle>
         </DialogHeader>
         <RadioGroup
@@ -157,7 +157,7 @@ export const EventRsvpScopeDialog = ({
               })}
             </label>
           ) : null}
-          {currentFull ? null : (
+          {currentFull || joiningWaitlist ? null : (
             <label className="flex items-start gap-2 text-sm">
               <RadioGroupItem value="series" disabled={seriesFull} />
               <span>
@@ -200,9 +200,15 @@ export const EventRsvpScopeDialog = ({
                       <span className={full ? 'text-muted-foreground' : ''}>
                         {formatOccurrenceStart(occurrence.start)}
                         {full
-                          ? ` — ${t('events.rsvp.full', {
-                              defaultValue: 'Event is full',
-                            })}`
+                          ? ` — ${
+                              joiningWaitlist
+                                ? t('events.rsvp.spotsOpen', {
+                                    defaultValue: 'Spots still open',
+                                  })
+                                : t('events.rsvp.full', {
+                                    defaultValue: 'Event is full',
+                                  })
+                            }`
                           : ''}
                       </span>
                     </label>
@@ -225,9 +231,15 @@ export const EventRsvpScopeDialog = ({
             defaultValue: 'Cancel',
           })}
           onCancel={onClose}
-          actionLabel={t('events.rsvp.scope.confirm', {
-            defaultValue: 'Confirm',
-          })}
+          actionLabel={
+            joiningWaitlist
+              ? t('events.rsvp.joinWaitlist', {
+                  defaultValue: 'Join waitlist',
+                })
+              : t('events.rsvp.scope.confirm', {
+                  defaultValue: 'Confirm',
+                })
+          }
           onAction={confirm}
           disabled={confirmDisabled}
         />

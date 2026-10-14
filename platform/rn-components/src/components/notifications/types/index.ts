@@ -17,3 +17,4 @@ export * from './Reply';
 export * from './Repost';
 export * from './Rsvp';
 export * from './RsvpCanceled';
+export * from './WaitlistOffer';

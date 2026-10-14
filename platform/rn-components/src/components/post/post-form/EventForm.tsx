@@ -4,7 +4,10 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import timezones from 'timezones-list';
 import type { PostCreationData } from '@openpeepshq/common';
-import { parseEventMaxAttendeesInput } from '@openpeepshq/common/lib';
+import {
+  parseEventMaxAttendeesInput,
+  parseEventWaitlistOfferMinutesInput,
+} from '@openpeepshq/common/lib';
 import {
   EVENT_WEEKDAYS,
   useEventForm,
@@ -381,6 +384,26 @@ export const EventForm = ({
             ) : null}
           </View>
         </View>
+        {event.maxAttendees != null ? (
+          <View className="gap-y-1">
+            <Label nativeID="event-waitlist-minutes">
+              {t('events.form.waitlistOfferMinutes')}
+            </Label>
+            <ThemedText className="text-sm text-muted-foreground">
+              {t('events.form.waitlistOfferMinutesDescription')}
+            </ThemedText>
+            <Input
+              keyboardType="numeric"
+              value={event.waitlistOfferMinutes?.toString() ?? ''}
+              onChangeText={(value) =>
+                patchEvent({
+                  waitlistOfferMinutes:
+                    parseEventWaitlistOfferMinutesInput(value),
+                })
+              }
+            />
+          </View>
+        ) : null}
       </View>
 
       <DateSheet

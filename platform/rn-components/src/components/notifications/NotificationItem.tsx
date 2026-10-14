@@ -20,6 +20,7 @@ import {
   Reaction,
   Rsvp,
   RsvpCanceled,
+  WaitlistOffer,
 } from './types';
 import { ThemedText } from '../ui/themed-text';
 import { NewGroupPost } from './types/NewGroupPost';
@@ -52,6 +53,7 @@ const notificationComponentMap: Record<
   reaction: Reaction,
   rsvp: Rsvp,
   rsvpCanceled: RsvpCanceled,
+  waitlistOffer: WaitlistOffer,
 };
 
 export const NotificationItem: React.FC<NotificationComponentProps> = ({

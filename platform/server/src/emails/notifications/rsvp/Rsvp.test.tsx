@@ -10,6 +10,7 @@ import { registerDefaultEmailTemplates } from '../../index';
 import { reactEmailRenderer } from '../../renderer';
 import rsvpTemplate from './index';
 import rsvpCanceledTemplate from '../rsvp-canceled';
+import waitlistOfferTemplate from '../waitlist-offer';
 
 const globals = {
   communityConfig: {
@@ -61,6 +62,7 @@ describe('host RSVP notification emails', () => {
       .mock.calls.map(([templateId]) => templateId);
     expect(ids).toContain('notification-rsvp');
     expect(ids).toContain('notification-rsvpCanceled');
+    expect(ids).toContain('notification-waitlistOffer');
   });
 
   it('renders the new RSVP email for the host', async () => {
@@ -93,5 +95,20 @@ describe('host RSVP notification emails', () => {
     );
     expect(html).toContain('Oct');
     expect(html).toContain('https://example.com/posts/post-1');
+  });
+
+  it('renders the waitlist offer email with a claim link', async () => {
+    const { subject, html } = await reactEmailRenderer(waitlistOfferTemplate)({
+      to: 'guest@example.com',
+      template: 'notification-waitlistOffer',
+      globals,
+      locals: notification('waitlistOffer', {
+        offerExpiresAt: '2026-10-14T13:00:00.000Z',
+      }),
+    });
+
+    expect(subject).toBe('emails.waitlistOffer.subject eventName=Jam night');
+    expect(html).toContain('emails.waitlistOffer.body eventName=Jam night');
+    expect(html).toContain('https://example.com/posts/post-1?claim=1');
   });
 });

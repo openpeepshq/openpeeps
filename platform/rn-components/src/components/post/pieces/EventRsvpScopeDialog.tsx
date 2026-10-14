@@ -5,10 +5,9 @@ import { useTranslation } from 'react-i18next';
 import type { PublicPost } from '@openpeepshq/common/types';
 import type { ExpandedOccurrence } from '@openpeepshq/common/lib';
 import {
-  countYesRsvps,
-  getEffectiveRsvp,
-  isCapacityEvent,
-  seriesYesBlockedByCapacity,
+  canClaimYesRsvp,
+  canJoinWaitlist,
+  seriesClaimBlocked,
 } from '@openpeepshq/common/lib';
 import { BaseSheet, SheetFooter } from '../../custom/modals/common';
 import { Checkbox } from '../../ui/checkbox';
@@ -26,7 +25,7 @@ type ScopeKind = 'this' | 'selected' | 'series';
 
 export interface EventRsvpScopeDialogProps {
   post: PublicPost;
-  response: 'yes' | 'tentative' | 'no';
+  response: 'yes' | 'tentative' | 'no' | 'waitlist';
   defaultRecurrenceId?: string;
   occurrences: ExpandedOccurrence[];
   error?: string | null;
@@ -61,19 +60,19 @@ export const EventRsvpScopeDialog = forwardRef<
   ) => {
     const { t } = useTranslation();
     const { currentProfile } = useOpenpeeps();
-    const event = post.data?.type === 'event' ? post.data : undefined;
-    const capacityEvent = event ? isCapacityEvent(event) : false;
+    const joiningWaitlist = response === 'waitlist';
     const seriesFull =
       response === 'yes' &&
       !!currentProfile &&
-      seriesYesBlockedByCapacity(post, currentProfile.id);
-    const occurrenceIsFull = (recurrenceId: string) =>
-      response === 'yes' &&
-      capacityEvent &&
-      event?.maxAttendees !== undefined &&
-      getEffectiveRsvp(post, currentProfile?.id ?? '', recurrenceId)
-        ?.response !== 'yes' &&
-      countYesRsvps(post, recurrenceId) >= event.maxAttendees;
+      seriesClaimBlocked(post, currentProfile.id);
+    const occurrenceIsFull = (recurrenceId: string) => {
+      if (!currentProfile) return false;
+      if (joiningWaitlist) {
+        return !canJoinWaitlist(post, currentProfile.id, recurrenceId);
+      }
+      if (response !== 'yes') return false;
+      return !canClaimYesRsvp(post, currentProfile.id, recurrenceId);
+    };
     const currentFull =
       !!defaultRecurrenceId && occurrenceIsFull(defaultRecurrenceId);
     const initialScope: ScopeKind = currentFull
@@ -129,7 +128,9 @@ export const EventRsvpScopeDialog = forwardRef<
       <BaseSheet ref={ref} snapPoints={['80%']} scrollable>
         <View className="flex-1 p-4">
           <ThemedText className="text-center text-lg mb-4">
-            {t('events.rsvp.scope.title')}
+            {joiningWaitlist
+              ? t('events.rsvp.scope.waitlistTitle')
+              : t('events.rsvp.scope.title')}
           </ThemedText>
           <RadioGroup
             value={scope}
@@ -157,7 +158,7 @@ export const EventRsvpScopeDialog = forwardRef<
                 <ThemedText>{t('events.rsvp.scope.selectedDates')}</ThemedText>
               </Pressable>
             ) : null}
-            {currentFull ? null : (
+            {currentFull || joiningWaitlist ? null : (
               <Pressable
                 onPress={() => !seriesFull && setScope('series')}
                 className="py-3 flex-row items-start gap-x-3"
@@ -204,7 +205,13 @@ export const EventRsvpScopeDialog = forwardRef<
                       }`}
                     >
                       {formatOccurrenceStart(occurrence.start)}
-                      {full ? ` — ${t('events.rsvp.full')}` : ''}
+                      {full
+                        ? ` — ${
+                            joiningWaitlist
+                              ? t('events.rsvp.spotsOpen')
+                              : t('events.rsvp.full')
+                          }`
+                        : ''}
                     </ThemedText>
                   </Pressable>
                 );
@@ -224,7 +231,11 @@ export const EventRsvpScopeDialog = forwardRef<
           <SheetFooter
             onCancel={() => bottomSheetClose(ref)}
             onConfirm={confirm}
-            confirmText={t('events.rsvp.scope.confirm')}
+            confirmText={
+              joiningWaitlist
+                ? t('events.rsvp.joinWaitlist')
+                : t('events.rsvp.scope.confirm')
+            }
             cancelText={t('events.rsvp.scope.cancel')}
             disabled={confirmDisabled}
             isLoading={isLoading}

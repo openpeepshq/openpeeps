@@ -10,6 +10,8 @@ import {
   isRecurringEvent,
   listedRsvps,
   listRsvpCancellations,
+  offerStillOpen,
+  orderedWaitlist,
   profileName,
   rsvpCancelWhenLabels,
   sameRecurrenceId,
@@ -108,6 +110,9 @@ export const EventRsvpList: React.FC<EventRsvpListProps> = ({
           recurrenceId={occurrenceId}
           onManage={onManage}
         />
+        {canManageRsvps ? (
+          <WaitlistSection post={post} recurrenceId={occurrenceId} />
+        ) : null}
         {history}
       </View>
     );
@@ -144,10 +149,51 @@ export const EventRsvpList: React.FC<EventRsvpListProps> = ({
               recurrenceId={key}
               onManage={onManage}
             />
+            {canManageRsvps ? (
+              <WaitlistSection post={post} recurrenceId={key} />
+            ) : null}
           </RsvpPanel>
         );
       })}
       {history}
+    </View>
+  );
+};
+
+const WaitlistSection: React.FC<{
+  post: PublicPost;
+  recurrenceId?: string;
+}> = ({ post, recurrenceId }) => {
+  const { t } = useTranslation();
+  const waiting = orderedWaitlist(post, recurrenceId);
+  if (!waiting.length) return null;
+  const profiles = new Map(
+    (post.rsvps ?? []).map((rsvp) => [rsvp.profile.id, rsvp.profile])
+  );
+  return (
+    <View className="mt-4 border-t border-border pt-3">
+      <ThemedText className="mb-2 text-sm font-semibold">
+        {t('events.rsvp.waitlistTitle')}
+      </ThemedText>
+      {waiting.map((member, index) => {
+        const profile = profiles.get(member.profileId);
+        if (!profile) return null;
+        const until = member.offerExpiresAt;
+        const offered = !!until && offerStillOpen({ offerExpiresAt: until });
+        return (
+          <ThemedText key={member.profileId} className="text-sm">
+            {index + 1}. {profileName(profile)}
+            {offered
+              ? ` — ${t('events.rsvp.waitlistOffered', {
+                  until: new Date(until).toLocaleString(),
+                })}`
+              : ''}
+            {profile.type === 'federated'
+              ? ` — ${t('events.rsvp.waitlistRemote')}`
+              : ''}
+          </ThemedText>
+        );
+      })}
     </View>
   );
 };

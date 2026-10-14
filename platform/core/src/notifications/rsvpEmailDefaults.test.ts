@@ -26,4 +26,15 @@ describe('rsvp notification email defaults', () => {
     } as ProfileSettings;
     expect(notificationSettings(savedOff, 'rsvpCanceled').email).toBe(false);
   });
+
+  it('emails a waitlist offer unless the member turned email off', () => {
+    expect(notificationSettings(unset, 'waitlistOffer').email).toBe(true);
+
+    const savedOff = {
+      notifications: {
+        waitlistOffer: { create: true, push: true, email: false },
+      },
+    } as ProfileSettings;
+    expect(notificationSettings(savedOff, 'waitlistOffer').email).toBe(false);
+  });
 });

@@ -27,7 +27,7 @@ export const JamCapacityGate = ({
   const router = useRouter();
   const eventData = jamPost.data?.type === 'event' ? jamPost.data : undefined;
   const showRsvp =
-    reason === 'rsvp-required' &&
+    (reason === 'rsvp-required' || reason === 'full') &&
     !!me &&
     !!eventData &&
     isCapacityEvent(eventData);

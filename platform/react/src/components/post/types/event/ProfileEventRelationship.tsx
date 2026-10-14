@@ -58,6 +58,14 @@ export const ProfileEventRelationship = ({
         variant: 'outline',
       };
     }
+    if (myRsvp?.response === 'waitlist') {
+      return {
+        status: t('events.profileRelationship.waitlisted', {
+          defaultValue: 'Waitlisted',
+        }),
+        variant: 'outline',
+      };
+    }
     return null;
   })();
 

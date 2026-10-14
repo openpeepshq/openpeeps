@@ -608,6 +608,8 @@ export const eventSchema = noteSchema
     end: eventIsoDatetimeSchema.optional(),
     wholeDay: z.boolean(),
     maxAttendees: z.number().int().positive().optional(),
+    /** Minutes the next waitlisted member has to claim a freed seat. */
+    waitlistOfferMinutes: z.number().int().positive().max(10080).optional(),
     attendeeListPublic: z.boolean().optional(),
     moderators: z.string().uuid().array().optional(),
     jam: jamSchema.optional(),
@@ -650,18 +652,30 @@ export const answerSchema = z
 
 export type Answer = z.infer<typeof answerSchema>;
 
-export const rsvpResponseSchema = z.enum(['yes', 'no', 'tentative', 'removed']);
+export const rsvpResponseSchema = z.enum([
+  'yes',
+  'no',
+  'tentative',
+  'removed',
+  'waitlist',
+]);
 export type RsvpResponse = z.infer<typeof rsvpResponseSchema>;
 
 export const rsvpSchema = z.object({
   response: rsvpResponseSchema,
   recurrenceId: eventIsoDatetimeSchema.optional(),
+  /** Queue position. Copied onto later offer entries so a new write stays in line. */
+  waitlistJoinedAt: eventIsoDatetimeSchema.optional(),
+  /** When the current spot offer expires. Server-set; ignored on RSVP requests. */
+  offerExpiresAt: eventIsoDatetimeSchema.optional(),
 });
 export type RSVP = z.infer<typeof rsvpSchema>;
 
-export const rsvpRequestSchema = rsvpSchema.extend({
-  recurrenceIds: z.array(eventIsoDatetimeSchema).min(1).optional(),
-});
+export const rsvpRequestSchema = rsvpSchema
+  .omit({ waitlistJoinedAt: true, offerExpiresAt: true })
+  .extend({
+    recurrenceIds: z.array(eventIsoDatetimeSchema).min(1).optional(),
+  });
 export type RsvpRequest = z.infer<typeof rsvpRequestSchema>;
 
 export const entryReactionDataSchema = z.object({

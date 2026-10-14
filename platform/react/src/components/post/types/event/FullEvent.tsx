@@ -12,15 +12,13 @@ import {
   canManageEventRsvps,
   canModerateJam,
   canViewJamAttendees,
-  countYesRsvps,
-  defaultRsvpRecurrenceId,
+  availableSpots,
   effectiveEventTimes,
   eventTimeZoneOptions,
   formatEventClockTime,
   formatEventRecurrence,
   getJamUrl,
   groupName,
-  isCapacityEvent,
   parseOccurrenceQuery,
   listRsvpOccurrences,
   profileName,
@@ -100,17 +98,8 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
   const myEvent = post.profile?.id === profile?.id;
   const iAmModerator = canModerateJam(profile, post);
   const canManageRsvps = canManageEventRsvps(profile, post);
-  const slotsLeft =
-    isCapacityEvent(event) &&
-    event.maxAttendees !== undefined &&
-    (!event.recurrence || occurrenceId)
-      ? event.maxAttendees - countYesRsvps(post, occurrenceId)
-      : null;
-  const times = effectiveEventTimes(
-    event,
-    occurrenceId ??
-      (event.recurrence ? defaultRsvpRecurrenceId(event) : undefined),
-  );
+  const slotsLeft = availableSpots(post, occurrenceId) ?? null;
+  const times = effectiveEventTimes(event, occurrenceId);
   const recurrenceLabel = event.recurrence
     ? formatEventRecurrence(event.recurrence, t, event.start)
     : '';

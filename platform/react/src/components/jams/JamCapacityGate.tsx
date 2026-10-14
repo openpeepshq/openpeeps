@@ -21,7 +21,7 @@ export const JamCapacityGate = ({
   const me = useCurrentProfile();
   const eventData = jamPost.data?.type === 'event' ? jamPost.data : undefined;
   const showRsvp =
-    reason === 'rsvp-required' &&
+    (reason === 'rsvp-required' || reason === 'full') &&
     !!me &&
     !!eventData &&
     isCapacityEvent(eventData);

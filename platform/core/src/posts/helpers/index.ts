@@ -299,6 +299,12 @@ export const transformPost = async (
         profile: entry.profile,
         response: entry.data.response,
         recurrenceId: entry.data.recurrenceId,
+        ...(entry.data.waitlistJoinedAt
+          ? { waitlistJoinedAt: entry.data.waitlistJoinedAt }
+          : {}),
+        ...(entry.data.offerExpiresAt
+          ? { offerExpiresAt: entry.data.offerExpiresAt }
+          : {}),
         createdAt: entry.createdAt,
       })),
     audience,

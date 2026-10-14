@@ -498,6 +498,11 @@ export const displayRsvpForProfile = (
   },
 ): PublicRsvp | undefined => {
   const event = post.data?.type === 'event' ? post.data : undefined;
+  // One-time events have no occurrences. Older claims stamped the start time
+  // onto some RSVPs; a newer unscoped waitlist must still be the current one.
+  if (event && !event.recurrence) {
+    return getEffectiveRsvp(post, profileId);
+  }
   const scopedId = options?.lockToOccurrence
     ? options.recurrenceId
     : event
@@ -521,6 +526,9 @@ export const displayRsvpForProfile = (
 
 export const isCapacityEvent = (event: Event) => !!event.maxAttendees;
 
+export const DEFAULT_WAITLIST_OFFER_MINUTES = 60;
+export const MAX_WAITLIST_OFFER_MINUTES = 7 * 24 * 60;
+
 export const parseEventMaxAttendeesInput = (
   raw: string,
 ): number | undefined => {
@@ -530,8 +538,25 @@ export const parseEventMaxAttendeesInput = (
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 };
 
+export const normalizeWaitlistOfferMinutes = (
+  value: number | null | undefined,
+): number | undefined => {
+  if (value == null || !Number.isFinite(value)) return undefined;
+  const minutes = Math.trunc(value);
+  if (minutes < 1 || minutes > MAX_WAITLIST_OFFER_MINUTES) return undefined;
+  return minutes;
+};
+
+export const parseEventWaitlistOfferMinutesInput = (
+  raw: string,
+): number | undefined => {
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  return normalizeWaitlistOfferMinutes(Number.parseInt(trimmed, 10));
+};
+
 export const withoutEventMaxAttendees = <T extends Event>(event: T): T => {
-  const { maxAttendees: _, ...rest } = event;
+  const { maxAttendees: _, waitlistOfferMinutes: __, ...rest } = event;
   return rest as T;
 };
 
@@ -544,33 +569,52 @@ export const normalizeEventDataForSave = <T extends Event>(event: T): T => {
   ) {
     return withoutEventMaxAttendees(event);
   }
-  return { ...event, maxAttendees: Math.trunc(maxAttendees) };
+  const minutes = normalizeWaitlistOfferMinutes(event.waitlistOfferMinutes);
+  const { waitlistOfferMinutes: _, ...rest } = event;
+  return {
+    ...rest,
+    maxAttendees: Math.trunc(maxAttendees),
+    ...(minutes != null ? { waitlistOfferMinutes: minutes } : {}),
+  } as T;
 };
 
 /** Null capacity means it was cleared; strip for validation/output. */
 export const normalizeEventDataFromDb = <T extends Event>(event: T): T => {
-  if (event.maxAttendees != null) {
-    return event;
-  }
-  return withoutEventMaxAttendees(event);
+  const { maxAttendees, waitlistOfferMinutes, ...rest } = event;
+  return {
+    ...rest,
+    ...(maxAttendees != null ? { maxAttendees } : {}),
+    ...(waitlistOfferMinutes != null ? { waitlistOfferMinutes } : {}),
+  } as T;
 };
 
 export const normalizePostDataFromDb = (data: PostDataUnion): PostDataUnion =>
   data.type === 'event' ? normalizeEventDataFromDb(data) : data;
 
-/** Nested `data` updates send null to remove maxAttendees. */
-export type EventDbUpdate = Omit<Event, 'maxAttendees'> & {
+/** Nested `data` updates send null to remove cleared capacity fields. */
+export type EventDbUpdate = Omit<
+  Event,
+  'maxAttendees' | 'waitlistOfferMinutes'
+> & {
   maxAttendees?: number | null;
+  waitlistOfferMinutes?: number | null;
 };
 
 export const eventDataForDbUpdate = (
   previous: Event | undefined,
   normalized: Event,
 ): EventDbUpdate => {
+  let next: EventDbUpdate = normalized;
   if (previous?.maxAttendees != null && !('maxAttendees' in normalized)) {
-    return { ...normalized, maxAttendees: null };
+    next = { ...next, maxAttendees: null };
   }
-  return normalized;
+  if (
+    previous?.waitlistOfferMinutes != null &&
+    !('waitlistOfferMinutes' in normalized)
+  ) {
+    next = { ...next, waitlistOfferMinutes: null };
+  }
+  return next;
 };
 
 export const canManageEventRsvps = (
@@ -608,6 +652,16 @@ export const getJamCapacityJoinBlock = (
     return { blocked: true, reason: 'removed' };
   }
   if (countYesRsvps(post, recurrenceId) >= event.maxAttendees) {
+    return { blocked: true, reason: 'full' };
+  }
+  // A freed seat stays reserved for the waitlist unless this profile holds the offer.
+  const waiting = calculateEffectiveRsvps(post, recurrenceId).filter(
+    (rsvp) => rsvp.response === 'waitlist' && rsvp.profile.type !== 'federated',
+  );
+  const mine = waiting.find((rsvp) => rsvp.profile.id === profile.id);
+  const offerOpen =
+    !!mine?.offerExpiresAt && Date.parse(mine.offerExpiresAt) > Date.now();
+  if (waiting.length > 0 && !offerOpen) {
     return { blocked: true, reason: 'full' };
   }
   return { blocked: true, reason: 'rsvp-required' };

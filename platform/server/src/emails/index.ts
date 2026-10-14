@@ -24,6 +24,7 @@ import replyTemplate from './notifications/reply';
 import repostTemplate from './notifications/repost';
 import rsvpTemplate from './notifications/rsvp';
 import rsvpCanceledTemplate from './notifications/rsvp-canceled';
+import waitlistOfferTemplate from './notifications/waitlist-offer';
 import mentionTemplate from './notifications/mention';
 import groupMemberJoinedTemplate from './notifications/groupMemberJoined';
 import groupMemberLeftTemplate from './notifications/groupMemberLeft';
@@ -62,6 +63,7 @@ export const registerDefaultEmailTemplates = () => {
   register('notification-repost', repostTemplate);
   register('notification-rsvp', rsvpTemplate);
   register('notification-rsvpCanceled', rsvpCanceledTemplate);
+  register('notification-waitlistOffer', waitlistOfferTemplate);
   register('notification-mention', mentionTemplate);
   register('notification-groupMemberJoined', groupMemberJoinedTemplate);
   register('notification-groupMemberLeft', groupMemberLeftTemplate);
