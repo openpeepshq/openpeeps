@@ -1,4 +1,4 @@
-import { OpenPeepsTheme, ColorName, ColorValue } from './types';
+import type { OpenPeepsTheme, ColorName, ColorValue } from './types';
 
 export const DEFAULT_COLORS: ColorValue[] = [
   {
@@ -8,7 +8,7 @@ export const DEFAULT_COLORS: ColorValue[] = [
   },
   {
     name: 'foreground',
-    light: '#0a0a0f',
+    light: '#0a0a0b',
     dark: '#fafafa',
   },
   {
@@ -18,7 +18,7 @@ export const DEFAULT_COLORS: ColorValue[] = [
   },
   {
     name: 'card-foreground',
-    light: '#0a0a0f',
+    light: '#0a0a0b',
     dark: '#fafafa',
   },
   {
@@ -28,7 +28,7 @@ export const DEFAULT_COLORS: ColorValue[] = [
   },
   {
     name: 'popover-foreground',
-    light: '#0a0a0f',
+    light: '#0a0a0b',
     dark: '#fafafa',
   },
   {
@@ -43,7 +43,7 @@ export const DEFAULT_COLORS: ColorValue[] = [
   },
   {
     name: 'secondary',
-    light: '#f4f4f6',
+    light: '#f4f4f5',
     dark: '#28282e',
   },
   {
@@ -54,7 +54,7 @@ export const DEFAULT_COLORS: ColorValue[] = [
   {
     name: 'muted',
     light: '#f4f4f6',
-    dark: '#28282e',
+    dark: '#27272a',
   },
   {
     name: 'muted-foreground',
@@ -63,7 +63,7 @@ export const DEFAULT_COLORS: ColorValue[] = [
   },
   {
     name: 'accent',
-    light: '#f4f4f6',
+    light: '#f4f4f5',
     dark: '#28282e',
   },
   {

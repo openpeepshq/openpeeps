@@ -73,7 +73,7 @@ export const ConversationPreviewCard = ({
       >
         <View className="flex w-full flex-col gap-x-1 border-b p-3 text-left">
           <View className="flex flex-row items-center gap-4">
-            <View className="flex -space-x-2">
+            <View className="flex-row -space-x-2">
               {participants.slice(0, 3).map((p) => (
                 <ProfileAvatar
                   key={p.id}

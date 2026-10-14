@@ -29,6 +29,8 @@ import {
   ConversationProfileHeader,
   MessageInThread,
 } from '../../components/conversations/index';
+import { ProfileAvatar } from '../../components/profile/Avatar';
+import { ProfileCard } from '../../components/profile/ProfileCard';
 
 type ConversationProps = MainScreenProps<'Conversation'>;
 
@@ -46,12 +48,18 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   const [participantsOpen, setParticipantsOpen] = useState(false);
 
   const sendMessage = openpeepsApi.createConversationPostAction({ id });
-  const audience = messages?.[0]?.audience || [];
-  const headerParticipants =
-    audience.length === 2
-      ? audience.filter((p) => p.id !== currentProfile?.id)
-      : audience;
-  const isGroupChat = audience.length > 2;
+
+  // Mirror the web Show page: derive participants from the last message's
+  // audience, excluding the current profile.
+  const lastMessage = messages?.slice(-1)[0];
+  const participants =
+    lastMessage?.audience?.filter((a) => a.id !== currentProfile?.id) ?? [];
+  const multipleParticipants = participants.length > 1;
+
+  const participantNames =
+    participants.length > 0
+      ? participants.map((p) => p.displayName || `@${p.handle}`).join(', ')
+      : t('conversations.title', { defaultValue: 'Conversation' });
 
   const resetForm = useCallback(() => {
     setContent('');
@@ -65,7 +73,6 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
 
     try {
       setIsSending(true);
-      const lastMessage = messages?.slice(-1)[0];
       await sendMessage({
         visibility: 'direct',
         audience: lastMessage?.audience,
@@ -105,8 +112,10 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   useSetPageHeader(
     isLoading ? undefined : (
       <ConversationProfileHeader
-        participants={headerParticipants}
-        onPress={isGroupChat ? () => setParticipantsOpen(true) : undefined}
+        participants={participants}
+        onPress={
+          multipleParticipants ? () => setParticipantsOpen(true) : undefined
+        }
       />
     ),
     isLoading ? undefined : (
@@ -129,6 +138,39 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   return (
     <ThemedView className="flex-1">
       <View className="flex-1">
+        {/* Section under the page header showing the participants,
+            mirroring the web conversation Show page. */}
+        <View className="border-b border-border">
+          {participants.length === 1 && participants[0] ? (
+            <ProfileCard
+              profile={participants[0]}
+              showAction={false}
+              hasAction={false}
+            />
+          ) : multipleParticipants ? (
+            <TouchableOpacity
+              onPress={() => setParticipantsOpen(true)}
+              className="w-full flex-row items-center gap-2 p-3"
+            >
+              <View className="flex-row -space-x-2 shrink-0">
+                {participants.slice(0, 4).map((p) => (
+                  <ProfileAvatar
+                    key={p.id}
+                    profile={p}
+                    className="size-9 border-0"
+                  />
+                ))}
+              </View>
+              <ThemedText
+                className="min-w-0 truncate text-sm font-medium"
+                numberOfLines={1}
+              >
+                {participantNames}
+              </ThemedText>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
         <DropdownMenu>
           <KeyboardAvoidingView
             className="flex-1"
@@ -147,7 +189,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
                   <MessageInThread
                     previous={messages[idx - 1]}
                     message={message}
-                    multipleParticipants={isGroupChat}
+                    multipleParticipants={multipleParticipants}
                     conversationRootId={id}
                   />
                 </View>
@@ -206,11 +248,11 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
             </View>
           </KeyboardAvoidingView>
         </DropdownMenu>
-        {isGroupChat && participantsOpen ? (
+        {multipleParticipants && participantsOpen ? (
           <ConversationParticipantsModal
             open
             onOpenChange={setParticipantsOpen}
-            participants={audience}
+            participants={participants}
           />
         ) : null}
       </View>

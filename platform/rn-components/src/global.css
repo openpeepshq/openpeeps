@@ -4,48 +4,50 @@
 
 @layer base {
   :root {
-    --background: #ffffff;
-    --foreground: #0a0a0f;
-    --card: #ffffff;
-    --card-foreground: #0a0a0f;
-    --popover: #ffffff;
-    --popover-foreground: #0a0a0f;
-    --primary: #18181b;
-    --primary-foreground: #fafafa;
-    --secondary: #f4f4f5;
-    --secondary-foreground: #18181b;
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
-    --accent: #f4f4f5;
-    --accent-foreground: #18181b;
-    --destructive: #ef4444;
-    --destructive-foreground: #fafafa;
-    --border: #e4e4e7;
-    --input: #e4e4e7;
-    --ring: #18181b;
-    --alpha: #fafafa;
+    --background: 255 255 255;
+    --foreground: 10 10 11;
+    --card: 255 255 255;
+    --card-foreground: 10 10 11;
+    --popover: 255 255 255;
+    --popover-foreground: 10 10 11;
+    --primary: 22 22 26;
+    --primary-foreground: 250 250 250;
+    --secondary: 244 244 245;
+    --secondary-foreground: 22 22 26;
+    --muted: 244 244 246;
+    --muted-foreground: 113 113 122;
+    --accent: 244 244 245;
+    --accent-foreground: 22 22 26;
+    --destructive: 239 68 68;
+    --destructive-foreground: 250 250 250;
+    --border: 228 228 231;
+    --input: 228 228 231;
+    --ring: 22 22 26;
+    --alpha: 250 250 250;
+    --surface-2: 228 228 231;
   }
 
   .dark:root {
-    --background: #0a0a0f;
-    --foreground: #fafafa;
-    --card: #0a0a0f;
-    --card-foreground: #fafafa;
-    --popover: #0a0a0f;
-    --popover-foreground: #fafafa;
-    --primary: #fafafa;
-    --primary-foreground: #18181b;
-    --secondary: #27272a;
-    --secondary-foreground: #fafafa;
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
-    --accent: #27272a;
-    --accent-foreground: #fafafa;
-    --destructive: #dc2626;
-    --destructive-foreground: #fafafa;
-    --border: #27272a;
-    --input: #27272a;
-    --ring: #d4d4d8;
-    --alpha: #18181b;
+    --background: 10 10 15;
+    --foreground: 250 250 250;
+    --card: 10 10 15;
+    --card-foreground: 250 250 250;
+    --popover: 10 10 15;
+    --popover-foreground: 250 250 250;
+    --primary: 250 250 250;
+    --primary-foreground: 22 22 26;
+    --secondary: 40 40 46;
+    --secondary-foreground: 250 250 250;
+    --muted: 39 39 42;
+    --muted-foreground: 161 161 170;
+    --accent: 40 40 46;
+    --accent-foreground: 250 250 250;
+    --destructive: 220 38 38;
+    --destructive-foreground: 250 250 250;
+    --border: 40 40 46;
+    --input: 40 40 46;
+    --ring: 212 212 216;
+    --alpha: 24 24 27;
+    --surface-2: 63 63 70;
   }
 }
