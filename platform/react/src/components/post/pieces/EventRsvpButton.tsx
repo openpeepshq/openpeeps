@@ -3,6 +3,7 @@ import { useT } from '../../../i18n';
 import { Button } from '@openpeepshq/react-ui';
 import { useEventRsvp } from '../../../hooks/events/useEventRsvp';
 import { EventRsvpScopeDialog } from './EventRsvpScopeDialog';
+import { EventWaitlistJoinDialog } from './EventWaitlistJoinDialog';
 
 export interface EventRsvpButtonProps {
   post: PublicPost;
@@ -27,11 +28,18 @@ export const EventRsvpButton = ({
     occurrences,
     capacityEvent,
     full,
+    onWaitlist,
+    offerExpiresAt,
     error,
     pending,
     setPending,
+    confirmingWaitlist,
+    setConfirmingWaitlist,
     submitting,
     requestRespond,
+    requestJoinWaitlist,
+    confirmJoinWaitlist,
+    claimSpot,
     confirmScope,
   } = useEventRsvp({ post, recurrenceId, lockToOccurrence });
 
@@ -57,9 +65,13 @@ export const EventRsvpButton = ({
               ? t('posts.rsvp.attendingMessage', {
                   defaultValue: 'You are attending.',
                 })
-              : t('posts.rsvp.maybeMessage', {
-                  defaultValue: 'You responded maybe.',
-                })}
+              : myRsvp.response === 'waitlist'
+                ? t('events.rsvp.onWaitlist', {
+                    defaultValue: 'You are on the waitlist.',
+                  })
+                : t('posts.rsvp.maybeMessage', {
+                    defaultValue: 'You responded maybe.',
+                  })}
           </p>
         ) : null}
         <p className="text-muted-foreground mt-2 text-center text-sm">
@@ -89,6 +101,86 @@ export const EventRsvpButton = ({
         }}
       />
     ) : null;
+
+  const waitlistDialog = (
+    <EventWaitlistJoinDialog
+      open={confirmingWaitlist}
+      post={post}
+      error={error}
+      submitting={submitting}
+      onClose={() => {
+        if (!submitting) setConfirmingWaitlist(false);
+      }}
+      onConfirm={async () => {
+        await confirmJoinWaitlist();
+      }}
+    />
+  );
+
+  if (offerExpiresAt) {
+    return (
+      <div className="mt-4 w-full">
+        <p className="text-center text-sm">
+          {t('events.rsvp.offerOpen', {
+            defaultValue: 'A spot is open for you until {{until}}.',
+            until: new Date(offerExpiresAt).toLocaleString(),
+          })}
+        </p>
+        <Button
+          variant="default"
+          className="mt-2 w-full"
+          disabled={submitting}
+          action={claimSpot}
+        >
+          {t('events.rsvp.claimSpot', { defaultValue: 'Claim spot' })}
+        </Button>
+        <Button
+          variant="outline"
+          className="text-error mt-2 w-full"
+          disabled={submitting}
+          action={() => requestRespond('no')}
+        >
+          {t('events.rsvp.leaveWaitlist', {
+            defaultValue: 'Leave waitlist',
+          })}
+        </Button>
+        {error ? (
+          <p className="text-error mt-2 text-center text-sm">{error}</p>
+        ) : null}
+      </div>
+    );
+  }
+
+  if (onWaitlist) {
+    return (
+      <div className="mt-4 w-full">
+        <p className="text-center text-sm">
+          {t('events.rsvp.onWaitlist', {
+            defaultValue: 'You are on the waitlist.',
+          })}
+        </p>
+        <p className="text-muted-foreground mt-1 text-center text-sm">
+          {t('events.rsvp.atCapacity', {
+            defaultValue: 'This event is at capacity.',
+          })}
+        </p>
+        <Button
+          variant="outline"
+          className="text-error mt-2 w-full"
+          disabled={submitting}
+          action={() => requestRespond('no')}
+        >
+          {t('events.rsvp.leaveWaitlist', {
+            defaultValue: 'Leave waitlist',
+          })}
+        </Button>
+        {error && !pending ? (
+          <p className="text-error mt-2 text-center text-sm">{error}</p>
+        ) : null}
+        {scopeDialog}
+      </div>
+    );
+  }
 
   if (myRsvp && myRsvp.response !== 'no') {
     return (
@@ -122,15 +214,22 @@ export const EventRsvpButton = ({
 
   return (
     <div className="mt-4 w-full">
+      {full ? (
+        <p className="text-muted-foreground mb-2 text-center text-sm">
+          {t('events.rsvp.atCapacity', {
+            defaultValue: 'This event is at capacity.',
+          })}
+        </p>
+      ) : null}
       <div className="flex w-full gap-x-2">
         <Button
           variant="default"
           className="w-[70%]"
-          disabled={full || submitting}
-          action={() => requestRespond('yes')}
+          disabled={submitting}
+          action={() => (full ? requestJoinWaitlist() : requestRespond('yes'))}
         >
           {full
-            ? t('events.rsvp.full', { defaultValue: 'Event is full' })
+            ? t('events.rsvp.joinWaitlist', { defaultValue: 'Join waitlist' })
             : t('posts.rsvp.register', { defaultValue: 'Register' })}
         </Button>
         {!capacityEvent ? (
@@ -150,10 +249,11 @@ export const EventRsvpButton = ({
           {t('posts.rsvp.no', { defaultValue: 'No' })}
         </Button>
       </div>
-      {error && !pending ? (
+      {error && !pending && !confirmingWaitlist ? (
         <p className="text-error mt-2 text-center text-sm">{error}</p>
       ) : null}
       {scopeDialog}
+      {waitlistDialog}
     </div>
   );
 };

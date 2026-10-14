@@ -7,6 +7,7 @@ import type {
 import {
   EVENT_HEADER_ASPECT_RATIO,
   parseEventMaxAttendeesInput,
+  parseEventWaitlistOfferMinutesInput,
   utcIsoToZonedDateTime,
   zonedDateTimeToUtcIso,
 } from '@openpeepshq/common/lib';
@@ -422,6 +423,31 @@ export const EventForm = ({
             ) : null}
           </div>
         </Label>
+        {event.maxAttendees != null ? (
+          <Label
+            title={t('events.form.waitlistOfferMinutes', {
+              defaultValue: 'Waitlist response window (minutes)',
+            })}
+            description={t('events.form.waitlistOfferMinutesDescription', {
+              defaultValue:
+                'How long the next person on the waitlist has to claim a freed spot. Leave empty for 60 minutes.',
+            })}
+          >
+            <Input
+              type="number"
+              min={1}
+              max={10080}
+              value={event.waitlistOfferMinutes ?? ''}
+              onChange={(e) => {
+                patchEvent({
+                  waitlistOfferMinutes: parseEventWaitlistOfferMinutesInput(
+                    e.target.value,
+                  ),
+                });
+              }}
+            />
+          </Label>
+        ) : null}
       </div>
 
       {!isEdit ? (

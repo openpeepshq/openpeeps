@@ -2,15 +2,16 @@ import { useMemo, useState } from 'react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import type { ExpandedOccurrence } from '@openpeepshq/common/lib';
 import {
+  canClaimYesRsvp,
   checkPostCapabilities,
-  countYesRsvps,
   defaultRsvpRecurrenceId,
   displayRsvpForProfile,
   eventRsvpOpen,
   isCapacityEvent,
   isRecurringEvent,
   listRsvpOccurrences,
-  recurringEventHasOpenOccurrence,
+  offerStillOpen,
+  seriesHasClaimableOccurrence,
 } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n/context';
@@ -21,7 +22,7 @@ import {
 } from '../../components/layout/IdentityContext';
 import { useCapabilities } from '../../components/server-data';
 
-export type RsvpChoice = 'yes' | 'tentative' | 'no';
+export type RsvpChoice = 'yes' | 'tentative' | 'no' | 'waitlist';
 
 export type RsvpScopeChoice =
   | { kind: 'this'; recurrenceId: string }
@@ -52,6 +53,7 @@ export const useEventRsvp = ({
   const rsvpToEvent = openpeepsApi.rsvpToEventAction({ id: post.id });
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<RsvpChoice | null>(null);
+  const [confirmingWaitlist, setConfirmingWaitlist] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const eventData = post.data?.type === 'event' ? post.data : undefined;
@@ -71,14 +73,18 @@ export const useEventRsvp = ({
     : undefined;
   const occurrences: ExpandedOccurrence[] =
     eventData && recurring ? listRsvpOccurrences(eventData) : [];
-  const capacityRecurrenceId = lockToOccurrence ? recurrenceId : defaultId;
+  const capacityRecurrenceId = recurring
+    ? lockToOccurrence
+      ? recurrenceId
+      : defaultId
+    : undefined;
   const capacityEvent = eventData ? isCapacityEvent(eventData) : false;
   const atCapacity =
     capacityEvent &&
-    eventData?.maxAttendees !== undefined &&
+    !!profile &&
     (recurring && !lockToOccurrence
-      ? !recurringEventHasOpenOccurrence(post, profile?.id)
-      : countYesRsvps(post, capacityRecurrenceId) >= eventData.maxAttendees);
+      ? !seriesHasClaimableOccurrence(post, profile.id)
+      : !canClaimYesRsvp(post, profile.id, capacityRecurrenceId));
 
   const myEvent = post.profile?.id === profile?.id;
   const myRsvp = useMemo(
@@ -98,6 +104,9 @@ export const useEventRsvp = ({
     [authData, post, capabilities],
   );
   const full = atCapacity && myRsvp?.response !== 'yes';
+  const onWaitlist = myRsvp?.response === 'waitlist';
+  const offerExpiresAt =
+    onWaitlist && offerStillOpen(myRsvp) ? myRsvp.offerExpiresAt : undefined;
 
   const writeRsvp = async (response: RsvpChoice, recurrenceIds?: string[]) => {
     setError(null);
@@ -119,6 +128,34 @@ export const useEventRsvp = ({
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const requestJoinWaitlist = () => {
+    if (rsvpClosed) return;
+    if (!recurring || lockToOccurrence) {
+      setError(null);
+      setConfirmingWaitlist(true);
+      return;
+    }
+    setError(null);
+    setPending('waitlist');
+  };
+
+  const confirmJoinWaitlist = async () => {
+    try {
+      await writeRsvp('waitlist', recurrenceId ? [recurrenceId] : undefined);
+      setConfirmingWaitlist(false);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const claimSpot = () => {
+    const id = recurring
+      ? (myRsvp?.recurrenceId ?? (lockToOccurrence ? recurrenceId : defaultId))
+      : undefined;
+    writeRsvp('yes', id ? [id] : undefined).catch(() => undefined);
   };
 
   const requestRespond = (response: RsvpChoice) => {
@@ -161,11 +198,18 @@ export const useEventRsvp = ({
     occurrences,
     capacityEvent,
     full,
+    onWaitlist,
+    offerExpiresAt,
     error,
     pending,
     setPending,
+    confirmingWaitlist,
+    setConfirmingWaitlist,
     submitting,
     requestRespond,
+    requestJoinWaitlist,
+    confirmJoinWaitlist,
+    claimSpot,
     confirmScope,
   };
 };

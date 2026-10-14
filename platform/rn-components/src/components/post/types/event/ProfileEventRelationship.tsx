@@ -38,6 +38,8 @@ export const ProfileEventRelationship: React.FC<
       return t('events.profileRelationship.attending');
     } else if (myRsvp?.response === 'tentative') {
       return t('events.profileRelationship.tentative');
+    } else if (myRsvp?.response === 'waitlist') {
+      return t('events.profileRelationship.waitlisted');
     }
     return null;
   })();

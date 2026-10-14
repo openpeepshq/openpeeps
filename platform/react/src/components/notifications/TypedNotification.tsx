@@ -11,7 +11,9 @@ import type { ReactNode } from 'react';
 import { profileName, groupName } from '@openpeepshq/common';
 import {
   isRsvpCancelNotice,
+  isWaitlistOfferNotice,
   rsvpCancelWhenLabels,
+  waitlistClaimPath,
 } from '@openpeepshq/common/lib';
 import type {
   GroupWithMeta,
@@ -388,6 +390,54 @@ function RsvpCanceledNotification({
   );
 }
 
+function WaitlistOfferNotification({
+  notification,
+}: {
+  notification: PublicNotification;
+}) {
+  const t = useT();
+  const profile = notification.senderProfile ?? notification.post?.profile;
+  const post = notification.post;
+  const event =
+    post?.data?.type === 'event' ? post.data.name?.trim() : undefined;
+  const notice = isWaitlistOfferNotice(notification.data)
+    ? notification.data
+    : undefined;
+  const href = post
+    ? waitlistClaimPath(post.id, notice?.recurrenceId)
+    : '/notifications';
+  if (!profile) return null;
+  return (
+    <NotificationWrapper
+      profile={profile}
+      seen={notification.seen}
+      showProfile={false}
+    >
+      <a href={href} className="block w-full px-4 py-2">
+        <p className="mb-1 text-sm font-semibold">
+          {t('notification.waitlistOffer.text', {
+            defaultValue: 'A spot opened at {{eventName}}',
+            eventName:
+              event ||
+              t('notification.waitlistOffer.eventFallback', {
+                defaultValue: 'an event',
+              }),
+          })}
+        </p>
+        {notice?.offerExpiresAt ? (
+          <p className="text-muted-foreground mb-2 text-sm">
+            {t('notification.waitlistOffer.expires', {
+              defaultValue: 'Claim it before {{until}}.',
+              until: new Date(notice.offerExpiresAt).toLocaleString(),
+            })}
+          </p>
+        ) : null}
+        {post ? <FeedPost post={post} /> : null}
+      </a>
+    </NotificationWrapper>
+  );
+}
+
 function GroupAvatarThumb({ group }: { group: GroupWithMeta }) {
   return <GroupAvatar group={group} size={2.5} borderless />;
 }
@@ -664,6 +714,7 @@ const TYPED: Partial<
   pollEnded: PollEndedNotification,
   rsvp: RsvpNotification,
   rsvpCanceled: RsvpCanceledNotification,
+  waitlistOffer: WaitlistOfferNotification,
   groupAdded: NewGroupInvitationNotification,
   groupMemberJoined: NewGroupMemberNotification,
   groupMemberLeft: GroupMemberExitNotification,

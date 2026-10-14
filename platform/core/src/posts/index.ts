@@ -41,3 +41,4 @@ export {
   schedulePollEnd,
   cancelPollEnd,
 } from './pollEndJobs';
+export { waitlistOfferQueue, waitlistOfferWorker } from './waitlistOfferJobs';

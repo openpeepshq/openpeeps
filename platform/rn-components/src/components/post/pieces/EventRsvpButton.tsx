@@ -12,6 +12,7 @@ import {
   EventRsvpScopeDialog,
   type RsvpScopeChoice,
 } from './EventRsvpScopeDialog';
+import { EventWaitlistJoinDialog } from './EventWaitlistJoinDialog';
 
 export interface EventRsvpButtonProps {
   post: PublicPost;
@@ -26,6 +27,7 @@ export const EventRsvpButton = ({
 }: EventRsvpButtonProps) => {
   const { t } = useTranslation();
   const scopeSheetRef = useRef<BottomSheetModal>(null);
+  const waitlistSheetRef = useRef<BottomSheetModal>(null);
   const {
     profile,
     myEvent,
@@ -37,10 +39,17 @@ export const EventRsvpButton = ({
     occurrences,
     capacityEvent,
     full,
+    onWaitlist,
+    offerExpiresAt,
     error,
     pending,
+    confirmingWaitlist,
+    setConfirmingWaitlist,
     submitting,
     requestRespond,
+    requestJoinWaitlist,
+    confirmJoinWaitlist,
+    claimSpot,
     confirmScope,
   } = useEventRsvp({
     post,
@@ -55,6 +64,9 @@ export const EventRsvpButton = ({
   useEffect(() => {
     if (showScopeSheet) bottomSheetPresent(scopeSheetRef);
   }, [showScopeSheet]);
+  useEffect(() => {
+    if (confirmingWaitlist) bottomSheetPresent(waitlistSheetRef);
+  }, [confirmingWaitlist]);
 
   const onConfirmScope = async (scope: RsvpScopeChoice) => {
     const ok = await confirmScope(scope);
@@ -79,7 +91,9 @@ export const EventRsvpButton = ({
           <ThemedText className="text-center text-sm">
             {myRsvp.response === 'yes'
               ? t('posts.rsvp.attendingMessage')
-              : t('posts.rsvp.maybeMessage')}
+              : myRsvp.response === 'waitlist'
+                ? t('events.rsvp.onWaitlist')
+                : t('posts.rsvp.maybeMessage')}
           </ThemedText>
         ) : null}
         <ThemedText className="mt-2 text-center text-sm text-muted-foreground">
@@ -109,6 +123,77 @@ export const EventRsvpButton = ({
       </ThemedText>
     ) : null;
 
+  const waitlistDialog = (
+    <EventWaitlistJoinDialog
+      ref={waitlistSheetRef}
+      post={post}
+      error={error}
+      isLoading={submitting}
+      onClose={() => {
+        if (!submitting) setConfirmingWaitlist(false);
+      }}
+      onConfirm={async () => {
+        const ok = await confirmJoinWaitlist();
+        if (ok) waitlistSheetRef.current?.close();
+      }}
+    />
+  );
+
+  if (offerExpiresAt) {
+    return (
+      <View className="mt-4 w-full">
+        <ThemedText className="text-center text-sm">
+          {t('events.rsvp.offerOpen', {
+            until: new Date(offerExpiresAt).toLocaleString(),
+          })}
+        </ThemedText>
+        <Button
+          className="mt-2 w-full"
+          disabled={submitting}
+          onPress={claimSpot}
+        >
+          <ThemedText>{t('events.rsvp.claimSpot')}</ThemedText>
+        </Button>
+        <Button
+          variant="outline"
+          className="mt-2 w-full"
+          disabled={submitting}
+          onPress={() => requestRespond('no')}
+        >
+          <ThemedText className="text-destructive">
+            {t('events.rsvp.leaveWaitlist')}
+          </ThemedText>
+        </Button>
+        {errorText}
+      </View>
+    );
+  }
+
+  if (onWaitlist) {
+    return (
+      <View className="mt-4 w-full">
+        <ThemedText className="text-center text-sm">
+          {t('events.rsvp.onWaitlist')}
+        </ThemedText>
+        <ThemedText className="mt-1 text-center text-sm text-muted-foreground">
+          {t('events.rsvp.atCapacity')}
+        </ThemedText>
+        <Button
+          variant="outline"
+          className="mt-2 w-full"
+          disabled={submitting}
+          onPress={() => requestRespond('no')}
+        >
+          <ThemedText className="text-destructive">
+            {t('events.rsvp.leaveWaitlist')}
+          </ThemedText>
+        </Button>
+        {errorText}
+        {scopeDialog}
+      </View>
+    );
+  }
+
   if (myRsvp && myRsvp.response !== 'no') {
     return (
       <View className="w-full">
@@ -135,14 +220,19 @@ export const EventRsvpButton = ({
 
   return (
     <View className="mt-4 w-full">
+      {full ? (
+        <ThemedText className="mb-2 text-center text-sm text-muted-foreground">
+          {t('events.rsvp.atCapacity')}
+        </ThemedText>
+      ) : null}
       <View className="w-full flex-col gap-2">
         <Button
           className="w-full"
-          disabled={full || submitting}
-          onPress={() => requestRespond('yes')}
+          disabled={submitting}
+          onPress={() => (full ? requestJoinWaitlist() : requestRespond('yes'))}
         >
           <ThemedText numberOfLines={1}>
-            {full ? t('events.rsvp.full') : t('posts.rsvp.register')}
+            {full ? t('events.rsvp.joinWaitlist') : t('posts.rsvp.register')}
           </ThemedText>
         </Button>
         <View className="w-full flex-row gap-x-2">
@@ -170,8 +260,9 @@ export const EventRsvpButton = ({
           </Button>
         </View>
       </View>
-      {errorText}
+      {error && !pending && !confirmingWaitlist ? errorText : null}
       {scopeDialog}
+      {waitlistDialog}
     </View>
   );
 };
