@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
-import { Pressable, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable } from 'react-native';
 import { TextClassContext } from './themed-text';
 import { cn } from '../../lib/utils';
 import { useThemeBorderRadius } from '../../theme/OpenPeepsThemeProvider';
@@ -85,7 +85,11 @@ const Button = React.forwardRef<
         )}
         ref={ref}
         role="button"
-        style={cn({ borderRadius }, style) as StyleProp<ViewStyle>}
+        style={
+          typeof style === 'function'
+            ? (s: { pressed: boolean }) => [{ borderRadius }, style(s)]
+            : [{ borderRadius }, style]
+        }
         {...props}
       />
     </TextClassContext.Provider>
