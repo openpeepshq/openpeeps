@@ -4,8 +4,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { MessageCircleOffIcon } from '../../components/icons/index';
+import React, { useMemo, useRef, useState } from 'react';
+import {
+  MessageCircleOffIcon,
+  MessageSquarePlusIcon,
+} from '../../components/icons/index';
 import { ThemedText } from '../../components/ui/themed-text';
 import {
   useSetPageHeader,
@@ -13,20 +16,16 @@ import {
 } from '../../components/layout';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useAuthData, useOpenpeeps } from '@openpeepshq/react';
-import { SearchIcon, XIcon } from '../../components/icons/index';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   TabStackParamList,
   MainStackParamList,
 } from '../../components/navigation/types/index';
-import { canCreatePost, PublicPost } from '@openpeepshq/common';
-import { Input } from '../../components/ui/input';
-import { profileMatchesQuery } from '../../lib/utils';
+import { canCreatePost } from '@openpeepshq/common';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   ConversationPreviewCard,
-  DirectMessagesHeaderActions,
   useCreateNewConversation,
 } from '../../components/conversations/index';
 import { useTranslation } from 'react-i18next';
@@ -47,11 +46,6 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
   const { openCreateConversation } = useCreateNewConversation();
   const settingsRef = useRef<BottomSheetModal>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [filteredConversations, setFilteredConversations] = useState<
-    PublicPost[][]
-  >([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchToggled, setIsSearchToggled] = useState(false);
   const [tab, setTab] = useState<ConversationsTab>('active');
 
   const query = openpeepsApi.useConversations();
@@ -71,51 +65,8 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
     setRefreshing(false);
   }, [activeQuery]);
 
-  useEffect(() => {
-    const filtered = conversations.filter((conversation) =>
-      conversation.some(
-        (message) =>
-          message?.data?.content
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          profileMatchesQuery(message.profile, searchQuery)
-      )
-    );
-    setFilteredConversations(filtered);
-  }, [conversations, searchQuery]);
-
-  useSetPageHeader(
-    t('navigation.messages'),
-    <View className="flex-row items-center gap-x-3">
-      {isSearchToggled ? (
-        <View className="max-w-[180px] flex-row items-center">
-          <Input
-            className="flex-1"
-            placeholder={t('conversations.search.placeholder')}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-          <TouchableOpacity
-            className="items-center justify-center px-2"
-            onPress={() => {
-              setSearchQuery('');
-              setIsSearchToggled(false);
-            }}
-          >
-            <XIcon size={20} className="text-foreground" />
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <TouchableOpacity onPress={() => setIsSearchToggled(true)}>
-          <SearchIcon size={20} className="text-foreground" />
-        </TouchableOpacity>
-      )}
-      <DirectMessagesHeaderActions />
-    </View>
-  );
-
   const headerTabs = (
-    <View className="flex-row border-b border-border">
+    <View className="flex-row">
       <TouchableOpacity
         onPress={() => setTab('active')}
         className={`px-4 py-2 text-sm ${
@@ -151,10 +102,13 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
     </View>
   );
 
+  useSetPageHeader(t('navigation.messages'), headerTabs);
+
   useSetPlusButtonActions(
     canCreate
       ? {
           title: t('conversations.newMessage'),
+          icon: MessageSquarePlusIcon,
           action: () => openCreateConversation(),
         }
       : undefined
@@ -164,7 +118,6 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
 
   return (
     <View className="flex-1">
-      {headerTabs}
       <KeyboardAwareScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -173,7 +126,7 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
         className="w-full flex bg-background relative p-2"
       >
         {isLoading && <ActivityIndicator size={'small'} />}
-        {!isLoading && filteredConversations?.length === 0 && (
+        {!isLoading && conversations?.length === 0 && (
           <View className="flex h-[80vh] items-center justify-center gap-2">
             <MessageCircleOffIcon size={40} className="text-muted-foreground" />
             <ThemedText className="text-muted-foreground">
@@ -184,7 +137,7 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
           </View>
         )}
         {!isLoading &&
-          filteredConversations?.map((conversation, idx) => (
+          conversations?.map((conversation, idx) => (
             <ConversationPreviewCard
               key={idx}
               conversation={conversation}
