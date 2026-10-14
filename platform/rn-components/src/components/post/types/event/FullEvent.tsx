@@ -1,8 +1,10 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useOpenpeeps, useServerInfo } from '@openpeepshq/react';
 import {
   MoreVerticalIcon,
   ShareIcon,
+  DownloadIcon,
+  Trash2Icon,
   MapPinIcon,
   LinkIcon,
   PhoneCallIcon,
@@ -19,7 +21,8 @@ import {
   DropdownMenuTrigger,
 } from '../../../ui/dropdown-menu';
 import { ThemedText } from '../../../ui/themed-text';
-import { Image, View } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
+
 import {
   Event,
   PublicPost,
@@ -76,6 +79,9 @@ import {
 } from '../../index';
 import { ReportProfileOrPostModal } from '../../../profile/index';
 import { OpenpeepsMarkdown } from '../../../markdown/index';
+import { downloadDocument } from '../../../../lib/downloadFile';
+import { useControlledSheet } from '../../../../hooks/use-controlled-sheet';
+import { BaseSheet, SheetFooter } from '../../../custom/modals/common';
 export interface FullEventProps {
   post: PublicPost;
   occurrence?: string;
@@ -513,22 +519,12 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
               </ThemedText>
             ) : recordingsQuery.data?.length ? (
               recordingsQuery.data.map((recording: JamRecording) => (
-                <View key={recording.id} className="gap-y-2 py-4">
-                  <UpdatingDate date={recording.createdAt} />
-                  {recording.status === 'completed' && recording.attachment ? (
-                    <VideoPlayer attachment={recording.attachment} />
-                  ) : (
-                    <ThemedText className="text-sm text-muted-foreground">
-                      {recording.status === 'active'
-                        ? t('events.recordingInProgress', {
-                            defaultValue: 'Recording in progress…',
-                          })
-                        : t('events.recordingProcessing', {
-                            defaultValue: 'Processing recording…',
-                          })}
-                    </ThemedText>
-                  )}
-                </View>
+                <JamRecordingItem
+                  key={recording.id}
+                  post={post}
+                  recording={recording}
+                  canManage={canViewRecordings}
+                />
               ))
             ) : (
               <ThemedText className="py-4 text-sm text-muted-foreground">
@@ -541,6 +537,175 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
         ) : null}
       </Tabs>
     </ThemedView>
+  );
+};
+
+const JamRecordingItem = ({
+  post,
+  recording,
+  canManage,
+}: {
+  post: PublicPost;
+  recording: JamRecording;
+  canManage: boolean;
+}) => {
+  const { t } = useTranslation();
+  const { openpeepsApi } = useOpenpeeps();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const confirmSheetRef = useControlledSheet(confirmOpen);
+
+  const attachment = recording.attachment;
+  const publishReply = openpeepsApi.publishRecordingReplyAction({
+    id: post.id,
+    recordingId: recording.id,
+  });
+  const deleteRecording = openpeepsApi.deleteRecordingAction({
+    id: post.id,
+    recordingId: recording.id,
+  });
+
+  const handleDelete = async () => {
+    try {
+      await deleteRecording();
+      setConfirmOpen(false);
+      Toast.show({
+        type: 'success',
+        text1: t('events.deleteRecordingSuccess', {
+          defaultValue: 'Recording deleted',
+        }),
+      });
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: t('events.deleteRecordingError', {
+          defaultValue: 'Failed to delete recording',
+        }),
+      });
+    }
+  };
+
+  return (
+    <View className="flex-col gap-2 py-4">
+      <UpdatingDate date={recording.createdAt} />
+      {recording.status === 'completed' && attachment ? (
+        <>
+          <VideoPlayer
+            attachment={attachment}
+            autoPlay={false}
+            className="aspect-video w-full rounded-md"
+          />
+          <TouchableOpacity
+            onPress={() => downloadDocument(attachment.url)}
+            className="self-start"
+          >
+            <View className="flex-row items-center gap-1">
+              <DownloadIcon size={16} className="text-foreground" />
+              <ThemedText className="text-sm text-primary underline">
+                {t('events.downloadRecording', {
+                  defaultValue: 'Download recording',
+                })}
+              </ThemedText>
+            </View>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <ThemedText className="text-sm text-muted-foreground">
+          {recording.status === 'active'
+            ? t('events.recordingInProgress', {
+                defaultValue: 'Recording in progress…',
+              })
+            : t('events.recordingProcessing', {
+                defaultValue: 'Processing recording…',
+              })}
+        </ThemedText>
+      )}
+      <View className="flex-row flex-wrap items-center gap-2">
+        {canManage && recording.status === 'completed' && attachment ? (
+          recording.replyPostId ? (
+            <ThemedText className="text-sm text-muted-foreground">
+              {t('events.recordingReplyPosted', {
+                defaultValue: 'Posted to discussion',
+              })}
+            </ThemedText>
+          ) : (
+            <Button
+              variant="outline"
+              className="self-start"
+              onPress={async () => {
+                try {
+                  await publishReply();
+                  Toast.show({
+                    type: 'success',
+                    text1: t('events.postRecordingReplySuccess', {
+                      defaultValue: 'Recording posted to discussion',
+                    }),
+                  });
+                } catch {
+                  Toast.show({
+                    type: 'error',
+                    text1: t('events.postRecordingReplyError', {
+                      defaultValue: 'Failed to post recording to discussion',
+                    }),
+                  });
+                }
+              }}
+            >
+              <ThemedText className="font-semibold">
+                {t('events.postRecordingReply', {
+                  defaultValue: 'Post to discussion',
+                })}
+              </ThemedText>
+            </Button>
+          )
+        ) : null}
+        {canManage &&
+        recording.status !== 'active' &&
+        recording.status !== 'requested' ? (
+          <>
+            <Button
+              variant="outline"
+              className="self-start"
+              onPress={() => setConfirmOpen(true)}
+            >
+              <View className="flex-row items-center gap-1">
+                <Trash2Icon size={16} className="text-foreground" />
+                <ThemedText className="font-semibold">
+                  {t('events.deleteRecording', {
+                    defaultValue: 'Delete recording',
+                  })}
+                </ThemedText>
+              </View>
+            </Button>
+            <BaseSheet
+              ref={confirmSheetRef}
+              onDismiss={() => setConfirmOpen(false)}
+            >
+              <View className="flex-1 p-4">
+                <ThemedText className="mb-6 text-center text-xl font-semibold">
+                  {t('events.deleteRecording', {
+                    defaultValue: 'Delete recording',
+                  })}
+                </ThemedText>
+                <ThemedText className="mb-6 text-center text-base text-muted-foreground">
+                  {t('events.deleteRecordingConfirm', {
+                    defaultValue: 'Delete this recording permanently?',
+                  })}
+                </ThemedText>
+                <SheetFooter
+                  onCancel={() => setConfirmOpen(false)}
+                  cancelText={t('common.cancel')}
+                  onConfirm={() => void handleDelete()}
+                  confirmText={t('events.deleteRecording', {
+                    defaultValue: 'Delete recording',
+                  })}
+                  confirmVariant="destructive"
+                />
+              </View>
+            </BaseSheet>
+          </>
+        ) : null}
+      </View>
+    </View>
   );
 };
 
