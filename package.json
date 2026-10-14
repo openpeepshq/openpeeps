@@ -5,7 +5,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git@gitlab.allpeep-hq.com:allpeep/open-source/ap-at.git"
+    "url": "https://code.openpeeps.org/openpeeps/openpeeps"
   },
   "openpeeps": {
     "plugins": ["examples/greeter-plugin"]
