@@ -1,10 +1,12 @@
 const { hairlineWidth } = require('nativewind/theme');
 
-/** `channel()` pattern: `rgb(var(--name) / <alpha-value>)` so `/N` opacity
- * modifiers (e.g. `bg-primary/10`) work on native. Requires CSS variables to
- * be in "R G B" channel format (see global.css / theme/utils.ts). */
-const channel = (name) => `rgb(var(${name}) / <alpha-value>)`;
-
+/**
+ * NOTE: NativeWind v4 does not resolve Tailwind's `<alpha-value>` token,
+ * so the `rgb(var(--x) / <alpha-value>)` "channel()" pattern used on web
+ * breaks ALL color classes on native. Colors use plain `var(--x)` references
+ * instead. Opacity modifiers (`bg-primary/10`) are handled via inline styles
+ * in the components that need them (see ConversationMessageBubble).
+ */
 export default {
   // NOTE: Update this to include the paths to all of your component files.
   darkMode: 'class',
@@ -14,51 +16,51 @@ export default {
   theme: {
     extend: {
       colors: {
-        'border': channel('--border'),
-        'input': channel('--input'),
-        'ring': channel('--ring'),
-        'background': channel('--background'),
-        'foreground': channel('--foreground'),
+        'border': 'var(--border)',
+        'input': 'var(--input)',
+        'ring': 'var(--ring)',
+        'background': 'var(--background)',
+        'foreground': 'var(--foreground)',
         'primary': {
-          DEFAULT: channel('--primary'),
-          foreground: channel('--primary-foreground'),
+          DEFAULT: 'var(--primary)',
+          foreground: 'var(--primary-foreground)',
         },
         'secondary': {
-          DEFAULT: channel('--secondary'),
-          foreground: channel('--secondary-foreground'),
+          DEFAULT: 'var(--secondary)',
+          foreground: 'var(--secondary-foreground)',
         },
         'destructive': {
-          DEFAULT: channel('--destructive'),
-          foreground: channel('--destructive-foreground'),
+          DEFAULT: 'var(--destructive)',
+          foreground: 'var(--destructive-foreground)',
         },
         'muted': {
-          DEFAULT: channel('--muted'),
-          foreground: channel('--muted-foreground'),
+          DEFAULT: 'var(--muted)',
+          foreground: 'var(--muted-foreground)',
         },
         'accent': {
-          DEFAULT: channel('--accent'),
-          foreground: channel('--accent-foreground'),
+          DEFAULT: 'var(--accent)',
+          foreground: 'var(--accent-foreground)',
         },
         'popover': {
-          DEFAULT: channel('--popover'),
-          foreground: channel('--popover-foreground'),
+          DEFAULT: 'var(--popover)',
+          foreground: 'var(--popover-foreground)',
         },
         'card': {
-          DEFAULT: channel('--card'),
-          foreground: channel('--card-foreground'),
+          DEFAULT: 'var(--card)',
+          foreground: 'var(--card-foreground)',
         },
         // `surface` mirrors `muted` (same token on the web preset).
         'surface': {
-          DEFAULT: channel('--muted'),
-          foreground: channel('--muted-foreground'),
+          DEFAULT: 'var(--muted)',
+          foreground: 'var(--muted-foreground)',
         },
-        'surface-2': channel('--surface-2'),
-        'alpha': channel('--alpha'),
+        'surface-2': 'var(--surface-2)',
+        'alpha': 'var(--alpha)',
       },
       // Override Tailwind's default `borderColor.DEFAULT` so bare `border`/`border-b`
       // utilities follow the theme border color instead of a static gray.
       borderColor: {
-        DEFAULT: channel('--border'),
+        DEFAULT: 'var(--border)',
       },
       borderWidth: {
         hairline: hairlineWidth(),
