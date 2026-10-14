@@ -228,7 +228,7 @@ export const toGotoUrl = (url: string, origin: string): string => {
 /* ------------------------------------------------------------------ */
 
 /**
- * Tags, attrs and forbits shared by both the web (DOMPurify config) and
+ * Tags, attrs and forits shared by both the web (DOMPurify config) and
  * RN (custom HTML token renderers) so both platforms apply the same policy.
  */
 export const MARKDOWN_HTML_ALLOWED_TAGS = [
@@ -274,6 +274,7 @@ export const MARKDOWN_HTML_ALLOWED_ATTRS = [
   'frameborder',
   'allowfullscreen',
   'referrerpolicy',
+  'allow',
   'style',
 ] as const;
 
@@ -310,6 +311,12 @@ export const extractIframeSrcs = (html: string): string[] => {
  * Inject safety attributes onto `<iframe>` tags so they can't break out of
  * their container or execute script navigation. Runs after sanitization
  * (so attackers can't smuggle attributes through), before DOM injection.
+ *
+ * We grant a broad Permissions Policy (`allow`) covering autoplay, encrypted
+ * media, and picture-in-picture, plus `allow-popups-to-escape-sandbox` in the
+ * sandbox itself. Without these, embedded players (YouTube, Vimeo, etc.)
+ * report Error 153 (autoplay blocked) because the browser denies the
+ * Permissions Policy the player requests.
  */
 export const injectIframeSafetyAttrs = (html: string): string => {
   return html.replace(/<iframe([^>]*?)>/gi, (match, attrs: string) => {
@@ -319,13 +326,16 @@ export const injectIframeSafetyAttrs = (html: string): string => {
     }
     if (!/sandbox\s*=/.test(safeAttrs)) {
       safeAttrs +=
-        ' sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"';
+        ' sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation"';
     }
     if (!/referrerpolicy\s*=/.test(safeAttrs)) {
       safeAttrs += ' referrerpolicy="no-referrer"';
     }
     if (!/style\s*=/.test(safeAttrs)) {
       safeAttrs += ' style="max-width:100%;width:100%;border:0;display:block;"';
+    }
+    if (!/\ballow\s*=/.test(safeAttrs)) {
+      safeAttrs += ' allow="autoplay; encrypted-media; picture-in-picture"';
     }
     return `<iframe${safeAttrs}>`;
   });

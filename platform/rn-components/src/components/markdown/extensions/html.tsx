@@ -1,5 +1,6 @@
 import React from 'react';
-import { Linking, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { WebView } from 'react-native-webview';
 import type { RenderFunction } from 'react-native-markdown-display';
 import {
   extractIframeSrcs,
@@ -10,7 +11,7 @@ const TAG_RE = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g;
 
 /**
  * Renderer for markdown-it `html_inline` tokens.
- * Extracts iframes (rendered as tap-to-open links) and strips other HTML.
+ * Extracts iframes (rendered as inline WebViews) and strips other HTML.
  */
 export const htmlInlineRenderer =
   (onIframePress: (url: string) => void): RenderFunction =>
@@ -35,20 +36,27 @@ const renderHtmlContent = (
   raw: string,
   onIframePress: (url: string) => void
 ): React.ReactElement | null => {
-  // Iframes: extract src URLs and render as tap-to-open buttons.
+  // Iframes: render as inline WebViews so embedded content (YouTube, etc.)
+  // is visible without leaving the app.
   const iframes = extractIframeSrcs(raw);
   if (iframes.length > 0) {
     return (
       <View style={styles.iframeContainer} key={raw.slice(0, 40)}>
         {iframes.map((src, i) => (
           <View key={`${i}-${src.slice(0, 20)}`} style={styles.iframeRow}>
-            <Text style={styles.iframeLink} onPress={() => onIframePress(src)}>
-              Open embedded content
-            </Text>
-            <Text
-              style={styles.iframeUrl}
-              onPress={() => void Linking.openURL(src)}
-            >
+            <WebView
+              source={{ uri: src }}
+              style={styles.webview}
+              scrollEnabled={false}
+              onNavigationStateChange={(nav) => {
+                // Intercept navigations away from the original embed URL
+                // and open them in the system browser instead.
+                if (nav.url !== src) {
+                  onIframePress(nav.url);
+                }
+              }}
+            />
+            <Text style={styles.iframeUrl} onPress={() => onIframePress(src)}>
               {src}
             </Text>
           </View>
@@ -80,15 +88,15 @@ const renderHtmlContent = (
 const styles = StyleSheet.create({
   iframeContainer: { marginVertical: 8 },
   iframeRow: { flexDirection: 'column', alignItems: 'flex-start' },
-  iframeLink: {
-    color: '#007AFF',
-    textDecorationLine: 'underline',
-    fontSize: 14,
-  },
   iframeUrl: {
     color: '#666',
     fontSize: 12,
     marginTop: 4,
+  },
+  webview: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    borderRadius: 8,
   },
   text: { fontSize: 16, lineHeight: 24 },
 });
