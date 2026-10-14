@@ -346,13 +346,17 @@ describe('extractIframeSrcs', () => {
 });
 
 describe('injectIframeSafetyAttrs', () => {
-  it('adds loading, sandbox, referrerpolicy, and style to a bare iframe', () => {
+  it('adds loading, sandbox, referrerpolicy, allow, and style to a bare iframe', () => {
     const result = injectIframeSafetyAttrs(
       '<iframe src="https://x.com"></iframe>',
     );
     expect(result).toContain('loading="lazy"');
     expect(result).toContain('sandbox="allow-scripts');
     expect(result).toContain('referrerpolicy');
+    expect(result).toContain('allow="autoplay');
+    expect(result).toContain('encrypted-media');
+    expect(result).toContain('picture-in-picture');
+    expect(result).toContain('allow-popups-to-escape-sandbox');
     expect(result).toContain('max-width:100%');
   });
 
@@ -370,5 +374,28 @@ describe('injectIframeSafetyAttrs', () => {
       '<iframe src="https://example.com/embed"></iframe>',
     );
     expect(result).toContain('src="https://example.com/embed"');
+  });
+
+  it('preserves an existing allow attribute when already present', () => {
+    const result = injectIframeSafetyAttrs(
+      '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allow="autoplay; encrypted-media; picture-in-picture"></iframe>',
+    );
+    const allowCount = (result.match(/allow=/g) || []).length;
+    expect(allowCount).toBe(1);
+  });
+
+  it('does not duplicate allow attribute when already present', () => {
+    const result = injectIframeSafetyAttrs(
+      '<iframe src="https://example.com" allow="fullscreen"></iframe>',
+    );
+    const allowCount = (result.match(/\ballow=/g) || []).length;
+    expect(allowCount).toBe(1);
+  });
+
+  it('does not add a second allow attribute for allowfullscreen-only iframe', () => {
+    const result = injectIframeSafetyAttrs(
+      '<iframe src="https://example.com" allowfullscreen></iframe>',
+    );
+    expect(result).toContain('allow="autoplay');
   });
 });
