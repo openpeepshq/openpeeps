@@ -129,7 +129,11 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
-          fetch-depth: 1
+          fetch-depth: 0
+      - name: Generate changelog (baked into image via COPY . .)
+        run: |
+          git fetch --tags --force
+          node scripts/generate-changelog.mjs
       - name: Set image and version
         run: |
           echo "REGISTRY_IMAGE_BASE=${{ needs.set-variables.outputs.registry_image_base }}" >> $GITHUB_ENV
@@ -169,12 +173,24 @@ jobs:
             if docker manifest inspect "${cache}" >/dev/null 2>&1; then
               cache_from="--cache-from type=registry,ref=${cache}"
             fi
-            docker buildx build \
-              ${cache_from} \
-              --cache-to "type=registry,ref=${cache},mode=max" \
-              --build-arg "VERSION=${{ needs.set-variables.outputs.version }}" \
-              --build-arg "ENVIRONMENT=${{ needs.set-variables.outputs.environment }}" \
-              -t "${image}:${{ needs.set-variables.outputs.short_sha }}" --push .
+            # Transient Docker errors (layer blob, network) cause build failures;
+            # retry up to 3 times with cache reuse for faster recovery.
+            for attempt in 1 2 3; do
+              if docker buildx build \
+                ${cache_from} \
+                --cache-to "type=registry,ref=${cache},mode=max" \
+                --build-arg "VERSION=${{ needs.set-variables.outputs.version }}" \
+                --build-arg "ENVIRONMENT=${{ needs.set-variables.outputs.environment }}" \
+                -t "${image}:${{ needs.set-variables.outputs.short_sha }}" --push .; then
+                break
+              elif [ "$attempt" -eq 3 ]; then
+                echo "Image build failed after 3 attempts"
+                exit 1
+              else
+                echo "Build attempt $attempt failed, retrying in 10s..."
+                sleep 10
+              fi
+            done
           fi
       - name: Load image onto the runner host
         run: |
@@ -217,11 +233,23 @@ jobs:
             if docker manifest inspect "${cache}" >/dev/null 2>&1; then
               cache_from="--cache-from type=registry,ref=${cache}"
             fi
-            docker buildx build \
-              ${cache_from} \
-              --cache-to "type=registry,ref=${cache},mode=max" \
-              -f Dockerfile.test \
-              -t "${image}:${tag}" --push .
+            # Transient Docker errors (layer blob, network) cause build failures;
+            # retry up to 3 times with cache reuse for faster recovery.
+            for attempt in 1 2 3; do
+              if docker buildx build \
+                ${cache_from} \
+                --cache-to "type=registry,ref=${cache},mode=max" \
+                -f Dockerfile.test \
+                -t "${image}:${tag}" --push .; then
+                break
+              elif [ "$attempt" -eq 3 ]; then
+                echo "Test image build failed after 3 attempts"
+                exit 1
+              else
+                echo "Build attempt $attempt failed, retrying in 10s..."
+                sleep 10
+              fi
+            done
           fi
       - name: Load test image onto the runner host
         run: |
