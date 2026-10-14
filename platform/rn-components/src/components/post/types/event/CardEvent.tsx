@@ -1,14 +1,18 @@
 import { View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { ThemedText } from '../../../ui/themed-text';
-import { Event, PublicPost, PublicRsvp } from '@openpeepshq/common';
+import { Event, PublicPost } from '@openpeepshq/common';
 import { truncateText } from '../../../../lib/utils';
-import { formatEventRecurrence } from '@openpeepshq/common/lib';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { canModerateJam, formatEventRecurrence } from '@openpeepshq/common/lib';
+import {
+  useOpenpeeps,
+  useCurrentProfile,
+  useServerInfo,
+} from '@openpeepshq/react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../../navigation/types/index';
-import { calculateEffectiveRsvps } from '../../../../lib/utils';
+import { Button } from '../../../ui/button';
 import { Timespan } from '../../../custom/date/index';
 import { EventLocation } from '../../pieces/EventLocation';
 import { ProfileEventRelationship } from './ProfileEventRelationship';
@@ -24,6 +28,8 @@ export interface CardEventProps {
 export const CardEvent = ({ post, showEventDate = true }: CardEventProps) => {
   const { openpeepsApi } = useOpenpeeps();
   const { t } = useTranslation();
+  const me = useCurrentProfile();
+  const livekitEnabled = useServerInfo().jams.livekit.enabled;
 
   const event = post.data as Event;
   const jam = event.jam;
@@ -34,9 +40,7 @@ export const CardEvent = ({ post, showEventDate = true }: CardEventProps) => {
   );
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
-  const rsvps = useMemo<PublicRsvp[]>(() => {
-    return calculateEffectiveRsvps(post, occurrenceId) || [];
-  }, [post, occurrenceId]);
+  const attendeesLength = jamState?.participants.length ?? 0;
 
   return (
     <TouchableOpacity
@@ -81,32 +85,53 @@ export const CardEvent = ({ post, showEventDate = true }: CardEventProps) => {
           <EventLocation post={post} truncate={true} />
           <ProfileEventRelationship post={post} />
         </View>
-        {jam && (
-          <View className="flex w-full">
-            {isLoading && <ActivityIndicator size={'small'} />}
-            {!isLoading && jamState && (
-              <View
-                className={`flex justify-start ${
-                  jamState?.participants?.length || 0 > 1 ? 'gap-5' : 'gap-2'
-                }
-               text-muted-foreground text-xs ${
-                 (jamState?.participants?.length ?? 0) > 0 ? '-mt-4' : ''
-               }`}
-              >
-                <View className="flex flex-row items-center gap-x-2">
-                  {jamState?.participants?.length > 0 && (
-                    <View className="flex-row items-center">
-                      <ParticipantsCard jamState={jamState} />
-                    </View>
-                  )}
-                  <ThemedText>
-                    {rsvps.length} {rsvps?.length === 1 ? 'rsvp' : 'rsvps'}
-                  </ThemedText>
-                </View>
+        {jam && me && livekitEnabled ? (
+          isLoading ? (
+            <ActivityIndicator size="small" />
+          ) : jamState?.active ? (
+            <View className="flex flex-row items-center gap-x-2 text-xs text-muted-foreground">
+              <View className="w-12">
+                <ParticipantsCard jamState={jamState} />
               </View>
-            )}
-          </View>
-        )}
+              <ThemedText>
+                {attendeesLength}{' '}
+                {attendeesLength === 1
+                  ? t('events.jam.attendee', { defaultValue: 'attendee' })
+                  : t('events.jam.attendees', {
+                      defaultValue: 'attendees',
+                    })}
+              </ThemedText>
+              <Button
+                variant="default"
+                size="sm"
+                onPress={() =>
+                  navigation.navigate('JamSession', {
+                    jamId: post.id,
+                    occurrence: occurrenceId,
+                  })
+                }
+              >
+                <ThemedText numberOfLines={1}>
+                  {t('jam.join.submit', { defaultValue: 'Join Jam' })}
+                </ThemedText>
+              </Button>
+            </View>
+          ) : canModerateJam(me, post) ? (
+            <Button
+              className="mt-2 w-full"
+              onPress={() =>
+                navigation.navigate('JamSession', {
+                  jamId: post.id,
+                  occurrence: occurrenceId,
+                })
+              }
+            >
+              <ThemedText numberOfLines={1}>
+                {t('jam.start.submit', { defaultValue: 'Start Jam' })}
+              </ThemedText>
+            </Button>
+          ) : null
+        ) : null}
       </View>
     </TouchableOpacity>
   );
