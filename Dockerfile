@@ -33,8 +33,8 @@ WORKDIR /apat
 RUN npm i -g pnpm
 
 # Manifests only, so a source-only commit reuses the install layer from the
-# registry build cache. The later COPY . . merges over these files and leaves
-# node_modules alone (.dockerignore excludes it from the context).
+# registry build cache (mode=max). Per-package COPYs merge over these files
+# and leave node_modules alone (.dockerignore excludes it from the context).
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY --parents \
     libraries/*/package.json \
@@ -51,7 +51,9 @@ COPY --parents \
 # `openpeeps.plugins`) live under `examples/*` and need their own filter or
 # they're never installed/built, so `initializePlugins()` fails with
 # "Cannot find module '.../dist/index.js'" the moment one is enabled.
-RUN pnpm \
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store \
+    pnpm config set store-dir /pnpm-store \
+    && pnpm \
     --filter "@openpeepshq/server..." \
     --filter "@openpeepshq/worker..." \
     --filter "@openpeepshq/web..." \
@@ -59,26 +61,81 @@ RUN pnpm \
     --filter "./examples/greeter-plugin" \
     install --frozen-lockfile
 
-COPY . .
-
-# Rebuild bin symlinks: pnpm install above ran before source files were
-# copied, so @openpeepshq/cli/opc.mjs and @openpeepshq/mcp bin links were skipped.
-RUN pnpm rebuild
-
+# ─────────────────────────────────────────────────────────────
+# Per-package builds in dependency order.
+#
+# Each COPY+RUN is its own Docker layer. Changing one package's source
+# only invalidates that package's build layer *and* its dependents —
+# everything else stays cached. With BuildKit registry caching (mode=max)
+# in CI, each layer is cached independently, so small source changes only
+# rebuild the affected subtree.
+#
 # CHANGELOG.md is pre-generated in CI (build.yaml: Generate changelog step)
 # where .git is available. Inside Docker, .git is excluded via .dockerignore,
-# so generating here would produce an empty changelog, overwriting the real one.
+# so the committed CHANGELOG.md from the build context is used as-is.
+#
+# Dependency topology (top → bottom):
+#   Level 0 (leaf):  common, fetch-client, geocoder, react-ui,
+#                    greenscreen, i18n
+#   Level 1:         client, core
+#   Level 2:         react, mcp, worker, cli, greeter-plugin
+#   Level 3:         server, web
+# ─────────────────────────────────────────────────────────────
 
-# Build the dependency closure in topological order. `pnpm -r` walks the
-# workspace graph so libraries (common → core → react-ui → react → …) are
-# built before the packages that consume them.
-RUN pnpm -r \
-    --filter "@openpeepshq/server..." \
-    --filter "@openpeepshq/worker..." \
-    --filter "@openpeepshq/web..." \
-    --filter "*plugins*" \
-    --filter "./examples/greeter-plugin" \
-    build
+# Level 0: leaf packages (no workspace dependencies)
+COPY platform/common platform/common
+RUN pnpm --filter @openpeepshq/common build
+
+COPY libraries/fetch-client libraries/fetch-client
+RUN pnpm --filter @openpeepshq/fetch-client build
+
+COPY libraries/geocoder libraries/geocoder
+RUN pnpm --filter @openpeepshq/geocoder build
+
+COPY libraries/react-ui libraries/react-ui
+RUN pnpm --filter @openpeepshq/react-ui build
+
+COPY libraries/greenscreen libraries/greenscreen
+RUN pnpm --filter @openpeepshq/greenscreen build
+
+COPY platform/i18n platform/i18n
+RUN pnpm --filter @openpeepshq/i18n build
+
+# Level 1: depend on Level 0
+COPY platform/client platform/client
+RUN pnpm --filter @openpeepshq/client build
+
+COPY platform/core platform/core
+RUN pnpm --filter @openpeepshq/core build
+
+# Level 2: depend on Level 1
+COPY platform/react platform/react
+RUN pnpm --filter @openpeepshq/react build
+
+COPY platform/mcp platform/mcp
+RUN pnpm --filter @openpeepshq/mcp build
+
+COPY platform/worker platform/worker
+RUN pnpm --filter @openpeepshq/worker build
+
+COPY platform/cli platform/cli
+RUN pnpm --filter @openpeepshq/cli build
+
+COPY examples/greeter-plugin examples/greeter-plugin
+RUN pnpm --filter "./examples/greeter-plugin" build
+
+# Level 3: depend on Level 2
+COPY platform/server platform/server
+RUN pnpm --filter @openpeepshq/server build
+
+COPY platform/web platform/web
+RUN pnpm --filter @openpeepshq/web build
+
+# Remaining runtime-only files + bin targets for workspace packages.
+# Rebuild bin symlinks: install ran before source was copied, so links
+# (e.g. @openpeepshq/cli/opc.mjs, @openpeepshq/mcp) were skipped.
+COPY . .
+RUN pnpm rebuild
 
 #─────────────────────────────────────────────────────────────────────────────
 # Runtime stage — minimal Alpine + Node with only the binaries the running

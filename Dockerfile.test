@@ -17,8 +17,8 @@ ENV NODE_OPTIONS="--max-old-space-size=8192"
 WORKDIR /apat
 
 # Manifests only, so a source-only commit reuses the install layer from the
-# registry build cache (mode=max). The later COPY . . merges over these files
-# and leaves node_modules alone (.dockerignore excludes it from the context).
+# registry build cache (mode=max). Per-package COPYs merge over these files
+# and leave node_modules alone (.dockerignore excludes it from the context).
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY --parents \
     libraries/*/package.json \
@@ -27,14 +27,35 @@ COPY --parents \
     docs-site/package.json \
     ./
 
-RUN corepack enable \
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store \
+ corepack enable \
+ && pnpm config set store-dir /pnpm-store \
  && pnpm install --frozen-lockfile --filter "@openpeepshq/tests..."
 
-COPY . .
+# ─────────────────────────────────────────────────────────────
+# Per-package builds in dependency order so small source changes only
+# invalidate the affected package's layer (and its dependents), not the
+# entire build. core's dependency closure:
+#   Level 0 (leaf): common, fetch-client, geocoder, i18n
+#   Level 1:        core
+# ─────────────────────────────────────────────────────────────
+COPY libraries/fetch-client libraries/fetch-client
+RUN pnpm --filter @openpeepshq/fetch-client build
 
-# Rebuild bin symlinks: pnpm install above ran before source files were
-# copied, so @openpeepshq/cli/opc.mjs bin links were skipped.
-RUN pnpm rebuild
+COPY libraries/geocoder libraries/geocoder
+RUN pnpm --filter @openpeepshq/geocoder build
+
+COPY platform/i18n platform/i18n
+RUN pnpm --filter @openpeepshq/i18n build
 
 # restore-fixture imports @openpeepshq/core/backups, which resolves to dist.
-RUN pnpm --filter @openpeepshq/core... build
+COPY platform/common platform/common
+RUN pnpm --filter @openpeepshq/common build
+
+COPY platform/core platform/core
+RUN pnpm --filter @openpeepshq/core build
+
+# Remaining runtime-only files + bin targets.
+# Rebuild bin symlinks: install ran before source was copied.
+COPY . .
+RUN pnpm rebuild
