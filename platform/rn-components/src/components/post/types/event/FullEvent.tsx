@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useOpenpeeps, useServerInfo } from '@openpeepshq/react';
 import {
   MoreVerticalIcon,
   ShareIcon,
@@ -125,13 +125,15 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
     navigation.navigate('SelectPrivateMessageMembers');
   };
 
-  const { data: serverInfo } = openpeepsApi.useServerInfo();
-  const livekitEnabled = !!serverInfo?.jams.livekit.enabled;
+  const serverInfo = useServerInfo();
+  const livekitEnabled = serverInfo.jams.livekit.enabled;
   const myEvent = currentProfile?.id === post?.profile?.id;
   const iAmModerator = canModerateJam(currentProfile, post);
   const canExportAttendees = canViewJamAttendees(currentProfile, post);
   const canViewRecordings = canAccessJamRecordings(currentProfile, post);
   const jamAttendeesQuery = openpeepsApi.useJamAttendance(post.id);
+  const jamStateQuery = openpeepsApi.useJamState(post.id, occurrence);
+  const jamState = event.jam ? jamStateQuery.data : undefined;
   const recordingsQuery = openpeepsApi.usePostRecordings(
     post.id,
     !!event.jam && canViewRecordings
@@ -347,19 +349,41 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
       <EventRsvpButton post={post as PublicPost} recurrenceId={occurrence} />
       {event.jam && (myEvent || iAmModerator) ? (
         livekitEnabled ? (
-          <Button
-            className="mt-2 w-full"
-            onPress={() =>
-              navigation.navigate('JamSession', { jamId: post.id })
-            }
-          >
-            <ThemedText numberOfLines={1}>
-              {t('events.jam.start', { defaultValue: 'Start jam' })}
-            </ThemedText>
-          </Button>
+          jamState?.active ? (
+            <Button
+              className="mt-2 w-full"
+              onPress={() =>
+                navigation.navigate('JamSession', {
+                  jamId: post.id,
+                  occurrence: occurrence,
+                })
+              }
+            >
+              <ThemedText numberOfLines={1}>
+                {t('jam.join.submit', { defaultValue: 'Join Jam' })}
+              </ThemedText>
+            </Button>
+          ) : (
+            <Button
+              className="mt-2 w-full"
+              onPress={() =>
+                navigation.navigate('JamSession', {
+                  jamId: post.id,
+                  occurrence: occurrence,
+                })
+              }
+            >
+              <ThemedText numberOfLines={1}>
+                {t('events.jam.start', { defaultValue: 'Start jam' })}
+              </ThemedText>
+            </Button>
+          )
         ) : (
           <ThemedText className="mt-2 text-sm text-destructive">
-            {t('jams.unavailable.message')}
+            {t('jams.unavailable.message', {
+              defaultValue:
+                'Jams are unavailable because LiveKit is not connected.',
+            })}
           </ThemedText>
         )
       ) : null}

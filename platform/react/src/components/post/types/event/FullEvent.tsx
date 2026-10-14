@@ -80,6 +80,8 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
   const event = post.data as Event;
   const contextQuery = openpeepsApi.usePostContext(post.id);
   const jamAttendeesQuery = openpeepsApi.useJamAttendance(post.id);
+  const jamStateQuery = openpeepsApi.useJamState(post.id, occurrenceId);
+  const jamState = event.jam ? jamStateQuery.data : undefined;
   const canViewRecordings = canAccessJamRecordings(profile, post);
   const recordingsQuery = openpeepsApi.usePostRecordings(
     post.id,
@@ -251,9 +253,15 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
 
       {event.jam && (myEvent || iAmModerator) ? (
         livekitEnabled ? (
-          <Button variant="default" className="mt-2 w-full" action={jamLink}>
-            {t('events.jam.start', { defaultValue: 'Start jam' })}
-          </Button>
+          jamState?.active ? (
+            <Button variant="default" className="mt-2 w-full" action={jamLink}>
+              {t('jam.join.submit', { defaultValue: 'Join Jam' })}
+            </Button>
+          ) : (
+            <Button variant="default" className="mt-2 w-full" action={jamLink}>
+              {t('events.jam.start', { defaultValue: 'Start jam' })}
+            </Button>
+          )
         ) : (
           <p role="status" className="text-destructive mt-2 text-sm">
             {t('jams.unavailable.message', {
