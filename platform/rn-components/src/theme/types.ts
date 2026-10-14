@@ -33,4 +33,5 @@ export type OpenPeepsTheme = {
   colors: {
     [key in ColorName]: string;
   };
+  buttonRadius: string;
 };
