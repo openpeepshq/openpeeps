@@ -36,10 +36,20 @@ export const OpenPeepsThemeProvider = ({
 
   const theme = useMemo(
     () =>
-      buildTheme(resolvedTheme.dark, resolvedTheme.primaryHex, () => {
-        refetchProfileSettings();
-      }),
-    [refetchProfileSettings, resolvedTheme.dark, resolvedTheme.primaryHex]
+      buildTheme(
+        resolvedTheme.dark,
+        resolvedTheme.primaryHex,
+        resolvedTheme.buttonRadius,
+        () => {
+          refetchProfileSettings();
+        }
+      ),
+    [
+      refetchProfileSettings,
+      resolvedTheme.dark,
+      resolvedTheme.primaryHex,
+      resolvedTheme.buttonRadius,
+    ]
   );
 
   const themeVars = useMemo(

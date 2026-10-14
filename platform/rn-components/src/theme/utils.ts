@@ -36,9 +36,17 @@ export const getThemeVars = (
     '--theme-rounded-container': radii?.radius || '0.5rem',
   });
 
+/** Parse a CSS dimension string (e.g. "9999px", "8px") into a React Native
+ * numeric pixel value. Returns 0 when the string can't be parsed. */
+export const parseDimension = (value: string): number => {
+  const num = parseFloat(value);
+  return isNaN(num) ? 0 : num;
+};
+
 export const buildTheme = (
   isDark: boolean,
   primaryColor: string | undefined,
+  buttonRadius: string | undefined,
   refresh: () => void | Promise<void>
 ) => {
   const colors = mapColors(isDark);
@@ -48,6 +56,7 @@ export const buildTheme = (
       ...colors,
       primary: primaryColor || colors.primary,
     },
+    buttonRadius: buttonRadius || '9999px',
     refresh,
   };
 };

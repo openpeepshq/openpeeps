@@ -1,5 +1,6 @@
 import {
   createContext,
+  ComponentType,
   useContext,
   useLayoutEffect,
   useMemo,
@@ -9,6 +10,7 @@ import {
 
 export type PlusButtonAction = {
   action: string | (() => Promise<unknown> | unknown);
+  icon?: ComponentType<{ size?: number | string; className?: string }>;
   title?: string;
 };
 

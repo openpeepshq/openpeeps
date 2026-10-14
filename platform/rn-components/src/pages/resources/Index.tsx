@@ -11,7 +11,7 @@ export const ResourcesIndex = () => {
   const currentProfile = useCurrentProfile();
   const visibility = useDefaultVisibility();
 
-  useSetPageHeader(t('navigation.resources'));
+  useSetPageHeader(t('navigation.resources', { defaultValue: 'Resources' }));
 
   return (
     <ThemedView className="relative flex-1">

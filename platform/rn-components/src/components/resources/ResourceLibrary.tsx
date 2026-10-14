@@ -159,7 +159,9 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
         <Input
           value={library.search}
           onChangeText={library.setSearch}
-          placeholder={t('resources.library.search')}
+          placeholder={t('resources.library.search', {
+            defaultValue: 'Search resources',
+          })}
         />
         <View className="flex-row flex-wrap items-center justify-between gap-2">
           <View className="flex-row flex-wrap gap-2">
@@ -183,7 +185,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
                   }
                 >
                   {kind === 'all'
-                    ? t('resources.library.allKinds')
+                    ? t('resources.library.allKinds', { defaultValue: 'All' })
                     : t(`resources.kinds.${kind}`)}
                 </ThemedText>
               </Pressable>

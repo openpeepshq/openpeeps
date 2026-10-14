@@ -35,5 +35,6 @@ export const mapColors = (isDark: boolean) =>
 export const defaultTheme: OpenPeepsTheme = {
   isDark: true,
   colors: mapColors(true),
+  buttonRadius: '9999px',
   refresh: () => {},
 };
