@@ -46,13 +46,10 @@ import Toast from 'react-native-toast-message';
 import { useNewConversationStore } from '../../../../stores/useNewConversationStore';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
-import {
-  canManageEventRsvps,
-  countYesRsvps,
-  isCapacityEvent,
-} from '../../../../lib/utils';
+import { canManageEventRsvps } from '../../../../lib/utils';
 import { bottomSheetPresent } from '../../../../lib/bottom-sheet-ref';
 import {
+  availableSpots,
   canAccessJamRecordings,
   canModerateJam,
   canViewJamAttendees,
@@ -96,12 +93,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
   const event = useMemo(() => post?.data as Event, [post]);
 
   const canManageRsvps = canManageEventRsvps(currentProfile, post);
-  const slotsLeft =
-    isCapacityEvent(event) &&
-    event.maxAttendees !== undefined &&
-    (!event.recurrence || occurrence)
-      ? event.maxAttendees - countYesRsvps(post, occurrence)
-      : null;
+  const slotsLeft = availableSpots(post, occurrence) ?? null;
   const rsvpManage = openpeepsApi.rsvpManageAction();
   const times = effectiveEventTimes(event, occurrence);
   const tz = eventTimeZoneOptions(event?.timeZone);

@@ -92,7 +92,12 @@ export const eventSanitizer = (publicContent = false) => {
         end: event.data.end,
         attendeeListPublic: event.data.attendeeListPublic,
         ...(event.data.maxAttendees != null
-          ? { maxAttendees: event.data.maxAttendees }
+          ? {
+              maxAttendees: event.data.maxAttendees,
+              ...(event.data.waitlistOfferMinutes != null
+                ? { waitlistOfferMinutes: event.data.waitlistOfferMinutes }
+                : {}),
+            }
           : {}),
       },
       mentions: event.mentions,

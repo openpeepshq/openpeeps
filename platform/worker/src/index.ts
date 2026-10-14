@@ -36,6 +36,8 @@ import {
   pollEndQueue,
   pollEndWorker,
   registerRsvpConfirmationEmail,
+  waitlistOfferQueue,
+  waitlistOfferWorker,
 } from '@openpeepshq/core/posts';
 import { refreshConfig, defaultConfig } from '@openpeepshq/core/config';
 import { initSentry } from '@openpeepshq/core/sentry';
@@ -61,6 +63,8 @@ const startWorkers = () => {
   eventOccurrenceWorker();
   console.log('Starting poll end worker ...');
   pollEndWorker();
+  console.log('Starting waitlist offer worker ...');
+  waitlistOfferWorker();
 };
 
 const setupQueues = async () => {
@@ -74,6 +78,7 @@ const setupQueues = async () => {
   analyticsCompileQueue();
   eventOccurrenceQueue();
   pollEndQueue();
+  waitlistOfferQueue();
   // Register the daily cron schedule. Idempotent under upsertJobScheduler so
   // it's safe to call on every worker boot.
   await ensureStreamingCleanupSchedule();

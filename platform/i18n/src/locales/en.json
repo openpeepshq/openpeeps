@@ -2586,6 +2586,10 @@
           "label": "RSVP canceled",
           "description": "Manage notifications for when someone cancels an RSVP to your event"
         },
+        "waitlistOffer": {
+          "label": "Waitlist spot",
+          "description": "Manage notifications for when a spot opens on an event you are waitlisted for"
+        },
         "mention": {
           "label": "Mentions",
           "description": "Receive a notification when someone mentions you in a post"
@@ -2856,6 +2860,8 @@
       "maxAttendees": "Maximum attendees",
       "maxAttendeesDescription": "Limit how many people can RSVP yes to this event. Leave empty for no limit.",
       "clearMaxAttendees": "Remove capacity limit",
+      "waitlistOfferMinutes": "Waitlist response window (minutes)",
+      "waitlistOfferMinutesDescription": "How long the next person on the waitlist has to claim a freed spot. Leave empty for 60 minutes.",
       "jamModerators": "Jam moderators (optional).",
       "jamWaitingRoom": "Waiting Room",
       "jamWaitingRoomDescription": "Only approved users can join",
@@ -2983,6 +2989,18 @@
       "removedMessage": "The organizer has removed you from this event.",
       "ended": "This event has ended.",
       "full": "Event is full",
+      "atCapacity": "This event is at capacity.",
+      "joinWaitlist": "Join waitlist",
+      "waitlistConfirmTitle": "Join the waitlist?",
+      "waitlistConfirmBody": "If a spot opens, you will have {{minutes}} minutes to claim it.",
+      "onWaitlist": "You are on the waitlist.",
+      "leaveWaitlist": "Leave waitlist",
+      "claimSpot": "Claim spot",
+      "offerOpen": "A spot is open for you until {{until}}.",
+      "spotsOpen": "Spots still open",
+      "waitlistTitle": "Waitlist",
+      "waitlistOffered": "offered until {{until}}",
+      "waitlistRemote": "Remote member, not offered a spot automatically",
       "scope": {
         "title": "Which dates?",
         "thisDate": "This date",
@@ -2992,7 +3010,8 @@
         "confirm": "Confirm",
         "cancel": "Cancel",
         "seriesFull": "Some dates in this series are full.",
-        "selectAtLeastOne": "Select at least one date."
+        "selectAtLeastOne": "Select at least one date.",
+        "waitlistTitle": "Join the waitlist for which dates?"
       }
     },
     "repeat": {
@@ -3114,6 +3133,11 @@
       "text": "{{profileName}} canceled their RSVP to {{eventName}}",
       "series": "All dates in the series",
       "eventFallback": "your event"
+    },
+    "waitlistOffer": {
+      "text": "A spot opened at {{eventName}}",
+      "eventFallback": "an event",
+      "expires": "Claim it before {{until}}."
     },
     "reaction": {
       "text": "{{profileName}} reacted"
@@ -3247,6 +3271,13 @@
       "series": "All dates in the series",
       "eventFallback": "your event",
       "cta": "View event"
+    },
+    "waitlistOffer": {
+      "subject": "A spot opened at {{eventName}}",
+      "body": "A spot opened at {{eventName}}. Claim it before the offer expires.",
+      "eventFallback": "an event",
+      "expires": "Claim it before {{until}}.",
+      "cta": "Claim spot"
     },
     "eventRsvp": {
       "subjectYes": "You're going: {{eventName}}",
@@ -3460,6 +3491,8 @@
   "error": {
     "eventAtCapacity": "This event is full.",
     "eventTentativeNotAllowed": "This event only accepts yes or no responses.",
+    "eventWaitlistNotOpen": "The waitlist is only open when this event is full.",
+    "eventWaitlistNeedsDate": "Choose a date to join the waitlist.",
     "jamNotOpen": "This jam is not open.",
     "jamsUnavailable": "Jams are unavailable because LiveKit is not connected.",
     "jamRsvpRequired": "You must RSVP yes to join this event.",

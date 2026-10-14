@@ -2666,6 +2666,10 @@
           "label": "RSVP-Stornierung",
           "description": "Benachrichtigungen verwalten, wenn jemand sein RSVP für Ihre Veranstaltung zurücknimmt"
         },
+        "waitlistOffer": {
+          "label": "Wartelistenplatz",
+          "description": "Benachrichtigungen verwalten, wenn ein Platz für eine Veranstaltung frei wird, auf deren Warteliste Sie stehen"
+        },
         "mention": {
           "label": "Erwähnungen",
           "description": "Benachrichtigung erhalten, wenn Sie in einem Beitrag erwähnt werden"
@@ -2945,6 +2949,8 @@
       "maxAttendees": "Maximale Teilnehmerzahl",
       "maxAttendeesDescription": "Begrenzen Sie, wie viele Personen mit Ja für diese Veranstaltung zusagen können. Leer lassen für keine Begrenzung.",
       "clearMaxAttendees": "Teilnehmerbegrenzung entfernen",
+      "waitlistOfferMinutes": "Antwortzeit der Warteliste (Minuten)",
+      "waitlistOfferMinutesDescription": "Wie lange die nächste Person auf der Warteliste hat, um einen freien Platz zu beanspruchen. Leer lassen für 60 Minuten.",
       "imageDescription": "Laden Sie ein Bild für Ihre Veranstaltung hoch",
       "imageSpecs": "Ihr Bild sollte mindestens 800 Pixel breit sein, im Seitenverhältnis 16:9.",
       "repeat": {
@@ -3062,6 +3068,18 @@
       "removedMessage": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
       "ended": "Diese Veranstaltung ist beendet.",
       "full": "Veranstaltung ist ausgebucht",
+      "atCapacity": "Diese Veranstaltung ist ausgebucht.",
+      "joinWaitlist": "Auf die Warteliste",
+      "waitlistConfirmTitle": "Auf die Warteliste setzen?",
+      "waitlistConfirmBody": "Wenn ein Platz frei wird, haben Sie {{minutes}} Minuten, um ihn zu beanspruchen.",
+      "onWaitlist": "Sie stehen auf der Warteliste.",
+      "leaveWaitlist": "Warteliste verlassen",
+      "claimSpot": "Platz beanspruchen",
+      "offerOpen": "Ein Platz ist für Sie frei bis {{until}}.",
+      "spotsOpen": "Noch Plätze frei",
+      "waitlistTitle": "Warteliste",
+      "waitlistOffered": "angeboten bis {{until}}",
+      "waitlistRemote": "Entferntes Mitglied, wird nicht automatisch benachrichtigt",
       "scope": {
         "title": "Für welche Termine?",
         "thisDate": "Diesen Termin",
@@ -3071,7 +3089,8 @@
         "confirm": "Bestätigen",
         "cancel": "Abbrechen",
         "seriesFull": "Einige Termine dieser Serie sind ausgebucht.",
-        "selectAtLeastOne": "Wählen Sie mindestens einen Termin."
+        "selectAtLeastOne": "Wählen Sie mindestens einen Termin.",
+        "waitlistTitle": "Für welche Termine auf die Warteliste?"
       }
     },
     "occurrence": {
@@ -3195,6 +3214,11 @@
       "text": "{{profileName}} hat sein RSVP für {{eventName}} zurückgenommen",
       "series": "Alle Termine der Serie",
       "eventFallback": "Ihre Veranstaltung"
+    },
+    "waitlistOffer": {
+      "text": "Ein Platz ist frei bei {{eventName}}",
+      "eventFallback": "einer Veranstaltung",
+      "expires": "Beanspruchen Sie ihn vor {{until}}."
     },
     "reaction": {
       "text": "{{profileName}} hat reagiert"
@@ -3328,6 +3352,13 @@
       "series": "Alle Termine der Serie",
       "eventFallback": "Ihre Veranstaltung",
       "cta": "Veranstaltung ansehen"
+    },
+    "waitlistOffer": {
+      "subject": "Ein Platz ist frei bei {{eventName}}",
+      "body": "Ein Platz ist frei bei {{eventName}}. Beanspruchen Sie ihn, bevor das Angebot abläuft.",
+      "eventFallback": "einer Veranstaltung",
+      "expires": "Beanspruchen Sie ihn vor {{until}}.",
+      "cta": "Platz beanspruchen"
     },
     "reaction": {
       "subject": "{{profileName}} hat auf Ihren Beitrag reagiert",
@@ -3576,6 +3607,8 @@
   "error": {
     "eventAtCapacity": "Diese Veranstaltung ist voll.",
     "eventTentativeNotAllowed": "Diese Veranstaltung akzeptiert nur Ja- oder Nein-Antworten.",
+    "eventWaitlistNotOpen": "Die Warteliste ist nur offen, wenn die Veranstaltung ausgebucht ist.",
+    "eventWaitlistNeedsDate": "Wählen Sie einen Termin, um auf die Warteliste zu kommen.",
     "jamNotOpen": "Dieser Jam ist nicht geöffnet.",
     "jamsUnavailable": "Jams sind nicht verfügbar, weil LiveKit nicht verbunden ist.",
     "jamRsvpRequired": "Sie müssen mit Ja antworten, um an dieser Veranstaltung teilzunehmen.",

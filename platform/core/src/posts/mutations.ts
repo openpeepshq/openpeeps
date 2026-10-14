@@ -37,7 +37,7 @@ import { postsMapping, repostRelation } from './mapping';
 import { bumpConversationActivity } from './activity';
 import { findGroup } from '../groups/finders';
 import { findLatestThreadPostId } from './conversationQueries';
-import { findPostsForAuth } from './finders';
+import { findPost, findPostsForAuth } from './finders';
 import { profilesCache } from '../profiles/cache';
 import { findOrCreateHashtag } from '../hashtags';
 import { hub } from '../events';
@@ -45,8 +45,9 @@ import { listUnseenGroupPostIds } from './unseenCounts';
 import {
   AP_LIKE_REACTION,
   canManageEventRsvps,
-  countYesRsvps,
+  capacityRsvpDecision,
   eventDataForDbUpdate,
+  type WaitlistSyncPlan,
   getEffectiveRsvp,
   instanceRsvpIdsForProfile,
   overlaySeriesRsvpEntries,
@@ -54,7 +55,6 @@ import {
   passThroughUndefined,
   rsvpCancelNotice,
   sameRecurrenceId,
-  seriesYesBlockedByCapacity,
 } from '@openpeepshq/common/lib';
 import { forbidden, unprocessableRequest } from '../errors';
 import { areBlocked, hasBlockAmong } from '../profiles/blocks';
@@ -63,6 +63,12 @@ import {
   clearEventOccurrences,
 } from './eventOccurrences';
 import { cancelPollEnd, schedulePollEnd } from './pollEndJobs';
+import { publishWaitlistPlans } from './waitlistOfferJobs';
+import {
+  capacitySyncTargets,
+  syncCapacityOccurrences,
+  withRsvpCapacityLock,
+} from './waitlist';
 import { config } from '../config';
 import { localObjectScalars } from '../federation/identity';
 
@@ -369,6 +375,60 @@ const rsvpOccurrenceIds = (data: RsvpRequest): string[] | undefined => {
   return undefined;
 };
 
+const latestOwnResponse = (
+  post: PostWithMeta,
+  profileId: string,
+  occurrenceIds?: string[],
+): RsvpResponse | undefined => {
+  const previousResponses = occurrenceIds
+    ? occurrenceIds.map((id) => getEffectiveRsvp(post, profileId, id)?.response)
+    : undefined;
+  if (previousResponses) {
+    return previousResponses.every(attendingRsvp)
+      ? previousResponses[0]
+      : previousResponses.find((response) => !attendingRsvp(response));
+  }
+  return [...(post.rsvps ?? [])]
+    .filter((rsvp) => rsvp.profile.id === profileId)
+    .filter((rsvp) => !rsvp.recurrenceId)
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))[0]?.response;
+};
+
+const rsvpWrites = (
+  post: PostWithMeta,
+  profileId: string,
+  response: RsvpResponse,
+  occurrenceIds?: string[],
+): RSVP[] => {
+  if (response === 'waitlist') {
+    const waitlistJoinedAt = new Date().toISOString();
+    return occurrenceIds?.length
+      ? occurrenceIds.map((recurrenceId) => ({
+          response,
+          recurrenceId,
+          waitlistJoinedAt,
+        }))
+      : [{ response, waitlistJoinedAt }];
+  }
+  return occurrenceIds
+    ? occurrenceIds.map((recurrenceId) => ({ response, recurrenceId }))
+    : overlaySeriesRsvpEntries(
+        response,
+        instanceRsvpIdsForProfile(post, profileId),
+      );
+};
+
+const publishCapacityPlans = async (
+  postId: string,
+  fromProfileId: string | undefined,
+  plans: WaitlistSyncPlan[],
+) => {
+  if (!plans.length) return;
+  await publishWaitlistPlans(postId, fromProfileId, plans).catch(
+    () => undefined,
+  );
+};
+
 export const rsvpRespond = async (
   profile: Profile,
   post: PostWithMeta,
@@ -388,82 +448,138 @@ export const rsvpRespond = async (
   if (data.response === 'removed') {
     throw forbidden({ errorKey: 'error.rsvpRemovedForbidden' });
   }
-  if (getEffectiveRsvp(post, profile.id)?.response === 'removed') {
-    throw forbidden({ errorKey: 'error.rsvpRemoved' });
-  }
 
   const occurrenceIds = rsvpOccurrenceIds(data);
-  const maxAttendees = post.data.maxAttendees;
-  if (maxAttendees) {
-    if (data.response === 'tentative') {
-      throw unprocessableRequest({
-        errorKey: 'error.eventTentativeNotAllowed',
-      });
+  if (!post.data.maxAttendees) {
+    if (getEffectiveRsvp(post, profile.id)?.response === 'removed') {
+      throw forbidden({ errorKey: 'error.rsvpRemoved' });
     }
-    if (data.response === 'yes') {
-      if (!occurrenceIds && post.data.recurrence) {
-        if (seriesYesBlockedByCapacity(post, profile.id)) {
-          throw unprocessableRequest({ errorKey: 'error.eventAtCapacity' });
-        }
-      } else {
-        const ids = occurrenceIds ?? [undefined];
-        for (const recurrenceId of ids) {
-          const currentRsvp = getEffectiveRsvp(post, profile.id, recurrenceId);
-          if (
-            currentRsvp?.response !== 'yes' &&
-            countYesRsvps(post, recurrenceId) >= maxAttendees
-          ) {
-            throw unprocessableRequest({ errorKey: 'error.eventAtCapacity' });
-          }
-        }
-      }
+    if (data.response === 'waitlist') {
+      throw unprocessableRequest({ errorKey: 'error.eventWaitlistNotOpen' });
     }
+    await writeRsvpResponse(profile, post, data.response, occurrenceIds);
+    return;
   }
 
-  const { db } = await allpeepDb();
+  const plans: WaitlistSyncPlan[] = [];
+  let emitted:
+    | {
+        previousResponse?: RsvpResponse;
+        occurrenceIds?: string[];
+        cancel?: ReturnType<typeof rsvpCancelNotice>;
+      }
+    | undefined;
+  let failure: unknown;
+  try {
+    await withRsvpCapacityLock(post.id, async () => {
+      const loaded = await findPost(post.id);
+      if (!loaded || loaded.data?.type !== 'event') {
+        throw unprocessableRequest({ errorKey: 'error.unprocessableRequest' });
+      }
+      if (getEffectiveRsvp(loaded, profile.id)?.response === 'removed') {
+        throw forbidden({ errorKey: 'error.rsvpRemoved' });
+      }
 
-  const previousResponses = occurrenceIds
-    ? occurrenceIds.map(
-        (id) => getEffectiveRsvp(post, profile.id, id)?.response,
-      )
-    : undefined;
-  const previousResponse = previousResponses
-    ? previousResponses.every(attendingRsvp)
-      ? previousResponses[0]
-      : previousResponses.find((response) => !attendingRsvp(response))
-    : [...(post.rsvps ?? [])]
-        .filter((rsvp) => rsvp.profile.id === profile.id)
-        .filter((rsvp) => !rsvp.recurrenceId)
-        .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))[0]?.response;
-
-  const writes: RSVP[] = occurrenceIds
-    ? occurrenceIds.map((recurrenceId) => ({
-        response: data.response,
-        recurrenceId,
-      }))
-    : overlaySeriesRsvpEntries(
-        data.response,
-        instanceRsvpIdsForProfile(post, profile.id),
+      const prepared = await syncCapacityOccurrences(
+        loaded.id,
+        capacitySyncTargets(loaded, occurrenceIds),
       );
+      plans.push(...prepared.plans);
+      const fresh = prepared.post;
+      if (!fresh || fresh.data?.type !== 'event') {
+        throw unprocessableRequest({ errorKey: 'error.unprocessableRequest' });
+      }
 
+      const decision = capacityRsvpDecision(
+        fresh,
+        profile.id,
+        data.response,
+        occurrenceIds,
+      );
+      if (!decision.ok) {
+        throw unprocessableRequest({ errorKey: decision.errorKey });
+      }
+      if (decision.occurrenceIds && decision.occurrenceIds.length === 0) {
+        return;
+      }
+
+      const writeIds = decision.occurrenceIds;
+      const previousResponse = latestOwnResponse(fresh, profile.id, writeIds);
+      const writes = rsvpWrites(fresh, profile.id, data.response, writeIds);
+      const { db } = await allpeepDb();
+      for (const entry of writes) {
+        await entryConnector(db, profile, fresh, {
+          type: 'rsvp',
+          data: entry,
+        });
+      }
+      const cancel = rsvpCancelNotice(
+        fresh,
+        profile.id,
+        data.response,
+        writeIds,
+      );
+      const settled = await syncCapacityOccurrences(
+        fresh.id,
+        capacitySyncTargets(fresh, writeIds),
+      );
+      plans.push(...settled.plans);
+      if (data.response === 'yes') {
+        const claimed = writeIds?.length ? writeIds : [undefined];
+        plans.push({
+          requeues: [],
+          withdraws: [],
+          offers: [],
+          clearOffers: claimed.map((recurrenceId) => ({
+            profileId: profile.id,
+            recurrenceId,
+          })),
+        });
+      }
+      emitted = { previousResponse, occurrenceIds: writeIds, cancel };
+    });
+  } catch (err) {
+    failure = err;
+  }
+
+  await publishCapacityPlans(post.id, post.profile.id, plans);
+  if (failure) throw failure;
+  if (!emitted) return;
+
+  hub.emit('rsvpCreated', profile, post, {
+    type: 'rsvp',
+    data: {
+      response: data.response,
+      ...(emitted.occurrenceIds?.length === 1
+        ? { recurrenceId: emitted.occurrenceIds[0] }
+        : {}),
+    },
+    occurrenceIds: emitted.occurrenceIds,
+    previousResponse: emitted.previousResponse,
+    ...(emitted.cancel ? { cancel: emitted.cancel } : {}),
+  });
+};
+
+const writeRsvpResponse = async (
+  profile: Profile,
+  post: PostWithMeta,
+  response: RsvpResponse,
+  occurrenceIds?: string[],
+) => {
+  const previousResponse = latestOwnResponse(post, profile.id, occurrenceIds);
+  const writes = rsvpWrites(post, profile.id, response, occurrenceIds);
+  const { db } = await allpeepDb();
   for (const entry of writes) {
     await entryConnector(db, profile, post, {
       type: 'rsvp',
       data: entry,
     });
   }
-
-  const cancel = rsvpCancelNotice(
-    post,
-    profile.id,
-    data.response,
-    occurrenceIds,
-  );
-
+  const cancel = rsvpCancelNotice(post, profile.id, response, occurrenceIds);
   hub.emit('rsvpCreated', profile, post, {
     type: 'rsvp',
     data: {
-      response: data.response,
+      response,
       ...(occurrenceIds?.length === 1
         ? { recurrenceId: occurrenceIds[0] }
         : {}),
@@ -489,15 +605,93 @@ export const rsvpManageByOrganizer = async (
     throw forbidden({ errorKey: 'forbidden' });
   }
 
-  if (post.type !== 'event') {
+  if (post.type !== 'event' || post.data?.type !== 'event') {
     throw unprocessableRequest({ errorKey: 'error.unprocessableRequest' });
   }
 
   const data: RSVP = { response, recurrenceId };
-  const { db } = await allpeepDb();
+  const capacity = !!post.data.maxAttendees;
+  if (!capacity) {
+    const { db } = await allpeepDb();
+    const previousResponse = organizerPreviousResponse(
+      post,
+      targetProfile.id,
+      recurrenceId,
+    );
+    await entryConnector(db, targetProfile, post, { type: 'rsvp', data });
+    hub.emit('rsvpCreated', targetProfile, post, {
+      type: 'rsvp',
+      data,
+      previousResponse,
+    });
+    return;
+  }
 
-  const previousResponse = [...(post.rsvps ?? [])]
-    .filter((rsvp) => rsvp.profile.id === targetProfile.id)
+  const plans: WaitlistSyncPlan[] = [];
+  let previousResponse: RsvpResponse | undefined;
+  let failure: unknown;
+  try {
+    await withRsvpCapacityLock(post.id, async () => {
+      const loaded = await findPost(post.id);
+      if (!loaded || loaded.data?.type !== 'event') {
+        throw unprocessableRequest({ errorKey: 'error.unprocessableRequest' });
+      }
+      const targets = capacitySyncTargets(
+        loaded,
+        recurrenceId ? [recurrenceId] : undefined,
+      );
+      const prepared = await syncCapacityOccurrences(loaded.id, targets);
+      plans.push(...prepared.plans);
+      const fresh = prepared.post ?? loaded;
+      if (response === 'yes') {
+        const decision = capacityRsvpDecision(
+          fresh,
+          targetProfile.id,
+          'yes',
+          recurrenceId ? [recurrenceId] : undefined,
+        );
+        if (!decision.ok) {
+          throw unprocessableRequest({ errorKey: decision.errorKey });
+        }
+      }
+      previousResponse = organizerPreviousResponse(
+        fresh,
+        targetProfile.id,
+        recurrenceId,
+      );
+      const { db } = await allpeepDb();
+      await entryConnector(db, targetProfile, fresh, { type: 'rsvp', data });
+      const settled = await syncCapacityOccurrences(fresh.id, targets);
+      plans.push(...settled.plans);
+      if (response === 'yes') {
+        plans.push({
+          requeues: [],
+          withdraws: [],
+          offers: [],
+          clearOffers: [{ profileId: targetProfile.id, recurrenceId }],
+        });
+      }
+    });
+  } catch (err) {
+    failure = err;
+  }
+
+  await publishCapacityPlans(post.id, post.profile.id, plans);
+  if (failure) throw failure;
+  hub.emit('rsvpCreated', targetProfile, post, {
+    type: 'rsvp',
+    data,
+    previousResponse,
+  });
+};
+
+const organizerPreviousResponse = (
+  post: PostWithMeta,
+  profileId: string,
+  recurrenceId?: string,
+) =>
+  [...(post.rsvps ?? [])]
+    .filter((rsvp) => rsvp.profile.id === profileId)
     .filter((rsvp) =>
       recurrenceId
         ? sameRecurrenceId(rsvp.recurrenceId, recurrenceId) ||
@@ -505,18 +699,6 @@ export const rsvpManageByOrganizer = async (
         : !rsvp.recurrenceId,
     )
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))[0]?.response;
-
-  await entryConnector(db, targetProfile, post, {
-    type: 'rsvp',
-    data,
-  });
-
-  hub.emit('rsvpCreated', targetProfile, post, {
-    type: 'rsvp',
-    data,
-    previousResponse,
-  });
-};
 
 /**
  * Remove a profile from a direct-message conversation thread.

@@ -840,6 +840,36 @@ describe('postHelpers', () => {
       ).toBeUndefined();
     });
 
+    it('treats a newer unscoped waitlist as current on a one-time event', () => {
+      const start = '2026-10-16T13:46:31.000Z';
+      const postWithRsvps = {
+        ...mockPost,
+        type: 'event' as const,
+        data: {
+          type: 'event' as const,
+          start,
+          wholeDay: false,
+          maxAttendees: 1,
+        },
+        rsvps: [
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'no' as const,
+            recurrenceId: start,
+            createdAt: '2026-10-14T15:08:16.000Z',
+          },
+          {
+            profile: { ...mockPublicProfile, id: 'profile1' },
+            response: 'waitlist' as const,
+            createdAt: '2026-10-14T15:09:15.000Z',
+          },
+        ] as PublicRsvp[],
+      };
+      expect(displayRsvpForProfile(postWithRsvps, 'profile1')?.response).toBe(
+        'waitlist',
+      );
+    });
+
     it('allows series yes when the member already occupies the full date', () => {
       const occurrenceA = '2026-09-08T16:00:00.000Z';
       const postWithRsvps = {
