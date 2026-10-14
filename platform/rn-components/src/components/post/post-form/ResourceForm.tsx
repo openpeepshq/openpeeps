@@ -77,7 +77,9 @@ export const ResourceForm = ({
     <View>
       <View className="mt-4 gap-y-4 px-3">
         <ThemedText className="text-sm font-medium">
-          {t('resources.form.name')}
+          {t('resources.form.name', {
+            defaultValue: 'Title',
+          })}
         </ThemedText>
         <Input
           value={resource.title}
@@ -85,7 +87,9 @@ export const ResourceForm = ({
         />
 
         <ThemedText className="text-sm font-medium">
-          {t('resources.form.kind')}
+          {t('resources.form.kind', {
+            defaultValue: 'Type',
+          })}
         </ThemedText>
         <View className="flex-row flex-wrap gap-2">
           {RESOURCE_KINDS.map((kind) => (
@@ -105,7 +109,7 @@ export const ResourceForm = ({
                     : 'text-xs text-muted-foreground'
                 }
               >
-                {t(`resources.kinds.${kind}`)}
+                {t(`resources.kinds.${kind}`, { defaultValue: kind })}
               </ThemedText>
             </Pressable>
           ))}
@@ -114,7 +118,9 @@ export const ResourceForm = ({
         {resource.resourceKind === 'link' ? (
           <>
             <ThemedText className="text-sm font-medium">
-              {t('resources.form.url')}
+              {t('resources.form.url', {
+                defaultValue: 'URL',
+              })}
             </ThemedText>
             <Input
               value={resource.url ?? ''}
@@ -128,7 +134,9 @@ export const ResourceForm = ({
               onPress={openMedia}
               className="items-center rounded-md border border-input px-3 py-2"
             >
-              <ThemedText>{t('resources.form.addMedia')}</ThemedText>
+              <ThemedText>
+                {t('resources.form.addMedia', { defaultValue: 'Add files' })}
+              </ThemedText>
             </Pressable>
             <ComposeAttachments
               attachments={resource.attachments ?? []}
@@ -155,17 +163,23 @@ export const ResourceForm = ({
           maxLength={4000}
           value={resource.content ?? ''}
           onChange={(content) => patchResource({ content })}
-          placeholder={t('resources.form.descriptionPlaceholder')}
+          placeholder={t('resources.form.descriptionPlaceholder', {
+            defaultValue: 'Describe this resource',
+          })}
         />
 
         <ThemedText className="text-sm font-medium">
-          {t('resources.form.tags')}
+          {t('resources.form.tags', {
+            defaultValue: 'Tags',
+          })}
         </ThemedText>
         <Input
           value={tagDraft}
           onChangeText={setTagDraft}
           onSubmitEditing={addTag}
-          placeholder={t('resources.form.tagsPlaceholder')}
+          placeholder={t('resources.form.tagsPlaceholder', {
+            defaultValue: 'Add tags, then press Enter',
+          })}
         />
         <View className="flex-row flex-wrap gap-1">
           {normalizeResourceTags(resource.tags).map((tag) => (
@@ -187,7 +201,9 @@ export const ResourceForm = ({
         </View>
 
         <ThemedText className="text-sm font-medium">
-          {t('resources.form.hierarchy')}
+          {t('resources.form.hierarchy', {
+            defaultValue: 'Place in the library',
+          })}
         </ThemedText>
         <Input
           value={(resource.categoryPath ?? []).join(' / ')}
@@ -199,11 +215,15 @@ export const ResourceForm = ({
                 .filter(Boolean),
             })
           }
-          placeholder={t('resources.form.addLevel')}
+          placeholder={t('resources.form.addLevel', {
+            defaultValue: 'Add a folder',
+          })}
         />
 
         <ThemedText className="text-sm font-medium">
-          {t('resources.form.visibility')}
+          {t('resources.form.visibility', {
+            defaultValue: 'Who can see this (Required)',
+          })}
         </ThemedText>
         <VisibilitySelector
           audienceSetting={postData}

@@ -66,10 +66,11 @@ export default {
         hairline: hairlineWidth(),
       },
       borderRadius: {
-        button: 'var(--theme-rounded-base)',
+        button: 'var(--theme-rounded-base, 9999px)',
         lg: 'var(--theme-rounded-container, 0.5rem)',
         md: 'calc(var(--theme-rounded-container, 0.5rem) - 2px)',
         sm: 'calc(var(--theme-rounded-container, 0.5rem) - 4px)',
+        full: '9999px',
       },
       fontFamily: {
         sans: 'var(--theme-font-family-base, system-ui)',

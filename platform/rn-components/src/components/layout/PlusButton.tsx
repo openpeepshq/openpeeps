@@ -7,6 +7,8 @@ export const PlusButton = () => {
   const { plus } = usePageChrome();
   if (!plus || Array.isArray(plus)) return null;
 
+  const Icon = plus.icon ?? PlusIcon;
+
   const onPress = () => {
     if (typeof plus.action === 'function') {
       void plus.action();
@@ -18,9 +20,9 @@ export const PlusButton = () => {
       accessibilityRole="button"
       accessibilityLabel={plus.title || 'New'}
       onPress={onPress}
-      className="bg-foreground absolute bottom-10 right-6 z-20 size-16 items-center justify-center rounded-full"
+      className="bg-primary absolute bottom-10 right-6 z-20 size-16 items-center justify-center rounded-button"
     >
-      <PlusIcon size={24} className="text-background" />
+      <Icon size={24} className="text-primary-foreground" />
     </Pressable>
   );
 };
