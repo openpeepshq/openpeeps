@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **markdown**: unify HTML sanitization and iframe containment across web & RN
+- **react**: harmonize avatar colors, ProfileCard API, migrate PostMenu/ShareMenu, fix occurrence URL handling
 - **react**: harmonize web and rn-components component APIs
 - **rn-components**: unify native pages onto RootLayout and AuthLayout
 - **rn-components**: match native look and feel to web
@@ -18,6 +20,10 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **rn-components**: move useSetPageHeader before early return in ConversationShow
+- **dm**: align direct messages visual parity between web and RN
+- **rn-components**: play hand-raise sound in native jam call
+- **react-ui**: export AlertDialog and Sheet from ui barrel
 - **rn-components**: stop page-chrome infinite update loops
 - **rn-components**: remove create post from side menu
 - **react**: refresh auth scopes on React Native
@@ -38,6 +44,7 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **release**: bump @openpeepshq/react and @openpeepshq/rn-components to 0.5.0
 - **packages**: bump versions for unpublished package changes
 
 ## 2026-10-08
