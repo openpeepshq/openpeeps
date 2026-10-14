@@ -48,11 +48,7 @@ export const OpenPeepsThemeProvider = ({
         buttonRadius: resolvedTheme.buttonRadius,
         radius: resolvedTheme.radius,
       }),
-    [
-      resolvedTheme.buttonRadius,
-      resolvedTheme.radius,
-      theme.colors,
-    ]
+    [resolvedTheme.buttonRadius, resolvedTheme.radius, theme.colors]
   );
 
   useEffect(() => {

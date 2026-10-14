@@ -34,7 +34,12 @@ export const ConversationParticipantsModal = ({
         </ThemedText>
       </View>
       {participants.map((profile) => (
-        <ProfileCard key={profile.id} profile={profile} hasAction={false} />
+        <ProfileCard
+          key={profile.id}
+          profile={profile}
+          showAction={false}
+          hasAction={false}
+        />
       ))}
     </BaseSheet>
   );
