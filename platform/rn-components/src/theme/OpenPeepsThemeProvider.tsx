@@ -4,7 +4,7 @@ import { colorScheme } from 'nativewind';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { OpenPeepsTheme } from './types';
 import { defaultTheme } from './defaults';
-import { buildTheme, getThemeVars } from './utils';
+import { buildTheme, getThemeVars, parseDimension } from './utils';
 import { CommunityConfig, getTheme } from '@openpeepshq/common';
 
 const OpenPeepsThemeContext = createContext<OpenPeepsTheme>(defaultTheme);
@@ -36,10 +36,20 @@ export const OpenPeepsThemeProvider = ({
 
   const theme = useMemo(
     () =>
-      buildTheme(resolvedTheme.dark, resolvedTheme.primaryHex, () => {
-        refetchProfileSettings();
-      }),
-    [refetchProfileSettings, resolvedTheme.dark, resolvedTheme.primaryHex]
+      buildTheme(
+        resolvedTheme.dark,
+        resolvedTheme.primaryHex,
+        resolvedTheme.buttonRadius,
+        () => {
+          refetchProfileSettings();
+        }
+      ),
+    [
+      refetchProfileSettings,
+      resolvedTheme.dark,
+      resolvedTheme.primaryHex,
+      resolvedTheme.buttonRadius,
+    ]
   );
 
   const themeVars = useMemo(
@@ -77,4 +87,12 @@ export const useOpenPeepsTheme = () => {
     );
   }
   return context;
+};
+
+/** Returns the theme button border-radius as a React Native numeric value.
+ * NativeWind v4 does not resolve CSS variables for borderRadius, so
+ * components must apply this via inline style instead of `rounded-button`. */
+export const useThemeBorderRadius = (): number => {
+  const { buttonRadius } = useOpenPeepsTheme();
+  return parseDimension(buttonRadius);
 };

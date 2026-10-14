@@ -66,7 +66,11 @@ export default {
         hairline: hairlineWidth(),
       },
       borderRadius: {
-        button: 'var(--theme-rounded-base, 9999px)',
+        // NativeWind v4 does not resolve CSS variables for borderRadius
+        // (only for colors via processColor). Components apply the theme
+        // button radius via inline style (see useThemeBorderRadius).
+        // Static fallback ensures non-square buttons as a safety net.
+        button: '9999px',
         lg: 'var(--theme-rounded-container, 0.5rem)',
         md: 'calc(var(--theme-rounded-container, 0.5rem) - 2px)',
         sm: 'calc(var(--theme-rounded-container, 0.5rem) - 4px)',

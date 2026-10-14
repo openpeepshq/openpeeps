@@ -1,8 +1,9 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, type StyleProp, type ViewStyle } from 'react-native';
 import { TextClassContext } from './themed-text';
 import { cn } from '../../lib/utils';
+import { useThemeBorderRadius } from '../../theme/OpenPeepsThemeProvider';
 
 const buttonVariants = cva(
   'group flex items-center justify-center rounded-button web:ring-offset-background web:transition-colors web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2',
@@ -65,7 +66,11 @@ type ButtonProps = React.ComponentPropsWithoutRef<typeof Pressable> &
 const Button = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ButtonProps
->(({ className, variant, size, ...props }, ref) => {
+>(({ className, variant, size, style, ...props }, ref) => {
+  // NativeWind v4 doesn't resolve CSS variables for borderRadius, so
+  // apply the theme button radius via inline style as a fallback.
+  const borderRadius = useThemeBorderRadius();
+
   return (
     <TextClassContext.Provider
       value={cn(
@@ -80,6 +85,7 @@ const Button = React.forwardRef<
         )}
         ref={ref}
         role="button"
+        style={cn({ borderRadius }, style) as StyleProp<ViewStyle>}
         {...props}
       />
     </TextClassContext.Provider>
