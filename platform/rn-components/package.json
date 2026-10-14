@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/rn-components",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "React Native community screens and shared UI (extracted from the Black Ambition app) for the OpenPeeps stack.",
   "source": "./src/index.ts",
   "main": "./src/index.ts",
@@ -58,14 +58,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.allpeep-hq.com/allpeep/open-source/react-native-components.git"
+    "url": "https://code.openpeeps.org/openpeeps/openpeeps",
+    "directory": "platform/rn-components"
   },
   "author": "OpenPeeps Inc. <dev@allpeep.com> (https://allpeep.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://gitlab.allpeep-hq.com/allpeep/open-source/react-native-components/issues"
+    "url": "https://code.openpeeps.org/openpeeps/openpeeps/issues"
   },
-  "homepage": "https://gitlab.allpeep-hq.com/allpeep/open-source/react-native-components#readme",
+  "homepage": "https://code.openpeeps.org/openpeeps/openpeeps#readme",
   "dependencies": {
     "@gorhom/bottom-sheet": "^5.2.9",
     "@hookform/resolvers": "^5.4.2",
