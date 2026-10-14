@@ -32,5 +32,9 @@ RUN corepack enable \
 
 COPY . .
 
+# Rebuild bin symlinks: pnpm install above ran before source files were
+# copied, so @openpeepshq/cli/opc.mjs bin links were skipped.
+RUN pnpm rebuild
+
 # restore-fixture imports @openpeepshq/core/backups, which resolves to dist.
 RUN pnpm --filter @openpeepshq/core... build

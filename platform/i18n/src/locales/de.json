@@ -2975,7 +2975,7 @@
       "past": "Vergangene",
       "upcoming": "Kommende",
       "current": "Aktuell",
-      "empty": "Keine Ergebnisse",
+      "empty": "Keine {{type}}s",
       "label": "Veranstaltungszeitraum",
       "view": {
         "switchLabel": "Veranstaltungsansicht",

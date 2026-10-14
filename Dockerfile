@@ -61,7 +61,13 @@ RUN pnpm \
 
 COPY . .
 
-RUN node scripts/generate-changelog.mjs
+# Rebuild bin symlinks: pnpm install above ran before source files were
+# copied, so @openpeepshq/cli/opc.mjs and @openpeepshq/mcp bin links were skipped.
+RUN pnpm rebuild
+
+# CHANGELOG.md is pre-generated in CI (build.yaml: Generate changelog step)
+# where .git is available. Inside Docker, .git is excluded via .dockerignore,
+# so generating here would produce an empty changelog, overwriting the real one.
 
 # Build the dependency closure in topological order. `pnpm -r` walks the
 # workspace graph so libraries (common → core → react-ui → react → …) are
@@ -139,7 +145,7 @@ COPY --from=builder /apat /apat
 # container. The script imports the compiled CLI via a relative path so it
 # does not depend on `@openpeepshq/cli` being resolvable from the cwd.
 RUN ln -sf /apat/platform/cli/bin/opc.mjs /usr/local/bin/opc \
- && chmod +x /apat/platform/cli/bin/opc.mjs
+    && chmod +x /apat/platform/cli/bin/opc.mjs
 
 RUN mkdir -p /apat/.media && mkdir -p /apat/.logs && mkdir -p /apat/plugins
 
