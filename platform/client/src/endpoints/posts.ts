@@ -77,6 +77,7 @@ type Finders = {
     { id: string; recordingId: string }
   >;
   unseenCounts: OpenpeepsNoPayloadEndpoint<UnseenPostCounts>;
+  exportRsvps: (args: { id: string; occurrence?: string }) => Promise<string>;
 };
 
 // Explicit return types keep `tsc` from serializing the expanded PublicPost
@@ -140,6 +141,18 @@ const finders = (rawClient: FetchClient): Finders => ({
     rawClient,
     '/posts/unseen/counts',
   ),
+  exportRsvps: async ({ id, occurrence }) => {
+    const query = occurrence
+      ? `?occurrence=${encodeURIComponent(occurrence)}`
+      : '';
+    const response = await rawClient.get(`/posts/${id}/rsvp/export${query}`);
+
+    if (!response.ok) {
+      throw { ...(await response.json()), status: response.status };
+    }
+
+    return response.text();
+  },
 });
 
 const eventFeeds = (rawClient: FetchClient): EventFeeds => ({

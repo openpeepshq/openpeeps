@@ -90,6 +90,14 @@ const listJamJoinEvents = async (jamId: string): Promise<JoinRecord[]> => {
   });
 };
 
+/** Profiles that joined the jam room. Recurring jams share one room. */
+export const listJamAttendeeProfileIds = async (
+  jamId: string,
+): Promise<string[]> => {
+  const joins = await listJamJoinEvents(jamId);
+  return [...new Set(joins.map((join) => join.profileId))];
+};
+
 export const exportJamAttendanceCsv = async (
   jamId: string,
 ): Promise<string> => {

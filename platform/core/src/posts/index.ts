@@ -22,6 +22,7 @@ export {
 export * from './helpers';
 export { bumpConversationActivity, findReplyRootId } from './activity';
 export { registerRsvpConfirmationEmail } from './rsvpConfirmationEmail';
+export { exportEventRsvpsCsv } from './rsvpExport';
 export {
   rebuildEventOccurrences,
   clearEventOccurrences,
