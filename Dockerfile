@@ -49,14 +49,11 @@ COPY --parents \
 # `openpeeps.plugins`) live under `examples/*` and need their own filter or
 # they're never installed/built, so `initializePlugins()` fails with
 # "Cannot find module '.../dist/index.js'" the moment one is enabled.
-# Seed the pnpm store cache from a CI-provided secret (actions/cache).
-# When the layer is cached, pnpm install doesn't run at all — the store
-# mount is irrelevant. When it IS uncached (first build, lockfile change),
-# the seed makes install use --prefer-offline instead of downloading
-# all 1753 packages from scratch.
-RUN --mount=type=secret,id=pnpm-store,target=/pnpm-seed.tar \
-    --mount=type=cache,id=pnpm-store,target=/pnpm-store \
-    tar xf /pnpm-seed.tar -C /pnpm-store/ 2>/dev/null || true; \
+# pnpm install layer: cached via registry BuildKit cache (mode=max).
+# When the lockfile has not changed, this layer is CACHED and pnpm
+# doesn't run. --prefer-offline reuses any packages from the local
+# cache mount before downloading from the registry.
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store \
     pnpm config set store-dir /pnpm-store \
     && pnpm \
     --filter "@openpeepshq/server..." \
