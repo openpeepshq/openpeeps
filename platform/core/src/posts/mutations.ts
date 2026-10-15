@@ -258,14 +258,12 @@ export const reactToPost = async (
     entryConnector(db, profile, post, {
       type: 'reaction',
       data: { reaction: data.reaction },
-    })
-      .then(() => bumpConversationActivity(db, post.id))
-      .then(() =>
-        hub.emit('reactionCreated', profile, post, {
-          type: 'reaction',
-          ...data,
-        }),
-      ),
+    }).then(() =>
+      hub.emit('reactionCreated', profile, post, {
+        type: 'reaction',
+        ...data,
+      }),
+    ),
   );
 
 export const retractReaction = async (post: PostWithMeta, profile: Profile) =>

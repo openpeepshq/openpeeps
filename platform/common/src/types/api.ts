@@ -231,7 +231,7 @@ const basePublicPostSchema = publicReplyPostSchema.extend({
   /** Newest conversation descendants for a nested timeline preview. */
   latestReplies: publicReplyPostSchema.array().optional(),
   latestRepliesHasMore: z.boolean().optional(),
-  /** Last reply or reaction on the conversation root; feeds sort by this. */
+  /** Last reply on the conversation root; feeds sort by this. */
   lastActivityAt: z.string().datetime().optional(),
   application: publicApplicationSchema.optional(),
   mentions: z.array(mentionWithPublicProfileSchema),
