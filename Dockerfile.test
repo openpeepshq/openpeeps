@@ -27,12 +27,10 @@ COPY --parents \
     docs-site/package.json \
     ./
 
-RUN --mount=type=secret,id=pnpm-store,target=/pnpm-seed.tar \
- --mount=type=cache,id=pnpm-store,target=/pnpm-store \
- corepack enable \
- && tar xf /pnpm-seed.tar -C /pnpm-store/ 2>/dev/null || true \
- && pnpm config set store-dir /pnpm-store \
- && pnpm install --frozen-lockfile --prefer-offline --filter "@openpeepshq/tests..."
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store \
+     corepack enable \
+     && pnpm config set store-dir /pnpm-store \
+     && pnpm install --frozen-lockfile --prefer-offline --filter "@openpeepshq/tests..."
 
 # ─────────────────────────────────────────────────────────────
 # Per-package builds in dependency order so small source changes only
