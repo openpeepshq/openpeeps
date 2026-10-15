@@ -3086,6 +3086,8 @@
     },
     "exportAttendees": "Teilnehmende exportieren",
     "exportAttendeesError": "Export der Teilnehmenden fehlgeschlagen",
+    "exportRsvps": "RSVPs exportieren",
+    "exportRsvpsError": "Export der RSVPs fehlgeschlagen",
     "repeat": {
       "badge": "Wiederholung",
       "label": "Wiederholung",

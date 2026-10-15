@@ -23,6 +23,7 @@ import {
   parseOccurrenceQuery,
   listRsvpOccurrences,
   profileName,
+  rsvpExportFilename,
 } from '@openpeepshq/common/lib';
 import {
   Button,
@@ -127,6 +128,22 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
       );
     }
   }, [client, post.id, t, toastError]);
+
+  const exportRsvps = useCallback(async () => {
+    try {
+      const csv = await client.posts.exportRsvps({
+        id: post.id,
+        occurrence: occurrenceId,
+      });
+      downloadCsv(csv, rsvpExportFilename(event.name, new Date()));
+    } catch {
+      toastError(
+        t('events.exportRsvpsError', {
+          defaultValue: 'Failed to export RSVPs',
+        }),
+      );
+    }
+  }, [client, event.name, occurrenceId, post.id, t, toastError]);
 
   const descendentThreads = useMemo(
     () =>
@@ -328,22 +345,32 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
       ) : null}
 
       {tab === 'rsvps' ? (
-        <EventRsvpList
-          post={post}
-          occurrenceId={occurrenceId}
-          occurrences={upcomingOccurrences}
-          currentProfile={profile}
-          canManageRsvps={canManageRsvps}
-          onMessage={(target) =>
-            openCreateConversation({
-              profiles: [target],
-              skipProfileSelection: true,
-            })
-          }
-          onManage={(response, profileId, recurrenceId) =>
-            rsvpManage({ response, recurrenceId }, { id: post.id, profileId })
-          }
-        />
+        <>
+          {canManageRsvps ? (
+            <div className="flex justify-end py-2">
+              <Button variant="outline" compact action={exportRsvps}>
+                <Download className="mr-1 h-4 w-4" />
+                {t('events.exportRsvps', { defaultValue: 'Export RSVPs' })}
+              </Button>
+            </div>
+          ) : null}
+          <EventRsvpList
+            post={post}
+            occurrenceId={occurrenceId}
+            occurrences={upcomingOccurrences}
+            currentProfile={profile}
+            canManageRsvps={canManageRsvps}
+            onMessage={(target) =>
+              openCreateConversation({
+                profiles: [target],
+                skipProfileSelection: true,
+              })
+            }
+            onManage={(response, profileId, recurrenceId) =>
+              rsvpManage({ response, recurrenceId }, { id: post.id, profileId })
+            }
+          />
+        </>
       ) : null}
 
       {tab === 'attendees' && showJamAttendeesTab ? (

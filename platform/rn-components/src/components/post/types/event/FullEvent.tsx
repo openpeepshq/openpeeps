@@ -21,8 +21,8 @@ import {
   DropdownMenuTrigger,
 } from '../../../ui/dropdown-menu';
 import { ThemedText } from '../../../ui/themed-text';
-import { Image, TouchableOpacity, View } from 'react-native';
-
+import { Image, Share, TouchableOpacity, View } from 'react-native';
+import RNFS from 'react-native-fs';
 import {
   Event,
   PublicPost,
@@ -64,6 +64,7 @@ import {
   formatEventClockTime,
   formatEventRecurrence,
   listRsvpOccurrences,
+  rsvpExportFilename,
 } from '@openpeepshq/common/lib';
 import { ThemedView } from '../../../ui/themed-view';
 import { EventOccurrenceList } from '../../pieces/EventOccurrenceList';
@@ -89,7 +90,7 @@ export interface FullEventProps {
 
 export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
   const { t } = useTranslation();
-  const { currentProfile, openpeepsApi } = useOpenpeeps();
+  const { currentProfile, openpeepsApi, client } = useOpenpeeps();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const { openNewPost } = useNewPostModal();
@@ -109,6 +110,28 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
       ? event.maxAttendees - countYesRsvps(post, occurrence)
       : null;
   const rsvpManage = openpeepsApi.rsvpManageAction();
+  const exportRsvps = async () => {
+    try {
+      const csv = await client.posts.exportRsvps({
+        id: post.id,
+        occurrence,
+      });
+      const filename = rsvpExportFilename(event?.name, new Date());
+      const path = `${RNFS.CachesDirectoryPath}/${filename}`;
+      await RNFS.writeFile(path, csv, 'utf8');
+      await Share.share({
+        url: `file://${path}`,
+        title: filename,
+      }).catch(() => undefined);
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: t('events.exportRsvpsError', {
+          defaultValue: 'Failed to export RSVPs',
+        }),
+      });
+    }
+  };
   const times = effectiveEventTimes(event, occurrence);
   const tz = eventTimeZoneOptions(event?.timeZone);
   const recurrenceLabel = event?.recurrence
@@ -475,6 +498,19 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
           ))}
         </TabsContent>
         <TabsContent value="rsvps" className="px-0 py-4">
+          {canManageRsvps ? (
+            <Button
+              variant="outline"
+              className="mb-3 self-end"
+              onPress={() => {
+                void exportRsvps();
+              }}
+            >
+              <ThemedText>
+                {t('events.exportRsvps', { defaultValue: 'Export RSVPs' })}
+              </ThemedText>
+            </Button>
+          ) : null}
           <EventRsvpList
             post={post as PublicPost}
             occurrenceId={occurrence}

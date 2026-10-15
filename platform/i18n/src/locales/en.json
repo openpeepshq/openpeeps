@@ -2960,6 +2960,8 @@
     "noAttendees": "No attendees yet",
     "exportAttendees": "Export attendees",
     "exportAttendeesError": "Failed to export attendees",
+    "exportRsvps": "Export RSVPs",
+    "exportRsvpsError": "Failed to export RSVPs",
     "noRecordings": "No recordings yet.",
     "downloadRecording": "Download recording",
     "recordingInProgress": "Recording in progress…",
