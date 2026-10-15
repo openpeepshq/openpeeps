@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, useColorScheme } from 'react-native';
 import { Separator } from '../../ui/separator';
 import { Image, TouchableOpacity, View } from 'react-native';
 import { Button } from '../../ui/button';
@@ -23,8 +23,8 @@ import {
 } from '../../icons/index';
 import { ThemedText } from '../../ui/themed-text';
 import { useWindowSize } from '../../../hooks/helper';
-import { useAppImagesStore } from '../../../stores/useAppImagesStore';
-import { formatBadgeCount } from '@openpeepshq/common';
+import { toAbsoluteMediaUrl } from '../../../lib/media-url';
+import { formatBadgeCount, getTheme } from '@openpeepshq/common';
 import { buildMainNavItems, useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 import { ProfileAvatar } from '../../profile/Avatar';
@@ -67,10 +67,22 @@ export const SideMenu = ({
 }: SideMenuProps) => {
   const { openpeepsApi, currentProfile } = useOpenpeeps();
   const { isMediumScreenOrLarger } = useWindowSize();
-  const { logoSmall } = useAppImagesStore();
   const logout = openpeepsApi.logoutAction();
   const { data: serverInfo } = openpeepsApi.useServerInfo();
+  const { data: profileSettings } = openpeepsApi.useCurrentProfileSettings();
   const unseenCounts = openpeepsApi.useUnseenPostCounts();
+
+  // Mirrors web SideBar: resolve the logo per active theme mode instead of
+  // the image store, which could hold relative URLs RN cannot load. The
+  // system scheme must come from RN: getTheme's default cannot read it.
+  const systemColorScheme = useColorScheme();
+  const systemScheme = systemColorScheme === 'dark' ? 'dark' : 'light';
+  const logoUri = serverInfo
+    ? toAbsoluteMediaUrl(
+        getTheme(serverInfo.communityConfig, profileSettings, systemScheme)
+          .logoSmall
+      )
+    : undefined;
 
   const unreadGroupPosts = Object.values(
     unseenCounts.data?.groups ?? {}
@@ -100,11 +112,13 @@ export const SideMenu = ({
       <View className="sm:w-56 md:w-80 bg-background flex-1">
         <TouchableOpacity onPress={onProfilePress} className="mt-12 mb-6 px-4">
           <View className="w-full flex-row items-center justify-between">
-            <Image
-              source={{ uri: logoSmall! }}
-              className="-mt-2 h-12 w-48"
-              resizeMode="contain"
-            />
+            {logoUri ? (
+              <Image
+                source={{ uri: logoUri }}
+                className="-mt-2 h-12 w-48"
+                resizeMode="contain"
+              />
+            ) : null}
             {!isMediumScreenOrLarger && (
               <View className="md:hidden">
                 <Button onPress={close} variant={'outline'} size={'icon'}>

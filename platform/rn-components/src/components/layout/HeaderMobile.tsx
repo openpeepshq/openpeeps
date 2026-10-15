@@ -6,6 +6,7 @@ import {
   StatusBar,
   StyleSheet,
   View,
+  useColorScheme,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -14,7 +15,8 @@ import { useOpenpeeps } from '@openpeepshq/react';
 import { useDrawer } from '../../contexts/drawer-context';
 import { useWindowSize } from '../../hooks/index';
 import { BASE_URL, isProduction } from '../../lib/constants';
-import { useAppImagesStore } from '../../stores/useAppImagesStore';
+import { toAbsoluteMediaUrl } from '../../lib/media-url';
+import { getTheme } from '@openpeepshq/common';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { ThemedText } from '../ui/themed-text';
@@ -24,10 +26,21 @@ import type { MainStackParamList } from '../navigation/types/index';
 export const HeaderMobile = () => {
   const { openDrawer } = useDrawer();
   const { isMediumScreenOrLarger } = useWindowSize();
-  const { currentProfile } = useOpenpeeps();
+  const { openpeepsApi, currentProfile } = useOpenpeeps();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
-  const { background, logoSmall } = useAppImagesStore();
+  const { data: serverInfo } = openpeepsApi.useServerInfo();
+  const { data: profileSettings } = openpeepsApi.useCurrentProfileSettings();
+
+  // Mirrors web HeaderMobile: resolve branding per active theme mode. The
+  // system scheme must come from RN: getTheme's default cannot read it.
+  const systemColorScheme = useColorScheme();
+  const systemScheme = systemColorScheme === 'dark' ? 'dark' : 'light';
+  const resolvedTheme = serverInfo
+    ? getTheme(serverInfo.communityConfig, profileSettings, systemScheme)
+    : undefined;
+  const logoUri = toAbsoluteMediaUrl(resolvedTheme?.logoSmall);
+  const backgroundUri = toAbsoluteMediaUrl(resolvedTheme?.background);
 
   if (isMediumScreenOrLarger) {
     return null;
@@ -36,7 +49,7 @@ export const HeaderMobile = () => {
   return (
     <ImageBackground
       resizeMode="cover"
-      source={{ uri: background! }}
+      source={backgroundUri ? { uri: backgroundUri } : undefined}
       style={styles.header}
       className="px-4 pb-3"
     >
@@ -65,11 +78,13 @@ export const HeaderMobile = () => {
               )}
             </Avatar>
           </Button>
-          <Image
-            source={{ uri: logoSmall! }}
-            resizeMode="contain"
-            className="h-[64px] w-[216px]"
-          />
+          {logoUri ? (
+            <Image
+              source={{ uri: logoUri }}
+              resizeMode="contain"
+              className="h-[64px] w-[216px]"
+            />
+          ) : null}
           <Button
             variant="outline"
             size="icon"

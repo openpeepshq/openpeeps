@@ -6,12 +6,13 @@ import { ThemedText } from '../../components/ui/themed-text';
 import { ThemedView } from '../../components/ui/themed-view';
 import Toast from 'react-native-toast-message';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Pressable } from 'react-native';
+import { Pressable, useColorScheme } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group';
 import { getTheme, THEME_OPTIONS } from '@openpeepshq/common';
 import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
 import { useAppImagesStore } from '../../stores/useAppImagesStore';
+import { toAbsoluteMediaUrl } from '../../lib/media-url';
 
 type ThemeSettingsProps = MainScreenProps<'ThemeSettings'>;
 
@@ -21,6 +22,8 @@ export const ThemeSettings: React.FC<ThemeSettingsProps> = ({}) => {
   const { refresh } = useOpenPeepsTheme();
   const { t } = useTranslation();
   const { setBackground, setLogoSmall } = useAppImagesStore();
+  const systemColorScheme = useColorScheme();
+  const systemScheme = systemColorScheme === 'dark' ? 'dark' : 'light';
 
   const handleSubmit = async () => {
     if (!theme) {
@@ -38,15 +41,16 @@ export const ThemeSettings: React.FC<ThemeSettingsProps> = ({}) => {
         text1: t('settings.theme.updateSuccess'),
       });
       await refresh();
-      const userTheme = getTheme(serverInfo.communityConfig, {
-        theme,
-      } as Parameters<typeof getTheme>[1]);
-      if (userTheme.background) {
-        setBackground(userTheme.background);
-      }
-      if (userTheme.logoSmall) {
-        setLogoSmall(userTheme.logoSmall);
-      }
+      const userTheme = getTheme(
+        serverInfo.communityConfig,
+        {
+          theme,
+        } as Parameters<typeof getTheme>[1],
+        systemScheme
+      );
+      // Absolute URIs only: RN Image cannot load path-relative URLs.
+      setBackground(toAbsoluteMediaUrl(userTheme.background) ?? null);
+      setLogoSmall(toAbsoluteMediaUrl(userTheme.logoSmall) ?? null);
     } catch {
       Toast.show({
         type: 'error',
