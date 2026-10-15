@@ -40,7 +40,7 @@ export const touchPostActivity = async (
   `);
 };
 
-/** Replies and reactions on any descendant bump the original/root post. */
+/** Replies on any descendant bump the original/root post. */
 export const bumpConversationActivity = async (
   db: PgDb,
   postId: string,
