@@ -115,6 +115,14 @@ steps — follow that skill.
   Keep logic in shared hooks under `platform/react/src/hooks` (exported via
   `react-native.ts`) so both sides consume the same behavior; only the
   rendering layer differs.
+- **Shell boundaries are Web-defined.** Whether a route lives in or out of the
+  sidebar shell is decided by the Web router (`/events/:eventId/jam`, `/about`,
+  `/code-of-conduct` sit outside it; tabs and most pages live inside it) and is
+  the source of truth for native. Do not special-case a single route with a
+  procedural `if`; model it as a named set so Web parity is data, not a
+  per-screen hack. A route is only truly full-screen when _both_ the inner
+  `RootLayout` and the outer `Wrapper` (side-menu shell) are bypassed — skipping
+  one still leaves the shell.
 - **Schema migrations:** changes to stored data shape go through **Drizzle SQL**.
   Update tables under
   `platform/core/src/db/pg/schema/`, then

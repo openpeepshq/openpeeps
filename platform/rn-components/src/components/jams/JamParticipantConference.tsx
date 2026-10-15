@@ -14,10 +14,12 @@ import {
   useJamContext,
   useJamLocalSettings,
 } from '@openpeepshq/react';
+import { useWindowSize } from '../../hooks/index';
 import { ThemedText } from '../ui/themed-text';
 import { JamChatDrawer } from './JamChatDrawer';
 import { JamDetailsDrawer } from './JamDetailsDrawer';
-import { JamFooter } from './JamFooter';
+import { JamDesktopFooter } from './JamDesktopFooter';
+import { JamFooter, type JamFooterProps } from './JamFooter';
 import { JamPeopleDrawer } from './JamPeopleDrawer';
 import { JamNetworkQuality, JamRecordingIndicator } from './JamRoomIndicators';
 import { JamVideoLayout } from './JamVideoLayout';
@@ -27,6 +29,7 @@ type Drawer = 'chat' | 'people' | 'details' | null;
 const JamParticipantConferenceInner = () => {
   const room = useRoomContext();
   const { jamEvent } = useJamContext();
+  const { isMediumScreenOrLarger } = useWindowSize();
   const [drawer, setDrawer] = useState<Drawer>(null);
   const [settings, updateSettings] = useJamLocalSettings();
   const remoteParticipants = useRemoteParticipants();
@@ -70,6 +73,20 @@ const JamParticipantConferenceInner = () => {
   const toggleDrawer = (next: Exclude<Drawer, null>) =>
     setDrawer((current) => (current === next ? null : next));
 
+  const footerProps: JamFooterProps = {
+    chatOpen: drawer === 'chat',
+    onToggleChat: () => toggleDrawer('chat'),
+    peopleOpen: drawer === 'people',
+    onTogglePeople: () => toggleDrawer('people'),
+    detailsOpen: drawer === 'details',
+    onToggleDetails: () => toggleDrawer('details'),
+    speakerDeviceId: settings.speakerDeviceId,
+    speakerEnabled: settings.speakerEnabled,
+    onSpeakerChange: (speakerDeviceId) => updateSettings({ speakerDeviceId }),
+    onToggleSpeaker: () =>
+      updateSettings({ speakerEnabled: !settings.speakerEnabled }),
+  };
+
   return (
     <View className="relative flex-1 overflow-hidden bg-background">
       <JamNetworkQuality />
@@ -103,22 +120,11 @@ const JamParticipantConferenceInner = () => {
         />
       </View>
       <View className="w-full shrink-0 bg-background">
-        <JamFooter
-          chatOpen={drawer === 'chat'}
-          onToggleChat={() => toggleDrawer('chat')}
-          peopleOpen={drawer === 'people'}
-          onTogglePeople={() => toggleDrawer('people')}
-          detailsOpen={drawer === 'details'}
-          onToggleDetails={() => toggleDrawer('details')}
-          speakerDeviceId={settings.speakerDeviceId}
-          speakerEnabled={settings.speakerEnabled}
-          onSpeakerChange={(speakerDeviceId) =>
-            updateSettings({ speakerDeviceId })
-          }
-          onToggleSpeaker={() =>
-            updateSettings({ speakerEnabled: !settings.speakerEnabled })
-          }
-        />
+        {isMediumScreenOrLarger ? (
+          <JamDesktopFooter {...footerProps} />
+        ) : (
+          <JamFooter {...footerProps} />
+        )}
       </View>
     </View>
   );

@@ -55,13 +55,17 @@ import { useOpenpeeps } from '@openpeepshq/react';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
-const NO_ROOT_LAYOUT = new Set([
-  'TabNavigator',
-  'JamSession',
-  'VideoPlayer',
-  'About',
-  'CodeOfConduct',
-]);
+// Routes that skip the inner RootLayout (HeaderMobile, ContentHeader, PlusButton)
+// but still live inside the outer side-menu Wrapper. TabNavigator defers its
+// inner RootLayout to the per-tab screen: bottom-tabs keeps tab content mounted,
+// so each tab needs its own PageChromeProvider.
+const NO_ROOT_LAYOUT = new Set(['TabNavigator', 'VideoPlayer']);
+
+// Routes rendered full-screen with no shell at all, mirroring the web app's
+// standalone routes declared outside the sidebar RootLayout: the jam room
+// (/events/:eventId/jam, which also hosts the lobby and the guest form) and the
+// about / code-of-conduct auth pages (see AuthLayout back-to-app link).
+const STANDALONE = new Set(['JamSession', 'About', 'CodeOfConduct']);
 
 export const MainNavigator = () => {
   const { openpeepsApi, queryClient } = useOpenpeeps();
@@ -102,6 +106,9 @@ export const MainNavigator = () => {
     <Stack.Navigator
       screenOptions={{ headerShown: false, animation: 'fade' }}
       screenLayout={({ children, route }) => {
+        if (STANDALONE.has(route.name)) {
+          return children;
+        }
         const body = NO_ROOT_LAYOUT.has(route.name) ? (
           children
         ) : (

@@ -39,7 +39,7 @@ export interface JamFooterProps {
 }
 
 /** Native wrapper: `Alert` confirm + toasts. */
-const useFooterControls = () => {
+export const useFooterControls = () => {
   const { t } = useTranslation();
   const room = useRoomContext();
   const participants = useParticipants();
