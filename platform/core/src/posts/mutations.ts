@@ -244,7 +244,7 @@ export const updatePost = async (
     await cancelPollEnd(post.id);
   }
 
-  hub.emit('postUpdated', newPost);
+  hub.emit('postUpdated', newPost, previousEvent?.jam?.moderators ?? []);
 
   return newPost!;
 };
