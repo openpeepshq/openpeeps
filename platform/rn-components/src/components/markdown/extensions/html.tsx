@@ -4,6 +4,7 @@ import { WebView } from 'react-native-webview';
 import type { RenderFunction } from 'react-native-markdown-display';
 import {
   extractIframeSrcs,
+  isExternalLink,
   MARKDOWN_HTML_ALLOWED_TAGS,
 } from '@openpeepshq/common/lib';
 
@@ -42,25 +43,38 @@ const renderHtmlContent = (
   if (iframes.length > 0) {
     return (
       <View style={styles.iframeContainer} key={raw.slice(0, 40)}>
-        {iframes.map((src, i) => (
-          <View key={`${i}-${src.slice(0, 20)}`} style={styles.iframeRow}>
-            <WebView
-              source={{ uri: src }}
-              style={styles.webview}
-              scrollEnabled={false}
-              onNavigationStateChange={(nav) => {
-                // Intercept navigations away from the original embed URL
-                // and open them in the system browser instead.
-                if (nav.url !== src) {
-                  onIframePress(nav.url);
-                }
-              }}
-            />
-            <Text style={styles.iframeUrl} onPress={() => onIframePress(src)}>
-              {src}
-            </Text>
-          </View>
-        ))}
+        {iframes.map((src, i) => {
+          // Compute the embed origin once so we can distinguish
+          // same-origin navigations (allow) from cross-origin (intercept).
+          let embedOrigin: string | undefined;
+          try {
+            embedOrigin = new URL(src).origin;
+          } catch {
+            embedOrigin = undefined;
+          }
+          return (
+            <View key={`${i}-${src.slice(0, 20)}`} style={styles.iframeRow}>
+              <WebView
+                source={{ uri: src }}
+                style={styles.webview}
+                scrollEnabled={false}
+                onShouldStartLoadWithRequest={(nav) => {
+                  // Allow same-origin navigations (e.g., YouTube updating
+                  // query params when play is tapped). Only intercept
+                  // cross-origin navigations and open them in the browser.
+                  if (embedOrigin && isExternalLink(nav.url, embedOrigin)) {
+                    onIframePress(nav.url);
+                    return false;
+                  }
+                  return true;
+                }}
+              />
+              <Text style={styles.iframeUrl} onPress={() => onIframePress(src)}>
+                {src}
+              </Text>
+            </View>
+          );
+        })}
       </View>
     );
   }
