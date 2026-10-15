@@ -3,22 +3,32 @@ import { Pressable, View } from 'react-native';
 import { useLocalParticipant } from '@livekit/react-native';
 import { ConnectionQuality } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
-import { useJamRecordingState } from '@openpeepshq/react';
+import {
+  useJamRecordingElapsed,
+  useJamRecordingState,
+} from '@openpeepshq/react';
 import { CircleIcon, XIcon } from '../icons/index';
 import { ThemedText } from '../ui/themed-text';
+import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
+import { hexWithOpacity } from '../../theme/utils';
 import { useConnectionQuality } from './useParticipantConnection';
 
 /** Red "recording" pill shown to every participant while egress is active. */
 export const JamRecordingIndicator = () => {
   const { t } = useTranslation();
+  const { colors } = useOpenPeepsTheme();
   const { isRecording } = useJamRecordingState();
+  const elapsed = useJamRecordingElapsed();
 
   if (!isRecording) return null;
 
+  // NativeWind v4 can't apply `/N` opacity to CSS-variable colors (e.g.
+  // `bg-destructive/90`), so the pill background uses an inline rgba style.
   return (
     <View
       pointerEvents="none"
-      className="absolute left-4 top-4 z-50 flex-row items-center gap-2 rounded-full bg-destructive/90 px-3 py-1"
+      style={{ backgroundColor: hexWithOpacity(colors.destructive, 0.9) }}
+      className="absolute left-4 top-4 z-50 flex-row items-center gap-2 rounded-full px-3 py-1"
     >
       <CircleIcon
         size={12}
@@ -26,6 +36,7 @@ export const JamRecordingIndicator = () => {
       />
       <ThemedText className="text-sm font-medium text-destructive-foreground">
         {t('events.recordingInProgress')}
+        {elapsed ? ` ${elapsed}` : ''}
       </ThemedText>
     </View>
   );

@@ -9,6 +9,9 @@ import { useJamEventsContext } from '../../components/jams/JamEventsContext';
 import { useJamRecordingState } from '../../components/jams/jamRecordingState';
 import { toggleHand } from '../../components/jams/jamEventActions';
 import { useRaisedHands } from '../../components/jams/useJamHands';
+import { logger } from '../../log';
+
+const log = logger('jams:recording');
 
 export type UseJamFooterControlsArgs = {
   room: Room;
@@ -65,13 +68,15 @@ export const useJamFooterControls = ({
           undefined,
           occurrence ? { occurrence } : undefined,
         );
-        onSuccess(t('jams.recording.stopped', { id: recording.id }));
+        log.info('recording stopped', recording.id);
+        onSuccess(t('jams.recording.stopped'));
       } else {
         const recording = await startRecording(
           undefined,
           occurrence ? { occurrence } : undefined,
         );
-        onSuccess(t('jams.recording.started', { id: recording.id }));
+        log.info('recording started', recording.id);
+        onSuccess(t('jams.recording.started'));
       }
     } catch {
       onError(
@@ -84,9 +89,16 @@ export const useJamFooterControls = ({
     }
   };
 
+  const recordingLabel = busy
+    ? t(isRecording ? 'jams.recording.stopping' : 'jams.recording.starting')
+    : t(
+        isRecording ? 'jams.recording.stopTitle' : 'jams.recording.recordTitle',
+      );
+
   return {
     isModerator,
     isRecording,
+    recordingLabel,
     recordingEnabled,
     handRaised,
     busy,

@@ -141,6 +141,8 @@ export { useRaisedHands } from './components/jams/useJamHands';
 export {
   calculateRecordingState,
   calculateRtmpStreamState,
+  formatRecordingElapsed,
+  useJamRecordingElapsed,
   useJamRecordingState,
   useJamRtmpStreamState,
 } from './components/jams/jamRecordingState';

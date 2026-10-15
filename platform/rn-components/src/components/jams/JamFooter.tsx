@@ -95,6 +95,7 @@ const MobileMenu = ({
   isModerator,
   recordingEnabled,
   isRecording,
+  recordingLabel,
   busy,
   onClose,
   onOpenChat,
@@ -106,6 +107,7 @@ const MobileMenu = ({
   isModerator: boolean;
   recordingEnabled: boolean;
   isRecording: boolean;
+  recordingLabel: string;
   busy: boolean;
   onClose: () => void;
   onOpenChat: () => void;
@@ -145,11 +147,7 @@ const MobileMenu = ({
       {isModerator && recordingEnabled ? (
         <MenuEntry
           icon={isRecording ? CircleStopIcon : DiscIcon}
-          label={
-            isRecording
-              ? t('jams.recording.stopTitle')
-              : t('events.recordingInProgress')
-          }
+          label={recordingLabel}
           disabled={busy}
           onPress={run(onToggleRecording)}
         />
@@ -176,6 +174,7 @@ export const JamFooter = ({
   const {
     isModerator,
     isRecording,
+    recordingLabel,
     recordingEnabled,
     busy,
     sendReactionEmoji,
@@ -201,6 +200,7 @@ export const JamFooter = ({
           isModerator={isModerator}
           recordingEnabled={recordingEnabled}
           isRecording={isRecording}
+          recordingLabel={recordingLabel}
           busy={busy}
           onClose={() => setMobileMenuOpen(false)}
           onOpenChat={onToggleChat}

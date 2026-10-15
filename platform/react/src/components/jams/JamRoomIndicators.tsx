@@ -6,7 +6,10 @@ import {
 import { ConnectionQuality } from 'livekit-client';
 import { Circle, X } from 'lucide-react';
 import { useT } from '../../i18n';
-import { useJamRecordingState } from './jamRecordingState';
+import {
+  useJamRecordingElapsed,
+  useJamRecordingState,
+} from './jamRecordingState';
 
 /**
  * Red "recording" pill shown to every participant while egress is active,
@@ -15,6 +18,7 @@ import { useJamRecordingState } from './jamRecordingState';
 export function JamRecordingIndicator() {
   const t = useT();
   const { isRecording } = useJamRecordingState();
+  const elapsed = useJamRecordingElapsed();
 
   if (!isRecording) return null;
 
@@ -22,6 +26,7 @@ export function JamRecordingIndicator() {
     <div className="bg-error/90 text-error-foreground pointer-events-none fixed left-4 top-4 z-50 flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium shadow-lg">
       <Circle className="size-3 animate-pulse fill-current" />
       {t('events.recordingInProgress', { defaultValue: 'Recording' })}
+      {elapsed ? <span className="tabular-nums">{elapsed}</span> : null}
     </div>
   );
 }
