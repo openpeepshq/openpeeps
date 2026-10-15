@@ -11,6 +11,8 @@ import { getNotificationStats } from './finders';
 import { findProfileSettings } from '../profileSettings';
 import { logger } from '../log';
 import { publishSessionEvent } from '../session';
+import { serverRootUrl } from '../server';
+import { eventIcsEmailAttachment } from './eventIcsAttachment';
 
 const log = logger('core:notifications:worker');
 
@@ -60,6 +62,9 @@ const [notificationQueue, notificationWorker] = queueAndWorker<
 
     const accounts = await findByProfile(profile);
     const mailer = await emailService();
+    const eventAttachment = email
+      ? eventIcsEmailAttachment(notification, await serverRootUrl())
+      : undefined;
 
     const notificationStats = await getNotificationStats(profile);
 
@@ -89,6 +94,7 @@ const [notificationQueue, notificationWorker] = queueAndWorker<
                 ? { timeZone: profileSettings.timeZone }
                 : {}),
             },
+            ...(eventAttachment ? { attachments: [eventAttachment] } : {}),
           });
           await logStep(
             jobLog,
