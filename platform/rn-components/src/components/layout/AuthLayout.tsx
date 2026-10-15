@@ -1,11 +1,13 @@
 import React, { type ReactNode } from 'react';
-import { Image, ImageBackground, View } from 'react-native';
+import { Image, ImageBackground, Pressable, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { useTranslation } from 'react-i18next';
 import { getTheme } from '@openpeepshq/common';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useCurrentProfile, useOpenpeeps, useRouter } from '@openpeepshq/react';
 import { useWindowSize } from '../../hooks/index';
 import { BASE_URL, isProduction } from '../../lib/constants';
 import { toAbsoluteMediaUrl } from '../../lib/media-url';
+import { ProfileAvatar } from '../profile/Avatar';
 import { ThemedText } from '../ui/themed-text';
 
 export interface AuthLayoutProps {
@@ -24,13 +26,46 @@ const DevBanner = () =>
   ) : null;
 
 const Logo = ({ uri }: { uri?: string }) => {
+  const router = useRouter();
   if (!uri) return null;
   return (
-    <Image
-      source={{ uri }}
+    <Pressable
+      onPress={() => router.navigate({ type: 'home' })}
+      hitSlop={24}
       className="absolute left-2 top-16 z-10 h-[26px] w-[206px] max-w-fit"
-      resizeMode="contain"
-    />
+    >
+      <Image
+        source={{ uri }}
+        className="h-[26px] w-[206px] max-w-fit"
+        resizeMode="contain"
+      />
+    </Pressable>
+  );
+};
+
+// Mirror web Auth.tsx: on shell-less auth pages (about/code-of-conduct) show a
+// signed-in user's avatar and a Go-to-community link so navigation back to the
+// app is still available without the side-menu Wrapper.
+const SignedInRow = () => {
+  const me = useCurrentProfile();
+  const router = useRouter();
+  const { t } = useTranslation();
+  if (!me) return null;
+  const name = me.displayName?.trim() || (me.handle ? `@${me.handle}` : '');
+  return (
+    <View className="flex-row items-center gap-3 px-2 pb-2 pt-1">
+      <ProfileAvatar profile={me} className="size-8 border-0" />
+      <View>
+        <ThemedText className="text-sm text-muted-foreground">
+          {t('auth.signedInAs', { name })}
+        </ThemedText>
+        <Pressable onPress={() => router.navigate({ type: 'home' })}>
+          <ThemedText className="text-sm font-medium text-primary">
+            {t('auth.goToCommunity')}
+          </ThemedText>
+        </Pressable>
+      </View>
+    </View>
   );
 };
 
@@ -76,6 +111,7 @@ const NarrowAuthLayout = ({
 }) => (
   <AuthImage>
     <View className="bg-background w-full min-h-[400px] px-2 pb-10 pt-4">
+      <SignedInRow />
       {description}
       {children}
     </View>
@@ -94,6 +130,7 @@ const WideAuthLayout = ({
       <AuthImage />
     </View>
     <View className="flex flex-1 justify-center p-6">
+      <SignedInRow />
       {description}
       {children}
     </View>
