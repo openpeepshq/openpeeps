@@ -85,22 +85,18 @@ const useFooterControls = () => {
 const RecordButton = ({
   isRecording,
   busy,
+  label,
   onToggle,
-  t,
 }: {
   isRecording: boolean;
   busy: boolean;
+  label: string;
   onToggle: () => void;
-  t: ReturnType<typeof useT>;
 }) => (
   <JamToolbarButton
     tone="danger"
     disabled={busy}
-    title={
-      isRecording
-        ? t('jams.recording.stopTitle')
-        : t('events.recordingInProgress')
-    }
+    title={label}
     action={onToggle}
   >
     {isRecording ? <SquareStop /> : <Disc />}
@@ -224,6 +220,7 @@ const MobileMenu = ({
   isModerator,
   recordingEnabled,
   isRecording,
+  recordingLabel,
   busy,
   onClose,
   onOpenChat,
@@ -236,6 +233,7 @@ const MobileMenu = ({
   isModerator: boolean;
   recordingEnabled: boolean;
   isRecording: boolean;
+  recordingLabel: string;
   busy: boolean;
   onClose: () => void;
   onOpenChat: () => void;
@@ -302,11 +300,7 @@ const MobileMenu = ({
         }}
       >
         {isRecording ? <CircleStop /> : <Disc />}
-        <span>
-          {isRecording
-            ? t('jams.recording.stopTitle')
-            : t('events.recordingInProgress')}
-        </span>
+        <span>{recordingLabel}</span>
       </button>
     ) : null}
   </div>
@@ -333,6 +327,7 @@ export const JamFooter = ({
     t,
     isModerator,
     isRecording,
+    recordingLabel,
     recordingEnabled,
     handRaised,
     busy,
@@ -377,8 +372,8 @@ export const JamFooter = ({
             <RecordButton
               isRecording={isRecording}
               busy={busy}
+              label={recordingLabel}
               onToggle={() => void toggleRecording()}
-              t={t}
             />
           ) : null}
 
@@ -444,6 +439,7 @@ export const JamFooter = ({
             isModerator={isModerator}
             recordingEnabled={recordingEnabled}
             isRecording={isRecording}
+            recordingLabel={recordingLabel}
             busy={busy}
             onClose={() => setMobileMenuOpen(false)}
             onOpenChat={onToggleChat}

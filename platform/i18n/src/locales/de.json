@@ -996,8 +996,10 @@
     "recording": {
       "stopTitle": "Aufnahme stoppen",
       "recordTitle": "Diesen Jam aufnehmen",
-      "stopped": "Aufnahme gestoppt: {{id}}",
-      "started": "Aufnahme gestartet: {{id}}",
+      "starting": "Aufnahme wird gestartet…",
+      "stopping": "Aufnahme wird gestoppt…",
+      "stopped": "Aufnahme gestoppt",
+      "started": "Aufnahme gestartet",
       "stopError": "Aufnahme konnte nicht gestoppt werden",
       "startError": "Aufnahme konnte nicht gestartet werden",
       "stopConfirm": "Wollen Sie die Aufnahme wirklich stoppen?"

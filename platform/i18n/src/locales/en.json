@@ -1002,8 +1002,10 @@
     "recording": {
       "stopTitle": "Stop recording",
       "recordTitle": "Record this jam",
-      "stopped": "Recording stopped: {{id}}",
-      "started": "Recording started: {{id}}",
+      "starting": "Starting recording…",
+      "stopping": "Stopping recording…",
+      "stopped": "Recording stopped",
+      "started": "Recording started",
       "stopError": "Failed to stop recording",
       "startError": "Failed to start recording",
       "stopConfirm": "Do you really want to stop recording?"
