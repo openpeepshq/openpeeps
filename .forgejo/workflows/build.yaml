@@ -177,15 +177,28 @@ jobs:
             git tag "${release_tag}" "${{ needs.set-variables.outputs.full_sha }}"
             git push origin "refs/tags/${release_tag}"
           fi
+      - name: Restore pnpm store cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/pnpm-store
+          key: pnpm-store-${{ needs.set-variables.outputs.build_cache_hash }}
+          restore-keys: |
+            pnpm-store-
       - name: Build and push image
         run: |
           if docker manifest inspect "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}" >/dev/null 2>&1; then
-            echo "Image ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }} already exists; skipping build."
+            echo "Image ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }} already exists; skipping build.";
           else
             # Registry cache is required: the docker-container driver exports
             # intermediate layers (mode=max). Distinct builder name so this
             # job does not race build-test-image. Remove it after --push so
             # the BuildKit container does not stay on the shared host.
+            mkdir -p /tmp/pnpm-store
+            # Create tarball for --secret (BuildKit expects a file, not dir)
+            if [ -n "$(ls -A /tmp/pnpm-store 2>/dev/null)" ]; then
+              tar cf /tmp/pnpm-store.tar -C /tmp/pnpm-store . 2>/dev/null || true
+            fi
+            touch /tmp/pnpm-store.tar
             docker buildx rm -f ci-app >/dev/null 2>&1 || true
             docker buildx create --name ci-app --driver docker-container --use
             trap 'docker buildx rm -f ci-app' EXIT
@@ -207,6 +220,7 @@ jobs:
               if docker buildx build \
                 ${cache_from} \
                 --cache-to "type=registry,ref=${cache},mode=max" \
+                --secret id=pnpm-store,src=/tmp/pnpm-store.tar \
                 --build-arg "VERSION=${{ needs.set-variables.outputs.version }}" \
                 --build-arg "ENVIRONMENT=${{ needs.set-variables.outputs.environment }}" \
                 -t "${image}:${{ needs.set-variables.outputs.short_sha }}" --push .; then
@@ -230,6 +244,16 @@ jobs:
           # (force_pull is false), so one pull here is enough for every
           # shard.
           docker pull "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}"
+      - name: Extract updated pnpm store for next run
+        # Seed the actions/cache for the next CI run so pnpm install
+        # can reuse --prefer-offline when the install layer is uncached.
+        run: |
+          image="${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}"
+          if docker manifest inspect "$image" >/dev/null 2>&1; then
+            docker create --name extract-store "$image" || true
+            docker cp extract-store:/pnpm-store/. /tmp/pnpm-store/ 2>/dev/null || true
+            docker rm -v extract-store 2>/dev/null || true
+          fi
 
   # Playwright + installed tests + built core, for this commit. Starts with
   # set-variables so it overlaps the app image build. Unit tests stay on
@@ -249,6 +273,13 @@ jobs:
       - name: Docker login
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "code.openpeeps.org"
+      - name: Restore pnpm store cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/pnpm-store
+          key: pnpm-store-${{ needs.set-variables.outputs.test_cache_hash }}
+          restore-keys: |
+            pnpm-store-
       - name: Build and push test image
         run: |
           image="${{ needs.set-variables.outputs.registry_image_base }}"
@@ -256,6 +287,12 @@ jobs:
           if docker manifest inspect "${image}:${tag}" >/dev/null 2>&1; then
             echo "Image ${image}:${tag} already exists; skipping build."
           else
+            mkdir -p /tmp/pnpm-store
+            # Create tarball for --secret (BuildKit expects a file, not dir)
+            if [ -n "$(ls -A /tmp/pnpm-store 2>/dev/null)" ]; then
+              tar cf /tmp/pnpm-store.tar -C /tmp/pnpm-store . 2>/dev/null || true
+            fi
+            touch /tmp/pnpm-store.tar
             docker buildx rm -f ci-test >/dev/null 2>&1 || true
             docker buildx create --name ci-test --driver docker-container --use
             trap 'docker buildx rm -f ci-test' EXIT
@@ -274,6 +311,7 @@ jobs:
               if docker buildx build \
                 ${cache_from} \
                 --cache-to "type=registry,ref=${cache},mode=max" \
+                --secret id=pnpm-store,src=/tmp/pnpm-store.tar \
                 -f Dockerfile.test \
                 -t "${image}:${tag}" --push .; then
                 break
@@ -292,6 +330,14 @@ jobs:
       - name: Load test image onto the runner host
         run: |
           docker pull "${{ needs.set-variables.outputs.registry_image_base }}:test-${{ needs.set-variables.outputs.short_sha }}"
+      - name: Extract updated pnpm store for next run
+        run: |
+          image="${{ needs.set-variables.outputs.registry_image_base }}:test-${{ needs.set-variables.outputs.short_sha }}"
+          if docker manifest inspect "$image" >/dev/null 2>&1; then
+            docker create --name extract-test-store "$image" || true
+            docker cp extract-test-store:/pnpm-store/. /tmp/pnpm-store/ 2>/dev/null || true
+            docker rm -v extract-test-store 2>/dev/null || true
+          fi
 
   test-unit:
     runs-on: docker
@@ -664,6 +710,7 @@ jobs:
         run: pnpm --filter @openpeepshq/tests run test:integration:jams
 
   publish-gate:
+    if: needs.set-variables.outputs.is_release_branch == 'false'
     runs-on: docker
     needs: [set-variables]
     container:
@@ -672,13 +719,40 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
+          fetch-depth: 0
       - name: Install dependencies
         run: |
           apk add --no-cache python3 make g++
           corepack enable
           pnpm install
+      - name: Detect bumped packages
+        id: bumped
+        run: |
+          bumped=$(git diff --name-only origin/${{ env.DEFAULT_BRANCH }} HEAD \
+            | grep -E '^([a-z]+|libraries/[a-z-]+|platform/[a-z-]+)/package\.json$' \
+            | while read -r f; do
+                case "$(dirname "$f")" in
+                  platform/common) echo common ;;
+                  platform/client) echo client ;;
+                  platform/react) echo react ;;
+                  platform/rn-components) echo rn-components ;;
+                  libraries/fetch-client) echo fetch-client ;;
+                  libraries/greenscreen) echo greenscreen ;;
+                  libraries/react-ui) echo react-ui ;;
+                esac
+              done | sort -u)
+          echo "bumped=$bumped" >> $FORGEJO_OUTPUT
+          echo "Bumped packages: ${bumped:-none}"
       - name: Library publish gate
-        run: node scripts/check-publish-gate.mjs
+        if: steps.bumped.outputs.bumped != ''
+        run: |
+          for pkg in ${{ steps.bumped.outputs.bumped }}; do
+            echo "Checking $pkg..."
+            node scripts/check-publish-gate.mjs --package "$pkg"
+          done
+      - name: Skip publish gate (no bumps)
+        if: steps.bumped.outputs.bumped == ''
+        run: echo "No packages with version bumps; skipping publish gate."
 
   i18n-check:
     runs-on: docker
@@ -692,9 +766,31 @@ jobs:
       - name: Locale parity (required on all branches)
         run: node scripts/check-i18n-parity.mjs --strict
 
+  # Single gate for merge requirements: all test jobs must pass before
+  # deploy, commit-check, or publish can proceed.  Uses always() so a
+  # skipped test-integration-jams (jams disabled) does not skip the gate.
+  test-gate:
+    if: ${{ always() && !cancelled() }}
+    runs-on: docker
+    needs: [test-unit, test-integration, test-integration-small, test-integration-jams]
+    container:
+      image: node:24-alpine
+    steps:
+      - name: All tests passed
+        if: ${{ success() }}
+        run: echo "All test jobs succeeded."
+      - name: Test failure detected
+        if: ${{ failure() }}
+        run: |
+          echo "One or more test jobs failed."
+          exit 1
+      - name: Tests passed (jams skipped)
+        if: ${{ !success() && !failure() }}
+        run: echo "Core tests passed; jams tests skipped (not enabled)."
+
   commit-check:
     runs-on: docker
-    needs: [deploy-docker, set-variables]
+    needs: [test-gate, set-variables]
     container:
       image: node:24-alpine
     steps:
@@ -721,7 +817,7 @@ jobs:
   publish-packages:
     runs-on: docker
     if: forgejo.ref_name == env.DEFAULT_BRANCH
-    needs: [commit-check, set-variables]
+    needs: [commit-check, publish-gate, set-variables]
     container:
       image:
         ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
@@ -768,7 +864,7 @@ jobs:
 
   deploy-docker:
     runs-on: docker
-    needs: [test-integration, test-integration-small, test-unit, set-variables]
+    needs: [test-gate, set-variables]
     container:
       image: docker:latest
     steps:
