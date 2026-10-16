@@ -28,9 +28,9 @@ COPY --parents \
     ./
 
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store \
- corepack enable \
- && pnpm config set store-dir /pnpm-store \
- && pnpm install --frozen-lockfile --filter "@openpeepshq/tests..."
+     corepack enable \
+     && pnpm config set store-dir /pnpm-store \
+     && pnpm install --frozen-lockfile --prefer-offline --filter "@openpeepshq/tests..."
 
 # ─────────────────────────────────────────────────────────────
 # Per-package builds in dependency order so small source changes only

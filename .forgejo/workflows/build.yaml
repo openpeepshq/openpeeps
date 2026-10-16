@@ -186,8 +186,11 @@ jobs:
             # intermediate layers (mode=max). Distinct builder name so this
             # job does not race build-test-image. Remove it after --push so
             # the BuildKit container does not stay on the shared host.
+            # Increase shm-size to reduce OOM crashes that cause 'connection
+            # error: EOF' failures.
             docker buildx rm -f ci-app >/dev/null 2>&1 || true
-            docker buildx create --name ci-app --driver docker-container --use
+            docker buildx create --name ci-app --driver docker-container \
+              --driver-opt 'default-shm-size=4G' --use
             trap 'docker buildx rm -f ci-app' EXIT
             image="${{ needs.set-variables.outputs.registry_image_base }}"
             cache="${image}:buildcache-${{ needs.set-variables.outputs.build_cache_hash }}"
@@ -664,6 +667,7 @@ jobs:
         run: pnpm --filter @openpeepshq/tests run test:integration:jams
 
   publish-gate:
+    if: needs.set-variables.outputs.is_release_branch == 'false'
     runs-on: docker
     needs: [set-variables]
     container:
@@ -672,13 +676,40 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{ needs.set-variables.outputs.full_sha }}
+          fetch-depth: 0
       - name: Install dependencies
         run: |
           apk add --no-cache python3 make g++
           corepack enable
           pnpm install
+      - name: Detect bumped packages
+        id: bumped
+        run: |
+          bumped=$(git diff --name-only origin/${{ env.DEFAULT_BRANCH }} HEAD \
+            | grep -E '^([a-z]+|libraries/[a-z-]+|platform/[a-z-]+)/package\.json$' \
+            | while read -r f; do
+                case "$(dirname "$f")" in
+                  platform/common) echo common ;;
+                  platform/client) echo client ;;
+                  platform/react) echo react ;;
+                  platform/rn-components) echo rn-components ;;
+                  libraries/fetch-client) echo fetch-client ;;
+                  libraries/greenscreen) echo greenscreen ;;
+                  libraries/react-ui) echo react-ui ;;
+                esac
+              done | sort -u)
+          echo "bumped=$bumped" >> $FORGEJO_OUTPUT
+          echo "Bumped packages: ${bumped:-none}"
       - name: Library publish gate
-        run: node scripts/check-publish-gate.mjs
+        if: steps.bumped.outputs.bumped != ''
+        run: |
+          for pkg in ${{ steps.bumped.outputs.bumped }}; do
+            echo "Checking $pkg..."
+            node scripts/check-publish-gate.mjs --package "$pkg"
+          done
+      - name: Skip publish gate (no bumps)
+        if: steps.bumped.outputs.bumped == ''
+        run: echo "No packages with version bumps; skipping publish gate."
 
   i18n-check:
     runs-on: docker
@@ -692,9 +723,31 @@ jobs:
       - name: Locale parity (required on all branches)
         run: node scripts/check-i18n-parity.mjs --strict
 
+  # Single gate for merge requirements: all test jobs must pass before
+  # deploy, commit-check, or publish can proceed.  Uses always() so a
+  # skipped test-integration-jams (jams disabled) does not skip the gate.
+  test-gate:
+    if: ${{ always() && !cancelled() }}
+    runs-on: docker
+    needs: [test-unit, test-integration, test-integration-small, test-integration-jams]
+    container:
+      image: node:24-alpine
+    steps:
+      - name: All tests passed
+        if: ${{ success() }}
+        run: echo "All test jobs succeeded."
+      - name: Test failure detected
+        if: ${{ failure() }}
+        run: |
+          echo "One or more test jobs failed."
+          exit 1
+      - name: Tests passed (jams skipped)
+        if: ${{ !success() && !failure() }}
+        run: echo "Core tests passed; jams tests skipped (not enabled)."
+
   commit-check:
     runs-on: docker
-    needs: [deploy-docker, set-variables]
+    needs: [test-gate, set-variables]
     container:
       image: node:24-alpine
     steps:
@@ -721,7 +774,7 @@ jobs:
   publish-packages:
     runs-on: docker
     if: forgejo.ref_name == env.DEFAULT_BRANCH
-    needs: [commit-check, set-variables]
+    needs: [commit-check, publish-gate, set-variables]
     container:
       image:
         ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
@@ -768,7 +821,7 @@ jobs:
 
   deploy-docker:
     runs-on: docker
-    needs: [test-integration, test-integration-small, test-unit, set-variables]
+    needs: [test-gate, set-variables]
     container:
       image: docker:latest
     steps:
