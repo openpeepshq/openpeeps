@@ -10,6 +10,7 @@ import fs from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import { spawn } from 'node:child_process';
 import { getTheme, randomString } from '@openpeepshq/common/lib';
 import { logger } from '../log';
 import { hub } from '../events';
@@ -199,17 +200,94 @@ const escapeXml = (value: string): string =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
-const createPdfPreview = (inputPath: string): Promise<MediaFile> => {
+/**
+ * Render the first page of a PDF to a WebP thumbnail via sharp. The prebuilt
+ * sharp binary bundles poppler, so PDF decoding is available without any extra
+ * system packages on Linux/musl (Alpine) and glibc.
+ */
+const createPdfPreview = async (inputPath: string): Promise<MediaFile> => {
   const outputPath = join(tmpdir(), `preview-${randomString(16)}.webp`);
-  return new Promise((resolve, reject) => {
-    ffmpeg(inputPath)
-      .frames(1)
-      .outputOptions(['-c:v libwebp', '-lossless 0', '-q:v 80'])
-      .output(outputPath)
-      .on('end', () => resolve({ path: outputPath, mimetype: 'image/webp' }))
-      .on('error', reject)
-      .run();
+  await sharp(inputPath, { density: 150, pages: 1 })
+    .resize(previewMaxWidth)
+    .webp({ quality: 80 })
+    .toFile(outputPath);
+  return { path: outputPath, mimetype: 'image/webp' };
+};
+
+const OFFICE_DOC_EXTENSIONS = new Set([
+  '.docx',
+  '.doc',
+  '.xlsx',
+  '.xls',
+  '.pptx',
+  '.ppt',
+  '.odt',
+  '.ods',
+  '.odp',
+]);
+
+const isOfficeDocument = (originalName: string): boolean =>
+  OFFICE_DOC_EXTENSIONS.has(path.extname(originalName).toLowerCase());
+
+/**
+ * Convert an office document (docx/xlsx/pptx/etc.) to PDF using LibreOffice in
+ * headless mode. Returns the path to the generated PDF inside a temp directory
+ * the caller is responsible for cleaning up.
+ */
+const convertOfficeToPdf = async (
+  inputPath: string,
+  originalName: string,
+): Promise<string> => {
+  const outputDir = join(tmpdir(), `office-${randomString(16)}`);
+  await fs.mkdir(outputDir, { recursive: true });
+
+  await new Promise<void>((resolve, reject) => {
+    const proc = spawn(
+      'libreoffice',
+      [
+        '--headless',
+        '--no-first-run',
+        '--nofirstwizard',
+        '--norestore',
+        '--nologging',
+        '--convert-to',
+        'pdf',
+        '--outdir',
+        outputDir,
+        inputPath,
+      ],
+      { stdio: ['ignore', 'ignore', 'pipe'] },
+    );
+
+    let stderr = '';
+    proc.stderr?.setEncoding('utf8');
+    proc.stderr?.on('data', (chunk: string) => {
+      stderr += chunk;
+    });
+
+    proc.on('error', (err: NodeJS.ErrnoException) => {
+      reject(
+        err.code === 'ENOENT' ? new Error('libreoffice binary not found') : err,
+      );
+    });
+
+    proc.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(
+          new Error(`libreoffice conversion failed (exit ${code}): ${stderr}`),
+        );
+      }
+    });
   });
+
+  const files = await fs.readdir(outputDir);
+  const pdfFile = files.find((f) => f.endsWith('.pdf'));
+  if (!pdfFile) {
+    throw new Error(`libreoffice did not produce a PDF for ${originalName}`);
+  }
+  return join(outputDir, pdfFile);
 };
 
 const createDocumentCardPreview = async (
@@ -243,9 +321,29 @@ const createFilePreview = async (
     try {
       return await createPdfPreview(inputPath);
     } catch {
-      // Some ffmpeg builds cannot rasterize PDFs.
+      // sharp PDF support may be missing; fall back to card preview below.
     }
   }
+
+  if (isOfficeDocument(originalName)) {
+    let pdfPath: string | undefined;
+    try {
+      pdfPath = await convertOfficeToPdf(inputPath, originalName);
+      return await createPdfPreview(pdfPath);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      log.warn(
+        `Office document preview failed for ${originalName}: ${message}`,
+      );
+    } finally {
+      if (pdfPath) {
+        await fs
+          .rm(path.dirname(pdfPath), { recursive: true, force: true })
+          .catch(() => undefined);
+      }
+    }
+  }
+
   return createDocumentCardPreview(originalName);
 };
 
