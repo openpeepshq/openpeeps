@@ -49,7 +49,14 @@ COPY --parents \
 # `openpeeps.plugins`) live under `examples/*` and need their own filter or
 # they're never installed/built, so `initializePlugins()` fails with
 # "Cannot find module '.../dist/index.js'" the moment one is enabled.
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store \
+# Seed the pnpm store cache from a CI-provided secret (actions/cache).
+# When the layer is cached, pnpm install doesn't run at all — the store
+# mount is irrelevant. When it IS uncached (first build, lockfile change),
+# the seed makes install use --prefer-offline instead of downloading
+# all 1753 packages from scratch.
+RUN --mount=type=secret,id=pnpm-store,target=/pnpm-seed.tar \
+    --mount=type=cache,id=pnpm-store,target=/pnpm-store \
+    tar xf /pnpm-seed.tar -C /pnpm-store/ 2>/dev/null || true; \
     pnpm config set store-dir /pnpm-store \
     && pnpm \
     --filter "@openpeepshq/server..." \
@@ -57,7 +64,7 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store \
     --filter "@openpeepshq/web..." \
     --filter "*plugins*" \
     --filter "./examples/greeter-plugin" \
-    install --frozen-lockfile
+    install --frozen-lockfile --prefer-offline
 
 # ─────────────────────────────────────────────────────────────
 # Per-package builds in dependency order.
@@ -129,11 +136,12 @@ RUN pnpm --filter @openpeepshq/server build
 COPY platform/web platform/web
 RUN pnpm --filter @openpeepshq/web build
 
-# Remaining runtime-only files + bin targets for workspace packages.
-# Rebuild bin symlinks: install ran before source was copied, so links
-# (e.g. @openpeepshq/cli/opc.mjs, @openpeepshq/mcp) were skipped.
-COPY . .
-RUN pnpm rebuild
+# Only copy runtime files needed by the entrypoint/scripts — NOT source
+# code (already copied per-package above) or docs/CI files. This avoids
+# invalidating this layer on every source change, which would also
+# bust the stage-2 COPY --from=builder layer (~37s rebuild on every push).
+COPY docker/ docker/
+RUN pnpm rebuild --filter @openpeepshq/cli --filter @openpeepshq/mcp
 
 #─────────────────────────────────────────────────────────────────────────────
 # Runtime stage — minimal Alpine + Node with only the binaries the running
