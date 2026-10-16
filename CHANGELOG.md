@@ -3,6 +3,35 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Bug Fixes
+
+- **rn-components**: render desktop jam footer on wide screens like web
+- **rn-components**: render standalone routes full screen like web
+- **jams**: fix recording control labels and indicator, add elapsed time
+- **rn-components**: show community logo on iPad in light and dark mode
+- **server**: align hashtag follow route segment with tag param
+- **rn-components**: show recordings in RN like web version
+- **ci**: keep per-commit VERSION out of the Docker build cache
+- **jams**: align Start JAM button with web across event page and cards
+- **rn-components**: fix Pressable crash from Button style prop
+- **markdown, rn-components**: restore embedded iframe support after sandboxing
+- **rn-components**: apply theme border radius via inline style
+- **rn-components**: align direct messages view with web and add i18n defaults
+
+### CI/CD
+
+- pre-generate changelog, add build retries, fix i18n parity and warnings
+
+### Build
+
+- **docker**: split monolithic build into per-package layers for cache
+
+### Chores
+
+- **packages**: bump versions and fix source URLs
+
+## 2026-10-15
+
 ### Features
 
 - **resources**: add resource post type and library
@@ -22,14 +51,6 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
-- **server**: align hashtag follow route segment with tag param
-- **rn-components**: show recordings in RN like web version
-- **ci**: keep per-commit VERSION out of the Docker build cache
-- **jams**: align Start JAM button with web across event page and cards
-- **rn-components**: fix Pressable crash from Button style prop
-- **markdown, rn-components**: restore embedded iframe support after sandboxing
-- **rn-components**: apply theme border radius via inline style
-- **rn-components**: align direct messages view with web and add i18n defaults
 - **rn-components**: align conversation UI with web parity
 - **rn-components**: align conversation UI with web parity
 - **rn-components**: move useSetPageHeader before early return in ConversationShow
@@ -48,20 +69,14 @@ Changelog for OpenPeeps
 
 ### CI/CD
 
-- pre-generate changelog, add build retries, fix i18n parity and warnings
 - **build**: give app and test builds distinct BuildKit builders
 - **tests**: warm host images and skip unused empty-suite services
 - **tests**: shard the empty suite across four communities
 - **tests**: build a shared integration image beside the app image
 - **build**: cache image layers and share short integration jobs
 
-### Build
-
-- **docker**: split monolithic build into per-package layers for cache
-
 ### Chores
 
-- **packages**: bump versions and fix source URLs
 - **release**: bump @openpeepshq/react and @openpeepshq/rn-components to 0.5.0
 - **packages**: bump versions for unpublished package changes
 
