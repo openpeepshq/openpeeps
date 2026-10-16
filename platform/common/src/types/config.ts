@@ -134,17 +134,20 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
       sanitize,
     ),
     email: emailConfigSchemaFactory(sanitize).describe('hidden'),
-    logs: fixed(
-      z.object({
-        local: fixed(
-          z.object({
-            path: z.string(),
-          }),
-          sanitize,
-        ),
+    logs: z.object({
+      local: fixed(
+        z.object({
+          path: z.string(),
+        }),
+        sanitize,
+      ),
+      retention: z.object({
+        /** Age in days at which a daily log file is zipped. */
+        zipAfterDays: z.number().int().min(1).default(7).catch(7),
+        /** Age in days at which log files (and their zips) are deleted. */
+        deleteAfterDays: z.number().int().min(1).default(30).catch(30),
       }),
-      sanitize,
-    ),
+    }),
     media: z.object({
       maxUploadMb: z
         .number()

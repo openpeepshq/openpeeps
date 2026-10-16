@@ -37,6 +37,11 @@ import {
   pollEndWorker,
   registerRsvpConfirmationEmail,
 } from '@openpeepshq/core/posts';
+import {
+  ensureLogRetentionSchedule,
+  logRetentionQueue,
+  logRetentionWorker,
+} from '@openpeepshq/core/log';
 import { refreshConfig, defaultConfig } from '@openpeepshq/core/config';
 import { initSentry } from '@openpeepshq/core/sentry';
 
@@ -61,6 +66,8 @@ const startWorkers = () => {
   eventOccurrenceWorker();
   console.log('Starting poll end worker ...');
   pollEndWorker();
+  console.log('Starting log retention worker ...');
+  logRetentionWorker();
 };
 
 const setupQueues = async () => {
@@ -74,11 +81,13 @@ const setupQueues = async () => {
   analyticsCompileQueue();
   eventOccurrenceQueue();
   pollEndQueue();
+  logRetentionQueue();
   // Register the daily cron schedule. Idempotent under upsertJobScheduler so
   // it's safe to call on every worker boot.
   await ensureStreamingCleanupSchedule();
   await ensureAnalyticsSchedules();
   await ensureEventOccurrenceSchedule();
+  await ensureLogRetentionSchedule();
 };
 
 const logJobStats = async () => {
