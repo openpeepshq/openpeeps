@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useOpenpeeps } from '@openpeepshq/react';
@@ -9,12 +9,21 @@ import {
 } from '../icons/index';
 import { CardEvent } from '../post/types/event/CardEvent';
 import { ThemedText } from '../ui/themed-text';
+import { LivekitUnavailableNotice } from './LivekitUnavailableNotice';
 
 export const LiveJamsSection = () => {
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
   const liveJamsQuery = openpeepsApi.useJams();
   const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    if (!liveJamsQuery.isError) return;
+    console.error(
+      '[openpeeps] Live jams failed to load. Community admins can diagnose LiveKit at /admin/diagnostics/livekit.',
+      liveJamsQuery.error
+    );
+  }, [liveJamsQuery.isError, liveJamsQuery.error]);
 
   return (
     <View className="mb-8">
@@ -35,6 +44,8 @@ export const LiveJamsSection = () => {
       {open ? (
         liveJamsQuery.isLoading ? (
           <ActivityIndicator size="small" />
+        ) : liveJamsQuery.isError ? (
+          <LivekitUnavailableNotice />
         ) : (liveJamsQuery.data ?? []).length ? (
           <View className="gap-2">
             {(liveJamsQuery.data ?? []).map((jam) => (

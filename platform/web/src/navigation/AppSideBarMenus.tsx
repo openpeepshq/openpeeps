@@ -34,9 +34,10 @@ import {
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
-  useT,
+  useAdminRoles,
   useOpenpeeps,
   subscribePushNotifications,
+  useT,
 } from '@openpeepshq/react';
 import {
   sideBarNavLinkClass,
@@ -149,7 +150,6 @@ function NavButton({
 export function AppSideBarMainMenu() {
   const t = useT();
   const serverInfo = useServerInfo();
-  const profile = useCurrentProfile();
   const { openpeepsApi } = useOpenpeeps();
   const jamsEnabled = serverInfo.jams.livekit.enabled;
   const unseenCounts = openpeepsApi.useUnseenPostCounts();
@@ -160,8 +160,7 @@ export function AppSideBarMainMenu() {
     unseenCounts.data?.direct ?? {},
   ).length;
 
-  const visibleAdminSections =
-    profile?.type === 'local' ? getVisibleAdminSections(profile.roles) : [];
+  const visibleAdminSections = getVisibleAdminSections(useAdminRoles());
   const showAdminMenu = visibleAdminSections.length > 0;
 
   // Mirror Svelte MainMenu: auto-expand the admin section while on /admin.

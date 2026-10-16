@@ -21,4 +21,5 @@ export { JamDetailsDrawer } from './JamDetailsDrawer';
 export { JamEventsProvider, useJamEventsContext } from './JamEventsContext';
 export { JamGuestForm } from './JamGuestForm';
 export { LiveJamsSection } from './LiveJamsSection';
+export { LivekitUnavailableNotice } from './LivekitUnavailableNotice';
 export { defaultRoomOptions, JAM_EMOJIS } from './constants';
