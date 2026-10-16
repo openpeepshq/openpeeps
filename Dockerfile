@@ -153,6 +153,7 @@ RUN apk add --no-cache \
     dumb-init \
     ffmpeg \
     git \
+    libreoffice \
     tini \
     unzip
 

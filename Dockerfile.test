@@ -6,8 +6,9 @@
 FROM mcr.microsoft.com/playwright:v1.56.1-noble
 
 # Fixture restore unpacks zip backups. Browsers already ship in the base image.
+# libreoffice is needed for office document preview generation (docx/xlsx/pptx → PDF).
 RUN apt-get update -qq \
- && apt-get install -y -qq unzip \
+ && apt-get install -y -qq unzip libreoffice \
  && rm -rf /var/lib/apt/lists/*
 
 ENV PNPM_HOME="/pnpm"
