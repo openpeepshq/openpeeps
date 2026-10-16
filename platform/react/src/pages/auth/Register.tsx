@@ -8,6 +8,9 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
+  accountNameSchema,
+  HANDLE_RESERVED_MESSAGE,
+  isForbiddenHandle,
   registerRequestSchema,
   type RegisterRequest,
 } from '@openpeepshq/common/types';
@@ -43,7 +46,10 @@ const INVITE_INACTIVE_MESSAGES = new Set([
   'Invalid Invite Code',
 ]);
 
-const buildRegisterFormSchema = (t: TFunction) =>
+const buildRegisterFormSchema = (
+  t: TFunction,
+  additionalForbiddenHandles: readonly string[] = [],
+) =>
   registerRequestSchema
     .refine((d) => d.password === d.confirmPassword, {
       message: t('auth.register.passwordsDoNotMatch', {
@@ -56,14 +62,32 @@ const buildRegisterFormSchema = (t: TFunction) =>
         defaultValue: 'You must agree to the privacy policy',
       }),
       path: ['privacyPolicyAccepted'],
+    })
+    .superRefine((data, ctx) => {
+      if (!isForbiddenHandle(data.handle, additionalForbiddenHandles)) return;
+      // Built-in names already fail accountNameSchema.
+      if (!accountNameSchema.safeParse(data.handle).success) return;
+      ctx.addIssue({
+        code: 'custom',
+        path: ['handle'],
+        message: t('profile.form.handleReserved', {
+          defaultValue: 'That handle is reserved. Please choose another.',
+        }),
+      });
     });
 
-const registerErrorCopy = (raw: string, t: TFunction) =>
-  INVITE_INACTIVE_MESSAGES.has(raw)
+const registerErrorCopy = (raw: string, t: TFunction) => {
+  if (raw === HANDLE_RESERVED_MESSAGE) {
+    return t('profile.form.handleReserved', {
+      defaultValue: 'That handle is reserved. Please choose another.',
+    });
+  }
+  return INVITE_INACTIVE_MESSAGES.has(raw)
     ? t('auth.register.inviteInactive', {
         defaultValue: 'This invite link is expired or no longer active.',
       })
     : t(raw);
+};
 
 export function Register({ invite = false }: RegisterProps) {
   const t = useT();
@@ -75,7 +99,12 @@ export function Register({ invite = false }: RegisterProps) {
   const serverInfo = useServerInfo();
   const { success, error: toastError } = useToast();
 
-  const registerFormSchema = useMemo(() => buildRegisterFormSchema(t), [t]);
+  const additionalForbiddenHandles =
+    serverInfo.communityConfig?.settings?.additionalForbiddenHandles;
+  const registerFormSchema = useMemo(
+    () => buildRegisterFormSchema(t, additionalForbiddenHandles ?? []),
+    [t, additionalForbiddenHandles],
+  );
 
   const paymentParam = searchParams.get('payment');
   useEffect(() => {

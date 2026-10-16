@@ -82,6 +82,7 @@ export { CommunityMarkdownPage } from './admin/community/CommunityMarkdownPage';
 export { AdminConfigurationCommunityFavicons } from './admin/community/CommunityFavicons';
 export { AdminConfigurationCommunityTheme } from './admin/community/CommunityTheme';
 export { AdminConfigurationCommunityProfileFields } from './admin/community/CommunityProfileFields';
+export { AdminConfigurationCommunityForbiddenUsernames } from './admin/community/CommunityForbiddenUsernames';
 export { AdminConfigurationCommunityRoles } from './admin/community/CommunityRoles';
 export { AdminGroupMembers } from './admin/GroupMembers';
 export { AdminReports } from './admin/Reports';

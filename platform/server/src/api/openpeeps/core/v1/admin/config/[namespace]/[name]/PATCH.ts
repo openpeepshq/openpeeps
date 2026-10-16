@@ -1,5 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
 import {
+  collectAdditionalForbiddenHandles,
   communityProfileAdditionalFieldSchema,
   successResponseSchema,
 } from '@openpeepshq/common/types';
@@ -23,6 +24,27 @@ export const Error = {
   404: notFound(),
 };
 
+const normalizeAdditionalForbiddenHandles = (config: unknown) => {
+  if (!config || typeof config !== 'object') return;
+  const settings = (
+    config as { settings?: { additionalForbiddenHandles?: unknown } }
+  ).settings;
+  if (!settings || settings.additionalForbiddenHandles === undefined) return;
+  const parsed = z
+    .array(z.string())
+    .safeParse(settings.additionalForbiddenHandles);
+  if (!parsed.success) {
+    throw badRequest('Forbidden usernames must be a list of strings');
+  }
+  const { handles, issues } = collectAdditionalForbiddenHandles(parsed.data);
+  if (issues.length) {
+    throw badRequest(
+      'Forbidden usernames must be 1–16 letters, numbers, underscores, or hyphens',
+    );
+  }
+  settings.additionalForbiddenHandles = handles;
+};
+
 const rejectEmptyProfileFieldKeys = (config: unknown) => {
   if (!config || typeof config !== 'object') return;
   const fields = (config as { profiles?: { additionalFields?: unknown } })
@@ -41,6 +63,7 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
     await ensureRoleCapabilities(event, ['core-config-update']);
     const { config, name, namespace } = input;
     rejectEmptyProfileFieldKeys(config);
+    normalizeAdditionalForbiddenHandles(config);
     // Admin UI/CLI send sparse patches (e.g. only info.tagLine). Merge into the
     // stored overrides so unrelated keys like theme are preserved.
     await updateConfigValues(config, namespace, name);

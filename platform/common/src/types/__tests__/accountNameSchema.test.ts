@@ -26,6 +26,7 @@ describe('accountNameSchema', () => {
     if (!result.success) {
       expect(result.error.issues[0]?.message).toBe('Handle is reserved');
     }
+    expect(accountNameSchema.safeParse('JamStarted').success).toBe(false);
   });
 });
 

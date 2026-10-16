@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { ThemedView } from '../ui/themed-view';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useOpenpeeps, useServerInfo } from '@openpeepshq/react';
 import { ThemedText } from '../ui/themed-text';
 import { useForm } from 'react-hook-form';
 import {
   getTheme,
+  HANDLE_RESERVED_MESSAGE,
+  isForbiddenHandle,
   MediaAttachment,
   Profile,
   ProfileData,
@@ -31,6 +33,7 @@ type EditProfileFormProps = {
 export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
   const { openpeepsApi, queryClient } = useOpenpeeps();
   const { data: serverInfo } = openpeepsApi.useServerInfo();
+  const communitySettings = useServerInfo().communityConfig?.settings;
   const {
     data: profileData,
     isLoading,
@@ -84,6 +87,22 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
   const updateProfileDetails = openpeepsApi.updateCurrentProfileAction();
 
   const onSubmit = async (values: ProfileData) => {
+    const additionalForbiddenHandles =
+      communitySettings?.additionalForbiddenHandles;
+    if (
+      values.handle &&
+      isForbiddenHandle(values.handle, additionalForbiddenHandles)
+    ) {
+      const message = t('profile.form.handleReserved');
+      form.setError('handle', { message });
+      Toast.show({
+        type: 'error',
+        text1: t('common.errors.error'),
+        text2: message,
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     values.type = profileData?.type || 'local';
@@ -122,7 +141,9 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
             ? t('profiles.handleExists', {
                 defaultValue: 'This handle is already in use by someone else.',
               })
-            : err.message,
+            : message === HANDLE_RESERVED_MESSAGE
+              ? t('profile.form.handleReserved')
+              : err.message,
         });
       })
       .finally(() => {

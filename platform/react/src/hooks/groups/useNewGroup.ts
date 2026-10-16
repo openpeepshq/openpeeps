@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import type { GroupData, PublicProfile } from '@openpeepshq/common/types';
+import {
+  HANDLE_RESERVED_MESSAGE,
+  isForbiddenHandle,
+  type GroupData,
+  type PublicProfile,
+} from '@openpeepshq/common/types';
 import {
   applySimpleGroupTemplate,
   defaultSimpleGroupTemplate,
@@ -30,7 +35,10 @@ export const useNewGroup = () => {
   const navigate = useNavigate();
   const { openpeepsApi } = useOpenpeeps();
   const createGroup = openpeepsApi.createGroupAction();
-  const { publicContent } = useServerInfo();
+  const serverInfo = useServerInfo();
+  const { publicContent } = serverInfo;
+  const additionalForbiddenHandles =
+    serverInfo.communityConfig?.settings?.additionalForbiddenHandles;
   const [members, setMembers] = useState<PublicProfile[]>([]);
   const [groupData, setGroupData] = useState<GroupData>(() => ({
     displayName: '',
@@ -47,7 +55,9 @@ export const useNewGroup = () => {
 
   const submit = async () => {
     setError(null);
-    const nextFieldErrors = groupFormFieldErrors(groupData, t);
+    const nextFieldErrors = groupFormFieldErrors(groupData, t, {
+      additionalForbiddenHandles,
+    });
     if (hasGroupFormFieldErrors(nextFieldErrors)) {
       setFieldErrors(nextFieldErrors);
       return;
@@ -60,6 +70,13 @@ export const useNewGroup = () => {
             handle: handleFromDisplayName(groupData.displayName!),
           }
         : groupData;
+    if (isForbiddenHandle(data.handle, additionalForbiddenHandles)) {
+      const msg = t('profile.form.handleReserved', {
+        defaultValue: 'That handle is reserved. Please choose another.',
+      });
+      setFieldErrors({ handle: msg });
+      return;
+    }
     setSubmitting(true);
     try {
       const group = (await createGroup({ ...data, members })) as {
@@ -67,6 +84,14 @@ export const useNewGroup = () => {
       };
       navigate({ type: 'group', handle: group.handle });
     } catch (err) {
+      if ((err as Error).message === HANDLE_RESERVED_MESSAGE) {
+        const msg = t('profile.form.handleReserved', {
+          defaultValue: 'That handle is reserved. Please choose another.',
+        });
+        setFieldErrors({ handle: msg });
+        setError(msg);
+        return;
+      }
       if (isDuplicateHandleError(err)) {
         const msg = duplicateHandleMessage(t);
         setFieldErrors({ handle: msg });

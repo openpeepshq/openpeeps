@@ -114,6 +114,7 @@ import {
   AdminConfigurationCommunityFavicons,
   AdminConfigurationCommunityTheme,
   AdminConfigurationCommunityProfileFields,
+  AdminConfigurationCommunityForbiddenUsernames,
   AdminConfigurationCommunityRoles,
   AdminGroupMembers,
   AdminReports,
@@ -362,6 +363,7 @@ const Admin = {
     CommunityFeed: AdminConfigurationCommunityFeed,
     CommunityFavicons: AdminConfigurationCommunityFavicons,
     CommunityProfileFields: AdminConfigurationCommunityProfileFields,
+    CommunityForbiddenUsernames: AdminConfigurationCommunityForbiddenUsernames,
     CommunityAboutPage: () => (
       <CommunityMarkdownPage
         path={['content', 'aboutPage']}
@@ -803,6 +805,10 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/community/profile-fields"
                         element={<Admin.Config.CommunityProfileFields />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/forbidden-usernames"
+                        element={<Admin.Config.CommunityForbiddenUsernames />}
                       />
                       <Route
                         path="/admin/configuration/community/about-page"

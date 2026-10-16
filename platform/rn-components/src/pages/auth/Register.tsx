@@ -6,6 +6,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
+  accountNameSchema,
+  HANDLE_RESERVED_MESSAGE,
+  isForbiddenHandle,
   registerRequestSchema,
   type RegisterRequest,
 } from '@openpeepshq/common';
@@ -31,7 +34,10 @@ const INVITE_INACTIVE_MESSAGES = new Set([
   'Invalid Invite Code',
 ]);
 
-const buildRegisterFormSchema = (t: TFunction) =>
+const buildRegisterFormSchema = (
+  t: TFunction,
+  additionalForbiddenHandles: readonly string[] = []
+) =>
   registerRequestSchema
     .refine((d) => d.password === d.confirmPassword, {
       message: t('auth.register.passwordsDoNotMatch'),
@@ -40,12 +46,25 @@ const buildRegisterFormSchema = (t: TFunction) =>
     .refine((d) => d.privacyPolicyAccepted, {
       message: t('auth.register.mustAgreePrivacyPolicy'),
       path: ['privacyPolicyAccepted'],
+    })
+    .superRefine((data, ctx) => {
+      if (!isForbiddenHandle(data.handle, additionalForbiddenHandles)) return;
+      if (!accountNameSchema.safeParse(data.handle).success) return;
+      ctx.addIssue({
+        code: 'custom',
+        path: ['handle'],
+        message: t('profile.form.handleReserved'),
+      });
     });
 
-const registerErrorCopy = (raw: string, t: TFunction) =>
-  INVITE_INACTIVE_MESSAGES.has(raw)
+const registerErrorCopy = (raw: string, t: TFunction) => {
+  if (raw === HANDLE_RESERVED_MESSAGE) {
+    return t('profile.form.handleReserved');
+  }
+  return INVITE_INACTIVE_MESSAGES.has(raw)
     ? t('auth.register.inviteInactive')
     : t(raw);
+};
 
 type RegisterProps = NativeStackScreenProps<
   AuthStackParamList,
@@ -60,7 +79,12 @@ export const Register = ({
   const { t } = useTranslation();
   const { register } = useRegisterAccount();
   const serverInfo = useServerInfo();
-  const registerFormSchema = useMemo(() => buildRegisterFormSchema(t), [t]);
+  const additionalForbiddenHandles =
+    serverInfo.communityConfig?.settings?.additionalForbiddenHandles;
+  const registerFormSchema = useMemo(
+    () => buildRegisterFormSchema(t, additionalForbiddenHandles ?? []),
+    [t, additionalForbiddenHandles]
+  );
 
   const form = useForm<RegisterRequest>({
     resolver: zodResolver(registerFormSchema),

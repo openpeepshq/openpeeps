@@ -1,5 +1,5 @@
-import { allpeepDb } from '../db';
-import { Profile } from '@openpeepshq/common/types';
+import { isForbiddenHandle } from '@openpeepshq/common/types';
+import { communityConfig } from '../config';
 import { findProfileByHandle } from './finders';
 
 export * from './mapping';
@@ -29,10 +29,15 @@ export const findNewFreeHandle = async (seed: string) => {
   let counter = 2;
 
   const sanitizedSeed = sanitizeHandle(seed).substring(0, 16);
+  const community = await communityConfig();
+  const additional = community.settings.additionalForbiddenHandles;
 
   let candidate = sanitizedSeed;
 
-  while (await findProfileByHandle(candidate)) {
+  while (
+    isForbiddenHandle(candidate, additional) ||
+    (await findProfileByHandle(candidate))
+  ) {
     const counterString = String(counter);
     candidate =
       sanitizedSeed.substring(0, 16 - counterString.length) + counterString;

@@ -2125,6 +2125,18 @@
         "description": "Customize your members' profile pages with additional info fields",
         "emptyKeyError": "Each profile field needs a non-empty key."
       },
+      "forbiddenUsernames": {
+        "title": "Forbidden usernames",
+        "description": "Block usernames your community does not allow, such as slurs or hate speech. Each entry is a full username, ignoring capitalization. Built-in usernames stay reserved and cannot be removed.",
+        "builtIn": "Built-in",
+        "add": "Add username",
+        "placeholder": "username",
+        "remove": "Remove",
+        "empty": "Enter a username to add.",
+        "invalid": "Usernames must be 1–16 characters: letters, numbers, underscores, or hyphens.",
+        "duplicate": "That username is already on the list.",
+        "builtInError": "Built-in usernames are always reserved and cannot be changed."
+      },
       "roles": {
         "title": "Roles and Capabilities",
         "description": "Set up the features and capabilities available to each role within the community"
