@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Image, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import { MediaAttachment } from '@openpeepshq/common';
@@ -7,6 +7,7 @@ import { ImagePickerSheet } from '../custom/modals/media/index';
 import { CameraIcon, XIcon } from '../icons/index';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { ThemedText } from '../ui/themed-text';
+import { SvgImage } from '../ui/svg-image';
 import { bottomSheetPresent } from '../../lib/bottom-sheet-ref';
 
 export interface HeaderAvatarInputProps {
@@ -43,8 +44,8 @@ export const HeaderAvatarInput = ({
         className="w-full aspect-[3/1] rounded-md overflow-hidden bg-muted items-center justify-center"
       >
         {header ? (
-          <Image
-            source={{ uri: header }}
+          <SvgImage
+            uri={header}
             className="absolute inset-0 w-full h-full"
             resizeMode="cover"
           />

@@ -1,7 +1,8 @@
 import React from 'react';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { ImageBackground, View } from 'react-native';
+import { View } from 'react-native';
 import { SideMenu } from '../custom/navigation/side-menu';
+import { SvgImage } from '../ui/svg-image';
 import { useNavigation } from '@react-navigation/native';
 import { MainStackParamList } from './types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -62,12 +63,14 @@ export const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
 
   if (resolvedBackgroundUri && !isLoading) {
     return (
-      <ImageBackground
-        source={{ uri: resolvedBackgroundUri }}
-        className="w-screen h-screen flex justify-center items-center"
-      >
+      <View className="w-screen h-screen flex justify-center items-center">
+        <SvgImage
+          uri={resolvedBackgroundUri}
+          className="absolute inset-0"
+          resizeMode="stretch"
+        />
         {content}
-      </ImageBackground>
+      </View>
     );
   }
 

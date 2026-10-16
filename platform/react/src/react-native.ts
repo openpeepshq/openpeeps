@@ -15,7 +15,7 @@ export {
   hueFromHandle,
   initialsBackground,
 } from './lib/initialsAvatar';
-export { svgCoverSrc } from './lib/svgCover';
+export { isSvgUrl, svgCoverSrc } from './lib/svgCover';
 export * from './lib/capabilityMatrix';
 export * from './lib/groupFormErrors';
 export * from './lib/passwordStrength';

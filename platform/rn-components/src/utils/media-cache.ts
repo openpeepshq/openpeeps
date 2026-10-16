@@ -69,7 +69,7 @@ export const getProperFileExtension = (
   const extension = url?.split('.').pop()?.toLowerCase() || '';
 
   const supportedFormats = {
-    image: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    image: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'],
     video: ['mp4', 'm4v', 'mov', 'webm'],
     audio: ['mp3', 'wav', 'ogg', 'm4a', 'aac'],
   };

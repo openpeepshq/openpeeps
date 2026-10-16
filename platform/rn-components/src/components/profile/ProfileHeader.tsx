@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Linking, Pressable, View } from 'react-native';
+import { Linking, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { PublicProfile } from '@openpeepshq/common/types';
 import { truncateText } from '@openpeepshq/common/lib';
@@ -7,6 +7,7 @@ import { profileFieldLink } from '@openpeepshq/react';
 import { MapPinIcon } from '../icons/index';
 import { PostMarkdown } from '../post/Markdown';
 import { ThemedText } from '../ui/themed-text';
+import { SvgImage } from '../ui/svg-image';
 import { ProfileAvatar } from './Avatar';
 import { ProfilePageAction } from './ProfilePageAction';
 import { ProfileStats } from './ProfileStats';
@@ -26,8 +27,8 @@ export const ProfileHeader = ({
     <View className="relative mb-8">
       <View className="relative aspect-[3/1] w-full bg-surface-2">
         {profile.header ? (
-          <Image
-            source={{ uri: profile.header }}
+          <SvgImage
+            uri={profile.header}
             className="h-full w-full"
             resizeMode="cover"
           />

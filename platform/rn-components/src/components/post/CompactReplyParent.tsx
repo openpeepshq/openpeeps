@@ -11,13 +11,14 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
-import { Image, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ProfileAvatar } from '../profile/index';
 import { CalendarIcon, PaperclipIcon, PlayIcon } from '../icons/index';
 import { MainStackParamList } from '../navigation/types/index';
 import { ThemedText } from '../ui/themed-text';
 import { ThemedView } from '../ui/themed-view';
+import { SvgImage } from '../ui/svg-image';
 
 type CompactPost = Pick<
   PublicReplyPost,
@@ -56,7 +57,7 @@ const CompactThumb = ({
   extra?: number;
 }) => (
   <View className="bg-surface relative size-16 shrink-0 overflow-hidden rounded-md">
-    <Image source={{ uri: src }} className="size-full" resizeMode="cover" />
+    <SvgImage uri={src} className="size-full" resizeMode="cover" />
     {video ? (
       <View className="absolute inset-0 items-center justify-center bg-black/40">
         <PlayIcon className="size-5 text-white" />
