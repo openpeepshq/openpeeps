@@ -2,6 +2,7 @@ export { useJoinGroup } from './groups/useJoinGroup';
 export { useGroupNotificationLevel } from './groups/useGroupNotificationLevel';
 export { useCreateConversation } from './conversations/useCreateConversation';
 export type { UseCreateConversationArgs } from './conversations/useCreateConversation';
+export { useCanDiagnoseLivekit } from './jams/useCanDiagnoseLivekit';
 export { useLeaveCloseJam } from './jams/useLeaveCloseJam';
 export type { UseLeaveCloseJamArgs } from './jams/useLeaveCloseJam';
 export { useCreateNewJamForm } from './jams/useCreateNewJamForm';

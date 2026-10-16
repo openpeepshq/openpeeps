@@ -1,15 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronDown, ChevronRight, PhoneOff } from 'lucide-react';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { AccessDeniedLoader } from '../layout/AccessDeniedLoader';
 import { CardEvent } from '../post/types/event/CardEvent';
+import { LivekitUnavailableNotice } from './LivekitUnavailableNotice';
 
 export function LiveJamsSection() {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const liveJamsQuery = openpeepsApi.useJams();
   const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    if (!liveJamsQuery.isError) return;
+    console.error(
+      '[openpeeps] Live jams failed to load. Community admins can diagnose LiveKit at /admin/diagnostics/livekit.',
+      liveJamsQuery.error,
+    );
+  }, [liveJamsQuery.isError, liveJamsQuery.error]);
 
   return (
     <section className="mb-8">
@@ -29,7 +38,12 @@ export function LiveJamsSection() {
       </button>
 
       {open ? (
-        <AccessDeniedLoader queries={[liveJamsQuery]}>
+        <AccessDeniedLoader
+          queries={[liveJamsQuery]}
+          fallbackError={
+            <LivekitUnavailableNotice className="text-destructive text-sm" />
+          }
+        >
           {(liveJamsQuery.data ?? []).length ? (
             <div
               role="feed"

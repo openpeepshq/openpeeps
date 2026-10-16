@@ -1177,7 +1177,9 @@
     "liveJams": "Live Jams",
     "noLiveJams": "No live jams to join",
     "unavailable": {
-      "message": "Jams are unavailable because LiveKit is not connected."
+      "message": "Jams are unavailable because LiveKit is not connected.",
+      "diagnose": "Diagnose LiveKit",
+      "diagnoseHint": "Open Diagnostics → LiveKit in the web admin (/admin/diagnostics/livekit)."
     },
     "room": {
       "pageTitle": "Jam Room - {{name}}",
@@ -2274,6 +2276,27 @@
       "levelColumn": "Level",
       "namespaceColumn": "Namespace",
       "messageColumn": "Message"
+    },
+    "livekit": {
+      "title": "LiveKit",
+      "description": "Check whether jams can reach the LiveKit server. Missing or invalid credentials disable live jams.",
+      "refresh": "Refresh",
+      "loadError": "Could not load the LiveKit diagnosis.",
+      "connected": "Connected",
+      "notConnected": "Not connected",
+      "url": "Server URL",
+      "apiKey": "API key",
+      "apiSecret": "API secret",
+      "reachable": "Server reachable",
+      "set": "Set",
+      "missing": "Missing",
+      "ok": "OK",
+      "failed": "Failed",
+      "error": "Last error",
+      "recording": "Recording",
+      "recordingOn": "Enabled",
+      "recordingOff": "Disabled",
+      "envHint": "Set JAMS_LIVEKIT_URL, JAMS_LIVEKIT_API_KEY, and JAMS_LIVEKIT_API_SECRET on the server, then refresh."
     }
   },
   "common": {

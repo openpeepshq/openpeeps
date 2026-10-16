@@ -121,6 +121,7 @@ import {
   AdminPlugins,
   AdminDiagnostics,
   AdminDiagnosticsEmail,
+  AdminDiagnosticsLivekit,
   AdminDiagnosticsLogs,
   AdminConfigurationEmail,
   AdminConfigurationSso,
@@ -322,6 +323,7 @@ const Admin = {
   Index: AdminDashboard,
   Diagnostics: AdminDiagnostics,
   DiagnosticsEmail: AdminDiagnosticsEmail,
+  DiagnosticsLivekit: AdminDiagnosticsLivekit,
   DiagnosticsLogs: AdminDiagnosticsLogs,
   DiagnosticsJob: AdminDiagnosticsJob,
   DiagnosticsPerformance: AdminDiagnosticsPerformance,
@@ -861,6 +863,10 @@ function AppShell() {
                       <Route
                         path="/admin/diagnostics/email"
                         element={<Admin.DiagnosticsEmail />}
+                      />
+                      <Route
+                        path="/admin/diagnostics/livekit"
+                        element={<Admin.DiagnosticsLivekit />}
                       />
                       <Route
                         path="/admin/diagnostics/logs"

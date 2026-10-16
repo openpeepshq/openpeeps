@@ -10,6 +10,7 @@ import { JamLobby } from './JamLobby';
 import { JamRequestJoin } from './JamRequestJoin';
 import { JamRoomPanel, JamRoomPanelLink } from './JamRoomPanel';
 import { JamVideoCall } from './JamVideoCall';
+import { LivekitUnavailableNotice } from './LivekitUnavailableNotice';
 
 export interface JamRoomProps {
   jamPost: PublicPost;
@@ -61,9 +62,7 @@ const JamRoomInner = () => {
   if (!livekitEnabled) {
     return (
       <JamRoomPanel title={jamEvent.name}>
-        <ThemedText className="text-center">
-          {t('jams.unavailable.message')}
-        </ThemedText>
+        <LivekitUnavailableNotice className="text-center" />
         <JamRoomPanelLink
           label={t('jams.room.viewEvent')}
           onPress={() => router.navigate({ type: 'post', id: jamPost.id })}

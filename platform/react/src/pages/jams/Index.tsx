@@ -10,6 +10,7 @@ import {
 import {
   EventsFeed,
   LiveJamsSection,
+  LivekitUnavailableNotice,
   useCreateNewJam,
   useServerInfo,
 } from '../../components';
@@ -77,12 +78,7 @@ export function JamsIndex({ my = false }: Props) {
   return (
     <div className="p-4">
       {!serverInfo.jams.livekit.enabled ? (
-        <p role="status" className="text-destructive mb-4 text-sm">
-          {t('jams.unavailable.message', {
-            defaultValue:
-              'Jams are unavailable because LiveKit is not connected.',
-          })}
-        </p>
+        <LivekitUnavailableNotice className="text-destructive mb-4 text-sm" />
       ) : null}
       {!my && serverInfo.jams.livekit.enabled ? <LiveJamsSection /> : null}
 

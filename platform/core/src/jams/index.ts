@@ -28,7 +28,7 @@ import { capabilitiesConfig } from '../config';
 import { logger } from '../log';
 
 export { createJamToken, createJamEgressToken } from './token';
-export { isLivekitConnected } from './health';
+export { diagnoseLivekit, isLivekitConnected } from './health';
 export {
   startRecording,
   stopRecording,
@@ -79,7 +79,15 @@ const reclaimLocalOrphan = (post: PostWithMeta) => {
  * Auth filtering happens in {@link listLiveJams} so the cache is not per-user.
  */
 const fetchLiveJamPosts = async (): Promise<PostWithMeta[]> => {
-  const rs = await roomService();
+  let rs;
+  try {
+    rs = await roomService();
+  } catch (e) {
+    log.warn(
+      `Failed to reach LiveKit (${(e as Error).message}). Admins can diagnose this at /admin/diagnostics/livekit.`,
+    );
+    return [];
+  }
   if (rs === undefined) {
     return [];
   }
@@ -92,7 +100,9 @@ const fetchLiveJamPosts = async (): Promise<PostWithMeta[]> => {
       localInstanceDomain(),
     ]);
   } catch (e) {
-    log.warn(`Failed to list live jam rooms: ${(e as Error).message}`);
+    log.warn(
+      `Failed to list live jam rooms (${(e as Error).message}). Admins can diagnose this at /admin/diagnostics/livekit.`,
+    );
     return [];
   }
 

@@ -1167,7 +1167,9 @@
     "liveJams": "Live-Jams",
     "noLiveJams": "Keine Live-Jams zum Beitreten",
     "unavailable": {
-      "message": "Jams sind nicht verfügbar, weil LiveKit nicht verbunden ist."
+      "message": "Jams sind nicht verfügbar, weil LiveKit nicht verbunden ist.",
+      "diagnose": "LiveKit diagnostizieren",
+      "diagnoseHint": "Öffnen Sie in der Web-Administration Diagnose → LiveKit (/admin/diagnostics/livekit)."
     },
     "room": {
       "pageTitle": "Jam-Raum - {{name}}",
@@ -1991,6 +1993,27 @@
       "levelColumn": "Stufe",
       "namespaceColumn": "Namensbereich",
       "messageColumn": "Nachricht"
+    },
+    "livekit": {
+      "title": "LiveKit",
+      "description": "Prüfen, ob Jams den LiveKit-Server erreichen. Fehlende oder ungültige Zugangsdaten deaktivieren Live-Jams.",
+      "refresh": "Aktualisieren",
+      "loadError": "Die LiveKit-Diagnose konnte nicht geladen werden.",
+      "connected": "Verbunden",
+      "notConnected": "Nicht verbunden",
+      "url": "Server-URL",
+      "apiKey": "API-Schlüssel",
+      "apiSecret": "API-Geheimnis",
+      "reachable": "Server erreichbar",
+      "set": "Gesetzt",
+      "missing": "Fehlt",
+      "ok": "OK",
+      "failed": "Fehlgeschlagen",
+      "error": "Letzter Fehler",
+      "recording": "Aufnahme",
+      "recordingOn": "Aktiviert",
+      "recordingOff": "Deaktiviert",
+      "envHint": "Setzen Sie JAMS_LIVEKIT_URL, JAMS_LIVEKIT_API_KEY und JAMS_LIVEKIT_API_SECRET auf dem Server und aktualisieren Sie dann diese Seite."
     }
   },
   "configuration": {
