@@ -808,7 +808,7 @@ jobs:
             echo "//code.openpeeps.org/api/packages/${owner}/npm/:_authToken=${FORGEJO_NPM_TOKEN}"
             echo "//code.openpeeps.org/api/packages/${owner}/npm/:always-auth=true"
           } > .npmrc
-          pnpm -r publish --access private --no-git-checks
+          pnpm -r publish --access private --no-git-checks --ignore-scripts
 
           # npmjs.com (same versions, public scoped packages)
           if [ -z "${NPM_TOKEN}" ]; then
@@ -820,7 +820,7 @@ jobs:
             echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}"
             echo "//registry.npmjs.org/:always-auth=true"
           } > .npmrc
-          pnpm -r publish --access public --no-git-checks
+          pnpm -r publish --access public --no-git-checks --ignore-scripts
 
   deploy-docker:
     runs-on: docker
