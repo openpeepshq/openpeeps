@@ -94,7 +94,14 @@ jobs:
             exit 1
           fi
           registry_image_base="code.openpeeps.org/${image_repo}"
+          # Pin the BuildKit registry cache to the lockfile hash so that builds
+          # with the same dependency set share cache without concurrent builds
+          # on different lockfile versions clobbering each other's cache entries on
+          # the shared :buildcache tag. 16 chars is collision-avoiding and keeps
+          # registry tag name short.
+          lockfile_hash="$(sha256sum pnpm-lock.yaml | cut -c1-16)"
 
+          echo "lockfile_hash=$lockfile_hash" >> $FORGEJO_OUTPUT
           echo "tag=$tag" >> $FORGEJO_OUTPUT
           echo "version=$version" >> $FORGEJO_OUTPUT
           echo "short_sha=$short_sha" >> $FORGEJO_OUTPUT
@@ -117,6 +124,7 @@ jobs:
       registry_image_base: ${{ steps.vars.outputs.registry_image_base }}
       image_repo: ${{ steps.vars.outputs.image_repo }}
       jams_enabled: ${{ steps.vars.outputs.jams_enabled }}
+      lockfile_hash: ${{ steps.vars.outputs.lockfile_hash }}
 
   build:
     runs-on: docker
@@ -168,12 +176,14 @@ jobs:
             docker buildx create --name ci-app --driver docker-container --use
             trap 'docker buildx rm -f ci-app' EXIT
             image="${{ needs.set-variables.outputs.registry_image_base }}"
-            cache="${image}:buildcache"
+            cache="${image}:buildcache-${{ needs.set-variables.outputs.lockfile_hash }}"
             # Transient Docker errors (layer blob, network) cause build failures;
             # retry up to 3 times with cache reuse for faster recovery.
+            # Lockfile-hash-suffixed cache tag prevents concurrent builds with
+            # different lockfiles from clobbering each other's cache entries.
             for attempt in 1 2 3; do
               # Re-derive cache_from each attempt: a parallel run or an earlier
-              # retry may have just republished a fresh :buildcache that this
+              # retry may have just republished a fresh buildcache that this
               # attempt can reuse. Computing it once before the loop left later
               # attempts reading a stale or absent cache.
               cache_from=""
@@ -235,12 +245,14 @@ jobs:
             docker buildx rm -f ci-test >/dev/null 2>&1 || true
             docker buildx create --name ci-test --driver docker-container --use
             trap 'docker buildx rm -f ci-test' EXIT
-            cache="${image}:test-buildcache"
+            cache="${image}:test-buildcache-${{ needs.set-variables.outputs.lockfile_hash }}"
             # Transient Docker errors (layer blob, network) cause build failures;
             # retry up to 3 times with cache reuse for faster recovery.
+            # Lockfile-hash cache tag prevents concurrent builds from clobbering
+            # each other's cache on the shared tag.
             for attempt in 1 2 3; do
               # Re-derive cache_from each attempt: a parallel run or earlier
-              # retry may have just republished a fresh :test-buildcache.
+              # retry may have just republished a fresh test-buildcache.
               cache_from=""
               if docker manifest inspect "${cache}" >/dev/null 2>&1; then
                 cache_from="--cache-from type=registry,ref=${cache}"
