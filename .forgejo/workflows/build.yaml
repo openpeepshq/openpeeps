@@ -294,6 +294,7 @@ jobs:
           docker pull "${{ needs.set-variables.outputs.registry_image_base }}:test-${{ needs.set-variables.outputs.short_sha }}"
 
   test-unit:
+    if: needs.set-variables.outputs.is_release_branch == 'false'
     runs-on: docker
     needs: [set-variables]
     container:
@@ -322,6 +323,7 @@ jobs:
           exec vitest run
 
   test-integration:
+    if: needs.set-variables.outputs.is_release_branch == 'false'
     runs-on: docker
     needs: [build, build-test-image, set-variables]
     strategy:
@@ -440,6 +442,7 @@ jobs:
         run: node platform/tests/scripts/run-empty-shard.mjs
 
   test-integration-small:
+    if: needs.set-variables.outputs.is_release_branch == 'false'
     runs-on: docker
     needs: [build, build-test-image, set-variables]
     defaults:
@@ -560,11 +563,11 @@ jobs:
           done
 
   test-integration-jams:
+    if: needs.set-variables.outputs.jams_enabled == 'true' && needs.set-variables.outputs.is_release_branch == 'false'
     runs-on: docker
     needs: [build, build-test-image, set-variables]
     # Without LiveKit credentials the suite would only self-skip, so do not
     # spend a VM and a service stack on it.
-    if: needs.set-variables.outputs.jams_enabled == 'true'
     defaults:
       run:
         working-directory: /apat

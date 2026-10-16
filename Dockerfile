@@ -137,6 +137,9 @@ RUN pnpm --filter @openpeepshq/web build
 # code (already copied per-package above) or docs/CI files. This avoids
 # invalidating this layer on every source change, which would also
 # bust the stage-2 COPY --from=builder layer (~37s rebuild on every push).
+# scripts/ is needed at runtime by the publish-packages CI job
+# (runs check-publish-gate.mjs). Changes infrequently, so keeps cache.
+COPY scripts/ scripts/
 COPY docker/ docker/
 RUN pnpm rebuild --filter @openpeepshq/cli --filter @openpeepshq/mcp
 
