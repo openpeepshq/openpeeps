@@ -1,7 +1,5 @@
 import React from 'react';
 import {
-  Image,
-  ImageBackground,
   Platform,
   StatusBar,
   StyleSheet,
@@ -20,6 +18,7 @@ import { getTheme } from '@openpeepshq/common';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { ThemedText } from '../ui/themed-text';
+import { SvgImage } from '../ui/svg-image';
 import { MessageSquareTextIcon, UserIcon } from '../icons/index';
 import type { MainStackParamList } from '../navigation/types/index';
 
@@ -47,12 +46,14 @@ export const HeaderMobile = () => {
   }
 
   return (
-    <ImageBackground
-      resizeMode="cover"
-      source={backgroundUri ? { uri: backgroundUri } : undefined}
-      style={styles.header}
-      className="px-4 pb-3"
-    >
+    <View style={styles.header} className="px-4 pb-3">
+      {backgroundUri ? (
+        <SvgImage
+          uri={backgroundUri}
+          className="absolute inset-0"
+          resizeMode="cover"
+        />
+      ) : null}
       <SafeAreaView edges={['top']}>
         {!isProduction && (
           <View className="mb-2 w-full rounded-lg bg-white/50 p-2">
@@ -78,13 +79,7 @@ export const HeaderMobile = () => {
               )}
             </Avatar>
           </Button>
-          {logoUri ? (
-            <Image
-              source={{ uri: logoUri }}
-              resizeMode="contain"
-              className="h-[64px] w-[216px]"
-            />
-          ) : null}
+          <SvgImage uri={logoUri} className="h-[64px] w-[216px]" />
           <Button
             variant="outline"
             size="icon"
@@ -100,7 +95,7 @@ export const HeaderMobile = () => {
           </Button>
         </View>
       </SafeAreaView>
-    </ImageBackground>
+    </View>
   );
 };
 

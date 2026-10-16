@@ -29,6 +29,7 @@ export { ThemedText, TextClassContext } from './themed-text';
 export { ThemedView, ViewClassContext } from './themed-view';
 export * from './tooltip';
 export * from './skeleton';
+export * from './svg-image';
 export * from './switch';
 export * from './tabs';
 

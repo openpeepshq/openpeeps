@@ -1,7 +1,9 @@
 import * as AvatarPrimitive from '@rn-primitives/avatar';
 import * as React from 'react';
 import type { ImageSourcePropType, ImageURISource } from 'react-native';
+import { isSvgUrl } from '@openpeepshq/react';
 import { useCachedMediaUri } from '../../hooks/use-cached-media-uri';
+import { SvgImage } from './svg-image';
 import { cn } from '../../lib/utils';
 
 const remoteUriFromSource = (
@@ -39,7 +41,8 @@ const AvatarImage = React.forwardRef<
   const remoteUri = remoteUriFromSource(
     source as ImageSourcePropType | undefined
   );
-  const cachedUri = useCachedMediaUri(remoteUri);
+  const svg = remoteUri ? isSvgUrl(remoteUri) : false;
+  const cachedUri = useCachedMediaUri(svg ? null : remoteUri);
   const resolvedSource =
     remoteUri &&
     cachedUri &&
@@ -48,6 +51,16 @@ const AvatarImage = React.forwardRef<
     !Array.isArray(source)
       ? { ...(source as ImageURISource), uri: cachedUri }
       : source;
+
+  if (svg) {
+    return (
+      <SvgImage
+        uri={remoteUri}
+        className={cn('aspect-square h-full w-full', className)}
+        resizeMode="cover"
+      />
+    );
+  }
 
   return (
     <AvatarPrimitiveImage

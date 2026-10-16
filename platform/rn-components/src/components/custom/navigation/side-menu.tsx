@@ -1,8 +1,9 @@
 import React from 'react';
 import { ScrollView, useColorScheme } from 'react-native';
 import { Separator } from '../../ui/separator';
-import { Image, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Button } from '../../ui/button';
+import { SvgImage } from '../../ui/svg-image';
 import {
   BellIcon,
   BookCheckIcon,
@@ -112,13 +113,7 @@ export const SideMenu = ({
       <View className="sm:w-56 md:w-80 bg-background flex-1">
         <TouchableOpacity onPress={onProfilePress} className="mt-12 mb-6 px-4">
           <View className="w-full flex-row items-center justify-between">
-            {logoUri ? (
-              <Image
-                source={{ uri: logoUri }}
-                className="-mt-2 h-12 w-48"
-                resizeMode="contain"
-              />
-            ) : null}
+            <SvgImage uri={logoUri} className="-mt-2 h-12 w-48" />
             {!isMediumScreenOrLarger && (
               <View className="md:hidden">
                 <Button onPress={close} variant={'outline'} size={'icon'}>

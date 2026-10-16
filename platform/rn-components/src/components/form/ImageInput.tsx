@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
-import { Image, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import type { MediaAttachment } from '@openpeepshq/common';
 import { ImagePickerSheet } from '../custom/modals/media/index';
 import { CameraIcon, XIcon } from '../icons/index';
 import { ThemedText } from '../ui/themed-text';
+import { SvgImage } from '../ui/svg-image';
 import { bottomSheetPresent } from '../../lib/bottom-sheet-ref';
 import { cn } from '../../lib/utils';
 
@@ -49,8 +50,8 @@ export const ImageInput = ({
         )}
       >
         {url ? (
-          <Image
-            source={{ uri: url }}
+          <SvgImage
+            uri={url}
             className="absolute inset-0 w-full h-full"
             resizeMode="cover"
           />

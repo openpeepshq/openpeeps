@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { Image, ImageBackground, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useTranslation } from 'react-i18next';
 import { getTheme } from '@openpeepshq/common';
@@ -9,6 +9,7 @@ import { BASE_URL, isProduction } from '../../lib/constants';
 import { toAbsoluteMediaUrl } from '../../lib/media-url';
 import { ProfileAvatar } from '../profile/Avatar';
 import { ThemedText } from '../ui/themed-text';
+import { SvgImage } from '../ui/svg-image';
 
 export interface AuthLayoutProps {
   children?: ReactNode;
@@ -34,11 +35,7 @@ const Logo = ({ uri }: { uri?: string }) => {
       hitSlop={24}
       className="absolute left-2 top-16 z-10 h-[26px] w-[206px] max-w-fit"
     >
-      <Image
-        source={{ uri }}
-        className="h-[26px] w-[206px] max-w-fit"
-        resizeMode="contain"
-      />
+      <SvgImage uri={uri} className="h-[26px] w-[206px] max-w-fit" />
     </Pressable>
   );
 };
@@ -88,12 +85,14 @@ const AuthImage = ({ children }: { children?: ReactNode }) => {
 
   if (authBackgroundUri && !isLoading) {
     return (
-      <ImageBackground
-        source={{ uri: authBackgroundUri }}
-        className="w-full flex-1 justify-end"
-      >
+      <View className="w-full flex-1 justify-end">
+        <SvgImage
+          uri={authBackgroundUri}
+          className="absolute inset-0"
+          resizeMode="stretch"
+        />
         {content}
-      </ImageBackground>
+      </View>
     );
   }
 
