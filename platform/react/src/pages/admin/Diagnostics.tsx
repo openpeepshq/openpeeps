@@ -13,6 +13,10 @@ export function AdminDiagnostics() {
         action="/admin/diagnostics/email"
       />
       <ConfigMenuButton
+        translationPrefix="diagnostics.livekit"
+        action="/admin/diagnostics/livekit"
+      />
+      <ConfigMenuButton
         translationPrefix="diagnostics.logs"
         action="/admin/diagnostics/logs"
       />

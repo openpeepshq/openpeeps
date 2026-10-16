@@ -1,12 +1,11 @@
 import { Link, Outlet } from 'react-router-dom';
-import { useT } from '@openpeepshq/react';
-import { useCurrentProfile } from '@openpeepshq/react/components';
 import {
-  adminSections,
-  canAccessAdminMenu,
-  canAccessAdminSection,
-  type AdminSectionKey,
-} from '@openpeepshq/common/lib';
+  useAdminRoles,
+  useCanAccessAdminSection,
+  useT,
+} from '@openpeepshq/react';
+import { canAccessAdminMenu } from '@openpeepshq/common/lib';
+import type { AdminSectionKey } from '@openpeepshq/common/lib';
 
 function AdminAccessDenied() {
   const t = useT();
@@ -28,11 +27,6 @@ function AdminAccessDenied() {
   );
 }
 
-const useAdminRoles = () => {
-  const profile = useCurrentProfile();
-  return profile?.type === 'local' ? profile.roles : undefined;
-};
-
 /**
  * Layout guard for a single admin section. Renders the nested route only when
  * the current profile holds the section's capabilities (mirrors the backend
@@ -41,9 +35,7 @@ const useAdminRoles = () => {
  * capability-filtered sidebar.
  */
 export function RequireAdminSection({ section }: { section: AdminSectionKey }) {
-  const roles = useAdminRoles();
-  const sectionDef = adminSections.find((s) => s.key === section);
-  const allowed = !!sectionDef && canAccessAdminSection(roles, sectionDef);
+  const allowed = useCanAccessAdminSection(section);
   return allowed ? <Outlet /> : <AdminAccessDenied />;
 }
 

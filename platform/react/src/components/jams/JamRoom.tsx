@@ -11,6 +11,7 @@ import { JamLobby } from './JamLobby';
 import { JamCapacityGate } from './JamCapacityGate';
 import { JamRequestJoin } from './JamRequestJoin';
 import { JamVideoCall } from './JamVideoCall';
+import { LivekitUnavailableNotice } from './LivekitUnavailableNotice';
 
 export interface JamRoomProps {
   jamPost: PublicPost;
@@ -81,12 +82,7 @@ function JamRoomInner() {
         <div className="w-full max-w-md space-y-5 text-center">
           <h3 className="text-lg">{jamEvent.name}</h3>
           <div className="bg-surface flex w-full flex-col items-center justify-center space-y-3 rounded border p-4">
-            <p role="status">
-              {t('jams.unavailable.message', {
-                defaultValue:
-                  'Jams are unavailable because LiveKit is not connected.',
-              })}
-            </p>
+            <LivekitUnavailableNotice />
             <a
               href={`/posts/${jamPost.id}`}
               className="text-primary text-sm underline"

@@ -26,3 +26,4 @@ export * from './JamVideoCall';
 export * from './JamVideoLayout';
 export * from './LeaveCloseButton';
 export * from './LiveJamsSection';
+export * from './LivekitUnavailableNotice';

@@ -19,3 +19,4 @@ export * from './admin-media';
 export * from './admin-jobs';
 export * from './admin-db';
 export * from './admin-performance';
+export * from './admin-livekit';

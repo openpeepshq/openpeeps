@@ -91,6 +91,7 @@ export { AdminApiKeys } from './admin/ApiKeys';
 export { AdminPlugins } from './admin/Plugins';
 export { AdminDiagnostics } from './admin/Diagnostics';
 export { AdminDiagnosticsEmail } from './admin/DiagnosticsEmail';
+export { AdminDiagnosticsLivekit } from './admin/DiagnosticsLivekit';
 export { AdminDiagnosticsLogs } from './admin/DiagnosticsLogs';
 export { AdminConfigurationEmail } from './admin/ConfigurationEmail';
 export { AdminConfigurationSso } from './admin/ConfigurationSso';

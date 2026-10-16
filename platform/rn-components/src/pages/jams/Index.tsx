@@ -10,7 +10,11 @@ import {
   ChevronRightIcon,
   MoreHorizontalIcon,
 } from '../../components/icons/index';
-import { CreateNewJam, LiveJamsSection } from '../../components/jams/index';
+import {
+  CreateNewJam,
+  LiveJamsSection,
+  LivekitUnavailableNotice,
+} from '../../components/jams/index';
 import { MainStackParamList } from '../../components/navigation/types/index';
 import { EventsFeed } from '../../components/post/feed/events/EventsFeed';
 import { Button } from '../../components/ui/button';
@@ -99,9 +103,7 @@ export const JamsIndex = ({ my = false }: Props) => {
       className="w-full bg-background p-4"
     >
       {!livekitEnabled ? (
-        <ThemedText className="mb-4 text-sm text-destructive">
-          {t('jams.unavailable.message')}
-        </ThemedText>
+        <LivekitUnavailableNotice className="mb-4 text-sm text-destructive" />
       ) : null}
       {!my && livekitEnabled ? <LiveJamsSection /> : null}
 
