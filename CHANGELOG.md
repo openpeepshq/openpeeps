@@ -3,8 +3,27 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Features
+
+- **media**: add PDF and office document preview thumbnails
+- **core**: add daily log retention job with configurable thresholds
+- **notifications**: enhance jam moderator notifications with event updates
+- **notifications**: add group notification settings and update related components
+- **notifications**: refactor new group post notification logic
+- **i18n**: add event title and subject for new group posts in email notifications
+- **group**: enhance group section handling and sharing functionality
+
 ### Bug Fixes
 
+- **ci**: skip prepublishOnly scripts in publish-packages
+- **ci**: copy scripts/ dir for publish, skip tests on release branches
+- **ci**: don't gate publish-packages on publish-gate
+- **ci**: revert pnpm store cache, keep task graph + COPY optimizations
+- **posts**: stop reactions from bumping lastActivityAt and reordering feed
+- **ci**: include Dockerfile hash in BuildKit registry cache tag
+- **ci**: pin BuildKit registry cache to lockfile hash
+- **rn-components**: render SVG media in native
+- **rn-components**: allow same-origin iframe navigations in WebView
 - **rn-components**: render desktop jam footer on wide screens like web
 - **rn-components**: render standalone routes full screen like web
 - **jams**: fix recording control labels and indicator, add elapsed time
@@ -18,6 +37,15 @@ Changelog for OpenPeeps
 - **rn-components**: apply theme border radius via inline style
 - **rn-components**: align direct messages view with web and add i18n defaults
 
+### Refactoring
+
+- **emails**: restructure props in AnalyticsMonthlyReport component
+- **eventRecurrence**: update listRsvpOccurrences to include ongoing occurrences and adjust time horizon
+
+### Documentation
+
+- **agents**: add openpeeps-pr-rebase skill
+
 ### CI/CD
 
 - pre-generate changelog, add build retries, fix i18n parity and warnings
@@ -28,6 +56,8 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **packages**: bump versions for unreleased changes
+- **ci**: optimize task graph and CI build speed
 - **packages**: bump versions and fix source URLs
 
 ## 2026-10-15
