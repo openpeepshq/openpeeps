@@ -90,13 +90,16 @@ const fail = (message) => {
   failed = true;
 };
 
-if (!packageArg) {
-  for (const name of DIST_BUILD) {
-    console.log(`[${name}] build`);
-    const built = run('pnpm', ['--filter', FILTER[name], 'build']);
-    if (built.status !== 0) {
-      fail(`[${name}] build failed:\n${built.stdout}${built.stderr}`);
-    }
+// Build DIST_BUILD packages before typechecking so that TypeScript
+// resolution finds compiled .d.ts (via the `types` field) rather than
+// falling back to workspace source that may use DOM/lib APIs incompatible
+// with the consuming package's tsconfig (e.g. rn-components tsc against
+// react/src which references window/document).
+for (const name of DIST_BUILD) {
+  console.log(`[${name}] build`);
+  const built = run('pnpm', ['--filter', FILTER[name], 'build']);
+  if (built.status !== 0) {
+    fail(`[${name}] build failed:\n${built.stdout}${built.stderr}`);
   }
 }
 

@@ -778,15 +778,78 @@ jobs:
     runs-on: docker
     if: forgejo.ref_name == env.DEFAULT_BRANCH
     needs: [commit-check, set-variables]
+    # Decoupled from the app Docker image: publishes from a full checkout in
+    # node:24-alpine so every workspace package's source (including
+    # rn-components, which ships TypeScript source rather than dist) is
+    # present at pack time. The Docker image only contains runtime-built
+    # packages and would publish empty manifests for packages it never COPY'd.
     container:
-      image:
-        ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
-        }}
-      credentials:
-        username: ${{ vars.REGISTRY_USER }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+      image: node:24-alpine
+      options: --workdir /workspace
     steps:
+      - name: Install git and build tools
+        run: apk add --no-cache git python3 make g++
+      - name: Checkout source
+        env:
+          REF: ${{ needs.set-variables.outputs.full_sha }}
+          REG_USER: ${{ vars.REGISTRY_USER }}
+          REG_TOKEN: ${{ secrets.REGISTRY_PASSWORD }}
+        run: |
+          git init .
+          git config --global --add safe.directory /workspace
+          git remote add origin "https://code.openpeeps.org/openpeeps/openpeeps.git"
+          printf 'machine code.openpeeps.org\nlogin %s\npassword %s\n' "$REG_USER" "$REG_TOKEN" > ~/.netrc
+          chmod 600 ~/.netrc
+          git fetch origin "$REF"
+          git checkout -b main FETCH_HEAD
+      - name: Install dependencies
+        run: |
+          corepack enable
+          pnpm install
+      - name: Detect bumped packages
+        id: bumped
+        run: |
+          # On the default branch (push event), HEAD~1 is the previous main
+          # state. Compare to detect which package.json files were bumped.
+          base=$(git rev-parse --verify HEAD~1 2>/dev/null || echo HEAD)
+          bumped=$(git diff --name-only "$base" HEAD \
+            | grep -E '^([a-z]+|libraries/[a-z-]+|platform/[a-z-]+)/package\.json$' \
+            | while read -r f; do
+                case "$(dirname "$f")" in
+                  platform/common) echo common ;;
+                  platform/client) echo client ;;
+                  platform/react) echo react ;;
+                  platform/rn-components) echo rn-components ;;
+                  platform/core) echo core ;;
+                  platform/worker) echo worker ;;
+                  platform/cli) echo cli ;;
+                  platform/i18n) echo i18n ;;
+                  libraries/fetch-client) echo fetch-client ;;
+                  libraries/greenscreen) echo greenscreen ;;
+                  libraries/react-ui) echo react-ui ;;
+                  libraries/geocoder) echo geocoder ;;
+                esac
+              done | sort -u)
+          echo "bumped=$bumped" >> $FORGEJO_OUTPUT
+          echo "Bumped packages: ${bumped:-none}"
+      - name: Build bumped publishable libraries
+        if: steps.bumped.outputs.bumped != ''
+        run: |
+          # Build only bumped packages and their dependencies in topological
+          # order via deep dependency expansion. rn-components publishes
+          # TypeScript source (no dist) and is excluded from the build;
+          # its src/ is packed directly during publish.
+          build_filters=""
+          for pkg in ${{ steps.bumped.outputs.bumped }}; do
+            if [ "$pkg" != "rn-components" ]; then
+              build_filters="$build_filters --filter @openpeepshq/${pkg}..."
+            fi
+          done
+          if [ -n "$build_filters" ]; then
+            eval pnpm "$build_filters" build
+          fi
       - name: Publish npm packages
+        if: steps.bumped.outputs.bumped != ''
         env:
           # Tokens via env so shell/npmrc do not break on special chars in PATs
           FORGEJO_NPM_TOKEN: ${{ secrets.REGISTRY_PASSWORD }}
@@ -794,12 +857,13 @@ jobs:
           NODE_OPTIONS: "--max-old-space-size=12288"
         run: |
           set -e
-          cd /apat
           owner="${{ needs.set-variables.outputs.image_repo }}" && owner="${owner%%/*}"
           forgejo_registry="https://code.openpeeps.org/api/packages/${owner}/npm/"
 
-          corepack enable
-          pnpm install
+          publish_filters=""
+          for pkg in ${{ steps.bumped.outputs.bumped }}; do
+            publish_filters="$publish_filters --filter @openpeepshq/${pkg}"
+          done
 
           # Forgejo package registry (scoped @openpeepshq)
           # https://docs.gitea.com/usage/packages/npm
@@ -808,7 +872,7 @@ jobs:
             echo "//code.openpeeps.org/api/packages/${owner}/npm/:_authToken=${FORGEJO_NPM_TOKEN}"
             echo "//code.openpeeps.org/api/packages/${owner}/npm/:always-auth=true"
           } > .npmrc
-          pnpm -r publish --access private --no-git-checks --ignore-scripts
+          eval pnpm -r publish "$publish_filters" --access private --no-git-checks --ignore-scripts
 
           # npmjs.com (same versions, public scoped packages)
           if [ -z "${NPM_TOKEN}" ]; then
@@ -820,7 +884,7 @@ jobs:
             echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}"
             echo "//registry.npmjs.org/:always-auth=true"
           } > .npmrc
-          pnpm -r publish --access public --no-git-checks --ignore-scripts
+          eval pnpm -r publish "$publish_filters" --access public --no-git-checks --ignore-scripts
 
   deploy-docker:
     runs-on: docker
