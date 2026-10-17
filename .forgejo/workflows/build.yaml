@@ -796,32 +796,40 @@ jobs:
         run: |
           corepack enable
           pnpm install
-      - name: Detect bumped packages
+      - name: Detect packages to publish
         id: bumped
         run: |
-          # On the default branch (push event), HEAD~1 is the previous main
-          # state. Compare to detect which package.json files were bumped.
-          base=$(git rev-parse --verify HEAD~1 2>/dev/null || echo HEAD)
-          bumped=$(git diff --name-only "$base" HEAD \
-            | grep -E '^([a-z]+|libraries/[a-z-]+|platform/[a-z-]+)/package\.json$' \
-            | while read -r f; do
-                case "$(dirname "$f")" in
-                  platform/common) echo common ;;
-                  platform/client) echo client ;;
-                  platform/react) echo react ;;
-                  platform/rn-components) echo rn-components ;;
-                  platform/core) echo core ;;
-                  platform/worker) echo worker ;;
-                  platform/cli) echo cli ;;
-                  platform/i18n) echo i18n ;;
-                  libraries/fetch-client) echo fetch-client ;;
-                  libraries/greenscreen) echo greenscreen ;;
-                  libraries/react-ui) echo react-ui ;;
-                  libraries/geocoder) echo geocoder ;;
-                esac
-              done | sort -u)
-          echo "bumped=$bumped" >> $FORGEJO_OUTPUT
-          echo "Bumped packages: ${bumped:-none}"
+          # For each publishable package, compare its local version against
+          # what is already published on npmjs.org. If the version differs
+          # (newer locally, or not yet published), include it in the publish set.
+          bumped=""
+          for pair in \
+            "common:platform/common:@openpeepshq/common" \
+            "client:platform/client:@openpeepshq/client" \
+            "react:platform/react:@openpeepshq/react" \
+            "rn-components:platform/rn-components:@openpeepshq/rn-components" \
+            "core:platform/core:@openpeepshq/core" \
+            "worker:platform/worker:@openpeepshq/worker" \
+            "cli:platform/cli:@openpeepshq/cli" \
+            "i18n:platform/i18n:@openpeepshq/i18n" \
+            "fetch-client:libraries/fetch-client:@openpeepshq/fetch-client" \
+            "greenscreen:libraries/greenscreen:@openpeepshq/greenscreen" \
+            "react-ui:libraries/react-ui:@openpeepshq/react-ui" \
+            "geocoder:libraries/geocoder:@openpeepshq/geocoder"; do
+            short=$(echo "$pair" | cut -d: -f1)
+            dir=$(echo "$pair" | cut -d: -f2)
+            pkg=$(echo "$pair" | cut -d: -f3)
+            local_ver=$(node -p "require('./${dir}/package.json').version")
+            registry_ver=$(npm view "$pkg" version 2>/dev/null || echo "not-published")
+            if [ "$local_ver" != "$registry_ver" ]; then
+              bumped="$bumped $short"
+              echo "  $short: ${local_ver} (local) != ${registry_ver} (npm) -> publish"
+            else
+              echo "  $short: ${local_ver} (already published) -> skip"
+            fi
+          done
+          echo "bumped=${bumped}" >> $FORGEJO_OUTPUT
+          echo "Packages to publish: ${bumped:-none}"
       - name: Build bumped publishable libraries
         if: steps.bumped.outputs.bumped != ''
         run: |
