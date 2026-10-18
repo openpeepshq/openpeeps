@@ -15,6 +15,10 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **ci**: detect publishable packages by comparing versions with npm
+- **ci**: use resolvable actions/checkout ref (releases/v6 branch)
+- **ci**: use actions/checkout SHA without v-prefix in publish-packages
+- **ci**: decouple npm publish from Docker image build
 - **ci**: skip prepublishOnly scripts in publish-packages
 - **ci**: copy scripts/ dir for publish, skip tests on release branches
 - **ci**: don't gate publish-packages on publish-gate
