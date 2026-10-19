@@ -29,8 +29,8 @@ export function FullArticle({ post }: FullArticleProps) {
                 alt={article.title ? `image for ${article.title}` : 'Article'}
               />
             ) : null}
-            <div className="prose mb-6">
-              <h1>{article.title}</h1>
+            <div className="prose dark:prose-invert mb-6">
+              <h1 className="text-foreground">{article.title}</h1>
               {minutes > 0 && (
                 <p className="text-muted-foreground text-sm">
                   {t('posts.article.minutesToRead', { count: minutes })}

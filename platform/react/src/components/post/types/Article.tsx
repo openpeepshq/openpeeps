@@ -34,7 +34,7 @@ export function FeedArticle({ post }: FeedArticleProps) {
         />
       )}
       <div className="prose-sm">
-        <h3>{article.title}</h3>
+        <h3 className="text-foreground">{article.title}</h3>
         {minutes > 0 && (
           <p className="text-muted-foreground text-xs">
             {t('posts.article.minutesToRead', { count: minutes })}
