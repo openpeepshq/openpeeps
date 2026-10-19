@@ -74,6 +74,129 @@ export const listConversationRootLeafPairs = async (
   }));
 };
 
+/** The other participant when `creatorId` plus `audienceIds` is exactly two people. */
+export const oneToOneOtherId = (
+  creatorId: string,
+  audienceIds: readonly string[],
+): string | undefined => {
+  const ids = new Set(audienceIds.filter(Boolean));
+  ids.add(creatorId);
+  if (ids.size !== 2) return undefined;
+  for (const id of ids) {
+    if (id !== creatorId) return id;
+  }
+  return undefined;
+};
+
+/**
+ * Newest message in the most recently active 1-1 direct thread between two
+ * profiles. Group threads are skipped: the latest post in the thread must
+ * still be exactly this pair.
+ */
+export const findLatestOneToOneLeafId = async (
+  db: PgDb,
+  profileA: string,
+  profileB: string,
+): Promise<string | undefined> => {
+  const result = (await db.execute(sql`
+    WITH RECURSIVE pair_posts AS (
+      SELECT p.id::text AS post_id
+      FROM posts p
+      WHERE p.deleted_at IS NULL
+        AND p.visibility = 'direct'
+        AND p.creator_id IN (${profileA}, ${profileB})
+        AND NOT EXISTS (
+          SELECT 1 FROM audience ax
+          WHERE ax.from_id = p.id::text
+            AND ax.to_id <> ${profileA}
+            AND ax.to_id <> ${profileB}
+        )
+        AND (
+          p.creator_id = ${profileA}
+          OR EXISTS (
+            SELECT 1 FROM audience aa
+            WHERE aa.from_id = p.id::text AND aa.to_id = ${profileA}
+          )
+        )
+        AND (
+          p.creator_id = ${profileB}
+          OR EXISTS (
+            SELECT 1 FROM audience ab
+            WHERE ab.from_id = p.id::text AND ab.to_id = ${profileB}
+          )
+        )
+    ),
+    climb AS (
+      SELECT post_id AS start_id, post_id AS node_id, 0 AS depth
+      FROM pair_posts
+      UNION ALL
+      SELECT climb.start_id, rt.to_id, climb.depth + 1
+      FROM reply_to rt
+      INNER JOIN climb ON rt.from_id = climb.node_id
+      WHERE climb.depth < 9999
+    ),
+    roots AS (
+      SELECT DISTINCT climbed.root_id
+      FROM (
+        SELECT DISTINCT ON (start_id) node_id AS root_id
+        FROM climb
+        ORDER BY start_id, depth DESC
+      ) climbed
+      INNER JOIN posts root
+        ON root.id::text = climbed.root_id
+        AND root.deleted_at IS NULL
+        AND root.visibility = 'direct'
+    ),
+    descend AS (
+      SELECT root_id, root_id AS node_id, 0 AS depth
+      FROM roots
+      UNION ALL
+      SELECT descend.root_id, rt.from_id, descend.depth + 1
+      FROM reply_to rt
+      INNER JOIN posts child
+        ON child.id::text = rt.from_id
+        AND child.deleted_at IS NULL
+      INNER JOIN descend ON rt.to_id = descend.node_id
+      WHERE descend.depth < 9999
+    ),
+    leaves AS (
+      SELECT DISTINCT ON (root_id) root_id, node_id AS leaf_id
+      FROM descend
+      ORDER BY root_id, node_id DESC
+    )
+    SELECT leaf_id
+    FROM leaves
+    WHERE leaf_id IN (SELECT post_id FROM pair_posts)
+    ORDER BY leaf_id DESC
+    LIMIT 1
+  `)) as unknown as ExecuteResult;
+
+  const leafId = result.rows[0]?.leaf_id;
+  return typeof leafId === 'string' ? leafId : undefined;
+};
+
+/**
+ * Reply target for a new direct post. An explicit reply, a group post, or a
+ * thread that isn't 1-1 is left alone. A 1-1 note or jam continues the latest
+ * thread between that pair instead of opening another one.
+ */
+export const resolveOneToOneReplyId = async (
+  db: PgDb,
+  input: {
+    creatorId: string;
+    audienceIds: readonly string[];
+    visibility: string;
+    inReplyToId?: string | null;
+    groupId?: string | null;
+  },
+): Promise<string | undefined> => {
+  if (input.inReplyToId) return input.inReplyToId;
+  if (input.groupId || input.visibility !== 'direct') return undefined;
+  const otherId = oneToOneOtherId(input.creatorId, input.audienceIds);
+  if (!otherId) return undefined;
+  return findLatestOneToOneLeafId(db, input.creatorId, otherId);
+};
+
 /** Newest post id in a reply thread (root included); uuidv7-ordered. */
 export const findLatestThreadPostId = async (
   rootId: string,

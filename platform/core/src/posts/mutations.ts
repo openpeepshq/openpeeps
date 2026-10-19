@@ -36,7 +36,10 @@ import {
 import { postsMapping, repostRelation } from './mapping';
 import { bumpConversationActivity } from './activity';
 import { findGroup } from '../groups/finders';
-import { findLatestThreadPostId } from './conversationQueries';
+import {
+  findLatestThreadPostId,
+  resolveOneToOneReplyId,
+} from './conversationQueries';
 import { findPostsForAuth } from './finders';
 import { profilesCache } from '../profiles/cache';
 import { findOrCreateHashtag } from '../hashtags';
@@ -83,12 +86,20 @@ export const createPost = async (
 
   const { db } = await allpeepDb();
 
+  const inReplyToId = await resolveOneToOneReplyId(db, {
+    creatorId: profile.id,
+    audienceIds: (relations.audience ?? []).map((member) => member.id),
+    visibility: postData.visibility,
+    inReplyToId: relations.inReplyToId,
+    groupId: relations.groupId,
+  });
+
   const repostedPost = relations.repostId
     ? await postsMapping.find(db, relations.repostId)
     : undefined;
 
-  const repliedToPost = relations.inReplyToId
-    ? await postsMapping.find(db, relations.inReplyToId)
+  const repliedToPost = inReplyToId
+    ? await postsMapping.find(db, inReplyToId)
     : undefined;
 
   if (repliedToPost) {
@@ -120,7 +131,10 @@ export const createPost = async (
   const hashtags = extractHashtags(data);
   const id = uuidv7();
   const domain = (await config()).activityPub.defaultDomain;
-  const object = localObjectScalars(id, domain, relations.inReplyToId);
+  const linkedReplyId = repliedToPost
+    ? inReplyToId
+    : (relations.inReplyToId ?? undefined);
+  const object = localObjectScalars(id, domain, linkedReplyId);
 
   const post = await postsMapping.removeDefaultFilter().create(db, {
     id,

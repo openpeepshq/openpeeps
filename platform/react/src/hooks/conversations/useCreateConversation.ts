@@ -1,11 +1,21 @@
 import { useState } from 'react';
 import type {
   PostCreationData,
+  PublicPost,
   PublicProfile,
 } from '@openpeepshq/common/types';
 import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../../components/layout/IdentityContext';
+
+/** After a 1-1 send is appended to an existing thread, open that thread's root. */
+export const conversationIdAfterCreate = (
+  created: { id: string; inReplyToId?: string | null },
+  thread: { id: string }[] | undefined,
+): string => {
+  if (!created.inReplyToId) return created.id;
+  return thread?.[0]?.id ?? created.id;
+};
 
 export type UseCreateConversationArgs = {
   profiles?: PublicProfile[];
@@ -25,7 +35,7 @@ export const useCreateConversation = ({
 }: UseCreateConversationArgs) => {
   const navigate = useNavigate();
   const me = useCurrentProfile();
-  const { openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi, client, queryClient } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
 
   const [step, setStep] = useState(skipProfileSelection ? 2 : 1);
@@ -49,9 +59,22 @@ export const useCreateConversation = ({
           content: message.trim(),
         },
       };
-      const created = (await createPost(payload)) as { id: string };
+      const created = (await createPost(payload)) as PublicPost;
+      const found = created.inReplyToId
+        ? await client.conversations.findById({
+            pathParameters: { id: created.id },
+          })
+        : undefined;
+      const thread = found && 'data' in found ? found.data : undefined;
       onClose();
-      navigate({ type: 'conversation', id: created.id });
+      navigate({
+        type: 'conversation',
+        id: conversationIdAfterCreate(created, thread),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: client.conversations.list.queryKey({}),
+        refetchType: 'all',
+      });
     } catch (err) {
       setError((err as Error).message);
     } finally {

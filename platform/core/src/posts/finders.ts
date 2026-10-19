@@ -47,6 +47,7 @@ import { CONTEXT_NODE_CAP, loadReplyContextPosts } from './contextClosure';
 import { withSpan } from '../performance';
 import { queryUnseenPostCounts } from './unseenCounts';
 import { getConversationThread } from './conversationQueries';
+import { findReplyRootId } from './activity';
 import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';
 import { listEventAgenda } from './eventAgenda';
 
@@ -665,10 +666,22 @@ export const getConversationByEnd = async (
     sortOldestFirst<DbPost>(postsMappingForProfile(authData.profile)),
   ).then((conversation) => [...conversation, post]);
 
+/** Opening any message in a DM should show the thread from its root. */
+const conversationRoot = async (
+  post: PostWithMeta,
+  authData: AuthorizationData,
+): Promise<PostWithMeta> => {
+  if (!post.inReplyToId) return post;
+  const { db } = await allpeepDb();
+  const rootId = await findReplyRootId(db, post.id);
+  if (rootId === post.id) return post;
+  return (await findPost(rootId, authData)) ?? post;
+};
+
 export const getConversationByStart = async (
   post: PostWithMeta,
   authData: AuthorizationData,
-) => getConversationThread(post, authData);
+) => getConversationThread(await conversationRoot(post, authData), authData);
 
 /** Full ancestor/descendant trees for post detail (CTE + lean mapping). */
 export const getPostContext = async (
