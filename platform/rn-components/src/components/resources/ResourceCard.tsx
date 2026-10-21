@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { Linking, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type {
   MediaAttachmentData,
@@ -81,6 +81,12 @@ export const ResourceCard = ({
     : null;
   const thumbnail = visuals[0];
   const thumbSrc = thumbnail ? (thumbnail.previewUrl ?? thumbnail.url) : null;
+  const downloadUrl =
+    resource && resource.resourceKind === 'file'
+      ? (resource.attachments ?? []).find(
+          (att) => attachmentMediaKind(att) === 'file'
+        )?.url
+      : null;
 
   const metaText = useMemo(() => {
     if (!resource) return null;
@@ -167,13 +173,12 @@ export const ResourceCard = ({
         </View>
         <View className="flex-row items-center gap-2">
           {resource.resourceKind !== 'link' && actionLabel ? (
-            actionLabel === 'Download' &&
-            resource.attachments?.find(
-              (att) => attachmentMediaKind(att) === 'file'
-            )?.url ? (
-              <ThemedText className="text-primary text-xs font-medium">
-                {actionLabel}
-              </ThemedText>
+            actionLabel === 'Download' && downloadUrl ? (
+              <Pressable onPress={() => Linking.openURL(downloadUrl)}>
+                <ThemedText className="text-primary text-xs font-medium">
+                  {actionLabel}
+                </ThemedText>
+              </Pressable>
             ) : (
               <ThemedText className="text-muted-foreground text-xs">
                 {actionLabel}

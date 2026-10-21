@@ -115,6 +115,20 @@ steps — follow that skill.
   Keep logic in shared hooks under `platform/react/src/hooks` (exported via
   `react-native.ts`) so both sides consume the same behavior; only the
   rendering layer differs.
+
+  When mirroring a React component to the matching `rn-components`
+  component, be careful that **click/navigation parity** is not lost. On Web,
+  interactivity is often supplied by the _parent_ — an `<a>` wrapper in a list or
+  feed, or a clickable `<a>` for download links — rather than by the component
+  itself. In RN there is no `<a>` equivalent, so you must add an explicit
+  `Pressable` (with `useNavigation` → `navigate('Post', …)` or `Linking.openURL`)
+  wherever the Web version relies on an anchor or inherited `onClick`
+  (`stopPropagation` on Web maps to RN's nested-`Pressable` containment). Equally,
+  plain Web text that renders as a clickable `<a>` (e.g. a "Download" label) must
+  become a `Pressable` on RN; a bare `Text`/`ThemedText` is inert. Always ask:
+  "what makes this clickable on Web, and how do I replicate that in RN?" and verify
+  both the list-in-library and detail-screen rendering paths.
+
 - **Shell boundaries are Web-defined.** Whether a route lives in or out of the
   sidebar shell is decided by the Web router (`/events/:eventId/jam`, `/about`,
   `/code-of-conduct` sit outside it; tabs and most pages live inside it) and is

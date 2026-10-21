@@ -1,10 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, View, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ResourceKind } from '@openpeepshq/common/types';
 import { RESOURCE_KINDS } from '@openpeepshq/common/lib';
 import type { CategoryNode } from '@openpeepshq/common/lib';
 import { useResourceLibrary } from '@openpeepshq/react';
+import { MainStackParamList } from '../navigation/types/index';
 import { Input } from '../ui/input';
 import { LoadingSpinner } from '../ui/loading-spinner';
 import { ThemedText } from '../ui/themed-text';
@@ -94,6 +97,8 @@ const Tree = ({
 
 export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
   const { t } = useTranslation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const library = useResourceLibrary(groupId);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
@@ -356,13 +361,24 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
       ) : library.view === 'list' ? (
         <View className="divide-border">
           {library.posts.map((post) => (
-            <ResourceCard key={post.id} post={post} layout="list" />
+            <Pressable
+              key={post.id}
+              onPress={() => navigation.navigate('Post', { id: post.id })}
+              className="border-b border-border"
+            >
+              <ResourceCard post={post} layout="list" />
+            </Pressable>
           ))}
         </View>
       ) : (
         <ScrollView horizontal={false} contentContainerClassName="gap-4 p-4">
           {library.posts.map((post) => (
-            <ResourceCard key={post.id} post={post} layout="card" />
+            <Pressable
+              key={post.id}
+              onPress={() => navigation.navigate('Post', { id: post.id })}
+            >
+              <ResourceCard post={post} layout="card" />
+            </Pressable>
           ))}
         </ScrollView>
       )}
