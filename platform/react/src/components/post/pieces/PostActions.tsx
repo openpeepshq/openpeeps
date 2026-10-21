@@ -1,6 +1,6 @@
 import { Reply, Repeat2, ThumbsUp } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
-import { Button } from '@openpeepshq/react-ui';
+import { Button, cn } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useFeedPostActions } from '../../../hooks/posts/useFeedPostActions';
 import { postReactionStats } from '../helpers';
@@ -32,8 +32,19 @@ export function PostActions({
 
   if (!me) return null;
 
-  const actionClass =
-    'hover:bg-surface rounded-button flex gap-2 p-2 text-sm disabled:opacity-60';
+  const replyActive = !previewMode && canReply;
+  const repostActive = !previewMode && canRepost;
+  const reactActive = !previewMode && canReact;
+
+  // Unstyled buttons skip the shared disabled treatment. Mute them, and let
+  // presses fall through to this row so a feed link does not open the post.
+  const actionClass = (active: boolean) =>
+    cn(
+      'rounded-button flex gap-2 p-2 text-sm',
+      active
+        ? 'cursor-pointer hover:bg-surface'
+        : 'pointer-events-none cursor-default text-muted-foreground disabled:text-muted-foreground',
+    );
 
   const replyLabel = t('posts.footer.reply', { defaultValue: 'Reply' });
   const repostLabel = t('posts.footer.repost', { defaultValue: 'Repost' });
@@ -41,7 +52,7 @@ export function PostActions({
 
   return (
     <div
-      className="mx-auto grid w-full grid-cols-3 items-center p-2"
+      className="mx-auto grid w-full cursor-default grid-cols-3 items-center p-2"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -51,20 +62,24 @@ export function PostActions({
     >
       <Button
         variant="unstyled"
-        className={`${actionClass} justify-self-start`}
+        className={cn(actionClass(replyActive), 'justify-self-start')}
         title={t('posts.actions.reply', { defaultValue: 'Reply' })}
         action={reply}
-        disabled={previewMode || !canReply}
+        disabled={!replyActive}
       >
         <Reply className="h-4 w-4" />
         {compact ? post.replyCount || null : replyLabel}
       </Button>
       <Button
         variant="unstyled"
-        className={`${actionClass} justify-self-center ${myRepost ? 'text-primary' : ''}`}
+        className={cn(
+          actionClass(repostActive),
+          'justify-self-center',
+          myRepost && repostActive && 'text-primary',
+        )}
         title={t('posts.actions.repost', { defaultValue: 'Repost' })}
         action={toggleRepost}
-        disabled={previewMode || !canRepost}
+        disabled={!repostActive}
         spinnerOnlyOnLoading
         data-testid="posts-repost-button"
       >
@@ -73,10 +88,14 @@ export function PostActions({
       </Button>
       <Button
         variant="unstyled"
-        className={`${actionClass} justify-self-end ${iReacted ? 'text-primary' : ''}`}
+        className={cn(
+          actionClass(reactActive),
+          'justify-self-end',
+          iReacted && reactActive && 'text-primary',
+        )}
         title={t('posts.actions.react', { defaultValue: 'React' })}
         action={toggleReaction}
-        disabled={previewMode || !canReact}
+        disabled={!reactActive}
         spinnerOnlyOnLoading
       >
         <ThumbsUp className="h-4 w-4" />
