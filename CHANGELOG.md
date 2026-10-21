@@ -50,6 +50,10 @@ Changelog for OpenPeeps
 
 - **agents**: add openpeeps-pr-rebase skill
 
+### Style
+
+- update heading styles in Article components for improved readability
+
 ### CI/CD
 
 - pre-generate changelog, add build retries, fix i18n parity and warnings
