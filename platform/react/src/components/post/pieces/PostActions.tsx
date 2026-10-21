@@ -31,8 +31,20 @@ export function PostActions({
     toggleReaction,
   } = useFeedPostActions(post);
 
-  const actionClass =
-    'hover:bg-surface rounded-button flex gap-2 p-2 text-sm disabled:opacity-60';
+  const replyActive = !previewMode && canReply;
+  const repostActive = !previewMode && canRepost;
+  const reactActive = !previewMode && canReact;
+  const shareActive = !previewMode;
+
+  // Unstyled buttons skip the shared disabled treatment. Mute them, and let
+  // presses fall through to this row so a feed link does not open the post.
+  const actionClass = (active: boolean) =>
+    cn(
+      'rounded-button flex gap-2 p-2 text-sm',
+      active
+        ? 'cursor-pointer hover:bg-surface'
+        : 'pointer-events-none cursor-default text-muted-foreground disabled:text-muted-foreground',
+    );
 
   const replyLabel = t('posts.footer.reply', { defaultValue: 'Reply' });
   const repostLabel = t('posts.footer.repost', { defaultValue: 'Repost' });
@@ -41,7 +53,9 @@ export function PostActions({
 
   return (
     <div
-      className={`mx-auto flex w-full items-center p-2 ${me ? 'justify-between' : 'justify-end'}`}
+      className={`mx-auto flex w-full cursor-default items-center p-2 ${
+        me ? 'justify-between' : 'justify-end'
+      }`}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -53,20 +67,23 @@ export function PostActions({
         <>
           <Button
             variant="unstyled"
-            className={actionClass}
+            className={actionClass(replyActive)}
             title={t('posts.actions.reply', { defaultValue: 'Reply' })}
             action={reply}
-            disabled={previewMode || !canReply}
+            disabled={!replyActive}
           >
             <Reply className="h-4 w-4" />
             {compact ? post.replyCount || null : replyLabel}
           </Button>
           <Button
             variant="unstyled"
-            className={`${actionClass} ${myRepost ? 'text-primary' : ''}`}
+            className={cn(
+              actionClass(repostActive),
+              myRepost && repostActive && 'text-primary',
+            )}
             title={t('posts.actions.repost', { defaultValue: 'Repost' })}
             action={toggleRepost}
-            disabled={previewMode || !canRepost}
+            disabled={!repostActive}
             spinnerOnlyOnLoading
             data-testid="posts-repost-button"
           >
@@ -75,10 +92,13 @@ export function PostActions({
           </Button>
           <Button
             variant="unstyled"
-            className={`${actionClass} ${iReacted ? 'text-primary' : ''}`}
+            className={cn(
+              actionClass(reactActive),
+              iReacted && reactActive && 'text-primary',
+            )}
             title={t('posts.actions.react', { defaultValue: 'React' })}
             action={toggleReaction}
-            disabled={previewMode || !canReact}
+            disabled={!reactActive}
             spinnerOnlyOnLoading
           >
             <ThumbsUp className="h-4 w-4" />
@@ -93,10 +113,7 @@ export function PostActions({
       <ShareMenu
         post={post}
         variant="unstyled"
-        className={cn(
-          actionClass,
-          previewMode && 'pointer-events-none opacity-60',
-        )}
+        className={actionClass(shareActive)}
         text={compact ? undefined : shareLabel}
         menuButton={<Share className="h-4 w-4" />}
       />
