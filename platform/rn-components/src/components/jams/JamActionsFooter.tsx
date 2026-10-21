@@ -23,7 +23,8 @@ export const JamActionsFooter = ({ jamPost }: JamActionsFooterProps) => {
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
 
-  const { data: jamState } = openpeepsApi.useJamState(jamPost.id);
+  const occurrence = jamPost.occurrenceRecurrenceId;
+  const { data: jamState } = openpeepsApi.useJamState(jamPost.id, occurrence);
   const { data: serverInfo } = openpeepsApi.useServerInfo();
   const livekitEnabled = serverInfo?.jams.livekit.enabled;
 
@@ -47,7 +48,11 @@ export const JamActionsFooter = ({ jamPost }: JamActionsFooterProps) => {
           onPress={() => {
             Share.share({
               message: t('posts.actions.shareMessage'),
-              url: `${BASE_URL}/events/${jamPost.id}/jam`,
+              url: `${BASE_URL}/events/${jamPost.id}/jam${
+                occurrence
+                  ? `?occurrence=${encodeURIComponent(occurrence)}`
+                  : ''
+              }`,
             });
           }}
         >
@@ -70,6 +75,7 @@ export const JamActionsFooter = ({ jamPost }: JamActionsFooterProps) => {
           onPress={() => {
             navigation.navigate('JamSession', {
               jamId: jamPost.id,
+              occurrence,
             });
           }}
         >

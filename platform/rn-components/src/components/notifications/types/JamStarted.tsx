@@ -16,15 +16,25 @@ export const JamStarted: React.FC<NotificationTypeProps> = ({
 }) => {
   const profile = notification.senderProfile!;
   const { t } = useTranslation();
+  const eventName =
+    notification.post?.data?.type === 'event'
+      ? notification.post.data.name?.trim()
+      : undefined;
 
   return (
     <NotificationWrapper profile={profile} seen={notification.seen}>
       <View className="w-full">
         <View className="mb-2 min-w-0 flex-row flex-wrap items-center gap-2">
           <ThemedText className="shrink">
-            {t('notification.jamStarted.text', {
-              profileName: profileName(profile),
-            })}
+            {t(
+              eventName
+                ? 'notification.jamStarted.text'
+                : 'notification.jamStarted.textNoEvent',
+              {
+                profileName: profileName(profile),
+                eventName,
+              }
+            )}
           </ThemedText>
           <UpdatingDate date={notification.createdAt} />
         </View>

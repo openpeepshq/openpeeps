@@ -3199,7 +3199,8 @@
       "text": "{{profileName}} invited you to moderate an event"
     },
     "jamStarted": {
-      "text": "{{profileName}} started a jam at"
+      "text": "{{profileName}} started a jam: {{eventName}}",
+      "textNoEvent": "{{profileName}} started a jam"
     },
     "newGroupInvitation": {
       "text": "You have been added to the group  "

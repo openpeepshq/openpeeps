@@ -627,21 +627,42 @@ function JamNotification({
   const t = useT();
   const profile = notification.senderProfile!;
   const name = profileName(profile);
-  const message = t(`notification.${notification.type}.text`, {
-    defaultValue: `${name} — ${notification.type}`,
-    profileName: name,
-    groupName: notification.group?.displayName,
-  });
+  const eventName =
+    notification.post?.data?.type === 'event'
+      ? notification.post.data.name?.trim()
+      : undefined;
+  const message = t(
+    notification.type === 'jamStarted'
+      ? eventName
+        ? 'notification.jamStarted.text'
+        : 'notification.jamStarted.textNoEvent'
+      : `notification.${notification.type}.text`,
+    {
+      defaultValue:
+        notification.type === 'jamStarted'
+          ? eventName
+            ? '{{profileName}} started a jam: {{eventName}}'
+            : '{{profileName}} started a jam'
+          : `${name} — ${notification.type}`,
+      profileName: name,
+      groupName: notification.group?.displayName,
+      eventName,
+    },
+  );
+  const postId = notification.post?.id;
+  const occurrence = notification.post?.occurrenceRecurrenceId;
+  const href = postId
+    ? `/posts/${postId}${
+        occurrence ? `?occurrence=${encodeURIComponent(occurrence)}` : ''
+      }`
+    : `/posts/${postId}`;
   return (
     <NotificationWrapper
       profile={profile}
       group={notification.group}
       seen={notification.seen}
     >
-      <a
-        href={`/posts/${notification.post?.id}`}
-        className="block w-full px-4 py-2"
-      >
+      <a href={href} className="block w-full px-4 py-2">
         <p className="mb-2 flex items-center gap-2 text-sm font-semibold">
           {message}
           <span className="text-muted-foreground text-xs font-normal">
