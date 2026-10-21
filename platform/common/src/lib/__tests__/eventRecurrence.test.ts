@@ -6,6 +6,7 @@ import {
   defaultRsvpRecurrenceId,
   eventRsvpOpen,
   listRsvpOccurrences,
+  occurrenceForJamStart,
   occurrenceHasEnded,
   occurrencesForIndex,
   previewUpcomingOccurrences,
@@ -270,6 +271,39 @@ describe('defaultRsvpRecurrenceId', () => {
       listRsvpOccurrences(event, new Date('2026-09-08T17:02:00.000Z'))[0]
         ?.recurrenceId,
     ).toBe('2026-09-15T16:00:00.000Z');
+  });
+});
+
+describe('occurrenceForJamStart', () => {
+  const weekly = baseEvent({
+    start: '2026-08-27T06:00:00.000Z',
+    end: '2026-08-27T07:00:00.000Z',
+    recurrence: { freq: 'WEEKLY' },
+  });
+
+  it('uses the opened occurrence instead of the series start', () => {
+    const occurrence = occurrenceForJamStart(weekly, {
+      recurrenceId: '2026-10-01T06:00:00.000Z',
+      at: new Date('2026-10-01T12:04:15.000Z'),
+    });
+    expect(occurrence?.recurrenceId).toBe('2026-10-01T06:00:00.000Z');
+    expect(occurrence?.start).toBe('2026-10-01T06:00:00.000Z');
+  });
+
+  it('uses the occurrence open when the jam starts', () => {
+    const during = occurrenceForJamStart(weekly, {
+      at: new Date('2026-10-01T06:30:00.000Z'),
+    });
+    expect(during?.start).toBe('2026-10-01T06:00:00.000Z');
+
+    const after = occurrenceForJamStart(weekly, {
+      at: new Date('2026-10-01T12:04:15.000Z'),
+    });
+    expect(after?.start).toBe('2026-10-08T06:00:00.000Z');
+  });
+
+  it('returns nothing for a one-off event', () => {
+    expect(occurrenceForJamStart(baseEvent())).toBeUndefined();
   });
 });
 

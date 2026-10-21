@@ -361,6 +361,25 @@ export const defaultRsvpRecurrenceId = (
   return listRsvpOccurrences(event, now)[0]?.recurrenceId;
 };
 
+/**
+ * Occurrence a jam-start notification should show. The id the jam was opened
+ * with wins; otherwise the occurrence still open at `at`. A series must not
+ * fall back to its first date.
+ */
+export const occurrenceForJamStart = (
+  event: Event,
+  options?: { recurrenceId?: string; at?: Date },
+): ExpandedOccurrence | undefined => {
+  if (!event.recurrence) return undefined;
+  const at = options?.at ?? new Date();
+  const requested = options?.recurrenceId?.trim();
+  if (requested) {
+    const match = findExpandedOccurrence(event, requested);
+    if (match && !match.cancelled) return match;
+  }
+  return listRsvpOccurrences(event, at)[0];
+};
+
 export const previewUpcomingOccurrences = (
   event: Event,
   count = 3,

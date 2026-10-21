@@ -33,6 +33,11 @@ export const listJamEvents = (
     baseListJam({ jamId }, { start, limit }).all(db),
   );
 
+export const listJamStarts = (jamId: string) =>
+  allpeepDb().then(({ db }) =>
+    baseListJam({ jamId, type: 'start' }, { limit: 200 }).all(db),
+  );
+
 export const listAttendance = (
   jamId: string,
   { start, limit }: { start?: string; limit?: number } = {},

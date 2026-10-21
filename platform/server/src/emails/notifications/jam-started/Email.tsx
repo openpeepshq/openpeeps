@@ -43,7 +43,11 @@ export const JamStartedEmail = ({
 
       <Section style={emailStyles.ctaContainer}>
         <Button
-          href={getJamUrl(locals.post.id, globals.serverData.rootUrl)}
+          href={getJamUrl(
+            locals.post.id,
+            globals.serverData.rootUrl,
+            locals.post.occurrenceRecurrenceId,
+          )}
           style={emailStyles.button}
         >
           {t('emails.jamStarted.cta')}

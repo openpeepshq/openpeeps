@@ -3183,7 +3183,8 @@
       "text": "{{profileName}} hat Sie zur Moderation einer Veranstaltung eingeladen"
     },
     "jamStarted": {
-      "text": "{{profileName}} hat einen Jam gestartet um"
+      "text": "{{profileName}} hat einen Jam gestartet: {{eventName}}",
+      "textNoEvent": "{{profileName}} hat einen Jam gestartet"
     },
     "newGroupInvitation": {
       "text": "Sie wurden zur Gruppe hinzugefügt  "
