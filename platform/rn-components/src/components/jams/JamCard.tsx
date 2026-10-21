@@ -30,7 +30,9 @@ export const JamCard = ({ jamPost, type = 'upcoming' }: JamCardProps) => {
             <View className="min-w-0 flex-1 flex-col gap-y-3">
               <View className="flex-row flex-wrap items-center gap-x-1">
                 <ThemedText>Happening</ThemedText>
-                <UpdatingDate date={jamEvent?.start} />
+                <UpdatingDate
+                  date={jamPost.occurrenceStart ?? jamEvent?.start}
+                />
               </View>
               <ThemedText className="text-lg font-semibold">
                 {jamEvent?.name || 'Jam'}

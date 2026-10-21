@@ -10,6 +10,7 @@ import {
   getEffectiveRsvp,
   isBlockedPair,
   jamRoomName,
+  occurrenceForJamStart,
 } from '@openpeepshq/common/lib';
 import { authNeeded, forbidden, notFound } from '../errors';
 import { config } from '../config';
@@ -198,7 +199,11 @@ export const createJamToken = async (
   });
 
   if (!jamOpen) {
-    hub.emit('jamStarted', profile, event);
+    const eventData = event.data?.type === 'event' ? event.data : undefined;
+    const startedOccurrenceId = eventData
+      ? occurrenceForJamStart(eventData, { recurrenceId })?.recurrenceId
+      : undefined;
+    hub.emit('jamStarted', profile, event, startedOccurrenceId);
   }
 
   return accessToken.toJwt();
