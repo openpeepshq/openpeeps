@@ -10,7 +10,12 @@ import {
   UnseenPostCounts,
 } from '@openpeepshq/common/types';
 import { ProfileWithMeta } from '@openpeepshq/common/types';
-import { blockedPairIds, isBlockedPair } from '@openpeepshq/common/lib';
+import {
+  blockedPairIds,
+  isBlockedPair,
+  isOneToOneDm,
+  participantIds,
+} from '@openpeepshq/common/lib';
 import { allpeepDb, collectionInfos } from '../db';
 import { edgeFilters, postFilters } from '../db/pg/filters';
 import {
@@ -46,7 +51,11 @@ import { profilesMapping } from '../profiles/mapping';
 import { CONTEXT_NODE_CAP, loadReplyContextPosts } from './contextClosure';
 import { withSpan } from '../performance';
 import { queryUnseenPostCounts } from './unseenCounts';
-import { getConversationThread } from './conversationQueries';
+import {
+  getConversationThread,
+  getOneToOneConversation,
+  listOneToOneConversationPostIds,
+} from './conversationQueries';
 import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';
 import { listEventAgenda } from './eventAgenda';
 
@@ -665,10 +674,36 @@ export const getConversationByEnd = async (
     sortOldestFirst<DbPost>(postsMappingForProfile(authData.profile)),
   ).then((conversation) => [...conversation, post]);
 
+/**
+ * 1:1 conversations can span several roots (new messages to the same person,
+ * federated posts): answer with the merged conversation across all roots so
+ * any root — or even the system "left" post — of the pair resolves to the
+ * same view. Group conversations stay per root.
+ */
 export const getConversationByStart = async (
   post: PostWithMeta,
   authData: AuthorizationData,
-) => getConversationThread(post, authData);
+) => {
+  if (isOneToOneDm(post)) {
+    const conversation = await getOneToOneConversation(post, authData);
+    if (conversation.length > 0) return conversation;
+  }
+  return getConversationThread(post, authData);
+};
+
+/** Newest post across all roots of a 1:1 conversation (uuidv7-ordered). */
+export const findLatestOneToOnePostId = async (
+  post: PostWithMeta,
+): Promise<string> => {
+  const { db } = await allpeepDb();
+  const [profileAId, profileBId] = [...participantIds(post)];
+  const ids = await listOneToOneConversationPostIds(
+    db,
+    profileAId!,
+    profileBId!,
+  );
+  return ids[ids.length - 1] ?? post.id;
+};
 
 /** Full ancestor/descendant trees for post detail (CTE + lean mapping). */
 export const getPostContext = async (

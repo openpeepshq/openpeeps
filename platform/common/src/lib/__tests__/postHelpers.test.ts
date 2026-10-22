@@ -30,6 +30,7 @@ import {
   toHiddenPost,
   isHiddenPost,
   isOneToOneWithBlocked,
+  isOneToOneDm,
   HIDDEN_AUTHOR_HANDLE,
 } from '../postHelpers';
 import { groupCapabilityTemplates } from '../groupHelpers';
@@ -1304,6 +1305,41 @@ describe('postHelpers', () => {
       expect(
         isOneToOneWithBlocked(dm, { id: 'profile1' }, new Set(['other'])),
       ).toBe(false);
+    });
+
+    it('detects 1:1 direct messages by participant set', () => {
+      const dm = {
+        ...mockPost,
+        visibility: 'direct' as const,
+        profile: { id: 'profile1' } as PublicProfile,
+        audience: [
+          { id: 'profile1' } as PublicProfile,
+          { id: 'profile2' } as PublicProfile,
+        ],
+      };
+      expect(isOneToOneDm(dm)).toBe(true);
+
+      const groupDm = {
+        ...dm,
+        audience: [
+          { id: 'profile1' } as PublicProfile,
+          { id: 'profile2' } as PublicProfile,
+          { id: 'profile3' } as PublicProfile,
+        ],
+      };
+      expect(isOneToOneDm(groupDm)).toBe(false);
+
+      const soloDm = {
+        ...dm,
+        audience: [{ id: 'profile1' } as PublicProfile],
+      };
+      expect(isOneToOneDm(soloDm)).toBe(false);
+
+      const publicPost = {
+        ...dm,
+        visibility: 'public' as const,
+      };
+      expect(isOneToOneDm(publicPost)).toBe(false);
     });
   });
 });

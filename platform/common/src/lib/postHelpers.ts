@@ -754,7 +754,7 @@ export const toHiddenPost = <
 export const isHiddenPost = (post: { hidden?: boolean }): boolean =>
   !!post.hidden;
 
-const participantIds = (
+export const participantIds = (
   post: Pick<PublicPost, 'audience' | 'profile'> & { creatorId?: string },
 ): Set<string> => {
   const ids = new Set(
@@ -764,6 +764,13 @@ const participantIds = (
   if (creatorId) ids.add(creatorId);
   return ids;
 };
+
+/** Direct message between exactly two participants. */
+export const isOneToOneDm = (
+  post: Pick<PublicPost, 'visibility' | 'audience' | 'profile'> & {
+    creatorId?: string;
+  },
+): boolean => post.visibility === 'direct' && participantIds(post).size === 2;
 
 export const isOneToOneWithBlocked = (
   post: Pick<PublicPost, 'visibility' | 'audience' | 'profile'> & {

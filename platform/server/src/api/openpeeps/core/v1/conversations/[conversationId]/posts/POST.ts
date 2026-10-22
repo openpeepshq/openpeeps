@@ -10,11 +10,13 @@ import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import {
   createPost,
+  findLatestOneToOnePostId,
   findLatestThreadPostId,
   findPost,
   findPostsForAuth,
 } from '@openpeepshq/core/posts';
 import { postCreationDataSchema } from '@openpeepshq/common/types';
+import { isOneToOneDm } from '@openpeepshq/common/lib';
 
 export const Input = postCreationDataSchema;
 export const Output = publicPostSchema;
@@ -38,7 +40,12 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
 
     await ensurePostCapabilities(event, post, ['core-posts-reply']);
 
-    const lastPostId = await findLatestThreadPostId(post.id);
+    // 1:1 conversations can span several roots; reply to the newest post
+    // across all of them so the message lands at the end of the merged
+    // conversation and leaver-exclusion keeps working.
+    const lastPostId = isOneToOneDm(post)
+      ? await findLatestOneToOnePostId(post)
+      : await findLatestThreadPostId(post.id);
     const [lastPost] =
       lastPostId === post.id
         ? [post]

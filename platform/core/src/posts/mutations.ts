@@ -36,7 +36,10 @@ import {
 import { postsMapping, repostRelation } from './mapping';
 import { bumpConversationActivity } from './activity';
 import { findGroup } from '../groups/finders';
-import { findLatestThreadPostId } from './conversationQueries';
+import {
+  findLatestThreadPostId,
+  listOneToOneConversationRootLeaves,
+} from './conversationQueries';
 import { findPostsForAuth } from './finders';
 import { profilesCache } from '../profiles/cache';
 import { findOrCreateHashtag } from '../hashtags';
@@ -49,8 +52,10 @@ import {
   eventDataForDbUpdate,
   getEffectiveRsvp,
   instanceRsvpIdsForProfile,
-  overlaySeriesRsvpEntries,
+  isOneToOneDm,
   normalizeEventDataForSave,
+  overlaySeriesRsvpEntries,
+  participantIds,
   passThroughUndefined,
   rsvpCancelNotice,
   sameRecurrenceId,
@@ -517,7 +522,7 @@ export const rsvpManageByOrganizer = async (
 };
 
 /**
- * Remove a profile from a direct-message conversation thread.
+ * Remove a profile from a direct-message conversation.
  *
  * - Creates a system "X left" post (empty content) with the *remaining*
  *   participants as audience. The leaving user is excluded so future
@@ -528,10 +533,12 @@ export const rsvpManageByOrganizer = async (
  * - The conversation post-creation endpoint detects leavers (author not in
  *   their own post's audience) to block further posting and exclude them
  *   from future replies' audience.
- * - For 1:1 DMs (no remaining participants), removes the user from every
- *   post's audience so the thread vanishes from their inbox.
- * - The leaving user can still find the thread in the "Archived" conversations
- *   tab, detected by posts they authored but are not in.
+ * - A 1:1 conversation can span several roots, so each root's thread gets
+ *   its own "left" post — otherwise the leaver's inbox would keep the
+ *   threads whose newest post is still in their audience.
+ * - When the newest post's audience holds no one but the leaver (everyone
+ *   else already left), removes the leaver from every post's audience of
+ *   that root's thread instead of posting again.
  */
 export const leaveConversation = async (
   rootPost: PostWithMeta,
@@ -539,7 +546,22 @@ export const leaveConversation = async (
 ): Promise<void> => {
   const { db } = await allpeepDb();
 
-  const lastPostId = await findLatestThreadPostId(rootPost.id);
+  const participants = [...participantIds(rootPost)];
+  const isOneToOne = isOneToOneDm(rootPost);
+  const rootLeaves = isOneToOne
+    ? await listOneToOneConversationRootLeaves(
+        db,
+        participants[0]!,
+        participants[1]!,
+      )
+    : [];
+
+  const lastPostId = rootLeaves.length
+    ? rootLeaves.reduce(
+        (latest, { leafId }) => (leafId > latest ? leafId : latest),
+        rootPost.id,
+      )
+    : await findLatestThreadPostId(rootPost.id);
   const [lastPost] =
     lastPostId === rootPost.id
       ? [rootPost]
@@ -550,7 +572,26 @@ export const leaveConversation = async (
   const remainingAudience =
     lastPost.audience?.filter((p) => p.id !== profile.id) ?? [];
 
-  if (remainingAudience.length > 0) {
+  if (isOneToOne) {
+    // Terminate every root's thread with the system "left" post so the
+    // conversation vanishes from the leaver's inbox under all roots. The
+    // fallback below covers a pair whose root does not match the pair
+    // condition (e.g. legacy rows) and falls back to the requested thread.
+    const leaves = rootLeaves.length
+      ? rootLeaves
+      : [{ rootId: rootPost.id, leafId: lastPostId }];
+    for (const { leafId } of leaves) {
+      await createPost(
+        { type: 'note', content: '' },
+        profile,
+        { type: 'note', visibility: 'direct', creatorId: profile.id },
+        {
+          inReplyToId: leafId,
+          audience: remainingAudience as unknown as Profile[],
+        },
+      );
+    }
+  } else if (remainingAudience.length > 0) {
     await createPost(
       { type: 'note', content: '' },
       profile,
@@ -561,8 +602,8 @@ export const leaveConversation = async (
       },
     );
   } else {
-    // 1:1 DM — remove the user from every post's audience so the
-    // thread no longer appears in their inbox.
+    // No one remains in the newest post's audience — remove the leaver from
+    // every post's audience so the thread no longer appears in their inbox.
     await db.execute(sql`
       WITH RECURSIVE t AS (
         SELECT ${rootPost.id}::text AS id, 0 AS depth
