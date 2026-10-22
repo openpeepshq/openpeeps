@@ -15,6 +15,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **rn-components**: make resources clickable and viewable in resource library and list
 - **ci**: detect publishable packages by comparing versions with npm
 - **ci**: use resolvable actions/checkout ref (releases/v6 branch)
 - **ci**: use actions/checkout SHA without v-prefix in publish-packages
