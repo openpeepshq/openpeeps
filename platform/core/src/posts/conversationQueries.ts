@@ -3,11 +3,13 @@ import type {
   AuthorizationData,
   DbPost,
   PostWithMeta,
+  ProfileWithMeta,
 } from '@openpeepshq/common/types';
 import {
   blockedPairIds,
-  getUniqueBy,
+  isOneToOneDm,
   isOneToOneWithBlocked,
+  participantIds,
   toHiddenPost,
 } from '@openpeepshq/common/lib';
 import { allpeepDb } from '../db';
@@ -151,18 +153,67 @@ export const listConversationPreviews = async (
   const ids = [...new Set(pairs.flatMap((pair) => [pair.rootId, pair.leafId]))];
   const byId = await hydrateLeanPostsByIds(authData, ids);
   const blocked = new Set(blockedPairIds(profile));
-  return getUniqueBy(
-    pairs
-      .map(({ rootId, leafId }) => {
-        const root = byId.get(rootId);
-        const leaf = byId.get(leafId);
-        if (!root || !leaf) return null;
-        if (isOneToOneWithBlocked(root, profile, blocked)) return null;
-        return rootId === leafId ? [root] : [root, leaf];
-      })
-      .filter((conversation): conversation is PostWithMeta[] => !!conversation),
-    (conversation) => conversation[0]!.id,
+  return mergeOneToOnePreviews(
+    conversationPreviewsFromPairs(pairs, byId, profile, blocked),
   );
+};
+
+const conversationPreviewsFromPairs = (
+  pairs: RootLeafPair[],
+  byId: Map<string, PostWithMeta>,
+  profile: ProfileWithMeta,
+  blocked: Set<string>,
+): PostWithMeta[][] =>
+  pairs
+    .map(({ rootId, leafId }) => {
+      const root = byId.get(rootId);
+      const leaf = byId.get(leafId);
+      if (!root || !leaf) return null;
+      if (isOneToOneWithBlocked(root, profile, blocked)) return null;
+      return rootId === leafId ? [root] : [root, leaf];
+    })
+    .filter((conversation): conversation is PostWithMeta[] => !!conversation);
+
+const oneToOnePairKey = (post: PostWithMeta) =>
+  [...participantIds(post)].sort().join(',');
+
+const byIdAsc = (a: PostWithMeta, b: PostWithMeta) =>
+  a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+
+/**
+ * Collapse 1:1 previews sharing a participant pair into one entry
+ * [oldest root, newest leaf] so a conversation with several roots lists
+ * once. The oldest root (min uuidv7) is the pair's stable conversation id;
+ * it must match the key the unseen counts are merged under. Other
+ * conversations pass through. Result is ordered newest-leaf first.
+ */
+export const mergeOneToOnePreviews = (
+  conversations: PostWithMeta[][],
+): PostWithMeta[][] => {
+  const merged: PostWithMeta[][] = [];
+  const byPair = new Map<string, PostWithMeta[][]>();
+  for (const conversation of conversations) {
+    const root = conversation[0]!;
+    if (!isOneToOneDm(root)) {
+      merged.push(conversation);
+      continue;
+    }
+    const pairKey = oneToOnePairKey(root);
+    const entries = byPair.get(pairKey) ?? [];
+    entries.push(conversation);
+    byPair.set(pairKey, entries);
+  }
+  for (const entries of byPair.values()) {
+    const root = entries
+      .map((conversation) => conversation[0]!)
+      .sort(byIdAsc)[0]!;
+    const leaf = entries
+      .map((conversation) => conversation[conversation.length - 1]!)
+      .sort(byIdAsc)
+      .at(-1)!;
+    merged.push(root.id === leaf.id ? [root] : [root, leaf]);
+  }
+  return merged.sort((a, b) => byIdAsc(b[b.length - 1]!, a[a.length - 1]!));
 };
 
 /**
@@ -221,17 +272,8 @@ export const listLeftConversations = async (
   const byId = await hydrateLeanPostsByIds(authData, ids);
   const blocked = new Set(blockedPairIds(profile));
 
-  return getUniqueBy(
-    pairs
-      .map(({ rootId, leafId }) => {
-        const root = byId.get(rootId);
-        const leaf = byId.get(leafId);
-        if (!root || !leaf) return null;
-        if (isOneToOneWithBlocked(root, profile, blocked)) return null;
-        return rootId === leafId ? [root] : [root, leaf];
-      })
-      .filter((conversation): conversation is PostWithMeta[] => !!conversation),
-    (conversation) => conversation[0]!.id,
+  return mergeOneToOnePreviews(
+    conversationPreviewsFromPairs(pairs, byId, profile, blocked),
   );
 };
 
@@ -254,7 +296,128 @@ export const getConversationThread = async (
   const ordered = newestIds
     .map((id) => byId.get(id))
     .filter((post): post is PostWithMeta => !!post)
-    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    .sort(byIdAsc);
 
   return [root, ...ordered.filter((post) => post.id !== root.id)];
+};
+
+/**
+ * Non-deleted direct post whose participants (audience ∪ creator) are
+ * exactly the pair — tolerates legacy rows where the creator is not in the
+ * audience edge set.
+ */
+const oneToOnePairPost = (profileAId: string, profileBId: string) => sql`
+  p.visibility = 'direct'
+  AND p.deleted_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM audience a
+    WHERE a.from_id = p.id::text
+      AND a.to_id <> ${profileAId}
+      AND a.to_id <> ${profileBId}
+  )
+  AND (p.creator_id = ${profileAId} OR EXISTS (
+    SELECT 1 FROM audience a
+    WHERE a.from_id = p.id::text AND a.to_id = ${profileAId}
+  ))
+  AND (p.creator_id = ${profileBId} OR EXISTS (
+    SELECT 1 FROM audience a
+    WHERE a.from_id = p.id::text AND a.to_id = ${profileBId}
+  ))
+`;
+
+/**
+ * All post ids in the 1:1 conversation between two profiles, oldest first:
+ * every post of the pair, plus their reply descendants (e.g. system "left"
+ * posts, whose participants are only the remaining participant and which
+ * are reachable as descendants only). Ids are uuidv7, so ordering is
+ * chronological.
+ */
+export const listOneToOneConversationPostIds = async (
+  db: PgDb,
+  profileAId: string,
+  profileBId: string,
+): Promise<string[]> => {
+  const result = (await db.execute(sql`
+    WITH RECURSIVE start AS (
+      SELECT p.id::text AS id
+      FROM posts p
+      WHERE ${oneToOnePairPost(profileAId, profileBId)}
+    ),
+    walk AS (
+      SELECT id FROM start
+      UNION ALL
+      SELECT rt.from_id::text
+      FROM reply_to rt
+      INNER JOIN walk ON rt.to_id = walk.id
+    )
+    SELECT DISTINCT id FROM walk
+    ORDER BY id
+  `)) as unknown as ExecuteResult;
+
+  return result.rows.map((row) => row.id as string);
+};
+
+/**
+ * Per root of a 1:1 conversation: the root id and that thread's newest post
+ * (leaf). Used to terminate every root's thread on leave.
+ */
+export const listOneToOneConversationRootLeaves = async (
+  db: PgDb,
+  profileAId: string,
+  profileBId: string,
+): Promise<Array<{ rootId: string; leafId: string }>> => {
+  const result = (await db.execute(sql`
+    WITH RECURSIVE start AS (
+      SELECT p.id::text AS root_id, p.id::text AS node_id
+      FROM posts p
+      WHERE ${oneToOnePairPost(profileAId, profileBId)}
+        AND NOT EXISTS (
+          SELECT 1 FROM reply_to rt
+          WHERE rt.from_id = p.id::text
+        )
+    ),
+    walk AS (
+      SELECT root_id, node_id FROM start
+      UNION ALL
+      SELECT walk.root_id, rt.from_id::text
+      FROM reply_to rt
+      INNER JOIN walk ON rt.to_id = walk.node_id
+    )
+    SELECT DISTINCT ON (root_id) root_id, node_id AS leaf_id
+    FROM walk
+    ORDER BY root_id, node_id DESC
+  `)) as unknown as ExecuteResult;
+
+  return result.rows.map((row) => ({
+    rootId: row.root_id as string,
+    leafId: row.leaf_id as string,
+  }));
+};
+
+/**
+ * Merged 1:1 conversation: every message for the pair across all roots,
+ * oldest first. Any post of the conversation (typically the root in the URL)
+ * resolves to the same list. Capped like {@link getConversationThread}:
+ * the oldest message plus the newest CONTEXT_NODE_CAP others.
+ */
+export const getOneToOneConversation = async (
+  post: PostWithMeta,
+  authData: AuthorizationData,
+): Promise<PostWithMeta[]> => {
+  const { db } = await allpeepDb();
+  const [profileAId, profileBId] = [...participantIds(post)];
+  const ids = await listOneToOneConversationPostIds(
+    db,
+    profileAId!,
+    profileBId!,
+  );
+  if (ids.length === 0) return [];
+  const capped =
+    ids.length > CONTEXT_NODE_CAP + 1
+      ? [ids[0]!, ...ids.slice(-CONTEXT_NODE_CAP)]
+      : ids;
+  const byId = await hydrateLeanPostsByIds(authData, [...new Set(capped)]);
+  return capped
+    .map((id) => byId.get(id))
+    .filter((message): message is PostWithMeta => !!message);
 };

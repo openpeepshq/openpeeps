@@ -139,6 +139,17 @@ export function ConversationShow() {
     };
   }, [id, client, queryClient, flushPostViews]);
 
+  // The URL may point at any root of a merged 1:1 conversation (e.g.
+  // notification links); unseen counts are merged under the pair's oldest
+  // root, so clear that key once the conversation's first message is known.
+  const firstMessageId = messages[0]?.id;
+  useEffect(() => {
+    if (!id || !firstMessageId || firstMessageId === id) return;
+    adjustUnseenCounts(queryClient, client, {
+      clearConversation: firstMessageId,
+    });
+  }, [id, firstMessageId, client, queryClient]);
+
   useEffect(() => {
     if (!id || !me || conversationQuery.isLoading) return;
     const unseenIds = messages

@@ -122,6 +122,70 @@ export const countUnseenDirectPosts = async (
   );
 };
 
+/**
+ * Merge 1:1 direct counts into the pair's oldest root key so a conversation
+ * with several roots keeps one badge. The key must match the inbox preview's
+ * canonical id (min uuidv7 root); non-1:1 roots keep their own key.
+ */
+export const mergeOneToOneDirectCounts = async (
+  db: PgDb,
+  counts: Record<string, number>,
+): Promise<Record<string, number>> => {
+  const countedRootIds = Object.keys(counts);
+  if (countedRootIds.length === 0) return counts;
+
+  const result = (await db.execute(sql`
+    WITH counted AS (
+      SELECT p.id::text AS root_id,
+             string_agg(a.to_id, ',' ORDER BY a.to_id) AS pair
+      FROM posts p
+      INNER JOIN audience a ON a.from_id = p.id::text
+      WHERE p.id::text IN (${sql.join(
+        countedRootIds.map((id) => sql`${id}`),
+        sql`, `,
+      )})
+      GROUP BY p.id
+      HAVING count(*) = 2
+    ),
+    pair_roots AS (
+      SELECT p2.id::text AS root_id,
+             string_agg(a2.to_id, ',' ORDER BY a2.to_id) AS pair
+      FROM posts p2
+      INNER JOIN audience a2 ON a2.from_id = p2.id::text
+      WHERE p2.visibility = 'direct'
+        AND p2.deleted_at IS NULL
+        AND NOT EXISTS (
+          SELECT 1 FROM reply_to rt
+          WHERE rt.from_id = p2.id::text
+        )
+      GROUP BY p2.id
+      HAVING count(*) = 2
+    ),
+    canonical AS (
+      SELECT pair, min(root_id)::text AS canonical_root_id
+      FROM pair_roots
+      GROUP BY pair
+    )
+    SELECT c.root_id, canonical.canonical_root_id
+    FROM counted c
+    INNER JOIN canonical ON canonical.pair = c.pair
+  `)) as unknown as ExecuteResult;
+
+  const canonicalByRoot = new Map(
+    result.rows.map(
+      (row) =>
+        [row.root_id as string, row.canonical_root_id as string] as const,
+    ),
+  );
+
+  const merged: Record<string, number> = {};
+  for (const [rootId, count] of Object.entries(counts)) {
+    const key = canonicalByRoot.get(rootId) ?? rootId;
+    merged[key] = (merged[key] ?? 0) + count;
+  }
+  return merged;
+};
+
 export const queryUnseenPostCounts = async (
   db: PgDb,
   profileId: string,
@@ -131,5 +195,5 @@ export const queryUnseenPostCounts = async (
     countUnseenGroupPosts(db, profileId, groupIds),
     countUnseenDirectPosts(db, profileId),
   ]);
-  return { groups, direct };
+  return { groups, direct: await mergeOneToOneDirectCounts(db, direct) };
 };

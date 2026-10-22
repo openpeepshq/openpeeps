@@ -13,6 +13,9 @@ export {
 export {
   listConversationPreviews,
   getConversationThread,
+  getOneToOneConversation,
+  listOneToOneConversationPostIds,
+  listOneToOneConversationRootLeaves,
   findLatestThreadPostId,
   listLeftConversations,
 } from './conversationQueries';
