@@ -364,6 +364,7 @@
       "undo": "Rückgängig"
     },
     "menu": {
+      "title": "Beitrag-Menü",
       "reposts": "Geteilte Beiträge",
       "reactions": "Reaktionen"
     },
