@@ -365,6 +365,7 @@
       "undo": "Undo"
     },
     "menu": {
+      "title": "Post menu",
       "reposts": "Reposts",
       "reactions": "Reactions"
     },
