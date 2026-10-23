@@ -5,6 +5,15 @@ import { useCurrentProfile } from '../../components/layout/IdentityContext';
 
 export type EventIcsFile = { filename: string; content: string };
 
+/** Canonical public path for a post, including a recurring event occurrence. */
+export const postPublicPath = (
+  post: Pick<PublicPost, 'id' | 'occurrenceRecurrenceId'>,
+) => {
+  const occurrence = post.occurrenceRecurrenceId;
+  if (!occurrence) return `/posts/${post.id}`;
+  return `/posts/${post.id}?occurrence=${encodeURIComponent(occurrence)}`;
+};
+
 /** Share actions for a post; `postUrl` is the platform's canonical public link. */
 export const useShareMenu = (post: PublicPost, postUrl: string) => {
   const me = useCurrentProfile();

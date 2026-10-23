@@ -2,10 +2,16 @@ import React from 'react';
 import { View } from 'react-native';
 import { Button } from '../../ui/button';
 import { ThemedText } from '../../ui/themed-text';
-import { Repeat2Icon, ReplyIcon, ThumbsUpIcon } from '../../icons/index';
+import {
+  Repeat2Icon,
+  ReplyIcon,
+  ShareIcon,
+  ThumbsUpIcon,
+} from '../../icons/index';
 import { type PublicPost } from '@openpeepshq/common';
 import { useTranslation } from 'react-i18next';
 import { useFeedPostActions } from '@openpeepshq/react';
+import { ShareMenu } from './ShareMenu';
 
 interface PostActionsProps {
   post: PublicPost;
@@ -31,11 +37,33 @@ export const PostActions = ({
     toggleReaction,
   } = useFeedPostActions(post);
 
-  if (!me) {
-    return null;
-  }
-
   const actionClass = 'flex-1 flex-row items-center gap-2 native:p-2';
+  const shareClass = 'flex-row items-center gap-2 native:p-2';
+  const shareLabel = t('posts.footer.share');
+  const shareButton = previewMode ? (
+    <Button variant="ghost" disabled className={shareClass}>
+      <ShareIcon size={16} className="text-foreground" />
+      <ThemedText className="text-sm">{shareLabel}</ThemedText>
+    </Button>
+  ) : (
+    <ShareMenu
+      post={post}
+      menuButton={
+        <Button variant="ghost" className={shareClass}>
+          <ShareIcon size={16} className="text-foreground" />
+          <ThemedText className="text-sm">{shareLabel}</ThemedText>
+        </Button>
+      }
+    />
+  );
+
+  if (!me) {
+    return (
+      <View className="w-full flex-row items-center justify-end py-2">
+        {shareButton}
+      </View>
+    );
+  }
 
   return (
     <View className="w-full flex-row items-center py-2">
@@ -76,6 +104,7 @@ export const PostActions = ({
           {t('posts.footer.like')}
         </ThemedText>
       </Button>
+      <View className="flex-1 items-end">{shareButton}</View>
     </View>
   );
 };

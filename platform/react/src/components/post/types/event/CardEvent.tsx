@@ -12,6 +12,7 @@ import { useServerInfo } from '../../../server-data';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
 import { EventLocation } from '../../pieces/EventLocation';
 import { ParticipantsCard } from '../../pieces/ParticipantsCard';
+import { ShareMenu } from '../../pieces/ShareMenu';
 import { ProfileEventRelationship } from './ProfileEventRelationship';
 
 export interface CardEventProps {
@@ -78,20 +79,31 @@ export function CardEvent({ post, showEventDate = true }: CardEventProps) {
         </div>
       </a>
       <div className="grid gap-y-4 p-4">
-        <a href={postLink} className="block text-inherit no-underline">
-          {showEventDate ? (
-            <p className="text-muted-foreground text-sm">
-              {formatEventTimespan(
-                event,
-                post.occurrenceStart,
-                post.occurrenceEnd,
-              )}
-            </p>
-          ) : null}
-          <h3 className="text-xl font-semibold">
-            {truncateText(event.name, 100) || '-'}
-          </h3>
-        </a>
+        <div className="flex items-start gap-2">
+          <a
+            href={postLink}
+            className="block min-w-0 flex-1 text-inherit no-underline"
+          >
+            {showEventDate ? (
+              <p className="text-muted-foreground text-sm">
+                {formatEventTimespan(
+                  event,
+                  post.occurrenceStart,
+                  post.occurrenceEnd,
+                )}
+              </p>
+            ) : null}
+            <h3 className="text-xl font-semibold">
+              {truncateText(event.name, 100) || '-'}
+            </h3>
+          </a>
+          <ShareMenu
+            post={post}
+            variant="ghost"
+            className="shrink-0"
+            text={t('posts.footer.share', { defaultValue: 'Share' })}
+          />
+        </div>
         {event.recurrence ? (
           <p className="text-muted-foreground text-sm">
             {formatEventRecurrence(event.recurrence, t, event.start)}

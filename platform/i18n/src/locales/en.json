@@ -451,6 +451,9 @@
       "sendInMessage": "Send in a message",
       "otherOptions": "Other options",
       "copyLink": "Copy link",
+      "linkCopied": "Link copied",
+      "copyFailed": "Couldn't copy the link",
+      "systemShare": "Share via…",
       "downloadCalendarIcs": "Add to Calendar",
       "downloadCalendarIcsTitle": "Download .ics file"
     },
