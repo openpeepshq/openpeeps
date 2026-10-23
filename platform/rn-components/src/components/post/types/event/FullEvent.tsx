@@ -21,7 +21,13 @@ import {
   DropdownMenuTrigger,
 } from '../../../ui/dropdown-menu';
 import { ThemedText } from '../../../ui/themed-text';
-import { Image, Share, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  Pressable,
+  Share,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import RNFS from 'react-native-fs';
 import {
   Event,
@@ -762,7 +768,20 @@ export const FullEventActions: React.FC<{
 
   return (
     <View className="flex-row items-center">
-      <ShareMenu post={post} />
+      <ShareMenu
+        post={post}
+        menuButton={
+          <Pressable
+            accessibilityLabel={t('posts.footer.share')}
+            className="flex-row items-center gap-1 px-2"
+          >
+            <ShareIcon size={18} className="text-foreground" />
+            <ThemedText className="text-sm">
+              {t('posts.footer.share')}
+            </ThemedText>
+          </Pressable>
+        }
+      />
       {myEvent ? (
         <EventMenu post={post} occurrence={occurrence} />
       ) : (
