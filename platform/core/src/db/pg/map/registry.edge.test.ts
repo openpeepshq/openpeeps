@@ -55,4 +55,35 @@ describe('rowToDocument for profiles', () => {
     });
     expect(doc).not.toHaveProperty('privateKeyPem');
   });
+
+  it('labels a soft-deleted profile Deleted Profile / @deleted', () => {
+    const doc = rowToDocument('profiles', {
+      id: 'profile-1',
+      handle: 'alice',
+      type: 'local',
+      body: { displayName: 'Alice' },
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-02-01T00:00:00.000Z',
+      deletedAt: '2026-02-01T00:00:00.000Z',
+    });
+
+    expect(doc.displayName).toBe('Deleted Profile');
+    expect(doc.handle).toBe('deleted');
+    expect(doc.deletedAt).toBe('2026-02-01T00:00:00.000Z');
+  });
+
+  it('replaces a wiped name when a deleted profile is hydrated', () => {
+    const doc = rowToDocument('profiles', {
+      id: 'profile-1',
+      handle: 'alice',
+      type: 'local',
+      body: { displayName: '', handle: '' },
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-02-01T00:00:00.000Z',
+      deletedAt: '2026-02-01T00:00:00.000Z',
+    });
+
+    expect(doc.displayName).toBe('Deleted Profile');
+    expect(doc.handle).toBe('deleted');
+  });
 });

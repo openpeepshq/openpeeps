@@ -12,8 +12,8 @@ const containsIgnoreCase = (candidate: string, query: string) =>
 
 export const PROFILE_DISPLAY_NAME_MAX_LENGTH = 30;
 
-/** Public sentinel shown for soft-deleted authors (API + clients). */
-export const DELETED_AUTHOR_DISPLAY_NAME = 'Deleted author';
+/** Public sentinel shown for soft-deleted profiles (API + clients). */
+export const DELETED_AUTHOR_DISPLAY_NAME = 'Deleted Profile';
 export const DELETED_AUTHOR_HANDLE = 'deleted';
 
 export const clampProfileDisplayName = (
@@ -27,6 +27,33 @@ export const clampProfileDisplayName = (
 export const isDeletedProfile = (
   profile: { deletedAt?: string | null } | undefined | null,
 ): boolean => !!profile?.deletedAt;
+
+type DeletedProfileIdentity = {
+  deletedAt?: string | null;
+  displayName?: string | null;
+  handle?: string | null;
+};
+
+/**
+ * Deleted rows keep their original handle (the column is unique) and may have
+ * no display name. Public hydration fills in the sentinel when it is missing.
+ */
+export const withDeletedProfileIdentity = <T extends DeletedProfileIdentity>(
+  profile: T,
+): T => {
+  if (!isDeletedProfile(profile)) return profile;
+  if (
+    profile.displayName === DELETED_AUTHOR_DISPLAY_NAME &&
+    profile.handle === DELETED_AUTHOR_HANDLE
+  ) {
+    return profile;
+  }
+  return {
+    ...profile,
+    displayName: DELETED_AUTHOR_DISPLAY_NAME,
+    handle: DELETED_AUTHOR_HANDLE,
+  };
+};
 
 /**
  * Strip PII from a soft-deleted profile for public API / UI surfaces.

@@ -1,5 +1,9 @@
 import type { PublicProfile } from '@openpeepshq/common/types';
-import { getTheme, isDeletedProfile } from '@openpeepshq/common';
+import {
+  DELETED_AUTHOR_DISPLAY_NAME,
+  getTheme,
+  isDeletedProfile,
+} from '@openpeepshq/common';
 import { UserX } from 'lucide-react';
 
 import { useServerInfo } from '../server-data';
@@ -62,7 +66,7 @@ export function Avatar({
     >
       {deleted ? (
         <UserX
-          aria-label={profile?.displayName || 'Deleted author'}
+          aria-label={profile?.displayName || DELETED_AUTHOR_DISPLAY_NAME}
           className="text-muted-foreground"
           size={iconSize}
         />
