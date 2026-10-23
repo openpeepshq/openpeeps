@@ -43,6 +43,11 @@ export function AdminConfigurationCommunity() {
         action="/admin/configuration/community/profile-fields"
       />
       <ConfigMenuButton
+        translationPrefix="configuration.community.forbiddenUsernames"
+        action="/admin/configuration/community/forbidden-usernames"
+        testId="admin-community-forbidden-usernames"
+      />
+      <ConfigMenuButton
         translationPrefix="configuration.community.roles"
         action="/admin/configuration/community/roles"
       />

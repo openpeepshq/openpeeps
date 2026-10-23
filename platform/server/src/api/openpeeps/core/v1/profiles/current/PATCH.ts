@@ -3,7 +3,7 @@ import {
   updateProfileRequestSchema,
   profileWithMetaSchema,
 } from '@openpeepshq/common/types';
-import { forbidden, notFound } from '#lib/errors';
+import { forbidden, notFound, unprocessableRequest } from '#lib/errors';
 import { updateCurrentProfileHandler } from '#lib/handlers/profile/updateCurrent';
 
 export const Input = updateProfileRequestSchema;
@@ -12,6 +12,7 @@ export const Output = profileWithMetaSchema;
 export const Error = {
   403: forbidden(),
   404: notFound(),
+  422: unprocessableRequest(),
 };
 
 export const apiEndpoint = endpoint({ Input, Output, Error }).handle(

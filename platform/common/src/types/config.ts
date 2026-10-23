@@ -10,6 +10,7 @@ import {
 } from './capabilities';
 import { postCapabilities } from './capabilities';
 import { postRelationships } from './capabilities';
+import { additionalForbiddenHandlesSchema } from './forbiddenHandles';
 
 export const passwordPlaceHolder = '*********';
 
@@ -410,6 +411,11 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       /** Adds member profile pages to the sitemap. Off by default: a crawled
        *  profile is cached by search engines long after the member leaves. */
       indexProfiles: z.boolean().optional(),
+      /**
+       * Usernames this community blocks in addition to the built-in list.
+       * Built-in names are not stored here and cannot be removed.
+       */
+      additionalForbiddenHandles: additionalForbiddenHandlesSchema.optional(),
     }),
     roles: z.object({
       onRegistration: z.object({

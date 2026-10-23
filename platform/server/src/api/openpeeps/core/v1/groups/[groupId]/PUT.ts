@@ -1,14 +1,22 @@
 import { endpoint, z } from '#lib/endpoint';
-import { groupDataSchema } from '@openpeepshq/common/types';
+import {
+  groupDataSchema,
+  groupWithMetaSchema,
+} from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import { ensureGroupCapabilities } from '#lib/auth';
-import { conflict, forbidden, notFound } from '#lib/errors';
+import {
+  conflict,
+  forbidden,
+  notFound,
+  unprocessableRequest,
+} from '#lib/errors';
+import { assertHandleAllowed } from '#lib/forbiddenHandles';
 import {
   findGroup,
   findGroupByHandle,
   updateGroup,
 } from '@openpeepshq/core/groups';
-import { groupWithMetaSchema } from '@openpeepshq/common/types';
 import { findProfileByHandle } from '@openpeepshq/core/profiles';
 
 export const Output = groupWithMetaSchema;
@@ -20,6 +28,7 @@ export const Input = groupDataSchema;
 export const Error = {
   403: forbidden(),
   404: notFound(),
+  422: unprocessableRequest(),
 };
 
 const capabilitiesChanged = (current: unknown, next: unknown) =>
@@ -45,12 +54,14 @@ export const apiEndpoint = endpoint({ Param, Input, Output }).handle(
       );
     }
 
-    if (
-      group.handle !== groupData.handle &&
-      ((await findGroupByHandle(groupData.handle)) ||
-        (await findProfileByHandle(groupData.handle)))
-    ) {
-      throw conflict('groups.handleExists');
+    if (group.handle !== groupData.handle) {
+      await assertHandleAllowed(groupData.handle);
+      if (
+        (await findGroupByHandle(groupData.handle)) ||
+        (await findProfileByHandle(groupData.handle))
+      ) {
+        throw conflict('groups.handleExists');
+      }
     }
 
     return await updateGroup(group, groupData);

@@ -1,6 +1,8 @@
 import {
   accountNameSchema,
   GROUP_DISPLAY_NAME_MAX_LENGTH,
+  HANDLE_RESERVED_MESSAGE,
+  isForbiddenHandle,
 } from '@openpeepshq/common/types';
 import type { TFunction } from 'i18next';
 
@@ -19,7 +21,7 @@ const displayNameMaxLengthMessage = (t: TFunction) =>
   });
 
 const handleErrorMessage = (issue: string | undefined, t: TFunction) =>
-  issue === 'Handle is reserved'
+  issue === HANDLE_RESERVED_MESSAGE
     ? t('profile.form.handleReserved', {
         defaultValue: 'That handle is reserved. Please choose another.',
       })
@@ -31,7 +33,10 @@ const handleErrorMessage = (issue: string | undefined, t: TFunction) =>
 export const groupFormFieldErrors = (
   data: { displayName?: string; handle?: string },
   t: TFunction,
-  options?: { skipHandle?: boolean },
+  options?: {
+    skipHandle?: boolean;
+    additionalForbiddenHandles?: readonly string[];
+  },
 ): GroupFormFieldErrors => {
   const errors: GroupFormFieldErrors = {};
   const displayName = data.displayName ?? '';
@@ -49,6 +54,8 @@ export const groupFormFieldErrors = (
     const result = accountNameSchema.safeParse(handle);
     if (!result.success) {
       errors.handle = handleErrorMessage(result.error.issues[0]?.message, t);
+    } else if (isForbiddenHandle(handle, options?.additionalForbiddenHandles)) {
+      errors.handle = handleErrorMessage(HANDLE_RESERVED_MESSAGE, t);
     }
   } else if (!displayName && !errors.displayName) {
     errors.displayName = t('handle.validation.error', {

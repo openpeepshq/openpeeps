@@ -9,6 +9,7 @@ import type { RequestEvent } from '@riddl/core';
 import { updateProfile, findProfileByHandle } from '@openpeepshq/core/profiles';
 import { findGroupByHandle } from '@openpeepshq/core/groups';
 import { conflict } from '#lib/errors';
+import { assertHandleAllowed } from '#lib/forbiddenHandles';
 
 export const updateCurrentProfileHandler = async (
   updateCurrentProfileRequest: UpdateProfileRequest,
@@ -18,11 +19,15 @@ export const updateCurrentProfileHandler = async (
 
   if (
     updateCurrentProfileRequest.handle &&
-    profile.handle !== updateCurrentProfileRequest.handle &&
-    ((await findProfileByHandle(updateCurrentProfileRequest.handle)) ||
-      (await findGroupByHandle(updateCurrentProfileRequest.handle)))
+    profile.handle !== updateCurrentProfileRequest.handle
   ) {
-    throw conflict('profiles.handleExists');
+    await assertHandleAllowed(updateCurrentProfileRequest.handle);
+    if (
+      (await findProfileByHandle(updateCurrentProfileRequest.handle)) ||
+      (await findGroupByHandle(updateCurrentProfileRequest.handle))
+    ) {
+      throw conflict('profiles.handleExists');
+    }
   }
 
   const profileUpdate = profileDataSchema

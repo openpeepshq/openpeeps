@@ -4,37 +4,36 @@ import ISO6391 from 'iso-639-1';
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 import { groupRelationships } from './capabilities';
 import { capabilitiesSchema } from './config';
+import {
+  HANDLE_RESERVED_MESSAGE,
+  additionalForbiddenHandlesSchema,
+  classifyAdditionalForbiddenHandle,
+  collectAdditionalForbiddenHandles,
+  forbiddenHandles,
+  handleRegex,
+  handleRegexBase,
+  isDefaultForbiddenHandle,
+  isForbiddenHandle,
+  normalizeForbiddenHandle,
+} from './forbiddenHandles';
+
+export {
+  HANDLE_RESERVED_MESSAGE,
+  additionalForbiddenHandlesSchema,
+  classifyAdditionalForbiddenHandle,
+  collectAdditionalForbiddenHandles,
+  forbiddenHandles,
+  handleRegex,
+  handleRegexBase,
+  isDefaultForbiddenHandle,
+  isForbiddenHandle,
+  normalizeForbiddenHandle,
+};
 
 extendZodWithOpenApi(z);
 
-export const handleRegexBase = '[a-zA-Z0-9_-]{1,16}';
-
-export const handleRegex = new RegExp(`^${handleRegexBase}$`);
-
 /** `@handle` using the allowed handle charset. No `\\b` — hyphens are not word chars. */
 export const mentionHandleRegexBase = `(^|[\\s(>])@(${handleRegexBase})(?=\\s|$|[.,!?;:])`;
-
-export const forbiddenHandles = [
-  'admin',
-  'allpeep',
-  'api',
-  'app',
-  'auth',
-  'config',
-  'core',
-  'db',
-  'email',
-  'federation',
-  'jam',
-  'media',
-  'network',
-  'plugins',
-  'undefined',
-  'jamStarted',
-  'jamSpeaker',
-  'jamModerator',
-  'new',
-];
 
 export const baseSchemaShape = {
   createdAt: z.iso.datetime(),
@@ -212,8 +211,8 @@ export type ProfileSettings = Model<ProfileSettingsData>;
 
 export const accountNameSchema = z
   .string()
-  .refine((value: string) => !forbiddenHandles.includes(value.toLowerCase()), {
-    message: 'Handle is reserved',
+  .refine((value: string) => !isForbiddenHandle(value), {
+    message: HANDLE_RESERVED_MESSAGE,
   })
   .refine((value: string) => handleRegex.test(value ?? ''), {
     message:
