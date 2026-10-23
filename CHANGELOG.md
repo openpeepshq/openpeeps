@@ -3,6 +3,16 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Bug Fixes
+
+- **rn-components**: make resources clickable and viewable in resource library and list
+
+### Style
+
+- update heading styles in Article components for improved readability
+
+## 2026-10-22
+
 ### Features
 
 - **media**: add PDF and office document preview thumbnails
@@ -15,7 +25,6 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
-- **rn-components**: make resources clickable and viewable in resource library and list
 - **ci**: detect publishable packages by comparing versions with npm
 - **ci**: use resolvable actions/checkout ref (releases/v6 branch)
 - **ci**: use actions/checkout SHA without v-prefix in publish-packages
@@ -50,10 +59,6 @@ Changelog for OpenPeeps
 ### Documentation
 
 - **agents**: add openpeeps-pr-rebase skill
-
-### Style
-
-- update heading styles in Article components for improved readability
 
 ### CI/CD
 
