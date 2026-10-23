@@ -5,28 +5,51 @@ import {
   PopupMenuButton,
   PopupSection,
   PopupSeparator,
+  type PopupMenuProps,
 } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
-import { useShareMenu } from '../../../hooks/posts/useShareMenu';
+import {
+  postPublicPath,
+  useShareMenu,
+} from '../../../hooks/posts/useShareMenu';
 import { useCreateNewConversation } from '../../conversations/CreateNewConversationContext';
+import { useToast } from '../../layout/ToastProvider';
 
 export interface ShareMenuProps {
   post: PublicPost;
   menuButton?: React.ReactNode;
+  /** `unstyled` matches neighboring text actions, such as the post footer. */
+  variant?: PopupMenuProps['variant'] | 'unstyled';
+  className?: string;
+  text?: string;
 }
 
-export function ShareMenu({ post, menuButton }: ShareMenuProps) {
-  const t = useT();
-  const { openCreateConversation } = useCreateNewConversation();
+const absolutePostUrl = (post: PublicPost) => {
+  const path = postPublicPath(post);
+  return typeof window !== 'undefined'
+    ? `${window.location.origin}${path}`
+    : path;
+};
 
-  const postUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/posts/${post.id}`
-      : `/posts/${post.id}`;
+export function ShareMenu({
+  post,
+  menuButton,
+  variant = 'outline',
+  className,
+  text,
+}: ShareMenuProps) {
+  const t = useT();
+  const { success, error: toastError } = useToast();
+  const { openCreateConversation } = useCreateNewConversation();
+  const postUrl = absolutePostUrl(post);
   const { signedIn, isEvent, repost, eventIcsFile } = useShareMenu(
     post,
     postUrl,
   );
+  // Feature-detect. Desktop browsers often have no Web Share API; copy stays
+  // in the menu either way.
+  const canSystemShare =
+    typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
   const downloadEventIcs = () => {
     const file = eventIcsFile();
@@ -42,11 +65,34 @@ export function ShareMenu({ post, menuButton }: ShareMenuProps) {
     URL.revokeObjectURL(href);
   };
 
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(postUrl);
+      success(t('posts.shareMenu.linkCopied', { defaultValue: 'Link copied' }));
+    } catch {
+      toastError(
+        t('posts.shareMenu.copyFailed', {
+          defaultValue: "Couldn't copy the link",
+        }),
+      );
+    }
+  };
+
+  const systemShare = async () => {
+    try {
+      await navigator.share({ url: postUrl });
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+    }
+  };
+
   return (
     <PopupMenu
       menuButton={menuButton ?? <Share className="size-4" />}
       title={t('posts.shareMenu.title', { defaultValue: 'Share' })}
-      variant="outline"
+      variant={variant === 'unstyled' ? undefined : variant}
+      className={className}
+      text={text}
     >
       {signedIn ? (
         <>
@@ -93,11 +139,23 @@ export function ShareMenu({ post, menuButton }: ShareMenuProps) {
           action={downloadEventIcs}
         />
       ) : null}
+      {canSystemShare ? (
+        <PopupMenuButton
+          title={t('posts.shareMenu.systemShare', {
+            defaultValue: 'Share via…',
+          })}
+          text={t('posts.shareMenu.systemShare', {
+            defaultValue: 'Share via…',
+          })}
+          icon={Share}
+          action={() => void systemShare()}
+        />
+      ) : null}
       <PopupMenuButton
         title={t('posts.shareMenu.copyLink', { defaultValue: 'Copy link' })}
         text={t('posts.shareMenu.copyLink', { defaultValue: 'Copy link' })}
         icon={Copy}
-        action={() => void navigator.clipboard.writeText(postUrl)}
+        action={() => void copyLink()}
       />
     </PopupMenu>
   );

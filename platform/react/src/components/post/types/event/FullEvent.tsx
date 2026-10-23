@@ -199,11 +199,8 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
         <div className="flex items-center gap-2">
           <ShareMenu
             post={post}
-            menuButton={
-              <span className="flex size-10 items-center justify-center rounded-md">
-                <Share className="size-4" />
-              </span>
-            }
+            text={t('posts.footer.share', { defaultValue: 'Share' })}
+            menuButton={<Share className="size-4" />}
           />
           {myEvent ? (
             <EventMenu

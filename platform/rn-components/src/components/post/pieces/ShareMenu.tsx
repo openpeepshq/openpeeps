@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { PublicPost } from '@openpeepshq/common';
-import { useShareMenu } from '@openpeepshq/react';
+import { postPublicPath, useShareMenu } from '@openpeepshq/react';
 import {
   CalendarIcon,
   CopyIcon,
@@ -35,7 +35,7 @@ export const ShareMenu = ({ post, menuButton }: ShareMenuProps) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const setDraftMessage = useNewConversationStore((s) => s.setContt);
-  const postUrl = `${BASE_URL}/posts/${post.id}`;
+  const postUrl = `${BASE_URL}${postPublicPath(post)}`;
   const { signedIn, isEvent, repost, eventIcsFile } = useShareMenu(
     post,
     postUrl
