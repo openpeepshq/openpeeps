@@ -51,6 +51,15 @@ describe('groupFormFieldErrors', () => {
     expect(errors.handle).toMatch(/1–16 characters/i);
   });
 
+  it('rejects a community-forbidden handle', () => {
+    const errors = groupFormFieldErrors(
+      { displayName: 'Board', handle: 'slur' },
+      t,
+      { additionalForbiddenHandles: ['slur'] },
+    );
+    expect(errors.handle).toMatch(/reserved/i);
+  });
+
   it('does not validate handle when skipHandle is set', () => {
     const errors = groupFormFieldErrors(
       { displayName: 'Board', handle: 'not a handle' },

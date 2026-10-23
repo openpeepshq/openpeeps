@@ -5,6 +5,7 @@ import type {
 } from '@openpeepshq/common/types';
 import { checkAccountCreateAuthorization } from '@openpeepshq/common/lib';
 import { conflict, forbidden } from '#lib/errors';
+import { assertHandleAllowed } from '#lib/forbiddenHandles';
 import {
   createAccount,
   existsAccountByEmail,
@@ -21,6 +22,8 @@ export const registerHandler = async (
 ): Promise<TokenResponse> => {
   const { handle, password, email, displayName, inviteCode, bot } =
     registerRequest;
+
+  await assertHandleAllowed(handle);
 
   if (
     (await existsProfileByHandle(handle)) ||

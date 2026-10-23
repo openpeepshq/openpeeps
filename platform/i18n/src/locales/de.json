@@ -2161,6 +2161,18 @@
         "description": "Passen Sie die Profilseiten Ihrer Mitglieder mit zusätzlichen Informationsfeldern an",
         "emptyKeyError": "Jedes Profilfeld benötigt einen nicht leeren Schlüssel."
       },
+      "forbiddenUsernames": {
+        "title": "Verbotene Benutzernamen",
+        "description": "Sperren Sie Benutzernamen, die Ihre Community nicht zulässt, etwa Beleidigungen oder Hassrede. Jeder Eintrag ist ein vollständiger Benutzername, Groß- und Kleinschreibung spielt keine Rolle. Integrierte Benutzernamen bleiben reserviert und können nicht entfernt werden.",
+        "builtIn": "Integriert",
+        "add": "Benutzernamen hinzufügen",
+        "placeholder": "benutzername",
+        "remove": "Entfernen",
+        "empty": "Geben Sie einen Benutzernamen ein.",
+        "invalid": "Benutzernamen müssen 1–16 Zeichen lang sein: Buchstaben, Zahlen, Unterstriche oder Bindestriche.",
+        "duplicate": "Dieser Benutzername steht bereits auf der Liste.",
+        "builtInError": "Integrierte Benutzernamen sind immer reserviert und können nicht geändert werden."
+      },
       "roles": {
         "title": "Rollen und Berechtigungen",
         "description": "Richten Sie die Funktionen und Berechtigungen ein, die jeder Rolle innerhalb der Community zur Verfügung stehen"

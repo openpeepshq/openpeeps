@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ProfileWithMeta } from '@openpeepshq/common/types';
 import {
   accountNameSchema,
+  HANDLE_RESERVED_MESSAGE,
+  isForbiddenHandle,
   profileDataSchema,
 } from '@openpeepshq/common/types';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
@@ -62,11 +64,19 @@ export function PublicProfileSettings() {
 
   if (!me) return null;
 
+  const additionalForbiddenHandles =
+    serverInfo.communityConfig?.settings?.additionalForbiddenHandles;
+
   const validateHandle = (value: string): string | null => {
+    if (isForbiddenHandle(value, additionalForbiddenHandles)) {
+      return t('profile.form.handleReserved', {
+        defaultValue: 'That handle is reserved. Please choose another.',
+      });
+    }
     const result = accountNameSchema.safeParse(value);
     if (result.success) return null;
     const message = firstZodMessage(result.error);
-    if (message === 'Handle is reserved') {
+    if (message === HANDLE_RESERVED_MESSAGE) {
       return t('profile.form.handleReserved', {
         defaultValue: 'That handle is reserved. Please choose another.',
       });
@@ -115,7 +125,7 @@ export function PublicProfileSettings() {
         const message = firstZodMessage(err);
         if (message?.toLowerCase().includes('handle')) {
           setHandleError(
-            message === 'Handle is reserved'
+            message === HANDLE_RESERVED_MESSAGE
               ? t('profile.form.handleReserved', {
                   defaultValue:
                     'That handle is reserved. Please choose another.',
@@ -127,6 +137,14 @@ export function PublicProfileSettings() {
           );
           return;
         }
+      }
+      if ((err as Error).message === HANDLE_RESERVED_MESSAGE) {
+        setHandleError(
+          t('profile.form.handleReserved', {
+            defaultValue: 'That handle is reserved. Please choose another.',
+          }),
+        );
+        return;
       }
       if (isDuplicateHandleError(err)) {
         const msg = t('profiles.handleExists', {
