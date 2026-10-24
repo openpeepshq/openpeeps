@@ -3,8 +3,16 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Features
+
+- **forbidden-handles**: implement additional forbidden usernames feature
+- **posts**: export event RSVPs as CSV
+- **admin**: add media management endpoints and UI
+- **conversations**: merge 1:1 conversations at display time
+
 ### Bug Fixes
 
+- **i18n**: add missing posts.menu.title translation
 - **rn-components**: make resources clickable and viewable in resource library and list
 
 ### Style
