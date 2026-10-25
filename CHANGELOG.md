@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **livekit**: implement LiveKit diagnostics and enhance related components
+- **waitlist**: implement waitlist functionality for events
 - **forbidden-handles**: implement additional forbidden usernames feature
 - **posts**: export event RSVPs as CSV
 - **admin**: add media management endpoints and UI
