@@ -6,7 +6,11 @@ import {
   useTracks,
 } from '@livekit/react-native';
 import { Track } from 'livekit-client';
-import { JamEventsProvider, useJamObserver } from '@openpeepshq/react';
+import {
+  JamEventsProvider,
+  useDropLateAudio,
+  useJamObserver,
+} from '@openpeepshq/react';
 import { JamObserverShell } from './JamObserverShell';
 import { JamParticipantConference } from './JamParticipantConference';
 import { JamVideoLayout } from './JamVideoLayout';
@@ -47,6 +51,7 @@ const JamObserverConference = () => {
 
 const JamObserverRoom = () => {
   const room = useRoomContext();
+  useDropLateAudio(room);
   return (
     <JamEventsProvider room={room}>
       <JamObserverConference />

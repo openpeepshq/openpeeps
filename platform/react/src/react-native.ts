@@ -138,6 +138,7 @@ export {
 } from './components/jams/jamEventActions';
 export type { JamParticipantMetadata } from './components/jams/jamEventActions';
 export { useRaisedHands } from './components/jams/useJamHands';
+export { useDropLateAudio } from './components/jams/dropLateAudio';
 export {
   calculateRecordingState,
   calculateRtmpStreamState,
