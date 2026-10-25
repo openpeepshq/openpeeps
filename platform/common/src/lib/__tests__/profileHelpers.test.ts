@@ -10,6 +10,7 @@ import {
   toDeletedProfileWithMeta,
   tombstoneProfileWithMetaIfDeleted,
   anonymizeProfileIfDeleted,
+  withDeletedProfileIdentity,
   DELETED_AUTHOR_DISPLAY_NAME,
   DELETED_AUTHOR_HANDLE,
   blockedPairIds,
@@ -92,6 +93,24 @@ describe('profileHelpers', () => {
     it('leaves active profiles unchanged', () => {
       expect(anonymizeProfileIfDeleted(mockProfile)).toBe(mockProfile);
       expect(anonymizeProfileIfDeleted(undefined)).toBeUndefined();
+    });
+
+    it('fills Deleted Profile / @deleted when hydration has not labeled a deleted profile', () => {
+      const unlabeled = {
+        ...deletedProfile,
+        displayName: '',
+        handle: '',
+      };
+      const result = withDeletedProfileIdentity(unlabeled);
+      expect(result.displayName).toBe(DELETED_AUTHOR_DISPLAY_NAME);
+      expect(result.handle).toBe(DELETED_AUTHOR_HANDLE);
+      expect(result.displayName).toBe('Deleted Profile');
+    });
+
+    it('leaves a profile that is already labeled as deleted', () => {
+      const labeled = toPublicDeletedProfile(deletedProfile);
+      expect(withDeletedProfileIdentity(labeled)).toBe(labeled);
+      expect(withDeletedProfileIdentity(mockProfile)).toBe(mockProfile);
     });
   });
 

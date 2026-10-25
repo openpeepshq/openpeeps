@@ -1,3 +1,4 @@
+import { withDeletedProfileIdentity } from '@openpeepshq/common/lib';
 import * as documents from '../schema/documents';
 import * as edges from '../schema/edges';
 import {
@@ -470,32 +471,34 @@ export const rowToDocument = (
         timestamps,
       );
     case 'profiles':
-      return rowToModel(
-        row.id as string,
-        {
-          handle: row.handle,
-          type: row.type,
-          ...(row.activityPubDomain
-            ? { activityPub: { domain: row.activityPubDomain } }
-            : {}),
-          ...((row.body ?? {}) as Record<string, unknown>),
-          ...(typeof row.uri === 'string' ? { uri: row.uri } : {}),
-          ...(typeof row.inboxUrl === 'string'
-            ? { inboxUrl: row.inboxUrl }
-            : {}),
-          ...(typeof row.sharedInboxUrl === 'string'
-            ? { sharedInboxUrl: row.sharedInboxUrl }
-            : {}),
-          ...(typeof row.publicKeyPem === 'string'
-            ? { publicKeyPem: row.publicKeyPem }
-            : {}),
-          // privateKeyPem stays on the column and is never hydrated here.
-          ...(typeof row.keyId === 'string' ? { keyId: row.keyId } : {}),
-          ...(typeof row.fetchedAt === 'string'
-            ? { fetchedAt: normalizeIsoDatetime(row.fetchedAt) }
-            : {}),
-        },
-        timestamps,
+      return withDeletedProfileIdentity(
+        rowToModel(
+          row.id as string,
+          {
+            handle: row.handle,
+            type: row.type,
+            ...(row.activityPubDomain
+              ? { activityPub: { domain: row.activityPubDomain } }
+              : {}),
+            ...((row.body ?? {}) as Record<string, unknown>),
+            ...(typeof row.uri === 'string' ? { uri: row.uri } : {}),
+            ...(typeof row.inboxUrl === 'string'
+              ? { inboxUrl: row.inboxUrl }
+              : {}),
+            ...(typeof row.sharedInboxUrl === 'string'
+              ? { sharedInboxUrl: row.sharedInboxUrl }
+              : {}),
+            ...(typeof row.publicKeyPem === 'string'
+              ? { publicKeyPem: row.publicKeyPem }
+              : {}),
+            // privateKeyPem stays on the column and is never hydrated here.
+            ...(typeof row.keyId === 'string' ? { keyId: row.keyId } : {}),
+            ...(typeof row.fetchedAt === 'string'
+              ? { fetchedAt: normalizeIsoDatetime(row.fetchedAt) }
+              : {}),
+          },
+          timestamps,
+        ),
       );
     case 'posts': {
       const lastActivityAt = row.lastActivityAt
