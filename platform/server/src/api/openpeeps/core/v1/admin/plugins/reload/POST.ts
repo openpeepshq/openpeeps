@@ -1,4 +1,4 @@
-import { endpoint, z } from '#lib/endpoint';
+import { endpoint } from '#lib/endpoint';
 import { successResponseSchema } from '@openpeepshq/common/types';
 import { forbidden } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';

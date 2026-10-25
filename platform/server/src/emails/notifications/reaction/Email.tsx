@@ -40,7 +40,9 @@ export const ReactionEmail = ({
         })}
       </Text>
       <Section>
-        {locals.post ? <EmailPostEmbed post={locals.post} globals={globals} /> : null}
+        {locals.post ? (
+          <EmailPostEmbed post={locals.post} globals={globals} />
+        ) : null}
 
         <Section style={emailStyles.ctaContainer}>
           <Button

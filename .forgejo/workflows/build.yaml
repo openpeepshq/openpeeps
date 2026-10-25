@@ -700,7 +700,7 @@ jobs:
                   libraries/greenscreen) echo greenscreen ;;
                   libraries/react-ui) echo react-ui ;;
                 esac
-              done | sort -u)
+              done | sort -u | paste -sd ' ')
           echo "bumped=$bumped" >> $FORGEJO_OUTPUT
           echo "Bumped packages: ${bumped:-none}"
       - name: Library publish gate
@@ -726,23 +726,49 @@ jobs:
       - name: Locale parity (required on all branches)
         run: node scripts/check-i18n-parity.mjs --strict
 
+  lint:
+    if: needs.set-variables.outputs.is_release_branch == 'false'
+    runs-on: docker
+    needs: [set-variables]
+    container:
+      image: node:24-alpine
+    steps:
+      - uses: actions/checkout@releases/v6
+        with:
+          ref: ${{ needs.set-variables.outputs.full_sha }}
+      - name: Install git
+        run: apk add --no-cache git
+      - name: Install dependencies
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+      - name: Prettier check
+        run: pnpm exec prettier --check .
+      - name: ESLint
+        run: pnpm run -r lint
+
   # Single gate for merge requirements: all test jobs must pass before
   # deploy, commit-check, or publish can proceed.  Uses always() so a
   # skipped test-integration-jams (jams disabled) does not skip the gate.
   test-gate:
     if: ${{ always() && !cancelled() }}
     runs-on: docker
-    needs: [test-unit, test-integration, test-integration-small, test-integration-jams]
+    needs: [lint, test-unit, test-integration, test-integration-small, test-integration-jams]
     container:
       image: node:24-alpine
     steps:
       - name: All tests passed
         if: ${{ success() }}
         run: echo "All test jobs succeeded."
-      - name: Test failure detected
-        if: ${{ failure() }}
+      - name: Detect failures
+        if: ${{ always() && (needs.lint.result == 'failure' || needs.test-unit.result == 'failure' || needs.test-integration.result == 'failure' || needs.test-integration-small.result == 'failure' || needs.test-integration-jams.result == 'failure') }}
         run: |
-          echo "One or more test jobs failed."
+          echo "One or more test jobs failed:"
+          echo "  lint: ${{ needs.lint.result }}"
+          echo "  test-unit: ${{ needs.test-unit.result }}"
+          echo "  test-integration: ${{ needs.test-integration.result }}"
+          echo "  test-integration-small: ${{ needs.test-integration-small.result }}"
+          echo "  test-integration-jams: ${{ needs.test-integration-jams.result }}"
           exit 1
       - name: Tests passed (jams skipped)
         if: ${{ !success() && !failure() }}

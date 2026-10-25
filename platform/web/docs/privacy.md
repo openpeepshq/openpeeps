@@ -33,7 +33,7 @@ Users are responsible for any third-party Personal Data obtained, published or s
 
 ## Mode and place of processing the Data
 
-> **Note**:  The following section applies to OpenPeeps communities hosted by AllPeeP Inc only.  Other instances may be hosted on different infrastructure.
+> **Note**: The following section applies to OpenPeeps communities hosted by AllPeeP Inc only. Other instances may be hosted on different infrastructure.
 
 ### Methods of processing
 
@@ -45,7 +45,7 @@ In addition to standard application access, Users with the **"Owner"** role have
 
 ### Place
 
-The Data is processed on infrastructure provided by **Hetzner Online GmbH**, located within the **European Union**, and may be downloaded for use at the Owner's operating offices. 
+The Data is processed on infrastructure provided by **Hetzner Online GmbH**, located within the **European Union**, and may be downloaded for use at the Owner's operating offices.
 
 This Application does not transfer Personal Data outside the European Union. For more information about Hetzner's own data processing practices as the Owner's infrastructure provider, Users may consult Hetzner's privacy policy: **https://www.hetzner.com/legal/privacy-policy**.
 
@@ -236,4 +236,4 @@ Unless otherwise specified, all references made within this document to the Euro
 
 This privacy policy relates solely to this Application, if not stated otherwise within this document.
 
-Latest update: *August 19, 2026*
+Latest update: _August 19, 2026_

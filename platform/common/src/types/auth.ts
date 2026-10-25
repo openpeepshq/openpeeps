@@ -17,6 +17,6 @@ export const authorizationDataSchema = z.object({
   account: accountWithMetaSchema.optional(),
   service: z.string().optional(),
   scopes: z.array(scopeSchema),
-})
+});
 
 export type AuthorizationData = z.infer<typeof authorizationDataSchema>;

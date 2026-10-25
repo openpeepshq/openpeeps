@@ -13,7 +13,6 @@
 import { execSync } from 'child_process';
 import { parseCommitMessage } from './generate-changelog.mjs';
 
-
 const DEFAULT_BRANCH = process.env.DEFAULT_BRANCH || 'main';
 
 function runGit(command) {
@@ -28,12 +27,16 @@ function checkSingleCommitAheadOfMain() {
   const base = DEFAULT_BRANCH;
   const count = runGit(`git rev-list --count ${base}..HEAD`);
   if (count === null) {
-    console.error(`Check failed: could not compare to ${base} (branch may not exist).`);
+    console.error(
+      `Check failed: could not compare to ${base} (branch may not exist).`,
+    );
     return false;
   }
   const n = parseInt(count, 10);
   if (n !== 1) {
-    console.error(`Check failed: branch has ${n} commit(s) ahead of ${base}; expected exactly 1.`);
+    console.error(
+      `Check failed: branch has ${n} commit(s) ahead of ${base}; expected exactly 1.`,
+    );
     return false;
   }
   return true;
@@ -47,7 +50,9 @@ function checkConventionalCommit() {
   }
   const parsed = parseCommitMessage(subject);
   if (!parsed) {
-    console.error('Check failed: last commit message does not follow conventional commit format.');
+    console.error(
+      'Check failed: last commit message does not follow conventional commit format.',
+    );
     console.error('Expected: <type>(<scope>): <description>');
     console.error('Example: feat(api): add user endpoint');
     console.error(`Got: ${subject}`);

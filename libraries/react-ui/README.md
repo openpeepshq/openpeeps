@@ -5,24 +5,24 @@ OpenPeeps React UI library. A 1:1 React + shadcn/Tailwind translation of
 
 ## What's inside
 
-| @openpeepshq/ui (Svelte) | @openpeepshq/react-ui (React)                                                                                              |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| `badges/`                | `Badge`, `Badges`                                                                                                          |
-| `button/`                | `Button`, `IconButton`, `TextButton`                                                                                       |
-| `date/`                  | `UpdatingDate`, `StopWatch`, `Timespan`                                                                                    |
-| `expandable-box/`        | `ExpandableBox`                                                                                                            |
-| `form/`                  | `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage`, `Label`, `RadioSelect` |
-| `icons/`                 | `Blur`                                                                                                                     |
-| `infinite-scrolling/`    | `InfiniteScrollContainer`, `ScrollObserver`                                                                                |
-| `link/`                  | `Link`                                                                                                                     |
-| `loaders/`               | `Loader`, `WaitForQueries` (`LoadingIcon` is deprecated — use `LoadingSpinner`)                                            |
+| @openpeepshq/ui (Svelte) | @openpeepshq/react-ui (React)                                                                                         |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `badges/`                | `Badge`, `Badges`                                                                                                     |
+| `button/`                | `Button`, `IconButton`, `TextButton`                                                                                  |
+| `date/`                  | `UpdatingDate`, `StopWatch`, `Timespan`                                                                               |
+| `expandable-box/`        | `ExpandableBox`                                                                                                       |
+| `form/`                  | `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage`, `Label`, `RadioSelect`                    |
+| `icons/`                 | `Blur`                                                                                                                |
+| `infinite-scrolling/`    | `InfiniteScrollContainer`, `ScrollObserver`                                                                           |
+| `link/`                  | `Link`                                                                                                                |
+| `loaders/`               | `Loader`, `WaitForQueries` (`LoadingIcon` is deprecated — use `LoadingSpinner`)                                       |
 | `modal/`                 | `Modal`, `ModalWrapper`, `ModalHeader`, `ModalFooter` (alias of `DialogFooter`), `getModalManager`, `useModalManager` |
-| `popup-menu/`            | `PopupMenu`, `PopupMenuButton`, `PopupSection`, `PopupSeparator`                                                           |
-| `search/`                | `SearchAndFilterBar`                                                                                                       |
-| `table/`                 | `Table`                                                                                                                    |
-| `theme/`                 | `applyThemeOverrides`, `setTheme`, color utilities                                                                         |
-| `tooltip/`               | `Tooltip`                                                                                                                  |
-| `utils/`                 | `cn`, `deepGet`, `deepSet`, `getUniqueBy`, `preventDefault`, `stopPropagation`, `useInfiniteScroll`                        |
+| `popup-menu/`            | `PopupMenu`, `PopupMenuButton`, `PopupSection`, `PopupSeparator`                                                      |
+| `search/`                | `SearchAndFilterBar`                                                                                                  |
+| `table/`                 | `Table`                                                                                                               |
+| `theme/`                 | `applyThemeOverrides`, `setTheme`, color utilities                                                                    |
+| `tooltip/`               | `Tooltip`                                                                                                             |
+| `utils/`                 | `cn`, `deepGet`, `deepSet`, `getUniqueBy`, `preventDefault`, `stopPropagation`, `useInfiniteScroll`                   |
 
 In addition the package exposes shadcn primitives directly (`Input`,
 `Textarea`, `Dialog*` (including `DialogActions`), `DropdownMenu*`, `Popover*`, `RadioGroup`, `Tooltip*`,
@@ -91,7 +91,10 @@ import {
 import { z } from '@openpeepshq/common/zod';
 
 const schema = z.object({ email: z.string().email() });
-const form = useForm({ resolver: zodResolver(schema), defaultValues: { email: '' } });
+const form = useForm({
+  resolver: zodResolver(schema),
+  defaultValues: { email: '' },
+});
 
 <Form {...form}>
   <form onSubmit={form.handleSubmit(save)}>

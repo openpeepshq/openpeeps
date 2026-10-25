@@ -6,7 +6,6 @@ import {
   diffRelationshipMatrix,
   filterRoles,
   getCapabilityCellState,
-  isCoveredByWildcard,
   isGrantedByColumn,
   normalizeCapabilities,
   roleDefaultCapabilities,

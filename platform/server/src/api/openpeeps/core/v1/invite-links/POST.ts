@@ -17,7 +17,9 @@ export const Error = {
 
 export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
   async (input, event: RequestEvent) => {
-    const profile = await ensureRoleCapabilities(event, ['core-inviteLinks-create']);
+    const profile = await ensureRoleCapabilities(event, [
+      'core-inviteLinks-create',
+    ]);
 
     const inviteLinkData = inviteLinkDataSchema.parse(input);
 

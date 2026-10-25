@@ -3,7 +3,8 @@ import { Loader } from '../loaders/Loader';
 import { getUniqueBy } from '../../lib/utils';
 import { ScrollObserver, type InfiniteQueryLike } from './ScrollObserver';
 
-export interface InfiniteScrollContainerQueryResult<D> extends InfiniteQueryLike {
+export interface InfiniteScrollContainerQueryResult<D>
+  extends InfiniteQueryLike {
   data?: { pages?: D[][] };
   isPending: boolean;
   isSuccess: boolean;

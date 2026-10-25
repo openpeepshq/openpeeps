@@ -52,14 +52,14 @@ const eventHandler = async (...args: unknown[]) => {
   }
   if (post.audience) {
     for (const audience of post.audience) {
-      const audienceProfile = await findProfile(audience?.id!);
+      const audienceProfile = await findProfile(audience?.id as string);
       if (skipRecipient(audienceProfile)) continue;
       recipients.add(audienceProfile!);
     }
   }
   if (post.visibility === 'group' && post.group) {
     for (const { profile: recipient } of await listGroupMembers(post.group)) {
-      const recipientProfile = await findProfile(recipient?.id!);
+      const recipientProfile = await findProfile(recipient?.id as string);
       if (skipRecipient(recipientProfile)) continue;
       recipients.add(recipientProfile!);
     }

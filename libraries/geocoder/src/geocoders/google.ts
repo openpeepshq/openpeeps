@@ -10,7 +10,7 @@ import { getJSON } from '../util';
 /**
  * Implementation of the [Google Geocoding API](https://developers.google.com/maps/documentation/geocoding/)
  */
-export interface GoogleOptions extends GeocoderOptions {}
+export type GoogleOptions = GeocoderOptions;
 
 export const Google: GeocoderBuilder = (options: Partial<GoogleOptions>) => {
   const mergedOptions = {

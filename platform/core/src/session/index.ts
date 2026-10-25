@@ -1,7 +1,4 @@
-import type {
-  SessionEvent,
-  SessionPlatform,
-} from '@openpeepshq/common/types';
+import type { SessionEvent, SessionPlatform } from '@openpeepshq/common/types';
 import {
   disconnect,
   getConnection,

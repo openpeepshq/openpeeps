@@ -210,6 +210,7 @@ Streamable HTTP MCP is mounted on the API process (not under
 
 Disable with `OPENPEEPS_MCP=0`. See [Connect an AI assistant
 (MCP)](/docs/user/mcp) and [MCP for operators](/docs/admin/mcp).
+
 ### Key API Endpoints
 
 #### Authentication
@@ -478,10 +479,8 @@ const { postId } = useParams<{ postId: string }>();
 
 ```typescript
 // API (Riddl handler) — path params are merged into `input` by endpoint()
-export const apiEndpoint = endpoint({ Param, Output }).handle(
-  async (input) => {
-    const { postId } = input;
-    // Use postId
-  },
-);
+export const apiEndpoint = endpoint({ Param, Output }).handle(async (input) => {
+  const { postId } = input;
+  // Use postId
+});
 ```

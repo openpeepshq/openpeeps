@@ -48,10 +48,7 @@ export const DirectMessageEmail = ({
           </Text>
 
           {locals.data.previousPost ? (
-            <EmailPostEmbed
-              post={locals.data.previousPost}
-              globals={globals}
-            />
+            <EmailPostEmbed post={locals.data.previousPost} globals={globals} />
           ) : null}
 
           <Text style={emailStyles.paragraph}>
@@ -77,10 +74,7 @@ export const DirectMessageEmail = ({
           </Text>
 
           {locals.data.previousPost ? (
-            <EmailPostEmbed
-              post={locals.data.previousPost}
-              globals={globals}
-            />
+            <EmailPostEmbed post={locals.data.previousPost} globals={globals} />
           ) : (
             <EmailPostEmbed post={locals.post} globals={globals} />
           )}

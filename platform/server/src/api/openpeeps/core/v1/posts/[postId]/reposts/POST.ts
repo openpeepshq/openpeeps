@@ -5,7 +5,11 @@ import {
   publicPostSchema,
   type PostData,
 } from '@openpeepshq/common/types';
-import { ensureGroupCapabilities, ensureLocalProfile, ensureRoleCapabilities } from '#lib/auth';
+import {
+  ensureGroupCapabilities,
+  ensureLocalProfile,
+  ensureRoleCapabilities,
+} from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { createPost, findPost } from '@openpeepshq/core/posts';
 
@@ -30,9 +34,15 @@ export const apiEndpoint = endpoint({ Output, Param, Error }).handle(
     }
 
     if (postToRepost.group) {
-      await ensureGroupCapabilities(event, [`core-posts-create-${postToRepost.type}`], postToRepost.group);
+      await ensureGroupCapabilities(
+        event,
+        [`core-posts-create-${postToRepost.type}`],
+        postToRepost.group,
+      );
     } else {
-      await ensureRoleCapabilities(event, [`core-posts-create-${postToRepost.type}-${postToRepost.visibility}`]);
+      await ensureRoleCapabilities(event, [
+        `core-posts-create-${postToRepost.type}-${postToRepost.visibility}`,
+      ]);
     }
 
     const post: PostData = {

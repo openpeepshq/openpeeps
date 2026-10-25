@@ -7,7 +7,7 @@ import {
 } from '../types';
 import { getJSON } from '../util';
 
-export interface OpenCageOptions extends GeocoderOptions {}
+export type OpenCageOptions = GeocoderOptions;
 
 interface OpenCageResponse {
   results: Array<{

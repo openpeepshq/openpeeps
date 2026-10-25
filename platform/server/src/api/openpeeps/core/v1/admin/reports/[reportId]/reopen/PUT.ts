@@ -2,7 +2,7 @@ import { endpoint, z } from '#lib/endpoint';
 import { successResponseSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { findReport, reopenReport } from "@openpeepshq/core/reports";
+import { findReport, reopenReport } from '@openpeepshq/core/reports';
 
 export const Param = z.object({
   reportId: z.string(),
@@ -24,8 +24,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
       throw notFound();
     }
 
-    await reopenReport(report)
-
+    await reopenReport(report);
 
     return { success: true };
   },

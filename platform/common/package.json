@@ -52,15 +52,16 @@
     "!**/*.test.ts"
   ],
   "devDependencies": {
+    "@eslint/js": "^9.19.0",
     "@types/node": "^24.1.12",
     "@types/validator": "^13.15.10",
-    "@typescript-eslint/eslint-plugin": "^8.19.0",
-    "@typescript-eslint/parser": "^8.19.0",
+    "@typescript-eslint/eslint-plugin": "^8.72.0",
+    "@typescript-eslint/parser": "^8.72.0",
     "@vitest/coverage-v8": "^2.1.8",
     "@vitest/ui": "^2.1.8",
     "concurrently": "^9.2.1",
     "eslint": "^10.1.0",
-    "eslint-config-prettier": "^10.1.8",
+    "eslint-config-prettier": "^9.1.0",
     "i18next": "^26.0.3",
     "livekit-client": "^2.19.2",
     "prettier": "^3.8.1",
@@ -70,8 +71,8 @@
     "vitest": "^2.1.8"
   },
   "scripts": {
-    "lint": "prettier --check . && eslint .",
-    "format": "prettier --write .",
+    "lint": "eslint .",
+    "format": "prettier --write --ignore-path ../../.prettierignore .",
     "clean": "rm -rf tsconfig.tsbuildinfo dist",
     "typecheck": "tsc --noEmit",
     "build": "tsc && tsc-alias",

@@ -137,9 +137,7 @@ export const produceStream = <
           await onStopped();
         }
 
-        await onStoppedPromise.then(
-          (onStopped) => onStopped && onStopped(),
-        );
+        await onStoppedPromise.then((onStopped) => onStopped && onStopped());
 
         return true;
       };

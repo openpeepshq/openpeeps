@@ -3,9 +3,7 @@ import type { EmailOptionsWithGlobals } from '@openpeepshq/common/types';
 import type { ReactEmailTemplate } from '../../types';
 import { Welcome } from './Welcome';
 
-const renderSubject = async (
-  props: EmailOptionsWithGlobals,
-): Promise<string> =>
+const renderSubject = async (props: EmailOptionsWithGlobals): Promise<string> =>
   `Welcome to ${props.globals.communityConfig.info.name}!`;
 
 const template: ReactEmailTemplate<undefined> = {

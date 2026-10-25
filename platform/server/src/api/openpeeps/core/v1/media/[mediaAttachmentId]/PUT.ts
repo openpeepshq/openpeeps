@@ -1,5 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
-import { mediaAttachmentDataSchema, mediaAttachmentSchema } from '@openpeepshq/common/types';
+import {
+  mediaAttachmentDataSchema,
+  mediaAttachmentSchema,
+} from '@openpeepshq/common/types';
 import { notFound, forbidden } from '#lib/errors';
 import { updateMediaAttachment } from '@openpeepshq/core/mediaAttachments';
 import { ensureLocalProfile } from '#lib/auth';

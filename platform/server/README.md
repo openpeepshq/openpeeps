@@ -116,15 +116,15 @@ curl -s -H "authorization: Bearer $JWT" \
 
 Set `SENTRY_DSN` to enable Node performance tracing (server + worker). Optional:
 
-| Env | Default | Purpose |
-|-----|---------|---------|
-| `SENTRY_TRACES_SAMPLE_RATE` | `0.1` | Fraction of transactions sampled |
-| `SENTRY_ENVIRONMENT` | (see below) | Override Sentry environment name |
-| `ENVIRONMENT` | `local` when unset | Deploy profile; baked into CI images from branch |
-| `PERF_SLOW_REQUEST_MS` | `1000` | Warn + ring-buffer slow HTTP requests |
-| `PERF_SLOW_QUERY_MS` | `200` | Warn on slow SQL when DB timing is on |
-| `PERF_SLOW_SPAN_MS` | `250` | Warn on slow named spans |
-| `PERF_DB_TIMING` | off | Set `1` to time Postgres `pool.query` |
+| Env                         | Default            | Purpose                                          |
+| --------------------------- | ------------------ | ------------------------------------------------ |
+| `SENTRY_TRACES_SAMPLE_RATE` | `0.1`              | Fraction of transactions sampled                 |
+| `SENTRY_ENVIRONMENT`        | (see below)        | Override Sentry environment name                 |
+| `ENVIRONMENT`               | `local` when unset | Deploy profile; baked into CI images from branch |
+| `PERF_SLOW_REQUEST_MS`      | `1000`             | Warn + ring-buffer slow HTTP requests            |
+| `PERF_SLOW_QUERY_MS`        | `200`              | Warn on slow SQL when DB timing is on            |
+| `PERF_SLOW_SPAN_MS`         | `250`              | Warn on slow named spans                         |
+| `PERF_DB_TIMING`            | off                | Set `1` to time Postgres `pool.query`            |
 
 Sentry `environment` resolution (does **not** use `NODE_ENV`, which is always
 `production` in Docker): `SENTRY_ENVIRONMENT` → `ENVIRONMENT` → `local`.

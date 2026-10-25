@@ -24,7 +24,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const repoRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+);
 
 const PACKAGES = {
   common: 'platform/common',
@@ -66,9 +69,7 @@ const packageArg = (() => {
   return i >= 0 ? args[i + 1] : null;
 })();
 
-const selected = packageArg
-  ? { [packageArg]: PACKAGES[packageArg] }
-  : PACKAGES;
+const selected = packageArg ? { [packageArg]: PACKAGES[packageArg] } : PACKAGES;
 
 if (packageArg && !PACKAGES[packageArg]) {
   console.error(`Unknown package "${packageArg}".`);
@@ -115,7 +116,9 @@ for (const [name, rel] of Object.entries(selected)) {
   console.log(`[${name}] packed source`);
   const pack = run('npm', ['pack', '--dry-run', '--json'], pkgDir);
   if (pack.error || pack.status !== 0) {
-    fail(`[${name}] npm pack --dry-run failed:\n${pack.stderr || pack.error?.message}`);
+    fail(
+      `[${name}] npm pack --dry-run failed:\n${pack.stderr || pack.error?.message}`,
+    );
     continue;
   }
   const [manifest] = JSON.parse(pack.stdout);
@@ -140,10 +143,14 @@ for (const [name, rel] of Object.entries(selected)) {
     });
   }
   if (aliases.length) {
-    fail(`[${name}] alias imports in packed source:\n  ${aliases.join('\n  ')}`);
+    fail(
+      `[${name}] alias imports in packed source:\n  ${aliases.join('\n  ')}`,
+    );
   }
   if (namespaces.length) {
-    fail(`[${name}] export * as in packed source:\n  ${namespaces.join('\n  ')}`);
+    fail(
+      `[${name}] export * as in packed source:\n  ${namespaces.join('\n  ')}`,
+    );
   }
   if (selfIndex.length) {
     fail(

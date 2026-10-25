@@ -28,9 +28,9 @@ const notificationTypeDefaults: Record<
 
 type NotificationsSettingsProps = MainScreenProps<'NotificationsSettings'>;
 
-export const NotificationPreferences: React.FC<
-  NotificationsSettingsProps
-> = ({}) => {
+export const NotificationPreferences: React.FC<NotificationsSettingsProps> = (
+  _props
+) => {
   const { t } = useTranslation();
   const { types } = useNotificationPreferences();
 

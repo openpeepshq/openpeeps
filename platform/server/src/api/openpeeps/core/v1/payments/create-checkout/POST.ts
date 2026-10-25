@@ -6,10 +6,7 @@ import {
   stripeMembershipActive,
   createStripeCheckoutUrl,
 } from '@openpeepshq/core/stripe';
-import {
-  ensureAccount,
-  ensureLocalProfile,
-} from '#lib/auth';
+import { ensureAccount, ensureLocalProfile } from '#lib/auth';
 import { isOwnerProfile } from '@openpeepshq/common';
 
 export const Output = paymentCheckoutSchema;
@@ -30,6 +27,9 @@ export const apiEndpoint = endpoint({ Output, Error }).handle(
       return { success: true, url: '' };
     }
     const account = ensureAccount(event);
-    return { success: true, url: await createStripeCheckoutUrl(profile, account) || '' };
+    return {
+      success: true,
+      url: (await createStripeCheckoutUrl(profile, account)) || '',
+    };
   },
 );

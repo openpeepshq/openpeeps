@@ -16,5 +16,11 @@ export {
 } from './query';
 export type { ListRowsInput } from './query';
 export { updateExplorerRow } from './mutate';
-export { runExplorerSql, SQL_STATEMENT_TIMEOUT_MS, SQL_MAX_ROWS, SQL_HARD_MAX_ROWS, SQL_DEFAULT_MAX_ROWS } from './sql';
+export {
+  runExplorerSql,
+  SQL_STATEMENT_TIMEOUT_MS,
+  SQL_MAX_ROWS,
+  SQL_HARD_MAX_ROWS,
+  SQL_DEFAULT_MAX_ROWS,
+} from './sql';
 export { rowsToCsv } from './csv';

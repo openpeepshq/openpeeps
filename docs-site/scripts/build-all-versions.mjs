@@ -9,13 +9,7 @@
  *   DOCS_STRICT=1 — fail if main/staging missing (CI)
  */
 import { spawnSync } from 'node:child_process';
-import {
-  cpSync,
-  existsSync,
-  mkdirSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -44,7 +38,8 @@ const git = (args) =>
     maxBuffer: 16 * 1024 * 1024,
   });
 
-const refExists = (ref) => git(['rev-parse', '--verify', '--quiet', ref]).status === 0;
+const refExists = (ref) =>
+  git(['rev-parse', '--verify', '--quiet', ref]).status === 0;
 
 const resolveBranchRef = (name) => {
   if (refExists(name)) return name;
@@ -54,7 +49,8 @@ const resolveBranchRef = (name) => {
 
 const listReleaseTags = () => {
   const r = git(['tag', '-l', '*-RELEASE', '--sort=-creatordate']);
-  if (r.status !== 0) throw new Error(`git tag failed: ${r.stderr || r.stdout}`);
+  if (r.status !== 0)
+    throw new Error(`git tag failed: ${r.stderr || r.stdout}`);
   return r.stdout
     .split('\n')
     .map((s) => s.trim())
@@ -90,7 +86,9 @@ const buildVersion = ({ id, label, ref, workdir }) => {
   const outDir = path.join(DIST, id);
   const base = `/${id}/`;
 
-  log(`\n=== building ${label} (${workdir ? 'worktree' : ref}) base=${base} ===`);
+  log(
+    `\n=== building ${label} (${workdir ? 'worktree' : ref}) base=${base} ===`,
+  );
   rmSync(docsDir, { recursive: true, force: true });
 
   const prepareArgs = ['--out', docsDir, '--link-prefix', `/${id}`];
@@ -104,20 +102,16 @@ const buildVersion = ({ id, label, ref, workdir }) => {
     DOCS_VERSION_LABEL: label,
   });
 
-  const result = spawnSync(
-    'pnpm',
-    ['exec', 'vite', 'build'],
-    {
-      cwd: SITE_ROOT,
-      env: {
-        ...process.env,
-        DOCS_BASE: base,
-        DOCS_OUT_DIR: outDir,
-      },
-      encoding: 'utf8',
-      stdio: 'inherit',
+  const result = spawnSync('pnpm', ['exec', 'vite', 'build'], {
+    cwd: SITE_ROOT,
+    env: {
+      ...process.env,
+      DOCS_BASE: base,
+      DOCS_OUT_DIR: outDir,
     },
-  );
+    encoding: 'utf8',
+    stdio: 'inherit',
+  });
   if (result.status !== 0) {
     throw new Error(`vite build failed for ${id}`);
   }

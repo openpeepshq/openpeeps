@@ -11,8 +11,10 @@ export const Error = {
   401: authNeeded(),
 };
 
-export const apiEndpoint = endpoint({ Output, Error }).handle(async (_, event) => {
-  const account = ensureAccount(event);
+export const apiEndpoint = endpoint({ Output, Error }).handle(
+  async (_, event) => {
+    const account = ensureAccount(event);
 
-  return listPushSubscriptionsByAccount(account);
-});
+    return listPushSubscriptionsByAccount(account);
+  },
+);

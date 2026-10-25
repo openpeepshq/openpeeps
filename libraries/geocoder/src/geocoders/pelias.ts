@@ -7,7 +7,7 @@ import {
 } from '../types';
 import { getJSON } from '../util';
 
-export interface PeliasOptions extends GeocoderOptions {}
+export type PeliasOptions = GeocoderOptions;
 
 interface PeliasResponse {
   features: Array<{

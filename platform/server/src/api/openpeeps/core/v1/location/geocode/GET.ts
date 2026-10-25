@@ -14,7 +14,9 @@ export const Error = {
   401: authNeeded(),
 };
 
-export const apiEndpoint = endpoint({ Query, Output, Error }).handle(async (input, request) => {
-  await ensureLocalProfile(request);
-  return getLocationSuggestions(input.query);
-});
+export const apiEndpoint = endpoint({ Query, Output, Error }).handle(
+  async (input, request) => {
+    await ensureLocalProfile(request);
+    return getLocationSuggestions(input.query);
+  },
+);

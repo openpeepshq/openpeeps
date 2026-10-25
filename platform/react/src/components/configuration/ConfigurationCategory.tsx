@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ZodObject, type ZodRawShape, ZodArray, type ZodType } from '@openpeepshq/common/zod';
+import {
+  ZodObject,
+  type ZodRawShape,
+  ZodArray,
+  type ZodType,
+} from '@openpeepshq/common/zod';
 import type { ConfigTree } from '@openpeepshq/common/types';
 import { capitalizeFirstLetter } from '@openpeepshq/common';
 import { ExpandableBox } from '@openpeepshq/react-ui';
@@ -36,8 +41,8 @@ export function ConfigurationCategory({
 }: ConfigurationCategoryProps) {
   const t = useT();
   const disabled = disabledProp ?? schema.description === 'fixed';
-  const [value, setValue] = useState<Record<string, unknown>>(
-    () => structuredClone(valueProp ?? config),
+  const [value, setValue] = useState<Record<string, unknown>>(() =>
+    structuredClone(valueProp ?? config),
   );
 
   useEffect(() => {
@@ -51,10 +56,10 @@ export function ConfigurationCategory({
 
   const dirty = !equal(config as ConfigTree, value as ConfigTree);
   const dirtyPaths = useMemo(() => {
-    const diff = diffConfigTrees(config as ConfigTree, value as ConfigTree) as Record<
-      string,
-      unknown
-    >;
+    const diff = diffConfigTrees(
+      config as ConfigTree,
+      value as ConfigTree,
+    ) as Record<string, unknown>;
     return Object.keys(diff).flatMap((key) => [...path.map(String), key]);
   }, [config, value, path]);
 
@@ -110,11 +115,18 @@ export function ConfigurationCategory({
             />
           );
           return collapsible ? (
-            <ExpandableBox key={String(field.key)} title={title} initialOpen={false}>
+            <ExpandableBox
+              key={String(field.key)}
+              title={title}
+              initialOpen={false}
+            >
               {nested}
             </ExpandableBox>
           ) : (
-            <div key={String(field.key)}>{title}{nested}</div>
+            <div key={String(field.key)}>
+              {title}
+              {nested}
+            </div>
           );
         }
 
@@ -152,7 +164,8 @@ export function ConfigurationCategory({
     <div className={collapsible ? 'mt-4 pl-4' : ''}>
       {collapsible && (
         <p className={dirty ? 'font-bold' : ''}>
-          {pathName || t('configuration.title', { defaultValue: 'Configuration' })}
+          {pathName ||
+            t('configuration.title', { defaultValue: 'Configuration' })}
         </p>
       )}
       {body}

@@ -5,7 +5,7 @@ import { hub } from '../events';
 
 export const initStripeWithCredentials = (data: StripePaymentConfig) =>
   data?.publishableKey || data?.secretKey || data?.webhookSecret
-    ? new Stripe(data?.secretKey!, { apiVersion: '2025-07-30.basil' })
+    ? new Stripe(data.secretKey as string, { apiVersion: '2025-07-30.basil' })
     : undefined;
 
 export const initStripe = async () => {

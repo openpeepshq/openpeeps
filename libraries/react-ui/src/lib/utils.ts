@@ -6,7 +6,10 @@ export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
-export const deepGet = (obj: unknown, path: (string | number | symbol)[]): unknown =>
+export const deepGet = (
+  obj: unknown,
+  path: (string | number | symbol)[],
+): unknown =>
   path.reduce<unknown>(
     (o, key) =>
       o && typeof o === 'object'
@@ -19,13 +22,19 @@ export const deepGet = (obj: unknown, path: (string | number | symbol)[]): unkno
  * Mutates `obj` by setting `path` to `val`. Mirrors @openpeepshq/ui's deepSet
  * so we keep the same call sites in form helpers.
  */
-export const deepSet = <T>(obj: T, path: string | (string | number)[], val: unknown): T => {
+export const deepSet = <T>(
+  obj: T,
+  path: string | (string | number)[],
+  val: unknown,
+): T => {
   const keys = Array.isArray(path)
     ? path
     : path
         .replace(/(\w)\[/g, '$1.[')
         .split('.')
-        .map((k) => (k.includes('[') ? parseInt(k.substring(1, k.length - 1), 10) : k));
+        .map((k) =>
+          k.includes('[') ? parseInt(k.substring(1, k.length - 1), 10) : k,
+        );
 
   let sub: unknown = obj;
   for (let i = 0; i < keys.length; i++) {
@@ -36,7 +45,9 @@ export const deepSet = <T>(obj: T, path: string | (string | number)[], val: unkn
     if (typeof nextKey !== 'undefined') {
       cursor[currentKey as string | number] =
         cursor[currentKey as string | number] ??
-        (typeof nextKey === 'number' || /^\d+$/.test(String(nextKey)) ? [] : {});
+        (typeof nextKey === 'number' || /^\d+$/.test(String(nextKey))
+          ? []
+          : {});
     } else {
       cursor[currentKey as string | number] = val;
     }
@@ -45,7 +56,10 @@ export const deepSet = <T>(obj: T, path: string | (string | number)[], val: unkn
   return obj;
 };
 
-export const getUniqueBy = <T, V = string>(arr: T[], predicate: (o: T) => V): T[] => {
+export const getUniqueBy = <T, V = string>(
+  arr: T[],
+  predicate: (o: T) => V,
+): T[] => {
   const set = new Set<V>();
   return arr.filter((o) => {
     const key = predicate(o);

@@ -4,11 +4,8 @@ const KEY_PREFIX = 'analytics:v4:';
 const OPEN_DAY_TTL_SEC = 60 * 60;
 const CLOSED_RANGE_TTL_SEC = 60 * 60 * 6;
 
-export const analyticsCacheKey = (
-  section: string,
-  from: string,
-  to: string,
-) => `${KEY_PREFIX}${section}:${from}:${to}`;
+export const analyticsCacheKey = (section: string, from: string, to: string) =>
+  `${KEY_PREFIX}${section}:${from}:${to}`;
 
 export const getAnalyticsCache = async <T>(
   key: string,

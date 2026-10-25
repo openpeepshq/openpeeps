@@ -6,7 +6,10 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { cn } from '../../lib/utils';
-import { buttonVariants, type StyledButtonVariant } from '../../lib/buttonVariants';
+import {
+  buttonVariants,
+  type StyledButtonVariant,
+} from '../../lib/buttonVariants';
 import type { IconType } from '../../types';
 import { AccessibleButtonLabel } from '../button/AccessibleButtonLabel';
 

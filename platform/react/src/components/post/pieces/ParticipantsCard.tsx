@@ -22,7 +22,10 @@ function ParticipantAvatar({ id, size }: { id: string; size: number }) {
 
 /** Overlapping avatar stack of the first jam participants. Mirrors the Svelte
  * `ParticipantsCard`. */
-export function ParticipantsCard({ jamState, size = 1.5 }: ParticipantsCardProps) {
+export function ParticipantsCard({
+  jamState,
+  size = 1.5,
+}: ParticipantsCardProps) {
   return (
     <div className="flex w-full items-center justify-between gap-4">
       <div className="flex items-center">

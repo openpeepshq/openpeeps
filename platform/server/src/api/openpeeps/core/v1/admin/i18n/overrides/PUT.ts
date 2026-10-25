@@ -15,11 +15,12 @@ export const Error = {
   404: notFound(),
 };
 
-export const apiEndpoint = endpoint({ Input, Output, Error }).handle(async (input, event) => {
-  await ensureRoleCapabilities(event, ['core-i18n-update']);
-  console.log(input);
-  console.log(i18nResourceSchema.safeParse(input));
-  await updateI18nOverrides(input);
-  return { success: true };
-});
-
+export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
+  async (input, event) => {
+    await ensureRoleCapabilities(event, ['core-i18n-update']);
+    console.log(input);
+    console.log(i18nResourceSchema.safeParse(input));
+    await updateI18nOverrides(input);
+    return { success: true };
+  },
+);

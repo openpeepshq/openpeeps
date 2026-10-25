@@ -54,18 +54,15 @@ export const otherHooks = (client: OpenpeepsClient) => ({
         const ctrl = new AbortController();
         setController(ctrl);
         setState({ uploading: true, uploadPercent: 0 });
-        const result = await client.mediaAttachment.createWithProgress(
-          input,
-          {
-            signal: ctrl.signal,
-            onUploadProgress: ({ percent, estimatedRemainingMs }) =>
-              setState((s) => ({
-                ...s,
-                uploadPercent: percent,
-                uploadEstimatedRemainingMs: estimatedRemainingMs,
-              })),
-          },
-        );
+        const result = await client.mediaAttachment.createWithProgress(input, {
+          signal: ctrl.signal,
+          onUploadProgress: ({ percent, estimatedRemainingMs }) =>
+            setState((s) => ({
+              ...s,
+              uploadPercent: percent,
+              uploadEstimatedRemainingMs: estimatedRemainingMs,
+            })),
+        });
         if ('data' in result) {
           setState({
             uploading: false,

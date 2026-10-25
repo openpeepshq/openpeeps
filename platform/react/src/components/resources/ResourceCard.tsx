@@ -87,7 +87,6 @@ const MediaPreview = ({
 
   return (
     <>
-      {/* eslint-disable-next-line jsx-a11y/img-has-alt -- handled by alt attribute */}
       <img
         src={src}
         alt={alt}

@@ -3,7 +3,10 @@ import { adminProfileSummarySchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import type { RequestEvent } from '@riddl/core';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { findProfile, getAdminProfileSummary } from '@openpeepshq/core/profiles';
+import {
+  findProfile,
+  getAdminProfileSummary,
+} from '@openpeepshq/core/profiles';
 
 export const Param = z.object({
   profileId: z.string(),

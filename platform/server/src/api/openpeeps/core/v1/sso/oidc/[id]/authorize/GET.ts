@@ -22,10 +22,7 @@ export const apiEndpoint = endpoint({ Param, Error }).handle(
       });
     } catch (err) {
       const origin = await serverRootUrl();
-      const errorUrl = new URL(
-        `/auth/sso/oidc/${input.id}/callback`,
-        origin,
-      );
+      const errorUrl = new URL(`/auth/sso/oidc/${input.id}/callback`, origin);
       errorUrl.searchParams.set(
         'error',
         err instanceof globalThis.Error ? err.message : String(err),

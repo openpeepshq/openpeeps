@@ -25,12 +25,6 @@ import { cn } from '../../lib/utils';
 type BottomSheetRef = React.ElementRef<typeof View>;
 type BottomSheetProps = React.ComponentPropsWithoutRef<typeof View>;
 
-interface BottomSheetContext {
-  sheetRef: React.RefObject<BottomSheetModal>;
-}
-
-const BottomSheetContext = React.createContext({} as BottomSheetContext);
-
 const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
   ({ ...props }, ref) => {
     return <View ref={ref} {...props} />;

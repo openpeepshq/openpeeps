@@ -34,11 +34,9 @@ export const apiEndpoint = endpoint({ Error }).handle(
         throw forbidden("[STRIPE HOOK] Header isn't a string???");
       }
 
-      const event = await getStripe().then(stripe => stripe.webhooks.constructEvent(
-        body,
-        signature,
-        details.webhookSecret!,
-      ));
+      const event = await getStripe().then((stripe) =>
+        stripe.webhooks.constructEvent(body, signature, details.webhookSecret!),
+      );
 
       await processEvent(event);
     }

@@ -5,7 +5,11 @@ import type {
 } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { checkPassword, findAccountByEmail } from '@openpeepshq/core/accounts';
-import { findProfile, listProfilesByAccount, assignRole } from '@openpeepshq/core/profiles';
+import {
+  findProfile,
+  listProfilesByAccount,
+  assignRole,
+} from '@openpeepshq/core/profiles';
 import {
   createStripeCheckoutUrl,
   checkSubscription,
@@ -57,7 +61,9 @@ export const loginHandler = async (
 
   const subscriptionNeeded = !(await checkSubscription(profile, account, true));
 
-  const checkoutUrl = subscriptionNeeded ? await createStripeCheckoutUrl(profile, account) : undefined;
+  const checkoutUrl = subscriptionNeeded
+    ? await createStripeCheckoutUrl(profile, account)
+    : undefined;
 
   const token = await createSignedProfileAccessToken({
     account,

@@ -6,12 +6,12 @@ as a **React** SPA themed with [`@openpeepshq/react-ui`](../libraries/react-ui/)
 
 ## Versions
 
-| Entry | Source |
-|-------|--------|
-| `main` | `main` branch HEAD |
-| `staging` | `staging` branch HEAD |
-| `{date}-{sha}-RELEASE (stable)` | Newest `*-RELEASE` git tag |
-| older `*-RELEASE` tags | Up to four additional recent release tags |
+| Entry                           | Source                                    |
+| ------------------------------- | ----------------------------------------- |
+| `main`                          | `main` branch HEAD                        |
+| `staging`                       | `staging` branch HEAD                     |
+| `{date}-{sha}-RELEASE (stable)` | Newest `*-RELEASE` git tag                |
+| older `*-RELEASE` tags          | Up to four additional recent release tags |
 
 There is **no** separate `stable` entry — it is collapsed into the newest
 `*-RELEASE (stable)` label. Default landing URL is the newest release.
@@ -69,10 +69,10 @@ to site-root paths during the build. In-app SPA `/docs` is unchanged.
 Each HTML page also has a `.md` URL that returns the source file as
 `text/markdown`:
 
-| Page | Raw markdown |
-|------|----------------|
-| `/{version}/` | `/{version}/index.md` |
-| `/{version}/user` | `/{version}/user.md` |
+| Page                       | Raw markdown                  |
+| -------------------------- | ----------------------------- |
+| `/{version}/`              | `/{version}/index.md`         |
+| `/{version}/user`          | `/{version}/user.md`          |
 | `/{version}/user/markdown` | `/{version}/user/markdown.md` |
 
 Each page includes a “View as Markdown” link to the matching file.

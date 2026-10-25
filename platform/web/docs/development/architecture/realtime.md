@@ -6,13 +6,13 @@ matches the job; do not add a new transport by default.
 
 ## Intended stack
 
-| Channel | Transport | Typical use |
-| --- | --- | --- |
-| **HTTP** | REST (`/api/openpeeps/core/v1/…`) + optional short polling | CRUD, auth, feeds, jam lobby/state snapshots |
-| **LiveKit** | WebRTC SFU (out of process) | Jam A/V rooms, in-call data messages, egress/recording |
-| **SSE** | Server-Sent Events (`produceStream`) | Short-lived progress / admission streams (media upload, jam waiting room) |
-| **BullMQ + Redis hub** | Redis pub/sub + queues | Cross-process domain events and durable background work |
-| **Push** | Web Push, APNs, FCM, webhook | Offline / background user alerts |
+| Channel                | Transport                                                  | Typical use                                                               |
+| ---------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **HTTP**               | REST (`/api/openpeeps/core/v1/…`) + optional short polling | CRUD, auth, feeds, jam lobby/state snapshots                              |
+| **LiveKit**            | WebRTC SFU (out of process)                                | Jam A/V rooms, in-call data messages, egress/recording                    |
+| **SSE**                | Server-Sent Events (`produceStream`)                       | Short-lived progress / admission streams (media upload, jam waiting room) |
+| **BullMQ + Redis hub** | Redis pub/sub + queues                                     | Cross-process domain events and durable background work                   |
+| **Push**               | Web Push, APNs, FCM, webhook                               | Offline / background user alerts                                          |
 
 ```
 Clients (web / React Native)
@@ -170,17 +170,17 @@ Escalate only with a clear failure of the previous step.
 
 ## Decision cheat sheet
 
-| Need | Prefer |
-| --- | --- |
-| Create/update/read data | HTTP |
-| Slightly stale list/detail while page is open | HTTP polling |
-| Upload/transcode progress on one attachment | SSE |
-| Waiting-room admit flow | SSE |
-| Foreground notification badge/list without push | Session SSE (`invalidate`) |
-| Jam A/V and in-room signals | LiveKit |
-| Email / heavy media / durable side effects | BullMQ (+ hub) |
-| User offline / background alert | Push (+ notification row) |
-| Cross-process “something happened” | `hub.emit` / `hub.on` / `hub.once` |
+| Need                                            | Prefer                             |
+| ----------------------------------------------- | ---------------------------------- |
+| Create/update/read data                         | HTTP                               |
+| Slightly stale list/detail while page is open   | HTTP polling                       |
+| Upload/transcode progress on one attachment     | SSE                                |
+| Waiting-room admit flow                         | SSE                                |
+| Foreground notification badge/list without push | Session SSE (`invalidate`)         |
+| Jam A/V and in-room signals                     | LiveKit                            |
+| Email / heavy media / durable side effects      | BullMQ (+ hub)                     |
+| User offline / background alert                 | Push (+ notification row)          |
+| Cross-process “something happened”              | `hub.emit` / `hub.on` / `hub.once` |
 
 ## Related documentation
 

@@ -32,16 +32,6 @@ const WEEKDAY_ORDER: RecurrenceWeekday[] = [
 
 export const OCCURRENCE_HORIZON_MS = 365 * 24 * 60 * 60 * 1000;
 
-const WEEKDAY_INDEX: Record<RecurrenceWeekday, number> = {
-  SU: 0,
-  MO: 1,
-  TU: 2,
-  WE: 3,
-  TH: 4,
-  FR: 5,
-  SA: 6,
-};
-
 const INDEX_WEEKDAY: RecurrenceWeekday[] = [
   'SU',
   'MO',

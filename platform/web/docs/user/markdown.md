@@ -8,12 +8,12 @@ the editor to check how it will look.
 
 ## Emphasis
 
-| Type this | To get |
-| --------- | ------ |
-| `*italic*` or `_italic_` | *italic* |
-| `**bold**` or `__bold__` | **bold** |
-| `***bold italic***` | ***bold italic*** |
-| `~~strikethrough~~` | ~~strikethrough~~ |
+| Type this                | To get            |
+| ------------------------ | ----------------- |
+| `*italic*` or `_italic_` | _italic_          |
+| `**bold**` or `__bold__` | **bold**          |
+| `***bold italic***`      | **_bold italic_** |
+| `~~strikethrough~~`      | ~~strikethrough~~ |
 
 <div style="height:20px"></div>
 
@@ -64,10 +64,10 @@ Ordered:
 
 ## Links and images
 
-| Type this | To get |
-| --------- | ------ |
-| `[AllPeep](https://allpeep.com)` | [AllPeep](https://allpeep.com) |
-| `![logo](https://example.com/image.png)` | An image with that URL |
+| Type this                                | To get                         |
+| ---------------------------------------- | ------------------------------ |
+| `[AllPeep](https://allpeep.com)`         | [AllPeep](https://allpeep.com) |
+| `![logo](https://example.com/image.png)` | An image with that URL         |
 
 Bare URLs in posts also become clickable, and may show a link preview.
 

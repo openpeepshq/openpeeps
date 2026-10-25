@@ -117,7 +117,7 @@ covered while feature-specific forms can replace them slot-by-slot later.
 ### Test / utility
 
 | URL              | React page                    |
-| ---------------- | ----------------------------- |
+| ---------------- | ----------------------------- | ------------------------------------ |
 | `/test/markdown` | `src/pages/test/Markdown.tsx` |
 | `/test/error`    | `src/pages/test/Error.tsx`    |
 | `/admin/db`      | `src/pages/admin/Db.tsx`      | Postgres explorer (tables, CSV, SQL) |

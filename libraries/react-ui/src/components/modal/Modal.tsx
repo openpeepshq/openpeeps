@@ -29,7 +29,10 @@ export function Modal() {
       {top && (
         <DialogPortal>
           <DialogOverlay />
-          <DialogContent showCloseButton={false} className="max-h-[90vh] overflow-y-auto p-0">
+          <DialogContent
+            showCloseButton={false}
+            className="max-h-[90vh] overflow-y-auto p-0"
+          >
             <ModalEntryRenderer entry={top} />
           </DialogContent>
         </DialogPortal>
@@ -45,5 +48,11 @@ function ModalEntryRenderer({ entry }: { entry: ModalEntry }) {
     [],
   );
   const close = React.useCallback(() => modalStore.closeTop(), []);
-  return <Component {...(entry.props as Record<string, unknown>)} close={close} setResponse={setResponse} />;
+  return (
+    <Component
+      {...(entry.props as Record<string, unknown>)}
+      close={close}
+      setResponse={setResponse}
+    />
+  );
 }

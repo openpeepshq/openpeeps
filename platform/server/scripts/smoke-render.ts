@@ -35,134 +35,135 @@ const fakeGroup = {
   description: 'For people who love jam.',
 };
 
-const fixtures: Array<{ template: string; locals?: Record<string, unknown> }> = [
-  { template: 'welcome' },
-  { template: 'test' },
-  {
-    template: 'validateEmail',
-    locals: { emailValidationLink: 'https://example.com/validate?token=abc' },
-  },
-  {
-    template: 'resetPassword',
-    locals: { resetPasswordLink: 'https://example.com/reset?token=xyz' },
-  },
+const fixtures: Array<{ template: string; locals?: Record<string, unknown> }> =
+  [
+    { template: 'welcome' },
+    { template: 'test' },
+    {
+      template: 'validateEmail',
+      locals: { emailValidationLink: 'https://example.com/validate?token=abc' },
+    },
+    {
+      template: 'resetPassword',
+      locals: { resetPasswordLink: 'https://example.com/reset?token=xyz' },
+    },
 
-  {
-    template: 'notification-announcement',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      post: fakePost,
+    {
+      template: 'notification-announcement',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        post: fakePost,
+      },
     },
-  },
-  {
-    template: 'notification-directMessage',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      post: fakePost,
-      data: { conversationStart: fakePost },
+    {
+      template: 'notification-directMessage',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        post: fakePost,
+        data: { conversationStart: fakePost },
+      },
     },
-  },
-  {
-    template: 'notification-follow',
-    locals: { senderProfile: fakeProfile, recipientProfile: fakeProfile },
-  },
-  {
-    template: 'notification-jamModerator',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      post: fakePost,
+    {
+      template: 'notification-follow',
+      locals: { senderProfile: fakeProfile, recipientProfile: fakeProfile },
     },
-  },
-  {
-    template: 'notification-jamSpeaker',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      post: fakePost,
+    {
+      template: 'notification-jamModerator',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        post: fakePost,
+      },
     },
-  },
-  {
-    template: 'notification-jamStarted',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      post: fakePost,
+    {
+      template: 'notification-jamSpeaker',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        post: fakePost,
+      },
     },
-  },
-  {
-    template: 'notification-newProfile',
-    locals: { senderProfile: fakeProfile, recipientProfile: fakeProfile },
-  },
-  {
-    template: 'notification-reaction',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      post: fakePost,
+    {
+      template: 'notification-jamStarted',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        post: fakePost,
+      },
     },
-  },
-  {
-    template: 'notification-reply',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      post: fakePost,
-      data: { replyPost: fakePost },
+    {
+      template: 'notification-newProfile',
+      locals: { senderProfile: fakeProfile, recipientProfile: fakeProfile },
     },
-  },
-  {
-    template: 'notification-repost',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      post: fakePost,
+    {
+      template: 'notification-reaction',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        post: fakePost,
+      },
     },
-  },
-  {
-    template: 'notification-groupMemberJoined',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      group: fakeGroup,
+    {
+      template: 'notification-reply',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        post: fakePost,
+        data: { replyPost: fakePost },
+      },
     },
-  },
-  {
-    template: 'notification-groupMemberLeft',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      group: fakeGroup,
+    {
+      template: 'notification-repost',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        post: fakePost,
+      },
     },
-  },
-  {
-    template: 'notification-groupAdded',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      group: fakeGroup,
+    {
+      template: 'notification-groupMemberJoined',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        group: fakeGroup,
+      },
     },
-  },
-  {
-    template: 'notification-newGroupPost',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      post: fakePost,
-      group: fakeGroup,
+    {
+      template: 'notification-groupMemberLeft',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        group: fakeGroup,
+      },
     },
-  },
-  {
-    template: 'notification-mention',
-    locals: {
-      senderProfile: fakeProfile,
-      recipientProfile: fakeProfile,
-      post: fakePost,
+    {
+      template: 'notification-groupAdded',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        group: fakeGroup,
+      },
     },
-  },
-];
+    {
+      template: 'notification-newGroupPost',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        post: fakePost,
+        group: fakeGroup,
+      },
+    },
+    {
+      template: 'notification-mention',
+      locals: {
+        senderProfile: fakeProfile,
+        recipientProfile: fakeProfile,
+        post: fakePost,
+      },
+    },
+  ];
 
 const main = async () => {
   await initializeServer();

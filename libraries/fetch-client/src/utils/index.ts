@@ -1,6 +1,8 @@
 import { ClientConfig, ClientConfigSource, FormDataSource } from '../types';
 
-export const resolveConfig = async (source: ClientConfigSource): Promise<ClientConfig> => {
+export const resolveConfig = async (
+  source: ClientConfigSource,
+): Promise<ClientConfig> => {
   if (!source) return {};
   if (typeof source === 'function') {
     return await source();
@@ -40,4 +42,5 @@ export const convertToFormData = (source: FormDataSource): FormData => {
 };
 
 export const stringifyValues = (source?: Record<string, string | number>) =>
-  source && Object.fromEntries(Object.entries(source).map(([k, v]) => [k, String(v)]));
+  source &&
+  Object.fromEntries(Object.entries(source).map(([k, v]) => [k, String(v)]));

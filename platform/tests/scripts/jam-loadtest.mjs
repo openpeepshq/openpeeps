@@ -62,7 +62,8 @@ const cfg = {
   minStayConnectedRate: envFloat('LOADTEST_MIN_STAY_CONNECTED_RATE', 0.95),
   connectRps: envFloat('LOADTEST_CONNECT_RPS', 8),
   registerConcurrency: envInt('LOADTEST_REGISTER_CONCURRENCY', 10),
-  userPrefix: process.env.LOADTEST_USER_PREFIX || `lt${Date.now().toString(36)}`,
+  userPrefix:
+    process.env.LOADTEST_USER_PREFIX || `lt${Date.now().toString(36)}`,
   password: process.env.LOADTEST_PASSWORD || 'loadtest-password-1',
   moderatorToken: process.env.LOADTEST_TOKEN || '',
   video: process.env.LOADTEST_VIDEO === 'true',
@@ -234,17 +235,25 @@ const main = async () => {
   let modToken = cfg.moderatorToken;
   let modProfile;
   if (modToken) {
-    modProfile = await apiJson('GET', '/api/openpeeps/core/v1/profiles/current', {
-      token: modToken,
-    });
+    modProfile = await apiJson(
+      'GET',
+      '/api/openpeeps/core/v1/profiles/current',
+      {
+        token: modToken,
+      },
+    );
   } else {
     const handle = `${cfg.userPrefix}mod`;
     const email = `${handle}@loadtest.local`;
     const auth = await registerOrLogin(handle, email);
     modToken = auth.token;
-    modProfile = await apiJson('GET', '/api/openpeeps/core/v1/profiles/current', {
-      token: modToken,
-    });
+    modProfile = await apiJson(
+      'GET',
+      '/api/openpeeps/core/v1/profiles/current',
+      {
+        token: modToken,
+      },
+    );
   }
 
   const start = new Date(Date.now() + 60_000).toISOString();
@@ -319,7 +328,10 @@ const main = async () => {
     livekitUrl = jamAuth.livekitUrl;
     const connectedAt = Date.now();
     try {
-      const pub = await createSilentPublisher(jamAuth.livekitUrl, jamAuth.token);
+      const pub = await createSilentPublisher(
+        jamAuth.livekitUrl,
+        jamAuth.token,
+      );
       connectOk += 1;
       if (pub.published) publishOk += 1;
       participants.push({
@@ -431,7 +443,9 @@ const main = async () => {
     const type = eventSends % 2 === 0 ? 'message' : 'reaction';
     const id = randomUUID();
     const content =
-      type === 'message' ? `loadtest-${eventSends}` : ['👍', '🎉', '❤️', '🔥'][eventSends % 4];
+      type === 'message'
+        ? `loadtest-${eventSends}`
+        : ['👍', '🎉', '❤️', '🔥'][eventSends % 4];
     const body = {
       id,
       jamId: eventId,
@@ -476,7 +490,8 @@ const main = async () => {
   await audioPump.catch(() => undefined);
 
   const delivered = [...sentEvents.values()].filter(
-    (e) => e.firstLatencyMs !== null && e.firstLatencyMs <= cfg.maxEventLatencyMs,
+    (e) =>
+      e.firstLatencyMs !== null && e.firstLatencyMs <= cfg.maxEventLatencyMs,
   );
   const firstLatencies = delivered
     .map((e) => e.firstLatencyMs)

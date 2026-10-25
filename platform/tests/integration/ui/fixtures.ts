@@ -73,7 +73,11 @@ const register = async (
 
   if (!response.ok()) {
     for (let attempt = 0; attempt < 40; attempt += 1) {
-      const credentials = await login(request, user.email, user.password ?? password);
+      const credentials = await login(
+        request,
+        user.email,
+        user.password ?? password,
+      );
       if (credentials) return credentials;
       await wait(250);
     }
@@ -186,7 +190,9 @@ export const registerViaUi = async (page: Page) => {
   await page.goto('/auth/register');
   await page.getByTestId(testIds.auth.registerHandle).fill(handle);
   await page.getByTestId(testIds.auth.registerName).fill(`UI Signup ${suffix}`);
-  await page.getByTestId(testIds.auth.registerEmail).fill(`ui-signup-${suffix}@example.com`);
+  await page
+    .getByTestId(testIds.auth.registerEmail)
+    .fill(`ui-signup-${suffix}@example.com`);
   await page.getByTestId(testIds.auth.registerPassword).fill(password);
   await page.getByTestId(testIds.auth.registerConfirmPassword).fill(password);
   await page.getByTestId(testIds.auth.registerPrivacyCheckbox).check();
@@ -226,7 +232,9 @@ export const createGroupViaUi = async (
   await page.getByTestId(testIds.groups.handleInput).fill(groupHandle);
 
   if (options.description) {
-    await page.getByTestId(testIds.groups.descriptionInput).fill(options.description);
+    await page
+      .getByTestId(testIds.groups.descriptionInput)
+      .fill(options.description);
   }
 
   if (options.rules) {
@@ -234,12 +242,16 @@ export const createGroupViaUi = async (
   }
 
   if (options.adminsOnlyEvents) {
-    await page.getByTestId(testIds.groups.template('announcementGroup')).check();
+    await page
+      .getByTestId(testIds.groups.template('announcementGroup'))
+      .check();
   }
 
   await page.getByTestId(testIds.groups.createSubmit).click();
   await expect(page).toHaveURL(new RegExp(`/groups/@${groupHandle}$`));
-  await expect(page.getByTestId(testIds.groups.headerTitle)).toHaveText(groupName);
+  await expect(page.getByTestId(testIds.groups.headerTitle)).toHaveText(
+    groupName,
+  );
 
   return { groupName, groupHandle };
 };
@@ -299,7 +311,9 @@ export const createPostViaUi = async (page: Page, content?: string) => {
   await submitButton.click();
   const response = await createPostResponse;
   expect(response.ok(), `create post failed: ${response.status()}`).toBe(true);
-  await expect(page.getByTestId(testIds.posts.composerContent)).not.toBeVisible();
+  await expect(
+    page.getByTestId(testIds.posts.composerContent),
+  ).not.toBeVisible();
   await page.reload();
   await expect(page.getByTestId(testIds.feeds.communityHeading)).toBeVisible();
   await expect(page.getByText(postContent)).toBeVisible();
@@ -337,7 +351,9 @@ export const assertExploreFindsPost = async (page: Page) => {
         const results = (await response.json()) as Array<{
           data: { data: { content?: string } };
         }>;
-        return results.some((item) => item.data.data.content?.includes(content));
+        return results.some((item) =>
+          item.data.data.content?.includes(content),
+        );
       },
       { timeout: 45_000, intervals: [500, 1000, 2000] },
     )
@@ -351,25 +367,35 @@ export const assertExploreFindsPost = async (page: Page) => {
 
 export const assertSettingsPages = async (page: Page) => {
   await page.goto('/settings');
-  await expect(page.getByTestId(testIds.settings.linkPublicProfile)).toBeVisible();
+  await expect(
+    page.getByTestId(testIds.settings.linkPublicProfile),
+  ).toBeVisible();
   await expect(page.getByTestId(testIds.settings.linkAccount)).toBeVisible();
-  await expect(page.getByTestId(testIds.settings.linkNotifications)).toBeVisible();
+  await expect(
+    page.getByTestId(testIds.settings.linkNotifications),
+  ).toBeVisible();
   await expect(page.getByTestId(testIds.settings.linkTheme)).toBeVisible();
 
   await page.goto('/settings/public-profile');
-  await expect(page.getByTestId(testIds.settings.displayNameInput)).toBeVisible();
+  await expect(
+    page.getByTestId(testIds.settings.displayNameInput),
+  ).toBeVisible();
   await expect(page.getByTestId(testIds.settings.handleInput)).toBeVisible();
   await expect(page.getByTestId(testIds.settings.bioInput)).toBeVisible();
 
   await page.goto('/settings/account');
-  await expect(page.getByTestId(testIds.settings.currentPasswordInput)).toBeVisible();
+  await expect(
+    page.getByTestId(testIds.settings.currentPasswordInput),
+  ).toBeVisible();
   await expect(page.getByTestId(testIds.settings.emailInput)).toBeVisible();
 
   await page.goto('/settings/notifications');
   await expect(
     page.getByTestId(testIds.settings.notificationsPreferencesLink),
   ).toBeVisible();
-  await expect(page.getByTestId(testIds.settings.pushDevicesLink)).toBeVisible();
+  await expect(
+    page.getByTestId(testIds.settings.pushDevicesLink),
+  ).toBeVisible();
   await page.goto('/settings/notifications/preferences');
   await expect(page.getByTestId(testIds.settings.saveButton)).toBeVisible();
 };
@@ -400,7 +426,9 @@ export const assertMembersPage = async (page: Page) => {
 
 export const assertAdminConfiguration = async (page: Page) => {
   await page.goto('/admin/configuration');
-  await expect(page.getByTestId(testIds.admin.configurationHeading)).toBeVisible();
+  await expect(
+    page.getByTestId(testIds.admin.configurationHeading),
+  ).toBeVisible();
 };
 
 /** Owner profile from global setup (`test@test.com` / `@test`). */
@@ -411,7 +439,9 @@ export const assertProfilePage = async (
   handle = ownerProfileHandle,
 ) => {
   await page.goto(`/@${handle}`);
-  await expect(page.getByTestId(testIds.profile.headerTitle)).toHaveText(handle);
+  await expect(page.getByTestId(testIds.profile.headerTitle)).toHaveText(
+    handle,
+  );
 };
 
 export const assertProfileFollowersPage = async (
@@ -419,9 +449,9 @@ export const assertProfileFollowersPage = async (
   handle = ownerProfileHandle,
 ) => {
   await page.goto(`/@${handle}/followers`);
-  await expect(page.getByTestId(testIds.profile.followersHeading)).toContainText(
-    handle,
-  );
+  await expect(
+    page.getByTestId(testIds.profile.followersHeading),
+  ).toContainText(handle);
 };
 
 export const assertProfileFollowingPage = async (
@@ -429,9 +459,9 @@ export const assertProfileFollowingPage = async (
   handle = ownerProfileHandle,
 ) => {
   await page.goto(`/@${handle}/following`);
-  await expect(page.getByTestId(testIds.profile.followingHeading)).toContainText(
-    handle,
-  );
+  await expect(
+    page.getByTestId(testIds.profile.followingHeading),
+  ).toContainText(handle);
 };
 
 export const assertProfileRoutes = async (page: Page) => {

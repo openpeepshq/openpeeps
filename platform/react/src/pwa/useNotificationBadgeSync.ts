@@ -27,7 +27,9 @@ export const useNotificationBadgeSync = (): void => {
     syncFromCache();
 
     return queryClient.getQueryCache().subscribe((event) => {
-      if (!matchesQueryKey(event.query.queryKey, NOTIFICATION_STATS_QUERY_KEY)) {
+      if (
+        !matchesQueryKey(event.query.queryKey, NOTIFICATION_STATS_QUERY_KEY)
+      ) {
         return;
       }
       syncFromCache();

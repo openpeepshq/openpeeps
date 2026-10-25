@@ -12,7 +12,11 @@ export interface InfiniteScrollOptions {
  */
 export function useInfiniteScroll<T extends Element>(
   callback: () => void,
-  { rootMargin = '100px', threshold = 0.1, enabled = true }: InfiniteScrollOptions = {},
+  {
+    rootMargin = '100px',
+    threshold = 0.1,
+    enabled = true,
+  }: InfiniteScrollOptions = {},
 ): RefObject<T | null> {
   const ref = useRef<T>(null);
   const callbackRef = useRef(callback);

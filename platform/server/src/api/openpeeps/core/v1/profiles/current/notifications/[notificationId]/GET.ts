@@ -16,7 +16,10 @@ export const Error = {
 
 export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (input, event: RequestEvent) => {
-    const notification = await findNotification(await ensureLocalProfile(event), input.notificationId);
+    const notification = await findNotification(
+      await ensureLocalProfile(event),
+      input.notificationId,
+    );
 
     if (!notification) {
       throw notFound();

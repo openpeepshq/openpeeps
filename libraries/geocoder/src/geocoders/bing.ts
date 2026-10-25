@@ -1,5 +1,4 @@
 import {
-  Bounds,
   GeocoderBuilder,
   GeocoderOptions,
   GeocodingResult,
@@ -7,7 +6,7 @@ import {
 } from '../types';
 import { getJSON } from '../util';
 
-export interface BingOptions extends GeocoderOptions {}
+export type BingOptions = GeocoderOptions;
 
 /**
  * Implementation of the [Bing Locations API](https://docs.microsoft.com/en-us/bingmaps/rest-services/locations/)

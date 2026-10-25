@@ -21,5 +21,8 @@ export const Query = z.object({
 
 export const apiEndpoint = endpoint({ Output, Error, Query }).handle(
   async (param, event: RequestEvent): Promise<PublicNotification[]> =>
-    listNotificationsByProfile(await ensureLocalProfile(event), Query.parse(param))
+    listNotificationsByProfile(
+      await ensureLocalProfile(event),
+      Query.parse(param),
+    ),
 );

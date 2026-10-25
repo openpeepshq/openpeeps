@@ -1,5 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
-import { publicPostSchema, offsetInfiniteQueryParamsSchema } from '@openpeepshq/common/types';
+import {
+  publicPostSchema,
+  offsetInfiniteQueryParamsSchema,
+} from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import { listUpcomingGroupEventsFeed } from '@openpeepshq/core/posts';
 import { ensureProfileOrPublicCommunity } from '#lib/auth';

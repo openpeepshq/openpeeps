@@ -3,8 +3,8 @@ import { FileIcon } from 'lucide-react-native';
 import { FileChartPieIcon, FileTextIcon } from '../icons/index';
 
 export const getFileType = (attachment: MediaAttachmentData) => {
-  let name = attachment.description?.toLowerCase();
-  let mime = attachment.meta?.mimetype?.toLowerCase();
+  const name = attachment.description?.toLowerCase();
+  const mime = attachment.meta?.mimetype?.toLowerCase();
 
   if (!name || !mime) {
     return 'unknown';

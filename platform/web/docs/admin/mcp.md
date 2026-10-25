@@ -17,10 +17,10 @@ tokens and reverse proxies should be set up.
 Both routes are Streamable HTTP. They are mounted when `OPENPEEPS_MCP` is not
 `0` (enabled by default).
 
-| URL | Profile | Who should use it |
-| --- | ------- | ----------------- |
-| `/mcp/community` | Member APIs | People and bots acting as a member |
-| `/mcp/ops` | Curated `/admin/*` APIs | Owners and moderators with the matching role capabilities |
+| URL              | Profile                 | Who should use it                                         |
+| ---------------- | ----------------------- | --------------------------------------------------------- |
+| `/mcp/community` | Member APIs             | People and bots acting as a member                        |
+| `/mcp/ops`       | Curated `/admin/*` APIs | Owners and moderators with the matching role capabilities |
 
 Example:
 
@@ -44,11 +44,11 @@ The two catalogs are disjoint. Community MCP never lists `admin_*` tools.
 
 ## Enable and disable
 
-| Variable | Effect |
-| -------- | ------ |
-| `OPENPEEPS_MCP` unset or any value other than `0` | Mount `/mcp/community` and `/mcp/ops` |
-| `OPENPEEPS_MCP=0` | Do not mount the routes (clients see `404`) |
-| `OPENPEEPS_MCP_API_BASE` | Origin the MCP tools use when they call the API in-process. Default `http://127.0.0.1:$PORT` (`PORT` defaults to `5173`) |
+| Variable                                          | Effect                                                                                                                   |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `OPENPEEPS_MCP` unset or any value other than `0` | Mount `/mcp/community` and `/mcp/ops`                                                                                    |
+| `OPENPEEPS_MCP=0`                                 | Do not mount the routes (clients see `404`)                                                                              |
+| `OPENPEEPS_MCP_API_BASE`                          | Origin the MCP tools use when they call the API in-process. Default `http://127.0.0.1:$PORT` (`PORT` defaults to `5173`) |
 
 MCP tools do not bootstrap `@openpeepshq/core` themselves. They call
 `/api/openpeeps/core/v1/...` on `OPENPEEPS_MCP_API_BASE` with the caller's
@@ -121,22 +121,22 @@ On OpenClaw, keep `transport: "streamable-http"`. On OpenCode, keep
 Mutating tools are marked. They have the same effect as the matching action in
 **Administration**.
 
-| Tool | Purpose |
-| ---- | ------- |
-| `admin_server_stats` | Server stats |
-| `admin_list_logs` | Log rows for an optional `date` (`YYYY-MM-DD`) |
-| `admin_config_read` | Read config by `namespace` and `name` |
-| `admin_config_update` | **Patch** config by `namespace` and `name` |
-| `admin_list_reports` | List all reports |
-| `admin_resolve_report` | **Resolve** a report (`ignore`, `remove`, `warn`, `ban`, `other`) |
-| `admin_list_profiles` | List profiles |
-| `admin_list_accounts` | List accounts |
-| `admin_list_backups` | List backup archive names |
-| `admin_create_backup` | **Create** a backup (see [Backups](/docs/admin/backups)) |
-| `admin_email_queue_stats` | Email queue diagnostics |
-| `admin_job_detail` | BullMQ job by `queue` and `jobId` |
-| `admin_list_groups` | List all groups |
-| `admin_delete_group` | **Delete** a group (`core-groups-delete`) |
+| Tool                      | Purpose                                                           |
+| ------------------------- | ----------------------------------------------------------------- |
+| `admin_server_stats`      | Server stats                                                      |
+| `admin_list_logs`         | Log rows for an optional `date` (`YYYY-MM-DD`)                    |
+| `admin_config_read`       | Read config by `namespace` and `name`                             |
+| `admin_config_update`     | **Patch** config by `namespace` and `name`                        |
+| `admin_list_reports`      | List all reports                                                  |
+| `admin_resolve_report`    | **Resolve** a report (`ignore`, `remove`, `warn`, `ban`, `other`) |
+| `admin_list_profiles`     | List profiles                                                     |
+| `admin_list_accounts`     | List accounts                                                     |
+| `admin_list_backups`      | List backup archive names                                         |
+| `admin_create_backup`     | **Create** a backup (see [Backups](/docs/admin/backups))          |
+| `admin_email_queue_stats` | Email queue diagnostics                                           |
+| `admin_job_detail`        | BullMQ job by `queue` and `jobId`                                 |
+| `admin_list_groups`       | List all groups                                                   |
+| `admin_delete_group`      | **Delete** a group (`core-groups-delete`)                         |
 
 If ops needs a capability the admin HTTP API does not expose yet, add a
 role-gated admin endpoint first, then wrap it as an MCP tool. Do not bootstrap
@@ -181,13 +181,13 @@ tools. `OPENPEEPS_API_BASE` is the community origin the tools call.
 
 ## Troubleshooting
 
-| Symptom | Likely cause |
-| ------- | ------------ |
+| Symptom                                 | Likely cause                                                                                |
+| --------------------------------------- | ------------------------------------------------------------------------------------------- |
 | `404` on `/mcp/community` or `/mcp/ops` | `OPENPEEPS_MCP=0`, or the request hit a frontend that does not proxy those paths to the API |
-| `401` | Missing or malformed `Authorization: Bearer …` |
-| Tool lists appear, calls return `403` | Token belongs to a member, or the profile lacks the admin capability for that tool |
-| Tools fail with connection errors | `OPENPEEPS_MCP_API_BASE` does not reach the API from the server process |
-| Community client shows `admin_*` tools | It is pointed at `/mcp/ops` by mistake |
+| `401`                                   | Missing or malformed `Authorization: Bearer …`                                              |
+| Tool lists appear, calls return `403`   | Token belongs to a member, or the profile lacks the admin capability for that tool          |
+| Tools fail with connection errors       | `OPENPEEPS_MCP_API_BASE` does not reach the API from the server process                     |
+| Community client shows `admin_*` tools  | It is pointed at `/mcp/ops` by mistake                                                      |
 
 <div style="height:20px"></div>
 

@@ -45,7 +45,6 @@ import type {
   Event,
   PublicPost,
   PublicProfile,
-  Jam,
   Question,
   Answer,
   ProfileWithMeta,

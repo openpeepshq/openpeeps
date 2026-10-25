@@ -38,11 +38,11 @@ const baseClass =
 export const PopupMenuButton = ({
   action,
   text = '',
-  loadingText = '',
+  loadingText: _loadingText = '',
   icon: Icon,
   danger = false,
   compact = false,
-  title = '',
+  title: _title = '',
   textSlot,
   closeOnPress = true,
   disabled,

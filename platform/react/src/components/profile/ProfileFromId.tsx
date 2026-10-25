@@ -18,11 +18,7 @@ export function ProfileFromId({
   const profile = profileQuery.data;
 
   if (profileQuery.isLoading) {
-    return (
-      <div className="text-muted-foreground py-2 text-sm">
-        Loading…
-      </div>
-    );
+    return <div className="text-muted-foreground py-2 text-sm">Loading…</div>;
   }
 
   if (!profile) return null;

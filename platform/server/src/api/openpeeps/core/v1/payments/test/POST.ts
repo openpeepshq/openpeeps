@@ -1,4 +1,4 @@
-import { endpoint, z } from '#lib/endpoint';
+import { endpoint } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
 import {
   successFailureResponseSchema,
@@ -14,6 +14,6 @@ export const Error = {
   404: notFound(),
 };
 
-export const apiEndpoint = endpoint({ Input, Output, Error }).handle(async (input) =>
-  testStripeCredentials(input),
+export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
+  async (input) => testStripeCredentials(input),
 );

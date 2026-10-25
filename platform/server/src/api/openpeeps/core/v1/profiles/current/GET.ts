@@ -9,10 +9,12 @@ export const Error = {
   401: authNeeded(),
 };
 
-export const apiEndpoint = endpoint({ Output, Error }).handle(async (_, event) => {
-  const profile = event.context.currentProfile;
-  if (!profile) {
-    throw forbidden();
-  }
-  return profile;
-});
+export const apiEndpoint = endpoint({ Output, Error }).handle(
+  async (_, event) => {
+    const profile = event.context.currentProfile;
+    if (!profile) {
+      throw forbidden();
+    }
+    return profile;
+  },
+);

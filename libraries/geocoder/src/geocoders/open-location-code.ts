@@ -32,7 +32,6 @@ export const OpenLocationCode: GeocoderBuilder = (
     ...options,
   };
 
-
   const api = new PlusCodes();
 
   const geocode = async (query: string): Promise<GeocodingResult[]> => {

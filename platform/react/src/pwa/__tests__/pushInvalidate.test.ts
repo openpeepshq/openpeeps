@@ -12,10 +12,7 @@ describe('normalizePushInvalidateMessage', () => {
         ['posts'],
       ]),
     ).toEqual({
-      keys: [
-        ['profiles', 'current', 'notifications', 'stats'],
-        ['posts'],
-      ],
+      keys: [['profiles', 'current', 'notifications', 'stats'], ['posts']],
     });
   });
 
@@ -34,12 +31,9 @@ describe('normalizePushInvalidateMessage', () => {
 
 describe('dedupeQueryKeys', () => {
   it('removes duplicate query keys', () => {
-    expect(
-      dedupeQueryKeys([
-        ['posts'],
-        ['posts'],
-        ['conversations'],
-      ]),
-    ).toEqual([['posts'], ['conversations']]);
+    expect(dedupeQueryKeys([['posts'], ['posts'], ['conversations']])).toEqual([
+      ['posts'],
+      ['conversations'],
+    ]);
   });
 });

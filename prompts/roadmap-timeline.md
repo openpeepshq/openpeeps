@@ -65,11 +65,11 @@ Mention their counts in the page footer; do not invent dates for them.
 
 ### Detail taper
 
-| Region | Which milestones | Topics per point |
-| --- | --- | --- |
-| **Near term** (current quarter / next ~6–8 weeks) | Each weekly release as its own point | 3–4 concrete topics |
-| **Mid horizon** (rest of year + next 1–2 quarters) | One point per quarter | 2–3 topics |
-| **Far horizon** | Collapse thin quarters (e.g. Q3+Q4 if both tiny); year bucket if present | 1–2 topics |
+| Region                                             | Which milestones                                                         | Topics per point    |
+| -------------------------------------------------- | ------------------------------------------------------------------------ | ------------------- |
+| **Near term** (current quarter / next ~6–8 weeks)  | Each weekly release as its own point                                     | 3–4 concrete topics |
+| **Mid horizon** (rest of year + next 1–2 quarters) | One point per quarter                                                    | 2–3 topics          |
+| **Far horizon**                                    | Collapse thin quarters (e.g. Q3+Q4 if both tiny); year bucket if present | 1–2 topics          |
 
 If milestone structure has changed (no weekly releases, different naming), keep
 the same principle: denser points near today, coarser points later.
@@ -135,21 +135,23 @@ points evenly in the right zone):
 ```html
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OpenPeeps roadmap</title>
-  <style>/* layout + tokens */</style>
-</head>
-<body>
-  <header>…title, issue total…</header>
-  <main class="timeline" style="width:1600px;height:760px;position:relative">
-    <div class="zones">…current quarter / horizon…</div>
-    <svg>…axis, today tick, stems, nodes, arrow…</svg>
-    <!-- absolutely positioned .milestone blocks alternating above/below -->
-  </main>
-  <footer>…spec needed / not planned / source / date…</footer>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenPeeps roadmap</title>
+    <style>
+      /* layout + tokens */
+    </style>
+  </head>
+  <body>
+    <header>…title, issue total…</header>
+    <main class="timeline" style="width:1600px;height:760px;position:relative">
+      <div class="zones">…current quarter / horizon…</div>
+      <svg>…axis, today tick, stems, nodes, arrow…</svg>
+      <!-- absolutely positioned .milestone blocks alternating above/below -->
+    </main>
+    <footer>…spec needed / not planned / source / date…</footer>
+  </body>
 </html>
 ```
 

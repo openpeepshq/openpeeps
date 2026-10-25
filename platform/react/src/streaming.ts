@@ -4,7 +4,7 @@
  * the origin the source URL was served from rather than the API base URL.
  */
 export const vodMasterPlaylistUrl = (
-    storageId: string,
-    origin: string,
+  storageId: string,
+  origin: string,
 ): string =>
-    `${origin.replace(/\/$/, '')}/media/streaming/${storageId}/hls.m3u8`;
+  `${origin.replace(/\/$/, '')}/media/streaming/${storageId}/hls.m3u8`;

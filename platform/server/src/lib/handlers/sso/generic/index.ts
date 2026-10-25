@@ -1,6 +1,6 @@
 import jp from 'jsonpath';
 import { clampProfileDisplayName, interpolate } from '@openpeepshq/common/lib';
-import { endpoint, z } from '#lib/endpoint';
+import { z } from '#lib/';
 import {
   findNewFreeHandle,
   createProfile,

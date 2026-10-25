@@ -23,7 +23,10 @@
  *   - notificationclick `goto:` action → focus matching client / open window
  */
 
-import type { NotificationOptionsType, PushMessage } from '@openpeepshq/common';
+import type {
+  NotificationOptions as NotificationOptionsData,
+  PushMessage,
+} from '@openpeepshq/common';
 import { resolveGotoTarget } from './navigationUrl';
 
 const PUSH_BASE_INVALIDATE_KEYS = [
@@ -120,7 +123,7 @@ self.addEventListener('push', (event) => {
       if (notification) {
         await self.registration.showNotification(
           notification.title ?? '',
-          notification.options,
+          notification.options as unknown as NotificationOptions,
         );
       }
     })(),
@@ -130,7 +133,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   const action =
     event.action ||
-    (event.notification as unknown as NotificationOptionsType)?.actions?.[0]
+    (event.notification as unknown as NotificationOptionsData)?.actions?.[0]
       ?.action ||
     '';
 

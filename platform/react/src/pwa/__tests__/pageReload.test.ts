@@ -17,13 +17,23 @@ describe('isJamRoomPath', () => {
 describe('requestPageReload', () => {
   it('reloads outside a jam', () => {
     let reloads = 0;
-    expect(requestPageReload(() => {
-      reloads += 1;
-    }, () => false)).toBe(true);
+    expect(
+      requestPageReload(
+        () => {
+          reloads += 1;
+        },
+        () => false,
+      ),
+    ).toBe(true);
     expect(reloads).toBe(1);
-    expect(flushDeferredPageReload(() => {
-      reloads += 1;
-    }, () => false)).toBe(false);
+    expect(
+      flushDeferredPageReload(
+        () => {
+          reloads += 1;
+        },
+        () => false,
+      ),
+    ).toBe(false);
   });
 
   it('defers a reload until the jam route is left', () => {

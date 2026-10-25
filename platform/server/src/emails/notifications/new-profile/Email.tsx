@@ -1,9 +1,4 @@
-import {
-  Button,
-  Heading,
-  Section,
-  Text,
-} from '@react-email/components';
+import { Button, Heading, Section, Text } from '@react-email/components';
 import type {
   EmailGlobals,
   ExpandedNotification,

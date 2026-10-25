@@ -1,6 +1,7 @@
 export const dateFormatter = (dateSource: string | Date | number): string => {
   const currentDate = new Date();
-  const inputDate = dateSource instanceof Date ? dateSource : new Date(dateSource);
+  const inputDate =
+    dateSource instanceof Date ? dateSource : new Date(dateSource);
   const timeDiff = currentDate.getTime() - inputDate.getTime();
 
   if (timeDiff < -60 * 60 * 1000) {

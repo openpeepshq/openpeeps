@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import {} from 'react-native';
 import { DropdownMenuSeparator } from './dropdown-menu';
 
 /**

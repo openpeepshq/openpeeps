@@ -1,7 +1,13 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
-import { successResponseSchema, type AccessTokenWithMeta } from '@openpeepshq/common/types';
-import { findAccessToken, revokeAccessToken } from '@openpeepshq/core/accessTokens';
+import {
+  successResponseSchema,
+  type AccessTokenWithMeta,
+} from '@openpeepshq/common/types';
+import {
+  findAccessToken,
+  revokeAccessToken,
+} from '@openpeepshq/core/accessTokens';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureAccessTokenCapabilities } from '#lib/auth';
 
@@ -18,12 +24,16 @@ export const Error = {
 
 export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (param, event: RequestEvent) => {
-    const token: AccessTokenWithMeta | undefined = await findAccessToken(param.accessTokenId);
+    const token: AccessTokenWithMeta | undefined = await findAccessToken(
+      param.accessTokenId,
+    );
     if (!token) {
       throw notFound();
     }
 
-    await ensureAccessTokenCapabilities(event, token, ['core-serviceTokens-delete']);
+    await ensureAccessTokenCapabilities(event, token, [
+      'core-serviceTokens-delete',
+    ]);
 
     await revokeAccessToken(token.id);
     return { success: true as const };

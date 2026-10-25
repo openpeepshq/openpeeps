@@ -16,11 +16,10 @@ export const apiEndpoint = endpoint({ Output, Error }).handle(
   async (_, event: RequestEvent) => {
     const currentProfile = await ensureLocalProfile(event);
 
-    return listPostsByProfile(
-      event.context.authData,
-      currentProfile,
-      { limit: 1000 },
-    )
-      .then(posts => posts.filter(p => p.repost && publicPostSchema.safeParse(p).success));
+    return listPostsByProfile(event.context.authData, currentProfile, {
+      limit: 1000,
+    }).then((posts) =>
+      posts.filter((p) => p.repost && publicPostSchema.safeParse(p).success),
+    );
   },
 );

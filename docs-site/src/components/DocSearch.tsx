@@ -30,7 +30,7 @@ export const DocSearch = ({ docs }: Props): ReactElement => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search docs…"
-        className="border-border bg-surface text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm outline-none focus:border-primary"
+        className="border-border bg-surface text-foreground placeholder:text-muted-foreground focus:border-primary w-full rounded-md border px-3 py-1.5 text-sm outline-none"
         aria-label="Search documentation"
       />
       {results.length > 0 && (
@@ -44,7 +44,9 @@ export const DocSearch = ({ docs }: Props): ReactElement => {
               >
                 <div className="font-medium">{doc.title}</div>
                 {doc.slug && (
-                  <div className="text-muted-foreground text-xs">{doc.slug}</div>
+                  <div className="text-muted-foreground text-xs">
+                    {doc.slug}
+                  </div>
                 )}
               </Link>
             </li>

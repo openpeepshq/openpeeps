@@ -55,21 +55,21 @@ export const ArcGis: GeocoderBuilder = (options: Partial<GeocoderOptions>) => {
         distance: 100,
         f: 'json',
       };
-      const data = await getJSON<any>(
+      const data = await getJSON<ArcgisReverseResponse | undefined>(
         mergedOptions.serviceUrl + '/reverseGeocode',
         params,
       );
       if (!data || data.error) {
         return [];
       }
-      const center = { lat: data.location.y, lng: data.location.x };
+      const center = { lat: data.location!.y, lng: data.location!.x };
       const bbox: Bounds = [
-        { lat: data.location.y, lng: data.location.x },
-        { lat: data.location.y, lng: data.location.x },
+        { lat: data.location!.y, lng: data.location!.x },
+        { lat: data.location!.y, lng: data.location!.x },
       ];
       return [
         {
-          name: data.address.Match_addr,
+          name: data.address!.Match_addr,
           center,
           bbox,
         },
@@ -105,4 +105,10 @@ interface Candidate {
     xmax: number;
     ymax: number;
   };
+}
+
+interface ArcgisReverseResponse {
+  error?: unknown;
+  location?: { x: number; y: number };
+  address?: { Match_addr: string };
 }

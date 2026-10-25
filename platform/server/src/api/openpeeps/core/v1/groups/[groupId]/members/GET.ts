@@ -13,7 +13,6 @@ export const Param = z.object({
 
 export const apiEndpoint = endpoint({ Param, Output }).handle(
   async (params, event: RequestEvent) => {
-
     const group = await findGroup(params.groupId);
 
     if (!group) {

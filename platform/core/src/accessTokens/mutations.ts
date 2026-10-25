@@ -1,8 +1,4 @@
-import {
-  AccessTokenData,
-  AccountWithMeta,
-  ProfileWithMeta,
-} from '@openpeepshq/common/types';
+import { AccessTokenData, ProfileWithMeta } from '@openpeepshq/common/types';
 import { allpeepDb } from '../db';
 import {
   profileAccessTokenConnector,

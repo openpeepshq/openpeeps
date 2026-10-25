@@ -33,11 +33,11 @@ export const manifest: PluginManifest = {
 };
 ```
 
-| Field          | Meaning                                                                                          |
-| -------------- | ------------------------------------------------------------------------------------------------ |
-| `slot`         | Host slot the component should appear in. See [Slots](#slots).                                   |
-| `asset`        | Path relative to the plugin root. The file must resolve inside `web/`.                          |
-| `componentKey` | Id passed to `registerComponent`. Use `<namespace>/<name>/<piece>` so it does not collide.      |
+| Field          | Meaning                                                                                    |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| `slot`         | Host slot the component should appear in. See [Slots](#slots).                             |
+| `asset`        | Path relative to the plugin root. The file must resolve inside `web/`.                     |
+| `componentKey` | Id passed to `registerComponent`. Use `<namespace>/<name>/<piece>` so it does not collide. |
 
 `asset` is appended as-is. `web/widget.js` is served at `/plugin-assets/my-org/my-plugin/web/widget.js`. The script must register the same slot and key. The loader does not check that they match.
 
@@ -77,12 +77,12 @@ The greeter is a hand-written script and has no front-end build. If you compile 
 
 These are the slots the web app renders today. A component registered for any other name stays in the registry until some future `PluginSlot` asks for it.
 
-| Slot                                   | Page                                              | Extra props                                      |
-| -------------------------------------- | ------------------------------------------------- | ------------------------------------------------ |
-| `plugins.header`                       | Community feed and the Plugins page               | —                                                |
-| `plugins.footer`                       | Plugins page                                      | —                                                |
-| `plugins.admin.analytics.<slug>`       | `/admin/analytics/<slug>`                         | `analyticsRange`, `analyticsGroups`              |
-| `plugins.admin.configuration.<slug>`   | `/admin/configuration/<slug>`                     | —                                                |
+| Slot                                 | Page                                | Extra props                         |
+| ------------------------------------ | ----------------------------------- | ----------------------------------- |
+| `plugins.header`                     | Community feed and the Plugins page | —                                   |
+| `plugins.footer`                     | Plugins page                        | —                                   |
+| `plugins.admin.analytics.<slug>`     | `/admin/analytics/<slug>`           | `analyticsRange`, `analyticsGroups` |
+| `plugins.admin.configuration.<slug>` | `/admin/configuration/<slug>`       | —                                   |
 
 `<slug>` is one kebab-case segment: lowercase letters, digits, and single hyphens (`ai-insights`). A second dot (`plugins.admin.analytics.ai.extra`) is ignored, and the page redirects away.
 
@@ -113,13 +113,13 @@ Read the community theme from CSS variables or from `window.__OPENPEEPS_THEME__`
 
 Color variables are space-separated RGB channels (`--color-primary: 12 144 167`), set on `body`. Use them as `rgb(var(--color-primary))` or `rgb(var(--color-primary) / 0.5)`.
 
-| Variable                       | Meaning                                                          |
-| ------------------------------ | ---------------------------------------------------------------- |
-| `--color-primary`              | Community primary color                                          |
-| `--color-primary-foreground`   | Text or icon color on `--color-primary`                          |
-| `--color-secondary`            | Community secondary color                                        |
-| `--color-secondary-foreground` | Text or icon color on `--color-secondary`                        |
-| `--color-surface`              | Neutral panel background                                         |
+| Variable                       | Meaning                                   |
+| ------------------------------ | ----------------------------------------- |
+| `--color-primary`              | Community primary color                   |
+| `--color-primary-foreground`   | Text or icon color on `--color-primary`   |
+| `--color-secondary`            | Community secondary color                 |
+| `--color-secondary-foreground` | Text or icon color on `--color-secondary` |
+| `--color-surface`              | Neutral panel background                  |
 
 For inline styles, the host also publishes ready `rgb(...)` strings:
 

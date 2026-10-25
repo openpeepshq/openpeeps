@@ -1,5 +1,8 @@
 import { endpoint } from '#lib/endpoint';
-import { loginRequestSchema, tokenResponseSchema } from '@openpeepshq/common/types';
+import {
+  loginRequestSchema,
+  tokenResponseSchema,
+} from '@openpeepshq/common/types';
 import { loginHandler } from '#lib/handlers/auth/login';
 import { forbidden, notFound } from '#lib/errors';
 
@@ -11,4 +14,6 @@ export const Error = {
   404: notFound(),
 };
 
-export const apiEndpoint = endpoint({ Input, Output, Error }).handle(loginHandler);
+export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
+  loginHandler,
+);

@@ -106,7 +106,7 @@ const capabilitiesForGroup = (group) => {
   const body = group.body && typeof group.body === 'object' ? group.body : {};
   if (body.capabilities) return undefined;
   if (group.discoverable ?? body.discoverable) {
-    return group.locked ?? body.locked ? lockedCaps : publicCaps;
+    return (group.locked ?? body.locked) ? lockedCaps : publicCaps;
   }
   return privateCaps;
 };

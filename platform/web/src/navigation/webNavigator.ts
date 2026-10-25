@@ -11,7 +11,7 @@ const groupPath = (handle: string) =>
  * Maps {@link NavTarget} values to the current OpenPeeps web path scheme.
  */
 export const createWebNavigator = (): Navigator => ({
-  hrefOf: (target) => {
+  hrefOf: (target: NavTarget) => {
     switch (target.type) {
       case 'home':
         return '/';

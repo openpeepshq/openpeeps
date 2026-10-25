@@ -20,7 +20,10 @@ export const apiEndpoint = endpoint({ Param, Error }).handle(
     const providerId = input.id;
     const queryParams = Object.fromEntries(event.url.searchParams.entries());
     const origin = await serverRootUrl();
-    const callbackUrl = new URL(`/auth/sso/oidc/${providerId}/callback`, origin);
+    const callbackUrl = new URL(
+      `/auth/sso/oidc/${providerId}/callback`,
+      origin,
+    );
 
     try {
       const result = await oidcCallback(providerId, queryParams);

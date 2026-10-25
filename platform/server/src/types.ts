@@ -10,6 +10,7 @@ import type {
  * Populated by the authorization middleware.
  */
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Riddl {
     interface RequestContext {
       authorization?: Authorization;

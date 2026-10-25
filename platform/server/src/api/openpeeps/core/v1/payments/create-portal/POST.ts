@@ -7,7 +7,11 @@ import {
   createStripeCustomerPortal,
 } from '@openpeepshq/core/stripe';
 import { ensureLocalProfile } from '#lib/auth';
-import { getStripeCustomerId, hasValue, isOwnerProfile } from '@openpeepshq/common';
+import {
+  getStripeCustomerId,
+  hasValue,
+  isOwnerProfile,
+} from '@openpeepshq/common';
 import { findProfileSettings } from '@openpeepshq/core/profileSettings';
 
 export const Output = stripeCustomerPortalResponseSchema;
@@ -29,7 +33,7 @@ export const apiEndpoint = endpoint({ Output, Error }).handle(
     }
     const profileSettings = await findProfileSettings(profile.id);
     if (!profileSettings) {
-      return { success: false , message: 'Profile settings not found'};
+      return { success: false, message: 'Profile settings not found' };
     }
     const stripeCustomerId = getStripeCustomerId(profileSettings);
     if (!hasValue(stripeCustomerId)) {

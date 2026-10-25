@@ -92,7 +92,7 @@ export const testStripeCredentials = async (data: StripePaymentConfig) => {
       };
     }
     return { success: true, key: 'configuration.server.stripe.success.test' };
-  } catch (e) {
+  } catch {
     return { success: false, key: 'configuration.server.stripe.errors.failed' };
   }
 };
@@ -110,7 +110,9 @@ export const createStripeCustomerPortal = async (stripeId: string) => {
       }),
     );
     return session.url;
-  } catch {}
+  } catch {
+    // swallowed: caller gets undefined
+  }
 };
 
 export const createStripeCustomer = async (
@@ -261,5 +263,7 @@ export const createStripeCheckoutUrl = async (
         }),
       )
       .then((session) => session.url ?? undefined);
-  } catch {}
+  } catch {
+    // swallowed: caller gets undefined
+  }
 };

@@ -2,9 +2,9 @@
 
 /**
  * Generates CHANGELOG.md from git commits following conventional commit standards
- * 
+ *
  * Conventional commit format: <type>(<scope>): <description>
- * 
+ *
  * Types:
  * - feat: A new feature
  * - fix: A bug fix
@@ -43,7 +43,6 @@ const COMMIT_TYPES = {
   build: 'Build',
 };
 
-
 /** Parse conventional commit message; returns null if not conventional. */
 export function parseCommitMessage(message) {
   if (!message || typeof message !== 'string') {
@@ -79,9 +78,9 @@ function runGit(command) {
 function getReleaseTags() {
   const tags = runGit('git tag --list')
     .split('\n')
-    .map(tag => tag.trim())
+    .map((tag) => tag.trim())
     .filter(Boolean)
-    .map(tagName => {
+    .map((tagName) => {
       const match = tagName.match(RELEASE_TAG_PATTERN);
       if (!match) {
         return null;
@@ -111,7 +110,7 @@ function getCommitsForRange(fromRef, toRef) {
   }
   return output
     .split('\n')
-    .map(line => line.trim())
+    .map((line) => line.trim())
     .filter(Boolean);
 }
 
@@ -156,7 +155,18 @@ function groupCommits(commits) {
 function renderSection(sectionTitle, groupedCommits) {
   let section = `## ${sectionTitle}\n\n`;
   // Add entries in order of importance
-  const typeOrder = ['feat', 'fix', 'perf', 'refactor', 'docs', 'style', 'test', 'ci', 'build', 'chore'];
+  const typeOrder = [
+    'feat',
+    'fix',
+    'perf',
+    'refactor',
+    'docs',
+    'style',
+    'test',
+    'ci',
+    'build',
+    'chore',
+  ];
 
   let hasEntries = false;
   for (const type of typeOrder) {
@@ -211,7 +221,8 @@ function main() {
   console.log('CHANGELOG.md regenerated successfully.');
 }
 
-const isMainModule = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+const isMainModule =
+  process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 if (isMainModule) {
   main();
 }

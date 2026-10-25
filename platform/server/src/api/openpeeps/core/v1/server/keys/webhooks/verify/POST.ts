@@ -13,16 +13,18 @@ export const Error = {
   403: forbidden(),
 };
 
-export const apiEndpoint = endpoint({ Input, Output, Error }).handle(async (input) => {
-  const jwt = await jwtUtil();
-  const verification = await jwt.verify(input.token);
+export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
+  async (input) => {
+    const jwt = await jwtUtil();
+    const verification = await jwt.verify(input.token);
 
-  if (!verification) {
-    throw forbidden('Invalid webhook token');
-  }
+    if (!verification) {
+      throw forbidden('Invalid webhook token');
+    }
 
-  return {
-    success: true as const,
-    payload: verification.payload as Record<string, unknown>,
-  };
-});
+    return {
+      success: true as const,
+      payload: verification.payload as Record<string, unknown>,
+    };
+  },
+);

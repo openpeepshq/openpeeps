@@ -1,6 +1,9 @@
 import { endpoint } from '#lib/endpoint';
 import { authNeeded, forbidden } from '#lib/errors';
-import { publicAccountSchema, type PublicAccount } from '@openpeepshq/common/types';
+import {
+  publicAccountSchema,
+  type PublicAccount,
+} from '@openpeepshq/common/types';
 import { ensureAccount } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 
@@ -12,8 +15,6 @@ export const Error = {
 };
 
 export const apiEndpoint = endpoint({ Output, Error }).handle(
-  async (
-    _: unknown,
-    event: RequestEvent,
-  ): Promise<PublicAccount> => publicAccountSchema.parse(ensureAccount(event)) as PublicAccount
+  async (_: unknown, event: RequestEvent): Promise<PublicAccount> =>
+    publicAccountSchema.parse(ensureAccount(event)) as PublicAccount,
 );

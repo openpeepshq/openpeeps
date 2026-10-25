@@ -1,4 +1,4 @@
-import type { Base, Model } from '@openpeepshq/common/types';
+import type { Model } from '@openpeepshq/common/types';
 
 export type RowTimestamps = {
   createdAt: string;

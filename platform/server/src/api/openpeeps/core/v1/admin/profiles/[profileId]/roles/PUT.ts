@@ -3,7 +3,11 @@ import { roleSchema } from '@openpeepshq/common/types';
 import { successResponseSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { findProfile, assignRole, unassignRole } from '@openpeepshq/core/profiles';
+import {
+  findProfile,
+  assignRole,
+  unassignRole,
+} from '@openpeepshq/core/profiles';
 import { findRoleByKey } from '@openpeepshq/core/roles';
 
 export const Param = z.object({
@@ -36,8 +40,7 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
 
     const incomingUniqueRoles = input.roles.filter(
       (role: { key: string }, index: number, self: { key: string }[]) =>
-        index ===
-        self.findIndex((r: { key: string }) => r.key === role.key),
+        index === self.findIndex((r: { key: string }) => r.key === role.key),
     );
 
     for (const role of incomingUniqueRoles) {

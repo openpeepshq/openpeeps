@@ -20,6 +20,6 @@ export type VodStreamStatusHook = ReturnType<
   StreamingHooks['useVodStreamStatus']
 >;
 
-export type CreateVodStreamAction = (
-  input: { url: string },
-) => Promise<MediaStream>;
+export type CreateVodStreamAction = (input: {
+  url: string;
+}) => Promise<MediaStream>;

@@ -106,7 +106,12 @@ const rewriteZod = () => {
   for (const rel of dirs) {
     for (const file of walk(path.join(root, rel))) {
       const contents = fs.readFileSync(file, 'utf8');
-      if (!contents.includes("from 'zod'") && !contents.includes('from "zod"') && !contents.includes("from 'zod'") && !/from\s+['"]zod['"]/.test(contents)) {
+      if (
+        !contents.includes("from 'zod'") &&
+        !contents.includes('from "zod"') &&
+        !contents.includes("from 'zod'") &&
+        !/from\s+['"]zod['"]/.test(contents)
+      ) {
         continue;
       }
       const next = contents.replace(

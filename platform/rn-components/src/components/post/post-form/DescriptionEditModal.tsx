@@ -27,6 +27,7 @@ export const DescriptionEditModal = forwardRef<
     } catch (error) {
       console.error('Failed to Save', error);
     } finally {
+      // swallowed
     }
   };
 

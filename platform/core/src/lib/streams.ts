@@ -5,7 +5,7 @@ async function* nodeStreamToIterator(stream: ReadStream) {
     yield chunk;
   }
 }
-function iteratorToStream(iterator: AsyncGenerator<any, void, unknown>) {
+function iteratorToStream(iterator: AsyncGenerator<Uint8Array, void, unknown>) {
   return new ReadableStream({
     async pull(controller) {
       const { value, done } = await iterator.next();

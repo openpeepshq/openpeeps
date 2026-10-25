@@ -7,9 +7,6 @@ export interface FullNoteProps {
 
 export function FullNote({ post }: FullNoteProps) {
   return (
-    <FullPostLayout
-      post={post}
-      deleteCallback={() => window.history.back()}
-    />
+    <FullPostLayout post={post} deleteCallback={() => window.history.back()} />
   );
 }

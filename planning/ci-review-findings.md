@@ -10,14 +10,14 @@ errors and warnings.
 
 ### Key Findings at a Glance
 
-| Metric | Value |
-|---|---|
-| Runs analyzed | 30 (build.yaml only) |
-| Pass rate | 76.7% (23/30) |
-| Failure rate | 10.0% (3/30) |
-| Cancellation rate | 13.3% (4/30) |
-| Duration range | 19s – 737s |
-| Avg duration | 387s (~6.5 min) |
+| Metric            | Value                |
+| ----------------- | -------------------- |
+| Runs analyzed     | 30 (build.yaml only) |
+| Pass rate         | 76.7% (23/30)        |
+| Failure rate      | 10.0% (3/30)         |
+| Cancellation rate | 13.3% (4/30)         |
+| Duration range    | 19s – 737s           |
+| Avg duration      | 387s (~6.5 min)      |
 
 Failures cluster in four categories: infrastructure (Docker/network errors
 in the build job), process (commit format / multi-commit branches), code
@@ -31,14 +31,14 @@ cancellation on feature branches.
 
 ### Workflow Files (`.forgejo/workflows/`)
 
-| File | Purpose | Trigger |
-|---|---|---|
-| `build.yaml` | Main CI: build, test, publish, deploy | push, workflow_dispatch, workflow_call |
-| `component-gallery.yaml` | Build & push component gallery image | push to main/staging/stable |
-| `docs.yaml` | Build & push docs site image | push to main/staging/stable |
-| `releases.yaml` | Build & push release notes image | push to main/staging/stable |
-| `regenerate-changelog.yaml` | Nightly CHANGELOG.md regeneration | schedule + manual |
-| `weblate-pr.yaml` | Auto-open PR for Weblate translations | push to `weblate` |
+| File                        | Purpose                               | Trigger                                |
+| --------------------------- | ------------------------------------- | -------------------------------------- |
+| `build.yaml`                | Main CI: build, test, publish, deploy | push, workflow_dispatch, workflow_call |
+| `component-gallery.yaml`    | Build & push component gallery image  | push to main/staging/stable            |
+| `docs.yaml`                 | Build & push docs site image          | push to main/staging/stable            |
+| `releases.yaml`             | Build & push release notes image      | push to main/staging/stable            |
+| `regenerate-changelog.yaml` | Nightly CHANGELOG.md regeneration     | schedule + manual                      |
+| `weblate-pr.yaml`           | Auto-open PR for Weblate translations | push to `weblate`                      |
 
 ### `build.yaml` Job Graph
 
@@ -57,6 +57,7 @@ Concurrency: group = ${{ github.workflow }}-${{ github.ref_name }}
 ```
 
 **Notable job dependencies:**
+
 - `build` depends on both `set-variables` and `i18n-check` — an i18n failure
   blocks the Docker image build.
 - `commit-check` depends on `deploy-docker`, which depends on all test jobs.
@@ -71,46 +72,46 @@ Concurrency: group = ${{ github.workflow }}-${{ github.ref_name }}
 
 ### Status Summary
 
-| Status | Count | % |
-|---|---|---|
-| Success | 23 | 76.7% |
-| Cancelled | 4 | 13.3% |
-| Failure | 3 | 10.0% |
+| Status    | Count | %     |
+| --------- | ----- | ----- |
+| Success   | 23    | 76.7% |
+| Cancelled | 4     | 13.3% |
+| Failure   | 3     | 10.0% |
 
 ### Run Timeline (most recent first)
 
-| Run ID | Time (local) | Branch | Status | Duration | Commit Title (short) |
-|---|---|---|---|---|---|
-| 1970 | Oct 14 14:25 | main | ✅ success | 7m10s | fix(markdown): restore iframe support |
-| 1969 | Oct 14 14:10 | fix/iframe-youtube... | ✅ success | 10m24s | fix(markdown): restore iframe support |
-| 1968 | Oct 14 14:07 | main | ✅ success | 7m20s | fix(rn-components): border radius |
-| 1967 | Oct 14 14:04 | fix/iframe-youtube... | ⛔ cancelled | 4m56s | (superseded by 1969) |
-| 1966 | Oct 14 14:02 | fix/button-border-r... | ✅ success | 3m40s | fix(rn-components): border radius |
-| 1965 | Oct 14 13:35 | fix/button-border-r... | ⛔ cancelled | 2m16s | (superseded by 1966) |
-| 1964 | Oct 14 13:29 | fix/dm-thread-view... | ❌ failure | 4m16s | fix(rn-components): DM alignment |
-| 1963 | Oct 14 13:11 | 1266-export-rsvp... | ❌ failure | 19s | feat(posts): RSVP export |
-| 1962 | Oct 14 12:37 | main | ✅ success | 5m46s | fix(rn-components): DM alignment |
-| 1961 | Oct 14 12:31 | fix/dm-thread-view... | ✅ success | 3m0s | fix(rn-components): DM alignment |
-| 1959 | Oct 14 11:12 | main | ✅ success | 12m17s | chore: bump versions |
-| 1958 | Oct 14 11:02 | chore/bump-packa... | ✅ success | 10m16s | chore: bump versions |
-| 1955 | Oct 14 10:21 | staging | ✅ success | 5m36s | fix(rn-components): conversation UI |
-| 1954 | Oct 14 10:08 | main | ✅ success | 4m47s | fix(rn-components): conversation UI |
-| 1953 | Oct 14 09:49 | fix/rn-conversatio... | ✅ success | 10m18s | fix(rn-components): conversation UI |
-| 1952 | Oct 14 09:36 | fix/rn-conversatio... | ✅ success | 10m42s | fix(rn-components): conversation UI |
-| 1950 | Oct 14 09:30 | main | ✅ success | 5m8s | feat(resources): resource library |
-| 1949 | Oct 14 09:19 | 95-add-a-resour... | ✅ success | 2m46s | feat(resources): resource library |
-| 1948 | Oct 14 09:10 | 95-add-a-resour... | ⛔ cancelled | 1m42s | (superseded by 1949) |
-| 1947 | Oct 14 09:19 | fix/rn-conversatio... | ✅ success | 5m55s | fix(rn-components): conversation UI |
-| 1945 | Oct 14 09:01 | main | ✅ success | 4m55s | feat(resources): resource library |
-| 1944 | Oct 14 08:51 | 95-add-a-resour... | ✅ success | 10m22s | feat(resources): resource library |
-| 1943 | Oct 14 08:32 | main | ✅ success | 5m52s | fix(rn-components): conversation UI |
-| 1942 | Oct 14 08:24 | fix/rn-conversatio... | ✅ success | 2m22s | fix(rn-components): conversation UI |
-| 1941 | Oct 14 08:19 | fix/rn-conversatio... | ⛔ cancelled | 2m9s | (superseded by 1942) |
-| 1940 | Oct 14 02:00 | main | ✅ success | 10m44s | Regenerate changelog (scheduled) |
-| 1936 | Oct 13 18:33 | main | ✅ success | 9m37s | feat(markdown): sanitize iframes |
-| 1935 | Oct 13 18:22 | feat/markdown-htm... | ✅ success | 10m14s | feat(markdown): sanitize iframes |
-| 1934 | Oct 13 18:06 | feat/markdown-htm... | ✅ success | 10m13s | feat(markdown): sanitize iframes |
-| 1933 | Oct 13 17:56 | feat/markdown-htm... | ❌ failure | 8m18s | feat(markdown): sanitize iframes |
+| Run ID | Time (local) | Branch                 | Status       | Duration | Commit Title (short)                  |
+| ------ | ------------ | ---------------------- | ------------ | -------- | ------------------------------------- |
+| 1970   | Oct 14 14:25 | main                   | ✅ success   | 7m10s    | fix(markdown): restore iframe support |
+| 1969   | Oct 14 14:10 | fix/iframe-youtube...  | ✅ success   | 10m24s   | fix(markdown): restore iframe support |
+| 1968   | Oct 14 14:07 | main                   | ✅ success   | 7m20s    | fix(rn-components): border radius     |
+| 1967   | Oct 14 14:04 | fix/iframe-youtube...  | ⛔ cancelled | 4m56s    | (superseded by 1969)                  |
+| 1966   | Oct 14 14:02 | fix/button-border-r... | ✅ success   | 3m40s    | fix(rn-components): border radius     |
+| 1965   | Oct 14 13:35 | fix/button-border-r... | ⛔ cancelled | 2m16s    | (superseded by 1966)                  |
+| 1964   | Oct 14 13:29 | fix/dm-thread-view...  | ❌ failure   | 4m16s    | fix(rn-components): DM alignment      |
+| 1963   | Oct 14 13:11 | 1266-export-rsvp...    | ❌ failure   | 19s      | feat(posts): RSVP export              |
+| 1962   | Oct 14 12:37 | main                   | ✅ success   | 5m46s    | fix(rn-components): DM alignment      |
+| 1961   | Oct 14 12:31 | fix/dm-thread-view...  | ✅ success   | 3m0s     | fix(rn-components): DM alignment      |
+| 1959   | Oct 14 11:12 | main                   | ✅ success   | 12m17s   | chore: bump versions                  |
+| 1958   | Oct 14 11:02 | chore/bump-packa...    | ✅ success   | 10m16s   | chore: bump versions                  |
+| 1955   | Oct 14 10:21 | staging                | ✅ success   | 5m36s    | fix(rn-components): conversation UI   |
+| 1954   | Oct 14 10:08 | main                   | ✅ success   | 4m47s    | fix(rn-components): conversation UI   |
+| 1953   | Oct 14 09:49 | fix/rn-conversatio...  | ✅ success   | 10m18s   | fix(rn-components): conversation UI   |
+| 1952   | Oct 14 09:36 | fix/rn-conversatio...  | ✅ success   | 10m42s   | fix(rn-components): conversation UI   |
+| 1950   | Oct 14 09:30 | main                   | ✅ success   | 5m8s     | feat(resources): resource library     |
+| 1949   | Oct 14 09:19 | 95-add-a-resour...     | ✅ success   | 2m46s    | feat(resources): resource library     |
+| 1948   | Oct 14 09:10 | 95-add-a-resour...     | ⛔ cancelled | 1m42s    | (superseded by 1949)                  |
+| 1947   | Oct 14 09:19 | fix/rn-conversatio...  | ✅ success   | 5m55s    | fix(rn-components): conversation UI   |
+| 1945   | Oct 14 09:01 | main                   | ✅ success   | 4m55s    | feat(resources): resource library     |
+| 1944   | Oct 14 08:51 | 95-add-a-resour...     | ✅ success   | 10m22s   | feat(resources): resource library     |
+| 1943   | Oct 14 08:32 | main                   | ✅ success   | 5m52s    | fix(rn-components): conversation UI   |
+| 1942   | Oct 14 08:24 | fix/rn-conversatio...  | ✅ success   | 2m22s    | fix(rn-components): conversation UI   |
+| 1941   | Oct 14 08:19 | fix/rn-conversatio...  | ⛔ cancelled | 2m9s     | (superseded by 1942)                  |
+| 1940   | Oct 14 02:00 | main                   | ✅ success   | 10m44s   | Regenerate changelog (scheduled)      |
+| 1936   | Oct 13 18:33 | main                   | ✅ success   | 9m37s    | feat(markdown): sanitize iframes      |
+| 1935   | Oct 13 18:22 | feat/markdown-htm...   | ✅ success   | 10m14s   | feat(markdown): sanitize iframes      |
+| 1934   | Oct 13 18:06 | feat/markdown-htm...   | ✅ success   | 10m13s   | feat(markdown): sanitize iframes      |
+| 1933   | Oct 13 17:56 | feat/markdown-htm...   | ❌ failure   | 8m18s    | feat(markdown): sanitize iframes      |
 
 ### Key Timeline Observations
 
@@ -135,21 +136,25 @@ Concurrency: group = ${{ github.workflow }}-${{ github.ref_name }}
 **Failed jobs:** `build-test-image`, `publish-gate`
 
 **build-test-image error:**
+
 ```
 #17 17.58 .../node_modules/@evilmartians/lefthook postinstall: Error: exit status 128
 #19 ERROR: error writing layer blob: unknown
 ERROR: failed to build: failed to solve: error writing layer blob: unknown
 ```
+
 Docker buildx failed to write a layer blob — a transient Docker/storage issue on the
 runner. The lefthook postinstall error is secondary (`git` not available in the
 Docker build context's `.git` directory — see `.dockerignore` line 6).
 
 **publish-gate error:**
+
 ```
 [rn-components] tsc --noEmit failed:
 src/components/layout/PlusButton.tsx(5,35): error TS2307: Cannot find module '../theme/OpenPeepsThemeProvider'
 src/components/layout/PlusButton.tsx(6,32): error TS2307: Cannot find module '../theme/utils'
 ```
+
 TypeScript compilation of `rn-components` failed due to missing module imports.
 This is a **code issue** — `PlusButton.tsx` imports from `../theme/` but those
 modules don't exist at the resolved path.
@@ -167,6 +172,7 @@ modules don't exist at the resolved path.
     events.exportRsvpsError
 i18n parity: 2 blocking defect(s). Add the translations before merging.
 ```
+
 New i18n keys (`events.exportRsvps`, `events.exportRsvpsError`) were added to
 `en.json` but not to the German (`de`) locale. This is a **process gap** — the
 i18n parity check correctly caught it, but the PR process didn't require all
@@ -183,6 +189,7 @@ platform/web build: x Build failed in 12.41s
 [vite-plugin-pwa:build] Could not load virtual:openpeeps-docs (imported by
   src/pages/docs/DocsPage.tsx): DOMPurify.sanitize is not a function
 ```
+
 The Vite/PWA build of `platform/web` failed because `DOMPurify.sanitize` is
 not a function. This is a **code issue** — related to the markdown HTML
 sanitization changes in this branch. The `build` job ran for 8 minutes before
@@ -193,11 +200,11 @@ failing, which means the Docker image was partially built and pushed.
 A broader 30-run sample from July 29–30 shows the same failure patterns at
 higher frequency (30% failure rate vs. 10% currently):
 
-| Failure Type | Count | Error |
-|---|---|---|
-| `build` job | 5/9 failures | `Error response from daemon: Get "https://codeberg.org/v2/": unexpected EOF` |
-| `commit-check` job | 3/9 failures | `branch has N commit(s) ahead of main; expected exactly 1.` + `last commit message does not follow conventional commit format` |
-| `publish-packages` job | 1/9 failures | TypeScript errors during package publish on `main` |
+| Failure Type           | Count        | Error                                                                                                                          |
+| ---------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `build` job            | 5/9 failures | `Error response from daemon: Get "https://codeberg.org/v2/": unexpected EOF`                                                   |
+| `commit-check` job     | 3/9 failures | `branch has N commit(s) ahead of main; expected exactly 1.` + `last commit message does not follow conventional commit format` |
+| `publish-packages` job | 1/9 failures | TypeScript errors during package publish on `main`                                                                             |
 
 The `build` job failures in the older sample were caused by a **transient
 network error** — the Docker daemon inside the build job tried to fetch from
@@ -207,12 +214,12 @@ operation during the Docker build references `codeberg.org`.
 
 ### Failure Summary
 
-| Failure Category | Runs | Root Cause | Type |
-|---|---|---|---|
-| `build-test-image` / `build` (Docker layer/network) | 5+ | Transient Docker/network errors | Infrastructure |
-| `commit-check` (multi-commit / non-conventional) | 3+ | Branch not squashed, commit format | Process |
-| `publish-gate` / `publish-packages` (TypeScript) | 2 | Missing modules, type errors | Code |
-| `i18n-check` (missing translations) | 1 | New i18n keys not added to all locales | Process |
+| Failure Category                                    | Runs | Root Cause                             | Type           |
+| --------------------------------------------------- | ---- | -------------------------------------- | -------------- |
+| `build-test-image` / `build` (Docker layer/network) | 5+   | Transient Docker/network errors        | Infrastructure |
+| `commit-check` (multi-commit / non-conventional)    | 3+   | Branch not squashed, commit format     | Process        |
+| `publish-gate` / `publish-packages` (TypeScript)    | 2    | Missing modules, type errors           | Code           |
+| `i18n-check` (missing translations)                 | 1    | New i18n keys not added to all locales | Process        |
 
 ---
 
@@ -225,6 +232,7 @@ for non-`main` branches) working as designed — a new push to the same branch
 cancels the previous run.
 
 **Branches with cancellations:**
+
 - `fix/iframe-youtube-error-153-webview-rn` — run 1967 cancelled by run 1969
 - `fix/button-border-radius` — run 1965 cancelled by run 1966
 - `95-add-a-resources-tab-for-groups-and-community` — run 1948 cancelled by 1949
@@ -300,16 +308,16 @@ openpeeps:pg:migrate - warn | Postgres migrate hit a schema conflict but app tab
 
 #### 6.6 Docker/pnpm warnings — **Infrastructure**
 
-| Warning | Frequency | Notes |
-|---|---|---|
-| `WARNING! Your credentials are stored unencrypted` | Every Docker build | Credentials in plaintext in `/root/.docker/config.json` |
-| `npm warn install-scripts` (pnpm@12.11.2) | Every Docker build | Global pnpm install runs preinstall/postinstall scripts |
-| `Failed to create bin at .../node_modules/.bin/opc` | Every Docker build | pnpm can't create bin symlinks for CLI tools (ENOENT) |
-| `fatal: not a git repository` (generate-changelog) | ~~Every Docker build~~ | ~~`.git` excluded via `.dockerignore`; script handles gracefully~~ | **Fixed** — changelog now pre-generated in CI (build.yaml), removed from Dockerfile |
-| `Skipped OIDC: ERR_PNPM_ID_TOKEN_GITHUB_WORKFLOW_INCORRECT_PERMISSIONS` | ~~publish-packages only~~ | ~~Missing `permissions: id-token: write` in workflow~~ | ~~Fixed~~ — reverted; Forgejo ignores `permissions:` blocks. OIDC warning persists but is benign (pnpm auth uses secrets, not OIDC) |
-| `Adjust chunk size limit for this warning` (Vite) | Some builds | `platform/web` JS bundle exceeds 500KB default |
-| `Request took 13710ms` (npm registry) | Some builds | Slow npm registry response; adds to build time |
-| `[WARN] GET ... error (23). Will retry.` | Some builds | Transient npm registry error |
+| Warning                                                                 | Frequency                 | Notes                                                              |
+| ----------------------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `WARNING! Your credentials are stored unencrypted`                      | Every Docker build        | Credentials in plaintext in `/root/.docker/config.json`            |
+| `npm warn install-scripts` (pnpm@12.11.2)                               | Every Docker build        | Global pnpm install runs preinstall/postinstall scripts            |
+| `Failed to create bin at .../node_modules/.bin/opc`                     | Every Docker build        | pnpm can't create bin symlinks for CLI tools (ENOENT)              |
+| `fatal: not a git repository` (generate-changelog)                      | ~~Every Docker build~~    | ~~`.git` excluded via `.dockerignore`; script handles gracefully~~ | **Fixed** — changelog now pre-generated in CI (build.yaml), removed from Dockerfile                                                 |
+| `Skipped OIDC: ERR_PNPM_ID_TOKEN_GITHUB_WORKFLOW_INCORRECT_PERMISSIONS` | ~~publish-packages only~~ | ~~Missing `permissions: id-token: write` in workflow~~             | ~~Fixed~~ — reverted; Forgejo ignores `permissions:` blocks. OIDC warning persists but is benign (pnpm auth uses secrets, not OIDC) |
+| `Adjust chunk size limit for this warning` (Vite)                       | Some builds               | `platform/web` JS bundle exceeds 500KB default                     |
+| `Request took 13710ms` (npm registry)                                   | Some builds               | Slow npm registry response; adds to build time                     |
+| `[WARN] GET ... error (23). Will retry.`                                | Some builds               | Transient npm registry error                                       |
 
 #### 6.7 i18n parity warning — **Code debt**
 
@@ -332,6 +340,7 @@ placeholder events.feed.empty: en {type} vs de {-}
 
 The `commit-check` job (`scripts/check-branch.mjs`) depends on `deploy-docker`,
 which depends on all test jobs. This means:
+
 - A branch with 2 commits and a non-conventional commit message will run the
   **entire test suite (6–10 min)** before failing on the commit format check.
 - In run 1964, all build/tests deployed successfully, but `commit-check` failed,
@@ -344,9 +353,10 @@ which depends on all test jobs. This means:
 
 The workflow did not declare `permissions:`, so Forgejo Actions fell back to
 default (minimal) permissions. This caused:
+
 - `Skipped OIDC: ERR_PNPM_ID_TOKEN_GITHUB_WORKFLOW_INCORRECT_PERMISSIONS` in
   `publish-packages` when pnpm tried to use the GitHub-compatible OIDC token.
-**Attempted fix:** Added `permissions: { contents: read, packages: write }` at the workflow level in `build.yaml`.
+  **Attempted fix:** Added `permissions: { contents: read, packages: write }` at the workflow level in `build.yaml`.
 
 **Reverted:** Forgejo does not support the `permissions` key — it emits a warning for every job. The block was removed. The OIDC warning persists in Forgejo but is benign: `publish-packages` authenticates via `secrets.REGISTRY_PASSWORD`, not OIDC.
 
@@ -355,6 +365,7 @@ default (minimal) permissions. This caused:
 The concurrency group is `${{ github.workflow }}-${{ github.ref_name }}` with
 `cancel-in-progress: true` for non-main branches. While this prevents wasted
 runs on the same branch, it:
+
 - Causes 13.3% of runs to be cancelled (4/30)
 - Can mask real test failures (a flaky test's failure is discarded if a new
   push cancels the run)
@@ -377,9 +388,10 @@ Many jobs that use `actions/checkout` do not install `git` in their
 `node:24-alpine` container (only `set-variables`, `build`, `build-test-image`,
 and `commit-check` install git explicitly). The checkout action falls back to
 downloading a tarball via the Forgejo REST API, which means:
+
 - No `.git` directory is available in the checkout
 - Scripts that call `git` commands fail (e.g., `generate-changelog` in Docker
-build — **now fixed** by pre-generating in the `build` job with `fetch-depth: 0`)
+  build — **now fixed** by pre-generating in the `build` job with `fetch-depth: 0`)
 - The `commit-check` job works around this by installing git explicitly
 
 **Fix (partial):** The `build` job now uses `fetch-depth: 0` and
@@ -400,19 +412,22 @@ retry. Fix (implemented): Wrapped `docker buildx build` commands in both
 ### High Priority
 
 1. **Decouple `commit-check` from `deploy-docker`** — **NOT PURSUED**
+
    - Suggestion was to change `needs: [deploy-docker, set-variables]` to `needs: [set-variables]`
    - **Rejected:** The team wants branches that fail commit checks to still
      deploy to a test instance for manual QA. Keeping the current dependency
      is intentional.
-   - *No action needed; documented for future reference.*
+   - _No action needed; documented for future reference._
 
 2. **Add workflow-level `permissions` block** (workflow config change) — **Not implemented**
+
    - Added `permissions: { contents: read, packages: write }` to `build.yaml`
    - Forgejo rejects `permissions:` blocks (warning: "Use Authorized Integrations to grant capabilities")
    - Block removed instead; OIDC warning persists but is benign (auth uses secrets)
    - Future: use Forgejo Authorized Integrations if OIDC token is needed
 
 3. **Add retry for Docker build jobs** (workflow config change) — **Implemented**
+
    - Wrapped `docker buildx build` commands in both `build` and `build-test-image` jobs
      with a retry loop (3 attempts with 10s delay)
    - Retries on transient Docker errors (layer blob failures, network errors)
@@ -430,13 +445,15 @@ retry. Fix (implemented): Wrapped `docker buildx build` commands in both
 
 ### Medium Priority
 
-5. **Install `git` in all jobs** — **NOT PURSUED** that use `actions/checkout`** (workflow config)
+5. **Install `git` in all jobs** — **NOT PURSUED** that use `actions/checkout`\*\* (workflow config)
+
    - Add `apk add --no-cache git` to `test-unit`, `publish-gate`,
      `test-integration-small`, `test-integration-jams`
    - Or set a `default` for all jobs: `defaults.run.working-directory` is
      already set for test-integration; add git install similarly
 
 6. **Fix i18n parity drift for `events.feed.empty`** — **Implemented**
+
    - Add `{type}` placeholder to German translation of `events.feed.empty`
    - Or remove the placeholder from English if it's not used
    - This is the only recurring i18n warning (all locales have it)
@@ -448,6 +465,7 @@ retry. Fix (implemented): Wrapped `docker buildx build` commands in both
 ### Low Priority
 
 8. **Fix pnpm bin linking warnings** (`opc`, `openpeeps-mcp`) — **Implemented**
+
    - These appear because package.json `bin` entries reference files that
      don't exist yet in the Docker build context
    - May require restructuring how CLI bin entries are defined

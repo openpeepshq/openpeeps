@@ -34,9 +34,7 @@ const allSuites: SuiteDef[] = [
 
 const selectedSuites = suite
   ? allSuites.filter((entry) => entry.name === suite)
-  : allSuites.filter(
-      (entry) => entry.name !== 'jams' || livekitConfigured(),
-    );
+  : allSuites.filter((entry) => entry.name !== 'jams' || livekitConfigured());
 
 /** Playwright ignores per-project globalSetup; use setup projects instead. */
 const projects: Project[] = selectedSuites.flatMap((entry) => {

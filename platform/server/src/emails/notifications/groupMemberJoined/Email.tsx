@@ -1,10 +1,4 @@
-import {
-  Button,
-  Heading,
-  Link,
-  Section,
-  Text,
-} from '@react-email/components';
+import { Button, Heading, Link, Section, Text } from '@react-email/components';
 import type {
   EmailGlobals,
   ExpandedNotification,
@@ -22,7 +16,9 @@ export const GroupMemberJoinedEmail = ({
   locals: ExpandedNotification;
 }) => {
   const { t } = globals.i18nContext;
-  const senderName = locals.senderProfile ? profileName(locals.senderProfile) : '';
+  const senderName = locals.senderProfile
+    ? profileName(locals.senderProfile)
+    : '';
   const gName = locals.group ? groupName(locals.group) : '';
 
   return (

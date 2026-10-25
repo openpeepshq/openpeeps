@@ -93,15 +93,17 @@ const LIGHT_PALETTE = {
  * Tailwind config for `@react-email/components` `<Tailwind>`. Compiles utility
  * classes from feed post components into inline `style` attributes.
  */
-export const buildEmailTailwindConfig = (
-  communityConfig?: CommunityConfig,
-) => {
+export const buildEmailTailwindConfig = (communityConfig?: CommunityConfig) => {
   const primaryHex = communityConfig?.theme?.light?.primaryHex;
 
   const colors = primaryHex
     ? {
         ...LIGHT_PALETTE,
-        primary: { ...LIGHT_PALETTE.primary, DEFAULT: primaryHex, 500: primaryHex },
+        primary: {
+          ...LIGHT_PALETTE.primary,
+          DEFAULT: primaryHex,
+          500: primaryHex,
+        },
         ring: primaryHex,
       }
     : LIGHT_PALETTE;

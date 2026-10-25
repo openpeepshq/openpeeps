@@ -1,43 +1,43 @@
 import type { FetchClient } from '@openpeepshq/fetch-client';
 import type {
-    GuestPassRequest,
-    LoginRequest,
-    RegisterRequest,
-    RequestResetPasswordRequest,
-    ResetPasswordRequest,
-    SuccessResponse,
-    TokenResponse,
+  GuestPassRequest,
+  LoginRequest,
+  RegisterRequest,
+  RequestResetPasswordRequest,
+  ResetPasswordRequest,
+  SuccessResponse,
+  TokenResponse,
 } from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 
 export const auth = (rawClient: FetchClient) => ({
-    login: allpeepPayloadEndpoint<TokenResponse, LoginRequest>(
-        rawClient,
-        '/auth/login',
-    ),
-    register: allpeepPayloadEndpoint<TokenResponse, RegisterRequest>(
-        rawClient,
-        '/auth/register',
-    ),
-    requestResetPassword: allpeepPayloadEndpoint<SuccessResponse, RequestResetPasswordRequest>(
-        rawClient,
-        '/auth/request-reset-password',
-    ),
-    resetPassword: allpeepPayloadEndpoint<SuccessResponse, ResetPasswordRequest>(
-        rawClient,
-        '/auth/reset-password',
-    ),
-    guestPass: allpeepPayloadEndpoint<TokenResponse, GuestPassRequest>(
-        rawClient,
-        '/auth/guest-pass',
-    ),
-    refresh: allpeepPayloadEndpoint<TokenResponse, Record<string, never>>(
-        rawClient,
-        '/auth/refresh',
-    ),
-    validateEmail: allpeepNoPayloadEndpoint<
-        SuccessResponse,
-        undefined,
-        { token: string }
-    >(rawClient, '/auth/validate-email'),
-}); 
+  login: allpeepPayloadEndpoint<TokenResponse, LoginRequest>(
+    rawClient,
+    '/auth/login',
+  ),
+  register: allpeepPayloadEndpoint<TokenResponse, RegisterRequest>(
+    rawClient,
+    '/auth/register',
+  ),
+  requestResetPassword: allpeepPayloadEndpoint<
+    SuccessResponse,
+    RequestResetPasswordRequest
+  >(rawClient, '/auth/request-reset-password'),
+  resetPassword: allpeepPayloadEndpoint<SuccessResponse, ResetPasswordRequest>(
+    rawClient,
+    '/auth/reset-password',
+  ),
+  guestPass: allpeepPayloadEndpoint<TokenResponse, GuestPassRequest>(
+    rawClient,
+    '/auth/guest-pass',
+  ),
+  refresh: allpeepPayloadEndpoint<TokenResponse, Record<string, never>>(
+    rawClient,
+    '/auth/refresh',
+  ),
+  validateEmail: allpeepNoPayloadEndpoint<
+    SuccessResponse,
+    undefined,
+    { token: string }
+  >(rawClient, '/auth/validate-email'),
+});
