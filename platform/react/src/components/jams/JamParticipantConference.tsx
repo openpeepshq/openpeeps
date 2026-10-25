@@ -19,6 +19,7 @@ import { JamPeopleDrawer } from './JamPeopleDrawer';
 import { JamNetworkQuality, JamRecordingIndicator } from './JamRoomIndicators';
 import { JamVideoLayout } from './JamVideoLayout';
 import { useJamLocalSettings } from './jamLocalSettings';
+import { useDropLateAudio } from './dropLateAudio';
 
 type Drawer = 'chat' | 'people' | 'details' | null;
 
@@ -162,6 +163,7 @@ function JamParticipantConferenceInner() {
  */
 export function JamParticipantConference() {
   const room = useRoomContext();
+  useDropLateAudio(room);
   return (
     <JamEventsProvider room={room}>
       <JamParticipantConferenceInner />

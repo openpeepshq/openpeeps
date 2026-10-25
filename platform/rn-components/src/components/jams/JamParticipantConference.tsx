@@ -11,6 +11,7 @@ import { Track } from 'livekit-client';
 import { truncateText } from '@openpeepshq/common';
 import {
   JamEventsProvider,
+  useDropLateAudio,
   useJamContext,
   useJamLocalSettings,
 } from '@openpeepshq/react';
@@ -138,6 +139,7 @@ const JamParticipantConferenceInner = () => {
  */
 export const JamParticipantConference = () => {
   const room = useRoomContext();
+  useDropLateAudio(room);
   return (
     <JamEventsProvider room={room}>
       <JamParticipantConferenceInner />

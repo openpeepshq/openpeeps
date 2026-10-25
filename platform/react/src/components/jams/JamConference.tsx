@@ -6,6 +6,7 @@ import {
 } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import { useJamObserver } from './JamContext';
+import { useDropLateAudio } from './dropLateAudio';
 import { JamParticipantConference } from './JamParticipantConference';
 import { JamEventsProvider } from './JamEventsContext';
 import { JamObserverShell } from './JamObserverShell';
@@ -50,6 +51,7 @@ function JamObserverConference() {
 
 function JamObserverRoom() {
   const room = useRoomContext();
+  useDropLateAudio(room);
   return (
     <JamEventsProvider room={room}>
       <JamObserverConference />
