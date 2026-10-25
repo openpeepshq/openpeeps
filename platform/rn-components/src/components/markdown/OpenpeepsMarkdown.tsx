@@ -26,7 +26,7 @@ import { PreviewLink } from '../preview-link';
 import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
 import { recordOutboundClick } from '@openpeepshq/react';
 
-export interface OpenpeepsMarkdownProps extends MarkdownRenderProps {}
+export type OpenpeepsMarkdownProps = MarkdownRenderProps;
 
 export const OpenpeepsMarkdown = ({
   source,

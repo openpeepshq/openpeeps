@@ -17,12 +17,12 @@ sources of truth.
 
 ### Package roles
 
-| Package | Owns | Must not own |
-| --- | --- | --- |
-| **react-ui** | Design-system primitives, tokens, theme injection, RHF field wrappers, layout chrome with no domain types | `@openpeepshq/common` types, `openpeepsApi`, auth/profile providers |
-| **react** | Domain components, pages, `NavTarget` API + pluggable menus, domain hooks/controllers | Concrete URL strings, `react-router` |
-| **web** | Path `Navigator`, `App.tsx` route table, host bootstrap | Page UI |
-| **rn-components** | Native screens/chrome; shared hooks/controllers from react | DOM components from react-ui (for now) |
+| Package           | Owns                                                                                                      | Must not own                                                        |
+| ----------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **react-ui**      | Design-system primitives, tokens, theme injection, RHF field wrappers, layout chrome with no domain types | `@openpeepshq/common` types, `openpeepsApi`, auth/profile providers |
+| **react**         | Domain components, pages, `NavTarget` API + pluggable menus, domain hooks/controllers                     | Concrete URL strings, `react-router`                                |
+| **web**           | Path `Navigator`, `App.tsx` route table, host bootstrap                                                   | Page UI                                                             |
+| **rn-components** | Native screens/chrome; shared hooks/controllers from react                                                | DOM components from react-ui (for now)                              |
 
 **Move to react-ui** only when a module has no `@openpeepshq/common` types **and**
 no `openpeepsApi` / domain context imports.

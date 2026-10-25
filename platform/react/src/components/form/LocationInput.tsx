@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapPin } from 'lucide-react';
-import { Button, Input, Label, LoadingSpinner, cn } from '@openpeepshq/react-ui';
+import {
+  Button,
+  Input,
+  Label,
+  LoadingSpinner,
+  cn,
+} from '@openpeepshq/react-ui';
 import type { GeocodingResult, Location } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';

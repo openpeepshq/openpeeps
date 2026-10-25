@@ -12,6 +12,7 @@
     "esModuleInterop": true,
     "noEmit": false,
     "outDir": "dist",
+    "rootDir": "src",
     "declaration": true,
     "emitDeclarationOnly": false,
     "jsx": "react-jsx",

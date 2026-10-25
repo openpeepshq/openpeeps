@@ -7,7 +7,7 @@ import {
 } from '../types';
 import { getJSON } from '../util';
 
-export interface What3WordsOptions extends GeocoderOptions {}
+export type What3WordsOptions = GeocoderOptions;
 
 interface What3WordsResponse {
   geometry: {

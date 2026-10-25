@@ -13,7 +13,8 @@
   font-style: normal;
   font-weight: 300 700;
   font-display: swap;
-  src: url('../fonts/space-grotesk/SpaceGrotesk.woff2?no-inline') format('woff2');
+  src: url('../fonts/space-grotesk/SpaceGrotesk.woff2?no-inline')
+    format('woff2');
 }
 
 @font-face {
@@ -21,7 +22,8 @@
   font-style: normal;
   font-weight: 100 800;
   font-display: swap;
-  src: url('../fonts/jetbrains-mono/JetBrainsMono.woff2?no-inline') format('woff2');
+  src: url('../fonts/jetbrains-mono/JetBrainsMono.woff2?no-inline')
+    format('woff2');
 }
 
 @font-face {
@@ -29,7 +31,8 @@
   font-style: normal;
   font-weight: 400 900;
   font-display: swap;
-  src: url('../fonts/playfair-display/PlayfairDisplay.woff2?no-inline') format('woff2');
+  src: url('../fonts/playfair-display/PlayfairDisplay.woff2?no-inline')
+    format('woff2');
 }
 
 @font-face {
@@ -61,7 +64,8 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('../fonts/patrick-hand/PatrickHand-Regular.woff2?no-inline') format('woff2');
+  src: url('../fonts/patrick-hand/PatrickHand-Regular.woff2?no-inline')
+    format('woff2');
 }
 
 @font-face {
@@ -77,7 +81,8 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('../fonts/amatic-sc/AmaticSC-Regular.woff2?no-inline') format('woff2');
+  src: url('../fonts/amatic-sc/AmaticSC-Regular.woff2?no-inline')
+    format('woff2');
 }
 
 @font-face {

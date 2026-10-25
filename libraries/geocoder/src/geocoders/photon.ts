@@ -80,9 +80,9 @@ export const Photon: GeocoderBuilder = (options: Partial<PhotonOptions>) => {
 
       const bbox: Bounds = extent
         ? [
-          { lat: extent[1], lng: extent[0] },
-          { lat: extent[3], lng: extent[2] },
-        ]
+            { lat: extent[1], lng: extent[0] },
+            { lat: extent[3], lng: extent[2] },
+          ]
         : [center, center];
 
       return {

@@ -25,10 +25,15 @@ const currentWaitingRoom = (event: PostWithMeta, recurrenceId?: string) =>
     .then((wrRaw) => Object.entries(wrRaw))
     .then((entries) => entries.filter((e) => e[0] && e[1]))
     .then((entries) =>
-      entries.map(([key, value]) => [
-        key,
-        publicProfileSchema.partial().parse(JSON.parse(value)),
-      ]),
+      entries.map(
+        ([key, value]) =>
+          [
+            key,
+            publicProfileSchema
+              .partial()
+              .parse(JSON.parse(value)) as PublicProfile,
+          ] as [string, PublicProfile],
+      ),
     )
     .then((entries) => Object.fromEntries(entries));
 

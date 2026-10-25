@@ -22,9 +22,5 @@ export const collectPath = (
   currentPath: PublicPost[] = [],
 ): PublicPost[] => {
   if (!thread) return currentPath;
-  return [
-    ...currentPath,
-    thread,
-    ...collectPath(thread.children[0]),
-  ];
+  return [...currentPath, thread, ...collectPath(thread.children[0])];
 };

@@ -3,9 +3,7 @@ import { Command } from 'commander';
 import { createAccount, listAccounts } from '@openpeepshq/core/accounts';
 
 export const registerAccountsCommand = (program: Command) => {
-  const accounts = program
-    .command('accounts')
-    .description('Manage accounts');
+  const accounts = program.command('accounts').description('Manage accounts');
 
   accounts
     .command('create')
@@ -15,12 +13,7 @@ export const registerAccountsCommand = (program: Command) => {
     .option('-p, --password <password>', 'Account password')
     .option('-v, --email-validated', 'Mark email as validated')
     .action(async (options) => {
-      const {
-        email,
-        handle,
-        password,
-        emailValidated,
-      } = options as {
+      const { email, handle, password, emailValidated } = options as {
         email: string;
         handle: string;
         password?: string;
@@ -53,8 +46,7 @@ const createAccountCommand = async ({
   password?: string;
   emailValidated?: boolean;
 }) => {
-  const resolvedPassword =
-    password ?? randomBytes(24).toString('base64url');
+  const resolvedPassword = password ?? randomBytes(24).toString('base64url');
 
   if (!email) {
     console.log('Email is required.');

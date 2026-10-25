@@ -1,5 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
-import { modelSchema, mediaAttachmentDataSchema } from '@openpeepshq/common/types';
+import {
+  modelSchema,
+  mediaAttachmentDataSchema,
+} from '@openpeepshq/common/types';
 import { notFound, forbidden } from '#lib/errors';
 import { findMediaAttachment } from '@openpeepshq/core/mediaAttachments';
 
@@ -14,12 +17,14 @@ export const Error = {
   403: forbidden(),
 };
 
-export const apiEndpoint = endpoint({ Param, Output, Error }).handle(async (param) => {
-  const mediaAttachment = await findMediaAttachment(param.mediaAttachmentId);
+export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
+  async (param) => {
+    const mediaAttachment = await findMediaAttachment(param.mediaAttachmentId);
 
-  if (!mediaAttachment) {
-    throw notFound(`Object with id ${param.mediaAttachmentId}`);
-  }
+    if (!mediaAttachment) {
+      throw notFound(`Object with id ${param.mediaAttachmentId}`);
+    }
 
-  return mediaAttachment;
-});
+    return mediaAttachment;
+  },
+);

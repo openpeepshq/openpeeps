@@ -37,7 +37,8 @@ export const VersionSwitcher = ({
     if (!next) return;
     const page = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     // Strip current version prefix from path
-    const stripped = page.replace(new RegExp(`^/${currentId}(?=/|$)`), '') || '/';
+    const stripped =
+      page.replace(new RegExp(`^/${currentId}(?=/|$)`), '') || '/';
     const target = `${next.path.replace(/\/$/, '')}${stripped === '/' ? '/' : stripped}`;
     window.location.assign(target);
   };

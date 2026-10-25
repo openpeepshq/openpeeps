@@ -64,8 +64,6 @@ export const modalStore = {
 
 /** Type-safe utility for "render this React node inside the modal stack". */
 export const showNode = (node: ReactNode): string => {
-  const Wrapper: ComponentType<ModalControlProps<unknown>> = () => (
-    <>{node}</>
-  );
+  const Wrapper: ComponentType<ModalControlProps<unknown>> = () => <>{node}</>;
   return modalStore.push<unknown, unknown>(Wrapper, {});
 };

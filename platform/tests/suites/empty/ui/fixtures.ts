@@ -603,10 +603,7 @@ export const assertExploreSearchTabs = async (page: Page) => {
     email: `${memberHandle}@openpeeps.test`,
     password: 'testtest12',
   });
-  const memberProfile = await fetchCurrentProfile(
-    page.request,
-    member.token,
-  );
+  const memberProfile = await fetchCurrentProfile(page.request, member.token);
 
   const ownerPublic = await page.request.get(
     `/api/openpeeps/core/v1/profiles/${owner.id}`,

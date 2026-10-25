@@ -5,7 +5,10 @@ import {
   accessTokenWithMetaSchema,
   type Scope,
 } from '@openpeepshq/common/types';
-import { createSignedProfileAccessToken, findAccessToken } from '@openpeepshq/core/accessTokens';
+import {
+  createSignedProfileAccessToken,
+  findAccessToken,
+} from '@openpeepshq/core/accessTokens';
 import { forbidden } from '#lib/errors';
 import { ensureLocalProfile } from '#lib/auth';
 
@@ -16,7 +19,6 @@ export const Output = accessTokenWithMetaSchema;
 export const Error = {
   403: forbidden(),
 };
-
 
 export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
   async (input, event: RequestEvent) => {
@@ -45,6 +47,5 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
     };
 
     return result;
-
   },
 );

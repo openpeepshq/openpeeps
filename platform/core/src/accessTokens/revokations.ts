@@ -1,6 +1,5 @@
 import { RedisClientType } from 'redis';
 import { getConnection } from '../redis';
-import { get } from 'http';
 
 const revocationsBloomFilterKey = 'revocations:bloom-filter';
 

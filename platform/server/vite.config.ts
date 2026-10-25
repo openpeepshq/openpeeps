@@ -23,9 +23,7 @@ export default defineConfig({
       // build a thin entrypoint that node resolves at runtime, matching how
       // `vite-node` already runs the server in dev.
       external: (id) =>
-        !id.startsWith('.') &&
-        !id.startsWith('/') &&
-        !id.startsWith('#'),
+        !id.startsWith('.') && !id.startsWith('/') && !id.startsWith('#'),
     },
   },
   ssr: {

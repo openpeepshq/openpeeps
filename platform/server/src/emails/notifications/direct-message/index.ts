@@ -18,7 +18,8 @@ const renderSubject = async (
 };
 
 const template: ReactEmailTemplate<ExpandedNotification> = {
-  component: DirectMessageEmail as ReactEmailTemplate<ExpandedNotification>['component'],
+  component:
+    DirectMessageEmail as ReactEmailTemplate<ExpandedNotification>['component'],
   renderSubject,
 };
 

@@ -222,11 +222,11 @@ so OpenCode sends the static header:
         "url": "https://your-community.example/mcp/community",
         "oauth": false,
         "headers": {
-          "Authorization": "Bearer {env:OPENPEEPS_TOKEN}"
-        }
-      }
-    }
-  }
+          "Authorization": "Bearer {env:OPENPEEPS_TOKEN}",
+        },
+      },
+    },
+  },
 }
 ```
 
@@ -285,9 +285,9 @@ Nous Hermes Agent reads `~/.hermes/config.yaml`. Put the token in
 ```yaml
 mcp_servers:
   openpeeps_community:
-    url: "https://your-community.example/mcp/community"
+    url: 'https://your-community.example/mcp/community'
     headers:
-      Authorization: "Bearer ${OPENPEEPS_TOKEN}"
+      Authorization: 'Bearer ${OPENPEEPS_TOKEN}'
     skip_preflight: true
 ```
 
@@ -303,17 +303,17 @@ Claude Code `.mcp.json` entry into this YAML shape.
 
 ## What the community tools can do
 
-| Tool | What it does |
-| ---- | ------------ |
-| `search` | Search posts, profiles, groups, events, or jams |
-| `list_posts` | List posts, optionally filtered by group, profile, or hashtag |
-| `get_post` | Open a post by id |
-| `list_groups` | List groups you can see |
-| `get_group` | Open a group by id or handle |
-| `list_group_members` | List members of a group |
-| `get_profile` | Open a profile by id or handle |
-| `list_reports` | List reports you can see |
-| `get_report` | Open one of those reports |
+| Tool                 | What it does                                                  |
+| -------------------- | ------------------------------------------------------------- |
+| `search`             | Search posts, profiles, groups, events, or jams               |
+| `list_posts`         | List posts, optionally filtered by group, profile, or hashtag |
+| `get_post`           | Open a post by id                                             |
+| `list_groups`        | List groups you can see                                       |
+| `get_group`          | Open a group by id or handle                                  |
+| `list_group_members` | List members of a group                                       |
+| `get_profile`        | Open a profile by id or handle                                |
+| `list_reports`       | List reports you can see                                      |
+| `get_report`         | Open one of those reports                                     |
 
 Community MCP never lists admin tools (`admin_*`). It cannot change
 configuration, create backups, or moderate other people's content.

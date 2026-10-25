@@ -13,8 +13,8 @@ import { roleKeyFromName } from '../../../lib/capabilityMatrix';
 const TAB_DEFAULT_ROLE = 'default-role';
 const TAB_ROLES = 'roles';
 const TAB_RELATIONS = 'relations';
-const TAB_LIST = [TAB_DEFAULT_ROLE, TAB_ROLES, TAB_RELATIONS] as const;
-type TabKey = (typeof TAB_LIST)[number];
+const _TAB_LIST = [TAB_DEFAULT_ROLE, TAB_ROLES, TAB_RELATIONS] as const;
+type TabKey = (typeof _TAB_LIST)[number];
 
 function DefaultRoles({ base }: { base: CommunityConfig }) {
   const t = useT();

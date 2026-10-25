@@ -68,7 +68,11 @@ export const apiEndpoint = endpoint({ Param, Stream, Output, Error }).handle(
             progressPercent,
             estimatedRemainingMs,
           });
-          if (!doc.status || doc.status === 'ready' || doc.status === 'failed') {
+          if (
+            !doc.status ||
+            doc.status === 'ready' ||
+            doc.status === 'failed'
+          ) {
             stop();
           }
         };

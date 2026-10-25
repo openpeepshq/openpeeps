@@ -7,9 +7,7 @@ interface Locals {
   resetPasswordLink: string;
 }
 
-const renderSubject = async (
-  props: EmailOptionsWithGlobals,
-): Promise<string> =>
+const renderSubject = async (props: EmailOptionsWithGlobals): Promise<string> =>
   `Reset your password for ${props.globals.communityConfig.info.name}!`;
 
 const template: ReactEmailTemplate<Locals> = {

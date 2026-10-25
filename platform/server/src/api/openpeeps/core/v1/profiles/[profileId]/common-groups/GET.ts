@@ -28,6 +28,6 @@ export const apiEndpoint = endpoint({ Output, Param }).handle(
       throw notFound(`Profile with id ${param.profileId}`);
     }
 
-    return await listCommonGroups(profile1, profile2)
+    return await listCommonGroups(profile1, profile2);
   },
 );

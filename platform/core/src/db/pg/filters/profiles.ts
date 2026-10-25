@@ -1,4 +1,4 @@
-import { eq, gt, ne, notInArray, sql } from 'drizzle-orm';
+import { eq, gt, ne, notInArray } from 'drizzle-orm';
 import { profiles } from '../schema/documents';
 import { profileActivityScoreExpr } from '../queries/activity';
 import { pgSql, type SqlFilter } from './types';

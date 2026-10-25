@@ -1,9 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import {
-  forbidden,
-  notFound,
-  unprocessableRequest,
-} from '#lib/errors';
+import { forbidden, notFound, unprocessableRequest } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { findPost, vote } from '@openpeepshq/core/posts';

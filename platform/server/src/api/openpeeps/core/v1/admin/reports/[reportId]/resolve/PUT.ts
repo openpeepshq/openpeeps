@@ -1,8 +1,11 @@
 import { endpoint, z } from '#lib/endpoint';
-import { reportResolutionSchema, successResponseSchema } from '@openpeepshq/common/types';
+import {
+  reportResolutionSchema,
+  successResponseSchema,
+} from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
-import { findReport, resolveReport } from "@openpeepshq/core/reports";
+import { findReport, resolveReport } from '@openpeepshq/core/reports';
 
 export const Param = z.object({
   reportId: z.string(),
@@ -11,15 +14,13 @@ export const Param = z.object({
 export const Output = successResponseSchema;
 
 export const Input = z.object({
-  resolution: reportResolutionSchema
-})
+  resolution: reportResolutionSchema,
+});
 
 export const Error = {
   403: forbidden(),
   404: notFound(),
 };
-
-
 
 export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
   async (input, event) => {
@@ -30,8 +31,7 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
       throw notFound();
     }
 
-    await resolveReport(report, input.resolution)
-
+    await resolveReport(report, input.resolution);
 
     return { success: true };
   },

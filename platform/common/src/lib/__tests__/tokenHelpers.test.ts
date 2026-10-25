@@ -13,9 +13,9 @@ const unsignedJwt = async (identities: {
 
 describe('isServiceOnlyJwt', () => {
   it('is true for service without profile', async () => {
-    expect(
-      isServiceOnlyJwt(await unsignedJwt({ service: 'observer' })),
-    ).toBe(true);
+    expect(isServiceOnlyJwt(await unsignedJwt({ service: 'observer' }))).toBe(
+      true,
+    );
   });
 
   it('is false for profile tokens', async () => {
@@ -39,9 +39,9 @@ describe('isAccountlessJwt', () => {
   });
 
   it('is false for service-only tokens', async () => {
-    expect(
-      isAccountlessJwt(await unsignedJwt({ service: 'observer' })),
-    ).toBe(false);
+    expect(isAccountlessJwt(await unsignedJwt({ service: 'observer' }))).toBe(
+      false,
+    );
   });
 
   it('is false for empty/invalid tokens', () => {

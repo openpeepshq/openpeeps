@@ -39,7 +39,9 @@ export const stripeCustomerPortalResponseSchema =
     url: z.string().optional(),
   });
 
-export type StripeSubscriptionData = z.infer<typeof stripeSubscriptionDataSchema>;
+export type StripeSubscriptionData = z.infer<
+  typeof stripeSubscriptionDataSchema
+>;
 export type StripeCustomerPortalResponseSchema = z.infer<
   typeof stripeCustomerPortalResponseSchema
 >;

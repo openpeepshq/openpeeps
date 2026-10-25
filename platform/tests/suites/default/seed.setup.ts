@@ -11,5 +11,8 @@ setup('restore default-install fixture', async ({ request, baseURL }) => {
   await waitForBaseUrl(url);
 
   const health = await request.get('/health');
-  expect(health.ok(), 'default suite: web not healthy after restore').toBeTruthy();
+  expect(
+    health.ok(),
+    'default suite: web not healthy after restore',
+  ).toBeTruthy();
 });

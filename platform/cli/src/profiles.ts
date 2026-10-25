@@ -7,16 +7,11 @@ import {
   assignRole,
   unassignRole,
 } from '@openpeepshq/core/profiles';
-import {
-  findRoleByKey,
-  listRoles,
-} from '@openpeepshq/core/roles';
+import { findRoleByKey, listRoles } from '@openpeepshq/core/roles';
 import { uuidv4 } from 'uuidv7';
 
 export const registerProfilesCommand = (program: Command) => {
-  const profiles = program
-    .command('profiles')
-    .description('Manage profiles');
+  const profiles = program.command('profiles').description('Manage profiles');
 
   profiles
     .command('role')
@@ -25,11 +20,7 @@ export const registerProfilesCommand = (program: Command) => {
     .requiredOption('-r, --role <role>', 'Role key')
     .option('--remove', 'Remove role assignment')
     .action(async (options) => {
-      const {
-        handle,
-        role,
-        remove,
-      } = options as {
+      const { handle, role, remove } = options as {
         handle: string;
         role: string;
         remove?: boolean;
@@ -50,8 +41,7 @@ export const registerProfilesCommand = (program: Command) => {
     .argument('[handle]', 'Profile handle')
     .option('-u, --handle <handle>', 'Profile handle')
     .action(async (handle: string | undefined, options) => {
-      const resolvedHandle =
-        handle ?? (options?.handle as string | undefined);
+      const resolvedHandle = handle ?? (options?.handle as string | undefined);
       if (!resolvedHandle) {
         console.log('Handle is required.');
         process.exit(1);

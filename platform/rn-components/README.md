@@ -23,7 +23,7 @@ const { withNativeWind } = require('nativewind/metro');
 const { withOpenPeepsMetro } = require('@openpeepshq/rn-components/metro');
 
 module.exports = withOpenPeepsMetro(
-  withNativeWind(config, { input: './src/global.css' }),
+  withNativeWind(config, { input: './src/global.css' })
 );
 ```
 

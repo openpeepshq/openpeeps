@@ -48,9 +48,11 @@ export const JamCard = ({ jamPost, type = 'upcoming' }: JamCardProps) => {
                 )}
               </View>
               <View className=" flex flex-row items-center">
-                {jam?.moderators?.slice(0, 2).map((moderator, index) => (
-                  <ParticipantAvatar key={index} profileId={moderator} />
-                ))}
+                {jam?.moderators
+                  ?.slice(0, 2)
+                  .map((moderator, index) => (
+                    <ParticipantAvatar key={index} profileId={moderator} />
+                  ))}
                 {(jam?.moderators?.length ?? 0) > 2 && (
                   <ThemedText className="ml-1">
                     +{(jam?.moderators?.length ?? 0) - 2}

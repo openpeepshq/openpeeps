@@ -52,10 +52,7 @@ export function I18nProvider({
     };
   }, [i18n, lang]);
 
-  const value = useMemo(
-    () => ({ i18n, t: i18n.t.bind(i18n) }),
-    [i18n, lng],
-  );
+  const value = useMemo(() => ({ i18n, t: i18n.t.bind(i18n) }), [i18n, lng]);
 
   if (!ready) return <>{fallback}</>;
 

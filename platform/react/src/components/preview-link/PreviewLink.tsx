@@ -9,17 +9,12 @@ export interface PreviewLinkProps {
 export function PreviewLink({ url = '' }: PreviewLinkProps) {
   if (!isValidUrl(url)) return null;
 
-  const origin =
-    typeof window !== 'undefined' ? window.location.origin : '';
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const local = isLocalLink(url, origin);
 
   return (
     <div className="min-w-0 max-w-full overflow-hidden">
-      {local ? (
-        <LocalPreviewLink url={url} />
-      ) : (
-        <RemotePreviewLink url={url} />
-      )}
+      {local ? <LocalPreviewLink url={url} /> : <RemotePreviewLink url={url} />}
     </div>
   );
 }

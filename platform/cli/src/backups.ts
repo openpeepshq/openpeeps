@@ -6,9 +6,7 @@ import {
 } from '@openpeepshq/core/backups';
 
 export const registerBackupsCommand = (program: Command) => {
-  const backups = program
-    .command('backups')
-    .description('Manage backups');
+  const backups = program.command('backups').description('Manage backups');
 
   backups
     .command('create')

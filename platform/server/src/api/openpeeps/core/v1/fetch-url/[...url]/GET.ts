@@ -15,4 +15,6 @@ export const Error = {
   404: notFound(),
 };
 
-export const apiEndpoint = endpoint({ Param, Output, Error }).handle(fetchUrlHandler);
+export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
+  fetchUrlHandler,
+);

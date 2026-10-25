@@ -3,7 +3,7 @@ import { profileWithMetaSchema } from '@openpeepshq/common/types';
 import { forbidden } from '#lib/errors';
 import type { RequestEvent } from '@riddl/core';
 import { listProfiles } from '@openpeepshq/core/profiles';
-import { ensureLocalProfile, ensureRoleCapabilities } from '#lib/auth';
+import { ensureRoleCapabilities } from '#lib/auth';
 
 export const Output = profileWithMetaSchema.array();
 

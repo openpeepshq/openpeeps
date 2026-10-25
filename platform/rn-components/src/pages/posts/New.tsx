@@ -277,7 +277,7 @@ export const NewPost = ({ route, navigation }: PostProps) => {
       if (route.params?.triggeredFrom === 'group') {
         navigation.pop();
         navigation.navigate('Group', {
-          id: route.params?.originatorId!,
+          id: route.params?.originatorId as string,
         });
       } else {
         navigation.goBack();

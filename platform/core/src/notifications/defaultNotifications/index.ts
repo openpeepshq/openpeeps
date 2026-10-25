@@ -4,7 +4,7 @@ import { default as announcement } from './announcement';
 import { default as directMessage } from './directMessage';
 import { default as follow } from './follow';
 import { default as jamModerator } from './jamModerator';
-import { default as jamSpeaker } from './jamSpeaker';
+
 import { default as jamStarted } from './jamStarted';
 import { default as newProfile } from './newProfile';
 import { default as reaction } from './reaction';

@@ -1,5 +1,4 @@
 import {
-  Bounds,
   GeocoderBuilder,
   GeocoderOptions,
   GeocodingResult,

@@ -35,7 +35,7 @@ export function Tooltip({
 }: TooltipProps) {
   if (!trigger) {
     return (
-      <span className="absolute z-50 whitespace-nowrap rounded bg-foreground px-2 py-1 text-xs text-background">
+      <span className="bg-foreground text-background absolute z-50 whitespace-nowrap rounded px-2 py-1 text-xs">
         {children}
       </span>
     );

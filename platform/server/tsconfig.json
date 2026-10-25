@@ -16,6 +16,7 @@
     "lib": ["ESNext", "DOM"],
     "types": ["node", "vite/client"],
     "baseUrl": "./src",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "#lib/*": ["lib/*"],
       "#types": ["types.ts"]

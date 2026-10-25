@@ -6,13 +6,7 @@
  *
  *   pnpm --filter @openpeepshq/tests run fixtures:generate-perf
  */
-import {
-  mkdtemp,
-  readFile,
-  rm,
-  writeFile,
-  mkdir,
-} from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

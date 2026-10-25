@@ -27,7 +27,7 @@ const DEFAULT_ICON_SIZE = 22;
  * surface as @openpeepshq/react-ui's PopupMenu.
  */
 export const PopupMenu = ({
-  className,
+  className: _className,
   iconSize = DEFAULT_ICON_SIZE,
   compact = false,
   menuButton,
@@ -36,7 +36,7 @@ export const PopupMenu = ({
   triggerIcon,
 }: PopupMenuProps) => {
   const actionName = title;
-  const [open, setOpen] = React.useState(false);
+  const [_open, setOpen] = React.useState(false);
 
   const TriggerIcon = () => {
     if (triggerIcon) return <>{triggerIcon}</>;

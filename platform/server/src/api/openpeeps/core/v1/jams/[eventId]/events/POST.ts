@@ -1,11 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden } from '#lib/errors';
-import {
-  jamEventDataSchema,
-  jamEventSchema,
-  type JamEvent,
-  type JamEventData,
-} from '@openpeepshq/common/types';
+import { jamEventDataSchema, jamEventSchema } from '@openpeepshq/common/types';
 import { ensureProfileOrGuest } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import {

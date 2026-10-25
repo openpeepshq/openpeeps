@@ -18,7 +18,7 @@ export interface HereOptions extends GeocoderOptions {
    * @deprecated
    */
   app_code: string;
-  reverseGeocodeProxRadius?: any;
+  reverseGeocodeProxRadius?: string | number;
   apiKey: string;
   maxResults: number;
 }
@@ -49,7 +49,7 @@ interface HereV1Result {
     };
     address: {
       label: string;
-      [key: string]: any;
+      [key: string]: unknown;
     };
   };
 }

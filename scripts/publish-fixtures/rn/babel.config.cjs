@@ -10,7 +10,5 @@ module.exports = {
       paths: [rnRoot],
     }),
   ],
-  presets: [
-    require.resolve('@react-native/babel-preset', { paths: [rnRoot] }),
-  ],
+  presets: [require.resolve('@react-native/babel-preset', { paths: [rnRoot] })],
 };

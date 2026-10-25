@@ -18,7 +18,5 @@ export const resolveAttachmentPreviewUrl = (
     localPreviewUrl,
   ].filter((url): url is string => !!url);
 
-  return (
-    candidates.find((url) => !isBlobUrl(url)) ?? candidates[0] ?? ''
-  );
+  return candidates.find((url) => !isBlobUrl(url)) ?? candidates[0] ?? '';
 };

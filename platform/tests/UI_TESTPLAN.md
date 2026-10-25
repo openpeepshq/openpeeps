@@ -191,49 +191,49 @@ Existing suite folders (for gap awareness only): `suites/empty/ui`,
 
 ## 8. Groups
 
-| ID        | Interaction                      | Preconditions          | Expected                          | Notes    |
-| --------- | -------------------------------- | ---------------------- | --------------------------------- | -------- |
-| UI-GRP-01 | List / search groups             | groups exist           | Index filters                     |          |
-| UI-GRP-02 | Create group (all fields)        | `core-groups-create`   | Group show page                   | empty/ui |
-| UI-GRP-03 | Create group visibility variants | create cap             | Public/private/join rules applied |          |
-| UI-GRP-04 | Open group show tabs             | group                  | Posts / events / description      |          |
-| UI-GRP-05 | Join group                       | joinable group         | Membership granted                |          |
-| UI-GRP-06 | Leave group                      | member, not last admin | Membership removed                |          |
-| UI-GRP-07 | Leave blocked as last admin      | sole group admin       | Error / blocked                   |          |
-| UI-GRP-08 | Edit group                       | group-admin            | Fields updated                    |          |
-| UI-GRP-09 | Delete group (confirm)           | delete cap             | Group gone                        |          |
-| UI-GRP-10 | Add members via modal            | group-admin            | Members appear                    |          |
-| UI-GRP-11 | Change member roles              | group-admin            | Roles updated                     |          |
-| UI-GRP-12 | Remove member                    | group-admin            | Member removed                    |          |
-| UI-GRP-13 | Mark all posts read              | member                 | Unseen cleared for group          |          |
-| UI-GRP-14 | Share group                      | group page             | Share/copy works                  |          |
-| UI-GRP-15 | Compose post from group page     | member allowed to post | Group audience preselected        |          |
-| UI-GRP-16 | Open group info / members routes | group                  | `/info`, `/members`               |          |
+| ID        | Interaction                         | Preconditions                          | Expected                                                                                                            | Notes                     |
+| --------- | ----------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| UI-GRP-01 | List / search groups                | groups exist                           | Index filters                                                                                                       |                           |
+| UI-GRP-02 | Create group (all fields)           | `core-groups-create`                   | Group show page                                                                                                     | empty/ui                  |
+| UI-GRP-03 | Create group visibility variants    | create cap                             | Public/private/join rules applied                                                                                   |                           |
+| UI-GRP-04 | Open group show tabs                | group                                  | Posts / events / description                                                                                        |                           |
+| UI-GRP-05 | Join group                          | joinable group                         | Membership granted                                                                                                  |                           |
+| UI-GRP-06 | Leave group                         | member, not last admin                 | Membership removed                                                                                                  |                           |
+| UI-GRP-07 | Leave blocked as last admin         | sole group admin                       | Error / blocked                                                                                                     |                           |
+| UI-GRP-08 | Edit group                          | group-admin                            | Fields updated                                                                                                      |                           |
+| UI-GRP-09 | Delete group (confirm)              | delete cap                             | Group gone                                                                                                          |                           |
+| UI-GRP-10 | Add members via modal               | group-admin                            | Members appear                                                                                                      |                           |
+| UI-GRP-11 | Change member roles                 | group-admin                            | Roles updated                                                                                                       |                           |
+| UI-GRP-12 | Remove member                       | group-admin                            | Member removed                                                                                                      |                           |
+| UI-GRP-13 | Mark all posts read                 | member                                 | Unseen cleared for group                                                                                            |                           |
+| UI-GRP-14 | Share group                         | group page                             | Share/copy works                                                                                                    |                           |
+| UI-GRP-15 | Compose post from group page        | member allowed to post                 | Group audience preselected                                                                                          |                           |
+| UI-GRP-16 | Open group info / members routes    | group                                  | `/info`, `/members`                                                                                                 |                           |
 | UI-GRP-17 | Public + private memberships listed | member of a public and a private group | Profile Groups tab and `/groups` My groups show both; All groups adds other public groups, never other private ones | empty/ui/group-visibility |
 
 ---
 
 ## 9. Events
 
-| ID        | Interaction                    | Preconditions       | Expected                 | Notes    |
-| --------- | ------------------------------ | ------------------- | ------------------------ | -------- |
-| UI-EVT-01 | List events / my events        | events exist        | Upcoming/past sections   |          |
-| UI-EVT-02 | Create event (in-person)       | owner/create path   | Event published          | empty/ui |
-| UI-EVT-03 | Create online / jam-type event | create path         | Type persisted           |          |
-| UI-EVT-04 | Edit event                     | event owner         | Fields updated           |          |
-| UI-EVT-05 | Duplicate event                | event menu          | `/events/new` with draft |          |
-| UI-EVT-06 | Delete event                   | event owner         | Removed                  |          |
-| UI-EVT-07 | RSVP yes                       | member              | Yes state                |          |
-| UI-EVT-08 | RSVP tentative                 | member              | Tentative state          |          |
-| UI-EVT-09 | RSVP no                        | member              | No state                 |          |
-| UI-EVT-10 | RSVP at capacity               | full event          | Capacity messaging       |          |
-| UI-EVT-11 | Join jam from event            | jam event + LiveKit | Navigates jam room       | jams     |
-| UI-EVT-12 | Member publishes jam to community feed | members can create events | Another member sees it on the community feed and Events | empty/ui/event-creation |
-| UI-EVT-13 | Community visibility blocked   | members cannot create events | Community option hidden, or create stays disabled / API error | empty/ui/event-creation |
-| UI-EVT-14 | Member adds jam to group calendar | group lets members create events | Event on the group Events tab and in group members' My feed; non-members' My feed omits it | empty/ui/event-creation |
-| UI-EVT-15 | Admins-only group event create | regular member of that group | No New event button; group absent from visibility groups | empty/ui/event-creation |
-| UI-EVT-16 | Private jam for specific people | members can create events | Invitee opens the event page, sees Events and Messages; outsider cannot open it | empty/ui/event-creation |
-| UI-EVT-17 | Public jam for visitors | members can create events, `publicContent` on | Signed-out visitor opens the event page and sees it on Events; community-only event stays hidden | empty/ui/event-creation |
+| ID        | Interaction                            | Preconditions                                 | Expected                                                                                         | Notes                   |
+| --------- | -------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------- |
+| UI-EVT-01 | List events / my events                | events exist                                  | Upcoming/past sections                                                                           |                         |
+| UI-EVT-02 | Create event (in-person)               | owner/create path                             | Event published                                                                                  | empty/ui                |
+| UI-EVT-03 | Create online / jam-type event         | create path                                   | Type persisted                                                                                   |                         |
+| UI-EVT-04 | Edit event                             | event owner                                   | Fields updated                                                                                   |                         |
+| UI-EVT-05 | Duplicate event                        | event menu                                    | `/events/new` with draft                                                                         |                         |
+| UI-EVT-06 | Delete event                           | event owner                                   | Removed                                                                                          |                         |
+| UI-EVT-07 | RSVP yes                               | member                                        | Yes state                                                                                        |                         |
+| UI-EVT-08 | RSVP tentative                         | member                                        | Tentative state                                                                                  |                         |
+| UI-EVT-09 | RSVP no                                | member                                        | No state                                                                                         |                         |
+| UI-EVT-10 | RSVP at capacity                       | full event                                    | Capacity messaging                                                                               |                         |
+| UI-EVT-11 | Join jam from event                    | jam event + LiveKit                           | Navigates jam room                                                                               | jams                    |
+| UI-EVT-12 | Member publishes jam to community feed | members can create events                     | Another member sees it on the community feed and Events                                          | empty/ui/event-creation |
+| UI-EVT-13 | Community visibility blocked           | members cannot create events                  | Community option hidden, or create stays disabled / API error                                    | empty/ui/event-creation |
+| UI-EVT-14 | Member adds jam to group calendar      | group lets members create events              | Event on the group Events tab and in group members' My feed; non-members' My feed omits it       | empty/ui/event-creation |
+| UI-EVT-15 | Admins-only group event create         | regular member of that group                  | No New event button; group absent from visibility groups                                         | empty/ui/event-creation |
+| UI-EVT-16 | Private jam for specific people        | members can create events                     | Invitee opens the event page, sees Events and Messages; outsider cannot open it                  | empty/ui/event-creation |
+| UI-EVT-17 | Public jam for visitors                | members can create events, `publicContent` on | Signed-out visitor opens the event page and sees it on Events; community-only event stays hidden | empty/ui/event-creation |
 
 ---
 

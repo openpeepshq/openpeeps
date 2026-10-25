@@ -15,10 +15,9 @@ import { ConfigMenuButton } from '../../components/configuration/index';
 import { useSetPageHeader } from '../../components/layout';
 import { ThemedView } from '../../components/ui/themed-view';
 
-export const Settings = ({}: NativeStackScreenProps<
-  TabStackParamList,
-  'Settings'
->) => {
+export const Settings = (
+  _: NativeStackScreenProps<TabStackParamList, 'Settings'>
+) => {
   const profile = useCurrentProfile();
   const { t } = useTranslation();
   const navigation =

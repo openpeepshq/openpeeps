@@ -10,8 +10,7 @@ import { createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import { uuidv7 } from 'uuidv7';
 
-export const Input = z.object({
-});
+export const Input = z.object({});
 
 export const Output = successResponseSchema;
 export const Error = {

@@ -19,9 +19,7 @@ const useHasAccountJwt = (): boolean => {
     const refresh = async () => {
       const token = (await credentialsStore.get())?.token;
       const next =
-        !!token &&
-        !isAccountlessJwt(token) &&
-        !isServiceOnlyJwt(token);
+        !!token && !isAccountlessJwt(token) && !isServiceOnlyJwt(token);
       if (!cancelled) setHasAccount(next);
     };
 

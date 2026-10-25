@@ -196,12 +196,19 @@ const cases: UiCase[] = [
   { name: 'Log in and Create a Group (Simple)', kind: 'createGroupSimple' },
   { name: 'Group Visibility Test', kind: 'groupVisibility' },
   { name: 'Search: A search with some results in posts', kind: 'searchPosts' },
-  { name: 'Profile: view profile, followers, and following', kind: 'profileRoutes' },
+  {
+    name: 'Profile: view profile, followers, and following',
+    kind: 'profileRoutes',
+  },
   { name: 'Search: A search With No results ', kind: 'searchNoResults' },
   { name: 'New User Subscribes', kind: 'signup', auth: 'none' },
   { name: 'Admin:  Configure Stripe', kind: 'adminConfiguration' },
   { name: 'Owner: Subscription Not Required', kind: 'login' },
-  { name: 'Subscribed User: Customer Portal', kind: 'billing', auth: 'regular' },
+  {
+    name: 'Subscribed User: Customer Portal',
+    kind: 'billing',
+    auth: 'regular',
+  },
   { name: 'Unsubscribed User Login', kind: 'login' },
 ];
 
@@ -305,7 +312,9 @@ const runCase = async (page: Page, uiCase: UiCase) => {
         .fill(`Dup ${uniqueSuffix().slice(-12)}`);
       await page.getByTestId(testIds.groups.handleInput).fill(groupHandle);
       await page.getByTestId(testIds.groups.createSubmit).click();
-      await expect(page.getByTestId(testIds.groups.duplicateHandleError)).toBeVisible();
+      await expect(
+        page.getByTestId(testIds.groups.duplicateHandleError),
+      ).toBeVisible();
       break;
     }
     case 'eventInPerson':
@@ -362,11 +371,15 @@ const runCase = async (page: Page, uiCase: UiCase) => {
       break;
     case 'messages':
       await page.goto('/conversations');
-      await expect(page.getByTestId(testIds.conversations.pageHeading)).toBeVisible();
+      await expect(
+        page.getByTestId(testIds.conversations.pageHeading),
+      ).toBeVisible();
       break;
     case 'notifications':
       await page.goto('/notifications');
-      await expect(page.getByTestId(testIds.notifications.pageHeading)).toBeVisible();
+      await expect(
+        page.getByTestId(testIds.notifications.pageHeading),
+      ).toBeVisible();
       break;
     case 'profileRoutes':
       await assertProfileRoutes(page);
@@ -382,7 +395,9 @@ const runCase = async (page: Page, uiCase: UiCase) => {
       break;
     case 'repost':
       await createPostViaUi(page, `Repostable UI post ${uniqueSuffix()}`);
-      await expect(page.getByTestId(testIds.posts.repostButton).first()).toBeVisible();
+      await expect(
+        page.getByTestId(testIds.posts.repostButton).first(),
+      ).toBeVisible();
       break;
     case 'searchNoResults':
       await assertExploreNoResults(page);

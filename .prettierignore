@@ -1,17 +1,33 @@
 .DS_Store
 node_modules
+dist
 /build
 /.svelte-kit
 /package
 .env
 .env.*
 !.env.example
-*.json
-*.js
-*.d.ts
+**/*.json
+**/*.js
+**/*.d.ts
 
 # Ignore files for PNPM, NPM and YARN
 pnpm-lock.yaml
-*.yaml
+**/*.yaml
+**/*.yml
 package-lock.json
 yarn.lock
+
+# Generated / vendored files that must not be reformatted
+releases/**
+**/styles.min.css
+**/web-components.min.js
+platform/web/public/docs/api/**
+**/db/pg/sql/meta/**
+**/0015_snapshot.json
+
+# Auto-generated — do not touch (see AGENTS.md)
+CHANGELOG.md
+
+# Agent skill instructions
+.agents/**

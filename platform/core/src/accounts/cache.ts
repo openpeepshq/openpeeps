@@ -2,7 +2,7 @@ import { AccountWithMeta } from '@openpeepshq/common/types';
 import { createCache } from 'cache-manager';
 import { allpeepDb } from '../db';
 import { accountsMapping } from './mapping';
-import { expandAccount, normalizeEmailAddress } from './helpers';
+import { expandAccount } from './helpers';
 
 export const accountsCache = createCache({
   ttl: 60 * 60 * 1000,

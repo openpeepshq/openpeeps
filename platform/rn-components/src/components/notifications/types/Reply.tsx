@@ -22,11 +22,7 @@ export const Reply: React.FC<NotificationTypeProps> = ({ notification }) => {
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 
   return (
-    <NotificationWrapper
-      profile={profile}
-      seen={notification.seen}
-      showProfile
-    >
+    <NotificationWrapper profile={profile} seen={notification.seen} showProfile>
       <Pressable
         onPress={() => navigation.navigate('Post', { id: replyPost.id })}
         className="w-full flex"

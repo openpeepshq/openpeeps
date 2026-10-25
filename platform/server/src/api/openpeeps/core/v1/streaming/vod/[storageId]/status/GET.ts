@@ -1,9 +1,6 @@
 import { endpoint, z } from '#lib/endpoint';
 import { notFound } from '#lib/errors';
-import {
-  type MediaStream,
-  mediaStreamSchema,
-} from '@openpeepshq/common/types';
+import { type MediaStream, mediaStreamSchema } from '@openpeepshq/common/types';
 import { buildStream } from '@openpeepshq/core/media';
 
 export const Param = z.object({

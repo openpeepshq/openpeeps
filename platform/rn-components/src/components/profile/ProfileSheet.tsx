@@ -26,7 +26,7 @@ export const ProfileSheet = forwardRef<BottomSheetModal, ProfileSheetProps>(
           <View className="items-center pt-6">
             <TouchableOpacity
               onPress={() => {
-                // @ts-ignore
+                // @ts-expect-error ref.current may be null
                 ref?.current?.close();
                 navigation.navigate('Profile', {
                   handle: profile[0].handle,

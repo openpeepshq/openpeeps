@@ -1,10 +1,4 @@
-import {
-  Button,
-  Container,
-  Img,
-  Section,
-  Text,
-} from '@react-email/components';
+import { Button, Container, Img, Section, Text } from '@react-email/components';
 import { User } from 'lucide-react';
 import type {
   EmailGlobals,

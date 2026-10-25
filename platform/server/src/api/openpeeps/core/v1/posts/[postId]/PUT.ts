@@ -1,6 +1,9 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
-import { publicPostSchema, postDataUnionSchema } from '@openpeepshq/common/types';
+import {
+  publicPostSchema,
+  postDataUnionSchema,
+} from '@openpeepshq/common/types';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { updatePost, findPost } from '@openpeepshq/core/posts';

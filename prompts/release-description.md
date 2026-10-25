@@ -37,10 +37,10 @@ Record the tag name, the date from the tag prefix, and the previous tag.
 Read the commits (and `CHANGELOG.md` section for that date if it matches).
 Split into:
 
-| Column | Include |
-| --- | --- |
-| **In the product** | Member, moderator, and admin **UI**: feeds, posts, groups, jams, PWA, i18n, analytics screens, mobile |
-| **In the platform** | API, DB, LiveKit, workers, auth, plugins, config, CI, packaging, security |
+| Column              | Include                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------- |
+| **In the product**  | Member, moderator, and admin **UI**: feeds, posts, groups, jams, PWA, i18n, analytics screens, mobile |
+| **In the platform** | API, DB, LiveKit, workers, auth, plugins, config, CI, packaging, security                             |
 
 Rules:
 

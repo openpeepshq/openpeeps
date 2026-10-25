@@ -12,13 +12,13 @@ current suite coverage):
 - [UI test plan](./UI_TESTPLAN.md) — browser user interactions
 - [API test plan](./API_TESTPLAN.md) — HTTP API + Express mounts
 
-| Suite | Seed | Always? |
-|-------|------|---------|
-| `empty` | Cleared DB + owner bootstrap | Yes |
-| `default` | `fixtures/backups/default-install.zip` | Yes |
-| `public` | `fixtures/backups/public-community.zip` | Yes |
-| `sso` | Empty DB + OIDC mock (`oauth` Compose profile) | Yes |
-| `jams` | Empty DB + real LiveKit | Only with real `JAMS_LIVEKIT_*` |
+| Suite     | Seed                                           | Always?                         |
+| --------- | ---------------------------------------------- | ------------------------------- |
+| `empty`   | Cleared DB + owner bootstrap                   | Yes                             |
+| `default` | `fixtures/backups/default-install.zip`         | Yes                             |
+| `public`  | `fixtures/backups/public-community.zip`        | Yes                             |
+| `sso`     | Empty DB + OIDC mock (`oauth` Compose profile) | Yes                             |
+| `jams`    | Empty DB + real LiveKit                        | Only with real `JAMS_LIVEKIT_*` |
 
 ## Local (against a running stack)
 
@@ -159,141 +159,141 @@ account (community owner) before tests run.
 
 #### Auth & accounts
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| OpenAPI spec loads (`/openapi.json`) | API | `api/test.ts` |
-| Register new user | API | `api/.../auth/test.ts` |
-| Registration form renders | UI (smoke) | `auth/register/test.ts` |
-| Login → usable token → `profiles/current` | API | `user-actions/` |
-| Login form → feed / welcome | UI | `user-actions/` |
-| Logout (clear credentials → login page) | UI (smoke) | `ui/` (`logout`) |
-| Token-injected “logged in” feed | UI (smoke) | `ui/` (`login`) |
-| Signup via register UI | UI | `ui/` (`signup`) |
-| Password reset (request → Mailpit link → new password → login) | API + Mailpit | `user-actions/` |
-| Email validation (request → Mailpit → validate → can create posts) | API + Mailpit | `user-actions/` |
+| Flow                                                               | Depth         | Where                   |
+| ------------------------------------------------------------------ | ------------- | ----------------------- |
+| OpenAPI spec loads (`/openapi.json`)                               | API           | `api/test.ts`           |
+| Register new user                                                  | API           | `api/.../auth/test.ts`  |
+| Registration form renders                                          | UI (smoke)    | `auth/register/test.ts` |
+| Login → usable token → `profiles/current`                          | API           | `user-actions/`         |
+| Login form → feed / welcome                                        | UI            | `user-actions/`         |
+| Logout (clear credentials → login page)                            | UI (smoke)    | `ui/` (`logout`)        |
+| Token-injected “logged in” feed                                    | UI (smoke)    | `ui/` (`login`)         |
+| Signup via register UI                                             | UI            | `ui/` (`signup`)        |
+| Password reset (request → Mailpit link → new password → login)     | API + Mailpit | `user-actions/`         |
+| Email validation (request → Mailpit → validate → can create posts) | API + Mailpit | `user-actions/`         |
 
 #### Email & push plumbing
 
 See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| Admin diagnostics test email delivered | API + Mailpit | `email-push/` |
-| Welcome / validate / reset / RSVP confirmation | API + Mailpit | `email-push/` |
+| Flow                                                                  | Depth         | Where         |
+| --------------------------------------------------------------------- | ------------- | ------------- |
+| Admin diagnostics test email delivered                                | API + Mailpit | `email-push/` |
+| Welcome / validate / reset / RSVP confirmation                        | API + Mailpit | `email-push/` |
 | Notification emails (follow, reply, mention, DM, announce, groups, …) | API + Mailpit | `email-push/` |
-| UI signup / forgot-password / resend validation | UI + Mailpit | `email-push/` |
-| Webhook push subscription + test push received | API + Webhook | `email-push/` |
+| UI signup / forgot-password / resend validation                       | UI + Mailpit  | `email-push/` |
+| Webhook push subscription + test push received                        | API + Webhook | `email-push/` |
 
 #### Posts
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| Create note on local feed | UI | `ui/` (`createPost`) |
-| Create note with hashtag / @mention text | UI | `ui/` (`createPostWithHashtag`, `createPostWithMention`) |
-| Create second post (named “edit” in UI suite — does not PUT) | UI (smoke) | `ui/` (`createPostAndEdit`) |
-| Publish poll with options | UI | `ui/` (`createPoll`) |
-| Repost created post (clicks repost) | UI | `ui/` (`repost`) |
-| Reply to note → list replies | API | `user-actions/` |
-| React 👍 / unreact | API | `user-actions/` |
-| Bookmark → bookmarks feed | API | `user-actions/` |
-| Edit note (PUT) / delete note | API | `user-actions/` |
-| Create question → vote → undo | API | `api/gaps/` |
-| Repost note via API | API | `api/gaps/` |
-| Search posts finds created content | API | `api/gaps/` |
-| Mark posts seen + unseen counts | API | `api/gaps/` |
-| Pin / unpin post globally | API | `api/gaps/` |
-| Announce local post | API | `api/gaps/` |
+| Flow                                                         | Depth      | Where                                                    |
+| ------------------------------------------------------------ | ---------- | -------------------------------------------------------- |
+| Create note on local feed                                    | UI         | `ui/` (`createPost`)                                     |
+| Create note with hashtag / @mention text                     | UI         | `ui/` (`createPostWithHashtag`, `createPostWithMention`) |
+| Create second post (named “edit” in UI suite — does not PUT) | UI (smoke) | `ui/` (`createPostAndEdit`)                              |
+| Publish poll with options                                    | UI         | `ui/` (`createPoll`)                                     |
+| Repost created post (clicks repost)                          | UI         | `ui/` (`repost`)                                         |
+| Reply to note → list replies                                 | API        | `user-actions/`                                          |
+| React 👍 / unreact                                           | API        | `user-actions/`                                          |
+| Bookmark → bookmarks feed                                    | API        | `user-actions/`                                          |
+| Edit note (PUT) / delete note                                | API        | `user-actions/`                                          |
+| Create question → vote → undo                                | API        | `api/gaps/`                                              |
+| Repost note via API                                          | API        | `api/gaps/`                                              |
+| Search posts finds created content                           | API        | `api/gaps/`                                              |
+| Mark posts seen + unseen counts                              | API        | `api/gaps/`                                              |
+| Pin / unpin post globally                                    | API        | `api/gaps/`                                              |
+| Announce local post                                          | API        | `api/gaps/`                                              |
 
 #### Groups
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| Create group (simple) | UI | `ui/` (`createGroupSimple`) |
-| Create group with description, rules, admins-only events | UI | `ui/` (`createDetailedGroup`) |
-| Create group with markdown description | UI | `ui/` (`createGroupWithMarkdown`) |
-| Duplicate group handle rejected | UI | `ui/` (`duplicateGroupHandle`) |
-| Group visibility / description tab | UI (smoke) | `ui/` (`groupVisibility`) |
-| Public + private memberships on profile Groups tab and `/groups` tabs | UI | `ui/group-visibility` |
-| Open created group by handle | UI | `ui/` (`groupSearch`) |
-| Create group → create event on group | UI | `ui/` (`createGroupAndEvent`) |
-| Join group → members list → leave | API | `user-actions/` |
-| Duplicate group handle conflict | API | `api/gaps/` |
-| Member leave after join | API | `api/gaps/` |
-| Admin delete group | API | `api/gaps/` |
-| Regular member can open groups/events pages | UI (smoke) | `ui/` (`regularMemberRestrictions`) |
+| Flow                                                                  | Depth      | Where                               |
+| --------------------------------------------------------------------- | ---------- | ----------------------------------- |
+| Create group (simple)                                                 | UI         | `ui/` (`createGroupSimple`)         |
+| Create group with description, rules, admins-only events              | UI         | `ui/` (`createDetailedGroup`)       |
+| Create group with markdown description                                | UI         | `ui/` (`createGroupWithMarkdown`)   |
+| Duplicate group handle rejected                                       | UI         | `ui/` (`duplicateGroupHandle`)      |
+| Group visibility / description tab                                    | UI (smoke) | `ui/` (`groupVisibility`)           |
+| Public + private memberships on profile Groups tab and `/groups` tabs | UI         | `ui/group-visibility`               |
+| Open created group by handle                                          | UI         | `ui/` (`groupSearch`)               |
+| Create group → create event on group                                  | UI         | `ui/` (`createGroupAndEvent`)       |
+| Join group → members list → leave                                     | API        | `user-actions/`                     |
+| Duplicate group handle conflict                                       | API        | `api/gaps/`                         |
+| Member leave after join                                               | API        | `api/gaps/`                         |
+| Admin delete group                                                    | API        | `api/gaps/`                         |
+| Regular member can open groups/events pages                           | UI (smoke) | `ui/` (`regularMemberRestrictions`) |
 
 #### Events & jams (listing / create; not LiveKit)
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| Create community event | UI | `ui/` (`createEvent`) |
-| Create in-person-named event | UI | `ui/` (`eventInPerson`) |
-| Event with markdown description | UI | `ui/` (`eventMarkdown`) |
-| Events page heading | UI (smoke) | `ui/` (`eventList`) |
-| Jams page + create jam-named event | UI (smoke) | `ui/` (`createJam`) |
-| Upcoming events feed includes created event | API | `user-actions/` |
-| RSVP yes on event | API | `user-actions/` |
-| RSVP tentative → no → yes cycle | API | `api/gaps/` |
-| Member jam on community feed (toggle on) | UI | `ui/event-creation` |
-| Community visibility blocked (toggle off) | UI | `ui/event-creation` |
-| Member jam on a group calendar and in members' My feed | UI | `ui/event-creation` |
-| Admins-only group hides New event and the group picker | UI | `ui/event-creation` |
-| Private jam for invitees (event page, Events, Messages; outsider denied) | UI | `ui/event-creation` |
-| Public jam visible to signed-out visitors | UI | `ui/event-creation` |
+| Flow                                                                     | Depth      | Where                   |
+| ------------------------------------------------------------------------ | ---------- | ----------------------- |
+| Create community event                                                   | UI         | `ui/` (`createEvent`)   |
+| Create in-person-named event                                             | UI         | `ui/` (`eventInPerson`) |
+| Event with markdown description                                          | UI         | `ui/` (`eventMarkdown`) |
+| Events page heading                                                      | UI (smoke) | `ui/` (`eventList`)     |
+| Jams page + create jam-named event                                       | UI (smoke) | `ui/` (`createJam`)     |
+| Upcoming events feed includes created event                              | API        | `user-actions/`         |
+| RSVP yes on event                                                        | API        | `user-actions/`         |
+| RSVP tentative → no → yes cycle                                          | API        | `api/gaps/`             |
+| Member jam on community feed (toggle on)                                 | UI         | `ui/event-creation`     |
+| Community visibility blocked (toggle off)                                | UI         | `ui/event-creation`     |
+| Member jam on a group calendar and in members' My feed                   | UI         | `ui/event-creation`     |
+| Admins-only group hides New event and the group picker                   | UI         | `ui/event-creation`     |
+| Private jam for invitees (event page, Events, Messages; outsider denied) | UI         | `ui/event-creation`     |
+| Public jam visible to signed-out visitors                                | UI         | `ui/event-creation`     |
 
 #### Profiles & social graph
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| Update bio in settings | UI | `ui/` (`profileUpdate`) |
-| Profile / followers / following routes + 404 | UI | `ui/` (`profileRoutes`) |
-| Members page search input | UI (smoke) | `ui/` (`members`, `follow`) |
-| Follow / unfollow profile | API | `user-actions/` |
-| Follow creates notification for target | API | `user-actions/` |
+| Flow                                         | Depth      | Where                       |
+| -------------------------------------------- | ---------- | --------------------------- |
+| Update bio in settings                       | UI         | `ui/` (`profileUpdate`)     |
+| Profile / followers / following routes + 404 | UI         | `ui/` (`profileRoutes`)     |
+| Members page search input                    | UI (smoke) | `ui/` (`members`, `follow`) |
+| Follow / unfollow profile                    | API        | `user-actions/`             |
+| Follow creates notification for target       | API        | `user-actions/`             |
 
 #### Conversations & notifications
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| Conversations page heading | UI (smoke) | `ui/` (`messages`) |
-| Notifications page heading | UI (smoke) | `ui/` (`notifications`) |
-| Direct message create + reply in conversation | API | `user-actions/` |
-| Mark all notifications seen | API | `api/gaps/` |
+| Flow                                          | Depth      | Where                   |
+| --------------------------------------------- | ---------- | ----------------------- |
+| Conversations page heading                    | UI (smoke) | `ui/` (`messages`)      |
+| Notifications page heading                    | UI (smoke) | `ui/` (`notifications`) |
+| Direct message create + reply in conversation | API        | `user-actions/`         |
+| Mark all notifications seen                   | API        | `api/gaps/`             |
 
 #### Explore & settings
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| Explore: no results on every tab | UI | `ui/` (`searchNoResults`) |
-| Explore: find a created post via search | UI | `ui/` (`searchPosts`) |
-| Explore: each tab shows only its own type | UI | `ui/` (`searchTabs`) |
-| Settings pages (profile, account, notifications, theme) | UI (smoke) | `ui/` (`settings`) |
-| Billing link / heading when present | UI (smoke) | `ui/` (`billing`) |
-| Login page available (unauthenticated) | UI (smoke) | `ui/` (`siteAvailable`) |
+| Flow                                                    | Depth      | Where                     |
+| ------------------------------------------------------- | ---------- | ------------------------- |
+| Explore: no results on every tab                        | UI         | `ui/` (`searchNoResults`) |
+| Explore: find a created post via search                 | UI         | `ui/` (`searchPosts`)     |
+| Explore: each tab shows only its own type               | UI         | `ui/` (`searchTabs`)      |
+| Settings pages (profile, account, notifications, theme) | UI (smoke) | `ui/` (`settings`)        |
+| Billing link / heading when present                     | UI (smoke) | `ui/` (`billing`)         |
+| Login page available (unauthenticated)                  | UI (smoke) | `ui/` (`siteAvailable`)   |
 
 #### Auth & access matrix (gaps)
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| `/health` + `server/info` public | API | `api/gaps/` |
-| Protected routes reject missing Bearer | API | `api/gaps/` |
-| Bad login credentials fail | API | `api/gaps/` |
-| Closed registration (`signUpsOpen=false`) rejects signup | API | `api/gaps/` |
-| Member forbidden on `/admin/stats` | API | `api/gaps/` |
-| Personal access token create/list/revoke | API | `api/gaps/` |
+| Flow                                                     | Depth | Where       |
+| -------------------------------------------------------- | ----- | ----------- |
+| `/health` + `server/info` public                         | API   | `api/gaps/` |
+| Protected routes reject missing Bearer                   | API   | `api/gaps/` |
+| Bad login credentials fail                               | API   | `api/gaps/` |
+| Closed registration (`signUpsOpen=false`) rejects signup | API   | `api/gaps/` |
+| Member forbidden on `/admin/stats`                       | API   | `api/gaps/` |
+| Personal access token create/list/revoke                 | API   | `api/gaps/` |
 
 #### Admin & moderation
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| Admin configuration heading | UI (smoke) | `ui/` (`adminConfiguration`) |
-| Admin invites page (new invite button) | UI (smoke) | `ui/` (`adminInvites`) |
-| Invite link create + redeem on register | API | `user-actions/` |
-| Report create + admin resolve | API | `user-actions/` |
-| Admin reopen resolved report | API | `api/gaps/` |
-| Report create / list / detail / caps / self-report / resolve / reopen | API | `moderation/` |
-| Admin stats / groups / logs | API | `api/gaps/` |
-| Service access token create/revoke | API | `api/gaps/` |
+| Flow                                                                  | Depth      | Where                        |
+| --------------------------------------------------------------------- | ---------- | ---------------------------- |
+| Admin configuration heading                                           | UI (smoke) | `ui/` (`adminConfiguration`) |
+| Admin invites page (new invite button)                                | UI (smoke) | `ui/` (`adminInvites`)       |
+| Invite link create + redeem on register                               | API        | `user-actions/`              |
+| Report create + admin resolve                                         | API        | `user-actions/`              |
+| Admin reopen resolved report                                          | API        | `api/gaps/`                  |
+| Report create / list / detail / caps / self-report / resolve / reopen | API        | `moderation/`                |
+| Admin stats / groups / logs                                           | API        | `api/gaps/`                  |
+| Service access token create/revoke                                    | API        | `api/gaps/`                  |
 
 ---
 
@@ -301,12 +301,12 @@ See `suites/empty/EMAIL_TESTPLAN.md` for the full template matrix.
 
 Restore: `fixtures/backups/default-install.zip` (Magic Factory sample community).
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| `server/info` community name from fixture | API | `default/test.ts` |
-| Profiles list non-empty | API | `default/test.ts` |
-| Groups list non-empty | API | `default/test.ts` |
-| Register viewer (if open) → local feed responds | API | `default/test.ts` |
+| Flow                                            | Depth | Where             |
+| ----------------------------------------------- | ----- | ----------------- |
+| `server/info` community name from fixture       | API   | `default/test.ts` |
+| Profiles list non-empty                         | API   | `default/test.ts` |
+| Groups list non-empty                           | API   | `default/test.ts` |
+| Register viewer (if open) → local feed responds | API   | `default/test.ts` |
 
 ---
 
@@ -315,13 +315,13 @@ Restore: `fixtures/backups/default-install.zip` (Magic Factory sample community)
 Restore: `fixtures/backups/public-community.zip` (public group caps +
 `publicContent` / open signups seeded).
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| Community name reflects public fixture | API | `public/test.ts` |
-| Unauthenticated groups list + public group by-handle | API | `public/test.ts` |
-| Explore page loads without auth | UI (smoke) | `public/test.ts` |
-| `publicContent` and/or open registrations advertised | API | `public/test.ts` |
-| Unauthenticated search API responds (200 or auth error) | API | `public/test.ts` |
+| Flow                                                    | Depth      | Where            |
+| ------------------------------------------------------- | ---------- | ---------------- |
+| Community name reflects public fixture                  | API        | `public/test.ts` |
+| Unauthenticated groups list + public group by-handle    | API        | `public/test.ts` |
+| Explore page loads without auth                         | UI (smoke) | `public/test.ts` |
+| `publicContent` and/or open registrations advertised    | API        | `public/test.ts` |
+| Unauthenticated search API responds (200 or auth error) | API        | `public/test.ts` |
 
 ---
 
@@ -330,11 +330,11 @@ Restore: `fixtures/backups/public-community.zip` (public group caps +
 Setup: owner bootstrap + admin config for `sso.oidc[]` pointing at mock issuer
 (`OAUTH_ISSUER_URL`, default `http://oauth:8080/default`).
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| `server/info` lists mock OIDC provider | API | `sso/test.ts` |
+| Flow                                                      | Depth    | Where         |
+| --------------------------------------------------------- | -------- | ------------- |
+| `server/info` lists mock OIDC provider                    | API      | `sso/test.ts` |
 | Authorize → mock IdP → callback → session token → profile | UI + API | `sso/test.ts` |
-| Login page shows OIDC provider button | UI | `sso/test.ts` |
+| Login page shows OIDC provider button                     | UI       | `sso/test.ts` |
 
 ---
 
@@ -343,11 +343,11 @@ Setup: owner bootstrap + admin config for `sso.oidc[]` pointing at mock issuer
 Skipped unless `JAMS_LIVEKIT_URL` / `API_KEY` / `API_SECRET` are set and not
 placeholder values (`APIxxxxxxxxxxxx` / `xxxxx…`).
 
-| Flow | Depth | Where |
-|------|-------|-------|
-| `server/info` reports LiveKit enabled | API | `jams/test.ts` |
-| Create jam event → fetch LiveKit token | API | `jams/test.ts` |
-| RoomService `listRooms` against live server | API | `jams/test.ts` |
+| Flow                                        | Depth | Where          |
+| ------------------------------------------- | ----- | -------------- |
+| `server/info` reports LiveKit enabled       | API   | `jams/test.ts` |
+| Create jam event → fetch LiveKit token      | API   | `jams/test.ts` |
+| RoomService `listRooms` against live server | API   | `jams/test.ts` |
 
 CI: `test-integration-jams` is non-blocking (`continue-on-error`) when secrets
 are missing.

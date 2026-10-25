@@ -16,7 +16,7 @@ import { toAbsoluteMediaUrl } from '../../lib/media-url';
 
 type ThemeSettingsProps = MainScreenProps<'ThemeSettings'>;
 
-export const ThemeSettings: React.FC<ThemeSettingsProps> = ({}) => {
+export const ThemeSettings: React.FC<ThemeSettingsProps> = () => {
   const { theme, setTheme, submitting, save } = useThemePreference();
   const serverInfo = useServerInfo();
   const { refresh } = useOpenPeepsTheme();

@@ -229,15 +229,19 @@ Bottom navigation bar for mobile devices.
 ### 1. Conditional Visibility
 
 ```tsx
-{/* Desktop only */}
+{
+  /* Desktop only */
+}
 <div className="hidden md:block">
   <DesktopComponent />
-</div>
+</div>;
 
-{/* Mobile only */}
+{
+  /* Mobile only */
+}
 <div className="md:hidden">
   <MobileComponent />
-</div>
+</div>;
 ```
 
 ### 2. Responsive Utilities
@@ -355,11 +359,15 @@ primary color).
 Write mobile styles first, then add desktop modifiers:
 
 ```tsx
-{/* ✅ Good */}
-<div className="p-4 md:p-8" />
+{
+  /* ✅ Good */
+}
+<div className="p-4 md:p-8" />;
 
-{/* ❌ Avoid */}
-<div className="md:p-8 p-4" />
+{
+  /* ❌ Avoid */
+}
+<div className="p-4 md:p-8" />;
 ```
 
 ### 2. Consistent Breakpoints

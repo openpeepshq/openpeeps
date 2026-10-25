@@ -1,4 +1,7 @@
-import type { EmailOptionsWithGlobals, ExpandedNotification } from '@openpeepshq/common/types';
+import type {
+  EmailOptionsWithGlobals,
+  ExpandedNotification,
+} from '@openpeepshq/common/types';
 import { profileName } from '@openpeepshq/common/lib';
 
 import type { ReactEmailTemplate } from '../../types';

@@ -22,13 +22,7 @@ import {
   postReplyToCountExpr,
   profileActivityScoreExpr,
 } from '../queries/activity';
-import type {
-  ActivityWindow,
-  Limit,
-  ObjectSort,
-  OMFilter,
-  PgFilter,
-} from './queryTypes';
+import type { ActivityWindow, Limit, ObjectSort, PgFilter } from './queryTypes';
 import {
   asTable,
   edgeRegistry,

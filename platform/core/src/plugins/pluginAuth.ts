@@ -9,6 +9,7 @@ type AuthorizationPayload = JWTPayload & {
   identities?: { profile?: string; service?: string };
 };
 
+/* eslint-disable @typescript-eslint/no-namespace */
 declare global {
   namespace Express {
     interface Request {
@@ -16,6 +17,7 @@ declare global {
     }
   }
 }
+/* eslint-enable @typescript-eslint/no-namespace */
 
 /**
  * Express middleware that verifies the `Authorization: Bearer <token>` header

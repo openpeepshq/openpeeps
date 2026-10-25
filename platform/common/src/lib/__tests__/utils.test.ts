@@ -179,7 +179,6 @@ describe('utils', () => {
       expect(sorted[0].createdAt).toBe('2023-01-01');
       expect(sorted[2].createdAt).toBe('2023-01-03');
     });
-
   });
 
   describe('getUniqueBy', () => {

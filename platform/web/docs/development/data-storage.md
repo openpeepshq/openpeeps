@@ -85,7 +85,9 @@ import { PostData } from '@openpeepshq/common/types';
 export const postsMapping = map<PostData, DbPost>({
   collection: 'posts',
   softDelete: true,
-  relations: [/* relation definitions */],
+  relations: [
+    /* relation definitions */
+  ],
 });
 ```
 

@@ -8,8 +8,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "lint": "prettier --check .",
-    "format": "prettier --write ."
+    "lint": "prettier --check --ignore-path ../../.prettierignore .",
+    "format": "prettier --write --ignore-path ../../.prettierignore ."
   },
   "dependencies": {
     "@openpeepshq/greenscreen": "workspace:^",
@@ -21,7 +21,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "prettier": "^3.4.2",
-    "typescript": "^5.7.3",
+    "typescript": "^6.0.2",
     "vite": "^6.0.7"
   }
 }

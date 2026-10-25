@@ -26,19 +26,19 @@ export const PollContent = ({ post }: Props) => {
 
   const votePoll = openpeepsApi.voteOnPostAction({ id: post!.id });
 
-  let hasPollEnded: boolean = !!(
+  const hasPollEnded: boolean = !!(
     post?.data?.type === 'question' &&
     post.data.expiresAt &&
     isPast(post.data.expiresAt)
   );
 
-  let hasVoted: boolean = !!(
+  const hasVoted: boolean = !!(
     currentProfile &&
     (votes.find((v) => v?.profile?.id === currentProfile.id)?.selection
       ?.length ?? 0) > 0
   );
 
-  let canVote: boolean = !!(currentProfile && !hasPollEnded && !hasVoted);
+  const canVote: boolean = !!(currentProfile && !hasPollEnded && !hasVoted);
 
   const handleVote = async () => {
     if (post?.data?.type !== 'question') {

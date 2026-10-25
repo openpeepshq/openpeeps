@@ -163,9 +163,9 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
   const showJamAttendeesTab =
     !!event.jam && canExportAttendees && jamAttendeesQuery.isSuccess;
 
-  let postContextQuery = openpeepsApi.usePostContext(post.id);
+  const postContextQuery = openpeepsApi.usePostContext(post.id);
 
-  let descendentThreads = useMemo(
+  const descendentThreads = useMemo(
     () =>
       (postContextQuery.data &&
         buildThreads(postContextQuery.data.descendants)) ||

@@ -68,11 +68,13 @@ export interface NotificationHandler {
 export const notificationTypeSchema = z.object({
   type: z.string(),
   requiredCapabilities: z.enum(roleCapabilities).array().optional(),
-  defaultSettings: z.object({
-    create: z.boolean(),
-    push: z.boolean(),
-    email: z.boolean(),
-  }).optional(),
+  defaultSettings: z
+    .object({
+      create: z.boolean(),
+      push: z.boolean(),
+      email: z.boolean(),
+    })
+    .optional(),
 });
 
 export type NotificationType = z.infer<typeof notificationTypeSchema>;
@@ -88,5 +90,3 @@ export const notificationAll = {
   push: true,
   email: true,
 } as const;
-
-

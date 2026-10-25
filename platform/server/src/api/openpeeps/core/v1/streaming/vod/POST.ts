@@ -27,9 +27,7 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
 
     const storageId = await parseLocalStorageUrl(input.url);
     if (!storageId) {
-      throw badRequest(
-        'url must be a storage url served by this server',
-      );
+      throw badRequest('url must be a storage url served by this server');
     }
 
     // Shared with the postCreated pre-warm handler — handles access tracking,

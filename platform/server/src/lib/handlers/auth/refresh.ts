@@ -38,7 +38,11 @@ export const refreshAuthTokenHandler = async (
 
   let checkoutUrl: string | undefined;
   if (profile?.type === 'local' && account) {
-    const subscriptionNeeded = !(await checkSubscription(profile, account, true));
+    const subscriptionNeeded = !(await checkSubscription(
+      profile,
+      account,
+      true,
+    ));
     checkoutUrl = subscriptionNeeded
       ? await createStripeCheckoutUrl(profile, account)
       : undefined;

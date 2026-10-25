@@ -7,7 +7,7 @@ import {
 } from '../types';
 import { getJSON } from '../util';
 
-export interface MapboxOptions extends GeocoderOptions {}
+export type MapboxOptions = GeocoderOptions;
 
 /**
  * Implementation of the [Mapbox Geocoding](https://www.mapbox.com/api-documentation/#geocoding)
@@ -17,24 +17,6 @@ export const Mapbox: GeocoderBuilder = (options: Partial<MapboxOptions>) => {
     serviceUrl: 'https://api.mapbox.com/geocoding/v5/mapbox.places/',
     apiKey: '',
     ...options,
-  };
-
-  const getProperties = (loc: Feature) => {
-    const properties: Record<string, string> = {
-      text: loc.text,
-      address: loc.address,
-    };
-
-    (loc.context || []).forEach((context) => {
-      const id = context.id.split('.')[0];
-      properties[id] = context.text;
-
-      // Get country code when available
-      if (context.short_code) {
-        properties.countryShortCode = context.short_code;
-      }
-    });
-    return properties;
   };
 
   const parseResults = (data: MapboxResponse): GeocodingResult[] => {
@@ -137,4 +119,4 @@ interface Geometry {
   omitted: boolean;
 }
 
-interface Properties {}
+type Properties = Record<string, unknown>;

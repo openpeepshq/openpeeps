@@ -22,7 +22,7 @@ type AccountFormValues = {
   confirmPassword: string | undefined;
 };
 
-export const AccountSettings: React.FC<AccountSettingsProps> = ({}) => {
+export const AccountSettings: React.FC<AccountSettingsProps> = () => {
   const { openpeepsApi, queryClient } = useOpenpeeps();
   const { data: currentAccount } = openpeepsApi.useCurrentAccount();
   const logout = openpeepsApi.logoutAction();

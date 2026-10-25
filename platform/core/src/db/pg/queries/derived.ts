@@ -1,7 +1,7 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import type { PgDb } from '../client';
 import { posts } from '../schema/documents';
-import { entries, postGroups, postSeen } from '../schema/edges';
+import { entries, postSeen } from '../schema/edges';
 import { normalizeIsoDatetime } from '../mappers';
 import { asTable } from '../map/registry';
 import { getEdgeTable } from '../map/filters';

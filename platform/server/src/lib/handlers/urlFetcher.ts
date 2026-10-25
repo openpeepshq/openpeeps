@@ -6,7 +6,6 @@ import { mediaStorage } from '@openpeepshq/core/media';
 import sharp from 'sharp';
 import type { RequestEvent } from '@riddl/core';
 
-
 const isAbsoluteUrl = (url: string | null | undefined) => {
   if (!url) {
     return false;
@@ -20,15 +19,22 @@ const createPreviewImage = async (image: string | null | undefined) => {
   }
   const response = await fetch(image as string);
   const imageBuffer = await response.arrayBuffer().then(sharp);
-  const arrayBuffer = await imageBuffer.rotate().resize({ width: 128, height: 128 }).webp().toBuffer().then(b => b.buffer);
+  const arrayBuffer = await imageBuffer
+    .rotate()
+    .resize({ width: 128, height: 128 })
+    .webp()
+    .toBuffer()
+    .then((b) => b.buffer);
   const storage = await mediaStorage();
   const id = await storage.store(arrayBuffer);
   return storage.getPath(id, 'preview.webp');
 };
 
-export const fetchUrlHandler = async (request: FetchUrlRequest, event: RequestEvent) => {
+export const fetchUrlHandler = async (
+  request: FetchUrlRequest,
+  event: RequestEvent,
+) => {
   const redis = await getSharedConnection();
-
 
   const pageUrl = request.url + event.url.search + event.url.hash;
 
@@ -50,7 +56,6 @@ export const fetchUrlHandler = async (request: FetchUrlRequest, event: RequestEv
       'accept-language': 'en-US, en',
       'user-agent': 'AllPeeP/1.0',
     },
-
   }).catch(() => {
     throw notFound();
   });

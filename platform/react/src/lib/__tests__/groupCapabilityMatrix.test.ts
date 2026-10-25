@@ -98,9 +98,9 @@ describe('groupCapabilityMatrix helpers', () => {
     const caps = {
       member: { remove: ['core-posts-*'] },
     };
-    expect(
-      getCapabilityCellState(caps, 'member', 'core-posts-read'),
-    ).toBe('implicit-remove');
+    expect(getCapabilityCellState(caps, 'member', 'core-posts-read')).toBe(
+      'implicit-remove',
+    );
     expect(cycleCapabilityCell(caps, 'member', 'core-posts-read')).toEqual(
       caps,
     );
@@ -110,32 +110,32 @@ describe('groupCapabilityMatrix helpers', () => {
     const caps = {
       member: { remove: ['core-posts-*'] },
     };
-    expect(
-      getCapabilityCellState(caps, 'member', 'core-posts-*'),
-    ).toBe('specific-remove');
+    expect(getCapabilityCellState(caps, 'member', 'core-posts-*')).toBe(
+      'specific-remove',
+    );
 
     const cleared = cycleCapabilityCell(caps, 'member', 'core-posts-*');
-    expect(
-      getCapabilityCellState(cleared, 'member', 'core-posts-*'),
-    ).toBe('none');
+    expect(getCapabilityCellState(cleared, 'member', 'core-posts-*')).toBe(
+      'none',
+    );
     expect(cleared.member?.remove).toEqual([]);
   });
 
   it('cycles wildcard deny → none → allow', () => {
     let caps = { member: { remove: ['core-groups-*'] } };
-    expect(
-      getCapabilityCellState(caps, 'member', 'core-groups-*'),
-    ).toBe('specific-remove');
+    expect(getCapabilityCellState(caps, 'member', 'core-groups-*')).toBe(
+      'specific-remove',
+    );
 
     caps = cycleCapabilityCell(caps, 'member', 'core-groups-*');
-    expect(
-      getCapabilityCellState(caps, 'member', 'core-groups-*'),
-    ).toBe('none');
+    expect(getCapabilityCellState(caps, 'member', 'core-groups-*')).toBe(
+      'none',
+    );
 
     caps = cycleCapabilityCell(caps, 'member', 'core-groups-*');
-    expect(
-      getCapabilityCellState(caps, 'member', 'core-groups-*'),
-    ).toBe('specific-add');
+    expect(getCapabilityCellState(caps, 'member', 'core-groups-*')).toBe(
+      'specific-add',
+    );
   });
 
   it('normalizes redundant explicit adds under wildcards', () => {
@@ -161,34 +161,36 @@ describe('groupCapabilityMatrix helpers', () => {
       },
     });
     expect(caps.member?.remove).toEqual(['core-posts-*']);
-    expect(
-      getCapabilityCellState(caps, 'member', 'core-posts-read'),
-    ).toBe('implicit-remove');
+    expect(getCapabilityCellState(caps, 'member', 'core-posts-read')).toBe(
+      'implicit-remove',
+    );
   });
 
   it('shows implicit-add on other relationships when none grants the cap', () => {
     const caps = {
       none: { add: ['core-groups-read'] },
     };
-    expect(
-      getCapabilityCellState(caps, 'member', 'core-groups-read'),
-    ).toBe('implicit-add');
-    expect(
-      getCapabilityCellState(caps, 'local', 'core-groups-read'),
-    ).toBe('implicit-add');
-    expect(
-      getCapabilityCellState(caps, 'none', 'core-groups-read'),
-    ).toBe('specific-add');
+    expect(getCapabilityCellState(caps, 'member', 'core-groups-read')).toBe(
+      'implicit-add',
+    );
+    expect(getCapabilityCellState(caps, 'local', 'core-groups-read')).toBe(
+      'implicit-add',
+    );
+    expect(getCapabilityCellState(caps, 'none', 'core-groups-read')).toBe(
+      'specific-add',
+    );
   });
 
   it('locks member cells when none wildcard denies', () => {
     const caps = {
       none: { remove: ['core-posts-*'] },
     };
-    expect(
-      getCapabilityCellState(caps, 'member', 'core-posts-read'),
-    ).toBe('implicit-remove');
-    expect(cycleCapabilityCell(caps, 'member', 'core-posts-read')).toEqual(caps);
+    expect(getCapabilityCellState(caps, 'member', 'core-posts-read')).toBe(
+      'implicit-remove',
+    );
+    expect(cycleCapabilityCell(caps, 'member', 'core-posts-read')).toEqual(
+      caps,
+    );
   });
 
   it('normalizes redundant member adds when none already grants', () => {
@@ -197,20 +199,20 @@ describe('groupCapabilityMatrix helpers', () => {
       member: { add: ['core-groups-read'] },
     });
     expect(caps.member?.add).toEqual([]);
-    expect(
-      getCapabilityCellState(caps, 'member', 'core-groups-read'),
-    ).toBe('implicit-add');
+    expect(getCapabilityCellState(caps, 'member', 'core-groups-read')).toBe(
+      'implicit-add',
+    );
   });
 
   it('cycles member override when none grants', () => {
     const caps = { none: { add: ['core-groups-read'] } };
     const denied = cycleCapabilityCell(caps, 'member', 'core-groups-read');
-    expect(
-      getCapabilityCellState(denied, 'member', 'core-groups-read'),
-    ).toBe('specific-remove');
-    expect(
-      isEffectivelyGranted(denied, 'member', 'core-groups-read'),
-    ).toBe(false);
+    expect(getCapabilityCellState(denied, 'member', 'core-groups-read')).toBe(
+      'specific-remove',
+    );
+    expect(isEffectivelyGranted(denied, 'member', 'core-groups-read')).toBe(
+      false,
+    );
     expect(isGrantedByNone(denied, 'core-groups-read')).toBe(true);
   });
 });

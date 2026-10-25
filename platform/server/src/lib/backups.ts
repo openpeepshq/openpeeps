@@ -3,10 +3,7 @@ import { stat } from 'node:fs/promises';
 import type { Express, Request, Response } from 'express';
 import type { Authorization } from '@openpeepshq/common/types';
 import { checkRoleCapabilities } from '@openpeepshq/common/lib';
-import {
-  downloadBackup,
-  listAllBackups,
-} from '@openpeepshq/core/backups';
+import { downloadBackup, listAllBackups } from '@openpeepshq/core/backups';
 import { jwtUtil } from '@openpeepshq/core/jwt';
 import { findProfile } from '@openpeepshq/core/profiles';
 import { logger } from '@openpeepshq/core/log';

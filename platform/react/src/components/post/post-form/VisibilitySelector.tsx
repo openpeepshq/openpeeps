@@ -37,8 +37,7 @@ export const VisibilitySelector = ({
   );
 
   const selectedGroup = useMemo(
-    () =>
-      me?.memberships?.find((m) => m.group.id === postData.groupId)?.group,
+    () => me?.memberships?.find((m) => m.group.id === postData.groupId)?.group,
     [me?.memberships, postData.groupId],
   );
 

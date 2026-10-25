@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  '../../..',
+  '../../..'
 );
 const result = spawnSync(
   'node',
@@ -20,6 +20,6 @@ const result = spawnSync(
     'rn-components',
     '--skip-smoke',
   ],
-  { cwd: repoRoot, stdio: 'inherit' },
+  { cwd: repoRoot, stdio: 'inherit' }
 );
 process.exit(result.status ?? 1);

@@ -1,6 +1,9 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
-import { findInviteLink, updateInviteLink } from '@openpeepshq/core/inviteLinks';
+import {
+  findInviteLink,
+  updateInviteLink,
+} from '@openpeepshq/core/inviteLinks';
 import { successResponseSchema } from '@openpeepshq/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
 
@@ -13,22 +16,23 @@ export const Error = {
   404: notFound(),
 };
 
-export const apiEndpoint = endpoint({ Param, Output, Error }).handle(async (param, event) => {
+export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
+  async (param, event) => {
+    await ensureRoleCapabilities(event, ['core-inviteLinks-update']);
 
-  await ensureRoleCapabilities(event, ['core-inviteLinks-update']);
+    const inviteLink = await findInviteLink(param.inviteLinkId);
 
-  const inviteLink = await findInviteLink(param.inviteLinkId);
+    if (!inviteLink) {
+      throw notFound();
+    }
 
-  if (!inviteLink) {
-    throw notFound();
-  }
+    await updateInviteLink(inviteLink.id, {
+      ...inviteLink,
+      active: true,
+    });
 
-  await updateInviteLink(inviteLink.id, {
-    ...inviteLink,
-    active: true,
-  });
-
-  return {
-    success: true,
-  };
-});
+    return {
+      success: true,
+    };
+  },
+);

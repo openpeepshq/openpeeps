@@ -30,7 +30,11 @@ export const DocsLayout = ({
     <header className="border-border bg-surface sticky top-0 z-10 border-b">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3 md:px-6">
         <Link to="/" className="flex items-center gap-2">
-          <img src={`${import.meta.env.BASE_URL}logo-small.png`} alt="" className="h-6" />
+          <img
+            src={`${import.meta.env.BASE_URL}logo-small.png`}
+            alt=""
+            className="h-6"
+          />
           <span className="text-foreground font-semibold">OpenPeeps Docs</span>
         </Link>
         <VersionSwitcher currentId={versionId} currentLabel={versionLabel} />

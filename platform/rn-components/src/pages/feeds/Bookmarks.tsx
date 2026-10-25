@@ -15,7 +15,7 @@ type HomeScreenProps = CompositeScreenProps<
   NativeStackScreenProps<TabStackParamList, 'Bookmarks'>,
   NativeStackScreenProps<MainStackParamList>
 >;
-export const FeedsBookmarks: React.FC<HomeScreenProps> = ({}) => {
+export const FeedsBookmarks: React.FC<HomeScreenProps> = () => {
   const { openpeepsApi } = useOpenpeeps();
   const { t } = useTranslation();
 

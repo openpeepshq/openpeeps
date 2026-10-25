@@ -1,7 +1,7 @@
 import { generateKeyPairSync } from 'node:crypto';
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { pgDb } from '../db/pg/client';
-import { posts, profiles } from '../db/pg/schema/documents';
+import { profiles } from '../db/pg/schema/documents';
 
 export const actorUri = (domain: string, profileId: string) =>
   `https://${domain}/ap/users/${profileId}`;

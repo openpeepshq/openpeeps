@@ -64,8 +64,8 @@ export const asyncFilter = async <T>(
 
 export const passThroughUndefined =
   <Input, Output>(func: (input: Input) => Output) =>
-    (input: Input | undefined) =>
-      input && func(input);
+  (input: Input | undefined) =>
+    input && func(input);
 
 export const countBy = <T, V extends string | number | symbol>(
   arr: T[],
@@ -93,8 +93,8 @@ export const groupBy = <T, V extends string | number | symbol>(
 
 export const dateSorter =
   <T extends { createdAt: string }>(): ((v0: T, v1: T) => number) =>
-    (v0: T, v1: T) =>
-      Date.parse(v0.createdAt) - Date.parse(v1.createdAt);
+  (v0: T, v1: T) =>
+    Date.parse(v0.createdAt) - Date.parse(v1.createdAt);
 
 export const getUniqueBy = <T, V = string>(
   arr: T[],
@@ -135,11 +135,11 @@ export const deepSet = <T>(
   const keys = Array.isArray(path)
     ? path
     : path
-      .replace(/(\w)\[/g, '$1.[')
-      .split('.')
-      .map((k) =>
-        k.includes('[') ? parseInt(k.substring(1, k.length - 1)) : k,
-      );
+        .replace(/(\w)\[/g, '$1.[')
+        .split('.')
+        .map((k) =>
+          k.includes('[') ? parseInt(k.substring(1, k.length - 1)) : k,
+        );
 
   let subObject: unknown = obj;
   for (let i = 0; i < keys.length; i++) {
@@ -150,9 +150,9 @@ export const deepSet = <T>(
       // @ts-expect-error deepset is not really typeable
       subObject[currentKey] = subObject[currentKey]
         ? // @ts-expect-error deepset is not really typeable
-        subObject[currentKey]
+          subObject[currentKey]
         : // @ts-expect-error deepset is not really typeable
-        isNaN(nextKey)
+          isNaN(nextKey)
           ? {}
           : [];
     } else {
@@ -203,35 +203,41 @@ export const formatTimeStamp = (
   return new Date(timestamp * 1000).toLocaleDateString();
 };
 
-const getMode = (config: CommunityConfig, profileSettings: ProfileSettings | undefined, systemTheme: 'dark' | 'light'): 'dark' | 'light' => {
+const getMode = (
+  config: CommunityConfig,
+  profileSettings: ProfileSettings | undefined,
+  systemTheme: 'dark' | 'light',
+): 'dark' | 'light' => {
   if (profileSettings) {
-    if (profileSettings.theme === "system") {
+    if (profileSettings.theme === 'system') {
       return systemTheme;
-    } else if (profileSettings?.theme === "dark") {
-      return "dark";
-    } else if (profileSettings?.theme === "light") {
-      return "light";
+    } else if (profileSettings?.theme === 'dark') {
+      return 'dark';
+    } else if (profileSettings?.theme === 'light') {
+      return 'light';
     }
   }
   return config.theme.base === 'OpenpeepsDark' ? 'dark' : 'light';
-}
+};
 
 export const getTheme = (
   config: CommunityConfig,
   profileSettings?: ProfileSettings,
-  systemTheme: 'dark' | 'light' = getSystemTheme()
+  systemTheme: 'dark' | 'light' = getSystemTheme(),
 ) =>
-  getMode(config, profileSettings, systemTheme) === 'dark' ?
-    { ...config.theme.dark, dark: true } :
-    { ...config.theme.light, dark: false };
+  getMode(config, profileSettings, systemTheme) === 'dark'
+    ? { ...config.theme.dark, dark: true }
+    : { ...config.theme.light, dark: false };
 
 export const getSystemTheme = () => {
-  if (typeof window !== "undefined" && window.matchMedia) {
-    const systemIsDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    return systemIsDark ? "dark" : "light"
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    const systemIsDark = window.matchMedia(
+      '(prefers-color-scheme: dark)',
+    ).matches;
+    return systemIsDark ? 'dark' : 'light';
   }
   return 'light';
-}
+};
 
 export const getProfileAvatar = (
   profile: PublicProfile | undefined | null,
@@ -252,7 +258,8 @@ export const getGroupAvatar = (
 };
 
 export const extractDateFromUUIDv7 = (uuidV7: string): string => {
-  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const UUID_REGEX =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!UUID_REGEX.test(uuidV7)) {
     throw new Error('Invalid UUID format');
   }
@@ -271,13 +278,15 @@ export const extractDateFromUUIDv7 = (uuidV7: string): string => {
 
   const pad = (num: number, size: number): string => {
     let s = String(num);
-    while (s.length < size) { s = '0' + s; }
+    while (s.length < size) {
+      s = '0' + s;
+    }
     return s;
   };
 
   return (
     date.getUTCFullYear().toString() +
-    pad(date.getUTCMonth() + 1, 2) +   // months are zero‑based
+    pad(date.getUTCMonth() + 1, 2) + // months are zero‑based
     pad(date.getUTCDate(), 2) +
     pad(date.getUTCHours(), 2) +
     pad(date.getUTCMinutes(), 2)
@@ -292,7 +301,7 @@ export const formatSize = (bytes: number) => {
 
 export const hasVisibilityChanged = (
   previousAudienceSetting: AudienceSetting,
-  newAudienceSetting: AudienceSetting
+  newAudienceSetting: AudienceSetting,
 ): boolean => {
   if (previousAudienceSetting.visibility !== newAudienceSetting.visibility) {
     return true;

@@ -18,7 +18,7 @@ Configure it at [Community Info](/admin/configuration/community/info).
 ## About Page
 
 Shown to visitors who aren't logged in yet — this is often the first thing a
-prospective member reads about your community.  If you allow open signups to your community, this page appears before members can sign up. 
+prospective member reads about your community. If you allow open signups to your community, this page appears before members can sign up.
 
 Supports Markdown formatting.
 
@@ -28,7 +28,7 @@ Configure it at [About Page](/admin/configuration/community/about-page).
 
 ## Welcome Page
 
-Shown to new members as part of their onboarding, after they join.  It can also always be accessed from the "Welcome Page" navigation item.
+Shown to new members as part of their onboarding, after they join. It can also always be accessed from the "Welcome Page" navigation item.
 
 Supports Markdown formatting.
 

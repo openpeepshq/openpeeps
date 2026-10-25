@@ -16,7 +16,7 @@ interface PostActionsProps {
 export const PostActions = ({
   post,
   previewMode = false,
-  compact = false,
+  compact: _compact = false,
 }: PostActionsProps) => {
   const { t } = useTranslation();
   const {

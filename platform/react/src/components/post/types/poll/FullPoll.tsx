@@ -9,10 +9,7 @@ export interface FullPollProps {
 
 export function FullPoll({ post }: FullPollProps) {
   return (
-    <FullPostLayout
-      post={post}
-      deleteCallback={() => window.history.back()}
-    >
+    <FullPostLayout post={post} deleteCallback={() => window.history.back()}>
       <FeedPost
         post={post}
         noReactionHeader

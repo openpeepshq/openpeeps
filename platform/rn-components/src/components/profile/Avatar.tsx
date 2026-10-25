@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { View, Text } from 'react-native';
 import { Profile, isDeletedProfile } from '@openpeepshq/common';
 import {
-  useOpenpeeps,
   getInitials,
   hueFromHandle,
   initialsBackground,

@@ -40,7 +40,8 @@ const parseArgs = (argv) => {
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--ref') out.ref = argv[++i];
-    else if (arg === '--out') out.outDir = path.resolve(process.cwd(), argv[++i]);
+    else if (arg === '--out')
+      out.outDir = path.resolve(process.cwd(), argv[++i]);
     else if (arg === '--workdir') out.workdir = true;
     else if (arg === '--link-prefix') out.linkPrefix = argv[++i] || '';
   }

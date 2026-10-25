@@ -40,9 +40,9 @@ const buildSource = async <
   const { baseUrl, headers: configHeaders } = await resolveConfig(config);
   const source = new SSE(
     baseUrl +
-    replacePathParams(path, pathParameters) +
-    '?' +
-    new URLSearchParams(stringifyValues(queryParameters)).toString(),
+      replacePathParams(path, pathParameters) +
+      '?' +
+      new URLSearchParams(stringifyValues(queryParameters)).toString(),
     {
       payload: JSON.stringify(payload),
       headers: { ...configHeaders, ...headers },
@@ -68,53 +68,53 @@ const buildSource = async <
 
 export const noPayloadEventSource =
   (config: ClientConfigSource) =>
-    <
-      EventType,
-      PathParameters extends ParametersType = undefined,
-      QueryParameters extends ParametersType = undefined,
-    >(
-      path: string,
-      method?: Verb,
-      eventName?: string,
-    ): TypedNoPayloadEventSource<EventType, PathParameters, QueryParameters> =>
-      (options: EventSourceOptions<EventType, PathParameters, QueryParameters>) =>
-        buildSource<EventType, undefined, PathParameters, QueryParameters>({
-          payload: undefined,
-          config,
-          path,
-          method,
-          eventName,
-          ...options,
-        });
+  <
+    EventType,
+    PathParameters extends ParametersType = undefined,
+    QueryParameters extends ParametersType = undefined,
+  >(
+    path: string,
+    method?: Verb,
+    eventName?: string,
+  ): TypedNoPayloadEventSource<EventType, PathParameters, QueryParameters> =>
+  (options: EventSourceOptions<EventType, PathParameters, QueryParameters>) =>
+    buildSource<EventType, undefined, PathParameters, QueryParameters>({
+      payload: undefined,
+      config,
+      path,
+      method,
+      eventName,
+      ...options,
+    });
 
 export const payloadEventSource =
   (config: ClientConfigSource) =>
-    <
-      EventType,
-      PayloadType,
-      PathParameters extends ParametersType = undefined,
-      QueryParameters extends ParametersType = undefined,
-    >(
-      path: string,
-      method?: Verb,
-      eventName?: string,
-    ): TypedPayloadEventSource<
-      EventType,
-      PayloadType,
-      PathParameters,
-      QueryParameters
-    > =>
-      (
-        payload: PayloadType,
-        options: EventSourceOptions<EventType, PathParameters, QueryParameters>,
-      ) =>
-        buildSource<EventType, PayloadType, PathParameters, QueryParameters>({
-          payload,
-          config,
-          path,
-          method,
-          eventName,
-          ...options,
-        });
+  <
+    EventType,
+    PayloadType,
+    PathParameters extends ParametersType = undefined,
+    QueryParameters extends ParametersType = undefined,
+  >(
+    path: string,
+    method?: Verb,
+    eventName?: string,
+  ): TypedPayloadEventSource<
+    EventType,
+    PayloadType,
+    PathParameters,
+    QueryParameters
+  > =>
+  (
+    payload: PayloadType,
+    options: EventSourceOptions<EventType, PathParameters, QueryParameters>,
+  ) =>
+    buildSource<EventType, PayloadType, PathParameters, QueryParameters>({
+      payload,
+      config,
+      path,
+      method,
+      eventName,
+      ...options,
+    });
 
 export type { SSE } from 'sse.js';

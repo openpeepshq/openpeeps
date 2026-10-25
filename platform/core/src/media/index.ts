@@ -347,7 +347,7 @@ const createFilePreview = async (
   return createDocumentCardPreview(originalName);
 };
 
-const getMediaDuration = (filePath: string): Promise<number> =>
+const _getMediaDuration = (filePath: string): Promise<number> =>
   new Promise((resolve, reject) => {
     ffmpeg.ffprobe(filePath, (err, metadata) => {
       if (err) {
@@ -491,9 +491,13 @@ const createVideoPreview = async (inputPath: string): Promise<MediaFile> => {
             throw new Error('Generated video preview is empty');
           }
           resolve({ path: tempOutputPath, mimetype: 'image/webp' });
-        } catch (error: any) {
+        } catch (error: unknown) {
           await cleanup();
-          reject(new Error(`Error handling output file: ${error.message}`));
+          reject(
+            new Error(
+              `Error handling output file: ${error instanceof Error ? error.message : String(error)}`,
+            ),
+          );
         }
       })
       .on('error', async (error) => {

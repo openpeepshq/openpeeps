@@ -14,7 +14,7 @@ export function GroupPreview({ path }: GroupPreviewProps) {
   if (groupQuery.isLoading) {
     return (
       <div className="text-muted-foreground text-sm">
-          <LoadingSpinner />
+        <LoadingSpinner />
       </div>
     );
   }

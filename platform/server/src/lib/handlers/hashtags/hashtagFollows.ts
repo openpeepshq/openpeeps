@@ -1,7 +1,7 @@
 import type { SuccessResponse } from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { endpoint, z } from '#lib/endpoint';
+import { z } from '#lib/';
 import { notFound } from '#lib/helpers';
 import {
   findHashtagByTag,

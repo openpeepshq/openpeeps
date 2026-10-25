@@ -19,7 +19,7 @@ export function JamPreview({ path }: JamPreviewProps) {
   if (postQuery.isLoading) {
     return (
       <div className="text-muted-foreground text-sm">
-          <LoadingSpinner />
+        <LoadingSpinner />
       </div>
     );
   }

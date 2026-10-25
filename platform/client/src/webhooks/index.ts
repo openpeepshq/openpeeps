@@ -7,18 +7,14 @@ import {
 import { parseJwtKeyId, verifyJwt } from '@openpeepshq/common/lib';
 import type { OpenpeepsNoPayloadEndpoint } from '../types';
 
-export type WebhookHandler = ((
-  input: string,
-) => Promise<WebhookData>);
+export type WebhookHandler = (input: string) => Promise<WebhookData>;
 
 export const webhookHandler = (
   publicKeyEndpoint: OpenpeepsNoPayloadEndpoint<WebhookKeyResponse>,
 ): WebhookHandler => {
-
-  let publicKey: string | undefined = undefined;
+  const publicKey: string | undefined = undefined;
 
   const getPublicKey = async (kid?: string) => {
-
     if (!kid) {
       throw new Error('Kid is required');
     }
@@ -34,8 +30,7 @@ export const webhookHandler = (
     return result.data.publicKey;
   };
 
-
-  return (async (input: string | WebhookVerifyRequest) => {
+  return async (input: string | WebhookVerifyRequest) => {
     const token = typeof input === 'string' ? input : input.token;
     const tokenKeyId = parseJwtKeyId(token);
 
@@ -45,6 +40,5 @@ export const webhookHandler = (
     }
 
     return webhookDataSchema.parse(verification.payload);
-
-  });
+  };
 };

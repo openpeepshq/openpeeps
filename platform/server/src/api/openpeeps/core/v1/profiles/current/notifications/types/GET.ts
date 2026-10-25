@@ -1,4 +1,4 @@
-import { endpoint, z } from '#lib/endpoint';
+import { endpoint } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { ensureLocalProfile } from '#lib/auth';
 import { defaultNotificationTypes } from '@openpeepshq/core/notifications';
@@ -16,6 +16,5 @@ export const apiEndpoint = endpoint({ Output, Error }).handle(
     await ensureLocalProfile(event);
 
     return defaultNotificationTypes;
-
   },
 );

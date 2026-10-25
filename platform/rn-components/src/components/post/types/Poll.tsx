@@ -14,7 +14,10 @@ export interface FeedPollProps {
   interactive?: boolean;
 }
 
-export const FeedPoll = ({ post, interactive = true }: FeedPollProps) =>
+export const FeedPoll = ({
+  post,
+  interactive: _interactive = true,
+}: FeedPollProps) =>
   post?.data?.type === 'question' ? (
     <View>
       <Attachments {...{ post }} />

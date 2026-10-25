@@ -1,5 +1,8 @@
-import { endpoint, z } from '#lib/endpoint';
-import { publicPostSchema, offsetInfiniteQueryParamsSchema } from '@openpeepshq/common/types';
+import { endpoint } from '#lib/endpoint';
+import {
+  publicPostSchema,
+  offsetInfiniteQueryParamsSchema,
+} from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
 import { listUpcomingJamsFeed } from '@openpeepshq/core/posts';
 import { ensureProfileOrPublicCommunity } from '#lib/auth';
@@ -13,4 +16,5 @@ export const apiEndpoint = endpoint({ Output, Query }).handle(
     const parsed = Query.parse(params);
     const result = await listUpcomingJamsFeed(event.context.authData, parsed);
     return result;
-  });
+  },
+);

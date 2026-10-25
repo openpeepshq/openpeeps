@@ -7,9 +7,7 @@ interface Locals {
   emailValidationLink: string;
 }
 
-const renderSubject = async (
-  props: EmailOptionsWithGlobals,
-): Promise<string> =>
+const renderSubject = async (props: EmailOptionsWithGlobals): Promise<string> =>
   `Validate your email for ${props.globals.communityConfig.info.name}!`;
 
 const template: ReactEmailTemplate<Locals> = {

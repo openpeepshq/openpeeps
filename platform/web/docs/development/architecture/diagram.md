@@ -57,12 +57,12 @@ flowchart LR
   worker -.->|Web Push APNs FCM| push
 ```
 
-| Process | Package | Role |
-| --- | --- | --- |
-| API server | `@openpeepshq/server` | Riddl HTTP API, SSE, static SPA, plugin routes |
-| Worker | `@openpeepshq/worker` | Email, media, notifications, jam egress, analytics |
-| Web SPA | `@openpeepshq/web` | Vite React app; production assets hosted by the API |
-| CLI | `@openpeepshq/cli` | Admin operations against the same API and database |
+| Process    | Package               | Role                                                |
+| ---------- | --------------------- | --------------------------------------------------- |
+| API server | `@openpeepshq/server` | Riddl HTTP API, SSE, static SPA, plugin routes      |
+| Worker     | `@openpeepshq/worker` | Email, media, notifications, jam egress, analytics  |
+| Web SPA    | `@openpeepshq/web`    | Vite React app; production assets hosted by the API |
+| CLI        | `@openpeepshq/cli`    | Admin operations against the same API and database  |
 
 The worker boots from `platform/server/src/worker.ts` (registers email
 templates, then `@openpeepshq/worker`). Docker `CMD` is `web` or `worker`.

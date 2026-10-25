@@ -7,7 +7,7 @@ import {
 } from '../types';
 import { getJSON } from '../util';
 
-export interface MapQuestOptions extends GeocoderOptions {}
+export type MapQuestOptions = GeocoderOptions;
 
 interface MapQuestLocation {
   street: string;
