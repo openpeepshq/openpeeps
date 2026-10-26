@@ -10,13 +10,17 @@ export const isJamPath = (path: string) =>
   path.endsWith('/jam');
 export const isGroupPath = (path: string) => path.startsWith('/groups/@');
 
+export const isWelcomePath = (path: string) =>
+  path === '/welcome' || path === '/welcome/';
+
 export const isLocalLink = (url: string, origin: string) => {
   const urlObj = new URL(url);
   return (
     urlObj.origin === origin &&
     (isPostPath(urlObj.pathname) ||
       isJamPath(urlObj.pathname) ||
-      isGroupPath(urlObj.pathname))
+      isGroupPath(urlObj.pathname) ||
+      isWelcomePath(urlObj.pathname))
   );
 };
 
