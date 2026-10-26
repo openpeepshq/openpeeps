@@ -112,3 +112,5 @@ export {
   useAdminRoles,
   useCanAccessAdminSection,
 } from './admin/useCanAccessAdminSection';
+export { useWelcomePreview } from './useWelcomePreview';
+export type { WelcomePreviewContent } from './useWelcomePreview';

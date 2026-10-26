@@ -130,8 +130,12 @@ export const handleInternalURLNavigation = (
     const hash = hashStart === -1 ? '' : path.slice(hashStart);
     const pathWithoutHash = hashStart === -1 ? path : path.slice(0, hashStart);
 
-    if (isGroupPath(pathWithoutHash)) {
-      const pathname = pathWithoutHash.split('?')[0] ?? pathWithoutHash;
+    const pathname = pathWithoutHash.split('?')[0] ?? pathWithoutHash;
+    if (isWelcomePath(pathname)) {
+      goto({ target: 'welcome' });
+      return true;
+    }
+    if (isGroupPath(pathname)) {
       goto({
         target: 'group',
         params: {
@@ -204,6 +208,8 @@ export const handleInternalURLNavigation = (
 };
 
 export const isProfilePath = (path: string) => path.startsWith('/@');
+export const isWelcomePath = (path: string) =>
+  path === '/welcome' || path === '/welcome/';
 export const isGroupPath = (path: string) => path.startsWith('/groups/@');
 export const isJamPath = (path: string) =>
   path.startsWith('/events/') && path.endsWith('/jam');
@@ -217,7 +223,8 @@ export const isLocalLink = (url: string, origin: string) => {
       urlObj.origin === origin &&
       (isPostPath(urlObj.pathname) ||
         isJamPath(urlObj.pathname) ||
-        isGroupPath(urlObj.pathname))
+        isGroupPath(urlObj.pathname) ||
+        isWelcomePath(urlObj.pathname))
     );
   } catch {
     return false;

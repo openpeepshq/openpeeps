@@ -1,7 +1,8 @@
-import { isGroupPath, isJamPath, isPostPath } from './helpers';
+import { isGroupPath, isJamPath, isPostPath, isWelcomePath } from './helpers';
 import { GroupPreview } from './local/GroupPreview';
 import { PostPreview } from './local/PostPreview';
 import { JamPreview } from './local/JamPreview';
+import { WelcomePreview } from './local/WelcomePreview';
 
 export interface LocalPreviewLinkProps {
   url: string;
@@ -12,6 +13,7 @@ export function LocalPreviewLink({ url }: LocalPreviewLinkProps) {
   const isPost = isPostPath(path);
   const isJam = isJamPath(path);
   const isGroup = isGroupPath(path);
+  const isWelcome = isWelcomePath(path);
 
   return (
     <a
@@ -22,6 +24,7 @@ export function LocalPreviewLink({ url }: LocalPreviewLinkProps) {
       {isPost ? <PostPreview path={path} /> : null}
       {isGroup ? <GroupPreview path={path} /> : null}
       {isJam ? <JamPreview path={path} /> : null}
+      {isWelcome ? <WelcomePreview /> : null}
     </a>
   );
 }

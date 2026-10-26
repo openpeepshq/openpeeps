@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { isJamPath, isPostPath, isGroupPath } from './helpers';
+import { isJamPath, isPostPath, isGroupPath, isWelcomePath } from './helpers';
 import { PostPreview } from './local/PostPreview';
 import { JamPreview } from './local/JamPreview';
 import { GroupPreview } from './local/GroupPreview';
+import { WelcomePreview } from './local/WelcomePreview';
 import { handleInternalURLNavigation } from '../../lib/utils';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -23,6 +24,7 @@ export const LocalPreviewLink = ({ url }: LocalPreviewLinkProps) => {
   const isPost = isPostPath(path);
   const isJam = isJamPath(path);
   const isGroup = isGroupPath(path);
+  const isWelcome = isWelcomePath(path);
 
   const handlePress = () => {
     handleInternalURLNavigation(url, goto);
@@ -34,6 +36,7 @@ export const LocalPreviewLink = ({ url }: LocalPreviewLinkProps) => {
         {isPost && <PostPreview path={path} />}
         {isGroup && <GroupPreview path={path} />}
         {isJam && <JamPreview path={path} />}
+        {isWelcome && <WelcomePreview />}
       </View>
     </TouchableOpacity>
   );
