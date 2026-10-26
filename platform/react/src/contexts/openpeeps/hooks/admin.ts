@@ -72,14 +72,17 @@ const adminDbInvites = (client: OpenpeepsClientInstance) => ({
     ['admin', 'db', 'sql'],
   ]),
   createInviteAction: payloadMutation(client.admin.invites.create, [
-    ['admin', 'invites'],
+    ['invite-links'],
   ]),
   useInvitesList: () => apiHook(client.admin.invites.list),
+  updateInviteAction: payloadMutation(client.admin.invites.update, [
+    ['invite-links'],
+  ]),
   activateInviteAction: noPayloadMutation(client.admin.invites.activate, [
-    ['admin', 'invites'],
+    ['invite-links'],
   ]),
   deactivateInviteAction: noPayloadMutation(client.admin.invites.deactivate, [
-    ['admin', 'invites'],
+    ['invite-links'],
   ]),
   useLogsList: (date?: string, refetchInterval?: number) =>
     apiHook(client.admin.logs.list, {

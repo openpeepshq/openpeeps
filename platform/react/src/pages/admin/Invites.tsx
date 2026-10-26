@@ -1,5 +1,13 @@
 import { useMemo, useState } from 'react';
-import { CheckCheck, Copy, MoreVertical, QrCode, Users, X } from 'lucide-react';
+import {
+  CheckCheck,
+  Copy,
+  MoreVertical,
+  Pencil,
+  QrCode,
+  Users,
+  X,
+} from 'lucide-react';
 import { inviteLinkMatchesQuery } from '@openpeepshq/common/lib';
 import type { InviteLinkWithMeta } from '@openpeepshq/common/types';
 import {
@@ -20,6 +28,7 @@ import {
   PopupMenuButton,
 } from '@openpeepshq/react-ui';
 import { AdminInviteActions } from './components/AdminInviteActions';
+import { EditInviteLinkModal } from './components/EditInviteLinkModal';
 import {
   communityQrLogoSrc,
   downloadInviteQr,
@@ -153,6 +162,7 @@ function InvitesTablePopup({ invite }: { invite: InviteLinkWithMeta }) {
   const activate = openpeepsApi.admin.activateInviteAction();
   const deactivate = openpeepsApi.admin.deactivateInviteAction();
   const [showInvited, setShowInvited] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
 
   const active = invite.active && new Date(invite.expiresAt) > new Date();
   const expired = new Date(invite.expiresAt) <= new Date();
@@ -169,6 +179,12 @@ function InvitesTablePopup({ invite }: { invite: InviteLinkWithMeta }) {
             defaultValue: 'See invited accounts',
           })}
           action={() => setShowInvited(true)}
+        />
+        <PopupMenuButton
+          icon={Pencil}
+          title={t('admin.invites.edit', { defaultValue: 'Edit' })}
+          text={t('admin.invites.edit', { defaultValue: 'Edit' })}
+          action={() => setShowEdit(true)}
         />
         {active ? (
           <>
@@ -217,6 +233,12 @@ function InvitesTablePopup({ invite }: { invite: InviteLinkWithMeta }) {
         <ListOfInvitedMembers
           invite={invite}
           onClose={() => setShowInvited(false)}
+        />
+      ) : null}
+      {showEdit ? (
+        <EditInviteLinkModal
+          invite={invite}
+          onClose={() => setShowEdit(false)}
         />
       ) : null}
     </>

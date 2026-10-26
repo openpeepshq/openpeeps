@@ -157,6 +157,11 @@ export type Admin = {
   invites: {
     create: OpenpeepsPayloadEndpoint<InviteLinkWithMeta, InviteLinkData>;
     list: OpenpeepsNoPayloadEndpoint<InviteLinkWithMeta[]>;
+    update: OpenpeepsPayloadEndpoint<
+      InviteLinkWithMeta,
+      Partial<Pick<InviteLinkData, 'maxUses' | 'expiresAt'>>,
+      { id: string }
+    >;
     activate: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
     deactivate: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
   };
@@ -429,6 +434,11 @@ export const admin = (rawClient: FetchClient): Admin => ({
       rawClient,
       '/invite-links',
     ),
+    update: allpeepPayloadEndpoint<
+      InviteLinkWithMeta,
+      Partial<Pick<InviteLinkData, 'maxUses' | 'expiresAt'>>,
+      { id: string }
+    >(rawClient, '/invite-links/:id', 'patch'),
     activate: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
       rawClient,
       '/invite-links/:id/activate',
