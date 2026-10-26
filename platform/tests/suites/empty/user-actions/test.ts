@@ -706,6 +706,70 @@ test.describe('user actions (API)', () => {
     });
   });
 
+  test('invite link uses and expiration can be updated', async ({
+    request,
+  }) => {
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const slug = uniqueHandle('invu');
+    const expiresAt = new Date(Date.now() + 7 * 24 * 3_600_000).toISOString();
+    const create = await request.post('/api/openpeeps/core/v1/invite-links', {
+      headers: apiHeaders(ownerToken),
+      data: {
+        slug,
+        active: true,
+        maxUses: 10,
+        expiresAt,
+      },
+    });
+    expect(create.ok(), await create.text()).toBeTruthy();
+    const created = await create.json();
+
+    const nextExpires = new Date(
+      Date.now() + 30 * 24 * 3_600_000,
+    ).toISOString();
+    const update = await request.patch(
+      `/api/openpeeps/core/v1/invite-links/${created.id}`,
+      {
+        headers: apiHeaders(ownerToken),
+        data: { maxUses: 4, expiresAt: nextExpires },
+      },
+    );
+    expect(update.ok(), await update.text()).toBeTruthy();
+    const updated = await update.json();
+    expect(updated.maxUses).toBe(4);
+    expect(new Date(updated.expiresAt).getTime()).toBe(
+      new Date(nextExpires).getTime(),
+    );
+
+    for (const prefix of ['iru', 'irv']) {
+      const handle = uniqueHandle(prefix);
+      const registered = await registerUser(request, {
+        handle,
+        email: `${handle}@openpeeps.test`,
+        password: 'testtest12',
+        inviteCode: slug,
+      });
+      expect(registered.token).toBeTruthy();
+    }
+
+    const tooLow = await request.patch(
+      `/api/openpeeps/core/v1/invite-links/${created.id}`,
+      {
+        headers: apiHeaders(ownerToken),
+        data: { maxUses: 1 },
+      },
+    );
+    expect(tooLow.status()).toBe(400);
+    expect(await tooLow.json()).toMatchObject({
+      message:
+        'Number of uses cannot be lower than the number of accounts that already joined',
+    });
+  });
+
   test('report create and admin resolve', async ({ request }) => {
     const { token: ownerToken } = await loginUser(
       request,
