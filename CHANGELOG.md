@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **share**: enhance sharing functionality with new translations and UI updates
+- **lint**: upgrade to ESLint 10 and TypeScript 6, fix lint, prettier, type, and CI errors
 - **livekit**: implement LiveKit diagnostics and enhance related components
 - **waitlist**: implement waitlist functionality for events
 - **forbidden-handles**: implement additional forbidden usernames feature
@@ -14,8 +16,14 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **profiles**: label deleted profiles during hydration
+- **jams**: drop late microphone audio before Chromium speeds it up
 - **i18n**: add missing posts.menu.title translation
 - **rn-components**: make resources clickable and viewable in resource library and list
+
+### Refactoring
+
+- **PostActions**: enhance button interactivity and styling
 
 ### Style
 
