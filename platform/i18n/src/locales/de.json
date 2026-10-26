@@ -2922,6 +2922,29 @@
     },
     "preview": "Vorschau",
     "markdownHelp": "Formatierungshilfe",
+    "richText": {
+      "formatted": "Formatiert",
+      "markdownSource": "Markdown",
+      "bold": "Fett",
+      "italic": "Kursiv",
+      "strike": "Durchgestrichen",
+      "heading1": "Überschrift 1",
+      "heading2": "Überschrift 2",
+      "heading3": "Überschrift 3",
+      "bulletList": "Aufzählung",
+      "orderedList": "Nummerierte Liste",
+      "quote": "Zitat",
+      "code": "Code",
+      "codeBlock": "Codeblock",
+      "horizontalRule": "Trennlinie",
+      "link": "Link",
+      "linkUrl": "Linkadresse",
+      "apply": "Übernehmen",
+      "removeLink": "Link entfernen",
+      "invalidUrl": "Gib eine http-, https- oder mailto-Adresse oder einen Pfad auf dieser Website ein.",
+      "mention": "Person erwähnen",
+      "searchPeople": "Personen suchen"
+    },
     "edit": "Zurück zur Bearbeitung",
     "uploadEditModal": {
       "description": {
@@ -3578,7 +3601,7 @@
     "form": {
       "title": "Neuer Artikel",
       "uploadCover": "Titelbild hochladen",
-      "contentPlaceholder": "Schreiben Sie hier Ihren Inhalt. Verwenden Sie Markdown zur Formatierung",
+      "contentPlaceholder": "Schreiben Sie hier Ihren Artikel",
       "visibility": "Wer kann das sehen (Erforderlich)",
       "visibilityNotChangeable": "Sobald Sie Ihren Artikel veröffentlicht haben, können Sie die Sichtbarkeit nicht mehr ändern",
       "content": "Artikelinhalt"

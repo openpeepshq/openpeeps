@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import type { PublicProfile } from '@openpeepshq/common/types';
+import { richTextNeedsSourceMode } from '@openpeepshq/common/lib';
 import {
   Button,
   Popover,
@@ -10,8 +11,12 @@ import {
 } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
-import { OpenpeepsMarkdown } from '../../markdown';
 import { ProfileCard } from '../../profile';
+import {
+  RichTextField,
+  type RichTextApi,
+  type RichTextVariant,
+} from './rich-text/RichTextField';
 
 export interface OpenpeepsMarkdownInputProps {
   value: string;
@@ -20,35 +25,40 @@ export interface OpenpeepsMarkdownInputProps {
   maxLength?: number;
   placeholder?: string;
   rows?: number;
-  /** Show the preview toggle button (mirrors Svelte `previewButton`). */
-  previewButton?: boolean;
-  /** Extra classes for the textarea (e.g. taller config editors). */
+  /**
+   * Article: headings, quotes, code, and a divider.
+   * Compact: emphasis, lists, links, and mentions.
+   */
+  variant?: RichTextVariant;
+  /** Extra classes for the editor (e.g. taller config editors). */
   className?: string;
   testId?: string;
 }
 
 /**
- * Markdown editor mirroring the Svelte `OpenpeepsMarkdownInput`: a textarea
- * with @-mention autocomplete, a preview toggle that renders the markdown over
- * the field, and a character counter.
+ * Formatted text field that stores Markdown. @-mention search stays, and
+ * documents with embeds open in the Markdown source so those tags are kept.
  */
-export function OpenpeepsMarkdownInput({
+export const OpenpeepsMarkdownInput = ({
   value,
   onChange,
   maxLength = 500,
   placeholder,
   rows = 5,
-  previewButton = true,
+  variant = 'compact',
   className,
   testId,
-}: OpenpeepsMarkdownInputProps) {
+}: OpenpeepsMarkdownInputProps) => {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+  const [sourceMode, setSourceMode] = useState(() =>
+    richTextNeedsSourceMode(value),
+  );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const anchorRef = useRef<HTMLDivElement>(null);
+  const richTextRef = useRef<RichTextApi | null>(null);
 
   const profilesQuery = openpeepsApi.useSearchProfiles(query);
 
@@ -63,7 +73,7 @@ export function OpenpeepsMarkdownInput({
 
   const showMentions = open && query.length >= 1 && profiles.length > 0;
 
-  const handleChange = (next: string) => {
+  const handleSourceChange = (next: string) => {
     onChange(next);
     const el = textareaRef.current;
     if (!el) return;
@@ -80,6 +90,12 @@ export function OpenpeepsMarkdownInput({
   };
 
   const insertMention = (profile: PublicProfile) => {
+    if (!sourceMode && richTextRef.current) {
+      richTextRef.current.replaceActiveMention(profile.handle);
+      setOpen(false);
+      setQuery('');
+      return;
+    }
     const el = textareaRef.current;
     const cursor = el?.selectionStart ?? value.length;
     const before = value.slice(0, cursor);
@@ -94,27 +110,23 @@ export function OpenpeepsMarkdownInput({
   };
 
   const overLimit = value.length > maxLength;
+  const resolvedPlaceholder = placeholder ?? t('posts.form.content');
 
   return (
     <div className="relative w-full">
-      {showPreview ? (
-        <div className="bg-background border-border absolute inset-0 z-10 overflow-y-auto rounded-md border p-4 pt-16">
+      <div className="flex w-full items-center gap-3 pb-2">
+        {variant === 'article' ? (
           <Button
             compact
             variant="outline"
-            className="absolute left-2 top-2"
-            action={() => setShowPreview(false)}
+            action={() => {
+              setSourceMode((current) => !current);
+              setOpen(false);
+            }}
           >
-            {t('form.edit', { defaultValue: 'Back to Editing' })}
-          </Button>
-          <OpenpeepsMarkdown source={value} linkPreviewMode="none" />
-        </div>
-      ) : null}
-
-      <div className="flex w-full items-center gap-3 pb-2">
-        {previewButton ? (
-          <Button compact variant="outline" action={() => setShowPreview(true)}>
-            {t('form.preview', { defaultValue: 'Preview' })}
+            {sourceMode
+              ? t('form.richText.formatted')
+              : t('form.richText.markdownSource')}
           </Button>
         ) : null}
         <a
@@ -123,23 +135,48 @@ export function OpenpeepsMarkdownInput({
           rel="noopener noreferrer"
           className="op-anchor text-sm"
         >
-          {t('form.markdownHelp', { defaultValue: 'Formatting help' })}
+          {t('form.markdownHelp')}
         </a>
       </div>
 
       <Popover open={showMentions} modal={false}>
         <PopoverAnchor asChild>
           <div ref={anchorRef} className="w-full">
-            <Textarea
-              ref={textareaRef}
-              rows={rows}
-              value={value}
-              maxLength={maxLength}
-              placeholder={placeholder ?? t('posts.form.content')}
-              onChange={(e) => handleChange(e.target.value)}
-              data-testid={testId}
-              className={cn('resize-y', className)}
-            />
+            {sourceMode ? (
+              <Textarea
+                ref={textareaRef}
+                rows={rows}
+                value={value}
+                maxLength={maxLength}
+                placeholder={resolvedPlaceholder}
+                onChange={(event) => handleSourceChange(event.target.value)}
+                data-testid={testId}
+                className={cn('resize-y', className)}
+              />
+            ) : (
+              <RichTextField
+                value={value}
+                onChange={onChange}
+                variant={variant}
+                placeholder={resolvedPlaceholder}
+                maxLength={maxLength}
+                rows={rows}
+                className={className}
+                testId={testId}
+                onMentionQuery={(next) => {
+                  if (next === null) {
+                    setOpen(false);
+                    setQuery('');
+                    return;
+                  }
+                  setQuery(next);
+                  setOpen(true);
+                }}
+                onReady={(api) => {
+                  richTextRef.current = api;
+                }}
+              />
+            )}
           </div>
         </PopoverAnchor>
 
@@ -147,12 +184,11 @@ export function OpenpeepsMarkdownInput({
           align="start"
           side="bottom"
           sideOffset={4}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-          onCloseAutoFocus={(e) => e.preventDefault()}
-          // Keep the list open while the user keeps typing in the anchored field.
-          onPointerDownOutside={(e) => {
-            if (anchorRef.current?.contains(e.target as Node)) {
-              e.preventDefault();
+          onOpenAutoFocus={(event) => event.preventDefault()}
+          onCloseAutoFocus={(event) => event.preventDefault()}
+          onPointerDownOutside={(event) => {
+            if (anchorRef.current?.contains(event.target as Node)) {
+              event.preventDefault();
             }
           }}
           className="bg-surface z-[100] max-h-48 w-[var(--radix-popover-trigger-width)] overflow-y-auto p-0 shadow-md"
@@ -162,8 +198,8 @@ export function OpenpeepsMarkdownInput({
               key={profile.id}
               type="button"
               className="hover:bg-surface w-full text-left"
-              onMouseDown={(e) => {
-                e.preventDefault();
+              onMouseDown={(event) => {
+                event.preventDefault();
                 insertMention(profile);
               }}
             >
@@ -181,4 +217,4 @@ export function OpenpeepsMarkdownInput({
       </div>
     </div>
   );
-}
+};

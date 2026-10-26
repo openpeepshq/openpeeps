@@ -11,6 +11,7 @@ export * from './groupHelpers';
 export * from './groupTemplateHelpers';
 export * from './colors';
 export * from './markdownHelpers';
+export * from './richTextMarkdown';
 export * from './attachmentHelpers';
 export * from './resources';
 export * from './eventIcs';

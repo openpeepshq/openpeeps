@@ -57,6 +57,7 @@ export function CommunityMarkdownPage({
     <div className="flex flex-col gap-4 p-4">
       <p className="pb-2 pt-4">{t(descriptionKey)}</p>
       <OpenpeepsMarkdownInput
+        variant="article"
         value={value}
         maxLength={10000}
         rows={18}

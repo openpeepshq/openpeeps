@@ -66,13 +66,13 @@ export const ArticleForm = ({
         </View>
 
         <OpenpeepsMarkdownInput
+          variant="article"
           rows={16}
           maxLength={10000}
           value={article.content ?? ''}
           onChange={(content) => patchArticle({ content })}
           placeholder={t('articles.form.contentPlaceholder', {
-            defaultValue:
-              'Write your content here.  User markdown for formatting',
+            defaultValue: 'Write your article',
           })}
         />
 
