@@ -3604,6 +3604,8 @@
     "rsvpRemovedForbidden": "Only the event organizer can remove attendees.",
     "cannotInteractBlocked": "You cannot interact with this profile.",
     "emailAlreadyTaken": "That email is already in use.",
+    "pollClosed": "This poll has ended.",
+    "invalidPollVote": "Invalid poll vote.",
     "unprocessableRequest": "Invalid request",
     "roleExists": "A role with this key already exists."
   },
