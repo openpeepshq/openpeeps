@@ -190,6 +190,16 @@ export const updateAccount = async (accountData: AccountUpdateData) => {
   const previousEmail = accountData.account.email;
   const updatedEmail = normalizeEmailAddress(accountData.email);
 
+  if (updatedEmail && updatedEmail !== previousEmail) {
+    const existing = await findAccountByEmail(updatedEmail);
+    if (existing && existing.id !== accountData.account.id) {
+      throw conflict({
+        errorKey: 'emailAlreadyTaken',
+        parameters: { email: updatedEmail },
+      });
+    }
+  }
+
   const account = await accountsMapping.update(
     db,
     accountData.account.id as string,
