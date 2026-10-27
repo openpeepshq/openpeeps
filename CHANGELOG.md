@@ -5,6 +5,9 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **invite-links**: add update functionality for invite links with localization updates
+- **posts**: play inline audio and video only as the sole attachment
+- add occurrenceForJamStart function and related tests
 - **share**: enhance sharing functionality with new translations and UI updates
 - **lint**: upgrade to ESLint 10 and TypeScript 6, fix lint, prettier, type, and CI errors
 - **livekit**: implement LiveKit diagnostics and enhance related components
