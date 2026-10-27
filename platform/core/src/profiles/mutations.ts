@@ -12,6 +12,7 @@ import { allpeepDb } from '../db';
 import {
   followConnector,
   followDisconnector,
+  followFinder,
   giveControl,
   roleAssigner,
   roleUnassigner,
@@ -127,9 +128,12 @@ export const follow = async (
   followData: FollowData,
 ) => {
   const { db } = await allpeepDb();
-  await followConnector(db, follower, followed, followData);
+  const existing = await followFinder(db, follower, followed);
+  if (!existing) {
+    await followConnector(db, follower, followed, followData);
+    await hub.emit('followCreated', follower, followed);
+  }
   await Promise.all([clearProfileCache(follower), clearProfileCache(followed)]);
-  await hub.emit('followCreated', follower, followed);
 };
 
 export const unfollow = async (follower: Profile, followed: Profile) => {
