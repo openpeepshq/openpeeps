@@ -14,8 +14,8 @@ import { useT } from '../../i18n/context';
 import { useServerInfo } from '../../components/server-data';
 import { defaultNewResource, getNewPostStores } from '../../stores';
 
-const asResource = (data: PostDataUnion): ResourcePost | null =>
-  data.type === 'resource' ? data : null;
+const asResource = (data: PostDataUnion | undefined): ResourcePost | null =>
+  data?.type === 'resource' ? data : null;
 
 const preparedResource = (resource: ResourcePost): ResourcePost => ({
   ...resource,
@@ -121,7 +121,11 @@ export const useEditResource = (resourceId: string) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (postQuery.data && postQuery.data.type === 'resource') {
+    if (
+      postQuery.data &&
+      postQuery.data.type === 'resource' &&
+      postQuery.data.data
+    ) {
       setPostData({
         visibility: postQuery.data.visibility,
         type: 'resource',
@@ -132,9 +136,7 @@ export const useEditResource = (resourceId: string) => {
     }
   }, [postQuery.data]);
 
-  const resourceTitle = asResource(
-    postQuery.data?.data as PostDataUnion,
-  )?.title;
+  const resourceTitle = asResource(postQuery.data?.data)?.title;
 
   const submit = useCallback(async () => {
     if (!postData) return;
