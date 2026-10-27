@@ -6,7 +6,7 @@ import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import { isOneToOneWithBlocked, blockedPairIds } from '@openpeepshq/common/lib';
 
 export const Param = z.object({
-  conversationId: z.string(),
+  conversationId: z.uuid(),
 });
 
 export const Output = publicPostSchema.array();
