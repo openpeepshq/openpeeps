@@ -359,15 +359,56 @@ export const deletePost = async (post: PostWithMeta, profile: Profile) => {
   return postsMapping.find(db, post.id);
 };
 
-export const vote = (profile: Profile, post: PostWithMeta, data: Answer) =>
-  allpeepDb().then(({ db }) =>
-    entryConnector(db, profile, post, {
-      type: 'answer',
-      data,
-    }).then(() =>
-      hub.emit('entryCreated', profile, post, { type: 'answer', data }),
-    ),
-  );
+export const validatePollVote = (post: PostWithMeta, data: Answer): void => {
+  if (post.data?.type !== 'question') return;
+  const question = post.data;
+  if (
+    question.expiresAt &&
+    Date.now() > new Date(question.expiresAt).getTime()
+  ) {
+    throw forbidden({ errorKey: 'error.pollClosed' });
+  }
+  const multiple = question.multiple ?? false;
+  const optionsCount = question.options.length;
+  // Empty selection is allowed — it clears an existing vote (undo).
+  if (data.selection.length === 0) return;
+  if (!multiple && data.selection.length !== 1) {
+    throw unprocessableRequest({
+      errorKey: 'error.invalidPollVote',
+      parameters: { reason: 'singleChoiceRequired' },
+    });
+  }
+  const seen = new Set<number>();
+  for (const index of data.selection) {
+    if (index < 0 || index >= optionsCount) {
+      throw unprocessableRequest({
+        errorKey: 'error.invalidPollVote',
+        parameters: { reason: 'optionOutOfRange' },
+      });
+    }
+    if (seen.has(index)) {
+      throw unprocessableRequest({
+        errorKey: 'error.invalidPollVote',
+        parameters: { reason: 'duplicateOption' },
+      });
+    }
+    seen.add(index);
+  }
+};
+
+export const vote = async (
+  profile: Profile,
+  post: PostWithMeta,
+  data: Answer,
+) => {
+  validatePollVote(post, data);
+  const { db } = await allpeepDb();
+  await entryConnector(db, profile, post, {
+    type: 'answer',
+    data,
+  });
+  await hub.emit('entryCreated', profile, post, { type: 'answer', data });
+};
 
 const attendingRsvp = (response?: RsvpResponse) =>
   response === 'yes' || response === 'tentative';

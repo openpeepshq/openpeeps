@@ -1,5 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden, notFound, unprocessableRequest } from '#lib/errors';
+import {
+  forbidden,
+  notFound,
+  unprocessableRequest,
+  rethrowIfOpenpeepsError,
+} from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { findPost, vote } from '@openpeepshq/core/posts';
@@ -15,9 +20,9 @@ export const Input = answerSchema;
 export const Output = successResponseSchema;
 
 export const Error = {
-  409: unprocessableRequest(),
   403: forbidden(),
   404: notFound(),
+  422: unprocessableRequest(),
 };
 
 export const apiEndpoint = endpoint({ Input, Param, Output, Error }).handle(
@@ -40,7 +45,7 @@ export const apiEndpoint = endpoint({ Input, Param, Output, Error }).handle(
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-vote']);
 
-    await vote(profile, mergedPost, answer);
+    await vote(profile, mergedPost, answer).catch(rethrowIfOpenpeepsError);
 
     return { success: true };
   },

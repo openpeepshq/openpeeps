@@ -3722,6 +3722,8 @@
     "rsvpRemovedForbidden": "Nur der Organisator kann Teilnehmer entfernen.",
     "cannotInteractBlocked": "Sie können mit diesem Profil nicht interagieren.",
     "emailAlreadyTaken": "Diese E-Mail wird bereits verwendet.",
+    "pollClosed": "Diese Umfrage ist beendet.",
+    "invalidPollVote": "Ungültige Umfrageantwort.",
     "unprocessableRequest": "Ungültige Anfrage",
     "roleExists": "Eine Rolle mit diesem Schlüssel existiert bereits."
   },
