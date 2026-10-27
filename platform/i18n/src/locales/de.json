@@ -3719,6 +3719,7 @@
     "rsvpRemoved": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
     "rsvpRemovedForbidden": "Nur der Organisator kann Teilnehmer entfernen.",
     "cannotInteractBlocked": "Sie können mit diesem Profil nicht interagieren.",
+    "emailAlreadyTaken": "Diese E-Mail wird bereits verwendet.",
     "unprocessableRequest": "Ungültige Anfrage",
     "roleExists": "Eine Rolle mit diesem Schlüssel existiert bereits."
   },

@@ -3603,6 +3603,7 @@
     "rsvpRemoved": "The organizer has removed you from this event.",
     "rsvpRemovedForbidden": "Only the event organizer can remove attendees.",
     "cannotInteractBlocked": "You cannot interact with this profile.",
+    "emailAlreadyTaken": "That email is already in use.",
     "unprocessableRequest": "Invalid request",
     "roleExists": "A role with this key already exists."
   },
