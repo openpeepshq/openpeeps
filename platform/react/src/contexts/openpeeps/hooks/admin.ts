@@ -56,40 +56,46 @@ const adminBackupsConfig = (client: OpenpeepsClientInstance) => ({
 });
 type AdminBackupsConfig = ReturnType<typeof adminBackupsConfig>;
 
-const adminDbInvites = (client: OpenpeepsClientInstance) => ({
-  useDbToken: () => apiHook(client.admin.db.token),
-  useDbTables: () => apiHook(client.admin.db.tables),
-  useDbRows: (table: string, query?: Record<string, string>) =>
-    apiHook(client.admin.db.rows, {
-      pathParams: { table },
-      queryParams: query,
-      enabled: !!table,
-    }),
-  updateDbRowAction: payloadMutation(client.admin.db.updateRow, [
-    ['admin', 'db', 'rows'],
-  ]),
-  runDbSqlAction: payloadMutation(client.admin.db.runSql, [
-    ['admin', 'db', 'sql'],
-  ]),
-  createInviteAction: payloadMutation(client.admin.invites.create, [
-    ['invite-links'],
-  ]),
-  useInvitesList: () => apiHook(client.admin.invites.list),
-  updateInviteAction: payloadMutation(client.admin.invites.update, [
-    ['invite-links'],
-  ]),
-  activateInviteAction: noPayloadMutation(client.admin.invites.activate, [
-    ['invite-links'],
-  ]),
-  deactivateInviteAction: noPayloadMutation(client.admin.invites.deactivate, [
-    ['invite-links'],
-  ]),
-  useLogsList: (date?: string, refetchInterval?: number) =>
-    apiHook(client.admin.logs.list, {
-      queryParams: date ? { date } : undefined,
-      refetchInterval,
-    }),
-});
+const inviteLinksListQueryKey = (client: OpenpeepsClientInstance) =>
+  client.admin.invites.list.queryKey({}) as string[];
+
+const adminDbInvites = (client: OpenpeepsClientInstance) => {
+  const inviteListQueryKey = inviteLinksListQueryKey(client);
+  return {
+    useDbToken: () => apiHook(client.admin.db.token),
+    useDbTables: () => apiHook(client.admin.db.tables),
+    useDbRows: (table: string, query?: Record<string, string>) =>
+      apiHook(client.admin.db.rows, {
+        pathParams: { table },
+        queryParams: query,
+        enabled: !!table,
+      }),
+    updateDbRowAction: payloadMutation(client.admin.db.updateRow, [
+      ['admin', 'db', 'rows'],
+    ]),
+    runDbSqlAction: payloadMutation(client.admin.db.runSql, [
+      ['admin', 'db', 'sql'],
+    ]),
+    createInviteAction: payloadMutation(client.admin.invites.create, [
+      inviteListQueryKey,
+    ]),
+    useInvitesList: () => apiHook(client.admin.invites.list),
+    updateInviteAction: payloadMutation(client.admin.invites.update, [
+      inviteListQueryKey,
+    ]),
+    activateInviteAction: noPayloadMutation(client.admin.invites.activate, [
+      inviteListQueryKey,
+    ]),
+    deactivateInviteAction: noPayloadMutation(client.admin.invites.deactivate, [
+      inviteListQueryKey,
+    ]),
+    useLogsList: (date?: string, refetchInterval?: number) =>
+      apiHook(client.admin.logs.list, {
+        queryParams: date ? { date } : undefined,
+        refetchInterval,
+      }),
+  };
+};
 type AdminDbInvites = ReturnType<typeof adminDbInvites>;
 
 const adminPeopleContent = (client: OpenpeepsClientInstance) => ({
