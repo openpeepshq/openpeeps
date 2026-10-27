@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { HANDLE_RESERVED_MESSAGE } from '../forbiddenHandles';
 import {
   accountCreationDataSchema,
   registerRequestSchema,
@@ -83,6 +84,17 @@ describe('profile displayName input schemas', () => {
       handle: 'a'.repeat(17),
     });
     expect(result.success).toBe(false);
+  });
+
+  it('rejects reserved local profile handle updates with a reserved message', () => {
+    const result = updateProfileRequestSchema.safeParse({
+      type: 'local',
+      handle: 'admin',
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toBe(HANDLE_RESERVED_MESSAGE);
+    }
   });
 
   it('accepts federated profile handle updates longer than 16 characters', () => {
