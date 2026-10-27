@@ -1,5 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden, notFound } from '#lib/errors';
+import { forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
 import {
   publicPostSchema,
   postDataUnionSchema,
@@ -16,7 +16,7 @@ import {
   findPostsForAuth,
 } from '@openpeepshq/core/posts';
 import { postCreationDataSchema } from '@openpeepshq/common/types';
-import { isOneToOneDm } from '@openpeepshq/common/lib';
+import { isOneToOneDm, isBlockedPair } from '@openpeepshq/common/lib';
 
 export const Input = postCreationDataSchema;
 export const Output = publicPostSchema;
@@ -36,6 +36,10 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
     const post = await findPost(input.conversationId);
     if (!post) {
       throw notFound(`Post with id ${input.conversationId}`);
+    }
+
+    if (isBlockedPair(profile, post.creatorId ?? post.profile?.id)) {
+      throw forbidden('error.cannotInteractBlocked');
     }
 
     await ensurePostCapabilities(event, post, ['core-posts-reply']);
@@ -84,6 +88,6 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
     return await createPost(postData, profile, object, {
       inReplyToId: lastPost.id,
       audience: (audience.length ? audience : null) as never,
-    });
+    }).catch(rethrowIfOpenpeepsError);
   },
 );
