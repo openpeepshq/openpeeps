@@ -1,6 +1,9 @@
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import React from 'react';
 import { PublicNotification } from '@openpeepshq/common';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { MainStackParamList } from '../../components/navigation/types/index';
 import {
   Announcement,
   DirectMessage,
@@ -59,6 +62,8 @@ const notificationComponentMap: Record<
 export const NotificationItem: React.FC<NotificationComponentProps> = ({
   notification,
 }) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const NotificationToRender: React.ComponentType<{
     notification: PublicNotification;
   }> = notificationComponentMap[notification.type];
@@ -72,11 +77,29 @@ export const NotificationItem: React.FC<NotificationComponentProps> = ({
       </View>
     );
   }
-  return (
+
+  const PostBody = (
     <NotificationErrorBoundary notificationId={notification.id}>
       <View className="flex w-full items-center justify-between border-b">
         <NotificationToRender notification={notification} />
       </View>
     </NotificationErrorBoundary>
   );
+
+  if (notification.post?.id) {
+    return (
+      <Pressable
+        onPress={() =>
+          navigation.navigate('Post', {
+            id: notification.post!.id,
+            occurrence: notification.post?.occurrenceRecurrenceId ?? undefined,
+          })
+        }
+      >
+        {PostBody}
+      </Pressable>
+    );
+  }
+
+  return PostBody;
 };
