@@ -49,6 +49,8 @@ export type NavItemDef = {
   id: string;
   target: NavTarget;
   labelKey: string;
+  /** i18n key describing what happens when the item is activated. */
+  tooltipKey?: string;
   /** Lucide (or similar) icon component name — host maps to actual icon. */
   icon?: string;
   end?: boolean;

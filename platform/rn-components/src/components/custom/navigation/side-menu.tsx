@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, useColorScheme } from 'react-native';
+import { Platform, ScrollView, useColorScheme } from 'react-native';
 import { Separator } from '../../ui/separator';
 import { TouchableOpacity, View } from 'react-native';
 import { Button } from '../../ui/button';
@@ -23,6 +23,7 @@ import {
   LibraryIcon,
 } from '../../icons/index';
 import { ThemedText } from '../../ui/themed-text';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { useWindowSize } from '../../../hooks/helper';
 import { toAbsoluteMediaUrl } from '../../../lib/media-url';
 import { formatBadgeCount, getTheme } from '@openpeepshq/common';
@@ -47,6 +48,48 @@ const menuIcons: Record<string, React.ComponentType<LucideProps>> = {
   settings: SettingsIcon,
   resources: LibraryIcon,
 };
+const SideMenuNavButton = ({
+  tooltip,
+  accessibilityLabel,
+  onPress,
+  children,
+  className,
+  variant = 'ghost',
+  size,
+}: {
+  tooltip?: string;
+  accessibilityLabel: string;
+  onPress: () => void;
+  children: React.ReactNode;
+  className?: string;
+  variant?: 'ghost' | 'outline';
+  size?: 'icon';
+}) => {
+  const button = (
+    <Button
+      variant={variant}
+      size={size}
+      className={className}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={tooltip}
+      onPress={onPress}
+    >
+      {children}
+    </Button>
+  );
+  if (Platform.OS !== 'web' || !tooltip) {
+    return button;
+  }
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipContent side="right">
+        <ThemedText>{tooltip}</ThemedText>
+      </TooltipContent>
+    </Tooltip>
+  );
+};
+
 interface SideMenuProps {
   handleNavigation: ({
     target,
@@ -127,13 +170,15 @@ export const SideMenu = ({
             <View className="flex flex-row justify-between items-center">
               <ProfileAvatar profile={currentProfile} className="w-16 h-16" />
               {isMediumScreenOrLarger && (
-                <Button
-                  variant={'outline'}
-                  size={'icon'}
+                <SideMenuNavButton
+                  variant="outline"
+                  size="icon"
+                  accessibilityLabel={t('navigation.openNotifications')}
+                  tooltip={t('navigation.tooltips.notifications')}
                   onPress={onNotificationPress}
                 >
                   <BellIcon className="text-foreground" size={20} />
-                </Button>
+                </SideMenuNavButton>
               )}
             </View>
             <View>
@@ -157,11 +202,13 @@ export const SideMenu = ({
               if (!Icon) {
                 return null;
               }
+              const tooltip = item.tooltipKey ? t(item.tooltipKey) : undefined;
               return (
-                <Button
+                <SideMenuNavButton
                   key={item.id}
-                  variant="ghost"
                   className="flex-row items-center w-full mb-4 justify-start p-4"
+                  accessibilityLabel={t(item.labelKey)}
+                  tooltip={tooltip}
                   onPress={() => {
                     setCurrentRoute(item.id);
                     handleNavigation({ target: item.id });
@@ -191,12 +238,13 @@ export const SideMenu = ({
                       </View>
                     ) : null}
                   </View>
-                </Button>
+                </SideMenuNavButton>
               );
             })}
-            <Button
-              variant="ghost"
+            <SideMenuNavButton
               className="flex-row items-center space-x-3 w-full mb-4 justify-start"
+              accessibilityLabel={t('navigation.logOut')}
+              tooltip={t('navigation.tooltips.logOut')}
               onPress={() => {
                 logout();
                 close?.();
@@ -206,7 +254,7 @@ export const SideMenu = ({
               <ThemedText className="-mt-1 tracking-wider text-destructive native:text-lg">
                 {t('navigation.logOut')}
               </ThemedText>
-            </Button>
+            </SideMenuNavButton>
           </ScrollView>
         </View>
 

@@ -11,6 +11,8 @@ export { FooterMobile } from './FooterMobile';
 export type { FooterMobileProps } from './FooterMobile';
 export { MobileMenuItem } from './MobileMenuItem';
 export type { MobileMenuItemProps } from './MobileMenuItem';
+export { NavWithTooltip } from './NavWithTooltip';
+export type { NavWithTooltipProps, NavTooltipSide } from './NavWithTooltip';
 export { ContentHeader } from './ContentHeader';
 export { PageHeaderAction } from './PageHeaderAction';
 export type { PageHeaderActionProps } from './PageHeaderAction';

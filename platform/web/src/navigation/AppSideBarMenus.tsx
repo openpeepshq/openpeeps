@@ -40,11 +40,13 @@ import {
   useT,
 } from '@openpeepshq/react';
 import {
+  NavWithTooltip,
   sideBarNavLinkClass,
   useCurrentProfile,
   useServerInfo,
   useSidebarNavClose,
 } from '@openpeepshq/react/components';
+import { TooltipProvider } from '@openpeepshq/react-ui';
 import {
   formatBadgeCount,
   getVisibleAdminSections,
@@ -84,21 +86,38 @@ const adminSectionLabelKeys: Record<AdminSectionKey, string> = {
   database: 'navigation.database',
 };
 
+const adminSectionTooltipKeys: Record<AdminSectionKey, string> = {
+  members: 'navigation.tooltips.members',
+  groups: 'navigation.tooltips.groups',
+  invites: 'navigation.tooltips.invites',
+  moderation: 'navigation.tooltips.moderation',
+  backups: 'navigation.tooltips.backups',
+  media: 'navigation.tooltips.media',
+  analytics: 'navigation.tooltips.analytics',
+  apiKeys: 'navigation.tooltips.apiKeys',
+  plugins: 'navigation.tooltips.plugins',
+  configuration: 'navigation.tooltips.configuration',
+  diagnostics: 'navigation.tooltips.diagnostics',
+  database: 'navigation.tooltips.database',
+};
+
 function NavItem({
   to,
   end,
   icon: Icon,
   children,
   pill,
+  tooltip,
 }: {
   to: string;
   end?: boolean;
   icon: LucideIcon;
   children: ReactNode;
   pill?: number;
+  tooltip?: string;
 }) {
   const closeDrawer = useSidebarNavClose();
-  return (
+  const link = (
     <NavLink
       to={to}
       end={end}
@@ -114,6 +133,8 @@ function NavItem({
       ) : null}
     </NavLink>
   );
+  if (!tooltip) return link;
+  return <NavWithTooltip label={tooltip}>{link}</NavWithTooltip>;
 }
 
 function NavButton({
@@ -121,16 +142,19 @@ function NavButton({
   children,
   onClick,
   danger,
+  tooltip,
 }: {
   icon: LucideIcon;
   children: ReactNode;
   onClick: () => void;
   danger?: boolean;
+  tooltip?: string;
 }) {
   const closeDrawer = useSidebarNavClose();
-  return (
+  const button = (
     <button
       type="button"
+      title={tooltip}
       className={[
         'hover:bg-surface flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm',
         danger ? 'text-destructive' : '',
@@ -144,6 +168,8 @@ function NavButton({
       {children}
     </button>
   );
+  if (!tooltip) return button;
+  return <NavWithTooltip label={tooltip}>{button}</NavWithTooltip>;
 }
 
 /** Main nav links for the signed-in sidebar (parity with Svelte `MainMenu.svelte`). */
@@ -171,97 +197,156 @@ export function AppSideBarMainMenu() {
     if (onAdminRoute) setAdminExpanded(true);
   }, [onAdminRoute]);
 
+  const adminToggleLabel = t('navigation.tooltips.administration');
+
   return (
-    <nav
-      aria-label={t('navigation.primary', { defaultValue: 'Primary' })}
-      className="flex flex-col gap-0.5 py-2 pr-2"
-    >
-      <NavItem to={href({ type: 'feed', feed: 'local' })} icon={Home}>
-        {t('navigation.community')}
-      </NavItem>
-      <NavItem to={href({ type: 'welcome' })} icon={BookCheck}>
-        {t('navigation.goToWelcomePage')}
-      </NavItem>
-      <NavItem to={href({ type: 'explore' })} icon={Search}>
-        {t('navigation.explore')}
-      </NavItem>
-      <NavItem to={href({ type: 'feed', feed: 'my' })} icon={Newspaper}>
-        {t('navigation.myFeed')}
-      </NavItem>
-      {jamsEnabled && (
-        <NavItem to={href({ type: 'jams' })} icon={PhoneCall}>
-          {t('navigation.jams')}
+    <TooltipProvider delayDuration={300}>
+      <nav
+        aria-label={t('navigation.primary', { defaultValue: 'Primary' })}
+        className="flex flex-col gap-0.5 py-2 pr-2"
+      >
+        <NavItem
+          to={href({ type: 'feed', feed: 'local' })}
+          icon={Home}
+          tooltip={t('navigation.tooltips.community')}
+        >
+          {t('navigation.community')}
         </NavItem>
-      )}
-      <NavItem
-        to={href({ type: 'groups' })}
-        icon={Users}
-        pill={unreadGroupPosts}
-      >
-        {t('navigation.groups')}
-      </NavItem>
-      <NavItem to={href({ type: 'events' })} icon={CalendarDays}>
-        {t('navigation.events')}
-      </NavItem>
-      <NavItem to={href({ type: 'articles' })} icon={ScrollText}>
-        {t('navigation.articles')}
-      </NavItem>
-      <NavItem to={href({ type: 'resources' })} icon={Library}>
-        {t('navigation.resources')}
-      </NavItem>
-      <NavItem
-        to={href({ type: 'conversation' })}
-        icon={MessageSquareText}
-        pill={unreadConversationThreads}
-      >
-        {t('navigation.messages')}
-      </NavItem>
-      <NavItem to={href({ type: 'members' })} icon={BookUser}>
-        {t('navigation.members')}
-      </NavItem>
-      <NavItem to={href({ type: 'feed', feed: 'bookmarks' })} icon={Bookmark}>
-        {t('navigation.bookmarks')}
-      </NavItem>
-      <NavItem to={href({ type: 'settings' })} icon={Settings}>
-        {t('navigation.settings')}
-      </NavItem>
-      {showAdminMenu && (
-        <div className="border-border mt-2 border-t pt-2">
-          <button
-            type="button"
-            className="text-foreground hover:bg-surface flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
-            onClick={() => setAdminExpanded((v) => !v)}
-            aria-expanded={adminExpanded}
+        <NavItem
+          to={href({ type: 'welcome' })}
+          icon={BookCheck}
+          tooltip={t('navigation.tooltips.welcome')}
+        >
+          {t('navigation.goToWelcomePage')}
+        </NavItem>
+        <NavItem
+          to={href({ type: 'explore' })}
+          icon={Search}
+          tooltip={t('navigation.tooltips.explore')}
+        >
+          {t('navigation.explore')}
+        </NavItem>
+        <NavItem
+          to={href({ type: 'feed', feed: 'my' })}
+          icon={Newspaper}
+          tooltip={t('navigation.tooltips.myFeed')}
+        >
+          {t('navigation.myFeed')}
+        </NavItem>
+        {jamsEnabled && (
+          <NavItem
+            to={href({ type: 'jams' })}
+            icon={PhoneCall}
+            tooltip={t('navigation.tooltips.jams')}
           >
-            <Bolt className="size-4 shrink-0" />
-            <span className="min-w-0 flex-1 truncate">
-              {t('navigation.administration')}
-            </span>
-            <ChevronDown
-              className={`text-muted-foreground size-4 shrink-0 transition-transform ${adminExpanded ? 'rotate-180' : ''}`}
-              aria-hidden
-            />
-          </button>
-          {adminExpanded ? (
-            <div className="border-border ml-2 mt-1 flex flex-col gap-0.5 border-l pl-2">
-              <NavItem to={href({ type: 'admin' })} end icon={LayoutDashboard}>
-                {t('navigation.overview')}
-              </NavItem>
-              {visibleAdminSections.map((section) => (
+            {t('navigation.jams')}
+          </NavItem>
+        )}
+        <NavItem
+          to={href({ type: 'groups' })}
+          icon={Users}
+          pill={unreadGroupPosts}
+          tooltip={t('navigation.tooltips.groups')}
+        >
+          {t('navigation.groups')}
+        </NavItem>
+        <NavItem
+          to={href({ type: 'events' })}
+          icon={CalendarDays}
+          tooltip={t('navigation.tooltips.events')}
+        >
+          {t('navigation.events')}
+        </NavItem>
+        <NavItem
+          to={href({ type: 'articles' })}
+          icon={ScrollText}
+          tooltip={t('navigation.tooltips.articles')}
+        >
+          {t('navigation.articles')}
+        </NavItem>
+        <NavItem
+          to={href({ type: 'resources' })}
+          icon={Library}
+          tooltip={t('navigation.tooltips.resources')}
+        >
+          {t('navigation.resources')}
+        </NavItem>
+        <NavItem
+          to={href({ type: 'conversation' })}
+          icon={MessageSquareText}
+          pill={unreadConversationThreads}
+          tooltip={t('navigation.tooltips.messages')}
+        >
+          {t('navigation.messages')}
+        </NavItem>
+        <NavItem
+          to={href({ type: 'members' })}
+          icon={BookUser}
+          tooltip={t('navigation.tooltips.members')}
+        >
+          {t('navigation.members')}
+        </NavItem>
+        <NavItem
+          to={href({ type: 'feed', feed: 'bookmarks' })}
+          icon={Bookmark}
+          tooltip={t('navigation.tooltips.bookmarks')}
+        >
+          {t('navigation.bookmarks')}
+        </NavItem>
+        <NavItem
+          to={href({ type: 'settings' })}
+          icon={Settings}
+          tooltip={t('navigation.tooltips.settings')}
+        >
+          {t('navigation.settings')}
+        </NavItem>
+        {showAdminMenu && (
+          <div className="border-border mt-2 border-t pt-2">
+            <NavWithTooltip label={adminToggleLabel}>
+              <button
+                type="button"
+                title={adminToggleLabel}
+                className="text-foreground hover:bg-surface flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
+                onClick={() => setAdminExpanded((v) => !v)}
+                aria-expanded={adminExpanded}
+              >
+                <Bolt className="size-4 shrink-0" />
+                <span className="min-w-0 flex-1 truncate">
+                  {t('navigation.administration')}
+                </span>
+                <ChevronDown
+                  className={`text-muted-foreground size-4 shrink-0 transition-transform ${adminExpanded ? 'rotate-180' : ''}`}
+                  aria-hidden
+                />
+              </button>
+            </NavWithTooltip>
+            {adminExpanded ? (
+              <div className="border-border ml-2 mt-1 flex flex-col gap-0.5 border-l pl-2">
                 <NavItem
-                  key={section.key}
-                  to={section.path}
-                  icon={adminSectionIcons[section.key]}
+                  to={href({ type: 'admin' })}
+                  end
+                  icon={LayoutDashboard}
+                  tooltip={t('navigation.tooltips.adminOverview')}
                 >
-                  {t(adminSectionLabelKeys[section.key])}
+                  {t('navigation.overview')}
                 </NavItem>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      )}
-      <LogoutRow />
-    </nav>
+                {visibleAdminSections.map((section) => (
+                  <NavItem
+                    key={section.key}
+                    to={section.path}
+                    icon={adminSectionIcons[section.key]}
+                    tooltip={t(adminSectionTooltipKeys[section.key])}
+                  >
+                    {t(adminSectionLabelKeys[section.key])}
+                  </NavItem>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        )}
+        <LogoutRow />
+      </nav>
+    </TooltipProvider>
   );
 }
 
@@ -274,6 +359,7 @@ function LogoutRow() {
     <NavButton
       icon={LogOut}
       danger
+      tooltip={t('navigation.tooltips.logOut')}
       onClick={async () => {
         await logout();
         navigate(href({ type: 'auth', mode: 'login' }));
@@ -315,53 +401,68 @@ export function AppSideBarProfileMenu() {
   const handle = profile.handle;
   const label = profile.displayName?.trim() || `@${handle}`;
 
+  const profileTooltip = t('navigation.tooltips.profile');
+  const notificationsTooltip = t('navigation.tooltips.notifications');
+
   return (
-    <div className="w-full px-4 py-4">
-      <div className="mb-3 flex w-full items-center justify-between gap-2">
-        <NavLink
-          to={`/@${handle}`}
-          className="flex min-w-0 flex-1 items-center gap-2"
-          onClick={() => closeDrawer?.()}
-        >
-          {profile.avatar ? (
-            <img
-              src={profile.avatar}
-              alt=""
-              className="size-10 shrink-0 rounded-full object-cover"
-            />
-          ) : (
-            <span className="bg-surface text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
-              {handle.slice(0, 1).toUpperCase()}
-            </span>
-          )}
-        </NavLink>
-        <button
-          type="button"
-          title={t('navigation.openNotifications')}
-          aria-label={t('navigation.openNotifications')}
-          className="text-foreground hover:bg-surface relative shrink-0 rounded-md p-2"
-          onClick={() => void openNotifications()}
-        >
-          <Bell className="size-6" aria-hidden="true" />
-          <span className="sr-only">{t('navigation.openNotifications')}</span>
-          {(notificationStats.data?.unseen ?? 0) > 0 ? (
-            <span
-              className="bg-destructive text-destructive-foreground absolute -right-0.5 -top-0.5 flex size-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-semibold"
-              aria-label={`${notificationStats.data?.unseen} unread notifications`}
+    <TooltipProvider delayDuration={300}>
+      <div className="w-full px-4 py-4">
+        <div className="mb-3 flex w-full items-center justify-between gap-2">
+          <NavWithTooltip label={profileTooltip}>
+            <NavLink
+              to={`/@${handle}`}
+              title={profileTooltip}
+              className="flex min-w-0 flex-1 items-center gap-2"
+              onClick={() => closeDrawer?.()}
             >
-              {formatBadgeCount(notificationStats.data?.unseen ?? 0)}
-            </span>
-          ) : null}
-        </button>
+              {profile.avatar ? (
+                <img
+                  src={profile.avatar}
+                  alt=""
+                  className="size-10 shrink-0 rounded-full object-cover"
+                />
+              ) : (
+                <span className="bg-surface text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
+                  {handle.slice(0, 1).toUpperCase()}
+                </span>
+              )}
+            </NavLink>
+          </NavWithTooltip>
+          <NavWithTooltip label={notificationsTooltip}>
+            <button
+              type="button"
+              title={notificationsTooltip}
+              aria-label={t('navigation.openNotifications')}
+              className="text-foreground hover:bg-surface relative shrink-0 rounded-md p-2"
+              onClick={() => void openNotifications()}
+            >
+              <Bell className="size-6" aria-hidden="true" />
+              <span className="sr-only">
+                {t('navigation.openNotifications')}
+              </span>
+              {(notificationStats.data?.unseen ?? 0) > 0 ? (
+                <span
+                  className="bg-destructive text-destructive-foreground absolute -right-0.5 -top-0.5 flex size-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-semibold"
+                  aria-label={`${notificationStats.data?.unseen} unread notifications`}
+                >
+                  {formatBadgeCount(notificationStats.data?.unseen ?? 0)}
+                </span>
+              ) : null}
+            </button>
+          </NavWithTooltip>
+        </div>
+        <NavWithTooltip label={profileTooltip}>
+          <NavLink
+            to={`/@${handle}`}
+            title={profileTooltip}
+            className="hover:text-primary block truncate text-base font-semibold"
+            onClick={() => closeDrawer?.()}
+          >
+            {label}
+          </NavLink>
+        </NavWithTooltip>
+        <p className="text-muted-foreground truncate text-sm">@{handle}</p>
       </div>
-      <NavLink
-        to={`/@${handle}`}
-        className="hover:text-primary block truncate text-base font-semibold"
-        onClick={() => closeDrawer?.()}
-      >
-        {label}
-      </NavLink>
-      <p className="text-muted-foreground truncate text-sm">@{handle}</p>
-    </div>
+    </TooltipProvider>
   );
 }

@@ -2,11 +2,14 @@ import { formatBadgeCount } from '@openpeepshq/common';
 import { cn } from '@openpeepshq/react-ui';
 import type { IconType } from '@openpeepshq/react-ui';
 import { useRouter } from '../../contexts/router';
+import { NavWithTooltip } from './NavWithTooltip';
 
 export interface MobileMenuItemProps {
   action: string | (() => unknown);
   icon: IconType;
   title?: string;
+  /** Describes the action on hover (icon-only mobile footer). */
+  tooltip?: string;
   /** Unread/unseen count shown as a badge on the icon. */
   badge?: number;
 }
@@ -15,16 +18,18 @@ export function MobileMenuItem({
   action,
   icon: Icon,
   title,
+  tooltip,
   badge,
 }: MobileMenuItemProps) {
   const router = useRouter();
   const active = typeof action === 'string' && router.pathname === action;
   const showBadge = (badge ?? 0) > 0;
+  const hint = tooltip ?? title;
 
-  return (
+  const button = (
     <button
       type="button"
-      title={title}
+      title={hint}
       aria-label={title}
       className="relative"
       onClick={() => {
@@ -52,5 +57,13 @@ export function MobileMenuItem({
         ) : null}
       </span>
     </button>
+  );
+
+  if (!hint) return button;
+
+  return (
+    <NavWithTooltip label={hint} side="top">
+      {button}
+    </NavWithTooltip>
   );
 }
