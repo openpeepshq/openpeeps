@@ -2182,15 +2182,15 @@
       },
       "welcomePage": {
         "title": "Willkommensseite",
-        "description": "Erzählen Sie Ihren Mitgliedern als Teil des Onboarding-Erlebnisses von Ihrer Community. Sie können [Markdown](https://www.markdownguide.org) verwenden, um den Inhalt dieser Seite zu formatieren."
+        "description": "Erzählen Sie Ihren Mitgliedern als Teil des Onboarding-Erlebnisses von Ihrer Community.\n\nSie können [Markdown](https://www.markdownguide.org) verwenden, um den Inhalt dieser Seite zu formatieren."
       },
       "welcomeEmail": {
         "title": "Willkommens-E-Mail",
-        "description": "Fügen Sie eigene Informationen zur ersten E-Mail hinzu, die Ihre Mitglieder von der Community erhalten. Sie können Markdown zur Formatierung dieser E-Mail verwenden, aber bitte beachten Sie, dass E-Mail-Clients nicht immer alle Formatierungen korrekt darstellen."
+        "description": "Fügen Sie eigene Informationen zur ersten E-Mail hinzu, die Ihre Mitglieder von der Community erhalten.\n\nSie können Markdown zur Formatierung dieser E-Mail verwenden, aber bitte beachten Sie, dass E-Mail-Clients nicht immer alle Formatierungen korrekt darstellen."
       },
       "aboutPage": {
         "title": "Über-Seite",
-        "description": "Diese Seite wird Personen angezeigt, die nicht in Ihrer Community angemeldet sind. Sie können sie mit Markdown formatieren. Erfahren Sie mehr über die Markdown-Syntax unter https://www.markdownguide.org/ oder verwenden Sie Ihr bevorzugtes KI-Tool, um Ihr formatiertes Dokument in Markdown umzuwandeln, das Sie hier einfügen können."
+        "description": "Diese Seite wird Personen angezeigt, die nicht in Ihrer Community angemeldet sind.\n\nSie können sie mit Markdown formatieren. Erfahren Sie mehr über die Markdown-Syntax unter https://www.markdownguide.org/ oder verwenden Sie Ihr bevorzugtes KI-Tool, um Ihr formatiertes Dokument in Markdown umzuwandeln, das Sie hier einfügen können."
       },
       "links": {
         "title": "Richtlinien-Links",
@@ -2260,7 +2260,7 @@
       "radius": "Standard-Eckenradius (Karten, Dialoge)",
       "codeOfConduct": {
         "title": "Verhaltenskodex",
-        "description": "Legen Sie die Regeln und Erwartungen für Ihre Community fest. Die Seite ist öffentlich unter /code-of-conduct für alle sichtbar, auch für nicht angemeldete Besucher. Sie können Markdown verwenden, um den Inhalt dieser Seite zu formatieren; siehe https://www.markdownguide.org/"
+        "description": "Legen Sie die Regeln und Erwartungen für Ihre Community fest. Die Seite ist öffentlich unter /code-of-conduct für alle sichtbar, auch für nicht angemeldete Besucher.\n\nSie können Markdown verwenden, um den Inhalt dieser Seite zu formatieren; siehe https://www.markdownguide.org/"
       },
       "openRegistrations": {
         "title": "Offene Registrierung",
