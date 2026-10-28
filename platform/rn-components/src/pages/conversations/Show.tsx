@@ -29,8 +29,32 @@ import {
   ConversationProfileHeader,
   MessageInThread,
 } from '../../components/conversations/index';
-import { ProfileAvatar } from '../../components/profile/Avatar';
 import { ProfileCard } from '../../components/profile/ProfileCard';
+
+/**
+ * Shows handle + bio for a 1:1 conversation participant, without a
+ * duplicate avatar (the header already renders it).
+ */
+const ConversationParticipantDetail = ({
+  profile,
+}: {
+  profile: import('@openpeepshq/common').Profile;
+}) => {
+  const truncate = (text: string | null | undefined, max: number) =>
+    !text ? '' : text.length > max ? text.slice(0, max) + '…' : text;
+  return (
+    <View className="gap-y-1 p-3">
+      <ThemedText className="text-muted-foreground text-xs">
+        @{profile.handle}
+      </ThemedText>
+      {profile.bio ? (
+        <ThemedText className="text-sm">
+          {truncate(profile.bio, 100)}
+        </ThemedText>
+      ) : null}
+    </View>
+  );
+};
 
 type ConversationProps = MainScreenProps<'Conversation'>;
 
@@ -153,11 +177,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
             mirroring the web conversation Show page. */}
         <View className="border-b border-border">
           {participants.length === 1 && participants[0] ? (
-            <ProfileCard
-              profile={participants[0]}
-              showAction={false}
-              hasAction={false}
-            />
+            <ConversationParticipantDetail profile={participants[0]} />
           ) : multipleParticipants ? (
             <TouchableOpacity
               onPress={() => setParticipantsOpen(true)}
