@@ -6,10 +6,12 @@ import {
   checkPostCapabilities,
   defaultRsvpRecurrenceId,
   displayRsvpForProfile,
+  effectiveEventTimes,
   eventRsvpOpen,
   isCapacityEvent,
   isRecurringEvent,
   listRsvpOccurrences,
+  occurrenceHasEnded,
   offerStillOpen,
   seriesHasClaimableOccurrence,
 } from '@openpeepshq/common/lib';
@@ -58,13 +60,21 @@ export const useEventRsvp = ({
 
   const eventData = post.data?.type === 'event' ? post.data : undefined;
   const recurring = eventData ? isRecurringEvent(eventData) : false;
+  const viewedTimes = eventData
+    ? effectiveEventTimes(eventData, recurrenceId)
+    : undefined;
+  // Series home shows its first start. Once that time has passed, RSVP stays
+  // off that page; upcoming dates are opened from their own links.
+  const viewedEnded =
+    !!viewedTimes && occurrenceHasEnded(viewedTimes.start, viewedTimes.end);
+  // A selected date, or a one-off, is closed on its own end time.
   const rsvpClosed = eventData
-    ? !eventRsvpOpen(eventData, { recurrenceId, lockToOccurrence })
+    ? !eventRsvpOpen(
+        eventData,
+        recurrenceId ? { recurrenceId, lockToOccurrence: true } : undefined,
+      )
     : false;
-  const queriedOccurrenceClosed =
-    !!eventData &&
-    !!recurrenceId &&
-    !eventRsvpOpen(eventData, { recurrenceId, lockToOccurrence: true });
+  const queriedOccurrenceClosed = !!recurrenceId && rsvpClosed;
   const defaultId = eventData
     ? defaultRsvpRecurrenceId(
         eventData,
@@ -131,7 +141,7 @@ export const useEventRsvp = ({
   };
 
   const requestJoinWaitlist = () => {
-    if (rsvpClosed) return;
+    if (rsvpClosed || viewedEnded) return;
     if (!recurring || lockToOccurrence) {
       setError(null);
       setConfirmingWaitlist(true);
@@ -152,6 +162,7 @@ export const useEventRsvp = ({
   };
 
   const claimSpot = () => {
+    if (rsvpClosed || viewedEnded) return;
     const id = recurring
       ? (myRsvp?.recurrenceId ?? (lockToOccurrence ? recurrenceId : defaultId))
       : undefined;
@@ -159,7 +170,7 @@ export const useEventRsvp = ({
   };
 
   const requestRespond = (response: RsvpChoice) => {
-    if (rsvpClosed) return;
+    if (rsvpClosed || viewedEnded) return;
     if (!recurring || lockToOccurrence) {
       writeRsvp(response, recurrenceId ? [recurrenceId] : undefined).catch(
         () => undefined,
@@ -193,6 +204,7 @@ export const useEventRsvp = ({
     myRsvp,
     canRsvp,
     rsvpClosed,
+    hideRsvpButton: rsvpClosed || viewedEnded,
     recurring,
     defaultId,
     occurrences,

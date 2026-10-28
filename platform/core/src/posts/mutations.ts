@@ -59,6 +59,7 @@ import {
   participantIds,
   passThroughUndefined,
   rsvpCancelNotice,
+  rsvpTargetsPastEvent,
   sameRecurrenceId,
 } from '@openpeepshq/common/lib';
 import { forbidden, unprocessableRequest } from '../errors';
@@ -494,6 +495,14 @@ export const rsvpRespond = async (
   }
 
   const occurrenceIds = rsvpOccurrenceIds(data);
+  if (
+    rsvpTargetsPastEvent(post.data, {
+      occurrenceIds,
+      recurrenceId: data.recurrenceId,
+    })
+  ) {
+    throw unprocessableRequest({ errorKey: 'error.eventEnded' });
+  }
   if (!post.data.maxAttendees) {
     if (getEffectiveRsvp(post, profile.id)?.response === 'removed') {
       throw forbidden({ errorKey: 'error.rsvpRemoved' });

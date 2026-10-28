@@ -3726,6 +3726,7 @@
   },
   "error": {
     "eventAtCapacity": "Diese Veranstaltung ist voll.",
+    "eventEnded": "Diese Veranstaltung ist beendet.",
     "eventTentativeNotAllowed": "Diese Veranstaltung akzeptiert nur Ja- oder Nein-Antworten.",
     "eventWaitlistNotOpen": "Die Warteliste ist nur offen, wenn die Veranstaltung ausgebucht ist.",
     "eventWaitlistNeedsDate": "Wählen Sie einen Termin, um auf die Warteliste zu kommen.",

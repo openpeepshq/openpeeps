@@ -34,6 +34,7 @@ export const EventRsvpButton = ({
     myRsvp,
     canRsvp,
     rsvpClosed,
+    hideRsvpButton,
     recurring,
     defaultId,
     occurrences,
@@ -102,6 +103,8 @@ export const EventRsvpButton = ({
       </View>
     );
   }
+
+  if (hideRsvpButton) return null;
 
   const scopeDialog = (
     <EventRsvpScopeDialog

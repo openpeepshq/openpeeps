@@ -3608,6 +3608,7 @@
   },
   "error": {
     "eventAtCapacity": "This event is full.",
+    "eventEnded": "This event has ended.",
     "eventTentativeNotAllowed": "This event only accepts yes or no responses.",
     "eventWaitlistNotOpen": "The waitlist is only open when this event is full.",
     "eventWaitlistNeedsDate": "Choose a date to join the waitlist.",
