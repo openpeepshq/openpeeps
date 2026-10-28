@@ -95,6 +95,36 @@ describe('host RSVP notification emails', () => {
     );
     expect(html).toContain('Oct');
     expect(html).toContain('https://example.com/posts/post-1');
+    expect(html).toContain('>Jam night<');
+    expect(html).not.toContain('display:flex');
+    expect(html).not.toContain('display:inline-flex');
+    expect(html).not.toContain('width:1rem');
+  });
+
+  it('stacks recurring jam details in the canceled RSVP email', async () => {
+    const recurring = notification('rsvpCanceled', {
+      occurrenceIds: [],
+      series: true,
+    });
+    const post = recurring.post as { data: Record<string, Json> };
+    post.data = {
+      ...post.data,
+      jam: { moderators: [] },
+      recurrence: { freq: 'WEEKLY', count: 3 },
+    };
+
+    const { html } = await reactEmailRenderer(rsvpCanceledTemplate)({
+      to: 'host@example.com',
+      template: 'notification-rsvpCanceled',
+      globals,
+      locals: recurring,
+    });
+
+    expect(html).toContain('Jam night');
+    expect(html).toContain('events.location.jam');
+    expect(html).toContain('events.repeat.weeklyOn');
+    expect(html).not.toContain('display:flex');
+    expect(html).not.toContain('<svg');
   });
 
   it('renders the waitlist offer email with a claim link', async () => {
