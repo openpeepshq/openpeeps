@@ -6,7 +6,9 @@ import {
   DialogPortal,
   DialogOverlay,
   DialogTrigger,
+  TooltipProvider,
 } from '@openpeepshq/react-ui';
+import { NavWithTooltip } from './NavWithTooltip';
 import { getTheme } from '@openpeepshq/common';
 import { useServerInfo } from '../server-data';
 import {
@@ -37,9 +39,11 @@ export function HeaderMobile({ avatar, sideBar }: HeaderMobileProps = {}) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const menuLabel = t('navigation.openMenu', { defaultValue: 'Open menu' });
+  const menuTooltip = t('navigation.tooltips.openMenu');
   const messagesLabel = t('navigation.openMessages', {
     defaultValue: 'Open messages',
   });
+  const messagesTooltip = t('navigation.tooltips.openMessages');
 
   const logoSmall = getTheme(
     serverInfo.communityConfig,
@@ -58,49 +62,59 @@ export function HeaderMobile({ avatar, sideBar }: HeaderMobileProps = {}) {
 
   return (
     <header className="bg-background sticky top-0 z-10 flex px-4 py-2 md:hidden">
-      <div className="flex w-full items-center justify-between">
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <button type="button" title={menuLabel} aria-label={menuLabel}>
-              {trigger}
-              <span className="sr-only">{menuLabel}</span>
-            </button>
-          </DialogTrigger>
-          <DialogPortal>
-            <DialogOverlay />
-            <DialogContent
-              showCloseButton={false}
-              className="left-0 top-0 h-screen w-[380px] translate-x-0 translate-y-0 rounded-none border-r p-0"
+      <TooltipProvider delayDuration={300}>
+        <div className="flex w-full items-center justify-between">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <NavWithTooltip label={menuTooltip} side="bottom">
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  title={menuTooltip}
+                  aria-label={menuLabel}
+                >
+                  {trigger}
+                  <span className="sr-only">{menuLabel}</span>
+                </button>
+              </DialogTrigger>
+            </NavWithTooltip>
+            <DialogPortal>
+              <DialogOverlay />
+              <DialogContent
+                showCloseButton={false}
+                className="left-0 top-0 h-screen w-[380px] translate-x-0 translate-y-0 rounded-none border-r p-0"
+              >
+                <SidebarNavCloseContext.Provider value={() => setOpen(false)}>
+                  <SideBar
+                    onClose={() => setOpen(false)}
+                    mainMenu={sideBar?.mainMenu?.()}
+                    profileMenu={sideBar?.profileMenu?.()}
+                  />
+                </SidebarNavCloseContext.Provider>
+              </DialogContent>
+            </DialogPortal>
+          </Dialog>
+
+          <div>
+            {logoSmall && (
+              <a href="/">
+                <img src={logoSmall} alt="logo" className="h-6 px-4" />
+              </a>
+            )}
+          </div>
+
+          <NavWithTooltip label={messagesTooltip} side="bottom">
+            <button
+              type="button"
+              title={messagesTooltip}
+              aria-label={messagesLabel}
+              onClick={() => router.navigate({ type: 'conversation' })}
             >
-              <SidebarNavCloseContext.Provider value={() => setOpen(false)}>
-                <SideBar
-                  onClose={() => setOpen(false)}
-                  mainMenu={sideBar?.mainMenu?.()}
-                  profileMenu={sideBar?.profileMenu?.()}
-                />
-              </SidebarNavCloseContext.Provider>
-            </DialogContent>
-          </DialogPortal>
-        </Dialog>
-
-        <div>
-          {logoSmall && (
-            <a href="/">
-              <img src={logoSmall} alt="logo" className="h-6 px-4" />
-            </a>
-          )}
+              <MessageSquareText aria-hidden="true" />
+              <span className="sr-only">{messagesLabel}</span>
+            </button>
+          </NavWithTooltip>
         </div>
-
-        <button
-          type="button"
-          title={messagesLabel}
-          aria-label={messagesLabel}
-          onClick={() => router.navigate({ type: 'conversation' })}
-        >
-          <MessageSquareText aria-hidden="true" />
-          <span className="sr-only">{messagesLabel}</span>
-        </button>
-      </div>
+      </TooltipProvider>
     </header>
   );
 }

@@ -1,5 +1,7 @@
 import React from 'react';
+import { PlatformPressable } from '@react-navigation/elements';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useTranslation } from 'react-i18next';
 import { TabStackParamList } from './types';
 import { TAB_ROUTES } from './types';
 import {
@@ -43,6 +45,16 @@ import { RootLayout } from '../layout';
 
 const Tab = createBottomTabNavigator<TabStackParamList>();
 
+const tabTooltipKeys: Partial<Record<keyof TabStackParamList, string>> = {
+  [TAB_ROUTES.HOME]: 'community',
+  [TAB_ROUTES.FEED]: 'myFeed',
+  [TAB_ROUTES.NEW_POST]: 'newPost',
+  [TAB_ROUTES.GROUPS]: 'groups',
+  [TAB_ROUTES.NOTIFICATIONS]: 'notifications',
+  [TAB_ROUTES.ARTICLES]: 'articles',
+  [TAB_ROUTES.RESOURCES]: 'resources',
+};
+
 const TabBarIcon = ({
   route,
   focused,
@@ -75,6 +87,7 @@ const TabBarIcon = ({
 };
 
 export const TabNavigator = () => {
+  const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
   const {
     colors: { background },
@@ -97,23 +110,32 @@ export const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenLayout={({ children }) => <RootLayout>{children}</RootLayout>}
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarIcon: ({ focused }) => TabBarIcon({ route, focused }),
-        tabBarItemStyle: {
-          display,
-        },
-        tabBarStyle: {
-          backgroundColor: background,
-          borderTopWidth: 0,
-          height: 80,
-          paddingBottom: 20,
-          paddingTop: 10,
-          elevation: 0,
-          display,
-        },
-      })}
+      screenOptions={({ route }) => {
+        const tooltipKey = tabTooltipKeys[route.name];
+        const tabHint = tooltipKey
+          ? t(`navigation.tooltips.${tooltipKey}`)
+          : undefined;
+        return {
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarIcon: ({ focused }) => TabBarIcon({ route, focused }),
+          tabBarButton: (props) => (
+            <PlatformPressable {...props} accessibilityHint={tabHint} />
+          ),
+          tabBarItemStyle: {
+            display,
+          },
+          tabBarStyle: {
+            backgroundColor: background,
+            borderTopWidth: 0,
+            height: 80,
+            paddingBottom: 20,
+            paddingTop: 10,
+            elevation: 0,
+            display,
+          },
+        };
+      }}
       initialRouteName={TAB_ROUTES.HOME}
     >
       <Tab.Screen name={TAB_ROUTES.HOME} component={FeedsLocal} />
