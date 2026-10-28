@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **welcome**: add welcome page functionality and localization updates
 - **invite-links**: add update functionality for invite links with localization updates
 - **posts**: play inline audio and video only as the sole attachment
 - add occurrenceForJamStart function and related tests
@@ -19,6 +20,12 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **resources**: prevent blank page when resource post data is missing
+- **blocks**: return blocked error instead of 500/missing-capabilities
+- **polls**: validate poll votes server-side before accepting
+- **conversations**: return 404 for non-UUID conversation ids instead of 500
+- **analytics**: bump cache version to invalidate stale entries missing resource field
+- **accounts**: return 409 when updating email to one already in use
 - **profiles**: label deleted profiles during hydration
 - **jams**: drop late microphone audio before Chromium speeds it up
 - **i18n**: add missing posts.menu.title translation
