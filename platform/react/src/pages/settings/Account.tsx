@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
-import { useCurrentAccount } from '../../components';
+import { useCurrentAccount, useToast } from '../../components';
 import { Button, Input, Label, Toast } from '@openpeepshq/react-ui';
 
 export function AccountSettings() {
@@ -62,6 +62,29 @@ export function AccountSettings() {
       });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const validateEmail = openpeepsApi.validationEmailAction();
+  const [verifying, setVerifying] = useState(false);
+
+  const handleVerifyEmail = async () => {
+    setVerifying(true);
+    try {
+      await validateEmail();
+      success(
+        t('settings.account.verifyEmailSent', {
+          defaultValue: 'Verification email sent',
+        }),
+      );
+    } catch {
+      toastError(
+        t('settings.account.verifyEmailError', {
+          defaultValue: 'Failed to send verification email',
+        }),
+      );
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -135,6 +158,32 @@ export function AccountSettings() {
           data-testid="settings-email-input"
         />
       </div>
+
+      {!account?.emailValidated ? (
+        <div className="space-y-2">
+          <p className="text-muted-foreground text-sm">
+            {t('settings.account.verifyEmailDescription', {
+              defaultValue:
+                'Your email is not verified. Resend a verification email.',
+            })}
+          </p>
+          <Button
+            title={t('settings.account.verifyEmailButton', {
+              defaultValue: 'Verify email',
+            })}
+            variant="outline"
+            action={handleVerifyEmail}
+            loading={verifying}
+            data-testid="settings-verify-email-button"
+          >
+            {verifying
+              ? t('common.submitting', { defaultValue: 'Sending...' })
+              : t('settings.account.verifyEmailButton', {
+                  defaultValue: 'Verify email',
+                })}
+          </Button>
+        </div>
+      ) : null}
 
       <div className="space-y-2">
         <Label htmlFor="newPassword">
