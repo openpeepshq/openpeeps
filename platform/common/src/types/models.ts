@@ -618,6 +618,10 @@ export const eventSchema = noteSchema
     recurrence: eventRecurrenceSchema.optional(),
     exceptions: eventOccurrenceExceptionSchema.array().optional(),
   })
+  .refine((data) => !data.end || new Date(data.end) > new Date(data.start), {
+    message: 'events.form.endBeforeStart',
+    path: ['end'],
+  })
   .openapi('Event');
 
 export type Event = z.infer<typeof eventSchema>;
