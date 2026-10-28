@@ -247,13 +247,19 @@ export function PollContent({ post }: PollContentProps) {
 
       <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-3 text-sm">
         <span>
-          {votes.length || 0} {t('posts.vote.count', { defaultValue: 'votes' })}
+          {t('posts.vote.count', {
+            count: votes.length || 0,
+            defaultValue: 'votes',
+          })}
         </span>
         {pollData.expiresAt ? (
           <span>
             {hasPollEnded
               ? t('posts.poll.ended', { defaultValue: 'Poll ended' })
-              : `${formatDistanceToNow(pollData.expiresAt)} ${t('posts.poll.timeLeft', { defaultValue: 'left' })}`}
+              : t('posts.poll.timeLeft', {
+                  time: formatDistanceToNow(pollData.expiresAt),
+                  defaultValue: '{{time}} left',
+                })}
           </span>
         ) : null}
         {hasVoted && !hasPollEnded ? (

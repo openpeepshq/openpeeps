@@ -31,7 +31,9 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     React.useState(false);
   const updateCurrentAccount = openpeepsApi.updateCurrentAccountAction();
+  const validateEmail = openpeepsApi.validationEmailAction();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const { t } = useTranslation();
 
   const form = useForm<AccountFormValues>({
@@ -116,6 +118,28 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
         setIsSubmitting(false);
       });
   };
+  const handleVerifyEmail = async () => {
+    setVerifying(true);
+    try {
+      await validateEmail();
+      Toast.show({
+        type: 'success',
+        text1: t('settings.account.verifyEmailSent', {
+          defaultValue: 'Verification email sent',
+        }),
+      });
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: t('settings.account.verifyEmailError', {
+          defaultValue: 'Failed to send verification email',
+        }),
+      });
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   const handleSubmit = async () => {
     const values = form.getValues();
     await onSubmit(values);
@@ -165,6 +189,20 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
                   )}
                 />
               </View>
+              {!(currentAccount as Account)?.emailValidated ? (
+                <View className="w-full gap-y-2">
+                  <ThemedText className="text-sm text-muted-foreground">
+                    {t('settings.account.verifyEmailDescription')}
+                  </ThemedText>
+                  <Button
+                    title={t('settings.account.verifyEmailButton')}
+                    variant="outline"
+                    onPress={() => void handleVerifyEmail()}
+                    disabled={verifying}
+                    loading={verifying}
+                  />
+                </View>
+              ) : null}
 
               <View className="relative w-full">
                 <Button

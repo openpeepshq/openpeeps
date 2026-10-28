@@ -191,15 +191,15 @@ export const PollContent = ({ post }: Props) => {
 
       <View className="mt-4 flex-row items-center gap-3">
         <Text className="text-sm text-muted-foreground">
-          {`${votes.length || 0} ${t('posts.vote.count')}`}
+          {t('posts.vote.count', { count: votes.length || 0 })}
         </Text>
         {post?.data?.type === 'question' && post.data.expiresAt && (
           <Text className="text-sm text-muted-foreground">
             {hasPollEnded
               ? t('posts.poll.ended')
-              : `${formatDistanceToNow(post.data.expiresAt)} ${t(
-                  'posts.poll.timeLeft'
-                )}`}
+              : t('posts.poll.timeLeft', {
+                  time: formatDistanceToNow(post.data.expiresAt),
+                })}
           </Text>
         )}
         {hasVoted && !hasPollEnded && (
