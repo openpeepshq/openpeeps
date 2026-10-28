@@ -62,7 +62,7 @@ export function ArticleForm({
         </h2>
 
         <Label
-          title={t('articles.form.title', { defaultValue: 'New Article' })}
+          title={t('articles.form.titleInput', { defaultValue: 'Title' })}
           htmlFor="article-title"
         >
           <Input

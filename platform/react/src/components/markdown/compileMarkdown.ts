@@ -64,6 +64,7 @@ export const compileMarkdownToHtml = (
     }
     if (isExternalLink(cleaned, origin) || opensNewTab) {
       out += ' target="_blank" rel="noopener noreferrer"';
+      out += ' class="external-link"';
     }
     out += `>${text}</a>`;
     return out;

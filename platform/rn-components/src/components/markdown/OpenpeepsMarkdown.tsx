@@ -20,6 +20,7 @@ import { mentionPlugin, mentionRenderer } from './extensions/mention';
 import { codeBlockRenderer, fenceRenderer } from './extensions/codeBlock';
 import { codeInlineRenderer } from './extensions/codeInline';
 import { htmlBlockRenderer, htmlInlineRenderer } from './extensions/html';
+import { linkRenderer } from './extensions/link';
 import { markdownTheme } from './theme';
 import { extractLinks, isEmail, isInternalLink, toGotoUrl } from './utils';
 import { PreviewLink } from '../preview-link';
@@ -113,6 +114,7 @@ export const OpenpeepsMarkdown = ({
           code_inline: codeInlineRenderer(colors),
           html_block: htmlBlockRenderer(handleIframePress),
           html_inline: htmlInlineRenderer(handleIframePress),
+          link: linkRenderer(handleLinkPress),
         }}
       >
         {ast as unknown as ReactNode[]}
