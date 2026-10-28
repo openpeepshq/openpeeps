@@ -23,6 +23,7 @@ export const EventRsvpButton = ({
     myRsvp,
     canRsvp,
     rsvpClosed,
+    hideRsvpButton,
     recurring,
     defaultId,
     occurrences,
@@ -82,6 +83,8 @@ export const EventRsvpButton = ({
       </div>
     );
   }
+
+  if (hideRsvpButton) return null;
 
   const scopeDialog =
     pending && recurring && !lockToOccurrence ? (
