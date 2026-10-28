@@ -43,8 +43,7 @@ export function Login() {
   });
   const [showPassword, setShowPassword] = useState(false);
 
-  const redirectUrl =
-    searchParams.get('redirect') ?? href({ type: 'feed', feed: 'local' });
+  const redirectUrl = searchParams.get('redirect') ?? href({ type: 'welcome' });
   const paymentParam = searchParams.get('payment');
   const destinations = ssoLoginDestinations(serverInfo.sso);
   const onlySsoView = resolveOnlySsoView(serverInfo.sso, searchParams);

@@ -348,7 +348,8 @@
     "vote": {
       "success": "Stimme abgegeben",
       "error": "Stimme konnte nicht abgegeben werden",
-      "count": "Stimmen",
+      "count_one": "Stimme",
+      "count_other": "Stimmen",
       "lackPermission": "Sie haben keine Berechtigung, in {{groupName}} abzustimmen.",
       "lackPermissionNoGroup": "Sie haben keine Berechtigung, an dieser Umfrage teilzunehmen.",
       "selectOption": "Bitte wählen Sie eine Option",
@@ -520,8 +521,10 @@
     "stats": {
       "viewReactions": "Reaktionen anzeigen",
       "viewReposts": "Geteilte Beiträge anzeigen",
-      "repliesCount": "{{count}} Antworten",
-      "repostsCount": "{{count}} geteilte Beiträge",
+      "repliesCount_one": "{{count}} Antwort",
+      "repliesCount_other": "{{count}} Antworten",
+      "repostsCount_one": "{{count}} geteilter Beitrag",
+      "repostsCount_other": "{{count}} geteilte Beiträge",
       "viewConversation": "Unterhaltung anzeigen",
       "moreReplies": "{{count}} weitere Antworten",
       "moreInConversation": "Mehr in der Unterhaltung",
@@ -2612,7 +2615,12 @@
     },
     "sendError": "Nachricht konnte nicht gesendet werden",
     "messageLog": "Nachrichten",
-    "info": "Informationen zur Unterhaltung",
+    "info": {
+      "title": "Informationen zur Unterhaltung",
+      "participants": "Teilnehmende",
+      "messageCount_one": "{{count}} Nachricht in diesem Gespräch.",
+      "messageCount_other": "{{count}} Nachrichten in diesem Gespräch."
+    },
     "draft": {
       "title": "Nachrichtenentwurf",
       "recipients": "Neue Nachricht an: {{names}}"
@@ -3589,6 +3597,7 @@
     "notFound": "Artikel nicht gefunden",
     "form": {
       "title": "Neuer Artikel",
+      "titleInput": "Titel",
       "uploadCover": "Titelbild hochladen",
       "contentPlaceholder": "Schreiben Sie hier Ihren Inhalt. Verwenden Sie Markdown zur Formatierung",
       "visibility": "Wer kann das sehen (Erforderlich)",
@@ -3596,7 +3605,7 @@
       "content": "Artikelinhalt"
     },
     "create": {
-      "title": "Neuer Artikel"
+      "title": "Veröffentlichen"
     },
     "update": {
       "title": "Artikel aktualisieren"

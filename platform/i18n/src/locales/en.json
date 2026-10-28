@@ -349,7 +349,8 @@
     "vote": {
       "success": "Vote recorded",
       "error": "Failed to record vote",
-      "count": "Votes",
+      "count_one": "vote",
+      "count_other": "votes",
       "lackPermission": "You don't have permission to vote in {{groupName}}.",
       "lackPermissionNoGroup": "You don't have permission to vote on this poll.",
       "selectOption": "Please select an option",
@@ -359,7 +360,7 @@
     },
     "poll": {
       "ended": "Poll ended",
-      "timeLeft": "left",
+      "timeLeft": "{{time}} left",
       "undoVote": "Undo Vote",
       "undoVoteTitle": "Undo vote",
       "vote": "Vote",
@@ -526,8 +527,10 @@
     "stats": {
       "viewReactions": "View reactions",
       "viewReposts": "View reposts",
-      "repliesCount": "{{count}} replies",
-      "repostsCount": "{{count}} reposts",
+      "repliesCount_one": "{{count}} reply",
+      "repliesCount_other": "{{count}} replies",
+      "repostsCount_one": "{{count}} repost",
+      "repostsCount_other": "{{count}} reposts",
       "viewConversation": "View conversation",
       "moreReplies": "{{count}} more replies",
       "moreInConversation": "More in conversation",
@@ -2470,7 +2473,12 @@
     "noMessages": "No direct messages here",
     "sendError": "Failed to send message",
     "messageLog": "Messages",
-    "info": "Conversation info",
+    "info": {
+      "title": "Conversation info",
+      "participants": "Participants",
+      "messageCount_one": "{{count}} message in this conversation.",
+      "messageCount_other": "{{count}} messages in this conversation."
+    },
     "draft": {
       "title": "Draft message",
       "recipients": "New message to: {{names}}"
@@ -3508,14 +3516,15 @@
     "notFound": "Article not found",
     "form": {
       "title": "New Article",
+      "titleInput": "Title",
       "uploadCover": "Upload your cover image",
-      "contentPlaceholder": "Write your content here.  User markdown for formatting",
+      "contentPlaceholder": "Write your content here. Use markdown for formatting",
       "visibility": "Who can see this (Required)",
       "visibilityNotChangeable": "Once you post your article, you can't change the visibility",
       "content": "Article Content"
     },
     "create": {
-      "title": "New Article"
+      "title": "Publish"
     },
     "update": {
       "title": "Update article"
