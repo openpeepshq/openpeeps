@@ -44,6 +44,33 @@ export function EventLocation({
       : undefined;
   const jamLink = getJamUrl(post.id, origin, occurrence);
 
+  if (preview && staticRender) {
+    if (physicalLocation) {
+      return (
+        <span className="text-sm">
+          {truncate
+            ? truncateText(physicalLocation.text)
+            : physicalLocation.text}
+        </span>
+      );
+    }
+    if (event.jam) {
+      return (
+        <a href={jamLink} className="text-primary text-sm underline">
+          {t('events.location.jam', { defaultValue: 'Jam Event' })}
+        </a>
+      );
+    }
+    if (event.url) {
+      return (
+        <a href={event.url} className="text-primary text-sm underline">
+          {t('events.location.online', { defaultValue: 'Online' })}
+        </a>
+      );
+    }
+    return null;
+  }
+
   if (preview) {
     return (
       <div className="flex items-center gap-1 text-sm">

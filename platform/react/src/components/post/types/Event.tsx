@@ -41,6 +41,72 @@ export function FeedEvent({ post }: FeedEventProps) {
         allDay: event.wholeDay,
       })
     : fmtRange(start, end);
+  const viewEventHref = resolveStaticUrl(
+    `/posts/${post.id}`,
+    staticRender ? baseUrl : undefined,
+  );
+
+  if (staticRender) {
+    return (
+      <table
+        role="presentation"
+        width="100%"
+        cellPadding={0}
+        cellSpacing={0}
+        style={{ width: '100%', borderCollapse: 'collapse' }}
+      >
+        <tbody>
+          {event.image ? (
+            <tr>
+              <td style={{ paddingBottom: '8px' }}>
+                <img
+                  src={event.image}
+                  alt={`image for ${event.name ?? 'event'}`}
+                  width="100%"
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    maxWidth: '100%',
+                    height: 'auto',
+                  }}
+                />
+              </td>
+            </tr>
+          ) : null}
+          <tr>
+            <td className="text-destructive pb-2 text-sm">{when}</td>
+          </tr>
+          <tr>
+            <td className="pb-2 text-lg font-medium">{event.name}</td>
+          </tr>
+          {event.recurrence ? (
+            <tr>
+              <td className="text-muted-foreground pb-2 text-sm">
+                {formatEventRecurrence(event.recurrence, t, event.start)}
+              </td>
+            </tr>
+          ) : null}
+          {event.physicalLocation || event.jam || event.url ? (
+            <tr>
+              <td className="pb-2">
+                <EventLocation post={post} />
+              </td>
+            </tr>
+          ) : null}
+          <tr>
+            <td>
+              <a
+                href={viewEventHref}
+                className="text-primary text-sm underline"
+              >
+                {t('posts.event.viewEvent', { defaultValue: 'View Event' })}
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    );
+  }
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -56,15 +122,10 @@ export function FeedEvent({ post }: FeedEventProps) {
       <div className="flex w-full items-center justify-between">
         <span className="text-destructive text-sm">
           {when}{' '}
-          {staticRender ? null : (
-            <span className="text-muted-foreground">(your local time)</span>
-          )}
+          <span className="text-muted-foreground">(your local time)</span>
         </span>
         <Button
-          action={resolveStaticUrl(
-            `/posts/${post.id}`,
-            staticRender ? baseUrl : undefined,
-          )}
+          action={viewEventHref}
           variant="outline"
           compact
           className="shrink-0"
