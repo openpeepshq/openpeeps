@@ -40,6 +40,7 @@
       "hidePassword": "Hide password",
       "showPassword": "Show password",
       "confirmPassword": "Confirm Password",
+      "passwordRules": "8+ characters, with an uppercase letter, lowercase letter, number, and symbol",
       "passwordsDoNotMatch": "Passwords do not match",
       "mustAgreePrivacyPolicy": "You must agree to the privacy policy",
       "privacyPolicyAgreement": "I have read and agree to the",
@@ -2090,7 +2091,7 @@
         "date": "Date",
         "boolean": "Yes/No"
       },
-      "description": "All fields are currently text. Complete URLs (e.b. https://example.com) will be displayed as links."
+      "description": "All fields are currently text. Complete URLs (e.g. https://example.com) will be displayed as links."
     },
     "community": {
       "icon": "Community Icon",
@@ -2154,19 +2155,19 @@
       },
       "welcomePage": {
         "title": "Welcome Page",
-        "description": "Tell your peeps about your community as part of their onboarding experience.  <br/> You can use  [Markdown ](https://www.markdownguide.org) to format the contents of this page."
+        "description": "Tell your peeps about your community as part of their onboarding experience. You can use [Markdown](https://www.markdownguide.org) to format the contents of this page."
       },
       "codeOfConduct": {
         "title": "Code of conduct",
-        "description": "Set the rules and expectations for your community. The page is public at /code-of-conduct for everyone, including visitors who are not logged in. <br/> You can use Markdown to format the contents of this page; see https://www.markdownguide.org/"
+        "description": "Set the rules and expectations for your community. The page is public at /code-of-conduct for everyone, including visitors who are not logged in. You can use Markdown to format the contents of this page; see https://www.markdownguide.org/"
       },
       "welcomeEmail": {
         "title": "Welcome Email",
-        "description": "Add your own information to the first email your members will receive from the community.  <br/>.  You can use Markdown for formatting this email, but please be aware that email clients don't always do well with every kind of formatting."
+        "description": "Add your own information to the first email your members will receive from the community. You can use Markdown for formatting this email, but please be aware that email clients don't always do well with every kind of formatting."
       },
       "aboutPage": {
         "title": "About Page",
-        "description": "This page shows up for people not logged in to your community.  <br/>  You can format it using Markdown.  Learn more about Markdown syntax at https://www.markdownguide.org/, or use your favorite AI tool to convert your formatted document to markdown that you can paste here."
+        "description": "This page shows up for people not logged in to your community. You can format it using Markdown. Learn more about Markdown syntax at https://www.markdownguide.org/, or use your favorite AI tool to convert your formatted document to markdown that you can paste here."
       },
       "links": {
         "title": "Policy Links",
@@ -2941,6 +2942,7 @@
       "startDate": "Start Date",
       "endDate": "End Date",
       "addEndDate": "Add end date and time",
+      "endBeforeStart": "The end date and time must be after the start date and time.",
       "timezone": "Timezone",
       "timezonePlaceholder": "Select your timezone",
       "location": "Location",
@@ -3354,19 +3356,19 @@
       "title": "A new poll vote has been recorded in {{communityName}}",
       "subject": "A new poll vote has been recorded in {{communityName}}",
       "body": "{{profileName}} has voted on your poll:",
-      "cta": "to visit the poll and see the results, click here."
+      "cta": "View poll"
     },
     "pollEnded": {
       "title": "A poll has ended in {{communityName}}",
       "subject": "A poll has ended in {{communityName}}",
       "body": "A poll has ended. See the results.",
-      "cta": "to visit the poll and see the results, click here."
+      "cta": "View poll"
     },
     "rsvp": {
       "title": "A new RSVP has been created in {{communityName}}",
       "subject": "A new RSVP has been created in {{communityName}}",
       "body": "{{profileName}} has RSVP'd to your event",
-      "cta": "to visit the event and see the results, click here."
+      "cta": "View event"
     },
     "rsvpCanceled": {
       "subject": "{{profileName}} canceled their RSVP",

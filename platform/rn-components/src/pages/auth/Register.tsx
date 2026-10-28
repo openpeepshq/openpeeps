@@ -225,6 +225,12 @@ export const Register = ({
           )}
         />
 
+        {password && password.length > 0 && (
+          <ThemedText className="text-xs text-muted-foreground">
+            {t('auth.register.passwordRules')}
+          </ThemedText>
+        )}
+
         {(password ?? '').length > 0 && (confirmPassword ?? '').length === 0 ? (
           <View className="w-full items-center rounded border border-border py-2">
             <ThemedText>
