@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
@@ -89,6 +89,7 @@ export const EventForm = ({
   occurrenceEdit = false,
 }: EventFormProps) => {
   const { t } = useTranslation();
+  const [endBeforeStart, setEndBeforeStart] = useState(false);
   const startSheetRef = useRef<BottomSheetModal>(null);
   const endSheetRef = useRef<BottomSheetModal>(null);
   const untilSheetRef = useRef<BottomSheetModal>(null);
@@ -176,13 +177,22 @@ export const EventForm = ({
         </Pressable>
 
         {showEndDate ? (
-          <PickerField
-            label={t('events.form.endDate')}
-            value={formatDate(event.end, eventTimeZone)}
-            placeholder={t('events.form.endDate')}
-            icon={<CalendarIcon className="text-muted-foreground" size={18} />}
-            onPress={() => bottomSheetPresent(endSheetRef)}
-          />
+          <>
+            <PickerField
+              label={t('events.form.endDate')}
+              value={formatDate(event.end, eventTimeZone)}
+              placeholder={t('events.form.endDate')}
+              icon={
+                <CalendarIcon className="text-muted-foreground" size={18} />
+              }
+              onPress={() => bottomSheetPresent(endSheetRef)}
+            />
+            {endBeforeStart ? (
+              <ThemedText className="text-sm text-destructive">
+                {t('events.form.endBeforeStart')}
+              </ThemedText>
+            ) : null}
+          </>
         ) : null}
 
         <PickerField
@@ -417,7 +427,14 @@ export const EventForm = ({
         ref={endSheetRef}
         value={event.end}
         timeZone={eventTimeZone}
-        onChange={(end) => patchEvent({ end })}
+        onChange={(end) => {
+          if (end && event.start && new Date(end) <= new Date(event.start)) {
+            setEndBeforeStart(true);
+            return;
+          }
+          setEndBeforeStart(false);
+          patchEvent({ end });
+        }}
         onClose={() => bottomSheetClose(endSheetRef)}
       />
       <DateSheet

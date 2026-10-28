@@ -340,6 +340,18 @@ export function Register({ invite = false }: RegisterProps) {
             )}
           />
 
+          {password && password.length > 0 && (
+            <p
+              data-testid="auth-register-password-rules"
+              className="text-xs text-muted-foreground"
+            >
+              {t('auth.register.passwordRules', {
+                defaultValue:
+                  '8+ characters, with an uppercase letter, lowercase letter, number, and symbol',
+              })}
+            </p>
+          )}
+
           {(password ?? '').length > 0 &&
             (confirmPassword ?? '').length === 0 && (
               <div className="bg-surface border-border flex w-full justify-center rounded py-2">

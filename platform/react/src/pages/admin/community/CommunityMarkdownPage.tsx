@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CommunityConfig } from '@openpeepshq/common/types';
 import { useT, useSetPageHeader } from '../../../index';
+import { Markdown } from '../../../lib/Markdown';
 import { OpenpeepsMarkdownInput } from '../../../components';
 import { Button, Toast, deepGet, deepSet } from '@openpeepshq/react-ui';
 import { useCommunityConfig } from './useCommunityConfig';
@@ -55,7 +56,10 @@ export function CommunityMarkdownPage({
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <p className="pb-2 pt-4">{t(descriptionKey)}</p>
+      <Markdown
+        source={t(descriptionKey)}
+        className="pb-2 pt-4 text-sm text-muted-foreground"
+      />
       <OpenpeepsMarkdownInput
         value={value}
         maxLength={10000}

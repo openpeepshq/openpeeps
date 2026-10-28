@@ -51,6 +51,7 @@ export const EventForm = ({
 }: EventFormProps) => {
   const t = useT();
   const [audienceOpen, setAudienceOpen] = useState(false);
+  const [endBeforeStart, setEndBeforeStart] = useState(false);
   const {
     event,
     eventTimeZone,
@@ -140,7 +141,14 @@ export const EventForm = ({
             value={dateToInputValue(event.start, eventTimeZone)}
             onChange={(e) => {
               const start = toIso(e.target.value, eventTimeZone);
-              if (start) patchEvent({ start });
+              if (start) {
+                if (event.end && new Date(event.end) <= new Date(start)) {
+                  setEndBeforeStart(true);
+                } else {
+                  setEndBeforeStart(false);
+                }
+                patchEvent({ start });
+              }
             }}
             data-testid="events-start-input"
           />
@@ -160,20 +168,40 @@ export const EventForm = ({
         </Label>
 
         {showEndDate ? (
-          <Label
-            title={t('events.form.endDate', { defaultValue: 'End Date' })}
-            htmlFor="event-end"
-          >
-            <Input
-              id="event-end"
-              type="datetime-local"
-              step={60}
-              value={dateToInputValue(event.end, eventTimeZone)}
-              onChange={(e) =>
-                patchEvent({ end: toIso(e.target.value, eventTimeZone) })
-              }
-            />
-          </Label>
+          <>
+            <Label
+              title={t('events.form.endDate', { defaultValue: 'End Date' })}
+              htmlFor="event-end"
+            >
+              <Input
+                id="event-end"
+                type="datetime-local"
+                step={60}
+                value={dateToInputValue(event.end, eventTimeZone)}
+                onChange={(e) => {
+                  const newEnd = toIso(e.target.value, eventTimeZone);
+                  if (
+                    newEnd &&
+                    event.start &&
+                    new Date(newEnd) <= new Date(event.start)
+                  ) {
+                    setEndBeforeStart(true);
+                    return;
+                  }
+                  setEndBeforeStart(false);
+                  patchEvent({ end: newEnd });
+                }}
+              />
+            </Label>
+            {endBeforeStart ? (
+              <p className="text-destructive text-sm">
+                {t('events.form.endBeforeStart', {
+                  defaultValue:
+                    'The end date and time must be after the start date and time.',
+                })}
+              </p>
+            ) : null}
+          </>
         ) : null}
 
         <Label
