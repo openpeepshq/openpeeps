@@ -20,6 +20,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **i18n**: fix copy issues, restore br tags, highlight external links
+- **ui**: fix small onboarding and UI issues including markdown description rendering
 - **resources**: prevent blank page when resource post data is missing
 - **blocks**: return blocked error instead of 500/missing-capabilities
 - **polls**: validate poll votes server-side before accepting
