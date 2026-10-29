@@ -44,11 +44,19 @@ export const VisibilitySelector = ({
   const description = (visibility: string) =>
     audienceChoices.find((c) => c.value === visibility)?.description ?? '';
 
+  const choiceLabel = (visibility: string) =>
+    description(visibility) ||
+    (audienceChoices.length > 0
+      ? t('posts.form.chooseAudience', {
+          defaultValue: 'Choose who can see this',
+        })
+      : '');
+
   const content = () => {
     if (postData.visibility === 'group') {
       return (
         <span className="flex min-w-0 items-center gap-1 text-sm font-normal">
-          <span className="shrink-0 pr-2">{description('group')}</span>
+          <span className="shrink-0 pr-2">{choiceLabel('group')}</span>
           {selectedGroup ? (
             <span className="flex min-w-0 items-center gap-1 truncate">
               <GroupAvatar group={selectedGroup} size={1.5} borderless />
@@ -63,7 +71,7 @@ export const VisibilitySelector = ({
       const audience = postData.audience ?? [];
       return (
         <span className="flex min-w-0 items-center gap-1 text-sm font-light">
-          <span className="shrink-0 pr-2">{description('direct')}</span>
+          <span className="shrink-0 pr-2">{choiceLabel('direct')}</span>
           {audience.length ? (
             <span className="flex min-w-0 flex-wrap items-center gap-1">
               {audience.map((profile) => (
@@ -77,7 +85,7 @@ export const VisibilitySelector = ({
 
     return (
       <span className="text-sm font-light">
-        {description(postData.visibility)}
+        {choiceLabel(postData.visibility)}
       </span>
     );
   };

@@ -539,10 +539,13 @@ export const articleSchema = noteSchema
 
 export type Article = z.infer<typeof articleSchema>;
 
+/** Resource titles are library headings, so they stay much shorter than the description. */
+export const RESOURCE_TITLE_MAX_LENGTH = 200;
+
 export const resourcePostSchema = noteSchema
   .extend({
     type: z.literal('resource'),
-    title: z.string(),
+    title: z.string().max(RESOURCE_TITLE_MAX_LENGTH),
     tags: z.array(z.string().min(1)).optional(),
     categoryPath: z.array(z.string().min(1)).optional(),
     resourceKind: resourceKindSchema,

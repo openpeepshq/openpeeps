@@ -442,6 +442,7 @@
         "expiresAt": "Expires at"
       },
       "changeAudience": "Change audience",
+      "chooseAudience": "Choose who can see this",
       "remainingCharacters": "Remaining characters",
       "addImage": "Add Media",
       "addAudio": "Add audio",
@@ -3580,9 +3581,10 @@
     },
     "form": {
       "title": "New resource",
-      "name": "Title",
+      "nameRequired": "Title (Required)",
       "kind": "Type",
-      "url": "URL",
+      "urlRequired": "URL (Required)",
+      "urlPlaceholder": "https://example.com",
       "addMedia": "Add files",
       "descriptionPlaceholder": "Describe this resource",
       "tags": "Tags",
@@ -3593,7 +3595,8 @@
       "addLevelAction": "Add",
       "clearPath": "Clear",
       "visibility": "Who can see this (Required)",
-      "visibilityNotChangeable": "Once you post your resource, you can't change the visibility"
+      "visibilityNotChangeable": "Once you post your resource, you can't change the visibility",
+      "groupOnly": "You can only share resources with a group."
     },
     "create": {
       "title": "Create resource"
@@ -3626,8 +3629,12 @@
     },
     "validation": {
       "titleRequired": "Title is required",
+      "titleTooLong": "Title must be 200 characters or fewer",
+      "url": "Enter a real link, like https://example.com",
       "mediaRequired": "Add the media or link this resource needs",
-      "directAudience": "Choose at least one recipient for a direct resource."
+      "directAudience": "Choose at least one recipient for a direct resource.",
+      "groupRequired": "Choose a group before creating this resource.",
+      "audienceForbidden": "Choose a group you can post this resource in."
     },
     "meta": {
       "imagesCount": "{{count}} images"

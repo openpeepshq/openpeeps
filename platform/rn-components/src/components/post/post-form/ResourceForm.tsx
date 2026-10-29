@@ -8,7 +8,12 @@ import type {
   ResourceKind,
   ResourcePost,
 } from '@openpeepshq/common';
-import { RESOURCE_KINDS, normalizeResourceTags } from '@openpeepshq/common/lib';
+import {
+  RESOURCE_KINDS,
+  RESOURCE_TITLE_MAX_LENGTH,
+  normalizeResourceTags,
+  resourceFormIssues,
+} from '@openpeepshq/common/lib';
 import { applyAudienceSetting, useCurrentProfile } from '@openpeepshq/react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
@@ -28,12 +33,15 @@ export interface ResourceFormProps {
   postData: PostCreationData;
   onChange: (data: PostCreationData) => void;
   isEdit?: boolean;
+  /** Member can post this resource only to a group. */
+  groupOnly?: boolean;
 }
 
 export const ResourceForm = ({
   postData,
   onChange,
   isEdit = false,
+  groupOnly = false,
 }: ResourceFormProps) => {
   const { t } = useTranslation();
   const me = useCurrentProfile();
@@ -66,6 +74,26 @@ export const ResourceForm = ({
     setTagDraft('');
   };
 
+  const issues = resourceFormIssues({
+    title: resource.title,
+    resourceKind: resource.resourceKind,
+    url: resource.url,
+    attachments: resource.attachments,
+    visibility: postData.visibility,
+    audience: postData.audience,
+    groupId: postData.groupId,
+  });
+  const titleMissing = issues.includes('title');
+  const titleTooLong = issues.includes('titleLength');
+  const urlIssue = issues.includes('url');
+  const urlInvalid = urlIssue && Boolean(resource.url?.trim());
+  const mediaMissing = issues.includes('media');
+  const audienceMissing = issues.includes('audience');
+  const groupMissing = issues.includes('group');
+  const urlMessage = t('resources.validation.url', {
+    defaultValue: 'Enter a real link, like https://example.com',
+  });
+
   const openMedia = () => {
     if (resource.resourceKind === 'gallery') imageRef.current?.present();
     else if (resource.resourceKind === 'video') videoRef.current?.present();
@@ -77,14 +105,49 @@ export const ResourceForm = ({
     <View>
       <View className="mt-4 gap-y-4 px-3">
         <ThemedText className="text-sm font-medium">
-          {t('resources.form.name', {
-            defaultValue: 'Title',
+          {t('resources.form.nameRequired', {
+            defaultValue: 'Title (Required)',
           })}
         </ThemedText>
         <Input
           value={resource.title}
+          maxLength={RESOURCE_TITLE_MAX_LENGTH}
           onChangeText={(title) => patchResource({ title })}
+          accessibilityHint={
+            titleMissing
+              ? t('resources.validation.titleRequired', {
+                  defaultValue: 'Title is required',
+                })
+              : titleTooLong
+                ? t('resources.validation.titleTooLong', {
+                    defaultValue: 'Title must be 200 characters or fewer',
+                  })
+                : undefined
+          }
         />
+        {titleMissing ? (
+          <ThemedText className="text-sm text-muted-foreground">
+            {t('resources.validation.titleRequired', {
+              defaultValue: 'Title is required',
+            })}
+          </ThemedText>
+        ) : null}
+        {titleTooLong ? (
+          <ThemedText className="text-sm text-destructive">
+            {t('resources.validation.titleTooLong', {
+              defaultValue: 'Title must be 200 characters or fewer',
+            })}
+          </ThemedText>
+        ) : null}
+        <ThemedText
+          className={
+            titleTooLong
+              ? 'px-2 text-right text-sm text-destructive'
+              : 'px-2 text-right text-sm'
+          }
+        >
+          {resource.title.length} / {RESOURCE_TITLE_MAX_LENGTH}
+        </ThemedText>
 
         <ThemedText className="text-sm font-medium">
           {t('resources.form.kind', {
@@ -118,15 +181,33 @@ export const ResourceForm = ({
         {resource.resourceKind === 'link' ? (
           <>
             <ThemedText className="text-sm font-medium">
-              {t('resources.form.url', {
-                defaultValue: 'URL',
+              {t('resources.form.urlRequired', {
+                defaultValue: 'URL (Required)',
               })}
             </ThemedText>
             <Input
               value={resource.url ?? ''}
               onChangeText={(url) => patchResource({ url })}
               autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              placeholder={t('resources.form.urlPlaceholder', {
+                defaultValue: 'https://example.com',
+              })}
+              className={urlInvalid ? 'border-destructive' : undefined}
+              accessibilityHint={urlIssue ? urlMessage : undefined}
             />
+            {urlIssue ? (
+              <ThemedText
+                className={
+                  urlInvalid
+                    ? 'text-sm text-destructive'
+                    : 'text-sm text-muted-foreground'
+                }
+              >
+                {urlMessage}
+              </ThemedText>
+            ) : null}
           </>
         ) : (
           <>
@@ -155,6 +236,13 @@ export const ResourceForm = ({
                 })
               }
             />
+            {mediaMissing ? (
+              <ThemedText className="text-sm text-muted-foreground">
+                {t('resources.validation.mediaRequired', {
+                  defaultValue: 'Add the media or link this resource needs',
+                })}
+              </ThemedText>
+            ) : null}
           </>
         )}
 
@@ -231,6 +319,28 @@ export const ResourceForm = ({
           disabled={isEdit}
           showDirect
         />
+        {!isEdit && groupOnly ? (
+          <ThemedText className="text-sm text-muted-foreground">
+            {t('resources.form.groupOnly', {
+              defaultValue: 'You can only share resources with a group.',
+            })}
+          </ThemedText>
+        ) : null}
+        {groupMissing ? (
+          <ThemedText className="text-sm text-muted-foreground">
+            {t('resources.validation.groupRequired', {
+              defaultValue: 'Choose a group before creating this resource.',
+            })}
+          </ThemedText>
+        ) : null}
+        {audienceMissing ? (
+          <ThemedText className="text-sm text-muted-foreground">
+            {t('resources.validation.directAudience', {
+              defaultValue:
+                'Choose at least one recipient for a direct resource.',
+            })}
+          </ThemedText>
+        ) : null}
       </View>
       <ImagePickerSheet ref={imageRef} onSelect={addAttachments} />
       <VideoPickerSheet ref={videoRef} onSelect={addAttachments} />

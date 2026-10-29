@@ -5,7 +5,12 @@ import type {
   ResourceKind,
   ResourcePost,
 } from '@openpeepshq/common/types';
-import { RESOURCE_KINDS, normalizeResourceTags } from '@openpeepshq/common/lib';
+import {
+  RESOURCE_KINDS,
+  RESOURCE_TITLE_MAX_LENGTH,
+  normalizeResourceTags,
+  resourceFormIssues,
+} from '@openpeepshq/common/lib';
 import { Button, Input, Label } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
@@ -21,12 +26,15 @@ export interface ResourceFormProps {
   postData: PostCreationData;
   onChange: (data: PostCreationData) => void;
   isEdit?: boolean;
+  /** Member can post this resource only to a group. */
+  groupOnly?: boolean;
 }
 
 export const ResourceForm = ({
   postData,
   onChange,
   isEdit = false,
+  groupOnly = false,
 }: ResourceFormProps) => {
   const t = useT();
   const me = useCurrentProfile();
@@ -65,6 +73,26 @@ export const ResourceForm = ({
     }
   };
 
+  const issues = resourceFormIssues({
+    title: resource.title,
+    resourceKind: resource.resourceKind,
+    url: resource.url,
+    attachments: resource.attachments,
+    visibility: postData.visibility,
+    audience: postData.audience,
+    groupId: postData.groupId,
+  });
+  const titleMissing = issues.includes('title');
+  const titleTooLong = issues.includes('titleLength');
+  const urlIssue = issues.includes('url');
+  const urlInvalid = urlIssue && Boolean(resource.url?.trim());
+  const mediaMissing = issues.includes('media');
+  const audienceMissing = issues.includes('audience');
+  const groupMissing = issues.includes('group');
+  const urlMessage = t('resources.validation.url', {
+    defaultValue: 'Enter a real link, like https://example.com',
+  });
+
   const kindActions = useMemo(
     () => ({
       gallery: attachments.openImagePicker,
@@ -84,15 +112,51 @@ export const ResourceForm = ({
         </h2>
 
         <Label
-          title={t('resources.form.name', { defaultValue: 'Title' })}
+          title={t('resources.form.nameRequired', {
+            defaultValue: 'Title (Required)',
+          })}
           htmlFor="resource-title"
         >
           <Input
             id="resource-title"
             data-testid="resources-title"
             value={resource.title}
+            maxLength={RESOURCE_TITLE_MAX_LENGTH}
+            aria-invalid={titleMissing || titleTooLong}
+            aria-describedby={
+              titleMissing
+                ? 'resource-title-error resource-title-count'
+                : 'resource-title-count'
+            }
             onChange={(event) => patchResource({ title: event.target.value })}
           />
+          {titleMissing ? (
+            <span
+              id="resource-title-error"
+              role="status"
+              className="text-muted-foreground mt-1 text-sm"
+            >
+              {t('resources.validation.titleRequired', {
+                defaultValue: 'Title is required',
+              })}
+            </span>
+          ) : null}
+          {titleTooLong ? (
+            <span role="alert" className="text-destructive mt-1 text-sm">
+              {t('resources.validation.titleTooLong', {
+                defaultValue: 'Title must be 200 characters or fewer',
+              })}
+            </span>
+          ) : null}
+          <span
+            id="resource-title-count"
+            className="block w-full px-2 text-right text-sm"
+          >
+            <span className={titleTooLong ? 'text-error' : undefined}>
+              {resource.title.length}
+            </span>{' '}
+            / {RESOURCE_TITLE_MAX_LENGTH}
+          </span>
         </Label>
 
         <div>
@@ -118,15 +182,39 @@ export const ResourceForm = ({
 
         {resource.resourceKind === 'link' ? (
           <Label
-            title={t('resources.form.url', { defaultValue: 'URL' })}
+            title={t('resources.form.urlRequired', {
+              defaultValue: 'URL (Required)',
+            })}
             htmlFor="resource-url"
           >
             <Input
               id="resource-url"
               data-testid="resources-url"
               value={resource.url ?? ''}
+              placeholder={t('resources.form.urlPlaceholder', {
+                defaultValue: 'https://example.com',
+              })}
+              inputMode="url"
+              spellCheck={false}
+              error={urlInvalid}
+              aria-invalid={urlIssue}
+              aria-describedby={urlIssue ? 'resource-url-error' : undefined}
               onChange={(event) => patchResource({ url: event.target.value })}
             />
+            {urlIssue ? (
+              <span
+                id="resource-url-error"
+                role={urlInvalid ? 'alert' : 'status'}
+                data-testid="resources-url-error"
+                className={
+                  urlInvalid
+                    ? 'text-destructive mt-1 text-sm'
+                    : 'text-muted-foreground mt-1 text-sm'
+                }
+              >
+                {urlMessage}
+              </span>
+            ) : null}
           </Label>
         ) : (
           <div className="space-y-2">
@@ -140,6 +228,13 @@ export const ResourceForm = ({
             </Button>
             {attachments.previews}
             {attachments.inputs}
+            {mediaMissing ? (
+              <p role="status" className="text-muted-foreground text-sm">
+                {t('resources.validation.mediaRequired', {
+                  defaultValue: 'Add the media or link this resource needs',
+                })}
+              </p>
+            ) : null}
           </div>
         )}
 
@@ -217,6 +312,36 @@ export const ResourceForm = ({
             disabled={isEdit}
             showDirect
           />
+          {!isEdit && groupOnly ? (
+            <span role="status" className="text-muted-foreground mt-1 text-sm">
+              {t('resources.form.groupOnly', {
+                defaultValue: 'You can only share resources with a group.',
+              })}
+            </span>
+          ) : null}
+          {groupMissing ? (
+            <span
+              id="resource-group-error"
+              role="status"
+              className="text-muted-foreground mt-1 text-sm"
+            >
+              {t('resources.validation.groupRequired', {
+                defaultValue: 'Choose a group before creating this resource.',
+              })}
+            </span>
+          ) : null}
+          {audienceMissing ? (
+            <span
+              id="resource-audience-error"
+              role="status"
+              className="text-muted-foreground mt-1 text-sm"
+            >
+              {t('resources.validation.directAudience', {
+                defaultValue:
+                  'Choose at least one recipient for a direct resource.',
+              })}
+            </span>
+          ) : null}
         </Label>
       </div>
 

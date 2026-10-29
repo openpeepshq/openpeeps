@@ -21,6 +21,7 @@ export const EditResource: React.FC<EditResourceProps> = ({ route }) => {
     postData,
     setPostData,
     resourceTitle,
+    canSubmit,
     submitting,
     error,
     clearError,
@@ -46,7 +47,7 @@ export const EditResource: React.FC<EditResourceProps> = ({ route }) => {
           : t('resources.update.title', { defaultValue: 'Update resource' })
       }
       onPress={() => void submit()}
-      disabled={submitting || !postData}
+      disabled={submitting || !canSubmit}
       loading={submitting}
     />
   );
