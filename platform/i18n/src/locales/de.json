@@ -436,6 +436,7 @@
         "expiresAt": "Läuft ab am"
       },
       "changeAudience": "Zielgruppe ändern",
+      "chooseAudience": "Wählen Sie, wer das sehen kann",
       "remainingCharacters": "Verbleibende Zeichen",
       "addImage": "Medien hinzufügen",
       "addAudio": "Audio hinzufügen",
@@ -3661,9 +3662,10 @@
     },
     "form": {
       "title": "Neue Ressource",
-      "name": "Titel",
+      "nameRequired": "Titel (Erforderlich)",
       "kind": "Typ",
-      "url": "URL",
+      "urlRequired": "URL (Erforderlich)",
+      "urlPlaceholder": "https://example.com",
       "addMedia": "Dateien hinzufügen",
       "descriptionPlaceholder": "Beschreiben Sie diese Ressource",
       "tags": "Schlagwörter",
@@ -3674,7 +3676,8 @@
       "addLevelAction": "Hinzufügen",
       "clearPath": "Zurücksetzen",
       "visibility": "Wer kann das sehen (Erforderlich)",
-      "visibilityNotChangeable": "Sobald Sie Ihre Ressource veröffentlicht haben, können Sie die Sichtbarkeit nicht mehr ändern"
+      "visibilityNotChangeable": "Sobald Sie Ihre Ressource veröffentlicht haben, können Sie die Sichtbarkeit nicht mehr ändern",
+      "groupOnly": "Sie können Ressourcen nur mit einer Gruppe teilen."
     },
     "create": {
       "title": "Ressource erstellen"
@@ -3708,8 +3711,12 @@
     },
     "validation": {
       "titleRequired": "Titel ist erforderlich",
+      "titleTooLong": "Der Titel darf höchstens 200 Zeichen haben",
+      "url": "Geben Sie einen echten Link ein, z. B. https://example.com",
       "mediaRequired": "Fügen Sie die Medien oder den Link hinzu, die diese Ressource braucht",
-      "directAudience": "Wählen Sie mindestens eine Empfängerin bzw. einen Empfänger für eine direkte Ressource."
+      "directAudience": "Wählen Sie mindestens eine Empfängerin bzw. einen Empfänger für eine direkte Ressource.",
+      "groupRequired": "Wählen Sie eine Gruppe, bevor Sie diese Ressource erstellen.",
+      "audienceForbidden": "Wählen Sie eine Gruppe, in der Sie diese Ressource veröffentlichen können."
     },
     "meta": {
       "imagesCount": "{{count}} Bilder"

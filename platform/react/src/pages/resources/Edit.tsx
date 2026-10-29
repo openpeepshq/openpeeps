@@ -14,6 +14,7 @@ export const EditResource = () => {
     postData,
     setPostData,
     resourceTitle,
+    canSubmit,
     submitting,
     error,
     clearError,
@@ -26,14 +27,14 @@ export const EditResource = () => {
         title={t('resources.update.title', { defaultValue: 'Update resource' })}
         variant="default"
         action={submit}
-        disabled={submitting}
+        disabled={submitting || !canSubmit}
       >
         {submitting
           ? t('common.saving', { defaultValue: 'Saving…' })
           : t('resources.update.title', { defaultValue: 'Update resource' })}
       </Button>
     ),
-    [submit, submitting, t],
+    [canSubmit, submit, submitting, t],
   );
 
   useSetPageHeader(

@@ -16,6 +16,7 @@ export const NewResource: React.FC<NewResourceProps> = () => {
     postData,
     setPostData,
     canSubmit,
+    groupOnly,
     submitting,
     error,
     clearError,
@@ -48,7 +49,11 @@ export const NewResource: React.FC<NewResourceProps> = () => {
         contentContainerClassName="grow"
         className="pb-12"
       >
-        <ResourceForm postData={postData} onChange={setPostData} />
+        <ResourceForm
+          postData={postData}
+          onChange={setPostData}
+          groupOnly={groupOnly}
+        />
       </KeyboardAwareScrollView>
     </ThemedView>
   );

@@ -10,6 +10,7 @@ export const NewResource = () => {
     postData,
     setPostData,
     canSubmit,
+    groupOnly,
     submitting,
     error,
     clearError,
@@ -40,7 +41,11 @@ export const NewResource = () => {
 
   return (
     <div className="pb-12">
-      <ResourceForm postData={postData} onChange={setPostData} />
+      <ResourceForm
+        postData={postData}
+        onChange={setPostData}
+        groupOnly={groupOnly}
+      />
       {error ? (
         <div className="px-3">
           <Toast variant="error" onDismiss={clearError}>
