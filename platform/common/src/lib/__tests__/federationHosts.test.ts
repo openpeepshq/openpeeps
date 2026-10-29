@@ -20,8 +20,9 @@ describe('hostMatchesAllowedPattern', () => {
     );
   });
 
-  it('does not treat a bare * as allow-all', () => {
-    expect(hostMatchesAllowedPattern('mastodon.social', '*')).toBe(false);
+  it('treats a bare * as allow-all (demo/test instances)', () => {
+    expect(hostMatchesAllowedPattern('mastodon.social', '*')).toBe(true);
+    expect(hostMatchesAllowedPattern('evil.example', '*')).toBe(true);
   });
 
   it('does not match a different host', () => {
