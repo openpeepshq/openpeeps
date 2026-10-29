@@ -20,12 +20,19 @@ import {
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../layout/IdentityContext';
+import { OPENPEEPS_MARKDOWN_EXCERPT_CLASS } from '../markdown/classes';
+import { PostMarkdown } from '../post/Markdown';
 import { VideoPlayOverlay } from '../post/VideoPlayOverlay';
 
 export interface ResourceCardProps {
   post: PublicPost;
   layout?: 'card' | 'list';
   preview?: ReactNode;
+  /**
+   * Library and feed cards show a short formatted description. The detail
+   * page renders the full description itself, so it turns this off.
+   */
+  showDescription?: boolean;
 }
 
 const visualAttachments = (attachments: MediaAttachmentData[]) =>
@@ -107,6 +114,7 @@ export const ResourceCard = ({
   post,
   layout = 'card',
   preview,
+  showDescription = true,
 }: ResourceCardProps) => {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
@@ -160,6 +168,16 @@ export const ResourceCard = ({
     resource.resourceKind === 'file'
       ? attachments.find((att) => attachmentMediaKind(att) === 'file')?.url
       : null;
+
+  const description =
+    showDescription && excerpt ? (
+      <PostMarkdown
+        source={excerpt}
+        mentions={post.mentions}
+        className={OPENPEEPS_MARKDOWN_EXCERPT_CLASS}
+        linkPreviewMode="none"
+      />
+    ) : null;
 
   const renderBookmarkButton = (className: string) => (
     <button
@@ -219,9 +237,7 @@ export const ResourceCard = ({
               {resource.categoryPath.join(' / ')}
             </p>
           ) : null}
-          {excerpt ? (
-            <p className="text-muted-foreground text-sm">{excerpt}</p>
-          ) : null}
+          {description}
           {metaText ? (
             <p className="text-muted-foreground text-xs">{metaText}</p>
           ) : null}
@@ -306,9 +322,7 @@ export const ResourceCard = ({
           {resource.categoryPath.join(' / ')}
         </p>
       ) : null}
-      {excerpt ? (
-        <p className="text-muted-foreground text-sm">{excerpt}</p>
-      ) : null}
+      {description}
       {metaText ? (
         <p className="text-muted-foreground text-xs">{metaText}</p>
       ) : null}

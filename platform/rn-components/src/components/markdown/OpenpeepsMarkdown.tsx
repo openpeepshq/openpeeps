@@ -27,16 +27,53 @@ import { PreviewLink } from '../preview-link';
 import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
 import { recordOutboundClick } from '@openpeepshq/react';
 
-export type OpenpeepsMarkdownProps = MarkdownRenderProps;
+export type OpenpeepsMarkdownProps = MarkdownRenderProps & {
+  /** Compact muted text for resource-card excerpts. */
+  variant?: 'default' | 'excerpt';
+};
 
 export const OpenpeepsMarkdown = ({
   source,
   mentions = [],
   linkPreviewMode = 'none',
   newTab = false,
+  variant = 'default',
 }: OpenpeepsMarkdownProps) => {
   const { colors } = useOpenPeepsTheme();
-  const styles = useMemo(() => markdownTheme(colors), [colors]);
+  const styles = useMemo(() => {
+    const base = markdownTheme(colors);
+    if (variant !== 'excerpt') return base;
+    const muted = colors['muted-foreground'];
+    return {
+      ...base,
+      body: { color: muted, fontSize: 14 },
+      paragraph: {
+        color: muted,
+        fontSize: 14,
+        lineHeight: 20,
+        marginTop: 0,
+        marginBottom: 0,
+      },
+      heading1: {
+        color: muted,
+        fontWeight: '700' as const,
+        fontSize: 16,
+        marginTop: 0,
+        marginBottom: 0,
+      },
+      heading2: {
+        color: muted,
+        fontWeight: '700' as const,
+        fontSize: 15,
+        marginTop: 0,
+        marginBottom: 0,
+      },
+      strong: { fontWeight: '700' as const },
+      em: { fontStyle: 'italic' as const },
+      list: { color: muted, fontSize: 14, marginTop: 0, marginBottom: 0 },
+      listItem: { color: muted, fontSize: 14, lineHeight: 20 },
+    };
+  }, [colors, variant]);
 
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();

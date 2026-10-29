@@ -15,6 +15,7 @@ import {
 } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { CachedImage } from '../custom/common';
+import { OpenpeepsMarkdown } from '../markdown';
 import { ThemedText } from '../ui/themed-text';
 import { VideoPlayOverlay } from '../post/VideoPlayOverlay';
 import {
@@ -28,6 +29,11 @@ export interface ResourceCardProps {
   post: PublicPost;
   layout?: 'card' | 'list';
   preview?: ReactNode;
+  /**
+   * Library and feed cards show a short formatted description. The detail
+   * page renders the full description itself, so it turns this off.
+   */
+  showDescription?: boolean;
 }
 
 const visualAttachments = (attachments: MediaAttachmentData[]) =>
@@ -55,6 +61,7 @@ export const ResourceCard = ({
   post,
   layout = 'card',
   preview,
+  showDescription = true,
 }: ResourceCardProps) => {
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
@@ -108,6 +115,16 @@ export const ResourceCard = ({
 
   if (!resource) return null;
 
+  const description =
+    showDescription && excerpt ? (
+      <OpenpeepsMarkdown
+        source={excerpt}
+        mentions={post.mentions}
+        variant="excerpt"
+        linkPreviewMode="none"
+      />
+    ) : null;
+
   const toggleBookmark = () => {
     if (!currentProfile) return;
     if (isBookmarked) {
@@ -160,11 +177,7 @@ export const ResourceCard = ({
               {resource.categoryPath.join(' / ')}
             </ThemedText>
           ) : null}
-          {excerpt ? (
-            <ThemedText className="text-sm text-muted-foreground">
-              {excerpt}
-            </ThemedText>
-          ) : null}
+          {description}
           {metaText ? (
             <ThemedText className="text-xs text-muted-foreground">
               {metaText}
@@ -264,11 +277,7 @@ export const ResourceCard = ({
           {resource.categoryPath.join(' / ')}
         </ThemedText>
       ) : null}
-      {excerpt ? (
-        <ThemedText className="text-sm text-muted-foreground">
-          {excerpt}
-        </ThemedText>
-      ) : null}
+      {description}
       {metaText ? (
         <ThemedText className="text-xs text-muted-foreground">
           {metaText}
