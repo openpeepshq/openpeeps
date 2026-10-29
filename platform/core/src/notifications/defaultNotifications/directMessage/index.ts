@@ -6,7 +6,11 @@ import {
   notificationAll,
 } from '@openpeepshq/common/types';
 import { maybeCreateNotification } from '@openpeepshq/core/notifications';
-import { getProfileAvatar, profileName } from '@openpeepshq/common/lib';
+import {
+  getProfileAvatar,
+  isConversationLeaveMarker,
+  profileName,
+} from '@openpeepshq/common/lib';
 import { getConversationByEnd } from '@openpeepshq/core/posts';
 import { communityConfig } from '../../../config';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
@@ -14,7 +18,7 @@ import { PUSH_INVALIDATE } from '../../pushInvalidation';
 const eventHandler = async (data: unknown) => {
   const post = data as PostWithMeta;
 
-  if (post.data?.type === 'event') return;
+  if (post.data?.type === 'event' || isConversationLeaveMarker(post)) return;
 
   if (post.visibility === 'direct' && post.audience) {
     for (const recipientProfile of post.audience) {
@@ -31,11 +35,14 @@ const eventHandler = async (data: unknown) => {
 
 const pushRenderer = async (notification: ExpandedNotification) => {
   const path = `/conversations/${(notification.data as { conversationStart: PostWithMeta }).conversationStart?.id}`;
+  const name = profileName(notification.senderProfile!);
+  const leave =
+    !!notification.post && isConversationLeaveMarker(notification.post);
 
   return {
-    title: `${profileName(notification.senderProfile!)} sent you a direct message`,
+    title: leave ? `${name} left` : `${name} sent you a direct message`,
     options: {
-      body: notification.post?.data?.content,
+      body: leave ? undefined : notification.post?.data?.content,
       icon: getProfileAvatar(
         notification.senderProfile,
         await communityConfig(),

@@ -819,6 +819,26 @@ export const participantIds = (
   return ids;
 };
 
+/**
+ * System post written when someone leaves a direct conversation.
+ * Empty note whose author is not in the audience, so later replies
+ * do not include them. It is not a message.
+ */
+export const isConversationLeaveMarker = (post: {
+  visibility?: string | null;
+  profile?: { id: string } | null;
+  audience?: readonly { id: string }[] | null;
+  data?: { type?: string; content?: string } | null;
+}): boolean => {
+  if (post.visibility !== 'direct') return false;
+  const authorId = post.profile?.id;
+  if (!authorId || !post.audience?.length) return false;
+  if (post.audience.some((member) => member.id === authorId)) return false;
+  const data = post.data;
+  if (!data || data.type !== 'note') return false;
+  return (data.content ?? '').trim() === '';
+};
+
 /** Direct message between exactly two participants. */
 export const isOneToOneDm = (
   post: Pick<PublicPost, 'visibility' | 'audience' | 'profile'> & {

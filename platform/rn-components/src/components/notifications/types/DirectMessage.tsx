@@ -2,7 +2,11 @@ import { Pressable, View } from 'react-native';
 import React from 'react';
 import { ThemedText } from '../../ui/themed-text';
 import { NotificationWrapper } from '../NotificationWrapper';
-import { PublicNotification, PublicPost } from '@openpeepshq/common';
+import {
+  isConversationLeaveMarker,
+  PublicNotification,
+  PublicPost,
+} from '@openpeepshq/common';
 import { MessageSquareIcon } from '../../icons/index';
 import { profileName } from '../../../lib/utils';
 import { ConversationMessageBubble } from '../../conversations/ConversationMessageBubble';
@@ -25,6 +29,8 @@ export const DirectMessage: React.FC<NotificationTypeProps> = ({
   const { conversationStart } = notification.data as {
     conversationStart: PublicPost;
   };
+  const leaveMarker =
+    !!notification.post && isConversationLeaveMarker(notification.post);
 
   return (
     <NotificationWrapper
@@ -41,14 +47,18 @@ export const DirectMessage: React.FC<NotificationTypeProps> = ({
         <View className="mb-2 flex flex-row items-center gap-2 font-semibold flex-wrap">
           <MessageSquareIcon className="h-4 w-4 text-foreground" />
           <ThemedText className="text-foreground">
-            {t('notification.directMessage.text', {
-              profileName: profileName(profile),
-            })}
+            {leaveMarker
+              ? t('conversations.messageInThread.left', {
+                  name: profileName(profile),
+                })
+              : t('notification.directMessage.text', {
+                  profileName: profileName(profile),
+                })}
           </ThemedText>
         </View>
-        {notification.post && (
+        {notification.post && !leaveMarker ? (
           <ConversationMessageBubble message={notification.post} />
-        )}
+        ) : null}
       </Pressable>
     </NotificationWrapper>
   );

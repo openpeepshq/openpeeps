@@ -762,7 +762,8 @@ const organizerPreviousResponse = (
  * - Creates a system "X left" post (empty content) with the *remaining*
  *   participants as audience. The leaving user is excluded so future
  *   replies (which inherit the audience) won't notify them, and the thread
- *   disappears from their inbox.
+ *   disappears from their inbox. The post is not a message: it does not
+ *   create a direct-message notification or an unread count.
  * - MessageInThread detects the leave via the audience diff: the leaving
  *   user was in the previous post's audience but not in the left-post's.
  * - The conversation post-creation endpoint detects leavers (author not in

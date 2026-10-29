@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { PgDb } from '../db/pg/client';
 import {
+  countUnseenDirectPosts,
   countUnseenGroupPosts,
   listUnseenGroupPostIds,
   mergeOneToOneDirectCounts,
@@ -99,6 +100,21 @@ describe('listUnseenGroupPostIds', () => {
     } as unknown as PgDb;
     await listUnseenGroupPostIds(db, 'profile1', 'g1');
     expect(captured).toContain('post_seen');
+  });
+});
+
+describe('countUnseenDirectPosts', () => {
+  it('does not count leave markers, whose author is outside the audience', async () => {
+    let captured = '';
+    const db = {
+      execute: async (query: unknown) => {
+        captured = JSON.stringify(query);
+        return { rows: [] } as ExecuteResult;
+      },
+    } as unknown as PgDb;
+    await countUnseenDirectPosts(db, 'profile1');
+    expect(captured).toContain('author_edge');
+    expect(captured).toContain('author_edge.to_id = p.creator_id');
   });
 });
 

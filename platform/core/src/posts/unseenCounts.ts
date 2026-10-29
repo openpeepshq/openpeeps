@@ -89,6 +89,13 @@ export const countUnseenDirectPosts = async (
         AND p.deleted_at IS NULL
       WHERE a.to_id = ${profileId}
         AND p.visibility = 'direct'
+        -- Leave markers keep the author out of the audience. They are not messages.
+        AND EXISTS (
+          SELECT 1
+          FROM audience author_edge
+          WHERE author_edge.from_id = p.id::text
+            AND author_edge.to_id = p.creator_id
+        )
     ),
     walk AS (
       SELECT d.post_id, d.post_id AS node_id, 0 AS depth

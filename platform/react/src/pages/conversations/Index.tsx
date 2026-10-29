@@ -4,6 +4,8 @@ import type { PublicPost } from '@openpeepshq/common/types';
 import {
   canCreatePost,
   formatBadgeCount,
+  isConversationLeaveMarker,
+  profileName,
   truncateText,
 } from '@openpeepshq/common';
 import {
@@ -34,6 +36,7 @@ function ChatPreview({
   const lastMessage = conversation[conversation.length - 1];
   if (!lastMessage) return null;
   const participants = lastMessage.audience ?? [];
+  const leaveMarker = isConversationLeaveMarker(lastMessage);
 
   const otherNames = participants
     .filter((p) => p.id !== me?.id)
@@ -71,26 +74,38 @@ function ChatPreview({
       </span>
 
       <div className="mt-2 flex flex-row items-start gap-x-2 overflow-hidden text-sm">
-        <div className="flex flex-row items-center">
-          <span>~</span>
-          {me?.id === lastMessage.profile.id ? (
-            <span className="ml-1">Me</span>
-          ) : (
-            <span className="ml-1">
-              @{truncateText(lastMessage.profile.handle, 8)}
-            </span>
-          )}
-          <span className="mx-1">:</span>
-        </div>
-        {lastMessage.data?.type === 'event' ? (
-          <>
-            <Calendar className="size-4" />
-            {(lastMessage.data as { name?: string }).name}
-          </>
+        {leaveMarker ? (
+          <span>
+            {t('conversations.messageInThread.left', {
+              name: profileName(lastMessage.profile),
+            })}
+          </span>
         ) : (
-          <PostMarkdown
-            source={(lastMessage.data as { content?: string }).content || ''}
-          />
+          <>
+            <div className="flex flex-row items-center">
+              <span>~</span>
+              {me?.id === lastMessage.profile.id ? (
+                <span className="ml-1">Me</span>
+              ) : (
+                <span className="ml-1">
+                  @{truncateText(lastMessage.profile.handle, 8)}
+                </span>
+              )}
+              <span className="mx-1">:</span>
+            </div>
+            {lastMessage.data?.type === 'event' ? (
+              <>
+                <Calendar className="size-4" />
+                {(lastMessage.data as { name?: string }).name}
+              </>
+            ) : (
+              <PostMarkdown
+                source={
+                  (lastMessage.data as { content?: string }).content || ''
+                }
+              />
+            )}
+          </>
         )}
       </div>
     </article>

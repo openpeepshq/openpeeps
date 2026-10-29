@@ -30,6 +30,7 @@ import {
   toHiddenPost,
   isHiddenPost,
   isOneToOneWithBlocked,
+  isConversationLeaveMarker,
   isOneToOneDm,
   HIDDEN_AUTHOR_HANDLE,
 } from '../postHelpers';
@@ -1369,6 +1370,47 @@ describe('postHelpers', () => {
         visibility: 'public' as const,
       };
       expect(isOneToOneDm(publicPost)).toBe(false);
+    });
+  });
+
+  describe('isConversationLeaveMarker', () => {
+    const leaver = { id: 'leaver' } as PublicProfile;
+    const remaining = { id: 'remaining' } as PublicProfile;
+
+    it('matches an empty direct note whose author left the audience', () => {
+      expect(
+        isConversationLeaveMarker({
+          ...mockPost,
+          visibility: 'direct',
+          profile: leaver,
+          audience: [remaining],
+          data: { type: 'note', content: '' },
+        }),
+      ).toBe(true);
+    });
+
+    it('does not match a normal direct message', () => {
+      expect(
+        isConversationLeaveMarker({
+          ...mockPost,
+          visibility: 'direct',
+          profile: leaver,
+          audience: [leaver, remaining],
+          data: { type: 'note', content: 'hello' },
+        }),
+      ).toBe(false);
+    });
+
+    it('does not match an empty note the author is still in', () => {
+      expect(
+        isConversationLeaveMarker({
+          ...mockPost,
+          visibility: 'direct',
+          profile: leaver,
+          audience: [leaver, remaining],
+          data: { type: 'note', content: '   ' },
+        }),
+      ).toBe(false);
     });
   });
 });

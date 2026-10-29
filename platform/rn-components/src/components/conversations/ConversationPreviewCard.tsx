@@ -4,6 +4,8 @@ import { UpdatingDate } from '../custom/date/updating-date';
 import { OpenpeepsMarkdown } from '../markdown/OpenpeepsMarkdown';
 import {
   formatBadgeCount,
+  isConversationLeaveMarker,
+  profileName,
   truncateText,
   type PublicPost,
 } from '@openpeepshq/common';
@@ -45,6 +47,7 @@ export const ConversationPreviewCard = ({
 
   const lastMessage = conversation?.slice(-1)[0];
   const participants = lastMessage?.audience || [];
+  const leaveMarker = !!lastMessage && isConversationLeaveMarker(lastMessage);
 
   const otherParticipants = participants.filter(
     (p) => p.id !== currentProfile?.id
@@ -63,6 +66,8 @@ export const ConversationPreviewCard = ({
   const handleDeleteGroupModalPress = useCallback(() => {
     deleteMessageModalRef.current?.present();
   }, []);
+
+  if (!lastMessage) return null;
 
   return (
     <DropdownMenu>
@@ -102,27 +107,37 @@ export const ConversationPreviewCard = ({
           />
 
           <View className="mt-2 flex flex-row items-start gap-x-2">
-            <View className="flex flex-row items-center">
-              <Text>~</Text>
-              {currentProfile?.id === lastMessage.profile.id ? (
-                <Text className="ml-1">Me</Text>
-              ) : (
-                <Text className="ml-1">
-                  @{truncateText(lastMessage.profile.handle, 8)}
-                </Text>
-              )}
-              <Text className="mx-1">:</Text>
-            </View>
-            {lastMessage.data?.type === 'event' ? (
-              <View className="flex flex-row items-center gap-1">
-                <CalendarIcon size={16} className="text-muted-foreground" />
-                <Text>{(lastMessage.data as { name?: string }).name}</Text>
-              </View>
+            {leaveMarker ? (
+              <Text>
+                {t('conversations.messageInThread.left', {
+                  name: profileName(lastMessage.profile),
+                })}
+              </Text>
             ) : (
-              <OpenpeepsMarkdown
-                source={lastMessage.data?.content || ''}
-                linkPreviewMode="none"
-              />
+              <>
+                <View className="flex flex-row items-center">
+                  <Text>~</Text>
+                  {currentProfile?.id === lastMessage.profile.id ? (
+                    <Text className="ml-1">Me</Text>
+                  ) : (
+                    <Text className="ml-1">
+                      @{truncateText(lastMessage.profile.handle, 8)}
+                    </Text>
+                  )}
+                  <Text className="mx-1">:</Text>
+                </View>
+                {lastMessage.data?.type === 'event' ? (
+                  <View className="flex flex-row items-center gap-1">
+                    <CalendarIcon size={16} className="text-muted-foreground" />
+                    <Text>{(lastMessage.data as { name?: string }).name}</Text>
+                  </View>
+                ) : (
+                  <OpenpeepsMarkdown
+                    source={lastMessage.data?.content || ''}
+                    linkPreviewMode="none"
+                  />
+                )}
+              </>
             )}
           </View>
         </View>

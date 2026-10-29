@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { PublicPost, PublicProfile } from '@openpeepshq/common/types';
-import { profileName } from '@openpeepshq/common';
+import { isConversationLeaveMarker, profileName } from '@openpeepshq/common';
 import { isUnreadPostForViewer, useCurrentProfile } from '@openpeepshq/react';
 import { UpdatingDate } from '../custom/date/updating-date';
 import { ProfileAvatar } from '../profile/Avatar';
@@ -59,6 +59,11 @@ export const MessageInThread = ({
   const removedOthers = removed.filter((p) => p.id !== message.profile.id);
   const name = profileName(message.profile);
   const isMe = message.profile.id === me?.id;
+  const leaveMarker = isConversationLeaveMarker(message);
+  const authorLeft =
+    !!previous &&
+    inAudience(previous, message.profile) &&
+    !inAudience(message, message.profile);
 
   return (
     <>
@@ -70,9 +75,7 @@ export const MessageInThread = ({
         </ThemedText>
       ) : null}
 
-      {previous &&
-      inAudience(previous, message.profile) &&
-      !inAudience(message, message.profile) ? (
+      {leaveMarker || authorLeft ? (
         <View className="flex-row items-center gap-2">
           <ProfileAvatar
             profile={message.profile}
@@ -102,30 +105,34 @@ export const MessageInThread = ({
         </View>
       ) : null}
 
-      <View ref={postViewRef} className="flex-row">
-        {!isMe && multipleParticipants ? (
-          <View className="mr-2 mt-6">
-            <ProfileAvatar
-              profile={message.profile}
-              className="size-10 border-0"
-            />
+      {!leaveMarker ? (
+        <>
+          <View ref={postViewRef} className="flex-row">
+            {!isMe && multipleParticipants ? (
+              <View className="mr-2 mt-6">
+                <ProfileAvatar
+                  profile={message.profile}
+                  className="size-10 border-0"
+                />
+              </View>
+            ) : null}
+            <View className="min-w-0 flex-1">
+              <ConversationMessageBubble message={message} unread={isUnread} />
+            </View>
           </View>
-        ) : null}
-        <View className="min-w-0 flex-1">
-          <ConversationMessageBubble message={message} unread={isUnread} />
-        </View>
-      </View>
 
-      <View
-        className={`mt-2 w-full flex-row text-sm ${
-          isMe ? 'justify-end' : 'justify-start'
-        }`}
-      >
-        {multipleParticipants && !isMe ? (
-          <ThemedText className="text-sm">{name} · </ThemedText>
-        ) : null}
-        <UpdatingDate date={message.createdAt} />
-      </View>
+          <View
+            className={`mt-2 w-full flex-row text-sm ${
+              isMe ? 'justify-end' : 'justify-start'
+            }`}
+          >
+            {multipleParticipants && !isMe ? (
+              <ThemedText className="text-sm">{name} · </ThemedText>
+            ) : null}
+            <UpdatingDate date={message.createdAt} />
+          </View>
+        </>
+      ) : null}
     </>
   );
 };

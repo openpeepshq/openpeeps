@@ -8,7 +8,11 @@ import {
   Users,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { profileName, groupName } from '@openpeepshq/common';
+import {
+  groupName,
+  isConversationLeaveMarker,
+  profileName,
+} from '@openpeepshq/common';
 import {
   isRsvpCancelNotice,
   isWaitlistOfferNotice,
@@ -194,6 +198,9 @@ function DirectMessageNotification({
   const conversationStart = (
     notification.data as { conversationStart?: PublicPost }
   )?.conversationStart;
+  const leaveMarker =
+    !!notification.post && isConversationLeaveMarker(notification.post);
+  const name = profileName(profile);
   return (
     <NotificationWrapper profile={profile} seen={notification.seen}>
       <a
@@ -202,18 +209,24 @@ function DirectMessageNotification({
       >
         <p className="flex items-center gap-2 text-sm font-semibold">
           <MessageSquare className="size-4" />
-          {t('notification.directMessage.text', {
-            defaultValue: '{{profileName}} sent you a message',
-            profileName: profileName(profile),
-          })}
+          {leaveMarker
+            ? t('conversations.messageInThread.left', { name })
+            : t('notification.directMessage.text', {
+                defaultValue: '{{profileName}} sent you a message',
+                profileName: name,
+              })}
         </p>
-        {notification.post ? (
+        {notification.post && !leaveMarker ? (
           <>
             <ConversationMessageBubble message={notification.post} />
             <div className="text-muted-foreground mt-2 text-xs">
               <UpdatingDate date={notification.post.createdAt} />
             </div>
           </>
+        ) : notification.post ? (
+          <div className="text-muted-foreground mt-2 text-xs">
+            <UpdatingDate date={notification.post.createdAt} />
+          </div>
         ) : null}
       </a>
     </NotificationWrapper>
