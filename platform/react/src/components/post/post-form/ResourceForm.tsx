@@ -41,7 +41,10 @@ export const ResourceForm = ({
   const resource = postData.data as ResourcePost;
   const [audienceOpen, setAudienceOpen] = useState(false);
   const [tagDraft, setTagDraft] = useState('');
-  const library = useResourceLibrary(postData.groupId ?? undefined);
+  const library = useResourceLibrary(
+    postData.groupId ?? undefined,
+    !postData.groupId,
+  );
   const attachments = useComposeAttachments({
     attachments: resource.attachments ?? [],
     onChange: (next) => patchResource({ attachments: next }),

@@ -3725,6 +3725,9 @@
     },
     "meta": {
       "imagesCount": "{{count}} Bilder"
+    },
+    "group": {
+      "inGroup": "in {{groupName}}"
     }
   },
   "about": {

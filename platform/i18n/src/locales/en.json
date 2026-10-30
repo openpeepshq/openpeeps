@@ -3643,6 +3643,9 @@
     },
     "meta": {
       "imagesCount": "{{count}} images"
+    },
+    "group": {
+      "inGroup": "in {{groupName}}"
     }
   },
   "about": {

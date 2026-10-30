@@ -352,7 +352,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               href={hrefOf({ type: 'post', id: post.id })}
               className="block"
             >
-              <ResourceCard post={post} layout="list" />
+              <ResourceCard post={post} layout="list" inGroup={!!groupId} />
             </a>
           ))}
         </div>
@@ -364,7 +364,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               href={hrefOf({ type: 'post', id: post.id })}
               className="block"
             >
-              <ResourceCard post={post} layout="card" />
+              <ResourceCard post={post} layout="card" inGroup={!!groupId} />
             </a>
           ))}
         </div>

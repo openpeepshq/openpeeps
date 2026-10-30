@@ -12,14 +12,15 @@ import type {
 import {
   attachmentMediaKind,
   formatSize,
+  groupName,
   normalizeResourceTags,
 } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '@openpeepshq/react';
+import type { MainStackParamList } from '../navigation/types/index';
 import { CachedImage } from '../custom/common';
 import { ThemedText } from '../ui/themed-text';
 import { VideoPlayOverlay } from '../post/VideoPlayOverlay';
 import { TruncatedMarkdown } from '../post/TruncatedMarkdown';
-import { MainStackParamList } from '../navigation/types/index';
 import { buildGoto } from '../navigation/helpers';
 import {
   BookmarkPlusIcon,
@@ -34,6 +35,8 @@ export interface ResourceCardProps {
   preview?: ReactNode;
   /** Set false when the full description is rendered by the surrounding layout (e.g. the post detail page). */
   showDescription?: boolean;
+  /** When true, hides the group label (already shown by the group context). */
+  inGroup?: boolean;
 }
 
 const visualAttachments = (attachments: MediaAttachmentData[]) =>
@@ -62,6 +65,7 @@ export const ResourceCard = ({
   layout = 'card',
   preview,
   showDescription = true,
+  inGroup = false,
 }: ResourceCardProps) => {
   const { t } = useTranslation();
   const navigation =
@@ -117,6 +121,9 @@ export const ResourceCard = ({
 
   if (!resource) return null;
 
+  const group = post.group;
+  const groupLabel = group ? groupName(group) : null;
+
   const toggleBookmark = () => {
     if (!currentProfile) return;
     if (isBookmarked) {
@@ -139,6 +146,23 @@ export const ResourceCard = ({
       )}
     </Pressable>
   );
+
+  const renderGroupLabel = () => {
+    if (!group || !groupLabel || inGroup) return null;
+    return (
+      <Pressable
+        onPress={() => navigation.navigate('Group', { handle: group.handle })}
+        className="rounded-full bg-muted px-2 py-0.5"
+      >
+        <ThemedText className="text-xs text-muted-foreground">
+          {t('resources.group.inGroup', {
+            defaultValue: 'in {{groupName}}',
+            groupName: groupLabel,
+          })}
+        </ThemedText>
+      </Pressable>
+    );
+  };
 
   const renderThumbnail = () => {
     if (thumbSrc) {
@@ -169,6 +193,7 @@ export const ResourceCard = ({
               {resource.categoryPath.join(' / ')}
             </ThemedText>
           ) : null}
+          {renderGroupLabel()}
           {showDescription ? (
             <TruncatedMarkdown
               source={resource.content ?? ''}
@@ -277,6 +302,7 @@ export const ResourceCard = ({
           {resource.categoryPath.join(' / ')}
         </ThemedText>
       ) : null}
+      {renderGroupLabel()}
       {showDescription ? (
         <TruncatedMarkdown
           source={resource.content ?? ''}

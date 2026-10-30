@@ -8,12 +8,16 @@ import {
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useFeedListParams } from '../useResolvedFeedFormat';
 
-export const useResourceLibrary = (groupId?: string) => {
+export const useResourceLibrary = (groupId?: string, ungrouped?: boolean) => {
   const { openpeepsApi } = useOpenpeeps();
   const params = useFeedListParams({ format: 'linear' });
   const query = openpeepsApi.usePostsByType('resource', {
     ...params,
-    ...(groupId ? { groupId } : { ungrouped: 'true' as const }),
+    ...(groupId
+      ? { groupId }
+      : ungrouped
+        ? { ungrouped: 'true' as const }
+        : {}),
   });
   const bookmarkedIds = openpeepsApi.useCurrentProfileBookmarkedIds();
 

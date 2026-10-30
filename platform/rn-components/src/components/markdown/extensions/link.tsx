@@ -2,7 +2,7 @@ import React from 'react';
 import { type RenderFunction } from 'react-native-markdown-display';
 import { isExternalLink } from '@openpeepshq/common/lib';
 import { ThemedText } from '../../ui/themed-text';
-import { BASE_URL } from '../../lib/constants';
+import { BASE_URL } from '../../../lib/constants';
 
 /**
  * Custom link renderer that appends a Unicode external-link indicator
@@ -11,7 +11,7 @@ import { BASE_URL } from '../../lib/constants';
 export const linkRenderer =
   (handleLinkPress: (url: string) => void): RenderFunction =>
   (node, children, _parentNodes, styles) => {
-    const href = node.url || '';
+    const href = (node as { url?: string }).url || '';
     const origin = BASE_URL as string;
     const isExternal = isExternalLink(href, origin);
 
