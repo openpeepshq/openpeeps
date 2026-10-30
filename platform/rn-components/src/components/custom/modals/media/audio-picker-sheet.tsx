@@ -23,12 +23,14 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface AudioPickerSheetProps {
   onSelect: (audioAttachments: MediaAttachment[]) => void | Promise<void>;
+  /** When false, the sheet selects a single file (no multiple toggle). */
+  multiple?: boolean;
 }
 
 export const AudioPickerSheet = forwardRef<
   BottomSheetModal,
   AudioPickerSheetProps
->(({ onSelect }, ref) => {
+>(({ onSelect, multiple = true }, ref) => {
   const [selectedAudios, setSelectedAudios] = useState<string[]>([]);
   const [isMultipleSelect, setIsMultipleSelect] = useState(false);
   const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
@@ -122,39 +124,33 @@ export const AudioPickerSheet = forwardRef<
       <View className="flex-1">
         {renderSelectedAudiosPreview()}
 
-        <View className="flex-row justify-between items-center px-4 py-3">
-          <View className="flex-row items-center gap-4">
-            <Button
-              variant={isMultipleSelect ? 'secondary' : 'ghost'}
-              size={'sm'}
-              onPress={() => setIsMultipleSelect(!isMultipleSelect)}
-            >
-              <Text className="text-foreground text-base font-medium">
-                {t('common.form.selectMultiple')}
-              </Text>
-            </Button>
-            {/* <Button
-              variant={'outline'}
-              size={'icon'}
-              className="rounded-full"
-              onPress={handleMicrophonePress}>
-              <MicIcon size={16} className="text-foreground" />
-            </Button> */}
+        {multiple ? (
+          <View className="flex-row justify-between items-center px-4 py-3">
+            <View className="flex-row items-center gap-4">
+              <Button
+                variant={isMultipleSelect ? 'secondary' : 'ghost'}
+                size={'sm'}
+                onPress={() => setIsMultipleSelect(!isMultipleSelect)}
+              >
+                <Text className="text-foreground text-base font-medium">
+                  {t('common.form.selectMultiple')}
+                </Text>
+              </Button>
+            </View>
           </View>
-        </View>
+        ) : null}
 
         <Button
           variant={'ghost'}
           onPress={async () => {
             const result = await pick({
               type: 'audio',
-              multiple: isMultipleSelect,
+              multiple: multiple && isMultipleSelect,
             });
             if (result) {
-              setSelectedAudios([
-                ...selectedAudios,
-                ...result.map((r) => r.uri),
-              ]);
+              const uris = result.map((r) => r.uri);
+              // Single mode replaces the pick; multiple mode appends.
+              setSelectedAudios(multiple ? [...selectedAudios, ...uris] : uris);
             }
           }}
         >

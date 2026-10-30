@@ -343,9 +343,22 @@ export const ResourceForm = ({
         ) : null}
       </View>
       <ImagePickerSheet ref={imageRef} onSelect={addAttachments} />
-      <VideoPickerSheet ref={videoRef} onSelect={addAttachments} />
-      <AudioPickerSheet ref={audioRef} onSelect={addAttachments} />
-      <DocumentPickerSheet ref={documentRef} onSelect={addAttachments} />
+      {/* Only galleries take more than one file; other kinds pick one. */}
+      <VideoPickerSheet
+        ref={videoRef}
+        multiple={false}
+        onSelect={addAttachments}
+      />
+      <AudioPickerSheet
+        ref={audioRef}
+        multiple={false}
+        onSelect={addAttachments}
+      />
+      <DocumentPickerSheet
+        ref={documentRef}
+        multiple={false}
+        onSelect={addAttachments}
+      />
     </View>
   );
 };

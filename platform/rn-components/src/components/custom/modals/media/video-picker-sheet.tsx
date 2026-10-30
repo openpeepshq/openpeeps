@@ -13,6 +13,8 @@ import { bottomSheetClose } from '../../../../lib/bottom-sheet-ref';
 
 interface VideoPickerSheetProps {
   onSelect: (videoAttachments: MediaAttachment[]) => void | Promise<void>;
+  /** When false, the library picker is limited to a single video. */
+  multiple?: boolean;
 }
 
 // Videos are selected via the system photo picker (launchImageLibrary), which
@@ -21,7 +23,7 @@ interface VideoPickerSheetProps {
 export const VideoPickerSheet = forwardRef<
   BottomSheetModal,
   VideoPickerSheetProps
->(({ onSelect }, ref) => {
+>(({ onSelect, multiple = true }, ref) => {
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
@@ -54,7 +56,7 @@ export const VideoPickerSheet = forwardRef<
   const handleLibrary = async () => {
     const result = await launchImageLibrary({
       mediaType: 'video',
-      selectionLimit: 0,
+      selectionLimit: multiple ? 0 : 1,
     });
     if (result.didCancel || !result.assets?.length) {
       return;

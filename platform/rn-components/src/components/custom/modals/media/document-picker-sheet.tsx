@@ -39,6 +39,8 @@ import {
 
 interface DocumentPickerSheetProps {
   onSelect: (documentAttachments: MediaAttachment[]) => void | Promise<void>;
+  /** When false, the picker is limited to a single file. */
+  multiple?: boolean;
 }
 
 export type DocumentPickerSheetHandle = {
@@ -89,7 +91,7 @@ const mergePickedDocs = (
 export const DocumentPickerSheet = forwardRef<
   DocumentPickerSheetHandle,
   DocumentPickerSheetProps
->(({ onSelect }, ref) => {
+>(({ onSelect, multiple = true }, ref) => {
   const sheetRef = useRef<BottomSheetModal>(null);
   const descriptionSheetRef = useRef<BottomSheetModal>(null);
 
@@ -111,14 +113,16 @@ export const DocumentPickerSheet = forwardRef<
 
       const results = await pick({
         type: [...ATTACHMENT_DOCUMENT_TYPES],
-        allowMultiSelection: true,
+        allowMultiSelection: multiple,
         mode: 'import',
       });
 
-      setSelectedDocs((prev) => mergePickedDocs(prev, results));
+      setSelectedDocs((prev) =>
+        multiple ? mergePickedDocs(prev, results) : results
+      );
       return results;
     },
-    []
+    [multiple]
   );
 
   const open = useCallback(async () => {
@@ -317,18 +321,20 @@ export const DocumentPickerSheet = forwardRef<
           </View>
         ))}
 
-        <Button
-          variant="ghost"
-          className="flex-row items-center justify-center mt-2 border border-dashed border-border"
-          onPress={handlePickDocument}
-        >
-          <PlusIcon size={16} className="text-foreground mr-2" />
-          <Text className="text-foreground font-medium">
-            {t('form.documentInput.addMore', {
-              defaultValue: 'Add more files',
-            })}
-          </Text>
-        </Button>
+        {multiple ? (
+          <Button
+            variant="ghost"
+            className="flex-row items-center justify-center mt-2 border border-dashed border-border"
+            onPress={handlePickDocument}
+          >
+            <PlusIcon size={16} className="text-foreground mr-2" />
+            <Text className="text-foreground font-medium">
+              {t('form.documentInput.addMore', {
+                defaultValue: 'Add more files',
+              })}
+            </Text>
+          </Button>
+        ) : null}
       </View>
     );
   };
