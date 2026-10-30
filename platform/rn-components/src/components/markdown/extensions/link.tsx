@@ -11,7 +11,7 @@ import { BASE_URL } from '../../../lib/constants';
 export const linkRenderer =
   (handleLinkPress: (url: string) => void): RenderFunction =>
   (node, children, _parentNodes, styles) => {
-    const href = (node as { url?: string }).url || '';
+    const href = node.attributes.href || '';
     const origin = BASE_URL as string;
     const isExternal = isExternalLink(href, origin);
 
