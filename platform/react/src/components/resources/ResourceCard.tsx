@@ -26,6 +26,8 @@ export interface ResourceCardProps {
   post: PublicPost;
   layout?: 'card' | 'list';
   preview?: ReactNode;
+  /** Set false when the full description is rendered by the surrounding layout (e.g. the post detail page). */
+  showDescription?: boolean;
 }
 
 const visualAttachments = (attachments: MediaAttachmentData[]) =>
@@ -107,6 +109,7 @@ export const ResourceCard = ({
   post,
   layout = 'card',
   preview,
+  showDescription = true,
 }: ResourceCardProps) => {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
@@ -218,13 +221,15 @@ export const ResourceCard = ({
               {resource.categoryPath.join(' / ')}
             </p>
           ) : null}
-          <TruncatedMarkdown
-            source={resource.content ?? ''}
-            maxBlocks={2}
-            maxChars={240}
-            maxLines={2}
-            className="text-sm text-muted-foreground"
-          />
+          {showDescription ? (
+            <TruncatedMarkdown
+              source={resource.content ?? ''}
+              maxBlocks={2}
+              maxChars={240}
+              maxLines={2}
+              className="text-sm text-muted-foreground"
+            />
+          ) : null}
           {metaText ? (
             <p className="text-muted-foreground text-xs">{metaText}</p>
           ) : null}
@@ -309,13 +314,15 @@ export const ResourceCard = ({
           {resource.categoryPath.join(' / ')}
         </p>
       ) : null}
-      <TruncatedMarkdown
-        source={resource.content ?? ''}
-        maxBlocks={2}
-        maxChars={240}
-        maxLines={2}
-        className="text-sm text-muted-foreground"
-      />
+      {showDescription ? (
+        <TruncatedMarkdown
+          source={resource.content ?? ''}
+          maxBlocks={2}
+          maxChars={240}
+          maxLines={2}
+          className="text-sm text-muted-foreground"
+        />
+      ) : null}
       {metaText ? (
         <p className="text-muted-foreground text-xs">{metaText}</p>
       ) : null}
