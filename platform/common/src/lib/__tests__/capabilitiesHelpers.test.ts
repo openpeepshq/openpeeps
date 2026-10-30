@@ -3,6 +3,7 @@ import {
   checkCapabilities,
   mergeCapabilities,
   checkRoleCapabilities,
+  canCreateGroup,
   hasAdminSidebarAccess,
   isLocal,
   localOrNone,
@@ -24,6 +25,7 @@ import {
   checkAccountCreateAuthorization,
   ACCOUNT_CREATE_CAPABILITY,
 } from '../capabilitiesHelpers';
+import { defaultRoles } from '../../types/roleDefaults';
 import type {
   AccessTokenWithMeta,
   AuthorizationData,
@@ -326,6 +328,24 @@ describe('capabilitiesHelpers', () => {
           cap,
         ).success,
       ).toBe(true);
+    });
+  });
+
+  describe('canCreateGroup', () => {
+    const roles = (key: string) =>
+      defaultRoles.filter((role) => role.key === key) as Role[];
+
+    it('allows members, moderators, admins, and owners', () => {
+      expect(canCreateGroup(roles('member'))).toBe(true);
+      expect(canCreateGroup(roles('moderator'))).toBe(true);
+      expect(canCreateGroup(roles('admin'))).toBe(true);
+      expect(canCreateGroup(roles('owner'))).toBe(true);
+    });
+
+    it('denies pending members, limited members, and viewers with no roles', () => {
+      expect(canCreateGroup(roles('pendingmember'))).toBe(false);
+      expect(canCreateGroup(roles('limitedmember'))).toBe(false);
+      expect(canCreateGroup([])).toBe(false);
     });
   });
 

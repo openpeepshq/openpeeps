@@ -13,7 +13,7 @@ import { Label } from '../../components/ui/label';
 
 type NewGroupProps = MainScreenProps<'CreateGroup'>;
 
-export const NewGroup: React.FC<NewGroupProps> = () => {
+export const NewGroup: React.FC<NewGroupProps> = ({ navigation }) => {
   const { t } = useTranslation();
   const me = useCurrentProfile();
   const {
@@ -25,6 +25,7 @@ export const NewGroup: React.FC<NewGroupProps> = () => {
     error,
     clearError,
     fieldErrors,
+    canCreate,
     submit,
   } = useNewGroup();
 
@@ -34,19 +35,31 @@ export const NewGroup: React.FC<NewGroupProps> = () => {
     clearError();
   }, [error, clearError]);
 
+  React.useEffect(() => {
+    if (me && !canCreate) {
+      navigation.navigate('TabNavigator', { screen: 'Groups' });
+    }
+  }, [canCreate, me, navigation]);
+
   useSetPageHeader(
-    t('groups.new.title', { defaultValue: 'Create group' }),
-    <HeaderActionButton
-      title={
-        submitting
-          ? t('common.submitting', { defaultValue: 'Creating…' })
-          : t('common.submit', { defaultValue: 'Create group' })
-      }
-      onPress={() => void submit()}
-      disabled={submitting}
-      loading={submitting}
-    />
+    canCreate
+      ? t('groups.new.title', { defaultValue: 'Create group' })
+      : undefined,
+    canCreate ? (
+      <HeaderActionButton
+        title={
+          submitting
+            ? t('common.submitting', { defaultValue: 'Creating…' })
+            : t('common.submit', { defaultValue: 'Create group' })
+        }
+        onPress={() => void submit()}
+        disabled={submitting}
+        loading={submitting}
+      />
+    ) : undefined
   );
+
+  if (!canCreate) return null;
 
   return (
     <ThemedView className="flex-1">
