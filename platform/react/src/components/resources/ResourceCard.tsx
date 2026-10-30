@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
+  AudioLines,
   BookmarkCheck,
   BookmarkPlus,
   Link as LinkIcon,
@@ -36,8 +37,12 @@ export interface ResourceCardProps {
   inGroup?: boolean;
 }
 
+// Audio attachments render their generated waveform preview like any other
+// visual; without one they fall back to the kind placeholder below.
 const visualAttachments = (attachments: MediaAttachmentData[]) =>
-  attachments.filter((att) => attachmentMediaKind(att) !== 'audio');
+  attachments.filter(
+    (att) => attachmentMediaKind(att) !== 'audio' || !!att.previewUrl,
+  );
 
 const previewSrc = (att: MediaAttachmentData) => att.previewUrl ?? att.url;
 
@@ -300,6 +305,13 @@ export const ResourceCard = ({
         />
       );
     }
+    if (resource.resourceKind === 'audio') {
+      return (
+        <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-md">
+          <AudioLines className="text-muted-foreground size-5" />
+        </div>
+      );
+    }
     if (resource.resourceKind === 'link' && resource.url) {
       return (
         <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-md">
@@ -399,6 +411,10 @@ export const ResourceCard = ({
                 </div>
               );
             })}
+          </div>
+        ) : resource.resourceKind === 'audio' ? (
+          <div className="bg-muted flex h-48 w-full items-center justify-center rounded-md">
+            <AudioLines className="text-muted-foreground/50 size-8" />
           </div>
         ) : resource.resourceKind === 'link' && resource.url ? (
           <div className="bg-muted flex h-48 w-full items-center justify-center rounded-md">

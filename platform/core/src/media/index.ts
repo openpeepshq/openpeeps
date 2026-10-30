@@ -438,7 +438,15 @@ const renderWaveform = (
 
 const createAudioPreview = async (inputPath: string): Promise<MediaFile> => {
   const outputPath = join(tmpdir(), `preview-${randomString(16)}.png`);
-  const color = waveformColor(getTheme(await communityConfig()).primaryHex);
+  // The waveform color is cosmetic: an unreadable community config must not
+  // block preview generation, so fall back to the default theme primary.
+  let primaryHex = '#15678a';
+  try {
+    primaryHex = getTheme(await communityConfig()).primaryHex;
+  } catch {
+    // keep default
+  }
+  const color = waveformColor(primaryHex);
   try {
     await renderWaveform(inputPath, outputPath, color);
     return { path: outputPath, mimetype: 'image/png' };
