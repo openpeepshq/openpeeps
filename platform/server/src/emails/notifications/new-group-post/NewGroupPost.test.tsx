@@ -25,7 +25,7 @@ const globals = {
   timeZone: 'UTC',
 } as unknown as EmailGlobals;
 
-const notification = (type: 'note' | 'event', repost = false) =>
+const notification = (type: 'note' | 'event' | 'resource', repost = false) =>
   ({
     id: 'notification-1',
     profileId: 'member',
@@ -62,11 +62,19 @@ const notification = (type: 'note' | 'event', repost = false) =>
               wholeDay: false,
               timeZone: 'UTC',
             }
-          : { type: 'note', content: 'Hello group' },
+          : type === 'resource'
+            ? {
+                type: 'resource',
+                title: 'Example resource',
+                resourceKind: 'link',
+                url: 'https://example.com',
+                content: 'A useful link',
+              }
+            : { type: 'note', content: 'Hello group' },
     },
   }) as unknown as Record<string, Json>;
 
-const render = (type: 'note' | 'event', repost = false) =>
+const render = (type: 'note' | 'event' | 'resource', repost = false) =>
   reactEmailRenderer(template)({
     to: 'member@example.com',
     template: 'notification-newGroupPost',
@@ -98,5 +106,14 @@ describe('new group post notification email', () => {
     const { subject } = await render('event', true);
 
     expect(subject).toContain('emails.newGroupPost.repostSubject');
+  });
+
+  it('renders the resource embed when the group post is a resource', async () => {
+    const { html } = await render('resource');
+
+    expect(html).toContain('Example resource');
+    // Regression for #1753: ResourceCard used app providers that are absent
+    // in static email renders, which replaced the post with an error dump.
+    expect(html).not.toContain('OpenpeepsProvider');
   });
 });

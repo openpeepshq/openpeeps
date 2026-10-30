@@ -7,6 +7,7 @@ import {
   ImageOff,
 } from 'lucide-react';
 import type {
+  GroupWithMeta,
   MediaAttachmentData,
   PublicPost,
   ResourceKind,
@@ -17,13 +18,13 @@ import {
   groupName,
   normalizeResourceTags,
 } from '@openpeepshq/common/lib';
-import { useHrefOf } from '../../contexts/router';
+import { useHrefOf, useNavigate } from '../../contexts/router';
 import { useT } from '../../i18n';
+import { useStaticRender } from '../markdown/staticRender';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { VideoPlayOverlay } from '../post/VideoPlayOverlay';
 import { TruncatedMarkdown } from '../post/TruncatedMarkdown';
-import { useNavigate } from '../../contexts/router';
 
 export interface ResourceCardProps {
   post: PublicPost;
@@ -57,6 +58,108 @@ const primaryActionLabel = (kind: ResourceKind, t: ReturnType<typeof useT>) => {
     default:
       return null;
   }
+};
+
+/**
+ * Bookmark toggle. Lives in its own component so ResourceCard itself stays
+ * free of app providers (OpenpeepsProvider, IdentityContext, RouterProvider)
+ * and can render in provider-less static contexts such as notification emails.
+ */
+const ResourceSaveButton = ({
+  postId,
+  className,
+}: {
+  postId: string;
+  className: string;
+}) => {
+  const t = useT();
+  const { openpeepsApi } = useOpenpeeps();
+  const me = useCurrentProfile();
+  const bookmarkedIdsQuery = openpeepsApi.useCurrentProfileBookmarkedIds();
+  const bookmarkPost = openpeepsApi.bookmarkPostAction({ id: postId });
+  const unbookmarkPost = openpeepsApi.unbookmarkPostAction({ id: postId });
+  const isBookmarked = bookmarkedIdsQuery.data?.includes(postId) ?? false;
+
+  const toggleBookmark = () => {
+    if (!me) return;
+    if (isBookmarked) {
+      unbookmarkPost(undefined);
+    } else {
+      bookmarkPost(undefined);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleBookmark();
+      }}
+      disabled={!me}
+      className={className}
+      title={
+        isBookmarked
+          ? t('resources.actions.saved', { defaultValue: 'Saved' })
+          : t('resources.actions.save', { defaultValue: 'Save' })
+      }
+    >
+      {isBookmarked ? (
+        <BookmarkCheck className="text-primary size-4" />
+      ) : (
+        <BookmarkPlus className="size-4" />
+      )}
+    </button>
+  );
+};
+
+/**
+ * Clickable hashtag chip. Child component like ResourceSaveButton so the
+ * router hook stays out of ResourceCard's static (email) render path.
+ */
+const ResourceTagChip = ({ value }: { value: string }) => {
+  const navigate = useNavigate();
+  return (
+    <button
+      type="button"
+      className="bg-muted text-muted-foreground hover:text-foreground rounded-full px-2 py-0.5 text-xs"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        navigate({ type: 'tags', hashtag: value });
+      }}
+    >
+      #{value}
+    </button>
+  );
+};
+
+/** Clickable group label. Child component so the router hook stays out of the static render path. */
+const ResourceGroupLabel = ({ group }: { group: GroupWithMeta }) => {
+  const t = useT();
+  const hrefOf = useHrefOf();
+  const groupLabel = groupName(group);
+  return (
+    <a
+      href={hrefOf({ type: 'group', handle: group.handle })}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+      className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs"
+      title={t('resources.group.inGroup', {
+        defaultValue: 'in {{groupName}}',
+        groupName: groupLabel,
+      })}
+    >
+      <span className="bg-muted rounded-full px-2 py-0.5 text-xs">
+        {t('resources.group.inGroup', {
+          defaultValue: 'in {{groupName}}',
+          groupName: groupLabel,
+        })}
+      </span>
+    </a>
+  );
 };
 
 const MediaPreview = ({
@@ -118,19 +221,17 @@ export const ResourceCard = ({
   inGroup = false,
 }: ResourceCardProps) => {
   const t = useT();
-  const navigate = useNavigate();
-  const hrefOf = useHrefOf();
-  const { openpeepsApi } = useOpenpeeps();
-  const me = useCurrentProfile();
-  if (post.data?.type !== 'resource') return null;
-  const resource = post.data;
-  const attachments = resource.attachments ?? [];
+  const { enabled: staticRender } = useStaticRender();
+  const resource = post.data?.type === 'resource' ? post.data : undefined;
+  const attachments = resource?.attachments ?? [];
   const visuals = visualAttachments(attachments);
-  const tags = normalizeResourceTags(resource.tags);
-  const isGallery = resource.resourceKind === 'gallery' && visuals.length > 1;
+  const tags = normalizeResourceTags(resource?.tags);
+  const isGallery = resource?.resourceKind === 'gallery' && visuals.length > 1;
   const tiles = isGallery ? visuals.slice(0, 4) : visuals.slice(0, 1);
   const extra = isGallery ? Math.max(0, visuals.length - 4) : 0;
-  const actionLabel = primaryActionLabel(resource.resourceKind, t);
+  const actionLabel = resource
+    ? primaryActionLabel(resource.resourceKind, t)
+    : null;
   const thumbnail = visuals[0];
   const thumbSrc = thumbnail ? previewSrc(thumbnail) : null;
 
@@ -138,6 +239,7 @@ export const ResourceCard = ({
   const groupLabel = group ? groupName(group) : null;
 
   const metaText = useMemo(() => {
+    if (!resource) return null;
     if (resource.resourceKind === 'gallery' && visuals.length > 1) {
       return t('resources.meta.imagesCount', {
         defaultValue: '{{count}} images',
@@ -153,74 +255,36 @@ export const ResourceCard = ({
     const size = fileAtt?.meta?.size;
     if (size) return formatSize(size);
     return null;
-  }, [resource.resourceKind, visuals, attachments, t]);
+  }, [resource, visuals, attachments, t]);
 
-  const bookmarkedIdsQuery = openpeepsApi.useCurrentProfileBookmarkedIds();
-  const isBookmarked = bookmarkedIdsQuery.data?.includes(post.id) ?? false;
-  const bookmarkPost = openpeepsApi.bookmarkPostAction({ id: post.id });
-  const unbookmarkPost = openpeepsApi.unbookmarkPostAction({ id: post.id });
-
-  const toggleBookmark = () => {
-    if (!me) return;
-    if (isBookmarked) {
-      unbookmarkPost(undefined);
-    } else {
-      bookmarkPost(undefined);
-    }
-  };
+  if (!resource) return null;
 
   const downloadUrl =
     resource.resourceKind === 'file'
       ? attachments.find((att) => attachmentMediaKind(att) === 'file')?.url
       : null;
 
-  const renderBookmarkButton = (className: string) => (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleBookmark();
-      }}
-      disabled={!me}
-      className={className}
-      title={
-        isBookmarked
-          ? t('resources.actions.saved', { defaultValue: 'Saved' })
-          : t('resources.actions.save', { defaultValue: 'Save' })
-      }
-    >
-      {isBookmarked ? (
-        <BookmarkCheck className="text-primary size-4" />
-      ) : (
-        <BookmarkPlus className="size-4" />
-      )}
-    </button>
-  );
+  const renderSaveButton = (className: string) =>
+    staticRender ? null : (
+      <ResourceSaveButton postId={post.id} className={className} />
+    );
 
   const renderGroupLabel = () => {
     if (!group || !groupLabel || inGroup) return null;
-    const groupHref = hrefOf({ type: 'group', handle: group.handle });
-    return (
-      <a
-        href={groupHref}
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs"
-        title={t('resources.group.inGroup', {
-          defaultValue: 'in {{groupName}}',
-          groupName: groupLabel,
-        })}
-      >
-        <span className="bg-muted rounded-full px-2 py-0.5 text-xs">
-          {t('resources.group.inGroup', {
-            defaultValue: 'in {{groupName}}',
-            groupName: groupLabel,
-          })}
+    const label = t('resources.group.inGroup', {
+      defaultValue: 'in {{groupName}}',
+      groupName: groupLabel,
+    });
+    if (staticRender) {
+      return (
+        <span className="text-muted-foreground inline-flex items-center gap-1 text-xs">
+          <span className="bg-muted rounded-full px-2 py-0.5 text-xs">
+            {label}
+          </span>
         </span>
-      </a>
-    );
+      );
+    }
+    return <ResourceGroupLabel group={group} />;
   };
 
   const renderThumbnail = () => {
@@ -264,6 +328,7 @@ export const ResourceCard = ({
               maxBlocks={2}
               maxChars={240}
               maxLines={2}
+              interactive={!staticRender}
               className="text-sm text-muted-foreground"
             />
           ) : null}
@@ -289,7 +354,7 @@ export const ResourceCard = ({
               </span>
             )
           ) : null}
-          {renderBookmarkButton(
+          {renderSaveButton(
             'text-muted-foreground hover:text-foreground disabled:opacity-50',
           )}
         </div>
@@ -340,7 +405,7 @@ export const ResourceCard = ({
             <LinkIcon className="text-muted-foreground/50 size-8" />
           </div>
         ) : null}
-        {renderBookmarkButton(
+        {renderSaveButton(
           'bg-background text-muted-foreground hover:text-foreground absolute right-2 top-2 rounded-full p-1 opacity-70 hover:opacity-100 disabled:opacity-50',
         )}
       </div>
@@ -358,6 +423,7 @@ export const ResourceCard = ({
           maxBlocks={2}
           maxChars={240}
           maxLines={2}
+          interactive={!staticRender}
           className="text-sm text-muted-foreground"
         />
       ) : null}
@@ -366,20 +432,18 @@ export const ResourceCard = ({
       ) : null}
       {tags.length ? (
         <div className="flex flex-wrap gap-1">
-          {tags.map((value) => (
-            <button
-              key={value}
-              type="button"
-              className="bg-muted text-muted-foreground hover:text-foreground rounded-full px-2 py-0.5 text-xs"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                navigate({ type: 'tags', hashtag: value });
-              }}
-            >
-              #{value}
-            </button>
-          ))}
+          {tags.map((value) =>
+            staticRender ? (
+              <span
+                key={value}
+                className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs"
+              >
+                #{value}
+              </span>
+            ) : (
+              <ResourceTagChip key={value} value={value} />
+            ),
+          )}
         </div>
       ) : null}
       <p className="text-muted-foreground text-xs uppercase">
