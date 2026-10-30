@@ -21,6 +21,7 @@ import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { VideoPlayOverlay } from '../post/VideoPlayOverlay';
 import { TruncatedMarkdown } from '../post/TruncatedMarkdown';
+import { useNavigate } from '../../contexts/router';
 
 export interface ResourceCardProps {
   post: PublicPost;
@@ -112,6 +113,7 @@ export const ResourceCard = ({
   showDescription = true,
 }: ResourceCardProps) => {
   const t = useT();
+  const navigate = useNavigate();
   const { openpeepsApi } = useOpenpeeps();
   const me = useCurrentProfile();
   if (post.data?.type !== 'resource') return null;
@@ -329,12 +331,18 @@ export const ResourceCard = ({
       {tags.length ? (
         <div className="flex flex-wrap gap-1">
           {tags.map((value) => (
-            <span
+            <button
               key={value}
-              className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs"
+              type="button"
+              className="bg-muted text-muted-foreground hover:text-foreground rounded-full px-2 py-0.5 text-xs"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                navigate({ type: 'tags', hashtag: value });
+              }}
             >
               #{value}
-            </span>
+            </button>
           ))}
         </div>
       ) : null}

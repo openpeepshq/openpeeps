@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Linking, Pressable, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import type {
   MediaAttachmentData,
@@ -17,6 +19,8 @@ import { CachedImage } from '../custom/common';
 import { ThemedText } from '../ui/themed-text';
 import { VideoPlayOverlay } from '../post/VideoPlayOverlay';
 import { TruncatedMarkdown } from '../post/TruncatedMarkdown';
+import { MainStackParamList } from '../navigation/types/index';
+import { buildGoto } from '../navigation/helpers';
 import {
   BookmarkPlusIcon,
   BookmarkMinusIcon,
@@ -60,6 +64,9 @@ export const ResourceCard = ({
   showDescription = true,
 }: ResourceCardProps) => {
   const { t } = useTranslation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+  const goto = buildGoto(navigation);
   const { openpeepsApi } = useOpenpeeps();
   const { data: currentProfile } = openpeepsApi.useCurrentProfile();
   const bookmarkedIdsQuery = openpeepsApi.useCurrentProfileBookmarkedIds();
@@ -287,12 +294,17 @@ export const ResourceCard = ({
       {tags.length ? (
         <View className="flex-row flex-wrap gap-1">
           {tags.map((value) => (
-            <ThemedText
+            <Pressable
               key={value}
-              className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+              onPress={() =>
+                goto({ target: 'HashtagPosts', params: { tag: value } })
+              }
+              className="rounded-full bg-muted px-2 py-0.5"
             >
-              #{value}
-            </ThemedText>
+              <ThemedText className="text-xs text-muted-foreground">
+                #{value}
+              </ThemedText>
+            </Pressable>
           ))}
         </View>
       ) : null}
