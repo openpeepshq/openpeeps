@@ -1,8 +1,16 @@
 import { useState } from 'react';
+import {
+  canReportAuthor,
+  reportedMediaFromAttachment,
+} from '@openpeepshq/common/lib';
 import type {
   MediaAttachmentData,
   PublicPost,
+  ReportedMedia,
 } from '@openpeepshq/common/types';
+import { useT } from '../../../i18n';
+import { useCurrentProfile } from '../../layout/IdentityContext';
+import { ReportProfileOrPostModal } from '../../profile/ReportProfileOrPostModal';
 import { useStaticRender } from '../../markdown/staticRender';
 import { VideoPlayOverlay } from '../VideoPlayOverlay';
 import { AudioAttachment, isAudioAttachment } from './AudioAttachment';
@@ -23,9 +31,21 @@ const isVideo = (att: MediaAttachmentData) =>
   att.type === 'video' || att.meta?.mimetype?.startsWith('video/');
 
 export function Attachments({ post }: AttachmentsProps) {
+  const t = useT();
+  const me = useCurrentProfile();
   const { enabled: staticRender } = useStaticRender();
   const attachments = attachmentsOf(post);
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
+  const [reporting, setReporting] = useState<ReportedMedia | null>(null);
+  const canReport =
+    !staticRender && canReportAuthor(me?.id, me?.roles, post.profile?.id);
+
+  const reportAttachment = (attachment: MediaAttachmentData) => {
+    const media = reportedMediaFromAttachment(attachment);
+    if (!media) return;
+    setGalleryIndex(null);
+    setReporting(media);
+  };
 
   if (attachments.length === 0) return null;
 
@@ -35,30 +55,63 @@ export function Attachments({ post }: AttachmentsProps) {
   const inline =
     sole && (isAudioAttachment(sole) || isVideo(sole)) ? sole : undefined;
 
+  const reportControl = (attachment: MediaAttachmentData) =>
+    canReport && reportedMediaFromAttachment(attachment) ? (
+      <button
+        type="button"
+        className="text-destructive mt-1 self-end text-xs font-medium"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          reportAttachment(attachment);
+        }}
+      >
+        {t('common.actions.reportMedia', { defaultValue: 'Report file' })}
+      </button>
+    ) : null;
+
+  const reportModal = reporting ? (
+    <ReportProfileOrPostModal
+      reportType="media"
+      post={post}
+      media={reporting}
+      open
+      onClose={() => setReporting(null)}
+    />
+  ) : null;
+
   if (inline && isVideo(inline)) {
     return (
-      <div className="bg-surface mt-2 w-full overflow-hidden rounded-md">
-        <video
-          src={inline.url}
-          poster={inline.previewUrl ?? undefined}
-          controls
-          playsInline
-          preload="metadata"
-          className="max-h-[70vh] w-full"
-        />
-      </div>
+      <>
+        <div className="bg-surface mt-2 flex w-full flex-col overflow-hidden rounded-md">
+          <video
+            src={inline.url}
+            poster={inline.previewUrl ?? undefined}
+            controls
+            playsInline
+            preload="metadata"
+            className="max-h-[70vh] w-full"
+          />
+          {reportControl(inline)}
+        </div>
+        {reportModal}
+      </>
     );
   }
 
   if (inline) {
     return (
-      <div className="mt-2">
-        <AudioAttachment
-          src={inline.url}
-          label={inline.filename ?? inline.description}
-          size={inline.meta?.size}
-        />
-      </div>
+      <>
+        <div className="mt-2 flex flex-col">
+          <AudioAttachment
+            src={inline.url}
+            label={inline.filename ?? inline.description}
+            size={inline.meta?.size}
+          />
+          {reportControl(inline)}
+        </div>
+        {reportModal}
+      </>
     );
   }
 
@@ -148,8 +201,11 @@ export function Attachments({ post }: AttachmentsProps) {
           attachments={attachments}
           initialIndex={galleryIndex}
           onClose={() => setGalleryIndex(null)}
+          onReport={canReport ? reportAttachment : undefined}
         />
       ) : null}
+
+      {reportModal}
     </>
   );
 }
