@@ -152,6 +152,10 @@ ARG ENVIRONMENT
 RUN apk add --no-cache \
     dumb-init \
     ffmpeg \
+    font-noto \
+    font-noto-cjk \
+    fontconfig \
+    font-dejavu \
     git \
     libreoffice \
     tini \

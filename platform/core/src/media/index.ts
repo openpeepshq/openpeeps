@@ -21,6 +21,18 @@ const log = logger('app:media');
 
 const previewMaxWidth = 700;
 
+/**
+ * Thrown when file content does not match its declared type (e.g. a text file
+ * renamed to `.jpg`). The upload handler maps this to HTTP 400 so the client
+ * gets a clear message instead of a 500.
+ */
+export class MediaContentError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'MediaContentError';
+  }
+}
+
 const initStorage = async () => {
   const {
     media: {
@@ -159,7 +171,7 @@ export const createPreview = async (
 ): Promise<MediaFile> => {
   switch (mimetype.split('/')[0]) {
     case 'image':
-      return createImagePreview(inputPath, mimetype);
+      return createImagePreview(inputPath);
     case 'audio':
       return createAudioPreview(inputPath);
     case 'video':
@@ -172,24 +184,17 @@ export const createPreview = async (
   }
 };
 
-const createImagePreview = async (
-  inputPath: string,
-  mimetype: string,
-): Promise<MediaFile> => {
-  const width = await sharp(inputPath)
-    .metadata()
-    .then((m) => m.width || 0);
-
-  if (width <= previewMaxWidth) {
-    return { path: inputPath, mimetype };
-  }
-
+const createImagePreview = async (inputPath: string): Promise<MediaFile> => {
   const outputPath = join(tmpdir(), `preview-${randomString(16)}.webp`);
-  await sharp(inputPath)
-    .rotate()
-    .resize(previewMaxWidth)
-    .webp()
-    .toFile(outputPath);
+  try {
+    await sharp(inputPath)
+      .rotate()
+      .resize(previewMaxWidth)
+      .webp({ quality: 80 })
+      .toFile(outputPath);
+  } catch {
+    throw new MediaContentError("This file isn't a supported image.");
+  }
   return { path: outputPath, mimetype: 'image/webp' };
 };
 
@@ -211,6 +216,18 @@ const createPdfPreview = async (inputPath: string): Promise<MediaFile> => {
     .resize(previewMaxWidth)
     .webp({ quality: 80 })
     .toFile(outputPath);
+  // sharp/poppler may produce a blank or corrupt thumbnail without erroring
+  // when fonts are missing (text renders as tofu rectangles) or the PDF page is
+  // genuinely empty. Validate the output so callers fall back to the document
+  // card preview, which shows the filename instead of garbled content.
+  const { size } = await fs.stat(outputPath);
+  if (size < 100) {
+    throw new Error('PDF preview rendered to empty image');
+  }
+  const stats = await sharp(outputPath).stats();
+  if (stats.channels.every((c) => c.stdev < 2)) {
+    throw new Error('PDF preview rendered to blank image');
+  }
   return { path: outputPath, mimetype: 'image/webp' };
 };
 

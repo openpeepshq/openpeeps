@@ -1,5 +1,5 @@
 import { endpoint } from '#lib/endpoint';
-import { forbidden, payloadTooLarge } from '#lib/errors';
+import { badRequest, forbidden, payloadTooLarge } from '#lib/errors';
 import {
   mediaAttachmentSchema,
   mediaStorageRequestSchema,
@@ -10,6 +10,7 @@ export const Input = mediaStorageRequestSchema;
 export const Output = mediaAttachmentSchema;
 
 export const Error = {
+  400: badRequest(),
   403: forbidden(),
   413: payloadTooLarge(),
 };
