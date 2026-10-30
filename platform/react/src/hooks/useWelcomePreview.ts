@@ -11,7 +11,10 @@ export type WelcomePreviewContent = {
   /** Short label above the title. Omitted when it would repeat the title. */
   eyebrow?: string;
   title: string;
+  /** Plain-text excerpt (image-stripped) for non-markdown consumers / fallback. */
   description: string;
+  /** Raw welcome markdown (image-bearing) for markdown rendering + overlays. */
+  markdown: string;
   imageUrl?: string;
   imageFit: 'cover' | 'contain';
 };
@@ -51,6 +54,7 @@ export const useWelcomePreview = (
       : t('welcome.defaultIntro', {
           defaultValue: 'Welcome to this community, hosted on AllPeep.',
         }),
+    markdown: configured,
     imageUrl: markdownImage || logo || undefined,
     imageFit: markdownImage ? 'cover' : 'contain',
   };

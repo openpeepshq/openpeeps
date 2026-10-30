@@ -2,8 +2,7 @@ import { ArrowRight } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { useT } from '../../../i18n';
 import { resolveStaticUrl, useStaticRender } from '../../markdown/staticRender';
-import { PostMarkdown } from '../Markdown';
-import { OPENPEEPS_POST_CAPTION_CLASS } from '../../markdown/classes';
+import { TruncatedMarkdown } from '../TruncatedMarkdown';
 import { firstNWords } from '../helpers';
 import { minutesToRead } from '@openpeepshq/common/lib';
 
@@ -41,9 +40,10 @@ export function FeedArticle({ post }: FeedArticleProps) {
           </p>
         )}
       </div>
-      <PostMarkdown
-        source={`${previewContent}${showReadMore ? '...' : ''}`}
-        className={OPENPEEPS_POST_CAPTION_CLASS}
+      <TruncatedMarkdown
+        source={article.content ?? ''}
+        snippet={previewContent}
+        interactive={false}
       />
       {showReadMore && (
         <div className="flex justify-end">

@@ -8,16 +8,13 @@ import type {
   PublicReplyPost,
   Question,
 } from '@openpeepshq/common/types';
-import {
-  formatEventWhen,
-  isHiddenPost,
-  markdownPlainText,
-} from '@openpeepshq/common/lib';
+import { formatEventWhen, isHiddenPost } from '@openpeepshq/common/lib';
 import { AudioLines, Calendar, CirclePlay, Paperclip } from 'lucide-react';
 import { cn } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { Avatar } from '../profile';
 import { isAudioAttachment } from './pieces/AudioAttachment';
+import { TruncatedMarkdown } from './TruncatedMarkdown';
 
 export type CompactPost = Pick<
   PublicReplyPost,
@@ -119,7 +116,6 @@ const compactThumb = (post: CompactPost, t: TFunction): ReactNode => {
 const CompactNoteBody = ({ post, t }: { post: CompactPost; t: TFunction }) => {
   if (post.data?.type !== 'note') return null;
   const attachments = attachmentsOf(post);
-  const text = markdownPlainText(post.data.content);
   const hasVisual = !!visualAttachment(attachments);
   const file = !hasVisual ? attachments[0] : undefined;
   const audio = !!file && isAudioAttachment(file);
@@ -129,10 +125,16 @@ const CompactNoteBody = ({ post, t }: { post: CompactPost; t: TFunction }) => {
         ? t('posts.compact.audio', { defaultValue: 'Audio' })
         : t('posts.compact.document', { defaultValue: 'Document' }))
     : undefined;
-  if (!text && !docName) return null;
+  if (!post.data.content && !docName) return null;
   return (
     <>
-      {text ? <p className="line-clamp-2 break-words text-sm">{text}</p> : null}
+      <TruncatedMarkdown
+        source={post.data.content ?? ''}
+        maxBlocks={1}
+        maxChars={80}
+        maxLines={1}
+        className="break-words text-sm text-muted-foreground"
+      />
       {docName ? (
         <p className="text-muted-foreground flex items-center gap-1 text-xs">
           {audio ? (
@@ -156,11 +158,16 @@ const CompactQuestionBody = ({
 }) => {
   if (post.data?.type !== 'question') return null;
   const data = post.data as Question;
-  const text = markdownPlainText(data.content);
   const optionCount = data.options?.length ?? 0;
   return (
     <>
-      {text ? <p className="line-clamp-2 break-words text-sm">{text}</p> : null}
+      <TruncatedMarkdown
+        source={data.content ?? ''}
+        maxBlocks={1}
+        maxChars={80}
+        maxLines={1}
+        className="break-words text-sm text-muted-foreground"
+      />
       {optionCount > 0 ? (
         <p className="text-muted-foreground truncate text-xs">
           {t('posts.compact.pollOptions', {

@@ -10,6 +10,7 @@ import {
   matchMentionHandles,
   minutesToRead,
   preprocessMarkdownSource,
+  stripMarkdownImages,
   toGotoUrl,
   truncateMarkdown,
 } from '../markdownHelpers';
@@ -175,6 +176,29 @@ describe('preprocessMarkdownSource', () => {
   });
 });
 
+describe('stripMarkdownImages', () => {
+  it('removes inline images, keeps surrounding text', () => {
+    const out = stripMarkdownImages('Hi ![alt](https://e.com/i.png) bye');
+    expect(out).not.toContain('![');
+    expect(out).toContain('Hi');
+    expect(out).toContain('bye');
+  });
+
+  it('removes a linked image, keeps the surrounding text', () => {
+    const out = stripMarkdownImages(
+      'See [![alt](i.png)](https://e.com) and **bold**',
+    );
+    expect(out).not.toContain('![');
+    expect(out).not.toContain('](i.png)');
+    expect(out).toContain('and **bold**');
+  });
+
+  it('returns empty for missing input', () => {
+    expect(stripMarkdownImages(undefined)).toBe('');
+    expect(stripMarkdownImages('')).toBe('');
+  });
+});
+
 describe('markdownPlainText', () => {
   it('drops heading marks, emphasis, and inline code', () => {
     expect(
@@ -243,6 +267,70 @@ describe('truncateMarkdown', () => {
   it('handles content shorter than maxChars with extra blocks', () => {
     const md = 'Keep this.\n\nAnd this too.';
     expect(truncateMarkdown(md, 1, 200)).toBe('Keep this.…');
+  });
+});
+
+describe('truncateMarkdown keeps inline markdown valid', () => {
+  it('does not sever a markdown link across the cut', () => {
+    // plain 'ab ' (3) + link '[d](u)' (6) fit within 9; truncation happens after
+    expect(truncateMarkdown('ab [d](u) rest of the line', 1, 9)).toBe(
+      'ab [d](u)…',
+    );
+  });
+
+  it('does not sever an image link, and drops it rather than breaking syntax', () => {
+    // The protected span `![a](u)` (7) plus leading 'x ' (2) = 9 ≤ budget; kept whole.
+    expect(truncateMarkdown('x ![a](u) tail here', 1, 9)).toBe('x ![a](u)…');
+  });
+
+  it('omits a protected span that would not fit whole (no raw link syntax)', () => {
+    const result = truncateMarkdown(
+      'See [docs](https://example.com/path) here',
+      1,
+      12,
+    );
+    expect(result).not.toContain('[');
+    expect(result).not.toContain('](');
+    expect(result.endsWith('…')).toBe(true);
+  });
+
+  it('closes emphasis left open by a word-boundary cut', () => {
+    expect(
+      truncateMarkdown(
+        'some **very long bold text** continues past here',
+        1,
+        15,
+      ),
+    ).toBe('some **very**…');
+  });
+
+  it('closes single-char emphasis left open by a cut', () => {
+    expect(truncateMarkdown('a *bold text here continues', 1, 8)).toBe(
+      'a *bold*…',
+    );
+  });
+
+  it('closes an inline code span left open by a cut', () => {
+    expect(truncateMarkdown('a `code span` more text', 1, 8)).toBe('a…');
+    expect(truncateMarkdown('ab `code` rest of the world', 1, 9)).toBe(
+      'ab `code`…',
+    );
+  });
+
+  it('treats a line-leading asterisk as a list marker, not emphasis', () => {
+    expect(
+      truncateMarkdown('* first' + String.fromCharCode(10) + '* second', 1, 9),
+    ).toBe('* first…');
+  });
+
+  it('still cuts at a word boundary for plain text', () => {
+    expect(
+      truncateMarkdown(
+        'This is a very long sentence that exceeds the limit',
+        1,
+        20,
+      ),
+    ).toBe('This is a very long…');
   });
 });
 

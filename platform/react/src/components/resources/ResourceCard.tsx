@@ -14,13 +14,13 @@ import type {
 import {
   attachmentMediaKind,
   normalizeResourceTags,
-  truncateMarkdown,
   formatSize,
 } from '@openpeepshq/common/lib';
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { VideoPlayOverlay } from '../post/VideoPlayOverlay';
+import { TruncatedMarkdown } from '../post/TruncatedMarkdown';
 
 export interface ResourceCardProps {
   post: PublicPost;
@@ -115,7 +115,6 @@ export const ResourceCard = ({
   const resource = post.data;
   const attachments = resource.attachments ?? [];
   const visuals = visualAttachments(attachments);
-  const excerpt = truncateMarkdown(resource.content, 2, 240);
   const tags = normalizeResourceTags(resource.tags);
   const isGallery = resource.resourceKind === 'gallery' && visuals.length > 1;
   const tiles = isGallery ? visuals.slice(0, 4) : visuals.slice(0, 1);
@@ -219,9 +218,13 @@ export const ResourceCard = ({
               {resource.categoryPath.join(' / ')}
             </p>
           ) : null}
-          {excerpt ? (
-            <p className="text-muted-foreground text-sm">{excerpt}</p>
-          ) : null}
+          <TruncatedMarkdown
+            source={resource.content ?? ''}
+            maxBlocks={2}
+            maxChars={240}
+            maxLines={2}
+            className="text-sm text-muted-foreground"
+          />
           {metaText ? (
             <p className="text-muted-foreground text-xs">{metaText}</p>
           ) : null}
@@ -306,9 +309,13 @@ export const ResourceCard = ({
           {resource.categoryPath.join(' / ')}
         </p>
       ) : null}
-      {excerpt ? (
-        <p className="text-muted-foreground text-sm">{excerpt}</p>
-      ) : null}
+      <TruncatedMarkdown
+        source={resource.content ?? ''}
+        maxBlocks={2}
+        maxChars={240}
+        maxLines={2}
+        className="text-sm text-muted-foreground"
+      />
       {metaText ? (
         <p className="text-muted-foreground text-xs">{metaText}</p>
       ) : null}

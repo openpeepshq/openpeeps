@@ -521,6 +521,11 @@
       "viewOriginal": "View original post",
       "viewPost": "View post"
     },
+    "truncatedMarkdown": {
+      "show": "Show more",
+      "showHint": "Long press or hover to read the full text",
+      "close": "Close"
+    },
     "feed": {
       "empty": "No posts yet.",
       "pinned": "Pinned post"

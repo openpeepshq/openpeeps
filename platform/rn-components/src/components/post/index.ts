@@ -9,6 +9,8 @@ export * from './FeedPostContent';
 export * from './FullPostLayout';
 export * from './helpers';
 export * from './Markdown';
+export { TruncatedMarkdown } from './TruncatedMarkdown';
+export type { TruncatedMarkdownProps } from './TruncatedMarkdown';
 export * from './NewEventButton';
 export * from './NewResourceButton';
 export * from './NewNoteButton';

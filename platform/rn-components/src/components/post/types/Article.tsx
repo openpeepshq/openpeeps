@@ -2,7 +2,6 @@ import React from 'react';
 import type { Article, PublicPost } from '@openpeepshq/common/types';
 import { View } from 'react-native';
 import { ThemedText } from '../../ui/themed-text';
-import { OpenpeepsMarkdown } from '../../markdown/index';
 import { useMemo } from 'react';
 import { firstNWords } from '@openpeepshq/common';
 import { Button } from '../../ui/button';
@@ -12,6 +11,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../navigation/types/index';
 import { useTranslation } from 'react-i18next';
 import { CachedImage } from '../../custom/common/index';
+import { TruncatedMarkdown } from '../TruncatedMarkdown';
 
 export interface FeedArticleProps {
   post: PublicPost;
@@ -40,7 +40,11 @@ export const FeedArticle = ({ post }: FeedArticleProps) => {
       <ThemedText className="text-xl font-bold text-foreground">
         {article.title}
       </ThemedText>
-      <OpenpeepsMarkdown source={previewContent} linkPreviewMode="none" />
+      <TruncatedMarkdown
+        source={article.content ?? ''}
+        snippet={previewContent}
+        interactive={false}
+      />
       <View className="w-full flex flex-row justify-end">
         <Button
           onPress={() => navigation.navigate('Post', { id: post.id })}
