@@ -1,6 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { Pressable, View, FlatList, ViewToken } from 'react-native';
-import { MediaAttachmentData, PublicPost } from '@openpeepshq/common';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import {
+  MediaAttachmentData,
+  PublicPost,
+  ReportedMedia,
+} from '@openpeepshq/common';
+import {
+  canReportAuthor,
+  reportedMediaFromAttachment,
+} from '@openpeepshq/common/lib';
+import { useCurrentProfile } from '@openpeepshq/react';
+import { useTranslation } from 'react-i18next';
 import { GalleryImage } from './gallery/GalleryImage';
 import { GalleryVideo } from './gallery/GalleryVideo';
 import { GalleryAudio } from './gallery/GalleryAudio';
@@ -8,13 +19,29 @@ import { GalleryDocument } from './gallery/GalleryDocument';
 import { GalleryModal } from './GalleryModal';
 import { ThemedText } from '../../ui/themed-text';
 import { ThemedView } from '../../ui/themed-view';
+import { FlagIcon } from '../../icons/index';
+import { ReportProfileOrPostModal } from '../../profile/ReportProfileOrPostModal';
+import { bottomSheetPresent } from '../../../lib/bottom-sheet-ref';
 import { isImageAttachment } from '../../../lib/attachmentHelpers';
 
 export const Attachments = ({ post }: { post: PublicPost }) => {
+  const { t } = useTranslation();
+  const me = useCurrentProfile();
   const attachments = post?.data?.attachments || [];
   const profile = post?.profile || {};
   const [activeIndex, setActiveIndex] = useState(0);
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
+  const [reporting, setReporting] = useState<ReportedMedia | undefined>();
+  const reportRef = useRef<BottomSheetModal>(null);
+  const canReport = canReportAuthor(me?.id, me?.roles, post.profile?.id);
+
+  const openReport = (attachment: MediaAttachmentData) => {
+    const media = reportedMediaFromAttachment(attachment);
+    if (!media) return;
+    setReporting(media);
+    setGalleryIndex(null);
+    bottomSheetPresent(reportRef);
+  };
   const [containerWidth, setContainerWidth] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const viewabilityConfig = {
@@ -78,6 +105,19 @@ export const Attachments = ({ post }: { post: PublicPost }) => {
           </ThemedText>
         </View>
       )}
+      {canReport && reportedMediaFromAttachment(item) ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('common.actions.reportMedia')}
+          className="absolute bottom-3 left-3 z-20 flex-row items-center gap-1 rounded-full bg-destructive px-3 py-1.5"
+          onPress={() => openReport(item)}
+        >
+          <FlagIcon className="text-destructive-foreground" size={14} />
+          <ThemedText className="text-destructive-foreground text-xs">
+            {t('common.actions.reportMedia')}
+          </ThemedText>
+        </Pressable>
+      ) : null}
     </ThemedView>
   );
 
@@ -146,8 +186,15 @@ export const Attachments = ({ post }: { post: PublicPost }) => {
           attachments={attachments}
           initialIndex={galleryIndex}
           onClose={() => setGalleryIndex(null)}
+          onReport={canReport ? openReport : undefined}
         />
       ) : null}
+      <ReportProfileOrPostModal
+        ref={reportRef}
+        post={post}
+        media={reporting}
+        reportType="media"
+      />
     </View>
   );
 };

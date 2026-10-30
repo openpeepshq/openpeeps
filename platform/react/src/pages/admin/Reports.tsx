@@ -165,6 +165,42 @@ export function AdminReports() {
                 </span>
               </div>
               <p className="text-sm">{report.comment}</p>
+              {report.media && report.media.length > 0 ? (
+                <ul className="space-y-2">
+                  {report.media.map((file) => {
+                    const preview =
+                      file.previewUrl ??
+                      (file.type === 'image' ? file.url : undefined);
+                    return (
+                      <li
+                        key={file.url}
+                        className="bg-surface space-y-2 rounded-md p-2"
+                      >
+                        <h3 className="text-sm font-medium">
+                          {t('admin.moderation.reportList.reportedFile', {
+                            defaultValue: 'Reported file',
+                          })}
+                        </h3>
+                        {preview ? (
+                          <img
+                            src={preview}
+                            alt={file.filename ?? ''}
+                            className="max-h-48 max-w-full rounded-md object-contain"
+                          />
+                        ) : null}
+                        <a
+                          href={file.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary block truncate text-sm underline"
+                        >
+                          {file.filename || file.url}
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : null}
               {report.reportedPosts.length > 0 && (
                 <ul className="space-y-2">
                   {report.reportedPosts.map((post) => (

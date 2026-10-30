@@ -1,11 +1,12 @@
 import { View } from 'react-native';
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ThemedText } from '../ui/themed-text';
 import {
   PublicPost,
   Profile,
   ReportCreationData,
+  ReportedMedia,
   reportCreationDataSchema,
 } from '@openpeepshq/common';
 import { useTranslation } from 'react-i18next';
@@ -26,13 +27,14 @@ interface ReportProfileOrPostSheetProps {
   reportCallback?: () => void | undefined;
   profile?: Profile | undefined;
   post?: PublicPost | undefined;
-  reportType?: 'profile' | 'post';
+  media?: ReportedMedia;
+  reportType?: 'profile' | 'post' | 'media';
 }
 
 export const ReportProfileOrPostModal = forwardRef<
   BottomSheetModal,
   ReportProfileOrPostSheetProps
->(({ reportType, profile, post, reportCallback }, ref) => {
+>(({ reportType, profile, post, media, reportCallback }, ref) => {
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
   const { data: server } = openpeepsApi.useServerInfo();
@@ -67,13 +69,36 @@ export const ReportProfileOrPostModal = forwardRef<
         forward: false,
       },
       profileId: reportType === 'profile' ? profile?.id : post?.profile.id,
-      postIds: reportType === 'post' ? [post?.id] : [],
+      postIds: reportType === 'profile' ? [] : post?.id ? [post.id] : [],
     },
   });
 
+  useEffect(() => {
+    if (!media) return;
+    setCurrentStep(1);
+    form.reset({
+      report: { comment: '', category: 'spam', forward: false },
+      profileId: post?.profile.id,
+      postIds: post?.id ? [post.id] : [],
+    });
+    // Clear the draft only when a different file is reported.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [media?.url]);
+
   const onSubmit = async (values: ReportCreationData) => {
+    const payload: ReportCreationData = {
+      ...values,
+      profileId:
+        (reportType === 'profile' ? profile?.id : post?.profile.id) ??
+        values.profileId,
+      postIds: reportType === 'profile' ? [] : post?.id ? [post.id] : [],
+      report: {
+        ...values.report,
+        ...(media ? { media: [media] } : {}),
+      },
+    };
     setIsSubmitting(true);
-    reportMutation(values)
+    reportMutation(payload)
       .then(async (response) => {
         console.log(':response', response);
         Toast.show({
@@ -115,7 +140,9 @@ export const ReportProfileOrPostModal = forwardRef<
                   ? t('reports.create.profile.title', {
                       handle: `@${profile?.handle}`,
                     })
-                  : t('reports.create.post.title')}
+                  : reportType === 'media'
+                    ? t('reports.create.media.title')
+                    : t('reports.create.post.title')}
               </ThemedText>
             </View>
             <View className="items-center justify-center">

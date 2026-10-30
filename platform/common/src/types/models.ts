@@ -746,6 +746,18 @@ export const reportResolutionSchema = z.enum([
 
 export type ReportResolution = z.infer<typeof reportResolutionSchema>;
 
+/** Snapshot of a post attachment named in a report. */
+export const reportedMediaSchema = z
+  .object({
+    url: z.url(),
+    previewUrl: z.url().nullable().optional(),
+    filename: z.string().max(500).optional(),
+    type: z.string().max(64).optional(),
+  })
+  .openapi('ReportedMedia');
+
+export type ReportedMedia = z.infer<typeof reportedMediaSchema>;
+
 export const reportDataSchema = z
   .object({
     comment: z.string().max(1000),
@@ -754,6 +766,7 @@ export const reportDataSchema = z
     category: z.enum(['spam', 'violation', 'other']),
     ruleIds: z.array(z.number()).optional(),
     resolution: reportResolutionSchema.optional(),
+    media: z.array(reportedMediaSchema).max(10).optional(),
   })
   .openapi('Report');
 
