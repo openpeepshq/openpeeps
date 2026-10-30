@@ -48,6 +48,9 @@ export const ResourceForm = ({
   const attachments = useComposeAttachments({
     attachments: resource.attachments ?? [],
     onChange: (next) => patchResource({ attachments: next }),
+    // Only galleries take more than one file; other kinds pick one at a time.
+    multipleImages: resource.resourceKind === 'gallery',
+    multipleAudio: false,
   });
 
   const patchResource = (patch: Partial<ResourcePost>) => {
