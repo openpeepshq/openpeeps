@@ -38,11 +38,21 @@ export const installSeoEndpoint = (app: Express) => {
   // `Host` header must never reach the `Sitemap:` line or the `<loc>` entries.
   app.get('/robots.txt', async (_req, res) => {
     try {
-      const [core, origin] = await Promise.all([config(), serverRootUrl()]);
+      const [core, community, origin] = await Promise.all([
+        config(),
+        communityConfig(),
+        serverRootUrl(),
+      ]);
       res
         .type('text/plain')
         .set('Cache-Control', 'public, max-age=3600')
-        .send(robotsTxt(origin, core.server.publicContent));
+        .send(
+          robotsTxt(
+            origin,
+            core.server.publicContent,
+            community.settings?.robotsDisallow,
+          ),
+        );
     } catch (err) {
       log.error('seo: failed to build robots.txt', err);
       res.status(500).send('Internal server error');

@@ -99,9 +99,11 @@ export const crawlableEntries = async ({
       updatedAt: profile.updatedAt,
     })),
   ].sort(byNewest);
-  // A crawler arriving only through the sitemap otherwise never learns the
-  // homepage exists; no lastmod, the root has no single modification time.
-  return [{ path: '/' }, ...entities];
+  // A crawler arriving only through the sitemap otherwise never learns these
+  // exist; neither has a single modification time, so both carry no lastmod.
+  // `/feeds/local` is the public post list — the destination `/posts` points
+  // at via 301 (see spaHtml).
+  return [{ path: '/' }, { path: '/feeds/local' }, ...entities];
 };
 
 const resolveMeta = async (

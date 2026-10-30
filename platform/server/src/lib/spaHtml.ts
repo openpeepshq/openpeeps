@@ -122,6 +122,12 @@ export type SpaRequestDecision =
 export const decideSpaRequest = (pathname: string): SpaRequestDecision => {
   if (/^\/index\.html?$/i.test(pathname))
     return { action: 'redirect', to: '/' };
+  // `/posts` is not a client route — it would fall through to the `/:handle`
+  // profile catch-all and render as the nonexistent profile "posts" (a soft
+  // 404). The public post list is /feeds/local; the 301 hands any link or
+  // bookmark pointing at /posts to the page that actually lists posts.
+  if (/^\/posts\/?$/i.test(pathname))
+    return { action: 'redirect', to: '/feeds/local' };
   if (UNUSABLE_PATH.test(pathname)) return { action: 'reject' };
   return { action: 'serve' };
 };
