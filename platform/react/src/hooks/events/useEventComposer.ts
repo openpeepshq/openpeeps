@@ -9,6 +9,7 @@ import type {
   PostDataUnion,
 } from '@openpeepshq/common/types';
 import {
+  canCreatePostTypeIgnoringScopes,
   effectiveEventTimes,
   normalizeEventDataForSave,
   upsertEventException,
@@ -16,15 +17,22 @@ import {
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useNavigate } from '../../contexts/router';
 import { useT } from '../../i18n/context';
-import { useCurrentProfile } from '../../components/layout/IdentityContext';
+import { useAuthData } from '../../components/layout/IdentityContext';
 import { useServerInfo } from '../../components/server-data/context';
 import { eventSanitizer, getNewPostStores } from '../../stores/newPosts';
+import { AUDIENCE_CHOICE_VALUES } from '../../lib/audienceChoices';
 
 export const useNewEvent = () => {
   const t = useT();
   const navigate = useNavigate();
   const serverInfo = useServerInfo();
-  const me = useCurrentProfile();
+  const authData = useAuthData();
+  // The form only offers these audiences; other visibilities would dead-end.
+  const canCreate = canCreatePostTypeIgnoringScopes(
+    authData,
+    'event',
+    AUDIENCE_CHOICE_VALUES,
+  );
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
   const announcePost = openpeepsApi.admin.announcePostAction();
@@ -42,7 +50,7 @@ export const useNewEvent = () => {
   const [error, setError] = useState<string | null>(null);
 
   const showNotify =
-    canAnnouncePosts(me?.roles) &&
+    canAnnouncePosts(authData.profile?.roles) &&
     isCommunityWideVisibility(postData.visibility);
 
   const event = postData.data.type === 'event' ? postData.data : null;
@@ -110,6 +118,7 @@ export const useNewEvent = () => {
   return {
     postData,
     setPostData,
+    canCreate,
     canSubmit,
     submitting,
     error,

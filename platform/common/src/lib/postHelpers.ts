@@ -29,9 +29,11 @@ import {
 } from './eventRecurrence';
 import { formatEventWhen } from './eventTime';
 import {
+  checkCapabilities,
   checkGroupCapabilities,
   checkPostCapabilities,
   checkRoleCapabilities,
+  getGroupCapabilities,
 } from './capabilitiesHelpers';
 import { scopeMatches } from './scopeHelpers';
 import { countBy, dateSorter, groupBy, transformValues } from './utils';
@@ -731,6 +733,32 @@ export const canCreatePostType = (
 ) =>
   visibilityTypeValues.some((visibility) =>
     canCreatePostTypeWithVisibility(authData, type, visibility),
+  );
+
+/**
+ * Scope-free variant of {@link canCreatePostType}: may this profile create a
+ * post of `type` in any of `visibilities`, judging capabilities only. Token
+ * scopes load after the first paint in the clients, so gating UI on them would
+ * flash a denial for allowed users; the create endpoints still enforce
+ * scopes.
+ */
+export const canCreatePostTypeIgnoringScopes = (
+  authData: AuthorizationData,
+  type: PostType,
+  visibilities: readonly VisibilityType[] = visibilityTypeValues,
+) =>
+  visibilities.some((visibility) =>
+    visibility === 'group'
+      ? !!authData.profile?.memberships?.some(
+          (m) =>
+            checkCapabilities(
+              [`core-posts-create-${type}`],
+              getGroupCapabilities(authData, m.group as GroupWithMeta),
+            ).success,
+        )
+      : checkRoleCapabilities(authData.profile?.roles, [
+          `core-posts-create-${type}-${visibility}`,
+        ]).success,
   );
 
 export type PostActionAvailability = {
