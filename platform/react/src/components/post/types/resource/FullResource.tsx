@@ -97,6 +97,7 @@ export const FullResource = ({ post }: FullResourceProps) => {
         return (
           <ResourceCard
             post={post}
+            showDescription={false}
             preview={
               <VideoPlayer
                 attachment={videoAtt}
@@ -116,6 +117,7 @@ export const FullResource = ({ post }: FullResourceProps) => {
         return (
           <ResourceCard
             post={post}
+            showDescription={false}
             preview={
               <AudioAttachment
                 src={audioAtt.url}
@@ -131,7 +133,7 @@ export const FullResource = ({ post }: FullResourceProps) => {
     // All kinds: ResourceCard with click overlay
     return (
       <div className="relative">
-        <ResourceCard post={post} />
+        <ResourceCard post={post} showDescription={false} />
         <div className="pointer-events-none absolute left-0 right-0 top-0 flex h-48 items-center justify-center">
           <div
             className="pointer-events-auto flex size-20 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white"
