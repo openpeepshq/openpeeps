@@ -10,6 +10,7 @@ import {
   Button,
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -109,6 +110,46 @@ export function AdminConfigurationCommunityInfo() {
                     data-testid="admin-community-info-email"
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="settings.robotsDisallow"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t('configuration.community.robotsDisallow', {
+                    defaultValue: 'Blocked paths for search engines',
+                  })}
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    value={
+                      Array.isArray(field.value) ? field.value.join('\n') : ''
+                    }
+                    onChange={(event) => {
+                      const lines = event.target.value
+                        .split('\n')
+                        .map((line) => line.trim())
+                        .filter(Boolean);
+                      // Empty means "use the server default", not "block nothing";
+                      // an explicit [] belongs in the raw config editor.
+                      field.onChange(lines.length ? lines : undefined);
+                    }}
+                    rows={5}
+                    placeholder="/admin"
+                    data-testid="admin-community-info-robots"
+                  />
+                </FormControl>
+                <FormDescription>
+                  {t('configuration.community.robotsDisallowDescription', {
+                    defaultValue:
+                      'One path per line. Leave empty for the standard block list of logged-out surfaces.',
+                  })}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

@@ -17,6 +17,21 @@ describe('decideSpaRequest', () => {
     });
   });
 
+  it('redirects the bare posts list to the page that actually lists posts', () => {
+    expect(decideSpaRequest('/posts')).toEqual({
+      action: 'redirect',
+      to: '/feeds/local',
+    });
+    expect(decideSpaRequest('/posts/')).toEqual({
+      action: 'redirect',
+      to: '/feeds/local',
+    });
+    // Only the list spelling redirects; detail pages stay served.
+    expect(decideSpaRequest('/posts/01a1115b-7495')).toEqual({
+      action: 'serve',
+    });
+  });
+
   it('rejects probes for other stacks instead of serving a 200 shell', () => {
     for (const path of [
       '/index.php',

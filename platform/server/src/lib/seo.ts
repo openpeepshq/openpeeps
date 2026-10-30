@@ -1,13 +1,16 @@
 import type { CrawlableEntry, CrawlableMeta } from '@openpeepshq/core/seo';
 
-/** Logged-out surfaces that must never reach a search index. */
-const DISALLOWED_PATHS = [
+/**
+ * Logged-out surfaces that must never reach a search index. Public feeds are
+ * readable anonymously and stay out of this list by design; communities can
+ * override the whole list via `settings.robotsDisallow`.
+ */
+const DEFAULT_DISALLOWED_PATHS = [
   '/admin',
   '/settings',
   '/conversations',
   '/notifications',
   '/auth',
-  '/feeds',
 ];
 
 const XML_ESCAPES: Record<string, string> = {
@@ -35,11 +38,15 @@ const isoDate = (value: string): string => {
  * switch for anonymous readability, so it is also the switch for crawlability —
  * a sitemap would otherwise advertise URLs the crawler cannot read.
  */
-export const robotsTxt = (origin: string, publicContent: boolean): string =>
+export const robotsTxt = (
+  origin: string,
+  publicContent: boolean,
+  disallow: string[] = DEFAULT_DISALLOWED_PATHS,
+): string =>
   publicContent
     ? [
         'User-agent: *',
-        ...DISALLOWED_PATHS.map((path) => `Disallow: ${path}`),
+        ...disallow.map((path) => `Disallow: ${path}`),
         'Allow: /',
         `Sitemap: ${trimOrigin(origin)}/sitemap.xml`,
         '',

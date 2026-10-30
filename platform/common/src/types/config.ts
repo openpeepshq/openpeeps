@@ -416,6 +416,10 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
        * Built-in names are not stored here and cannot be removed.
        */
       additionalForbiddenHandles: additionalForbiddenHandlesSchema.optional(),
+      /** robots.txt Disallow list for public communities. Unset keeps the
+       *  server default (logged-out surfaces only — public feeds stay
+       *  indexable); an explicit list replaces the default entirely. */
+      robotsDisallow: z.string().array().optional(),
     }),
     roles: z.object({
       onRegistration: z.object({

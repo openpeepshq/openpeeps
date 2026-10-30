@@ -10,7 +10,7 @@ describe('robotsTxt', () => {
     expect(robots).not.toContain('example//');
   });
 
-  it('keeps logged-out surfaces out of the index', () => {
+  it('blocks logged-out surfaces but keeps public feeds indexable', () => {
     const robots = robotsTxt('https://echo.example', true);
     for (const path of [
       '/admin',
@@ -18,10 +18,23 @@ describe('robotsTxt', () => {
       '/conversations',
       '/notifications',
       '/auth',
-      '/feeds',
     ]) {
       expect(robots).toContain(`Disallow: ${path}`);
     }
+    expect(robots).not.toContain('Disallow: /feeds');
+  });
+
+  it('lets the community config replace the block list', () => {
+    const robots = robotsTxt('https://echo.example', true, ['/private-stuff']);
+    expect(robots).toContain('Disallow: /private-stuff');
+    expect(robots).not.toContain('Disallow: /admin');
+    expect(robots).toContain('Allow: /');
+  });
+
+  it('allows everything when the community sets an empty block list', () => {
+    const robots = robotsTxt('https://echo.example', true, []);
+    expect(robots).not.toContain('Disallow:');
+    expect(robots).toContain('Allow: /');
   });
 
   it('turns every crawler away when the community is private', () => {
