@@ -30,6 +30,9 @@ export const updateMember = connectionUpdater<
   collectionInfos.userGroupsCollection,
 );
 
+const membershipIds = (profile?: ProfileWithMeta) =>
+  profile?.memberships.map((membership) => membership.group.id) ?? [];
+
 export const canSeeGroupFilter = (
   profile?: ProfileWithMeta,
 ): PgFilter<GroupWithMeta> | undefined => {
@@ -38,10 +41,10 @@ export const canSeeGroupFilter = (
   ) {
     return undefined;
   }
+  // Limited members lack core-local but still belong to groups. Those
+  // memberships stay visible; local-only groups stay hidden.
   if (!profile || !isLocal(profile)) {
-    return groupFilters.publiclyReadable();
+    return groupFilters.readableByNonLocalProfile(membershipIds(profile));
   }
-  return groupFilters.readableByLocalProfile(
-    profile.memberships.map((m) => m.group.id),
-  );
+  return groupFilters.readableByLocalProfile(membershipIds(profile));
 };
