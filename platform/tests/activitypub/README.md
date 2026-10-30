@@ -144,6 +144,14 @@ Only `DNS_SUFFIX`, `PUBLIC=1` and `ACME_EMAIL` are required; the rest default
 to Mailpit (local email capture). Set the SMTP vars to a real provider if you
 want Mastodon (and OpenPeeps) to send real email.
 
+To let a permanent external instance (e.g. a demo deployment) deliver into the
+stack's inboxes, list it in `EXTRA_ALLOWED_HOSTS` (comma-separated) — setup
+merges it into every seeded `federation.allowedHosts`:
+
+```bash
+EXTRA_ALLOWED_HOSTS=peeps.host1.consolving.net
+```
+
 ### 3. Run setup
 
 ```bash

@@ -88,6 +88,7 @@ ensure_env() {
   : "${DNS_SUFFIX:=activity-pub.test.ap.social}"
   : "${PUBLIC:=0}"
   : "${ACME_EMAIL:=}"
+  : "${EXTRA_ALLOWED_HOSTS:=}"
   # Default the JWT; in public mode replace the weak default with a strong random one.
   : "${JWT_SECRET:=test-jwt-secret-change-me}"
   if [ "$PUBLIC" = "1" ] && [ "$JWT_SECRET" = "test-jwt-secret-change-me" ]; then
@@ -104,6 +105,7 @@ ensure_env() {
   _dotenv_put DNS_SUFFIX "${DNS_SUFFIX}"
   _dotenv_put PUBLIC "${PUBLIC}"
   _dotenv_put ACME_EMAIL "${ACME_EMAIL}"
+  _dotenv_put EXTRA_ALLOWED_HOSTS "${EXTRA_ALLOWED_HOSTS}"
   ok ".env ready (secrets + domain/mode settings)."
 }
 
@@ -385,12 +387,20 @@ setup_mastodon_db() {
 set_federation_config() {
   local db_name="$1"
 
+  # Comma-separated peers that may deliver into this stack's inboxes
+  # (see EXTRA_ALLOWED_HOSTS in .env.example), e.g. a permanent demo instance.
+  local extra_hosts_json="" host
+  for host in $(echo "${EXTRA_ALLOWED_HOSTS:-}" | tr ',' ' '); do
+    host="$(echo "$host" | xargs)"
+    [ -n "$host" ] && extra_hosts_json+=", \"$host\""
+  done
+
   info "Enabling federation + seeding roles for database: $db_name"
   docker compose -f "$COMPOSE_FILE" exec -T postgres psql -U openpeeps -d "$db_name" <<SQL
 -- Federation config
 INSERT INTO configs ("key", body)
 VALUES ('openpeeps-core',
-  '{"config": {"federation": {"active": true, "allowedHosts": ["*.$DNS_SUFFIX"]}}}'::jsonb)
+  '{"config": {"federation": {"active": true, "allowedHosts": ["*.$DNS_SUFFIX"$extra_hosts_json]}}}'::jsonb)
 ON CONFLICT ("key") DO UPDATE SET
   body = EXCLUDED.body,
   "updated_at" = now();
