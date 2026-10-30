@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import { useNewEvent } from '@openpeepshq/react';
 import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
 import { ThemedView } from '../../components/ui/themed-view';
+import { ThemedText } from '../../components/ui/themed-text';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { EventForm } from '../../components/post/index';
 
@@ -15,6 +16,7 @@ export const NewEvent = (_props: NewEventProps) => {
   const {
     postData,
     setPostData,
+    canCreate,
     canSubmit,
     submitting,
     error,
@@ -30,13 +32,31 @@ export const NewEvent = (_props: NewEventProps) => {
 
   useSetPageHeader(
     t('events.create.title'),
-    <HeaderActionButton
-      title={submitting ? t('common.submitting') : t('events.create.title')}
-      onPress={() => void submit()}
-      disabled={submitting || !canSubmit}
-      loading={submitting}
-    />
+    canCreate ? (
+      <HeaderActionButton
+        title={submitting ? t('common.submitting') : t('events.create.title')}
+        onPress={() => void submit()}
+        disabled={submitting || !canSubmit}
+        loading={submitting}
+      />
+    ) : undefined
   );
+
+  if (!canCreate) {
+    return (
+      <ThemedView
+        className="flex-1 items-center justify-center gap-2 px-6 py-16"
+        testID="events-create-not-allowed"
+      >
+        <ThemedText className="text-center text-xl font-semibold">
+          {t('events.create.notAllowed.title')}
+        </ThemedText>
+        <ThemedText className="text-muted-foreground text-center text-sm">
+          {t('events.create.notAllowed.description')}
+        </ThemedText>
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView className="flex-1">

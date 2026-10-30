@@ -3067,7 +3067,11 @@
       "emptyDay": "No events"
     },
     "create": {
-      "title": "Create Event"
+      "title": "Create Event",
+      "notAllowed": {
+        "title": "You can't create events",
+        "description": "Your role isn't allowed to create events. Ask a community owner or moderator if you need to host one."
+      }
     },
     "update": {
       "title": "Update event"

@@ -3148,7 +3148,11 @@
       "emptyDay": "Keine Veranstaltungen"
     },
     "create": {
-      "title": "Veranstaltung erstellen"
+      "title": "Veranstaltung erstellen",
+      "notAllowed": {
+        "title": "Sie können keine Veranstaltungen erstellen",
+        "description": "Ihre Rolle erlaubt das Erstellen von Veranstaltungen nicht. Bitten Sie einen Community-Inhaber oder Moderator, wenn Sie eine veranstalten möchten."
+      }
     },
     "update": {
       "title": "Veranstaltung aktualisieren"

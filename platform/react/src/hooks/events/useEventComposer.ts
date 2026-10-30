@@ -1,24 +1,59 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type {
-  Event,
-  PostCreationData,
-  PostDataUnion,
+import {
+  visibilityTypeValues,
+  type AuthorizationData,
+  type Event,
+  type PostCreationData,
+  type PostDataUnion,
 } from '@openpeepshq/common/types';
 import {
+  checkCapabilities,
+  checkRoleCapabilities,
   effectiveEventTimes,
+  getGroupCapabilities,
   normalizeEventDataForSave,
   upsertEventException,
 } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useNavigate } from '../../contexts/router';
 import { useT } from '../../i18n/context';
+import { useAuthData } from '../../components/layout/IdentityContext';
 import { useServerInfo } from '../../components/server-data/context';
 import { eventSanitizer, getNewPostStores } from '../../stores/newPosts';
+
+const eventVisibilities = visibilityTypeValues.filter(
+  (visibility) => visibility !== 'group',
+);
+
+/**
+ * Whether this profile may create an event in any audience. Ignores token
+ * scopes: those load after the first paint, and gating on them would flash
+ * this denial for people who are allowed. The create endpoint still checks
+ * scopes.
+ */
+export const profileCanCreateEvent = (authData: AuthorizationData) => {
+  const roleCan = eventVisibilities.some(
+    (visibility) =>
+      checkRoleCapabilities(authData.profile?.roles, [
+        `core-posts-create-event-${visibility}`,
+      ]).success,
+  );
+  if (roleCan) return true;
+  return (authData.profile?.memberships ?? []).some(
+    (membership) =>
+      checkCapabilities(
+        ['core-posts-create-event'],
+        getGroupCapabilities(authData, membership.group),
+      ).success,
+  );
+};
 
 export const useNewEvent = () => {
   const t = useT();
   const navigate = useNavigate();
   const serverInfo = useServerInfo();
+  const authData = useAuthData();
+  const canCreate = profileCanCreateEvent(authData);
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
   const stores = getNewPostStores();
@@ -46,6 +81,15 @@ export const useNewEvent = () => {
 
   const submit = useCallback(async () => {
     setError(null);
+    if (!canCreate) {
+      setError(
+        t('events.create.notAllowed.description', {
+          defaultValue:
+            "Your role isn't allowed to create events. Ask a community owner or moderator if you need to host one.",
+        }),
+      );
+      return;
+    }
     if (!event?.start) {
       setError(
         t('events.validation.startRequired', {
@@ -80,11 +124,12 @@ export const useNewEvent = () => {
     } finally {
       setSubmitting(false);
     }
-  }, [createPost, event, navigate, postData, stores, t]);
+  }, [canCreate, createPost, event, navigate, postData, stores, t]);
 
   return {
     postData,
     setPostData,
+    canCreate,
     canSubmit,
     submitting,
     error,
