@@ -5,6 +5,24 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **tooltip**: implement portal for tooltip content to prevent overlap with sidebar
+- **navigation**: enhance mobile navigation with tooltips and improved accessibility
+- **rsvp**: enhance RSVP functionality with event end validation and localization updates
+
+### Bug Fixes
+
+- **resources**: validate resource drafts before create
+- **ui**: enhance event rendering for email previews
+- **api**: improve handle validation in updateProfileRequestSchema
+- **rn**: make notifications tappable to open posts
+- **federation**: add Create inbox handler and switch to Traefik ACME
+- **i18n**: fix copy issues, restore br tags, highlight external links
+- **ui**: fix small onboarding and UI issues including markdown description rendering
+
+## 2026-10-29
+
+### Features
+
 - **welcome**: add welcome page functionality and localization updates
 - **invite-links**: add update functionality for invite links with localization updates
 - **posts**: play inline audio and video only as the sole attachment
@@ -20,8 +38,6 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
-- **i18n**: fix copy issues, restore br tags, highlight external links
-- **ui**: fix small onboarding and UI issues including markdown description rendering
 - **resources**: prevent blank page when resource post data is missing
 - **blocks**: return blocked error instead of 500/missing-capabilities
 - **polls**: validate poll votes server-side before accepting
@@ -231,7 +247,6 @@ Changelog for OpenPeeps
 - **article**: add minutes-to-read estimate for articles
 - **analytics**: add verified vs unverified member metrics
 - **admin**: add sorting to members screen
-- **federation**: serve ActivityPub with Fedify
 - **federation**: add public ActivityPub data model
 - **pwa**: enhance stale app reload behavior and integrate jam room checks
 - **markdown**: add markdownPlainText utility function and integrate into various components
