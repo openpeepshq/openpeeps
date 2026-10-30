@@ -7,11 +7,13 @@ import {
 } from '@openpeepshq/common/types';
 import {
   applySimpleGroupTemplate,
+  canCreateGroup,
   defaultSimpleGroupTemplate,
 } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useNavigate } from '../../contexts/router';
 import { useT } from '../../i18n/context';
+import { useCurrentProfile } from '../../components/layout/IdentityContext';
 import { useServerInfo } from '../../components/server-data/context';
 import { apiErrorMessage } from '../../lib/apiErrorMessage';
 import {
@@ -33,6 +35,8 @@ const handleFromDisplayName = (displayName: string) =>
 export const useNewGroup = () => {
   const t = useT();
   const navigate = useNavigate();
+  const profile = useCurrentProfile();
+  const canCreate = !!profile && canCreateGroup(profile.roles);
   const { openpeepsApi } = useOpenpeeps();
   const createGroup = openpeepsApi.createGroupAction();
   const serverInfo = useServerInfo();
@@ -54,6 +58,7 @@ export const useNewGroup = () => {
   const [fieldErrors, setFieldErrors] = useState<GroupFormFieldErrors>({});
 
   const submit = async () => {
+    if (!canCreate) return;
     setError(null);
     const nextFieldErrors = groupFormFieldErrors(groupData, t, {
       additionalForbiddenHandles,
@@ -119,6 +124,7 @@ export const useNewGroup = () => {
     error,
     clearError: () => setError(null),
     fieldErrors,
+    canCreate,
     submit,
   };
 };

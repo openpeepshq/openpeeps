@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Plus, Users } from 'lucide-react';
-import { checkRoleCapabilities } from '@openpeepshq/common';
+import { canCreateGroup } from '@openpeepshq/common';
 import { matchesQuery } from '@openpeepshq/common/lib';
 import {
   useT,
@@ -43,17 +43,17 @@ export function GroupsIndex() {
     [groups, myGroupIds, tab],
   );
 
+  const canCreate = canCreateGroup(currentProfile?.roles ?? []);
   const plusButton = useMemo(
     () =>
-      checkRoleCapabilities(currentProfile?.roles ?? [], ['core-groups-create'])
-        .success
+      canCreate
         ? {
             title: t('groups.new', { defaultValue: 'New Group' }),
             icon: Plus,
             action: '/groups/new',
           }
         : undefined,
-    [currentProfile?.roles, t],
+    [canCreate, t],
   );
   useSetPlusButtonActions(plusButton);
 

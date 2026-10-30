@@ -8,7 +8,7 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { checkRoleCapabilities } from '@openpeepshq/common';
+import { canCreateGroup } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -60,9 +60,7 @@ export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
     [groups, isMember, search, tab]
   );
 
-  const canCreate = checkRoleCapabilities(currentProfile?.roles ?? [], [
-    'core-groups-create',
-  ]).success;
+  const canCreate = canCreateGroup(currentProfile?.roles ?? []);
 
   useSetPageHeader(t('navigation.groups', { defaultValue: 'Groups' }));
   useSetPlusButtonActions(
