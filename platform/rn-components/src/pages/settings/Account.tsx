@@ -10,7 +10,7 @@ import Toast from 'react-native-toast-message';
 import { Button } from '../../components/ui/button';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Account } from '@openpeepshq/common';
-import { View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 type AccountSettingsProps = MainScreenProps<'AccountSettings'>;
@@ -195,12 +195,18 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
                     {t('settings.account.verifyEmailDescription')}
                   </ThemedText>
                   <Button
-                    title={t('settings.account.verifyEmailButton')}
                     variant="outline"
                     onPress={() => void handleVerifyEmail()}
                     disabled={verifying}
-                    loading={verifying}
-                  />
+                  >
+                    {verifying ? (
+                      <ActivityIndicator size={16} />
+                    ) : (
+                      <ThemedText className="text-sm">
+                        {t('settings.account.verifyEmailButton')}
+                      </ThemedText>
+                    )}
+                  </Button>
                 </View>
               ) : null}
 

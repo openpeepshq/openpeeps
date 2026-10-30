@@ -366,7 +366,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               onPress={() => navigation.navigate('Post', { id: post.id })}
               className="border-b border-border"
             >
-              <ResourceCard post={post} layout="list" />
+              <ResourceCard post={post} layout="list" inGroup={!!groupId} />
             </Pressable>
           ))}
         </View>
@@ -377,7 +377,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               key={post.id}
               onPress={() => navigation.navigate('Post', { id: post.id })}
             >
-              <ResourceCard post={post} layout="card" />
+              <ResourceCard post={post} layout="card" inGroup={!!groupId} />
             </Pressable>
           ))}
         </ScrollView>

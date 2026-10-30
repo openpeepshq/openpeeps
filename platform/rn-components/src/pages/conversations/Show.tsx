@@ -23,6 +23,7 @@ import { OpenpeepsMarkdownInput } from '../../components/post/post-form/Openpeep
 import { maxContentLength } from '../../lib/utils';
 import { DropdownMenu } from '../../components/ui/dropdown-menu';
 import { Button } from '../../components/ui/button';
+import { ProfileAvatar } from '../../components/profile/Avatar';
 import { ThemedText } from '../../components/ui/themed-text';
 import {
   ConversationParticipantsModal,

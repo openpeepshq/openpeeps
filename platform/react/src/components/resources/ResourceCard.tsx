@@ -13,9 +13,11 @@ import type {
 } from '@openpeepshq/common/types';
 import {
   attachmentMediaKind,
-  normalizeResourceTags,
   formatSize,
+  groupName,
+  normalizeResourceTags,
 } from '@openpeepshq/common/lib';
+import { useHrefOf } from '../../contexts/router';
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../layout/IdentityContext';
@@ -29,6 +31,8 @@ export interface ResourceCardProps {
   preview?: ReactNode;
   /** Set false when the full description is rendered by the surrounding layout (e.g. the post detail page). */
   showDescription?: boolean;
+  /** When true, hides the group label (already shown by the group context). */
+  inGroup?: boolean;
 }
 
 const visualAttachments = (attachments: MediaAttachmentData[]) =>
@@ -111,9 +115,11 @@ export const ResourceCard = ({
   layout = 'card',
   preview,
   showDescription = true,
+  inGroup = false,
 }: ResourceCardProps) => {
   const t = useT();
   const navigate = useNavigate();
+  const hrefOf = useHrefOf();
   const { openpeepsApi } = useOpenpeeps();
   const me = useCurrentProfile();
   if (post.data?.type !== 'resource') return null;
@@ -127,6 +133,9 @@ export const ResourceCard = ({
   const actionLabel = primaryActionLabel(resource.resourceKind, t);
   const thumbnail = visuals[0];
   const thumbSrc = thumbnail ? previewSrc(thumbnail) : null;
+
+  const group = post.group;
+  const groupLabel = group ? groupName(group) : null;
 
   const metaText = useMemo(() => {
     if (resource.resourceKind === 'gallery' && visuals.length > 1) {
@@ -189,6 +198,31 @@ export const ResourceCard = ({
     </button>
   );
 
+  const renderGroupLabel = () => {
+    if (!group || !groupLabel || inGroup) return null;
+    const groupHref = hrefOf({ type: 'group', handle: group.handle });
+    return (
+      <a
+        href={groupHref}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs"
+        title={t('resources.group.inGroup', {
+          defaultValue: 'in {{groupName}}',
+          groupName: groupLabel,
+        })}
+      >
+        <span className="bg-muted rounded-full px-2 py-0.5 text-xs">
+          {t('resources.group.inGroup', {
+            defaultValue: 'in {{groupName}}',
+            groupName: groupLabel,
+          })}
+        </span>
+      </a>
+    );
+  };
+
   const renderThumbnail = () => {
     if (thumbSrc) {
       return (
@@ -223,6 +257,7 @@ export const ResourceCard = ({
               {resource.categoryPath.join(' / ')}
             </p>
           ) : null}
+          {renderGroupLabel()}
           {showDescription ? (
             <TruncatedMarkdown
               source={resource.content ?? ''}
@@ -316,6 +351,7 @@ export const ResourceCard = ({
           {resource.categoryPath.join(' / ')}
         </p>
       ) : null}
+      {renderGroupLabel()}
       {showDescription ? (
         <TruncatedMarkdown
           source={resource.content ?? ''}
