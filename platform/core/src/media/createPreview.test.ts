@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { execFile } from 'node:child_process';
 import { createWriteStream, statSync } from 'node:fs';
 import sharp from 'sharp';
 import PDFDocument from 'pdfkit';
@@ -36,6 +37,39 @@ const cleanup = async (paths: string[]) => {
   await Promise.all(
     paths.map((p) => rm(p, { force: true, recursive: true }).catch(() => {})),
   );
+};
+
+const hasFfmpeg = (): Promise<boolean> =>
+  new Promise((resolve) => {
+    execFile('ffmpeg', ['-version'], (error) => resolve(!error));
+  });
+
+/** Create a 1-second 440 Hz sine wave as a mono PCM WAV (no ffmpeg needed). */
+const createTestWav = (outputPath: string): Promise<void> => {
+  const sampleRate = 44100;
+  const numSamples = sampleRate;
+  const dataSize = numSamples * 2;
+  const buffer = Buffer.alloc(44 + dataSize);
+  buffer.write('RIFF', 0, 'ascii');
+  buffer.writeUInt32LE(36 + dataSize, 4);
+  buffer.write('WAVE', 8, 'ascii');
+  buffer.write('fmt ', 12, 'ascii');
+  buffer.writeUInt32LE(16, 16); // fmt chunk size
+  buffer.writeUInt16LE(1, 20); // PCM
+  buffer.writeUInt16LE(1, 22); // mono
+  buffer.writeUInt32LE(sampleRate, 24);
+  buffer.writeUInt32LE(sampleRate * 2, 28); // byte rate
+  buffer.writeUInt16LE(2, 32); // block align
+  buffer.writeUInt16LE(16, 34); // bits per sample
+  buffer.write('data', 36, 'ascii');
+  buffer.writeUInt32LE(dataSize, 40);
+  for (let i = 0; i < numSamples; i++) {
+    const sample = Math.round(
+      Math.sin((2 * Math.PI * 440 * i) / sampleRate) * 0.5 * 32767,
+    );
+    buffer.writeInt16LE(sample, 44 + i * 2);
+  }
+  return writeFile(outputPath, buffer);
 };
 
 /** Create a small solid-color PNG that fits under previewMaxWidth. */
@@ -206,6 +240,39 @@ describe('createPreview', () => {
       expect(preview.path).not.toBe(input);
       expect(await isValidWebp(preview.path)).toBe(true);
       await cleanup([preview.path, dir]);
+    });
+  });
+
+  describe('audio (issue #1791)', () => {
+    it('renders a waveform PNG for audio input', async () => {
+      // CI unit tests run on node:24-alpine without ffmpeg — skip there.
+      if (!(await hasFfmpeg())) return;
+      const dir = await mkdtemp(path.join(tmpdir(), 'op-preview-'));
+      const input = path.join(dir, 'tone.wav');
+      await createTestWav(input);
+
+      const preview = await createPreview(input, 'audio/wav', 'tone.wav');
+
+      expect(preview.mimetype).toBe('image/png');
+      expect(preview.path).not.toBe(input);
+      const metadata = await sharp(preview.path).metadata();
+      expect(metadata.format).toBe('png');
+      expect(metadata.width).toBe(700);
+      expect(metadata.height).toBe(700);
+      await cleanup([preview.path, dir]);
+    });
+
+    it('rejects when the file is not decodable audio', async () => {
+      if (!(await hasFfmpeg())) return;
+      const dir = await mkdtemp(path.join(tmpdir(), 'op-preview-'));
+      const input = path.join(dir, 'fake.mp3');
+      await writeFile(input, 'this is not an audio file');
+
+      await expect(
+        createPreview(input, 'audio/mpeg', 'fake.mp3'),
+      ).rejects.toThrow('Error generating audio preview');
+
+      await cleanup([dir]);
     });
   });
 

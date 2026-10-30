@@ -27,6 +27,7 @@ import {
   BookmarkMinusIcon,
   LinkIcon,
   ImageOffIcon,
+  AudioLinesIcon,
 } from '../icons';
 
 export interface ResourceCardProps {
@@ -39,8 +40,12 @@ export interface ResourceCardProps {
   inGroup?: boolean;
 }
 
+// Audio attachments render their generated waveform preview like any other
+// visual; without one they fall back to the kind placeholder below.
 const visualAttachments = (attachments: MediaAttachmentData[]) =>
-  attachments.filter((att) => attachmentMediaKind(att) !== 'audio');
+  attachments.filter(
+    (att) => attachmentMediaKind(att) !== 'audio' || !!att.previewUrl
+  );
 
 const primaryActionLabel = (
   kind: ResourceKind,
@@ -170,6 +175,13 @@ export const ResourceCard = ({
         <CachedImage url={thumbSrc} className="h-12 w-12" resizeMode="cover" />
       );
     }
+    if (resource.resourceKind === 'audio') {
+      return (
+        <View className="h-12 w-12 items-center justify-center rounded-md bg-muted">
+          <AudioLinesIcon size={20} className="text-muted-foreground" />
+        </View>
+      );
+    }
     if (resource.resourceKind === 'link' && resource.url) {
       return (
         <View className="h-12 w-12 items-center justify-center rounded-md bg-muted">
@@ -285,6 +297,10 @@ export const ResourceCard = ({
                 </View>
               );
             })}
+          </View>
+        ) : resource.resourceKind === 'audio' ? (
+          <View className="h-48 w-full items-center justify-center rounded-md bg-muted">
+            <AudioLinesIcon size={32} className="text-muted-foreground/50" />
           </View>
         ) : resource.resourceKind === 'link' && resource.url ? (
           <View className="h-48 w-full items-center justify-center rounded-md bg-muted">
