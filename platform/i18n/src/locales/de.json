@@ -515,6 +515,11 @@
       "viewOriginal": "Originalbeitrag anzeigen",
       "viewPost": "Beitrag anzeigen"
     },
+    "truncatedMarkdown": {
+      "show": "Mehr anzeigen",
+      "showHint": "Lange drücken oder loshovern, um den vollständigen Text zu lesen",
+      "close": "Schließen"
+    },
     "feed": {
       "empty": "Noch keine Beiträge.",
       "pinned": "Angepinnt"

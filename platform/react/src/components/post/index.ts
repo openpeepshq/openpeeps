@@ -6,6 +6,8 @@ export { FeedPostContent } from './FeedPostContent';
 export { PostDetail } from './PostDetail';
 export type { PostDetailProps } from './PostDetail';
 export { PostMarkdown, OpenpeepsMarkdown } from './Markdown';
+export { TruncatedMarkdown } from './TruncatedMarkdown';
+export type { TruncatedMarkdownProps } from './TruncatedMarkdown';
 export { PostMenu } from './pieces/PostMenu';
 export type { PostMenuProps } from './pieces/PostMenu';
 export { ShareMenu } from './pieces/ShareMenu';

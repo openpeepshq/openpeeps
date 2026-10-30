@@ -11,12 +11,12 @@ import {
   attachmentMediaKind,
   formatSize,
   normalizeResourceTags,
-  truncateMarkdown,
 } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { CachedImage } from '../custom/common';
 import { ThemedText } from '../ui/themed-text';
 import { VideoPlayOverlay } from '../post/VideoPlayOverlay';
+import { TruncatedMarkdown } from '../post/TruncatedMarkdown';
 import {
   BookmarkPlusIcon,
   BookmarkMinusIcon,
@@ -74,7 +74,6 @@ export const ResourceCard = ({
     !!resource && resource.resourceKind === 'gallery' && visuals.length > 1;
   const tiles = isGallery ? visuals.slice(0, 4) : visuals.slice(0, 1);
   const extra = isGallery ? Math.max(0, visuals.length - 4) : 0;
-  const excerpt = resource ? truncateMarkdown(resource.content, 2, 240) : null;
   const tags = resource ? normalizeResourceTags(resource.tags) : [];
   const actionLabel = resource
     ? primaryActionLabel(resource.resourceKind, (key, opts) => t(key, opts))
@@ -160,11 +159,13 @@ export const ResourceCard = ({
               {resource.categoryPath.join(' / ')}
             </ThemedText>
           ) : null}
-          {excerpt ? (
-            <ThemedText className="text-sm text-muted-foreground">
-              {excerpt}
-            </ThemedText>
-          ) : null}
+          <TruncatedMarkdown
+            source={resource.content ?? ''}
+            maxBlocks={2}
+            maxChars={240}
+            maxLines={2}
+            className="text-sm text-muted-foreground"
+          />
           {metaText ? (
             <ThemedText className="text-xs text-muted-foreground">
               {metaText}
@@ -264,11 +265,13 @@ export const ResourceCard = ({
           {resource.categoryPath.join(' / ')}
         </ThemedText>
       ) : null}
-      {excerpt ? (
-        <ThemedText className="text-sm text-muted-foreground">
-          {excerpt}
-        </ThemedText>
-      ) : null}
+      <TruncatedMarkdown
+        source={resource.content ?? ''}
+        maxBlocks={2}
+        maxChars={240}
+        maxLines={2}
+        className="text-sm text-muted-foreground"
+      />
       {metaText ? (
         <ThemedText className="text-xs text-muted-foreground">
           {metaText}

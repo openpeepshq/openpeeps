@@ -1,6 +1,5 @@
 import {
   formatEventWhen,
-  markdownPlainText,
   type Article,
   type Event,
   type MediaAttachmentData,
@@ -19,6 +18,7 @@ import { MainStackParamList } from '../navigation/types/index';
 import { ThemedText } from '../ui/themed-text';
 import { ThemedView } from '../ui/themed-view';
 import { SvgImage } from '../ui/svg-image';
+import { TruncatedMarkdown } from '../post/TruncatedMarkdown';
 
 type CompactPost = Pick<
   PublicReplyPost,
@@ -126,21 +126,21 @@ const CompactTypeBody = ({ post }: { post: CompactPost }) => {
   switch (post.type) {
     case 'note': {
       const attachments = attachmentsOf(post);
-      const text = markdownPlainText(
-        post.data?.type === 'note' ? post.data.content : ''
-      );
       const hasVisual = !!visualAttachment(attachments);
       const docName =
         !hasVisual && attachments[0]
           ? attachments[0].filename || t('posts.compact.document')
           : undefined;
+      if (!post.data.content && !docName) return null;
       return (
         <>
-          {text ? (
-            <ThemedText className="text-sm" numberOfLines={2}>
-              {text}
-            </ThemedText>
-          ) : null}
+          <TruncatedMarkdown
+            source={post.data.content ?? ''}
+            maxBlocks={1}
+            maxChars={80}
+            maxLines={1}
+            className="text-sm text-muted-foreground"
+          />
           {docName ? (
             <View className="flex-row items-center gap-1">
               <PaperclipIcon className="size-3.5 text-muted-foreground" />
@@ -157,15 +157,16 @@ const CompactTypeBody = ({ post }: { post: CompactPost }) => {
     }
     case 'question': {
       const data = post.data as Question;
-      const text = markdownPlainText(data.content);
       const optionCount = data.options?.length ?? 0;
       return (
         <>
-          {text ? (
-            <ThemedText className="text-sm" numberOfLines={2}>
-              {text}
-            </ThemedText>
-          ) : null}
+          <TruncatedMarkdown
+            source={data.content ?? ''}
+            maxBlocks={1}
+            maxChars={80}
+            maxLines={1}
+            className="text-sm text-muted-foreground"
+          />
           {optionCount > 0 ? (
             <ThemedText
               className="text-xs text-muted-foreground"

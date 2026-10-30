@@ -1,7 +1,9 @@
 import { useWelcomePreview } from '../../../hooks/useWelcomePreview';
+import { truncateMarkdown, stripMarkdownImages } from '@openpeepshq/common/lib';
+import { TruncatedMarkdown } from '../../post/TruncatedMarkdown';
 
 export const WelcomePreview = () => {
-  const { eyebrow, title, description, imageUrl, imageFit } =
+  const { eyebrow, title, description, markdown, imageUrl, imageFit } =
     useWelcomePreview();
 
   return (
@@ -25,7 +27,14 @@ export const WelcomePreview = () => {
           <p className="text-muted-foreground truncate text-xs">{eyebrow}</p>
         ) : null}
         <p className="line-clamp-2 font-semibold">{title}</p>
-        {description ? (
+        {markdown ? (
+          <TruncatedMarkdown
+            source={markdown}
+            snippet={truncateMarkdown(stripMarkdownImages(markdown), 2, 240)}
+            maxLines={2}
+            className="break-words text-sm text-muted-foreground"
+          />
+        ) : description ? (
           <p className="text-muted-foreground line-clamp-3 break-words text-sm">
             {description}
           </p>

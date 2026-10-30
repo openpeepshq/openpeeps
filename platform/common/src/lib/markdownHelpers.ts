@@ -88,6 +88,19 @@ export const markdownPlainText = (markdown?: string | null): string => {
     .trim();
 };
 
+/**
+ * Removes inline images (`![alt](url)` and `![alt]`) from markdown while
+ * leaving all other formatting intact. Used to keep abbreviated previews to
+ * text+basic formatting and put the full (image-bearing) content in an overlay.
+ */
+export const stripMarkdownImages = (markdown?: string | null): string => {
+  if (!markdown) return '';
+  return markdown
+    .replace(/\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)/g, '')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/!\[[^\]]*\]/g, '');
+};
+
 export const firstNWords = (markdown: string | undefined, n: number) => {
   if (!markdown) return '';
   // Regular expression to match words and markdown links.
@@ -119,9 +132,12 @@ export const firstNWords = (markdown: string | undefined, n: number) => {
 
 /**
  * Truncates markdown to at most `maxBlocks` block-level regions, then to
- * `maxChars` characters at a word boundary. Preserves punctuation and inline
- * markdown formatting (links, bold, etc.). An ellipsis is appended only when
- * the content was actually shortened.
+ * `maxChars` characters at a word boundary. Protected inline constructs — links,
+ * images and inline code spans — are never severed: a construct that would not
+ * fit whole is omitted (along with what follows), so the result is always valid
+ * markdown. Emphasis markers and inline-code backticks left open by a word-boundary
+ * cut are closed, so renderers never emit raw markup leaking into copy. An
+ * ellipsis is appended only when the content was actually shortened.
  */
 export const truncateMarkdown = (
   markdown: string | undefined,
@@ -145,18 +161,116 @@ export const truncateMarkdown = (
     return hadMoreBlocks ? `${content}…` : content;
   }
 
-  const candidate = content.slice(0, maxChars);
+  return `${closeOpenInline(sliceMarkdownTo(content, maxChars))}…`;
+};
+
+/** Inline constructs kept whole so truncation never breaks their syntax. */
+const PROTECTED_RE = /(`[^`]+`)|(!\[[^\]]*\]\([^)]*\))|(\[[^\]]*\]\([^)]*\))/g;
+
+/**
+ * Walks `content` accumulating plain text (cuttable at a word boundary) and
+ * protected spans (kept whole). A protected span that would not fit in the
+ * remaining budget ends the snippet instead of being severed.
+ */
+const sliceMarkdownTo = (content: string, maxChars: number): string => {
+  let out = '';
+  let pos = 0;
+
+  while (pos < content.length) {
+    PROTECTED_RE.lastIndex = pos;
+    const match = PROTECTED_RE.exec(content);
+    const spanStart = match ? match.index : content.length;
+
+    const plain = content.slice(pos, spanStart);
+    const room = maxChars - out.length;
+    if (room <= 0) break;
+
+    if (plain.length <= room) {
+      out += plain;
+    } else {
+      out += cutAtWordBoundary(plain, room);
+      return out.trimEnd();
+    }
+
+    if (match) {
+      const span = match[0];
+      if (out.length + span.length <= maxChars) {
+        out += span;
+        pos = match.index + span.length;
+      } else {
+        // Whole span doesn't fit — drop it (and the rest) rather than sever it.
+        return out.trimEnd();
+      }
+    } else {
+      pos = content.length;
+    }
+  }
+
+  return out.trimEnd();
+};
+
+const cutAtWordBoundary = (text: string, max: number): string => {
+  const candidate = text.slice(0, max);
   const lastBreak = Math.max(
     candidate.lastIndexOf(' '),
     candidate.lastIndexOf('\n'),
     candidate.lastIndexOf('\t'),
   );
-
   if (lastBreak > 0) {
-    return `${content.slice(0, lastBreak).trimEnd()}…`;
+    return text.slice(0, lastBreak).trimEnd();
+  }
+  return candidate;
+};
+
+/**
+ * Best-effort repair: closes emphasis runs and inline-code backticks left
+ * dangling by a cut inside their span. List-marker asterisks at the start of a
+ * line are treated as plain text, not emphasis.
+ */
+const closeOpenInline = (snippet: string): string => {
+  const closers: string[] = [];
+  let inCode = false;
+  let i = 0;
+
+  while (i < snippet.length) {
+    const ch = snippet[i];
+    const atLineStart = i === 0 || snippet[i - 1] === '\n';
+
+    if (ch === '`') {
+      inCode = !inCode;
+      i++;
+      continue;
+    }
+    if (inCode) {
+      i++;
+      continue;
+    }
+
+    if (!atLineStart && (ch === '*' || ch === '_' || ch === '~')) {
+      let j = i + 1;
+      while (j < snippet.length && snippet[j] === ch) j++;
+      const marker = snippet.slice(i, j);
+      // A lone '~' is not emphasis; treat length-1 tilde as plain text.
+      if (ch === '~' && marker.length < 2) {
+        i++;
+        continue;
+      }
+      const opener = marker.length >= 2 ? marker.slice(0, 2) : marker;
+      if (closers[closers.length - 1] === opener) {
+        closers.pop();
+      } else {
+        closers.push(opener);
+      }
+      i = j;
+      continue;
+    }
+
+    i++;
   }
 
-  return `${candidate}…`;
+  if (closers.length === 0 && !inCode) return snippet;
+  const tail = closers.reverse().join('') + (inCode ? '`' : '');
+  return `${snippet}${tail}`;
 };
 
 /** Average adult reading speed (words per minute). */
