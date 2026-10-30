@@ -1,6 +1,6 @@
 import type { RequestEvent } from '@riddl/core';
 import { ensureLocalProfile } from '#lib/auth';
-import { payloadTooLarge } from '#lib/errors';
+import { badRequest, payloadTooLarge } from '#lib/errors';
 import {
   type MediaAttachment,
   type MediaStorageRequest,
@@ -11,6 +11,7 @@ import { config } from '@openpeepshq/core/config';
 import {
   mediaProcessingQueue,
   mediaStorage,
+  MediaContentError,
   runProcessing,
   SYNC_PROCESSING_LIMIT,
 } from '@openpeepshq/core/media';
@@ -68,11 +69,18 @@ export const createMediaAttachmentHandler = async (
   });
 
   if (size < SYNC_PROCESSING_LIMIT) {
-    return runProcessing({
-      mediaAttachmentId: attachment.id,
-      sourceStorageKey: fileStorageKey,
-      thumbnail,
-    });
+    try {
+      return await runProcessing({
+        mediaAttachmentId: attachment.id,
+        sourceStorageKey: fileStorageKey,
+        thumbnail,
+      });
+    } catch (error) {
+      if (error instanceof MediaContentError) {
+        throw badRequest(error.message);
+      }
+      throw error;
+    }
   }
 
   await mediaProcessingQueue().add('process', {
