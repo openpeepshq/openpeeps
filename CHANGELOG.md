@@ -5,12 +5,22 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **groups**: implement group creation capability based on user roles
+- **resources**: aggregate group resources in top-level library
+- **markdown**: unify abbreviated markdown previews
 - **tooltip**: implement portal for tooltip content to prevent overlap with sidebar
 - **navigation**: enhance mobile navigation with tooltips and improved accessibility
 - **rsvp**: enhance RSVP functionality with event end validation and localization updates
 
 ### Bug Fixes
 
+- **markdown**: read RN markdown link href from node attributes
+- **resources**: generate and show audio waveform thumbnails
+- **resources**: limit multi-file upload to gallery resources
+- **notifications**: render resource posts in notification emails
+- **resources**: make resource hashtags clickable
+- **resources**: show resource description once on the post detail page
+- **media**: convert images to webp, validate pdfs, reject invalid image uploads
 - **resources**: validate resource drafts before create
 - **ui**: enhance event rendering for email previews
 - **api**: improve handle validation in updateProfileRequestSchema
@@ -18,6 +28,10 @@ Changelog for OpenPeeps
 - **federation**: add Create inbox handler and switch to Traefik ACME
 - **i18n**: fix copy issues, restore br tags, highlight external links
 - **ui**: fix small onboarding and UI issues including markdown description rendering
+
+### Tests
+
+- **resources**: verify gallery images are stored in the order added
 
 ## 2026-10-29
 
