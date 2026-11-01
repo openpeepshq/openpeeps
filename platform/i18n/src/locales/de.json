@@ -3724,11 +3724,13 @@
       "emptyCollection": "Dieser Ordner enthält noch keine Ressourcen.",
       "viewList": "Liste",
       "viewCards": "Karten",
-      "resourceCount": "{{count}} Ressourcen angezeigt",
+      "resourceCount_one": "{{count}} Ressource angezeigt",
+      "resourceCount_other": "{{count}} Ressourcen angezeigt",
       "noResults": "Keine Ressourcen für die aktuellen Filter.",
       "saved": "Gespeichert",
       "showHiddenTags": "+ {{count}}",
       "hideTags": "Ausblenden",
+      "toggleFolders": "Ordner umschalten",
       "saved": "Gespeichert"
     },
     "actions": {
@@ -3750,7 +3752,8 @@
       "audienceForbidden": "Wählen Sie eine Gruppe, in der Sie diese Ressource veröffentlichen können."
     },
     "meta": {
-      "imagesCount": "{{count}} Bilder"
+      "imagesCount_one": "{{count}} Bild",
+      "imagesCount_other": "{{count}} Bilder"
     },
     "group": {
       "inGroup": "in {{groupName}}"

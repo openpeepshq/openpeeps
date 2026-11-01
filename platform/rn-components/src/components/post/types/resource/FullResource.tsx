@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import type { PublicPost } from '@openpeepshq/common';
 import { attachmentMediaKind } from '@openpeepshq/common/lib';
+import { downloadDocument } from '../../../../lib/downloadFile';
 import { FullPostLayout } from '../../FullPostLayout';
 import { PostInfoHeader } from '../../pieces/PostInfoHeader';
 import { PostMarkdown } from '../../Markdown';
@@ -45,7 +46,7 @@ export const FullResource = ({ post }: FullResourceProps) => {
         const att = resource.attachments?.find(
           (a) => attachmentMediaKind(a) === 'file'
         );
-        if (att?.url) Linking.openURL(att.url);
+        if (att?.url) void downloadDocument(att.url);
         break;
       }
       case 'link':

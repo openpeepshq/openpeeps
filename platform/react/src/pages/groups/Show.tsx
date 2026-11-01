@@ -1,5 +1,11 @@
-import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { groupSectionFromHash } from '@openpeepshq/common/lib';
 import { useT, useOpenpeeps } from '../../index';
 import {
@@ -15,6 +21,11 @@ import {
 import { routeHandleParam } from '../../lib/routeHandles';
 import { LoadingSpinner } from '@openpeepshq/react-ui';
 import { ResourceLibrary } from '../../components/resources/ResourceLibrary';
+import {
+  filtersFromUrl,
+  filtersToUrl,
+  type ResourceLibraryFilters,
+} from '../../components/resources/resourceLibraryFilters';
 
 export function GroupShow() {
   const t = useT();
@@ -23,6 +34,26 @@ export function GroupShow() {
   const { handle: handleParam = '' } = useParams<{ handle: string }>();
   const handle = routeHandleParam(handleParam);
   const { openpeepsApi } = useOpenpeeps();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // The page owns the URL. Read the resource library's filters from it as its
+  // initial config, and write them back when they change. Computed per render
+  // (not memoized at mount) because the library remounts when the tab
+  // changes, so a filter set from an earlier visit must still be restored.
+  const initialFilters = filtersFromUrl(searchParams);
+
+  const paramsRef = useRef(searchParams);
+  paramsRef.current = searchParams;
+  const handleResourceFiltersChange = useCallback(
+    (filters: ResourceLibraryFilters) => {
+      const next = filtersToUrl(paramsRef.current, filters);
+      // Guard: skip a no-op write, which would otherwise loop (writing
+      // updates searchParams, which re-runs this callback).
+      if (next.toString() === paramsRef.current.toString()) return;
+      setSearchParams(next, { replace: true });
+    },
+    [setSearchParams],
+  );
 
   const groupQuery = openpeepsApi.useGroupByHandle(handle);
   const group = groupQuery.data;
@@ -180,7 +211,11 @@ export function GroupShow() {
             currentProfile={currentProfile}
             group={group}
           />
-          <ResourceLibrary groupId={group.id} />
+          <ResourceLibrary
+            groupId={group.id}
+            initialFilters={initialFilters}
+            onFiltersChange={handleResourceFiltersChange}
+          />
         </div>
       )}
 

@@ -265,6 +265,10 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
             ) : null}
             <Pressable
               onPress={() => library.setHierarchy(!library.hierarchy)}
+              accessibilityRole="button"
+              accessibilityLabel={t('resources.library.toggleFolders', {
+                defaultValue: 'Toggle folders',
+              })}
               className="ml-auto"
             >
               {library.hierarchy ? (

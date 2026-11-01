@@ -8,15 +8,23 @@ import {
 import type { ResourceKind } from '@openpeepshq/common/types';
 import { RESOURCE_KINDS } from '@openpeepshq/common/lib';
 import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useT } from '../../i18n';
 import { useHrefOf } from '../../contexts/router';
 import { useResourceLibrary } from '../../hooks';
+import type { ResourceLibraryFilters } from '../../hooks';
 import { ResourceCard } from './ResourceCard';
 import type { CategoryNode } from '@openpeepshq/common/lib';
 
 export interface ResourceLibraryProps {
   groupId?: string;
+  /** Filters to restore on mount, e.g. hydrated by the page from the URL. */
+  initialFilters?: ResourceLibraryFilters;
+  /**
+   * Report filter changes back to the page. The page owns the URL and
+   * serializes these filters into query params itself.
+   */
+  onFiltersChange?: (filters: ResourceLibraryFilters) => void;
 }
 
 const COLLECTION_LIMIT = 5;
@@ -92,11 +100,32 @@ const Tree = ({
   </ul>
 );
 
-export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
+export const ResourceLibrary = ({
+  groupId,
+  initialFilters,
+  onFiltersChange,
+}: ResourceLibraryProps) => {
   const t = useT();
   const hrefOf = useHrefOf();
-  const library = useResourceLibrary(groupId);
+  const library = useResourceLibrary(groupId, undefined, initialFilters);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  // Report filter changes to the page, which owns the URL and serializes
+  // these filters into query params.
+  useEffect(() => {
+    onFiltersChange?.({
+      kind: library.kind,
+      saved: library.saved,
+      tags: library.selectedTags,
+      path: library.pathPrefix,
+    });
+  }, [
+    library.kind,
+    library.saved,
+    library.selectedTags,
+    library.pathPrefix,
+    onFiltersChange,
+  ]);
 
   const toggleNode = (nodeKey: string) => {
     setExpanded((prev) => {
@@ -249,6 +278,9 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
             <button
               type="button"
               className="text-muted-foreground hover:text-foreground ml-auto"
+              aria-label={t('resources.library.toggleFolders', {
+                defaultValue: 'Toggle folders',
+              })}
               onClick={() => library.setHierarchy(!library.hierarchy)}
             >
               {library.hierarchy ? (

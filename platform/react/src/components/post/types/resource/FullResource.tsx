@@ -15,6 +15,20 @@ export interface FullResourceProps {
   post: PublicPost;
 }
 
+/**
+ * Kick off a real download (not "open in tab"). The `download` attribute makes
+ * the browser save the file; it applies for same-origin URLs, which is how
+ * attachments are served, so File resources download instead of navigating.
+ */
+const triggerDownload = (url: string, filename?: string) => {
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  if (filename) anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+};
+
 export const FullResource = ({ post }: FullResourceProps) => {
   const t = useT();
   const resource = post.data?.type === 'resource' ? post.data : null;
@@ -36,7 +50,7 @@ export const FullResource = ({ post }: FullResourceProps) => {
         const att = resource.attachments?.find(
           (a) => attachmentMediaKind(a) === 'file',
         );
-        if (att?.url) window.open(att.url, '_blank');
+        if (att?.url) triggerDownload(att.url, att.filename);
         break;
       }
       case 'link':

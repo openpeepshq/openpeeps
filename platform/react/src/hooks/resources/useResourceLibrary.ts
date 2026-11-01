@@ -8,7 +8,18 @@ import {
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useFeedListParams } from '../useResolvedFeedFormat';
 
-export const useResourceLibrary = (groupId?: string, ungrouped?: boolean) => {
+export interface ResourceLibraryFilters {
+  kind?: ResourceKind | 'all';
+  saved?: boolean;
+  tags?: string[];
+  path?: string[];
+}
+
+export const useResourceLibrary = (
+  groupId?: string,
+  ungrouped?: boolean,
+  initial?: ResourceLibraryFilters,
+) => {
   const { openpeepsApi } = useOpenpeeps();
   const params = useFeedListParams({ format: 'linear' });
   const query = openpeepsApi.usePostsByType('resource', {
@@ -22,12 +33,16 @@ export const useResourceLibrary = (groupId?: string, ungrouped?: boolean) => {
   const bookmarkedIds = openpeepsApi.useCurrentProfileBookmarkedIds();
 
   const [search, setSearch] = useState('');
-  const [kind, setKind] = useState<ResourceKind | 'all'>('all');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [pathPrefix, setPathPrefix] = useState<string[]>([]);
+  const [kind, setKind] = useState<ResourceKind | 'all'>(
+    initial?.kind ?? 'all',
+  );
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    initial?.tags ?? [],
+  );
+  const [pathPrefix, setPathPrefix] = useState<string[]>(initial?.path ?? []);
   const [hierarchy, setHierarchy] = useState(false);
   const [view, setView] = useState<'list' | 'cards'>('cards');
-  const [saved, setSaved] = useState(false);
+  const [saved, setSaved] = useState(initial?.saved ?? false);
 
   const posts = useMemo(() => {
     const flat = (query.data?.pages ?? []).flat();
