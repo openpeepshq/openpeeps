@@ -35,7 +35,7 @@ export function DeletePostModal({
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-w-lg overflow-x-hidden">
+      <DialogContent className="flex max-h-[90vh] max-w-lg flex-col overflow-x-hidden">
         <DialogHeader>
           <DialogTitle>
             {t('posts.deleteModal.deletePostTitle', {
@@ -43,14 +43,16 @@ export function DeletePostModal({
             })}
           </DialogTitle>
         </DialogHeader>
-        <article className="min-w-0 overflow-x-hidden">
-          <FeedPost post={post} noReactionHeader />
-          <p className="my-4 text-sm">
-            {t('posts.delete.confirm', {
-              defaultValue: 'Are you sure you want to delete this post?',
-            })}
-          </p>
-        </article>
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <article className="min-w-0 overflow-x-hidden">
+            <FeedPost post={post} noReactionHeader />
+            <p className="my-4 text-sm">
+              {t('posts.delete.confirm', {
+                defaultValue: 'Are you sure you want to delete this post?',
+              })}
+            </p>
+          </article>
+        </div>
         <DialogActions
           cancelLabel={t('posts.deleteModal.cancel', {
             defaultValue: 'Cancel',
