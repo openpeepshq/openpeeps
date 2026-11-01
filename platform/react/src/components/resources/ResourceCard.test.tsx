@@ -52,6 +52,25 @@ const resourcePost = (tags: string[]): PublicPost =>
     },
   }) as PublicPost;
 
+const filePost = (): PublicPost =>
+  ({
+    id: 'post-file',
+    type: 'resource',
+    data: {
+      type: 'resource',
+      title: 'Quarterly report',
+      resourceKind: 'file',
+      attachments: [
+        {
+          type: 'file',
+          url: 'https://cdn.example.com/report.pdf',
+          filename: 'report.pdf',
+          meta: { size: 2500000, mimetype: 'application/pdf' },
+        },
+      ],
+    },
+  }) as PublicPost;
+
 describe('ResourceCard', () => {
   let root: Root | undefined;
   let container: HTMLDivElement | undefined;
@@ -96,5 +115,19 @@ describe('ResourceCard', () => {
       type: 'tags',
       hashtag: 'juneteenth',
     });
+  });
+
+  it('shows the filename with its extension for a file resource', async () => {
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+
+    await act(async () => {
+      root?.render(createElement(ResourceCard, { post: filePost() }));
+    });
+
+    // filename + extension, followed by the formatted size
+    expect(container.textContent).toContain('report.pdf');
+    expect(container.textContent).toContain('2.4 MB');
   });
 });
