@@ -119,6 +119,14 @@ export const ResourceCard = ({
         attachmentMediaKind(att) === 'video' ||
         attachmentMediaKind(att) === 'audio'
     );
+    // File resources show their filename (with extension) so users can tell
+    // what they're about to download; other kinds show the size.
+    if (resource.resourceKind === 'file') {
+      const size = fileAtt?.meta?.size;
+      const filename = fileAtt?.filename;
+      if (filename && size) return `${filename} · ${formatSize(size)}`;
+      return filename ?? (size ? formatSize(size) : null);
+    }
     const size = fileAtt?.meta?.size;
     if (size) return formatSize(size);
     return null;
