@@ -205,7 +205,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
         <DropdownMenu>
           <KeyboardAvoidingView
             className="flex-1"
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
           >
             <ScrollView
