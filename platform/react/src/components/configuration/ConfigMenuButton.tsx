@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { useT } from '../../i18n';
+import { Markdown } from '../../lib/Markdown';
 
 export interface ConfigMenuButtonProps {
   translationPrefix: string;
@@ -36,10 +37,13 @@ export function ConfigMenuButton({
           )}
         </div>
         <div className="text-muted-foreground text-xs">
-          {t(
-            `${translationPrefix}.description`,
-            descriptionFallback ? { defaultValue: descriptionFallback } : {},
-          )}
+          <Markdown
+            inline
+            source={t(
+              `${translationPrefix}.description`,
+              descriptionFallback ? { defaultValue: descriptionFallback } : {},
+            )}
+          />
         </div>
       </div>
       <span aria-hidden="true">
