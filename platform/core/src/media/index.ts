@@ -171,7 +171,7 @@ export const createPreview = async (
 ): Promise<MediaFile> => {
   switch (mimetype.split('/')[0]) {
     case 'image':
-      return createImagePreview(inputPath);
+      return createImagePreview(inputPath, mimetype, originalName);
     case 'audio':
       return createAudioPreview(inputPath);
     case 'video':
@@ -184,16 +184,100 @@ export const createPreview = async (
   }
 };
 
-const createImagePreview = async (inputPath: string): Promise<MediaFile> => {
+/**
+ * HEVC-coded HEIF variants. sharp's prebuilt libvips cannot decode these
+ * (AVIF, which shares the container, is handled natively).
+ */
+const HEIF_MIMETYPES = new Set([
+  'image/heic',
+  'image/heif',
+  'image/heic-sequence',
+  'image/heif-sequence',
+]);
+
+const isHeifFamily = (mimetype: string, originalName: string): boolean =>
+  HEIF_MIMETYPES.has(mimetype) || /\.hei[cf]$/i.test(originalName);
+
+/**
+ * Decode a HEIC/HEIF image to PNG with ImageMagick. Prefers the ImageMagick 7
+ * `magick` binary and falls back to the ImageMagick 6 `convert` (Debian/Ubuntu
+ * ship only the latter). `-auto-orient` bakes EXIF rotation into the PNG so
+ * the later sharp step cannot lose orientation with the pixel data.
+ */
+const decodeWithImageMagick = async (inputPath: string): Promise<string> => {
+  const outputPath = tempPathFor('decode.png');
+  const args = [inputPath, '-auto-orient', outputPath];
+  await new Promise<void>((resolve, reject) => {
+    const run = (bin: string) => {
+      const proc = spawn(bin, args, { stdio: ['ignore', 'ignore', 'pipe'] });
+      let stderr = '';
+      proc.stderr?.setEncoding('utf8');
+      proc.stderr?.on('data', (chunk: string) => {
+        stderr += chunk;
+      });
+      proc.on('error', (err: NodeJS.ErrnoException) => {
+        if (err.code === 'ENOENT' && bin === 'magick') {
+          run('convert');
+          return;
+        }
+        reject(
+          err.code === 'ENOENT'
+            ? new Error('ImageMagick binary not found')
+            : err,
+        );
+      });
+      proc.on('close', (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(
+            new Error(`ImageMagick ${bin} failed (exit ${code}): ${stderr}`),
+          );
+        }
+      });
+    };
+    run('magick');
+  });
+  return outputPath;
+};
+
+/**
+ * Render an image to a WebP thumbnail via sharp. sharp's prebuilt libvips
+ * bundles libheif for AVIF but ships without the HEVC codecs iPhone photos
+ * use, so HEVC-coded HEIC inputs are first decoded with ImageMagick (when
+ * installed with its heic delegate; see decodeWithImageMagick). Without it the
+ * sharp call below rejects them with MediaContentError, preserving the
+ * reject-uploads-we-cannot-process behaviour.
+ */
+const createImagePreview = async (
+  inputPath: string,
+  mimetype: string,
+  originalName: string,
+): Promise<MediaFile> => {
   const outputPath = join(tmpdir(), `preview-${randomString(16)}.webp`);
+  let decodePath = inputPath;
+  if (isHeifFamily(mimetype, originalName)) {
+    try {
+      decodePath = await decodeWithImageMagick(inputPath);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      log.warn(
+        `ImageMagick HEIC decode skipped for ${originalName}: ${message}`,
+      );
+    }
+  }
   try {
-    await sharp(inputPath)
+    await sharp(decodePath)
       .rotate()
       .resize(previewMaxWidth)
       .webp({ quality: 80 })
       .toFile(outputPath);
   } catch {
     throw new MediaContentError("This file isn't a supported image.");
+  } finally {
+    if (decodePath !== inputPath) {
+      await fs.rm(decodePath, { force: true }).catch(() => undefined);
+    }
   }
   return { path: outputPath, mimetype: 'image/webp' };
 };

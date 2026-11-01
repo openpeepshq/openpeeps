@@ -2,11 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
 import { createWriteStream, statSync } from 'node:fs';
 import sharp from 'sharp';
 import PDFDocument from 'pdfkit';
 import { createPreview, MediaContentError } from './index';
+
+const heicFixture = fileURLToPath(
+  new URL('./fixtures/sample.heic', import.meta.url),
+);
 
 const createTestPdf = (
   outputPath: string,
@@ -86,7 +91,7 @@ const createTestPng = async (outputPath: string, width = 100, height = 100) => {
     .toFile(outputPath);
 };
 
-/** Create a small HEIF/HEIC image (AV1-coded, since HEVC may not be available). */
+/** Create a small AVIF image (AV1-coded HEIF; sharp decodes it natively). */
 const createTestHeic = async (
   outputPath: string,
   width = 100,
@@ -119,9 +124,9 @@ describe('createPreview', () => {
       await cleanup([preview.path, dir]);
     });
 
-    it('converts HEIC/HEIF input to WebP (issue #1774)', async () => {
+    it('converts AVIF input to WebP via sharp (issue #1774)', async () => {
       const dir = await mkdtemp(path.join(tmpdir(), 'op-preview-'));
-      const input = path.join(dir, 'photo.heic');
+      const input = path.join(dir, 'photo.avif');
       try {
         await createTestHeic(input);
       } catch {
@@ -130,7 +135,7 @@ describe('createPreview', () => {
         return;
       }
 
-      const preview = await createPreview(input, 'image/heic', 'photo.heic');
+      const preview = await createPreview(input, 'image/avif', 'photo.avif');
 
       expect(preview.mimetype).toBe('image/webp');
       expect(preview.path).not.toBe(input);
@@ -140,6 +145,39 @@ describe('createPreview', () => {
       const outputStats = statSync(preview.path);
       expect(outputStats.size).not.toBe(inputStats.size);
       await cleanup([preview.path, dir]);
+    });
+
+    // Real iPhone-style HEIC is HEVC-coded, which sharp's prebuilt libvips
+    // cannot decode — it needs the ImageMagick heic delegate (runtime image
+    // ships imagemagick + libheif). Where that is unavailable (e.g. Ubuntu's
+    // libheif has no HEVC decoder) the fixture decodes to MediaContentError
+    // and the test skips, matching the reject-uploads-we-cannot-process
+    // fallback.
+    it('converts an HEVC-coded HEIC photo to WebP via ImageMagick (issue #1774)', async () => {
+      let preview;
+      try {
+        preview = await createPreview(heicFixture, 'image/heic', 'sample.heic');
+      } catch (error) {
+        if (error instanceof MediaContentError) return; // no HEIC decoder here
+        throw error;
+      }
+
+      expect(preview.mimetype).toBe('image/webp');
+      expect(preview.path).not.toBe(heicFixture);
+      expect(await isValidWebp(preview.path)).toBe(true);
+      await cleanup([preview.path]);
+    });
+
+    it('throws MediaContentError for a corrupt HEIC file', async () => {
+      const dir = await mkdtemp(path.join(tmpdir(), 'op-preview-'));
+      const input = path.join(dir, 'broken.heic');
+      await writeFile(input, 'this is not a heic file');
+
+      await expect(
+        createPreview(input, 'image/heic', 'broken.heic'),
+      ).rejects.toThrow(MediaContentError);
+
+      await cleanup([dir]);
     });
 
     it('throws MediaContentError for a text file renamed to .jpg (issue #1773)', async () => {

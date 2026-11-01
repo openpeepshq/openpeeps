@@ -306,7 +306,8 @@ jobs:
       - name: Install dependencies
         run: |
           # bcrypt prebuilds live on GitHub; a 500 falls back to node-gyp.
-          apk add --no-cache python3 make g++
+          # imagemagick + libheif: HEIC decode for media preview tests.
+          apk add --no-cache python3 make g++ imagemagick libheif
           corepack enable
           pnpm install
       - name: Build packages needed by unit tests

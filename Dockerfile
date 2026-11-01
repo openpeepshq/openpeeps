@@ -157,6 +157,10 @@ RUN apk add --no-cache \
     fontconfig \
     font-dejavu \
     git \
+    # imagemagick decodes HEIC uploads (iPhone photos) for thumbnailing;
+    # its heic coder links libheif, which apk does not pull in automatically.
+    imagemagick \
+    libheif \
     libreoffice \
     tini \
     unzip
