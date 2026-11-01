@@ -12,6 +12,7 @@ export const GalleryAudio = ({ attachment, isActive }: GalleryAudioProps) => (
   <View className="size-full items-center justify-center rounded-none bg-muted p-4">
     <AudioAttachment
       src={attachment.url}
+      previewUrl={attachment.previewUrl ?? undefined}
       label={attachment.filename ?? attachment.description}
       size={attachment.meta?.size}
       isActive={isActive}

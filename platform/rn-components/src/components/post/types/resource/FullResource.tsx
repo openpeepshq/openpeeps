@@ -129,6 +129,7 @@ export const FullResource = ({ post }: FullResourceProps) => {
             preview={
               <AudioAttachment
                 src={audioAtt.url}
+                previewUrl={audioAtt.previewUrl ?? undefined}
                 label={audioAtt.filename ?? audioAtt.description}
                 size={audioAtt.meta?.size}
               />
