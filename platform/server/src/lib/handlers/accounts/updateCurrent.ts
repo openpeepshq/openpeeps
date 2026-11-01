@@ -4,7 +4,7 @@ import {
   type UpdateAccountPasswordRequest,
 } from '@openpeepshq/common/types';
 import type { RequestEvent } from '@riddl/core';
-import { forbidden } from '#lib/errors';
+import { forbidden, rethrowIfOpenpeepsError } from '#lib/errors';
 import { checkPassword, updateAccount } from '@openpeepshq/core/accounts';
 
 export const updateCurrentAccountPasswordHandler = async (
@@ -32,7 +32,7 @@ export const updateCurrentAccountPasswordHandler = async (
       account.email !== updateCurrentAccountRequest.email
         ? false
         : undefined,
-  });
+  }).catch(rethrowIfOpenpeepsError);
 
   return {
     success: true,
