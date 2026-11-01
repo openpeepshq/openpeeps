@@ -40,7 +40,7 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
         (groupId && (await findGroup(groupId))) || undefined,
       )
     ) {
-      throw forbidden();
+      throw forbidden('postCreateForbidden');
     }
 
     return await createPost(postData, profile, object, {
