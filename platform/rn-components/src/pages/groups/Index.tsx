@@ -66,7 +66,7 @@ export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
   useSetPlusButtonActions(
     canCreate
       ? {
-          title: t('groups.new'),
+          title: t('groups.new.label'),
           action: () => navigation.navigate('CreateGroup'),
         }
       : undefined

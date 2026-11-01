@@ -253,8 +253,7 @@
       "following": "Following",
       "posts": "Posts",
       "joined": "Joined {{date}}",
-      "avatarAlt": "Profile picture",
-      "roles": "Roles"
+      "avatarAlt": "Profile picture"
     },
     "actions": {
       "edit": "Edit Profile",
@@ -899,7 +898,10 @@
         "advanced": "Advanced"
       }
     },
-    "new": "New Group",
+    "new": {
+      "label": "New Group",
+      "title": "Create group"
+    },
     "goto": "Go to group",
     "viewMembers": "View members",
     "tabs": {
@@ -981,7 +983,10 @@
       "resourcesLinkCopied": "Resources link copied",
       "descriptionLinkCopied": "Description link copied"
     },
-    "notFound": "Group not found"
+    "notFound": "Group not found",
+    "error": {
+      "notmember": "You must be a member of this group to reply."
+    }
   },
   "jams": {
     "form": {
