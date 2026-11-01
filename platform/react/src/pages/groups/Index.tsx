@@ -48,7 +48,7 @@ export function GroupsIndex() {
     () =>
       canCreate
         ? {
-            title: t('groups.new', { defaultValue: 'New Group' }),
+            title: t('groups.new.label', { defaultValue: 'New Group' }),
             icon: Plus,
             action: '/groups/new',
           }

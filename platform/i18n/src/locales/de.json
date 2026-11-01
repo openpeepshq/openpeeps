@@ -835,7 +835,10 @@
       "successMessage": "Rollen aktualisiert",
       "ownerForbidden": "Nur eine Besitzerin bzw. ein Besitzer der Gruppe kann die Besitzerrolle erteilen oder entziehen."
     },
-    "new": "Neue Gruppe",
+    "new": {
+      "label": "Neue Gruppe",
+      "title": "Gruppe erstellen"
+    },
     "goto": "Zur Gruppe",
     "viewMembers": "Mitglieder anzeigen",
     "noGroupsYet": "Sie haben noch keine Gruppen",
@@ -921,6 +924,9 @@
       "empty": "Keine Mitglieder gefunden"
     },
     "notFound": "Gruppe nicht gefunden",
+    "error": {
+      "notmember": "Du musst Mitglied dieser Gruppe sein, um zu antworten."
+    },
     "edit": {
       "title": "Gruppe bearbeiten",
       "info": {
