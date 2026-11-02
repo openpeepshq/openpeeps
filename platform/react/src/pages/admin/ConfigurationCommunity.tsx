@@ -11,6 +11,10 @@ export function AdminConfigurationCommunity() {
         action="/admin/configuration/community/info"
       />
       <ConfigMenuButton
+        translationPrefix="configuration.community.access"
+        action="/admin/configuration/community/access"
+      />
+      <ConfigMenuButton
         translationPrefix="configuration.community.favicons"
         action="/admin/configuration/community/favicons"
       />
