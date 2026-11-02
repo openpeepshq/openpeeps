@@ -2277,7 +2277,16 @@
         "uploadBackground": "Click to upload a new community background image for Dark Theme"
       },
       "authBackgroundRequirements": "This image fits vertically on these pages, so use a vertical aspect ratio for best results.  Images less than 2MB are encouraged.",
-      "backgroundRequirements": "This image will appear behind the community content when using a wider screen to view the community.  It is not visible to users on mobile."
+      "backgroundRequirements": "This image will appear behind the community content when using a wider screen to view the community.  It is not visible to users on mobile.",
+      "access": {
+        "title": "Access",
+        "description": "Control who can join your community and who can see it",
+        "updated": "Access settings updated"
+      },
+      "publicContent": {
+        "title": "Public content",
+        "description": "Allow visitors to read public posts without an account"
+      }
     },
     "server": {
       "stripe": {

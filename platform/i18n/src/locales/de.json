@@ -2310,6 +2310,15 @@
       "openRegistrations": {
         "title": "Offene Registrierung",
         "description": "Besuchern die Registrierung in der Community erlauben"
+      },
+      "access": {
+        "title": "Zugang",
+        "description": "Steuern Sie, wer Ihrer Community beitreten kann und wer sie sehen kann",
+        "updated": "Zugangseinstellungen aktualisiert"
+      },
+      "publicContent": {
+        "title": "Öffentliche Inhalte",
+        "description": "Besuchern erlauben, öffentliche Beiträge ohne Konto zu lesen"
       }
     },
     "server": {
