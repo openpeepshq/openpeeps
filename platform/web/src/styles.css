@@ -35,6 +35,17 @@ body {
     max-width: 100%;
   }
 
+  /* Typography only shrinks inline code and bolds it, so it reads as
+     emphasis. A monospace face and muted chip make it read as code.
+     Fenced blocks stay on `pre`. */
+  .allpeep-markdown :not(pre) > code {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 400;
+    background-color: rgb(var(--color-muted));
+    border-radius: 0.25rem;
+    padding: 0.125em 0.35em;
+  }
+
   .allpeep-markdown .doc-mermaid {
     overflow-x: auto;
     margin: 1.5rem 0;
