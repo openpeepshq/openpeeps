@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { Megaphone } from 'lucide-react';
 import type {
   Article,
   AudienceSetting,
   PostCreationData,
 } from '@openpeepshq/common/types';
-import { Input, Label } from '@openpeepshq/react-ui';
+import { Input, Label, Switch } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
 import { applyAudienceSetting } from '../../../lib/audienceSetting';
@@ -18,12 +19,18 @@ export interface ArticleFormProps {
   postData: PostCreationData;
   onChange: (data: PostCreationData) => void;
   isEdit?: boolean;
+  showNotify?: boolean;
+  notify?: boolean;
+  onNotifyChange?: (value: boolean) => void;
 }
 
 export function ArticleForm({
   postData,
   onChange,
   isEdit = false,
+  showNotify = false,
+  notify = false,
+  onNotifyChange,
 }: ArticleFormProps) {
   const t = useT();
   const me = useCurrentProfile();
@@ -100,6 +107,26 @@ export function ArticleForm({
             showDirect
           />
         </Label>
+
+        {showNotify ? (
+          <div className="flex w-full items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Megaphone className="size-5" />
+              <p className="text-base">
+                {t('posts.form.notifyEveryone', {
+                  defaultValue: 'Notify everyone',
+                })}
+              </p>
+            </div>
+            <Switch
+              checked={notify}
+              onCheckedChange={(checked) => onNotifyChange?.(checked)}
+              aria-label={t('posts.form.notifyEveryone', {
+                defaultValue: 'Notify everyone',
+              })}
+            />
+          </div>
+        ) : null}
       </div>
 
       {!isEdit ? (

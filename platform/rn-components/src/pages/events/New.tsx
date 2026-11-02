@@ -19,6 +19,9 @@ export const NewEvent = (_props: NewEventProps) => {
     submitting,
     error,
     clearError,
+    notify,
+    setNotify,
+    showNotify,
     submit,
   } = useNewEvent();
 
@@ -44,7 +47,13 @@ export const NewEvent = (_props: NewEventProps) => {
         contentContainerClassName="grow"
         className="pb-12"
       >
-        <EventForm postData={postData} onChange={setPostData} />
+        <EventForm
+          postData={postData}
+          onChange={setPostData}
+          showNotify={showNotify}
+          notify={notify}
+          onNotifyChange={setNotify}
+        />
       </KeyboardAwareScrollView>
     </ThemedView>
   );

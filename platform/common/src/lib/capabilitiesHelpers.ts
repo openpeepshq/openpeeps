@@ -86,6 +86,17 @@ export const checkRoleCapabilities = (
 export const canCreateGroup = (roles: Role[] = []) =>
   checkRoleCapabilities(roles, ['core-groups-create']).success;
 
+/** Same gate as `POST /admin/posts/:postId/announce` (`core-posts-announce`). */
+export const canAnnouncePosts = (roles: Role[] = []) =>
+  checkRoleCapabilities(roles, ['core-posts-announce']).success;
+
+/**
+ * Announcements notify the whole community, so composers offer them only for
+ * community-wide visibility (public or local).
+ */
+export const isCommunityWideVisibility = (visibility?: string) =>
+  visibility === 'public' || visibility === 'local';
+
 /** Any of these matching `roles` shows the Administration row (submenu is separate UX). */
 export const ADMIN_SIDEBAR_MENU_CAPABILITIES = [
   'admin',

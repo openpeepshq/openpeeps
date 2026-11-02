@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  canAnnouncePosts,
+  isCommunityWideVisibility,
+} from '@openpeepshq/common';
 import type {
   Event,
   PostCreationData,
@@ -12,6 +16,7 @@ import {
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useNavigate } from '../../contexts/router';
 import { useT } from '../../i18n/context';
+import { useCurrentProfile } from '../../components/layout/IdentityContext';
 import { useServerInfo } from '../../components/server-data/context';
 import { eventSanitizer, getNewPostStores } from '../../stores/newPosts';
 
@@ -19,8 +24,10 @@ export const useNewEvent = () => {
   const t = useT();
   const navigate = useNavigate();
   const serverInfo = useServerInfo();
+  const me = useCurrentProfile();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
+  const announcePost = openpeepsApi.admin.announcePostAction();
   const stores = getNewPostStores();
   const sanitize = useMemo(
     () => eventSanitizer(serverInfo.publicContent),
@@ -30,8 +37,13 @@ export const useNewEvent = () => {
   const [postData, setPostDataState] = useState<PostCreationData>(() =>
     sanitize(stores.event),
   );
+  const [notify, setNotify] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const showNotify =
+    canAnnouncePosts(me?.roles) &&
+    isCommunityWideVisibility(postData.visibility);
 
   const event = postData.data.type === 'event' ? postData.data : null;
   const canSubmit =
@@ -73,6 +85,9 @@ export const useNewEvent = () => {
         type: 'event',
         data: normalizeEventDataForSave(event),
       });
+      if (notify && showNotify && created.id) {
+        await announcePost({ id: created.id });
+      }
       stores.resetNewEventState();
       navigate({ type: 'post', id: created.id });
     } catch (err) {
@@ -80,7 +95,17 @@ export const useNewEvent = () => {
     } finally {
       setSubmitting(false);
     }
-  }, [createPost, event, navigate, postData, stores, t]);
+  }, [
+    announcePost,
+    createPost,
+    event,
+    navigate,
+    notify,
+    postData,
+    showNotify,
+    stores,
+    t,
+  ]);
 
   return {
     postData,
@@ -89,6 +114,9 @@ export const useNewEvent = () => {
     submitting,
     error,
     clearError: () => setError(null),
+    notify,
+    setNotify,
+    showNotify,
     submit,
   };
 };

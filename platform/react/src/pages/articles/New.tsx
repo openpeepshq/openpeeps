@@ -13,6 +13,9 @@ export function NewArticle() {
     submitting,
     error,
     clearError,
+    notify,
+    setNotify,
+    showNotify,
     submit,
   } = useNewArticle();
 
@@ -39,7 +42,13 @@ export function NewArticle() {
 
   return (
     <div className="pb-12">
-      <ArticleForm postData={postData} onChange={setPostData} />
+      <ArticleForm
+        postData={postData}
+        onChange={setPostData}
+        showNotify={showNotify}
+        notify={notify}
+        onNotifyChange={setNotify}
+      />
 
       {error ? (
         <div className="px-3">
