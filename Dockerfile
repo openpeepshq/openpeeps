@@ -141,10 +141,64 @@ COPY docker/ docker/
 RUN pnpm rebuild --filter @openpeepshq/cli --filter @openpeepshq/mcp
 
 #─────────────────────────────────────────────────────────────────────────────
-# Runtime stage — minimal Alpine + Node with only the binaries the running
-# server / worker actually need (no build toolchain).
+# Test stage — Playwright base (glibc) with the integration suites installed.
+# The five shared packages' dist/ comes from the builder stage instead of
+# being rebuilt here: dist/ is portable JS, while each image keeps its own
+# runtime base and node_modules ABI (musl vs glibc).
 #─────────────────────────────────────────────────────────────────────────────
-FROM node:24-alpine
+FROM mcr.microsoft.com/playwright:v1.56.1-noble AS test
+
+# Fixture restore unpacks zip backups. Browsers already ship in the base image.
+# libreoffice is needed for office document preview generation (docx/xlsx/pptx -> PDF).
+# poppler-utils is needed for PDF page rasterization (sharp has no PDF loader).
+# fontconfig + DejaVu/Noto fonts are needed for PDF preview rendering (poppler text rasterization).
+RUN apt-get update -qq \
+    && apt-get install -y -qq unzip libreoffice fontconfig fonts-dejavu-core fonts-noto fonts-noto-cjk poppler-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV NODE_OPTIONS="--max-old-space-size=8192"
+
+WORKDIR /apat
+
+# Manifests only, so a source-only commit reuses the install layer from the
+# registry build cache (mode=max). Per-package COPYs merge over these files
+# and leave node_modules alone (.dockerignore excludes it from the context).
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY --parents \
+    libraries/*/package.json \
+    platform/*/package.json \
+    examples/*/package.json \
+    docs-site/package.json \
+    ./
+
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store \
+    corepack enable \
+    && pnpm config set store-dir /pnpm-store \
+    && pnpm install --frozen-lockfile --prefer-offline --filter "@openpeepshq/tests..."
+
+# core's dependency closure, built once in the builder stage and reused here
+# (restore-fixture imports @openpeepshq/core/backups, which resolves to dist).
+# Copied before `COPY . .` so source-only commits don't invalidate this layer;
+# .dockerignore keeps **/dist out of the context, so COPY . . never clobbers it.
+COPY --from=builder /apat/libraries/fetch-client/dist libraries/fetch-client/dist
+COPY --from=builder /apat/libraries/geocoder/dist libraries/geocoder/dist
+COPY --from=builder /apat/platform/i18n/dist platform/i18n/dist
+COPY --from=builder /apat/platform/common/dist platform/common/dist
+COPY --from=builder /apat/platform/core/dist platform/core/dist
+
+# Remaining runtime-only files + bin targets.
+# Rebuild bin symlinks: install ran before source was copied.
+COPY . .
+RUN pnpm rebuild
+
+#─────────────────────────────────────────────────────────────────────────────
+# Runtime stage — minimal Alpine + Node with only the binaries the running
+# server / worker actually need (no build toolchain). Last stage, so plain
+# `docker build .` still produces the production image.
+#─────────────────────────────────────────────────────────────────────────────
+FROM node:24-alpine AS app
 
 ARG VERSION
 ARG ENVIRONMENT
