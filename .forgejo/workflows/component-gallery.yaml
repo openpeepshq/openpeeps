@@ -1,27 +1,19 @@
 # Build and push the static component gallery image (components.openpeeps.org).
 #
-# Triggers on pushes to main / staging / stable (and manual dispatch). Rebuilds
-# version trees that contain examples/component-gallery into one nginx image:
+# Runs once per day (and on manual dispatch) instead of on every push to
+# main / staging / stable: the gallery does not gate anything and was
+# competing for builder resources with PR CI. Rebuilds version trees that
+# contain examples/component-gallery into one nginx image:
 # code.openpeeps.org/openpeeps/openpeeps-components:{sha,latest}.
 
 name: component-gallery
 
 on:
-  push:
-    branches:
-      - main
-      - staging
-      - stable
-    paths:
-      - 'examples/component-gallery/**'
-      - 'libraries/react-ui/**'
-      - 'platform/react/**'
-      - 'platform/common/**'
-      - 'platform/client/**'
-      - 'platform/i18n/**'
-      - '.forgejo/workflows/component-gallery.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'pnpm-lock.yaml'
+  schedule:
+    # Once per day, shortly after the changelog regeneration (00:00 UTC).
+    # Scheduled runs always build the default branch; path filters do not
+    # apply to schedule events.
+    - cron: "30 0 * * *"
   workflow_dispatch:
 
 concurrency:
