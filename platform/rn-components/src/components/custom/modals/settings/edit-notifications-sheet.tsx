@@ -104,7 +104,7 @@ export const EditNotificationsSheet = forwardRef<
   };
 
   return (
-    <BaseSheet ref={ref} key={name}>
+    <BaseSheet ref={ref} key={name} scrollable>
       <View className="flex-1 p-4">
         <View className="w-full">
           <ThemedText className="text-center text-xl font-semibold mb-6">
