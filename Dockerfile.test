@@ -7,9 +7,10 @@ FROM mcr.microsoft.com/playwright:v1.56.1-noble
 
 # Fixture restore unpacks zip backups. Browsers already ship in the base image.
 # libreoffice is needed for office document preview generation (docx/xlsx/pptx -> PDF).
+# poppler-utils is needed for PDF page rasterization (sharp has no PDF loader).
 # fontconfig + DejaVu/Noto fonts are needed for PDF preview rendering (poppler text rasterization).
 RUN apt-get update -qq \
-    && apt-get install -y -qq unzip libreoffice fontconfig fonts-dejavu-core fonts-noto fonts-noto-cjk \
+    && apt-get install -y -qq unzip libreoffice fontconfig fonts-dejavu-core fonts-noto fonts-noto-cjk poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 ENV PNPM_HOME="/pnpm"
