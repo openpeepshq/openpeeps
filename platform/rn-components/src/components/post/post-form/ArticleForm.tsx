@@ -8,8 +8,10 @@ import type {
 } from '@openpeepshq/common';
 import { HEADER_IMAGE_MAX_WIDTH } from '@openpeepshq/common/lib';
 import { applyAudienceSetting, useCurrentProfile } from '@openpeepshq/react';
+import { MegaphoneIcon } from '../../icons/index';
 import { ImageInput } from '../../form/ImageInput';
 import { Input } from '../../ui/input';
+import { Switch } from '../../ui/switch';
 import { ThemedText } from '../../ui/themed-text';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { VisibilitySelector } from './VisibilitySelector';
@@ -18,12 +20,18 @@ export interface ArticleFormProps {
   postData: PostCreationData;
   onChange: (data: PostCreationData) => void;
   isEdit?: boolean;
+  showNotify?: boolean;
+  notify?: boolean;
+  onNotifyChange?: (value: boolean) => void;
 }
 
 export const ArticleForm = ({
   postData,
   onChange,
   isEdit = false,
+  showNotify = false,
+  notify = false,
+  onNotifyChange,
 }: ArticleFormProps) => {
   const { t } = useTranslation();
   const me = useCurrentProfile();
@@ -95,6 +103,21 @@ export const ArticleForm = ({
             showDirect
           />
         </View>
+
+        {showNotify ? (
+          <View className="flex-row items-center justify-between py-1">
+            <View className="flex-row items-center gap-2">
+              <MegaphoneIcon size={20} className="text-foreground" />
+              <ThemedText className="text-base">
+                {t('posts.form.notifyEveryone')}
+              </ThemedText>
+            </View>
+            <Switch
+              checked={notify}
+              onCheckedChange={onNotifyChange ?? (() => undefined)}
+            />
+          </View>
+        ) : null}
       </View>
     </View>
   );

@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
+import {
+  canAnnouncePosts,
+  isCommunityWideVisibility,
+} from '@openpeepshq/common';
 import type {
   Article,
   PostCreationData,
@@ -7,6 +11,7 @@ import type {
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useNavigate } from '../../contexts/router';
 import { useT } from '../../i18n/context';
+import { useCurrentProfile } from '../../components/layout/IdentityContext';
 import { useServerInfo } from '../../components/server-data';
 import { defaultNewArticle, getNewPostStores } from '../../stores';
 
@@ -14,8 +19,10 @@ export const useNewArticle = () => {
   const t = useT();
   const navigate = useNavigate();
   const serverInfo = useServerInfo();
+  const me = useCurrentProfile();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
+  const announcePost = openpeepsApi.admin.announcePostAction();
   const stores = getNewPostStores();
 
   const [postData, setPostDataState] = useState<PostCreationData>(() => {
@@ -25,8 +32,13 @@ export const useNewArticle = () => {
     }
     return defaultNewArticle(serverInfo.publicContent);
   });
+  const [notify, setNotify] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const showNotify =
+    canAnnouncePosts(me?.roles) &&
+    isCommunityWideVisibility(postData.visibility);
 
   const article = postData.data.type === 'article' ? postData.data : null;
   const canSubmit =
@@ -55,6 +67,9 @@ export const useNewArticle = () => {
     setSubmitting(true);
     try {
       const created = await createPost({ ...postData, type: 'article' });
+      if (notify && showNotify && created.id) {
+        await announcePost({ id: created.id });
+      }
       stores.resetNewArticleState();
       navigate({ type: 'post', id: created.id });
     } catch (err) {
@@ -62,7 +77,17 @@ export const useNewArticle = () => {
     } finally {
       setSubmitting(false);
     }
-  }, [article, createPost, navigate, postData, stores, t]);
+  }, [
+    announcePost,
+    article,
+    createPost,
+    navigate,
+    notify,
+    postData,
+    showNotify,
+    stores,
+    t,
+  ]);
 
   return {
     postData,
@@ -71,6 +96,9 @@ export const useNewArticle = () => {
     submitting,
     error,
     clearError: () => setError(null),
+    notify,
+    setNotify,
+    showNotify,
     submit,
   };
 };

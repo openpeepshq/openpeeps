@@ -21,7 +21,8 @@ import {
 import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
 import { ThemedView } from '../../components/ui/themed-view';
 import {
-  checkRoleCapabilities,
+  canAnnouncePosts,
+  isCommunityWideVisibility,
   MediaAttachment,
   pollOptionsWithinLimit,
   PostCreationData,
@@ -80,16 +81,12 @@ export const NewPost = ({ route, navigation }: PostProps) => {
   }, [form, setPostData, resetPostData, postData]);
 
   const canNotify = useMemo(
-    () =>
-      checkRoleCapabilities(currentProfile?.roles ?? [], [
-        'allpeep-core-admin-notify',
-      ]).success,
+    () => canAnnouncePosts(currentProfile?.roles),
     [currentProfile?.roles]
   );
 
   const showNotify =
-    canNotify &&
-    (postData.visibility === 'public' || postData.visibility === 'local');
+    canNotify && isCommunityWideVisibility(postData.visibility);
 
   const trimmedContent = (postData.data.content ?? '').trim();
   const pollOptions =
@@ -146,7 +143,7 @@ export const NewPost = ({ route, navigation }: PostProps) => {
 
       await handleGroupJoinIfNeeded();
       const response = await createPost(postData as PostCreationData);
-      if (notify && canNotify && response?.id) {
+      if (notify && showNotify && response?.id) {
         await announcePost({ id: response.id });
       }
 
@@ -289,7 +286,13 @@ export const NewPost = ({ route, navigation }: PostProps) => {
     <ThemedView className="flex-1 bg-background">
       <KeyboardAwareScrollView className="flex-1">
         {isArticle ? (
-          <ArticleForm postData={postData} onChange={setPostData} />
+          <ArticleForm
+            postData={postData}
+            onChange={setPostData}
+            showNotify={showNotify}
+            notify={notify}
+            onNotifyChange={setNotify}
+          />
         ) : (
           <PostForm
             postData={postData}

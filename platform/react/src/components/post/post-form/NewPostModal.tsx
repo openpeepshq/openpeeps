@@ -7,7 +7,8 @@ import {
   Paperclip,
 } from 'lucide-react';
 import {
-  checkRoleCapabilities,
+  canAnnouncePosts,
+  isCommunityWideVisibility,
   pollOptionsWithinLimit,
   resolvePollOptionContents,
   type GroupWithMeta,
@@ -194,12 +195,8 @@ export function NewPostModal({
     audience,
   ]);
 
-  const canNotify = useMemo(
-    () =>
-      checkRoleCapabilities(me?.roles ?? [], ['allpeep-core-admin-notify'])
-        .success,
-    [me?.roles],
-  );
+  const canNotify = useMemo(() => canAnnouncePosts(me?.roles), [me?.roles]);
+  const showNotify = canNotify && isCommunityWideVisibility(visibility);
 
   const selectedGroupName = useMemo(() => {
     if (!groupId) return undefined;
@@ -300,7 +297,7 @@ export function NewPostModal({
       }
 
       const response = await createPost(payload);
-      if (notify && canNotify && response?.id) {
+      if (notify && showNotify && response?.id) {
         await announcePost({ id: response.id });
       }
       if (composerType === 'question') {
@@ -327,9 +324,6 @@ export function NewPostModal({
       setSubmitting(false);
     }
   };
-
-  const showNotify =
-    canNotify && (visibility === 'public' || visibility === 'local');
 
   return (
     <>

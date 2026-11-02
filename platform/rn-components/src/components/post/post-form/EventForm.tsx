@@ -14,10 +14,16 @@ import {
   type RepeatEnd,
   type RepeatFreq,
 } from '@openpeepshq/react';
-import { CalendarIcon, ChevronDownIcon, XIcon } from '../../icons/index';
+import {
+  CalendarIcon,
+  ChevronDownIcon,
+  MegaphoneIcon,
+  XIcon,
+} from '../../icons/index';
 import { ImageInput } from '../../form/ImageInput';
 import { TimeZoneSelect } from '../../form/TimeZoneSelect';
 import { Checkbox } from '../../ui/checkbox';
+import { Switch } from '../../ui/switch';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { RadioGroup, RadioGroupItem } from '../../ui/radio-group';
@@ -37,6 +43,9 @@ export interface EventFormProps {
   onChange: (data: PostCreationData) => void;
   isEdit?: boolean;
   occurrenceEdit?: boolean;
+  showNotify?: boolean;
+  notify?: boolean;
+  onNotifyChange?: (value: boolean) => void;
 }
 
 const REPEAT_FREQS: RepeatFreq[] = ['none', 'DAILY', 'WEEKLY', 'MONTHLY'];
@@ -87,6 +96,9 @@ export const EventForm = ({
   onChange,
   isEdit = false,
   occurrenceEdit = false,
+  showNotify = false,
+  notify = false,
+  onNotifyChange,
 }: EventFormProps) => {
   const { t } = useTranslation();
   const [endBeforeStart, setEndBeforeStart] = useState(false);
@@ -349,6 +361,21 @@ export const EventForm = ({
             showDirect
           />
         </View>
+
+        {showNotify ? (
+          <View className="flex-row items-center justify-between py-1">
+            <View className="flex-row items-center gap-2">
+              <MegaphoneIcon size={20} className="text-foreground" />
+              <ThemedText className="text-base">
+                {t('posts.form.notifyEveryone')}
+              </ThemedText>
+            </View>
+            <Switch
+              checked={notify}
+              onCheckedChange={onNotifyChange ?? (() => undefined)}
+            />
+          </View>
+        ) : null}
 
         <Pressable
           onPress={() =>
