@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Linking,
   Pressable,
@@ -60,6 +60,13 @@ export const OpenpeepsMarkdownInput = ({
   const [open, setOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const valueRef = useRef(value);
+
+  // Preview is local state. Clearing the text after send has to leave an
+  // editable field, not the preview pane.
+  useLayoutEffect(() => {
+    if (value.length === 0) setShowPreview(false);
+  }, [value]);
+
   const cursorRef = useRef(value.length);
 
   valueRef.current = value;
