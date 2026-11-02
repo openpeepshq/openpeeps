@@ -14,6 +14,12 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **events**: label external events as External Event in list cards
+- **media**: decode HEIC uploads via ImageMagick for thumbnails
+- **api**: return a meaningful error when a member creates a non-group resource
+- **resources**: hide Add files after first pick for non-gallery resources
+- **api**: return 409 when changing email to one already in use
+- **admin**: render community config card descriptions as markdown
 - **markdown**: read RN markdown link href from node attributes
 - **resources**: generate and show audio waveform thumbnails
 - **resources**: limit multi-file upload to gallery resources
