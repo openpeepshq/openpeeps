@@ -159,9 +159,12 @@ RUN apk add --no-cache \
     git \
     # imagemagick decodes HEIC uploads (iPhone photos) for thumbnailing;
     # its heic coder links libheif, which apk does not pull in automatically.
+    # poppler-utils (pdftoppm) rasterizes PDF first pages for thumbnails —
+    # sharp's prebuilt binaries ship without a PDF loader.
     imagemagick \
     libheif \
     libreoffice \
+    poppler-utils \
     tini \
     unzip
 

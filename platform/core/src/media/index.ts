@@ -290,26 +290,97 @@ const escapeXml = (value: string): string =>
     .replace(/"/g, '&quot;');
 
 /**
- * Render the first page of a PDF to a WebP thumbnail via sharp. The prebuilt
- * sharp binary bundles poppler, so PDF decoding is available without any extra
- * system packages on Linux/musl (Alpine) and glibc.
+ * Rasterize page 1 of a PDF to PNG with poppler's pdftoppm. sharp's prebuilt
+ * binaries ship without a PDF loader, so this is the actual rendering engine;
+ * font selection goes through fontconfig (font-noto et al. in the image).
  */
-const createPdfPreview = async (inputPath: string): Promise<MediaFile> => {
+const renderPdfWithPoppler = (
+  inputPath: string,
+  originalName: string,
+): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const prefix = join(tmpdir(), `pdf-${randomString(16)}`);
+    const proc = spawn(
+      'pdftoppm',
+      [
+        '-png',
+        '-singlefile',
+        '-r',
+        '150',
+        '-f',
+        '1',
+        '-l',
+        '1',
+        inputPath,
+        prefix,
+      ],
+      { stdio: ['ignore', 'ignore', 'pipe'] },
+    );
+    let stderr = '';
+    proc.stderr?.setEncoding('utf8');
+    proc.stderr?.on('data', (chunk: string) => {
+      stderr += chunk;
+    });
+    proc.on('error', (err: NodeJS.ErrnoException) => {
+      reject(
+        err.code === 'ENOENT' ? new Error('pdftoppm binary not found') : err,
+      );
+    });
+    proc.on('close', (code) => {
+      if (code === 0) {
+        resolve(`${prefix}.png`);
+      } else {
+        reject(
+          new Error(
+            `pdftoppm failed for ${originalName} (exit ${code}): ${stderr}`,
+          ),
+        );
+      }
+    });
+  });
+
+/**
+ * Render the first page of a PDF to a WebP thumbnail: try sharp (in case a
+ * future build gains a PDF loader), then pdftoppm, then let the caller fall
+ * back to the document card preview.
+ */
+const createPdfPreview = async (
+  inputPath: string,
+  originalName: string,
+): Promise<MediaFile> => {
   const outputPath = join(tmpdir(), `preview-${randomString(16)}.webp`);
-  await sharp(inputPath, { density: 150, pages: 1 })
-    .resize(previewMaxWidth)
-    .webp({ quality: 80 })
-    .toFile(outputPath);
-  // sharp/poppler may produce a blank or corrupt thumbnail without erroring
-  // when fonts are missing (text renders as tofu rectangles) or the PDF page is
-  // genuinely empty. Validate the output so callers fall back to the document
-  // card preview, which shows the filename instead of garbled content.
-  const { size } = await fs.stat(outputPath);
-  if (size < 100) {
-    throw new Error('PDF preview rendered to empty image');
+  let rendered = false;
+  try {
+    await sharp(inputPath, { density: 150, pages: 1 })
+      .resize(previewMaxWidth)
+      .webp({ quality: 80 })
+      .toFile(outputPath);
+    rendered = true;
+  } catch {
+    // sharp has no PDF loader here; render the page with poppler instead.
   }
+  if (!rendered) {
+    const pngPath = await renderPdfWithPoppler(inputPath, originalName);
+    try {
+      await sharp(pngPath)
+        .resize(previewMaxWidth)
+        .webp({ quality: 80 })
+        .toFile(outputPath);
+      rendered = true;
+    } finally {
+      await fs.rm(pngPath, { force: true }).catch(() => undefined);
+    }
+  }
+  if (!rendered) {
+    throw new Error(`PDF preview failed for ${originalName}`);
+  }
+  // A broken render may still produce a file: reject a blank (uniform,
+  // near-white) page so callers fall back to the document card preview.
+  // Solid-color pages are legitimate content and must pass.
   const stats = await sharp(outputPath).stats();
-  if (stats.channels.every((c) => c.stdev < 2)) {
+  const uniform = stats.channels.every((c) => c.stdev < 2);
+  const nearWhite = stats.channels.every((c) => c.mean > 250);
+  if (uniform && nearWhite) {
     throw new Error('PDF preview rendered to blank image');
   }
   return { path: outputPath, mimetype: 'image/webp' };
@@ -420,9 +491,10 @@ const createFilePreview = async (
     originalName.toLowerCase().endsWith('.pdf');
   if (isPdf) {
     try {
-      return await createPdfPreview(inputPath);
-    } catch {
-      // sharp PDF support may be missing; fall back to card preview below.
+      return await createPdfPreview(inputPath, originalName);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      log.warn(`PDF preview failed for ${originalName}: ${message}`);
     }
   }
 
@@ -430,7 +502,7 @@ const createFilePreview = async (
     let pdfPath: string | undefined;
     try {
       pdfPath = await convertOfficeToPdf(inputPath, originalName);
-      return await createPdfPreview(pdfPath);
+      return await createPdfPreview(pdfPath, originalName);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       log.warn(

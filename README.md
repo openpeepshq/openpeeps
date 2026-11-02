@@ -19,9 +19,13 @@ See `platform/README.md` for the full package inventory.
 
 1. Node.js 24.x (Node 20.19+ also works for development).
 2. `ffmpeg` — on macOS: `brew update && brew install ffmpeg`.
-3. `pnpm` 11.1.3 (matches `packageManager` in `package.json`):
+3. `poppler` (its `pdftoppm` binary) — on macOS: `brew install poppler`;
+   on Debian/Ubuntu: `apt-get install poppler-utils`. Rasterizes PDF first
+   pages for media previews, since sharp's prebuilt binaries ship without
+   a PDF loader.
+4. `pnpm` 11.1.3 (matches `packageManager` in `package.json`):
    `npm i -g pnpm@11.1.3`.
-4. Docker (for the database, Redis, and production-style builds).
+5. Docker (for the database, Redis, and production-style builds).
 
 ## Set up local development
 

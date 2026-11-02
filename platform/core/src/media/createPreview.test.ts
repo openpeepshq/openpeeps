@@ -15,13 +15,15 @@ const heicFixture = fileURLToPath(
 
 const createTestPdf = (
   outputPath: string,
-  opts: { blank?: boolean } = {},
+  opts: { blank?: boolean; red?: boolean } = {},
 ): Promise<void> =>
   new Promise((resolve, reject) => {
     const doc = new PDFDocument();
     const stream = createWriteStream(outputPath);
     doc.pipe(stream);
-    if (!opts.blank) {
+    if (opts.red) {
+      doc.rect(0, 0, doc.page.width, doc.page.height).fill('red');
+    } else if (!opts.blank) {
       doc.text('Test PDF content for preview');
     }
     doc.end();
@@ -47,6 +49,11 @@ const cleanup = async (paths: string[]) => {
 const hasFfmpeg = (): Promise<boolean> =>
   new Promise((resolve) => {
     execFile('ffmpeg', ['-version'], (error) => resolve(!error));
+  });
+
+const hasPdftoppm = (): Promise<boolean> =>
+  new Promise((resolve) => {
+    execFile('pdftoppm', ['-v'], (error) => resolve(!error));
   });
 
 /** Create a 1-second 440 Hz sine wave as a mono PCM WAV (no ffmpeg needed). */
@@ -206,6 +213,29 @@ describe('createPreview', () => {
   });
 
   describe('PDFs (issue #1754)', () => {
+    // sharp's prebuilt binaries have no PDF loader, so real rendering goes
+    // through poppler's pdftoppm. The card fallback also produces a valid
+    // WebP, so the earlier PDF tests cannot tell the two apart — this one
+    // asserts actual page content (a red page must stay reddish).
+    it('renders actual PDF page content via pdftoppm (issue #1754)', async () => {
+      if (!(await hasPdftoppm())) return;
+      const dir = await mkdtemp(path.join(tmpdir(), 'op-preview-'));
+      const input = path.join(dir, 'red.pdf');
+      await createTestPdf(input, { red: true });
+
+      const preview = await createPreview(input, 'application/pdf', 'red.pdf');
+
+      expect(preview.mimetype).toBe('image/webp');
+      expect(preview.path).not.toBe(input);
+      expect(await isValidWebp(preview.path)).toBe(true);
+      const stats = await sharp(preview.path).stats();
+      const [red, green, blue] = stats.channels.map((c) => c.mean);
+      expect(red).toBeGreaterThan(150);
+      expect(red).toBeGreaterThan(green);
+      expect(red).toBeGreaterThan(blue);
+      await cleanup([preview.path, dir]);
+    });
+
     it('renders a PDF preview from the first page', async () => {
       const dir = await mkdtemp(path.join(tmpdir(), 'op-preview-'));
       const input = path.join(dir, 'document.pdf');
