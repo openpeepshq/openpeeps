@@ -94,26 +94,6 @@ jobs:
             exit 1
           fi
           registry_image_base="code.openpeeps.org/${image_repo}"
-          # Pin the BuildKit registry cache to a hash of pnpm-lock.yaml + Dockerfile
-          # so that builds with the same dependency set AND same Dockerfile share
-          # cache. This prevents two classes of cache thrashing:
-          #  1. Different lockfiles clobbering each other on a shared cache tag
-          #  2. Different Dockerfiles (same lockfile) producing mismatched cache
-          #     keys — BuildKit includes the full Dockerfile text in each layer
-          #     cache key, so any Dockerfile change invalidates ALL layers' keys
-          #     even when the install command is byte-identical.
-          # 16 chars is collision-avoiding and keeps registry tag names short.
-          build_cache_hash="$(cat pnpm-lock.yaml Dockerfile 2>/dev/null | sha256sum | cut -c1-16)" || true
-          if [ -f Dockerfile.test ]; then
-            test_cache_hash="$(cat pnpm-lock.yaml Dockerfile.test 2>/dev/null | sha256sum | cut -c1-16)" || true
-          else
-            test_cache_hash="$build_cache_hash"
-          fi
-          lockfile_hash="$build_cache_hash"
-
-          echo "lockfile_hash=$lockfile_hash" >> $FORGEJO_OUTPUT
-          echo "build_cache_hash=$build_cache_hash" >> $FORGEJO_OUTPUT
-          echo "test_cache_hash=$test_cache_hash" >> $FORGEJO_OUTPUT
           echo "tag=$tag" >> $FORGEJO_OUTPUT
           echo "version=$version" >> $FORGEJO_OUTPUT
           echo "short_sha=$short_sha" >> $FORGEJO_OUTPUT
@@ -136,13 +116,19 @@ jobs:
       registry_image_base: ${{ steps.vars.outputs.registry_image_base }}
       image_repo: ${{ steps.vars.outputs.image_repo }}
       jams_enabled: ${{ steps.vars.outputs.jams_enabled }}
-      lockfile_hash: ${{ steps.vars.outputs.lockfile_hash }}
-      build_cache_hash: ${{ steps.vars.outputs.build_cache_hash }}
-      test_cache_hash: ${{ steps.vars.outputs.test_cache_hash }}
 
   # Not gated on i18n-check anymore: merge-gate reports i18n failures, so the
   # image build starts immediately in parallel with the checks.
-  build:
+  #
+  # Builds both images in one job: one checkout, one login, one persistent
+  # builder, one docker buildx bake. The buildkitd container lives on the
+  # runner host with a named volume, so its layer cache and the pnpm-store
+  # cache mount survive across jobs. main maintains the buildcache-main
+  # registry tag (mode=max); PR/branch builds only read it and export no
+  # cache. Images are loaded into the host dockerd (--load) so integration
+  # shards consume them with zero pulls, then pushed (the push dedupes
+  # unchanged layers).
+  build-images:
     runs-on: docker
     needs: [set-variables]
     container:
@@ -179,121 +165,95 @@ jobs:
             git tag "${release_tag}" "${{ needs.set-variables.outputs.full_sha }}"
             git push origin "refs/tags/${release_tag}"
           fi
-      - name: Build and push image
+      - name: Build and push images
+        env:
+          # Consumed by the variables in docker-bake.hcl (tags + app args).
+          IMAGE: ${{ needs.set-variables.outputs.registry_image_base }}
+          SHA: ${{ needs.set-variables.outputs.short_sha }}
+          VERSION: ${{ needs.set-variables.outputs.version }}
+          ENVIRONMENT: ${{ needs.set-variables.outputs.environment }}
         run: |
-          if docker manifest inspect "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}" >/dev/null 2>&1; then
-            echo "Image ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }} already exists; skipping build.";
-          else
-            # Registry cache is required: the docker-container driver exports
-            # intermediate layers (mode=max). Distinct builder name so this
-            # job does not race build-test-image. Remove it after --push so
-            # the BuildKit container does not stay on the shared host.
-            docker buildx rm -f ci-app >/dev/null 2>&1 || true
-            docker buildx create --name ci-app --driver docker-container --use
-            trap 'docker buildx rm -f ci-app' EXIT
-            image="${{ needs.set-variables.outputs.registry_image_base }}"
-            cache="${image}:buildcache-${{ needs.set-variables.outputs.build_cache_hash }}"
-            # Transient Docker errors (layer blob, network) cause build failures;
-            # retry up to 3 times with cache reuse for faster recovery.
-            # Lockfile+Dockerfile-hash cache tag prevents concurrent builds from
-            # clobbering each other's cache entries on a shared tag.
-            for attempt in 1 2 3; do
-              # Re-derive cache_from each attempt: a parallel run or an earlier
-              # retry may have just republished a fresh buildcache that this
-              # attempt can reuse. Computing it once before the loop left later
-              # attempts reading a stale or absent cache.
-              cache_from=""
-              if docker manifest inspect "${cache}" >/dev/null 2>&1; then
-                cache_from="--cache-from type=registry,ref=${cache}"
-              fi
-              if docker buildx build \
-                ${cache_from} \
-                --cache-to "type=registry,ref=${cache},mode=max" \
-                --build-arg "VERSION=${{ needs.set-variables.outputs.version }}" \
-                --build-arg "ENVIRONMENT=${{ needs.set-variables.outputs.environment }}" \
-                -t "${image}:${{ needs.set-variables.outputs.short_sha }}" --push .; then
-                break
-              elif docker manifest inspect "${image}:${{ needs.set-variables.outputs.short_sha }}" >/dev/null 2>&1; then
-                echo "Image ${image}:${{ needs.set-variables.outputs.short_sha }} pushed; buildx failure was a transient cache export."
-                break
-              elif [ "$attempt" -eq 3 ]; then
-                echo "Image build failed after 3 attempts"
-                exit 1
-              else
-                echo "Build attempt $attempt failed, retrying in 10s..."
-                sleep 10
-              fi
-            done
-          fi
-      - name: Load image onto the runner host
-        run: |
-          # buildx --push with the container driver never loads the image
-          # into the host store. Integration jobs share this dockerd
-          # (force_pull is false), so one pull here is enough for every
-          # shard.
-          docker pull "${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha }}"
+          app_tag="${IMAGE}:${SHA}"
+          test_tag="${IMAGE}:test-${SHA}"
 
-  # Playwright + installed tests + built core, for this commit. Starts with
-  # set-variables so it overlaps the app image build. Unit tests stay on
-  # node:24-alpine and do not wait for this image.
-  build-test-image:
-    runs-on: docker
-    needs: [set-variables]
-    container:
-      image: node:24-alpine
-    steps:
-      - name: Install Docker CLI and git
-        run: apk add --no-cache docker-cli docker-cli-buildx git
-      - uses: actions/checkout@releases/v6
-        with:
-          ref: ${{ needs.set-variables.outputs.full_sha }}
-          fetch-depth: 1
-      - name: Docker login
-        run: |
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "code.openpeeps.org"
-      - name: Build and push test image
-        run: |
-          image="${{ needs.set-variables.outputs.registry_image_base }}"
-          tag="test-${{ needs.set-variables.outputs.short_sha }}"
-          if docker manifest inspect "${image}:${tag}" >/dev/null 2>&1; then
-            echo "Image ${image}:${tag} already exists; skipping build."
+          # Single image-exists guard: skip the whole bake when both images
+          # are already in the registry (re-runs of the same commit).
+          if docker manifest inspect "${app_tag}" >/dev/null 2>&1 && docker manifest inspect "${test_tag}" >/dev/null 2>&1; then
+            echo "Both images already exist; skipping build."
           else
-            docker buildx rm -f ci-test >/dev/null 2>&1 || true
-            docker buildx create --name ci-test --driver docker-container --use
-            trap 'docker buildx rm -f ci-test' EXIT
-            cache="${image}:test-buildcache-${{ needs.set-variables.outputs.test_cache_hash }}"
-            # Transient Docker errors (layer blob, network) cause build failures;
-            # retry up to 3 times with cache reuse for faster recovery.
-            # Lockfile+Dockerfile-hash cache tag prevents concurrent builds from
-            # clobbering each other's cache on the shared tag.
-            for attempt in 1 2 3; do
-              # Re-derive cache_from each attempt: a parallel run or earlier
-              # retry may have just republished a fresh test-buildcache.
-              cache_from=""
-              if docker manifest inspect "${cache}" >/dev/null 2>&1; then
-                cache_from="--cache-from type=registry,ref=${cache}"
-              fi
-              if docker buildx build \
-                ${cache_from} \
-                --cache-to "type=registry,ref=${cache},mode=max" \
-                -f Dockerfile.test \
-                -t "${image}:${tag}" --push .; then
+            # Persistent builder (create-if-missing, never removed): buildkitd
+            # runs on the runner host with a named volume, so its layer cache
+            # and the pnpm-store cache mount survive across jobs AND across
+            # container recreation (docker rm keeps named volumes). Recreate
+            # it only when missing or stopped.
+            if ! docker inspect buildkitd >/dev/null 2>&1; then
+              docker run -d --name buildkitd --privileged --network host \
+                -v buildkit-cache:/var/lib/buildkit \
+                moby/buildkit:buildx-stable-1
+            elif [ "$(docker inspect -f '{{.State.Running}}' buildkitd)" != "true" ]; then
+              docker rm -f buildkitd >/dev/null 2>&1 || true
+              docker run -d --name buildkitd --privileged --network host \
+                -v buildkit-cache:/var/lib/buildkit \
+                moby/buildkit:buildx-stable-1
+            fi
+            # The buildx CLI record is ephemeral (fresh job container each
+            # run); recreate it each time — this never touches the buildkitd
+            # container or its cache. create pings the daemon, so retry until
+            # buildkitd accepts connections (cold starts take a moment).
+            create_ok=""
+            for i in $(seq 1 30); do
+              if docker buildx create --name ci --driver remote docker-container://buildkitd >/dev/null 2>&1; then
+                create_ok="1"
                 break
-              elif docker manifest inspect "${image}:${tag}" >/dev/null 2>&1; then
-                echo "Image ${image}:${tag} pushed; buildx failure was a transient cache export."
+              fi
+              docker buildx rm -f ci >/dev/null 2>&1 || true
+              sleep 1
+            done
+            if [ -z "$create_ok" ]; then
+              echo "Could not connect to buildkitd after 30s" >&2
+              exit 1
+            fi
+
+            # Static cache refs, derived once: main maintains the
+            # buildcache-main registry tag (mode=max); PR/branch builds only
+            # read it and export no cache. bake has no --cache-from/--cache-to
+            # flags; the policy goes through per-target --set overrides.
+            cache_args="--set app.cache-from=type=registry,ref=${IMAGE}:buildcache-main"
+            cache_args="$cache_args --set test.cache-from=type=registry,ref=${IMAGE}:buildcache-main"
+            if [ "${{ forgejo.ref_name }}" = "${{ env.DEFAULT_BRANCH }}" ]; then
+              cache_args="$cache_args --set app.cache-to=type=registry,ref=${IMAGE}:buildcache-main,mode=max"
+              cache_args="$cache_args --set test.cache-to=type=registry,ref=${IMAGE}:buildcache-main,mode=max"
+            fi
+
+            # Transient Docker errors (layer blob, network) cause build
+            # failures; retry up to 3 times. With the persistent builder a
+            # retry reuses the layer cache for fast recovery.
+            for attempt in 1 2 3; do
+              if docker buildx bake -f docker-bake.hcl --builder ci --load \
+                  ${cache_args} \
+                && docker push "${app_tag}" \
+                && docker push "${test_tag}"; then
                 break
               elif [ "$attempt" -eq 3 ]; then
-                echo "Test image build failed after 3 attempts"
+                echo "Image build/push failed after 3 attempts"
                 exit 1
               else
                 echo "Build attempt $attempt failed, retrying in 10s..."
                 sleep 10
               fi
             done
+
+            # Prune on main so the persistent builder's cache stays bounded.
+            if [ "${{ forgejo.ref_name }}" = "${{ env.DEFAULT_BRANCH }}" ]; then
+              docker buildx prune --builder ci --max-used-space 20GB --force
+            fi
           fi
-      - name: Load test image onto the runner host
-        run: |
-          docker pull "${{ needs.set-variables.outputs.registry_image_base }}:test-${{ needs.set-variables.outputs.short_sha }}"
+
+          # Ensure both images are in the host dockerd for the integration
+          # jobs (zero-cost after --load; pulls only when the build was
+          # skipped on a runner that does not have them yet).
+          docker image inspect "${app_tag}" >/dev/null 2>&1 || docker pull "${app_tag}"
+          docker image inspect "${test_tag}" >/dev/null 2>&1 || docker pull "${test_tag}"
 
   test-unit:
     if: needs.set-variables.outputs.is_release_branch == 'false'
@@ -329,7 +289,7 @@ jobs:
   test-integration:
     if: needs.set-variables.outputs.is_release_branch == 'false'
     runs-on: docker
-    needs: [build, build-test-image, set-variables]
+    needs: [build-images, set-variables]
     strategy:
       fail-fast: false
       matrix:
@@ -448,7 +408,7 @@ jobs:
   test-integration-small:
     if: needs.set-variables.outputs.is_release_branch == 'false'
     runs-on: docker
-    needs: [build, build-test-image, set-variables]
+    needs: [build-images, set-variables]
     defaults:
       run:
         working-directory: /apat
@@ -569,7 +529,7 @@ jobs:
   test-integration-jams:
     if: needs.set-variables.outputs.jams_enabled == 'true' && needs.set-variables.outputs.is_release_branch == 'false'
     runs-on: docker
-    needs: [build, build-test-image, set-variables]
+    needs: [build-images, set-variables]
     # Without LiveKit credentials the suite would only self-skip, so do not
     # spend a VM and a service stack on it.
     defaults:
@@ -756,13 +716,13 @@ jobs:
   # only wait for set-variables, so they run immediately in parallel with the
   # image builds and tests. Uses always() so legitimately skipped jobs (jams
   # disabled, release-branch skips) do not skip the gate, and so a failed
-  # set-variables / build / build-test-image — which merely *skips* the
-  # downstream jobs without failing them — is still reported as a gate
-  # failure instead of a green gate.
+  # set-variables / build-images — which merely *skips* the downstream jobs
+  # without failing them — is still reported as a gate failure instead of a
+  # green gate.
   merge-gate:
     if: ${{ always() && !cancelled() }}
     runs-on: docker
-    needs: [set-variables, i18n-check, lint, publish-gate, commit-check, build, build-test-image, test-unit, test-integration, test-integration-small, test-integration-jams]
+    needs: [set-variables, i18n-check, lint, publish-gate, commit-check, build-images, test-unit, test-integration, test-integration-small, test-integration-jams]
     container:
       image: node:24-alpine
     steps:
@@ -770,7 +730,7 @@ jobs:
         if: ${{ success() }}
         run: echo "All merge-gate checks succeeded."
       - name: Detect failures
-        if: ${{ always() && (needs.set-variables.result == 'failure' || needs.i18n-check.result == 'failure' || needs.lint.result == 'failure' || needs.publish-gate.result == 'failure' || needs.commit-check.result == 'failure' || needs.build.result == 'failure' || needs.build-test-image.result == 'failure' || needs.test-unit.result == 'failure' || needs.test-integration.result == 'failure' || needs.test-integration-small.result == 'failure' || needs.test-integration-jams.result == 'failure') }}
+        if: ${{ always() && (needs.set-variables.result == 'failure' || needs.i18n-check.result == 'failure' || needs.lint.result == 'failure' || needs.publish-gate.result == 'failure' || needs.commit-check.result == 'failure' || needs.build-images.result == 'failure' || needs.test-unit.result == 'failure' || needs.test-integration.result == 'failure' || needs.test-integration-small.result == 'failure' || needs.test-integration-jams.result == 'failure') }}
         run: |
           echo "One or more merge-gate checks failed:"
           echo "  set-variables: ${{ needs.set-variables.result }}"
@@ -778,8 +738,7 @@ jobs:
           echo "  lint: ${{ needs.lint.result }}"
           echo "  publish-gate: ${{ needs.publish-gate.result }}"
           echo "  commit-check: ${{ needs.commit-check.result }}"
-          echo "  build: ${{ needs.build.result }}"
-          echo "  build-test-image: ${{ needs.build-test-image.result }}"
+          echo "  build-images: ${{ needs.build-images.result }}"
           echo "  test-unit: ${{ needs.test-unit.result }}"
           echo "  test-integration: ${{ needs.test-integration.result }}"
           echo "  test-integration-small: ${{ needs.test-integration-small.result }}"
