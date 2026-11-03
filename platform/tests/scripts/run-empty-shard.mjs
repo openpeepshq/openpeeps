@@ -12,26 +12,31 @@ const testFilePattern = /(.+\.)?(test|spec|setup)\.[jt]s$/;
 
 // Each entry is one community. `ui/test.ts` is on every shard and drops
 // all but its round-robin slice. The other files are whole, placed so the
-// browser-heavy files are not piled onto the same shard.
+// slowest-per-test files (email-push waits for delivery) and the
+// browser-heavy UI files are not piled onto the same shard.
 const shardGroups = [
-  ['api/openpeeps/core/v1/auth/test.ts', 'forms/test.ts', 'ui/test.ts'],
+  ['email-push/test.ts', 'ui/test.ts'],
   [
+    'ui/event-creation.test.ts',
     'api/openpeeps/core/v1/plugins/test.ts',
     'api/test.ts',
     'auth/register/test.ts',
-    'moderation/test.ts',
-    'ui/event-creation.test.ts',
-    'ui/group-visibility.test.ts',
+    'ui/test.ts',
+  ],
+  ['api/gaps/test.ts', 'user-actions/test.ts', 'ui/test.ts'],
+  [
+    'api/openpeeps/core/v1/auth/test.ts',
+    'forms/test.ts',
+    'email-push/session-sse.test.ts',
     'ui/test.ts',
   ],
   [
-    'email-push/session-sse.test.ts',
-    'email-push/test.ts',
+    'moderation/test.ts',
+    'ui/group-visibility.test.ts',
     'ui/resource-creation.test.ts',
     'ui/resource-gallery-order.test.ts',
     'ui/test.ts',
   ],
-  ['api/gaps/test.ts', 'ui/test.ts', 'user-actions/test.ts'],
 ];
 
 const walkTests = (dir) =>

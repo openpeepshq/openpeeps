@@ -125,9 +125,10 @@ jobs:
   # runner host with a named volume, so its layer cache and the pnpm-store
   # cache mount survive across jobs. main maintains the buildcache-main
   # registry tag (mode=max); PR/branch builds only read it and export no
-  # cache. Images are loaded into the host dockerd (--load) so integration
-  # shards consume them with zero pulls, then pushed (the push dedupes
-  # unchanged layers).
+  # cache. Images are pushed (--push dedupes against the cache-export
+  # blobs, ~15s measured) and pulled into the host dockerd (~45s) for the
+  # integration shards; --load would instead re-assemble and recompress
+  # ~2GB into dockerd on every run (114-131s measured).
   build-images:
     runs-on: docker
     needs: [set-variables]
@@ -229,10 +230,10 @@ jobs:
             # failures; retry up to 3 times. With the persistent builder a
             # retry reuses the layer cache for fast recovery.
             for attempt in 1 2 3; do
-              if docker buildx bake -f docker-bake.hcl --builder ci --load \
+              if docker buildx bake -f docker-bake.hcl --builder ci --push \
                   ${cache_args} \
-                && docker push "${app_tag}" \
-                && docker push "${test_tag}"; then
+                && docker pull "${app_tag}" \
+                && docker pull "${test_tag}"; then
                 break
               elif [ "$attempt" -eq 3 ]; then
                 echo "Image build/push failed after 3 attempts"
@@ -249,9 +250,9 @@ jobs:
             fi
           fi
 
-          # Ensure both images are in the host dockerd for the integration
-          # jobs (zero-cost after --load; pulls only when the build was
-          # skipped on a runner that does not have them yet).
+          # On the build path the pulls above put both images in the host
+          # dockerd for the integration jobs; on skipped re-runs the
+          # inspect-or-pull covers runners that do not have them yet.
           docker image inspect "${app_tag}" >/dev/null 2>&1 || docker pull "${app_tag}"
           docker image inspect "${test_tag}" >/dev/null 2>&1 || docker pull "${test_tag}"
 
@@ -293,12 +294,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Four communities. Wall-clock time is the slowest shard. Each
+        # Five communities. Wall-clock time is the slowest shard. Each
         # stack stays on one Playwright worker. File split:
         # platform/tests/scripts/run-empty-shard.mjs.
         # SSO lives on test-integration-small so empty shards do not
         # start mock-oauth2-server.
-        shard: ["1/4", "2/4", "3/4", "4/4"]
+        shard: ["1/5", "2/5", "3/5", "4/5", "5/5"]
     defaults:
       run:
         # Runner workspace is a mount that hides the image WORKDIR. The
@@ -495,7 +496,7 @@ jobs:
           done
           echo "Web service did not become ready in time" >&2
           exit 1
-      - name: Run sso, default, public, and perf suites
+      - name: Run sso and default suites
         env:
           CI: "true"
           PLAYWRIGHT_BASE_URL: http://web:8080
@@ -503,6 +504,115 @@ jobs:
           PUSH_CATCHER_URL: http://pushcatcher:8080
           PUSH_CATCHER_ASSERT: delivery-only
           OAUTH_ISSUER_URL: http://oauth:8080/default
+          INTEGRATION_SKIP_RESTORE: "true"
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          REDIS_HOST: redis
+          JWT_SECRET: xxx
+          MEDIA_STORAGE_PARAMS_PATH: /tmp/openpeeps-media
+          LOGS_LOCAL_PATH: /tmp/openpeeps-logs
+        run: |
+          set -e
+          # sso seeds the migrated empty database, so it runs before any
+          # fixture is restored. Each restore truncates and replaces the data.
+          pnpm --filter @openpeepshq/tests run test:integration:sso
+          node platform/tests/scripts/restore-fixture.mjs "fixtures/backups/default-install.zip"
+          pnpm --filter @openpeepshq/tests run test:integration:default
+
+  # public + perf, split from test-integration-small so the two fixture
+  # halves run in parallel: five empty shards + both halves + jams fill the
+  # runner's 8 slots exactly. No oauth service — only the sso suite talks
+  # to the mock IdP.
+  test-integration-public-perf:
+    if: needs.set-variables.outputs.is_release_branch == 'false'
+    runs-on: docker
+    needs: [build-images, set-variables]
+    defaults:
+      run:
+        working-directory: /apat
+    container:
+      image:
+        ${{ needs.set-variables.outputs.registry_image_base }}:test-${{ needs.set-variables.outputs.short_sha
+        }}
+      credentials:
+        username: ${{ vars.REGISTRY_USER }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: openpeeps
+          POSTGRES_PASSWORD: openpeeps
+          POSTGRES_DB: openpeeps
+      redis:
+        image: redis:alpine
+        cmd: ["redis-server", "--save", "", "--appendonly", "no"]
+      mailpit:
+        image: axllent/mailpit:v1.21
+        options: --no-healthcheck
+        env:
+          MP_SMTP_AUTH_ACCEPT_ANY: "1"
+          MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+      pushcatcher:
+        image: mendhak/http-https-echo:31
+      web:
+        image:
+          ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
+          }}
+        credentials:
+          username: ${{ vars.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+        env:
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          DISABLE_CONFIG_CACHE: "true"
+          REDIS_HOST: "redis"
+          JWT_SECRET: xxx
+          EMAIL_CONFIG_HOST: mailpit
+          EMAIL_CONFIG_PORT: "1025"
+          EMAIL_CONFIG_SECURE: "false"
+          EMAIL_DEFAULT_FROM: test@openpeeps.test
+          SERVER_HOST: web:8080
+          SERVER_PROTOCOL: http
+          JAMS_LIVEKIT_API_KEY: APIxxxxxxxxxxxx
+          JAMS_LIVEKIT_API_SECRET: xxxxxxxxxxxxx
+      worker:
+        image:
+          ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
+          }}
+        credentials:
+          username: ${{ vars.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+        env:
+          OPENPEEPS_COMMAND: worker
+          DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
+          DISABLE_CONFIG_CACHE: "true"
+          REDIS_HOST: "redis"
+          JWT_SECRET: xxx
+          EMAIL_CONFIG_HOST: mailpit
+          EMAIL_CONFIG_PORT: "1025"
+          EMAIL_CONFIG_SECURE: "false"
+          EMAIL_DEFAULT_FROM: test@openpeeps.test
+          SERVER_HOST: web:8080
+          SERVER_PROTOCOL: http
+    steps:
+      - name: Wait for web service
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://web:8080/health >/dev/null 2>&1; then
+              echo "Web service is ready (attempt $i)"
+              exit 0
+            fi
+            echo "Waiting for web service... ($i/60)"
+            sleep 2
+          done
+          echo "Web service did not become ready in time" >&2
+          exit 1
+      - name: Run public and perf suites
+        env:
+          CI: "true"
+          PLAYWRIGHT_BASE_URL: http://web:8080
+          MAILPIT_URL: http://mailpit:8025
+          PUSH_CATCHER_URL: http://pushcatcher:8080
+          PUSH_CATCHER_ASSERT: delivery-only
           INTEGRATION_SKIP_RESTORE: "true"
           DATABASE_URL: "postgresql://openpeeps:openpeeps@postgres:5432/openpeeps"
           REDIS_HOST: redis
@@ -518,13 +628,11 @@ jobs:
           PERF_REQUIRE_PROFILE_GRAPH: "1"
         run: |
           set -e
-          # sso seeds the migrated empty database, so it runs before any
-          # fixture is restored. Each restore truncates and replaces the data.
-          pnpm --filter @openpeepshq/tests run test:integration:sso
-          for suite in default:default-install public:public-community perf:perf-scale; do
-            node platform/tests/scripts/restore-fixture.mjs "fixtures/backups/${suite#*:}.zip"
-            pnpm --filter @openpeepshq/tests run "test:integration:${suite%%:*}"
-          done
+          # Each restore truncates and replaces the data.
+          node platform/tests/scripts/restore-fixture.mjs "fixtures/backups/public-community.zip"
+          pnpm --filter @openpeepshq/tests run test:integration:public
+          node platform/tests/scripts/restore-fixture.mjs "fixtures/backups/perf-scale.zip"
+          pnpm --filter @openpeepshq/tests run test:integration:perf
 
   test-integration-jams:
     if: needs.set-variables.outputs.jams_enabled == 'true' && needs.set-variables.outputs.is_release_branch == 'false'
@@ -722,7 +830,7 @@ jobs:
   merge-gate:
     if: ${{ always() && !cancelled() }}
     runs-on: docker
-    needs: [set-variables, i18n-check, lint, publish-gate, commit-check, build-images, test-unit, test-integration, test-integration-small, test-integration-jams]
+    needs: [set-variables, i18n-check, lint, publish-gate, commit-check, build-images, test-unit, test-integration, test-integration-small, test-integration-public-perf, test-integration-jams]
     container:
       image: node:24-alpine
     steps:
@@ -730,7 +838,7 @@ jobs:
         if: ${{ success() }}
         run: echo "All merge-gate checks succeeded."
       - name: Detect failures
-        if: ${{ always() && (needs.set-variables.result == 'failure' || needs.i18n-check.result == 'failure' || needs.lint.result == 'failure' || needs.publish-gate.result == 'failure' || needs.commit-check.result == 'failure' || needs.build-images.result == 'failure' || needs.test-unit.result == 'failure' || needs.test-integration.result == 'failure' || needs.test-integration-small.result == 'failure' || needs.test-integration-jams.result == 'failure') }}
+        if: ${{ always() && (needs.set-variables.result == 'failure' || needs.i18n-check.result == 'failure' || needs.lint.result == 'failure' || needs.publish-gate.result == 'failure' || needs.commit-check.result == 'failure' || needs.build-images.result == 'failure' || needs.test-unit.result == 'failure' || needs.test-integration.result == 'failure' || needs.test-integration-small.result == 'failure' || needs.test-integration-public-perf.result == 'failure' || needs.test-integration-jams.result == 'failure') }}
         run: |
           echo "One or more merge-gate checks failed:"
           echo "  set-variables: ${{ needs.set-variables.result }}"
@@ -742,6 +850,7 @@ jobs:
           echo "  test-unit: ${{ needs.test-unit.result }}"
           echo "  test-integration: ${{ needs.test-integration.result }}"
           echo "  test-integration-small: ${{ needs.test-integration-small.result }}"
+          echo "  test-integration-public-perf: ${{ needs.test-integration-public-perf.result }}"
           echo "  test-integration-jams: ${{ needs.test-integration-jams.result }}"
           exit 1
       - name: Checks passed (optional jobs skipped)
