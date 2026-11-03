@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useReducer, useRef } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Sound from 'react-native-sound';
 import {
@@ -289,7 +289,24 @@ export const JamCallParticipant = ({
   const profile = parseParticipantMetadata(participant.metadata).profile;
   const connectionLost = useConnectionLost(participant);
   const speaking = useIsSpeaking(participant);
-  const cameraOn = isTrackReference(trackRef) && !trackRef.publication.isMuted;
+  // React Native's RTCView only re-resolves its media stream when the
+  // `streamURL` string changes, but a renegotiated track can arrive under the
+  // same MediaStream reactTag, leaving the native view bound to a dead track
+  // (blank tile). Remount the video view whenever the track object changes.
+  const cameraTrack = isTrackReference(trackRef)
+    ? trackRef.publication.track
+    : undefined;
+  const [trackEpoch, bumpTrackEpoch] = useReducer(
+    (count: number) => count + 1,
+    0
+  );
+  useEffect(() => {
+    bumpTrackEpoch();
+  }, [cameraTrack]);
+  const cameraOn =
+    isTrackReference(trackRef) &&
+    !!cameraTrack &&
+    !trackRef.publication.isMuted;
   const displayName =
     profile?.displayName || (profile?.handle ? `@${profile.handle}` : '');
 
@@ -310,6 +327,7 @@ export const JamCallParticipant = ({
       >
         {cameraOn ? (
           <VideoTrack
+            key={`${trackRef.publication.trackSid}-${trackEpoch}`}
             trackRef={trackRef}
             style={StyleSheet.absoluteFill}
             objectFit="cover"
