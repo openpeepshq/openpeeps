@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **posts**: announce community-wide articles and events
 - **groups**: implement group creation capability based on user roles
 - **resources**: aggregate group resources in top-level library
 - **markdown**: unify abbreviated markdown previews
@@ -14,6 +15,15 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **markdown-input**: use useLayoutEffect to manage preview state
+- **rn**: scale avatar fallback content with the requested size
+- **media**: rasterize PDF previews with poppler's pdftoppm
+- **rn**: keep the message composer above the keyboard on Android
+- **rn**: make the notification settings sheet scrollable to reach Save
+- **posts**: keep the delete button reachable on tall posts
+- **posts**: show audio waveform previews on note attachments
+- **resources**: show file name and extension on the resource page
+- **composer**: keep typed text when switching note to poll
 - **events**: label external events as External Event in list cards
 - **media**: decode HEIC uploads via ImageMagick for thumbnails
 - **api**: return a meaningful error when a member creates a non-group resource
@@ -38,6 +48,11 @@ Changelog for OpenPeeps
 ### Tests
 
 - **resources**: verify gallery images are stored in the order added
+
+### CI/CD
+
+- **build**: consolidate image builds into one bake job with persistent builder
+- single merge-gate required job; schedule component-gallery daily
 
 ## 2026-10-29
 
