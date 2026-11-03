@@ -784,6 +784,14 @@ export const searchResultCountsSchema = z.object({
 });
 export type SearchResultCounts = z.infer<typeof searchResultCountsSchema>;
 
+export const directMessageSearchHitSchema = z.object({
+  conversationId: z.uuid(),
+  message: publicPostSchema,
+});
+export type DirectMessageSearchHit = z.infer<
+  typeof directMessageSearchHitSchema
+>;
+
 // Plain object schema — used as API contract & in OpenAPI generation. Cross-
 // field validation lives on `postCreationDataFormSchema` below to keep this
 // schema introspectable by zod-to-openapi (which can't walk zod-4 `.refine()`

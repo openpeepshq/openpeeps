@@ -683,12 +683,13 @@ export const getConversationByEnd = async (
 export const getConversationByStart = async (
   post: PostWithMeta,
   authData: AuthorizationData,
+  options?: { focusId?: string },
 ) => {
   if (isOneToOneDm(post)) {
-    const conversation = await getOneToOneConversation(post, authData);
+    const conversation = await getOneToOneConversation(post, authData, options);
     if (conversation.length > 0) return conversation;
   }
-  return getConversationThread(post, authData);
+  return getConversationThread(post, authData, options);
 };
 
 /** Newest post across all roots of a 1:1 conversation (uuidv7-ordered). */

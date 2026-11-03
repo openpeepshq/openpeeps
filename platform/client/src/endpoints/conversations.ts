@@ -1,5 +1,6 @@
 import type { FetchClient } from '@openpeepshq/fetch-client';
 import type {
+  DirectMessageSearchHit,
   PublicPost,
   PostCreationData,
   SuccessResponse,
@@ -12,7 +13,16 @@ import type {
 
 type Conversations = {
   list: OpenpeepsNoPayloadEndpoint<PublicPost[][]>;
-  findById: OpenpeepsNoPayloadEndpoint<PublicPost[], { id: string }>;
+  findById: OpenpeepsNoPayloadEndpoint<
+    PublicPost[],
+    { id: string },
+    { message?: string }
+  >;
+  search: OpenpeepsNoPayloadEndpoint<
+    DirectMessageSearchHit[],
+    undefined,
+    { q: string; conversationId?: string }
+  >;
   newPost: OpenpeepsPayloadEndpoint<
     PublicPost,
     PostCreationData,
@@ -24,10 +34,16 @@ type Conversations = {
 
 export const conversations = (rawClient: FetchClient): Conversations => ({
   list: allpeepNoPayloadEndpoint<PublicPost[][]>(rawClient, '/conversations'),
-  findById: allpeepNoPayloadEndpoint<PublicPost[], { id: string }>(
-    rawClient,
-    '/conversations/:id',
-  ),
+  findById: allpeepNoPayloadEndpoint<
+    PublicPost[],
+    { id: string },
+    { message?: string }
+  >(rawClient, '/conversations/:id'),
+  search: allpeepNoPayloadEndpoint<
+    DirectMessageSearchHit[],
+    undefined,
+    { q: string; conversationId?: string }
+  >(rawClient, '/conversations/search'),
   newPost: allpeepPayloadEndpoint<PublicPost, PostCreationData, { id: string }>(
     rawClient,
     '/conversations/:id/posts',

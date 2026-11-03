@@ -2544,7 +2544,14 @@
       "send": "Send"
     },
     "search": {
-      "placeholder": "Search conversations…"
+      "placeholder": "Search all messages…",
+      "inConversation": "Search this conversation…",
+      "toggle": "Search this conversation",
+      "empty": "No messages match \"{{query}}\"",
+      "searching": "Searching…",
+      "error": "Search failed",
+      "results": "Message search results",
+      "openResult": "Show this message"
     },
     "messageInThread": {
       "startedBy": "Started by {{name}}",

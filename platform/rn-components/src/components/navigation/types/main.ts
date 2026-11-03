@@ -29,6 +29,7 @@ export type MainStackParamList = {
   MyJams: undefined;
   Conversation: {
     id: string;
+    messageId?: string;
   };
   ConversationInfo: {
     id: string;

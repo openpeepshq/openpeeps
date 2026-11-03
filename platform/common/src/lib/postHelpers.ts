@@ -35,6 +35,7 @@ import {
 } from './capabilitiesHelpers';
 import { scopeMatches } from './scopeHelpers';
 import { countBy, dateSorter, groupBy, transformValues } from './utils';
+import { truncateText } from './text';
 
 const buildThread = (rootPost: PublicPost, postList: PublicPost[]): Thread => ({
   ...rootPost,
@@ -841,3 +842,31 @@ export const isOneToOneWithBlocked = (
   others.delete(viewer.id);
   return others.size === 1 && blocked.has([...others][0]!);
 };
+
+/** First usable text field of a post, whitespace-collapsed and truncated. */
+export const messagePreviewText = (
+  message: PublicPost,
+  maxLength = 160,
+): string => {
+  const data = message.data;
+  if (!data || typeof data !== 'object') return '';
+  const text =
+    'content' in data && typeof data.content === 'string' && data.content
+      ? data.content
+      : 'name' in data && typeof data.name === 'string'
+        ? data.name
+        : 'title' in data && typeof data.title === 'string'
+          ? data.title
+          : '';
+  return truncateText(text.replace(/\s+/g, ' ').trim(), maxLength);
+};
+
+/** Display names of a post's audience minus the viewer, comma-joined. */
+export const conversationLabel = (
+  message: PublicPost,
+  viewerId?: string,
+): string =>
+  (message.audience ?? [])
+    .filter((profile) => profile.id !== viewerId)
+    .map((profile) => profile.displayName || `@${profile.handle}`)
+    .join(', ');
