@@ -86,6 +86,7 @@ export function GalleryModal({
           <AudioAttachment
             key={attachment.url}
             src={attachment.url}
+            previewUrl={attachment.previewUrl ?? undefined}
             label={attachment.filename ?? attachment.description}
             size={attachment.meta?.size}
             className="w-full min-w-[280px] max-w-lg"

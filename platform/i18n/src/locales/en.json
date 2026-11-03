@@ -253,8 +253,7 @@
       "following": "Following",
       "posts": "Posts",
       "joined": "Joined {{date}}",
-      "avatarAlt": "Profile picture",
-      "roles": "Roles"
+      "avatarAlt": "Profile picture"
     },
     "actions": {
       "edit": "Edit Profile",
@@ -899,7 +898,10 @@
         "advanced": "Advanced"
       }
     },
-    "new": "New Group",
+    "new": {
+      "label": "New Group",
+      "title": "Create group"
+    },
     "goto": "Go to group",
     "viewMembers": "View members",
     "tabs": {
@@ -981,7 +983,10 @@
       "resourcesLinkCopied": "Resources link copied",
       "descriptionLinkCopied": "Description link copied"
     },
-    "notFound": "Group not found"
+    "notFound": "Group not found",
+    "error": {
+      "notmember": "You must be a member of this group to reply."
+    }
   },
   "jams": {
     "form": {
@@ -2272,7 +2277,16 @@
         "uploadBackground": "Click to upload a new community background image for Dark Theme"
       },
       "authBackgroundRequirements": "This image fits vertically on these pages, so use a vertical aspect ratio for best results.  Images less than 2MB are encouraged.",
-      "backgroundRequirements": "This image will appear behind the community content when using a wider screen to view the community.  It is not visible to users on mobile."
+      "backgroundRequirements": "This image will appear behind the community content when using a wider screen to view the community.  It is not visible to users on mobile.",
+      "access": {
+        "title": "Access",
+        "description": "Control who can join your community and who can see it",
+        "updated": "Access settings updated"
+      },
+      "publicContent": {
+        "title": "Public content",
+        "description": "Allow visitors to read public posts without an account"
+      }
     },
     "server": {
       "stripe": {
@@ -3668,6 +3682,7 @@
     "rsvpRemovedForbidden": "Only the event organizer can remove attendees.",
     "cannotInteractBlocked": "You cannot interact with this profile.",
     "emailAlreadyTaken": "That email is already in use.",
+    "postCreateForbidden": "You don't have permission to create this kind of post here.",
     "pollClosed": "This poll has ended.",
     "invalidPollVote": "Invalid poll vote.",
     "unprocessableRequest": "Invalid request",

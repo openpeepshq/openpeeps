@@ -109,6 +109,7 @@ import {
   AdminConfigurationCommunity,
   AdminConfigEditor,
   AdminConfigurationI18n,
+  AdminConfigurationCommunityAccess,
   AdminConfigurationCommunityInfo,
   AdminConfigurationCommunityLinks,
   CommunityMarkdownPage,
@@ -361,6 +362,7 @@ const Admin = {
     ),
     I18n: AdminConfigurationI18n,
     Community: AdminConfigurationCommunity,
+    CommunityAccess: AdminConfigurationCommunityAccess,
     CommunityInfo: AdminConfigurationCommunityInfo,
     CommunityLanguage: AdminConfigurationCommunityLanguage,
     CommunityTimezone: AdminConfigurationCommunityTimezone,
@@ -793,6 +795,10 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/community/info"
                         element={<Admin.Config.CommunityInfo />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/access"
+                        element={<Admin.Config.CommunityAccess />}
                       />
                       <Route
                         path="/admin/configuration/community/language"

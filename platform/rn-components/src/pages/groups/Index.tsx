@@ -8,8 +8,8 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { checkRoleCapabilities } from '@openpeepshq/common';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { canCreateGroup } from '@openpeepshq/common';
+import { useCurrentProfile, useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 import {
   useSetPageHeader,
@@ -34,7 +34,8 @@ type GroupsProps = CompositeScreenProps<
 
 export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
   const { t } = useTranslation();
-  const { openpeepsApi, currentProfile } = useOpenpeeps();
+  const { openpeepsApi } = useOpenpeeps();
+  const currentProfile = useCurrentProfile();
   const { data: groups, refetch, isLoading } = openpeepsApi.useGroups();
   const unseenCountsQuery = openpeepsApi.useUnseenPostCounts();
   const unseenByGroup = unseenCountsQuery.data?.groups ?? {};
@@ -60,15 +61,13 @@ export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
     [groups, isMember, search, tab]
   );
 
-  const canCreate = checkRoleCapabilities(currentProfile?.roles ?? [], [
-    'core-groups-create',
-  ]).success;
+  const canCreate = canCreateGroup(currentProfile?.roles ?? []);
 
   useSetPageHeader(t('navigation.groups', { defaultValue: 'Groups' }));
   useSetPlusButtonActions(
     canCreate
       ? {
-          title: t('groups.new'),
+          title: t('groups.new.label'),
           action: () => navigation.navigate('CreateGroup'),
         }
       : undefined

@@ -77,6 +77,7 @@ export { ConfigurationPluginPage } from './admin/ConfigurationPluginPage';
 export { AdminConfigurationCommunity } from './admin/ConfigurationCommunity';
 export { AdminConfigEditor } from './admin/ConfigEditor';
 export { AdminConfigurationI18n } from './admin/ConfigurationI18n';
+export { AdminConfigurationCommunityAccess } from './admin/community/CommunityAccess';
 export { AdminConfigurationCommunityInfo } from './admin/community/CommunityInfo';
 export { AdminConfigurationCommunityLinks } from './admin/community/CommunityLinks';
 export { CommunityMarkdownPage } from './admin/community/CommunityMarkdownPage';

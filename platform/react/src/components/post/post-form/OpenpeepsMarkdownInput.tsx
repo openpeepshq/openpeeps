@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { PublicProfile } from '@openpeepshq/common/types';
 import {
   Button,
@@ -48,6 +48,13 @@ export function OpenpeepsMarkdownInput({
   const [open, setOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Preview is local state. Clearing the text after send has to leave an
+  // editable field, not the preview overlay.
+  useLayoutEffect(() => {
+    if (value.length === 0) setShowPreview(false);
+  }, [value]);
+
   const anchorRef = useRef<HTMLDivElement>(null);
 
   const profilesQuery = openpeepsApi.useSearchProfiles(query);

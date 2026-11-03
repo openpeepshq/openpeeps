@@ -1,6 +1,12 @@
-import { inArray, or, sql } from 'drizzle-orm';
+import { inArray, or, sql, type SQL } from 'drizzle-orm';
 import { groups } from '../schema/documents';
 import { pgSql, type SqlFilter } from './types';
+
+const audienceOrMembership = (
+  audience: SQL,
+  membership: SqlFilter | undefined,
+): SqlFilter =>
+  membership ? pgSql(or(audience, membership.where)!) : pgSql(audience);
 
 export const groupFilters = {
   memberOf: (groupIds: string[]): SqlFilter | undefined =>
@@ -16,14 +22,18 @@ export const groupFilters = {
       sql`${groups.body}->'capabilities'->'local'->'add' ? 'core-groups-read'`,
     ),
 
-  readableByLocalProfile: (groupIds: string[]): SqlFilter => {
-    const membershipFilter = groupFilters.memberOf(groupIds);
-    const readable = or(
+  readableByNonLocalViewer: (groupIds: string[]): SqlFilter =>
+    audienceOrMembership(
       groupFilters.publiclyReadable().where,
-      groupFilters.locallyReadable().where,
-    )!;
-    return membershipFilter
-      ? pgSql(or(readable, membershipFilter.where)!)
-      : pgSql(readable);
-  },
+      groupFilters.memberOf(groupIds),
+    ),
+
+  readableByLocalViewer: (groupIds: string[]): SqlFilter =>
+    audienceOrMembership(
+      or(
+        groupFilters.publiclyReadable().where,
+        groupFilters.locallyReadable().where,
+      )!,
+      groupFilters.memberOf(groupIds),
+    ),
 };

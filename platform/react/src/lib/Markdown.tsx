@@ -4,6 +4,12 @@ import { marked } from 'marked';
 export interface MarkdownProps {
   source: string;
   className?: string;
+  /**
+   * Render as inline markdown (no block `<p>` wrapper) via `marked.parseInline`.
+   * Use for short help text inside tight layouts (e.g. config card rows) where
+   * block margins would disrupt alignment.
+   */
+  inline?: boolean;
 }
 
 /**
@@ -15,10 +21,13 @@ export interface MarkdownProps {
  * Svelte app behaves. If you ever feed untrusted markdown through here,
  * sanitize first.
  */
-export function Markdown({ source, className }: MarkdownProps) {
+export function Markdown({ source, className, inline }: MarkdownProps) {
   const html = useMemo(
-    () => marked.parse(source ?? '', { async: false }) as string,
-    [source],
+    () =>
+      inline
+        ? (marked.parseInline(source ?? '', { async: false }) as string)
+        : (marked.parse(source ?? '', { async: false }) as string),
+    [source, inline],
   );
   return (
     <div

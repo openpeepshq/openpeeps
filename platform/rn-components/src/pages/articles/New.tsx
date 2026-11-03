@@ -19,6 +19,9 @@ export const NewArticle: React.FC<NewArticleProps> = () => {
     submitting,
     error,
     clearError,
+    notify,
+    setNotify,
+    showNotify,
     submit,
   } = useNewArticle();
 
@@ -48,7 +51,13 @@ export const NewArticle: React.FC<NewArticleProps> = () => {
         contentContainerClassName="grow"
         className="pb-12"
       >
-        <ArticleForm postData={postData} onChange={setPostData} />
+        <ArticleForm
+          postData={postData}
+          onChange={setPostData}
+          showNotify={showNotify}
+          notify={notify}
+          onNotifyChange={setNotify}
+        />
       </KeyboardAwareScrollView>
     </ThemedView>
   );

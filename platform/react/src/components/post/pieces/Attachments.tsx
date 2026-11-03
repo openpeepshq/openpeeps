@@ -21,6 +21,7 @@ const isImage = (att: MediaAttachmentData) =>
   att.type === 'image' || att.meta?.mimetype?.startsWith('image/');
 const isVideo = (att: MediaAttachmentData) =>
   att.type === 'video' || att.meta?.mimetype?.startsWith('video/');
+const isAudio = (att: MediaAttachmentData) => isAudioAttachment(att);
 
 export function Attachments({ post }: AttachmentsProps) {
   const { enabled: staticRender } = useStaticRender();
@@ -55,6 +56,7 @@ export function Attachments({ post }: AttachmentsProps) {
       <div className="mt-2">
         <AudioAttachment
           src={inline.url}
+          previewUrl={inline.previewUrl ?? undefined}
           label={inline.filename ?? inline.description}
           size={inline.meta?.size}
         />
@@ -97,6 +99,15 @@ export function Attachments({ post }: AttachmentsProps) {
                 <div className="relative h-full w-full">
                   <img
                     src={att.previewUrl ?? att.url ?? ''}
+                    alt={att.description ?? `attachment ${idx + 1}`}
+                    className={mediaClass}
+                  />
+                  <VideoPlayOverlay video />
+                </div>
+              ) : isAudio(att) && att.previewUrl ? (
+                <div className="relative h-full w-full">
+                  <img
+                    src={att.previewUrl}
                     alt={att.description ?? `attachment ${idx + 1}`}
                     className={mediaClass}
                   />

@@ -835,7 +835,10 @@
       "successMessage": "Rollen aktualisiert",
       "ownerForbidden": "Nur eine Besitzerin bzw. ein Besitzer der Gruppe kann die Besitzerrolle erteilen oder entziehen."
     },
-    "new": "Neue Gruppe",
+    "new": {
+      "label": "Neue Gruppe",
+      "title": "Gruppe erstellen"
+    },
     "goto": "Zur Gruppe",
     "viewMembers": "Mitglieder anzeigen",
     "noGroupsYet": "Sie haben noch keine Gruppen",
@@ -921,6 +924,9 @@
       "empty": "Keine Mitglieder gefunden"
     },
     "notFound": "Gruppe nicht gefunden",
+    "error": {
+      "notmember": "Du musst Mitglied dieser Gruppe sein, um zu antworten."
+    },
     "edit": {
       "title": "Gruppe bearbeiten",
       "info": {
@@ -2304,6 +2310,15 @@
       "openRegistrations": {
         "title": "Offene Registrierung",
         "description": "Besuchern die Registrierung in der Community erlauben"
+      },
+      "access": {
+        "title": "Zugang",
+        "description": "Steuern Sie, wer Ihrer Community beitreten kann und wer sie sehen kann",
+        "updated": "Zugangseinstellungen aktualisiert"
+      },
+      "publicContent": {
+        "title": "Öffentliche Inhalte",
+        "description": "Besuchern erlauben, öffentliche Beiträge ohne Konto zu lesen"
       }
     },
     "server": {
@@ -3786,6 +3801,7 @@
     "rsvpRemovedForbidden": "Nur der Organisator kann Teilnehmer entfernen.",
     "cannotInteractBlocked": "Sie können mit diesem Profil nicht interagieren.",
     "emailAlreadyTaken": "Diese E-Mail wird bereits verwendet.",
+    "postCreateForbidden": "Sie haben keine Berechtigung, diese Art von Beitrag hier zu erstellen.",
     "pollClosed": "Diese Umfrage ist beendet.",
     "invalidPollVote": "Ungültige Umfrageantwort.",
     "unprocessableRequest": "Ungültige Anfrage",

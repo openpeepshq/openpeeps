@@ -7,7 +7,8 @@ import {
   Paperclip,
 } from 'lucide-react';
 import {
-  checkRoleCapabilities,
+  canAnnouncePosts,
+  isCommunityWideVisibility,
   pollOptionsWithinLimit,
   resolvePollOptionContents,
   type GroupWithMeta,
@@ -135,7 +136,11 @@ export function NewPostModal({
 
   const selectComposerType = (next: ComposerType) => {
     if (next === composerType) return;
-    setContent(draftContent(next));
+    const stored = draftContent(next);
+    // The note body and poll question share one field. When the destination
+    // has no stored draft, keep the current text so note -> poll carries the
+    // typed note over as the poll question instead of erasing it.
+    setContent(stored || content);
     setComposerType(next);
   };
 
@@ -190,12 +195,8 @@ export function NewPostModal({
     audience,
   ]);
 
-  const canNotify = useMemo(
-    () =>
-      checkRoleCapabilities(me?.roles ?? [], ['allpeep-core-admin-notify'])
-        .success,
-    [me?.roles],
-  );
+  const canNotify = useMemo(() => canAnnouncePosts(me?.roles), [me?.roles]);
+  const showNotify = canNotify && isCommunityWideVisibility(visibility);
 
   const selectedGroupName = useMemo(() => {
     if (!groupId) return undefined;
@@ -296,7 +297,7 @@ export function NewPostModal({
       }
 
       const response = await createPost(payload);
-      if (notify && canNotify && response?.id) {
+      if (notify && showNotify && response?.id) {
         await announcePost({ id: response.id });
       }
       if (composerType === 'question') {
@@ -323,9 +324,6 @@ export function NewPostModal({
       setSubmitting(false);
     }
   };
-
-  const showNotify =
-    canNotify && (visibility === 'public' || visibility === 'local');
 
   return (
     <>

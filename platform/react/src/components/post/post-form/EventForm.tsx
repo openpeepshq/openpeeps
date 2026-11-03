@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { Megaphone, X } from 'lucide-react';
 import type {
   PostCreationData,
   RecurrenceFreq,
@@ -11,7 +11,7 @@ import {
   utcIsoToZonedDateTime,
   zonedDateTimeToUtcIso,
 } from '@openpeepshq/common/lib';
-import { Input, Label } from '@openpeepshq/react-ui';
+import { Input, Label, Switch } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import {
   EVENT_WEEKDAYS,
@@ -30,6 +30,9 @@ export interface EventFormProps {
   onChange: (data: PostCreationData) => void;
   isEdit?: boolean;
   occurrenceEdit?: boolean;
+  showNotify?: boolean;
+  notify?: boolean;
+  onNotifyChange?: (value: boolean) => void;
 }
 
 const dateToInputValue = (value: string | undefined, timeZone: string) =>
@@ -48,6 +51,9 @@ export const EventForm = ({
   onChange,
   isEdit = false,
   occurrenceEdit = false,
+  showNotify = false,
+  notify = false,
+  onNotifyChange,
 }: EventFormProps) => {
   const t = useT();
   const [audienceOpen, setAudienceOpen] = useState(false);
@@ -401,6 +407,26 @@ export const EventForm = ({
             showDirect
           />
         </Label>
+
+        {showNotify ? (
+          <div className="flex w-full items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Megaphone className="size-5" />
+              <p className="text-base">
+                {t('posts.form.notifyEveryone', {
+                  defaultValue: 'Notify everyone',
+                })}
+              </p>
+            </div>
+            <Switch
+              checked={notify}
+              onCheckedChange={(checked) => onNotifyChange?.(checked)}
+              aria-label={t('posts.form.notifyEveryone', {
+                defaultValue: 'Notify everyone',
+              })}
+            />
+          </div>
+        ) : null}
 
         <Label
           description={t('events.form.attendeeListPublic', {

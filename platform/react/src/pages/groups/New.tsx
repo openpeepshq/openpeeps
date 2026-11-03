@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router-dom';
 import { useT, useSetPageHeader } from '../../index';
 import { GroupForm, ProfilesInput, useCurrentProfile } from '../../components';
 import { useNewGroup } from '../../hooks';
@@ -15,14 +16,21 @@ export function NewGroup() {
     error,
     clearError,
     fieldErrors,
+    canCreate,
     submit,
   } = useNewGroup();
 
   useSetPageHeader(
-    t('groups.new.title', { defaultValue: 'Create group' }),
+    canCreate
+      ? t('groups.new.title', { defaultValue: 'Create group' })
+      : undefined,
     undefined,
-    'groups-create-page-title',
+    canCreate ? 'groups-create-page-title' : undefined,
   );
+
+  if (!canCreate) {
+    return me ? <Navigate to="/groups" replace /> : null;
+  }
 
   return (
     <div className="space-y-4 p-4 pb-12">

@@ -37,7 +37,7 @@ export const EventLocation: React.FC<EventLocationProps> = ({
         <>
           <LinkIcon className="text-muted-foreground" size={18} />
           <ThemedText className="text-muted-foreground">
-            {t('events.location.online', { defaultValue: 'Online' })}
+            {t('events.location.external', { defaultValue: 'External Event' })}
           </ThemedText>
         </>
       ) : null}

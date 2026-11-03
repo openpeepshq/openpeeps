@@ -64,7 +64,7 @@ export function EventLocation({
     if (event.url) {
       return (
         <a href={event.url} className="text-primary text-sm underline">
-          {t('events.location.online', { defaultValue: 'Online' })}
+          {t('events.location.external', { defaultValue: 'External Event' })}
         </a>
       );
     }
@@ -104,7 +104,9 @@ export function EventLocation({
               rel="noreferrer"
               className="text-primary inline-flex items-center gap-1 hover:underline"
             >
-              {t('events.location.online', { defaultValue: 'Online' })}
+              {t('events.location.external', {
+                defaultValue: 'External Event',
+              })}
               <ExternalLink className="h-4 w-4" />
             </a>
           </>

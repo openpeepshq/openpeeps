@@ -10,6 +10,8 @@ export const isAudioAttachment = (
 
 export interface AudioAttachmentProps {
   src?: string;
+  /** Waveform/thumbnail image rendered above the controls when available. */
+  previewUrl?: string;
   /** File name shown above the controls. */
   label?: string;
   /** Byte size, shown next to the file name when known. */
@@ -43,6 +45,7 @@ const formatBytes = (bytes?: number): string | undefined => {
 
 export const AudioAttachment = ({
   src,
+  previewUrl,
   label,
   size,
   reserveEnd = false,
@@ -122,6 +125,13 @@ export const AudioAttachment = ({
       onClick={(e) => e.stopPropagation()}
     >
       <div className={`flex flex-col gap-1.5 ${reserveEnd ? 'pr-12' : ''}`}>
+        {previewUrl ? (
+          <img
+            src={previewUrl}
+            alt=""
+            className="bg-muted h-40 w-full rounded-md object-cover"
+          />
+        ) : null}
         {label || fileSize ? (
           <div className="flex items-baseline justify-between gap-3">
             {label ? (

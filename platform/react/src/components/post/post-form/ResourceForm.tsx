@@ -224,14 +224,18 @@ export const ResourceForm = ({
           </Label>
         ) : (
           <div className="space-y-2">
-            <Button
-              variant="outline"
-              action={kindActions[resource.resourceKind]}
-            >
-              {t('resources.form.addMedia', {
-                defaultValue: 'Add files',
-              })}
-            </Button>
+            {/* Only galleries take more than one file; other kinds pick once. */}
+            {resource.resourceKind === 'gallery' ||
+            (resource.attachments ?? []).length === 0 ? (
+              <Button
+                variant="outline"
+                action={kindActions[resource.resourceKind]}
+              >
+                {t('resources.form.addMedia', {
+                  defaultValue: 'Add files',
+                })}
+              </Button>
+            ) : null}
             {attachments.previews}
             {attachments.inputs}
             {mediaMissing ? (

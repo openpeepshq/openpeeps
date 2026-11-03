@@ -92,7 +92,7 @@ const submitErrorMessage = (
   t: (key: string, options: { defaultValue: string }) => string,
 ) => {
   const message = err instanceof Error ? err.message : '';
-  if (message === 'Forbidden') {
+  if (message === 'Forbidden' || message === 'postCreateForbidden') {
     return t('resources.validation.audienceForbidden', {
       defaultValue: 'Choose a group you can post this resource in.',
     });

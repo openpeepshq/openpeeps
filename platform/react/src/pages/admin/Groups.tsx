@@ -1,9 +1,14 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users } from 'lucide-react';
-import { groupName } from '@openpeepshq/common/lib';
+import { canCreateGroup, groupName } from '@openpeepshq/common/lib';
 import type { AdminGroup } from '@openpeepshq/common/types';
-import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
+import {
+  useT,
+  useOpenpeeps,
+  useSetPageHeader,
+  useCurrentProfile,
+} from '../../index';
 import {
   Button,
   Dialog,
@@ -18,6 +23,8 @@ import { AdminGroupCard } from './components/AdminGroupCard';
 export function AdminGroups() {
   const t = useT();
   const navigate = useNavigate();
+  const profile = useCurrentProfile();
+  const canCreate = !!profile && canCreateGroup(profile.roles);
   const { openpeepsApi } = useOpenpeeps();
   const groupsQuery = openpeepsApi.admin.useAllGroupsList();
   const [search, setSearch] = useState('');
@@ -27,16 +34,17 @@ export function AdminGroups() {
     defaultValue: 'Create Group',
   });
   const headerActions = useMemo(
-    () => (
-      <Button
-        title={createLabel}
-        variant="default"
-        action={() => navigate('/groups/new')}
-      >
-        {createLabel}
-      </Button>
-    ),
-    [createLabel, navigate],
+    () =>
+      canCreate ? (
+        <Button
+          title={createLabel}
+          variant="default"
+          action={() => navigate('/groups/new')}
+        >
+          {createLabel}
+        </Button>
+      ) : undefined,
+    [canCreate, createLabel, navigate],
   );
 
   useSetPageHeader(

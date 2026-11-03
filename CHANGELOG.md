@@ -5,12 +5,38 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **posts**: announce community-wide articles and events
+- **groups**: implement group creation capability based on user roles
+- **resources**: aggregate group resources in top-level library
+- **markdown**: unify abbreviated markdown previews
 - **tooltip**: implement portal for tooltip content to prevent overlap with sidebar
 - **navigation**: enhance mobile navigation with tooltips and improved accessibility
 - **rsvp**: enhance RSVP functionality with event end validation and localization updates
 
 ### Bug Fixes
 
+- **markdown-input**: use useLayoutEffect to manage preview state
+- **rn**: scale avatar fallback content with the requested size
+- **media**: rasterize PDF previews with poppler's pdftoppm
+- **rn**: keep the message composer above the keyboard on Android
+- **rn**: make the notification settings sheet scrollable to reach Save
+- **posts**: keep the delete button reachable on tall posts
+- **posts**: show audio waveform previews on note attachments
+- **resources**: show file name and extension on the resource page
+- **composer**: keep typed text when switching note to poll
+- **events**: label external events as External Event in list cards
+- **media**: decode HEIC uploads via ImageMagick for thumbnails
+- **api**: return a meaningful error when a member creates a non-group resource
+- **resources**: hide Add files after first pick for non-gallery resources
+- **api**: return 409 when changing email to one already in use
+- **admin**: render community config card descriptions as markdown
+- **markdown**: read RN markdown link href from node attributes
+- **resources**: generate and show audio waveform thumbnails
+- **resources**: limit multi-file upload to gallery resources
+- **notifications**: render resource posts in notification emails
+- **resources**: make resource hashtags clickable
+- **resources**: show resource description once on the post detail page
+- **media**: convert images to webp, validate pdfs, reject invalid image uploads
 - **resources**: validate resource drafts before create
 - **ui**: enhance event rendering for email previews
 - **api**: improve handle validation in updateProfileRequestSchema
@@ -18,6 +44,15 @@ Changelog for OpenPeeps
 - **federation**: add Create inbox handler and switch to Traefik ACME
 - **i18n**: fix copy issues, restore br tags, highlight external links
 - **ui**: fix small onboarding and UI issues including markdown description rendering
+
+### Tests
+
+- **resources**: verify gallery images are stored in the order added
+
+### CI/CD
+
+- **build**: consolidate image builds into one bake job with persistent builder
+- single merge-gate required job; schedule component-gallery daily
 
 ## 2026-10-29
 

@@ -2,21 +2,28 @@ import { describe, expect, it } from 'vitest';
 import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
 import { createWriteStream, statSync } from 'node:fs';
 import sharp from 'sharp';
 import PDFDocument from 'pdfkit';
 import { createPreview, MediaContentError } from './index';
 
+const heicFixture = fileURLToPath(
+  new URL('./fixtures/sample.heic', import.meta.url),
+);
+
 const createTestPdf = (
   outputPath: string,
-  opts: { blank?: boolean } = {},
+  opts: { blank?: boolean; red?: boolean } = {},
 ): Promise<void> =>
   new Promise((resolve, reject) => {
     const doc = new PDFDocument();
     const stream = createWriteStream(outputPath);
     doc.pipe(stream);
-    if (!opts.blank) {
+    if (opts.red) {
+      doc.rect(0, 0, doc.page.width, doc.page.height).fill('red');
+    } else if (!opts.blank) {
       doc.text('Test PDF content for preview');
     }
     doc.end();
@@ -42,6 +49,11 @@ const cleanup = async (paths: string[]) => {
 const hasFfmpeg = (): Promise<boolean> =>
   new Promise((resolve) => {
     execFile('ffmpeg', ['-version'], (error) => resolve(!error));
+  });
+
+const hasPdftoppm = (): Promise<boolean> =>
+  new Promise((resolve) => {
+    execFile('pdftoppm', ['-v'], (error) => resolve(!error));
   });
 
 /** Create a 1-second 440 Hz sine wave as a mono PCM WAV (no ffmpeg needed). */
@@ -86,7 +98,7 @@ const createTestPng = async (outputPath: string, width = 100, height = 100) => {
     .toFile(outputPath);
 };
 
-/** Create a small HEIF/HEIC image (AV1-coded, since HEVC may not be available). */
+/** Create a small AVIF image (AV1-coded HEIF; sharp decodes it natively). */
 const createTestHeic = async (
   outputPath: string,
   width = 100,
@@ -119,9 +131,9 @@ describe('createPreview', () => {
       await cleanup([preview.path, dir]);
     });
 
-    it('converts HEIC/HEIF input to WebP (issue #1774)', async () => {
+    it('converts AVIF input to WebP via sharp (issue #1774)', async () => {
       const dir = await mkdtemp(path.join(tmpdir(), 'op-preview-'));
-      const input = path.join(dir, 'photo.heic');
+      const input = path.join(dir, 'photo.avif');
       try {
         await createTestHeic(input);
       } catch {
@@ -130,7 +142,7 @@ describe('createPreview', () => {
         return;
       }
 
-      const preview = await createPreview(input, 'image/heic', 'photo.heic');
+      const preview = await createPreview(input, 'image/avif', 'photo.avif');
 
       expect(preview.mimetype).toBe('image/webp');
       expect(preview.path).not.toBe(input);
@@ -140,6 +152,39 @@ describe('createPreview', () => {
       const outputStats = statSync(preview.path);
       expect(outputStats.size).not.toBe(inputStats.size);
       await cleanup([preview.path, dir]);
+    });
+
+    // Real iPhone-style HEIC is HEVC-coded, which sharp's prebuilt libvips
+    // cannot decode — it needs the ImageMagick heic delegate (runtime image
+    // ships imagemagick + libheif). Where that is unavailable (e.g. Ubuntu's
+    // libheif has no HEVC decoder) the fixture decodes to MediaContentError
+    // and the test skips, matching the reject-uploads-we-cannot-process
+    // fallback.
+    it('converts an HEVC-coded HEIC photo to WebP via ImageMagick (issue #1774)', async () => {
+      let preview;
+      try {
+        preview = await createPreview(heicFixture, 'image/heic', 'sample.heic');
+      } catch (error) {
+        if (error instanceof MediaContentError) return; // no HEIC decoder here
+        throw error;
+      }
+
+      expect(preview.mimetype).toBe('image/webp');
+      expect(preview.path).not.toBe(heicFixture);
+      expect(await isValidWebp(preview.path)).toBe(true);
+      await cleanup([preview.path]);
+    });
+
+    it('throws MediaContentError for a corrupt HEIC file', async () => {
+      const dir = await mkdtemp(path.join(tmpdir(), 'op-preview-'));
+      const input = path.join(dir, 'broken.heic');
+      await writeFile(input, 'this is not a heic file');
+
+      await expect(
+        createPreview(input, 'image/heic', 'broken.heic'),
+      ).rejects.toThrow(MediaContentError);
+
+      await cleanup([dir]);
     });
 
     it('throws MediaContentError for a text file renamed to .jpg (issue #1773)', async () => {
@@ -168,6 +213,29 @@ describe('createPreview', () => {
   });
 
   describe('PDFs (issue #1754)', () => {
+    // sharp's prebuilt binaries have no PDF loader, so real rendering goes
+    // through poppler's pdftoppm. The card fallback also produces a valid
+    // WebP, so the earlier PDF tests cannot tell the two apart — this one
+    // asserts actual page content (a red page must stay reddish).
+    it('renders actual PDF page content via pdftoppm (issue #1754)', async () => {
+      if (!(await hasPdftoppm())) return;
+      const dir = await mkdtemp(path.join(tmpdir(), 'op-preview-'));
+      const input = path.join(dir, 'red.pdf');
+      await createTestPdf(input, { red: true });
+
+      const preview = await createPreview(input, 'application/pdf', 'red.pdf');
+
+      expect(preview.mimetype).toBe('image/webp');
+      expect(preview.path).not.toBe(input);
+      expect(await isValidWebp(preview.path)).toBe(true);
+      const stats = await sharp(preview.path).stats();
+      const [red, green, blue] = stats.channels.map((c) => c.mean);
+      expect(red).toBeGreaterThan(150);
+      expect(red).toBeGreaterThan(green);
+      expect(red).toBeGreaterThan(blue);
+      await cleanup([preview.path, dir]);
+    });
+
     it('renders a PDF preview from the first page', async () => {
       const dir = await mkdtemp(path.join(tmpdir(), 'op-preview-'));
       const input = path.join(dir, 'document.pdf');

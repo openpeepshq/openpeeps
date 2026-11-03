@@ -3,6 +3,9 @@ import {
   checkCapabilities,
   mergeCapabilities,
   checkRoleCapabilities,
+  canCreateGroup,
+  canAnnouncePosts,
+  isCommunityWideVisibility,
   hasAdminSidebarAccess,
   isLocal,
   localOrNone,
@@ -24,6 +27,7 @@ import {
   checkAccountCreateAuthorization,
   ACCOUNT_CREATE_CAPABILITY,
 } from '../capabilitiesHelpers';
+import { defaultRoles } from '../../types/roleDefaults';
 import type {
   AccessTokenWithMeta,
   AuthorizationData,
@@ -326,6 +330,51 @@ describe('capabilitiesHelpers', () => {
           cap,
         ).success,
       ).toBe(true);
+    });
+  });
+
+  describe('canCreateGroup', () => {
+    const roles = (key: string) =>
+      defaultRoles.filter((role) => role.key === key) as Role[];
+
+    it('allows members, moderators, admins, and owners', () => {
+      expect(canCreateGroup(roles('member'))).toBe(true);
+      expect(canCreateGroup(roles('moderator'))).toBe(true);
+      expect(canCreateGroup(roles('admin'))).toBe(true);
+      expect(canCreateGroup(roles('owner'))).toBe(true);
+    });
+
+    it('denies pending members, limited members, and viewers with no roles', () => {
+      expect(canCreateGroup(roles('pendingmember'))).toBe(false);
+      expect(canCreateGroup(roles('limitedmember'))).toBe(false);
+      expect(canCreateGroup([])).toBe(false);
+    });
+  });
+
+  describe('canAnnouncePosts', () => {
+    const roles = (key: string) =>
+      defaultRoles.filter((role) => role.key === key) as Role[];
+
+    it('allows owners, admins, and moderators', () => {
+      expect(canAnnouncePosts(roles('owner'))).toBe(true);
+      expect(canAnnouncePosts(roles('admin'))).toBe(true);
+      expect(canAnnouncePosts(roles('moderator'))).toBe(true);
+    });
+
+    it('denies members and viewers with no roles', () => {
+      expect(canAnnouncePosts(roles('member'))).toBe(false);
+      expect(canAnnouncePosts(roles('pendingmember'))).toBe(false);
+      expect(canAnnouncePosts([])).toBe(false);
+    });
+  });
+
+  describe('isCommunityWideVisibility', () => {
+    it('is true only for public and local', () => {
+      expect(isCommunityWideVisibility('public')).toBe(true);
+      expect(isCommunityWideVisibility('local')).toBe(true);
+      expect(isCommunityWideVisibility('group')).toBe(false);
+      expect(isCommunityWideVisibility('direct')).toBe(false);
+      expect(isCommunityWideVisibility(undefined)).toBe(false);
     });
   });
 

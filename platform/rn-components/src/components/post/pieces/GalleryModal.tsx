@@ -61,6 +61,7 @@ export const GalleryModal = ({
             <AudioAttachment
               key={attachment.url}
               src={attachment.url}
+              previewUrl={attachment.previewUrl ?? undefined}
               label={attachment.filename ?? attachment.description}
               size={attachment.meta?.size}
             />

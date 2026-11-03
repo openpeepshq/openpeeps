@@ -211,14 +211,18 @@ export const ResourceForm = ({
           </>
         ) : (
           <>
-            <Pressable
-              onPress={openMedia}
-              className="items-center rounded-md border border-input px-3 py-2"
-            >
-              <ThemedText>
-                {t('resources.form.addMedia', { defaultValue: 'Add files' })}
-              </ThemedText>
-            </Pressable>
+            {/* Only galleries take more than one file; other kinds pick once. */}
+            {resource.resourceKind === 'gallery' ||
+            (resource.attachments ?? []).length === 0 ? (
+              <Pressable
+                onPress={openMedia}
+                className="items-center rounded-md border border-input px-3 py-2"
+              >
+                <ThemedText>
+                  {t('resources.form.addMedia', { defaultValue: 'Add files' })}
+                </ThemedText>
+              </Pressable>
+            ) : null}
             <ComposeAttachments
               attachments={resource.attachments ?? []}
               removeAttachment={(index) =>
