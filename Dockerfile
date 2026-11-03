@@ -200,9 +200,6 @@ RUN pnpm rebuild
 #─────────────────────────────────────────────────────────────────────────────
 FROM node:24-alpine AS app
 
-ARG VERSION
-ARG ENVIRONMENT
-
 RUN apk add --no-cache \
     dumb-init \
     ffmpeg \
@@ -229,7 +226,7 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV NODE_OPTIONS="--max-old-space-size=8192"
 ENV PROTOCOL_HEADER=x-forwarded-proto HOST_HEADER=x-forwarded-host
-ENV HOST=0.0.0.0 PORT=8080 NODE_ENV=production BODY_SIZE_LIMIT=540e9 VERSION=$VERSION ENVIRONMENT=$ENVIRONMENT
+ENV HOST=0.0.0.0 PORT=8080 NODE_ENV=production BODY_SIZE_LIMIT=540e9
 # Disable Node's 5-minute server.requestTimeout so slow media uploads aren't
 # cut off mid-transfer. Override at deploy time if you want a finite cap.
 ENV REQUEST_TIMEOUT=0
@@ -277,6 +274,14 @@ RUN mkdir -p /apat/.media && mkdir -p /apat/.logs && mkdir -p /apat/plugins
 
 VOLUME /apat/.media
 VOLUME /apat/.logs
+
+# Per-commit runtime inputs, declared last on purpose: an ARG pins every
+# layer above it to its value, so declaring them here is what keeps apk,
+# pnpm and the ~72s COPY --from=builder cached across commits (VERSION
+# changes every commit). Only these metadata layers rebuild per commit.
+ARG VERSION
+ARG ENVIRONMENT
+ENV VERSION=$VERSION ENVIRONMENT=$ENVIRONMENT
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/apat/docker/prod/start.sh"]
 
