@@ -12,15 +12,44 @@ Produces a milestone description containing:
 
 Closed issues are ignored in the stats table; the burndown uses open/closed
 timeline of the current milestone scope.
+
+Usage:
+    python3 generate-stats.py --milestone-id 23
+    python3 generate-stats.py --milestone-id 23 --token <token>
+
+The token defaults to the FORGEJO_TOKEN environment variable.
 """
 
+import argparse
 import json
+import os
 import urllib.request
 from datetime import date, timedelta
 
 BASE = "https://code.openpeeps.org/api/v1/repos/openpeeps/openpeeps"
-TOKEN = "REDACTED"
-MILESTONE_ID = 23
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Update a milestone description with open-issue stats and a burndown chart."
+    )
+    parser.add_argument(
+        "--milestone-id", type=int, required=True, help="Numeric id of the target milestone"
+    )
+    parser.add_argument(
+        "--token",
+        default=os.environ.get("FORGEJO_TOKEN"),
+        help="Forgejo API token (default: $FORGEJO_TOKEN)",
+    )
+    args = parser.parse_args()
+    if not args.token:
+        parser.error("token is required: pass --token or set FORGEJO_TOKEN")
+    return args
+
+
+_args = parse_args()
+TOKEN = _args.token
+MILESTONE_ID = _args.milestone_id
 
 FLOW_LABELS = [
     "flow/ready-to-test",

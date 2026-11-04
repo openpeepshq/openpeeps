@@ -30,7 +30,7 @@ Two scripts live in this skill directory:
 ### `generate-stats.py` — stats table
 
 ```bash
-python3 .agents/skills/triage-openpeeps-milestone/generate-stats.py
+python3 .agents/skills/triage-openpeeps-milestone/generate-stats.py --milestone-id <ID>
 ```
 
 Scans all repository issues (the `milestone=N` API filter returns incomplete
@@ -42,7 +42,7 @@ Writes the combined description via `PATCH /milestones/{id}`.
 ### `find-ready-to-test.py` — label issues with merged PRs
 
 ```bash
-python3 .agents/skills/triage-openpeeps-milestone/find-ready-to-test.py
+python3 .agents/skills/triage-openpeeps-milestone/find-ready-to-test.py --milestone-id <ID>
 ```
 
 For each milestone issue without the `flow/ready-to-test` label:
@@ -57,11 +57,14 @@ Run this before `generate-stats.py` to pick up newly-merged work.
 
 ## Configuration
 
-Edit constants in both scripts:
+Both scripts take the same CLI options:
 
-- `BASE` — the Gitea/Forgejo API base URL
-- `TOKEN` — your API token (needs `repo` scope + milestone edit access)
-- `MILESTONE_ID` — change to the target milestone ID
+- `--milestone-id <ID>` (required) — numeric ID of the target milestone
+- `--token <token>` (optional) — Forgejo API token (needs `repo` scope +
+  milestone edit access). Defaults to the `FORGEJO_TOKEN` environment variable
+  when omitted.
+
+The Forgejo API base URL is a `BASE` constant at the top of each script.
 
 ## Requirements
 

@@ -1,19 +1,48 @@
 #!/usr/bin/env python3
 """
-For each milestone 23 issue:
+For each milestone issue:
   1. Find merged PRs referencing it
   2. Find the issue's last comment date
   3. If a merged PR was merged AFTER the last comment, add flow/ready-to-test label
 Then re-run the triage stats.
+
+Usage:
+    python3 find-ready-to-test.py --milestone-id 23
+    python3 find-ready-to-test.py --milestone-id 23 --token <token>
+
+The token defaults to the FORGEJO_TOKEN environment variable.
 """
+import argparse
 import json
+import os
 import urllib.request
 import re
 from collections import defaultdict
 
 BASE = "https://code.openpeeps.org/api/v1/repos/openpeeps/openpeeps"
-MILESTONE_ID = 23
-TOKEN = "REDACTED"
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Label milestone issues as flow/ready-to-test when their PRs were merged after the last comment."
+    )
+    parser.add_argument(
+        "--milestone-id", type=int, required=True, help="Numeric id of the target milestone"
+    )
+    parser.add_argument(
+        "--token",
+        default=os.environ.get("FORGEJO_TOKEN"),
+        help="Forgejo API token (default: $FORGEJO_TOKEN)",
+    )
+    args = parser.parse_args()
+    if not args.token:
+        parser.error("token is required: pass --token or set FORGEJO_TOKEN")
+    return args
+
+
+_args = parse_args()
+TOKEN = _args.token
+MILESTONE_ID = _args.milestone_id
 LABEL_READY = "flow/ready-to-test"
 
 def api_get(url):
@@ -41,8 +70,8 @@ def api_patch(url, data):
     with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read().decode())
 
-# --- Step 1: Fetch all milestone 23 items (all states) ---
-print("=== Fetching milestone 23 items ===")
+# --- Step 1: Fetch all milestone items (all states) ---
+print(f"=== Fetching milestone {MILESTONE_ID} items ===")
 milestone_items = {}
 for page in range(1, 50):
     data = api_get(f"{BASE}/issues?limit=100&state=all&sort=created&order=desc&page={page}")
