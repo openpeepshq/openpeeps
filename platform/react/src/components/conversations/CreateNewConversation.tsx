@@ -11,7 +11,7 @@ import {
 } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useCreateConversation } from '../../hooks/conversations/useCreateConversation';
-import { OpenpeepsMarkdownInput } from '../post';
+import { OpenpeepsComposerInput } from '../post';
 import { ProfilesInput } from '../profile';
 
 const MAX_MESSAGE_LENGTH = 500;
@@ -94,7 +94,7 @@ export const CreateNewConversation = ({
             </DialogHeader>
 
             <div className="min-h-0 flex-1 overflow-y-auto">
-              <OpenpeepsMarkdownInput
+              <OpenpeepsComposerInput
                 rows={5}
                 value={message}
                 onChange={setMessage}

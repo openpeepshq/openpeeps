@@ -2202,19 +2202,19 @@
       },
       "welcomePage": {
         "title": "Welcome Page",
-        "description": "Tell your peeps about your community as part of their onboarding experience.  <br/> You can use [Markdown](https://www.markdownguide.org) to format the contents of this page."
+        "description": "Tell your peeps about your community as part of their onboarding experience.<br/>Format this page in the editor. Source mode accepts [Markdown](https://www.markdownguide.org) if you already have text to paste."
       },
       "codeOfConduct": {
         "title": "Code of conduct",
-        "description": "Set the rules and expectations for your community. The page is public at /code-of-conduct for everyone, including visitors who are not logged in. <br/> You can use Markdown to format the contents of this page; see https://www.markdownguide.org/"
+        "description": "Set the rules and expectations for your community. The page is public at /code-of-conduct for everyone, including visitors who are not logged in.<br/>Format this page in the editor. Source mode accepts Markdown."
       },
       "welcomeEmail": {
         "title": "Welcome Email",
-        "description": "Add your own information to the first email your members will receive from the community.  <br/>.  You can use Markdown for formatting this email, but please be aware that email clients don't always do well with every kind of formatting."
+        "description": "Add your own information to the first email your members will receive from the community.<br/>Format it in the editor. Email clients do not show every kind of formatting, so keep this simple. Source mode accepts Markdown."
       },
       "aboutPage": {
         "title": "About Page",
-        "description": "This page shows up for people not logged in to your community.  <br/>  You can format it using Markdown.  Learn more about Markdown syntax at https://www.markdownguide.org/, or use your favorite AI tool to convert your formatted document to markdown that you can paste here."
+        "description": "This page shows up for people not logged in to your community.<br/>Format it in the editor. Source mode accepts [Markdown](https://www.markdownguide.org/) if you want to paste existing text."
       },
       "links": {
         "title": "Policy Links",
@@ -2930,6 +2930,111 @@
     },
     "preview": "Preview",
     "markdownHelp": "Formatting help",
+    "composerMode": {
+      "markdown": "Markdown",
+      "richText": "Rich text"
+    },
+    "richMarkdown": {
+      "parseError": "This content could not be shown in the visual editor. Use source mode to keep editing it.",
+      "linkText": "link",
+      "contentArea": {
+        "editableMarkdown": "Editable markdown"
+      },
+      "codeBlock": {
+        "inlineLanguage": "Language",
+        "language": "Code block language",
+        "selectLanguage": "Select code block language"
+      },
+      "codeblock": {
+        "delete": "Delete code block"
+      },
+      "createLink": {
+        "cancelTooltip": "Cancel change",
+        "saveTooltip": "Set URL",
+        "text": "Link text",
+        "textTooltip": "Text shown for the link",
+        "title": "Link title",
+        "titleTooltip": "Title shown when hovering the link",
+        "url": "URL",
+        "urlPlaceholder": "Paste a URL"
+      },
+      "dialog": {
+        "close": "Close dialog"
+      },
+      "dialogControls": {
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "imageEditor": {
+        "deleteImage": "Delete image",
+        "editImage": "Edit image"
+      },
+      "linkPreview": {
+        "copied": "Copied",
+        "copyToClipboard": "Copy link",
+        "edit": "Edit link URL",
+        "remove": "Remove link"
+      },
+      "table": {
+        "alignCenter": "Align center",
+        "alignLeft": "Align left",
+        "alignRight": "Align right",
+        "columnMenu": "Column menu",
+        "deleteColumn": "Delete this column",
+        "deleteRow": "Delete this row",
+        "deleteTable": "Delete table",
+        "insertColumnLeft": "Insert a column to the left",
+        "insertColumnRight": "Insert a column to the right",
+        "insertRowAbove": "Insert a row above",
+        "insertRowBelow": "Insert a row below",
+        "rowMenu": "Row menu",
+        "textAlignment": "Text alignment"
+      },
+      "toolbar": {
+        "blockTypeSelect": {
+          "placeholder": "Block type",
+          "selectBlockTypeTooltip": "Select block type"
+        },
+        "blockTypes": {
+          "heading": "Heading {{level}}",
+          "paragraph": "Paragraph",
+          "quote": "Quote"
+        },
+        "bold": "Bold",
+        "bulletedList": "Bulleted list",
+        "codeBlock": "Insert code block",
+        "image": "Insert image",
+        "inlineCode": "Inline code",
+        "italic": "Italic",
+        "link": "Create link",
+        "numberedList": "Numbered list",
+        "redo": "Redo {{shortcut}}",
+        "removeBold": "Remove bold",
+        "removeInlineCode": "Remove inline code",
+        "removeItalic": "Remove italic",
+        "removeStrikethrough": "Remove strikethrough",
+        "richText": "Visual",
+        "source": "Source",
+        "strikethrough": "Strikethrough",
+        "table": "Insert table",
+        "thematicBreak": "Insert divider",
+        "toggleGroup": "Formatting",
+        "undo": "Undo {{shortcut}}"
+      },
+      "uploadImage": {
+        "addViaUrlInstructions": "Or add an image from a URL:",
+        "addViaUrlInstructionsNoUpload": "Add an image from a URL:",
+        "alt": "Alt text",
+        "autoCompletePlaceholder": "Paste an image URL",
+        "dialogDescription": "Upload an image or paste an image URL.",
+        "dialogDescriptionNoUpload": "Insert an image from a URL.",
+        "dialogTitle": "Insert an image",
+        "title": "Title",
+        "uploadError": "Image upload failed. Please try again.",
+        "uploadInstructions": "Upload an image from your device:",
+        "uploading": "Uploading image…"
+      }
+    },
     "edit": "Back to Editing",
     "uploadEditModal": {
       "description": {
@@ -3586,7 +3691,7 @@
       "title": "New Article",
       "titleInput": "Title",
       "uploadCover": "Upload your cover image",
-      "contentPlaceholder": "Write your content here. Use markdown for formatting",
+      "contentPlaceholder": "Write your article",
       "visibility": "Who can see this (Required)",
       "visibilityNotChangeable": "Once you post your article, you can't change the visibility",
       "content": "Article Content"

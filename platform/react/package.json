@@ -43,6 +43,7 @@
     "@hookform/resolvers": "^5.4.2",
     "@livekit/components-react": "^2.9.21",
     "@livekit/components-styles": "^1.1.6",
+    "@mdxeditor/editor": "4.5.0",
     "@openpeepshq/client": "workspace:^",
     "@openpeepshq/common": "workspace:^",
     "@openpeepshq/greenscreen": "workspace:^",
@@ -73,6 +74,7 @@
     "react-router-dom": "^6.0.0 || ^7.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@openpeepshq/fetch-client": "workspace:^",
     "@types/node": "^22.13.1",
     "@types/qrcode": "^1.5.6",
@@ -82,13 +84,12 @@
     "@typescript-eslint/parser": "^8.72.0",
     "concurrently": "^9.1.2",
     "eslint": "^10.1.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "jsdom": "^25.0.1",
     "react-router-dom": "^7.0.0",
     "tsc-alias": "^1.8.10",
     "typescript": "^6.0.2",
-    "vitest": "^2.1.8",
-    "eslint-config-prettier": "^9.1.0",
-    "@eslint/js": "^9.17.0"
+    "vitest": "^2.1.8"
   }
 }

@@ -26,7 +26,7 @@ import {
 import { Input } from '../../ui/input';
 import { ThemedText } from '../../ui/themed-text';
 import { ComposeAttachments } from './ComposeAttachments';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsRichMarkdownInput } from './OpenpeepsMarkdownInput';
 import { VisibilitySelector } from './VisibilitySelector';
 
 export interface ResourceFormProps {
@@ -250,7 +250,7 @@ export const ResourceForm = ({
           </>
         )}
 
-        <OpenpeepsMarkdownInput
+        <OpenpeepsRichMarkdownInput
           rows={8}
           maxLength={4000}
           value={resource.content ?? ''}

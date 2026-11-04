@@ -16,7 +16,7 @@ import {
   ConversationParticipantsModal,
   DirectMessageSearch,
   MessageInThread,
-  OpenpeepsMarkdownInput,
+  OpenpeepsComposerInput,
   ProfileCard,
   useAuthData,
   useCurrentProfile,
@@ -300,7 +300,7 @@ export function ConversationShow() {
 
       {canCreate && (
         <footer className="space-y-2 border-t p-3">
-          <OpenpeepsMarkdownInput
+          <OpenpeepsComposerInput
             rows={3}
             value={text}
             onChange={setText}

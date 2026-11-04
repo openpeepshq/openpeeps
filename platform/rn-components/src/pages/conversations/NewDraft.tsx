@@ -14,7 +14,7 @@ import { SendHorizonalIcon } from '../../components/icons/index';
 import { useCreateConversation, useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '../../components/ui/themed-text';
 import { Profile, PublicProfile } from '@openpeepshq/common';
-import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
+import { OpenpeepsComposerInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
 import { useTranslation } from 'react-i18next';
 import { maxContentLength } from '../../lib/utils';
 
@@ -65,7 +65,7 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
         </ScrollView>
 
         <ThemedView className="p-2 border-t border-border bg-background">
-          <OpenpeepsMarkdownInput
+          <OpenpeepsComposerInput
             rows={5}
             value={message}
             onChange={setMessage}

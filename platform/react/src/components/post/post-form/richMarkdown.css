@@ -1,0 +1,60 @@
+/* MDXEditor paints with its own Radix scale. Restate those variables from
+   the theme tokens so the toolbar, document, and portaled dialogs follow
+   light and dark themes. Custom properties inherit, but the editor root
+   sets them again, so the same block has to win on both nodes. */
+.op-rich-markdown-popups,
+.op-rich-markdown.mdxeditor {
+  --basePageBg: rgb(var(--color-background));
+  --baseBase: rgb(var(--color-background));
+  --baseBgSubtle: rgb(var(--color-surface));
+  --baseBg: rgb(var(--color-surface));
+  --baseBgHover: rgb(var(--color-surface-2));
+  --baseBgActive: rgb(var(--color-surface-2));
+  --baseLine: rgb(var(--color-border-1));
+  --baseBorder: rgb(var(--color-border-1));
+  --baseBorderHover: rgb(var(--color-border-2));
+  --baseSolid: rgb(var(--color-foreground));
+  --baseSolidHover: rgb(var(--color-foreground));
+  --baseText: rgb(var(--color-foreground));
+  --baseTextContrast: rgb(var(--color-foreground));
+  --accentBase: rgb(var(--color-surface-primary));
+  --accentBgSubtle: rgb(var(--color-surface-primary));
+  --accentBg: rgb(var(--color-surface-primary));
+  --accentBgHover: rgb(var(--color-surface-primary));
+  --accentBgActive: rgb(var(--color-surface-primary));
+  --accentLine: rgb(var(--color-primary));
+  --accentBorder: rgb(var(--color-primary));
+  --accentBorderHover: rgb(var(--color-primary));
+  --accentSolid: rgb(var(--color-primary));
+  --accentSolidHover: rgb(var(--color-primary));
+  --accentText: rgb(var(--color-primary));
+  --accentTextContrast: rgb(var(--color-primary-foreground));
+  color: rgb(var(--color-foreground));
+  font-family: inherit;
+}
+
+.op-rich-markdown.mdxeditor {
+  border: 1px solid rgb(var(--color-border-1));
+  border-radius: 0.5rem;
+  background-color: rgb(var(--color-background));
+}
+
+.op-rich-markdown-toolbar {
+  position: static;
+  flex-wrap: wrap;
+  overflow-x: visible;
+  height: auto;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background-color: rgb(var(--color-surface));
+  border-bottom: 1px solid rgb(var(--color-border-1));
+}
+
+.op-rich-markdown .mdxeditor-source-editor .cm-editor,
+.op-rich-markdown .mdxeditor-source-editor .cm-scroller {
+  min-height: 24rem;
+}
+
+.op-rich-markdown-compact .mdxeditor-source-editor .cm-editor,
+.op-rich-markdown-compact .mdxeditor-source-editor .cm-scroller {
+  min-height: 6rem;
+}

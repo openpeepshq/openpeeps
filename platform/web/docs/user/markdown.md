@@ -1,8 +1,12 @@
 # Markdown formatting
 
-You can format posts, articles, event descriptions, group descriptions, messages,
-and community pages with Markdown. Type the syntax below, then use **Preview** in
-the editor to check how it will look.
+Posts, replies, and group descriptions are Markdown. Type the syntax below,
+then use **Preview** to check how it will look. New posts and messages can
+switch between that field and a visual editor. Both save the same Markdown.
+
+Articles, events, resources, and the community pages (welcome, about, code of
+conduct, and the welcome email) use a visual editor. The same Markdown is
+saved. **Source** on those editors is where you paste or edit the syntax below.
 
 <div style="height:20px"></div>
 

@@ -19,7 +19,7 @@ import {
 import { InfoIcon, SearchIcon } from '../../components/icons/index';
 import { MediaAttachmentData, type PublicPost } from '@openpeepshq/common';
 import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
-import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
+import { OpenpeepsComposerInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
 import { maxContentLength } from '../../lib/utils';
 import { DropdownMenu } from '../../components/ui/dropdown-menu';
 import { Button } from '../../components/ui/button';
@@ -329,7 +329,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
                 />
               )}
               <View className="px-4 py-3 bg-background border-t border-border">
-                <OpenpeepsMarkdownInput
+                <OpenpeepsComposerInput
                   rows={3}
                   value={content}
                   onChange={setContent}

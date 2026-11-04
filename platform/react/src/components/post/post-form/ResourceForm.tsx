@@ -17,7 +17,7 @@ import { useCurrentProfile } from '../../layout/IdentityContext';
 import { applyAudienceSetting } from '../../../lib/audienceSetting';
 import { CategoryPathPicker } from '../../resources/CategoryPathPicker';
 import { useResourceLibrary } from '../../../hooks';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsRichMarkdownInput } from './OpenpeepsRichMarkdownInput';
 import { PostAudienceSelector } from './PostAudienceSelector';
 import { VisibilitySelector } from './VisibilitySelector';
 import { useComposeAttachments } from './ComposeAttachments';
@@ -248,11 +248,11 @@ export const ResourceForm = ({
           </div>
         )}
 
-        <OpenpeepsMarkdownInput
-          rows={8}
+        <OpenpeepsRichMarkdownInput
           maxLength={4000}
           value={resource.content ?? ''}
           onChange={(content) => patchResource({ content })}
+          className="min-h-48"
           placeholder={t('resources.form.descriptionPlaceholder', {
             defaultValue: 'Describe this resource',
           })}

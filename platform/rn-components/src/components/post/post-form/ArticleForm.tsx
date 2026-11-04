@@ -13,7 +13,7 @@ import { ImageInput } from '../../form/ImageInput';
 import { Input } from '../../ui/input';
 import { Switch } from '../../ui/switch';
 import { ThemedText } from '../../ui/themed-text';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsRichMarkdownInput } from './OpenpeepsMarkdownInput';
 import { VisibilitySelector } from './VisibilitySelector';
 
 export interface ArticleFormProps {
@@ -73,7 +73,7 @@ export const ArticleForm = ({
           />
         </View>
 
-        <OpenpeepsMarkdownInput
+        <OpenpeepsRichMarkdownInput
           rows={16}
           maxLength={10000}
           value={article.content ?? ''}

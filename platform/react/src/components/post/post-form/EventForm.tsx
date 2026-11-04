@@ -19,7 +19,7 @@ import {
   type RepeatEnd,
 } from '../../../hooks/events/useEventForm';
 import { ImageInput } from '../../form/ImageInput';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsRichMarkdownInput } from './OpenpeepsRichMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { EventTypeSwitcher } from './EventTypeSwitcher';
 import { PostAudienceSelector } from './PostAudienceSelector';
@@ -118,12 +118,12 @@ export const EventForm = ({
           })}
         </p>
 
-        <OpenpeepsMarkdownInput
-          rows={6}
+        <OpenpeepsRichMarkdownInput
           maxLength={5000}
           value={event.content ?? ''}
           onChange={(content) => patchEvent({ content })}
           testId="events-description-input"
+          className="min-h-48"
           placeholder={t('events.form.descriptionPlaceholder', {
             defaultValue: 'Describe your event',
           })}

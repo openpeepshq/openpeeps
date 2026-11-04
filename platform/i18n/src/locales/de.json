@@ -2227,15 +2227,15 @@
       },
       "welcomePage": {
         "title": "Willkommensseite",
-        "description": "Erzählen Sie Ihren Mitgliedern als Teil des Onboarding-Erlebnisses von Ihrer Community. <br/> Sie können [Markdown](https://www.markdownguide.org) verwenden, um den Inhalt dieser Seite zu formatieren."
+        "description": "Erzählen Sie Ihren Mitgliedern als Teil des Onboarding-Erlebnisses von Ihrer Community.<br/>Formatieren Sie diese Seite im Editor. Der Quelltextmodus akzeptiert [Markdown](https://www.markdownguide.org), wenn Sie bereits Text einfügen möchten."
       },
       "welcomeEmail": {
         "title": "Willkommens-E-Mail",
-        "description": "Fügen Sie eigene Informationen zur ersten E-Mail hinzu, die Ihre Mitglieder von der Community erhalten. <br/> Sie können Markdown zur Formatierung dieser E-Mail verwenden, aber bitte beachten Sie, dass E-Mail-Clients nicht immer alle Formatierungen korrekt darstellen."
+        "description": "Fügen Sie eigene Informationen zur ersten E-Mail hinzu, die Ihre Mitglieder von der Community erhalten.<br/>Formatieren Sie sie im Editor. E-Mail-Programme zeigen nicht jede Formatierung, halten Sie den Text daher einfach. Der Quelltextmodus akzeptiert Markdown."
       },
       "aboutPage": {
         "title": "Über-Seite",
-        "description": "Diese Seite wird Personen angezeigt, die nicht in Ihrer Community angemeldet sind. <br/> Sie können sie mit Markdown formatieren. Erfahren Sie mehr über die Markdown-Syntax unter https://www.markdownguide.org/ oder verwenden Sie Ihr bevorzugtes KI-Tool, um Ihr formatiertes Dokument in Markdown umzuwandeln, das Sie hier einfügen können."
+        "description": "Diese Seite wird Personen angezeigt, die nicht in Ihrer Community angemeldet sind.<br/>Formatieren Sie sie im Editor. Der Quelltextmodus akzeptiert [Markdown](https://www.markdownguide.org/), wenn Sie vorhandenen Text einfügen möchten."
       },
       "links": {
         "title": "Richtlinien-Links",
@@ -2305,7 +2305,7 @@
       "radius": "Standard-Eckenradius (Karten, Dialoge)",
       "codeOfConduct": {
         "title": "Verhaltenskodex",
-        "description": "Legen Sie die Regeln und Erwartungen für Ihre Community fest. Die Seite ist öffentlich unter /code-of-conduct für alle sichtbar, auch für nicht angemeldete Besucher. <br/> Sie können Markdown verwenden, um den Inhalt dieser Seite zu formatieren; siehe https://www.markdownguide.org/"
+        "description": "Legen Sie die Regeln und Erwartungen für Ihre Community fest. Die Seite ist öffentlich unter /code-of-conduct für alle sichtbar, auch für nicht angemeldete Besucher.<br/>Formatieren Sie diese Seite im Editor. Der Quelltextmodus akzeptiert Markdown."
       },
       "openRegistrations": {
         "title": "Offene Registrierung",
@@ -3006,6 +3006,111 @@
     },
     "preview": "Vorschau",
     "markdownHelp": "Formatierungshilfe",
+    "composerMode": {
+      "markdown": "Markdown",
+      "richText": "Rich Text"
+    },
+    "richMarkdown": {
+      "parseError": "Dieser Inhalt konnte im visuellen Editor nicht angezeigt werden. Bearbeiten Sie ihn im Quelltextmodus.",
+      "linkText": "Link",
+      "contentArea": {
+        "editableMarkdown": "Bearbeitbares Markdown"
+      },
+      "codeBlock": {
+        "inlineLanguage": "Sprache",
+        "language": "Sprache des Codeblocks",
+        "selectLanguage": "Sprache des Codeblocks wählen"
+      },
+      "codeblock": {
+        "delete": "Codeblock löschen"
+      },
+      "createLink": {
+        "cancelTooltip": "Änderung verwerfen",
+        "saveTooltip": "URL setzen",
+        "text": "Linktext",
+        "textTooltip": "Text, der für den Link angezeigt wird",
+        "title": "Linktitel",
+        "titleTooltip": "Titel, der beim Überfahren des Links erscheint",
+        "url": "URL",
+        "urlPlaceholder": "URL einfügen"
+      },
+      "dialog": {
+        "close": "Dialog schließen"
+      },
+      "dialogControls": {
+        "cancel": "Abbrechen",
+        "save": "Speichern"
+      },
+      "imageEditor": {
+        "deleteImage": "Bild löschen",
+        "editImage": "Bild bearbeiten"
+      },
+      "linkPreview": {
+        "copied": "Kopiert",
+        "copyToClipboard": "Link kopieren",
+        "edit": "Link-URL bearbeiten",
+        "remove": "Link entfernen"
+      },
+      "table": {
+        "alignCenter": "Zentriert ausrichten",
+        "alignLeft": "Links ausrichten",
+        "alignRight": "Rechts ausrichten",
+        "columnMenu": "Spaltenmenü",
+        "deleteColumn": "Diese Spalte löschen",
+        "deleteRow": "Diese Zeile löschen",
+        "deleteTable": "Tabelle löschen",
+        "insertColumnLeft": "Spalte links einfügen",
+        "insertColumnRight": "Spalte rechts einfügen",
+        "insertRowAbove": "Zeile darüber einfügen",
+        "insertRowBelow": "Zeile darunter einfügen",
+        "rowMenu": "Zeilenmenü",
+        "textAlignment": "Textausrichtung"
+      },
+      "toolbar": {
+        "blockTypeSelect": {
+          "placeholder": "Blockart",
+          "selectBlockTypeTooltip": "Blockart wählen"
+        },
+        "blockTypes": {
+          "heading": "Überschrift {{level}}",
+          "paragraph": "Absatz",
+          "quote": "Zitat"
+        },
+        "bold": "Fett",
+        "bulletedList": "Aufzählung",
+        "codeBlock": "Codeblock einfügen",
+        "image": "Bild einfügen",
+        "inlineCode": "Code im Text",
+        "italic": "Kursiv",
+        "link": "Link erstellen",
+        "numberedList": "Nummerierte Liste",
+        "redo": "Wiederholen {{shortcut}}",
+        "removeBold": "Fett entfernen",
+        "removeInlineCode": "Codeformat entfernen",
+        "removeItalic": "Kursiv entfernen",
+        "removeStrikethrough": "Durchstreichung entfernen",
+        "richText": "Visuell",
+        "source": "Quelltext",
+        "strikethrough": "Durchgestrichen",
+        "table": "Tabelle einfügen",
+        "thematicBreak": "Trennlinie einfügen",
+        "toggleGroup": "Formatierung",
+        "undo": "Rückgängig {{shortcut}}"
+      },
+      "uploadImage": {
+        "addViaUrlInstructions": "Oder ein Bild über eine URL hinzufügen:",
+        "addViaUrlInstructionsNoUpload": "Bild über eine URL hinzufügen:",
+        "alt": "Alternativtext",
+        "autoCompletePlaceholder": "Bild-URL einfügen",
+        "dialogDescription": "Laden Sie ein Bild hoch oder fügen Sie eine Bild-URL ein.",
+        "dialogDescriptionNoUpload": "Bild über eine URL einfügen.",
+        "dialogTitle": "Bild einfügen",
+        "title": "Titel",
+        "uploadError": "Bild-Upload fehlgeschlagen. Bitte versuchen Sie es erneut.",
+        "uploadInstructions": "Bild von Ihrem Gerät hochladen:",
+        "uploading": "Bild wird hochgeladen…"
+      }
+    },
     "edit": "Zurück zur Bearbeitung",
     "uploadEditModal": {
       "description": {
@@ -3668,7 +3773,7 @@
       "title": "Neuer Artikel",
       "titleInput": "Titel",
       "uploadCover": "Titelbild hochladen",
-      "contentPlaceholder": "Schreiben Sie hier Ihren Inhalt. Verwenden Sie Markdown zur Formatierung",
+      "contentPlaceholder": "Schreiben Sie Ihren Artikel",
       "visibility": "Wer kann das sehen (Erforderlich)",
       "visibilityNotChangeable": "Sobald Sie Ihren Artikel veröffentlicht haben, können Sie die Sichtbarkeit nicht mehr ändern",
       "content": "Artikelinhalt"

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { CommunityConfig } from '@openpeepshq/common/types';
 import { useT, useSetPageHeader } from '../../../index';
 import { Markdown } from '../../../lib/Markdown';
-import { OpenpeepsMarkdownInput } from '../../../components';
+import { OpenpeepsRichMarkdownInput } from '../../../components';
 import { Button, Toast, deepGet, deepSet } from '@openpeepshq/react-ui';
 import { useCommunityConfig } from './useCommunityConfig';
 
@@ -60,10 +60,9 @@ export function CommunityMarkdownPage({
         source={t(descriptionKey)}
         className="pb-2 pt-4 text-sm text-muted-foreground"
       />
-      <OpenpeepsMarkdownInput
+      <OpenpeepsRichMarkdownInput
         value={value}
         maxLength={10000}
-        rows={18}
         className="min-h-[30rem]"
         onChange={setContent}
       />

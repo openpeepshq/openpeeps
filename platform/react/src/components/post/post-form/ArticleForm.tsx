@@ -10,7 +10,7 @@ import { useT } from '../../../i18n';
 import { useCurrentProfile } from '../../layout/IdentityContext';
 import { applyAudienceSetting } from '../../../lib/audienceSetting';
 import { ImageInput } from '../../form/ImageInput';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsRichMarkdownInput } from './OpenpeepsRichMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { PostAudienceSelector } from './PostAudienceSelector';
 import { VisibilitySelector } from './VisibilitySelector';
@@ -79,14 +79,12 @@ export function ArticleForm({
           />
         </Label>
 
-        <OpenpeepsMarkdownInput
-          rows={16}
+        <OpenpeepsRichMarkdownInput
           maxLength={10000}
           value={article.content ?? ''}
           onChange={(content) => patchArticle({ content })}
           placeholder={t('articles.form.contentPlaceholder', {
-            defaultValue:
-              'Write your content here.  User markdown for formatting',
+            defaultValue: 'Write your article',
           })}
         />
         <ComposePreviewLinks content={article.content} />

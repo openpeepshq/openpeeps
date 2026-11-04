@@ -11,7 +11,7 @@ import { Switch } from '../../ui/switch';
 import { ChevronDownIcon, MegaphoneIcon } from '../../icons/index';
 import { ComposeAttachments } from './ComposeAttachments';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsComposerInput } from './OpenpeepsMarkdownInput';
 import { PollComposerFields } from './PollComposerFields';
 import { VisibilitySheet } from './VisibilitySheet';
 
@@ -107,7 +107,7 @@ export const PostForm = ({
         </Pressable>
       ) : null}
 
-      <OpenpeepsMarkdownInput
+      <OpenpeepsComposerInput
         autoFocus={autoFocus}
         value={content}
         onChange={(text) => form.setValue('data.content', text)}
