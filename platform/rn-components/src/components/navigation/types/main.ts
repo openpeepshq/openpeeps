@@ -41,6 +41,7 @@ export type MainStackParamList = {
     id?: string;
     handle?: string;
     tab?: GroupSection;
+    category?: string[];
   };
   GroupMembers: {
     id: string;

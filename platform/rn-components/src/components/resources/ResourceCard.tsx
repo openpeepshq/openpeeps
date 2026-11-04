@@ -38,6 +38,11 @@ export interface ResourceCardProps {
   showDescription?: boolean;
   /** When true, hides the group label (already shown by the group context). */
   inGroup?: boolean;
+  /**
+   * Filter the surrounding library to this folder. When omitted, the
+   * category opens the resource library already filtered to that path.
+   */
+  onSelectCategory?: (path: string[]) => void;
 }
 
 // Audio attachments render their generated waveform preview like any other
@@ -71,6 +76,7 @@ export const ResourceCard = ({
   preview,
   showDescription = true,
   inGroup = false,
+  onSelectCategory,
 }: ResourceCardProps) => {
   const { t } = useTranslation();
   const navigation =
@@ -146,6 +152,55 @@ export const ResourceCard = ({
     }
   };
 
+  const openCategory = (index: number) => {
+    const prefix = (resource?.categoryPath ?? []).slice(0, index + 1);
+    if (onSelectCategory) {
+      onSelectCategory(prefix);
+      return;
+    }
+    if (group?.handle) {
+      navigation.navigate('Group', {
+        handle: group.handle,
+        tab: 'resources',
+        category: prefix,
+      });
+      return;
+    }
+    navigation.navigate('TabNavigator', {
+      screen: 'Resources',
+      params: { category: prefix },
+    });
+  };
+
+  const renderCategoryPath = () => {
+    if (!resource?.categoryPath?.length) return null;
+    return (
+      <View className="flex-row flex-wrap items-center">
+        {resource.categoryPath.map((name, index) => (
+          <View key={`${name}-${index}`} className="flex-row items-center">
+            {index > 0 ? (
+              <ThemedText className="text-xs text-muted-foreground">
+                {' / '}
+              </ThemedText>
+            ) : null}
+            <Pressable
+              onPress={() => openCategory(index)}
+              accessibilityRole="button"
+              accessibilityLabel={t('resources.library.openCategory', {
+                defaultValue: 'Show resources in {{name}}',
+                name,
+              })}
+            >
+              <ThemedText className="text-xs text-muted-foreground">
+                {name}
+              </ThemedText>
+            </Pressable>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
   const renderBookmarkButton = () => (
     <Pressable
       onPress={toggleBookmark}
@@ -208,11 +263,7 @@ export const ResourceCard = ({
           <ThemedText className="text-lg font-semibold">
             {resource.title}
           </ThemedText>
-          {resource.categoryPath?.length ? (
-            <ThemedText className="text-xs text-muted-foreground">
-              {resource.categoryPath.join(' / ')}
-            </ThemedText>
-          ) : null}
+          {renderCategoryPath()}
           {renderGroupLabel()}
           {showDescription ? (
             <TruncatedMarkdown
@@ -321,11 +372,7 @@ export const ResourceCard = ({
       <ThemedText className="text-lg font-semibold">
         {resource.title}
       </ThemedText>
-      {resource.categoryPath?.length ? (
-        <ThemedText className="text-xs text-muted-foreground">
-          {resource.categoryPath.join(' / ')}
-        </ThemedText>
-      ) : null}
+      {renderCategoryPath()}
       {renderGroupLabel()}
       {showDescription ? (
         <TruncatedMarkdown

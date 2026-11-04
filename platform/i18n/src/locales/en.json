@@ -3646,7 +3646,8 @@
       "noResults": "No resources match your current filters.",
       "saved": "Saved",
       "showHiddenTags": "+ {{count}}",
-      "hideTags": "Hide"
+      "hideTags": "Hide",
+      "openCategory": "Show resources in {{name}}"
     },
     "actions": {
       "watch": "Watch",

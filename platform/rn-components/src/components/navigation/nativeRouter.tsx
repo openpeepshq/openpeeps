@@ -98,7 +98,16 @@ export const navigateToTarget = (target: NavTarget) => {
           params: { handle: target.handle },
         });
       } else {
-        go('Main', { screen: 'Group', params: { handle: target.handle } });
+        go('Main', {
+          screen: 'Group',
+          params: {
+            handle: target.handle,
+            ...(target.section === 'resources'
+              ? { tab: 'resources' as const }
+              : {}),
+            ...(target.category?.length ? { category: target.category } : {}),
+          },
+        });
       }
       break;
     case 'conversation':
@@ -153,7 +162,15 @@ export const navigateToTarget = (target: NavTarget) => {
           params: { id: target.resourceId },
         });
       } else {
-        go('Main', { screen: 'TabNavigator', params: { screen: 'Resources' } });
+        go('Main', {
+          screen: 'TabNavigator',
+          params: {
+            screen: 'Resources',
+            ...(target.category?.length
+              ? { params: { category: target.category } }
+              : {}),
+          },
+        });
       }
       break;
     case 'about':

@@ -14,6 +14,10 @@ export type NavTarget =
       type: 'group';
       handle?: string;
       view?: 'info' | 'edit' | 'edit-info' | 'edit-roles' | 'members';
+      /** Group tab. `resources` opens the library, optionally filtered. */
+      section?: 'resources';
+      /** Folder path to select on the group resource library. */
+      category?: string[];
     }
   | { type: 'groups'; view?: 'new' }
   | { type: 'conversation'; id?: string; view?: 'info' | 'new' }
@@ -21,7 +25,13 @@ export type NavTarget =
   | { type: 'jams'; view?: 'my' }
   | { type: 'events'; view?: 'my' | 'new'; eventId?: string }
   | { type: 'articles'; view?: 'new'; articleId?: string }
-  | { type: 'resources'; view?: 'new'; resourceId?: string }
+  | {
+      type: 'resources';
+      view?: 'new';
+      resourceId?: string;
+      /** Folder path to select on the resource library. */
+      category?: string[];
+    }
   | { type: 'members' }
   | { type: 'notifications' }
   | { type: 'tags'; hashtag: string }

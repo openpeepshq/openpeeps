@@ -22,6 +22,8 @@ import { ResourceCard } from './ResourceCard';
 
 export interface ResourceLibraryProps {
   groupId?: string;
+  /** Open the library already filtered to this folder. */
+  categoryPath?: string[];
 }
 
 const COLLECTION_LIMIT = 5;
@@ -95,11 +97,14 @@ const Tree = ({
   </View>
 );
 
-export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
+export const ResourceLibrary = ({
+  groupId,
+  categoryPath,
+}: ResourceLibraryProps) => {
   const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
-  const library = useResourceLibrary(groupId);
+  const library = useResourceLibrary(groupId, undefined, categoryPath);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const toggleNode = (nodeKey: string) => {
@@ -366,7 +371,12 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               onPress={() => navigation.navigate('Post', { id: post.id })}
               className="border-b border-border"
             >
-              <ResourceCard post={post} layout="list" inGroup={!!groupId} />
+              <ResourceCard
+                post={post}
+                layout="list"
+                inGroup={!!groupId}
+                onSelectCategory={library.setPathPrefix}
+              />
             </Pressable>
           ))}
         </View>
@@ -377,7 +387,12 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               key={post.id}
               onPress={() => navigation.navigate('Post', { id: post.id })}
             >
-              <ResourceCard post={post} layout="card" inGroup={!!groupId} />
+              <ResourceCard
+                post={post}
+                layout="card"
+                inGroup={!!groupId}
+                onSelectCategory={library.setPathPrefix}
+              />
             </Pressable>
           ))}
         </ScrollView>

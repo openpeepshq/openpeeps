@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { PublicPost, ResourceKind } from '@openpeepshq/common/types';
 import {
   categoryTreeFromPaths,
@@ -8,7 +8,11 @@ import {
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useFeedListParams } from '../useResolvedFeedFormat';
 
-export const useResourceLibrary = (groupId?: string, ungrouped?: boolean) => {
+export const useResourceLibrary = (
+  groupId?: string,
+  ungrouped?: boolean,
+  categoryPath: string[] = [],
+) => {
   const { openpeepsApi } = useOpenpeeps();
   const params = useFeedListParams({ format: 'linear' });
   const query = openpeepsApi.usePostsByType('resource', {
@@ -24,7 +28,17 @@ export const useResourceLibrary = (groupId?: string, ungrouped?: boolean) => {
   const [search, setSearch] = useState('');
   const [kind, setKind] = useState<ResourceKind | 'all'>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [pathPrefix, setPathPrefix] = useState<string[]>([]);
+  // A category link can open this screen while it is already mounted.
+  // Re-apply that folder without clobbering a filter chosen afterwards:
+  // local changes do not alter categoryKey, so this effect stays quiet.
+  const categoryKey = categoryPath.join('\u0000');
+  const [pathPrefix, setPathPrefix] = useState<string[]>(() =>
+    categoryKey ? categoryKey.split('\u0000') : [],
+  );
+  useEffect(() => {
+    if (!categoryKey) return;
+    setPathPrefix(categoryKey.split('\u0000'));
+  }, [categoryKey]);
   const [hierarchy, setHierarchy] = useState(false);
   const [view, setView] = useState<'list' | 'cards'>('cards');
   const [saved, setSaved] = useState(false);

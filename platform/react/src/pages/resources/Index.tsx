@@ -7,13 +7,14 @@ import {
   useSetPlusButtonActions,
   useAuthData,
 } from '../../index';
-import { useNavigate } from '../../contexts/router';
+import { useNavigate, useSearchParams } from '../../contexts/router';
 import { ResourceLibrary } from '../../components/resources/ResourceLibrary';
 import { getNewPostStores } from '../../stores';
 
 export const ResourcesIndex = () => {
   const t = useT();
   const navigate = useNavigate();
+  const searchParams = useSearchParams();
   const authData = useAuthData();
   const canCreate = canCreatePostTypeIgnoringScopes(authData, 'resource');
 
@@ -41,5 +42,5 @@ export const ResourcesIndex = () => {
     'resources-page-heading',
   );
 
-  return <ResourceLibrary />;
+  return <ResourceLibrary categoryPath={searchParams.getAll('category')} />;
 };

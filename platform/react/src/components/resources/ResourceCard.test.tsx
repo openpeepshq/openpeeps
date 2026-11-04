@@ -117,6 +117,96 @@ describe('ResourceCard', () => {
     });
   });
 
+  it('opens every resource in a category when that category is clicked', async () => {
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+
+    const post = resourcePost([]);
+    post.data = {
+      ...(post.data as object),
+      categoryPath: ['Brand', 'Marketing'],
+    } as PublicPost['data'];
+
+    await act(async () => {
+      root?.render(createElement(ResourceCard, { post }));
+    });
+
+    const marketing = [...container.querySelectorAll('button')].find(
+      (button) => button.textContent === 'Marketing',
+    );
+    expect(marketing).toBeTruthy();
+
+    await act(async () => {
+      marketing?.click();
+    });
+
+    expect(navigate).toHaveBeenCalledWith({
+      type: 'resources',
+      category: ['Brand', 'Marketing'],
+    });
+  });
+
+  it('opens the group library when the resource belongs to a group', async () => {
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+
+    const post = resourcePost([]);
+    post.group = { handle: 'design' } as PublicPost['group'];
+    post.data = {
+      ...(post.data as object),
+      categoryPath: ['Brand'],
+    } as PublicPost['data'];
+
+    await act(async () => {
+      root?.render(createElement(ResourceCard, { post }));
+    });
+
+    const brand = [...container.querySelectorAll('button')].find(
+      (button) => button.textContent === 'Brand',
+    );
+
+    await act(async () => {
+      brand?.click();
+    });
+
+    expect(navigate).toHaveBeenCalledWith({
+      type: 'group',
+      handle: 'design',
+      section: 'resources',
+      category: ['Brand'],
+    });
+  });
+
+  it('filters the open library when a category handler is provided', async () => {
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+
+    const post = resourcePost([]);
+    post.data = {
+      ...(post.data as object),
+      categoryPath: ['Brand', 'Marketing'],
+    } as PublicPost['data'];
+    const onSelectCategory = vi.fn();
+
+    await act(async () => {
+      root?.render(createElement(ResourceCard, { post, onSelectCategory }));
+    });
+
+    const brand = [...container.querySelectorAll('button')].find(
+      (button) => button.textContent === 'Brand',
+    );
+
+    await act(async () => {
+      brand?.click();
+    });
+
+    expect(onSelectCategory).toHaveBeenCalledWith(['Brand']);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it('shows the filename with its extension for a file resource', async () => {
     container = document.createElement('div');
     document.body.appendChild(container);

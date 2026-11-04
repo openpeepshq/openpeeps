@@ -3729,6 +3729,7 @@
       "saved": "Gespeichert",
       "showHiddenTags": "+ {{count}}",
       "hideTags": "Ausblenden",
+      "openCategory": "Ressourcen in {{name}} anzeigen",
       "saved": "Gespeichert"
     },
     "actions": {

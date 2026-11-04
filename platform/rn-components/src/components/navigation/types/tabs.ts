@@ -34,7 +34,11 @@ export type TabStackParamList = {
   [TAB_ROUTES.MESSAGES]: undefined;
   [TAB_ROUTES.EVENTS]: undefined;
   [TAB_ROUTES.ARTICLES]: undefined;
-  [TAB_ROUTES.RESOURCES]: undefined;
+  [TAB_ROUTES.RESOURCES]:
+    | {
+        category?: string[];
+      }
+    | undefined;
   [TAB_ROUTES.DIRECTORY]: undefined;
   [TAB_ROUTES.SETTINGS]: undefined;
   [TAB_ROUTES.GROUPS]: undefined;

@@ -17,6 +17,8 @@ import type { CategoryNode } from '@openpeepshq/common/lib';
 
 export interface ResourceLibraryProps {
   groupId?: string;
+  /** Open the library already filtered to this folder. */
+  categoryPath?: string[];
 }
 
 const COLLECTION_LIMIT = 5;
@@ -92,10 +94,13 @@ const Tree = ({
   </ul>
 );
 
-export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
+export const ResourceLibrary = ({
+  groupId,
+  categoryPath,
+}: ResourceLibraryProps) => {
   const t = useT();
   const hrefOf = useHrefOf();
-  const library = useResourceLibrary(groupId);
+  const library = useResourceLibrary(groupId, undefined, categoryPath);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const toggleNode = (nodeKey: string) => {
@@ -352,7 +357,12 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               href={hrefOf({ type: 'post', id: post.id })}
               className="block"
             >
-              <ResourceCard post={post} layout="list" inGroup={!!groupId} />
+              <ResourceCard
+                post={post}
+                layout="list"
+                inGroup={!!groupId}
+                onSelectCategory={library.setPathPrefix}
+              />
             </a>
           ))}
         </div>
@@ -364,7 +374,12 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               href={hrefOf({ type: 'post', id: post.id })}
               className="block"
             >
-              <ResourceCard post={post} layout="card" inGroup={!!groupId} />
+              <ResourceCard
+                post={post}
+                layout="card"
+                inGroup={!!groupId}
+                onSelectCategory={library.setPathPrefix}
+              />
             </a>
           ))}
         </div>

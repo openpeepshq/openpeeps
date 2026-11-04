@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { groupSectionFromHash } from '@openpeepshq/common/lib';
 import { useT, useOpenpeeps } from '../../index';
 import {
@@ -20,6 +26,7 @@ export function GroupShow() {
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { handle: handleParam = '' } = useParams<{ handle: string }>();
   const handle = routeHandleParam(handleParam);
   const { openpeepsApi } = useOpenpeeps();
@@ -180,7 +187,10 @@ export function GroupShow() {
             currentProfile={currentProfile}
             group={group}
           />
-          <ResourceLibrary groupId={group.id} />
+          <ResourceLibrary
+            groupId={group.id}
+            categoryPath={searchParams.getAll('category')}
+          />
         </div>
       )}
 

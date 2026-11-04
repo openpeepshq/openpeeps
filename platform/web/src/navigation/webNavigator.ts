@@ -7,6 +7,16 @@ import {
 const groupPath = (handle: string) =>
   handle.startsWith('@') ? `/groups/${handle}` : `/groups/@${handle}`;
 
+const categorySearch = (category?: string[]) => {
+  if (!category?.length) return '';
+  const params = new URLSearchParams();
+  for (const segment of category) {
+    if (segment) params.append('category', segment);
+  }
+  const query = params.toString();
+  return query ? `?${query}` : '';
+};
+
 /**
  * Maps {@link NavTarget} values to the current OpenPeeps web path scheme.
  */
@@ -43,6 +53,9 @@ export const createWebNavigator = (): Navigator => ({
         if (target.view === 'edit-info') return `${base}/edit/info`;
         if (target.view === 'edit-roles') return `${base}/edit/roles`;
         if (target.view === 'members') return `${base}/members`;
+        if (target.section === 'resources') {
+          return `${base}${categorySearch(target.category)}#resources`;
+        }
         return base;
       }
       case 'groups':
@@ -73,7 +86,7 @@ export const createWebNavigator = (): Navigator => ({
       case 'resources': {
         if (target.view === 'new') return '/resources/new';
         if (target.resourceId) return `/resources/${target.resourceId}/edit`;
-        return '/resources';
+        return `/resources${categorySearch(target.category)}`;
       }
       case 'members':
         return '/members';
