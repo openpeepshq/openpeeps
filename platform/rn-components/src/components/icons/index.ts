@@ -57,6 +57,7 @@ import {
   VolumeOff,
   Share,
   Hand,
+  History,
   Copy,
   Clock,
   Pencil,
@@ -206,6 +207,7 @@ export const VolumeOffIcon = iconWithClassName(VolumeOff);
 export const InfoIcon = iconWithClassName(Info);
 export const ShareIcon = iconWithClassName(Share);
 export const HandIcon = iconWithClassName(Hand);
+export const HistoryIcon = iconWithClassName(History);
 export const CopyIcon = iconWithClassName(Copy);
 export const ClockIcon = iconWithClassName(Clock);
 export const PencilIcon = iconWithClassName(Pencil);

@@ -33,6 +33,9 @@ import {
   isOneToOneWithBlocked,
   isOneToOneDm,
   HIDDEN_AUTHOR_HANDLE,
+  postHasEditHistory,
+  postEditVersions,
+  postEditVersionKind,
 } from '../postHelpers';
 import { groupCapabilityTemplates } from '../groupHelpers';
 import {
@@ -1454,6 +1457,74 @@ describe('postHelpers', () => {
         visibility: 'public' as const,
       };
       expect(isOneToOneDm(publicPost)).toBe(false);
+    });
+  });
+
+  describe('edit history', () => {
+    const note = (content: string) => ({ type: 'note' as const, content });
+
+    const entries = [
+      {
+        type: 'create',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        data: note('original'),
+      },
+      {
+        type: 'reaction',
+        createdAt: '2024-01-02T00:00:00.000Z',
+        data: { reaction: '👍' },
+      },
+      {
+        type: 'edit',
+        createdAt: '2024-02-01T00:00:00.000Z',
+        data: note('first edit'),
+      },
+      {
+        type: 'edit',
+        createdAt: '2024-03-01T00:00:00.000Z',
+        data: note('latest'),
+      },
+    ];
+
+    it('hides history until the post has been edited', () => {
+      expect(postHasEditHistory(undefined)).toBe(false);
+      expect(
+        postHasEditHistory([{ type: 'create' }, { type: 'reaction' }]),
+      ).toBe(false);
+      expect(
+        postEditVersions([
+          {
+            type: 'create',
+            createdAt: '2024-01-01T00:00:00.000Z',
+            data: note('only'),
+          },
+        ]),
+      ).toEqual([]);
+    });
+
+    it('lists versions oldest first, then reverses', () => {
+      expect(postHasEditHistory(entries)).toBe(true);
+      const oldest = postEditVersions(entries);
+      expect(oldest.map((version) => version.data)).toEqual([
+        note('original'),
+        note('first edit'),
+        note('latest'),
+      ]);
+      expect(oldest.map((version) => version.kind)).toEqual([
+        'original',
+        'edit',
+        'edit',
+      ]);
+      expect(oldest.map(postEditVersionKind)).toEqual([
+        'original',
+        'edit',
+        'current',
+      ]);
+      expect(
+        postEditVersions(entries, 'newest').map((version) =>
+          version.data.type === 'note' ? version.data.content : '',
+        ),
+      ).toEqual(['latest', 'first edit', 'original']);
     });
   });
 });

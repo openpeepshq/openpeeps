@@ -3,6 +3,7 @@ import {
   BookmarkMinus,
   BookmarkPlus,
   FlagIcon,
+  History,
   Pencil,
   Pin,
   Repeat2,
@@ -14,6 +15,7 @@ import {
   checkGroupCapabilities,
   checkPostCapabilities,
   checkRoleCapabilities,
+  postHasEditHistory,
 } from '@openpeepshq/common/lib';
 import {
   PopupMenu,
@@ -26,6 +28,7 @@ import { useAuthData, useCurrentProfile } from '../../layout/IdentityContext';
 import { useCapabilities, useServerInfo } from '../../server-data';
 import { ReportProfileOrPostModal } from '../../profile/ReportProfileOrPostModal';
 import { DeletePostModal } from './modals/DeletePostModal';
+import { PostEditHistoryModal } from './modals/PostEditHistoryModal';
 import { ReactionsModal } from './modals/ReactionsModal';
 import { RepostModal } from './modals/RepostModal';
 import { useEditPostModal } from '../post-form/EditPostModalContext';
@@ -45,7 +48,13 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
   const { openEditPost } = useEditPostModal();
 
   const [modal, setModal] = useState<
-    'reactions' | 'reposts' | 'delete' | 'reportPost' | 'reportProfile' | null
+    | 'reactions'
+    | 'reposts'
+    | 'history'
+    | 'delete'
+    | 'reportPost'
+    | 'reportProfile'
+    | null
   >(null);
 
   const bookmarkedIdsQuery = openpeepsApi.useCurrentProfileBookmarkedIds();
@@ -156,6 +165,16 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
           icon={ThumbsUp}
           action={() => setModal('reactions')}
         />
+        {postHasEditHistory(post.entries) ? (
+          <PopupMenuButton
+            title={t('posts.editHistory.menu', {
+              defaultValue: 'Edit history',
+            })}
+            text={t('posts.editHistory.menu', { defaultValue: 'Edit history' })}
+            icon={History}
+            action={() => setModal('history')}
+          />
+        ) : null}
         {isBookmarked ? (
           <PopupMenuButton
             title={t('posts.unbookmark.title', {
@@ -309,6 +328,13 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
         open={modal === 'reactions'}
         onClose={() => setModal(null)}
       />
+      {postHasEditHistory(post.entries) ? (
+        <PostEditHistoryModal
+          post={post}
+          open={modal === 'history'}
+          onClose={() => setModal(null)}
+        />
+      ) : null}
       <RepostModal
         reposts={post.reposts ?? []}
         repostCount={post.repostCount ?? 0}

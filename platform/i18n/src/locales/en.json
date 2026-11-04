@@ -407,6 +407,15 @@
       "title": "Reactions",
       "empty": "No reactions yet"
     },
+    "editHistory": {
+      "menu": "Edit history",
+      "title": "Edit history",
+      "newestFirst": "Newest first",
+      "oldestFirst": "Oldest first",
+      "original": "Original",
+      "edit": "Edit",
+      "current": "Current"
+    },
     "repostModal": {
       "title": "Reposters",
       "empty": "No reposters yet",

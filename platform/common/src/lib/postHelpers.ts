@@ -855,6 +855,92 @@ export const isOneToOneDm = (
   },
 ): boolean => post.visibility === 'direct' && participantIds(post).size === 2;
 
+export type PostVersionOrder = 'oldest' | 'newest';
+
+export type PostEditVersion = {
+  id: string;
+  createdAt: string;
+  data: PostDataUnion;
+  /** Create entry is the original text. Later edits are each subsequent save. */
+  kind: 'original' | 'edit';
+  current: boolean;
+};
+
+type VersionSource = {
+  type: string;
+  createdAt: string;
+  data?: unknown;
+};
+
+const isPostSnapshot = (
+  entry: VersionSource,
+): entry is VersionSource & { type: 'create' | 'edit'; data: PostDataUnion } =>
+  (entry.type === 'create' || entry.type === 'edit') &&
+  !!entry.data &&
+  typeof entry.data === 'object' &&
+  'type' in entry.data;
+
+/** True when at least one edit has been saved for this post. */
+export const postHasEditHistory = (
+  entries: readonly { type: string }[] | undefined,
+): boolean => !!entries?.some((entry) => entry.type === 'edit');
+
+/**
+ * Saved versions of a post. The create entry is the original; each edit entry
+ * stores the content written at that save. Oldest first unless `order` is newest.
+ * Returns nothing until the post has been edited.
+ */
+export const postEditVersions = (
+  entries: readonly VersionSource[] | undefined,
+  order: PostVersionOrder = 'oldest',
+): PostEditVersion[] => {
+  if (!postHasEditHistory(entries)) return [];
+
+  const chronological = (entries ?? [])
+    .map((entry, index) => ({ entry, index }))
+    .filter(
+      (
+        item,
+      ): item is {
+        entry: VersionSource & { data: PostDataUnion };
+        index: number;
+      } => isPostSnapshot(item.entry),
+    )
+    .sort(
+      (a, b) =>
+        Date.parse(a.entry.createdAt) - Date.parse(b.entry.createdAt) ||
+        a.index - b.index,
+    );
+
+  const last = chronological.length - 1;
+  const versions = chronological.map(
+    ({ entry, index }, position): PostEditVersion => ({
+      id: `${entry.type}-${entry.createdAt}-${index}`,
+      createdAt: entry.createdAt,
+      data: entry.data,
+      kind: entry.type === 'create' ? 'original' : 'edit',
+      current: position === last,
+    }),
+  );
+
+  return order === 'newest' ? [...versions].reverse() : versions;
+};
+
+export const postEditVersionKind = (
+  version: Pick<PostEditVersion, 'current' | 'kind'>,
+): 'original' | 'edit' | 'current' =>
+  version.current ? 'current' : version.kind;
+
+export const postEditVersionTitle = (
+  data: PostDataUnion,
+): string | undefined => {
+  if (data.type === 'article' || data.type === 'resource') {
+    return data.title || undefined;
+  }
+  if (data.type === 'event') return data.name || undefined;
+  return undefined;
+};
+
 export const isOneToOneWithBlocked = (
   post: Pick<PublicPost, 'visibility' | 'audience' | 'profile'> & {
     creatorId?: string;
