@@ -5,6 +5,11 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **events**: add role-based event creation restrictions and localization updates
+- **conversations**: implement direct message search functionality
+- **skills**: add milestone triage skill with burndown chart
+- **groups**: enhance group visibility filters for profiles
+- **admin**: add Access page for open signups and public content
 - **posts**: announce community-wide articles and events
 - **groups**: implement group creation capability based on user roles
 - **resources**: aggregate group resources in top-level library
@@ -15,6 +20,10 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **rn-components**: remount jam video view when camera track changes
+- **posts**: refuse to announce private posts
+- **deps**: bump dompurify to 3.4.17 and i18next-fs-backend to 2.6.6
+- **i18n**: add missing strings on the group page
 - **markdown-input**: use useLayoutEffect to manage preview state
 - **rn**: scale avatar fallback content with the requested size
 - **media**: rasterize PDF previews with poppler's pdftoppm
@@ -51,6 +60,7 @@ Changelog for OpenPeeps
 
 ### CI/CD
 
+- use all runner slots for tests and cut image-build waste
 - **build**: consolidate image builds into one bake job with persistent builder
 - single merge-gate required job; schedule component-gallery daily
 
