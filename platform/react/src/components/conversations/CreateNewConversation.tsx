@@ -19,7 +19,7 @@ import {
   canSendDmMessage,
   DM_MAX_ATTACHMENTS,
 } from '../../hooks/conversations/dmMessage';
-import { OpenpeepsMarkdownInput, useComposeAttachments } from '../post';
+import { OpenpeepsComposerInput, useComposeAttachments } from '../post';
 import { ProfilesInput } from '../profile';
 
 export interface CreateNewConversationProps {
@@ -119,7 +119,7 @@ export const CreateNewConversation = ({
 
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">
                 {compose.previews}
-                <OpenpeepsMarkdownInput
+                <OpenpeepsComposerInput
                   rows={5}
                   blockOverflow={false}
                   value={message}

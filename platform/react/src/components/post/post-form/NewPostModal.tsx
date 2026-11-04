@@ -40,7 +40,7 @@ import {
 } from '../../../stores/newPosts';
 import { useComposeAttachments } from './ComposeAttachments';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsComposerInput } from './OpenpeepsComposerInput';
 import { PollComposerFields, pollOptionLabel } from './PollComposerFields';
 import { PostAudienceSelector } from './PostAudienceSelector';
 import { PostTypeSwitcher } from './PostTypeSwitcher';
@@ -390,7 +390,7 @@ export function NewPostModal({
               </button>
             ) : null}
 
-            <OpenpeepsMarkdownInput
+            <OpenpeepsComposerInput
               rows={5}
               blockOverflow={false}
               value={content}

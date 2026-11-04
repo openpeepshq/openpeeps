@@ -21,7 +21,7 @@ import {
   ConversationParticipantsModal,
   DirectMessageSearch,
   MessageInThread,
-  OpenpeepsMarkdownInput,
+  OpenpeepsComposerInput,
   ProfileCard,
   useAuthData,
   useComposeAttachments,
@@ -79,7 +79,7 @@ const ConversationComposer = ({
   return (
     <footer className="space-y-2 border-t p-3">
       {compose.previews}
-      <OpenpeepsMarkdownInput
+      <OpenpeepsComposerInput
         rows={3}
         blockOverflow={false}
         value={text}
