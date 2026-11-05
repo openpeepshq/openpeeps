@@ -3,7 +3,7 @@ import type {
   LoginRequest,
   TokenResponse,
 } from '@openpeepshq/common/types';
-import { forbidden, notFound } from '#lib/errors';
+import { authNeeded, internalError } from '#lib/errors';
 import { checkPassword, findAccountByEmail } from '@openpeepshq/core/accounts';
 import {
   findProfile,
@@ -42,21 +42,15 @@ export const loginHandler = async (
   const lowerCaseRequestEmail = loginRequest.email.toLowerCase();
   const account = await findAccountByEmail(lowerCaseRequestEmail);
 
-  if (!account) {
-    throw notFound(`Account with email ${lowerCaseRequestEmail}`);
+  // One status and one key for both cases so the response does not reveal
+  // whether the account exists.
+  if (!account || !(await checkPassword(account, loginRequest.password))) {
+    throw authNeeded('auth.login.invalidCredentials');
   }
 
   const profile = await retrieveProfile(account);
   if (!profile) {
-    throw notFound(
-      `Profile associated with account with email ${account.email}`,
-    );
-  }
-
-  if (!(await checkPassword(account, loginRequest.password))) {
-    throw forbidden(
-      `This email/password combination doesn't match a valid account.`,
-    );
+    throw internalError();
   }
 
   const subscriptionNeeded = !(await checkSubscription(profile, account, true));
@@ -73,7 +67,7 @@ export const loginHandler = async (
   }).then((accessToken) => accessToken.signedToken);
 
   if (!token) {
-    throw forbidden('login.access-token-creation-failed');
+    throw internalError();
   }
 
   return { success: true, token, checkoutUrl };

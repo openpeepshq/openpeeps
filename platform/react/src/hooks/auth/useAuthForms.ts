@@ -19,7 +19,8 @@ export const usePasswordLogin = () => {
   const { client } = useOpenpeeps();
   const { credentialsStore } = useCredentialsStore();
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Keep the error object (wire fields like `status`) for the mapper.
+  const [error, setError] = useState<unknown>(null);
 
   const login = async (data: LoginRequest): Promise<TokenResponse> => {
     setSubmitting(true);
@@ -27,7 +28,7 @@ export const usePasswordLogin = () => {
     try {
       return await performLogin(client, credentialsStore, data);
     } catch (err) {
-      setError((err as Error).message);
+      setError(err);
       throw err;
     } finally {
       setSubmitting(false);

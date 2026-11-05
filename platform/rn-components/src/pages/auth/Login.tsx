@@ -16,6 +16,7 @@ import {
   View,
 } from 'react-native';
 import {
+  apiErrorMessage,
   useOpenpeeps,
   usePasswordLogin,
   useServerInfo,
@@ -51,8 +52,7 @@ export const Login = ({
     } catch (err) {
       Toast.show({
         type: 'error',
-        text1: t('auth.login.error', { defaultValue: 'Error' }),
-        text2: (err as Error).message,
+        text1: apiErrorMessage(err, t, t('auth.login.error')),
       });
     }
   };

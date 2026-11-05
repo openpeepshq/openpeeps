@@ -4,6 +4,7 @@
       "title": "Login",
       "submit": "Sign In",
       "error": "Invalid credentials",
+      "invalidCredentials": "This email/password combination doesn't match a valid account.",
       "loading": "Signing in…",
       "success": "Successfully logged in",
       "heading": "Login",
@@ -49,7 +50,14 @@
       "alreadyHaveAccount": "Already have an account?",
       "signIn": "Sign In",
       "seeCommunityFeed": "See community feed",
-      "inviteInactive": "This invite link is expired or no longer active."
+      "inviteInactive": "This invite link is expired or no longer active.",
+      "signupsClosed": "Sign-ups are closed. A valid invite code is required."
+    },
+    "refresh": {
+      "invalid-or-expired": "Your session has expired. Please log in again."
+    },
+    "scope": {
+      "not-authorized": "You don't have permission to perform this action."
     },
     "resetPassword": {
       "title": "Reset Password",
