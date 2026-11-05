@@ -2281,6 +2281,13 @@
         "feedDescription": "Wählen Sie das Standard-Layout für Community-Feeds. Mitglieder können dies in ihren Einstellungen überschreiben. Verschachtelt hält Antworten unter dem Originalbeitrag; Linear listet jede Antwort als eigenen Eintrag.",
         "updateSuccess": "Standard-Feed-Layout aktualisiert."
       },
+      "landingPage": {
+        "title": "Startseite",
+        "description": "Die Seite, auf der Mitglieder nach der Anmeldung landen",
+        "updateSuccess": "Startseite aktualisiert.",
+        "localFeed": "Community-Feed",
+        "welcome": "Willkommensseite"
+      },
       "privacyPolicy": "URL der Datenschutzerklärung",
       "termsAndConditions": "URL der AGB",
       "lightTheme": {

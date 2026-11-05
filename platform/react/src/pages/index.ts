@@ -113,3 +113,4 @@ export { AdminDiagnosticsPerformance } from './admin/DiagnosticsPerformance';
 export { AdminConfigurationCommunityLanguage } from './admin/ConfigurationCommunityLanguage';
 export { AdminConfigurationCommunityTimezone } from './admin/ConfigurationCommunityTimezone';
 export { AdminConfigurationCommunityFeed } from './admin/ConfigurationCommunityFeed';
+export { AdminConfigurationCommunityLanding } from './admin/ConfigurationCommunityLanding';

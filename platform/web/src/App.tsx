@@ -146,6 +146,7 @@ import {
   AdminConfigurationCommunityLanguage,
   AdminConfigurationCommunityTimezone,
   AdminConfigurationCommunityFeed,
+  AdminConfigurationCommunityLanding,
 } from '@openpeepshq/react/pages';
 
 import { DocsLayout } from './pages/docs/DocsLayout';
@@ -367,6 +368,7 @@ const Admin = {
     CommunityLanguage: AdminConfigurationCommunityLanguage,
     CommunityTimezone: AdminConfigurationCommunityTimezone,
     CommunityFeed: AdminConfigurationCommunityFeed,
+    CommunityLanding: AdminConfigurationCommunityLanding,
     CommunityFavicons: AdminConfigurationCommunityFavicons,
     CommunityProfileFields: AdminConfigurationCommunityProfileFields,
     CommunityForbiddenUsernames: AdminConfigurationCommunityForbiddenUsernames,
@@ -811,6 +813,10 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/community/feed"
                         element={<Admin.Config.CommunityFeed />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/landing"
+                        element={<Admin.Config.CommunityLanding />}
                       />
                       <Route
                         path="/admin/configuration/community/favicons"

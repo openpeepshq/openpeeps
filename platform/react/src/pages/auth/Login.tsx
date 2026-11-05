@@ -24,7 +24,13 @@ import {
   Link,
   Toast,
 } from '@openpeepshq/react-ui';
-import { useT, useNavigate, useSearchParams, useHrefOf } from '../../index';
+import {
+  useT,
+  useNavigate,
+  useSearchParams,
+  useHrefOf,
+  postLoginLandingPath,
+} from '../../index';
 import { AuthLayout, useServerInfo, useToast } from '../../components';
 import { usePasswordLogin } from '../../hooks';
 
@@ -44,7 +50,8 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const redirectUrl =
-    searchParams.get('redirect') ?? href({ type: 'feed', feed: 'local' });
+    searchParams.get('redirect') ??
+    postLoginLandingPath(serverInfo.communityConfig);
   const paymentParam = searchParams.get('payment');
   const destinations = ssoLoginDestinations(serverInfo.sso);
   const onlySsoView = resolveOnlySsoView(serverInfo.sso, searchParams);

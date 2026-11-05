@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useCredentialsStore, useT } from '../../index';
+import { useCredentialsStore, useT, postLoginLandingPath } from '../../index';
+import { useServerInfo } from '../../components';
 
 /**
  * Lands the browser after the server's OIDC callback has exchanged the code.
@@ -11,6 +12,7 @@ export function OidcCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { credentialsStore } = useCredentialsStore();
+  const serverInfo = useServerInfo();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,7 +25,9 @@ export function OidcCallback() {
     }
 
     if (token) {
-      void credentialsStore.set({ token }).then(() => navigate('/feeds/local'));
+      void credentialsStore
+        .set({ token })
+        .then(() => navigate(postLoginLandingPath(serverInfo.communityConfig)));
       return;
     }
 
@@ -33,7 +37,7 @@ export function OidcCallback() {
           'No token or error received from authentication provider.',
       }),
     );
-  }, [searchParams, credentialsStore, navigate, t]);
+  }, [searchParams, credentialsStore, navigate, t, serverInfo.communityConfig]);
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 text-center">

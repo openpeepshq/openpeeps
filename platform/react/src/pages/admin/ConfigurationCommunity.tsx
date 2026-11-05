@@ -67,6 +67,11 @@ export function AdminConfigurationCommunity() {
         translationPrefix="configuration.community.feed"
         action="/admin/configuration/community/feed"
       />
+      <ConfigMenuButton
+        translationPrefix="configuration.community.landingPage"
+        action="/admin/configuration/community/landing"
+        testId="admin-community-landing"
+      />
     </div>
   );
 }

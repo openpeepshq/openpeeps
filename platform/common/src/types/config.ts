@@ -405,6 +405,8 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
     }),
     settings: z.object({
       openRegistrations: z.boolean(),
+      /** Page members land on after logging in. Unset keeps the local feed. */
+      landingPage: z.enum(['localFeed', 'welcome']).optional(),
       defaultLanguage: z.string().optional(),
       defaultTimeZone: z.string().optional(),
       defaultFeedFormat: z.enum(['threaded', 'linear']).optional(),

@@ -11,6 +11,7 @@ export * from './lib/analyticsClicks';
 export * from './lib/unseenCountsOptimistic';
 export * from './lib/notificationBadge';
 export * from './lib/postUnread';
+export * from './lib/postLoginLanding';
 export * from './components';
 export * from './navigation';
 export * from './hooks';

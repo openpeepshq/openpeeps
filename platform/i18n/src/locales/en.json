@@ -2260,6 +2260,13 @@
         "feedDescription": "Choose the default layout for community feeds. Members can override this in their settings. Threaded keeps replies under the original post; linear lists each reply as its own item.",
         "updateSuccess": "Default feed layout updated."
       },
+      "landingPage": {
+        "title": "Landing page",
+        "description": "The page members land on after logging in",
+        "updateSuccess": "Landing page updated.",
+        "localFeed": "Community feed",
+        "welcome": "Welcome page"
+      },
       "privacyPolicy": "Privacy Policy URL",
       "termsAndConditions": "Terms & Conditions URL",
       "lightTheme": {
