@@ -3,6 +3,7 @@ import { compare } from 'bcrypt';
 
 export { accountsMapping } from './mapping';
 export { sendEmailValidationMail } from './helpers';
+export { exportAccountContent } from './contentExport';
 export * from './mutations';
 export * from './finders';
 

@@ -1,7 +1,13 @@
 import { MainScreenProps } from '../../components/navigation/types/index';
-import { useOpenpeeps } from '@openpeepshq/react';
+import {
+  ACCOUNT_EXPORT_FILENAME,
+  useAccountExport,
+  useOpenpeeps,
+} from '@openpeepshq/react';
 import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
 import React, { useEffect, useState } from 'react';
+import { Share } from 'react-native';
+import RNFS from 'react-native-fs';
 import { ThemedText } from '../../components/ui/themed-text';
 import { ThemedView } from '../../components/ui/themed-view';
 import { useForm } from 'react-hook-form';
@@ -34,6 +40,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
   const validateEmail = openpeepsApi.validationEmailAction();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const { exporting, download } = useAccountExport();
   const { t } = useTranslation();
 
   const form = useForm<AccountFormValues>({
@@ -137,6 +144,30 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
       });
     } finally {
       setVerifying(false);
+    }
+  };
+
+  const exportAccount = async () => {
+    try {
+      const json = await download();
+      const path = `${RNFS.CachesDirectoryPath}/${ACCOUNT_EXPORT_FILENAME}`;
+      await RNFS.writeFile(path, json, 'utf8');
+      try {
+        await Share.share({
+          url: `file://${path}`,
+          title: ACCOUNT_EXPORT_FILENAME,
+        });
+      } catch {
+        // Dismissing the share sheet rejects on some platforms.
+      }
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: t('settings.account.exportFailed', {
+          defaultValue: 'Export failed: {{error}}',
+          error: (err as Error).message,
+        }),
+      });
     }
   };
 
@@ -309,6 +340,34 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
               </View>
             </ThemedView>
           </Form>
+          <ThemedView className="border-t border-border mt-6 gap-2 pt-4">
+            <ThemedText className="text-sm font-medium">
+              {t('settings.account.exportData', {
+                defaultValue: 'Download your content',
+              })}
+            </ThemedText>
+            <ThemedText className="text-sm text-muted-foreground">
+              {t('settings.account.exportDataDescription', {
+                defaultValue:
+                  'Download your profile and everything stored with it.',
+              })}
+            </ThemedText>
+            <Button
+              variant="outline"
+              onPress={() => void exportAccount()}
+              disabled={exporting}
+            >
+              {exporting ? (
+                <ActivityIndicator size={16} />
+              ) : (
+                <ThemedText className="text-sm">
+                  {t('settings.account.downloadData', {
+                    defaultValue: 'Download my content',
+                  })}
+                </ThemedText>
+              )}
+            </Button>
+          </ThemedView>
         </KeyboardAwareScrollView>
       </ThemedView>
     </ThemedView>

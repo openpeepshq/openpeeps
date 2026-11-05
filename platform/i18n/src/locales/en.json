@@ -2657,9 +2657,9 @@
       "updateError": "Update failed: {{error}}",
       "samePasswordError": "New password cannot be the same as the current password",
       "updateFailed": "Password update failed: {{error}}",
-      "exportData": "Export your data",
-      "exportDataDescription": "Download a copy of your account and profile data.",
-      "downloadData": "Download my data",
+      "exportData": "Download your content",
+      "exportDataDescription": "Download your profile and everything stored with it.",
+      "downloadData": "Download my content",
       "exportFailed": "Export failed: {{error}}",
       "title": "Account Settings"
     },

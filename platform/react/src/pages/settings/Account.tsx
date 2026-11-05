@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
+import {
+  ACCOUNT_EXPORT_FILENAME,
+  useAccountExport,
+} from '../../hooks/settings/useAccountExport';
 import { useCurrentAccount, useToast } from '../../components';
 import { Button, Input, Label, Toast } from '@openpeepshq/react-ui';
 
 export function AccountSettings() {
   const t = useT();
-  const { openpeepsApi, client } = useOpenpeeps();
+  const { openpeepsApi } = useOpenpeeps();
   const { success, error: toastError } = useToast();
   const account = useCurrentAccount();
   const updateAccount = openpeepsApi.updateCurrentAccountAction();
@@ -17,7 +21,7 @@ export function AccountSettings() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [exporting, setExporting] = useState(false);
+  const { exporting, download } = useAccountExport();
   const [status, setStatus] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -90,31 +94,24 @@ export function AccountSettings() {
   };
 
   const exportAccount = async () => {
-    setExporting(true);
+    setStatus(null);
     try {
-      const response = await client.accounts.current.export();
-      if (!('data' in response)) {
-        throw new Error('Export failed');
-      }
-      const data = response.data;
-      const blob = new Blob([JSON.stringify(data, null, 2)], {
-        type: 'application/json',
-      });
+      const json = await download();
+      const blob = new Blob([json], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'openpeeps-account-export.json';
+      link.download = ACCOUNT_EXPORT_FILENAME;
       link.click();
       URL.revokeObjectURL(url);
     } catch (err) {
       setStatus({
         type: 'error',
         message: t('settings.account.exportFailed', {
-          defaultValue: `Failed: ${(err as Error).message}`,
+          defaultValue: 'Export failed: {{error}}',
+          error: (err as Error).message,
         }),
       });
-    } finally {
-      setExporting(false);
     }
   };
 
@@ -243,17 +240,17 @@ export function AccountSettings() {
       <div className="border-border mt-6 border-t pt-4">
         <h3 className="text-sm font-medium">
           {t('settings.account.exportData', {
-            defaultValue: 'Export your data',
+            defaultValue: 'Download your content',
           })}
         </h3>
         <p className="text-muted-foreground mt-1 text-sm">
           {t('settings.account.exportDataDescription', {
-            defaultValue: 'Download a copy of your account and profile data.',
+            defaultValue: 'Download your profile and everything stored with it.',
           })}
         </p>
         <Button
           title={t('settings.account.downloadData', {
-            defaultValue: 'Download my data',
+            defaultValue: 'Download my content',
           })}
           variant="outline"
           action={exportAccount}
@@ -264,7 +261,7 @@ export function AccountSettings() {
           {exporting
             ? t('common.downloading', { defaultValue: 'Downloading…' })
             : t('settings.account.downloadData', {
-                defaultValue: 'Download my data',
+                defaultValue: 'Download my content',
               })}
         </Button>
       </div>
