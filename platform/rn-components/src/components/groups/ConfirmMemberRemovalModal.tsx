@@ -57,12 +57,12 @@ export const ConfirmMemberRemovalModal = ({
         ) : null}
         <SheetFooter
           onCancel={onClose}
-          cancelText={t('common.cancel')}
+          cancelText={t('common.actions.cancel')}
           onConfirm={() => void submit()}
           confirmText={
             submitting
               ? t('groups.removeMember.loading')
-              : t('groups.removeMember.confirm')
+              : t('common.actions.remove')
           }
           confirmVariant="destructive"
           disabled={submitting}

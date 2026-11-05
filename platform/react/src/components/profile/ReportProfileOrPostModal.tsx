@@ -129,7 +129,9 @@ export function ReportProfileOrPostModal({
               })}
             />
             <DialogActions
-              cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+              cancelLabel={t('common.actions.cancel', {
+                defaultValue: 'Cancel',
+              })}
               onCancel={onClose}
               actionLabel={t(`reports.create.${reportType}.continue`, {
                 defaultValue: 'Continue',
@@ -156,7 +158,7 @@ export function ReportProfileOrPostModal({
               </p>
             ) : null}
             <DialogActions
-              cancelLabel={t('reports.create.back', { defaultValue: 'Back' })}
+              cancelLabel={t('common.actions.back', { defaultValue: 'Back' })}
               onCancel={() => setStep(1)}
               actionLabel={t('reports.create.sendReport', {
                 defaultValue: 'Send report',

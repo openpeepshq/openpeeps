@@ -73,7 +73,7 @@ export const FollowUnfollowButton = ({
         className={isFollowing ? undefined : 'text-primary-foreground'}
       >
         {isLoading
-          ? t('common.form.loading')
+          ? t('common.states.loading')
           : isFollowing
             ? t('profile.actions.unfollow')
             : t('profile.actions.follow')}

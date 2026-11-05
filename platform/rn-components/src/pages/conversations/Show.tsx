@@ -168,7 +168,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   }, [id, currentProfile, messages, isLoading, markPostsSeen]);
 
   const searchLabel = searchOpen
-    ? t('common.close', { defaultValue: 'Close' })
+    ? t('common.actions.close', { defaultValue: 'Close' })
     : t('conversations.search.toggle', {
         defaultValue: 'Search this conversation',
       });

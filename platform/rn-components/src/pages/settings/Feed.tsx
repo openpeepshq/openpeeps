@@ -35,7 +35,7 @@ export const FeedSettings: React.FC<FeedSettingsProps> = () => {
   useSetPageHeader(
     t('settings.feed.title'),
     <HeaderActionButton
-      title={submitting ? t('common.form.loading') : t('common.form.save')}
+      title={submitting ? t('common.states.loading') : t('common.actions.save')}
       onPress={() => void handleSubmit()}
       disabled={submitting}
       loading={submitting}

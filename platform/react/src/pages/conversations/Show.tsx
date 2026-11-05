@@ -101,7 +101,7 @@ export function ConversationShow() {
   const navigate = useNavigate();
 
   const searchLabel = searchOpen
-    ? t('common.close', { defaultValue: 'Close' })
+    ? t('common.actions.close', { defaultValue: 'Close' })
     : t('conversations.search.toggle', {
         defaultValue: 'Search this conversation',
       });

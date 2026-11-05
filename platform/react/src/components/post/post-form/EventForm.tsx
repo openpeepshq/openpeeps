@@ -308,7 +308,7 @@ export const EventForm = ({
                     }
                   >
                     <option value="never">
-                      {t('events.form.repeat.never', { defaultValue: 'Never' })}
+                      {t('common.states.never', { defaultValue: 'Never' })}
                     </option>
                     <option value="until">
                       {t('events.form.repeat.onDate', {
@@ -394,7 +394,7 @@ export const EventForm = ({
         </h2>
 
         <Label
-          title={t('events.form.visibility', { defaultValue: 'Visibility' })}
+          title={t('common.labels.visibility', { defaultValue: 'Visibility' })}
           description={t('events.form.visibilityNotChangeable', {
             defaultValue:
               "Note:  The event visibility cannot be changed once the event is published.  Make sure you're adding the right people or group.",

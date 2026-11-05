@@ -38,7 +38,7 @@ export const ProfileBadge = ({
       {onRemove ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={t('profile.selector.remove', {
+          accessibilityLabel={t('common.actions.remove', {
             defaultValue: 'Remove',
           })}
           className="ml-0.5 rounded-full p-0.5"

@@ -64,7 +64,7 @@ export function AdminConfigurationCommunityProfileFields() {
   if (configQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.form.loading', { defaultValue: 'Loading…' })}
+        {t('common.states.loading', { defaultValue: 'Loading…' })}
       </div>
     );
   }
@@ -93,10 +93,10 @@ export function AdminConfigurationCommunityProfileFields() {
         <Button
           variant="outline"
           action={() => setFields((prev) => prev.slice(0, -1))}
-          title={t('common.listEditor.removeTitle')}
+          title={t('common.actions.remove')}
         >
           <MinusSquare className="mr-1 size-4" />
-          {t('common.listEditor.removeTitle')}
+          {t('common.actions.remove')}
         </Button>
       ) : null}
       <Button
@@ -110,9 +110,9 @@ export function AdminConfigurationCommunityProfileFields() {
       <Button
         variant="ghost"
         action={handleSubmit}
-        title={t('common.form.save')}
+        title={t('common.actions.save')}
       >
-        {t('common.form.save')}
+        {t('common.actions.save')}
       </Button>
       {status ? (
         <Toast variant={status.type} onDismiss={() => setStatus(null)}>

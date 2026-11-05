@@ -183,11 +183,11 @@ export function RoleCapabilityMatrix({ roles }: RoleCapabilityMatrixProps) {
           action={handleSave}
           disabled={saving || !canUpdateRoles || changedRoleIds.length === 0}
           loadingContent={t('common.saving', { defaultValue: 'Saving…' })}
-          title={t('common.save', { defaultValue: 'Save' })}
+          title={t('common.actions.save', { defaultValue: 'Save' })}
         >
           {saving
             ? t('common.saving', { defaultValue: 'Saving…' })
-            : t('common.save', { defaultValue: 'Save' })}
+            : t('common.actions.save', { defaultValue: 'Save' })}
         </Button>
         {canUpdateRoles && deviatesFromDefaults ? (
           <Button

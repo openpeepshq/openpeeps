@@ -11,7 +11,7 @@ export type MediaPermissionType = 'photo' | 'video' | 'audio' | 'file';
 
 const showPermissionAlert = (t: TFunction) => {
   Alert.alert(t('media.permissions.title'), t('media.permissions.message'), [
-    { text: t('common.cancel'), style: 'cancel' },
+    { text: t('common.actions.cancel'), style: 'cancel' },
     {
       text: t('media.permissions.openSettings'),
       onPress: () => Linking.openSettings(),

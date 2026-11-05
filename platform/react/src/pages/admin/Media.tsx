@@ -170,7 +170,7 @@ export const AdminMedia = () => {
 
       {mediaQuery.isLoading ? (
         <p className="text-muted-foreground text-sm">
-          {t('admin.media.loading', { defaultValue: 'Loading…' })}
+          {t('common.states.loading', { defaultValue: 'Loading…' })}
         </p>
       ) : null}
       {mediaQuery.isError ? (
@@ -272,7 +272,7 @@ export const AdminMedia = () => {
               </p>
             ) : null}
             <DialogActions
-              cancelLabel={t('admin.media.confirm.cancel', {
+              cancelLabel={t('common.actions.cancel', {
                 defaultValue: 'Cancel',
               })}
               onCancel={() => setPending(null)}

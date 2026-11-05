@@ -205,7 +205,7 @@ export function Login() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {t('auth.login.email', { defaultValue: 'Email' })}
+                  {t('common.labels.email', { defaultValue: 'Email' })}
                 </FormLabel>
                 <FormControl>
                   <Input

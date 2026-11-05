@@ -43,7 +43,7 @@ export function FooterMobile({ onNewPost }: FooterMobileProps = {}) {
           action={onNewPost ?? hrefOf({ type: 'postNew' })}
         />
         <MobileMenuItem
-          title={t('navigation.groups')}
+          title={t('common.nav.groups')}
           tooltip={t('navigation.tooltips.groups')}
           icon={Users}
           action={hrefOf({ type: 'groups' })}

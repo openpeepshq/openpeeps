@@ -29,15 +29,15 @@ export const AdminDiagnosticsLivekit = () => {
 
       <Button
         variant="outline"
-        title={t('diagnostics.livekit.refresh', { defaultValue: 'Refresh' })}
+        title={t('common.actions.refresh', { defaultValue: 'Refresh' })}
         action={() => void diagnosisQuery.refetch()}
       >
-        {t('diagnostics.livekit.refresh', { defaultValue: 'Refresh' })}
+        {t('common.actions.refresh', { defaultValue: 'Refresh' })}
       </Button>
 
       {diagnosisQuery.isPending ? (
         <p className="text-muted-foreground text-sm">
-          {t('common.form.loading', { defaultValue: 'Loading…' })}
+          {t('common.states.loading', { defaultValue: 'Loading…' })}
         </p>
       ) : null}
 

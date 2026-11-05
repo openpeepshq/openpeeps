@@ -52,14 +52,14 @@ export const buildMainNavItems = (caps: MainMenuCapabilities): NavItemDef[] => {
     {
       id: 'groups',
       target: { type: 'groups' },
-      labelKey: 'navigation.groups',
+      labelKey: 'common.nav.groups',
       tooltipKey: navTooltip('groups'),
       icon: 'Users',
     },
     {
       id: 'events',
       target: { type: 'events' },
-      labelKey: 'navigation.events',
+      labelKey: 'common.nav.events',
       tooltipKey: navTooltip('events'),
       icon: 'CalendarDays',
     },
@@ -87,14 +87,14 @@ export const buildMainNavItems = (caps: MainMenuCapabilities): NavItemDef[] => {
     {
       id: 'members',
       target: { type: 'members' },
-      labelKey: 'navigation.members',
+      labelKey: 'common.nav.members',
       tooltipKey: navTooltip('members'),
       icon: 'BookUser',
     },
     {
       id: 'bookmarks',
       target: { type: 'feed', feed: 'bookmarks' },
-      labelKey: 'navigation.bookmarks',
+      labelKey: 'common.nav.bookmarks',
       tooltipKey: navTooltip('bookmarks'),
       icon: 'Bookmark',
     },

@@ -78,16 +78,16 @@ export function AdminDiagnosticsLogs() {
           </div>
           <Button
             variant="secondary"
-            title={t('diagnostics.logs.refresh')}
+            title={t('common.actions.refresh')}
             action={() => logsQuery.refetch()}
           >
-            {t('diagnostics.logs.refresh')}
+            {t('common.actions.refresh')}
           </Button>
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
           <label>
-            <span>{t('diagnostics.logs.date')}</span>
+            <span>{t('common.labels.date')}</span>
             <input
               type="date"
               value={date}
@@ -144,7 +144,7 @@ export function AdminDiagnosticsLogs() {
 
       <div className="border-border bg-surface overflow-hidden rounded-lg border">
         {logsQuery.isPending ? (
-          <p className="p-4 text-sm opacity-70">{t('common.form.loading')}</p>
+          <p className="p-4 text-sm opacity-70">{t('common.states.loading')}</p>
         ) : logsQuery.isError ? (
           <p className="text-error p-4 text-sm">
             {t('diagnostics.logs.loadError')}

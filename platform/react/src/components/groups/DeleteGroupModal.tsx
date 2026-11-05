@@ -59,9 +59,9 @@ export function DeleteGroupModal({ group, onClose }: DeleteGroupModalProps) {
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('groups.delete.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
-          actionLabel={t('groups.delete.deleteButton', {
+          actionLabel={t('common.actions.delete', {
             defaultValue: 'Delete',
           })}
           onAction={submit}

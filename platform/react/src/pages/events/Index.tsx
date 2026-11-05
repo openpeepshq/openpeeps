@@ -39,7 +39,7 @@ export function EventsIndex() {
   );
 
   useSetPageHeader(
-    t('navigation.events', { defaultValue: 'Events' }),
+    t('common.nav.events', { defaultValue: 'Events' }),
     headerActions,
     'events-page-heading',
   );

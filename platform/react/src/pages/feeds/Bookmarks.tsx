@@ -11,7 +11,7 @@ export function FeedsBookmarks() {
     useFeedListParams({ format: 'linear' }),
   );
 
-  useSetPageHeader(t('navigation.bookmarks', { defaultValue: 'Bookmarks' }));
+  useSetPageHeader(t('common.nav.bookmarks', { defaultValue: 'Bookmarks' }));
 
   return <Feed query={query} formatSwitch={false} />;
 }

@@ -2547,7 +2547,33 @@
       "add": "Hinzufügen",
       "success": "Erfolgreich!",
       "download": "Herunterladen",
-      "duplicate": "Veranstaltung duplizieren"
+      "duplicate": "Veranstaltung duplizieren",
+      "save": "Speichern",
+      "back": "Zurück",
+      "close": "Schließen",
+      "create": "Erstellen",
+      "refresh": "Aktualisieren"
+    },
+    "labels": {
+      "email": "E-Mail",
+      "description": "Beschreibung",
+      "name": "Name",
+      "handle": "Benutzername",
+      "date": "Datum",
+      "visibility": "Sichtbarkeit",
+      "link": "Link",
+      "altText": "Alternativtext"
+    },
+    "states": {
+      "loading": "Wird geladen…",
+      "never": "Nie"
+    },
+    "nav": {
+      "posts": "Beiträge",
+      "groups": "Gruppen",
+      "members": "Mitglieder",
+      "events": "Veranstaltungen",
+      "bookmarks": "Lesezeichen"
     },
     "submit": "Absenden",
     "listEditor": {

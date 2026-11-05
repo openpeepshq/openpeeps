@@ -143,7 +143,7 @@ export function ConversationInfo() {
             </p>
           ) : null}
           <DialogActions
-            cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+            cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
             onCancel={() => setConfirmOpen(false)}
             actionLabel={t('conversations.leaveConversation.leave', {
               defaultValue: 'Leave',

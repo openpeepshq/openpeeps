@@ -106,14 +106,14 @@ export function GroupShow() {
         data-testid="tab-group"
       >
         <TabLink active={tab === 'posts'} hash="">
-          {t('groups.sections.posts', { defaultValue: 'Posts' })}
+          {t('common.nav.posts', { defaultValue: 'Posts' })}
         </TabLink>
         <TabLink
           active={tab === 'events'}
           hash="#events"
           testId="groups-tab-events"
         >
-          {t('groups.sections.events', { defaultValue: 'Events' })}
+          {t('common.nav.events', { defaultValue: 'Events' })}
         </TabLink>
         <TabLink
           active={tab === 'resources'}
@@ -127,7 +127,7 @@ export function GroupShow() {
           hash="#description"
           testId="groups-tab-description"
         >
-          {t('groups.sections.description', { defaultValue: 'Description' })}
+          {t('common.labels.description', { defaultValue: 'Description' })}
         </TabLink>
       </nav>
 
@@ -197,7 +197,7 @@ export function GroupShow() {
               <p>{new Date(group.createdAt).toLocaleDateString()}</p>
             </div>
             <div>
-              <h4 className="font-semibold">{t('groups.visibility.title')}</h4>
+              <h4 className="font-semibold">{t('common.labels.visibility')}</h4>
               <p>{t(`groups.visibility.${visibilityValue}.description`)}</p>
             </div>
             <div>

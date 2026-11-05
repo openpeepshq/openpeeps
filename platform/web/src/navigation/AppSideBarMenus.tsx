@@ -248,14 +248,14 @@ export function AppSideBarMainMenu() {
           pill={unreadGroupPosts}
           tooltip={t('navigation.tooltips.groups')}
         >
-          {t('navigation.groups')}
+          {t('common.nav.groups')}
         </NavItem>
         <NavItem
           to={href({ type: 'events' })}
           icon={CalendarDays}
           tooltip={t('navigation.tooltips.events')}
         >
-          {t('navigation.events')}
+          {t('common.nav.events')}
         </NavItem>
         <NavItem
           to={href({ type: 'articles' })}
@@ -284,14 +284,14 @@ export function AppSideBarMainMenu() {
           icon={BookUser}
           tooltip={t('navigation.tooltips.members')}
         >
-          {t('navigation.members')}
+          {t('common.nav.members')}
         </NavItem>
         <NavItem
           to={href({ type: 'feed', feed: 'bookmarks' })}
           icon={Bookmark}
           tooltip={t('navigation.tooltips.bookmarks')}
         >
-          {t('navigation.bookmarks')}
+          {t('common.nav.bookmarks')}
         </NavItem>
         <NavItem
           to={href({ type: 'settings' })}

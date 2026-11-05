@@ -26,12 +26,12 @@ export function ContentHeader() {
       <div className="flex min-w-0 items-center gap-2">
         <button
           type="button"
-          title={t('navigation.back')}
-          aria-label={t('navigation.back')}
+          title={t('common.actions.back')}
+          aria-label={t('common.actions.back')}
           onClick={() => router.back()}
         >
           <ChevronLeft aria-hidden="true" />
-          <span className="sr-only">{t('navigation.back')}</span>
+          <span className="sr-only">{t('common.actions.back')}</span>
         </button>
         {titleNode ?? (
           <h1

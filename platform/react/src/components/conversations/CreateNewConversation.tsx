@@ -76,7 +76,9 @@ export const CreateNewConversation = ({
             </div>
 
             <DialogActions
-              cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+              cancelLabel={t('common.actions.cancel', {
+                defaultValue: 'Cancel',
+              })}
               onCancel={onClose}
               actionLabel={t('common.next', { defaultValue: 'Next' })}
               onAction={() => setStep(2)}
@@ -110,11 +112,11 @@ export const CreateNewConversation = ({
             <DialogFooter className="flex-wrap gap-2">
               {!skipProfileSelection ? (
                 <Button variant="outline" action={() => setStep(1)}>
-                  {t('common.back', { defaultValue: 'Back' })}
+                  {t('common.actions.back', { defaultValue: 'Back' })}
                 </Button>
               ) : (
                 <Button variant="outline" action={onClose}>
-                  {t('common.cancel', { defaultValue: 'Cancel' })}
+                  {t('common.actions.cancel', { defaultValue: 'Cancel' })}
                 </Button>
               )}
               <Button

@@ -72,7 +72,7 @@ export function JamGuestForm() {
 
         <div className="space-y-2">
           <Label htmlFor="guest-email">
-            {t('jams.lobby.guestEmailLabel', { defaultValue: 'Email' })}
+            {t('common.labels.email', { defaultValue: 'Email' })}
           </Label>
           <Input
             id="guest-email"
@@ -81,7 +81,7 @@ export function JamGuestForm() {
             onChange={(e) =>
               setGuestData((d) => ({ ...d, email: e.target.value }))
             }
-            placeholder={t('jams.lobby.guestEmailPlaceholder', {
+            placeholder={t('common.labels.email', {
               defaultValue: 'you@example.com',
             })}
           />

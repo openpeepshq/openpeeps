@@ -289,7 +289,7 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
             active={tab === 'description'}
             onClick={() => setTab('description')}
           >
-            {t('events.tabs.description', { defaultValue: 'Description' })}
+            {t('common.labels.description', { defaultValue: 'Description' })}
           </TabButton>
         ) : null}
         <TabButton active={tab === 'replies'} onClick={() => setTab('replies')}>
@@ -571,11 +571,11 @@ function JamRecordingItem({
                   })}
                 </p>
                 <DialogActions
-                  cancelLabel={t('posts.deleteModal.cancel', {
+                  cancelLabel={t('common.actions.cancel', {
                     defaultValue: 'Cancel',
                   })}
                   onCancel={() => setConfirmOpen(false)}
-                  actionLabel={t('posts.deleteModal.delete', {
+                  actionLabel={t('common.actions.delete', {
                     defaultValue: 'Delete',
                   })}
                   onAction={handleDelete}

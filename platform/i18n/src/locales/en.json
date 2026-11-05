@@ -2465,7 +2465,33 @@
       "add": "Add",
       "success": "Success!",
       "download": "Download",
-      "duplicate": "Duplicate Event"
+      "duplicate": "Duplicate Event",
+      "save": "Save",
+      "back": "Back",
+      "close": "Close",
+      "create": "Create",
+      "refresh": "Refresh"
+    },
+    "labels": {
+      "email": "Email",
+      "description": "Description",
+      "name": "Name",
+      "handle": "Handle",
+      "date": "Date",
+      "visibility": "Visibility",
+      "link": "Link",
+      "altText": "Alt Text"
+    },
+    "states": {
+      "loading": "Loading…",
+      "never": "Never"
+    },
+    "nav": {
+      "posts": "Posts",
+      "groups": "Groups",
+      "members": "Members",
+      "events": "Events",
+      "bookmarks": "Bookmarks"
     },
     "submit": "Submit",
     "listEditor": {

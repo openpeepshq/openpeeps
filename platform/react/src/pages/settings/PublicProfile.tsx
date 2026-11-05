@@ -201,7 +201,7 @@ export function PublicProfileSettings() {
 
       <div className="space-y-2">
         <Label htmlFor="handle">
-          {t('profile.form.handle', { defaultValue: 'Handle' })}
+          {t('common.labels.handle', { defaultValue: 'Handle' })}
         </Label>
         <Input
           id="handle"
@@ -268,7 +268,7 @@ export function PublicProfileSettings() {
       ))}
 
       <Button
-        title={t('common.save', { defaultValue: 'Save' })}
+        title={t('common.actions.save', { defaultValue: 'Save' })}
         variant="default"
         action={submit}
         disabled={submitting}
@@ -276,7 +276,7 @@ export function PublicProfileSettings() {
       >
         {submitting
           ? t('common.saving', { defaultValue: 'Saving…' })
-          : t('common.save', { defaultValue: 'Save' })}
+          : t('common.actions.save', { defaultValue: 'Save' })}
       </Button>
     </div>
   );

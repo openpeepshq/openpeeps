@@ -131,7 +131,7 @@ export const EventForm = ({
       : t(`events.form.repeat.${freq.toLowerCase()}`);
   const repeatEndLabel = (mode: RepeatEnd) =>
     mode === 'never'
-      ? t('events.form.repeat.never')
+      ? t('common.states.never')
       : mode === 'until'
         ? t('events.form.repeat.onDate')
         : t('events.form.repeat.after');
@@ -348,7 +348,7 @@ export const EventForm = ({
 
         <View className="gap-y-1">
           <Label nativeID="event-visibility">
-            {t('events.form.visibility')}
+            {t('common.labels.visibility')}
           </Label>
           <ThemedText className="text-sm text-muted-foreground">
             {t('events.form.visibilityNotChangeable')}

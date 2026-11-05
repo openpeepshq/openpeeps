@@ -49,7 +49,7 @@ export function ProfilePostsAndReplies({
           className={`flex-1 px-4 py-3 text-sm font-medium ${activeTab === 'posts' ? 'border-primary border-b-2' : 'text-muted-foreground'}`}
           onClick={() => setTab('posts')}
         >
-          {t('profile.posts', { defaultValue: 'Posts' })}
+          {t('common.nav.posts', { defaultValue: 'Posts' })}
         </button>
         {isCurrentProfile ? (
           <button
@@ -66,7 +66,7 @@ export function ProfilePostsAndReplies({
           className={`flex-1 px-4 py-3 text-sm font-medium ${activeTab === 'groups' ? 'border-primary border-b-2' : 'text-muted-foreground'}`}
           onClick={() => setTab('groups')}
         >
-          {t('profile.groups.tabName', { defaultValue: 'Groups' })}
+          {t('common.nav.groups', { defaultValue: 'Groups' })}
         </button>
       </nav>
 

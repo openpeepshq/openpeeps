@@ -60,7 +60,7 @@ export const ProfilePostsAndReplies = ({
           className="w-full flex-row rounded-none border-b border-muted bg-transparent p-0"
         >
           <TabsTrigger value="posts" className={tabClass('posts')}>
-            <ThemedText>{t('profile.posts')}</ThemedText>
+            <ThemedText>{t('common.nav.posts')}</ThemedText>
           </TabsTrigger>
           {isCurrentProfile ? (
             <TabsTrigger value="activity" className={tabClass('activity')}>
@@ -68,7 +68,7 @@ export const ProfilePostsAndReplies = ({
             </TabsTrigger>
           ) : null}
           <TabsTrigger value="groups" className={tabClass('groups')}>
-            <ThemedText>{t('profile.groups.tabName')}</ThemedText>
+            <ThemedText>{t('common.nav.groups')}</ThemedText>
           </TabsTrigger>
         </TabsList>
         <TabsContent value="posts" className="p-0">

@@ -81,12 +81,11 @@ export function AdminGroupCard({ group, onDelete }: AdminGroupCardProps) {
           {formatDate(group.lastPostAt)}
         </p>
         <p>
-          {t('admin.groups.members', { defaultValue: 'Members' })}:{' '}
+          {t('common.nav.members', { defaultValue: 'Members' })}:{' '}
           {group.membersCount}
         </p>
         <p>
-          {t('admin.groups.posts', { defaultValue: 'Posts' })}:{' '}
-          {group.postsCount}
+          {t('common.nav.posts', { defaultValue: 'Posts' })}: {group.postsCount}
         </p>
         <p className="sm:col-span-2">
           {t('admin.groups.settings', { defaultValue: 'Settings' })}:{' '}

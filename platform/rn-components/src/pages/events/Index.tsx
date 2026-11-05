@@ -46,7 +46,7 @@ export const EventsIndex = ({
   const visibility = useDefaultVisibility();
 
   useSetPageHeader(
-    t('navigation.events', { defaultValue: 'Events' }),
+    t('common.nav.events', { defaultValue: 'Events' }),
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="px-2">
         <Pressable>

@@ -16,8 +16,8 @@ export function GroupMembers() {
   const group = groupQuery.data;
 
   const headerTitle = group
-    ? `${groupName(group)} - ${t('groups.members.title', { defaultValue: 'Members' })}`
-    : t('groups.members.title', { defaultValue: 'Members' });
+    ? `${groupName(group)} - ${t('common.nav.members', { defaultValue: 'Members' })}`
+    : t('common.nav.members', { defaultValue: 'Members' });
   const headerActions = useMemo(
     () => (group ? <AddGroupMembersButton group={group} /> : undefined),
     [group],

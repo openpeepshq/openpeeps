@@ -118,7 +118,9 @@ export const DateSheet = forwardRef<BottomSheetModal, DateSheetProps>(
           >
             <ThemedText>
               {t('common.form.switchTo')}{' '}
-              {mode === 'date' ? t('common.form.time') : t('common.form.date')}
+              {mode === 'date'
+                ? t('common.form.time')
+                : t('common.labels.date')}
             </ThemedText>
           </Button>
           <Button
@@ -141,9 +143,9 @@ export const DateSheet = forwardRef<BottomSheetModal, DateSheetProps>(
             {t('common.form.select')}{' '}
             {Platform.OS === 'ios'
               ? mode === 'date'
-                ? t('common.form.date')
+                ? t('common.labels.date')
                 : t('common.form.time')
-              : t('common.form.date')}
+              : t('common.labels.date')}
           </ThemedText>
 
           {Platform.OS === 'ios' ? renderIOSPicker() : renderAndroidPicker()}

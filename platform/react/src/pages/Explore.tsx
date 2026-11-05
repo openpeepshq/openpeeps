@@ -181,7 +181,7 @@ export function Explore() {
           count={counts?.profiles}
           countLoading={countsLoading}
         >
-          {t('explore.tabs.members', { defaultValue: 'Members' })}
+          {t('common.nav.members', { defaultValue: 'Members' })}
         </TabButton>
         <TabButton
           active={tab === 'posts'}
@@ -189,7 +189,7 @@ export function Explore() {
           count={counts?.posts}
           countLoading={countsLoading}
         >
-          {t('explore.tabs.posts', { defaultValue: 'Posts' })}
+          {t('common.nav.posts', { defaultValue: 'Posts' })}
         </TabButton>
         <TabButton
           active={tab === 'jams'}
@@ -205,7 +205,7 @@ export function Explore() {
           count={counts?.events}
           countLoading={countsLoading}
         >
-          {t('explore.tabs.events', { defaultValue: 'Events' })}
+          {t('common.nav.events', { defaultValue: 'Events' })}
         </TabButton>
         <TabButton
           active={tab === 'groups'}
@@ -213,7 +213,7 @@ export function Explore() {
           count={counts?.groups}
           countLoading={countsLoading}
         >
-          {t('explore.tabs.groups', { defaultValue: 'Groups' })}
+          {t('common.nav.groups', { defaultValue: 'Groups' })}
         </TabButton>
       </nav>
 

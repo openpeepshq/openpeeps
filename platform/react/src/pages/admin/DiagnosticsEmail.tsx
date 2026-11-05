@@ -14,7 +14,7 @@ export function AdminDiagnosticsEmail() {
   const statsQuery = openpeepsApi.admin.useEmailQueueStats();
   const queueTest = openpeepsApi.admin.queueTestEmailAction();
 
-  useSetPageHeader(t('diagnostics.email.title', { defaultValue: 'Email' }));
+  useSetPageHeader(t('common.labels.email', { defaultValue: 'Email' }));
 
   const [recipient, setRecipient] = useState('');
   const [queuing, setQueuing] = useState(false);
@@ -93,7 +93,7 @@ export function AdminDiagnosticsEmail() {
             disabled={queuing}
           >
             {queuing
-              ? t('common.form.loading')
+              ? t('common.states.loading')
               : t('diagnostics.email.queueTest')}
           </Button>
         </div>
@@ -109,10 +109,10 @@ export function AdminDiagnosticsEmail() {
           <p className="font-medium">{t('diagnostics.email.queueTitle')}</p>
           <Button
             variant="secondary"
-            title={t('diagnostics.email.refresh')}
+            title={t('common.actions.refresh')}
             action={() => statsQuery.refetch()}
           >
-            {t('diagnostics.email.refresh')}
+            {t('common.actions.refresh')}
           </Button>
         </div>
         <p className="mb-3 text-sm opacity-80">
@@ -120,7 +120,7 @@ export function AdminDiagnosticsEmail() {
         </p>
 
         {statsQuery.isPending ? (
-          <p className="text-sm opacity-70">{t('common.form.loading')}</p>
+          <p className="text-sm opacity-70">{t('common.states.loading')}</p>
         ) : statsQuery.isError ? (
           <p className="text-error text-sm">
             {t('diagnostics.email.statsError')}

@@ -106,9 +106,7 @@ export const AccessTokensSettings: React.FC<AccessTokensSettingsProps> = () => {
             {t('settings.accessTokens.createDescription')}
           </ThemedText>
           <View className="gap-2">
-            <Label nativeID="token-name">
-              {t('settings.accessTokens.name')}
-            </Label>
+            <Label nativeID="token-name">{t('common.labels.name')}</Label>
             <Input
               value={form.name}
               placeholder={t('settings.accessTokens.namePlaceholder')}
@@ -117,7 +115,7 @@ export const AccessTokensSettings: React.FC<AccessTokensSettingsProps> = () => {
           </View>
           <View className="gap-2">
             <Label nativeID="token-description">
-              {t('settings.accessTokens.descriptionLabel')}
+              {t('common.labels.description')}
             </Label>
             <Input
               value={form.description ?? ''}
@@ -166,7 +164,7 @@ export const AccessTokensSettings: React.FC<AccessTokensSettingsProps> = () => {
                 disabled={(form.scopes?.length ?? 0) === 1}
                 onPress={() => removeScope(index)}
               >
-                <ThemedText>{t('common.remove')}</ThemedText>
+                <ThemedText>{t('common.actions.remove')}</ThemedText>
               </Button>
             </View>
           ))}
@@ -233,7 +231,7 @@ export const AccessTokensSettings: React.FC<AccessTokensSettingsProps> = () => {
                       {t('settings.accessTokens.expiresAt')}:{' '}
                       {token.expiresAt
                         ? new Date(token.expiresAt).toLocaleString()
-                        : t('settings.accessTokens.never')}
+                        : t('common.states.never')}
                     </ThemedText>
                   </View>
                   <Button

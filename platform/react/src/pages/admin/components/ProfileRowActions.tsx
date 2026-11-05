@@ -81,7 +81,7 @@ export function ProfileRowActions({ profile }: ProfileRowActionsProps) {
           title={t('profile.table.deleteMember', {
             defaultValue: 'Delete Member',
           })}
-          text={t('profile.table.delete', { defaultValue: 'Delete' })}
+          text={t('common.actions.delete', { defaultValue: 'Delete' })}
           action={() => setActiveModal('delete')}
           danger
         />
@@ -158,7 +158,7 @@ function EditEmailModal({
         </DialogHeader>
         <div className="space-y-2 px-1">
           <Label htmlFor="edit-email-input">
-            {t('accounts.editEmail.emailLabel', { defaultValue: 'Email' })}
+            {t('common.labels.email', { defaultValue: 'Email' })}
           </Label>
           <Input
             id="edit-email-input"
@@ -173,7 +173,7 @@ function EditEmailModal({
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
           actionLabel={t('accounts.editEmail.saveChanges', {
             defaultValue: 'Update Email',
@@ -280,7 +280,7 @@ function EditRolesModal({
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
           actionLabel={t('profile.modals.editProfile.saveChanges', {
             defaultValue: 'Save Changes',
@@ -350,9 +350,9 @@ function DeleteProfileModal({
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
-          actionLabel={t('profile.modals.deleteProfile.delete', {
+          actionLabel={t('common.actions.delete', {
             defaultValue: 'Delete',
           })}
           onAction={submit}

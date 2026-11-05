@@ -44,18 +44,12 @@ const SummaryBody = ({ summary }: { summary: ProfileActivitySummaryData }) => {
   return (
     <View className="flex-col">
       <CountSection title={t('profile.activity.yourContent')}>
-        <CountCard
-          value={summary.postsCount}
-          label={t('profile.activity.postsCount')}
-        />
+        <CountCard value={summary.postsCount} label={t('common.nav.posts')} />
         <CountCard
           value={summary.repliesCount}
           label={t('profile.activity.repliesCount')}
         />
-        <CountCard
-          value={summary.eventsCount}
-          label={t('profile.activity.eventsCount')}
-        />
+        <CountCard value={summary.eventsCount} label={t('common.nav.events')} />
       </CountSection>
 
       <CountSection title={t('profile.activity.yourActions')}>
@@ -73,12 +67,9 @@ const SummaryBody = ({ summary }: { summary: ProfileActivitySummaryData }) => {
         />
         <CountCard
           value={summary.bookmarksCount}
-          label={t('profile.activity.bookmarksCount')}
+          label={t('common.nav.bookmarks')}
         />
-        <CountCard
-          value={summary.groupsCount}
-          label={t('profile.activity.groupsCount')}
-        />
+        <CountCard value={summary.groupsCount} label={t('common.nav.groups')} />
       </CountSection>
 
       <CountSection title={t('profile.activity.received')}>

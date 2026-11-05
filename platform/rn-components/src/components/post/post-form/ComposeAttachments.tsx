@@ -85,7 +85,7 @@ export const ComposeAttachments: React.FC<MediaPreviewProps> = ({
           <TouchableOpacity
             onPress={handleAltModalPress}
             accessibilityRole="button"
-            accessibilityLabel={t('form.imageEditModal.altText', {
+            accessibilityLabel={t('common.labels.altText', {
               defaultValue: 'Alt text',
             })}
             className="min-h-10 px-3 rounded-full bg-background/90 border border-border items-center justify-center"

@@ -201,13 +201,13 @@ export function AdminReports() {
                 </Button>
               ) : (
                 <Button
-                  title={t('admin.moderation.reportList.closeReport', {
+                  title={t('common.actions.close', {
                     defaultValue: 'Close',
                   })}
                   variant="outline"
                   action={() => setResolving(report)}
                 >
-                  {t('admin.moderation.reportList.closeReport', {
+                  {t('common.actions.close', {
                     defaultValue: 'Close',
                   })}
                 </Button>
@@ -418,7 +418,7 @@ function ResolveReportModal({
 
         {step !== 'options' ? (
           <DialogActions
-            cancelLabel={t('admin.moderation.report.close.cancel', {
+            cancelLabel={t('common.actions.back', {
               defaultValue: 'Back',
             })}
             onCancel={() => setStep('options')}

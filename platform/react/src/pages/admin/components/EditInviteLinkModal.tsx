@@ -251,9 +251,9 @@ export const EditInviteLinkModal = ({
           ) : null}
         </div>
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
-          actionLabel={t('common.save', { defaultValue: 'Save' })}
+          actionLabel={t('common.actions.save', { defaultValue: 'Save' })}
           onAction={submit}
           disabled={submitting}
         />

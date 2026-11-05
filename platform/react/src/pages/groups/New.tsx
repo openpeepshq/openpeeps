@@ -42,7 +42,7 @@ export function NewGroup() {
 
       <div className="space-y-2 px-1">
         <Label htmlFor="group-members">
-          {t('groups.form.members', { defaultValue: 'Members' })}
+          {t('common.nav.members', { defaultValue: 'Members' })}
         </Label>
         <ProfilesInput
           value={members}

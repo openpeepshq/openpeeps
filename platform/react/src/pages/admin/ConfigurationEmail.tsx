@@ -127,7 +127,7 @@ export function AdminConfigurationEmail() {
   if (configQuery.isLoading || !draft || !baseEmail) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.form.loading', { defaultValue: 'Loading…' })}
+        {t('common.states.loading', { defaultValue: 'Loading…' })}
       </div>
     );
   }
@@ -334,7 +334,7 @@ export function AdminConfigurationEmail() {
             data-testid="admin-email-send-test"
           >
             {sending
-              ? t('common.form.loading')
+              ? t('common.states.loading')
               : t('configuration.email.sendTest')}
           </Button>
         </div>
