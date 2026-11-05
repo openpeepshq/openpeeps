@@ -2759,6 +2759,7 @@
       "push": "Push-Benachrichtigungen",
       "email": "E-Mail-Benachrichtigungen",
       "updateSuccess": "Community-Einstellungen aktualisiert",
+      "unsavedChanges": "Ungespeicherte Änderungen",
       "description": "Verwalten Sie Ihre Benachrichtigungseinstellungen",
       "types": {
         "reply": {

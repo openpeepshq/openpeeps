@@ -31,6 +31,10 @@ export const useNotificationPreferences = ({
       }) as unknown as ProfileSettings,
   );
   const [saving, setSaving] = useState(false);
+  const saved = settingsQuery.data;
+  const dirty = Boolean(
+    saved && JSON.stringify(settings) !== JSON.stringify(saved),
+  );
   const [status, setStatus] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -96,6 +100,7 @@ export const useNotificationPreferences = ({
     setTypeSettings,
     save,
     saving,
+    dirty,
     status,
     clearStatus: () => setStatus(null),
   };

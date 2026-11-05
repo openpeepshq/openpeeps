@@ -232,6 +232,7 @@ export function NotificationPreferences() {
     setTypeSettings,
     save,
     saving,
+    dirty,
     status,
     clearStatus,
   } = useNotificationPreferences({
@@ -282,10 +283,17 @@ export function NotificationPreferences() {
         </Toast>
       ) : null}
 
-      <div className="pt-3">
+      {/* Sticky so the save control stays reachable on long mobile forms. */}
+      <div className="sticky bottom-0 -mx-4 -mb-4 flex items-center justify-between gap-3 border-t border-border bg-surface px-4 py-3">
+        <p className="text-muted-foreground min-w-0 flex-1 truncate text-sm">
+          {dirty
+            ? t('settings.notifications.unsavedChanges', {
+                defaultValue: 'You have unsaved changes',
+              })
+            : ''}
+        </p>
         <Button
           variant="default"
-          className="w-full"
           action={save}
           disabled={saving}
           data-testid="settings-save-button"
