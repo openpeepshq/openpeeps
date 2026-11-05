@@ -346,8 +346,9 @@ export const ResourceForm = ({
           </ThemedText>
         ) : null}
       </View>
+      {/* Galleries keep the picker open after the first file; other kinds
+          pick once. */}
       <ImagePickerSheet ref={imageRef} onSelect={addAttachments} />
-      {/* Only galleries take more than one file; other kinds pick one. */}
       <VideoPickerSheet
         ref={videoRef}
         multiple={false}

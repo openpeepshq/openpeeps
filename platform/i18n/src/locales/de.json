@@ -2991,6 +2991,7 @@
     },
     "imageInput": {
       "maxSize": "Maximale Größe: {{size}}",
+      "cropError": "Das Bild konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.",
       "uploadText": "Bild hochladen",
       "uploadTitle": "Bild hochladen",
       "replace": "Bild ersetzen",

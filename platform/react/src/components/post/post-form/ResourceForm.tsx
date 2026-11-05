@@ -48,8 +48,6 @@ export const ResourceForm = ({
   const attachments = useComposeAttachments({
     attachments: resource.attachments ?? [],
     onChange: (next) => patchResource({ attachments: next }),
-    // Only galleries take more than one file; other kinds pick one at a time.
-    multipleImages: resource.resourceKind === 'gallery',
     multipleAudio: false,
   });
 
@@ -224,7 +222,8 @@ export const ResourceForm = ({
           </Label>
         ) : (
           <div className="space-y-2">
-            {/* Only galleries take more than one file; other kinds pick once. */}
+            {/* Galleries keep the button after the first file; other kinds
+                pick once. */}
             {resource.resourceKind === 'gallery' ||
             (resource.attachments ?? []).length === 0 ? (
               <Button

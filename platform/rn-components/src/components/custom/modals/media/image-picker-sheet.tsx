@@ -104,9 +104,11 @@ export const ImagePickerSheet = forwardRef<
       return;
     }
 
+    // Single pick only: every image goes through the cropper, which handles
+    // one image at a time (web parity - the web pickers are single-file).
     const result = await launchImageLibrary({
       mediaType: 'photo',
-      selectionLimit: 0,
+      selectionLimit: 1,
       quality: 1,
     });
     if (result.didCancel || !result.assets?.length) {
@@ -123,7 +125,9 @@ export const ImagePickerSheet = forwardRef<
         if (isPickerCancelled(error)) {
           return;
         }
-        await finalize(uris);
+        // Never bypass the cropper with an uncropped fallback upload.
+        console.error('Image crop failed:', error);
+        Toast.show({ type: 'error', text1: t('form.imageInput.cropError') });
       }
       return;
     }
@@ -159,7 +163,9 @@ export const ImagePickerSheet = forwardRef<
         if (isPickerCancelled(error)) {
           return;
         }
-        await finalize([uri]);
+        // Never bypass the cropper with an uncropped fallback upload.
+        console.error('Image crop failed:', error);
+        Toast.show({ type: 'error', text1: t('form.imageInput.cropError') });
       }
     } catch (error) {
       if (!isPickerCancelled(error)) {
