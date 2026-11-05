@@ -8,15 +8,82 @@ export type CreateOpenpeepsMcpServerOptions = {
 };
 
 export const COMMUNITY_TOOL_NAMES = [
+  // Posts — read
+  'list_posts',
+  'get_post',
+  'get_post_context',
+  'list_post_reposts',
+  'list_post_recordings',
+  'list_my_bookmarks',
+  'list_feed',
+  'search',
+  // Posts — write
+  'create_post',
+  'update_post',
+  'delete_post',
+  'react',
+  'unreact',
+  'bookmark',
+  'unbookmark',
+  'repost',
+  'vote_on_poll',
+  'create_event_rsvp',
+  'manage_event_rsvp',
+  // Events
+  'list_my_events',
+  'list_upcoming_events',
+  // Groups
   'list_groups',
   'get_group',
   'list_group_members',
-  'list_posts',
-  'get_post',
+  'create_group',
+  'update_group',
+  'delete_group',
+  'join_group',
+  'leave_group',
+  'add_group_member',
+  'remove_group_member',
+  'set_group_member_roles',
+  // Profiles
   'get_profile',
-  'search',
+  'get_current_profile',
+  'list_followers',
+  'list_following',
+  'list_blocked',
+  'follow_profile',
+  'unfollow_profile',
+  'block_profile',
+  'unblock_profile',
+  'follow_hashtag',
+  'unfollow_hashtag',
+  'update_profile',
+  'update_profile_settings',
+  'pin_post',
+  // Conversations (direct messages)
+  'list_conversations',
+  'list_archived_conversations',
+  'search_conversations',
+  'get_conversation',
+  'send_dm',
+  'leave_conversation',
+  // Reports
   'list_reports',
   'get_report',
+  'create_report',
+  // Notifications
+  'list_notifications',
+  'get_notification_stats',
+  'mark_all_notifications_as_seen',
+  // Jams
+  'list_jams',
+  'get_jam_state',
+  'close_jam',
+  'list_jam_events',
+  'list_jam_attendance',
+  // Media
+  'list_media_attachments',
+  'get_media_attachment',
+  'delete_media_attachment',
 ] as const;
 
 export const OPS_TOOL_NAMES = [
