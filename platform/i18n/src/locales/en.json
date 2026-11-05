@@ -1932,6 +1932,18 @@
   },
   "configuration": {
     "title": "Configuration",
+    "atproto": {
+      "active": "AT Protocol",
+      "handleDomain": "Handle domain",
+      "ingestEnabled": "Allowlisted ingest",
+      "relayUrl": "Relay URL",
+      "allowedPdsHosts": "Allowed PDS hosts",
+      "handleDns": {
+        "enabled": "Publish per-handle DNS TXT",
+        "provider": "DNS provider",
+        "apiToken": "DNS API token"
+      }
+    },
     "sso": {
       "title": "SSO",
       "description": "Configure single sign-on providers so members can sign in with GitLab, GitHub, or another identity provider.",

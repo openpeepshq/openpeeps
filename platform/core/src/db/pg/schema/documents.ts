@@ -9,7 +9,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { idColumn, modelTimestamps, tsvector } from './base';
+import { bytea, idColumn, modelTimestamps, tsvector } from './base';
 
 export const configs = pgTable('configs', {
   key: text('key').primaryKey(),
@@ -56,6 +56,11 @@ export const profiles = pgTable(
     privateKeyPem: text('private_key_pem'),
     keyId: text('key_id'),
     fetchedAt: timestamp('fetched_at', { withTimezone: true, mode: 'string' }),
+    did: text('did'),
+    atHandle: text('at_handle'),
+    pdsEndpoint: text('pds_endpoint'),
+    atSigningPublicKey: text('at_signing_public_key'),
+    atSigningPrivateKey: text('at_signing_private_key'),
     body: jsonb('body').notNull().default({}),
     searchVector: tsvector('search_vector'),
     ...modelTimestamps,
@@ -66,6 +71,8 @@ export const profiles = pgTable(
       t.activityPubDomain,
     ),
     uniqueIndex('profiles_uri_unique').on(t.uri),
+    uniqueIndex('profiles_did_unique').on(t.did),
+    uniqueIndex('profiles_at_handle_unique').on(t.atHandle),
     index('profiles_search_vector_idx').using('gin', t.searchVector),
   ],
 );
@@ -116,6 +123,8 @@ export const posts = pgTable(
     creatorId: text('creator_id').notNull(),
     uri: text('uri'),
     inReplyToUri: text('in_reply_to_uri'),
+    atUri: text('at_uri'),
+    cid: text('cid'),
     body: jsonb('body').notNull().default({}),
     searchVector: tsvector('search_vector'),
     lastActivityAt: timestamp('last_activity_at', {
@@ -131,6 +140,7 @@ export const posts = pgTable(
     index('posts_visibility_idx').on(t.visibility),
     index('posts_creator_idx').on(t.creatorId),
     uniqueIndex('posts_uri_unique').on(t.uri),
+    uniqueIndex('posts_at_uri_unique').on(t.atUri),
     index('posts_in_reply_to_uri_idx').on(t.inReplyToUri),
     index('posts_search_vector_idx').using('gin', t.searchVector),
     index('posts_last_activity_id_idx').on(t.lastActivityAt, t.id),
@@ -259,3 +269,65 @@ export const apActivities = pgTable('ap_activities', {
     .notNull()
     .default(sql`now()`),
 });
+
+export const atRecords = pgTable(
+  'at_records',
+  {
+    id: idColumn(),
+    did: text('did').notNull(),
+    collection: text('collection').notNull(),
+    rkey: text('rkey').notNull(),
+    cid: text('cid').notNull(),
+    rev: text('rev').notNull(),
+    record: jsonb('record').notNull().default({}),
+    postId: text('post_id'),
+    profileId: text('profile_id'),
+    followId: text('follow_id'),
+    ...modelTimestamps,
+  },
+  (t) => [
+    uniqueIndex('at_records_did_collection_rkey').on(
+      t.did,
+      t.collection,
+      t.rkey,
+    ),
+    index('at_records_did_idx').on(t.did),
+    uniqueIndex('at_records_did_cid').on(t.did, t.cid),
+  ],
+);
+
+export const atRepoCommits = pgTable(
+  'at_repo_commits',
+  {
+    id: idColumn(),
+    did: text('did').notNull(),
+    rev: text('rev').notNull(),
+    commitCid: text('commit_cid').notNull(),
+    prev: text('prev'),
+    car: bytea('car'),
+    snapshot: jsonb('snapshot').notNull().default({}),
+    ...modelTimestamps,
+  },
+  (t) => [
+    uniqueIndex('at_repo_commits_did_rev').on(t.did, t.rev),
+    index('at_repo_commits_did_idx').on(t.did),
+  ],
+);
+
+export const atBlobs = pgTable(
+  'at_blobs',
+  {
+    id: idColumn(),
+    cid: text('cid').notNull(),
+    did: text('did').notNull(),
+    mediaId: text('media_id').notNull(),
+    mimeType: text('mime_type'),
+    body: jsonb('body').notNull().default({}),
+    ...modelTimestamps,
+  },
+  (t) => [
+    uniqueIndex('at_blobs_cid_unique').on(t.cid),
+    index('at_blobs_did_idx').on(t.did),
+    index('at_blobs_media_id_idx').on(t.mediaId),
+  ],
+);

@@ -87,6 +87,9 @@ export type ProfileActorFields = {
   publicKeyPem?: string | null;
   keyId?: string | null;
   fetchedAt?: string | null;
+  did?: string | null;
+  atHandle?: string | null;
+  pdsEndpoint?: string | null;
 };
 
 export type ProfileWithMeta = Model<ProfileData> &
@@ -243,6 +246,8 @@ export type PostWithMetaInput = z.input<typeof postWithMetaSchema>;
 export type PostWithMeta = BasePost & {
   uri?: string | null;
   inReplyToUri?: string | null;
+  atUri?: string | null;
+  cid?: string | null;
   inReplyToId?: string | null;
   replyTo?: ReplyPost | null;
   repost?: BasePost | null;

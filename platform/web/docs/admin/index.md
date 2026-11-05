@@ -23,6 +23,7 @@ If you're trying to access the Release Notes, you may visit the [Release Notes](
 
 ## Operations
 
+- [AT Protocol handles and DNS](/docs/admin/atproto) - Per-handle TXT (self-host) or wildcard DNS so public relays can resolve member handles
 - [Backups](/docs/admin/backups) - Backup archive format and restore
 - [Media Management](/docs/admin/media) - List, delete, and garbage-collect uploaded media files
 - [MCP for operators](/docs/admin/mcp) - Enable or disable MCP, ops tools, tokens, and reverse proxies

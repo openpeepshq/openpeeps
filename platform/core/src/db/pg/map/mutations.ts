@@ -138,6 +138,8 @@ const rowToPatchInput = (
         lastActivityAt: row.lastActivityAt,
         uri: row.uri,
         inReplyToUri: row.inReplyToUri,
+        atUri: row.atUri,
+        cid: row.cid,
         data: row.body,
       };
     case 'profiles':
@@ -151,6 +153,11 @@ const rowToPatchInput = (
         privateKeyPem: row.privateKeyPem,
         keyId: row.keyId,
         fetchedAt: row.fetchedAt,
+        did: row.did,
+        atHandle: row.atHandle,
+        pdsEndpoint: row.pdsEndpoint,
+        atSigningPublicKey: row.atSigningPublicKey,
+        atSigningPrivateKey: row.atSigningPrivateKey,
         ...(row.activityPubDomain
           ? { activityPub: { domain: row.activityPubDomain } }
           : {}),

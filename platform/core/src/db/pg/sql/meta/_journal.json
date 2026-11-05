@@ -120,6 +120,20 @@
       "when": 1791620000000,
       "tag": "0016_posts_search_vector_title_tags_path",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793860000000,
+      "tag": "0017_atproto_identity_and_repos",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793880000000,
+      "tag": "0018_atproto_real_cids_and_car",
+      "breakpoints": true
     }
   ]
 }

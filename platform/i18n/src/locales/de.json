@@ -2117,6 +2117,18 @@
   },
   "configuration": {
     "title": "Konfiguration",
+    "atproto": {
+      "active": "AT-Protokoll",
+      "handleDomain": "Handle-Domain",
+      "ingestEnabled": "Allowlist-Ingest",
+      "relayUrl": "Relay-URL",
+      "allowedPdsHosts": "Erlaubte PDS-Hosts",
+      "handleDns": {
+        "enabled": "DNS-TXT pro Handle veröffentlichen",
+        "provider": "DNS-Anbieter",
+        "apiToken": "DNS-API-Token"
+      }
+    },
     "email": {
       "title": "E-Mail",
       "description": "SMTP-Transport konfigurieren und Zustellbarkeit mit Ihren Entwurfseinstellungen testen.",

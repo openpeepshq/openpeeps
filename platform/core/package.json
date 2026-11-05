@@ -1,10 +1,17 @@
 {
   "name": "@openpeepshq/core",
-  "version": "0.4.0",
+  "version": "0.6.0",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
+    "@atproto/common": "^0.5.16",
+    "@atproto/crypto": "^0.5.7",
+    "@atproto/identity": "^0.4.12",
+    "@atproto/lexicon": "^0.5.2",
+    "@atproto/repo": "^0.8.13",
+    "@atproto/sync": "^0.1.40",
+    "@atproto/syntax": "^0.7.7",
     "@keyv/redis": "^5.1.4",
     "@openpeepshq/common": "workspace:*",
     "@openpeepshq/fetch-client": "workspace:^",
@@ -52,6 +59,7 @@
     "/dist"
   ],
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@types/archiver": "^6.0.3",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.6",
@@ -75,8 +83,7 @@
     "prettier": "^3.4.2",
     "tsc-alias": "^1.8.10",
     "typescript": "^6.0.2",
-    "vitest": "^2.1.8",
-    "@eslint/js": "^9.17.0"
+    "vitest": "^2.1.8"
   },
   "scripts": {
     "lint": "eslint .",

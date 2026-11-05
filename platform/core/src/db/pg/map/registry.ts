@@ -69,6 +69,8 @@ const postsSplit = (data: Record<string, unknown>) => {
     data: postBody,
     uri,
     inReplyToUri,
+    atUri,
+    cid,
     ...rest
   } = data;
   const scalars: Record<string, unknown> = {};
@@ -78,6 +80,8 @@ const postsSplit = (data: Record<string, unknown>) => {
   if (lastActivityAt !== undefined) scalars.lastActivityAt = lastActivityAt;
   if (uri !== undefined) scalars.uri = uri;
   if (inReplyToUri !== undefined) scalars.inReplyToUri = inReplyToUri;
+  if (atUri !== undefined) scalars.atUri = atUri;
+  if (cid !== undefined) scalars.cid = cid;
   const body =
     postBody !== undefined ? { ...(postBody as object) } : { ...rest };
   if (postBody === undefined) {
@@ -87,6 +91,8 @@ const postsSplit = (data: Record<string, unknown>) => {
     delete (body as Record<string, unknown>).lastActivityAt;
     delete (body as Record<string, unknown>).uri;
     delete (body as Record<string, unknown>).inReplyToUri;
+    delete (body as Record<string, unknown>).atUri;
+    delete (body as Record<string, unknown>).cid;
   }
   return { scalars, body };
 };
@@ -99,6 +105,11 @@ const ACTOR_SCALAR_KEYS = [
   'privateKeyPem',
   'keyId',
   'fetchedAt',
+  'did',
+  'atHandle',
+  'pdsEndpoint',
+  'atSigningPublicKey',
+  'atSigningPrivateKey',
 ] as const;
 
 const profilesSplit = (data: Record<string, unknown>) => {
@@ -496,6 +507,13 @@ export const rowToDocument = (
             ...(typeof row.fetchedAt === 'string'
               ? { fetchedAt: normalizeIsoDatetime(row.fetchedAt) }
               : {}),
+            ...(typeof row.did === 'string' ? { did: row.did } : {}),
+            ...(typeof row.atHandle === 'string'
+              ? { atHandle: row.atHandle }
+              : {}),
+            ...(typeof row.pdsEndpoint === 'string'
+              ? { pdsEndpoint: row.pdsEndpoint }
+              : {}),
           },
           timestamps,
         ),
@@ -515,6 +533,8 @@ export const rowToDocument = (
             ...(typeof row.inReplyToUri === 'string'
               ? { inReplyToUri: row.inReplyToUri }
               : {}),
+            ...(typeof row.atUri === 'string' ? { atUri: row.atUri } : {}),
+            ...(typeof row.cid === 'string' ? { cid: row.cid } : {}),
             data: row.body ?? {},
           },
           timestamps,

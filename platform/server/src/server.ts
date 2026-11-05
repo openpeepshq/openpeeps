@@ -28,6 +28,7 @@ import { installPwaEndpoint } from './lib/pwa';
 import { installSeoEndpoint, spaMetaForRequest } from './lib/seoEndpoint';
 import { decideSpaRequest, sendSpaHtml } from './lib/spaHtml';
 import { installFederation } from './federation';
+import { installAtproto } from './atproto';
 import {
   buildPluginRouters,
   pluginAssetsMiddleware,
@@ -236,6 +237,7 @@ const startServer = async () => {
   // POST requests, which breaks Riddl's req.clone().json() when a Bearer token
   // triggers Fedify's OAuth path).
   await installFederation(app);
+  const attachAtprotoFirehose = await installAtproto(app);
 
   // Legacy /_db URLs redirect to /admin/db (Postgres admin instructions).
   installDbBrowserProxy(app);
@@ -374,9 +376,10 @@ const startServer = async () => {
     res.status(404).send(`Not found: ${req.method} ${req.originalUrl}`);
   });
 
-  app.listen(port, host, () => {
+  const httpServer = app.listen(port, host, () => {
     log.info(`Server listening on http://${host}:${port}`);
   });
+  attachAtprotoFirehose?.(httpServer);
 };
 
 process.on('unhandledRejection', (reason) => {

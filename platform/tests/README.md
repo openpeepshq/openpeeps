@@ -374,3 +374,11 @@ Still out of scope for this harness:
 - Live Stripe checkout / portal
 - Poll vote via UI (API covered in `api/gaps/`)
 - Pin post via UI (API covered in `api/gaps/`)
+
+## Protocol lab harnesses (not CI)
+
+These are run by hand against a live stack, same as
+[`activitypub/`](./activitypub/):
+
+- [`activitypub/`](./activitypub/) — ActivityPub compose (OpenPeeps ×2 + Mastodon)
+- [`atproto/`](./atproto/) — AT Protocol Tier 0 identity/lexicon script; Tier 1 lab after CAR / firehose (see [`planning/at-protocol/bluesky-compat.md`](../../planning/at-protocol/bluesky-compat.md))

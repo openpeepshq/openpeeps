@@ -188,6 +188,32 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
       /** Host patterns (`mastodon.social`, `*.example.com`). Empty = fail closed. */
       allowedHosts: z.array(z.string()).default([]),
     }),
+    atproto: z
+      .object({
+        active: z.boolean().default(false),
+        /** PDS host patterns. Empty = fail closed. */
+        allowedPdsHosts: z.array(z.string()).default([]),
+        handleDomain: z.string().default('localhost'),
+        plcDirectory: z.string().optional(),
+        ingestEnabled: z.boolean().default(false),
+        relayUrl: z.string().optional(),
+        handleDns: z
+          .object({
+            enabled: z.boolean().default(false),
+            provider: z
+              .enum(['cloudflare', 'hetzner', 'digitalocean'])
+              .default('cloudflare'),
+            apiToken: password(sanitize).optional(),
+          })
+          .default({ enabled: false, provider: 'cloudflare' }),
+      })
+      .default({
+        active: false,
+        allowedPdsHosts: [],
+        handleDomain: 'localhost',
+        ingestEnabled: false,
+        handleDns: { enabled: false, provider: 'cloudflare' },
+      }),
     activityPub: z.object({
       defaultDomain: z.string(),
       itemsPerPage: z.number(),

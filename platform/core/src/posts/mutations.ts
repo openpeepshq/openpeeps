@@ -349,6 +349,12 @@ export const deletePost = async (post: PostWithMeta, profile: Profile) => {
 
   await postsMapping.delete(db, post.id);
 
+  if (post.atUri) {
+    void import('../atproto/repos')
+      .then(({ deleteProjectedPost }) => deleteProjectedPost(post))
+      .catch(() => undefined);
+  }
+
   if (post.type === 'event') {
     await clearEventOccurrences(post.id);
   }

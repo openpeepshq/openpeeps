@@ -4,6 +4,7 @@ import { logger } from '@openpeepshq/core/log';
 import { registerDefaultNotifications } from '@openpeepshq/core/notifications';
 import { initSentry } from '@openpeepshq/core/sentry';
 import { defaultConfig } from '@openpeepshq/core/config';
+import { backfillLocalAtprotoIdentities } from '@openpeepshq/core/atproto';
 
 import { registerDefaultEmailTemplates } from '../emails';
 
@@ -29,6 +30,7 @@ export const initializeServer = async () => {
   });
 
   await setDefaultRoles();
+  await backfillLocalAtprotoIdentities();
   await initializePlugins();
   await registerDefaultNotifications();
   registerDefaultEmailTemplates();

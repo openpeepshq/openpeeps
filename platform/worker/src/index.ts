@@ -51,6 +51,15 @@ import {
 } from '@openpeepshq/core/log';
 import { refreshConfig, defaultConfig } from '@openpeepshq/core/config';
 import { initSentry } from '@openpeepshq/core/sentry';
+import {
+  atprotoHandleDnsQueue,
+  atprotoHandleDnsWorker,
+  atprotoIngestQueue,
+  atprotoIngestWorker,
+  backfillLocalAtprotoIdentities,
+  enqueueLocalHandleTxtSync,
+  startAllowlistedIngest,
+} from '@openpeepshq/core/atproto';
 
 const startWorkers = () => {
   console.log('Starting email worker ...');
@@ -81,6 +90,16 @@ const startWorkers = () => {
   logRetentionWorker();
   console.log('Starting waitlist offer worker ...');
   waitlistOfferWorker();
+  console.log('Starting AT Protocol ingest worker ...');
+  atprotoIngestWorker();
+  console.log('Starting AT Protocol handle DNS worker ...');
+  atprotoHandleDnsWorker();
+  void startAllowlistedIngest().catch((error: unknown) => {
+    console.error('AT Protocol allowlisted ingest failed', error);
+  });
+  void enqueueLocalHandleTxtSync().catch((error: unknown) => {
+    console.error('AT Protocol handle DNS sync failed', error);
+  });
 };
 
 const setupQueues = async () => {
@@ -98,6 +117,8 @@ const setupQueues = async () => {
   pollEndQueue();
   logRetentionQueue();
   waitlistOfferQueue();
+  atprotoIngestQueue();
+  atprotoHandleDnsQueue();
   // Register the daily cron schedule. Idempotent under upsertJobScheduler so
   // it's safe to call on every worker boot.
   await ensureStreamingCleanupSchedule();
@@ -166,6 +187,7 @@ export const start = async () => {
   });
   console.log('Init notifications...');
   await initializeNotifications();
+  await backfillLocalAtprotoIdentities();
   console.log('Registering default notifications...');
   await registerDefaultNotifications();
   console.log('Registering RSVP confirmation email handler...');
