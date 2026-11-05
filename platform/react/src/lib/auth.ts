@@ -1,5 +1,4 @@
 import type { OpenpeepsClient } from '@openpeepshq/client';
-import type { CredentialsStore } from '../auth/credentials';
 import type {
   LoginRequest,
   RegisterRequest,
@@ -7,16 +6,18 @@ import type {
   ResetPasswordRequest,
   TokenResponse,
 } from '@openpeepshq/common';
+import type { CredentialsStore } from '../auth/credentials';
 
 /**
  * Thin promise unwrapping for endpoints that return
- * `{ data: T } | { error: SuccessFailureResponse }`. Throws on `error`.
+ * `{ data: T } | { error: SuccessFailureResponse }`. Throws the raw error
+ * object on `error` so callers keep the wire fields (e.g. `status`).
  */
 const unwrap = async <T>(
   promise: Promise<{ data: T } | { error: { message?: string } }>,
 ): Promise<T> => {
   const r = await promise;
-  if ('error' in r) throw new Error(r.error.message ?? 'Request failed');
+  if ('error' in r) throw r.error;
   return r.data;
 };
 

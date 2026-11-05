@@ -4,7 +4,7 @@ import type {
   TokenResponse,
 } from '@openpeepshq/common/types';
 import { checkAccountCreateAuthorization } from '@openpeepshq/common/lib';
-import { conflict, forbidden } from '#lib/errors';
+import { conflict, forbidden, internalError } from '#lib/errors';
 import { assertHandleAllowed } from '#lib/forbiddenHandles';
 import {
   createAccount,
@@ -33,7 +33,7 @@ export const registerHandler = async (
   }
 
   if (await existsAccountByEmail(email)) {
-    throw conflict('auth.register.emailAlreadyTaken');
+    throw conflict('error.emailAlreadyTaken');
   }
 
   const {
@@ -66,7 +66,7 @@ export const registerHandler = async (
           : `Missing capabilities: ${authResult.missingCapabilities.join(', ')}`,
       );
     }
-    throw forbidden('Sign-ups are closed and no valid invite code provided');
+    throw forbidden('auth.register.signupsClosed');
   }
 
   const markAsBot = bot === true && authResult.success;
@@ -91,7 +91,7 @@ export const registerHandler = async (
   }).then((accessToken) => accessToken.signedToken);
 
   if (!token) {
-    throw forbidden('register.access-token-creation-failed');
+    throw internalError();
   }
 
   return {

@@ -27,6 +27,7 @@ export {
   performResetPassword,
   performLogout,
 } from './lib/auth';
+export { registerErrorMessage } from './lib/registerErrors';
 export type {
   MarkdownRenderProps,
   MentionProfileRef,

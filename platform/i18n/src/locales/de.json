@@ -4,6 +4,7 @@
       "title": "Anmelden",
       "submit": "Anmelden",
       "error": "Ungültige Anmeldedaten",
+      "invalidCredentials": "Diese E-Mail-/Passwort-Kombination passt nicht zu einem gültigen Konto.",
       "loading": "Anmeldung läuft…",
       "success": "Erfolgreich angemeldet",
       "heading": "Anmelden",
@@ -49,7 +50,14 @@
       "alreadyHaveAccount": "Bereits ein Konto?",
       "signIn": "Anmelden",
       "seeCommunityFeed": "Community-Feed ansehen",
-      "inviteInactive": "Dieser Einladungslink ist abgelaufen oder nicht mehr aktiv."
+      "inviteInactive": "Dieser Einladungslink ist abgelaufen oder nicht mehr aktiv.",
+      "signupsClosed": "Die Registrierung ist geschlossen. Ein gültiger Einladungscode wird benötigt."
+    },
+    "refresh": {
+      "invalid-or-expired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
+    },
+    "scope": {
+      "not-authorized": "Sie haben keine Berechtigung, diese Aktion auszuführen."
     },
     "resetPassword": {
       "title": "Passwort zurücksetzen",

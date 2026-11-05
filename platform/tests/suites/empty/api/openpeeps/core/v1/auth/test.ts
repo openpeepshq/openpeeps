@@ -168,7 +168,7 @@ test.describe('auth register flows', () => {
 
       expect(response.status()).toBe(403);
       expect(responseJson).toMatchObject({
-        message: 'Sign-ups are closed and no valid invite code provided',
+        message: 'auth.register.signupsClosed',
       });
       expect(await existsAccountByEmail(body.email)).toBe(false);
       expect(await existsProfileByHandle(body.handle)).toBe(false);
