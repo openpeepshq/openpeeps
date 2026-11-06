@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import type { PostCreationData, PublicPost } from '@openpeepshq/common/types';
-import { Info, Search } from 'lucide-react';
+import type {
+  MediaAttachmentData,
+  PostCreationData,
+  PublicPost,
+} from '@openpeepshq/common/types';
+import { Image, Info, Search } from 'lucide-react';
 import {
   useT,
   useOpenpeeps,
@@ -22,6 +26,7 @@ import {
   useCurrentProfile,
   useToast,
 } from '../../components';
+import { useComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
 import { Button, LoadingSpinner } from '@openpeepshq/react-ui';
 
 const MAX_LENGTH = 500;
@@ -29,6 +34,87 @@ const MAX_LENGTH = 500;
 const isMessageId = (value: string | null): value is string =>
   !!value &&
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
+type OutgoingNote = {
+  type: 'note';
+  content: string;
+  attachments?: MediaAttachmentData[];
+};
+
+const ConversationComposer = ({
+  sending,
+  onSend,
+}: {
+  sending: boolean;
+  onSend: (data: OutgoingNote) => Promise<boolean>;
+}) => {
+  const t = useT();
+  const [text, setText] = useState('');
+  const [attachments, setAttachments] = useState<MediaAttachmentData[]>([]);
+  const compose = useComposeAttachments({
+    attachments,
+    onChange: setAttachments,
+  });
+  const overLimit = text.length > MAX_LENGTH;
+  const canSend =
+    !sending &&
+    !compose.pending &&
+    !overLimit &&
+    (text.trim().length > 0 || attachments.length > 0);
+
+  const send = async () => {
+    if (!canSend) return;
+    const sent = await onSend({
+      type: 'note',
+      content: text.trim(),
+      attachments: attachments.length ? attachments : undefined,
+    });
+    if (!sent) return;
+    setText('');
+    compose.clear();
+  };
+
+  const addImageLabel = t('posts.form.addImage', {
+    defaultValue: 'Add Media',
+  });
+
+  return (
+    <footer className="space-y-2 border-t p-3">
+      {compose.previews}
+      <OpenpeepsMarkdownInput
+        rows={3}
+        value={text}
+        onChange={setText}
+        maxLength={MAX_LENGTH}
+        placeholder={t('conversations.placeholder', {
+          defaultValue: 'Write a message…',
+        })}
+      />
+      <div className="flex items-center justify-between">
+        <Button
+          compact
+          variant="ghost"
+          title={addImageLabel}
+          action={compose.openImagePicker}
+          data-testid="conversation-add-image"
+        >
+          <Image className="size-5" />
+        </Button>
+        <Button
+          title={t('common.send', { defaultValue: 'Send' })}
+          variant="default"
+          action={send}
+          disabled={!canSend}
+        >
+          {sending
+            ? t('common.sending', { defaultValue: 'Sending…' })
+            : t('common.send', { defaultValue: 'Send' })}
+        </Button>
+      </div>
+      {compose.inputs}
+    </footer>
+  );
+};
 
 export function ConversationShow() {
   const t = useT();
@@ -142,32 +228,31 @@ export function ConversationShow() {
 
   useSetPageHeader(headerTitle, headerActions);
 
-  const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
 
-  const send = async () => {
-    if (!text.trim() || text.length > MAX_LENGTH) return;
+  const sendMessage = async (data: OutgoingNote) => {
     setSending(true);
     try {
       const payload: PostCreationData = {
         visibility: 'direct',
         audience: lastMessage?.audience ?? participants,
         type: 'note',
-        data: { type: 'note', content: text },
+        data,
       };
       await createMessage(payload);
-      setText('');
       await conversationQuery.refetch();
       await queryClient.invalidateQueries({
         queryKey: client.conversations.list.queryKey({}),
         refetchType: 'all',
       });
+      return true;
     } catch {
       toast.error(
         t('conversations.sendError', {
           defaultValue: 'Failed to send message',
         }),
       );
+      return false;
     } finally {
       setSending(false);
     }
@@ -230,8 +315,6 @@ export function ConversationShow() {
       </div>
     );
   }
-
-  const overLimit = text.length > MAX_LENGTH;
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
@@ -299,29 +382,7 @@ export function ConversationShow() {
       </div>
 
       {canCreate && (
-        <footer className="space-y-2 border-t p-3">
-          <OpenpeepsMarkdownInput
-            rows={3}
-            value={text}
-            onChange={setText}
-            maxLength={MAX_LENGTH}
-            placeholder={t('conversations.placeholder', {
-              defaultValue: 'Write a message…',
-            })}
-          />
-          <div className="flex justify-end">
-            <Button
-              title="Send"
-              variant="default"
-              action={send}
-              disabled={sending || !text.trim() || overLimit}
-            >
-              {sending
-                ? t('common.sending', { defaultValue: 'Sending…' })
-                : t('common.send', { defaultValue: 'Send' })}
-            </Button>
-          </div>
-        </footer>
+        <ConversationComposer key={id} sending={sending} onSend={sendMessage} />
       )}
     </div>
   );
