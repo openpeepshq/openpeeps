@@ -6,7 +6,7 @@ export type NavTarget =
   | { type: 'home' }
   | { type: 'welcome' }
   | { type: 'explore' }
-  | { type: 'feed'; feed: 'local' | 'my' | 'bookmarks' }
+  | { type: 'feed'; feed: 'local' | 'my' | 'bookmarks' | 'highlights' }
   | { type: 'profile'; handle: string; tab?: 'followers' | 'following' }
   | { type: 'post'; id: string; occurrence?: string }
   | { type: 'postNew' }

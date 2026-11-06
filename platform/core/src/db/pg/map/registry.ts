@@ -69,6 +69,7 @@ const postsSplit = (data: Record<string, unknown>) => {
     data: postBody,
     uri,
     inReplyToUri,
+    highlighted,
     ...rest
   } = data;
   const scalars: Record<string, unknown> = {};
@@ -78,6 +79,7 @@ const postsSplit = (data: Record<string, unknown>) => {
   if (lastActivityAt !== undefined) scalars.lastActivityAt = lastActivityAt;
   if (uri !== undefined) scalars.uri = uri;
   if (inReplyToUri !== undefined) scalars.inReplyToUri = inReplyToUri;
+  if (highlighted !== undefined) scalars.highlighted = highlighted;
   const body =
     postBody !== undefined ? { ...(postBody as object) } : { ...rest };
   if (postBody === undefined) {
@@ -87,6 +89,7 @@ const postsSplit = (data: Record<string, unknown>) => {
     delete (body as Record<string, unknown>).lastActivityAt;
     delete (body as Record<string, unknown>).uri;
     delete (body as Record<string, unknown>).inReplyToUri;
+    delete (body as Record<string, unknown>).highlighted;
   }
   return { scalars, body };
 };
@@ -514,6 +517,9 @@ export const rowToDocument = (
             ...(typeof row.uri === 'string' ? { uri: row.uri } : {}),
             ...(typeof row.inReplyToUri === 'string'
               ? { inReplyToUri: row.inReplyToUri }
+              : {}),
+            ...(typeof row.highlighted === 'boolean'
+              ? { highlighted: row.highlighted }
               : {}),
             data: row.body ?? {},
           },

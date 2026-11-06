@@ -116,6 +116,7 @@ export const posts = pgTable(
     creatorId: text('creator_id').notNull(),
     uri: text('uri'),
     inReplyToUri: text('in_reply_to_uri'),
+    highlighted: boolean('highlighted').notNull().default(false),
     body: jsonb('body').notNull().default({}),
     searchVector: tsvector('search_vector'),
     lastActivityAt: timestamp('last_activity_at', {

@@ -16,6 +16,7 @@ export { Settings } from './settings/Index';
 export { FeedsLocal } from './feeds/Local';
 export { FeedsMy } from './feeds/My';
 export { FeedsBookmarks } from './feeds/Bookmarks';
+export { FeedsHighlights } from './feeds/Highlights';
 export { Tags as TagsPage } from './Tags';
 export { PostDetail } from './PostDetail';
 export { Notifications as NotificationsPage } from './Notifications';

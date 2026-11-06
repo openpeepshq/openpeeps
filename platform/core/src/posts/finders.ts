@@ -17,7 +17,7 @@ import {
   participantIds,
 } from '@openpeepshq/common/lib';
 import { allpeepDb, collectionInfos } from '../db';
-import { edgeFilters, postFilters } from '../db/pg/filters';
+import { combine, edgeFilters, postFilters } from '../db/pg/filters';
 import {
   contextRelation,
   conversationLeavesMappingForProfile,
@@ -504,6 +504,27 @@ export const listLocalFeed = async (
         profile: authData.profile,
         format,
       }).filter(localFeedFilter()),
+      { authData, limit },
+    ),
+  );
+
+export const listHighlightsFeed = async (
+  authData: AuthorizationData,
+  {
+    start,
+    limit = 100,
+    format,
+  }: { start?: string; limit?: number; format?: string | null } = {
+    limit: 100,
+  },
+) =>
+  withSpan('feed.highlights', () =>
+    toFilteredPostsList(
+      conversationFeed({
+        start,
+        profile: authData.profile,
+        format,
+      }).filter(combine.and(localFeedFilter(), postFilters.highlighted())),
       { authData, limit },
     ),
   );

@@ -1,0 +1,1 @@
+ALTER TABLE "posts" ADD COLUMN "highlighted" boolean DEFAULT false NOT NULL;

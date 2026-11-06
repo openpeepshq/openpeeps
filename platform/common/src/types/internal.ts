@@ -198,6 +198,7 @@ export const replyPostSchema = z.object({
   seen: z.boolean().optional(),
   inReplyToId: z.string().optional().nullable(),
   hidden: z.boolean().optional(),
+  highlighted: z.boolean().optional(),
 });
 export type ReplyPost = z.infer<typeof replyPostSchema> & {
   replyTo?: ReplyPost | null;

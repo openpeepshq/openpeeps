@@ -26,6 +26,7 @@ import {
   ScrollText,
   Search,
   Settings,
+  Sparkles,
   ShieldAlert,
   Stethoscope,
   User,
@@ -232,6 +233,13 @@ export function AppSideBarMainMenu() {
           tooltip={t('navigation.tooltips.myFeed')}
         >
           {t('navigation.myFeed')}
+        </NavItem>
+        <NavItem
+          to={href({ type: 'feed', feed: 'highlights' })}
+          icon={Sparkles}
+          tooltip={t('navigation.tooltips.highlights')}
+        >
+          {t('navigation.highlights')}
         </NavItem>
         {jamsEnabled && (
           <NavItem

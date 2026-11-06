@@ -644,6 +644,8 @@ export const postDataSchema = z.object({
   type: postTypeSchema,
   visibility: visibilityTypeSchema,
   capabilitiesNeeded: z.string().array().optional(),
+  /** Moderators/admins highlight posts for the community highlights feed. */
+  highlighted: z.boolean().optional(),
   data: postDataUnionSchema.optional(),
   creatorId: z.string(),
 });

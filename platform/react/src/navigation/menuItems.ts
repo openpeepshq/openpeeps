@@ -38,6 +38,13 @@ export const buildMainNavItems = (caps: MainMenuCapabilities): NavItemDef[] => {
       tooltipKey: navTooltip('myFeed'),
       icon: 'Newspaper',
     },
+    {
+      id: 'highlights',
+      target: { type: 'feed', feed: 'highlights' },
+      labelKey: 'navigation.highlights',
+      tooltipKey: navTooltip('highlights'),
+      icon: 'Sparkles',
+    },
   ];
   if (caps.jamsEnabled) {
     items.push({

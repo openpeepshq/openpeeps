@@ -192,6 +192,7 @@ export const roleCapabilities = [
   'core-posts-create-resource-private',
   'core-posts-read-local',
   'core-posts-announce',
+  'core-posts-highlight',
   'core-posts-delete',
   'core-profiles-read',
   'core-profiles-roles-update',

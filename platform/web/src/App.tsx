@@ -49,6 +49,7 @@ import {
   FeedsLocal,
   FeedsMy,
   FeedsBookmarks,
+  FeedsHighlights,
   TagsPage,
   PostDetail,
   NotificationsPage,
@@ -244,6 +245,7 @@ const Feeds = {
   Local: FeedsLocal,
   My: FeedsMy,
   Bookmarks: FeedsBookmarks,
+  Highlights: FeedsHighlights,
 };
 
 const Posts = {
@@ -512,6 +514,10 @@ function AppShell() {
                     <Route
                       path="/feeds/bookmarks"
                       element={<Feeds.Bookmarks />}
+                    />
+                    <Route
+                      path="/feeds/highlights"
+                      element={<Feeds.Highlights />}
                     />
 
                     {/* Posts + profile timeline */}

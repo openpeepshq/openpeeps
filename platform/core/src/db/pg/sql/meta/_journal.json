@@ -120,6 +120,13 @@
       "when": 1791620000000,
       "tag": "0016_posts_search_vector_title_tags_path",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793979963365,
+      "tag": "0017_add_post_highlighted",
+      "breakpoints": true
     }
   ]
 }

@@ -110,6 +110,7 @@
     "messages": "Nachrichten",
     "home": "Startseite",
     "myFeed": "Mein Feed",
+    "highlights": "Community-Highlights",
     "newPost": "Neuer Beitrag",
     "jams": "Jams",
     "notifications": "Benachrichtigungen",
@@ -153,6 +154,7 @@
       "welcome": "Willkommenseite für neue Mitglieder öffnen",
       "explore": "Beiträge, Personen und Themen durchsuchen",
       "myFeed": "Beiträge von Personen und Gruppen, denen du folgst, anzeigen",
+      "highlights": "Beiträge anzeigen, die von Moderator:innen hervorgehoben wurden",
       "jams": "Live-Jams durchsuchen und beitreten",
       "groups": "Deine Gruppen und Gruppendiskussionen ansehen",
       "events": "Anstehende Veranstaltungen durchsuchen",
@@ -622,6 +624,16 @@
       "title": "Lesezeichen entfernen",
       "success": "Lesezeichen entfernt",
       "error": "Beim Entfernen des Lesezeichens ist ein Fehler aufgetreten"
+    },
+    "highlight": {
+      "title": "Zu Highlights hinzufügen",
+      "success": "Der Beitrag befindet sich jetzt in den Community-Highlights",
+      "error": "Beim Hinzufügen des Beitrags zu den Highlights ist ein Fehler aufgetreten"
+    },
+    "unhighlight": {
+      "title": "Aus Highlights entfernen",
+      "success": "Der Beitrag wurde aus den Community-Highlights entfernt",
+      "error": "Beim Entfernen des Beitrags aus den Highlights ist ein Fehler aufgetreten"
     },
     "switcher": {
       "note": "Notiz schreiben",

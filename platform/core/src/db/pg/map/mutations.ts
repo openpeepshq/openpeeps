@@ -138,6 +138,7 @@ const rowToPatchInput = (
         lastActivityAt: row.lastActivityAt,
         uri: row.uri,
         inReplyToUri: row.inReplyToUri,
+        highlighted: row.highlighted,
         data: row.body,
       };
     case 'profiles':

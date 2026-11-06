@@ -126,6 +126,10 @@ const postFeeds = (client: OpenpeepsClient) => ({
     infiniteChronologicalQueryApiHook(client.posts.feeds.my, {
       queryParams: withFeedLimit(props),
     }),
+  useHighlightsFeed: (props?: ChronologicalInfiniteQueryParams) =>
+    infiniteChronologicalQueryApiHook(client.posts.feeds.highlights, {
+      queryParams: withFeedLimit(props),
+    }),
 });
 
 type PostFeeds = ReturnType<typeof postFeeds>;
@@ -240,6 +244,10 @@ const postMutators = (client: OpenpeepsClient) => ({
   unbookmarkPostAction: noPayloadMutation(client.posts.unbookmark, [
     ['posts'],
     ['profiles', 'current', 'bookmarkedIds'],
+  ]),
+  highlightPostAction: noPayloadMutation(client.posts.highlight, [['posts']]),
+  unhighlightPostAction: noPayloadMutation(client.posts.unhighlight, [
+    ['posts'],
   ]),
   markPostsSeenAction: payloadPostsReadMutation(client.posts.seen),
   markGroupPostsSeenAction: noPayloadPostsReadMutation(

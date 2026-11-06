@@ -110,6 +110,7 @@
     "messages": "Messages",
     "home": "Home",
     "myFeed": "My Feed",
+    "highlights": "Community Highlights",
     "newPost": "New Post",
     "jams": "Jams",
     "notifications": "Notifications",
@@ -153,6 +154,7 @@
       "welcome": "Open the welcome page for new members",
       "explore": "Search and discover posts, people, and topics",
       "myFeed": "View posts from people and groups you follow",
+      "highlights": "View posts highlighted by moderators",
       "jams": "Browse and join live JAM sessions",
       "groups": "See your groups and group discussions",
       "events": "Browse upcoming community events",
@@ -627,6 +629,16 @@
       "title": "Remove Bookmark",
       "success": "Bookmark removed",
       "error": "An error occurred while removing the bookmark"
+    },
+    "highlight": {
+      "title": "Add to highlights",
+      "success": "The post is now in Community Highlights",
+      "error": "An error occurred while adding the post to highlights"
+    },
+    "unhighlight": {
+      "title": "Remove from highlights",
+      "success": "The post was removed from Community Highlights",
+      "error": "An error occurred while removing the post from highlights"
     },
     "switcher": {
       "note": "Write Note",

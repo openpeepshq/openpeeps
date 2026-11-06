@@ -270,11 +270,17 @@ const postFeeds = (rawClient: FetchClient): PostFeeds => ({
     undefined,
     ChronologicalInfiniteQueryParams
   >(rawClient, '/posts/feeds/local'),
+  highlights: allpeepNoPayloadEndpoint<
+    PublicPost[],
+    undefined,
+    ChronologicalInfiniteQueryParams
+  >(rawClient, '/posts/feeds/highlights'),
 });
 
 type PostFeeds = {
   my: ChronologicalPosts;
   local: ChronologicalPosts;
+  highlights: ChronologicalPosts;
 };
 
 type Feeds = { feeds: PostFeeds & EventFeeds & JamFeeds };
@@ -299,6 +305,8 @@ type Mutators = {
   retractReaction: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
   bookmark: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
   unbookmark: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  highlight: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  unhighlight: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
   seen: OpenpeepsPayloadEndpoint<SuccessResponse, PostsSeenRequest>;
   seenByGroup: OpenpeepsNoPayloadEndpoint<SuccessResponse, { groupId: string }>;
   repost: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
@@ -347,6 +355,16 @@ const mutators = (rawClient: FetchClient): Mutators => ({
   unbookmark: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
     rawClient,
     '/posts/:id/bookmark',
+    'delete',
+  ),
+  highlight: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
+    rawClient,
+    '/posts/:id/highlight',
+    'post',
+  ),
+  unhighlight: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
+    rawClient,
+    '/posts/:id/highlight',
     'delete',
   ),
   seen: allpeepPayloadEndpoint<SuccessResponse, PostsSeenRequest>(
