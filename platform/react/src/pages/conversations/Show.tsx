@@ -22,6 +22,7 @@ import {
   useCurrentProfile,
   useToast,
 } from '../../components';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 import { Button, LoadingSpinner } from '@openpeepshq/react-ui';
 
 const MAX_LENGTH = 500;
@@ -162,11 +163,15 @@ export function ConversationShow() {
         queryKey: client.conversations.list.queryKey({}),
         refetchType: 'all',
       });
-    } catch {
+    } catch (err) {
       toast.error(
-        t('conversations.sendError', {
-          defaultValue: 'Failed to send message',
-        }),
+        apiErrorMessage(
+          err,
+          t,
+          t('conversations.sendError', {
+            defaultValue: 'Failed to send message',
+          }),
+        ),
       );
     } finally {
       setSending(false);

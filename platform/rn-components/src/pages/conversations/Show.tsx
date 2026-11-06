@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import {
   adjustUnseenCounts,
+  apiErrorMessage,
   useOpenpeeps,
   usePostViewFlush,
 } from '@openpeepshq/react';
@@ -16,6 +17,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { InfoIcon, SearchIcon } from '../../components/icons/index';
 import { MediaAttachmentData, type PublicPost } from '@openpeepshq/common';
 import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
@@ -133,6 +135,10 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
     } catch (error) {
       console.error('Failed to send message:', error);
+      Toast.show({
+        type: 'error',
+        text1: apiErrorMessage(error, t, t('conversations.sendError')),
+      });
     } finally {
       setIsSending(false);
     }

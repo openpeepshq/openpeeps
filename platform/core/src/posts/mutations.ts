@@ -62,7 +62,7 @@ import {
   rsvpTargetsPastEvent,
   sameRecurrenceId,
 } from '@openpeepshq/common/lib';
-import { forbidden, unprocessableRequest } from '../errors';
+import { forbidden, notFound, unprocessableRequest } from '../errors';
 import { areBlocked, hasBlockAmong } from '../profiles/blocks';
 import {
   rebuildEventOccurrences,
@@ -102,6 +102,12 @@ export const createPost = async (
   const repliedToPost = relations.inReplyToId
     ? await postsMapping.find(db, relations.inReplyToId)
     : undefined;
+
+  // A reply to a deleted post must be rejected; silently dropping the link
+  // would republish it as a top-level post on the community feed.
+  if (relations.inReplyToId && !repliedToPost) {
+    throw notFound({ errorKey: 'error.postDeleted' });
+  }
 
   if (repliedToPost) {
     postData.visibility = repliedToPost.visibility;
@@ -149,7 +155,15 @@ export const createPost = async (
   });
 
   if (repliedToPost) {
-    await replyConnector(db, post, repliedToPost);
+    // The guard above ran before several awaits; re-check so a concurrent
+    // delete cannot leave this reply attached to a tombstoned parent.
+    const liveParent = await postsMapping.find(db, repliedToPost.id);
+    if (!liveParent) {
+      const stored = await postsMapping.find(db, post.id);
+      await deletePost(await transformPost(stored!), profile);
+      throw notFound({ errorKey: 'error.postDeleted' });
+    }
+    await replyConnector(db, post, liveParent);
     await bumpConversationActivity(db, post.id);
   }
 

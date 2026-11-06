@@ -3813,6 +3813,7 @@
     "cannotInteractBlocked": "Sie können mit diesem Profil nicht interagieren.",
     "emailAlreadyTaken": "Diese E-Mail wird bereits verwendet.",
     "postCreateForbidden": "Sie haben keine Berechtigung, diese Art von Beitrag hier zu erstellen.",
+    "postDeleted": "Dieser Beitrag ist nicht mehr verfügbar.",
     "pollClosed": "Diese Umfrage ist beendet.",
     "invalidPollVote": "Ungültige Umfrageantwort.",
     "unprocessableRequest": "Ungültige Anfrage",

@@ -19,6 +19,7 @@ const shardGroups = [
   [
     'ui/event-creation.test.ts',
     'api/openpeeps/core/v1/plugins/test.ts',
+    'api/openpeeps/core/v1/posts/test.ts',
     'api/test.ts',
     'auth/register/test.ts',
     'ui/test.ts',

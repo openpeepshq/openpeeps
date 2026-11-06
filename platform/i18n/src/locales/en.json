@@ -3694,6 +3694,7 @@
     "cannotInteractBlocked": "You cannot interact with this profile.",
     "emailAlreadyTaken": "That email is already in use.",
     "postCreateForbidden": "You don't have permission to create this kind of post here.",
+    "postDeleted": "This post is no longer available.",
     "pollClosed": "This poll has ended.",
     "invalidPollVote": "Invalid poll vote.",
     "unprocessableRequest": "Invalid request",
