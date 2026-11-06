@@ -15,6 +15,8 @@ import {
 } from '../../../icons/index';
 import { bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
 
+const MAX_RECORD_MS = 90 * 1000;
+
 interface RecordAudioSheetProps {
   onComplete: (url: string) => Promise<void> | void;
 }
@@ -78,7 +80,10 @@ export const RecordAudioSheet = forwardRef<
       setRecordTime(
         audioRecorderPlayer.mmss(Math.floor(e.currentPosition / 1000))
       );
-      return;
+      if (e.currentPosition >= MAX_RECORD_MS) {
+        audioRecorderPlayer.removeRecordBackListener();
+        void onStopRecord();
+      }
     });
   };
 
@@ -156,6 +161,9 @@ export const RecordAudioSheet = forwardRef<
     >
       <View className="flex-1 p-4 justify-between">
         <ThemedText>{t('common.media.audio.record')}</ThemedText>
+        <ThemedText className="text-muted-foreground">
+          {t('common.media.audio.maxLength')}
+        </ThemedText>
         <ThemedText>
           {recordSecs} {String(isRecording)} {String(isPaused)}{' '}
           {String(isPlaying)} {playTime}

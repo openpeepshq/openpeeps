@@ -441,6 +441,16 @@
       "addImage": "Medien hinzufügen",
       "addAudio": "Audio hinzufügen",
       "addDocument": "Dokument hinzufügen",
+      "recordVoice": "Sprachnachricht aufnehmen",
+      "voiceNote": {
+        "start": "Aufnahme starten",
+        "pause": "Pause",
+        "resume": "Fortsetzen",
+        "stop": "Stopp",
+        "reRecord": "Neu aufnehmen",
+        "add": "Zum Beitrag hinzufügen",
+        "micError": "Mikrofon nicht verfügbar oder Zugriff verweigert."
+      },
       "title": "Neuer Beitrag",
       "note": {
         "placeholder": "Was möchten Sie mitteilen?"
@@ -2561,6 +2571,11 @@
     "edit": "Bearbeiten",
     "you": "Sie",
     "media": {
+      "audio": {
+        "record": "Audio aufnehmen",
+        "play": "Abspielen",
+        "maxLength": "Bis zu 90 Sekunden"
+      },
       "audioPlayer": "Audio-Player",
       "image": {
         "cropTitle": "Bild zuschneiden",

@@ -4,6 +4,7 @@ import {
   ChevronDown,
   Image,
   Megaphone,
+  Mic,
   Paperclip,
 } from 'lucide-react';
 import {
@@ -455,6 +456,16 @@ export function NewPostModal({
                   className="hover:bg-surface rounded-button p-2"
                 >
                   <AudioLines className="size-5" />
+                </button>
+                <button
+                  type="button"
+                  title={t('posts.form.recordVoice', {
+                    defaultValue: 'Record voice note',
+                  })}
+                  onClick={composeAttachments.openVoiceRecorder}
+                  className="hover:bg-surface rounded-button p-2"
+                >
+                  <Mic className="size-5" />
                 </button>
                 <button
                   type="button"
