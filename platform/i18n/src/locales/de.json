@@ -1292,7 +1292,17 @@
       "tokenPlaceholder": "Zugriffstoken",
       "privateKeyPlaceholder": "Unverschlüsselter privater SSH-Key",
       "sshTrustHint": "Der Host-Key des Repositories wird für diese Installation beim ersten Gebrauch vertraut.",
-      "credentialsHint": "Zugangsdaten werden nur für diese Installation verwendet und nicht gespeichert."
+      "credentialsHint": "Zugangsdaten werden nur für diese Installation verwendet und nicht gespeichert.",
+      "browseStoreTitle": "Plugin-Store",
+      "browseStoreEmpty": "Keine veröffentlichten Plugins im Store.",
+      "browseStoreError": "Plugin-Store konnte nicht geladen werden.",
+      "browseStoreUnconfigured": "Plugin-Store-URL ist nicht konfiguriert.",
+      "storePriceFree": "Kostenlos",
+      "storePrice": "{{currency}} {{amount}}",
+      "storeInstall": "Aus dem Store installieren",
+      "storeInstalled": "Installiert",
+      "storeUpdateAvailable": "Update verfügbar",
+      "storeHostRange": "Host {{range}}"
     },
     "inviteLink": {
       "unlimited": "Unbegrenzt",

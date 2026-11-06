@@ -56,6 +56,7 @@ import {
   PublicAccount,
   AdminPluginInfo,
   PluginInstallSource,
+  PluginStoreCatalog,
 } from '@openpeepshq/common';
 import { FetchClient } from '@openpeepshq/fetch-client';
 import { allpeepNoPayloadEndpoint } from './helpers';
@@ -280,6 +281,7 @@ export type Admin = {
       { namespace: string; name: string }
     >;
     reload: OpenpeepsNoPayloadEndpoint<SuccessResponse>;
+    marketplace: OpenpeepsNoPayloadEndpoint<PluginStoreCatalog>;
   };
 };
 
@@ -640,6 +642,10 @@ export const admin = (rawClient: FetchClient): Admin => ({
       rawClient,
       '/admin/plugins/reload',
       'post',
+    ),
+    marketplace: allpeepNoPayloadEndpoint<PluginStoreCatalog>(
+      rawClient,
+      '/admin/plugins/marketplace',
     ),
   },
 });

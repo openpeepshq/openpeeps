@@ -220,6 +220,7 @@ const adminDiagnostics = (client: OpenpeepsClientInstance) => ({
     [['admin', 'serviceAccessTokens']],
   ),
   usePluginsList: () => apiHook(client.admin.plugins.list),
+  useMarketplaceCatalog: () => apiHook(client.admin.plugins.marketplace),
   installPluginAction: payloadMutation(client.admin.plugins.install, [
     ['admin', 'plugins'],
   ]),

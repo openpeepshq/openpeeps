@@ -1,3 +1,4 @@
+import { createHash, generateKeyPairSync, sign } from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -5,7 +6,15 @@ import type {
   ChildProcessWithoutNullStreams,
   SpawnOptions,
 } from 'node:child_process';
-import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 interface SpawnCall {
   command: string;
@@ -36,6 +45,7 @@ const testState = vi.hoisted(() => ({
         stderr: string;
       }
     | undefined,
+  storePublicKey: undefined as string | undefined,
 }));
 
 vi.mock('node:child_process', () => ({
@@ -87,6 +97,12 @@ vi.mock('node:child_process', () => ({
             return;
           }
 
+          if (command === 'tar') {
+            const dest = args[args.indexOf('-C') + 1];
+            if (dest) {
+              await writePlugin(path.join(String(dest), 'plugin'));
+            }
+          }
           if (command === 'git') {
             const destination = args.at(-1);
             if (destination) {
@@ -109,7 +125,16 @@ vi.mock('node:child_process', () => ({
 
 vi.mock('../config', () => ({
   defaultConfig: Promise.resolve({
-    plugins: { path: testState.pluginsDir },
+    plugins: {
+      get path() {
+        return testState.pluginsDir;
+      },
+      storeUrl: 'https://plugins.test',
+      get storePublicKey() {
+        return testState.storePublicKey;
+      },
+    },
+    server: { host: 'localhost:5173' },
   }),
 }));
 
@@ -158,7 +183,8 @@ const writePlugin = async (directory: string) => {
   );
 };
 
-const { installPlugin, selfHealInstalledPlugins } = await import('./install');
+const { installPlugin, selfHealInstalledPlugins, verifyMarketplaceArtifact } =
+  await import('./install');
 const { setPluginEnabledOverride } = await import('./state');
 
 beforeEach(async () => {
@@ -179,6 +205,7 @@ beforeEach(async () => {
   testState.buildSawNpmConfig = false;
   testState.peerDependencies = undefined;
   testState.failure = undefined;
+  testState.storePublicKey = undefined;
 });
 
 afterAll(async () => {
@@ -505,5 +532,142 @@ describe('selfHealInstalledPlugins', () => {
 
     expect(failures['acme/private-plugin']).toContain('404 Not Found');
     expect(await fs.readdir(testState.pluginsDir)).toEqual([]);
+  });
+});
+
+const signedArtifact = () => {
+  const { publicKey, privateKey } = generateKeyPairSync('ed25519');
+  const buffer = Buffer.from('plugin-tarball');
+  const sha256 = createHash('sha256').update(buffer).digest('hex');
+  const signature = sign(
+    null,
+    Buffer.from(sha256, 'utf8'),
+    privateKey,
+  ).toString('base64');
+  return {
+    buffer,
+    sha256,
+    signature,
+    publicKeyPem: publicKey.export({ type: 'spki', format: 'pem' }).toString(),
+  };
+};
+
+describe('marketplace install', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('verifies the signed digest', () => {
+    const artifact = signedArtifact();
+    expect(
+      verifyMarketplaceArtifact(
+        artifact.buffer,
+        artifact.sha256,
+        artifact.signature,
+        artifact.publicKeyPem,
+      ),
+    ).toBe(true);
+    expect(
+      verifyMarketplaceArtifact(
+        artifact.buffer,
+        '0'.repeat(64),
+        artifact.signature,
+        artifact.publicKeyPem,
+      ),
+    ).toBe(false);
+  });
+
+  it('downloads, verifies, and extracts a store tarball', async () => {
+    const artifact = signedArtifact();
+    testState.storePublicKey = artifact.publicKeyPem;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: string | URL) => {
+        const url = String(input);
+        if (url.endsWith('/v1/entitlements')) {
+          return {
+            ok: true,
+            json: async () => ({
+              token: 'download-token',
+              version: '1.0.0',
+              sha256: artifact.sha256,
+              signature: artifact.signature,
+            }),
+          };
+        }
+        if (url.includes('/v1/artifacts/')) {
+          return {
+            ok: true,
+            arrayBuffer: async () =>
+              artifact.buffer.buffer.slice(
+                artifact.buffer.byteOffset,
+                artifact.buffer.byteOffset + artifact.buffer.byteLength,
+              ),
+            headers: {
+              get: (name: string) =>
+                name === 'x-openpeeps-sha256'
+                  ? artifact.sha256
+                  : name === 'x-openpeeps-signature'
+                    ? artifact.signature
+                    : null,
+            },
+          };
+        }
+        throw new Error(`unexpected fetch ${url}`);
+      }),
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result).toEqual({
+      success: true,
+      pluginKey: 'acme/private-plugin',
+    });
+    expect(testState.spawnCalls.some(({ command }) => command === 'tar')).toBe(
+      true,
+    );
+    const persisted = JSON.stringify(testState.persistedValues);
+    expect(persisted).toContain('store:acme/private-plugin@1.0.0');
+    expect(persisted).toContain(artifact.sha256);
+  });
+
+  it('rejects a tampered artifact', async () => {
+    const artifact = signedArtifact();
+    testState.storePublicKey = artifact.publicKeyPem;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: string | URL) => {
+        const url = String(input);
+        if (url.endsWith('/v1/entitlements')) {
+          return {
+            ok: true,
+            json: async () => ({
+              token: 'download-token',
+              version: '1.0.0',
+              sha256: artifact.sha256,
+              signature: artifact.signature,
+            }),
+          };
+        }
+        return {
+          ok: true,
+          arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
+          headers: {
+            get: () => artifact.sha256,
+          },
+        };
+      }),
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('verification');
   });
 });

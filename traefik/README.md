@@ -16,6 +16,9 @@ docker compose up -d --build
 
 - `PLUGINS_PATH=/plugins` is set explicitly so operators control which plugins
   are loaded by mounting the desired plugin tree to `../plugins`.
+- `PLUGIN_STORE_URL` (default `https://plugins.openpeeps.org`) is the catalog
+  used by admin "Install from store". Set `PLUGIN_STORE_PUBLIC_KEY` to pin the
+  store signing key instead of fetching `/v1/public-key`.
 - The mounted plugin tree must be a built workspace: each plugin needs its
   own `node_modules` (so workspace symlinks resolve) and a compiled `dist/`
   directory. Run `pnpm install && pnpm -r --filter "*plugins*" build` in the

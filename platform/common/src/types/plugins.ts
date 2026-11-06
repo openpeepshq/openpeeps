@@ -109,6 +109,13 @@ export const pluginInstallSourceSchema = z.discriminatedUnion('type', [
         });
       }
     }),
+  z.object({
+    type: z.literal('marketplace'),
+    listing: z
+      .string()
+      .regex(/^[a-z0-9-]+\/[a-z0-9-]+$/, 'Listing id must be namespace/name'),
+    version: z.string().optional(),
+  }),
 ]);
 
 export type PluginInstallSource = z.infer<typeof pluginInstallSourceSchema>;
@@ -148,3 +155,28 @@ export const pluginConfigResponseSchema = z.record(
 );
 
 export type PluginConfigResponse = z.infer<typeof pluginConfigResponseSchema>;
+
+export const pluginStoreListingSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  category: z.string(),
+  priceCents: z.number(),
+  currency: z.string(),
+  latest: z
+    .object({
+      version: z.string(),
+      hostRange: z.string(),
+      sha256: z.string(),
+    })
+    .nullable(),
+});
+
+export type PluginStoreListing = z.infer<typeof pluginStoreListingSchema>;
+
+export const pluginStoreCatalogSchema = z.object({
+  storeUrl: z.string().optional(),
+  listings: z.array(pluginStoreListingSchema),
+});
+
+export type PluginStoreCatalog = z.infer<typeof pluginStoreCatalogSchema>;

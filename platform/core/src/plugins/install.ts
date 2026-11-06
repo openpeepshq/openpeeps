@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { createHash, verify } from 'node:crypto';
 import { createRequire } from 'node:module';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -135,10 +136,15 @@ const redactUrl = (url: string): string => {
   return parsed.toString();
 };
 
-const sourceLabel = (source: PluginInstallSource): string =>
-  source.type === 'npm'
-    ? `npm:${source.package}${source.version ? `@${source.version}` : ''}`
-    : `git:${redactUrl(source.url)}${source.ref ? `#${source.ref}` : ''}`;
+const sourceLabel = (source: PluginInstallSource): string => {
+  if (source.type === 'npm') {
+    return `npm:${source.package}${source.version ? `@${source.version}` : ''}`;
+  }
+  if (source.type === 'marketplace') {
+    return `store:${source.listing}${source.version ? `@${source.version}` : ''}`;
+  }
+  return `git:${redactUrl(source.url)}${source.ref ? `#${source.ref}` : ''}`;
+};
 
 /**
  * Inverse of sourceLabel for credentials-free sources; undefined when the
@@ -166,10 +172,25 @@ const parseInstallSource = (label: string): PluginInstallSource | undefined => {
     }
     return { type: 'git', url: spec.slice(0, hash), ref: spec.slice(hash + 1) };
   }
+  if (label.startsWith('store:')) {
+    const spec = label.slice('store:'.length).split('#')[0];
+    const at = spec.lastIndexOf('@');
+    if (at <= 0) {
+      return { type: 'marketplace', listing: spec };
+    }
+    return {
+      type: 'marketplace',
+      listing: spec.slice(0, at),
+      version: spec.slice(at + 1),
+    };
+  }
   return undefined;
 };
 
 const sourceSecrets = (source: PluginInstallSource): string[] => {
+  if (source.type === 'marketplace') {
+    return [];
+  }
   if (source.type === 'npm') {
     return source.auth ? [source.auth.token] : [];
   }
@@ -337,6 +358,117 @@ const writeGitAuth = async (
   };
 };
 
+export const verifyMarketplaceArtifact = (
+  buffer: Buffer,
+  sha256: string,
+  signature: string,
+  publicKeyPem: string,
+): boolean => {
+  const digest = createHash('sha256').update(buffer).digest('hex');
+  if (digest !== sha256) {
+    return false;
+  }
+  return verify(
+    null,
+    Buffer.from(sha256, 'utf8'),
+    publicKeyPem,
+    Buffer.from(signature, 'base64'),
+  );
+};
+
+const downloadMarketplacePlugin = async (
+  source: Extract<PluginInstallSource, { type: 'marketplace' }>,
+  tempDir: string,
+): Promise<
+  | { success: true; installDir: string; label: string }
+  | { success: false; error: string }
+> => {
+  const { plugins, server } = await defaultConfig;
+  const storeUrl = plugins.storeUrl?.replace(/\/$/, '');
+  if (!storeUrl) {
+    return { success: false, error: 'Plugin store URL is not configured.' };
+  }
+  const host = server?.host ?? 'localhost';
+  const origin = `${
+    host.startsWith('localhost') || host.startsWith('127.0.0.1')
+      ? 'http'
+      : 'https'
+  }://${host}`;
+  const entitled = await fetch(`${storeUrl}/v1/entitlements`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      listing: source.listing,
+      version: source.version,
+      origin,
+    }),
+  });
+  const entitlement = (await entitled.json()) as {
+    error?: string;
+    token?: string;
+    version?: string;
+    sha256?: string;
+    signature?: string;
+  };
+  if (!entitled.ok || !entitlement.token || !entitlement.version) {
+    return {
+      success: false,
+      error: entitlement.error ?? 'Store entitlement failed.',
+    };
+  }
+  const artifact = await fetch(
+    `${storeUrl}/v1/artifacts/${source.listing}/${entitlement.version}`,
+    { headers: { authorization: `Bearer ${entitlement.token}` } },
+  );
+  if (!artifact.ok) {
+    return { success: false, error: 'Store artifact download failed.' };
+  }
+  const buffer = Buffer.from(await artifact.arrayBuffer());
+  const sha256 =
+    artifact.headers.get('x-openpeeps-sha256') ?? entitlement.sha256 ?? '';
+  const signature =
+    artifact.headers.get('x-openpeeps-signature') ??
+    entitlement.signature ??
+    '';
+  let publicKey = plugins.storePublicKey;
+  if (!publicKey) {
+    const keyRes = await fetch(`${storeUrl}/v1/public-key`);
+    publicKey = ((await keyRes.json()) as { publicKey?: string }).publicKey;
+  }
+  if (
+    !publicKey ||
+    !verifyMarketplaceArtifact(buffer, sha256, signature, publicKey)
+  ) {
+    return {
+      success: false,
+      error: 'Marketplace artifact failed verification.',
+    };
+  }
+  const tarballPath = path.join(tempDir, 'plugin.tgz');
+  const extractDir = path.join(tempDir, 'extracted');
+  await fs.mkdir(extractDir, { recursive: true });
+  await fs.writeFile(tarballPath, buffer);
+  const extract = await runCommand(
+    'tar',
+    ['-xzf', tarballPath, '-C', extractDir],
+    tempDir,
+  );
+  if (extract.exitCode !== 0) {
+    return {
+      success: false,
+      error: commandFailure('tar extract', extract, []),
+    };
+  }
+  const entries = await fs.readdir(extractDir);
+  const installDir =
+    entries.length === 1 ? path.join(extractDir, entries[0]) : extractDir;
+  return {
+    success: true,
+    installDir,
+    label: `store:${source.listing}@${entitlement.version}#${sha256}`,
+  };
+};
+
 export const installPlugin = async (
   source: PluginInstallSource,
   installedBy?: string,
@@ -347,7 +479,7 @@ export const installPlugin = async (
   error?: string;
 }> => {
   const pluginsDir = await getPluginDir();
-  const label = sourceLabel(source);
+  let label = sourceLabel(source);
   const secrets = sourceSecrets(source);
 
   let tempDir: string;
@@ -388,6 +520,13 @@ export const installPlugin = async (
       }
 
       installDir = path.join(tempDir, 'node_modules', source.package);
+    } else if (source.type === 'marketplace') {
+      const downloaded = await downloadMarketplacePlugin(source, tempDir);
+      if (!downloaded.success) {
+        return downloaded;
+      }
+      label = downloaded.label;
+      installDir = downloaded.installDir;
     } else {
       const repositoryUrl = redactUrl(source.url);
       log.info(`Cloning git repo ${repositoryUrl} to temp dir ${tempDir}`);

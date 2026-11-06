@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import { ExternalLink, RefreshCw, Upload, X } from 'lucide-react';
-import type { AdminPluginInfo, PluginInstallSource } from '@openpeepshq/common';
+import { ExternalLink, RefreshCw, Store, Upload, X } from 'lucide-react';
+import type {
+  AdminPluginInfo,
+  PluginInstallSource,
+  PluginStoreListing,
+} from '@openpeepshq/common';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
 import {
   LoadingSpinner,
@@ -22,6 +26,8 @@ const PluginCard = ({
   pending,
   onToggle,
   onUninstall,
+  onUpdate,
+  updateLabel,
 }: {
   plugin: AdminPluginInfo;
   statusLabels: Record<PluginStatus, string>;
@@ -31,6 +37,8 @@ const PluginCard = ({
   pending: boolean;
   onToggle: (enabled: boolean) => void;
   onUninstall?: () => void;
+  onUpdate?: () => void;
+  updateLabel?: string;
 }) => {
   const t = useT();
   const status: PluginStatus = plugin.status ?? 'loaded';
@@ -75,6 +83,17 @@ const PluginCard = ({
             {statusLabels[status]}
           </span>
           <div className="flex items-center gap-2">
+            {onUpdate && updateLabel ? (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={pending}
+                onClick={onUpdate}
+                className="h-8 px-2"
+              >
+                {updateLabel}
+              </Button>
+            ) : null}
             {onUninstall ? (
               <Button
                 variant="ghost"
@@ -104,10 +123,81 @@ const PluginCard = ({
   );
 };
 
+const StoreListingCard = ({
+  listing,
+  installed,
+  updateAvailable,
+  pending,
+  onInstall,
+}: {
+  listing: PluginStoreListing;
+  installed: boolean;
+  updateAvailable: boolean;
+  pending: boolean;
+  onInstall: () => void;
+}) => {
+  const t = useT();
+  const price =
+    listing.priceCents === 0
+      ? t('admin.plugins.storePriceFree', { defaultValue: 'Free' })
+      : t('admin.plugins.storePrice', {
+          defaultValue: '{{currency}} {{amount}}',
+          currency: listing.currency.toUpperCase(),
+          amount: (listing.priceCents / 100).toFixed(2),
+        });
+  return (
+    <div className="rounded-md border p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-semibold">{listing.title}</p>
+          <p className="text-muted-foreground text-xs">{listing.id}</p>
+          <p className="text-muted-foreground mt-1 text-sm">
+            {listing.description}
+          </p>
+          <p className="text-muted-foreground mt-1 text-xs">
+            {price}
+            {listing.latest
+              ? ` · ${listing.latest.version} · ${t(
+                  'admin.plugins.storeHostRange',
+                  {
+                    defaultValue: 'Host {{range}}',
+                    range: listing.latest.hostRange,
+                  },
+                )}`
+              : ''}
+          </p>
+        </div>
+        <Button
+          size="sm"
+          disabled={
+            pending || !listing.latest || (installed && !updateAvailable)
+          }
+          onClick={onInstall}
+        >
+          {pending
+            ? t('admin.plugins.installing', { defaultValue: 'Installing...' })
+            : updateAvailable
+              ? t('admin.plugins.storeUpdateAvailable', {
+                  defaultValue: 'Update available',
+                })
+              : installed
+                ? t('admin.plugins.storeInstalled', {
+                    defaultValue: 'Installed',
+                  })
+                : t('admin.plugins.storeInstall', {
+                    defaultValue: 'Install from store',
+                  })}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 export const AdminPlugins = () => {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const pluginsQuery = openpeepsApi.admin.usePluginsList();
+  const marketplaceQuery = openpeepsApi.admin.useMarketplaceCatalog();
   const updatePluginState = openpeepsApi.admin.updatePluginStateAction();
   const reloadPluginsAction = openpeepsApi.admin.reloadPluginsAction();
   const installPlugin = openpeepsApi.admin.installPluginAction();
@@ -129,9 +219,16 @@ export const AdminPlugins = () => {
   const [installToken, setInstallToken] = useState('');
   const [installPrivateKey, setInstallPrivateKey] = useState('');
   const [installing, setInstalling] = useState(false);
+  const [installingListing, setInstallingListing] = useState<string | null>(
+    null,
+  );
   const [installError, setInstallError] = useState<string | null>(null);
 
   const plugins = (pluginsQuery.data ?? []) as AdminPluginInfo[];
+  const catalog = marketplaceQuery.data;
+  const listings = catalog?.listings ?? [];
+  const installedByKey = new Map(plugins.map((plugin) => [plugin.key, plugin]));
+  const listingById = new Map(listings.map((listing) => [listing.id, listing]));
 
   const statusLabels: Record<PluginStatus, string> = {
     loaded: t('admin.plugins.status.loaded', { defaultValue: 'Loaded' }),
@@ -253,6 +350,32 @@ export const AdminPlugins = () => {
     }
   };
 
+  const handleStoreInstall = async (listing: PluginStoreListing) => {
+    if (!listing.latest) {
+      return;
+    }
+    setInstallingListing(listing.id);
+    setInstallError(null);
+    try {
+      await installPlugin({
+        type: 'marketplace',
+        listing: listing.id,
+        version: listing.latest.version,
+      });
+      setChangedKeys(new Set());
+      void pluginsQuery.refetch();
+      void marketplaceQuery.refetch();
+    } catch (e) {
+      const msg =
+        e && typeof e === 'object' && 'message' in e
+          ? String((e as { message: unknown }).message)
+          : String(e);
+      setInstallError(msg);
+    } finally {
+      setInstallingListing(null);
+    }
+  };
+
   const reload = async () => {
     setReloading(true);
     try {
@@ -314,6 +437,60 @@ export const AdminPlugins = () => {
             {t('admin.plugins.reload', { defaultValue: 'Reload' })}
           </Button>
         </div>
+      </div>
+
+      <div className="space-y-3 rounded-md border p-3">
+        <div className="flex items-center gap-2">
+          <Store className="size-4" />
+          <p className="text-sm font-semibold">
+            {t('admin.plugins.browseStoreTitle', {
+              defaultValue: 'Plugin store',
+            })}
+          </p>
+        </div>
+        {installError && !showInstallForm ? (
+          <p className="text-error text-xs">{installError}</p>
+        ) : null}
+        {marketplaceQuery.isLoading ? (
+          <LoadingSpinner />
+        ) : marketplaceQuery.isError ? (
+          <p className="text-error text-xs">
+            {t('admin.plugins.browseStoreError', {
+              defaultValue: 'Failed to load the plugin store.',
+            })}
+          </p>
+        ) : !catalog?.storeUrl ? (
+          <p className="text-muted-foreground text-sm">
+            {t('admin.plugins.browseStoreUnconfigured', {
+              defaultValue: 'Plugin store URL is not configured.',
+            })}
+          </p>
+        ) : listings.length === 0 ? (
+          <p className="text-muted-foreground text-sm">
+            {t('admin.plugins.browseStoreEmpty', {
+              defaultValue: 'No published plugins in the store.',
+            })}
+          </p>
+        ) : (
+          listings.map((listing) => {
+            const installed = installedByKey.get(listing.id);
+            const updateAvailable = Boolean(
+              installed &&
+                listing.latest &&
+                listing.latest.version !== installed.version,
+            );
+            return (
+              <StoreListingCard
+                key={listing.id}
+                listing={listing}
+                installed={Boolean(installed)}
+                updateAvailable={updateAvailable}
+                pending={installingListing === listing.id}
+                onInstall={() => void handleStoreInstall(listing)}
+              />
+            );
+          })
+        )}
       </div>
 
       {showInstallForm && (
@@ -484,25 +661,43 @@ export const AdminPlugins = () => {
           {uninstallError ? (
             <p className="text-error text-sm">{uninstallError}</p>
           ) : null}
-          {plugins.map((plugin) => (
-            <PluginCard
-              key={plugin.key}
-              plugin={plugin}
-              statusLabels={statusLabels}
-              reloadHint={t('admin.plugins.reloadRequired', {
-                defaultValue: 'Toggle saved. Press "Reload" to apply changes.',
-              })}
-              repositoryLabel={t('admin.plugins.repository', {
-                defaultValue: 'Repository',
-              })}
-              showReloadHint={changedKeys.has(plugin.key)}
-              pending={pendingKeys.has(plugin.key)}
-              onToggle={(enabled) => void toggle(plugin, enabled)}
-              onUninstall={
-                plugin.installed ? () => void uninstall(plugin) : undefined
-              }
-            />
-          ))}
+          {plugins.map((plugin) => {
+            const listing = listingById.get(plugin.key);
+            const updateAvailable = Boolean(
+              listing?.latest && listing.latest.version !== plugin.version,
+            );
+            return (
+              <PluginCard
+                key={plugin.key}
+                plugin={plugin}
+                statusLabels={statusLabels}
+                reloadHint={t('admin.plugins.reloadRequired', {
+                  defaultValue:
+                    'Toggle saved. Press "Reload" to apply changes.',
+                })}
+                repositoryLabel={t('admin.plugins.repository', {
+                  defaultValue: 'Repository',
+                })}
+                showReloadHint={changedKeys.has(plugin.key)}
+                pending={
+                  pendingKeys.has(plugin.key) ||
+                  installingListing === plugin.key
+                }
+                onToggle={(enabled) => void toggle(plugin, enabled)}
+                onUninstall={
+                  plugin.installed ? () => void uninstall(plugin) : undefined
+                }
+                onUpdate={
+                  updateAvailable && listing
+                    ? () => void handleStoreInstall(listing)
+                    : undefined
+                }
+                updateLabel={t('admin.plugins.storeUpdateAvailable', {
+                  defaultValue: 'Update available',
+                })}
+              />
+            );
+          })}
         </>
       )}
     </div>
