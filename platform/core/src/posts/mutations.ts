@@ -62,7 +62,7 @@ import {
   rsvpTargetsPastEvent,
   sameRecurrenceId,
 } from '@openpeepshq/common/lib';
-import { forbidden, unprocessableRequest } from '../errors';
+import { forbidden, notFound, unprocessableRequest } from '../errors';
 import { areBlocked, hasBlockAmong } from '../profiles/blocks';
 import {
   rebuildEventOccurrences,
@@ -102,6 +102,12 @@ export const createPost = async (
   const repliedToPost = relations.inReplyToId
     ? await postsMapping.find(db, relations.inReplyToId)
     : undefined;
+
+  // A reply to a deleted post must be rejected; silently dropping the link
+  // would republish it as a top-level post on the community feed.
+  if (relations.inReplyToId && !repliedToPost) {
+    throw notFound({ errorKey: 'error.postDeleted' });
+  }
 
   if (repliedToPost) {
     postData.visibility = repliedToPost.visibility;

@@ -15,6 +15,7 @@ import {
 } from '@openpeepshq/react-ui';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
+import { apiErrorMessage } from '../../../lib/apiErrorMessage';
 import { useToast } from '../../layout/ToastProvider';
 import { useCurrentProfile } from '../../layout/IdentityContext';
 import {
@@ -179,12 +180,8 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
         }),
       );
       onClose();
-    } catch {
-      toastError(
-        t('posts.replyModal.errorToast', {
-          defaultValue: 'Failed to post reply',
-        }),
-      );
+    } catch (err) {
+      toastError(apiErrorMessage(err, t));
     } finally {
       setSubmitting(false);
     }

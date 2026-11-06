@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { apiErrorMessage, useOpenpeeps } from '@openpeepshq/react';
 import {
   AudioPickerSheet,
   DocumentPickerSheet,
@@ -165,8 +165,8 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
       await createPost(postData as PostCreationData);
 
       handlePostSuccess();
-    } catch {
-      Toast.show({ type: 'error', text1: t('posts.replyModal.errorToast') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     } finally {
       setIsPosting(false);
     }
