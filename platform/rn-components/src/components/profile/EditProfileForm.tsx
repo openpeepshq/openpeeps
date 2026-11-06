@@ -17,7 +17,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { CachedImage } from '../custom/common/index';
-import { Form, FormField, FormInput, FormTextarea } from '../ui/form';
+import {
+  Form,
+  FormCheckbox,
+  FormField,
+  FormInput,
+  FormTextarea,
+} from '../ui/form';
 import Toast from 'react-native-toast-message';
 import { ImagePickerSheet } from '../custom/index';
 import { CameraIcon, XIcon } from '../icons/index';
@@ -78,6 +84,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
         displayName: profileData.displayName || '',
         bio: profileData.bio || '',
         location: (profileData as ProfileData)?.location || { text: '' },
+        discoverable: profileData.discoverable,
         fields: customFields || [],
         handle,
       });
@@ -346,6 +353,22 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                         value={field.value?.text || ''}
                         onChangeText={(text) => field.onChange({ text: text })}
                         className="rounded-md"
+                      />
+                    )}
+                  />
+                </View>
+                <View className="relative w-full">
+                  <FormField
+                    control={form.control}
+                    name="discoverable"
+                    render={({ field }) => (
+                      <FormCheckbox
+                        checked={field.value !== false}
+                        onCheckedChange={field.onChange}
+                        {...field}
+                        custom={false}
+                        label={t('profile.form.discoverable')}
+                        description={t('profile.form.discoverableHint')}
                       />
                     )}
                   />

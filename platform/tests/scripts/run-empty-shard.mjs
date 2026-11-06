@@ -26,6 +26,7 @@ const shardGroups = [
   ['api/gaps/test.ts', 'user-actions/test.ts', 'ui/test.ts'],
   [
     'api/openpeeps/core/v1/auth/test.ts',
+    'api/openpeeps/core/v1/profiles/test.ts',
     'forms/test.ts',
     'email-push/session-sse.test.ts',
     'ui/test.ts',

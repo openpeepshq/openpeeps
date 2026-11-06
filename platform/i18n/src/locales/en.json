@@ -239,6 +239,8 @@
       "avatar": "Avatar",
       "banner": "Banner",
       "location": "Location",
+      "discoverable": "List my profile in the member directory",
+      "discoverableHint": "When off, your profile is hidden from the member directory, but people can still visit your profile page.",
       "website": "Website",
       "fields": {
         "label": "Label",
