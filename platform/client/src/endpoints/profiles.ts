@@ -7,7 +7,7 @@ import type {
   AccessTokenWithMeta,
   FollowData,
   GroupWithMeta,
-  ChronologicalInfiniteQueryParams,
+  NotificationFeedQueryParams,
   PublicPost,
   NotificationStats,
   ProfileData,
@@ -49,7 +49,7 @@ export const profiles = (
     notifications: allpeepNoPayloadEndpoint<
       PublicNotification[],
       undefined,
-      ChronologicalInfiniteQueryParams
+      NotificationFeedQueryParams
     >(rawClient, '/profiles/current/notifications'),
     notificationStats: allpeepNoPayloadEndpoint<NotificationStats>(
       rawClient,

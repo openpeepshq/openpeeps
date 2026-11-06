@@ -754,6 +754,15 @@ export const chronologicalInfiniteQueryParamsSchema = z.object({
 export type ChronologicalInfiniteQueryParams =
   | z.infer<typeof chronologicalInfiniteQueryParamsSchema>
   | undefined;
+
+/**
+ * Notifications feed query. `excludeTypes` is comma-joined because fetch
+ * query params only allow string | number; the server splits it back.
+ */
+export type NotificationFeedQueryParams = ChronologicalInfiniteQueryParams & {
+  excludeTypes?: string;
+};
+
 export const offsetInfiniteQueryParamsSchema = z.object({
   offset: z.coerce.number().optional(),
   limit: z.coerce.number().optional(),

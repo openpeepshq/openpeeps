@@ -9,7 +9,7 @@ import { useHasAuthToken } from './useHasAuthToken';
 import type {
   AccessTokenCreationData,
   AccessTokenWithMeta,
-  ChronologicalInfiniteQueryParams,
+  NotificationFeedQueryParams,
   FollowData,
   GroupWithMeta,
   NotificationStats,
@@ -76,7 +76,7 @@ export type ProfileHooks = {
     defaultPathParams?: undefined,
   ) => (input: { postId: string }) => Promise<SuccessResponse>;
   useCurrentProfileNotifications: (
-    props: ChronologicalInfiniteQueryParams,
+    props: NotificationFeedQueryParams,
   ) => ChronologicalQuery<PublicNotification[]>;
   markAllNotificationsAsSeenAction: () => () => () => Promise<SuccessResponse>;
   useCurrentProfileNotificationStats: () => Query<NotificationStats>;
@@ -152,7 +152,7 @@ export const profileHooks = (
     ['profiles'],
     ['posts'],
   ]),
-  useCurrentProfileNotifications: (props: ChronologicalInfiniteQueryParams) =>
+  useCurrentProfileNotifications: (props: NotificationFeedQueryParams) =>
     infiniteChronologicalQueryApiHook(client.profiles.current.notifications, {
       queryParams: props,
     }),

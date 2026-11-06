@@ -1,19 +1,31 @@
-import { CheckCheck, Settings2 } from 'lucide-react';
-import { Button } from '@openpeepshq/react-ui';
+import { CheckCheck, Settings2, SlidersHorizontal } from 'lucide-react';
+import {
+  Button,
+  Checkbox,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { markCachedNotificationsSeen } from '../../lib/notificationBadge';
 import { useToast } from '../layout/ToastProvider';
+import { useNotificationFeedFilter } from '../../hooks';
 
 /**
  * Translation of `core/notification/NotificationHeaderActions.svelte`.
  * Page-header actions for the notifications feed: mark every notification as
- * read and a link to the notification preferences screen.
+ * read, a type filter for the feed, and a link to the notification
+ * preferences screen.
  */
 export function NotificationHeaderActions() {
   const t = useT();
   const { openpeepsApi, queryClient } = useOpenpeeps();
   const toast = useToast();
+  const filter = useNotificationFeedFilter();
   const markAllNotificationsAsSeen =
     openpeepsApi.markAllNotificationsAsSeenAction()();
 
@@ -35,6 +47,10 @@ export function NotificationHeaderActions() {
     }
   };
 
+  const filterTitle = t('notification.filter.title', {
+    defaultValue: 'Filter notifications',
+  });
+
   return (
     <>
       <Button
@@ -46,6 +62,60 @@ export function NotificationHeaderActions() {
       >
         <CheckCheck size={18} />
       </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            title={filterTitle}
+            variant="outline"
+            data-testid="notifications-filter"
+          >
+            <SlidersHorizontal size={18} />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          className="max-h-96 w-64 overflow-y-auto"
+        >
+          <DropdownMenuLabel>{filterTitle}</DropdownMenuLabel>
+          {filter.types.map((nt) => (
+            <DropdownMenuItem
+              key={nt.type}
+              // preventDefault keeps the menu open so several types can be
+              // toggled in one session; role/aria-checked expose the state
+              // to screen readers (the Checkbox below is visual only).
+              role="menuitemcheckbox"
+              aria-checked={!filter.isHidden(nt.type)}
+              onSelect={(event) => {
+                event.preventDefault();
+                void filter.toggle(nt.type);
+              }}
+              data-testid={`notifications-filter-${nt.type}`}
+            >
+              <Checkbox
+                checked={!filter.isHidden(nt.type)}
+                tabIndex={-1}
+                className="pointer-events-none"
+              />
+              {t(`settings.notifications.types.${nt.type}.label`, {
+                defaultValue: nt.type,
+              })}
+            </DropdownMenuItem>
+          ))}
+          {filter.hasFilter ? (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onSelect={() => void filter.showAll()}
+                data-testid="notifications-filter-show-all"
+              >
+                {t('notification.filter.showAll', {
+                  defaultValue: 'Show all types',
+                })}
+              </DropdownMenuItem>
+            </>
+          ) : null}
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Button
         title={t('settings.notifications.headerPreferencesTitle', {
           defaultValue: 'Notification preferences',

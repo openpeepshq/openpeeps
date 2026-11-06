@@ -17,6 +17,11 @@ export const Error = {
 export const Query = z.object({
   limit: z.coerce.number().optional(),
   start: z.string().optional(),
+  /** Comma-separated types excluded from the feed (client joins the list). */
+  excludeTypes: z
+    .string()
+    .transform((value) => value.split(',').filter(Boolean))
+    .optional(),
 });
 
 export const apiEndpoint = endpoint({ Output, Error, Query }).handle(
