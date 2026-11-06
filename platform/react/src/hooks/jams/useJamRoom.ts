@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DisconnectReason } from 'livekit-client';
 import { getJamCapacityJoinBlock } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
-import { useT } from '../../i18n';
+import { useI18n, useT } from '../../i18n';
 import { useCurrentProfile } from '../../components/layout/IdentityContext';
 import { useServerInfo } from '../../components/server-data/context';
 import { useJamContext } from '../../components/jams/JamContext';
@@ -42,6 +42,7 @@ export type JamJoinParams = {
  */
 export const useJamRoom = () => {
   const t = useT();
+  const i18n = useI18n().i18n;
   const { jamPost, jam, jamEvent, observer, occurrence, isIntentionalLeave } =
     useJamContext();
   const { openpeepsApi, client } = useOpenpeeps();
@@ -124,7 +125,7 @@ export const useJamRoom = () => {
         setReconnectError(
           apiErrorMessage(
             err,
-            t,
+            i18n,
             t('jams.lobby.tokenError', {
               defaultValue: 'Failed to get jam token',
             }),
@@ -187,7 +188,7 @@ export const useJamRoom = () => {
             setObserverError(
               apiErrorMessage(
                 res.error,
-                t,
+                i18n,
                 t('jams.lobby.tokenError', {
                   defaultValue: 'Failed to get jam token',
                 }),
@@ -208,7 +209,7 @@ export const useJamRoom = () => {
           setObserverError(
             apiErrorMessage(
               err,
-              t,
+              i18n,
               t('jams.lobby.tokenError', {
                 defaultValue: 'Failed to get jam token',
               }),
@@ -241,7 +242,7 @@ export const useJamRoom = () => {
           setAutoRsvpError(
             apiErrorMessage(
               err,
-              t,
+              i18n,
               t('jams.room.autoRsvpError', {
                 defaultValue: 'Failed to register for this event.',
               }),

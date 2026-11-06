@@ -3,7 +3,7 @@ import type { GroupData } from '@openpeepshq/common/types';
 import { checkGroupCapabilities } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useNavigate } from '../../contexts/router';
-import { useT } from '../../i18n/context';
+import { useI18n, useT } from '../../i18n/context';
 import { useAuthData } from '../../components/layout/IdentityContext';
 import { apiErrorMessage } from '../../lib/apiErrorMessage';
 import {
@@ -23,6 +23,7 @@ export const useEditGroup = (
   { section }: UseEditGroupOptions,
 ) => {
   const t = useT();
+  const i18n = useI18n().i18n;
   const navigate = useNavigate();
   const { openpeepsApi } = useOpenpeeps();
   const authData = useAuthData();
@@ -87,7 +88,7 @@ export const useEditGroup = (
       )) as { handle: string };
       navigate({ type: 'group', handle: updated.handle });
     } catch (err) {
-      setError(apiErrorMessage(err, t));
+      setError(apiErrorMessage(err, i18n));
     } finally {
       setSubmitting(false);
     }

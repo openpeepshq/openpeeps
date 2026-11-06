@@ -16,7 +16,7 @@ import {
   seriesHasClaimableOccurrence,
 } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
-import { useT } from '../../i18n/context';
+import { useI18n } from '../../i18n/context';
 import { apiErrorMessage } from '../../lib/apiErrorMessage';
 import {
   useAuthData,
@@ -47,7 +47,7 @@ export const useEventRsvp = ({
   onSuccess,
   onError,
 }: UseEventRsvpArgs) => {
-  const t = useT();
+  const i18n = useI18n().i18n;
   const profile = useCurrentProfile();
   const authData = useAuthData();
   const capabilities = useCapabilities();
@@ -131,7 +131,7 @@ export const useEventRsvp = ({
       }
       onSuccess?.();
     } catch (err) {
-      const message = apiErrorMessage(err, t);
+      const message = apiErrorMessage(err, i18n);
       setError(message);
       onError?.(message);
       throw err;

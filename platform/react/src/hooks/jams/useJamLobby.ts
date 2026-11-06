@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ProfileWithMeta } from '@openpeepshq/common/types';
 import { profileName } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
-import { useT } from '../../i18n';
+import { useI18n } from '../../i18n';
 import { useCurrentProfile } from '../../components/layout/IdentityContext';
 import { useJamContext } from '../../components/jams/JamContext';
 import { apiErrorMessage } from '../../lib/apiErrorMessage';
@@ -29,7 +29,7 @@ export type UseJamLobbyArgs = {
  * the token request. Device preview and selection stay in the renderer.
  */
 export const useJamLobby = ({ onJoin }: UseJamLobbyArgs) => {
-  const t = useT();
+  const i18n = useI18n().i18n;
   const me = useCurrentProfile();
   const { jamPost, jamEvent, occurrence } = useJamContext();
   const { client, openpeepsApi } = useOpenpeeps();
@@ -41,8 +41,10 @@ export const useJamLobby = ({ onJoin }: UseJamLobbyArgs) => {
   const tokenError = (err: unknown) =>
     apiErrorMessage(
       err,
-      t,
-      t('jams.lobby.tokenError', { defaultValue: 'Failed to get jam token' }),
+      i18n,
+      i18n.t('jams.lobby.tokenError', {
+        defaultValue: 'Failed to get jam token',
+      }),
     );
 
   const join = async <C extends JamJoinChoices>(choices: C) => {

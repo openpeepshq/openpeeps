@@ -24,12 +24,18 @@ import {
   Link,
   Toast,
 } from '@openpeepshq/react-ui';
-import { useT, useNavigate, useSearchParams, useHrefOf } from '../../index';
+import {
+  apiErrorMessage,
+  useI18n,
+  useNavigate,
+  useSearchParams,
+  useHrefOf,
+} from '../../index';
 import { AuthLayout, useServerInfo, useToast } from '../../components';
 import { usePasswordLogin } from '../../hooks';
 
 export function Login() {
-  const t = useT();
+  const { t, i18n } = useI18n();
   const navigate = useNavigate();
   const searchParams = useSearchParams();
   const href = useHrefOf();
@@ -293,7 +299,7 @@ export function Login() {
               testId="auth-login-error"
               onDismiss={clearError}
             >
-              {error}
+              {apiErrorMessage(error, i18n)}
             </Toast>
           )}
 

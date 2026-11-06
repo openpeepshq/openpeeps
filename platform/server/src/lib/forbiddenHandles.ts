@@ -1,7 +1,4 @@
-import {
-  HANDLE_RESERVED_MESSAGE,
-  isForbiddenHandle,
-} from '@openpeepshq/common/types';
+import { isForbiddenHandle } from '@openpeepshq/common/types';
 import { communityConfig } from '@openpeepshq/core/config';
 import { unprocessableRequest } from '#lib/errors';
 
@@ -11,6 +8,6 @@ export const assertHandleAllowed = async (handle: string) => {
   if (
     isForbiddenHandle(handle, community.settings.additionalForbiddenHandles)
   ) {
-    throw unprocessableRequest(HANDLE_RESERVED_MESSAGE);
+    throw unprocessableRequest('profile.form.handleReserved');
   }
 };

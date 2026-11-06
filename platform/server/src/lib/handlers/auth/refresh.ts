@@ -16,11 +16,11 @@ export const refreshAuthTokenHandler = async (
 ): Promise<TokenResponse> => {
   const authHeader = event.request.headers.get('authorization');
   if (!authHeader?.toLowerCase().startsWith('bearer ')) {
-    throw authNeeded();
+    throw authNeeded('common.errors.unauthorized');
   }
   const token = authHeader.slice(7).trim();
   if (!token) {
-    throw authNeeded();
+    throw authNeeded('common.errors.unauthorized');
   }
 
   const accessToken = await refreshSignedAccessToken(token);

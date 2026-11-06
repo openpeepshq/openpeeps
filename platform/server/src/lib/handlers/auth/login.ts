@@ -43,20 +43,16 @@ export const loginHandler = async (
   const account = await findAccountByEmail(lowerCaseRequestEmail);
 
   if (!account) {
-    throw notFound(`Account with email ${lowerCaseRequestEmail}`);
+    throw notFound('auth.login.error');
   }
 
   const profile = await retrieveProfile(account);
   if (!profile) {
-    throw notFound(
-      `Profile associated with account with email ${account.email}`,
-    );
+    throw notFound('auth.login.error');
   }
 
   if (!(await checkPassword(account, loginRequest.password))) {
-    throw forbidden(
-      `This email/password combination doesn't match a valid account.`,
-    );
+    throw forbidden('auth.login.error');
   }
 
   const subscriptionNeeded = !(await checkSubscription(profile, account, true));
@@ -73,7 +69,7 @@ export const loginHandler = async (
   }).then((accessToken) => accessToken.signedToken);
 
   if (!token) {
-    throw forbidden('login.access-token-creation-failed');
+    throw forbidden('common.errors.serverError');
   }
 
   return { success: true, token, checkoutUrl };

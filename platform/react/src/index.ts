@@ -14,6 +14,7 @@ export * from './lib/postUnread';
 export * from './components';
 export * from './navigation';
 export * from './hooks';
+export { apiErrorMessage } from './lib/apiErrorMessage';
 export { resolveAdminConfigSchema } from './lib/configuration/resolveSchema';
 export { diffConfigTrees, equal } from './lib/configuration/helpers';
 export { pwa };

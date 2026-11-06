@@ -49,7 +49,15 @@
       "alreadyHaveAccount": "Bereits ein Konto?",
       "signIn": "Anmelden",
       "seeCommunityFeed": "Community-Feed ansehen",
-      "inviteInactive": "Dieser Einladungslink ist abgelaufen oder nicht mehr aktiv."
+      "inviteInactive": "Dieser Einladungslink ist abgelaufen oder nicht mehr aktiv.",
+      "emailAlreadyTaken": "Ein Konto mit dieser E-Mail-Adresse existiert bereits.",
+      "signUpsClosed": "Die Registrierung ist geschlossen. Bitte verwenden Sie einen Einladungscode."
+    },
+    "refresh": {
+      "invalid-or-expired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
+    },
+    "scope": {
+      "not-authorized": "Sie sind nicht berechtigt, diese Aktion auszuführen."
     },
     "resetPassword": {
       "title": "Passwort zurücksetzen",

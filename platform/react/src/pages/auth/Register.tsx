@@ -9,7 +9,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   accountNameSchema,
-  HANDLE_RESERVED_MESSAGE,
   isForbiddenHandle,
   registerRequestSchema,
   type RegisterRequest,
@@ -26,7 +25,7 @@ import {
   Link,
   Toast,
 } from '@openpeepshq/react-ui';
-import { useT, useOpenpeeps } from '../../index';
+import { apiErrorMessage, useI18n, useOpenpeeps } from '../../index';
 import { AuthLayout, useServerInfo, useToast } from '../../components';
 import type { TFunction } from 'i18next';
 
@@ -39,12 +38,6 @@ import {
 export interface RegisterProps {
   invite?: boolean;
 }
-
-const INVITE_INACTIVE_MESSAGES = new Set([
-  'auth.register.inviteInactive',
-  'Max Uses Reached',
-  'Invalid Invite Code',
-]);
 
 const buildRegisterFormSchema = (
   t: TFunction,
@@ -76,21 +69,8 @@ const buildRegisterFormSchema = (
       });
     });
 
-const registerErrorCopy = (raw: string, t: TFunction) => {
-  if (raw === HANDLE_RESERVED_MESSAGE) {
-    return t('profile.form.handleReserved', {
-      defaultValue: 'That handle is reserved. Please choose another.',
-    });
-  }
-  return INVITE_INACTIVE_MESSAGES.has(raw)
-    ? t('auth.register.inviteInactive', {
-        defaultValue: 'This invite link is expired or no longer active.',
-      })
-    : t(raw);
-};
-
 export function Register({ invite = false }: RegisterProps) {
-  const t = useT();
+  const { t, i18n } = useI18n();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { openpeepsApi } = useOpenpeeps();
@@ -170,7 +150,7 @@ export function Register({ invite = false }: RegisterProps) {
       }
       navigate('/welcome');
     } catch (err) {
-      setError(registerErrorCopy((err as Error).message, t));
+      setError(apiErrorMessage(err, i18n));
     }
   });
 

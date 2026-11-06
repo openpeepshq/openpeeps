@@ -12,7 +12,7 @@ import {
 } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useNavigate } from '../../contexts/router';
-import { useT } from '../../i18n/context';
+import { useI18n, useT } from '../../i18n';
 import { useCurrentProfile } from '../../components/layout/IdentityContext';
 import { useServerInfo } from '../../components/server-data/context';
 import { apiErrorMessage } from '../../lib/apiErrorMessage';
@@ -34,6 +34,7 @@ const handleFromDisplayName = (displayName: string) =>
 
 export const useNewGroup = () => {
   const t = useT();
+  const i18n = useI18n().i18n;
   const navigate = useNavigate();
   const profile = useCurrentProfile();
   const canCreate = !!profile && canCreateGroup(profile.roles);
@@ -106,7 +107,7 @@ export const useNewGroup = () => {
       setError(
         apiErrorMessage(
           err,
-          t,
+          i18n,
           t('groups.create.error', { defaultValue: 'Failed to create group' }),
         ),
       );

@@ -16,6 +16,7 @@ import {
   View,
 } from 'react-native';
 import {
+  apiErrorMessage,
   useOpenpeeps,
   usePasswordLogin,
   useServerInfo,
@@ -27,7 +28,7 @@ import { LOGIN_EMAIL, LOGIN_PASSWORD } from '../../lib/constants';
 export const Login = ({
   navigation: { navigate },
 }: NativeStackScreenProps<AuthStackParamList, 'Login'>) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
   const { login, submitting } = usePasswordLogin();
   const { openpeepsApi } = useOpenpeeps();
@@ -52,7 +53,7 @@ export const Login = ({
       Toast.show({
         type: 'error',
         text1: t('auth.login.error', { defaultValue: 'Error' }),
-        text2: (err as Error).message,
+        text2: apiErrorMessage(err, i18n),
       });
     }
   };

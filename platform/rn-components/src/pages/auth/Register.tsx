@@ -7,12 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   accountNameSchema,
-  HANDLE_RESERVED_MESSAGE,
   isForbiddenHandle,
   registerRequestSchema,
   type RegisterRequest,
 } from '@openpeepshq/common';
 import {
+  apiErrorMessage,
   calculatePasswordStrength,
   getStrengthMessage,
   useRegisterAccount,
@@ -27,12 +27,6 @@ import { Button } from '../../components/ui/button';
 import { Checkbox } from '../../components/ui/checkbox';
 import { Form, FormField, FormInput } from '../../components/ui/form';
 import { ThemedText } from '../../components/ui/themed-text';
-
-const INVITE_INACTIVE_MESSAGES = new Set([
-  'auth.register.inviteInactive',
-  'Max Uses Reached',
-  'Invalid Invite Code',
-]);
 
 const buildRegisterFormSchema = (
   t: TFunction,
@@ -57,15 +51,6 @@ const buildRegisterFormSchema = (
       });
     });
 
-const registerErrorCopy = (raw: string, t: TFunction) => {
-  if (raw === HANDLE_RESERVED_MESSAGE) {
-    return t('profile.form.handleReserved');
-  }
-  return INVITE_INACTIVE_MESSAGES.has(raw)
-    ? t('auth.register.inviteInactive')
-    : t(raw);
-};
-
 type RegisterProps = NativeStackScreenProps<
   AuthStackParamList,
   'Signup' | 'SignupInvitation'
@@ -76,7 +61,7 @@ export const Register = ({
   route,
   invite = false,
 }: RegisterProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { register } = useRegisterAccount();
   const serverInfo = useServerInfo();
   const additionalForbiddenHandles =
@@ -126,7 +111,7 @@ export const Register = ({
       await register(data);
       navigation.navigate(AUTH_ROUTES.SUCCESS, { type: 'signup' });
     } catch (err) {
-      setError(registerErrorCopy((err as Error).message, t));
+      setError(apiErrorMessage(err, i18n));
     }
   });
 

@@ -66,7 +66,7 @@ export const registerHandler = async (
           : `Missing capabilities: ${authResult.missingCapabilities.join(', ')}`,
       );
     }
-    throw forbidden('Sign-ups are closed and no valid invite code provided');
+    throw forbidden('auth.register.signUpsClosed');
   }
 
   const markAsBot = bot === true && authResult.success;
@@ -91,7 +91,7 @@ export const registerHandler = async (
   }).then((accessToken) => accessToken.signedToken);
 
   if (!token) {
-    throw forbidden('register.access-token-creation-failed');
+    throw forbidden('common.errors.serverError');
   }
 
   return {
