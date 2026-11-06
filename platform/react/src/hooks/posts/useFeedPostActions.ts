@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { PublicPost } from '@openpeepshq/common/types';
+import type { PublicPost, ReactionData } from '@openpeepshq/common/types';
 import { getPostActionAvailability } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import {
@@ -40,6 +40,13 @@ export const useFeedPostActions = (post: PublicPost) => {
     () => !!post.reactions?.some((r) => r.profile.id === me?.id),
     [post.reactions, me?.id],
   );
+  const myReactions = useMemo(
+    () =>
+      post.reactions
+        ?.filter((r) => r.profile.id === me?.id)
+        .map((r) => r.reaction) ?? [],
+    [post.reactions, me?.id],
+  );
 
   const { canReply, canRepost, canReact } = useMemo(
     () => getPostActionAvailability(authData, post, capabilities),
@@ -62,11 +69,11 @@ export const useFeedPostActions = (post: PublicPost) => {
     await repostsQuery.refetch();
   };
 
-  const toggleReaction = async () => {
-    if (iReacted) {
-      await retractReaction(undefined);
+  const toggleReaction = async (reaction: ReactionData['reaction']) => {
+    if (myReactions.includes(reaction)) {
+      await retractReaction({ reaction });
     } else if (canReact) {
-      await reactToPost({ reaction: '👍' });
+      await reactToPost({ reaction });
     }
   };
 
@@ -74,6 +81,7 @@ export const useFeedPostActions = (post: PublicPost) => {
     me,
     myRepost,
     iReacted,
+    myReactions,
     canReply,
     canRepost: canRepost || !!myRepost,
     canReact: canReact || iReacted,

@@ -1,13 +1,18 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
-import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
+import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { findPost, retractReaction } from '@openpeepshq/core/posts';
-import { successResponseSchema } from '@openpeepshq/common/types';
+import {
+  reactionDataSchema,
+  successResponseSchema,
+} from '@openpeepshq/common/types';
 
 export const Param = z.object({
   postId: z.string(),
 });
+
+export const Input = reactionDataSchema;
 
 export const Output = successResponseSchema;
 
@@ -28,7 +33,9 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-read']);
 
-    await retractReaction(mergedPost, profile);
+    const reactionData = reactionDataSchema.parse(input);
+
+    await retractReaction(mergedPost, profile, reactionData);
 
     return { success: true };
   },

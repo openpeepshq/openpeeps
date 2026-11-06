@@ -34,10 +34,10 @@ import type { PgQueryResult } from '../../db/pg/map/types';
 import { capabilitiesConfig } from '../../config';
 import { canReadPost } from './filters';
 import {
-  AP_LIKE_REACTION,
   currentReactionsFromEntries,
   isBlockedPair,
   isReactionHistoryEntry,
+  isReactionType,
   matchMentionHandles,
   normalizePostDataFromDb,
   toHiddenPost,
@@ -238,10 +238,12 @@ export const transformPost = async (
   const entries = allEntries.filter(
     (entry) => !isReactionHistoryEntry(entry.type),
   ) as EntryWithProfile[];
+  // The public schema only accepts curated reactions, so drop anything else
+  // (legacy logs) before it can fail response validation.
   const reactions: ReactionProfile[] = currentReactionsFromEntries(allEntries)
-    .filter((item) => item.reaction === AP_LIKE_REACTION)
+    .filter((item) => isReactionType(item.reaction))
     .map((item) => ({
-      reaction: AP_LIKE_REACTION,
+      reaction: item.reaction as ReactionProfile['reaction'],
       profile: item.profile as ProfileWithMeta,
     }));
   const reposts = await leanRepostsFromWrappers(post.reposts);

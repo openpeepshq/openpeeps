@@ -855,7 +855,19 @@ export const pushSubscriptionSchema = z.discriminatedUnion('type', [
   modelSchema(pushSubscriptionWebhookDataSchema),
 ]);
 export type PushSubscription = z.infer<typeof pushSubscriptionSchema>;
-export const reactionTypeSchema = z.enum(['👍']);
+/** Reactions users can attach to a post. Single source of truth for the
+ * picker UI and the API schema. */
+export const REACTION_TYPES = [
+  '👍',
+  '👎',
+  '❤️',
+  '😂',
+  '😮',
+  '😢',
+  '🎉',
+] as const;
+
+export const reactionTypeSchema = z.enum(REACTION_TYPES);
 
 export const reactionDataSchema = z.object({
   reaction: reactionTypeSchema,

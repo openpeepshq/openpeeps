@@ -230,7 +230,7 @@ const postMutators = (client: OpenpeepsClient) => ({
   updatePostAction: payloadMutation(client.posts.update, [['posts']]),
   deletePostAction: noPayloadMutation(client.posts.delete, [['posts']]),
   reactToPostAction: payloadMutation(client.posts.react, [['posts']]),
-  retractPostReactionAction: noPayloadMutation(client.posts.retractReaction, [
+  retractPostReactionAction: payloadMutation(client.posts.retractReaction, [
     ['posts'],
   ]),
   bookmarkPostAction: noPayloadMutation(client.posts.bookmark, [

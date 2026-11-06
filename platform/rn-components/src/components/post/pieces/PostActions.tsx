@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { cn } from '../../../lib/utils';
 import { Button } from '../../ui/button';
@@ -12,6 +12,7 @@ import {
 import { type PublicPost } from '@openpeepshq/common';
 import { useTranslation } from 'react-i18next';
 import { useFeedPostActions } from '@openpeepshq/react';
+import { ReactionPicker } from './ReactionPicker';
 import { ShareMenu } from './ShareMenu';
 
 interface PostActionsProps {
@@ -30,6 +31,7 @@ export const PostActions = ({
     me,
     myRepost,
     iReacted,
+    myReactions,
     canReply,
     canRepost,
     canReact,
@@ -37,6 +39,7 @@ export const PostActions = ({
     toggleRepost,
     toggleReaction,
   } = useFeedPostActions(post);
+  const [reactionPickerOpen, setReactionPickerOpen] = useState(false);
 
   const replyActive = !previewMode && canReply;
   const repostActive = !previewMode && canRepost;
@@ -94,54 +97,75 @@ export const PostActions = ({
   }
 
   return (
-    // A disabled control does not take the touch, so the feed card would open
-    // the post. This row absorbs that tap and still yields to scrolling.
-    <Pressable
-      accessible={false}
-      onPress={() => {}}
-      className="w-full flex-row items-center py-2"
-    >
-      <Button
-        variant="ghost"
-        disabled={!replyActive}
-        onPress={() => reply()}
-        className={cn(actionClass, 'justify-start', !replyActive && idleClass)}
+    <>
+      {/* A disabled control does not take the touch, so the feed card would
+          open the post. This row absorbs that tap and still yields to
+          scrolling. */}
+      <Pressable
+        accessible={false}
+        onPress={() => {}}
+        className="w-full flex-row items-center py-2"
       >
-        <ReplyIcon size={16} className={iconClass(replyActive, false)} />
-        <ThemedText className={labelClass(replyActive, false)}>
-          {t('posts.footer.reply')}
-        </ThemedText>
-      </Button>
-      <Button
-        variant="ghost"
-        disabled={!repostActive}
-        onPress={() => void toggleRepost()}
-        className={cn(
-          actionClass,
-          'justify-center',
-          !repostActive && idleClass
-        )}
-      >
-        <Repeat2Icon
-          size={16}
-          className={iconClass(repostActive, !!myRepost)}
-        />
-        <ThemedText className={labelClass(repostActive, !!myRepost)}>
-          {t('posts.footer.repost')}
-        </ThemedText>
-      </Button>
-      <Button
-        variant="ghost"
-        disabled={!reactActive}
-        onPress={() => void toggleReaction()}
-        className={cn(actionClass, 'justify-end', !reactActive && idleClass)}
-      >
-        <ThumbsUpIcon size={16} className={iconClass(reactActive, iReacted)} />
-        <ThemedText className={labelClass(reactActive, iReacted)}>
-          {t('posts.footer.like')}
-        </ThemedText>
-      </Button>
-      <View className="flex-1 items-end">{shareButton}</View>
-    </Pressable>
+        <Button
+          variant="ghost"
+          disabled={!replyActive}
+          onPress={() => reply()}
+          className={cn(
+            actionClass,
+            'justify-start',
+            !replyActive && idleClass
+          )}
+        >
+          <ReplyIcon size={16} className={iconClass(replyActive, false)} />
+          <ThemedText className={labelClass(replyActive, false)}>
+            {t('posts.footer.reply')}
+          </ThemedText>
+        </Button>
+        <Button
+          variant="ghost"
+          disabled={!repostActive}
+          onPress={() => void toggleRepost()}
+          className={cn(
+            actionClass,
+            'justify-center',
+            !repostActive && idleClass
+          )}
+        >
+          <Repeat2Icon
+            size={16}
+            className={iconClass(repostActive, !!myRepost)}
+          />
+          <ThemedText className={labelClass(repostActive, !!myRepost)}>
+            {t('posts.footer.repost')}
+          </ThemedText>
+        </Button>
+        <Button
+          variant="ghost"
+          disabled={!reactActive}
+          onPress={() => setReactionPickerOpen((open) => !open)}
+          className={cn(actionClass, 'justify-end', !reactActive && idleClass)}
+        >
+          <ThumbsUpIcon
+            size={16}
+            className={iconClass(reactActive, iReacted)}
+          />
+          <ThemedText className={labelClass(reactActive, iReacted)}>
+            {t('posts.footer.like')}
+          </ThemedText>
+        </Button>
+        <View className="flex-1 items-end">{shareButton}</View>
+      </Pressable>
+      {reactionPickerOpen ? (
+        <View className="flex-row gap-1 px-4 pb-2">
+          <ReactionPicker
+            myReactions={myReactions}
+            onToggle={(reaction) => {
+              setReactionPickerOpen(false);
+              void toggleReaction(reaction);
+            }}
+          />
+        </View>
+      ) : null}
+    </>
   );
 };
