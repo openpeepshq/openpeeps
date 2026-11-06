@@ -8,6 +8,7 @@ import type {
   RecurrenceWeekday,
 } from '@openpeepshq/common/types';
 import {
+  isEndBeforeStart,
   previewUpcomingOccurrences,
   reinterpretIsoInTimeZone,
   weekdayFromDate,
@@ -39,16 +40,43 @@ export const useEventForm = (
   const eventTimeZone =
     event.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [showEndDate, setShowEndDate] = useState(event.end !== undefined);
+  // Transient until the next successful patch; the persisted range itself is
+  // derived from start/end, which also covers events saved before the guard.
+  const [rejectedTimes, setRejectedTimes] = useState(false);
 
   const patchEvent = (patch: Partial<Event>) => {
     let next: Event = { ...event, ...patch };
     if ('maxAttendees' in patch && patch.maxAttendees === undefined) {
       next = withoutEventMaxAttendees(next);
     }
+    setRejectedTimes(false);
     onChange({ ...postData, data: next });
   };
 
-  const setEvent = (next: Event) => onChange({ ...postData, data: next });
+  const changeStart = (start: string | undefined) => {
+    if (!start) return;
+    // Moving the start past the end keeps the duration by shifting the end.
+    if (isEndBeforeStart(start, event.end) && event.start && event.end) {
+      const delta = new Date(start).getTime() - new Date(event.start).getTime();
+      const end = new Date(new Date(event.end).getTime() + delta);
+      patchEvent({ start, end: end.toISOString() });
+      return;
+    }
+    patchEvent({ start });
+  };
+
+  const changeEnd = (end: string | undefined) => {
+    if (isEndBeforeStart(event.start, end)) {
+      setRejectedTimes(true);
+      return;
+    }
+    patchEvent({ end });
+  };
+
+  const setEvent = (next: Event) => {
+    setRejectedTimes(false);
+    onChange({ ...postData, data: next });
+  };
 
   const setAudience = (settings: AudienceSetting) =>
     onChange(applyAudienceSetting(postData, settings, me));
@@ -176,6 +204,9 @@ export const useEventForm = (
     repeatFreq,
     repeatEnd,
     preview,
+    endBeforeStart: rejectedTimes || isEndBeforeStart(event.start, event.end),
+    changeStart,
+    changeEnd,
     patchEvent,
     setEvent,
     setAudience,

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Pressable, View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
@@ -101,7 +101,6 @@ export const EventForm = ({
   onNotifyChange,
 }: EventFormProps) => {
   const { t } = useTranslation();
-  const [endBeforeStart, setEndBeforeStart] = useState(false);
   const startSheetRef = useRef<BottomSheetModal>(null);
   const endSheetRef = useRef<BottomSheetModal>(null);
   const untilSheetRef = useRef<BottomSheetModal>(null);
@@ -113,6 +112,9 @@ export const EventForm = ({
     repeatFreq,
     repeatEnd,
     preview,
+    endBeforeStart,
+    changeStart,
+    changeEnd,
     patchEvent,
     setEvent,
     setAudience,
@@ -447,21 +449,14 @@ export const EventForm = ({
         ref={startSheetRef}
         value={event.start}
         timeZone={eventTimeZone}
-        onChange={(start) => patchEvent({ start })}
+        onChange={changeStart}
         onClose={() => bottomSheetClose(startSheetRef)}
       />
       <DateSheet
         ref={endSheetRef}
         value={event.end}
         timeZone={eventTimeZone}
-        onChange={(end) => {
-          if (end && event.start && new Date(end) <= new Date(event.start)) {
-            setEndBeforeStart(true);
-            return;
-          }
-          setEndBeforeStart(false);
-          patchEvent({ end });
-        }}
+        onChange={changeEnd}
         onClose={() => bottomSheetClose(endSheetRef)}
       />
       <DateSheet
