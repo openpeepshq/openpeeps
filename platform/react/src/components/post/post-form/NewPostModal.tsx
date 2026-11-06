@@ -9,6 +9,7 @@ import {
 import {
   canAnnouncePosts,
   isCommunityWideVisibility,
+  markdownPlainText,
   pollOptionsWithinLimit,
   resolvePollOptionContents,
   type GroupWithMeta,
@@ -214,6 +215,8 @@ export function NewPostModal({
   }, [serverInfo.publicContent, visibility]);
 
   const trimmedContent = content.trim();
+  // Markdown syntax (e.g. link URLs) does not count against the limit.
+  const visibleContentLength = markdownPlainText(trimmedContent).length;
   const resolvedPollOptions = resolvePollOptionContents(pollOptions, (index) =>
     pollOptionLabel(index, t),
   );
@@ -228,10 +231,14 @@ export function NewPostModal({
     if (visibility === 'direct' && audience.length === 0) return false;
     if (visibility === 'group' && !group?.id && !groupId) return false;
     if (composerType === 'question') {
-      return trimmedContent.length > 0 && pollOptionsValid;
+      return (
+        visibleContentLength > 0 &&
+        visibleContentLength <= 500 &&
+        pollOptionsValid
+      );
     }
     return (
-      (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
+      (visibleContentLength > 0 && visibleContentLength <= 500) ||
       attachments.length > 0
     );
   }, [
@@ -242,7 +249,7 @@ export function NewPostModal({
     group?.id,
     groupId,
     composerType,
-    trimmedContent,
+    visibleContentLength,
     pollOptionsValid,
     attachments.length,
   ]);
@@ -373,6 +380,7 @@ export function NewPostModal({
 
             <OpenpeepsMarkdownInput
               rows={5}
+              blockOverflow={false}
               value={content}
               onChange={setContent}
               testId="posts-composer-content"

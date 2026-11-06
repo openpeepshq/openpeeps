@@ -16,6 +16,7 @@ import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
 import { ThemedView } from '../../components/ui/themed-view';
 import {
   MediaAttachment,
+  markdownPlainText,
   pollOptionsWithinLimit,
   PostCreationData,
   PublicPost,
@@ -118,6 +119,8 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
   }, [isPostLoading, post, postData]);
 
   const trimmedContent = (postData?.data.content ?? '').trim();
+  // Markdown syntax (e.g. link URLs) does not count against the limit.
+  const visibleContentLength = markdownPlainText(trimmedContent).length;
   const pollOptions =
     postData?.data.type === 'question'
       ? postData.data.options.map((option) => option.content)
@@ -134,10 +137,14 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
       return false;
     }
     if (postData.data.type === 'question') {
-      return trimmedContent.length > 0 && pollOptionsValid;
+      return (
+        visibleContentLength > 0 &&
+        visibleContentLength <= 500 &&
+        pollOptionsValid
+      );
     }
     return (
-      (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
+      (visibleContentLength > 0 && visibleContentLength <= 500) ||
       (postData.data.attachments?.length ?? 0) > 0
     );
   }, [
@@ -147,6 +154,7 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
     post,
     postData,
     trimmedContent.length,
+    visibleContentLength,
   ]);
 
   const handlePostCreation = async () => {

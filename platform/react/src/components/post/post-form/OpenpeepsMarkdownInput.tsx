@@ -1,4 +1,5 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { markdownPlainText } from '@openpeepshq/common';
 import type { PublicProfile } from '@openpeepshq/common/types';
 import {
   Button,
@@ -16,8 +17,13 @@ import { ProfileCard } from '../../profile';
 export interface OpenpeepsMarkdownInputProps {
   value: string;
   onChange: (value: string) => void;
-  /** Character budget; the counter turns red once exceeded. */
+  /** Visible-text character budget; the counter turns red once exceeded. */
   maxLength?: number;
+  /**
+   * Hard-stop typing at the budget. For forms that do not validate the
+   * length on submit.
+   */
+  blockOverflow?: boolean;
   placeholder?: string;
   rows?: number;
   /** Show the preview toggle button (mirrors Svelte `previewButton`). */
@@ -36,6 +42,7 @@ export function OpenpeepsMarkdownInput({
   value,
   onChange,
   maxLength = 500,
+  blockOverflow = true,
   placeholder,
   rows = 5,
   previewButton = true,
@@ -100,7 +107,9 @@ export function OpenpeepsMarkdownInput({
     setQuery('');
   };
 
-  const overLimit = value.length > maxLength;
+  // Markdown syntax (e.g. link URLs) does not count against the budget.
+  const visibleLength = markdownPlainText(value).length;
+  const overLimit = visibleLength > maxLength;
 
   return (
     <div className="relative w-full">
@@ -141,7 +150,7 @@ export function OpenpeepsMarkdownInput({
               ref={textareaRef}
               rows={rows}
               value={value}
-              maxLength={maxLength}
+              maxLength={blockOverflow ? maxLength : undefined}
               placeholder={placeholder ?? t('posts.form.content')}
               onChange={(e) => handleChange(e.target.value)}
               data-testid={testId}
@@ -182,7 +191,7 @@ export function OpenpeepsMarkdownInput({
 
       <div className="w-full px-2 text-right text-sm">
         <span className={overLimit ? 'text-error' : undefined}>
-          {value.length}
+          {visibleLength}
         </span>{' '}
         / {maxLength}
       </div>

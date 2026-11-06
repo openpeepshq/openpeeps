@@ -1,5 +1,5 @@
 import type { PublicProfile } from '@openpeepshq/common/types';
-import { blockedPairIds } from '@openpeepshq/common/lib';
+import { blockedPairIds, markdownPlainText } from '@openpeepshq/common/lib';
 import {
   Button,
   Dialog,
@@ -96,6 +96,7 @@ export const CreateNewConversation = ({
             <div className="min-h-0 flex-1 overflow-y-auto">
               <OpenpeepsMarkdownInput
                 rows={5}
+                blockOverflow={false}
                 value={message}
                 onChange={setMessage}
                 maxLength={MAX_MESSAGE_LENGTH}
@@ -119,7 +120,11 @@ export const CreateNewConversation = ({
               )}
               <Button
                 variant="default"
-                disabled={submitting || selectedProfiles.length === 0}
+                disabled={
+                  submitting ||
+                  selectedProfiles.length === 0 ||
+                  markdownPlainText(message).length > MAX_MESSAGE_LENGTH
+                }
                 action={send}
               >
                 {submitting

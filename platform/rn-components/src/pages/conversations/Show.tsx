@@ -17,7 +17,11 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { InfoIcon, SearchIcon } from '../../components/icons/index';
-import { MediaAttachmentData, type PublicPost } from '@openpeepshq/common';
+import {
+  markdownPlainText,
+  MediaAttachmentData,
+  type PublicPost,
+} from '@openpeepshq/common';
 import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
 import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
 import { maxContentLength } from '../../lib/utils';
@@ -114,7 +118,10 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   }, []);
 
   const handleSendMessage = async () => {
-    if (!content.trim() || content.length > maxContentLength) {
+    if (
+      !content.trim() ||
+      markdownPlainText(content).length > maxContentLength
+    ) {
       return;
     }
 
@@ -331,6 +338,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
               <View className="px-4 py-3 bg-background border-t border-border">
                 <OpenpeepsMarkdownInput
                   rows={3}
+                  blockOverflow={false}
                   value={content}
                   onChange={setContent}
                   maxLength={maxContentLength}
@@ -345,7 +353,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
                     disabled={
                       isSending ||
                       !content.trim() ||
-                      content.length > maxContentLength
+                      markdownPlainText(content).length > maxContentLength
                     }
                   >
                     {isSending ? (

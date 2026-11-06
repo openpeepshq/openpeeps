@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  markdownPlainText,
   pollOptionsWithinLimit,
   resolvePollOptionContents,
 } from '@openpeepshq/common';
@@ -95,15 +96,25 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
     }
   };
 
+  // Markdown syntax (e.g. link URLs) does not count against the limit.
+  const visibleContentLength = markdownPlainText(content).length;
+
   const canSave = useMemo(() => {
     if (data.type === 'question') {
-      return content.trim().length > 0 && pollOptionsValid;
+      return (
+        visibleContentLength > 0 &&
+        visibleContentLength <= 500 &&
+        pollOptionsValid
+      );
     }
     if (data.type === 'note') {
-      return content.trim().length > 0 || (data.attachments?.length ?? 0) > 0;
+      return (
+        (visibleContentLength > 0 && visibleContentLength <= 500) ||
+        (data.attachments?.length ?? 0) > 0
+      );
     }
     return true;
-  }, [content, data, pollOptionsValid]);
+  }, [data, visibleContentLength, pollOptionsValid]);
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -118,6 +129,7 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
           <>
             <OpenpeepsMarkdownInput
               rows={3}
+              blockOverflow={false}
               value={content}
               onChange={setContent}
             />
@@ -154,6 +166,7 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
           <>
             <OpenpeepsMarkdownInput
               rows={6}
+              blockOverflow={false}
               value={content}
               onChange={setContent}
             />

@@ -7,7 +7,7 @@ import {
   type NativeSyntheticEvent,
   type TextInputSelectionChangeEventData,
 } from 'react-native';
-import type { PublicProfile } from '@openpeepshq/common';
+import { markdownPlainText, type PublicProfile } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 import { OpenpeepsMarkdown } from '../../markdown/index';
@@ -21,8 +21,13 @@ import { cn, maxContentLength } from '../../../lib/utils';
 export interface OpenpeepsMarkdownInputProps {
   value: string;
   onChange: (value: string) => void;
-  /** Character budget; the counter turns red once exceeded. */
+  /** Visible-text character budget; the counter turns red once exceeded. */
   maxLength?: number;
+  /**
+   * Hard-stop typing at the budget. For forms that do not validate the
+   * length on submit.
+   */
+  blockOverflow?: boolean;
   placeholder?: string;
   rows?: number;
   /** Show the preview toggle button (mirrors web `previewButton`). */
@@ -47,6 +52,7 @@ export const OpenpeepsMarkdownInput = ({
   value,
   onChange,
   maxLength = maxContentLength,
+  blockOverflow = true,
   placeholder,
   rows = 5,
   previewButton = true,
@@ -134,7 +140,9 @@ export const OpenpeepsMarkdownInput = ({
     }
   };
 
-  const overLimit = value.length > maxLength;
+  // Markdown syntax (e.g. link URLs) does not count against the budget.
+  const visibleLength = markdownPlainText(value).length;
+  const overLimit = visibleLength > maxLength;
 
   return (
     <View className="relative w-full">
@@ -203,7 +211,7 @@ export const OpenpeepsMarkdownInput = ({
             autoFocus={autoFocus}
             numberOfLines={rows}
             value={value}
-            maxLength={maxLength}
+            maxLength={blockOverflow ? maxLength : undefined}
             placeholder={placeholder ?? t('posts.form.content')}
             onChangeText={handleChange}
             onSelectionChange={handleSelectionChange}
@@ -217,7 +225,7 @@ export const OpenpeepsMarkdownInput = ({
         <ThemedText
           className={cn('text-right text-sm', overLimit && 'text-destructive')}
         >
-          {value.length} / {maxLength}
+          {visibleLength} / {maxLength}
         </ThemedText>
       </View>
     </View>

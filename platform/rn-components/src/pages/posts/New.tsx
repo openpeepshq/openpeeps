@@ -24,6 +24,7 @@ import {
   canAnnouncePosts,
   isCommunityWideVisibility,
   MediaAttachment,
+  markdownPlainText,
   pollOptionsWithinLimit,
   PostCreationData,
   resolvePollOptionContents,
@@ -89,6 +90,8 @@ export const NewPost = ({ route, navigation }: PostProps) => {
     canNotify && isCommunityWideVisibility(postData.visibility);
 
   const trimmedContent = (postData.data.content ?? '').trim();
+  // Markdown syntax (e.g. link URLs) does not count against the limit.
+  const visibleContentLength = markdownPlainText(trimmedContent).length;
   const pollOptions =
     postData.data.type === 'question'
       ? postData.data.options.map((option) => option.content)
@@ -111,13 +114,17 @@ export const NewPost = ({ route, navigation }: PostProps) => {
       return false;
     }
     if (postData.data.type === 'question') {
-      return trimmedContent.length > 0 && pollOptionsValid;
+      return (
+        visibleContentLength > 0 &&
+        visibleContentLength <= 500 &&
+        pollOptionsValid
+      );
     }
     if (postData.type === 'article') {
       return trimmedContent.length > 0;
     }
     return (
-      (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
+      (visibleContentLength > 0 && visibleContentLength <= 500) ||
       (postData.data.attachments?.length ?? 0) > 0
     );
   }, [
@@ -131,6 +138,7 @@ export const NewPost = ({ route, navigation }: PostProps) => {
     postData.type,
     postData.visibility,
     trimmedContent.length,
+    visibleContentLength,
   ]);
 
   const handlePostCreation = async () => {

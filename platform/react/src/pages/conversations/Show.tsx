@@ -10,7 +10,7 @@ import {
   adjustUnseenCounts,
   useNavigate,
 } from '../../index';
-import { canCreatePost } from '@openpeepshq/common';
+import { canCreatePost, markdownPlainText } from '@openpeepshq/common';
 import {
   Avatar,
   ConversationParticipantsModal,
@@ -146,7 +146,7 @@ export function ConversationShow() {
   const [sending, setSending] = useState(false);
 
   const send = async () => {
-    if (!text.trim() || text.length > MAX_LENGTH) return;
+    if (!text.trim() || markdownPlainText(text).length > MAX_LENGTH) return;
     setSending(true);
     try {
       const payload: PostCreationData = {
@@ -231,7 +231,7 @@ export function ConversationShow() {
     );
   }
 
-  const overLimit = text.length > MAX_LENGTH;
+  const overLimit = markdownPlainText(text).length > MAX_LENGTH;
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
@@ -302,6 +302,7 @@ export function ConversationShow() {
         <footer className="space-y-2 border-t p-3">
           <OpenpeepsMarkdownInput
             rows={3}
+            blockOverflow={false}
             value={text}
             onChange={setText}
             maxLength={MAX_LENGTH}

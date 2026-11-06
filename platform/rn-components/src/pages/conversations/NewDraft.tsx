@@ -13,7 +13,7 @@ import { useSetPageHeader } from '../../components/layout';
 import { SendHorizonalIcon } from '../../components/icons/index';
 import { useCreateConversation, useOpenpeeps } from '@openpeepshq/react';
 import { ThemedText } from '../../components/ui/themed-text';
-import { Profile, PublicProfile } from '@openpeepshq/common';
+import { markdownPlainText, Profile, PublicProfile } from '@openpeepshq/common';
 import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
 import { useTranslation } from 'react-i18next';
 import { maxContentLength } from '../../lib/utils';
@@ -67,6 +67,7 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
         <ThemedView className="p-2 border-t border-border bg-background">
           <OpenpeepsMarkdownInput
             rows={5}
+            blockOverflow={false}
             value={message}
             onChange={setMessage}
             maxLength={maxContentLength}
@@ -80,10 +81,11 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
               disabled={
                 !message.trim() ||
                 submitting ||
-                message.length > maxContentLength
+                markdownPlainText(message).length > maxContentLength
               }
               className={`p-2 rounded-full ${
-                message.trim() && message.length <= maxContentLength
+                message.trim() &&
+                markdownPlainText(message).length <= maxContentLength
                   ? 'bg-primary'
                   : 'bg-surface'
               }`}
