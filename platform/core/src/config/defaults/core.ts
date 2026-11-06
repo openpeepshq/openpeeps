@@ -60,6 +60,8 @@ export const defaultConfig: CoreConfig = {
     rootPackageJsonPath: path.resolve(
       process.env.ROOT_PACKAGE_JSON_PATH || '../package.json',
     ),
+    storeUrl: process.env.PLUGIN_STORE_URL || undefined,
+    storePublicKey: process.env.PLUGIN_STORE_PUBLIC_KEY || undefined,
   },
   secrets: {
     jwt: resolveJwtSecret(),

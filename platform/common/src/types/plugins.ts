@@ -109,6 +109,18 @@ export const pluginInstallSourceSchema = z.discriminatedUnion('type', [
         });
       }
     }),
+  z.object({
+    type: z.literal('marketplace'),
+    listing: z
+      .string()
+      .regex(/^[a-z0-9-]+\/[a-z0-9-]+$/, 'Listing id must be namespace/name'),
+    version: z.string().optional(),
+    /** Digest of the originally installed tarball; self-heal verifies against it. */
+    sha256: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/, 'sha256 must be 64 hex characters')
+      .optional(),
+  }),
 ]);
 
 export type PluginInstallSource = z.infer<typeof pluginInstallSourceSchema>;
@@ -148,3 +160,45 @@ export const pluginConfigResponseSchema = z.record(
 );
 
 export type PluginConfigResponse = z.infer<typeof pluginConfigResponseSchema>;
+
+export const pluginStoreListingSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  category: z.string(),
+  priceCents: z.number(),
+  currency: z.string(),
+  latest: z
+    .object({
+      version: z.string(),
+      hostRange: z.string(),
+      sha256: z.string(),
+    })
+    .nullable(),
+});
+
+export type PluginStoreListing = z.infer<typeof pluginStoreListingSchema>;
+
+export const pluginStoreCatalogSchema = z.object({
+  storeUrl: z.string().optional(),
+  listings: z.array(pluginStoreListingSchema),
+});
+
+export type PluginStoreCatalog = z.infer<typeof pluginStoreCatalogSchema>;
+
+export const pluginStoreEntitlementSchema = z.object({
+  token: z.string().min(1),
+  version: z.string().min(1),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/),
+  signature: z.string().min(1),
+});
+
+export type PluginStoreEntitlement = z.infer<
+  typeof pluginStoreEntitlementSchema
+>;
+
+export const pluginStoreErrorSchema = z.object({
+  error: z.string().min(1),
+});
+
+export type PluginStoreError = z.infer<typeof pluginStoreErrorSchema>;

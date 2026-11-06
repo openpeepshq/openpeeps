@@ -111,7 +111,8 @@ Core endpoints exposed for plugin discovery:
 | `GET`  | `/api/openpeeps/core/v1/plugins/config`               | Merged plugin config tree                                                        | Auth required         |
 | `GET`  | `/api/openpeeps/core/v1/plugins/manifest`             | Frontend component manifests per plugin                                          | None                  |
 | `any`  | `/api/openpeeps/core/v1/plugins/<namespace>/<name>/*` | Plugin-defined Express routes                                                    | _See §3_              |
-| `POST` | `/api/openpeeps/core/v1/admin/plugins/install`        | Install a plugin from npm or git                                                 | `core-plugins-manage` |
+| `POST` | `/api/openpeeps/core/v1/admin/plugins/install`        | Install a plugin from npm, git, or the plugin store                              | `core-plugins-manage` |
+| `GET`  | `/api/openpeeps/core/v1/admin/plugins/marketplace`    | Browse published store listings for in-admin install                             | `core-plugins-manage` |
 
 The plugin's `routes(router)` function receives a fresh Express `Router` already scoped to `/api/openpeeps/core/v1/plugins/<namespace>/<name>`, so routes inside the plugin should use relative paths.
 
@@ -128,6 +129,36 @@ the installed-plugin record. Temporary npm configuration, askpass helpers, SSH
 keys, and known-hosts files are removed after every attempt. Do not put
 credentials in a repository URL; HTTPS URLs containing user information are
 rejected. SSH URLs may contain the required git username.
+
+### Installing from the plugin store
+
+The admin Plugins page lists published versions from `PLUGIN_STORE_URL`. The
+store is disabled unless `PLUGIN_STORE_URL` is set, and installs fail closed
+unless `PLUGIN_STORE_PUBLIC_KEY` is set too — the host never fetches a public
+key from the store origin, because anyone who can serve the artifact could
+serve a matching key.
+
+Install sends `{ type: "marketplace", listing, version? }`. The host asks the
+store for an instance entitlement, downloads the signed tarball, verifies
+`sha256` plus an Ed25519 signature made over
+`<listing>\n<version>\n<sha256>` with `PLUGIN_STORE_PUBLIC_KEY` (so a signed
+artifact cannot be replayed against another listing or version), then extracts
+it like any other install.
+
+Before extraction the tarball's member list is validated: only regular files
+and directories are allowed (no symlinks, hardlinks, or devices), and paths
+must be relative (no absolute paths, no `..` segments). Downloads are capped
+at 100 MiB compressed and 1 GiB after extraction, and extraction runs with
+`--no-same-owner --no-same-permissions`.
+
+#### Store trust model
+
+The entitlement request carries only the instance's self-declared `origin`;
+the store in `code/plugins.openpeeps.org` must authenticate instances
+server-side before granting paid entitlements. Reviews and publisher
+submission live on the store; only approved versions are installable. When a
+newer approved version exists, the admin page shows **Update available**,
+gated client-side by the listing's `hostRange` against the host version.
 
 SSH host keys use trust on first use for each installation. This keeps deploy
 keys portable across git providers, but an intercepted first connection could
@@ -368,11 +399,11 @@ The `Dockerfile` builds plugins via the `plugins/*/*` glob rather than a hardcod
 
 1. **No sandboxing.** Plugins run in the same Node process with full access to `@openpeepshq/core` and the Express app. Plugin installation = server code execution.
 2. **No signing/validating manifests.** `pluginManifestSchema.parse()` validates structure; semantic trust of manifest content is the server operator's responsibility.
-3. **No plugin registry.** Admins install plugins directly from npm or git.
-4. **Plugin distribution format:** Currently plain folders with compiled `dist/index.js`. npm packages remain possible.
-5. **Plugin versioning & updates:** Use `package.json` dependencies/peerDependencies. Core API changes are not version-gated yet.
+3. **Plugin registry.** Catalog, publisher review, paid entitlements, and signed artifacts live in `code/plugins.openpeeps.org`. OpenPeeps installs from that store; it does not host the catalog.
+4. **Plugin distribution format:** Folders with compiled `dist/index.js`, npm/git sources, or signed store tarballs.
+5. **Plugin versioning & updates:** Store listings carry `hostRange`; the admin page flags an update when the published version differs. Core API changes are not version-gated yet.
 6. **Frontend module loading:** Implemented as simple `<script>` injection of plugin bundles. Native ESM / import maps may replace this in the future.
-7. **Plugin marketplace / discovery:** Out of scope; plugins are installed manually.
+7. **Signing.** Store artifacts are Ed25519-signed over `listing\nversion\nsha256` with the operator-pinned key `PLUGIN_STORE_PUBLIC_KEY`. npm/git installs are still operator-trusted.
 8. **Plugin enumeration is public.** `GET /plugins` and `GET /plugins/manifest` return plugin names, versions, and manifest metadata without authentication. This is considered acceptable metadata disclosure, but operators should be aware that plugin names/versions may leak implementation details.
 
 ## 9. Deployment

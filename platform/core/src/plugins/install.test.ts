@@ -1,11 +1,21 @@
+import { createHash, generateKeyPairSync, sign } from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { gzipSync } from 'node:zlib';
 import type {
   ChildProcessWithoutNullStreams,
   SpawnOptions,
 } from 'node:child_process';
-import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 interface SpawnCall {
   command: string;
@@ -36,6 +46,14 @@ const testState = vi.hoisted(() => ({
         stderr: string;
       }
     | undefined,
+  storePublicKey: undefined as string | undefined,
+  pkgOverride: undefined as Record<string, unknown> | undefined,
+  useRealTar: false,
+  tarListing: undefined as { verbose: string; names: string } | undefined,
+}));
+
+const realCpHolder = vi.hoisted(() => ({
+  cp: undefined as typeof import('node:child_process') | undefined,
 }));
 
 vi.mock('node:child_process', () => ({
@@ -48,6 +66,24 @@ vi.mock('node:child_process', () => ({
       };
       child.stdout = new EventEmitter();
       child.stderr = new EventEmitter();
+
+      if (command === 'tar' && testState.useRealTar) {
+        const real = realCpHolder.cp!.spawn(command, [...args], options);
+        real.stdout?.on('data', (chunk: Buffer) =>
+          child.stdout.emit('data', chunk),
+        );
+        real.stderr?.on('data', (chunk: Buffer) =>
+          child.stderr.emit('data', chunk),
+        );
+        real.on('error', (error: Error) => {
+          child.stderr.emit('data', Buffer.from(error.message, 'utf8'));
+          child.emit('close', 1);
+        });
+        real.on('close', (code: number | null) =>
+          child.emit('close', code ?? 1),
+        );
+        return child as unknown as ChildProcessWithoutNullStreams;
+      }
 
       setImmediate(() => {
         void (async () => {
@@ -87,6 +123,26 @@ vi.mock('node:child_process', () => ({
             return;
           }
 
+          if (command === 'tar') {
+            if (testState.tarListing) {
+              const verbose = args.includes('-tzvf');
+              child.stdout.emit(
+                'data',
+                Buffer.from(
+                  verbose
+                    ? testState.tarListing.verbose
+                    : testState.tarListing.names,
+                ),
+              );
+            } else {
+              const cIndex = args.indexOf('-C');
+              if (cIndex !== -1) {
+                await writePlugin(
+                  path.join(String(args[cIndex + 1]), 'plugin'),
+                );
+              }
+            }
+          }
           if (command === 'git') {
             const destination = args.at(-1);
             if (destination) {
@@ -109,7 +165,16 @@ vi.mock('node:child_process', () => ({
 
 vi.mock('../config', () => ({
   defaultConfig: Promise.resolve({
-    plugins: { path: testState.pluginsDir },
+    plugins: {
+      get path() {
+        return testState.pluginsDir;
+      },
+      storeUrl: 'https://plugins.test',
+      get storePublicKey() {
+        return testState.storePublicKey;
+      },
+    },
+    server: { host: 'localhost:5173' },
   }),
 }));
 
@@ -154,11 +219,56 @@ const writePlugin = async (directory: string) => {
       name: '@acme/private-plugin',
       scripts: testState.pluginBuild ? { build: 'build' } : undefined,
       peerDependencies: testState.peerDependencies,
+      ...testState.pkgOverride,
     }),
   );
 };
 
-const { installPlugin, selfHealInstalledPlugins } = await import('./install');
+// Builds a minimal gzip-compressed tar archive byte-for-byte so fixtures
+// do not depend on the system tar's handling of unusual member names:
+// busybox tar (alpine CI) rewrites `../foo` sources to a normalized `foo`
+// member at archive time, which would not carry the parent-directory path.
+const buildTarGzip = (
+  members: Array<{ name: string; content?: string; type?: 'file' | 'dir' }>,
+) => {
+  const blocks: Buffer[] = [];
+  for (const member of members) {
+    const content = Buffer.from(member.content ?? '');
+    const isDir = member.type === 'dir';
+    const header = Buffer.alloc(512);
+    header.write(member.name, 0, 'utf8');
+    header.write(isDir ? '0000755' : '0000644', 100, 'utf8');
+    header.write('\0', 107, 'utf8');
+    header.write('0000000', 108, 'utf8');
+    header.write('\0', 115, 'utf8');
+    header.write('0000000', 116, 'utf8');
+    header.write('\0', 123, 'utf8');
+    header.write(String(content.length).padStart(11, '0'), 124, 'utf8');
+    header.write('\0', 135, 'utf8');
+    header.write('00000000000', 136, 'utf8');
+    header.write('\0', 147, 'utf8');
+    for (let i = 148; i <= 155; i += 1) header[i] = 0x20;
+    header.write(isDir ? '5' : '0', 156, 'utf8');
+    header.write('ustar\0', 257, 'utf8');
+    header.write('00', 263, 'utf8');
+    const sum = header.reduce((total, byte) => total + byte, 0);
+    header.write(sum.toString(8).padStart(6, '0'), 148, 'utf8');
+    header[154] = 0;
+    header[155] = 0x20;
+    blocks.push(header, content);
+    const padding = (512 - (content.length % 512)) % 512;
+    if (padding > 0) blocks.push(Buffer.alloc(padding));
+  }
+  blocks.push(Buffer.alloc(1024));
+  return gzipSync(Buffer.concat(blocks));
+};
+
+realCpHolder.cp = (await vi.importActual(
+  'node:child_process',
+)) as typeof import('node:child_process');
+
+const { installPlugin, selfHealInstalledPlugins, verifyMarketplaceArtifact } =
+  await import('./install');
 const { setPluginEnabledOverride } = await import('./state');
 
 beforeEach(async () => {
@@ -179,6 +289,10 @@ beforeEach(async () => {
   testState.buildSawNpmConfig = false;
   testState.peerDependencies = undefined;
   testState.failure = undefined;
+  testState.storePublicKey = undefined;
+  testState.pkgOverride = undefined;
+  testState.useRealTar = false;
+  testState.tarListing = undefined;
 });
 
 afterAll(async () => {
@@ -505,5 +619,494 @@ describe('selfHealInstalledPlugins', () => {
 
     expect(failures['acme/private-plugin']).toContain('404 Not Found');
     expect(await fs.readdir(testState.pluginsDir)).toEqual([]);
+  });
+});
+
+const signBuffer = (buffer: Buffer, listing: string, version: string) => {
+  const { publicKey, privateKey } = generateKeyPairSync('ed25519');
+  const sha256 = createHash('sha256').update(buffer).digest('hex');
+  // The store signs listing, version and digest together so a signature
+  // cannot be replayed across listings or versions.
+  const signature = sign(
+    null,
+    Buffer.from(`${listing}\n${version}\n${sha256}`, 'utf8'),
+    privateKey,
+  ).toString('base64');
+  return {
+    buffer,
+    sha256,
+    signature,
+    publicKeyPem: publicKey.export({ type: 'spki', format: 'pem' }).toString(),
+  };
+};
+
+const signedArtifact = (listing = 'acme/private-plugin', version = '1.0.0') =>
+  signBuffer(Buffer.from('plugin-tarball'), listing, version);
+
+const storeArtifactHeaders = (artifact: {
+  sha256: string;
+  signature: string;
+}) => ({
+  'x-openpeeps-sha256': artifact.sha256,
+  'x-openpeeps-signature': artifact.signature,
+});
+
+const entitlementBody = (
+  artifact: { sha256: string; signature: string },
+  version = '1.0.0',
+) => ({
+  token: 'download-token',
+  version,
+  sha256: artifact.sha256,
+  signature: artifact.signature,
+});
+
+const stubStore = (
+  entitlement: { ok: boolean; body?: unknown },
+  artifact: { buffer: Buffer; headers: Record<string, string> },
+) => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (input: string | URL) => {
+      const url = String(input);
+      if (url.endsWith('/v1/entitlements')) {
+        return {
+          ok: entitlement.ok,
+          json: async () => entitlement.body,
+        };
+      }
+      if (url.includes('/v1/artifacts/')) {
+        return {
+          ok: true,
+          arrayBuffer: async () =>
+            artifact.buffer.buffer.slice(
+              artifact.buffer.byteOffset,
+              artifact.buffer.byteOffset + artifact.buffer.byteLength,
+            ),
+          headers: {
+            get: (name: string) =>
+              Object.entries(artifact.headers).find(
+                ([key]) => key.toLowerCase() === name.toLowerCase(),
+              )?.[1] ?? null,
+          },
+        };
+      }
+      throw new Error(`unexpected fetch ${url}`);
+    }),
+  );
+};
+
+describe('marketplace install', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('verifies the signed digest bound to listing and version', () => {
+    const artifact = signedArtifact();
+    expect(
+      verifyMarketplaceArtifact(
+        artifact.buffer,
+        artifact.sha256,
+        'acme/private-plugin',
+        '1.0.0',
+        artifact.signature,
+        artifact.publicKeyPem,
+      ),
+    ).toBe(true);
+    expect(
+      verifyMarketplaceArtifact(
+        artifact.buffer,
+        '0'.repeat(64),
+        'acme/private-plugin',
+        '1.0.0',
+        artifact.signature,
+        artifact.publicKeyPem,
+      ),
+    ).toBe(false);
+    expect(
+      verifyMarketplaceArtifact(
+        artifact.buffer,
+        artifact.sha256,
+        'other/plugin',
+        '1.0.0',
+        artifact.signature,
+        artifact.publicKeyPem,
+      ),
+    ).toBe(false);
+  });
+
+  it('downloads, verifies, and extracts a store tarball', async () => {
+    const artifact = signedArtifact();
+    testState.storePublicKey = artifact.publicKeyPem;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: string | URL) => {
+        const url = String(input);
+        if (url.endsWith('/v1/entitlements')) {
+          return {
+            ok: true,
+            json: async () => ({
+              token: 'download-token',
+              version: '1.0.0',
+              sha256: artifact.sha256,
+              signature: artifact.signature,
+            }),
+          };
+        }
+        if (url.includes('/v1/artifacts/')) {
+          return {
+            ok: true,
+            arrayBuffer: async () =>
+              artifact.buffer.buffer.slice(
+                artifact.buffer.byteOffset,
+                artifact.buffer.byteOffset + artifact.buffer.byteLength,
+              ),
+            headers: {
+              get: (name: string) =>
+                name === 'x-openpeeps-sha256'
+                  ? artifact.sha256
+                  : name === 'x-openpeeps-signature'
+                    ? artifact.signature
+                    : null,
+            },
+          };
+        }
+        throw new Error(`unexpected fetch ${url}`);
+      }),
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result).toEqual({
+      success: true,
+      pluginKey: 'acme/private-plugin',
+    });
+    expect(testState.spawnCalls.some(({ command }) => command === 'tar')).toBe(
+      true,
+    );
+    const persisted = JSON.stringify(testState.persistedValues);
+    expect(persisted).toContain('store:acme/private-plugin@1.0.0');
+    expect(persisted).toContain(artifact.sha256);
+  });
+
+  it('rejects a tampered artifact', async () => {
+    const artifact = signedArtifact();
+    testState.storePublicKey = artifact.publicKeyPem;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: string | URL) => {
+        const url = String(input);
+        if (url.endsWith('/v1/entitlements')) {
+          return {
+            ok: true,
+            json: async () => ({
+              token: 'download-token',
+              version: '1.0.0',
+              sha256: artifact.sha256,
+              signature: artifact.signature,
+            }),
+          };
+        }
+        return {
+          ok: true,
+          arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
+          headers: {
+            get: () => artifact.sha256,
+          },
+        };
+      }),
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('verification');
+  });
+
+  it('fails closed when the store signing key is not configured', async () => {
+    const fetchCalls: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: string | URL) => {
+        fetchCalls.push(String(input));
+        throw new Error(`unexpected fetch ${input}`);
+      }),
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('signing key');
+    expect(fetchCalls).toEqual([]);
+  });
+
+  it('rejects a signature made for a different listing', async () => {
+    const artifact = signedArtifact('other/plugin');
+    testState.storePublicKey = artifact.publicKeyPem;
+    stubStore(
+      { ok: true, body: entitlementBody(artifact) },
+      { buffer: artifact.buffer, headers: storeArtifactHeaders(artifact) },
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('verification');
+  });
+
+  it('rejects an artifact for a different version than requested', async () => {
+    const artifact = signedArtifact('acme/private-plugin', '2.0.0');
+    testState.storePublicKey = artifact.publicKeyPem;
+    stubStore(
+      { ok: true, body: entitlementBody(artifact, '2.0.0') },
+      { buffer: artifact.buffer, headers: storeArtifactHeaders(artifact) },
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+      version: '1.0.0',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('expected');
+  });
+
+  it('rejects an artifact whose digest differs from the pinned digest', async () => {
+    const artifact = signedArtifact();
+    testState.storePublicKey = artifact.publicKeyPem;
+    stubStore(
+      { ok: true, body: entitlementBody(artifact) },
+      { buffer: artifact.buffer, headers: storeArtifactHeaders(artifact) },
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+      sha256: '0'.repeat(64),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('digest');
+  });
+
+  it('rejects an artifact that declares an invalid plugin name', async () => {
+    const artifact = signedArtifact();
+    testState.storePublicKey = artifact.publicKeyPem;
+    testState.pkgOverride = { openpeeps: { namespace: '..', name: 'x' } };
+    stubStore(
+      { ok: true, body: entitlementBody(artifact) },
+      { buffer: artifact.buffer, headers: storeArtifactHeaders(artifact) },
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('invalid plugin name');
+  });
+
+  it('rejects an artifact that declares a different plugin than the listing', async () => {
+    const artifact = signedArtifact();
+    testState.storePublicKey = artifact.publicKeyPem;
+    testState.pkgOverride = { name: '@other/plugin' };
+    stubStore(
+      { ok: true, body: entitlementBody(artifact) },
+      { buffer: artifact.buffer, headers: storeArtifactHeaders(artifact) },
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('declares plugin');
+  });
+
+  it('rejects a store tarball that contains a symlink', async () => {
+    const stage = path.join(testState.pluginsDir, 'stage');
+    await fs.mkdir(path.join(stage, 'plugin'), { recursive: true });
+    await fs.writeFile(path.join(stage, 'plugin', 'package.json'), '{}');
+    await fs.symlink('/etc/passwd', path.join(stage, 'evil-link'));
+    const archivePath = path.join(testState.pluginsDir, 'symlink.tgz');
+    realCpHolder.cp!.execFileSync(
+      'tar',
+      ['-czf', archivePath, 'plugin', 'evil-link'],
+      { cwd: stage },
+    );
+    const artifact = signBuffer(
+      await fs.readFile(archivePath),
+      'acme/private-plugin',
+      '1.0.0',
+    );
+    testState.storePublicKey = artifact.publicKeyPem;
+    testState.useRealTar = true;
+    stubStore(
+      { ok: true, body: entitlementBody(artifact) },
+      { buffer: artifact.buffer, headers: storeArtifactHeaders(artifact) },
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('disallowed entry');
+    await expect(
+      fs.access(path.join(testState.pluginsDir, 'acme')),
+    ).rejects.toThrow();
+  });
+
+  it('rejects a store tarball that escapes with a parent-directory path', async () => {
+    // The archive is crafted byte-for-byte: busybox tar (alpine CI)
+    // rewrites `../evil.txt` sources to a normalized `evil.txt` member at
+    // archive time, so a system-tar fixture would not carry the
+    // parent-directory path on that platform.
+    const archiveBuffer = buildTarGzip([
+      { name: 'plugin/', type: 'dir' },
+      { name: 'plugin/package.json', content: '{}' },
+      { name: '../evil.txt', content: 'evil' },
+    ]);
+    const artifact = signBuffer(archiveBuffer, 'acme/private-plugin', '1.0.0');
+    testState.storePublicKey = artifact.publicKeyPem;
+    testState.useRealTar = true;
+    stubStore(
+      { ok: true, body: entitlementBody(artifact) },
+      { buffer: artifact.buffer, headers: storeArtifactHeaders(artifact) },
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    // Whatever the platform's tar does with the member, the install must
+    // fail and nothing may escape the throwaway extract dir: tar
+    // implementations that keep `..` in listings trigger the pre-extract
+    // guard, while busybox normalizes the member into the sandbox that
+    // installPlugin cleans up on failure.
+    expect(result.success).toBe(false);
+    await expect(
+      fs.access(path.join(testState.pluginsDir, 'acme')),
+    ).rejects.toThrow();
+    await expect(
+      fs.access(path.join(testState.pluginsDir, 'evil.txt')),
+    ).rejects.toThrow();
+  });
+
+  it('rejects a store tarball listing a parent-directory path before extraction', async () => {
+    const archiveBuffer = buildTarGzip([
+      { name: 'plugin/', type: 'dir' },
+      { name: 'plugin/package.json', content: '{}' },
+      { name: '../evil.txt', content: 'evil' },
+    ]);
+    const artifact = signBuffer(archiveBuffer, 'acme/private-plugin', '1.0.0');
+    testState.storePublicKey = artifact.publicKeyPem;
+    // Listings that keep `..` verbatim (GNU/BSD tar). Driven through the
+    // mock because busybox strips `..` from listings, which would leave
+    // the guard's parsing path untested on alpine CI.
+    testState.tarListing = {
+      verbose: [
+        'drwxr-xr-x root/root         0 2026-11-10 00:00 plugin/',
+        '-rw-r--r-- root/root         3 2026-11-10 00:00 plugin/package.json',
+        '-rw-r--r-- root/root         4 2026-11-10 00:00 ../evil.txt',
+      ].join('\n'),
+      names: ['plugin/', 'plugin/package.json', '../evil.txt'].join('\n'),
+    };
+    stubStore(
+      { ok: true, body: entitlementBody(artifact) },
+      { buffer: artifact.buffer, headers: storeArtifactHeaders(artifact) },
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('disallowed path');
+    await expect(
+      fs.access(path.join(testState.pluginsDir, 'acme')),
+    ).rejects.toThrow();
+  });
+
+  it('rejects a store tarball that exceeds the download size limit', async () => {
+    const artifact = signedArtifact();
+    testState.storePublicKey = artifact.publicKeyPem;
+    stubStore(
+      { ok: true, body: entitlementBody(artifact) },
+      {
+        buffer: Buffer.alloc(100 * 1024 * 1024 + 1),
+        headers: storeArtifactHeaders(artifact),
+      },
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('size limit');
+  });
+
+  it('extracts without preserving ownership or permissions', async () => {
+    const artifact = signedArtifact();
+    testState.storePublicKey = artifact.publicKeyPem;
+    stubStore(
+      { ok: true, body: entitlementBody(artifact) },
+      { buffer: artifact.buffer, headers: storeArtifactHeaders(artifact) },
+    );
+
+    const result = await installPlugin({
+      type: 'marketplace',
+      listing: 'acme/private-plugin',
+    });
+
+    expect(result.success).toBe(true);
+    const extract = testState.spawnCalls.find(
+      ({ command, args }) => command === 'tar' && args[0] === '-xzf',
+    );
+    expect(extract?.args).toContain('--no-same-owner');
+    expect(extract?.args).toContain('--no-same-permissions');
+  });
+
+  it('self-heal verifies against the digest pinned at install time', async () => {
+    testState.storedConfigRows.push({
+      key: 'openpeeps-installed-plugins',
+      body: {
+        'acme/private-plugin': {
+          source: `store:acme/private-plugin@1.0.0#${'f'.repeat(64)}`,
+          requiresAuth: false,
+          installedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    });
+    const artifact = signedArtifact();
+    testState.storePublicKey = artifact.publicKeyPem;
+    stubStore(
+      { ok: true, body: entitlementBody(artifact) },
+      { buffer: artifact.buffer, headers: storeArtifactHeaders(artifact) },
+    );
+
+    const failures = await selfHealInstalledPlugins();
+
+    expect(failures['acme/private-plugin']).toContain('digest');
   });
 });

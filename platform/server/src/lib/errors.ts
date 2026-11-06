@@ -41,6 +41,7 @@ export const payloadTooLarge = (message = 'Payload too large') =>
   httpError(413, message);
 export const unprocessableRequest = (message = 'Invalid request') =>
   httpError(422, message);
+export const badGateway = (message = 'Bad gateway') => httpError(502, message);
 export const internalError = (message = 'Internal error') =>
   httpError(500, message);
 export const fromOpenpeepsError = (allPeepError: OpenpeepsError) =>

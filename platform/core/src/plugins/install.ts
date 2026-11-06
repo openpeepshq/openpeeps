@@ -1,8 +1,13 @@
 import { spawn } from 'node:child_process';
+import { createHash, verify } from 'node:crypto';
 import { createRequire } from 'node:module';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { PluginInstallSource } from '@openpeepshq/common/types';
+import {
+  pluginStoreEntitlementSchema,
+  pluginStoreErrorSchema,
+  type PluginInstallSource,
+} from '@openpeepshq/common/types';
 import { defaultConfig } from '../config';
 import { logger } from '../log';
 import { allpeepDb } from '../db';
@@ -16,6 +21,14 @@ const requireFromHost = createRequire(
   new URL('../../package.json', import.meta.url),
 );
 const MAX_COMMAND_OUTPUT = 16_000;
+/** Compressed store tarball cap. */
+const MAX_MARKETPLACE_TARBALL_BYTES = 100 * 1024 * 1024;
+/** Extracted plugin tree cap (gzip-bomb guard). */
+const MAX_MARKETPLACE_EXTRACTED_BYTES = 1024 * 1024 * 1024;
+const STORE_REQUEST_TIMEOUT_MS = 10_000;
+const STORE_ARTIFACT_TIMEOUT_MS = 60_000;
+/** Plugin keys are directory names, so keep them to safe path segments. */
+const PLUGIN_NAME_SEGMENT = /^[a-z0-9-]+$/;
 
 const INSTALLED_PLUGINS_KEY = 'openpeeps-installed-plugins';
 
@@ -135,10 +148,15 @@ const redactUrl = (url: string): string => {
   return parsed.toString();
 };
 
-const sourceLabel = (source: PluginInstallSource): string =>
-  source.type === 'npm'
-    ? `npm:${source.package}${source.version ? `@${source.version}` : ''}`
-    : `git:${redactUrl(source.url)}${source.ref ? `#${source.ref}` : ''}`;
+const sourceLabel = (source: PluginInstallSource): string => {
+  if (source.type === 'npm') {
+    return `npm:${source.package}${source.version ? `@${source.version}` : ''}`;
+  }
+  if (source.type === 'marketplace') {
+    return `store:${source.listing}${source.version ? `@${source.version}` : ''}`;
+  }
+  return `git:${redactUrl(source.url)}${source.ref ? `#${source.ref}` : ''}`;
+};
 
 /**
  * Inverse of sourceLabel for credentials-free sources; undefined when the
@@ -166,10 +184,30 @@ const parseInstallSource = (label: string): PluginInstallSource | undefined => {
     }
     return { type: 'git', url: spec.slice(0, hash), ref: spec.slice(hash + 1) };
   }
+  if (label.startsWith('store:')) {
+    // The trailing #sha256 pins the digest that was originally installed,
+    // so self-heal re-downloads are verified against it.
+    const spec = label.slice('store:'.length);
+    const hash = spec.indexOf('#');
+    const base = hash === -1 ? spec : spec.slice(0, hash);
+    const sha256 = hash === -1 ? undefined : spec.slice(hash + 1);
+    const at = base.lastIndexOf('@');
+    const listing = at <= 0 ? base : base.slice(0, at);
+    const version = at <= 0 ? undefined : base.slice(at + 1);
+    return {
+      type: 'marketplace',
+      listing,
+      ...(version ? { version } : {}),
+      ...(sha256 ? { sha256 } : {}),
+    };
+  }
   return undefined;
 };
 
 const sourceSecrets = (source: PluginInstallSource): string[] => {
+  if (source.type === 'marketplace') {
+    return [];
+  }
   if (source.type === 'npm') {
     return source.auth ? [source.auth.token] : [];
   }
@@ -337,6 +375,233 @@ const writeGitAuth = async (
   };
 };
 
+const measureTreeSize = async (dir: string): Promise<number> => {
+  let total = 0;
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      total += await measureTreeSize(full);
+    } else if (entry.isFile()) {
+      total += (await fs.stat(full)).size;
+    }
+  }
+  return total;
+};
+
+export const verifyMarketplaceArtifact = (
+  buffer: Buffer,
+  sha256: string,
+  listing: string,
+  version: string,
+  signature: string,
+  publicKeyPem: string,
+): boolean => {
+  const digest = createHash('sha256').update(buffer).digest('hex');
+  if (digest !== sha256) {
+    return false;
+  }
+  // The signature binds listing, version and digest so a signed artifact
+  // cannot be swapped for another listing or an older version.
+  const canonical = `${listing}\n${version}\n${sha256}`;
+  return verify(
+    null,
+    Buffer.from(canonical, 'utf8'),
+    publicKeyPem,
+    Buffer.from(signature, 'base64'),
+  );
+};
+
+const downloadMarketplacePlugin = async (
+  source: Extract<PluginInstallSource, { type: 'marketplace' }>,
+  tempDir: string,
+): Promise<
+  | { success: true; installDir: string; label: string }
+  | { success: false; error: string }
+> => {
+  const { plugins, server } = await defaultConfig;
+  const storeUrl = plugins.storeUrl?.replace(/\/$/, '');
+  if (!storeUrl) {
+    return { success: false, error: 'Plugin store URL is not configured.' };
+  }
+  // The signing key must come from operator configuration. Fetching it from
+  // the store origin would let anyone who can serve the artifact forge a
+  // matching key, so an unset key fails the install closed.
+  const publicKey = plugins.storePublicKey;
+  if (!publicKey) {
+    return {
+      success: false,
+      error:
+        'Plugin store signing key is not configured. Set PLUGIN_STORE_PUBLIC_KEY.',
+    };
+  }
+  const host = server?.host ?? 'localhost';
+  const origin = `${
+    host.startsWith('localhost') || host.startsWith('127.0.0.1')
+      ? 'http'
+      : 'https'
+  }://${host}`;
+  const entitled = await fetch(`${storeUrl}/v1/entitlements`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      listing: source.listing,
+      version: source.version,
+      origin,
+    }),
+    signal: AbortSignal.timeout(STORE_REQUEST_TIMEOUT_MS),
+  });
+  const entitledBody = await entitled.json().catch(() => undefined);
+  const storeDetail = entitledBody
+    ? pluginStoreErrorSchema.safeParse(entitledBody)
+    : undefined;
+  if (!entitled.ok) {
+    return {
+      success: false,
+      error: storeDetail?.success
+        ? storeDetail.data.error
+        : `Store entitlement failed (HTTP ${entitled.status}).`,
+    };
+  }
+  const entitlement = entitledBody
+    ? pluginStoreEntitlementSchema.safeParse(entitledBody)
+    : undefined;
+  if (!entitlement?.success) {
+    return {
+      success: false,
+      error: storeDetail?.success
+        ? storeDetail.data.error
+        : 'Store entitlement response was malformed.',
+    };
+  }
+  const { token, version, sha256, signature } = entitlement.data;
+  if (source.version && version !== source.version) {
+    return {
+      success: false,
+      error: `Store provided ${source.listing}@${version}; expected ${source.listing}@${source.version}.`,
+    };
+  }
+  const artifact = await fetch(
+    `${storeUrl}/v1/artifacts/${source.listing}/${version}`,
+    {
+      headers: { authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(STORE_ARTIFACT_TIMEOUT_MS),
+    },
+  );
+  if (!artifact.ok) {
+    return { success: false, error: 'Store artifact download failed.' };
+  }
+  const buffer = Buffer.from(await artifact.arrayBuffer());
+  if (buffer.byteLength > MAX_MARKETPLACE_TARBALL_BYTES) {
+    return { success: false, error: 'Store tarball exceeds the size limit.' };
+  }
+  const artifactSha256 = artifact.headers.get('x-openpeeps-sha256') ?? sha256;
+  const artifactSignature =
+    artifact.headers.get('x-openpeeps-signature') ?? signature;
+  if (!artifactSha256 || !artifactSignature) {
+    return {
+      success: false,
+      error: 'Store artifact is missing its digest or signature.',
+    };
+  }
+  if (source.sha256 && artifactSha256 !== source.sha256) {
+    return {
+      success: false,
+      error: 'Store artifact digest does not match the installed digest.',
+    };
+  }
+  if (
+    !verifyMarketplaceArtifact(
+      buffer,
+      artifactSha256,
+      source.listing,
+      version,
+      artifactSignature,
+      publicKey,
+    )
+  ) {
+    return {
+      success: false,
+      error: 'Marketplace artifact failed verification.',
+    };
+  }
+  const tarballPath = path.join(tempDir, 'plugin.tgz');
+  const extractDir = path.join(tempDir, 'extracted');
+  await fs.writeFile(tarballPath, buffer);
+  await fs.mkdir(extractDir, { recursive: true });
+
+  // Validate the member list before extracting: only regular files and
+  // directories are allowed, and paths must stay relative. tar strips
+  // absolute paths and ".." itself, but symlinks and hardlinks would
+  // survive extraction and reach the npm build steps.
+  const verbose = await runCommand('tar', ['-tzvf', tarballPath], tempDir);
+  if (verbose.exitCode !== 0) {
+    return { success: false, error: commandFailure('tar list', verbose, []) };
+  }
+  for (const line of verbose.stdout.split('\n')) {
+    if (!line.trim()) continue;
+    if (line[0] !== '-' && line[0] !== 'd') {
+      return {
+        success: false,
+        error: `Tarball contains a disallowed entry: ${line
+          .slice(0, 60)
+          .trim()}`,
+      };
+    }
+  }
+  const names = await runCommand('tar', ['-tzf', tarballPath], tempDir);
+  if (names.exitCode !== 0) {
+    return { success: false, error: commandFailure('tar list', names, []) };
+  }
+  for (const member of names.stdout.split('\n')) {
+    const name = member.trimEnd().replace(/\/$/, '');
+    if (!name) continue;
+    if (
+      name.startsWith('/') ||
+      name.includes('\\') ||
+      name.split('/').includes('..')
+    ) {
+      return {
+        success: false,
+        error: `Tarball contains a disallowed path: ${name}`,
+      };
+    }
+  }
+
+  const extract = await runCommand(
+    'tar',
+    [
+      '-xzf',
+      tarballPath,
+      '-C',
+      extractDir,
+      '--no-same-owner',
+      '--no-same-permissions',
+    ],
+    tempDir,
+  );
+  if (extract.exitCode !== 0) {
+    return {
+      success: false,
+      error: commandFailure('tar extract', extract, []),
+    };
+  }
+  const extractedBytes = await measureTreeSize(extractDir);
+  if (extractedBytes > MAX_MARKETPLACE_EXTRACTED_BYTES) {
+    return {
+      success: false,
+      error: 'Extracted plugin exceeds the size limit.',
+    };
+  }
+  const entries = await fs.readdir(extractDir);
+  const installDir =
+    entries.length === 1 ? path.join(extractDir, entries[0]) : extractDir;
+  return {
+    success: true,
+    installDir,
+    label: `store:${source.listing}@${version}#${artifactSha256}`,
+  };
+};
+
 export const installPlugin = async (
   source: PluginInstallSource,
   installedBy?: string,
@@ -347,7 +612,7 @@ export const installPlugin = async (
   error?: string;
 }> => {
   const pluginsDir = await getPluginDir();
-  const label = sourceLabel(source);
+  const baseLabel = sourceLabel(source);
   const secrets = sourceSecrets(source);
 
   let tempDir: string;
@@ -361,6 +626,7 @@ export const installPlugin = async (
   try {
     let installDir: string;
     let npmEnvironment: NodeJS.ProcessEnv | undefined;
+    let marketplaceLabel: string | undefined;
 
     if (source.type === 'npm') {
       const pkg = source.version
@@ -371,7 +637,7 @@ export const installPlugin = async (
       const init = await runCommand('npm', ['init', '-y'], tempDir);
       if (init.exitCode !== 0) {
         const error = commandFailure('npm init', init, secrets);
-        log.error(new Error(error), `npm init failed for ${label}.`);
+        log.error(new Error(error), `npm init failed for ${baseLabel}.`);
         return { success: false, error };
       }
       npmEnvironment = await writeNpmConfig(tempDir, source.auth);
@@ -383,11 +649,18 @@ export const installPlugin = async (
       );
       if (install.exitCode !== 0) {
         const error = commandFailure('npm install', install, secrets);
-        log.error(new Error(error), `npm install failed for ${label}.`);
+        log.error(new Error(error), `npm install failed for ${baseLabel}.`);
         return { success: false, error };
       }
 
       installDir = path.join(tempDir, 'node_modules', source.package);
+    } else if (source.type === 'marketplace') {
+      const downloaded = await downloadMarketplacePlugin(source, tempDir);
+      if (!downloaded.success) {
+        return downloaded;
+      }
+      marketplaceLabel = downloaded.label;
+      installDir = downloaded.installDir;
     } else {
       const repositoryUrl = redactUrl(source.url);
       log.info(`Cloning git repo ${repositoryUrl} to temp dir ${tempDir}`);
@@ -400,11 +673,13 @@ export const installPlugin = async (
       const clone = await runCommand('git', cloneArgs, tempDir, gitEnvironment);
       if (clone.exitCode !== 0) {
         const error = commandFailure('git clone', clone, secrets);
-        log.error(new Error(error), `git clone failed for ${label}.`);
+        log.error(new Error(error), `git clone failed for ${baseLabel}.`);
         return { success: false, error };
       }
       installDir = path.join(tempDir, 'repo');
     }
+
+    const label = marketplaceLabel ?? baseLabel;
 
     // Read package.json to determine namespace/name
     const pkgJsonRaw = await fs.readFile(
@@ -424,7 +699,28 @@ export const installPlugin = async (
       'plugin';
 
     const pluginKey = `${namespace}/${name}`;
+    if (
+      !PLUGIN_NAME_SEGMENT.test(namespace) ||
+      !PLUGIN_NAME_SEGMENT.test(name)
+    ) {
+      return {
+        success: false,
+        error: `Artifact declares an invalid plugin name "${pluginKey}".`,
+      };
+    }
+    if (source.type === 'marketplace' && pluginKey !== source.listing) {
+      return {
+        success: false,
+        error: `Artifact for ${source.listing} declares plugin "${pluginKey}".`,
+      };
+    }
     const destDir = path.join(pluginsDir, namespace, name);
+    if (!destDir.startsWith(`${pluginsDir}${path.sep}`)) {
+      return {
+        success: false,
+        error: `Invalid plugin install path for "${pluginKey}".`,
+      };
+    }
 
     // Check if already exists in the plugins dir (built-in)
     const existingEntries = await fs
@@ -517,7 +813,10 @@ export const installPlugin = async (
   } catch (e) {
     const rawMessage = e instanceof Error ? e.message : String(e);
     const message = redactSecrets(rawMessage, secrets);
-    log.error(new Error(message), `Failed to install plugin from ${label}.`);
+    log.error(
+      new Error(message),
+      `Failed to install plugin from ${baseLabel}.`,
+    );
     return { success: false, error: message };
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true }).catch(() => {});

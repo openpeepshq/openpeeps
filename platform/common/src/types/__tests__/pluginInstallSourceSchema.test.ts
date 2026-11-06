@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { pluginInstallSourceSchema } from '../plugins';
+import {
+  pluginInstallSourceSchema,
+  pluginStoreListingSchema,
+} from '../plugins';
 
 describe('pluginInstallSourceSchema', () => {
   it('accepts npm, HTTPS token, and SSH deploy-key sources', () => {
@@ -92,6 +95,62 @@ describe('pluginInstallSourceSchema', () => {
         },
       }).success,
     ).toBe(false);
+  });
+
+  it('accepts marketplace listings', () => {
+    expect(
+      pluginInstallSourceSchema.safeParse({
+        type: 'marketplace',
+        listing: 'peeps/greeter',
+        version: '1.0.0',
+      }).success,
+    ).toBe(true);
+    expect(
+      pluginInstallSourceSchema.safeParse({
+        type: 'marketplace',
+        listing: 'peeps/greeter',
+        version: '1.0.0',
+        sha256: 'a'.repeat(64),
+      }).success,
+    ).toBe(true);
+    expect(
+      pluginInstallSourceSchema.safeParse({
+        type: 'marketplace',
+        listing: 'peeps/greeter',
+        sha256: 'not-hex',
+      }).success,
+    ).toBe(false);
+    expect(
+      pluginInstallSourceSchema.safeParse({
+        type: 'marketplace',
+        listing: 'Not A Listing',
+      }).success,
+    ).toBe(false);
+  });
+
+  it('strips extra store listing fields', () => {
+    const parsed = pluginStoreListingSchema.parse({
+      id: 'peeps/greeter',
+      title: 'Greeter',
+      description: 'Hello',
+      category: 'utility',
+      priceCents: 0,
+      currency: 'usd',
+      latest: {
+        version: '1.0.0',
+        hostRange: '>=0.4.0',
+        sha256: 'abc',
+        capabilities: ['slots'],
+        status: 'approved',
+      },
+      versions: [],
+      reviews: [],
+    });
+    expect(parsed.latest).toEqual({
+      version: '1.0.0',
+      hostRange: '>=0.4.0',
+      sha256: 'abc',
+    });
   });
 
   it('accepts package names rather than arbitrary npm specs', () => {
