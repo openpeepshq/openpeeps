@@ -76,6 +76,11 @@ export const profiles = (
       rawClient,
       '/profiles/current/settings',
     ),
+    presence: allpeepNoPayloadEndpoint<SuccessResponse>(
+      rawClient,
+      '/profiles/current/presence',
+      'post',
+    ),
     updateSettings: allpeepPayloadEndpoint<
       ProfileSettings,
       ProfileSettingsData

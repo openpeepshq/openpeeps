@@ -111,6 +111,11 @@ export const publicProfileSchema = z.object({
   profileStats: profileStatsSchema.optional(),
   pinnedPostId: z.string().optional(),
   blockedByMe: z.boolean().optional(),
+  /**
+   * Present only for viewers allowed to see presence (see
+   * `core-presence-read`): whether the profile is currently online.
+   */
+  online: z.boolean().optional(),
 });
 
 export type PublicProfile = z.infer<typeof publicProfileSchema>;

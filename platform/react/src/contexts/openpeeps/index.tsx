@@ -20,6 +20,7 @@ import {
 } from '../../auth/credentials';
 import { buildOpenpeepsApi } from './hooks';
 import { CredentialsStoreProvider } from '../credentialsStore';
+import { usePresenceHeartbeat } from '../../hooks/usePresenceHeartbeat';
 
 export { useHasAuthToken } from './hooks/useHasAuthToken';
 import {
@@ -75,6 +76,16 @@ const SessionEventsMount = () => {
   useNotificationBadgeSync();
   // Session SSE requires a local profile; guests get 401 from ensureLocalProfile.
   useSessionEvents(client, currentProfile?.type === 'local');
+  return null;
+};
+
+const PresenceHeartbeatMount = ({
+  subscribeToForeground,
+}: {
+  subscribeToForeground?: (onForeground: () => void) => () => void;
+}) => {
+  const { client, currentProfile } = useOpenpeeps();
+  usePresenceHeartbeat(client, currentProfile, subscribeToForeground);
   return null;
 };
 
@@ -285,6 +296,9 @@ export const OpenpeepsProvider: React.FC<{
       <QueryClientProvider client={queryClient}>
         <CredentialsStoreProvider credentialsStore={credentialsStore}>
           <SessionEventsMount />
+          <PresenceHeartbeatMount
+            subscribeToForeground={subscribeToForeground}
+          />
           {children}
         </CredentialsStoreProvider>
       </QueryClientProvider>

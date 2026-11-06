@@ -49,6 +49,7 @@ export type {
   UseEventRsvpArgs,
 } from './events/useEventRsvp';
 export { useFollowProfile } from './profile/useFollowProfile';
+export { usePresenceHeartbeat } from './usePresenceHeartbeat';
 export { useFeedFormatPreference } from './settings/useFeedFormatPreference';
 export { useThemePreference } from './settings/useThemePreference';
 export { useNotificationPreferences } from './settings/useNotificationPreferences';

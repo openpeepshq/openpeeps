@@ -255,6 +255,10 @@
       "joined": "Joined {{date}}",
       "avatarAlt": "Profile picture"
     },
+    "presence": {
+      "online": "Online",
+      "offline": "Offline"
+    },
     "actions": {
       "edit": "Edit Profile",
       "follow": "Follow",

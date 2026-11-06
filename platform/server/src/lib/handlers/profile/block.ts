@@ -21,6 +21,7 @@ import {
   listBlockedProfiles,
   unblockProfile,
 } from '@openpeepshq/core/profiles';
+import { withPresenceForViewer } from '#lib/presence';
 
 export const blockParamsSchema = z.object({
   profileId: z.string(),
@@ -93,5 +94,6 @@ export const publicProfileForViewer = async (
   }
 
   await ensureProfileCapabilities(event, target, ['core-profiles-read']);
-  return publicProfileSchema.parse(target);
+  const profile = publicProfileSchema.parse(target);
+  return withPresenceForViewer(viewer, target, profile);
 };

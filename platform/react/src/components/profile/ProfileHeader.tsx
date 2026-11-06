@@ -38,12 +38,28 @@ export function ProfileHeader({
               />
             )}
           </div>
-          <Avatar
-            profile={profile}
-            size={6}
-            containerClassName="absolute -bottom-12 left-4"
-            borderless
-          />
+          <div className="absolute -bottom-12 left-4">
+            <div className="relative">
+              <Avatar profile={profile} size={6} borderless />
+              {profile.online !== undefined && (
+                <span
+                  data-testid="profile-presence-dot"
+                  title={
+                    profile.online
+                      ? t('profile.presence.online', {
+                          defaultValue: 'Online',
+                        })
+                      : t('profile.presence.offline', {
+                          defaultValue: 'Offline',
+                        })
+                  }
+                  className={`absolute bottom-1 right-1 size-4 rounded-full ring-2 ring-surface ${
+                    profile.online ? 'bg-success' : 'bg-muted-foreground'
+                  }`}
+                />
+              )}
+            </div>
+          </div>
         </div>
         {/* Sits below the banner (mirrors the Svelte layout): its height
             reserves space so the overhanging avatar doesn't cover the name. */}

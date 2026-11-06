@@ -126,6 +126,20 @@ const adminCanManageMedia = (roles: RoleData[]): RoleData[] =>
       : role,
   );
 
+/** Admins and moderators can see each other's online presence. */
+const withPresenceCapability = (roles: RoleData[]): RoleData[] =>
+  roles.map((role) =>
+    role.key === 'admin' || role.key === 'moderator'
+      ? {
+          ...role,
+          capabilities: {
+            add: [...(role.capabilities?.add ?? []), 'core-presence-read'],
+            remove: [...(role.capabilities?.remove ?? [])],
+          },
+        }
+      : role,
+  );
+
 export const roleDefaultsHistory: RoleDefaultsVersion[] = [
   {
     version: '2026-10-06',
@@ -134,6 +148,13 @@ export const roleDefaultsHistory: RoleDefaultsVersion[] = [
   {
     version: '2026-10-13',
     roles: versionedRoles('2026-10-13', adminCanManageMedia(builtinRoles)),
+  },
+  {
+    version: '2026-11-06',
+    roles: versionedRoles(
+      '2026-11-06',
+      withPresenceCapability(adminCanManageMedia(builtinRoles)),
+    ),
   },
 ];
 
