@@ -46,7 +46,6 @@ import { findOrCreateHashtag } from '../hashtags';
 import { hub } from '../events';
 import { listUnseenGroupPostIds } from './unseenCounts';
 import {
-  AP_LIKE_REACTION,
   canManageEventRsvps,
   capacityRsvpDecision,
   eventDataForDbUpdate,
@@ -292,11 +291,15 @@ export const reactToPost = async (
     ),
   );
 
-export const retractReaction = async (post: PostWithMeta, profile: Profile) =>
+export const retractReaction = async (
+  post: PostWithMeta,
+  profile: Profile,
+  data: ReactionData,
+) =>
   allpeepDb().then(({ db }) =>
     entryConnector(db, profile, post, {
       type: 'unreaction',
-      data: { reaction: AP_LIKE_REACTION },
+      data: { reaction: data.reaction },
     }),
   );
 

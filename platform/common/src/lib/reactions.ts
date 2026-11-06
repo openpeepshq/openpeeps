@@ -1,5 +1,13 @@
+import { REACTION_TYPES, type ReactionData } from '../types';
+
 export const AP_LIKE_REACTION = '👍';
 export const AP_DISLIKE_REACTION = '👎';
+
+/** Whether a logged reaction value is one of the curated post reactions. */
+export const isReactionType = (
+  reaction: string,
+): reaction is ReactionData['reaction'] =>
+  (REACTION_TYPES as readonly string[]).includes(reaction);
 
 export const activityPubActivityForReaction = (
   reaction: string,

@@ -3,11 +3,19 @@ import { forbidden, notFound } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { findPost, retractReaction } from '@openpeepshq/core/posts';
-import { successResponseSchema } from '@openpeepshq/common/types';
+import {
+  reactionDataSchema,
+  successResponseSchema,
+} from '@openpeepshq/common/types';
+import { AP_LIKE_REACTION } from '@openpeepshq/common/lib';
 
 export const Param = z.object({
   postId: z.string(),
 });
+
+// Reaction is optional: pre-picker clients retract without a body and expect
+// the legacy like removed.
+export const Input = reactionDataSchema.partial();
 
 export const Output = successResponseSchema;
 
@@ -28,7 +36,11 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-read']);
 
-    await retractReaction(mergedPost, profile);
+    const reactionData = reactionDataSchema.partial().parse(input);
+
+    await retractReaction(mergedPost, profile, {
+      reaction: reactionData.reaction ?? AP_LIKE_REACTION,
+    });
 
     return { success: true };
   },

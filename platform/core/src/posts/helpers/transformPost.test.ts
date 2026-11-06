@@ -315,7 +315,7 @@ describe('transformPost deleted authors', () => {
     expect(result.latestRepliesHasMore).toBe(true);
   });
 
-  it('hydrates 👍 reactions from entries and hides reaction history', async () => {
+  it('hydrates all reactions from entries and hides reaction history', async () => {
     const post = {
       ...basePost,
       entries: [
@@ -345,6 +345,7 @@ describe('transformPost deleted authors', () => {
     );
     expect(result.reactions).toEqual([
       { reaction: '👍', profile: activeAuthor },
+      { reaction: '👎', profile: activeAuthor },
     ]);
   });
 });
