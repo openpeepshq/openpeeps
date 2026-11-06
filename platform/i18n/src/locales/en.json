@@ -103,6 +103,10 @@
       "signingIn": "Signing you in…"
     }
   },
+  "previewLink": {
+    "embeddedVideo": "Embedded video",
+    "playVideo": "Play video"
+  },
   "navigation": {
     "welcome": "Welcome",
     "joinCommunity": "Join Community",

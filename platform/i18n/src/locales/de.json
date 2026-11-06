@@ -103,6 +103,10 @@
       "signingIn": "Sie werden angemeldet…"
     }
   },
+  "previewLink": {
+    "embeddedVideo": "Eingebettetes Video",
+    "playVideo": "Video abspielen"
+  },
   "navigation": {
     "welcome": "Willkommen",
     "joinCommunity": "Community beitreten",
