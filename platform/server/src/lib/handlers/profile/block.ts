@@ -1,7 +1,6 @@
 import {
   sharesControllingAccount,
   targetBlockedViewer,
-  toBlockedProfileStub,
   viewerBlockedTarget,
 } from '@openpeepshq/common/lib';
 import {
@@ -77,21 +76,4 @@ export const listBlockedProfilesHandler = async (
   const profile = await ensureLocalProfile(event);
   const blocked = await listBlockedProfiles(profile);
   return blocked.map((item) => publicProfileSchema.parse(item));
-};
-
-export const publicProfileForViewer = async (
-  event: RequestEvent,
-  target: ProfileWithMeta,
-  notFoundLabel: string,
-): Promise<PublicProfile> => {
-  const viewer = event.context.currentProfile as ProfileWithMeta | undefined;
-  if (targetBlockedViewer(viewer, target.id)) {
-    throw notFound(notFoundLabel);
-  }
-  if (viewerBlockedTarget(viewer, target.id)) {
-    return toBlockedProfileStub(target);
-  }
-
-  await ensureProfileCapabilities(event, target, ['core-profiles-read']);
-  return publicProfileSchema.parse(target);
 };

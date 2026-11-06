@@ -4,7 +4,7 @@ import type { RequestEvent } from '@riddl/core';
 import { publicProfileSchema } from '@openpeepshq/common/types';
 import { ensureAccess } from '#lib/auth';
 import { notFound } from '#lib/errors';
-import { publicProfileForViewer } from '#lib/handlers/profile/block';
+import { publicProfileForViewer } from '#lib/handlers/profile/read';
 
 export const Output = publicProfileSchema;
 export const Param = z.object({

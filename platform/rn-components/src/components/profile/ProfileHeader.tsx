@@ -34,7 +34,23 @@ export const ProfileHeader = ({
           />
         ) : null}
         <View className="absolute -bottom-12 left-4 z-10">
-          <ProfileAvatar profile={profile} className="size-24" />
+          <View className="relative">
+            <ProfileAvatar profile={profile} className="size-24" />
+            {profile.online !== undefined ? (
+              <View
+                accessible
+                accessibilityRole="image"
+                accessibilityLabel={
+                  profile.online
+                    ? t('profile.presence.online')
+                    : t('profile.presence.offline')
+                }
+                className={`absolute bottom-1 right-1 size-4 rounded-full border-2 border-surface ${
+                  profile.online ? 'bg-success' : 'bg-muted-foreground'
+                }`}
+              />
+            ) : null}
+          </View>
         </View>
       </View>
       <ProfilePageAction

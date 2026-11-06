@@ -233,6 +233,10 @@
       "avatarAlt": "Profilbild",
       "roles": "Rollen"
     },
+    "presence": {
+      "online": "Online",
+      "offline": "Offline"
+    },
     "actions": {
       "edit": "Profil bearbeiten",
       "follow": "Folgen",
