@@ -14,7 +14,11 @@ import { allpeepDb, collectionInfos } from '../db';
 import { communityConfig, config } from '../config';
 import { accountsMapping } from './mapping';
 import { accountsCache } from './cache';
-import { assignRole, unassignRole } from '../profiles/mutations';
+import {
+  assignRole,
+  followDesignatedProfiles,
+  unassignRole,
+} from '../profiles/mutations';
 import { hash } from 'bcrypt';
 import { profilesMapping } from '../profiles/mapping';
 import { assertProfileCapacity } from '../profiles/capacity';
@@ -142,6 +146,10 @@ export const createAccount = async (
       await applyCommunityRoleChanges(
         profile,
         communityConf.roles.onRegistration,
+      );
+      await followDesignatedProfiles(
+        profile,
+        communityConf.content?.autoFollow ?? [],
       );
       // Authorized/SSO creates skip the validation email, so apply the
       // same promotion humans get after confirming.

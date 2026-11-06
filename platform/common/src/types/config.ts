@@ -402,6 +402,8 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       codeOfConduct: z.string().optional(),
       welcomeEmail: z.string().optional(),
       pinnedPost: z.string().optional(),
+      /** Handles new members are made to follow on registration. */
+      autoFollow: z.string().array().optional(),
     }),
     settings: z.object({
       openRegistrations: z.boolean(),

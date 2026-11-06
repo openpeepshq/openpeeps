@@ -10,6 +10,7 @@ import {
   Button,
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -109,6 +110,41 @@ export function AdminConfigurationCommunityInfo() {
                     data-testid="admin-community-info-email"
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="content.autoFollow"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t('configuration.community.autoFollow', {
+                    defaultValue: 'Auto-follow accounts',
+                  })}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    value={(field.value ?? []).join(', ')}
+                    placeholder="alice, bob"
+                    onChange={(event) => {
+                      const handles = event.target.value
+                        .split(',')
+                        .map((handle) => handle.trim())
+                        .filter(Boolean);
+                      field.onChange(handles.length ? handles : undefined);
+                    }}
+                    data-testid="admin-community-info-autofollow"
+                  />
+                </FormControl>
+                <FormDescription>
+                  {t('configuration.community.autoFollowDescription', {
+                    defaultValue:
+                      'Comma-separated handles. New members follow these accounts when they sign up.',
+                  })}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

@@ -24,6 +24,7 @@ import {
   profilesCache,
   getProfile,
   getPublicProfile,
+  getProfileByHandle,
   clearProfileCache,
 } from './cache';
 import { accountsCache } from '../accounts/cache';
@@ -134,6 +135,25 @@ export const follow = async (
     await hub.emit('followCreated', follower, followed);
   }
   await Promise.all([clearProfileCache(follower), clearProfileCache(followed)]);
+};
+
+/**
+ * Makes a profile follow the community's designated accounts (community
+ * config `content.autoFollow`, by handle). Missing handles and the profile
+ * itself are skipped.
+ */
+export const followDesignatedProfiles = async (
+  profile: Profile,
+  handles: string[],
+) => {
+  for (const rawHandle of handles) {
+    const handle = rawHandle.replace(/^@/, '');
+    if (!handle || handle === profile.handle) continue;
+    const target = await getProfileByHandle(handle);
+    if (target) {
+      await follow(profile, target, { reblogs: true, notify: false });
+    }
+  }
 };
 
 export const unfollow = async (follower: Profile, followed: Profile) => {

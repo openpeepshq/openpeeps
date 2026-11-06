@@ -2165,6 +2165,8 @@
       "colorDescription": "This color will be used for buttons, links, and other highlights",
       "fontFamily": "Font",
       "typographyAndRadii": "Typography and radii",
+      "autoFollow": "Auto-follow accounts",
+      "autoFollowDescription": "Comma-separated handles. New members follow these accounts when they sign up.",
       "buttonRadius": "Button border radius",
       "radius": "Default border radius (cards, modals)",
       "contactEmail": "Contact Email",
