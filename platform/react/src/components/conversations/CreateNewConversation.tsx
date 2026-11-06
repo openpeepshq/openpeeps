@@ -1,6 +1,6 @@
 import { Image } from 'lucide-react';
 import type { PublicProfile } from '@openpeepshq/common/types';
-import { blockedPairIds } from '@openpeepshq/common/lib';
+import { blockedPairIds, visibleTextLength } from '@openpeepshq/common/lib';
 import {
   Button,
   Dialog,
@@ -151,7 +151,11 @@ export const CreateNewConversation = ({
                 )}
                 <Button
                   variant="default"
-                  disabled={!canSend || selectedProfiles.length === 0}
+                  disabled={
+                    submitting ||
+                    selectedProfiles.length === 0 ||
+                    visibleTextLength(message) > MAX_MESSAGE_LENGTH
+                  }
                   action={send}
                 >
                   {submitting

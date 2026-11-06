@@ -10,7 +10,9 @@ import {
   canAnnouncePosts,
   isCommunityWideVisibility,
   pollOptionsWithinLimit,
+  POST_MAX_VISIBLE_LENGTH,
   resolvePollOptionContents,
+  visibleTextLength,
   type GroupWithMeta,
   type MediaAttachmentData,
   type PostCreationData,
@@ -181,7 +183,6 @@ export function NewPostModal({
         },
       };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     composerType,
     content,
@@ -214,6 +215,7 @@ export function NewPostModal({
   }, [serverInfo.publicContent, visibility]);
 
   const trimmedContent = content.trim();
+  const visibleContentLength = visibleTextLength(trimmedContent);
   const resolvedPollOptions = resolvePollOptionContents(pollOptions, (index) =>
     pollOptionLabel(index, t),
   );
@@ -228,11 +230,15 @@ export function NewPostModal({
     if (visibility === 'direct' && audience.length === 0) return false;
     if (visibility === 'group' && !group?.id && !groupId) return false;
     if (composerType === 'question') {
-      return trimmedContent.length > 0 && pollOptionsValid;
+      return (
+        visibleContentLength > 0 &&
+        visibleContentLength <= POST_MAX_VISIBLE_LENGTH &&
+        pollOptionsValid
+      );
     }
     return (
-      (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
-      attachments.length > 0
+      visibleContentLength <= POST_MAX_VISIBLE_LENGTH &&
+      (visibleContentLength > 0 || attachments.length > 0)
     );
   }, [
     submitting,
@@ -242,7 +248,7 @@ export function NewPostModal({
     group?.id,
     groupId,
     composerType,
-    trimmedContent,
+    visibleContentLength,
     pollOptionsValid,
     attachments.length,
   ]);
@@ -373,6 +379,7 @@ export function NewPostModal({
 
             <OpenpeepsMarkdownInput
               rows={5}
+              blockOverflow={false}
               value={content}
               onChange={setContent}
               testId="posts-composer-content"

@@ -19,7 +19,12 @@ import {
   DM_MAX_ATTACHMENTS,
 } from '@openpeepshq/react';
 import { ThemedText } from '../../components/ui/themed-text';
-import { MediaAttachment, Profile, PublicProfile } from '@openpeepshq/common';
+import {
+  MediaAttachment,
+  Profile,
+  PublicProfile,
+  visibleTextLength,
+} from '@openpeepshq/common';
 import { ImagePickerSheet } from '../../components/custom/index';
 import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
 import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
@@ -76,6 +81,8 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
 
   useSetPageHeader(t('conversations.draft.title'));
 
+  const visibleMessageLen = visibleTextLength(message);
+
   return (
     <ThemedView className="flex-1 relative">
       <KeyboardAvoidingView className="flex-1" behavior="padding">
@@ -115,6 +122,7 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
           ) : null}
           <OpenpeepsMarkdownInput
             rows={5}
+            blockOverflow={false}
             value={message}
             onChange={setMessage}
             maxLength={maxContentLength}
@@ -135,9 +143,11 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
             </Button>
             <TouchableOpacity
               onPress={() => void send()}
-              disabled={!canSend}
+              disabled={!canSend || !message.trim() || visibleMessageLen > maxContentLength}
               className={`p-2 rounded-full ${
-                canSend ? 'bg-primary' : 'bg-surface'
+                canSend && message.trim() && visibleMessageLen <= maxContentLength
+                  ? 'bg-primary'
+                  : 'bg-surface'
               }`}
             >
               {submitting ? (

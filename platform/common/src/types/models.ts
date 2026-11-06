@@ -2,6 +2,7 @@ import { z, util, ZodObject, ZodRawShape } from 'zod';
 import validator from 'validator';
 import ISO6391 from 'iso-639-1';
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { postContentWithinBudget } from '../lib/contentLength';
 import { groupRelationships } from './capabilities';
 import { capabilitiesSchema } from './config';
 import {
@@ -497,23 +498,32 @@ export const customEmojiSchema = z
   .openapi('CustomEmoji');
 export type CustomEmoji = z.infer<typeof customEmojiSchema>;
 
-export const noteSchema = z
-  .object({
-    type: z.literal('note'),
-    content: z.string().optional(),
-    sensitive: z.boolean().optional(),
-    spoilerText: z.string().optional(),
-    attachments: z.array(mediaAttachmentDataSchema).optional(),
-    customEmojis: z.array(customEmojiSchema).optional(),
-    language: z.enum(ISO6391.getAllCodes() as [string, ...string[]]).optional(),
-  })
+const noteBaseSchema = z.object({
+  type: z.literal('note'),
+  content: z.string().optional(),
+  sensitive: z.boolean().optional(),
+  spoilerText: z.string().optional(),
+  attachments: z.array(mediaAttachmentDataSchema).optional(),
+  customEmojis: z.array(customEmojiSchema).optional(),
+  language: z.enum(ISO6391.getAllCodes() as [string, ...string[]]).optional(),
+});
+
+// Note/question carry the visible-text + raw budgets; the longer post
+// flavors (article, resource, event) extend the base without them.
+const contentBudgetRefine = {
+  message: 'posts.form.contentTooLong',
+  path: ['content'],
+};
+
+export const noteSchema = noteBaseSchema
+  .refine((data) => postContentWithinBudget(data.content), contentBudgetRefine)
   .openapi('Note');
 export type Note = z.infer<typeof noteSchema>;
 
 /** Poll choices are stored short so they fit the vote UI on small screens. */
 export const POLL_OPTION_MAX_LENGTH = 30;
 
-export const questionSchema = noteSchema
+export const questionSchema = noteBaseSchema
   .extend({
     type: z.literal('question'),
     options: z
@@ -526,11 +536,12 @@ export const questionSchema = noteSchema
     votersVisible: z.boolean().optional(),
     expiresAt: z.iso.datetime().optional(),
   })
+  .refine((data) => postContentWithinBudget(data.content), contentBudgetRefine)
   .openapi('Question');
 
 export type Question = z.infer<typeof questionSchema>;
 
-export const articleSchema = noteSchema
+export const articleSchema = noteBaseSchema
   .extend({
     type: z.literal('article'),
     image: z.url().optional(),
@@ -543,7 +554,7 @@ export type Article = z.infer<typeof articleSchema>;
 /** Resource titles are library headings, so they stay much shorter than the description. */
 export const RESOURCE_TITLE_MAX_LENGTH = 200;
 
-export const resourcePostSchema = noteSchema
+export const resourcePostSchema = noteBaseSchema
   .extend({
     type: z.literal('resource'),
     title: z.string().max(RESOURCE_TITLE_MAX_LENGTH),
@@ -602,7 +613,7 @@ export type EventOccurrenceException = z.infer<
   typeof eventOccurrenceExceptionSchema
 >;
 
-export const eventSchema = noteSchema
+export const eventSchema = noteBaseSchema
   .extend({
     type: z.literal('event'),
     name: z.string().optional(),

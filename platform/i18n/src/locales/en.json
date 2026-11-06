@@ -423,6 +423,7 @@
     },
     "form": {
       "content": "What's on your mind?",
+      "contentTooLong": "Content must be 500 visible characters or fewer",
       "changeGroup": "Change group",
       "notifyEveryone": "Notify everyone",
       "visibility": {

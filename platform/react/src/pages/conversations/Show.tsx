@@ -15,7 +15,7 @@ import {
   adjustUnseenCounts,
   useNavigate,
 } from '../../index';
-import { canCreatePost } from '@openpeepshq/common';
+import { canCreatePost, visibleTextLength } from '@openpeepshq/common';
 import {
   Avatar,
   ConversationParticipantsModal,
@@ -230,8 +230,10 @@ export function ConversationShow() {
   useSetPageHeader(headerTitle, headerActions);
 
   const [sending, setSending] = useState(false);
+  const visibleTextLen = visibleTextLength(text);
 
   const sendMessage = async (data: Note) => {
+    if (!text.trim() || visibleTextLen > MAX_LENGTH) return;
     setSending(true);
     try {
       const payload: PostCreationData = {
@@ -320,6 +322,8 @@ export function ConversationShow() {
       </div>
     );
   }
+
+  const overLimit = visibleTextLen > MAX_LENGTH;
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">

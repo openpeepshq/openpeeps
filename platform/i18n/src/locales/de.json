@@ -418,6 +418,7 @@
     },
     "form": {
       "content": "Was beschäftigt Sie?",
+      "contentTooLong": "Der Inhalt darf höchstens 500 sichtbare Zeichen haben",
       "changeGroup": "Gruppe ändern",
       "notifyEveryone": "Alle benachrichtigen",
       "visibility": {

@@ -28,6 +28,7 @@ import {
   type PublicPost,
 } from '@openpeepshq/common';
 import { ImagePickerSheet } from '../../components/custom/index';
+import { visibleTextLength } from '@openpeepshq/common';
 import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
 import { checkMediaPermissions } from '../../lib/media-permissions';
 import { isAttachmentProcessing } from '../../lib/post';
@@ -103,6 +104,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   const isLoading = conversationQuery.isLoading && messages.length === 0;
   const markPostsSeen = openpeepsApi.markPostsSeenAction();
   const flushPostViews = usePostViewFlush();
+  const visibleContentLen = visibleTextLength(content);
   const scrollViewRef = useRef<ScrollView>(null);
   const imagePickerRef = useRef<BottomSheetModal>(null);
   const messageOffsets = useRef<Record<string, number>>({});
@@ -147,7 +149,9 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   }, []);
 
   const handleSendMessage = async () => {
-    if (!canSend) return;
+    if (!canSend || !content.trim() || visibleContentLen > maxContentLength) {
+      return;
+    }
 
     try {
       setIsSending(true);
@@ -367,6 +371,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
               <View className="px-4 py-3 bg-background border-t border-border">
                 <OpenpeepsMarkdownInput
                   rows={3}
+                  blockOverflow={false}
                   value={content}
                   onChange={setContent}
                   maxLength={maxContentLength}
@@ -390,7 +395,12 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
                   <Button
                     variant="default"
                     onPress={handleSendMessage}
-                    disabled={!canSend}
+                    disabled={
+                      isSending ||
+                      !content.trim() ||
+                      !canSend ||
+                      visibleContentLen > maxContentLength
+                    }
                   >
                     {isSending ? (
                       <View className="flex-row items-center">

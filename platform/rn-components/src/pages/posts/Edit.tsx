@@ -7,10 +7,12 @@ import { PostForm } from '../../components/post/post-form/PostForm';
 import { useTranslation } from 'react-i18next';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import {
-  PostCreationData,
   pollOptionsWithinLimit,
+  PostCreationData,
   postCreationDataSchema,
+  POST_MAX_VISIBLE_LENGTH,
   resolvePollOptionContents,
+  visibleTextLength,
 } from '@openpeepshq/common';
 import { ActivityIndicator } from 'react-native';
 import { useForm } from 'react-hook-form';
@@ -47,6 +49,7 @@ export const EditPost = ({ route, navigation }: PostProps) => {
   const attachmentsProcessing = hasProcessingAttachments(postData);
 
   const trimmedContent = (postData?.data.content ?? '').trim();
+  const visibleContentLength = visibleTextLength(trimmedContent);
   const pollOptions =
     postData?.data.type === 'question'
       ? postData.data.options.map((option) => option.content)
@@ -63,14 +66,18 @@ export const EditPost = ({ route, navigation }: PostProps) => {
       return false;
     }
     if (postData.data.type === 'question') {
-      return trimmedContent.length > 0 && pollOptionsValid;
+      return (
+        visibleContentLength > 0 &&
+        visibleContentLength <= POST_MAX_VISIBLE_LENGTH &&
+        pollOptionsValid
+      );
     }
     if (postData.type === 'article') {
       return trimmedContent.length > 0;
     }
     return (
-      (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
-      (postData.data.attachments?.length ?? 0) > 0
+      visibleContentLength <= POST_MAX_VISIBLE_LENGTH &&
+      (visibleContentLength > 0 || (postData.data.attachments?.length ?? 0) > 0)
     );
   }, [
     attachmentsProcessing,
@@ -78,6 +85,7 @@ export const EditPost = ({ route, navigation }: PostProps) => {
     pollOptionsValid,
     postData,
     trimmedContent.length,
+    visibleContentLength,
   ]);
 
   const handlePostUpdate = async () => {

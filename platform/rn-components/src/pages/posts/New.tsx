@@ -26,8 +26,10 @@ import {
   MediaAttachment,
   pollOptionsWithinLimit,
   PostCreationData,
+  POST_MAX_VISIBLE_LENGTH,
   resolvePollOptionContents,
   VisibilityType,
+  visibleTextLength,
 } from '@openpeepshq/common';
 import { CompositeScreenProps } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
@@ -89,6 +91,7 @@ export const NewPost = ({ route, navigation }: PostProps) => {
     canNotify && isCommunityWideVisibility(postData.visibility);
 
   const trimmedContent = (postData.data.content ?? '').trim();
+  const visibleContentLength = visibleTextLength(trimmedContent);
   const pollOptions =
     postData.data.type === 'question'
       ? postData.data.options.map((option) => option.content)
@@ -111,14 +114,18 @@ export const NewPost = ({ route, navigation }: PostProps) => {
       return false;
     }
     if (postData.data.type === 'question') {
-      return trimmedContent.length > 0 && pollOptionsValid;
+      return (
+        visibleContentLength > 0 &&
+        visibleContentLength <= POST_MAX_VISIBLE_LENGTH &&
+        pollOptionsValid
+      );
     }
     if (postData.type === 'article') {
       return trimmedContent.length > 0;
     }
     return (
-      (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
-      (postData.data.attachments?.length ?? 0) > 0
+      visibleContentLength <= POST_MAX_VISIBLE_LENGTH &&
+      (visibleContentLength > 0 || (postData.data.attachments?.length ?? 0) > 0)
     );
   }, [
     attachmentsProcessing,
@@ -131,6 +138,7 @@ export const NewPost = ({ route, navigation }: PostProps) => {
     postData.type,
     postData.visibility,
     trimmedContent.length,
+    visibleContentLength,
   ]);
 
   const handlePostCreation = async () => {
