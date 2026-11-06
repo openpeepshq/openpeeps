@@ -154,9 +154,13 @@ export const inviteLinkMatchesQuery = (
   queryOptions = { handle: true, displayName: true, slug: true, group: true },
 ) => {
   const profile = inviteLink.profile as PublicProfile;
+  // Members who signed up through this link.
+  const redemptions = inviteLink.redemptions ?? [];
   if (query.startsWith('@')) {
+    const handle = query.substring(1);
     return !!(
-      profile?.handle && containsIgnoreCase(profile.handle, query.substring(1))
+      (profile?.handle && containsIgnoreCase(profile.handle, handle)) ||
+      redemptions.some((r) => r.handle && containsIgnoreCase(r.handle, handle))
     );
   }
   const groupMatches =
@@ -166,8 +170,18 @@ export const inviteLinkMatchesQuery = (
         containsIgnoreCase(group.handle, query) ||
         (group.displayName && containsIgnoreCase(group.displayName, query)),
     );
+  const redemptionMatches = redemptions.some(
+    (r) =>
+      (queryOptions.handle &&
+        r.handle &&
+        containsIgnoreCase(r.handle, query)) ||
+      (queryOptions.displayName &&
+        r.displayName &&
+        containsIgnoreCase(r.displayName, query)),
+  );
   return !!(
     groupMatches ||
+    redemptionMatches ||
     (profile &&
       ((queryOptions.handle &&
         profile.handle &&

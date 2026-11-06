@@ -352,6 +352,35 @@ describe('profileHelpers', () => {
         true,
       );
     });
+
+    it('should match by invited member (redemption) name or handle', () => {
+      const invited = {
+        id: 'profile9',
+        displayName: 'Jane Invited',
+        handle: 'janeinvited',
+      } as PublicProfile;
+      const withRedemption = {
+        ...mockInviteLink,
+        redemptions: [invited],
+      } as unknown as InviteLinkWithMeta;
+      expect(inviteLinkMatchesQuery(withRedemption, 'Jane Invited')).toBe(true);
+      expect(inviteLinkMatchesQuery(withRedemption, 'janeinvited')).toBe(true);
+      expect(inviteLinkMatchesQuery(withRedemption, '@janeinvited')).toBe(true);
+    });
+
+    it('should not match when the query is not a redemption', () => {
+      const withRedemption = {
+        ...mockInviteLink,
+        redemptions: [
+          {
+            id: 'profile9',
+            displayName: 'Jane Invited',
+            handle: 'janeinvited',
+          } as PublicProfile,
+        ],
+      } as unknown as InviteLinkWithMeta;
+      expect(inviteLinkMatchesQuery(withRedemption, 'nonexistent')).toBe(false);
+    });
   });
 
   describe('sortProfiles', () => {
