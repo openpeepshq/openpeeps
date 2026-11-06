@@ -34,6 +34,10 @@ const tzOffsetMs = (utcMs: number, timeZone: string): number => {
 
 const pad2 = (value: number): string => String(value).padStart(2, '0');
 
+/** True when `end` is set and not after `start` (equal times are invalid). */
+export const isEndBeforeStart = (start?: string, end?: string) =>
+  Boolean(start && end && new Date(end) <= new Date(start));
+
 /**
  * Interpret a datetime-local wall clock (`YYYY-MM-DDTHH:mm`) in `timeZone`
  * and return a UTC ISO string.

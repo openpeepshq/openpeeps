@@ -2,6 +2,7 @@ import { z, util, ZodObject, ZodRawShape } from 'zod';
 import validator from 'validator';
 import ISO6391 from 'iso-639-1';
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { isEndBeforeStart } from '../lib/eventTime';
 import { groupRelationships } from './capabilities';
 import { capabilitiesSchema } from './config';
 import {
@@ -597,6 +598,10 @@ export const eventOccurrenceExceptionSchema = z
     end: eventIsoDatetimeSchema.optional(),
     physicalLocation: locationSchema.optional(),
   })
+  .refine((exception) => !isEndBeforeStart(exception.start, exception.end), {
+    message: 'events.form.endBeforeStart',
+    path: ['end'],
+  })
   .openapi('EventOccurrenceException');
 export type EventOccurrenceException = z.infer<
   typeof eventOccurrenceExceptionSchema
@@ -622,7 +627,7 @@ export const eventSchema = noteSchema
     recurrence: eventRecurrenceSchema.optional(),
     exceptions: eventOccurrenceExceptionSchema.array().optional(),
   })
-  .refine((data) => !data.end || new Date(data.end) > new Date(data.start), {
+  .refine((data) => !isEndBeforeStart(data.start, data.end), {
     message: 'events.form.endBeforeStart',
     path: ['end'],
   })

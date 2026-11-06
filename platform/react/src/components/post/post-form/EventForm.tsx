@@ -57,7 +57,6 @@ export const EventForm = ({
 }: EventFormProps) => {
   const t = useT();
   const [audienceOpen, setAudienceOpen] = useState(false);
-  const [endBeforeStart, setEndBeforeStart] = useState(false);
   const {
     event,
     eventTimeZone,
@@ -65,6 +64,9 @@ export const EventForm = ({
     repeatFreq,
     repeatEnd,
     preview,
+    endBeforeStart,
+    changeStart,
+    changeEnd,
     patchEvent,
     setEvent,
     setAudience,
@@ -145,17 +147,7 @@ export const EventForm = ({
             type="datetime-local"
             step={60}
             value={dateToInputValue(event.start, eventTimeZone)}
-            onChange={(e) => {
-              const start = toIso(e.target.value, eventTimeZone);
-              if (start) {
-                if (event.end && new Date(event.end) <= new Date(start)) {
-                  setEndBeforeStart(true);
-                } else {
-                  setEndBeforeStart(false);
-                }
-                patchEvent({ start });
-              }
-            }}
+            onChange={(e) => changeStart(toIso(e.target.value, eventTimeZone))}
             data-testid="events-start-input"
           />
         </Label>
@@ -184,19 +176,9 @@ export const EventForm = ({
                 type="datetime-local"
                 step={60}
                 value={dateToInputValue(event.end, eventTimeZone)}
-                onChange={(e) => {
-                  const newEnd = toIso(e.target.value, eventTimeZone);
-                  if (
-                    newEnd &&
-                    event.start &&
-                    new Date(newEnd) <= new Date(event.start)
-                  ) {
-                    setEndBeforeStart(true);
-                    return;
-                  }
-                  setEndBeforeStart(false);
-                  patchEvent({ end: newEnd });
-                }}
+                onChange={(e) =>
+                  changeEnd(toIso(e.target.value, eventTimeZone))
+                }
               />
             </Label>
             {endBeforeStart ? (
