@@ -234,15 +234,15 @@ export const listLeftConversations = async (
   const { db } = await allpeepDb();
   type RootLeafPair = { rootId: string; leafId: string };
   const result = (await db.execute(sql`
-    WITH left_posts AS (
+    WITH RECURSIVE left_posts AS (
       SELECT p.id AS left_id, rt.to_id AS parent_id
       FROM posts p
-      INNER JOIN reply_to rt ON rt.from_id = p.id
+      INNER JOIN reply_to rt ON rt.from_id = p.id::text
       WHERE p.creator_id = ${profile.id}
         AND p.deleted_at IS NULL
         AND NOT EXISTS (
           SELECT 1 FROM audience a
-          WHERE a.from_id = p.id AND a.to_id = p.creator_id
+          WHERE a.from_id = p.id::text AND a.to_id = p.creator_id
         )
     ),
     walk AS (

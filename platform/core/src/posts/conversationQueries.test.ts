@@ -1,14 +1,21 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { PgDb } from '../db/pg/client';
 import type { PostWithMeta } from '@openpeepshq/common/types';
 import {
   conversationIncludesPost,
   includeFocusMessage,
+  listLeftConversations,
   listOneToOneConversationPostIds,
   listOneToOneConversationRootLeaves,
   mergeOneToOnePreviews,
   searchDirectMessageRows,
 } from './conversationQueries';
+import { allpeepDb } from '../db';
+
+vi.mock('../db', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../db')>();
+  return { ...actual, allpeepDb: vi.fn() };
+});
 
 type ExecuteResult = { rows: Record<string, unknown>[] };
 
@@ -86,6 +93,27 @@ describe('listOneToOneConversationRootLeaves', () => {
     expect(query).toContain('NOT EXISTS');
     expect(query).toContain('SELECT 1 FROM reply_to rt');
     expect(query).toContain('DISTINCT ON (root_id)');
+  });
+});
+
+describe('listLeftConversations', () => {
+  const authData = { profile: { id: 'profile1' } } as never;
+
+  it('returns [] when the profile has no left posts', async () => {
+    vi.mocked(allpeepDb).mockResolvedValue({ db: rowDb([]) } as never);
+    await expect(listLeftConversations(authData)).resolves.toEqual([]);
+  });
+
+  it('walks reply ancestors recursively with text-cast id joins', async () => {
+    const { db, getQuery } = capturingDb([]);
+    vi.mocked(allpeepDb).mockResolvedValue({ db } as never);
+    await listLeftConversations(authData);
+    const query = getQuery();
+    expect(query).toContain('WITH RECURSIVE');
+    expect(query).toContain('rt.from_id = p.id::text');
+    expect(query).toContain('a.from_id = p.id::text');
+    expect(query).toContain('a.to_id = p.creator_id');
+    expect(query).toContain('ORDER BY leaf_id DESC');
   });
 });
 
