@@ -76,6 +76,20 @@ function JamRoomInner() {
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, [reconnectPrefs, tryReconnect]);
 
+  // Warn before an accidental tab close drops the user from a live call;
+  // browsers ignore custom text. Armed while a session exists — connected
+  // or app-level reconnecting — so the guard survives the reconnection view
+  // where the conference (and any LiveKit-scoped guard) is unmounted.
+  useEffect(() => {
+    if (!connection && !reconnectPrefs) return;
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = true;
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [connection, reconnectPrefs]);
+
   if (!livekitEnabled) {
     return (
       <div className="mx-auto flex h-full w-full items-center justify-center p-4">
