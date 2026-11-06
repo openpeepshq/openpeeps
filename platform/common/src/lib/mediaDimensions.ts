@@ -19,3 +19,6 @@ export const EVENT_HEADER_ASPECT_RATIO = '16:9';
  * with grey gaps.
  */
 export const PROFILE_GROUP_HEADER_ASPECT_RATIO = '3:1';
+
+/** Max duration (seconds) of voice notes recorded in the post composers. */
+export const VOICE_NOTE_MAX_SECONDS = 90;

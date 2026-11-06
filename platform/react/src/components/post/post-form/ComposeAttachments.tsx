@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { AudioLines, Image, Paperclip } from 'lucide-react';
+import { AudioLines, Image, Mic, Paperclip } from 'lucide-react';
 import type { MediaAttachment, MediaAttachmentData } from '@openpeepshq/common';
 import { useT } from '../../../i18n';
 import { ImageEditModal } from '../../form/ImageEditModal';
 import { convertToWebpIfHeic } from '../../../lib/canvasUtils';
 import { AttachmentCard, type ComposeItem } from './AttachmentCard';
 import { isBlobUrl, revokeBlobUrl } from '../attachmentPreview';
+import { VoiceRecorderModal } from './VoiceRecorderModal';
 
 export interface ComposeAttachmentsProps {
   attachments: MediaAttachmentData[];
@@ -45,6 +46,7 @@ export interface ComposeAttachmentsApi {
   openImagePicker: () => void;
   openAudioPicker: () => void;
   openDocumentPicker: () => void;
+  openVoiceRecorder: () => void;
   /** True while any attachment is still uploading or processing. */
   pending: boolean;
   /** Attachment cards — render where the previews should appear. */
@@ -69,6 +71,7 @@ export function useComposeAttachments({
   const imageInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
+  const [voiceOpen, setVoiceOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<{
     file: File;
     previewUrl: string;
@@ -257,6 +260,11 @@ export function useComposeAttachments({
           e.target.value = '';
         }}
       />
+      <VoiceRecorderModal
+        open={voiceOpen}
+        onClose={() => setVoiceOpen(false)}
+        onConfirm={enqueueFile}
+      />
       {pendingImage ? (
         <ImageEditModal
           file={pendingImage.file}
@@ -280,6 +288,7 @@ export function useComposeAttachments({
     openImagePicker: () => imageInputRef.current?.click(),
     openAudioPicker: () => audioInputRef.current?.click(),
     openDocumentPicker: () => documentInputRef.current?.click(),
+    openVoiceRecorder: () => setVoiceOpen(true),
     pending,
     previews,
     inputs,
@@ -292,6 +301,7 @@ export function ComposeAttachments(props: ComposeAttachmentsProps) {
     openImagePicker,
     openAudioPicker,
     openDocumentPicker,
+    openVoiceRecorder,
     previews,
     inputs,
   } = useComposeAttachments(props);
@@ -304,6 +314,9 @@ export function ComposeAttachments(props: ComposeAttachmentsProps) {
   });
   const addDocumentLabel = t('posts.form.addDocument', {
     defaultValue: 'Add document',
+  });
+  const recordVoiceLabel = t('posts.form.recordVoice', {
+    defaultValue: 'Record voice note',
   });
 
   return (
@@ -338,6 +351,16 @@ export function ComposeAttachments(props: ComposeAttachmentsProps) {
         >
           <Paperclip className="size-5" aria-hidden="true" />
           <span className="sr-only">{addDocumentLabel}</span>
+        </button>
+        <button
+          type="button"
+          title={recordVoiceLabel}
+          aria-label={recordVoiceLabel}
+          onClick={openVoiceRecorder}
+          className="hover:bg-surface rounded-button p-2"
+        >
+          <Mic className="size-5" aria-hidden="true" />
+          <span className="sr-only">{recordVoiceLabel}</span>
         </button>
       </div>
 

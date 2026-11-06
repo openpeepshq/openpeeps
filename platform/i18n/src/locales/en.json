@@ -446,6 +446,17 @@
       "addImage": "Add Media",
       "addAudio": "Add audio",
       "addDocument": "Add Document",
+      "recordVoice": "Record voice note",
+      "voiceNote": {
+        "title": "Voice note",
+        "start": "Start recording",
+        "pause": "Pause",
+        "resume": "Resume",
+        "stop": "Stop",
+        "reRecord": "Re-record",
+        "add": "Add to post",
+        "micError": "Microphone unavailable or access denied."
+      },
       "title": "New Post",
       "note": {
         "placeholder": "What is on your mind?"
@@ -2479,6 +2490,11 @@
     "edit": "Edit",
     "you": "You",
     "media": {
+      "audio": {
+        "record": "Record audio",
+        "play": "Play",
+        "maxLength": "Up to {{seconds}} seconds"
+      },
       "audioPlayer": "Audio Player",
       "image": {
         "cropTitle": "Crop Image",

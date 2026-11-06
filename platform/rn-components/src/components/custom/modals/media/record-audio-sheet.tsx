@@ -4,7 +4,6 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ThemedText } from '../../../ui/themed-text';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
-import Toast from 'react-native-toast-message';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import { Button } from '../../../ui/button';
 import {
@@ -14,6 +13,9 @@ import {
   SquareIcon,
 } from '../../../icons/index';
 import { bottomSheetDismiss } from '../../../../lib/bottom-sheet-ref';
+import { VOICE_NOTE_MAX_SECONDS } from '@openpeepshq/common';
+
+const MAX_RECORD_MS = VOICE_NOTE_MAX_SECONDS * 1000;
 
 interface RecordAudioSheetProps {
   onComplete: (url: string) => Promise<void> | void;
@@ -25,41 +27,24 @@ export const RecordAudioSheet = forwardRef<
 >(({ onComplete }, ref) => {
   const { t } = useTranslation();
 
-  const getAndroidPermission = useCallback(async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const grants = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-        ]);
-
-        if (
-          !(
-            grants['android.permission.WRITE_EXTERNAL_STORAGE'] ===
-              PermissionsAndroid.RESULTS.GRANTED &&
-            grants['android.permission.READ_EXTERNAL_STORAGE'] ===
-              PermissionsAndroid.RESULTS.GRANTED &&
-            grants['android.permission.RECORD_AUDIO'] ===
-              PermissionsAndroid.RESULTS.GRANTED
-          )
-        ) {
-          Toast.show({
-            text1: t('common.permissions.required'),
-            type: 'error',
-          });
-          bottomSheetDismiss(ref);
-        }
-      } catch {
-        Toast.show({
-          text1: t('common.permissions.required'),
-          type: 'error',
-        });
-        bottomSheetDismiss(ref);
-      }
+  // Android: the runtime permission must be requested from JS. iOS: the
+  // native recorder triggers the system mic prompt on first use; a denial
+  // surfaces as a startRecorder failure in onStartRecord.
+  const getRecordPermission = useCallback(async (): Promise<boolean> => {
+    if (Platform.OS !== 'android') {
+      return true;
     }
-  }, [ref, t]);
+    try {
+      const status = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
+      );
+      return status === PermissionsAndroid.RESULTS.GRANTED;
+    } catch {
+      return false;
+    }
+  }, []);
   const [url, setUrl] = useState<string | null>(null);
+  const [micError, setMicError] = useState<string | null>(null);
   const [recordTime, setRecordTime] = useState('00:00');
   const [recordSecs, setRecordSecs] = useState(0);
   const [playTime, setPlayTime] = useState('00:00');
@@ -70,21 +55,31 @@ export const RecordAudioSheet = forwardRef<
   const audioRecorderPlayer = new AudioRecorderPlayer();
 
   const onStartRecord = async () => {
-    setUrl(await audioRecorderPlayer.startRecorder());
-    setIsRecording(true);
-    setRecordSecs(0);
-    audioRecorderPlayer.addRecordBackListener((e) => {
-      setRecordSecs(e.currentPosition);
-      setRecordTime(
-        audioRecorderPlayer.mmss(Math.floor(e.currentPosition / 1000))
-      );
+    setMicError(null);
+    if (!(await getRecordPermission())) {
+      setMicError(t('posts.form.voiceNote.micError'));
       return;
-    });
+    }
+    try {
+      setUrl(await audioRecorderPlayer.startRecorder());
+      setIsRecording(true);
+      setRecordSecs(0);
+      audioRecorderPlayer.addRecordBackListener((e) => {
+        setRecordSecs(e.currentPosition);
+        setRecordTime(
+          audioRecorderPlayer.mmss(Math.floor(e.currentPosition / 1000))
+        );
+        if (e.currentPosition >= MAX_RECORD_MS) {
+          audioRecorderPlayer.removeRecordBackListener();
+          void onStopRecord();
+        }
+      });
+    } catch {
+      setMicError(t('posts.form.voiceNote.micError'));
+    }
   };
 
   const reset = () => {
-    console.log('url', url);
-    console.log('reset');
     setIsRecording(false);
     setIsPaused(false);
     setIsPlaying(false);
@@ -105,7 +100,6 @@ export const RecordAudioSheet = forwardRef<
   };
 
   const onStopRecord = async () => {
-    console.log('onStopRecord');
     setIsRecording(false);
     setIsPaused(false);
     await audioRecorderPlayer.stopRecorder();
@@ -141,11 +135,6 @@ export const RecordAudioSheet = forwardRef<
     }
   };
 
-  // Update altText state if initialAltText prop changes
-  React.useEffect(() => {
-    getAndroidPermission();
-  }, [getAndroidPermission]);
-
   return (
     <BaseSheet
       ref={ref}
@@ -156,11 +145,14 @@ export const RecordAudioSheet = forwardRef<
     >
       <View className="flex-1 p-4 justify-between">
         <ThemedText>{t('common.media.audio.record')}</ThemedText>
-        <ThemedText>
-          {recordSecs} {String(isRecording)} {String(isPaused)}{' '}
-          {String(isPlaying)} {playTime}
+        <ThemedText className="text-muted-foreground">
+          {t('common.media.audio.maxLength', {
+            seconds: VOICE_NOTE_MAX_SECONDS,
+          })}
         </ThemedText>
-        <ThemedText>{url}</ThemedText>
+        {micError && (
+          <ThemedText className="text-destructive">{micError}</ThemedText>
+        )}
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-2">
             {!isRecording && !isPaused && (
