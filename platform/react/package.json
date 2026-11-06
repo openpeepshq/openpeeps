@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/react",
-  "version": "0.9.23",
+  "version": "0.10.0",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",

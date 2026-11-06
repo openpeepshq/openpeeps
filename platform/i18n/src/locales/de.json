@@ -110,6 +110,7 @@
     "logIn": "Anmelden",
     "termsAndConditions": "Nutzungsbedingungen",
     "poweredBy": "Bereitgestellt von AllPeeP",
+    "reportBug": "Fehler melden",
     "profile": "Profil",
     "messages": "Nachrichten",
     "home": "Startseite",
@@ -2305,6 +2306,8 @@
       "backgroundRequirements": "Dieses Bild erscheint hinter dem Community-Inhalt bei der Verwendung eines breiteren Bildschirms. Es ist für Nutzer auf Mobilgeräten nicht sichtbar.",
       "fontFamily": "Schriftart",
       "typographyAndRadii": "Typografie und Rundungen",
+      "bugReportUrl": "URL des Fehlermeldeformulars",
+      "bugReportUrlDescription": "Link zu einem externen Fehlermeldeformular. Wenn gesetzt, erscheint im Seitenmenü ein Link „Fehler melden“.",
       "buttonRadius": "Eckenradius für Buttons",
       "radius": "Standard-Eckenradius (Karten, Dialoge)",
       "codeOfConduct": {

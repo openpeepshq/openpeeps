@@ -10,6 +10,7 @@ import {
   Button,
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -97,6 +98,34 @@ export function AdminConfigurationCommunityLinks() {
                     data-testid="admin-community-links-terms"
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="info.bugReportUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t('configuration.community.bugReportUrl', {
+                    defaultValue: 'Bug report form URL',
+                  })}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="text"
+                    value={field.value ?? ''}
+                    data-testid="admin-community-links-bug-report"
+                  />
+                </FormControl>
+                <FormDescription>
+                  {t('configuration.community.bugReportUrlDescription', {
+                    defaultValue:
+                      'Link to an external bug report form. When set, a "Report a bug" link appears in the side menu.',
+                  })}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

@@ -36,7 +36,8 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
     serverInfo.communityConfig,
     profileSettings,
   ).logoSmall;
-  const { name, tagLine } = serverInfo.communityConfig?.info ?? {};
+  const { name, tagLine, bugReportUrl } =
+    serverInfo.communityConfig?.info ?? {};
   const homeHref = hrefOf({ type: 'home' });
   const registerHref = hrefOf({ type: 'auth', mode: 'register' });
   const loginHref = hrefOf({ type: 'auth', mode: 'login' });
@@ -44,7 +45,8 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
 
   return (
     <div className="bg-background text-foreground relative h-screen w-full pt-3 md:h-full">
-      <div className="h-[90%] overflow-y-auto">
+      {/* pb keeps the last menu item scrollable above the absolute footer */}
+      <div className="h-[90%] overflow-y-auto pb-14">
         <div className="flex w-full items-center justify-between px-4 md:items-start">
           <a href={homeHref}>
             {logoSmall && (
@@ -105,6 +107,18 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
         )}
       </div>
       <footer className="bg-background absolute bottom-3">
+        {bugReportUrl && /^https?:\/\//i.test(bugReportUrl) && (
+          <p className="ml-4 text-center">
+            <a
+              href={bugReportUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="op-anchor text-sm"
+            >
+              {t('navigation.reportBug', { defaultValue: 'Report a bug' })}
+            </a>
+          </p>
+        )}
         <p className="ml-4 text-center">{t('navigation.poweredBy')}</p>
       </footer>
     </div>

@@ -395,6 +395,12 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       contactEmail: z.string().email().optional(),
       privacyPolicy: z.string().optional(),
       termsAndConditions: z.string().optional(),
+      /** External bug report form; a "Report a bug" link is shown when set.
+       *  `''` is the cleared value — pruneEmptyConfigStrings drops it on save.
+       *  Only http(s) URLs are accepted; the render side re-checks as well. */
+      bugReportUrl: z
+        .union([z.literal(''), z.url({ protocol: /^https?$/ })])
+        .optional(),
     }),
     content: z.object({
       aboutPage: z.string().optional(),
