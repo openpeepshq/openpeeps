@@ -1,10 +1,12 @@
+import { useEffect } from 'react';
 import {
   RoomAudioRenderer,
   isTrackReference,
+  useConnectionState,
   useRoomContext,
   useTracks,
 } from '@livekit/components-react';
-import { Track } from 'livekit-client';
+import { ConnectionState, Track } from 'livekit-client';
 import { useJamObserver } from './JamContext';
 import { useDropLateAudio } from './dropLateAudio';
 import { JamParticipantConference } from './JamParticipantConference';
@@ -69,6 +71,23 @@ function JamObserverRoom() {
  */
 export function JamConference() {
   const observer = useJamObserver();
+
+  // Ask the browser for confirmation before the tab is closed while the call
+  // is live, so an accidental close does not silently drop the user from the
+  // jam. The native dialog text cannot be customized, so no i18n key is
+  // needed.
+  const connectionState = useConnectionState();
+  useEffect(() => {
+    if (connectionState !== ConnectionState.Connected) {
+      return;
+    }
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [connectionState]);
 
   if (observer) {
     return <JamObserverRoom />;
