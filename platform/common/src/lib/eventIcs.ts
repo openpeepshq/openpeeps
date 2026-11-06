@@ -6,6 +6,7 @@ import ical, {
 import type { Event, PublicPost, RecurrenceWeekday } from '../types';
 import { effectiveEventTimes } from './eventRecurrence';
 import { getJamUrl } from './jamHelpers';
+import { isIanaTimeZone } from './timeZone';
 
 const utcDateFromYmd = (yyyyMmDd: string): Date => {
   const [y, m, d] = yyyyMmDd.split('-').map(Number);
@@ -17,6 +18,42 @@ const exclusiveEndAfterInclusiveDay = (yyyyMmDd: string): Date => {
   dt.setUTCDate(dt.getUTCDate() + 1);
   return dt;
 };
+
+/** The event's stored IANA zone when it is one; ical-generator ignores anything else. */
+const eventTimeZone = (event: Event): string | undefined =>
+  isIanaTimeZone(event.timeZone) ? event.timeZone : undefined;
+
+/**
+ * A Date whose system-local components equal `iso`'s wall time in
+ * `timeZone`. ical-generator renders `;TZID=` properties from the local
+ * components of a plain Date, so this is the shape it needs.
+ */
+const wallClockDate = (iso: string, timeZone: string): Date => {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(new Date(iso));
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((part) => part.type === type)?.value);
+  const hour = value('hour') === 24 ? 0 : value('hour');
+  return new Date(
+    value('year'),
+    value('month') - 1,
+    value('day'),
+    hour,
+    value('minute'),
+    value('second'),
+  );
+};
+
+const instantInZone = (iso: string, timeZone?: string): Date =>
+  timeZone ? wallClockDate(iso, timeZone) : new Date(iso);
 
 const originFromUrl = (url?: string): string | undefined => {
   if (!url) {
@@ -67,12 +104,12 @@ const repeatingWeekday: Record<RecurrenceWeekday, ICalWeekday> = {
   SU: ICalWeekday.SU,
 };
 
-const repeatingOptions = (event: Event) => {
+const repeatingOptions = (event: Event, timeZone?: string) => {
   const recurrence = event.recurrence;
   if (!recurrence) return undefined;
   const exclude = (event.exceptions ?? [])
     .filter((exception) => exception.cancelled)
-    .map((exception) => new Date(exception.recurrenceId));
+    .map((exception) => instantInZone(exception.recurrenceId, timeZone));
   return {
     freq: repeatingFreq[recurrence.freq],
     interval: recurrence.interval ?? 1,
@@ -104,7 +141,10 @@ export const buildEventIcs = (
   const summary = event.name?.trim() || 'Event';
   const description = event.content?.trim();
   const location = eventLocation(post, event, options?.postUrl);
-  const repeating = repeatingOptions(event);
+  // Timed events keep the event's own zone; all-day events use DATE values
+  // and carry no zone.
+  const timeZone = event.wholeDay ? undefined : eventTimeZone(event);
+  const repeating = repeatingOptions(event, timeZone);
 
   if (event.wholeDay) {
     const startYmd = event.start.slice(0, 10);
@@ -121,14 +161,15 @@ export const buildEventIcs = (
       ...(repeating ? { repeating } : {}),
     });
   } else {
-    const start = new Date(event.start);
+    const start = instantInZone(event.start, timeZone);
     const end = event.end
-      ? new Date(event.end)
+      ? instantInZone(event.end, timeZone)
       : new Date(start.getTime() + 60 * 60 * 1000);
     calendar.createEvent({
       id: `openpeeps-event-${post.id}@openpeepshq`,
       start,
       end,
+      ...(timeZone ? { timezone: timeZone } : {}),
       summary,
       ...(description ? { description } : {}),
       ...(location ? { location } : {}),
@@ -139,19 +180,20 @@ export const buildEventIcs = (
 
   for (const exception of event.exceptions ?? []) {
     if (exception.cancelled || !exception.start) continue;
-    const start = new Date(exception.start);
+    const start = instantInZone(exception.start, timeZone);
     const end = exception.end
-      ? new Date(exception.end)
+      ? instantInZone(exception.end, timeZone)
       : new Date(start.getTime() + 60 * 60 * 1000);
     calendar.createEvent({
       id: `openpeeps-event-${post.id}-${exception.recurrenceId}@openpeepshq`,
       start,
       end,
+      ...(timeZone ? { timezone: timeZone } : {}),
       summary,
       ...(description ? { description } : {}),
       ...(location ? { location } : {}),
       ...(link ? { url: link } : {}),
-      recurrenceId: new Date(exception.recurrenceId),
+      recurrenceId: instantInZone(exception.recurrenceId, timeZone),
     });
   }
 
@@ -171,6 +213,7 @@ const addOccurrenceEvent = (
   const location = eventLocation(post, event, options?.postUrl);
   const times = effectiveEventTimes(event, recurrenceId);
   const id = `openpeeps-event-${post.id}-${recurrenceId}@openpeepshq`;
+  const timeZone = event.wholeDay ? undefined : eventTimeZone(event);
 
   if (event.wholeDay) {
     const startYmd = times.start.slice(0, 10);
@@ -188,14 +231,15 @@ const addOccurrenceEvent = (
     return;
   }
 
-  const start = new Date(times.start);
+  const start = instantInZone(times.start, timeZone);
   const end = times.end
-    ? new Date(times.end)
+    ? instantInZone(times.end, timeZone)
     : new Date(start.getTime() + 60 * 60 * 1000);
   calendar.createEvent({
     id,
     start,
     end,
+    ...(timeZone ? { timezone: timeZone } : {}),
     summary,
     ...(description ? { description } : {}),
     ...(location ? { location } : {}),

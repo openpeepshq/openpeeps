@@ -129,6 +129,67 @@ describe('buildEventIcs', () => {
     expect(ics).not.toMatch(/^LOCATION:/m);
   });
 
+  it('preserves the event timezone via TZID for timed events', () => {
+    const ics = unfoldIcs(
+      buildEventIcs({
+        ...baseEventPost,
+        data: {
+          ...timedEventFields,
+          timeZone: 'America/Los_Angeles',
+        },
+      } as PublicPost)!,
+    );
+    // 21:00Z / 22:00Z = 14:00 / 15:00 in Los Angeles (PDT in July)
+    expect(ics).toContain('DTSTART;TZID=America/Los_Angeles:20260707T140000');
+    expect(ics).toContain('DTEND;TZID=America/Los_Angeles:20260707T150000');
+  });
+
+  it('keeps UTC times for timed events without a timezone', () => {
+    const ics = unfoldIcs(
+      buildEventIcs({
+        ...baseEventPost,
+        data: timedEventFields,
+      } as PublicPost)!,
+    );
+    expect(ics).toContain('DTSTART:20260707T210000Z');
+    expect(ics).not.toContain('TZID');
+  });
+
+  it('does not attach a timezone to all-day events', () => {
+    const ics = unfoldIcs(
+      buildEventIcs({
+        ...baseEventPost,
+        data: {
+          type: 'event' as const,
+          name: 'All day',
+          start: '2026-07-07T12:00:00.000Z',
+          end: '2026-07-08T12:00:00.000Z',
+          wholeDay: true,
+          timeZone: 'America/Los_Angeles',
+        },
+      } as PublicPost)!,
+    );
+    expect(ics).toContain('DTSTART;VALUE=DATE:20260707');
+    expect(ics).not.toContain('TZID');
+  });
+
+  it('preserves the event timezone in booked occurrence ICS', () => {
+    const ics = unfoldIcs(
+      buildRsvpIcs(
+        {
+          ...baseEventPost,
+          data: {
+            ...timedEventFields,
+            timeZone: 'America/Los_Angeles',
+            recurrence: { freq: 'WEEKLY' as const, interval: 1, count: 4 },
+          },
+        } as PublicPost,
+        { occurrenceIds: ['2026-07-14T21:00:00.000Z'] },
+      )!,
+    );
+    expect(ics).toContain('DTSTART;TZID=America/Los_Angeles:20260714T140000');
+  });
+
   it('emits RRULE for a weekly series', () => {
     const ics = unfoldIcs(
       buildEventIcs({
