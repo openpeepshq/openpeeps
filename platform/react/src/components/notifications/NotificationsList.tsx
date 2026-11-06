@@ -11,6 +11,7 @@ import type {
 
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
+import { useNotificationFeedFilter } from '../../hooks';
 import {
   markCachedNotificationsSeen,
   syncAppBadgeCount,
@@ -47,6 +48,7 @@ export function NotificationsList({
 }: NotificationsListProps) {
   const t = useT();
   const { openpeepsApi, queryClient, client } = useOpenpeeps();
+  const { isHidden, hasFilter } = useNotificationFeedFilter();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const query =
@@ -102,8 +104,8 @@ export function NotificationsList({
       seen.add(n.id);
       out.push(n);
     }
-    return out;
-  }, [query.data]);
+    return out.filter((n) => !isHidden(n.type));
+  }, [query.data, isHidden]);
 
   const hasItems = notifications.length > 0;
   const hasNextPage = query.hasNextPage;
@@ -143,7 +145,11 @@ export function NotificationsList({
   if (notifications.length === 0) {
     return (
       <p className="text-muted-foreground px-5 py-8 text-sm">
-        {t('notification.empty', { defaultValue: 'No notifications' })}
+        {hasFilter
+          ? t('notification.emptyFiltered', {
+              defaultValue: 'No notifications of the selected types',
+            })
+          : t('notification.empty', { defaultValue: 'No notifications' })}
       </p>
     );
   }

@@ -3271,6 +3271,11 @@
     }
   },
   "notification": {
+    "emptyFiltered": "No notifications of the selected types",
+    "filter": {
+      "title": "Filter notifications",
+      "showAll": "Show all types"
+    },
     "announcement": {
       "text": "{{profileName}} made an announcement"
     },

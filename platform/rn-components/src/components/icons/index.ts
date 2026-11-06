@@ -93,6 +93,7 @@ import {
   File,
   Circle,
   Settings2,
+  SlidersHorizontal,
   MessageSquareOff,
   MessageSquarePlus,
   CircleSlash2,
@@ -244,6 +245,7 @@ export const FileIcon = iconWithClassName(File);
 export const ScreenShareIcon = iconWithClassName(ScreenShare);
 export const CircleIcon = iconWithClassName(Circle);
 export const Settings2Icon = iconWithClassName(Settings2);
+export const SlidersHorizontalIcon = iconWithClassName(SlidersHorizontal);
 export const MessageSquareOffIcon = iconWithClassName(MessageSquareOff);
 export const MessageSquarePlusIcon = iconWithClassName(MessageSquarePlus);
 export const CircleSlash2Icon = iconWithClassName(CircleSlash2);

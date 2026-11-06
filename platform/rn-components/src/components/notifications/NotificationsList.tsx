@@ -2,7 +2,7 @@ import { ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import React from 'react';
 import type { PublicNotification } from '@openpeepshq/common';
 import { useFocusEffect } from '@react-navigation/native';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useNotificationFeedFilter, useOpenpeeps } from '@openpeepshq/react';
 import { handleScroll } from '../../lib/utils';
 import { EmptyStateContainer } from '../custom/common/empty-state-container';
 import { NotificationItem } from './NotificationItem';
@@ -24,6 +24,7 @@ export const NotificationsList = ({
   onRefresh,
 }: NotificationsListProps) => {
   const { openpeepsApi } = useOpenpeeps();
+  const { isHidden, hasFilter } = useNotificationFeedFilter();
   const internalQuery = openpeepsApi.useCurrentProfileNotifications({
     limit: pageSize,
   });
@@ -37,8 +38,10 @@ export const NotificationsList = ({
     if (!query.data?.pages) {
       return [];
     }
-    return query.data.pages.flatMap((page) => page);
-  }, [query.data?.pages]);
+    return query.data.pages
+      .flatMap((page) => page)
+      .filter((n) => !isHidden(n.type));
+  }, [query.data?.pages, isHidden]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -74,8 +77,14 @@ export const NotificationsList = ({
           ) : (
             <EmptyStateContainer
               type="notifications"
-              copyKey="notification.empty"
-              defaultValue="No notifications"
+              copyKey={
+                hasFilter ? 'notification.emptyFiltered' : 'notification.empty'
+              }
+              defaultValue={
+                hasFilter
+                  ? 'No notifications of the selected types'
+                  : 'No notifications'
+              }
             />
           )}
         </>

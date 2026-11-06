@@ -53,6 +53,7 @@ export { useFeedFormatPreference } from './settings/useFeedFormatPreference';
 export { useThemePreference } from './settings/useThemePreference';
 export { useNotificationPreferences } from './settings/useNotificationPreferences';
 export type { UseNotificationPreferencesArgs } from './settings/useNotificationPreferences';
+export { useNotificationFeedFilter } from './settings/useNotificationFeedFilter';
 export {
   usePasswordLogin,
   useRegisterAccount,

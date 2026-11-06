@@ -182,6 +182,8 @@ export const profileSettingsDataSchema = z.object({
   theme: ThemeOptionsSchema.optional(),
   defaults: profileSettingsDefaultsSchema.optional(),
   notifications: z.record(z.string(), profileNotificationSettings).optional(),
+  /** Notification types hidden from the feed (display only; creation is unaffected). */
+  hiddenNotificationTypes: z.string().array().optional(),
   /** Per-group level. A missing group id means all activity for that group. */
   groupNotificationLevels: z
     .record(z.string(), groupNotificationLevelSchema)
