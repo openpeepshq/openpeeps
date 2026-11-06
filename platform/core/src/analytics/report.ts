@@ -49,15 +49,12 @@ export const buildAnalyticsBoardReport = async (
     getAnalyticsEngagement(query),
     communityConfig(),
   ]);
-  const from = overview.range.from;
-  const to = overview.range.to;
-
   const total = overview.metrics.totalMembers.value;
   const active = overview.metrics.activeMembers.value;
   const activeShare = total > 0 ? Math.round((active / total) * 1000) / 10 : 0;
 
   const summary = [
-    `Executive summary (${from} → ${to})`,
+    'Executive summary',
     '',
     narrativeSentence(
       'Total membership',
@@ -87,12 +84,9 @@ export const buildAnalyticsBoardReport = async (
     ),
   ];
 
-  const text = [
-    `Community analytics report`,
-    `Period: ${from} → ${to}`,
-    '',
-    ...summary,
-  ].join('\n');
+  // The email template already renders the report title and period, so the
+  // text body starts straight at the summary to avoid repeating them.
+  const text = summary.join('\n');
 
   const pdf = await buildAnalyticsPdf({
     communityName: community.info.name,

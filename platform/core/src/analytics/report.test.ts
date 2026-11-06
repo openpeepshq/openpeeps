@@ -1,11 +1,28 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type {
   AnalyticsEngagement,
   AnalyticsGrowth,
   AnalyticsOverview,
+  CommunityConfig,
 } from '@openpeepshq/common/types';
 import { buildAnalyticsPdf } from './pdfReport';
-import { buildSimplePdf } from './report';
+import { buildAnalyticsBoardReport, buildSimplePdf } from './report';
+import { communityConfig } from '../config';
+import {
+  getAnalyticsEngagement,
+  getAnalyticsGrowth,
+  getAnalyticsOverview,
+} from './read';
+
+vi.mock('./read', () => ({
+  getAnalyticsOverview: vi.fn(),
+  getAnalyticsGrowth: vi.fn(),
+  getAnalyticsEngagement: vi.fn(),
+}));
+vi.mock('../config', async (importOriginal) => ({
+  ...(await importOriginal()),
+  communityConfig: vi.fn(),
+}));
 
 const metric = (value: number, previousValue = value) => ({
   key: 'm',
@@ -204,6 +221,26 @@ describe('buildAnalyticsPdf', () => {
     const pageCount = Number(text.match(/\/Count\s+(\d+)/)?.[1] ?? 0);
     expect(pageCount).toBeGreaterThanOrEqual(5);
     expect(pdf.byteLength).toBeGreaterThan(5_000);
+  });
+});
+
+describe('buildAnalyticsBoardReport', () => {
+  it('does not repeat the report title or period in the text body', async () => {
+    vi.mocked(getAnalyticsOverview).mockResolvedValue(overviewFixture);
+    vi.mocked(getAnalyticsGrowth).mockResolvedValue(growthFixture);
+    vi.mocked(getAnalyticsEngagement).mockResolvedValue(engagementFixture);
+    vi.mocked(communityConfig).mockResolvedValue({
+      info: { name: 'Example Community' },
+    } as CommunityConfig);
+
+    const { text } = await buildAnalyticsBoardReport();
+
+    // The email template renders the title and period above this body.
+    expect(text.startsWith('Executive summary')).toBe(true);
+    expect(text).not.toContain('Community analytics report');
+    expect(text).not.toContain('Period:');
+    expect(text).not.toContain('2026-07-01 → 2026-07-31');
+    expect(text).toContain('Total membership');
   });
 });
 
