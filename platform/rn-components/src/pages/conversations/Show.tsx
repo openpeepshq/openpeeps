@@ -1,10 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import {
   adjustUnseenCounts,
   apiErrorMessage,
+  canSendDmMessage,
   useOpenpeeps,
   usePostViewFlush,
+  DM_MAX_ATTACHMENTS,
 } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 import { useSetPageHeader } from '../../components/layout';
@@ -18,9 +21,16 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { InfoIcon, SearchIcon } from '../../components/icons/index';
-import { MediaAttachmentData, type PublicPost } from '@openpeepshq/common';
+import { ImageIcon, InfoIcon, SearchIcon } from '../../components/icons/index';
+import {
+  MediaAttachment,
+  MediaAttachmentData,
+  type PublicPost,
+} from '@openpeepshq/common';
+import { ImagePickerSheet } from '../../components/custom/index';
 import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
+import { checkMediaPermissions } from '../../lib/media-permissions';
+import { isAttachmentProcessing } from '../../lib/post';
 import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
 import { maxContentLength } from '../../lib/utils';
 import { DropdownMenu } from '../../components/ui/dropdown-menu';
@@ -76,10 +86,15 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   const [shownMessages, setShownMessages] = useState<PublicPost[]>([]);
   const [shownFor, setShownFor] = useState(id);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [attachments, setAttachments] = useState<MediaAttachmentData[]>([]);
+  const [content, setContent] = useState('');
   if (shownFor !== id) {
     setShownFor(id);
     setShownMessages([]);
     setSearchOpen(false);
+    setContent('');
+    setAttachments([]);
   }
   useEffect(() => {
     if (conversationQuery.data) setShownMessages(conversationQuery.data);
@@ -88,10 +103,8 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   const isLoading = conversationQuery.isLoading && messages.length === 0;
   const markPostsSeen = openpeepsApi.markPostsSeenAction();
   const flushPostViews = usePostViewFlush();
-  const [isSending, setIsSending] = useState(false);
-  const [attachments, setAttachments] = useState<MediaAttachmentData[]>([]);
-  const [content, setContent] = useState('');
   const scrollViewRef = useRef<ScrollView>(null);
+  const imagePickerRef = useRef<BottomSheetModal>(null);
   const messageOffsets = useRef<Record<string, number>>({});
   const scrolledToMessageRef = useRef<string | null>(null);
   const [participantsOpen, setParticipantsOpen] = useState(false);
@@ -115,10 +128,26 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
     setAttachments([]);
   }, []);
 
+  const canSend = canSendDmMessage({
+    sending: isSending,
+    uploadsPending: attachments.some(isAttachmentProcessing),
+    text: content,
+    attachments,
+  });
+
+  const openImagePicker = useCallback(async () => {
+    const hasPermission = await checkMediaPermissions(t, 'photo');
+    if (hasPermission) imagePickerRef.current?.present();
+  }, [t]);
+
+  const addAttachments = useCallback((images: MediaAttachment[]) => {
+    setAttachments((current) =>
+      [...current, ...images].slice(0, DM_MAX_ATTACHMENTS)
+    );
+  }, []);
+
   const handleSendMessage = async () => {
-    if (!content.trim() || content.length > maxContentLength) {
-      return;
-    }
+    if (!canSend) return;
 
     try {
       setIsSending(true);
@@ -128,7 +157,8 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
         type: 'note',
         data: {
           type: 'note',
-          content: content,
+          content: content.trim(),
+          attachments: attachments.length ? attachments : undefined,
         },
       });
       resetForm();
@@ -344,15 +374,23 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
                     defaultValue: 'Write a message…',
                   })}
                 />
-                <View className="flex-row justify-end">
+                <View className="flex-row items-center justify-between">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    accessibilityLabel={t('posts.form.addImage')}
+                    onPress={() => void openImagePicker()}
+                    disabled={
+                      isSending || attachments.length >= DM_MAX_ATTACHMENTS
+                    }
+                    testID="conversation-add-image"
+                  >
+                    <ImageIcon size={20} className="text-foreground" />
+                  </Button>
                   <Button
                     variant="default"
                     onPress={handleSendMessage}
-                    disabled={
-                      isSending ||
-                      !content.trim() ||
-                      content.length > maxContentLength
-                    }
+                    disabled={!canSend}
                   >
                     {isSending ? (
                       <View className="flex-row items-center">
@@ -380,6 +418,11 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
           />
         ) : null}
       </View>
+      <ImagePickerSheet
+        ref={imagePickerRef}
+        usage="post-image"
+        onSelect={addAttachments}
+      />
     </ThemedView>
   );
 };

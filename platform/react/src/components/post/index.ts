@@ -20,6 +20,7 @@ export { DeletePostModal } from './pieces/modals/DeletePostModal';
 export { EditPostModal } from './post-form/EditPostModal';
 export { useEditPostModal } from './post-form/EditPostModalContext';
 export { ComposeAttachments } from './post-form/ComposeAttachments';
+export { useComposeAttachments } from './post-form/ComposeAttachments';
 export { DescriptionEditModal } from './post-form/DescriptionEditModal';
 export type { DescriptionEditModalProps } from './post-form/DescriptionEditModal';
 export { OpenpeepsMarkdownInput } from './post-form/OpenpeepsMarkdownInput';

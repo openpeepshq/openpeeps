@@ -1,3 +1,4 @@
+import { Image } from 'lucide-react';
 import type { PublicProfile } from '@openpeepshq/common/types';
 import { blockedPairIds } from '@openpeepshq/common/lib';
 import {
@@ -11,7 +12,11 @@ import {
 } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useCreateConversation } from '../../hooks/conversations/useCreateConversation';
-import { OpenpeepsMarkdownInput } from '../post';
+import {
+  canSendDmMessage,
+  DM_MAX_ATTACHMENTS,
+} from '../../hooks/conversations/dmMessage';
+import { OpenpeepsMarkdownInput, useComposeAttachments } from '../post';
 import { ProfilesInput } from '../profile';
 
 const MAX_MESSAGE_LENGTH = 500;
@@ -38,6 +43,8 @@ export const CreateNewConversation = ({
     setSelectedProfiles,
     message,
     setMessage,
+    attachments,
+    setAttachments,
     submitting,
     error,
     send,
@@ -47,91 +54,118 @@ export const CreateNewConversation = ({
     skipProfileSelection,
     onClose,
   });
+  const compose = useComposeAttachments({
+    attachments,
+    onChange: setAttachments,
+  });
+  const canSend = canSendDmMessage({
+    sending: submitting,
+    uploadsPending: compose.pending,
+    text: message,
+    attachments,
+  });
+  const addImageLabel = t('posts.form.addImage', {
+    defaultValue: 'Add Media',
+  });
 
   return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="flex max-h-[85vh] max-w-lg flex-col overflow-hidden">
-        {step === 1 ? (
-          <>
-            <DialogHeader>
-              <DialogTitle>
-                {t('conversations.createNew.title', {
-                  defaultValue: 'New message',
-                })}
-              </DialogTitle>
-            </DialogHeader>
+    <>
+      <Dialog open onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="flex max-h-[85vh] max-w-lg flex-col overflow-hidden">
+          {step === 1 ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>
+                  {t('conversations.createNew.title', {
+                    defaultValue: 'New message',
+                  })}
+                </DialogTitle>
+              </DialogHeader>
 
-            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">
-              <ProfilesInput
-                value={selectedProfiles}
-                onChange={setSelectedProfiles}
-                banlist={me ? [me.id, ...blockedPairIds(me)] : []}
-                placeholder={t('conversations.createNew.searchPlaceholder', {
-                  defaultValue: 'Search members…',
-                })}
-                title={t('conversations.createNew.title', {
-                  defaultValue: 'New message',
-                })}
+              <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">
+                <ProfilesInput
+                  value={selectedProfiles}
+                  onChange={setSelectedProfiles}
+                  banlist={me ? [me.id, ...blockedPairIds(me)] : []}
+                  placeholder={t('conversations.createNew.searchPlaceholder', {
+                    defaultValue: 'Search members…',
+                  })}
+                  title={t('conversations.createNew.title', {
+                    defaultValue: 'New message',
+                  })}
+                />
+              </div>
+
+              <DialogActions
+                cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+                onCancel={onClose}
+                actionLabel={t('common.next', { defaultValue: 'Next' })}
+                onAction={() => setStep(2)}
+                disabled={selectedProfiles.length === 0}
               />
-            </div>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>
+                  {t('conversations.createNew.sendMessage', {
+                    defaultValue: 'Send message',
+                  })}
+                </DialogTitle>
+              </DialogHeader>
 
-            <DialogActions
-              cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
-              onCancel={onClose}
-              actionLabel={t('common.next', { defaultValue: 'Next' })}
-              onAction={() => setStep(2)}
-              disabled={selectedProfiles.length === 0}
-            />
-          </>
-        ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle>
-                {t('conversations.createNew.sendMessage', {
-                  defaultValue: 'Send message',
-                })}
-              </DialogTitle>
-            </DialogHeader>
-
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <OpenpeepsMarkdownInput
-                rows={5}
-                value={message}
-                onChange={setMessage}
-                maxLength={MAX_MESSAGE_LENGTH}
-                placeholder={t('conversations.createNew.messagePlaceholder', {
-                  defaultValue: 'Write a message…',
-                })}
-              />
-            </div>
-
-            {error ? <p className="text-error text-sm">{error}</p> : null}
-
-            <DialogFooter className="flex-wrap gap-2">
-              {!skipProfileSelection ? (
-                <Button variant="outline" action={() => setStep(1)}>
-                  {t('common.back', { defaultValue: 'Back' })}
+              <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">
+                {compose.previews}
+                <OpenpeepsMarkdownInput
+                  rows={5}
+                  value={message}
+                  onChange={setMessage}
+                  maxLength={MAX_MESSAGE_LENGTH}
+                  placeholder={t('conversations.createNew.messagePlaceholder', {
+                    defaultValue: 'Write a message…',
+                  })}
+                />
+                <Button
+                  compact
+                  variant="ghost"
+                  title={addImageLabel}
+                  action={compose.openImagePicker}
+                  disabled={attachments.length >= DM_MAX_ATTACHMENTS}
+                  data-testid="conversation-add-image"
+                >
+                  <Image className="size-5" />
                 </Button>
-              ) : (
-                <Button variant="outline" action={onClose}>
-                  {t('common.cancel', { defaultValue: 'Cancel' })}
+              </div>
+
+              {error ? <p className="text-error text-sm">{error}</p> : null}
+
+              <DialogFooter className="flex-wrap gap-2">
+                {!skipProfileSelection ? (
+                  <Button variant="outline" action={() => setStep(1)}>
+                    {t('common.back', { defaultValue: 'Back' })}
+                  </Button>
+                ) : (
+                  <Button variant="outline" action={onClose}>
+                    {t('common.cancel', { defaultValue: 'Cancel' })}
+                  </Button>
+                )}
+                <Button
+                  variant="default"
+                  disabled={!canSend || selectedProfiles.length === 0}
+                  action={send}
+                >
+                  {submitting
+                    ? t('common.sending', { defaultValue: 'Sending…' })
+                    : t('conversations.createNew.send', {
+                        defaultValue: 'Send',
+                      })}
                 </Button>
-              )}
-              <Button
-                variant="default"
-                disabled={submitting || selectedProfiles.length === 0}
-                action={send}
-              >
-                {submitting
-                  ? t('common.sending', { defaultValue: 'Sending…' })
-                  : t('conversations.createNew.send', {
-                      defaultValue: 'Send',
-                    })}
-              </Button>
-            </DialogFooter>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+      {compose.inputs}
+    </>
   );
 };

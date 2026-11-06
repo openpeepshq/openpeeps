@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type {
+  MediaAttachmentData,
   PostCreationData,
   PublicProfile,
 } from '@openpeepshq/common/types';
@@ -32,6 +33,7 @@ export const useCreateConversation = ({
   const [selectedProfiles, setSelectedProfiles] =
     useState<PublicProfile[]>(initialProfiles);
   const [message, setMessage] = useState(initialMessage);
+  const [attachments, setAttachments] = useState<MediaAttachmentData[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,9 +49,12 @@ export const useCreateConversation = ({
         data: {
           type: 'note',
           content: message.trim(),
+          attachments: attachments.length ? attachments : undefined,
         },
       };
       const created = (await createPost(payload)) as { id: string };
+      setMessage('');
+      setAttachments([]);
       onClose();
       navigate({ type: 'conversation', id: created.id });
     } catch (err) {
@@ -67,6 +72,8 @@ export const useCreateConversation = ({
     setSelectedProfiles,
     message,
     setMessage,
+    attachments,
+    setAttachments,
     submitting,
     error,
     send,

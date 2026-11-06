@@ -2,6 +2,11 @@ export { useJoinGroup } from './groups/useJoinGroup';
 export { useGroupNotificationLevel } from './groups/useGroupNotificationLevel';
 export { useCreateConversation } from './conversations/useCreateConversation';
 export type { UseCreateConversationArgs } from './conversations/useCreateConversation';
+export {
+  canSendDmMessage,
+  DM_MAX_ATTACHMENTS,
+  DM_MESSAGE_MAX_LENGTH,
+} from './conversations/dmMessage';
 export { useCanDiagnoseLivekit } from './jams/useCanDiagnoseLivekit';
 export { useLeaveCloseJam } from './jams/useLeaveCloseJam';
 export type { UseLeaveCloseJamArgs } from './jams/useLeaveCloseJam';

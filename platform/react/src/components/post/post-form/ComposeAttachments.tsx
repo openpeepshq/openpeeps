@@ -45,6 +45,8 @@ export interface ComposeAttachmentsApi {
   openImagePicker: () => void;
   openAudioPicker: () => void;
   openDocumentPicker: () => void;
+  /** Drop in-flight and ready items. Used after a message is sent. */
+  clear: () => void;
   /** True while any attachment is still uploading or processing. */
   pending: boolean;
   /** Attachment cards — render where the previews should appear. */
@@ -280,6 +282,14 @@ export function useComposeAttachments({
     openImagePicker: () => imageInputRef.current?.click(),
     openAudioPicker: () => audioInputRef.current?.click(),
     openDocumentPicker: () => documentInputRef.current?.click(),
+    clear: () => {
+      items.forEach((item) => {
+        if (item.previewUrl && isBlobUrl(item.previewUrl)) {
+          revokeBlobUrl(item.previewUrl);
+        }
+      });
+      setItems([]);
+    },
     pending,
     previews,
     inputs,
