@@ -7,7 +7,7 @@ import {
 import { ensureLocalProfile, ensureProfileCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { z } from '#lib/';
-import { notFound } from '#lib/helpers';
+import { notFound } from '#lib/errors';
 import { findProfile, follow, unfollow } from '@openpeepshq/core/profiles';
 import { isBlockedPair } from '@openpeepshq/common/lib';
 
