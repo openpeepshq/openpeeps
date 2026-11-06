@@ -1234,7 +1234,8 @@
       "viewEvent": "Veranstaltung ansehen",
       "autoRsvpInProgress": "Sie werden für diese Veranstaltung angemeldet…",
       "autoRsvpError": "Anmeldung zu dieser Veranstaltung fehlgeschlagen.",
-      "reconnecting": "Verbindung zum Jam wird wiederhergestellt…"
+      "reconnecting": "Verbindung zum Jam wird wiederhergestellt…",
+      "confirmCloseTab": "Möchten Sie diesen Tab wirklich schließen?"
     },
     "participant": {
       "showEveryone": "Alle anzeigen",

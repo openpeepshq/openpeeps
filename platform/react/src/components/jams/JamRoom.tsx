@@ -6,6 +6,7 @@ import type { Event, PublicPost } from '@openpeepshq/common/types';
 import { jamFromEvent } from '@openpeepshq/common/lib';
 import { useT } from '../../i18n';
 import { useJamRoom } from '../../hooks/jams/useJamRoom';
+import { useJamTabCloseGuard } from '../../hooks/jams/useJamTabCloseGuard';
 import { JamProvider } from './JamContext';
 import { JamLobby } from './JamLobby';
 import { JamCapacityGate } from './JamCapacityGate';
@@ -63,6 +64,8 @@ function JamRoomInner() {
     handleDisconnected,
     tryReconnect,
   } = useJamRoom();
+
+  useJamTabCloseGuard(connection !== undefined || reconnectPrefs !== undefined);
 
   // Retry when the page becomes visible again (mobile idle / tab freeze).
   useEffect(() => {

@@ -8,6 +8,7 @@ export type { UseLeaveCloseJamArgs } from './jams/useLeaveCloseJam';
 export { useCreateNewJamForm } from './jams/useCreateNewJamForm';
 export type { UseCreateNewJamFormArgs } from './jams/useCreateNewJamForm';
 export { useJamRoom } from './jams/useJamRoom';
+export { useJamTabCloseGuard } from './jams/useJamTabCloseGuard';
 export type {
   JamConnection,
   JamJoinChoices,

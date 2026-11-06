@@ -1243,7 +1243,8 @@
       "viewEvent": "View event",
       "autoRsvpInProgress": "Registering you for this event…",
       "autoRsvpError": "Failed to register for this event.",
-      "reconnecting": "Reconnecting to the jam…"
+      "reconnecting": "Reconnecting to the jam…",
+      "confirmCloseTab": "Are you sure you want to close this tab?"
     },
     "participant": {
       "showEveryone": "Show everyone",
