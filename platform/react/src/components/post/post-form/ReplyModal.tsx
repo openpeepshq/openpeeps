@@ -17,13 +17,7 @@ import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { useToast } from '../../layout/ToastProvider';
 import { useCurrentProfile } from '../../layout/IdentityContext';
-import {
-  defaultNewNote,
-  defaultNewQuestion,
-  resetReplyData,
-  useReplyStore,
-} from '../../../stores/newPosts';
-import { useServerInfo } from '../../server-data';
+import { resetReplyData, useReplyStore } from '../../../stores/newPosts';
 import { CompactReplyParent } from '../CompactReplyParent';
 import { Avatar } from '../../profile';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
@@ -42,7 +36,6 @@ type ComposerType = 'note' | 'question';
 export function ReplyModal({ post, onClose }: ReplyModalProps) {
   const t = useT();
   const { success, error: toastError } = useToast();
-  const serverInfo = useServerInfo();
   const me = useCurrentProfile();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
@@ -93,17 +86,31 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
   });
 
   const setComposerType = (type: ComposerType) => {
-    const base =
+    if (type === composerType) return;
+    // The note body and poll question share one field, so the visible text
+    // is carried over instead of resetting to an empty draft (parity with
+    // the native composer's toNote/toQuestion).
+    const content =
+      draft.data.type === 'note' || draft.data.type === 'question'
+        ? (draft.data.content ?? '')
+        : '';
+    const data =
       type === 'question'
-        ? defaultNewQuestion(serverInfo.publicContent)
-        : defaultNewNote(serverInfo.publicContent);
+        ? {
+            type: 'question' as const,
+            content,
+            options: [
+              { type: 'note' as const, content: '' },
+              { type: 'note' as const, content: '' },
+            ],
+          }
+        : { type: 'note' as const, content };
     replyStore.set({
       ...draft,
       type,
-      data: base.data,
+      data,
     });
   };
-
   const setContent = (value: string) => {
     if (draft.data.type !== 'note' && draft.data.type !== 'question') return;
     replyStore.set({
