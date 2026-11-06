@@ -3,6 +3,10 @@ Changelog for OpenPeeps
 
 ## Current
 
+- No changes
+
+## 2026-11-05
+
 ### Features
 
 - **skills**: parameterize milestone triage scripts (milestone id + token)
