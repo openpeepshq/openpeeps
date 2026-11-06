@@ -4,11 +4,16 @@ import {
   type SuccessResponse,
 } from '@openpeepshq/common/types';
 
-import { ensureLocalProfile, ensureProfileCapabilities } from '#lib/auth';
+import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { z } from '#lib/';
-import { notFound } from '#lib/helpers';
-import { findProfile, follow, unfollow } from '@openpeepshq/core/profiles';
+import { forbidden, notFound } from '#lib/errors';
+import {
+  canFollowProfile,
+  findProfile,
+  follow,
+  unfollow,
+} from '@openpeepshq/core/profiles';
 import { isBlockedPair } from '@openpeepshq/common/lib';
 
 export const followParamsSchema = z.object({
@@ -33,9 +38,13 @@ export const followProfileHandler = async (
     throw notFound(`profile with id ${profileId}`);
   }
 
-  await ensureProfileCapabilities(event, profileToFollow, [
-    'core-profiles-follow',
-  ]);
+  const { success, missingCapabilities } = await canFollowProfile(
+    profile,
+    profileToFollow,
+  );
+  if (!success) {
+    throw forbidden(`Missing capabilities: ${missingCapabilities.join(', ')}`);
+  }
 
   await follow(profile, profileToFollow, followDataSchema.parse(followInput));
 

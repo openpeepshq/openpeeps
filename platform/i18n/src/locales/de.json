@@ -2301,6 +2301,8 @@
       "backgroundRequirements": "Dieses Bild erscheint hinter dem Community-Inhalt bei der Verwendung eines breiteren Bildschirms. Es ist für Nutzer auf Mobilgeräten nicht sichtbar.",
       "fontFamily": "Schriftart",
       "typographyAndRadii": "Typografie und Rundungen",
+      "autoFollow": "Automatisch gefolgte Konten",
+      "autoFollowDescription": "Durch Kommas getrennte Handles. Neue Mitglieder folgen diesen Konten bei der Registrierung.",
       "buttonRadius": "Eckenradius für Buttons",
       "radius": "Standard-Eckenradius (Karten, Dialoge)",
       "codeOfConduct": {

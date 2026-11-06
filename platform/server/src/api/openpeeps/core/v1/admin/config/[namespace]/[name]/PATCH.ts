@@ -7,6 +7,7 @@ import {
 import { forbidden, notFound, badRequest } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
 import { updateConfigValues } from '@openpeepshq/core/config';
+import { getLocalProfileByHandle } from '@openpeepshq/core/profiles';
 
 export const Param = z.object({
   namespace: z.string(),
@@ -58,12 +59,35 @@ const rejectEmptyProfileFieldKeys = (config: unknown) => {
   }
 };
 
+const validateAutoFollowHandles = async (config: unknown) => {
+  if (!config || typeof config !== 'object') return;
+  const autoFollow = (config as { content?: { autoFollow?: unknown } }).content
+    ?.autoFollow;
+  if (autoFollow === undefined) return;
+  const parsed = z.array(z.string()).safeParse(autoFollow);
+  if (!parsed.success) {
+    throw badRequest('Auto-follow handles must be a list of strings');
+  }
+  const unresolved: string[] = [];
+  for (const rawHandle of parsed.data) {
+    const handle = rawHandle.replace(/^@/, '').trim();
+    if (!handle) continue;
+    if (!(await getLocalProfileByHandle(handle))) {
+      unresolved.push(rawHandle);
+    }
+  }
+  if (unresolved.length) {
+    throw badRequest(`Unknown auto-follow handles: ${unresolved.join(', ')}`);
+  }
+};
+
 export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
   async (input, event) => {
     await ensureRoleCapabilities(event, ['core-config-update']);
     const { config, name, namespace } = input;
     rejectEmptyProfileFieldKeys(config);
     normalizeAdditionalForbiddenHandles(config);
+    await validateAutoFollowHandles(config);
     // Admin UI/CLI send sparse patches (e.g. only info.tagLine). Merge into the
     // stored overrides so unrelated keys like theme are preserved.
     await updateConfigValues(config, namespace, name);

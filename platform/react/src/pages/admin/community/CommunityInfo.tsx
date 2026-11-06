@@ -10,6 +10,7 @@ import {
   Button,
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,6 +20,33 @@ import {
   Toast,
 } from '@openpeepshq/react-ui';
 import { useCommunityConfig } from './useCommunityConfig';
+
+const AutoFollowInput = ({
+  value,
+  onChange,
+}: {
+  value: string[] | undefined;
+  onChange: (value: string[] | undefined) => void;
+}) => {
+  // Raw text is local state: re-parsing on every keystroke would eat the
+  // comma in "alice," before it can be typed.
+  const [text, setText] = useState(() => (value ?? []).join(', '));
+  return (
+    <Input
+      type="text"
+      value={text}
+      onChange={(event) => {
+        setText(event.target.value);
+        const handles = event.target.value
+          .split(',')
+          .map((handle) => handle.trim())
+          .filter(Boolean);
+        onChange(handles.length ? handles : []);
+      }}
+      data-testid="admin-community-info-autofollow"
+    />
+  );
+};
 
 export function AdminConfigurationCommunityInfo() {
   const t = useT();
@@ -109,6 +137,32 @@ export function AdminConfigurationCommunityInfo() {
                     data-testid="admin-community-info-email"
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="content.autoFollow"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t('configuration.community.autoFollow', {
+                    defaultValue: 'Auto-follow accounts',
+                  })}
+                </FormLabel>
+                <FormControl>
+                  <AutoFollowInput
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormDescription>
+                  {t('configuration.community.autoFollowDescription', {
+                    defaultValue:
+                      'Comma-separated handles. New members follow these accounts when they sign up.',
+                  })}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
