@@ -618,6 +618,9 @@ importers:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.5.0
         version: 8.5.0(zod@4.4.3)
+      '@date-fns/tz':
+        specifier: ^1.5.0
+        version: 1.5.0
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -630,6 +633,9 @@ importers:
       jose:
         specifier: ^6.2.2
         version: 6.2.2
+      timezones-ical-library:
+        specifier: ^2.4.0
+        version: 2.4.0
       type-fest:
         specifier: ^5.5.0
         version: 5.6.0
@@ -3106,6 +3112,9 @@ packages:
 
   '@datastructures-js/deque@1.0.8':
     resolution: {integrity: sha512-PSBhJ2/SmeRPRHuBv7i/fHWIdSC3JTyq56qb+Rq0wjOagi0/fdV5/B/3Md5zFZus/W6OkSPMaxMKKMNMrSmubg==}
+
+  '@date-fns/tz@1.5.0':
+    resolution: {integrity: sha512-lwYN/vDPeNRULcepoE/LO2Pgx+7/RV+S9ARfbc9lr2DtGkOD7pAiruHvbR1RX3Qyf6ja47EWJDMsNK5vK08DJg==}
 
   '@digitalbazaar/http-client@4.4.0':
     resolution: {integrity: sha512-ODhCGmElUPmR3IR+KZmBNkRAFyjJ01rxvk2E+/qQ2h2EGPJH5k6bz3N24ympGc5+i4YCGk/ipIpmkwc0+iSmRg==}
@@ -14580,6 +14589,9 @@ packages:
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
 
+  timezones-ical-library@2.4.0:
+    resolution: {integrity: sha512-6mIzeo1ihu7zkWMrfW9CZNw5Gjv/rvgL7MVKMJ55XQAL6qysLfkX8GsKC1fFExzYqJOvHLLSIGcA8Qnr/fS3fQ==}
+
   timezones-list@3.1.0:
     resolution: {integrity: sha512-PcDBt9tae330KTOIufK/wArTlJp+unuuRcG0EEu+4oLHZACHefKQyP2D51gMZID+urye92mHND60KRVuDDAmbA==}
 
@@ -17370,6 +17382,8 @@ snapshots:
   '@csstools/css-tokenizer@3.0.3': {}
 
   '@datastructures-js/deque@1.0.8': {}
+
+  '@date-fns/tz@1.5.0': {}
 
   '@digitalbazaar/http-client@4.4.0':
     dependencies:
@@ -30098,6 +30112,8 @@ snapshots:
       readable-stream: 3.6.2
 
   through@2.3.8: {}
+
+  timezones-ical-library@2.4.0: {}
 
   timezones-list@3.1.0: {}
 

@@ -3,9 +3,12 @@ import ical, {
   ICalEventRepeatingFreq,
   ICalWeekday,
 } from 'ical-generator';
+import { TZDate } from '@date-fns/tz';
+import { tzlib_get_ical_block } from 'timezones-ical-library';
 import type { Event, PublicPost, RecurrenceWeekday } from '../types';
 import { effectiveEventTimes } from './eventRecurrence';
 import { getJamUrl } from './jamHelpers';
+import { isIanaTimeZone } from './timeZone';
 
 const utcDateFromYmd = (yyyyMmDd: string): Date => {
   const [y, m, d] = yyyyMmDd.split('-').map(Number);
@@ -16,6 +19,45 @@ const exclusiveEndAfterInclusiveDay = (yyyyMmDd: string): Date => {
   const dt = utcDateFromYmd(yyyyMmDd);
   dt.setUTCDate(dt.getUTCDate() + 1);
   return dt;
+};
+
+/**
+ * The event's stored IANA zone when it is one; ical-generator writes any
+ * `timezone` string verbatim into `TZID=`, so non-IANA values fall back to
+ * UTC output here.
+ */
+const eventTimeZone = (event: Event): string | undefined =>
+  isIanaTimeZone(event.timeZone) ? event.timeZone : undefined;
+
+/**
+ * A zone-aware Date: ical-generator formats a TZDate's wall-clock components
+ * in the event's zone, so the host's local zone (and its DST gaps) never
+ * shifts the exported time.
+ */
+const instantInZone = (iso: string, timeZone?: string): Date =>
+  timeZone ? new TZDate(iso, timeZone) : new Date(iso);
+
+/** The default 1-hour end keeps the event's zone (or UTC). */
+const defaultEnd = (start: Date, timeZone?: string): Date =>
+  timeZone
+    ? new TZDate(start.getTime() + 60 * 60 * 1000, timeZone)
+    : new Date(start.getTime() + 60 * 60 * 1000);
+
+/**
+ * RFC 5545 requires a VTIMEZONE for every TZID used. ical-generator only
+ * emits one via a calendar-level timezone, which in v10 also re-zones
+ * UNTIL and DTSTAMP (both of which must stay UTC), so the component is
+ * spliced in before the first VEVENT instead.
+ */
+const withVtimezone = (calendarText: string, timeZone: string): string => {
+  const [block] = tzlib_get_ical_block(timeZone) as [string, string];
+  const normalized = block.replace(/\r?\n/g, '\r\n').trim() + '\r\n';
+  const veventIndex = calendarText.indexOf('BEGIN:VEVENT');
+  return (
+    calendarText.slice(0, veventIndex) +
+    normalized +
+    calendarText.slice(veventIndex)
+  );
 };
 
 const originFromUrl = (url?: string): string | undefined => {
@@ -67,12 +109,12 @@ const repeatingWeekday: Record<RecurrenceWeekday, ICalWeekday> = {
   SU: ICalWeekday.SU,
 };
 
-const repeatingOptions = (event: Event) => {
+const repeatingOptions = (event: Event, timeZone?: string) => {
   const recurrence = event.recurrence;
   if (!recurrence) return undefined;
   const exclude = (event.exceptions ?? [])
     .filter((exception) => exception.cancelled)
-    .map((exception) => new Date(exception.recurrenceId));
+    .map((exception) => instantInZone(exception.recurrenceId, timeZone));
   return {
     freq: repeatingFreq[recurrence.freq],
     interval: recurrence.interval ?? 1,
@@ -104,7 +146,10 @@ export const buildEventIcs = (
   const summary = event.name?.trim() || 'Event';
   const description = event.content?.trim();
   const location = eventLocation(post, event, options?.postUrl);
-  const repeating = repeatingOptions(event);
+  // Timed events keep the event's own zone; all-day events use DATE values
+  // and carry no zone.
+  const timeZone = event.wholeDay ? undefined : eventTimeZone(event);
+  const repeating = repeatingOptions(event, timeZone);
 
   if (event.wholeDay) {
     const startYmd = event.start.slice(0, 10);
@@ -121,14 +166,15 @@ export const buildEventIcs = (
       ...(repeating ? { repeating } : {}),
     });
   } else {
-    const start = new Date(event.start);
+    const start = instantInZone(event.start, timeZone);
     const end = event.end
-      ? new Date(event.end)
-      : new Date(start.getTime() + 60 * 60 * 1000);
+      ? instantInZone(event.end, timeZone)
+      : defaultEnd(start, timeZone);
     calendar.createEvent({
       id: `openpeeps-event-${post.id}@openpeepshq`,
       start,
       end,
+      ...(timeZone ? { timezone: timeZone } : {}),
       summary,
       ...(description ? { description } : {}),
       ...(location ? { location } : {}),
@@ -139,23 +185,27 @@ export const buildEventIcs = (
 
   for (const exception of event.exceptions ?? []) {
     if (exception.cancelled || !exception.start) continue;
-    const start = new Date(exception.start);
+    const start = instantInZone(exception.start, timeZone);
     const end = exception.end
-      ? new Date(exception.end)
-      : new Date(start.getTime() + 60 * 60 * 1000);
+      ? instantInZone(exception.end, timeZone)
+      : defaultEnd(start, timeZone);
     calendar.createEvent({
       id: `openpeeps-event-${post.id}-${exception.recurrenceId}@openpeepshq`,
       start,
       end,
+      ...(timeZone ? { timezone: timeZone } : {}),
       summary,
       ...(description ? { description } : {}),
       ...(location ? { location } : {}),
       ...(link ? { url: link } : {}),
-      recurrenceId: new Date(exception.recurrenceId),
+      recurrenceId: instantInZone(exception.recurrenceId, timeZone),
     });
   }
 
-  return calendar.toString() + '\r\n';
+  const calendarText = calendar.toString();
+  return (
+    (timeZone ? withVtimezone(calendarText, timeZone) : calendarText) + '\r\n'
+  );
 };
 
 const addOccurrenceEvent = (
@@ -171,6 +221,7 @@ const addOccurrenceEvent = (
   const location = eventLocation(post, event, options?.postUrl);
   const times = effectiveEventTimes(event, recurrenceId);
   const id = `openpeeps-event-${post.id}-${recurrenceId}@openpeepshq`;
+  const timeZone = event.wholeDay ? undefined : eventTimeZone(event);
 
   if (event.wholeDay) {
     const startYmd = times.start.slice(0, 10);
@@ -188,14 +239,15 @@ const addOccurrenceEvent = (
     return;
   }
 
-  const start = new Date(times.start);
+  const start = instantInZone(times.start, timeZone);
   const end = times.end
-    ? new Date(times.end)
-    : new Date(start.getTime() + 60 * 60 * 1000);
+    ? instantInZone(times.end, timeZone)
+    : defaultEnd(start, timeZone);
   calendar.createEvent({
     id,
     start,
     end,
+    ...(timeZone ? { timezone: timeZone } : {}),
     summary,
     ...(description ? { description } : {}),
     ...(location ? { location } : {}),
@@ -227,7 +279,11 @@ export const buildRsvpIcs = (
     addOccurrenceEvent(calendar, post, event, recurrenceId, options);
   }
 
-  return calendar.toString() + '\r\n';
+  const timeZone = event.wholeDay ? undefined : eventTimeZone(event);
+  const calendarText = calendar.toString();
+  return (
+    (timeZone ? withVtimezone(calendarText, timeZone) : calendarText) + '\r\n'
+  );
 };
 
 export const rsvpConfirmationContent = (

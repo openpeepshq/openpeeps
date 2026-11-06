@@ -6,10 +6,12 @@
   "sideEffects": false,
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
+    "@date-fns/tz": "^1.5.0",
     "date-fns": "^4.1.0",
     "ical-generator": "^10.2.0",
     "iso-639-1": "^3.1.5",
     "jose": "^6.2.2",
+    "timezones-ical-library": "^2.4.0",
     "type-fest": "^5.5.0",
     "validator": "^13.15.35",
     "zod": "^4.4.3"
