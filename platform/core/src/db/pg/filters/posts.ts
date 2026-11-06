@@ -57,6 +57,8 @@ export const postFilters = {
 
   hasJam: (): SqlFilter => pgSql(isNotNull(sql`${posts.body}->'jam'`)),
 
+  highlighted: (): SqlFilter => pgSql(eq(posts.highlighted, true)),
+
   creatorId: (id: string): SqlFilter => pgSql(eq(posts.creatorId, id)),
 
   notCreatorIn: (ids: string[]): SqlFilter | undefined =>

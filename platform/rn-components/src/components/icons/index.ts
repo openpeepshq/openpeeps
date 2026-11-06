@@ -141,6 +141,7 @@ import {
   LayoutList,
   ExternalLink,
   PinOff,
+  Sparkles,
 } from 'lucide-react-native';
 
 export type { LucideIcon } from './types';
@@ -286,4 +287,5 @@ export const LayoutGridIcon = iconWithClassName(LayoutGrid);
 export const LayoutListIcon = iconWithClassName(LayoutList);
 export const ExternalLinkIcon = iconWithClassName(ExternalLink);
 export const PinOffIcon = iconWithClassName(PinOff);
+export const SparklesIcon = iconWithClassName(Sparkles);
 export const SmilePlusIcon = iconWithClassName(SmilePlus);

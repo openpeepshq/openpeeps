@@ -50,6 +50,7 @@ const SCALAR_COLUMNS: Record<string, string[]> = {
     'lastActivityAt',
     'uri',
     'inReplyToUri',
+    'highlightedAt',
   ],
   groups: ['handle'],
   hashtags: ['name'],

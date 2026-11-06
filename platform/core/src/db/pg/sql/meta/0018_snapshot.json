@@ -1,6 +1,6 @@
 {
-  "id": "dfefc4cf-8580-4232-bcc9-fe7da89adb2e",
-  "prevId": "3d4c31b7-52a6-4d1b-8074-351a9d74dd4f",
+  "id": "494ea9b7-c54d-4de3-bea2-305c456c7152",
+  "prevId": "32314730-bb46-4452-a995-7ab8dae92ecc",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -860,6 +860,19 @@
           "primaryKey": false,
           "notNull": false
         },
+        "highlighted": {
+          "name": "highlighted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "highlighted_at": {
+          "name": "highlighted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
         "body": {
           "name": "body",
           "type": "jsonb",
@@ -1009,6 +1022,28 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "posts_highlighted_at_idx": {
+          "name": "posts_highlighted_at_idx",
+          "columns": [
+            {
+              "expression": "highlighted_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"posts\".\"highlighted\"",
           "concurrently": false,
           "method": "btree",
           "with": {}

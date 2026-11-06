@@ -11,11 +11,16 @@ import {
   BookmarkMinusIcon,
   Repeat2Icon,
   ThumbsUpIcon,
+  SparklesIcon,
 } from '../../icons/index';
 import { PopupMenu, PopupMenuButton, PopupSeparator } from '../../ui';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { checkGroupCapabilities } from '@openpeepshq/common';
-import { checkRoleCapabilities } from '@openpeepshq/common/lib';
+import {
+  canHighlightPosts,
+  checkRoleCapabilities,
+  isCommunityWideVisibility,
+} from '@openpeepshq/common/lib';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -68,6 +73,11 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
     checkRoleCapabilities(currentProfile.roles ?? [], ['core-config-update'])
       .success
   );
+  const canHighlight = !!(
+    isCommunityWideVisibility(post.visibility) &&
+    currentProfile &&
+    canHighlightPosts(currentProfile.roles ?? [])
+  );
   const pinnedGlobally =
     serverInfo?.communityConfig?.content?.pinnedPost === post.id;
   const { data: bookmarkedIdsStore, refetch: refetchBookmarkedIds } =
@@ -86,6 +96,8 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
   });
   const pinGloballyMutation = openpeepsApi.admin.pinPostGloballyAction();
   const pinOnProfileMutation = openpeepsApi.pinPostOnProfileAction();
+  const highlightPost = openpeepsApi.highlightPostAction({ id: post.id });
+  const unhighlightPost = openpeepsApi.unhighlightPostAction({ id: post.id });
   const followProfile = openpeepsApi.followProfileAction({
     id: post.profile.id,
   });
@@ -180,6 +192,28 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
       });
     } else {
       Toast.show({ type: 'error', text1: t('posts.pinGlobally.error') });
+    }
+  };
+
+  const handleHighlight = async () => {
+    const removing = post.highlighted;
+    const response = removing
+      ? await unhighlightPost(undefined)
+      : await highlightPost(undefined);
+    if (response) {
+      Toast.show({
+        type: 'success',
+        text1: t(
+          removing ? 'posts.unhighlight.success' : 'posts.highlight.success'
+        ),
+      });
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: t(
+          removing ? 'posts.unhighlight.error' : 'posts.highlight.error'
+        ),
+      });
     }
   };
 
@@ -376,6 +410,31 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
             }
             icon={PinIcon}
             action={handlePinGlobally}
+          />
+        ) : null}
+
+        {canHighlight ? (
+          <PopupMenuButton
+            title={
+              post.highlighted
+                ? t('posts.unhighlight.title', {
+                    defaultValue: 'Remove from highlights',
+                  })
+                : t('posts.highlight.title', {
+                    defaultValue: 'Add to highlights',
+                  })
+            }
+            text={
+              post.highlighted
+                ? t('posts.unhighlight.title', {
+                    defaultValue: 'Remove from highlights',
+                  })
+                : t('posts.highlight.title', {
+                    defaultValue: 'Add to highlights',
+                  })
+            }
+            icon={SparklesIcon}
+            action={handleHighlight}
           />
         ) : null}
 

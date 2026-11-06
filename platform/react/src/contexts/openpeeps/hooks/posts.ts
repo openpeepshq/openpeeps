@@ -10,6 +10,7 @@ import {
 } from '../helpers';
 import type {
   ChronologicalInfiniteQueryParams,
+  FeedFormat,
   JamRecording,
   PostContext,
   PostType,
@@ -126,6 +127,18 @@ const postFeeds = (client: OpenpeepsClient) => ({
     infiniteChronologicalQueryApiHook(client.posts.feeds.my, {
       queryParams: withFeedLimit(props),
     }),
+  useHighlightsFeed: (props?: { limit?: number; format?: FeedFormat }) =>
+    infiniteOffsetQueryApiHook<
+      PublicPost[],
+      undefined,
+      { offset?: number; limit: number; format?: FeedFormat }
+    >(client.posts.feeds.highlights, {
+      pageSize: props?.limit ?? DEFAULT_FEED_LIMIT,
+      queryParams: {
+        limit: props?.limit ?? DEFAULT_FEED_LIMIT,
+        format: props?.format,
+      },
+    }),
 });
 
 type PostFeeds = ReturnType<typeof postFeeds>;
@@ -240,6 +253,10 @@ const postMutators = (client: OpenpeepsClient) => ({
   unbookmarkPostAction: noPayloadMutation(client.posts.unbookmark, [
     ['posts'],
     ['profiles', 'current', 'bookmarkedIds'],
+  ]),
+  highlightPostAction: noPayloadMutation(client.posts.highlight, [['posts']]),
+  unhighlightPostAction: noPayloadMutation(client.posts.unhighlight, [
+    ['posts'],
   ]),
   markPostsSeenAction: payloadPostsReadMutation(client.posts.seen),
   markGroupPostsSeenAction: noPayloadPostsReadMutation(

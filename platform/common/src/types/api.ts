@@ -205,6 +205,8 @@ const publicReplyPostObject = z.object({
   seen: z.boolean().optional(),
   inReplyToId: z.string().optional().nullable(),
   hidden: z.boolean().optional(),
+  /** Moderator-curated inclusion in the community highlights feed. */
+  highlighted: z.boolean().optional(),
 });
 export const publicReplyPostSchema = publicReplyPostObject.extend({
   replyTo: publicReplyPostObject.optional().nullable(),

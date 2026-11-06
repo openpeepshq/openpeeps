@@ -18,6 +18,7 @@ export const TAB_ROUTES = {
   ARTICLES: 'Articles',
   RESOURCES: 'Resources',
   BOOKMARKS: 'Bookmarks',
+  HIGHLIGHTS: 'Highlights',
 } as const;
 
 export type TabStackParamList = {
@@ -45,6 +46,7 @@ export type TabStackParamList = {
   };
   [TAB_ROUTES.EXPLORE]: undefined;
   [TAB_ROUTES.BOOKMARKS]: undefined;
+  [TAB_ROUTES.HIGHLIGHTS]: undefined;
 };
 
 export type TabScreenProps<T extends keyof TabStackParamList> =

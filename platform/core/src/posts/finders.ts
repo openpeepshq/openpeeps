@@ -508,6 +508,48 @@ export const listLocalFeed = async (
     ),
   );
 
+/**
+ * Community Highlights: moderator-curated posts, ordered by curation time
+ * (most recently highlighted first) rather than conversation activity.
+ */
+export const highlightsFeed = ({
+  profile,
+  format,
+}: {
+  profile?: ProfileWithMeta;
+  format?: string | null;
+}) => {
+  let mapping = postsMappingForProfile(profile)
+    .filter(postFilters.notDirect())
+    .filter(postFilters.notCreatorIn(blockedPairIds(profile)))
+    .sort([
+      ['highlightedAt', 'DESC'],
+      ['id', 'DESC'],
+    ]);
+  if (parseFeedFormat(format) !== 'linear') {
+    mapping = mapping.filter(postFilters.notReply());
+  }
+  return mapping.filter(postFilters.highlighted()).filter(localFeedFilter());
+};
+
+export const listHighlightsFeed = async (
+  authData: AuthorizationData,
+  {
+    offset = 0,
+    limit = 100,
+    format,
+  }: { offset?: number; limit?: number; format?: string | null } = {
+    limit: 100,
+  },
+) =>
+  withSpan('feed.highlights', () =>
+    toFilteredPostsList(highlightsFeed({ profile: authData.profile, format }), {
+      authData,
+      limit,
+      offset,
+    }),
+  );
+
 export const listMyFeed = async (
   authData: AuthorizationData,
   {

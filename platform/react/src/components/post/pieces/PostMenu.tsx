@@ -6,14 +6,17 @@ import {
   Pencil,
   Pin,
   Repeat2,
+  Sparkles,
   ThumbsUp,
   Trash,
 } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import {
+  canHighlightPosts,
   checkGroupCapabilities,
   checkPostCapabilities,
   checkRoleCapabilities,
+  isCommunityWideVisibility,
 } from '@openpeepshq/common/lib';
 import {
   PopupMenu,
@@ -62,6 +65,8 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
   });
   const pinGloballyMutation = openpeepsApi.admin.pinPostGloballyAction();
   const pinOnProfileMutation = openpeepsApi.pinPostOnProfileAction();
+  const highlightPost = openpeepsApi.highlightPostAction({ id: post.id });
+  const unhighlightPost = openpeepsApi.unhighlightPostAction({ id: post.id });
 
   const postProfile = post.profile;
   const isFollowing = me?.following?.some((f) => f.id === postProfile.id);
@@ -83,6 +88,14 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
       ['public', 'local'].includes(post.visibility) &&
       !!me &&
       checkRoleCapabilities(me.roles ?? [], ['core-config-update']).success,
+    [me, post.visibility],
+  );
+
+  const canHighlight = useMemo(
+    () =>
+      isCommunityWideVisibility(post.visibility) &&
+      !!me &&
+      canHighlightPosts(me.roles ?? []),
     [me, post.visibility],
   );
 
@@ -199,6 +212,36 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
             action={() =>
               pinGloballyMutation({ postId: pinnedGlobally ? '' : post.id })
             }
+          />
+        ) : null}
+        {canHighlight ? (
+          <PopupMenuButton
+            title={
+              post.highlighted
+                ? t('posts.unhighlight.title', {
+                    defaultValue: 'Remove from highlights',
+                  })
+                : t('posts.highlight.title', {
+                    defaultValue: 'Add to highlights',
+                  })
+            }
+            text={
+              post.highlighted
+                ? t('posts.unhighlight.title', {
+                    defaultValue: 'Remove from highlights',
+                  })
+                : t('posts.highlight.title', {
+                    defaultValue: 'Add to highlights',
+                  })
+            }
+            icon={Sparkles}
+            action={async () => {
+              if (post.highlighted) {
+                await unhighlightPost(undefined);
+              } else {
+                await highlightPost(undefined);
+              }
+            }}
           />
         ) : null}
         {canPinToGroup && post.group ? (

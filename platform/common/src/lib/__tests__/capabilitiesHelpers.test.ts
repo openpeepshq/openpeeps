@@ -5,6 +5,7 @@ import {
   checkRoleCapabilities,
   canCreateGroup,
   canAnnouncePosts,
+  canHighlightPosts,
   isCommunityWideVisibility,
   hasAdminSidebarAccess,
   isLocal,
@@ -365,6 +366,23 @@ describe('capabilitiesHelpers', () => {
       expect(canAnnouncePosts(roles('member'))).toBe(false);
       expect(canAnnouncePosts(roles('pendingmember'))).toBe(false);
       expect(canAnnouncePosts([])).toBe(false);
+    });
+  });
+
+  describe('canHighlightPosts', () => {
+    const roles = (key: string) =>
+      defaultRoles.filter((role) => role.key === key) as Role[];
+
+    it('allows owners, admins, and moderators', () => {
+      expect(canHighlightPosts(roles('owner'))).toBe(true);
+      expect(canHighlightPosts(roles('admin'))).toBe(true);
+      expect(canHighlightPosts(roles('moderator'))).toBe(true);
+    });
+
+    it('denies members, pending members, and viewers with no roles', () => {
+      expect(canHighlightPosts(roles('member'))).toBe(false);
+      expect(canHighlightPosts(roles('pendingmember'))).toBe(false);
+      expect(canHighlightPosts([])).toBe(false);
     });
   });
 

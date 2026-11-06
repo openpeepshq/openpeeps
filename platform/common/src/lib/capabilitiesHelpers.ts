@@ -90,6 +90,10 @@ export const canCreateGroup = (roles: Role[] = []) =>
 export const canAnnouncePosts = (roles: Role[] = []) =>
   checkRoleCapabilities(roles, ['core-posts-announce']).success;
 
+/** Same gate as `POST/DELETE /posts/:postId/highlight` (`core-posts-highlight`). */
+export const canHighlightPosts = (roles: Role[] = []) =>
+  checkRoleCapabilities(roles, ['core-posts-highlight']).success;
+
 /**
  * Announcements notify the whole community, so composers offer them only for
  * community-wide visibility (public or local).

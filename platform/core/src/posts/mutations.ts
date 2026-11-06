@@ -261,6 +261,20 @@ export const updatePost = async (
   return newPost!;
 };
 
+export const setPostHighlighted = async (
+  post: PostWithMeta,
+  highlighted: boolean,
+) =>
+  allpeepDb().then(({ db }) =>
+    postsMapping
+      .update(db, post.id, {
+        highlighted,
+        // Curation timestamp: the highlights feed is ordered by it.
+        highlightedAt: highlighted ? nowIso() : null,
+      })
+      .then((updated) => transformPost(updated)),
+  );
+
 export const reactToPost = async (
   post: PostWithMeta,
   profile: Profile,

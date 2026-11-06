@@ -12,6 +12,7 @@ import {
   type OffsetInfiniteQueryParams,
   type PublicPost,
   type UnseenPostCounts,
+  type FeedFormat,
 } from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 import type {
@@ -33,6 +34,12 @@ type OffsetPosts = OpenpeepsNoPayloadEndpoint<
   PublicPost[],
   undefined,
   OffsetInfiniteQueryParams
+>;
+
+type HighlightsPosts = OpenpeepsNoPayloadEndpoint<
+  PublicPost[],
+  undefined,
+  OffsetInfiniteQueryParams & { format?: FeedFormat }
 >;
 
 type GroupOffsetPosts = OpenpeepsNoPayloadEndpoint<
@@ -270,11 +277,17 @@ const postFeeds = (rawClient: FetchClient): PostFeeds => ({
     undefined,
     ChronologicalInfiniteQueryParams
   >(rawClient, '/posts/feeds/local'),
+  highlights: allpeepNoPayloadEndpoint<
+    PublicPost[],
+    undefined,
+    OffsetInfiniteQueryParams & { format?: FeedFormat }
+  >(rawClient, '/posts/feeds/highlights'),
 });
 
 type PostFeeds = {
   my: ChronologicalPosts;
   local: ChronologicalPosts;
+  highlights: HighlightsPosts;
 };
 
 type Feeds = { feeds: PostFeeds & EventFeeds & JamFeeds };
@@ -299,6 +312,8 @@ type Mutators = {
   retractReaction: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
   bookmark: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
   unbookmark: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  highlight: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  unhighlight: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
   seen: OpenpeepsPayloadEndpoint<SuccessResponse, PostsSeenRequest>;
   seenByGroup: OpenpeepsNoPayloadEndpoint<SuccessResponse, { groupId: string }>;
   repost: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
@@ -347,6 +362,16 @@ const mutators = (rawClient: FetchClient): Mutators => ({
   unbookmark: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
     rawClient,
     '/posts/:id/bookmark',
+    'delete',
+  ),
+  highlight: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
+    rawClient,
+    '/posts/:id/highlight',
+    'post',
+  ),
+  unhighlight: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
+    rawClient,
+    '/posts/:id/highlight',
     'delete',
   ),
   seen: allpeepPayloadEndpoint<SuccessResponse, PostsSeenRequest>(

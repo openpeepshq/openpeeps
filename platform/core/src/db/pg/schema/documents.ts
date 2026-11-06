@@ -116,6 +116,11 @@ export const posts = pgTable(
     creatorId: text('creator_id').notNull(),
     uri: text('uri'),
     inReplyToUri: text('in_reply_to_uri'),
+    highlighted: boolean('highlighted').notNull().default(false),
+    highlightedAt: timestamp('highlighted_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
     body: jsonb('body').notNull().default({}),
     searchVector: tsvector('search_vector'),
     lastActivityAt: timestamp('last_activity_at', {
@@ -134,6 +139,9 @@ export const posts = pgTable(
     index('posts_in_reply_to_uri_idx').on(t.inReplyToUri),
     index('posts_search_vector_idx').using('gin', t.searchVector),
     index('posts_last_activity_id_idx').on(t.lastActivityAt, t.id),
+    index('posts_highlighted_at_idx')
+      .on(t.highlightedAt, t.id)
+      .where(sql`${t.highlighted}`),
   ],
 );
 

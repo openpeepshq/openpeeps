@@ -121,6 +121,18 @@ describe('map filters evaluation', () => {
     expect(remaining).toEqual([]);
   });
 
+  it('keeps highlighted filtering in SQL so limits apply before hydration', () => {
+    const { sqlWhere, postFilters: remaining } = partitionFilters(
+      'posts',
+      postsTable,
+      [postFilters.highlighted()],
+    );
+
+    expect(flattenSql(sqlWhere)).toContain('"posts"."highlighted"');
+    expect(flattenSql(sqlWhere)).toContain('true');
+    expect(remaining).toEqual([]);
+  });
+
   it('evaluates string filters with DATE_TIMESTAMP, LENGTH, and capabilities', () => {
     const start = Date.parse('2026-01-01T00:00:00.000Z');
     const doc = {

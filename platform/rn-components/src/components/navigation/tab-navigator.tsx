@@ -19,6 +19,7 @@ import {
   Tags,
   Explore,
   FeedsBookmarks,
+  FeedsHighlights,
   ArticlesIndex,
   ResourcesIndex,
 } from '../../pages';
@@ -265,6 +266,15 @@ export const TabNavigator = () => {
       <Tab.Screen
         name={TAB_ROUTES.BOOKMARKS}
         component={FeedsBookmarks}
+        options={{
+          tabBarItemStyle: {
+            display: 'none',
+          },
+        }}
+      />
+      <Tab.Screen
+        name={TAB_ROUTES.HIGHLIGHTS}
+        component={FeedsHighlights}
         options={{
           tabBarItemStyle: {
             display: 'none',
