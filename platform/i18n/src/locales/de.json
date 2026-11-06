@@ -214,6 +214,8 @@
       "avatar": "Profilbild",
       "banner": "Banner",
       "location": "Standort",
+      "discoverable": "Mein Profil im Mitgliederverzeichnis aufführen",
+      "discoverableHint": "Wenn deaktiviert, wird Ihr Profil im Mitgliederverzeichnis ausgeblendet, aber andere können Ihre Profilseite weiterhin besuchen.",
       "website": "Webseite",
       "fields": {
         "label": "Bezeichnung",

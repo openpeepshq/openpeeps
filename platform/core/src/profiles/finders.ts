@@ -13,8 +13,12 @@ import {
   profileRoleRelation,
 } from './mapping';
 import { allpeepDb } from '../db';
-import { profileFilters } from '../db/pg/filters';
-import { blockedPairIds, getUniqueBy } from '@openpeepshq/common/lib';
+import { profileFilters, type SqlFilter } from '../db/pg/filters';
+import {
+  blockedPairIds,
+  checkRoleCapabilities,
+  getUniqueBy,
+} from '@openpeepshq/common/lib';
 import { rolesMapping } from '../roles/mapping';
 import { findRolesByCapabilities } from '../roles/finders';
 import { expandProfiles, followFinder } from './helpers';
@@ -38,14 +42,26 @@ export {
 export const existsProfileByHandle = (handle: string) =>
   getProfileByHandle(handle, true).then(Boolean);
 
+// Mirrors canSeeGroupFilter: member-directory viewers without
+// core-profiles-read — including anonymous public-community visitors — only
+// see profiles that have not opted out of the directory.
+const canSeeProfileFilter = (
+  viewer?: ProfileWithMeta,
+): SqlFilter | undefined =>
+  checkRoleCapabilities(viewer?.roles ?? [], ['core-profiles-read']).success
+    ? undefined
+    : profileFilters.discoverable();
+
 export const listProfiles = (
   viewer?: ProfileWithMeta,
+  options: { directoryView?: boolean } = {},
 ): Promise<ProfileWithMeta[]> =>
   allpeepDb()
     .then(({ db }) =>
       baseProfilesMapping
         .filter(profileFilters.notGuest())
         .filter(profileFilters.notIdIn(blockedPairIds(viewer)))
+        .filter(options.directoryView ? canSeeProfileFilter(viewer) : undefined)
         .all(db),
     )
     .then(expandProfiles);

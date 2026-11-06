@@ -74,6 +74,13 @@ describe('pg filters', () => {
     expect(profileFilters.notIdIn(['p1'])?.kind).toBe('sql');
   });
 
+  it('only hides profiles that explicitly opt out of the member directory', () => {
+    const rendered = flattenSql(profileFilters.discoverable().where);
+    expect(rendered).toContain("->>'discoverable'");
+    expect(rendered).toContain('is null');
+    expect(rendered).toContain("'false'");
+  });
+
   it('excludes replies with a NOT EXISTS on reply_to', () => {
     const rendered = flattenSql(postFilters.notReply().where);
     expect(rendered).toContain('NOT EXISTS');
