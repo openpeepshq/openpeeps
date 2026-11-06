@@ -110,8 +110,11 @@ export const otherHooks = (client: OpenpeepsClient) => ({
   ),
 
   // Link Preview
-  usePreviewLink: (url: string) =>
-    apiHook(client.previewLink, { pathParams: { url } }),
+  usePreviewLink: (url: string, options?: { enabled?: boolean }) =>
+    apiHook(client.previewLink, {
+      pathParams: { url },
+      enabled: options?.enabled ?? true,
+    }),
 
   useGeocode: (query: string) =>
     client.location.geocode({ queryParameters: { query } }),

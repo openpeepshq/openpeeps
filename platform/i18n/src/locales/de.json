@@ -99,6 +99,9 @@
       "signingIn": "Sie werden angemeldet…"
     }
   },
+  "previewLink": {
+    "embeddedVideo": "Eingebettetes Video"
+  },
   "navigation": {
     "welcome": "Willkommen",
     "joinCommunity": "Community beitreten",

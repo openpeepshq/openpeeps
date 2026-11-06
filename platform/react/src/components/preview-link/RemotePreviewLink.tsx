@@ -1,4 +1,6 @@
+import { videoEmbedForUrl } from '@openpeepshq/common/lib';
 import { LoadingSpinner } from '@openpeepshq/react-ui';
+import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { recordOutboundClick } from '../../lib/analyticsClicks';
 
@@ -7,8 +9,29 @@ export interface RemotePreviewLinkProps {
 }
 
 export function RemotePreviewLink({ url }: RemotePreviewLinkProps) {
+  const t = useT();
   const { openpeepsApi } = useOpenpeeps();
-  const previewQuery = openpeepsApi.usePreviewLink(url);
+  const embed = videoEmbedForUrl(url);
+  const previewQuery = openpeepsApi.usePreviewLink(url, {
+    enabled: !embed,
+  });
+
+  if (embed) {
+    return (
+      <div className="mb-2 w-full">
+        <iframe
+          src={embed.embedUrl}
+          title={t('previewLink.embeddedVideo', {
+            defaultValue: 'Embedded video',
+          })}
+          className="aspect-video w-full rounded-md border-0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          loading="lazy"
+        />
+      </div>
+    );
+  }
 
   if (previewQuery.isLoading) {
     return (

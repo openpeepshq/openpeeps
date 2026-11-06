@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, TouchableOpacity, Linking } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { ThemedText as Text } from '../ui/themed-text';
 import { useOpenpeeps, recordOutboundClick } from '@openpeepshq/react';
+import { isExternalLink, videoEmbedForUrl } from '@openpeepshq/common/lib';
 import { ActivityIndicator } from 'react-native';
 import { CachedImage } from '../custom/common/index';
 
@@ -11,17 +13,45 @@ interface RemotePreviewLinkProps {
 
 export const RemotePreviewLink = ({ url }: RemotePreviewLinkProps) => {
   const { openpeepsApi } = useOpenpeeps();
+  const embed = videoEmbedForUrl(url);
 
   const {
     data: linkPreview,
     isLoading,
     isError,
-  } = openpeepsApi.usePreviewLink(url);
+  } = openpeepsApi.usePreviewLink(url, { enabled: !embed });
 
   const handlePress = () => {
     recordOutboundClick(url);
     Linking.openURL(url);
   };
+
+  if (embed) {
+    // Same pattern as the markdown iframe renderer: allow same-origin
+    // navigations (e.g. YouTube play state), open cross-origin in browser.
+    let embedOrigin: string | undefined;
+    try {
+      embedOrigin = new URL(embed.embedUrl).origin;
+    } catch {
+      embedOrigin = undefined;
+    }
+    return (
+      <View className="my-2 w-full">
+        <WebView
+          source={{ uri: embed.embedUrl }}
+          style={{ width: '100%', aspectRatio: 16 / 9, borderRadius: 8 }}
+          scrollEnabled={false}
+          onShouldStartLoadWithRequest={(nav) => {
+            if (embedOrigin && isExternalLink(nav.url, embedOrigin)) {
+              Linking.openURL(nav.url);
+              return false;
+            }
+            return true;
+          }}
+        />
+      </View>
+    );
+  }
 
   if (isLoading) {
     return (

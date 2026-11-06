@@ -99,6 +99,9 @@
       "signingIn": "Signing you in…"
     }
   },
+  "previewLink": {
+    "embeddedVideo": "Embedded video"
+  },
   "navigation": {
     "welcome": "Welcome",
     "joinCommunity": "Join Community",
