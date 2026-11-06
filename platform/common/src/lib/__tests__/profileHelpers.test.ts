@@ -61,6 +61,7 @@ const mockInviteLink: InviteLinkWithMeta = {
   slug: 'test-invite',
   profile: mockProfile,
   groups: [],
+  redemptions: [],
 } as unknown as InviteLinkWithMeta;
 
 describe('profileHelpers', () => {
@@ -351,6 +352,35 @@ describe('profileHelpers', () => {
       expect(inviteLinkMatchesQuery(inviteLinkWithGroup, 'testgroup')).toBe(
         true,
       );
+    });
+
+    it('should match by invited member (redemption) name or handle', () => {
+      const invited = {
+        id: 'profile9',
+        displayName: 'Jane Invited',
+        handle: 'janeinvited',
+      } as ProfileWithMeta;
+      const withRedemption = {
+        ...mockInviteLink,
+        redemptions: [invited],
+      };
+      expect(inviteLinkMatchesQuery(withRedemption, 'Jane Invited')).toBe(true);
+      expect(inviteLinkMatchesQuery(withRedemption, 'janeinvited')).toBe(true);
+      expect(inviteLinkMatchesQuery(withRedemption, '@janeinvited')).toBe(true);
+    });
+
+    it('should not match when the query is not a redemption', () => {
+      const withRedemption = {
+        ...mockInviteLink,
+        redemptions: [
+          {
+            id: 'profile9',
+            displayName: 'Jane Invited',
+            handle: 'janeinvited',
+          } as ProfileWithMeta,
+        ],
+      };
+      expect(inviteLinkMatchesQuery(withRedemption, 'nonexistent')).toBe(false);
     });
   });
 

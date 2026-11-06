@@ -64,7 +64,7 @@ export function AdminInvites() {
       >
         <Input
           placeholder={t('admin.invites.searchPlaceholder', {
-            defaultValue: 'Search by name or email',
+            defaultValue: 'Search by name or handle',
           })}
           value={search}
           onChange={(e) => setSearch(e.target.value)}

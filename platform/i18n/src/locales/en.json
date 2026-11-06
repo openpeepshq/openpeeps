@@ -1493,7 +1493,7 @@
       "deleteSuccess": "Invite link deleted successfully",
       "deleteError": "Failed to delete invite link",
       "noInvitesFound": "No invites found",
-      "searchPlaceholder": "Search by name or email",
+      "searchPlaceholder": "Search by name or handle",
       "title": "Invites",
       "linkColumn": "Link",
       "createdByColumn": "Created By",
