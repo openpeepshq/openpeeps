@@ -5,6 +5,7 @@ export {
   useCreateNewConversation,
 } from './CreateNewConversationContext';
 export type { CreateConversationOptions } from './CreateNewConversationContext';
+export { DirectMessageSearch } from './DirectMessageSearch';
 export { DirectMessagesHeaderActions } from './DirectMessagesHeaderActions';
 export { ConversationParticipantsModal } from './ConversationParticipantsModal';
 export type { ConversationParticipantsModalProps } from './ConversationParticipantsModal';

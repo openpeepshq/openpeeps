@@ -29,12 +29,15 @@ import {
 } from './eventRecurrence';
 import { formatEventWhen } from './eventTime';
 import {
+  checkCapabilities,
   checkGroupCapabilities,
   checkPostCapabilities,
   checkRoleCapabilities,
+  getGroupCapabilities,
 } from './capabilitiesHelpers';
 import { scopeMatches } from './scopeHelpers';
 import { countBy, dateSorter, groupBy, transformValues } from './utils';
+import { truncateText } from './text';
 
 const buildThread = (rootPost: PublicPost, postList: PublicPost[]): Thread => ({
   ...rootPost,
@@ -732,6 +735,32 @@ export const canCreatePostType = (
     canCreatePostTypeWithVisibility(authData, type, visibility),
   );
 
+/**
+ * Scope-free variant of {@link canCreatePostType}: may this profile create a
+ * post of `type` in any of `visibilities`, judging capabilities only. Token
+ * scopes load after the first paint in the clients, so gating UI on them would
+ * flash a denial for allowed users; the create endpoints still enforce
+ * scopes.
+ */
+export const canCreatePostTypeIgnoringScopes = (
+  authData: AuthorizationData,
+  type: PostType,
+  visibilities: readonly VisibilityType[] = visibilityTypeValues,
+) =>
+  visibilities.some((visibility) =>
+    visibility === 'group'
+      ? !!authData.profile?.memberships?.some(
+          (m) =>
+            checkCapabilities(
+              [`core-posts-create-${type}`],
+              getGroupCapabilities(authData, m.group as GroupWithMeta),
+            ).success,
+        )
+      : checkRoleCapabilities(authData.profile?.roles, [
+          `core-posts-create-${type}-${visibility}`,
+        ]).success,
+  );
+
 export type PostActionAvailability = {
   canReply: boolean;
   canRepost: boolean;
@@ -841,3 +870,31 @@ export const isOneToOneWithBlocked = (
   others.delete(viewer.id);
   return others.size === 1 && blocked.has([...others][0]!);
 };
+
+/** First usable text field of a post, whitespace-collapsed and truncated. */
+export const messagePreviewText = (
+  message: PublicPost,
+  maxLength = 160,
+): string => {
+  const data = message.data;
+  if (!data || typeof data !== 'object') return '';
+  const text =
+    'content' in data && typeof data.content === 'string' && data.content
+      ? data.content
+      : 'name' in data && typeof data.name === 'string'
+        ? data.name
+        : 'title' in data && typeof data.title === 'string'
+          ? data.title
+          : '';
+  return truncateText(text.replace(/\s+/g, ' ').trim(), maxLength);
+};
+
+/** Display names of a post's audience minus the viewer, comma-joined. */
+export const conversationLabel = (
+  message: PublicPost,
+  viewerId?: string,
+): string =>
+  (message.audience ?? [])
+    .filter((profile) => profile.id !== viewerId)
+    .map((profile) => profile.displayName || `@${profile.handle}`)
+    .join(', ');

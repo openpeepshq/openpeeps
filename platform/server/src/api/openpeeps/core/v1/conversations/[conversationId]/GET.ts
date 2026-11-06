@@ -9,13 +9,17 @@ export const Param = z.object({
   conversationId: z.uuid(),
 });
 
+export const Query = z.object({
+  message: z.uuid().optional(),
+});
+
 export const Output = publicPostSchema.array();
 
 export const Error = {
   404: notFound(),
 };
 
-export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
+export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
   async (param, event) => {
     await ensureLocalProfile(event);
     const post = await findPost(param.conversationId, event.context.authData);
@@ -34,6 +38,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     const conversation = await getConversationByStart(
       post,
       event.context.authData,
+      param.message ? { focusId: param.message } : undefined,
     );
 
     return conversation;

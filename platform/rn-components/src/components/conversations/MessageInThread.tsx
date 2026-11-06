@@ -38,6 +38,7 @@ export interface MessageInThreadProps {
   message: PublicPost;
   multipleParticipants?: boolean;
   conversationRootId?: string;
+  highlighted?: boolean;
 }
 
 export const MessageInThread = ({
@@ -45,6 +46,7 @@ export const MessageInThread = ({
   message,
   multipleParticipants = true,
   conversationRootId,
+  highlighted = false,
 }: MessageInThreadProps) => {
   const { t } = useTranslation();
   const me = useCurrentProfile();
@@ -61,7 +63,7 @@ export const MessageInThread = ({
   const isMe = message.profile.id === me?.id;
 
   return (
-    <>
+    <View className={highlighted ? 'bg-muted rounded-md' : undefined}>
       {!previous ? (
         <ThemedText className="mt-2 w-full text-center text-sm">
           {message.inReplyToId
@@ -126,6 +128,6 @@ export const MessageInThread = ({
         ) : null}
         <UpdatingDate date={message.createdAt} />
       </View>
-    </>
+    </View>
   );
 };

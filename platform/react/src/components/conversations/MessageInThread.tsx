@@ -28,6 +28,7 @@ export interface MessageInThreadProps {
   message: PublicPost;
   multipleParticipants?: boolean;
   conversationRootId?: string;
+  highlighted?: boolean;
 }
 
 /**
@@ -40,6 +41,7 @@ export function MessageInThread({
   message,
   multipleParticipants = true,
   conversationRootId,
+  highlighted = false,
 }: MessageInThreadProps) {
   const t = useT();
   const me = useCurrentProfile();
@@ -56,7 +58,12 @@ export function MessageInThread({
   const isMe = message.profile.id === me?.id;
 
   return (
-    <>
+    <div
+      data-message-id={message.id}
+      className={
+        highlighted ? 'bg-muted ring-ring rounded-md ring-2' : undefined
+      }
+    >
       {!previous && (
         <div className="mt-2 w-full text-center text-sm">
           {message.inReplyToId
@@ -117,6 +124,6 @@ export function MessageInThread({
         {multipleParticipants && !isMe && <span>{name} &middot; </span>}
         <UpdatingDate date={message.createdAt} />
       </div>
-    </>
+    </div>
   );
 }

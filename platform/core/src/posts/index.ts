@@ -18,6 +18,7 @@ export {
   listOneToOneConversationRootLeaves,
   findLatestThreadPostId,
   listLeftConversations,
+  searchDirectMessages,
 } from './conversationQueries';
 export * from './helpers';
 export { bumpConversationActivity, findReplyRootId } from './activity';

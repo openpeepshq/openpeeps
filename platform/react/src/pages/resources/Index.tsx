@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { FilePlus } from 'lucide-react';
-import { canCreatePostType } from '@openpeepshq/common/lib';
+import { canCreatePostTypeIgnoringScopes } from '@openpeepshq/common/lib';
 import {
   useT,
   useSetPageHeader,
@@ -15,7 +15,7 @@ export const ResourcesIndex = () => {
   const t = useT();
   const navigate = useNavigate();
   const authData = useAuthData();
-  const canCreate = canCreatePostType(authData, 'resource');
+  const canCreate = canCreatePostTypeIgnoringScopes(authData, 'resource');
 
   const openNew = useCallback(() => {
     const stores = getNewPostStores();

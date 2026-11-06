@@ -16,8 +16,8 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import { InfoIcon } from '../../components/icons/index';
-import { MediaAttachmentData } from '@openpeepshq/common';
+import { InfoIcon, SearchIcon } from '../../components/icons/index';
+import { MediaAttachmentData, type PublicPost } from '@openpeepshq/common';
 import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
 import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
 import { maxContentLength } from '../../lib/utils';
@@ -28,6 +28,7 @@ import { ThemedText } from '../../components/ui/themed-text';
 import {
   ConversationParticipantsModal,
   ConversationProfileHeader,
+  DirectMessageSearch,
   MessageInThread,
 } from '../../components/conversations/index';
 
@@ -56,19 +57,41 @@ const ConversationParticipantDetail = ({
   );
 };
 
+const isMessageId = (value: string | undefined): value is string =>
+  !!value &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
 type ConversationProps = MainScreenProps<'Conversation'>;
 
 export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   const { t } = useTranslation();
   const { id } = route.params;
+  const messageId = isMessageId(route.params.messageId)
+    ? route.params.messageId
+    : undefined;
   const { openpeepsApi, currentProfile, queryClient, client } = useOpenpeeps();
-  const { data: messages, isLoading } = openpeepsApi.useConversation(id);
+  const conversationQuery = openpeepsApi.useConversation(id, messageId);
+  const [shownMessages, setShownMessages] = useState<PublicPost[]>([]);
+  const [shownFor, setShownFor] = useState(id);
+  const [searchOpen, setSearchOpen] = useState(false);
+  if (shownFor !== id) {
+    setShownFor(id);
+    setShownMessages([]);
+    setSearchOpen(false);
+  }
+  useEffect(() => {
+    if (conversationQuery.data) setShownMessages(conversationQuery.data);
+  }, [conversationQuery.data]);
+  const messages = shownMessages;
+  const isLoading = conversationQuery.isLoading && messages.length === 0;
   const markPostsSeen = openpeepsApi.markPostsSeenAction();
   const flushPostViews = usePostViewFlush();
   const [isSending, setIsSending] = useState(false);
   const [attachments, setAttachments] = useState<MediaAttachmentData[]>([]);
   const [content, setContent] = useState('');
   const scrollViewRef = useRef<ScrollView>(null);
+  const messageOffsets = useRef<Record<string, number>>({});
+  const scrolledToMessageRef = useRef<string | null>(null);
   const [participantsOpen, setParticipantsOpen] = useState(false);
 
   const sendMessage = openpeepsApi.createConversationPostAction({ id });
@@ -144,6 +167,12 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
     void markPostsSeen({ postIds: unseenIds });
   }, [id, currentProfile, messages, isLoading, markPostsSeen]);
 
+  const searchLabel = searchOpen
+    ? t('common.close', { defaultValue: 'Close' })
+    : t('conversations.search.toggle', {
+        defaultValue: 'Search this conversation',
+      });
+
   useSetPageHeader(
     isLoading ? undefined : (
       <ConversationProfileHeader
@@ -154,11 +183,27 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
       />
     ),
     isLoading ? undefined : (
-      <TouchableOpacity
-        onPress={() => navigation.navigate('ConversationInfo', { id })}
-      >
-        <InfoIcon size={18} className="text-foreground" />
-      </TouchableOpacity>
+      <View className="flex-row items-center">
+        <TouchableOpacity
+          onPress={() => setSearchOpen((open) => !open)}
+          accessibilityRole="button"
+          accessibilityLabel={searchLabel}
+          accessibilityState={{ expanded: searchOpen }}
+          testID="conversation-search-toggle"
+          className={`rounded-md p-1.5 ${searchOpen ? 'bg-muted' : ''}`}
+        >
+          <SearchIcon
+            size={18}
+            className={searchOpen ? 'text-foreground' : 'text-muted-foreground'}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ConversationInfo', { id })}
+          className="rounded-md p-1.5"
+        >
+          <InfoIcon size={18} className="text-foreground" />
+        </TouchableOpacity>
+      </View>
     )
   );
 
@@ -208,20 +253,62 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
           >
+            {searchOpen ? (
+              <View nativeID="conversation-message-search">
+                <DirectMessageSearch
+                  conversationId={id}
+                  autoFocus
+                  onSelect={(hit) => {
+                    navigation.setParams({ messageId: hit.message.id });
+                    setSearchOpen(false);
+                  }}
+                />
+              </View>
+            ) : null}
             <ScrollView
               ref={scrollViewRef}
               className="flex-1 pb-8"
-              onContentSizeChange={() =>
-                scrollViewRef.current?.scrollToEnd({ animated: true })
-              }
+              onContentSizeChange={() => {
+                if (!messageId) {
+                  scrollViewRef.current?.scrollToEnd({ animated: true });
+                  return;
+                }
+                // The messageId param persists, so scroll to the focused
+                // message only once — re-scrolling on every content change
+                // would fight the user while they read.
+                if (scrolledToMessageRef.current === messageId) return;
+                const y = messageOffsets.current[messageId];
+                if (y !== undefined) {
+                  scrolledToMessageRef.current = messageId;
+                  scrollViewRef.current?.scrollTo({ y, animated: true });
+                }
+              }}
             >
               {messages?.map((message, idx) => (
-                <View key={message.id} className="px-2">
+                <View
+                  key={message.id}
+                  className="px-2"
+                  onLayout={(event) => {
+                    messageOffsets.current[message.id] =
+                      event.nativeEvent.layout.y;
+                    if (
+                      message.id === messageId &&
+                      scrolledToMessageRef.current !== messageId
+                    ) {
+                      scrolledToMessageRef.current = messageId;
+                      scrollViewRef.current?.scrollTo({
+                        y: event.nativeEvent.layout.y,
+                        animated: true,
+                      });
+                    }
+                  }}
+                >
                   <MessageInThread
                     previous={messages[idx - 1]}
                     message={message}
                     multipleParticipants={multipleParticipants}
                     conversationRootId={id}
+                    highlighted={message.id === messageId}
                   />
                 </View>
               ))}

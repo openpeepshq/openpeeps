@@ -1,5 +1,6 @@
 import type { OpenpeepsClient } from '@openpeepshq/client';
 import type {
+  DirectMessageSearchHit,
   PostCreationData,
   PublicPost,
   SuccessFailureResponse,
@@ -13,7 +14,11 @@ type Query<T> = UseQueryResult<T, SuccessFailureResponse>;
 export type ConversationHooks = {
   useConversations: () => Query<PublicPost[][]>;
   useArchivedConversations: () => Query<PublicPost[][]>;
-  useConversation: (id: string) => Query<PublicPost[]>;
+  useConversation: (id: string, messageId?: string) => Query<PublicPost[]>;
+  useSearchDirectMessages: (
+    q: string,
+    conversationId?: string,
+  ) => Query<DirectMessageSearchHit[]>;
   createConversationPostAction: (defaultPathParams?: {
     id: string;
   }) => (input: PostCreationData) => Promise<PublicPost>;
@@ -30,8 +35,16 @@ export const conversationHooks = (
     client.conversations.archived
       ? apiHook(client.conversations.archived)
       : ({ data: [], isPending: false } as never),
-  useConversation: (id: string) =>
-    apiHook(client.conversations.findById, { pathParams: { id } }),
+  useConversation: (id: string, messageId?: string) =>
+    apiHook(client.conversations.findById, {
+      pathParams: { id },
+      queryParams: messageId ? { message: messageId } : undefined,
+    }),
+  useSearchDirectMessages: (q: string, conversationId?: string) =>
+    apiHook(client.conversations.search, {
+      queryParams: conversationId ? { q, conversationId } : { q },
+      enabled: q.trim().length >= 2,
+    }),
   createConversationPostAction: payloadMutation(client.conversations.newPost, [
     ['conversations'],
   ]),

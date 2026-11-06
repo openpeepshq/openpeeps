@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import type { PostCreationData } from '@openpeepshq/common/types';
-import { Info } from 'lucide-react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import type { PostCreationData, PublicPost } from '@openpeepshq/common/types';
+import { Info, Search } from 'lucide-react';
 import {
   useT,
   useOpenpeeps,
@@ -14,6 +14,7 @@ import { canCreatePost } from '@openpeepshq/common';
 import {
   Avatar,
   ConversationParticipantsModal,
+  DirectMessageSearch,
   MessageInThread,
   OpenpeepsMarkdownInput,
   ProfileCard,
@@ -25,21 +26,43 @@ import { Button, LoadingSpinner } from '@openpeepshq/react-ui';
 
 const MAX_LENGTH = 500;
 
+const isMessageId = (value: string | null): value is string =>
+  !!value &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
 export function ConversationShow() {
   const t = useT();
   const { id = '' } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const messageParam = searchParams.get('message');
+  const focusId = isMessageId(messageParam) ? messageParam : undefined;
   const { openpeepsApi, queryClient, client } = useOpenpeeps();
   const me = useCurrentProfile();
   const authData = useAuthData();
   const toast = useToast();
   const endRef = useRef<HTMLDivElement | null>(null);
 
-  const conversationQuery = openpeepsApi.useConversation(id);
+  const conversationQuery = openpeepsApi.useConversation(id, focusId);
   const createMessage = openpeepsApi.createConversationPostAction({ id });
   const markPostsSeen = openpeepsApi.markPostsSeenAction();
   const flushPostViews = usePostViewFlush();
 
-  const messages = conversationQuery.data ?? [];
+  // Keep the open thread visible while a search hit refetches an older
+  // message. Switching conversations clears it so the previous thread
+  // does not linger.
+  const [shownMessages, setShownMessages] = useState<PublicPost[]>([]);
+  const [shownFor, setShownFor] = useState(id);
+  const [searchOpen, setSearchOpen] = useState(false);
+  if (shownFor !== id) {
+    setShownFor(id);
+    setShownMessages([]);
+    setSearchOpen(false);
+  }
+  useEffect(() => {
+    if (conversationQuery.data) setShownMessages(conversationQuery.data);
+  }, [conversationQuery.data]);
+
+  const messages = shownMessages;
   const lastMessage = messages[messages.length - 1];
   const participants =
     lastMessage?.audience?.filter((a) => a.id !== me?.id) ?? [];
@@ -77,20 +100,44 @@ export function ConversationShow() {
 
   const navigate = useNavigate();
 
+  const searchLabel = searchOpen
+    ? t('common.close', { defaultValue: 'Close' })
+    : t('conversations.search.toggle', {
+        defaultValue: 'Search this conversation',
+      });
+
   const headerActions = useMemo(
     () => (
-      <button
-        type="button"
-        onClick={() => navigate({ type: 'conversation', id, view: 'info' })}
-        title={t('conversations.info.title', {
-          defaultValue: 'Conversation info',
-        })}
-        className="text-muted-foreground hover:text-foreground rounded-md p-1.5"
-      >
-        <Info size={18} />
-      </button>
+      <div className="flex items-center">
+        <button
+          type="button"
+          onClick={() => setSearchOpen((open) => !open)}
+          title={searchLabel}
+          aria-label={searchLabel}
+          aria-expanded={searchOpen}
+          aria-controls={searchOpen ? 'conversation-message-search' : undefined}
+          data-testid="conversation-search-toggle"
+          className={`rounded-md p-1.5 ${
+            searchOpen
+              ? 'bg-muted text-foreground'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <Search size={18} />
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate({ type: 'conversation', id, view: 'info' })}
+          title={t('conversations.info.title', {
+            defaultValue: 'Conversation info',
+          })}
+          className="text-muted-foreground hover:text-foreground rounded-md p-1.5"
+        >
+          <Info size={18} />
+        </button>
+      </div>
     ),
-    [id, navigate, t],
+    [id, navigate, searchLabel, searchOpen, t],
   );
 
   useSetPageHeader(headerTitle, headerActions);
@@ -127,8 +174,25 @@ export function ConversationShow() {
   };
 
   useEffect(() => {
+    if (focusId) return;
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length]);
+  }, [messages.length, focusId]);
+
+  // The ?message= param sticks around after focusing, so scroll only the
+  // first time the message renders — re-scrolling on every messages change
+  // would fight the user while they read.
+  const scrolledToMessageRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!focusId) {
+      scrolledToMessageRef.current = null;
+      return;
+    }
+    if (scrolledToMessageRef.current === focusId) return;
+    const element = document.querySelector(`[data-message-id="${focusId}"]`);
+    if (!element) return;
+    scrolledToMessageRef.current = focusId;
+    element.scrollIntoView({ block: 'center' });
+  }, [focusId, messages]);
 
   useEffect(() => {
     if (!id) return;
@@ -159,7 +223,7 @@ export function ConversationShow() {
     void markPostsSeen({ postIds: unseenIds });
   }, [id, me, messages, conversationQuery.isLoading, markPostsSeen]);
 
-  if (conversationQuery.isLoading) {
+  if (conversationQuery.isLoading && messages.length === 0) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
         <LoadingSpinner />
@@ -198,6 +262,20 @@ export function ConversationShow() {
         onOpenChange={setParticipantsOpen}
         participants={participants}
       />
+      {searchOpen ? (
+        <div id="conversation-message-search">
+          <DirectMessageSearch
+            conversationId={id}
+            autoFocus
+            onSelect={(hit) => {
+              const next = new URLSearchParams(searchParams);
+              next.set('message', hit.message.id);
+              setSearchParams(next);
+              setSearchOpen(false);
+            }}
+          />
+        </div>
+      ) : null}
 
       <div
         role="log"
@@ -214,6 +292,7 @@ export function ConversationShow() {
             message={m}
             multipleParticipants={multipleParticipants}
             conversationRootId={id}
+            highlighted={m.id === focusId}
           />
         ))}
         <div ref={endRef} />

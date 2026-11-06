@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MessageCircleOff, Calendar, MessageSquarePlus } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import {
@@ -14,6 +15,7 @@ import {
 } from '../../index';
 import {
   Avatar,
+  DirectMessageSearch,
   PostMarkdown,
   useAuthData,
   useCurrentProfile,
@@ -121,6 +123,7 @@ function TabButton({
 
 export function ConversationsIndex() {
   const t = useT();
+  const navigate = useNavigate();
   const { openpeepsApi } = useOpenpeeps();
   const { openCreateConversation } = useCreateNewConversation();
   const authData = useAuthData();
@@ -131,6 +134,8 @@ export function ConversationsIndex() {
 
   const canCreate = canCreatePost(authData, 'note', 'direct');
   const [tab, setTab] = useState<ConversationsTab>('active');
+  const [messageSearch, setMessageSearch] = useState('');
+  const searching = messageSearch.trim().length >= 2;
 
   const conversations =
     (tab === 'active' ? query.data : archivedQuery.data) ?? [];
@@ -192,39 +197,53 @@ export function ConversationsIndex() {
   );
 
   return (
-    <AccessDeniedLoader queries={[activeQuery]}>
-      {conversations.length === 0 ? (
-        <div className="flex h-[80vh] items-center justify-center gap-2">
-          <MessageCircleOff size={40} />
-          <p className="text-muted-foreground">
-            {t('conversations.empty', {
-              defaultValue: 'No direct messages here',
-            })}
-          </p>
-        </div>
-      ) : (
-        <div>
-          {conversations.map((conversation) => {
-            const first = conversation[0];
-            if (!first) return null;
-            return (
-              <a
-                key={first.id}
-                href={`/conversations/${first.id}`}
-                className="hover:bg-surface block text-left transition-all"
-                title={t('conversations.open', {
-                  defaultValue: 'Open conversation',
-                })}
-              >
-                <ChatPreview
-                  conversation={conversation}
-                  unreadCount={unseenByConversation[first.id] ?? 0}
-                />
-              </a>
+    <div>
+      {activeQuery.isError ? null : (
+        <DirectMessageSearch
+          onQueryChange={setMessageSearch}
+          onSelect={(hit) => {
+            navigate(
+              `/conversations/${hit.conversationId}?message=${hit.message.id}`,
             );
-          })}
-        </div>
+          }}
+        />
       )}
-    </AccessDeniedLoader>
+      {searching ? null : (
+        <AccessDeniedLoader queries={[activeQuery]}>
+          {conversations.length === 0 ? (
+            <div className="flex h-[80vh] items-center justify-center gap-2">
+              <MessageCircleOff size={40} />
+              <p className="text-muted-foreground">
+                {t('conversations.empty', {
+                  defaultValue: 'No direct messages here',
+                })}
+              </p>
+            </div>
+          ) : (
+            <div>
+              {conversations.map((conversation) => {
+                const first = conversation[0];
+                if (!first) return null;
+                return (
+                  <a
+                    key={first.id}
+                    href={`/conversations/${first.id}`}
+                    className="hover:bg-surface block text-left transition-all"
+                    title={t('conversations.open', {
+                      defaultValue: 'Open conversation',
+                    })}
+                  >
+                    <ChatPreview
+                      conversation={conversation}
+                      unreadCount={unseenByConversation[first.id] ?? 0}
+                    />
+                  </a>
+                );
+              })}
+            </div>
+          )}
+        </AccessDeniedLoader>
+      )}
+    </div>
   );
 }

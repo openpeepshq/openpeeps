@@ -7,6 +7,7 @@ import type {
 } from '@openpeepshq/common/types';
 import {
   blockedPairIds,
+  isHiddenPost,
   isOneToOneDm,
   isOneToOneWithBlocked,
   participantIds,
@@ -18,6 +19,7 @@ import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';
 import { capabilitiesConfig } from '../config';
 import { canReadPost, transformPost } from './helpers';
 import { CONTEXT_NODE_CAP, collectReplyClosureIds } from './contextClosure';
+import { findReplyRootId } from './activity';
 import { postContextMappingForProfile } from './mapping';
 
 type ExecuteResult = { rows: Record<string, unknown>[] };
@@ -284,14 +286,28 @@ export const listLeftConversations = async (
 export const getConversationThread = async (
   root: PostWithMeta,
   authData: AuthorizationData,
-  { limit = CONTEXT_NODE_CAP }: { limit?: number } = {},
+  {
+    limit = CONTEXT_NODE_CAP,
+    focusId,
+  }: { limit?: number; focusId?: string } = {},
 ): Promise<PostWithMeta[]> => {
   const { db } = await allpeepDb();
-  const newestIds = await collectReplyClosureIds(db, root.id, 'descendents', {
+  let newestIds = await collectReplyClosureIds(db, root.id, 'descendents', {
     maxDepth: 9999,
     limit,
     newestFirst: true,
   });
+  // Long threads only keep the newest window. A search hit older than that
+  // window still has to be loaded, but only if it belongs to this thread.
+  if (focusId && focusId !== root.id && !newestIds.includes(focusId)) {
+    if (await conversationIncludesPost(db, root.id, focusId)) {
+      newestIds = includeFocusMessage(
+        newestIds,
+        [...newestIds, focusId],
+        focusId,
+      );
+    }
+  }
   const byId = await hydrateLeanPostsByIds(authData, newestIds);
   const ordered = newestIds
     .map((id) => byId.get(id))
@@ -306,24 +322,38 @@ export const getConversationThread = async (
  * exactly the pair — tolerates legacy rows where the creator is not in the
  * audience edge set.
  */
-const oneToOnePairPost = (profileAId: string, profileBId: string) => sql`
-  p.visibility = 'direct'
-  AND p.deleted_at IS NULL
+const sqlAlias = (alias: string) => {
+  if (!/^[a-z][a-z0-9]*$/.test(alias)) {
+    throw new Error('Invalid SQL alias');
+  }
+  return sql.raw(alias);
+};
+
+const oneToOnePairPost = (
+  profileAId: string,
+  profileBId: string,
+  alias = 'p',
+) => {
+  const table = sqlAlias(alias);
+  return sql`
+  ${table}.visibility = 'direct'
+  AND ${table}.deleted_at IS NULL
   AND NOT EXISTS (
     SELECT 1 FROM audience a
-    WHERE a.from_id = p.id::text
+    WHERE a.from_id = ${table}.id::text
       AND a.to_id <> ${profileAId}
       AND a.to_id <> ${profileBId}
   )
-  AND (p.creator_id = ${profileAId} OR EXISTS (
+  AND (${table}.creator_id = ${profileAId} OR EXISTS (
     SELECT 1 FROM audience a
-    WHERE a.from_id = p.id::text AND a.to_id = ${profileAId}
+    WHERE a.from_id = ${table}.id::text AND a.to_id = ${profileAId}
   ))
-  AND (p.creator_id = ${profileBId} OR EXISTS (
+  AND (${table}.creator_id = ${profileBId} OR EXISTS (
     SELECT 1 FROM audience a
-    WHERE a.from_id = p.id::text AND a.to_id = ${profileBId}
+    WHERE a.from_id = ${table}.id::text AND a.to_id = ${profileBId}
   ))
 `;
+};
 
 /**
  * All post ids in the 1:1 conversation between two profiles, oldest first:
@@ -398,11 +428,13 @@ export const listOneToOneConversationRootLeaves = async (
  * Merged 1:1 conversation: every message for the pair across all roots,
  * oldest first. Any post of the conversation (typically the root in the URL)
  * resolves to the same list. Capped like {@link getConversationThread}:
- * the oldest message plus the newest CONTEXT_NODE_CAP others.
+ * the oldest message plus the newest CONTEXT_NODE_CAP others. `focusId`,
+ * when it belongs to the pair, is included even if it falls outside that window.
  */
 export const getOneToOneConversation = async (
   post: PostWithMeta,
   authData: AuthorizationData,
+  { focusId }: { focusId?: string } = {},
 ): Promise<PostWithMeta[]> => {
   const { db } = await allpeepDb();
   const [profileAId, profileBId] = [...participantIds(post)];
@@ -416,8 +448,203 @@ export const getOneToOneConversation = async (
     ids.length > CONTEXT_NODE_CAP + 1
       ? [ids[0]!, ...ids.slice(-CONTEXT_NODE_CAP)]
       : ids;
-  const byId = await hydrateLeanPostsByIds(authData, [...new Set(capped)]);
-  return capped
+  const withFocus = includeFocusMessage(capped, ids, focusId);
+  const byId = await hydrateLeanPostsByIds(authData, [...new Set(withFocus)]);
+  return withFocus
     .map((id) => byId.get(id))
     .filter((message): message is PostWithMeta => !!message);
+};
+
+const byUuidAsc = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+
+/** Keep `focusId` in a capped id list when it is part of the full conversation. */
+export const includeFocusMessage = (
+  capped: string[],
+  all: string[],
+  focusId?: string,
+): string[] => {
+  if (!focusId || capped.includes(focusId) || !all.includes(focusId)) {
+    return capped;
+  }
+  return [...capped, focusId].sort(byUuidAsc);
+};
+
+/** True when `postId` is `rootId` or a reply descendant of it. */
+export const conversationIncludesPost = async (
+  db: PgDb,
+  rootId: string,
+  postId: string,
+): Promise<boolean> => {
+  if (rootId === postId) return true;
+  const result = (await db.execute(sql`
+    WITH RECURSIVE thread AS (
+      SELECT ${rootId}::text AS id, 0 AS depth
+      UNION ALL
+      SELECT rt.from_id, thread.depth + 1
+      FROM reply_to rt
+      INNER JOIN thread ON rt.to_id = thread.id
+      WHERE thread.depth < 9999
+    )
+    SELECT id
+    FROM thread
+    WHERE id = ${postId}
+    LIMIT 1
+  `)) as unknown as ExecuteResult;
+  return result.rows.length > 0;
+};
+
+const DIRECT_MESSAGE_SEARCH_LIMIT = 30;
+
+const escapeLike = (value: string) => value.replace(/[\\%_]/g, '\\$&');
+
+// plainto_tsquery of a punctuation-only string is empty, and `@@` against an
+// empty tsquery errors on some Postgres versions. Substring match still works.
+const hasSearchWord = (value: string) => /[\p{L}\p{N}]/u.test(value);
+
+const conversationScopeSql = async (db: PgDb, post: PostWithMeta) => {
+  if (post.visibility !== 'direct') return sql`AND false`;
+  if (isOneToOneDm(post)) {
+    const [profileAId, profileBId] = [...participantIds(post)];
+    if (!profileAId || !profileBId) return sql`AND false`;
+    return sql`AND p.id::text IN (
+      WITH RECURSIVE pair_posts AS (
+        SELECT p2.id::text AS id
+        FROM posts p2
+        WHERE ${oneToOnePairPost(profileAId, profileBId, 'p2')}
+      ),
+      pair_walk AS (
+        SELECT id FROM pair_posts
+        UNION ALL
+        SELECT rt.from_id::text
+        FROM reply_to rt
+        INNER JOIN pair_walk ON rt.to_id = pair_walk.id
+      )
+      SELECT id FROM pair_walk
+    )`;
+  }
+  const rootId = await findReplyRootId(db, post.id);
+  return sql`AND p.id::text IN (
+    WITH RECURSIVE thread AS (
+      SELECT ${rootId}::text AS id
+      UNION ALL
+      SELECT rt.from_id
+      FROM reply_to rt
+      INNER JOIN thread ON rt.to_id = thread.id
+    )
+    SELECT id FROM thread
+  )`;
+};
+
+export type DirectMessageSearchRow = { messageId: string; rootId: string };
+
+/**
+ * Direct posts the profile authored or is an audience of, whose text matches
+ * `query`. Optional `conversation` limits the match to that thread. Newest
+ * uuidv7 id first. Each row's `rootId` is the reply-graph root to open.
+ * Only the newest `limit` matches resolve their roots, so the upward walk
+ * stays bounded no matter how many posts match the text.
+ */
+export const searchDirectMessageRows = async (
+  db: PgDb,
+  profileId: string,
+  query: string,
+  options: { conversation?: PostWithMeta; limit?: number } = {},
+): Promise<DirectMessageSearchRow[]> => {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return [];
+  const limit = Math.min(
+    Math.max(options.limit ?? DIRECT_MESSAGE_SEARCH_LIMIT, 1),
+    50,
+  );
+  const like = `%${escapeLike(trimmed)}%`;
+  const ilikeMatch = sql`(
+    COALESCE(p.body->>'content', '') ILIKE ${like} ESCAPE '\\'
+    OR COALESCE(p.body->>'name', '') ILIKE ${like} ESCAPE '\\'
+    OR COALESCE(p.body->>'title', '') ILIKE ${like} ESCAPE '\\'
+  )`;
+  const textMatch = hasSearchWord(trimmed)
+    ? sql`(
+        p.search_vector @@ plainto_tsquery('english', ${trimmed})
+        OR ${ilikeMatch}
+      )`
+    : ilikeMatch;
+  const scope = options.conversation
+    ? await conversationScopeSql(db, options.conversation)
+    : sql``;
+  const result = (await db.execute(sql`
+    WITH RECURSIVE visible AS (
+      SELECT id
+      FROM (
+        SELECT p.id::text AS id
+        FROM posts p
+        WHERE p.deleted_at IS NULL
+          AND p.visibility = 'direct'
+          AND (
+            p.creator_id = ${profileId}
+            OR EXISTS (
+              SELECT 1 FROM audience a
+              WHERE a.from_id = p.id::text AND a.to_id = ${profileId}
+            )
+          )
+          AND ${textMatch}
+          ${scope}
+        ORDER BY p.id::text DESC
+        LIMIT ${limit}
+      ) candidates
+    ),
+    walk AS (
+      SELECT id AS message_id, id AS node_id, 0 AS depth
+      FROM visible
+      UNION ALL
+      SELECT walk.message_id, rt.to_id, walk.depth + 1
+      FROM reply_to rt
+      INNER JOIN walk ON rt.from_id = walk.node_id
+      WHERE walk.depth < 9999
+    ),
+    roots AS (
+      SELECT DISTINCT ON (message_id) message_id, node_id AS root_id
+      FROM walk
+      ORDER BY message_id, depth DESC
+    )
+    SELECT message_id, root_id
+    FROM roots
+    ORDER BY message_id DESC
+    LIMIT ${limit}
+  `)) as unknown as ExecuteResult;
+
+  return result.rows.flatMap((row) => {
+    const messageId = row.message_id;
+    const rootId = row.root_id;
+    if (typeof messageId !== 'string' || typeof rootId !== 'string') return [];
+    return [{ messageId, rootId }];
+  });
+};
+
+/**
+ * Message search for the viewer's direct conversations. Hidden and blocked
+ * 1:1 threads are dropped after hydration, matching the inbox.
+ */
+export const searchDirectMessages = async (
+  authData: AuthorizationData,
+  query: string,
+  options: { conversation?: PostWithMeta } = {},
+): Promise<{ conversationId: string; message: PostWithMeta }[]> => {
+  const profile = authData.profile;
+  if (!profile) {
+    throw new Error('AuthorizationData.profile is required for this finder');
+  }
+  const { db } = await allpeepDb();
+  const hits = await searchDirectMessageRows(db, profile.id, query, options);
+  if (!hits.length) return [];
+  const byId = await hydrateLeanPostsByIds(
+    authData,
+    hits.map((hit) => hit.messageId),
+  );
+  const blocked = new Set(blockedPairIds(profile));
+  return hits.flatMap((hit) => {
+    const message = byId.get(hit.messageId);
+    if (!message || isHiddenPost(message)) return [];
+    if (isOneToOneWithBlocked(message, profile, blocked)) return [];
+    return [{ conversationId: hit.rootId, message }];
+  });
 };

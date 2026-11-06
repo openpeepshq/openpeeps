@@ -26,6 +26,7 @@ import {
   eventDataForDbUpdate,
   getJamCapacityJoinBlock,
   canDeletePost,
+  canCreatePostTypeIgnoringScopes,
   getPostActionAvailability,
   toHiddenPost,
   isHiddenPost,
@@ -47,6 +48,7 @@ import type {
   PublicProfile,
   Question,
   Answer,
+  AuthorizationData,
   ProfileWithMeta,
   CapabilitiesConfig,
   EntryWithPublicProfile,
@@ -1205,6 +1207,89 @@ describe('postHelpers', () => {
         configWithoutDelete,
       );
       expect(result).toBe(false);
+    });
+  });
+
+  describe('canCreatePostTypeIgnoringScopes', () => {
+    const auth = (
+      add: string[],
+      memberships: NonNullable<
+        AuthorizationData['profile']
+      >['memberships'] = [],
+    ): AuthorizationData =>
+      ({
+        scopes: [],
+        profile: {
+          roles: [{ capabilities: { add, remove: [] } }],
+          memberships,
+        },
+      }) as AuthorizationData;
+
+    const groupMembership = (
+      remove: string[],
+    ): NonNullable<AuthorizationData['profile']>['memberships'][number] =>
+      ({
+        roles: ['member'],
+        group: {
+          id: 'group-1',
+          capabilities: {
+            member: { add: ['core-posts-create-*'], remove },
+          },
+        } as GroupWithMeta,
+      }) as NonNullable<AuthorizationData['profile']>['memberships'][number];
+
+    it('allows the default member wildcard without scopes', () => {
+      expect(
+        canCreatePostTypeIgnoringScopes(
+          auth(['core-local', 'core-posts-create-*']),
+          'event',
+        ),
+      ).toBe(true);
+    });
+
+    it('denies a member role that cannot create events', () => {
+      expect(
+        canCreatePostTypeIgnoringScopes(
+          auth([
+            'core-local',
+            'core-posts-create-note-*',
+            'core-posts-create-question-*',
+            'core-posts-create-article-*',
+          ]),
+          'event',
+        ),
+      ).toBe(false);
+    });
+
+    it('allows a group membership that grants event creation', () => {
+      expect(
+        canCreatePostTypeIgnoringScopes(
+          auth(['core-local'], [groupMembership([])]),
+          'event',
+        ),
+      ).toBe(true);
+    });
+
+    it('denies a group membership that removes event creation', () => {
+      expect(
+        canCreatePostTypeIgnoringScopes(
+          auth(['core-local'], [groupMembership(['core-posts-create-event'])]),
+          'event',
+        ),
+      ).toBe(false);
+    });
+
+    it('honors a restricted visibility list', () => {
+      const unlistedOnly = auth(['core-posts-create-event-unlisted']);
+      expect(canCreatePostTypeIgnoringScopes(unlistedOnly, 'event')).toBe(true);
+      expect(
+        canCreatePostTypeIgnoringScopes(unlistedOnly, 'event', [
+          'public',
+          'local',
+          'group',
+          'direct',
+        ]),
+      ).toBe(false);
     });
   });
 

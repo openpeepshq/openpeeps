@@ -2680,7 +2680,14 @@
       "recipients": "Neue Nachricht an: {{names}}"
     },
     "search": {
-      "placeholder": "Unterhaltungen suchen…"
+      "placeholder": "Alle Nachrichten durchsuchen…",
+      "inConversation": "Diese Unterhaltung durchsuchen…",
+      "toggle": "Diese Unterhaltung durchsuchen",
+      "empty": "Keine Nachrichten passen zu „{{query}}“",
+      "searching": "Suche…",
+      "error": "Suche fehlgeschlagen",
+      "results": "Nachrichten-Suchergebnisse",
+      "openResult": "Diese Nachricht anzeigen"
     },
     "open": "Unterhaltung öffnen",
     "placeholder": "Nachricht schreiben…",
@@ -3163,7 +3170,11 @@
       "emptyDay": "Keine Veranstaltungen"
     },
     "create": {
-      "title": "Veranstaltung erstellen"
+      "title": "Veranstaltung erstellen",
+      "notAllowed": {
+        "title": "Sie können keine Veranstaltungen erstellen",
+        "description": "Ihre Rolle erlaubt das Erstellen von Veranstaltungen nicht. Bitten Sie einen Community-Inhaber oder Moderator, wenn Sie eine veranstalten möchten."
+      }
     },
     "update": {
       "title": "Veranstaltung aktualisieren"
