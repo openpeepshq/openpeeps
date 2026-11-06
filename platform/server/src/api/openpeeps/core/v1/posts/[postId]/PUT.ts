@@ -1,5 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden, notFound } from '#lib/errors';
+import { badRequest, forbidden, notFound } from '#lib/errors';
 import {
   publicPostSchema,
   postDataUnionSchema,
@@ -7,6 +7,10 @@ import {
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { updatePost, findPost } from '@openpeepshq/core/posts';
+import {
+  assertCoOrganizersEligible,
+  assertProtectedEventFieldsUnchanged,
+} from '#lib/postCoOrganizerGuards';
 
 export const Input = postDataUnionSchema;
 export const Output = publicPostSchema;
@@ -15,6 +19,7 @@ export const Param = z.object({
 });
 
 export const Error = {
+  400: badRequest(),
   403: forbidden(),
   404: notFound(),
 };
@@ -32,6 +37,15 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
     await ensurePostCapabilities(event, postToUpdate, ['core-posts-update']);
 
     const postData = postDataUnionSchema.parse(input);
+
+    if (postData.type === 'event') {
+      assertProtectedEventFieldsUnchanged(profile, postToUpdate, postData);
+      await assertCoOrganizersEligible(postData.coOrganizers, {
+        visibility: postToUpdate.visibility,
+        audience: postToUpdate.audience,
+        groupId: postToUpdate.groupId,
+      });
+    }
 
     return await updatePost(postToUpdate, profile, postData);
   },

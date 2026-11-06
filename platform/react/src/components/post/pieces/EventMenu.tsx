@@ -16,14 +16,14 @@ export function EventMenu({ post, occurrence, menuButton }: EventMenuProps) {
   const t = useT();
   const [showDelete, setShowDelete] = useState(false);
   const {
-    isOwner,
+    isOrganizer,
     canDeletePost,
     thisOccurrence,
     duplicate,
     deleteThisOccurrence,
   } = useEventMenu(post, occurrence, () => window.history.back());
 
-  if (!isOwner) return null;
+  if (!isOrganizer) return null;
 
   return (
     <>

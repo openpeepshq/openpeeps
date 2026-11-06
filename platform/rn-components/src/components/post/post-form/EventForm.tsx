@@ -46,6 +46,8 @@ export interface EventFormProps {
   showNotify?: boolean;
   notify?: boolean;
   onNotifyChange?: (value: boolean) => void;
+  /** The event author; on edit, only they may manage co-organizers. */
+  authorId?: string;
 }
 
 const REPEAT_FREQS: RepeatFreq[] = ['none', 'DAILY', 'WEEKLY', 'MONTHLY'];
@@ -99,6 +101,7 @@ export const EventForm = ({
   showNotify = false,
   notify = false,
   onNotifyChange,
+  authorId,
 }: EventFormProps) => {
   const { t } = useTranslation();
   const [endBeforeStart, setEndBeforeStart] = useState(false);
@@ -342,7 +345,15 @@ export const EventForm = ({
 
         <SectionTitle>{t('events.form.location')}</SectionTitle>
 
-        <EventTypeSwitcher event={event} isEdit={isEdit} onChange={setEvent} />
+        <EventTypeSwitcher
+          event={event}
+          isEdit={isEdit}
+          onChange={setEvent}
+          visibility={postData.visibility}
+          groupId={postData.groupId}
+          audience={postData.audience}
+          authorId={authorId}
+        />
 
         <SectionTitle>{t('events.form.people')}</SectionTitle>
 

@@ -626,7 +626,10 @@ export const canManageEventRsvps = (
 ) =>
   !!(
     profile &&
-    (post.profile.id === profile.id || canModerateJam(profile, post))
+    (post.profile.id === profile.id ||
+      canModerateJam(profile, post) ||
+      (post.data?.type === 'event' &&
+        post.data.coOrganizers?.includes(profile.id)))
   );
 
 export type JamCapacityJoinBlock =

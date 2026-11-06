@@ -1,7 +1,12 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import type { Event, Location } from '@openpeepshq/common';
+import type {
+  Event,
+  Location,
+  PublicProfile,
+  VisibilityType,
+} from '@openpeepshq/common';
 import { useEventTypeSwitcher, useLocationSearch } from '@openpeepshq/react';
 import { Checkbox } from '../../ui/checkbox';
 import { Input } from '../../ui/input';
@@ -17,6 +22,10 @@ export interface EventTypeSwitcherProps {
   event: Event;
   isEdit?: boolean;
   onChange: (event: Event) => void;
+  visibility?: VisibilityType;
+  groupId?: string | null;
+  audience?: PublicProfile[] | null;
+  authorId?: string;
 }
 
 const SimpleLocationInput = ({
@@ -67,6 +76,10 @@ export const EventTypeSwitcher = ({
   event,
   isEdit = false,
   onChange,
+  visibility,
+  groupId,
+  audience,
+  authorId,
 }: EventTypeSwitcherProps) => {
   const { t } = useTranslation();
   const {
@@ -76,10 +89,23 @@ export const EventTypeSwitcher = ({
     switchFormat,
     moderatorProfiles,
     setModerators,
+    coOrganizerProfiles,
+    setCoOrganizers,
+    coOrganizerCandidates,
+    canManageCoOrganizers,
     setWaitingRoom,
     setUrl,
     setPhysicalLocation,
-  } = useEventTypeSwitcher({ event, isEdit, onChange, origin: BASE_URL ?? '' });
+  } = useEventTypeSwitcher({
+    event,
+    isEdit,
+    onChange,
+    origin: BASE_URL ?? '',
+    visibility,
+    groupId,
+    audience,
+    authorId,
+  });
 
   return (
     <View className="gap-3">
@@ -158,6 +184,20 @@ export const EventTypeSwitcher = ({
             </ThemedText>
           </View>
         </>
+      ) : null}
+
+      {canManageCoOrganizers ? (
+        <View className="gap-2">
+          <Label nativeID="event-co-organizers">
+            {t('events.form.coOrganizers')}
+          </Label>
+          <ProfilesInput
+            value={coOrganizerProfiles}
+            onChange={setCoOrganizers}
+            allowlist={coOrganizerCandidates}
+            placeholder={t('events.form.coOrganizersDescription')}
+          />
+        </View>
       ) : null}
     </View>
   );

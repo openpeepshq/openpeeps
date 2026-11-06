@@ -4,6 +4,7 @@ import type {
   GeocodingResult,
   Location,
   PublicProfile,
+  VisibilityType,
 } from '@openpeepshq/common/types';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n/context';
@@ -18,6 +19,12 @@ export type UseEventTypeSwitcherArgs = {
   onChange: (event: Event) => void;
   /** Public origin the jam link is built from (web: `window.location.origin`). */
   origin: string;
+  /** Post visibility; scopes the co-organizer picker (group members, direct audience, or all local profiles). */
+  visibility?: VisibilityType;
+  groupId?: string | null;
+  audience?: PublicProfile[] | null;
+  /** The event author; on edit, only they may manage co-organizers (create = me). */
+  authorId?: string;
 };
 
 export const useEventTypeSwitcher = ({
@@ -25,6 +32,10 @@ export const useEventTypeSwitcher = ({
   isEdit = false,
   onChange,
   origin,
+  visibility,
+  groupId,
+  audience,
+  authorId,
 }: UseEventTypeSwitcherArgs) => {
   const t = useT();
   const me = useCurrentProfile();
@@ -119,6 +130,51 @@ export const useEventTypeSwitcher = ({
     });
   };
 
+  const coOrganizerProfiles = useMemo(() => {
+    const ids = event.coOrganizers ?? [];
+    const all = profilesQuery.data ?? [];
+    return ids
+      .map((id) => all.find((p) => p.id === id))
+      .filter((p): p is PublicProfile => Boolean(p));
+  }, [event.coOrganizers, profilesQuery.data]);
+
+  const setCoOrganizers = (profiles: PublicProfile[]) => {
+    onChange({
+      ...event,
+      coOrganizers: profiles.length > 0 ? profiles.map((p) => p.id) : undefined,
+    });
+  };
+
+  const groupMembersQuery = openpeepsApi.useGroupMembers(
+    visibility === 'group' ? (groupId ?? '') : '',
+  );
+
+  /**
+   * Profiles the author may pick as co-organizers: those who can read the
+   * post (group members, the direct audience, or any local profile for
+   * public/local events), minus the author.
+   */
+  const coOrganizerCandidates = useMemo(() => {
+    const source =
+      visibility === 'group'
+        ? (groupMembersQuery.data ?? []).map((member) => member.profile)
+        : visibility === 'direct'
+          ? (audience ?? [])
+          : (profilesQuery.data ?? []);
+    return source.filter(
+      (profile) => profile.type === 'local' && profile.id !== me?.id,
+    );
+  }, [
+    visibility,
+    groupMembersQuery.data,
+    audience,
+    profilesQuery.data,
+    me?.id,
+  ]);
+
+  const canManageCoOrganizers =
+    !isEdit || (me?.id !== undefined && me.id === authorId);
+
   const setWaitingRoom = (waitingRoom: boolean) => {
     if (!event.jam) return;
     onChange({ ...event, jam: { ...event.jam, waitingRoom } });
@@ -151,6 +207,10 @@ export const useEventTypeSwitcher = ({
     switchFormat,
     moderatorProfiles,
     setModerators,
+    coOrganizerProfiles,
+    setCoOrganizers,
+    coOrganizerCandidates,
+    canManageCoOrganizers,
     setWaitingRoom,
     setUrl,
     setPhysicalLocation,

@@ -675,6 +675,107 @@ describe('capabilitiesHelpers', () => {
       );
       expect(result).not.toContain('none');
     });
+
+    it('should include collaborator for a listed co-organizer on a public event', () => {
+      const post = {
+        ...mockPostInput,
+        data: { type: 'event', coOrganizers: ['profile1'] },
+      } as PublicPostInput;
+      const result = getPostRelationships(authData(), post);
+      expect(result).toContain('collaborator');
+    });
+
+    it('should not include collaborator for a profile that is not listed', () => {
+      const post = {
+        ...mockPostInput,
+        data: { type: 'event', coOrganizers: ['other-profile'] },
+      } as PublicPostInput;
+      const result = getPostRelationships(authData(), post);
+      expect(result).not.toContain('collaborator');
+    });
+
+    it('should not include collaborator on a group event for a listed non-member', () => {
+      const post = {
+        ...mockPostInput,
+        visibility: 'group',
+        group: mockGroup as GroupWithMeta,
+        data: { type: 'event', coOrganizers: ['profile1'] },
+      } as PublicPostInput;
+      const result = getPostRelationships(authData(), post);
+      expect(result).not.toContain('collaborator');
+    });
+
+    it('should include collaborator on a group event for a listed member', () => {
+      const memberProfile = {
+        ...mockProfile,
+        memberships: [{ group: mockGroup as GroupWithMeta }],
+      } as ProfileWithMeta;
+      const post = {
+        ...mockPostInput,
+        visibility: 'group',
+        group: mockGroup as GroupWithMeta,
+        data: { type: 'event', coOrganizers: ['profile1'] },
+      } as PublicPostInput;
+      const result = getPostRelationships(
+        authData({ profile: memberProfile }),
+        post,
+      );
+      expect(result).toContain('collaborator');
+    });
+
+    it('should not include collaborator on a direct event for a listed profile outside the audience', () => {
+      const post = {
+        ...mockPostInput,
+        visibility: 'direct',
+        audience: [{ id: 'someone-else' }],
+        data: { type: 'event', coOrganizers: ['profile1'] },
+      } as PublicPostInput;
+      const result = getPostRelationships(authData(), post);
+      expect(result).not.toContain('collaborator');
+    });
+
+    it('should include collaborator on a direct event for a listed audience member', () => {
+      const post = {
+        ...mockPostInput,
+        visibility: 'direct',
+        audience: [{ id: 'profile1' }],
+        data: { type: 'event', coOrganizers: ['profile1'] },
+      } as PublicPostInput;
+      const result = getPostRelationships(authData(), post);
+      expect(result).toContain('collaborator');
+    });
+
+    it('should not include collaborator on a local event for a non-local profile', () => {
+      const post = {
+        ...mockPostInput,
+        visibility: 'local',
+        data: { type: 'event', coOrganizers: ['profile1'] },
+      } as PublicPostInput;
+      const result = getPostRelationships(authData(), post);
+      expect(result).not.toContain('collaborator');
+    });
+
+    it('should include collaborator on a local event for a local co-organizer', () => {
+      const localProfile = {
+        ...mockProfile,
+        roles: [
+          {
+            ...mockRoles[0],
+            capabilities: { add: ['core-local'], remove: [] },
+          },
+        ],
+      } as ProfileWithMeta;
+      const post = {
+        ...mockPostInput,
+        visibility: 'local',
+        data: { type: 'event', coOrganizers: ['profile1'] },
+      } as PublicPostInput;
+      const result = getPostRelationships(
+        authData({ profile: localProfile }),
+        post,
+      );
+      expect(result).toContain('collaborator');
+    });
   });
 
   describe('getReportRelationships', () => {
@@ -1098,6 +1199,88 @@ describe('capabilitiesHelpers', () => {
         mockCapabilitiesConfig,
       );
       expect(checkCapabilities(['core-posts-delete'], caps).success).toBe(true);
+    });
+
+    describe('collaborator (co-organizers)', () => {
+      const collaboratorConfig: CapabilitiesConfig = {
+        ...mockCapabilitiesConfig,
+        post: {
+          ...mockCapabilitiesConfig.post,
+          collaborator: { add: ['core-posts-update'], remove: [] },
+        },
+      };
+      const writeScopedAuth = () =>
+        authData({
+          scopes: [{ scopeLevel: 'admin', resource: { type: '*', id: '*' } }],
+        });
+      const eventPost = (overrides: Partial<PublicPost> = {}): PublicPost =>
+        ({
+          ...mockPost,
+          visibility: 'public',
+          group: null,
+          data: { type: 'event', coOrganizers: ['profile1'] },
+          ...overrides,
+        }) as PublicPost;
+
+      it('grants a listed co-organizer update but not delete on a readable event', () => {
+        expect(
+          checkPostCapabilities(
+            writeScopedAuth(),
+            ['core-posts-update'],
+            eventPost(),
+            collaboratorConfig,
+          ).success,
+        ).toBe(true);
+        expect(
+          checkPostCapabilities(
+            writeScopedAuth(),
+            ['core-posts-delete'],
+            eventPost(),
+            collaboratorConfig,
+          ).success,
+        ).toBe(false);
+      });
+
+      it('does not grant update to a non-listed profile', () => {
+        expect(
+          checkPostCapabilities(
+            writeScopedAuth(),
+            ['core-posts-update'],
+            eventPost({
+              data: { type: 'event', coOrganizers: ['other-profile'] },
+            }),
+            collaboratorConfig,
+          ).success,
+        ).toBe(false);
+      });
+
+      it('does not grant update via collaborator on a group event to a listed non-member', () => {
+        expect(
+          checkPostCapabilities(
+            writeScopedAuth(),
+            ['core-posts-update'],
+            eventPost({
+              visibility: 'group',
+              group: mockGroup as GroupWithMeta,
+            }),
+            collaboratorConfig,
+          ).success,
+        ).toBe(false);
+      });
+
+      it('does not grant update via collaborator on a direct event to a listed profile outside the audience', () => {
+        expect(
+          checkPostCapabilities(
+            writeScopedAuth(),
+            ['core-posts-update'],
+            eventPost({
+              visibility: 'direct',
+              audience: [{ id: 'someone-else' }],
+            }),
+            collaboratorConfig,
+          ).success,
+        ).toBe(false);
+      });
     });
   });
 

@@ -1,5 +1,10 @@
 import { endpoint } from '#lib/endpoint';
-import { forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
+import {
+  badRequest,
+  forbidden,
+  notFound,
+  rethrowIfOpenpeepsError,
+} from '#lib/errors';
 import {
   publicPostSchema,
   postDataUnionSchema,
@@ -11,11 +16,13 @@ import { createPost } from '@openpeepshq/core/posts';
 import { postCreationDataSchema } from '@openpeepshq/common/types';
 import { canCreatePost } from '@openpeepshq/common/lib';
 import { findGroup } from '@openpeepshq/core/groups';
+import { assertCoOrganizersEligible } from '#lib/postCoOrganizerGuards';
 
 export const Input = postCreationDataSchema;
 export const Output = publicPostSchema;
 
 export const Error = {
+  400: badRequest(),
   403: forbidden(),
   404: notFound(),
 };
@@ -41,6 +48,14 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
       )
     ) {
       throw forbidden('postCreateForbidden');
+    }
+
+    if (postData.type === 'event') {
+      await assertCoOrganizersEligible(postData.coOrganizers, {
+        visibility: object.visibility,
+        audience,
+        groupId,
+      });
     }
 
     return await createPost(postData, profile, object, {

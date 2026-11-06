@@ -68,6 +68,7 @@ export function EditEvent() {
         onChange={setPostData}
         isEdit
         occurrenceEdit={!!occurrence}
+        authorId={postQuery.data.profile.id}
       />
 
       {error ? (

@@ -16,6 +16,8 @@ export type ProfilesInputProps = {
   placeholder?: string;
   /** Profiles that cannot be picked (e.g. the current user). */
   banlist?: PublicProfile[];
+  /** When set, only these profiles can be picked. */
+  allowlist?: PublicProfile[];
   disabled?: boolean;
   className?: string;
   title?: string;
@@ -26,6 +28,7 @@ export const ProfilesInput = ({
   onChange,
   placeholder,
   banlist = [],
+  allowlist,
   disabled = false,
   className,
   title,
@@ -74,6 +77,7 @@ export const ProfilesInput = ({
         onSelect={(added) => onChange([...value, ...added])}
         selectType="sync"
         title={title}
+        profilesToInclude={allowlist}
         profilesToExclude={[...value, ...banlist]}
       />
     </>

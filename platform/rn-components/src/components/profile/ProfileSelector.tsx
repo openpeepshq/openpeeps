@@ -19,6 +19,8 @@ interface ProfilePickerSheetProps {
   selectType?: 'async' | 'sync';
   title?: string;
   profilesToExclude?: PublicProfile[];
+  /** When set, only these profiles are offered (e.g. co-organizer candidates). */
+  profilesToInclude?: PublicProfile[];
   initialProfiles?: PublicProfile[];
   editMode?: boolean;
   single?: boolean;
@@ -35,6 +37,7 @@ export const ProfileSelector = forwardRef<
       asynOnSelect,
       title = 'Add members',
       profilesToExclude,
+      profilesToInclude,
       selectType = 'sync',
       initialProfiles,
       editMode = false,
@@ -59,13 +62,15 @@ export const ProfileSelector = forwardRef<
       }
       setSearchQuery('');
       setLoading(false);
-      setFilteredProfiles(profiles);
+      setFilteredProfiles(profilesToInclude ?? profiles);
     };
+
+    const baseProfiles = profilesToInclude ?? profiles;
 
     useEffect(() => {
       if (searchQuery) {
         setFilteredProfiles(
-          (profiles || [])
+          (baseProfiles || [])
             .filter((p) =>
               profilesToExclude
                 ? !profilesToExclude.some((m) => m.id === p.id)
@@ -76,7 +81,7 @@ export const ProfileSelector = forwardRef<
         );
       } else {
         setFilteredProfiles(
-          (profiles || [])
+          (baseProfiles || [])
             .filter((p) =>
               profilesToExclude
                 ? !profilesToExclude.map((m) => m.id).includes(p.id)
@@ -85,7 +90,7 @@ export const ProfileSelector = forwardRef<
             ?.filter((profile) => profile.id !== currentProfile?.id)
         );
       }
-    }, [searchQuery, profiles, currentProfile, profilesToExclude]);
+    }, [searchQuery, baseProfiles, currentProfile, profilesToExclude]);
 
     const handleSelectProfile = (profile: PublicProfile) => {
       setSelectedProfiles((prev) =>

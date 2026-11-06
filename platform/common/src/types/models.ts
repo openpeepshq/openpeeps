@@ -615,6 +615,8 @@ export const eventSchema = noteSchema
     waitlistOfferMinutes: z.number().int().positive().max(10080).optional(),
     attendeeListPublic: z.boolean().optional(),
     moderators: z.string().uuid().array().optional(),
+    /** Profiles invited to help organize; granted event update rights. */
+    coOrganizers: z.string().uuid().array().optional(),
     jam: jamSchema.optional(),
     physicalLocation: locationSchema.optional(),
     url: z.url().optional(),

@@ -33,6 +33,8 @@ export interface EventFormProps {
   showNotify?: boolean;
   notify?: boolean;
   onNotifyChange?: (value: boolean) => void;
+  /** The event author; on edit, only they may manage co-organizers. */
+  authorId?: string;
 }
 
 const dateToInputValue = (value: string | undefined, timeZone: string) =>
@@ -54,6 +56,7 @@ export const EventForm = ({
   showNotify = false,
   notify = false,
   onNotifyChange,
+  authorId,
 }: EventFormProps) => {
   const t = useT();
   const [audienceOpen, setAudienceOpen] = useState(false);
@@ -387,7 +390,15 @@ export const EventForm = ({
           {t('events.form.location', { defaultValue: 'Location' })}
         </h2>
 
-        <EventTypeSwitcher event={event} isEdit={isEdit} onChange={setEvent} />
+        <EventTypeSwitcher
+          event={event}
+          isEdit={isEdit}
+          onChange={setEvent}
+          visibility={postData.visibility}
+          groupId={postData.groupId}
+          audience={postData.audience}
+          authorId={authorId}
+        />
 
         <h2 className="text-lg">
           {t('events.form.people', { defaultValue: 'People' })}

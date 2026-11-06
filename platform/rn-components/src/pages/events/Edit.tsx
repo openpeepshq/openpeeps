@@ -66,6 +66,7 @@ export const EditEvent = ({ route }: EditEventProps) => {
             onChange={setPostData}
             isEdit
             occurrenceEdit={!!occurrence}
+            authorId={postQuery.data.profile.id}
           />
         </KeyboardAwareScrollView>
       )}

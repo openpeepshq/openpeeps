@@ -1,5 +1,10 @@
 import { Link, MapPin } from 'lucide-react';
-import type { Event, Location } from '@openpeepshq/common/types';
+import type {
+  Event,
+  Location,
+  PublicProfile,
+  VisibilityType,
+} from '@openpeepshq/common/types';
 import { Input, Label } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import {
@@ -14,6 +19,10 @@ export interface EventTypeSwitcherProps {
   event: Event;
   isEdit?: boolean;
   onChange: (event: Event) => void;
+  visibility?: VisibilityType;
+  groupId?: string | null;
+  audience?: PublicProfile[] | null;
+  authorId?: string;
 }
 
 function SimpleLocationInput({
@@ -74,6 +83,10 @@ export function EventTypeSwitcher({
   event,
   isEdit = false,
   onChange,
+  visibility,
+  groupId,
+  audience,
+  authorId,
 }: EventTypeSwitcherProps) {
   const t = useT();
   const {
@@ -83,6 +96,10 @@ export function EventTypeSwitcher({
     switchFormat,
     moderatorProfiles,
     setModerators,
+    coOrganizerProfiles,
+    setCoOrganizers,
+    coOrganizerCandidates,
+    canManageCoOrganizers,
     setWaitingRoom,
     setUrl,
     setPhysicalLocation,
@@ -91,6 +108,10 @@ export function EventTypeSwitcher({
     isEdit,
     onChange,
     origin: typeof window !== 'undefined' ? window.location.origin : '',
+    visibility,
+    groupId,
+    audience,
+    authorId,
   });
 
   return (
@@ -182,6 +203,24 @@ export function EventTypeSwitcher({
             </span>
           </label>
         </>
+      ) : null}
+
+      {canManageCoOrganizers ? (
+        <div className="space-y-2">
+          <Label>
+            {t('events.form.coOrganizers', {
+              defaultValue: 'Co-organizers (optional).',
+            })}
+          </Label>
+          <ProfilesInput
+            value={coOrganizerProfiles}
+            onChange={setCoOrganizers}
+            allowlist={coOrganizerCandidates}
+            placeholder={t('events.form.coOrganizersDescription', {
+              defaultValue: 'Click to select co-organizers',
+            })}
+          />
+        </div>
       ) : null}
     </div>
   );

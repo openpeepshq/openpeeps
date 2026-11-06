@@ -91,6 +91,7 @@ export const eventSanitizer = (publicContent = false) => {
         content: event.data.content,
         end: event.data.end,
         attendeeListPublic: event.data.attendeeListPublic,
+        coOrganizers: event.data.coOrganizers,
         ...(event.data.maxAttendees != null
           ? {
               maxAttendees: event.data.maxAttendees,

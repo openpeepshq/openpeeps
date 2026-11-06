@@ -116,8 +116,39 @@ export const hasAdminSidebarAccess = (roles: Role[] = []) =>
     (cap) => checkRoleCapabilities(roles, [cap]).success,
   );
 
-export const isLocal = (profile: ProfileWithMeta) =>
+export const isLocal = (profile: Pick<ProfileWithMeta, 'roles'>) =>
   checkRoleCapabilities(profile.roles, ['core-local']).success;
+
+/**
+ * Whether `profile` can read `post` under the default relationship
+ * capabilities (public: anyone, local: local profiles, direct: audience
+ * members, group: group members). Gates grants that must not out-run read
+ * access (e.g. the `collaborator` relationship).
+ */
+export const profileCanReadPost = (
+  profile: Pick<ProfileWithMeta, 'id' | 'roles' | 'memberships'>,
+  post: {
+    visibility: PublicPost['visibility'];
+    audience?: ReadonlyArray<Pick<PublicProfile, 'id'>> | null;
+    groupId?: string | null;
+  },
+) => {
+  switch (post.visibility) {
+    case 'public':
+      return true;
+    case 'local':
+      return isLocal(profile);
+    case 'direct':
+      return !!post.audience?.some((a) => a.id === profile.id);
+    case 'group':
+      return (
+        !!post.groupId &&
+        profile.memberships.some((m) => m.group.id === post.groupId)
+      );
+    default:
+      return false;
+  }
+};
 
 /**
  * Returns `['local', 'none']` when the caller is "trusted local" — either a local
@@ -205,6 +236,19 @@ export const getPostRelationships = (
     )
   ) {
     relationships.push('attendee');
+  }
+
+  if (
+    profile &&
+    post.data?.type === 'event' &&
+    post.data.coOrganizers?.includes(profile.id) &&
+    profileCanReadPost(profile, {
+      visibility: post.visibility,
+      audience: post.audience,
+      groupId: post.group?.id ?? post.groupId,
+    })
+  ) {
+    relationships.push('collaborator');
   }
 
   return relationships;

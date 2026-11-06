@@ -1,5 +1,9 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { useOpenpeeps, useServerInfo } from '@openpeepshq/react';
+import {
+  useEventOrganizer,
+  useOpenpeeps,
+  useServerInfo,
+} from '@openpeepshq/react';
 import {
   MoreVerticalIcon,
   ShareIcon,
@@ -742,10 +746,9 @@ export const FullEventActions: React.FC<{
   post: PublicPost;
   occurrence?: string;
 }> = ({ post, occurrence }) => {
-  const { currentProfile } = useOpenpeeps();
   const reportPostModalRef = useRef<BottomSheetModal>(null);
   const { t } = useTranslation();
-  const myEvent = currentProfile?.id === post?.profile?.id;
+  const isOrganizer = useEventOrganizer(post);
 
   return (
     <View className="flex-row items-center">
@@ -763,7 +766,7 @@ export const FullEventActions: React.FC<{
           </Pressable>
         }
       />
-      {myEvent ? (
+      {isOrganizer ? (
         <EventMenu post={post} occurrence={occurrence} />
       ) : (
         <>

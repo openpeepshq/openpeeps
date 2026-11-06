@@ -23,6 +23,9 @@ export const ProfileEventRelationship: React.FC<
   const isModerator = event?.moderators?.find(
     (profileId) => profileId === currentProfile?.id
   );
+  const isCoOrganizer = event?.coOrganizers?.find(
+    (profileId) => profileId === currentProfile?.id
+  );
   const myRsvp =
     post &&
     calculateEffectiveRsvps(post).find(
@@ -32,6 +35,8 @@ export const ProfileEventRelationship: React.FC<
   const relationshipText = (() => {
     if (myEvent) {
       return t('events.profileRelationship.owner');
+    } else if (isCoOrganizer) {
+      return t('events.profileRelationship.coOrganizer');
     } else if (isModerator) {
       return t('groups.roles.moderator');
     } else if (myRsvp?.response === 'yes') {
