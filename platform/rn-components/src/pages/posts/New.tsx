@@ -11,7 +11,7 @@ import {
   MainStackParamList,
   TabStackParamList,
 } from '../../components/navigation/types/index';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { toNote, toQuestion, useOpenpeeps } from '@openpeepshq/react';
 import {
   AudioPickerSheet,
   ImagePickerSheet,
@@ -38,7 +38,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Footer } from '../../components/post/post-form/Footer';
 import { PostTypeSwitcher } from '../../components/post/post-form/PostTypeSwitcher';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { hasProcessingAttachments, toNote, toQuestion } from '../../lib/post';
+import { hasProcessingAttachments } from '../../lib/post';
 import { useForm } from 'react-hook-form';
 
 import { ArticleForm } from '../../components/post/index';

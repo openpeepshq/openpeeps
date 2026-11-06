@@ -136,11 +136,10 @@ export function NewPostModal({
 
   const selectComposerType = (next: ComposerType) => {
     if (next === composerType) return;
-    const stored = draftContent(next);
-    // The note body and poll question share one field. When the destination
-    // has no stored draft, keep the current text so note -> poll carries the
-    // typed note over as the poll question instead of erasing it.
-    setContent(stored || content);
+    // The note body and poll question share one field: typed text carries
+    // over as-is, while an empty composer picks up the destination's stored
+    // draft instead of showing a half-restored poll (options, no question).
+    setContent(content.trim() ? content : draftContent(next));
     setComposerType(next);
   };
 

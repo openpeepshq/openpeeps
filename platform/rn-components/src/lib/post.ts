@@ -61,75 +61,12 @@ export const validatePollData = (formData: PollChoiceForm): boolean => {
   return true;
 };
 
-export const noteToQuestion = (
-  postData: PostCreationData
-): PostCreationData => ({
-  ...postData,
-  type: 'question',
-  data: {
-    ...postData.data,
-    type: 'question',
-    options: [
-      {
-        type: 'note',
-        content: '',
-      },
-      {
-        type: 'note',
-        content: '',
-      },
-    ],
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
-  },
-});
-export const toQuestion = (postData: PostCreationData): PostCreationData => ({
-  ...postData,
-  type: 'question',
-  data: {
-    ...postData.data,
-    type: 'question',
-    options: [
-      {
-        type: 'note',
-        content: '',
-      },
-      {
-        type: 'note',
-        content: '',
-      },
-    ],
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
-  },
-});
-
 export const toArticle = (postData: PostCreationData): PostCreationData => ({
   ...postData,
   type: 'article',
   data: {
     content: postData.data.content,
     type: 'article',
-    attachments: postData.data.attachments,
-  },
-});
-
-export const toNote = (postData: PostCreationData): PostCreationData => ({
-  ...postData,
-  type: 'note',
-  data: {
-    content: postData.data.content,
-    type: 'note',
-    attachments: postData.data.attachments,
-  },
-});
-
-export const questionToNote = (
-  postData: PostCreationData
-): PostCreationData => ({
-  ...postData,
-  type: 'note',
-  data: {
-    content: postData.data.content,
-    type: 'note',
     attachments: postData.data.attachments,
   },
 });

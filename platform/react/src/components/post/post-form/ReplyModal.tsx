@@ -18,13 +18,8 @@ import { useT } from '../../../i18n';
 import { apiErrorMessage } from '../../../lib/apiErrorMessage';
 import { useToast } from '../../layout/ToastProvider';
 import { useCurrentProfile } from '../../layout/IdentityContext';
-import {
-  defaultNewNote,
-  defaultNewQuestion,
-  resetReplyData,
-  useReplyStore,
-} from '../../../stores/newPosts';
-import { useServerInfo } from '../../server-data';
+import { resetReplyData, useReplyStore } from '../../../stores/newPosts';
+import { toNote, toQuestion } from '../../../lib/post';
 import { CompactReplyParent } from '../CompactReplyParent';
 import { Avatar } from '../../profile';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
@@ -43,7 +38,6 @@ type ComposerType = 'note' | 'question';
 export function ReplyModal({ post, onClose }: ReplyModalProps) {
   const t = useT();
   const { success, error: toastError } = useToast();
-  const serverInfo = useServerInfo();
   const me = useCurrentProfile();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
@@ -94,17 +88,12 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
   });
 
   const setComposerType = (type: ComposerType) => {
-    const base =
-      type === 'question'
-        ? defaultNewQuestion(serverInfo.publicContent)
-        : defaultNewNote(serverInfo.publicContent);
-    replyStore.set({
-      ...draft,
-      type,
-      data: base.data,
-    });
+    if (type === composerType) return;
+    // toNote/toQuestion carry the shared text field (and note attachments)
+    // over instead of resetting the draft — same helpers the native
+    // composer uses.
+    replyStore.set(type === 'question' ? toQuestion(draft) : toNote(draft));
   };
-
   const setContent = (value: string) => {
     if (draft.data.type !== 'note' && draft.data.type !== 'question') return;
     replyStore.set({

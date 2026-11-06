@@ -5,7 +5,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { apiErrorMessage, useOpenpeeps } from '@openpeepshq/react';
+import {
+  apiErrorMessage,
+  toNote,
+  toQuestion,
+  useOpenpeeps,
+} from '@openpeepshq/react';
 import {
   AudioPickerSheet,
   DocumentPickerSheet,
@@ -38,7 +43,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Footer } from '../../components/post/post-form/Footer';
 import { PostTypeSwitcher } from '../../components/post/post-form/PostTypeSwitcher';
 import { useForm } from 'react-hook-form';
-import { hasProcessingAttachments, toNote, toQuestion } from '../../lib/post';
+import { hasProcessingAttachments } from '../../lib/post';
 import { CompactReplyParent } from '../../components/post/CompactReplyParent';
 
 import { ReplyModal } from '../../components/post/index';
