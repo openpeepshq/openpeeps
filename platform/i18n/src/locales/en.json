@@ -3642,9 +3642,12 @@
       "emptyCollection": "This collection has no resources yet.",
       "viewList": "List",
       "viewCards": "Cards",
-      "resourceCount": "Showing {{count}} resources",
+      "resourceCount_one": "Showing 1 resource",
+      "resourceCount_other": "Showing {{count}} resources",
       "noResults": "No resources match your current filters.",
       "saved": "Saved",
+      "showFolderTree": "Show folder tree",
+      "hideFolderTree": "Hide folder tree",
       "showHiddenTags": "+ {{count}}",
       "hideTags": "Hide"
     },

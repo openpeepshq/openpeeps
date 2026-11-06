@@ -4,7 +4,7 @@ import { dateFormatter } from './formatter';
 export interface UpdatingDateProps {
   date: string | Date | number;
   formatter?: (date: string | Date | number) => string;
-  /** Refresh interval in ms. Defaults to 60s. */
+  /** Refresh interval in ms. Defaults to 15s so relative times stay current. */
   intervalMs?: number;
 }
 
@@ -12,7 +12,7 @@ export interface UpdatingDateProps {
 export function UpdatingDate({
   date,
   formatter = dateFormatter,
-  intervalMs = 60_000,
+  intervalMs = 15_000,
 }: UpdatingDateProps) {
   const [formatted, setFormatted] = React.useState(() => formatter(date));
 

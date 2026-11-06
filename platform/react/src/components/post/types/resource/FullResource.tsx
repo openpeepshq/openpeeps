@@ -10,6 +10,7 @@ import { ResourceCard } from '../../../resources/ResourceCard';
 import { VideoPlayer } from '../../pieces/VideoPlayer';
 import { AudioAttachment } from '../../pieces/AudioAttachment';
 import { GalleryModal } from '../../pieces/GalleryModal';
+import { downloadFile } from '../../../../lib/downloadFile';
 
 export interface FullResourceProps {
   post: PublicPost;
@@ -36,7 +37,7 @@ export const FullResource = ({ post }: FullResourceProps) => {
         const att = resource.attachments?.find(
           (a) => attachmentMediaKind(a) === 'file',
         );
-        if (att?.url) window.open(att.url, '_blank');
+        if (att?.url) void downloadFile(att.url, att.filename);
         break;
       }
       case 'link':

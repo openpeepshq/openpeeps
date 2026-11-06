@@ -266,6 +266,17 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
             <Pressable
               onPress={() => library.setHierarchy(!library.hierarchy)}
               className="ml-auto"
+              accessibilityRole="button"
+              accessibilityLabel={t(
+                library.hierarchy
+                  ? 'resources.library.hideFolderTree'
+                  : 'resources.library.showFolderTree',
+                {
+                  defaultValue: library.hierarchy
+                    ? 'Hide folder tree'
+                    : 'Show folder tree',
+                }
+              )}
             >
               {library.hierarchy ? (
                 <ChevronDownIcon size={20} className="text-muted-foreground" />

@@ -8,10 +8,13 @@ import {
 import type { ResourceKind } from '@openpeepshq/common/types';
 import { RESOURCE_KINDS } from '@openpeepshq/common/lib';
 import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useT } from '../../i18n';
 import { useHrefOf } from '../../contexts/router';
-import { useResourceLibrary } from '../../hooks';
+import {
+  useResourceLibrary,
+  type ResourceLibraryInitialFilters,
+} from '../../hooks';
 import { ResourceCard } from './ResourceCard';
 import type { CategoryNode } from '@openpeepshq/common/lib';
 
@@ -20,6 +23,11 @@ export interface ResourceLibraryProps {
 }
 
 const COLLECTION_LIMIT = 5;
+
+const parseKindFilter = (value: string | null): ResourceKind | 'all' =>
+  value && (RESOURCE_KINDS as readonly string[]).includes(value)
+    ? (value as ResourceKind)
+    : 'all';
 
 const Tree = ({
   nodes,
@@ -95,7 +103,41 @@ const Tree = ({
 export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
   const t = useT();
   const hrefOf = useHrefOf();
-  const library = useResourceLibrary(groupId);
+
+  // Filters are shareable: ?kind= &tags=a,b &q= &path= survive reloads.
+  const initialFilters = useMemo<ResourceLibraryInitialFilters>(() => {
+    if (typeof window === 'undefined') return {};
+    const params = new URLSearchParams(window.location.search);
+    return {
+      kind: parseKindFilter(params.get('kind')),
+      tags: params.get('tags')?.split(',').filter(Boolean),
+      search: params.get('q') ?? undefined,
+      pathPrefix: params.get('path')?.split('/').filter(Boolean),
+    };
+  }, []);
+  const library = useResourceLibrary(groupId, undefined, initialFilters);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams();
+    if (library.kind !== 'all') params.set('kind', library.kind);
+    if (library.selectedTags.length > 0) {
+      params.set('tags', library.selectedTags.join(','));
+    }
+    const q = library.search.trim();
+    if (q) params.set('q', q);
+    if (library.pathPrefix.length > 0) {
+      params.set('path', library.pathPrefix.join('/'));
+    }
+    const query = params.toString();
+    // replaceState: filter changes must not spam the history stack.
+    window.history.replaceState(
+      window.history.state,
+      '',
+      query ? `${window.location.pathname}?${query}` : window.location.pathname,
+    );
+  }, [library.kind, library.selectedTags, library.search, library.pathPrefix]);
+
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const toggleNode = (nodeKey: string) => {
@@ -153,6 +195,15 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
     ? sortedTags
     : sortedTags.slice(0, COLLECTION_LIMIT);
   const hasMoreTags = sortedTags.length > COLLECTION_LIMIT;
+
+  const folderTreeLabel = t(
+    library.hierarchy
+      ? 'resources.library.hideFolderTree'
+      : 'resources.library.showFolderTree',
+    {
+      defaultValue: library.hierarchy ? 'Hide folder tree' : 'Show folder tree',
+    },
+  );
 
   return (
     <div>
@@ -250,6 +301,8 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               type="button"
               className="text-muted-foreground hover:text-foreground ml-auto"
               onClick={() => library.setHierarchy(!library.hierarchy)}
+              title={folderTreeLabel}
+              aria-label={folderTreeLabel}
             >
               {library.hierarchy ? (
                 <ChevronDown className="size-4" />

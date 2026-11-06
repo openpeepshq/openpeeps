@@ -19,7 +19,7 @@ export const UpdatingDate = ({
   useEffect(() => {
     const interval = setInterval(() => {
       setFormattedDate(formatter(date));
-    }, 60000);
+    }, 15000);
     return () => clearInterval(interval);
   }, [date, formatter]);
 

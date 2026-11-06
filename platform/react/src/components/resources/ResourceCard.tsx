@@ -26,6 +26,7 @@ import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { VideoPlayOverlay } from '../post/VideoPlayOverlay';
 import { TruncatedMarkdown } from '../post/TruncatedMarkdown';
+import { downloadFile } from '../../lib/downloadFile';
 
 export interface ResourceCardProps {
   post: PublicPost;
@@ -272,10 +273,10 @@ export const ResourceCard = ({
 
   if (!resource) return null;
 
-  const downloadUrl =
-    resource.resourceKind === 'file'
-      ? attachments.find((att) => attachmentMediaKind(att) === 'file')?.url
-      : null;
+  const fileAttachment =
+    resource?.resourceKind === 'file'
+      ? attachments.find((att) => attachmentMediaKind(att) === 'file')
+      : undefined;
 
   const renderSaveButton = (className: string) =>
     staticRender ? null : (
@@ -359,15 +360,21 @@ export const ResourceCard = ({
         <div className="flex items-center gap-2">
           {resource.resourceKind === 'link' &&
           resource.url ? null : actionLabel ? (
-            resource.resourceKind === 'file' && downloadUrl ? (
-              <a
-                href={downloadUrl}
-                download
-                onClick={(e) => e.stopPropagation()}
+            fileAttachment?.url ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  void downloadFile(
+                    fileAttachment.url,
+                    fileAttachment.filename,
+                  );
+                }}
                 className="text-primary text-xs font-medium"
               >
                 {actionLabel}
-              </a>
+              </button>
             ) : (
               <span className="text-muted-foreground text-xs">
                 {actionLabel}
