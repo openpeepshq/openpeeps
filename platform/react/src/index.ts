@@ -7,6 +7,7 @@ export * from './streaming';
 export * from './stores';
 export * from './push';
 export * from './lib/postViewCounter';
+export * from './lib/eventsIcsFeed';
 export * from './lib/analyticsClicks';
 export * from './lib/unseenCountsOptimistic';
 export * from './lib/notificationBadge';

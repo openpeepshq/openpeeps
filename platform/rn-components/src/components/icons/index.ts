@@ -27,6 +27,7 @@ import {
   Upload,
   Loader2,
   CalendarDays,
+  CalendarPlus,
   DoorOpen,
   Users,
   User,
@@ -178,6 +179,7 @@ export const ThumbsUpIcon = iconWithClassName(ThumbsUp);
 export const UploadIcon = iconWithClassName(Upload);
 export const LoaderIcon = iconWithClassName(Loader2);
 export const CalendarDaysIcon = iconWithClassName(CalendarDays);
+export const CalendarPlusIcon = iconWithClassName(CalendarPlus);
 export const DoorOpenIcon = iconWithClassName(DoorOpen);
 export const UsersIcon = iconWithClassName(Users);
 export const UserIcon = iconWithClassName(User);

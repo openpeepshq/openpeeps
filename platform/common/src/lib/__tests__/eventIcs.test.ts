@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { PublicPost, PublicProfile } from '../../types';
 import {
   buildEventIcs,
+  buildEventsFeedIcs,
   buildRsvpIcs,
   rsvpConfirmationContent,
 } from '../eventIcs';
@@ -141,6 +142,54 @@ describe('buildEventIcs', () => {
     );
     expect(ics).toContain('RRULE:FREQ=WEEKLY');
     expect(ics).toContain('COUNT=4');
+  });
+});
+
+describe('buildEventsFeedIcs', () => {
+  const firstEventPost = {
+    ...baseEventPost,
+    data: timedEventFields,
+  } as PublicPost;
+  const secondEventPost = {
+    ...baseEventPost,
+    id: '019f3e5f-b11f-7e8a-b3ca-a9cc0c77a5e8',
+    data: {
+      ...timedEventFields,
+      name: 'Second Event',
+      start: '2026-07-08T21:00:00.000Z',
+      end: '2026-07-08T22:00:00.000Z',
+    },
+  } as PublicPost;
+
+  it('emits one VEVENT per event post in a single calendar', () => {
+    const ics = buildEventsFeedIcs([firstEventPost, secondEventPost], {
+      postUrl: (post) => `https://example.com/posts/${post.id}`,
+    });
+    const unfolded = unfoldIcs(ics);
+    expect(unfolded.match(/BEGIN:VEVENT/g)?.length).toBe(2);
+    expect(unfolded).toContain('SUMMARY:Testing with Trivia');
+    expect(unfolded).toContain('SUMMARY:Second Event');
+    expect(unfolded).toContain(
+      'URL;VALUE=URI:https://example.com/posts/019f3e5e-b11f-7e8a-b3ca-a9cc0c77a5e7',
+    );
+    expect(unfolded).toContain(
+      'URL;VALUE=URI:https://example.com/posts/019f3e5f-b11f-7e8a-b3ca-a9cc0c77a5e8',
+    );
+  });
+
+  it('names the calendar and skips non-event posts', () => {
+    const ics = unfoldIcs(
+      buildEventsFeedIcs([
+        firstEventPost,
+        {
+          ...baseEventPost,
+          type: 'note',
+          data: { type: 'note' },
+        } as PublicPost,
+      ]),
+    );
+    expect(ics).toContain('X-WR-CALNAME:OpenPeeps Events');
+    expect(ics.match(/BEGIN:VEVENT/g)?.length).toBe(1);
   });
 });
 

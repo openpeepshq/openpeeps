@@ -2,7 +2,10 @@ import React from 'react';
 import { Pressable } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
+import Clipboard from '@react-native-clipboard/clipboard';
+import Toast from 'react-native-toast-message';
 import {
+  eventsIcsFeedUrl,
   useCurrentProfile,
   useDefaultVisibility,
   useOpenpeeps,
@@ -10,9 +13,11 @@ import {
 import { AgendaTabs } from '../../components/custom/index';
 import { useSetPageHeader } from '../../components/layout';
 import {
+  CalendarPlusIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
 } from '../../components/icons/index';
+import { BASE_URL } from '../../lib/constants';
 import { MainStackParamList } from '../../components/navigation/types/index';
 import {
   EventsFeed,
@@ -45,6 +50,16 @@ export const EventsIndex = ({
 
   const visibility = useDefaultVisibility();
 
+  const copyCalendarLink = () => {
+    Clipboard.setString(eventsIcsFeedUrl(BASE_URL ?? ''));
+    Toast.show({
+      type: 'success',
+      text1: t('events.calendarFeed.copied', {
+        defaultValue: 'Calendar link copied',
+      }),
+    });
+  };
+
   useSetPageHeader(
     t('navigation.events', { defaultValue: 'Events' }),
     <DropdownMenu>
@@ -55,6 +70,17 @@ export const EventsIndex = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent className="mt-1">
         <DropdownMenuGroup>
+          <DropdownMenuItem
+            className="flex-row items-center gap-x-2"
+            onPress={() => copyCalendarLink()}
+          >
+            <CalendarPlusIcon size={16} className="text-foreground" />
+            <ThemedText>
+              {t('events.calendarFeed.label', {
+                defaultValue: 'Add to calendar',
+              })}
+            </ThemedText>
+          </DropdownMenuItem>
           <DropdownMenuItem
             className="flex-row items-center gap-x-2"
             onPress={() => navigation.navigate('MyEvents')}

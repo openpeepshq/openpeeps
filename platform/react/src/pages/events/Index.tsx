@@ -1,13 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, MoreHorizontal } from 'lucide-react';
-import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
+import { CalendarPlus, ChevronRight, MoreHorizontal } from 'lucide-react';
+import {
+  eventsIcsFeedUrl,
+  useT,
+  useOpenpeeps,
+  useSetPageHeader,
+} from '../../index';
 import {
   EventsFeed,
   EventsView,
   NewEventButton,
   useCurrentProfile,
   useDefaultVisibility,
+  useToast,
 } from '../../components';
 import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
 
@@ -17,6 +23,7 @@ export function EventsIndex() {
   const { openpeepsApi } = useOpenpeeps();
   const currentProfile = useCurrentProfile();
   const visibility = useDefaultVisibility();
+  const toast = useToast();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const upcomingQuery = openpeepsApi.useUpcomingEventsFeed();
@@ -24,9 +31,33 @@ export function EventsIndex() {
 
   const activeQuery = tab === 'upcoming' ? upcomingQuery : pastQuery;
 
+  const copyCalendarLink = useCallback(async () => {
+    const url = eventsIcsFeedUrl(window.location.origin);
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(
+        t('events.calendarFeed.copied', {
+          defaultValue: 'Calendar link copied',
+        }),
+      );
+    } catch {
+      toast.success(url);
+    }
+  }, [t, toast]);
+
   const headerActions = useMemo(
     () => (
       <PopupMenu icon={MoreHorizontal} compact>
+        <PopupMenuButton
+          icon={CalendarPlus}
+          title={t('events.calendarFeed.label', {
+            defaultValue: 'Add to calendar',
+          })}
+          text={t('events.calendarFeed.label', {
+            defaultValue: 'Add to calendar',
+          })}
+          action={() => void copyCalendarLink()}
+        />
         <PopupMenuButton
           icon={ChevronRight}
           title={t('navigation.myEvents', { defaultValue: 'My events' })}
@@ -35,7 +66,7 @@ export function EventsIndex() {
         />
       </PopupMenu>
     ),
-    [t],
+    [t, copyCalendarLink],
   );
 
   useSetPageHeader(

@@ -85,21 +85,15 @@ const repeatingOptions = (event: Event) => {
   };
 };
 
-export const buildEventIcs = (
+/** Append the VEVENTs of one event post (series plus exceptions) to a calendar. */
+export const appendEventIcs = (
+  calendar: ReturnType<typeof ical>,
   post: PublicPost,
   options?: { postUrl?: string },
-): string | null => {
-  if (post.type !== 'event' || post.data?.type !== 'event') {
-    return null;
-  }
+) => {
+  if (post.type !== 'event' || post.data?.type !== 'event') return;
 
   const event = post.data as Event;
-  const calendar = ical({
-    prodId: '//OpenPeeps//Event//EN',
-    method: ICalCalendarMethod.PUBLISH,
-    scale: 'GREGORIAN',
-  });
-
   const link = event.url ?? options?.postUrl;
   const summary = event.name?.trim() || 'Event';
   const description = event.content?.trim();
@@ -154,7 +148,40 @@ export const buildEventIcs = (
       recurrenceId: new Date(exception.recurrenceId),
     });
   }
+};
 
+export const buildEventIcs = (
+  post: PublicPost,
+  options?: { postUrl?: string },
+): string | null => {
+  if (post.type !== 'event' || post.data?.type !== 'event') {
+    return null;
+  }
+  const calendar = ical({
+    prodId: '//OpenPeeps//Event//EN',
+    method: ICalCalendarMethod.PUBLISH,
+    scale: 'GREGORIAN',
+  });
+  appendEventIcs(calendar, post, options);
+  return calendar.toString() + '\r\n';
+};
+
+/** One calendar with many events, for subscription feeds. */
+export const buildEventsFeedIcs = (
+  posts: PublicPost[],
+  options?: { postUrl?: (post: PublicPost) => string; name?: string },
+) => {
+  const calendar = ical({
+    prodId: '//OpenPeeps//Event Feed//EN',
+    name: options?.name ?? 'OpenPeeps Events',
+    method: ICalCalendarMethod.PUBLISH,
+    scale: 'GREGORIAN',
+  });
+  for (const post of posts) {
+    appendEventIcs(calendar, post, {
+      postUrl: options?.postUrl?.(post),
+    });
+  }
   return calendar.toString() + '\r\n';
 };
 

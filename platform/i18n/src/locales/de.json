@@ -3169,6 +3169,10 @@
       "more": "+{{count}} weitere",
       "emptyDay": "Keine Veranstaltungen"
     },
+    "calendarFeed": {
+      "label": "Zum Kalender hinzufügen",
+      "copied": "Kalender-Link kopiert"
+    },
     "create": {
       "title": "Veranstaltung erstellen",
       "notAllowed": {

@@ -3087,6 +3087,10 @@
       "more": "+{{count}} more",
       "emptyDay": "No events"
     },
+    "calendarFeed": {
+      "label": "Add to calendar",
+      "copied": "Calendar link copied"
+    },
     "create": {
       "title": "Create Event",
       "notAllowed": {
