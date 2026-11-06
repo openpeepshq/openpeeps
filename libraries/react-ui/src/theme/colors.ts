@@ -41,3 +41,22 @@ export const generateA11yOnColor = (hex: string): '255 255 255' | '0 0 0' => {
   const white = calculateRatio(hex, '#FFFFFF');
   return black < white ? '0 0 0' : '255 255 255';
 };
+
+/**
+ * Page backgrounds from `globals.css` (`--color-background`). Highlight colors
+ * are drawn on top of these, so contrast checks use the same values.
+ */
+export const themeBackgroundHex = {
+  light: '#ffffff',
+  dark: '#09090b',
+} as const;
+
+/** WCAG contrast ratio, or null when either color is not a 6-digit hex. */
+export const contrastRatio = (hexA: string, hexB: string): number | null => {
+  const a = hexToRgb(hexA);
+  const b = hexToRgb(hexB);
+  if (!a || !b) return null;
+  const lighter = Math.max(getLuminance(a), getLuminance(b));
+  const darker = Math.min(getLuminance(a), getLuminance(b));
+  return (lighter + 0.05) / (darker + 0.05);
+};

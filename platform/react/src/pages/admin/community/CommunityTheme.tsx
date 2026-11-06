@@ -3,6 +3,7 @@ import type { CommunityConfig } from '@openpeepshq/common/types';
 import { useT, useSetPageHeader, useOpenpeeps, equal } from '../../../index';
 import { Button, ThemeFontSelect, Toast } from '@openpeepshq/react-ui';
 import { useCommunityConfig } from './useCommunityConfig';
+import { ThemeColorPreview } from './ThemeColorPreview';
 
 type Mode = 'light' | 'dark';
 
@@ -117,29 +118,31 @@ export function AdminConfigurationCommunityTheme() {
           {t('configuration.community.color')}
         </h4>
         <span>{t('configuration.community.colorDescription')}</span>
-        <div className="mt-2 flex gap-x-4">
+        <div className="mt-4 grid gap-6 lg:grid-cols-2">
           {(['light', 'dark'] as Mode[]).map((mode) => (
-            <div
-              key={mode}
-              className="flex flex-wrap items-center gap-x-4 gap-y-2"
-            >
-              <span className="mr-4">
-                {t(`configuration.community.${mode}Theme.color`)}
-              </span>
-              <input
-                className="border-border !size-8 !rounded-full border [&::-moz-color-swatch]:!m-0 [&::-moz-color-swatch]:!rounded-full [&::-moz-color-swatch]:!border-0 [&::-webkit-color-swatch-wrapper]:!p-0 [&::-webkit-color-swatch]:!rounded-full [&::-webkit-color-swatch]:!border-0"
-                type="color"
-                value={cfg.theme[mode].primaryHex}
-                onChange={(e) =>
-                  patch((c) => (c.theme[mode].primaryHex = e.target.value))
-                }
-              />
-              <input
-                className="op-input w-32"
-                type="text"
-                value={cfg.theme[mode].primaryHex}
-                readOnly
-                tabIndex={-1}
+            <div key={mode} className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <span>{t(`configuration.community.${mode}Theme.color`)}</span>
+                <input
+                  className="border-border !size-8 !rounded-full border [&::-moz-color-swatch]:!m-0 [&::-moz-color-swatch]:!rounded-full [&::-moz-color-swatch]:!border-0 [&::-webkit-color-swatch-wrapper]:!p-0 [&::-webkit-color-swatch]:!rounded-full [&::-webkit-color-swatch]:!border-0"
+                  type="color"
+                  value={cfg.theme[mode].primaryHex}
+                  onChange={(e) =>
+                    patch((c) => (c.theme[mode].primaryHex = e.target.value))
+                  }
+                />
+                <input
+                  className="op-input w-32"
+                  type="text"
+                  value={cfg.theme[mode].primaryHex}
+                  readOnly
+                  tabIndex={-1}
+                />
+              </div>
+              <ThemeColorPreview
+                mode={mode}
+                primaryHex={cfg.theme[mode].primaryHex}
+                buttonRadius={cfg.theme[mode].buttonRadius}
               />
             </div>
           ))}
@@ -202,6 +205,15 @@ export function AdminConfigurationCommunityTheme() {
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <h3 className="text-lg font-semibold">
+          {t('configuration.community.images')}
+        </h3>
+        <p className="text-sm">
+          {t('configuration.community.imagesDescription')}
+        </p>
       </div>
 
       {/* auth background */}
