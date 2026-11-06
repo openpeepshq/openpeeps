@@ -76,6 +76,8 @@ export const EventTypeSwitcher = ({
     switchFormat,
     moderatorProfiles,
     setModerators,
+    coOrganizerProfiles,
+    setCoOrganizers,
     setWaitingRoom,
     setUrl,
     setPhysicalLocation,
@@ -159,6 +161,17 @@ export const EventTypeSwitcher = ({
           </View>
         </>
       ) : null}
+
+      <View className="gap-2">
+        <Label nativeID="event-co-organizers">
+          {t('events.form.coOrganizers')}
+        </Label>
+        <ProfilesInput
+          value={coOrganizerProfiles}
+          onChange={setCoOrganizers}
+          placeholder={t('events.form.coOrganizersDescription')}
+        />
+      </View>
     </View>
   );
 };

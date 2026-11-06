@@ -202,17 +202,15 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
             text={t('posts.footer.share', { defaultValue: 'Share' })}
             menuButton={<Share className="size-4" />}
           />
-          {myEvent ? (
-            <EventMenu
-              post={post}
-              occurrence={occurrenceId}
-              menuButton={
-                <span className="border-input flex size-10 items-center justify-center rounded-md border">
-                  <MoreHorizontal className="size-4" />
-                </span>
-              }
-            />
-          ) : null}
+          <EventMenu
+            post={post}
+            occurrence={occurrenceId}
+            menuButton={
+              <span className="border-input flex size-10 items-center justify-center rounded-md border">
+                <MoreHorizontal className="size-4" />
+              </span>
+            }
+          />
         </div>
       </div>
 

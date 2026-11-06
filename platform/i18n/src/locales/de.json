@@ -3111,11 +3111,13 @@
       "visibilityDescription": "Wählen Sie, wer Ihre Veranstaltung sehen und daran teilnehmen kann",
       "attendeeListPublic": "Teilnehmenden erlauben, andere Teilnehmende dieser Veranstaltung zu sehen",
       "jamModerators": "Jam-Moderatoren (optional).",
+      "coOrganizers": "Mitorganisatoren (optional).",
       "jamWaitingRoom": "Warteraum",
       "jamWaitingRoomDescription": "Nur genehmigte Benutzer können beitreten",
       "timezoneSearch": "Zeitzone suchen",
       "visibilityNotChangeable": "Hinweis: Die Sichtbarkeit der Veranstaltung kann nach der Veröffentlichung nicht mehr geändert werden. Stellen Sie sicher, dass Sie die richtigen Personen oder die richtige Gruppe hinzufügen.",
       "jamModeratorsDescription": "Klicken Sie, um Jam-Moderatoren auszuwählen",
+      "coOrganizersDescription": "Klicken Sie, um Mitorganisatoren auszuwählen",
       "externalEventUrlPlaceholder": "https://example.com/event",
       "locationPlaceholder": "Nach einem Ort suchen…",
       "maxAttendees": "Maximale Teilnehmerzahl",
@@ -3200,7 +3202,8 @@
       "attending": "Teilnahme",
       "tentative": "Vielleicht",
       "waitlisted": "Auf Warteliste",
-      "moderator": "Moderator"
+      "moderator": "Moderator",
+      "coOrganizer": "Mitorganisator"
     },
     "jam": {
       "start": "Jam starten",

@@ -38,14 +38,14 @@ export const EventMenu = ({ post, occurrence, menuButton }: EventMenuProps) => {
   const deleteEventRef = useRef<BottomSheetModal>(null);
   const deletePost = openpeepsApi.deletePostAction({ id: post.id });
   const {
-    isOwner,
+    isOrganizer,
     canDeletePost,
     thisOccurrence,
     duplicate,
     deleteThisOccurrence,
   } = useEventMenu(post, occurrence, () => navigation.goBack());
 
-  if (!isOwner) return null;
+  if (!isOrganizer) return null;
 
   const handleDelete = async () => {
     const res = await deletePost();

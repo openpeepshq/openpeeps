@@ -3034,11 +3034,13 @@
       "waitlistOfferMinutes": "Waitlist response window (minutes)",
       "waitlistOfferMinutesDescription": "How long the next person on the waitlist has to claim a freed spot. Leave empty for 60 minutes.",
       "jamModerators": "Jam moderators (optional).",
+      "coOrganizers": "Co-organizers (optional).",
       "jamWaitingRoom": "Waiting Room",
       "jamWaitingRoomDescription": "Only approved users can join",
       "timezoneSearch": "Search for a timezone",
       "visibilityNotChangeable": "Note:  The event visibility cannot be changed once the event is published.  Make sure you're adding the right people or group.",
       "jamModeratorsDescription": "Click to select Jam moderators",
+      "coOrganizersDescription": "Click to select co-organizers",
       "externalEventUrlPlaceholder": "https://example.com/event",
       "locationPlaceholder": "Search for a place…",
       "imageDescription": "Upload an image for your event",
@@ -3118,7 +3120,8 @@
       "attending": "Attending",
       "tentative": "Maybe Attending",
       "waitlisted": "Waitlisted",
-      "moderator": "Moderator"
+      "moderator": "Moderator",
+      "coOrganizer": "Co-organizer"
     },
     "jam": {
       "start": "Start Jam",

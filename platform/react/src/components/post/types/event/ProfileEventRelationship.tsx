@@ -21,6 +21,7 @@ export const ProfileEventRelationship = ({
   const event = post.data as Event;
   const myEvent = post.profile?.id === me?.id;
   const iAmModerator = !!event.moderators?.includes(me?.id ?? '');
+  const iAmCoOrganizer = !!event.coOrganizers?.includes(me?.id ?? '');
   const myRsvp = calculateEffectiveRsvps(post).find(
     (rsvp) => me?.id === rsvp.profile.id,
   );
@@ -30,6 +31,14 @@ export const ProfileEventRelationship = ({
       return {
         status: t('events.profileRelationship.owner', {
           defaultValue: 'Owner',
+        }),
+        variant: 'default',
+      };
+    }
+    if (iAmCoOrganizer) {
+      return {
+        status: t('events.profileRelationship.coOrganizer', {
+          defaultValue: 'Co-organizer',
         }),
         variant: 'default',
       };

@@ -119,6 +119,21 @@ export const useEventTypeSwitcher = ({
     });
   };
 
+  const coOrganizerProfiles = useMemo(() => {
+    const ids = event.coOrganizers ?? [];
+    const all = profilesQuery.data ?? [];
+    return ids
+      .map((id) => all.find((p) => p.id === id))
+      .filter((p): p is PublicProfile => Boolean(p));
+  }, [event.coOrganizers, profilesQuery.data]);
+
+  const setCoOrganizers = (profiles: PublicProfile[]) => {
+    onChange({
+      ...event,
+      coOrganizers: profiles.length > 0 ? profiles.map((p) => p.id) : undefined,
+    });
+  };
+
   const setWaitingRoom = (waitingRoom: boolean) => {
     if (!event.jam) return;
     onChange({ ...event, jam: { ...event.jam, waitingRoom } });
@@ -151,6 +166,8 @@ export const useEventTypeSwitcher = ({
     switchFormat,
     moderatorProfiles,
     setModerators,
+    coOrganizerProfiles,
+    setCoOrganizers,
     setWaitingRoom,
     setUrl,
     setPhysicalLocation,

@@ -83,6 +83,8 @@ export function EventTypeSwitcher({
     switchFormat,
     moderatorProfiles,
     setModerators,
+    coOrganizerProfiles,
+    setCoOrganizers,
     setWaitingRoom,
     setUrl,
     setPhysicalLocation,
@@ -183,6 +185,21 @@ export function EventTypeSwitcher({
           </label>
         </>
       ) : null}
+
+      <div className="space-y-2">
+        <Label>
+          {t('events.form.coOrganizers', {
+            defaultValue: 'Co-organizers (optional).',
+          })}
+        </Label>
+        <ProfilesInput
+          value={coOrganizerProfiles}
+          onChange={setCoOrganizers}
+          placeholder={t('events.form.coOrganizersDescription', {
+            defaultValue: 'Click to select co-organizers',
+          })}
+        />
+      </div>
     </div>
   );
 }

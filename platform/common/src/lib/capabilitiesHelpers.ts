@@ -207,6 +207,14 @@ export const getPostRelationships = (
     relationships.push('attendee');
   }
 
+  if (
+    profile &&
+    post.data?.type === 'event' &&
+    post.data.coOrganizers?.includes(profile.id)
+  ) {
+    relationships.push('collaborator');
+  }
+
   return relationships;
 };
 

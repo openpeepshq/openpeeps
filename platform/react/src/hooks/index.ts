@@ -94,7 +94,7 @@ export * from '../components/post/feed/events/eventCalendar';
 export { useCommunityInfoPages } from './community/useCommunityInfoPages';
 export { usePostThreads } from './posts/usePostThreads';
 export { usePostDetailTitle } from './posts/usePostDetailTitle';
-export { useEventMenu } from './events/useEventMenu';
+export { useEventMenu, useEventOrganizer } from './events/useEventMenu';
 export { postPublicPath, useShareMenu } from './posts/useShareMenu';
 export type { EventIcsFile } from './posts/useShareMenu';
 export { useNewEvent, useEditEvent } from './events/useEventComposer';

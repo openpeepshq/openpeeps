@@ -7,20 +7,28 @@ import {
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useNavigate } from '../../contexts/router';
 import { getNewPostStores } from '../../stores/newPosts';
-import {
-  useAuthData,
-  useCurrentProfile,
-} from '../../components/layout/IdentityContext';
+import { useAuthData } from '../../components/layout/IdentityContext';
 import { useCapabilities } from '../../components/server-data/context';
 
-/** Owner-only actions for an event; `onOccurrenceDeleted` runs after a single occurrence is cancelled. */
+/** True when the viewer may update the event post (organizer or co-organizer). */
+export const useEventOrganizer = (post: PublicPost) => {
+  const authData = useAuthData();
+  const capabilities = useCapabilities();
+  return useMemo(
+    () =>
+      checkPostCapabilities(authData, ['core-posts-update'], post, capabilities)
+        .success,
+    [authData, post, capabilities],
+  );
+};
+
+/** Organizer actions for an event; `onOccurrenceDeleted` runs after a single occurrence is cancelled. */
 export const useEventMenu = (
   post: PublicPost,
   occurrence: string | undefined,
   onOccurrenceDeleted: () => void,
 ) => {
   const navigate = useNavigate();
-  const me = useCurrentProfile();
   const authData = useAuthData();
   const capabilities = useCapabilities();
   const { openpeepsApi } = useOpenpeeps();
@@ -58,8 +66,10 @@ export const useEventMenu = (
     onOccurrenceDeleted();
   };
 
+  const isOrganizer = useEventOrganizer(post);
+
   return {
-    isOwner: me?.id === post.profile.id,
+    isOrganizer,
     canDeletePost,
     thisOccurrence,
     duplicate,
