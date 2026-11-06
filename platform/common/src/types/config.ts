@@ -402,6 +402,8 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       codeOfConduct: z.string().optional(),
       welcomeEmail: z.string().optional(),
       pinnedPost: z.string().optional(),
+      /** External bug report form; a "Report a bug" link is shown when set. */
+      bugReportUrl: z.string().optional(),
     }),
     settings: z.object({
       openRegistrations: z.boolean(),

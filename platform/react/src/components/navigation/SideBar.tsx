@@ -105,6 +105,18 @@ export function SideBar({ onClose, mainMenu, profileMenu }: SideBarProps = {}) {
         )}
       </div>
       <footer className="bg-background absolute bottom-3">
+        {serverInfo.communityConfig?.content?.bugReportUrl && (
+          <p className="ml-4 text-center">
+            <a
+              href={serverInfo.communityConfig.content.bugReportUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="op-anchor text-sm"
+            >
+              {t('navigation.reportBug', { defaultValue: 'Report a bug' })}
+            </a>
+          </p>
+        )}
         <p className="ml-4 text-center">{t('navigation.poweredBy')}</p>
       </footer>
     </div>

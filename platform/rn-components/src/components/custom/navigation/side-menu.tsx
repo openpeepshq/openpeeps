@@ -1,5 +1,11 @@
 import React from 'react';
-import { Platform, ScrollView, useColorScheme } from 'react-native';
+import {
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  useColorScheme,
+} from 'react-native';
 import { Separator } from '../../ui/separator';
 import { TouchableOpacity, View } from 'react-native';
 import { Button } from '../../ui/button';
@@ -145,6 +151,8 @@ export const SideMenu = ({
     showAdmin: false,
   });
 
+  const bugReportUrl = serverInfo?.communityConfig?.content?.bugReportUrl;
+
   const { t } = useTranslation();
 
   const [currentRoute, setCurrentRoute] = React.useState<string | undefined>(
@@ -259,7 +267,14 @@ export const SideMenu = ({
         </View>
 
         <Separator />
-        <View className="pl-6 pr-4 pt-4 pb-12">
+        <View className="gap-1 pl-6 pr-4 pt-4 pb-12">
+          {bugReportUrl && (
+            <Pressable onPress={() => void Linking.openURL(bugReportUrl)}>
+              <ThemedText className="text-foreground text-base tracking-wider">
+                {t('navigation.reportBug')}
+              </ThemedText>
+            </Pressable>
+          )}
           <ThemedText className="text-muted-foreground text-base tracking-wider">
             {t('navigation.poweredBy')}
           </ThemedText>
