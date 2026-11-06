@@ -29,6 +29,9 @@ export const EVENT_WEEKDAYS: RecurrenceWeekday[] = [
 export type RepeatFreq = RecurrenceFreq | 'none';
 export type RepeatEnd = 'never' | 'until' | 'count';
 
+const isEndBeforeStart = (start?: string, end?: string) =>
+  Boolean(start && end && new Date(end) <= new Date(start));
+
 /** Controlled-form state transitions for an event post; UI only renders. */
 export const useEventForm = (
   postData: PostCreationData,
@@ -39,6 +42,10 @@ export const useEventForm = (
   const eventTimeZone =
     event.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [showEndDate, setShowEndDate] = useState(event.end !== undefined);
+  // Seeded so events saved before the guard existed show the error on edit.
+  const [endBeforeStart, setEndBeforeStart] = useState(() =>
+    isEndBeforeStart(event.start, event.end),
+  );
 
   const patchEvent = (patch: Partial<Event>) => {
     let next: Event = { ...event, ...patch };
@@ -46,6 +53,25 @@ export const useEventForm = (
       next = withoutEventMaxAttendees(next);
     }
     onChange({ ...postData, data: next });
+  };
+
+  const changeStart = (start: string | undefined) => {
+    if (!start) return;
+    if (isEndBeforeStart(start, event.end)) {
+      setEndBeforeStart(true);
+      return;
+    }
+    setEndBeforeStart(false);
+    patchEvent({ start });
+  };
+
+  const changeEnd = (end: string | undefined) => {
+    if (isEndBeforeStart(event.start, end)) {
+      setEndBeforeStart(true);
+      return;
+    }
+    setEndBeforeStart(false);
+    patchEvent({ end });
   };
 
   const setEvent = (next: Event) => onChange({ ...postData, data: next });
@@ -176,6 +202,9 @@ export const useEventForm = (
     repeatFreq,
     repeatEnd,
     preview,
+    endBeforeStart,
+    changeStart,
+    changeEnd,
     patchEvent,
     setEvent,
     setAudience,
