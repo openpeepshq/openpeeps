@@ -8,6 +8,7 @@ import {
 } from '../../components/layout/IdentityContext';
 import { useCapabilities } from '../../components/server-data';
 import { useReplyOpener } from './replyOpener';
+import { usePostReactionToggle } from './usePostReactionToggle';
 
 /**
  * Non-DOM post footer actions (reply / repost / react) for FeedPost and RN.
@@ -19,11 +20,8 @@ export const useFeedPostActions = (post: PublicPost) => {
   const { openpeepsApi } = useOpenpeeps();
   const openReply = useReplyOpener();
   const repostsQuery = openpeepsApi.useCurrentProfileReposts();
+  const { iReacted, canReact, toggleReaction } = usePostReactionToggle(post);
 
-  const reactToPost = openpeepsApi.reactToPostAction({ id: post.id } as never);
-  const retractReaction = openpeepsApi.retractPostReactionAction({
-    id: post.id,
-  } as never);
   const repostPost = openpeepsApi.repostPostAction({ id: post.id } as never);
   const deletePost = openpeepsApi.deletePostAction({ id: post.id } as never);
 
@@ -36,12 +34,8 @@ export const useFeedPostActions = (post: PublicPost) => {
       )?.find((p) => p.repost?.id === post.id),
     [repostsQuery.data, post.id],
   );
-  const iReacted = useMemo(
-    () => !!post.reactions?.some((r) => r.profile.id === me?.id),
-    [post.reactions, me?.id],
-  );
 
-  const { canReply, canRepost, canReact } = useMemo(
+  const { canReply, canRepost } = useMemo(
     () => getPostActionAvailability(authData, post, capabilities),
     [authData, post, capabilities],
   );
@@ -62,21 +56,13 @@ export const useFeedPostActions = (post: PublicPost) => {
     await repostsQuery.refetch();
   };
 
-  const toggleReaction = async () => {
-    if (iReacted) {
-      await retractReaction(undefined);
-    } else if (canReact) {
-      await reactToPost({ reaction: '👍' });
-    }
-  };
-
   return {
     me,
     myRepost,
     iReacted,
     canReply,
     canRepost: canRepost || !!myRepost,
-    canReact: canReact || iReacted,
+    canReact,
     reply,
     toggleRepost,
     toggleReaction,

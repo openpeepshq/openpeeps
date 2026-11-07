@@ -83,6 +83,27 @@ const promoteToMemberViaEmail = async (
   expect(result.success).toBe(true);
 };
 
+const registerMember = async (
+  request: Parameters<typeof registerUser>[0],
+  prefix: string,
+) => {
+  const handle = uniqueHandle(prefix);
+  const email = `${handle}@openpeeps.test`;
+  const { token } = await registerUser(request, {
+    handle,
+    email,
+    password: 'testtest12',
+  });
+  await promoteToMemberViaEmail(request, token, email);
+  const profile = await currentProfile(request, token);
+  const publicResponse = await request.get(
+    `/api/openpeeps/core/v1/profiles/${profile.id}`,
+    { headers: apiHeaders(token) },
+  );
+  expect(publicResponse.ok()).toBeTruthy();
+  return { token, profile, body: await publicResponse.json() };
+};
+
 test.describe('user actions (API)', () => {
   test('login returns a usable session', async ({ request }) => {
     const { token } = await loginUser(request, owner.email, owner.password);
@@ -589,6 +610,115 @@ test.describe('user actions (API)', () => {
       { headers: apiHeaders(ownerToken) },
     );
     expect(conversations.ok()).toBeTruthy();
+  });
+
+  test('dm reactions require current participation', async ({ request }) => {
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const ownerProfile = await currentProfile(request, ownerToken);
+    const ownerPublic = await request.get(
+      `/api/openpeeps/core/v1/profiles/${ownerProfile.id}`,
+      { headers: apiHeaders(ownerToken) },
+    );
+    expect(ownerPublic.ok()).toBeTruthy();
+    const ownerBody = await ownerPublic.json();
+
+    const memberA = await registerMember(request, 'dmreacta');
+    const memberB = await registerMember(request, 'dmreactb');
+
+    const dm = await request.post('/api/openpeeps/core/v1/posts', {
+      headers: apiHeaders(ownerToken),
+      data: {
+        type: 'note',
+        visibility: 'direct',
+        audience: [ownerBody, memberA.body],
+        data: {
+          type: 'note',
+          content: `DM reactions ${memberA.profile.handle}`,
+        },
+      },
+    });
+    expect(dm.ok(), await dm.text()).toBeTruthy();
+    const root = (await dm.json()) as { id: string };
+
+    // A reply makes the thread's latest post distinct from the root, so the
+    // check keys on the newer post's audience.
+    const reply = await request.post(
+      `/api/openpeeps/core/v1/conversations/${root.id}/posts`,
+      {
+        headers: apiHeaders(memberA.token),
+        data: {
+          type: 'note',
+          visibility: 'direct',
+          audience: [ownerBody, memberA.body],
+          data: { type: 'note', content: 'Reply' },
+        },
+      },
+    );
+    expect(reply.ok(), await reply.text()).toBeTruthy();
+
+    // A participant can react; the reaction shows up in the conversation.
+    const react = await request.post(
+      `/api/openpeeps/core/v1/posts/${root.id}/react`,
+      {
+        headers: apiHeaders(memberA.token),
+        data: { reaction: '👍' },
+      },
+    );
+    expect(react.ok(), await react.text()).toBeTruthy();
+
+    const conversation = await request.get(
+      `/api/openpeeps/core/v1/conversations/${root.id}`,
+      { headers: apiHeaders(ownerToken) },
+    );
+    expect(conversation.ok(), await conversation.text()).toBeTruthy();
+    const messages = (await conversation.json()) as Array<{
+      id: string;
+      reactions?: Array<{ profile: { id: string } }>;
+    }>;
+    const rootMessage = messages.find((message) => message.id === root.id);
+    expect(
+      rootMessage?.reactions?.some(
+        (reaction) => reaction.profile.id === memberA.profile.id,
+      ),
+    ).toBe(true);
+
+    // A participant can retract.
+    const unreact = await request.delete(
+      `/api/openpeeps/core/v1/posts/${root.id}/react`,
+      { headers: apiHeaders(memberA.token) },
+    );
+    expect(unreact.ok(), await unreact.text()).toBeTruthy();
+
+    // A non-participant is rejected.
+    const outsider = await request.post(
+      `/api/openpeeps/core/v1/posts/${root.id}/react`,
+      {
+        headers: apiHeaders(memberB.token),
+        data: { reaction: '👍' },
+      },
+    );
+    expect(outsider.status()).toBe(403);
+
+    // A leaver is rejected, even though they stay in the old message's
+    // audience.
+    const leave = await request.delete(
+      `/api/openpeeps/core/v1/conversations/${root.id}/leave`,
+      { headers: apiHeaders(memberA.token) },
+    );
+    expect(leave.ok(), await leave.text()).toBeTruthy();
+
+    const leaverReact = await request.post(
+      `/api/openpeeps/core/v1/posts/${root.id}/react`,
+      {
+        headers: apiHeaders(memberA.token),
+        data: { reaction: '👍' },
+      },
+    );
+    expect(leaverReact.status()).toBe(403);
   });
 
   test('follow creates a notification for the target', async ({ request }) => {

@@ -52,10 +52,12 @@ import { CONTEXT_NODE_CAP, loadReplyContextPosts } from './contextClosure';
 import { withSpan } from '../performance';
 import { queryUnseenPostCounts } from './unseenCounts';
 import {
+  findLatestThreadPostId,
   getConversationThread,
   getOneToOneConversation,
   listOneToOneConversationPostIds,
 } from './conversationQueries';
+import { findReplyRootId } from './activity';
 import { fetchRowsByIds, hydrateMapData } from '../db/pg/map/relations';
 import { listEventAgenda } from './eventAgenda';
 
@@ -704,6 +706,25 @@ export const findLatestOneToOnePostId = async (
     profileBId!,
   );
   return ids[ids.length - 1] ?? post.id;
+};
+
+/**
+ * Newest post of the conversation containing `post`; its audience defines
+ * the current participants. Leavers stay in the audience of older posts but
+ * are excluded from this one. 1:1 conversations span all roots of the pair,
+ * group conversations stay within `post`'s thread.
+ */
+export const findLatestConversationPost = async (
+  post: PostWithMeta,
+  authData: AuthorizationData,
+): Promise<PostWithMeta | undefined> => {
+  const { db } = await allpeepDb();
+  const lastPostId = isOneToOneDm(post)
+    ? await findLatestOneToOnePostId(post)
+    : await findLatestThreadPostId(await findReplyRootId(db, post.id));
+  if (lastPostId === post.id) return post;
+  const [lastPost] = await findPostsForAuth([lastPostId], authData);
+  return lastPost;
 };
 
 /** Full ancestor/descendant trees for post detail (CTE + lean mapping). */

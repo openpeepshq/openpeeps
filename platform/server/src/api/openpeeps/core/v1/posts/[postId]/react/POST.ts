@@ -2,7 +2,11 @@ import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
-import { findPost, reactToPost } from '@openpeepshq/core/posts';
+import {
+  findPost,
+  findLatestConversationPost,
+  reactToPost,
+} from '@openpeepshq/core/posts';
 import { successResponseSchema } from '@openpeepshq/common/types';
 import { reactionDataSchema } from '@openpeepshq/common/types';
 import { isBlockedPair } from '@openpeepshq/common/lib';
@@ -39,6 +43,18 @@ export const apiEndpoint = endpoint({ Input, Param, Output, Error }).handle(
     }
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-react']);
+
+    // Leavers stay in the audience of older messages; only the audience of
+    // the latest conversation post defines current participants.
+    if (mergedPost.visibility === 'direct') {
+      const lastPost = await findLatestConversationPost(
+        mergedPost,
+        event.context.authData,
+      );
+      if (!lastPost?.audience?.some((p) => p.id === profile.id)) {
+        throw forbidden();
+      }
+    }
 
     await reactToPost(mergedPost, profile, reactionData).catch(
       rethrowIfOpenpeepsError,
