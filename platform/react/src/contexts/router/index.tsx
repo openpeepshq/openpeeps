@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -11,6 +12,15 @@ import type { Navigator, NavTarget } from '../../navigation';
 export interface RouterAdapter {
   pathname: string;
   searchParams: URLSearchParams;
+  /**
+   * Replace the query string, keeping the pathname and hash. `next` is the
+   * full new params or a function of the current ones; pass
+   * `{ replace: true }` to avoid adding a history entry.
+   */
+  setSearchParams: (
+    next: URLSearchParams | ((prev: URLSearchParams) => URLSearchParams),
+    opts?: { replace?: boolean },
+  ) => void;
   /** Navigate to an abstract target (preferred) or a raw path string. */
   navigate: (target: NavTarget | string) => void;
   hrefOf: (target: NavTarget) => string;
@@ -81,10 +91,39 @@ export function useBrowserRouter(navigator: Navigator): RouterAdapter {
     return () => window.removeEventListener('popstate', update);
   }, []);
 
+  const setSearchParams = useCallback<RouterAdapter['setSearchParams']>(
+    (next, opts) => {
+      if (typeof window === 'undefined') return;
+      const prev = new URLSearchParams(window.location.search);
+      const resolved = typeof next === 'function' ? next(prev) : next;
+      const query = resolved.toString();
+      const url = `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`;
+      // The URL bar is the source of truth here; skip no-op writes so the
+      // state (and any subscribers) only change when the query actually does.
+      if (
+        url ===
+        `${window.location.pathname}${window.location.search}${window.location.hash}`
+      ) {
+        return;
+      }
+      if (opts?.replace) {
+        window.history.replaceState(window.history.state, '', url);
+      } else {
+        window.history.pushState(window.history.state, '', url);
+      }
+      setState({
+        pathname: window.location.pathname,
+        searchParams: new URLSearchParams(window.location.search),
+      });
+    },
+    [],
+  );
+
   return useMemo<RouterAdapter>(
     () => ({
       pathname: state.pathname,
       searchParams: state.searchParams,
+      setSearchParams,
       hrefOf: navigator.hrefOf,
       match: navigator.match,
       navigate: (target) => {
@@ -102,6 +141,6 @@ export function useBrowserRouter(navigator: Navigator): RouterAdapter {
         history.back();
       },
     }),
-    [state, navigator],
+    [state, navigator, setSearchParams],
   );
 }

@@ -183,6 +183,15 @@ function ReactRouterAdapter({ children }: { children: ReactNode }) {
       searchParams,
       hrefOf: webNavigator.hrefOf,
       match: webNavigator.match,
+      setSearchParams: (next, opts) => {
+        const resolved = typeof next === 'function' ? next(searchParams) : next;
+        // Navigate with an explicit hash: a search-only navigation would
+        // drop the fragment, breaking hash-addressed tabs like #resources.
+        void navigate(
+          { search: resolved.toString(), hash: location.hash },
+          opts,
+        );
+      },
       navigate: (target) => {
         const url =
           typeof target === 'string' ? target : webNavigator.hrefOf(target);
@@ -192,7 +201,7 @@ function ReactRouterAdapter({ children }: { children: ReactNode }) {
         void navigate(-1);
       },
     }),
-    [location.pathname, searchParams, navigate],
+    [location.pathname, location.hash, searchParams, navigate],
   );
 
   return <RouterProvider adapter={adapter}>{children}</RouterProvider>;
