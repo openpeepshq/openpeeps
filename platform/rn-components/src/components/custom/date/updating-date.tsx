@@ -17,10 +17,20 @@ export const UpdatingDate = ({
   const [formattedDate, setFormattedDate] = React.useState(formatter(date));
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    // Tick when the displayed value can change: at the next minute
+    // boundary of the time since `date`, instead of polling every 60s.
+    const dateMs =
+      date instanceof Date ? date.getTime() : new Date(date).getTime();
+    setFormattedDate(formatter(date));
+    if (!Number.isFinite(dateMs)) return;
+    const msUntilNextMinute = () => 60_000 - ((Date.now() - dateMs) % 60_000);
+    let handle: ReturnType<typeof setTimeout> | undefined;
+    const tick = () => {
       setFormattedDate(formatter(date));
-    }, 60000);
-    return () => clearInterval(interval);
+      handle = setTimeout(tick, msUntilNextMinute());
+    };
+    handle = setTimeout(tick, msUntilNextMinute());
+    return () => clearTimeout(handle);
   }, [date, formatter]);
 
   return (
