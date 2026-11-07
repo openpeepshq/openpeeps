@@ -13,6 +13,27 @@ const isAbsoluteUrl = (url: string | null | undefined) => {
   return url.startsWith('http://') || url.startsWith('https://');
 };
 
+/**
+ * og:* tags carry the real page context; the raw `<title>` is often just
+ * the site name (e.g. Instagram), so prefer og:* with plain-meta fallbacks.
+ */
+export const extractPageMetadata = (doc: Document) => {
+  const ogTitle = doc
+    .querySelector('meta[property="og:title"]')
+    ?.getAttribute('content');
+  const title = ogTitle || doc.querySelector('title')?.textContent;
+  const ogDescription = doc
+    .querySelector('meta[property="og:description"]')
+    ?.getAttribute('content');
+  const description =
+    ogDescription ||
+    doc.querySelector('meta[name="description"]')?.getAttribute('content');
+  const image = doc
+    .querySelector('meta[property="og:image"]')
+    ?.getAttribute('content');
+  return { title, description, image };
+};
+
 const createPreviewImage = async (image: string | null | undefined) => {
   if (!isAbsoluteUrl(image)) {
     return '';
@@ -38,7 +59,8 @@ export const fetchUrlHandler = async (
 
   const pageUrl = request.url + event.url.search + event.url.hash;
 
-  const cacheKey = `url:metadata:${encodeURIComponent(pageUrl)}`;
+  // v2: metadata extraction changed (og:* preferred) — refresh stale entries.
+  const cacheKey = `url:metadata:v2:${encodeURIComponent(pageUrl)}`;
 
   const cachedData = await redis.get(cacheKey);
   if (cachedData) {
@@ -72,15 +94,11 @@ export const fetchUrlHandler = async (
   const dom = new JSDOM(data, { virtualConsole });
   const doc = dom.window.document;
 
-  const title = doc.querySelector('title')?.textContent;
-  const description = doc
-    .querySelector('meta[name="description"]')
-    ?.getAttribute('content');
-  const image = doc
-    .querySelector('meta[property="og:image"]')
-    ?.getAttribute('content');
+  const { title, description, image } = extractPageMetadata(doc);
 
-  const imageUrl = await createPreviewImage(image);
+  // A broken preview image must not kill the whole card — keep showing the
+  // title/description without an image.
+  const imageUrl = await createPreviewImage(image).catch(() => '');
 
   const responseData = {
     image: imageUrl,
