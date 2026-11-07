@@ -28,11 +28,29 @@ export const expandProfiles = (
   profiles: Profile[],
 ): Promise<ProfileWithMeta[]> => getProfiles(profiles.map((p) => p.id));
 
-export const roleAssigner = connector<Profile, Role>(
+const roleConnector = connector<Profile, Role>(
   collectionInfos.profilesCollection,
   collectionInfos.rolesCollection,
   collectionInfos.hasRoleCollection,
 );
+
+export const roleFinder = connectionFinder<Profile, Role>(
+  collectionInfos.profilesCollection,
+  collectionInfos.rolesCollection,
+  collectionInfos.hasRoleCollection,
+);
+
+// Idempotent: assigning a role the profile already holds must not create a
+// duplicate edge (signup, email validation and login all assign defaults).
+export const roleAssigner = async (
+  db: Parameters<typeof roleConnector>[0],
+  profile: Profile,
+  role: Role,
+) => {
+  const existing = await roleFinder(db, profile, role);
+  if (existing) return existing;
+  return roleConnector(db, profile, role);
+};
 
 export const roleUnassigner = disconnector<Profile, Role>(
   collectionInfos.profilesCollection,

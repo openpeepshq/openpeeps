@@ -37,7 +37,9 @@ export const hasSeen = edgeTable('has_seen');
 export const hasRead = edgeTable('has_read');
 export const userGroups = edgeTable('user_groups');
 export const postGroups = edgeTable('post_groups');
-export const hasRole = edgeTable('has_role');
+// A profile holds a role at most once; duplicates made role lists render
+// the same role repeatedly (#453).
+export const hasRole = edgeTable('has_role', true);
 export const profileAccessTokens = edgeTable('profile_access_tokens', true);
 export const accountToPushSubscription = edgeTable(
   'account_to_push_subscription',

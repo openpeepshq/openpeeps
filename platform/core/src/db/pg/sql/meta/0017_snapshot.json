@@ -1,6 +1,6 @@
 {
-  "id": "dfefc4cf-8580-4232-bcc9-fe7da89adb2e",
-  "prevId": "3d4c31b7-52a6-4d1b-8074-351a9d74dd4f",
+  "id": "cf3c93e7-d862-445f-b74b-6da4dfe23c66",
+  "prevId": "dfefc4cf-8580-4232-bcc9-fe7da89adb2e",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -2375,6 +2375,27 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "has_role_from_to_unique": {
+          "name": "has_role_from_to_unique",
+          "columns": [
+            {
+              "expression": "from_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "to_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
           "concurrently": false,
           "method": "btree",
           "with": {}
