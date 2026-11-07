@@ -295,6 +295,16 @@ const startServer = async () => {
         'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
         'Access-Control-Allow-Headers': 'Range, Accept, Content-Type',
       });
+      // `?download=1`: the `download` attribute on <a> is ignored for
+      // cross-origin URLs, so the disposition travels with the response
+      // instead and works same-origin and cross-origin alike.
+      if (req.query.download === '1') {
+        const safeName = filename.replace(/["\\\r\n]/g, '_');
+        res.set(
+          'Content-Disposition',
+          `attachment; filename="${safeName}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+        );
+      }
       res.send(buffer);
     } catch (err) {
       log.warn('storage: missing or unreadable id', {

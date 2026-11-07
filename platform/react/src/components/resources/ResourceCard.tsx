@@ -26,6 +26,7 @@ import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { VideoPlayOverlay } from '../post/VideoPlayOverlay';
 import { TruncatedMarkdown } from '../post/TruncatedMarkdown';
+import { asDownloadUrl } from '../../lib/downloadUrl';
 
 export interface ResourceCardProps {
   post: PublicPost;
@@ -272,10 +273,11 @@ export const ResourceCard = ({
 
   if (!resource) return null;
 
-  const downloadUrl =
+  const fileUrl =
     resource.resourceKind === 'file'
       ? attachments.find((att) => attachmentMediaKind(att) === 'file')?.url
-      : null;
+      : undefined;
+  const downloadUrl = fileUrl ? asDownloadUrl(fileUrl) : null;
 
   const renderSaveButton = (className: string) =>
     staticRender ? null : (
