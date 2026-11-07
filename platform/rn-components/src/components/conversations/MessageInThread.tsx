@@ -59,6 +59,14 @@ export const MessageInThread = ({
   // The author leaving their own conversation is shown via the "left" label
   // below, so exclude them from the "removedBy" avatars to avoid redundancy.
   const removedOthers = removed.filter((p) => p.id !== message.profile.id);
+  // A leave marker post: the author was in the previous post's audience but
+  // excludes themselves from this one. Only the "left" label is rendered for
+  // it (no message bubble); the view-ref moves to that label so the post is
+  // still marked seen.
+  const isLeave =
+    !!previous &&
+    inAudience(previous, message.profile) &&
+    !inAudience(message, message.profile);
   const name = profileName(message.profile);
   const isMe = message.profile.id === me?.id;
 
@@ -72,10 +80,8 @@ export const MessageInThread = ({
         </ThemedText>
       ) : null}
 
-      {previous &&
-      inAudience(previous, message.profile) &&
-      !inAudience(message, message.profile) ? (
-        <View className="flex-row items-center gap-2">
+      {isLeave ? (
+        <View ref={postViewRef} className="flex-row items-center gap-2">
           <ProfileAvatar
             profile={message.profile}
             className="size-10 border-0"
@@ -86,48 +92,52 @@ export const MessageInThread = ({
         </View>
       ) : null}
 
-      {previous && added.length > 0 ? (
-        <View className="flex-row items-center gap-2">
-          <AvatarRow profiles={added} />
-          <ThemedText>
-            {t('conversations.messageInThread.addedBy', { name })}
-          </ThemedText>
-        </View>
-      ) : null}
+      {!isLeave ? (
+        <>
+          {previous && added.length > 0 ? (
+            <View className="flex-row items-center gap-2">
+              <AvatarRow profiles={added} />
+              <ThemedText>
+                {t('conversations.messageInThread.addedBy', { name })}
+              </ThemedText>
+            </View>
+          ) : null}
 
-      {removedOthers.length > 0 ? (
-        <View className="flex-row items-center gap-2">
-          <AvatarRow profiles={removedOthers} />
-          <ThemedText>
-            {t('conversations.messageInThread.removedBy', { name })}
-          </ThemedText>
-        </View>
-      ) : null}
+          {removedOthers.length > 0 ? (
+            <View className="flex-row items-center gap-2">
+              <AvatarRow profiles={removedOthers} />
+              <ThemedText>
+                {t('conversations.messageInThread.removedBy', { name })}
+              </ThemedText>
+            </View>
+          ) : null}
 
-      <View ref={postViewRef} className="flex-row">
-        {!isMe && multipleParticipants ? (
-          <View className="mr-2 mt-6">
-            <ProfileAvatar
-              profile={message.profile}
-              className="size-10 border-0"
-            />
+          <View ref={postViewRef} className="flex-row">
+            {!isMe && multipleParticipants ? (
+              <View className="mr-2 mt-6">
+                <ProfileAvatar
+                  profile={message.profile}
+                  className="size-10 border-0"
+                />
+              </View>
+            ) : null}
+            <View className="min-w-0 flex-1">
+              <ConversationMessageBubble message={message} unread={isUnread} />
+            </View>
           </View>
-        ) : null}
-        <View className="min-w-0 flex-1">
-          <ConversationMessageBubble message={message} unread={isUnread} />
-        </View>
-      </View>
 
-      <View
-        className={`mt-2 w-full flex-row text-sm ${
-          isMe ? 'justify-end' : 'justify-start'
-        }`}
-      >
-        {multipleParticipants && !isMe ? (
-          <ThemedText className="text-sm">{name} · </ThemedText>
-        ) : null}
-        <UpdatingDate date={message.createdAt} />
-      </View>
+          <View
+            className={`mt-2 w-full flex-row text-sm ${
+              isMe ? 'justify-end' : 'justify-start'
+            }`}
+          >
+            {multipleParticipants && !isMe ? (
+              <ThemedText className="text-sm">{name} · </ThemedText>
+            ) : null}
+            <UpdatingDate date={message.createdAt} />
+          </View>
+        </>
+      ) : null}
     </View>
   );
 };

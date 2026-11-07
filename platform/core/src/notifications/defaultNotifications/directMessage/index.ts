@@ -17,6 +17,9 @@ const eventHandler = async (data: unknown) => {
   if (post.data?.type === 'event') return;
 
   if (post.visibility === 'direct' && post.audience) {
+    // A leave marker excludes its author from the audience; it is a system
+    // event, not a message, so it must not notify the remaining members.
+    if (!post.audience.some((p) => p.id === post.profile.id)) return;
     for (const recipientProfile of post.audience) {
       if (post.profile.id !== recipientProfile.id) {
         await maybeCreateNotification(recipientProfile, {
