@@ -3645,6 +3645,8 @@
       "resourceCount": "Showing {{count}} resources",
       "noResults": "No resources match your current filters.",
       "saved": "Saved",
+      "showFolderTree": "Show folder tree",
+      "hideFolderTree": "Hide folder tree",
       "showHiddenTags": "+ {{count}}",
       "hideTags": "Hide"
     },

@@ -154,6 +154,15 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
     : sortedTags.slice(0, COLLECTION_LIMIT);
   const hasMoreTags = sortedTags.length > COLLECTION_LIMIT;
 
+  const folderTreeLabel = t(
+    library.hierarchy
+      ? 'resources.library.hideFolderTree'
+      : 'resources.library.showFolderTree',
+    {
+      defaultValue: library.hierarchy ? 'Hide folder tree' : 'Show folder tree',
+    },
+  );
+
   return (
     <div>
       <div className="flex flex-col gap-3 p-4">
@@ -250,6 +259,8 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               type="button"
               className="text-muted-foreground hover:text-foreground ml-auto"
               onClick={() => library.setHierarchy(!library.hierarchy)}
+              title={folderTreeLabel}
+              aria-label={folderTreeLabel}
             >
               {library.hierarchy ? (
                 <ChevronDown className="size-4" />

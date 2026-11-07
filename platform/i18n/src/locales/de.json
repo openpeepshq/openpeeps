@@ -3727,6 +3727,8 @@
       "resourceCount": "{{count}} Ressourcen angezeigt",
       "noResults": "Keine Ressourcen für die aktuellen Filter.",
       "saved": "Gespeichert",
+      "showFolderTree": "Ordnerstruktur anzeigen",
+      "hideFolderTree": "Ordnerstruktur ausblenden",
       "showHiddenTags": "+ {{count}}",
       "hideTags": "Ausblenden",
       "saved": "Gespeichert"
