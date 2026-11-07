@@ -229,9 +229,15 @@ const postMutators = (client: OpenpeepsClient) => ({
   createPostAction: payloadMutation(client.posts.create, [['posts']]),
   updatePostAction: payloadMutation(client.posts.update, [['posts']]),
   deletePostAction: noPayloadMutation(client.posts.delete, [['posts']]),
-  reactToPostAction: payloadMutation(client.posts.react, [['posts']]),
+  // Reactions also happen on DM messages, which live under `conversations`
+  // query keys — `posts` alone would leave the open thread stale.
+  reactToPostAction: payloadMutation(client.posts.react, [
+    ['posts'],
+    ['conversations'],
+  ]),
   retractPostReactionAction: noPayloadMutation(client.posts.retractReaction, [
     ['posts'],
+    ['conversations'],
   ]),
   bookmarkPostAction: noPayloadMutation(client.posts.bookmark, [
     ['posts'],

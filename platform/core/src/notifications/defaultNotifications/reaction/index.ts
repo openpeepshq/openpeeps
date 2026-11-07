@@ -32,7 +32,9 @@ export default {
         },
       ],
     },
-    invalidateQueries: [PUSH_INVALIDATE.posts],
+    // Reactions also happen on DM messages, whose threads are cached under
+    // `conversations` keys — refetch them so the author's open thread updates.
+    invalidateQueries: [PUSH_INVALIDATE.posts, PUSH_INVALIDATE.conversations],
   }),
   eventHandler: async (...eventData) => {
     const [profile, post, data] = eventData as [
