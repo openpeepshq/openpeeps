@@ -11,6 +11,7 @@ import { Button } from '../../components/ui/button';
 import { ThemedText } from '../../components/ui/themed-text';
 import { Image } from 'react-native';
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { CompositeScreenProps } from '@react-navigation/native';
 
 type SuccessScreenProps = CompositeScreenProps<
@@ -23,6 +24,7 @@ export const Success: React.FC<SuccessScreenProps> = ({
   route,
 }) => {
   const { type } = route.params;
+  const { t } = useTranslation();
 
   const renderContent = () => {
     switch (type) {
@@ -37,19 +39,11 @@ export const Success: React.FC<SuccessScreenProps> = ({
                   resizeMode="cover"
                 />
                 <ThemedText className="text-xl text-center text-muted-foreground my-10">
-                  Account created successfully. To verify your email, click the
-                  button below to open your email app.
+                  {t('auth.register.success')}{' '}
+                  {t('auth.register.verificationReminder')}
                 </ThemedText>
               </View>
               <View className="w-full gap-7 flex items-center">
-                {/* TODO uncomment if email verification is implemented */}
-                {/* <Button
-                  onPress={() => navigate(ROOT_ROUTES.MAIN)}
-                  className="w-full py-4 rounded-lg">
-                  <ThemedText className="font-medium text-base">
-                    Open email app
-                  </ThemedText>
-                </Button> */}
                 <Button
                   variant={'secondary'}
                   onPress={() => {
@@ -63,7 +57,7 @@ export const Success: React.FC<SuccessScreenProps> = ({
                   className="w-full py-4 rounded-lg"
                 >
                   <ThemedText className="font-medium text-base">
-                    Welcome
+                    {t('auth.register.welcome')}
                   </ThemedText>
                 </Button>
               </View>
@@ -81,7 +75,7 @@ export const Success: React.FC<SuccessScreenProps> = ({
                 resizeMode="cover"
               />
               <ThemedText className="text-xl text-center  my-10">
-                Password reset done.
+                {t('auth.resetPassword.done')}
               </ThemedText>
             </View>
             <View className="w-full gap-7 flex items-center">
@@ -90,7 +84,7 @@ export const Success: React.FC<SuccessScreenProps> = ({
                 className="w-full py-4 rounded-lg"
               >
                 <ThemedText className="font-medium text-base">
-                  Go to login
+                  {t('auth.resetPassword.goToLogin')}
                 </ThemedText>
               </Button>
             </View>

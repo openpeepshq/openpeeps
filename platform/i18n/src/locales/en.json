@@ -28,6 +28,8 @@
       "error": "Registration failed",
       "loading": "Creating account…",
       "success": "Account created successfully",
+      "verificationReminder": "We've sent you a verification email. Check your inbox and click the link to verify your address.",
+      "welcome": "Welcome",
       "createAccount": "Create account",
       "inviteMessage": "You've been invited to join {{communityName}}, enter details below to be a part of the community.",
       "handle": "Handle",
@@ -60,7 +62,9 @@
       "heading": "Reset Password",
       "newPassword": "New Password",
       "confirmPassword": "Confirm Password",
-      "submitButton": "Submit"
+      "submitButton": "Submit",
+      "done": "Password reset done.",
+      "goToLogin": "Go to login"
     },
     "requestResetPassword": {
       "title": "Request Password Reset",

@@ -28,6 +28,8 @@
       "error": "Registrierung fehlgeschlagen",
       "loading": "Konto wird erstellt…",
       "success": "Konto erfolgreich erstellt",
+      "verificationReminder": "Wir haben Ihnen eine Bestätigungs-E-Mail gesendet. Öffnen Sie Ihren Posteingang und klicken Sie auf den Link, um Ihre E-Mail-Adresse zu bestätigen.",
+      "welcome": "Willkommen",
       "createAccount": "Konto erstellen",
       "inviteMessage": "Sie wurden eingeladen, {{communityName}} beizutreten. Geben Sie Ihre Daten ein, um Teil der Community zu werden.",
       "handle": "Benutzername",
@@ -60,7 +62,9 @@
       "heading": "Passwort zurücksetzen",
       "newPassword": "Neues Passwort",
       "confirmPassword": "Passwort bestätigen",
-      "submitButton": "Absenden"
+      "submitButton": "Absenden",
+      "done": "Passwort zurückgesetzt.",
+      "goToLogin": "Zur Anmeldung"
     },
     "requestResetPassword": {
       "title": "Passwort-Zurücksetzung anfordern",

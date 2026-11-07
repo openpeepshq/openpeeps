@@ -132,6 +132,15 @@ export function Welcome() {
         <Markdown source={welcomePage} />
       </div>
 
+      {!account?.emailValidated ? (
+        <div className="my-4">
+          {t('auth.register.verificationReminder', {
+            defaultValue:
+              "We've sent you a verification email. Check your inbox and click the link to verify your address.",
+          })}
+        </div>
+      ) : null}
+
       <div className="my-4 text-3xl font-bold">
         {t('welcome.completeSetup', { defaultValue: 'Complete account setup' })}
       </div>
