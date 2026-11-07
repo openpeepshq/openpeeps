@@ -28,6 +28,7 @@
       "error": "Registration failed",
       "loading": "Creating account…",
       "success": "Account created successfully",
+      "verificationReminder": "Account created successfully. We've sent you a verification email. Check your inbox and click the link to verify your address.",
       "createAccount": "Create account",
       "inviteMessage": "You've been invited to join {{communityName}}, enter details below to be a part of the community.",
       "handle": "Handle",
