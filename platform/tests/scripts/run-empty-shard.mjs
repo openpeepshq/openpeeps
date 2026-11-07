@@ -33,6 +33,7 @@ const shardGroups = [
   ],
   [
     'moderation/test.ts',
+    'roles/test.ts',
     'ui/group-visibility.test.ts',
     'ui/resource-creation.test.ts',
     'ui/resource-gallery-order.test.ts',
