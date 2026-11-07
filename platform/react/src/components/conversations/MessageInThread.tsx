@@ -1,5 +1,5 @@
-import type { PublicPost, PublicProfile } from '@openpeepshq/common/types';
-import { profileName } from '@openpeepshq/common';
+import type { PublicPost } from '@openpeepshq/common/types';
+import { isConversationLeavePost, profileName } from '@openpeepshq/common';
 import { useT } from '../../i18n';
 import { usePostViewRef } from '../../lib/postViewCounter';
 import { isUnreadPostForViewer } from '../../lib/postUnread';
@@ -7,9 +7,6 @@ import { UpdatingDate } from '@openpeepshq/react-ui';
 import { Avatar } from '../profile';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { ConversationMessageBubble } from './ConversationMessageBubble';
-
-const inAudience = (post: PublicPost, profile: PublicProfile) =>
-  !!post.audience?.some((p) => p.id === profile.id);
 
 const audienceDiff = (
   previous: PublicPost | undefined,
@@ -54,6 +51,11 @@ export function MessageInThread({
   // The author leaving their own conversation is shown via the "left" label
   // below, so exclude them from the "removedBy" avatars to avoid redundancy.
   const removedOthers = removed.filter((p) => p.id !== message.profile.id);
+  // A leave post (isConversationLeavePost) renders only the "left" label
+  // (no message bubble); the view-ref moves to that label so the post is
+  // still marked seen. It holds even when the leave is the first loaded
+  // post, so no comparison against the previous post is needed.
+  const isLeave = isConversationLeavePost(message);
   const name = profileName(message.profile);
   const isMe = message.profile.id === me?.id;
 
@@ -64,7 +66,7 @@ export function MessageInThread({
         highlighted ? 'bg-muted ring-ring rounded-md ring-2' : undefined
       }
     >
-      {!previous && (
+      {!previous && !isLeave && (
         <div className="mt-2 w-full text-center text-sm">
           {message.inReplyToId
             ? t('conversations.messageInThread.addedBy', { name })
@@ -72,58 +74,72 @@ export function MessageInThread({
         </div>
       )}
 
-      {previous &&
-        inAudience(previous, message.profile) &&
-        !inAudience(message, message.profile) && (
-          <div className="flex items-center gap-2">
-            <Avatar profile={message.profile} size={2.5} borderless navigate />
-            {t('conversations.messageInThread.left', { name })}
-          </div>
-        )}
-
-      {previous && added.length > 0 && (
-        <div className="flex items-center gap-2">
-          <div className="flex -space-x-2">
-            {added.map((p) => (
-              <Avatar key={p.id} profile={p} size={2.5} borderless navigate />
-            ))}
-          </div>
-          {t('conversations.messageInThread.addedBy', { name })}
-        </div>
+      {isLeave && (
+        <article ref={postViewRef} className="flex items-center gap-2">
+          <Avatar profile={message.profile} size={2.5} borderless navigate />
+          {t('conversations.messageInThread.left', { name })}
+        </article>
       )}
 
-      {removedOthers.length > 0 && (
-        <div className="flex items-center gap-2">
-          <div className="flex -space-x-2">
-            {removedOthers.map((p) => (
-              <Avatar key={p.id} profile={p} size={2.5} borderless navigate />
-            ))}
+      {!isLeave && (
+        <>
+          {previous && added.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex -space-x-2">
+                {added.map((p) => (
+                  <Avatar
+                    key={p.id}
+                    profile={p}
+                    size={2.5}
+                    borderless
+                    navigate
+                  />
+                ))}
+              </div>
+              {t('conversations.messageInThread.addedBy', { name })}
+            </div>
+          )}
+
+          {removedOthers.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex -space-x-2">
+                {removedOthers.map((p) => (
+                  <Avatar
+                    key={p.id}
+                    profile={p}
+                    size={2.5}
+                    borderless
+                    navigate
+                  />
+                ))}
+              </div>
+              {t('conversations.messageInThread.removedBy', { name })}
+            </div>
+          )}
+
+          <article ref={postViewRef} className="flex">
+            {!isMe && multipleParticipants && (
+              <Avatar
+                containerClassName="mt-6 mr-2"
+                profile={message.profile}
+                size={2.5}
+                borderless
+                navigate
+              />
+            )}
+            <div className="min-w-0 flex-1">
+              <ConversationMessageBubble message={message} unread={isUnread} />
+            </div>
+          </article>
+
+          <div
+            className={`mt-2 w-full text-sm ${isMe ? 'text-right' : 'text-left'}`}
+          >
+            {multipleParticipants && !isMe && <span>{name} &middot; </span>}
+            <UpdatingDate date={message.createdAt} />
           </div>
-          {t('conversations.messageInThread.removedBy', { name })}
-        </div>
+        </>
       )}
-
-      <article ref={postViewRef} className="flex">
-        {!isMe && multipleParticipants && (
-          <Avatar
-            containerClassName="mt-6 mr-2"
-            profile={message.profile}
-            size={2.5}
-            borderless
-            navigate
-          />
-        )}
-        <div className="min-w-0 flex-1">
-          <ConversationMessageBubble message={message} unread={isUnread} />
-        </div>
-      </article>
-
-      <div
-        className={`mt-2 w-full text-sm ${isMe ? 'text-right' : 'text-left'}`}
-      >
-        {multipleParticipants && !isMe && <span>{name} &middot; </span>}
-        <UpdatingDate date={message.createdAt} />
-      </div>
     </div>
   );
 }

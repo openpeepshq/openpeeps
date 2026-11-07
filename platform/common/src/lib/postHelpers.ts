@@ -855,6 +855,25 @@ export const isOneToOneDm = (
   },
 ): boolean => post.visibility === 'direct' && participantIds(post).size === 2;
 
+/**
+ * A direct-message leave is the reply that leaveConversation posts: it
+ * replies to the thread's newest post and leaves the leaver out of the
+ * audience, so the thread stops reaching them. Replies created through
+ * the conversations endpoint always keep their author in the audience
+ * (the endpoint rejects posters who are no longer in the newest post's
+ * audience), so a reply whose audience lacks its author is only ever a
+ * leave — while a root post whose author is missing from the audience is
+ * just a message. Deliberately marker-free: leave posts must stay plain
+ * notes so they remain valid ActivityPub direct messages.
+ */
+export const isConversationLeavePost = (
+  post: Pick<PublicPost, 'inReplyToId' | 'audience' | 'profile'>,
+): boolean => {
+  const authorId = post.profile?.id;
+  if (!post.inReplyToId || !authorId) return false;
+  return !post.audience?.some((p) => p.id === authorId);
+};
+
 export const isOneToOneWithBlocked = (
   post: Pick<PublicPost, 'visibility' | 'audience' | 'profile'> & {
     creatorId?: string;

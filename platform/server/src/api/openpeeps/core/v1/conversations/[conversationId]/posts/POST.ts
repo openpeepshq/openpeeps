@@ -16,7 +16,11 @@ import {
   findPostsForAuth,
 } from '@openpeepshq/core/posts';
 import { postCreationDataSchema } from '@openpeepshq/common/types';
-import { isOneToOneDm, isBlockedPair } from '@openpeepshq/common/lib';
+import {
+  isOneToOneDm,
+  isBlockedPair,
+  isConversationLeavePost,
+} from '@openpeepshq/common/lib';
 
 export const Input = postCreationDataSchema;
 export const Output = publicPostSchema;
@@ -59,13 +63,13 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
       throw forbidden();
     }
 
-    // Detect users who have left: the last post's author is not in that
-    // post's own audience. Block them from posting and exclude them from
-    // the inherited audience so future replies don't notify them.
+    // Detect users who have left: leaveConversation ends the thread with
+    // a reply that leaves the leaver out of the audience. Block the
+    // leaver and exclude them from the inherited audience so future
+    // replies don't notify them.
     const lastPostAuthorId = lastPost?.profile?.id;
     const lastPostAuthorLeft =
-      !!lastPostAuthorId &&
-      (lastPost.audience?.every((p) => p.id !== lastPostAuthorId) ?? false);
+      !!lastPostAuthorId && isConversationLeavePost(lastPost);
 
     if (lastPostAuthorLeft && lastPostAuthorId === profile.id) {
       throw forbidden();

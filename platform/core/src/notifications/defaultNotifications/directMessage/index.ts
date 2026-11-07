@@ -6,7 +6,11 @@ import {
   notificationAll,
 } from '@openpeepshq/common/types';
 import { maybeCreateNotification } from '@openpeepshq/core/notifications';
-import { getProfileAvatar, profileName } from '@openpeepshq/common/lib';
+import {
+  getProfileAvatar,
+  isConversationLeavePost,
+  profileName,
+} from '@openpeepshq/common/lib';
 import { getConversationByEnd } from '@openpeepshq/core/posts';
 import { communityConfig } from '../../../config';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
@@ -17,6 +21,9 @@ const eventHandler = async (data: unknown) => {
   if (post.data?.type === 'event') return;
 
   if (post.visibility === 'direct' && post.audience) {
+    // A leave post (isConversationLeavePost) is a system event, not a
+    // message, so it must not notify the remaining members.
+    if (isConversationLeavePost(post)) return;
     for (const recipientProfile of post.audience) {
       if (post.profile.id !== recipientProfile.id) {
         await maybeCreateNotification(recipientProfile, {

@@ -2,16 +2,13 @@ import React from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { PublicPost, PublicProfile } from '@openpeepshq/common/types';
-import { profileName } from '@openpeepshq/common';
+import { isConversationLeavePost, profileName } from '@openpeepshq/common';
 import { isUnreadPostForViewer, useCurrentProfile } from '@openpeepshq/react';
 import { UpdatingDate } from '../custom/date/updating-date';
 import { ProfileAvatar } from '../profile/Avatar';
 import { ThemedText } from '../ui/themed-text';
 import { usePostViewRef } from '../../hooks/use-post-view-ref';
 import { ConversationMessageBubble } from './ConversationMessageBubble';
-
-const inAudience = (post: PublicPost, profile: PublicProfile) =>
-  !!post.audience?.some((p) => p.id === profile.id);
 
 const audienceDiff = (
   previous: PublicPost | undefined,
@@ -59,12 +56,17 @@ export const MessageInThread = ({
   // The author leaving their own conversation is shown via the "left" label
   // below, so exclude them from the "removedBy" avatars to avoid redundancy.
   const removedOthers = removed.filter((p) => p.id !== message.profile.id);
+  // A leave post (isConversationLeavePost) renders only the "left" label
+  // (no message bubble); the view-ref moves to that label so the post is
+  // still marked seen. It holds even when the leave is the first loaded
+  // post, so no comparison against the previous post is needed.
+  const isLeave = isConversationLeavePost(message);
   const name = profileName(message.profile);
   const isMe = message.profile.id === me?.id;
 
   return (
     <View className={highlighted ? 'bg-muted rounded-md' : undefined}>
-      {!previous ? (
+      {!previous && !isLeave ? (
         <ThemedText className="mt-2 w-full text-center text-sm">
           {message.inReplyToId
             ? t('conversations.messageInThread.addedBy', { name })
@@ -72,10 +74,8 @@ export const MessageInThread = ({
         </ThemedText>
       ) : null}
 
-      {previous &&
-      inAudience(previous, message.profile) &&
-      !inAudience(message, message.profile) ? (
-        <View className="flex-row items-center gap-2">
+      {isLeave ? (
+        <View ref={postViewRef} className="flex-row items-center gap-2">
           <ProfileAvatar
             profile={message.profile}
             className="size-10 border-0"
@@ -86,48 +86,52 @@ export const MessageInThread = ({
         </View>
       ) : null}
 
-      {previous && added.length > 0 ? (
-        <View className="flex-row items-center gap-2">
-          <AvatarRow profiles={added} />
-          <ThemedText>
-            {t('conversations.messageInThread.addedBy', { name })}
-          </ThemedText>
-        </View>
-      ) : null}
+      {!isLeave ? (
+        <>
+          {previous && added.length > 0 ? (
+            <View className="flex-row items-center gap-2">
+              <AvatarRow profiles={added} />
+              <ThemedText>
+                {t('conversations.messageInThread.addedBy', { name })}
+              </ThemedText>
+            </View>
+          ) : null}
 
-      {removedOthers.length > 0 ? (
-        <View className="flex-row items-center gap-2">
-          <AvatarRow profiles={removedOthers} />
-          <ThemedText>
-            {t('conversations.messageInThread.removedBy', { name })}
-          </ThemedText>
-        </View>
-      ) : null}
+          {removedOthers.length > 0 ? (
+            <View className="flex-row items-center gap-2">
+              <AvatarRow profiles={removedOthers} />
+              <ThemedText>
+                {t('conversations.messageInThread.removedBy', { name })}
+              </ThemedText>
+            </View>
+          ) : null}
 
-      <View ref={postViewRef} className="flex-row">
-        {!isMe && multipleParticipants ? (
-          <View className="mr-2 mt-6">
-            <ProfileAvatar
-              profile={message.profile}
-              className="size-10 border-0"
-            />
+          <View ref={postViewRef} className="flex-row">
+            {!isMe && multipleParticipants ? (
+              <View className="mr-2 mt-6">
+                <ProfileAvatar
+                  profile={message.profile}
+                  className="size-10 border-0"
+                />
+              </View>
+            ) : null}
+            <View className="min-w-0 flex-1">
+              <ConversationMessageBubble message={message} unread={isUnread} />
+            </View>
           </View>
-        ) : null}
-        <View className="min-w-0 flex-1">
-          <ConversationMessageBubble message={message} unread={isUnread} />
-        </View>
-      </View>
 
-      <View
-        className={`mt-2 w-full flex-row text-sm ${
-          isMe ? 'justify-end' : 'justify-start'
-        }`}
-      >
-        {multipleParticipants && !isMe ? (
-          <ThemedText className="text-sm">{name} · </ThemedText>
-        ) : null}
-        <UpdatingDate date={message.createdAt} />
-      </View>
+          <View
+            className={`mt-2 w-full flex-row text-sm ${
+              isMe ? 'justify-end' : 'justify-start'
+            }`}
+          >
+            {multipleParticipants && !isMe ? (
+              <ThemedText className="text-sm">{name} · </ThemedText>
+            ) : null}
+            <UpdatingDate date={message.createdAt} />
+          </View>
+        </>
+      ) : null}
     </View>
   );
 };

@@ -777,11 +777,12 @@ const organizerPreviousResponse = (
  *   participants as audience. The leaving user is excluded so future
  *   replies (which inherit the audience) won't notify them, and the thread
  *   disappears from their inbox.
- * - MessageInThread detects the leave via the audience diff: the leaving
- *   user was in the previous post's audience but not in the left-post's.
- * - The conversation post-creation endpoint detects leavers (author not in
- *   their own post's audience) to block further posting and exclude them
- *   from future replies' audience.
+ * - The "left" post is recognized everywhere via isConversationLeavePost
+ *   (common): a reply that leaves the author out of the audience. Thread
+ *   and conversation-list renderers show the "left" label, the
+ *   directMessage notification handler skips it, and the conversation
+ *   post-creation endpoint uses it to block leavers and exclude them from
+ *   future replies' audience.
  * - A 1:1 conversation can span several roots, so each root's thread gets
  *   its own "left" post — otherwise the leaver's inbox would keep the
  *   threads whose newest post is still in their audience.

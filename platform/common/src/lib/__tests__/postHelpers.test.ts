@@ -32,6 +32,7 @@ import {
   isHiddenPost,
   isOneToOneWithBlocked,
   isOneToOneDm,
+  isConversationLeavePost,
   HIDDEN_AUTHOR_HANDLE,
 } from '../postHelpers';
 import { groupCapabilityTemplates } from '../groupHelpers';
@@ -1454,6 +1455,55 @@ describe('postHelpers', () => {
         visibility: 'public' as const,
       };
       expect(isOneToOneDm(publicPost)).toBe(false);
+    });
+  });
+
+  describe('isConversationLeavePost', () => {
+    it('detects a leave: a reply that leaves the author out of the audience', () => {
+      const leave = {
+        ...mockPost,
+        visibility: 'direct' as const,
+        inReplyToId: 'post0',
+        profile: { id: 'profile1' } as PublicProfile,
+        audience: [{ id: 'profile2' } as PublicProfile],
+      };
+      expect(isConversationLeavePost(leave)).toBe(true);
+    });
+
+    it('does not treat a root post outside its own audience as a leave', () => {
+      const root = {
+        ...mockPost,
+        visibility: 'direct' as const,
+        inReplyToId: null,
+        profile: { id: 'profile1' } as PublicProfile,
+        audience: [{ id: 'profile2' } as PublicProfile],
+      };
+      expect(isConversationLeavePost(root)).toBe(false);
+    });
+
+    it('does not treat a reply from a participant as a leave', () => {
+      const reply = {
+        ...mockPost,
+        visibility: 'direct' as const,
+        inReplyToId: 'post0',
+        profile: { id: 'profile1' } as PublicProfile,
+        audience: [
+          { id: 'profile1' } as PublicProfile,
+          { id: 'profile2' } as PublicProfile,
+        ],
+      };
+      expect(isConversationLeavePost(reply)).toBe(false);
+    });
+
+    it('treats a reply with no audience as a leave', () => {
+      const empty = {
+        ...mockPost,
+        visibility: 'direct' as const,
+        inReplyToId: 'post0',
+        profile: { id: 'profile1' } as PublicProfile,
+        audience: undefined,
+      };
+      expect(isConversationLeavePost(empty)).toBe(true);
     });
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/core",
-  "version": "0.4.10",
+  "version": "0.4.11",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "dependencies": {
