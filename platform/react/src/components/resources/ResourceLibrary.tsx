@@ -8,10 +8,13 @@ import {
 import type { ResourceKind } from '@openpeepshq/common/types';
 import { RESOURCE_KINDS } from '@openpeepshq/common/lib';
 import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useT } from '../../i18n';
-import { useHrefOf } from '../../contexts/router';
-import { useResourceLibrary } from '../../hooks';
+import { useHrefOf, useRouter, useSearchParams } from '../../contexts/router';
+import {
+  useResourceLibrary,
+  type ResourceLibraryInitialFilters,
+} from '../../hooks';
 import { ResourceCard } from './ResourceCard';
 import type { CategoryNode } from '@openpeepshq/common/lib';
 
@@ -20,6 +23,11 @@ export interface ResourceLibraryProps {
 }
 
 const COLLECTION_LIMIT = 5;
+
+const parseKindFilter = (value: string | null): ResourceKind | 'all' =>
+  value && (RESOURCE_KINDS as readonly string[]).includes(value)
+    ? (value as ResourceKind)
+    : 'all';
 
 const Tree = ({
   nodes,
@@ -95,7 +103,50 @@ const Tree = ({
 export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
   const t = useT();
   const hrefOf = useHrefOf();
-  const library = useResourceLibrary(groupId);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Read the URL once on mount: it seeds the filter state, after which the
+  // hook state is the source of truth and the URL a shareable mirror of it.
+  const initialFilters = useMemo<ResourceLibraryInitialFilters>(
+    () => ({
+      kind: parseKindFilter(searchParams.get('kind')),
+      tags: searchParams.get('tags')?.split(',').filter(Boolean),
+      search: searchParams.get('q') ?? undefined,
+    }),
+    [],
+  );
+  const library = useResourceLibrary(groupId, undefined, initialFilters);
+
+  // Keep a fresh view of the URL so the write-back below can skip no-ops.
+  const latestSearch = useRef(searchParams);
+  useEffect(() => {
+    latestSearch.current = searchParams;
+  });
+
+  // Shareable filters (?kind= &tags=a,b &q=): merged into the existing params
+  // so unrelated ones (e.g. ?category=) and the tab hash survive, written
+  // with replace so filter changes don't spam the history stack, and
+  // debounced so typing a search doesn't re-route on every keystroke.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const prev = latestSearch.current;
+      const next = new URLSearchParams(prev);
+      next.delete('kind');
+      next.delete('tags');
+      next.delete('q');
+      if (library.kind !== 'all') next.set('kind', library.kind);
+      if (library.selectedTags.length > 0) {
+        next.set('tags', library.selectedTags.join(','));
+      }
+      const q = library.search.trim();
+      if (q) next.set('q', q);
+      if (next.toString() === prev.toString()) return;
+      router.setSearchParams(next, { replace: true });
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [library.kind, library.selectedTags, library.search, router]);
+
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const toggleNode = (nodeKey: string) => {
