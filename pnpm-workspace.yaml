@@ -19,6 +19,9 @@ overrides:
   # mermaid pulls dompurify ^3.3.3 which resolved to vulnerable 3.4.15
   # (GHSA-cg2g-xh64-v4q7 + others). Force the patched 3.4.17 tree-wide.
   dompurify: "3.4.17"
+  # jsonpath pulls underscore 1.13.6, still vulnerable to GHSA-qpx9-hpmf-5gmw
+  # (<=1.13.7). Force the patched 1.13.8 tree-wide.
+  underscore: "1.13.8"
 
 allowBuilds:
   "@evilmartians/lefthook": true
