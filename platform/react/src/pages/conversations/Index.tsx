@@ -5,6 +5,8 @@ import type { PublicPost } from '@openpeepshq/common/types';
 import {
   canCreatePost,
   formatBadgeCount,
+  isLeavePost,
+  profileName,
   truncateText,
 } from '@openpeepshq/common';
 import {
@@ -89,6 +91,12 @@ function ChatPreview({
             <Calendar className="size-4" />
             {(lastMessage.data as { name?: string }).name}
           </>
+        ) : isLeavePost(lastMessage) ? (
+          <span>
+            {t('conversations.messageInThread.left', {
+              name: profileName(lastMessage.profile),
+            })}
+          </span>
         ) : (
           <PostMarkdown
             source={(lastMessage.data as { content?: string }).content || ''}

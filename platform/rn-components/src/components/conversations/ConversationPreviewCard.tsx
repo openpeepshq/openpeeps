@@ -4,6 +4,8 @@ import { UpdatingDate } from '../custom/date/updating-date';
 import { OpenpeepsMarkdown } from '../markdown/OpenpeepsMarkdown';
 import {
   formatBadgeCount,
+  isLeavePost,
+  profileName,
   truncateText,
   type PublicPost,
 } from '@openpeepshq/common';
@@ -118,6 +120,12 @@ export const ConversationPreviewCard = ({
                 <CalendarIcon size={16} className="text-muted-foreground" />
                 <Text>{(lastMessage.data as { name?: string }).name}</Text>
               </View>
+            ) : isLeavePost(lastMessage) ? (
+              <Text>
+                {t('conversations.messageInThread.left', {
+                  name: profileName(lastMessage.profile),
+                })}
+              </Text>
             ) : (
               <OpenpeepsMarkdown
                 source={lastMessage.data?.content || ''}

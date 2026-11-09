@@ -46,7 +46,7 @@ export function MessageInThread({
   const t = useT();
   const me = useCurrentProfile();
   const isUnread = isUnreadPostForViewer(message, me?.id);
-  const postViewRef = usePostViewRef(message.id, {
+  const postViewRef = usePostViewRef<HTMLDivElement>(message.id, {
     conversationRootId,
     adjustUnread: isUnread,
   });
@@ -56,6 +56,12 @@ export function MessageInThread({
   const removedOthers = removed.filter((p) => p.id !== message.profile.id);
   const name = profileName(message.profile);
   const isMe = message.profile.id === me?.id;
+  // The leave post IS the leave message: render only the "left" line, not a
+  // bubble. The view ref moves with it so the post still counts as seen.
+  const isLeave =
+    !!previous &&
+    inAudience(previous, message.profile) &&
+    !inAudience(message, message.profile);
 
   return (
     <div
@@ -72,14 +78,12 @@ export function MessageInThread({
         </div>
       )}
 
-      {previous &&
-        inAudience(previous, message.profile) &&
-        !inAudience(message, message.profile) && (
-          <div className="flex items-center gap-2">
-            <Avatar profile={message.profile} size={2.5} borderless navigate />
-            {t('conversations.messageInThread.left', { name })}
-          </div>
-        )}
+      {isLeave && (
+        <div ref={postViewRef} className="flex items-center gap-2">
+          <Avatar profile={message.profile} size={2.5} borderless navigate />
+          {t('conversations.messageInThread.left', { name })}
+        </div>
+      )}
 
       {previous && added.length > 0 && (
         <div className="flex items-center gap-2">
@@ -103,27 +107,31 @@ export function MessageInThread({
         </div>
       )}
 
-      <article ref={postViewRef} className="flex">
-        {!isMe && multipleParticipants && (
-          <Avatar
-            containerClassName="mt-6 mr-2"
-            profile={message.profile}
-            size={2.5}
-            borderless
-            navigate
-          />
-        )}
-        <div className="min-w-0 flex-1">
-          <ConversationMessageBubble message={message} unread={isUnread} />
-        </div>
-      </article>
+      {!isLeave && (
+        <article ref={postViewRef} className="flex">
+          {!isMe && multipleParticipants && (
+            <Avatar
+              containerClassName="mt-6 mr-2"
+              profile={message.profile}
+              size={2.5}
+              borderless
+              navigate
+            />
+          )}
+          <div className="min-w-0 flex-1">
+            <ConversationMessageBubble message={message} unread={isUnread} />
+          </div>
+        </article>
+      )}
 
-      <div
-        className={`mt-2 w-full text-sm ${isMe ? 'text-right' : 'text-left'}`}
-      >
-        {multipleParticipants && !isMe && <span>{name} &middot; </span>}
-        <UpdatingDate date={message.createdAt} />
-      </div>
+      {!isLeave && (
+        <div
+          className={`mt-2 w-full text-sm ${isMe ? 'text-right' : 'text-left'}`}
+        >
+          {multipleParticipants && !isMe && <span>{name} &middot; </span>}
+          <UpdatingDate date={message.createdAt} />
+        </div>
+      )}
     </div>
   );
 }

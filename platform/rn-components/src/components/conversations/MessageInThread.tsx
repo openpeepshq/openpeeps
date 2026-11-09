@@ -61,6 +61,12 @@ export const MessageInThread = ({
   const removedOthers = removed.filter((p) => p.id !== message.profile.id);
   const name = profileName(message.profile);
   const isMe = message.profile.id === me?.id;
+  // The leave post IS the leave message: render only the "left" line, not a
+  // bubble. The view ref moves with it so the post still counts as seen.
+  const isLeave =
+    !!previous &&
+    inAudience(previous, message.profile) &&
+    !inAudience(message, message.profile);
 
   return (
     <View className={highlighted ? 'bg-muted rounded-md' : undefined}>
@@ -72,10 +78,8 @@ export const MessageInThread = ({
         </ThemedText>
       ) : null}
 
-      {previous &&
-      inAudience(previous, message.profile) &&
-      !inAudience(message, message.profile) ? (
-        <View className="flex-row items-center gap-2">
+      {isLeave ? (
+        <View ref={postViewRef} className="flex-row items-center gap-2">
           <ProfileAvatar
             profile={message.profile}
             className="size-10 border-0"
@@ -104,30 +108,34 @@ export const MessageInThread = ({
         </View>
       ) : null}
 
-      <View ref={postViewRef} className="flex-row">
-        {!isMe && multipleParticipants ? (
-          <View className="mr-2 mt-6">
-            <ProfileAvatar
-              profile={message.profile}
-              className="size-10 border-0"
-            />
+      {!isLeave ? (
+        <View ref={postViewRef} className="flex-row">
+          {!isMe && multipleParticipants ? (
+            <View className="mr-2 mt-6">
+              <ProfileAvatar
+                profile={message.profile}
+                className="size-10 border-0"
+              />
+            </View>
+          ) : null}
+          <View className="min-w-0 flex-1">
+            <ConversationMessageBubble message={message} unread={isUnread} />
           </View>
-        ) : null}
-        <View className="min-w-0 flex-1">
-          <ConversationMessageBubble message={message} unread={isUnread} />
         </View>
-      </View>
+      ) : null}
 
-      <View
-        className={`mt-2 w-full flex-row text-sm ${
-          isMe ? 'justify-end' : 'justify-start'
-        }`}
-      >
-        {multipleParticipants && !isMe ? (
-          <ThemedText className="text-sm">{name} · </ThemedText>
-        ) : null}
-        <UpdatingDate date={message.createdAt} />
-      </View>
+      {!isLeave ? (
+        <View
+          className={`mt-2 w-full flex-row text-sm ${
+            isMe ? 'justify-end' : 'justify-start'
+          }`}
+        >
+          {multipleParticipants && !isMe ? (
+            <ThemedText className="text-sm">{name} · </ThemedText>
+          ) : null}
+          <UpdatingDate date={message.createdAt} />
+        </View>
+      ) : null}
     </View>
   );
 };

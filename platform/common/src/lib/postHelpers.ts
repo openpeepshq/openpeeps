@@ -898,3 +898,15 @@ export const conversationLabel = (
     .filter((profile) => profile.id !== viewerId)
     .map((profile) => profile.displayName || `@${profile.handle}`)
     .join(', ');
+
+/**
+ * Conversation-leave post: a reply in a direct conversation whose author
+ * excluded themselves from the audience. The composer always includes the
+ * author in the audience, so this combination is how the leave flow
+ * (leaveConversation) marks the thread.
+ */
+export const isLeavePost = (post: PublicPost): boolean =>
+  post.visibility === 'direct' &&
+  !!post.inReplyToId &&
+  !!post.audience &&
+  !post.audience.some((profile) => profile.id === post.profile.id);

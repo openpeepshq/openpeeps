@@ -32,6 +32,7 @@ import {
   isHiddenPost,
   isOneToOneWithBlocked,
   isOneToOneDm,
+  isLeavePost,
   HIDDEN_AUTHOR_HANDLE,
 } from '../postHelpers';
 import { groupCapabilityTemplates } from '../groupHelpers';
@@ -1455,5 +1456,46 @@ describe('postHelpers', () => {
       };
       expect(isOneToOneDm(publicPost)).toBe(false);
     });
+  });
+});
+
+describe('isLeavePost', () => {
+  const base = {
+    id: 'post1',
+    profile: { id: 'profile1' } as PublicProfile,
+    visibility: 'direct' as const,
+    inReplyToId: 'root1',
+    audience: [{ id: 'profile1' } as PublicProfile],
+  } as unknown as PublicPost;
+
+  it('returns true for a direct reply whose author excluded themselves', () => {
+    expect(
+      isLeavePost({
+        ...base,
+        audience: [{ id: 'profile2' } as PublicProfile],
+      }),
+    ).toBe(true);
+  });
+
+  it('returns false when the author is still in the audience', () => {
+    expect(isLeavePost(base)).toBe(false);
+  });
+
+  it('returns false for non-direct, non-reply or audience-less posts', () => {
+    expect(
+      isLeavePost({
+        ...base,
+        visibility: 'public' as const,
+        audience: [{ id: 'profile2' } as PublicProfile],
+      }),
+    ).toBe(false);
+    expect(
+      isLeavePost({
+        ...base,
+        inReplyToId: null,
+        audience: [{ id: 'profile2' } as PublicProfile],
+      }),
+    ).toBe(false);
+    expect(isLeavePost({ ...base, audience: null })).toBe(false);
   });
 });
