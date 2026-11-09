@@ -84,6 +84,7 @@ export type { UseGroupTemplateSelectionArgs } from './groups/useGroupTemplateSel
 export { useNewArticle, useEditArticle } from './posts/useArticleComposer';
 export { useNewResource, useEditResource } from './posts/useResourceComposer';
 export { useResourceLibrary } from './resources/useResourceLibrary';
+export type { ResourceLibraryUrlState } from './resources/useResourceLibrary';
 export {
   useEventsCalendar,
   eventName as calendarEventName,

@@ -3725,10 +3725,15 @@
       "viewList": "Liste",
       "viewCards": "Karten",
       "resourceCount": "{{count}} Ressourcen angezeigt",
+      "resourceCount_one": "{{count}} Ressource angezeigt",
       "noResults": "Keine Ressourcen für die aktuellen Filter.",
       "saved": "Gespeichert",
       "showHiddenTags": "+ {{count}}",
       "hideTags": "Ausblenden",
+      "showFolders": "Ordner anzeigen",
+      "hideFolders": "Ordner ausblenden",
+      "expandFolder": "Ordner aufklappen",
+      "collapseFolder": "Ordner zuklappen",
       "saved": "Gespeichert"
     },
     "actions": {

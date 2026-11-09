@@ -11,7 +11,7 @@ import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
 import { useMemo, useState } from 'react';
 import { useT } from '../../i18n';
 import { useHrefOf } from '../../contexts/router';
-import { useResourceLibrary } from '../../hooks';
+import { useResourceLibrary, type ResourceLibraryUrlState } from '../../hooks';
 import { ResourceCard } from './ResourceCard';
 import type { CategoryNode } from '@openpeepshq/common/lib';
 
@@ -28,6 +28,7 @@ const Tree = ({
   counts,
   expanded,
   onToggle,
+  t,
 }: {
   nodes: CategoryNode[];
   selected: string[];
@@ -35,6 +36,7 @@ const Tree = ({
   counts: Map<string, number>;
   expanded: Set<string>;
   onToggle: (nodeKey: string) => void;
+  t: ReturnType<typeof useT>;
 }) => (
   <ul className="space-y-1">
     {nodes.map((node) => {
@@ -52,6 +54,15 @@ const Tree = ({
                 hasChildren ? '' : 'invisible'
               }`}
               onClick={hasChildren ? () => onToggle(nodeKey) : undefined}
+              aria-label={
+                isExpanded
+                  ? t('resources.library.collapseFolder', {
+                      defaultValue: 'Collapse folder',
+                    })
+                  : t('resources.library.expandFolder', {
+                      defaultValue: 'Expand folder',
+                    })
+              }
             >
               <ChevronRight
                 className={`size-3 transition-transform ${
@@ -83,6 +94,7 @@ const Tree = ({
                 counts={counts}
                 expanded={expanded}
                 onToggle={onToggle}
+                t={t}
               />
             </div>
           ) : null}
@@ -95,7 +107,30 @@ const Tree = ({
 export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
   const t = useT();
   const hrefOf = useHrefOf();
-  const library = useResourceLibrary(groupId);
+  // Filters are persisted in the query string (replaceState, so filter
+  // clicks don't pollute the history) so a reload or a shared link keeps
+  // the filtered view.
+  const urlState: ResourceLibraryUrlState = {
+    get: (name) =>
+      typeof window === 'undefined'
+        ? null
+        : new URLSearchParams(window.location.search).get(name),
+    set: (name, value) => {
+      if (typeof window === 'undefined') return;
+      const next = new URLSearchParams(window.location.search);
+      if (value === null) next.delete(name);
+      else next.set(name, value);
+      const query = next.toString();
+      window.history.replaceState(
+        null,
+        '',
+        `${window.location.pathname}${query ? `?${query}` : ''}${
+          window.location.hash
+        }`,
+      );
+    },
+  };
+  const library = useResourceLibrary(groupId, undefined, urlState);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const toggleNode = (nodeKey: string) => {
@@ -250,6 +285,24 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               type="button"
               className="text-muted-foreground hover:text-foreground ml-auto"
               onClick={() => library.setHierarchy(!library.hierarchy)}
+              title={
+                library.hierarchy
+                  ? t('resources.library.hideFolders', {
+                      defaultValue: 'Hide folders',
+                    })
+                  : t('resources.library.showFolders', {
+                      defaultValue: 'Show folders',
+                    })
+              }
+              aria-label={
+                library.hierarchy
+                  ? t('resources.library.hideFolders', {
+                      defaultValue: 'Hide folders',
+                    })
+                  : t('resources.library.showFolders', {
+                      defaultValue: 'Show folders',
+                    })
+              }
             >
               {library.hierarchy ? (
                 <ChevronDown className="size-4" />
@@ -268,6 +321,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
                   counts={collectionCounts}
                   expanded={expanded}
                   onToggle={toggleNode}
+                  t={t}
                 />
               ) : null}
             </div>

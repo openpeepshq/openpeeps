@@ -3643,10 +3643,15 @@
       "viewList": "List",
       "viewCards": "Cards",
       "resourceCount": "Showing {{count}} resources",
+      "resourceCount_one": "Showing {{count}} resource",
       "noResults": "No resources match your current filters.",
       "saved": "Saved",
       "showHiddenTags": "+ {{count}}",
-      "hideTags": "Hide"
+      "hideTags": "Hide",
+      "showFolders": "Show folders",
+      "hideFolders": "Hide folders",
+      "expandFolder": "Expand folder",
+      "collapseFolder": "Collapse folder"
     },
     "actions": {
       "watch": "Watch",

@@ -33,6 +33,7 @@ const Tree = ({
   counts,
   expanded,
   onToggle,
+  t,
 }: {
   nodes: CategoryNode[];
   selected: string[];
@@ -40,6 +41,7 @@ const Tree = ({
   counts: Map<string, number>;
   expanded: Set<string>;
   onToggle: (nodeKey: string) => void;
+  t: ReturnType<typeof useTranslation>['t'];
 }) => (
   <View className="gap-y-1">
     {nodes.map((node) => {
@@ -54,6 +56,15 @@ const Tree = ({
             <Pressable
               onPress={hasChildren ? () => onToggle(nodeKey) : undefined}
               className={hasChildren ? '' : 'invisible'}
+              accessibilityLabel={
+                isExpanded
+                  ? t('resources.library.collapseFolder', {
+                      defaultValue: 'Collapse folder',
+                    })
+                  : t('resources.library.expandFolder', {
+                      defaultValue: 'Expand folder',
+                    })
+              }
             >
               <ChevronRightIcon
                 size={16}
@@ -86,6 +97,7 @@ const Tree = ({
                 counts={counts}
                 expanded={expanded}
                 onToggle={onToggle}
+                t={t}
               />
             </View>
           ) : null}
@@ -266,6 +278,15 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
             <Pressable
               onPress={() => library.setHierarchy(!library.hierarchy)}
               className="ml-auto"
+              accessibilityLabel={
+                library.hierarchy
+                  ? t('resources.library.hideFolders', {
+                      defaultValue: 'Hide folders',
+                    })
+                  : t('resources.library.showFolders', {
+                      defaultValue: 'Show folders',
+                    })
+              }
             >
               {library.hierarchy ? (
                 <ChevronDownIcon size={20} className="text-muted-foreground" />
@@ -283,6 +304,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
                 counts={collectionCounts}
                 expanded={expanded}
                 onToggle={toggleNode}
+                t={t}
               />
             </View>
           ) : null}

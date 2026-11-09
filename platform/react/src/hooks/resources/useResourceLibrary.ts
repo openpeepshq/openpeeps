@@ -4,11 +4,29 @@ import {
   categoryTreeFromPaths,
   normalizeResourceTags,
   pathStartsWith,
+  RESOURCE_KINDS,
 } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useFeedListParams } from '../useResolvedFeedFormat';
 
-export const useResourceLibrary = (groupId?: string, ungrouped?: boolean) => {
+/** Query params the web pages use to persist library filters in the URL. */
+export type ResourceLibraryFilterParam = 'kind' | 'tags' | 'path';
+
+export type ResourceLibraryUrlState = {
+  get: (name: ResourceLibraryFilterParam) => string | null;
+  set: (name: ResourceLibraryFilterParam, value: string | null) => void;
+};
+
+const parseKind = (value: string | null): ResourceKind | 'all' =>
+  value && (RESOURCE_KINDS as readonly string[]).includes(value)
+    ? (value as ResourceKind)
+    : 'all';
+
+export const useResourceLibrary = (
+  groupId?: string,
+  ungrouped?: boolean,
+  url?: ResourceLibraryUrlState,
+) => {
   const { openpeepsApi } = useOpenpeeps();
   const params = useFeedListParams({ format: 'linear' });
   const query = openpeepsApi.usePostsByType('resource', {
@@ -22,9 +40,15 @@ export const useResourceLibrary = (groupId?: string, ungrouped?: boolean) => {
   const bookmarkedIds = openpeepsApi.useCurrentProfileBookmarkedIds();
 
   const [search, setSearch] = useState('');
-  const [kind, setKind] = useState<ResourceKind | 'all'>('all');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [pathPrefix, setPathPrefix] = useState<string[]>([]);
+  const [kind, setKindState] = useState<ResourceKind | 'all'>(() =>
+    parseKind(url?.get('kind') ?? null),
+  );
+  const [selectedTags, setSelectedTagsState] = useState<string[]>(
+    () => url?.get('tags')?.split(',').filter(Boolean) ?? [],
+  );
+  const [pathPrefix, setPathPrefixState] = useState<string[]>(
+    () => url?.get('path')?.split('/').filter(Boolean) ?? [],
+  );
   const [hierarchy, setHierarchy] = useState(false);
   const [view, setView] = useState<'list' | 'cards'>('cards');
   const [saved, setSaved] = useState(false);
@@ -66,10 +90,27 @@ export const useResourceLibrary = (groupId?: string, ungrouped?: boolean) => {
     [posts],
   );
 
-  const toggleTag = (tag: string) =>
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
-    );
+  const setKind = (value: ResourceKind | 'all') => {
+    setKindState(value);
+    url?.set('kind', value === 'all' ? null : value);
+  };
+
+  const setSelectedTags = (tags: string[]) => {
+    setSelectedTagsState(tags);
+    url?.set('tags', tags.length ? tags.join(',') : null);
+  };
+
+  const setPathPrefix = (path: string[]) => {
+    setPathPrefixState(path);
+    url?.set('path', path.length ? path.join('/') : null);
+  };
+
+  const toggleTag = (tag: string) => {
+    const next = selectedTags.includes(tag)
+      ? selectedTags.filter((t) => t !== tag)
+      : [...selectedTags, tag];
+    setSelectedTags(next);
+  };
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
