@@ -19,6 +19,13 @@ overrides:
   # mermaid pulls dompurify ^3.3.3 which resolved to vulnerable 3.4.15
   # (GHSA-cg2g-xh64-v4q7 + others). Force the patched 3.4.17 tree-wide.
   dompurify: "3.4.17"
+  # undici is pulled in by @sentry/cli (6.25.0), @digitalbazaar/http-client
+  # (6.29.1), apns2 (7.10.0) and @fedify/vocab-runtime (7.30.1). The 6.x lines
+  # are end-of-life; 7.30.1 still carries CVE-2025-7783 (HTTP/2 Rapid Reset,
+  # fixed in 7.30.2). Force 7.30.2 tree-wide. This crosses the 6.x->7.x major
+  # boundary for the two 6.x consumers (declared ^6.22.0 / ^6.28.0); undici's
+  # public fetch API is stable across the major, so the risk is low.
+  undici: "7.30.2"
 
 allowBuilds:
   "@evilmartians/lefthook": true

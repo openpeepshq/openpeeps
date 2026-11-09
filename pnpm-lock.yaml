@@ -12,6 +12,7 @@ overrides:
   react-dom: 19.2.6
   sharp: 0.33.5
   dompurify: 3.4.17
+  undici: 7.30.2
 
 importers:
 
@@ -14917,20 +14918,8 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
-  undici@6.25.0:
-    resolution: {integrity: sha512-ZgpWDC5gmNiuY9CnLVXEH8rl50xhRCuLNA97fAUnKi8RRuV4E6KG31pDTsLVUKnohJE0I3XDrTeEydAXRw47xg==}
-    engines: {node: '>=18.17'}
-
-  undici@6.29.1:
-    resolution: {integrity: sha512-EvRlUt/QqAEvXdQeRMYUfwOQsfzpDztykrG2owGEE/rBOBoYv9uF39ZzsNDh4lTFHhTr2XOZjKkYgueD12ZmGA==}
-    engines: {node: '>=18.17'}
-
-  undici@7.10.0:
-    resolution: {integrity: sha512-u5otvFBOBZvmdjWLVW+5DAc9Nkq8f24g0O9oY7qw2JVIF1VocIFoyz9JFkuVOS2j41AufeO0xnlweJ2RLT8nGw==}
-    engines: {node: '>=20.18.1'}
-
-  undici@7.30.1:
-    resolution: {integrity: sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg==}
+  undici@7.30.2:
+    resolution: {integrity: sha512-mLyPQnHwUxaM/rideoK/+KL8DaAJLRl4aBCfmX444aCSLnIaomqPLtNRe2jdCYcsk5wZzXrDIQC8ZeYNRAYyIA==}
     engines: {node: '>=20.18.1'}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
@@ -17384,7 +17373,7 @@ snapshots:
   '@digitalbazaar/http-client@4.4.0':
     dependencies:
       ky: 1.14.3
-      undici: 6.29.1
+      undici: 7.30.2
 
   '@drizzle-team/brocli@0.10.2': {}
 
@@ -17933,7 +17922,7 @@ snapshots:
       byte-encodings: 1.0.11
       jsonld: 9.0.0
       pkijs: 3.4.3
-      undici: 7.30.1
+      undici: 7.30.2
 
   '@fedify/vocab-tools@2.4.5':
     dependencies:
@@ -21529,7 +21518,7 @@ snapshots:
     dependencies:
       progress: 2.0.3
       proxy-from-env: 1.1.0
-      undici: 6.25.0
+      undici: 7.30.2
       which: 2.0.2
     optionalDependencies:
       '@sentry/cli-darwin': 3.3.5
@@ -21545,7 +21534,7 @@ snapshots:
     dependencies:
       progress: 2.0.3
       proxy-from-env: 1.1.0
-      undici: 6.25.0
+      undici: 7.30.2
       which: 2.0.2
     optionalDependencies:
       '@sentry/cli-darwin': 3.4.0
@@ -22720,7 +22709,7 @@ snapshots:
   apns2@12.2.0:
     dependencies:
       fast-jwt: 6.0.2
-      undici: 7.10.0
+      undici: 7.30.2
 
   appdirsjs@1.2.7: {}
 
@@ -30432,13 +30421,7 @@ snapshots:
 
   undici-types@7.16.0: {}
 
-  undici@6.25.0: {}
-
-  undici@6.29.1: {}
-
-  undici@7.10.0: {}
-
-  undici@7.30.1: {}
+  undici@7.30.2: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
