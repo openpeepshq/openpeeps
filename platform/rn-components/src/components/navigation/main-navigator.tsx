@@ -61,6 +61,11 @@ const Stack = createNativeStackNavigator<MainStackParamList>();
 // so each tab needs its own PageChromeProvider.
 const NO_ROOT_LAYOUT = new Set(['TabNavigator', 'VideoPlayer']);
 
+// Threads keep the content header (back, title, actions) but drop the app
+// banner — avatar, branding, messages shortcut — so the message list can use
+// that height.
+const NO_APP_HEADER = new Set(['Conversation']);
+
 // Routes rendered full-screen with no shell at all, mirroring the web app's
 // standalone routes declared outside the sidebar RootLayout: the jam room
 // (/events/:eventId/jam, which also hosts the lobby and the guest form) and the
@@ -112,7 +117,9 @@ export const MainNavigator = () => {
         const body = NO_ROOT_LAYOUT.has(route.name) ? (
           children
         ) : (
-          <RootLayout>{children}</RootLayout>
+          <RootLayout hideAppHeader={NO_APP_HEADER.has(route.name)}>
+            {children}
+          </RootLayout>
         );
         return <Wrapper>{body}</Wrapper>;
       }}
