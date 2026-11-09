@@ -19,6 +19,10 @@ overrides:
   # mermaid pulls dompurify ^3.3.3 which resolved to vulnerable 3.4.15
   # (GHSA-cg2g-xh64-v4q7 + others). Force the patched 3.4.17 tree-wide.
   dompurify: "3.4.17"
+  # apns2 (platform/core) pulls fast-jwt 6.0.2 with 3 critical JWT-auth
+  # bypasses (GHSA-mvf2 / GHSA-rp9m / GHSA-gmvf) + 7 more. Force patched 6.3.6
+  # tree-wide; apns2 allows ^6.0.1 so the override stays inside its range.
+  fast-jwt: "6.3.6"
 
 allowBuilds:
   "@evilmartians/lefthook": true
