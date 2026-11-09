@@ -2909,6 +2909,7 @@
     },
     "imageInput": {
       "maxSize": "Max size: {{size}}",
+      "cropError": "Couldn't process the image. Please try again.",
       "uploadText": "Upload Image",
       "uploadTitle": "Upload Image",
       "replace": "Replace image",

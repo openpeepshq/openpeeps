@@ -41,18 +41,15 @@ const imageFile = (name: string) =>
   new File([new Uint8Array(16)], name, { type: 'image/png' });
 
 const Harness = ({
-  multipleImages,
   multipleAudio,
   onChange,
 }: {
-  multipleImages?: boolean;
   multipleAudio?: boolean;
   onChange: (attachments: MediaAttachmentData[]) => void;
 }) => {
   const api = useComposeAttachments({
     attachments: [],
     onChange,
-    multipleImages,
     multipleAudio,
   });
   return createElement('div', null, api.previews, api.inputs);
@@ -74,7 +71,6 @@ describe('useComposeAttachments pickers', () => {
   let root: Root | undefined;
 
   const render = (props: {
-    multipleImages?: boolean;
     multipleAudio?: boolean;
   }): { onChange: ReturnType<typeof vi.fn> } => {
     const onChange = vi.fn();
@@ -141,26 +137,15 @@ describe('useComposeAttachments pickers', () => {
     vi.unstubAllGlobals();
   });
 
-  it('marks the image input multiple only when requested', () => {
-    render({ multipleImages: true, multipleAudio: false });
+  it('keeps the image picker single-file so every pick gets the crop dialog', () => {
+    render({ multipleAudio: false });
     const { image, audio } = inputs();
-    expect(image.multiple).toBe(true);
+    expect(image.multiple).toBe(false);
     expect(audio.multiple).toBe(false);
   });
 
-  it('enqueues each file of a bulk pick without the crop modal', async () => {
-    const { onChange } = render({ multipleImages: true, multipleAudio: false });
-    await pickFiles(container, [imageFile('one.png'), imageFile('two.png')]);
-    expect(uploadMock).toHaveBeenCalledTimes(2);
-    const ready: MediaAttachmentData[] = onChange.mock.calls.at(-1)?.[0] ?? [];
-    expect(ready).toHaveLength(2);
-    const urls = ready.map((attachment) => attachment.url);
-    expect(new Set(urls).size).toBe(2);
-    expect(container.querySelector('[data-testid="crop-modal"]')).toBeNull();
-  });
-
-  it('keeps the crop modal for a single image pick', async () => {
-    render({ multipleImages: true, multipleAudio: false });
+  it('routes a single image pick through the crop modal', async () => {
+    render({ multipleAudio: false });
     await pickFiles(container, [imageFile('one.png')]);
     expect(
       container.querySelector('[data-testid="crop-modal"]'),
@@ -168,10 +153,12 @@ describe('useComposeAttachments pickers', () => {
     expect(uploadMock).not.toHaveBeenCalled();
   });
 
-  it('stays single-file by default for post composers', () => {
-    render({});
-    const { image, audio } = inputs();
-    expect(image.multiple).toBe(false);
-    expect(audio.multiple).toBe(true);
+  it('ignores extra files from a multi-select and crops the first', async () => {
+    render({ multipleAudio: false });
+    await pickFiles(container, [imageFile('one.png'), imageFile('two.png')]);
+    expect(
+      container.querySelector('[data-testid="crop-modal"]'),
+    ).not.toBeNull();
+    expect(uploadMock).not.toHaveBeenCalled();
   });
 });

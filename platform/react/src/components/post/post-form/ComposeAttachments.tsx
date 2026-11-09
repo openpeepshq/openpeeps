@@ -10,8 +10,6 @@ import { isBlobUrl, revokeBlobUrl } from '../attachmentPreview';
 export interface ComposeAttachmentsProps {
   attachments: MediaAttachmentData[];
   onChange: (attachments: MediaAttachmentData[]) => void;
-  /** Image picker may select several files at once (resource galleries). */
-  multipleImages?: boolean;
   /** Audio picker may select several files at once (default: yes). */
   multipleAudio?: boolean;
 }
@@ -63,7 +61,6 @@ export interface ComposeAttachmentsApi {
 export function useComposeAttachments({
   attachments,
   onChange,
-  multipleImages = false,
   multipleAudio = true,
 }: ComposeAttachmentsProps): ComposeAttachmentsApi {
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -134,20 +131,6 @@ export function useComposeAttachments({
       return;
     }
     enqueueFile(processed);
-  };
-
-  // A single pick keeps the crop/alt-text flow; a bulk pick is enqueued
-  // directly, since per-file cropping isn't practical for a gallery batch.
-  const handleImageFilesSelected = async (files: File[]) => {
-    const first = files[0];
-    if (!first) return;
-    if (files.length === 1) {
-      await handleImageSelected(first);
-      return;
-    }
-    for (const file of files) {
-      enqueueFile(await convertToWebpIfHeic(file));
-    }
   };
 
   const onUploaded = (key: string, attachment: MediaAttachment) =>
@@ -224,11 +207,12 @@ export function useComposeAttachments({
         ref={imageInputRef}
         type="file"
         accept="image/*,video/*,.mkv"
-        multiple={multipleImages}
         className="hidden"
         onChange={(e) => {
-          const files = e.target.files;
-          if (files?.length) void handleImageFilesSelected(Array.from(files));
+          // Single pick only, so the crop/alt-text dialog can be shown for
+          // every image (see #1789).
+          const file = e.target.files?.[0];
+          if (file) void handleImageSelected(file);
           e.target.value = '';
         }}
       />

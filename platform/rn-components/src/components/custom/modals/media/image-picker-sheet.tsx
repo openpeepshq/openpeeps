@@ -104,30 +104,31 @@ export const ImagePickerSheet = forwardRef<
       return;
     }
 
+    // Single pick (parity with web, #1789) so the cropper can be shown for
+    // every image, including gallery resources.
     const result = await launchImageLibrary({
       mediaType: 'photo',
-      selectionLimit: 0,
+      selectionLimit: 1,
       quality: 1,
     });
     if (result.didCancel || !result.assets?.length) {
       return;
     }
-    const uris = result.assets
-      .map((asset) => asset.uri)
-      .filter((uri): uri is string => Boolean(uri));
-    if (uris.length === 1) {
-      try {
-        const cropped = await cropImage(uris[0]);
-        await finalize([cropped.path]);
-      } catch (error) {
-        if (isPickerCancelled(error)) {
-          return;
-        }
-        await finalize(uris);
-      }
+    const uri = result.assets[0]?.uri;
+    if (!uri) {
       return;
     }
-    await finalize(uris);
+    try {
+      const cropped = await cropImage(uri);
+      await finalize([cropped.path]);
+    } catch (error) {
+      if (isPickerCancelled(error)) {
+        return;
+      }
+      // Never bypass the cropper with an uncropped fallback upload.
+      console.error('Image crop failed:', error);
+      Toast.show({ type: 'error', text1: t('form.imageInput.cropError') });
+    }
   };
 
   const handleCamera = async () => {
@@ -159,7 +160,9 @@ export const ImagePickerSheet = forwardRef<
         if (isPickerCancelled(error)) {
           return;
         }
-        await finalize([uri]);
+        // Never bypass the cropper with an uncropped fallback upload.
+        console.error('Image crop failed:', error);
+        Toast.show({ type: 'error', text1: t('form.imageInput.cropError') });
       }
     } catch (error) {
       if (!isPickerCancelled(error)) {
