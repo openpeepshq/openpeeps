@@ -14,6 +14,7 @@ import {
   sleep,
   deepSet,
   deepGet,
+  deepEqual,
   hasValue,
   kebabToCamelCase,
   formatTimeStamp,
@@ -375,6 +376,53 @@ describe('utils', () => {
     it('should return default avatar when group is null', () => {
       const result = getGroupAvatar(null, mockConfig);
       expect(result).toBe('dark-group.png');
+    });
+  });
+
+  describe('deepEqual', () => {
+    it('should return true for identical primitives and references', () => {
+      expect(deepEqual(1, 1)).toBe(true);
+      expect(deepEqual('a', 'a')).toBe(true);
+      expect(deepEqual(null, null)).toBe(true);
+      const same = { a: 1 };
+      expect(deepEqual(same, same)).toBe(true);
+    });
+
+    it('should return false for different primitives', () => {
+      expect(deepEqual(1, 2)).toBe(false);
+      expect(deepEqual(1, '1')).toBe(false);
+      expect(deepEqual(null, undefined)).toBe(false);
+    });
+
+    it('should compare nested objects by value', () => {
+      expect(
+        deepEqual(
+          { notifications: { mention: { create: true, email: false } } },
+          { notifications: { mention: { email: false, create: true } } },
+        ),
+      ).toBe(true);
+      expect(
+        deepEqual(
+          { notifications: { mention: { create: true } } },
+          { notifications: { mention: { create: false } } },
+        ),
+      ).toBe(false);
+    });
+
+    it('should treat missing keys as different from set keys', () => {
+      expect(deepEqual({ a: 1 }, {})).toBe(false);
+      expect(deepEqual({}, { a: 1 })).toBe(false);
+    });
+
+    it('should compare arrays element by element, in order', () => {
+      expect(deepEqual([1, 2], [1, 2])).toBe(true);
+      expect(deepEqual([1, 2], [2, 1])).toBe(false);
+      expect(deepEqual([1, 2], [1, 2, 3])).toBe(false);
+      expect(deepEqual([{ a: 1 }], [{ a: 1 }])).toBe(true);
+    });
+
+    it('should not treat arrays as equal to objects', () => {
+      expect(deepEqual([1], { 0: 1 })).toBe(false);
     });
   });
 });

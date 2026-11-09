@@ -234,6 +234,7 @@ export function NotificationPreferences() {
     saving,
     status,
     clearStatus,
+    dirty,
   } = useNotificationPreferences({
     ensurePush: vapidKey
       ? async () => {
@@ -282,19 +283,44 @@ export function NotificationPreferences() {
         </Toast>
       ) : null}
 
-      <div className="pt-3">
-        <Button
-          variant="default"
-          className="w-full"
-          action={save}
-          disabled={saving}
-          data-testid="settings-save-button"
+      {dirty ? (
+        // Sticky so the save control stays reachable when the form is
+        // longer than the viewport (the "where do I save this?" gap).
+        <div
+          data-testid="settings-unsaved-bar"
+          className="border-border bg-surface sticky bottom-0 z-10 mt-4 flex items-center justify-between gap-4 rounded-t-lg border-t p-3 shadow-lg"
         >
-          {saving
-            ? t('common.submitting', { defaultValue: 'Submitting…' })
-            : t('common.submit', { defaultValue: 'Submit' })}
-        </Button>
-      </div>
+          <p className="text-sm font-medium">
+            {t('settings.notifications.unsavedChanges', {
+              defaultValue: 'You have unsaved changes.',
+            })}
+          </p>
+          <Button
+            variant="default"
+            action={save}
+            disabled={saving}
+            data-testid="settings-save-button"
+          >
+            {saving
+              ? t('common.submitting', { defaultValue: 'Submitting…' })
+              : t('common.submit', { defaultValue: 'Submit' })}
+          </Button>
+        </div>
+      ) : (
+        <div className="pt-3">
+          <Button
+            variant="default"
+            className="w-full"
+            action={save}
+            disabled={saving}
+            data-testid="settings-save-button"
+          >
+            {saving
+              ? t('common.submitting', { defaultValue: 'Submitting…' })
+              : t('common.submit', { defaultValue: 'Submit' })}
+          </Button>
+        </div>
+      )}
     </section>
   );
 }

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
+  deepEqual,
   deepSet,
   type ProfileNotificationSettings,
   type ProfileSettings,
@@ -39,6 +40,15 @@ export const useNotificationPreferences = ({
   useEffect(() => {
     if (settingsQuery.data) setSettings(settingsQuery.data);
   }, [settingsQuery.data]);
+
+  // Unsaved local edits. Clears once the post-save refetch lands the
+  // server copy; stays set when a save fails.
+  const dirty = useMemo(
+    () =>
+      !!settingsQuery.data &&
+      !deepEqual(settings.notifications, settingsQuery.data.notifications),
+    [settings, settingsQuery.data],
+  );
 
   const setTypeSettings = (type: string, next: ProfileNotificationSettings) => {
     setSettings((current) => {
@@ -93,6 +103,7 @@ export const useNotificationPreferences = ({
     me,
     types: notificationTypesQuery.data ?? [],
     settings,
+    dirty,
     setTypeSettings,
     save,
     saving,
