@@ -5,6 +5,7 @@ import {
   MicOff,
   Search,
   UserRoundCheck,
+  UserRoundX,
   WifiOff,
   X,
 } from 'lucide-react';
@@ -75,8 +76,8 @@ function JamParticipantRow({
 
 /**
  * In-room participants list with mic / raised-hand / moderator indicators, plus
- * a moderator-only waiting-room admit section. Mirrors the Svelte
- * `PeopleDrawer` (which folds in `JamWaitingCard`).
+ * a moderator-only waiting-room section with admit and reject. Mirrors the
+ * Svelte `PeopleDrawer` (which folds in `JamWaitingCard`).
  */
 export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   const t = useT();
@@ -92,7 +93,9 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
     listedParticipants,
     waitingProfiles,
     admittingId,
+    rejectingId,
     admit,
+    reject,
   } = useJamPeople({ room, participants });
 
   if (!open) return null;
@@ -174,17 +177,40 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
                       {profileName(profile)}
                     </span>
                   </div>
-                  <Button
-                    variant="outline"
-                    compact
-                    action={() => admit(profile)}
-                    disabled={admittingId === profile.id}
-                    title={t('jams.waitingRoom.admitParticipant', {
-                      defaultValue: 'Admit',
-                    })}
-                  >
-                    <UserRoundCheck className="size-4" />
-                  </Button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button
+                      variant="outline"
+                      compact
+                      action={() => admit(profile)}
+                      disabled={
+                        admittingId === profile.id || rejectingId === profile.id
+                      }
+                      title={t('jams.waitingRoom.admitParticipant', {
+                        defaultValue: 'Admit',
+                      })}
+                    >
+                      <UserRoundCheck className="size-4" />
+                      {t('jams.waitingRoom.admitParticipant', {
+                        defaultValue: 'Admit',
+                      })}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      compact
+                      action={() => reject(profile)}
+                      disabled={
+                        admittingId === profile.id || rejectingId === profile.id
+                      }
+                      title={t('jams.waitingRoom.rejectParticipant', {
+                        defaultValue: 'Reject',
+                      })}
+                    >
+                      <UserRoundX className="size-4" />
+                      {t('jams.waitingRoom.rejectParticipant', {
+                        defaultValue: 'Reject',
+                      })}
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

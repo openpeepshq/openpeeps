@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
 import type { RequestEvent } from '@riddl/core';
-import { jamTokenResponseSchema } from '@openpeepshq/common/types';
+import { jamWaitingRoomJoinEventSchema } from '@openpeepshq/common/types';
 import { config } from '@openpeepshq/core/config';
 import {
   admittanceWatch,
@@ -13,7 +13,7 @@ import {
 import { produceStream } from '#lib/sse';
 import { ensureProfileOrGuest } from '#lib/auth';
 import { jamFromEvent, parseOccurrenceQuery } from '@openpeepshq/common/lib';
-export const Stream = jamTokenResponseSchema;
+export const Stream = jamWaitingRoomJoinEventSchema;
 export const Param = z.object({
   eventId: z.string(),
 });
@@ -86,6 +86,10 @@ export const apiEndpoint = endpoint({ Param, Query, Stream, Error }).handle(
             stop();
           },
           recurrenceId,
+          () => {
+            emit({ denied: true });
+            stop();
+          },
         ),
     });
   },

@@ -10,32 +10,46 @@ export interface JamRequestJoinProps {
 
 function JamWaitingRoomListener({
   onJoin,
+  onDenied,
 }: {
   onJoin: JamRequestJoinProps['onJoin'];
+  onDenied: () => void;
 }) {
-  useJoinWaitingRoomToken(onJoin);
+  useJoinWaitingRoomToken(onJoin, onDenied);
   return null;
 }
 
 export function JamRequestJoin({ onJoin }: JamRequestJoinProps) {
   const t = useT();
-  const [requested, setRequested] = useState(false);
+  const [phase, setPhase] = useState<'idle' | 'waiting' | 'denied'>('idle');
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 p-4">
-      {requested ? (
+      {phase === 'waiting' ? (
         <>
-          <JamWaitingRoomListener onJoin={onJoin} />
+          <JamWaitingRoomListener
+            onJoin={onJoin}
+            onDenied={() => setPhase('denied')}
+          />
           <p className="text-muted-foreground text-center text-sm">
             {t('jams.join.waitingForModerator', {
-              defaultValue: 'Waiting for a moderator to admit you…',
+              defaultValue: 'Waiting for a moderator to let you in',
             })}
           </p>
         </>
       ) : (
-        <Button variant="default" action={() => setRequested(true)}>
-          {t('jams.join.requestToJoin', { defaultValue: 'Request to join' })}
-        </Button>
+        <>
+          {phase === 'denied' ? (
+            <p className="text-muted-foreground text-center text-sm">
+              {t('jams.join.rejected', {
+                defaultValue: 'The host declined your request to join.',
+              })}
+            </p>
+          ) : null}
+          <Button variant="default" action={() => setPhase('waiting')}>
+            {t('jams.join.requestToJoin', { defaultValue: 'Request to join' })}
+          </Button>
+        </>
       )}
     </div>
   );

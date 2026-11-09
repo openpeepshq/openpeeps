@@ -578,6 +578,14 @@ export const jamTokenResponseSchema = tokenResponseSchema.extend({
 });
 export type JamTokenResponse = z.infer<typeof jamTokenResponseSchema>;
 
+export const jamWaitingRoomJoinEventSchema = z.union([
+  jamTokenResponseSchema,
+  z.object({ denied: z.literal(true) }),
+]);
+export type JamWaitingRoomJoinEvent = z.infer<
+  typeof jamWaitingRoomJoinEventSchema
+>;
+
 export interface Credentials {
   token: string;
 }

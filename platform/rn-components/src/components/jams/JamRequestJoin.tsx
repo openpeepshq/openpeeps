@@ -14,32 +14,44 @@ export interface JamRequestJoinProps {
 
 const JamWaitingRoomListener = ({
   onJoin,
+  onDenied,
 }: {
   onJoin: JamRequestJoinProps['onJoin'];
+  onDenied: () => void;
 }) => {
-  useJoinWaitingRoomToken(onJoin);
+  useJoinWaitingRoomToken(onJoin, onDenied);
   return null;
 };
 
 export const JamRequestJoin = ({ onJoin }: JamRequestJoinProps) => {
   const { t } = useTranslation();
-  const [requested, setRequested] = useState(false);
+  const [phase, setPhase] = useState<'idle' | 'waiting' | 'denied'>('idle');
 
   return (
     <View className="w-full flex-1 items-center justify-center gap-4 p-4">
-      {requested ? (
+      {phase === 'waiting' ? (
         <>
-          <JamWaitingRoomListener onJoin={onJoin} />
+          <JamWaitingRoomListener
+            onJoin={onJoin}
+            onDenied={() => setPhase('denied')}
+          />
           <ThemedText className="text-center text-sm text-muted-foreground">
             {t('jams.join.waitingForModerator')}
           </ThemedText>
         </>
       ) : (
-        <Button onPress={() => setRequested(true)}>
-          <ThemedText className="text-primary-foreground">
-            {t('jams.join.requestToJoin')}
-          </ThemedText>
-        </Button>
+        <>
+          {phase === 'denied' ? (
+            <ThemedText className="text-center text-sm text-muted-foreground">
+              {t('jams.join.rejected')}
+            </ThemedText>
+          ) : null}
+          <Button onPress={() => setPhase('waiting')}>
+            <ThemedText className="text-primary-foreground">
+              {t('jams.join.requestToJoin')}
+            </ThemedText>
+          </Button>
+        </>
       )}
     </View>
   );

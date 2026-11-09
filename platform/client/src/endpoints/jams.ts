@@ -4,6 +4,7 @@ import type {
   JamEvent,
   JamState,
   JamTokenResponse,
+  JamWaitingRoomJoinEvent,
   PublicPost,
   MuteParticipantRequest,
   PublicProfile,
@@ -53,15 +54,21 @@ export const jams = (
         { id: string },
         OccurrenceQuery
       >('/jams/:id/waiting-room'),
-      join: eventSource<JamTokenResponse, { id: string }, OccurrenceQuery>(
-        '/jams/:id/waiting-room',
-        'post',
-      ),
+      join: eventSource<
+        JamWaitingRoomJoinEvent,
+        { id: string },
+        OccurrenceQuery
+      >('/jams/:id/waiting-room', 'post'),
       admit: allpeepNoPayloadEndpoint<
         SuccessResponse,
         { id: string; profileId: string },
         OccurrenceQuery
       >(rawClient, '/jams/:id/waiting-room/:profileId/admit', 'post'),
+      reject: allpeepNoPayloadEndpoint<
+        SuccessResponse,
+        { id: string; profileId: string },
+        OccurrenceQuery
+      >(rawClient, '/jams/:id/waiting-room/:profileId/reject', 'post'),
     },
     events: {
       list: allpeepNoPayloadEndpoint<

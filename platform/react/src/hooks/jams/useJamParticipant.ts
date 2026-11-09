@@ -49,9 +49,10 @@ export const useJamParticipantMute = ({
   };
 };
 
-/** Joins automatically once a moderator admits us from the waiting room. */
+/** Joins once a moderator admits us, or reports a rejection. */
 export const useJoinWaitingRoomToken = (
   onJoin: (params: JamJoinParams) => void,
+  onDenied?: () => void,
 ) => {
   const { jamPost, occurrence } = useJamContext();
   const { openpeepsApi } = useOpenpeeps();
@@ -61,12 +62,15 @@ export const useJoinWaitingRoomToken = (
   );
 
   useEffect(() => {
-    if (tokenResponse?.token && tokenResponse.livekitUrl) {
-      onJoin({
-        token: tokenResponse.token,
-        livekitUrl: tokenResponse.livekitUrl,
-        choices: { audioEnabled: true, videoEnabled: true },
-      });
+    if (!tokenResponse) return;
+    if ('denied' in tokenResponse) {
+      onDenied?.();
+      return;
     }
-  }, [tokenResponse, onJoin]);
+    onJoin({
+      token: tokenResponse.token,
+      livekitUrl: tokenResponse.livekitUrl,
+      choices: { audioEnabled: true, videoEnabled: true },
+    });
+  }, [tokenResponse, onJoin, onDenied]);
 };

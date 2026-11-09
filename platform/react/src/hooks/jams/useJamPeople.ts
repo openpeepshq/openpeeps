@@ -15,7 +15,7 @@ export type UseJamPeopleArgs = {
 
 /**
  * People drawer data: searchable in-jam list sorted by raised hand (observers
- * hidden) and, for moderators, the waiting-room profiles with admit.
+ * hidden) and, for moderators, the waiting-room profiles with admit and reject.
  */
 export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
   const me = useCurrentProfile();
@@ -31,9 +31,11 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     occurrence,
   );
   const admitParticipant = openpeepsApi.admitParticipantAction();
+  const rejectParticipant = openpeepsApi.rejectParticipantAction();
 
   const [query, setQuery] = useState('');
   const [admittingId, setAdmittingId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
 
   const listedParticipants = useMemo(() => {
     const visible = participants.filter((participant) => {
@@ -69,6 +71,18 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     }
   };
 
+  const reject = async (profile: PublicProfile) => {
+    setRejectingId(profile.id);
+    try {
+      await rejectParticipant(
+        { id: jamPost.id, profileId: profile.id },
+        occurrence ? { occurrence } : undefined,
+      );
+    } finally {
+      setRejectingId(null);
+    }
+  };
+
   return {
     isModerator,
     hasWaitingRoom,
@@ -79,6 +93,8 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     listedParticipants,
     waitingProfiles,
     admittingId,
+    rejectingId,
     admit,
+    reject,
   };
 };
