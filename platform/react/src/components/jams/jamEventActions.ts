@@ -30,6 +30,27 @@ export function parseParticipantMetadata(
   }
 }
 
+const hasTileIdentity = (profile?: {
+  handle?: string;
+  displayName?: string;
+  avatar?: string | null;
+}) => !!(profile?.handle || profile?.displayName || profile?.avatar);
+
+/**
+ * Profile drawn on a participant tile. LiveKit applies token metadata only
+ * after the room connection completes, so the local tile has no profile while
+ * the UI still says it is connecting and the empty-name avatar renders as "??".
+ * Use the signed-in profile for that window.
+ */
+export const participantTileProfile = (
+  participant: { isLocal: boolean; metadata?: string },
+  localProfile?: PublicProfile,
+): PublicProfile | undefined => {
+  const fromRoom = parseParticipantMetadata(participant.metadata).profile;
+  if (hasTileIdentity(fromRoom)) return fromRoom;
+  return participant.isLocal ? localProfile : fromRoom;
+};
+
 export const mentionProfilesFromParticipants = (
   participants: { metadata?: string }[],
 ): PublicProfile[] => {

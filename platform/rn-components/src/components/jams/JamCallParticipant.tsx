@@ -11,7 +11,7 @@ import {
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import {
-  parseParticipantMetadata,
+  participantTileProfile,
   useCurrentProfile,
   useJamContext,
   useJamEventsContext,
@@ -177,7 +177,7 @@ const JamParticipantOverlay = ({
   const micOn = participant.isMicrophoneEnabled;
   const handUp = raisedHands.has(participant.identity);
   const handRaiseSound = useRef<Sound | null>(null);
-  const profile = parseParticipantMetadata(participant.metadata).profile;
+  const profile = participantTileProfile(participant, me);
   const isModerator = jam.moderators.includes(participant.identity);
   const viewerIsModerator = !!me && jam.moderators.includes(me.id);
   const iconSize = compact ? 12 : 16;
@@ -285,8 +285,9 @@ export const JamCallParticipant = ({
   onToggleSpotlight,
 }: JamCallParticipantProps) => {
   const { t } = useTranslation();
+  const me = useCurrentProfile();
   const participant = trackRef.participant;
-  const profile = parseParticipantMetadata(participant.metadata).profile;
+  const profile = participantTileProfile(participant, me);
   const connectionLost = useConnectionLost(participant);
   const speaking = useIsSpeaking(participant);
   // React Native's RTCView only re-resolves its media stream when the
