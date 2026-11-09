@@ -170,6 +170,24 @@ export const deepGet = (obj: unknown, path: (string | number)[]) =>
   // @ts-expect-error deepget is not typeable
   path.reduce((o, i) => o[i], obj);
 
+export const deepEqual = (a: unknown, b: unknown): boolean => {
+  if (a === b) return true;
+  if (typeof a !== 'object' || typeof b !== 'object') return false;
+  if (a === null || b === null) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  return keysA.every(
+    (key) =>
+      Object.prototype.hasOwnProperty.call(b, key) &&
+      deepEqual(
+        (a as Record<string, unknown>)[key],
+        (b as Record<string, unknown>)[key],
+      ),
+  );
+};
+
 /**
  * Checks if a value is valid => not (null, undefined, empty, etc.)
  * Special case: treats 0 as a valid value unlike standard JS truthiness

@@ -2678,6 +2678,7 @@
       "push": "Push Notifications",
       "email": "Email Notifications",
       "updateSuccess": "Community settings updated",
+      "unsavedChanges": "You have unsaved changes.",
       "description": "Manage your notification preferences",
       "types": {
         "reply": {
