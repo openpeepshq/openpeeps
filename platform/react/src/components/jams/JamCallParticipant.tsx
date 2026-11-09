@@ -25,7 +25,7 @@ import { Avatar } from '../profile';
 import { JamAnimatedEmoji } from './JamAnimatedEmoji';
 import { useJamContext } from './JamContext';
 import { useJamEventsContext } from './JamEventsContext';
-import { parseParticipantMetadata } from './jamEventActions';
+import { participantTileProfile } from './jamEventActions';
 import { useConnectionLost } from './useParticipantConnection';
 import { useRaisedHands } from './useJamHands';
 
@@ -156,7 +156,7 @@ function JamParticipantOverlay({
     }
   }, [handUp]);
 
-  const profile = parseParticipantMetadata(participant.metadata).profile;
+  const profile = participantTileProfile(participant, me);
   const isModerator = jam.moderators.includes(participant.identity);
   const viewerIsModerator = !!me && jam.moderators.includes(me.id);
 
@@ -263,7 +263,8 @@ export function JamCallParticipant({
 }: JamCallParticipantProps) {
   const t = useT();
   const participant = trackRef.participant;
-  const profile = parseParticipantMetadata(participant.metadata).profile;
+  const me = useCurrentProfile();
+  const profile = participantTileProfile(participant, me);
   const connectionLost = useConnectionLost(participant);
   const speaking = useIsSpeaking(participant);
   const cameraOn = isTrackReference(trackRef) && !trackRef.publication.isMuted;

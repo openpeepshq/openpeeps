@@ -131,6 +131,7 @@ export {
   mentionProfilesFromParticipants,
   parseJamEventPayload,
   parseParticipantMetadata,
+  participantTileProfile,
   sendAttendance,
   sendJamEvent,
   sendReaction,
