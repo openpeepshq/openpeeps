@@ -19,6 +19,9 @@ overrides:
   # mermaid pulls dompurify ^3.3.3 which resolved to vulnerable 3.4.15
   # (GHSA-cg2g-xh64-v4q7 + others). Force the patched 3.4.17 tree-wide.
   dompurify: "3.4.17"
+  # node-pre-gyp (bcrypt install path) pins tar ^6.1.11 -> 6.2.1, vulnerable
+  # (GHSA-23hp + 8 high path-traversal/file-creation). 7.x API used (extract) is stable.
+  tar: "7.5.22"
 
 allowBuilds:
   "@evilmartians/lefthook": true
