@@ -49,6 +49,14 @@ export const CardEvent = ({ post, showEventDate = true }: CardEventProps) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const attendeesLength = jamState?.participants.length ?? 0;
+  const jamInSession = Boolean(jam && me && livekitEnabled && jamState?.active);
+
+  const openJam = () => {
+    navigation.navigate('JamSession', {
+      jamId: post.id,
+      occurrence: occurrenceId,
+    });
+  };
 
   return (
     <View className="mb-6 w-full rounded-lg border border-border">
@@ -97,7 +105,7 @@ export const CardEvent = ({ post, showEventDate = true }: CardEventProps) => {
             isLoading ? (
               <ActivityIndicator size="small" />
             ) : jamState?.active ? (
-              <View className="flex flex-row items-center gap-x-2 text-xs text-muted-foreground">
+              <View className="flex-row items-center gap-x-2">
                 <View className="w-12">
                   <ParticipantsCard jamState={jamState} />
                 </View>
@@ -109,20 +117,6 @@ export const CardEvent = ({ post, showEventDate = true }: CardEventProps) => {
                         defaultValue: 'attendees',
                       })}
                 </ThemedText>
-                <Button
-                  variant="default"
-                  size="sm"
-                  onPress={() =>
-                    navigation.navigate('JamSession', {
-                      jamId: post.id,
-                      occurrence: occurrenceId,
-                    })
-                  }
-                >
-                  <ThemedText numberOfLines={1}>
-                    {t('jam.join.submit', { defaultValue: 'Join Jam' })}
-                  </ThemedText>
-                </Button>
               </View>
             ) : canModerateJam(me, post) ? (
               <Button
@@ -142,6 +136,15 @@ export const CardEvent = ({ post, showEventDate = true }: CardEventProps) => {
           ) : null}
         </View>
       </TouchableOpacity>
+      {jamInSession ? (
+        <View className="px-4 pb-2">
+          <Button className="w-full" onPress={openJam}>
+            <ThemedText numberOfLines={1} className="text-primary-foreground">
+              {t('jam.join.submit', { defaultValue: 'Join Jam' })}
+            </ThemedText>
+          </Button>
+        </View>
+      ) : null}
       <View className="flex-row justify-end px-2 pb-2">
         <ShareMenu
           post={post}
