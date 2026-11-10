@@ -7,7 +7,7 @@ import {
 import { ensureLocalProfile, ensureProfileCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { z } from '#lib/';
-import { notFound } from '#lib/helpers';
+import { forbidden, notFound } from '#lib/errors';
 import { findProfile, follow, unfollow } from '@openpeepshq/core/profiles';
 import { isBlockedPair } from '@openpeepshq/common/lib';
 
@@ -30,7 +30,7 @@ export const followProfileHandler = async (
   }
 
   if (isBlockedPair(profile, profileToFollow.id)) {
-    throw notFound(`profile with id ${profileId}`);
+    throw forbidden('error.cannotInteractBlocked');
   }
 
   await ensureProfileCapabilities(event, profileToFollow, [
