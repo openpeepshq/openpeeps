@@ -39,7 +39,13 @@ const narrativeSentence = (
   return `${label} held steady at ${value} versus the prior period.`;
 };
 
-/** Board-ready report: plain-text email body + visual multi-page PDF. */
+/**
+ * Board-ready report: plain-text email body + visual multi-page PDF.
+ *
+ * The `text` body is intentionally header-free — it carries no report title or
+ * `Period:` line. The email template renders the title and period itself, so
+ * duplicating them here is what #1887 removed.
+ */
 export const buildAnalyticsBoardReport = async (
   query: AnalyticsDateQuery = {},
 ) => {
@@ -49,15 +55,14 @@ export const buildAnalyticsBoardReport = async (
     getAnalyticsEngagement(query),
     communityConfig(),
   ]);
-  const from = overview.range.from;
-  const to = overview.range.to;
-
   const total = overview.metrics.totalMembers.value;
   const active = overview.metrics.activeMembers.value;
   const activeShare = total > 0 ? Math.round((active / total) * 1000) / 10 : 0;
 
-  const summary = [
-    `Executive summary (${from} → ${to})`,
+  // The email template renders the report title and period range itself;
+  // repeating them in the body would show the period three times (#1887).
+  const text = [
+    'Executive summary',
     '',
     narrativeSentence(
       'Total membership',
@@ -85,13 +90,6 @@ export const buildAnalyticsBoardReport = async (
       engagement.metrics.impressions.value,
       engagement.metrics.impressions.deltaPct,
     ),
-  ];
-
-  const text = [
-    `Community analytics report`,
-    `Period: ${from} → ${to}`,
-    '',
-    ...summary,
   ].join('\n');
 
   const pdf = await buildAnalyticsPdf({
@@ -189,6 +187,9 @@ export const sendMonthlyAnalyticsReport = async (overridePeriod?: {
   const db = await database();
   const deliveryId = uuidv7();
 
+  // `body.text` is intentionally header-free (no title/`Period:`); those are
+  // rendered by the email template and stored here only as `periodStart/End`,
+  // so don't re-add them here or #1887 regresses.
   await db.insert(analyticsReportDeliveries).values({
     id: deliveryId,
     periodStart: from,

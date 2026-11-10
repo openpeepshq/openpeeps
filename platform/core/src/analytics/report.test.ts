@@ -1,11 +1,28 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type {
   AnalyticsEngagement,
   AnalyticsGrowth,
   AnalyticsOverview,
 } from '@openpeepshq/common/types';
+import { communityConfig } from '../config';
+import { defaultCommunityConfig } from '../config/defaults/community';
 import { buildAnalyticsPdf } from './pdfReport';
-import { buildSimplePdf } from './report';
+import { buildSimplePdf, buildAnalyticsBoardReport } from './report';
+import {
+  getAnalyticsEngagement,
+  getAnalyticsGrowth,
+  getAnalyticsOverview,
+} from './read';
+
+vi.mock('../config', () => ({
+  communityConfig: vi.fn(),
+}));
+
+vi.mock('./read', () => ({
+  getAnalyticsOverview: vi.fn(),
+  getAnalyticsGrowth: vi.fn(),
+  getAnalyticsEngagement: vi.fn(),
+}));
 
 const metric = (value: number, previousValue = value) => ({
   key: 'm',
@@ -207,9 +224,26 @@ describe('buildAnalyticsPdf', () => {
   });
 });
 
+describe('buildAnalyticsBoardReport', () => {
+  it('omits the title and period from the email body', async () => {
+    vi.mocked(getAnalyticsOverview).mockResolvedValue(overviewFixture);
+    vi.mocked(getAnalyticsGrowth).mockResolvedValue(growthFixture);
+    vi.mocked(getAnalyticsEngagement).mockResolvedValue(engagementFixture);
+    vi.mocked(communityConfig).mockResolvedValue(defaultCommunityConfig);
+
+    const { text } = await buildAnalyticsBoardReport();
+
+    // The email template renders the title and `Period:` line itself, so the
+    // body must not repeat them (#1887).
+    expect(text.startsWith('Executive summary')).toBe(true);
+    expect(text).not.toContain('Community analytics report');
+    expect(text).not.toContain('Period:');
+  });
+});
+
 describe('buildSimplePdf', () => {
   it('still builds a single-page text PDF', () => {
-    const pdf = buildSimplePdf('Community analytics report\nPeriod: 2026-07');
+    const pdf = buildSimplePdf('Executive summary\nTotal membership: 120');
     const text = pdf.toString('latin1');
     expect(text.startsWith('%PDF-1.4')).toBe(true);
     expect(text).toContain('/Count 1');
