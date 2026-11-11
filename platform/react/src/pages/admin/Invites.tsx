@@ -85,7 +85,7 @@ export function AdminInvites() {
             <thead className="bg-surface">
               <tr>
                 <th className="p-2 text-left">
-                  {t('admin.invites.linkColumn', { defaultValue: 'Link' })}
+                  {t('common.labels.link', { defaultValue: 'Link' })}
                 </th>
                 <th className="p-2 text-left">
                   {t('admin.invites.createdByColumn', {
@@ -93,7 +93,7 @@ export function AdminInvites() {
                   })}
                 </th>
                 <th className="p-2 text-left">
-                  {t('admin.invites.groupsColumn', { defaultValue: 'Groups' })}
+                  {t('common.entities.groups', { defaultValue: 'Groups' })}
                 </th>
                 <th className="p-2 text-left">
                   {t('admin.invites.expirationDateColumn', {
@@ -182,8 +182,8 @@ function InvitesTablePopup({ invite }: { invite: InviteLinkWithMeta }) {
         />
         <PopupMenuButton
           icon={Pencil}
-          title={t('admin.invites.edit', { defaultValue: 'Edit' })}
-          text={t('admin.invites.edit', { defaultValue: 'Edit' })}
+          title={t('common.actions.edit', { defaultValue: 'Edit' })}
+          text={t('common.actions.edit', { defaultValue: 'Edit' })}
           action={() => setShowEdit(true)}
         />
         {active ? (

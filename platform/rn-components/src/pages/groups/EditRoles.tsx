@@ -72,7 +72,7 @@ export const EditGroupRoles = ({ route }: EditGroupRolesProps) => {
       title={
         submitting
           ? t('common.saving', { defaultValue: 'Saving…' })
-          : t('common.save', { defaultValue: 'Save' })
+          : t('common.actions.save', { defaultValue: 'Save' })
       }
       onPress={() => void submit()}
       disabled={submitting || !groupData || !canEditCapabilities}

@@ -63,7 +63,7 @@ export const GroupsIndex: React.FC<GroupsProps> = ({ navigation }) => {
 
   const canCreate = canCreateGroup(currentProfile?.roles ?? []);
 
-  useSetPageHeader(t('navigation.groups', { defaultValue: 'Groups' }));
+  useSetPageHeader(t('common.entities.groups', { defaultValue: 'Groups' }));
   useSetPlusButtonActions(
     canCreate
       ? {

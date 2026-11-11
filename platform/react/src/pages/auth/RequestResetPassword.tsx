@@ -65,7 +65,7 @@ export function RequestResetPassword() {
         <p className="pt-4">{prompt}</p>
 
         <Label
-          title={t('auth.requestResetPassword.email', {
+          title={t('common.labels.email', {
             defaultValue: 'Email',
           })}
         >

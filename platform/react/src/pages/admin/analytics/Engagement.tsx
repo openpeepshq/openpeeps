@@ -141,7 +141,7 @@ export const AnalyticsEngagementPage = () => {
         },
         {
           value: 'bookmarks' as const,
-          label: t('admin.analytics.metrics.bookmarks', {
+          label: t('common.entities.bookmarks', {
             defaultValue: 'Bookmarks',
           }),
         },

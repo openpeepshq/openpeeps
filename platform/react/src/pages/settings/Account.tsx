@@ -146,7 +146,7 @@ export function AccountSettings() {
 
       <div className="space-y-2">
         <Label htmlFor="email">
-          {t('settings.account.email', { defaultValue: 'Email' })}
+          {t('common.labels.email', { defaultValue: 'Email' })}
         </Label>
         <Input
           id="email"

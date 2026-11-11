@@ -60,7 +60,7 @@ export function RestoreTestBackupModal({
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('admin.backups.testRestore.cancel', {
+          cancelLabel={t('common.actions.cancel', {
             defaultValue: 'Cancel',
           })}
           onCancel={onClose}

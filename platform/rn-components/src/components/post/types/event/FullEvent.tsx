@@ -424,7 +424,9 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
               }
             >
               <ThemedText>
-                {t('events.tabs.description', { defaultValue: 'Description' })}
+                {t('common.labels.description', {
+                  defaultValue: 'Description',
+                })}
               </ThemedText>
             </TabsTrigger>
           ) : null}
@@ -544,7 +546,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
               </ThemedText>
             ) : recordingsQuery.isLoading ? (
               <ThemedText className="py-4 text-sm text-muted-foreground">
-                {t('common.loading', { defaultValue: 'Loading…' })}
+                {t('common.states.loading', { defaultValue: 'Loading…' })}
               </ThemedText>
             ) : recordingsQuery.data?.length ? (
               recordingsQuery.data.map((recording: JamRecording) => (
@@ -722,7 +724,7 @@ const JamRecordingItem = ({
                 </ThemedText>
                 <SheetFooter
                   onCancel={() => setConfirmOpen(false)}
-                  cancelText={t('common.cancel')}
+                  cancelText={t('common.actions.cancel')}
                   onConfirm={() => void handleDelete()}
                   confirmText={t('events.deleteRecording', {
                     defaultValue: 'Delete recording',

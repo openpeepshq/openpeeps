@@ -64,7 +64,7 @@ export function DescriptionEditModal({
         </div>
 
         <DialogActions
-          cancelLabel={t('common.back', { defaultValue: 'Back' })}
+          cancelLabel={t('common.actions.back', { defaultValue: 'Back' })}
           onCancel={onClose}
           actionLabel={t('common.done', { defaultValue: 'Done' })}
           onAction={saveAndClose}

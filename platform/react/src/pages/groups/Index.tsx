@@ -57,7 +57,7 @@ export function GroupsIndex() {
   );
   useSetPlusButtonActions(plusButton);
 
-  useSetPageHeader(t('navigation.groups', { defaultValue: 'Groups' }));
+  useSetPageHeader(t('common.entities.groups', { defaultValue: 'Groups' }));
 
   const filtered = useMemo(
     () => tabGroups.filter((g) => !search || matchesQuery(g, search)),

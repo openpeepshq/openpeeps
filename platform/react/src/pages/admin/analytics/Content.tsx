@@ -273,7 +273,7 @@ export const AnalyticsContentPage = () => {
                 id: 'target',
                 type: 'text',
                 header: columnHeader(
-                  t('admin.analytics.table.link', { defaultValue: 'Link' }),
+                  t('common.labels.link', { defaultValue: 'Link' }),
                   info(
                     'tableLink',
                     'Outbound URL origin and path (query strings stripped).',

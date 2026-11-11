@@ -203,7 +203,7 @@ export function Register({ invite = false }: RegisterProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {t('auth.register.handle', { defaultValue: 'Handle' })}
+                  {t('common.labels.handle', { defaultValue: 'Handle' })}
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -226,7 +226,7 @@ export function Register({ invite = false }: RegisterProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {t('auth.register.name', { defaultValue: 'Name' })}
+                  {t('common.labels.name', { defaultValue: 'Name' })}
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -249,7 +249,7 @@ export function Register({ invite = false }: RegisterProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {t('auth.register.email', { defaultValue: 'Email' })}
+                  {t('common.labels.email', { defaultValue: 'Email' })}
                 </FormLabel>
                 <FormControl>
                   <Input

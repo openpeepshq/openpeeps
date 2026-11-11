@@ -53,7 +53,7 @@ export function TimezoneSettings() {
         </Toast>
       ) : null}
       <Button variant="default" action={save} disabled={saving}>
-        {t('common.form.save', { defaultValue: 'Save' })}
+        {t('common.actions.save', { defaultValue: 'Save' })}
       </Button>
     </div>
   );

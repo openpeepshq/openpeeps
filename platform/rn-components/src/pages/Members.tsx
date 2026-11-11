@@ -50,7 +50,7 @@ export const Members: React.FC<DirectoryProps> = ({ navigation }) => {
   }, [searchQuery, profiles, currentProfile]);
 
   useSetPageHeader(
-    t('navigation.members'),
+    t('common.entities.members'),
     isSearchButtonClicked ? (
       <View className="max-w-[200px] flex-row items-center">
         <Input

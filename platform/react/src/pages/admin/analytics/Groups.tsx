@@ -164,7 +164,7 @@ export const AnalyticsGroupsPage = () => {
                 id: 'members',
                 type: 'text',
                 header: columnHeader(
-                  t('admin.analytics.table.members', {
+                  t('common.entities.members', {
                     defaultValue: 'Members',
                   }),
                   info(

@@ -152,7 +152,9 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
   useSetPageHeader(
     t('settings.account.title', { defaultValue: 'Account' }),
     <HeaderActionButton
-      title={isSubmitting ? t('common.form.loading') : t('common.form.save')}
+      title={
+        isSubmitting ? t('common.states.loading') : t('common.actions.save')
+      }
       onPress={() => void handleSubmit()}
       disabled={isSubmitting}
       loading={isSubmitting}
@@ -179,7 +181,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
                   name="email"
                   render={({ field }) => (
                     <FormInput
-                      label={t('settings.account.email')}
+                      label={t('common.labels.email')}
                       placeholder={t('settings.account.emailPlaceholder')}
                       {...field}
                       value={field.value || ''}

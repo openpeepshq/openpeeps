@@ -78,7 +78,7 @@ export function AdminConfigurationCommunityLanguage() {
   if (configQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.form.loading', { defaultValue: 'Loading…' })}
+        {t('common.states.loading', { defaultValue: 'Loading…' })}
       </div>
     );
   }
@@ -125,7 +125,7 @@ export function AdminConfigurationCommunityLanguage() {
         </Toast>
       ) : null}
       <Button variant="default" action={save} disabled={!hasChanges || saving}>
-        {t('common.form.save', { defaultValue: 'Save' })}
+        {t('common.actions.save', { defaultValue: 'Save' })}
       </Button>
     </div>
   );

@@ -24,8 +24,8 @@ export const GroupMembers = ({ route }: GroupMembersProps) => {
   const group = groupQuery.data;
 
   const title = group
-    ? `${truncateText(groupName(group), 20)} - ${t('groups.members.title')}`
-    : t('groups.members.title');
+    ? `${truncateText(groupName(group), 20)} - ${t('common.entities.members')}`
+    : t('common.entities.members');
 
   useSetPageHeader(
     title,

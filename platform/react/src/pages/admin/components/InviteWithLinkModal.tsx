@@ -190,7 +190,7 @@ export function InviteWithLinkModal({ onClose }: { onClose: () => void }) {
             </p>
             <div className="space-y-2">
               <Label htmlFor="invite-slug">
-                {t('admin.invites.linkHeading', { defaultValue: 'Link' })}
+                {t('common.labels.link', { defaultValue: 'Link' })}
               </Label>
               <Input
                 id="invite-slug"
@@ -252,7 +252,7 @@ export function InviteWithLinkModal({ onClose }: { onClose: () => void }) {
                   })}
                 </option>
                 <option value="P100Y">
-                  {t('admin.inviteLink.never', { defaultValue: 'Never' })}
+                  {t('common.states.never', { defaultValue: 'Never' })}
                 </option>
               </select>
             </div>
@@ -305,7 +305,7 @@ export function InviteWithLinkModal({ onClose }: { onClose: () => void }) {
           />
         ) : (
           <DialogActions
-            cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+            cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
             onCancel={onClose}
             actionLabel={t('admin.inviteLink.generateButton', {
               defaultValue: 'Create Link',

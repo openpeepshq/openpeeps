@@ -39,7 +39,7 @@ export const LeaveCloseButton = () => {
         style: 'destructive',
         onPress: () => void handleLeave(),
       },
-      { style: 'cancel', text: t('common.cancel') },
+      { style: 'cancel', text: t('common.actions.cancel') },
     ]);
     setConfirmOpen(false);
   }, [confirmOpen, handleClose, handleLeave, setConfirmOpen, t]);

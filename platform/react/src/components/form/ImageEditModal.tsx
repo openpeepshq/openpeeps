@@ -216,12 +216,12 @@ export function ImageEditModal({
         </div>
 
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
           actionLabel={
             submitting
               ? t('common.uploading', { defaultValue: 'Uploading…' })
-              : t('common.add', { defaultValue: 'Add' })
+              : t('common.actions.add', { defaultValue: 'Add' })
           }
           onAction={confirm}
           disabled={submitting}

@@ -107,7 +107,7 @@ const ResourceSaveButton = ({
       title={
         isBookmarked
           ? t('resources.actions.saved', { defaultValue: 'Saved' })
-          : t('resources.actions.save', { defaultValue: 'Save' })
+          : t('common.actions.save', { defaultValue: 'Save' })
       }
     >
       {isBookmarked ? (

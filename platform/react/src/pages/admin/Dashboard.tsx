@@ -241,7 +241,7 @@ export function AdminDashboard() {
 
       <section>
         <h2 className="mb-3 text-lg font-medium">
-          {t('admin.overview.postsSection', { defaultValue: 'Posts' })}
+          {t('common.entities.posts', { defaultValue: 'Posts' })}
         </h2>
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard

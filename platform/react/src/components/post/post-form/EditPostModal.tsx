@@ -179,12 +179,12 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
         {error ? <p className="text-error text-sm">{error}</p> : null}
 
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
           actionLabel={
             submitting
               ? t('common.saving', { defaultValue: 'Saving…' })
-              : t('common.save', { defaultValue: 'Save' })
+              : t('common.actions.save', { defaultValue: 'Save' })
           }
           onAction={publish}
           disabled={submitting || !canSave}

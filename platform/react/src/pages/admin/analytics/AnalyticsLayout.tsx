@@ -23,6 +23,8 @@ type AnalyticsTab = {
   labelKey: string;
   fallback: string;
   end?: boolean;
+  /** Full i18n key; core tabs use shared entity keys, plugin tabs build one. */
+  i18nKey?: string;
 };
 
 const coreTabs: readonly AnalyticsTab[] = [
@@ -36,6 +38,7 @@ const coreTabs: readonly AnalyticsTab[] = [
     to: '/admin/analytics/members',
     labelKey: 'members',
     fallback: 'Members',
+    i18nKey: 'common.entities.members',
   },
   {
     to: '/admin/analytics/content',
@@ -51,6 +54,7 @@ const coreTabs: readonly AnalyticsTab[] = [
     to: '/admin/analytics/groups',
     labelKey: 'groups',
     fallback: 'Groups',
+    i18nKey: 'common.entities.groups',
   },
   {
     to: '/admin/analytics/reports',
@@ -164,7 +168,7 @@ export const AnalyticsLayout = () => {
                 }`
               }
             >
-              {t(`admin.analytics.tabs.${tab.labelKey}`, {
+              {t(tab.i18nKey ?? `admin.analytics.tabs.${tab.labelKey}`, {
                 defaultValue: tab.fallback,
               })}
             </NavLink>

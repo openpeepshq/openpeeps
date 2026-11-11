@@ -35,7 +35,7 @@ function JobDetails({
             {t('diagnostics.jobs.details', { defaultValue: 'Job details' })}
           </p>
           <Button variant="default" action={onRefresh}>
-            {t('diagnostics.jobs.refresh', { defaultValue: 'Refresh' })}
+            {t('common.actions.refresh', { defaultValue: 'Refresh' })}
           </Button>
         </div>
         <dl className="grid gap-2 text-sm sm:grid-cols-2">
@@ -156,7 +156,7 @@ export function AdminDiagnosticsJob() {
   if (jobQuery.isLoading) {
     return (
       <p className="p-4 text-sm opacity-70">
-        {t('common.form.loading', { defaultValue: 'Loading…' })}
+        {t('common.states.loading', { defaultValue: 'Loading…' })}
       </p>
     );
   }

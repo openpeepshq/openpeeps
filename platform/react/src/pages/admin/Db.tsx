@@ -255,7 +255,7 @@ export function AdminDb() {
             </p>
             {tablesQuery.isLoading ? (
               <p className="text-muted-foreground text-sm">
-                {t('admin.database.loading', { defaultValue: 'Loading…' })}
+                {t('common.states.loading', { defaultValue: 'Loading…' })}
               </p>
             ) : (
               <ul className="space-y-0.5 text-sm">
@@ -373,7 +373,7 @@ export function AdminDb() {
                 <div className="min-h-0 flex-1 overflow-auto rounded border">
                   {rowsQuery.isLoading ? (
                     <p className="p-3 text-sm">
-                      {t('admin.database.loading', {
+                      {t('common.states.loading', {
                         defaultValue: 'Loading…',
                       })}
                     </p>
@@ -583,20 +583,20 @@ export function AdminDb() {
             />
             <div className="flex justify-end gap-2">
               <Button
-                title={t('admin.database.cancel', { defaultValue: 'Cancel' })}
+                title={t('common.actions.cancel', { defaultValue: 'Cancel' })}
                 variant="outline"
                 action={() => setEditing(null)}
               >
-                {t('admin.database.cancel', { defaultValue: 'Cancel' })}
+                {t('common.actions.cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
-                title={t('admin.database.save', { defaultValue: 'Save' })}
+                title={t('common.actions.save', { defaultValue: 'Save' })}
                 variant="default"
                 action={() => {
                   void saveEdit();
                 }}
               >
-                {t('admin.database.save', { defaultValue: 'Save' })}
+                {t('common.actions.save', { defaultValue: 'Save' })}
               </Button>
             </div>
           </div>

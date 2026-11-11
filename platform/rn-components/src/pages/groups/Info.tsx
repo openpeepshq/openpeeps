@@ -147,7 +147,7 @@ export const GroupInfoAsComponent: React.FC<GroupInfoAsComponentProps> = ({
               </View>
               <View>
                 <ThemedText className="font-semibold">
-                  {t('groups.visibility.title')}
+                  {t('common.labels.visibility')}
                 </ThemedText>
                 <ThemedText className="">
                   {t(`groups.visibility.${visibilityValue}.description`)}

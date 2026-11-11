@@ -58,7 +58,7 @@ const SummaryBody = ({ summary }: { summary: ProfileActivitySummaryData }) => {
       >
         <CountCard
           value={summary.postsCount}
-          label={t('profile.activity.postsCount', { defaultValue: 'Posts' })}
+          label={t('common.entities.posts', { defaultValue: 'Posts' })}
           testId="profile-activity-posts-count"
         />
         <CountCard
@@ -70,7 +70,7 @@ const SummaryBody = ({ summary }: { summary: ProfileActivitySummaryData }) => {
         />
         <CountCard
           value={summary.eventsCount}
-          label={t('profile.activity.eventsCount', { defaultValue: 'Events' })}
+          label={t('common.entities.events', { defaultValue: 'Events' })}
           testId="profile-activity-events-count"
         />
       </CountSection>
@@ -101,14 +101,14 @@ const SummaryBody = ({ summary }: { summary: ProfileActivitySummaryData }) => {
         />
         <CountCard
           value={summary.bookmarksCount}
-          label={t('profile.activity.bookmarksCount', {
+          label={t('common.entities.bookmarks', {
             defaultValue: 'Bookmarks',
           })}
           testId="profile-activity-bookmarks-count"
         />
         <CountCard
           value={summary.groupsCount}
-          label={t('profile.activity.groupsCount', { defaultValue: 'Groups' })}
+          label={t('common.entities.groups', { defaultValue: 'Groups' })}
           testId="profile-activity-groups-count"
         />
       </CountSection>

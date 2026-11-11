@@ -309,7 +309,7 @@ const RsvpGroup: React.FC<{
                     }
                   >
                     <ThemedText className="text-destructive">
-                      {t('events.rsvp.removeAttendee')}
+                      {t('common.actions.remove')}
                     </ThemedText>
                   </Button>
                 )

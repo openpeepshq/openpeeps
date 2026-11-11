@@ -63,7 +63,7 @@ export function ConfirmGroupExitModal({
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
           actionLabel={t('groups.modals.confirmExit.leave', {
             defaultValue: 'Leave',
