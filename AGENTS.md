@@ -102,6 +102,11 @@ steps — follow that skill.
 
 - **No PR labels or milestones.** When opening pull requests, do not add labels
   or milestones. Let maintainers apply those manually.
+- **Organization-level labels only.** Never create or use repository-level
+  labels. Use only the labels defined for the openpeeps organization.
+- **Flow labels belong on the issue, not the PR.** `flow/*` labels are always
+  set on the issue an MR references — never on the MR itself. When work moves
+  an issue through the flow, update the `flow/*` label on the issue.
 - **Theme colors only.** Components must use semantic theme colors (CSS-variable-
   b based tokens like `border-border`, `text-muted-foreground`) instead of
   direct Tailwind color values (like `gray-300`, `blue-500`). Theme tokens are
