@@ -3,7 +3,9 @@ Changelog for OpenPeeps
 
 ## Current
 
-- No changes
+### Bug Fixes
+
+- **posts**: reject replies to deleted posts
 
 ## 2026-11-05
 
